@@ -1,0 +1,23 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class stub_class_Controller extends Controller
+{
+    /**
+     * Aktifkan RESTful controller?
+     *
+     * @var bool
+     */
+    public $restful = false;
+
+	/**
+	 * Action index.
+	 *
+	 * @return View
+	 */
+	public function action_index()
+	{
+      return 'Hello from stub_class_Controller::action_index()';
+	}
+}

@@ -1,0 +1,373 @@
+<?php
+
+namespace System;
+
+defined('DS') or exit('No direct script access.');
+
+class Response
+{
+    /**
+     * Berisi konten response.
+     *
+     * @var mixed
+     */
+    public $content;
+
+    /**
+     * Berisi instanve http foundation response.
+     *
+     * @var System\Faundation\Http\Response
+     */
+    public $foundation;
+
+    /**
+     * Buat instance Response baru.
+     *
+     * @param mixed $content
+     * @param int   $status
+     * @param array $headers
+     */
+    public function __construct($content, $status = 200, array $headers = [])
+    {
+        $this->content = $content;
+        $this->foundation = new Foundation\Http\Response('', $status, $headers);
+    }
+
+    /**
+     * Buat instance Response baru.
+     *
+     * <code>
+     *
+     *      // Buat sebuah instance response dengan konten berupa string
+     *      return Response::make(json_encode($user));
+     *
+     *      // Buat sebuah instance response dengan status code kustom
+     *      return Response::make('Not Found', 404);
+     *
+     *      // Buat sebuah instance response dengan beberapa custom headers
+     *      return Response::make(json_encode($user), 200, ['header' => 'value']);
+     *
+     * </code>
+     *
+     * @param mixed $content
+     * @param int   $status
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public static function make($content, $status = 200, array $headers = [])
+    {
+        return new static($content, $status, $headers);
+    }
+
+    /**
+     * Buat sebuah instance response baru berupa view.
+     *
+     * <code>
+     *
+     *      // Buat sebuah instance response berupa sebuah view
+     *      return Response::view('home.index');
+     *
+     *      // Buat sebuah instance response berupa sebuah view dan data
+     *      return Response::view('home.index', ['name' => 'Budi']);
+     *
+     * </code>
+     *
+     * @param string $view
+     * @param array  $data
+     *
+     * @return Response
+     */
+    public static function view($view, array $data = [])
+    {
+        return new static(View::make($view, $data));
+    }
+
+    /**
+     * Buat sebuah instance response JSON.
+     *
+     * <code>
+     *
+     *      // Buat sebuah instance response berupa JSON.
+     *      return Response::json($data, 200, ['header' => 'value']);
+     *
+     * </code>
+     *
+     * @param mixed $data
+     * @param int   $status
+     * @param array $headers
+     * @param int   $json_options
+     *
+     * @return Response
+     */
+    public static function json($data, $status = 200, array $headers = [], $json_options = 0)
+    {
+        $headers['Content-Type'] = 'application/json; charset=utf-8';
+
+        return new static(json_encode($data, $json_options), $status, $headers);
+    }
+
+    /**
+     * Buat sebuah instance response JSONP.
+     *
+     * <code>
+     *
+     *      // Buat sebuah instance response JSONP.
+     *      return Response::jsonp('myFunctionCall', $data, 200, ['header' => 'value']);
+     *
+     * </code>
+     *
+     * @param mixed $data
+     * @param int   $status
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public static function jsonp($callback, $data, $status = 200, array $headers = [])
+    {
+        $headers['Content-Type'] = 'application/javascript; charset=utf-8';
+
+        return new static($callback.'('.json_encode($data).');', $status, $headers);
+    }
+
+    /**
+     * Buat sebuah instance response dari Facile Model yang diubah ke JSON.
+     *
+     * <code>
+     *
+     *      // Buat sebuah instance response dari Facile Model yang diubah ke JSON
+     *      return Response::facile($data, 200, ['header' => 'value']);
+     *
+     * </code>
+     *
+     * @param Facile|array $data
+     * @param int          $status
+     * @param array        $headers
+     *
+     * @return Response
+     */
+    public static function facile($data, $status = 200, array $headers = [])
+    {
+        $headers['Content-Type'] = 'application/json; charset=utf-8';
+
+        return new static(facile_to_json($data), $status, $headers);
+    }
+
+    /**
+     * Buat instance response error.
+     * Status code dari response errornya harus menggunakan HTTP status codes.
+     * Error code yang dipilih juga harus cocok dengan nama file view
+     * di dalam folder application/views/error/.
+     * Silahkan tambahkan file view error baru jika belum ada.
+     *
+     * <code>
+     *
+     *      // Create a 404 response
+     *      return Response::error('404');
+     *
+     *      // Create a 404 response with data
+     *      return Response::error('404', ['message' => 'Not Found']);
+     *
+     * </code>
+     *
+     * @param int   $code
+     * @param array $data
+     *
+     * @return Response
+     */
+    public static function error($code, array $data = [])
+    {
+        return new static(View::make('error.'.$code, $data), $code);
+    }
+
+    /**
+     * Buat instance response download.
+     *
+     * <code>
+     *
+     *      // Buat response download ke sebuah file
+     *      return Response::download('path/to/file.jpg');
+     *
+     *      // Buat response download ke sebuah file dengan nama kustom
+     *      return Response::download('path/to/file.jpg', 'kittens.jpg');
+     *
+     * </code>
+     *
+     * @param string $path
+     * @param string $name
+     * @param array  $headers
+     *
+     * @return Response
+     */
+    public static function download($path, $name = null, $headers = [])
+    {
+        if (is_null($name)) {
+            $name = basename($path);
+        }
+
+        if (! is_file($path)) {
+            throw new \Exception(sprintf('Target file not found: %s', $path));
+        }
+
+        // Default headers.
+        $defaults = [
+            'Content-Description' => 'File Transfer',
+            'Content-Type' => File::mime($path),
+            'Content-Transfer-Encoding' => 'binary',
+            'Expires' => 0,
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Pragma' => 'public',
+            'Content-Length' => File::size($path),
+            'Content-Disposition' => 'attachment; filename="'.$name.'"',
+        ];
+
+        $headers = array_merge($defaults, $headers);
+        $response = new static(File::get($path), 200, $headers);
+
+        if ('' !== Config::get('session.driver')) {
+            Session::save();
+        }
+
+        // Lihat: https://www.php.net/manual/en/function.fpassthru.php#55519
+        session_write_close();
+        ob_end_clean();
+
+        $response->send_headers();
+
+        $chunksize = (int) Config::get('application.chunk_size', 4) * 1024;
+
+        if ($file = fopen($path, 'rb')) {
+            while (! feof($file) && 0 === connection_status() && ! connection_aborted()) {
+                echo fread($file, $chunksize);
+                flush();
+            }
+
+            fclose($file);
+        }
+
+        Event::fire('rakit.done', [$response]);
+
+        $response->foundation()->finish();
+
+        exit;
+    }
+
+    /**
+     * Siapkan sebuah response dari value yang diberikan.
+     *
+     * @param mixed $response
+     *
+     * @return Response
+     */
+    public static function prepare($response)
+    {
+        if ($response instanceof Response) {
+            return $response;
+        }
+
+        return new static($response);
+    }
+
+    /**
+     * Kirim haeder dan konten response ke browser.
+     */
+    public function send()
+    {
+        $this->cookies();
+        $this->foundation->prepare(Request::foundation());
+        $this->foundation->send();
+    }
+
+    /**
+     * Ubah konten response menjadi string.
+     *
+     * @return string
+     */
+    public function render()
+    {
+        if (is_object($this->content) && method_exists($this->content, '__toString')) {
+            $this->content = $this->content->__toString();
+        } else {
+            $this->content = (string) $this->content;
+        }
+
+        $this->foundation->setContent($this->content);
+
+        return $this->content;
+    }
+
+    /**
+     * Kirim semua headers ke browser.
+     */
+    public function send_headers()
+    {
+        $this->foundation->prepare(Request::foundation());
+        $this->foundation->sendHeaders();
+    }
+
+    /**
+     * Set cookie di http foundation response.
+     */
+    protected function cookies()
+    {
+        $reflector = new \ReflectionClass('\System\Foundation\Http\Cookie');
+
+        foreach (Cookie::$jar as $name => $cookie) {
+            $config = array_values($cookie);
+            $this->headers()->setCookie($reflector->newInstanceArgs($config));
+        }
+    }
+
+    /**
+     * Tambahkan header ke array response headers.
+     *
+     * @param string $name
+     * @param string $value
+     *
+     * @return Response
+     */
+    public function header($name, $value)
+    {
+        $this->foundation->headers->set($name, $value);
+
+        return $this;
+    }
+
+    /**
+     * Ambil headers dari http foundation response.
+     *
+     * @return ResponseParameter
+     */
+    public function headers()
+    {
+        return $this->foundation->headers;
+    }
+
+    /**
+     * Get / set status code response.
+     *
+     * @param int $status
+     *
+     * @return mixed
+     */
+    public function status($status = null)
+    {
+        if (is_null($status)) {
+            return $this->foundation->getStatusCode();
+        }
+
+        $this->foundation->setStatusCode($status);
+
+        return $this;
+    }
+
+    /**
+     * Merender response ketika di cast ke string.
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->render();
+    }
+}

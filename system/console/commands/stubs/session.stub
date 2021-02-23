@@ -1,0 +1,30 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class Create_Session_Table
+{
+	/**
+	 * Buat perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+      Schema::create(Config::get('session.table'), function ($table) {
+      	$table->string('id')->length(60)->primary('session_primary');
+      	$table->integer('last_activity');
+      	$table->text('data');
+      });
+	}
+
+	/**
+	 * Urungkan perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+      Schema::drop(Config::get('session.table'));
+	}
+}

@@ -1,0 +1,38 @@
+# Autodetect file teks
+* text=auto
+
+# Perlakukan file - file ini sebagai teks
+*.php  text
+*.css  text
+*.js   text
+*.txt  text
+*.md   text
+*.xml  text
+*.json text
+*.bat  text
+*.sql  text
+*.yml  text
+
+# Pastikan file - file ini tidak diutak-atik
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.ttf  binary
+*.phar binary
+*.pem  binary
+
+# Jangan sertakan file dan folder ini ke arsip rilis
+/.github           export-ignore
+/tests             export-ignore
+/.editorconfig     export-ignore
+/.gitattributes    export-ignore
+/.gitignore        export-ignore
+/repositories.json export-ignore
+/.sami             export-ignore
+*.bc.php           export-ignore
+*.cache.php        export-ignore
+*.log.php          export-ignore
+*.session.php      export-ignore
+/.php_cs           export-ignore
+*.phar             export-ignore
+*.pem              export-ignore

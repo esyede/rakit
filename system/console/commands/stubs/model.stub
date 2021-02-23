@@ -1,0 +1,30 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class stub_class extends Facile
+{
+	/**
+	 * Nama tabel model.
+	 *
+	 * @var string
+	 */
+	public static $table = 'stub_table';
+
+	/**
+	 * Isi timestamps secara otomatis?
+	 *
+	 * @var bool
+	 */
+	public static $timestamps = true;
+
+	/**
+	 * Rule validasi model.
+	 *
+	 * @var array
+	 */
+	public static $rules = [];
+
+
+	// ..
+}

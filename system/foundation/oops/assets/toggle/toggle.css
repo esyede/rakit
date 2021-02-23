@@ -1,0 +1,25 @@
+.oops-collapsed {
+	display: none;
+}
+
+.oops-toggle.oops-collapsed {
+	display: inline;
+}
+
+.oops-toggle {
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.oops-toggle:after {
+	content: "\A0\25BC";
+	opacity: .4;
+}
+
+.oops-toggle.oops-collapsed:after {
+	content: "\A0\25BA";
+}

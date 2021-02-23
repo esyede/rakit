@@ -1,0 +1,461 @@
+<?php
+
+namespace System\Database\Query\Grammars;
+
+defined('DS') or exit('No direct script access.');
+
+use System\Database\Query;
+
+class Grammar extends \System\Database\Grammar
+{
+    /**
+     * Format default untuk menyimpan DateTime.
+     *
+     * @var string
+     */
+    public $datetime = 'Y-m-d H:i:s';
+
+    /**
+     * List seluruh komponen query serta urutan pembangunannya.
+     *
+     * @var array
+     */
+    protected $components = [
+        'aggregate', 'selects', 'from', 'joins', 'wheres',
+        'groupings', 'havings', 'orderings', 'limit', 'offset',
+    ];
+
+    /**
+     * Kompilasi statement SELECT.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    public function select(Query $query)
+    {
+        return $this->concatenate($this->components($query));
+    }
+
+    /**
+     * Buat sql untuk setiap komponen query.
+     *
+     * @param Query $query
+     *
+     * @return array
+     */
+    final protected function components($query)
+    {
+        foreach ($this->components as $component) {
+            if (! is_null($query->{$component})) {
+                $sql[$component] = call_user_func([$this, $component], $query);
+            }
+        }
+
+        return (array) $sql;
+    }
+
+    /**
+     * Buang bagian kosong dari array segmen sql.
+     *
+     * @param array $components
+     *
+     * @return string
+     */
+    final protected function concatenate($components)
+    {
+        return implode(' ', array_filter($components, function ($value) {
+            return ('' !== (string) $value);
+        }));
+    }
+
+    /**
+     * Compile klausa SELECT.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function selects(Query $query)
+    {
+        if (! is_null($query->aggregate)) {
+            return;
+        }
+
+        $select = $query->distinct ? 'SELECT DISTINCT ' : 'SELECT ';
+
+        return $select.$this->columnize($query->selects);
+    }
+
+    /**
+     * Compile klausa agregasi SELECT.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function aggregate(Query $query)
+    {
+        $column = $this->columnize($query->aggregate['columns']);
+
+        if ($query->distinct && '*' !== $column) {
+            $column = 'DISTINCT '.$column;
+        }
+
+        return 'SELECT '.$query->aggregate['aggregator'].'('.$column.') AS '.$this->wrap('aggregate');
+    }
+
+    /**
+     * Compile klausa FROM.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function from(Query $query)
+    {
+        return 'FROM '.$this->wrap_table($query->from);
+    }
+
+    /**\
+     * Compile klausa JOIN.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function joins(Query $query)
+    {
+        foreach ($query->joins as $join) {
+            $table = $this->wrap_table($join->table);
+
+            $clauses = [];
+
+            foreach ($join->clauses as $clause) {
+                $column1 = $this->wrap($clause['column1']);
+                $column2 = $this->wrap($clause['column2']);
+                $clauses[] = $clause['connector'].' '.$column1.' '.$clause['operator'].' '.$column2;
+            }
+
+            $search = ['AND ', 'OR '];
+
+            $clauses[0] = str_replace($search, '', $clauses[0]);
+            $clauses = implode(' ', $clauses);
+
+            $sql[] = $join->type.' JOIN '.$table.' ON '.$clauses;
+        }
+
+        return implode(' ', $sql);
+    }
+
+    /**
+     * Compile klausa WHERE.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    final protected function wheres(Query $query)
+    {
+        if (is_null($query->wheres)) {
+            return '';
+        }
+
+        foreach ($query->wheres as $where) {
+            $sql[] = $where['connector'].' '.$this->{$where['type']}($where);
+        }
+
+        if (isset($sql)) {
+            return 'WHERE '.preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
+        }
+    }
+
+    /**
+     * Compile klausa nested WHERE.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_nested($where)
+    {
+        return '('.substr($this->wheres($where['query']), 6).')';
+    }
+
+    /**
+     * Compile klausa WHERE sederhana.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where($where)
+    {
+        $parameter = $this->parameter($where['value']);
+
+        return $this->wrap($where['column']).' '.$where['operator'].' '.$parameter;
+    }
+
+    /**
+     * Compile klausa WHERE IN.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_in($where)
+    {
+        $parameters = $this->parameterize($where['values']);
+
+        return $this->wrap($where['column']).' IN ('.$parameters.')';
+    }
+
+    /**
+     * Compile klausa WHERE NOT IN.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_not_in($where)
+    {
+        $parameters = $this->parameterize($where['values']);
+
+        return $this->wrap($where['column']).' NOT IN ('.$parameters.')';
+    }
+
+    /**
+     * Compile klausa WHERE BETWEEN.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_between($where)
+    {
+        $min = $this->parameter($where['min']);
+        $max = $this->parameter($where['max']);
+
+        return $this->wrap($where['column']).' BETWEEN '.$min.' AND '.$max;
+    }
+
+    /**
+     * Compile klausa WHERE NOT BETWEEN.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_not_between($where)
+    {
+        $min = $this->parameter($where['min']);
+        $max = $this->parameter($where['max']);
+
+        return $this->wrap($where['column']).' NOT BETWEEN '.$min.' AND '.$max;
+    }
+
+    /**
+     * Compile klausa WHERE NULL.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_null($where)
+    {
+        return $this->wrap($where['column']).' IS NULL';
+    }
+
+    /**
+     * Compile klausa WHERE NOT NULL.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_not_null($where)
+    {
+        return $this->wrap($where['column']).' IS NOT NULL';
+    }
+
+    /**
+     * Compile klausa WHERE mentah.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    final protected function where_raw($where)
+    {
+        return $where['sql'];
+    }
+
+    /**
+     * Compile klausa GROUP BY.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function groupings(Query $query)
+    {
+        return 'GROUP BY '.$this->columnize($query->groupings);
+    }
+
+    /**
+     * Compile klausa HAVING.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function havings(Query $query)
+    {
+        if (is_null($query->havings)) {
+            return '';
+        }
+
+        foreach ($query->havings as $having) {
+            $parameter = $this->parameter($having['value']);
+            $sql[] = 'AND '.$this->wrap($having['column']).' '.$having['operator'].' '.$parameter;
+        }
+
+        return 'HAVING '.preg_replace('/AND /', '', implode(' ', $sql), 1);
+    }
+
+    /**
+     * Compile klausa ORDER BY.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function orderings(Query $query)
+    {
+        foreach ($query->orderings as $ordering) {
+            $sql[] = $this->wrap($ordering['column']).' '.strtoupper($ordering['direction']);
+        }
+
+        return 'ORDER BY '.implode(', ', $sql);
+    }
+
+    /**
+     * Compile klausa LIMIT.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function limit(Query $query)
+    {
+        return 'LIMIT '.$query->limit;
+    }
+
+    /**
+     * Compile klausa OFFSET.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function offset(Query $query)
+    {
+        return 'OFFSET '.$query->offset;
+    }
+
+    /**
+     * Compile sql INSERT.
+     * Method ini menangani kompilasi insert row tunggal dan batch.
+     *
+     * @param Query $query
+     * @param array $values
+     *
+     * @return string
+     */
+    public function insert(Query $query, $values)
+    {
+        $table = $this->wrap_table($query->from);
+
+        $values = is_array(reset($values)) ? $values : [$values];
+        $columns = $this->columnize(array_keys(reset($values)));
+
+        $parameters = $this->parameterize(reset($values));
+        $parameters = implode(', ', array_fill(0, count($values), '('.$parameters.')'));
+
+        return 'INSERT INTO '.$table.' ('.$columns.') VALUES '.$parameters;
+    }
+
+    /**
+     * Compile sql INSERT dan return ID-nya.
+     *
+     * @param Query  $query
+     * @param array  $values
+     * @param string $column
+     *
+     * @return string
+     */
+    public function insert_get_id(Query $query, $values, $column)
+    {
+        return $this->insert($query, $values);
+    }
+
+    /**
+     * Compile sql UPDATE.
+     *
+     * @param Query $query
+     * @param array $values
+     *
+     * @return string
+     */
+    public function update(Query $query, $values)
+    {
+        $table = $this->wrap_table($query->from);
+
+        foreach ($values as $column => $value) {
+            $columns[] = $this->wrap($column).' = '.$this->parameter($value);
+        }
+
+        $columns = implode(', ', $columns);
+
+        return trim('UPDATE '.$table.' SET '.$columns.' '.$this->wheres($query));
+    }
+
+    /**
+     * Compile sql DELETE.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    public function delete(Query $query)
+    {
+        $table = $this->wrap_table($query->from);
+
+        return trim('DELETE FROM '.$table.' '.$this->wheres($query));
+    }
+
+    /**
+     * Ubah short-cut sql menjadi sql biasa agar bisa digunakan oleh PDO.
+     *
+     * @param string $sql
+     * @param array  $bindings
+     *
+     * @return string
+     */
+    public function shortcut($sql, &$bindings)
+    {
+        if (false !== strpos($sql, '(...)')) {
+            for ($i = 0; $i < count($bindings); ++$i) {
+                if (is_array($bindings[$i])) {
+                    $parameters = $this->parameterize($bindings[$i]);
+
+                    array_splice($bindings, $i, 1, $bindings[$i]);
+
+                    $sql = preg_replace('~\(\.\.\.\)~', '('.$parameters.')', $sql, 1);
+                }
+            }
+        }
+
+        return trim($sql);
+    }
+}

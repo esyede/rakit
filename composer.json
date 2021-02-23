@@ -1,0 +1,41 @@
+{
+    "name": "esyede/rakit",
+    "description": "Rakit Web Framework",
+    "keywords": ["rakit", "framework"],
+    "homepage": "https://rakit.esyede.my.id/",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Suyadi",
+            "email": "suyadi.1992@gmail.com",
+            "homepage": "https://rakit.esyede.my.id/",
+            "role": "Project Lead"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/esyede/rakit/issues?state=open",
+        "forum": "https://rakit.esyede.my.id/forum/",
+        "source": "https://github.com/esyede/rakit"
+    },
+    "bin": ["rakit"],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
+        "cweagans/composer-patches": "^1.7",
+        "phpunit/phpunit": "4.8.34"
+    },
+    "extra": {
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "phpunit/phpunit-mock-objects": {
+                "Fix PHP 7 and 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_mock_objects.patch"
+            },
+            "phpunit/phpunit": {
+                "Fix PHP 7 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php7.patch",
+                "Fix PHP 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php8.patch"
+            }
+        }
+    }
+}

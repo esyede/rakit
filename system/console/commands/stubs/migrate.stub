@@ -1,0 +1,26 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class stub_class
+{
+	/**
+	 * Buat perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+      // ..
+	}
+
+	/**
+	 * Urungkan perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+      // ..
+	}
+}

@@ -1,0 +1,56 @@
+pre.oops-dump {
+	text-align: left;
+	color: #444;
+	background: white;
+}
+
+pre.oops-dump div {
+	padding-left: 3ex;
+}
+
+pre.oops-dump div div {
+	border-left: 1px solid rgba(0, 0, 0, .1);
+	margin-left: .5ex;
+}
+
+pre.oops-dump a {
+	color: #125EAE;
+	text-decoration: none;
+}
+
+pre.oops-dump a:hover,
+pre.oops-dump a:focus {
+	background-color: #125EAE;
+	color: white;
+}
+
+.oops-dump-array,
+.oops-dump-object {
+	color: #C22;
+}
+
+.oops-dump-string {
+	color: #35D;
+}
+
+.oops-dump-number {
+	color: #090;
+}
+
+.oops-dump-null,
+.oops-dump-bool {
+	color: #850;
+}
+
+.oops-dump-visibility,
+.oops-dump-hash {
+	font-size: 85%; color: #999;
+}
+
+.oops-dump-indent {
+	display: none;
+}
+
+span[data-oops-href] {
+	border-bottom: 1px dotted rgba(0, 0, 0, .2);
+}

@@ -1,0 +1,18 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class stub_class extends Command
+{
+	/**
+	 * Handler default milik kelas command stub_class.
+	 *
+	 * @param array $arguments
+	 *
+	 * @return mixed
+	 */
+	public function run(array $arguments = [])
+	{
+      echo 'Hello from stub_class::run() method!';
+	}
+}

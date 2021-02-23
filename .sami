@@ -1,0 +1,24 @@
+<?php
+
+use Sami\Sami;
+use Symfony\Component\Finder\Finder;
+
+define('DS', DIRECTORY_SEPARATOR);
+
+require 'paths.php';
+require 'system/core.php';
+
+$iterator = Finder::create()
+    ->files()
+    ->name('*.php')
+    ->in(__DIR__.DS.'system');
+
+$options = [
+    'title' => RAKIT_VERSION,
+    'build_dir' => __DIR__.DS.'api'.DS.'api'.DS,
+    'cache_dir' => __DIR__.DS.'api'.DS.'cache'.DS,
+];
+
+return new Sami($iterator, $options);
+// Download sami.phar di: http://get.sensiolabs.org/sami.phar (PHP 7.0.0+)
+// Run command: php sami.phar update .sami

@@ -1,0 +1,22 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct script access.');
+
+use System\Foundation\Oops\Helpers;
+
+$icons = '
+	<div class="oops-icons">
+      <a href="#" rel="window" title="open in window">&curren;</a>
+      <a href="#" rel="close" title="close window">&times;</a>
+	</div>
+';
+
+foreach ($rows as $row) {
+	foreach ($row->panels as $panel) {
+      $content = $panel->panel ? $panel->panel."\n".$icons : '';
+      $class = 'oops-panel'.(('ajax' === $row->type) ? ' oops-ajax' : ''); ?>
+      <div class="<?php echo $class ?>" id="oops-debug-panel-<?php echo $panel->id ?>" data-oops-content="<?php echo Helpers::escapeHtml($content) ?>"></div><?php
+	}
+}

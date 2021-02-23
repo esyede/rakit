@@ -1,0 +1,316 @@
+#oops-panic {
+	font: 9pt/1.5 BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	background: #ffffff;
+	color: #333;
+	position: absolute;
+	z-index: 20000;
+	left: 0;
+	top: 0;
+	width: 100%;
+	text-align: left;
+}
+
+#oops-panic * {
+	font: inherit;
+	color: inherit;
+	background: transparent;
+	border: none;
+	margin: 0;
+	padding: 0;
+	text-align: inherit;
+	text-indent: 0;
+}
+
+#oops-panic *:before,
+#oops-panic *:after {
+	all: unset;
+}
+
+#oops-panic b {
+	font-weight: bold;
+}
+
+#oops-panic i {
+	font-style: italic;
+}
+
+#oops-panic a {
+	text-decoration: none;
+	color: #1976d2;
+	padding: 2px 4px;
+	margin: -2px -4px;
+}
+
+#oops-panic a:hover,
+#oops-panic a:focus {
+	color: #085AA3;
+}
+
+#oops-panic-toggle {
+	position: absolute;
+	right: .5em;
+	top: .5em;
+	text-decoration: none;
+	background: #3484d2;
+	color: white !important;
+	padding: 3px;
+}
+
+#oops-panic-error {
+	background: #3484d2;
+	color: white;
+	font-size: 13pt;
+}
+
+#oops-panic-error a {
+	color: white !important;
+	opacity: 0;
+	font-size: .7em;
+	border-bottom: none !important;
+}
+
+#oops-panic-error:hover a {
+	opacity: .6;
+}
+
+#oops-panic-error a:hover {
+	opacity: 1;
+}
+
+#oops-panic-error i {
+	color: #fafbfc;
+	font-style: normal;
+}
+
+#oops-panic h1 {
+	font-size: 15pt;
+	font-weight: normal;
+	margin: .7em 0;
+}
+
+#oops-panic h1 span {
+	white-space: pre-wrap;
+}
+
+#oops-panic h2 {
+	font-size: 14pt;
+	margin: .6em 0;
+}
+
+#oops-panic h3 {
+	font-size: 10pt;
+	font-weight: bold;
+	margin: 1em 0;
+	padding: 0;
+}
+
+#oops-panic p,
+#oops-panic pre {
+	margin: .8em 0
+}
+
+#oops-panic pre,
+#oops-panic code,
+#oops-panic table {
+	font: 9pt/1.5 Consolas, monospace !important;
+}
+
+#oops-panic pre,
+#oops-panic table {
+	background: #ffffff;
+	padding: .4em .7em;
+	border: 1px solid #fafbfc;
+	overflow: auto;
+}
+
+#oops-panic table pre {
+	padding: 0;
+	margin: 0;
+	border: none;
+}
+
+#oops-panic table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#oops-panic td,
+#oops-panic th {
+	vertical-align: top;
+	text-align: left;
+	padding: 2px 6px;
+	border: 1px solid #efefef;
+}
+
+#oops-panic th {
+	font-weight: bold;
+}
+
+#oops-panic tr > :first-child {
+	width: 20%;
+}
+
+#oops-panic ol {
+	margin: 1em 0;
+	padding-left: 2.5em;
+}
+
+#oops-panic ul {
+	font-size: 7pt;
+	padding: 2em 3em;
+	margin: 1em 0 0;
+	color: #777;
+	background: #fafbfc;
+	border-top: 1px solid #eee;
+	list-style: none;
+}
+
+#oops-panic-logo a {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+    opacity: .6;
+	padding: 0;
+	margin: 0;
+}
+
+#oops-panic-logo a:hover,
+#oops-panic-logo a:focus {
+	opacity: 1;
+	transition: opacity 0.1s;
+}
+
+
+#oops-panic div.panel {
+	padding: 1px 25px;
+}
+
+#oops-panic div.inner {
+	background: #fafbfc;
+	padding: .1em 1em 1em;
+	border-radius: 8px;
+}
+
+#oops-panic .outer {
+	overflow: auto;
+}
+
+
+/* source code */
+#oops-panic pre.code > div {
+	min-width: 100%;
+	float: left;
+	white-space: pre;
+}
+
+#oops-panic .highlight {
+	background: #c33;
+	color: white;
+	font-weight: bold;
+	font-style: normal;
+	display: block;
+	padding: 0 .4em;
+	margin: 0 -.4em;
+}
+
+#oops-panic .line {
+	color: #cccccc;
+	font-weight: normal;
+	font-style: normal;
+}
+
+#oops-panic pre:hover span[title] {
+	border-bottom: 1px solid #fafbfc;
+}
+
+#oops-panic a[href^=editor\:] {
+	color: inherit;
+	border-bottom: 1px dotted #fafbfc;
+}
+
+#oops-panic span[data-oops-href] {
+	border-bottom: 1px dotted #fafbfc;
+}
+
+
+/* toggle */
+html.oops-js #oops-panic .oops-collapsed {
+	display: none;
+}
+
+html.oops-js #oops-panic .oops-toggle.oops-collapsed {
+	display: inline;
+}
+
+#oops-panic .oops-toggle {
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+#oops-panic .oops-toggle:after {
+	content: "\A0\25BC";
+	opacity: .4;
+}
+
+#oops-panic .oops-toggle.oops-collapsed:after {
+	content: "\A0\25BA";
+}
+
+
+/* dump */
+#oops-panic .oops-dump-array,
+#oops-panic .oops-dump-object {
+	color: #C22;
+}
+
+#oops-panic .oops-dump-string {
+	color: #35D;
+}
+
+#oops-panic .oops-dump-number {
+	color: #090;
+}
+
+#oops-panic .oops-dump-whitespace {
+	color: #0003;
+}
+
+#oops-panic .oops-dump-null,
+#oops-panic .oops-dump-bool {
+	color: #850;
+}
+
+#oops-panic .oops-dump-visibility,
+#oops-panic .oops-dump-hash {
+	font-size: 85%;
+	color: #998;
+}
+
+#oops-panic .oops-dump-indent {
+	display: none;
+}
+
+#oops-panic pre.oops-dump div {
+	padding-left: 3ex;
+}
+
+#oops-panic pre.oops-dump div div {
+	border-left: 1px solid #fafbfc;
+	margin-left: .5ex;
+}
+
+#oops-panic .caused {
+	float: right;
+	padding: .3em .6em;
+	background: #df8075;
+	border-radius: 0 0 0 8px;
+	white-space: nowrap;
+}
+
+#oops-panic .caused a {
+	color: white;
+}

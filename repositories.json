@@ -1,0 +1,36 @@
+[
+    {
+        "name": "access",
+        "description": "Paket role-based access control untuk rakit",
+        "category": "security",
+        "repository": "https://github.com/esyede/access",
+        "maintained": false,
+        "compatibilities": {
+            "v0.9.6": "v1.0.0",
+            "v1.0.0": "v1.0.0"
+        }
+    },
+    {
+        "name": "docs",
+        "description": "Paket dokumentasi resmi rakit",
+        "category": "messaging",
+        "repository": "https://github.com/esyede/sendgrid-rakit",
+        "maintained": true,
+        "compatibilities": {
+            "v0.9.6": "v1.0.0",
+            "v1.0.0": "v1.0.0",
+            "v2.0.0": "v2.8.6"
+        }
+    },
+    {
+        "name": "bootstrap",
+        "description": "Paket bootstrap untuk rakit",
+        "category": "messaging",
+        "repository": "https://gitlab.com/esyede/boostrap-rakit",
+        "maintained": true,
+        "compatibilities": {
+            "v1.0.0": "v1.0.0",
+            "v2.0.0": "v2.8.6"
+        }
+    }
+]

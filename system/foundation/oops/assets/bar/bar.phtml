@@ -1,0 +1,40 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct script access.');
+
+$tabs = function ($panels) {
+	foreach ($panels as $panel) {
+      if ($panel->tab) { ?>
+      <li><?php if ($panel->panel): ?><a href="#" rel="oops-debug-panel-<?php echo $panel->id ?>"><?php echo trim($panel->tab) ?></a><?php else: echo '<span>', trim($panel->tab), '</span>'; endif ?></li><?php
+      }
+	}
+};
+?>
+
+<?php if ('main' === $rows[0]->type): ?><div id="oops-debug-bar"><?php endif ?>
+
+<?php foreach ($rows as $row): ?>
+<?php 	if ('main' === $row->type): ?>
+	<ul>
+      <li title="Rakit debugger">
+      	<b>Debugger</b>
+      </li>
+      <?php $tabs($row->panels) ?>
+      <li><a href="#" rel="close" title="close debug bar">&times;</a></li>
+	</ul>
+<?php 	endif; if ('redirect' === $row->type): ?>
+	<ul>
+      <li><span title="Previous request before redirect">redirect</span></li>
+      <?php $tabs($row->panels) ?>
+	</ul>
+<?php  endif; if ('ajax' === $row->type): ?>
+	<ul id="oops-ajax-bar">
+      <li>AJAX</li>
+      <?php $tabs($row->panels) ?>
+	</ul>
+<?php endif ?>
+<?php endforeach ?>
+
+<?php if ('main' === $rows[0]->type): ?></div><?php endif ?>

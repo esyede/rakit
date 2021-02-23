@@ -1,0 +1,10 @@
+{
+	"--verbose=true": {
+      "description": "Verbose output untuk package:install.",
+      "command": "php rakit package:install foobar --verbose=true"
+	},
+	"--database=": {
+      "description": "Set koneksi database default.",
+      "command": "php rakit command --database=mysql"
+	}
+}
