@@ -28,8 +28,8 @@ Pada keadaan default, Rakit dikonfigurasikan untuk menggunakan SQLite. Benar, tu
 bisa langsung mencoba Rakit tanpa harus ribet setting database.
 
 Rakit akan secara default menyimpan seluruh file sqlite kedalam folder `application/storage/database/`
-dengan nama `'application-xxxxxx'` dimana `xxxxxx` adalah 32 karakter acak yang otomatis ditambahkan
-ke nama database asli anda untuk alasan keamanan.
+dengan nama `'xxxxxx-application'` dimana `xxxxxx` adalah 32 karakter acak yang otomatis ditambahkan
+ke depan nama database asli anda untuk alasan keamanan.
 
 Tentu saja, anda boleh menamainya dengan nama selain `'application'`, untuk melakukannya,
 cukup ubah opsi konfigurasi di file `application/config/database.php` seperti ini:

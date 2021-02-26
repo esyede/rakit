@@ -31,7 +31,7 @@ class SQLite extends Connector
             throw new \Exception('The application key needs to be set before using sqlite database.');
         }
 
-        $path = $config['database'].'-'.Str::slug($key);
+        $path = Str::slug($key).'-'.$config['database'];
         $path = path('storage').'database'.DS.$path;
 
         return new PDO('sqlite:'.$path, null, null, $options);

@@ -615,8 +615,9 @@ abstract class Model
     public function to_array()
     {
         $attributes = [];
+        $keys = array_keys($this->attributes);
 
-        foreach (array_keys($this->attributes) as $attribute) {
+        foreach ($keys as $attribute) {
             if (! in_array($attribute, static::$hidden)) {
                 $attributes[$attribute] = $this->{$attribute};
             }
