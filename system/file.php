@@ -395,7 +395,8 @@ class File
     }
 
     /**
-     * Buat direktori baru.
+     * Buat direktori baru secara rekursif.
+     * Method ini juga sekaligus menambahkan file index.html di setiap subfolder.
      *
      * @param string $path
      * @param int    $chmod
@@ -404,7 +405,39 @@ class File
      */
     public static function mkdir($path, $chmod = 0755)
     {
-        return @mkdir($path, $chmod, true);
+        try {
+            mkdir($path, $chmod, true);
+
+            // tambahkan file index.html di setiap subfolder untuk keamanan.
+            $directories = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            foreach ($directories as $directory) {
+                $directory = realpath($directory);
+
+                if (is_dir($directory)) {
+                    $parent = dirname($directory).DS.'index.html';
+                    $child = $directory.DS.'index.html';
+                    $content = 'No direct script access.'.PHP_EOL;
+
+                    if (! is_file($parent)) {
+                        static::put($parent, $content);
+                    }
+
+                    if (! is_file($child)) {
+                        static::put($child, $content);
+                    }
+                }
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw $e;
+        }
     }
 
     /**

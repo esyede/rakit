@@ -292,9 +292,8 @@ class Make extends Command
      */
     protected function makedir($directory)
     {
-        if (! File::exists($directory)) {
+        if (! is_dir($directory)) {
             File::mkdir($directory, 0777);
-            File::put($directory.'index.html', 'No direct script access.'.PHP_EOL);
         }
 
         return true;
