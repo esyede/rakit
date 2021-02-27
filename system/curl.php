@@ -10,56 +10,56 @@ class Curl
      * Kirim sebuah GET request.
      *
      * @param string $url
-     * @param array  $params
+     * @param array  $parameters
      * @param array  $options
      *
      * @return \stdClass
      */
-    public static function get($url, array $params = [], array $options = [])
+    public static function get($url, array $parameters = [], array $options = [])
     {
-        return static::request('get', $url, $params, $options);
+        return static::request('get', $url, $parameters, $options);
     }
 
     /**
      * Kirim sebuah POST request.
      *
      * @param string $url
-     * @param array  $params
+     * @param array  $parameters
      * @param array  $options
      *
      * @return \stdClass
      */
-    public static function post($url, array $params = [], array $options = [])
+    public static function post($url, array $parameters = [], array $options = [])
     {
-        return static::request('post', $url, $params, $options);
+        return static::request('post', $url, $parameters, $options);
     }
 
     /**
      * Kirim sebuah PUT request.
      *
      * @param string $url
-     * @param array  $params
+     * @param array  $parameters
      * @param array  $options
      *
      * @return \stdClass
      */
-    public static function put($url, array $params = [], array $options = [])
+    public static function put($url, array $parameters = [], array $options = [])
     {
-        return static::request('put', $url, $params, $options);
+        return static::request('put', $url, $parameters, $options);
     }
 
     /**
      * Kirim sebuah DELETE request.
      *
      * @param string $url
-     * @param array  $params
+     * @param array  $parameters
      * @param array  $options
      *
      * @return \stdClass
      */
-    public static function delete($url, array $params = [], array $options = [])
+    public static function delete($url, array $parameters = [], array $options = [])
     {
-        return static::request('delete', $url, $params, $options);
+        return static::request('delete', $url, $parameters, $options);
     }
 
     /**
@@ -67,12 +67,12 @@ class Curl
      *
      * @param string $method
      * @param string $url
-     * @param array  $params
+     * @param array  $parameters
      * @param array  $options
      *
      * @return \stdClass
      */
-    public static function request($method, $url, array $params = [], array $options = [])
+    public static function request($method, $url, array $parameters = [], array $options = [])
     {
         if (! static::available()) {
             throw new \RuntimeException('cURL extension is not available.');
@@ -95,7 +95,7 @@ class Curl
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_USERAGENT, static::agent());
 
-        $query = empty($params) ? null : http_build_query($params, '', '&', PHP_QUERY_RFC1738);
+        $query = empty($parameters) ? null : http_build_query($parameters, '', '&', PHP_QUERY_RFC1738);
 
         switch (strtolower($method)) {
             case 'get':
