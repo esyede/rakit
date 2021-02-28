@@ -79,6 +79,7 @@
 - [Alih Bahasa](/docs/localization)
 - [Enkripsi](/docs/encryption)
 - [Container](/docs/container)
+- [Helper](/docs/helpers)
 - [Rakit Console](/docs/console)
 
 ### Database
