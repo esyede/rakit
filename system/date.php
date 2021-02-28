@@ -204,7 +204,7 @@ class Date extends \DateTime
 
     public function setTime($hour, $minute, $second = null, $microseconds = null)
     {
-        return $this->hour($hour)->minute($minute)->second($second);
+        return $this->hour($hour)->minute($minute)->second(is_null($second) ? 0 : $second);
     }
 
     public function setDateTime($year, $month, $day, $hour, $minute, $second)
