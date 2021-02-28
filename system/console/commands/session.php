@@ -21,7 +21,7 @@ class Session extends Command
      */
     public function table($arguments = [])
     {
-        if (mb_strlen(trim(static::$key), '8bit') < 32) {
+        if (mb_strlen(trim(Config::get('application.key')), '8bit') < 32) {
             throw new \Exception('The application key needs to be set at least 32 characters long.');
         }
 
