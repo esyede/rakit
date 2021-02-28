@@ -21,13 +21,11 @@ class Session extends Command
      */
     public function table($arguments = [])
     {
-        $migrator = Container::resolve('command: migrate');
-        $key = Container::resolve('command: key');
-
-        if (is_null(trim(Config::get('application.key', null)))) {
-            $key->generate();
+        if (mb_strlen(trim(static::$key), '8bit') < 32) {
+            throw new \Exception('The application key needs to be set at least 32 characters long.');
         }
 
+        $migrator = Container::resolve('command: migrate');
         $migration = $migrator->make(['create_session_table']);
         $stub = __DIR__.DS.'stubs'.DS.'session.stub';
 
