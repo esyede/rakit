@@ -72,12 +72,16 @@ class File
      *
      * @param string $path
      * @param string $data
+     * @param int    $options
      *
      * @return int
      */
-    public static function put($path, $data)
+    public static function put($path, $data, $options = LOCK_EX)
     {
-        return file_put_contents($path, $data, LOCK_EX);
+        $put = file_put_contents($path, $data, $options);
+        static::protect($path);
+
+        return $put;
     }
 
     /**
@@ -103,7 +107,7 @@ class File
      */
     public static function append($path, $data)
     {
-        return file_put_contents($path, $data, LOCK_EX | FILE_APPEND);
+        return static::put($path, $data, LOCK_EX | FILE_APPEND);
     }
 
     /**
@@ -173,7 +177,10 @@ class File
      */
     public static function move($path, $target)
     {
-        return rename($path, $target);
+        $move = rename($path, $target);
+        static::protect($path);
+
+        return $move;
     }
 
     /**
@@ -191,7 +198,15 @@ class File
             return false;
         }
 
-        return @rename($from, $to) === true;
+        $rename = @rename($from, $to);
+
+        if (true === $rename) {
+            static::protect($to);
+
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -202,7 +217,10 @@ class File
      */
     public static function copy($path, $target)
     {
-        return copy($path, $target);
+        $copy = copy($path, $target);
+        static::protect($target);
+
+        return $copy;
     }
 
     /**
@@ -210,17 +228,15 @@ class File
      *
      * @param string   $directory
      * @param string   $destination
-     * @param int|null $options
+     * @param int      $options
      *
      * @return bool
      */
-    public static function cpdir($directory, $destination, $options = null)
+    public static function cpdir($directory, $destination, $options = \FilesystemIterator::SKIP_DOTS)
     {
         if (! static::isdir($directory)) {
             return false;
         }
-
-        $options = $options ? $options : \FilesystemIterator::SKIP_DOTS;
 
         if (! static::isdir($destination)) {
             static::mkdir($destination, 0777);
@@ -407,31 +423,7 @@ class File
     {
         try {
             mkdir($path, $chmod, true);
-
-            // tambahkan file index.html di setiap subfolder untuk keamanan.
-            $directories = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($path),
-                \RecursiveIteratorIterator::SELF_FIRST
-            );
-
-            foreach ($directories as $directory) {
-                $directory = realpath($directory);
-
-                if (is_dir($directory)) {
-                    $parent = dirname($directory).DS.'index.html';
-                    $child = $directory.DS.'index.html';
-                    $content = 'No direct script access.'.PHP_EOL;
-
-                    if (! is_file($parent)) {
-                        static::put($parent, $content);
-                    }
-
-                    if (! is_file($child)) {
-                        static::put($child, $content);
-                    }
-                }
-            }
-
+            static::protect($path);
             return true;
         } catch (\Throwable $e) {
             throw $e;
@@ -488,5 +480,26 @@ class File
     public static function glob($pattern, $flags = 0)
     {
         return glob($pattern, $flags);
+    }
+
+    /**
+     * Proteksi path dari akses nakal via browser
+     * dengan cara menambahkan file index.html
+     *
+     * @param string $path
+     *
+     * @return void
+     */
+    public static function protect($path)
+    {
+        if (! is_file($path) && ! is_dir($path)) {
+            return;
+        }
+
+        $path = is_file($path) ? rtrim(dirname($path), DS) : $path;
+
+        if (! is_file($file = $path.DS.'index.html')) {
+            static::put($file, 'No direct script access.'.PHP_EOL);
+        }
     }
 }

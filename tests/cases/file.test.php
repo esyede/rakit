@@ -455,4 +455,22 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('acbd18db4cc2f85cedef654fccc4a4d8', File::hash(self::$temp.DS.'foo.txt'));
     }
+
+    /**
+     * Test untuk method File::protect().
+     *
+     * @group system
+     */
+    public function testProtect()
+    {
+        $dir = path('storage').'protects'.DS;
+
+        File::mkdir($dir);
+        $this->assertTrue(is_file($dir.'index.html'));
+        File::delete($dir.'index.html');
+
+        File::put($dir.'foo.txt', '');
+        $this->assertTrue(is_file($dir.'index.html'));
+        File::rmdir($dir);
+    }
 }
