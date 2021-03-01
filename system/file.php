@@ -226,9 +226,9 @@ class File
     /**
      * Copy direktori ke lokasi lain.
      *
-     * @param string   $directory
-     * @param string   $destination
-     * @param int      $options
+     * @param string $directory
+     * @param string $destination
+     * @param int    $options
      *
      * @return bool
      */
@@ -484,7 +484,7 @@ class File
 
     /**
      * Proteksi path dari akses nakal via browser
-     * dengan cara menambahkan file index.html
+     * dengan cara menambahkan file index.html.
      *
      * @param string $path
      *
