@@ -116,13 +116,14 @@ Mantap! Sekarang kita dapat mengakses controller home milik paket `admin` dari w
 <a id="action-middleware"></a>
 ## Action Middleware
 
-Action middleware adalah method yang dapat dijalankan sebelum atau sesudah action controller dieksekusi.
-Anda tidak hanya memiliki kendali atas middleware mana yang ditugaskan untuk tindakan mana, tetapi
-juga dapat memilih tipe request apa (`GET`, `POST`, `PUT`, atau `DELETE`) yang akan mengaktifkan middleware.
+Action middleware adalah middleware yang dapat dijalankan sebelum atau sesudah action controller dieksekusi.
+Anda tidak hanya memiliki kendali atas middleware mana yang ditugaskan untuk action mana, tetapi
+juga dapat memilih tipe request apa (`GET`, `POST`, `PUT`, atau `DELETE`) yang akan mengaktifkan
+si middleware tersebut.
 
 Anda dapat mendefinisikan middleware `before()` dan `after()` melalui **constructor** milik controller.
 
-Mari kita coba tambahkan middleware ke controller paket "admin" diatas.
+Mari kita coba tambahkan middleware ke controller paket `admin` diatas.
 
 
 #### Melampirkan middleware ke semua action:
@@ -146,9 +147,9 @@ class Admin_Home_Controller extends Controller
 Pada contoh diatas middleware `'auth'` akan dipnggil sebelum setiap action
 dalam controller ini berjalan.
 
-Middleware `'auth'` ini adalah middleware bawaan Rakit dan dapat anda lihat
-di `application/middlewares.php`. Middleware auth memverifikasi bahwa user sudah login,
-dan me-redirect mereka ke halaman `'/login'` jika belum.
+Middleware `'auth'` ini adalah middleware bawaan Rakit dimana implementasinya dapat
+anda lihat di `application/middlewares.php`. Middleware auth memverifikasi bahwa
+user sudah login, dan me-redirect mereka ke halaman `'/login'` jika belum.
 
 
 #### Melampirkan middleware hanya untuk beberapa action saja:

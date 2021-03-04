@@ -22,7 +22,7 @@
 - [Controller](/docs/controllers) <!-- has-submenu -->
 	- [Pengetahuan Dasar](/docs/controllers#pengetahuan-dasar)
 	- [Controller Routing](/docs/controllers#controller-routing)
-	- [Package Controller](/docs/controllers#package-controller)
+	- [Controller Paket](/docs/controllers#controller-paket)
 	- [Action Middleware](/docs/controllers#action-middleware)
 	- [Nested Controller](/docs/controllers#nested-controllers)
 	- [RESTful Controller](/docs/controllers#restful-controller)

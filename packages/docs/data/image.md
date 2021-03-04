@@ -7,10 +7,11 @@
 - [Manipulasi Gambar](#manipulasi-gambar)
     - [Resize Gambar](#resize-gambar)
     - [Rotasi dan Cropping](#rotasi-dan-cropping)
+    - [Watermark](#watermark)
 - [Efek Gambar](#efek-gambar)
     - [Brightness, Contrast dan Smoothness](#brightness-contrast-dan-smoothness)
     - [Blur dan Grayscale](#blur-dan-grayscale)
-- [Mengambil Hasil Gambar](#mengambil-hasil-gambar)
+- [Export Gambar](#export-gambar)
 - [Fitur Tambahan](#fitur-tambahan)
     - [Melihat info gambar](#melihat-info-gambar)
     - [Membuat Identicon](#membuat-identicon)
@@ -31,7 +32,7 @@ Untuk memulai pengeditan gambar, pastinya anda perlu terlebih dahulu menentukan 
 <a id="memuat-gambar-1"></a>
 #### Memuat target gambar:
 ```php
-$image = Image::open('assets/images/test.jpg')
+$image = Image::open('assets/images/test.jpg');
 ```
 
 Jika anda juga ingin sekalian menentukan kualitas hasil export gambar anda nanti, silahkan tambahkn kualitas yang anda inginkan ke parameter ke-dua, rentang nilainya antara `0 - 100`, nilai defaultnya adalah `75`.
@@ -102,6 +103,17 @@ $image->ratio($width, $height);
 Nah, bagaimana, lebih mudah bukan? cara mana yang lebih anda sukai?
 
 
+<a id="watermark"></a>
+### Watermark
+
+Selain dapat memotong dan merotasi gambar, anda juga dapat menambahkan watermark pada
+gambar anda:
+
+```php
+$image->watermark('assets/images/watermark.png');
+```
+
+
 <a id="efek-gambar"></a>
 ## Efek Gambar
 Kadang kala, gambar yang diupload user terlihat terlalu redup, terlalu terang atau mungkin gambar yang diuplad adalah gambar privat yang perlu sedikit anda buramkan. Anda juga dapat memanupulasi kekurangan gambar seperti ini.
@@ -141,20 +153,11 @@ $image->grayscale(35);
 >  Rentang nilai yang dapat anda oper ke method - method efek gambar ini sama, yaitu antara `-100` sampai `100`.
 
 
-<a id="mengambil-hasil-gambar"></a>
-## Mengambil Hasil Gambar
-Setelah gambar selesai dimanipulasi, anda akan mendapat dua buah opsi, yaitu:
-  - Melihat hasil manipulasi gambar sementara via browser.
-  - Menyimpan hasilnya ke file.
+<a id="export-gambar"></a>
+## Export Gambar
+Setelah gambar selesai dimanipulasi, anda hanya perlu menyimpannya kedalam sebuah file:
 
-Gunakan opsi pertama untuk memeriksa apakah hasil manipulasi sudah sesuai dengan yang anda inginkan, jikas sudah, tinggal disimpan saja hasilnya ke file.
-
-#### Preview hasil manipulasi via browser:
-```php
-$image->preview();
-```
-
-#### Menyimpan ke file:
+#### Menyimpan hasil gambar ke file:
 ```php
 $image->export('assets/images/budi.png');
 ```
