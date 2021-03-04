@@ -425,6 +425,44 @@ class Image
     }
 
     /**
+     * Tambahkan watermark ke gambar.
+     *
+     * @param string $watermark
+     *
+     * @return $this
+     */
+    public function watermark($watermark)
+    {
+        $watermark = $this->path($watermark);
+
+        if (! is_file($watermark)) {
+            throw new \Exception(sprintf('Watermark file does not exists: %s', $watermark));
+        }
+
+        $extension = strtolower(File::extension($watermark));
+
+        switch ($extension) {
+            case 'jpg':
+            case 'jpeg': $watermark = imagecreatefromjpeg($watermark); break;
+            case 'png':  $watermark = imagecreatefrompng($watermark); break;
+            case 'gif':  $watermark = imagecreatefromgif($watermark); break;
+            default:     throw new \Exception('Only png, jpg and gif images are supported');
+        }
+
+        imagealphablending($this->image, true);
+
+        $src_w = imagesx($watermark);
+        $src_h = imagesy($watermark);
+        $dst_x = $this->width - $src_w - 10;
+        $dst_y = $this->height - $src_h - 10;
+
+        imagecopy($this->image, $watermark, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
+        imagedestroy($watermark);
+
+        return $this;
+    }
+
+    /**
      * Simpan perubahan ke disk.
      *
      * @param string $path
@@ -481,34 +519,6 @@ class Image
         $this->reset();
 
         return $result;
-    }
-
-    /**
-     * Pratinjau gambar via web browser.
-     *
-     * @return Response
-     */
-    public function preview()
-    {
-        $content = $this->dump();
-        $response = new Response($content);
-
-        if ('' !== Config::get('session.driver')) {
-            Session::save();
-        }
-
-        // Lihat: https://www.php.net/manual/en/function.fpassthru.php#55519
-        session_write_close();
-
-        $response->header('content-type', 'image/jpeg')
-            ->status(200)
-            ->send();
-
-        Event::fire('rakit.done', [$response]);
-
-        $response->foundation->finish();
-
-        exit;
     }
 
     /**
