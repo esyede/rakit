@@ -20,7 +20,10 @@
     },
     "bin": ["rakit"],
     "require": {
-        "php": ">=5.4.0"
+        "php": ">=5.4.0",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "cweagans/composer-patches": "^1.7",
