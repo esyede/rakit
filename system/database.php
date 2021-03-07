@@ -4,9 +4,6 @@ namespace System;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Database\Expression;
-use System\Database\Connection;
-
 class Database
 {
     /**
@@ -39,7 +36,7 @@ class Database
      *
      * @param string $connection
      *
-     * @return \System\Database\Connection
+     * @return Connection
      */
     public static function connection($connection = null)
     {
@@ -54,7 +51,7 @@ class Database
                 throw new \Exception(sprintf('Database connection is not defined for: %s', $connection));
             }
 
-            static::$connections[$connection] = new Connection(static::connect($config), $config);
+            static::$connections[$connection] = new Database\Connection(static::connect($config), $config);
         }
 
         return static::$connections[$connection];
@@ -115,11 +112,11 @@ class Database
      *
      * @param string $value
      *
-     * @return \System\Database\Expression
+     * @return Expression
      */
     public static function raw($value)
     {
-        return new Expression($value);
+        return new Database\Expression($value);
     }
 
     /**
@@ -165,10 +162,7 @@ class Database
      */
     public static function extend($name, \Closure $connector, $query = null, $schema = null)
     {
-        if (is_null($query)) {
-            $query = '\System\Database\Query\Grammars\Grammar';
-        }
-
+        $query = is_null($query) ? '\System\Database\Query\Grammars\Grammar' : $query;
         static::$registrar[$name] = compact('connector', 'query', 'schema');
     }
 
