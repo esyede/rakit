@@ -85,11 +85,7 @@ class Middleware
      */
     public static function parse($middlewares)
     {
-        if (is_string($middlewares)) {
-            return explode('|', $middlewares);
-        }
-
-        return (array) $middlewares;
+        return is_string($middlewares) ? explode('|', $middlewares) : (array) $middlewares;
     }
 
     /**

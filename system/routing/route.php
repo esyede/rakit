@@ -217,7 +217,9 @@ class Route
      * <code>
      *
      *      // Periksa apakah rute saat ini bernama 'login'
-     *      $login = Request::route()->is('login');
+     *      if (Request::route()->is('login')) {
+     *          // Rute saat ini bernama 'login'
+     *      }
      *
      * </code>
      *
