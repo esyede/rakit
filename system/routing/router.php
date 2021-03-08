@@ -349,8 +349,7 @@ class Router
         $routes = (array) static::method($method);
 
         if (array_key_exists($uri, $routes)) {
-            $action = $routes[$uri];
-            return new Route($method, $uri, $action);
+            return new Route($method, $uri, $routes[$uri]);
         }
 
         if (! is_null($route = static::match($method, $uri))) {
@@ -393,10 +392,7 @@ class Router
         list($search, $replace) = Arr::divide(static::$optional);
 
         $key = str_replace($search, $replace, $key, $count);
-
-        if ($count > 0) {
-            $key .= str_repeat(')?', $count);
-        }
+        $key .= ($count > 0) ? str_repeat(')?', $count) : '';
 
         return strtr($key, static::$patterns);
     }
