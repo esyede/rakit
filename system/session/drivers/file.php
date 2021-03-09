@@ -131,7 +131,7 @@ class File extends Driver implements Sweeper
     protected static function unguard($value)
     {
         $value = (string) $value;
-        $value = "<?php defined('DS') or exit('No direct script access.');?>";
+        $guard = "<?php defined('DS') or exit('No direct script access.');?>";
         $value = Str::replace_first($guard, '', $value);
 
         return $value;
