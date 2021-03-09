@@ -4,6 +4,8 @@ namespace System\Cache\Drivers;
 
 defined('DS') or exit('No direct script access.');
 
+use System\Str;
+
 class File extends Driver
 {
     /**
@@ -134,8 +136,8 @@ class File extends Driver
     protected static function guard($value)
     {
         $value = (string) $value;
-        $guard = "<?php defined('DS') or exit('No direct script access.'); ?>";
-        $value = $guard.PHP_EOL.PHP_EOL.$value;
+        $guard = "<?php defined('DS') or exit('No direct script access.');?>";
+        $value = $guard.$value;
 
         return $value;
     }
@@ -151,7 +153,8 @@ class File extends Driver
     protected static function unguard($value)
     {
         $value = (string) $value;
-        $value = ltrim($value, "<?php defined('DS') or exit('No direct script access.'); ?>".PHP_EOL.PHP_EOL);
+        $value = "<?php defined('DS') or exit('No direct script access.');?>";
+        $value = Str::replace_first($guard, '', $value);
 
         return $value;
     }
