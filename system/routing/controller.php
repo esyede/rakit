@@ -357,7 +357,12 @@ abstract class Controller
     }
 
     /**
-     * Handler untuk pemanggilan method yang tidak ada.
+     * Handle request yang tidak cocok dengan definsi rute yang ada.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return Response
      */
     public function __call($method, $parameters)
     {
@@ -366,6 +371,10 @@ abstract class Controller
 
     /**
      * Resolve item dari Container secara dinamis.
+     *
+     * @param string $method
+     *
+     * @return mixed
      *
      * <code>
      *
