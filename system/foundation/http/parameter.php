@@ -14,7 +14,7 @@ class Parameter implements \IteratorAggregate, \Countable
     protected $parameters;
 
     /**
-     * Constructor.
+     * Konstruktor.
      *
      * @param array $parameters
      */

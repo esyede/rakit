@@ -5,14 +5,14 @@ defined('DS') or exit('No direct script access.');
 class Base_Controller extends Controller
 {
     /**
-     * Handler untuk pemanggilan method yang tidak ada.
+     * Handle request yang tidak cocok dengan definsi rute yang ada.
      *
      * @param string $method
      * @param array  $parameters
      *
      * @return Response
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         return Response::error('404');
     }
