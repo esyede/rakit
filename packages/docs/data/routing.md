@@ -11,7 +11,7 @@
 - [Route Grouping](#route-grouping)
 - [Named Route](#named-route)
 - [Routing Paket](#routing-paket)
-- [Controller Routing](#controller-routing)
+- [Routing Controller](#routing-controller)
 - [Route Testing via CLI](#route-testing-via-cli)
 
 <!-- /MarkdownTOC -->
@@ -47,7 +47,7 @@ yang diwakili dengan hanya sebuah garis miring.
 
 ```php
 Route::get('/', function () {
-	return 'Halo dunia!';
+    return 'Halo dunia!';
 });
 ```
 
@@ -55,7 +55,7 @@ Route::get('/', function () {
 
 ```php
 Route::any('/', function () {
-	return 'Halo dunia!';
+    return 'Halo dunia!';
 });
 ```
 
@@ -71,7 +71,7 @@ Route::put('user/(:num)', function ($id) {
 });
 
 Route::delete('user/(:num)', function ($id) {
-	// ..
+    // ..
 });
 ```
 
@@ -244,13 +244,13 @@ ke sekelompok rute sekaligus, ini memungkinkan anda untuk menjaga agar kode anda
 ```php
 Route::group(['before' => 'auth'], function () {
 
-	Route::get('panel', function () {
+    Route::get('panel', function () {
         // ..
-	});
+    });
 
-	Route::get('dashboard', function () {
+    Route::get('dashboard', function () {
         // ..
-	});
+    });
 });
 ```
 
@@ -314,7 +314,7 @@ Mari kita buka file `application/packages.php` dan tambahkan sesuatu:
 ```php
 return [
 
-	'admin' => ['handles' => 'admin'],
+    'admin' => ['handles' => 'admin'],
 
 ];
 ```
@@ -350,8 +350,8 @@ Route::get('(:package)/password', function () {
 ```
 
 
-<a id="controller-routing"></a>
-## Controller Routing
+<a id="routing-controller"></a>
+## Routing Controller
 
 Controller menyediakan cara lain untuk mengelola logika aplikasi anda. Jika anda belum paham dengan
 controller, silahkan baca [dokumentasi tentang controller](/docs/controllers) sebelum lanjut ke bagian ini.
