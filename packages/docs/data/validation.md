@@ -4,21 +4,21 @@
 
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Rule Validasi](#rule-validasi)
-    - [Wajib Diisi](#wajib-diisi)
-    - [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
-    - [Ukuran](#ukuran)
-    - [Angka](#angka)
-    - [Inklusi & Pengecualian](#inklusi--pengecualian)
-    - [Konfirmasi](#konfirmasi)
-    - [Persetujuan](#persetujuan)
-    - [Sama & Berbeda](#sama--berbeda)
-    - [Regular Expression](#regular-expression)
-    - [Keunikan & Eksistensi](#keunikan--eksistensi)
-    - [Tanggal](#tanggal)
-    - [E-Mail](#e-mail)
-    - [URL](#url)
-    - [File Upload](#file-upload)
-    - [Array](#array)
+  - [Wajib Diisi](#wajib-diisi)
+  - [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
+  - [Ukuran](#ukuran)
+  - [Angka](#angka)
+  - [Inklusi & Pengecualian](#inklusi--pengecualian)
+  - [Konfirmasi](#konfirmasi)
+  - [Persetujuan](#persetujuan)
+  - [Sama & Berbeda](#sama--berbeda)
+  - [Regular Expression](#regular-expression)
+  - [Keunikan & Eksistensi](#keunikan--eksistensi)
+  - [Tanggal](#tanggal)
+  - [E-Mail](#e-mail)
+  - [URL](#url)
+  - [File Upload](#file-upload)
+  - [Array](#array)
 - [Mengambil Pesan Error](#mengambil-pesan-error)
 - [Panduan Validasi](#panduan-validasi)
 - [Pesan Error Kustom](#pesan-error-kustom)
@@ -214,9 +214,9 @@ harus cocok dengan value di atribut `'password_confirmation'`.
 
 Rule `'accepted'` memvalidasi bahwa value dari sebuah atribut merupakan salah satu
 dari: `'yes'`, `'on'`, `'1'`, `1`, `true`, atau `'true'`. Rule ini sangat berguna ketika
-memvalidasi form checkbox, seperti checkbox persetujuan pengguna.
+memvalidasi form checkbox, seperti checkbox persetujuan peraturan situs.
 
-#### Validate that an attribute is accepted:
+#### Validasi bahwa atribut telah disetujui:
 
 ```php
 'terms' => 'accepted'
