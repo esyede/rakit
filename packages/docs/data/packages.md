@@ -47,7 +47,7 @@ File ini akan dijalankan setiap kali paket di-boot (dimuat).
 #### Membuat file `boot.php` milik paket:
 
 ```php
-// file: packages/admin/boto.php
+// file: packages/admin/boot.php
 
 Autoloader::namespaces([
     'Admin' => Package::path('admin').'libraries',
@@ -380,7 +380,7 @@ Pertama, jika paket yang hendak anda hapus melakukn migrasi ke database, anda pe
 tabel-tabel database yang dulu pernah dibuatnya:
 
 ```bash
-php rakit migrate::reset <nama-paket>
+php rakit migrate:reset <nama-paket>
 ```
 
 >  Indikasi sebuah paket melakukan operasi migrasi database adalah paket tersebut
@@ -390,7 +390,7 @@ php rakit migrate::reset <nama-paket>
 Selanjutnya, kita perlu bersihkan file dan aset bawaan paketnya:
 
 ```bash
-php rakit package::uninstall <nama-paket>
+php rakit package:uninstall <nama-paket>
 ```
 
 Perintah ini akan menghapus folder `packages/<nama-paket>/` dan
