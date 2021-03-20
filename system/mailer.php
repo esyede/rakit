@@ -359,9 +359,12 @@ class Mailer
         $boundary1 = md5(Str::random(16));
         $boundary2 = md5(Str::random(16));
 
+        $name = $name ? '"'.$this->encode($name).'" ' : '';
+        $message_id = time().'.'.md5(microtime()).'@'.substr($from, strrpos($from, '@') + 1);
+
         $headers = [
-            'Message-ID: <'.time().'.'.md5(microtime()).'@'.substr($from, strrpos($from, '@') + 1).'>',
-            'From: '.($name ? '"'.$this->encode($name).'" ' : '').'<'.$from.'>',
+            'Message-ID: <'.$message_id.'>',
+            'From: '.$name.'<'.$from.'>',
         ];
 
         if (! empty($this->headers)) {
@@ -401,11 +404,9 @@ class Mailer
         $headers[] = 'Return-Path: <'.$from.'>';
 
         if ($this->read) {
-            $headers[] = 'Disposition-Notification-To: '.
-                ($name ? '"'.$this->encode($name).'" ' : '').'<'.$from.'>';
-
-            $headers[] = 'Return-Receipt-To: '.
-                ($name ? '"'.$this->encode($name).'" ' : '').'<'.$from.'>';
+            $name = $name ? '"'.$this->encode($name).'" ' : '';
+            $headers[] = 'Disposition-Notification-To: '.$name.'<'.$from.'>';
+            $headers[] = 'Return-Receipt-To: '.$name.'<'.$from.'>';
         }
 
         if (self::PLAIN === (int) $mode) {

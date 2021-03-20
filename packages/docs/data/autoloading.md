@@ -46,8 +46,8 @@ suka dengan menggunakan konvensi yang sama:
 
 ```php
 Autoloader::directories([
-    path('app').'classes',
-    path('app').'utilities',
+	path('app').'classes',
+	path('app').'utilities',
 ]);
 ```
 
@@ -63,8 +63,8 @@ untuk mencari dimana lokasi kelas anda berada:
 
 ```php
 Autoloader::map([
-    'Forms\Bootstrap' => path('app').'classes/forms/bootstrap.php',
-    'Forms\Bulma'     => path('app').'classes/forms/bulma.php',
+	'Forms\Bootstrap' => path('app').'classes/forms/bootstrap.php',
+	'Forms\Bulma'     => path('app').'classes/forms/bulma.php',
 ]);
 ```
 
@@ -84,7 +84,7 @@ dan lokasi foldernya ke autoloader. Rakit akan menangani sisanya.
 
 ```php
 Autoloader::namespaces([
-    'Doctrine' => path('libraries').'Doctrine',
+	'Doctrine' => path('libraries').'Doctrine',
 ]);
 ```
 
@@ -104,7 +104,7 @@ adalah root namespace miliknya.
 
 ```php
 Autoloader::underscored([
-    'Swift' => path('libraries').'Swift_Mailer',
+	'Swift' => path('libraries').'Swift_Mailer',
 ]);
 ```
 

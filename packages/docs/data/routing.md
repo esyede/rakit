@@ -47,7 +47,7 @@ yang diwakili dengan hanya sebuah garis miring.
 
 ```php
 Route::get('/', function () {
-    return 'Halo dunia!';
+	return 'Halo dunia!';
 });
 ```
 
@@ -55,7 +55,7 @@ Route::get('/', function () {
 
 ```php
 Route::any('/', function () {
-    return 'Halo dunia!';
+	return 'Halo dunia!';
 });
 ```
 
@@ -71,7 +71,7 @@ Route::put('user/(:num)', function ($id) {
 });
 
 Route::delete('user/(:num)', function ($id) {
-    // ..
+	// ..
 });
 ```
 
@@ -244,13 +244,13 @@ ke sekelompok rute sekaligus, ini memungkinkan anda untuk menjaga agar kode anda
 ```php
 Route::group(['before' => 'auth'], function () {
 
-    Route::get('panel', function () {
+	Route::get('panel', function () {
         // ..
-    });
+	});
 
-    Route::get('dashboard', function () {
+	Route::get('dashboard', function () {
         // ..
-    });
+	});
 });
 ```
 
@@ -314,7 +314,7 @@ Mari kita buka file `application/packages.php` dan tambahkan sesuatu:
 ```php
 return [
 
-    'admin' => ['handles' => 'admin'],
+	'admin' => ['handles' => 'admin'],
 
 ];
 ```
