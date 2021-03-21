@@ -372,24 +372,6 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Ambil konten dari disk.
-     *
-     * @return string
-     */
-    // protected function load()
-    // {
-    //     static::$last = ['name' => $this->view, 'path' => $this->path];
-
-    //     if (isset(static::$cache[$this->path])) {
-    //         return static::$cache[$this->path];
-    //     }
-
-    //     static::$cache[$this->path] = $this->path;
-
-    //     return static::$cache[$this->path];
-    // }
-
-    /**
      * Ambil array view data untuk instance view.
      * Shared view data akan dicampur dengan view data biasa.
      *
