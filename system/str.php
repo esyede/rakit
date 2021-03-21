@@ -172,7 +172,8 @@ class Str
     }
 
     /**
-     * Generate cryptographically secure random bytes.
+     * Hasilkan byte acak yang aman secara kriptografi.
+     * Method ini diadaptasi dari https://github.com/paragonie/random-compat.
      *
      * @param int $length
      *
@@ -278,7 +279,8 @@ class Str
     }
 
     /**
-     * Generate cryptographically secure random integer.
+     * Hasilkan integer acak yang aman secara kriptografi.
+     * Method ini diadaptasi dari https://github.com/paragonie/random-compat.
      *
      * @param int $min
      * @param int $max

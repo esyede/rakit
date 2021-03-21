@@ -8,6 +8,7 @@ class Hash
 {
     /**
      * Buat hash password.
+     * Method ini diadaptasi dari https://github.com/ircmaxell/password-compat.
      *
      * @param string $password
      * @param int    $cost
@@ -51,6 +52,7 @@ class Hash
 
     /**
      * Cek cocok atau tidaknya sebuah password dengan hashnya.
+     * Method ini diadaptasi dari https://github.com/ircmaxell/password-compat.
      *
      * @param string $password
      * @param string $hash
@@ -83,6 +85,7 @@ class Hash
 
     /**
      * Cek apakah hash yang dihasilkan masih lemah berdasarkan cost yang diberikan.
+     * Method ini diadaptasi dari https://github.com/ircmaxell/password-compat.
      *
      * @param string $hash
      * @param int    $cost
