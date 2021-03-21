@@ -336,7 +336,7 @@ class Response
     /**
      * Ambil headers dari http foundation response.
      *
-     * @return ResponseParameter
+     * @return \System\Foundation\Http\Parameter
      */
     public function headers()
     {
