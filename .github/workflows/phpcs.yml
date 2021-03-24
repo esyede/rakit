@@ -1,7 +1,7 @@
 on:
     push:
-        branches:
-            - 'master'
+        paths:
+            - '**.php'
     pull_request:
         paths:
             - '**.php'
