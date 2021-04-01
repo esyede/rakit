@@ -194,7 +194,7 @@ Dalam hal ini kami menerapkan middleware `'csrf'` hanya ketika request yang data
 Middleware `'csrf'` dirancang untuk mencegah pengiriman data POST dari pihak lain (misalnya bot spam).
 
 Middleware ini juga sudah disediakan secara default. Anda dapat melihat implementasi default
-middleware `'csrf'` ini di file `application/middlewares.php`.
+middleware `'csrf'` ini di file `middlewares.php`.
 
 _Bacaan lebih lanjut:_
 

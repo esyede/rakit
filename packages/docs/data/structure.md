@@ -66,32 +66,43 @@ Sekarang, mari kita bahas apa kegunaan folder-folder tersebut.
 <a id="folder-application"></a>
 ### Folder application
 
-To be documented.
+Folder `application/` controller, view, file konfigurasi serta file default lainnya.
+Pada dasarnya, folder ini adalah sebuah paket (yaitu paket default) yang digunakan untuk
+mem-bootstrap sistem rakit serta paket lain yang anda install ke folder `packages/`.
+
+Routing default serta setelan lain juga diletakkan dalam flder ini.
 
 
 
 <a id="folder-assets"></a>
 ### Folder assets
 
-To be documented.
+Folder `assets/` berisi aset yang sifatnya publik seperti file - file CSS, JavaScript, gambar
+serta file lain yang harus bisa diakses oleh web browser.
+
+Didalam folder ini juga terdapat subfolder `packages/` yang digunakan untuk meletakkan file - file
+asset bawaan paket yang anda install.
 
 
 
 <a id="folder-packages"></a>
 ### Folder packages
 
-To be documented.
+Folder `packages/` berisi folder paket yang anda install.
 
 
 
 <a id="folder-storage"></a>
 ### Folder storage
 
-To be documented.
+Folder `storage/` berisi subfolder bawaan rakit untuk penyimpanan file - file non-publik seperti
+file cache, session , file database (sqlite) serta file hasil render
+dari [Blade Template Engine](/docs/views/templating#blade-template-engine).
 
 
 
 <a id="folder-system"></a>
 ### Folder system
 
-To be documented.
+Folder `system/` merupakan folder inti, didalamnya tersimpan file - file utama milik rakit.
+Pada saat mengupgrade framework rakit, biasanya anda cukup menimpa folder ini dengan yang baru.
