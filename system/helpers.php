@@ -29,7 +29,7 @@ if (! function_exists('dd')) {
         $variables = func_get_args();
         if (is_cli()) {
             array_map(function ($var) {
-                if ('\\' === DIRECTORY_SEPARATOR) {
+                if ('\\' === DS) {
                     echo \System\Foundation\Oops\Dumper::toText($var);
                 } else {
                     echo \System\Foundation\Oops\Dumper::toTerminal($var);
@@ -251,7 +251,19 @@ if (! function_exists('retry')) {
 
         try {
             return $callback($attempts);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
+            if (! $times || ($when && ! $when($e))) {
+                throw $e;
+            }
+
+            --$times;
+
+            if ($sleep) {
+                usleep($sleep * 1000);
+            }
+
+            goto beginning;
+        } catch (\Exception $e) {
             if (! $times || ($when && ! $when($e))) {
                 throw $e;
             }
@@ -284,29 +296,9 @@ if (! function_exists('tap')) {
     }
 }
 
-if (! function_exists('trait_uses_recursive')) {
-    /**
-     * Mereturn seluruh trait yang digunakan oleh sebuah trait dan traitnya.
-     *
-     * @param string $trait
-     *
-     * @return array
-     */
-    function trait_uses_recursive($trait)
-    {
-        $traits = class_uses($trait);
-
-        foreach ($traits as $trait) {
-            $traits += trait_uses_recursive($trait);
-        }
-
-        return $traits;
-    }
-}
-
 if (! function_exists('facile_to_json')) {
     /**
-     * Ubah object Model menjadi string JSON.
+     * Ubah object Facile menjadi string JSON.
      *
      * @param Facile|array $models
      *
