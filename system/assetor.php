@@ -68,7 +68,7 @@ class Assetor
      */
     public function add($name, $source, $dependencies = [], $attributes = [])
     {
-        $type = pathinfo($source, PATHINFO_EXTENSION);
+        $type = File::extension($source);
 
         if ('js' !== $type && 'css' !== $type) {
             throw new \Exception('Only css and javascript file are supported.');

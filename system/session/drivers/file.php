@@ -5,6 +5,7 @@ namespace System\Session\Drivers;
 defined('DS') or exit('No direct script access.');
 
 use System\Str;
+use System\File as Storage;
 
 class File extends Driver implements Sweeper
 {
@@ -38,7 +39,7 @@ class File extends Driver implements Sweeper
         $path = $this->path.$this->naming($id);
 
         if (is_file($path)) {
-            $path = file_get_contents($path);
+            $path = Storage::get($path);
             return $this->unguard(unserialize($path));
         }
     }
@@ -55,7 +56,7 @@ class File extends Driver implements Sweeper
         $path = $this->path.$this->naming($session['id']);
         $session = $this->guard(serialize($session));
 
-        file_put_contents($path, $session, LOCK_EX);
+        Storage::put($path, $session, LOCK_EX);
     }
 
     /**
@@ -66,10 +67,7 @@ class File extends Driver implements Sweeper
     public function delete($id)
     {
         $path = $this->path.$this->naming($id);
-
-        if (is_file($path)) {
-            unlink($path);
-        }
+        Storage::delete($path);
     }
 
     /**
@@ -86,8 +84,8 @@ class File extends Driver implements Sweeper
         }
 
         foreach ($files as $file) {
-            if (is_file($file) && filemtime($file) < $expiration) {
-                unlink($file);
+            if (is_file($file) && Storage::modified($file) < $expiration) {
+                Storage::delete($file);
             }
         }
     }

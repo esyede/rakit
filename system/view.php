@@ -468,9 +468,9 @@ class View implements \ArrayAccess
     {
         $files = glob(path('storage').DS.'views'.DS.'*.php');
 
-        if (! empty($files)) {
+        if (is_array($files) && ! empty($files)) {
             foreach ($files as $file) {
-                @unlink($file);
+                File::delete($file);
             }
         }
     }

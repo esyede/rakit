@@ -51,7 +51,7 @@ class Repository
             throw new \Exception('Missing repository. Please contact rakit team.'.PHP_EOL);
         }
 
-        $target = file_get_contents($target);
+        $target = Storage::get($target);
 
         // Lihat: https://www.php.net/manual/en/function.json-last-error.php#118165
         $packages = @json_decode($target);

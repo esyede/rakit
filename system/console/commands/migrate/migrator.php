@@ -209,7 +209,7 @@ class Migrator extends Command
         $path = Package::path($package).'migrations'.DS;
 
         if (! is_dir($path)) {
-            mkdir($path);
+            File::mkdir($path);
         }
 
         $file = $path.$prefix.'_'.$migration.'.php';

@@ -888,7 +888,11 @@ class Upload extends \SplFileInfo
     protected function getTargetFile($directory, $name = null)
     {
         if (! is_dir($directory)) {
-            if (false === @mkdir($directory, 0777, true)) {
+            try {
+                mkdir($directory, 0777, true);
+            } catch (\Throwable $e) {
+                throw new \Exception(sprintf('Unable to create the directory: %s', $directory));
+            } catch (\Exception $e) {
                 throw new \Exception(sprintf('Unable to create the directory: %s', $directory));
             }
         } elseif (! is_writable($directory)) {

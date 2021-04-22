@@ -5,6 +5,7 @@ namespace System\Cache\Drivers;
 defined('DS') or exit('No direct script access.');
 
 use System\Str;
+use System\File as Storage;
 
 class File extends Driver
 {
@@ -52,7 +53,7 @@ class File extends Driver
             return;
         }
 
-        $cache = file_get_contents($this->path.$key);
+        $cache = Storage::get($this->path.$key);
         $cache = $this->unguard($cache);
 
         if (time() >= substr($cache, 0, 10)) {
@@ -86,7 +87,7 @@ class File extends Driver
 
         $value = $this->guard($this->expiration($minutes).serialize($value));
 
-        file_put_contents($this->path.$key, $value, LOCK_EX);
+        Storage::put($this->path.$key, $value, LOCK_EX);
     }
 
     /**
@@ -108,10 +109,7 @@ class File extends Driver
     public function forget($key)
     {
         $key = $this->naming($key);
-
-        if (is_file($this->path.$key)) {
-            unlink($this->path.$key);
-        }
+        Storage::delete($key);
     }
 
     /**

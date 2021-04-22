@@ -13,9 +13,9 @@ require dirname(__DIR__).DS.'paths.php';
 // --------------------------------------------------------------
 // Timpa path framework untuk test folder system.
 // --------------------------------------------------------------
-set_path('app', __DIR__.DS.'application'.DS);
-set_path('package', __DIR__.DS.'packages'.DS);
-set_path('storage', __DIR__.DS.'storage'.DS);
+set_path('app', __DIR__.DS.'fixtures'.DS.'application'.DS);
+set_path('package', __DIR__.DS.'fixtures'.DS.'packages'.DS);
+set_path('storage', __DIR__.DS.'fixtures'.DS.'storage'.DS);
 
 // --------------------------------------------------------------
 // Muat file bootstraper system.

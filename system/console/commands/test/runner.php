@@ -4,6 +4,7 @@ namespace System\Console\Commands\Test;
 
 defined('DS') or exit('No direct script access.');
 
+use System\File;
 use System\Package;
 use System\Console\Commands\Command;
 
@@ -95,7 +96,7 @@ class Runner extends Command
 
         passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
 
-        @unlink($config);
+        File::delete($config);
 
         exit($status);
     }
@@ -109,8 +110,7 @@ class Runner extends Command
      */
     protected function stub($directory)
     {
-        $stub = file_get_contents(__DIR__.DS.'stub.xml');
-
+        $stub = File::get(__DIR__.DS.'stub.xml');
         $tokens = [
             '[bootstrap]' => $this->base.'phpunit.php',
             '[directory]' => $directory,
@@ -118,7 +118,7 @@ class Runner extends Command
 
         $stub = $this->tokens($stub, $tokens);
 
-        file_put_contents(path('base').'phpunit.xml', $stub, LOCK_EX);
+        File::put(path('base').'phpunit.xml', $stub, LOCK_EX);
     }
 
     /**

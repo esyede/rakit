@@ -76,9 +76,7 @@ abstract class Provider
      */
     protected function download($zipball_url, $destination)
     {
-        if (is_file($destination)) {
-            @unlink($destination);
-        }
+        File::delete($destination);
 
         $options = [CURLOPT_FOLLOWLOCATION => 1];
 
