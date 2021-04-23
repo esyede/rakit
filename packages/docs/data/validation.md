@@ -53,8 +53,7 @@ $rules = [
 ```
 
 Selain menggunakan karakter `|` (pipe) sebagai pemisah, anda juga dapat menuliskannya
-dengan sintaks. Dengan begitu rule validasi anda akan lebih mudah dibaca dan dipahami
-oleh pengembang lain:
+dengan sintaks array:
 
 ```php
 $rules = [
@@ -110,13 +109,13 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut harus ada dan bukan string kosong:
 
 ```php
-'name' => 'required'
+'name' => 'required',
 ```
 
 #### Validasi bahwa atribut hasrus ada jika atribut lain ada:
 
 ```php
-'last_name' => 'required_with:first_name'
+'last_name' => 'required_with:first_name',
 ```
 
 <a id="alfabet-angka--tanda-hubung"></a>
@@ -125,19 +124,19 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut hanya terdiri dari huruf alfabet:
 
 ```php
-'name' => 'alpha'
+'name' => 'alpha',
 ```
 
 #### Validasi bahwa atribut hanya terdiri dari huruf alfabet dan angka:
 
 ```php
-'username' => 'alpha_num'
+'username' => 'alpha_num',
 ```
 
 #### Validasi bahwa atribut hanya terdiri dari huruf alfabet, angka, tanda hubung dan garis bawah:
 
 ```php
-'username' => 'alpha_dash'
+'username' => 'alpha_dash',
 ```
 
 
@@ -147,13 +146,13 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut memiliki panjang tertentu, atau, jika atribut berupa angka, ia adalah value tertentu:
 
 ```php
-'name' => 'size:10'
+'name' => 'size:10',
 ```
 
 #### Validasi bahwa ukuran atribut berada dalam rentang tertentu:
 
 ```php
-'payment' => 'between:10,50'
+'payment' => 'between:10,50',
 ```
 
 >  Nilai minimum dan maksimumnya bersifat inklusif. Maksudnya, jika user menginput `10` atau `50`
@@ -162,13 +161,13 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut minimal harus memiliki ukuran yang ditentukan:
 
 ```php
-'payment' => 'min:10'
+'payment' => 'min:10',
 ```
 
 #### Validasi bahwa ukuran atribut tidak boleh melebihi yang ditentukan:
 
 ```php
-'payment' => 'max:50'
+'payment' => 'max:50',
 ```
 
 
@@ -178,13 +177,13 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut berupa angka:
 
 ```php
-'payment' => 'numeric'
+'payment' => 'numeric',
 ```
 
 #### Validasi bahwa atribut berupa integer:
 
 ```php
-'payment' => 'integer'
+'payment' => 'integer',
 ```
 
 
@@ -194,13 +193,13 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut ada dalam list tertentu:
 
 ```php
-'size' => 'in:small,medium,large'
+'size' => 'in:small,medium,large',
 ```
 
 #### Validasi bahwa atribut tidak ada dalam list tertentu:
 
 ```php
-'language' => 'not_in:cobol,assembler'
+'language' => 'not_in:cobol,assembler',
 ```
 
 
@@ -213,7 +212,7 @@ bernama `'xxx_confirmation'`, dimana `'xxx'` adalah nama atribut asalnya.
 #### Validasi bahwa atribut sudah dikonfirmasi:
 
 ```php
-'password' => 'confirmed'
+'password' => 'confirmed',
 ```
 
 Pada contoh diatas, si validator akan memvalidasi bahwa value milik atribut `'password'`
@@ -230,7 +229,7 @@ memvalidasi form checkbox, seperti checkbox persetujuan peraturan situs.
 #### Validasi bahwa atribut telah disetujui:
 
 ```php
-'terms' => 'accepted'
+'terms' => 'accepted',
 ```
 
 
@@ -240,7 +239,7 @@ memvalidasi form checkbox, seperti checkbox persetujuan peraturan situs.
 #### Validasi bahwa value sebuah atribut cocok dengan milik attribute lain:
 
 ```php
-'token1' => 'same:token2'
+'token1' => 'same:token2',
 ```
 
 #### Validasi bahwa value dua buah atribut memiliki value yang berbeda:
@@ -262,7 +261,7 @@ Rule `'match'` memvalidasi bahwa value sebuah atribut cocok dengan pola regular 
 ```
 
 Ketika anda menggunakan rule `'match'` ini secara kompleks, sangat direkomendasikan untuk
-menggunakan sintaks array untuk menghindari error pada regexnya. Contohnya seperti ini:
+menggunakan sintaks array untuk menghindari error pada regexnya:
 
 ```php
 $rules = [
@@ -277,7 +276,7 @@ $rules = [
 #### Validasi bahwa atribut unik pada tabel database tertentu:
 
 ```php
-'email' => 'unique:users'
+'email' => 'unique:users',
 ```
 
 Pada contoh diatas, atribut `'email'` akan diperiksa keunikannya pada tabel `'users'`.
@@ -288,7 +287,7 @@ Perlu memeriksa keunikan pada nama kolom yang berbeda dengan nama atribut? Tidak
 #### Tentukan nama kolom kustom untuk memeriksa keunikan:
 
 ```php
-'email' => 'unique:users,email_address'
+'email' => 'unique:users,email_address',
 ```
 
 Sering kali, saat memperbarui record di database, anda ingin menggunakan rule `'unique'`,
@@ -303,19 +302,19 @@ Lalu bagaimana cara mengatasinya? Mudah saja:
 #### Memaksa rule `unique` untuk mengabaikan ID tertentu:
 
 ```php
-'email' => 'unique:users,email_address,10'
+'email' => 'unique:users,email_address,10',
 ```
 
 #### Validasi bahwa atribut ada di tabel database tertentu:
 
 ```php
-'city' => 'exists:cities'
+'city' => 'exists:cities',
 ```
 
 #### Tentukan nama kolom kustom untuk rule `exists`:
 
 ```php
-'city' => 'exists:cities,abbreviation'
+'city' => 'exists:cities,abbreviation',
 ```
 
 
@@ -325,13 +324,13 @@ Lalu bagaimana cara mengatasinya? Mudah saja:
 #### Validasi bahwa atribut tanggal adalah sebelum tanggal tertentu:
 
 ```php
-'birthdate' => 'before:1992-11-02';
+'birthdate' => 'before:1992-11-02',
 ```
 
 #### Validasi bahwa atribut tanggal adalah setelah tanggal tertentu:
 
 ```php
-'birthdate' => 'after:1992-11-02';
+'birthdate' => 'after:1992-11-02',
 ```
 
 >  Rule `before` dan `after` ini menggunakan fungsi
@@ -357,7 +356,7 @@ Opsi pemformatan untuk tanggal bisa anda baca di
 #### Validasi bahwa atribut merupakan sebuah alamat e-mail:
 
 ```php
-'address' => 'email'
+'address' => 'email',
 ```
 
 >  Rule ini menggunakan fungsi [filter_var()](https://php.net/manual/en/function.filter-var.php)
@@ -370,13 +369,13 @@ Opsi pemformatan untuk tanggal bisa anda baca di
 #### Validasi bahwa atribut merupakan sebuah URL:
 
 ```php
-'link' => 'url'
+'link' => 'url',
 ```
 
 #### Validasi bahwa atribut merupakan sebuah URL aktif:
 
 ```php
-'link' => 'active_url'
+'link' => 'active_url',
 ```
 
 >  Rule ini menggunakan fungsi [checkdnsrr()](https://php.net/manual/en/function.checkdnsrr.php)
@@ -393,7 +392,7 @@ membaca konten file dan menentukan jenis MIME yang sebenarnya.
 #### Validasi bahwa file adalah salah satu dari mime-type yang diberikan:
 
 ```php
-'picture' => 'mimes:jpg,gif'
+'picture' => 'mimes:jpg,png,gif',
 ```
 
 >  Ketika memvalidasi file, pastikan untuk menggunakan `Input::file()` atau `Input::all()`
@@ -402,13 +401,13 @@ membaca konten file dan menentukan jenis MIME yang sebenarnya.
 #### Validasi bahwa file adalah gambar:
 
 ```php
-'picture' => 'image'
+'picture' => 'image',
 ```
 
 #### Validasi bahwa ukuran file tidak melebihi ukuran yang ditentukan dalam kilobytes:
 
 ```php
-'picture' => 'image|max:100'
+'picture' => 'image|max:100',
 ```
 
 
@@ -418,31 +417,31 @@ membaca konten file dan menentukan jenis MIME yang sebenarnya.
 #### Validasi bahwa atribut merupakan array:
 
 ```php
-'categories' => 'array'
+'categories' => 'array',
 ```
 
 #### Validasi bahwa atribut merupakan array, dan memiliki tepat 3 elemen:
 
 ```php
-'categories' => 'array|count:3'
+'categories' => 'array|count:3',
 ```
 
 #### Validasi bahwa atribut merupakan array, dan memiliki 1 sampai 3 elemen:
 
 ```php
-'categories' => 'array|countbetween:1,3'
+'categories' => 'array|countbetween:1,3',
 ```
 
 #### Validasi bahwa atribut merupakan array, dan setidaknya memiliki 2 elemen:
 
 ```php
-'categories' => 'array|countmin:2'
+'categories' => 'array|countmin:2',
 ```
 
 #### Validasi bahwa atribut merupakan array, dan memiliki maksimal 2 elemen:
 
 ```php
-'categories' => 'array|countmax:2'
+'categories' => 'array|countmax:2',
 ```
 
 
@@ -520,7 +519,7 @@ Route::get('register', function () {
 });
 
 Route::post('register', function () {
-    $rules = [ ... ]; // rule validasi
+    $rules = [ ... ]; // rule validasi disini
 
     $validation = Validator::make(Input::all(), $rules);
 
