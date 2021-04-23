@@ -14,7 +14,7 @@
         "name": "docs",
         "description": "Paket dokumentasi resmi rakit",
         "category": "messaging",
-        "repository": "https://github.com/esyede/sendgrid-rakit",
+        "repository": "https://github.com/esyede/docs",
         "maintained": true,
         "compatibilities": {
             "v0.9.6": "v1.0.0",

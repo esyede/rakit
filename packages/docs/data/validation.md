@@ -52,6 +52,17 @@ $rules = [
 ];
 ```
 
+Selain menggunakan karakter `|` (pipe) sebagai pemisah, anda juga dapat menuliskannya
+dengan sintaks. Dengan begitu rule validasi anda akan lebih mudah dibaca dan dipahami
+oleh pengembang lain:
+
+```php
+$rules = [
+  'name'  => ['required', 'max:50'],
+  'email' => ['required', 'email', 'unique:users'],
+];
+```
+
 
 #### Buat instance `Validator` dan validasilah datanya:
 
