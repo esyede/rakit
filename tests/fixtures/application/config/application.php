@@ -68,23 +68,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Link SSL
-    |--------------------------------------------------------------------------
-    |
-    | Banyak situs menggunakan SSL untuk melindungi data penggunanya. Namun,
-    | anda mungkin tidak dapat menggunakan SSL di lingkungan pengembangan anda,
-    | yang berarti semua HTTPS tidak akan bisa digunakan selama pengembangan.
-    |
-    | Oleh karena itu, anda mungkin ingin menonaktifkan pembuatan link HTTPS di
-    | seluruh aplikasi anda. Jadi semua upaya untuk membuat link HTTPS akan
-    | menghasilkan link HTTP biasa.
-    |
-    */
-
-    'ssl' => true,
-
-    /*
-    |--------------------------------------------------------------------------
     | Zona Waktu
     |--------------------------------------------------------------------------
     |
