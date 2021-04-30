@@ -29,10 +29,7 @@ class Container
      */
     public static function register($name, $resolver = null, $singleton = false)
     {
-        if (is_null($resolver)) {
-            $resolver = $name;
-        }
-
+        $resolver = is_null($resolver) ? $name : $resolver;
         static::$registry[$name] = compact('resolver', 'singleton');
     }
 
