@@ -27,6 +27,14 @@ File::exists('foo/bar.txt'); // true
 ```
 
 
+#### Memeriksa bahwa path yang diberikan merupakan sebuah file:
+
+```php
+File::isfile('foo/bar/');    // false
+File::isfile('foo/bar.txt'); // true
+```
+
+
 #### Memeriksa bahwa path yang diberikan merupakan sebuah direktori:
 
 ```php

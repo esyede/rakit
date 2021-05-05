@@ -13,14 +13,11 @@ class Docs_Home_Controller extends Controller
      */
     public function action_index()
     {
-        $view = View::make('docs::home');
-
-        $view->title = Docs::title('home');
-        $view->sidebar = Docs::sidebar(Docs::render('000-sidebar'));
-        $view->content = Docs::content(Docs::render('home'));
-        $view->mdname = 'home';
-
-        return $view;
+        return View::make('docs::home')
+            ->with_title(Docs::title('home'))
+            ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
+            ->with_content(Docs::content(Docs::render('home')))
+            ->with_filename('home');
     }
 
     /**
@@ -33,23 +30,17 @@ class Docs_Home_Controller extends Controller
      */
     public function action_page($section, $page = null)
     {
-        $mdname = rtrim(implode('/', func_get_args()), '/');
+        $filename = rtrim(implode('/', func_get_args()), '/');
+        $filename .= (is_null($page) && Docs::exists($filename.'/home')) ? '/home' : '';
 
-        if (is_null($page) && Docs::exists($mdname.'/home')) {
-            $mdname .= '/home';
+        if (! Docs::exists($filename)) {
+            return Response::error('404');
         }
 
-        if (Docs::exists($mdname)) {
-            $view = View::make('docs::home');
-
-            $view->title = Docs::title($mdname);
-            $view->sidebar = Docs::sidebar(Docs::render('000-sidebar'));
-            $view->content = Docs::content(Docs::render($mdname));
-            $view->mdname = $mdname;
-
-            return $view;
-        }
-
-        return Response::error('404');
+        return View::make('docs::home')
+            ->with_title(Docs::title($filename))
+            ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
+            ->with_content(Docs::content(Docs::render($filename)))
+            ->with_filename($filename);
     }
 }

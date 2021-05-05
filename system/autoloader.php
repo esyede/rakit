@@ -87,9 +87,7 @@ class Autoloader
     {
         $file = str_replace(['\\', '_', '/'], DS, $class);
         $lowercased = strtolower($file);
-
-        $directories = $directory ? $directory : static::$directories;
-        $directories = (array) $directories;
+        $directories = $directory ? (array) $directory : static::$directories;
 
         foreach ($directories as $directory) {
             if (is_file($path = $directory.$lowercased.'.php')) {
