@@ -16,6 +16,21 @@ if (! function_exists('e')) {
     }
 }
 
+if (! function_exists('isset_or')) {
+    /**
+     * Toggle variabel kosong.
+     *
+     * @param mixed $var
+     * @param mixed $alternate
+     *
+     * @return mixed
+     */
+    function isset_or(&$variable, $alternate = null)
+    {
+        return (isset($variable)) ? $variable : $alternate;
+    }
+}
+
 if (! function_exists('dd')) {
     /**
      * Dump variable dan hentikan eksekusi script.

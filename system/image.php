@@ -729,10 +729,7 @@ class Image
      */
     public static function acceptable($path)
     {
-        $mime = File::mime($path);
-        $acceptable = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png'];
-
-        return in_array($mime, $acceptable);
+        return in_array(File::mime($path), ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png']);
     }
 
     /**

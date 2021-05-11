@@ -45,17 +45,17 @@ class Date extends \DateTime
         $second = null,
         $timezone = null
     ) {
-        $year = (null === $year) ? date('Y') : $year;
-        $month = (null === $month) ? date('n') : $month;
-        $day = (null === $day) ? date('j') : $day;
+        $year = is_null($year) ? date('Y') : $year;
+        $month = is_null($month) ? date('n') : $month;
+        $day = is_null($day) ? date('j') : $day;
 
-        if (null === $hour) {
+        if (is_null($hour)) {
             $hour = date('G');
-            $minute = (null === $minute) ? date('i') : $minute;
-            $second = (null === $second) ? date('s') : $second;
+            $minute = is_null($minute) ? date('i') : $minute;
+            $second = is_null($second) ? date('s') : $second;
         } else {
-            $minute = (null === $minute) ? 0 : $minute;
-            $second = (null === $second) ? 0 : $second;
+            $minute = is_null($minute) ? 0 : $minute;
+            $second = is_null($second) ? 0 : $second;
         }
 
         return self::createFromFormat(
@@ -77,7 +77,7 @@ class Date extends \DateTime
 
     public static function createFromFormat($format, $time, $object = null)
     {
-        if (null !== $object) {
+        if (! is_null($object)) {
             $date = parent::createFromFormat($format, $time, self::safeCreateDateTimeZone($object));
         } else {
             $date = parent::createFromFormat($format, $time);
@@ -353,7 +353,8 @@ class Date extends \DateTime
 
     public function isWeekday()
     {
-        return self::SUNDAY !== (int) $this->dayOfWeek && self::SATURDAY !== (int) $this->dayOfWeek;
+        return (self::SUNDAY !== (int) $this->dayOfWeek)
+            && (self::SATURDAY !== (int) $this->dayOfWeek);
     }
 
     public function isWeekend()
@@ -664,7 +665,7 @@ class Date extends \DateTime
     public function diffInDays(Date $date = null, $absolute = true)
     {
         $date = is_null($date) ? Date::now($this->tz) : $date;
-        $sign = ($absolute) ? '' : '%r';
+        $sign = $absolute ? '' : '%r';
 
         return (int) ($this->diff($date)->format($sign.'%a'));
     }
@@ -702,7 +703,7 @@ class Date extends \DateTime
     public function diffForHumans(Date $other = null)
     {
         $str = '';
-        $isNow = (null === $other);
+        $isNow = is_null($other);
 
         if ($isNow) {
             $other = self::now();

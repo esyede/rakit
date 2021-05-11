@@ -187,7 +187,7 @@ class Form
      */
     public static function input($type, $name, $value = null, $attributes = [])
     {
-        $name = (isset($attributes['name'])) ? $attributes['name'] : $name;
+        $name = isset($attributes['name']) ? $attributes['name'] : $name;
         $id = static::id($name, $attributes);
         $attributes = array_merge($attributes, compact('type', 'name', 'value', 'id'));
 
