@@ -165,7 +165,7 @@ class Redis
      *     $<jumlah bytes milik argumen 1> CR LF
      *     <data argumen> CR LF
      *     ...
-     *     $<jumlah bytes milik argument N> CR LF
+     *     $<jumlah bytes milik argumen ke-N> CR LF
      *     <data argumen> CR LF
      *
      * Referensi: http://redis.io/topics/protocol

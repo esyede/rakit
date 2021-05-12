@@ -162,8 +162,13 @@ class Paginator
             return '';
         }
 
-        // Angka 7 yang di hard-code dibawah merupakan jumlah elemen slider paginasi yaitu:
-        // 1 halaman saat ini, 2 elipsis, 2 halaman awal dan 1 halaman terakhir
+        // Angka 7 yang di hard-code adalah untuk menghitung semua elemen konstan
+        // dalam rentang 'slider', seperti laman saat ini, dua elipsis, dan dua
+        // halaman awal dan akhir.
+        //
+        // Jika tidak ada cukup halaman untuk memungkinkan pembuatan slider
+        // berdasarkan halaman-halaman terdekat, maka semua halaman akan ditampilkan.
+        // Jika sebaliknya, kita buat slider 'terpotong'.
         if ($this->last < (7 + ($adjacent * 2))) {
             $links = $this->range(1, $this->last);
         } else {
@@ -398,6 +403,19 @@ class Paginator
     public function speaks($language)
     {
         $this->language = $language;
+
+        return $this;
+    }
+
+    /**
+     * Set string untuk dot listing.
+     * Gunakan ini untuk mengubah nama class cssnya.
+     *
+     * @param string $dots
+     */
+    public function dots($dots)
+    {
+        $this->dots = $dots;
 
         return $this;
     }
