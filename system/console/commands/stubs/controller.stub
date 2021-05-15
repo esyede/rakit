@@ -18,6 +18,6 @@ class stub_class_Controller extends Controller
 	 */
 	public function action_index()
 	{
-      return 'Hello from stub_class_Controller::action_index()';
+        return 'Hello from stub_class_Controller::action_index()';
 	}
 }

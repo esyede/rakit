@@ -13,6 +13,6 @@ class stub_class extends Command
 	 */
 	public function run(array $arguments = [])
 	{
-      echo 'Hello from stub_class::run() method!';
+        echo 'Hello from stub_class::run() method!';
 	}
 }

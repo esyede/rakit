@@ -25,6 +25,5 @@ class stub_class extends Facile
 	 */
 	public static $rules = [];
 
-
-	// ..
+    // ..
 }
