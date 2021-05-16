@@ -418,13 +418,13 @@ class Str
 
     public static function replace_last($search, $replace, $subject)
     {
-        if ($search === '') {
+        if ('' === $search) {
             return $subject;
         }
 
         $position = strrpos($subject, $search);
 
-        if ($position !== false) {
+        if (false !== $position) {
             return substr_replace($subject, $replace, $position, strlen($search));
         }
 

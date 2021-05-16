@@ -86,14 +86,14 @@ class Curl
 
         $curl = curl_init();
 
-        curl_setopt($curl, CURLOPT_VERBOSE, get_cli_option('verbose') ? 1 : 0);
-
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-
-        curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_USERAGENT, static::agent());
+        curl_setopt_array($curl, [
+           CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
+           CURLOPT_SSL_VERIFYHOST => 0,
+           CURLOPT_SSL_VERIFYPEER => 0,
+           CURLOPT_AUTOREFERER => 1,
+           CURLOPT_RETURNTRANSFER => 1,
+           CURLOPT_USERAGENT => static::agent(),
+        ]);
 
         $query = empty($parameters) ? null : http_build_query($parameters, '', '&', PHP_QUERY_RFC1738);
 
@@ -212,19 +212,18 @@ class Curl
 
         $curl = curl_init();
 
-        curl_setopt($curl, CURLOPT_VERBOSE, get_cli_option('verbose') ? 1 : 0);
-
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
-
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($curl, CURLOPT_AUTOREFERER, 1);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_BINARYTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_USERAGENT, static::agent());
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_FILE, $fopen);
+        curl_setopt_array($curl, [
+            CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_AUTOREFERER => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_BINARYTRANSFER => 1,
+            CURLOPT_USERAGENT => static::agent(),
+            CURLOPT_URL => $url,
+            CURLOPT_FILE => $fopen,
+        ]);
 
         if (! empty($options)) {
             curl_setopt_array($curl, $options);
