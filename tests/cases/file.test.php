@@ -438,7 +438,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     public function testIsFileChecksFilesProperly()
     {
         mkdir(self::$temp.DS.'help');
-        file_put_contents(self::$temp.DS.'help/foo.txt', 'contents');
+        file_put_contents(self::$temp.DS.'help'.DS.'foo.txt', 'contents');
 
         $this->assertTrue(File::isfile(self::$temp.DS.'help'.DS.'foo.txt'));
         $this->assertFalse(File::isfile(self::$temp.DS.'.'.DS.'help'));

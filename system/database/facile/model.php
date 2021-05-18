@@ -696,17 +696,13 @@ abstract class Model
     }
 
     /**
-     * Hapus sebah atribut dari model.
+     * Hapus sebuah atribut dari model.
      *
      * @param string $key
      */
     public function __unset($key)
     {
-        $sources = ['attributes', 'relationships'];
-
-        foreach ($sources as $source) {
-            unset($this->{$source}[$key]);
-        }
+        unset($this->attributes[$key], $this->relationships[$key]);
     }
 
     /**

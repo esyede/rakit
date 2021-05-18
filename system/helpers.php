@@ -20,7 +20,7 @@ if (! function_exists('isset_or')) {
     /**
      * Toggle variabel kosong.
      *
-     * @param mixed $var
+     * @param mixed &$variable
      * @param mixed $alternate
      *
      * @return mixed
