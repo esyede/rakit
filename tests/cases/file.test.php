@@ -65,8 +65,8 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
         File::chmod(self::$temp.DS.'file.txt', 0755);
 
-        $actual = substr(sprintf('%o', fileperms(self::$temp.DS.'file.txt')), -4);
-        $expected = ('\\' === DIRECTORY_SEPARATOR) ? '0666' : '0755';
+        $actual = substr(sprintf('%o', fileperms(self::$temp.DS.'file.txt')), - 4);
+        $expected = ('\\' === DS) ? '0666' : '0755';
 
         $this->assertTrue($expected === $actual);
     }
@@ -82,7 +82,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         chmod(self::$temp.DS.'file.txt', 0755);
 
         $actual = File::chmod(self::$temp.DS.'file.txt');
-        $expected = ('\\' === DIRECTORY_SEPARATOR) ? '0666' : '0755';
+        $expected = ('\\' === DS) ? '0666' : '0755';
 
         $this->assertTrue($expected === $actual);
     }
@@ -236,11 +236,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     public function testMoveDirectoryMovesEntireDirectoryAndOverwrites()
     {
         mkdir(self::$temp.DS.'tmp4', 0777, true);
-        file_put_contents(self::$temp.DS.'tmp4/foo.txt', '');
-        file_put_contents(self::$temp.DS.'tmp4/bar.txt', '');
+        file_put_contents(self::$temp.DS.'tmp4'.DS.'foo.txt', '');
+        file_put_contents(self::$temp.DS.'tmp4'.DS.'bar.txt', '');
 
-        mkdir(self::$temp.DS.'tmp4/nested', 0777, true);
-        file_put_contents(self::$temp.DS.'tmp4/nested/baz.txt', '');
+        mkdir(self::$temp.DS.'tmp4'.DS.'nested', 0777, true);
+        file_put_contents(self::$temp.DS.'tmp4'.DS.'nested'.DS.'baz.txt', '');
 
         mkdir(self::$temp.DS.'tmp5', 0777, true);
         file_put_contents(self::$temp.DS.'tmp5'.DS.'foo2.txt', '');
