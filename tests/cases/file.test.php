@@ -65,7 +65,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 
         File::chmod(self::$temp.DS.'file.txt', 0755);
 
-        $actual = substr(sprintf('%o', fileperms(self::$temp.DS.'file.txt')), - 4);
+        $actual = substr(sprintf('%o', fileperms(self::$temp.DS.'file.txt')), -4);
         $expected = ('\\' === DS) ? '0666' : '0755';
 
         $this->assertTrue($expected === $actual);
