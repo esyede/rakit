@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
 <title>Internal Server Error</title>
 
 <style>

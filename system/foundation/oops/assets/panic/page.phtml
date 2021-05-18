@@ -12,6 +12,7 @@ $nonceAttr = $nonce ? ' nonce="'.Helpers::escapeHtml($nonce).'"' : '';
 	<meta charset="utf-8">
 	<meta name="robots" content="noindex">
 	<meta name="generator" content="Rakit debugger">
+    <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
 
 	<title><?php echo Helpers::escapeHtml($title.': '.$e->getMessage().$code) ?></title>
 	<?php if ($ex = $e->getPrevious()): ?>

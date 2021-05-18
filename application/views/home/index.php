@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+        <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
         <title>Selamat Datang!</title>
         <link rel="stylesheet" href="<?php echo asset('home/css/home.min.css?version='.RAKIT_VERSION); ?>">
     </head>
