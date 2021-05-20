@@ -30,7 +30,7 @@ class Console
     public static function run($arguments = [])
     {
         if (! isset($arguments[0])) {
-            $arguments[0] = 'help:commands';
+            $arguments[0] = 'help:run';
         }
 
         list($package, $command, $method) = static::parse($arguments[0]);

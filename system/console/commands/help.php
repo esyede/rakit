@@ -12,7 +12,7 @@ class Help extends Command
      *
      * @return void
      */
-    public function commands()
+    public function run()
     {
         echo 'Rakit Console '.RAKIT_VERSION.PHP_EOL;
         echo PHP_EOL;
