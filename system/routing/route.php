@@ -10,6 +10,8 @@ use System\URI;
 use System\Package;
 use System\Request;
 use System\Response;
+use System\Redirect;
+use System\View;
 
 class Route
 {
@@ -342,5 +344,37 @@ class Route
     public static function forward($method, $uri)
     {
         return Router::route(strtoupper($method), $uri)->call();
+    }
+
+    /**
+     * Daftarkan sebuah view route.
+     *
+     * @param string $route
+     * @param string $view
+     * @param array  $data
+     *
+     * @return \System\View
+     */
+    public static function view($route, $view, $data = [])
+    {
+        static::get($route, function () use ($view, $data) {
+            return View::make($view, $data);
+        });
+    }
+
+    /**
+     * Daftarkan sebuah redirect route.
+     *
+     * @param strng $route
+     * @param strng $to
+     * @param int   $status
+     *
+     * @return \System\Redirect
+     */
+    public static function redirect($route, $to, $status = 302)
+    {
+        static::get($route, function () use ($to, $status) {
+            return Redirect::to($to, $status);
+        });
     }
 }

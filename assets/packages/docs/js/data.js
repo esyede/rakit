@@ -590,6 +590,18 @@ var data = [
         "url": "requests#helper-lainnya"
     },
     {
+        "title": "Routing Dasar",
+        "url": "routing#routing-dasar"
+    },
+    {
+        "title": "Route Redirect",
+        "url": "routing#route-redirect"
+    },
+    {
+        "title": "Route View",
+        "url": "routing#route-view"
+    },
+    {
         "title": "URI Wildcard",
         "url": "routing#uri-wildcard"
     },

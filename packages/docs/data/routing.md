@@ -3,6 +3,9 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
 - [Pengetahuan Dasar](#pengetahuan-dasar)
+- [Routing Dasar](#routing-dasar)
+    - [Route Redirect](#route-redirect)
+    - [Route View](#route-view)
 - [URI Wildcard](#uri-wildcard)
 - [Event 404](#event-404)
 - [Middleware](#middleware)
@@ -43,7 +46,13 @@ yang diwakili dengan hanya sebuah garis miring.
    bagian bawah file `routes.php` anda.
 
 
-#### Mendaftarkan rute untuk "GET /":
+<a id="routing-dasar"></a>
+## Routing Dasar
+
+Rute yang paling dasar menerima URI dan closure, menyediakan metode yang sangat sederhana dan
+ekspresif untuk menentukan rute dan perilaku tanpa file konfigurasi routing yang rumit:
+
+#### Mendaftarkan rute `GET`:
 
 ```php
 Route::get('/', function () {
@@ -51,7 +60,7 @@ Route::get('/', function () {
 });
 ```
 
-#### Rute valid untuk HTTP method apa pun (GET, POST, PUT, dan DELETE):
+#### Rute valid untuk HTTP method apa pun (`GET`, `POST`, `PUT`, dan `DELETE`):
 
 ```php
 Route::any('/', function () {
@@ -79,6 +88,40 @@ Route::delete('user/(:num)', function ($id) {
 
 ```php
 Router::register(['GET', 'POST'], $uri, $callback);
+```
+
+
+<a id="route-redirect"></a>
+### Route Redirect
+
+Jika anda perlu membuat rute redireksi ke URI lain, anda bisa menggunakan method `Route::redirect()`.
+Method ini menyediakan jalan pintas yang nyaman sehingga anda tidak perlu menggunakan Closure untuk
+melakukan redireksi sederhana:
+
+```php
+Route::redirect('deleted-page', 'home');
+```
+
+Secara default, ia akan mereturn kode status `302`. Anda dapat menyesuaikan kode status
+tersebut menggunakan parameter ketiga seperti ini:
+
+```php
+Route::redirect('deleted-page', 'home', 301);
+```
+
+
+<a id="route-view"></a>
+### Route View
+
+Jika rute anda hanya perlu mereturn view, anda dapat menggunakan method `Route::view()`.
+
+Metode ini menerima URI sebagai argumen pertamanya dan nama view sebagai argumen keduanya.
+Selain itu, anda juga dapat mengoper array data untuk diteruskan ke view sebagai argumen ketiga:
+
+```php
+Route::view('/', 'home');
+
+Route::view('profile', 'profile', ['name' => 'Budi']);
 ```
 
 
