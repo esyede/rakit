@@ -30,8 +30,8 @@
                 <a class="navbar-item" href="<?php echo URL::home();?>" id="homepage">Rumah</a>
                 <a class="navbar-item" href="<?php echo url('docs');?>">Dokumentasi</a>
                 <a class="navbar-item" href="https://rakit.esyede.my.id/api" target="_blank">API</a>
-                <a class="navbar-item" href="https://rakit.esyede.my.id/repositories">Repositori</a>
-                <a class="navbar-item" href="https://rakit.esyede.my.id/forum">Forum</a>
+                <a class="navbar-item" href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori</a>
+                <a class="navbar-item" href="https://rakit.esyede.my.id/forum" target="_blank">Forum</a>
                 <a class="navbar-item" href="https://github.com/esyede/rakit" target="_blank">Github</a>
             </div>
         </div>
