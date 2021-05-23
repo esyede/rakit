@@ -49,6 +49,9 @@ $date = Date::make('last sunday');
 $date = Date::make(1621987200);
 ```
 
+>  Anda dapat memasukkan string format waktu sesuai dokumentasi
+   [Supported Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) milik PHP.
+
 
 <a id="tambah--kurang"></a>
 ## Tambah & Kurang
@@ -108,9 +111,6 @@ DateInterval Object (
  */
 ```
 
->  Method `Date::diff()` ini akan mereturn objek `DateInterval` jika operasi
-   diff berhasil dilakukan, atau `FALSE` jika gagal.
-
 
 <a id="komparasi"></a>
 ## Komparasi
@@ -161,9 +161,6 @@ $date = '2021-05-23 00:01:50'; // - 10 detik
 return Date::lte($date, '2021-05-23 00:02:00'); // true, lebih kecil dari
 return Date::lte($date, '2021-05-23 00:01:50'); // true, sama dengan
 ```
-
->  Method-method komparasi diatas akan mereturn objek `BOOLEAN`, termasuk jika
-   terjadi kesalahan dalam kodingan anda.
 
 
 <a id="fitur-tambahan"></a>
