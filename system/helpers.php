@@ -27,7 +27,7 @@ if (! function_exists('isset_or')) {
      */
     function isset_or(&$variable, $alternate = null)
     {
-        return (isset($variable)) ? $variable : $alternate;
+        return isset($variable) ? $variable : $alternate;
     }
 }
 
