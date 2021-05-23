@@ -338,8 +338,20 @@ var data = [
         "url": "database/schema#foreign-key"
     },
     {
-        "title": "Format Umum",
-        "url": "date#format-umum"
+        "title": "Tambah & Kurang",
+        "url": "date#tambah--kurang"
+    },
+    {
+        "title": "Selisih",
+        "url": "date#selisih"
+    },
+    {
+        "title": "Komparasi",
+        "url": "date#komparasi"
+    },
+    {
+        "title": "Fitur Tambahan",
+        "url": "date#fitur-tambahan"
     },
     {
         "title": "Debug Bar",

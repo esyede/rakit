@@ -646,7 +646,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $v = Validator::make([], $rules);
         $v->valid();
 
-        $this->assertEquals('This field is required', $v->errors->first('custom'));
+        $this->assertEquals('The custom field is required.', $v->errors->first('custom'));
     }
 
     /**
@@ -801,7 +801,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $v = Validator::make([], $rules);
         $v->valid();
 
-        $expect = str_replace(':attribute', 'attribute', $lang['required']);
+        $expect = str_replace(':attribute', 'test attribute', $lang['required']);
         $this->assertEquals($expect, $v->errors->first('test_attribute'));
     }
 

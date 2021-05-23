@@ -5,7 +5,7 @@ defined('DS') or exit('No direct script access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Pagination Language
+    | Pagination Language Lines
     |--------------------------------------------------------------------------
     |
     | Baris - baris bahasa berikut ini digunakan oleh library Paginator untuk

@@ -12,14 +12,14 @@ return [
     |
     */
 
-    'from_now' => 'from now',
-    'ago' => 'ago',
-    'before' => 'before',
-    'after' => 'after',
     'second' => 'second(s)',
     'minute' => 'minute(s)',
     'hour' => 'hour(s)',
     'day' => 'day(s)',
+    'week' => 'week(s)',
     'month' => 'month(s)',
     'year' => 'year(s)',
+    'decade' => 'decade(s)',
+    'past' => 'ago',
+    'future' => 'from now',
 ];

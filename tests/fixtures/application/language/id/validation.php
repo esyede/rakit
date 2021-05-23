@@ -82,9 +82,7 @@ return [
     |
     */
 
-    'custom' => [
-        'custom_required' => 'Bilah kustom ini wajib diisi',
-    ],
+    'custom' => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -100,8 +98,6 @@ return [
     |
     */
 
-    'attributes' => [
-        'test_attribute' => 'atribut',
-    ],
+    'attributes' => [],
 
 ];

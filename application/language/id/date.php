@@ -12,14 +12,14 @@ return [
     |
     */
 
-    'from_now' => 'dari sekarang',
-    'ago' => 'yang lalu',
-    'before' => 'sebelumnya',
-    'after' => 'setelahnya',
     'second' => 'detik',
     'minute' => 'menit',
     'hour' => 'jam',
     'day' => 'hari',
+    'week' => 'minggu',
     'month' => 'bulan',
     'year' => 'tahun',
+    'decade' => 'dekade',
+    'past' => 'yang lalu',
+    'future' => 'dari sekarang',
 ];

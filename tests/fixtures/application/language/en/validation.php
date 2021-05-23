@@ -74,19 +74,17 @@ return [
     | Custom Validation Language
     |--------------------------------------------------------------------------
     |
-    | Di sini anda dapat menentukan pesan validasi kustom untuk atribut
+    | Di sini anda dapat menentukan pesan validasi kuatom untuk atribut
     | menggunakan konvensi 'atribut_rule'. Ini membantu menjaga validasi
     | kustom anda tetap bersih dan rapi.
     |
-    | Jadi, katakanlah anda ingin menggunakan pesan validasi kustom ketika
+    | Jadi, katakanlah anda ingin menggunakan pesan validasi kuatom ketika
     | memvalidasi bahwa atribut 'email' itu unik.
-    | Cukup tambahkan 'email_unique' ke array ini dengan pesan kustom anda.
+    | Cukup tambahkan 'email_unique' ke array ini dengan pesan kuatom anda.
     |
     */
 
-    'custom' => [
-        'custom_required' => 'This field is required',
-    ],
+    'custom' => [],
 
     /*
     |--------------------------------------------------------------------------
@@ -102,7 +100,5 @@ return [
     |
     */
 
-    'attributes' => [
-        'test_attribute' => 'attribute',
-    ],
+    'attributes' => [],
 ];
