@@ -28,11 +28,14 @@ class Date
     /**
      * Ambil tanggal saat ini.
      *
+     * @param string $format
+     *
      * @return string
      */
-    public static function now()
+    public static function now($format = null)
     {
-        return static::make(null)->format('Y-m-d H:i:s');
+        $format = is_null($format) ? 'Y-m-d H:i:s' : $format;
+        return static::make(null)->format($format);
     }
 
     /**
@@ -81,6 +84,12 @@ class Date
     {
         if (! $this->timestamp) {
             throw new \Exception('Cannot format an invalid date.');
+        }
+
+        if (! is_string($format)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Date format should be a string, %s given.', gettype($format)
+            ));
         }
 
         return date($format, $this->timestamp);
@@ -266,7 +275,7 @@ class Date
             case 'lt':  return $date1 < $date2;
             case 'gte': return ($date1 > $date2 || $date1 === $date2);
             case 'lte': return ($date1 < $date2 || $date1 === $date2);
-            default:    throw new \Exception(sprintf("Invalid date comprator: '%s'", $comparator));
+            default:    throw new \Exception(sprintf("Invalid date comparator: '%s'", $comparator));
         }
     }
 

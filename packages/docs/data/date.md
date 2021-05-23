@@ -83,9 +83,9 @@ return Date::make($date)->remake('- 3 days'); // 2021-05-20 00:00:00 (berkurang 
 Untuk mencari selisih antara 2 buah tanggal, gunakan method `diff()` seperti berikut:
 
 ```php
-$date = '2021-05-23';
+$diff = Date::diff('2021-05-23', '2020-01-01');
 
-return $date->diff('2020-01-01')->days; // 508 hari
+return $diff->days; // 508 hari
 
 // dd($diff);
 
@@ -109,6 +109,13 @@ DateInterval Object (
     [have_special_relative] => 0
 )
  */
+```
+
+Anda juga dapat mengabaikan parameter ke-dua untuk mencari selisih tanggal pertama
+dengan tanggal saat ini:
+
+```php
+return Date::diff('2021-05-23');
 ```
 
 
@@ -187,6 +194,13 @@ return Date::now();
 // atau,
 
 return Date::make()->format('Y-m-d H:i:s');
+```
+
+Jika diperlukan, anda juga dapat mengubah format waktunya
+sesuai format yang anda inginkan, contohnya seperti ini:
+
+```php
+return Date::now('F j, Y H:i');
 ```
 
 
