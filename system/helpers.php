@@ -85,7 +85,7 @@ if (! function_exists('dump')) {
      */
     function dump(/* ...$variables */)
     {
-        return array_map('\System\Foundation\Oops\Debugger::dump', func_get_args());
+        array_map('\System\Foundation\Oops\Debugger::dump', func_get_args());
     }
 }
 
