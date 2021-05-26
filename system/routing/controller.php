@@ -172,10 +172,9 @@ abstract class Controller
         }
 
         $identifier = Package::identifier($package, $controller);
-        $resolver = 'controller: '.$identifier;
 
-        if (Container::registered($resolver)) {
-            return Container::resolve($resolver);
+        if (Container::registered('controller: '.$identifier)) {
+            return Container::resolve('controller: '.$identifier);
         }
 
         $controller = static::format($package, $controller);
@@ -353,7 +352,7 @@ abstract class Controller
      */
     public function after($response)
     {
-        // Override me!
+        // ..
     }
 
     /**

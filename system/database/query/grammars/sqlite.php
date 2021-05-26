@@ -17,6 +17,8 @@ class SQLite extends Grammar
      */
     protected function orderings(Query $query)
     {
+        $sql = [];
+
         foreach ($query->orderings as $ordering) {
             $direction = strtoupper($ordering['direction']);
             $sql[] = $this->wrap($ordering['column']).' COLLATE NOCASE '.$direction;
