@@ -295,7 +295,7 @@ class Markdown
                 ++$indent;
             }
 
-            $text = $indent > 0 ? substr($attri, $indent) : $attri;
+            $text = ($indent > 0) ? substr($attri, $indent) : $attri;
             $tag = ['body' => $attri, 'indent' => $indent, 'text' => $text];
 
             if (isset($curr['continuable'])) {
@@ -305,6 +305,7 @@ class Markdown
                     $curr = $attrib;
                     continue;
                 }
+
                 if ($this->completable($curr['type'])) {
                     $curr = $this->{'block_'.$curr['type'].'_complete'}($curr);
                 }
