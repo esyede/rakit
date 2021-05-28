@@ -16,12 +16,14 @@ defined('DS') or exit('No direct script access.');
 | <code>
 |
 |      // Pertama, definisikan middlewarenya:
-|      Route::middleware('middlewareku', function () {
-|          return 'Middlewareku sukses jalankan!';
+|      Route::middleware('khusus_dewasa', function () use ($umur) {
+|          if ($umur < 17) {
+|               return 'Bocil gak boleh buka!';
+|          }
 |      });
 |
 |      // Lalu, tinggal lampirkan saja ke rute:
-|      Route::get('/', ['before' => 'middlewareku', function () {
+|      Route::get('/', ['before' => 'khusus_dewasa', function () {
 |          return Halo dunia!';
 |      }]);
 |

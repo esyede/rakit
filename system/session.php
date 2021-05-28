@@ -57,7 +57,6 @@ class Session
     {
         if (isset(static::$registrar[$driver])) {
             $resolver = static::$registrar[$driver];
-
             return $resolver();
         }
 

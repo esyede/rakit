@@ -70,14 +70,11 @@ abstract class Driver
      */
     public function user()
     {
-        if (! is_null($this->user)) {
-            return $this->user;
+        if (is_null($this->user)) {
+            $this->user = $this->retrieve($this->token);
         }
 
-        $token = $this->retrieve($this->token);
-        $this->user = $token;
-
-        return $token;
+        return $this->user;
     }
 
     /**

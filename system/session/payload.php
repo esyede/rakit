@@ -214,9 +214,7 @@ class Payload
      */
     public function flush()
     {
-        $token = $this->token();
-        $session = [Session::TOKEN => $token, ':new:' => [], ':old:' => []];
-
+        $session = [Session::TOKEN => $this->token(), ':new:' => [], ':old:' => []];
         $this->session['data'] = $session;
     }
 

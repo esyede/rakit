@@ -79,12 +79,11 @@ class File extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        $key = $this->naming($key);
-
         if ($minutes <= 0) {
             return;
         }
 
+        $key = $this->naming($key);
         $value = $this->guard($this->expiration($minutes).serialize($value));
 
         Storage::put($this->path.$key, $value, LOCK_EX);
@@ -135,9 +134,8 @@ class File extends Driver
     {
         $value = (string) $value;
         $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-        $value = $guard.$value;
 
-        return $value;
+        return $guard.$value;
     }
 
     /**
@@ -151,7 +149,7 @@ class File extends Driver
     protected static function unguard($value)
     {
         $value = (string) $value;
-        $value = "<?php defined('DS') or exit('No direct script access.');?>";
+        $guard = "<?php defined('DS') or exit('No direct script access.');?>";
         $value = Str::replace_first($guard, '', $value);
 
         return $value;

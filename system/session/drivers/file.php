@@ -113,9 +113,8 @@ class File extends Driver implements Sweeper
     {
         $value = (string) $value;
         $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-        $value = $guard.$value;
 
-        return $value;
+        return $guard.$value;
     }
 
     /**
