@@ -56,11 +56,9 @@ class Postgres extends Grammar
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
 
-            $elements = ['incrementer', 'nullable', 'defaults'];
-
-            foreach ($elements as $element) {
-                $sql .= $this->{$element}($table, $column);
-            }
+            $sql .= $this->incrementer($table, $column);
+            $sql .= $this->nullable($table, $column);
+            $sql .= $this->defaults($table, $column);
 
             $columns[] = $sql;
         }

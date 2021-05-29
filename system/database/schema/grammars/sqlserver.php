@@ -63,11 +63,9 @@ class SQLServer extends Grammar
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
 
-            $elements = ['incrementer', 'nullable', 'defaults'];
-
-            foreach ($elements as $element) {
-                $sql .= $this->{$element}($table, $column);
-            }
+            $sql .= $this->incrementer($table, $column);
+            $sql .= $this->nullable($table, $column);
+            $sql .= $this->defaults($table, $column);
 
             $columns[] = $sql;
         }
@@ -161,9 +159,8 @@ class SQLServer extends Grammar
         $table = $this->wrap($table);
 
         $sql[] = 'CREATE FULLTEXT CATALOG '.$command->catalog;
-        $create = 'CREATE FULLTEXT INDEX ON '.$table.' ('.$columns.') ';
-
-        $sql[] = $create .= 'KEY INDEX '.$command->key.' ON '.$command->catalog;
+        $sql[] = 'CREATE FULLTEXT INDEX ON '.$table.' ('.$columns.') '
+            .'KEY INDEX '.$command->key.' ON '.$command->catalog;
 
         return $sql;
     }

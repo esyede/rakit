@@ -6,8 +6,8 @@
 - [Membuat Request](#membuat-request)
 - [Opsi Kustom](#opsi-kustom)
 - [Mengolah Response](#mengolah-response)
-    - [Response Header](#response-header)
-    - [Response Body](#response-body)
+   - [Response Header](#response-header)
+   - [Response Body](#response-body)
 
 <!-- /MarkdownTOC -->
 
@@ -89,7 +89,7 @@ $target = 'https://github.com/esyede/rakit/archive/master.zip';
 $destination = path('storage').'rakit.zip';
 
 if (Curl::download($target, $destination)) {
-	// Yay! download berhasil!
+   // Yay! download berhasil!
 }
 ```
 
@@ -104,12 +104,12 @@ mengakomodir kebutuhan tersebut.
 ```php
 $parameters =[];
 $custom_options = [
-	CURLOPT_FOLLOWLOCATION => true,
-	CURLOPT_HTTPHEADER => [
-		'Cache-Control: no-cache',
-		'Accept-Encoding: gzip, deflate',
-		'Accept-Language: en-US,en;q=0.5',
-	],
+   CURLOPT_FOLLOWLOCATION => true,
+   CURLOPT_HTTPHEADER => [
+      'Cache-Control: no-cache',
+      'Accept-Encoding: gzip, deflate',
+      'Accept-Language: en-US,en;q=0.5',
+   ],
 ];
 
 $response = Curl::get('https://foobar.com', $parameters, $custom_options);
