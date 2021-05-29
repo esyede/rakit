@@ -67,7 +67,6 @@ abstract class Grammar
 
         if (false !== strpos(strtolower($value), ' as ')) {
             $segments = explode(' ', $value);
-
             $segments[0] = $this->wrap($segments[0]);
             $segments[2] = $this->wrap($segments[2]);
 
@@ -75,6 +74,7 @@ abstract class Grammar
         }
 
         $segments = explode('.', $value);
+        $wrapped = [];
 
         foreach ($segments as $key => $value) {
             if (0 === $key && count($segments) > 1) {
@@ -96,7 +96,7 @@ abstract class Grammar
      */
     protected function wrap_value($value)
     {
-        return ('*' === $value) ? $value : sprintf($this->wrapper, $value);
+        return ('*' === $value) ? '*' : sprintf($this->wrapper, $value);
     }
 
     /**

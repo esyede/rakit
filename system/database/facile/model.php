@@ -255,7 +255,6 @@ abstract class Model
     public static function create($attributes)
     {
         $model = new static($attributes);
-
         return $model->save() ? $model : false;
     }
 
@@ -299,7 +298,6 @@ abstract class Model
     public function _with($with)
     {
         $this->with = (array) $with;
-
         return $this;
     }
 
@@ -359,9 +357,7 @@ abstract class Model
     {
         if (is_null($foreign)) {
             list($unused, $caller) = debug_backtrace(false);
-
             $foreign = $caller['function'].'_id';
-
             unset($unused, $caller);
         }
 
@@ -501,7 +497,6 @@ abstract class Model
     final public function sync()
     {
         $this->original = $this->attributes;
-
         return true;
     }
 

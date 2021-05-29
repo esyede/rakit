@@ -20,7 +20,6 @@ class HasOneOrMany extends Relationship
     {
         if ($attributes instanceof Model) {
             $attributes->set_attribute($this->foreign_key(), $this->base->get_key());
-
             return $attributes->save() ? $attributes : false;
         }
 

@@ -22,22 +22,14 @@ abstract class Grammar extends BaseGrammar
     {
         $name = $command->name;
         $table = $this->wrap($table);
-
         $on = $this->wrap_table($command->on);
-
         $foreign = $this->columnize($command->columns);
         $referenced = $this->columnize((array) $command->references);
 
         $sql = 'ALTER TABLE '.$table.' ADD CONSTRAINT '.$name.' ';
         $sql .= 'FOREIGN KEY ('.$foreign.') REFERENCES '.$on.' ('.$referenced.')';
-
-        if (! is_null($command->on_delete)) {
-            $sql .= ' ON DELETE '.$command->on_delete;
-        }
-
-        if (! is_null($command->on_update)) {
-            $sql .= ' ON UPDATE '.$command->on_update;
-        }
+        $sql .= is_null($command->on_delete) ? '' : ' ON DELETE '.$command->on_delete;
+        $sql .= is_null($command->on_update) ? '' : ' ON UPDATE '.$command->on_update;
 
         return $sql;
     }

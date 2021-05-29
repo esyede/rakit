@@ -53,7 +53,6 @@ class Join
     public function on($column1, $operator, $column2, $connector = 'AND')
     {
         $this->clauses[] = compact('column1', 'operator', 'column2', 'connector');
-
         return $this;
     }
 

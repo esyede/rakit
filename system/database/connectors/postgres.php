@@ -31,10 +31,7 @@ class Postgres extends Connector
     {
         $host = isset($config['host']) ? 'host='.$config['host'].';' : '';
         $dsn = 'pgsql:'.$host.'dbname='.$config['database'];
-
-        if (isset($config['port'])) {
-            $dsn .= ';port='.$config['port'];
-        }
+        $dsn .= isset($config['port']) ? ';port='.$config['port'] : '';
 
         $pdo = new PDO($dsn, $config['username'], $config['password'], $this->options($config));
 

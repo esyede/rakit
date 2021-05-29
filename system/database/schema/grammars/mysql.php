@@ -27,19 +27,11 @@ class MySQL extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
+
         $sql = 'CREATE TABLE '.$this->wrap($table).' ('.$columns.')';
-
-        if (! is_null($table->engine)) {
-            $sql .= ' ENGINE = '.$table->engine;
-        }
-
-        if (! is_null($table->charset)) {
-            $sql .= ' DEFAULT CHARACTER SET = '.$table->charset;
-        }
-
-        if (! is_null($table->collation)) {
-            $sql .= ' COLLATE = '.$table->collation;
-        }
+        $sql .= is_null($table->engine) ? '' : ' ENGINE = '.$table->engine;
+        $sql .= is_null($table->charset) ? '' : ' DEFAULT CHARACTER SET = '.$table->charset;
+        $sql .= is_null($table->collation) ? '' : ' COLLATE = '.$table->collation;
 
         return $sql;
     }
@@ -245,7 +237,7 @@ class MySQL extends Grammar
         $keys = $this->columnize($command->columns);
         $name = $command->name;
 
-        return 'ALTER TABLE '.$this->wrap($table).' ADD '.$type.' '.$name.'('.$keys.')';
+        return 'ALTER TABLE '.$this->wrap($table).' ADD '.$type.' '.$command->name.'('.$keys.')';
     }
 
     /**

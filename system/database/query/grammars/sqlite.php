@@ -46,7 +46,6 @@ class SQLite extends Grammar
         }
 
         $names = $this->columnize(array_keys($values[0]));
-
         $columns = [];
 
         foreach (array_keys($values[0]) as $column) {

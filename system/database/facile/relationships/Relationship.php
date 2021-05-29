@@ -33,11 +33,10 @@ abstract class Relationship extends Query
     public function __construct($model, $associated, $foreign)
     {
         $this->foreign = $foreign;
-
         $this->model = ($associated instanceof Model) ? $associated : new $associated();
         $this->base = ($model instanceof Model) ? $model : new $model();
-
         $this->table = $this->table();
+
         $this->constrain();
     }
 
@@ -55,10 +54,7 @@ abstract class Relationship extends Query
             return $foreign;
         }
 
-        if (is_object($model)) {
-            $model = class_basename($model);
-        }
-
+        $model = is_object($model) ? class_basename($model) : $model;
         return strtolower(basename($model).'_id');
     }
 
@@ -72,7 +68,6 @@ abstract class Relationship extends Query
     protected function fresh_model($attributes = [])
     {
         $class = get_class($this->model);
-
         return new $class($attributes);
     }
 
@@ -114,7 +109,6 @@ abstract class Relationship extends Query
     public function with($with)
     {
         $this->model->with = (array) $with;
-
         return $this;
     }
 }

@@ -447,7 +447,6 @@ class Table
     protected function command($type, $parameters = [])
     {
         $parameters = array_merge(compact('type'), $parameters);
-
         return $this->commands[] = new Magic($parameters);
     }
 
@@ -462,7 +461,6 @@ class Table
     protected function column($type, $parameters = [])
     {
         $parameters = array_merge(compact('type'), $parameters);
-
         return $this->columns[] = new Magic($parameters);
     }
 }

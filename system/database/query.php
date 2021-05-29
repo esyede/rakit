@@ -133,7 +133,6 @@ class Query
     public function distinct()
     {
         $this->distinct = true;
-
         return $this;
     }
 
@@ -147,7 +146,6 @@ class Query
     public function select($columns = ['*'])
     {
         $this->selects = (array) $columns;
-
         return $this;
     }
 
@@ -518,7 +516,6 @@ class Query
     public function group_by($column)
     {
         $this->groupings[] = $column;
-
         return $this;
     }
 
@@ -548,7 +545,6 @@ class Query
     public function order_by($column, $direction = 'asc')
     {
         $this->orderings[] = compact('column', 'direction');
-
         return $this;
     }
 
@@ -562,7 +558,6 @@ class Query
     public function skip($value)
     {
         $this->offset = $value;
-
         return $this;
     }
 
@@ -576,7 +571,6 @@ class Query
     public function take($value)
     {
         $this->limit = $value;
-
         return $this;
     }
 
@@ -616,7 +610,6 @@ class Query
     public function only($column)
     {
         $sql = $this->grammar->select($this->select([$column]));
-
         return $this->connection->only($sql, $this->bindings);
     }
 
@@ -741,7 +734,6 @@ class Query
     public function insert($values)
     {
         $values = is_array(reset($values)) ? $values : [$values];
-
         $bindings = [];
 
         foreach ($values as $value) {
@@ -770,7 +762,6 @@ class Query
             return $values[$column];
         } elseif ($this->grammar instanceof Postgres) {
             $row = (array) $result[0];
-
             return (int) $row[$column];
         }
 

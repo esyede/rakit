@@ -62,7 +62,6 @@ class HasManyAndBelongsTo extends Relationship
     protected function joining($model, $associated)
     {
         $models = [class_basename($model), class_basename($associated)];
-
         sort($models);
 
         return strtolower($models[0].'_'.$models[1]);
@@ -88,10 +87,7 @@ class HasManyAndBelongsTo extends Relationship
      */
     public function attach($id, $attributes = [])
     {
-        if ($id instanceof Model) {
-            $id = $id->get_key();
-        }
-
+        $id = ($id instanceof Model) ? $id->get_key() : $id;
         $joining = array_merge($this->join_record($id), $attributes);
 
         return $this->insert_joining($joining);
@@ -150,10 +146,7 @@ class HasManyAndBelongsTo extends Relationship
      */
     public function insert($attributes, $joining = [])
     {
-        if ($attributes instanceof Model) {
-            $attributes = $attributes->attributes;
-        }
-
+        $attributes = ($attributes instanceof Model) ? $attributes->attributes : $attributes;
         $model = $this->model->create($attributes);
 
         if ($model instanceof Model) {
@@ -253,7 +246,6 @@ class HasManyAndBelongsTo extends Relationship
     protected function set_join($other)
     {
         $this->table->join($this->joining, $this->associated_key(), '=', $this->joining.'.'.$other);
-
         return $this;
     }
 
@@ -265,7 +257,6 @@ class HasManyAndBelongsTo extends Relationship
     protected function set_where($foreign)
     {
         $this->table->where($this->joining.'.'.$foreign, '=', $this->base->get_key());
-
         return $this;
     }
 
@@ -361,7 +352,6 @@ class HasManyAndBelongsTo extends Relationship
     public function pivot()
     {
         $pivot = new Pivot($this->joining, $this->model->connection());
-
         return new HasMany($this->base, $pivot, $this->foreign_key());
     }
 

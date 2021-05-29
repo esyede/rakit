@@ -142,7 +142,6 @@ class Connection
     public function only($sql, $bindings = [])
     {
         $results = (array) $this->first($sql, $bindings);
-
         return reset($results);
     }
 

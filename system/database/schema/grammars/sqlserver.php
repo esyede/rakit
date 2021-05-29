@@ -27,7 +27,6 @@ class SQLServer extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-
         return 'CREATE TABLE '.$this->wrap($table).' ('.$columns.')';
     }
 
@@ -158,11 +157,11 @@ class SQLServer extends Grammar
         $columns = $this->columnize($command->columns);
         $table = $this->wrap($table);
 
-        $sql[] = 'CREATE FULLTEXT CATALOG '.$command->catalog;
-        $sql[] = 'CREATE FULLTEXT INDEX ON '.$table.' ('.$columns.') '
-            .'KEY INDEX '.$command->key.' ON '.$command->catalog;
-
-        return $sql;
+        return [
+            'CREATE FULLTEXT CATALOG '.$command->catalog,
+            'CREATE FULLTEXT INDEX ON '.$table.' ('.$columns.') '
+                .'KEY INDEX '.$command->key.' ON '.$command->catalog,
+        ];
     }
 
     /**
@@ -262,10 +261,10 @@ class SQLServer extends Grammar
      */
     public function drop_fulltext(Table $table, Magic $command)
     {
-        $sql[] = 'DROP FULLTEXT INDEX '.$command->name;
-        $sql[] = 'DROP FULLTEXT CATALOG '.$command->catalog;
-
-        return $sql;
+        return [
+            'DROP FULLTEXT INDEX '.$command->name,
+            'DROP FULLTEXT CATALOG '.$command->catalog,
+        ];
     }
 
     /**

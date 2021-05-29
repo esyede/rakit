@@ -19,7 +19,6 @@ class Schema
     public static function table($table, \Closure $callback)
     {
         call_user_func($callback, $table = new Schema\Table($table));
-
         return static::execute($table);
     }
 
@@ -334,7 +333,8 @@ class Schema
         $driver = $connection->driver();
 
         if (isset(DB::$registrar[$driver]['schema'])) {
-            return DB::$registrar[$driver]['schema']();
+            $resolver = DB::$registrar[$driver]['schema'];
+            return $resolver();
         }
 
         switch ($driver) {

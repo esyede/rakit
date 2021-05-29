@@ -46,13 +46,15 @@ class Grammar extends \System\Database\Grammar
      */
     final protected function components($query)
     {
+        $sql = [];
+
         foreach ($this->components as $component) {
             if (! is_null($query->{$component})) {
                 $sql[$component] = call_user_func([$this, $component], $query);
             }
         }
 
-        return (array) $sql;
+        return $sql;
     }
 
     /**
@@ -126,9 +128,10 @@ class Grammar extends \System\Database\Grammar
      */
     protected function joins(Query $query)
     {
+        $sql = [];
+
         foreach ($query->joins as $join) {
             $table = $this->wrap_table($join->table);
-
             $clauses = [];
 
             foreach ($join->clauses as $clause) {
@@ -137,11 +140,8 @@ class Grammar extends \System\Database\Grammar
                 $clauses[] = $clause['connector'].' '.$column1.' '.$clause['operator'].' '.$column2;
             }
 
-            $search = ['AND ', 'OR '];
-
-            $clauses[0] = str_replace($search, '', $clauses[0]);
+            $clauses[0] = str_replace(['AND ', 'OR '], '', $clauses[0]);
             $clauses = implode(' ', $clauses);
-
             $sql[] = $join->type.' JOIN '.$table.' ON '.$clauses;
         }
 
@@ -160,6 +160,8 @@ class Grammar extends \System\Database\Grammar
         if (is_null($query->wheres)) {
             return '';
         }
+
+        $sql = [];
 
         foreach ($query->wheres as $where) {
             $sql[] = $where['connector'].' '.$this->{$where['type']}($where);
@@ -206,7 +208,6 @@ class Grammar extends \System\Database\Grammar
     protected function where_in($where)
     {
         $parameters = $this->parameterize($where['values']);
-
         return $this->wrap($where['column']).' IN ('.$parameters.')';
     }
 
@@ -220,7 +221,6 @@ class Grammar extends \System\Database\Grammar
     protected function where_not_in($where)
     {
         $parameters = $this->parameterize($where['values']);
-
         return $this->wrap($where['column']).' NOT IN ('.$parameters.')';
     }
 
@@ -311,6 +311,8 @@ class Grammar extends \System\Database\Grammar
      */
     protected function havings(Query $query)
     {
+        $sql = [];
+
         if (is_null($query->havings)) {
             return '';
         }
@@ -332,6 +334,8 @@ class Grammar extends \System\Database\Grammar
      */
     protected function orderings(Query $query)
     {
+        $sql = [];
+
         foreach ($query->orderings as $ordering) {
             $sql[] = $this->wrap($ordering['column']).' '.strtoupper($ordering['direction']);
         }
@@ -409,6 +413,7 @@ class Grammar extends \System\Database\Grammar
      */
     public function update(Query $query, $values)
     {
+        $columns = [];
         $table = $this->wrap_table($query->from);
 
         foreach ($values as $column => $value) {
@@ -430,7 +435,6 @@ class Grammar extends \System\Database\Grammar
     public function delete(Query $query)
     {
         $table = $this->wrap_table($query->from);
-
         return trim('DELETE FROM '.$table.' '.$this->wheres($query));
     }
 
@@ -448,9 +452,7 @@ class Grammar extends \System\Database\Grammar
             for ($i = 0; $i < count($bindings); ++$i) {
                 if (is_array($bindings[$i])) {
                     $parameters = $this->parameterize($bindings[$i]);
-
                     array_splice($bindings, $i, 1, $bindings[$i]);
-
                     $sql = preg_replace('~\(\.\.\.\)~', '('.$parameters.')', $sql, 1);
                 }
             }

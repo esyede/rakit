@@ -28,7 +28,6 @@ class BelongsTo extends Relationship
     public function update($attributes)
     {
         $attributes = ($attributes instanceof Model) ? $attributes->get_dirty() : $attributes;
-
         return $this->model->update($this->foreign_value(), $attributes);
     }
 
@@ -115,7 +114,6 @@ class BelongsTo extends Relationship
     public function bind($id)
     {
         $this->base->fill([$this->foreign => $id])->save();
-
         return $this->base;
     }
 }

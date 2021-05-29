@@ -20,7 +20,6 @@ class Postgres extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-
         return 'CREATE TABLE '.$this->wrap($table).' ('.$columns.')';
     }
 
@@ -120,7 +119,6 @@ class Postgres extends Grammar
     public function primary(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-
         return 'ALTER TABLE '.$this->wrap($table).' ADD PRIMARY KEY ('.$columns.')';
     }
 

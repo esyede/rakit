@@ -21,9 +21,7 @@ class SQLite extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-
         $sql = 'CREATE TABLE '.$this->wrap($table).' ('.$columns;
-
         $primary = Arr::first($table->commands, function ($key, $value) {
             return ('primary' === $value->type);
         });
@@ -51,11 +49,13 @@ class SQLite extends Grammar
             return 'ADD COLUMN '.$column;
         }, $columns);
 
+        $sql = [];
+
         foreach ($columns as $column) {
             $sql[] = 'ALTER TABLE '.$this->wrap($table).' '.$column;
         }
 
-        return (array) $sql;
+        return $sql;
     }
 
     /**
@@ -149,7 +149,6 @@ class SQLite extends Grammar
     public function fulltext(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-
         return 'CREATE VIRTUAL TABLE '.$this->wrap($table).' USING fts4('.$columns.')';
     }
 

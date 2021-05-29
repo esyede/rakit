@@ -77,7 +77,6 @@ class Query
     public function first($columns = ['*'])
     {
         $results = $this->hydrate($this->model, $this->table->take(1)->get($columns));
-
         return (count($results) > 0) ? head($results) : null;
     }
 
@@ -127,10 +126,8 @@ class Query
 
         foreach ($results as $result) {
             $result = (array) $result;
-
             $new = new $class([], true);
             $new->fill_raw($result);
-
             $models[] = $new;
         }
 
@@ -164,9 +161,7 @@ class Query
     {
         $query = $this->model->{$relationship}();
         $query->model->with = $this->nested_with($relationship);
-
         $query->table->reset_where();
-
         $query->eagerly_constrain($results);
 
         if (! is_null($constraints)) {
@@ -249,11 +244,6 @@ class Query
     public function __call($method, $parameters)
     {
         $result = call_user_func_array([$this->table, $method], $parameters);
-
-        if (in_array($method, $this->passthru)) {
-            return $result;
-        }
-
-        return $this;
+        return in_array($method, $this->passthru) ? $results : $this;
     }
 }
