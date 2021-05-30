@@ -101,25 +101,11 @@ class Cookie
             }
         }
 
-        if ('/' !== $this->path) {
-            $str .= '; path='.$this->path;
-        }
-
-        if (null !== $this->getSameSite()) {
-            $str .= '; samesite='.$this->getSameSite();
-        }
-
-        if (null !== $this->getDomain()) {
-            $str .= '; domain='.$this->getDomain();
-        }
-
-        if (true === $this->isSecure()) {
-            $str .= '; secure';
-        }
-
-        if (true === $this->isHttpOnly()) {
-            $str .= '; httponly';
-        }
+        $str .= ('/' !== $this->path) ? '; path='.$this->path : '';
+        $str .= (null !== $this->getSameSite()) ? '; samesite='.$this->getSameSite() : '';
+        $str .= (null !== $this->getDomain()) ? '; domain='.$this->getDomain() : '';
+        $str .= (true === $this->isSecure()) ? '; secure' : '';
+        $str .= (true === $this->isHttpOnly()) ? '; httponly' : '';
 
         return $str;
     }
