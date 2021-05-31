@@ -81,11 +81,7 @@ class Config
 
         $items = static::$items[$package][$file];
 
-        if (is_null($item)) {
-            return $items;
-        }
-
-        return Arr::get($items, $item, $default);
+        return is_null($item) ? $items : Arr::get($items, $item, $default);
     }
 
     /**
@@ -189,30 +185,8 @@ class Config
      */
     public static function file($package, $file)
     {
-        $config = [];
+        $file = Package::path($package).'config'.DS.$file.'.php';
 
-        $directories = static::paths($package);
-
-        foreach ($directories as $directory) {
-            if ('' !== $directory && is_file($path = $directory.$file.'.php')) {
-                $config = array_merge($config, require $path);
-            }
-        }
-
-        return $config;
-    }
-
-    /**
-     * Ambil list path yang harus di-scan untuk mencari file konfigurasi sebuah paket.
-     *
-     * @param string $package
-     *
-     * @return array
-     */
-    protected static function paths($package)
-    {
-        $paths[] = Package::path($package).'config'.DS;
-
-        return $paths;
+        return is_file($file) ? (require $file) : [];
     }
 }
