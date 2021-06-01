@@ -39,7 +39,8 @@ class Section
     public static function start($section, $content = '')
     {
         if ('' === $content) {
-            ob_start() && static::$last[] = $section;
+            ob_start();
+            static::$last[] = $section;
         } else {
             static::extend($section, $content);
         }

@@ -402,7 +402,6 @@ class Validator
     protected function validate_between($attribute, $value, $parameters)
     {
         $size = $this->size($attribute, $value);
-
         return ($size >= $parameters[0] && $size <= $parameters[1]);
     }
 
@@ -518,10 +517,7 @@ class Validator
      */
     protected function validate_exists($attribute, $value, $parameters)
     {
-        if (isset($parameters[1])) {
-            $attribute = $parameters[1];
-        }
-
+        $attribute = isset($parameters[1]) ? $parameters[1] : $attribute;
         $count = is_array($value) ? count($value) : 1;
         $query = $this->db()->table($parameters[0]);
 
@@ -653,9 +649,7 @@ class Validator
      */
     protected function validate_image($attribute, $value)
     {
-        $extensions = ['jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
-
-        return $this->validate_mimes($attribute, $value, $extensions);
+        return $this->validate_mimes($attribute, $value, ['jpeg', 'png', 'gif', 'bmp', 'svg', 'webp']);
     }
 
     /**
@@ -815,9 +809,7 @@ class Validator
     protected function validate_countbetween($attribute, $value, $parameters)
     {
         return ($this->validate_array($attribute, $value)
-            && count($value) >= $parameters[0]
-            && count($value) <= $parameters[1]
-        );
+            && count($value) >= $parameters[0] && count($value) <= $parameters[1]);
     }
 
     /**
@@ -1274,7 +1266,6 @@ class Validator
     public function package($package)
     {
         $this->package = $package;
-
         return $this;
     }
 
@@ -1288,7 +1279,6 @@ class Validator
     public function speaks($language)
     {
         $this->language = $language;
-
         return $this;
     }
 
@@ -1302,7 +1292,6 @@ class Validator
     public function connection(Database\Connection $connection)
     {
         $this->db = $connection;
-
         return $this;
     }
 
@@ -1313,11 +1302,9 @@ class Validator
      */
     protected function db()
     {
-        if (! is_null($this->db)) {
-            return $this->db;
+        if (is_null($this->db)) {
+            $this->db = Database::connection();
         }
-
-        $this->db = Database::connection();
 
         return $this->db;
     }

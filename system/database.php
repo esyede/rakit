@@ -80,7 +80,6 @@ class Database
     {
         if (isset(static::$registrar[$driver])) {
             $resolver = static::$registrar[$driver]['connector'];
-
             return $resolver();
         }
 

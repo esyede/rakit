@@ -202,7 +202,6 @@ class File
 
         if (true === $rename) {
             static::protect($to);
-
             return true;
         }
 

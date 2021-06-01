@@ -187,7 +187,6 @@ class Event
     {
         $events = (array) $events;
         $parameters = (array) $parameters;
-
         $responses = [];
 
         foreach ($events as $event) {

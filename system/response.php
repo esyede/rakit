@@ -103,7 +103,6 @@ class Response
     public static function json($data, $status = 200, array $headers = [], $json_options = 0)
     {
         $headers['Content-Type'] = 'application/json; charset=utf-8';
-
         return new static(json_encode($data, $json_options), $status, $headers);
     }
 
@@ -126,7 +125,6 @@ class Response
     public static function jsonp($callback, $data, $status = 200, array $headers = [])
     {
         $headers['Content-Type'] = 'application/javascript; charset=utf-8';
-
         return new static($callback.'('.json_encode($data).');', $status, $headers);
     }
 
@@ -149,7 +147,6 @@ class Response
     public static function facile($data, $status = 200, array $headers = [])
     {
         $headers['Content-Type'] = 'application/json; charset=utf-8';
-
         return new static(facile_to_json($data), $status, $headers);
     }
 
@@ -201,13 +198,11 @@ class Response
      */
     public static function download($path, $name = null, $headers = [])
     {
-        if (is_null($name)) {
-            $name = basename($path);
-        }
-
         if (! is_file($path)) {
             throw new \Exception(sprintf('Target file not found: %s', $path));
         }
+
+        $name = is_null($name) ? basename($path) : $name;
 
         // Default headers.
         $defaults = [
@@ -261,11 +256,7 @@ class Response
      */
     public static function prepare($response)
     {
-        if ($response instanceof Response) {
-            return $response;
-        }
-
-        return new static($response);
+        return ($response instanceof Response) ? $response : new static($response);
     }
 
     /**
@@ -329,7 +320,6 @@ class Response
     public function header($name, $value)
     {
         $this->foundation->headers->set($name, $value);
-
         return $this;
     }
 

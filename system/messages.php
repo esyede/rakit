@@ -180,7 +180,6 @@ class Messages
     public function all($format = null)
     {
         $format = is_null($format) ? $this->format : $format;
-
         $all = [];
 
         foreach ($this->messages as $messages) {

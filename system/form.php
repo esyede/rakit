@@ -99,7 +99,6 @@ class Form
     protected static function action($action)
     {
         $uri = is_null($action) ? URI::current() : $action;
-
         return HTML::entities(URL::to($uri));
     }
 
@@ -115,7 +114,6 @@ class Form
     public static function open_for_files($action = null, $method = 'POST', $attributes = [])
     {
         $attributes['enctype'] = 'multipart/form-data';
-
         return static::open($action, $method, $attributes);
     }
 
@@ -158,7 +156,6 @@ class Form
     public static function label($name, $value, $attributes = [])
     {
         static::$labels[] = $name;
-
         $attributes = HTML::attributes($attributes);
         $value = HTML::entities($value);
 
@@ -381,7 +378,6 @@ class Form
     {
         $attributes['id'] = static::id($name, $attributes);
         $attributes['name'] = $name;
-
         $html = [];
 
         foreach ($options as $value => $display) {
@@ -484,10 +480,7 @@ class Form
      */
     public static function radio($name, $value = null, $checked = false, $attributes = [])
     {
-        if (is_null($value)) {
-            $value = $name;
-        }
-
+        $value = is_null($value) ? $name : $value;
         return static::checkable('radio', $name, $value, $checked, $attributes);
     }
 
@@ -558,7 +551,6 @@ class Form
     public static function image($url, $name = null, $attributes = [])
     {
         $attributes['src'] = URL::to_asset($url);
-
         return static::input('image', $name, null, $attributes);
     }
 

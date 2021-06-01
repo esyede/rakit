@@ -71,18 +71,15 @@ class Image
     public function __construct($path, $quality = 75)
     {
         $this->reset();
-
         $this->path = $this->path($path);
 
         if (! is_file($this->path)) {
             throw new \Exception(sprintf('Source image does not exists: ', $this->path));
         }
 
-        $quality = $this->level($quality, 0, 100, 'quality');
-
         $this->width = 0;
         $this->height = 0;
-        $this->quality = (int) $quality;
+        $this->quality = $this->level($quality, 0, 100, 'quality');
 
         $this->load($path);
     }
@@ -194,7 +191,7 @@ class Image
     {
         $angle = (int) $angle;
 
-        if ($angle % 90 > 0) {
+        if ($angle % 90 !== 0) {
             throw new \Exception('The image can only be rotated at 90 degree intervals.');
         }
 
@@ -344,7 +341,6 @@ class Image
     public function grayscale()
     {
         imagefilter($this->image, IMG_FILTER_GRAYSCALE);
-
         return $this;
     }
 
@@ -369,7 +365,6 @@ class Image
     public function edge()
     {
         imagefilter($this->image, IMG_FILTER_EDGEDETECT);
-
         return $this;
     }
 
@@ -381,7 +376,6 @@ class Image
     public function emboss()
     {
         imagefilter($this->image, IMG_FILTER_EMBOSS);
-
         return $this;
     }
 
@@ -393,7 +387,6 @@ class Image
     public function sketch()
     {
         imagefilter($this->image, IMG_FILTER_MEAN_REMOVAL);
-
         return $this;
     }
 
@@ -405,7 +398,6 @@ class Image
     public function invert()
     {
         imagefilter($this->image, IMG_FILTER_NEGATE);
-
         return $this;
     }
 
@@ -579,10 +571,7 @@ class Image
             throw new \Exception('The PHP GD extension is not available');
         }
 
-        if ($size < 16) {
-            $size = 16;
-        }
-
+        $size = ($size < 16) ? 16 : $size;
         $hash = sha1($seed);
         $sprites = static::sprites();
         $image = imagecreatetruecolor($size, $size);
@@ -621,11 +610,7 @@ class Image
         $result = imagepng($image);
         imagedestroy($image);
 
-        if ($display) {
-            return Response::make($result, 200, ['content-type' => 'image/png']);
-        }
-
-        return $result;
+        return $display ? Response::make($result, 200, ['content-type' => 'image/png']) : $result;
     }
 
     /**
@@ -637,10 +622,7 @@ class Image
      */
     public static function rgb($color)
     {
-        if (is_string($color)) {
-            $color = hexdec($color);
-        }
-
+        $color = is_string($color) ? hexdec($color) : $color;
         $hex = str_pad(dechex($color), (($color < 4096) ? 3 : 6), '0', STR_PAD_LEFT);
         $length = strlen($hex);
 

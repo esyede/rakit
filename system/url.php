@@ -44,12 +44,7 @@ class URL
     public static function home()
     {
         $route = Router::find('home');
-
-        if (! is_null($route)) {
-            return static::to_route('home');
-        }
-
-        return static::to('/');
+        return is_null($route) ? static::to('/') : static::to_route('home');
     }
 
     /**
@@ -144,11 +139,11 @@ class URL
     {
         $route = Router::uses($action);
 
-        if (! is_null($route)) {
-            return static::explicit($route, $action, $parameters);
+        if (is_null($route)) {
+            return static::convention($action, $parameters);
         }
 
-        return static::convention($action, $parameters);
+        return static::explicit($route, $action, $parameters);
     }
 
     /**
@@ -178,7 +173,6 @@ class URL
         list($package, $action) = Package::parse($action);
 
         $package = Package::get($package);
-
         $root = isset($package['handles']) ? $package['handles'] : '';
         $parameters = implode('/', $parameters);
 

@@ -75,11 +75,7 @@ class Input
 
         $value = Arr::get($input, $key);
 
-        if (is_null($value)) {
-            return Arr::get(static::query(), $key, $default);
-        }
-
-        return $value;
+        return is_null($value) ? Arr::get(static::query(), $key, $default) : $value;
     }
 
     /**
@@ -283,7 +279,6 @@ class Input
     public static function flash($filter = null, $keys = [])
     {
         $flash = is_null($filter) ? static::get() : static::{$filter}($keys);
-
         Session::flash(Input::OLD, $flash);
     }
 

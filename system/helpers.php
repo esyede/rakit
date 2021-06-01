@@ -306,7 +306,6 @@ if (! function_exists('tap')) {
     function tap($value, callable $callback)
     {
         $callback($value);
-
         return $value;
     }
 }
@@ -475,10 +474,7 @@ if (! function_exists('class_basename')) {
      */
     function class_basename($class)
     {
-        if (is_object($class)) {
-            $class = get_class($class);
-        }
-
+        $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
     }
 }
@@ -509,11 +505,7 @@ if (! function_exists('view')) {
      */
     function view($view, $data = [])
     {
-        if (is_null($view)) {
-            return '';
-        }
-
-        return \System\View::make($view, $data);
+        return is_null($view) ? '' : \System\View::make($view, $data);
     }
 }
 
@@ -528,11 +520,7 @@ if (! function_exists('render')) {
      */
     function render($view, $data = [])
     {
-        if (is_null($view)) {
-            return '';
-        }
-
-        return \System\View::make($view, $data)->render();
+        return is_null($view) ? '' : \System\View::make($view, $data)->render();
     }
 }
 

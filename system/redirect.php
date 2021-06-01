@@ -143,7 +143,6 @@ class Redirect extends Response
     public function with_input($filter = null, $items = [])
     {
         Input::flash($filter, $items);
-
         return $this;
     }
 
@@ -165,7 +164,6 @@ class Redirect extends Response
     public function with_errors($container)
     {
         $errors = ($container instanceof Validator) ? $container->errors : $container;
-
         return $this->with('errors', $errors);
     }
 

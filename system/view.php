@@ -99,12 +99,7 @@ class View implements \ArrayAccess
     {
         $this->view = $view;
         $this->data = $data;
-
-        if (Str::starts_with($view, 'path: ')) {
-            $this->path = substr($view, 6);
-        } else {
-            $this->path = $this->path($view);
-        }
+        $this->path = Str::starts_with($view, 'path: ') ? substr($view, 6) : $this->path($view);
 
         if (! isset($this->data['errors'])) {
             if (Session::started() && Session::has('errors')) {
@@ -125,21 +120,15 @@ class View implements \ArrayAccess
      */
     public static function exists($view, $return_path = false)
     {
-        if (Str::starts_with($view, 'name: ')
-        && array_key_exists($name = substr($view, 6), static::$names)) {
+        if (Str::starts_with($view, 'name: ') && array_key_exists($name = substr($view, 6), static::$names)) {
             $view = static::$names[$name];
         }
 
         list($package, $view) = Package::parse($view);
-
         $view = str_replace('.', DS, $view);
         $path = Event::until(static::LOADER, [$package, $view]);
 
-        if (! is_null($path)) {
-            return $return_path ? $path : true;
-        }
-
-        return false;
+        return is_null($path) ? false : ($return_path ? $path : true);
     }
 
     /**
@@ -288,15 +277,10 @@ class View implements \ArrayAccess
 
         if (count($data) > 0) {
             foreach ($data as $key => $value) {
-                $with = ['key' => $key, $iterator => $value];
-                $result .= render($view, $with);
+                $result .= render($view, ['key' => $key, $iterator => $value]);
             }
         } else {
-            if (Str::starts_with($empty, 'raw|')) {
-                $result = substr($empty, 4);
-            } else {
-                $result = render($empty);
-            }
+            $result = (Str::starts_with($empty, 'raw|')) ? substr($empty, 4) : render($empty);
         }
 
         return $result;
@@ -445,7 +429,6 @@ class View implements \ArrayAccess
     public function shares($key, $value)
     {
         static::share($key, $value);
-
         return $this;
     }
 
@@ -552,9 +535,7 @@ class View implements \ArrayAccess
     public function __call($method, $parameters)
     {
         if (0 === strpos($method, 'with_')) {
-            $key = substr($method, 5);
-
-            return $this->with($key, $parameters[0]);
+            return $this->with(substr($method, 5), $parameters[0]);
         }
 
         throw new \Exception(sprintf('Method does not exists: %s', $method));

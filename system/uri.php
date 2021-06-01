@@ -37,14 +37,11 @@ class URI
      */
     public static function current()
     {
-        if (! is_null(static::$uri)) {
-            return static::$uri;
+        if (is_null(static::$uri)) {
+            $uri = static::format(Request::getPathInfo());
+            static::segments($uri);
+            static::$uri = $uri;
         }
-
-        $uri = static::format(Request::getPathInfo());
-
-        static::segments($uri);
-        static::$uri = $uri;
 
         return static::$uri;
     }
@@ -59,7 +56,6 @@ class URI
     protected static function format($uri)
     {
         $url = trim($uri, '/');
-
         return $url ? $url : '/';
     }
 
@@ -97,7 +93,6 @@ class URI
     public static function segment($index, $default = null)
     {
         static::current();
-
         return Arr::get(static::$segments, $index - 1, $default);
     }
 

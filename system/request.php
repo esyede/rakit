@@ -45,7 +45,6 @@ class Request
     public static function method()
     {
         $method = static::foundation()->getMethod();
-
         return ('HEAD' === $method) ? 'GET' : $method;
     }
 
@@ -77,7 +76,6 @@ class Request
     public static function headers()
     {
         $headers = static::foundation()->headers->all();
-
         $all = [];
 
         foreach ($headers as $name => $values) {
@@ -132,7 +130,6 @@ class Request
     public static function ip($default = '0.0.0.0')
     {
         $client_ip = static::foundation()->getClientIp();
-
         return is_null($client_ip) ? $default : $client_ip;
     }
 

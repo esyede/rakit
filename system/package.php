@@ -287,7 +287,6 @@ class Package
     public static function name($identifier)
     {
         list($package, $element) = static::parse($identifier);
-
         return $package;
     }
 
@@ -308,7 +307,6 @@ class Package
     public static function element($identifier)
     {
         list($package, $element) = static::parse($identifier);
-
         return $element;
     }
 
@@ -366,17 +364,15 @@ class Package
      */
     public static function parse($identifier)
     {
-        if (isset(static::$elements[$identifier])) {
-            return static::$elements[$identifier];
-        }
+        if (! isset(static::$elements[$identifier])) {
+            if (false !== strpos($identifier, '::')) {
+                $element = explode('::', strtolower($identifier));
+            } else {
+                $element = [DEFAULT_PACKAGE, strtolower($identifier)];
+            }
 
-        if (false !== strpos($identifier, '::')) {
-            $element = explode('::', strtolower($identifier));
-        } else {
-            $element = [DEFAULT_PACKAGE, strtolower($identifier)];
+            static::$elements[$identifier] = $element;
         }
-
-        static::$elements[$identifier] = $element;
 
         return static::$elements[$identifier];
     }
@@ -405,12 +401,7 @@ class Package
     public static function option($package, $option, $default = null)
     {
         $package = static::get($package);
-
-        if (is_null($package)) {
-            return value($default);
-        }
-
-        return Arr::get($package, $option, $default);
+        return is_null($package) ? value($default) : Arr::get($package, $option, $default);
     }
 
     /**
@@ -443,7 +434,6 @@ class Package
     public static function expand($path)
     {
         list($package, $element) = static::parse($path);
-
         return static::path($package).$element;
     }
 }

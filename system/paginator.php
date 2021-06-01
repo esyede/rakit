@@ -119,7 +119,6 @@ class Paginator
 
         if (is_numeric($page) && $page > ceil($total / $perpage)) {
             $last = ceil($total / $perpage);
-
             return ($last > 0) ? $last : 1;
         }
 
@@ -283,14 +282,10 @@ class Paginator
     protected function element($element, $page, $text, \Closure $disabled)
     {
         $class = $element.'_page';
-
-        if (is_null($text)) {
-            $text = Lang::line('pagination.'.$element)->get($this->language);
-        }
+        $text = is_null($text) ? Lang::line('pagination.'.$element)->get($this->language) : $text;
 
         if ($disabled($this->page, $this->last)) {
             $attributes = HTML::attributes(['class' => $class.' disabled']);
-
             return '<li'.$attributes.'><a href="#">'.$text.'</a></li>';
         }
 
@@ -373,10 +368,13 @@ class Paginator
         }
 
         if (is_array($appends) && count($appends) <= 0) {
-            return $this->appendage = '';
+            $this->appendage = '';
+            return $this->appendage;
         }
 
-        return $this->appendage = '&'.http_build_query($appends);
+        $this->appendage = '&'.http_build_query($appends);
+
+        return $this->appendage;
     }
 
     /**
@@ -389,7 +387,6 @@ class Paginator
     public function appends($values)
     {
         $this->appends = $values;
-
         return $this;
     }
 
@@ -403,7 +400,6 @@ class Paginator
     public function speaks($language)
     {
         $this->language = $language;
-
         return $this;
     }
 
@@ -416,7 +412,6 @@ class Paginator
     public function dots($dots)
     {
         $this->dots = $dots;
-
         return $this;
     }
 }

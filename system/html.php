@@ -118,7 +118,6 @@ class HTML
         $defaults = ['media' => 'all', 'type' => 'text/css', 'rel' => 'stylesheet'];
         $attributes = $attributes + $defaults;
         $attributes = static::attributes($attributes);
-
         $url = URL::to_asset($url);
 
         return '<link href="'.$url.'"'.$attributes.'>'.PHP_EOL;
@@ -162,13 +161,9 @@ class HTML
     public static function link($url, $title = null, $attributes = [])
     {
         $url = URL::to($url);
-
-        if (is_null($title)) {
-            $title = $url;
-        }
-
-        $attributes = static::attributes($attributes);
+        $title = is_null($title) ? $url : $title;
         $title = static::entities($title);
+        $attributes = static::attributes($attributes);
 
         return '<a href="'.$url.'"'.$attributes.'>'.$title.'</a>';
     }
@@ -186,13 +181,9 @@ class HTML
     public static function link_to_asset($url, $title = null, $attributes = [])
     {
         $url = URL::to_asset($url);
-
-        if (is_null($title)) {
-            $title = $url;
-        }
-
-        $attributes = static::attributes($attributes);
+        $title = is_null($title) ? $url : $title;
         $title = static::entities($title);
+        $attributes = static::attributes($attributes);
 
         return '<a href="'.$url.'"'.$attributes.'>'.$title.'</a>';
     }
@@ -276,14 +267,10 @@ class HTML
     public static function mailto($email, $title = null, $attributes = [])
     {
         $email = static::email($email);
-
-        if (is_null($title)) {
-            $title = $email;
-        }
-
         $email = '&#109;&#097;&#105;&#108;&#116;&#111;&#058;'.$email;
-        $attributes = static::attributes($attributes);
+        $title = is_null($title) ? $email : $title;
         $title = static::entities($title);
+        $attributes = static::attributes($attributes);
 
         return '<a href="'.$email.'"'.$attributes.'>'.$title.'</a>';
     }

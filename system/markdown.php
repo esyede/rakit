@@ -103,7 +103,6 @@ class Markdown
     public static function render($file)
     {
         $file = File::get($file);
-
         return static::parse($file);
     }
 
@@ -126,11 +125,9 @@ class Markdown
      */
     public static function factory()
     {
-        if (static::$factory) {
-            return static::$factory;
+        if (! static::$factory) {
+            static::$factory = new static();
         }
-
-        static::$factory = new static();
 
         return static::$factory;
     }
@@ -145,7 +142,6 @@ class Markdown
     public function translate($string)
     {
         $this->definitions = [];
-
         $string = explode("\n", trim(str_replace(["\r\n", "\r"], "\n", $string), "\n"));
 
         return trim($this->lines($string), "\n");
@@ -192,9 +188,7 @@ class Markdown
                 }
 
                 $markup .= $this->unmarked(substr($text, 0, $rows['position']));
-                $markup .= isset($rows['markup'])
-                    ? $rows['markup']
-                    : $this->element($rows['element']);
+                $markup .= isset($rows['markup']) ? $rows['markup'] : $this->element($rows['element']);
                 $text = substr($text, $rows['position'] + $rows['extent']);
 
                 continue 2;
@@ -204,9 +198,7 @@ class Markdown
             $text = substr($text, $pos + 1);
         }
 
-        $markup .= $this->unmarked($text);
-
-        return $markup;
+        return $markup.$this->unmarked($text);
     }
 
     /**
@@ -219,7 +211,6 @@ class Markdown
     public function breaks($enable = true)
     {
         $this->breaks = (bool) $enable;
-
         return $this;
     }
 
@@ -233,7 +224,6 @@ class Markdown
     public function escaping($enable = true)
     {
         $this->escaping = (bool) $enable;
-
         return $this;
     }
 
@@ -247,7 +237,6 @@ class Markdown
     public function linkify($enable = true)
     {
         $this->linking = (bool) $enable;
-
         return $this;
     }
 
@@ -261,7 +250,6 @@ class Markdown
     public function safety($enable)
     {
         $this->safety = (bool) $enable;
-
         return $this;
     }
 
@@ -281,7 +269,6 @@ class Markdown
             if (false !== strpos($attri, "\t")) {
                 $parts = explode("\t", $attri);
                 $attri = $parts[0];
-
                 unset($parts[0]);
 
                 foreach ($parts as $part) {
@@ -365,14 +352,10 @@ class Markdown
             }
 
             $markup .= "\n";
-            $markup .= isset($attrib['markup'])
-                ? $attrib['markup']
-                : $this->element($attrib['element']);
+            $markup .= isset($attrib['markup']) ? $attrib['markup'] : $this->element($attrib['element']);
         }
 
-        $markup .= "\n";
-
-        return $markup;
+        return $markup."\n";
     }
 
     protected function continuable($type)
@@ -393,7 +376,6 @@ class Markdown
 
         if ($tag['indent'] >= 4) {
             $text = substr($tag['body'], 4);
-
             return [
                 'element' => [
                     'name' => 'pre',
@@ -561,12 +543,10 @@ class Markdown
     {
         $pattern = '/^'.$attrib['pattern'].'(?:[ ]+(.*)|$)/';
 
-        if ($attrib['indent'] === $tag['indent']
-        && preg_match($pattern, $tag['text'], $matches)) {
+        if ($attrib['indent'] === $tag['indent'] && preg_match($pattern, $tag['text'], $matches)) {
             if (isset($attrib['interrupted'])) {
                 $attrib['li']['text'][] = '';
                 $attrib['loose'] = true;
-
                 unset($attrib['interrupted']);
             }
 
@@ -594,7 +574,6 @@ class Markdown
             $attrib['li']['text'][] = '';
             $text = preg_replace('/^[ ]{0,4}/', '', $tag['body']);
             $attrib['li']['text'][] = $text;
-
             unset($attrib['interrupted']);
 
             return $attrib;
@@ -618,7 +597,6 @@ class Markdown
     {
         if (preg_match('/^>[ ]?(.*)/', $tag['text'], $matches)) {
             $matches = (array) $matches[1];
-
             return [
                 'element' => ['name' => 'blockquote', 'handler' => 'lines', 'text' => $matches],
             ];
@@ -640,7 +618,6 @@ class Markdown
 
         if (! isset($attrib['interrupted'])) {
             $attrib['element']['text'][] = $tag['text'];
-
             return $attrib;
         }
     }
@@ -660,7 +637,6 @@ class Markdown
 
         if ('' === chop($tag['text'], $tag['text'][0])) {
             $attrib['element']['name'] = ('=' === $tag['text'][0]) ? 'h1' : 'h2';
-
             return $attrib;
         }
     }
@@ -727,7 +703,6 @@ class Markdown
 
         if (isset($attrib['interrupted'])) {
             $attrib['markup'] .= "\n";
-
             unset($attrib['interrupted']);
         }
 
@@ -756,19 +731,17 @@ class Markdown
 
     protected function block_table($tag, array $attr = null)
     {
-        if (! isset($attr)
-        || isset($attr['type'])
-        || isset($attr['interrupted'])) {
+        if (! isset($attr) || isset($attr['type']) || isset($attr['interrupted'])) {
             return;
         }
 
-        if (false !== strpos($attr['element']['text'], '|')
-        && '' === chop($tag['text'], ' -:|')) {
+        if (false !== strpos($attr['element']['text'], '|') && '' === chop($tag['text'], ' -:|')) {
             $alignments = [];
             $cells = explode('|', trim(trim($tag['text']), '|'));
 
             foreach ($cells as $cell) {
                 $cell = trim($cell);
+
                 if ('' === $cell) {
                     continue;
                 }
@@ -822,10 +795,8 @@ class Markdown
         }
 
         if ('|' === $tag['text'][0] || strpos($tag['text'], '|')) {
+            preg_match_all('/(?:(\\\\[|])|[^|`]|`[^`]+`|`)+/', trim(trim($tag['text']), '|'), $matches);
             $elems = [];
-
-            $pattern = '/(?:(\\\\[|])|[^|`]|`[^`]+`|`)+/';
-            preg_match_all($pattern, trim(trim($tag['text']), '|'), $matches);
 
             foreach ($matches[0] as $index => $cell) {
                 $cell = trim($cell);
@@ -859,7 +830,6 @@ class Markdown
 
         if (preg_match($pattern, $not['text'], $matches)) {
             $text = preg_replace("/[ ]*\n/", ' ', $matches[2]);
-
             return [
                 'extent' => strlen($matches[0]), 'element' => ['name' => 'code', 'text' => $text],
             ];
@@ -870,12 +840,7 @@ class Markdown
     {
         if (false !== strpos($not['text'], '>')
         && preg_match('/^<((mailto:)?\S+?@\S+?)>/i', $not['text'], $matches)) {
-            $url = $matches[1];
-
-            if (! isset($matches[2])) {
-                $url = 'mailto:'.$url;
-            }
-
+            $url = isset($matches[2]) ? $matches[1] : 'mailto:'.$matches[1];
             return [
                 'extent' => strlen($matches[0]),
                 'element' => [
@@ -893,8 +858,7 @@ class Markdown
 
         $marker = $not['text'][0];
 
-        if ($not['text'][1] === $marker
-        && preg_match($this->strongs[$marker], $not['text'], $matches)) {
+        if ($not['text'][1] === $marker && preg_match($this->strongs[$marker], $not['text'], $matches)) {
             $emphasis = 'strong';
         } elseif (preg_match($this->emphasis[$marker], $not['text'], $matches)) {
             $emphasis = 'em';
@@ -980,7 +944,6 @@ class Markdown
             if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches)) {
                 $definition = strlen($matches[1]) ? $matches[1] : $elem['text'];
                 $definition = strtolower($definition);
-
                 $extent += strlen($matches[0]);
             } else {
                 $definition = strtolower($elem['text']);
@@ -1055,11 +1018,8 @@ class Markdown
             return;
         }
 
-        $pattern = '/\bhttps?:[\/]{2}[^\s<]+\b\/*/ui';
-
-        if (preg_match($pattern, $not['context'], $matches, PREG_OFFSET_CAPTURE)) {
+        if (preg_match('/\bhttps?:[\/]{2}[^\s<]+\b\/*/ui', $not['context'], $matches, PREG_OFFSET_CAPTURE)) {
             $url = $matches[0][0];
-
             return [
                 'extent' => strlen($matches[0][0]),
                 'position' => $matches[0][1],
@@ -1072,10 +1032,8 @@ class Markdown
     {
         $pattern = '/^<(\w+:\/{2}[^ >]+)>/i';
 
-        if (false !== strpos($not['text'], '>')
-        && preg_match($pattern, $not['text'], $matches)) {
+        if (false !== strpos($not['text'], '>') && preg_match($pattern, $not['text'], $matches)) {
             $url = $matches[1];
-
             return [
                 'extent' => strlen($matches[0]),
                 'element' => ['name' => 'a', 'text' => $url, 'attributes' => ['href' => $url]],
@@ -1088,8 +1046,7 @@ class Markdown
         if ($this->breaks) {
             $text = preg_replace('/[ ]*\n/', "<br />\n", $text);
         } else {
-            $pattern = '/(?:[ ][ ]+|[ ]*\\\\)\n/';
-            $text = str_replace(" \n", "\n", preg_replace($pattern, "<br />\n", $text));
+            $text = str_replace(" \n", "\n", preg_replace('/(?:[ ][ ]+|[ ]*\\\\)\n/', "<br />\n", $text));
         }
 
         return $text;
@@ -1097,10 +1054,7 @@ class Markdown
 
     protected function element(array $elem)
     {
-        if ($this->safety) {
-            $elem = $this->sanitize($elem);
-        }
-
+        $elem = $this->safety ? $this->sanitize($elem) : $elem;
         $markup = '<'.$elem['name'];
 
         if (isset($elem['attributes'])) {
@@ -1120,7 +1074,7 @@ class Markdown
         } elseif (isset($elem['raw'])) {
             $text = $elem['raw'];
             $allow = isset($elem['loosey']) && $elem['loosey'];
-            $raw = ! $this->safety || $allow;
+            $raw = ((! $this->safety) || $allow);
         }
 
         if (isset($text)) {
@@ -1154,9 +1108,7 @@ class Markdown
             $markup .= "\n".$this->element($elem);
         }
 
-        $markup .= "\n";
-
-        return $markup;
+        return $markup."\n";
     }
 
     protected function li($lines)

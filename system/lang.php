@@ -80,10 +80,7 @@ class Lang
      */
     public static function line($key, $replacements = [], $language = null)
     {
-        if (is_null($language)) {
-            $language = Config::get('application.language');
-        }
-
+        $language = is_null($language) ? Config::get('application.language') : $language;
         return new static($key, $replacements, $language);
     }
 
@@ -123,13 +120,8 @@ class Lang
      */
     public function get($language = null, $default = null)
     {
-        if (is_null($default)) {
-            $default = $this->key;
-        }
-
-        if (is_null($language)) {
-            $language = $this->language;
-        }
+        $default = is_null($default) ? $this->key : $default;
+        $language = is_null($language) ? $this->language : $language;
 
         list($package, $file, $line) = $this->parse($this->key);
 
@@ -165,7 +157,6 @@ class Lang
 
         if (count($segments) >= 2) {
             $line = implode('.', array_slice($segments, 1));
-
             return [$package, $segments[0], $line];
         }
 
@@ -204,15 +195,8 @@ class Lang
      */
     public static function file($package, $language, $file)
     {
-        $path = static::path($package, $language, $file);
-
-        $lines = [];
-
-        if (is_file($path)) {
-            $lines = require $path;
-        }
-
-        return $lines;
+        $file = static::path($package, $language, $file);
+        return is_file($file) ? (require $file) : [];
     }
 
     /**
