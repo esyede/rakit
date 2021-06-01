@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
         <title>Selamat datang!</title>
-        <link rel="stylesheet" href="<?= asset('home/css/style.min.css') ?>">
+        <link rel="stylesheet" href="<?php echo asset('home/css/style.min.css'); ?>">
     </head>
     <body>
         <header>
-            <h1>RAKIT <?= RAKIT_VERSION; ?></h1>
+            <h1>RAKIT <?php echo RAKIT_VERSION; ?></h1>
             <h5>Kerangka kerja PHP sederhana, ringan dan modular.</h5>
         </header>
 
@@ -28,7 +28,7 @@
         <h3>Melangkah lebih jauh.</h3>
         <p>
             Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur bawaan rakit.
-            Jangan ragu untuk mulai membaca <a href="<?= url('docs') ?>">dokumentasi</a>.
+            Jangan ragu untuk mulai membaca <a href="<?php echo url('docs'); ?>">dokumentasi</a>.
         </p>
 
         <br>
