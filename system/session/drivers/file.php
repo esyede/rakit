@@ -55,7 +55,6 @@ class File extends Driver implements Sweeper
     {
         $path = $this->path.$this->naming($session['id']);
         $session = $this->guard(serialize($session));
-
         Storage::put($path, $session, LOCK_EX);
     }
 

@@ -145,7 +145,6 @@ class Packager extends Command
 
         $remote = $this->repository->search($names[0]);
         $local = path('package').$names[0].DS.'meta.json';
-
         $latest = $remote['compatibilities'][RAKIT_VERSION];
         $current = 0;
 
@@ -225,7 +224,6 @@ class Packager extends Command
     protected function download(array $remote, $path)
     {
         $provider = $this->hostname($remote);
-
         Container::resolve('package.provider: '.$provider)->install($remote, $path);
     }
 
@@ -299,7 +297,6 @@ class Packager extends Command
     {
         $host = parse_url(trim($remote['repository']))['host'];
         $host = explode('.', $host)[0];
-
         $provider = '\\System\\Console\\Commands\\Package\\Providers\\'.Str::classify($host);
 
         if (! class_exists($provider)) {

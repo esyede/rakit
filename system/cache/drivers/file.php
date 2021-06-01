@@ -56,11 +56,7 @@ class File extends Driver
         $cache = Storage::get($this->path.$key);
         $cache = $this->unguard($cache);
 
-        if (time() >= substr($cache, 0, 10)) {
-            return $this->forget($key);
-        }
-
-        return unserialize(substr($cache, 10));
+        return (time() >= substr($cache, 0, 10)) ? $this->forget($key) : unserialize(substr($cache, 10));
     }
 
     /**

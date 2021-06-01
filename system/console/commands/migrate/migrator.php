@@ -55,11 +55,8 @@ class Migrator extends Command
             $this->install();
         }
 
-        if (0 === count($arguments)) {
-            $this->migrate();
-        } else {
-            $this->migrate(Arr::get($arguments, 0));
-        }
+        $package = (0 === count($arguments)) ? null : Arr::get($arguments, 0);
+        $this->migrate($package);
     }
 
     /**
@@ -77,7 +74,6 @@ class Migrator extends Command
 
         if (0 === $total) {
             echo 'No outstanding migrations.';
-
             return;
         }
 
@@ -89,9 +85,7 @@ class Migrator extends Command
             $file = $this->display($migration);
 
             echo 'Migrating: '.$file.PHP_EOL;
-
             $migration['migration']->up();
-
             echo 'Migrated:  '.$file.PHP_EOL;
 
             $this->database->log($migration['package'], $migration['name'], $batch);
@@ -112,7 +106,6 @@ class Migrator extends Command
 
         if (is_array($arguments) && count($arguments) > 0) {
             $packages = $arguments;
-
             $migrations = array_filter($migrations, function ($migration) use ($packages) {
                 return in_array($migration['package'], $packages);
             });
@@ -120,7 +113,6 @@ class Migrator extends Command
 
         if (0 === count($migrations)) {
             echo 'Nothing to rollback.'.PHP_EOL;
-
             return false;
         }
 
@@ -130,9 +122,7 @@ class Migrator extends Command
             $file = $this->display($migration);
 
             echo 'Rolling back: '.$file.PHP_EOL;
-
             $migration['migration']->down();
-
             echo 'Rolled back:  '.$file.PHP_EOL;
 
             $this->database->delete($migration['package'], $migration['name']);
@@ -165,11 +155,8 @@ class Migrator extends Command
     public function rebuild()
     {
         $this->reset();
-
         echo PHP_EOL;
-
         $this->migrate();
-
         echo 'The database was successfully rebuilt'.PHP_EOL;
     }
 
@@ -213,7 +200,6 @@ class Migrator extends Command
         }
 
         $file = $path.$prefix.'_'.$migration.'.php';
-
         File::put($file, $this->stub($package, $migration));
 
         echo 'Created migration: '.$prefix.'_'.$migration;

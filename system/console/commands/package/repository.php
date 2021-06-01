@@ -32,8 +32,9 @@ class Repository
             }
         }
 
-        $exception = 'Error: Package canot be found on the repository: %s';
-        throw new \Exception(PHP_EOL.sprintf($exception, $name).PHP_EOL);
+        throw new \Exception(PHP_EOL.sprintf(
+            'Error: Package canot be found on the repository: %s', $name
+        ).PHP_EOL);
     }
 
     /**
@@ -60,9 +61,6 @@ class Repository
             throw new \Exception('Broken repository. Please contact rakit team.');
         }
 
-        // Paksa seluruh objek stdClass di data json menjadi array.
-        $packages = json_decode(json_encode($packages), true);
-
-        return $packages;
+        return json_decode(json_encode($packages), true);
     }
 }

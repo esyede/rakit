@@ -50,11 +50,7 @@ class Database extends Driver
         $cache = $this->table()->where('key', '=', $this->key.$key)->first();
 
         if (! is_null($cache)) {
-            if (time() >= $cache->expiration) {
-                return $this->forget($key);
-            }
-
-            return unserialize($cache->value);
+            return (time() >= $cache->expiration) ? $this->forget($key) : unserialize($cache->value);
         }
     }
 
@@ -115,8 +111,7 @@ class Database extends Driver
      */
     protected function table()
     {
-        $config = Config::get('cache.database');
-
-        return DB::connection($config['connection'])->table($config['table']);
+        $db = Config::get('cache.database');
+        return DB::connection($db['connection'])->table($db['table']);
     }
 }

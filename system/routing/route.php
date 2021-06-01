@@ -108,13 +108,8 @@ class Route
     public function call()
     {
         $response = Middleware::run($this->middlewares('before'), [], true);
-
-        if (is_null($response)) {
-            $response = $this->response();
-        }
-
+        $response = is_null($response) ? $this->response() : $response;
         $response = Response::prepare($response);
-
         Middleware::run($this->middlewares('after'), [&$response]);
 
         return $response;
@@ -178,7 +173,6 @@ class Route
             if (Str::is($pattern, $this->uri)) {
                 if (is_array($middleware)) {
                     list($middleware, $callback) = array_values($middleware);
-
                     Middleware::register($middleware, $callback);
                 }
 

@@ -71,7 +71,6 @@ abstract class Controller
     {
         $package_path = Package::path($package);
         $root = $package_path.'controllers'.DS;
-
         $directory = is_null($directory) ? $package_path.'controllers' : $directory;
         $items = new \FilesystemIterator($directory, \FilesystemIterator::SKIP_DOTS);
 
@@ -117,7 +116,6 @@ abstract class Controller
         Package::boot($package);
 
         list($name, $method) = explode('@', $destination);
-
         $controller = static::resolve($package, $name);
 
         if (! is_null($route = Request::route())) {
@@ -263,11 +261,7 @@ abstract class Controller
         $action = $this->restful ? strtolower(Request::method()).'_'.$method : 'action_'.$method;
         $response = call_user_func_array([$this, $action], $parameters);
 
-        if (is_null($response) && ! is_null($this->layout)) {
-            $response = $this->layout;
-        }
-
-        return $response;
+        return (is_null($response) && ! is_null($this->layout)) ? $this->layout : $response;
     }
 
     /**
@@ -292,7 +286,6 @@ abstract class Controller
     protected function middleware($event, $middlewares, $parameters = null)
     {
         $this->middlewares[$event][] = new Middlewares($middlewares, $parameters);
-
         return $this->middlewares[$event][count($this->middlewares[$event]) - 1];
     }
 

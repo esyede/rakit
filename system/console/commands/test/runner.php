@@ -28,11 +28,7 @@ class Runner extends Command
     public function run($packages = [])
     {
         $packages = is_array($packages) ? $packages : [$packages];
-
-        if (0 === count($packages)) {
-            $packages = [DEFAULT_PACKAGE];
-        }
-
+        $packages = (0 === count($packages)) ? [DEFAULT_PACKAGE] : $packages;
         $this->package($packages);
     }
 
@@ -44,9 +40,7 @@ class Runner extends Command
     public function core()
     {
         $this->base = path('base').'tests'.DS;
-
         $this->stub($this->base.'cases');
-
         $this->kickstart();
     }
 
@@ -60,11 +54,7 @@ class Runner extends Command
     public function package($packages = [])
     {
         $packages = is_array($packages) ? $packages : [$packages];
-
-        if (0 === count($packages)) {
-            $packages = Package::names();
-        }
-
+        $packages = (0 === count($packages)) ? Package::names() : $packages;
         $this->base = path('system').'console'.DS.'commands'.DS.'test'.DS;
 
         foreach ($packages as $package) {
@@ -86,18 +76,15 @@ class Runner extends Command
         $config = path('base').'phpunit.xml';
 
         if (! is_file(path('base').$phpunit)) {
-            $exception = "Error: PHPUnit 4.8.34 is not present. Please run 'composer install' first.";
-            throw new \Exception($exception);
+            throw new \Exception(
+                "Error: PHPUnit 4.8.34 is not present. Please run 'composer install' first."
+            );
         }
 
-        if (get_cli_option('verbose')) {
-            $phpunit .= ' --debug';
-        }
-
+        $phpunit .= get_cli_option('verbose') ? ' --debug' : '';
         passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
 
         File::delete($config);
-
         exit($status);
     }
 
@@ -111,11 +98,7 @@ class Runner extends Command
     protected function stub($directory)
     {
         $stub = File::get(__DIR__.DS.'stub.xml');
-        $tokens = [
-            '[bootstrap]' => $this->base.'phpunit.php',
-            '[directory]' => $directory,
-        ];
-
+        $tokens = ['[bootstrap]' => $this->base.'phpunit.php', '[directory]' => $directory];
         $stub = $this->tokens($stub, $tokens);
 
         File::put(path('base').'phpunit.xml', $stub, LOCK_EX);

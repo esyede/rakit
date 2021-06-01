@@ -134,9 +134,7 @@ class Router
     public static function group($attributes, \Closure $callback)
     {
         static::$group = $attributes;
-
         call_user_func($callback);
-
         static::$group = null;
     }
 
@@ -162,13 +160,8 @@ class Router
         $route = Str::characterify($route);
         $is_numeric = is_string($route) && '' !== $route && ! preg_match('/[^0-9]/', $route);
 
-        if ($is_numeric) {
-            $route = '('.$route.')';
-        }
-
-        if (is_string($route)) {
-            $route = explode(', ', $route);
-        }
+        $route = $is_numeric ? '('.$route.')' : $route;
+        $route = is_string($route) ? explode(', ', $route) : $route;
 
         if (is_array($method)) {
             foreach ($method as $http) {
@@ -238,7 +231,6 @@ class Router
 
         foreach ($controllers as $identifier) {
             list($package, $controller) = Package::parse($identifier);
-
             $root = Package::option($package, 'handles');
             $controller = str_replace('.', '/', $controller);
 
@@ -266,7 +258,6 @@ class Router
     protected static function root($identifier, $controller, $root)
     {
         $home = ('home' === $controller) ? '' : dirname($controller);
-
         $pattern = trim($root.'/'.$home, '/');
         $pattern = $pattern ? $pattern : '/';
 
@@ -429,7 +420,6 @@ class Router
     public static function method($method)
     {
         $routes = Arr::get(static::$routes, $method, []);
-
         return array_merge($routes, Arr::get(static::$fallback, $method, []));
     }
 

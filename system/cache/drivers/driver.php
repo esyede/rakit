@@ -36,7 +36,6 @@ abstract class Driver
     public function get($key, $default = null)
     {
         $item = $this->retrieve($key);
-
         return is_null($item) ? value($default) : $item;
     }
 

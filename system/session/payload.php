@@ -77,7 +77,6 @@ class Payload
     protected static function expired($session)
     {
         $lifetime = Config::get('session.lifetime');
-
         return (time() - $session['last_activity']) > ($lifetime * 60);
     }
 
@@ -294,7 +293,6 @@ class Payload
     protected function cookie($config)
     {
         $minutes = $config['expire_on_close'] ? 0 : $config['lifetime'];
-
         Cookie::put(
             $config['cookie'],
             $this->session['id'],

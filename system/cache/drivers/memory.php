@@ -38,7 +38,6 @@ class Memory extends Sectionable
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
-
             return $this->get_from_section($section, $key);
         }
 
@@ -63,7 +62,6 @@ class Memory extends Sectionable
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
-
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
@@ -80,9 +78,9 @@ class Memory extends Sectionable
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
-
             return $this->forever_in_section($section, $key, $value);
         }
+
         $this->put($key, $value, 0);
     }
 

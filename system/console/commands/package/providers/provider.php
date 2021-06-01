@@ -31,8 +31,9 @@ abstract class Provider
     protected function zipball($zipball_url, $package, $path)
     {
         if (! extension_loaded('zip')) {
-            $exception = 'Error: The PHP Zip extension is needed to perform this action.';
-            throw new \Exception(PHP_EOL.sprintf($exception).PHP_EOL);
+            throw new \Exception(PHP_EOL.sprintf(
+                'Error: The PHP Zip extension is needed to perform this action.'
+            ).PHP_EOL);
         }
 
         $storage = path('storage').'console'.DS;
@@ -44,15 +45,12 @@ abstract class Provider
         }
 
         echo PHP_EOL.'Downloading zipball...';
-
         $this->download($zipball_url, $zipball);
-
         echo ' done!';
 
         echo PHP_EOL.'Extracting zipball...';
 
         $zip = new \ZipArchive();
-
         $zip->open($zipball);
         $zip->extractTo($extractions);
         $zip->close();
@@ -77,7 +75,6 @@ abstract class Provider
     protected function download($zipball_url, $destination)
     {
         File::delete($destination);
-
         $options = [CURLOPT_FOLLOWLOCATION => 1];
 
         if (200 !== (int) Curl::get($zipball_url, [], $options)->header->http_code) {

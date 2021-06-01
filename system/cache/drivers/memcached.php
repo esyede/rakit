@@ -58,7 +58,6 @@ class Memcached extends Sectionable
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
-
             return $this->get_from_section($section, $key);
         } elseif (false !== ($cache = $this->memcache->get($this->key.$key))) {
             return $cache;
@@ -83,7 +82,6 @@ class Memcached extends Sectionable
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
-
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
@@ -100,7 +98,6 @@ class Memcached extends Sectionable
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
-
             return $this->forever_in_section($section, $key, $value);
         }
 

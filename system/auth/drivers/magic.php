@@ -36,11 +36,10 @@ class Magic extends Driver
     public function attempt($arguments = [])
     {
         $user = $this->get_user($arguments);
-
         $password = $arguments['password'];
-        $password_field = Config::get('auth.password', 'password');
+        $fieldname = Config::get('auth.password', 'password');
 
-        if (! is_null($user) && Hash::check($password, $user->{$password_field})) {
+        if (! is_null($user) && Hash::check($password, $user->{$fieldname})) {
             return $this->login($user->id, Arr::get($arguments, 'remember'));
         }
 

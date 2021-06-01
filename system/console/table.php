@@ -25,7 +25,6 @@ class Table
     public function add_header($content = '')
     {
         $this->data[self::HEADER_INDEX][] = $content;
-
         return $this;
     }
 
@@ -37,7 +36,6 @@ class Table
     public function set_headers(array $content)
     {
         $this->data[self::HEADER_INDEX] = $content;
-
         return $this;
     }
 
@@ -48,9 +46,7 @@ class Table
      */
     public function get_headers()
     {
-        return isset($this->data[self::HEADER_INDEX])
-            ? $this->data[self::HEADER_INDEX]
-            : null;
+        return isset($this->data[self::HEADER_INDEX]) ? $this->data[self::HEADER_INDEX] : null;
     }
 
     /**
@@ -80,9 +76,9 @@ class Table
      */
     public function add_column($content, $column = null, $row = null)
     {
-        $row = (null === $row) ? $this->row_index : $row;
+        $row = is_null($row) ? $this->row_index : $row;
 
-        if (null === $column) {
+        if (is_null($column)) {
             $column = isset($this->data[$row]) ? count($this->data[$row]) : 0;
         }
 
@@ -97,7 +93,6 @@ class Table
     public function show_border()
     {
         $this->border = true;
-
         return $this;
     }
 
@@ -107,7 +102,6 @@ class Table
     public function hide_border()
     {
         $this->border = false;
-
         return $this;
     }
 
@@ -130,7 +124,6 @@ class Table
     public function set_padding($value = 1)
     {
         $this->padding = $value;
-
         return $this;
     }
 
@@ -142,7 +135,6 @@ class Table
     public function set_indent($value = 0)
     {
         $this->indent = $value;
-
         return $this;
     }
 
@@ -250,26 +242,17 @@ class Table
         $pad = $row ? $width - mb_strlen($cell, 'UTF-8') : $width;
         $padding = str_repeat($row ? ' ' : '-', $this->padding);
 
-        $output = '';
-
-        if (0 === $index) {
-            $output .= str_repeat(' ', $this->indent);
-        }
-
-        if ($this->border) {
-            $output .= $row ? '|' : '+';
-        }
-
+        $output = (0 === $index) ? str_repeat(' ', $this->indent) : '';
+        $output .= $this->border ? ($row ? '|' : '+') : '';
         $output .= $padding;
+
         $cell = trim(preg_replace('/\s+/', ' ', $cell));
         $content = preg_replace('#\x1b[[][^A-Za-z]*[A-Za-z]#', '', $cell);
         $delta = mb_strlen($cell, 'UTF-8') - mb_strlen($content, 'UTF-8');
+
         $output .= $this->strpad($cell, $width + $delta, $row ? ' ' : '-');
         $output .= $padding;
-
-        if ($row && $index === count($row) - 1 && $this->border) {
-            $output .= $row ? '|' : '+';
-        }
+        $output .= ($row && $index === count($row) - 1 && $this->border) ? ($row ? '|' : '+') : '';
 
         return $output;
     }
@@ -284,12 +267,14 @@ class Table
         foreach ($this->data as $y => $row) {
             if (is_array($row)) {
                 foreach ($row as $x => $col) {
-                    $width = mb_strlen(preg_replace('#\x1b[[][^A-Za-z]*[A-Za-z]#', '', $col), 'UTF-8');
+                    $width = mb_strlen(preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
 
-                    if (isset($this->column_widths[$x]) && $this->column_widths[$x] < $width) {
-                        $this->column_widths[$x] = $width;
+                    if (! isset($this->column_widths[$x])) {
+                        $this->column_widths[$x] = strlen($width);
                     } else {
-                        $this->column_widths[$x] = $width;
+                        if (strlen($width) > $this->column_widths[$x]) {
+                            $this->column_widths[$x] = strlen($width);
+                        }
                     }
                 }
             }

@@ -24,8 +24,9 @@ class Gitlab extends Provider
             : false;
 
         if (! $compatible) {
-            $exception = 'Error: No compatible package for your rakit version (%s)';
-            throw new \Exception(PHP_EOL.sprintf($exception, RAKIT_VERSION).PHP_EOL);
+            throw new \Exception(PHP_EOL.sprintf(
+                'Error: No compatible package for your rakit version (%s)', RAKIT_VERSION
+            ).PHP_EOL);
         }
 
         $zipball_url = str_replace(

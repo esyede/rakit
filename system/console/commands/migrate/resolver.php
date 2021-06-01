@@ -37,13 +37,8 @@ class Resolver
      */
     public function outstanding($package = null)
     {
+        $packages = is_null($package) ? array_merge(Package::names(), ['application']) : [$package];
         $migrations = [];
-
-        if (is_null($package)) {
-            $packages = array_merge(Package::names(), ['application']);
-        } else {
-            $packages = [$package];
-        }
 
         foreach ($packages as $package) {
             $ran = $this->database->ran($package);
@@ -83,7 +78,6 @@ class Resolver
         foreach ($migrations as $migration) {
             $migration = (array) $migration;
             $package = $migration['package'];
-
             $path = Package::path($package).'migrations'.DS;
             $name = $migration['name'];
 
@@ -91,9 +85,7 @@ class Resolver
 
             $prefix = Package::class_prefix($package);
             $class = $prefix.Str::classify(substr($name, 18));
-
             $migration = new $class();
-
             $instances[] = compact('package', 'name', 'migration');
         }
 

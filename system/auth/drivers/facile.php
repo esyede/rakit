@@ -39,7 +39,6 @@ class Facile extends Driver
         $user = $this->model()->where(function ($query) use ($arguments) {
             $username = Config::get('auth.username');
             $query->where($username, '=', $arguments['username']);
-
             $except = Arr::except($arguments, ['username', 'password', 'remember']);
 
             foreach ($except as $column => $val) {
@@ -48,9 +47,9 @@ class Facile extends Driver
         })->first();
 
         $password = $arguments['password'];
-        $password_field = Config::get('auth.password', 'password');
+        $fieldname = Config::get('auth.password', 'password');
 
-        if (! is_null($user) && Hash::check($password, $user->{$password_field})) {
+        if (! is_null($user) && Hash::check($password, $user->{$fieldname})) {
             return $this->login($user->get_key(), Arr::get($arguments, 'remember'));
         }
 

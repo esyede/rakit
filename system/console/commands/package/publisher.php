@@ -20,12 +20,10 @@ class Publisher
     {
         if (! Package::exists($package)) {
             echo 'Package is not registered: '.$package;
-
             return;
         }
 
         $path = Package::path($package);
-
         $this->move($path.'assets', path('assets').'packages'.DS.$package);
 
         echo 'Assets published for package: '.$package.PHP_EOL;
@@ -42,7 +40,6 @@ class Publisher
     {
         if (! Package::exists($package)) {
             echo 'Package is not registered: '.$package;
-
             return;
         }
 

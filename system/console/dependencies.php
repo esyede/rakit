@@ -18,7 +18,6 @@ if (! Container::registered('command: migrate')) {
     Container::register('command: migrate', function () {
         $database = new Commands\Migrate\Database();
         $resolver = new Commands\Migrate\Resolver($database);
-
         return new Commands\Migrate\Migrator($resolver, $database);
     });
 }
@@ -27,7 +26,6 @@ if (! Container::registered('command: migrate')) {
 if (! Container::registered('command: package')) {
     Container::register('command: package', function () {
         $repository = Container::resolve('package.repository');
-
         return new Commands\Package\Packager($repository);
     });
 }

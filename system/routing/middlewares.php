@@ -113,9 +113,9 @@ class Middlewares
             return false;
         }
 
-        $request = strtolower(Request::method());
+        $method = strtolower(Request::method());
 
-        if (count($this->methods) > 0 && ! in_array($request, $this->methods)) {
+        if (count($this->methods) > 0 && ! in_array($method, $this->methods)) {
             return false;
         }
 
@@ -143,7 +143,6 @@ class Middlewares
     public function except($methods)
     {
         $this->except = (array) $methods;
-
         return $this;
     }
 
@@ -168,7 +167,6 @@ class Middlewares
     public function only($methods)
     {
         $this->only = (array) $methods;
-
         return $this;
     }
 
@@ -191,9 +189,7 @@ class Middlewares
      */
     public function on($methods)
     {
-        $methods = (array) $methods;
-        $this->methods = array_map('strtolower', $methods);
-
+        $this->methods = array_map('strtolower', (array) $methods);
         return $this;
     }
 }

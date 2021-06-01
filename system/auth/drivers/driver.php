@@ -124,9 +124,7 @@ abstract class Driver
         $this->user = null;
 
         $this->cookie($this->recaller(), null, -2628000);
-
         Session::forget($this->token());
-
         Event::fire('rakit.auth: logout');
 
         $this->token = null;
@@ -161,10 +159,7 @@ abstract class Driver
     protected function recall()
     {
         $cookie = Cookie::get($this->recaller());
-
-        if (! is_null($cookie)) {
-            return head(explode('|', Crypter::decrypt($cookie)));
-        }
+        return is_null($cookie) ? null : head(explode('|', Crypter::decrypt($cookie)));
     }
 
     /**
@@ -177,15 +172,7 @@ abstract class Driver
     protected function cookie($name, $value, $minutes)
     {
         $config = Config::get('session');
-
-        Cookie::put(
-            $name,
-            $value,
-            $minutes,
-            $config['path'],
-            $config['domain'],
-            $config['secure']
-        );
+        Cookie::put($name, $value, $minutes, $config['path'], $config['domain'], $config['secure']);
     }
 
     /**
@@ -215,8 +202,7 @@ abstract class Driver
      */
     protected function name()
     {
-        $child_class = get_class($this);
-
-        return Str::lower(str_replace('\\', '_', $child_class));
+        $child = get_class($this);
+        return Str::lower(str_replace('\\', '_', $child));
     }
 }
