@@ -153,7 +153,7 @@ class Container
     }
 
     /**
-     * Resolve seluruh dependensi dari ReflectionParameters.
+     * Resolve seluruh dependensi dari ReflectionParameter.
      *
      * @param array $parameters
      * @param array $arguments

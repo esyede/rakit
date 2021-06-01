@@ -75,6 +75,7 @@ class Cookie
      * @param string $path
      * @param string $domain
      * @param bool   $secure
+     * @param string $samesite
      */
     public static function put(
         $name,
@@ -83,19 +84,13 @@ class Cookie
         $path = '/',
         $domain = null,
         $secure = false,
-        $samesite = null
+        $samesite = 'lax'
     ) {
-        if (0 !== (int) $expiration) {
-            $expiration = time() + ($expiration * 60);
-        }
-
-        if (null === $samesite || '' === $samesite) {
-            $samesite = Config::get('session.samesite', 'Lax');
-        }
-
+        $expiration = (0 === (int) $expiration) ? 0 : (time() + ($expiration * 60));
+        $samesite = is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite;
         $samesite = is_string($samesite) ? strtolower($samesite) : $samesite;
 
-        if (! in_array($samesite, ['lax', 'strict', 'none', null], true)) {
+        if (! in_array($samesite, ['lax', 'strict', 'none'])) {
             throw new \InvalidArgumentException('The "samesite" parameter value is not valid.');
         }
 
@@ -106,7 +101,10 @@ class Cookie
             throw new \Exception('Attempting to set secure cookie over HTTP.');
         }
 
-        static::$jar[$name] = compact('name', 'value', 'expiration', 'path', 'domain', 'secure', 'samesite');
+        static::$jar[$name] = compact(
+            'name', 'value', 'expiration', 'path',
+            'domain', 'secure', 'samesite'
+        );
     }
 
     /**
@@ -124,11 +122,18 @@ class Cookie
      * @param string $path
      * @param string $domain
      * @param bool   $secure
+     * @param string $samesite
      *
      * @return bool
      */
-    public static function forever($name, $value, $path = '/', $domain = null, $secure = false, $samesite = null)
-    {
+    public static function forever(
+        $name,
+        $value,
+        $path = '/',
+        $domain = null,
+        $secure = false,
+        $samesite = 'lax'
+    ) {
         return static::put($name, $value, 2628000, $path, $domain, $secure, $samesite);
     }
 
@@ -139,11 +144,17 @@ class Cookie
      * @param string $path
      * @param string $domain
      * @param bool   $secure
+     * @param string $samesite
      *
      * @return bool
      */
-    public static function forget($name, $path = '/', $domain = null, $secure = false, $samesite = null)
-    {
+    public static function forget(
+        $name,
+        $path = '/',
+        $domain = null,
+        $secure = false,
+        $samesite = 'lax'
+    ) {
         return static::put($name, null, -2628000, $path, $domain, $secure, $samesite);
     }
 }

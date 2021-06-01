@@ -15,10 +15,6 @@ class Cookie
     protected $httpOnly;
     protected $sameSite;
 
-    const SAMESITE_NONE = 'none';
-    const SAMESITE_LAX = 'lax';
-    const SAMESITE_STRICT = 'strict';
-
     /**
      * Konstruktor.
      *
@@ -73,9 +69,7 @@ class Cookie
             $sameSite = strtolower($sameSite);
         }
 
-        $sameSites = [self::SAMESITE_LAX, self::SAMESITE_STRICT, self::SAMESITE_NONE, null];
-
-        if (! in_array($sameSite, $sameSites, true)) {
+        if (! in_array($sameSite, ['lax', 'strict', 'none', null], true)) {
             throw new \InvalidArgumentException('The "sameSite" parameter value is not valid.');
         }
 
