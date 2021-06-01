@@ -99,10 +99,12 @@ class Packager extends Command
         $this->parameter($names);
 
         if (! Package::exists($names[0])) {
-            $exception = 'Error: Package is not registered: %s'.PHP_EOL;
-            $exception .= 'Currently registered packages are: '.PHP_EOL;
-            $exception .= '  '.implode(', ', Package::names()).'.';
-            throw new \Exception(PHP_EOL.sprintf($exception, $names[0]).PHP_EOL);
+            throw new \Exception(PHP_EOL.sprintf(
+                'Error: Package is not registered: %s'.PHP_EOL.
+                'Currently registered packages are: '.PHP_EOL.
+                '  '.implode(', ', Package::names()).'.',
+                $names[0]
+            ).PHP_EOL);
         }
 
         echo 'Uninstalling package: '.$names[0].PHP_EOL;
@@ -137,10 +139,12 @@ class Packager extends Command
         $this->parameter($names);
 
         if (! Package::exists($names[0])) {
-            $exception = 'Error: Package is not registered: %s'.PHP_EOL;
-            $exception .= 'Currently registered packages are: '.PHP_EOL;
-            $exception .= '  '.implode(', ', Package::names()).'.';
-            throw new \Exception(PHP_EOL.sprintf($exception, $names[0]).PHP_EOL);
+            throw new \Exception(PHP_EOL.sprintf(
+                'Error: Package is not registered: %s'.PHP_EOL.
+                'Currently registered packages are: '.PHP_EOL.
+                '  '.implode(', ', Package::names()).'.',
+                $names[0]
+            ).PHP_EOL);
         }
 
         $remote = $this->repository->search($names[0]);

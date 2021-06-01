@@ -18,18 +18,15 @@ class Factory
     public static function create($locale = null)
     {
         $locale = is_null($locale) ? Config::get('application.language', 'id') : $locale;
-
         $locales = glob(path('system').'foundation'.DS.'faker'.DS.'provider'.DS.'*', GLOB_ONLYDIR);
         $locales = array_map(function ($item) {
             $item = explode(DS, $item);
-
             return end($item);
         }, $locales);
 
         if (! in_array($locale, $locales)) {
             $locale = path('system').'foundation'.DS.'faker'.DS.'provider'.DS.$locale;
-            $exception = 'Faker locale folder cannot be found: %s';
-            throw new \InvalidArgumentException(sprintf($exception, $locale));
+            throw new \InvalidArgumentException(sprintf('Locale folder cannot be found: %s', $locale));
         }
 
         $generator = new Generator();

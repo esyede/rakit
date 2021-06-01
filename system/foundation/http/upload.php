@@ -814,10 +814,11 @@ class Upload extends \SplFileInfo
         $test = false
     ) {
         if (! ini_get('file_uploads')) {
-            $exception = 'Unable to create Upload because "file_uploads" directive'.
-                'is disabled in your php.ini file (%s)';
-
-            throw new \Exception(sprintf($exception, get_cfg_var('cfg_file_path')));
+            throw new \Exception(sprintf(
+                'Unable to create Upload because "file_uploads" directive '.
+                'is disabled in your php.ini file (%s)',
+                get_cfg_var('cfg_file_path')
+            ));
         }
 
         $this->originalName = $this->getName($originalName);

@@ -8,9 +8,7 @@ class Biased extends Base
 {
     public function biasedNumberBetween($min = 0, $max = 100, callable $function = null)
     {
-        if (is_null($function)) {
-            $function = 'sqrt';
-        }
+        $function = is_null($function) ? 'sqrt' : $function;
 
         do {
             $x = mt_rand() / mt_getrandmax();

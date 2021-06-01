@@ -189,22 +189,10 @@ class Address extends BaseAddress
         'Yogyakarta',
     ];
 
-    protected static $cityFormats = [
-        '{{cityName}}',
-    ];
-
-    protected static $streetNameFormats = [
-        '{{street}}',
-    ];
-
-    protected static $streetAddressFormats = [
-        '{{streetPrefix}} {{street}} No. {{buildingNumber}}',
-    ];
-
-    protected static $addressFormats = [
-        '{{streetAddress}}, {{city}} {{postcode}}, {{stateAbbr}}',
-    ];
-
+    protected static $cityFormats = ['{{cityName}}'];
+    protected static $streetNameFormats = ['{{street}}'];
+    protected static $streetAddressFormats = ['{{streetPrefix}} {{street}} No. {{buildingNumber}}'];
+    protected static $addressFormats = ['{{streetAddress}}, {{city}} {{postcode}}, {{stateAbbr}}'];
     protected static $postcode = ['%####'];
 
     public static function state()
@@ -230,7 +218,6 @@ class Address extends BaseAddress
     public function city()
     {
         $format = static::randomElement(static::$cityFormats);
-
         return $this->generator->parse($format);
     }
 

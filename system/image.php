@@ -729,8 +729,9 @@ class Image
         $bounds = range($low, $high);
 
         if (! in_array($value, $bounds)) {
-            $exception = 'The %s level is out of bounds. It needs to be between %s to %s';
-            throw new \Exception(sprintf($exception, $method, $low, $high));
+            throw new \Exception(sprintf(
+                'The %s level is out of bounds. It needs to be between %s to %s', $method, $low, $high
+            ));
         }
 
         return  (int) $value;

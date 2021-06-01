@@ -209,7 +209,6 @@ class Internet extends Base
     final public static function safeEmailDomain()
     {
         $domains = ['example.com', 'example.org', 'example.net'];
-
         return mb_strtolower(static::randomElement($domains), 'UTF-8');
     }
 
@@ -224,7 +223,6 @@ class Internet extends Base
     public function password($minLength = 6, $maxLength = 20)
     {
         $pattern = str_repeat('*', $this->numberBetween($minLength, $maxLength));
-
         return $this->asciify($pattern);
     }
 
@@ -236,7 +234,6 @@ class Internet extends Base
     public function domainWord()
     {
         $lastName = $this->generator->format('lastName');
-
         return static::transliterate($lastName);
     }
 
@@ -248,7 +245,6 @@ class Internet extends Base
     public function url()
     {
         $format = static::randomElement(static::$urlFormats);
-
         return $this->generator->parse($format);
     }
 
@@ -262,15 +258,12 @@ class Internet extends Base
             $nbWords = (int) ($nbWords * mt_rand(60, 140) / 100) + 1;
         }
 
-        $words = $this->generator->words($nbWords);
-
-        return implode('-', $words);
+        return implode('-', $this->generator->words($nbWords));
     }
 
     public function ipv4()
     {
         $digits = (0 === mt_rand(0, 1)) ? mt_rand(-2147483648, 0) : mt_rand(1, 2147483647);
-
         return long2ip($digits);
     }
 

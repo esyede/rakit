@@ -15,7 +15,6 @@ class Tcno
         }
 
         $identity = array_map('intval', str_split($identityPrefix));
-
         $oddSum = 0;
         $evenSum = 0;
 

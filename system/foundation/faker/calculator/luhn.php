@@ -10,7 +10,6 @@ class Luhn
     {
         $number = (string) $number;
         $length = strlen($number);
-
         $sum = 0;
 
         for ($i = $length - 1; $i >= 0; $i -= 2) {
@@ -27,12 +26,7 @@ class Luhn
     public static function computeCheckDigit($partialNumber)
     {
         $checkDigit = self::checksum($partialNumber.'0');
-
-        if (0 === $checkDigit) {
-            return 0;
-        }
-
-        return (string) (10 - $checkDigit);
+        return (0 === $checkDigit) ? 0 : ((string) (10 - $checkDigit));
     }
 
     public static function isValid($number)

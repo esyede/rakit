@@ -15,15 +15,15 @@ class Log
     {
         if (PHP_VERSION_ID >= 70000) {
             if ($e instanceof \Throwable) {
-                $exception = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
+                $text = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
             }
         } elseif ($e instanceof \Exception) {
-            $exception = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
+            $text = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
         } else {
-            $exception = 'A non-catchable error has occured.';
+            $text = 'A non-catchable error has occured.';
         }
 
-        static::write('error', $exception);
+        static::write('error', $text);
     }
 
     /**

@@ -35,8 +35,9 @@ class Unique
             ++$retry;
 
             if ($retry > $this->maxRetries) {
-                $exception = 'Maximum retries of %s reached without finding a unique value.';
-                throw new \OverflowException(sprintf($exception, $this->maxRetries));
+                throw new \OverflowException(sprintf(
+                    'Maximum retries of %s reached without finding a unique value.', $this->maxRetries
+                ));
             }
         } while (array_key_exists(serialize($result), $this->uniques[$name]));
 

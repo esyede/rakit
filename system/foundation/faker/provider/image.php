@@ -25,18 +25,10 @@ class Image extends Base
                 throw new \InvalidArgumentException(sprintf('Unkown image category: %s', $category));
             }
 
-            $url .= $category.'/';
-
-            if ($word) {
-                $url .= $word.'/';
-            }
+            $url .= $category.'/'.($word ? $word.'/' : '');
         }
 
-        if ($randomize) {
-            $url .= '?'.static::randomNumber(5, true);
-        }
-
-        return $url;
+        return $randomize ? $url.'?'.static::randomNumber(5, true) : $url;
     }
 
     public static function image(
@@ -73,10 +65,6 @@ class Image extends Base
             );
         }
 
-        if (! $success) {
-            return false;
-        }
-
-        return $fullPath ? $filepath : $filename;
+        return $success ? ($fullPath ? $filepath : $filename) : false;
     }
 }

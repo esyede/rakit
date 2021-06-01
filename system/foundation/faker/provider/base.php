@@ -49,11 +49,7 @@ class Base
             );
         }
 
-        if ($strict) {
-            return mt_rand(pow(10, $nbDigits - 1), $max);
-        }
-
-        return mt_rand(0, $max);
+        return $strict ? mt_rand(pow(10, $nbDigits - 1), $max) : mt_rand(0, $max);
     }
 
     public static function randomFloat($nbMaxDecimals = null, $min = 0, $max = null)
@@ -96,8 +92,9 @@ class Base
         $numKeys = count($allKeys);
 
         if ($numKeys < $count) {
-            $exception = 'Cannot get %s elements, only %s elements is available the in array';
-            throw new \LengthException(sprintf($exception, $count, $numKeys));
+            throw new \LengthException(sprintf(
+                'Cannot get %s elements, only %s elements is available the in array', $count, $numKeys
+            ));
         }
 
         $highKey = $numKeys - 1;
@@ -162,11 +159,7 @@ class Base
         reset($array);
 
         while (list($key, $value) = each($array)) {
-            if (0 === $i) {
-                $j = 0;
-            } else {
-                $j = mt_rand(0, $i);
-            }
+            $j = (0 === $i) ? 0 : mt_rand(0, $i);
 
             if ($j === $i) {
                 $shuffled[] = $value;
@@ -223,9 +216,7 @@ class Base
             }
         }
 
-        $string = preg_replace_callback('/\%/u', 'static::randomDigitNotNull', $string);
-
-        return $string;
+        return preg_replace_callback('/\%/u', 'static::randomDigitNotNull', $string);
     }
 
     public static function lexify($string = '????')
@@ -297,11 +288,7 @@ class Base
 
     public function optional($weight = 0.5, $default = null)
     {
-        if (mt_rand() / mt_getrandmax() <= $weight) {
-            return $this->generator;
-        }
-
-        return new Common($default);
+        return (mt_rand() / mt_getrandmax() <= $weight) ? $this->generator : new Common($default);
     }
 
     public function unique($reset = false, $maxRetries = 10000)

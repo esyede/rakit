@@ -9,7 +9,6 @@ class Ean
     public static function checksum($digits)
     {
         $length = strlen($digits);
-
         $even = 0;
 
         for ($i = $length - 1; $i >= 0; $i -= 2) {

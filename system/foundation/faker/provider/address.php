@@ -8,22 +8,10 @@ class Address extends Base
 {
     protected static $citySuffix = ['Ville'];
     protected static $streetSuffix = ['Street'];
-    protected static $cityFormats = [
-        '{{firstName}}{{citySuffix}}',
-    ];
-
-    protected static $streetNameFormats = [
-        '{{lastName}} {{streetSuffix}}',
-    ];
-
-    protected static $streetAddressFormats = [
-        '{{buildingNumber}} {{streetName}}',
-    ];
-
-    protected static $addressFormats = [
-        '{{streetAddress}} {{postcode}} {{city}}',
-    ];
-
+    protected static $cityFormats = ['{{firstName}}{{citySuffix}}'];
+    protected static $streetNameFormats = ['{{lastName}} {{streetSuffix}}'];
+    protected static $streetAddressFormats = ['{{buildingNumber}} {{streetName}}'];
+    protected static $addressFormats = ['{{streetAddress}} {{postcode}} {{city}}'];
     protected static $buildingNumber = ['##'];
     protected static $postcode = ['#####'];
     protected static $country = [];
@@ -56,21 +44,18 @@ class Address extends Base
     public function city()
     {
         $format = static::randomElement(static::$cityFormats);
-
         return $this->generator->parse($format);
     }
 
     public function streetName()
     {
         $format = static::randomElement(static::$streetNameFormats);
-
         return $this->generator->parse($format);
     }
 
     public function streetAddress()
     {
         $format = static::randomElement(static::$streetAddressFormats);
-
         return $this->generator->parse($format);
     }
 
@@ -82,7 +67,6 @@ class Address extends Base
     public function address()
     {
         $format = static::randomElement(static::$addressFormats);
-
         return $this->generator->parse($format);
     }
 

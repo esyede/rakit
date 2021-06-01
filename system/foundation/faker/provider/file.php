@@ -481,20 +481,21 @@ class File extends Base
     public static function fileExtension()
     {
         $random = static::randomElement(array_values(static::$mimeTypes));
-
         return is_array($random) ? static::randomElement($random) : $random;
     }
 
     public static function file($sourceDirectory = '/tmp', $targetDirectory = '/tmp', $fullPath = true)
     {
         if (! is_dir($sourceDirectory)) {
-            $exception = 'Source directory does not exist or is not a directory: %s';
-            throw new \InvalidArgumentException(sprintf($exception, $sourceDirectory));
+            throw new \InvalidArgumentException(sprintf(
+                'Source directory does not exist or is not a directory: %s', $sourceDirectory
+            ));
         }
 
         if (! is_dir($targetDirectory)) {
-            $exception = 'Target directory does not exist or is not a directory: %s';
-            throw new \InvalidArgumentException(sprintf($exception, $targetDirectory));
+            throw new \InvalidArgumentException(sprintf(
+                'Target directory does not exist or is not a directory: %s', $targetDirectory
+            ));
         }
 
         if ($sourceDirectory === $targetDirectory) {
@@ -509,8 +510,7 @@ class File extends Base
         );
 
         if (empty($files)) {
-            $exception = 'Source directory is empty: %s';
-            throw new \InvalidArgumentException(sprintf($exception, $sourceDirectory));
+            throw new \InvalidArgumentException(sprintf('Source directory is empty: %s', $sourceDirectory));
         }
 
         $sourceFullPath = $sourceDirectory.DS.static::randomElement($files);

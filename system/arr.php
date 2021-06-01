@@ -425,8 +425,9 @@ class Arr
         $available = count($array);
 
         if ($requested > $available) {
-            $exception = 'You requested %s items, but there are only %s items available.';
-            throw new \InvalidArgumentException(sprintf($exception, $requested, $available));
+            throw new \InvalidArgumentException(sprintf(
+                'You requested %s items, but there are only %s items available.', $requested, $available
+            ));
         }
 
         if (is_null($number)) {

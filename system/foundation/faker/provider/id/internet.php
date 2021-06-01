@@ -8,10 +8,7 @@ use System\Foundation\Faker\Provider\Internet as BaseInternet;
 
 class Internet extends BaseInternet
 {
-    protected static $freeEmailDomain = [
-        'gmail.com', 'yahoo.com', 'gmail.co.id', 'yahoo.co.id',
-    ];
-
+    protected static $freeEmailDomain = ['gmail.com', 'yahoo.com', 'hotmail.com', 'mail.ru'];
     protected static $tld = [
         'com', 'net', 'org', 'asia', 'tv', 'biz', 'info', 'in', 'name', 'co',
         'ac.id', 'sch.id', 'go.id', 'mil.id', 'co.id', 'or.id', 'web.id',

@@ -12,7 +12,6 @@ class Address extends BaseAddress
     protected static $buildingNumber = ['%####', '%###', '%##'];
     protected static $postcode = ['#####', '#####-####'];
     protected static $secondaryAddressFormats = ['Apt. ###', 'Suite ###'];
-
     protected static $citySuffix = [
         'town', 'ton', 'land', 'ville', 'berg', 'burgh', 'borough', 'bury', 'view',
         'port', 'mouth', 'stad', 'furt', 'chester', 'mouth', 'fort', 'haven', 'side', 'shire',

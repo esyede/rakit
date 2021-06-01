@@ -8,8 +8,8 @@ class Dates extends Base
 {
     protected static $century = [
         'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
-        'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX',
-        'XXI',
+        'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX',
+        'XX', 'XXI',
     ];
 
     protected static function getMaxTimestamp($max = 'now')
@@ -18,11 +18,7 @@ class Dates extends Base
             return (int) $max;
         }
 
-        if ($max instanceof \DateTime) {
-            return $max->getTimestamp();
-        }
-
-        return strtotime(empty($max) ? 'now' : $max);
+        return ($max instanceof \DateTime) ? $max->getTimestamp() : strtotime(empty($max) ? 'now' : $max);
     }
 
     public static function unixTime($max = 'now')
@@ -57,22 +53,18 @@ class Dates extends Base
 
     public static function dateTimeBetween($startDate = '-30 years', $endDate = 'now')
     {
-        $startTimestamp = ($startDate instanceof \DateTime)
-            ? $startDate->getTimestamp()
-            : strtotime($startDate);
+        $start = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : strtotime($startDate);
+        $end = static::getMaxTimestamp($endDate);
 
-        $endTimestamp = static::getMaxTimestamp($endDate);
-
-        if ($startTimestamp > $endTimestamp) {
+        if ($start > $end) {
             throw new \InvalidArgumentException('Start date must be anterior to end date.');
         }
 
-        $timestamp = mt_rand($startTimestamp, $endTimestamp);
+        $timestamp = mt_rand($start, $end);
+        $timestamp = new \DateTime('@'.$timestamp);
+        $timestamp->setTimezone(new \DateTimeZone(date_default_timezone_get()));
 
-        $ts = new \DateTime('@'.$timestamp);
-        $ts->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-
-        return $ts;
+        return $timestamp;
     }
 
     public static function dateTimeThisCentury($max = 'now')

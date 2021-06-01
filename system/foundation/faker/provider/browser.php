@@ -30,8 +30,7 @@ class Browser extends Base
     public static function userAgent()
     {
         $userAgentName = static::randomElement(static::$userAgents);
-
-        return static::$userAgentName();
+        return static::{$userAgentName}();
     }
 
     public static function chrome()

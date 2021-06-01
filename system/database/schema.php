@@ -62,8 +62,9 @@ class Schema
                 break;
 
             default:
-                $exception = 'Unsupported schema operations for selected driver: %s';
-                throw new \Exception(sprintf($exception, $driver));
+                throw new \Exception(sprintf(
+                    'Unsupported schema operations for selected driver: %s', $driver
+                ));
                 break;
         }
 
@@ -124,8 +125,9 @@ class Schema
                 break;
 
             default:
-                $exception = 'Unsupported schema operations for selected driver: %s';
-                throw new \Exception(sprintf($exception, $driver));
+                throw new \Exception(sprintf(
+                    'Unsupported schema operations for selected driver: %s', $driver
+                ));
                 break;
         }
 
@@ -154,8 +156,9 @@ class Schema
                 break;
 
             default:
-                $exception = 'Unsupported schema operations for selected driver: %s';
-                throw new \Exception(sprintf($exception, $driver));
+                throw new \Exception(sprintf(
+                    'Unsupported schema operations for selected driver: %s', $driver
+                ));
                 break;
         }
 
@@ -187,8 +190,9 @@ class Schema
                 break;
 
             default:
-                $exception = 'Unsupported schema operations for selected driver: %s';
-                throw new \Exception(sprintf($exception, $driver));
+                throw new \Exception(sprintf(
+                    'Unsupported schema operations for selected driver: %s', $driver
+                ));
                 break;
         }
 
@@ -344,7 +348,6 @@ class Schema
             case 'sqlite': return new Schema\Grammars\SQLite($connection);
         }
 
-        $exception = 'Unsupported schema operations for selected driver: %s';
-        throw new \Exception(sprintf($exception, $driver));
+        throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
     }
 }

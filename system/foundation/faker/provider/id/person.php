@@ -8,11 +8,7 @@ use System\Foundation\Faker\Provider\Person as BasePerson;
 
 class Person extends BasePerson
 {
-    protected static $lastNameFormat = [
-        '{{lastNameMale}}',
-        '{{lastNameFemale}}',
-    ];
-
+    protected static $lastNameFormat = ['{{lastNameMale}}', '{{lastNameFemale}}'];
     protected static $maleNameFormats = [
         '{{firstNameMale}} {{lastNameMale}}',
         '{{firstNameMale}} {{lastNameMale}}',
@@ -249,17 +245,11 @@ class Person extends BasePerson
 
     public function nik($gender = null, $birthDate = null)
     {
-        $nik = $this->birthPlaceCode();
-        $nik .= $this->generator->numerify('##');
-
-        if (! $birthDate) {
-            $birthDate = $this->generator->dateTimeBetween();
-        }
+        $nik = $this->birthPlaceCode().$this->generator->numerify('##');
+        $birthDate = $birthDate ? $birthDate : $this->generator->dateTimeBetween();
 
         if (! $gender) {
-            $gender = $this->generator->randomElement(
-                [self::GENDER_MALE, self::GENDER_FEMALE]
-            );
+            $gender = $this->generator->randomElement([self::GENDER_MALE, self::GENDER_FEMALE]);
         }
 
         if (self::GENDER_FEMALE === $gender) {
@@ -268,10 +258,7 @@ class Person extends BasePerson
             $nik .= $birthDate->format('d');
         }
 
-        $nik .= $birthDate->format('my');
-        $nik .= $this->generator->numerify('####');
-
-        return $nik;
+        return $nik.$birthDate->format('my').$this->generator->numerify('####');
     }
 
     protected function birthPlaceCode()

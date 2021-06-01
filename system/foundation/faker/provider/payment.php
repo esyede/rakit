@@ -123,10 +123,7 @@ class Payment extends Base
 
     public static function creditCardNumber($type = null, $formatted = false, $separator = '-')
     {
-        if (is_null($type)) {
-            $type = static::creditCardType();
-        }
-
+        $type = is_null($type) ? static::creditCardType() : $type;
         $mask = static::randomElement(static::$cardParams[$type]);
         $number = static::numerify($mask);
         $number .= Luhn::computeCheckDigit($number);
@@ -144,26 +141,18 @@ class Payment extends Base
 
     public function creditCardExpirationDate($valid = true)
     {
-        if ($valid) {
-            return $this->generator->dateTimeBetween('now', '36 months');
-        }
-
-        return $this->generator->dateTimeBetween('-36 months', '36 months');
+        return $this->generator->dateTimeBetween($valid ? 'now' : '-36 months', '36 months');
     }
 
     public function creditCardExpirationDateString($valid = true, $expirationDateFormat = null)
     {
-        $date = is_null($expirationDateFormat)
-            ? static::$expirationDateFormat
-            : $expirationDateFormat;
-
+        $date = is_null($expirationDateFormat) ? static::$expirationDateFormat : $expirationDateFormat;
         return $this->creditCardExpirationDate($valid)->format($date);
     }
 
     public function creditCardDetails($valid = true)
     {
         $type = static::creditCardType();
-
         return [
             'type' => $type,
             'number' => static::creditCardNumber($type),
@@ -175,8 +164,7 @@ class Payment extends Base
     protected static function iban($countryCode, $prefix = '', $length = null)
     {
         $countryCode = strtoupper($countryCode);
-        $format = ! isset(static::$ibanFormats[$countryCode])
-            ? [] : static::$ibanFormats[$countryCode];
+        $format = isset(static::$ibanFormats[$countryCode]) ? static::$ibanFormats[$countryCode] : [];
 
         if (null === $length) {
             if (null === $format) {
@@ -225,7 +213,6 @@ class Payment extends Base
         }
 
         $result = static::addBankCodeChecksum($result, $countryCode);
-
         $countryNumber = 100 * (ord($countryCode[0]) - 55) + (ord($countryCode[1]) - 55);
         $tempResult = $result.$countryNumber.'00';
         $checksum = (int) $tempResult[0];
@@ -235,10 +222,7 @@ class Payment extends Base
         }
 
         $checksum = 98 - $checksum;
-
-        if ($checksum < 10) {
-            $checksum = '0'.$checksum;
-        }
+        $checksum = ($checksum < 10) ? '0'.$checksum : $checksum;
 
         return $countryCode.$checksum.$result;
     }

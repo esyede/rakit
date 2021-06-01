@@ -25,14 +25,7 @@ class Payment extends BasePayment
         $clearingCenter = self::randomDigitNotNull();
         $state = self::randomDigit();
         $institution = self::randomNumber(4, true);
-
-        $result = sprintf(
-            '%02d%01d%01d%04d',
-            ($district + $type),
-            $clearingCenter,
-            $state,
-            $institution
-        );
+        $result = sprintf('%02d%01d%01d%04d', ($district + $type), $clearingCenter, $state, $institution);
 
         return $result.self::calculateRoutingNumberChecksum($result);
     }
