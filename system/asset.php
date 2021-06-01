@@ -32,11 +32,9 @@ class Asset
      */
     public static function container($container = 'default')
     {
-        if (isset(static::$containers[$container])) {
-            return static::$containers[$container];
+        if (! isset(static::$containers[$container])) {
+            static::$containers[$container] = new Assetor($container);
         }
-
-        static::$containers[$container] = new Assetor($container);
 
         return static::$containers[$container];
     }
