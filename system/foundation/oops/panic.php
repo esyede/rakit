@@ -338,10 +338,10 @@ class Panic
     {
         if (function_exists('ini_set')) {
             ini_set('highlight.comment', '#6a737d');
-            ini_set('highlight.default', '#d73a49');
+            ini_set('highlight.default', '#3273dc');
             ini_set('highlight.html', '#22863a');
-            ini_set('highlight.keyword', '#24292e');
-            ini_set('highlight.string', '#35D');
+            ini_set('highlight.keyword', '#4a4a4a');
+            ini_set('highlight.string', '#ff3860');
         }
 
         $source = str_replace(["\r\n", "\r"], "\n", $source);
