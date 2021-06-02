@@ -73,6 +73,7 @@ class Session extends Command
 
         if (! is_null($replaced)) {
             File::put(path('app').'config'.DS.'session.php', $replaced);
+            Config::set('session.driver', $driver);
         }
     }
 }
