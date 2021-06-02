@@ -542,11 +542,7 @@ class Requester
         $clientIps = $this->headers->get(self::$trustedHeaders[self::HEADER_CLIENT_IP]);
         $clientIps = array_map('trim', explode(',', $clientIps));
         $clientIps[] = $ip;
-
-        $trustedProxies = (self::$trustProxy && ! self::$trustedProxies)
-            ? [$ip]
-            : self::$trustedProxies;
-
+        $trustedProxies = (self::$trustProxy && ! self::$trustedProxies) ? [$ip] : self::$trustedProxies;
         $clientIps = array_diff($clientIps, $trustedProxies);
 
         return array_pop($clientIps);
@@ -868,9 +864,7 @@ class Requester
             static::initializeFormats();
         }
 
-        return isset(static::$formats[$format])
-            ? static::$formats[$format][0]
-            : null;
+        return isset(static::$formats[$format]) ? static::$formats[$format][0] : null;
     }
 
     /**
@@ -1139,8 +1133,9 @@ class Requester
 
         $charsets = $this->headers->get('Accept-Charset');
         $charsets = array_keys($this->splitHttpAcceptHeader($charsets));
+        $this->charsets = $charsets;
 
-        return $this->charsets = $charsets;
+        return $this->charsets;
     }
 
     /**
@@ -1263,7 +1258,7 @@ class Requester
         } elseif (basename($this->server->get('PHP_SELF')) === $filename) {
             $baseUrl = $this->server->get('PHP_SELF');
         } elseif (basename($this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
-            // 1and1 shared hosting compatibility
+            // Kompatibilitas shared hosting 1and1.com
             $baseUrl = $this->server->get('ORIG_SCRIPT_NAME');
         } else {
             $path = $this->server->get('PHP_SELF', '');
@@ -1374,9 +1369,7 @@ class Requester
             return $requestUri;
         }
 
-        $pathInfo = (string) $pathInfo;
-
-        return $pathInfo;
+        return (string) $pathInfo;
     }
 
     /**

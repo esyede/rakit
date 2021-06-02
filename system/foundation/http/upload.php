@@ -985,14 +985,16 @@ class Upload extends \SplFileInfo
     {
         if ($this->isValid()) {
             $target = $this->getTargetFile($directory, $name);
-            $exception = "Could not move the file '%s' to '%s' (%s).";
 
             if ($this->test) {
                 if (! @rename($this->getPathname(), $target)) {
                     $error = error_get_last();
-                    $exception = sprintf($exception, $this->getPathname(), $target, $error['message']);
-
-                    throw new \Exception($exception);
+                    throw new \Exception(sprintf(
+                        "Could not move the file '%s' to '%s' (%s).",
+                        $this->getPathname(),
+                        $target,
+                        $error['message']
+                    ));
                 }
 
                 @chmod($target, 0666 & ~umask());
@@ -1001,9 +1003,12 @@ class Upload extends \SplFileInfo
             } elseif (is_uploaded_file($this->getPathname())) {
                 if (false === @move_uploaded_file($this->getPathname(), $target)) {
                     $error = error_get_last();
-                    $exception = sprintf($exception, $this->getPathname(), $target, $error['message']);
-
-                    throw new \Exception($exception);
+                    throw new \Exception(sprintf(
+                        "Could not move the file '%s' to '%s' (%s).",
+                        $this->getPathname(),
+                        $target,
+                        $error['message']
+                    ));
                 }
 
                 @chmod($target, 0666 & ~umask());
@@ -1012,9 +1017,7 @@ class Upload extends \SplFileInfo
             }
         }
 
-        throw new \Exception(
-            sprintf('File was not uploaded via HTTP: %s', $this->getPathname())
-        );
+        throw new \Exception(sprintf('File was not uploaded via HTTP: %s', $this->getPathname()));
     }
 
     /**
