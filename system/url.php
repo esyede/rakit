@@ -91,7 +91,7 @@ class URL
         $root = static::base();
         $root .= $asset ? '' : '/'.$config['index'];
 
-        if (! $asset && $locale && count($languages) > 0) {
+        if (! $asset && $locale && count($config['languages']) > 0) {
             if (in_array($config['language'], $config['languages'])) {
                 $root = rtrim($root, '/').'/'.$config['language'];
             }
