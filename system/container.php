@@ -99,17 +99,13 @@ class Container
             return static::$singletons[$type];
         }
 
-        if (isset(static::$registry[$type])) {
-            $concrete = Arr::get(static::$registry[$type], 'resolver', $type);
-        } else {
-            $concrete = $type;
-        }
+        $resolver = isset(static::$registry[$type])
+            ? Arr::get(static::$registry[$type], 'resolver', $type)
+            : $type;
 
-        if ($concrete === $type || $concrete instanceof \Closure) {
-            $object = static::build($concrete, $parameters);
-        } else {
-            $object = static::resolve($concrete);
-        }
+        $object = ($resolver === $type || $resolver instanceof \Closure)
+            ? static::build($resolver, $parameters)
+            : static::resolve($resolver);
 
         if (isset(static::$registry[$type]['singleton'])
         && true === static::$registry[$type]['singleton']) {
