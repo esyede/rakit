@@ -54,13 +54,11 @@ class URL
      */
     public static function base()
     {
-        if (isset(static::$base)) {
-            return static::$base;
+        if (! isset(static::$base)) {
+            static::$base = ('' !== ($base = Config::get('application.url')))
+                ? $base
+                : Request::foundation()->getRootUrl();
         }
-
-        static::$base = ('' !== ($base = Config::get('application.url')))
-            ? $base
-            : Request::foundation()->getRootUrl();
 
         return static::$base;
     }
