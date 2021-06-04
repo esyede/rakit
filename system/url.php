@@ -58,15 +58,9 @@ class URL
             return static::$base;
         }
 
-        $base = 'http://localhost';
-
-        if ('' !== ($url = Config::get('application.url'))) {
-            $base = $url;
-        } else {
-            $base = Request::foundation()->getRootUrl();
-        }
-
-        static::$base = $base;
+        static::$base = ('' !== ($base = Config::get('application.url')))
+            ? $base
+            : Request::foundation()->getRootUrl();
 
         return static::$base;
     }
