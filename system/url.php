@@ -86,25 +86,20 @@ class URL
             return $url;
         }
 
+        $config = Config::get('application');
+
         $root = static::base();
-
-        if (! $asset) {
-            $root .= '/'.Config::get('application.index');
-        }
-
-        $languages = Config::get('application.languages');
+        $root .= $asset ? '' : '/'.$config['index'];
 
         if (! $asset && $locale && count($languages) > 0) {
-            if (in_array($default = Config::get('application.language'), $languages)) {
-                $root = rtrim($root, '/').'/'.$default;
+            if (in_array($config['language'], $config['languages'])) {
+                $root = rtrim($root, '/').'/'.$config['language'];
             }
         }
 
-        if (Request::secure()) {
-            $root = Str::replace_first('http://', 'https://', $root);
-        } else {
-            $root = Str::replace_first('https://', 'http://', $root);
-        }
+        $root = Request::secure()
+            ? Str::replace_first('http://', 'https://', $root)
+            : Str::replace_first('https://', 'http://', $root);
 
         return rtrim($root, '/').'/'.ltrim($url, '/');
     }
