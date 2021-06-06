@@ -136,20 +136,15 @@ class Config
      */
     protected static function parse($key)
     {
-        if (array_key_exists($key, static::$cache)) {
-            return static::$cache[$key];
+        if (! array_key_exists($key, static::$cache)) {
+            $package = Package::name($key);
+            $segments = explode('.', Package::element($key));
+            static::$cache[$key] = (is_array($segments) && count($segments) >= 2)
+                ? [$package, $segments[0], implode('.', array_slice($segments, 1))]
+                : [$package, $segments[0], null];
         }
 
-        $package = Package::name($key);
-        $segments = explode('.', Package::element($key));
-
-        if (is_array($segments) && count($segments) >= 2) {
-            $parsed = [$package, $segments[0], implode('.', array_slice($segments, 1))];
-        } else {
-            $parsed = [$package, $segments[0], null];
-        }
-
-        return static::$cache[$key] = $parsed;
+        return static::$cache[$key];
     }
 
     /**
@@ -162,14 +157,12 @@ class Config
      */
     public static function load($package, $file)
     {
-        if (isset(static::$items[$package][$file])) {
-            return true;
-        }
+        if (! isset(static::$items[$package][$file])) {
+            $config = Event::first(static::LOADER, func_get_args());
 
-        $config = Event::first(static::LOADER, func_get_args());
-
-        if (is_array($config) && count($config) > 0) {
-            static::$items[$package][$file] = $config;
+            if (is_array($config) && count($config) > 0) {
+                static::$items[$package][$file] = $config;
+            }
         }
 
         return isset(static::$items[$package][$file]);
