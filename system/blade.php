@@ -125,7 +125,9 @@ class Blade
      */
     public static function translate($value, $view = null)
     {
-        foreach (static::$compilers as $compiler) {
+        $compilers = static::$compilers;
+
+        foreach ($compilers as $compiler) {
             $value = static::{'compile_'.$compiler}($value, $view);
         }
 
@@ -465,7 +467,9 @@ class Blade
      */
     protected static function compile_extensions($value)
     {
-        foreach (static::$extensions as $compiler) {
+        $compilers = static::$extensions;
+
+        foreach ($compilers as $compiler) {
             $value = $compiler($value);
         }
 
