@@ -125,7 +125,7 @@ class View implements \ArrayAccess
         }
 
         list($package, $view) = Package::parse($view);
-        $view = str_replace('.', DS, $view);
+        $view = str_replace(['.', '/'], DS, $view);
         $path = Event::until(static::LOADER, [$package, $view]);
 
         return is_null($path) ? false : ($return_path ? $path : true);
