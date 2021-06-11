@@ -174,7 +174,8 @@ class Response
      */
     public static function error($code, array $data = [])
     {
-        return new static(View::make('error.'.$code, $data), $code);
+        $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
+        return new static(View::make($view, $data), $code);
     }
 
     /**
