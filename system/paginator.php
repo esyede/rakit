@@ -363,6 +363,8 @@ class Paginator
      */
     protected function appendage($appends)
     {
+        $appends = (is_array($appends) || is_object($appends)) ? $appends : [];
+
         if (! is_null($this->appendage)) {
             return $this->appendage;
         }
