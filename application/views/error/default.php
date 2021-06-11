@@ -13,9 +13,9 @@
 </style>
 
 <div id=system-error>
-    <h1>HTTP <?php echo isset($code) ? $code : 'Unknown' ?> Error</h1>
+    <h1>HTTP <?php echo isset($code) ? $code : 'Unknown'; ?> Error</h1>
 
-    <p>We're sorry! The server encountered HTTP <?php echo isset($code) ? $code : 'Unknown' ?> error. Please contact the administrator.</p>
+    <p>We're sorry! The server encountered HTTP <?php echo isset($code) ? $code : 'Unknown'; ?> error. Please contact the administrator.</p>
 
-    <p><small>Code: <?php echo isset($code) ? $code : 'Unknown' ?></small></p>
+    <p><small>Code: <?php echo isset($code) ? $code : 'Unknown'; ?></small></p>
 </div>
