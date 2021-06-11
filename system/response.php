@@ -175,6 +175,8 @@ class Response
     public static function error($code, array $data = [])
     {
         $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
+        $data = array_merge($data, compact('code'));
+
         return new static(View::make($view, $data), $code);
     }
 

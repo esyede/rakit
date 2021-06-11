@@ -3,7 +3,7 @@
 <meta charset="UTF-8">
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-<title>Internal Server Error</title>
+<title>HTTP <?php echo isset($code) ? $code : 'Unknown'; ?> Error</title>
 
 <style>
     #system-error { background: white; width: 500px; margin: 70px auto; padding: 10px 20px }
