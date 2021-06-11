@@ -159,11 +159,11 @@ class Response
      *
      * <code>
      *
-     *      // Create a 404 response
+     *      // Buat response 404
      *      return Response::error('404');
      *
-     *      // Create a 404 response with data
-     *      return Response::error('404', ['message' => 'Not Found']);
+     *      // Buat response 404 dengan data
+     *      return Response::error('404', ['message' => 'Halaman Tidak Ditemukan']);
      *
      * </code>
      *
