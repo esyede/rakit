@@ -243,7 +243,7 @@ class Query
      */
     public function __call($method, $parameters)
     {
-        $result = call_user_func_array([$this->table, $method], $parameters);
+        $results = call_user_func_array([$this->table, $method], $parameters);
         return in_array($method, $this->passthru) ? $results : $this;
     }
 }
