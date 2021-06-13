@@ -2,9 +2,9 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\File;
+use System\Storage;
 
-class FileTest extends \PHPUnit_Framework_TestCase
+class StorageTest extends \PHPUnit_Framework_TestCase
 {
     private static $temp;
 
@@ -26,36 +26,36 @@ class FileTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         if (is_dir(self::$temp)) {
-            File::rmdir(self::$temp);
+            Storage::rmdir(self::$temp);
         }
 
         self::$temp = null;
     }
 
     /**
-     * Test untuk method File::get().
+     * Test untuk method Storage::get().
      *
      * @group system
      */
-    public function testGetRetrievesFiles()
+    public function testGetRetrievesStorages()
     {
         file_put_contents(self::$temp.DS.'file.txt', 'Hello World');
-        $this->assertSame('Hello World', File::get(self::$temp.DS.'file.txt'));
+        $this->assertSame('Hello World', Storage::get(self::$temp.DS.'file.txt'));
     }
 
     /**
-     * Test untuk method File::put().
+     * Test untuk method Storage::put().
      *
      * @group system
      */
-    public function testPutStoresFiles()
+    public function testPutStoresStorages()
     {
-        File::put(self::$temp.DS.'file.txt', 'Hello World');
-        $this->assertStringEqualsFile(self::$temp.DS.'file.txt', 'Hello World');
+        Storage::put(self::$temp.DS.'file.txt', 'Hello World');
+        $this->assertStringEqualsStorage(self::$temp.DS.'file.txt', 'Hello World');
     }
 
     /**
-     * Test untuk method File::chmod() - 1.
+     * Test untuk method Storage::chmod() - 1.
      *
      * @group system
      */
@@ -63,7 +63,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'file.txt', 'Hello World');
 
-        File::chmod(self::$temp.DS.'file.txt', 0755);
+        Storage::chmod(self::$temp.DS.'file.txt', 0755);
 
         $actual = substr(sprintf('%o', fileperms(self::$temp.DS.'file.txt')), -4);
         $expected = ('\\' === DS) ? '0666' : '0755';
@@ -72,7 +72,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method File::chmod() - 2.
+     * Test untuk method Storage::chmod() - 2.
      *
      * @group system
      */
@@ -81,51 +81,51 @@ class FileTest extends \PHPUnit_Framework_TestCase
         file_put_contents(self::$temp.DS.'file.txt', 'Hello World');
         chmod(self::$temp.DS.'file.txt', 0755);
 
-        $actual = File::chmod(self::$temp.DS.'file.txt');
+        $actual = Storage::chmod(self::$temp.DS.'file.txt');
         $expected = ('\\' === DS) ? '0666' : '0755';
 
         $this->assertTrue($expected === $actual);
     }
 
     /**
-     * Test untuk method File::delete().
+     * Test untuk method Storage::delete().
      *
      * @group system
      */
-    public function testDeleteRemovesFiles()
+    public function testDeleteRemovesStorages()
     {
         file_put_contents(self::$temp.DS.'file1.txt', 'Hello World');
 
-        File::delete(self::$temp.DS.'file1.txt');
+        Storage::delete(self::$temp.DS.'file1.txt');
         $this->assertTrue(! is_file(self::$temp.DS.'file1.txt'));
     }
 
     /**
-     * Test untuk method File::prepend() - 1.
+     * Test untuk method Storage::prepend() - 1.
      *
      * @group system
      */
-    public function testPrependExistingFiles()
+    public function testPrependExistingStorages()
     {
         file_put_contents(self::$temp.DS.'file.txt', 'World');
 
-        File::prepend(self::$temp.DS.'file.txt', 'Hello ');
-        $this->assertStringEqualsFile(self::$temp.DS.'file.txt', 'Hello World');
+        Storage::prepend(self::$temp.DS.'file.txt', 'Hello ');
+        $this->assertStringEqualsStorage(self::$temp.DS.'file.txt', 'Hello World');
     }
 
     /**
-     * Test untuk method File::prepend() - 2.
+     * Test untuk method Storage::prepend() - 2.
      *
      * @group system
      */
-    public function testPrependNewFiles()
+    public function testPrependNewStorages()
     {
-        File::prepend(self::$temp.DS.'file.txt', 'Hello World');
-        $this->assertStringEqualsFile(self::$temp.DS.'file.txt', 'Hello World');
+        Storage::prepend(self::$temp.DS.'file.txt', 'Hello World');
+        $this->assertStringEqualsStorage(self::$temp.DS.'file.txt', 'Hello World');
     }
 
     /**
-     * Test untuk method File::rmdir() - 1.
+     * Test untuk method Storage::rmdir() - 1.
      *
      * @group system
      */
@@ -134,14 +134,14 @@ class FileTest extends \PHPUnit_Framework_TestCase
         mkdir(self::$temp.DS.'foo');
         file_put_contents(self::$temp.DS.'foo'.DS.'file.txt', 'Hello World');
 
-        File::rmdir(self::$temp.DS.'foo');
+        Storage::rmdir(self::$temp.DS.'foo');
 
         $this->assertTrue(! is_dir(self::$temp.DS.'foo'));
         $this->assertTrue(! is_file(self::$temp.DS.'foo'.DS.'file.txt'));
     }
 
     /**
-     * Test untuk method File::rmdir() - 2.
+     * Test untuk method Storage::rmdir() - 2.
      *
      * @group system
      */
@@ -150,11 +150,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
         mkdir(self::$temp.DS.'bar');
         file_put_contents(self::$temp.DS.'bar'.DS.'file.txt', 'Hello World');
 
-        $this->assertFalse(File::rmdir(self::$temp.DS.'bar'.DS.'file.txt'));
+        $this->assertFalse(Storage::rmdir(self::$temp.DS.'bar'.DS.'file.txt'));
     }
 
     /**
-     * Test untuk method File::cleandir().
+     * Test untuk method Storage::cleandir().
      *
      * @group system
      */
@@ -163,25 +163,25 @@ class FileTest extends \PHPUnit_Framework_TestCase
         mkdir(self::$temp.DS.'baz');
         file_put_contents(self::$temp.DS.'baz'.DS.'file.txt', 'Hello World');
 
-        File::cleandir(self::$temp.DS.'baz');
+        Storage::cleandir(self::$temp.DS.'baz');
 
         $this->assertTrue(is_dir(self::$temp.DS.'baz'));
         $this->assertTrue(! is_file(self::$temp.DS.'baz'.DS.'file.txt'));
     }
 
     /**
-     * Test untuk method File::cpdir() - 1.
+     * Test untuk method Storage::cpdir() - 1.
      *
      * @group system
      */
     public function testCopyDirectoryReturnsFalseIfSourceIsntDirectory()
     {
         $origin = self::$temp.DS.'breeze'.DS.'boom'.DS.'foo'.DS.'bar'.DS.'baz';
-        $this->assertFalse(File::cpdir($origin, self::$temp));
+        $this->assertFalse(Storage::cpdir($origin, self::$temp));
     }
 
     /**
-     * Test untuk method File::cpdir() - 2.
+     * Test untuk method Storage::cpdir() - 2.
      *
      * @group system
      */
@@ -194,7 +194,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         mkdir(self::$temp.DS.'tmp'.DS.'nested', 0777, true);
         file_put_contents(self::$temp.DS.'tmp'.DS.'nested'.DS.'baz.txt', '');
 
-        File::cpdir(self::$temp.DS.'tmp', self::$temp.DS.'tmp2');
+        Storage::cpdir(self::$temp.DS.'tmp', self::$temp.DS.'tmp2');
 
         $this->assertTrue(is_dir(self::$temp.DS.'tmp2'));
         $this->assertTrue(is_file(self::$temp.DS.'tmp2'.DS.'foo.txt'));
@@ -204,7 +204,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method File::mvdir() - 1.
+     * Test untuk method Storage::mvdir() - 1.
      *
      * @group system
      */
@@ -217,7 +217,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         mkdir(self::$temp.DS.'tmp2'.DS.'nested', 0777, true);
         file_put_contents(self::$temp.DS.'tmp2'.DS.'nested'.DS.'baz.txt', '');
 
-        File::mvdir(self::$temp.DS.'tmp2', self::$temp.DS.'tmp3');
+        Storage::mvdir(self::$temp.DS.'tmp2', self::$temp.DS.'tmp3');
 
         $this->assertTrue(is_dir(self::$temp.DS.'tmp3'));
         $this->assertTrue(is_file(self::$temp.DS.'tmp3'.DS.'foo.txt'));
@@ -229,7 +229,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method File::mvdir() - 2.
+     * Test untuk method Storage::mvdir() - 2.
      *
      * @group system
      */
@@ -246,7 +246,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
         file_put_contents(self::$temp.DS.'tmp5'.DS.'foo2.txt', '');
         file_put_contents(self::$temp.DS.'tmp5'.DS.'bar2.txt', '');
 
-        File::mvdir(self::$temp.DS.'tmp4', self::$temp.DS.'tmp5', true);
+        Storage::mvdir(self::$temp.DS.'tmp4', self::$temp.DS.'tmp5', true);
 
         $this->assertTrue(is_dir(self::$temp.DS.'tmp5'));
         $this->assertTrue(is_file(self::$temp.DS.'tmp5'.DS.'foo.txt'));
@@ -260,15 +260,15 @@ class FileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method File::append().
+     * Test untuk method Storage::append().
      *
      * @group system
      */
-    public function testAppendAddsDataToFile()
+    public function testAppendAddsDataToStorage()
     {
         file_put_contents(self::$temp.DS.'file.txt', 'foo');
 
-        $append = File::append(self::$temp.DS.'file.txt', 'bar');
+        $append = Storage::append(self::$temp.DS.'file.txt', 'bar');
 
         $this->assertTrue(mb_strlen('bar', '8bit') === $append);
         $this->assertTrue(is_file(self::$temp.DS.'file.txt'));
@@ -276,22 +276,22 @@ class FileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method File::move().
+     * Test untuk method Storage::move().
      *
      * @group system
      */
-    public function testMoveMovesFiles()
+    public function testMoveMovesStorages()
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        File::move(self::$temp.DS.'foo.txt', self::$temp.DS.'bar.txt');
+        Storage::move(self::$temp.DS.'foo.txt', self::$temp.DS.'bar.txt');
 
         $this->assertTrue(is_file(self::$temp.DS.'bar.txt'));
         $this->assertFalse(is_file(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::name().
+     * Test untuk method Storage::name().
      *
      * @group system
      */
@@ -299,11 +299,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'foobar.txt', 'foo');
 
-        $this->assertSame('foobar', File::name(self::$temp.DS.'foobar.txt'));
+        $this->assertSame('foobar', Storage::name(self::$temp.DS.'foobar.txt'));
     }
 
     /**
-     * Test untuk method File::extension().
+     * Test untuk method Storage::extension().
      *
      * @group system
      */
@@ -311,11 +311,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertSame('txt', File::extension(self::$temp.DS.'foo.txt'));
+        $this->assertSame('txt', Storage::extension(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::basename().
+     * Test untuk method Storage::basename().
      *
      * @group system
      */
@@ -323,11 +323,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertSame('foo.txt', File::basename(self::$temp.DS.'foo.txt'));
+        $this->assertSame('foo.txt', Storage::basename(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::dirname().
+     * Test untuk method Storage::dirname().
      *
      * @group system
      */
@@ -335,23 +335,23 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertSame(self::$temp, File::dirname(self::$temp.DS.'foo.txt'));
+        $this->assertSame(self::$temp, Storage::dirname(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::type() - 1.
+     * Test untuk method Storage::type() - 1.
      *
      * @group system
      */
-    public function testTypeIdentifiesFile()
+    public function testTypeIdentifiesStorage()
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertSame('file', File::type(self::$temp.DS.'foo.txt'));
+        $this->assertSame('file', Storage::type(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::type() - 2.
+     * Test untuk method Storage::type() - 2.
      *
      * @group system
      */
@@ -359,11 +359,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         mkdir(self::$temp.DS.'foo-dir');
 
-        $this->assertSame('dir', File::type(self::$temp.DS.'foo-dir'));
+        $this->assertSame('dir', Storage::type(self::$temp.DS.'foo-dir'));
     }
 
     /**
-     * Test untuk method File::size().
+     * Test untuk method Storage::size().
      *
      * @group system
      */
@@ -371,11 +371,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         $size = file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertTrue($size === (int) File::size(self::$temp.DS.'foo.txt'));
+        $this->assertTrue($size === (int) Storage::size(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::mime().
+     * Test untuk method Storage::mime().
      *
      * @group system
      */
@@ -383,69 +383,69 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertSame('text/plain', File::mime(self::$temp.DS.'foo.txt'));
+        $this->assertSame('text/plain', Storage::mime(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::glob().
+     * Test untuk method Storage::glob().
      *
      * @group system
      */
-    public function testGlobFindsFiles()
+    public function testGlobFindsStorages()
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
         file_put_contents(self::$temp.DS.'bar.txt', 'bar');
 
-        $glob = File::glob(self::$temp.DS.'*.txt');
+        $glob = Storage::glob(self::$temp.DS.'*.txt');
 
         $this->assertTrue(in_array(self::$temp.DS.'foo.txt', $glob));
         $this->assertTrue(in_array(self::$temp.DS.'bar.txt', $glob));
     }
 
     /**
-     * Test untuk method File::mkdir().
+     * Test untuk method Storage::mkdir().
      *
      * @group system
      */
     public function testMakeDirectory()
     {
-        $this->assertTrue(File::mkdir(self::$temp.DS.'created'));
+        $this->assertTrue(Storage::mkdir(self::$temp.DS.'created'));
         $this->assertTrue(is_dir(self::$temp.DS.'created'));
     }
 
     /**
-     * Test untuk method File::cpdir().
+     * Test untuk method Storage::cpdir().
      *
      * @group system
      */
-    public function testCopyCopiesFileProperly()
+    public function testCopyCopiesStorageProperly()
     {
         $data = 'contents';
         mkdir(self::$temp.DS.'text');
         file_put_contents(self::$temp.DS.'text'.DS.'foo.txt', $data);
 
-        File::copy(self::$temp.DS.'text'.DS.'foo.txt', self::$temp.DS.'text'.DS.'foo2.txt');
+        Storage::copy(self::$temp.DS.'text'.DS.'foo.txt', self::$temp.DS.'text'.DS.'foo2.txt');
 
         $this->assertTrue(is_file(self::$temp.DS.'text'.DS.'foo2.txt'));
         $this->assertTrue($data === file_get_contents(self::$temp.DS.'text'.DS.'foo2.txt'));
     }
 
     /**
-     * Test untuk method File::isfile().
+     * Test untuk method Storage::isfile().
      *
      * @group system
      */
-    public function testIsFileChecksFilesProperly()
+    public function testIsStorageChecksStoragesProperly()
     {
         mkdir(self::$temp.DS.'help');
         file_put_contents(self::$temp.DS.'help'.DS.'foo.txt', 'contents');
 
-        $this->assertTrue(File::isfile(self::$temp.DS.'help'.DS.'foo.txt'));
-        $this->assertFalse(File::isfile(self::$temp.DS.'.'.DS.'help'));
+        $this->assertTrue(Storage::isfile(self::$temp.DS.'help'.DS.'foo.txt'));
+        $this->assertFalse(Storage::isfile(self::$temp.DS.'.'.DS.'help'));
     }
 
     /**
-     * Test untuk method File::hash().
+     * Test untuk method Storage::hash().
      *
      * @group system
      */
@@ -453,11 +453,11 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         file_put_contents(self::$temp.DS.'foo.txt', 'foo');
 
-        $this->assertSame('acbd18db4cc2f85cedef654fccc4a4d8', File::hash(self::$temp.DS.'foo.txt'));
+        $this->assertSame('acbd18db4cc2f85cedef654fccc4a4d8', Storage::hash(self::$temp.DS.'foo.txt'));
     }
 
     /**
-     * Test untuk method File::protect().
+     * Test untuk method Storage::protect().
      *
      * @group system
      */
@@ -465,12 +465,12 @@ class FileTest extends \PHPUnit_Framework_TestCase
     {
         $dir = path('storage').'protects'.DS;
 
-        File::mkdir($dir);
+        Storage::mkdir($dir);
         $this->assertTrue(is_file($dir.'index.html'));
-        File::delete($dir.'index.html');
+        Storage::delete($dir.'index.html');
 
-        File::put($dir.'foo.txt', '');
+        Storage::put($dir.'foo.txt', '');
         $this->assertTrue(is_file($dir.'index.html'));
-        File::rmdir($dir);
+        Storage::rmdir($dir);
     }
 }

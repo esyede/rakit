@@ -4,7 +4,7 @@ namespace System\Session\Drivers;
 
 defined('DS') or exit('No direct script access.');
 
-use System\File as Storage;
+use System\Storage;
 
 class File extends Driver implements Sweeper
 {
@@ -16,7 +16,7 @@ class File extends Driver implements Sweeper
     private $path;
 
     /**
-     * Create a new File session driver instance.
+     * Buat instance baru driver session File.
      *
      * @param string $path
      */

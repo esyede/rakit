@@ -730,7 +730,7 @@ class Validator
         }
 
         foreach ($parameters as $extension) {
-            if (File::is($extension, $value['tmp_name'])) {
+            if (Storage::is($extension, $value['tmp_name'])) {
                 return true;
             }
         }

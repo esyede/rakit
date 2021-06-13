@@ -3,7 +3,7 @@ namespace System\Console\Commands;
 
 defined('DS') or exit('No direct script access.');
 
-use System\File;
+use System\Storage;
 
 class Help extends Command
 {
@@ -21,8 +21,8 @@ class Help extends Command
         echo '  command [options] [arguments]'.PHP_EOL;
         echo PHP_EOL;
 
-        $options_data = json_decode(File::get(__DIR__.DS.'options.json'));
-        $commands_data = json_decode(File::get(__DIR__.DS.'commands.json'));
+        $options_data = json_decode(Storage::get(__DIR__.DS.'options.json'));
+        $commands_data = json_decode(Storage::get(__DIR__.DS.'commands.json'));
 
         echo 'Options:'.PHP_EOL;
 

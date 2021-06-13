@@ -1,4 +1,4 @@
-# Bekerja dengan cURL
+# CURL
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
@@ -6,8 +6,8 @@
 - [Membuat Request](#membuat-request)
 - [Opsi Kustom](#opsi-kustom)
 - [Mengolah Response](#mengolah-response)
-   - [Response Header](#response-header)
-   - [Response Body](#response-body)
+    - [Response Header](#response-header)
+    - [Response Body](#response-body)
 
 <!-- /MarkdownTOC -->
 

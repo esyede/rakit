@@ -272,7 +272,7 @@ class Mailer
 
         $this->attachments[] = [
             'name' => $name ? $name : basename($file),
-            'type' => File::mime($file),
+            'type' => Storage::mime($file),
             'path' => $file,
         ];
 

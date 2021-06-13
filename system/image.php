@@ -431,7 +431,7 @@ class Image
             throw new \Exception(sprintf('Watermark file does not exists: %s', $watermark));
         }
 
-        $extension = strtolower(File::extension($watermark));
+        $extension = strtolower(Storage::extension($watermark));
 
         switch ($extension) {
             case 'jpg':
@@ -471,7 +471,7 @@ class Image
             throw new \Exception(sprintf('Destination file already exists: %s', $this->path));
         }
 
-        $extension = File::extension($this->path);
+        $extension = Storage::extension($this->path);
 
         switch ($extension) {
             case 'jpg':
@@ -711,7 +711,8 @@ class Image
      */
     public static function acceptable($path)
     {
-        return in_array(File::mime($path), ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png']);
+        $acceptable = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png'];
+        return in_array(Storage::mime($path), $acceptable);
     }
 
     /**

@@ -485,7 +485,7 @@ Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);
 <a id="route-testing-via-cli"></a>
 ## Route Testing via CLI
 
-Anda dapat memanggil rute yang anda buat via [Rakit Console](/console.md#memanggil-rute).
+Anda dapat memanggil rute yang anda buat via [console](/console.md#memanggil-rute).
 Cukup sebutkan tipe request dan URI mana yang ingin anda panggil.
 
 #### Memanggil rute melalui CLI:

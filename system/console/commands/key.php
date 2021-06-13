@@ -6,7 +6,7 @@ defined('DS') or exit('No direct script access.');
 
 use System\Str;
 use System\Config;
-use System\File;
+use System\Storage;
 
 class Key extends Command
 {
@@ -38,13 +38,13 @@ class Key extends Command
 
         if (strlen(trim($key)) < 32) {
             try {
-                $data = File::get($this->path);
+                $data = Storage::get($this->path);
                 $key = Str::random(32);
                 $regex = "/(('|\")key('|\"))\h*=>\h*(\'|\")\s?(\'|\")?.*/i";
 
                 if (false !== preg_match($regex, $data)) {
                     $data = preg_replace($regex, "'key' => '".$key."',", $data);
-                    File::put($this->path, $data);
+                    Storage::put($this->path, $data);
                 }
 
                 Config::set('application.key', $key);

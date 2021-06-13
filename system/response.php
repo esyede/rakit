@@ -210,17 +210,17 @@ class Response
         // Default headers.
         $defaults = [
             'Content-Description' => 'File Transfer',
-            'Content-Type' => File::mime($path),
+            'Content-Type' => Storage::mime($path),
             'Content-Transfer-Encoding' => 'binary',
             'Expires' => 0,
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
-            'Content-Length' => File::size($path),
+            'Content-Length' => Storage::size($path),
             'Content-Disposition' => 'attachment; filename="'.$name.'"',
         ];
 
         $headers = array_merge($defaults, $headers);
-        $response = new static(File::get($path), 200, $headers);
+        $response = new static(Storage::get($path), 200, $headers);
 
         if ('' !== Config::get('session.driver')) {
             Session::save();

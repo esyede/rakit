@@ -29,7 +29,7 @@
         <p>
             Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur bawaan rakit.
             Jangan ragu untuk mulai membaca
-            <a href="https://rakit.esyede.my.id/docs" target="_blank">halaman dokumentasi</a>.
+            <a href="<?php echo url('docs') ?>" target="_blank">halaman dokumentasi</a>.
         </p>
 
         <br>
@@ -40,7 +40,6 @@
             Berikut adalah beberapa tautan untuk membantu anda memulai:
         </p>
         <ul class="none">
-            <li><a href="https://rakit.esyede.my.id/docs" target="_blank">Dokumentasi</a></li>
             <li><a href="https://rakit.esyede.my.id" target="_blank">Situs Resmi</a></li>
             <li><a href="https://rakit.esyede.my.id/api" target="_blank">Referensi API</a></li>
             <li><a href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori Paket</a></li>

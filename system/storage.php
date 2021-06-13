@@ -4,12 +4,12 @@ namespace System;
 
 defined('DS') or exit('No direct script access.');
 
-class File
+class Storage
 {
     /**
      * Cek apakah file atau direktori ada.
      * Method ini tidak cocok untuk mengecek ada tidaknya file.
-     * Gunakan File::isfile() untuk kebutuhan itu!
+     * Gunakan Storage::isfile() untuk kebutuhan itu!
      *
      * @param string $path
      *
@@ -50,10 +50,10 @@ class File
      * <code>
      *
      *      // Ambil konten file
-     *      $contents = File::get(path('app').'routes.php');
+     *      $contents = Storage::get(path('app').'routes.php');
      *
      *      // Ambil konten file atau return default value jika file tidak ketemu
-     *      $contents = File::get(path('app').'routes.php', 'Filenya nggak ada gaes!');
+     *      $contents = Storage::get(path('app').'routes.php', 'Filenya nggak ada gaes!');
      *
      * </code>
      *
@@ -378,10 +378,10 @@ class File
      * <code>
      *
      *      // Cek apakah file merupakan gambar JPG
-     *      $jpg = File::is('jpg', 'path/to/file.jpg');
+     *      $jpg = Storage::is('jpg', 'path/to/file.jpg');
      *
      *      // Cek apakah tipe file ada di array yang diberikan
-     *      $image = File::is(['jpg', 'png', 'gif'], 'path/to/file');
+     *      $image = Storage::is(['jpg', 'png', 'gif'], 'path/to/file');
      *
      * </code>
      *

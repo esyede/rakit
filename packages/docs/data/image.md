@@ -1,4 +1,4 @@
-# Bekerja dengan Gambar
+# Image
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
@@ -190,5 +190,5 @@ $identicon = Image::identicon('budi', 200);
 return Image::identicon('budi', 64, true);
 
 // Menyimpan identicon image ke file
-File::put(path('storage').'budi.jpg', $identicon);
+Storage::put(path('storage').'budi.jpg', $identicon);
 ```

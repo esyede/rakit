@@ -61,9 +61,10 @@ class Log
         $path = path('storage').'logs'.DS.date('Y-m-d').'.log.php';
 
         if (is_file($path)) {
-            File::append($path, $message);
+            Storage::append($path, $message);
         } else {
-            File::put($path, "<?php defined('DS') or exit('No direct script access.'); ?>".PHP_EOL.$message);
+            $guard = "<?php defined('DS') or exit('No direct script access.'); ?>".PHP_EOL;
+            Storage::put($path, $guard.$message);
         }
     }
 

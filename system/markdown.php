@@ -102,7 +102,7 @@ class Markdown
      */
     public static function render($file)
     {
-        $file = File::get($file);
+        $file = Storage::get($file);
         return static::parse($file);
     }
 

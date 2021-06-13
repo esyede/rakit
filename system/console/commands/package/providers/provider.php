@@ -5,7 +5,7 @@ namespace System\Console\Commands\Package\Providers;
 defined('DS') or exit('No direct script access.');
 
 use System\Curl;
-use System\File;
+use System\Storage;
 
 abstract class Provider
 {
@@ -41,7 +41,7 @@ abstract class Provider
         $zipball = $storage.'zipball.zip';
 
         if (! is_dir($extractions)) {
-            File::mkdir($extractions);
+            Storage::mkdir($extractions);
         }
 
         echo PHP_EOL.'Downloading zipball...';
@@ -55,13 +55,13 @@ abstract class Provider
         $zip->extractTo($extractions);
         $zip->close();
 
-        $latest = File::latest($extractions)->getRealPath();
+        $latest = Storage::latest($extractions)->getRealPath();
 
         @chmod($latest, 0777);
 
-        File::mvdir($latest, $path);
-        File::rmdir($extractions);
-        File::delete($zipball);
+        Storage::mvdir($latest, $path);
+        Storage::rmdir($extractions);
+        Storage::delete($zipball);
 
         echo ' done!';
     }
@@ -74,7 +74,7 @@ abstract class Provider
      */
     protected function download($zipball_url, $destination)
     {
-        File::delete($destination);
+        Storage::delete($destination);
         $options = [CURLOPT_FOLLOWLOCATION => 1];
 
         if (200 !== (int) Curl::get($zipball_url, [], $options)->header->http_code) {

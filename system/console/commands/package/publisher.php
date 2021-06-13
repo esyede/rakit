@@ -4,7 +4,7 @@ namespace System\Console\Commands\Package;
 
 defined('DS') or die('No direct script access.');
 
-use System\File;
+use System\Storage;
 use System\Package;
 
 class Publisher
@@ -43,7 +43,7 @@ class Publisher
             return;
         }
 
-        File::rmdir(path('assets').'packages'.DS.$package);
+        Storage::rmdir(path('assets').'packages'.DS.$package);
 
         echo 'Assets deleted for package: '.$package.PHP_EOL;
     }
@@ -58,7 +58,7 @@ class Publisher
      */
     protected function move($source, $destination)
     {
-        File::cpdir($source, $destination);
+        Storage::cpdir($source, $destination);
     }
 
     /**

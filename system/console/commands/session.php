@@ -5,7 +5,7 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct script access.');
 
 use System\Container;
-use System\File;
+use System\Storage;
 use System\Config;
 use System\Session as BaseSession;
 use System\Session\Drivers\Sweeper;
@@ -29,7 +29,7 @@ class Session extends Command
         $migration = $migrator->make(['create_session_table']);
         $stub = __DIR__.DS.'stubs'.DS.'session.stub';
 
-        File::put($migration, File::get($stub));
+        Storage::put($migration, Storage::get($stub));
 
         $this->driver('database');
 
@@ -66,13 +66,13 @@ class Session extends Command
      */
     protected function driver($driver)
     {
-        $config = File::get(path('app').'config'.DS.'session.php');
+        $config = Storage::get(path('app').'config'.DS.'session.php');
 
         $pattern = "/(('|\")driver('|\"))\h*=>\h*(\'|\")\s?(\'|\")?.*/i";
         $replaced = preg_replace($pattern, "'driver' => '{$driver}',", $config);
 
         if (! is_null($replaced)) {
-            File::put(path('app').'config'.DS.'session.php', $replaced);
+            Storage::put(path('app').'config'.DS.'session.php', $replaced);
             Config::set('session.driver', $driver);
         }
     }

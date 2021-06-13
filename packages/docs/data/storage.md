@@ -1,4 +1,4 @@
-# Bekerja dengan File
+# Storage
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
@@ -22,24 +22,24 @@
 #### Memeriksa eksistensi direktori atau file:
 
 ```php
-File::exists('foo/bar/');    // true
-File::exists('foo/bar.txt'); // true
+Storage::exists('foo/bar/');    // true
+Storage::exists('foo/bar.txt'); // true
 ```
 
 
 #### Memeriksa bahwa path yang diberikan merupakan sebuah file:
 
 ```php
-File::isfile('foo/bar/');    // false
-File::isfile('foo/bar.txt'); // true
+Storage::isfile('foo/bar/');    // false
+Storage::isfile('foo/bar.txt'); // true
 ```
 
 
 #### Memeriksa bahwa path yang diberikan merupakan sebuah direktori:
 
 ```php
-File::isdir('foo/bar/');    // true
-File::isdir('foo/bar.txt'); // false
+Storage::isdir('foo/bar/');    // true
+Storage::isdir('foo/bar.txt'); // false
 ```
 
 
@@ -49,7 +49,7 @@ File::isdir('foo/bar.txt'); // false
 #### Mengambil isi file:
 
 ```php
-$contents = File::get('path/to/file');
+$contents = Storage::get('path/to/file');
 ```
 
 <a id="tulis-file"></a>
@@ -58,13 +58,13 @@ $contents = File::get('path/to/file');
 #### Menulis data kedalam file:
 
 ```php
-File::put('path/to/file', 'isi file');
+Storage::put('path/to/file', 'isi file');
 ```
 
 #### Menambahkan data ke akhir file:
 
 ```php
-File::append('path/to/file', 'isi file yang ditambahkan');
+Storage::append('path/to/file', 'isi file yang ditambahkan');
 ```
 
 <a id="hapus-file"></a>
@@ -73,7 +73,7 @@ File::append('path/to/file', 'isi file yang ditambahkan');
 #### Menghapus sebuah file:
 
 ```php
-File::delete('path/to/file.ext');
+Storage::delete('path/to/file.ext');
 ```
 
 <a id="upload-file"></a>
@@ -94,7 +94,7 @@ Input::upload('picture', 'path/to/pictures', 'filename.ext');
 #### Mengambil ekstensi sebuah file:
 
 ```php
-File::extension('picture.png');
+Storage::extension('picture.png');
 ```
 
 <a id="memeriksa-tipe-file"></a>
@@ -103,7 +103,7 @@ File::extension('picture.png');
 #### Memeriksa apakah suatu file bertipe tertentu:
 
 ```php
-if (File::is('jpg', 'path/to/file.jpg')) {
+if (Storage::is('jpg', 'path/to/file.jpg')) {
     // ..
 }
 ```
@@ -119,7 +119,7 @@ menentukan MIME-Type yang sebenarnya.
 #### Mengambil MIME-Type yang terkait dengan ekstensi:
 
 ```php
-echo File::mime('lolcat.gif'); // output: 'image/gif'
+echo Storage::mime('lolcat.gif'); // output: 'image/gif'
 ```
 
 >  Anda harus mengaktifkan ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
@@ -132,7 +132,7 @@ echo File::mime('lolcat.gif'); // output: 'image/gif'
 #### Salin direktori ke lokasi tertentu secara rekursif:
 
 ```php
-File::cpdir($directory, $destination);
+Storage::cpdir($directory, $destination);
 ```
 
 
@@ -142,5 +142,5 @@ File::cpdir($directory, $destination);
 #### Hapus direktori tertentu secara rekursif:
 
 ```php
-File::rmdir($directory);
+Storage::rmdir($directory);
 ```

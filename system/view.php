@@ -453,7 +453,7 @@ class View implements \ArrayAccess
 
         if (is_array($files) && ! empty($files)) {
             foreach ($files as $file) {
-                File::delete($file);
+                Storage::delete($file);
             }
         }
     }

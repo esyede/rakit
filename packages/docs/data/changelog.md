@@ -2,31 +2,30 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Versi 1.0.1](#versi-101)
-- [Versi 1.0.0](#versi-100)
+- [v0.9.7 \(pre-release\)](#v097-pre-release)
+- [v0.9.6 \(pre-release\)](#v096-pre-release)
 
 <!-- /MarkdownTOC -->
 
 
-<a id="versi-101"></a>
-## Versi 1.0.1
+<a id="v097-pre-release"></a>
+## v0.9.7 (pre-release)
 
-- Container sekarang bisa me-resolve parameter default
-- Fix bug `Postgres::insert_get_id()` ketika menggunakan `FETCH_ASSOC`
-- Penambahan komponen `Arr`
-- Penambahan beberapa method baru di komponen `Str`
-- Penambahan  komponen `Date`
-- Penambahan  komponen `Faker`
-- Penambahan  komponen `Mailer`
+- Session: fix session guard on file driver.
+- Cache: fix cache guard on file driver.
+- Helpers: remove unused methods.
+- System: use File::xxx for all file operation & Test: move fixtures data into separate folder (test).
+- Docs changes
 
-Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/releases/tag/v1.0.1).
+
+Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.7).
 
 
 **Cara upgrade**:
-- Dari v1.0.0: timpa folder `system/` dengan yang baru.
+- Timpa folder `system/` dengan yang baru.
 
 
-<a id="versi-100"></a>
-## Versi 1.0.0
+<a id="v096-pre-release"></a>
+## v0.9.6 (pre-release)
 
-- Rilis stabil pertama.
+- Versi pre-release pertama untuk uji coba.

@@ -396,43 +396,43 @@ var data = [
 
     {
         "title": "File Path",
-        "url": "files#file-path"
+        "url": "storage#file-path"
     },
     {
         "title": "Baca File",
-        "url": "files#baca-file"
+        "url": "storage#baca-file"
     },
     {
         "title": "Tulis File",
-        "url": "files#tulis-file"
+        "url": "storage#tulis-file"
     },
     {
         "title": "Hapus File",
-        "url": "files#hapus-file"
+        "url": "storage#hapus-file"
     },
     {
         "title": "Upload File",
-        "url": "files#upload-file"
+        "url": "storage#upload-file"
     },
     {
         "title": "Ekstensi File",
-        "url": "files#ekstensi-file"
+        "url": "storage#ekstensi-file"
     },
     {
         "title": "Memeriksa Tipe File",
-        "url": "files#memeriksa-tipe-file"
+        "url": "storage#memeriksa-tipe-file"
     },
     {
         "title": "MIME-Type",
-        "url": "files#mime-type"
+        "url": "storage#mime-type"
     },
     {
         "title": "Salin Direktori",
-        "url": "files#salin-direktori"
+        "url": "storage#salin-direktori"
     },
     {
         "title": "Hapus Direktori",
-        "url": "files#hapus-direktori"
+        "url": "storage#hapus-direktori"
     },
     {
         "title": "Apa Itu Rakit?",

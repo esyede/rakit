@@ -4,7 +4,7 @@ namespace System\Cache\Drivers;
 
 defined('DS') or exit('No direct script access.');
 
-use System\File as Storage;
+use System\Storage;
 
 class File extends Driver
 {

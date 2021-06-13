@@ -6,7 +6,7 @@
 - [Driver Cookie](#driver-cookie)
 - [Driver File](#driver-file)
 - [Driver Database](#driver-database)
-    - [Rakit Console](#rakit-console)
+    - [Console](#console)
     - [SQLite](#sqlite)
     - [MySQL](#mysql)
 - [Driver Memcached](#driver-memcached)
@@ -66,11 +66,11 @@ Dan, session sudah siap digunakan!
 
 Untuk menggunakan driver database, anda harus [mengkonfigurasi koneksi database](/docs/database/config) terlebih dahulu.
 
-Selanjutnya, anda perlu membuat sebuah tabel sesi. Berikut adalah beberapa kueri SQL untuk membantu anda memulai. Namun, anda juga dapat menggunakan [Console](/docs/console) untuk membuat tabel ini secara otomatis!
+Selanjutnya, anda perlu membuat sebuah tabel sesi. Berikut adalah beberapa kueri SQL untuk membantu anda memulai. Namun, anda juga dapat menggunakan [console](/docs/console) untuk membuat tabel ini secara otomatis!
 
 
-<a id="rakit-console"></a>
-### Rakit Console
+<a id="console"></a>
+### Console
 
 ```bash
 php rakit session:table

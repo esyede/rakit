@@ -63,7 +63,7 @@ class Blade
             $compiled = Blade::compiled($view->path);
 
             if (! is_file($compiled) || Blade::expired($view->view, $view->path)) {
-                File::put($compiled, Blade::compile($view), LOCK_EX);
+                Storage::put($compiled, Blade::compile($view), LOCK_EX);
             }
 
             $view->path = $compiled;
@@ -112,7 +112,7 @@ class Blade
      */
     public static function compile($view)
     {
-        return static::translate(File::get($view->path), $view);
+        return static::translate(Storage::get($view->path), $view);
     }
 
     /**

@@ -5,7 +5,7 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct script access.');
 
 use System\Str;
-use System\File;
+use System\Storage;
 use System\Package;
 
 class Make extends Command
@@ -57,7 +57,7 @@ class Make extends Command
         $file = $root.str_replace('/', DS, $this->slashes($class)).'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (File::exists($file)) {
+        if (Storage::exists($file)) {
             echo 'Controller already exists: '.$display.'   (skipped)';
         } else {
             $directory = Str::replace_last(basename($file), '', $file);
@@ -67,7 +67,7 @@ class Make extends Command
                 'stub_class' => Package::class_prefix($package).Str::classify($class),
             ];
 
-            File::put($file, $this->stub($class, $replace, 'controller'));
+            Storage::put($file, $this->stub($class, $replace, 'controller'));
 
             echo 'Created controller: '.$display;
         }
@@ -119,7 +119,7 @@ class Make extends Command
         $file = $directory.$class.'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (File::exists($file)) {
+        if (Storage::exists($file)) {
             echo 'Model already exists: '.$display.'   (skipped)';
         } else {
             $this->makedir($directory);
@@ -129,7 +129,7 @@ class Make extends Command
                 'stub_table' => Str::plural($class),
             ];
 
-            File::put($file, $this->stub($class, $replace, 'model'));
+            Storage::put($file, $this->stub($class, $replace, 'model'));
 
             echo 'Created model: '.$display;
         }
@@ -185,7 +185,7 @@ class Make extends Command
         $file = $directory.$class.'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (File::exists($file)) {
+        if (Storage::exists($file)) {
             echo 'Command already exists: '.$display.'   (skipped)';
         } else {
             $this->makedir($directory);
@@ -194,7 +194,7 @@ class Make extends Command
                 'stub_class' => Package::class_prefix($package).Str::classify($class).'_Command',
             ];
 
-            File::put($file, $this->stub($class, $replace, 'command'));
+            Storage::put($file, $this->stub($class, $replace, 'command'));
 
             echo 'Created command: '.$display;
         }
@@ -241,7 +241,7 @@ class Make extends Command
         $file = $root.str_replace('/', DS, $this->slashes($class)).'.test.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (File::exists($file)) {
+        if (Storage::exists($file)) {
             throw new \Exception(sprintf('Test file already exists: %s', $display));
         }
 
@@ -255,7 +255,7 @@ class Make extends Command
                 '<test-group-placeholder>' => Str::lower($package),
             ];
 
-        File::put($file, $this->stub($class, $replace, 'test'));
+        Storage::put($file, $this->stub($class, $replace, 'test'));
 
         echo 'Created test file: '.$display;
 
@@ -273,7 +273,7 @@ class Make extends Command
      */
     protected function stub($class, array $replace = [], $stub)
     {
-        $stub = File::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.$stub.'.stub');
+        $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.$stub.'.stub');
         $class = Str::classify($class);
 
         foreach ($replace as $key => $value) {
@@ -293,7 +293,7 @@ class Make extends Command
     protected function makedir($directory)
     {
         if (! is_dir($directory)) {
-            File::mkdir($directory, 0777);
+            Storage::mkdir($directory, 0777);
         }
 
         return true;

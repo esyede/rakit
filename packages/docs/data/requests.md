@@ -92,7 +92,7 @@ if (Request::ajax()) {
 }
 ```
 
-#### Memeriksa apakah request saat ini datang dari Rakit Console:
+#### Memeriksa apakah request saat ini datang dari CLI console:
 
 ```php
 if (Request::cli()) {

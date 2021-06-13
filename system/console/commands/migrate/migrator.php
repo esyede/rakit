@@ -6,7 +6,7 @@ defined('DS') or exit('No direct script access.');
 
 use System\Arr;
 use System\Str;
-use System\File;
+use System\Storage;
 use System\Package;
 use System\Console\Commands\Command;
 use System\Database\Schema;
@@ -196,11 +196,11 @@ class Migrator extends Command
         $path = Package::path($package).'migrations'.DS;
 
         if (! is_dir($path)) {
-            File::mkdir($path);
+            Storage::mkdir($path);
         }
 
         $file = $path.$prefix.'_'.$migration.'.php';
-        File::put($file, $this->stub($package, $migration));
+        Storage::put($file, $this->stub($package, $migration));
 
         echo 'Created migration: '.$prefix.'_'.$migration;
 
@@ -217,7 +217,7 @@ class Migrator extends Command
      */
     protected function stub($package, $migration)
     {
-        $stub = File::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.'migrate.stub');
+        $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.'migrate.stub');
         $prefix = Package::class_prefix($package);
         $class = $prefix.Str::classify($migration);
 

@@ -68,19 +68,6 @@
 - [Membuat URL](/docs/urls)
 - [Event & Listener](/docs/events)
 - [Validasi Data](/docs/validation)
-- [Bekerja dengan File](/docs/files)
-- [Bekerja dengan String](/docs/strings)
-- [Bekerja dengan Array](/docs/arrays)
-- [Bekerja dengan Tanggal](/docs/date)
-- [Bekerja dengan Gambar](/docs/image)
-- [Bekerja dengan cURL](/docs/curl)
-- [Bekerja dengan Markdown](/docs/markdown)
-- [Mengirim Email](/docs/mailer)
-- [Alih Bahasa](/docs/localization)
-- [Enkripsi](/docs/encryption)
-- [Container](/docs/container)
-- [Helper](/docs/helpers)
-- [Rakit Console](/docs/console)
 
 ### Database
 
@@ -107,3 +94,19 @@
 
 - [Konfigurasi](/docs/auth/config)
 - [Cara Penggunaan](/docs/auth/usage)
+
+### Support
+
+- [Helper](/docs/helpers)
+- [String](/docs/strings)
+- [Array](/docs/arrays)
+- [Date](/docs/date)
+- [Image](/docs/image)
+- [Storage](/docs/storage)
+- [Enkripsi](/docs/encryption)
+- [Alih Bahasa](/docs/localization)
+- [Markdown](/docs/markdown)
+- [Email](/docs/mailer)
+- [Container](/docs/container)
+- [CURL](/docs/curl)
+- [Console](/docs/console)

@@ -38,7 +38,7 @@ php rakit migrate:install
 <a id="membuat-file-migrasi"></a>
 ## Membuat File Migrasi
 
-Anda dapat dengan mudah membuat migrasi melalui [Rakit Console](/docs/console) seperti berikut ini:
+Anda dapat dengan mudah membuat migrasi melalui [console](/docs/console) seperti berikut ini:
 
 **Membuat sebuah  file migrasi:**
 

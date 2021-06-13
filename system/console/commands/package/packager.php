@@ -5,7 +5,7 @@ namespace System\Console\Commands\Package;
 defined('DS') or die('No direct script access.');
 
 use System\Container;
-use System\File;
+use System\Storage;
 use System\Package;
 use System\Str;
 use System\Console\Commands\Command;
@@ -119,7 +119,7 @@ class Packager extends Command
         $publisher->unpublish($names[0]);
 
         $location = Package::path($names[0]);
-        File::rmdir($location);
+        Storage::rmdir($location);
 
         echo 'Package uninstalled successfuly: '.$names[0].PHP_EOL;
 
@@ -153,7 +153,7 @@ class Packager extends Command
         $current = 0;
 
         if (is_file($local)) {
-            $current = json_decode(File::get($local), true);
+            $current = json_decode(Storage::get($local), true);
             $current = isset($current['version']) ? $current['version'] : $current;
         }
 
@@ -176,7 +176,7 @@ class Packager extends Command
 
         $destination = Package::path($names[0]);
 
-        File::rmdir($destination);
+        Storage::rmdir($destination);
 
         $publisher = Container::resolve('package.publisher');
         $publisher->unpublish($names[0]);
@@ -248,7 +248,7 @@ class Packager extends Command
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
         if (! is_file($destination = $destination.DS.'meta.json')) {
-            File::put($destination, $data);
+            Storage::put($destination, $data);
         }
     }
 
