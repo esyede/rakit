@@ -4,7 +4,6 @@ namespace System\Cache\Drivers;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Str;
 use System\File as Storage;
 
 class File extends Driver
@@ -128,9 +127,7 @@ class File extends Driver
      */
     protected static function guard($value)
     {
-        $value = (string) $value;
         $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-
         return $guard.$value;
     }
 
@@ -144,10 +141,7 @@ class File extends Driver
      */
     protected static function unguard($value)
     {
-        $value = (string) $value;
         $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-        $value = Str::replace_first($guard, '', $value);
-
-        return $value;
+        return str_replace($guard, '', $value);
     }
 }
