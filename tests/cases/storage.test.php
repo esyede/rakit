@@ -51,7 +51,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     public function testPutStoresStorages()
     {
         Storage::put(self::$temp.DS.'file.txt', 'Hello World');
-        $this->assertStringEqualsStorage(self::$temp.DS.'file.txt', 'Hello World');
+        $this->assertStringEqualsFile(self::$temp.DS.'file.txt', 'Hello World');
     }
 
     /**
