@@ -40,7 +40,7 @@ class File extends Driver implements Sweeper
 
         if (is_file($path)) {
             $path = Storage::get($path);
-            return $this->unguard(unserialize($path));
+            return unserialize($this->unguard($path));
         }
     }
 
