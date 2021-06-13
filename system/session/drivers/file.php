@@ -98,7 +98,7 @@ class File extends Driver implements Sweeper
      */
     protected function naming($id)
     {
-        return md5((string) $id).'.session.php';
+        return crc32((string) $id).'.session.php';
     }
 
     /**

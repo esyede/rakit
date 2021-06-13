@@ -116,7 +116,7 @@ class File extends Driver
      */
     protected function naming($key)
     {
-        return md5((string) $key).'.cache.php';
+        return crc32((string) $key).'.cache.php';
     }
 
     /**
