@@ -29,7 +29,7 @@
         <p>
             Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur bawaan rakit.
             Jangan ragu untuk mulai membaca
-            <a href="<?php echo url('docs') ?>" target="_blank">halaman dokumentasi</a>.
+            <a href="<?php echo url('docs'); ?>" target="_blank">halaman dokumentasi</a>.
         </p>
 
         <br>
