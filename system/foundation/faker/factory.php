@@ -55,8 +55,9 @@ class Factory
             return $providerClass;
         }
 
-        $exception = "Unable to find provider '%s' with locale '%s'";
-        throw new \InvalidArgumentException(sprintf($exception, $provider, $locale));
+        throw new \InvalidArgumentException(sprintf(
+            "Unable to find provider '%s' with locale '%s'", $provider, $locale
+        ));
     }
 
     protected static function findProviderClassname($provider, $locale = '')

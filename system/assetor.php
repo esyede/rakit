@@ -294,12 +294,13 @@ class Assetor
         if (! isset($original[$dependency])) {
             return false;
         } elseif ($dependency === $asset) {
-            $exception = "Asset '%s' is dependent on itself.";
-            throw new \Exception(sprintf($exception, $asset));
+            throw new \Exception(sprintf("Asset '%s' is dependent on itself.", $asset));
         } elseif (isset($assets[$dependency])
         && in_array($asset, $assets[$dependency]['dependencies'])) {
-            $exception = "Assets '%s' and '%s' have a circular dependency.";
-            throw new \Exception(sprintf($exception, $asset, $dependency));
+            throw new \Exception(sprintf(
+                "Assets '%s' and '%s' have a circular dependency.",
+                $asset, $dependency
+            ));
         }
 
         return true;

@@ -202,8 +202,9 @@ class Header implements \IteratorAggregate, \Countable
         }
 
         if (false === ($date = \DateTime::createFromFormat(DATE_RFC2822, $value))) {
-            $exception = "The '%s' HTTP header is not parseable (%s).";
-            throw new \RuntimeException(sprintf($exception, $key, $value));
+            throw new \RuntimeException(sprintf(
+                "The '%s' HTTP header is not parseable (%s).", $key, $value
+            ));
         }
 
         return $date;

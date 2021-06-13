@@ -37,8 +37,9 @@ class Cookie
         $sameSite = 'lax'
     ) {
         if (preg_match('/[=,; \t\r\n\013\014]/', $name)) {
-            $exception = "The cookie name '%s' contains invalid characters.";
-            throw new \InvalidArgumentException(sprintf($exception, $name));
+            throw new \InvalidArgumentException(sprintf(
+                "The cookie name '%s' contains invalid characters.", $name
+            ));
         }
 
         if (empty($name)) {
