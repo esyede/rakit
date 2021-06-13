@@ -110,7 +110,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         file_put_contents(self::$temp.DS.'file.txt', 'World');
 
         Storage::prepend(self::$temp.DS.'file.txt', 'Hello ');
-        $this->assertStringEqualsStorage(self::$temp.DS.'file.txt', 'Hello World');
+        $this->assertStringEqualsFile(self::$temp.DS.'file.txt', 'Hello World');
     }
 
     /**
@@ -121,7 +121,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     public function testPrependNewStorages()
     {
         Storage::prepend(self::$temp.DS.'file.txt', 'Hello World');
-        $this->assertStringEqualsStorage(self::$temp.DS.'file.txt', 'Hello World');
+        $this->assertStringEqualsFile(self::$temp.DS.'file.txt', 'Hello World');
     }
 
     /**
