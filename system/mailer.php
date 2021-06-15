@@ -460,7 +460,7 @@ class Mailer
                 $handle = fopen($attachment['path'], 'rb');
 
                 if (! $handle) {
-                    $this->terminate('Error opening file "'.$attachment['path'].'".');
+                    $this->terminate(sprintf('Error opening file: %s', $attachment['path']));
                     return false;
                 }
 
