@@ -111,13 +111,11 @@ class Crypter
      */
     protected static function key()
     {
-        if (! static::$key) {
-            static::$key = Config::get('application.key', null);
+        if (static::$key && mb_strlen((string) static::$key, '8bit') >= 32) {
+            return static::$key;
         }
 
-        if (! static::$key) {
-            throw new \Exception('The application key needs to be set before using this method.');
-        }
+        static::$key = (string) Config::get('application.key', '');
 
         if (mb_strlen(trim(static::$key), '8bit') < 32) {
             throw new \Exception('The application key needs to be set at least 32 characters long.');
