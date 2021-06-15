@@ -225,7 +225,7 @@ class Mailer
         }
 
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->log('Invalid email address: '.$email);
+            $this->log(sprintf('Invalid email address: %s', $email));
             return false;
         }
 
@@ -246,7 +246,7 @@ class Mailer
     public function replyto($email, $name = null)
     {
         if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->log('Invalid email address: '.$email);
+            $this->log(sprintf('Invalid email address: %s', $email));
             return false;
         }
 
@@ -266,7 +266,7 @@ class Mailer
     public function attach($file, $name = null)
     {
         if (! is_file($file)) {
-            $this->log('Invalid attachment file: '.$file);
+            $this->log(sprintf('Invalid attachment file: %s', $file));
             return false;
         }
 
@@ -312,7 +312,7 @@ class Mailer
         }
 
         if (! filter_var($from, FILTER_VALIDATE_EMAIL)) {
-            $this->log('Invalid email address: '.$from);
+            $this->log(sprintf('Invalid email address: %s', $from));
             return false;
         }
 
@@ -507,7 +507,10 @@ class Mailer
             ],
         ]);
 
-        $this->log('Connecting to '.$this->credentials['host'].':'.$this->credentials['port'].'.');
+        $this->log(sprintf(
+            'Connecting to %s:%s.',
+            $this->credentials['host'], $this->credentials['port']
+        ));
 
         $this->connection = @stream_socket_client(
             $this->credentials['host'].':'.$this->credentials['port'],
@@ -519,7 +522,7 @@ class Mailer
         );
 
         if (! $this->connection) {
-            $this->log('Connection failed: '.$errstr);
+            $this->log(sprintf('Connection failed: %s', $errstr));
             return false;
         }
 
@@ -639,7 +642,7 @@ class Mailer
     private function execute($command)
     {
         @fwrite($this->connection, $command.CRLF);
-        $this->log('# '.$command);
+        $this->log(sprintf('# %s', $command));
         $this->response();
     }
 
@@ -649,7 +652,7 @@ class Mailer
     private function response()
     {
         while ($data = @fgets($this->connection, 515)) {
-            $this->log(trim($data));
+            $this->log(sprintf('%s', trim((string) $data)));
 
             if (' ' === substr($data, 3, 1)) {
                 break;
@@ -688,7 +691,7 @@ class Mailer
     private function terminate($message)
     {
         $this->disconnect();
-        $this->log($message);
+        $this->log(sprintf('%s', $message));
 
         return false;
     }
