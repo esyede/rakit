@@ -224,12 +224,9 @@ class Assetor
         }
 
         $asset['attributes'] = static::attributes($asset['attributes']);
+        $html = ('script' === $group) ? '<script src="%s"%s></script>' : '<link href="%s"%s>';
 
-        if ('script' === $group) {
-            return '<script src="'.$asset['source'].'"'.$asset['attributes'].'></script>'.PHP_EOL;
-        }
-
-        return '<link href="'.$asset['source'].'"'.$asset['attributes'].'>'.PHP_EOL;
+        return sprintf($html, $asset['source'], $asset['attributes']).PHP_EOL;
     }
 
     /**
