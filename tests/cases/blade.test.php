@@ -3,13 +3,11 @@
 defined('DS') or exit('No direct script access.');
 
 use System\Blade;
-use System\Config;
 use System\Session;
 
 class BladeTest extends \PHPUnit_Framework_TestCase
 {
-
-   /**
+    /**
      * Setup.
      */
     public function setUp()
