@@ -285,7 +285,7 @@ class Paginator
         $text = is_null($text) ? Lang::line('pagination.'.$element)->get($this->language) : $text;
 
         if ($disabled($this->page, $this->last)) {
-            $attributes = HTML::attributes(['class' => $class.' disabled']);
+            $attributes = Assetor::attributes(['class' => $class.' disabled']);
             return '<li'.$attributes.'><a href="#">'.$text.'</a></li>';
         }
 
@@ -348,10 +348,9 @@ class Paginator
     protected function link($page, $text, $class)
     {
         $query = '?page='.$page.$this->appendage($this->appends);
-        $attributes = HTML::attributes(['class' => $class]);
-        $link = HTML::link(URI::current().$query, $text, []);
+        $attributes = Assetor::attributes(['class' => $class]);
 
-        return '<li'.$attributes.'>'.$link.'</li>';
+        return '<li'.$attributes.'><a href="'.URI::current().$query.'">'.e($text).'</a></li>';
     }
 
     /**

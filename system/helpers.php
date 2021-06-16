@@ -12,7 +12,8 @@ if (! function_exists('e')) {
      */
     function e($value)
     {
-        return HTML::entities($value);
+        $encoding = Config::get('application.encoding', 'UTF-8');
+        return htmlentities($value, ENT_QUOTES, $encoding, false);
     }
 }
 

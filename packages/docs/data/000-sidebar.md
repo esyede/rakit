@@ -42,8 +42,6 @@
 	- [Mengelola Aset](/docs/views/assets)
 	- [Templating](/docs/views/templating)
 	- [Paginasi Data](/docs/views/pagination)
-	- [Menyusun Kode HTML](/docs/views/html)
-	- [Membuat Formulir](/docs/views/forms)
 - [Input & Cookies](/docs/input) <!-- has-submenu -->
 	- [Input](/docs/input#input)
 	- [File](/docs/input#file)

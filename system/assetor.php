@@ -223,7 +223,38 @@ class Assetor
             $asset['source'] = $this->path($asset['source']);
         }
 
-        return HTML::{$group}($asset['source'], $asset['attributes']);
+        $asset['attributes'] = static::attributes($asset['attributes']);
+
+        if ('script' === $group) {
+            return '<script src="'.$asset['source'].'"'.$asset['attributes'].'></script>'.PHP_EOL;
+        }
+
+        return '<link href="'.$asset['source'].'"'.$asset['attributes'].'>'.PHP_EOL;
+    }
+
+    /**
+     * Buat listing atribut HTML dari array yang diberikan.
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    public static function attributes($attributes)
+    {
+        $attributes = (array) $attributes;
+        $html = [];
+
+        foreach ($attributes as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+
+            if (! is_null($value)) {
+                $html[] = $key.'="'.e($value).'"';
+            }
+        }
+
+        return (count($html) > 0) ? ' '.implode(' ', $html) : '';
     }
 
     /**

@@ -9,10 +9,10 @@ return [
     |--------------------------------------------------------------------------
     |
     | Di sini, anda dapat menentukan alias kelas apa pun yang ingin anda
-    | daftarkan saat framework dimuat. Alias ​​dimuat dengan teknik lazy-loading,
+    | daftarkan saat framework dimuat. Alias dimuat dengan teknik lazy-loading,
     | jadi silakan menambahkan sebanyak yang anda mau!
     |
-    | Alias ​​membuat kita lebih nyaman saat menggunakan kelas yang ber-namespace.
+    | Alias membuat kita lebih nyaman saat menggunakan kelas yang ber-namespace.
     | Daripada merujuk ke kelas menggunakan namespace lengkapnya, anda dapat
     | menggunakan alias yang ditentukan di sini.
     |
@@ -38,9 +38,7 @@ return [
     'Event' => 'System\Event',
     'Facile' => 'System\Database\Facile\Model',
     'Faker' => 'System\Foundation\Faker\Factory',
-    'Form' => 'System\Form',
     'Hash' => 'System\Hash',
-    'HTML' => 'System\HTML',
     'Image' => 'System\Image',
     'Input' => 'System\Input',
     'Lang' => 'System\Lang',

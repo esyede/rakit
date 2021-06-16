@@ -778,43 +778,6 @@ var data = [
         "title": "Aset Milik Paket",
         "url": "views/assets#aset-milik-paket"
     },
-
-    {
-        "title": "Membuka Form",
-        "url": "views/forms#membuka-form"
-    },
-    {
-        "title": "Proteksi CSRF",
-        "url": "views/forms#proteksi-csrf"
-    },
-    {
-        "title": "Label",
-        "url": "views/forms#label"
-    },
-    {
-        "title": "Text Input, Text Area, Password & Hidden Input",
-        "url": "views/forms#text-input-text-area-password--hidden-input"
-    },
-    {
-        "title": "Checkbox & Radio",
-        "url": "views/forms#checkbox--radio"
-    },
-    {
-        "title": "File Input",
-        "url": "views/forms#file-input"
-    },
-    {
-        "title": "Drop-down List",
-        "url": "views/forms#drop-down-list"
-    },
-    {
-        "title": "Button",
-        "url": "views/forms#button"
-    },
-    {
-        "title": "Menambahkan Custom Element",
-        "url": "views/forms#menambahkan-custom-element"
-    },
     {
         "title": "Binding Data Ke View",
         "url": "views#binding-data-ke-view"
@@ -846,47 +809,6 @@ var data = [
     {
         "title": "Respon Error",
         "url": "views#respon-error"
-    },
-
-    {
-        "title": "Entities",
-        "url": "views/html#entities"
-    },
-    {
-        "title": "Javascript dan CSS",
-        "url": "views/html#javascript-dan-css"
-    },
-    {
-        "title": "Link",
-        "url": "views/html#link"
-    },
-    {
-        "title": "Link Ke Named Route",
-        "url": "views/html#link-ke-named-route"
-    },
-    {
-        "title": "Link Ke Action Controller",
-        "url": "views/html#link-ke-action-controller"
-    },
-    {
-        "title": "Link Ke Bahasa Lain",
-        "url": "views/html#link-ke-bahasa-lain"
-    },
-    {
-        "title": "Mailto",
-        "url": "views/html#mailto"
-    },
-    {
-        "title": "Image",
-        "url": "views/html#image"
-    },
-    {
-        "title": "Listing",
-        "url": "views/html#listing"
-    },
-    {
-        "title": "Macro Baru",
-        "url": "views/html#macro-baru"
     },
     {
         "title": "Menggunakan Query Builder",
