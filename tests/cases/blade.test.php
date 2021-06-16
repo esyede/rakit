@@ -3,15 +3,20 @@
 defined('DS') or exit('No direct script access.');
 
 use System\Blade;
+use System\Config;
+use System\Session;
 
 class BladeTest extends \PHPUnit_Framework_TestCase
 {
-    /**
+
+   /**
      * Setup.
      */
     public function setUp()
     {
-        // ..
+        if (! Session::started()) {
+            Session::start('file');
+        }
     }
 
     /**
@@ -19,7 +24,12 @@ class BladeTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // ..
+        Session::$instance = null;
+        array_map(function ($file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }, glob(path('storage').'sessions'.DS.'*.session.php'));
     }
 
     /**
@@ -40,6 +50,18 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
         $this->assertEquals($out3, Blade::translate($blade3));
+    }
+
+    /**
+     * Test untuk token csrf.
+     *
+     * @group system
+     */
+    public function testCsrfAreConvertedProperly()
+    {
+        $blade = '@csrf';
+        $out = '<input type="hidden" name="'.Session::TOKEN.'" value="'.Session::token().'">'.PHP_EOL;
+        $this->assertEquals($out, Blade::translate($blade));
     }
 
     /**

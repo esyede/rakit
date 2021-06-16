@@ -447,6 +447,22 @@ if (! function_exists('route')) {
     }
 }
 
+if (! function_exists('csrf_field')) {
+    /**
+     * Tambahkan hidden field untuk CSRF token.
+     *
+     * @param string $name
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    function csrf_field()
+    {
+        return '<input type="hidden" name="'.\System\Session::TOKEN.
+            '" value="'.\System\Session::token().'">'.PHP_EOL;
+    }
+}
+
 if (! function_exists('root_namespace')) {
     /**
      * Ambil root namespace milik class.

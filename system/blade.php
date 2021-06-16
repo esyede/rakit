@@ -23,6 +23,7 @@ class Blade
         'layout',
         'comment',
         'echo',
+        'csrf',
         'forelse',
         'empty',
         'endforelse',
@@ -223,6 +224,19 @@ class Blade
         }, $value);
 
         return $value;
+    }
+
+    /**
+     * Ubah sintaks @csrf ke bentuk form HTML.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_csrf($value)
+    {
+        $csrf = '<input type="hidden" name="'.Session::TOKEN.'" value="'.Session::token().'">'.PHP_EOL;
+        return str_replace('@csrf', $csrf, $value);
     }
 
     /**
