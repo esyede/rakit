@@ -135,7 +135,5 @@ jobs:
       - name: run tests with phpunit 4.8.34
         run: php ./rakit test:core
         env:
-          # hostname used to communicate with the redis service container
           REDIS_HOST: localhost
-          # default redis port
           REDIS_PORT: 6379
