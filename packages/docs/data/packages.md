@@ -302,8 +302,24 @@ Perintah ini akan membuat sebuah subfolder di `assets/packages/` sesuai nama pak
 Misalnya, jika paket yang diinstall bernama `admin`, maka akan dibuat
 folder `assets/packages/admin`, yang akan berisi file-file salinan dari file aset bawaan paket admin.
 
-Untuk informasi lebih lanjut tentang cara mendapatkan path ke aset paket setelah dipublish,
-silahkan baca dokumentasinya di bagian [aset paket](/docs/views/assets#aset-paket).
+Lalu bagaimana cara mendapatkan path ke aset paket setelah dipublish?
+Mudah saja, silahkan gunakan method `URL::to_asset()` atau helper `asset()` seperti berikut:
+
+```php
+<link href="<?php echo URL::to_asset('packages/themable/css/app.min.css') ?>" rel="stylesheet"/>
+<script src="<?php echo URL::to_asset('packages/themable/js/app.min.js') ?>"></script>
+```
+
+atau,
+
+```php
+<link href="<?php echo asset('packages/themable/css/app.min.css') ?>" rel="stylesheet"/>
+<script src="<?php echo asset('packages/themable/js/app.min.js') ?>"></script>
+```
+
+>  Method `URL::to_asset()` dan `asset()` diatas sama - sama membantu anda mendapatkan
+   URL ke folder `assets/` tanpa tambahan `index.php` sehingga semua jenis file yang
+   tersimpan di folder assets dapa anda ambil URL-nya, bukan hanya CSS dan JavaScipt saja.
 
 
 <a id="menginstall-paket"></a>

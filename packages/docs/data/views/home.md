@@ -268,7 +268,7 @@ return View::of('layout', ['orders' => $orders]);
 Tunggu dulu, kita tidak sedang membicarakan [composer yang itu](https://getcomposer.org/).
 
 Setiap kali suatu view dimuat, event `'composer'`-nya akan otomatis terpanggil. Anda dapat me-listen
-event tersebut dan menggunakannya untuk binding aset dan data ke view setiap kali view tersebut dimuat.
+event tersebut dan menggunakannya untuk kebutuhan - kebutuhan khusus pada aplikasi anda.
 
 Penggunaan umum fitur ini contohnya pada view parsial navigasi sidebar yang memperlihatkan daftar
 posting blog secara acak. Anda dapat membuat nested view parsial dengan memuatnya dalam layout view anda.

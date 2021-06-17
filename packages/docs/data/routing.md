@@ -273,7 +273,7 @@ Rakit memiliki dua middleware global yaitu `before()` yang berjalan sebelum requ
 dan `after()` yang berjalan setelah request ditanggapi.
 
 Anda dapat menemukan keduanya di file `application/middlewares.php`. Middleware ini menjadi
-tempat yang bagus untuk menjalankan paket default atau menambahkan aset secara global.
+tempat yang bagus untuk menjalankan paket default atau kebutuhan lain.
 
 >  Middleware `after()` menerima objek `Response` untuk request saat ini.
 

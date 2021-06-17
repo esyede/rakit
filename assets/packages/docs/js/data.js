@@ -757,27 +757,6 @@ var data = [
         "title": "Array",
         "url": "validation#array"
     },
-
-    {
-        "title": "Mendaftarkan Aset",
-        "url": "views/assets#mendaftarkan-aset"
-    },
-    {
-        "title": "Memanggil Aset",
-        "url": "views/assets#memanggil-aset"
-    },
-    {
-        "title": "Dependensi Aset",
-        "url": "views/assets#dependensi-aset"
-    },
-    {
-        "title": "Container Aset",
-        "url": "views/assets#container-aset"
-    },
-    {
-        "title": "Aset Milik Paket",
-        "url": "views/assets#aset-milik-paket"
-    },
     {
         "title": "Binding Data Ke View",
         "url": "views#binding-data-ke-view"

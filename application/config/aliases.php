@@ -19,7 +19,6 @@ return [
     */
 
     'Arr' => 'System\Arr',
-    'Asset' => 'System\Asset',
     'Auth' => 'System\Auth',
     'Authenticator' => 'System\Auth\Drivers\Driver',
     'Autoloader' => 'System\Autoloader',
@@ -65,5 +64,5 @@ return [
     'Validator' => 'System\Validator',
     'View' => 'System\View',
 
-    // Tambahkan alias lain disini..
+    // ..
 ];
