@@ -27,9 +27,10 @@
 
         <h3>Melangkah lebih jauh.</h3>
         <p>
-            Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur bawaan rakit.
+            Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur.
             Jangan ragu untuk mulai membaca
-            <a href="<?php echo url('docs'); ?>" target="_blank">halaman dokumentasi</a>.
+            <a href="<?php echo url('docs'); ?>" target="_blank">dokumentasi</a> karena
+            anda dapat membukanya secara online maupun offline.
         </p>
 
         <br>

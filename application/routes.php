@@ -14,5 +14,5 @@ defined('DS') or exit('No direct script access.');
 */
 
 Route::get('/', function () {
-    return View::make('home.index');
+    return view('home.index')->with_text('fffff');
 });
