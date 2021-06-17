@@ -82,5 +82,15 @@
       	"description": "Panggil route via konsol.",
       	"command": "php rakit route:call get api/user/1"
       }
-	}
+	},
+    "test": {
+      "test:core": {
+        "description": "Jalankan test folder system.",
+        "command": "php rakit test:core"
+      },
+      "test:package": {
+        "description": "Jalankan test milik sebuah paket.",
+        "command": "php rakit test:package blog"
+      }
+    }
 }
