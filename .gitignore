@@ -5,6 +5,7 @@
 *.cache.php
 *.log.php
 *.session.php
+index.html
 
 
 # Phpstorm
