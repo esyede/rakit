@@ -447,6 +447,31 @@ if (! function_exists('route')) {
     }
 }
 
+if (! function_exists('redirect')) {
+    /**
+     * Buat sebuah URL redireksi.
+     *
+     * <code>
+     *
+     *      // Buat redireksi ke http://situsku.com/profile.
+     *      return redirect('profile');
+     *
+     *      // Buat redireksi ke https://google.com.
+     *      return redirect('https://google.com');
+     *
+     * </code>
+     *
+     * @param string     $url
+     * @param string|int $status
+     *
+     * @return string
+     */
+    function redirect($url, $status = 302)
+    {
+        return \System\Redirect::to($url, $status);
+    }
+}
+
 if (! function_exists('csrf_field')) {
     /**
      * Tambahkan hidden field untuk CSRF token.
