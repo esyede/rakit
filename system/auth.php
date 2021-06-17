@@ -83,6 +83,11 @@ class Auth
      *      Auth::check();
      *
      * </code>
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public static function __callStatic($method, $parameters)
     {
