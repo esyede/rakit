@@ -285,7 +285,7 @@ class Paginator
         $text = is_null($text) ? Lang::line('pagination.'.$element)->get($this->language) : $text;
 
         if ($disabled($this->page, $this->last)) {
-            $attributes = Assetor::attributes(['class' => $class.' disabled']);
+            $attributes = static::attributes(['class' => $class.' disabled']);
             return '<li'.$attributes.'><a href="#">'.$text.'</a></li>';
         }
 
@@ -348,7 +348,7 @@ class Paginator
     protected function link($page, $text, $class)
     {
         $query = '?page='.$page.$this->appendage($this->appends);
-        $attributes = Assetor::attributes(['class' => $class]);
+        $attributes = static::attributes(['class' => $class]);
 
         return '<li'.$attributes.'><a href="'.URI::current().$query.'">'.e($text).'</a></li>';
     }
@@ -389,6 +389,31 @@ class Paginator
     {
         $this->appends = $values;
         return $this;
+    }
+
+    /**
+     * Buat listing atribut HTML dari array yang diberikan.
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    protected static function attributes($attributes)
+    {
+        $attributes = (array) $attributes;
+        $html = [];
+
+        foreach ($attributes as $key => $value) {
+            if (is_numeric($key)) {
+                $key = $value;
+            }
+
+            if (! is_null($value)) {
+                $html[] = $key.'="'.e($value).'"';
+            }
+        }
+
+        return (count($html) > 0) ? ' '.implode(' ', $html) : '';
     }
 
     /**
