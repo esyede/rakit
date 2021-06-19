@@ -122,7 +122,7 @@ class Paginator
             return ($last > 0) ? $last : 1;
         }
 
-        return static::valid($page) ? $page : 1;
+        return static::valid($page) ? (int) $page : 1;
     }
 
     /**
