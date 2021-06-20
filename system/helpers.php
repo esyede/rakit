@@ -654,3 +654,29 @@ if (! function_exists('get_cli_option')) {
         return value($default);
     }
 }
+
+if (! function_exists('system_os')) {
+    /**
+     * Ambil platform / sistem operasi server.
+     *
+     * @return string
+     */
+    function system_os()
+    {
+        if ('\\' === DIRECTORY_SEPARATOR) {
+            return 'Windows';
+        }
+
+        $platforms = [
+            'Darwin' => 'Darwin',
+            'DragonFly' => 'BSD',
+            'FreeBSD' => 'BSD',
+            'NetBSD' => 'BSD',
+            'OpenBSD' => 'BSD',
+            'Linux' => 'Linux',
+            'SunOS' => 'Solaris',
+        ];
+
+        return isset_or($platforms[PHP_OS], 'Unknown');
+    }
+}

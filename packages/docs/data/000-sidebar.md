@@ -104,7 +104,7 @@
 - [Enkripsi](/docs/encryption)
 - [Alih Bahasa](/docs/localization)
 - [Markdown](/docs/markdown)
-- [Email](/docs/mailer)
+- [Email](/docs/email)
 - [Container](/docs/container)
 - [CURL](/docs/curl)
 - [Console](/docs/console)

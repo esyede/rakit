@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct script access.');
 
-class MailerTest extends \PHPUnit_Framework_TestCase
+class EmailTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Setup.

@@ -529,8 +529,8 @@ var data = [
         "url": "localization#placeholder--replacement"
     },
     {
-        "title": "Mengirim Email",
-        "url": "mailer#mengirim-email"
+        "title": "Email",
+        "url": "email"
     },
     {
         "title": "Render File Markdown Ke HTML",

@@ -4,10 +4,19 @@ namespace System;
 
 defined('DS') or exit('No direct script access.');
 
-class Auth
+class Email
 {
     /**
-     * Berisi driver auth yang saat ini sedang digunakan.
+     * Prioritas email.
+     */
+    const LOWEST = '5 (Lowest)';
+    const LOW = '4 (Low)';
+    const NORMAL = '3 (Normal)';
+    const HIGH = '2 (High)';
+    const HIGHEST = '1 (Highest)';
+
+    /**
+     * Berisi driver email yang saat ini sedang digunakan.
      *
      * @var array
      */
@@ -29,7 +38,7 @@ class Auth
      */
     public static function driver($driver = null)
     {
-        $driver = is_null($driver) ? Config::get('auth.driver') : $driver;
+        $driver = is_null($driver) ? Config::get('email.driver') : $driver;
 
         if (! isset(static::$drivers[$driver])) {
             static::$drivers[$driver] = static::factory($driver);
@@ -39,7 +48,7 @@ class Auth
     }
 
     /**
-     * Buat instance driver auth.
+     * Buat instance driver email.
      *
      * @param string $driver
      *
@@ -53,15 +62,17 @@ class Auth
         }
 
         switch ($driver) {
-            case 'magic':  return new Auth\Drivers\Magic(Config::get('auth.table'));
-            case 'facile': return new Auth\Drivers\Facile(Config::get('auth.model'));
-            default:       throw new \Exception(sprintf('Unsupported auth driver: %s', $driver));
+            case 'mail':     return new Email\Drivers\Mail(Config::get('email'));
+            case 'smtp':     return new Email\Drivers\Smtp(Config::get('email'));
+            case 'sendmail': return new Email\Drivers\Sendmail(Config::get('email'));
+            case 'dummy':    return new Email\Drivers\Dummy(Config::get('email'));
+            default:         throw new \Exception(sprintf('Unsupported email driver: %s', $driver));
         }
     }
 
     /**
-     * Daftarkan auth driver pihak ketiga
-     * (Betul! auth driver di framework ini extedable!).
+     * Daftarkan email driver pihak ketiga
+     * (Betul! email driver di framework ini extedable!).
      *
      * @param string   $driver
      * @param \Closure $resolver
@@ -72,17 +83,7 @@ class Auth
     }
 
     /**
-     * Magic Method untuk pemanggilan method pada driver auth default.
-     *
-     * <code>
-     *
-     *      // Panggil method user() milik driver default.
-     *      $user = Auth::user();
-     *
-     *      // Panggil method check() milik driver default.
-     *      Auth::check();
-     *
-     * </code>
+     * Magic Method untuk pemanggilan method pada driver email default.
      *
      * @param string $method
      * @param array  $parameters

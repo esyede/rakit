@@ -280,33 +280,9 @@ class Curl
             'Solaris' => 'Mozilla/5.0 (Solaris; Solaris x86_64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
         ];
 
-        $platform = static::platform();
+        $platform = system_os();
         $platform = ('Unknown' === $platform) ? 'Linux' : $platform;
 
         return str_replace('[v]', $version, $agents[$platform]);
-    }
-
-    /**
-     * Ambil platform / sistem operasi server.
-     *
-     * @return string
-     */
-    public static function platform()
-    {
-        if ('\\' === DIRECTORY_SEPARATOR) {
-            return 'Windows';
-        }
-
-        $platforms = [
-            'Darwin' => 'Darwin',
-            'DragonFly' => 'BSD',
-            'FreeBSD' => 'BSD',
-            'NetBSD' => 'BSD',
-            'OpenBSD' => 'BSD',
-            'Linux' => 'Linux',
-            'SunOS' => 'Solaris',
-        ];
-
-        return isset($platforms[PHP_OS]) ? $platforms[PHP_OS] : 'Unknown';
     }
 }

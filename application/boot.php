@@ -156,3 +156,15 @@ if (is_file($path = Config::get('application.composer_autoload'))) {
     require_once $path;
     unset($path);
 }
+
+/*
+|--------------------------------------------------------------------------
+| Lain - Lain
+|--------------------------------------------------------------------------
+|
+| Tambahkan logic lain yang harus segera berjalan setelah
+| booting aplikasi selesai, seperti ekstensi untuk custom driver dll.
+|
+*/
+
+// ..

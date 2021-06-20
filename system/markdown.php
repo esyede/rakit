@@ -933,7 +933,7 @@ class Markdown
         $pattern = '/^[(]\s*+((?:[^ ()]++|[(][^ )]+[)])++)(?:[ ]+("[^"]*"|\'[^\']*\'))?\s*[)]/';
 
         if (preg_match($pattern, $remainder, $matches)) {
-            $elem['attributes']['href'] = \URL::to($matches[1]);
+            $elem['attributes']['href'] = URL::to($matches[1]);
 
             if (isset($matches[2])) {
                 $elem['attributes']['title'] = substr($matches[2], 1, -1);
