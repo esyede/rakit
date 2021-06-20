@@ -337,8 +337,8 @@ Rakit menggunakan mekanisme ekstraksi Zip sederhana untuk penginstalan paket. Be
 php rakit package:install themable
 ```
 
-> Pastikan anda sudah mengaktifkan ekstensi [cURL](https://www.php.net/manual/en/book.curl.php) dan
-  [Zip](http://php.net/manual/en/book.zip.php) sebelum menjalankan perintah ini.
+> Pastikan anda sudah mengaktifkan ekstensi [cURL](https://www.php.net/manual/en/book.curl.php)
+  sebelum menjalankan perintah ini.
 
 
 Mantap! sekarang paket yang anda mau sudah terinstall, langkah selanjutnya tinggal

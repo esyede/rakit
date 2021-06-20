@@ -29,8 +29,7 @@ Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari r
 
 - Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) untuk SQLite,
   MySQL, PostgreSQL, atau SQL Server untuk bekerja dengan database.
-- Ekstensi [cURL](https://www.php.net/manual/en/book.curl.php) dan
-  [Zip](http://php.net/manual/en/book.zip.php) untuk menginstall paket via rakit console.
+- Ekstensi [cURL](https://www.php.net/manual/en/book.curl.php) untuk menginstall paket via rakit console.
 - Ekstensi [GD Image](https://www.php.net/manual/en/book.image.php) untuk mengolah gambar.
 
 
