@@ -4,7 +4,6 @@
 
 - [Konfigurasi](#konfigurasi)
 - [Mengirim Email](#mengirim-email)
-    - [Set Pengirim](#set-pengirim)
     - [Set Penerima](#set-penerima)
     - [Set CC dan BCC](#set-cc-dan-bcc)
     - [Set Body](#set-body)
@@ -49,9 +48,7 @@ transmisinya. Namun tentu saja anda boleh mengubahnya sesuai kebutuhan:
 Setelah selesai membaca file konfigurasi, mari kita lihat contoh mengirim email sederhana:
 
 ```php
-$email = Email::make();
-
-$email->from('admin@situs.com')
+$email = Email::from('admin@situs.com')
     ->to('eka@situs.com')
     ->cc('farida@situs.com')
     ->bcc('nando@situs.com')
@@ -66,22 +63,6 @@ try {
 } catch (\Exception $e) {
     echo 'Email gagal dikirim: '.$e->getMessage();
 }
-```
-
-
-<a id="set-pengirim"></a>
-### Set Pengirim
-
-Method `from()` digunakan untuk menyetel pengirim email:
-
-```php
-$email->from('admin@situs.com');
-```
-
-Anda juga boleh menambahkan nama pengirim email:
-
-```php
-$email->from('admin@situs.com', 'Administrator');
 ```
 
 

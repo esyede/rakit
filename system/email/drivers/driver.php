@@ -7,6 +7,7 @@ defined('DS') or exit('No direct script access.');
 use System\Arr;
 use System\Str;
 use System\Email;
+use System\Storage;
 
 abstract class Driver
 {
@@ -64,7 +65,7 @@ abstract class Driver
      *
      * @var string
      */
-    protected $alternate = '';
+    protected $alt_body = '';
 
     /**
      * Subyek email.
@@ -154,15 +155,15 @@ abstract class Driver
     }
 
     /**
-     * Set alternate body email.
+     * Set alternative body email.
      *
-     * @param string $alternate
+     * @param string $body
      *
      * @return $this
      */
-    public function alternate($body)
+    public function alt_body($body)
     {
-        $this->alternate = (string) $body;
+        $this->alt_body = (string) $body;
 
         return $this;
     }
@@ -238,7 +239,7 @@ abstract class Driver
         $this->body = $html;
 
         if ($alternatify) {
-            $this->alternate = static::alternatify(
+            $this->alt_body = static::alternatify(
                 $html,
                 $this->config['wordwrap'],
                 $this->config['newline']
@@ -495,7 +496,7 @@ abstract class Driver
      */
     protected static function mime($file)
     {
-        $mime = Storage::mime($mime);
+        $mime = Storage::mime($file);
         $mime = $mime ? $mime : 'application/octet-stream';
 
         return $mime;
@@ -589,7 +590,7 @@ abstract class Driver
         $this->set_header('X-Mailer', $this->config['mailer']);
 
         $type = $this->config['as_html'] ? 'html' : 'plain' ;
-        $type .= ($this->config['as_html'] && ! empty(trim($this->alternate))) ? '_alt' : '';
+        $type .= ($this->config['as_html'] && ! empty(trim($this->alt_body))) ? '_alt' : '';
         $type .= ($this->config['as_html'] && count($this->attachments['inline'])) ? '_inline' : '';
         $type .= (count($this->attachments['attachment'])) ? '_attach' : '';
         $this->type = $type;
@@ -621,7 +622,7 @@ abstract class Driver
         }
 
         $this->body = static::encode_string($this->body, $encoding, $newline);
-        $this->alternate = static::encode_string($this->alternate, $encoding, $newline);
+        $this->alt_body = static::encode_string($this->alt_body, $encoding, $newline);
 
         $wrapping = $this->config['wordwrap'];
         $qp_mode = $encoding === 'quoted-printable';
@@ -629,7 +630,7 @@ abstract class Driver
 
         if ($wrapping && ! $qp_mode) {
             $this->body = static::wrap($this->body, $wrapping, $newline, $as_html);
-            $this->alternate = static::wrap($this->alternate, $wrapping, $newline, false);
+            $this->alt_body = static::wrap($this->alt_body, $wrapping, $newline, false);
         }
 
         $this->transmit();
@@ -760,7 +761,7 @@ abstract class Driver
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
-                    $body .= $this->alternate.$eol.$eol;
+                    $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
@@ -785,7 +786,7 @@ abstract class Driver
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: text/plain'.'; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
-                    $body .= $this->alternate.$eol.$eol;
+                    $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: multipart/related;'.$eol.
                         "\tboundary=\"{$this->boundaries[1]}\"".$eol.$eol;
@@ -808,7 +809,7 @@ abstract class Driver
                         $body .= '--'.$this->boundaries[1].$eol;
                         $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                         $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
-                        $body .= $this->alternate.$eol.$eol;
+                        $body .= $this->alt_body.$eol.$eol;
                     }
 
                     $body .= '--'.$this->boundaries[1].$eol;
@@ -818,7 +819,7 @@ abstract class Driver
 
                     if (stripos($this->type, 'inline') !== false) {
                         $body .= $this->get_attachment_headers('inline', $this->boundaries[1]);
-                        $body .= $this->alternate.$eol.$eol;
+                        $body .= $this->alt_body.$eol.$eol;
                     }
 
                     $body .= '--'.$this->boundaries[1].'--'.$eol.$eol;
@@ -833,7 +834,7 @@ abstract class Driver
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
-                    $body .= $this->alternate.$eol.$eol;
+                    $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: multipart/related;'.$eol.
                         "\t boundary=\"{$this->boundaries[2]}\"".$eol.$eol;
@@ -842,7 +843,7 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->body.$eol.$eol;
                     $body .= $this->get_attachment_headers('inline', $this->boundaries[2]);
-                    $body .= $this->alternate.$eol.$eol;
+                    $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[2].'--'.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].'--'.$eol.$eol;
                     $body .= $this->get_attachment_headers('attachment', $this->boundaries[0]);
