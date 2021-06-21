@@ -57,7 +57,7 @@ class Blade
     public static function sharpen()
     {
         Event::listen(View::ENGINE, function ($view) {
-            if (! Str::contains($view->path, '.blade.php')) {
+            if (! Str::ends_with($view->path, '.blade.php')) {
                 return;
             }
 
