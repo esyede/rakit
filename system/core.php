@@ -74,9 +74,9 @@ Autoloader::namespaces(['System' => path('system')]);
 | Buat Foundation Request
 |--------------------------------------------------------------------------
 |
-| Rakit memisah implementasi detail penanganan http request ke folder
-| 'foundation/http/' agar file 'system/request.php' tidak terlalu panjang
-| dan tetap mudah dibaca. Nah, karena dipisah, kita perlu memanggilnya.
+| Rakit memisahkan implementasi detail penanganan http request ke
+| folder 'foundation/http/' agar file 'system/request.php' tidak terlalu
+| panjang dan tetap mudah dibaca. Nah, disini kita perlu memanggilnya.
 |
 */
 use System\Foundation\Http\Request as FoundationRequest;
@@ -88,7 +88,7 @@ Request::$foundation = FoundationRequest::createFromGlobals();
 | Set Array Option CLI
 |--------------------------------------------------------------------------
 |
-| Jika request saat ini datang rakit console, kita parsing argumen dan
+| Jika request saat ini datang dari rakit console, kita parse argumen dan
 | optionnya, lalu kita set ke variabel global $_SERVER agar bisa
 | diakses dari mana saja.
 |

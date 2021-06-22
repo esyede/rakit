@@ -100,8 +100,7 @@ class Runner extends Command
         $stub = Storage::get(__DIR__.DS.'stub.xml');
         $tokens = ['[bootstrap]' => $this->base.'phpunit.php', '[directory]' => $directory];
         $stub = $this->tokens($stub, $tokens);
-
-        Storage::put(path('base').'phpunit.xml', $stub, LOCK_EX);
+        file_put_contents(path('base').'phpunit.xml', $stub, LOCK_EX);
     }
 
     /**
