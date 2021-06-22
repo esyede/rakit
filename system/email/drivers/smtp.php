@@ -63,11 +63,11 @@ class Smtp extends Driver
             $this->authenticate();
         }
 
-        $return_path = empty($this->config['return_path'])
+        $retpath = empty($this->config['return_path'])
             ? $this->config['from']['email']
             : $this->config['return_path'];
 
-        $this->command('MAIL FROM: <'.$return_path.'>', 250);
+        $this->command('MAIL FROM: <'.$retpath.'>', 250);
 
         foreach (['to', 'cc', 'bcc'] as $list) {
             foreach ($this->{$list} as $recipient) {
@@ -83,10 +83,7 @@ class Smtp extends Driver
         );
 
         foreach ($lines as $line) {
-            if (substr($line, 0, 1) === '.') {
-                $line = '.'.$line;
-            }
-
+            $line = (('.' === substr($line, 0, 1)) ? '.' : '').$line;
             fputs($this->connection, $line.$this->config['newline']);
         }
 
@@ -110,7 +107,7 @@ class Smtp extends Driver
             return;
         }
 
-        if (strpos($this->config['smtp']['host'], '://') === false) {
+        if (false === strpos($this->config['smtp']['host'], '://')) {
             $this->config['smtp']['host'] = 'tcp://'.$this->config['smtp']['host'];
         }
 
@@ -142,7 +139,7 @@ class Smtp extends Driver
         }
 
         if (Arr::get($this->config, 'smtp.starttls', false)
-        && strpos($this->config['smtp']['host'], 'tcp://') === 0) {
+        && 0 === strpos($this->config['smtp']['host'], 'tcp://')) {
             try {
                 $this->command('STARTTLS', 220);
 
@@ -229,14 +226,14 @@ class Smtp extends Driver
      */
     protected function command($command, $expecting, $return_number = false)
     {
-        if (! is_array($expecting) && $expecting !== false) {
+        if (! is_array($expecting) && false !== $expecting) {
             $expecting = [$expecting];
         }
 
         stream_set_timeout($this->connection, $this->config['smtp']['timeout']);
 
         if (! fputs($this->connection, $command.$this->config['newline'])) {
-            if ($expecting === false) {
+            if (false === $expecting) {
                 return false;
             }
 
@@ -252,7 +249,7 @@ class Smtp extends Driver
         $response = $this->response();
         $number = (int) substr(trim($response), 0, 3);
 
-        if ($expecting !== false && ! in_array($number, $expecting)) {
+        if (false !== $expecting && ! in_array($number, $expecting)) {
             throw new \Exception(sprintf(
                 'Got an unexpected response from host on command: [%s] expecting: %s received: %s',
                 $command, implode(' or ', $expecting), $response
@@ -282,7 +279,7 @@ class Smtp extends Driver
 
             $data .= $str;
 
-            if (substr($str, 3, 1) === ' ') {
+            if (' ' === substr($str, 3, 1)) {
                 break;
             }
         }

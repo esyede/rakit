@@ -225,7 +225,7 @@ abstract class Driver
                             $html
                         );
                     } elseif ($scheme = Arr::get($this->config, 'protocol_replacement', false)
-                    && strpos($url, '//') === 0) {
+                    && 0 === strpos($url, '//')) {
                         $html = preg_replace(
                             '/'.$images[1][$i].'="'.preg_quote($url, '/').
                             '"/Ui', $images[1][$i].'="'.$scheme.substr($url, 2).'"',
@@ -445,7 +445,7 @@ abstract class Driver
 
         $file[1] = isset_or($file[1], ($name ? $name : pathinfo($file[0], PATHINFO_BASENAME)));
 
-        if (($contents = file_get_contents($file[0])) === false || empty($contents)) {
+        if (false === ($contents = file_get_contents($file[0])) || empty($contents)) {
             throw new \Exception(sprintf(
                 'Could not read attachment or attachment is empty: %s', $file[0]
             ));
@@ -454,6 +454,7 @@ abstract class Driver
         $disp = $inline ? 'inline' : 'attachment';
         $cid = empty($cid) ? 'cid:'.md5($file[1]) : trim($cid);
         $cid = strpos($cid, 'cid:') === 0 ? $cid : 'cid:'.$cid;
+
         $mime = $mime ? $mime : static::mime($file[0]);
         $contents = chunk_split(base64_encode($contents), 76, $this->config['newline']);
 
@@ -478,6 +479,7 @@ abstract class Driver
         $disp = $inline ? 'inline' : 'attachment';
         $cid = empty($cid) ? 'cid:'.md5($filename) : trim($cid);
         $cid = strpos($cid, 'cid:') === 0 ? $cid : 'cid:'.$cid;
+
         $mime = $mime ? $mime : static::mime($filename);
         $file = [$filename, pathinfo($filename, PATHINFO_BASENAME)];
         $contents = static::encode_string($contents, 'base64', $this->config['newline']);
@@ -497,9 +499,8 @@ abstract class Driver
     protected static function mime($file)
     {
         $mime = Storage::mime($file);
-        $mime = $mime ? $mime : 'application/octet-stream';
 
-        return $mime;
+        return $mime ? $mime : 'application/octet-stream';
     }
 
     /**
@@ -520,7 +521,7 @@ abstract class Driver
             }
         }
 
-        return (count($failed) === 0) ? true : $failed;
+        return (0 === count($failed)) ? true : $failed;
     }
 
     /**
@@ -536,13 +537,13 @@ abstract class Driver
             throw new \Exception('Cannot send email without recipients.');
         }
 
-        if (($from = $this->config['from']['email']) === false || empty($from)) {
+        if (false === ($from = $this->config['from']['email']) || empty($from)) {
             throw new \Exception('Cannot send without from address.');
         }
 
         $validate = is_bool($validate) ? $validate : $this->config['validate'];
 
-        if ($validate && ($failed = $this->validation()) !== true) {
+        if ($validate && true !== ($failed = $this->validation())) {
             $this->invalid_addresses = $failed;
             $error = '';
 
@@ -560,9 +561,9 @@ abstract class Driver
         $this->boundaries = ['B1_'.$boundary, 'B2_'.$boundary, 'B3_'.$boundary];
         $this->set_header('Date', date('r'));
 
-        $path = ($this->config['return_path'] !== false)
-            ? $this->config['return_path']
-            : $this->config['from']['email'];
+        $path = (false === $this->config['return_path'])
+            ? $this->config['from']['email']
+            : $this->config['return_path'];
 
         $this->set_header('Return-Path', $path);
 
@@ -626,7 +627,7 @@ abstract class Driver
 
         $wrapping = $this->config['wordwrap'];
         $qp_mode = $encoding === 'quoted-printable';
-        $as_html = stripos($this->type, 'html') !== false;
+        $as_html = (false !== stripos($this->type, 'html'));
 
         if ($wrapping && ! $qp_mode) {
             $this->body = static::wrap($this->body, $wrapping, $newline, $as_html);
@@ -671,7 +672,7 @@ abstract class Driver
      */
     protected function get_header($header = null, $formatted = true)
     {
-        if ($header === null) {
+        if (is_null($header)) {
             return $this->headers;
         }
 
@@ -694,7 +695,7 @@ abstract class Driver
      */
     protected function encode($header)
     {
-        $encoding = ($this->config['encoding'] === 'quoted-printable') ? 'Q' : 'B' ;
+        $encoding = ('quoted-printable' === $this->config['encoding']) ? 'Q' : 'B' ;
 
         return mb_encode_mimeheader($header, 'utf-8', $encoding, $this->config['newline']);
     }
@@ -711,7 +712,7 @@ abstract class Driver
             $out .= '--'.$boundary.$eol;
             $out .= 'Content-Type: '.$data['mime'].'; name="'.$data['file'][1].'"'.$eol;
             $out .= 'Content-Transfer-Encoding: base64'.$eol;
-            $out .= ($type === 'inline') ? 'Content-ID: <'.substr($data['cid'], 4).'>'.$eol : '';
+            $out .= ('inline' === $type) ? 'Content-ID: <'.substr($data['cid'], 4).'>'.$eol : '';
             $out .= 'Content-Disposition: '.$type.'; filename="'.$data['file'][1].'"'.$eol.$eol;
             $out .= $data['contents'].$eol.$eol;
         }
@@ -753,7 +754,7 @@ abstract class Driver
         $header .= $eol;
         $body = '';
 
-        if ($this->type === 'plain' || $this->type === 'html') {
+        if ('plain' === $this->type || 'html' === $this->type) {
             $body = $this->body;
         } else {
             switch ($this->type) {
@@ -773,11 +774,11 @@ abstract class Driver
                 case 'html_attach':
                 case 'html_inline':
                     $body .= '--'.$this->boundaries[0].$eol;
-                    $text_type = (stripos($this->type, 'html') !== false) ? 'html' : 'plain';
+                    $text_type = (false !== stripos($this->type, 'html')) ? 'html' : 'plain';
                     $body .= 'Content-Type: text/'.$text_type.'; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->body.$eol.$eol;
-                    $attach_type = (stripos($this->type, 'attach') !== false) ? 'attachment' : 'inline';
+                    $attach_type = (false !== stripos($this->type, 'attach')) ? 'attachment' : 'inline';
                     $body .= $this->get_attachment_headers($attach_type, $this->boundaries[0]);
                     $body .= '--'.$this->boundaries[0].'--';
                     break;
@@ -805,7 +806,7 @@ abstract class Driver
                     $body .= 'Content-Type: multipart/alternative;'.$eol.
                         "\t boundary=\"{$this->boundaries[1]}\"".$eol.$eol;
 
-                    if (stripos($this->type, 'alt') !== false) {
+                    if (false !== stripos($this->type, 'alt')) {
                         $body .= '--'.$this->boundaries[1].$eol;
                         $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                         $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
@@ -817,7 +818,7 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->body.$eol.$eol;
 
-                    if (stripos($this->type, 'inline') !== false) {
+                    if (false !== stripos($this->type, 'inline')) {
                         $body .= $this->get_attachment_headers('inline', $this->boundaries[1]);
                         $body .= $this->alt_body.$eol.$eol;
                     }

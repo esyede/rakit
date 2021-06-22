@@ -14,11 +14,11 @@ class Sendmail extends Driver
     protected function transmit()
     {
         $message = $this->build();
-        $return_path = ($this->config['return_path'] !== false)
+        $retpath = (false !== $this->config['return_path'])
             ? $this->config['return_path']
             : $this->config['from']['email'];
 
-        $handle = @popen($this->config['sendmail_binary'].' -oi -f '.$return_path.' -t', 'w');
+        $handle = @popen($this->config['sendmail_binary'].' -oi -f '.$retpath.' -t', 'w');
 
         if (! is_resource($handle)) {
             throw new \Exception(sprintf(
@@ -29,7 +29,7 @@ class Sendmail extends Driver
         fputs($handle, $message['header']);
         fputs($handle, $message['body']);
 
-        if (pclose($handle) === -1) {
+        if (-1 === pclose($handle)) {
             throw new \Exception('Failed sending email through sendmail.');
         }
 
