@@ -790,7 +790,7 @@ abstract class Driver
                     $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: multipart/related;'.$eol.
-                        "\tboundary=\"".$this->boundaries[1]."\"".$eol.$eol;
+                        "\tboundary=\"".$this->boundaries[1].'"'.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
@@ -804,7 +804,7 @@ abstract class Driver
                 case 'html_inline_attach':
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: multipart/alternative;'.$eol.
-                        "\t boundary=\"".$this->boundaries[1]."\"".$eol.$eol;
+                        "\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
 
                     if (false !== stripos($this->type, 'alt')) {
                         $body .= '--'.$this->boundaries[1].$eol;
@@ -831,14 +831,14 @@ abstract class Driver
                 case 'html_alt_inline_attach':
                     $body .= '--'.$this->boundaries[0].$eol;
                     $body .= 'Content-Type: multipart/alternative;'.$eol.
-                        "\t boundary=\"".$this->boundaries[1]."\"".$eol.$eol;
+                        "\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: multipart/related;'.$eol.
-                        "\t boundary=\"".$this->boundaries[2]."\"".$eol.$eol;
+                        "\t boundary=\"".$this->boundaries[2].'"'.$eol.$eol;
                     $body .= '--'.$this->boundaries[2].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
