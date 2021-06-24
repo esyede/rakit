@@ -23,7 +23,7 @@ class Console
      *
      * </code>
      *
-     * @param array $arguments
+     * @param string|array $arguments
      *
      * @return void
      */
