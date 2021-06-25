@@ -104,7 +104,7 @@ abstract class Provider
             Storage::mkdir($destination, 0777);
         }
 
-        if (class_exists('ZipArchive')) {
+        if (extension_loaded('zip') && class_exists('ZipArchive')) {
             $zip = new \ZipArchive();
             $open = $zip->open($file);
 
