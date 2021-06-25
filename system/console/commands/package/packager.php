@@ -84,7 +84,7 @@ class Packager extends Command
         echo PHP_EOL.'Package installed successfuly!';
 
         echo PHP_EOL;
-        echo 'Optionally, you can register those package into your application/packages.php'.PHP_EOL;
+        echo 'Now, you can register it to your application/packages.php'.PHP_EOL;
     }
 
     /**

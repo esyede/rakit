@@ -31,12 +31,6 @@ abstract class Provider
      */
     protected function zipball($zipball_url, $package, $path)
     {
-        if (! extension_loaded('zip')) {
-            throw new \Exception(PHP_EOL.sprintf(
-                'Error: The PHP Zip extension is needed to perform this action.'
-            ).PHP_EOL);
-        }
-
         $storage = path('storage').'console'.DS;
         $extractions = $storage.'extractions'.DS;
         $zipball = $storage.'zipball.zip';
@@ -73,12 +67,17 @@ abstract class Provider
     protected function download($zipball_url, $destination)
     {
         Storage::delete($destination);
-        $options = [CURLOPT_FOLLOWLOCATION => 1];
+        $options = [CURLOPT_FOLLOWLOCATION => 1, CURLOPT_HEADER => 1, CURLOPT_NOBODY => 1];
+        $remote = Curl::get($zipball_url, [], $options);
 
-        if (200 !== (int) Curl::get($zipball_url, [], $options)->header->http_code) {
-            $message = 'Error: Unable to download zipball: %s';
-            throw new \Exception(PHP_EOL.sprintf($message, $zipball_url).PHP_EOL);
+        if ('application/zip' !== (string) $remote->header->content_type) {
+            throw new \Exception(PHP_EOL.sprintf(
+                "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
+                $remote->header->content_type, 'application/zip'
+            ).PHP_EOL);
         }
+
+        unset($options[CURLOPT_HEADER], $options[CURLOPT_NOBODY]);
 
         try {
             Curl::download($zipball_url, $destination, $options);
@@ -109,8 +108,8 @@ abstract class Provider
             $zip = new \ZipArchive();
             $open = $zip->open($file);
 
-            if ($open !== true) {
-                throw new \Exception('Could not open zip file with ZipArchive.');
+            if (true !== $open) {
+                throw new \Exception(PHP_EOL.'Error: Could not open zip file with ZipArchive.');
             }
 
             $zip->extractTo($destination);
@@ -118,8 +117,8 @@ abstract class Provider
         } else {
             $zip = new PclZip($file);
 
-            if ($zip->extract(77001, $destination) === 0) {
-                throw new \Exception('Could not extract zip file with PclZip.');
+            if (0 === $zip->extract(77001, $destination)) {
+                throw new \Exception(PHP_EOL.'Error: Could not extract zip file with PclZip.');
             }
         }
 
