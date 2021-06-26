@@ -207,11 +207,13 @@ class PclZip
         }
 
         $v_result = $this->privFileDescrExpand($v_filedescr_list, $v_options);
+
         if ($v_result != 1) {
             return 0;
         }
 
         $v_result = $this->privAdd($v_filedescr_list, $p_result_list, $v_options);
+
         if ($v_result != 1) {
             return 0;
         }
@@ -486,6 +488,7 @@ class PclZip
             }
 
             $v_central_dir = [];
+
             if (($v_result = $this->privReadEndCentralDir($v_central_dir)) != 1) {
                 return 0;
             }
@@ -534,7 +537,7 @@ class PclZip
         if ((is_object($p_archive_to_add)) && (get_class($p_archive_to_add) == 'pclzip')) {
             $v_result = $this->privMerge($p_archive_to_add);
         } elseif (is_string($p_archive_to_add)) {
-            $v_object_archive = new PclZip($p_archive_to_add);
+            $v_object_archive = new self($p_archive_to_add);
             $v_result = $this->privMerge($v_object_archive);
         } else {
             $this->privErrorLog(-3, 'Invalid variable type p_archive_to_add');
@@ -771,7 +774,7 @@ class PclZip
                     $v_sort_flag = false;
                     $v_sort_value = 0;
 
-                    for ($j = 0;$j < sizeof($v_work_list);$j++) {
+                    for ($j = 0; $j < sizeof($v_work_list); $j++) {
                         $v_item_list = explode('-', $v_work_list[$j]);
                         $v_size_item_list = sizeof($v_item_list);
 
@@ -847,7 +850,7 @@ class PclZip
         }
 
         if ($v_requested_options !== false) {
-            for ($key = reset($v_requested_options);$key = key($v_requested_options);$key = next($v_requested_options)) {
+            for ($key = reset($v_requested_options); $key = key($v_requested_options); $key = next($v_requested_options)) {
                 if ($v_requested_options[$key] == 'mandatory') {
                     if (! isset($v_result_list[$key])) {
                         $this->privErrorLog(-3, 'Missing mandatory parameter '.static::PclZipUtilOptionText($key).'('.$key.')');
@@ -976,7 +979,7 @@ class PclZip
             }
 
             if ($v_requested_options !== false) {
-                for ($key = reset($v_requested_options);$key = key($v_requested_options);$key = next($v_requested_options)) {
+                for ($key = reset($v_requested_options); $key = key($v_requested_options); $key = next($v_requested_options)) {
                     if ($v_requested_options[$key] == 'mandatory') {
                         if (! isset($p_file_list[$key])) {
                             $this->privErrorLog(-3, 'Missing mandatory parameter '.static::PclZipUtilOptionText($key).'('.$key.')');
@@ -995,7 +998,7 @@ class PclZip
         $v_result = 1;
         $v_result_list = [];
 
-        for ($i = 0;$i < sizeof($p_filedescr_list);$i++) {
+        for ($i = 0; $i < sizeof($p_filedescr_list); $i++) {
             $v_descr = $p_filedescr_list[$i];
             $v_descr['filename'] = static::PclZipUtilTranslateWinPath($v_descr['filename'], false);
             $v_descr['filename'] = static::PclZipUtilPathReduction($v_descr['filename']);
@@ -1129,13 +1132,13 @@ class PclZip
         $v_size = $v_central_dir['size'];
 
         while ($v_size != 0) {
-            $v_read_size = ($v_size < 2048 ? $v_size : 2048);
+            $v_read_size = ($v_size < 2048) ? $v_size : 2048;
             $v_buffer = @fread($v_zip_temp_fd, $v_read_size);
             @fwrite($this->zip_fd, $v_buffer, $v_read_size);
             $v_size -= $v_read_size;
         }
 
-        for ($i = 0, $v_count = 0;$i < sizeof($v_header_list);$i++) {
+        for ($i = 0, $v_count = 0; $i < sizeof($v_header_list); $i++) {
             if ($v_header_list[$i]['status'] == 'ok') {
                 if (($v_result = $this->privWriteCentralFileHeader($v_header_list[$i])) != 1) {
                     fclose($v_zip_temp_fd);
@@ -1223,7 +1226,7 @@ class PclZip
 
         $v_offset = @ftell($this->zip_fd);
 
-        for ($i = 0, $v_count = 0;$i < sizeof($v_header_list);$i++) {
+        for ($i = 0, $v_count = 0; $i < sizeof($v_header_list); $i++) {
             if ($v_header_list[$i]['status'] == 'ok') {
                 if (($v_result = $this->privWriteCentralFileHeader($v_header_list[$i])) != 1) {
                     return $v_result;
@@ -1257,7 +1260,7 @@ class PclZip
         $v_header = [];
         $v_nb = sizeof($p_result_list);
 
-        for ($j = 0;($j < sizeof($p_filedescr_list)) && ($v_result == 1);$j++) {
+        for ($j = 0; ($j < sizeof($p_filedescr_list)) && ($v_result == 1); $j++) {
             $p_filedescr_list[$j]['filename'] = static::PclZipUtilTranslateWinPath($p_filedescr_list[$j]['filename'], false);
 
             if ($p_filedescr_list[$j]['filename'] == '') {
@@ -1691,7 +1694,7 @@ class PclZip
             return $this->errorCode();
         }
 
-        for ($i = 0;$i < $v_central_dir['entries'];$i++) {
+        for ($i = 0; $i < $v_central_dir['entries']; $i++) {
             if (($v_result = $this->privReadCentralFileHeader($v_header)) != 1) {
                 return $v_result;
             }
@@ -1758,8 +1761,9 @@ class PclZip
         $v_pos_entry = $v_central_dir['offset'];
         $j_start = 0;
 
-        for ($i = 0, $v_nb_extracted = 0;$i < $v_central_dir['entries'];$i++) {
+        for ($i = 0, $v_nb_extracted = 0; $i < $v_central_dir['entries']; $i++) {
             @rewind($this->zip_fd);
+
             if (@fseek($this->zip_fd, $v_pos_entry)) {
                 $this->privCloseFd();
                 $this->privErrorLog(-14, 'Invalid archive size');
@@ -1778,7 +1782,7 @@ class PclZip
             $v_extract = false;
 
             if ((isset($p_options[77008])) && ($p_options[77008] != 0)) {
-                for ($j = 0;($j < sizeof($p_options[77008])) && (! $v_extract);$j++) {
+                for ($j = 0; ($j < sizeof($p_options[77008])) && (! $v_extract); $j++) {
                     if (substr($p_options[77008][$j], -1) == '/') {
                         if ((strlen($v_header['stored_filename']) > strlen($p_options[77008][$j])) && (substr($v_header['stored_filename'], 0, strlen($p_options[77008][$j])) == $p_options[77008][$j])) {
                             $v_extract = true;
@@ -1792,7 +1796,7 @@ class PclZip
                     $v_extract = true;
                 }
             } elseif ((isset($p_options[77009])) && ($p_options[77009] != 0)) {
-                for ($j = $j_start;($j < sizeof($p_options[77009])) && (! $v_extract);$j++) {
+                for ($j = $j_start; ($j < sizeof($p_options[77009])) && (! $v_extract); $j++) {
                     if (($i >= $p_options[77009][$j]['start']) && ($i <= $p_options[77009][$j]['end'])) {
                         $v_extract = true;
                     }
@@ -2431,7 +2435,7 @@ class PclZip
 
             while ($v_pos < $v_size) {
                 $v_byte = @fread($this->zip_fd, 1);
-                $v_bytes = (($v_bytes & 0xFFFFFF) << 8) | Ord($v_byte);
+                $v_bytes = (($v_bytes & 0xFFFFFF) << 8) | ord($v_byte);
 
                 if ($v_bytes == 0x504b0506) {
                     $v_pos++;
@@ -2508,7 +2512,7 @@ class PclZip
         $v_header_list = [];
         $j_start = 0;
 
-        for ($i = 0, $v_nb_extracted = 0;$i < $v_central_dir['entries'];$i++) {
+        for ($i = 0, $v_nb_extracted = 0; $i < $v_central_dir['entries']; $i++) {
             $v_header_list[$v_nb_extracted] = [];
 
             if (($v_result = $this->privReadCentralFileHeader($v_header_list[$v_nb_extracted])) != 1) {
@@ -2520,7 +2524,7 @@ class PclZip
             $v_found = false;
 
             if ((isset($p_options[77008])) && ($p_options[77008] != 0)) {
-                for ($j = 0;($j < sizeof($p_options[77008])) && (! $v_found);$j++) {
+                for ($j = 0; ($j < sizeof($p_options[77008])) && (! $v_found); $j++) {
                     if (substr($p_options[77008][$j], -1) == '/') {
                         if ((strlen($v_header_list[$v_nb_extracted]['stored_filename']) > strlen($p_options[77008][$j])) && (substr($v_header_list[$v_nb_extracted]['stored_filename'], 0, strlen($p_options[77008][$j])) == $p_options[77008][$j])) {
                             $v_found = true;
@@ -2536,7 +2540,7 @@ class PclZip
                     $v_found = true;
                 }
             } elseif ((isset($p_options[77009])) && ($p_options[77009] != 0)) {
-                for ($j = $j_start;($j < sizeof($p_options[77009])) && (! $v_found);$j++) {
+                for ($j = $j_start; ($j < sizeof($p_options[77009])) && (! $v_found); $j++) {
                     if (($i >= $p_options[77009][$j]['start']) && ($i <= $p_options[77009][$j]['end'])) {
                         $v_found = true;
                     }
@@ -2562,14 +2566,14 @@ class PclZip
 
         if ($v_nb_extracted > 0) {
             $v_zip_temp_name = path('storage').DS.uniqid('pclzip-').'.tmp';
-            $v_temp_zip = new PclZip($v_zip_temp_name);
+            $v_temp_zip = new self($v_zip_temp_name);
 
             if (($v_result = $v_temp_zip->privOpenFd('wb')) != 1) {
                 $this->privCloseFd();
                 return $v_result;
             }
 
-            for ($i = 0;$i < sizeof($v_header_list);$i++) {
+            for ($i = 0; $i < sizeof($v_header_list); $i++) {
                 @rewind($this->zip_fd);
 
                 if (@fseek($this->zip_fd, $v_header_list[$i]['offset'])) {
@@ -2608,7 +2612,7 @@ class PclZip
 
             $v_offset = @ftell($v_temp_zip->zip_fd);
 
-            for ($i = 0;$i < sizeof($v_header_list);$i++) {
+            for ($i = 0; $i < sizeof($v_header_list); $i++) {
                 if (($v_result = $v_temp_zip->privWriteCentralFileHeader($v_header_list[$i])) != 1) {
                     $v_temp_zip->privCloseFd();
                     $this->privCloseFd();
@@ -2855,7 +2859,7 @@ class PclZip
             $v_list = explode('/', $p_dir);
             $v_skip = 0;
 
-            for ($i = sizeof($v_list) - 1;$i >= 0;$i--) {
+            for ($i = sizeof($v_list) - 1; $i >= 0; $i--) {
                 if ($v_list[$i] == '.') {
                 } elseif ($v_list[$i] == '..') {
                     $v_skip++;
@@ -2946,7 +2950,7 @@ class PclZip
     {
         $v_list = get_defined_constants();
 
-        for (reset($v_list);$v_key = key($v_list);next($v_list)) {
+        for (reset($v_list); $v_key = key($v_list); next($v_list)) {
             $v_prefix = substr($v_key, 0, 10);
 
             if ((($v_prefix == 'PCLZIP_OPT') || ($v_prefix == 'PCLZIP_CB_') || ($v_prefix == 'PCLZIP_ATT')) && ($v_list[$v_key] == $p_option)) {
