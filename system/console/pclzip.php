@@ -35,7 +35,7 @@ class PclZip
             array_shift($v_arg_list);
             $v_size--;
 
-            if ((is_integer($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
+            if ((is_int($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
                 $v_result = $this->privParseOptions($v_arg_list, $v_size, $v_options, [
                     77003 => 'optional',
                     77004 => 'optional',
@@ -135,7 +135,7 @@ class PclZip
             array_shift($v_arg_list);
             $v_size--;
 
-            if ((is_integer($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
+            if ((is_int($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
                 $v_result = $this->privParseOptions($v_arg_list, $v_size, $v_options, [
                     77003 => 'optional',
                     77004 => 'optional',
@@ -257,7 +257,7 @@ class PclZip
         if ($v_size > 0) {
             $v_arg_list = func_get_args();
 
-            if ((is_integer($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
+            if ((is_int($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
                 $v_result = $this->privParseOptions($v_arg_list, $v_size, $v_options, [
                     77001 => 'optional',
                     77003 => 'optional',
@@ -349,7 +349,7 @@ class PclZip
             array_shift($v_arg_list);
             $v_size--;
 
-            if ((is_integer($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
+            if ((is_int($v_arg_list[0])) && ($v_arg_list[0] > 77000)) {
                 $v_result = $this->privParseOptions($v_arg_list, $v_size, $v_options, [
                     77001 => 'optional',
                     77003 => 'optional',
@@ -653,7 +653,7 @@ class PclZip
 
                     $v_value = $p_options_list[$i + 1];
 
-                    if ((! is_integer($v_value)) || ($v_value < 0)) {
+                    if ((! is_int($v_value)) || ($v_value < 0)) {
                         $this->privErrorLog(-16, "Integer expected for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
                         return $this->errorCode();
                     }
@@ -759,7 +759,7 @@ class PclZip
                     if (is_string($p_options_list[$i + 1])) {
                         $p_options_list[$i + 1] = strtr($p_options_list[$i + 1], ' ', '');
                         $v_work_list = explode(',', $p_options_list[$i + 1]);
-                    } elseif (is_integer($p_options_list[$i + 1])) {
+                    } elseif (is_int($p_options_list[$i + 1])) {
                         $v_work_list[0] = $p_options_list[$i + 1].'-'.$p_options_list[$i + 1];
                     } elseif (is_array($p_options_list[$i + 1])) {
                         $v_work_list = $p_options_list[$i + 1];
@@ -958,7 +958,7 @@ class PclZip
                 break;
 
                 case 79004:
-                    if (! is_integer($v_value)) {
+                    if (! is_int($v_value)) {
                         $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". Integer expected for attribute '".static::PclZipUtilOptionText($v_key)."'");
                         return $this->errorCode();
                     }
@@ -1973,7 +1973,7 @@ class PclZip
                         $this->privErrorLog(-17, "Filename '".$p_entry['filename']."' is ".'already used by an existing directory');
                         return $this->errorCode();
                     }
-                } elseif (! is_writeable($p_entry['filename'])) {
+                } elseif (! is_writable($p_entry['filename'])) {
                     $p_entry['status'] = 'write_protected';
 
                     if ((isset($p_options[77017])) && ($p_options[77017] === true)) {
