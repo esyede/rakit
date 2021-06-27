@@ -183,10 +183,8 @@ class Autoloader
      */
     protected static function format($directories)
     {
-        $directories = (array) $directories;
-
         return array_map(function ($directory) {
             return rtrim($directory, DS).DS;
-        }, $directories);
+        }, (array) $directories);
     }
 }
