@@ -113,7 +113,8 @@ class Smtp extends Driver
 
         $context = stream_context_create();
 
-        if (is_array($this->config['smtp']['options']) && ! empty($this->config['smtp']['options'])) {
+        if (is_array($this->config['smtp']['options'])
+        && ! empty($this->config['smtp']['options'])) {
             stream_context_set_option($context, $this->config['smtp']['options']);
         }
 
@@ -127,7 +128,7 @@ class Smtp extends Driver
         );
 
         if (empty($this->connection)) {
-            throw new \Exception('Could not connect to SMTP: ('.$errno.') '.$errstr);
+            throw new \Exception(sprintf('Could not connect to SMTP: (%s) %s.', $errno, $errstr));
         }
 
         $this->response();

@@ -69,11 +69,12 @@ abstract class Provider
         Storage::delete($destination);
         $options = [CURLOPT_FOLLOWLOCATION => 1, CURLOPT_HEADER => 1, CURLOPT_NOBODY => 1];
         $remote = Curl::get($zipball_url, [], $options);
+        $content_type = isset_or($remote->header->content_type, null);
 
-        if ('application/zip' !== (string) $remote->header->content_type) {
+        if ('application/zip' !== $content_type) {
             throw new \Exception(PHP_EOL.sprintf(
                 "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
-                $remote->header->content_type, 'application/zip'
+                $content_type, 'application/zip'
             ).PHP_EOL);
         }
 

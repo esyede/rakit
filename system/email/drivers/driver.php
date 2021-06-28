@@ -213,7 +213,7 @@ abstract class Driver
             if (isset($images[2]) && ! empty($images[2])) {
                 foreach ($images[2] as $i => $url) {
                     if (! preg_match('/(^http\:\/\/|^https\:\/\/|^\/\/|^cid\:|^data\:|^#)/Ui', $url)) {
-                        $cid = 'cid:'.md5(pathinfo($url, PATHINFO_BASENAME));
+                        $cid = 'cid:'.md5(basename($url));
 
                         if (! isset($this->attachments['inline'][$cid])) {
                             $this->attach($url, true, $cid);
@@ -443,7 +443,7 @@ abstract class Driver
             throw new \Exception(sprintf('Email attachment not found: %s', $file[0]));
         }
 
-        $file[1] = isset_or($file[1], ($name ? $name : pathinfo($file[0], PATHINFO_BASENAME)));
+        $file[1] = isset_or($file[1], ($name ? $name : basename($file[0])));
 
         if (false === ($contents = file_get_contents($file[0])) || empty($contents)) {
             throw new \Exception(sprintf(
@@ -481,7 +481,7 @@ abstract class Driver
         $cid = (0 === strpos($cid, 'cid:')) ? $cid : 'cid:'.$cid;
 
         $mime = $mime ? $mime : static::mime($filename);
-        $file = [$filename, pathinfo($filename, PATHINFO_BASENAME)];
+        $file = [$filename, basename($filename)];
         $contents = static::encode_string($contents, 'base64', $this->config['newline']);
 
         $this->attachments[$disp][$cid] = compact('file', 'contents', 'mime', 'disp', 'cid');

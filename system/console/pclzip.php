@@ -635,7 +635,7 @@ class PclZip
                 case 77003:
                 case 77002:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -645,19 +645,19 @@ class PclZip
 
                 case 77020:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
                     if (isset($v_result_list[77022])) {
-                        $this->privErrorLog(-3, "Option '".static::PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_OFF'");
+                        $this->privErrorLog(-3, "Option '".$p_options_list[$i]."' can not be used with option '77022'");
                         return $this->errorCode();
                     }
 
                     $v_value = $p_options_list[$i + 1];
 
                     if ((! is_int($v_value)) || ($v_value < 0)) {
-                        $this->privErrorLog(-16, "Integer expected for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-16, "Integer expected for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -667,7 +667,7 @@ class PclZip
 
                 case 77021:
                     if (isset($v_result_list[77022])) {
-                        $this->privErrorLog(-3, "Option '".static::PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_OFF'");
+                        $this->privErrorLog(-3, "Option '".$p_options_list[$i]."' can not be used with option '77022'");
                         return $this->errorCode();
                     }
 
@@ -676,11 +676,11 @@ class PclZip
 
                 case 77022:
                     if (isset($v_result_list[77021])) {
-                        $this->privErrorLog(-3, "Option '".static::PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_ADD_TEMP_FILE_ON'");
+                        $this->privErrorLog(-3, "Option '".$p_options_list[$i]."' can not be used with option '77021'");
                         return $this->errorCode();
                     }
                     if (isset($v_result_list[77020])) {
-                        $this->privErrorLog(-3, "Option '".static::PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_THRESHOLD'");
+                        $this->privErrorLog(-3, "Option '".$p_options_list[$i]."' can not be used with option '77020'");
                         return $this->errorCode();
                     }
 
@@ -689,7 +689,7 @@ class PclZip
 
                 case 77019:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -701,7 +701,7 @@ class PclZip
 
                 case 77008:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -710,7 +710,7 @@ class PclZip
                     } elseif (is_array($p_options_list[$i + 1])) {
                         $v_result_list[$p_options_list[$i]] = $p_options_list[$i + 1];
                     } else {
-                        $this->privErrorLog(-16, "Wrong parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-16, "Wrong parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
                     $i++;
@@ -720,14 +720,14 @@ class PclZip
                     $p_options_list[$i] = 77011;
                 case 77011:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
                     if (is_string($p_options_list[$i + 1])) {
                         $v_result_list[$p_options_list[$i]] = $p_options_list[$i + 1];
                     } else {
-                        $this->privErrorLog(-16, "Wrong parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-16, "Wrong parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
                     $i++;
@@ -737,14 +737,14 @@ class PclZip
                 case 77013:
                 case 77014:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
                     if (is_string($p_options_list[$i + 1])) {
                         $v_result_list[$p_options_list[$i]] = $p_options_list[$i + 1];
                     } else {
-                        $this->privErrorLog(-16, "Wrong parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-16, "Wrong parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -753,7 +753,7 @@ class PclZip
 
                 case 77009:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -767,7 +767,7 @@ class PclZip
                     } elseif (is_array($p_options_list[$i + 1])) {
                         $v_work_list = $p_options_list[$i + 1];
                     } else {
-                        $this->privErrorLog(-16, "Value must be integer, string or array for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-16, "Value must be integer, string or array for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -785,13 +785,13 @@ class PclZip
                             $v_result_list[$p_options_list[$i]][$j]['start'] = $v_item_list[0];
                             $v_result_list[$p_options_list[$i]][$j]['end'] = $v_item_list[1];
                         } else {
-                            $this->privErrorLog(-16, "Too many values in index range for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                            $this->privErrorLog(-16, "Too many values in index range for option '".$p_options_list[$i]."'");
                             return $this->errorCode();
                         }
 
                         if ($v_result_list[$p_options_list[$i]][$j]['start'] < $v_sort_value) {
                             $v_sort_flag = true;
-                            $this->privErrorLog(-16, "Invalid order of index range for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                            $this->privErrorLog(-16, "Invalid order of index range for option '".$p_options_list[$i]."'");
                             return $this->errorCode();
                         }
 
@@ -812,7 +812,7 @@ class PclZip
 
                 case 77005:
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -826,14 +826,14 @@ class PclZip
                 case 78004:
 
                     if (($i + 1) >= $p_size) {
-                        $this->privErrorLog(-15, "Missing parameter value for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-15, "Missing parameter value for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
                     $v_function_name = $p_options_list[$i + 1];
 
                     if (! function_exists($v_function_name)) {
-                        $this->privErrorLog(-16, "Function '".$v_function_name."()' is not an existing function for option '".static::PclZipUtilOptionText($p_options_list[$i])."'");
+                        $this->privErrorLog(-16, "Function '".$v_function_name."()' is not an existing function for option '".$p_options_list[$i]."'");
                         return $this->errorCode();
                     }
 
@@ -853,7 +853,7 @@ class PclZip
             for ($key = reset($v_requested_options); $key = key($v_requested_options); $key = next($v_requested_options)) {
                 if ($v_requested_options[$key] == 'mandatory') {
                     if (! isset($v_result_list[$key])) {
-                        $this->privErrorLog(-3, 'Missing mandatory parameter '.static::PclZipUtilOptionText($key).'('.$key.')');
+                        $this->privErrorLog(-3, 'Missing mandatory parameter: '.$key);
                         return $this->errorCode();
                     }
                 }
@@ -910,14 +910,14 @@ class PclZip
             switch ($v_key) {
                 case 79001:
                     if (! is_string($v_value)) {
-                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
 
                     $p_filedescr['filename'] = static::PclZipUtilPathReduction($v_value);
 
                     if ($p_filedescr['filename'] == '') {
-                        $this->privErrorLog(-20, "Invalid empty filename for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, "Invalid empty filename for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
 
@@ -925,35 +925,35 @@ class PclZip
 
                 case 79002:
                     if (! is_string($v_value)) {
-                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
 
                     $p_filedescr['new_short_name'] = static::PclZipUtilPathReduction($v_value);
 
                     if ($p_filedescr['new_short_name'] == '') {
-                        $this->privErrorLog(-20, "Invalid empty short filename for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, "Invalid empty short filename for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
                 break;
 
                 case 79003:
                     if (! is_string($v_value)) {
-                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
 
                     $p_filedescr['new_full_name'] = static::PclZipUtilPathReduction($v_value);
 
                     if ($p_filedescr['new_full_name'] == '') {
-                        $this->privErrorLog(-20, "Invalid empty full filename for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, "Invalid empty full filename for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
                 break;
 
                 case 79006:
                     if (! is_string($v_value)) {
-                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". String expected for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
 
@@ -962,7 +962,7 @@ class PclZip
 
                 case 79004:
                     if (! is_int($v_value)) {
-                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". Integer expected for attribute '".static::PclZipUtilOptionText($v_key)."'");
+                        $this->privErrorLog(-20, 'Invalid type '.gettype($v_value).". Integer expected for attribute '".$v_key."'");
                         return $this->errorCode();
                     }
 
@@ -982,7 +982,7 @@ class PclZip
                 for ($key = reset($v_requested_options); $key = key($v_requested_options); $key = next($v_requested_options)) {
                     if ($v_requested_options[$key] == 'mandatory') {
                         if (! isset($p_file_list[$key])) {
-                            $this->privErrorLog(-3, 'Missing mandatory parameter '.static::PclZipUtilOptionText($key).'('.$key.')');
+                            $this->privErrorLog(-3, 'Missing mandatory parameter: '.$key);
                             return $this->errorCode();
                         }
                     }
@@ -2944,21 +2944,6 @@ class PclZip
         }
 
         return $v_result;
-    }
-
-    protected static function PclZipUtilOptionText($p_option)
-    {
-        $v_list = get_defined_constants();
-
-        for (reset($v_list); $v_key = key($v_list); next($v_list)) {
-            $v_prefix = substr($v_key, 0, 10);
-
-            if ((($v_prefix == 'PCLZIP_OPT') || ($v_prefix == 'PCLZIP_CB_') || ($v_prefix == 'PCLZIP_ATT')) && ($v_list[$v_key] == $p_option)) {
-                return $v_key;
-            }
-        }
-
-        return 'Unknown';
     }
 
     protected static function PclZipUtilTranslateWinPath($p_path, $p_remove_disk_letter = true)

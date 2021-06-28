@@ -15,7 +15,7 @@ class Mail extends Driver
     {
         try {
             $message = $this->build();
-            $retpath = ($this->config['return_path'] !== false)
+            $retpath = (false !== $this->config['return_path'])
                 ? $this->config['return_path']
                 : $this->config['from']['email'];
 
