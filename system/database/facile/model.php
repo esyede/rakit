@@ -311,7 +311,7 @@ abstract class Model
      */
     public function has_one($model, $foreign = null)
     {
-        return $this->has_one_or_many('has_one', $model, $foreign);
+        return new Relationships\HasOne($this, $model, $foreign);
     }
 
     /**
@@ -324,24 +324,6 @@ abstract class Model
      */
     public function has_many($model, $foreign = null)
     {
-        return $this->has_one_or_many('has_many', $model, $foreign);
-    }
-
-    /**
-     * Ambil query untuk relasi one-to-one atau one-to-many.
-     *
-     * @param string $type
-     * @param string $model
-     * @param string $foreign
-     *
-     * @return Relationship
-     */
-    protected function has_one_or_many($type, $model, $foreign)
-    {
-        if ('has_one' === $type) {
-            return new Relationships\HasOne($this, $model, $foreign);
-        }
-
         return new Relationships\HasMany($this, $model, $foreign);
     }
 
