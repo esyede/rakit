@@ -85,6 +85,7 @@ class Runner extends Command
         passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
 
         Storage::delete($config);
+
         exit($status);
     }
 
@@ -98,8 +99,8 @@ class Runner extends Command
     protected function stub($directory)
     {
         $stub = Storage::get(__DIR__.DS.'stub.xml');
-        $tokens = ['[bootstrap]' => $this->base.'phpunit.php', '[directory]' => $directory];
-        $stub = $this->tokens($stub, $tokens);
+        $stub = $this->tokens($stub, ['[boot]' => $this->base.'phpunit.php', '[dir]' => $directory]);
+
         file_put_contents(path('base').'phpunit.xml', $stub, LOCK_EX);
     }
 

@@ -23,8 +23,7 @@ class Publisher
             return;
         }
 
-        $path = Package::path($package);
-        $this->move($path.'assets', path('assets').'packages'.DS.$package);
+        $this->move($this->from($package), $this->to($package));
 
         echo 'Assets published for package: '.$package.PHP_EOL;
     }
@@ -43,7 +42,7 @@ class Publisher
             return;
         }
 
-        Storage::rmdir(path('assets').'packages'.DS.$package);
+        Storage::rmdir($this->to($package));
 
         echo 'Assets deleted for package: '.$package.PHP_EOL;
     }

@@ -54,15 +54,13 @@ class Repository
             throw new \Exception('Missing repository. Please contact rakit team.'.PHP_EOL);
         }
 
-        $target = Storage::get($target);
-
         // Lihat: https://www.php.net/manual/en/function.json-last-error.php#118165
-        $packages = @json_decode($target);
+        $packages = @json_decode(Storage::get($target), true);
 
-        if (strlen(trim($target)) < 1 || JSON_ERROR_NONE !== json_last_error()) {
-            throw new \Exception('Broken repository. Please contact rakit team.');
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \Exception('Broken repository json data. Please contact rakit team.'.PHP_EOL);
         }
 
-        return json_decode(json_encode($packages), true);
+        return $packages;
     }
 }

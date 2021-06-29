@@ -42,10 +42,7 @@ class Database
      */
     public function last()
     {
-        $table = $this->table();
-        $id = $this->batch();
-
-        return $table->where_batch($id)->order_by('name', 'desc')->get();
+        return $this->table()->where_batch($this->batch())->order_by('name', 'desc')->get();
     }
 
     /**

@@ -127,7 +127,7 @@ class Console
             if (Str::starts_with($argument, '--')) {
                 list($key, $value) = [substr($argument, 2), true];
 
-                if (($equals = strpos($argument, '=')) !== false) {
+                if (false !== ($equals = strpos($argument, '='))) {
                     $key = substr($argument, 2, $equals - 2);
                     $value = substr($argument, $equals + 1);
                 }

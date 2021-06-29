@@ -79,7 +79,7 @@ class Migrator extends Command
 
         $batch = $this->database->batch() + 1;
 
-        echo 'Proessing '.$total.' migrations...'.PHP_EOL;
+        echo 'Processing '.$total.' migrations...'.PHP_EOL;
 
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
@@ -95,17 +95,16 @@ class Migrator extends Command
     /**
      * Rollback perintah migrasi terbaru.
      *
-     * @param array $arguments
+     * @param array $packages
      *
      * @return bool
      */
-    public function rollback($arguments = [])
+    public function rollback($packages = [])
     {
-        $arguments = is_array($arguments) ? $arguments : [$arguments];
+        $packages = is_array($packages) ? $packages : [$packages];
         $migrations = $this->resolver->last();
 
-        if (is_array($arguments) && count($arguments) > 0) {
-            $packages = $arguments;
+        if (is_array($packages) && count($packages) > 0) {
             $migrations = array_filter($migrations, function ($migration) use ($packages) {
                 return in_array($migration['package'], $packages);
             });
@@ -134,13 +133,13 @@ class Migrator extends Command
     /**
      * Rollback seluruh migrasi yang pernah dijalankan.
      *
-     * @param array $arguments
+     * @param array $packages
      *
      * @return void
      */
-    public function reset($arguments = [])
+    public function reset($packages = [])
     {
-        while ($this->rollback($arguments)) {
+        while ($this->rollback($packages)) {
             // Rollback semuanya..
         }
     }

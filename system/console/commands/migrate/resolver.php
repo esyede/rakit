@@ -76,10 +76,9 @@ class Resolver
         $instances = [];
 
         foreach ($migrations as $migration) {
-            $migration = (array) $migration;
             $package = $migration['package'];
-            $path = Package::path($package).'migrations'.DS;
             $name = $migration['name'];
+            $path = Package::path($package).'migrations'.DS;
 
             require_once $path.$name.'.php';
 
@@ -89,8 +88,8 @@ class Resolver
             $instances[] = compact('package', 'name', 'migration');
         }
 
-        usort($instances, function ($a, $b) {
-            return strcmp($a['name'], $b['name']);
+        usort($instances, function ($left, $right) {
+            return strcmp($left['name'], $right['name']);
         });
 
         return $instances;
