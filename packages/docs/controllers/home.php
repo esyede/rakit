@@ -13,7 +13,7 @@ class Docs_Home_Controller extends Controller
      */
     public function action_index()
     {
-        return View::make('docs::home')
+        return view('docs::home')
             ->with_title(Docs::title('home'))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
             ->with_content(Docs::content(Docs::render('home')))
@@ -37,7 +37,7 @@ class Docs_Home_Controller extends Controller
             return Response::error('404');
         }
 
-        return View::make('docs::home')
+        return view('docs::home')
             ->with_title(Docs::title($filename))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
             ->with_content(Docs::content(Docs::render($filename)))
