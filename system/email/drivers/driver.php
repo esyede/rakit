@@ -593,7 +593,7 @@ abstract class Driver
         $type = $this->config['as_html'] ? 'html' : 'plain' ;
         $type .= ($this->config['as_html'] && ! ('' === trim($this->alt_body))) ? '_alt' : '';
         $type .= ($this->config['as_html'] && count($this->attachments['inline']) > 0) ? '_inline' : '';
-        $type .= (count($this->attachments['attachment'])) ? '_attach' : '';
+        $type .= (count($this->attachments['attachment']) > 0) ? '_attach' : '';
         $this->type = $type;
 
         $newline = $this->config['newline'];
