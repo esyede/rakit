@@ -591,8 +591,8 @@ abstract class Driver
         $this->set_header('X-Mailer', $this->config['mailer']);
 
         $type = $this->config['as_html'] ? 'html' : 'plain' ;
-        $type .= ($this->config['as_html'] && ! empty(trim($this->alt_body))) ? '_alt' : '';
-        $type .= ($this->config['as_html'] && count($this->attachments['inline'])) ? '_inline' : '';
+        $type .= ($this->config['as_html'] && ! ('' === trim($this->alt_body))) ? '_alt' : '';
+        $type .= ($this->config['as_html'] && count($this->attachments['inline']) > 0) ? '_inline' : '';
         $type .= (count($this->attachments['attachment'])) ? '_attach' : '';
         $this->type = $type;
 
