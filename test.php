@@ -21,7 +21,7 @@ class Clan
 
     private function cache($class)
     {
-        $factory  = $this->build($class);
+        $factory = $this->build($class);
         self::$cached['instantiators'][$class] = $factory;
         $instance = $factory();
 
@@ -169,11 +169,8 @@ class Clan
     }
 }
 
-
-
 class MyClassName
 {
-
     public function __construct($value)
     {
         echo $value.PHP_EOL;
