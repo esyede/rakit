@@ -49,7 +49,6 @@ return [
     'Middleware' => 'System\Routing\Middleware',
     'Package' => 'System\Package',
     'Paginator' => 'System\Paginator',
-    'URL' => 'System\URL',
     'Redirect' => 'System\Redirect',
     'Redis' => 'System\Redis',
     'Request' => 'System\Request',
@@ -62,6 +61,7 @@ return [
     'Storage' => 'System\Storage',
     'Str' => 'System\Str',
     'URI' => 'System\URI',
+    'URL' => 'System\URL',
     'Validator' => 'System\Validator',
     'View' => 'System\View',
 
