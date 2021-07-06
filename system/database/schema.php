@@ -346,8 +346,9 @@ class Schema
             case 'pgsql':  return new Schema\Grammars\Postgres($connection);
             case 'sqlsrv': return new Schema\Grammars\SQLServer($connection);
             case 'sqlite': return new Schema\Grammars\SQLite($connection);
+            default:       throw new \Exception(sprintf(
+                'Unsupported schema operations for selected driver: %s', $driver
+            ));
         }
-
-        throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
     }
 }
