@@ -137,7 +137,7 @@ if (! function_exists('data_fill')) {
 
 if (! function_exists('data_get')) {
     /**
-     * Ambil sebuah item dari array atau object menggunakan notasi 'dot'.
+     * Ambil sebuah item dari array menggunakan notasi 'dot'.
      *
      * @param mixed        $target
      * @param string|array $key
@@ -183,7 +183,7 @@ if (! function_exists('data_get')) {
 
 if (! function_exists('data_set')) {
     /**
-     * Set sebuah item array atau object mengunakan notasi 'dot'.
+     * Set sebuah item array mengunakan notasi 'dot'.
      *
      * @param mixed        $target
      * @param string|array $key
@@ -291,22 +291,6 @@ if (! function_exists('retry')) {
 
             goto beginning;
         }
-    }
-}
-
-if (! function_exists('tap')) {
-    /**
-     * Eksekusi closure yang diberikan lalu return valuenya.
-     *
-     * @param mixed    $value
-     * @param callable $callback
-     *
-     * @return mixed
-     */
-    function tap($value, callable $callback)
-    {
-        $callback($value);
-        return $value;
     }
 }
 
