@@ -38,7 +38,7 @@ class Blade
         'yield',
         'set',
         'unset',
-        'yield_section',
+        'show',
         'section_start',
         'section_end',
         'php_block',
@@ -435,13 +435,13 @@ class Blade
     }
 
     /**
-     * Ubah sintaks @yield_section ke bentuk PHP.
+     * Ubah sintaks @show ke bentuk PHP.
      *
      * @return string
      */
-    protected static function compile_yield_section($value)
+    protected static function compile_show($value)
     {
-        return str_replace('@yield_section', '<?php echo yield_section() ?>', $value);
+        return str_replace('@show', '<?php echo yield_section() ?>', $value);
     }
 
     /**
