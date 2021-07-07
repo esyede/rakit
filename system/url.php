@@ -55,9 +55,8 @@ class URL
     public static function base()
     {
         if (! isset(static::$base)) {
-            static::$base = ('' !== ($base = Config::get('application.url')))
-                ? $base
-                : Request::foundation()->getRootUrl();
+            $base = Config::get('application.url');
+            static::$base = ('' === $base) ? Request::foundation()->getRootUrl() : $base;
         }
 
         return static::$base;
