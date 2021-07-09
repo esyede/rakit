@@ -61,10 +61,10 @@ class Blade
                 return;
             }
 
-            $compiled = Blade::compiled($view->path);
+            $compiled = static::compiled($view->path);
 
-            if (! is_file($compiled) || Blade::expired($view->view, $view->path)) {
-                Storage::put($compiled, Blade::compile($view), LOCK_EX);
+            if (! is_file($compiled) || static::expired($view->view, $view->path)) {
+                Storage::put($compiled, static::compile($view), LOCK_EX);
             }
 
             $view->path = $compiled;
