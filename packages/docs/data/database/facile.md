@@ -1,4 +1,4 @@
-# Facile ORM
+# Facile Model
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 

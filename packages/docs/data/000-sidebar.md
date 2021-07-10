@@ -28,7 +28,6 @@
 	- [RESTful Controller](/docs/controllers#restful-controller)
 	- [Dependency Injection](/docs/controllers#dependency-injection)
 	- [Controller Factory](/docs/controllers#controller-factory)
-- [Model & Library](/docs/models)
 - [View & Respon](/docs/views) <!-- has-submenu -->
 	- [Pengetahuan Dasar](/docs/views#pengetahuan-dasar)
 	- [Binding Data Ke View](/docs/views#binding-data-ke-view)
@@ -72,7 +71,7 @@
 - [Konfigurasi](/docs/database/config)
 - [Kueri Mentah](/docs/database/raw)
 - [Magic Query Builder](/docs/database/magic)
-- [Facile ORM](/docs/database/facile)
+- [Facile Model](/docs/database/facile)
 - [Schema Builder](/docs/database/schema)
 - [Migrasi Database](/docs/database/migrations)
 - [Data Fiktif (Faker)](/docs/database/faker)

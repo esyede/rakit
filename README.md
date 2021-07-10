@@ -32,7 +32,7 @@ dengan cara yang lebih mudah dan efisien.
 - Bisa digunakan dengan ataupun tanpa [Composer](https://getcomposer.org).
 - Routing via Closure maupun Controller (MVC).
 - View dan templating (native / blade).
-- Abstraksi database (ORM dan Query Builder).
+- Abstraksi database (Model dan Query Builder).
 - Schema builder.
 - Migrasi database.
 - Otentikasi sederhana.
