@@ -398,7 +398,7 @@ DB::table('users')->decrement('votes');
 Seperti yang telah disebutkan diatas, penggunaan `DB::raw()` rentan terhadap serangan SQL Injection, oleh karena itu, disediakan method bantuan untuk meng-escape value pada potongan query mentah anda:
 
 ```php
-// $name = Request::post('name');
+// $name = Input::get('name');
 
 $name = DB::escape($name);
 
