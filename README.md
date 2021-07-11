@@ -2,15 +2,15 @@
 <h1 align="center">Rakit Web Framework</h1>
 
 <p align="center">
-    <img src="https://github.com/esyede/rakit/workflows/build/badge.svg" alt="build"/>
-    <img src="https://img.shields.io/github/v/release/esyede/rakit?include_prereleases" alt="release"/>
-    <img src="https://img.shields.io/github/languages/top/esyede/rakit" alt="language"/>
-    <img src="https://img.shields.io/github/license/esyede/rakit" alt="license"/>
-    <img src="https://img.shields.io/github/languages/code-size/esyede/rakit" alt="size"/>
-    <img src="https://img.shields.io/github/downloads/esyede/rakit/total" alt="downloads"/>
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="pulls"/>
-    <br>
-    <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
+  <img src="https://github.com/esyede/rakit/workflows/build/badge.svg" alt="build"/>
+  <img src="https://img.shields.io/github/v/release/esyede/rakit?include_prereleases" alt="release"/>
+  <img src="https://img.shields.io/github/languages/top/esyede/rakit" alt="language"/>
+  <img src="https://img.shields.io/github/license/esyede/rakit" alt="license"/>
+  <img src="https://img.shields.io/github/languages/code-size/esyede/rakit" alt="size"/>
+  <img src="https://img.shields.io/github/downloads/esyede/rakit/total" alt="downloads"/>
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="pulls"/>
+  <br>
+  <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
 </p>
 
 
@@ -29,6 +29,7 @@ dengan cara yang lebih mudah dan efisien.
 ## Fitur
 
 - Ukuran relatif kecil (< 1MB sudah termasuk dokumentasi offline).
+- Berjalan di PHP 5.4.0 sampai PHP 8.
 - Bisa digunakan dengan ataupun tanpa [Composer](https://getcomposer.org).
 - Routing via Closure maupun Controller (MVC).
 - View dan templating (native / blade).
@@ -43,7 +44,7 @@ dengan cara yang lebih mudah dan efisien.
 
 ## Kebutuhan Sistem
 
-- PHP 5.4.0+ (up to 8.0)
+- PHP 5.4.0 atau yang lebih baru
 - Ekstensi [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
 - Ekstensi [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
 - Ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
@@ -51,7 +52,8 @@ dengan cara yang lebih mudah dan efisien.
 
 **Ekstensi Tambahan:**
 
-Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari rakit, tetapi tidak diwajibkan:
+Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari rakit,
+tetapi tidak diwajibkan:
 
 
 - Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) untuk SQLite,
@@ -63,8 +65,8 @@ Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari r
 
 ## Dokumentasi
 
-Dokumentasi sudah disertakan pada setiap arsip rilis yang anda unduh, supaya anda tetap dapat mempelajarinya
-meskipun tanpa koneksi internet.
+Dokumentasi sudah disertakan pada setiap arsip rilis yang anda unduh,
+supaya anda tetap dapat mempelajarinya meskipun tanpa koneksi internet.
 
 Dokumentasi daring juga tersedia di [situs resmi](https://rakit.esyede.my.id).
 
@@ -72,10 +74,11 @@ Dokumentasi daring juga tersedia di [situs resmi](https://rakit.esyede.my.id).
 
 ## Ikut Membantu
 
-Untuk ikut serta membantu pengembangan rakit, silahkan kirimkan pull request anda ke repositori resmi rakit.
+Untuk ikut serta membantu pengembangan rakit, silahkan kirimkan pull
+request anda ke repositori resmi rakit.
 
-Selain itu, anda juga dapat membantu pengembangan rakit dengan cara menjawab pertanyaan - pertanyaan yang diajukan oleh
-pengguna lain di [forum resmi](https://rakit.esyede.my.id/forum).
+Selain itu, anda juga dapat membantu pengembangan rakit dengan cara menjawab pertanyaan
+yang diajukan oleh pengguna lain di [forum resmi](https://rakit.esyede.my.id/forum).
 
 
 
@@ -83,6 +86,6 @@ pengguna lain di [forum resmi](https://rakit.esyede.my.id/forum).
 
 Rakit dirilis di bawah [Lisensi MIT](http://www.opensource.org/licenses/mit-license.php).
 
-Ini berarti bahwa anda boleh memodifikasi, mendistribusikan ulang serta menggunkannya untuk kebutuhan pribadi maupun komersil,
-dengan catatan harus menyertakan informasi pembuat asli, serta tidak ada garansi dan tanggung jawab atas
-segala kerusakan yang ditimbulkan.
+Ini berarti bahwa anda boleh memodifikasi, mendistribusikan ulang serta menggunkannya untuk
+kebutuhan pribadi maupun komersil, dengan catatan harus menyertakan informasi pembuat asli,
+serta tidak ada garansi dan tanggung jawab atas segala kerusakan yang ditimbulkan.

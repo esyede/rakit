@@ -323,7 +323,8 @@ class HasManyAndBelongsTo extends Relationship
             }
 
             $result->relationships['pivot'] = $pivot;
-            $pivot->sync() && $result->sync();
+            $pivot->sync();
+            $result->sync();
         }
     }
 
