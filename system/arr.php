@@ -33,7 +33,6 @@ class Arr
             static::set($array, $key, $value);
         }
 
-        return null;
         return $array;
     }
 
