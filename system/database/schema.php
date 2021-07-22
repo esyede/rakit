@@ -92,7 +92,7 @@ class Schema
         switch ($driver) {
             case 'mysql':
                 $query = 'SELECT column_name FROM information_schema.columns '.
-                    'WHERE table_schema = '.$database.' AND column_name = '.$column;
+                    'WHERE table_schema = '.$database.' AND table_name = '.$table.' AND column_name = '.$column;
                 break;
 
             case 'pgsql':
