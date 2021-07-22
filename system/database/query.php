@@ -145,7 +145,7 @@ class Query
      */
     public function select($columns = ['*'])
     {
-        $this->selects = is_array($colums) ? $columns : func_get_args();
+        $this->selects = is_array($columns) ? $columns : func_get_args();
         return $this;
     }
 
