@@ -86,6 +86,7 @@ class Schema
         $database = Config::get('database.connections.'.$driver.'.database');
         $database = DB::escape($database);
         $table = DB::escape($table);
+        $column = DB::escape($column);
 
         $query = '';
 
