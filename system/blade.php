@@ -129,6 +129,10 @@ class Blade
         $compilers = static::$compilers;
 
         foreach ($compilers as $compiler) {
+            if ('csrf' === $compiler && false === strpos('@csrf', $value)) {
+                continue;
+            }
+
             $value = static::{'compile_'.$compiler}($value, $view);
         }
 
