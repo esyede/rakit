@@ -10,6 +10,7 @@
     </div>
 </footer>
 <!-- Footer end -->
-<script src="<?php echo asset('packages/docs/js/docs.min.js?v='.RAKIT_VERSION);?>"></script>
-<script src="<?php echo asset('packages/docs/js/data.js?v='.RAKIT_VERSION);?>"></script>
-<script src="<?php echo asset('packages/docs/js/search.js?v='.RAKIT_VERSION);?>"></script>
+
+<script src="{{ asset('packages/docs/js/docs.min.js?v='.RAKIT_VERSION) }}"></script>
+<script src="{{ asset('packages/docs/js/data.js?v='.RAKIT_VERSION) }}"></script>
+<script src="{{ asset('packages/docs/js/search.js?v='.RAKIT_VERSION) }}"></script>

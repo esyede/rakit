@@ -5,11 +5,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
         <title>Selamat datang!</title>
-        <link rel="stylesheet" href="<?php echo asset('home/css/style.min.css'); ?>">
+        <link rel="stylesheet" href="{{ asset('home/css/style.min.css?v='.RAKIT_VERSION) }}">
     </head>
     <body>
         <header>
-            <h1>RAKIT <?php echo RAKIT_VERSION; ?></h1>
+            <h1>RAKIT {{ RAKIT_VERSION }}</h1>
             <h5>Kerangka kerja PHP sederhana, ringan dan modular.</h5>
         </header>
 
@@ -29,7 +29,7 @@
         <p>
             Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur.
             Jangan ragu untuk mulai membaca
-            <a href="<?php echo url('docs'); ?>" target="_blank">dokumentasi</a> karena
+            <a href="{{ url('docs') }}" target="_blank">dokumentasi</a> karena
             anda dapat membukanya secara online maupun offline.
         </p>
 
