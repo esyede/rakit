@@ -34,7 +34,7 @@ class Event
      *
      * @return bool
      */
-    public static function listeners($event)
+    public static function exists($event)
     {
         return isset(static::$events[$event]);
     }
@@ -190,7 +190,7 @@ class Event
         $responses = [];
 
         foreach ($events as $event) {
-            if (static::listeners($event)) {
+            if (static::exists($event)) {
                 foreach (static::$events[$event] as $callback) {
                     $response = call_user_func_array($callback, $parameters);
 

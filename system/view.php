@@ -299,7 +299,7 @@ class View implements \ArrayAccess
 
         $contents = null;
 
-        if (Event::listeners(static::ENGINE)) {
+        if (Event::exists(static::ENGINE)) {
             $result = Event::until(static::ENGINE, [$this]);
 
             if (! is_null($result)) {
@@ -341,7 +341,7 @@ class View implements \ArrayAccess
 
             $content = ob_get_clean();
 
-            if (Event::listeners('view.middleware')) {
+            if (Event::exists('view.middleware')) {
                 return Event::first('view.middleware', [$content, $this->path]);
             }
 

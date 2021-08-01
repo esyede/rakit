@@ -53,7 +53,7 @@ class Log
     {
         $message = $prettify ? print_r($message, true) : $message;
 
-        if (Event::listeners('rakit.log')) {
+        if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
         }
 
