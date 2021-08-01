@@ -12,7 +12,7 @@ return [
     | Anda bebas mendaftarkan driver anda sendiri via metode Auth::extended().
     |
     | Tentu saja, beberapa driver bawaan juga sudah disediakan agar
-    |  otentikasi dasar bisa langsung dilakukan secara sederhana dan mudah.
+    | otentikasi dasar bisa langsung dilakukan secara sederhana dan mudah.
     |
     | Driver bawaan: 'magic', 'facile'.
     |

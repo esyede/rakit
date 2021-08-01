@@ -40,7 +40,7 @@ return [
     | yang telah kedaluwarsa. Opsi ini menentukan kemungkinan terjadinya
     | pengumpulan sampah session untuk setiap request yang datang ke aplikasi.
     |
-    |  Misalnya, default value dibawah ini menyatakan bahwa pengumpulan sampah
+    | Misalnya, default value dibawah ini menyatakan bahwa pengumpulan sampah
     | memiliki peluang 2% terjadi untuk setiap request yang datang ke aplikasi.
     | Jangan ragu untuk menyesuaikan ini dengan kebutuhan anda.
     |
