@@ -6,10 +6,32 @@ defined('DS') or exit('No direct script access.');
 
 class Str
 {
+    /**
+     * Cache snake-case.
+     *
+     * @var array
+     */
     public static $snake = [];
+
+    /**
+     * Cache camel-case.
+     *
+     * @var array
+     */
     public static $camel = [];
+
+    /**
+     * Cache studly-case.
+     *
+     * @var array
+     */
     public static $studly = [];
 
+    /**
+     * Cache confing regex string.
+     *
+     * @var array
+     */
     private static $strings = [];
 
     /**
@@ -24,31 +46,77 @@ class Str
         return mb_strlen($value, 'UTF-8');
     }
 
+    /**
+     * Mereturn potongan string.
+     *
+     * @param string   $string
+     * @param int      $start
+     * @param int|null $length
+     *
+     * @return string
+     */
     public static function substr($string, $start, $length = null)
     {
         return mb_substr($string, $start, $length, 'UTF-8');
     }
 
+    /**
+     * Buat karakter pertama string menjadi huruf besar.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function ucfirst($string)
     {
         return static::upper(static::substr($string, 0, 1)).static::substr($string, 1);
     }
 
+    /**
+     * Ubah string menjadi huruf kecil.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function lower($value)
     {
         return mb_strtolower($value, 'UTF-8');
     }
 
+    /**
+     * Ubah string menjadi huruf besar.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function upper($value)
     {
         return mb_strtoupper($value, 'UTF-8');
     }
 
+    /**
+     * Ubah huruf pertama kata menjadi huruf besar.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function title($value)
     {
         return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
     }
 
+    /**
+     * Potong string sebanyak jumlah karakter yang ditentukan.
+     *
+     * @param string $value
+     * @param int    $limit
+     * @param string $end
+     *
+     * @return string
+     */
     public static function limit($value, $limit = 100, $end = '...')
     {
         if (mb_strwidth($value, 'UTF-8') <= $limit) {
@@ -58,6 +126,15 @@ class Str
         return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')).$end;
     }
 
+    /**
+     * Potong string sebanyak jumlah kata yang ditentukan.
+     *
+     * @param string $value
+     * @param int    $words
+     * @param string $end
+     *
+     * @return string
+     */
     public static function words($value, $words = 100, $end = '...')
     {
         preg_match('/^\s*+(?:\S++\s*+){1,'.$words.'}/u', $value, $matches);
@@ -69,6 +146,13 @@ class Str
         return rtrim($matches[0]).$end;
     }
 
+    /**
+     * Ubah kata menjadi bentuk tanggal (hanya inggris).
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function singular($string)
     {
         if (empty(static::$strings)) {
@@ -81,6 +165,7 @@ class Str
 
         foreach (static::$strings['irregular'] as $result => $pattern) {
             $pattern = '/'.$pattern.'$/i';
+
             if (preg_match($pattern, $string)) {
                 return preg_replace($pattern, $result, $string);
             }
@@ -95,6 +180,13 @@ class Str
         return $string;
     }
 
+    /**
+     * Ubah kata menjadi bentuk jamak (hanya inggris).
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function plural($string)
     {
         if (empty(static::$strings)) {
@@ -107,6 +199,7 @@ class Str
 
         foreach (static::$strings['irregular'] as $pattern => $result) {
             $pattern = '/'.$pattern.'$/i';
+
             if (preg_match($pattern, $string)) {
                 return preg_replace($pattern, $result, $string);
             }
@@ -122,7 +215,7 @@ class Str
     }
 
     /**
-     * Pluralize the last word of an English, studly caps case string.
+     * Pluralisasikan kata terakhir dari string studle-case (hanya inggris).
      *
      * @param string $value
      * @param int    $count
@@ -134,9 +227,17 @@ class Str
         $parts = preg_split('/(.)(?=[A-Z])/u', $value, -1, PREG_SPLIT_DELIM_CAPTURE);
         $last = array_pop($parts);
 
-        return implode('', $parts).self::plural($last, $count);
+        return implode('', $parts).static::plural($last, $count);
     }
 
+    /**
+     * Ubah string ke bentuk URL.
+     *
+     * @param string $value
+     * @param string $separator
+     *
+     * @return string
+     */
     public static function slug($value, $separator = '-')
     {
         $flip = ('-' === $separator) ? '_' : '-';
@@ -148,16 +249,37 @@ class Str
         return trim($value, $separator);
     }
 
+    /**
+     * Ubah string menjadi bentuk kelas 'garis bawah'.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function classify($value)
     {
         return str_replace(' ', '_', static::title(str_replace(['_', '-', '.', '/'], ' ', $value)));
     }
 
+    /**
+     * Potong - potong string segmen URL.
+     *
+     * @param string $value
+     *
+     * @return array
+     */
     public static function segments($value)
     {
         return array_diff(explode('/', trim($value, '/')), ['']);
     }
 
+    /**
+     * Hasilkan string acak sesuai panjang yang ditentukan.
+     *
+     * @param int $length
+     *
+     * @return string
+     */
     public static function random($length = 16)
     {
         $string = '';
@@ -193,8 +315,8 @@ class Str
             throw new \InvalidArgumentException('Bytes length is too large');
         }
 
-        $unix = ('/' === DIRECTORY_SEPARATOR);
-        $windows = ('\\' === DIRECTORY_SEPARATOR);
+        $unix = ('/' === DS);
+        $windows = ('\\' === DS);
 
         $bytes = false;
 
@@ -215,6 +337,7 @@ class Str
             if (! empty($basedir)) {
                 $paths = explode(PATH_SEPARATOR, strtolower($basedir));
                 $urandom = ([] !== array_intersect(['/dev', '/dev/', '/dev/urandom'], $paths));
+
                 unset($paths);
             }
 
@@ -401,6 +524,15 @@ class Str
         return false;
     }
 
+    /**
+     * Ganti kemunculan pertama dari value yang diberikan dalam string.
+     *
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     *
+     * @return string
+     */
     public static function replace_first($search, $replace, $subject)
     {
         if ('' === $search) {
@@ -431,6 +563,15 @@ class Str
         return $subject;
     }
 
+    /**
+     * Ganti value yang diberikan dalam string secara berurutan dengan array.
+     *
+     * @param string $search
+     * @param array  $replace
+     * @param string $subject
+     *
+     * @return string
+     */
     public static function replace_array($search, array $replace, $subject)
     {
         $segments = explode($search, $subject);
@@ -444,16 +585,39 @@ class Str
         return $result;
     }
 
+    /**
+     * Dapatkan bagian dari string sebelum kemunculan pertama dari value yang diberikan.
+     *
+     * @param string $subject
+     * @param string $search
+     *
+     * @return string
+     */
     public static function before($subject, $search)
     {
         return ('' === $search) ? $subject : explode($search, $subject)[0];
     }
 
+    /**
+     * Mereturn sisa string setelah kemunculan pertama dari value yang diberikan.
+     *
+     * @param string $subject
+     * @param string $search
+     *
+     * @return string
+     */
     public static function after($subject, $search)
     {
         return ('' === $search) ? $subject : array_reverse(explode($search, $subject, 2))[0];
     }
 
+    /**
+     * Ubah string menjadi camel-case.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function camel($value)
     {
         if (isset(static::$camel[$value])) {
@@ -465,6 +629,13 @@ class Str
         return static::$camel[$value];
     }
 
+    /**
+     * Ubah string menjadi studly-case.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function studly($value)
     {
         $key = $value;
@@ -479,11 +650,25 @@ class Str
         return static::$studly[$key];
     }
 
+    /**
+     * Ubah string menjadi kebab-case.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function kebab($value)
     {
         return static::snake($value, '-');
     }
 
+    /**
+     * Ubah string menjadi snake-case.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     public static function snake($value, $delimiter = '_')
     {
         $key = $value;
@@ -505,6 +690,14 @@ class Str
         return static::$snake[$key][$delimiter];
     }
 
+    /**
+     * Tentukan apakah string yang diberikan berisi substring yang diberikan.
+     *
+     * @param string $haystack
+     * @param string $needles
+     *
+     * @return bool
+     */
     public static function contains($haystack, $needles)
     {
         $needles = (array) $needles;
@@ -518,6 +711,14 @@ class Str
         return false;
     }
 
+    /**
+     * Tentukan apakah string yang diberikan berisi semua nilai array.
+     *
+     * @param string $haystack
+     * @param array  $needles
+     *
+     * @return bool
+     */
     public static function contains_all($haystack, array $needles)
     {
         foreach ($needles as $needle) {
@@ -529,26 +730,66 @@ class Str
         return true;
     }
 
+    /**
+     * Awali string dengan sebuah instance dari nilai yang diberikan.
+     *
+     * @param string $value
+     * @param string $prefix
+     *
+     * @return string
+     */
     public static function start($value, $prefix)
     {
         return $prefix.preg_replace('/^(?:'.preg_quote($prefix, '/').')+/u', '', $value);
     }
 
+    /**
+     * Tentukan apakah string yang diberikan dimulai dengan substring yang diberikan.
+     *
+     * @param string $haystack
+     * @param string $needle
+     *
+     * @return bool
+     */
     public static function starts_with($haystack, $needle)
     {
         return ('' !== (string) $needle && 0 === strncmp($haystack, $needle, strlen($needle)));
     }
 
+    /**
+     * Tentukan apakah string yang diberikan diakhiri dengan substring yang diberikan.
+     *
+     * @param string $haystack
+     * @param string $needle
+     *
+     * @return bool
+     */
     public static function ends_with($haystack, $needle)
     {
         return ('' !== $needle && ((string) $needle === substr($haystack, -strlen($needle))));
     }
 
+    /**
+     * Akhiri string dengan sebuah instance dari nilai yang diberikan.
+     *
+     * @param string $value
+     * @param string $cap
+     *
+     * @return string
+     */
     public static function finish($value, $cap)
     {
         return preg_replace('/(?:'.preg_quote($cap, '/').')+$/u', '', $value).$cap;
     }
 
+    /**
+     * Uraikan string berpola callback menjadi array.
+     *
+     * @param string     $callback
+     * @param mixed|null $default
+     *
+     * @return array
+     */
     public static function parse_callback($callback, $default = null)
     {
         return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
