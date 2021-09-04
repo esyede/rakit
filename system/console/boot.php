@@ -11,7 +11,7 @@ use System\Config;
 Package::boot(DEFAULT_PACKAGE);
 
 // Set database default jika user mengoper '--database'.
-if (! is_null($database = get_cli_option('db'))) {
+if (! is_null($database = get_cli_option('database'))) {
     Config::set('database.default', $database);
 }
 
