@@ -18,7 +18,7 @@
             Halaman yang sedang anda lihat ini dibuat secara dinamis oleh rakit.
             Jika anda ingin mengedit halaman ini, anda akan menemukannya di:
         </p>
-        <pre>application/views/home/index.php</pre>
+        <pre>application/views/home/index.blade.php</pre>
 
         <p>Dan rute yang menangani halaman ini dapat ditemukan di:</p>
         <pre>application/routes.php</pre>
