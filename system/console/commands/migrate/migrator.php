@@ -177,53 +177,6 @@ class Migrator extends Command
     }
 
     /**
-     * Buat sebuah file migrasi.
-     *
-     * @param array $arguments
-     *
-     * @return string
-     */
-    public function make($arguments = [])
-    {
-        if (0 === count($arguments)) {
-            throw new \Exception('I need to know what to name the migration.');
-        }
-
-        list($package, $migration) = Package::parse($arguments[0]);
-
-        $prefix = date('Y_m_d_His');
-        $path = Package::path($package).'migrations'.DS;
-
-        if (! is_dir($path)) {
-            Storage::mkdir($path);
-        }
-
-        $file = $path.$prefix.'_'.$migration.'.php';
-        Storage::put($file, $this->stub($package, $migration));
-
-        echo 'Created migration: '.$prefix.'_'.$migration;
-
-        return $file;
-    }
-
-    /**
-     * Ambil stub migrasi database dan sesuaikan nama kelasnya.
-     *
-     * @param string $package
-     * @param string $migration
-     *
-     * @return string
-     */
-    protected function stub($package, $migration)
-    {
-        $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.'migrate.stub');
-        $prefix = Package::class_prefix($package);
-        $class = $prefix.Str::classify($migration);
-
-        return str_replace('stub_class', $class, $stub);
-    }
-
-    /**
      * Ambil paket dan nama migrasi (untuk tampilan saja).
      *
      * @param array $migration

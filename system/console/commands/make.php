@@ -67,7 +67,7 @@ class Make extends Command
                 'stub_class' => Package::class_prefix($package).Str::classify($class),
             ];
 
-            Storage::put($file, $this->stub($class, $replace, 'controller'));
+            Storage::put($file, $this->stub_general($class, $replace, 'controller'));
 
             echo 'Created controller: '.$display;
         }
@@ -129,10 +129,44 @@ class Make extends Command
                 'stub_table' => Str::plural($class),
             ];
 
-            Storage::put($file, $this->stub($class, $replace, 'model'));
+            Storage::put($file, $this->stub_general($class, $replace, 'model'));
 
             echo 'Created model: '.$display;
         }
+
+        return $file;
+    }
+
+    /**
+     * Buat sebuah file migrasi.
+     *
+     * @param array $arguments
+     *
+     * @return string
+     */
+    public function migration($arguments = [])
+    {
+        if (0 === count($arguments)) {
+            throw new \Exception('I need to know what to name the migration.');
+        }
+
+        list($package, $migration) = Package::parse($arguments[0]);
+
+        if (! Package::exists($package)) {
+            throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
+        }
+
+        $prefix = date('Y_m_d_His');
+        $path = Package::path($package).'migrations'.DS;
+
+        if (! is_dir($path)) {
+            Storage::mkdir($path);
+        }
+
+        $file = $path.$prefix.'_'.$migration.'.php';
+        Storage::put($file, $this->stub_migration($package, $migration));
+
+        echo 'Created migration: '.$prefix.'_'.$migration;
 
         return $file;
     }
@@ -194,7 +228,7 @@ class Make extends Command
                 'stub_class' => Package::class_prefix($package).Str::classify($class).'_Command',
             ];
 
-            Storage::put($file, $this->stub($class, $replace, 'command'));
+            Storage::put($file, $this->stub_general($class, $replace, 'command'));
 
             echo 'Created command: '.$display;
         }
@@ -255,7 +289,7 @@ class Make extends Command
                 '<test-group-placeholder>' => Str::lower($package),
             ];
 
-        Storage::put($file, $this->stub($class, $replace, 'test'));
+        Storage::put($file, $this->stub_general($class, $replace, 'test'));
 
         echo 'Created test file: '.$display;
 
@@ -263,7 +297,7 @@ class Make extends Command
     }
 
     /**
-     * Ambil konten file stub dan replace placeholdernya.
+     * Ambil konten file stub dan replace placeholdernya (untuk file - file umum).
      *
      * @param string $class
      * @param array  $replace
@@ -271,7 +305,7 @@ class Make extends Command
      *
      * @return string
      */
-    protected function stub($class, array $replace = [], $stub)
+    protected function stub_general($class, array $replace = [], $stub)
     {
         $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.$stub.'.stub');
         $class = Str::classify($class);
@@ -281,6 +315,23 @@ class Make extends Command
         }
 
         return $stub;
+    }
+
+    /**
+     * Ambil konten file stub dan replace placeholdernya (khusus file migrasi).
+     *
+     * @param string $package
+     * @param string $migration
+     *
+     * @return string
+     */
+    protected function stub_migration($package, $migration)
+    {
+        $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.'migrate.stub');
+        $prefix = Package::class_prefix($package);
+        $class = $prefix.Str::classify($migration);
+
+        return str_replace('stub_class', $class, $stub);
     }
 
     /**

@@ -18,6 +18,10 @@
       	"description": "Buat file model.",
       	"command": "php rakit make:model"
       },
+      "make:migration": {
+        "description": "Buat file migrasi.",
+        "command": "php rakit make:migration create_users_table"
+      },
       "make:command": {
       	"description": "Buat file command.",
       	"command": "php rakit make:command"
@@ -37,10 +41,6 @@
       "migrate:install": {
       	"description": "Install tabel migrasi.",
       	"command": "php rakit migrate:install"
-      },
-      "migrate:make": {
-      	"description": "Buat file migrasi.",
-      	"command": "php rakit migrate:make create_users_table"
       },
       "migrate": {
       	"description": "Jalankan seluruh file migrasi.",
