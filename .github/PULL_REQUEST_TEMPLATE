@@ -13,7 +13,7 @@ Tambahkan `x` pada kotak - kotak yang sesuai.
 
 **Jenis perubahan:**
   - [ ] Perbaikan/penambahan fitur tanpa memutus kompatibilitas
-  - [ ] BC-break (perubahan yang memutus komaptibilitas dengan versi terdahulu)
+  - [ ] BC-break (perubahan yang memutus kompatibilitas dengan versi terdahulu)
 
 **Lainnya:**
   - [ ] Gaya penulisan kode saya sudah mengikuti standar rakit.
