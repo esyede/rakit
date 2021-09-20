@@ -167,9 +167,10 @@ class Route
      */
     protected function patterns()
     {
+        $patterns = Middleware::$patterns;
         $middlewares = [];
 
-        foreach (Middleware::$patterns as $pattern => $middleware) {
+        foreach ($patterns as $pattern => $middleware) {
             if (Str::is($pattern, $this->uri)) {
                 if (is_array($middleware)) {
                     list($middleware, $callback) = array_values($middleware);
@@ -180,7 +181,7 @@ class Route
             }
         }
 
-        return (array) $middlewares;
+        return $middlewares;
     }
 
     /**
