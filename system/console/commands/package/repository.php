@@ -5,9 +5,17 @@ namespace System\Console\Commands\Package;
 defined('DS') or exit('No direct script access.');
 
 use System\Storage;
+use System\Curl;
 
 class Repository
 {
+    /**
+     * Target repository.
+     *
+     * @var string
+     */
+    public static $repository = 'https://rakit.esyede.my.id/repositories.json';
+
     /**
      * Konstruktor.
      */
@@ -48,16 +56,10 @@ class Repository
      */
     protected function packages()
     {
-        $target = path('base').'repositories.json';
+        $response = Curl::get(static::$repository);
+        $packages = json_decode(json_encode($response->body), true);
 
-        if (! is_file($target)) {
-            throw new \Exception('Missing repository. Please contact rakit team.'.PHP_EOL);
-        }
-
-        // Lihat: https://www.php.net/manual/en/function.json-last-error.php#118165
-        $packages = @json_decode(Storage::get($target), true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        if (! is_array($packages) || count($packages) < 1) {
             throw new \Exception('Broken repository json data. Please contact rakit team.'.PHP_EOL);
         }
 
