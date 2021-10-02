@@ -112,6 +112,20 @@ class Query
     public $bindings = [];
 
     /**
+     * Berisi daftar operator comparison
+     *
+     * @var array
+     */
+    public $operators = [
+        '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
+        'like', 'like binary', 'not like', 'ilike',
+        '&', '|', '^', '<<', '>>', '&~',
+        'rlike', 'not rlike', 'regexp', 'not regexp',
+        '~', '~*', '!~', '!~*', 'similar to',
+        'not similar to', 'not ilike', '~~*', '!~~*',
+    ];
+
+    /**
      * Buat instance query baru.
      *
      * @param Connection $connection
@@ -242,6 +256,13 @@ class Query
     {
         if ($column instanceof Closure) {
             return $this->where_nested($column, $connector);
+        }
+
+        if (! in_array($operator, $this->operators)) {
+            $value = $operator;
+            $operator = '=';
+        } else if (is_null($value) || is_object($value)) {
+            throw new \InvalidArgumentException('Illegal operator and value combination.');
         }
 
         $type = 'where';
