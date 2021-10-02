@@ -82,7 +82,7 @@ unset($debugger, $template);
 */
 
 foreach (Package::$packages as $package => $config) {
-    if ($config['autoboot']) {
+    if (isset($config['autoboot']) && $config['autoboot']) {
         Package::boot($package);
     }
 }
