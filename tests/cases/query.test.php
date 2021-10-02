@@ -60,7 +60,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testWhereWithTwoParemeters()
+    public function testWhereWithTwoParameters()
     {
         $result = DB::table('users')->where('username', 'agung')->first();
 
@@ -73,7 +73,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testWhereWithThreeParemeters()
+    public function testWhereWithThreeParameters()
     {
         $result = DB::table('users')->where('username', '=', 'agung')->first();
 
@@ -87,7 +87,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testWhereWithThirdParemeterIsInvalid()
+    public function testWhereWithThirdParameterIsInvalid()
     {
         try {
             DB::table('users')->where('username', '!=', null)->first();
