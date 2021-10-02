@@ -124,6 +124,15 @@ return DB::table('users')
 	->first();
 ```
 
+Dan khusus untuk operator "sama dengan", Anda juga dapat mempersingkatnya menjadi seperti berikut:
+
+```php
+return DB::table('users')
+    ->where('id', 1)
+    ->or_where('email', 'example@gmail.com')
+    ->first();
+```
+
 Seperti yang bisa anda bayangkan, secara default method `where()` akan ditambahkan ke susunan kueri menggunakan kondisi `AND`, sedangkan method `or_where()` akan menggunakan kondisi `OR`.
 
 
