@@ -54,4 +54,48 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     {
         // Ngetesnya gimana yang ini cok!
     }
+
+    /**
+     * Test untuk method DB::where() dengan 2 parameter
+     *
+     * @group system
+     */
+    public function testWhereWithTwoParameters()
+    {
+        $result = DB::table('users')->where('username', 'agung')->first();
+
+        $this->assertTrue(isset($result->username));
+        $this->assertFalse(is_null($result));
+    }
+
+    /**
+     * Test untuk method DB::where() dengan 3 parameter
+     *
+     * @group system
+     */
+    public function testWhereWithThreeParameters()
+    {
+        $result = DB::table('users')->where('username', '=', 'agung')->first();
+
+        $this->assertTrue(isset($result->username));
+        $this->assertFalse(is_null($result));
+    }
+
+    /**
+     * Test untuk method DB::where() dengan parameter ke-3
+     * berisi nilai yang salah (null atau object)
+     *
+     * @group system
+     */
+    public function testWhereWithThirdParameterIsInvalid()
+    {
+        try {
+            DB::table('users')->where('username', '!=', null)->first();
+        } catch(Exception $e) {
+            $this->assertInstanceOf(
+                '\InvalidArgumentException',
+                $e
+            );
+        }
+    }
 }
