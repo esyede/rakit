@@ -23,7 +23,7 @@
 <a id="pengetahuan-dasar"></a>
 ## Pengetahuan Dasar
 
-Tidak seperti kebanyakan framework lainnya, dengan Rakit dimungkinkan untuk menanamkan
+Tidak seperti kebanyakan framework lainnya, dengan Rakit memungkinkan untuk menanamkan
 logika aplikasi dalam dua cara.
 
 Meskipun controller adalah cara paling umum untuk mengimplementasikan logika aplikasi,
@@ -416,7 +416,7 @@ route controller. Anda dapat melakukannya dengan sangat mudah:
 Route::controller(Controller::detect());
 ```
 
-Method `Controller::detect()` hanya mereturn array dari semua controller yang telah didaftarkan.
+Method `Controller::detect()` hanya me-return array dari semua controller yang telah didaftarkan.
 
 Jika anda ingin mendeteksi controller secara otomatis dalam sebuah paket, cukup oper nama paket
 ke method `detect()` tersebut.
