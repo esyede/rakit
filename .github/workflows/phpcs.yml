@@ -2,7 +2,7 @@ name: phpcs
 
 on:
   pull_request:
-        branches:
+    branches:
       - "master"
     paths:
       - '**.php'
