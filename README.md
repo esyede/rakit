@@ -14,65 +14,79 @@
 </p>
 
 
+> English version of documentation at [README-en.md](README-en.md)
 
-## What is a rakit?
+## Apa itu rakit?
 
-Rakit is a simple and easy to learn web framework.
-New users will enjoy the same ease of development found in
-The most popular PHP framework today.
+Rakit adalah kerangka kerja web yang sederhana dan mudah dipelajari.
+Pengguna baru akan menikmati kemudahan pengembangan yang sama dengan yang ditemukan dalam
+framework PHP yang paling populer saat ini.
 
-More experienced users will have the opportunity to modulate their code
-in an easier and more efficient way.
+Pengguna yang lebih berpengalaman akan mendapat kesempatan untuk memodulasi kode mereka
+dengan cara yang lebih mudah dan efisien.
 
 
-## Features
 
-- Relatively small size (< 1MB includes offline documentation).
-- Runs on PHP 5.4.0 to PHP 8.
-- Can be used with or without [Composer](https://getcomposer.org).
-- Routing via Closure and Controller (MVC).
-- View and templating (native / blade).
-- Database abstraction (Model and Query Builder).
+## Fitur
+
+- Ukuran relatif kecil (< 1MB sudah termasuk dokumentasi offline).
+- Berjalan di PHP 5.4.0 sampai PHP 8.
+- Bisa digunakan dengan ataupun tanpa [Composer](https://getcomposer.org).
+- Routing via Closure maupun Controller (MVC).
+- View dan templating (native / blade).
+- Abstraksi database (Model dan Query Builder).
 - Schema builder.
-- Migration of databases.
-- Simple authentication.
-- CLI tools.
-- And much more..
-
-
-## System Requirements
-
-- PHP 5.4.0 or later
-- Extension [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
-- Extension [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-- Extension [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
-
-**Additional Extensions:**
-
-Installing the following extensions will help you get the full benefit of the rakit,
-but not required:
-
-- Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) for SQLite, MySQL, PostgreSQL, or SQL Server for working with databases.
-- Extension [cURL](https://www.php.net/manual/en/book.curl.php) to install packages via assembly console.
-- Extension [GD Image](https://www.php.net/manual/en/book.image.php) for processing images.
-
-## Documentation
-
-Documentation is included with every release archive you download,
-so you can still learn it even without an internet connection.
-
-Online documentation is also available at [official website](https://rakit.esyede.my.id).
-
-## Come Help
-
-To participate in helping the development of the rakit, please send a pull your request to the official rakit repository.
-
-In addition, you can also help the development of the rakit by answering questions submitted by other users in the [official forum](https://rakit.esyede.my.id/forum).
+- Migrasi database.
+- Otentikasi sederhana.
+- CLI tool.
+- Dan masih banyak lagi..
 
 
 
-## Licence
+## Kebutuhan Sistem
 
-Rakit is released under [MIT License](http://www.opensource.org/licenses/mit-license.php).
+- PHP 5.4.0 atau yang lebih baru
+- Ekstensi [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
+- Ekstensi [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
+- Ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
 
-This means that you may modify, redistribute and use it for personal or commercial needs, provided that the original manufacturer's information is included, and there is no guarantee and no responsibility for any damage caused.
+
+**Ekstensi Tambahan:**
+
+Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari rakit,
+tetapi tidak diwajibkan:
+
+
+- Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) untuk SQLite,
+  MySQL, PostgreSQL, atau SQL Server untuk bekerja dengan database.
+- Ekstensi [cURL](https://www.php.net/manual/en/book.curl.php) untuk menginstall paket via rakit console.
+- Ekstensi [GD Image](https://www.php.net/manual/en/book.image.php) untuk mengolah gambar.
+
+
+
+## Dokumentasi
+
+Dokumentasi sudah disertakan pada setiap arsip rilis yang anda unduh,
+supaya anda tetap dapat mempelajarinya meskipun tanpa koneksi internet.
+
+Dokumentasi daring juga tersedia di [situs resmi](https://rakit.esyede.my.id).
+
+
+
+## Ikut Membantu
+
+Untuk ikut serta membantu pengembangan rakit, silahkan kirimkan pull
+request anda ke repositori resmi rakit.
+
+Selain itu, anda juga dapat membantu pengembangan rakit dengan cara menjawab pertanyaan
+yang diajukan oleh pengguna lain di [forum resmi](https://rakit.esyede.my.id/forum).
+
+
+
+## Lisensi
+
+Rakit dirilis di bawah [Lisensi MIT](http://www.opensource.org/licenses/mit-license.php).
+
+Ini berarti bahwa anda boleh memodifikasi, mendistribusikan ulang serta menggunkannya untuk
+kebutuhan pribadi maupun komersil, dengan catatan harus menyertakan informasi pembuat asli,
+serta tidak ada garansi dan tanggung jawab atas segala kerusakan yang ditimbulkan.
