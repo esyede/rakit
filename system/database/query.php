@@ -112,7 +112,7 @@ class Query
     public $bindings = [];
 
     /**
-     * Berisi daftar operator comparison
+     * Berisi daftar operator comparison.
      *
      * @var array
      */
@@ -261,7 +261,7 @@ class Query
         if (! in_array($operator, $this->operators)) {
             $value = $operator;
             $operator = '=';
-        } else if (is_null($value) || is_object($value)) {
+        } elseif (is_null($value) || is_object($value)) {
             throw new \InvalidArgumentException('Illegal operator and value combination.');
         }
 

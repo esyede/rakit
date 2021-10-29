@@ -56,7 +56,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method DB::where() dengan 2 parameter
+     * Test untuk method DB::where() dengan 2 parameter.
      *
      * @group system
      */
@@ -69,7 +69,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method DB::where() dengan 3 parameter
+     * Test untuk method DB::where() dengan 3 parameter.
      *
      * @group system
      */
@@ -83,7 +83,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test untuk method DB::where() dengan parameter ke-3
-     * berisi nilai yang salah (null atau object)
+     * berisi nilai yang salah (null atau object).
      *
      * @group system
      */
@@ -91,7 +91,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     {
         try {
             DB::table('users')->where('username', '!=', null)->first();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $this->assertInstanceOf(
                 '\InvalidArgumentException',
                 $e
