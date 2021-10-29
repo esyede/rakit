@@ -13,6 +13,4 @@ defined('DS') or exit('No direct script access.');
 |
 */
 
-Route::get('/', function () {
-    return view('home.index');
-});
+Route::view('home.index');
