@@ -1,12 +1,17 @@
-on:
-    push:
-        paths:
-            - '**.php'
-    pull_request:
-        paths:
-            - '**.php'
-
 name: phpcs
+
+on:
+  pull_request:
+        branches:
+      - "master"
+    paths:
+      - '**.php'
+ 
+  push:
+    branches:
+      - "master"
+    paths:
+      - '**.php'
 
 jobs:
     phpcs:
