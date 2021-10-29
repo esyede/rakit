@@ -45,7 +45,7 @@
             <li><a href="https://rakit.esyede.my.id/api" target="_blank">Referensi API</a></li>
             <li><a href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori Paket</a></li>
             <li><a href="https://rakit.esyede.my.id/forum" target="_blank">Forum Diskusi</a></li>
-            <li><a href="https://github.com/laravel/laravel">Kode Sumber</a></li>
+            <li><a href="https://github.com/esyede/rakit">Kode Sumber</a></li>
         </ul>
 
         <br>
