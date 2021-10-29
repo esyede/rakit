@@ -112,7 +112,7 @@ class Query
     public $bindings = [];
 
     /**
-     * Berisi daftar operator comparison.
+     * Berisi daftar operator komparasi.
      *
      * @var array
      */
