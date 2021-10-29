@@ -39,4 +39,5 @@ jobs:
             - uses: stefanzweifel/git-auto-commit-action@v4
               with:
                   commit_message: 'phpcs: apply coding style'
+                  ref: ${{ github.head_ref }}
                   commit_options: '--no-verify --signoff'
