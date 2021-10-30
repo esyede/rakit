@@ -103,7 +103,7 @@ class Autoloader
      *
      * @param array $mappings
      */
-    public static function map($mappings)
+    public static function map(array $mappings)
     {
         static::$mappings = array_merge(static::$mappings, $mappings);
     }
@@ -122,11 +122,11 @@ class Autoloader
     /**
      * Daftarkan direktori untuk di-autoload dengan konvensi PSR-0.
      *
-     * @param string|array $directory
+     * @param array $directories
      */
-    public static function directories($directory)
+    public static function directories(array $directories)
     {
-        $directories = static::format($directory);
+        $directories = static::format($directories);
         $directories = array_merge(static::$directories, $directories);
 
         static::$directories = array_unique($directories);
@@ -138,7 +138,7 @@ class Autoloader
      * @param array  $mappings
      * @param string $append
      */
-    public static function namespaces($mappings, $append = '\\')
+    public static function namespaces(array $mappings, $append = '\\')
     {
         $mappings = static::format_mappings($mappings, $append);
         static::$namespaces = array_merge($mappings, static::$namespaces);
@@ -149,7 +149,7 @@ class Autoloader
      *
      * @param array $mappings
      */
-    public static function underscored($mappings)
+    public static function underscored(array $mappings)
     {
         static::namespaces($mappings, '_');
     }
@@ -162,12 +162,12 @@ class Autoloader
      *
      * @return array
      */
-    protected static function format_mappings($mappings, $append)
+    protected static function format_mappings(array $mappings, $append)
     {
         foreach ($mappings as $namespace => $directory) {
             $namespace = trim($namespace, $append).$append;
             unset(static::$namespaces[$namespace]);
-            $namespaces[$namespace] = head(static::format($directory));
+            $namespaces[$namespace] = head(static::format((array) $directory));
         }
 
         return $namespaces;
@@ -181,7 +181,7 @@ class Autoloader
      *
      * @return array
      */
-    protected static function format($directories)
+    protected static function format(array $directories)
     {
         return array_map(function ($directory) {
             return rtrim($directory, DS).DS;
