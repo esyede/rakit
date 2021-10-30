@@ -14,6 +14,7 @@
 </p>
 
 
+> English version of documentation at [README-en.md](README-en.md)
 
 ## Apa itu rakit?
 
