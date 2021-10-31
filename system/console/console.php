@@ -44,13 +44,13 @@ class Console
         $command = static::resolve($package, $command);
 
         if (is_null($command)) {
-            throw new \Exception('Sorry, I cannot find that command.');
+            throw new \Exception(sprintf('Command not found: %s', $command));
         }
 
         if (is_callable([$command, $method])) {
             $command->{$method}(array_slice($arguments, 1));
         } else {
-            throw new \Exception('Sorry, I cannot find that method!');
+            throw new \Exception(sprintf('Command method is not callable: %s', $method));
         }
     }
 
