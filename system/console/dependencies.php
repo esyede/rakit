@@ -72,6 +72,13 @@ if (! Container::registered('package.provider: github')) {
     });
 }
 
+// Daftarkan kelas pengelola repositori paket untuk provider gitlab.
+if (! Container::registered('package.provider: gitlab')) {
+    Container::singleton('package.provider: gitlab', function () {
+        return new Commands\Package\Providers\Gitlab();
+    });
+}
+
 // Daftarkan kelas pengelola aset.
 if (! Container::registered('package.publisher')) {
     Container::singleton('package.publisher', function () {
