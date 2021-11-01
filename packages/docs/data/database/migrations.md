@@ -43,7 +43,7 @@ Anda dapat dengan mudah membuat migrasi melalui [console](/docs/console) seperti
 **Membuat sebuah  file migrasi:**
 
 ```bash
-php rakit migrate:make create_users_table
+php rakit make:migration create_users_table
 ```
 
 Sekarang, coba buka folder `application/migrations/`. Anda akan melihat file migrasi yang baru anda buat disana! Perhatikan bahwa nama filenya diawali dengan timestamp. Ini memungkinkan Rakit untuk menjalankan migrasi anda dalam urutan yang benar.
@@ -54,7 +54,7 @@ Anda juga dapat membuat file migrasi untuk sebuah package.
 **Membuat file migrasi untuk sebuah package:**
 
 ```bash
-php rakit migrate:make nama_package::create_users_table
+php rakit make:migration nama_package::create_users_table
 ```
 
 _Bacaan lebih lanjut:_
