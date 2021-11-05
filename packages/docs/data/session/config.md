@@ -26,7 +26,7 @@ Web adalah lingkungan yang bersifat _state-less_. Ini berarti bahwa setiap reque
 Secara default, telah disediakan enam buah driver untuk session, yaitu:
 
 - Cookie
-- Filesystem
+- File
 - Database
 - Memcached
 - Redis
@@ -36,7 +36,11 @@ Secara default, telah disediakan enam buah driver untuk session, yaitu:
 <a id="driver-cookie"></a>
 ## Driver Cookie
 
-Session berbasis cookie menyediakan mekanisme yang ringan dan cepat untuk menyimpan data session. Mereka juga aman. Setiap cookie dienkripsi menggunakan enkripsi AES-256 yang kuat. Namun, cookie memiliki batas penyimpanan `4 kilobyte`, jadi anda mungkin akanperlu menggunakan driver lain jika anda ingin menyimpan banyak data dalam sesi.
+Session berbasis cookie menyediakan mekanisme yang ringan dan cepat untuk menyimpan data session.
+Mereka juga aman. Setiap cookie dienkripsi menggunakan enkripsi AES-256 yang kuat.
+
+Namun, cookie memiliki batas penyimpanan `4 kilobyte`, jadi anda mungkin akan perlu menggunakan
+driver lain jika anda ingin menyimpan banyak data dalam sesi.
 
 Untuk mulai driver cookie ini, cukup ubah opsi drivernya di file `application/config/session.php` seperti berikut:
 
@@ -48,7 +52,8 @@ Untuk mulai driver cookie ini, cukup ubah opsi drivernya di file `application/co
 <a id="driver-file"></a>
 ## Driver File
 
-Kemungkinan besar, aplikasi anda akan bekerja dengan cukup baik hanya dengan menggunakan driver file ini. Namun, jika aplikasi anda menerima lalu lintas yang sangat padat, gunakan driver database atau  memcache.
+Kemungkinan besar, aplikasi anda akan bekerja dengan cukup baik hanya dengan menggunakan driver file ini.
+Namun, jika aplikasi anda menerima lalu lintas yang sangat padat, gunakan driver database atau  memcache.
 
 Untuk mulai driver file ini, cukup ubah opsi drivernya di file `application/config/session.php` seperti berikut:
 
@@ -56,9 +61,10 @@ Untuk mulai driver file ini, cukup ubah opsi drivernya di file `application/conf
 'driver' => 'file'
 ```
 
-Dan, session sudah siap digunakan!
+Dalam keadaan default, rakit sudah dikonfigurasikan untuk menggunakan driver ini.
 
->  Ketika menggunakan driver ini, data session akan disimpan di folder `storage/sessions/` sebagai file, jadi pastikan direktori tersebut dapat ditulisi.
+>  Ketika menggunakan driver ini, data session akan disimpan di folder `storage/sessions/` sebagai file,
+   jadi pastikan direktori tersebut dapat ditulisi.
 
 
 <a id="driver-database"></a>
@@ -66,7 +72,9 @@ Dan, session sudah siap digunakan!
 
 Untuk menggunakan driver database, anda harus [mengkonfigurasi koneksi database](/docs/database/config) terlebih dahulu.
 
-Selanjutnya, anda perlu membuat sebuah tabel sesi. Berikut adalah beberapa kueri SQL untuk membantu anda memulai. Namun, anda juga dapat menggunakan [console](/docs/console) untuk membuat tabel ini secara otomatis!
+Selanjutnya, anda perlu membuat sebuah tabel sesi. Berikut adalah beberapa kueri SQL untuk membantu anda memulai.
+
+Namun, anda juga dapat menggunakan [console](/docs/console) untuk membuat tabel ini secara otomatis!
 
 
 <a id="console"></a>
@@ -82,9 +90,9 @@ php rakit session:table
 
 ```sql
 CREATE TABLE "sessions" (
-	"id" VARCHAR PRIMARY KEY NOT NULL UNIQUE,
-	"last_activity" INTEGER NOT NULL,
-	"data" TEXT NOT NULL
+    "id" VARCHAR PRIMARY KEY NOT NULL UNIQUE,
+    "last_activity" INTEGER NOT NULL,
+    "data" TEXT NOT NULL
 );
 ```
 
@@ -93,14 +101,15 @@ CREATE TABLE "sessions" (
 ### MySQL
 ```sql
 CREATE TABLE `sessions` (
-	`id` VARCHAR(40) NOT NULL,
-	`last_activity` INT(10) NOT NULL,
-	`data` TEXT NOT NULL,
-	PRIMARY KEY (`id`)
+    `id` VARCHAR(40) NOT NULL,
+    `last_activity` INT(10) NOT NULL,
+    `data` TEXT NOT NULL,
+    PRIMARY KEY (`id`)
 );
 ```
 
-Jika anda ingin menggunakan nama tabel lain, cukup ubah opsi `'table'` di file `application/config/session.php` seperti berikut:
+Jika anda ingin menggunakan nama tabel lain, cukup ubah opsi `'table'` di
+file `application/config/session.php` seperti berikut:
 
 ```php
 'table' => 'sessions'
@@ -140,7 +149,8 @@ Setelah itu, anda hanya tinggal mengubah opsi driver di file `application/config
 <a id="driver-memori"></a>
 ## Driver Memori
 
-Driver `'memory'` hanya menggunakan array sederhana untuk menyimpan data sesi anda pada request saat ini. Driver ini baik digunakan untuk unit-testing aplikasi anda karena tidak ada data apapun yang ditulis ke disk.
+Driver `'memory'` hanya menggunakan array sederhana untuk menyimpan data sesi anda pada request saat ini.
+Driver ini baik digunakan untuk unit-testing aplikasi anda karena tidak ada data apapun yang ditulis ke disk.
 
 >  Driver ini tidak boleh digunakan untuk keperluan selain testing!
 
