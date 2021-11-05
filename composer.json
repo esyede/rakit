@@ -40,5 +40,14 @@
                 "Fix PHP 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php8.patch"
             }
         }
-    }
+    },
+    "scripts": {
+        "post-create-project-cmd": ["@php rakit key:generate"]
+      },
+      "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+      },
+      "minimum-stability": "dev",
+      "prefer-stable": true
 }
