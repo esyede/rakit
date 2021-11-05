@@ -4,6 +4,8 @@
 
 - [Kebutuhan Sistem](#kebutuhan-sistem)
 - [Instalasi](#instalasi)
+    - [Instal via Composer](#instal-via-composer)
+    - [Install Manual](#install-manual)
 - [Ada Kesulitan?](#ada-kesulitan)
 - [Konfigurasi Awal](#konfigurasi-awal)
 - [Mempercantik URL](#mempercantik-url)
@@ -36,7 +38,32 @@ Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari r
 <a id="instalasi"></a>
 ## Instalasi
 
-Instalasi Rakit sangatlah mudah, semudah menghitung satu sampai tiga:
+Rakit dapat diinstall dengan 2 cara yang sangat mudah, yaitu instalasi via [Composer](https://getcomposer.org)
+dan instalasi manual.
+
+
+<a id="instal-via-composer"></a>
+### Instal via Composer
+
+Jika anda telah menginstall Composer pada komputer anda, instalasi rakit akan menjadi
+sangat mudah, cukup jalankan perintah berikut:
+
+```bash
+composer create-project esyede/rakit
+```
+
+Maka rakit akan terinstall pada folder `/rakit`, yang perlu anda lakukan tinggal menuju folder tersebut dan
+menjalankan webserver bawaan:
+
+```bash
+cd rakit && php rakit serve
+```
+
+
+<a id="install-manual"></a>
+### Install Manual
+
+Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
 
   - [Unduh](https://rakit.esyede.my.id/download) dan ekstrak arsip Rakit ke web server anda.
   - Pastikan direktori `storage/views/` dan `assets/` dapat ditulisi oleh PHP.
