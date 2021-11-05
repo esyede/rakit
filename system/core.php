@@ -11,7 +11,7 @@ defined('DS') or exit('No direct script access.');
 | Definisikan info versi framework yang saat ini sedang digunakan.
 */
 
-define('RAKIT_VERSION', 'v0.9.8');
+define('RAKIT_VERSION', 'v0.9.9');
 
 /*
 |--------------------------------------------------------------------------
