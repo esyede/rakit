@@ -67,9 +67,10 @@ Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
 
   - [Unduh](https://rakit.esyede.my.id/download) dan ekstrak arsip Rakit ke web server anda.
   - Pastikan direktori `storage/views/` dan `assets/` dapat ditulisi oleh PHP.
-  - Lihat hasilnya melalui peramban favorit anda.
+  - Edit file `application/config/application.php` dan tambahkan app key anda, ingat, panjang minimalnya harus 32 karakter.
+  Anda juga dapat meng-generate app key melalui link ini: [App Key Generator](https://rakit.esyede.my.id/key)
 
-Jika semuanya baik-baik saja, anda akan melihat halaman splash Rakit yang cantik.
+Lihat hasilnya melalui peramban favorit anda. Jika semuanya baik-baik saja, anda akan melihat halaman splash Rakit yang cantik.
 
 Bersiaplah, ada banyak lagi yang harus dipelajari!
 
