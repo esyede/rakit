@@ -1,4 +1,4 @@
-# Catatan Rilis
+# Release Notes
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
@@ -12,7 +12,7 @@
 <a id="v096-pre-release"></a>
 ## v0.9.6 (pre-release)
 
-- Versi pre-release pertama untuk uji coba.
+- First pre-release version for testing.
 
 
 <a id="v097-pre-release"></a>
@@ -21,13 +21,13 @@
 - Session: fix session guard on file driver.
 - Cache: fix cache guard on file driver.
 - Helpers: remove unused methods.
-- System: use File::xxx for all file operation & Test: move fixtures data into separate folder (test).
+- System: use File::xxx for all file operations & Test: move fixtures data into separate folder (test).
 - Docs changes
 
-Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.7).
+For more details, please visit [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.7).
 
-**Cara upgrade**:
-- Timpa folder `system/` dengan yang baru.
+**How to Upgrade**:
+- Overwrite `system/` folder with the new one.
 
 
 <a id="v098-pre-release"></a>
@@ -57,7 +57,7 @@ Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/re
 - Console: remove dependency of `ZipArchive` class
 - Refactor: rewrite `Email` component to use driver-based approach
 
-Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.8).
+For more details, please visit [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.8).
 
-**Cara upgrade**:
-- Unduh ulang. Tidak kompatibel dengan versi sebelumnya.
+**How to Upgrade**:
+- Redownload. Not compatible with previous version.

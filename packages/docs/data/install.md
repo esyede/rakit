@@ -1,14 +1,14 @@
-# Instalasi & Konfigurasi Awal
+# Installation & Initial Configuration
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Kebutuhan Sistem](#kebutuhan-sistem)
-- [Instalasi](#instalasi)
+- [System Requirements](#kebutuhan-sistem)
+- [Instalation](#instalasi)
     - [Instal via Composer](#instal-via-composer)
-    - [Install Manual](#install-manual)
-- [Ada Kesulitan?](#ada-kesulitan)
-- [Konfigurasi Awal](#konfigurasi-awal)
-- [Mempercantik URL](#mempercantik-url)
+    - [Manual Install](#install-manual)
+- [Any problem?](#ada-kesulitan)
+- [Initial Configuration](#konfigurasi-awal)
+- [Pretty URL](#mempercantik-url)
     - [Apache](#apache)
     - [Nginx](#nginx)
 
@@ -16,7 +16,7 @@
 
 
 <a id="kebutuhan-sistem"></a>
-## Kebutuhan Sistem
+## System Requirements
 
 - PHP 5.4.0+ (up to 8.0)
 - Ekstensi [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
@@ -24,36 +24,36 @@
 - Ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
 
 
-**Ekstensi Tambahan:**
+**Additional Extensions:**
 
-Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari rakit, tetapi tidak diwajibkan:
+Installing these extensions will help you get full benefits from rakit, but it's not mandatory:
 
 
-- Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) untuk SQLite,
-  MySQL, PostgreSQL, atau SQL Server untuk bekerja dengan database.
-- Ekstensi [cURL](https://www.php.net/manual/en/book.curl.php) untuk menginstall paket via rakit console.
-- Ekstensi [GD Image](https://www.php.net/manual/en/book.image.php) untuk mengolah gambar.
+- Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) for SQLite,
+  MySQL, PostgreSQL, or SQL Server to work with these databases.
+- Extension [cURL](https://www.php.net/manual/en/book.curl.php) to install package usig rakit console.
+- Extension [GD Image](https://www.php.net/manual/en/book.image.php) to manipulate images.
 
 
 <a id="instalasi"></a>
-## Instalasi
+## Instalation
 
-Rakit dapat diinstall dengan 2 cara yang sangat mudah, yaitu instalasi via [Composer](https://getcomposer.org)
-dan instalasi manual.
+Rakit can be installed with 2 easy ways, using [Composer](https://getcomposer.org)
+and manual installation.
 
 
 <a id="instal-via-composer"></a>
-### Instal via Composer
+### Install using Composer
 
-Jika anda telah menginstall Composer pada komputer anda, instalasi rakit akan menjadi
-sangat mudah, cukup jalankan perintah berikut:
+If you have installed Composer in your computer, installing rakit will be very easy, just run
+this command:
 
 ```bash
 composer create-project esyede/rakit
 ```
 
-Maka rakit akan terinstall pada folder `/rakit`, yang perlu anda lakukan tinggal menuju folder tersebut dan
-menjalankan webserver bawaan:
+Then rakit will be installed in `/rakit` folder, you just only need to go to this folder and run rakit's  
+built-in webserver:
 
 ```bash
 cd rakit && php rakit serve
@@ -61,14 +61,15 @@ cd rakit && php rakit serve
 
 
 <a id="install-manual"></a>
-### Install Manual
+### Manual Install
 
-Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
+Installing manually also as easy as 123:
 
-  - [Unduh](https://rakit.esyede.my.id/download) dan ekstrak arsip Rakit ke web server anda.
-  - Pastikan direktori `storage/views/` dan `assets/` dapat ditulisi oleh PHP.
-  - Edit file `application/config/application.php` dan tambahkan app key anda, ingat, panjang minimalnya harus 32 karakter.
-  Anda juga dapat meng-generate app key melalui link ini: [App Key Generator](https://rakit.esyede.my.id/key)
+  - [Download](https://rakit.esyede.my.id/download) and extract Rakit archive to your web server.
+  - Make sure `storage/views/` folder and `assets/` folder can be written by PHP.
+  - Edit  `application/config/application.php` file and add your app key, remember, minimum length 
+  is 32 character.
+  You can also generate app key through this link: [App Key Generator](https://rakit.esyede.my.id/key)
 
   ```php
   /*
@@ -88,53 +89,53 @@ Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
   'key' => 'isiAppKeyAndaDisiniMinimal32karakter',
   ```
 
-Lihat hasilnya melalui peramban favorit anda. Jika semuanya baik-baik saja, anda akan melihat halaman splash Rakit yang cantik.
+View the result using your favorite browser. If everything goes fine, you will see Rakit's beautiful 
+splash page.
 
-Bersiaplah, ada banyak lagi yang harus dipelajari!
+Get ready, there are a lot more things to learn!
 
 
 <a id="ada-kesulitan"></a>
-## Ada Kesulitan?
+## Any problem?
 
-Jika ada kesulitan dalam pemasangan, cobalah beberapa saran berikut ini:
+If you have problem in installing Rakit, try some of these suggestions:
 
-- Jika anda menggunakan `mod_rewrite`, ubah opsi konfigurasi `'index'`
-  di `application/config/application.php` ke string kosong.
-- Pastikan folder `storage/` dan `assets/` serta seluruh folder di dalamnya dapat ditulisi oleh PHP.
+- If you use `mod_rewrite`, change `'index'` configuration option
+  in `application/config/application.php` to empty string.
+- Make sure `storage/` folder and `assets/` folder and all folders inside can be written by PHP.
 
 
 <a id="konfigurasi-awal"></a>
-## Konfigurasi Awal
+## Initial Configuration
 
-Semua file konfigurasi disimpan di dalam folder `config/`.
-Kami menyarankan anda melihat file-file tersebut agar mendapatkan pemahaman dasar
-tentang opsi konfigurasi yang tersedia untuk anda.
+All configuration file stored in `config/` folder.
+We suggest you to see these files in order to get basic understanding 
+about configuration options available to you.
 
-Berikan perhatian khusus pada file `application/config/application.php` karena file tersebut
-berisi opsi konfigurasi dasar untuk aplikasi anda.
+Pay special attention to `application/config/application.php` file because this file 
+contains basic configuration options for your application.
 
->  Jika anda menggunakan `mod_rewrite`, ubah opsi `'index'`
-   di `application/config/application.php` ke string kosong.
+>  If you use `mod_rewrite`, change `'index'` option 
+   in `application/config/application.php` file to empty string.
 
 
 <a id="mempercantik-url"></a>
-## Mempercantik URL
+## Pretty URL
 
-Ketika anda siap untuk memasang aplikasi anda ke server produksi, ada beberapa hal penting yang
-dapat anda lakukan untuk memastikan aplikasi anda berjalan seefisien mungkin.
+When you are reay to install application to production server, there are some important things you can do to ensure you application run as efficient as possible.
 
-Dalam dokumen ini, kami akan membahas beberapa poin awal yang bagus untuk memastikan
-aplikasi anda digunakan dengan benar.
+In this document, we will discuss some good starting points to make sure your application were
+used in the right way.
 
-Pastinya, anda juga tidak ingin URL aplikasi anda mengandung `/index.php`.
-Anda dapat membuangnya menggunakan URL Rewrite.
+Of course, you also don't want you application URL contains `/index.php`.
+You can remove it using URL Rewrite.
 
 <a id="apache"></a>
 ### Apache
 
-Jika web server anda menggunakan Apache, pastikan modul `mod_rewrite` sudah diaktifkan,
-kemudian buat sebuah file bernama `.htaccess` di root web server anda
-(berdampingan dengan file `index.php`) dan salin kode berikut kedalamnya:
+If you use Apache as your web server, make sure `mod_rewrite` module has been activated,
+then create a file called `.htaccess` in your web server's root
+(in the same folder with `index.php`) and copy the following code into the file:
 
 ```apacheconf
 Options -MultiViews -Indexes
@@ -155,7 +156,7 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . index.php [L]
 ```
 
-Apakah konfigurasi diatas tidak bekerja? Coba ganti dengan yang ini:
+Did the configuration above work? If not, try to use this one:
 
 ```apacheconf
 <IfPackage mod_rewrite.c>
@@ -184,10 +185,10 @@ Apakah konfigurasi diatas tidak bekerja? Coba ganti dengan yang ini:
 <a id="nginx"></a>
 ### Nginx
 
-Jika anda menggunakan aplikasi anda ke server yang menjalankan Nginx, anda dapat menggunakan
-file konfigurasi berikut sebagai titik awal untuk mengkonfigurasi web server anda.
+If your application hosted on server running Nginx, you can use the following configuration file
+as a starting point to configure your web server.
 
-Kemungkinan besar, file ini perlu disesuaikan mengikuti konfigurasi server anda:
+Probably, this file will need to be customized to fit your server configuration:
 
 ```nginx
 server {
@@ -236,8 +237,8 @@ server {
 
 
 
-Setelah selesai mengatur URL rewrite, anda perlu mengubah opsi `'index'`
-di `application/config/application.php` ke string kosong.
+After finished managing URL rewrite, you need to change `'index'` option
+in `application/config/application.php` file to empty string.
 
->  Setiap web server memiliki metode yang berbeda dalam menangani HTTP rewrite,
-   dan mungkin juga akan membutuhkan rule konfigurasi yang berbeda pula.
+>  Every web server has different method in handling HTTP rewrite,
+   and probably will need differen configuration rule as well.
