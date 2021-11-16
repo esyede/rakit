@@ -2,47 +2,42 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mendaftarkan Folder](#mendaftarkan-folder)
-- [Mendaftarkan Mapping](#mendaftarkan-mapping)
-- [Mendaftarkan Namespace](#mendaftarkan-namespace)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Registering Folder](#mendaftarkan-folder)
+- [Registering Mapping](#mendaftarkan-mapping)
+- [Registration Namespace](#mendaftarkan-namespace)
 - [Composer Autoloader](#composer-autoloader)
-    - [Catatan untuk folder vendor](#catatan-untuk-folder-vendor)
+    - [Notes on vendor folder](#catatan-untuk-folder-vendor)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Autoloading memungkinkan anda untuk me-lazyload file kelas (memuat file kelas saat dibutuhkan saja)
-tanpa secara eksplisit memanggil `reuqire()` ataupun `include()`.
+Autoloading enable you to lazyloading class files (loading only needed class files)
+without explicitly call `require()` or `include()`.
 
-Jadi, hanya kelas yang benar-benar anda butuhkan saja yang akan dimuat di aplikasi anda, dan anda
-bisa langsung menggunakan kelas yang anda mau tanpa harus capek-capek memuatnya secara manual.
+So, only really needed class will be loaded by your application, and you can immediately use the class you want without doing tedious work of manually loading them.
 
-Secara default, folder `application/models/` dan `application/libraries/` telah di autoload via
-file `application/boot.php` seingga anda tidak perlu capek meregistrasikannya secara manual.
+By default, `application/models/` folder and `application/libraries/` folder are autoloaded in `application/boot.php` file, so you don't need to register it manually.
 
-Autoloader di rakit mengitkuti konvensi `nama kelas sama dengan nama file`, dimana nama file
-ditulis dengan huruf kecil seluruhnya.
+Autoloader in rakit follow `class name equal file name` convention, where file name 
+written entirely in lowercase.
 
-Jadi misalnya, kelas `User` yang ditaruh di folder `models/` harus ditaruh didalam file
-bernama `user.php` agar bisa dimuat secara otomatis.
+So for example, `User` class which is stored in `models/` folder should be stored in a file 
+called `user.php` to be able to automatically loaded.
 
-Anda juga boleh menaruhnya kedalam subfolder. Cukup beri namespace kelasnya mengikuti
-struktur folder yang anda buat. Jadi, kelas `Entities\User` harus ditaruh ke
-file `entities/user.php` didalam folder `models/`.
+You can also stored it in a subfolder. Just give class namespace following 
+folder structure you just created. So, `Entities\User` class should be stored at `entities/user.php` file in `models/` folder.
 
 
 <a id="mendaftarkan-folder"></a>
-## Mendaftarkan Folder
+## Registering Folder
 
-Seperti yang sudah dijelaskan diatas, folder `models/` dan `libraries/` secara default
-sudah didaftarkan ke autoload; tetapi, anda juga dapat mendaftarkan folder manapun yang anda
-suka dengan menggunakan konvensi yang sama:
+As described above, `models/` folder `libraries/` folder are registered to autoload by default; but, you can also register any folder you like using the same convention:
 
-#### Mendaftarkan beberapa folder ke autoloader:
+#### Registering many folders to autoloader:
 
 ```php
 Autoloader::directories([
@@ -53,13 +48,11 @@ Autoloader::directories([
 
 
 <a id="mendaftarkan-mapping"></a>
-## Mendaftarkan Mapping
+## Registering Mapping
 
-Terkadang anda mungkin ingin memetakan kelas secara manual ke file terkaitnya. Ini adalah cara
-memuat kelas yang paling efisien karena si autoloader tidak harus melakukan scanning folder
-untuk mencari dimana lokasi kelas anda berada:
+Sometimes you maybe want to map the class to its related file manually. This is the most efficient way because the autoloader doesn't need to scan folders to look for the location of your class file:
 
-#### Mendaftarkan mapping ke autoloader:
+#### Registering mapping to autoloader:
 
 ```php
 Autoloader::map([
@@ -70,17 +63,16 @@ Autoloader::map([
 
 
 <a id="mendaftarkan-namespace"></a>
-## Mendaftarkan Namespace
+## Registering Namespace
 
-Banyak library pihak ketiga menggunakan standar PSR-4 dan PSR-0 untuk meng-autoload kelasnya.
-[PSR-4](https://www.php-fig.org/psr/psr-4/) dan [PSR-0](https://www.php-fig.org/psr/psr-0/)
-menyatakan bahwa nama kelas harus cocok dengan nama file mereka, termasuk besar-kecil huruf
-dan struktur folder ditunjukkan oleh namespace.
+Some third-party libraries use PSR-4 and PSR-0 standard to autoload their classes.
+[PSR-4](https://www.php-fig.org/psr/psr-4/) and [PSR-0](https://www.php-fig.org/psr/psr-0/)
+define that class name must match their file name, including its capitalization and folder structure  shown by the namespace.
 
-Jika anda menggunakan library dengan konvensi seperti ini, cukup daftarkan root namespace
-dan lokasi foldernya ke autoloader. Rakit akan menangani sisanya.
+If you use libraries with convention like this, just register root namespace
+and folder location to the autoloader. Rakit will handle the rest.
 
-#### Mendaftarkan namespace ke autoloader:
+#### Registering namespace to autoloader:
 
 ```php
 Autoloader::namespaces([
@@ -88,19 +80,16 @@ Autoloader::namespaces([
 ]);
 ```
 
-Sebelum fitur namespace ada di PHP, Banyak library yang menggunakan _underscore_ sebagai
-indikator folder mereka.
+Before namespace feature were available in PHP, many libraries used _underscore_ to mark their folder.
 
-Jika anda ingin menggunakan library dengan konvensi seperti ini, anda juga tetap bisa
-mendaftarkannya ke autoloader.
+If you want to use libraries with convention like this, you can still register it to the autoloader.
 
-Contohnya, jika anda ingin menggunakan [SwiftMailer](https://github.com/swiftmailer/swiftmailer)
-versi lama, anda pasti bisa perhatikan bahwa seluruh nama kelasnya diawali dengan `Swift_`.
+For example, if you want to use old version of [SwiftMailer](https://github.com/swiftmailer/swiftmailer)
+, you will be familiar that all of its classes has prefix `Swift_`.
 
-Jadi, yang perlu kita daftarkan ke autoloader adalah kata `Swift` tersebut, dimana kata itu
-adalah root namespace miliknya.
+So, we need to register the word `Swift` to the autoloader, that word is its root namespace.
 
-#### Mendaftarkan kelas _underscore_ ke autoloader:
+#### Registering _underscore_ class to autoloader:
 
 ```php
 Autoloader::underscored([
@@ -111,53 +100,45 @@ Autoloader::underscored([
 <a id="composer-autoloader"></a>
 ## Composer Autoloader
 
-Tentunya anda pernah menggunakan [Composer](https://getcomposer.org). Composer umumnya
-sudah membawa autoloader tersendiri, yang pada keadaan default terletak di `vendor/autoload.php`.
+Of course you've ever use [Composer](https://getcomposer.org). Composer generaly had bring its own autoloader, which by default located in `vendor/autoload.php` folder.
 
-Jadi, tugas kita disini hanya tinggal meng-include file tersebut ke aplikasi kita agar library yang
-diinstall olehnya bisa dkenali oleh rakit.
+So, our task here is just include that file to our application so that installed library can be recognized by rakit.
 
-Caranya cukup mudah, cukup edit di file `application/config/aplication.php` dan isi
-opsi `composer_autoload` dengan <ins>absolute path</ins> tempat file autoload itu berada.
+The task is easy enough, just edit `application/config/aplication.php` file and fill `composer_autoload` option with the <ins>absolute path</ins> of the autoload file.
 
-Jadi misalkan file autoload anda berada di `<root>/vendor/autoload.php` maka diisi seperti ini:
+So, if your autoload file located in `<root>/vendor/autoload.php` then fill it like this:
 
 ```php
 'composer_autoload' => path('base').'vendor/autoload.php',
 ```
 
->  Jika file autoload gagal dimuat karena path salah ataupun sebab yang lain,
-   aplikasi anda akan terus berjalan tanpa menampilkan error.
+>  If the autoload file failed to be loaded caused by wrong path or other causes,
+   your application will keep running without diplaying errors.
 
 
 
 <a id="catatan-untuk-folder-vendor"></a>
-### Catatan untuk folder vendor
+### Notes for vendor folder
 
-Patut diingat bahwa pada keadaan default, **tidak ada proteksi** yang disediakan jika
-folder `vendor/` ditaruh di root folder, yang berarti seluruh file dan subfolder didalamnya
-dapat diakses olek publik.
+It's worth to remember that by default, **no protection** provided if `vendor/` folder stored in root folder, which means all files and subfolders inside can be publicly accessed.
 
-Hal ini tentu sangat berbahaya karena mereka akan tahu library apa saja yang anda gunakan.
-Untuk itu, kami menyediakan beberapa opsi untuk menangani hal ini:
+This is quite dangerous because they will know what libraries you use.
+For this purpose, we provide some options to handle this:
 
 
-#### Opsi 1: Rewrite URL
+#### Option 1: Rewrite URL
 
-Jika anda menggunakan Apache atau Nginx, ikuti panduan
-[mempercantik url](/docs/install#mempercantik-url) karena pada fitur tersebut, kami telah
-sekaligus menyediakan rule untuk memproteksi folder vendor.
+If you use Apache or Nginx, follow the  
+[pretty url](/docs/install#mempercantik-url) guide because we provide rules to protect vendor folder using that feature.
 
 
 
-#### Opsi 2: Taruh diatas document root
+#### Option 2: Store outside document root
 
-Jika hosting anda memperbolehkan upload file ke folder diatas document root, taruh folder
-vendor anda disitu, lalu ubah konfigurasi `composer_autoload` anda menjadi seperti berikut:
+If your hosting allow uploading files to folders outside document root, put your vendor folder there, then change your `composer_autoload` configuration as follow:
 
 ```php
 'composer_autoload' => dirname(path('base')).'/vendor/autoload.php',
 ```
 
-Dengan begitu, folder vendor anda tdak akan bisa diakses oleh publik dan anda tetap dapat
-menggunakan library yang anda install via composer.
+This way, your vendor folder can not be accessed publicly and you can keep using your composer-installed libraries.

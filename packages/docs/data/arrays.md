@@ -2,8 +2,8 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [List Helper](#list-helper)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Helper List](#list-helper)
     - [Arr::accessible\(\)](#arraccessible)
     - [Arr::add\(\)](#arradd)
     - [Arr::collapse\(\)](#arrcollapse)
@@ -34,22 +34,22 @@
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Komponen ini menyertakan berbagai helper untuk membuat hidup anda lebih mudah saat bekerja dengan array.
-Berikut adalah daftar helper yang tersedia untuk anda:
+These components include various helpers to make your life easier when working with array.
+This is the list of available helpers for you:
 
 
 <a id="list-helper"></a>
-## List Helper
+## Helper List
 
-Berikut dalah daftar helper yang tersedia untuk komponen ini:
+This is the list of available helpers for this component:
 
 
 <a id="arraccessible"></a>
 ### Arr::accessible()
 
-Metohd ini memeriksa bahwa value yang diberikan merupakan array yang dapat diakses:
+This method check whether given value is an accessible array:
 
 ```php
 return Arr::accessible(['a' => 1, 'b' => 2]); // true
@@ -61,8 +61,7 @@ return Arr::accessible(new \stdClass());      // false
 <a id="arradd"></a>
 ### Arr::add()
 
-Method ini menambahkan pasangan key / value tertentu ke array jika key yang diberikan
-belum ada di array atau disetel ke `NULL`:
+This method add certain key/value pair to the array if given key is not exist in the array or set to `NULL`:
 
 ```php
 return Arr::add(['name' => 'Desk'], 'price', 100);
@@ -76,7 +75,7 @@ return Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 <a id="arrcollapse"></a>
 ### Arr::collapse()
 
-Metode ini menciutkan array multi-dimensi menjadi array tunggal:
+This method shrink multi-dimension array into single array:
 
 ```php
 return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
@@ -87,8 +86,7 @@ return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
 <a id="arrdivide"></a>
 ### Arr::divide()
 
-Method ini mereturn dua buah array, satu berisi key, dan yang lainnya berisi
-value dari array yang diberikan:
+This method return two array, one contain the key, and the other contain the value of given array:
 
 ```php
 list($keys, $values) = Arr::divide(['name' => 'Desk']);
@@ -100,8 +98,7 @@ list($keys, $values) = Arr::divide(['name' => 'Desk']);
 <a id="arrdot"></a>
 ### Arr::dot()
 
-Method ini meratakan array multi-dimensi menjadi array tunggal yang menggunakan notasi "dot"
-untuk menunjukkan kedalaman array:
+This method will shrink multi-dimension array into single array using "dot" notation to show array depth:
 
 ```php
 
@@ -114,7 +111,7 @@ return Arr::dot($array); // ['products.desk.price' => 100]
 <a id="arrexcept"></a>
 ### Arr::except()
 
-Method ini menghapus pasangan key / value tertentu dari array:
+This method remove certain key/value pair from the array:
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100];
@@ -126,7 +123,7 @@ return Arr::except($array, ['price']); // ['name' => 'Desk']
 <a id="arrexists"></a>
 ### Arr::exists()
 
-Method ini memeriksa bahwa key yang diberikan ada dalam sebuah array:
+This method check whether given key exist in an array:
 
 ```php
 $array = ['name' => 'Agung', 'age' => 17];
@@ -139,7 +136,7 @@ return Arr::exists($array, 'salary'); // false
 <a id="arrfirst"></a>
 ### Arr::first()
 
-Method ini mereturn elemen pertama dari sebuah array yang lolos dari uji kebenaran yang diberikan:
+This method return first element of an array which passed given validity test:
 
 ```php
 $array = [100, 200, 300];
@@ -151,8 +148,7 @@ return Arr::first($array, function ($value, $key) {
 // 200
 ```
 
-Default value juga dapat diberikan sebagai parameter ketiga untuk methog ini. Value ini akan
-direturn jika tidak ada value yang lolos dari uji kebenaran yang anda berikan:
+You can pass default value as the third argument of this method. This value will be returned if there is no value passed the given validity test:
 
 ```php
 return Arr::first($array, $callback, $default);
@@ -161,7 +157,7 @@ return Arr::first($array, $callback, $default);
 <a id="arrflatten"></a>
 ### Arr::flatten()
 
-Method ini meratakan array multi-dimensi menjadi array tunggal:
+This method flatten multi-dimension array into a single array:
 
 ```php
 $array = ['name' => 'Dimas', 'languages' => ['PHP', 'Ruby']];
@@ -173,7 +169,7 @@ return Arr::flatten($array); // ['Dimas', 'PHP', 'Ruby']
 <a id="arrforget"></a>
 ### Arr::forget()
 
-Method ini menghapus pasangan key / value tertentu dari array menggunakan notasi "dot":
+This method remove certain key/value pair from an array using "dot" notation:
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
@@ -187,7 +183,7 @@ return $array; // ['products' => []]
 <a id="arrget"></a>
 ### Arr::get()
 
-Method ini mengambil sebuah value dari array menggunakan notasi "dot":
+This method take one value from an array using "dot" notation:
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
@@ -195,7 +191,7 @@ $array = ['products' => ['desk' => ['price' => 100]]];
 return Arr::get($array, 'products.desk.price'); // 100
 ```
 
-Method ini juga menerima default value, yang akan direturn jika key yang diminta tidak ditemukan:
+This method also accept a default value, which will be returned if expected key is not found:
 
 ```php
 return Arr::get($array, 'products.desk.discount', 0); // 0
@@ -205,7 +201,7 @@ return Arr::get($array, 'products.desk.discount', 0); // 0
 <a id="arrhas"></a>
 ### Arr::has()
 
-Method ini memeriksa apakah item tertentu ada dalam array menggunakan notasi "dor":
+This method check whether certain item exist in an array using "dot" notation:
 
 ```php
 
@@ -219,8 +215,7 @@ return Arr::has($array, ['product.price', 'product.discount']); // false
 <a id="arrassociative"></a>
 ### Arr::associative()
 
-Method ini mereturn `TRUE` jika array yang diberikan adalah array asosiatif. Sebuah array
-akan dianggap "asosiatif" jika ia tidak memiliki key numerik berurutan yang dimulai dengan nol:
+This method return `TRUE` if given array is an associative array. An array will be called "associative" it does not have sequential numeric key started with zero:
 
 ```php
 $array1 = ['product' => ['name' => 'Desk', 'price' => 100]];
@@ -234,7 +229,7 @@ return Arr::associative($array2); // false
 <a id="arrlast"></a>
 ### Arr::last()
 
-Method ini mereturn elemen terakhir dari sebuah array yang lolos uji kebenaran yang diberikan:
+This method return the last element of an array if it passed given truth test:
 
 ```php
 $array = [100, 200, 300, 110];
@@ -246,8 +241,8 @@ return Arr::last($array, function ($value, $key) {
 // 300
 ```
 
-Default value dapat ditambahkan sebagai parameter ketiga untuk method ini.
-Value ini akan di-return jika tidak ada value yang lolos dari uji kebenaran yang anda berikan:
+Default value can be added as third parameter of this method.
+This value will be returned if there's no value passed from given truth test:
 
 ```php
 return Arr::last($array, $callback, $default);
@@ -257,7 +252,7 @@ return Arr::last($array, $callback, $default);
 <a id="arronly"></a>
 ### Arr::only()
 
-Method ini hanya mereturn pasangan key / value yang ditentukan dari array yang diberikan:
+This method only return key/value pair which is decided by the array given:
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100, 'orders' => 10];
@@ -270,7 +265,7 @@ return Arr::only($array, ['name', 'price']);
 <a id="arrpluck"></a>
 ### Arr::pluck()
 
-Metode ini mengambil semua value untuk milik key tertentu dari array:
+This method take all values belongs to certain key from an array:
 
 ```php
 $array = [
@@ -282,7 +277,7 @@ return Arr::pluck($array, 'developer.name');
 // ['Budi', 'Sarah']
 ```
 
-Anda juga dapat menentukan bagaimana bentuk key output array yang dihasilkan:
+You can also specify the array key output returned:
 
 ```php
 return Arr::pluck($array, 'developer.name', 'developer.id');
@@ -293,7 +288,7 @@ return Arr::pluck($array, 'developer.name', 'developer.id');
 <a id="arrprepend"></a>
 ### Arr::prepend()
 
-Method ini akan menambahkan sebuah item ke bagian awal sebuah array:
+This method will add an item to the beginning of an array:
 
 ```php
 $array = ['one', 'two', 'three', 'four'];
@@ -302,7 +297,7 @@ $array = Arr::prepend($array, 'zero');
 // ['zero', 'one', 'two', 'three', 'four']
 ```
 
-Jika diperlukan, anda juga boleh menentukan key mana yang harus dipakai untuk si item:
+If needed, you can also specify which key will be used for the item:
 
 ```php
 $array = ['price' => 100];
@@ -315,7 +310,7 @@ $array = Arr::prepend($array, 'Desk', 'name');
 <a id="arrpull"></a>
 ### Arr::pull()
 
-Metode ini mereturn dan menghapus pasangan key / value dari sebuah array:
+This method will return and remove the key/value pair from an array:
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100];
@@ -325,8 +320,7 @@ $name = Arr::pull($array, 'name');
 // $array: ['price' => 100]
 ```
 
-Default value dapat diberikan sebagai parameter ketiga untuk method ini. Value ini akan
-di-return jika key yang anda mau tidak ditemukan:
+Default value can be given as the third parameter in this method. This value will be returned if the your expected key is not found:
 
 ```php
 $value = Arr::pull($array, $key, $default);
@@ -336,7 +330,7 @@ $value = Arr::pull($array, $key, $default);
 <a id="arrrandom"></a>
 ### Arr::random()
 
-Method ini mereturn sebuah value acak dari array:
+This method return a random value from an array:
 
 ```php
 $array = [1, 2, 3, 4, 5];
@@ -344,9 +338,9 @@ $array = [1, 2, 3, 4, 5];
 return Arr::random($array); // 4 - (diperoleh secara acak)
 ```
 
-Anda juga dapat menentukan berapa banyak item yang harus di-return melalui parameter ketiga.
+You can also specify how many items to be returned in the third parameter.
 
-Patut diperhatikan bahwa jika opsi ini digunakan, return value yang anda dapat akan selalu berupa array.
+Please note that if you use this option, returned value will not always an array.
 
 ```php
 return Arr::random($array, 2); // [2, 5] - (diperoleh secara acak)
@@ -356,7 +350,7 @@ return Arr::random($array, 2); // [2, 5] - (diperoleh secara acak)
 <a id="arrset"></a>
 ### Arr::set()
 
-Method ini digunakan untuk menetapkan sebuah value ke array menggunakan notasi "dot":
+This method used to specify a value into an array using "dot" notation:
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
@@ -370,7 +364,7 @@ Arr::set($array, 'products.desk.price', 200);
 <a id="arrshuffle"></a>
 ### Arr::shuffle()
 
-Method ini mengacak item milik sebuah array:
+This method randomize items belong to an array:
 
 ```php
 return Arr::shuffle([1, 2, 3, 4, 5]);
@@ -381,7 +375,7 @@ return Arr::shuffle([1, 2, 3, 4, 5]);
 <a id="arrsort"></a>
 ### Arr::sort()
 
-Method ini mengurutkan array berdasarkan valuenya:
+This method will sort an array based on its value:
 
 ```php
 $array = ['Desk', 'Table', 'Chair'];
@@ -390,7 +384,7 @@ return Arr::sort($array);
 // ['Chair', 'Desk', 'Table']
 ```
 
-Anda juga dapat mengurutkan array menggunakan Closure:
+You can also sort the array using Closure:
 
 ```php
 $array = [
@@ -416,10 +410,9 @@ return array_values(Arr::sort($array, function ($value) {
 <a id="arrrecsort"></a>
 ### Arr::recsort()
 
-Method ini mengurutkan array secara rekursif menggunakan
-bantuan fungsi [sort](https://php.net/manual/en/function.sort.php)
-untuk sub-array numerik, dan [ksort](https://php.net/manual/en/function.ksort.php)
-untuk sub-array asosiatif:
+This method will sort an array recursively with the help of [sort](https://php.net/manual/en/function.sort.php)
+function for numeric sub-array, and [ksort](https://php.net/manual/en/function.ksort.php)
+for associative sub-array:
 
 ```php
 $array = [
@@ -443,7 +436,7 @@ return Arr::recsort($array);
 <a id="arrwhere"></a>
 ### Arr::where()
 
-Method ini dipakai untuk menyaring array menggunakan Closure:
+This method used to filter an array using Closure:
 
 ```php
 $array = [100, '200', 300, '400', 500];
@@ -459,8 +452,7 @@ return Arr::where($array, function ($value, $key) {
 <a id="arrwrap"></a>
 ### Arr::wrap()
 
-Method ini membungkus value yang diberikan dalam sebuah array. Jika value yang diberikan
-sudah berupa array, value tersebut tidak akan diubah:
+This method wrap a given value in an array. If the given value is an array, the value will not be modified:
 
 ```php
 $string = 'Bakso';
@@ -468,12 +460,12 @@ $string = 'Bakso';
 return Arr::wrap($string); // ['Bakso']
 ```
 
-Jika value yang diberikan adalah `NULL`, ia akan mereturn `array kosong`:
+If the given value is `NULL`, it will return `empty array`:
 
 ```php
-$kosong = null;
+$empty = null;
 
-return Arr::wrap($kosong); // []
+return Arr::wrap($empty); // []
 ```
 
-> Beberapa helper tambahan untuk operasi array juga tersedia di halaman [Helper](/docs/helpers)
+> Some additional helpers for array operations also available in the [Helper](/docs/helpers) page

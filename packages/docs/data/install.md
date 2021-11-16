@@ -241,4 +241,4 @@ After finished managing URL rewrite, you need to change `'index'` option
 in `application/config/application.php` file to empty string.
 
 >  Every web server has different method in handling HTTP rewrite,
-   and probably will need differen configuration rule as well.
+   and probably will need different configuration rule as well.
