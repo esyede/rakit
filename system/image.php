@@ -74,7 +74,7 @@ class Image
         $this->path = $this->path($path);
 
         if (! is_file($this->path)) {
-            throw new \Exception(sprintf('Source image does not exists: ', $this->path));
+            throw new \Exception(sprintf('Source image does not exists: %s', $this->path));
         }
 
         $this->width = 0;
