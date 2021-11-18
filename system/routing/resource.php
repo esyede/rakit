@@ -82,7 +82,6 @@ class Resource
 
         $this->name = (isset($pieces[1]) && ! empty($pieces[1])) ? $pieces[1] : $name;
 
-
         foreach ($this->options as $option) {
             $method = Str::lower($option['method']);
 
