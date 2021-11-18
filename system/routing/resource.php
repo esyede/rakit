@@ -86,10 +86,12 @@ class Resource
             $method = Str::lower($option['method']);
 
             if (! in_array($method, $this->methods)) {
-                throw new \Exception(sprintf('Invalid route method specified: %s', $method));
+                throw new \Exception(sprintf('Invalid request method specified: %s', $method));
             }
 
+            $this->name = str_replace('::', '/', $this->name);
             $options = $this->options($option);
+
             Route::{$method}($prefix.$this->name.$option['route'], $options);
         }
     }
