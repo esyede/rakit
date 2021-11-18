@@ -14,6 +14,10 @@
       	"description": "Buat file controller.",
       	"command": "php rakit make:controller"
       },
+      "make:resource": {
+        "description": "Buat file resource controller.",
+        "command": "php rakit make:resource"
+      },
       "make:model": {
       	"description": "Buat file model.",
       	"command": "php rakit make:model"

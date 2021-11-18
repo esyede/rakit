@@ -76,6 +76,72 @@ class Make extends Command
     }
 
     /**
+     * Buat file resource controller baru.
+     *
+     * <code>
+     *
+     *      // Buat file resource controller baru.
+     *      php rakit make:resource dashboard
+     *
+     *      // Buat file resource controller baru didalam subdirektori.
+     *      php rakit make:resource admin.home
+     *
+     *      // Buat file resource controller baru di paket 'admin'.
+     *      php rakit make:resource admin::dashboard
+     *
+     * </code>
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function resource($arguments = [])
+    {
+        if (0 === count($arguments)) {
+            throw new \Exception('I need to know what to name the file to be make.');
+        }
+
+        $arguments[0] = $this->slashes($arguments[0]);
+
+        if (false !== strstr($arguments[0], '::')) {
+            list($package, $class) = Package::parse($arguments[0]);
+        } else {
+            list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
+        }
+
+        if (! Package::exists($package)) {
+            throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
+        }
+
+        if ('_controller' === Str::lower($class)) {
+            throw new \Exception('Please choose another name for controller.');
+        }
+
+        $class = Str::replace_last('_controller', '', Str::lower($class));
+        $root = Package::path($package).'controllers'.DS;
+        $file = $root.str_replace('/', DS, $this->slashes($class)).'.php';
+        $display = Str::replace_first(path('base'), '', $file);
+
+        if (Storage::exists($file)) {
+            echo 'Controller already exists: '.$display.'   (skipped)';
+        } else {
+            $directory = Str::replace_last(basename($file), '', $file);
+            $this->makedir($directory);
+
+            $replace = [
+                'stub_class' => Package::class_prefix($package).Str::classify($class),
+                'stub_uri' => Str::lower((($package === DEFAULT_PACKAGE) ? '' : $package.'/').$class),
+            ];
+
+            Storage::put($file, $this->stub_general($class, $replace, 'resource'));
+
+            echo 'Created resource controller: '.$display;
+        }
+
+        return $file;
+    }
+
+    /**
      * Buat file model baru.
      *
      * <code>

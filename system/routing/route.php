@@ -285,6 +285,17 @@ class Route
     }
 
     /**
+     * Daftarkan sebuah resource controller.
+     *
+     * @param string $controller
+     * @param array  $options
+     */
+    public static function resource($controller, array $options = [])
+    {
+        Resource::make($controller, $options);
+    }
+
+    /**
      * Daftarkan sebuah route untuk semua tipe request (GET, POST, PUT, DELETE).
      *
      * @param string|array $route
