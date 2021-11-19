@@ -12,18 +12,18 @@ use System\Event;
 class Connection
 {
     /**
-     * Berisi instance kelas PDO.
-     *
-     * @var PDO
-     */
-    public $pdo;
-
-    /**
      * Berisi array konfigurasi koneksi.
      *
      * @var array
      */
     public $config;
+
+    /**
+     * Berisi instance kelas PDO.
+     *
+     * @var \PDO
+     */
+    protected $pdo;
 
     /**
      * Berisi isntance kelas query grammar.
@@ -106,19 +106,19 @@ class Connection
      */
     public function transaction(callable $callback)
     {
-        $this->pdo->beginTransaction();
+        $this->pdo()->beginTransaction();
 
         try {
             call_user_func($callback);
         } catch (\Throwable $e) {
-            $this->pdo->rollBack();
+            $this->pdo()->rollBack();
             throw $e;
         } catch (\Exception $e) {
-            $this->pdo->rollBack();
+            $this->pdo()->rollBack();
             throw $e;
         }
 
-        return $this->pdo->commit();
+        return $this->pdo()->commit();
     }
 
     /**
@@ -224,7 +224,7 @@ class Connection
         }
 
         try {
-            $statement = $this->pdo->prepare($sql);
+            $statement = $this->pdo()->prepare($sql);
             $start = microtime(true);
             $result = $statement->execute($bindings);
         } catch (\Throwable $e) {
@@ -281,6 +281,16 @@ class Connection
     public function driver()
     {
         return $this->config['driver'];
+    }
+
+    /**
+     * Ambil object koneksi PDO.
+     *
+     * @return \PDO
+     */
+    public function pdo()
+    {
+        return $this->pdo;
     }
 
     /**

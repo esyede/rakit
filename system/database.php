@@ -127,7 +127,7 @@ class Database
      */
     public static function escape($value)
     {
-        return static::connection()->pdo->quote($value);
+        return static::connection()->pdo()->quote($value);
     }
 
     /**

@@ -45,3 +45,6 @@ phpunit.xml
 # Nodejs
 /node_modules
 .env
+
+# Others
+*.phar

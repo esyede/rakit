@@ -104,7 +104,7 @@ class Schema
             case 'sqlite':
                 try {
                     $query = 'PRAGMA table_info('.str_replace('.', '__', $table).')';
-                    $statement = DB::connection()->pdo->prepare($query);
+                    $statement = DB::connection()->pdo()->prepare($query);
                     $statement->execute();
 
                     // Listing semua kolom di dalam tabel
@@ -164,7 +164,7 @@ class Schema
         }
 
         try {
-            return false !== DB::connection()->pdo->exec($query);
+            return false !== DB::connection()->pdo()->exec($query);
         } catch (\PDOException $e) {
             return false;
         }
@@ -198,7 +198,7 @@ class Schema
         }
 
         try {
-            return false !== DB::connection()->pdo->exec($query);
+            return false !== DB::connection()->pdo()->exec($query);
         } catch (\PDOException $e) {
             return false;
         }

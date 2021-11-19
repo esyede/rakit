@@ -77,7 +77,7 @@ Terkadang anda mungkin ingin mengakses object koneksi PDO mentah secara langsung
 #### Mengakses object koneksi PDO mentah:
 
 ```php
-$pdo = DB::connection('sqlite')->pdo;
+$pdo = DB::connection('sqlite')->pdo();
 // dd($pdo); // akan berisi object dari kelas \PDO
 ```
 

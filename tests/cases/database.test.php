@@ -36,7 +36,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset(DB::$connections['mysql']));
 
         $test = Config::get('database.connections.mysql');
-        $this->assertEquals(DB::$connections['mysql']->pdo->testConfigs, $test);
+        $this->assertEquals(DB::$connections['mysql']->pdo()->testConfigs, $test);
     }
 
     /**

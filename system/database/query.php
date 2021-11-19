@@ -786,7 +786,7 @@ class Query
             return (int) $row[$column];
         }
 
-        return (int) $this->connection->pdo->lastInsertId();
+        return (int) $this->connection->pdo()->lastInsertId();
     }
 
     /**
