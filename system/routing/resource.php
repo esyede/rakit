@@ -118,6 +118,8 @@ class Resource
      */
     protected function options(array $options)
     {
+        $results = [];
+
         if (isset($options['as']) && ! empty($options['as'])) {
             $prefix = $this->parent ? $this->parent.'.' : '';
             $results['as'] = $prefix.$this->placeholder($options['as']);
