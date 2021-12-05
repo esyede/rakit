@@ -119,7 +119,7 @@ class Storage
      */
     public static function delete($path)
     {
-        if (! @unlink($path)) {
+        if (is_file($path) && ! @unlink($path)) {
             return false;
         }
 
