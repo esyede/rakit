@@ -60,6 +60,7 @@ return [
     'Session' => 'System\Session',
     'Storage' => 'System\Storage',
     'Str' => 'System\Str',
+    'Throttle' => 'System\Routing\Throttle',
     'URI' => 'System\URI',
     'URL' => 'System\URL',
     'Validator' => 'System\Validator',

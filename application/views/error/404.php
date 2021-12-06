@@ -15,10 +15,9 @@
 <div id=system-error>
 	<h1>Page Not Found!</h1>
 
-	<p>
-      We're sorry! The page you have requested cannot be found on this server.
-      The page may be deleted or no longer exists.
-	</p>
+    <p>
+        <?php echo isset($message) ? $message : 'We are sorry! The page you have requested cannot be found on this server. The page may be deleted or no longer exists.'; ?>
+    </p>
 
 	<p><small>Code: 404</small></p>
 </div>

@@ -15,8 +15,10 @@
 <div id=system-error>
 	<h1>Internal Server Error</h1>
 
-	<p>We're sorry! The server encountered an internal error and
-	was unable to complete your request. Please try again later.</p>
+	<p>
+        <?php echo isset($message) ? $message : 'We are sorry! The server encountered an internal error and
+    was unable to complete your request. Please try again later.'; ?>
+    </p>
 
 	<p><small>Code: 500</small></p>
 </div>

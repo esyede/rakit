@@ -75,12 +75,14 @@ class Response
      *
      * @param string $view
      * @param array  $data
+     * @param int    $status
+     * @param array  $headers
      *
      * @return Response
      */
-    public static function view($view, array $data = [])
+    public static function view($view, array $data = [], $status = 200, array $headers = [])
     {
-        return new static(View::make($view, $data));
+        return new static(View::make($view, $data), $status, $headers);
     }
 
     /**
