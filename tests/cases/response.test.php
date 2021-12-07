@@ -55,11 +55,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function testErrorMethodSetsContentToErrorView()
     {
-        $response = Response::error('404', ['name' => 'Budi']);
+        $response = Response::error('404');
 
         $this->assertEquals(404, $response->status());
-        $this->assertEquals('error.404', $response->content->view);
-        $this->assertEquals('Budi', $response->content->data['name']);
+        $this->assertEquals('Not Found', json_decode($response->content)->message);
     }
 
     /**

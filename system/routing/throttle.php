@@ -93,14 +93,7 @@ class Throttle
             'Retry-After' => $headers['retry'],
         ];
 
-        $data = ['code' => 429, 'status' => 'error', 'message' => 'Too many requests.'];
-
-        if (Request::ajax()) {
-            return Response::json($data, 429, $headers);
-        }
-
-        $view = View::exists('error.429') ? 'error.429' : 'error.default';
-        return Response::view($view, $data, 429, $headers);
+        return Response::error($code, $headers);
     }
 
     /**

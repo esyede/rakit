@@ -164,22 +164,29 @@ class Response
      *      // Buat response 404
      *      return Response::error('404');
      *
-     *      // Buat response 404 dengan data
-     *      return Response::error('404', ['message' => 'Halaman Tidak Ditemukan']);
+     *      // Buat response error dengan custom header
+     *      return Response::error('429', ['Retry-After' => 1234567]);
      *
      * </code>
      *
-     * @param int   $code
-     * @param array $data
+     * @param int $code
      *
      * @return Response
      */
-    public static function error($code, array $data = [])
+    public static function error($code, array $headers = [])
     {
-        $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
-        $data = array_merge($data, compact('code'));
+        $code = (int) $code;
+        $message = Foundation\Http\Responder::$statusTexts;
+        $message = isset($message[$code]) ? $message[$code] : 'Unknown Error';
 
-        return new static(View::make($view, $data), $code);
+        if (Request::ajax()) {
+            $status = 'error';
+            return Response::json(compact('status', 'message', 'code'), $code, $headers);
+        }
+
+        // Custom header diabaikan ketika responnya view
+        $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
+        return new static(View::make($view, compact('code', 'message')), $code);
     }
 
     /**
