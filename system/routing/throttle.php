@@ -4,7 +4,6 @@ namespace System\Routing;
 
 defined('DS') or exit('No direct script access.');
 
-use System\View;
 use System\Cache;
 use System\Request;
 use System\Response;
