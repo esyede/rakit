@@ -324,25 +324,26 @@ body#oops-debug .oops-panel {
 
 #oops-debug .oops-dump-array,
 #oops-debug .oops-dump-object {
-	color: #C22;
+	color: #c22;
 }
 
 #oops-debug .oops-dump-string {
-	color: #35D;
+	color: #b47cd8;
 }
 
 #oops-debug .oops-dump-number {
-	color: #090;
+	color: #22863a;
 }
 
 #oops-debug .oops-dump-null,
 #oops-debug .oops-dump-bool {
-	color: #850;
+	color: #f5871f;
 }
 
 #oops-debug .oops-dump-visibility,
 #oops-debug .oops-dump-hash {
-	font-size: 85%; color: #999;
+	font-size: 85%;
+    color: #8959a8;
 }
 
 #oops-debug .oops-dump-indent {

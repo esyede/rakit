@@ -1,6 +1,6 @@
 #oops-panic {
 	font: 9pt/1.5 BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	background: #fafafa;
+	background: #efeef4;
 	color: hsl(0, 0%, 29%);
 	position: absolute;
 	z-index: 20000;
@@ -36,14 +36,14 @@
 
 #oops-panic a {
 	text-decoration: none;
-	color: #209cee;
+    color: #ad6af9;
 	padding: 2px 4px;
 	margin: -2px -4px;
 }
 
 #oops-panic a:hover,
 #oops-panic a:focus {
-	color: #00d1b2;
+	color: #7d25e1;
 }
 
 #oops-panic-toggle {
@@ -51,15 +51,13 @@
 	right: .5em;
 	top: .5em;
 	text-decoration: none;
-	background: #ff3860;
-	color: #fafafa !important;
+	background: #ad6af9;
+	color: #484467 !important;
 	padding: 3px;
 }
 
 #oops-panic-error {
-	background: #209cee;
-    background: -webkit-linear-gradient(to right, #209cee,   #ff3860);
-    background: linear-gradient(to right, #209cee,   #ff3860);
+	background: #484467;
 	color: #fafafa;
 	font-size: 13pt;
 }
@@ -115,6 +113,7 @@
 #oops-panic code,
 #oops-panic table {
 	font: 9pt/1.5 Consolas, monospace !important;
+    border-radius: 10px;
 }
 
 #oops-panic pre,
@@ -188,7 +187,7 @@
 }
 
 #oops-panic div.inner {
-	background: #fafbfc;
+	background: #fbfafc;
 	padding: .1em 1em 1em;
 	border-radius: 8px;
 }
@@ -206,8 +205,8 @@
 }
 
 #oops-panic .highlight {
-	background: #ff3860;
-	color: #fafafa;
+	background: #fbf5ff;
+	color: #484467;
 	font-weight: bold;
 	font-style: normal;
 	display: block;
@@ -266,15 +265,15 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 /* dump */
 #oops-panic .oops-dump-array,
 #oops-panic .oops-dump-object {
-	color: #ff3860;
+	color: #c22;
 }
 
 #oops-panic .oops-dump-string {
-	color: #209cee;
+	color: #b47cd8;
 }
 
 #oops-panic .oops-dump-number {
-	color: #23d160;
+	color: #22863a;
 }
 
 #oops-panic .oops-dump-whitespace {
@@ -283,13 +282,13 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 
 #oops-panic .oops-dump-null,
 #oops-panic .oops-dump-bool {
-	color: #00d1b2;
+	color: #f5871f;
 }
 
 #oops-panic .oops-dump-visibility,
 #oops-panic .oops-dump-hash {
 	font-size: 85%;
-	color: #b5b5b5;
+	color: #8959a8;
 }
 
 #oops-panic .oops-dump-indent {
@@ -308,7 +307,7 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 #oops-panic .caused {
 	float: right;
 	padding: .3em .6em;
-	background: #ff3860;
+	background: #8959a8;
 	border-radius: 0 0 0 8px;
 	white-space: nowrap;
 }

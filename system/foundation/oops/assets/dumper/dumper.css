@@ -14,37 +14,38 @@ pre.oops-dump div div {
 }
 
 pre.oops-dump a {
-	color: #125EAE;
+	color: #ad6af9;
 	text-decoration: none;
 }
 
 pre.oops-dump a:hover,
 pre.oops-dump a:focus {
-	background-color: #125EAE;
+	background-color: #7d25e1;
 	color: white;
 }
 
 .oops-dump-array,
 .oops-dump-object {
-	color: #C22;
+	color: #c22;
 }
 
 .oops-dump-string {
-	color: #35D;
+	color: #b47cd8;
 }
 
 .oops-dump-number {
-	color: #090;
+	color: #22863a;
 }
 
 .oops-dump-null,
 .oops-dump-bool {
-	color: #850;
+	color: #f5871f;
 }
 
 .oops-dump-visibility,
 .oops-dump-hash {
-	font-size: 85%; color: #999;
+	font-size: 85%;
+    color: #8959a8;
 }
 
 .oops-dump-indent {
@@ -52,5 +53,5 @@ pre.oops-dump a:focus {
 }
 
 span[data-oops-href] {
-	border-bottom: 1px dotted rgba(0, 0, 0, .2);
+	border-bottom: 1px dotted #8959a8;
 }
