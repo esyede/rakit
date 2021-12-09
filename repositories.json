@@ -8,6 +8,7 @@
         "compatibilities": {
             "v0.9.7": "v1.0.0",
             "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
             "v1.0.0": "v1.0.0"
         }
     },
@@ -20,19 +21,21 @@
         "compatibilities": {
             "v0.9.7": "v1.0.0",
             "v0.9.8": "v1.0.0",
-            "v1.0.0": "v1.0.0",
-            "v2.0.0": "v2.8.6"
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
         }
     },
     {
-        "name": "bootstrap",
-        "description": "Paket bootstrap untuk rakit",
-        "category": "messaging",
-        "repository": "https://gitlab.com/esyede/boostrap-rakit",
+        "name": "file-auth",
+        "description": "Paket driver otentikasi berbasis file untuk rakit framework.",
+        "category": "security",
+        "repository": "https://gitlab.com/esyede/file-auth",
         "maintained": true,
         "compatibilities": {
-            "v1.0.0": "v1.0.0",
-            "v2.0.0": "v2.8.6"
+            "v0.9.7": "v1.0.0",
+            "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
         }
     }
 ]
