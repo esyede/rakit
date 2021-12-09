@@ -515,6 +515,6 @@ class Blade
      */
     public static function compiled($path)
     {
-        return path('storage').'views'.DS.crc32($path).'.bc.php';
+        return path('storage').'views'.DS.sprintf('%u', crc32($path)).'.bc.php';
     }
 }
