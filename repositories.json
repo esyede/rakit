@@ -4,19 +4,6 @@
         "description": "Paket role-based access control untuk rakit",
         "category": "security",
         "repository": "https://github.com/esyede/access",
-        "maintained": false,
-        "compatibilities": {
-            "v0.9.7": "v1.0.0",
-            "v0.9.8": "v1.0.0",
-            "v0.9.9": "v1.0.0",
-            "v1.0.0": "v1.0.0"
-        }
-    },
-    {
-        "name": "docs",
-        "description": "Paket dokumentasi resmi rakit",
-        "category": "messaging",
-        "repository": "https://github.com/esyede/docs",
         "maintained": true,
         "compatibilities": {
             "v0.9.7": "v1.0.0",
