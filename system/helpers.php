@@ -447,7 +447,7 @@ if (! function_exists('config')) {
      * </code>
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return mixed
      */
@@ -472,7 +472,7 @@ if (! function_exists('session')) {
      * </code>
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return mixed
      */
