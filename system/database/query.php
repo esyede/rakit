@@ -258,7 +258,7 @@ class Query
             return $this->where_nested($column, $connector);
         }
 
-        if (! in_array($operator, $this->operators) && null === $value) {
+        if (! in_array(strtolower((string) $operator), $this->operators) && null === $value) {
             $value = $operator;
             $operator = '=';
         }
