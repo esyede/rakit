@@ -76,8 +76,9 @@ class Resolver
         $instances = [];
 
         foreach ($migrations as $migration) {
-            $package = $migration->package;
-            $name = $migration->name;
+            $migration = (array) $migration;
+            $package = $migration['package'];
+            $name = $migration['name'];
             $path = Package::path($package).'migrations'.DS;
 
             require_once $path.$name.'.php';
