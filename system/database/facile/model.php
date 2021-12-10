@@ -663,7 +663,7 @@ abstract class Model
     {
         $sources = ['attributes', 'relationships'];
 
-        foreach ($sorces as $source) {
+        foreach ($sources as $source) {
             if (array_key_exists($key, $this->{$source})) {
                 return (! empty($this->{$source}[$key]));
             }
