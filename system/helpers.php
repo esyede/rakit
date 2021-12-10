@@ -468,8 +468,19 @@ if (! function_exists('csrf_field')) {
      */
     function csrf_field()
     {
-        return '<input type="hidden" name="'.\System\Session::TOKEN.
-            '" value="'.\System\Session::token().'">'.PHP_EOL;
+        return '<input type="hidden" name="'.\System\Session::TOKEN.'" value="'.\System\Session::token().'">'.PHP_EOL;
+    }
+}
+
+if (! function_exists('csrf_token')) {
+    /**
+     * Buat CSRF token.
+     *
+     * @return string
+     */
+    function csrf_token()
+    {
+        return \System\Session::token();
     }
 }
 
