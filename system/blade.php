@@ -129,7 +129,7 @@ class Blade
         $compilers = static::$compilers;
 
         foreach ($compilers as $compiler) {
-            if ('csrf' === $compiler && false === strpos('@csrf', $value)) {
+            if ('csrf' === $compiler && ! Str::contains('@csrf', $value)) {
                 continue;
             }
 
