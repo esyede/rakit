@@ -258,11 +258,9 @@ class Query
             return $this->where_nested($column, $connector);
         }
 
-        if (! in_array($operator, $this->operators)) {
+        if (! in_array($operator, $this->operators) && null === $value) {
             $value = $operator;
             $operator = '=';
-        } elseif (is_null($value) || is_object($value)) {
-            throw new \InvalidArgumentException('Illegal operator and value combination.');
         }
 
         $type = 'where';
