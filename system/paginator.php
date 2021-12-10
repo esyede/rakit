@@ -68,7 +68,7 @@ class Paginator
      *
      * @var string
      */
-    protected $dots = '<li class="dots disabled"><a href="#">...</a></li>';
+    protected $dots = "\t\t".'<li class="page-item page-dots disabled"><a class="page-link" href="#">...</a></li>'."\n";
 
     /**
      * Buat instance Paginator baru.
@@ -174,9 +174,8 @@ class Paginator
             $links = $this->slider($adjacent);
         }
 
-        $content = '<ul>'.$this->previous().$links.$this->next().'</ul>';
-
-        return '<div class="pagination">'.$content.'</div>';
+        $content = "\t".'<ul class="pagination">'."\n".$this->previous().$links.$this->next()."\n\t".'</ul>';
+        return '<nav class="pagination-nav">'."\n".$content."\n".'</nav>';
     }
 
     /**
@@ -285,8 +284,8 @@ class Paginator
         $text = is_null($text) ? Lang::line('pagination.'.$element)->get($this->language) : $text;
 
         if ($disabled($this->page, $this->last)) {
-            $attributes = static::attributes(['class' => $class.' disabled']);
-            return '<li'.$attributes.'><a href="#">'.$text.'</a></li>';
+            $attributes = trim(static::attributes(['class' => $class.' page-item disabled']));
+            return "\t\t".'<li '.$attributes.'><a class="page-link" href="#">'.$text.'</a></li>'."\n";
         }
 
         return $this->link($page, $text, $class);
@@ -327,7 +326,7 @@ class Paginator
 
         for ($page = $start; $page <= $end; ++$page) {
             if ($this->page === $page) {
-                $pages[] = '<li class="active"><a href="#">'.$page.'</a></li>';
+                $pages[] = "\t\t".'<li class="page-item active"><a class="page-link" href="#">'.$page.'</a></li>'."\n";
             } else {
                 $pages[] = $this->link($page, $page, null);
             }
@@ -348,9 +347,10 @@ class Paginator
     protected function link($page, $text, $class)
     {
         $query = '?page='.$page.$this->appendage($this->appends);
-        $attributes = static::attributes(['class' => $class]);
+        $attributes = trim(static::attributes(['class' => $class.' page-item']));
+        $uri = URI::current().$query;
 
-        return '<li'.$attributes.'><a href="'.URI::current().$query.'">'.e($text).'</a></li>';
+        return "\t\t".'<li '.$attributes.'><a class="page-link" href="'.$uri.'">'.e($text).'</a></li>'."\n";
     }
 
     /**
@@ -426,18 +426,6 @@ class Paginator
     public function speaks($language)
     {
         $this->language = $language;
-        return $this;
-    }
-
-    /**
-     * Set string untuk dot listing.
-     * Gunakan ini untuk mengubah nama class cssnya.
-     *
-     * @param string $dots
-     */
-    public function dots($dots)
-    {
-        $this->dots = $dots;
         return $this;
     }
 }
