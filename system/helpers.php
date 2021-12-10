@@ -432,28 +432,133 @@ if (! function_exists('route')) {
     }
 }
 
-if (! function_exists('redirect')) {
+if (! function_exists('config')) {
     /**
-     * Buat sebuah URL redireksi.
+     * Get atau set config.
      *
      * <code>
      *
-     *      // Buat redireksi ke http://situsku.com/profile.
-     *      return redirect('profile');
+     *      // Get config
+     *      $language = config('application.language');
      *
-     *      // Buat redireksi ke https://google.com.
-     *      return redirect('https://google.com');
+     *      // Set config
+     *      config('application.language', 'jp');
      *
      * </code>
      *
-     * @param string     $url
-     * @param string|int $status
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    function config($key, $value = null)
+    {
+        return (null === $value) ? \System\Config::get($key) : \System\Config::set($key, $value);
+    }
+}
+
+if (! function_exists('session')) {
+    /**
+     * Get/set session.
+     *
+     * <code>
+     *
+     *      // Get session
+     *      $language = session('error');
+     *
+     *      // Set session
+     *      session('error', 'Akun tidak ditemukan');
+     *
+     * </code>
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    function session($key, $value = null)
+    {
+        return (null === $value) ? \System\Session::get($key) : \System\Session::set($key, $value);
+    }
+}
+
+if (! function_exists('redirect')) {
+    /**
+     * Buat sebuah redireksi.
+     *
+     * <code>
+     *
+     *      // Buat redireksi
+     *      return redirect('user/profile');
+     *
+     * </code>
+     *
+     * @param string $url
+     *
+     * @return \System\Redirect
+     */
+    function redirect($url)
+    {
+        return \System\Redirect::to($url);
+    }
+}
+
+if (! function_exists('old')) {
+    /**
+     * Ambil old input dari session.
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    function old($key, $default = null)
+    {
+        $old = \System\Input::old($key);
+        return $old ? $old : $default;
+    }
+}
+
+if (! function_exists('back')) {
+    /**
+     * Buat sebuah redireksi ke halaman sebelumnya.
+     *
+     * @return \System\Redirect
+     */
+    function back()
+    {
+        return \System\Redirect::back();
+    }
+}
+
+if (! function_exists('abort')) {
+    /**
+     * Buat sebuah response error.
+     *
+     * @param string $code
      *
      * @return string
      */
-    function redirect($url, $status = 302)
+    function abort($code)
     {
-        return \System\Redirect::to($url, $status);
+        return \System\Response::error($code);
+    }
+}
+
+if (! function_exists('abort_if')) {
+    /**
+     * Buat sebuah response error jika kondisi terpenuhi.
+     *
+     * @param bool   $condition
+     * @param string $code
+     *
+     * @return string
+     */
+    function abort_if($condition, $code)
+    {
+        if ($condition) {
+            return abort($code);
+        }
     }
 }
 
