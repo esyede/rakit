@@ -47,11 +47,11 @@ if (Hash::check('admin123', $hash)) {
 <a id="log-in"></a>
 ## Log In
 
-Sangat mudah untuk me-login-kan user ke dalam aplikasi anda menggunakan method `attempt()`. Cukup oper identifier dan password user ke method tersebut. Kredensial harus ditaruh dalam array, yang memungkinkan fleksibilitas maksimum di seluruh driver, karena beberapa driver mungkin memerlukan jumlah argumen yang berbeda. Method `attempt()` akan me-return `TRUE` jika kredensial valid dan `FALSE` jika sebaliknya:
+Sangat mudah untuk me-login-kan user ke dalam aplikasi anda menggunakan method `attempt()`. Cukup oper username dan password user ke method tersebut. Kredensial harus ditaruh dalam array, yang memungkinkan fleksibilitas maksimum di seluruh driver, karena beberapa driver mungkin memerlukan jumlah argumen yang berbeda. Method `attempt()` akan me-return `TRUE` jika kredensial valid dan `FALSE` jika sebaliknya:
 
 ```php
 $credentials = [
-    'identifier' => 'example@gmail.com',
+    'username' => 'example@gmail.com',
     'password' => 'secret',
 ];
 

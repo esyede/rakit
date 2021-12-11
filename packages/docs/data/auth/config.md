@@ -4,7 +4,7 @@
 
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Driver Otentikasi](#driver-otentikasi)
-- [Identifier Default](#identifier-default)
+- [Username Default](#username-default)
 - [Model Otentikasi](#model-otentikasi)
 - [Tabel Otentikasi](#tabel-otentikasi)
 
@@ -33,17 +33,17 @@ Secara default, kami telah menyertakan dua buah driver:
 Namun, anda anda bebas membuat dan menambahkan driver anda sendiri jika diperlukan!
 
 
-<a id="identifier-default"></a>
-## Identifier Default
+<a id="username-default"></a>
+## Username Default
 
-Opsi kedua di file konfigurasi menentukan "pengenal" default untuk user anda.
+Opsi kedua di file konfigurasi menentukan "username" default untuk user anda.
 Ini biasanya akan sesuai dengan kolom database di tabel users, dan biasanya akan berupa 'email' atau 'username'.
 
 ```php
-'identifier' => 'email',
+'username' => 'email',
 ```
 
-> Pada keadaan default, rakit dikonfigurasi untuk menggunakan identifier `email`, namun tentu saja anda bebas mengubahnya.
+> Pada keadaan default, rakit dikonfigurasi untuk menggunakan `email`, namun tentu saja anda bebas mengubahnya.
 
 
 <a id="model-otentikasi"></a>
