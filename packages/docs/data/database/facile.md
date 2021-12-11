@@ -244,7 +244,7 @@ Rakit mendukung tiga tipe relasi:
 - [Many-To-Many](#many-to-many)
 
 Untuk mendefinisikan relasi pada model, anda cukup membuat method yang me-return
-method `has_one()`, `has_many()`, `belongs_to()`, atau `has_many_and_belongs_to()`.
+method `has_one()`, `has_many()`, `belongs_to()`, atau `belongs_to_many()`.
 
 Mari kita coba masing - masing method tersebut:
 
@@ -422,19 +422,19 @@ role_id - INTEGER
 ```
 
 Tabel berisi banyak record dan karenanya harus dinamai plural (bentuk jamak).
-Tabel pivot yang digunakan dalam relasi `has_many_and_belongs_to()` diberi nama
+Tabel pivot yang digunakan dalam relasi `belongs_to_many()` diberi nama
 dengan menggabungkan nama _singular_ (bentuk tunggal) dari dua model yang berelasi
 yang <ins>disusun menurut abjad </ins> dan <ins>menggabungkannya dengan garis bawah</ins>.
 
 Sekarang anda telah siap untuk menentukan relasi pada model anda menggunakan
-method `has_many_and_belongs_to ()` seperti berikut:
+method `belongs_to_many()` seperti berikut:
 
 ```php
 class User extends Facile
 {
     public function roles()
     {
-        return $this->has_many_and_belongs_to('Role');
+        return $this->belongs_to_many('Role');
     }
 }
 ```
@@ -459,7 +459,7 @@ class User extends Facile
 {
     public function roles()
     {
-        return $this->has_many_and_belongs_to('Role', 'user_roles');
+        return $this->belongs_to_many('Role', 'user_roles');
     }
 }
 ```
@@ -475,7 +475,7 @@ class User extends Facile
 {
     public function roles()
     {
-        return $this->has_many_and_belongs_to('Role', 'user_roles')->with('column');
+        return $this->belongs_to_many('Role', 'user_roles')->with('column');
     }
 }
 ```

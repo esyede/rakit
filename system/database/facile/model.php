@@ -356,9 +356,9 @@ abstract class Model
      *
      * @return Relationships\HasManyAndBelongsTo
      */
-    public function has_many_and_belongs_to($model, $table = null, $foreign = null, $other = null)
+    public function belongs_to_many($model, $table = null, $foreign = null, $other = null)
     {
-        return new Relationships\HasManyAndBelongsTo($this, $model, $table, $foreign, $other);
+        return new Relationships\BelongsToMany($this, $model, $table, $foreign, $other);
     }
 
     /**

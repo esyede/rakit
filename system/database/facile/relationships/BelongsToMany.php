@@ -8,7 +8,7 @@ use System\Str;
 use System\Database\Facile\Model;
 use System\Database\Facile\Pivot;
 
-class HasManyAndBelongsTo extends Relationship
+class BelongsToMany extends Relationship
 {
     /**
      * Berisi nama tabel perantara yang sedang di join.
