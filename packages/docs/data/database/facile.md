@@ -452,7 +452,7 @@ $roles = User::find(1)->roles;
 ```
 
 Jika nama tabel anda tidak mengikuti konvensi yang telah ditetapkan,
-cukup sebutkan nama tabel di parameter kedua milik method `has_and_belongs_to_many()` seperti ini:
+cukup sebutkan nama tabel di parameter kedua milik method `belongs_to_many()` seperti ini:
 
 ```php
 class User extends Facile
