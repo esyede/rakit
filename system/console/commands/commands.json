@@ -7,6 +7,14 @@
       "serve": {
       	"description": "Jalankan server bawaan.",
       	"command": "php rakit serve"
+      },
+      "clear:blade": {
+        "description": "Bersihkan seluruh file cache blade.",
+        "command": "php rakit clear:blade"
+      },
+      "clear:logs": {
+        "description": "Bersihkan seluruh file log.",
+        "command": "php rakit clear:logs"
       }
 	},
 	"make": {

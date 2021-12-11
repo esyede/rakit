@@ -44,6 +44,13 @@ if (! Container::registered('command: serve')) {
     });
 }
 
+// Daftarkan kelas milik command 'clear'.
+if (! Container::registered('command: clear')) {
+    Container::singleton('command: clear', function () {
+        return new Commands\Clear();
+    });
+}
+
 // Daftarkan kelas milik command 'session'.
 if (! Container::registered('command: session')) {
     Container::singleton('command: session', function () {
