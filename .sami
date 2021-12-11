@@ -20,5 +20,14 @@ $options = [
 ];
 
 return new Sami($iterator, $options);
-// Download sami.phar di: http://get.sensiolabs.org/sami.phar (PHP 7.0.0+)
-// Run command: php sami.phar update .sami
+/*
+|--------------------------------------------------------------------------
+| Cara Generate API Docs
+|--------------------------------------------------------------------------
+|
+| Download dulu file 'sami.phar' di: https://rakit.esyede.my.id/sami.phar
+| Lalu jalankan command: php sami.phar update .sami
+|
+| Note: sami versi ini hanya berjalan di PHP 7.0 sampai 7.2 saja.
+|
+*/
