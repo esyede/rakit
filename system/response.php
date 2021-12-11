@@ -16,9 +16,9 @@ class Response
     /**
      * Berisi instanve http foundation response.
      *
-     * @var System\Faundation\Http\Response
+     * @var \System\Faundation\Http\Response
      */
-    public $foundation;
+    protected $foundation;
 
     /**
      * Buat instance Response baru.
@@ -31,6 +31,16 @@ class Response
     {
         $this->content = $content;
         $this->foundation = new Foundation\Http\Response('', $status, $headers);
+    }
+
+    /**
+     * Ambil instance foundation rersponse.
+     *
+     * @return ]System\Foundation\Http\Response
+     */
+    public function foundation()
+    {
+        return $this->foundation;
     }
 
     /**
@@ -162,10 +172,10 @@ class Response
      * <code>
      *
      *      // Buat response 404
-     *      return Response::error('404');
+     *      return Response::error(404);
      *
      *      // Buat response error dengan custom header
-     *      return Response::error('429', ['Retry-After' => 1234567]);
+     *      return Response::error(429, ['Retry-After' => 1234567]);
      *
      * </code>
      *
@@ -179,7 +189,7 @@ class Response
         $message = Foundation\Http\Responder::$statusTexts;
         $message = isset($message[$code]) ? $message[$code] : 'Unknown Error';
 
-        if (Request::ajax()) {
+        if (Request::wants_json()) {
             $status = 'error';
             return Response::json(compact('status', 'message', 'code'), $code, $headers);
         }
@@ -277,8 +287,8 @@ class Response
     public function send()
     {
         $this->cookies();
-        $this->foundation->prepare(Request::foundation());
-        $this->foundation->send();
+        $this->foundation()->prepare(Request::foundation());
+        $this->foundation()->send();
     }
 
     /**
@@ -294,7 +304,7 @@ class Response
             $this->content = (string) $this->content;
         }
 
-        $this->foundation->setContent($this->content);
+        $this->foundation()->setContent($this->content);
 
         return $this->content;
     }
@@ -304,8 +314,8 @@ class Response
      */
     public function send_headers()
     {
-        $this->foundation->prepare(Request::foundation());
-        $this->foundation->sendHeaders();
+        $this->foundation()->prepare(Request::foundation());
+        $this->foundation()->sendHeaders();
     }
 
     /**
@@ -331,7 +341,7 @@ class Response
      */
     public function header($name, $value)
     {
-        $this->foundation->headers->set($name, $value);
+        $this->foundation()->headers->set($name, $value);
         return $this;
     }
 
@@ -342,7 +352,7 @@ class Response
      */
     public function headers()
     {
-        return $this->foundation->headers;
+        return $this->foundation()->headers;
     }
 
     /**
@@ -355,10 +365,10 @@ class Response
     public function status($status = null)
     {
         if (is_null($status)) {
-            return $this->foundation->getStatusCode();
+            return $this->foundation()->getStatusCode();
         }
 
-        $this->foundation->setStatusCode($status);
+        $this->foundation()->setStatusCode($status);
 
         return $this;
     }

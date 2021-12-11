@@ -58,7 +58,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = Response::error('404');
 
         $this->assertEquals(404, $response->status());
-        $this->assertEquals('Not Found', json_decode($response->content)->message);
+        $this->assertEquals('Not Found', $response->content->data['message']);
     }
 
     /**
