@@ -37,9 +37,9 @@ class Facile extends Driver
     public function attempt($arguments = [])
     {
         $user = $this->model()->where(function ($query) use ($arguments) {
-            $username = Config::get('auth.username');
-            $query->where($username, '=', $arguments['username']);
-            $except = Arr::except($arguments, ['username', 'password', 'remember']);
+            $identifier = Config::get('auth.identifier');
+            $query->where($identifier, '=', $arguments['identifier']);
+            $except = Arr::except($arguments, ['identifier', 'password', 'remember']);
 
             foreach ($except as $column => $val) {
                 $query->where($column, '=', $val);
