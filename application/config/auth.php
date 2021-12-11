@@ -22,17 +22,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Auth Identifier
+    | Auth Username
     |--------------------------------------------------------------------------
     |
     | Di sini anda dapat menentukan kolom database yang harus dianggap
-    | sebagai "pengenal" untuk pengguna aplikasi anda. Biasanya, ini bisa
+    | sebagai "username" untuk pengguna aplikasi anda. Biasanya, ini bisa
     | berupa "username" atau "email".
     | Tentu saja, anda bebas mengubahnya sesuai kebutuhan.
     |
     */
 
-    'identifier' => 'email',
+    'username' => 'email',
 
     /*
     |--------------------------------------------------------------------------
