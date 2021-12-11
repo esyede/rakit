@@ -28,6 +28,25 @@ class Request
     public static $foundation;
 
     /**
+     * List format request.
+     *
+     * @var array
+     */
+    public static $formats = [
+        'html' => ['text/html', 'application/xhtml+xml'],
+        'txt' => ['text/plain'],
+        'js' => ['application/javascript', 'application/x-javascript', 'text/javascript'],
+        'css' => ['text/css'],
+        'json' => ['application/json', 'application/x-json'],
+        'jsonld' => ['application/ld+json'],
+        'xml' => ['text/xml', 'application/xml', 'application/x-xml'],
+        'rdf' => ['application/rdf+xml'],
+        'atom' => ['application/atom+xml'],
+        'rss' => ['application/rss+xml'],
+        'form' => ['application/x-www-form-urlencoded'],
+    ];
+
+    /**
      * Ambil URI request saat ini.
      *
      * @return string
@@ -144,15 +163,135 @@ class Request
     }
 
     /**
-     * Cek apakah conten-type yang diberikan bisa diterima oleh requset saat ini.
+     * Cek apakah requset saat ini bisa menerima content-type yg diberikan.
      *
+     * @param string|array $types
+     *
+     * @return bool
+     */
+    public static function accepts($types)
+    {
+        $accepts = static::accept();
+
+        if (count($accepts) === 0) {
+            return true;
+        }
+
+        $types = (array) $types;
+
+        foreach ($accepts as $accept) {
+            if ($accept === '*/*' || $accept === '*') {
+                return true;
+            }
+
+            foreach ($types as $type) {
+                if (static::matches_type($accept, $type) || $accept === strtok($type, '/').'/*') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Mereturn content-type yang paling cocok dari daftar yang tersedia.
+     *
+     * @param string|array $types
+     *
+     * @return string|null
+     */
+    public function prefers($types)
+    {
+        $accepts = static::accept();
+        $types = (array) $types;
+
+        foreach ($accepts as $accept) {
+            if (in_array($accept, ['*/*', '*'])) {
+                return $types[0];
+            }
+
+            foreach ($types as $ctype) {
+                $type = isset(static::$formats[$ctype]) ? static::$formats[$ctype] : $ctype;
+
+                if (static::matches_type($type, $accept) || $accept === strtok($type, '/').'/*') {
+                    return $ctype;
+                }
+            }
+        }
+    }
+
+    /**
+     * Cek apakah requset saat ini bisa menerima html.
+     *
+     * @return bool
+     */
+    public function accept_html()
+    {
+        return $this->accepts('text/html');
+    }
+
+    /**
+     * Cek apakah requset saat ini bisa menerima content-type apapun.
+     *
+     * @return bool
+     */
+    public static function accept_any()
+    {
+        $accept = static::accept();
+        return count($accept) === 0 || (isset($accept[0]) && ($accept[0] === '*/*' || $accept[0] === '*'));
+    }
+
+    /**
+     * Cek kecocokan content type.
+     *
+     * @param string $actual
      * @param string $type
      *
      * @return bool
      */
-    public static function accepts($type)
+    public static function matches_type($actual, $type)
     {
-        return in_array($type, static::accept());
+        if ($actual === $type) {
+            return true;
+        }
+
+        $split = explode('/', $actual);
+
+        return isset($split[1])
+            && preg_match('#'.preg_quote($split[0], '#').'/.+\+'.preg_quote($split[1], '#').'#', $type);
+    }
+
+    /**
+     * Cek apakah request saat ini mengirim json.
+     *
+     * @return bool
+     */
+    public static function is_json()
+    {
+        $type = static::header('content-type');
+        return Str::contains($type ? $type : '', ['/json', '+json']);
+    }
+
+    /**
+     * Cek apakah request saat ini mungkin mengharapkan response json atau tidak.
+     *
+     * @return bool
+     */
+    public static function expects_json()
+    {
+        return (static::ajax() && ! static::pjax() && $this->accept_any()) || static::wants_json();
+    }
+
+    /**
+     * Cek apakah request saat ini meminta json.
+     *
+     * @return bool
+     */
+    public static function wants_json()
+    {
+        $accept = static::accept();
+        return isset($accept[0]) && Str::contains($accept[0], ['/json', '+json']);
     }
 
     /**
@@ -173,6 +312,16 @@ class Request
     public static function secure()
     {
         return static::foundation()->isSecure();
+    }
+
+    /**
+     * Ambil user-agent milik pengirim request saat ini.
+     *
+     * @return bool
+     */
+    public static function agent()
+    {
+        return static::header('user-agent');
     }
 
     /**
@@ -198,13 +347,34 @@ class Request
     }
 
     /**
+     * Cek apakah request saat ini merupakan hasil PJAX atau bukan.
+     *
+     * @return bool
+     */
+    public function pjax()
+    {
+        return (bool) static::header('x-pjax') === true;
+    }
+
+    /**
+     * Cek apakah request saat ini merupakan hasil prefetch atau bukan.
+     *
+     * @return bool
+     */
+    public function prefetch()
+    {
+        return strcasecmp(static::server('http_x_moz'), 'prefetch') === 0
+            || strcasecmp(static::header('purpose'), 'prefetch') === 0;
+    }
+
+    /**
      * Ambil HTTP Referrer milik request.
      *
      * @return string
      */
     public static function referrer()
     {
-        return static::foundation()->headers->get('referer');
+        return static::header('referer');
     }
 
     /**

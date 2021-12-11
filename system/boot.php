@@ -211,4 +211,4 @@ Event::fire('rakit.done', [$response]);
 | bisa (agak) lebih cepat.
 */
 
-$response->foundation->finish();
+$response->foundation()->finish();
