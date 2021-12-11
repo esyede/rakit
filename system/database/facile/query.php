@@ -143,7 +143,7 @@ class Query
             }
         }
 
-        if ($this instanceof Relationships\HasManyAndBelongsTo) {
+        if ($this instanceof Relationships\BelongsToMany) {
             $this->hydrate_pivot($models);
         }
 

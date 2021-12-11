@@ -354,7 +354,7 @@ abstract class Model
      * @param string $foreign
      * @param string $other
      *
-     * @return Relationships\HasManyAndBelongsTo
+     * @return Relationships\BelongsToMany
      */
     public function belongs_to_many($model, $table = null, $foreign = null, $other = null)
     {
