@@ -95,6 +95,24 @@ class Arr
     }
 
     /**
+     * Ubah array notasi "dot" menjadi array biasa.
+     *
+     * @param array $array
+     *
+     * @return array
+     */
+    public static function undot($array)
+    {
+        $results = [];
+
+        foreach ($array as $key => $value) {
+            static::set($results, $key, $value);
+        }
+
+        return $results;
+    }
+
+    /**
      * Ambil semua array kecuali key yang ditentukan.
      *
      * @param array        $array

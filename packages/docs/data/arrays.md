@@ -9,6 +9,7 @@
     - [Arr::collapse\(\)](#arrcollapse)
     - [Arr::divide\(\)](#arrdivide)
     - [Arr::dot\(\)](#arrdot)
+    - [Arr::undot\(\)](#arrundot)
     - [Arr::except\(\)](#arrexcept)
     - [Arr::exists\(\)](#arrexists)
     - [Arr::first\(\)](#arrfirst)
@@ -108,6 +109,19 @@ untuk menunjukkan kedalaman array:
 $array = ['products' => ['desk' => ['price' => 100]]];
 
 return Arr::dot($array); // ['products.desk.price' => 100]
+```
+
+<a id="arrundot"></a>
+### Arr::undot()
+
+Method ini mengubah array satu dimensi bernotasi "titik" menjadi array multi-dimensi:
+
+```php
+$array = ['user.name' => 'Budi', 'user.age' => 28];
+
+return Arr::undot($array);
+
+// ['user' => ['name' => 'Budi', 'age' => 28]]
 ```
 
 

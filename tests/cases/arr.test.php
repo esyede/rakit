@@ -94,6 +94,17 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test untuk method Arr::undot().
+     *
+     * @group system
+     */
+    public function testUndot()
+    {
+        $array = Arr::undot(['user.name' => 'Budi', 'user.age' => 28]);
+        $this->assertEquals(['user' => ['name' => 'Budi', 'age' => 28]], $array);
+    }
+
+    /**
      * Test untuk method Arr::except().
      *
      * @group system
