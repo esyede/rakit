@@ -94,5 +94,7 @@ Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/re
 - Session: use '`file'` as default session driver
 - Docs: add composer installation guide
 
+Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.9).
+
 **Cara upgrade**:
 - Unduh ulang. Tidak kompatibel dengan versi sebelumnya.
