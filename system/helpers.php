@@ -794,6 +794,7 @@ if (! function_exists('system_os')) {
         function human_filesize($size, $precision = 2)
         {
             $size = (float) $size;
+            $precision = (int) $precision;
             $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             $power = ($size > 0) ? floor(log($size, 1024)) : 0;
             $power = ($power > (count($units) - 1)) ? (count($units) - 1) : $power;
