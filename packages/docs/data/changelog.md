@@ -5,6 +5,7 @@
 - [v0.9.6 \(pre-release\)](#v096-pre-release)
 - [v0.9.7 \(pre-release\)](#v097-pre-release)
 - [v0.9.8 \(pre-release\)](#v098-pre-release)
+- [v0.9.9 \(pre-release\)](#v099-pre-release)
 
 <!-- /MarkdownTOC -->
 
@@ -58,6 +59,40 @@ Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/re
 - Refactor: rewrite `Email` component to use driver-based approach
 
 Lebih detailnya, silahkan kunjungi [link ini](https://github.com/esyede/rakit/releases/tag/v0.9.8).
+
+**Cara upgrade**:
+- Unduh ulang. Tidak kompatibel dengan versi sebelumnya.
+
+
+
+<a id="v099-pre-release"></a>
+## v0.9.9 (pre-release)
+
+- Console: allow passing string to `Console::run()`
+- Console: optimize package downloader
+- Model: remove unused `has_one_or_many()` method
+- Email: Fix can't use function return value in write context on PHP 5.4
+- Blade: rename `@yield_section` to @show
+- Blade: remove unused `tap()` method
+- Console: add command example
+- Docs: delete useless models.md
+- Schema: Fix wrong query on `has_column()` - thanks [@reidsneo](https://github.com/reidsneo)
+- Schema: Fix forgot to escape the column
+- Database: `DB::select()` now accept splat parameters
+- Blade: do not run `compile_csrf()` when no `@csrf` called
+- View: use blade for all views
+- Event: rename `Event::listeners()` to `Event::exists()`
+- Str: add comment blocks
+- Console: fix typo of `--database=` cli option
+- Console: rename command `migrate:make` to `make:migration`
+- Console: fix cannot install package
+- Database: make `$operator` parameter as optional in `DB::where()` - thanks [@ZerosDev](https://github.com/ZerosDev)
+- Fix notice undefined index `'autoboot'` - thanks [@ZerosDev](https://github.com/ZerosDev)
+- Docs: fix small typo - thanks [@rhmtty](https://github.com/rhmtty)
+- Docs: add README translation to formal english - thanks [@CxrlosKenobi](https://github.com/CxrlosKenobi)
+- Console: fix forgot to register gitlab provider
+- Session: use '`file'` as default session driver
+- Docs: add composer installation guide
 
 **Cara upgrade**:
 - Unduh ulang. Tidak kompatibel dengan versi sebelumnya.
