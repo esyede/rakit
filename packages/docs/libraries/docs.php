@@ -4,7 +4,7 @@ namespace Docs\Libraries;
 
 defined('DS') or exit('No direct script access.');
 
-use Markdown;
+use System\Markdown;
 
 class Docs
 {
@@ -53,8 +53,8 @@ class Docs
      */
     public static function title($title)
     {
-        $title = strpos($title, '/') ? explode('/', $title) : [$title];
-        $title = array_map('ucwords', $title);
+        $title = (false !== strpos($title, '/')) ? explode('/', $title) : [$title];
+        $title = array_map('ucwords', (false !== strpos($title, '/')) ? explode('/', $title) : [$title]);
         $title = str_replace('/', ' ~ ', implode('/', $title));
 
         return $title;
