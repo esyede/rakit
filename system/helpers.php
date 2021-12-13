@@ -786,20 +786,18 @@ if (! function_exists('system_os')) {
         /**
          * Format ukuran file (ramah manusia).
          *
-         * @param int $size
+         * @param int $bytes
          * @param int $precision
          *
          * @return string
          */
-        function human_filesize($size, $precision = 2)
+        function human_filesize($bytes, $precision = 2)
         {
-            $size = (float) $size;
             $precision = (int) $precision;
             $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            $power = ($size > 0) ? floor(log($size, 1024)) : 0;
-            $power = ($power > (count($units) - 1)) ? (count($units) - 1) : $power;
+            $power = min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
 
-            return sprintf('%s %s', round($size / pow(1024, $power), $precision), $units[$power]);
+            return sprintf('%.'.$precision.'f %s', round($bytes / pow(1024, $power), $precision), $units[$power]);
         }
     }
 }
