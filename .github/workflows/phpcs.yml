@@ -15,15 +15,21 @@ on:
 
 jobs:
     phpcs:
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
               with:
                 token: ${{ secrets.PAT }}
                 ref: ${{ github.head_ref }}
 
-            - name: check php version
-              run: php -v
+            - name: install php and extensions
+                uses: shivammathur/setup-php@v2
+                with:
+                  php-version: 7.4
+                  extensions: curl, mbstring, memcached, json, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, gd, fileinfo, zip, smtp
+                  ini-values: date.timezone='UTC'
+                  coverage: xdebug
+                  tools: composer:v1, pecl
 
             - name: download phpcs
               run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v2.phar
