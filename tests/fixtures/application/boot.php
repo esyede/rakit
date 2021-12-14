@@ -4,20 +4,6 @@ defined('DS') or exit('No direct script access.');
 
 /*
 |--------------------------------------------------------------------------
-| PHP Display Errors
-|--------------------------------------------------------------------------
-|
-| Karena semua error di rakit sudah ditangani oleh debugger, kita dapat
-| mematikan opsi 'display_errors' ini. Namun, anda mungkin membutuhkannya
-| ketika anda mengalami 'white screen of death', karena opsi ini dapat
-| memberikan beberapa petunjuk.
-|
-*/
-
-ini_set('display_errors', 'Off');
-
-/*
-|--------------------------------------------------------------------------
 | Config Loader
 |--------------------------------------------------------------------------
 |
