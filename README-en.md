@@ -42,7 +42,7 @@ in an easier and more efficient way.
 
 ## System Requirements
 
-- PHP 5.4.0 or later
+- PHP 5.4.0 up to 8.0
 - Extension [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
 - Extension [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
 - Extension [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)

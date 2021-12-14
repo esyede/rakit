@@ -18,7 +18,7 @@
 <a id="kebutuhan-sistem"></a>
 ## Kebutuhan Sistem
 
-- PHP 5.4.0+ (up to 8.0)
+- PHP 5.4.0 up to 8.0
 - Ekstensi [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
 - Ekstensi [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
 - Ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
