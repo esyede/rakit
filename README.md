@@ -30,7 +30,7 @@ dengan cara yang lebih mudah dan efisien.
 ## Fitur
 
 - Ukuran relatif kecil (< 1MB sudah termasuk dokumentasi offline).
-- Berjalan di PHP 5.4.0 sampai PHP 8.
+- Berjalan di PHP 5.4.0 sampai PHP 8.0
 - Bisa digunakan dengan ataupun tanpa [Composer](https://getcomposer.org).
 - Routing via Closure maupun Controller (MVC).
 - View dan templating (native / blade).
