@@ -191,12 +191,12 @@ class Response
 
         if (Request::wants_json()) {
             $status = 'error';
-            return Response::json(compact('status', 'message', 'code'), $code, $headers);
+            return static::json(compact('status', 'message', 'code'), $code, $headers);
         }
 
         // Custom header diabaikan ketika responnya view
         $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
-        return new static(View::make($view, compact('code', 'message')), $code);
+        return static::view($view, compact('code', 'message'), $code, $headers);
     }
 
     /**
