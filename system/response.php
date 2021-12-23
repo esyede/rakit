@@ -194,7 +194,6 @@ class Response
             return static::json(compact('status', 'message', 'code'), $code, $headers);
         }
 
-        // Custom header diabaikan ketika responnya view
         $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
         return static::view($view, compact('code', 'message'), $code, $headers);
     }
