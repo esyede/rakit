@@ -92,7 +92,7 @@ class Throttle
             'Retry-After' => $headers['retry'],
         ];
 
-        return Response::error($code, $headers);
+        return Response::error(429, $headers);
     }
 
     /**
@@ -102,17 +102,9 @@ class Throttle
      */
     public static function key()
     {
-        return static::PREFIX.'.'.str_replace('.', '-', static::ip());
-    }
-
-    /**
-     * Ambil ip klien.
-     *
-     * @return string
-     */
-    public static function ip()
-    {
         $ip = Request::ip();
-        return ($ip === '[::1]' || $ip === '127.0.0.1') ? '127.0.0.1' : $ip;
+        $ip = ('::1' === $ip || '[::1]' === $ip) ? '127.0.0.1' : $ip;
+
+        return static::PREFIX.'.'.str_replace('.', '-', $ip);
     }
 }
