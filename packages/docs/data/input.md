@@ -112,10 +112,6 @@ $size = Input::file('picture.size');
 >  Untuk menggunakan method `file()` ini, anda harus mengunakan `Form::open_for_files()` atau
    menambahkan `"multipart/form-data"` ke form HTMl anda secara manual.
 
-_Bacaan lebih lanjut:_
-
-- _[Membuka Form](/docs/views/forms#membuka-form)_
-
 
 <a id="old-input"></a>
 ## Old Input
