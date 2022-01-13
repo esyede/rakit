@@ -1,47 +1,54 @@
-name: Testing Rakit Framework
-on: [push, pull_request]
+name: phpcs
+'on':
+    - push
+    - pull_request
 jobs:
-  build:
-    strategy:
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['7.2']
-    runs-on: ${{ matrix.operating-system }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - name: setup php
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, simplexml, dom, openssl, curl, gd
-
-      - name: get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: cache composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: install dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
-
-      - name: check php version
-        run: php -v
-
-      - name: download phpcs
-        run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v2.phar
-
-    - name: make phpcs executable
-      run: chmod +x phpcs.phar
-
-    - name: apply coding style
-      run: php phpcs.phar fix
-
-    - name: remove phpcs
-      run: rm -f phpcs.phar
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -
+                name: checkout
+                uses: actions/checkout@v2
+            -
+                name: setup php
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '7.2'
+                    extensions: 'mbstring, simplexml, dom, openssl, curl, gd'
+            -
+                name: get composer cache directory
+                id: composer-cache
+                run: >-
+                    echo "::set-output name=dir::$(composer config
+                    cache-files-dir)"
+            -
+                name: cache composer dependencies
+                uses: actions/cache@v2
+                with:
+                    path: '${{ steps.composer-cache.outputs.dir }}'
+                    key: >-
+                        ${{ runner.os }}-composer-${{
+                        hashFiles('**/composer.lock') }}
+                    restore-keys: '${{ runner.os }}-composer-'
+            -
+                name: install dependencies
+                run: >-
+                    composer install --no-progress --prefer-dist
+                    --optimize-autoloader
+            -
+                name: check php version
+                run: php -v
+            -
+                name: download phpcs
+                run: >-
+                    wget -O phpcs.phar
+                    https://cs.symfony.com/download/php-cs-fixer-v2.phar
+            -
+                name: make phpcs executable
+                run: chmod +x phpcs.phar
+            -
+                name: apply coding style
+                run: php phpcs.phar fix
+            -
+                name: remove phpcs
+                run: rm -f phpcs.phar
