@@ -1,37 +1,56 @@
 name: build
-on: [push, pull_request]
+'on':
+    - push
+    - pull_request
 jobs:
-  build:
-    strategy:
-      matrix:
-        operating-system: [ubuntu-latest, windows-latest, macos-latest]
-        php-versions: ['5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
-    runs-on: ${{ matrix.operating-system }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-
-      - name: setup php
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, simplexml, dom, openssl, curl, gd
-
-      - name: get composer cache directory
-        id: composer-cache
-        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: cache composer dependencies
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-
-      - name: install dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
-
-    - name: test with phpunit 4.8.34
-        run: php ./rakit test:core
+    build:
+        strategy:
+            matrix:
+                operating-system:
+                    - ubuntu-latest
+                    - windows-latest
+                    - macos-latest
+                php-versions:
+                    - '5.4'
+                    - '5.5'
+                    - '5.6'
+                    - '7.0'
+                    - '7.1'
+                    - '7.2'
+                    - '7.3'
+                    - '7.4'
+                    - '8.0'
+        runs-on: '${{ matrix.operating-system }}'
+        steps:
+            -
+                name: checkout
+                uses: actions/checkout@v2
+            -
+                name: setup php
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '${{ matrix.php-versions }}'
+                    extensions: 'mbstring, simplexml, dom, openssl, curl, gd'
+            -
+                name: get composer cache directory
+                id: composer-cache
+                run: >-
+                    echo "::set-output name=dir::$(composer config
+                    cache-files-dir)"
+            -
+                name: cache composer dependencies
+                uses: actions/cache@v2
+                with:
+                    path: '${{ steps.composer-cache.outputs.dir }}'
+                    key: >-
+                        ${{ runner.os }}-composer-${{
+                        hashFiles('**/composer.lock') }}
+                    restore-keys: '${{ runner.os }}-composer-'
+            -
+                name: install dependencies
+                run: >-
+                    composer install --no-progress --prefer-dist
+                    --optimize-autoloader
+            -
+                name: test with phpunit 4.8.34
+                run: 'php ./rakit test:core'
