@@ -71,8 +71,8 @@ In addition, you can also help the development of the rakit by answering questio
 
 
 
-## Licence
+## License
 
-Rakit is released under [MIT License](http://www.opensource.org/licenses/mit-license.php).
+Rakit is released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
 
 This means that you may modify, redistribute and use it for personal or commercial needs, provided that the original manufacturer's information is included, and there is no guarantee and no responsibility for any damage caused.

@@ -4,7 +4,7 @@
 @section('sidebar')
     <!-- Sidebar start -->
     <div class="column is-3-desktop is-3-tablet">
-        <aside class="menu">
+        <aside class="menu" id="sidebar-toc">
             {!! $sidebar !!}
         </aside>
     </div>

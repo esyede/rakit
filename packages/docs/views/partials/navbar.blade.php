@@ -3,7 +3,7 @@
     <div class="container">
         <div class="navbar-brand">
             <div class="navbar-item">
-                <b>Dokumentasi</b> &nbsp; <span class="tag is-normal is-rounded is-link is-light">{{ RAKIT_VERSION }}</span>
+                <b id="docs-title">Dokumentasi</b> &nbsp; <span class="tag is-normal is-rounded is-link is-light">{{ RAKIT_VERSION }}</span>
             </div>
             <div id="navbarBurger" class="navbar-burger burger" data-target="navMenuMore">
                 <span></span>
@@ -20,19 +20,24 @@
                                 <input id="userinput" class="input is-rounded is-narrow" type="search" placeholder="Cari..."/>
                             </div>
                         </div>
-                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-menu" id="search-results" role="menu">
                             <div class="dropdown-content" id="suggestions"></div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="navbar-end">
-                <a class="navbar-item" href="{{ URL::home() }}" id="homepage">Rumah</a>
-                <a class="navbar-item" href="{{ url('docs') }}">Dokumentasi</a>
-                <a class="navbar-item" href="https://rakit.esyede.my.id/api" target="_blank">API</a>
-                <a class="navbar-item" href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori</a>
-                <a class="navbar-item" href="https://rakit.esyede.my.id/forum" target="_blank">Forum</a>
-                <a class="navbar-item" href="https://github.com/esyede/rakit" target="_blank">Github</a>
+                <a class="navbar-item" id="home" href="{{ URL::home() }}">Rumah</a>
+                <a class="navbar-item" id="docs" href="{{ url('docs') }}">Dokumentasi</a>
+                <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api" target="_blank">API</a>
+                <a class="navbar-item" id="repos" href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori</a>
+                <a class="navbar-item" id="forum" href="https://rakit.esyede.my.id/forum" target="_blank">Forum</a>
+                <a class="navbar-item" id="github" href="https://github.com/esyede/rakit" target="_blank">Github</a>
+                <div class="navbar-item">
+                    <div class="buttons">
+                        <span class="button is-rounded is-small is-info" id="docs-lang">Indonesian</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
