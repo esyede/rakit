@@ -1,4 +1,4 @@
-name: build
+name: test
 'on':
     - push
     - pull_request
@@ -30,7 +30,7 @@ jobs:
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: '${{ matrix.php-versions }}'
-                    extensions: 'mbstring, simplexml, dom, openssl, curl, gd'
+                    extensions: 'mbstring, simplexml, dom, openssl, curl, gd, pdo_sqlite, pdo_mysql, pdo_pgsql, pdo_mssql'
             -
                 name: get composer cache directory
                 id: composer-cache
