@@ -1,44 +1,47 @@
-name: phpcs
-
-on:
-  pull_request:
-    branches:
-      - "master"
-    paths:
-      - '**.php'
-
-  push:
-    branches:
-      - "master"
-    paths:
-      - '**.php'
-
+name: Testing Rakit Framework
+on: [push, pull_request]
 jobs:
-    phpcs:
-        runs-on: ubuntu-18.04
-        steps:
-            - uses: actions/checkout@v2
-              with:
-                token: ${{ secrets.PAT }}
-                ref: ${{ github.head_ref }}
+  build:
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        php-versions: ['7.2']
+    runs-on: ${{ matrix.operating-system }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
 
-            - name: check php version
-              run: php -v
+      - name: setup php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, simplexml, dom, openssl, curl, gd
 
-            - name: download phpcs
-              run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v2.phar
+      - name: get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-            - name: make phpcs executable
-              run: chmod +x phpcs.phar
+      - name: cache composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-            - name: apply coding style
-              run: php phpcs.phar fix
+      - name: install dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-            - name: remove phpcs
-              run: rm -f phpcs.phar
+      - name: check php version
+        run: php -v
 
-            - uses: stefanzweifel/git-auto-commit-action@v4
-              with:
-                  ref: ${{ github.head_ref }}
-                  commit_message: 'phpcs: apply coding style'
-                  commit_options: '--no-verify --signoff'
+      - name: download phpcs
+        run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v2.phar
+
+    - name: make phpcs executable
+      run: chmod +x phpcs.phar
+
+    - name: apply coding style
+      run: php phpcs.phar fix
+
+    - name: remove phpcs
+      run: rm -f phpcs.phar
