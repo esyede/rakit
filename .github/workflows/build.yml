@@ -1,139 +1,37 @@
-on:
-    push:
-        paths:
-            - '**.php'
-    pull_request:
-        paths:
-            - '**.php'
-
 name: build
-
+on: [push, pull_request]
 jobs:
-  tests:
-    name: PHP ${{ matrix.php }}-${{ matrix.os }}
-    env:
-      extensions: curl, mbstring, memcached, json, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, gd, fileinfo, zip, smtp
-      key-php5: cache-v1
-      key-php7: cache-v2
-
-    runs-on: ${{ matrix.os }}
-
+  build:
     strategy:
       matrix:
-        os:
-          - ubuntu-latest
-
-        php:
-          - "5.4"
-          - "5.5"
-          - "5.6"
-          - "7.0"
-          - "7.1"
-          - "7.2"
-          - "7.3"
-          - "7.4"
-          - "8.0"
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_USER: test
-          MYSQL_PASSWORD: test
-          MYSQL_DATABASE: database
-          MYSQL_ROOT_PASSWORD: test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      postgres:
-        image: postgres:9.6
-        env:
-          POSTGRES_USER: test
-          POSTGRES_PASSWORD: test
-          POSTGRES_DB: database
-        ports:
-          - 5432:5432
-        options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-      redis:
-        image: redis
-        ports:
-          - 6379:6379
-        options:
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        php-versions: ['5.4', '5.5', '5.6', '7.0', '7.1', '7.2', '7.3', '7.4', '8.0']
+    runs-on: ${{ matrix.operating-system }}
     steps:
-      - name: install memcached
-        uses: niden/actions-memcached@v7
-
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: setup cache for 5.4 - 5.6
-        if: matrix.php < '7.0'
-        id: cache-env-php5
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.extensions-php5 }}
-          key: ${{ env.key-php5 }}
-
-      - name: setup cache for 7.0 - 8.0
-        if: matrix.php >= '7.0'
-        id: cache-env-php7
-        uses: shivammathur/cache-extensions@v1
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.extensions-php7 }}
-          key: ${{ env.key-php7 }}
-
-      - name: setup cache extensions for 5.4 - 5.6
-        if: matrix.php < '7.0'
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.cache-env-php5.outputs.dir }}
-          key: ${{ steps.cache-env-php5.outputs.key }}
-          restore-keys: ${{ steps.cache-env-php5.outputs.key }}
-
-      - name: setup cache extensions for 7.0 - 8.0
-        if: matrix.php >= '7.0'
-        uses: actions/cache@v1
-        with:
-          path: ${{ steps.cache-env-php7.outputs.dir }}
-          key: ${{ steps.cache-env-php7.outputs.key }}
-          restore-keys: ${{ steps.cache-env-php7.outputs.key }}
-
-      - name: install php and extensions
+      - name: setup php
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.extensions }}
-          ini-values: date.timezone='UTC'
-          coverage: xdebug
-          tools: composer:v1, pecl
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, simplexml, dom, openssl, curl, gd
 
-      - name: find composer cache directory (linux)
-        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
+      - name: get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-      - name: find composer cache directory (windows)
-        if: matrix.os == 'windows-latest'
-        run: echo "COMPOSER_CACHE_DIR=~\AppData\Local\Composer" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: install cache dependencies with composer
-        uses: actions/cache@v1
+      - name: cache composer dependencies
+        uses: actions/cache@v2
         with:
-          path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            php${{ matrix.php }}-composer-
+          path: ${{ steps.composer-cache.outputs.dir }}
+          # Use composer.json for key, if composer.lock is not committed.
+          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
-      - name: update dependencies with composer
-        run: composer update --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: install dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
 
-      - name: run tests with phpunit 4.8.34
+    - name: test with phpunit 4.8.34
         run: php ./rakit test:core
-        env:
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
