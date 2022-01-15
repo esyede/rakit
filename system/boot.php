@@ -47,7 +47,7 @@ use System\Foundation\Oops\Debugger;
 Debugger::enable(false, path('storage').'logs');
 
 $debugger = Config::get('debugger');
-$template = path('app').'views'.DS.'error'.DS.'500.php';
+$template = path('app').'views'.DS.'error'.DS.'500.blade.php';
 
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
 Debugger::$strictMode = (bool) $debugger['strict'];
