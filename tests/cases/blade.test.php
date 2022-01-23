@@ -58,7 +58,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     public function testCsrfAreConvertedProperly()
     {
         $blade = '@csrf';
-        $out = '<input type="hidden" name="'.Session::TOKEN.'" value="'.Session::token().'">'.PHP_EOL;
+        $out = '<?php echo csrf_field() ?>';
         $this->assertEquals($out, Blade::translate($blade));
     }
 
