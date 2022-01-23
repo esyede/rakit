@@ -234,8 +234,7 @@ class Blade
      */
     protected static function compile_csrf($value)
     {
-        $csrf = '<input type="hidden" name="'.Session::TOKEN.'" value="'.Session::token().'">'.PHP_EOL;
-        return str_replace('@csrf', $csrf, $value);
+        return str_replace('@csrf', '<?php echo csrf_field() ?>', $value);
     }
 
     /**

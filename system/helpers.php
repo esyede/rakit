@@ -562,6 +562,33 @@ if (! function_exists('abort_if')) {
     }
 }
 
+if (! function_exists('csrf_name')) {
+    /**
+     * Ambil nama field CSRF token.
+     *
+     * @param string $name
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    function csrf_name()
+    {
+        return \System\Session::TOKEN;
+    }
+}
+
+if (! function_exists('csrf_token')) {
+    /**
+     * Ambil token CSRF saat ini.
+     *
+     * @return string|null
+     */
+    function csrf_token()
+    {
+        return \System\Session::get(csrf_name());
+    }
+}
+
 if (! function_exists('csrf_field')) {
     /**
      * Tambahkan hidden field untuk CSRF token.
@@ -573,19 +600,7 @@ if (! function_exists('csrf_field')) {
      */
     function csrf_field()
     {
-        return '<input type="hidden" name="'.\System\Session::TOKEN.'" value="'.\System\Session::token().'">'.PHP_EOL;
-    }
-}
-
-if (! function_exists('csrf_token')) {
-    /**
-     * Buat CSRF token.
-     *
-     * @return string
-     */
-    function csrf_token()
-    {
-        return \System\Session::token();
+        return '<input type="hidden" name="'.csrf_name().'" value="'.csrf_token().'">'.PHP_EOL;
     }
 }
 
