@@ -68,11 +68,8 @@ class Messages
      *
      * <code>
      *
-     *      // Adakah message untuk atribut 'email' ?
+     *      // Adakah message untuk atribut 'email'?
      *      return $messages->has('email');
-     *
-     *      // Adakah message untuk atribut apa saja (wildcard) ?
-     *      echo $messages->has();
      *
      * </code>
      *
@@ -80,9 +77,28 @@ class Messages
      *
      * @return bool
      */
-    public function has($key = null)
+    public function has($key)
     {
         return '' !== $this->first($key);
+    }
+
+    /**
+     * Cek apakah message masih kosong.
+     *
+     * <code>
+     *
+     *      // Apakah message masih kosong?
+     *      return $messages->any();
+     *
+     * </code>
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function any()
+    {
+        return count($this->messages) > 0;
     }
 
     /**
