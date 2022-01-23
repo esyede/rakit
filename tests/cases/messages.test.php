@@ -55,21 +55,26 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testHasMethodReturnsTrue()
+    public function testHasMethodReturnsCorrectBoolean()
     {
         $this->object->add('zero', 'one');
 
         $this->assertTrue($this->object->has('zero'));
+        $this->assertFalse($this->object->has('three'));
     }
 
     /**
-     * Test untuk method Messages::has() - 2.
+     * Test untuk method Messages::any().
      *
      * @group system
      */
-    public function testHasMethodReturnsFalse()
+    public function testAnyMethodReturnsCorrectBoolean()
     {
-        $this->assertFalse($this->object->has('three'));
+        $this->assertFalse($this->object->any());
+
+        $this->object->add('zero', 'one');
+
+        $this->assertTrue($this->object->any());
     }
 
     /**
