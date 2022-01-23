@@ -9,7 +9,6 @@ jobs:
                 operating-system:
                     - ubuntu-latest
                     - windows-latest
-                    - macos-latest
                 php-versions:
                     - '5.4'
                     - '5.5'
