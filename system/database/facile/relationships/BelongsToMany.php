@@ -29,7 +29,7 @@ class BelongsToMany extends Relationship
      *
      * @var array
      */
-    protected $with = ['id'];
+    public $with = ['id'];
 
     /**
      * Buat instance relasi many-to-many baru.
