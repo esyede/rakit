@@ -38,7 +38,7 @@ membuat dan memodifikasi tabel. Mari kita langsung lihat contohnya:
 
 ```php
 Schema::create('users', function ($table) {
-	$table->increments('id');
+    $table->increments('id');
 });
 ```
 
@@ -67,7 +67,7 @@ Terkadang anda mungkin perlu menentukan di koneksi database mana operasi harus d
 
 ```php
 Schema::create('users', function ($table) {
-	$table->on('connection');
+    $table->on('connection');
 });
 ```
 
@@ -97,20 +97,20 @@ Mari kita lihat perintah - perintahya:
 | `->unsigned()`                     | Buat kolom INTEGER menjadi UNSIGNED                            |
 
 
->  Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `SMALLINT`.
+>  Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `INTEGER` dengan nilai `1` untuk boolean `true` dan `0` untuk boolean `false`.
 
 
 #### Berikut adalah contoh cara membuat tabel dan menambahkan kolom:
 
 ```php
 Schema::table('users', function ($table) {
-	$table->create();
-	$table->increments('id');
-	$table->string('username');
-	$table->string('email');
-	$table->string('phone')->nullable();
-	$table->text('about');
-	$table->timestamps();
+    $table->create();
+    $table->increments('id');
+    $table->string('username');
+    $table->string('email');
+    $table->string('phone')->nullable();
+    $table->text('about');
+    $table->timestamps();
 });
 ```
 

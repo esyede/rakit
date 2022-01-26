@@ -97,7 +97,7 @@ Mari kita lihat perintah - perintahya:
 | `->unsigned()`                     | Buat kolom INTEGER menjadi UNSIGNED                            |
 
 
->  Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `SMALLINT`.
+>  Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `INTEGER` dengan nilai `1` untuk boolean `true` dan `0` untuk boolean `false`.
 
 
 #### Berikut adalah contoh cara membuat tabel dan menambahkan kolom:

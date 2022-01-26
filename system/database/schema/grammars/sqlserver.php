@@ -363,7 +363,7 @@ class SQLServer extends Grammar
      */
     protected function type_boolean(Magic $column)
     {
-        return 'TINYINT';
+        return 'INT';
     }
 
     /**

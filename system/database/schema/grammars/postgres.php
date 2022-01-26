@@ -350,7 +350,7 @@ class Postgres extends Grammar
      */
     protected function type_boolean(Magic $column)
     {
-        return 'SMALLINT';
+        return 'INT';
     }
 
     /**

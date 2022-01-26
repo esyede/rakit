@@ -354,6 +354,7 @@ class Table
      */
     public function boolean($name)
     {
+        $name = (int) (!! $name);
         return $this->column('boolean', compact('name'));
     }
 
