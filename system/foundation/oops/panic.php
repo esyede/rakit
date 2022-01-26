@@ -336,13 +336,13 @@ class Panic
      */
     public static function highlightPhp($source, $line, $lines = 15, array $vars = null)
     {
-        if (function_exists('ini_set')) {
-            ini_set('highlight.comment', '#6a737d');
-            ini_set('highlight.default', '#484467');
-            ini_set('highlight.html', '#22863a');
-            ini_set('highlight.keyword', '#8959a8');
-            ini_set('highlight.string', '#b47cd8');
-        }
+        // if (function_exists('ini_set')) {
+        //     ini_set('highlight.comment', '#6a737d');
+        //     ini_set('highlight.default', '#484467');
+        //     ini_set('highlight.html', '#22863a');
+        //     ini_set('highlight.keyword', '#8959a8');
+        //     ini_set('highlight.string', '#00C02D');
+        // }
 
         $source = str_replace(["\r\n", "\r"], "\n", $source);
         $source = explode("\n", highlight_string($source, true));
