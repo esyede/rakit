@@ -97,8 +97,7 @@ Mari kita lihat perintah - perintahya:
 | `->unsigned()`                     | Buat kolom INTEGER menjadi UNSIGNED                            |
 
 
->  Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `INTEGER` dengan nilai `1` untuk boolean `true` dan `0` untuk boolean `false`.
-
+> Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `SMALLINT`.
 
 #### Berikut adalah contoh cara membuat tabel dan menambahkan kolom:
 
@@ -109,6 +108,8 @@ Schema::table('users', function ($table) {
 	$table->string('username');
 	$table->string('email');
 	$table->string('phone')->nullable();
+    $table->integer('age')->nullable();
+    $table->boolean('married')->defaults(0);
 	$table->text('about');
 	$table->timestamps();
 });

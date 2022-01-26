@@ -406,7 +406,7 @@ class MySQL extends Grammar
      */
     protected function type_boolean(Magic $column)
     {
-        return 'INT(1)';
+        return 'TINYINT(1)';
     }
 
     /**
