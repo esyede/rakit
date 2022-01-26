@@ -1,7 +1,7 @@
 pre.oops-dump {
 	text-align: left;
-	color: #444;
-	background: white;
+	color: #fff;
+	background: #272822;
 }
 
 pre.oops-dump div {
@@ -24,25 +24,34 @@ pre.oops-dump a:focus {
 	color: white;
 }
 
-.oops-dump-array,
+.oops-dump-array {
+    color: #6cf2ff;
+}
+
 .oops-dump-object {
-	color: #c22;
+	color: #f09721;
 }
 
 .oops-dump-string {
-	color: #b47cd8;
+	color: #e6db67;
 }
 
 .oops-dump-number {
-	color: #22863a;
+	color: #9081ff;
 }
 
-.oops-dump-null,
+.oops-dump-null {
+    color: #9081ff;
+}
+
 .oops-dump-bool {
-	color: #f5871f;
+	color: #9081ff;
 }
 
-.oops-dump-visibility,
+.oops-dump-visibility {
+
+}
+
 .oops-dump-hash {
 	font-size: 85%;
     color: #8959a8;
