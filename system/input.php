@@ -131,6 +131,8 @@ class Input
      *      // Ambil hanya username dan email dari data inputan
      *      $input = Input::only(['username', 'email']);
      *
+     *      $input = Input::only('username', 'email');
+     *
      * </code>
      *
      * @param array $keys
@@ -139,6 +141,7 @@ class Input
      */
     public static function only($keys)
     {
+        $keys = is_array($keys) ? $keys : func_get_args();
         return Arr::only(static::get(), $keys);
     }
 
