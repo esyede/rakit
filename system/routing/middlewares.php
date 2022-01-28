@@ -134,6 +134,8 @@ class Middlewares
      *      // Lampirkan middleware ke semua method selain 'index' dan 'home'
      *      $this->middleware('before', 'auth')->except(['index', 'home']);
      *
+     *      $this->middleware('before', 'auth')->except('index', 'home');
+     *
      * </code>
      *
      * @param array $methods
@@ -142,7 +144,7 @@ class Middlewares
      */
     public function except($methods)
     {
-        $this->except = (array) $methods;
+        $this->except = is_array($methods) ? $methods : func_get_args();
         return $this;
     }
 
@@ -158,6 +160,8 @@ class Middlewares
      *      // Set middleware hanya untuk method "index" dan "home" saja
      *      $this->middleware('before', 'auth')->only(['index', 'home']);
      *
+     *      $this->middleware('before', 'auth')->only('index', 'home');
+     *
      * </code>
      *
      * @param array $methods
@@ -166,7 +170,7 @@ class Middlewares
      */
     public function only($methods)
     {
-        $this->only = (array) $methods;
+        $this->only = is_array($methods) ? $methods : func_get_args();
         return $this;
     }
 
@@ -181,6 +185,8 @@ class Middlewares
      *      // Set agar middleware hanya berjalan di POST dan PUT
      *      $this->middleware('before', 'csrf')->on(['post', 'put']);
      *
+     *      $this->middleware('before', 'csrf')->on('post', 'put');
+     *
      * </code>
      *
      * @param array $methods
@@ -189,7 +195,8 @@ class Middlewares
      */
     public function on($methods)
     {
-        $this->methods = array_map('strtolower', (array) $methods);
+        $methods = is_array($methods) ? $methods : func_get_args();
+        $this->methods = array_map('strtolower', $methods);
         return $this;
     }
 }
