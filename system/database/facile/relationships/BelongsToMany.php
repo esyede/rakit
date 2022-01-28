@@ -315,7 +315,7 @@ class BelongsToMany extends Relationship
             $pivot = new Pivot($this->joining, $this->model->connection());
 
             foreach ($result->attributes as $key => $value) {
-                if ('pivot_' === substr($key, 6)) {
+                if ('pivot_' === substr($key, 0, 6)) {
                     $pivot->{substr($key, 6)} = $value;
                     $result->purge($key);
                 }
