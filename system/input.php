@@ -156,6 +156,8 @@ class Input
      *      // Ambil semua data inputan kecuali username dan email
      *      $input = Input::except(['username', 'email']);
      *
+     *      $input = Input::except('username', 'email');
+     *
      * </code>
      *
      * @param array $keys
@@ -164,6 +166,7 @@ class Input
      */
     public static function except($keys)
     {
+        $keys = is_array($keys) ? $keys : func_get_args();
         return Arr::except(static::get(), $keys);
     }
 
