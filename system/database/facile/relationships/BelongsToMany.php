@@ -4,7 +4,6 @@ namespace System\Database\Facile\Relationships;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Str;
 use System\Database\Facile\Model;
 use System\Database\Facile\Pivot;
 
@@ -316,7 +315,7 @@ class BelongsToMany extends Relationship
             $pivot = new Pivot($this->joining, $this->model->connection());
 
             foreach ($result->attributes as $key => $value) {
-                if (Str::starts_with($key, 'pivot_')) {
+                if ('pivot_' === substr($key, 6)) {
                     $pivot->{substr($key, 6)} = $value;
                     $result->purge($key);
                 }
