@@ -3,12 +3,12 @@ var search = document.getElementById('suggestions');
 
 if (lang != null) {
     lang.addEventListener('click', function () {
-        if (/\/docs\/en\//.test(window.location.href)) {
-            window.location.href = window.location.href.replace(/\/docs\/en\//, '/docs/id/');
-        } else if (/\/docs\/id\//.test(window.location.href)) {
-            window.location.href = window.location.href.replace(/\/docs\/id\//, '/docs/en/');
+        if (/\/docs\/en(|\/)/.test(window.location.href)) {
+            window.location.href = window.location.href.replace(/\/docs\/en/, '/docs/id');
+        } else if (/\/docs\/id(|\/)/.test(window.location.href)) {
+            window.location.href = window.location.href.replace(/\/docs\/id/, '/docs/en');
         } else if (window.location.href.substr(-5) == '/docs') {
-            if (/\/docs\/en\//.test(window.location.href)) {
+            if (/\/docs\/en(|\/)/.test(window.location.href)) {
                 window.location.href = window.location.href.replace(/\/docs/, '/docs/id/');
             } else {
                 window.location.href = window.location.href.replace(/\/docs/, '/docs/en/');
