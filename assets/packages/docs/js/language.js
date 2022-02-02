@@ -19,10 +19,10 @@ if (lang != null) {
 
 var a = document.getElementById('sidebar-toc').getElementsByTagName('a');
 
-if (/\/docs\/en\//.test(window.location.href)) {
+if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('docs-title').innerHTML = 'Documentation';
     document.getElementById('userinput').placeholder = 'Search..';
-    document.getElementById('home').text = 'Home';
+    document.getElementById('homepage').text = 'Home';
     document.getElementById('docs').text = 'Documentation';
     document.getElementById('repos').text = 'Repositories';
 
@@ -40,41 +40,41 @@ if (/\/docs\/en\//.test(window.location.href)) {
 
     for (var i = 0; i < a.length; i++) {
         if (! a[i].classList.contains('has-submenu')) {
-            if (/\/docs\/en\//.test(a[i].href)) {
-                a[i].setAttribute('href', a[i].href.replace(/\/docs\/id\//, '/docs/en/'));
+            if (/\/docs\/en(|\/)/.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/id/, '/docs/en'));
             } else {
-                a[i].setAttribute('href', a[i].href.replace(/\/docs\//, '/docs/en/'));
+                a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/en'));
+            }
+        }
+    }
+
+    lang.innerHTML = 'Indonesia';
+} else if (/\/docs\/id(|\/)/.test(window.location.href)) {
+    document.getElementById('docs-title').innerHTML = 'Dokumentasi';
+    document.getElementById('userinput').placeholder = 'Cari..';
+    document.getElementById('homepage').text = 'Rumah';
+    document.getElementById('docs').text = 'Dokumentasi';
+    document.getElementById('repos').text = 'Repositori';
+
+    document.getElementById('docs-lang').classList.remove('is-info');
+    document.getElementById('docs-lang').classList.remove('is-primary');
+    document.getElementById('docs-lang').classList.add('is-info');
+
+    for (var i = 0; i < a.length; i++) {
+        if (! a[i].classList.contains('has-submenu')) {
+            if (/\/docs\/en(|\/)/.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/en/, '/docs/id'));
+            } else {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/id'));
             }
         }
     }
 
     lang.innerHTML = 'English';
-} else if (/\/docs\/id\//.test(window.location.href)) {
-    document.getElementById('docs-title').innerHTML = 'Dokumentasi';
-    document.getElementById('userinput').placeholder = 'Cari..';
-    document.getElementById('home').text = 'Rumah';
-    document.getElementById('docs').text = 'Dokumentasi';
-    document.getElementById('repos').text = 'Repositori';
-
-    document.getElementById('docs-lang').classList.remove('is-info');
-    document.getElementById('docs-lang').classList.remove('is-primary');
-    document.getElementById('docs-lang').classList.add('is-info');
-
-    for (var i = 0; i < a.length; i++) {
-        if (! a[i].classList.contains('has-submenu')) {
-            if (/\/docs\/en\//.test(a[i].href)) {
-                a[i].setAttribute('href', a[i].href.replace(/\/docs\/en\//, '/docs/id/'));
-            } else {
-                a[i].setAttribute('href', a[i].href.replace(/\/docs\//, '/docs/id/'));
-            }
-        }
-    }
-
-    lang.innerHTML = 'Indonesian';
 } else {
     document.getElementById('docs-title').innerHTML = 'Dokumentasi';
     document.getElementById('userinput').placeholder = 'Cari..';
-    document.getElementById('home').text = 'Rumah';
+    document.getElementById('homepage').text = 'Rumah';
     document.getElementById('docs').text = 'Dokumentasi';
     document.getElementById('repos').text = 'Repositori';
 
@@ -84,24 +84,25 @@ if (/\/docs\/en\//.test(window.location.href)) {
 
     for (var i = 0; i < a.length; i++) {
         if (! a[i].classList.contains('has-submenu')) {
-            if (/\/docs\/en\//.test(a[i].href)) {
-                a[i].setAttribute('href', a[i].href.replace(/\/docs\/en\//, '/docs/id/'));
+            if (/\/docs\/en(|\/)/.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/en/, '/docs/id'));
             } else {
-                a[i].setAttribute('href', a[i].href.replace(/\/docs\//, '/docs/id/'));
+                a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/id'));
             }
         }
     }
 
-    lang.innerHTML = 'Indonesian';
+    lang.innerHTML = 'English';
 }
 
 var observer = new MutationObserver(function () {
     if (search.innerHTML.trim() !== '') {
         var a = search.getElementsByTagName('a');
 
-        if (/\/docs\/en\//.test(window.location.href)) {
+        if (/\/docs\/en(|\/)/.test(window.location.href)) {
             for (var i = 0; i < a.length; i++) {
-                if (/\/docs\//.test(a[i].href)) {
+                if (/\/docs/.test(a[i].href)) {
+                    console.log(/\/docs($|\/$)/.test(a[i].href));
                     a[i].setAttribute('href', a[i].href.replace(/\/docs\//, '/docs/en/'));
                 } else if (a[i].href.substr(-5) == '/docs') {
                     a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/en/'));
@@ -109,7 +110,7 @@ var observer = new MutationObserver(function () {
             }
         } else {
             for (var i = 0; i < a.length; i++) {
-                if (/\/docs\//.test(a[i].href)) {
+                if (/\/docs/.test(a[i].href)) {
                     a[i].setAttribute('href', a[i].href.replace(/\/docs\//, '/docs/id/'));
                 } else if (a[i].href.substr(-5) == '/docs') {
                     a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/id/'));
