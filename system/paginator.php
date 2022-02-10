@@ -68,7 +68,7 @@ class Paginator
      *
      * @var string
      */
-    protected $dots = "\t\t".'<li class="page-item page-dots disabled"><a class="page-link" href="#">...</a></li>'."\n";
+    protected $dots = "\t\t<li class=\"page-item page-dots disabled\"><a class=\"page-link\" href=\"#\">...</a></li>\n";
 
     /**
      * Buat instance Paginator baru.
