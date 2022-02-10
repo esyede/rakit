@@ -68,7 +68,7 @@ class Paginator
      *
      * @var string
      */
-    protected $dots = "\t\t<li class=\"page-item page-dots disabled\"><a class=\"page-link\" href=\"#\">...</a></li>\n";
+    protected $dots = '<li class="page-item page-dots disabled"><a class="page-link" href="#">...</a></li>';
 
     /**
      * Buat instance Paginator baru.
@@ -298,7 +298,7 @@ class Paginator
      */
     protected function beginning()
     {
-        return $this->range(1, 2).' '.$this->dots;
+        return $this->range(1, 2)." \t\t".$this->dots."\n";
     }
 
     /**
@@ -308,7 +308,7 @@ class Paginator
      */
     protected function ending()
     {
-        return $this->dots.' '.$this->range($this->last - 1, $this->last);
+        return "\t\t".$this->dots."\n".$this->range($this->last - 1, $this->last);
     }
 
     /**
