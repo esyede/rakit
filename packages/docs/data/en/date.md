@@ -216,9 +216,9 @@ return $date->format('F j, Y'); // May 23, 2021
 #### Time Ago
 
 ```php
-return Date::make('now - 15 minutes'); // 15 menit yang lalu
+return Date::make('now - 15 minutes')->ago(); // 15 menit yang lalu
 
-return Date::make('now + 20 minutes'); // 20 menit dari sekarang
+return Date::make('now + 20 minutes')->ago(); // 20 menit dari sekarang
 ```
 
 
