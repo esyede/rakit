@@ -25,8 +25,10 @@ class Session extends Command
             throw new \Exception('The application key needs to be set at least 32 characters long.');
         }
 
+        $make = Container::resolve('command: make');
         $migrator = Container::resolve('command: migrate');
-        $migration = $migrator->make(['create_session_table']);
+
+        $migration = $make->migration(['create_session_table']);
         $stub = __DIR__.DS.'stubs'.DS.'session.stub';
 
         Storage::put($migration, Storage::get($stub));
