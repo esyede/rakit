@@ -34,7 +34,7 @@ class Docs_Home_Controller extends Controller
         $args = func_get_args();
         $lang = (isset($args[0]) && in_array($args[0], ['en', 'id'])) ? $args[0].'/' : 'id/';
         $filename = rtrim(implode('/', $args), '/');
-        $filename .= (is_null($page) && Docs::exists($filename.'/home')) ? '/home' : '';
+        $filename .= Docs::exists($filename.'/home') ? '/home' : '';
 
         if (! Docs::exists($filename)) {
             return Response::error('404');
