@@ -235,11 +235,9 @@ class Paginator
      */
     public function previous($text = null)
     {
-        $disabled = function ($page) {
+        return $this->element('previous', $this->page - 1, $text, function ($page) {
             return ($page <= 1);
-        };
-
-        return $this->element('previous', $this->page - 1, $text, $disabled);
+        });
     }
 
     /**
@@ -261,11 +259,9 @@ class Paginator
      */
     public function next($text = null)
     {
-        $disabled = function ($page, $last) {
+        return $this->element('next', $this->page + 1, $text, function ($page, $last) {
             return ($page >= $last);
-        };
-
-        return $this->element('next', $this->page + 1, $text, $disabled);
+        });
     }
 
     /**
