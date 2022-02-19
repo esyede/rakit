@@ -17,31 +17,6 @@ class Date
      * Buat instance baru.
      *
      * @param string|int|\System\Date|\DateTime $date
-     *
-     * @return \System\Date
-     */
-    public static function make($date = null)
-    {
-        return new self($date);
-    }
-
-    /**
-     * Ambil tanggal saat ini.
-     *
-     * @param string $format
-     *
-     * @return string
-     */
-    public static function now($format = null)
-    {
-        $format = is_null($format) ? 'Y-m-d H:i:s' : $format;
-        return static::make(null)->format($format);
-    }
-
-    /**
-     * Buat instance baru.
-     *
-     * @param string|int|\System\Date|\DateTime $date
      */
     public function __construct($date = null)
     {
@@ -64,6 +39,31 @@ class Date
     }
 
     /**
+     * Buat instance baru.
+     *
+     * @param string|int|\System\Date|\DateTime $date
+     *
+     * @return \System\Date
+     */
+    public static function make($date = null)
+    {
+        return new self($date);
+    }
+
+    /**
+     * Ambil tanggal saat ini.
+     *
+     * @param string $format
+     *
+     * @return string
+     */
+    public static function now($format = null)
+    {
+        $format = is_null($format) ? 'Y-m-d H:i:s' : $format;
+        return static::make(null)->format($format);
+    }
+
+    /**
      * Ambil timestamp saat ini.
      *
      * @return int
@@ -83,7 +83,10 @@ class Date
     public function format($format)
     {
         if (! $this->timestamp) {
-            throw new \Exception('Cannot format an invalid date.');
+            throw new \Exception(sprintf(
+                'Cannot format an invalid date timestamp: %s (%s)',
+                $this->timestamp, gettype($this->timestamp)
+            ));
         }
 
         if (! is_string($format)) {
@@ -106,7 +109,10 @@ class Date
     public function remake($date, $clone = false)
     {
         if (! $this->timestamp) {
-            throw new \Exception('Cannot remake an invalid date.');
+            throw new \Exception(sprintf(
+                'Cannot remake an invalid date timestamp: %s (%s)',
+                $this->timestamp, gettype($this->timestamp)
+            ));
         }
 
         $timestamp = strtotime($date, $this->timestamp);
@@ -135,7 +141,10 @@ class Date
         $timestamp = $this->timestamp();
 
         if (! $timestamp) {
-            throw new \Exception('Cannot create fuzzy time of invalid date.');
+            throw new \Exception(sprintf(
+                'Cannot create fuzzy time of an invalid date timestamp: %s (%s)',
+                $timestamp, gettype($timestamp)
+            ));
         }
 
         $duration = [60, 60, 24, 7, 4.35, 12, 10];
@@ -173,8 +182,14 @@ class Date
         $date1 = static::valid($date1) ? $date1 : static::make($date1);
         $date2 = static::valid($date2) ? $date2 : static::make($date2);
 
-        if (! $date1->timestamp() || ! $date2->timestamp()) {
-            throw new \Exception('Cannot diff on invalid date.');
+        $timestamp1 = $date1->timestamp();
+        $timestamp2 = $date2->timestamp();
+
+        if (! $timestamp1 || ! $timestamp2) {
+            throw new \Exception(sprintf(
+                'Cannot diff an invalid date timestamp, date1: %s (%s). date2: %s (%s)',
+                $timestamp1, gettype($timestamp1), $timestamp2, gettype($timestamp2)
+            ));
         }
 
         $date1 = new \DateTime($date1->format('Y-m-d H:i:s'));
@@ -262,19 +277,22 @@ class Date
         $date1 = static::valid($date1) ? $date1 : static::make($date1);
         $date2 = static::valid($date2) ? $date2 : static::make($date2);
 
-        if (! $date1->timestamp() || ! $date2->timestamp()) {
-            throw new \Exception('Cannot compare on invalid date.');
+        $timestamp1 = $date1->timestamp();
+        $timestamp2 = $date2->timestamp();
+
+        if (! $timestamp1 || ! $timestamp2) {
+            throw new \Exception(sprintf(
+                'Cannot compare on an invalid date timestamp, date1: %s (%s). date2: %s (%s)',
+                $timestamp1, gettype($timestamp1), $timestamp2, gettype($timestamp2)
+            ));
         }
 
-        $date1 = $date1->timestamp();
-        $date2 = $date2->timestamp();
-
         switch ($comparator) {
-            case 'eq':  return $date1 === $date2;
-            case 'gt':  return $date1 > $date2;
-            case 'lt':  return $date1 < $date2;
-            case 'gte': return ($date1 > $date2 || $date1 === $date2);
-            case 'lte': return ($date1 < $date2 || $date1 === $date2);
+            case 'eq':  return $timestamp1 === $timestamp2;
+            case 'gt':  return $timestamp1 > $timestamp2;
+            case 'lt':  return $timestamp1 < $timestamp2;
+            case 'gte': return ($timestamp1 > $timestamp2 || $timestamp1 === $timestamp2);
+            case 'lte': return ($timestamp1 < $timestamp2 || $timestamp1 === $timestamp2);
             default:    throw new \Exception(sprintf("Invalid date comparator: '%s'", $comparator));
         }
     }
@@ -288,7 +306,7 @@ class Date
      */
     protected static function valid($date)
     {
-        return ($date instanceof Date);
+        return ($date instanceof \System\Date);
     }
 
     /**
@@ -299,7 +317,10 @@ class Date
     public function __toString()
     {
         if (! is_numeric($this->timestamp)) {
-            throw new \Exception('Cannot stringify an invalid date.');
+            throw new \Exception(sprintf(
+                'Cannot stringify an invalid date timestamp: %s (%s)',
+                $this->timestamp, gettype($this->timestamp)
+            ));
         }
 
         return date('Y-m-d H:i:s', $this->timestamp);
