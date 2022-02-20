@@ -396,7 +396,7 @@ class Request
     {
         return defined('STDIN')
             || 'cli' === php_sapi_name()
-            || ('cgi' === substr(PHP_SAPI, 0, 3) && getenv('TERM'));
+            || ('cgi' === substr(PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
     }
 
     /**

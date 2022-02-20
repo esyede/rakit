@@ -650,9 +650,9 @@ class Dumper
     private static function detectColors()
     {
         return self::$terminalColors &&
-            ('ON' === getenv('ConEmuANSI')
-            || false !== getenv('ANSICON')
-            || 'xterm-256color' === getenv('term')
-            || (defined('STDOUT') && function_exists('posix_isatty') && posix_isatty(STDOUT)));
+            ((is_callable('getenv') && 'ON' === getenv('ConEmuANSI'))
+            || (is_callable('getenv') && false !== getenv('ANSICON'))
+            || (is_callable('getenv') && 'xterm-256color' === getenv('term'))
+            || (defined('STDOUT') && is_callable('posix_isatty') && posix_isatty(STDOUT)));
     }
 }
