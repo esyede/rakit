@@ -89,6 +89,25 @@ if (! function_exists('dump')) {
     }
 }
 
+if (! function_exists('optional')) {
+    /**
+     * Izinkan akses ke objek opsional.
+     *
+     * @param mixed         $value
+     * @param callable|null $callback
+     *
+     * @return mixed
+     */
+    function optional($value = null, callable $callback = null)
+    {
+        if (is_null($callback)) {
+            return new \System\Optional($value);
+        } elseif (! is_null($value)) {
+            return $callback($value);
+        }
+    }
+}
+
 if (! function_exists('__')) {
     /**
      * Ambil sebuah baris bahasa.
@@ -115,7 +134,7 @@ if (! function_exists('is_cli')) {
     {
         return defined('STDIN')
             || 'cli' === php_sapi_name()
-            || ('cgi' === substr(PHP_SAPI, 0, 3) && getenv('TERM'));
+            || ('cgi' === substr(PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
     }
 }
 
