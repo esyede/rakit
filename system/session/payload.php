@@ -185,13 +185,15 @@ class Payload
      *      // Pertahankan item 'name' dan 'email' agar tidak kedaluwarsa
      *      Session::keep(['name', 'email']);
      *
+     *      Session::keep('name', 'email');
+     *
      * </code>
      *
      * @param string|array $keys
      */
     public function keep($keys)
     {
-        $keys = (array) $keys;
+        $keys = is_array($keys) ? $keys : func_get_args();
 
         foreach ($keys as $key) {
             $this->flash($key, $this->get($key));
