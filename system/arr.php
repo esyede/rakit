@@ -48,11 +48,9 @@ class Arr
         $results = [];
 
         foreach ($array as $values) {
-            if (! is_array($values)) {
-                continue;
+            if (is_array($values)) {
+                $results[] = $values;
             }
-
-            $results[] = $values;
         }
 
         return call_user_func_array('array_merge', $results);
@@ -123,7 +121,6 @@ class Arr
     public static function except($array, $keys)
     {
         static::forget($array, $keys);
-
         return $array;
     }
 
@@ -137,11 +134,9 @@ class Arr
      */
     public static function exists($array, $key)
     {
-        if ($array instanceof \ArrayAccess) {
-            return $array->offsetExists($key);
-        }
-
-        return array_key_exists($key, $array);
+        return ($array instanceof \ArrayAccess)
+            ? $array->offsetExists($key)
+            : array_key_exists($key, $array);
     }
 
     /**
@@ -185,11 +180,9 @@ class Arr
      */
     public static function last($array, callable $callback = null, $default = null)
     {
-        if (is_null($callback)) {
-            return empty($array) ? value($default) : end($array);
-        }
-
-        return static::first(array_reverse($array, true), $callback, $default);
+        return is_null($callback)
+            ? (empty($array) ? value($default) : end($array))
+            : static::first(array_reverse($array, true), $callback, $default);
     }
 
     /**
@@ -342,7 +335,6 @@ class Arr
         }
 
         $keys = array_keys($array);
-
         return (array_keys($keys) !== $keys);
     }
 
@@ -356,9 +348,7 @@ class Arr
      */
     public static function only($array, $keys)
     {
-        $keys = (array) $keys;
-
-        return array_intersect_key($array, array_flip($keys));
+        return array_intersect_key($array, array_flip((array) $keys));
     }
 
     /**
@@ -423,7 +413,6 @@ class Arr
     public static function pull(array &$array, $key, $default = null)
     {
         $value = static::get($array, $key, $default);
-
         static::forget($array, $key);
 
         return $value;

@@ -148,11 +148,9 @@ class Blade
      */
     public static function compile_php_block($value)
     {
-        $value = preg_replace_callback('/(?<!@)@php(.*?)@endphp/s', function ($matches) {
+        return preg_replace_callback('/(?<!@)@php(.*?)@endphp/s', function ($matches) {
             return '<?php '.$matches[1].'?>';
         }, $value);
-
-        return $value;
     }
 
     /**
@@ -169,8 +167,7 @@ class Blade
         }
 
         $lines = preg_split('/(\r?\n)/', $value);
-        $regex = static::matcher('layout');
-        $lines[] = preg_replace($regex, '$1@include$2', $lines[0]);
+        $lines[] = preg_replace(static::matcher('layout'), '$1@include$2', $lines[0]);
 
         return implode(CRLF, array_slice($lines, 1));
     }
@@ -279,7 +276,6 @@ class Blade
             $search = '/(\s*)@forelse(\s*\(.*\))/';
             $replace = '$1'.$if.'<?php foreach$2: ?>';
             $blade = preg_replace($search, $replace, $forelse);
-
             $value = str_replace($forelse, $blade, $value);
         }
 
@@ -320,7 +316,6 @@ class Blade
     protected static function compile_structure_start($value)
     {
         $regex = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
-
         return preg_replace($regex, '$1<?php $2$3: ?>', $value);
     }
 
@@ -334,7 +329,6 @@ class Blade
     protected static function compile_structure_end($value)
     {
         $regex = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
-
         return preg_replace($regex, '$1<?php $2; ?>$3', $value);
     }
 
@@ -398,9 +392,7 @@ class Blade
      */
     protected static function compile_render($value)
     {
-        $regex = static::matcher('render');
-
-        return preg_replace($regex, '$1<?php echo render$2 ?>', $value);
+        return preg_replace(static::matcher('render'), '$1<?php echo render$2 ?>', $value);
     }
 
     /**
@@ -412,9 +404,7 @@ class Blade
      */
     protected static function compile_render_each($value)
     {
-        $regex = static::matcher('render_each');
-
-        return preg_replace($regex, '$1<?php echo render_each$2 ?>', $value);
+        return preg_replace(static::matcher('render_each'), '$1<?php echo render_each$2 ?>', $value);
     }
 
     /**
@@ -427,9 +417,7 @@ class Blade
      */
     protected static function compile_yield($value)
     {
-        $regex = static::matcher('yield');
-
-        return preg_replace($regex, '$1<?php echo yield_content$2 ?>', $value);
+        return preg_replace(static::matcher('yield'), '$1<?php echo yield_content$2 ?>', $value);
     }
 
     /**
@@ -452,9 +440,7 @@ class Blade
      */
     protected static function compile_section_start($value)
     {
-        $regex = static::matcher('section');
-
-        return preg_replace($regex, '$1<?php section_start$2 ?>', $value);
+        return preg_replace(static::matcher('section'), '$1<?php section_start$2 ?>', $value);
     }
 
     /**

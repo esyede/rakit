@@ -101,10 +101,7 @@ class Cookie
             throw new \Exception('Attempting to set secure cookie over HTTP.');
         }
 
-        static::$jar[$name] = compact(
-            'name', 'value', 'expiration', 'path',
-            'domain', 'secure', 'samesite'
-        );
+        static::$jar[$name] = compact('name', 'value', 'expiration', 'path', 'domain', 'secure', 'samesite');
     }
 
     /**

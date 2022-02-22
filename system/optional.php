@@ -83,7 +83,7 @@ class Optional implements \ArrayAccess
      */
     public function offsetExists($key)
     {
-        return Arr::accessible($this->value)  && Arr::exists($this->value, $key);
+        return Arr::accessible($this->value) && Arr::exists($this->value, $key);
     }
 
     /**

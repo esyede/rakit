@@ -168,13 +168,13 @@ class Paginator
         // Jika tidak ada cukup halaman untuk memungkinkan pembuatan slider
         // berdasarkan halaman-halaman terdekat, maka semua halaman akan ditampilkan.
         // Jika sebaliknya, kita buat slider 'terpotong'.
-        if ($this->last < (7 + ($adjacent * 2))) {
-            $links = $this->range(1, $this->last);
-        } else {
-            $links = $this->slider($adjacent);
-        }
+        $links = ($this->last < (7 + ($adjacent * 2)))
+            ? $this->range(1, $this->last)
+            : $this->slider($adjacent);
 
-        $content = "\t".'<ul class="pagination">'."\n".$this->previous().$links.$this->next()."\n\t".'</ul>';
+        $content = $this->previous().$links.$this->next();
+        $content = "\t".'<ul class="pagination">'."\n".$content."\n\t".'</ul>';
+
         return '<nav class="pagination-nav">'."\n".$content."\n".'</nav>';
     }
 
@@ -321,11 +321,9 @@ class Paginator
         $pages = [];
 
         for ($page = $start; $page <= $end; ++$page) {
-            if ($this->page === $page) {
-                $pages[] = "\t\t".'<li class="page-item active"><a class="page-link" href="#">'.$page.'</a></li>'."\n";
-            } else {
-                $pages[] = $this->link($page, $page, null);
-            }
+            $pages[] = ($this->page === $page)
+                ? "\t\t".'<li class="page-item active"><a class="page-link" href="#">'.$page.'</a></li>'."\n"
+                : $this->link($page, $page, null);
         }
 
         return implode(' ', $pages);

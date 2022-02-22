@@ -179,7 +179,6 @@ class Config
     public static function file($package, $file)
     {
         $file = Package::path($package).'config'.DS.$file.'.php';
-
         return is_file($file) ? (require $file) : [];
     }
 }

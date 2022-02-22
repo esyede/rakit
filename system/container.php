@@ -144,7 +144,6 @@ class Container
         }
 
         $dependencies = static::dependencies($constructor->getParameters(), $parameters);
-
         return $reflector->newInstanceArgs($dependencies);
     }
 
@@ -161,19 +160,13 @@ class Container
         $dependencies = [];
 
         foreach ($parameters as $parameter) {
-            if (PHP_VERSION_ID >= 80000) {
-                $dependency = $parameter->getType();
-            } else {
-                $dependency = $parameter->getClass();
-            }
-
-            if (count($arguments) > 0) {
-                $dependencies[] = array_shift($arguments);
-            } elseif (is_null($dependency)) {
-                $dependencies[] = static::resolve_non_class($parameter);
-            } else {
-                $dependencies[] = static::resolve($dependency->getName());
-            }
+            $dependency = (PHP_VERSION_ID >= 80000) ? $parameter->getType() : $parameter->getClass();
+            $dependencies[] = (count($arguments) > 0)
+                ? array_shift($arguments)
+                : (is_null($dependency)
+                    ? static::resolve_non_class($parameter)
+                    : static::resolve($dependency->getName())
+                );
         }
 
         return $dependencies;
