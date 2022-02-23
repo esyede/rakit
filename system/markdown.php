@@ -477,12 +477,10 @@ class Markdown
         if (preg_match('/^'.$attrib['char'].'{3,}[ ]*$/', $tag['text'])) {
             $attrib['element']['text']['text'] = substr($attrib['element']['text']['text'], 1);
             $attrib['complete'] = true;
-
             return $attrib;
         }
 
         $attrib['element']['text']['text'] .= "\n".$tag['body'];
-
         return $attrib;
     }
 
@@ -490,7 +488,6 @@ class Markdown
     {
         $text = $attrib['element']['text']['text'];
         $attrib['element']['text']['text'] = $text;
-
         return $attrib;
     }
 
@@ -508,7 +505,6 @@ class Markdown
             }
 
             $text = trim($tag['text'], '# ');
-
             return ['element' => ['name' => 'h'.min(6, $level), 'text' => $text, 'handler' => 'line']];
         }
     }
@@ -597,9 +593,7 @@ class Markdown
     {
         if (preg_match('/^>[ ]?(.*)/', $tag['text'], $matches)) {
             $matches = (array) $matches[1];
-            return [
-                'element' => ['name' => 'blockquote', 'handler' => 'lines', 'text' => $matches],
-            ];
+            return ['element' => ['name' => 'blockquote', 'handler' => 'lines', 'text' => $matches]];
         }
     }
 
@@ -612,7 +606,6 @@ class Markdown
             }
 
             $attrib['element']['text'][] = $matches[1];
-
             return $attrib;
         }
 
@@ -707,7 +700,6 @@ class Markdown
         }
 
         $attrib['markup'] .= "\n".$tag['body'];
-
         return $attrib;
     }
 
@@ -724,7 +716,6 @@ class Markdown
             }
 
             $this->definitions['reference'][$id] = $data;
-
             return ['hidden' => true];
         }
     }
@@ -803,9 +794,7 @@ class Markdown
                 $elem = ['name' => 'td', 'handler' => 'line', 'text' => $cell];
 
                 if (isset($attrib['alignments'][$index])) {
-                    $elem['attributes'] = [
-                        'style' => 'text-align: '.$attrib['alignments'][$index].';',
-                    ];
+                    $elem['attributes'] = ['style' => 'text-align: '.$attrib['alignments'][$index].';'];
                 }
 
                 $elems[] = $elem;
@@ -830,9 +819,7 @@ class Markdown
 
         if (preg_match($pattern, $not['text'], $matches)) {
             $text = preg_replace("/[ ]*\n/", ' ', $matches[2]);
-            return [
-                'extent' => strlen($matches[0]), 'element' => ['name' => 'code', 'text' => $text],
-            ];
+            return ['extent' => strlen($matches[0]), 'element' => ['name' => 'code', 'text' => $text]];
         }
     }
 
@@ -843,9 +830,7 @@ class Markdown
             $url = isset($matches[2]) ? $matches[1] : 'mailto:'.$matches[1];
             return [
                 'extent' => strlen($matches[0]),
-                'element' => [
-                    'name' => 'a', 'text' => $matches[1], 'attributes' => ['href' => $url],
-                ],
+                'element' => ['name' => 'a', 'text' => $matches[1], 'attributes' => ['href' => $url]],
             ];
         }
     }
@@ -1008,7 +993,8 @@ class Markdown
         if ('~' === $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
             return [
                 'extent' => strlen($matches[0]),
-                'element' => ['name' => 'del', 'text' => $matches[1], 'handler' => 'line'], ];
+                'element' => ['name' => 'del', 'text' => $matches[1], 'handler' => 'line'],
+            ];
         }
     }
 
@@ -1154,7 +1140,6 @@ class Markdown
         }
 
         $elem['attributes'][$attribute] = str_replace(':', '%3A', $elem['attributes'][$attribute]);
-
         return $elem;
     }
 
@@ -1166,11 +1151,6 @@ class Markdown
     protected static function starts($string, $needle)
     {
         $len = strlen($needle);
-
-        if ($len > strlen($string)) {
-            return false;
-        }
-
-        return strtolower(substr($string, 0, $len)) === strtolower($needle);
+        return ($len > strlen($string)) ? false : strtolower(substr($string, 0, $len)) === strtolower($needle);
     }
 }

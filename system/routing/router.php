@@ -158,9 +158,9 @@ class Router
     public static function register($method, $route, $action)
     {
         $route = Str::characterify($route);
-        $is_numeric = is_string($route) && '' !== $route && ! preg_match('/[^0-9]/', $route);
+        $digits = is_string($route) && '' !== $route && ! preg_match('/[^0-9]/', $route);
 
-        $route = $is_numeric ? '('.$route.')' : $route;
+        $route = $digits ? '('.$route.')' : $route;
         $route = is_string($route) ? explode(', ', $route) : $route;
 
         if (is_array($method)) {
@@ -231,6 +231,7 @@ class Router
 
         foreach ($controllers as $identifier) {
             list($package, $controller) = Package::parse($identifier);
+
             $root = Package::option($package, 'handles');
             $controller = str_replace('.', '/', $controller);
 
@@ -242,9 +243,7 @@ class Router
             $pattern = trim($root.'/'.$controller.'/'.$wildcards, '/');
             $uses = $identifier.'@(:1)';
 
-            $attributes = compact('uses', 'defaults');
-
-            static::register('*', $pattern, $attributes);
+            static::register('*', $pattern, compact('uses', 'defaults'));
         }
     }
 
@@ -259,11 +258,8 @@ class Router
     {
         $home = ('home' === $controller) ? '' : dirname($controller);
         $pattern = trim($root.'/'.$home, '/');
-        $pattern = $pattern ? $pattern : '/';
 
-        $attributes = ['uses' => $identifier.'@index'];
-
-        static::register('*', $pattern, $attributes);
+        static::register('*', $pattern ? $pattern : '/', ['uses' => $identifier.'@index']);
     }
 
     /**
@@ -287,9 +283,9 @@ class Router
             }
         }
 
-        $all_routes = static::routes();
+        $routings = static::routes();
 
-        foreach ($all_routes as $method => $routes) {
+        foreach ($routings as $method => $routes) {
             foreach ($routes as $key => $value) {
                 if (isset($value['as']) && $value['as'] === $name) {
                     static::$names[$name] = [$key => $value];
@@ -314,9 +310,9 @@ class Router
 
         Package::routes(Package::name($action));
 
-        $all_routes = static::routes();
+        $routings = static::routes();
 
-        foreach ($all_routes as $method => $routes) {
+        foreach ($routings as $method => $routes) {
             foreach ($routes as $key => $value) {
                 if (isset($value['uses']) && $action === $value['uses']) {
                     static::$uses[$action] = [$key => $value];
@@ -336,7 +332,8 @@ class Router
      */
     public static function route($method, $uri)
     {
-        Package::boot($package = Package::handles($uri));
+        Package::boot(Package::handles($uri));
+
         $routes = (array) static::method($method);
 
         if (array_key_exists($uri, $routes)) {

@@ -13,6 +13,8 @@ class Log
      */
     public static function exception($e)
     {
+        $e = null;
+
         if (PHP_VERSION_ID >= 70000) {
             if ($e instanceof \Throwable) {
                 $text = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
@@ -23,7 +25,7 @@ class Log
             $text = 'A non-catchable error has occured.';
         }
 
-        static::write('error', $text);
+        static::write('error', $text.' Traces: '.json_encode($e));
     }
 
     /**
@@ -61,10 +63,10 @@ class Log
         $path = path('storage').'logs'.DS.date('Y-m-d').'.log.php';
 
         if (is_file($path)) {
-            Storage::append($path, $message);
+            file_put_contents($path, $message, LOCK_EX | FILE_APPEND);
         } else {
             $guard = "<?php defined('DS') or exit('No direct script access.'); ?>".PHP_EOL;
-            Storage::put($path, $guard.$message);
+            file_put_contents($path, $guard.$message, LOCK_EX);
         }
     }
 
@@ -78,7 +80,7 @@ class Log
      */
     protected static function format($type, $message)
     {
-        return date('Y-m-d H:i:s').' '.Str::upper($type).' - '.$message.PHP_EOL;
+        return date('Y-m-d H:i:s').' '.strtoupper($type).' - '.$message.PHP_EOL;
     }
 
     /**

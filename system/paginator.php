@@ -168,10 +168,7 @@ class Paginator
         // Jika tidak ada cukup halaman untuk memungkinkan pembuatan slider
         // berdasarkan halaman-halaman terdekat, maka semua halaman akan ditampilkan.
         // Jika sebaliknya, kita buat slider 'terpotong'.
-        $links = ($this->last < (7 + ($adjacent * 2)))
-            ? $this->range(1, $this->last)
-            : $this->slider($adjacent);
-
+        $links = ($this->last < (7 + ($adjacent * 2))) ? $this->range(1, $this->last) : $this->slider($adjacent);
         $content = $this->previous().$links.$this->next();
         $content = "\t".'<ul class="pagination">'."\n".$content."\n\t".'</ul>';
 
@@ -368,7 +365,6 @@ class Paginator
         }
 
         $this->appendage = '&'.http_build_query($appends);
-
         return $this->appendage;
     }
 

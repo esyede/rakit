@@ -111,11 +111,13 @@ abstract class Controller
     public static function call($destination, $parameters = [])
     {
         static::references($destination, $parameters);
+
         list($package, $destination) = Package::parse($destination);
 
         Package::boot($package);
 
         list($name, $method) = explode('@', $destination);
+
         $controller = static::resolve($package, $name);
 
         if (! is_null($route = Request::route())) {
@@ -123,11 +125,7 @@ abstract class Controller
             $route->controller_action = $method;
         }
 
-        if (is_null($controller)) {
-            return Event::first('404');
-        }
-
-        return $controller->execute($method, $parameters);
+        return is_null($controller) ? Event::first('404') : $controller->execute($method, $parameters);
     }
 
     /**
@@ -176,12 +174,7 @@ abstract class Controller
         }
 
         $controller = static::format($package, $controller);
-
-        if (Event::exists(static::FACTORY)) {
-            return Event::first(static::FACTORY, $controller);
-        }
-
-        return new $controller();
+        return Event::exists(static::FACTORY) ? Event::first(static::FACTORY, $controller) : new $controller();
     }
 
     /**
@@ -321,11 +314,9 @@ abstract class Controller
      */
     public function layout()
     {
-        if (Str::starts_with($this->layout, 'name: ')) {
-            return View::of(substr($this->layout, 6));
-        }
-
-        return View::make($this->layout);
+        return Str::starts_with($this->layout, 'name: ')
+            ? View::of(substr($this->layout, 6))
+            : View::make($this->layout);
     }
 
     /**

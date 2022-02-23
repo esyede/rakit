@@ -106,7 +106,7 @@ class Resource
      */
     public static function make($name, array $options = [])
     {
-        new self($name, $options);
+        new static($name, $options);
     }
 
     /**

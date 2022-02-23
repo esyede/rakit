@@ -84,7 +84,6 @@ class Section
     {
         $last = array_pop(static::$last);
         static::extend($last, ob_get_clean());
-
         return $last;
     }
 

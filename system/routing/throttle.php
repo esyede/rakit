@@ -86,10 +86,10 @@ class Throttle
     {
         $headers = Cache::get(static::key());
         $headers = [
-            'X-Rate-Limit-Limit' => $headers['limit'],
-            'X-Rate-Limit-Remaining' => $headers['remaining'],
-            'X-Rate-Limit-Reset' => $headers['reset'],
-            'Retry-After' => $headers['retry'],
+            'x-rate-limit-limit' => $headers['limit'],
+            'x-rate-limit-remaining' => $headers['remaining'],
+            'x-rate-limit-reset' => $headers['reset'],
+            'retry-after' => $headers['retry'],
         ];
 
         return Response::error(429, $headers);

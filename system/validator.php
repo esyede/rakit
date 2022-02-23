@@ -266,12 +266,9 @@ class Validator
     protected function validate_required_with($attribute, $value, $parameters)
     {
         $other = Arr::get($this->attributes, $parameters[0]);
-
-        if ($this->validate_required($parameters[0], $other)) {
-            return $this->validate_required($attribute, $value);
-        }
-
-        return true;
+        return $this->validate_required($parameters[0], $other)
+            ? $this->validate_required($attribute, $value)
+            : true;
     }
 
     /**
@@ -522,9 +519,9 @@ class Validator
         $query = $this->db()->table($parameters[0]);
 
         if (is_array($value)) {
-            $query = $query->where_in($attribute, $value);
+            $query->where_in($attribute, $value);
         } else {
-            $query = $query->where($attribute, '=', $value);
+            $query->where($attribute, '=', $value);
         }
 
         return $query->count() >= $count;
@@ -579,11 +576,9 @@ class Validator
      */
     protected function validate_uuid($attribute, $value)
     {
-        if (! is_string($value)) {
-            return false;
-        }
-
-        return (bool) preg_match('{^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$}Di', $value);
+        return is_string($value)
+            ? (bool) preg_match('{^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$}Di', $value)
+            : false;
     }
 
     /**
@@ -604,11 +599,7 @@ class Validator
             return false;
         }
 
-        if ('' === $value) {
-            return true;
-        }
-
-        return ! preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value);
+        return ('' === $value) ? true : (! preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value));
     }
 
     /**
@@ -675,11 +666,9 @@ class Validator
      */
     protected function validate_alpha_num($attribute, $value)
     {
-        if (! is_string($value) && ! is_numeric($value)) {
-            return false;
-        }
-
-        return preg_match('/^[\pL\pM\pN]+$/u', $value) > 0;
+        return (is_string($value) || is_numeric($value))
+            ? (preg_match('/^[\pL\pM\pN]+$/u', $value) > 0)
+            : false;
     }
 
     /**
@@ -693,11 +682,9 @@ class Validator
      */
     protected function validate_alpha_dash($attribute, $value)
     {
-        if (! is_string($value) && ! is_numeric($value)) {
-            return false;
-        }
-
-        return preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0;
+        return (is_string($value) || is_numeric($value))
+            ? (preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0)
+            : false;
     }
 
     /**
@@ -893,9 +880,7 @@ class Validator
             return $this->size_message($package, $attribute, $rule);
         }
 
-        $line = $package.'validation.'.$rule;
-
-        return Lang::line($line)->get($this->language);
+        return Lang::line($package.'validation.'.$rule)->get($this->language);
     }
 
     /**
@@ -1209,11 +1194,9 @@ class Validator
         $package = Package::prefix($this->package);
         $line = $package.'validation.attributes.'.$attribute;
 
-        if (Lang::has($line, $this->language)) {
-            return Lang::line($line)->get($this->language);
-        }
-
-        return str_replace('_', ' ', $attribute);
+        return Lang::has($line, $this->language)
+            ? Lang::line($line)->get($this->language)
+            : str_replace('_', ' ', $attribute);
     }
 
     /**

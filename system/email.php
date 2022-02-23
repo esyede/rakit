@@ -40,10 +40,11 @@ class Email
     {
         $driver = is_null($driver) ? Config::get('email.driver') : $driver;
 
-        if (! isset(static::$drivers[$driver])) {
-            static::$drivers[$driver] = static::factory($driver);
+        if (isset(static::$drivers[$driver])) {
+            return static::$drivers[$driver];
         }
 
+        static::$drivers[$driver] = static::factory($driver);
         return static::$drivers[$driver];
     }
 

@@ -49,11 +49,8 @@ class Cookie
             return Crypter::decrypt(static::$jar[$name]['value']);
         }
 
-        if (! is_null($value = Request::foundation()->cookies->get($name))) {
-            return Crypter::decrypt($value);
-        }
-
-        return value($default);
+        $value = Request::foundation()->cookies->get($name);
+        return is_null($value) ? value($default) : Crypter::decrypt($value);
     }
 
     /**

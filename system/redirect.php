@@ -114,7 +114,6 @@ class Redirect extends Response
         }
 
         Session::flash($key, $value);
-
         return $this;
     }
 

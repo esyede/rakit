@@ -74,7 +74,6 @@ class Input
         }
 
         $value = Arr::get($input, $key);
-
         return is_null($value) ? Arr::get(static::query(), $key, $default) : $value;
     }
 

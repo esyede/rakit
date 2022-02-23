@@ -114,12 +114,7 @@ class Middlewares
         }
 
         $method = strtolower(Request::method());
-
-        if (count($this->methods) > 0 && ! in_array($method, $this->methods)) {
-            return false;
-        }
-
-        return true;
+        return count($this->methods) < 1 || in_array($method, $this->methods);
     }
 
     /**

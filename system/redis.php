@@ -76,15 +76,11 @@ class Redis
     public static function db($name = 'default')
     {
         if (! isset(static::$databases[$name])) {
-            if (is_null($config = Config::get('database.redis.'.$name))) {
-                throw new \Exception(sprintf('Redis database is not defined: %s', $name));
+            if (empty($config = Config::get('database.redis.'.$name, []))) {
+                throw new \Exception(sprintf('Redis database config is not configured: %s', $name));
             }
 
-            static::$databases[$name] = new static(
-                $config['host'],
-                $config['port'],
-                $config['database']
-            );
+            static::$databases[$name] = new static($config['host'], $config['port'], $config['database']);
         }
 
         return static::$databases[$name];
@@ -111,9 +107,7 @@ class Redis
     public function run($method, $parameters)
     {
         fwrite($this->connect(), $this->command($method, (array) $parameters));
-        $response = trim(fgets($this->connection, 512));
-
-        return $this->parse($response);
+        return $this->parse(trim(fgets($this->connection, 512)));
     }
 
     /**
@@ -153,7 +147,6 @@ class Redis
         }
 
         $this->select($this->database);
-
         return $this->connection;
     }
 
@@ -177,9 +170,7 @@ class Redis
      */
     protected function command($method, $parameters)
     {
-        $command = '*'.(count($parameters) + 1).CRLF;
-        $command .= '$'.strlen($method).CRLF;
-        $command .= strtoupper($method).CRLF;
+        $command = '*'.(count($parameters) + 1).CRLF.'$'.strlen($method).CRLF.strtoupper($method).CRLF;
 
         foreach ($parameters as $parameter) {
             $command .= '$'.strlen($parameter).CRLF.$parameter.CRLF;
@@ -225,7 +216,6 @@ class Redis
         }
 
         fread($this->connection, 2);
-
         return $response;
     }
 

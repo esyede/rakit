@@ -34,9 +34,7 @@ class Optional implements \ArrayAccess
      */
     public function __get($key)
     {
-        return (is_object($this->value) && isset($this->value->{$key}))
-            ? $this->value->{$key}
-            : null;
+        return (is_object($this->value) && isset($this->value->{$key})) ? $this->value->{$key} : null;
     }
 
     /**

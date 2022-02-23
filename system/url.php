@@ -86,21 +86,20 @@ class URL
         }
 
         $config = Config::get('application');
-
-        $root = static::base();
-        $root .= $asset ? '' : '/'.$config['index'];
+        $base = static::base();
+        $base .= $asset ? '' : '/'.$config['index'];
 
         if (! $asset && $locale && count($config['languages']) > 0) {
             if (in_array($config['language'], $config['languages'])) {
-                $root = rtrim($root, '/').'/'.$config['language'];
+                $base = rtrim($base, '/').'/'.$config['language'];
             }
         }
 
-        $root = Request::secure()
-            ? Str::replace_first('http://', 'https://', $root)
-            : Str::replace_first('https://', 'http://', $root);
+        $base = Request::secure()
+            ? Str::replace_first('http://', 'https://', $base)
+            : Str::replace_first('https://', 'http://', $base);
 
-        return rtrim($root, '/').'/'.ltrim($url, '/');
+        return rtrim($base, '/').'/'.ltrim($url, '/');
     }
 
     /**
@@ -124,12 +123,9 @@ class URL
     public static function to_action($action, $parameters = [])
     {
         $route = Router::uses($action);
-
-        if (is_null($route)) {
-            return static::convention($action, $parameters);
-        }
-
-        return static::explicit($route, $action, $parameters);
+        return is_null($route)
+            ? static::convention($action, $parameters)
+            : static::explicit($route, $action, $parameters);
     }
 
     /**
@@ -177,11 +173,9 @@ class URL
      */
     public static function to_asset($url)
     {
-        if (static::valid($url) || static::valid('http:'.$url)) {
-            return $url;
-        }
-
-        return static::to('assets/'.ltrim($url, '/'), true);
+        return (static::valid($url) || static::valid('http:'.$url))
+            ? $url
+            : static::to('assets/'.ltrim($url, '/'), true);
     }
 
     /**
@@ -209,7 +203,6 @@ class URL
         }
 
         $uri = trim(static::transpose(key($route), $parameters), '/');
-
         return static::to($uri);
     }
 
@@ -224,15 +217,9 @@ class URL
     public static function to_language($language, $reset = false)
     {
         $url = $reset ? URL::home() : URL::to(URI::current());
-
-        if (! in_array($language, Config::get('application.languages'))) {
-            return $url;
-        }
-
-        $from = '/'.Config::get('application.language').'/';
-        $to = '/'.$language.'/';
-
-        return str_replace($from, $to, $url);
+        return in_array($language, Config::get('application.languages'))
+            ? str_replace('/'.Config::get('application.language').'/', '/'.$language.'/', $url)
+            : $url;
     }
 
     /**
@@ -254,7 +241,6 @@ class URL
         }
 
         $uri = preg_replace('/\(.+?\)/', '', $uri);
-
         return trim($uri, '/');
     }
 

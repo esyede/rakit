@@ -44,18 +44,16 @@ if (! function_exists('dd')) {
         $variables = func_get_args();
         if (is_cli()) {
             array_map(function ($var) {
-                if ('\\' === DS) {
-                    echo \System\Foundation\Oops\Dumper::toText($var);
-                } else {
-                    echo \System\Foundation\Oops\Dumper::toTerminal($var);
-                }
+                echo ('\\' === DS)
+                    ? \System\Foundation\Oops\Dumper::toText($var)
+                    : \System\Foundation\Oops\Dumper::toTerminal($var);
             }, $variables);
         } else {
             array_map('\System\Foundation\Oops\Debugger::dump', $variables);
         }
 
         if (! \System\Foundation\Oops\Debugger::$productionMode) {
-            die();
+            die;
         }
     }
 }
@@ -100,11 +98,7 @@ if (! function_exists('optional')) {
      */
     function optional($value = null, callable $callback = null)
     {
-        if (is_null($callback)) {
-            return new \System\Optional($value);
-        } elseif (! is_null($value)) {
-            return $callback($value);
-        }
+        return is_null($callback) ? \System\Optional($value) : $callback($value);
     }
 }
 

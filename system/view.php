@@ -120,11 +120,13 @@ class View implements \ArrayAccess
      */
     public static function exists($view, $return_path = false)
     {
-        if (Str::starts_with($view, 'name: ') && array_key_exists($name = substr($view, 6), static::$names)) {
+        if (Str::starts_with($view, 'name: ')
+        && array_key_exists($name = substr($view, 6), static::$names)) {
             $view = static::$names[$name];
         }
 
         list($package, $view) = Package::parse($view);
+
         $view = str_replace(['.', '/'], DS, $view);
         $path = Event::until(static::LOADER, [$package, $view]);
 

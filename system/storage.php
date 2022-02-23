@@ -80,7 +80,6 @@ class Storage
     {
         $put = file_put_contents($path, $data, $options);
         static::protect($path);
-
         return $put;
     }
 
@@ -179,7 +178,6 @@ class Storage
     {
         $move = rename($path, $target);
         static::protect($path);
-
         return $move;
     }
 
@@ -218,7 +216,6 @@ class Storage
     {
         $copy = copy($path, $target);
         static::protect($target);
-
         return $copy;
     }
 

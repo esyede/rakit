@@ -33,11 +33,8 @@ class File extends Driver implements Sweeper
      */
     public function load($id)
     {
-        $path = $this->path.$this->naming($id);
-
-        if (is_file($path)) {
-            $path = file_get_contents($path);
-            return unserialize($this->unguard($path));
+        if (is_file($path = $this->path.$this->naming($id))) {
+            return unserialize($this->unguard(file_get_contents($path)));
         }
     }
 
@@ -63,9 +60,7 @@ class File extends Driver implements Sweeper
      */
     public function delete($id)
     {
-        $path = $this->path.$this->naming($id);
-
-        if (is_file($path)) {
+        if (is_file($path = $this->path.$this->naming($id))) {
             @unlink($this->path.$id);
         }
     }
@@ -111,8 +106,7 @@ class File extends Driver implements Sweeper
      */
     protected static function guard($value)
     {
-        $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-        return $guard.$value;
+        return "<?php defined('DS') or exit('No direct script access.');?>".$value;
     }
 
     /**
@@ -125,7 +119,6 @@ class File extends Driver implements Sweeper
      */
     protected static function unguard($value)
     {
-        $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-        return str_replace($guard, '', $value);
+        return str_replace("<?php defined('DS') or exit('No direct script access.');?>", '', $value);
     }
 }

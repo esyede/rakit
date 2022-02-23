@@ -168,12 +168,7 @@ class Messages
     public function get($key, $format = null)
     {
         $format = is_null($format) ? $this->format : $format;
-
-        if (array_key_exists($key, $this->messages)) {
-            return $this->transform($this->messages[$key], $format);
-        }
-
-        return [];
+        return array_key_exists($key, $this->messages) ? $this->transform($this->messages[$key], $format) : [];
     }
 
     /**

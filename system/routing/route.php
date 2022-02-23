@@ -110,6 +110,7 @@ class Route
         $response = Middleware::run($this->middlewares('before'), [], true);
         $response = is_null($response) ? $this->response() : $response;
         $response = Response::prepare($response);
+
         Middleware::run($this->middlewares('after'), [&$response]);
 
         return $response;

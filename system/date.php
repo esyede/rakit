@@ -121,12 +121,10 @@ class Date
         if ($clone) {
             $cloned = clone $this;
             $cloned->timestamp = $timestamp;
-
             return $cloned;
         }
 
         $this->timestamp = $timestamp;
-
         return $this;
     }
 
@@ -147,12 +145,10 @@ class Date
             ));
         }
 
-        $duration = [60, 60, 24, 7, 4.35, 12, 10];
-        $count = count($duration) - 1;
-
+        $durations = [60, 60, 24, 7, 4.35, 12, 10];
+        $count = count($durations) - 1;
         $units = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year', 'decade'];
         $ago = Lang::line('date.past')->get();
-
         $diff = $current - $timestamp;
 
         if ($diff < 0) {
@@ -160,12 +156,11 @@ class Date
             $ago = Lang::line('date.future')->get();
         }
 
-        for ($i = 0; $diff >= $duration[$i] && $i < $count; $i++) {
-            $diff /= $duration[$i];
+        for ($i = 0; $diff >= $durations[$i] && $i < $count; $i++) {
+            $diff /= $durations[$i];
         }
 
         $diff = (int) round($diff);
-
         return number_format($diff).' '.Lang::line('date.'.$units[$i])->get().' '.$ago;
     }
 

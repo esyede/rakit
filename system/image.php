@@ -99,7 +99,6 @@ class Image
         }
 
         static::$singleton = new static($path, $quality);
-
         return static::$singleton;
     }
 
@@ -269,7 +268,6 @@ class Image
 
         // Crop dari tengah
         $this->crop($x, $y, $new_width, $new_height);
-
         return $this;
     }
 
@@ -284,7 +282,6 @@ class Image
     {
         $level = $this->level($level, -100, 100, 'contrast');
         imagefilter($this->image, IMG_FILTER_CONTRAST, $level);
-
         return $this;
     }
 
@@ -299,7 +296,6 @@ class Image
     {
         $level = $this->level($level, -100, 100, 'brightness');
         imagefilter($this->image, IMG_FILTER_BRIGHTNESS, $level);
-
         return $this;
     }
 
@@ -314,7 +310,6 @@ class Image
     {
         $level = $this->level($level, -100, 100, 'smoothness');
         imagefilter($this->image, IMG_FILTER_SMOOTH, $level);
-
         return $this;
     }
 
@@ -329,7 +324,6 @@ class Image
     {
         $selective = $selective ? IMG_FILTER_SELECTIVE_BLUR : IMG_FILTER_GAUSSIAN_BLUR;
         imagefilter($this->image, $selective);
-
         return $this;
     }
 
@@ -353,7 +347,6 @@ class Image
     {
         imagefilter($this->image, IMG_FILTER_GRAYSCALE);
         imagefilter($this->image, IMG_FILTER_COLORIZE, 90, 60, 45);
-
         return $this;
     }
 
@@ -412,7 +405,6 @@ class Image
     {
         $value = $this->level($value, -100, 100, 'pixelate');
         imagefilter($this->image, IMG_FILTER_PIXELATE, $value);
-
         return $this;
     }
 
@@ -575,6 +567,7 @@ class Image
         $hash = sha1($seed);
         $sprites = static::sprites();
         $image = imagecreatetruecolor($size, $size);
+
         list($r, $g, $b) = static::rgb(hexdec(substr($hash, -3)));
 
         $color = imagecolorallocate($image, $r, $g, $b);
@@ -731,7 +724,8 @@ class Image
 
         if (! in_array($value, $bounds)) {
             throw new \Exception(sprintf(
-                'The %s level is out of bounds. It needs to be between %s to %s', $method, $low, $high
+                'The %s level is out of bounds. It needs to be between %s to %s',
+                $method, $low, $high
             ));
         }
 

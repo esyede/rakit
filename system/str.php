@@ -226,8 +226,7 @@ class Str
     {
         $parts = preg_split('/(.)(?=[A-Z])/u', $value, -1, PREG_SPLIT_DELIM_CAPTURE);
         $last = array_pop($parts);
-
-        return implode('', $parts).static::plural($last, $count);
+        return implode('', $parts).static::plural(array_pop($parts), $count);
     }
 
     /**
@@ -337,7 +336,6 @@ class Str
             if (! empty($basedir)) {
                 $paths = explode(PATH_SEPARATOR, strtolower($basedir));
                 $urandom = ([] !== array_intersect(['/dev', '/dev/', '/dev/urandom'], $paths));
-
                 unset($paths);
             }
 
@@ -352,7 +350,6 @@ class Str
                 }
 
                 fclose($file);
-
                 $bytes = str_pad($bytes, $length, "\0") ^ str_pad($local, $length, "\0");
             }
 
@@ -482,7 +479,6 @@ class Str
     public static function uuid()
     {
         $uuid = bin2hex(static::bytes(16));
-
         return sprintf(
             '%08s-%04s-4%03s-%04x-%012s',
             substr($uuid, 0, 8),
@@ -540,12 +536,7 @@ class Str
         }
 
         $position = strpos($subject, $search);
-
-        if (false !== $position) {
-            return substr_replace($subject, $replace, $position, strlen($search));
-        }
-
-        return $subject;
+        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, strlen($search));
     }
 
     public static function replace_last($search, $replace, $subject)
@@ -555,12 +546,7 @@ class Str
         }
 
         $position = strrpos($subject, $search);
-
-        if (false !== $position) {
-            return substr_replace($subject, $replace, $position, strlen($search));
-        }
-
-        return $subject;
+        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, strlen($search));
     }
 
     /**
@@ -625,7 +611,6 @@ class Str
         }
 
         static::$camel[$value] = lcfirst(static::studly($value));
-
         return static::$camel[$value];
     }
 
@@ -678,15 +663,14 @@ class Str
         }
 
         $chars = static::characterify($value);
-        $is_lower = is_string($chars) && '' !== $chars && ! preg_match('/[^a-z]/', $chars);
+        $lowercased = is_string($chars) && '' !== $chars && ! preg_match('/[^a-z]/', $chars);
 
-        if (! $is_lower) {
+        if (! $lowercased) {
             $value = preg_replace('/\s+/u', '', ucwords($value));
             $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value));
         }
 
         static::$snake[$key][$delimiter] = $value;
-
         return static::$snake[$key][$delimiter];
     }
 
