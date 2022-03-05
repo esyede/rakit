@@ -35,13 +35,14 @@ if (! function_exists('dd')) {
     /**
      * Dump variable dan hentikan eksekusi script.
      *
-     * @param mixed ...$variables
+     * @param mixed|array $variables
      *
      * @return void
      */
-    function dd(/* ...$variables */)
+    function dd($variables)
     {
-        $variables = func_get_args();
+        $variables = is_array($variables) ? $variables : func_get_args();
+
         if (is_cli()) {
             array_map(function ($var) {
                 echo ('\\' === DS)
@@ -77,13 +78,14 @@ if (! function_exists('dump')) {
     /**
      * Dump variable tanpa menghentikan eksekusi script.
      *
-     * @param mixed ...$variables
+     * @param mixed|array $variables
      *
      * @return void
      */
-    function dump(/* ...$variables */)
+    function dump($variables)
     {
-        array_map('\System\Foundation\Oops\Debugger::dump', func_get_args());
+        $variables = is_array($variables) ? $variables : func_get_args();
+        array_map('\System\Foundation\Oops\Debugger::dump', $variables);
     }
 }
 
