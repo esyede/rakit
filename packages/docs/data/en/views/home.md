@@ -396,7 +396,7 @@ Anda dapat mengakses pesan ini dari view menggunakan method `Session::get()`:
 
 _Bacaan lebih lanjut:_
 
-- *[Session](/docs/session/config)*
+- *[Session](/docs/en/session/config)*
 
 
 <a id="respon-download"></a>

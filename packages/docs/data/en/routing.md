@@ -187,7 +187,7 @@ Anda bebas mengubah ini agar sesuai dengan kebutuhan aplikasi anda!
 
 _Bacaan lebih lanjut:_
 
-- _[Events](/docs/events)_
+- _[Events](/docs/en/events)_
 
 
 <a id="middleware"></a>
@@ -346,7 +346,7 @@ if (Request::route()->is('home')) {
 Rakit adalah framework yang fleksibel, cara kerjanya mirip dengan manajer paket di Linux.
 Oleh karena itu, paket dapat dengan mudah dikonfigurasi untuk menangani request ke aplikasi anda.
 
-Kami akan membahas [paket secara detail](/docs/packages) di dokumen lain. Untuk saat ini,
+Kami akan membahas [paket secara detail](/docs/en/packages) di dokumen lain. Untuk saat ini,
 bacalah bagian ini dan perlu diketahui bahwa rute tidak hanya dapat digunakan untuk mengekspos
 fungsionalitas dalam paket, tetapi juga dapat didaftarkan dari dalam paket.
 
@@ -397,7 +397,7 @@ Route::get('(:package)/password', function () {
 ## Routing Controller
 
 Controller menyediakan cara lain untuk mengelola logika aplikasi anda. Jika anda belum paham dengan
-controller, silahkan baca [dokumentasi tentang controller](/docs/controllers) sebelum lanjut ke bagian ini.
+controller, silahkan baca [dokumentasi tentang controller](/docs/en/controllers) sebelum lanjut ke bagian ini.
 
 Penting untuk diketahui bahwa semua rute di Rakit harus didefinisikan secara eksplisit,
 termasuk rute ke controller. Ini berarti bahwa jika method controller belum didaftarkan,
@@ -485,7 +485,7 @@ Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);
 <a id="route-testing-via-cli"></a>
 ## Route Testing via CLI
 
-Anda dapat memanggil rute yang anda buat via [console](/console.md#memanggil-rute).
+Anda dapat memanggil rute yang anda buat via [console](/docs/en/console#memanggil-rute).
 Cukup sebutkan tipe request dan URI mana yang ingin anda panggil.
 
 #### Memanggil rute melalui CLI:

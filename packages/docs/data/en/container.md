@@ -60,4 +60,4 @@ Setelah SwiftMailer terdaftar ke container, kita dapat dengan mudah me-resolveny
 $mailer = Container::resolve('mailer');
 ```
 
->  Anda juga boleh [mendaftarkan controller ke container](/docs/controllers#dependency-injection).
+>  Anda juga boleh [mendaftarkan controller ke container](/docs/en/controllers#dependency-injection).

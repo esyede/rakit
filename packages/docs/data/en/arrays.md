@@ -468,4 +468,4 @@ $empty = null;
 return Arr::wrap($empty); // []
 ```
 
-> Some additional helpers for array operations also available in the [Helper](/docs/helpers) page
+> Some additional helpers for array operations also available in the [Helper](/docs/en/helpers) page

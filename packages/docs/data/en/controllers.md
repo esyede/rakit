@@ -27,7 +27,7 @@ web modern.
 
 Namun, Rakit juga memberdayakan pengembang untuk mengimplementasikan logika aplikasi mereka dalam
 deklarasi routing melalui closure. Topik ini dibahas secara rinci dalam
-[dokumentasi routing](/docs/routing).
+[dokumentasi routing](/docs/en/routing).
 
 Pengguna baru disarankan untuk memulai dengan controller. Tidak ada yang dapat dilakukan oleh
 logika aplikasi berbasis closure routing yang tidak dapat dilakukan oleh controller.
@@ -70,7 +70,7 @@ Ini berarti bahwa method di kelas controller yang belum diekspos melalui registr
 Dimungkinkan untuk secara otomatis mengekspos semua metode dalam controller menggunakan registrasi
 rute controller. Registrasi rute controller biasanya dilakukan di file `routes.php`.
 
-Baca [halaman routing](/docs/routing#controller-routing) untuk panduan lebih lanjut mengenai
+Baca [halaman routing](/docs/en/routing#controller-routing) untuk panduan lebih lanjut mengenai
 controller routing.
 
 
@@ -78,7 +78,7 @@ controller routing.
 ## Controller Paket
 
 Paket adalah sistem modularisasi yang sangat fleksibel. Paket dapat dengan mudah dikonfigurasi untuk
-menangani request yang datang ke aplikasi anda. Kami akan membahas [paket lebih detail](/docs/packages)
+menangani request yang datang ke aplikasi anda. Kami akan membahas [paket lebih detail](/docs/en/packages)
 di dokumen lain.
 
 Membuat controller untuk paket hampir sama caranya dengan membuat controller biasa. Cukup awali
@@ -110,7 +110,7 @@ Route::controller('admin::home');
 Mantap! Sekarang kita dapat mengakses controller home milik paket `admin` dari web!
 
 >  Secara default, sintaks `::` (kolon ganda) digunakan untuk merujuk segala informasi milik sebuah paket.
-   Informasi lebih lanjut mengenai paket dapat ditemukan di [dokumentasi paket](/docs/packages).
+   Informasi lebih lanjut mengenai paket dapat ditemukan di [dokumentasi paket](/docs/en/packages).
 
 
 <a id="action-middleware"></a>
@@ -198,7 +198,7 @@ middleware `'csrf'` ini di file `middlewares.php`.
 
 _Bacaan lebih lanjut:_
 
-- _[Middleware](/docs/routing#middleware)_
+- _[Middleware](/docs/en/routing#middleware)_
 
 
 <a id="nested-controller"></a>
@@ -241,7 +241,7 @@ mysite.com/admin/panel
 ## Layout Controller
 
 Dokumentasi lengkap tentang penggunaan layout dengan Controller dapat ditemukan di
-[halaman templating](/docs/views/templating).
+[halaman templating](/docs/en/views/templating).
 
 
 <a id="restful-controller"></a>
@@ -295,7 +295,7 @@ class Home_Controller extends Controller
 Jika anda berfokus pada penulisan kode yang _test-able_ atau mudah diuji, anda mungkin perlu
 meng-inject dependensi ke constructor controller anda.
 
-Tidak masalah. Cukup daftarkan controller anda ke [Container](/docs/container).
+Tidak masalah. Cukup daftarkan controller anda ke [Container](/docs/en/container).
 Saat mendaftarkan controller ke container, awali key-nya dengan kata `controller`.
 
 Sebagai contoh, dalam file `boot.php`, anda dapat mendaftarkan controller `User` seperti berikut:
@@ -311,7 +311,7 @@ tersebut terdaftar dalam container atau tidak, dan jika iya, maka Rakit akan men
 untuk meresolve instance controller tersebut.
 
 >  Sebelum menyelam lebih jauh kedalam Dependency Injection Controller,
-   anda mungkin ingin membaca dokumentasi tentang [Container](/docs/container).
+   anda mungkin ingin membaca dokumentasi tentang [Container](/docs/en/container).
 
 
 <a id="controller-factory"></a>

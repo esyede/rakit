@@ -70,11 +70,11 @@ Dalam keadaan default, rakit sudah dikonfigurasikan untuk menggunakan driver ini
 <a id="driver-database"></a>
 ## Driver Database
 
-Untuk menggunakan driver database, anda harus [mengkonfigurasi koneksi database](/docs/database/config) terlebih dahulu.
+Untuk menggunakan driver database, anda harus [mengkonfigurasi koneksi database](/docs/en/database/config) terlebih dahulu.
 
 Selanjutnya, anda perlu membuat sebuah tabel sesi. Berikut adalah beberapa kueri SQL untuk membantu anda memulai.
 
-Namun, anda juga dapat menggunakan [console](/docs/console) untuk membuat tabel ini secara otomatis!
+Namun, anda juga dapat menggunakan [console](/docs/en/console) untuk membuat tabel ini secara otomatis!
 
 
 <a id="console"></a>
@@ -137,7 +137,7 @@ Setelah itu, anda hanya tinggal mengubah opsi driver di file `application/config
 <a id="driver-redis"></a>
 ## Driver Redis
 
-Sebelum menggunakan driver redis, anda harus [mengkonfigurasi server redis anda](/docs/database/redis#config) terlebih dahulu.
+Sebelum menggunakan driver redis, anda harus [mengkonfigurasi server redis anda](/docs/en/database/redis#config) terlebih dahulu.
 
 Setelah itu, anda hanya tinggal mengubah opsi driver di file `application/config/session.php` seperti berikut:
 

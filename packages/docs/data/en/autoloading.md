@@ -129,7 +129,7 @@ For this purpose, we provide some options to handle this:
 #### Option 1: Rewrite URL
 
 If you use Apache or Nginx, follow the
-[pretty url](/docs/install#mempercantik-url) guide because we provide rules to protect vendor folder using that feature.
+[pretty url](/docs/en/install#mempercantik-url) guide because we provide rules to protect vendor folder using that feature.
 
 
 

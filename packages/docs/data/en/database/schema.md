@@ -25,7 +25,7 @@ akan dapat dijalankan di banyak sistem database.
 
 _Bacaan lebih lanjut:_
 
-- [Migrasi Database](/docs/database/migrations)
+- [Migrasi Database](/docs/en/database/migrations)
 
 
 <a id="membuat--menghapus-tabel"></a>

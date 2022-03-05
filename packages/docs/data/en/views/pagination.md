@@ -21,7 +21,7 @@ Library ini dibuat untuk memudahkan anda dalam pembuatan navigasi pada banyak da
 <a id="menggunakan-query-builder"></a>
 ## Menggunakan Query Builder
 
-Mari kita telusuri contoh lengkap pagination menggunakan [Query Builder](/docs/database/magic):
+Mari kita telusuri contoh lengkap pagination menggunakan [Query Builder](/docs/en/database/magic):
 
 
 #### Ambil hasil paginasi dari kueri:
@@ -72,7 +72,7 @@ dan linknya. Anda juga dapat membuat link _"next"_ dan _"previous"_ tentunya:
 
 _Bacaan lebih lanjut:_
 
-- _[Query Builder](/docs/database/magic)_
+- _[Query Builder](/docs/en/database/magic)_
 
 
 

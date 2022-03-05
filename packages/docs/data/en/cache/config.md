@@ -78,7 +78,7 @@ Kemudian, tambahkan Memcached server anda ke array `'servers'`:
 
 Redis adalah perangkat lunak penyimpanan key-value bersumber terbuka dan canggih. Ini sering disebut sebagai server struktur data karena key-nya dapat berisi [string](http://redis.io/topics/data-types#strings), [hash](http://redis.io/topics/data-types#hashes), [list](http://redis.io/topics/data-types#lists), [set](http://redis.io/topics/data-types#sets), dan [sorted set](http://redis.io/topics/data-types#sorted-sets).
 
-Sebelum menggunakan driver Redis ini, anda harus [mengkonfigurasi Redis server anda](/docs/database/redis#config). Setelah itu, anda cukup megubah `'driver'` di file `application/config/cache.php` menjadi redis seperti ini:
+Sebelum menggunakan driver Redis ini, anda harus [mengkonfigurasi Redis server anda](/docs/en/database/redis#config). Setelah itu, anda cukup megubah `'driver'` di file `application/config/cache.php` menjadi redis seperti ini:
 
 ```php
 'driver' => 'redis'

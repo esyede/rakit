@@ -38,7 +38,7 @@ php rakit migrate:install
 <a id="membuat-file-migrasi"></a>
 ## Membuat File Migrasi
 
-Anda dapat dengan mudah membuat migrasi melalui [console](/docs/console) seperti berikut ini:
+Anda dapat dengan mudah membuat migrasi melalui [console](/docs/en/console) seperti berikut ini:
 
 **Membuat sebuah  file migrasi:**
 
@@ -59,7 +59,7 @@ php rakit make:migration nama_package::create_users_table
 
 _Bacaan lebih lanjut:_
 
-- [Schema Builder](/docs/database/schema)
+- [Schema Builder](/docs/en/database/schema)
 
 
 <a id="menjalankan-migrasi"></a>

@@ -103,7 +103,7 @@ foreach ($users as $user) {
 ```
 
 Tentu saja, mengambil seluruh record dari tabel akan sangat memberatkan kinerja server anda.
-Untungnya, <ins>Seluruh method yang tersedia di [query builder](/docs/database/magic) juga
+Untungnya, <ins>Seluruh method yang tersedia di [query builder](/docs/en/database/magic) juga
 bisa dipakai di dalam Model</ins>.
 
 Cukup mulai kueri anda dengan memanggil salah satu method milik query builder,
@@ -377,7 +377,7 @@ lebih pendek untuk ditulis, kenapa saya harus menggunakan method relasi
 yang panjang dan bertele-tele ini? Buang - buang waktu saja!"_
 
 Begini, method relasi ini sangatlah ampuh. Method ini mengizinkan anda untuk terus menyambung
-method milik [query builder](/docs/database/magic) sebelum mengambil data hasil relasi:
+method milik [query builder](/docs/en/database/magic) sebelum mengambil data hasil relasi:
 
 ```php
 $results = Post::find(1)->comments()
@@ -869,7 +869,7 @@ class User extends Facile
 <a id="delete-model"></a>
 ## Delete Model
 
-Karena Facile mewarisi semua fitur dan method milik [query builder](/docs/database/magic),
+Karena Facile mewarisi semua fitur dan method milik [query builder](/docs/en/database/magic),
 menghapus model sangatlah mudah:
 
 ```php
@@ -878,4 +878,4 @@ $author->delete();
 
 Walaupun begitu, ini tidak akan menghapus model yang berelasi
 (misalnya semua model `Book` milik `Author` akan tetap ada), kecuali anda telah
-mengatur [foreign key](/docs/database/schema#foreign-key) dan cascade delete.
+mengatur [foreign key](/docs/en/database/schema#foreign-key) dan cascade delete.
