@@ -61,7 +61,7 @@ class File extends Driver implements Sweeper
     public function delete($id)
     {
         if (is_file($path = $this->path.$this->naming($id))) {
-            @unlink($this->path.$id);
+            @unlink($path);
         }
     }
 
