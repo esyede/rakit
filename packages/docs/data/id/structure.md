@@ -97,7 +97,7 @@ Folder `packages/` berisi folder paket yang anda install.
 
 Folder `storage/` berisi subfolder bawaan rakit untuk penyimpanan file - file non-publik seperti
 file cache, session , file database (sqlite) serta file hasil render
-dari [Blade Template Engine](/docs/views/templating#blade-template-engine).
+dari [Blade Template Engine](/docs/id/views/templating#blade-template-engine).
 
 
 

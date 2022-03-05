@@ -68,7 +68,7 @@ dump($value1, $value2, $value3, ...);
 
 <a id="bd"></a>
 ### bd
-Fungsi `bd` akan meng-dump isi variabel ke [debug bar](/docs/debugging#debug-bar).
+Fungsi `bd` akan meng-dump isi variabel ke [debug bar](/docs/id/debugging#debug-bar).
 Eksekusi skrip tetap akan berjalan:
 
 ```php
@@ -313,7 +313,7 @@ $url = action('user@profile', ['budi']);
 <a id="route"></a>
 ### route
 
-Fungsi `route` menghasilkan URL ke [named route](/docs/routing#named-route):
+Fungsi `route` menghasilkan URL ke [named route](/docs/id/routing#named-route):
 
 ```php
 // Buat URL ke route yang bernama 'profile'.

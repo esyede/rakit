@@ -70,7 +70,7 @@ Anda bebas mengubah nama koneksi ini. Koneksi default dapat diatur melalui opsi 
 'default' => 'sqlite';
 ```
 
-Koneksi default inilah yang akan selalu digunakan oleh [Query Builder](/docs/database/magic).
+Koneksi default inilah yang akan selalu digunakan oleh [Query Builder](/docs/id/database/magic).
 Jika anda perlu mengubah koneksi default saat request berlangsung, gunakan `Config::set()`.
 
 

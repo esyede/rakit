@@ -149,7 +149,7 @@ $name = Input::old('name');
 
 _Bacaan lebih lanjut:_
 
-- _[Session](/docs/session/config)_
+- _[Session](/docs/id/session/config)_
 
 
 <a id="redirect-dengan-old-input"></a>

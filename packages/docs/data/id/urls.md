@@ -67,7 +67,7 @@ $url = URL::to_route('profile', [$username]);
 
 _Bacaan lebih lanjut:_
 
-- [Named Route](/docs/routing#named-route)
+- [Named Route](/docs/id/routing#named-route)
 
 
 <a id="url-ke-method-milik-controller"></a>

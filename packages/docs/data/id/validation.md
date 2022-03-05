@@ -4,21 +4,21 @@
 
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Rule Validasi](#rule-validasi)
-  - [Wajib Diisi](#wajib-diisi)
-  - [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
-  - [Ukuran](#ukuran)
-  - [Angka](#angka)
-  - [Inklusi & Pengecualian](#inklusi--pengecualian)
-  - [Konfirmasi](#konfirmasi)
-  - [Persetujuan](#persetujuan)
-  - [Sama & Berbeda](#sama--berbeda)
-  - [Regular Expression](#regular-expression)
-  - [Keunikan & Eksistensi](#keunikan--eksistensi)
-  - [Tanggal](#tanggal)
-  - [E-Mail](#e-mail)
-  - [URL](#url)
-  - [File Upload](#file-upload)
-  - [Array](#array)
+    - [Wajib Diisi](#wajib-diisi)
+    - [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
+    - [Ukuran](#ukuran)
+    - [Angka](#angka)
+    - [Inklusi & Pengecualian](#inklusi--pengecualian)
+    - [Konfirmasi](#konfirmasi)
+    - [Persetujuan](#persetujuan)
+    - [Sama & Berbeda](#sama--berbeda)
+    - [Regular Expression](#regular-expression)
+    - [Keunikan & Eksistensi](#keunikan--eksistensi)
+    - [Tanggal](#tanggal)
+    - [E-Mail](#e-mail)
+    - [URL](#url)
+    - [File Upload](#file-upload)
+    - [Array](#array)
 - [Mengambil Pesan Error](#mengambil-pesan-error)
 - [Panduan Validasi](#panduan-validasi)
 - [Pesan Error Kustom](#pesan-error-kustom)
@@ -552,7 +552,7 @@ Misalnya, jika validasi email gagal, kita dapat mencari `'email'` di dalam varia
 $errors->has('email')
 ```
 
-Dengan [Blade](/docs/views/templating#blade-template-engine), kita kemudian dapat menambahkan
+Dengan [Blade](/docs/id/views/templating#blade-template-engine), kita kemudian dapat menambahkan
 pesan errornya ke view kita secara kondisional:
 
 ```php

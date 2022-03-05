@@ -26,8 +26,8 @@ Mekanisme otentikasi Rakit adalah berbasis driver, yang berarti tanggung jawab u
 
 Secara default, kami telah menyertakan dua buah driver:
 
-  - Driver `'facile'` yang menggunakan [Facile Model](/docs/database/facile) untuk memuat user aplikasi anda, dan merupakan driver default.
-  - Driver `'magic'` yang menggunakan [Magic Query Builder](/docs/database/magic) untuk memuat user anda.
+  - Driver `'facile'` yang menggunakan [Facile Model](/docs/id/database/facile) untuk memuat user aplikasi anda, dan merupakan driver default.
+  - Driver `'magic'` yang menggunakan [Magic Query Builder](/docs/id/database/magic) untuk memuat user anda.
 
 
 Namun, anda anda bebas membuat dan menambahkan driver anda sendiri jika diperlukan!

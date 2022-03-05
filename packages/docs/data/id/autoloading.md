@@ -145,7 +145,7 @@ Untuk itu, kami menyediakan beberapa opsi untuk menangani hal ini:
 #### Opsi 1: Rewrite URL
 
 Jika anda menggunakan Apache atau Nginx, ikuti panduan
-[mempercantik url](/docs/install#mempercantik-url) karena pada fitur tersebut, kami telah
+[mempercantik url](/docs/id/install#mempercantik-url) karena pada fitur tersebut, kami telah
 sekaligus menyediakan rule untuk memproteksi folder vendor.
 
 

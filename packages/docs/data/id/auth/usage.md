@@ -11,7 +11,7 @@
 <!-- /MarkdownTOC -->
 
 
->  Sebelum menggunakan kelas `Auth` ini, terlebih dahulu anda harus [mengkonfigurasi driver session](/docs/session/config).
+>  Sebelum menggunakan kelas `Auth` ini, terlebih dahulu anda harus [mengkonfigurasi driver session](/docs/id/session/config).
 
 
 <a id="mengenkripsi-password"></a>
@@ -87,7 +87,7 @@ Auth::login(15);
 Sangatlah umum untuk membatasi akses ke rute tertentu hanya untuk user yang sudah login saja.
 Di Rakit, ini dilakukan dengan menggunakan middleware `'auth'`. Jika user berhasil login,
 request akan diproses seperti biasa; Namun, jika user belum login, mereka akan
-diarahkan ke [named route](/docs/routing#named-route) bernama `'login'`.
+diarahkan ke [named route](/docs/id/routing#named-route) bernama `'login'`.
 
 Untuk memproteksi route, cukup lampirkan middleware `'auth'` ke route yang ingin anda proteksi:
 

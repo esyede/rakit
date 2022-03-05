@@ -128,7 +128,7 @@ return [
 ```
 
 Perhatikan bahwa masing-masing key dari array diatas sesuai dengan nama-nama method
-di kelas [autoloader](/docs/autoloading).
+di kelas [autoloader](/docs/id/autoloading).
 
 Benar, value dari masing-masing array konfigurasi diatas akan secara otomatis be dioper
 ke masing-masing method yang sesuai di kelas `Autoloader`.
@@ -203,8 +203,8 @@ Package::freeze('admin');
 <a id="routing-ke-paket"></a>
 ## Routing Ke Paket
 
-Silahkan merujuk ke halaman [routing paket](/docs/routing#routing-paket) dan
-[controller paket](/docs/controllers#controller-paket) untuk panduan lebih detail mengenai
+Silahkan merujuk ke halaman [routing paket](/docs/id/routing#routing-paket) dan
+[controller paket](/docs/id/controllers#controller-paket) untuk panduan lebih detail mengenai
 mekanisme routing paket.
 
 
@@ -327,7 +327,7 @@ atau,
 
 Tentu saja, anda boleh menginstall paket secara manual dengan mendownload arsipnya dan mengekstraknya
 ke folder `packages/`. Akan tetapi, ada cara yang lebih asyik untuk menginstall paket, yaitu
-via [rakit console](/docs/console).
+via [rakit console](/docs/id/console).
 
 Rakit menggunakan mekanisme ekstraksi Zip sederhana untuk penginstalan paket. Begini caranya:
 

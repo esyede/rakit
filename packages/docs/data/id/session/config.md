@@ -70,11 +70,11 @@ Dalam keadaan default, rakit sudah dikonfigurasikan untuk menggunakan driver ini
 <a id="driver-database"></a>
 ## Driver Database
 
-Untuk menggunakan driver database, anda harus [mengkonfigurasi koneksi database](/docs/database/config) terlebih dahulu.
+Untuk menggunakan driver database, anda harus [mengkonfigurasi koneksi database](/docs/id/database/config) terlebih dahulu.
 
 Selanjutnya, anda perlu membuat sebuah tabel sesi. Berikut adalah beberapa kueri SQL untuk membantu anda memulai.
 
-Namun, anda juga dapat menggunakan [console](/docs/console) untuk membuat tabel ini secara otomatis!
+Namun, anda juga dapat menggunakan [console](/docs/id/console) untuk membuat tabel ini secara otomatis!
 
 
 <a id="console"></a>

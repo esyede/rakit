@@ -490,4 +490,4 @@ $kosong = null;
 return Arr::wrap($kosong); // []
 ```
 
-> Beberapa helper tambahan untuk operasi array juga tersedia di halaman [Helper](/docs/helpers)
+> Beberapa helper tambahan untuk operasi array juga tersedia di halaman [Helper](/docs/id/helpers)
