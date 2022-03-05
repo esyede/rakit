@@ -98,7 +98,7 @@ if (! function_exists('optional')) {
      */
     function optional($value = null, callable $callback = null)
     {
-        return is_null($callback) ? \System\Optional($value) : $callback($value);
+        return is_null($callback) ? (new \System\Optional($value)) : $callback($value);
     }
 }
 
