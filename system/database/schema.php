@@ -55,7 +55,7 @@ class Schema
                 break;
 
             case 'sqlite':
-                $query = "SELECT table_name FROM sqlite_master ".
+                $query = "SELECT table_name FROM sqlite_master".
                     " WHERE type = 'table' AND table_name NOT LIKE 'sqlite_%'";
                 break;
 
