@@ -51,17 +51,70 @@ class Schema
 
             case 'pgsql':
                 $query = "SELECT table_name FROM information_schema.tables".
-                    " WHERE table_schema='public' AND table_type='BASE TABLE';";
+                    " WHERE table_schema='public' AND table_type='BASE TABLE'";
                 break;
 
             case 'sqlite':
-                $query = "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%';";
+                $query = "SELECT table_name FROM sqlite_master ".
+                    " WHERE type = 'table' AND table_name NOT LIKE 'sqlite_%'";
                 break;
 
             case 'sqlsrv':
-                $query = "SELECT * FROM information_schema.tables".
+                $query = "SELECT table_name FROM information_schema.tables".
                     " WHERE table_type='BASE TABLE' AND table_catalog=".$database.
-                    " AND name <> 'sysdiagrams'";
+                    " AND table_name <> 'sysdiagrams'";
+                break;
+
+            default:
+                throw new \Exception(sprintf(
+                    'Unsupported schema operations for selected driver: %s', $driver
+                ));
+                break;
+        }
+
+        try {
+            $statement = DB::connection()->pdo()->prepare($query);
+            $statement->execute();
+            return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * List seluruh kolom milik suatu tabel saat ini.
+     *
+     * @param string $table
+     *
+     * @return array
+     */
+    public static function columns($table)
+    {
+        $driver = DB::connection()->driver();
+
+        $database = Config::get('database.connections.'.$driver.'.database');
+        $database = DB::escape($database);
+        $table = DB::escape($table);
+        dd($table);
+
+        $query = '';
+
+        switch ($driver) {
+            case 'mysql':
+                $query = 'SELECT column_name FROM information_schema.columns '.
+                    'WHERE table_schema='.$database.' AND table_name='.$table;
+                break;
+
+            case 'pgsql':
+                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name='.$table;
+                break;
+
+            case 'sqlite':
+                $query = 'PRAGMA table_info('.str_replace('.', '__', $table).')';
+                break;
+
+            case 'sqlsrv':
+                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name=N'.$table;
                 break;
 
             default:
@@ -94,56 +147,17 @@ class Schema
     }
 
     /**
-     * List seluruh kolom milik suatu tabel saat ini.
+     * Cek apakah kolom ada di suatu tabel.
      *
      * @param string $table
+     * @param string $column
      *
-     * @return array
+     * @return bool
      */
-    public static function columns($table)
+    public static function has_column($table, $column)
     {
-        $driver = DB::connection()->driver();
-
-        $database = Config::get('database.connections.'.$driver.'.database');
-        $database = DB::escape($database);
-        $table = DB::escape($table);
-
-        $query = '';
-
-        switch ($driver) {
-            case 'mysql':
-                $query = 'SELECT column_name FROM information_schema.columns '.
-                    'WHERE table_schema='.$database.' AND table_name='.$table;
-                break;
-
-            case 'pgsql':
-                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name='.$table;
-                break;
-
-            case 'sqlite':
-                $query = 'PRAGMA table_info('.str_replace('.', '__', $table).')';
-                break;
-
-            case 'sqlsrv':
-                $query = 'SELECT col.name FROM sys.columns as col '.
-                    'JOIN sys.objects AS obj ON col.object_id=obj.object_id '.
-                    "WHERE obj.type='U' AND obj.name=".$table;
-                break;
-
-            default:
-                throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s', $driver
-                ));
-                break;
-        }
-
-        try {
-            $statement = DB::connection()->pdo()->prepare($query);
-            $statement->execute();
-            return $statement->fetchAll(\PDO::FETCH_COLUMN);
-        } catch (\PDOException $e) {
-            return [];
-        }
+        $columns = static::columns($table);
+        return in_array($column, $columns);
     }
 
     /**
