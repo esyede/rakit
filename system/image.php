@@ -522,6 +522,7 @@ class Image
 
         return [
             'path' => $this->path,
+            'type' => $type.
             'width' => $this->width,
             'height' => $this->height,
             'quality' => $this->quality,
