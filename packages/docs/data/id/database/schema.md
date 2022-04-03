@@ -85,7 +85,7 @@ $tables = Schema::tables();
 dd($tables);
 ```
 
-Dan tentunya, anda juga memilih koneksi mana yang ingin di list tabelnya:
+Dan tentunya, anda juga dapat memilih koneksi mana yang ingin di list tabelnya:
 
 ```php
 $tables = Schema::tables('sqlite');
