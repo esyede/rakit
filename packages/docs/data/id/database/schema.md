@@ -4,7 +4,9 @@
 
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Membuat & Menghapus Tabel](#membuat--menghapus-tabel)
+- [Listing Tabel](#listing-tabel)
 - [Tambah Kolom](#tambah-kolom)
+- [Listing Kolom](#listing-kolom)
 - [Hapus Kolom](#hapus-kolom)
 - [Tambah Index](#tambah-index)
 - [Hapus Index](#hapus-index)
@@ -72,6 +74,26 @@ Schema::create('users', function ($table) {
 ```
 
 
+<a id="listing-tabel"></a>
+## Listing Tabel
+
+Anda juga dapat me-list seluruh tabel dengan komponen ini:
+
+```php
+$tables = Schema::tables();
+
+dd($tables);
+```
+
+Dan tentunya, anda juga memilih koneksi mana yang ingin di list tabelnya:
+
+```php
+$tables = Schema::tables('sqlite');
+
+dd($tables);
+```
+
+
 <a id="tambah-kolom"></a>
 ## Tambah Kolom
 
@@ -113,6 +135,18 @@ Schema::table('users', function ($table) {
 	$table->text('about');
 	$table->timestamps();
 });
+```
+
+
+<a id="listing-kolom"></a>
+## Listing Kolom
+
+Selain listing tabel, anda juga dapat me-list seluruh kolom milik sebuah tabel:
+
+```php
+$columns = Schema::columns('users');
+
+dd($columns);
 ```
 
 

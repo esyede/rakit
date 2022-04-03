@@ -318,6 +318,14 @@ var data = [
         "url": "database/schema#membuat--menghapus-tabel"
     },
     {
+        "title": "Table Listing",
+        "url": "database/schema#listing-tabel"
+    },
+    {
+        "title": "Column Listing",
+        "url": "database/schema#listing-kolom"
+    },
+    {
         "title": "Tambah Kolom",
         "url": "database/schema#tambah-kolom"
     },
