@@ -160,20 +160,6 @@ class Schema
     }
 
     /**
-     * Cek apakah kolom ada di suatu tabel.
-     *
-     * @param string $table
-     * @param string $column
-     *
-     * @return bool
-     */
-    public static function has_column($table, $column)
-    {
-        $columns = static::columns($table);
-        return in_array($column, $columns);
-    }
-
-    /**
      * Hidupkan foreign key constraint checking.
      *
      * @param string $table
