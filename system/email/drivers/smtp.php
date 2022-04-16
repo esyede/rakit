@@ -69,7 +69,9 @@ class Smtp extends Driver
 
         $this->command('MAIL FROM: <'.$retpath.'>', 250);
 
-        foreach (['to', 'cc', 'bcc'] as $list) {
+        $lists = ['to', 'cc', 'bcc'];
+
+        foreach ($lists as $list) {
             foreach ($this->{$list} as $recipient) {
                 $this->command('RCPT TO: <'.$recipient['email'].'>', [250, 251]);
             }

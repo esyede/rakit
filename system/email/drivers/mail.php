@@ -29,9 +29,9 @@ class Mail extends Driver
 
             return true;
         } catch (\Throwable $e) {
-            throw new \Exception('Failed sending email through mail().');
+            throw new \Exception('Failed sending email through mail: '.$e->getMessage());
         } catch (\Exception $e) {
-            throw new \Exception('Failed sending email through mail().');
+            throw new \Exception('Failed sending email through mail: '.$e->getMessage());
         }
     }
 }
