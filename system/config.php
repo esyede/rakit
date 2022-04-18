@@ -158,7 +158,7 @@ class Config
     public static function load($package, $file)
     {
         if (! isset(static::$items[$package][$file])) {
-            $config = Event::first(static::LOADER, func_get_args());
+            $config = Event::first(static::LOADER, [$package, $file]);
 
             if (is_array($config) && count($config) > 0) {
                 static::$items[$package][$file] = $config;

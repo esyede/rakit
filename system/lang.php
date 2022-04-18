@@ -178,7 +178,7 @@ class Lang
             return true;
         }
 
-        $lines = Event::first(static::LOADER, func_get_args());
+        $lines = Event::first(static::LOADER, [$package, $language, $file]);
         static::$lines[$package][$language][$file] = $lines;
 
         return count($lines) > 0;

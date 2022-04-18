@@ -41,7 +41,7 @@ class Runner extends Command
     {
         $this->base = path('base').'tests'.DS;
         $this->stub($this->base.'cases');
-        $this->kickstart();
+        $this->start();
     }
 
     /**
@@ -60,7 +60,7 @@ class Runner extends Command
         foreach ($packages as $package) {
             if (is_dir($base = Package::path($package).'tests')) {
                 $this->stub($base);
-                $this->kickstart();
+                $this->start();
             }
         }
     }
@@ -70,14 +70,14 @@ class Runner extends Command
      *
      * @return void
      */
-    protected function kickstart()
+    protected function start()
     {
         $phpunit = 'vendor'.DS.'bin'.DS.'phpunit';
         $config = path('base').'phpunit.xml';
 
         if (! is_file(path('base').$phpunit)) {
             throw new \Exception(
-                "Error: PHPUnit 4.8.34 is not present. Please run 'composer install' first."
+                "Error: test dependencies is not present. Please run 'composer install' first."
             );
         }
 
