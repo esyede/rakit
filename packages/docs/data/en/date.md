@@ -2,28 +2,27 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Instansiasi](#instansiasi)
-- [Tambah & Kurang](#tambah--kurang)
-- [Selisih](#selisih)
-- [Komparasi](#komparasi)
-- [Fitur Tambahan](#fitur-tambahan)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Instantiation](#instansiasi)
+- [Addition & Substraction](#tambah--kurang)
+- [Difference](#selisih)
+- [Comparation](#komparasi)
+- [Additional Features](#fitur-tambahan)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Komponen `Date` disediakan untuk membantu anda ketika bekerja dengan tanggal. Komponen ini
-sengaja dibuat sangat sederhana agar anda tidak harus repot mengingat banyak nama method.
+The `Date` component is provided to help you when working with time and dates. This component
+deliberately made very simple so that you do not have to bother remembering many method names.
 
 
 <a id="instansiasi"></a>
-## Instansiasi
+## Instantiation
 
-Tersedia 2 cara untuk mmenginstansiasi kelas `Date` ini, yaitu via
-constructor dan via static method:
+There are 2 ways to instantiate this `Date` class, namely via constructor and via static method:
 
 ```php
 $date = new Date();
@@ -31,7 +30,8 @@ $date = new Date();
 $date = Date::make();
 ```
 
-Anda juga boleh mengoper string tanggal target saat instansiasi:
+You can also pass the target date string on instantiation:
+
 
 ```php
 $date = new Date('2021-05-23 06:00:00');
@@ -39,7 +39,7 @@ $date = new Date('2021-05-23 06:00:00');
 $date = Date::make('2021-05-23 06:00:00');
 ```
 
-Selain string tanggal, anda juga boleh mengoper objek `DateTime`, string literal dan timestamp:
+In addition to date strings, you can also pass `DateTime` objects, string literals and timestamps:
 
 ```php
 $date = Date::make(new \DateTime());
@@ -49,43 +49,44 @@ $date = Date::make('last sunday');
 $date = Date::make(1621987200);
 ```
 
->  Anda dapat memasukkan string format waktu sesuai dokumentasi
-   [Supported Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) milik PHP.
+> You can enter time format string as per PHP
+  [Supported Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) documentation.
 
 
 <a id="tambah--kurang"></a>
-## Tambah & Kurang
+## Addition & Substraction
 
-Gunakan method `remake()` untuk melakukan operasi penambahan dan pengurangan seperti berikut:
+Use the `remake()` method to perform addition and subtraction as follows:
 
 
-#### Tambah
+#### Addition
 
 ```php
 $date = '2021-05-23';
 
-return Date::make($date)->remake('+ 3 days'); // 2021-05-26 (bertambah 3 hari)
+return Date::make($date)->remake('+ 3 days'); // 2021-05-26 (added 3 days)
 ```
 
 
-#### Kurang
+#### Substraction
 
 ```php
 $date = '2021-05-23';
 
-return Date::make($date)->remake('- 3 days'); // 2021-05-20 00:00:00 (berkurang 3 hari)
+return Date::make($date)->remake('- 3 days'); // 2021-05-20 00:00:00 (substracted 3 days)
 ```
 
 
 <a id="selisih"></a>
-## Selisih
+## Difference
 
-Untuk mencari selisih antara 2 buah tanggal, gunakan method `diff()` seperti berikut:
+To find the difference between 2 dates, use the `diff()` method as follows:
+
 
 ```php
 $diff = Date::diff('2021-05-23', '2020-01-01');
 
-return $diff->days; // 508 hari
+return $diff->days; // 508 days
 
 // dd($diff);
 
@@ -111,8 +112,8 @@ DateInterval Object (
  */
 ```
 
-Anda juga dapat mengabaikan parameter ke-dua untuk mencari selisih tanggal pertama
-dengan tanggal saat ini:
+You can also ignore the second parameter to find the difference of the first date
+with current date:
 
 ```php
 return Date::diff('2021-05-23');
@@ -120,11 +121,12 @@ return Date::diff('2021-05-23');
 
 
 <a id="komparasi"></a>
-## Komparasi
+## Comparation
 
-Jika anda perlu mengkomparasikan 2 buah tanggal, kami juga telah menyediakannya untuk anda:
+If you need to compare 2 dates, you can do that too:
 
-#### Sama Dengan
+
+#### Equals to
 
 ```php
 $date = '2021-05-23 00:02:00';
@@ -133,51 +135,52 @@ return Date::eq($date, '2021-05-23 00:02:00'); // true
 ```
 
 
-#### Lebih Dari
+#### Greater than
 
 ```php
-$date = '2021-05-23 00:02:10'; // + 10 detik
+$date = '2021-05-23 00:02:10'; // + 10 secs
 
 return Date::gt($date, '2021-05-23 00:02:00'); // true
 ```
 
-#### Kurang Dari
+#### Less than
 
 ```php
-$date = '2021-05-23 00:01:50'; // - 10 detik
+$date = '2021-05-23 00:01:50'; // - 10 secs
 
 return Date::lt($date, '2021-05-23 00:02:00'); // true
 ```
 
 
-#### Lebih Dari Atau Sama Dengan
+#### Greater than or Equals to
 
 ```php
-$date = '2021-05-23 00:02:10'; // + 10 detik
+$date = '2021-05-23 00:02:10'; // + 10 secs
 
-return Date::gte($date, '2021-05-23 00:02:10'); // true, sama dengan
-return Date::gte($date, '2021-05-23 00:02:00'); // true, lebih besar
+return Date::gte($date, '2021-05-23 00:02:10'); // true, equals
+return Date::gte($date, '2021-05-23 00:02:00'); // true, greater than
 ```
 
 
-#### Kurang Dari Atau Sama Dengan
+#### Less than or Equals to
 
 ```php
 $date = '2021-05-23 00:01:50'; // - 10 detik
 
-return Date::lte($date, '2021-05-23 00:02:00'); // true, lebih kecil dari
-return Date::lte($date, '2021-05-23 00:01:50'); // true, sama dengan
+return Date::lte($date, '2021-05-23 00:02:00'); // true, less than
+return Date::lte($date, '2021-05-23 00:01:50'); // true, equals
 ```
 
 
 <a id="fitur-tambahan"></a>
-## Fitur Tambahan
+## Additional Features
 
-Selain fitur-fitur diatas, kami juga tlah menyediakan fitur tambahan yang
-pastinya akan semakin memudahkan pekerjaan anda:
+In addition to the features above, we have also provided additional features that
+will certainly make your job easier:
 
 
-#### Mengambil Timestamp
+
+#### Retrieving the timestamp
 
 ```php
 $date = Date::make('2021-05-23');
@@ -186,7 +189,7 @@ return $date->timestamp(); // 1621728000
 ```
 
 
-#### Waktu Saat Ini
+#### Current date time
 
 ```php
 return Date::now();
@@ -196,15 +199,16 @@ return Date::now();
 return Date::make()->format('Y-m-d H:i:s');
 ```
 
-Jika diperlukan, anda juga dapat mengubah format waktunya
-sesuai format yang anda inginkan, contohnya seperti ini:
+If needed, you can also change the time format
+according to the format you want, for example like this:
+
 
 ```php
 return Date::now('F j, Y H:i');
 ```
 
 
-#### Format
+#### Formatting
 
 ```php
 $date = Date::make('2021-05-23');
@@ -216,9 +220,9 @@ return $date->format('F j, Y'); // May 23, 2021
 #### Time Ago
 
 ```php
-return Date::make('now - 15 minutes')->ago(); // 15 menit yang lalu
+return Date::make('now - 15 minutes')->ago(); // 15 minute(s) ago
 
-return Date::make('now + 20 minutes')->ago(); // 20 menit dari sekarang
+return Date::make('now + 20 minutes')->ago(); // 20 minute(s) from now
 ```
 
 
@@ -227,7 +231,7 @@ return Date::make('now + 20 minutes')->ago(); // 20 menit dari sekarang
 ```php
 $date = Date::make('2012-04-05');
 
-$clone = $date->remake('+3 days', true); // clone dan +3 hari
+$clone = $date->remake('+3 days', true); // clone and +3 days
 
 
 return $date;  // 2021-05-23 00:00:00

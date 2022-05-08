@@ -20,7 +20,7 @@
 
 Controller adalah kelas yang bertanggung jawab untuk menerima input pengguna dan mengelola interaksi
 antara model, library, dan view. Biasanya, mereka akan meminta data ke Model, dan kemudian mengembalikan
-view yang menyajikan data itu kepada pengguna.
+view yang merepresentasikan data tersebut kepada pengguna.
 
 Penggunaan controller adalah metode yang paling umum untuk menerapkan logika aplikasi dalam pengembangan
 web modern.
@@ -68,7 +68,7 @@ Ini berarti bahwa method di kelas controller yang belum diekspos melalui registr
 **tidak akan bisa diakses** oleh pengunjung.
 
 Dimungkinkan untuk secara otomatis mengekspos semua metode dalam controller menggunakan registrasi
-rute controller. Registrasi rute controller biasanya dilakukan di file `routes.php`.
+`Route::controller()`. Registrasi rute controller biasanya dilakukan di file `routes.php`.
 
 Baca [halaman routing](/docs/id/routing#controller-routing) untuk panduan lebih lanjut mengenai
 controller routing.
@@ -159,7 +159,7 @@ $this->middleware('before', 'auth')->only(['index', 'list']);
 ```
 
 Pada contoh diatas middleware `'auth'` hanya akan dijalankan sebelum method `action_index()`
-atau `action_list()` dieksekusi. User harus login dulu untuk mengakses halaman ini.
+atau `action_list()` dieksekusi. User harus login dulu untuk dapat mengakses 2 action ini.
 Action lain tidak akan terpengaruh.
 
 

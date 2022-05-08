@@ -20,7 +20,7 @@ istilah tersebut merupakan singkatan dari "Client URL".
 
 Kegunaan dari command ini meliputi pemeriksaan konektivitas ke URL dan transfer data.
 Selain itu, jenis command ini dapat digunakan dalam berbagai protokol. Curl juga dilengkapi
-dengan [libcurl](https://curl.se/libcurl), library URL transfer yang bekerja pada sisi klien.
+dengan [libcurl](https://curl.haxx.se/libcurl), library URL transfer yang bekerja pada sisi klien.
 
 >  Jangan lupa untuk menginstall ekstensi [PHP Curl](http://php.net/manual/en/book.curl.php)
    di server anda jika belum ada.

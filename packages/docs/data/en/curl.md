@@ -2,10 +2,10 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Membuat Request](#membuat-request)
-- [Opsi Kustom](#opsi-kustom)
-- [Mengolah Response](#mengolah-response)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Creating Request](#membuat-request)
+- [Custom Options](#opsi-kustom)
+- [Processing Response](#mengolah-response)
     - [Response Header](#response-header)
     - [Response Body](#response-body)
 
@@ -13,39 +13,41 @@
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Curl adalah jenis command yang umum digunakan dalam sistem berbasis Unix. Sebetulnya,
-istilah tersebut merupakan singkatan dari "Client URL".
+Curl is a type of command that commonly used in Unix-based systems. Actually,
+the term stands for "Client URL".
 
-Kegunaan dari command ini meliputi pemeriksaan konektivitas ke URL dan transfer data.
-Selain itu, jenis command ini dapat digunakan dalam berbagai protokol. Curl juga dilengkapi
-dengan [libcurl](https://curl.se/libcurl), library URL transfer yang bekerja pada sisi klien.
+The uses of this command include checking connectivity to URLs and transferring data.
+In addition, this type of command can be used in various protocols. Curl is also equipped
+with [libcurl](https://curl.haxx.se/libcurl), a URL transfer library that works on the client side.
 
->  Jangan lupa untuk menginstall ekstensi [PHP Curl](http://php.net/manual/en/book.curl.php)
-   di server anda jika belum ada.
 
+> Don't forget to activate the [PHP Curl](http://php.net/manual/en/book.curl.php)
+  extension on your server if it doesn't already activated.
 
 
 <a id="membuat-request"></a>
-## Membuat Request
+## Creating Request
 
-Rakit telah menyediakan beberapa fungionalitas yang dapat anda gunakan untuk bekerja dengan Curl.
-Seperti ketika anda ingin mengambil data melalui API pihak ketiga, mendownload file dan lain - lain.
+Rakit has provided several functionalities that you can use to work with Curl.
+Like when you want to retrieve data via third-party APIs, download files and others.
 
-Sekarang, mari kita coba membuat request sederhana menggunakan komponen ini:
+Now, let's try to make a simple request using this component:
 
 
-#### Membuat GET request
-Untuk membuat request bertipe `GET`, silahkan gunakan method `get()` seperti ini:
+#### Creating GET request
+
+To make a request of type `GET`, please use the `get()` method like this:
 
 ```php
 $response = Curl::get('https://reqres.in/api/users?page=2');
 ```
 
 
-#### Membuat POST request
-Untuk membuat request bertipe `POST`, silahkan gunakan method `post()` seperti ini:
+#### Creating POST request
+
+To make a request of type `POST`, please use the `post()` method like this:
 
 ```php
 $parameters = ['name' =>  'Danang', 'age' => 25];
@@ -54,8 +56,9 @@ $response = Curl::post('https://reqres.in/api/users', $parameters);
 ```
 
 
-#### Membuat PUT request
-Untuk membuat request bertipe `PUT`, silahkan gunakan method `put()` seperti ini:
+#### Creating PUT request
+
+To make a request of type `PUT`, please use the `put()` method like this:
 
 ```php
 $parameters = ['name' =>  'Agus', 'age' => 24];
@@ -64,8 +67,9 @@ $response = Curl::put('https://reqres.in/api/users', $parameters);
 ```
 
 
-#### Membuat DELETE request
-Untuk membuat request bertipe `DELETE`, silahkan gunakan method `delete()` seperti ini:
+#### Creating DELETE request
+
+To make a request of type `DELETE`, please use the `delete()` method like this:
 
 ```php
 $parameters = ['id' => 6];
@@ -73,33 +77,34 @@ $parameters = ['id' => 6];
 $response = Curl::delete('https://reqres.in/api/users', $parameters);
 ```
 
-Selain menggunakan cara spesifik diatas, anda juga dapat melakukan request via
-method `request()` seperti ini:
+In addition to using the specific method above, you can also make a request via the
+`request()` method like this:
+
 
 ```php
 $response = Curl::request($method = 'get', $url, $params, $options);
 ```
 
 
-#### Download file
-Anda juga dapat mendownoad file menggunakan komponen ini. Caranya juga sangat mudah:
+#### Downloading file
+
+You can also download files using this component. It's also very easy:
 
 ```php
 $target = 'https://github.com/esyede/rakit/archive/master.zip';
 $destination = path('storage').'rakit.zip';
 
 if (Curl::download($target, $destination)) {
-   // Yay! download berhasil!
+   // Yay! downloaded successfully!
 }
 ```
 
 
 <a id="opsi-kustom"></a>
-## Opsi Kustom
+## Custom Options
 
-Dalam penggunaannya, setiap orang tentu perlu mengirimkan request curl dengan konfigurasi yang
-berbeda satu dengan yang lain. Untuk itu, kami telah menyediakan fungsi set opsi untuk
-mengakomodir kebutuhan tersebut.
+In the real life, everyone of course needs to send a curl request with different configuration
+from one another. For that, we have provided an option set function for accommodate these needs.
 
 ```php
 $parameters =[];
@@ -115,16 +120,17 @@ $custom_options = [
 $response = Curl::get('https://foobar.com', $parameters, $custom_options);
 ```
 
-List cURL option secara lengkap bisa anda baca di
-[dokumentasi resminya](https://www.php.net/manual/en/function.curl-setopt.php).
+You can read a complete list of cURL options at
+[official documentation](https://www.php.net/manual/en/function.curl-setopt.php).
 
 
 
 <a id="mengolah-response"></a>
-## Mengolah Response
+## Processing Response
 
-Setelah request dieksekusi, komponen ini akan mereturn object `stdClass` berisi respon dari
-request yang anda buat. Respon inilah yang kemudian dapat anda olah untuk kebutuhan aplikasi anda.
+After the request is executed, this component will return a `stdClass` object containing the response from
+the request you made. This response can then be processed for your application needs.
+
 
 
 <a id="response-header"></a>

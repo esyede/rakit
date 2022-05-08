@@ -2,25 +2,32 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mendaftarkan Object](#mendaftarkan-object)
-- [Me-resolve Object](#me-resolve-object)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Registering Object](#mendaftarkan-object)
+- [Resolving Object](#me-resolve-object)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Container hanyalah cara mengelola pembuatan object. Anda dapat menggunakannya untuk menentukan pembuatan objek kompleks, memungkinkan anda me-resolvenya di seluruh aplikasi anda hanya dengan satu baris kode. Anda juga dapat menggunakannya untuk _'meng-inject'_ dependensi ke kelas dan cpntroller anda.
+Containers are just a way of managing object creation. You can use it to define the creation of complex objects,
+allowing you to resolve them across your entire application with just one line of code.
+You can also use it to _'inject'_ dependencies into your classes and controller.
 
-Container membantu membuat aplikasi anda lebih fleksibel dan mudah diuji. Karena anda dapat mendaftarkan implementasi alternatif interface bia container ini, anda dapat mengisolasi kode yang anda uji dari dependensi eksternal menggunakan teknik [stub dan mocking](http://martinfowler.com/articles/mocksArentStubs.html).
+Containers will help to make your application more flexible and testable.
+Since you can list an alternative implementation of this bia container interface,
+you can isolate the code you are testing from external dependencies
+using the [stub and mocking](http://martinfowler.com/articles/mocksArentStubs.html) technique.
+
 
 <a id="mendaftarkan-object"></a>
-## Mendaftarkan Object
+## Registering Object
 
 
-#### Mendaftarkan resolver ke container:
+#### Registering a resolver to the container:
+
 
 ```php
 Container::register('mailer', function () {
@@ -30,9 +37,12 @@ Container::register('mailer', function () {
 });
 ```
 
-Mantap! Sekarang kita telah mendaftarkan resolver untuk SwiftMailer ke container kita. Namun, bagaimana jika kita tidak ingin container membuat instance mailer baru setiap kali kita membutuhkannya?
+Excellent! We have now registered the resolver for SwiftMailer to our container.
+However, what if we don't want the container to create a new `mailer` instance every time we need it?
 
-Mungkin kita hanya ingin container mereturn instance yang sama setelah instance awal dibuat. Mudah saja, cukup beri tahu si container bahwa objectnya harus singleton:
+Maybe we just want the container to return the same instance after the initial instance is created.
+It's easy, just tell the container that the object must be singleton:
+
 
 #### Mendaftarkan singleton object ke container:
 
@@ -42,7 +52,7 @@ Container::singleton('mailer', function () {
 });
 ```
 
-Anda juga dapat mendaftarkan instance object yang sudah ada sebelumnya sebagai singleton ke container.
+You can also register a pre-existing object instance as a singleton to the container.
 
 
 #### Mendaftarkan instance yang ada ke container:
@@ -52,12 +62,14 @@ Container::instance('mailer', $instance);
 ```
 
 <a id="me-resolve-object"></a>
-## Me-resolve Object
+## Resolving Object
 
-Setelah SwiftMailer terdaftar ke container, kita dapat dengan mudah me-resolvenya:
+Once SwiftMailer is registered to the container, we can easily resolve it:
+
 
 ```php
 $mailer = Container::resolve('mailer');
 ```
 
->  Anda juga boleh [mendaftarkan controller ke container](/docs/en/controllers#dependency-injection).
+>  You can also [registers controller to the container](/docs/en/controllers#dependency-injection).
+

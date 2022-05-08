@@ -13,7 +13,7 @@
 ## Pengetahuan Dasar
 
 Komponen `Crypter` menyediakan cara sederhana untuk menangani enkripsi dua arah yang aman.
-Secara default, kelas ini menyediakan enkripsi dan dekripsi berbasis AES-256 yang kuat melalui
+Kelas ini menyediakan enkripsi dan dekripsi berbasis AES-256 yang kuat melalui
 ekstensi [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php).
 
 >  Jangan lupa untuk menginstall ekstensi [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php)

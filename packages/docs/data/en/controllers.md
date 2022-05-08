@@ -2,12 +2,12 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
+- [Basic Knowledge](#pengetahuan-dasar)
 - [Controller Routing](#controller-routing)
-- [Controller Paket](#controller-paket)
+- [Package Controller](#controller-paket)
 - [Action Middleware](#action-middleware)
 - [Nested Controller](#nested-controller)
-- [Layout Controller](#layout-controller)
+- [Controller Layout](#layout-controller)
 - [RESTful Controller](#restful-controller)
 - [Dependency Injection](#dependency-injection)
 - [Controller Factory](#controller-factory)
@@ -16,27 +16,29 @@
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Controller adalah kelas yang bertanggung jawab untuk menerima input pengguna dan mengelola interaksi
-antara model, library, dan view. Biasanya, mereka akan meminta data ke Model, dan kemudian mengembalikan
-view yang menyajikan data itu kepada pengguna.
+Controller is a class that is responsible for receiving user input and managing interactions
+between models, libraries, and views. Usually, they will request data to the Model, and then return
+view that represents those data to the user.
 
-Penggunaan controller adalah metode yang paling umum untuk menerapkan logika aplikasi dalam pengembangan
-web modern.
+Controller is the most common method of implementing application logic in modern web development.
 
-Namun, Rakit juga memberdayakan pengembang untuk mengimplementasikan logika aplikasi mereka dalam
-deklarasi routing melalui closure. Topik ini dibahas secara rinci dalam
-[dokumentasi routing](/docs/en/routing).
+However, Rakit also empowers developers to implement their application logic in a
+routing declaration via closure. This topic is discussed in detail at
+[routing documentation](/docs/en/routing).
 
-Pengguna baru disarankan untuk memulai dengan controller. Tidak ada yang dapat dilakukan oleh
-logika aplikasi berbasis closure routing yang tidak dapat dilakukan oleh controller.
+New users are advised to start with the controller. There's nothing closure-based application logic
+can do that controller-based cannot do.
 
-Kelas controller harus disimpan dalam folder `controllers/`. Kami telah menyertakan
-kelas `Home_Controller` (di file `application/controllers/home.php`) sebagai contoh penggunaannya.
+
+The controller class should be stored in the `controllers/` folder. We have included
+`Home_Controller` class (in `application/controllers/home.php` file) as a usage example.
+
 
 <a id="membuat-controller-sederhana"></a>
-#### Membuat controller sederhana:
+#### Creating a simple controller:
+
 
 ```php
 class Admin_Controller extends Controller
@@ -48,85 +50,89 @@ class Admin_Controller extends Controller
 }
 ```
 
-**Action** adalah nama method controller yang dimaksudkan agar dapat diakses via web.
-Penamaan method untuk action harus diawali dengan kata `action_`.
+**Action** is the name of the controller method that is intended to be accessible via the web.
+Method name for actions must begin with the word `action_`.
 
-Semua method lain, jika namanya tidak diawali dengan kata `action_` maka ia **tidak akan bisa diakses**
-oleh pengunjung situs anda.
+All other methods, if the name does not starts with the word `action_` then it **will not be accessible**
+by visitors to your site.
 
->  Kelas `Base_Controller` meng-extend kelas controller utama bawaan Rakit, dan memberi anda tempat
-   yang nyaman untuk meletakkan method yang umum digunakan oleh banyak controller.
+
+>  The `Base_Controller` class extends Rakit's system controller class, and gives you
+   a convenient place to put in common methods that will be used by many controllers.
+
 
 
 <a id="controller-routing"></a>
 ## Controller Routing
 
-Penting untuk diketahui bahwa semua rute di Rakit harus didefinisikan secara eksplisit,
-termasuk rute ke controller.
+It is important to know that all routes in Rakit must be defined explicitly,
+including the route to the controller.
 
-Ini berarti bahwa method di kelas controller yang belum diekspos melalui registrasi rute
-**tidak akan bisa diakses** oleh pengunjung.
+This means that the methods in the controller class that have not been exposed via route registration
+**will not be accessible** by visitors.
 
-Dimungkinkan untuk secara otomatis mengekspos semua metode dalam controller menggunakan registrasi
-rute controller. Registrasi rute controller biasanya dilakukan di file `routes.php`.
+It is possible to automatically expose all methods in a controller using the `Route::controller()`
+registration. Routes controller registration is usually done in the `routes.php` file.
 
-Baca [halaman routing](/docs/en/routing#controller-routing) untuk panduan lebih lanjut mengenai
-controller routing.
+Read the [routing page](/docs/en/routing#controller-routing) for more detailed documentation on
+controller routings.
+
 
 
 <a id="controller-paket"></a>
-## Controller Paket
+## Package Controller
 
-Paket adalah sistem modularisasi yang sangat fleksibel. Paket dapat dengan mudah dikonfigurasi untuk
-menangani request yang datang ke aplikasi anda. Kami akan membahas [paket lebih detail](/docs/en/packages)
-di dokumen lain.
+Packages are a very flexible modularization system. Packages can be easily configured to
+handle requests that come to your application. We will discuss [packages in more detail](/docs/en/packages)
+in another document.
 
-Membuat controller untuk paket hampir sama caranya dengan membuat controller biasa. Cukup awali
-nama kelas controller dengan nama paket. Jadi jika anda ingin membuat paket bernama `admin`,
-kelas controller anda akan terlihat seperti ini:
+Creating controller for a package is pretty much the same as creating a regular controller. Just start
+controller class name with package name. So if you want to create a package named `admin`,
+your controller class should look like this:
 
 
-#### Membuat controller untuk paket admin:
+#### Creating a controller for the admin package:
 
 ```php
 class Admin_Home_Controller extends Controller
 {
     public function action_index()
     {
-        return 'Selamat datang di halaman index milik paket admin!';
+        return "Welcome to the admin packages's index page!";
     }
 }
 ```
 
-Lantas, bagaimana caranya mendaftarkan controller paket ke router? Mudah saja. Begini caranya:
+So, how to register this package's controller to the router? Easy. Here's how:
 
 
-#### Mendaftarkan controller paket ke router:
+#### Registering a package's controller to the router:
 
 ```php
 Route::controller('admin::home');
 ```
 
-Mantap! Sekarang kita dapat mengakses controller home milik paket `admin` dari web!
+Excellent! Now we can access the `admin` package's home controller from the web!
 
->  Secara default, sintaks `::` (kolon ganda) digunakan untuk merujuk segala informasi milik sebuah paket.
-   Informasi lebih lanjut mengenai paket dapat ditemukan di [dokumentasi paket](/docs/en/packages).
+
+> By default, the `::` (double colon) syntax is used to refer to any information belonging to a package.
+  More information about packages can be found in [package documentation](/docs/en/packages).
+
 
 
 <a id="action-middleware"></a>
 ## Action Middleware
 
-Action middleware adalah middleware yang dapat dijalankan sebelum atau sesudah action controller dieksekusi.
-Anda tidak hanya memiliki kendali atas middleware mana yang ditugaskan untuk action mana, tetapi
-juga dapat memilih tipe request apa (`GET`, `POST`, `PUT`, atau `DELETE`) yang akan mengaktifkan
-si middleware tersebut.
+Action middleware is middleware that can be executed before or after a controller's action is executed.
+Not only you have control over which middleware is assigned to which actions, you
+can also choose what type of request (`GET`, `POST`, `PUT`, or `DELETE`) to activate the middleware.
 
-Anda dapat mendefinisikan middleware `before()` dan `after()` melalui **constructor** milik controller.
+You can define `before()` and `after()` middleware via the controller's class **constructor**.
 
-Mari kita coba tambahkan middleware ke controller paket `admin` diatas.
+Let's try adding middleware to the controller above.
 
 
-#### Melampirkan middleware ke semua action:
+#### Attach middleware to all actions:
 
 ```php
 class Admin_Home_Controller extends Controller
@@ -139,28 +145,30 @@ class Admin_Home_Controller extends Controller
 
     public function action_index()
     {
-        return 'Selamat datang di halaman index milik paket admin!';
+        return "Welcome to the admin packages's index page!";
     }
 }
 ```
 
-Pada contoh diatas middleware `'auth'` akan dipnggil sebelum setiap action
-dalam controller ini berjalan.
+In the above example the `'auth'` middleware will be called before every action
+in this controller is executed.
 
-Middleware `'auth'` ini adalah middleware bawaan Rakit dimana implementasinya dapat
-anda lihat di `application/middlewares.php`. Middleware auth memverifikasi bahwa
-user sudah login, dan me-redirect mereka ke halaman `'/login'` jika belum.
+This `'auth'` middleware is Rakit's default middleware, the implementation can be
+found in the `application/middlewares.php` file. The auth middleware verifies that
+the user is already logged in, and redirects them to the `'/login'` page if they not logged in.
 
 
-#### Melampirkan middleware hanya untuk beberapa action saja:
+#### Attach middleware only to a few actions:
+
 
 ```php
 $this->middleware('before', 'auth')->only(['index', 'list']);
 ```
 
-Pada contoh diatas middleware `'auth'` hanya akan dijalankan sebelum method `action_index()`
-atau `action_list()` dieksekusi. User harus login dulu untuk mengakses halaman ini.
-Action lain tidak akan terpengaruh.
+In the above example the `'auth'` middleware will only be executed before the `action_index()` . method
+or `action_list()` is executed. User must be logged in to be able to access those two actions.
+Other actions will not be affected.
+
 
 
 #### Melampirkan middleware ke semua action kecuali yang disebutkan:
@@ -169,17 +177,18 @@ Action lain tidak akan terpengaruh.
 $this->middleware('before', 'auth')->except(['add', 'posts']);
 ```
 
-Sama seperti contoh sebelumnya, deklarasi ini memastikan bahwa middleware `'auth'` hanya
-akan dijalankan pada beberapa action saja.
+Just like the previous example, this declaration ensures that the `'auth'` middleware only
+will run on some actions only.
 
-Alih-alih mendefinisikan action mana yang perlu di otentikasi, kita justru hanya perlu mendeklarasikan
-action mana saja yang tidak akan membutuhkan otentikasi.
+Instead of defining which actions need to be authenticated, we just need to declare
+whichever action will not require authentication.
 
-Terkadang lebih aman menggunakan method `except()` ini karena mungkin di kemudian hari anda perlu
-menambahkan action baru ke controller ini dan lupa menambahkannya ke method `only()`.
+Sometimes it's safer to use this `except()` method because in the future you may need to
+add a new action to this controller and forgot to add it to the `only()` method.
 
-Ini berpotensi menyebabkan action controller anda tidak dapat diakses secara tidak sengaja oleh
-user yang belum login.
+This has the potential to cause your action controller to be inadvertently accessible by
+users who have not logged in.
+
 
 
 #### Melampirkan middleware untuk dijalankan hanya pada tipe request POST:
@@ -188,15 +197,17 @@ user yang belum login.
 $this->middleware('before', 'csrf')->on('post');
 ```
 
-Contoh ini menunjukkan bagaimana middleware hanya akan dijalankan pada tipe request tertentu.
-Dalam hal ini kami menerapkan middleware `'csrf'` hanya ketika request yang datang bertipe `POST`.
+This example shows how the middleware will only run on certain types of requests.
+In this case we apply the middleware `'csrf'` only when the incoming request is a `POST` request.
 
-Middleware `'csrf'` dirancang untuk mencegah pengiriman data POST dari pihak lain (misalnya bot spam).
+The `'csrf'` middleware is designed to prevent sending POST data from other parties (eg spam bots).
 
-Middleware ini juga sudah disediakan secara default. Anda dapat melihat implementasi default
-middleware `'csrf'` ini di file `middlewares.php`.
+This middleware is also provided by default. You can see the default implementation
+of `'csrf'` middleware in the `middlewares.php` file.
 
-_Bacaan lebih lanjut:_
+
+_Further reading :_
+
 
 - _[Middleware](/docs/en/routing#middleware)_
 
@@ -204,10 +215,12 @@ _Bacaan lebih lanjut:_
 <a id="nested-controller"></a>
 ## Nested Controller
 
-Nested controller adalah controller yang diletakkan kedalam subfolder. Benar, anda boleh menyimpan
-controller didalam sejumlah subfolder di dalam folder `controllers/`.
+Nested controllers are controllers that are placed in subfolders. Right, you can save
+controllers in a number of subfolders inside the `controllers/` folder.
 
-Coba buat kelas controller berikut dan simpan ke `controllers/admin/panel.php`:
+
+Try creating the following controller class and saving it as `controllers/admin/panel.php`:
+
 
 ```php
 class Admin_Panel_Controller extends Controller
@@ -220,17 +233,20 @@ class Admin_Panel_Controller extends Controller
 ```
 
 
-#### Daftarkan nested controller ke router menggunakan notasi dot:
+#### Register the nested controller to the router using dot notation:
+
 
 ```php
 Route::controller('admin.panel');
 ```
 
->  Saat menggunakan nested controller, selalu daftarkan controller anda dari yang berada di
-   subfolder paling dalam agar rute controller tidak saling tumpang tindih.
+>  When using nested controllers, always list your controllers from those in
+   innermost subfolders so controller routes don't overlap each other.
 
 
-#### Mengakses action `index` milik controller:
+
+#### Accessing the controller's `index` action:
+
 
 ```ini
 mysite.com/admin/panel
@@ -240,24 +256,26 @@ mysite.com/admin/panel
 <a id="layout-controller"></a>
 ## Layout Controller
 
-Dokumentasi lengkap tentang penggunaan layout dengan Controller dapat ditemukan di
-[halaman templating](/docs/en/views/templating).
+Full documentation on using layouts with Controllers can be found at the
+[templating page](/docs/en/views/templating).
 
 
 <a id="restful-controller"></a>
 ## RESTful Controller
-Rakit juga mendukung RESTful controller. Ini sangat berguna ketika membangun sistem
-[CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) karena anda dapat memisahkan
-logika pembuatan formulir HTML dari logika yang memvalidasi dan menyimpan hasilnya.
 
-RESTful controller ditandai dengan adanya properti publik `$restful` di suatu kelas controller,
-serta valuenya adalah `TRUE`.
+Rakit also supports RESTful controllers. This will bw useful when building a
+[CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) system because
+you can separate HTML form creation logic from the logic that validates and stores the results.
 
-Alih-alih mengawali nama action controller dengan kata `action_`, anda boleh menggantinya
-dengan tipe request apa (misalnya `POST`, `GET`, `PUT` atau `DELETE`) yang harus ia respon.
+A RESTful controller is indicated by the presence of a public property `$restful` in a controller class,
+and the value is `TRUE`.
+
+Instead of prefixing the controller action name with the word `action_`, you can replace it
+with what type of request (eg `POST`, `GET`, `PUT` or `DELETE`) it should respond.
 
 
-#### Menambahkan property `$restful` ke controller:
+#### Defining the `$restful` property to the controller:
+
 ```php
 class Home_Controller extends Controller
 {
@@ -268,7 +286,7 @@ class Home_Controller extends Controller
 ```
 
 
-#### Membuat RESTful action pada controller:
+#### Creating a RESTful action in the controller:
 
 ```php
 class Home_Controller extends Controller
@@ -278,12 +296,12 @@ class Home_Controller extends Controller
 
     public function get_index()
     {
-        // Aku hanya menerima GET
+        // I only accept GET request
     }
 
     public function post_index()
     {
-        // Aku hanya menerima POST
+        // I only accept POST request
     }
 }
 ```
@@ -292,13 +310,13 @@ class Home_Controller extends Controller
 <a id="dependency-injection"></a>
 ## Dependency Injection
 
-Jika anda berfokus pada penulisan kode yang _test-able_ atau mudah diuji, anda mungkin perlu
-meng-inject dependensi ke constructor controller anda.
+If you are focused on writing _testable_ code, you may need to inject dependencies
+into your controller's constructor.
 
-Tidak masalah. Cukup daftarkan controller anda ke [Container](/docs/en/container).
-Saat mendaftarkan controller ke container, awali key-nya dengan kata `controller`.
+No problem. Just register your controller into the [Container](/docs/en/container).
+When registering a controller to a container, prefix the name with the word `controller`.
 
-Sebagai contoh, dalam file `boot.php`, anda dapat mendaftarkan controller `User` seperti berikut:
+For example, in the `boot.php` file, you can register the `User` controller as follows:
 
 ```php
 Container::register('controller: user', function () {
@@ -306,22 +324,23 @@ Container::register('controller: user', function () {
 });
 ```
 
-Ketika request datang ke controller anda, Rakit akan secara otomatis memeriksa apakah controller
-tersebut terdaftar dalam container atau tidak, dan jika iya, maka Rakit akan menggunakan data ini
-untuk meresolve instance controller tersebut.
+When a request comes to your controller, Rakit will automatically check if the controller
+is registered in the container or not, and if so, then Rakit will use this data
+to resolve the controller instance.
 
->  Sebelum menyelam lebih jauh kedalam Dependency Injection Controller,
-   anda mungkin ingin membaca dokumentasi tentang [Container](/docs/en/container).
+> Before diving deeper into Dependency Injection Controller, you may want to read
+  the documentation about [Container](/docs/en/container).
 
 
 <a id="controller-factory"></a>
 ## Controller Factory
 
-Jika anda ingin lebih punya kendali tentang cara instansiasi controller anda, seperti
-ketika menggunakan container pihak ketiga, anda harus menggunakan fitur controller factory ini.
+If you want more control over how your controller is instantiated, like
+when using third party containers, you should use this controller factory feature.
 
 
-#### Daftarkan event untuk menangani instansiasi controller:
+#### Register events to handle controller instantiation:
+
 
 ```php
 Event::listen(Controller::FACTORY, function ($controller) {
@@ -329,5 +348,6 @@ Event::listen(Controller::FACTORY, function ($controller) {
 });
 ```
 
-Event akan menerima nama kelas controller yang perlu diresolve. Yang perlu anda lakukan hanyalah
-mereturn instance dari kelas controller.
+The event will receive the name of the controller class that needs to be resolved.
+All you need to do is return an instance of the controller class.
+

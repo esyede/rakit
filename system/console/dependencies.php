@@ -22,6 +22,13 @@ if (! Container::registered('command: migrate')) {
     });
 }
 
+// Daftarkan kelas milik command 'job'.
+if (! Container::registered('command: job')) {
+    Container::register('command: job', function () {
+        return new Commands\Job();
+    });
+}
+
 // Daftarkan kelas milik command 'package'.
 if (! Container::registered('command: package')) {
     Container::register('command: package', function () {

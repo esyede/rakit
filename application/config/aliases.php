@@ -41,6 +41,7 @@ return [
     'Hash' => 'System\Hash',
     'Image' => 'System\Image',
     'Input' => 'System\Input',
+    'Job' => 'System\Job',
     'Lang' => 'System\Lang',
     'Log' => 'System\Log',
     'Mailer' => 'System\Email\Drivers\Driver',

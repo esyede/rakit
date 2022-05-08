@@ -12,9 +12,14 @@
 <a id="pengetahuan-dasar"></a>
 ## Pengetahuan Dasar
 
-Container hanyalah cara mengelola pembuatan object. Anda dapat menggunakannya untuk menentukan pembuatan objek kompleks, memungkinkan anda me-resolvenya di seluruh aplikasi anda hanya dengan satu baris kode. Anda juga dapat menggunakannya untuk _'meng-inject'_ dependensi ke kelas dan cpntroller anda.
+Container hanyalah cara mengelola pembuatan object. Anda dapat menggunakannya untuk menentukan pembuatan objek kompleks,
+memungkinkan anda me-resolvenya di seluruh aplikasi anda hanya dengan satu baris kode.
+Anda juga dapat menggunakannya untuk _'meng-inject'_ dependensi ke kelas dan controller anda.
 
-Container membantu membuat aplikasi anda lebih fleksibel dan mudah diuji. Karena anda dapat mendaftarkan implementasi alternatif interface bia container ini, anda dapat mengisolasi kode yang anda uji dari dependensi eksternal menggunakan teknik [stub dan mocking](http://martinfowler.com/articles/mocksArentStubs.html).
+Container membantu membuat aplikasi anda lebih fleksibel dan mudah diuji.
+Karena anda dapat mendaftarkan implementasi alternatif interface bia container ini,
+anda dapat mengisolasi kode yang anda uji dari dependensi eksternal
+menggunakan teknik [stub dan mocking](http://martinfowler.com/articles/mocksArentStubs.html).
 
 <a id="mendaftarkan-object"></a>
 ## Mendaftarkan Object
@@ -30,9 +35,11 @@ Container::register('mailer', function () {
 });
 ```
 
-Mantap! Sekarang kita telah mendaftarkan resolver untuk SwiftMailer ke container kita. Namun, bagaimana jika kita tidak ingin container membuat instance mailer baru setiap kali kita membutuhkannya?
+Mantap! Sekarang kita telah mendaftarkan resolver untuk SwiftMailer ke container kita.
+Namun, bagaimana jika kita tidak ingin container membuat instance `mailer` baru setiap kali kita membutuhkannya?
 
-Mungkin kita hanya ingin container mereturn instance yang sama setelah instance awal dibuat. Mudah saja, cukup beri tahu si container bahwa objectnya harus singleton:
+Mungkin kita hanya ingin container mereturn instance yang sama setelah instance awal dibuat.
+Mudah saja, cukup beri tahu si container bahwa objectnya harus singleton:
 
 #### Mendaftarkan singleton object ke container:
 

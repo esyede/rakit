@@ -513,6 +513,10 @@ var data = [
         "url": "install#mempercantik-url"
     },
     {
+        "title": "Jobs",
+        "url": "job#cara-penggunaan"
+    },
+    {
         "title": "Mendaftarkan Folder",
         "url": "loading#mendaftarkan-folder"
     },

@@ -2,31 +2,34 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Enkripsi String](#enkripsi-string)
-- [Dekripsi String](#dekripsi-string)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Encrypting](#enkripsi-string)
+- [Decrypting](#dekripsi-string)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Komponen `Crypter` menyediakan cara sederhana untuk menangani enkripsi dua arah yang aman.
-Secara default, kelas ini menyediakan enkripsi dan dekripsi berbasis AES-256 yang kuat melalui
-ekstensi [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php).
+The `Crypter` component provides a simple way to handle secure two-way encryption.
+This class provides strong AES-256-based encryption and decryption via
+[PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension.
 
->  Jangan lupa untuk menginstall ekstensi [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-   di server anda jika belum ada, dan pastikan application key sudah diisi.
+
+>  Don't forget to activate the [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php)
+   extension on your server, and make sure the application key is filled in.
+
 
 
 <a id="enkripsi-string"></a>
-## Enkripsi String
+## Encrypting
 
 
 #### Mengenkripsi sebuah string:
 
-Untuk mengenkripsi data, gunakan method `encrypt()` seperti berikut:
+To encrypt data, use the `encrypt()` method as follows:
+
 
 ```php
 $data = 'rahasia';
@@ -36,15 +39,18 @@ $encrypted = Crypter::encrypt($data);
 ```
 
 <a id="dekripsi-string"></a>
-## Dekripsi String
+## Decrypting
 
 
 #### Mendekripsi sebuah string:
 
-Untuk mendenkripsi data, gunakan method `decrypt()` seperti berikut:
+To decrypt data, use the `decrypt()` method as follows:
+
 
 ```php
 $decrypted = Crypter::decrypt($encrypted); // 'rahasia'
 ```
 
->  Sangat penting untuk dicatat bahwa method ini hanya akan mendekripsi string yang dienkripsi menggunakan `application key` yang sama.
+>  It's important to note that this method will only decrypt the encrypted string
+   using the same `application key`.
+
