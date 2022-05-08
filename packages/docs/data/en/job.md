@@ -33,6 +33,12 @@ To use this component, you will need to create the `'jobs'` table:
 php rakit job:table
 ```
 
+Then:
+
+```bash
+php rakit migrate
+```
+
 Now play with it. For example:
 
 ```php

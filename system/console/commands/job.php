@@ -58,20 +58,18 @@ class Job extends Command
      */
     public function table()
     {
-        $config = Config::get('job');
+        $make = Container::resolve('command: make');
+        $migrator = Container::resolve('command: migrate');
 
-        if (Schema::has_table($config['table'])) {
-            throw new \Exception(sprintf('The job table already exists: %s', $config['table']));
-        }
+        $migration = $make->migration(['create_jobs_table']);
+        $stub = __DIR__.DS.'stubs'.DS.'job.stub';
 
-        Schema::create($config['table'], function ($table) {
-            $table->engine = 'InnoDB';
-            $table->increments('id');
-            $table->string('name')->index();
-            $table->text('payloads');
-            $table->timestamp('executed_at');
-            $table->timestamp('scheduled_at');
-            $table->timestamps();
-        });
+        Storage::put($migration, Storage::get($stub));
+
+        $this->driver('database');
+
+        echo PHP_EOL;
+
+        $migrator->run();
     }
 }

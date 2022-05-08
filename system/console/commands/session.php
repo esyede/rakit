@@ -28,7 +28,7 @@ class Session extends Command
         $make = Container::resolve('command: make');
         $migrator = Container::resolve('command: migrate');
 
-        $migration = $make->migration(['create_session_table']);
+        $migration = $make->migration(['create_sessions_table']);
         $stub = __DIR__.DS.'stubs'.DS.'session.stub';
 
         Storage::put($migration, Storage::get($stub));

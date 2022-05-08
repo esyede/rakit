@@ -1,0 +1,33 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class Create_Session_Table
+{
+	/**
+	 * Buat perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+        Schema::create_if_not_exists(Config::get('job.table'), function ($table) {
+            $table->increments('id');
+            $table->string('name')->index();
+            $table->text('payloads');
+            $table->timestamp('executed_at');
+            $table->timestamp('scheduled_at');
+            $table->timestamps();
+        });
+	}
+
+	/**
+	 * Urungkan perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+        Schema::drop_if_exists(Config::get('job.table'));
+	}
+}

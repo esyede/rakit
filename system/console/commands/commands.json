@@ -67,6 +67,20 @@
       	"command": "php rakit migrate:reset"
       }
 	},
+    "job": {
+        "job:table": {
+          "description": "Buat file migrasi untuk tabel job.",
+          "command": "php rakit job:table"
+        },
+      "job:run": {
+        "description": "Jalankan sebuah job.",
+        "command": "php rakit job:run send_email"
+      },
+      "job:runall": {
+        "description": "Jalankan seluruh job.",
+        "command": "php rakit job:runall"
+      }
+    },
 	"package": {
       "package:install": {
       	"description": "Install paket.",

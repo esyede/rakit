@@ -34,6 +34,12 @@ Untuk menggunakan komponen ini, anda perlu membuat tabel `'jobs'`:
 php rakit job:table
 ```
 
+Kemudian:
+
+```bash
+php rakit migrate
+```
+
 Sekarang, komponen sudah siap digunakan. Contohnya:
 
 ```php
