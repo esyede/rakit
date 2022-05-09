@@ -127,6 +127,18 @@ class Str
     }
 
     /**
+     * Trim whitespace ASCII dan multi-byte whitespaces (cth. Whitespace milik Ms. Word).
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function trim($value)
+    {
+        return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $value);
+    }
+
+    /**
      * Potong string sebanyak jumlah kata yang ditentukan.
      *
      * @param string $value
