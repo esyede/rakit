@@ -268,7 +268,7 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('test2', Str::trim($value));
 
         $value = ' 𩸽 test3 ホ 𩸽 ';
-        $this->assertSame('test3', Str::trim($value));
+        $this->assertSame('𩸽 test3 ホ 𩸽', Str::trim($value));
     }
 
     public function testLength()
