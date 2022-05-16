@@ -180,11 +180,9 @@ class Requester
             $defaults['HTTP_HOST'] = $components['host'];
         }
 
-        if (isset($components['scheme'])) {
-            if ('https' === $components['scheme']) {
-                $defaults['HTTPS'] = 'on';
-                $defaults['SERVER_PORT'] = 443;
-            }
+        if (isset($components['scheme']) && 'https' === $components['scheme']) {
+            $defaults['HTTPS'] = 'on';
+            $defaults['SERVER_PORT'] = 443;
         }
 
         if (isset($components['port'])) {
@@ -355,7 +353,7 @@ class Requester
 
         $orderings = ini_get('request_order');
         $orderings = $orderings ? $orderings : ini_get('variable_order');
-        $orderings = preg_replace('#[^cgp]#', '', strtolower($orderings));
+        $orderings = preg_replace('/[^cgp]/', '', strtolower($orderings));
         $orderings = $orderings ? $orderings : 'gp';
 
         $_REQUEST = [];
@@ -677,10 +675,7 @@ class Requester
     {
         $userinfo = $this->getUser();
         $pass = $this->getPassword();
-
-        if ('' !== $pass) {
-            $userinfo .= ':'.$pass;
-        }
+        $userinfo .= ('' === $pass) ? '' : ':'.$pass;
 
         return $userinfo;
     }
@@ -813,7 +808,7 @@ class Requester
         $host = strtolower(preg_replace('/:\d+$/', '', trim($host)));
 
         if ($host && ! preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host)) {
-            throw new \UnexpectedValueException('Invalid Host');
+            throw new \UnexpectedValueException(sprintf('Invalid host: %s', $host));
         }
 
         return $host;
@@ -1009,14 +1004,11 @@ class Requester
     {
         if (false === $this->content
         || (true === $asResource && null !== $this->content)) {
-            throw new \LogicException(
-                'getContent() can only be called once when using the resource return type.'
-            );
+            throw new \LogicException('getContent() can only be called once when using the resource return type.');
         }
 
         if (true === $asResource) {
             $this->content = false;
-
             return fopen('php://input', 'rb');
         }
 
@@ -1034,12 +1026,7 @@ class Requester
      */
     public function getETags()
     {
-        return preg_split(
-            '/\s*,\s*/',
-            $this->headers->get('if_none_match'),
-            null,
-            PREG_SPLIT_NO_EMPTY
-        );
+        return preg_split('/\s*,\s*/', $this->headers->get('if_none_match'), null, PREG_SPLIT_NO_EMPTY);
     }
 
     /**
@@ -1274,11 +1261,7 @@ class Requester
                 $seg = $segs[$index];
                 $baseUrl = '/'.$seg.$baseUrl;
                 ++$index;
-            } while (
-                ($last > $index)
-                && (false !== ($pos = strpos($path, $baseUrl)))
-                && (0 !== $pos)
-            );
+            } while ($last > $index && (false !== ($pos = strpos($path, $baseUrl))) && 0 !== $pos);
         }
 
         $requestUri = $this->getRequestUri();

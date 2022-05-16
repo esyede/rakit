@@ -55,7 +55,7 @@ class Responder
         415 => 'Unsupported Media Type',
         416 => 'Range Not Satisfiable',
         417 => 'Expectation Failed',
-        418 => 'I\'m a teapot',
+        418 => "I'm a teapot",
         421 => 'Misdirected Request',
         422 => 'Unprocessable Content',
         423 => 'Locked',
@@ -94,7 +94,7 @@ class Responder
         $this->setProtocolVersion('1.0');
 
         if (! $this->headers->has('Date')) {
-            $this->setDate(new \DateTime(null, new \DateTimeZone('UTC')));
+            $this->setDate(new \DateTime('now', new \DateTimeZone('UTC')));
         }
     }
 
@@ -211,12 +211,7 @@ class Responder
             return $this;
         }
 
-        header(sprintf(
-            'HTTP/%s %s %s',
-            $this->version,
-            $this->statusCode,
-            $this->statusText
-        ));
+        header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText));
 
         $headers = $this->headers->all();
 
@@ -313,8 +308,8 @@ class Responder
         && ! is_numeric($content)
         && ! is_callable([$content, '__toString'])) {
             throw new \UnexpectedValueException(
-                'The Response content must be a string or object '.
-                'implementing __toString(), "'.gettype($content).'" given.'
+                "The Response content must be a string or object ".
+                "implementing __toString(), '".gettype($content)."' given."
             );
         }
 
@@ -343,7 +338,6 @@ class Responder
     public function setProtocolVersion($version)
     {
         $this->version = $version;
-
         return $this;
     }
 
@@ -370,27 +364,20 @@ class Responder
         $this->statusCode = (int) $code;
 
         if ($this->isInvalid()) {
-            throw new \InvalidArgumentException(
-                sprintf("The HTTP status code '%s' is not valid.", $code)
-            );
+            throw new \InvalidArgumentException(sprintf("The HTTP status code '%s' is not valid.", $code));
         }
 
         if (null === $text) {
-            $this->statusText = isset(self::$statusTexts[$code])
-                ? self::$statusTexts[$code]
-                : '';
-
+            $this->statusText = isset(self::$statusTexts[$code]) ? self::$statusTexts[$code] : '';
             return $this;
         }
 
         if (false === $text) {
             $this->statusText = '';
-
             return $this;
         }
 
         $this->statusText = $text;
-
         return $this;
     }
 
@@ -414,7 +401,6 @@ class Responder
     public function setCharset($charset)
     {
         $this->charset = $charset;
-
         return $this;
     }
 
@@ -541,11 +527,8 @@ class Responder
      */
     public function getAge()
     {
-        if ($age = $this->headers->get('Age')) {
-            return $age;
-        }
-
-        return max(time() - $this->getDate()->format('U'), 0);
+        $age = $this->headers->get('Age');
+        return $age ? $age : max(time() - $this->getDate()->format('U'), 0);
     }
 
     /**
@@ -650,10 +633,7 @@ class Responder
     public function getTtl()
     {
         $maxAge = $this->getMaxAge();
-
-        if ($maxAge) {
-            return $maxAge - $this->getAge();
-        }
+        return $maxAge ? ($maxAge - $this->getAge()) : null;
     }
 
     /**
@@ -666,7 +646,6 @@ class Responder
     public function setTtl($seconds)
     {
         $this->setSharedMaxAge($this->getAge() + $seconds);
-
         return $this;
     }
 
@@ -680,7 +659,6 @@ class Responder
     public function setClientTtl($seconds)
     {
         $this->setMaxAge($this->getAge() + $seconds);
-
         return $this;
     }
 
@@ -868,7 +846,6 @@ class Responder
     public function setVary($headers, $replace = true)
     {
         $this->headers->set('Vary', $headers, $replace);
-
         return $this;
     }
 
