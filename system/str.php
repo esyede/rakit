@@ -7,6 +7,13 @@ defined('DS') or exit('No direct script access.');
 class Str
 {
     /**
+     * Berisi method tambahan dari user.
+     *
+     * @var array
+     */
+    public static $macros = [];
+
+    /**
      * Cache snake-case.
      *
      * @var array
@@ -295,7 +302,7 @@ class Str
     {
         $string = '';
 
-        while (($length2 = strlen($string)) < $length) {
+        while (($length2 = mb_strlen($string, '8bit')) < $length) {
             $size = $length - $length2;
             $bytes = base64_encode(static::bytes($size));
             $string .= substr(str_replace(['/', '+', '='], '', $bytes), 0, $size);
@@ -545,7 +552,7 @@ class Str
         }
 
         $position = strpos($subject, $search);
-        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, strlen($search));
+        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
     }
 
     public static function replace_last($search, $replace, $subject)
@@ -555,7 +562,7 @@ class Str
         }
 
         $position = strrpos($subject, $search);
-        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, strlen($search));
+        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
     }
 
     /**
@@ -746,7 +753,7 @@ class Str
      */
     public static function starts_with($haystack, $needle)
     {
-        return ('' !== (string) $needle && 0 === strncmp($haystack, $needle, strlen($needle)));
+        return ('' !== (string) $needle && 0 === strncmp($haystack, $needle, mb_strlen($needle, '8bit')));
     }
 
     /**
@@ -759,7 +766,7 @@ class Str
      */
     public static function ends_with($haystack, $needle)
     {
-        return ('' !== $needle && ((string) $needle === substr($haystack, -strlen($needle))));
+        return ('' !== $needle && ((string) $needle === substr($haystack, -mb_strlen($needle, '8bit'))));
     }
 
     /**
@@ -810,5 +817,48 @@ class Str
         }
 
         return chr($value);
+    }
+
+    /**
+     * Daftarkan method baru.
+     *
+     * <code>
+     *
+     *      // Daftarkan method baru.
+     *      Str::macro('reverse', function ($value) {
+     *          return strrev($value);
+     *      });
+     *
+     *      // Panggil method baru.
+     *      Str::reverse('Hello world!'); // '!dlrow olleH'
+     *
+     * </code>
+     *
+     * @param string   $name
+     * @param \Closure $handler
+     *
+     * @return mixed
+     */
+    public static function macro($name, \Closure $handler)
+    {
+        if (method_exists('\System\Str', $name)) {
+            throw new \Exception(sprintf('Overriding framework method with macro is unsupported: Str::%s()', $name));
+        }
+
+        static::$macros[$name] = $handler;
+    }
+
+    /**
+     * Tangani pemanggilan static method secara dinamis.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
+     */
+    public static function __callStatic($method, $parameters)
+    {
+        $method = array_key_exists($method, static::$macros) ? static::$macros[$method] : ['\System\Str', $method];
+        return call_user_func_array($method, $parameters);
     }
 }
