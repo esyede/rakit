@@ -7,6 +7,7 @@ defined('DS') or exit('No direct script access.');
 use Closure;
 use System\Database;
 use System\Paginator;
+use System\Response;
 use System\Database\Query\Grammars\Grammar;
 use System\Database\Query\Grammars\Postgres;
 use System\Database\Query\Grammars\SQLServer;
@@ -570,26 +571,26 @@ class Query
     /**
      * Tambahkan klausa OFFSET ke query.
      *
-     * @param int $value
+     * @param int $amount
      *
      * @return Query
      */
-    public function skip($value)
+    public function skip($amount)
     {
-        $this->offset = $value;
+        $this->offset = $amount;
         return $this;
     }
 
     /**
      * Tambahkan klausa LIMIT ke query.
      *
-     * @param int $value
+     * @param int $amount
      *
      * @return Query
      */
-    public function take($value)
+    public function take($amount)
     {
-        $this->limit = $value;
+        $this->limit = $amount;
         return $this;
     }
 
@@ -607,16 +608,31 @@ class Query
     }
 
     /**
-     * Cari data berdasarkan primary key.
+     * Return hasil pertama berdasarkan primary key.
      *
      * @param int   $id
      * @param array $columns
      *
-     * @return object
+     * @return \stdClass|null
      */
-    public function find($id, $columns = ['*'])
+    public function find($id, array $columns = ['*'])
     {
         return $this->where('id', '=', $id)->first($columns);
+    }
+
+    /**
+     * Return hasil pertama berdasarkan primary key,
+     * atau redirect ke 404 jika tidak ada yang cocok.
+     *
+     * @param int   $id
+     * @param array $columns
+     *
+     * @return \stdClass|null
+     */
+    public function find_or_fail($id, array $columns = ['*'])
+    {
+        $results = $this->find($id, $columns);
+        return is_null($results) ? Response::error(404) : $results;
     }
 
     /**
@@ -624,7 +640,7 @@ class Query
      *
      * @param string $column
      *
-     * @return mixed
+     * @return array
      */
     public function only($column)
     {
@@ -633,18 +649,33 @@ class Query
     }
 
     /**
-     * Jalankan query sebagai statement SELECT dan return hasil pertama.
+     * Return hasil pertama.
      *
      * @param array $columns
      *
-     * @return mixed
+     * @return \stdClass|null
      */
     public function first($columns = ['*'])
     {
-        $columns = (array) $columns;
+        $columns = is_array($columns) ? $columns : func_get_args();
         $results = $this->take(1)->get($columns);
 
         return (count($results) > 0) ? $results[0] : null;
+    }
+
+    /**
+     * Return hasil pertama atau redirect ke 404 jika tidak ada yang cocok.
+     *
+     * @param array $columns
+     *
+     * @return \stdClass||\System\Response
+     */
+    public function first_or_fail($columns = ['*'])
+    {
+        $columns = is_array($columns) ? $columns : func_get_args();
+        $results = $this->first($columns);
+
+        return is_null($results) ? Response::error(404) : $results;
     }
 
     /**
@@ -682,6 +713,8 @@ class Query
      */
     public function get($columns = ['*'])
     {
+        $columns = is_array($columns) ? $columns : func_get_args();
+
         if (is_null($this->selects)) {
             $this->select($columns);
         }
@@ -708,7 +741,7 @@ class Query
      *
      * @return mixed
      */
-    public function aggregate($aggregator, $columns)
+    public function aggregate($aggregator, array $columns)
     {
         $this->aggregate = compact('aggregator', 'columns');
 
@@ -728,7 +761,7 @@ class Query
      *
      * @return Paginator
      */
-    public function paginate($perpage = 20, $columns = ['*'])
+    public function paginate($perpage = 20, array $columns = ['*'])
     {
         $orderings = $this->orderings;
         $this->orderings = null;
@@ -750,7 +783,7 @@ class Query
      *
      * @return bool
      */
-    public function insert($values)
+    public function insert(array $values)
     {
         $values = is_array(reset($values)) ? $values : [$values];
         $bindings = [];
@@ -772,7 +805,7 @@ class Query
      *
      * @return mixed
      */
-    public function insert_get_id($values, $column = 'id')
+    public function insert_get_id(array $values, $column = 'id')
     {
         $sql = $this->grammar->insert_get_id($this, $values, $column);
         $result = $this->connection->query($sql, array_values($values));
@@ -837,7 +870,7 @@ class Query
      *
      * @return int
      */
-    public function update($values)
+    public function update(array $values)
     {
         $bindings = array_merge(array_values($values), $this->bindings);
         $sql = $this->grammar->update($this, $values);
