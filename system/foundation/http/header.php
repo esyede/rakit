@@ -35,7 +35,10 @@ class Header implements \IteratorAggregate, \Countable
             return '';
         }
 
-        $max = max(array_map('strlen', array_keys($this->headers))) + 1;
+        $max = max(array_map(function ($key) {
+            return mb_strlen($key, '8bit');
+        }, array_keys($this->headers))) + 1;
+
         ksort($this->headers);
 
         $content = '';

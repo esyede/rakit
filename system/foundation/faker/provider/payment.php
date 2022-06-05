@@ -179,7 +179,7 @@ class Payment extends Base
         }
 
         $result = $prefix;
-        $length -= strlen($prefix);
+        $length -= mb_strlen($prefix, '8bit');
         $nextPart = array_shift($format);
 
         if (false !== $nextPart) {
@@ -217,7 +217,7 @@ class Payment extends Base
         $tempResult = $result.$countryNumber.'00';
         $checksum = (int) $tempResult[0];
 
-        for ($i = 1, $size = strlen($tempResult); $i < $size; ++$i) {
+        for ($i = 1, $size = mb_strlen($tempResult, '8bit'); $i < $size; ++$i) {
             $checksum = (10 * $checksum + (int) $tempResult[$i]) % 97;
         }
 

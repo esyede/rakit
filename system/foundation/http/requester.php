@@ -1172,7 +1172,7 @@ class Requester
         foreach (array_filter(explode(',', $header)) as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
                 $q = substr(trim($match[1]), 2);
-                $value = trim(substr($value, 0, -strlen($match[0])));
+                $value = trim(substr($value, 0, -mb_strlen($match[0], '8bit')));
             } else {
                 $q = 1;
             }
@@ -1218,7 +1218,7 @@ class Requester
             $schemeAndHttpHost = $this->getSchemeAndHttpHost();
 
             if (0 === strpos($requestUri, $schemeAndHttpHost)) {
-                $requestUri = substr($requestUri, strlen($schemeAndHttpHost));
+                $requestUri = substr($requestUri, mb_strlen($schemeAndHttpHost, '8bit'));
             }
         } elseif ($this->server->has('ORIG_PATH_INFO')) {
             $requestUri = $this->server->get('ORIG_PATH_INFO');
@@ -1289,10 +1289,10 @@ class Requester
             return '';
         }
 
-        if ((strlen($requestUri) >= strlen($baseUrl))
+        if ((mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit'))
         && ((false !== ($pos = strpos($requestUri, $baseUrl)))
         && (0 !== $pos))) {
-            $baseUrl = substr($requestUri, 0, $pos + strlen($baseUrl));
+            $baseUrl = substr($requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
         }
 
         return rtrim($baseUrl, '/');
@@ -1346,7 +1346,7 @@ class Requester
         }
 
         if ((null !== $baseUrl)
-        && (false === ($pathInfo = substr($requestUri, strlen($baseUrl))))) {
+        && (false === ($pathInfo = substr($requestUri, mb_strlen($baseUrl, '8bit'))))) {
             return '/';
         } elseif (null === $baseUrl) {
             return $requestUri;
@@ -1407,7 +1407,7 @@ class Requester
             return false;
         }
 
-        $len = strlen($prefix);
+        $len = mb_strlen($prefix, '8bit');
 
         if (preg_match('#^(%[[:xdigit:]]{2}|.){'.$len.'}#', $string, $match)) {
             return $match[0];

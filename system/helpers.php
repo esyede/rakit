@@ -779,7 +779,7 @@ if (! function_exists('get_cli_option')) {
 
         foreach ($arguments as $argument) {
             if (Str::starts_with($argument, '--'.$option.'=')) {
-                return substr($argument, strlen($option) + 3);
+                return substr($argument, mb_strlen($option, '8bit') + 3);
             }
         }
 

@@ -91,7 +91,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     {
         try {
             DB::table('users')->where('username', '!=', null)->first();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->assertTrue(($e instanceof \InvalidArgumentException || $e instanceof \PDOException));
         }
     }

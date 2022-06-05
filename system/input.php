@@ -233,7 +233,7 @@ class Input
      */
     public static function has_file($key)
     {
-        return strlen(static::file($key.'.tmp_name', '')) > 0;
+        return mb_strlen(static::file($key.'.tmp_name', ''), '8bit') > 0;
     }
 
     /**

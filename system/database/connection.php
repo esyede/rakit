@@ -139,7 +139,7 @@ class Connection
      *
      * @return mixed
      */
-    public function only($sql, $bindings = [])
+    public function only($sql, array $bindings = [])
     {
         $results = (array) $this->first($sql, $bindings);
         return reset($results);
@@ -163,7 +163,7 @@ class Connection
      *
      * @return object
      */
-    public function first($sql, $bindings = [])
+    public function first($sql, array $bindings = [])
     {
         if (count($results = $this->query($sql, $bindings)) > 0) {
             return $results[0];
@@ -178,7 +178,7 @@ class Connection
      *
      * @return array
      */
-    public function query($sql, $bindings = [])
+    public function query($sql, array $bindings = [])
     {
         $sql = trim($sql);
 
@@ -204,7 +204,7 @@ class Connection
      *
      * @return array
      */
-    protected function execute($sql, $bindings = [])
+    protected function execute($sql, array $bindings = [])
     {
         $bindings = (array) $bindings;
         $bindings = array_filter($bindings, function ($binding) {
@@ -264,7 +264,7 @@ class Connection
      * @param array  $bindings
      * @param int    $start
      */
-    protected function log($sql, $bindings, $start)
+    protected function log($sql, array $bindings, $start)
     {
         $time = number_format((microtime(true) - $start) * 1000, 2);
 

@@ -36,7 +36,7 @@ class Key extends Command
     {
         $key = (string) Config::get('application.key', '');
 
-        if (strlen(trim($key)) < 32) {
+        if (mb_strlen(trim($key), '8bit') < 32) {
             try {
                 $data = Storage::get($this->path);
                 $key = Str::random(32);

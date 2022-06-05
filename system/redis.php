@@ -170,10 +170,10 @@ class Redis
      */
     protected function command($method, $parameters)
     {
-        $command = '*'.(count($parameters) + 1).CRLF.'$'.strlen($method).CRLF.strtoupper($method).CRLF;
+        $command = '*'.(count($parameters) + 1).CRLF.'$'.mb_strlen($method, '8bit').CRLF.strtoupper($method).CRLF;
 
         foreach ($parameters as $parameter) {
-            $command .= '$'.strlen($parameter).CRLF.$parameter.CRLF;
+            $command .= '$'.mb_strlen($parameter, '8bit').CRLF.$parameter.CRLF;
         }
 
         return $command;

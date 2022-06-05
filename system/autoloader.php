@@ -57,7 +57,7 @@ class Autoloader
         }
 
         foreach (static::$namespaces as $namespace => $directory) {
-            if ('' !== $namespace && $namespace === substr($class, 0, strlen($namespace))) {
+            if ('' !== $namespace && $namespace === substr($class, 0, mb_strlen($namespace, '8bit'))) {
                 return static::load_namespaced($class, $namespace, $directory);
             }
         }
@@ -74,7 +74,7 @@ class Autoloader
      */
     protected static function load_namespaced($class, $namespace, $directory)
     {
-        return static::load_psr(substr($class, strlen($namespace)), $directory);
+        return static::load_psr(substr($class, mb_strlen($namespace, '8bit')), $directory);
     }
 
     /**

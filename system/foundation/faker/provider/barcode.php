@@ -14,7 +14,7 @@ class Barcode extends Base
 
     protected static function eanChecksum($input)
     {
-        $sequence = (8 === (strlen($input) - 1)) ? [3, 1] : [1, 3];
+        $sequence = (8 === (mb_strlen($input, '8bit') - 1)) ? [3, 1] : [1, 3];
         $sums = 0;
 
         foreach (str_split($input) as $n => $digit) {
@@ -28,7 +28,7 @@ class Barcode extends Base
     {
         $length = 9;
 
-        if ($length !== strlen($input)) {
+        if ($length !== mb_strlen($input, '8bit')) {
             throw new \LengthException(sprintf('Input length should be equal to %s', $length));
         }
 

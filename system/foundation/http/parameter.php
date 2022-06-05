@@ -89,7 +89,7 @@ class Parameter implements \IteratorAggregate, \Countable
         $value = $this->parameters[$root];
         $currentKey = null;
 
-        for ($i = $pos, $count = strlen($path); $i < $count; ++$i) {
+        for ($i = $pos, $count = mb_strlen($path, '8bit'); $i < $count; ++$i) {
             $char = $path[$i];
 
             if ('[' === $char) {

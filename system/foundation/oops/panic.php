@@ -391,7 +391,7 @@ class Panic
 
         $source = array_slice($source, $start, $lines, true);
         end($source);
-        $numWidth = strlen((string) key($source));
+        $numWidth = mb_strlen((string) key($source), '8bit');
 
         foreach ($source as $n => $s) {
             $spans += substr_count($s, '<span') - substr_count($s, '</span');
@@ -424,7 +424,7 @@ class Panic
         foreach ($this->collapsePaths as $path) {
             $path = strtr($path, '\\', '/').'/';
 
-            if (strncmp($file, $path, 0 === strlen($path))) {
+            if (strncmp($file, $path, 0 === mb_strlen($path, '8bit'))) {
                 return true;
             }
         }

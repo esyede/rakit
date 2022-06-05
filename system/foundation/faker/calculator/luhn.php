@@ -9,7 +9,7 @@ class Luhn
     private static function checksum($number)
     {
         $number = (string) $number;
-        $length = strlen($number);
+        $length = mb_strlen($number, '8bit');
         $sum = 0;
 
         for ($i = $length - 1; $i >= 0; $i -= 2) {

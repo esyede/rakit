@@ -138,12 +138,12 @@ class Defaults
             if (is_string($binding)
             && (preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $binding)
             || preg_last_error())) {
-                return '<i title="Length '.strlen($binding).' bytes">&lt;binary&gt;</i>';
+                return '<i title="Length '.mb_strlen($binding, '8bit').' bytes">&lt;binary&gt;</i>';
             }
 
             if (is_string($binding)) {
                 $text = htmlspecialchars('\''.$binding.'\'', ENT_NOQUOTES, 'UTF-8');
-                return '<span title="Length '.strlen($text).' characters">'.$text.'</span>';
+                return '<span title="Length '.mb_strlen($text, '8bit').' characters">'.$text.'</span>';
             }
 
             if (is_resource($binding)) {

@@ -244,7 +244,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $payload->regenerate();
 
         $this->assertFalse($payload->exists);
-        $this->assertTrue(40 === strlen($payload->session['id']));
+        $this->assertTrue(40 === mb_strlen($payload->session['id'], '8bit'));
     }
 
     /**

@@ -209,7 +209,7 @@ class Dumper
     {
         return '<span class="oops-dump-string">"'
             .Helpers::escapeHtml(self::encodeString($var, $options[self::TRUNCATE]))
-            .'"</span>'.((strlen($var) > 1) ? ' ('.strlen($var).')' : '')."\n";
+            .'"</span>'.((mb_strlen($var, '8bit') > 1) ? ' ('.mb_strlen($var, '8bit').')' : '')."\n";
     }
 
     private static function dumpArray(&$var, $options, $level)
@@ -488,27 +488,13 @@ class Dumper
             $table["\t"] = '\t';
         }
 
-        if ($maxLength && strlen($s) > $maxLength) {
-            if (function_exists('mb_substr')) {
-                $s = mb_substr($tmp = $s, 0, $maxLength, 'UTF-8');
-                $shortened = $s !== $tmp;
-            } else {
-                $i = 0;
-                $len = 0;
-                $maxI = $maxLength * 4;
-
-                do {
-                    if (($s[$i] < "\x80" || $s[$i] >= "\xC0") && (++$len > $maxLength) || $i >= $maxI) {
-                        $s = substr($s, 0, $i);
-                        $shortened = true;
-                        break;
-                    }
-                } while (isset($s[++$i]));
-            }
+        if ($maxLength && mb_strlen($s, '8bit') > $maxLength) {
+            $s = mb_substr($tmp = $s, 0, $maxLength, 'UTF-8');
+            $shortened = $s !== $tmp;
         }
 
         if (preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $s) || preg_last_error()) {
-            if ($maxLength && strlen($s) > $maxLength) {
+            if ($maxLength && mb_strlen($s, '8bit') > $maxLength) {
                 $s = substr($s, 0, $maxLength);
                 $shortened = true;
             }

@@ -18,17 +18,12 @@ class Job extends Event
     public static function add($name, array $payloads = [], $scheduled_at = null)
     {
         $config = Config::get('job');
-
         $payloads = serialize($payloads);
         $scheduled_at = Date::make($scheduled_at)->format('Y-m-d H:i:s');
 
-        Database::table($config['table'])->insert([
-            'name' => $name,
-            'payloads' => $payloads,
-            'scheduled_at' => $scheduled_at,
-        ]);
+        Database::table($config['table'])->insert(compact('name', 'payloads', 'scheduled_at'));
 
-        $this->log('Job added: '.$name);
+        $this->log(sprintf('Job added: %s', $name));
         return true;
     }
 
@@ -44,21 +39,19 @@ class Job extends Event
         $config = Config::get('job');
 
         $jobs = Database::table($config['table'])
-            ->where('name', '=', $name)
+            ->where('name', $name)
             ->get('id');
 
         if (empty($jobs)) {
-            $this->log('No job found with this name: '.$name);
+            $this->log(sprintf('No job found with this name: %s', $name));
             return true;
         }
 
         foreach ($jobs as $job) {
-            Database::table($config['table'])
-                ->where('id', '=', $job->id)
-                ->delete();
+            Database::table($config['table'])->delete($job->id);
         }
 
-        $this->log('Jobs deleted: '.$name);
+        $this->log(sprintf('Jobs deleted: %s', $name));
         return true;
     }
 
@@ -91,7 +84,7 @@ class Job extends Event
         $this->log('Job started!');
 
         $jobs = Database::table($config['table'])
-            ->where('name', '=', $name)
+            ->where('name', $name)
             ->where('executed_at', '<=', Date::now())
             ->where('scheduled_at', '<=', Date::now())
             ->order_by('created_at', 'ASC')
@@ -102,7 +95,7 @@ class Job extends Event
             try {
                 Event::fire($job->name, unserialize($job->payloads));
                 Database::table($config['table'])
-                    ->where('id', '=', $job->id)
+                    ->where('id', $job->id)
                     ->update(['executed_at' => Date::now()]);
 
                 $this->log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
@@ -157,7 +150,7 @@ class Job extends Event
             try {
                 Event::fire($job->name, unserialize($job->payloads));
                 Database::table($config['table'])
-                    ->where('id', '=', $job->id)
+                    ->where('id', $job->id)
                     ->update(['executed_at' => Date::now()]);
 
                 $this->log(sprintf('Job executed: %s - #%s', $job->name, $job->id));

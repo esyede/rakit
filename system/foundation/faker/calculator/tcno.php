@@ -8,7 +8,7 @@ class Tcno
 {
     public static function checksum($identityPrefix)
     {
-        if (9 !== strlen((string) $identityPrefix)) {
+        if (9 !== mb_strlen((string) $identityPrefix, '8bit')) {
             throw new \InvalidArgumentException(
                 'Argument should be an integer and should be 9 digits.'
             );

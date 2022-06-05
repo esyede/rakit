@@ -270,10 +270,10 @@ class Table
                     $width = mb_strlen(preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
 
                     if (! isset($this->column_widths[$x])) {
-                        $this->column_widths[$x] = strlen($width);
+                        $this->column_widths[$x] = mb_strlen($width, '8bit');
                     } else {
                         if (strlen($width) > $this->column_widths[$x]) {
-                            $this->column_widths[$x] = strlen($width);
+                            $this->column_widths[$x] = mb_strlen($width, '8bit');
                         }
                     }
                 }

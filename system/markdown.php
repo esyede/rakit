@@ -650,7 +650,7 @@ class Markdown
             }
 
             $attrib = ['name' => $matches[1], 'depth' => 0, 'markup' => $tag['text']];
-            $length = strlen($matches[0]);
+            $length = mb_strlen($matches[0], '8bit');
             $remainder = substr($tag['text'], $length);
 
             if ('' === trim($remainder)) {
@@ -819,7 +819,7 @@ class Markdown
 
         if (preg_match($pattern, $not['text'], $matches)) {
             $text = preg_replace("/[ ]*\n/", ' ', $matches[2]);
-            return ['extent' => strlen($matches[0]), 'element' => ['name' => 'code', 'text' => $text]];
+            return ['extent' => mb_strlen($matches[0], '8bit'), 'element' => ['name' => 'code', 'text' => $text]];
         }
     }
 
@@ -829,7 +829,7 @@ class Markdown
         && preg_match('/^<((mailto:)?\S+?@\S+?)>/i', $not['text'], $matches)) {
             $url = isset($matches[2]) ? $matches[1] : 'mailto:'.$matches[1];
             return [
-                'extent' => strlen($matches[0]),
+                'extent' => mb_strlen($matches[0], '8bit'),
                 'element' => ['name' => 'a', 'text' => $matches[1], 'attributes' => ['href' => $url]],
             ];
         }
@@ -852,7 +852,7 @@ class Markdown
         }
 
         return [
-            'extent' => strlen($matches[0]),
+            'extent' => mb_strlen($matches[0], '8bit'),
             'element' => ['name' => $emphasis, 'handler' => 'line', 'text' => $matches[1]],
         ];
     }
@@ -909,7 +909,7 @@ class Markdown
 
         if (preg_match('/\[((?:[^][]++|(?R))*+)\]/', $remainder, $matches)) {
             $elem['text'] = $matches[1];
-            $extent += strlen($matches[0]);
+            $extent += mb_strlen($matches[0], '8bit');
             $remainder = substr($remainder, $extent);
         } else {
             return;
@@ -924,12 +924,12 @@ class Markdown
                 $elem['attributes']['title'] = substr($matches[2], 1, -1);
             }
 
-            $extent += strlen($matches[0]);
+            $extent += mb_strlen($matches[0], '8bit');
         } else {
             if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches)) {
-                $definition = strlen($matches[1]) ? $matches[1] : $elem['text'];
+                $definition = mb_strlen($matches[1], '8bit') ? $matches[1] : $elem['text'];
                 $definition = strtolower($definition);
-                $extent += strlen($matches[0]);
+                $extent += mb_strlen($matches[0], '8bit');
             } else {
                 $definition = strtolower($elem['text']);
             }
@@ -953,19 +953,19 @@ class Markdown
         }
 
         if ('/' === $not['text'][1] && preg_match('/^<\/\w[\w-]*[ ]*>/s', $not['text'], $matches)) {
-            return ['markup' => $matches[0], 'extent' => strlen($matches[0])];
+            return ['markup' => $matches[0], 'extent' => mb_strlen($matches[0], '8bit')];
         }
 
         $pattern = '/^<!---?[^>-](?:-?[^-])*-->/s';
 
         if ('!' === $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
-            return ['markup' => $matches[0], 'extent' => strlen($matches[0])];
+            return ['markup' => $matches[0], 'extent' => mb_strlen($matches[0], '8bit')];
         }
 
         $pattern = '/^<\w[\w-]*(?:[ ]*'.$this->attrs.')*[ ]*\/?>/s';
 
         if (' ' !== $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
-            return ['markup' => $matches[0], 'extent' => strlen($matches[0])];
+            return ['markup' => $matches[0], 'extent' => mb_strlen($matches[0], '8bit')];
         }
     }
 
@@ -992,7 +992,7 @@ class Markdown
 
         if ('~' === $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
             return [
-                'extent' => strlen($matches[0]),
+                'extent' => mb_strlen($matches[0], '8bit'),
                 'element' => ['name' => 'del', 'text' => $matches[1], 'handler' => 'line'],
             ];
         }
@@ -1007,7 +1007,7 @@ class Markdown
         if (preg_match('/\bhttps?:[\/]{2}[^\s<]+\b\/*/ui', $not['context'], $matches, PREG_OFFSET_CAPTURE)) {
             $url = $matches[0][0];
             return [
-                'extent' => strlen($matches[0][0]),
+                'extent' => mb_strlen($matches[0][0], '8bit'),
                 'position' => $matches[0][1],
                 'element' => ['name' => 'a', 'text' => $url, 'attributes' => ['href' => $url]],
             ];
@@ -1021,7 +1021,7 @@ class Markdown
         if (false !== strpos($not['text'], '>') && preg_match($pattern, $not['text'], $matches)) {
             $url = $matches[1];
             return [
-                'extent' => strlen($matches[0]),
+                'extent' => mb_strlen($matches[0], '8bit'),
                 'element' => ['name' => 'a', 'text' => $url, 'attributes' => ['href' => $url]],
             ];
         }
@@ -1150,7 +1150,7 @@ class Markdown
 
     protected static function starts($string, $needle)
     {
-        $len = strlen($needle);
-        return ($len > strlen($string)) ? false : strtolower(substr($string, 0, $len)) === strtolower($needle);
+        $len = mb_strlen($needle, '8bit');
+        return ($len > mb_strlen($string, '8bit')) ? false : strtolower(substr($string, 0, $len)) === strtolower($needle);
     }
 }

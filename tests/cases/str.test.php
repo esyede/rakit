@@ -279,9 +279,9 @@ class StrTest extends \PHPUnit_Framework_TestCase
 
     public function testRandom()
     {
-        $this->assertEquals(16, strlen(Str::random()));
+        $this->assertEquals(16, mb_strlen(Str::random(), '8bit'));
         $integers = Str::integers(1, 100);
-        $this->assertEquals($integers, strlen(Str::random($integers)));
+        $this->assertEquals($integers, mb_strlen(Str::random($integers), '8bit'));
         $this->assertTrue(is_string(Str::random()));
     }
 
@@ -390,5 +390,25 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('Rakit framework', Str::ucfirst('rakit framework'));
         $this->assertSame('Мама', Str::ucfirst('мама'));
         $this->assertSame('Мама мыла раму', Str::ucfirst('мама мыла раму'));
+    }
+
+    public function testMacro()
+    {
+        Str::$macros = [];
+        Str::macro('reverse', function ($value) {
+            return strrev($value);
+        });
+
+        $this->assertSame('!dlrow olleH', Str::reverse('Hello world!'));
+
+        try {
+            Str::macro('reverse', function ($value) {
+                return strrev($value);
+            });
+        } catch (\Exception $e) {
+            $this->assertTrue($e instanceof \Exception);
+        }
+
+        Str::$macros = [];
     }
 }

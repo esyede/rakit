@@ -176,15 +176,11 @@ class Base
 
     public static function shuffleString($string = '', $encoding = 'UTF-8')
     {
-        if (function_exists('mb_strlen')) {
-            $array = [];
-            $strlen = mb_strlen($string, $encoding);
+        $array = [];
+        $strlen = mb_strlen($string, $encoding);
 
-            for ($i = 0; $i < $strlen; ++$i) {
-                $array[] = mb_substr($string, $i, 1, $encoding);
-            }
-        } else {
-            $array = str_split($string, 1);
+        for ($i = 0; $i < $strlen; ++$i) {
+            $array[] = mb_substr($string, $i, 1, $encoding);
         }
 
         return implode('', static::shuffleArray($array));
@@ -194,14 +190,14 @@ class Base
     {
         $toReplace = [];
 
-        for ($i = 0, $count = strlen($string); $i < $count; ++$i) {
+        for ($i = 0, $count = mb_strlen($string, '8bit'); $i < $count; ++$i) {
             if ('#' === $string[$i]) {
                 $toReplace[] = $i;
             }
         }
 
         if ($nbReplacements = count($toReplace)) {
-            $maxAtOnce = strlen((string) mt_getrandmax()) - 1;
+            $maxAtOnce = mb_strlen((string) mt_getrandmax(), '8bit') - 1;
             $numbers = '';
             $i = 0;
 

@@ -8,7 +8,7 @@ class Ean
 {
     public static function checksum($digits)
     {
-        $length = strlen($digits);
+        $length = mb_strlen($digits, '8bit');
         $even = 0;
 
         for ($i = $length - 1; $i >= 0; $i -= 2) {

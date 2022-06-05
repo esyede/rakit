@@ -18,7 +18,8 @@ class Helpers
         if ($editor = self::editorUri($origFile, $line)) {
             $file = strtr($file, '\\', '/');
 
-            if (preg_match('#(^[a-z]:)?/.{1,40}$#i', $file, $m) && strlen($file) > strlen($m[0])) {
+            if (preg_match('#(^[a-z]:)?/.{1,40}$#i', $file, $m)
+            && mb_strlen($file, '8bit') > mb_strlen($m[0], '8bit')) {
                 $file = '...'.$m[0];
             }
 
@@ -289,7 +290,7 @@ class Helpers
     public static function getSuggestion(array $items, $value)
     {
         $best = null;
-        $min = (strlen($value) / 4 + 1) * 10 + .1;
+        $min = (mb_strlen($value, '8bit') / 4 + 1) * 10 + .1;
 
         foreach (array_unique($items, SORT_REGULAR) as $item) {
             $item = is_object($item) ? $item->getName() : $item;

@@ -73,7 +73,7 @@ class Middlewares
             $parameters = explode(',', substr(Package::element($middleware), $colon + 1));
 
             if (DEFAULT_PACKAGE !== ($package = Package::name($middleware))) {
-                $colon = strlen($package.'::') + $colon;
+                $colon = mb_strlen($package.'::', '8bit') + $colon;
             }
 
             return [substr($middleware, 0, $colon), $parameters];
