@@ -67,6 +67,14 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
             } else {
                 a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/id'));
             }
+
+            if (/\/docs\/id\/id\//.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/id\/id\//, '/docs/id/'));
+            }
+
+            if (/\/docs\/en\/en\//.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/en\/en\//, '/docs/en/'));
+            }
         }
     }
 
@@ -88,6 +96,14 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
                 a[i].setAttribute('href', a[i].href.replace(/\/docs\/en/, '/docs/id'));
             } else {
                 a[i].setAttribute('href', a[i].href.replace(/\/docs/, '/docs/id'));
+            }
+
+            if (/\/docs\/id\/id\//.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/id\/id\//, '/docs/id/'));
+            }
+
+            if (/\/docs\/en\/en\//.test(a[i].href)) {
+                a[i].setAttribute('href', a[i].href.replace(/\/docs\/en\/en\//, '/docs/en/'));
             }
         }
     }
