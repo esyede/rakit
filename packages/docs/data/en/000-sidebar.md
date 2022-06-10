@@ -100,7 +100,7 @@
 - [Date](/docs/date)
 - [Image](/docs/image)
 - [Storage](/docs/storage)
-- [Encryption](/docs/encryption)
+- [Crypter](/docs/crypter)
 - [Localization](/docs/localization)
 - [Markdown](/docs/markdown)
 - [Email](/docs/email)

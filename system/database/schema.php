@@ -18,7 +18,10 @@ class Schema
      */
     public static function table($table, \Closure $callback)
     {
-        call_user_func($callback, $table = new Schema\Table($table));
+        $table = new Schema\Table($table);
+
+        call_user_func($callback, $table);
+
         return static::execute($table);
     }
 
@@ -312,9 +315,8 @@ class Schema
             $connection = DB::connection($table->connection);
             $grammar = static::grammar($connection);
 
-            if (method_exists($grammar, $method = $command->type)) {
-                $statements = $grammar->{$method}($table, $command);
-                $statements = (array) $statements;
+            if (method_exists($grammar, $command->type)) {
+                $statements = (array) $grammar->{$command->type}($table, $command);
 
                 foreach ($statements as $statement) {
                     $connection->query($statement);
@@ -335,9 +337,9 @@ class Schema
             array_unshift($table->commands, $command);
         }
 
-        foreach ($table->columns as $column) {
-            $indexes = ['primary', 'unique', 'fulltext', 'index'];
+        $indexes = ['primary', 'unique', 'fulltext', 'index'];
 
+        foreach ($table->columns as $column) {
             foreach ($indexes as $index) {
                 if (isset($column->{$index})) {
                     if (true === $column->{$index}) {

@@ -379,11 +379,11 @@ var data = [
     },
     {
         "title": "Enkripsi String",
-        "url": "encryption#enkripsi-string"
+        "url": "crypter#enkripsi-string"
     },
     {
         "title": "Dekripsi String",
-        "url": "encryption#dekripsi-string"
+        "url": "crypter#dekripsi-string"
     },
     {
         "title": "Menjalankan Event",

@@ -161,13 +161,12 @@ class Connection
      * @param string $sql
      * @param array  $bindings
      *
-     * @return object
+     * @return \stdClass|null
      */
     public function first($sql, array $bindings = [])
     {
-        if (count($results = $this->query($sql, $bindings)) > 0) {
-            return $results[0];
-        }
+        $results = $this->query($sql, $bindings);
+        return (count($results) > 0) ? $results[0] : null;
     }
 
     /**
@@ -206,7 +205,6 @@ class Connection
      */
     protected function execute($sql, array $bindings = [])
     {
-        $bindings = (array) $bindings;
         $bindings = array_filter($bindings, function ($binding) {
             return (! ($binding instanceof Expression));
         });

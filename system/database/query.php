@@ -632,7 +632,7 @@ class Query
     public function find_or_fail($id, array $columns = ['*'])
     {
         $results = $this->find($id, $columns);
-        return is_null($results) ? Response::error(404) : $results;
+        return (null === $results) ? Response::error(404) : $results;
     }
 
     /**
@@ -675,7 +675,7 @@ class Query
         $columns = is_array($columns) ? $columns : func_get_args();
         $results = $this->first($columns);
 
-        return is_null($results) ? Response::error(404) : $results;
+        return (null === $results) ? Response::error(404) : $results;
     }
 
     /**
