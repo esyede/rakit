@@ -152,10 +152,10 @@ class Requester
     public static function create(
         $uri,
         $method = 'GET',
-        $parameters = [],
-        $cookies = [],
-        $files = [],
-        $server = [],
+        array $parameters = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
         $content = null
     ) {
         $defaults = [
@@ -761,7 +761,6 @@ class Requester
     public function getQueryString()
     {
         $queryString = static::normalizeQueryString($this->server->get('QUERY_STRING'));
-
         return ('' === $queryString) ? null : $queryString;
     }
 
@@ -781,7 +780,6 @@ class Requester
         }
 
         $https = $this->server->get('HTTPS');
-
         return ('on' === $https || 1 === $https);
     }
 
@@ -1060,7 +1058,6 @@ class Requester
         }
 
         $preferred = array_values(array_intersect($preferred, $locales));
-
         return isset($preferred[0]) ? $preferred[0] : $locales[0];
     }
 

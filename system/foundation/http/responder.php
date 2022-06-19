@@ -86,7 +86,7 @@ class Responder
      * @param int    $status
      * @param array  $headers
      */
-    public function __construct($content = '', $status = 200, $headers = [])
+    public function __construct($content = '', $status = 200, array $headers = [])
     {
         $this->headers = new Helper($headers);
         $this->setContent($content);
@@ -113,7 +113,7 @@ class Responder
      *
      * @return static
      */
-    public static function create($content = '', $status = 200, $headers = [])
+    public static function create($content = '', $status = 200, array $headers = [])
     {
         return new static($content, $status, $headers);
     }

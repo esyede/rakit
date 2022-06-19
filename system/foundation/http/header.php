@@ -297,7 +297,7 @@ class Header implements \IteratorAggregate, \Countable
             if (true === $value) {
                 $parts[] = $key;
             } else {
-                if (preg_match('#[^a-zA-Z0-9._-]#', $value)) {
+                if (preg_match('/[^a-zA-Z0-9._-]/', $value)) {
                     $value = '"'.$value.'"';
                 }
 
@@ -318,7 +318,7 @@ class Header implements \IteratorAggregate, \Countable
     protected function parseCacheControl($header)
     {
         preg_match_all(
-            '#([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?#',
+            '/([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?/',
             $header,
             $matches,
             PREG_SET_ORDER
