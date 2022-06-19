@@ -55,7 +55,7 @@ require path('system').'autoloader.php';
 |
 */
 
-spl_autoload_register(['System\Autoloader', 'load']);
+spl_autoload_register(['\System\Autoloader', 'load']);
 
 /*
 |--------------------------------------------------------------------------

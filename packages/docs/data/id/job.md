@@ -57,7 +57,7 @@ Event::listen('log-something', function ($foo) {
 });
 ```
 
-Setup the crontab:
+Tambahkan baris berikut ke crontab:
 
 ```bash
 */1 * * * * php /var/www/mysite/rakit job:run log-something

@@ -349,7 +349,7 @@ class AuthUserReturnsNull extends \Authenticator
         // ..
     }
 
-    public function attempt($arguments = [])
+    public function attempt(array $arguments = [])
     {
         // ..
     }
@@ -367,7 +367,7 @@ class AuthUserReturnsDummy extends \System\Auth\Drivers\Driver
         // ..
     }
 
-    public function attempt($arguments = [])
+    public function attempt(array $arguments = [])
     {
         return $this->login($arguments['username']);
     }
