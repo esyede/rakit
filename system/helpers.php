@@ -114,7 +114,7 @@ if (! function_exists('__')) {
      *
      * @return string
      */
-    function __($key, $replacements = [], $language = null)
+    function __($key, array $replacements = [], $language = null)
     {
         return Lang::line($key, $replacements, $language);
     }
@@ -416,7 +416,7 @@ if (! function_exists('action')) {
      *
      * @return string
      */
-    function action($action, $parameters = [])
+    function action($action, array $parameters = [])
     {
         return \System\URL::to_action($action, $parameters);
     }
@@ -441,7 +441,7 @@ if (! function_exists('route')) {
      *
      * @return string
      */
-    function route($name, $parameters = [])
+    function route($name, array $parameters = [])
     {
         return \System\URL::to_route($name, $parameters);
     }
@@ -676,7 +676,7 @@ if (! function_exists('view')) {
      *
      * @return View
      */
-    function view($view, $data = [])
+    function view($view, array $data = [])
     {
         return is_null($view) ? '' : \System\View::make($view, $data);
     }
@@ -691,7 +691,7 @@ if (! function_exists('render')) {
      *
      * @return string
      */
-    function render($view, $data = [])
+    function render($view, array $data = [])
     {
         return is_null($view) ? '' : \System\View::make($view, $data)->render();
     }

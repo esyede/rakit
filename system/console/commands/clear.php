@@ -11,7 +11,7 @@ class Clear extends Command
      *
      * @return void
      */
-    public function blade($arguments = [])
+    public function blade(array $arguments = [])
     {
         $files = glob(path('storage').'views'.DS.'*.bc.php');
 
@@ -29,12 +29,12 @@ class Clear extends Command
      *
      * @return void
      */
-    public function logs($arguments = [])
+    public function logs(array $arguments = [])
     {
         $files = glob(path('storage').'logs'.DS.'*');
 
         if (is_array($files) && count($files) > 0) {
-            $preserve = [
+            $preserves = [
                 '.gitignore',
                 '.htaccess',
                 'index.html',
@@ -42,7 +42,7 @@ class Clear extends Command
             ];
 
             foreach ($files as $file) {
-                if (in_array(basename($file), $preserve)) {
+                if (! in_array(basename($file), $preserves)) {
                     @unlink($file);
                 }
             }

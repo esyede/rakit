@@ -38,11 +38,11 @@ class Packager extends Command
      *
      * @return void
      */
-    public function install($names)
+    public function install(array $names)
     {
         $this->parameter($names);
 
-        $remote = $this->repository->search($names[0]);
+        $remotes = $this->repository->search($names[0]);
 
         if (Package::exists($names[0])) {
             echo PHP_EOL.'Package is already registered: '.$names[0].PHP_EOL;
@@ -63,7 +63,7 @@ class Packager extends Command
                 throw new \Exception(PHP_EOL.'Operation aborted by user.');
             }
 
-            if (true !== (bool) $remote['maintained']) {
+            if (true !== (bool) $remotes['maintained']) {
                 echo  PHP_EOL.'This package is currently not maintained.';
                 echo  PHP_EOL.'Dou you wish to install anyway? [y/N] ';
 
@@ -78,8 +78,8 @@ class Packager extends Command
 
         echo 'Downloading package: '.$names[0];
 
-        $this->download($remote, $destination);
-        $this->metadata($remote, $destination);
+        $this->download($remotes, $destination);
+        $this->metadata($remotes, $destination);
 
         echo PHP_EOL.'Package installed successfuly!';
 
@@ -94,7 +94,7 @@ class Packager extends Command
      *
      * @return void
      */
-    public function uninstall($names)
+    public function uninstall(array $names)
     {
         $this->parameter($names);
 
@@ -134,7 +134,7 @@ class Packager extends Command
      *
      * @return void
      */
-    public function upgrade($names)
+    public function upgrade(array $names)
     {
         $this->parameter($names);
 
@@ -147,9 +147,9 @@ class Packager extends Command
             ).PHP_EOL);
         }
 
-        $remote = $this->repository->search($names[0]);
+        $remotes = $this->repository->search($names[0]);
         $local = path('package').$names[0].DS.'meta.json';
-        $latest = $remote['compatibilities'][RAKIT_VERSION];
+        $latest = $remotes['compatibilities'][RAKIT_VERSION];
         $current = 0;
 
         if (is_file($local)) {
@@ -157,7 +157,7 @@ class Packager extends Command
             $current = isset($current['version']) ? $current['version'] : $current;
         }
 
-        if (true !== (bool) $remote['maintained']) {
+        if (true !== (bool) $remotes['maintained']) {
             echo  PHP_EOL.'This package is currently not maintained.';
             echo  PHP_EOL.'Dou you wish to upgrade anyway? [y/N] ';
 
@@ -181,8 +181,8 @@ class Packager extends Command
         $publisher = Container::resolve('package.publisher');
         $publisher->unpublish($names[0]);
 
-        $this->download($remote, $destination);
-        $this->metadata($remote, $destination);
+        $this->download($remotes, $destination);
+        $this->metadata($remotes, $destination);
 
         echo PHP_EOL.'Package upgraded successfuly!'.PHP_EOL;
     }
@@ -194,7 +194,7 @@ class Packager extends Command
      *
      * @return void
      */
-    public function publish($names)
+    public function publish(array $names)
     {
         $this->parameter($names);
 
@@ -209,7 +209,7 @@ class Packager extends Command
      *
      * @return void
      */
-    public function unpublish($names)
+    public function unpublish(array $names)
     {
         $this->parameter($names);
 
@@ -220,29 +220,29 @@ class Packager extends Command
     /**
      * Download paket berdsarkan url provider.
      *
-     * @param array  $remote
+     * @param array  $remotes
      * @param string $path
      *
      * @return void
      */
-    protected function download(array $remote, $path)
+    protected function download(array $remotes, $path)
     {
-        $provider = $this->hostname($remote);
-        Container::resolve('package.provider: '.$provider)->install($remote, $path);
+        $provider = $this->hostname($remotes);
+        Container::resolve('package.provider: '.$provider)->install($remotes, $path);
     }
 
     /**
      * Tambahkan meta.json ke direktori instalasi paket (jika belum ada).
      *
-     * @param array  $remote
+     * @param array  $remotes
      * @param string $destination
      */
-    protected function metadata(array $remote, $destination)
+    protected function metadata(array $remotes, $destination)
     {
         $data = [
-            'name' => $remote['name'],
-            'description' => $remote['description'],
-            'version' => $remote['compatibilities'][RAKIT_VERSION],
+            'name' => $remotes['name'],
+            'description' => $remotes['description'],
+            'version' => $remotes['compatibilities'][RAKIT_VERSION],
         ];
 
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
@@ -283,7 +283,7 @@ class Packager extends Command
      *
      * @return void
      */
-    protected function parameter($parameters)
+    protected function parameter(array $parameters)
     {
         if (0 === count($parameters)) {
             throw new \Exception(PHP_EOL.'Error: Please specify a package name.'.PHP_EOL);
@@ -293,13 +293,13 @@ class Packager extends Command
     /**
      * Ambil nama host dari string URL.
      *
-     * @param array $remote
+     * @param array $remotes
      *
      * @return string
      */
-    protected function hostname($remote)
+    protected function hostname($remotes)
     {
-        $host = parse_url(trim($remote['repository']))['host'];
+        $host = parse_url(trim($remotes['repository']))['host'];
         $host = explode('.', $host)[0];
         $provider = '\\System\\Console\\Commands\\Package\\Providers\\'.Str::classify($host);
 

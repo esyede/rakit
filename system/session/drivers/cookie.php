@@ -38,7 +38,7 @@ class Cookie extends Driver
      * @param array $config
      * @param bool  $exists
      */
-    public function save($session, $config, $exists)
+    public function save(array $session, array $config, $exists)
     {
         $payload = Crypter::encrypt(serialize($session));
         BaseCookie::put(

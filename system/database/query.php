@@ -222,7 +222,7 @@ class Query
      *
      * @return Query
      */
-    public function raw_where($where, $bindings = [], $connector = 'AND')
+    public function raw_where($where, array $bindings = [], $connector = 'AND')
     {
         $this->wheres[] = ['type' => 'where_raw', 'connector' => $connector, 'sql' => $where];
         $this->bindings = array_merge($this->bindings, $bindings);
@@ -238,7 +238,7 @@ class Query
      *
      * @return Query
      */
-    public function raw_or_where($where, $bindings = [])
+    public function raw_or_where($where, array $bindings = [])
     {
         return $this->raw_where($where, $bindings, 'OR');
     }
@@ -324,7 +324,7 @@ class Query
      *
      * @return Query
      */
-    public function or_where_in($column, $values)
+    public function or_where_in($column, array $values)
     {
         return $this->where_in($column, $values, 'OR');
     }
@@ -338,7 +338,7 @@ class Query
      *
      * @return Query
      */
-    public function where_not_in($column, $values, $connector = 'AND')
+    public function where_not_in($column, array $values, $connector = 'AND')
     {
         return $this->where_in($column, $values, $connector, true);
     }
@@ -351,7 +351,7 @@ class Query
      *
      * @return Query
      */
-    public function or_where_not_in($column, $values)
+    public function or_where_not_in($column, array $values)
     {
         return $this->where_not_in($column, $values, 'OR');
     }
@@ -482,7 +482,7 @@ class Query
      *
      * @return Query
      */
-    public function where_nested($callback, $connector = 'AND')
+    public function where_nested(\Closure $callback, $connector = 'AND')
     {
         $type = 'where_nested';
         $query = new Query($this->connection, $this->grammar, $this->from);
@@ -506,7 +506,7 @@ class Query
      *
      * @return Query
      */
-    private function dynamic_where($method, $parameters)
+    private function dynamic_where($method, array $parameters)
     {
         $keyword = substr($method, 6);
         $segments = preg_split('/(_and_|_or_)/i', $keyword, -1, PREG_SPLIT_DELIM_CAPTURE);
@@ -902,7 +902,7 @@ class Query
      * Magic method untuk menangani pemanggilan method dinamis.
      * Seperti fungsi agregasi dan where.
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         if (0 === strpos($method, 'where_')) {
             return $this->dynamic_where($method, $parameters, $this);

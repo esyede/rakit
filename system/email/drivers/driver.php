@@ -136,7 +136,6 @@ abstract class Driver
     public function pipelining($activate = true)
     {
         $this->pipelining = (bool) $activate;
-
         return $this;
     }
 
@@ -150,7 +149,6 @@ abstract class Driver
     public function body($body)
     {
         $this->body = (string) $body;
-
         return $this;
     }
 
@@ -164,7 +162,6 @@ abstract class Driver
     public function alt_body($body)
     {
         $this->alt_body = (string) $body;
-
         return $this;
     }
 
@@ -184,7 +181,6 @@ abstract class Driver
         }
 
         $this->config['priority'] = $priority;
-
         return $this;
     }
 
@@ -296,7 +292,6 @@ abstract class Driver
     public function to($email, $name = false)
     {
         static::append('to', $email, $name);
-
         return $this;
     }
 
@@ -311,7 +306,6 @@ abstract class Driver
     public function cc($email, $name = false)
     {
         static::append('cc', $email, $name);
-
         return $this;
     }
 
@@ -326,7 +320,6 @@ abstract class Driver
     public function bcc($email, $name = false)
     {
         static::append('bcc', $email, $name);
-
         return $this;
     }
 
@@ -341,7 +334,6 @@ abstract class Driver
     public function replyto($email, $name = false)
     {
         static::append('replyto', $email, $name);
-
         return $this;
     }
 
@@ -355,7 +347,6 @@ abstract class Driver
     public function return_path($email)
     {
         $this->config['return_path'] = (string) $email;
-
         return $this;
     }
 
@@ -499,7 +490,6 @@ abstract class Driver
     protected static function mime($file)
     {
         $mime = Storage::mime($file);
-
         return $mime ? $mime : 'application/octet-stream';
     }
 
@@ -696,7 +686,6 @@ abstract class Driver
     protected function encode($header)
     {
         $encoding = ('quoted-printable' === $this->config['encoding']) ? 'Q' : 'B' ;
-
         return mb_encode_mimeheader($header, 'utf-8', $encoding, $this->config['newline']);
     }
 
@@ -789,8 +778,7 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[0].$eol;
-                    $body .= 'Content-Type: multipart/related;'.$eol.
-                        "\tboundary=\"".$this->boundaries[1].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/related;'.$eol."\tboundary=\"".$this->boundaries[1].'"'.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
@@ -803,8 +791,7 @@ abstract class Driver
                 case 'html_alt_attach':
                 case 'html_inline_attach':
                     $body .= '--'.$this->boundaries[0].$eol;
-                    $body .= 'Content-Type: multipart/alternative;'.$eol.
-                        "\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/alternative;'.$eol."\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
 
                     if (false !== stripos($this->type, 'alt')) {
                         $body .= '--'.$this->boundaries[1].$eol;
@@ -830,15 +817,13 @@ abstract class Driver
 
                 case 'html_alt_inline_attach':
                     $body .= '--'.$this->boundaries[0].$eol;
-                    $body .= 'Content-Type: multipart/alternative;'.$eol.
-                        "\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/alternative;'.$eol."\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
-                    $body .= 'Content-Type: multipart/related;'.$eol.
-                        "\t boundary=\"".$this->boundaries[2].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/related;'.$eol."\t boundary=\"".$this->boundaries[2].'"'.$eol.$eol;
                     $body .= '--'.$this->boundaries[2].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;

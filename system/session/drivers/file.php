@@ -45,7 +45,7 @@ class File extends Driver implements Sweeper
      * @param array $config
      * @param bool  $exists
      */
-    public function save($session, $config, $exists)
+    public function save(array $session, array $config, $exists)
     {
         $path = $this->path.$this->naming($session['id']);
         $session = $this->guard(serialize($session));

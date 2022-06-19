@@ -49,11 +49,11 @@ class Lang
      * @param array  $replacements
      * @param string $language
      */
-    protected function __construct($key, $replacements = [], $language = null)
+    protected function __construct($key, array $replacements = [], $language = null)
     {
         $this->key = $key;
         $this->language = $language;
-        $this->replacements = (array) $replacements;
+        $this->replacements = $replacements;
     }
 
     /**
@@ -78,7 +78,7 @@ class Lang
      *
      * @return Lang
      */
-    public static function line($key, $replacements = [], $language = null)
+    public static function line($key, array $replacements = [], $language = null)
     {
         $language = is_null($language) ? Config::get('application.language') : $language;
         return new static($key, $replacements, $language);

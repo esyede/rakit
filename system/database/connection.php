@@ -45,7 +45,7 @@ class Connection
      * @param PDO   $pdo
      * @param array $config
      */
-    public function __construct(PDO $pdo, $config)
+    public function __construct(PDO $pdo, array $config)
     {
         $this->pdo = $pdo;
         $this->config = $config;
@@ -100,11 +100,11 @@ class Connection
     /**
      * Jalankan callback transaksi database.
      *
-     * @param callable $callback
+     * @param \Closure $callback
      *
      * @return bool
      */
-    public function transaction(callable $callback)
+    public function transaction(\Closure $callback)
     {
         $this->pdo()->beginTransaction();
 
@@ -294,7 +294,7 @@ class Connection
     /**
      * Magic method untuk memulai query ke tabel secara dinamis.
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         return $this->table($method);
     }

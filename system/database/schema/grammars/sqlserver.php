@@ -40,10 +40,9 @@ class SQLServer extends Grammar
      */
     public function add(Table $table, Magic $command)
     {
-        $columns = $this->columns($table);
         $columns = implode(', ', array_map(function ($column) {
             return 'ADD '.$column;
-        }, $columns));
+        }, $this->columns($table)));
 
         return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
     }
@@ -61,11 +60,9 @@ class SQLServer extends Grammar
 
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
-
             $sql .= $this->incrementer($table, $column);
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
-
             $columns[] = $sql;
         }
 
@@ -125,10 +122,8 @@ class SQLServer extends Grammar
      */
     public function primary(Table $table, Magic $command)
     {
-        $name = $command->name;
         $columns = $this->columnize($command->columns);
-
-        return 'ALTER TABLE '.$this->wrap($table).' ADD CONSTRAINT '.$name.' PRIMARY KEY ('.$columns.')';
+        return 'ALTER TABLE '.$this->wrap($table).' ADD CONSTRAINT '.$command->name.' PRIMARY KEY ('.$columns.')';
     }
 
     /**
@@ -159,8 +154,7 @@ class SQLServer extends Grammar
 
         return [
             'CREATE FULLTEXT CATALOG '.$command->catalog,
-            'CREATE FULLTEXT INDEX ON '.$table.' ('.$columns.') '
-                .'KEY INDEX '.$command->key.' ON '.$command->catalog,
+            'CREATE FULLTEXT INDEX ON '.$table.' ('.$columns.') KEY INDEX '.$command->key.' ON '.$command->catalog,
         ];
     }
 

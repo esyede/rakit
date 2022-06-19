@@ -129,12 +129,12 @@ class Router
      * Daftarkan sebuah route group.
      *
      * @param array    $attributes
-     * @param \Closure $callback
+     * @param \Closure $handler
      */
-    public static function group($attributes, \Closure $callback)
+    public static function group(array $attributes, \Closure $handler)
     {
         static::$group = $attributes;
-        call_user_func($callback);
+        call_user_func($handler);
         static::$group = null;
     }
 

@@ -64,16 +64,14 @@ class Cache
             return $resolver();
         }
 
-        $key = Config::get('cache.key');
-
         switch ($driver) {
-            case 'apc':       return new Cache\Drivers\APC($key);
+            case 'apc':       return new Cache\Drivers\APC(Config::get('cache.key'));
             case 'file':      return new Cache\Drivers\File(path('storage').'cache'.DS);
-            case 'memcached': return new Cache\Drivers\Memcached(Memcached::connection(), $key);
+            case 'memcached': return new Cache\Drivers\Memcached(Memcached::connection(), Config::get('cache.key'));
             case 'memory':    return new Cache\Drivers\Memory();
             case 'redis':     return new Cache\Drivers\Redis(Redis::db());
-            case 'database':  return new Cache\Drivers\Database($key);
-            case 'wincache':  return new Cache\Drivers\WinCache($key);
+            case 'database':  return new Cache\Drivers\Database(Config::get('cache.key'));
+            case 'wincache':  return new Cache\Drivers\WinCache(Config::get('cache.key'));
             default:          throw new \Exception(sprintf('Unsupported cache driver: %s', $driver));
         }
     }
@@ -102,7 +100,7 @@ class Cache
      *
      * </code>
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         return call_user_func_array([static::driver(), $method], $parameters);
     }

@@ -44,7 +44,7 @@ class Memcached
      *
      * @return Memcached
      */
-    protected static function connect($servers)
+    protected static function connect(array $servers)
     {
         $memcache = new \Memcached();
 
@@ -72,7 +72,7 @@ class Memcached
      *
      * </code>
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         return call_user_func_array([static::connection(), $method], $parameters);
     }

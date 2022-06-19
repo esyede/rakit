@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Foundation\Http\Request as FoundationRequest;
-
 class URITest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -80,6 +78,6 @@ class URITest extends \PHPUnit_Framework_TestCase
 
         $_SERVER['REQUEST_URI'] = $uri;
 
-        Request::$foundation = FoundationRequest::createFromGlobals();
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
     }
 }

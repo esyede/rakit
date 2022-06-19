@@ -18,7 +18,7 @@ class Common
         return $this->default;
     }
 
-    public function __call($method, $attributes)
+    public function __call($method, array $attributes)
     {
         return $this->default;
     }

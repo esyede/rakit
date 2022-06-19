@@ -19,7 +19,7 @@ class Session extends Command
      *
      * @return void
      */
-    public function table($arguments = [])
+    public function table(array $arguments = [])
     {
         if (mb_strlen(trim(Config::get('application.key')), '8bit') < 32) {
             throw new \Exception('The application key needs to be set at least 32 characters long.');
@@ -47,7 +47,7 @@ class Session extends Command
      *
      * @return void
      */
-    public function sweep($arguments = [])
+    public function sweep(array $arguments = [])
     {
         $driver = BaseSession::factory(Config::get('session.driver'));
 

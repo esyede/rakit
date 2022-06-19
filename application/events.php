@@ -14,9 +14,9 @@ defined('DS') or exit('No direct script access.');
 */
 
 Event::listen('404', function () {
-    return Response::error('404');
+    return Response::error(404);
 });
 
 Event::listen('500', function () {
-    return Response::error('500');
+    return Response::error(500);
 });

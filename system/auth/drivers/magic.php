@@ -33,7 +33,7 @@ class Magic extends Driver
      *
      * @return bool
      */
-    public function attempt($arguments = [])
+    public function attempt(array $arguments = [])
     {
         $user = $this->get_user($arguments);
         $password = $arguments['password'];
@@ -53,7 +53,7 @@ class Magic extends Driver
      *
      * @return mixed
      */
-    protected function get_user($arguments)
+    protected function get_user(array $arguments)
     {
         $table = Config::get('auth.table');
 

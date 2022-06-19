@@ -25,7 +25,7 @@ class Magic
      *
      * @param array $attributes
      */
-    public function __construct($attributes = [])
+    public function __construct(array $attributes = [])
     {
         foreach ($attributes as $key => $value) {
             $this->{$key} = $value;
@@ -58,7 +58,7 @@ class Magic
      *
      * </code>
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         $this->{$method} = (count($parameters) > 0) ? $parameters[0] : true;
         return $this;

@@ -203,11 +203,12 @@ class Payload
     /**
      * Hapus sebuah item dari session.
      *
-     * @param string $key
+     * @param string $keys
      */
-    public function forget($key)
+    public function forget($keys)
     {
-        Arr::forget($this->session['data'], $key);
+        $keys = is_array($keys) ? $keys : func_get_args();
+        Arr::forget($this->session['data'], $keys);
     }
 
     /**
@@ -292,7 +293,7 @@ class Payload
      *
      * @param array $config
      */
-    protected function cookie($config)
+    protected function cookie(array $config)
     {
         $minutes = $config['expire_on_close'] ? 0 : $config['lifetime'];
         Cookie::put(

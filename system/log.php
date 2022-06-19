@@ -49,11 +49,11 @@ class Log
      *
      * @param string $type
      * @param string $message
-     * @param bool   $prettify
+     * @param bool   $beautify
      */
-    public static function write($type, $message, $prettify = false)
+    public static function write($type, $message, $beautify = false)
     {
-        $message = $prettify ? print_r($message, true) : $message;
+        $message = $beautify ? print_r($message, true) : $message;
 
         if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
@@ -102,7 +102,7 @@ class Log
      *
      * </code>
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         $parameters[1] = empty($parameters[1]) ? false : $parameters[1];
         static::write($method, $parameters[0], $parameters[1]);

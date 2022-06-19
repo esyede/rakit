@@ -39,8 +39,8 @@ class Package
     /**
      * Daftarkan paket ke aplikasi.
      *
-     * @param string $package
-     * @param array  $config
+     * @param string       $package
+     * @param string|array $config
      */
     public static function register($package, $config = [])
     {
@@ -126,7 +126,7 @@ class Package
      * @param string $package
      * @param array  $config
      */
-    protected static function autoloads($package, $config)
+    protected static function autoloads($package, array $config)
     {
         $path = rtrim(Package::path($package), DS);
 

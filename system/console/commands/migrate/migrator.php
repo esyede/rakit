@@ -45,7 +45,7 @@ class Migrator extends Command
      *
      * @return void
      */
-    public function run($arguments = [])
+    public function run(array $arguments = [])
     {
         // Buat otomatis tabel migrasi jika belum ada.
         if (! Schema::has_table('rakit_migrations')) {
@@ -96,7 +96,7 @@ class Migrator extends Command
      *
      * @return bool
      */
-    public function rollback($packages = [])
+    public function rollback(array $packages = [])
     {
         $packages = is_array($packages) ? $packages : [$packages];
         $migrations = $this->resolver->last();
@@ -134,7 +134,7 @@ class Migrator extends Command
      *
      * @return void
      */
-    public function reset($packages = [])
+    public function reset(array $packages = [])
     {
         while ($this->rollback($packages)) {
             // Rollback semuanya..

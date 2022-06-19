@@ -54,7 +54,7 @@ class Database extends Driver implements Sweeper
      * @param array $config
      * @param bool  $exists
      */
-    public function save($session, $config, $exists)
+    public function save(array $session, array $config, $exists)
     {
         if ($exists) {
             $this->table()->where('id', '=', $session['id'])->update([

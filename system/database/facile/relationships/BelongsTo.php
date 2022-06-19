@@ -45,7 +45,7 @@ class BelongsTo extends Relationship
      * @param array  $parents
      * @param string $relationship
      */
-    public function initialize(&$parents, $relationship)
+    public function initialize(array &$parents, $relationship)
     {
         foreach ($parents as &$parent) {
             $parent->relationships[$relationship] = null;
@@ -57,7 +57,7 @@ class BelongsTo extends Relationship
      *
      * @param array $results
      */
-    public function eagerly_constrain($results)
+    public function eagerly_constrain(array $results)
     {
         $keys = [];
 
@@ -80,7 +80,7 @@ class BelongsTo extends Relationship
      * @param array $children
      * @param array $parents
      */
-    public function match($relationship, &$children, $parents)
+    public function match($relationship, &$children, array $parents)
     {
         $foreign = $this->foreign_key();
         $dictionary = [];

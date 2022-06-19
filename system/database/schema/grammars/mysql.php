@@ -235,9 +235,7 @@ class MySQL extends Grammar
     protected function key(Table $table, Magic $command, $type)
     {
         $keys = $this->columnize($command->columns);
-        $name = $command->name;
-
-        return 'ALTER TABLE '.$this->wrap($table).' ADD '.$type.' '.$name.'('.$keys.')';
+        return 'ALTER TABLE '.$this->wrap($table).' ADD '.$type.' '.$command->name.'('.$keys.')';
     }
 
     /**

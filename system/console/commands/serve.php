@@ -11,7 +11,7 @@ class Serve extends Command
      *
      * @return void
      */
-    public function run($arguments = [])
+    public function run(array $arguments = [])
     {
         $port = empty($arguments) ? 8000 : $arguments[0];
         $port = (int) ((is_numeric($port) && $port >= 20 && $port <= 65535) ? $port : 8000);

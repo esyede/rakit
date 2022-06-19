@@ -95,7 +95,7 @@ class View implements \ArrayAccess
      * @param string $view
      * @param array  $data
      */
-    public function __construct($view, $data = [])
+    public function __construct($view, array $data = [])
     {
         $this->view = $view;
         $this->data = $data;
@@ -190,7 +190,7 @@ class View implements \ArrayAccess
      *
      * @return View
      */
-    public static function make($view, $data = [])
+    public static function make($view, array $data = [])
     {
         return new static($view, $data);
     }
@@ -213,7 +213,7 @@ class View implements \ArrayAccess
      *
      * @return View
      */
-    public static function of($name, $data = [])
+    public static function of($name, array $data = [])
     {
         return new static(static::$names[$name], $data);
     }
@@ -395,7 +395,7 @@ class View implements \ArrayAccess
      *
      * @return View
      */
-    public function nest($key, $view, $data = [])
+    public function nest($key, $view, array $data = [])
     {
         return $this->with($key, static::make($view, $data));
     }
@@ -534,7 +534,7 @@ class View implements \ArrayAccess
      *
      * @return $this
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         if (0 === strpos($method, 'with_')) {
             return $this->with(substr($method, 5), $parameters[0]);

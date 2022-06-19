@@ -64,7 +64,7 @@ class Database
      *
      * @return \PDO
      */
-    protected static function connect($config)
+    protected static function connect(array $config)
     {
         return static::connector($config['driver'])->connect($config);
     }
@@ -178,7 +178,7 @@ class Database
      *
      * </code>
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         return call_user_func_array([static::connection(), $method], $parameters);
     }

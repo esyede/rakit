@@ -8,9 +8,9 @@ class Valid
 {
     protected $generator;
     protected $validator;
-    protected $maxRetries;
+    protected $max_retries;
 
-    public function __construct(Generator $generator, $validator = null, $maxRetries = 10000)
+    public function __construct(Generator $generator, $validator = null, $max_retries = 10000)
     {
         if (is_null($validator)) {
             $validator = function () {
@@ -22,7 +22,7 @@ class Valid
 
         $this->generator = $generator;
         $this->validator = $validator;
-        $this->maxRetries = $maxRetries;
+        $this->max_retries = $max_retries;
     }
 
     public function __get($attribute)
@@ -30,7 +30,7 @@ class Valid
         return $this->__call($attribute, []);
     }
 
-    public function __call($name, $arguments)
+    public function __call($name, array $arguments)
     {
         $retry = 0;
 
@@ -39,9 +39,9 @@ class Valid
 
             ++$retry;
 
-            if ($retry > $this->maxRetries) {
+            if ($retry > $this->max_retries) {
                 throw new \OverflowException(sprintf(
-                    'Maximum retries of %s reached without finding a unique value.', $this->maxRetries
+                    'Maximum retries of %s reached without finding a unique value.', $this->max_retries
                 ));
             }
         } while (! call_user_func($this->validator, $result));

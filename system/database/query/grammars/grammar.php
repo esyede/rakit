@@ -44,7 +44,7 @@ class Grammar extends \System\Database\Grammar
      *
      * @return array
      */
-    final protected function components($query)
+    final protected function components(Query $query)
     {
         $sql = [];
 
@@ -64,7 +64,7 @@ class Grammar extends \System\Database\Grammar
      *
      * @return string
      */
-    final protected function concatenate($components)
+    final protected function concatenate(array $components)
     {
         return implode(' ', array_filter($components, function ($value) {
             return ('' !== (string) $value);
@@ -84,9 +84,7 @@ class Grammar extends \System\Database\Grammar
             return;
         }
 
-        $select = $query->distinct ? 'SELECT DISTINCT ' : 'SELECT ';
-
-        return $select.$this->columnize($query->selects);
+        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ').$this->columnize($query->selects);
     }
 
     /**
@@ -376,13 +374,11 @@ class Grammar extends \System\Database\Grammar
      *
      * @return string
      */
-    public function insert(Query $query, $values)
+    public function insert(Query $query, array $values)
     {
         $table = $this->wrap_table($query->from);
-
         $values = is_array(reset($values)) ? $values : [$values];
         $columns = $this->columnize(array_keys(reset($values)));
-
         $parameters = $this->parameterize(reset($values));
         $parameters = implode(', ', array_fill(0, count($values), '('.$parameters.')'));
 
@@ -398,7 +394,7 @@ class Grammar extends \System\Database\Grammar
      *
      * @return string
      */
-    public function insert_get_id(Query $query, $values, $column)
+    public function insert_get_id(Query $query, array $values, $column)
     {
         return $this->insert($query, $values);
     }
@@ -411,7 +407,7 @@ class Grammar extends \System\Database\Grammar
      *
      * @return string
      */
-    public function update(Query $query, $values)
+    public function update(Query $query, array $values)
     {
         $columns = [];
         $table = $this->wrap_table($query->from);
@@ -420,9 +416,7 @@ class Grammar extends \System\Database\Grammar
             $columns[] = $this->wrap($column).' = '.$this->parameter($value);
         }
 
-        $columns = implode(', ', $columns);
-
-        return trim('UPDATE '.$table.' SET '.$columns.' '.$this->wheres($query));
+        return trim('UPDATE '.$table.' SET '.implode(', ', $columns).' '.$this->wheres($query));
     }
 
     /**
@@ -446,7 +440,7 @@ class Grammar extends \System\Database\Grammar
      *
      * @return string
      */
-    public function shortcut($sql, &$bindings)
+    public function shortcut($sql, array &$bindings)
     {
         if (false !== strpos($sql, '(...)')) {
             for ($i = 0; $i < count($bindings); ++$i) {

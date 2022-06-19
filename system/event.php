@@ -77,9 +77,9 @@ class Event
      *
      * @param string $queue
      * @param string $key
-     * @param mixed  $data
+     * @param array  $data
      */
-    public static function queue($queue, $key, $data = [])
+    public static function queue($queue, $key, array $data = [])
     {
         static::$queued[$queue][$key] = $data;
     }
@@ -123,7 +123,7 @@ class Event
      *
      * @return mixed
      */
-    public static function first($event, $parameters = [])
+    public static function first($event, array $parameters = [])
     {
         return head(static::fire($event, $parameters));
     }
@@ -137,7 +137,7 @@ class Event
      *
      * @return mixed
      */
-    public static function until($event, $parameters = [])
+    public static function until($event, array $parameters = [])
     {
         return static::fire($event, $parameters, true);
     }
@@ -183,10 +183,9 @@ class Event
      *
      * @return array
      */
-    public static function fire($events, $parameters = [], $halt = false)
+    public static function fire($events, array $parameters = [], $halt = false)
     {
         $events = (array) $events;
-        $parameters = (array) $parameters;
         $responses = [];
 
         foreach ($events as $event) {

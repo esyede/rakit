@@ -44,9 +44,9 @@ class Middleware
      * </code>
      *
      * @param string $name
-     * @param mixed  $callback
+     * @param mixed  $handler
      */
-    public static function register($name, $callback)
+    public static function register($name, callable $handler)
     {
         if (isset(static::$aliases[$name])) {
             $name = static::$aliases[$name];
@@ -56,10 +56,10 @@ class Middleware
             $patterns = explode(', ', substr($name, 9));
 
             foreach ($patterns as $pattern) {
-                static::$patterns[$pattern] = $callback;
+                static::$patterns[$pattern] = $handler;
             }
         } else {
-            static::$middlewares[$name] = $callback;
+            static::$middlewares[$name] = $handler;
         }
     }
 
@@ -97,7 +97,7 @@ class Middleware
      *
      * @return mixed
      */
-    public static function run($collections, $pass = [], $override = false)
+    public static function run(array $collections, array $pass = [], $override = false)
     {
         foreach ($collections as $collection) {
             foreach ($collection->middlewares as $middleware) {

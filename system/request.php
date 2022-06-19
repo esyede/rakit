@@ -171,13 +171,12 @@ class Request
      */
     public static function accepts($types)
     {
+        $types = is_array($types) ? $types : func_get_args();
         $accepts = static::accept();
 
         if (count($accepts) === 0) {
             return true;
         }
-
-        $types = (array) $types;
 
         foreach ($accepts as $accept) {
             if ($accept === '*/*' || $accept === '*') {
@@ -204,7 +203,7 @@ class Request
     public function prefers($types)
     {
         $accepts = static::accept();
-        $types = (array) $types;
+        $types = is_array($types) ? $types : func_get_args();
 
         foreach ($accepts as $accept) {
             if (in_array($accept, ['*/*', '*'])) {
@@ -427,7 +426,7 @@ class Request
      *
      * @return mixed
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         return call_user_func_array([static::foundation(), $method], $parameters);
     }

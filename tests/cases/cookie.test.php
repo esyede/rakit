@@ -4,11 +4,11 @@ namespace SystemCookieTest;
 
 defined('DS') or exit('No direct script access.');
 
+use System\Config;
+use System\Cookie;
+use System\Crypter;
+use System\Request;
 use System\Foundation\Http\Request as FoundationRequest;
-use Config;
-use Cookie;
-use Crypter;
-use Request;
 
 /**
  * Override beberapa fungsi bawaan PHP untuk keperluan testing.

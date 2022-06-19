@@ -29,12 +29,7 @@ class Github extends Provider
             ).PHP_EOL);
         }
 
-        $zipball_url = str_replace(
-            ['<repository>', '<version>'],
-            [$repository, $compatible],
-            $this->zipball
-        );
-
-        parent::zipball($zipball_url, $package, $path);
+        $url = str_replace(['<repository>', '<version>'], [$repository, $compatible], $this->zipball);
+        parent::zipball($url, $package, $path);
     }
 }

@@ -14,13 +14,13 @@ class Schema
      * Mulai operasi schema terhadap tabel.
      *
      * @param string   $table
-     * @param \Closure $callback
+     * @param \Closure $builder
      */
-    public static function table($table, \Closure $callback)
+    public static function table($table, \Closure $builder)
     {
         $table = new Schema\Table($table);
 
-        call_user_func($callback, $table);
+        call_user_func($builder, $table);
 
         return static::execute($table);
     }
@@ -34,12 +34,8 @@ class Schema
      */
     public static function tables($connection = null)
     {
-        $driver = DB::connection()->driver();
-
-        if (! is_null($connection) && '' !== trim($connection)) {
-            $driver = $connection;
-        }
-
+        $connection = DB::connection($connection);
+        $driver = $connection->driver();
         $database = Config::get('database.connections.'.$driver.'.database');
         $database = DB::escape($database);
 
@@ -76,7 +72,7 @@ class Schema
         }
 
         try {
-            $statement = DB::connection()->pdo()->prepare($query);
+            $statement = $connection->pdo()->prepare($query);
             $statement->execute();
             return $statement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\PDOException $e) {
@@ -87,14 +83,15 @@ class Schema
     /**
      * List seluruh kolom milik suatu tabel saat ini.
      *
-     * @param string $table
+     * @param string      $table
+     * @param string|null $connection
      *
      * @return array
      */
-    public static function columns($table)
+    public static function columns($table, $connection = null)
     {
-        $driver = DB::connection()->driver();
-
+        $connection = DB::connection($connection);
+        $driver = $connection->driver();
         $database = Config::get('database.connections.'.$driver.'.database');
         $database = DB::escape($database);
         $table = DB::escape($table);
@@ -127,7 +124,7 @@ class Schema
         }
 
         try {
-            $statement = DB::connection()->pdo()->prepare($query);
+            $statement = $connection->pdo()->prepare($query);
             $statement->execute();
             return $statement->fetchAll(\PDO::FETCH_COLUMN);
         } catch (\PDOException $e) {
@@ -138,41 +135,43 @@ class Schema
     /**
      * Cek apakah tabel ada di database saat ini.
      *
-     * @param string $table
+     * @param string      $table
+     * @param string|null $connection
      *
      * @return bool
      */
     public static function has_table($table, $connection = null)
     {
-        $tables = static::tables($connection);
-        return in_array($table, $tables);
+        return in_array($table, static::tables($connection));
     }
 
     /**
      * Cek apakah kolom ada di suatu tabel.
      *
-     * @param string $table
-     * @param string $column
+     * @param string      $table
+     * @param string      $column
+     * @param string|null $connection
      *
      * @return bool
      */
-    public static function has_column($table, $column)
+    public static function has_column($table, $column, $connection = null)
     {
-        $columns = static::columns($table);
-        return in_array($column, $columns);
+        return in_array($column, static::columns($table, $connection));
     }
 
     /**
      * Hidupkan foreign key constraint checking.
      *
-     * @param string $table
+     * @param string      $table
+     * @param string|null $connection
      *
      * @return bool
      */
-    public static function enable_fk_checks($table)
+    public static function enable_fk_checks($table, $connection = null)
     {
         $table = DB::escape($table);
-        $driver = DB::connection()->driver();
+        $connection = DB::connection($connection);
+        $driver = $connection->driver();
 
         switch ($driver) {
             case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=1;'; break;
@@ -191,7 +190,7 @@ class Schema
         }
 
         try {
-            return false !== DB::connection()->pdo()->exec($query);
+            return false !== $connection->pdo()->exec($query);
         } catch (\PDOException $e) {
             return false;
         }
@@ -200,14 +199,16 @@ class Schema
     /**
      * Matikan foreign key constraint checking.
      *
-     * @param string $table
+     * @param string      $table
+     * @param string|null $connection
      *
      * @return bool
      */
-    public static function disable_fk_checks($table)
+    public static function disable_fk_checks($table, $connection = null)
     {
         $table = DB::escape($table);
-        $driver = DB::connection()->driver();
+        $connection = DB::connection($connection);
+        $driver = $connection->driver();
 
         switch ($driver) {
             case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=0;'; break;
@@ -225,7 +226,7 @@ class Schema
         }
 
         try {
-            return false !== DB::connection()->pdo()->exec($query);
+            return false !== $connection->pdo()->exec($query);
         } catch (\PDOException $e) {
             return false;
         }
@@ -235,14 +236,14 @@ class Schema
      * Buat skema tabel baru.
      *
      * @param string   $table
-     * @param \Closure $callback
+     * @param \Closure $builder
      */
-    public static function create($table, \Closure $callback)
+    public static function create($table, \Closure $builder)
     {
         $table = new Schema\Table($table);
         $table->create();
 
-        call_user_func($callback, $table);
+        call_user_func($builder, $table);
 
         return static::execute($table);
     }
@@ -251,12 +252,12 @@ class Schema
      * Buat skema tabel baru jika tabel belum ada.
      *
      * @param string   $table
-     * @param \Closure $callback
+     * @param \Closure $builder
      */
-    public static function create_if_not_exists($table, \Closure $callback)
+    public static function create_if_not_exists($table, \Closure $builder)
     {
         if (! static::has_table($table)) {
-            static::create($table, $callback);
+            static::create($table, $builder);
         }
     }
 

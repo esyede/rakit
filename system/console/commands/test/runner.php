@@ -25,7 +25,7 @@ class Runner extends Command
      *
      * @return void
      */
-    public function run($packages = [])
+    public function run(array $packages = [])
     {
         $packages = is_array($packages) ? $packages : [$packages];
         $packages = (0 === count($packages)) ? [DEFAULT_PACKAGE] : $packages;
@@ -51,7 +51,7 @@ class Runner extends Command
      *
      * @return void
      */
-    public function package($packages = [])
+    public function package(array $packages = [])
     {
         $packages = is_array($packages) ? $packages : [$packages];
         $packages = (0 === count($packages)) ? Package::names() : $packages;

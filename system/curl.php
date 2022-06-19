@@ -85,7 +85,6 @@ class Curl
         }
 
         $curl = curl_init();
-
         curl_setopt_array($curl, [
            CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
            CURLOPT_SSL_VERIFYHOST => 0,
@@ -211,7 +210,6 @@ class Curl
         }
 
         $curl = curl_init();
-
         curl_setopt_array($curl, [
             CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
             CURLOPT_SSL_VERIFYHOST => 0,

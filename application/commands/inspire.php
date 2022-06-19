@@ -11,7 +11,7 @@ class Inspire_Command extends Command
      *
      * @return void
      */
-    public function run($arguments = [])
+    public function run(array $arguments = [])
     {
         $quotes = $this->quotes();
         $quotes = $quotes[rand(0, count($quotes) - 1)];

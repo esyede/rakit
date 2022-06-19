@@ -176,7 +176,7 @@ class Table
      */
     public function key($type, $columns, $name)
     {
-        $columns = (array) $columns;
+        $columns = is_array($columns) ? $columns : [$columns];
 
         if (is_null($name)) {
             $name = str_replace(['-', '.'], '_', $this->name);
@@ -215,7 +215,8 @@ class Table
      */
     public function drop_column($columns)
     {
-        return $this->command('drop_column', ['columns' => (array) $columns]);
+        $columns = is_array($columns) ? $columns : [$columns];
+        return $this->command('drop_column', compact('columns'));
     }
 
     /**
@@ -444,7 +445,7 @@ class Table
      *
      * @return Magic
      */
-    protected function command($type, $parameters = [])
+    protected function command($type, array $parameters = [])
     {
         $parameters = array_merge(compact('type'), $parameters);
         return $this->commands[] = new Magic($parameters);
@@ -458,7 +459,7 @@ class Table
      *
      * @return Magic
      */
-    protected function column($type, $parameters = [])
+    protected function column($type, array $parameters = [])
     {
         $parameters = array_merge(compact('type'), $parameters);
         return $this->columns[] = new Magic($parameters);

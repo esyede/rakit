@@ -281,7 +281,7 @@ class Input
      * @param string $filter
      * @param array  $keys
      */
-    public static function flash($filter = null, $keys = [])
+    public static function flash($filter = null, array $keys = [])
     {
         $flash = is_null($filter) ? static::get() : static::{$filter}($keys);
         Session::flash(Input::OLD, $flash);
@@ -298,21 +298,21 @@ class Input
     /**
      * Merge data baru ke array data inputan saat ini.
      *
-     * @param array $input
+     * @param array $inputs
      */
-    public static function merge(array $input)
+    public static function merge(array $inputs)
     {
-        Request::foundation()->request->add($input);
+        Request::foundation()->request->add($inputs);
     }
 
     /**
      * Replace data inputan saat ini.
      *
-     * @param array $input
+     * @param array $inputs
      */
-    public static function replace(array $input)
+    public static function replace(array $inputs)
     {
-        Request::foundation()->request->replace($input);
+        Request::foundation()->request->replace($inputs);
     }
 
     /**

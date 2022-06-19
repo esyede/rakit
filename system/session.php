@@ -133,7 +133,7 @@ class Session
      *
      * </code>
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         return call_user_func_array([static::instance(), $method], $parameters);
     }

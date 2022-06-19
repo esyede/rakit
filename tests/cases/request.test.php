@@ -66,7 +66,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
-        Request::$foundation = FoundationRequest::createFromGlobals();
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
     }
 
     /**

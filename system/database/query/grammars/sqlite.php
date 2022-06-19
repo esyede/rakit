@@ -36,7 +36,7 @@ class SQLite extends Grammar
      *
      * @return string
      */
-    public function insert(Query $query, $values)
+    public function insert(Query $query, array $values)
     {
         $table = $this->wrap_table($query->from);
         $values = is_array(reset($values)) ? $values : [$values];

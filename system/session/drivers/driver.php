@@ -25,7 +25,7 @@ abstract class Driver
      * @param array $config
      * @param bool  $exists
      */
-    abstract public function save($session, $config, $exists);
+    abstract public function save(array $session, array $config, $exists);
 
     /**
      * Hapus session berdasarkan ID yang diberikan.

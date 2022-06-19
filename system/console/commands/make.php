@@ -30,7 +30,7 @@ class Make extends Command
      *
      * @return void
      */
-    public function controller($arguments = [])
+    public function controller(array $arguments = [])
     {
         if (0 === count($arguments)) {
             throw new \Exception('I need to know what to name the file to be make.');
@@ -95,7 +95,7 @@ class Make extends Command
      *
      * @return void
      */
-    public function resource($arguments = [])
+    public function resource(array $arguments = [])
     {
         if (0 === count($arguments)) {
             throw new \Exception('I need to know what to name the file to be make.');
@@ -158,7 +158,7 @@ class Make extends Command
      *
      * @return void
      */
-    public function model($arguments = [])
+    public function model(array $arguments = [])
     {
         if (0 === count($arguments)) {
             throw new \Exception('I need to know what to name the file to be make.');
@@ -210,7 +210,7 @@ class Make extends Command
      *
      * @return string
      */
-    public function migration($arguments = [])
+    public function migration(array $arguments = [])
     {
         if (0 === count($arguments)) {
             throw new \Exception('I need to know what to name the migration.');
@@ -254,7 +254,7 @@ class Make extends Command
      *
      * @return void
      */
-    public function command($arguments = [])
+    public function command(array $arguments = [])
     {
         if (0 === count($arguments)) {
             throw new \Exception('I need to know what to name the file to be make.');
@@ -319,7 +319,7 @@ class Make extends Command
      *
      * @return void
      */
-    public function test($arguments = [])
+    public function test(array $arguments = [])
     {
         if (0 === count($arguments)) {
             throw new \Exception('I need to know what to name the file to be make.');

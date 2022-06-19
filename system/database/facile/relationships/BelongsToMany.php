@@ -84,7 +84,7 @@ class BelongsToMany extends Relationship
      *
      * @return bool
      */
-    public function attach($id, $attributes = [])
+    public function attach($id, array $attributes = [])
     {
         $id = ($id instanceof Model) ? $id->get_key() : $id;
         $joining = array_merge($this->join_record($id), $attributes);
@@ -119,8 +119,8 @@ class BelongsToMany extends Relationship
      */
     public function sync($ids)
     {
+        $ids = is_array($ids) ? $ids : func_get_args();
         $current = $this->pivot()->lists($this->other_key());
-        $ids = (array) $ids;
 
         foreach ($ids as $id) {
             if (! in_array($id, $current)) {
@@ -143,7 +143,7 @@ class BelongsToMany extends Relationship
      *
      * @return bool
      */
-    public function insert($attributes, $joining = [])
+    public function insert($attributes, array $joining = [])
     {
         $attributes = ($attributes instanceof Model) ? $attributes->attributes : $attributes;
         $model = $this->model->create($attributes);
@@ -186,7 +186,7 @@ class BelongsToMany extends Relationship
      *
      * @param array $attributes
      */
-    protected function insert_joining($attributes)
+    protected function insert_joining(array $attributes)
     {
         if (Pivot::$timestamps) {
             $attributes['created_at'] = new \DateTime();
@@ -265,7 +265,7 @@ class BelongsToMany extends Relationship
      * @param array  $parents
      * @param string $relationship
      */
-    public function initialize(&$parents, $relationship)
+    public function initialize(array &$parents, $relationship)
     {
         foreach ($parents as &$parent) {
             $parent->relationships[$relationship] = [];
@@ -277,7 +277,7 @@ class BelongsToMany extends Relationship
      *
      * @param array $results
      */
-    public function eagerly_constrain($results)
+    public function eagerly_constrain(array $results)
     {
         $this->table->where_in($this->joining.'.'.$this->foreign_key(), $this->keys($results));
     }
@@ -286,15 +286,15 @@ class BelongsToMany extends Relationship
      * Cocokkan model anak yang di eagerload dengan model induknya.
      *
      * @param array $parents
-     * @param array $children
+     * @param array $childrens
      */
-    public function match($relationship, &$parents, $children)
+    public function match($relationship, array &$parents, array $childrens)
     {
         $foreign = $this->foreign_key();
         $dictionary = [];
 
-        foreach ($children as $child) {
-            $dictionary[$child->pivot->{$foreign}][] = $child;
+        foreach ($childrens as $children) {
+            $dictionary[$children->pivot->{$foreign}][] = $child;
         }
 
         foreach ($parents as $parent) {
@@ -309,7 +309,7 @@ class BelongsToMany extends Relationship
      *
      * @param array $results
      */
-    protected function hydrate_pivot(&$results)
+    protected function hydrate_pivot(array &$results)
     {
         foreach ($results as &$result) {
             $pivot = new Pivot($this->joining, $this->model->connection());
@@ -337,7 +337,6 @@ class BelongsToMany extends Relationship
     public function with($columns)
     {
         $columns = is_array($columns) ? $columns : func_get_args();
-
         $this->with = array_unique(array_merge($this->with, $columns));
         $this->set_select($this->foreign_key(), $this->other_key());
 

@@ -2,13 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Foundation\Http\Request as FoundationRequest;
-
-use System\Str;
-use System\Auth;
-use System\Cookie;
-use System\Session;
-use System\Crypter;
 use System\Session\Payload;
 
 class AuthTest extends \PHPUnit_Framework_TestCase
@@ -75,7 +68,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
-        Request::$foundation = FoundationRequest::createFromGlobals();
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
     }
 
     /**
@@ -205,7 +198,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertFalse(Auth::attempt(['username' => 'foo', 'password' => 'foo']));
         $this->assertFalse(Auth::attempt(['username' => 'foo', 'password' => null]));
-        // $this->assertFalse(Auth::attempt(['username' => null, 'password' => null])); // error InvalidArgumentException dari perubahan where() yang baru
+        $this->assertFalse(Auth::attempt(['username' => null, 'password' => null]));
         $this->assertFalse(Auth::attempt(['username' => 'budi', 'password' => 'password']));
         $this->assertFalse(Auth::attempt(['username' => 'budi', 'password' => 232]));
     }

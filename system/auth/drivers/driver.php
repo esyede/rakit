@@ -91,7 +91,7 @@ abstract class Driver
      *
      * @param array $arguments
      */
-    abstract public function attempt($arguments = []);
+    abstract public function attempt(array $arguments = []);
 
     /**
      * Loginkan user berdasarkan token miliknya.

@@ -23,13 +23,13 @@ abstract class Provider
     /**
      * Download dan ekstrak arsip paket yang diberikan.
      *
-     * @param string $zipball_url
+     * @param string $url
      * @param array  $package
      * @param string $path
      *
      * @return void
      */
-    protected function zipball($zipball_url, $package, $path)
+    protected function zipball($url, $package, $path)
     {
         $storage = path('storage').'console'.DS;
         $extractions = $storage.'extractions'.DS;
@@ -40,7 +40,7 @@ abstract class Provider
         }
 
         echo PHP_EOL.'Downloading zipball...';
-        $this->download($zipball_url, $zipball);
+        $this->download($url, $zipball);
         echo ' done!';
 
         echo PHP_EOL.'Extracting zipball...';
@@ -61,14 +61,14 @@ abstract class Provider
     /**
      * Download arsip zip milik sebuah paket.
      *
-     * @param string $zipball_url
+     * @param string $url
      * @param string $destination
      */
-    protected function download($zipball_url, $destination)
+    protected function download($url, $destination)
     {
         Storage::delete($destination);
         $options = [CURLOPT_FOLLOWLOCATION => 1, CURLOPT_HEADER => 1, CURLOPT_NOBODY => 1];
-        $remote = Curl::get($zipball_url, [], $options);
+        $remote = Curl::get($url, [], $options);
         $content_type = isset_or($remote->header->content_type, null);
 
         if ('application/zip' !== $content_type) {
@@ -81,7 +81,7 @@ abstract class Provider
         unset($options[CURLOPT_HEADER], $options[CURLOPT_NOBODY]);
 
         try {
-            Curl::download($zipball_url, $destination, $options);
+            Curl::download($url, $destination, $options);
         } catch (\Throwable $e) {
             throw new \Exception(PHP_EOL.'Error: '.$e->getMessage());
         } catch (\Exception $e) {
@@ -105,7 +105,7 @@ abstract class Provider
             Storage::mkdir($destination, 0777);
         }
 
-        if (extension_loaded('zip') && class_exists('ZipArchive')) {
+        if (extension_loaded('zip') && class_exists('\ZipArchive')) {
             $zip = new \ZipArchive();
             $open = $zip->open($file);
 

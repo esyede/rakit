@@ -25,9 +25,9 @@ class Messages
      *
      * @param array $messages
      */
-    public function __construct($messages = [])
+    public function __construct(array $messages = [])
     {
-        $this->messages = (array) $messages;
+        $this->messages = $messages;
     }
 
     /**
@@ -208,10 +208,8 @@ class Messages
      *
      * @return array
      */
-    protected function transform($messages, $format)
+    protected function transform(array $messages, $format)
     {
-        $messages = (array) $messages;
-
         foreach ($messages as $key => &$message) {
             $message = str_replace(':message', $message, $format);
         }

@@ -7,13 +7,13 @@ defined('DS') or exit('No direct script access.');
 class Unique
 {
     protected $generator;
-    protected $maxRetries;
+    protected $max_retries;
     protected $uniques = [];
 
-    public function __construct(Generator $generator, $maxRetries = 10000)
+    public function __construct(Generator $generator, $max_retries = 10000)
     {
         $this->generator = $generator;
-        $this->maxRetries = $maxRetries;
+        $this->max_retries = $max_retries;
     }
 
     public function __get($attribute)
@@ -21,7 +21,7 @@ class Unique
         return $this->__call($attribute, []);
     }
 
-    public function __call($name, $arguments)
+    public function __call($name, array $arguments)
     {
         if (! isset($this->uniques[$name])) {
             $this->uniques[$name] = [];
@@ -34,9 +34,9 @@ class Unique
 
             ++$retry;
 
-            if ($retry > $this->maxRetries) {
+            if ($retry > $this->max_retries) {
                 throw new \OverflowException(sprintf(
-                    'Maximum retries of %s reached without finding a unique value.', $this->maxRetries
+                    'Maximum retries of %s reached without finding a unique value.', $this->max_retries
                 ));
             }
         } while (array_key_exists(serialize($result), $this->uniques[$name]));

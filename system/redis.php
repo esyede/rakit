@@ -104,9 +104,9 @@ class Redis
      *
      * @return mixed
      */
-    public function run($method, $parameters)
+    public function run($method, array $parameters)
     {
-        fwrite($this->connect(), $this->command($method, (array) $parameters));
+        fwrite($this->connect(), $this->command($method, $parameters));
         return $this->parse(trim(fgets($this->connection, 512)));
     }
 
@@ -168,7 +168,7 @@ class Redis
      *
      * @return string
      */
-    protected function command($method, $parameters)
+    protected function command($method, array $parameters)
     {
         $command = '*'.(count($parameters) + 1).CRLF.'$'.mb_strlen($method, '8bit').CRLF.strtoupper($method).CRLF;
 
@@ -244,7 +244,7 @@ class Redis
     /**
      * Tangani pemanggilan method secara dinamis.
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         return $this->run($method, $parameters);
     }
@@ -252,7 +252,7 @@ class Redis
     /**
      * Tangani pemanggilan static method secara dinamis.
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         return static::db()->run($method, $parameters);
     }

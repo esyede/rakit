@@ -287,10 +287,10 @@ class Base
         return (mt_rand() / mt_getrandmax() <= $weight) ? $this->generator : new Common($default);
     }
 
-    public function unique($reset = false, $maxRetries = 10000)
+    public function unique($reset = false, $max_retries = 10000)
     {
         if ($reset || ! $this->unique) {
-            $this->unique = new Unique($this->generator, $maxRetries);
+            $this->unique = new Unique($this->generator, $max_retries);
         }
 
         return $this->unique;

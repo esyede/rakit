@@ -62,7 +62,7 @@ class Redirect extends Response
      *
      * @return Redirect
      */
-    public static function to_action($action, $parameters = [], $status = 302)
+    public static function to_action($action, array $parameters = [], $status = 302)
     {
         return static::to(URL::to_action($action, $parameters), $status);
     }
@@ -86,7 +86,7 @@ class Redirect extends Response
      *
      * @return Redirect
      */
-    public static function to_route($route, $parameters = [], $status = 302)
+    public static function to_route($route, array $parameters = [], $status = 302)
     {
         return static::to(URL::to_route($route, $parameters), $status);
     }
@@ -139,7 +139,7 @@ class Redirect extends Response
      *
      * @return Redirect
      */
-    public function with_input($filter = null, $items = [])
+    public function with_input($filter = null, array $items = [])
     {
         Input::flash($filter, $items);
         return $this;

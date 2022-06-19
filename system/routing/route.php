@@ -69,10 +69,10 @@ class Route
      *
      * @param string $method
      * @param string $uri
-     * @param array  $action
+     * @param string $action
      * @param array  $parameters
      */
-    public function __construct($method, $uri, $action, $parameters = [])
+    public function __construct($method, $uri, $action, array $parameters = [])
     {
         $this->uri = $uri;
         $this->method = $method;
@@ -88,7 +88,7 @@ class Route
      * @param array $action
      * @param array $parameters
      */
-    protected function parameters($action, $parameters)
+    protected function parameters($action, array $parameters)
     {
         $defaults = (array) Arr::get($action, 'defaults');
 
@@ -332,12 +332,12 @@ class Route
     /**
      * Daftarkan sebuah middleware.
      *
-     * @param string $name
-     * @param mixed  $callback
+     * @param string   $name
+     * @param callable $handler
      */
-    public static function middleware($name, $callback)
+    public static function middleware($name, callable $handler)
     {
-        Middleware::register($name, $callback);
+        Middleware::register($name, $handler);
     }
 
     /**
@@ -362,7 +362,7 @@ class Route
      *
      * @return \System\View
      */
-    public static function view($route, $view, $data = [])
+    public static function view($route, $view, array $data = [])
     {
         static::get($route, function () use ($view, $data) {
             return View::make($view, $data);

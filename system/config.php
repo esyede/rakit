@@ -80,7 +80,6 @@ class Config
         }
 
         $items = static::$items[$package][$file];
-
         return is_null($item) ? $items : Arr::get($items, $item, $default);
     }
 

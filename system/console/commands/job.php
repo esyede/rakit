@@ -21,7 +21,7 @@ class Job extends Command
     public function run($names = [])
     {
         $config = Config::get('job');
-        $names = is_array($names) ? $names : [$names];
+        $names = is_array($names) ? $names : func_get_args();
 
         if (empty($names)) {
             if (Request::cli()) {

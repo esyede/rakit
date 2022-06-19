@@ -108,7 +108,7 @@ abstract class Controller
      *
      * @return Response
      */
-    public static function call($destination, $parameters = [])
+    public static function call($destination, array $parameters = [])
     {
         static::references($destination, $parameters);
 
@@ -136,7 +136,7 @@ abstract class Controller
      *
      * @return array
      */
-    protected static function references(&$destination, &$parameters)
+    protected static function references(&$destination, array &$parameters)
     {
         foreach ($parameters as $key => $value) {
             if (! is_string($value)) {
@@ -219,7 +219,7 @@ abstract class Controller
      *
      * @return Response
      */
-    public function execute($method, $parameters = [])
+    public function execute($method, array $parameters = [])
     {
         $middlewares = $this->middlewares('before', $method);
         $response = Middleware::run($middlewares, [], true);
@@ -249,7 +249,7 @@ abstract class Controller
      *
      * @return mixed
      */
-    public function response($method, $parameters = [])
+    public function response($method, array $parameters = [])
     {
         $action = $this->restful ? strtolower(Request::method()).'_'.$method : 'action_'.$method;
         $response = call_user_func_array([$this, $action], $parameters);
@@ -347,9 +347,9 @@ abstract class Controller
      *
      * @return Response
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
-        return Response::error('404');
+        return Response::error(404);
     }
 
     /**
@@ -371,8 +371,6 @@ abstract class Controller
      */
     public function __get($key)
     {
-        if (Container::registered($key)) {
-            return Container::resolve($key);
-        }
+        return Container::registered($key) ? Container::resolve($key) : null;
     }
 }

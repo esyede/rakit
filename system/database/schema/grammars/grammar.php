@@ -24,7 +24,8 @@ abstract class Grammar extends BaseGrammar
         $table = $this->wrap($table);
         $on = $this->wrap_table($command->on);
         $foreign = $this->columnize($command->columns);
-        $referenced = $this->columnize((array) $command->references);
+        $references = is_array($command->references) ? $command->references : [$command->references];
+        $referenced = $this->columnize($references);
 
         $sql = 'ALTER TABLE '.$table.' ADD CONSTRAINT '.$name.' ';
         $sql .= 'FOREIGN KEY ('.$foreign.') REFERENCES '.$on.' ('.$referenced.')';

@@ -44,10 +44,9 @@ class SQLite extends Grammar
      */
     public function add(Table $table, Magic $command)
     {
-        $columns = $this->columns($table);
         $columns = array_map(function ($column) {
             return 'ADD COLUMN '.$column;
-        }, $columns);
+        }, $this->columns($table));
 
         $sql = [];
 
@@ -71,11 +70,9 @@ class SQLite extends Grammar
 
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
-
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
             $sql .= $this->incrementer($table, $column);
-
             $columns[] = $sql;
         }
 

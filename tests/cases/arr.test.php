@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Arr;
-
 class ArrTest extends \PHPUnit_Framework_TestCase
 {
     /**

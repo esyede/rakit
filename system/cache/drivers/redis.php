@@ -46,9 +46,8 @@ class Redis extends Driver
      */
     protected function retrieve($key)
     {
-        if (! is_null($cache = $this->redis->get($key))) {
-            return unserialize($cache);
-        }
+        $cache = $this->redis->get($key);
+        return is_null($cache) ? null : unserialize($cache);
     }
 
     /**

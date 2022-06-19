@@ -2,10 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Routing\Router;
-use System\Request;
-use System\Foundation\Http\Request as FoundationRequest;
-
 class URLTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -186,6 +182,6 @@ class URLTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
-        Request::$foundation = FoundationRequest::createFromGlobals();
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
     }
 }

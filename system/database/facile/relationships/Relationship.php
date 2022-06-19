@@ -65,7 +65,7 @@ abstract class Relationship extends Query
      *
      * @return Model
      */
-    protected function fresh_model($attributes = [])
+    protected function fresh_model(array $attributes = [])
     {
         $class = get_class($this->model);
         return new $class($attributes);
@@ -84,11 +84,11 @@ abstract class Relationship extends Query
     /**
      * Kumpulkan seluruh primary key dari sebuuh result set.
      *
-     * @param array $results
+     * @param Model|array $results
      *
      * @return array
      */
-    public function keys($results)
+    public function keys(array $results)
     {
         $keys = [];
 
@@ -108,7 +108,7 @@ abstract class Relationship extends Query
      */
     public function with($with)
     {
-        $this->model->with = (array) $with;
+        $this->model->with = is_array($with) ? $with : func_get_args();
         return $this;
     }
 }

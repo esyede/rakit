@@ -34,7 +34,7 @@ class Facile extends Driver
      *
      * @return bool
      */
-    public function attempt($arguments = [])
+    public function attempt(array $arguments = [])
     {
         $user = $this->model()->where(function ($query) use ($arguments) {
             $username = Config::get('auth.username');

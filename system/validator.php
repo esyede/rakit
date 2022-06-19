@@ -83,7 +83,7 @@ class Validator
      * @param array $rules
      * @param array $messages
      */
-    public function __construct($attributes, $rules, $messages = [])
+    public function __construct($attributes, $rules, array $messages = [])
     {
         foreach ($rules as $key => &$rule) {
             $rule = is_string($rule) ? explode('|', $rule) : $rule;
@@ -103,7 +103,7 @@ class Validator
      *
      * @return Validator
      */
-    public static function make($attributes, $rules, $messages = [])
+    public static function make($attributes, $rules, array $messages = [])
     {
         return new static($attributes, $rules, $messages);
     }
@@ -222,7 +222,7 @@ class Validator
      * @param string $rule
      * @param array  $parameters
      */
-    protected function error($attribute, $rule, $parameters)
+    protected function error($attribute, $rule, array $parameters)
     {
         $target = $this->message($attribute, $rule);
         $message = $this->replace($target, $attribute, $rule, $parameters);
@@ -263,7 +263,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_required_with($attribute, $value, $parameters)
+    protected function validate_required_with($attribute, $value, array $parameters)
     {
         $other = Arr::get($this->attributes, $parameters[0]);
         return $this->validate_required($parameters[0], $other)
@@ -321,7 +321,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_same($attribute, $value, $parameters)
+    protected function validate_same($attribute, $value, array $parameters)
     {
         return array_key_exists($parameters[0], $this->attributes)
             && ($value === $this->attributes[$parameters[0]]);
@@ -336,7 +336,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_different($attribute, $value, $parameters)
+    protected function validate_different($attribute, $value, array $parameters)
     {
         return array_key_exists($parameters[0], $this->attributes)
             && ($value !== $this->attributes[$parameters[0]]);
@@ -377,13 +377,13 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_size($attribute, $value, $parameters)
+    protected function validate_size($attribute, $value, array $parameters)
     {
         if (! is_numeric($parameters[0])) {
             return false;
         }
 
-        // '==' memang disengaja.
+        // '==' memang disengaja untuk loose comparison.
         return $this->size($attribute, $value) == $parameters[0];
     }
 
@@ -396,7 +396,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_between($attribute, $value, $parameters)
+    protected function validate_between($attribute, $value, array $parameters)
     {
         $size = $this->size($attribute, $value);
         return ($size >= $parameters[0] && $size <= $parameters[1]);
@@ -411,7 +411,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_min($attribute, $value, $parameters)
+    protected function validate_min($attribute, $value, array $parameters)
     {
         return $this->size($attribute, $value) >= $parameters[0];
     }
@@ -425,7 +425,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_max($attribute, $value, $parameters)
+    protected function validate_max($attribute, $value, array $parameters)
     {
         return $this->size($attribute, $value) <= $parameters[0];
     }
@@ -458,7 +458,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_in($attribute, $value, $parameters)
+    protected function validate_in($attribute, $value, array $parameters)
     {
         return in_array($value, $parameters);
     }
@@ -472,7 +472,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_not_in($attribute, $value, $parameters)
+    protected function validate_not_in($attribute, $value, array $parameters)
     {
         return ! in_array($value, $parameters);
     }
@@ -487,7 +487,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_unique($attribute, $value, $parameters)
+    protected function validate_unique($attribute, $value, array $parameters)
     {
         if (isset($parameters[1])) {
             $attribute = $parameters[1];
@@ -512,7 +512,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_exists($attribute, $value, $parameters)
+    protected function validate_exists($attribute, $value, array $parameters)
     {
         $attribute = isset($parameters[1]) ? $parameters[1] : $attribute;
         $count = is_array($value) ? count($value) : 1;
@@ -696,7 +696,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_match($attribute, $value, $parameters)
+    protected function validate_match($attribute, $value, array $parameters)
     {
         return preg_match($parameters[0], $value);
     }
@@ -710,7 +710,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_mimes($attribute, $value, $parameters)
+    protected function validate_mimes($attribute, $value, array $parameters)
     {
         if (! is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
             return true;
@@ -748,7 +748,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_count($attribute, $value, $parameters)
+    protected function validate_count($attribute, $value, array $parameters)
     {
         return ($this->validate_array($attribute, $value) && $parameters[0] === count($value));
     }
@@ -763,7 +763,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_countmin($attribute, $value, $parameters)
+    protected function validate_countmin($attribute, $value, array $parameters)
     {
         return ($this->validate_array($attribute, $value) && count($value) >= $parameters[0]);
     }
@@ -778,7 +778,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_countmax($attribute, $value, $parameters)
+    protected function validate_countmax($attribute, $value, array $parameters)
     {
         return ($this->validate_array($attribute, $value) && count($value) <= $parameters[0]);
     }
@@ -793,7 +793,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_countbetween($attribute, $value, $parameters)
+    protected function validate_countbetween($attribute, $value, array $parameters)
     {
         return ($this->validate_array($attribute, $value)
             && count($value) >= $parameters[0] && count($value) <= $parameters[1]);
@@ -808,7 +808,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_before($attribute, $value, $parameters)
+    protected function validate_before($attribute, $value, array $parameters)
     {
         return strtotime($value) < strtotime($parameters[0]);
     }
@@ -822,7 +822,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_before_or_equals($attribute, $value, $parameters)
+    protected function validate_before_or_equals($attribute, $value, array $parameters)
     {
         return strtotime($value) <= strtotime($parameters[0]);
     }
@@ -836,7 +836,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_after($attribute, $value, $parameters)
+    protected function validate_after($attribute, $value, array $parameters)
     {
         return strtotime($value) > strtotime($parameters[0]);
     }
@@ -850,7 +850,7 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_date_format($attribute, $value, $parameters)
+    protected function validate_date_format($attribute, $value, array $parameters)
     {
         return false !== date_create_from_format($parameters[0], $value);
     }
@@ -915,7 +915,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace($message, $attribute, $rule, $parameters)
+    protected function replace($message, $attribute, $rule, array $parameters)
     {
         $message = str_replace(':attribute', $this->attribute($attribute), $message);
         $method = 'replace_'.$rule;
@@ -937,7 +937,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_required_with($message, $attribute, $rule, $parameters)
+    protected function replace_required_with($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':field', $this->attribute($parameters[0]), $message);
     }
@@ -952,7 +952,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_between($message, $attribute, $rule, $parameters)
+    protected function replace_between($message, $attribute, $rule, array $parameters)
     {
         return str_replace([':min', ':max'], $parameters, $message);
     }
@@ -967,7 +967,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_size($message, $attribute, $rule, $parameters)
+    protected function replace_size($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':size', $parameters[0], $message);
     }
@@ -982,7 +982,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_min($message, $attribute, $rule, $parameters)
+    protected function replace_min($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':min', $parameters[0], $message);
     }
@@ -997,7 +997,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_max($message, $attribute, $rule, $parameters)
+    protected function replace_max($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':max', $parameters[0], $message);
     }
@@ -1012,7 +1012,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_in($message, $attribute, $rule, $parameters)
+    protected function replace_in($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':values', implode(', ', $parameters), $message);
     }
@@ -1027,7 +1027,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_not_in($message, $attribute, $rule, $parameters)
+    protected function replace_not_in($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':values', implode(', ', $parameters), $message);
     }
@@ -1042,7 +1042,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_mimes($message, $attribute, $rule, $parameters)
+    protected function replace_mimes($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':values', implode(', ', $parameters), $message);
     }
@@ -1057,7 +1057,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_same($message, $attribute, $rule, $parameters)
+    protected function replace_same($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':other', $this->attribute($parameters[0]), $message);
     }
@@ -1072,7 +1072,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_different($message, $attribute, $rule, $parameters)
+    protected function replace_different($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':other', $this->attribute($parameters[0]), $message);
     }
@@ -1087,7 +1087,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_before($message, $attribute, $rule, $parameters)
+    protected function replace_before($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':date', $parameters[0], $message);
     }
@@ -1102,7 +1102,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_before_or_equals($message, $attribute, $rule, $parameters)
+    protected function replace_before_or_equals($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':date', $parameters[0], $message);
     }
@@ -1117,7 +1117,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_after($message, $attribute, $rule, $parameters)
+    protected function replace_after($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':date', $parameters[0], $message);
     }
@@ -1132,7 +1132,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_count($message, $attribute, $rule, $parameters)
+    protected function replace_count($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':count', $parameters[0], $message);
     }
@@ -1147,7 +1147,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_countmin($message, $attribute, $rule, $parameters)
+    protected function replace_countmin($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':min', $parameters[0], $message);
     }
@@ -1162,7 +1162,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_countmax($message, $attribute, $rule, $parameters)
+    protected function replace_countmax($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':max', $parameters[0], $message);
     }
@@ -1177,7 +1177,7 @@ class Validator
      *
      * @return string
      */
-    protected function replace_countbetween($message, $attribute, $rule, $parameters)
+    protected function replace_countbetween($message, $attribute, $rule, array $parameters)
     {
         return str_replace([':min', ':max'], $parameters, $message);
     }

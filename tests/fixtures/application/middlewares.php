@@ -41,7 +41,7 @@ Route::middleware('after', function ($response) {
 
 Route::middleware('csrf', function () {
     if (Request::forged()) {
-        return Response::error('500');
+        return Response::error(422);
     }
 });
 

@@ -18,7 +18,12 @@ Route::get('/, home', ['as' => 'home', function () {
 }]);
 
 Route::controller([
-    'auth', 'middleware', 'home', 'restful',
-    'template.basic', 'template.name', 'template.override',
+    'auth',
+    'middleware',
+    'home',
+    'restful',
+    'template.basic',
+    'template.name',
+    'template.override',
     'admin.panel',
 ]);

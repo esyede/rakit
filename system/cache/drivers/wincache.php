@@ -44,9 +44,8 @@ class WinCache extends Driver
      */
     protected function retrieve($key)
     {
-        if (false !== ($cache = wincache_ucache_get($this->key.$key))) {
-            return $cache;
-        }
+        $cache = wincache_ucache_get($this->key.$key);
+        return (false === $cache) ? null : $cache;
     }
 
     /**

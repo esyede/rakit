@@ -33,10 +33,9 @@ class Postgres extends Grammar
      */
     public function add(Table $table, Magic $command)
     {
-        $columns = $this->columns($table);
         $columns = implode(', ', array_map(function ($column) {
             return 'ADD COLUMN '.$column;
-        }, $columns));
+        }, $this->columns($table)));
 
         return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
     }
@@ -54,11 +53,9 @@ class Postgres extends Grammar
 
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
-
             $sql .= $this->incrementer($table, $column);
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
-
             $columns[] = $sql;
         }
 
@@ -148,10 +145,8 @@ class Postgres extends Grammar
      */
     public function fulltext(Table $table, Magic $command)
     {
-        $name = $command->name;
         $columns = $this->columnize($command->columns);
-
-        return 'CREATE INDEX '.$name.' ON '.$this->wrap($table).' USING gin('.$columns.')';
+        return 'CREATE INDEX '.$command->name.' ON '.$this->wrap($table).' USING gin('.$columns.')';
     }
 
     /**

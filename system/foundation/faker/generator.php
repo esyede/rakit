@@ -34,7 +34,7 @@ class Generator
         }
     }
 
-    public function format($formatter, $arguments = [])
+    public function format($formatter, array $arguments = [])
     {
         return call_user_func_array($this->getFormatter($formatter), $arguments);
     }
@@ -70,7 +70,7 @@ class Generator
         return $this->format($attribute);
     }
 
-    public function __call($method, $attributes)
+    public function __call($method, array $attributes)
     {
         return $this->format($method, $attributes);
     }

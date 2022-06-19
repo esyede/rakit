@@ -116,7 +116,7 @@ class Console
      *
      * @return array
      */
-    public static function options($argv)
+    public static function options(array $argv)
     {
         $options = [];
         $arguments = [];

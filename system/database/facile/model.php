@@ -133,7 +133,7 @@ abstract class Model
      * @param array $attributes
      * @param bool  $exists
      */
-    public function __construct($attributes = [], $exists = false)
+    public function __construct(array $attributes = [], $exists = false)
     {
         $this->exists = $exists;
         $this->fill($attributes);
@@ -235,9 +235,9 @@ abstract class Model
      *
      * @param array $attributes
      */
-    public static function fillable($attributes = null)
+    public static function fillable(array $attributes = null)
     {
-        if (is_null($attributes)) {
+        if (is_null($attributes) || count($attributes) <= 0) {
             return static::$fillable;
         }
 
@@ -252,7 +252,7 @@ abstract class Model
      *
      * @return Model|false
      */
-    public static function create($attributes)
+    public static function create(array $attributes)
     {
         $model = new static($attributes);
         return $model->save() ? $model : false;
@@ -266,7 +266,7 @@ abstract class Model
      *
      * @return int
      */
-    public static function update($id, $attributes)
+    public static function update($id, array $attributes)
     {
         $model = new static([], true);
         $model->fill($attributes);
@@ -297,7 +297,7 @@ abstract class Model
      */
     public function _with($with)
     {
-        $this->with = (array) $with;
+        $this->with = is_array($with) ? $with : func_get_args();
         return $this;
     }
 
@@ -661,12 +661,12 @@ abstract class Model
      */
     public function __isset($key)
     {
-        $sources = ['attributes', 'relationships'];
+        if (array_key_exists($key, $this->attributes)) {
+            return (! empty($this->attributes[$key]));
+        }
 
-        foreach ($sources as $source) {
-            if (array_key_exists($key, $this->{$source})) {
-                return (! empty($this->{$source}[$key]));
-            }
+        if (array_key_exists($key, $this->relationships)) {
+            return (! empty($this->relationships[$key]));
         }
 
         return false;
@@ -690,7 +690,7 @@ abstract class Model
      *
      * @return mixed
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         $methods = ['key', 'table', 'connection', 'sequence', 'perpage', 'timestamps'];
 
@@ -721,7 +721,7 @@ abstract class Model
      *
      * @return mixed
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic($method, array $parameters)
     {
         $model = get_called_class();
         $model = new $model();

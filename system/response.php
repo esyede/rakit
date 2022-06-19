@@ -217,7 +217,7 @@ class Response
      *
      * @return Response
      */
-    public static function download($path, $name = null, $headers = [])
+    public static function download($path, $name = null, array $headers = [])
     {
         if (! is_file($path)) {
             throw new \Exception(sprintf('Target file not found: %s', $path));

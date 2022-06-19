@@ -116,7 +116,7 @@ abstract class Grammar
      *
      * @return string
      */
-    final public function parameterize($values)
+    final public function parameterize(array $values)
     {
         return implode(', ', array_map([$this, 'parameter'], $values));
     }
@@ -157,7 +157,7 @@ abstract class Grammar
      *
      * @return string
      */
-    final public function columnize($columns)
+    final public function columnize(array $columns)
     {
         return implode(', ', array_map([$this, 'wrap'], $columns));
     }

@@ -16,7 +16,7 @@ class Route extends Command
      *
      * @return void
      */
-    public function call($arguments = [])
+    public function call(array $arguments = [])
     {
         if (2 !== count($arguments)) {
             throw new \Exception('Please specify a request method and URI.');

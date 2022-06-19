@@ -120,7 +120,7 @@ class URL
      *
      * @return string
      */
-    public static function to_action($action, $parameters = [])
+    public static function to_action($action, array $parameters = [])
     {
         $route = Router::uses($action);
         return is_null($route)
@@ -137,7 +137,7 @@ class URL
      *
      * @return string
      */
-    protected static function explicit($route, $action, $parameters)
+    protected static function explicit($route, $action, array $parameters)
     {
         return static::to(static::transpose(key($route), $parameters));
     }
@@ -150,7 +150,7 @@ class URL
      *
      * @return string
      */
-    protected static function convention($action, $parameters)
+    protected static function convention($action, array $parameters)
     {
         list($package, $action) = Package::parse($action);
 
@@ -196,7 +196,7 @@ class URL
      *
      * @return string
      */
-    public static function to_route($name, $parameters = [])
+    public static function to_route($name, array $parameters = [])
     {
         if (is_null($route = Router::find($name))) {
             throw new \Exception(sprintf('Error creating URL for undefined route: %s', $name));
@@ -230,18 +230,15 @@ class URL
      *
      * @return string
      */
-    public static function transpose($uri, $parameters)
+    public static function transpose($uri, array $parameters)
     {
-        $parameters = (array) $parameters;
-
         foreach ($parameters as $parameter) {
             if (! is_null($parameter)) {
                 $uri = preg_replace('/\(.+?\)/', $parameter, $uri, 1);
             }
         }
 
-        $uri = preg_replace('/\(.+?\)/', '', $uri);
-        return trim($uri, '/');
+        return trim(preg_replace('/\(.+?\)/', '', $uri), '/');
     }
 
     /**

@@ -59,7 +59,7 @@ class Query
      *
      * @return mixed
      */
-    public function find($id, $columns = ['*'])
+    public function find($id, array $columns = ['*'])
     {
         $model = $this->model;
         $this->table->where($model::$key, '=', $id);
@@ -76,7 +76,9 @@ class Query
      */
     public function first($columns = ['*'])
     {
+        $columns = is_array($columns) ? $columns : func_get_args();
         $results = $this->hydrate($this->model, $this->table->take(1)->get($columns));
+
         return (count($results) > 0) ? head($results) : null;
     }
 
@@ -89,6 +91,7 @@ class Query
      */
     public function get($columns = ['*'])
     {
+        $columns = is_array($columns) ? $columns : func_get_args();
         return $this->hydrate($this->model, $this->table->get($columns));
     }
 
@@ -100,7 +103,7 @@ class Query
      *
      * @return Paginator
      */
-    public function paginate($perpage = null, $columns = ['*'])
+    public function paginate($perpage = null, array $columns = ['*'])
     {
         $perpage = $perpage ? $perpage : $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
@@ -117,17 +120,14 @@ class Query
      *
      * @return array
      */
-    public function hydrate($model, $results)
+    public function hydrate($model, array $results)
     {
         $class = get_class($model);
-        $results = (array) $results;
-
         $models = [];
 
         foreach ($results as $result) {
-            $result = (array) $result;
             $new = new $class([], true);
-            $new->fill_raw($result);
+            $new->fill_raw((array) $result);
             $models[] = $new;
         }
 
@@ -157,7 +157,7 @@ class Query
      * @param string     $relationship
      * @param array|null $constraints
      */
-    protected function load(&$results, $relationship, $constraints)
+    protected function load(array &$results, $relationship, $constraints)
     {
         $query = $this->model->{$relationship}();
         $query->model->with = $this->nested_with($relationship);
@@ -241,7 +241,7 @@ class Query
      *
      * @return mixed
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
         $results = call_user_func_array([$this->table, $method], $parameters);
         return in_array($method, $this->passthru) ? $results : $this;

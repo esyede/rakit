@@ -12,8 +12,8 @@ class Base_Controller extends Controller
      *
      * @return Response
      */
-    public function __call($method, $parameters)
+    public function __call($method, array $parameters)
     {
-        return Response::error('404');
+        return Response::error(404);
     }
 }

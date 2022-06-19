@@ -45,7 +45,7 @@ class Memcached extends Driver
      * @param array $config
      * @param bool  $exists
      */
-    public function save($session, $config, $exists)
+    public function save(array $session, array $config, $exists)
     {
         $this->memcached->put($session['id'], $session, $config['lifetime']);
     }

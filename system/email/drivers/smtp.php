@@ -36,7 +36,7 @@ class Smtp extends Driver
                 $this->disconnect();
             }
 
-            throw $e;
+            throw new \Exception('Failed sending email through smtp: '.$e->getMessage());
         }
     }
 
@@ -175,9 +175,9 @@ class Smtp extends Driver
         try {
             $this->command('HELP', 214);
         } catch (\Throwable $e) {
-            // skip error.
+            throw new \Exception('Unable to send help command: '.$e->getMessage());
         } catch (\Exception $e) {
-            // skip error.
+            throw new \Exception('Unable to send help command: '.$e->getMessage());
         }
     }
 
