@@ -52,24 +52,24 @@ class Event
      *
      * </code>
      *
-     * @param string $event
-     * @param mixed  $callback
+     * @param string   $event
+     * @param \Closure $handler
      */
-    public static function listen($event, $callback)
+    public static function listen($event, \Closure $handler)
     {
-        static::$events[$event][] = $callback;
+        static::$events[$event][] = $handler;
     }
 
     /**
      * Timpa seluruh callback milik event dengan callback yang baru.
      *
-     * @param string $event
-     * @param mixed  $callback
+     * @param string   $event
+     * @param \Closure $handler
      */
-    public static function override($event, $callback)
+    public static function override($event, \Closure $handler)
     {
         static::clear($event);
-        static::listen($event, $callback);
+        static::listen($event, $handler);
     }
 
     /**
@@ -88,11 +88,11 @@ class Event
      * Daftarkan callback queue flusher.
      *
      * @param string   $queue
-     * @param \Closure $callback
+     * @param \Closure $handler
      */
-    public static function flusher($queue, \Closure $callback)
+    public static function flusher($queue, \Closure $handler)
     {
-        static::$flushers[$queue][] = $callback;
+        static::$flushers[$queue][] = $handler;
     }
 
     /**
@@ -190,8 +190,8 @@ class Event
 
         foreach ($events as $event) {
             if (static::exists($event)) {
-                foreach (static::$events[$event] as $callback) {
-                    $response = call_user_func_array($callback, $parameters);
+                foreach (static::$events[$event] as $handler) {
+                    $response = call_user_func_array($handler, $parameters);
 
                     if ($halt && ! is_null($response)) {
                         return $response;
