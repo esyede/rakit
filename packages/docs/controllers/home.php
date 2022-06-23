@@ -7,6 +7,14 @@ use Docs\Libraries\Docs;
 class Docs_Home_Controller extends Controller
 {
     /**
+     * Jalankan CSRF middleware di setiap POST request.
+     */
+    public function __construct()
+    {
+        $this->middleware('before', 'csrf')->on('post');
+    }
+
+    /**
      * Handle GET /docs.
      *
      * @return View
