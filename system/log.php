@@ -39,21 +39,20 @@ class Log
      *      // Tulis pesan 'error' ke file log (menggunakan magic method)
      *      Log::error('error', 'Aduhh storage penuh!');
      *
-     *      // Log data array
-     *      Log::write('info', ['name' => 'Budi', 'id' => '4', [21, 167, 54]], true);
+     *      // Log pesan dengan data
+     *      Log::write('info', 'User data: ', ['name' => 'budii', 'age' => 28]);
      *
-     *      // Hasil: Array ( [name] => Budi [id] => 4 [0] => Array ( [0] => 21 [1] => 167 [2] => 54 ) )
-     *      // Jika $prettify bernilai TRUE, maka hasilnya menjadi: Array
+     *      // Hasil: '[2022-06-24 17:43:02] log.INFO - User data: {"name":"budii","age":28}'
      *
      * </code>
      *
-     * @param string $type
-     * @param string $message
-     * @param bool   $beautify
+     * @param string     $type
+     * @param string     $message
+     * @param mixed|null $data
      */
-    public static function write($type, $message, $beautify = false)
+    public static function write($type, $message, $data = null)
     {
-        $message = $beautify ? print_r($message, true) : $message;
+        $message .= is_null($data) ? null : json_encode($data);
 
         if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
@@ -80,7 +79,7 @@ class Log
      */
     protected static function format($type, $message)
     {
-        return date('Y-m-d H:i:s').' '.strtoupper($type).' - '.$message.PHP_EOL;
+        return '['.date('Y-m-d H:i:s').'] log.'.strtoupper($type).' - '.$message.PHP_EOL;
     }
 
     /**
@@ -94,17 +93,16 @@ class Log
      *      // Tulis pesan 'warning' ke file log.
      *      Log::warning('Ini adalah warning!');
      *
-     *      // Log data array
-     *      Log::write('info', ['name' => 'Budi', 'id' => '4', [21, 167, 54]], true);
+     *      // Log pesan dengan data
+     *      Log::info('User data: ', ['name' => 'budii', 'age' => 28]);
      *
-     *      // Hasil: Array ( [name] => Budi [id] => 4 [0] => Array ( [0] => 21 [1] => 167 [2] => 54 ) )
-     *      // Jika parameter ke-dua bernilai TRUE, maka hasilnya menjadi: Array
+     *      // Hasil: '[2022-06-24 17:43:02] log.INFO - User data: {"name":"budii","age":28}'
      *
      * </code>
      */
     public static function __callStatic($method, array $parameters)
     {
-        $parameters[1] = empty($parameters[1]) ? false : $parameters[1];
+        $parameters[1] = (isset($parameters[1]) && ! is_null($parameters[1])) ? $parameters[1] : null;
         static::write($method, $parameters[0], $parameters[1]);
     }
 }
