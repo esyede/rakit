@@ -122,5 +122,5 @@ return [
     |
     */
 
-    'key' => 'V0M11c9Ak1I22ZZmsw7pH0PnLKVkRPqw',
+    'key' => '',
 ];
