@@ -52,7 +52,7 @@ Route::get('execute-my-event', function () {
 
 // The event
 Event::listen('log-something', function ($foo) {
-    Log::info(sprintf('Foo value is: %s', serialize($foo)));
+    Log::info(sprintf('Foo value is: %s', json_encode($foo)));
 });
 ```
 
@@ -92,7 +92,7 @@ And then:
 ```php
 Route::get('execute-log-something', function () {
     // Don't forget to protect this route..
-    $secret_key = 's3cr3t';
+    $secret_key = Hash::make('s3cr3t');
 
     if (! Hash::check(Input::query('key'), $secret_key)) {
         return Response::json([
