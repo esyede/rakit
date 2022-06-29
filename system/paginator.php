@@ -164,7 +164,7 @@ class Paginator
         // Angka 7 yang di hard-code adalah untuk menghitung semua elemen konstan
         // dalam rentang 'slider', seperti laman saat ini, dua elipsis, dan dua
         // halaman awal dan akhir.
-        //
+
         // Jika tidak ada cukup halaman untuk memungkinkan pembuatan slider
         // berdasarkan halaman-halaman terdekat, maka semua halaman akan ditampilkan.
         // Jika sebaliknya, kita buat slider 'terpotong'.
@@ -375,7 +375,7 @@ class Paginator
      *
      * @return Paginator
      */
-    public function appends($values)
+    public function appends(array $values)
     {
         $this->appends = $values;
         return $this;
@@ -388,7 +388,7 @@ class Paginator
      *
      * @return string
      */
-    protected static function attributes($attributes)
+    protected static function attributes(array $attributes)
     {
         $attributes = (array) $attributes;
         $html = [];
