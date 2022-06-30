@@ -20,7 +20,7 @@ class Failure extends \Exception
      * @param array     $bindings
      * @param Exception $inner
      */
-    public function __construct($sql, $bindings, \Exception $inner)
+    public function __construct($sql, array $bindings, \Exception $inner)
     {
         $this->inner = $inner;
         $this->setMessage($sql, $bindings);
@@ -43,7 +43,7 @@ class Failure extends \Exception
      * @param string $sql
      * @param array  $bindings
      */
-    protected function setMessage($sql, $bindings)
+    protected function setMessage($sql, array $bindings)
     {
         $this->message = $this->inner->getMessage();
         $this->message .= PHP_EOL.' SQL: '.$sql.PHP_EOL.' Bindings: '.var_export($bindings, true);
