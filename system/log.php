@@ -25,7 +25,7 @@ class Log
             $text = 'A non-catchable error has occured.';
         }
 
-        static::write('error', $text.' Traces: '.json_encode($e));
+        static::write('error', $text, $e);
     }
 
     /**
