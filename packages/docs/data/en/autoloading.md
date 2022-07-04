@@ -18,9 +18,11 @@
 Autoloading enable you to lazyloading class files (loading only needed class files)
 without explicitly call `require()` or `include()`.
 
-So, only really needed class will be loaded by your application, and you can immediately use the class you want without doing tedious work of manually loading them.
+So, only really needed class will be loaded by your application,
+and you can immediately use the class you want without doing tedious work of manually loading them.
 
-By default, `application/models/` folder and `application/libraries/` folder are autoloaded in `application/boot.php` file, so you don't need to register it manually.
+By default, `application/models/` folder and `application/libraries/` folder
+are autoloaded in `application/boot.php` file, so you don't need to register it manually.
 
 Autoloader in rakit follow `class name equal file name` convention, where file name
 written entirely in lowercase.
@@ -29,13 +31,15 @@ So for example, `User` class which is stored in `models/` folder should be store
 called `user.php` to be able to automatically loaded.
 
 You can also stored it in a subfolder. Just give class namespace following
-folder structure you just created. So, `Entities\User` class should be stored at `entities/user.php` file in `models/` folder.
+folder structure you just created. So, `Entities\User` class
+should be stored at `entities/user.php` file in `models/` folder.
 
 
 <a id="registering-folder"></a>
 ## Registering Folder
 
-As described above, `models/` folder `libraries/` folder are registered to autoload by default; but, you can also register any folder you like using the same convention:
+As described above, `models/` folder `libraries/` folder are registered to autoload by default;
+but, you can also register any folder you like using the same convention:
 
 #### Registering many folders to autoloader:
 
@@ -50,7 +54,9 @@ Autoloader::directories([
 <a id="registering-mapping"></a>
 ## Registering Mapping
 
-Sometimes you maybe want to map the class to its related file manually. This is the most efficient way because the autoloader doesn't need to scan folders to look for the location of your class file:
+Sometimes you maybe want to map the class to its related file manually.
+This is the most efficient way because the autoloader doesn't need to scan folders
+to look for the location of your class file:
 
 #### Registering mapping to autoloader:
 
@@ -67,7 +73,8 @@ Autoloader::map([
 
 Some third-party libraries use PSR-4 and PSR-0 standard to autoload their classes.
 [PSR-4](https://www.php-fig.org/psr/psr-4/) and [PSR-0](https://www.php-fig.org/psr/psr-0/)
-define that class name must match their file name, including its capitalization and folder structure  shown by the namespace.
+define that class name must match their file name,
+including its capitalization and folder structure  shown by the namespace.
 
 If you use libraries with convention like this, just register root namespace
 and folder location to the autoloader. Rakit will handle the rest.
@@ -100,11 +107,14 @@ Autoloader::underscored([
 <a id="composer-autoloader"></a>
 ## Composer Autoloader
 
-Of course you've ever use [Composer](https://getcomposer.org). Composer generaly had bring its own autoloader, which by default located in `vendor/autoload.php` folder.
+Of course you've ever use [Composer](https://getcomposer.org).
+Composer generaly had bring its own autoloader, which by default located in `vendor/autoload.php` folder.
 
-So, our task here is just include that file to our application so that installed library can be recognized by rakit.
+So, our task here is just include that file to our application so that
+installed library can be recognized by rakit.
 
-The task is easy enough, just edit `application/config/aplication.php` file and fill `composer_autoload` option with the <ins>absolute path</ins> of the autoload file.
+The task is easy enough, just edit `application/config/aplication.php` file
+and fill `composer_autoload` option with the <ins>absolute path</ins> of the autoload file.
 
 So, if your autoload file located in `<root>/vendor/autoload.php` then fill it like this:
 
@@ -120,7 +130,9 @@ So, if your autoload file located in `<root>/vendor/autoload.php` then fill it l
 <a id="notes-for-vendor-folder"></a>
 ### Notes for vendor folder
 
-It's worth to remember that by default, **no protection** provided if `vendor/` folder stored in root folder, which means all files and subfolders inside can be publicly accessed.
+It's worth to remember that by default,
+**no protection** provided if `vendor/` folder stored in root folder,
+which means all files and subfolders inside can be publicly accessed.
 
 This is quite dangerous because they will know what libraries you use.
 For this purpose, we provide some options to handle this:
@@ -129,16 +141,19 @@ For this purpose, we provide some options to handle this:
 #### Option 1: Rewrite URL
 
 If you use Apache or Nginx, follow the
-[pretty url](/docs/en/install#mempercantik-url) guide because we provide rules to protect vendor folder using that feature.
+[pretty url](/docs/en/install#mempercantik-url) guide because
+we provide rules to protect vendor folder using that feature.
 
 
 
 #### Option 2: Store outside document root
 
-If your hosting allow uploading files to folders outside document root, put your vendor folder there, then change your `composer_autoload` configuration as follow:
+If your hosting allow uploading files to folders outside document root,
+put your vendor folder there, then change your `composer_autoload` configuration as follow:
 
 ```php
 'composer_autoload' => dirname(path('base')).'/vendor/autoload.php',
 ```
 
-This way, your vendor folder can not be accessed publicly and you can keep using your composer-installed libraries.
+This way, your vendor folder can not be accessed publicly
+and you can keep using your composer-installed libraries.

@@ -128,8 +128,9 @@ You can read a complete list of cURL options at
 <a id="mengolah-response"></a>
 ## Processing Response
 
-After the request is executed, this component will return a `stdClass` object containing the response from
-the request you made. This response can then be processed for your application needs.
+After the request is executed, this component will return a `stdClass` object
+containing the response from the request you made.
+This response can then be processed for your application needs.
 
 
 

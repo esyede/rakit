@@ -2,6 +2,7 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
+- [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Konfigurasi](#konfigurasi)
 - [Mengirim Email](#mengirim-email)
     - [Set Penerima](#set-penerima)
@@ -17,8 +18,9 @@
 <!-- /MarkdownTOC -->
 
 
-# Selayang Pandang
-Komponen `Email` disediakan untuk membantu pekerjaan anda mengirim ini ke klien.
+<a id="pengetahuan-dasar"></a>
+# Pengetahuan Dasar
+Komponen `Email` disediakan untuk membantu pekerjaan anda mengirim email ke klien.
 Komponen email mendukung beberapa fitur dasar seperti multi-protokol (mail, sendmail, dan SMTP);
 enkripsi TLS dan SSL untuk SMTP; multi-penerima; CC dan BCC; email HTML atau plain-text;
 lampiran serta prioritas email.

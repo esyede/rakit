@@ -148,7 +148,8 @@ return Arr::first($array, function ($value, $key) {
 // 200
 ```
 
-You can pass default value as the third argument of this method. This value will be returned if there is no value passed the given validity test:
+You can pass default value as the third argument of this method.
+This value will be returned if there is no value passed the given validity test:
 
 ```php
 return Arr::first($array, $callback, $default);
@@ -215,7 +216,8 @@ return Arr::has($array, ['product.price', 'product.discount']); // false
 <a id="arrassociative"></a>
 ### Arr::associative()
 
-This method return `TRUE` if given array is an associative array. An array will be called "associative" it does not have sequential numeric key started with zero:
+This method return `TRUE` if given array is an associative array.
+An array will be called "associative" it does not have sequential numeric key started with zero:
 
 ```php
 $array1 = ['product' => ['name' => 'Desk', 'price' => 100]];
@@ -320,7 +322,8 @@ $name = Arr::pull($array, 'name');
 // $array: ['price' => 100]
 ```
 
-Default value can be given as the third parameter in this method. This value will be returned if the your expected key is not found:
+Default value can be given as the third parameter in this method.
+This value will be returned if the your expected key is not found:
 
 ```php
 $value = Arr::pull($array, $key, $default);
@@ -452,7 +455,8 @@ return Arr::where($array, function ($value, $key) {
 <a id="arrwrap"></a>
 ### Arr::wrap()
 
-This method wrap a given value in an array. If the given value is an array, the value will not be modified:
+This method wrap a given value in an array.
+If the given value is an array, the value will not be modified:
 
 ```php
 $string = 'Bakso';

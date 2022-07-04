@@ -165,7 +165,7 @@ the user is already logged in, and redirects them to the `'/login'` page if they
 $this->middleware('before', 'auth')->only(['index', 'list']);
 ```
 
-In the above example the `'auth'` middleware will only be executed before the `action_index()` . method
+In the above example the `'auth'` middleware will only be executed before the `action_index()` method
 or `action_list()` is executed. User must be logged in to be able to access those two actions.
 Other actions will not be affected.
 

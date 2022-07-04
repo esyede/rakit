@@ -12,7 +12,8 @@
 <a id="pengetahuan-dasar"></a>
 ## Basic Knowledge
 
-Containers are just a way of managing object creation. You can use it to define the creation of complex objects,
+Containers are just a way of managing object creation.
+You can use it to define the creation of complex objects,
 allowing you to resolve them across your entire application with just one line of code.
 You can also use it to _'inject'_ dependencies into your classes and controller.
 
