@@ -351,15 +351,13 @@ class Paginator
      *
      * @return string
      */
-    protected function appendage($appends)
+    protected function appendage(array $appends)
     {
-        $appends = (is_array($appends) || is_object($appends)) ? $appends : [];
-
         if (! is_null($this->appendage)) {
             return $this->appendage;
         }
 
-        if (is_array($appends) && count($appends) <= 0) {
+        if (count($appends) <= 0) {
             $this->appendage = '';
             return $this->appendage;
         }
@@ -390,7 +388,6 @@ class Paginator
      */
     protected static function attributes(array $attributes)
     {
-        $attributes = (array) $attributes;
         $html = [];
 
         foreach ($attributes as $key => $value) {
