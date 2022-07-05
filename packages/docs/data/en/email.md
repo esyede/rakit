@@ -20,7 +20,7 @@
 <a id="pengetahuan-dasar"></a>
 ## Basic Knowledge
 
-An `Email` component is provided to help with your job of sending emails to clients.
+This `Email` component is provided to help with your job of sending emails to clients.
 The email component supports some basic features such as multi-protocol (mail, sendmail, and SMTP);
 TLS and SSL encryption for SMTP; multi-recipient; CC and BCC; HTML or plain-text emails;
 attachments and email priority.

@@ -2,29 +2,31 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Menjalankan Event](#menjalankan-event)
-- [Me-listen Sebuah Event](#me-listen-sebuah-event)
-- [Antrian Event](#antrian-event)
-- [Framework Event](#framework-event)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Firing Events](#menjalankan-event)
+- [Listening To Events](#me-listen-sebuah-event)
+- [Queued Events](#antrian-event)
+- [Framework Events](#framework-event)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Event memberikan cara yang bagus untuk memecah keterkaitan resource dalam aplikasi anda,
-sehingga kelas, library ataupun plugin tidak akan tercampur dan mudah untuk diawasi.
+Events provide a great way to de-couple functionalities in your application,
+so classes, libraries or plugins won't get mixed up and easy to monitor.
 
-Hal ini juga memungkinkan kelas, library dan plugin untuk memanfaatkan inti aplikasi anda
-tanpa mengubah kodenya.
+
+It also allows classes, libraries and plugins to take advantage of the core of your application
+without modifying its code.
+
 
 
 <a id="menjalankan-event"></a>
-## Menjalankan Event
+## Firing Events
 
-Untuk menjalankan event, cukup beritahukan kelas nama event apa yang ingin anda jalankan:
+To fire an event, just tell the name of the event you want to fire:
 
 #### Menjalankan sebuah event:
 
@@ -34,9 +36,12 @@ $responses = Event::fire('loaded');
 
 Perhatikan bahwa kami menyimpan hasil dari metode `fire()` ke variabel `$responses`. Karena
 method `fire()` ini akan mereturn array yang berisi response dari semua listener milik si event.
+Notice that we assign result of the `fire()` method to the `$responses` variable.
+This `fire()` method will return an array containing the responses of all listeners belonging to the event.
 
-Terkadang anda ingin menjalankan sebuah event, tetapi hanya ingin mengambil response
-pertamanya saja. Begini caranya:
+
+Sometimes you may want to fire an event, but only need the first response. Here's how:
+
 
 #### Menjalankan sebuah event dan hanya mengambil response pertama saja:
 
@@ -44,13 +49,14 @@ pertamanya saja. Begini caranya:
 $response = Event::first('loaded');
 ```
 
->  Method `first()` ini akan tetap menjalankan seluruh listener yang dimiliki oleh si event,
-   tetapi hanya response pertamanya saja yang akan direturn.
+>  This `first()` method will still fire all of the handlers listening to the event,
+    but will only return the first response.
 
-Sedangkan method `Event::until()` akan menjalankan seluruh listener yang dimiliki oleh si event,
-dan akan mereturn response pertama yang nilainya bukan `NULL`.
+While the `Event::until()` method will execute the event handlers until
+the first non-`NULL` response is returned.
 
-#### Menjalankan sebuah event dan mengambil response pertama yang bukan NULL:
+
+#### Firing an event until the first non-null response:
 
 ```php
 $response = Event::until('loaded');
@@ -58,12 +64,12 @@ $response = Event::until('loaded');
 
 
 <a id="me-listen-sebuah-event"></a>
-## Me-listen Sebuah Event
+## Listening To Events
 
-Tetapi, apa gunanya membuat event jika ia tidak punya listener? Jadi, mari kita daftarkan
-sebuah contoh listener yang akan dipanggil ketika sebuah event dijalankan:
+So, what good are events if nobody is listening? Register an event handler that
+will be called when an event fires:
 
-#### Mendaftarkan sebuah listener ke event bernama `'loaded'`:
+#### Registering an event handler:
 
 ```php
 Event::listen('loaded', function () {
@@ -71,30 +77,32 @@ Event::listen('loaded', function () {
 });
 ```
 
-Kode yang anda letakkan didalam Closure diatas akan terpanggil ketika event `'loaded'` dijalankan.
+The code you put in the Closure above will be called when the `'loaded'` event is executed.
+
 
 
 <a id="antrian-event"></a>
-## Antrian Event
+## Queued Events
 
-Terkadang anda mungkin hanya ingin _"mengantrikan"_ suatu event untuk dijalankan diwaktu mendatang.
-Anda boleh melakukannya via method `queue()` dan `flush()`.
+Sometimes you may wish to _"queue"_ an event for firing, but not fire it immediately.
+You can do this via the `queue()` and `flush()` methods.
 
-Pertama, silahkan oper nama event ke parameter pertama, ingat! namanya harus unik agar tidak
-saling tumpang tindih:
 
-#### Mengantrikan sebuah event:
+First, throw an event on a given queue with a unique identifier:
+
+#### Registering a queued event:
 
 ```php
 Event::queue('foo', $user->id, [$user]);
 ```
 
-Method ini menerima 3 parameter. Parameter pertama adalah nama antreannya, yang kedua adalah nama
-unik untuk item ini di antrean, dan yang ketiga adalah array data yang ingin dioper ke flusher.
+This method accepts three parameters. The first is the name of the queue,
+the second is a unique identifier for this item on the queue,
+and the third is an array of data to pass to the queue flusher.
 
-Selanjutnya, kita akan mendaftarkan flusher untuk antrian bernama `foo` diatas:
+Next, we'll register a flusher for the `'foo'` queue:
 
-#### Mendaftarkan sebuah event flusher:
+#### Registering an event flusher:
 
 ```php
 Event::flusher('foo', function ($key, $user) {
@@ -102,50 +110,50 @@ Event::flusher('foo', function ($key, $user) {
 });
 ```
 
-Perhatikan bahwa si flusher ini menerima 2 parameter. Pertama, nama unik dari event
-yang diantrikan, yang pada kasus diatas adalah user ID. Lalu parameter kedua (dan sisanya)
-akan menjadi item payload untuk antrian event.
+Note that the event flusher receives two arguments.
+The first, is the unique identifier for the queued event,
+which in this case would be the user's ID.
+The second (and any remaining) parameters would be the payload items for the queued event.
 
-Terakhir, kita sudah bisa menjalankan flusher dan mem-flush semua event yang diantrikan
-menggunakan method `flush()`:
+Finally, we can run our flusher and flush all queued events using the `flush()` method:
 
 ```php
 Event::flush('foo');
 ```
 
 <a id="framework-event"></a>
-## Framework Event
+## Framework Events
 
-Berikut adalah beberapa event yang secara default akan dijalankan oleh rakit:
+There are several events that are fired by the the framework. Here they are:
 
-#### Event yang dijalankan ketika sebuah package di-boot:
+#### Event fired when a package is booted:
 
 ```php
 Event::listen('rakit.booted: package', function () { });
 ```
 
-#### Event yang dijalankan ketika sebuah query database dieksekusi:
+#### Event fired when a database query is executed:
 
 ```php
 Event::listen('rakit.query', function ($sql, $bindings, $time) { });
 ```
 
-#### Event yang dijalankan tepat sebelum sebuah response dikirim ke browser:
+#### Event fired right before response is sent to browser:
 
 ```php
 Event::listen('rakit.done', function ($response) { });
 ```
 
-#### Event yang dijalankan ketika sebuah pesan dicatat menggunakan kelas `Log`:
+#### Event fired when a messaged is logged using the `Log` class:
 
 ```php
 Event::listen('rakit.log', function ($type, $message) { });
 ```
 
 
+The following is a complete list of famework default events and their parameters.
+You can listen to the following events when needed:
 
-Berikut adalah daftar lengkap event bawaan famework beserta parameter - parameternya.
-Anda dapat me-listen event - event berikut jika memang diperlukan:
 
 | Command                                         | Parameter                                              |
 | ----------------------------------------------- | -----------------------------------------------------  |

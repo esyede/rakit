@@ -1,10 +1,10 @@
 ### Getting Started
 - [Overview](/docs/home)
 - [Release Notes](/docs/changelog)
-- [Instalation & Initial Configuration](/docs/install) <!-- has-submenu -->
+- [Instalation & Initial Setup](/docs/install) <!-- has-submenu -->
     - [System Requirements](/docs/install#kebutuhan-sistem)
     - [Instalation](/docs/install#instalasi)
-    - [Initial Configuration](/docs/install#konfigurasi-awal)
+    - [Initial Setup](/docs/install#konfigurasi-awal)
     - [Pretty URL](/docs/install#mempercantik-url)
 - [Directory Structure](/docs/structure)
 - [Routing](/docs/routing) <!-- has-submenu -->

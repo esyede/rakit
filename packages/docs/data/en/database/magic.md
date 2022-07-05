@@ -320,7 +320,7 @@ return DB::table('users')
 Anda dapat dengan mudah melakukan grouping / pengelompokan data menggunakan method `group_by()` seperti ini:
 
 ```php
-return DB::table(...)
+return DB::table('users')
 	->group_by('email')
 	->get();
 ```

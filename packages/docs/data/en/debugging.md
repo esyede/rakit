@@ -14,7 +14,7 @@
 <a id="pengetahuan-dasar"></a>
 ## Basic Knowledge
 
-Raft comes with a fairly clever debugger, where it can determine when it should
+Rakit comes with a fairly clever debugger, where it can determine when it should
 displays errors and exceptions.
 
 

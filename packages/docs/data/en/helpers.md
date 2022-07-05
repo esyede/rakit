@@ -2,25 +2,27 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [List Helper](#list-helper)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Helper Lists](#list-helper)
 
 <!-- /MarkdownTOC -->
 
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Rakit menyertakan berbagai fungsi 'pembantu' yang dapat diakses secara global.
-Banyak dari fungsi ini juga digunakan didalam sistem rakit;
-dan tentu saja, anda juga boleh menggunakannya dalam aplikasi anda jika diperlukan.
+Rakit provides a variety of globally accessible helper functions.
+Many of these functions are also used in inside the rakit itself;
+and of course, you can also use it in your application if needed.
+
 
 
 <a id="list-helper"></a>
-## List Helper
+## Helper Lists
 
-Berikut adalah daftar helper bawaan yang tersedia:
+Here is a list of all built-in helpers:
+
 
 |   |   |   |   |   |   |
 |---|---| ---|---|---|---|

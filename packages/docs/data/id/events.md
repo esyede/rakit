@@ -24,7 +24,7 @@ tanpa mengubah kodenya.
 <a id="menjalankan-event"></a>
 ## Menjalankan Event
 
-Untuk menjalankan event, cukup beritahukan kelas nama event apa yang ingin anda jalankan:
+Untuk menjalankan event, cukup beritahukan nama event apa yang ingin anda jalankan:
 
 #### Menjalankan sebuah event:
 
