@@ -2,55 +2,77 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Memuat Gambar](#memuat-gambar)
-- [Manipulasi Gambar](#manipulasi-gambar)
-    - [Resize Gambar](#resize-gambar)
-    - [Rotasi dan Cropping](#rotasi-dan-cropping)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Loading Image](#memuat-gambar)
+- [Image Manipulation](#manipulasi-gambar)
+    - [Resize](#resize-gambar)
+    - [Rotate & Crop](#rotasi-dan-cropping)
     - [Watermark](#watermark)
-- [Efek Gambar](#efek-gambar)
-    - [Brightness, Contrast dan Smoothness](#brightness-contrast-dan-smoothness)
-    - [Blur dan Grayscale](#blur-dan-grayscale)
-- [Export Gambar](#export-gambar)
-- [Fitur Tambahan](#fitur-tambahan)
-    - [Melihat info gambar](#melihat-info-gambar)
-    - [Membuat Identicon](#membuat-identicon)
+- [Effects](#efek-gambar)
+    - [Brightness, Contrast & Smoothness](#brightness-contrast-dan-smoothness)
+    - [Blur & Grayscale](#blur-dan-grayscale)
+- [Exporting](#export-gambar)
+- [Additional Features](#fitur-tambahan)
+    - [Image info](#melihat-info-gambar)
+    - [Identicon](#membuat-identicon)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Dalam pengembangan aplikasi berbasis web, pastinya anda akan berususan dengan masalah gambar, seperti ukuran gambar hasil upload user yang ukurannya terlalu besar misalnya. Tentu anda tidak mau menyimpan gambar besar itu langsung ke storage karena sangatlah memakan tempat. Tenang saja, library ini siap membantu anda!
+When developing web-based applications, of course you will be dealing with images,
+such as the size of the image uploaded by the user whose size is too large, for example.
+
+Of course you don't want to save those large image directly because it takes up too much space.
+Don't worry, this component is ready to help you!
+
 
 <a id="memuat-gambar"></a>
-## Memuat Gambar
+## Loading Image
 
-Untuk memulai pengeditan gambar, pastinya anda perlu terlebih dahulu menentukan gambar mana yang ingin anda edit. Gunakan method `open()` untuk membuka gambar.
+To start editing images, of course, you first need to determine
+which image you want to edit. Use the `open()` method to open the image.
+
 
 <a id="memuat-gambar-1"></a>
-#### Memuat target gambar:
+#### Loading image targets:
+
+
 ```php
 $image = Image::open('assets/images/test.jpg');
 ```
 
-Jika anda juga ingin sekalian menentukan kualitas hasil export gambar anda nanti, silahkan tambahkn kualitas yang anda inginkan ke parameter ke-dua, rentang nilainya antara `0 - 100`, nilai defaultnya adalah `75`.
+If you also want to determine the quality of your exported image,
+you can pass your desired export quality to the second parameter,
+the value ranges between `0 - 100`, the default value is `75`.
 
-#### Memuat dan mengatur kualitas gambar:
+
+#### Load and adjust image quality:
+
 ```php
 $image = Image::open('assets/images/test.jpg', 75);
 ```
 
 
 <a id="manipulasi-gambar"></a>
-## Manipulasi Gambar
-Seperti dijelaskan diatas, telah disediakan beberapa method untuk memanipulasi gambar, mulai dari mengatur kualitas, mengatur panjang, lebar, cropping, rotasi dan memberi efek ke gambar. Sudah siap, kan? mari kita coba!
+## Image Manipulation
+
+As described above, several methods have been provided for manipulating images,
+starting from adjusting the quality, adjusting the length, width, cropping,
+rotation and giving effects to the image.
+
+
+Are you ready? let's try!
 
 
 <a id="resize-gambar"></a>
-### Resize Gambar
-Saat menangani upload gambar, tentu anda ingin menyimpan file gambar tersebut ke ukuran yang lebih kecil agar lebih hemat dalam penggunaan disk space.
+### Resize
+
+When handling image uploads, of course you want to save the image file with a
+smaller size to save your storage space.
+
 
 #### Mengatur lebar gambar:
 
@@ -66,11 +88,17 @@ $image->height(100); // 100 pixel
 
 
 <a id="rotasi-dan-cropping"></a>
-### Rotasi dan Cropping
+### Rotate & Crop
 
-Terkadang, gambar yang diupload oleh user tidak selalu dalam posisi tegak, terutama foto yang yang diambil memalui kamera handphone. Tenang saja, anda memutar posisinya.
+Sometimes, images uploaded by users are not always in an upright position,
+especially photos taken through cellphone cameras.
 
-#### Memutar posisi gambar:
+
+Don't worry, you rotate those angle.
+
+
+#### Rotate an image:
+
 
 ```php
 $image->rotate(90); // putar 90 derajat
@@ -78,12 +106,15 @@ $image->rotate(90); // putar 90 derajat
 $image->rotate(180); // putar 180 derajat
 ```
 
->  Method `rotate()` ini hanya menerima value dengan kelipatan 90.
+>  This `rotate()` method only accepts values in multiples of 90.
+
 
 
 #### Cropping gambar
 
-Operasi cropping (pemotongan gambar) sangatlah mudah. Rakit menyertakan 2 cara untuk melakukannya, yaitu cropping standar dan cropping rasio.
+Image cropping operation is super easy. Rakit provides 2 ways to do this,
+namely standard cropping and ratio cropping.
+
 ```php
 $left = 50;
 $top = 20;
@@ -92,7 +123,12 @@ $height = 100;
 
 $image->crop($left, $top, $width, $height);
 ```
-Bagaimana, apakah terlalu ribet? Oke, jika metode diatas terlalu ribet, silahkan gunakan metode _"rasio"_ untuk croppingnya. Contohnya seperti ini:
+
+Is it too complicated?
+
+
+Okay, if the above method is too complicated, please use the _"ratio"_ method like this:
+
 
 ```php
 $width = 2;
@@ -100,14 +136,15 @@ $height = 1;
 
 $image->ratio($width, $height);
 ```
-Nah, bagaimana, lebih mudah bukan? cara mana yang lebih anda sukai?
+
+Well, easier isn't it? which way do you prefer?
+
 
 
 <a id="watermark"></a>
 ### Watermark
 
-Selain dapat memotong dan merotasi gambar, anda juga dapat menambahkan watermark pada
-gambar anda:
+Besides crop and rotate images, you can also add a watermark to the image:
 
 ```php
 $image->watermark('assets/images/watermark.png');
@@ -115,12 +152,17 @@ $image->watermark('assets/images/watermark.png');
 
 
 <a id="efek-gambar"></a>
-## Efek Gambar
-Kadang kala, gambar yang diupload user terlihat terlalu redup, terlalu terang atau mungkin gambar yang diuplad adalah gambar privat yang perlu sedikit anda buramkan. Anda juga dapat memanupulasi kekurangan gambar seperti ini.
+## Effects
+
+Sometimes, user uploaded images looks too dim, too bright
+or maybe the uploaded image is a convidential image that you need to pixelate.
+
 
 <a id="brightness-contrast-dan-smoothness"></a>
-### Brightness, Contrast dan Smoothness
-Anda juga dapat mengatur brightness, contrast dan smoothness gambar dengan mudah.
+### Brightness, Contrast & Smoothness
+
+You can also adjust the brightness, contrast and smoothness of the image easily.
+
 
 #### Mengatur brightness:
 ```php
@@ -138,46 +180,77 @@ $image->smoothness(80);
 ```
 
 <a id="blur-dan-grayscale"></a>
-### Blur dan Grayscale
+### Blur & Grayscale
+
 Anda juga dapat menambahkan efek blur (buram) dan grayscale (skala abu-abu) ke gambar target anda. Begini caranya:
 
-#### Menambahkan efek blur:
+#### Blur effect:
+
 ```php
-$image->blur(50);
+$image->blur();    // standard (gaussian) blur
+$image->blur(true); // selective blur
 ```
 
-#### Menambahkan efek grayscale:
+#### Grayscale effect:
+
 ```php
-$image->grayscale(35);
+$image->grayscale();
 ```
->  Rentang nilai yang dapat anda oper ke method - method efek gambar ini sama, yaitu antara `-100` sampai `100`.
+
+#### Sepia effect:
+
+```php
+$image->sepia();
+```
+
+#### Emboss effect:
+
+```php
+$image->emboss();
+```
+
+#### Edge-highlight effect:
+
+```php
+$image->edge();
+```
 
 
 <a id="export-gambar"></a>
-## Export Gambar
-Setelah gambar selesai dimanipulasi, anda hanya perlu menyimpannya kedalam sebuah file:
+## Exporting
 
-#### Menyimpan hasil gambar ke file:
+Once the image is finished being manipulated, you can export it into a file:
+
+
+#### Export to file:
+
 ```php
 $image->export('assets/images/budi.png');
 ```
 
 
 <a id="fitur-tambahan"></a>
-## Fitur Tambahan
-Selain fitur - fitur diatas, library ini juga menyediakan beberapa fitur tambahan seperti melihat info gambar, membuat identicon dan bebrapa fitur lainnya.
+## Additional Features
+
+In addition to the features above, this library also provides several bonus features:
+
 
 
 <a id="melihat-info-gambar"></a>
-### Melihat info gambar
-Untuk melihat info gambar, silahkan gunakan method `info()`:
+### Image info
+
+To view image information, use this `info()` method:
+
+
 ```php
 $image->info();
 ```
 
 <a id="membuat-identicon"></a>
-### Membuat Identicon
-Anda juga dapat membuat [identicon](https://en.wikipedia.org/wiki/Identicon) menggunakan library ini. Begini cara melakukannya:
+### Identicon
+
+You can also create an [identicon](https://en.wikipedia.org/wiki/Identicon) with it:
+
 
 ```php
 // Membuat identicon (dengan ukuran default 64 pixel)

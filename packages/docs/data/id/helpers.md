@@ -88,7 +88,8 @@ echo __('marketing.welcome');
 
 <a id="is_cli"></a>
 ### is_cli
-Fungsi `is_cli` menerjemahkan string berdasarkan data dari file alih-bahasa yang ada di folder `languages`:
+Fungsi `is_cli` memeriksa apakah script dijalankan dari dalam konsol:
+
 
 ```php
 if (is_cli()) {
@@ -360,7 +361,7 @@ Fungsi `csrf_field` menghasilkan field hidden input yang berisi CSRF token:
 <a id="root_namespace"></a>
 ### root_namespace
 
-Fungsi `root` mengambil root namespace dari sebuah string kelas:
+Fungsi `root_namespace` mengambil root namespace dari sebuah string kelas:
 
 ```php
 $data = root_namespace('System\Database\Facle\Model');
@@ -410,7 +411,7 @@ return view('user.profile')
 <a id="render"></a>
 ### render
 
-Fungsi `render` mengkompilasi view (termasuk blade) menjadi bentuk HTML:
+Fungsi `render` mengkompilasi view [Blade](/docs/id/views/templating) menjadi bentuk HTML:
 
 ```php
 // File: views/home.blade.php
@@ -429,9 +430,8 @@ $rendered = render('home');
 
 <a id="render_each"></a>
 ### render_each
-
-Sama halnya seperti fungsi render, fungsi `render_each` juga mengkompilasi
-view (termasuk blade) menjadi bentuk HTML, namun method ini khusus untuk merender view parsial saja:
+Fungsi `render_each` mengkompilasi view blade menjadi bentuk HTML,
+namun fungsi ini khusus untuk merender view parsial saja:
 
 ```php
 $rendered = render_each('partials.header');
@@ -441,8 +441,7 @@ $rendered = render_each('partials.header');
 
 <a id="yield_content"></a>
 ### yield_content
-
-Fungsi `yield_content` merupakan padanan dari sintaks blade `@yield` untuk native templating:
+Fungsi `yield_content` merupakan padanan dari sintaks blade `@yield`:
 
 ```php
 $content = yield_content('content');
@@ -451,8 +450,7 @@ $content = yield_content('content');
 
 <a id="yield_section"></a>
 ### yield_section
-
-Fungsi `yield_section` merupakan padanan dari sintaks blade `@show` untuk native templating:
+Fungsi `yield_section` merupakan padanan dari sintaks blade `@show`:
 
 ```php
 $content = yield_section('nama-section');
@@ -462,7 +460,7 @@ $content = yield_section('nama-section');
 <a id="section_start"></a>
 ### section_start
 
-Fungsi `section_start` merupakan padanan dari sintaks blade `@section()` untuk native templating:
+Fungsi `section_start` merupakan padanan dari sintaks blade `@section()`:
 
 ```php
 section_start('nama-section');
@@ -473,7 +471,7 @@ section_start('nama-section');
 <a id="section_stop"></a>
 ### section_stop
 
-Fungsi `section_stop` merupakan padanan dari sintaks blade `@endsection` untuk native templating:
+Fungsi `section_stop` merupakan padanan dari sintaks blade `@endsection`:
 
 ```php
 section_stop();

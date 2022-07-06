@@ -37,8 +37,8 @@ Here is a list of all built-in helpers:
 <a id="e"></a>
 ### e
 
-Fungsi `e` menjalankan fungsi [htmlspecialchars](https://php.net/htmlspecialchars) dengan opsi `double_encode` diset
-ke `TRUE` secara default:
+The `e` function executes [htmlspecialchars](https://php.net/htmlspecialchars)
+function with `double_encode` option set to `TRUE` by default:
 
 ```php
 echo e('<html>foo</html>');
@@ -48,7 +48,8 @@ echo e('<html>foo</html>');
 
 <a id="dd"></a>
 ### dd
-Fungsi `dd` akan meng-dump isi variabel dan eksekusi skrip dihentikan:
+The `dd` function dumps the given variables and ends execution of the script:
+
 
 ```php
 dd($value);
@@ -59,19 +60,21 @@ dd($value1, $value2, $value3, ...);
 
 <a id="dump"></a>
 ### dump
-Fungsi `dump` akan meng-dump isi variabel tetapi eksekusi skrip tetap akan berjalan:
+The `dump` function dumps the given variables:
 
 ```php
 dump($value);
 
 dump($value1, $value2, $value3, ...);
 ```
+If you want to stop executing the script after dumping the variables, use the `dd` function instead.
 
 
 <a id="bd"></a>
 ### bd
-Fungsi `bd` akan meng-dump isi variabel ke [debug bar](/docs/en/debugging#debug-bar).
-Eksekusi skrip tetap akan berjalan:
+The `bd` function dumps the given variable to [debug bar](/docs/en/debugging#debug-bar).
+The script execution will still run:
+
 
 ```php
 bd($value);
@@ -81,7 +84,8 @@ bd($value, 'Breakpoint 1');
 
 <a id="__"></a>
 ### __
-Fungsi `__` menerjemahkan string berdasarkan data dari file alih-bahasa yang ada di folder `languages`:
+The `__` function translates the given translation key using your localization files in the `languages` folder:
+
 
 ```php
 echo __('marketing.welcome');
@@ -90,7 +94,7 @@ echo __('marketing.welcome');
 
 <a id="is_cli"></a>
 ### is_cli
-Fungsi `is_cli` menerjemahkan string berdasarkan data dari file alih-bahasa yang ada di folder `languages`:
+The `is_cli` function checks if the script is run from within the console:
 
 ```php
 if (is_cli()) {
@@ -101,7 +105,7 @@ if (is_cli()) {
 
 <a id="data_fill"></a>
 ### data_fill
-Fungsi `data_fill` meng-set value yang hilang dalam array bersarang menggunakan notasi "dot":
+The `data_fill` function sets a missing value within a nested array or object using "dot" notation:
 
 ```php
 $data = ['products' => ['desk' => ['price' => 100]]];
@@ -113,7 +117,7 @@ data_fill($data, 'products.desk.discount', 10);
 // ['products' => ['desk' => ['price' => 100, 'discount' => 10]]]
 ```
 
-Fungsi ini juga menerima karakter `*` (asterisk) sebagai wildcard:
+This function also accepts `*` (asterisks) as wildcards and will fill the target accordingly:
 
 ```php
 $data = [
@@ -137,8 +141,7 @@ data_fill($data, 'products.*.price', 200);
 
 <a id="data_get"></a>
 ### data_get
-
-Fungsi `data_get` mengambil value dari array bersarang menggunakan notasi "dot":
+The `data_get` function retrieves a value from a nested array or object using "dot" notation:
 
 ```php
 $data = ['products' => ['desk' => ['price' => 100]]];
@@ -147,14 +150,16 @@ $price = data_get($data, 'products.desk.price');
 // 100
 ```
 
-Fungsi `data_get` juga menerima value default, yang akan direturn jika key yang anda minta tidak ditemukan:
+The `data_get` function also accepts a default value, which will be
+returned if the specified key is not found:
 
 ```php
 $discount = data_get($data, 'products.desk.discount', 0);
 // 0
 ```
 
-Fungsi ini juga menerima karakter `*` (asterisk) sebagai wildcard:
+The function also accepts wildcards using `*` (asterisks),
+which may target any key of the array or object:
 
 ```php
 $data = [
@@ -169,8 +174,7 @@ data_get($data, '*.name');
 
 <a id="data_set"></a>
 ### data_set
-
-Fungsi `data_set` meng-set value dalam array bersarang menggunakan notasi "dot":
+The data_set function sets a value within a nested array using "dot" notation:
 
 ```php
 $data = ['products' => ['desk' => ['price' => 100]]];
@@ -179,7 +183,8 @@ data_set($data, 'products.desk.price', 200);
 // ['products' => ['desk' => ['price' => 200]]]
 ```
 
-Fungsi ini juga menerima karakter `*` (asterisk) sebagai wildcard:
+This function also accepts wildcards using `*` (asterisks)
+and will set values on the target accordingly:
 
 ```php
 $data = [
@@ -200,8 +205,8 @@ data_set($data, 'products.*.price', 200);
 */
 ```
 
-Secara default, semua value yang ada akan ditimpa. Jika Anda hanya ingin
-meng-set value jika ia belum ada, silahkan oper `FALSE` ke parameter keempat:
+By default, any existing values are overwritten. If you wish to only set a value if
+it doesn't exist, you may pass `FALSE` as the fourth argument to the function:
 
 ```php
 $data = ['products' => ['desk' => ['price' => 100]]];
@@ -213,13 +218,13 @@ data_set($data, 'products.desk.price', 200, $overwrite = false);
 
 <a id="retry"></a>
 ### retry
+The retry function attempts to execute the given callback
+until the given maximum attempt threshold is met.
 
-Fungsi `retry` mencoba mengeksekusi callback sebanyak batas percobaan yang diberikan.
-Jika mengeksekusi callback tersebut tidak menyebabkan exception,
-ia akan mereturn hasil eksekusi callbacknya.
+If the callback does not throw an exception, its return value will be returned.
+If the callback throws an exception, it will automatically be retried.
 
-Tapi jika terjadi exception, ia akan mengulangi eksekusinya lagi secara otomatis.
-Jika jumlah percobaan sudah mencapai batas yang anda tentukan, ia akan mentrigger exception:
+If the maximum attempt count is exceeded, the exception will be thrown:
 
 ```php
 return retry(5, function () {
@@ -230,8 +235,8 @@ return retry(5, function () {
 
 <a id="facile_to_json"></a>
 ### facile_to_json
+The `facile_to_json` function will convert the Facile model object into a JSON string:
 
-Fungsi `facile_to_json` akan mengubah object Facile model menjadi string JSON:
 
 ```php
 $json = facile_to_json(User::find(1));
@@ -242,8 +247,7 @@ $json = facile_to_json(User::all());
 
 <a id="head"></a>
 ### head
-
-Fungsi `head` mereturn elemen pertama dari array yang diberikan:
+The `head` function returns the first element in the given array:
 
 ```php
 $array = [100, 200, 300];
@@ -255,8 +259,7 @@ $first = head($array);
 
 <a id="last"></a>
 ### last
-
-Fungsi `last` mereturn elemen terakhir dari array yang diberikan:
+The `last` function returns the last element in the given array:
 
 ```php
 $array = [100, 200, 300];
@@ -268,8 +271,7 @@ $first = last($array);
 
 <a id="url"></a>
 ### url
-
-Fungsi `url` menghasilkan URL ke path yang diberikan:
+The `url` function generates a fully qualified URL to the given path:
 
 ```php
 $url = url('user/profile');
@@ -279,8 +281,8 @@ $url = url('user/profile');
 
 <a id="asset"></a>
 ### asset
-
-Fungsi `aset` menghasilkan URL ke aset:
+The `asset` function generates a URL for an asset using
+the current scheme of the request (HTTP or HTTPS):
 
 ```php
 $url = asset('css/style.css');
@@ -290,21 +292,22 @@ $url = asset('packages/docs/css/style.css');
 // https://situsku.com/assets/packages/docs/css/style.css
 ```
 
-> Asset bisa berupa gambar, CSS, JavaScript atau file lainnya yang tersimpan di folder `assets/` di root aplikasi.
+> Assets can be an images, CSS, JavaScript or other files stored
+  in the `assets/` folder in the application root.
+
 
 
 
 <a id="action"></a>
 ### action
-
-Fungsi `action` menghasilkan URL ke action milik controller:
+The `action` function generates a URL for the given controller action:
 
 ```php
 // Buat URL ke action 'index' milik User_Controller
 $url = action('user@index');
 ```
 
-Anda juga dapat mengoper parameter ke URL tujuan melalui method ini:
+You can also pass parameters to the destination URL:
 
 ```php
 // Buat URL ke Profil budi
@@ -314,15 +317,15 @@ $url = action('user@profile', ['budi']);
 
 <a id="route"></a>
 ### route
-
-Fungsi `route` menghasilkan URL ke [named route](/docs/en/routing#named-route):
+The `route` function generates a URL for a given [named route](/docs/en/routing#named-route):
 
 ```php
 // Buat URL ke route yang bernama 'profile'.
 $url = route('profile');
 ```
 
-Seperti halnya action, anda juga dapat mengoper parameter ke URL tujuan melalui method ini:
+You can also pass parameters to the destination controller's method:
+
 
 ```php
 $url = route('profile', [$username]);
@@ -331,8 +334,7 @@ $url = route('profile', [$username]);
 
 <a id="redirect"></a>
 ### redirect
-
-Fungsi `redirect` mereturn object response redirect:
+The `redirect` function returns an object of `Redirect` class for redirection purpose:
 
 ```php
 return redirect($url, $status = 302)
@@ -350,8 +352,8 @@ return redirect('/edit')
 
 <a id="csrf_field"></a>
 ### csrf_field
-
-Fungsi `csrf_field` menghasilkan field hidden input yang berisi CSRF token:
+The `csrf_field` function generates an HTML hidden input field containing
+the value of the CSRF token:
 
 ```php
 <?php echo csrf_field() ?>
@@ -361,8 +363,8 @@ Fungsi `csrf_field` menghasilkan field hidden input yang berisi CSRF token:
 
 <a id="root_namespace"></a>
 ### root_namespace
+The `root_namespace` function takes the root namespace of a class:
 
-Fungsi `root` mengambil root namespace dari sebuah string kelas:
 
 ```php
 $data = root_namespace('System\Database\Facle\Model');
@@ -372,8 +374,8 @@ $data = root_namespace('System\Database\Facle\Model');
 
 <a id="class_basename"></a>
 ### class_basename
-
-Fungsi `class_basename` mengambil nama kelas tanpa namespace:
+The `class_basename` function returns the class name
+of the given class with the class's namespace removed:
 
 ```php
 $data = class_basename('System\Database\Facle\Model');
@@ -383,9 +385,8 @@ $data = class_basename('System\Database\Facle\Model');
 
 <a id="value"></a>
 ### value
-
-Fungsi `value` mereturn nilai yang oper kepadanya. Namun, jika yang dioper adalah Closure,
-hasil dari eksekusi closure tersebutlah yang akan dikembalikan:
+The `value` function returns the value it is given. However, if you pass a closure to the function,
+the closure will be executed and its returned value will be returned:
 
 ```php
 $result = value(true);
@@ -398,8 +399,8 @@ $result = value(function () { return false; });
 
 <a id="view"></a>
 ### view
+The `view` function returns an instance of the `View` class:
 
-Fungsi `view` mereturn instance kelas `View`:
 
 ```php
 return view('user.profile');
@@ -411,8 +412,8 @@ return view('user.profile')
 
 <a id="render"></a>
 ### render
+The `render` function compiles [Blade](/docs/en/views/templating) views into HTML:
 
-Fungsi `render` mengkompilasi view (termasuk blade) menjadi bentuk HTML:
 
 ```php
 // File: views/home.blade.php
@@ -431,9 +432,9 @@ $rendered = render('home');
 
 <a id="render_each"></a>
 ### render_each
+The `render_each` function compiles the blade view into HTML,
+but this function is specifically designed for rendering partial views:
 
-Sama halnya seperti fungsi render, fungsi `render_each` juga mengkompilasi
-view (termasuk blade) menjadi bentuk HTML, namun method ini khusus untuk merender view parsial saja:
 
 ```php
 $rendered = render_each('partials.header');
@@ -443,8 +444,8 @@ $rendered = render_each('partials.header');
 
 <a id="yield_content"></a>
 ### yield_content
+The `yield_content` function is the equivalent of the Blade's `@yield` syntax:
 
-Fungsi `yield_content` merupakan padanan dari sintaks blade `@yield` untuk native templating:
 
 ```php
 $content = yield_content('content');
@@ -453,8 +454,7 @@ $content = yield_content('content');
 
 <a id="yield_section"></a>
 ### yield_section
-
-Fungsi `yield_section` merupakan padanan dari sintaks blade `@show` untuk native templating:
+The `yield_section` function is the equivalent of the Blade's `@show` syntax:
 
 ```php
 $content = yield_section('nama-section');
@@ -463,8 +463,7 @@ $content = yield_section('nama-section');
 
 <a id="section_start"></a>
 ### section_start
-
-Fungsi `section_start` merupakan padanan dari sintaks blade `@section()` untuk native templating:
+The `yield_start` function is the equivalent of the Blade's `@section()` syntax:
 
 ```php
 section_start('nama-section');
@@ -474,8 +473,7 @@ section_start('nama-section');
 
 <a id="section_stop"></a>
 ### section_stop
-
-Fungsi `section_stop` merupakan padanan dari sintaks blade `@endsection` untuk native templating:
+The `yield_stop` function is the equivalent of the Blade's `@endsection` syntax:
 
 ```php
 section_stop();
@@ -484,8 +482,8 @@ section_stop();
 
 <a id="get_cli_option"></a>
 ### get_cli_option
+The `get_cli_option` function returns the options given by user on the rakit console:
 
-Fungsi `get_cli_option` mereturn option di oper user pada rakit console:
 
 ```bash
 # command
@@ -503,8 +501,8 @@ $option = get_cli_option('foo', 'bar'); // 'bar'
 
 <a id="system_os"></a>
 ### system_os
+The `system_os` function returns your server's operating system:
 
-Fungsi `system_os` mereturn sistem operasi server anda:
 
 ```php
 echo system_os(); // Windows

@@ -322,8 +322,7 @@ class Image
      */
     public function blur($selective = false)
     {
-        $selective = $selective ? IMG_FILTER_SELECTIVE_BLUR : IMG_FILTER_GAUSSIAN_BLUR;
-        imagefilter($this->image, $selective);
+        imagefilter($this->image, $selective ? IMG_FILTER_SELECTIVE_BLUR : IMG_FILTER_GAUSSIAN_BLUR);
         return $this;
     }
 
@@ -428,8 +427,8 @@ class Image
         switch ($extension) {
             case 'jpg':
             case 'jpeg': $watermark = imagecreatefromjpeg($watermark); break;
-            case 'png':  $watermark = imagecreatefrompng($watermark); break;
-            case 'gif':  $watermark = imagecreatefromgif($watermark); break;
+            case 'png':  $watermark = imagecreatefrompng($watermark);  break;
+            case 'gif':  $watermark = imagecreatefromgif($watermark);  break;
             default:     throw new \Exception('Only png, jpg and gif images are supported');
         }
 
@@ -679,11 +678,7 @@ class Image
      */
     public function path($path)
     {
-        $path = ltrim(ltrim($path, '/'), '\\');
-        $path = str_replace(['/', '\\'], DS, $path);
-        $path = path('base').$path;
-
-        return $path;
+        return path('base').str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
     }
 
     /**
@@ -705,8 +700,7 @@ class Image
      */
     public static function acceptable($path)
     {
-        $acceptable = ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png'];
-        return in_array(Storage::mime($path), $acceptable);
+        return in_array(Storage::mime($path), ['image/gif', 'image/jpeg', 'image/pjpeg', 'image/png']);
     }
 
     /**
