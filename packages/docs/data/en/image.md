@@ -77,13 +77,13 @@ smaller size to save your storage space.
 #### Mengatur lebar gambar:
 
 ```php
-$image->width(100); // 100 pixel
+$image->width(100); // 100 pixels
 ```
 
 #### Mengatur tinggi gambar:
 
 ```php
-$image->height(100); // 100 pixel
+$image->height(100); // 100 pixels
 ```
 
 
@@ -101,9 +101,9 @@ Don't worry, you rotate those angle.
 
 
 ```php
-$image->rotate(90); // putar 90 derajat
+$image->rotate(90); // rotate 90 degrees
 
-$image->rotate(180); // putar 180 derajat
+$image->rotate(180); // rotate 180 degrees
 ```
 
 >  This `rotate()` method only accepts values in multiples of 90.
@@ -253,15 +253,15 @@ You can also create an [identicon](https://en.wikipedia.org/wiki/Identicon) with
 
 
 ```php
-// Membuat identicon (dengan ukuran default 64 pixel)
+// Make 64x64 pixels identicon image
 $identicon = Image::identicon('budi');
 
-// Membuat identicon dengan ukuran 200 pixel
+// Make 200x200 pixels identicon image
 $identicon = Image::identicon('budi', 200);
 
-// Preview identicon image ke browser
+// Preview identicon image in browser
 return Image::identicon('budi', 64, true);
 
-// Menyimpan identicon image ke file
+// Save identicon image to file
 Storage::put(path('storage').'budi.jpg', $identicon);
 ```

@@ -338,7 +338,7 @@ This method return a random value from an array:
 ```php
 $array = [1, 2, 3, 4, 5];
 
-return Arr::random($array); // 4 - (diperoleh secara acak)
+return Arr::random($array); // 4 - (randomly obtained)
 ```
 
 You can also specify how many items to be returned in the third parameter.
@@ -346,7 +346,7 @@ You can also specify how many items to be returned in the third parameter.
 Please note that if you use this option, returned value will not always an array.
 
 ```php
-return Arr::random($array, 2); // [2, 5] - (diperoleh secara acak)
+return Arr::random($array, 2); // [2, 5] - (randomly obtained)
 ```
 
 
@@ -371,7 +371,7 @@ This method randomize items belong to an array:
 
 ```php
 return Arr::shuffle([1, 2, 3, 4, 5]);
-// [3, 2, 5, 1, 4] - (dibuat secara acak)
+// [3, 2, 5, 1, 4] - (randomly generated)
 ```
 
 

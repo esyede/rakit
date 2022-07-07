@@ -73,7 +73,8 @@ will be called when an event fires:
 
 ```php
 Event::listen('loaded', function () {
-    // Aku akan terpanggil ketika event 'loaded' dijalankan
+    // I will be triggered when 'loaded' event is executed
+
 });
 ```
 

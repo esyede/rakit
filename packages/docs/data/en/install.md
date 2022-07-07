@@ -1,14 +1,14 @@
-# Instalasi & Konfigurasi Awal
+# Installation & Initial Setup
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Kebutuhan Sistem](#kebutuhan-sistem)
-- [Instalasi](#instalasi)
-    - [Instal via Composer](#instal-via-composer)
-    - [Install Manual](#install-manual)
-- [Ada Kesulitan?](#ada-kesulitan)
-- [Konfigurasi Awal](#konfigurasi-awal)
-- [Mempercantik URL](#mempercantik-url)
+- [System Requirements](#kebutuhan-sistem)
+- [Installation](#instalasi)
+    - [Install via Composer](#instal-via-composer)
+    - [Manual Installation](#install-manual)
+- [Problems?](#ada-kesulitan)
+- [Initial Configuration](#konfigurasi-awal)
+- [Beautiful URL](#mempercantik-url)
     - [Apache](#apache)
     - [Nginx](#nginx)
 
@@ -16,44 +16,46 @@
 
 
 <a id="kebutuhan-sistem"></a>
-## Kebutuhan Sistem
+## System Requirements
 
-- PHP 5.4.0 sampai PHP 8.0 (PHP 8.1+ belum didukung)
-- Ekstensi [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
-- Ekstensi [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-- Ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
-
-
-**Ekstensi Tambahan:**
-
-Menginstall ekstensi berikut akan membantu anda mendapatkan manfaat penuh dari rakit, tetapi tidak diwajibkan:
+- PHP 5.4.0 to PHP 8.0 (PHP 8.1+ not supported yet)
+- [Mbstring](https://www.php.net/manual/en/book.mbstring.php) Extension
+- [OpenSSL](https://www.php.net/manual/en/book.openssl.php) Extension
+- [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) Extension
 
 
-- Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) untuk SQLite,
-  MySQL, PostgreSQL, atau SQL Server untuk bekerja dengan database.
-- Ekstensi [cURL](https://www.php.net/manual/en/book.curl.php) untuk menginstall paket via rakit console.
-- Ekstensi [GD Image](https://www.php.net/manual/en/book.image.php) untuk mengolah gambar.
+**Additional Extensions:**
+
+Installing the following extensions will help you get the full benefit of rakit, but it is not mandatory:
+
+
+
+- [PDO](https://www.php.net/manual/en/pdo.installation.php) driver for SQLite, MySQL, PostgreSQL, or SQL Server
+- [cURL](https://www.php.net/manual/en/book.curl.php) extension to install packages via the rakit console
+- [GD Image](https://www.php.net/manual/en/book.image.php) extension for image processing.
 
 
 <a id="instalasi"></a>
-## Instalasi
+## Installation
 
-Rakit dapat diinstall dengan 2 cara yang sangat mudah, yaitu instalasi via [Composer](https://getcomposer.org)
-dan instalasi manual.
+Rakit can be installed in 2 very easy ways, namely via [Composer](https://getcomposer.org) and manual installation.
+
 
 
 <a id="instal-via-composer"></a>
-### Instal via Composer
+### Install via Composer
 
-Jika anda telah menginstall Composer pada komputer anda, instalasi rakit akan menjadi
-sangat mudah, cukup jalankan perintah berikut:
+If you have already installed **Composer** on your computer, installing rakit will be
+very easy, just run the following command:
+
 
 ```bash
 composer create-project esyede/rakit
 ```
 
-Maka rakit akan terinstall pada folder `/rakit`, yang perlu anda lakukan tinggal menuju folder tersebut dan
-menjalankan webserver bawaan:
+Then rakit will be installed in the `/rakit` folder, all you need to do is go to that folder
+and run the built-in webserver:
+
 
 ```bash
 cd rakit && php rakit serve
@@ -61,14 +63,15 @@ cd rakit && php rakit serve
 
 
 <a id="install-manual"></a>
-### Install Manual
+### Manual Installation
 
-Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
+Manual installation is also very easy, as easy as counting one to three:
 
-  - [Unduh](https://rakit.esyede.my.id/download) dan ekstrak arsip Rakit ke web server anda.
-  - Pastikan direktori `storage/views/` dan `assets/` dapat ditulisi oleh PHP.
-  - Edit file `application/config/application.php` dan tambahkan app key anda, ingat, panjang minimalnya harus 32 karakter.
-  Anda juga dapat meng-generate app key melalui link ini: [App Key Generator](https://rakit.esyede.my.id/key)
+
+  - [Download](https://rakit.esyede.my.id/download) and extract the archive to your web server.
+  - Make sure the `storage/views/` and `assets/` directories are writable.
+  - Edit the `application/config/application.php` file and add your app key. Remember, it must be at least 32 characters long. You can also generate app key via this link: [App Key Generator](https://rakit.esyede.my.id/key)
+
 
   ```php
   /*
@@ -85,56 +88,69 @@ Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
   |
   */
 
-  'key' => 'isiAppKeyAndaDisiniMinimal32karakter',
+  'key' => 'FillYourAppKeyHereAtLeast32CharactersLong'
+',
   ```
 
-Lihat hasilnya melalui peramban favorit anda. Jika semuanya baik-baik saja, anda akan melihat halaman splash Rakit yang cantik.
+View the results in your favorite web browser.
+If all is going well, you should see the beautiful rakit's splash page.
 
-Bersiaplah, ada banyak lagi yang harus dipelajari!
+Get ready, there's a lot more to learn!
+
 
 
 <a id="ada-kesulitan"></a>
-## Ada Kesulitan?
+## Problems?
 
-Jika ada kesulitan dalam pemasangan, cobalah beberapa saran berikut ini:
+If you're having trouble installing, try some of these suggestions:
 
-- Jika anda menggunakan `mod_rewrite`, ubah opsi konfigurasi `'index'`
-  di `application/config/application.php` ke string kosong.
-- Pastikan folder `storage/` dan `assets/` serta seluruh folder di dalamnya dapat ditulisi oleh PHP.
+
+- If you use `mod_rewrite`, change `'index'` configuration options
+  in `application/config/application.php` to an empty string.
+
+- Make sure the `storage/` and `assets/` folders and all their child folders are writable.
+
 
 
 <a id="konfigurasi-awal"></a>
-## Konfigurasi Awal
+## Initial Configuration
 
-Semua file konfigurasi disimpan di dalam folder `config/`.
-Kami menyarankan anda melihat file-file tersebut agar mendapatkan pemahaman dasar
-tentang opsi konfigurasi yang tersedia untuk anda.
+All configuration files are stored in the `config/` folder.
+We recommend you to take a look at these files to get basic understandings
+about the configuration options available to you.
 
-Berikan perhatian khusus pada file `application/config/application.php` karena file tersebut
-berisi opsi konfigurasi dasar untuk aplikasi anda.
 
->  Jika anda menggunakan `mod_rewrite`, ubah opsi `'index'`
-   di `application/config/application.php` ke string kosong.
+Pay special attention to the `application/config/application.php` file since it
+contains basic configuration options for your application.
+
+
+> If you use `mod_rewrite`, change `'index'` configuration options
+  in `application/config/application.php` to an empty string.
 
 
 <a id="mempercantik-url"></a>
-## Mempercantik URL
+## Beautiful URL
 
-Ketika anda siap untuk memasang aplikasi anda ke server produksi, ada beberapa hal penting yang
-dapat anda lakukan untuk memastikan aplikasi anda berjalan seefisien mungkin.
+When you are ready to install your application to a production server,
+there are a few important things to keep in mind
+you can do to make sure your application runs as efficiently as possible.
 
-Dalam dokumen ini, kami akan membahas beberapa poin awal yang bagus untuk memastikan
-aplikasi anda digunakan dengan benar.
 
-Pastinya, anda juga tidak ingin URL aplikasi anda mengandung `/index.php`.
-Anda dapat membuangnya menggunakan URL Rewrite.
+In this document, we'll cover some good starting points to make sure
+your application is used properly.
+
+
+Of course, you also don't want your application URL to contain `/index.php`.
+You can remove it with URL Rewrite.
+
 
 <a id="apache"></a>
 ### Apache
 
-Jika web server anda menggunakan Apache, pastikan modul `mod_rewrite` sudah diaktifkan,
-kemudian buat sebuah file bernama `.htaccess` di root web server anda
-(berdampingan dengan file `index.php`) dan salin kode berikut kedalamnya:
+If your web server is Apache, make sure the `mod_rewrite` module is enabled,
+then create a file named `.htaccess` in the root of your web server
+(next to the `index.php` file) and copy the following code into it:
+
 
 ```apacheconf
 Options -MultiViews -Indexes
@@ -155,7 +171,8 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . index.php [L]
 ```
 
-Apakah konfigurasi diatas tidak bekerja? Coba ganti dengan yang ini:
+Is the above configuration not working? Try this one:
+
 
 ```apacheconf
 <IfPackage mod_rewrite.c>
@@ -184,10 +201,12 @@ Apakah konfigurasi diatas tidak bekerja? Coba ganti dengan yang ini:
 <a id="nginx"></a>
 ### Nginx
 
-Jika anda menggunakan aplikasi anda ke server yang menjalankan Nginx, anda dapat menggunakan
-file konfigurasi berikut sebagai titik awal untuk mengkonfigurasi web server anda.
+If you deploy your application to a server running Nginx, you can use
+The following configuration file serves as a starting point for configuring your web server.
 
-Kemungkinan besar, file ini perlu disesuaikan mengikuti konfigurasi server anda:
+
+Most likely, this file will need to be adjusted according to your server configuration:
+
 
 ```nginx
 server {
@@ -235,9 +254,10 @@ server {
 ```
 
 
+After you have finished setting up URL rewrite, you need to change the `'index'` option
+in `application/config/application.php` to an empty string.
 
-Setelah selesai mengatur URL rewrite, anda perlu mengubah opsi `'index'`
-di `application/config/application.php` ke string kosong.
 
->  Setiap web server memiliki metode yang berbeda dalam menangani HTTP rewrite,
-   dan mungkin juga akan membutuhkan rule konfigurasi yang berbeda pula.
+>  Each web server has a different method of handling HTTP rewrites,
+   and may also require different configuration rules.
+

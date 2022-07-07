@@ -95,7 +95,7 @@ $target = 'https://github.com/esyede/rakit/archive/master.zip';
 $destination = path('storage').'rakit.zip';
 
 if (Curl::download($target, $destination)) {
-   // Yay! downloaded successfully!
+   // Yay! downloaded successfuly!
 }
 ```
 

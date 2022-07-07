@@ -59,16 +59,16 @@ $email = Email::from('admin@situs.com')
     ->to('eka@situs.com')
     ->cc('farida@situs.com')
     ->bcc('nando@situs.com')
-    ->body('Dokumen PDF mengenai laporan keuangan bulan ini')
-    ->alt_body('Laporan bulan ini')
-    ->subject('Laporan Bulanan')
+    ->body('PDF of monthly financial report')
+    ->alt_body('Report of this month')
+    ->subject('Monthly Report')
     ->priority(Email::HIGH)
-    ->attach(path('storage').'laporan_bulanan.pdf');
+    ->attach(path('storage').'monthly_report.pdf');
 
 try {
     $email->send();
 } catch (\Exception $e) {
-    echo 'Email gagal dikirim: '.$e->getMessage();
+    echo 'Failed to send email: '.$e->getMessage();
 }
 ```
 
@@ -135,7 +135,7 @@ Use this option if you know your user's email client can only render a text-only
 
 
 ```php
-$email->body('Dokumen PDF mengenai laporan keuangan bulan ini');
+$email->body('PDF of monthly financial report');
 ```
 
 
@@ -146,7 +146,7 @@ This option is preferred since you can create beautiful emails with the help of 
 
 
 ```php
-$email->html_body('<b>Dokumen PDF mengenai laporan keuangan bulan ini</b>');
+$email->html_body('<b>PDF of monthly financial report</b>');
 ```
 
 You can also take advantage of the `Markdown` component if needed:
@@ -180,7 +180,7 @@ Even though it isn't mandatory, you can still add it if it is necessary:
 
 
 ```php
-$email->alt_body('Laporan bulan ini');
+$email->alt_body('Report of this month');
 ```
 
 > When using `html_body()`, you don't even have to add alt-body
@@ -194,7 +194,7 @@ $email->alt_body('Laporan bulan ini');
 Untuk menambahkan subyek atau judul email, gunakan method `subject()` seperti berikut:
 
 ```php
-$email->subject('Laporan Bulanan');
+$email->subject('Monthly Report');
 ```
 
 
@@ -230,7 +230,7 @@ There are two ways to add an attachment to an email:
 #### 1. File Attachment:
 
 ```php
-$file = path('storage').'laporan_bulanan.pdf';
+$file = path('storage').'monthly_report.pdf';
 
 $email->attach($file);
 ```
@@ -240,7 +240,7 @@ and `cid:<html_tag_id>` to the third parameter as attribute's pointer.
 
 
 ```php
-$file = path('storage').'laporan_bulanan.pdf';
+$file = path('storage').'monthly_report.pdf';
 
 $email->attach($file, true, 'cid:my_content_id');
 ```
@@ -249,9 +249,9 @@ $email->attach($file, true, 'cid:my_content_id');
 #### 2. String Attachment:
 
 ```php
-$contents = Storage::get(path('storage').'laporan_bulanan.pdf');
+$contents = Storage::get(path('storage').'monthly_report.pdf');
 
-$email->string_attach($contents, 'laporan_bulanan.pdf');
+$email->string_attach($contents, 'monthly_report.pdf');
 ```
 
 By default, images inside the html will only be loaded automatically if the files are
@@ -260,7 +260,6 @@ in your local storage. Take a look at the following examples to understand the d
 
 ```php
 // This will be loaded automatically
-
 <img src="<?php echo asset('images/kitty.png'); ?>" />
 
 // This will not be loaded
@@ -279,7 +278,7 @@ send your e-mail:
 try {
     $email->send();
 } catch (\Exception $e) {
-    echo 'Email gagal dikirim: '.$e->getMessage();
+    echo 'Failed to send email: '.$e->getMessage();
 }
 ```
 
@@ -298,9 +297,9 @@ Create your new driver class:
 
 
 ```php
-// application/libraries/driverku.php
+// application/libraries/mydriver.php
 
-class Driverku extends Mailer
+class Mydriver extends Mailer
 {
     protected function transmit()
     {
@@ -320,8 +319,8 @@ $config = [
     // ..
 ];
 
-Email::extend('driverku', function () use ($config) {
-    return new Driverku($config);
+Email::extend('mydriver', function () use ($config) {
+    return new Mydriver($config);
 });
 ```
 
@@ -329,5 +328,5 @@ Then change the default configuration to the driver you just created:
 
 
 ```php
-Config::set('email.driver', 'driverku');
+Config::set('email.driver', 'mydriver');
 ```

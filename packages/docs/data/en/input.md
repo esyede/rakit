@@ -6,10 +6,10 @@
 - [JSON Input](#json-input)
 - [File](#file)
 - [Old Input](#old-input)
-- [Redirect Dengan Old Input](#redirect-dengan-old-input)
+- [Redirect With Old Input](#redirect-dengan-old-input)
 - [Cookies](#cookies)
-- [Merge & Replace](#merge--replace)
-- [Menghapus Data Input](#menghapus-data-input)
+- [Merging & Replacing](#merge--replace)
+- [Clearing Input](#menghapus-data-input)
 
 <!-- /MarkdownTOC -->
 
@@ -21,49 +21,52 @@ Komponen ini membantu anda dalam menangani input yang dikirim user ke dalam apli
 melalui `GET`, `POST`, `PUT`, atau `DELETE`. Dibawah ini tersedia beberapa contoh bagaimana
 cara mengakses data inputan user.
 
+The `Input` class handles input that comes into your application via `GET`, `POST`, `PUT`, or `DELETE` requests.
+Here are some examples of how to access input data using the `Input` class:
 
-#### Mengambil sebuah value dari array input:
+
+#### Retrieve a value from the input array:
 
 ```php
 $email = Input::get('email');
 ```
 
->  Method `get()` ini digunakan untuk mengambil semua tipe request
-   (`GET`, `POST`, `PUT`, dan `DELETE`), bukan hanya `GET` saja.
+>  This `get()` method is used for all request types (`GET`, `POST`, `PUT`, and `DELETE`),
+not just GET requests.
 
 
-#### Mengambil semua data inputan:
+#### Retrieve all input from the input array:
 
 ```php
 $input = Input::get();
 ```
 
 
-#### Mengambil semua data inputan termasuk dari `$_FILES`:
+#### Retrieve all input including the `$_FILES` array:
 
 ```php
 $input = Input::all();
 ```
 
-Secara default method - method diatas akan mereturn `NULL` jika datanya tidak ketemu.
-
-Akan tetapi, jika anda ingin mengganti default return ini, cukup oper default return value
-yang anda kehendaki ke parameter ke-dua.
+By default, `NULL` will be returned if the input item does not exist.
 
 
-#### Mengganti default return value:
+However, you may pass a different default value as a second parameter to the method:
+
+
+#### Returning a default value if the requested input item doesn't exist:
 
 ```php
 $name = Input::get('name', 'Anonim');
 ```
 
-#### Mengganti default return value via Closure:
+#### Using a Closure to return a default value:
 
 ```php
 $name = Input::get('name', function () { return 'Anonim'; });
 ```
 
-#### Memeriksa ada tidaknya suatu inputan:
+#### Determining if the input contains a given item:
 
 ```php
 if (Input::has('name')) {
@@ -71,17 +74,16 @@ if (Input::has('name')) {
 }
 ```
 
->  Method `has()` ini akan mereturn `FALSE` jika inputan ada tetapi berisi string kosong.
+>  This `has()` method will return `FALSE` if the input item is an empty string.
 
 
 <a id="json-input"></a>
 ## JSON Input
 
-Ketika bekerja dengan framework JavaScript, anda mungkin akan perlu untuk mengambil value JSON
-yang dikirim oleh aplikasi klien. Agar lebih mudah, kami juga telah menyertakan
-method `json()` untuk anda:
+When working with JavaScript MVC frameworks, you will need to get
+the JSON posted by the application. To make your life easier, you can use this method:
 
-#### Mengambil input JSON dari aplikasi klien:
+#### Get JSON input to the application:
 
 ```php
 $data = Input::json();
@@ -91,46 +93,43 @@ $data = Input::json();
 <a id="file"></a>
 ## File
 
-#### Mengambil semua data inputan dari `$_FILES`:
+#### Retrieving all items from the `$_FILES` array:
 
 ```php
 $files = Input::file();
 ```
 
-#### Mengambil salah satu data inputan saja:
+#### Retrieving an item only:
 
 ```php
 $picture = Input::file('picture');
 ```
 
-#### Mengambil sebuah data spesifik dari `$_FILES`:
+#### Retrieving a specific item from a `$_FILES` array:
 
 ```php
 $size = Input::file('picture.size');
 ```
 
->  Untuk menggunakan method `file()` ini, anda harus menambahkan `"multipart/form-data"` ke form HTMl anda.
+>  In order to use this `file()` method, you will need to add `"multipart/form-data"` to your HTML foem.
 
 
 <a id="old-input"></a>
 ## Old Input
 
-Biasanya anda akan perlu untuk mempertahankan data inputan lama ketika validasi form gagal.
-Komponen ini juga telah dirancang untuk membantu anda menanganinya.
+You'll commonly need to re-populate forms after invalid form submissions.
+Rakit's `Input` class was designed with this problem in mind.
 
-Berikut ini adalah contoh bagaimana anda dapat dengan mudah mempertahankan data inputan lama
-dari request sebelumnya.
+Here's an example of how you can easily retrieve the input from the previous request.
+First, you need to flash the input data to the session:
 
-Pertama, anda harus menitipkan (atau, istilahnya _"flashing"_) data inputan lama tersebut
-kedalam session.
-
-#### Flashing data inputan ke session:
+#### Flashing input to the session:
 
 ```php
 Input::flash();
 ```
 
-#### Flashing beberapa inputan tertentu saja:
+#### Flashing selected input to the session:
 
 ```php
 Input::flash('only', ['username', 'email']);
@@ -138,34 +137,34 @@ Input::flash('only', ['username', 'email']);
 Input::flash('except', ['password', 'credit_card']);
 ```
 
-#### Mengambil flash data (inputan lama) dari request sebelumnya:
+#### Retrieving a flashed input item from the previous request:
 
 ```php
 $name = Input::old('name');
 ```
 
->  Anda harus mengatur driver session terlebih dahulu untuk dapat menggunakan method `flash()` dan `old()` ini.
+>  You must specify a session driver before using this `old()` and `flash()` method.
 
 
-_Bacaan lebih lanjut:_
+_Further Reading:_
 
 - _[Session](/docs/en/session/config)_
 
 
 <a id="redirect-dengan-old-input"></a>
-## Redirect Dengan Old Input
+## Redirect With Old Input
 
-Sekarang anda sudah tahu bagaimana caranya flashing data ke session.
-Berikut adalah beberapa shortcut yang dapat anda gunakan ketika me-redirect user dengan
-menyertakan data inputan lama:
+Now that you know how to flash input to the session.
+Here's a shortcut that you can use when redirecting that prevents you
+from having to micro-manage your old input in that way:
 
-#### Flashing data inputan lama saat Redirect:
+#### Flashing input from a Redirect instance:
 
 ```php
 return Redirect::to('login')->with_input();
 ```
 
-#### Flashing beberapa data inputan tertentu saja:
+#### Flashing selected input from a Redirect instance:
 
 ```php
 return Redirect::to('login')->with_input('only', ['username']);
@@ -177,41 +176,43 @@ return Redirect::to('login')->with_input('except', ['password']);
 <a id="cookies"></a>
 ## Cookies
 
-Kami juga telah menyediakan komponen untuk menangani untuk variabel global `$_COOKIE`. Namun,
-ada beberapa hal yang harus anda ketahui sebelum menggunakannya.
+Rakit provides a nice wrapper around the `$_COOKIE` array.
+However, there are a few things you should be aware of before using it.
 
-Pertama, setiap cookie akan mengandung _"signature hash"_. Hal ini memusngkinkan sisi framework  untuk
-memverifikasi bahwa cookie belum diubah oleh klien. Kedua, saat membuat cookie, cookie tidak langsung
-dikirim ke browser, namun ditampung sampai akhir request dan baru kemudian dikirim bersama-sama.
+First, all Rakit cookies contain a "signature hash".
+This allows the framework to verify that the cookie has not been modified on the client.
 
-Ini berarti bahwa anda tidak akan dapat membuat dan mengambil value cookie secara bersamaan
-dalam satu siklus request.
+Secondly, when setting cookies, the cookies are not immediately sent to the browser,
+but are pooled until the end of the request and then sent together.
 
-#### Mengambil item cookie:
+This means that you will not be able to both set a cookie
+and retrieve the value that you set in the same request.
+
+#### Retrieving a cookie value:
 
 ```php
 $name = Cookie::get('name');
 ```
 
-#### Menentukan default value jika item cookie tidak ditemukan:
+#### Returning a default value if the requested cookie doesn't exist:
 
 ```php
 $name = Cookie::get('name', 'Anonim');
 ```
 
-#### Membuat cookie dengan masa aktif 60 menit:
+#### Setting a cookie that lasts for 60 minutes:
 
 ```php
 Cookie::put('name', 'Anonim', 60);
 ```
 
-#### Membuat cookie dengan masa aktif permanen (5 tahun):
+#### Creating a "permanent" cookie that lasts five years:
 
 ```php
 Cookie::forever('name', 'Anonim');
 ```
 
-#### Menghapus cookie:
+#### Deleting a cookie:
 
 ```php
 Cookie::forget('name');
@@ -219,17 +220,17 @@ Cookie::forget('name');
 
 
 <a id="merge--replace"></a>
-## Merge & Replace
+## Merging & Replacing
 
-Kadang-kadang anda mungkin ingin menggabungkan atau mengganti data inputan. Begini caranya:
+Sometimes you may wish to merge or replace the current input. Here's how:
 
-#### Menggabungkan data baru ke data inputan:
+#### Merging new data into the current input:
 
 ```php
 Input::merge(['name' => 'Agus']);
 ```
 
-#### Mengganti semua data inputan dengan data baru:
+#### Replacing the entire input array with new data:
 
 ```php
 Input::replace(['name' => 'Andi', 'age' => 23]);
@@ -237,9 +238,9 @@ Input::replace(['name' => 'Andi', 'age' => 23]);
 
 
 <a id="menghapus-data-input"></a>
-## Menghapus Data Input
+## Clearing Input
 
-Untuk menghapus seluruh data inputan pada siklus request saat ini, gunakan method `clear()`:
+To clear all input data for the current request, you may use the `clear()` method:
 
 ```php
 Input::clear();

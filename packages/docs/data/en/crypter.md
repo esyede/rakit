@@ -32,10 +32,10 @@ To encrypt data, use the `encrypt()` method as follows:
 
 
 ```php
-$data = 'rahasia';
+$data = 'secret';
 
 $encrypted = Crypter::encrypt($data);
-// 'sGcqP0xG5qHyAJvnNa11pBOGk3c3iBUyDnFoyl81vKKPGNd4iMKVD/0NycbYBUMbwesSYi5xcKLFWD3nP6UYJA=='
+// 'qQzcNnAOhCQmqRvDkAsnLR2bjrbxn5M0+aMGVXS38HtkSvBs+g+dxD5xnoBxRoNpGDpAG5Y8SB5VtWAZxwLkZA=='
 ```
 
 <a id="dekripsi-string"></a>
@@ -48,7 +48,7 @@ To decrypt data, use the `decrypt()` method as follows:
 
 
 ```php
-$decrypted = Crypter::decrypt($encrypted); // 'rahasia'
+$decrypted = Crypter::decrypt($encrypted); // 'secret'
 ```
 
 >  It's important to note that this method will only decrypt the encrypted string

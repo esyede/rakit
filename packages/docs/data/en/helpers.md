@@ -228,7 +228,8 @@ If the maximum attempt count is exceeded, the exception will be thrown:
 
 ```php
 return retry(5, function () {
-    // Coba 5 kali dengan jeda selama 100ms di setiap percobaanya...
+    // Retry 5 times with interval of 100ms on each try...
+
 }, 100);
 ```
 
@@ -303,14 +304,14 @@ $url = asset('packages/docs/css/style.css');
 The `action` function generates a URL for the given controller action:
 
 ```php
-// Buat URL ke action 'index' milik User_Controller
+// Generate URL to User_Controller's 'index' action
 $url = action('user@index');
 ```
 
 You can also pass parameters to the destination URL:
 
 ```php
-// Buat URL ke Profil budi
+// Create URL to Budi's profile
 $url = action('user@profile', ['budi']);
 ```
 
@@ -320,7 +321,7 @@ $url = action('user@profile', ['budi']);
 The `route` function generates a URL for a given [named route](/docs/en/routing#named-route):
 
 ```php
-// Buat URL ke route yang bernama 'profile'.
+// Create a URL to the route named 'profile'.
 $url = route('profile');
 ```
 
@@ -344,7 +345,7 @@ return redirect('/home', 301);
 return redirect('https://google.com');
 
 return redirect('/edit')
-    ->with('status', 'Profil gagal diubah!');
+    ->with('status', 'Failed to update profile!');
     ->with_input()
     ->with_errors($validation);
 ```
@@ -389,11 +390,9 @@ The `value` function returns the value it is given. However, if you pass a closu
 the closure will be executed and its returned value will be returned:
 
 ```php
-$result = value(true);
-// true
+$result = value(true); // true
 
-$result = value(function () { return false; });
-// false
+$result = value(function () { return false; }); // false
 ```
 
 
@@ -419,14 +418,14 @@ The `render` function compiles [Blade](/docs/en/views/templating) views into HTM
 // File: views/home.blade.php
 @include('partials.header')
 
-<p>Halo {{ $user->name }}</p>
+<p>Hello {{ $user->name }}</p>
 
 @include('partials.footer')
 ```
 
 ```php
 $rendered = render('home');
-// <html><head></head><body><p>Halo Budi</p></body></html>
+// <html><head></head><body><p>Hello Budi</p></body></html>
 ```
 
 
@@ -467,7 +466,7 @@ The `yield_start` function is the equivalent of the Blade's `@section()` syntax:
 
 ```php
 section_start('nama-section');
-// Isi konten secttion disini..
+// Fill in the section content here..
 ```
 
 

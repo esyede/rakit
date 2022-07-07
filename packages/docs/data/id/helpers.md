@@ -387,11 +387,9 @@ Fungsi `value` mereturn nilai yang oper kepadanya. Namun, jika yang dioper adala
 hasil dari eksekusi closure tersebutlah yang akan dikembalikan:
 
 ```php
-$result = value(true);
-// true
+$result = value(true); // true
 
-$result = value(function () { return false; });
-// false
+$result = value(function () { return false; }); // false
 ```
 
 

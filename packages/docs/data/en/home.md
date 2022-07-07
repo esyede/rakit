@@ -14,7 +14,7 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Welcome to the Documentation page.
+Welcome to the documentation page.
 This document is intended to become a getting started guide and as feature reference as well.
 
 Even you can jump to any part of this document and start learning, we suggest you to read the documentation sequentially so we can gradually build the concepts which will be used in the next documents.
