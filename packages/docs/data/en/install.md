@@ -8,7 +8,7 @@
     - [Manual Installation](#install-manual)
 - [Problems?](#ada-kesulitan)
 - [Initial Configuration](#konfigurasi-awal)
-- [Beautiful URL](#mempercantik-url)
+- [Pretty URL](#mempercantik-url)
     - [Apache](#apache)
     - [Nginx](#nginx)
 
@@ -129,7 +129,7 @@ contains basic configuration options for your application.
 
 
 <a id="mempercantik-url"></a>
-## Beautiful URL
+## Pretty URL
 
 When you are ready to install your application to a production server,
 there are a few important things to keep in mind
