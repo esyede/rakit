@@ -1,24 +1,36 @@
-# Alih Bahasa
+# Localization
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mengambil baris bahasa](#mengambil-baris-bahasa)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Retrieving A Language Line](#mengambil-baris-bahasa)
 - [Placeholder & Replacement](#placeholder--replacement)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Alih bahasa adalah proses menerjemahkan aplikasi anda ke dalam berbagai bahasa. Komponen `Lang` menyediakan mekanisme sederhana untuk membantu anda mengatur dan mengambil teks aplikasi multibahasa anda.
+Localization is the process of translating your application into different languages.
+The Lang class provides a simple mechanism to help you
+organize and retrieve the text of your multilingual application.
 
-Semua file bahasa untuk aplikasi anda berada di bawah direktori `application/language/`. Di dalam direktori `application/language/` tersebut, anda harus membuat direktori untuk setiap bahasa yang digunakan aplikasi anda.
+All of the language files for your application live under the `application/language directory`.
 
-Jadi, misalnya, jika aplikasi anda berbicara bahasa Inggris dan Indonesia, anda dapat membuat direktori `en/` dan `id/` di bawah direktori `language/`. Secara default, dua bahasa tersebut sudah kami sediakan. Anda boleh menambahkan bahasa - bahasa lain jika perlu.
+Within the application/language directory, you should create a directory
+for each language your application speaks.
 
-Setiap file bahasa hanyalah array asosiatif berisi string dalam bahasa yang bersangkutan. Uniknya, file bahasa memiliki struktur yang identik dengan file konfigurasi. Misalnya, dalam direktori `application/language/en/`, anda dapat membuat file `marketing.php` yang terlihat seperti ini:
+So, for example, if your application speaks English and Indonesian,
+you might create `en/` and `id/` directories under the `language/` directory.
+
+Each language directory may contain many different language files.
+Each language file is simply an array of string values in that language.
+
+In fact, language files are structured identically to configuration files.
+
+For example, within the `application/language/en/` directory,
+you could create a marketing.php file that looks like this:
 
 #### Membuat sebuah file bahasa:
 
@@ -30,8 +42,8 @@ return [
 ];
 ```
 
-Selanjutnya, anda harus membuat file `marketing.php` yang sama di dalam direktori `application/language/id/`. File tersebut akan terlihat seperti ini:
-
+Next, you should create a corresponding `marketing.php` file within
+the `application/language/id/` directory. The file would look something like this:
 ```php
 return [
 
@@ -40,29 +52,33 @@ return [
 ];
 ```
 
-Mantap! Sekarang anda sudah tahu caranya membuat file alih bahasa. Sangat mudah bukan?
+Nice! Now you know how to get started setting up your language files and directories.
+Let's keep localizing!
 
 
 <a id="mengambil-baris-bahasa"></a>
-## Mengambil baris bahasa
+## Retrieving A Language Line
 
-#### Mengambil sebuah baris bahasa:
+#### Retrieving a language line:
 
 ```php
 echo Lang::line('marketing.welcome')->get();
 ```
 
-#### Mengambil baris bahasa menggunakan helper agar penulisannya lebih pendek:
+#### Retrieving a language line using the helper:
 
 ```php
 echo __('marketing.welcome');
 ```
 
-Perhatikan bagaimana tanda dot (titik) digunakan untuk memisahkan `marketing` dan `welcome`? Teks sebelum dot berhubungan dengan file bahasa, sedangkan teks setelah dot berhubungan dengan string tertentu di dalam file itu.
+Notice how a dot was used to separate `'marketing'` and `'welcome'`?
+The text before the dot corresponds to the language file,
+while the text after the dot corresponds to a specific string within that file.
 
-Perlu mengambil baris dalam bahasa selain bahasa default anda? Tidak masalah. Cukup sebutkan bahasa yang anda mau ke method `get()`:
+Need to retrieve the line in a language other than your default?
+Not a problem. Just mention the language to the get method:
 
-#### Mengambil baris dalam bahasa tertentu:
+Getting a language line in a given language:
 
 ```php
 echo Lang::line('marketing.welcome')->get('fr');
@@ -72,23 +88,26 @@ echo Lang::line('marketing.welcome')->get('fr');
 <a id="placeholder--replacement"></a>
 ## Placeholder & Replacement
 
-Sekarang, coba kita buat pesan selamat datang yang lebih spesifik. _"Selamat datang di situs kami!"_ adalah pesan yang terlalu umum. Akan sangat membantu jika anda dapat menyebutkan nama orang yang akan kita sambut.
+Now, let's work on our welcome message. _"Selamat datang di situs kami!"_ is a pretty generic message.
+It would be helpful to be able to specify the name of the person we are welcoming.
 
-Namun, membuat baris bahasa untuk setiap pengguna aplikasi kita pastinya akan memakan waktu dan terasa konyol. Untungnya, anda tidak perlu melakukannya. Anda dapat menentukan _placeholder_ dalam baris bahasa anda. Placeholder diawali dengan titik dua:
+But, creating a language line for each user of our application would be time-consuming and ridiculous.
+Thankfully, you don't have to. You can specify _"placeholders"_ within your language lines.
+Place-holders are preceded by a colon:
 
-#### Membuat sebuah baris bahasa dengan placeholder:
+#### Creating a language line with place-holders:
 
 ```php
 'welcome' => 'Selamat datang di situs kami, :name!'
 ```
 
-#### Mengambil sebuah baris bahasa dengan replacement:
+#### Retrieving a language line with replacements:
 
 ```php
 echo Lang::line('marketing.welcome', ['name' => 'Budi'])->get();
 ```
 
-#### Mengambil sebuah baris bahasa dengan replacement menggunakan helper:
+#### Retrieving a language line with replacements using helper:
 
 ```php
 echo __('marketing.welcome', ['name' => 'Budi']);

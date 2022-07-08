@@ -11,9 +11,11 @@
 <a id="pengetahuan-dasar"></a>
 ## Basic Knowledge
 
-This component is used to queue event to a database and later fire them through rakit console or a unix job.
+This component is used to queue event to a database and
+later fire them through rakit console or a unix job.
 
-This will be useful when you need to, for example, schedule an e-mail to an user 24 hours after the registration.
+This will be useful when you need to, for example,
+schedule an e-mail to an user 24 hours after the registration.
 
 ```php
 $name         = 'email24';
@@ -81,7 +83,8 @@ If you want, there is a method to run all the queues in the table:
 php rakit job:runall
 ```
 
-You can also fire the events through a route, just change the `job/config/job.php` file to allow it:
+You can also fire the events through a route,
+just change the `job/config/job.php` file to allow it:
 
 ```php
 'cli_only' => false,

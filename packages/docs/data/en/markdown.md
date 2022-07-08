@@ -2,29 +2,32 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Render File Markdown Ke HTML](#render-file-markdown-ke-html)
-- [Parse String Markdown Ke HTML](#parse-string-markdown-ke-html)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [Rendering File To HTML](#render-file-markdown-ke-html)
+- [Rendering String To HTML](#parse-string-markdown-ke-html)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-[Markdown](http://daringfireball.net/projects/markdown/) adalah sintaks untuk mengatur gaya teks di web.
-Dengan markdown, anda dapat mengontrol tampilan dokumen, seperti memformat kata-kata menjadi tebal
-atau miring, menambahkan gambar, membuat listing dan lainnya.
+[Markdown](http://daringfireball.net/projects/markdown/) is a syntax for styling text on the web.
+With markdown, you can control the appearance of the document, such as formatting words in bold
+or italics, add images, create listings and more.
 
-Umumnya, markdown hanyalah teks biasa dengan penambahan beberapa karakter non-alfabet, seperti `#` atau `*`.
-Sintaks dan cara penulisan markdown dapat dipelajari melalui
-[panduan ini](daringfireball.net/projects/markdown/syntax).
+
+Generally, markdown is just plain text with the addition of a few non-alphabet characters,
+such as `#` or `*`. The syntax and how to write markdown can be learned through
+[this guide](onlinefireball.net/projects/markdown/syntax).
+
 
 
 <a id="render-file-markdown-ke-html"></a>
-## Render File Markdown Ke HTML
+## Rendering File To HTML
 
-Untuk me-render file markdown menjadi string HTML, cukup oper path filenya seperti ini:
+To render a markdown file as an HTML string, simply pass the file path like this:
+
 
 ```php
 $file = 'path/to/file.md';
@@ -34,9 +37,10 @@ $html = Markdown::render($file);
 
 
 <a id="parse-string-markdown-ke-html"></a>
-## Parse String Markdown Ke HTML
+## Rendering String To HTML
 
-Jika anda hanya perlu me-render string markdown, cukup gunakan method `parse()` seperti ini:
+If you only need to render the markdown string, just use the `parse()` method like this:
+
 
 ```php
 $string = '_lorem_ ipsum **dolor** sit amet';
@@ -44,5 +48,6 @@ $string = '_lorem_ ipsum **dolor** sit amet';
 $html = Markdown::parse($string);
 ```
 
-> Secara default, kedua method diatas tidak menyaring input nakal dari user.
-  Penggunaan library ini untuk me-render string inputan user sangat tidak disarankan.
+> By default, the two methods above do not filter rogue input from the user.
+  Using this library to render user input strings is strongly discouraged.
+
