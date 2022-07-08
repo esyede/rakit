@@ -26,7 +26,6 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('docs').text = 'Documentation';
     document.getElementById('repos').text = 'Repositories';
 
-    document.getElementById('docs-lang').classList.remove('is-info');
     document.getElementById('docs-lang').classList.remove('is-primary');
     document.getElementById('docs-lang').classList.add('is-primary');
 
@@ -48,7 +47,7 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
         }
     }
 
-    lang.innerHTML = 'Indonesia';
+    lang.innerHTML = 'English';
 } else if (/\/docs\/id(|\/)/.test(window.location.href)) {
     document.getElementById('docs-title').innerHTML = 'Dokumentasi';
     document.getElementById('userinput').placeholder = 'Cari..';
@@ -56,10 +55,6 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('docs').text = 'Dokumentasi';
     document.getElementById('repos').text = 'Repositori';
 
-    document.getElementById('docs-lang').classList.remove('is-info');
-    document.getElementById('docs-lang').classList.remove('is-primary');
-    document.getElementById('docs-lang').classList.add('is-info');
-
     for (var i = 0; i < a.length; i++) {
         if (! a[i].classList.contains('has-submenu')) {
             if (/\/docs\/en(|\/)/.test(a[i].href)) {
@@ -78,7 +73,7 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
         }
     }
 
-    lang.innerHTML = 'English';
+    lang.innerHTML = 'Indonesian';
 } else {
     document.getElementById('docs-title').innerHTML = 'Dokumentasi';
     document.getElementById('userinput').placeholder = 'Cari..';
@@ -86,10 +81,6 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('docs').text = 'Dokumentasi';
     document.getElementById('repos').text = 'Repositori';
 
-    document.getElementById('docs-lang').classList.remove('is-info');
-    document.getElementById('docs-lang').classList.remove('is-primary');
-    document.getElementById('docs-lang').classList.add('is-info');
-
     for (var i = 0; i < a.length; i++) {
         if (! a[i].classList.contains('has-submenu')) {
             if (/\/docs\/en(|\/)/.test(a[i].href)) {
@@ -108,7 +99,7 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
         }
     }
 
-    lang.innerHTML = 'English';
+    lang.innerHTML = 'Indonesian';
 }
 
 var observer = new MutationObserver(function () {
