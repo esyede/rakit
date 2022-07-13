@@ -17,12 +17,9 @@
 <a id="input"></a>
 ## Input
 
-Komponen ini membantu anda dalam menangani input yang dikirim user ke dalam aplikasi, baik
-melalui `GET`, `POST`, `PUT`, atau `DELETE`. Dibawah ini tersedia beberapa contoh bagaimana
-cara mengakses data inputan user.
-
-The `Input` class handles input that comes into your application via `GET`, `POST`, `PUT`, or `DELETE` requests.
-Here are some examples of how to access input data using the `Input` class:
+The Input component handles input that comes into your application
+via `GET`, `POST`, `PUT`, or `DELETE` requests.
+Here are some examples of how to access input data using it:
 
 
 #### Retrieve a value from the input array:
@@ -57,13 +54,13 @@ However, you may pass a different default value as a second parameter to the met
 #### Returning a default value if the requested input item doesn't exist:
 
 ```php
-$name = Input::get('name', 'Anonim');
+$name = Input::get('name', 'Anonymous');
 ```
 
 #### Using a Closure to return a default value:
 
 ```php
-$name = Input::get('name', function () { return 'Anonim'; });
+$name = Input::get('name', function () { return 'Anonymous'; });
 ```
 
 #### Determining if the input contains a given item:
@@ -197,19 +194,19 @@ $name = Cookie::get('name');
 #### Returning a default value if the requested cookie doesn't exist:
 
 ```php
-$name = Cookie::get('name', 'Anonim');
+$name = Cookie::get('name', 'Anonymous');
 ```
 
 #### Setting a cookie that lasts for 60 minutes:
 
 ```php
-Cookie::put('name', 'Anonim', 60);
+Cookie::put('name', 'Anonymous', 60);
 ```
 
 #### Creating a "permanent" cookie that lasts five years:
 
 ```php
-Cookie::forever('name', 'Anonim');
+Cookie::forever('name', 'Anonymous');
 ```
 
 #### Deleting a cookie:

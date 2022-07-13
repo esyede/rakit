@@ -2,100 +2,101 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Bekerja Dengan URI](#bekerja-dengan-uri)
-- [Helper Lainnya](#helper-lainnya)
+- [Working With The URI](#bekerja-dengan-uri)
+- [Other Request Helpers](#helper-lainnya)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="bekerja-dengan-uri"></a>
-## Bekerja Dengan URI
+## Working With The URI
 
-#### Mengambil URI saat ini:
+#### Getting the current URI for the request:
 
 ```php
 echo URI::current();
 ```
 
-#### Mengambil segmen URI tertentu:
+#### Getting a specific segment from the URI:
 
 ```php
 echo URI::segment(1);
 ```
 
-#### Menetukan default value jika segmen tidak ditemukan:
+#### Returning a default value if the segment doesn't exist:
 
 ```php
 echo URI::segment(10, 'Foo');
 ```
 
-#### Mengambil seluruh URI, termasuk query string:
+#### Getting the full request URI, including query string:
 
 ```php
 echo URI::full();
 ```
 
-Kadang kala anda mungkin ingin memeriksa apakah URI saat ini sama, atau dimulai dengan string yang anda
-berikan. Untuk menangani hal seperti ini, silahkan gunakan method `is()` seperti contoh dibawah ini:
+Sometimes you may need to determine if the current URI is a given string,
+or begins with a given string. Here's an example of how you can use
+the `is()` method to accomplish this:
 
-#### Memeriksa apakah URI saat ini adalah "home":
+#### Determine if the URI is 'home':
 
 ```php
 if (URI::is('home')) {
-    // URI saat ini adalah: 'home'
+    // The current URI is: home
 }
 ```
 
-#### Memeriksa apakah URI saat ini dimulai dengan "docs/":
+#### Determine if the current URI begins with 'docs/':
 
 ```php
 if (URI::is('docs/*')) {
-    // URI saat ini diawali dengan: 'docs/'
+    // The current URI begins with: 'docs/'
 }
 ```
 
 
 <a id="helper-lainnya"></a>
-## Helper Lainnya
+## Other Request Helpers
 
-#### Mengambil method request saat ini:
+#### Getting the current request method:
 
 ```php
 echo Request::method();
 ```
 
-#### Mengakses variabel global `$_SERVER`:
+#### Accessing the `$_SERVER` global array:
 
 ```php
 echo Request::server('http_referer');
 ```
 
-#### Mengambil IP si pengirim request:
+#### Retrieving the requester's IP address:
 
 ```php
 echo Request::ip();
 ```
 
-#### Memeriksa apakah request saat ini dikirim via HTTPS:
+#### Determining if the current request is using HTTPS:
 
 ```php
 if (Request::secure()) {
-	// Request ini dikirim via HTTPS!
+	// RThis request is over HTTPS!
 }
 ```
 
-#### Memeriksa apakah request saat ini dikirim via AJAX:
+#### Determining if the current request is an AJAX request:
 
 ```php
 if (Request::ajax()) {
-	// Request ini dikirim via AJAX!
+	// This request is using AJAX!
 }
 ```
 
-#### Memeriksa apakah request saat ini datang dari CLI console:
+#### Determining if the current requst is via the CLI console:
 
 ```php
 if (Request::cli()) {
-	// Request ini datang dari CLI!
+	// This request came from the CLI!
 }
 ```

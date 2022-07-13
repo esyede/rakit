@@ -220,27 +220,18 @@ Rakit menggunakan sintaks `::` (kolon ganda) untuk memuat item-item ini. Mari li
 #### Memuat sebuah view milik paket:
 
 ```php
-return View::make('[nama paket]::[nama view]');
-
-// Contoh:
 return View::make('admin::dashboard');
 ```
 
 #### Mengambil sebuah item config milik paket:
 
 ```php
-return Config::get('[nama paket]::[nama file config].[nama item]');
-
-// Contoh:
 return Config::get('admin::uploads.max_size');
 ```
 
 #### Mengambil item config language milik sebuah paket:
 
 ```php
-return Lang::get('[nama paket]::[nama file language].[nama item]');
-
-// Contoh:
 return Lang::line('admin::themes.default_theme');
 ```
 
@@ -289,8 +280,8 @@ Jadi, misalnya paket anda bernama  `admin`, maka taruh file-file aset anda ke fo
 Loh, nanti bagaimana jika pengguna paket saya ingin menggunakan asetnya? sedangkan
 folder `admin/assets/` kan tidak readable?
 
-Tenang saja, si kami sedah membekali mereka dengan perintah console sederhana untuk menyalin
-aset paket tersebut ke direktori `assets/` di root path mereka. Begini caranya:
+Tenang saja, rakit sudah dibekali dengan perintah console sederhana untuk menyalin
+aset paket tersebut ke direktori `assets/` di root path. Begini caranya:
 
 #### Mem-publish aset milik sebuah paket:
 
@@ -316,10 +307,6 @@ atau,
 <link href="<?php echo asset('packages/themable/css/app.min.css') ?>" rel="stylesheet"/>
 <script src="<?php echo asset('packages/themable/js/app.min.js') ?>"></script>
 ```
-
->  Method `URL::to_asset()` dan `asset()` diatas sama - sama membantu anda mendapatkan
-   URL ke folder `assets/` tanpa tambahan `index.php` sehingga semua jenis file yang
-   tersimpan di folder assets dapa anda ambil URL-nya, bukan hanya CSS dan JavaScipt saja.
 
 
 <a id="menginstall-paket"></a>
