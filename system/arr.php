@@ -433,7 +433,8 @@ class Arr
 
         if ($requested > $available) {
             throw new \InvalidArgumentException(sprintf(
-                'You requested %s items, but there are only %s items available.', $requested, $available
+                'You requested %s items, but there are only %s items available.',
+                $requested, $available
             ));
         }
 
