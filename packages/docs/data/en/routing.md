@@ -2,57 +2,59 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Routing Dasar](#routing-dasar)
-    - [Route Redirect](#route-redirect)
-    - [Route View](#route-view)
-- [URI Wildcard](#uri-wildcard)
-- [Event 404](#event-404)
-- [Middleware](#middleware)
-- [Middleware Pola URI](#middleware-pola-uri)
-- [Middleware Global](#middleware-global)
-- [Route Grouping](#route-grouping)
-- [Named Route](#named-route)
-- [Routing Paket](#routing-paket)
-- [Routing Controller](#routing-controller)
-- [Route Testing via CLI](#route-testing-via-cli)
+- [Basic Knowledge](#pengetahuan-dasar)
+- [The Basics](#routing-dasar)
+    - [Redirect Routes](#route-redirect)
+    - [View Routes](#route-view)
+- [Wildcards](#uri-wildcard)
+- [The 404 Event](#event-404)
+- [Middlewares](#middleware)
+- [Pattern Middlewares](#middleware-pola-uri)
+- [Global Middlewares](#middleware-global)
+- [Route Groups](#route-grouping)
+- [Named Routes](#named-route)
+- [Package Routes](#routing-paket)
+- [Controller Routing](#routing-controller)
+- [CLI Route Testing](#route-testing-via-cli)
 
 <!-- /MarkdownTOC -->
 
 
 <a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+## Basic Knowledge
 
-Tidak seperti kebanyakan framework lainnya, dengan Rakit memungkinkan untuk menanamkan
-logika aplikasi dalam dua cara.
+Unlike many other frameworks with Rakit it's possible to embed application logic in two ways.
 
-Meskipun controller adalah cara paling umum untuk mengimplementasikan logika aplikasi,
-anda juga dapat menanamkan logika anda langsung ke rute menggunakan closure.
+While controllers are the most common way to implement application logic it's also possible
+to embed your logic directly into routes.
 
-Closure ini sangat bagus untuk situs kecil yang hanya berisi beberapa halaman karena anda
-tidak harus membuat banyak controller hanya untuk mengekspos setengah lusin method atau
-memasukkan beberapa metode yang tidak terkait ke dalam controller yang sama,
-dan kemudian harus secara manual menunjuk rutenya satu per satu.
+This is **especially** nice for small sites that contain only a few pages
+as you don't have to create a bunch of controllers just to expose half a dozen methods
+or put a handful of unrelated methods into the same controller and then have to
+manually designate routes that point to them.
 
-Rute biasanya didefinisikan di dalam file `routes.php`.
 
-Dalam contoh berikut, parameter pertama adalah rute yang anda _"daftarkan"_ ke router.
-Parameter kedua adalah closure yang berisi logika untuk rute itu.
+Routes are usually defined in the `routes.php` file.
 
-Rute didefinisikan tanpa garis miring. Satu-satunya pengecualian adalah rute default
-yang diwakili dengan hanya sebuah garis miring.
 
->  Rute dievaluasi per baris sesuai urutannya, jadi daftarkan semua rute "wildcard" di
-   bagian bawah file `routes.php` anda.
+In the following example the first parameter is the route that you're _"registering"_ with the router.
+The second parameter is the function containing the logic for that route.
+
+Routes are defined without a front-slash.
+The only exception to this is the default route which is represented with only a front-slash.
+
+>  Routes are evaluated in the order that they are registered,
+   so register any "catch-all" routes at the bottom of your routes.php file.
 
 
 <a id="routing-dasar"></a>
-## Routing Dasar
+## The Basics
 
-Rute yang paling dasar menerima URI dan closure, menyediakan metode yang sangat sederhana dan
-ekspresif untuk menentukan rute dan perilaku tanpa file konfigurasi routing yang rumit:
+The most basic route accepts both a URI and a closure, providing a very simple method and
+expressive way to define routes and behavior without complicated routing configuration files:
 
-#### Mendaftarkan rute `GET`:
+
+#### Registering a route that responds to `GET`:
 
 ```php
 Route::get('/', function () {
@@ -60,7 +62,7 @@ Route::get('/', function () {
 });
 ```
 
-#### Rute valid untuk HTTP method apa pun (`GET`, `POST`, `PUT`, dan `DELETE`):
+#### Registering a route that is valid for any HTTP verb (`GET`, `POST`, `PUT`, and `DELETE`):
 
 ```php
 Route::any('/', function () {
@@ -68,7 +70,7 @@ Route::any('/', function () {
 });
 ```
 
-#### Mendaftarkan rute untuk HTTP method lainnya:
+#### Registering routes for other request methods:
 
 ```php
 Route::post('user', function () {
@@ -84,7 +86,7 @@ Route::delete('user/(:num)', function ($id) {
 });
 ```
 
-#### Mendaftarkan URI tunggal untuk beberapa HTTP method:
+#### Registering a single URI for multiple HTTP verbs:
 
 ```php
 Router::register(['GET', 'POST'], $uri, $callback);
@@ -92,18 +94,18 @@ Router::register(['GET', 'POST'], $uri, $callback);
 
 
 <a id="route-redirect"></a>
-### Route Redirect
+### Redirect Routes
 
-Jika anda perlu membuat rute redireksi ke URI lain, anda bisa menggunakan method `Route::redirect()`.
-Method ini menyediakan jalan pintas yang nyaman sehingga anda tidak perlu menggunakan Closure untuk
-melakukan redireksi sederhana:
+If you need to create a redirection route to another URI, you can use the `Route::redirect()` method.
+This method provides a convenient shortcut so you don't have to use Closure to do a simple redirect:
+
 
 ```php
 Route::redirect('deleted-page', 'home');
 ```
 
-Secara default, ia akan mereturn kode status `302`. Anda dapat menyesuaikan kode status
-tersebut menggunakan parameter ketiga seperti ini:
+By default, it will return the status code `302`. You can customize it of course:
+
 
 ```php
 Route::redirect('deleted-page', 'home', 301);
@@ -111,12 +113,13 @@ Route::redirect('deleted-page', 'home', 301);
 
 
 <a id="route-view"></a>
-### Route View
+### View Routes
 
-Jika rute anda hanya perlu mereturn view, anda dapat menggunakan method `Route::view()`.
+If your route only needs to return views, you can use the `Route::view()` method.
 
-Metode ini menerima URI sebagai argumen pertamanya dan nama view sebagai argumen keduanya.
-Selain itu, anda juga dapat mengoper array data untuk diteruskan ke view sebagai argumen ketiga:
+This method accepts the URI as its first argument and the view name as its second argument.
+Additionally, you can also pass an array of data to pass to the view as the third argument:
+
 
 ```php
 Route::view('/', 'home');
@@ -126,9 +129,9 @@ Route::view('profile', 'profile', ['name' => 'Budi']);
 
 
 <a id="uri-wildcard"></a>
-## URI Wildcard
+## Wildcards
 
-#### Memaksa segmen URI untuk hanya menerima string alfabet:
+#### Forcing a URI segment to be any alphabets:
 
 ```php
 Route::get('user/(:alpha)', function ($id) {
@@ -136,7 +139,7 @@ Route::get('user/(:alpha)', function ($id) {
 });
 ```
 
-#### Memaksa segmen URI untuk hanya menerima string numerik:
+#### Forcing a URI segment to be any digit:
 
 ```php
 Route::get('user/(:num)', function ($id) {
@@ -144,7 +147,7 @@ Route::get('user/(:num)', function ($id) {
 });
 ```
 
-#### Mengizinkan segmen URI menjadi string alfa-numerik:
+#### Allowing a URI segment to be any alpha-numeric string:
 
 ```php
 Route::get('post/(:any)', function ($title) {
@@ -152,7 +155,7 @@ Route::get('post/(:any)', function ($title) {
 });
 ```
 
-#### Menangkap sisa URI:
+#### Catching the remaining URI without limitations:
 
 ```php
 Route::get('files/(:all)', function ($path) {
@@ -160,7 +163,7 @@ Route::get('files/(:all)', function ($path) {
 });
 ```
 
-#### Mengizinkan segmen URI opsional (boleh ada, boleh tidak):
+#### Allowing a URI segment to be optional:
 
 ```php
 Route::get('page/(:any?)', function ($page = 'index') {
@@ -169,13 +172,12 @@ Route::get('page/(:any?)', function ($page = 'index') {
 ```
 
 <a id="event-404"></a>
-## Event 404
+## The 404 Event
 
-Jika request memasuki aplikasi anda tetapi tidak ada yang cocok dengan rute yang ada,
-event 404 akan dimunculkan. Anda dapat menemukan implementasi defaultnya
-di file `application/events.php`.
+If a request enters your application but does not match any existing route, the 404 event
+will be raised. You can find the default event handler in your `application/events.php` file.
 
-#### Handler event 404 default:
+#### The default 404 event handler:
 
 ```php
 Event::listen('404', function () {
@@ -183,24 +185,23 @@ Event::listen('404', function () {
 });
 ```
 
-Anda bebas mengubah ini agar sesuai dengan kebutuhan aplikasi anda!
+You are free to change this to fit the needs of your application!
 
-_Bacaan lebih lanjut:_
+_Further Reading:_
 
 - _[Events](/docs/en/events)_
 
 
 <a id="middleware"></a>
-## Middleware
+## Middlewares
 
-Middleware dapat dijalankan sebelum atau setelah rute dijalankan. Jika middleware `'before'`
-mengembalikan sebuah nilai, nilai itu dianggap sebagai respon terhadap si request
-dan rute tidak akan dieksekusi, ini akan berguna misalnya saat anda menerapkan middleware untuk
-keperluan otentikasi user.
+Route middlewares may be run before or after a route is executed.
+If a `"before"` middleware returns a value, that value is considered the response to the request
+and the route is not executed, which is convenient when implementing authentication middlewares, etc.
 
-Middleware biasanya diletakkan di dalam file `middlewares.php`.
+Middlewares are usually defined in the `middlewares.php` file.
 
-#### Mendaftarkan sebuah middleware:
+#### Registering a middleware:
 
 ```php
 Route::middleware('auth', function () {
@@ -208,7 +209,7 @@ Route::middleware('auth', function () {
 });
 ```
 
-#### Melampirkan middleware ke rute:
+#### Attaching a middleware to a route:
 
 ```php
 Route::get('blocked', ['before' => 'auth', function () {
@@ -216,7 +217,7 @@ Route::get('blocked', ['before' => 'auth', function () {
 }]);
 ```
 
-#### Melampirkan middleware `"after"` ke rute:
+#### Attaching an `"after"` middleware to a route:
 
 ```php
 Route::get('download', ['after' => 'track', function () {
@@ -224,7 +225,7 @@ Route::get('download', ['after' => 'track', function () {
 }]);
 ```
 
-#### Melampirkan beberapa middleware ke rute:
+#### Attaching multiple middlewares to a route:
 
 ```php
 Route::get('create', ['before' => 'csrf|auth', function () {
@@ -232,7 +233,7 @@ Route::get('create', ['before' => 'csrf|auth', function () {
 }]);
 ```
 
-#### Mengoper parameter ke middleware:
+#### Passing parameters to middlewares:
 
 ```php
 Route::get('panel', ['before' => 'role:admin', function () {
@@ -242,23 +243,22 @@ Route::get('panel', ['before' => 'role:admin', function () {
 
 
 <a id="middleware-pola-uri"></a>
-## Middleware Pola URI
+## Pattern Middlewares
 
-Terkadang anda mungkin ingin melampirkan middleware ke semua request yang dimulai dengan pola
-URI tertentu. Misalnya, anda mungkin ingin melampirkan middleware `'auth'` ke semua request
-dengan URI yang dimulai dengan `'admin'`. Begini caranya:
+Sometimes you may want to attach a middleware to all requests that begin with a given URI.
+For example, you may want to attach the `"auth"` middleware to all requests with URIs
+that begin with `"/admin"`. Here's how to do it:
 
-#### Mendefinisikan middleware berdasarkan pola URI:
+#### Defining a URI pattern based middleware:
 
 ```php
 Route::middleware('pattern: admin/*', 'auth');
 ```
 
-Selain menggunakan cara diatas, anda juga dapat mendaftarkan middleware secara langsung
-saat melampirkan middleware ke URI yang diberikan dengan mengoper array dengan nama middleware
-dan closure sebagai callbacknya.
+Optionally you can register middlewares directly when attaching middlewares to a given URI
+by supplying an array with the name of the middleware and a callback.
 
-#### Mendefinisikan middleware dan URI berbasis di salah satu middleware:
+#### Defining a middleware and URI pattern based middleware in one:
 
 ```php
 Route::middleware('pattern: admin/*', ['name' => 'auth', function () {
@@ -267,22 +267,21 @@ Route::middleware('pattern: admin/*', ['name' => 'auth', function () {
 ```
 
 <a id="middleware-global"></a>
-## Middleware Global
+## Global Middlewares
 
-Rakit memiliki dua middleware global yaitu `before()` yang berjalan sebelum request ditanggapi
-dan `after()` yang berjalan setelah request ditanggapi.
+Rakit has two "global" middlewares that run before and after every request to your application.
+You can find them both in the `application/middlewares.php` file.
 
-Anda dapat menemukan keduanya di file `application/middlewares.php`. Middleware ini menjadi
-tempat yang bagus untuk menjalankan paket default atau kebutuhan lain.
+These middlewares make great places to start common packages or other things.
 
->  Middleware `after()` menerima objek `Response` untuk request saat ini.
+> The `"after"` middleware receives the `Response` object for the current request.
 
 
 <a id="route-grouping"></a>
-## Route Grouping
+## Route Groups
 
-Route grouping atau pengelompokan rute memberikan anda keleluasaan untuk melampirkan serangkaian atribut
-ke sekelompok rute sekaligus, ini memungkinkan anda untuk menjaga agar kode anda tetap pendek dan rapi.
+Route groups allow you to attach a set of attributes to a group of routes,
+allowing you to keep your code neat and tidy.
 
 ```php
 Route::group(['before' => 'auth'], function () {
@@ -299,60 +298,58 @@ Route::group(['before' => 'auth'], function () {
 
 
 <a id="named-route"></a>
-## Named Route
+## Named Routes
 
-Terlalu sering menggunakan URL atau redirect menggunakan URI dapat menyebabkan masalah ketika rute
-diubah di masa mendatang. Mendaftarkan rute dengan _"nama yang unik"_ memberi anda cara yang nyaman
-untuk merujuk ke rute tersebut dari seluruh aplikasi anda.
+Constantly generating URLs or redirects using a route's URI can cause problems
+when routes are later changed. Assigning the route a name gives you a convenient way
+to refer to the route throughout your application.
 
-Ketika terjadi perubahan rute, link yang dibuat akan mengarah ke rute baru tanpa perlu diubah lagi,
-cukup menyesuaikan nama-nya saja.
+When a route change occurs the generated links will point to the new route with no further configuration needed.
 
-#### Mendaftarkan nama rute:
+#### Registering a named route:
 
 ```php
 Route::get('/', ['as' => 'home', function () {
-    return 'Selamat datang di homepage kami!';
+    return 'Welcome to our homepage!';
 }]);
 ```
 
-#### Mengambil URL berdasarkan nama:
+#### Generating a URL to a named route:
 
 ```php
 $url = URL::to_route('home');
 ```
 
-#### Redirect ke URL berdasarkan nama:
+#### Redirecting to the named route:
 
 ```php
 return Redirect::to_route('home');
 ```
 
-Setelah rute anda diberi nama, anda dapat dengan mudah memeriksa apakah rute yang menangani
-request saat ini memiliki nama yang diberikan.
+Once you have named a route, you may easily check if the route handling the current request has a given name.
 
-#### Menentukan apakah rute yang menangani request memiliki nama tertentu:
+#### Determine if the route handling the request has a given name:
 
 ```php
 if (Request::route()->is('home')) {
-    return 'Rute saat ini bernama: home';
+    return 'Current route name is: home';
 }
 ```
 
 
 <a id="routing-paket"></a>
-## Routing Paket
+## Package Routes
 
-Rakit adalah framework yang fleksibel, cara kerjanya mirip dengan manajer paket di Linux.
-Oleh karena itu, paket dapat dengan mudah dikonfigurasi untuk menangani request ke aplikasi anda.
+Rakit is a flexible framework, the way it works is similar to a package manager on Linux.
+Packages can easily be configured to handle requests to your application.
 
-Kami akan membahas [paket secara detail](/docs/en/packages) di dokumen lain. Untuk saat ini,
-bacalah bagian ini dan perlu diketahui bahwa rute tidak hanya dapat digunakan untuk mengekspos
-fungsionalitas dalam paket, tetapi juga dapat didaftarkan dari dalam paket.
+We'll be going over [packages in more detail](/docs/en/packages) in another document.
+For now, read through this section and just be aware that not only can routes be used
+to expose functionality in packages, but they can also be registered from within packages.
 
-Mari kita buka file `application/packages.php` dan tambahkan sesuatu:
+Let's open the `application/packages.php` file and add something:
 
-#### Mendaftarkan paket untuk menangani rute:
+#### Registering a package to handle routes:
 
 ```php
 return [
@@ -362,120 +359,118 @@ return [
 ];
 ```
 
-Perhatikan key baru bernama `handles` di array konfigurasi paket diatas. Ini memberitahu Rakit
-untuk memuat paket bernama `admin` pada setiap request yang URI-nya diawali dengan `admin`.
+Notice the new `'handles'` option in our package configuration array?
 
-Sekarang anda siap untuk mendaftarkan beberapa rute untuk paket anda, jadi mari buat file `routes.php`
-di dalam direktori root paket anda dan tambahkan kode berikut:
+This tells rakit to load the `admin` package on any requests where the URI begins with `"/admin"`.
 
-#### Mendaftarkan rute '/' (root) untuk sebuah paket:
+Now you're ready to register some routes for your package, so create a `routes.php` file
+within the root directory of your package and add the following:
+
+#### Registering a '/' (root) route for a package:
 
 ```php
 Route::get('(:package)', function () {
-    return 'Selamat datang di paket admin!';
+    return 'Welcome to the admin package!';
 });
 ```
 
-Pada contoh diatas, placeholder `(:package)` akan otomatis digantikan dengan value dari
-klausa `handles` yang anda gunakan untuk mendaftarkan paket anda tadi.
+Let's explore this example. Notice the `(:package)` placeholder?
 
-Ini memungkinkan orang lain yang nantinya menggunakan paket anda untuk mengubah root URI-nya tanpa
-mempengaruhi definisi routing milik mereka. Bagus, kan?
+That will be replaced with the value of the handles clause that you used to register your package.
+This keeps your code [D.R.Y](https://en.wikipedia.org/wiki/Don't_repeat_yourself), and allows
+those who use your package to change it's root URI without breaking your routes! Nice, right?
 
-Tentu saja, anda dapat menggunakan placeholder `(:package)` untuk semua rute, bukan hanya root saja.
+Of course, you can use the `(:package)` placeholder for all of your routes, not just your root route.
 
-#### Mendaftarkan rute paket:
+#### Registering package routes:
 
 ```php
 Route::get('(:package)/password', function () {
-    return 'Selamat datang di halaman admin >> password!';
+    return 'Welcome to the admin >> password page!';
 });
 ```
 
 
 <a id="routing-controller"></a>
-## Routing Controller
+## Controller Routing
 
-Controller menyediakan cara lain untuk mengelola logika aplikasi anda. Jika anda belum paham dengan
-controller, silahkan baca [dokumentasi tentang controller](/docs/en/controllers) sebelum lanjut ke bagian ini.
+Controllers provide another way to manage your application logic. If you're unfamiliar with controllers
+you may want to [read about controllers](/docs/en/controllers) and return to this section.
 
-Penting untuk diketahui bahwa semua rute di Rakit harus didefinisikan secara eksplisit,
-termasuk rute ke controller. Ini berarti bahwa jika method controller belum didaftarkan,
-maka ia **tidak akan bisa diakses** oleh pengunjung situs anda.
+It is important to be aware that all routes in rakit **must be explicitly defined**,
+including routes to controllers.
 
-Pendaftaran rute controller biasanya dilakukan di file `routes.php`.
+This means that controller methods that have not been exposed through
+route registration **cannot be accessed** by your visitors.
 
-Lazimnya, anda hanya perlu meregistrasikan semua controller di direktori `controllers/`.
+It's possible to automatically expose all methods within a controller using controller route registration.
+Controller route registrations are typically defined in `routes.php` file.
 
-Dimungkinkan untuk secara otomatis mengekspos semua method dalam controller menggunakan registrasi
-route controller. Anda dapat melakukannya dengan sangat mudah:
+Most likely, you just want to register all of the controllers in your application's `controllers/` directory.
+You can do it in one simple statement. Here's how:
 
-#### Daftarkan semua controller untuk aplikasi:
+#### Register all controllers for the application:
 
 ```php
 Route::controller(Controller::detect());
 ```
 
-Method `Controller::detect()` hanya me-return array dari semua controller yang telah didaftarkan.
+The `Controller::detect()` method simply returns an array of all of the controllers defined for the application.
 
-Jika anda ingin mendeteksi controller secara otomatis dalam sebuah paket, cukup oper nama paket
-ke method `detect()` tersebut.
+If you wish to automatically detect the controllers in a package, just pass the package name to the method.
 
-Jika tidak ada nama paket yang dioper, secara default Rakit akan mencari ke folder `application/controllers/`.
+If no package is specified, the application folder's controller directory will be searched.
 
-Method `Controller::detect()` semestinya hanya digunakan untuk pendaftaran rute di situs yang
-sangat sederhana karena cara ini tidak memberi anda kendali atas urutan controller yang dimuat.
+> It is important to note that this method gives you no control over the order in which controllers are loaded.
+  `Controller::detect()` should only be used to Route controllers in very small sites.
+  "Manually" routing controllers gives you much more control, is more self-documenting, and is certainly advised.
 
-Pendefinisian rute secara manual akan memberi anda lebih banyak kendali, lebih mudah dimengerti
-oleh programmer lain, dan tentu saja lebih disarankan.
-
-
-#### Daftarkan semua controller untuk paket `admin`:
+#### Register all controllers for the `"admin"` package:
 
 ```php
 Route::controller(Controller::detect('admin'));
 ```
 
-#### Mendaftarkan controller `home` ke Router:
+#### Registering the `home` controller with the Router:
 
 ```php
 Route::controller('home');
 ```
 
-#### Mendaftarkan beberapa controller ke router:
+#### Registering several controllers with the router:
 
 ```php
 Route::controller(['dashboard.panel', 'admin']);
 ```
 
-Setelah controller didaftarkan, anda dapat mengakses methodnya menggunakan konvensi URI sederhana:
+Once a controller is registered, you may access its methods using a simple URI convention:
 
 ```ini
-mysite.com/<nama_controller>/<nama_method>/<parameter_tambahan>
+mysite.com/<controller_name>/<method_name>/<additional_parameters>
 ```
 
-Konvensi ini mirip dengan yang digunakan oleh [CodeIgniter](http://codeigniter.com) versi 3 dan
-beberapa framework populer lainnya, dimana segmen pertama adalah nama controller,
-yang kedua adalah nama method, dan segmen sisanya akan dioper ke method sebagai argumen.
+This convention is similar to that employed by CodeIgniter 3 and other popular frameworks,
+where the first segment is the controller name, the second is the method,
+and the remaining segments are passed to the method as arguments.
 
-Jika tidak ada segmen method yang diberikan, method `index` yang akan otomatis digunakan.
+If no method segment is present, the `index` method will be used.
 
-Kami tahu, konvensi seperti ini mungkin tidak selalu cocok untuk setiap situasi, jadi anda juga dapat
-secara eksplisit mendaftarkan rute URI ke method controller menggunakan sintaks yang sederhana.
+This routing convention may not be desirable for every situation, so you may also
+explicitly route URIs to controller actions using a simple, intuitive syntax.
 
-#### Mendaftarkan rute yang merujuk ke method controller:
+#### Registering a route that points to a controller action:
 
 ```php
 Route::get('/', 'home@index');
 ```
 
-#### Mendaftarkan rute dengan middleware yang menunjuk ke method controller:
+#### Registering a route with middleware that points to a controller action:
 
 ```php
 Route::get('/', ['uses' => 'home@index', 'after' => 'track']);
 ```
 
-#### Mendaftarkan [named route](#named-routes) yang menunjuk ke method controller:
+#### Registering a named route that points to a controller action:
 
 ```php
 Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);
@@ -483,12 +478,15 @@ Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);
 
 
 <a id="route-testing-via-cli"></a>
-## Route Testing via CLI
+## CLI Route Testing
 
 Anda dapat memanggil rute yang anda buat via [console](/docs/en/console#memanggil-rute).
 Cukup sebutkan tipe request dan URI mana yang ingin anda panggil.
 
-#### Memanggil rute melalui CLI:
+You may test your routes using [rakit console command](/docs/en/console#memanggil-rute).
+Simply specify the request method and URI you want to use:
+
+#### Calling a route via the rakit console:
 
 ```bash
 php rakit route:call get api/user/1

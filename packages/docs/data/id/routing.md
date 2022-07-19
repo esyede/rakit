@@ -246,7 +246,7 @@ Route::get('panel', ['before' => 'role:admin', function () {
 
 Terkadang anda mungkin ingin melampirkan middleware ke semua request yang dimulai dengan pola
 URI tertentu. Misalnya, anda mungkin ingin melampirkan middleware `'auth'` ke semua request
-dengan URI yang dimulai dengan `'admin'`. Begini caranya:
+dengan URI yang dimulai dengan `'/admin'`. Begini caranya:
 
 #### Mendefinisikan middleware berdasarkan pola URI:
 
@@ -269,13 +269,13 @@ Route::middleware('pattern: admin/*', ['name' => 'auth', function () {
 <a id="middleware-global"></a>
 ## Middleware Global
 
-Rakit memiliki dua middleware global yaitu `before()` yang berjalan sebelum request ditanggapi
-dan `after()` yang berjalan setelah request ditanggapi.
+Rakit memiliki dua middleware global yaitu `"before"` yang berjalan sebelum request ditanggapi
+dan `"after"` yang berjalan setelah request ditanggapi.
 
 Anda dapat menemukan keduanya di file `application/middlewares.php`. Middleware ini menjadi
 tempat yang bagus untuk menjalankan paket default atau kebutuhan lain.
 
->  Middleware `after()` menerima objek `Response` untuk request saat ini.
+>  Middleware `"after"` menerima objek `Response` untuk request saat ini.
 
 
 <a id="route-grouping"></a>
@@ -363,7 +363,7 @@ return [
 ```
 
 Perhatikan key baru bernama `handles` di array konfigurasi paket diatas. Ini memberitahu Rakit
-untuk memuat paket bernama `admin` pada setiap request yang URI-nya diawali dengan `admin`.
+untuk memuat paket bernama `admin` pada setiap request yang URI-nya diawali dengan `"/admin"`.
 
 Sekarang anda siap untuk mendaftarkan beberapa rute untuk paket anda, jadi mari buat file `routes.php`
 di dalam direktori root paket anda dan tambahkan kode berikut:
@@ -423,11 +423,10 @@ ke method `detect()` tersebut.
 
 Jika tidak ada nama paket yang dioper, secara default Rakit akan mencari ke folder `application/controllers/`.
 
-Method `Controller::detect()` semestinya hanya digunakan untuk pendaftaran rute di situs yang
-sangat sederhana karena cara ini tidak memberi anda kendali atas urutan controller yang dimuat.
-
-Pendefinisian rute secara manual akan memberi anda lebih banyak kendali, lebih mudah dimengerti
-oleh programmer lain, dan tentu saja lebih disarankan.
+> Penting untuk dicatat bahwa metode ini tidak memberi Anda kendali atas urutan pemuatan controller.
+  `Controller::detect()` hanya boleh digunakan untuk merutekan controller di situs yang tidak terlalu kompleks.
+  Pengontrol perutean "secara manual" memberi Anda lebih banyak kontrol, l
+  ebih mendokumentasikan diri sendiri, dan tentu saja disarankan.
 
 
 #### Daftarkan semua controller untuk paket `admin`:
@@ -454,7 +453,7 @@ Setelah controller didaftarkan, anda dapat mengakses methodnya menggunakan konve
 mysite.com/<nama_controller>/<nama_method>/<parameter_tambahan>
 ```
 
-Konvensi ini mirip dengan yang digunakan oleh [CodeIgniter](http://codeigniter.com) versi 3 dan
+Konvensi ini mirip dengan yang digunakan oleh CodeIgniter 3 dan
 beberapa framework populer lainnya, dimana segmen pertama adalah nama controller,
 yang kedua adalah nama method, dan segmen sisanya akan dioper ke method sebagai argumen.
 
@@ -475,7 +474,7 @@ Route::get('/', 'home@index');
 Route::get('/', ['uses' => 'home@index', 'after' => 'track']);
 ```
 
-#### Mendaftarkan [named route](#named-routes) yang menunjuk ke method controller:
+#### Mendaftarkan named route yang menunjuk ke method controller:
 
 ```php
 Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);

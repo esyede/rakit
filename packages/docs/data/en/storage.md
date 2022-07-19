@@ -3,15 +3,15 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
 - [File Path](#file-path)
-- [Baca File](#baca-file)
-- [Tulis File](#tulis-file)
-- [Hapus File](#hapus-file)
-- [Upload File](#upload-file)
-- [Ekstensi File](#ekstensi-file)
-- [Memeriksa Tipe File](#memeriksa-tipe-file)
+- [Reading File](#baca-file)
+- [Writing File](#tulis-file)
+- [Deleting File](#hapus-file)
+- [Uploading File](#upload-file)
+- [File Extension](#ekstensi-file)
+- [Checking File Type](#memeriksa-tipe-file)
 - [MIME-Type](#mime-type)
-- [Salin Direktori](#salin-direktori)
-- [Hapus Direktori](#hapus-direktori)
+- [Copying Directory](#salin-direktori)
+- [Deleting Directory](#hapus-direktori)
 
 <!-- /MarkdownTOC -->
 
@@ -19,7 +19,8 @@
 <a id="file-path"></a>
 ## File Path
 
-#### Memeriksa eksistensi direktori atau file:
+#### Checking directory/file existence:
+
 
 ```php
 Storage::exists('foo/bar/');    // true
@@ -27,7 +28,8 @@ Storage::exists('foo/bar.txt'); // true
 ```
 
 
-#### Memeriksa bahwa path yang diberikan merupakan sebuah file:
+#### Checks that the given path is a file:
+
 
 ```php
 Storage::isfile('foo/bar/');    // false
@@ -35,7 +37,7 @@ Storage::isfile('foo/bar.txt'); // true
 ```
 
 
-#### Memeriksa bahwa path yang diberikan merupakan sebuah direktori:
+#### Checks that the given path is a directory:
 
 ```php
 Storage::isdir('foo/bar/');    // true
@@ -44,63 +46,66 @@ Storage::isdir('foo/bar.txt'); // false
 
 
 <a id="baca-file"></a>
-## Baca File
+## Reading File
 
-#### Mengambil isi file:
+#### Reading file data:
 
 ```php
 $contents = Storage::get('path/to/file');
 ```
 
 <a id="tulis-file"></a>
-## Tulis File
+## Writing File
 
-#### Menulis data kedalam file:
+#### Write data to file:
+
 
 ```php
 Storage::put('path/to/file', 'isi file');
 ```
 
-#### Menambahkan data ke akhir file:
+#### Appending data to file:
 
 ```php
 Storage::append('path/to/file', 'isi file yang ditambahkan');
 ```
 
 <a id="hapus-file"></a>
-## Hapus File
+## Deleting File
 
-#### Menghapus sebuah file:
+#### Deleting a file:
 
 ```php
 Storage::delete('path/to/file.ext');
 ```
 
 <a id="upload-file"></a>
-## Upload File
+## Uploading File
 
-#### Memindahkan file dari `$_FILES` ke disk:
+#### Moving file from `$_FILES` to disk:
 
 ```php
 Input::upload('picture', 'path/to/pictures', 'filename.ext');
 ```
 
->  Anda dapat dengan mudah mevalidasi file upload menggunakan [Validator](/docs/en/validation).
+>  Anda dapat dengan mudah mevalidasi file upload menggunakan [Validator](/docs/id/validation).
 
 
 <a id="ekstensi-file"></a>
-## Ekstensi File
+## File Extension
 
-#### Mengambil ekstensi sebuah file:
+#### Retrieving file extension:
+
 
 ```php
 Storage::extension('picture.png');
 ```
 
 <a id="memeriksa-tipe-file"></a>
-## Memeriksa Tipe File
+## Checking File Type
 
-#### Memeriksa apakah suatu file bertipe tertentu:
+#### Checks if a file is of a certain type:
+
 
 ```php
 if (Storage::is('jpg', 'path/to/file.jpg')) {
@@ -108,28 +113,32 @@ if (Storage::is('jpg', 'path/to/file.jpg')) {
 }
 ```
 
-Metode `is()` tidak hanya memeriksa ekstensi file saja. Ia juga akan menggunakan ekstensi
-[Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) untuk membaca konten file dan
-menentukan MIME-Type yang sebenarnya.
+The `is()` method doesn't just check for file extensions. It uses the
+[Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extention to read
+the contents of the file and determine the actual MIME-Type.
+
 
 
 <a id="mime-type"></a>
 ## MIME-Type
 
-#### Mengambil MIME-Type yang terkait dengan ekstensi:
+#### Retrieves the MIME-Type associated with the extension:
+
 
 ```php
 echo Storage::mime('lolcat.gif'); // output: 'image/gif'
 ```
 
->  Anda harus mengaktifkan ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
-   sebelum menggunakan method `mime()` ini.
+> You need to enable the [Fileinfo] extension(https://www.php.net/manual/en/book.fileinfo.php)
+   before using this `mime()` method.
+
 
 
 <a id="salin-direktori"></a>
-## Salin Direktori
+## Copying Directory
 
-#### Salin direktori ke lokasi tertentu secara rekursif:
+#### Copy the directory to a specific location recursively:
+
 
 ```php
 Storage::cpdir($directory, $destination);
@@ -137,9 +146,9 @@ Storage::cpdir($directory, $destination);
 
 
 <a id="hapus-direktori"></a>
-## Hapus Direktori
+## Deleting Directory
 
-#### Hapus direktori tertentu secara rekursif:
+#### Remove specific directories recursively:
 
 ```php
 Storage::rmdir($directory);

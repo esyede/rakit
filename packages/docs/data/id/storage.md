@@ -85,7 +85,7 @@ Storage::delete('path/to/file.ext');
 Input::upload('picture', 'path/to/pictures', 'filename.ext');
 ```
 
->  Anda dapat dengan mudah mevalidasi file upload menggunakan [Validator](/docs/id/validation).
+>  Anda dapat dengan mudah mevalidasi file upload menggunakan [Validator](/docs/en/validation).
 
 
 <a id="ekstensi-file"></a>
