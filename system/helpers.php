@@ -529,8 +529,7 @@ if (! function_exists('old')) {
      */
     function old($key, $default = null)
     {
-        $old = \System\Input::old($key);
-        return $old ? $old : $default;
+        return \System\Input::old($key, $default);
     }
 }
 
@@ -630,9 +629,9 @@ if (! function_exists('root_namespace')) {
      */
     function root_namespace($class, $separator = '\\')
     {
-        if (\System\Str::contains($class, $separator)) {
-            return head(explode($separator, $class));
-        }
+        return \System\Str::contains($class, $separator)
+            ? head(explode($separator, $class))
+            : null;
     }
 }
 
