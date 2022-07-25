@@ -103,7 +103,6 @@ class URI
      */
     protected static function segments($uri)
     {
-        $segments = explode('/', trim($uri, '/'));
-        static::$segments = array_diff($segments, ['']);
+        static::$segments = array_diff(explode('/', trim($uri, '/')), ['']);
     }
 }
