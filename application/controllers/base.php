@@ -22,6 +22,6 @@ class Base_Controller extends Controller
      */
     public function __call($method, array $parameters)
     {
-        return Response::error(404);
+        return abort(404);
     }
 }

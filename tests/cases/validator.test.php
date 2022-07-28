@@ -398,7 +398,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheUrlRule()
     {
-        $input = ['url' => 'https://www.site.com'];
+        $input = ['url' => 'https://github.com'];
         $rules = ['url' => 'url'];
         $this->assertTrue(Validator::make($input, $rules)->valid());
 
@@ -416,7 +416,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $input = [];
         $rules = ['url' => 'active_url'];
 
-        $input['url'] = 'https://site.com';
+        $input['url'] = 'https://github.com';
         $this->assertTrue(Validator::make($input, $rules)->valid());
 
         $input['url'] = 'https://hj2ks-kgs142tfsfhv0bvs8vvgjgs-afsvsbgtfs';

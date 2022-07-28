@@ -16,15 +16,15 @@ defined('DS') or exit('No direct script access.');
 | <code>
 |
 |      // Pertama, definisikan middlewarenya:
-|      Route::middleware('khusus_dewasa', function () use ($umur) {
-|          if ($umur < 17) {
-|               return 'Bocil gak boleh buka!';
+|      Route::middleware('only_admin', function () use ($umur) {
+|          if (Auth::user()->role !== 'admin') {
+|               return 'Halaman ini khusus admin!';
 |          }
 |      });
 |
 |      // Lalu, tinggal lampirkan saja ke rute:
-|      Route::get('/', ['before' => 'khusus_dewasa', function () {
-|          return Halo dunia!';
+|      Route::get('admin-panel', ['before' => 'only_admin', function () {
+|          return 'Selamat datang admin!';
 |      }]);
 |
 | <code>
@@ -41,12 +41,12 @@ Route::middleware('after', function ($response) {
 
 Route::middleware('csrf', function () {
     if (Request::forged()) {
-        return Response::error(422);
+        return abort(422);
     }
 });
 
 Route::middleware('auth', function () {
     if (Auth::guest()) {
-        return Redirect::to('login');
+        return redirect('login');
     }
 });

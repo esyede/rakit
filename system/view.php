@@ -451,9 +451,9 @@ class View implements \ArrayAccess
      */
     public static function flush()
     {
-        $files = glob(path('storage').DS.'views'.DS.'*.php');
+        $files = glob(path('storage').'views'.DS.'*.php');
 
-        if (is_array($files) && ! empty($files)) {
+        if (is_array($files) && count($files) > 0) {
             foreach ($files as $file) {
                 Storage::delete($file);
             }
@@ -473,9 +473,7 @@ class View implements \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        if (isset($this[$offset])) {
-            return $this->data[$offset];
-        }
+        return isset($this[$offset]) ? $this->data[$offset] : null;
     }
 
     /**

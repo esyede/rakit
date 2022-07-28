@@ -92,8 +92,8 @@ class DateTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemake()
     {
-        $this->assertInstanceOf('\System\Date', Date::make()->remake('+ 1 day'));
-        $this->assertInstanceOf('\System\Date', Date::make()->remake('+ 1 day', true));
+        $this->assertInstanceOf('\System\Date', Date::make()->remake('+1 day'));
+        $this->assertInstanceOf('\System\Date', Date::make()->remake('+1 day', true));
     }
 
     /**
@@ -106,12 +106,12 @@ class DateTest extends \PHPUnit_Framework_TestCase
         $language = Config::get('application.language');
 
         Config::set('application.language', 'en');
-        $this->assertSame('3 day(s) from now', Date::make()->remake('+3 day')->ago());
-        $this->assertSame('1 week(s) ago', Date::make()->remake('-8 day')->ago());
+        $this->assertSame('3 days from now', Date::make()->remake('+3 days')->ago());
+        $this->assertSame('1 week ago', Date::make()->remake('-8 days')->ago());
 
         Config::set('application.language', 'id');
-        $this->assertSame('3 hari dari sekarang', Date::make()->remake('+3 day')->ago());
-        $this->assertSame('1 minggu yang lalu', Date::make()->remake('-8 day')->ago());
+        $this->assertSame('3 hari dari sekarang', Date::make()->remake('+3 days')->ago());
+        $this->assertSame('1 minggu yang lalu', Date::make()->remake('-8 days')->ago());
         Config::set('application.language', $language);
     }
 

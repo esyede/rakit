@@ -39,9 +39,9 @@ if (! function_exists('dd')) {
      *
      * @return void
      */
-    function dd($variables)
+    function dd(/** ..$variables */)
     {
-        $variables = is_array($variables) ? $variables : func_get_args();
+        $variables = func_get_args();
 
         if (is_cli()) {
             array_map(function ($var) {

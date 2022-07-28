@@ -2,6 +2,7 @@ pre.oops-dump {
 	text-align: left;
 	color: #fff;
 	background: #272822;
+    padding: 10px;
 }
 
 pre.oops-dump div {
