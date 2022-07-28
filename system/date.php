@@ -145,23 +145,30 @@ class Date
             ));
         }
 
-        $durations = [60, 60, 24, 7, 4.35, 12, 10];
-        $count = count($durations) - 1;
-        $units = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year', 'decade'];
-        $ago = Lang::line('date.past')->get();
         $diff = $current - $timestamp;
 
-        if ($diff < 0) {
-            $diff = abs($diff);
-            $ago = Lang::line('date.future')->get();
+        if (0 === $diff || ($diff > 0 && $diff < 1)) {
+            return Lang::line('date.just_now')->get();
+        } elseif ($diff < 0 && $diff > -1) {
+            return Lang::line('date.just_soon')->get();
         }
 
-        for ($i = 0; $diff >= $durations[$i] && $i < $count; $i++) {
+        $durations = [60, 60, 24, 7, 4.35, 12, 10];
+        $total = count($durations) - 1;
+        $units = ['second', 'minute', 'hour', 'day', 'week', 'month', 'year'];
+        $future = $diff < 0;
+        $diff = $future ? abs($diff) : $diff;
+
+        for ($i = 0; $diff >= $durations[$i] && $i < $total; $i++) {
             $diff /= $durations[$i];
         }
 
         $diff = (int) round($diff);
-        return number_format($diff).' '.Lang::line('date.'.$units[$i])->get().' '.$ago;
+        $lang = $future
+            ? ($units[$i].(($diff > 1) ? 's_from_now' : '_from_now'))
+            : ($units[$i].(($diff > 1) ? 's_ago' : '_ago'));
+
+        return str_replace(':diff', number_format($diff), Lang::line('date.'.$lang)->get());
     }
 
     /**
