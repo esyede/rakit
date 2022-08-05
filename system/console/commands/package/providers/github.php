@@ -6,30 +6,32 @@ defined('DS') or exit('No direct script access.');
 
 class Github extends Provider
 {
-    protected $zipball = '<repository>/archive/<version>.zip';
+    // https://github.com/esyede/file-auth/archive/refs/tags/v1.0.0.zip
+    // https://github.com/esyede/access/archive/refs/tags/v1,0,0.zip
+    protected $zipball = '<repository>/archive/refs/tags/<version>.zip';
 
     /**
      * Instal paket yang diberikan.
      *
-     * @param string $package
+     * @param array $package
      * @param string $path
      *
      * @return void
      */
-    public function install($package, $path)
+    public function install(array $package, $path)
     {
         $repository = $package['repository'];
-        $compatible = isset($package['compatibilities'][RAKIT_VERSION])
+        $this->compatible = isset($package['compatibilities'][RAKIT_VERSION])
             ? $package['compatibilities'][RAKIT_VERSION]
-            : false;
+            : null;
 
-        if (! $compatible) {
+        if (! $this->compatible) {
             throw new \Exception(PHP_EOL.sprintf(
                 'Error: No compatible package for your rakit version (%s)', RAKIT_VERSION
             ).PHP_EOL);
         }
 
-        $url = str_replace(['<repository>', '<version>'], [$repository, $compatible], $this->zipball);
+        $url = str_replace(['<repository>', '<version>'], [$repository, $this->compatible], $this->zipball);
         parent::zipball($url, $package, $path);
     }
 }

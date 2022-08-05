@@ -7,18 +7,26 @@ defined('DS') or exit('No direct script access.');
 use System\Curl;
 use System\Storage;
 use System\Console\PclZip;
+use System\Str;
 
 abstract class Provider
 {
     /**
+     * Versi kompatibel saat ini.
+     *
+     * @var string|null
+     */
+    protected $compatible;
+
+    /**
      * Download paket yang diberikan.
      *
-     * @param string $package
+     * @param array $package
      * @param string $path
      *
      * @return void
      */
-    abstract public function install($package, $path);
+    abstract public function install(array $package, $path);
 
     /**
      * Download dan ekstrak arsip paket yang diberikan.
@@ -29,7 +37,7 @@ abstract class Provider
      *
      * @return void
      */
-    protected function zipball($url, $package, $path)
+    protected function zipball($url, array $package, $path)
     {
         $storage = path('storage').'console'.DS;
         $extractions = $storage.'extractions'.DS;
@@ -72,10 +80,17 @@ abstract class Provider
         $content_type = isset_or($remote->header->content_type, null);
 
         if ('application/zip' !== $content_type) {
-            throw new \Exception(PHP_EOL.sprintf(
-                "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
-                $content_type, 'application/zip'
-            ).PHP_EOL);
+            // Fix: https://github.com/esyede/rakit/issues/22
+            $url = Str::replace_last($this->compatible.'.zip', str_replace('.', ',', $this->compatible).'.zip', $url);
+            $remote = Curl::get($url, [], $options);
+            $content_type = isset_or($remote->header->content_type, null);
+
+            if ('application/zip' !== $content_type) {
+                throw new \Exception(PHP_EOL.sprintf(
+                    "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
+                    $content_type, 'application/zip'
+                ).PHP_EOL);
+            }
         }
 
         unset($options[CURLOPT_HEADER], $options[CURLOPT_NOBODY]);
