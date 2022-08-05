@@ -19,17 +19,17 @@ class Gitlab extends Provider
     public function install(array $package, $path, $version)
     {
         $repository = $package['repository'];
-        $this->compatible = isset($package['compatibilities'][RAKIT_VERSION])
+        $compatible = isset($package['compatibilities'][RAKIT_VERSION])
             ? $package['compatibilities'][RAKIT_VERSION]
             : null;
 
-        if (! $this->compatible) {
+        if (! $compatible) {
             throw new \Exception(PHP_EOL.sprintf(
                 'Error: No compatible package for your rakit version (%s)', RAKIT_VERSION
             ).PHP_EOL);
         }
 
-        $url = str_replace(['<repository>', '<version>'], [$repository, $this->compatible], $this->zipball);
+        $url = str_replace(['<repository>', '<version>'], [$repository, $compatible], $this->zipball);
         parent::zipball($url, $package, $path);
     }
 }

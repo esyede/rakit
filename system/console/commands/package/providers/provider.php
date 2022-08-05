@@ -7,17 +7,9 @@ defined('DS') or exit('No direct script access.');
 use System\Curl;
 use System\Storage;
 use System\Console\PclZip;
-use System\Str;
 
 abstract class Provider
 {
-    /**
-     * Versi kompatibel saat ini.
-     *
-     * @var string|null
-     */
-    protected $compatible;
-
     /**
      * Download paket yang diberikan.
      *
@@ -80,17 +72,10 @@ abstract class Provider
         $content_type = isset_or($remote->header->content_type, null);
 
         if ('application/zip' !== $content_type) {
-            // Fix: https://github.com/esyede/rakit/issues/22
-            $url = Str::replace_last($this->compatible.'.zip', str_replace('.', ',', $this->compatible).'.zip', $url);
-            $remote = Curl::get($url, [], $options);
-            $content_type = isset_or($remote->header->content_type, null);
-
-            if ('application/zip' !== $content_type) {
-                throw new \Exception(PHP_EOL.sprintf(
-                    "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
-                    $content_type, 'application/zip'
-                ).PHP_EOL);
-            }
+            throw new \Exception(PHP_EOL.sprintf(
+                "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
+                $content_type, 'application/zip'
+            ).PHP_EOL);
         }
 
         unset($options[CURLOPT_HEADER], $options[CURLOPT_NOBODY]);
