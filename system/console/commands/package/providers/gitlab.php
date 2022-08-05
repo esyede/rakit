@@ -21,7 +21,7 @@ class Gitlab extends Provider
         $repository = $package['repository'];
         $this->compatible = isset($package['compatibilities'][RAKIT_VERSION])
             ? $package['compatibilities'][RAKIT_VERSION]
-            : false;
+            : null;
 
         if (! $this->compatible) {
             throw new \Exception(PHP_EOL.sprintf(

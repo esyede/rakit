@@ -6,8 +6,6 @@ defined('DS') or exit('No direct script access.');
 
 class Github extends Provider
 {
-    // https://github.com/esyede/file-auth/archive/refs/tags/v1.0.0.zip
-    // https://github.com/esyede/access/archive/refs/tags/v1,0,0.zip
     protected $zipball = '<repository>/archive/refs/tags/<version>.zip';
 
     /**
