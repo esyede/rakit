@@ -9,9 +9,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        if ('Windows' === system_os()) {
-            return;
-        }
+        // ..
     }
 
     /**
@@ -30,7 +28,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testUrlSafeCharacters()
     {
         $encoded = JWT::encode(['foo' => 'f?'], 'secret');
-        $this->assertEquals('f?', JWT::decode($encoded, 'secret')->foo);
+        $decoded = JWT::decode($encoded, 'secret');
+
+        $this->assertEquals('f?', $decoded->foo);
     }
 
     /**
@@ -41,7 +41,12 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testMalformedUtf8StringsFail()
     {
         try {
-            JWT::encode(['foo' => pack('c', 128)], 'secret');
+            $encoded = JWT::encode(['foo' => pack('c', 128)], 'secret');
+        } catch (\Throwable $e) {
+            $this->assertTrue(
+                'Malformed UTF-8 characters' === $e->getMessage()
+                    || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
+            );
         } catch (\Exception $e) {
             $this->assertTrue(
                 'Malformed UTF-8 characters' === $e->getMessage()
@@ -60,7 +65,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() - 20];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'secret');
+            $decoded = JWT::decode($encoded, 'secret');
+        } catch (\Throwable $e) {
+            $this->assertEquals('Expired token', $e->getMessage());
         } catch (\Exception $e) {
             $this->assertEquals('Expired token', $e->getMessage());
         }
@@ -76,7 +83,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'nbf' => time() + 20];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'secret');
+            $decoded = JWT::decode($encoded, 'secret');
+        } catch (\Throwable $e) {
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         } catch (\Exception $e) {
             $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         }
@@ -92,7 +101,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'iat' => time() + 20];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'secret');
+            $decoded = JWT::decode($encoded, 'secret');
+        } catch (\Throwable $e) {
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         } catch (\Exception $e) {
             $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         }
@@ -107,9 +118,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         $payloads = ['foo' => 'bar', 'exp' => time() + JWT::$leeway + 20];
         $encoded = JWT::encode($payloads, 'secret');
-        $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
+        $decoded = JWT::decode($encoded, 'secret');
 
-        JWT::$leeway = 0;
+        $this->assertEquals('bar', $decoded->foo);
     }
 
     /**
@@ -123,7 +134,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
 
         $payloads = ['foo' => 'bar'];
         $encoded = JWT::encode($payloads, 'secret');
-        $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
+        $decoded = JWT::decode($encoded, 'secret');
+
+        $this->assertEquals('bar', $decoded->foo);
 
         JWT::$leeway = 0;
     }
@@ -140,12 +153,15 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() - 70];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'secret');
+            $decoded = JWT::decode($encoded, 'secret');
+            JWT::$leeway = 0;
+        } catch (\Throwable $e) {
+            JWT::$leeway = 0;
+            $this->assertEquals('Expired token', $e->getMessage());
         } catch (\Exception $e) {
+            JWT::$leeway = 0;
             $this->assertEquals('Expired token', $e->getMessage());
         }
-
-        JWT::$leeway = 0;
     }
 
     /**
@@ -157,7 +173,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         $payload = ['foo' => 'bar', 'iat' => time(), 'exp' => time() + 20, 'nbf' => time() - 20];
         $encoded = JWT::encode($payload, 'secret');
-        $this->assertEquals(JWT::decode($encoded, 'secret')->foo, 'bar');
+        $decoded = JWT::decode($encoded, 'secret');
+
+        $this->assertEquals($decoded->foo, 'bar');
     }
 
     /**
@@ -171,7 +189,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
 
         $payload = ['foo' => 'bar', 'nbf' => time() + 20];
         $encoded = JWT::encode($payload, 'secret');
-        $this->assertEquals(JWT::decode($encoded, 'secret')->foo, 'bar');
+        $decoded = JWT::decode($encoded, 'secret');
+
+        $this->assertEquals($decoded->foo, 'bar');
 
         JWT::$leeway = 0;
     }
@@ -188,12 +208,15 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'nbf' => time() + 65];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'secret');
+            $decoded = JWT::decode($encoded, 'secret');
+            JWT::$leeway = 0;
+        } catch (\Throwable $e) {
+            JWT::$leeway = 0;
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         } catch (\Exception $e) {
+            JWT::$leeway = 0;
             $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         }
-
-        JWT::$leeway = 0;
     }
 
     /**
@@ -207,7 +230,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
 
         $payloads = ['foo' => 'bar', 'iat' => time() + 20];
         $encoded = JWT::encode($payloads, 'secret');
-        $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
+        $decoded = JWT::decode($encoded, 'secret');
+
+        $this->assertEquals('bar', $decoded->foo);
 
         JWT::$leeway = 0;
     }
@@ -224,12 +249,15 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'iat' => time() + 65];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'secret');
+            $decoded = JWT::decode($encoded, 'secret');
+            JWT::$leeway = 0;
+        } catch (\Throwable $e) {
+            JWT::$leeway = 0;
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         } catch (\Exception $e) {
+            JWT::$leeway = 0;
             $this->assertTrue(0 === strpos($e->getMessage(), 'Cannot handle token prior to'));
         }
-
-        JWT::$leeway = 0;
     }
 
     /**
@@ -242,7 +270,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() + 20];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, 'qwerty');
+            $decoded = JWT::decode($encoded, 'qwerty');
+        } catch (\Throwable $e) {
+            $this->assertEquals('Signature verification failed', $e->getMessage());
         } catch (\Exception $e) {
             $this->assertEquals('Signature verification failed', $e->getMessage());
         }
@@ -258,7 +288,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() + JWT::$leeway + 20];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, null);
+            $decoded = JWT::decode($encoded, null);
+        } catch (\Throwable $e) {
+            $this->assertEquals('Secret cannot be empty', $e->getMessage());
         } catch (\Exception $e) {
             $this->assertEquals('Secret cannot be empty', $e->getMessage());
         }
@@ -274,7 +306,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() + JWT::$leeway + 20];
             $encoded = JWT::encode($payloads, 'secret');
-            JWT::decode($encoded, '');
+            $decoded = JWT::decode($encoded, '');
+        } catch (\Throwable $e) {
+            $this->assertEquals('Secret cannot be empty', $e->getMessage());
         } catch (\Exception $e) {
             $this->assertEquals('Secret cannot be empty', $e->getMessage());
         }
@@ -289,13 +323,17 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         try {
             $encoded = JWT::encode(['foo' => 'bar'], 'secret', 'RS256'); // unsupported algo
+        } catch (\Throwable $e) {
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithms are supported:'));
         } catch (\Exception $e) {
             $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithms are supported:'));
         }
 
         try {
             $encoded = JWT::encode(['foo' => 'bar'], 'secret', null);
-            JWT::decode($encoded, 'secret', null);
+            $decoded = JWT::decode($encoded, 'secret', null);
+        } catch (\Throwable $e) {
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithms are supported:'));
         } catch (\Exception $e) {
             $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithms are supported:'));
         }
@@ -309,6 +347,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testAdditionalHeaders()
     {
         $encoded = JWT::encode(['foo' => 'bar'], 'secret', 'HS256', ['cty' => 'test-eit;v=1']);
+
         $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
     }
 
@@ -320,7 +359,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testInvalidSegmentCount()
     {
         try {
-            JWT::decode('brokenheader.brokenbody', 'secret');
+            $decoded = JWT::decode('brokenheader.brokenbody', 'secret');
         } catch (\Throwable $e) {
             $this->assertEquals('Wrong number of segments', $e->getMessage());
         } catch (\Exception $e) {
@@ -339,7 +378,12 @@ class JWTTest extends \PHPUnit_Framework_TestCase
             $encoded = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.'
                 .'eyJpZCI6MSwibmFtZSI6ImZvbyJ9.'
                 .'Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
-            JWT::decode($encoded, 'qwerty');
+            $decoded = JWT::decode($encoded, 'qwerty');
+        } catch (\Throwable $e) {
+            $this->assertTrue(
+                'Invalid signature encoding' === $e->getMessage()
+                    || 'Signature verification failed' === $e->getMessage()
+            );
         } catch (\Exception $e) {
             $this->assertTrue(
                 'Invalid signature encoding' === $e->getMessage()
@@ -357,6 +401,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         $encoded = JWT::encode([], 'secret');
         $decoded = JWT::decode($encoded, 'secret');
+
         $this->assertTrue(count(get_object_vars($decoded)) === count([]));
     }
 }
