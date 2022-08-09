@@ -41,7 +41,10 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             JWT::encode(['foo' => pack('c', 128)], 'secret');
         } catch (\Exception $e) {
-            $this->assertEquals('Malformed UTF-8 characters', $e->getMessage());
+            $this->assertTrue(
+                'Malformed UTF-8 characters' === $e->getMessage()
+                    || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
+            );
         }
     }
 
