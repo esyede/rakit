@@ -41,10 +41,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             JWT::encode(['foo' => pack('c', 128)], 'secret');
         } catch (\Exception $e) {
-            $this->assertTrue(
-                'Malformed UTF-8 characters' === $e->getMessage()
-                    || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
-            );
+            $this->assertEquals('Malformed UTF-8 characters', $e->getMessage());
         }
     }
 
@@ -56,7 +53,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testExpiredToken()
     {
         try {
-            $payloads = ['foo' => 'bar', 'exp' => time() - 1000];
+            $payloads = ['foo' => 'bar', 'exp' => time() - 20];
             $encoded = JWT::encode($payloads, 'secret');
             JWT::decode($encoded, 'secret');
         } catch (\Exception $e) {
@@ -119,7 +116,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         JWT::$leeway = 60;
 
-        $payloads = ['foo' => 'bar', 'exp' => time() - 20];
+        $payloads = ['foo' => 'bar'];
         $encoded = JWT::encode($payloads, 'secret');
         $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
 
@@ -138,7 +135,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() - 70];
             $encoded = JWT::encode($payloads, 'secret');
-            $decoded = JWT::decode($encoded, 'secret');
+            JWT::decode($encoded, 'secret');
         } catch (\Exception $e) {
             $this->assertEquals('Expired token', $e->getMessage());
         }
@@ -153,9 +150,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidTokenWithNbf()
     {
-        $payloads = ['foo' => 'bar', 'iat' => time(), 'exp' => time() + 20, 'nbf' => time() - 20];
-        $encoded = JWT::encode($payloads, 'secret');
-        $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
+        $payload = ['foo' => 'bar', 'iat' => time(), 'exp' => time() + 20, 'nbf' => time() - 20];
+        $encoded = JWT::encode($payload, 'secret');
+        $this->assertEquals(JWT::decode($encoded, 'secret')->foo, 'bar');
     }
 
     /**
@@ -167,9 +164,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         JWT::$leeway = 60;
 
-        $payloads = ['foo' => 'bar', 'nbf' => time() + 20];
-        $encoded = JWT::encode($payloads, 'secret');
-        $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
+        $payload = ['foo' => 'bar', 'nbf' => time() + 20];
+        $encoded = JWT::encode($payload, 'secret');
+        $this->assertEquals(JWT::decode($encoded, 'secret')->foo, 'bar');
 
         JWT::$leeway = 0;
     }
@@ -286,10 +283,16 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testInvalidAlgorithm()
     {
         try {
+            $encoded = JWT::encode(['foo' => 'bar'], 'secret', 'RS256'); // unsupported algo
+        } catch (\Exception $e) {
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithms are supported:'));
+        }
+
+        try {
             $encoded = JWT::encode(['foo' => 'bar'], 'secret', null);
             JWT::decode($encoded, 'secret', null);
         } catch (\Exception $e) {
-            $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithm are supported:'));
+            $this->assertTrue(0 === strpos($e->getMessage(), 'Only these algorithms are supported:'));
         }
     }
 
@@ -313,6 +316,8 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         try {
             JWT::decode('brokenheader.brokenbody', 'secret');
+        } catch (\Throwable $e) {
+            $this->assertEquals('Wrong number of segments', $e->getMessage());
         } catch (\Exception $e) {
             $this->assertEquals('Wrong number of segments', $e->getMessage());
         }
@@ -347,12 +352,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         $encoded = JWT::encode([], 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-        $this->assertTrue(
-            $decoded instanceof \stdClass
-            && isset($decoded->exp)
-            && isset($decoded->jti)
-            && isset($decoded->iat)
-            && count(get_object_vars($decoded)) === 3
-        );
+        $this->assertTrue(count(get_object_vars($decoded)) === count([]));
     }
 }

@@ -6,26 +6,21 @@ defined('DS') or exit('No direct script access.');
 
 class JWT
 {
-    public static $expiration = 60;
     public static $timestamp = 0;
     public static $leeway = 0;
 
     private static $algorithms = [
         'HS256' => 'SHA256',
-        'HS512' => 'SHA512',
         'HS384' => 'SHA384',
+        'HS512' => 'SHA512',
     ];
 
     public static function encode(array $payloads, $secret, $algorithm = 'HS256', array $headers = [])
     {
         $timestamp = static::$timestamp ? static::$timestamp : time();
         $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
+        $headers = $headers + ['typ' => 'JWT', 'alg' => $algorithm];
 
-        $payloads['exp'] = time() + static::$expiration;
-        $payloads['jti'] = uniqid(time());
-        $payloads['iat'] = time();
-
-        $headers = array_merge($headers, ['typ' => 'JWT', 'alg' => $algorithm]);
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
         $message = $headers.'.'.$payloads;
@@ -43,7 +38,7 @@ class JWT
         $timestamp = static::$timestamp ? static::$timestamp : time();
         $jwt = explode('.', $token);
 
-        if (count($jwt) !== 3) {
+        if (! is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');
         }
 
@@ -55,6 +50,11 @@ class JWT
 
         if (null === ($payloads = static::decode_json(static::decode_url($payloads64)))) {
             throw new \Exception('Invalid claims encoding');
+        }
+
+
+        if (is_array($payloads) && count($payloads) < 1) {
+            $payloads = new \stdClass;
         }
 
         if (false === ($signature = static::decode_url($signature64))) {
@@ -92,8 +92,11 @@ class JWT
     {
         $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
 
-        if (! array_key_exists($algorithm, static::$algorithms)) {
-            throw new \Exception('Only these algorithm are supported: '.implode(', ', static::$algorithms));
+        if (! isset(static::$algorithms[$algorithm])) {
+            throw new \Exception(sprintf(
+                'Only these algorithms are supported: %s, got: %s (%s)',
+                implode(', ', array_keys(static::$algorithms)), $algorithm, gettype($algorithm)
+            ));
         }
 
         return hash_hmac(static::$algorithms[$algorithm], $message, $secret, true);
@@ -103,8 +106,11 @@ class JWT
     {
         $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
 
-        if (empty(static::$algorithms[$algorithm])) {
-            throw new \Exception('Only these algorithm are supported: '.implode(', ', static::$algorithms));
+        if (! isset(static::$algorithms[$algorithm])) {
+            throw new \Exception(sprintf(
+                'Only these algorithms are supported: %s, got: %s (%s)',
+                implode(', ', array_keys(static::$algorithms)), $algorithm, gettype($algorithm)
+            ));
         }
 
         $hash = hash_hmac(static::$algorithms[$algorithm], $message, $secret, true);
@@ -118,7 +124,7 @@ class JWT
 
     private static function decode_url($data)
     {
-        $remainder  = strlen($data) % 4;
+        $remainder = strlen($data) % 4;
         $data .= $remainder ? str_repeat('=', 4 - $remainder) : '';
 
         return base64_decode(strtr($data, '-_', '+/'));
@@ -126,10 +132,10 @@ class JWT
 
     private static function encode_json($data)
     {
-        $json = json_encode($data);
+        $json = (PHP_VERSION_ID >= 50500) ? json_encode($data, 0, 512) : json_encode($data);
 
-        if (JSON_ERROR_NONE !== json_last_error() && $errno = json_last_error()) {
-            static::json_error($errno);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            static::json_error(json_last_error());
         } elseif ($json === 'null' && $data !== null) {
             throw new \Exception('Null result with non-null input');
         }
@@ -141,8 +147,8 @@ class JWT
     {
         $object = json_decode($data, false, 512, JSON_BIGINT_AS_STRING);
 
-        if (JSON_ERROR_NONE !== json_last_error() && $errno = json_last_error()) {
-            static::json_error($errno);
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            static::json_error(json_last_error());
         } elseif ($object === null && $data !== 'null') {
             throw new \Exception('Null result with non-null input');
         }
