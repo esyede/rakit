@@ -328,7 +328,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
                 .'Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
             JWT::decode($encoded, 'qwerty');
         } catch (\Exception $e) {
-            $this->assertEquals('Signature verification failed', $e->getMessage());
+            $this->assertEquals('Invalid signature encoding', $e->getMessage());
         }
     }
 
