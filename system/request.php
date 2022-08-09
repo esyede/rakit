@@ -294,6 +294,45 @@ class Request
     }
 
     /**
+     * Ambil authorization header.
+     *
+     * @param mixed $default
+     *
+     * @return string|null
+     */
+    public static function authorization()
+    {
+        return static::header('authorization');
+    }
+
+    /**
+     * Ambil bearer token header.
+     *
+     * @param mixed $default
+     *
+     * @return string|null
+     */
+    public static function bearer()
+    {
+        $authorization = (string) static::authorization();
+        return (0 === stripos($authorization, 'bearer '))
+            ? mb_substr($authorization, 7, null, '8bit')
+            : null;
+    }
+
+    /**
+     * Ambil request body.
+     *
+     * @param bool $as_resource
+     *
+     * @return string|resource|null
+     */
+    public static function content($as_resource = false)
+    {
+        return static::foundation()->getContent($as_resource);
+    }
+
+    /**
      * Ambil language list yang bisa diterima browser si klien.
      *
      * @return array
