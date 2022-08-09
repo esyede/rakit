@@ -11,7 +11,7 @@ class Github extends Provider
     /**
      * Instal paket yang diberikan.
      *
-     * @param array $package
+     * @param array  $package
      * @param string $path
      *
      * @return void

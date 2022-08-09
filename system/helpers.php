@@ -39,7 +39,7 @@ if (! function_exists('dd')) {
      *
      * @return void
      */
-    function dd(/** ..$variables */)
+    function dd(/* ..$variables */)
     {
         $variables = func_get_args();
 

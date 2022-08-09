@@ -86,12 +86,12 @@ class Curl
 
         $curl = curl_init();
         curl_setopt_array($curl, [
-           CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
-           CURLOPT_SSL_VERIFYHOST => 0,
-           CURLOPT_SSL_VERIFYPEER => 0,
-           CURLOPT_AUTOREFERER => 1,
-           CURLOPT_RETURNTRANSFER => 1,
-           CURLOPT_USERAGENT => static::agent(),
+            CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_AUTOREFERER => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_USERAGENT => static::agent(),
         ]);
 
         $query = empty($parameters) ? null : http_build_query($parameters, '', '&', PHP_QUERY_RFC1738);

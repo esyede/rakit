@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Foundation\Http\Request as FoundationRequest;
-
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
     /**

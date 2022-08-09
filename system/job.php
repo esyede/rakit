@@ -173,7 +173,6 @@ class Job extends Event
         return true;
     }
 
-
     private function log($message, $type = 'info')
     {
         $config = Config::get('job');

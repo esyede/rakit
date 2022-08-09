@@ -43,23 +43,23 @@ class Schema
 
         switch ($driver) {
             case 'mysql':
-                $query = "SELECT table_name FROM information_schema.tables".
+                $query = 'SELECT table_name FROM information_schema.tables'.
                     " WHERE table_type='BASE TABLE' AND table_schema=".$database.
                     " AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
                 break;
 
             case 'pgsql':
-                $query = "SELECT table_name FROM information_schema.tables".
+                $query = 'SELECT table_name FROM information_schema.tables'.
                     " WHERE table_schema='public' AND table_type='BASE TABLE'";
                 break;
 
             case 'sqlite':
-                $query = "SELECT table_name FROM sqlite_master".
+                $query = 'SELECT table_name FROM sqlite_master'.
                     " WHERE type = 'table' AND table_name NOT LIKE 'sqlite_%'";
                 break;
 
             case 'sqlsrv':
-                $query = "SELECT table_name FROM information_schema.tables".
+                $query = 'SELECT table_name FROM information_schema.tables'.
                     " WHERE table_type='BASE TABLE' AND table_catalog=".$database.
                     " AND table_name <> 'sysdiagrams'";
                 break;
