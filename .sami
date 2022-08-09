@@ -28,5 +28,5 @@ return new Doctum($iterator, [
     'source_dir' => __DIR__.DS.'system',
     'remote_repository' => new GitHubRemoteRepository('esyede/rakit', dirname(__DIR__.DS.'system')),
     'default_opened_level' => 1,
-    'base_url' => '/',
+    'base_url' => 'https://rakit.esyede.my.id/docs/',
 ]);
