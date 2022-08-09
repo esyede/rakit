@@ -399,9 +399,10 @@ class JWTTest extends \PHPUnit_Framework_TestCase
      */
     public function testDecodesEmptyArrayAsObject()
     {
-        $encoded = JWT::encode([], 'secret');
+        $payloads = [];
+        $encoded = JWT::encode($payloads, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
 
-        $this->assertTrue(count(get_object_vars($decoded)) === count([]));
+        $this->assertTrue(count(get_object_vars($decoded)) === count($payloads));
     }
 }
