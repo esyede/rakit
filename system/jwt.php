@@ -6,15 +6,41 @@ defined('DS') or exit('No direct script access.');
 
 class JWT
 {
+    /**
+     * Timestamp saat ini.
+     *
+     * @var int
+     */
     public static $timestamp = 0;
+
+    /**
+     * Leeway time.
+     *
+     * @var int
+     */
     public static $leeway = 0;
 
+    /**
+     * Algoritma yang didukung
+     *
+     * @var array
+     */
     private static $algorithms = [
         'HS256' => 'SHA256',
         'HS384' => 'SHA384',
         'HS512' => 'SHA512',
     ];
 
+    /**
+     * Encode payload ke string JWT.
+     *
+     * @param array  $payloads
+     * @param string $secret
+     * @param string $algorithm
+     * @param array  $headers
+     *
+     * @return string
+     */
     public static function encode(array $payloads, $secret, $algorithm = 'HS256', array $headers = [])
     {
         $timestamp = static::$timestamp ? static::$timestamp : time();
@@ -29,6 +55,14 @@ class JWT
         return $headers.'.'.$payloads.'.'.$signature;
     }
 
+    /**
+     * Decode string JWT.
+     *
+     * @param string $token
+     * @param string $secret
+     *
+     * @return \stdClass
+     */
     public static function decode($token, $secret)
     {
         if (empty($secret)) {
@@ -88,7 +122,16 @@ class JWT
         return $payloads;
     }
 
-    private static function signature($message, $secret, $algorithm)
+    /**
+     * Buat signatur untuk encode.
+     *
+     * @param string $payload
+     * @param string $secret
+     * @param string $algorithm
+     *
+     * @return string
+     */
+    private static function signature($payload, $secret, $algorithm)
     {
         $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
 
@@ -99,10 +142,20 @@ class JWT
             ));
         }
 
-        return hash_hmac(static::$algorithms[$algorithm], $message, $secret, true);
+        return hash_hmac(static::$algorithms[$algorithm], $payload, $secret, true);
     }
 
-    private static function verify($message, $signature, $secret, $algorithm)
+    /**
+     * Verifikasi signature.
+     *
+     * @param string $payload
+     * @param string $signature
+     * @param string $secret
+     * @param string $algorithm
+     *
+     * @return bool
+     */
+    private static function verify($payload, $signature, $secret, $algorithm)
     {
         $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
 
@@ -113,10 +166,17 @@ class JWT
             ));
         }
 
-        $hash = hash_hmac(static::$algorithms[$algorithm], $message, $secret, true);
+        $hash = hash_hmac(static::$algorithms[$algorithm], $payload, $secret, true);
         return Crypter::equals($signature, $hash);
     }
 
+    /**
+     * Encode string ke url base64.
+     *
+     * @param string $data
+     *
+     * @return string
+     */
     private static function encode_url($data)
     {
         return str_replace('=', '', strtr(base64_encode($data), '+/', '-_'));
@@ -130,6 +190,13 @@ class JWT
         return base64_decode(strtr($data, '-_', '+/'));
     }
 
+    /**
+     * Encode data ke bentuk json.
+     *
+     * @param mixed $data
+     *
+     * @return string
+     */
     private static function encode_json($data)
     {
         $json = (PHP_VERSION_ID >= 50500) ? json_encode($data, 0, 512) : json_encode($data);
@@ -143,6 +210,13 @@ class JWT
         return $json;
     }
 
+    /**
+     * Decode json ke bentuk object.
+     *
+     * @param string $data
+     *
+     * @return string
+     */
     private static function decode_json($data)
     {
         $object = json_decode($data, false, 512, JSON_BIGINT_AS_STRING);
@@ -156,6 +230,13 @@ class JWT
         return $object;
     }
 
+    /**
+     * Taangani error json.
+     *
+     * @param int $errno
+     *
+     * @return void
+     */
     private static function json_error($errno)
     {
         $messages = [
@@ -166,7 +247,10 @@ class JWT
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
         ];
 
-        $message = isset_or($messages[$errno], sprintf('Unknown JSON error: %s', $errno));
+        $message = isset($messages[$errno])
+            ? $messages[$errno]
+            : sprintf('Unknown JSON error: %s', $errno);
+
         throw new \Exception($message);
     }
 }

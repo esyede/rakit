@@ -9,7 +9,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // ..
+        if ('Windows' === system_os()) {
+            return;
+        }
     }
 
     /**
