@@ -69,7 +69,9 @@ abstract class Provider
         Storage::delete($destination);
         $options = [CURLOPT_FOLLOWLOCATION => 1, CURLOPT_HEADER => 1, CURLOPT_NOBODY => 1];
         $remote = Curl::get($url, [], $options);
-        $content_type = isset_or($remote->header->content_type, null);
+        $content_type = isset($remote->header->content_type)
+            ? $remote->header->content_type
+            : null;
 
         if ('application/zip' !== $content_type) {
             throw new \Exception(PHP_EOL.sprintf(

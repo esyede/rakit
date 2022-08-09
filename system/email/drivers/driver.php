@@ -200,7 +200,7 @@ abstract class Driver
 
         $alternatify = is_bool($alternatify) ? $alternatify : $this->config['alternatify'];
         $attachify = is_bool($attachify) ? $attachify : $this->config['attachify'];
-        $strip = isset_or($this->config['strip_comments'], true);
+        $strip = isset($this->config['strip_comments']) ? (bool) $this->config['strip_comments'] : true;
         $html = $strip ? preg_replace('/<!--(.*)-->/', '', (string) $html) : $html;
 
         if ($attachify) {
@@ -434,7 +434,7 @@ abstract class Driver
             throw new \Exception(sprintf('Email attachment not found: %s', $file[0]));
         }
 
-        $file[1] = isset_or($file[1], ($name ? $name : basename($file[0])));
+        $file[1] = isset($file[1]) ? $file[1] : ($name ? $name : basename($file[0]));
 
         if (false === ($contents = file_get_contents($file[0])) || empty($contents)) {
             throw new \Exception(sprintf(
@@ -870,7 +870,10 @@ abstract class Driver
      */
     protected static function standardize($string, $newline = null)
     {
-        $newline = $newline ? $newline : isset_or($this->config['email.newline'], "\n");
+        $newline = $newline ? $newline : (
+            isset($this->config['email.newline']) ? $this->config['email.newline'] : "\n"
+        );
+
         $replace = ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n", "\n" => $newline];
 
         foreach ($replace as $from => $to) {
@@ -891,7 +894,9 @@ abstract class Driver
      */
     protected static function encode_string($string, $encoding, $newline = null)
     {
-        $newline = $newline ? $newline : isset_or($this->config['email.newline'], "\n");
+        $newline = $newline ? $newline : (
+            isset($this->config['email.newline']) ? $this->config['email.newline'] : "\n"
+        );
 
         switch ($encoding) {
             case '7bit':
