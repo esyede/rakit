@@ -511,7 +511,7 @@ if (! function_exists('fake')) {
      *
      * </code>
      *
-     * @param string $locale
+     * @param string|null $locale
      *
      * @return mixed
      */
