@@ -42,7 +42,7 @@
         </p>
         <ul class="none">
             <li><a href="https://rakit.esyede.my.id" target="_blank">Situs Resmi</a></li>
-            <li><a href="https://rakit.esyede.my.id/api" target="_blank">Referensi API</a></li>
+            <li><a href="https://rakit.esyede.my.id/api/{{ RAKIT_VERSION }}/index.html" target="_blank">Referensi API</a></li>
             <li><a href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori Paket</a></li>
             <li><a href="https://rakit.esyede.my.id/forum" target="_blank">Forum Diskusi</a></li>
             <li><a href="https://github.com/esyede/rakit">Kode Sumber</a></li>
