@@ -32,7 +32,7 @@ class JWT
     ];
 
     /**
-     * Encode payload ke string JWT.
+     * Encode payload.
      *
      * @param array  $payloads
      * @param string $secret
@@ -56,7 +56,7 @@ class JWT
     }
 
     /**
-     * Decode string JWT.
+     * Decode payload.
      *
      * @param string $token
      * @param string $secret
@@ -123,7 +123,7 @@ class JWT
     }
 
     /**
-     * Buat signatur untuk encode.
+     * Buat signature untuk encode.
      *
      * @param string $payload
      * @param string $secret
@@ -231,7 +231,7 @@ class JWT
     }
 
     /**
-     * Taangani error json.
+     * Tangani error json.
      *
      * @param int $errno
      *
@@ -254,4 +254,3 @@ class JWT
         throw new \Exception($message);
     }
 }
-

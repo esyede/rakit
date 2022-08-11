@@ -21,8 +21,28 @@ class Session extends Command
      */
     public function table(array $arguments = [])
     {
-        if (mb_strlen(trim(Config::get('application.key')), '8bit') < 32) {
-            throw new \Exception('The application key needs to be set at least 32 characters long.');
+        if (mb_strlen(trim(static::$key), '8bit') < 32) {
+            $message = 'Generate your app key with rakit console '.
+                'or obtain it from here: https://rakit.esyede.my.id/key';
+
+            if (Request::cli()) {
+                throw new \Exception($message);
+            } elseif (Request::wants_json()) {
+                Response::json([
+                    'status' => 500,
+                    'success' => false,
+                    'message' => $message,
+                ]);
+            } else {
+                http_response_code(500);
+                require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key.phtml';
+
+                if (function_exists('fastcgi_finish_request')) {
+                    fastcgi_finish_request();
+                }
+
+                exit;
+            }
         }
 
         $make = Container::resolve('command: make');

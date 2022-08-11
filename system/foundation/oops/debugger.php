@@ -410,9 +410,11 @@ class Debugger
 
             if (Helpers::isHtmlMode()) {
                 $logged = empty($e);
-                require self::$errorTemplate
-                    ? self::$errorTemplate
-                    : __DIR__.'/assets/debugger/500.phtml';
+                if (is_file(static::$errorTemplate)) {
+                    require static::$errorTemplate;
+                } else {
+                    require __DIR__.'/assets/debugger/500.phtml';
+                }
             } elseif ('cli' === PHP_SAPI) {
                 // BC-break di PHP 7.4+: @ mentrigger E_NOTICE ketika stderr tidak bisa diakses
                 @fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '

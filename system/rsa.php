@@ -7,7 +7,7 @@ defined('DS') or exit('No direct script access.');
 class RSA
 {
     /**
-     * Enkripsi string menggunakan RSA 2048.
+     * Enkripsi string menggunakan RSA key.
      *
      * @param string $data
      *
@@ -36,12 +36,15 @@ class RSA
             $result .= $temp;
         }
 
-        openssl_free_key($public_key);
+        if (PHP_VERSION_ID < 80000) {
+            openssl_free_key($public_key);
+        }
+
         return $result;
     }
 
     /**
-     * Dekripsi data menggunakan RSA 2048.
+     * Dekripsi data menggunakan RSA key.
      *
      * @param string $encrypted
      *
@@ -72,20 +75,25 @@ class RSA
             $result .= $temp;
         }
 
-        openssl_free_key($private_key);
+        if (PHP_VERSION_ID < 80000) {
+            openssl_free_key($private_key);
+        }
 
         return gzuncompress($result);
     }
 
     /**
-     * Buat private dan public key.
-     * (disimpan ke folder storage).
+     * Buat private dan public key (disimpan ke folder storage).
      *
      * @return void
      */
     private static function generate_key()
     {
-        $config = path('storage').'openssl.conf';
+        $storage = path('storage');
+        $randfile = $storage.'.rnd';
+        $config = $storage.'openssl.conf';
+        $conf = 'HOME='.$storage.PHP_EOL.'RANDFILE='.$randfile.PHP_EOL.'[v3_ca]';
+
         $private_key = null;
         $public_key = null;
 
@@ -93,7 +101,7 @@ class RSA
             unlink($config);
         }
 
-        file_put_contents($config, "HOME = .\nRANDFILE = \$ENV::HOME/.rnd\n[v3_ca]");
+        file_put_contents($config, $conf);
 
         if (! is_file($path = path('storage').'rsa-private.pem')) {
             $private_key = openssl_pkey_new([
@@ -110,12 +118,16 @@ class RSA
             file_put_contents($path, $public_key['key']);
         }
 
-        if (! is_null($private_key) || ! is_null($public_key)) {
+        if ((! is_null($private_key) || ! is_null($public_key)) && PHP_VERSION_ID < 80000) {
             openssl_free_key($private_key);
         }
 
         if (is_file($config)) {
             unlink($config);
+        }
+
+        if (is_file($randfile)) {
+            unlink($randfile);
         }
     }
 }

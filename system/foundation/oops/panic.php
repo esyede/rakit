@@ -139,16 +139,27 @@ class Panic
      */
     public function renderToFile($e, $file)
     {
-        if ($handle = @fopen($file, 'x')) {
-            // Buffer ganda terkadang mencegah pengiriman HTTP header
-            ob_start();
-            ob_start(function ($buffer) use ($handle) {
-                fwrite($handle, $buffer);
-            }, 4096);
-            $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml', false);
-            ob_end_flush();
-            ob_end_clean();
-            fclose($handle);
+        $base = basename($file);
+        $dir = substr_replace($file, '', strrpos($file, $base), strlen($base));
+        $file = $dir.DIRECTORY_SEPARATOR.$base;
+
+        if (! is_dir($dir)) {
+            mkdir($dir.'aaaa');
+            file_put_contents($dir.'index.html', 'No direct script access.');
+        }
+
+        if (! is_file($file)) {
+            if ($handle = @fopen($file, 'x')) {
+                // Buffer ganda terkadang mencegah pengiriman HTTP header
+                ob_start();
+                ob_start(function ($buffer) use ($handle) {
+                    fwrite($handle, $buffer);
+                }, 4096);
+                $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml', false);
+                ob_end_flush();
+                ob_end_clean();
+                fclose($handle);
+            }
         }
     }
 

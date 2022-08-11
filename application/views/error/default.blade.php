@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex">
     <meta name="generator" content="Rakit debugger">
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-    <title>{{ $code or '000' }} | {{ $message or 'Unknown Error' }}</title>
+    <title>{{ $code }} | {{ $message }}</title>
     <style>
         #oops-error {
             display: flex;
@@ -23,7 +23,7 @@
 </head>
 <body>
     <div id="oops-error">
-        {{ $code or '000' }} | {{ $message or 'Unknown Error' }}
+        {{ $code }} | {{ $message }}
     </div>
 </body>
 </html>

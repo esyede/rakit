@@ -7,6 +7,39 @@ defined('DS') or exit('No direct script access.');
 class Log
 {
     /**
+     * Nama file log.
+     *
+     * @var string
+     */
+    protected static $filename;
+
+    /**
+     * Set nama file tempat menyimpan log.
+     * Jika ini tidak dipanggil, nama file akan mengikuti tanggal hari ini.
+     *
+     * <code>
+     *
+     *      // Set nama file tempat menyimpan log
+     *      Log::filename('access.log');
+     *      Log::info('Admin logged in: ', Auth::user());
+     *
+     *      // Kembalikan ke default (menggunakan tanggal)
+     *      Log::filename(null);
+     *
+     * </code>
+     *
+     * @param string|null $file
+     *
+     * @return void
+     */
+    public static function filename($name = null)
+    {
+        $name = basename($name);
+        $name = Str::replace_last('.log', '', Str::replace_last('.php', '', basename($name)));
+        static::$filename = $name.'.log.php';
+    }
+
+    /**
      * Log exception ke file.
      *
      * @param object $e
@@ -52,14 +85,14 @@ class Log
      */
     public static function write($type, $message, $data = null)
     {
-        $message .= is_null($data) ? null : json_encode($data);
+        $message .= is_string($data) ? $data : json_encode($data);
 
         if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
         }
 
         $message = static::format($type, $message);
-        $path = path('storage').'logs'.DS.date('Y-m-d').'.log.php';
+        $path = path('storage').'logs'.DS.static::$file;
 
         if (is_file($path)) {
             file_put_contents($path, $message, LOCK_EX | FILE_APPEND);
@@ -103,6 +136,19 @@ class Log
     public static function __callStatic($method, array $parameters)
     {
         $parameters[1] = (isset($parameters[1]) && ! is_null($parameters[1])) ? $parameters[1] : null;
-        static::write($method, $parameters[0], $parameters[1]);
+
+        if ('filename' === $method) {
+            $parameters[0] = (string) $parameters[0];
+            static::filename($parameters[0] ? $parameters[0] : date('Y-m-d'));
+        } elseif ('exception' === $method) {
+            $parameters[0] = (is_object($parameters[0]) && method_exists($parameters[0], 'getTraceAsString'))
+                ? $parameters[0]->getTraceAsString()
+                : $parameters[0];
+            $parameters[0] = is_string($parameters[0]) ? $parameters[0] : json_encode($parameters[0]);
+            static::write($method, $parameters[0]->getTraceAsString(), null);
+        } else {
+            $parameters[1] = json_encode(['params' => $parameters[1]]);
+            static::write($method, $parameters[0], $parameters[1]);
+        }
     }
 }

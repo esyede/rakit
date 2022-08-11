@@ -85,13 +85,20 @@ class Logger
             );
         }
 
-        $excfile = (($message instanceof \Exception) || ($message instanceof \Throwable))
+        $excfile = (($message instanceof \Exception) || (class_exists('\Throwable') && $message instanceof \Throwable))
             ? $this->getExceptionFile($message)
             : null;
-        $line = static::formatLogLine($message, $excfile);
-        $file = $this->directory.'/'.strtolower($priority ? $priority : self::INFO).'.log';
+        $line = static::formatLogLine($message, $excfile, $priority);
+        $file = $this->directory.'/'.strtolower($priority ? $priority : self::INFO).'.log.php';
 
-        if (! @file_put_contents($file, $line.PHP_EOL, FILE_APPEND | LOCK_EX)) {
+        try {
+            if (is_file($file)) {
+                file_put_contents($file, $line.PHP_EOL, FILE_APPEND | LOCK_EX);
+            } else {
+                $guard = "<?php defined('DS') or exit('No direct script access.'); ?>".PHP_EOL;
+                file_put_contents($file, $guard.$line.PHP_EOL, LOCK_EX);
+            }
+        } catch (\Exception $e) {
             throw new \RuntimeException(
                 sprintf("Unable to write to log file '%s'. Is that directory writable?", $file)
             );
@@ -115,7 +122,7 @@ class Logger
      */
     public static function formatMessage($message)
     {
-        if ($message instanceof \Exception || $message instanceof \Throwable) {
+        if ($message instanceof \Exception || (class_exists('\Throwable') && $message instanceof \Throwable)) {
             while ($message) {
                 $tmp[] = (($message instanceof \ErrorException)
                     ? Helpers::errorTypeToString($message->getSeverity()).': '.$message->getMessage()
@@ -139,14 +146,9 @@ class Logger
      *
      * @return string
      */
-    public static function formatLogLine($message, $excfile = null)
+    public static function formatLogLine($message, $excfile = null, $priority = self::INFO)
     {
-        return implode(' ', [
-            @date('[Y-m-d H-i-s]'),
-            preg_replace('#\s*\r?\n\s*#', ' ', static::formatMessage($message)),
-            ' @  '.Helpers::getSource(),
-            $excfile ? ' @@  '.basename($excfile) : null,
-        ]);
+        return '['.@date('Y-m-d H:i:s').'] log.'.strtoupper($priority).' - '.static::formatMessage($message);
     }
 
     /**
@@ -181,6 +183,7 @@ class Logger
             }
         }
 
+        $dir .='html'.DIRECTORY_SEPARATOR;
         return $dir.'exception--'.@date('Y-m-d--H-i')."--$hash.html";
     }
 
@@ -195,7 +198,9 @@ class Logger
     {
         $file = $file ? $file : $this->getExceptionFile($exception);
         $panic = $this->panic ? $this->panic : new Panic();
-        $panic->renderToFile($exception, $file);
+
+        // FIXME: Apakah log html detail error juga perlu dirender?
+        // $panic->renderToFile($exception, $file);
 
         return $file;
     }
