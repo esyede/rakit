@@ -103,7 +103,7 @@ class RSA
 
         file_put_contents($config, $conf);
 
-        if (! is_file($path = path('storage').'rsa-private.pem')) {
+        if (! is_file($path = $storage.'rsa-private.pem')) {
             $private_key = openssl_pkey_new([
                 'private_key_bits' => 2048,
                 'private_key_type' => OPENSSL_KEYTYPE_RSA,
@@ -113,7 +113,7 @@ class RSA
             openssl_pkey_export_to_file($private_key, $path, null, compact('config'));
         }
 
-        if ($private_key && ! is_file($path = path('storage').'rsa-public.pem')) {
+        if ($private_key && ! is_file($path = $storage.'rsa-public.pem')) {
             $public_key = openssl_pkey_get_details($private_key);
             file_put_contents($path, $public_key['key']);
         }
