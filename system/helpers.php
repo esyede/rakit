@@ -497,6 +497,32 @@ if (! function_exists('session')) {
     }
 }
 
+if (! function_exists('fake')) {
+    /**
+     * Buat instance faker.
+     *
+     * <code>
+     *
+     *      // Buat data faker menggunakan default locale.
+     *      $name = fake()->name;
+     *
+     *      // Buat data faker menggunakan custom locale.
+     *      fake('en')->name;
+     *
+     * </code>
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return mixed
+     */
+    function fake($local = null)
+    {
+        $locale = $locale ? $locale : config('application.language');
+        return \System\Foundation\Faker\Factory::create($locale);
+    }
+}
+
 if (! function_exists('redirect')) {
     /**
      * Buat sebuah redireksi.
