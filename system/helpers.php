@@ -507,7 +507,7 @@ if (! function_exists('fake')) {
      *      $name = fake()->name;
      *
      *      // Buat data faker menggunakan custom locale.
-     *      fake('en')->name;
+     *      $name = fake('en')->name;
      *
      * </code>
      *
