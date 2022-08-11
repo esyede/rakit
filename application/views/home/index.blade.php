@@ -1,51 +1,40 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="{{ config('application.language') }}">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-        <title>Selamat datang!</title>
+        <title>{{ __('home.title') }}</title>
         <link rel="stylesheet" href="{{ asset('home/css/style.min.css?v='.RAKIT_VERSION) }}">
     </head>
     <body>
         <header>
             <h1>RAKIT {{ RAKIT_VERSION }}</h1>
-            <h5>Kerangka kerja PHP sederhana, ringan dan modular.</h5>
+            <h5>{{ __('home.slogan') }}</h5>
         </header>
 
-        <h3>Tentang halaman ini.</h3>
-        <p>
-            Halaman yang sedang anda lihat ini dibuat secara dinamis oleh rakit.
-            Jika anda ingin mengedit halaman ini, anda akan menemukannya di:
-        </p>
+        <h3>{{ __('home.about.heading') }}</h3>
+        <p>{{ __('home.about.text1') }}</p>
         <pre>application/views/home/index.blade.php</pre>
 
-        <p>Dan rute yang menangani halaman ini dapat ditemukan di:</p>
+        <p>{{ __('home.about.text2') }}</p>
         <pre>application/routes.php</pre>
 
         <br>
 
-        <h3>Melangkah lebih jauh.</h3>
-        <p>
-            Halaman dokumentasi berisi pendahuluan, tutorial serta referensi fitur.
-            Jangan ragu untuk mulai membaca
-            <a href="{{ url('docs') }}" target="_blank">dokumentasi</a> karena
-            anda dapat membukanya secara online maupun offline.
-        </p>
+        <h3>{{ __('home.docs.heading') }}</h3>
+        <p>{!! __('home.docs.text', ['documentation' => '<a href="'.url('docs/'.config('application.language')).'" target="_blank">'.__('home.documentation').'</a>']) !!}</p>
 
         <br>
 
-        <h3>Ciptakan sesuatu yang indah.</h3>
-        <p>
-            Sekarang setelah instalasi berjalan, saatnya untuk mulai mencipta!
-            Berikut adalah beberapa tautan untuk membantu anda memulai:
-        </p>
+        <h3>{{ __('home.resources.heading') }}</h3>
+        <p>{{ __('home.resources.text') }}</p>
         <ul class="none">
-            <li><a href="https://rakit.esyede.my.id" target="_blank">Situs Resmi</a></li>
-            <li><a href="https://rakit.esyede.my.id/api/{{ RAKIT_VERSION }}/index.html" target="_blank">Referensi API</a></li>
-            <li><a href="https://rakit.esyede.my.id/repositories" target="_blank">Repositori Paket</a></li>
-            <li><a href="https://rakit.esyede.my.id/forum" target="_blank">Forum Diskusi</a></li>
-            <li><a href="https://github.com/esyede/rakit">Kode Sumber</a></li>
+            <li><a href="https://rakit.esyede.my.id" target="_blank">{{ __('home.links.site') }}</a></li>
+            <li><a href="https://rakit.esyede.my.id/api/{{ RAKIT_VERSION }}/index.html" target="_blank">{{ __('home.links.api') }}</a></li>
+            <li><a href="https://rakit.esyede.my.id/repositories" target="_blank">{{ __('home.links.repos') }}</a></li>
+            <li><a href="https://rakit.esyede.my.id/forum" target="_blank">{{ __('home.links.forum') }}</a></li>
+            <li><a href="https://github.com/esyede/rakit">{{ __('home.links.source') }}</a></li>
         </ul>
 
         <br>

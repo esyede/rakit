@@ -11,6 +11,9 @@ class Home_Controller extends Base_Controller
      */
     public function action_index()
     {
+        $language = (Request::foundation()->getPreferredLanguage() == 'id_ID') ? 'id' : 'en';
+        Config::set('application.language', $language);
+
         return view('home.index');
     }
 }
