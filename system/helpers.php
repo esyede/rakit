@@ -511,12 +511,11 @@ if (! function_exists('fake')) {
      *
      * </code>
      *
-     * @param string $key
-     * @param mixed  $value
+     * @param string $locale
      *
      * @return mixed
      */
-    function fake($local = null)
+    function fake($locale = null)
     {
         $locale = $locale ? $locale : config('application.language');
         return \System\Foundation\Faker\Factory::create($locale);
