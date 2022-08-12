@@ -107,6 +107,6 @@
 - [JWT](/docs/jwt)
 - [Localization](/docs/localization)
 - [Markdown](/docs/markdown)
-- [RSA](/docs/rsa)
+- [Ekripsi RSA](/docs/rsa)
 - [Storage](/docs/storage)
 - [String](/docs/strings)

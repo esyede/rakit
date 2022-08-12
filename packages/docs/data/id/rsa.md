@@ -1,4 +1,4 @@
-# RSA
+# Ekripsi RSA
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
@@ -33,6 +33,8 @@ $encrypted = RSA::encrypt($data);
 // dd(base64_encode($encrypted));
 ```
 
+> Private key dan public key dibuat secara otomatis setiap kali operasi enkripsi dilakukan
+  sehingga anda tidak perlu repot lagi menyimpan public key dan private key.
 
 <a id="dekripsi-string"></a>
 ## Dekripsi Data
