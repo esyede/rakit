@@ -17,6 +17,11 @@ define('DS', DIRECTORY_SEPARATOR);
 require 'paths.php';
 
 // --------------------------------------------------------------
+// Panggil init script sebelum first boot.
+// --------------------------------------------------------------
+require path('system').'init.php';
+
+// --------------------------------------------------------------
 // Bootstrap file core milik framework.
 // --------------------------------------------------------------
 require path('system').'core.php';

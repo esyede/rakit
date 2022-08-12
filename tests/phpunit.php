@@ -17,7 +17,6 @@ set_path('app', __DIR__.DS.'fixtures'.DS.'application'.DS);
 set_path('package', __DIR__.DS.'fixtures'.DS.'packages'.DS);
 set_path('storage', __DIR__.DS.'fixtures'.DS.'storage'.DS);
 set_path('rakit_key', __DIR__.DS.'key.php');
-define('RAKIT_KEY', (string) require path('rakit_key'));
 
 // --------------------------------------------------------------
 // Muat file bootstraper system.

@@ -47,7 +47,13 @@ $GLOBALS['rakit_paths']['base'] = __DIR__.DS;
 // --------------------------------------------------------------
 foreach ($paths as $name => $path) {
     if (! isset($GLOBALS['rakit_paths'][$name])) {
-        $path = realpath($path).(('rakit_key' === $name) ? '' : DS);
+
+        if ('rakit_key' === $name) {
+            $path = $GLOBALS['rakit_paths']['base'].$path;
+        } else {
+            $path = realpath($path).DS;
+        }
+
         $GLOBALS['rakit_paths'][$name] = $path;
     }
 }

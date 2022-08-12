@@ -46,6 +46,16 @@ class Payload
     }
 
     /**
+     * Ambil semua data session
+     *
+     * @return array
+     */
+    public function all()
+    {
+        return isset($this->session['data']) ? $this->session['data'] : [];
+    }
+
+    /**
      * Muat session untuk request saat ini.
      *
      * @param string $id

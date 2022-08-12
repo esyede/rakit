@@ -177,13 +177,13 @@ $response->render();
 | Pertahankan Session
 |--------------------------------------------------------------------------
 |
-| Jika driver session sudah dikonfigurasikan, kita akan simpan sessionnya
+| Jika sudah ada session yang aktif, kita akan simpan sessionnya
 | agar tetap bisa dipakai di request berikutnya. Ini juga akan men-set
 | session cookie di cookie jar untuk dikirim ke user.
 |
 */
 
-if ('' !== trim(Config::get('session.driver'))) {
+if (Config::get('session.driver') && Session::started()) {
     Session::save();
 }
 

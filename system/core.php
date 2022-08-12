@@ -25,6 +25,7 @@ define('RAKIT_VERSION', 'v0.9.9');
 
 define('CRLF', "\r\n");
 define('DEFAULT_PACKAGE', 'application');
+define('RAKIT_KEY', (string) require path('rakit_key'));
 
 /*
 |--------------------------------------------------------------------------
