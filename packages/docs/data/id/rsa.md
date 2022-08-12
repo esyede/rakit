@@ -46,6 +46,3 @@ Untuk mendenkripsi data, gunakan method `decrypt()` seperti berikut:
 $decrypted = RSA::decrypt($encrypted);
 // dd($decrypted);
 ```
-
-> Pastikan anda tidak menghapus atau membagikan file tersebut kepada orang lain
-  sehingga data anda aman dari pencurian.
