@@ -103,7 +103,7 @@ class RSA
 
             static::$details['config'] = sprintf(
                 "HOME=%s\nRANDFILE=%s\n[req]\ndefault_bits=%s\n[v3_ca]",
-                path('storage'), 2048, $randfile
+                path('storage'), $randfile, 2048
             );
 
             static::$details['options'] = [
