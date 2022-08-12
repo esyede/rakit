@@ -33,17 +33,6 @@ $encrypted = RSA::encrypt($data);
 // dd(base64_encode($encrypted));
 ```
 
-Setelah operasi enkripsi data dilakukan, anda akan menemukan 2 buah file sertifikat
-di folder `storage/` aplikasi anda, yaitu:
-  - `rsa-public.pem` yang merupakan public key anda, dan
-  - `rsa-private.pem` yang merupakan private key.
-
-Kedua file tersebut akan digunakan oleh rakit untuk melakukan proses enkripsi dan dekripsi
-melalui komponen ini.
-
-Jadi, pastikan anda tidak menghapus atau membagikan file tersebut kepada orang lain
-sehingga data anda aman dari pencurian.
-
 
 <a id="dekripsi-string"></a>
 ## Dekripsi Data
