@@ -189,11 +189,11 @@ return $date->timestamp(); // 1621728000
 #### Waktu Saat Ini
 
 ```php
-return Date::now();
+return Date::make();
 
 // atau,
 
-return Date::make()->format('Y-m-d H:i:s');
+return now();
 ```
 
 Jika diperlukan, anda juga dapat mengubah format waktunya

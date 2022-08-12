@@ -21,7 +21,7 @@ class JWT
     public static $leeway = 0;
 
     /**
-     * Algoritma yang didukung
+     * Algoritma yang didukung.
      *
      * @var array
      */
@@ -86,9 +86,8 @@ class JWT
             throw new \Exception('Invalid claims encoding');
         }
 
-
         if (is_array($payloads) && count($payloads) < 1) {
-            $payloads = new \stdClass;
+            $payloads = new \stdClass();
         }
 
         if (false === ($signature = static::decode_url($signature64))) {

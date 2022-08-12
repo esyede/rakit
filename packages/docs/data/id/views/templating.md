@@ -105,7 +105,7 @@ Hello, {{ $name }}.
 #### Menampilkan hasil fungsi menggunakan Blade:
 
 ```php
-{{ Date::now() }}
+{{ now() }}
 ```
 
  >  Sintaks `{{` `}}` sudah secara otomatis di-escape melalui fungsi

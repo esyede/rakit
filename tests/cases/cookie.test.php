@@ -4,7 +4,6 @@ namespace SystemCookieTest;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Config;
 use System\Cookie;
 use System\Crypter;
 use System\Request;
@@ -30,7 +29,6 @@ class CookieTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
         Cookie::$jar = [];
     }
 
@@ -40,7 +38,6 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         Cookie::$jar = [];
-        Config::set('application.key', '');
     }
 
     /**

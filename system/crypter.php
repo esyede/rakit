@@ -7,13 +7,6 @@ defined('DS') or die('No direct script access.');
 class Crypter
 {
     /**
-     * Berisi encryption key.
-     *
-     * @var string
-     */
-    protected static $key;
-
-    /**
      * Berisi cipher method.
      *
      * @var string
@@ -30,11 +23,10 @@ class Crypter
     public static function encrypt($data)
     {
         $method = static::method();
-        $key = static::key();
         $iv = Str::bytes(16);
 
-        $hash = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv);
-        $hmac = hash_hmac('sha256', $hash, $key, true);
+        $hash = openssl_encrypt($data, $method, RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
+        $hmac = hash_hmac('sha256', $hash, RAKIT_KEY, true);
 
         if (false === $hash) {
             throw new \Exception('Unable to encrypt the data.');
@@ -53,19 +45,18 @@ class Crypter
     public static function decrypt($hash)
     {
         $method = static::method();
-        $key = static::key();
         $hash = base64_decode($hash);
 
         $iv = mb_substr($hash, 0, 16, '8bit');
         $hmac = mb_substr($hash, 16, 32, '8bit');
         $cipher = mb_substr($hash, 48, null, '8bit');
-        $hmac2 = hash_hmac('sha256', $cipher, $key, true);
+        $hmac2 = hash_hmac('sha256', $cipher, RAKIT_KEY, true);
 
         if (! static::equals($hmac, $hmac2)) {
             throw new \Exception('Hash verification failed.');
         }
 
-        $data = openssl_decrypt($cipher, $method, $key, OPENSSL_RAW_DATA, $iv);
+        $data = openssl_decrypt($cipher, $method, RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
 
         if (false === $data) {
             throw new \Exception('Unable to decrypt the data.');
@@ -102,46 +93,6 @@ class Crypter
         }
 
         return 0 === $result;
-    }
-
-    /**
-     * Ambil encryption key (app key).
-     *
-     * @return string
-     */
-    protected static function key()
-    {
-        if (static::$key && mb_strlen((string) static::$key, '8bit') >= 32) {
-            return static::$key;
-        }
-
-        static::$key = (string) Config::get('application.key', '');
-
-        if (mb_strlen(trim(static::$key), '8bit') < 32) {
-            $message = 'Generate your app key with rakit console '.
-                'or obtain it from here: https://rakit.esyede.my.id/key';
-
-            if (Request::cli()) {
-                throw new \Exception($message);
-            } elseif (Request::wants_json()) {
-                Response::json([
-                    'status' => 500,
-                    'success' => false,
-                    'message' => $message,
-                ]);
-            } else {
-                http_response_code(500);
-                require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key.phtml';
-
-                if (function_exists('fastcgi_finish_request')) {
-                    fastcgi_finish_request();
-                }
-
-                exit;
-            }
-        }
-
-        return static::$key;
     }
 
     /**

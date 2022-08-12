@@ -15,7 +15,7 @@
 Seperti namanya, komponen `RSA` menyediakan cara sederhana untuk menangani enkripsi dan dekripsi
 data menggunakan private dan public key sebagai pengamannya.
 
-> Komponen ini hanya mendukung tipe private key RSA `2048 bit` saja.
+> Komponen ini hanya mendukung tipe private key RSA 2048 bit saja.
 
 
 <a id="enkripsi-data"></a>

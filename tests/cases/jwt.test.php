@@ -21,7 +21,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test hanya izinkan karakter URL-friendly
+     * Test hanya izinkan karakter URL-friendly.
      *
      * @group system
      */
@@ -34,7 +34,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test hanya izinkan UTF-8
+     * Test hanya izinkan UTF-8.
      *
      * @group system
      */
@@ -56,7 +56,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test expired token gagal
+     * Test expired token gagal.
      *
      * @group system
      */
@@ -74,7 +74,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid token dengan nbf gagal
+     * Test invalid token dengan nbf gagal.
      *
      * @group system
      */
@@ -92,7 +92,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid token dengan iat gagal
+     * Test invalid token dengan iat gagal.
      *
      * @group system
      */
@@ -110,7 +110,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test valid token sukses
+     * Test valid token sukses.
      *
      * @group system
      */
@@ -124,7 +124,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test valid token dengan leeway sukses
+     * Test valid token dengan leeway sukses.
      *
      * @group system
      */
@@ -142,7 +142,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid token dengan leeway gagal
+     * Test invalid token dengan leeway gagal.
      *
      * @group system
      */
@@ -165,7 +165,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test valid token dengan nbf sukses
+     * Test valid token dengan nbf sukses.
      *
      * @group system
      */
@@ -179,7 +179,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test valid token dengan nbf & leeway sukses
+     * Test valid token dengan nbf & leeway sukses.
      *
      * @group system
      */
@@ -197,7 +197,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid token dengan nbf & leeway gagal
+     * Test invalid token dengan nbf & leeway gagal.
      *
      * @group system
      */
@@ -220,7 +220,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test valid token dengan nbf & iat sukses
+     * Test valid token dengan nbf & iat sukses.
      *
      * @group system
      */
@@ -238,7 +238,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid token dengan iat & leeway gagal
+     * Test invalid token dengan iat & leeway gagal.
      *
      * @group system
      */
@@ -261,7 +261,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid token gagal
+     * Test invalid token gagal.
      *
      * @group system
      */
@@ -279,7 +279,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid key/secret gagal
+     * Test invalid key/secret gagal.
      *
      * @group system
      */
@@ -297,7 +297,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test key/secret kosong gagal
+     * Test key/secret kosong gagal.
      *
      * @group system
      */
@@ -315,7 +315,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid algorithm gagal
+     * Test invalid algorithm gagal.
      *
      * @group system
      */
@@ -340,7 +340,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test header tambahan sukses
+     * Test header tambahan sukses.
      *
      * @group system
      */
@@ -352,7 +352,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid segment count gagal
+     * Test invalid segment count gagal.
      *
      * @group system
      */
@@ -368,7 +368,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid signature encoding gagal
+     * Test invalid signature encoding gagal.
      *
      * @group system
      */
@@ -393,7 +393,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test payload array kososng sukses
+     * Test payload array kososng sukses.
      *
      * @group system
      */

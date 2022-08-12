@@ -7,10 +7,21 @@ use Docs\Libraries\Docs;
 class Docs_Home_Controller extends Controller
 {
     /**
+     * ahasa default.
+     *
+     * @var string
+     */
+    private $language;
+
+    /**
      * Jalankan CSRF middleware di setiap POST request.
      */
     public function __construct()
     {
+        $this->language = Request::foundation()->getPreferredLanguage();
+        $this->language = ($this->language === 'id_ID' || $this->language === 'id') ? 'id' : 'en';
+        Config::set('application.language', $this->language);
+
         $this->middleware('before', 'csrf')->on('post');
     }
 
@@ -21,7 +32,7 @@ class Docs_Home_Controller extends Controller
      */
     public function action_index($lang = null)
     {
-        $lang = $lang ? $lang.'/' : 'id/';
+        $lang = $lang ? $lang.'/' : config('application.language', 'id').'/';
         return view('docs::home')
             ->with_title(Docs::title('home'))
             ->with_sidebar(Docs::sidebar(Docs::render($lang.'000-sidebar')))
@@ -40,7 +51,7 @@ class Docs_Home_Controller extends Controller
     public function action_page($section, $page = null)
     {
         $args = func_get_args();
-        $lang = (isset($args[0]) && in_array($args[0], ['en', 'id'])) ? $args[0].'/' : 'id/';
+        $lang = isset($args[0]) ? $args[0].'/' : config('application.language', 'id').'/';
         $filename = rtrim(implode('/', $args), '/');
         $filename .= Docs::exists($filename.'/home') ? '/home' : '';
 

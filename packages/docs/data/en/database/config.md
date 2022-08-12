@@ -41,8 +41,6 @@ cukup ubah opsi konfigurasi di file `application/config/database.php` seperti in
 ],
 ```
 
->  Sebelum mulai menggunakan driver SQLite ini, pastikan application key sudah diisi.
-
 Jika aplikasi anda menerima kurang dari 100.000 kunjungan per hari, SQLite cukup mampu untuk menanganinya.
 Tetapi jika sebaliknya, silahkan gunakan MySQL atau PostgreSQL.
 

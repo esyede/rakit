@@ -8,6 +8,12 @@
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <title>401 | Unauthorized</title>
     <style>
+        html, body {
+            font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+            font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", "Courier New", Courier, monospace;
+        }
         #oops-error {
             display: flex;
             justify-content: center;

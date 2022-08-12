@@ -9,7 +9,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
+        // ..
     }
 
     /**
@@ -18,7 +18,6 @@ class InputTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         // TODO: bersihkan data request di http foundation.
-        Config::set('application.key', '');
         Session::$instance = null;
     }
 

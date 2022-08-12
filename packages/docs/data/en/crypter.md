@@ -18,7 +18,6 @@ This class provides strong AES-256-based encryption and decryption via
 
 
 >  Don't forget to activate the [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-   extension on your server, and make sure the application key is filled in.
 
 
 
@@ -50,7 +49,4 @@ To decrypt data, use the `decrypt()` method as follows:
 ```php
 $decrypted = Crypter::decrypt($encrypted); // 'secret'
 ```
-
->  It's important to note that this method will only decrypt the encrypted string
-   using the same `application key`.
 

@@ -16,15 +16,13 @@ defined('DS') or exit('No direct script access.');
 | <code>
 |
 |      // Pertama, definisikan middlewarenya:
-|      Route::middleware('only_admin', function () use ($umur) {
-|          if (Auth::user()->role !== 'admin') {
-|               return 'Halaman ini khusus admin!';
-|          }
+|      Route::middleware('middlewareku', function () {
+|          return 'Middlewareku sukses dijalankan!';
 |      });
 |
 |      // Lalu, tinggal lampirkan saja ke rute:
-|      Route::get('admin-panel', ['before' => 'only_admin', function () {
-|          return 'Selamat datang admin!';
+|      Route::get('/', ['before' => 'middlewareku', function () {
+|          return Halo dunia!';
 |      }]);
 |
 | <code>

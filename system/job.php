@@ -85,8 +85,8 @@ class Job extends Event
 
         $jobs = Database::table($config['table'])
             ->where('name', $name)
-            ->where('executed_at', '<=', Date::now())
-            ->where('scheduled_at', '<=', Date::now())
+            ->where('executed_at', '<=', date('Y-m-d H:i:s'))
+            ->where('scheduled_at', '<=', date('Y-m-d H:i:s'))
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -96,7 +96,7 @@ class Job extends Event
                 Event::fire($job->name, unserialize($job->payloads));
                 Database::table($config['table'])
                     ->where('id', $job->id)
-                    ->update(['executed_at' => Date::now()]);
+                    ->update(['executed_at' => date('Y-m-d H:i:s')]);
 
                 $this->log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
             } catch (\Throwable $e) {
@@ -140,8 +140,8 @@ class Job extends Event
         $this->log('Job started!');
 
         $jobs = Database::table($config['table'])
-            ->where('executed_at', '<=', Date::now())
-            ->where('scheduled_at', '<=', Date::now())
+            ->where('executed_at', '<=', date('Y-m-d H:i:s'))
+            ->where('scheduled_at', '<=', date('Y-m-d H:i:s'))
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -151,7 +151,7 @@ class Job extends Event
                 Event::fire($job->name, unserialize($job->payloads));
                 Database::table($config['table'])
                     ->where('id', $job->id)
-                    ->update(['executed_at' => Date::now()]);
+                    ->update(['executed_at' => date('Y-m-d H:i:s')]);
 
                 $this->log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
             } catch (\Throwable $e) {
@@ -182,7 +182,7 @@ class Job extends Event
         }
 
         if (Request::cli()) {
-            echo '['.Date::now().'] ['.strtoupper($type).'] '.$message.PHP_EOL;
+            echo '['.date('Y-m-d H:i:s').'] ['.strtoupper($type).'] '.$message.PHP_EOL;
         }
     }
 }

@@ -17,7 +17,6 @@ Kelas ini menyediakan enkripsi dan dekripsi berbasis AES-256 yang kuat melalui
 ekstensi [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php).
 
 >  Jangan lupa untuk menginstall ekstensi [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-   di server anda jika belum ada, dan pastikan application key sudah diisi.
 
 
 <a id="enkripsi-string"></a>
@@ -46,5 +45,3 @@ Untuk mendenkripsi data, gunakan method `decrypt()` seperti berikut:
 ```php
 $decrypted = Crypter::decrypt($encrypted); // 'rahasia'
 ```
-
->  Sangat penting untuk dicatat bahwa method ini hanya akan mendekripsi string yang dienkripsi menggunakan `application key` yang sama.

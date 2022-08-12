@@ -457,18 +457,59 @@ if (! function_exists('config')) {
      *      $language = config('application.language');
      *
      *      // Set config
-     *      config('application.language', 'jp');
+     *      config(['application.language' => 'jp']);
      *
      * </code>
      *
      * @param string $key
-     * @param mixed  $value
+     * @param mixed  $default
      *
      * @return mixed
      */
-    function config($key, $value = null)
+    function config($key, $default = null)
     {
-        return (null === $value) ? \System\Config::get($key) : \System\Config::set($key, $value);
+        if (is_array($key)) {
+            foreach ($key as $name => $value) {
+                \System\Config::set($name, $value);
+            }
+
+            return true;
+        }
+
+        return \System\Config::get($key, $default);
+    }
+}
+
+if (! function_exists('cache')) {
+    /**
+     * Get/set cache.
+     *
+     * <code>
+     *
+     *      // Get cache
+     *      $language = cache('error');
+     *
+     *      // Set cache
+     *      cache(['error' => 'Akun tidak ditemukan']);
+     *
+     * </code>
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    function cache($key, $default = null)
+    {
+        if (is_array($key)) {
+            foreach ($key as $name => $value) {
+                \System\Cache::set($name, $value);
+            }
+
+            return true;
+        }
+
+        return \System\Cache::get($key, $default);
     }
 }
 
@@ -482,18 +523,26 @@ if (! function_exists('session')) {
      *      $language = session('error');
      *
      *      // Set session
-     *      session('error', 'Akun tidak ditemukan');
+     *      session(['error' => 'Akun tidak ditemukan']);
      *
      * </code>
      *
      * @param string $key
-     * @param mixed  $value
+     * @param mixed  $default
      *
      * @return mixed
      */
-    function session($key, $value = null)
+    function session($key, $default = null)
     {
-        return (null === $value) ? \System\Session::get($key) : \System\Session::set($key, $value);
+        if (is_array($key)) {
+            foreach ($key as $name => $value) {
+                \System\Session::set($name, $value);
+            }
+
+            return true;
+        }
+
+        return \System\Session::get($key, $default);
     }
 }
 
@@ -515,7 +564,7 @@ if (! function_exists('fake')) {
      *
      * @return mixed
      */
-    function fake($locale = null)
+    function fake($local = null)
     {
         $locale = $locale ? $locale : config('application.language');
         return \System\Foundation\Faker\Factory::create($locale);
@@ -785,6 +834,120 @@ if (! function_exists('section_stop')) {
     function section_stop()
     {
         return \System\Section::stop();
+    }
+}
+
+if (! function_exists('encrypt')) {
+    /**
+     * Enkripsi string.
+     *
+     * @param string $data
+     *
+     * @return string
+     */
+    function encrypt($data)
+    {
+        return \System\Crypter::encrypt($data);
+    }
+}
+
+if (! function_exists('decrypt')) {
+    /**
+     * Enkripsi string.
+     *
+     * @param string $data
+     *
+     * @return string
+     */
+    function decrypt($data)
+    {
+        return \System\Crypter::decrypt($data);
+    }
+}
+
+if (! function_exists('event')) {
+    /**
+     * Jalankan event.
+     *
+     * @param string|array $events
+     * @param array        $parameters
+     * @param bool         $halt
+     *
+     * @return array
+     */
+    function event($events, array $parameters = [], $halt = false)
+    {
+        return \System\Event::fire($events, $parameters, $halt);
+    }
+}
+
+if (! function_exists('dispatch')) {
+    /**
+     * Jalankan sebuah job.
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    function dispatch($name)
+    {
+        return \System\Job::run($name);
+    }
+}
+
+if (! function_exists('blank')) {
+    /**
+     * Tentukan apakah value yang diberikan "kosong".
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    function blank($value)
+    {
+        if (is_null($value)) {
+            return true;
+        }
+
+        if (is_string($value)) {
+            return '' === trim($value);
+        }
+
+        if (is_numeric($value) || is_bool($value)) {
+            return false;
+        }
+
+        if ($value instanceof \Countable) {
+            return count($value) === 0;
+        }
+
+        return empty($value);
+    }
+}
+
+if (! function_exists('filled')) {
+    /**
+     * Tentukan apakah value yang diberikan "tidak kosong".
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    function filled($value)
+    {
+        return ! blank($value);
+    }
+}
+
+if (! function_exists('now')) {
+    /**
+     * Ambil instance tanggal saat ini.
+     *
+     * @return bool
+     */
+    function now()
+    {
+        return \System\Date::make(null);
     }
 }
 

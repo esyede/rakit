@@ -19,11 +19,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         Config::$items = [];
 
         Auth::driver()->user = null;
-
         Session::$instance = null;
-
         Config::set('database.default', 'sqlite');
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
     }
 
     /**
@@ -39,11 +36,8 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         Config::$items = [];
 
         Auth::driver()->user = null;
-
         Session::$instance = null;
-
         Config::set('database.default', 'mysql');
-        Config::set('application.key', '');
     }
 
     /**

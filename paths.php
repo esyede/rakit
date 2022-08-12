@@ -8,6 +8,11 @@ defined('DS') or exit('No direct script access.');
 $paths['app'] = 'application';
 
 // --------------------------------------------------------------
+// Path ke file key.
+// --------------------------------------------------------------
+$paths['rakit_key'] = 'key.php';
+
+// --------------------------------------------------------------
 // Path ke direktori sistem.
 // --------------------------------------------------------------
 $paths['system'] = 'system';
@@ -42,7 +47,8 @@ $GLOBALS['rakit_paths']['base'] = __DIR__.DS;
 // --------------------------------------------------------------
 foreach ($paths as $name => $path) {
     if (! isset($GLOBALS['rakit_paths'][$name])) {
-        $GLOBALS['rakit_paths'][$name] = realpath($path).DS;
+        $path = realpath($path).(('rakit_key' === $name) ? '' : DS);
+        $GLOBALS['rakit_paths'][$name] = $path;
     }
 }
 

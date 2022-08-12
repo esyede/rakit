@@ -9,7 +9,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
+        // ..
     }
 
     /**
@@ -17,7 +17,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        Config::set('application.key', '');
+        // ..
     }
 
     /**

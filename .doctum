@@ -30,3 +30,5 @@ return new Doctum($iterator, [
     'default_opened_level' => 1,
     'base_url' => 'https://rakit.esyede.my.id/docs/',
 ]);
+
+// Run: php doctum.phar update .doctum

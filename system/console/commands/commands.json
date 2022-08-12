@@ -1,7 +1,7 @@
 {
 	"common": {
       "key:generate": {
-      	"description": "Ciptakan application key.",
+      	"description": "Generate rakit key.",
       	"command": "php rakit key:generate"
       },
       "serve": {

@@ -107,20 +107,4 @@ return [
     */
 
     'composer_autoload' => path('base').'vendor/autoload.php',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Application Key
-    |--------------------------------------------------------------------------
-    |
-    | Key ini digunakan oleh kelas Crypter dan Cookie untuk menghasilkan
-    | string dan hash terenkripsi yang aman. Sangat penting bahwa key ini
-    | harus dirahasiakan dan tidak boleh dibagikan kepada siapa pun.
-    |
-    | Isilah dengan 32 karakter acak dan jangan diubah-ubah lagi. Anda juga
-    | dapat mengisinya secara otomatis via rakit console.
-    |
-    */
-
-    'key' => '',
 ];

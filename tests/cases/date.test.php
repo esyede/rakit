@@ -52,17 +52,6 @@ class DateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk Date::now().
-     *
-     * @group system
-     */
-    public function testNow()
-    {
-        $this->assertTrue(is_string(Date::now()));
-        $this->assertSame(date('Y-m-d H:i:s'), Date::now());
-    }
-
-    /**
      * Test untuk Date::time().
      *
      * @group system

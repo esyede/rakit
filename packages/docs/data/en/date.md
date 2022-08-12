@@ -192,11 +192,11 @@ return $date->timestamp(); // 1621728000
 #### Current date time
 
 ```php
-return Date::now();
+return Date::make();
 
 // atau,
 
-return Date::make()->format('Y-m-d H:i:s');
+return mow();
 ```
 
 If needed, you can also change the time format

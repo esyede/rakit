@@ -38,7 +38,7 @@ class HasOneOrMany extends Relationship
     public function update(array $attributes)
     {
         if ($this->model->timestamps()) {
-            $attributes['updated_at'] = new \DateTime();
+            $attributes['updated_at'] = date('Y-m-d H:i:s');
         }
 
         return $this->table->update($attributes);

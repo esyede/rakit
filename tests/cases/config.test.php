@@ -65,14 +65,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
      */
     public function testItemsCanBeSetAfterEntireFileIsLoaded()
     {
-        Config::get('application');
-        Config::set('application.key', 'foobarbazqux123456890ABCDEFGHIJKL000000000');
-        $application = Config::get('application');
+        Config::get('session');
+        Config::set('session.table', 'my_sessions');
 
-        $this->assertEquals('foobarbazqux123456890ABCDEFGHIJKL000000000', $application['key']);
+        $session = Config::get('session');
+        $this->assertEquals('my_sessions', $session['table']);
 
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
-
-        $this->assertEquals('mySecretKeyIsSoDarnLongSoPeopleCantRememberIt', Config::get('application.key'));
+        Config::set('session.table', 'sessions');
+        $this->assertEquals('sessions', Config::get('session.table'));
     }
 }

@@ -7,6 +7,18 @@ defined('DS') or exit('No direct script access.');
 class RSA
 {
     /**
+     * Detail data.
+     *
+     * @var array
+     */
+    private static $details = [
+        'public_key' => null,
+        'private_key' => null,
+        'config' => null,
+        'options' => [],
+    ];
+
+    /**
      * Enkripsi string menggunakan RSA key.
      *
      * @param string $data
@@ -15,13 +27,10 @@ class RSA
      */
     public static function encrypt($data)
     {
-        static::generate_key();
-
+        static::generate();
         $data = gzcompress($data);
-        $public_key = file_get_contents(path('storage').'rsa-public.pem');
-        $public_key = openssl_pkey_get_public($public_key);
-        $key = openssl_pkey_get_details($public_key);
-        $length = ceil($key['bits'] / 8) - 11;
+        $pub = openssl_pkey_get_public(static::$details['public_key']);
+        $length = ceil(openssl_pkey_get_details($pub)['bits'] / 8) - 11;
         $result = '';
 
         while ($data) {
@@ -29,7 +38,7 @@ class RSA
             $data = substr($data, $length);
             $temp = '';
 
-            if (! openssl_public_encrypt($chunk, $temp, $public_key)) {
+            if (! openssl_public_encrypt($chunk, $temp, $pub)) {
                 throw new \Exception('Failed to encrypt data');
             }
 
@@ -37,7 +46,7 @@ class RSA
         }
 
         if (PHP_VERSION_ID < 80000) {
-            openssl_free_key($public_key);
+            openssl_free_key($pub);
         }
 
         return $result;
@@ -52,14 +61,13 @@ class RSA
      */
     public static function decrypt($encrypted)
     {
-        static::generate_key();
-        $private_key = path('storage').'rsa-private.pem';
+        static::generate();
 
-        if (! $private_key = openssl_pkey_get_private(file_get_contents($private_key))) {
-            throw new \Exception('Failed to obtain private key');
+        if (! $priv = openssl_pkey_get_private(static::$details['private_key'])) {
+            throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $priv, gettype($priv)));
         }
 
-        $key = openssl_pkey_get_details($private_key);
+        $key = openssl_pkey_get_details($priv);
         $length = ceil($key['bits'] / 8);
         $result = '';
 
@@ -68,7 +76,7 @@ class RSA
             $encrypted = substr($encrypted, $length);
             $temp = '';
 
-            if (! openssl_private_decrypt($chunk, $temp, $private_key)) {
+            if (! openssl_private_decrypt($chunk, $temp, $priv)) {
                 throw new \Exception('Failed to decrypt data');
             }
 
@@ -76,58 +84,70 @@ class RSA
         }
 
         if (PHP_VERSION_ID < 80000) {
-            openssl_free_key($private_key);
+            openssl_free_key($priv);
         }
 
         return gzuncompress($result);
     }
 
     /**
-     * Buat private dan public key (disimpan ke folder storage).
+     * Generate private dan public key.
      *
      * @return void
      */
-    private static function generate_key()
+    private static function generate()
     {
-        $storage = path('storage');
-        $randfile = $storage.'.rnd';
-        $config = $storage.'openssl.conf';
-        $conf = 'HOME='.$storage.PHP_EOL.'RANDFILE='.$randfile.PHP_EOL.'[v3_ca]';
+        if (! static::$details['private_key'] || ! static::$details['public_key']) {
+            $config = path('storage').'openssl.conf';
+            $randfile = path('storage').'.rnd';
 
-        $private_key = null;
-        $public_key = null;
+            static::$details['config'] = sprintf(
+                "HOME=%s\nRANDFILE=%s\n[req]\ndefault_bits=%s\n[v3_ca]",
+                path('storage'), 2048, $randfile
+            );
 
-        if (is_file($config)) {
-            unlink($config);
-        }
-
-        file_put_contents($config, $conf);
-
-        if (! is_file($path = $storage.'rsa-private.pem')) {
-            $private_key = openssl_pkey_new([
+            static::$details['options'] = [
                 'private_key_bits' => 2048,
                 'private_key_type' => OPENSSL_KEYTYPE_RSA,
                 'config' => $config,
-            ]);
+            ];
 
-            openssl_pkey_export_to_file($private_key, $path, null, compact('config'));
-        }
+            if (is_file($config)) {
+                unlink($config);
+            }
 
-        if ($private_key && ! is_file($path = $storage.'rsa-public.pem')) {
-            $public_key = openssl_pkey_get_details($private_key);
-            file_put_contents($path, $public_key['key']);
-        }
+            file_put_contents($config, static::$details['config'], LOCK_EX);
 
-        if ((! is_null($private_key) || ! is_null($public_key)) && PHP_VERSION_ID < 80000) {
-            openssl_free_key($private_key);
-        }
+            if (! static::$details['private_key']) {
+                $priv = openssl_pkey_new(static::$details['options']);
+                openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'));
+            }
 
-        if (is_file($config)) {
-            unlink($config);
-        }
+            if (! static::$details['public_key']) {
+                static::$details['public_key'] = openssl_pkey_get_details($priv)['key'];
+            }
 
-        if (is_file($randfile)) {
-            unlink($randfile);
+            if ((static::$details['private_key'] || static::$details['public_key']) && PHP_VERSION_ID < 80000) {
+                openssl_free_key($priv);
+            }
+
+            if (is_file($config)) {
+                unlink($config);
+            }
+
+            if (is_file($randfile)) {
+                unlink($randfile);
+            }
         }
+    }
+
+    /**
+     * Ambil detail data.
+     *
+     * @return array
+     */
+    public static function details()
+    {
+        return static::$details;
     }
 }

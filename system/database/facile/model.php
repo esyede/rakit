@@ -445,7 +445,7 @@ abstract class Model
      */
     public function timestamp()
     {
-        $this->updated_at = new \DateTime();
+        $this->updated_at = date('Y-m-d H:i:s');
 
         if (! $this->exists) {
             $this->created_at = $this->updated_at;

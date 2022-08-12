@@ -189,7 +189,7 @@ class BelongsToMany extends Relationship
     protected function insert_joining(array $attributes)
     {
         if (Pivot::$timestamps) {
-            $attributes['created_at'] = new \DateTime();
+            $attributes['created_at'] = date('Y-m-d H:i:s');
             $attributes['updated_at'] = $attributes['created_at'];
         }
 

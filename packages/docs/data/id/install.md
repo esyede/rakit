@@ -67,26 +67,7 @@ Cara instalasi ini pun juga sangat mudah, semudah menghitung satu sampai tiga:
 
   - [Unduh](https://rakit.esyede.my.id/download) dan ekstrak arsip Rakit ke web server anda.
   - Pastikan direktori `storage/views/` dan `assets/` dapat ditulisi oleh PHP.
-  - Edit file `application/config/application.php` dan tambahkan app key anda, ingat, panjang minimalnya harus 32 karakter.
-  Anda juga dapat meng-generate app key melalui link ini: [App Key Generator](https://rakit.esyede.my.id/key)
-
-  ```php
-  /*
-  |--------------------------------------------------------------------------
-  | Application Key
-  |--------------------------------------------------------------------------
-  |
-  | Key ini digunakan oleh kelas Crypter dan Cookie untuk menghasilkan
-  | string dan hash terenkripsi yang aman. Sangat penting bahwa key ini
-  | harus dirahasiakan dan tidak boleh dibagikan kepada siapa pun.
-  |
-  | Isilah dengan 32 karakter acak dan jangan diubah-ubah lagi. Anda juga
-  | dapat mengisinya secara otomatis via rakit console.
-  |
-  */
-
-  'key' => 'isiAppKeyAndaDisiniMinimal32karakter',
-  ```
+  - Siap diuji coba!
 
 Lihat hasilnya melalui peramban favorit anda. Jika semuanya baik-baik saja, anda akan melihat halaman splash Rakit yang cantik.
 

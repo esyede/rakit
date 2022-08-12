@@ -162,7 +162,7 @@ Apart from markdown, you can also take advantage of the `View` component as foll
 
 
 ```php
-$data = ['registered_at' => Date::now()];
+$data = ['registered_at' => now()];
 $view = View::make('emails.registration_success', $data)->render();
 
 $email->html_body($view);

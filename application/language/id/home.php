@@ -25,7 +25,7 @@ return [
     ],
     'resources' => [
         'heading' => 'Ciptakan sesuatu yang indah!',
-        'text' => "Sekarang setelah instalasi berjalan, saatnya untuk mulai mencipta! Berikut adalah beberapa tautan untuk membantu anda memulai:",
+        'text' => 'Sekarang setelah instalasi berjalan, saatnya untuk mulai mencipta! Berikut adalah beberapa tautan untuk membantu anda memulai:',
     ],
     'links' => [
         'site' => 'Situs Resmi',

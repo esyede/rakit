@@ -21,8 +21,6 @@
 
 Web adalah lingkungan yang bersifat _state-less_. Ini berarti bahwa setiap request ke aplikasi anda dianggap tidak terkait dengan request sebelumnya. Namun, session memungkinkan anda menyimpan data secara statis untuk setiap pengunjung aplikasi anda. Data session untuk setiap pengunjung disimpan di server web anda, sedangkan cookie yang berisi "Session ID" disimpan di perangkat pengunjung. Cookie ini memungkinkan aplikasi anda untuk "mengingat" sesi untuk pengguna tersebut dan mengambil data sesi mereka pada request berikutnya ke aplikasi anda.
 
->  Sebelum menggunakan session, anda harus terlebih dahulu mengisi "application key" di file `application/config/application.php`.
-
 Secara default, telah disediakan enam buah driver untuk session, yaitu:
 
 - Cookie

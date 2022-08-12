@@ -10,7 +10,6 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         DB::$connections = [];
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
     }
 
     /**
@@ -19,7 +18,6 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         DB::$connections = [];
-        Config::set('application.key', '');
     }
 
     /**

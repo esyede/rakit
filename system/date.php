@@ -51,19 +51,6 @@ class Date
     }
 
     /**
-     * Ambil tanggal saat ini.
-     *
-     * @param string $format
-     *
-     * @return string
-     */
-    public static function now($format = null)
-    {
-        $format = is_null($format) ? 'Y-m-d H:i:s' : $format;
-        return static::make(null)->format($format);
-    }
-
-    /**
      * Ambil timestamp saat ini.
      *
      * @return int

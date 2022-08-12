@@ -148,7 +148,7 @@ $email->html_body($markdown);
 Selain markdown, anda juga dapat memanfaatkan komponen `View` seperti berikut:
 
 ```php
-$data = ['registered_at' => Date::now()];
+$data = ['registered_at' => now()];
 $view = View::make('emails.registration_success', $data)->render();
 
 $email->html_body($view);

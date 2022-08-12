@@ -70,27 +70,7 @@ Manual installation is also very easy, as easy as counting one to three:
 
   - [Download](https://rakit.esyede.my.id/download) and extract the archive to your web server.
   - Make sure the `storage/views/` and `assets/` directories are writable.
-  - Edit the `application/config/application.php` file and add your app key. Remember, it must be at least 32 characters long. You can also generate app key via this link: [App Key Generator](https://rakit.esyede.my.id/key)
-
-
-  ```php
-  /*
-  |--------------------------------------------------------------------------
-  | Application Key
-  |--------------------------------------------------------------------------
-  |
-  | Key ini digunakan oleh kelas Crypter dan Cookie untuk menghasilkan
-  | string dan hash terenkripsi yang aman. Sangat penting bahwa key ini
-  | harus dirahasiakan dan tidak boleh dibagikan kepada siapa pun.
-  |
-  | Isilah dengan 32 karakter acak dan jangan diubah-ubah lagi. Anda juga
-  | dapat mengisinya secara otomatis via rakit console.
-  |
-  */
-
-  'key' => 'FillYourAppKeyHereAtLeast32CharactersLong'
-',
-  ```
+  - Done!
 
 View the results in your favorite web browser.
 If all is going well, you should see the beautiful rakit's splash page.

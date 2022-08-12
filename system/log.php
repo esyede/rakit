@@ -92,7 +92,7 @@ class Log
         }
 
         $message = static::format($type, $message);
-        $path = path('storage').'logs'.DS.static::$file;
+        $path = path('storage').'logs'.DS.static::$filename;
 
         if (is_file($path)) {
             file_put_contents($path, $message, LOCK_EX | FILE_APPEND);

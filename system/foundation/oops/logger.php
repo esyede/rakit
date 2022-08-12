@@ -183,7 +183,7 @@ class Logger
             }
         }
 
-        $dir .='html'.DIRECTORY_SEPARATOR;
+        $dir .= 'html'.DIRECTORY_SEPARATOR;
         return $dir.'exception--'.@date('Y-m-d--H-i')."--$hash.html";
     }
 

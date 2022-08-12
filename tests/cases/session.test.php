@@ -9,7 +9,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        Config::set('application.key', 'mySecretKeyIsSoDarnLongSoPeopleCantRememberIt');
         Session::$instance = null;
     }
 
@@ -18,7 +17,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        Config::set('application.key', '');
         Session::$instance = null;
     }
 

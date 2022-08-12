@@ -5,7 +5,6 @@ namespace System\Database\Connectors;
 defined('DS') or exit('No direct script access.');
 
 use PDO;
-use System\Config;
 use System\Str;
 
 class SQLite extends Connector
@@ -25,13 +24,7 @@ class SQLite extends Connector
             return new PDO('sqlite::memory:', null, null, $options);
         }
 
-        $key = Config::get('application.key');
-
-        if (! $key) {
-            throw new \Exception('The application key needs to be set before using sqlite database.');
-        }
-
-        $path = Str::slug($key).'-'.$config['database'];
+        $path = Str::slug(RAKIT_KEY).'-'.$config['database'];
         $path = path('storage').'database'.DS.$path;
 
         return new PDO('sqlite:'.$path, null, null, $options);
