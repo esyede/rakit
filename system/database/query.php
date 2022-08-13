@@ -7,7 +7,6 @@ defined('DS') or exit('No direct script access.');
 use Closure;
 use System\Database;
 use System\Paginator;
-use System\Response;
 use System\Database\Query\Grammars\Grammar;
 use System\Database\Query\Grammars\Postgres;
 use System\Database\Query\Grammars\SQLServer;
