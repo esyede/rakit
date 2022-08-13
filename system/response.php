@@ -190,8 +190,8 @@ class Response
         $message = isset($message[$code]) ? $message[$code] : 'Unknown Error';
 
         if (Request::wants_json()) {
-            $status = 'error';
-            return static::json(compact('status', 'message', 'code'), $code, $headers);
+            $status = $code;
+            return static::json(compact('status', 'message'), $code, $headers);
         }
 
         $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
@@ -240,7 +240,7 @@ class Response
         $headers = array_merge($defaults, $headers);
         $response = new static(Storage::get($path), 200, $headers);
 
-        if ('' !== Config::get('session.driver')) {
+        if (Config::get('session.driver')) {
             Session::save();
         }
 

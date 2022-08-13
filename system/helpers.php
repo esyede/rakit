@@ -624,12 +624,36 @@ if (! function_exists('abort')) {
      * Buat sebuah response error.
      *
      * @param string $code
+     * @param array  $headers
      *
      * @return string
      */
-    function abort($code)
+    function abort($code, $headers = [])
     {
-        return \System\Response::error($code);
+        $code = (int) $code;
+        $message = \System\Foundation\Http\Responder::$statusTexts;
+        $message = isset($message[$code]) ? $message[$code] : 'Unknown Error';
+
+        if (\System\Request::wants_json()) {
+            $status = $code;
+            $message = json_encode(compact('status', 'message'));
+            $headers = array_merge($headers, ['content-type' => 'application/json']);
+        } else {
+            $view = \System\View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
+            $message = \System\View::make($view)->render();
+        }
+
+        $response = new \System\Response($message, $code, $headers);
+        $response->render();
+
+        if (Config::get('session.driver')) {
+            Session::save();
+        }
+
+        $response->send();
+        \System\Event::fire('rakit.done', [$response]);
+        $response->foundation()->finish();
+        exit;
     }
 }
 
@@ -639,13 +663,14 @@ if (! function_exists('abort_if')) {
      *
      * @param bool   $condition
      * @param string $code
+     * @param array  $headers
      *
      * @return string
      */
-    function abort_if($condition, $code)
+    function abort_if($condition, $code, $headers = [])
     {
         if ($condition) {
-            return abort($code);
+            return abort($code, $headers);
         }
     }
 }
