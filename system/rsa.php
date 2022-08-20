@@ -39,7 +39,7 @@ class RSA
             $temp = '';
 
             if (! openssl_public_encrypt($chunk, $temp, $pub)) {
-                throw new \Exception('Failed to encrypt data');
+                throw new \Exception('Failed to encrypt the data');
             }
 
             $result .= $temp;
@@ -63,7 +63,7 @@ class RSA
     {
         static::generate();
 
-        if (! $priv = openssl_pkey_get_private(static::$details['private_key'])) {
+        if (! ($priv = openssl_pkey_get_private(static::$details['private_key']))) {
             throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $priv, gettype($priv)));
         }
 
@@ -77,7 +77,7 @@ class RSA
             $temp = '';
 
             if (! openssl_private_decrypt($chunk, $temp, $priv)) {
-                throw new \Exception('Failed to decrypt data');
+                throw new \Exception('Failed to decrypt the data');
             }
 
             $result .= $temp;
@@ -120,11 +120,26 @@ class RSA
 
             if (! static::$details['private_key']) {
                 $priv = openssl_pkey_new(static::$details['options']);
-                openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'));
+
+                if (! openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'))) {
+                    $errors = null;
+
+                    while (false !== ($mesage = openssl_error_string())) {
+                        $errors .= $message.PHP_EOL;
+                    }
+
+                    throw new \Exception(sprintf('Failed to export private key: %s', $errors));
+                }
             }
 
             if (! static::$details['public_key']) {
-                static::$details['public_key'] = openssl_pkey_get_details($priv)['key'];
+                $details = openssl_pkey_get_details($priv);
+
+                if (! isset($details['key'])) {
+                    throw new \Exception('Failed to extract public key');
+                }
+
+                static::$details['public_key'] = $details['key'];
             }
 
             if ((static::$details['private_key'] || static::$details['public_key']) && PHP_VERSION_ID < 80000) {
