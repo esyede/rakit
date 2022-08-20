@@ -17,11 +17,11 @@ trait Macroable
      * Tambahkan macro baru.
      *
      * @param string   $name
-     * @param \Closure $handler
+     * @param callable $handler
      *
      * @return void
      */
-    public static function macro($name, \Closure $handler)
+    public static function macro($name, $handler)
     {
         static::$macros[$name] = $handler;
     }
@@ -29,18 +29,21 @@ trait Macroable
     /**
      * Tambahkan mixin baru.
      *
-     * @param \Closure $mixin
+     * @param callable $mixin
+     * @param bool     $replace
      *
      * @return void
      */
-    public static function mixin(\Closure $mixin)
+    public static function mixin($mixin, $replace = true)
     {
         $methods = (new \ReflectionClass($mixin))
             ->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED);
 
         foreach ($methods as $method) {
-            $method->setAccessible(true);
-            static::macro($method->name, $method->invoke($mixin));
+            if ($replace || ! static::has_macro($method->name)) {
+                $method->setAccessible(true);
+                static::macro($method->name, $method->invoke($mixin));
+            }
         }
     }
 
