@@ -5,6 +5,7 @@
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Enkripsi Data](#enkripsi-data)
 - [Dekripsi Data](#dekripsi-data)
+- [Detail Data](#detail-data)
 
 <!-- /MarkdownTOC -->
 
@@ -36,6 +37,7 @@ $encrypted = RSA::encrypt($data);
 > Private key dan public key dibuat secara otomatis setiap kali operasi enkripsi dilakukan
   sehingga anda tidak perlu repot lagi menyimpan public key dan private key.
 
+
 <a id="dekripsi-string"></a>
 ## Dekripsi Data
 
@@ -47,4 +49,18 @@ Untuk mendenkripsi data, gunakan method `decrypt()` seperti berikut:
 ```php
 $decrypted = RSA::decrypt($encrypted);
 // dd($decrypted);
+```
+
+
+<a id="detail-data"></a>
+## Detail Data
+
+
+#### Detail data enkripsi:
+
+Untuk melihat info detail enkripsi, gunakan method `details()` seperti berikut:
+
+```php
+$details = RSA::details($encrypted);
+// dd($details);
 ```

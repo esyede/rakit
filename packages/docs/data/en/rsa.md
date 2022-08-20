@@ -5,6 +5,7 @@
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Enkripsi Data](#enkripsi-data)
 - [Dekripsi Data](#dekripsi-data)
+- [Detail Data](#detail-data)
 
 <!-- /MarkdownTOC -->
 
@@ -48,4 +49,18 @@ Untuk mendenkripsi data, gunakan method `decrypt()` seperti berikut:
 ```php
 $decrypted = RSA::decrypt($encrypted);
 // dd($decrypted);
+```
+
+
+<a id="detail-data"></a>
+## Detail Data
+
+
+#### Detail data enkripsi:
+
+Untuk melihat info detail enkripsi, gunakan method `details()` seperti berikut:
+
+```php
+$details = RSA::details($encrypted);
+// dd($details);
 ```
