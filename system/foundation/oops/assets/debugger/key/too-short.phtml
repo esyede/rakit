@@ -67,9 +67,7 @@
                     <br>
                     <br>
                     <code>
-                        <?php echo substr(str_shuffle(
-                            str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 1)
-                        ), 1, 10); ?>
+                        <?php echo bin2hex(openssl_random_pseudo_bytes(rand(5, 10))); ?>
                     </code>
                 </p>
             </div>

@@ -12,9 +12,11 @@ defined('DS') or exit('No direct script access.');
 */
 
 if (is_file($path = path('rakit_key'))) {
+    $dir = path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS;
+
     if (! is_readable(dirname($path))) {
         http_response_code(500);
-        require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS.'unreadable.phtml';
+        require $dir.'unreadable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -24,7 +26,7 @@ if (is_file($path = path('rakit_key'))) {
 
     if (strlen((string) $path) < 10) {
         http_response_code(500);
-        require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS.'too-short.phtml';
+        require $dir.'too-short.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -36,7 +38,7 @@ if (is_file($path = path('rakit_key'))) {
 
     if (! is_writable(dirname($path))) {
         http_response_code(500);
-        require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS.'unwritable.phtml';
+        require $dir.'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -45,10 +47,7 @@ if (is_file($path = path('rakit_key'))) {
     }
 
     try {
-        $key = substr(str_shuffle(
-            str_repeat('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 1)
-        ), 1, 10);
-
+        $key = bin2hex(openssl_random_pseudo_bytes(rand(5, 10)));
         file_put_contents(
             path('rakit_key'),
             '<?php'.PHP_EOL.PHP_EOL
@@ -57,7 +56,7 @@ if (is_file($path = path('rakit_key'))) {
             .sprintf('return \'%s\';', $key).PHP_EOL
         );
     } catch (\Throwable $e) {
-        require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS.'unwritable.phtml';
+        require $dir.'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -65,7 +64,7 @@ if (is_file($path = path('rakit_key'))) {
         exit;
     } catch (\Exception $e) {
         http_response_code(500);
-        require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS.'unwritable.phtml';
+        require $dir.'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
