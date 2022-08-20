@@ -61,6 +61,6 @@ $decrypted = RSA::decrypt($encrypted);
 Untuk melihat info detail enkripsi, gunakan method `details()` seperti berikut:
 
 ```php
-$details = RSA::details($encrypted);
+$details = RSA::details();
 // dd($details);
 ```
