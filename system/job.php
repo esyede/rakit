@@ -37,10 +37,7 @@ class Job extends Event
     public function delete($name)
     {
         $config = Config::get('job');
-
-        $jobs = Database::table($config['table'])
-            ->where('name', $name)
-            ->get('id');
+        $jobs = Database::table($config['table'])->where('name', $name)->get('id');
 
         if (empty($jobs)) {
             $this->log(sprintf('No job found with this name: %s', $name));
@@ -85,8 +82,8 @@ class Job extends Event
 
         $jobs = Database::table($config['table'])
             ->where('name', $name)
-            ->where('executed_at', '<=', date('Y-m-d H:i:s'))
-            ->where('scheduled_at', '<=', date('Y-m-d H:i:s'))
+            ->where('executed_at', '<=', now())
+            ->where('scheduled_at', '<=', now())
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -94,22 +91,13 @@ class Job extends Event
         foreach ($jobs as $job) {
             try {
                 Event::fire($job->name, unserialize($job->payloads));
-                Database::table($config['table'])
-                    ->where('id', $job->id)
-                    ->update(['executed_at' => date('Y-m-d H:i:s')]);
-
+                Database::table($config['table'])->where('id', $job->id)->update(['executed_at' => now()]);
                 $this->log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
             } catch (\Throwable $e) {
-                $this->log(sprintf(
-                    'Job failed: %s - #%s. Reason: %s',
-                    $job->name, $job->id, $e->getMessage()
-                ));
+                $this->log(sprintf('Job failed: %s - #%s. Reason: %s', $job->name, $job->id, $e->getMessage()));
                 return false;
             } catch (\Exception $e) {
-                $this->log(sprintf(
-                    'Job failed: %s - #%s. Reason: %s',
-                    $job->name, $job->id, $e->getMessage()
-                ));
+                $this->log(sprintf('Job failed: %s - #%s. Reason: %s', $job->name, $job->id, $e->getMessage()));
                 return false;
             }
         }
@@ -140,8 +128,8 @@ class Job extends Event
         $this->log('Job started!');
 
         $jobs = Database::table($config['table'])
-            ->where('executed_at', '<=', date('Y-m-d H:i:s'))
-            ->where('scheduled_at', '<=', date('Y-m-d H:i:s'))
+            ->where('executed_at', '<=', now())
+            ->where('scheduled_at', '<=', now())
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -149,22 +137,13 @@ class Job extends Event
         foreach ($jobs as $job) {
             try {
                 Event::fire($job->name, unserialize($job->payloads));
-                Database::table($config['table'])
-                    ->where('id', $job->id)
-                    ->update(['executed_at' => date('Y-m-d H:i:s')]);
-
+                Database::table($config['table'])->where('id', $job->id)->update(['executed_at' => now()]);
                 $this->log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
             } catch (\Throwable $e) {
-                $this->log(sprintf(
-                    'Job failed: %s - #%s. Reason: %s',
-                    $job->name, $job->id, $e->getMessage()
-                ));
+                $this->log(sprintf('Job failed: %s - #%s. Reason: %s', $job->name, $job->id, $e->getMessage()));
                 return false;
             } catch (\Exception $e) {
-                $this->log(sprintf(
-                    'Job failed: %s - #%s. Reason: %s',
-                    $job->name, $job->id, $e->getMessage()
-                ));
+                $this->log(sprintf('Job failed: %s - #%s. Reason: %s', $job->name, $job->id, $e->getMessage()));
                 return false;
             }
         }
@@ -175,14 +154,12 @@ class Job extends Event
 
     private function log($message, $type = 'info')
     {
-        $config = Config::get('job');
-
-        if ($config['logging']) {
+        if (Config::get('job.logging')) {
             Log::{$type}($message);
         }
 
         if (Request::cli()) {
-            echo '['.date('Y-m-d H:i:s').'] ['.strtoupper($type).'] '.$message.PHP_EOL;
+            echo '['.now().'] ['.strtoupper($type).'] '.$message.PHP_EOL;
         }
     }
 }
