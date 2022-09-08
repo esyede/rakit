@@ -45,8 +45,6 @@ class Log
      */
     public static function exception($e)
     {
-        $e = null;
-
         if (PHP_VERSION_ID >= 70000) {
             if ($e instanceof \Throwable) {
                 $text = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
