@@ -34,7 +34,7 @@ class File extends Parameter
     {
         if (! is_array($value) && ! ($value instanceof Upload)) {
             throw new \InvalidArgumentException(
-                'An uploaded file must be an array or an instance of Upload class.'
+                'An uploaded file must be an array or an instance of \System\Foundation\Http\Upload class.'
             );
         }
 

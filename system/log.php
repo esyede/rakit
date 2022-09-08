@@ -11,20 +11,19 @@ class Log
      *
      * @var string
      */
-    protected static $filename;
+    protected static $channel;
 
     /**
      * Set nama file tempat menyimpan log.
-     * Jika ini tidak dipanggil, nama file akan mengikuti tanggal hari ini.
      *
      * <code>
      *
      *      // Set nama file tempat menyimpan log
-     *      Log::filename('access.log');
+     *      Log::channel('my-log');
      *      Log::info('Admin logged in: ', Auth::user());
      *
      *      // Kembalikan ke default (menggunakan tanggal)
-     *      Log::filename(null);
+     *      Log::channel(null);
      *
      * </code>
      *
@@ -32,11 +31,11 @@ class Log
      *
      * @return void
      */
-    public static function filename($name = null)
+    public static function channel($name = null)
     {
         $name = basename($name);
         $name = Str::replace_last('.log', '', Str::replace_last('.php', '', basename($name)));
-        static::$filename = $name.'.log.php';
+        static::$channel = $name.'.log.php';
     }
 
     /**
@@ -92,7 +91,7 @@ class Log
         }
 
         $message = static::format($type, $message);
-        $path = path('storage').'logs'.DS.static::$filename;
+        $path = path('storage').'logs'.DS.static::$channel;
 
         if (is_file($path)) {
             file_put_contents($path, $message, LOCK_EX | FILE_APPEND);
@@ -137,9 +136,9 @@ class Log
     {
         $parameters[1] = (isset($parameters[1]) && ! is_null($parameters[1])) ? $parameters[1] : null;
 
-        if ('filename' === $method) {
+        if ('channel' === $method) {
             $parameters[0] = (string) $parameters[0];
-            static::filename($parameters[0] ? $parameters[0] : date('Y-m-d'));
+            static::channel($parameters[0] ? $parameters[0] : date('Y-m-d'));
         } elseif ('exception' === $method) {
             $parameters[0] = (is_object($parameters[0]) && method_exists($parameters[0], 'getTraceAsString'))
                 ? $parameters[0]->getTraceAsString()
