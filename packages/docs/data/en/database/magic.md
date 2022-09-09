@@ -442,8 +442,8 @@ Untuk mengupdate record, cukup oper array asosiatif ke method `update()` seperti
 
 ```php
 $data = [
-    'email' => 'budi.baru@gmail.com'
-    'name'  => 'Budi Purnomo'
+    'email' => 'budi.baru@gmail.com',
+    'name'  => 'Budi Purnomo',
 ];
 
 $affected = DB::table('users')->update($data);
@@ -453,8 +453,8 @@ Tentu saja, jika anda hanya ingin mengupdate beberapa kolom saja, anda bisa mena
 
 ```php
 $data = [
-    'email' => 'budi.baru@gmail.com'
-    'name'  => 'Budi Purnomo'
+    'email' => 'budi.baru@gmail.com',
+    'name'  => 'Budi Purnomo',
 ];
 
 $affected = DB::table('users')
