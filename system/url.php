@@ -94,7 +94,7 @@ class URL
             }
         }
 
-        $base = Request::secure()
+        $base = (Request::secure() || Str::starts_with(Config::get('application.url', 'https://')))
             ? Str::replace_first('http://', 'https://', $base)
             : Str::replace_first('https://', 'http://', $base);
 
