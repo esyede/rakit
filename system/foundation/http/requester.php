@@ -773,14 +773,12 @@ class Requester
     {
         $clientProto = self::$trustedHeaders[self::HEADER_CLIENT_PROTO];
 
-        if (self::$trustProxy
-        && $clientProto
-        && $proto = $this->headers->get($clientProto)) {
-            return in_array(strtolower($proto), ['https', 'on', '1']);
+        if (self::$trustProxy && $clientProto && $proto = $this->headers->get($clientProto)) {
+            return in_array(strtolower($proto), ['https', 'on', 'ssl', '1']);
         }
 
         $https = $this->server->get('HTTPS');
-        return ('on' === $https || 1 === $https);
+        return ('on' === $https || 1 === $https || (! empty($https) && 'off' !== strtolower($https)));
     }
 
     /**
