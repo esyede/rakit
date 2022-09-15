@@ -82,6 +82,12 @@ Namun, anda juga dapat menggunakan [console](/docs/en/console) untuk membuat tab
 php rakit session:table
 ```
 
+Kemudian:
+
+```bash
+php rakit migrate
+```
+
 
 <a id="sqlite"></a>
 ### SQLite

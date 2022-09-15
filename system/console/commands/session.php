@@ -22,18 +22,13 @@ class Session extends Command
     public function table(array $arguments = [])
     {
         $make = Container::resolve('command: make');
-        $migrator = Container::resolve('command: migrate');
 
         $migration = $make->migration(['create_sessions_table']);
         $stub = __DIR__.DS.'stubs'.DS.'session.stub';
 
         Storage::put($migration, Storage::get($stub));
 
-        $this->driver('database');
-
         echo PHP_EOL;
-
-        $migrator->run();
     }
 
     /**

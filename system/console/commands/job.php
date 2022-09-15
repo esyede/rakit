@@ -58,7 +58,6 @@ class Job extends Command
     public function table()
     {
         $make = Container::resolve('command: make');
-        $migrator = Container::resolve('command: migrate');
 
         $jobs = Config::get('job.table', 'jobs');
         $failed = Config::get('job.failed_table', 'failed_jobs');
@@ -73,7 +72,5 @@ class Job extends Command
         Storage::put($migration2, Storage::get($stub2));
 
         echo PHP_EOL;
-
-        $migrator->run();
     }
 }
