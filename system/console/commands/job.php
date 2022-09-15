@@ -5,6 +5,8 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct script access.');
 
 use System\Config;
+use System\Container;
+use System\Storage;
 use System\Log;
 
 class Job extends Command
@@ -34,7 +36,7 @@ class Job extends Command
         }
 
         foreach ($names as $name) {
-            Job::run($name);
+            \System\Job::run($name);
         }
     }
 
@@ -45,7 +47,7 @@ class Job extends Command
      */
     public function runall()
     {
-        Job::runall();
+        \System\Job::runall();
     }
 
     /**
@@ -58,12 +60,17 @@ class Job extends Command
         $make = Container::resolve('command: make');
         $migrator = Container::resolve('command: migrate');
 
-        $migration = $make->migration(['create_jobs_table']);
-        $stub = __DIR__.DS.'stubs'.DS.'job.stub';
+        $jobs = Config::get('job.table', 'jobs');
+        $failed = Config::get('job.failed_table', 'failed_jobs');
 
-        Storage::put($migration, Storage::get($stub));
+        $migration1 = $make->migration(['create_'.$jobs. '_table']);
+        $migration2 = $make->migration(['create_'.$failed.'_table']);
 
-        $this->driver('database');
+        $stub1 = __DIR__.DS.'stubs'.DS.'jobs.stub';
+        $stub2 = __DIR__.DS.'stubs'.DS.'failed_jobs.stub';
+
+        Storage::put($migration1, Storage::get($stub1));
+        Storage::put($migration2, Storage::get($stub2));
 
         echo PHP_EOL;
 

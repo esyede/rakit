@@ -229,10 +229,14 @@ class Make extends Command
             Storage::mkdir($path);
         }
 
+        if (class_exists('\\'.Str::classify($migration))) {
+            throw new \Exception(sprintf('Migration class already exists: %s', Str::classify($migration)));
+        }
+
         $file = $path.$prefix.'_'.$migration.'.php';
         Storage::put($file, $this->stub_migration($package, $migration));
 
-        echo 'Created migration: '.$prefix.'_'.$migration;
+        echo 'Created migration: '.$prefix.'_'.$migration.PHP_EOL;
 
         return $file;
     }

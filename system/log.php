@@ -47,15 +47,19 @@ class Log
     {
         if (PHP_VERSION_ID >= 70000) {
             if ($e instanceof \Throwable) {
-                $text = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
+                $text = get_class($e)
+                    .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                    .' in '.$e->getFile().':'.$e->getLine()."\nStack trace:\n".$e->getTraceAsString();
             }
         } elseif ($e instanceof \Exception) {
-            $text = $e->getMessage().' in '.$e->getFile().' on line '.$e->getLine();
+            $text = get_class($e)
+                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                .' in '.$e->getFile().':'.$e->getLine()."\nStack trace:\n".$e->getTraceAsString();
         } else {
             $text = 'A non-catchable error has occured.';
         }
 
-        static::write('error', $text, $e);
+        static::write('error', $text);
     }
 
     /**
@@ -82,7 +86,7 @@ class Log
      */
     public static function write($type, $message, $data = null)
     {
-        $message .= is_string($data) ? $data : json_encode($data);
+        $message .= is_null($data) ? '' : json_encode($data);
 
         if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
@@ -144,7 +148,7 @@ class Log
             $parameters[0] = is_string($parameters[0]) ? $parameters[0] : json_encode($parameters[0]);
             static::write($method, $parameters[0]->getTraceAsString(), null);
         } else {
-            $parameters[1] = json_encode(['params' => $parameters[1]]);
+            $parameters[1] = isset($parameters[1]) ? json_encode(['params' => $parameters[1]]) : null;
             static::write($method, $parameters[0], $parameters[1]);
         }
     }

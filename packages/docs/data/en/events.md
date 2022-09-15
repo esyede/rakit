@@ -184,5 +184,8 @@ You can listen to the following events when needed:
 | `Event::fire('facile.deleting: [class_name]',`  | `[Facile $model]);`                                    |
 | `Event::fire('facile.deleted',`                 | `[Facile $model]);`                                    |
 | `Event::fire('facile.deleted: [class_name]',`   | `[Facile $model]);`                                    |
+| `Event::fire('rakit.jobs.run: [job_name]',`     | `[string $name, array $payloads]);`                    |
+| `Event::fire('rakit.jobs.ran: [job_name]',`     | `[string $name, array $payloads]);`                    |
+| `Event::fire('rakit.jobs.forget: [job_name]');` | `None`                                                 |
 | `Event::first('500');`                          | `None`                                                 |
 | `Event::first('404');`                          | `None`                                                 |

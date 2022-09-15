@@ -9,4 +9,4 @@ defined('DS') or exit('No direct script access.');
 |
 */
 
-Autoloader::namespaces(['Docs\Libraries' => Package::path('docs').'libraries']);
+Autoloader::namespaces(['Docs\Libraries' => __DIR__.'/libraries']);

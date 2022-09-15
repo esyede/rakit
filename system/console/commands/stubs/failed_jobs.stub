@@ -1,0 +1,33 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class Create_Failed_Jobs_Table
+{
+	/**
+	 * Buat perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+        Schema::create_if_not_exists(Config::get('job.failed_table'), function ($table) {
+            $table->increments('id');
+            $table->integer('job_id')->unsigned();
+            $table->text('name')->index();
+            $table->text('payload');
+            $table->text('exception');
+            $table->timestamp('failed_at')->index();
+        });
+	}
+
+	/**
+	 * Urungkan perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+        Schema::drop_if_exists(Config::get('job.failed_table'));
+	}
+}

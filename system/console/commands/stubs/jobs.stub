@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct script access.');
 
-class Create_Session_Table
+class Create_Jobs_Table
 {
 	/**
 	 * Buat perubahan di database.
@@ -15,8 +15,7 @@ class Create_Session_Table
             $table->increments('id');
             $table->string('name')->index();
             $table->text('payloads');
-            $table->timestamp('executed_at');
-            $table->timestamp('scheduled_at');
+            $table->timestamp('scheduled_at')->index();
             $table->timestamps();
         });
 	}
