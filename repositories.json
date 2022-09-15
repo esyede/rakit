@@ -24,5 +24,18 @@
             "v0.9.9": "v1.0.0",
             "v1.0.0": "v1.0.0"
         }
+    },
+    {
+        "name": "notyf",
+        "description": "Paket flash message sederhana berbasis notyf-js untuk rakit framework.",
+        "category": "notification",
+        "repository": "https://github.com/esyede/notyf",
+        "maintained": true,
+        "compatibilities": {
+            "v0.9.7": "v1.0.0",
+            "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
+        }
     }
 ]
