@@ -82,7 +82,9 @@ class Packager extends Command
         $this->metadata($remotes, $destination);
 
         if (is_dir($destination = path('package').DS.$names[0].DS.'assets')) {
+            echo PHP_EOL.'Publishing assets...';
             Storage::cpdir($destination, path('assets').'packages'.DS.$names[0]);
+            echo ' done!'.PHP_EOL;
         }
 
         echo PHP_EOL.'Package installed successfuly!';
