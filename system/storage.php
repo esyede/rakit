@@ -117,38 +117,6 @@ class Storage
     }
 
     /**
-     * Hapus sebuah direktori.
-     *
-     * @param string $path
-     * @param bool   $preserve
-     */
-    public static function rmdir($path, $preserve = false)
-    {
-        if (! static::isdir($path)) {
-            throw new \Exception(sprintf('Target file does not exists: %s', $path));
-        }
-
-        if (static::isdir($path)) {
-            $items = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::SELF_FIRST
-            );
-
-            foreach ($items as $item) {
-                if ($item->isDir() && ! $item->isLink()) {
-                    static::rmdir($item->getPathname());
-                } else {
-                    static::delete($item->getPathname());
-                }
-            }
-
-            if (! $preserve) {
-                rmdir($path);
-            }
-        }
-    }
-
-    /**
      * Kosongkan direktori dari file dan folder.
      *
      * @param string $path
@@ -227,37 +195,58 @@ class Storage
     /**
      * Copy direktori ke lokasi lain.
      *
-     * @param string $from
-     * @param string $to
+     * @param string $directory
+     * @param string $destination
      * @param int    $options
      */
-    public static function cpdir($from, $to, $options = \FilesystemIterator::SKIP_DOTS)
-    {
-        if (! static::isdir($from)) {
-            throw new \Exception(sprintf('Source folder does not exists: %s', $from));
-        }
+    public static function cpdir($directory, $destination, $options = \FilesystemIterator::SKIP_DOTS)
+        {
+            if (! static::isdir($directory)) {
+                throw new \Exception(sprintf('Source folder does not exists: %s', $directory));
+            }
 
-        if (! static::isdir($to)) {
-            static::mkdir($to, 0755);
-        }
+            if (! static::isdir($destination)) {
+                static::mkdir($destination, 0755);
+            }
 
-        static::protect($to);
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
+            $items = new \FilesystemIterator($directory, $options);
 
-        foreach ($items as $item) {
-            if ($item->isDir()) {
-                $path = $to.DS.$items->getSubPathname();
+            foreach ($items as $item) {
+                $target = $destination.DS.$item->getBasename();
 
-                if (! is_dir($path)) {
-                    mkdir($path);
+                if ($item->isDir()) {
+                    static::cpdir($item->getPathname(), $target, $options);
+                } else {
+                    static::copy($item->getPathname(), $target);
                 }
+            }
+        }
 
-                static::protect($path);
-            } else {
-                copy($item, $to.DS.$items->getSubPathname());
+    /**
+     * Hapus sebuah direktori.
+     *
+     * @param string $path
+     * @param bool   $preserve
+     */
+    public static function rmdir($path, $preserve = false)
+    {
+        if (! static::isdir($path)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        if (static::isdir($path)) {
+            $items = new \FilesystemIterator($path);
+
+            foreach ($items as $item) {
+                if ($item->isDir() && ! $item->isLink()) {
+                    static::rmdir($item->getPathname());
+                } else {
+                    static::delete($item->getPathname());
+                }
+            }
+
+            if (! $preserve) {
+                @rmdir($path);
             }
         }
     }

@@ -464,7 +464,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testProtect()
     {
-        $dir = path('storage').'protects'.DS;
+        $dir = path('storage').'temp'.DS.'protects'.DS;
 
         Storage::mkdir($dir);
         $this->assertTrue(is_file($dir.'index.html'));
