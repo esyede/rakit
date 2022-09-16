@@ -26,10 +26,10 @@ try {
     Config::set('database.default', $default);
 } catch (\Throwable $e) {
     Config::set('database.default', $default);
-    echo $e->getMessage();
+    echo 'Error: '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine();
 } catch (\Exception $e) {
     Config::set('database.default', $default);
-    echo $e->getMessage();
+    echo 'Error: '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine();
 }
 
 echo PHP_EOL;
