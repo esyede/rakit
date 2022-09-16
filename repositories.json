@@ -2,7 +2,7 @@
     {
         "name": "access",
         "description": "Paket role-based access control untuk rakit",
-        "category": "security",
+        "category": "authorization",
         "repository": "https://github.com/esyede/access",
         "maintained": true,
         "compatibilities": {
@@ -15,7 +15,7 @@
     {
         "name": "file-auth",
         "description": "Paket driver otentikasi berbasis file untuk rakit framework.",
-        "category": "security",
+        "category": "authentication",
         "repository": "https://github.com/esyede/file-auth",
         "maintained": true,
         "compatibilities": {
@@ -30,6 +30,19 @@
         "description": "Paket flash message sederhana berbasis notyf-js untuk rakit framework.",
         "category": "notification",
         "repository": "https://github.com/esyede/notyf",
+        "maintained": true,
+        "compatibilities": {
+            "v0.9.7": "v1.0.0",
+            "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
+        }
+    },
+    {
+        "name": "impersonate",
+        "description": "Paket flash message sederhana berbasis impersonate-js untuk rakit framework.",
+        "category": "authentication",
+        "repository": "https://github.com/esyede/impersonate",
         "maintained": true,
         "compatibilities": {
             "v0.9.7": "v1.0.0",
