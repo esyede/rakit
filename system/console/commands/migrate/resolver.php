@@ -76,6 +76,7 @@ class Resolver
         $instances = [];
 
         foreach ($migrations as $migration) {
+            $migration = (array) $migration;
             $package = $migration['package'];
             $name = $migration['name'];
             $path = Package::path($package).'migrations'.DS;
