@@ -23,7 +23,20 @@ class Publisher
             return;
         }
 
-        Storage::cpdir(path('package').$package, path('assets').'packages'.DS.$package);
+        $source = path('package').$package;
+        $destination = path('assets').'packages'.DS.$package;
+
+        if (is_dir($source)) {
+            echo 'Package does not caontains any assets!'.PHP_EOL;
+            return;
+        }
+
+        if (is_dir($destination)) {
+            echo 'Package assets already published!'.PHP_EOL;
+            return;
+        }
+
+        Storage::cpdir($source, $destination);
 
         echo 'Assets published for package: '.$package.PHP_EOL;
     }
