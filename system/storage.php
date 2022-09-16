@@ -73,14 +73,11 @@ class Storage
      * @param string $path
      * @param string $data
      * @param int    $options
-     *
-     * @return int
      */
     public static function put($path, $data, $options = LOCK_EX)
     {
-        $put = file_put_contents($path, $data, $options);
+        file_put_contents($path, $data, $options);
         static::protect($path);
-        return $put;
     }
 
     /**
@@ -88,12 +85,10 @@ class Storage
      *
      * @param string $path
      * @param string $data
-     *
-     * @return int
      */
     public static function prepend($path, $data)
     {
-        return static::put($path, $data.static::get($path));
+        static::put($path, $data.static::get($path));
     }
 
     /**
@@ -101,84 +96,87 @@ class Storage
      *
      * @param string $path
      * @param string $data
-     *
-     * @return int
      */
     public static function append($path, $data)
     {
-        return static::put($path, $data, LOCK_EX | FILE_APPEND);
+        static::put($path, $data, LOCK_EX | FILE_APPEND);
     }
 
     /**
      * Hapus sebuah file.
      *
-     * @param string $path
-     *
-     * @return bool
+     * @param string $pathl
      */
     public static function delete($path)
     {
-        if (is_file($path) && ! @unlink($path)) {
-            return false;
+        if (! static::isfile($path) && ! is_link($path)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        return true;
+        unlink($path);
     }
 
     /**
      * Hapus sebuah direktori.
      *
-     * @param string $directory
+     * @param string $path
      * @param bool   $preserve
-     *
-     * @return bool
      */
-    public static function rmdir($directory, $preserve = false)
+    public static function rmdir($path, $preserve = false)
     {
-        if (! static::isdir($directory)) {
-            return false;
+        if (! static::isdir($path)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        $items = new \FilesystemIterator($directory);
+        if (static::isdir($path)) {
+            $items = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::SELF_FIRST
+            );
 
-        foreach ($items as $item) {
-            if ($item->isDir() && ! $item->isLink()) {
-                static::rmdir($item->getPathname());
-            } else {
-                static::delete($item->getPathname());
+            foreach ($items as $item) {
+                if ($item->isDir() && ! $item->isLink()) {
+                    static::rmdir($item->getPathname());
+                } else {
+                    static::delete($item->getPathname());
+                }
+            }
+
+            if (! $preserve) {
+                rmdir($path);
             }
         }
-
-        if (! $preserve) {
-            @rmdir($directory);
-        }
-
-        return true;
     }
 
     /**
      * Kosongkan direktori dari file dan folder.
      *
-     * @param string $directory
-     *
-     * @return bool
+     * @param string $path
      */
-    public static function cleandir($directory)
+    public static function cleandir($path)
     {
-        return static::rmdir($directory, true);
+        static::rmdir($path, true);
     }
 
     /**
      * Pindahkan file ke lokasi baru.
      *
-     * @param string $path
-     * @param string $target
+     * @param string $from
+     * @param string $to
+     * @param bool   $overwrite
      */
-    public static function move($path, $target)
+    public static function move($from, $to, $overwrite = false)
     {
-        $move = rename($path, $target);
-        static::protect($path);
-        return $move;
+        if (! static::isfile($from)) {
+            throw new \Exception(sprintf('Source file does not exists: %s', $from));
+        }
+
+        if (static::isfile($to) && ! $overwrite) {
+            throw new \Exception(sprintf('Destination file does not exists: %s', $to));
+        }
+
+        rename($from, $to);
+        static::protect($to);
     }
 
     /**
@@ -187,26 +185,27 @@ class Storage
      * @param string $from
      * @param string $to
      * @param bool   $overwrite
-     *
-     * @return bool
      */
     public static function mvdir($from, $to, $overwrite = false)
     {
-        if ($overwrite && static::isdir($to) && ! static::rmdir($to)) {
-            return false;
+        if (! static::isdir($from)) {
+            throw new \Exception(sprintf('Source folder does not exists: %s', $from));
         }
 
-        $rename = @rename($from, $to);
+        if (static::isdir($to)) {
+            if (! $overwrite) {
+                throw new \Exception(sprintf('Destination folder already exists: %s', $to));
+            }
 
-        if (true === $rename) {
-            static::protect($to);
-            return true;
+            static::rmdir($to);
         }
 
-        return false;
+        static::cpdir($from, $to);
+        static::protect($to);
+        static::rmdir($from);
     }
 
-    /**
+/**
      * Copy file ke lokasi baru.
      *
      * @param string $path
@@ -214,49 +213,53 @@ class Storage
      */
     public static function copy($path, $target)
     {
-        $copy = copy($path, $target);
+        if (function_exists('copy')) {
+            copy($path, $target);
+        } else {
+            $handle = fopen($target, 'w');
+            fwrite($handle, file_get_contents($path));
+            fclose($handle);
+        }
+
         static::protect($target);
-        return $copy;
     }
 
     /**
      * Copy direktori ke lokasi lain.
      *
-     * @param string $directory
-     * @param string $destination
+     * @param string $from
+     * @param string $to
      * @param int    $options
-     *
-     * @return bool
      */
-    public static function cpdir($directory, $destination, $options = \FilesystemIterator::SKIP_DOTS)
+    public static function cpdir($from, $to, $options = \FilesystemIterator::SKIP_DOTS)
     {
-        if (! static::isdir($directory)) {
-            return false;
+        if (! static::isdir($from)) {
+            throw new \Exception(sprintf('Source folder does not exists: %s', $from));
         }
 
-        if (! static::isdir($destination)) {
-            static::mkdir($destination, 0777);
+        if (! static::isdir($to)) {
+            static::mkdir($to, 0755);
         }
 
-        $items = new \FilesystemIterator($directory, $options);
+        static::protect($to);
+        $items = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($from, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::SELF_FIRST
+        );
 
         foreach ($items as $item) {
-            $target = $destination.DS.$item->getBasename();
-
             if ($item->isDir()) {
-                $path = $item->getPathname();
+                $path = $to.DS.$items->getSubPathname();
 
-                if (! static::cpdir($path, $target, $options)) {
-                    return false;
+                if (! is_dir($path)) {
+                    mkdir($path);
                 }
+
+                static::protect($path);
             } else {
-                if (! static::copy($item->getPathname(), $target)) {
-                    return false;
-                }
+                copy($item, $to.DS.$items->getSubPathname());
             }
         }
-
-        return true;
     }
 
     /**
@@ -313,7 +316,7 @@ class Storage
      * @param string   $path
      * @param int|null $mode
      *
-     * @return mixed
+     * @return bool|int
      */
     public static function chmod($path, $mode = null)
     {
@@ -389,7 +392,7 @@ class Storage
      */
     public static function is($extensions, $path)
     {
-        $extensions = is_array($extensions) ? $extensions : [$extensions];
+        $extensions = is_array($extensions) ? array_values($extensions) : [$extensions];
         $extensions = array_map('mb_strtolower', $extensions);
 
         $pool = Foundation\Http\Upload::$extensions;
@@ -412,20 +415,15 @@ class Storage
      *
      * @param string $path
      * @param int    $chmod
-     *
-     * @return bool
      */
     public static function mkdir($path, $chmod = 0755)
     {
-        try {
-            mkdir($path, $chmod, true);
-            static::protect($path);
-            return true;
-        } catch (\Throwable $e) {
-            throw $e;
-        } catch (\Exception $e) {
-            throw $e;
+        if (static::isdir($path)) {
+            throw new \Exception(sprintf('Target folder already exists: %s', $path));
         }
+
+        mkdir($path, $chmod, true);
+        static::protect($path);
     }
 
     /**
@@ -483,8 +481,6 @@ class Storage
      * dengan cara menambahkan file index.html.
      *
      * @param string $path
-     *
-     * @return void
      */
     public static function protect($path)
     {

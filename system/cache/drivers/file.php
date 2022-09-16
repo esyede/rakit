@@ -103,7 +103,10 @@ class File extends Driver
     public function forget($key)
     {
         $key = $this->naming($key);
-        Storage::delete($this->path.$key);
+
+        if (is_file($key = $this->path.$key)) {
+            Storage::delete($key);
+        }
     }
 
     /**

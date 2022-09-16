@@ -49,7 +49,7 @@ class Packager extends Command
             exit;
         }
 
-        $destination = path('package').$names[0];
+        $destination = Package::path($names[0]);
 
         if (is_dir($destination)) {
             echo  PHP_EOL.'Destination directory for this package is already exists in:';
@@ -80,6 +80,10 @@ class Packager extends Command
 
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
+
+        if (is_dir($destination = path('package').DS.$names[0].DS.'assets')) {
+            Storage::cpdir($destination, path('assets').'packages'.DS.$names[0]);
+        }
 
         echo PHP_EOL.'Package installed successfuly!';
 
@@ -115,11 +119,13 @@ class Packager extends Command
         // $migrator = Container::resolve('command: migrate');
         // $migrator->reset($names[0]);
 
-        $publisher = Container::resolve('package.publisher');
-        $publisher->unpublish($names[0]);
+        if (is_dir($destination = path('package').DS.$names[0])) {
+            Storage::rmdir($destination);
+        }
 
-        $location = Package::path($names[0]);
-        Storage::rmdir($location);
+        if (is_dir($destination = path('assets').'packages'.DS.$names[0])) {
+            Storage::rmdir($destination);
+        }
 
         echo 'Package uninstalled successfuly: '.$names[0].PHP_EOL;
 

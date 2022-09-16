@@ -84,7 +84,9 @@ class Runner extends Command
         $phpunit .= get_cli_option('verbose') ? ' --debug' : '';
         passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
 
-        Storage::delete($config);
+        if (is_file($config)) {
+            Storage::delete($config);
+        }
 
         exit($status);
     }

@@ -890,7 +890,7 @@ class Upload extends \SplFileInfo
     {
         if (! is_dir($directory)) {
             try {
-                mkdir($directory, 0777, true);
+                mkdir($directory, 0755, true);
             } catch (\Throwable $e) {
                 throw new \Exception(sprintf('Unable to create the directory: %s', $directory));
             } catch (\Exception $e) {

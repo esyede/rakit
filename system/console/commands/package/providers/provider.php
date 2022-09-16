@@ -31,13 +31,18 @@ abstract class Provider
      */
     protected function zipball($url, array $package, $path)
     {
-        $storage = path('storage').'console'.DS;
-        $extractions = $storage.'extractions'.DS;
-        $zipball = $storage.'zipball.zip';
+        $zipball = path('storage').'console'.DS.'zipball.zip';
 
-        if (! is_dir($extractions)) {
-            Storage::mkdir($extractions);
+        if (is_file($zipball)) {
+            Storage::delete($zipball);
         }
+
+        if (is_dir(path('package').$package['name'])) {
+            echo PHP_EOL;
+            throw new \Exception(sprintf('Package already instantiated: %s', $package['name']));
+        }
+
+        @chmod(Storage::latest(path('package'))->getRealPath(), 0755);
 
         echo PHP_EOL.'Downloading zipball...';
         $this->download($url, $zipball);
@@ -45,15 +50,27 @@ abstract class Provider
 
         echo PHP_EOL.'Extracting zipball...';
 
-        static::unzip($zipball, $extractions);
+        static::unzip($zipball, path('package'));
 
-        $latest = Storage::latest($extractions)->getRealPath();
+        $packages = glob(path('package').$package['name'].'*', GLOB_ONLYDIR);
 
-        @chmod($latest, 0777);
+        if (isset($packages[0]) && basename($packages[0]) !== $package['name']) {
+            rename($packages[0], path('package').$package['name']);
+        }
 
-        Storage::mvdir($latest, $path);
-        Storage::rmdir($extractions);
+        @chmod(Storage::latest(path('package'))->getRealPath(), 0755);
         Storage::delete($zipball);
+
+        if (is_dir($assets = path('package').$package['name'].DS.'assets')) {
+            $destination = path('assets').'packages'.DS.$package['name'];
+
+            if (! is_dir($destination)) {
+                Storage::cpdir($assets, $destination);
+            } else {
+                echo PHP_EOL;
+                throw new \Exception(sprintf('Assets already exists: %s', $destination));
+            }
+        }
 
         echo ' done!';
     }
@@ -66,7 +83,10 @@ abstract class Provider
      */
     protected function download($url, $destination)
     {
-        Storage::delete($destination);
+        if (is_dir($destination)) {
+            Storage::delete($destination);
+        }
+
         $options = [CURLOPT_FOLLOWLOCATION => 1, CURLOPT_HEADER => 1, CURLOPT_NOBODY => 1];
         $remote = Curl::get($url, [], $options);
         $content_type = isset($remote->header->content_type)
@@ -104,7 +124,7 @@ abstract class Provider
         @ini_set('memory_limit', '256M');
 
         if (! is_dir($destination)) {
-            Storage::mkdir($destination, 0777);
+            Storage::mkdir($destination, 0755);
         }
 
         if (extension_loaded('zip') && class_exists('\ZipArchive')) {

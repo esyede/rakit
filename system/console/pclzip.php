@@ -2683,7 +2683,7 @@ class PclZip
             }
         }
 
-        if (! @mkdir($p_dir, 0777)) {
+        if (! @mkdir($p_dir, 0755)) {
             $this->privErrorLog(-8, "Unable to create directory '$p_dir'");
             return $this->errorCode();
         }

@@ -143,12 +143,16 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testDeleteDirectoryReturnFalseWhenNotADirectory()
+    public function testDeleteDirectoryThrowsExceptionWhenNotADirectory()
     {
         mkdir(self::$temp.DS.'bar');
         file_put_contents(self::$temp.DS.'bar'.DS.'file.txt', 'Hello World');
 
-        $this->assertFalse(Storage::rmdir(self::$temp.DS.'bar'.DS.'file.txt'));
+        try {
+            Storage::rmdir(self::$temp.DS.'bar'.DS.'file.txt');
+        } catch (\Exception $e) {
+            $this->assertTrue(false !== strpos($e->getMessage(), 'Target file does not exists:'));
+        }
     }
 
     /**
@@ -172,10 +176,14 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testCopyDirectoryReturnsFalseIfSourceIsntDirectory()
+    public function testCopyDirectoryThrowsExceptionIfSourceIsntDirectory()
     {
         $origin = self::$temp.DS.'breeze'.DS.'boom'.DS.'foo'.DS.'bar'.DS.'baz';
-        $this->assertFalse(Storage::cpdir($origin, self::$temp));
+        try {
+            Storage::cpdir($origin, self::$temp);
+        } catch (\Exception $e) {
+            $this->assertTrue(false !== strpos($e->getMessage(), 'Source folder does not exists:'));
+        }
     }
 
     /**
@@ -185,11 +193,11 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testCopyDirectoryMovesEntireDirectory()
     {
-        mkdir(self::$temp.DS.'tmp', 0777, true);
+        mkdir(self::$temp.DS.'tmp', 0755, true);
         file_put_contents(self::$temp.DS.'tmp'.DS.'foo.txt', '');
         file_put_contents(self::$temp.DS.'tmp'.DS.'bar.txt', '');
 
-        mkdir(self::$temp.DS.'tmp'.DS.'nested', 0777, true);
+        mkdir(self::$temp.DS.'tmp'.DS.'nested', 0755, true);
         file_put_contents(self::$temp.DS.'tmp'.DS.'nested'.DS.'baz.txt', '');
 
         Storage::cpdir(self::$temp.DS.'tmp', self::$temp.DS.'tmp2');
@@ -208,20 +216,17 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveDirectoryMovesEntireDirectory()
     {
-        mkdir(self::$temp.DS.'tmp2', 0777, true);
-        file_put_contents(self::$temp.DS.'tmp2'.DS.'foo.txt', '');
-        file_put_contents(self::$temp.DS.'tmp2'.DS.'bar.txt', '');
-
-        mkdir(self::$temp.DS.'tmp2'.DS.'nested', 0777, true);
-        file_put_contents(self::$temp.DS.'tmp2'.DS.'nested'.DS.'baz.txt', '');
+        mkdir(self::$temp.DS.'tmp2', 0755, true);
+        mkdir(self::$temp.DS.'tmp2'.DS.'nested', 0755, true);
+        file_put_contents(self::$temp.DS.'tmp2'.DS.'foo.txt', 'foo');
+        file_put_contents(self::$temp.DS.'tmp2'.DS.'nested'.DS.'bar.txt', 'bar');
 
         Storage::mvdir(self::$temp.DS.'tmp2', self::$temp.DS.'tmp3');
 
         $this->assertTrue(is_dir(self::$temp.DS.'tmp3'));
-        $this->assertTrue(is_file(self::$temp.DS.'tmp3'.DS.'foo.txt'));
-        $this->assertTrue(is_file(self::$temp.DS.'tmp3'.DS.'bar.txt'));
         $this->assertTrue(is_dir(self::$temp.DS.'tmp3'.DS.'nested'));
-        $this->assertTrue(is_file(self::$temp.DS.'tmp3'.DS.'nested'.DS.'baz.txt'));
+        $this->assertTrue(is_file(self::$temp.DS.'tmp3'.DS.'foo.txt'));
+        $this->assertTrue(is_file(self::$temp.DS.'tmp3'.DS.'nested'.DS.'bar.txt'));
 
         $this->assertFalse(is_dir(self::$temp.DS.'tmp2'));
     }
@@ -233,14 +238,14 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveDirectoryMovesEntireDirectoryAndOverwrites()
     {
-        mkdir(self::$temp.DS.'tmp4', 0777, true);
+        mkdir(self::$temp.DS.'tmp4', 0755, true);
         file_put_contents(self::$temp.DS.'tmp4'.DS.'foo.txt', '');
         file_put_contents(self::$temp.DS.'tmp4'.DS.'bar.txt', '');
 
-        mkdir(self::$temp.DS.'tmp4'.DS.'nested', 0777, true);
+        mkdir(self::$temp.DS.'tmp4'.DS.'nested', 0755, true);
         file_put_contents(self::$temp.DS.'tmp4'.DS.'nested'.DS.'baz.txt', '');
 
-        mkdir(self::$temp.DS.'tmp5', 0777, true);
+        mkdir(self::$temp.DS.'tmp5', 0755, true);
         file_put_contents(self::$temp.DS.'tmp5'.DS.'foo2.txt', '');
         file_put_contents(self::$temp.DS.'tmp5'.DS.'bar2.txt', '');
 
@@ -265,10 +270,8 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     public function testAppendAddsDataToStorage()
     {
         file_put_contents(self::$temp.DS.'file.txt', 'foo');
+        Storage::append(self::$temp.DS.'file.txt', 'bar');
 
-        $append = Storage::append(self::$temp.DS.'file.txt', 'bar');
-
-        $this->assertTrue(mb_strlen('bar', '8bit') === $append);
         $this->assertTrue(is_file(self::$temp.DS.'file.txt'));
         $this->assertSame('foobar', file_get_contents(self::$temp.DS.'file.txt'));
     }
@@ -407,7 +410,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeDirectory()
     {
-        $this->assertTrue(Storage::mkdir(self::$temp.DS.'created'));
+        Storage::mkdir(self::$temp.DS.'created');
         $this->assertTrue(is_dir(self::$temp.DS.'created'));
     }
 

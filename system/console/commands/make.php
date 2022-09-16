@@ -57,7 +57,7 @@ class Make extends Command
         $file = $root.str_replace('/', DS, $this->slashes($class)).'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (Storage::exists($file)) {
+        if (Storage::isfile($file)) {
             echo 'Controller already exists: '.$display.'   (skipped)';
         } else {
             $directory = Str::replace_last(basename($file), '', $file);
@@ -122,7 +122,7 @@ class Make extends Command
         $file = $root.str_replace('/', DS, $this->slashes($class)).'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (Storage::exists($file)) {
+        if (Storage::isfile($file)) {
             echo 'Controller already exists: '.$display.'   (skipped)';
         } else {
             $directory = Str::replace_last(basename($file), '', $file);
@@ -185,7 +185,7 @@ class Make extends Command
         $file = $directory.$class.'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (Storage::exists($file)) {
+        if (Storage::isfile($file)) {
             echo 'Model already exists: '.$display.'   (skipped)';
         } else {
             $this->makedir($directory);
@@ -289,7 +289,7 @@ class Make extends Command
         $file = $directory.$class.'.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (Storage::exists($file)) {
+        if (Storage::isfile($file)) {
             echo 'Command already exists: '.$display.'   (skipped)';
         } else {
             $this->makedir($directory);
@@ -345,7 +345,7 @@ class Make extends Command
         $file = $root.str_replace('/', DS, $this->slashes($class)).'.test.php';
         $display = Str::replace_first(path('base'), '', $file);
 
-        if (Storage::exists($file)) {
+        if (Storage::isfile($file)) {
             throw new \Exception(sprintf('Test file already exists: %s', $display));
         }
 
@@ -414,7 +414,7 @@ class Make extends Command
     protected function makedir($directory)
     {
         if (! is_dir($directory)) {
-            Storage::mkdir($directory, 0777);
+            Storage::mkdir($directory, 0755);
         }
 
         return true;
