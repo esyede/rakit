@@ -70,7 +70,7 @@ abstract class Driver
      */
     public function user()
     {
-        if (is_null($this->user)) {
+        if (! $this->user) {
             $this->user = $this->retrieve($this->token);
         }
 
@@ -106,13 +106,13 @@ abstract class Driver
     {
         $this->token = $token;
         $this->store($token);
+        $this->user = $this->retrieve($this->token);
 
         if ($remember) {
             $this->remember($token);
         }
 
         Event::fire('rakit.auth: login');
-
         return true;
     }
 
