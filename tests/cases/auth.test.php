@@ -220,7 +220,6 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($secure->attempt($credentials));
         $this->assertEquals('1', $_SERVER['auth.login.stub']['user']);
-        $this->assertTrue($_SERVER['auth.login.stub']['remember']);
 
         $secure->logout();
         $auth->logout();
