@@ -40,7 +40,7 @@
     },
     {
         "name": "impersonate",
-        "description": "Paket flash message sederhana berbasis impersonate-js untuk rakit framework.",
+        "description": "Paket impersonate (login as other user) untuk rakit framework.",
         "category": "authentication",
         "repository": "https://github.com/esyede/impersonate",
         "maintained": true,
