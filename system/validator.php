@@ -866,8 +866,6 @@ class Validator
     protected function message($attribute, $rule)
     {
         $package = Package::prefix($this->package);
-
-        // Contoh: 'username_required', 'peraturan_accepted'
         $custom = $attribute.'_'.$rule;
 
         if (array_key_exists($custom, $this->messages)) {

@@ -62,9 +62,9 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      */
     public function testWhereWithTwoParameters()
     {
-        $result = DB::table('users')->where('username', 'agung')->first();
+        $result = DB::table('users')->where('email', 'agung@gmail.com')->first();
 
-        $this->assertTrue(isset($result->username));
+        $this->assertTrue(isset($result->email));
         $this->assertFalse(is_null($result));
     }
 
@@ -75,9 +75,9 @@ class QueryTest extends \PHPUnit_Framework_TestCase
      */
     public function testWhereWithThreeParameters()
     {
-        $result = DB::table('users')->where('username', '=', 'agung')->first();
+        $result = DB::table('users')->where('email', '=', 'agung@gmail.com')->first();
 
-        $this->assertTrue(isset($result->username));
+        $this->assertTrue(isset($result->email));
         $this->assertFalse(is_null($result));
     }
 
@@ -90,7 +90,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     public function testWhereWithThirdParameterIsInvalid()
     {
         try {
-            DB::table('users')->where('username', '!=', null)->first();
+            DB::table('users')->where('email', '!=', null)->first();
         } catch (\Exception $e) {
             $this->assertTrue(($e instanceof \InvalidArgumentException || $e instanceof \PDOException));
         }

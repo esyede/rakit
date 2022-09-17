@@ -99,7 +99,7 @@ abstract class Controller
      *      $response = Controller::call('user@show');
      *
      *      // Panggil method User_Admin_Controller::profile() dan oper parameter
-     *      $response = Controller::call('user.admin@profile', [$username]);
+     *      $response = Controller::call('user.admin@profile', [$name]);
      *
      * </code>
      *

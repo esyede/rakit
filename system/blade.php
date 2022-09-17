@@ -496,6 +496,23 @@ class Blade
      */
     public static function compiled($path)
     {
-        return path('storage').'views'.DS.sprintf('%u', crc32($path)).'.bc.php';
+        $name = Str::replace_last('.blade.php', '', basename($path));
+        $hash = 0xFFFF;
+
+        if (($length = strlen($path)) > 0) {
+            for ($offset = 0; $offset < $length; $offset++) {
+                $hash ^= (ord($path[$offset]) << 8);
+
+                for ($bitwise = 0; $bitwise < 8; $bitwise++) {
+                    if (($hash <<= 1) & 0x10000) {
+                        $hash ^= 0x1021;
+                    }
+
+                    $hash &= 0xFFFF;
+                }
+            }
+        }
+
+        return path('storage').'views'.DS.sprintf('%s__%u', $name, $hash).'.bc.php';
     }
 }

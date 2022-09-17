@@ -190,11 +190,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
      */
     public function testAttemptMethodReturnsFalseWhenCredentialsAreInvalid()
     {
-        $this->assertFalse(Auth::attempt(['username' => 'foo', 'password' => 'foo']));
-        $this->assertFalse(Auth::attempt(['username' => 'foo', 'password' => null]));
-        $this->assertFalse(Auth::attempt(['username' => null, 'password' => null]));
-        $this->assertFalse(Auth::attempt(['username' => 'budi', 'password' => 'password']));
-        $this->assertFalse(Auth::attempt(['username' => 'budi', 'password' => 232]));
+        $this->assertFalse(Auth::attempt(['email' => 'foo', 'password' => 'foo']));
+        $this->assertFalse(Auth::attempt(['email' => 'foo', 'password' => null]));
+        $this->assertFalse(Auth::attempt(['email' => null, 'password' => null]));
+        $this->assertFalse(Auth::attempt(['email' => 'budi', 'password' => 'password']));
+        $this->assertFalse(Auth::attempt(['email' => 'budi', 'password' => 232]));
     }
 
     /**
@@ -209,7 +209,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $auth = new AuthLoginStub();
 
         // Correct password di database: budi = budi123, agung = agung123
-        $credentials = ['username' => 'budi', 'password' => 'budi123'];
+        $credentials = ['email' => 'budi@gmail.com', 'password' => 'budi123'];
 
         $this->assertTrue($auth->attempt($credentials));
         $this->assertEquals('1', $_SERVER['auth.login.stub']['user']);
@@ -362,7 +362,7 @@ class AuthUserReturnsDummy extends \System\Auth\Drivers\Driver
 
     public function attempt(array $arguments = [])
     {
-        return $this->login($arguments['username']);
+        return $this->login($arguments['email']);
     }
 }
 

@@ -432,7 +432,7 @@ if (! function_exists('route')) {
      *      $url = route('profile');
      *
      *      // Buat URL ke route yang bernama 'profile' dengan parameter tambahan.
-     *      $url = route('profile', [$username]);
+     *      $url = route('profile', [$name]);
      *
      * </code>
      *

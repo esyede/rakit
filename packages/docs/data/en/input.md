@@ -129,7 +129,7 @@ Input::flash();
 #### Flashing selected input to the session:
 
 ```php
-Input::flash('only', ['username', 'email']);
+Input::flash('only', ['name', 'email']);
 
 Input::flash('except', ['password', 'credit_card']);
 ```
@@ -164,7 +164,7 @@ return Redirect::to('login')->with_input();
 #### Flashing selected input from a Redirect instance:
 
 ```php
-return Redirect::to('login')->with_input('only', ['username']);
+return Redirect::to('login')->with_input('only', ['name']);
 
 return Redirect::to('login')->with_input('except', ['password']);
 ```

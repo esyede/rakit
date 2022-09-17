@@ -186,7 +186,7 @@ class URL
      *      $url = URL::to_route('profile');
      *
      *      // Buat URL from dari named route bernama 'profile' dengan  parameter wildcard
-     *      $url = URL::to_route('profile', [$username]);
+     *      $url = URL::to_route('profile', [$name]);
      *
      * </code>
      *

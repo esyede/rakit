@@ -127,10 +127,10 @@ class Input
      *      // Ambil hanya email dari data inputan
      *      $value = Input::only('email');
      *
-     *      // Ambil hanya username dan email dari data inputan
-     *      $input = Input::only(['username', 'email']);
+     *      // Ambil hanya name dan email dari data inputan
+     *      $input = Input::only(['name', 'email']);
      *
-     *      $input = Input::only('username', 'email');
+     *      $input = Input::only('name', 'email');
      *
      * </code>
      *
@@ -149,13 +149,13 @@ class Input
      *
      * <code>.
      *
-     *      // Ambil semua data inputan kecuali username
-     *      $input = Input::except('username');.
+     *      // Ambil semua data inputan kecuali name
+     *      $input = Input::except('name');.
      *
-     *      // Ambil semua data inputan kecuali username dan email
-     *      $input = Input::except(['username', 'email']);
+     *      // Ambil semua data inputan kecuali name dan email
+     *      $input = Input::except(['name', 'email']);
      *
-     *      $input = Input::except('username', 'email');
+     *      $input = Input::except('name', 'email');
      *
      * </code>
      *

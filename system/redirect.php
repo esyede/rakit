@@ -76,7 +76,7 @@ class Redirect extends Response
      *      return Redirect::to_route('login');
      *
      *      // Buat respon redirect ke named route bernama 'profile' dengan parameter tambahan
-     *      return Redirect::to_route('profile', [$username]);
+     *      return Redirect::to_route('profile', [$name]);
      *
      * </code>
      *
@@ -127,7 +127,7 @@ class Redirect extends Response
      *      return Redirect::to('login')->with_input();
      *
      *      // Redirect dan flash hanya beberapa data inputan ke session.
-     *      return Redirect::to('login')->with_input('only', ['email', 'username']);
+     *      return Redirect::to('login')->with_input('only', ['email', 'name']);
      *
      *      // Redirect dan flash semua data kecuali data-data yang disebutkan
      *      return Redirect::to('login')->with_input('except', ['password', 'api_token']);

@@ -22,31 +22,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Auth Username
+    | Auth Table
     |--------------------------------------------------------------------------
     |
-    | Di sini anda dapat menentukan kolom database yang harus dianggap
-    | sebagai "username" untuk pengguna aplikasi anda. Biasanya, ini bisa
-    | berupa "username" atau "email".
-    | Tentu saja, anda bebas mengubahnya sesuai kebutuhan.
+    | Ketika anda memilih "magic" sebagai auth driver, tabel database yang
+    | digunakan untuk memuat user dapat ditentukan di sini. Tabel ini akan
+    | digunakan oleh magic query builder untuk mengautentikasi user.
     |
     */
 
-    'username' => 'email',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Auth Password
-    |--------------------------------------------------------------------------
-    |
-    | Di sini anda dapat menentukan kolom database yang harus dianggap
-    | sebagai "password" untuk pengguna aplikasi anda. Biasanya, kolom
-    | tersebut bernama "password".
-    | Tetapi, sekali lagi, anda bebas mengubanya sesuai kebutuhan.
-    |
-    */
-
-    'password' => 'password',
+    'table' => 'users',
 
     /*
     |--------------------------------------------------------------------------
@@ -60,17 +45,4 @@ return [
     */
 
     'model' => 'User',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Auth Table
-    |--------------------------------------------------------------------------
-    |
-    | Ketika anda memilih "magic" sebagai auth driver, tabel database yang
-    | digunakan untuk memuat user dapat ditentukan di sini. Tabel ini akan
-    | digunakan oleh magic query builder untuk mengautentikasi user.
-    |
-    */
-
-    'table' => 'users',
 ];

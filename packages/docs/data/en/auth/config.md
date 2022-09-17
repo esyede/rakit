@@ -4,7 +4,6 @@
 
 - [Pengetahuan Dasar](#pengetahuan-dasar)
 - [Driver Otentikasi](#driver-otentikasi)
-- [Username Default](#username-default)
 - [Model Otentikasi](#model-otentikasi)
 - [Tabel Otentikasi](#tabel-otentikasi)
 
@@ -31,19 +30,6 @@ Secara default, kami telah menyertakan dua buah driver:
 
 
 Namun, anda anda bebas membuat dan menambahkan driver anda sendiri jika diperlukan!
-
-
-<a id="username-default"></a>
-## Username Default
-
-Opsi kedua di file konfigurasi menentukan "username" default untuk user anda.
-Ini biasanya akan sesuai dengan kolom database di tabel users, dan biasanya akan berupa 'email' atau 'username'.
-
-```php
-'username' => 'email',
-```
-
-> Pada keadaan default, rakit dikonfigurasi untuk menggunakan `email`, namun tentu saja anda bebas mengubahnya.
 
 
 <a id="model-otentikasi"></a>

@@ -130,13 +130,13 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 #### Validasi bahwa atribut hanya terdiri dari huruf alfabet dan angka:
 
 ```php
-'username' => 'alpha_num',
+'nickname' => 'alpha_num',
 ```
 
 #### Validasi bahwa atribut hanya terdiri dari huruf alfabet, angka, tanda hubung dan garis bawah:
 
 ```php
-'username' => 'alpha_dash',
+'nickname' => 'alpha_dash',
 ```
 
 
@@ -257,7 +257,7 @@ Rule `'match'` memvalidasi bahwa value sebuah atribut cocok dengan pola regular 
 #### Validasi bahwa value sebuah atribut cocok dengan pola regular expression tertentu:
 
 ```php
-'username' => 'match:/[a-zA-Z0-9]+/',
+'nickname' => 'match:/[a-zA-Z0-9]+/',
 ```
 
 Ketika anda menggunakan rule `'match'` ini secara kompleks, sangat direkomendasikan untuk
@@ -265,7 +265,7 @@ menggunakan sintaks array untuk menghindari error pada regexnya:
 
 ```php
 $rules = [
-    'username' => ['required', 'max:20', 'match:/[a-zA-Z0-9]+/'],
+    'nickname' => ['required', 'max:20', 'match:/[a-zA-Z0-9]+/'],
 ];
 ```
 

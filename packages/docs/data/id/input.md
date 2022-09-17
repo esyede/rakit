@@ -133,7 +133,7 @@ Input::flash();
 #### Flashing beberapa inputan tertentu saja:
 
 ```php
-Input::flash('only', ['username', 'email']);
+Input::flash('only', ['name', 'email']);
 
 Input::flash('except', ['password', 'credit_card']);
 ```
@@ -168,7 +168,7 @@ return Redirect::to('login')->with_input();
 #### Flashing beberapa data inputan tertentu saja:
 
 ```php
-return Redirect::to('login')->with_input('only', ['username']);
+return Redirect::to('login')->with_input('only', ['name']);
 
 return Redirect::to('login')->with_input('except', ['password']);
 ```

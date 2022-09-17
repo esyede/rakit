@@ -324,7 +324,7 @@ $url = route('profile');
 Seperti halnya action, anda juga dapat mengoper parameter ke URL tujuan melalui method ini:
 
 ```php
-$url = route('profile', [$username]);
+$url = route('profile', [$name]);
 ```
 
 
