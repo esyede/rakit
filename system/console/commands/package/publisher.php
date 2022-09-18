@@ -23,10 +23,10 @@ class Publisher
             return;
         }
 
-        $source = path('package').$package;
+        $source = path('package').$package.DS.'assets';
         $destination = path('assets').'packages'.DS.$package;
 
-        if (is_dir($source)) {
+        if (! is_dir($source)) {
             echo 'Package does not caontains any assets!'.PHP_EOL;
             return;
         }
