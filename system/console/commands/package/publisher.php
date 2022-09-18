@@ -50,11 +50,6 @@ class Publisher
      */
     public function unpublish($package)
     {
-        if (! Package::exists($package)) {
-            echo 'Package is not registered: '.$package.PHP_EOL;
-            return;
-        }
-
         if (is_dir($destination = path('assets').'packages'.DS.$package)) {
             Storage::rmdir($destination);
         }
