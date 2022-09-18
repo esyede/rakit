@@ -50,5 +50,18 @@
             "v0.9.9": "v1.0.0",
             "v1.0.0": "v1.0.0"
         }
+    },
+    {
+        "name": "adminer",
+        "description": "Paket manajemen database berbasis Adminer untuk rakit framework.",
+        "category": "database",
+        "repository": "https://github.com/esyede/adminer",
+        "maintained": true,
+        "compatibilities": {
+            "v0.9.7": "v1.0.0",
+            "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
+        }
     }
 ]
