@@ -13,6 +13,19 @@
         }
     },
     {
+        "name": "logviewer",
+        "description": "Paket manajemen file log untuk rakit framework.",
+        "category": "logging",
+        "repository": "https://github.com/esyede/logviewer",
+        "maintained": true,
+        "compatibilities": {
+            "v0.9.7": "v1.0.0",
+            "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
+        }
+    },
+    {
         "name": "file-auth",
         "description": "Paket driver otentikasi berbasis file untuk rakit framework.",
         "category": "authentication",
