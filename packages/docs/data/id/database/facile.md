@@ -788,7 +788,7 @@ Mass-assignment dapat dilakukan dengan mengoper array ke constructor milik si mo
 
 ```php
 $user = new User([
-    'email' => 'budi@gmail.com',
+    'username' => 'budi01',
     'password' => 'rahasia'
 ]);
 
@@ -801,7 +801,7 @@ Selain itu, anda juga dapat melakukannya menggunakan method `fill()` seperti ber
 $user = new User();
 
 $user->fill([
-    'email' => 'budi@gmail.com',
+    'username' => 'budi01',
     'password' => 'rahasia'
 ]);
 

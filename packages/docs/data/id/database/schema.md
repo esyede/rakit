@@ -127,12 +127,13 @@ Mari kita lihat perintah - perintahya:
 Schema::table('users', function ($table) {
 	$table->create();
 	$table->increments('id');
-    $table->string('name');
-    $table->string('email')->unique();
-    $table->timestamp('email_verified_at')->nullable();
-    $table->string('password');
-    $table->string('remember_token')->nullable();
-    $table->timestamps();
+	$table->string('username');
+	$table->string('email');
+	$table->string('phone')->nullable();
+    $table->integer('age')->nullable();
+    $table->boolean('married')->defaults(0);
+	$table->text('about');
+	$table->timestamps();
 });
 ```
 

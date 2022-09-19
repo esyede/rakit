@@ -364,14 +364,14 @@ dengan parameter yang anda inginkan:
 #### Redirect ke named route dengan wildcard value:
 
 ```php
-return Redirect::to_route('profile', [$name]);
+return Redirect::to_route('profile', [$username]);
 ```
 
 
 #### Redirect ke action dengan wildcard value:
 
 ```php
-return Redirect::to_action('user@profile', [$name]);
+return Redirect::to_action('user@profile', [$username]);
 ```
 
 

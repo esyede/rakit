@@ -62,7 +62,7 @@ Mudah sekali mengganti wildcard dengan value yang anda inginkan:
 #### Membuat URL ke named route dengan wildcard value:
 
 ```php
-$url = URL::to_route('profile', [$name]);
+$url = URL::to_route('profile', [$username]);
 ```
 
 _Bacaan lebih lanjut:_
@@ -82,7 +82,7 @@ $url = URL::to_action('user@profile');
 #### Membuat URL ke method milik controller dengan wildcard value:
 
 ```php
-$url = URL::to_action('user@profile', [$name]);
+$url = URL::to_action('user@profile', [$username]);
 ```
 
 
@@ -140,7 +140,7 @@ $url = route('profile');
 #### Membuat URL ke named route dengan wildcard value:
 
 ```php
-$url = route('profile', [$name]);
+$url = route('profile', [$username]);
 ```
 
 #### Membuat URL ke method milik controller:
@@ -152,5 +152,5 @@ $url = action('user@profile');
 #### Membuat URL ke method milik controller dengan wildcard value:
 
 ```php
-$url = action('user@profile', [$name]);
+$url = action('user@profile', [$username]);
 ```

@@ -89,14 +89,13 @@ class Logger
             ? $this->getExceptionFile($message)
             : null;
         $line = static::formatLogLine($message, $excfile, $priority);
-        $file = $this->directory.'/'.strtolower($priority ? $priority : self::INFO).'.log.php';
+        $file = $this->directory.DIRECTORY_SEPARATOR.date('Y-m-d').'.log.php';
 
         try {
             if (is_file($file)) {
                 file_put_contents($file, $line.PHP_EOL, FILE_APPEND | LOCK_EX);
             } else {
-                $guard = "<?php defined('DS') or exit('No direct script access.'); ?>".PHP_EOL;
-                file_put_contents($file, $guard.$line.PHP_EOL, LOCK_EX);
+                file_put_contents($file, $line.PHP_EOL, LOCK_EX);
             }
         } catch (\Exception $e) {
             throw new \RuntimeException(
@@ -148,7 +147,10 @@ class Logger
      */
     public static function formatLogLine($message, $excfile = null, $priority = self::INFO)
     {
-        return '['.@date('Y-m-d H:i:s').'] log.'.strtoupper($priority).' - '.static::formatMessage($message);
+        $context = (Debugger::$productionMode ? 'production' : 'development');
+        return vsprintf('[%s] %s.%s: %s', [
+            date('Y-m-d H:i:s'), $context, strtoupper($priority), static::formatMessage($message),
+        ]);
     }
 
     /**

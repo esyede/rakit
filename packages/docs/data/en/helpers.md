@@ -329,7 +329,7 @@ You can also pass parameters to the destination controller's method:
 
 
 ```php
-$url = route('profile', [$name]);
+$url = route('profile', [$username]);
 ```
 
 
