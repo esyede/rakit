@@ -103,7 +103,7 @@ class Log
      */
     protected static function format($type, $message)
     {
-        $context = Foundation\Oops\Debugger::$productionMode ? 'production' : 'development';
+        $context = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
         return '['.date('Y-m-d H:i:s').'] '.$context.'.'.strtoupper($type).': '.$message.PHP_EOL;
     }
 }
