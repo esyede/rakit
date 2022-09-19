@@ -22,7 +22,6 @@ class User extends Facile
      */
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
     // ..
