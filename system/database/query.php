@@ -898,6 +898,16 @@ class Query
     }
 
     /**
+     * Ambil representasi SQL dari kueri.
+     *
+     * @return string
+     */
+    public function to_sql()
+    {
+        return $this->grammar->select($this);
+    }
+
+    /**
      * Magic method untuk menangani pemanggilan method dinamis.
      * Seperti fungsi agregasi dan where.
      */
