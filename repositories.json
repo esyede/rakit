@@ -13,6 +13,19 @@
         }
     },
     {
+        "name": "datatables",
+        "description": "Paket DataTables server-side untuk rakit framework.",
+        "category": "others",
+        "repository": "https://github.com/esyede/datatables",
+        "maintained": true,
+        "compatibilities": {
+            "v0.9.7": "v1.0.0",
+            "v0.9.8": "v1.0.0",
+            "v0.9.9": "v1.0.0",
+            "v1.0.0": "v1.0.0"
+        }
+    },
+    {
         "name": "logviewer",
         "description": "Paket manajemen file log untuk rakit framework.",
         "category": "logging",
