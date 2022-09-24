@@ -1937,6 +1937,11 @@ class PclZip
             }
         }
 
+        if (strpos($p_entry['stored_filename'], '../') !== false || strpos($p_entry['stored_filename'], '..\\') !== false) {
+            $p_entry['stored_filename'] = basename($p_entry['stored_filename']);
+            $p_entry['filename'] = basename($p_entry['stored_filename']);
+        }
+
         if ($p_path != '') {
             $p_entry['filename'] = $p_path.'/'.$p_entry['filename'];
         }
