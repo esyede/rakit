@@ -127,24 +127,18 @@ abstract class Provider
             Storage::mkdir($destination, 0755);
         }
 
-        if (extension_loaded('zip') && class_exists('\ZipArchive')) {
-            $zip = new \ZipArchive();
-            $open = $zip->open($file);
-
-            if (true !== $open) {
-                throw new \Exception(PHP_EOL.'Error: Could not open zip file with ZipArchive.');
-            }
-
-            $zip->extractTo($destination);
-            $zip->close();
-        } else {
-            $zip = new PclZip($file);
-
-            if (0 === $zip->extract(77001, $destination)) {
-                throw new \Exception(PHP_EOL.'Error: Could not extract zip file with PclZip.');
-            }
+        if (! extension_loaded('zip') || ! class_exists('\ZipArchive')) {
+            throw new \Exception(PHP_EOL.'Please enable php-zip extension on this server');
         }
 
+        $zip = new \ZipArchive();
+
+        if (! $zip->open($file)) {
+            throw new \Exception(PHP_EOL.sprintf('Error: Could not open zip file: ', $file));
+        }
+
+        $zip->extractTo($destination);
+        $zip->close();
         return true;
     }
 }
