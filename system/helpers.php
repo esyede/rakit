@@ -989,9 +989,11 @@ if (! function_exists('get_cli_option')) {
     {
         $arguments = \System\Request::foundation()->server->get('argv');
 
-        foreach ($arguments as $argument) {
-            if (Str::starts_with($argument, '--'.$option.'=')) {
-                return substr($argument, mb_strlen($option, '8bit') + 3);
+        if (is_array($arguments)) {
+            foreach ($arguments as $argument) {
+                if (Str::starts_with($argument, '--'.$option.'=')) {
+                    return substr($argument, mb_strlen($option, '8bit') + 3);
+                }
             }
         }
 
