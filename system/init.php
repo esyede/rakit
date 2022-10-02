@@ -47,6 +47,7 @@ if (is_file($path = path('rakit_key'))) {
     }
 
     try {
+        unset($_COOKIE['rakit_session']);
         $key = bin2hex(openssl_random_pseudo_bytes(rand(5, 10)));
         file_put_contents(
             path('rakit_key'),
