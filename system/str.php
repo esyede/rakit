@@ -506,6 +506,39 @@ class Str
     }
 
     /**
+     * Buat string nano id.
+     * Diadaptasi dari: https://github.com/ai/nanoid
+     *
+     * @param int $size
+     *
+     * @return string
+     */
+    public static function nanoid($size = 21)
+    {
+        $size = ($size > 0) ? (int) $size : 21;
+        $characters = '_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
+        $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
+        $result = '';
+
+        while (true) {
+            $bytes = unpack('C*', static::bytes($step));
+
+            foreach ($bytes as $byte) {
+                $byte &= $mask;
+
+                if (isset($characters[$byte])) {
+                    $result .= $characters[$byte];
+
+                    if (strlen($result) === $size) {
+                        return $result;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Cek apakah string cocok dengan pola yang diberikan.
      *
      * @param string|array $pattern
