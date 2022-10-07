@@ -22,9 +22,8 @@ class Log
      */
     public static function channel($name = null)
     {
-        $name = basename($name);
-        $name = Str::replace_last('.log', '', Str::replace_last('.php', '', basename($name)));
-        static::$channel = $name.'.log.php';
+        $name = (is_string($name) && strlen($name)) ? basename(strtolower($name)) : date('Y-m-d');
+        static::$channel = Str::replace_last('.log', '', Str::replace_last('.php', '', $name));
     }
 
     /**
@@ -83,8 +82,7 @@ class Log
         }
 
         $message = static::format($type, $message);
-        $path = path('storage').'logs'.DS.(static::$channel ? static::$channel : date('Y-m-d'));
-        $path .= '.log.php';
+        $path = path('storage').'logs'.DS.static::$channel.'.log.php';
 
         if (is_file($path)) {
             file_put_contents($path, $message, LOCK_EX | FILE_APPEND);
