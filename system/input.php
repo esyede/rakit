@@ -114,7 +114,7 @@ class Input
         }
 
         $content = Request::foundation()->getContent();
-        static::$json = json_decode($content, $as_array, 512, JSON_BIGINT_AS_STRING);
+        static::$json = json_decode($content, $as_array);
 
         return static::$json;
     }
