@@ -193,7 +193,7 @@ class Arr
      *
      * @return array
      */
-    public static function flatten($array, $depth = INF)
+    public static function flatten($array, $depth = PHP_INT_MAX)
     {
         $depth = ($depth < 1) ? 1 : (int) $depth;
         $result = [];
