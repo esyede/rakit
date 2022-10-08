@@ -195,6 +195,7 @@ class Arr
      */
     public static function flatten($array, $depth = INF)
     {
+        $depth = ($depth < 1) ? 1 : (int) $depth;
         $result = [];
 
         foreach ($array as $item) {
