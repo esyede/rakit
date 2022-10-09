@@ -118,13 +118,14 @@ class Curl
     /**
      * Set request timeout (dalam detik).
      *
-     * @param int $seconds
+     * @param int|null $seconds
      *
      * @return int
      */
-    public static function timeout($seconds)
+    public static function timeout($seconds = null)
     {
-        return static::$socket_timeout = (int) $seconds;
+        $seconds = (null === $seconds || $seconds < 1) ? PHP_INT_MAX : (int) $seconds;
+        return static::$socket_timeout = $seconds;
     }
 
     /**
