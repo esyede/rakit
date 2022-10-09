@@ -441,8 +441,9 @@ class Curl
             CURLOPT_ENCODING => '',
         ];
 
+        $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : PHP_INT_MAX;
         curl_setopt_array(static::$handler, static::merge_options($default_options, static::$curl_options));
-        curl_setopt(static::$handler, CURLOPT_TIMEOUT, static::$socket_timeout);
+        curl_setopt(static::$handler, CURLOPT_TIMEOUT, $timeout);
 
         if (static::$cookie) {
             curl_setopt(static::$handler, CURLOPT_COOKIE, static::$cookie);
