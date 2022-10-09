@@ -7,269 +7,748 @@ defined('DS') or exit('No direct script access.');
 class Curl
 {
     /**
-     * Kirim sebuah GET request.
-     *
-     * @param string $url
-     * @param array  $parameters
-     * @param array  $options
-     *
-     * @return \stdClass
+     * HTTP method registry.
+     * Lihat: http://www.iana.org/assignments/http-methods/http-methods.xhtml
      */
-    public static function get($url, array $parameters = [], array $options = [])
+    const GET = 'GET';
+    const HEAD = 'HEAD';
+    const POST = 'POST';
+    const PUT = 'PUT';
+    const DELETE = 'DELETE';
+    const CONNECT = 'CONNECT';
+    const OPTIONS = 'OPTIONS';
+    const TRACE = 'TRACE';
+    const BASELINE = 'BASELINE';
+    const LINK = 'LINK';
+    const UNLINK = 'UNLINK';
+    const MERGE = 'MERGE';
+    const BASELINECONTROL = 'BASELINE-CONTROL';
+    const MKACTIVITY = 'MKACTIVITY';
+    const VERSIONCONTROL = 'VERSION-CONTROL';
+    const REPORT = 'REPORT';
+    const CHECKOUT = 'CHECKOUT';
+    const CHECKIN = 'CHECKIN';
+    const UNCHECKOUT = 'UNCHECKOUT';
+    const MKWORKSPACE = 'MKWORKSPACE';
+    const UPDATE = 'UPDATE';
+    const LABEL = 'LABEL';
+    const ORDERPATCH = 'ORDERPATCH';
+    const ACL = 'ACL';
+    const MKREDIRECTREF = 'MKREDIRECTREF';
+    const UPDATEREDIRECTREF = 'UPDATEREDIRECTREF';
+    const MKCALENDAR = 'MKCALENDAR';
+    const PROPFIND = 'PROPFIND';
+    const LOCK = 'LOCK';
+    const UNLOCK = 'UNLOCK';
+    const PROPPATCH = 'PROPPATCH';
+    const MKCOL = 'MKCOL';
+    const COPY = 'COPY';
+    const MOVE = 'MOVE';
+    const SEARCH = 'SEARCH';
+    const PATCH = 'PATCH';
+    const BIND = 'BIND';
+    const UNBIND = 'UNBIND';
+    const REBIND = 'REBIND';
+
+    private static $handler;
+    private static $cookie;
+    private static $cookie_file;
+    private static $curl_options = [];
+    private static $default_headers = [];
+    private static $json_options = [];
+    private static $socket_timeout;
+    private static $verify_peer = false;
+    private static $verify_host = false;
+    private static $auth = [
+        'user' => '',
+        'pass' => '',
+        'method' => CURLAUTH_BASIC,
+    ];
+
+    private static $proxy = [
+        'port' => false,
+        'tunnel' => false,
+        'address' => false,
+        'type' => CURLPROXY_HTTP,
+        'auth' => [
+            'user' => '',
+            'pass' => '',
+            'method' => CURLAUTH_BASIC,
+        ],
+    ];
+
+    /**
+     * Set mode json decode.
+     *
+     * @param bool $associative
+     * @param int  $depth
+     * @param int  $options
+     *
+     * @return array
+     */
+    public static function json_options($associative = false, $depth = 512, $options = 0)
     {
-        return static::request('get', $url, $parameters, $options);
+        return static::$json_options = [$associative, $depth, $options];
     }
 
     /**
-     * Kirim sebuah POST request.
+     * Verifikasi ssl peer.
      *
-     * @param string $url
-     * @param array  $parameters
-     * @param array  $options
-     *
-     * @return \stdClass
-     */
-    public static function post($url, array $parameters = [], array $options = [])
-    {
-        return static::request('post', $url, $parameters, $options);
-    }
-
-    /**
-     * Kirim sebuah PUT request.
-     *
-     * @param string $url
-     * @param array  $parameters
-     * @param array  $options
-     *
-     * @return \stdClass
-     */
-    public static function put($url, array $parameters = [], array $options = [])
-    {
-        return static::request('put', $url, $parameters, $options);
-    }
-
-    /**
-     * Kirim sebuah DELETE request.
-     *
-     * @param string $url
-     * @param array  $parameters
-     * @param array  $options
-     *
-     * @return \stdClass
-     */
-    public static function delete($url, array $parameters = [], array $options = [])
-    {
-        return static::request('delete', $url, $parameters, $options);
-    }
-
-    /**
-     * Kirim sebuah request.
-     *
-     * @param string $method
-     * @param string $url
-     * @param array  $parameters
-     * @param array  $options
-     *
-     * @return \stdClass
-     */
-    public static function request($method, $url, array $parameters = [], array $options = [])
-    {
-        if (! static::available()) {
-            throw new \RuntimeException('cURL extension is not available.');
-        }
-
-        $method = (string) $method;
-
-        if (! in_array(strtolower($method), ['get', 'post', 'put', 'delete'])) {
-            throw new \InvalidArgumentException(sprintf('Unsupported request method: %s', $method));
-        }
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_AUTOREFERER => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_USERAGENT => static::agent(),
-        ]);
-
-        $query = empty($parameters) ? null : http_build_query($parameters, '', '&', PHP_QUERY_RFC1738);
-
-        switch (strtolower($method)) {
-            case 'get':
-                $url .= $query ? '?'.$query : '';
-                curl_setopt($curl, CURLOPT_HTTPGET, 1);
-                break;
-
-            case 'post':
-                if ($query) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $query);
-                }
-
-                if (isset($options[CURLOPT_HTTPHEADER]) && is_array($options[CURLOPT_HTTPHEADER])) {
-                    $options[CURLOPT_HTTPHEADER] = array_merge(
-                        $options[CURLOPT_HTTPHEADER],
-                        ['Content-Type: application/x-www-form-urlencoded']
-                    );
-                } else {
-                    $options[CURLOPT_HTTPHEADER] = ['Content-Type: application/x-www-form-urlencoded'];
-                }
-
-                curl_setopt($curl, CURLOPT_POST, 1);
-                break;
-
-            case 'put':
-                if ($query) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $query);
-                }
-
-                if (isset($options[CURLOPT_HTTPHEADER]) && is_array($options[CURLOPT_HTTPHEADER])) {
-                    $options[CURLOPT_HTTPHEADER] = array_merge(
-                        $options[CURLOPT_HTTPHEADER],
-                        ['Content-Type: application/x-www-form-urlencoded']
-                    );
-                } else {
-                    $options[CURLOPT_HTTPHEADER] = ['Content-Type: application/x-www-form-urlencoded'];
-                }
-
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PUT');
-                break;
-
-            case 'delete':
-                if ($query) {
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $query);
-                }
-
-                if (isset($options[CURLOPT_HTTPHEADER]) && is_array($options[CURLOPT_HTTPHEADER])) {
-                    $options[CURLOPT_HTTPHEADER] = array_merge(
-                        $options[CURLOPT_HTTPHEADER],
-                        ['Content-Type: application/x-www-form-urlencoded']
-                    );
-                } else {
-                    $options[CURLOPT_HTTPHEADER] = ['Content-Type: application/x-www-form-urlencoded'];
-                }
-
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                break;
-
-            default:
-                throw new \Exception(sprintf('Usupported request method: %s', strtoupper($method)));
-                break;
-        }
-
-        if (! empty($options)) {
-            curl_setopt_array($curl, $options);
-        }
-
-        curl_setopt($curl, CURLOPT_URL, $url);
-
-        $body = curl_exec($curl);
-
-        if (false === $body) {
-            $code = curl_errno($curl);
-            $message = curl_error($curl);
-
-            curl_close($curl);
-
-            throw new \Exception($message, $code);
-        }
-
-        $header = (object) curl_getinfo($curl);
-
-        curl_close($curl);
-
-        if (false !== strpos($header->content_type, '/json')) {
-            $body = json_decode($body, false, 512, JSON_BIGINT_AS_STRING | JSON_PRETTY_PRINT);
-        }
-
-        return (object) compact('header', 'body');
-    }
-
-    /**
-     * Download file URL yang diberikan.
-     *
-     * @param string $url
-     * @param string $destination
-     * @param array  $options
-     *
-     * @return void
-     */
-    public static function download($url, $destination, array $options = [])
-    {
-        if (! static::available()) {
-            throw new \Exception('cURL extension is not available.');
-        }
-
-        if (is_file($destination)) {
-            throw new \Exception(sprintf('Destination path already exists: %s', $destination));
-        }
-
-        if (false === ($fopen = fopen($destination, 'w+'))) {
-            throw new \Exception(sprintf('Unable to create destination path: %s', $destination));
-        }
-
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_VERBOSE => (get_cli_option('verbose') ? 1 : 0),
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_FOLLOWLOCATION => 1,
-            CURLOPT_AUTOREFERER => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_BINARYTRANSFER => 1,
-            CURLOPT_USERAGENT => static::agent(),
-            CURLOPT_URL => $url,
-            CURLOPT_FILE => $fopen,
-        ]);
-
-        if (! empty($options)) {
-            curl_setopt_array($curl, $options);
-        }
-
-        $body = curl_exec($curl);
-
-        if (false === $body) {
-            $code = curl_errno($curl);
-            $message = curl_error($curl);
-
-            curl_close($curl);
-            fclose($fopen);
-
-            throw new \Exception($message, $code);
-        }
-
-        curl_close($curl);
-        fclose($fopen);
-
-        return true;
-    }
-
-    /**
-     * Cek ketersediaan cURL extension.
+     * @param bool $enabled
      *
      * @return bool
      */
-    public static function available()
+    public static function verify_peer($enabled = true)
     {
-        return extension_loaded('curl') && is_callable('curl_init');
+        return static::$verify_peer = $enabled;
     }
 
     /**
-     * Buat string user-agent palsu untuk request.
-     * Beberapa situs seperti github menolak koneksi jika
-     * request yang kita kirim tidak memiliki header User-Agent.
+     * Verifikasi ssl host.
+     *
+     * @param bool $enabled
+     *
+     * @return bool
+     */
+    public static function verify_host($enabled = true)
+    {
+        return static::$verify_host = $enabled;
+    }
+
+    /**
+     * Set request timeout (dalam detik).
+     *
+     * @param int $seconds
+     *
+     * @return int
+     */
+    public static function timeout($seconds)
+    {
+        return static::$socket_timeout = (int) $seconds;
+    }
+
+    /**
+     * Set default request header (batch).
+     *
+     * @param array $headers
+     *
+     * @return array
+     */
+    public static function default_headers(array $headers)
+    {
+        return static::$default_headers = array_merge(static::$default_headers, $headers);
+    }
+
+    /**
+     * Set default request header.
+     *
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return array
+     */
+    public static function default_header($name, $value)
+    {
+        return static::$default_headers[$name] = $value;
+    }
+
+    /**
+     * Hapus default request headers.
+     *
+     * @return array
+     */
+    public static function clear_default_headers()
+    {
+        return static::$default_headers = [];
+    }
+
+    /**
+     * Set curl option (batch).
+     *
+     * @param array $options
+     *
+     * @return array
+     */
+    public static function curl_options(array $options)
+    {
+        return static::merge_options(static::$curl_options, $options);
+    }
+
+    /**
+     * Set curl option.
+     *
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return array
+     */
+    public static function curl_option($name, $value)
+    {
+        return static::$curl_options[$name] = $value;
+    }
+
+    /**
+     * Hapus curl options.
+     *
+     * @return array
+     */
+    public static function clear_curl_options()
+    {
+        return static::$curl_options = [];
+    }
+
+    /**
+     * Set cookie (string).
+     *
+     * @param string $cookie
      *
      * @return string
      */
-    public static function agent()
+    public static function cookie($cookie)
+    {
+        static::$cookie = $cookie;
+    }
+
+    /**
+     * Set cookie (file).
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    public static function cookie_file($path)
+    {
+        static::$cookie_file = $path;
+    }
+
+    /**
+     * Set metode otentikasi request.
+     *
+     * @param string $username
+     * @param string $password
+     * @param int    $method
+     *
+     * @return void
+     */
+    public static function auth($username = '', $password = '', $method = CURLAUTH_BASIC)
+    {
+        static::$auth['user'] = $username;
+        static::$auth['pass'] = $password;
+        static::$auth['method'] = $method;
+    }
+
+    /**
+     * Set proxy.
+     *
+     * @param string $address
+     * @param int    $port
+     * @param int    $type
+     * @param bool   $tunnel
+     *
+     * @return void
+     */
+    public static function proxy($address, $port = 1080, $type = CURLPROXY_HTTP, $tunnel = false)
+    {
+        static::$proxy['type'] = $type;
+        static::$proxy['port'] = $port;
+        static::$proxy['tunnel'] = $tunnel;
+        static::$proxy['address'] = $address;
+    }
+
+    /**
+     * Set mode otentikasi proxy.
+     *
+     * @param string $username
+     * @param string $password
+     * @param int    $method
+     *
+     * @return void
+     */
+    public static function proxy_auth($username = '', $password = '', $method = CURLAUTH_BASIC)
+    {
+        static::$proxy['auth']['user'] = $username;
+        static::$proxy['auth']['pass'] = $password;
+        static::$proxy['auth']['method'] = $method;
+    }
+
+    /**
+     * Jalankan GET request.
+     *
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $parameters
+     *
+     * @return \stdClass
+     */
+    public static function get($url, array $headers = [], $parameters = null)
+    {
+        return static::send(static::GET, $url, $parameters, $headers);
+    }
+
+    /**
+     * Jalankan HEAD request.
+     *
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $parameters
+     *
+     * @return \stdClass
+     */
+    public static function head($url, array $headers = [], $parameters = null)
+    {
+        return static::send(static::HEAD, $url, $parameters, $headers);
+    }
+
+    /**
+     * Jalankan OPTIONS request.
+     *
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $parameters
+     *
+     * @return \stdClass
+     */
+    public static function options($url, array $headers = [], $parameters = null)
+    {
+        return static::send(static::OPTIONS, $url, $parameters, $headers);
+    }
+
+    /**
+     * Jalankan CONNECT request.
+     *
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $parameters
+     *
+     * @return \stdClass
+     */
+    public static function connect($url, array $headers = [], $parameters = null)
+    {
+        return static::send(static::CONNECT, $url, $parameters, $headers);
+    }
+
+    /**
+     * Jalankan POST request.
+     *
+     * @param string    $url
+     * @param array     $headers
+     * @param mixed|nul $body
+     *
+     * @return \stdClass
+     */
+    public static function post($url, array $headers = [], $body = null)
+    {
+        return static::send(static::POST, $url, $body, $headers);
+    }
+
+    /**
+     * Jalankan DELETE request.
+     *
+     * @param string    $url
+     * @param array     $headers
+     * @param mixed|nul $body
+     *
+     * @return \stdClass
+     */
+    public static function delete($url, array $headers = [], $body = null)
+    {
+        return static::send(static::DELETE, $url, $body, $headers);
+    }
+
+    /**
+     * Jalankan PUT request.
+     *
+     * @param string    $url
+     * @param array     $headers
+     * @param mixed|nul $body
+     *
+     * @return \stdClass
+     */
+    public static function put($url, array $headers = [], $body = null)
+    {
+        return static::send(static::PUT, $url, $body, $headers);
+    }
+
+    /**
+     * Jalankan PATCH request.
+     *
+     * @param string    $url
+     * @param array     $headers
+     * @param mixed|nul $body
+     *
+     * @return \stdClass
+     */
+    public static function patch($url, array $headers = [], $body = null)
+    {
+        return static::send(static::PATCH, $url, $body, $headers);
+    }
+
+    /**
+     * Jalankan TRACE request.
+     *
+     * @param string    $url
+     * @param array     $headers
+     * @param mixed|nul $body
+     *
+     * @return \stdClass
+     */
+    public static function trace($url, array $headers = [], $body = null)
+    {
+        return static::send(static::TRACE, $url, $body, $headers);
+    }
+
+    /**
+     * Jalankan curl request.
+     *
+     * @param string    $method
+     * @param string    $url
+     * @param mixed|nul $body
+     * @param array     $headers
+     *
+     * @return \stdClass
+     */
+    public static function send($method, $url, $body = null, array $headers = [])
+    {
+        static::$handler = curl_init();
+
+        if ($method !== static::GET) {
+            if ($method === static::POST) {
+                curl_setopt(static::$handler, CURLOPT_POST, true);
+            } else {
+                if ($method === static::HEAD) {
+                    curl_setopt(static::$handler, CURLOPT_NOBODY, true);
+                }
+
+                curl_setopt(static::$handler, CURLOPT_CUSTOMREQUEST, $method);
+            }
+
+            curl_setopt(static::$handler, CURLOPT_POSTFIELDS, $body);
+        } elseif (is_array($body)) {
+            $url .= (false !== strpos($url, '?')) ? '&' : '?';
+            $url .= urldecode(http_build_query(static::build_curl_query($body)));
+        }
+
+        $default_options = [
+            CURLOPT_URL => static::encode_url($url),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_HTTPHEADER => static::format_headers($headers),
+            CURLOPT_HEADER => true,
+            CURLOPT_SSL_VERIFYPEER => static::$verify_peer,
+            CURLOPT_SSL_VERIFYHOST => (static::$verify_host === false) ? 0 : 2,
+            CURLOPT_ENCODING => '',
+        ];
+
+        curl_setopt_array(static::$handler, static::merge_options($default_options, static::$curl_options));
+
+        if (static::$socket_timeout !== null) {
+            curl_setopt(static::$handler, CURLOPT_TIMEOUT, static::$socket_timeout);
+        }
+
+        if (static::$cookie) {
+            curl_setopt(static::$handler, CURLOPT_COOKIE, static::$cookie);
+        }
+
+        if (static::$cookie_file) {
+            curl_setopt(static::$handler, CURLOPT_COOKIEFILE, static::$cookie_file);
+            curl_setopt(static::$handler, CURLOPT_COOKIEJAR, static::$cookie_file);
+        }
+
+        if (! empty(static::$auth['user'])) {
+            curl_setopt_array(static::$handler, [
+                CURLOPT_HTTPAUTH => static::$auth['method'],
+                CURLOPT_USERPWD => static::$auth['user'].':'.static::$auth['pass'],
+            ]);
+        }
+
+        if (static::$proxy['address'] !== false) {
+            curl_setopt_array(static::$handler, [
+                CURLOPT_PROXYTYPE => static::$proxy['type'],
+                CURLOPT_PROXY => static::$proxy['address'],
+                CURLOPT_PROXYPORT => static::$proxy['port'],
+                CURLOPT_HTTPPROXYTUNNEL => static::$proxy['tunnel'],
+                CURLOPT_PROXYAUTH => static::$proxy['auth']['method'],
+                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'].':'.static::$proxy['auth']['pass'],
+            ]);
+        }
+
+        $response = curl_exec(static::$handler);
+        $error = curl_error(static::$handler);
+        $info = static::info();
+
+        if ($error) {
+            throw new \Exception($error);
+        }
+
+        $raw_headers = substr($response, 0, $info['header_size']);
+        $body = substr($response, $info['header_size']);
+        $json_options = static::$json_options;
+
+        $response = new \stdClass();
+        $response->code = $info['http_code'];
+        $response->body = $body;
+        $response->raw_body = $body;
+
+        array_unshift($json_options, $body);
+        $json = call_user_func_array('json_decode', $json_options);
+
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $response->body = $json;
+        }
+
+        if (function_exists('http_parse_headers')) {
+            return http_parse_headers($raw_headers);
+        }
+
+        $key = '';
+        $headers = [];
+        $items = explode("\n", $raw_headers);
+
+        foreach ($items as $index => $item) {
+            $item = explode(':', $item, 2);
+
+            if (isset($item[1])) {
+                if (! isset($headers[$item[0]])) {
+                    $headers[$item[0]] = trim($item[1]);
+                } elseif (is_array($headers[$item[0]])) {
+                    $headers[$item[0]] = array_merge($headers[$item[0]], [trim($item[1])]);
+                } else {
+                    $headers[$item[0]] = array_merge([$headers[$item[0]]], [trim($item[1])]);
+                }
+
+                $key = $item[0];
+            } else {
+                if (substr($item[0], 0, 1) === "\t") {
+                    $headers[$key] .= "\r\n\t".trim($item[0]);
+                } elseif (! $key) {
+                    $headers[0] = trim($item[0]);
+                }
+            }
+        }
+
+        $response->headers = $headers;
+        return $response;
+    }
+
+    /**
+     * Siapkan file untuk request body.
+     * Untuk digunakan di dalam deklarasi parameter request.
+     *
+     * @param string $path
+     * @param string $alias
+     *
+     * @return string
+     */
+    public static function body_file($path, $alias = '')
+    {
+        if (! is_file($path)) {
+            throw new \Exception(sprintf('Target file not found: %s', $path));
+        }
+
+        $mime = Storage::mime($path);
+
+        if (class_exists('CURLFile')) {
+            return new \CURLFile($path, $mime, $alias);
+        }
+
+        if (function_exists('curl_file_create')) {
+            return curl_file_create($path, $mime, $alias);
+        }
+
+        return sprintf('@%s;filename=%s;type=%s', $path, $alias ? $alias : basename($path), $mime);
+    }
+
+    /**
+     * Ubah deklarasi parameter menjadi string json.
+     *
+     * @param mixed $data
+     *
+     * @return string
+     */
+    public static function body_json($data)
+    {
+        return json_encode($data);
+    }
+
+    /**
+     * Ubah deklarasi parameter menjadi string form-data.
+     *
+     * @param mixed $data
+     *
+     * @return string
+     */
+    public static function body_form($data)
+    {
+        if (is_array($data) || is_object($data) || $data instanceof \Traversable) {
+            return http_build_query(static::build_curl_query($data));
+        }
+
+        return $data;
+    }
+
+    /**
+     * Ubah deklarasi parameter menjadi string multipart form-data.
+     *
+     * @param mixed $data
+     * @param bool  $files
+     *
+     * @return string
+     */
+    public static function body_multipart($data, $files = false)
+    {
+        if (is_object($data)) {
+            return get_object_vars($data);
+        }
+
+        $data = is_array($data) ? $data : [$data];
+
+        if ($files !== false) {
+            foreach ($files as $name => $file) {
+                $data[$name] = static::body_file($file);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Format query untuk request.
+     *
+     * @param mixed $data
+     * @param bool  $parent
+     *
+     * @return array
+     */
+    public static function build_curl_query($data, $parent = false)
+    {
+        $result = [];
+
+        if (is_object($data)) {
+            $data = get_object_vars($data);
+        }
+
+        foreach ($data as $key => $value) {
+            $name = $parent ? sprintf('%s[%s]', $parent, $key) : $key;
+
+            if (! $value instanceof \CURLFile && (is_array($value) || is_object($value))) {
+                $result = array_merge($result, static::build_curl_query($value, $name));
+            } else {
+                $result[$name] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Ambil informasi transfer curl.
+     *
+     * @return array
+     */
+    public static function info()
+    {
+        return curl_getinfo(static::$handler);
+    }
+
+    /**
+     * Mereturn curl handler internal.
+     *
+     * @return \CURLHandle|resource
+     */
+    public static function handler()
+    {
+        return static::$handler;
+    }
+
+    /**
+     * Format request headers.
+     *
+     * @param array $headers
+     *
+     * @return array
+     */
+    public static function format_headers(array $headers)
+    {
+        $headers = array_merge(static::$default_headers, (array) $headers);
+        $headers = array_change_key_case($headers, CASE_LOWER);
+        $formatted = [];
+
+        foreach ($headers as $key => $value) {
+            $formatted[] = trim(strtolower($key)).': '.$value;
+        }
+
+        if (! array_key_exists('user-agent', $headers)) {
+            $formatted[] = 'user-agent: '.static::fake_user_agent();
+        }
+
+        if (! array_key_exists('expect', $headers)) {
+            $formatted[] = 'expect:';
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * Format curl query.
+     *
+     * @param string $query
+     *
+     * @return array
+     */
+    private static function format_query($query)
+    {
+        $query = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', function ($match) {
+            return bin2hex(urldecode($match[0]));
+        }, $query);
+
+        parse_str($query, $values);
+        return array_combine(array_map('hex2bin', array_keys($values)), $values);
+    }
+
+    /**
+     * Encode URL.
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    private static function encode_url($url)
+    {
+        $url = parse_url($url);
+        $scheme = $url['scheme'].'://';
+        $host = (string) $url['host'];
+        $port = isset($url['port']) ? ':'.ltrim((string) $url['port'], ':') : null;
+        $path = isset($url['path']) ? (string) $url['path'] : null;
+        $query = isset($url['query']) ? (string) $url['query'] : null;
+        $query = $query ? '?'.http_build_query(static::format_query($query)) : '';
+
+        return $scheme.$host.$port.$path.$query;
+    }
+
+    /**
+     * Merge curl options.
+     *
+     * @param array &$existsing
+     * @param array $new
+     *
+     * @return array
+     */
+    private static function merge_options(array &$existsing, array $new)
+    {
+        return $new + $existsing;
+    }
+
+    /**
+     * Buat user-aget palsu.
+     *
+     * @return string
+     */
+    public static function fake_user_agent()
     {
         $year = (int) gmdate('Y');
         $year = ($year < 2020) ? 2020 : $year;
-
-        // Buat nomor versinya bertambah mengikuti tahun.
         $version = 79 + ($year - 2020);
-
         $agents = [
             'Windows' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
             'Linux' => 'Mozilla/5.0 (Linux x86_64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
