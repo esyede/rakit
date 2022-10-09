@@ -107,12 +107,13 @@ abstract class Provider
             CURLOPT_NOBODY => 1,
         ]);
         $unused = curl_exec($ch);
-        $header = (object) curl_getinfo($ch);
+        $type = curl_getinfo($ch);
+        $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
 
-        if (false === strpos($header->content_type, 'application/zip')) {
+        if (false === strpos($type, 'application/zip')) {
             echo PHP_EOL.sprintf(
                 "Error: Remote sever sending an invalid content type: '%s', expecting '%s'",
-                $header->content_type ? $header->content_type : 'null', 'application/zip'
+                $type ? $type : 'null', 'application/zip'
             ).PHP_EOL;
             exit;
         }
