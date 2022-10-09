@@ -37,8 +37,8 @@ abstract class Provider
         }
 
         if (is_dir(path('package').$package['name'])) {
-            echo PHP_EOL;
-            throw new \Exception(sprintf('Package already downloaded: %s', $package['name']));
+            echo PHP_EOL.sprintf('Package already downloaded: %s', $package['name']).PHP_EOL;
+            exit;
         }
 
         chmod(Storage::latest(path('package'))->getRealPath(), 0755);
@@ -65,8 +65,8 @@ abstract class Provider
             if (! is_dir($destination)) {
                 Storage::cpdir($assets, $destination);
             } else {
-                echo PHP_EOL;
-                throw new \Exception(sprintf('Assets already exists: %s', $destination));
+                echo PHP_EOL.sprintf('Assets already exists: %s', $destination).PHP_EOL;
+                exit;
             }
         }
 
