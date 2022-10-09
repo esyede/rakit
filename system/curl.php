@@ -442,10 +442,7 @@ class Curl
         ];
 
         curl_setopt_array(static::$handler, static::merge_options($default_options, static::$curl_options));
-
-        if (static::$socket_timeout !== null) {
-            curl_setopt(static::$handler, CURLOPT_TIMEOUT, static::$socket_timeout);
-        }
+        curl_setopt(static::$handler, CURLOPT_TIMEOUT, static::$socket_timeout);
 
         if (static::$cookie) {
             curl_setopt(static::$handler, CURLOPT_COOKIE, static::$cookie);
