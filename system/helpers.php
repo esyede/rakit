@@ -1008,7 +1008,7 @@ if (! function_exists('system_os')) {
             'SunOS' => 'Solaris',
         ];
 
-        return isset_or($platforms[PHP_OS], 'Unknown');
+        return isset($platforms[PHP_OS]) ? $platforms[PHP_OS] : 'Unknown';
     }
 
     if (! function_exists('human_filesize')) {
