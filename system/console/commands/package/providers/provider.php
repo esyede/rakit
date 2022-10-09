@@ -167,7 +167,7 @@ abstract class Provider
         $zip = new \ZipArchive();
 
         if (! $zip->open($file)) {
-            echo PHP_EOL.sprintf('Error: Could not open zip file: ', $file).PHP_EOL;
+            echo PHP_EOL.sprintf('Error: Could not open zip file: %s', $file).PHP_EOL;
             exit;
         }
 
