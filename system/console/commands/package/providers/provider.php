@@ -129,6 +129,7 @@ abstract class Provider
 
             if (false === curl_exec($ch)) {
                 echo PHP_EOL.'Error: '.curl_error($ch).PHP_EOL;
+                exit;
             }
 
             curl_close($ch);
@@ -159,13 +160,15 @@ abstract class Provider
         }
 
         if (! extension_loaded('zip') || ! class_exists('\ZipArchive')) {
-            throw new \Exception(PHP_EOL.'Please enable php-zip extension on this server');
+            echo PHP_EOL.'Please enable php-zip extension on this server'.PHP_EOL;
+            exit;
         }
 
         $zip = new \ZipArchive();
 
         if (! $zip->open($file)) {
-            throw new \Exception(PHP_EOL.sprintf('Error: Could not open zip file: ', $file));
+            echo PHP_EOL.sprintf('Error: Could not open zip file: ', $file).PHP_EOL;
+            exit;
         }
 
         $zip->extractTo($destination);
