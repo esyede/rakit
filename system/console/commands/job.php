@@ -62,7 +62,7 @@ class Job extends Command
         $jobs = Config::get('job.table', 'jobs');
         $failed = Config::get('job.failed_table', 'failed_jobs');
 
-        $migration1 = $make->migration(['create_'.$jobs. '_table']);
+        $migration1 = $make->migration(['create_'.$jobs.'_table']);
         $migration2 = $make->migration(['create_'.$failed.'_table']);
 
         $stub1 = __DIR__.DS.'stubs'.DS.'jobs.stub';

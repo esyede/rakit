@@ -6,7 +6,6 @@ defined('DS') or exit('No direct script access.');
 
 use System\Curl;
 use System\Storage;
-use System\Console\PclZip;
 
 abstract class Provider
 {
@@ -39,11 +38,10 @@ abstract class Provider
 
         if (is_dir(path('package').$package['name'])) {
             echo PHP_EOL;
-            throw new \Exception(sprintf('Package already instantiated: %s', $package['name']));
+            throw new \Exception(sprintf('Package already downloaded: %s', $package['name']));
         }
 
-        @chmod(Storage::latest(path('package'))->getRealPath(), 0755);
-
+        chmod(Storage::latest(path('package'))->getRealPath(), 0755);
         echo PHP_EOL.'Downloading zipball...';
         $this->download($url, $zipball);
         echo ' done!';
@@ -58,7 +56,7 @@ abstract class Provider
             rename($packages[0], path('package').$package['name']);
         }
 
-        @chmod(Storage::latest(path('package'))->getRealPath(), 0755);
+        chmod(Storage::latest(path('package'))->getRealPath(), 0755);
         Storage::delete($zipball);
 
         if (is_dir($assets = path('package').$package['name'].DS.'assets')) {
@@ -87,27 +85,60 @@ abstract class Provider
             Storage::delete($destination);
         }
 
-        $options = [CURLOPT_FOLLOWLOCATION => 1, CURLOPT_HEADER => 1, CURLOPT_NOBODY => 1];
-        $remote = Curl::get($url, [], $options);
-        $content_type = isset($remote->header->content_type)
-            ? $remote->header->content_type
-            : null;
+        $year = (int) gmdate('Y');
+        $version = rand(76, 80) + ((($year < 2020) ? 2020 : $year) - 2020);
+        $agent = 'Mozilla/5.0 (Linux x86_64; rv:'.$version.'.0) Gecko/20100101 Firefox/'.$version.'.0';
+        $options = [
+            CURLOPT_HTTPGET => 1,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_AUTOREFERER => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_USERAGENT => $agent,
+            CURLOPT_VERBOSE => get_cli_option('verbose') ? 1 : 0,
+        ];
 
-        if ('application/zip' !== $content_type) {
-            throw new \Exception(PHP_EOL.sprintf(
-                "Error: Remote sever sending an invalid content type header: '%s', expecting '%s'",
-                $content_type, 'application/zip'
-            ).PHP_EOL);
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_HEADER => 1,
+            CURLOPT_NOBODY => 1,
+        ]);
+        $unused = curl_exec($ch);
+        $header = (object) curl_getinfo($ch);
+
+        if (false === strpos($header->content_type, 'application/zip')) {
+            echo PHP_EOL.sprintf(
+                "Error: Remote sever sending an invalid content type: '%s', expecting '%s'",
+                $header->content_type ? $header->content_type : 'null', 'application/zip'
+            ).PHP_EOL;
+            exit;
         }
 
-        unset($options[CURLOPT_HEADER], $options[CURLOPT_NOBODY]);
-
         try {
-            Curl::download($url, $destination, $options);
+            $fopen = fopen($destination, 'w+');
+            $ch = curl_init();
+            curl_setopt_array($ch, $options);
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $url,
+                CURLOPT_FILE => $fopen,
+                CURLOPT_BINARYTRANSFER => 1,
+            ]);
+
+            if (false === curl_exec($ch)) {
+                echo PHP_EOL.'Error: '.curl_error($ch).PHP_EOL;
+            }
+
+            curl_close($ch);
+            fclose($fopen);
         } catch (\Throwable $e) {
-            throw new \Exception(PHP_EOL.'Error: '.$e->getMessage());
+            echo PHP_EOL.'Error: '.$e->getMessage().PHP_EOL;
+            exit;
         } catch (\Exception $e) {
-            throw new \Exception(PHP_EOL.'Error: '.$e->getMessage());
+            echo PHP_EOL.'Error: '.$e->getMessage().PHP_EOL;
+            exit;
         }
     }
 
