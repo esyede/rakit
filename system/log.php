@@ -22,9 +22,7 @@ class Log
      */
     public static function channel($name = null)
     {
-        $name = (is_string($name) && strlen($name))
-            ? basename(strtolower($name))
-            : Date::make()->format('Y-m-d');
+        $name = (is_string($name) && strlen($name)) ? Str::slug($name) : date('Y-m-d');
         static::$channel = Str::replace_last('.log', '', Str::replace_last('.php', '', $name));
     }
 
@@ -83,9 +81,10 @@ class Log
             Event::fire('rakit.log', [$type, $message]);
         }
 
-        $message = static::format($type, $message);
-        $channel = isset(static::$channel) ? static::$channel : Date::make()->format('Y-m-d');
+        $channel = static::$channel;
+        $channel = (is_string($channel) && strlen($channel)) ? Str::slug($channel) : date('Y-m-d');
         $path = path('storage').'logs'.DS.$channel.'.log.php';
+        $message = static::format($type, $message);
 
         if (is_file($path)) {
             file_put_contents($path, $message, LOCK_EX | FILE_APPEND);
