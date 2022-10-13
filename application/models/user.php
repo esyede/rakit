@@ -9,10 +9,11 @@ class User extends Facile
      *
      * @var array
      */
-    protected $fillable = [
+    public static $fillable = [
         'name',
         'email',
         'password',
+        'email_verified_at',
     ];
 
     /**
@@ -20,7 +21,7 @@ class User extends Facile
      *
      * @var array
      */
-    protected $hidden = [
+    public static $hidden = [
         'password',
     ];
 
