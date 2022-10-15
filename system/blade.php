@@ -525,11 +525,11 @@ class Blade
         $name = Str::replace_last('.blade.php', '', basename($path));
         $hash = 0xFFFF;
 
-        if (($length = strlen($path)) > 0) {
-            for ($offset = 0; $offset < $length; $offset++) {
-                $hash ^= (ord($path[$offset]) << 8);
+        if (($len = strlen($path)) > 0) {
+            for ($i = 0; $i < $len; $i++) {
+                $hash ^= (ord($path[$i]) << 8);
 
-                for ($bitwise = 0; $bitwise < 8; $bitwise++) {
+                for ($j = 0; $j < 8; $j++) {
                     if (($hash <<= 1) & 0x10000) {
                         $hash ^= 0x1021;
                     }
