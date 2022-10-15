@@ -7,6 +7,7 @@ defined('DS') or exit('No direct script access.');
 use System\Arr;
 use System\Str;
 use System\Email;
+use System\Config;
 use System\Storage;
 
 abstract class Driver
@@ -578,7 +579,7 @@ abstract class Driver
         $this->set_header('Message-ID', $message_id);
         $this->set_header('MIME-Version', '1.0');
         $this->set_header('X-Priority', $this->config['priority']);
-        $this->set_header('X-Mailer', $this->config['mailer']);
+        $this->set_header('X-Mailer', Config::get('application.name', 'Rakit'));
 
         $type = $this->config['as_html'] ? 'html' : 'plain' ;
         $type .= ($this->config['as_html'] && ! ('' === trim($this->alt_body))) ? '_alt' : '';
