@@ -124,6 +124,19 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($out11, Blade::translate($blade11));
     }
 
+
+    public function testErrorAndEnderrorAreCompiledCorrectly()
+    {
+        $blade = "@error('name')";
+        $out = "<?php if (\$errors->has('name')): ?>";
+
+        $blade2 = '@enderror';
+        $out2 = '<?php endif; ?>';
+
+        $this->assertEquals($out, Blade::translate($blade));
+        $this->assertEquals($out2, Blade::translate($blade2));
+    }
+
     /**
      * Test untuk token @yield.
      *

@@ -32,6 +32,8 @@ class Blade
         'else',
         'unless',
         'endunless',
+        'error',
+        'enderror',
         'include',
         'render_each',
         'render',
@@ -367,6 +369,30 @@ class Blade
     protected static function compile_endunless($value)
     {
         return str_replace('@endunless', '<?php endif; ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @error ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_error($value)
+    {
+        return preg_replace(static::matcher('error'), '$1<?php if ($errors->has$2): ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @enderror ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_enderror($value)
+    {
+        return str_replace('@enderror', '<?php endif; ?>', $value);
     }
 
     /**
