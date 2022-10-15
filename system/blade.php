@@ -523,19 +523,18 @@ class Blade
     public static function compiled($path)
     {
         $name = Str::replace_last('.blade.php', '', basename($path));
+        $len = strlen($path);
         $hash = 0xFFFF;
 
-        if (($len = strlen($path)) > 0) {
-            for ($i = 0; $i < $len; $i++) {
-                $hash ^= (ord($path[$i]) << 8);
+        for ($i = 0; $i < $len; $i++) {
+            $hash ^= (ord($path[$i]) << 8);
 
-                for ($j = 0; $j < 8; $j++) {
-                    if (($hash <<= 1) & 0x10000) {
-                        $hash ^= 0x1021;
-                    }
-
-                    $hash &= 0xFFFF;
+            for ($j = 0; $j < 8; $j++) {
+                if (($hash <<= 1) & 0x10000) {
+                    $hash ^= 0x1021;
                 }
+
+                $hash &= 0xFFFF;
             }
         }
 
