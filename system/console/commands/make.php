@@ -67,7 +67,7 @@ class Make extends Command
                 'stub_class' => Package::class_prefix($package).Str::classify($class),
             ];
 
-            Storage::put($file, $this->stub_general($class, $replace, 'controller'));
+            Storage::put($file, $this->stub_general($class, 'controller', $replace));
 
             echo 'Created controller: '.$display;
         }
@@ -133,7 +133,7 @@ class Make extends Command
                 'stub_uri' => Str::lower((($package === DEFAULT_PACKAGE) ? '' : $package.'/').$class),
             ];
 
-            Storage::put($file, $this->stub_general($class, $replace, 'resource'));
+            Storage::put($file, $this->stub_general($class, 'resource', $replace));
 
             echo 'Created resource controller: '.$display;
         }
@@ -195,7 +195,7 @@ class Make extends Command
                 'stub_table' => Str::plural($class),
             ];
 
-            Storage::put($file, $this->stub_general($class, $replace, 'model'));
+            Storage::put($file, $this->stub_general($class, 'model', $replace));
 
             echo 'Created model: '.$display;
         }
@@ -298,7 +298,7 @@ class Make extends Command
                 'stub_class' => Package::class_prefix($package).Str::classify($class).'_Command',
             ];
 
-            Storage::put($file, $this->stub_general($class, $replace, 'command'));
+            Storage::put($file, $this->stub_general($class, 'command', $replace));
 
             echo 'Created command: '.$display;
         }
@@ -359,7 +359,7 @@ class Make extends Command
                 '<test-group-placeholder>' => Str::lower($package),
             ];
 
-        Storage::put($file, $this->stub_general($class, $replace, 'test'));
+        Storage::put($file, $this->stub_general($class, 'test', $replace));
 
         echo 'Created test file: '.$display;
 
@@ -370,12 +370,12 @@ class Make extends Command
      * Ambil konten file stub dan replace placeholdernya (untuk file - file umum).
      *
      * @param string $class
-     * @param array  $replace
      * @param string $stub
+     * @param array  $replace
      *
      * @return string
      */
-    protected function stub_general($class, array $replace = [], $stub)
+    protected function stub_general($class, $stub, array $replace = [])
     {
         $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.$stub.'.stub');
         $class = Str::classify($class);
