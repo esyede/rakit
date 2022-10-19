@@ -876,7 +876,10 @@ class Str
     public static function macro($name, \Closure $handler)
     {
         if (method_exists('\System\Str', $name)) {
-            throw new \Exception(sprintf('Overriding framework method with macro is unsupported: Str::%s()', $name));
+            throw new \Exception(sprintf(
+                'Overriding framework method with macro is unsupported: Str::%s()',
+                $name
+            ));
         }
 
         static::$macros[$name] = $handler;
