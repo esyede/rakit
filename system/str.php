@@ -509,8 +509,7 @@ class Str
      * Buat string nano id.
      * Diadaptasi dari: https://github.com/hidehalo/nanoid-php.
      *
-     * @param int    $size
-     * @param string $characters
+     * @param int $size
      *
      * @return string|null
      */
