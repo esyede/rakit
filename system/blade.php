@@ -32,6 +32,8 @@ class Blade
         'else',
         'unless',
         'endunless',
+        'error',
+        'enderror',
         'include',
         'render_each',
         'render',
@@ -370,6 +372,30 @@ class Blade
     }
 
     /**
+     * Ubah sintaks @error ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_error($value)
+    {
+        return preg_replace(static::matcher('error'), '$1<?php if ($errors->has$2): ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @enderror ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_enderror($value)
+    {
+        return str_replace('@enderror', '<?php endif; ?>', $value);
+    }
+
+    /**
      * Ubah sintaks @include ke bentuk PHP.
      *
      * @param string $value
@@ -497,19 +523,18 @@ class Blade
     public static function compiled($path)
     {
         $name = Str::replace_last('.blade.php', '', basename($path));
+        $len = strlen($path);
         $hash = 0xFFFF;
 
-        if (($length = strlen($path)) > 0) {
-            for ($offset = 0; $offset < $length; $offset++) {
-                $hash ^= (ord($path[$offset]) << 8);
+        for ($i = 0; $i < $len; $i++) {
+            $hash ^= (ord($path[$i]) << 8);
 
-                for ($bitwise = 0; $bitwise < 8; $bitwise++) {
-                    if (($hash <<= 1) & 0x10000) {
-                        $hash ^= 0x1021;
-                    }
-
-                    $hash &= 0xFFFF;
+            for ($j = 0; $j < 8; $j++) {
+                if (($hash <<= 1) & 0x10000) {
+                    $hash ^= 0x1021;
                 }
+
+                $hash &= 0xFFFF;
             }
         }
 

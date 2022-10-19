@@ -507,16 +507,24 @@ class Str
 
     /**
      * Buat string nano id.
+<<<<<<< HEAD
      * Diadaptasi dari: https://github.com/ai/nanoid.
+=======
+     * Diadaptasi dari: https://github.com/hidehalo/nanoid-php.
+>>>>>>> 8500f4f92127d7a1a69728743f633b96510f2d15
      *
-     * @param int $size
+     * @param int    $size
+     * @param string $characters
      *
-     * @return string
+     * @return string|null
      */
-    public static function nanoid($size = 21)
+    public static function nanoid($size = 21, $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
     {
         $size = ($size > 0) ? (int) $size : 21;
-        $characters = '_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $characters = (is_string($characters) && strlen($characters) > 10)
+            ? $characters
+            : '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
         $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
         $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
         $result = '';
