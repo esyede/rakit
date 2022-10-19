@@ -559,9 +559,9 @@ class Str
                 return true;
             }
 
-            $pattern = str_replace('\*', '.*', preg_quote($pattern, '#'));
+            $pattern = str_replace('\*', '.*', preg_quote($pattern, '/'));
 
-            if (1 === preg_match('#^'.$pattern.'\z#u', $value)) {
+            if (1 === preg_match('/^'.$pattern.'\z/u', $value)) {
                 return true;
             }
         }
