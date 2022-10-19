@@ -507,7 +507,7 @@ class Str
 
     /**
      * Buat string nano id.
-     * Diadaptasi dari: https://github.com/ai/nanoid
+     * Diadaptasi dari: https://github.com/ai/nanoid.
      *
      * @param int $size
      *
