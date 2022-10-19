@@ -585,7 +585,9 @@ class Str
         }
 
         $position = strpos($subject, $search);
-        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
+        return (false === $position)
+            ? $subject
+            : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
     }
 
     public static function replace_last($search, $replace, $subject)
@@ -595,7 +597,9 @@ class Str
         }
 
         $position = strrpos($subject, $search);
-        return (false === $position) ? $subject : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
+        return (false === $position)
+            ? $subject
+            : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
     }
 
     /**
@@ -799,7 +803,7 @@ class Str
      */
     public static function ends_with($haystack, $needle)
     {
-        return ('' !== $needle && ((string) $needle === substr($haystack, -mb_strlen($needle, '8bit'))));
+        return ('' !== $needle && ((string) $needle === substr($haystack, - mb_strlen($needle, '8bit'))));
     }
 
     /**
@@ -894,7 +898,10 @@ class Str
      */
     public static function __callStatic($method, $parameters)
     {
-        $method = array_key_exists($method, static::$macros) ? static::$macros[$method] : ['\System\Str', $method];
+        $method = array_key_exists($method, static::$macros)
+            ? static::$macros[$method]
+            : ['\System\Str', $method];
+
         return call_user_func_array($method, $parameters);
     }
 }
