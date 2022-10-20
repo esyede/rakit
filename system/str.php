@@ -377,7 +377,8 @@ class Str
         }
 
         // /dev/urandom juga gagal, coba mcrypt
-        if ($unix && ($windows || (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613))
+        if (($unix || PHP_VERSION_ID >= 50307)
+        && ($windows || (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613))
         && extension_loaded('mcrypt')) {
             try {
                 $bytes = mcrypt_create_iv($length, (int) MCRYPT_DEV_URANDOM);
