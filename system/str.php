@@ -335,7 +335,6 @@ class Str
 
         $unix = ('/' === DS);
         $windows = ('\\' === DS);
-
         $bytes = false;
 
         // Gunakan openssl.
@@ -380,10 +379,16 @@ class Str
         // /dev/urandom juga gagal, coba mcrypt
         if ($unix && ($windows || (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613))
         && extension_loaded('mcrypt')) {
-            $bytes = @mcrypt_create_iv($length, (int) MCRYPT_DEV_URANDOM);
+            try {
+                $bytes = mcrypt_create_iv($length, (int) MCRYPT_DEV_URANDOM);
 
-            if (false !== $bytes && $length === mb_strlen($bytes, '8bit')) {
-                return $bytes;
+                if (false !== $bytes && $length === mb_strlen($bytes, '8bit')) {
+                    return $bytes;
+                }
+            } catch (\Throwable $e) {
+                $bytes = false;
+            } catch (\Exception $e) {
+                $bytes = false;
             }
         }
 
@@ -403,9 +408,9 @@ class Str
                     ++$count;
                 } while ($count < $length);
             } catch (\Throwable $e) {
-                // Skip error.
+                $bytes = false;
             } catch (\Exception $e) {
-                // Skip error.
+                $bytes = false;
             }
 
             if ($bytes && is_string($bytes) && $length === mb_strlen($bytes, '8bit')) {
@@ -509,14 +514,17 @@ class Str
      * Buat string nano id.
      * Diadaptasi dari: https://github.com/hidehalo/nanoid-php.
      *
-     * @param int $size
+     * @param int         $size
+     * @param string|null $characters
      *
      * @return string|null
      */
-    public static function nanoid($size = 21)
+    public static function nanoid($size = 0, $characters = null)
     {
         $size = ($size > 0) ? (int) $size : 21;
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $default = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $characters = $characters ? $characters : $default;
+        $size = ($size > 0) ? $size : 21;
         $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
         $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
         $result = '';

@@ -285,6 +285,41 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_string(Str::random()));
     }
 
+    public function testUuid()
+    {
+        $uuid = Str::uuid();
+        $this->assertEquals(36, mb_strlen($uuid, '8bit'));
+        $this->assertTrue((bool) preg_match('/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/Di', $uuid));
+    }
+
+    public function testNanoid()
+    {
+        $nanoid = Str::nanoid(7);
+        $this->assertEquals(7, mb_strlen($nanoid, '8bit'));
+        $match = preg_match('/^[a-z0-9]+$/iu', $nanoid)
+            || preg_match('/^[a-z]+$/iu', $nanoid)
+            || preg_match('/^[0-9]+$/u', $nanoid);
+        $this->assertTrue($match);
+
+        $nanoid = Str::nanoid(10, '0123456789abcdefghi');
+        $this->assertEquals(10, mb_strlen($nanoid, '8bit'));
+        $match = preg_match('/^[a-z0-9]+$/u', $nanoid)
+            || preg_match('/^[a-z]+$/u', $nanoid)
+            || preg_match('/^[0-9]+$/u', $nanoid);
+        $this->assertTrue((bool) $match);
+
+        $nanoid = Str::nanoid(10, '0123456789ABCDEFGHI');
+        $this->assertEquals(10, mb_strlen($nanoid, '8bit'));
+        $match = preg_match('/^[A-Z0-9]+$/u', $nanoid)
+            || preg_match('/^[A-Z]+$/u', $nanoid)
+            || preg_match('/^[0-9]+$/u', $nanoid);
+        $this->assertTrue((bool) $match);
+
+        $nanoid = Str::nanoid(10, '0123456789');
+        $this->assertEquals(10, strlen($nanoid));
+        $this->assertTrue((bool) preg_match('/^[0-9]+$/', $nanoid));
+    }
+
     public function testReplaceArray()
     {
         $this->assertSame('foo/bar/baz', Str::replace_array('?', ['foo', 'bar', 'baz'], '?/?/?'));
