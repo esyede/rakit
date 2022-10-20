@@ -393,7 +393,7 @@ class Str
         }
 
         // Mcrypt juga masih saja gagal, coba CAPICOM (windows)
-        if ($windows && class_exists('COM', false)) {
+        if ($windows && class_exists('\COM', false)) {
             try {
                 $com = new \COM('CAPICOM.Utilities.1');
                 $count = 0;
