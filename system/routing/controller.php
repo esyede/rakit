@@ -4,13 +4,16 @@ namespace System\Routing;
 
 defined('DS') or exit('No direct script access.');
 
+use System\Arr;
 use System\Str;
 use System\View;
 use System\Event;
 use System\Package;
 use System\Request;
-use System\Container;
 use System\Response;
+use System\Redirect;
+use System\Container;
+use System\Validator;
 
 abstract class Controller
 {
@@ -111,13 +114,11 @@ abstract class Controller
     public static function call($destination, array $parameters = [])
     {
         static::references($destination, $parameters);
-
         list($package, $destination) = Package::parse($destination);
 
         Package::boot($package);
 
         list($name, $method) = explode('@', $destination);
-
         $controller = static::resolve($package, $name);
 
         if (! is_null($route = Request::route())) {
@@ -317,6 +318,28 @@ abstract class Controller
         return Str::starts_with($this->layout, 'name: ')
             ? View::of(substr($this->layout, 6))
             : View::make($this->layout);
+    }
+
+    /**
+     * Validasi input.
+     *
+     * @param array $rules
+     *
+     * @return void
+     */
+    public function validate(array $rules)
+    {
+        if (! Arr::associative($rules)) {
+            throw new \Exception('Validation rules should be an associative array.');
+        }
+
+        $validation = Validator::make(Input::all(), $rules);
+
+        if ($validation->fails()) {
+            return Redirect::back()
+                ->with_input()
+                ->with_errors($validation);
+        }
     }
 
     /**
