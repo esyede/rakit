@@ -113,12 +113,12 @@ class Crypter
         $methods = openssl_get_cipher_methods();
         $methods = is_array($methods) ? $methods : [$methods];
 
-        if (in_array('AES-128-CBC', $methods)) {
-            static::$method = 'AES-128-CBC';
-        } elseif (in_array('aes-128-cbc', $methods)) {
-            static::$method = 'aes-128-cbc';
+        if (in_array('AES-256-CBC', $methods)) {
+            static::$method = 'AES-256-CBC';
+        } elseif (in_array('aes-256-cbc', $methods)) {
+            static::$method = 'aes-256-cbc';
         } else {
-            throw new \Exception('Required AES cipher method is not present on your system.');
+            throw new \Exception('Required cipher method is not present on your system: aes-256-cbc');
         }
 
         return static::$method;
