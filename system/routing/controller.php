@@ -325,7 +325,7 @@ abstract class Controller
      *
      * @param array $rules
      *
-     * @return void
+     * @return \System\Redirect|null
      */
     public function validate(array $rules)
     {
