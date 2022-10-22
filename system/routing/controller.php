@@ -7,6 +7,7 @@ defined('DS') or exit('No direct script access.');
 use System\Arr;
 use System\Str;
 use System\View;
+use System\Input;
 use System\Event;
 use System\Package;
 use System\Request;
