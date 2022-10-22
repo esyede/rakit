@@ -337,9 +337,7 @@ abstract class Controller
         $validation = Validator::make(Input::all(), $rules);
 
         if ($validation->fails()) {
-            return Redirect::back()
-                ->with_input()
-                ->with_errors($validation);
+            return Redirect::back()->with_input()->with_errors($validation);
         }
     }
 
