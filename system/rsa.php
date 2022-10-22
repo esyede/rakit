@@ -116,7 +116,7 @@ class RSA
                 unlink($config);
             }
 
-            file_put_contents($config, static::$details['config'], LOCK_EX);
+            Storage::put($config, static::$details['config'], LOCK_EX);
 
             if (! static::$details['private_key']) {
                 $priv = openssl_pkey_new(static::$details['options']);
@@ -150,9 +150,7 @@ class RSA
                 unlink($config);
             }
 
-            if (is_file($randfile)) {
-                unlink($randfile);
-            }
+            Storage::delete($randfile);
         }
     }
 
