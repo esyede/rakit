@@ -28,14 +28,13 @@ class RSA
     public static function encrypt($data)
     {
         static::generate();
-        $data = gzcompress($data);
         $pub = openssl_pkey_get_public(static::$details['public_key']);
         $length = ceil(openssl_pkey_get_details($pub)['bits'] / 8) - 11;
         $result = '';
 
         while ($data) {
-            $chunk = substr($data, 0, $length);
-            $data = substr($data, $length);
+            $chunk = mb_substr($data, 0, $length, '8bit');
+            $data = mb_substr($data, $length, null, '8bit');
             $temp = '';
 
             if (! openssl_public_encrypt($chunk, $temp, $pub)) {
@@ -72,8 +71,8 @@ class RSA
         $result = '';
 
         while ($encrypted) {
-            $chunk = substr($encrypted, 0, $length);
-            $encrypted = substr($encrypted, $length);
+            $chunk = mb_substr($encrypted, 0, $length, '8bit');
+            $encrypted = mb_substr($encrypted, $length, null, '8bit');
             $temp = '';
 
             if (! openssl_private_decrypt($chunk, $temp, $priv)) {
@@ -87,7 +86,7 @@ class RSA
             openssl_free_key($priv);
         }
 
-        return gzuncompress($result);
+        return $result;
     }
 
     /**
