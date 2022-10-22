@@ -602,6 +602,33 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test untuk rule 'utf8'.
+     *
+     * @group system
+     */
+    public function testTheUtf8Rule()
+    {
+        // Lihat: https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
+        $this->assertTrue(Validator::make(['foo' => "bar"], ['foo' => 'utf8'])->valid());
+        $this->assertTrue(Validator::make(['foo' => "\xc3\xb1"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xc3\x28"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xa0\xa1"], ['foo' => 'utf8'])->valid());
+        $this->assertTrue(Validator::make(['foo' => "\xe2\x82\xa1"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xe2\x28\xa1"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xe2\x82\x28"], ['foo' => 'utf8'])->valid());
+        $this->assertTrue(Validator::make(['foo' => "\xe2\x82\xa1"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xe2\x28\xa1"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xe2\x82\x28"], ['foo' => 'utf8'])->valid());
+        $this->assertTrue(Validator::make(['foo' => "\xf0\x90\x8c\xbc"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xf0\x28\x8c\xbc"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xf0\x90\x28\xbc"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xf0\x28\x8c\x28"], ['foo' => 'utf8'])->valid());
+        // Valid utf-8 tetapi non-unicode akan dianggap tidak valid
+        $this->assertFalse(Validator::make(['foo' => "\xf8\xa1\xa1\xa1\xa1"], ['foo' => 'utf8'])->valid());
+        $this->assertFalse(Validator::make(['foo' => "\xfc\xa1\xa1\xa1\xa1\xa1"], ['foo' => 'utf8'])->valid());
+    }
+
+    /**
      * Test bahwa validator message bisa di-set dengan benar.
      *
      * @group system

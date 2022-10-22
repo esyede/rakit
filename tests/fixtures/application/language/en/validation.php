@@ -68,6 +68,7 @@ return [
     ],
     'unique' => 'The :attribute has already been taken.',
     'url' => 'The :attribute format is invalid.',
+    'utf8' => 'The :attribute should anly contains UTF-8 characters.',
 
     /*
     |--------------------------------------------------------------------------

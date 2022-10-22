@@ -66,6 +66,7 @@ return [
     ],
     'unique' => 'Bilah :attribute sudah ada sebelumnya.',
     'url' => 'Format bilah :attribute tidak valid.',
+    'utf8' => 'Bilah :attribute hanya boleh diisi karakter UTF-8',
 
     /*
     |--------------------------------------------------------------------------
