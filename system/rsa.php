@@ -102,7 +102,7 @@ class RSA
             $randfile = path('storage').'.rnd';
 
             static::$details['config'] = sprintf(
-                "HOME=%s\nRANDFILE=%s\n[req]\ndefault_bits=%s\n[v3_ca]",
+                "HOME=%s\nRANDFILE=%s\n[req]\ndefault_bits=%s\n[v3_ca]\n",
                 path('storage'), $randfile, 2048
             );
 
