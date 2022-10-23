@@ -140,7 +140,7 @@ dan juga akan ditambahkan `--boundary` secara tomatis pula.
 <a id="multipart-file"></a>
 ### Multipart File
 
-Untuk membuat file upload request silahkan gunakan method `body_file()` seperti berikut:
+Untuk membuat file upload request silahkan gunakan method `body_multipart()` seperti berikut:
 
 ```php
 $headers = ['Accept' => 'application/json'];
@@ -152,7 +152,7 @@ $body = Curl::body_multipart($data, $files);
 $response = Curl::post('http://mockbin.com/request', $headers, $body);
  ```
 
-Jika anda ingin menyesuaikan lebih lanjut properti file yang diunggah,
+Tetapi jika anda ingin menyesuaikan lebih lanjut properti file yang diunggah,
 anda dapat melakukannya dengan method `body_file()` seperti berikut:
 
 ```php
