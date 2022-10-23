@@ -590,11 +590,11 @@ class Curl
      * Ubah deklarasi parameter menjadi string multipart form-data.
      *
      * @param mixed $data
-     * @param bool  $files
+     * @param array $files
      *
      * @return string
      */
-    public static function body_multipart($data, $files = false)
+    public static function body_multipart($data, array $files = [])
     {
         if (is_object($data)) {
             return get_object_vars($data);
@@ -602,7 +602,7 @@ class Curl
 
         $data = is_array($data) ? $data : [$data];
 
-        if ($files !== false) {
+        if (count($files) > 0) {
             foreach ($files as $name => $file) {
                 $data[$name] = static::body_file($file);
             }
