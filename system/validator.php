@@ -28,7 +28,7 @@ class Validator
     protected $rules = [];
 
     /**
-     * Berisi list pesan validasi.
+     * Berisi list pesan error validasi.
      *
      * @var array
      */
