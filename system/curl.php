@@ -547,7 +547,7 @@ class Curl
 
         $mime = Storage::mime($path);
 
-        if (class_exists('CURLFile')) {
+        if (class_exists('\CURLFile')) {
             return new \CURLFile($path, $mime, $alias);
         }
 
