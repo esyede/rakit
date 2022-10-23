@@ -379,8 +379,8 @@ Curl::verify_peer(true);
 Curl::verify_host(true);
 
 // Nonaktifkan validasi ssl
-Curl::verify_peer(true);
-Curl::verify_host(true);
+Curl::verify_peer(false);
+Curl::verify_host(false);
 ```
 
 
