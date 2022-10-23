@@ -94,6 +94,9 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $blade9 = '@forelse (Foo::all() as '.'$foo'.")\nfoo\n@empty\nbar\n@endforelse";
         $blade10 = "@while (true)\nfoo\n@endwhile";
         $blade11 = "@while (Foo::bar())\nfoo\n@endwhile";
+        $blade12 = "@guest\nfoo\n@endguest";
+        $blade13 = "@auth\nfoo\n@endauth";
+        $blade14 = "@error('foo')\nfoo\n@enderror";
 
         $out1 = "<?php if (true): ?>\nfoo\n<?php endif; ?>";
         $out2 = "<?php if (count(\$something) > 0): ?>\nfoo\n<?php endif; ?>";
@@ -104,12 +107,13 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $out6 = "<?php if (! ( (count(\$something) > 0))): ?>\nfoobar\n<?php endif; ?>";
         $out7 = "<?php for (Foo::all() as \$foo): ?>\nfoo\n<?php endfor; ?>";
         $out8 = "<?php foreach (Foo::all() as \$foo): ?>\nfoo\n<?php endforeach; ?>";
-
         $out9 = "<?php if (count(Foo::all()) > 0): ?><?php foreach (Foo::all() as \$foo): ?>\n".
             "foo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; ?>";
-
         $out10 = "<?php while (true): ?>\nfoo\n<?php endwhile; ?>";
         $out11 = "<?php while (Foo::bar()): ?>\nfoo\n<?php endwhile; ?>";
+        $out12 = "<?php if (Auth::guest()): ?>\nfoo\n<?php endif; ?>";
+        $out13 = "<?php if (Auth::check()): ?>\nfoo\n<?php endif; ?>";
+        $out14 = "<?php if (\$errors->has('foo')): ?>\nfoo\n<?php endif; ?>";
 
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
@@ -122,8 +126,10 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($out9, Blade::translate($blade9));
         $this->assertEquals($out10, Blade::translate($blade10));
         $this->assertEquals($out11, Blade::translate($blade11));
+        $this->assertEquals($out12, Blade::translate($blade12));
+        $this->assertEquals($out13, Blade::translate($blade13));
+        $this->assertEquals($out14, Blade::translate($blade14));
     }
-
 
     public function testErrorAndEnderrorAreCompiledCorrectly()
     {

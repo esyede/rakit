@@ -34,6 +34,10 @@ class Blade
         'endunless',
         'error',
         'enderror',
+        'guest',
+        'endguest',
+        'auth',
+        'endauth',
         'include',
         'render_each',
         'render',
@@ -393,6 +397,54 @@ class Blade
     protected static function compile_enderror($value)
     {
         return str_replace('@enderror', '<?php endif; ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @guest ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_guest($value)
+    {
+        return str_replace('@guest', '<?php if (Auth::guest()): ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @endguest ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_endguest($value)
+    {
+        return str_replace('@endguest', '<?php endif; ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @auth ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_auth($value)
+    {
+        return str_replace('@auth', '<?php if (Auth::check()): ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @endauth ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_endauth($value)
+    {
+        return str_replace('@endauth', '<?php endif; ?>', $value);
     }
 
     /**
