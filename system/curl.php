@@ -592,7 +592,7 @@ class Curl
      * @param mixed $data
      * @param array $files
      *
-     * @return string
+     * @return array
      */
     public static function body_multipart($data, array $files = [])
     {
