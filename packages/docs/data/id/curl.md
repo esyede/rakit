@@ -34,7 +34,7 @@ Kegunaan dari command ini meliputi pemeriksaan konektivitas ke URL dan transfer 
 Selain itu, jenis command ini dapat digunakan dalam berbagai protokol. Curl juga dilengkapi
 dengan [libcurl](https://curl.haxx.se/libcurl), library URL transfer yang bekerja pada sisi klien.
 
->  Jangan lupa untuk menginstall ekstensi [PHP Curl](http://php.net/manual/en/book.curl.php)
+>  Jangan lupa untuk menginstall ekstensi [PHP Curl](https://php.net/manual/en/book.curl.php)
    di server anda jika belum ada.
 
 
@@ -76,7 +76,7 @@ Sekarang, mari kita coba membuat request sederhana menggunakan komponen ini:
 $headers = ['Accept' => 'application/json'];
 $query = ['foo' => 'hello', 'bar' => 'world'];
 
-$response = Curl::post('http://mockbin.com/request', $headers, $query);
+$response = Curl::post('https://mockbin.com/request', $headers, $query);
 
 $response->code;        // berisi http status code
 $response->headers;     // berisi object request headers
@@ -95,7 +95,7 @@ $data = ['name' => 'budi', 'age' => 28];
 
 $body = Curl::body_json($data);
 
-$response = Curl::post('http://mockbin.com/request', $headers, $body);
+$response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
 Dengan method ini, header `'Content-Type'` akan otomatis di set ke `'application/json'`
@@ -112,7 +112,7 @@ $headers = ['Accept' => 'application/json'];
 $data = ['name' => 'budi', 'age' => 28];
 
 $body = Curl::body_form($data);
-$response = Curl::post('http://mockbin.com/request', $headers, $body);
+$response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
 Dengan method ini, header `'Content-Type'` akan otomatis di set ke `'application/x-www-form-urlencoded'`
@@ -130,7 +130,7 @@ $data = ['name' => 'budi', 'age' => 28];
 
 $body = Curl::body_multipart($data);
 
-$response = Curl::post('http://mockbin.com/request', $headers, $body);
+$response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
 Dengan method ini, header `'Content-Type'` akan otomatis di set ke `'multipart/form-data'`
@@ -149,7 +149,7 @@ $files = ['bio' => '/path/to/bio.json', 'avatar' => '/path/to/avatar.jpg'];
 
 $body = Curl::body_multipart($data, $files);
 
-$response = Curl::post('http://mockbin.com/request', $headers, $body);
+$response = Curl::post('https://mockbin.com/request', $headers, $body);
  ```
 
 Tetapi jika anda ingin menyesuaikan lebih lanjut properti file yang diunggah,
@@ -164,7 +164,7 @@ $body = [
     'avatar' => Curl::body_file('/path/to/avatar.jpg', 'budi.jpg'),
 ];
 
-$response = Curl::post('http://mockbin.com/request', $headers, $body);
+$response = Curl::post('https://mockbin.com/request', $headers, $body);
  ```
 
 > Pada contoh di atas, kita tidak menggunakan method `body_multipart()`,
@@ -182,7 +182,7 @@ dan juga dengan `Content-Type` kustom seperti berikut:
 $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/x-php-serialized'];
 $body = serialize(['foo' => 'hello', 'bar' => 'world']);
 
-$response = Curl::post('http://mockbin.com/request', $headers, $body);
+$response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
 <a id="otentikasi"></a>
@@ -205,14 +205,14 @@ Berikut adalah daftar metode otentikasi yang didukung:
 | Method               | Description                                                                                                                                                                                                     |
 | -------------------- | ----------------------------------------------------------------------------------|
 | `CURLAUTH_BASIC`     | HTTP Basic auth (default)                                                         |
-| `CURLAUTH_DIGEST`    | HTTP Digest auth ([RFC 2617](http://www.ietf.org/rfc/rfc2617.txt))                |
+| `CURLAUTH_DIGEST`    | HTTP Digest auth ([RFC 2617](https://www.ietf.org/rfc/rfc2617.txt))                |
 | `CURLAUTH_DIGEST_IE` | HTTP Digest auth IE (Internet Explorer)                                           |
-| `CURLAUTH_NEGOTIATE` | HTTP Negotiate (SPNEGO) auth ([RFC 4559](http://www.ietf.org/rfc/rfc4559.txt))    |
+| `CURLAUTH_NEGOTIATE` | HTTP Negotiate (SPNEGO) auth ([RFC 4559](https://www.ietf.org/rfc/rfc4559.txt))    |
 | `CURLAUTH_NTLM`      | HTTP NTLM auth (Microsoft)                                                        |
-| `CURLAUTH_NTLM_WB`   | NTLM WinBind ([dokumentasi](http://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)) |
-| `CURLAUTH_ANY`       | Lihat: [dokumentasi](http://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
-| `CURLAUTH_ANYSAFE`   | Lihat: [dokumentasi](http://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
-| `CURLAUTH_ONLY`      | Lihat: [dokumentasi](http://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
+| `CURLAUTH_NTLM_WB`   | NTLM WinBind ([dokumentasi](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)) |
+| `CURLAUTH_ANY`       | Lihat: [dokumentasi](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
+| `CURLAUTH_ANYSAFE`   | Lihat: [dokumentasi](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
+| `CURLAUTH_ONLY`      | Lihat: [dokumentasi](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
 
 
  > Jika anda megoper lebih dari satu metode otentikasi (menggunakan bitmask operator misalnya),
@@ -291,7 +291,7 @@ Anda juga dapat mengatur proxy untuk request. Tipe proxy yang dapat digunakan an
 `CURLPROXY_SOCKS5`, `CURLPROXY_SOCKS4A`, dan `CURLPROXY_SOCKS5_HOSTNAME`.
 
  > Panduan lengkap mengenai tipe proxy bisa dilihat pada
-   halaman [dokumentasi cURL](http://curl.haxx.se/libcurl/c/CURLOPT_PROXYTYPE.html)
+   halaman [dokumentasi cURL](https://curl.haxx.se/libcurl/c/CURLOPT_PROXYTYPE.html)
 
 ```php
 // Set proxy dengan port 1080 (port default)
