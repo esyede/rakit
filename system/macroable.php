@@ -63,7 +63,7 @@ trait Macroable
      * Invoke static.
      *
      * @param string $method
-     * @param array $parameters
+     * @param array  $parameters
      *
      * @return mixed
      */
@@ -86,7 +86,7 @@ trait Macroable
      * Invoke object.
      *
      * @param string $method
-     * @param array $parameters
+     * @param array  $parameters
      *
      * @return mixed
      */

@@ -157,7 +157,7 @@ class Packager extends Command
 
         $remotes = $this->repository->search($names[0]);
         $local = path('package').$names[0].DS.'meta.json';
-        $latest = $remotes['compatibilities'][RAKIT_VERSION];
+        $latest = $remotes['compatibilities']['v'.RAKIT_VERSION];
         $current = 0;
 
         if (is_file($local)) {
@@ -250,7 +250,7 @@ class Packager extends Command
         $data = [
             'name' => $remotes['name'],
             'description' => $remotes['description'],
-            'version' => $remotes['compatibilities'][RAKIT_VERSION],
+            'version' => $remotes['compatibilities']['v'.RAKIT_VERSION],
         ];
 
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);

@@ -4,7 +4,6 @@ namespace System\Console\Commands\Package\Providers;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Curl;
 use System\Storage;
 
 abstract class Provider

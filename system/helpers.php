@@ -101,7 +101,7 @@ if (! function_exists('__')) {
      */
     function __($key, array $replacements = [], $language = null)
     {
-        return Lang::line($key, $replacements, $language);
+        return Lang::has($key) ? Lang::line($key, $replacements, $language) : $key;
     }
 }
 

@@ -811,7 +811,7 @@ class Str
      */
     public static function ends_with($haystack, $needle)
     {
-        return ('' !== $needle && ((string) $needle === substr($haystack, - mb_strlen($needle, '8bit'))));
+        return ('' !== $needle && ((string) $needle === substr($haystack, -mb_strlen($needle, '8bit'))));
     }
 
     /**

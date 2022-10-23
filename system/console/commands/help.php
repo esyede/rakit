@@ -14,7 +14,7 @@ class Help extends Command
      */
     public function run()
     {
-        echo 'Rakit Console '.RAKIT_VERSION.PHP_EOL;
+        echo 'Rakit Console v'.RAKIT_VERSION.PHP_EOL;
         echo PHP_EOL;
 
         echo 'Usage:'.PHP_EOL;

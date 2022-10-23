@@ -28,7 +28,6 @@ class Job extends Event
         ]);
 
         static::log(sprintf('Job added: %s - #%s', $name, $id));
-        return;
     }
 
     /**

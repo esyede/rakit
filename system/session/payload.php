@@ -46,7 +46,7 @@ class Payload
     }
 
     /**
-     * Ambil semua data session
+     * Ambil semua data session.
      *
      * @return array
      */

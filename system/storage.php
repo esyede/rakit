@@ -173,7 +173,7 @@ class Storage
         static::rmdir($from);
     }
 
-/**
+    /**
      * Copy file ke lokasi baru.
      *
      * @param string $path
@@ -200,27 +200,27 @@ class Storage
      * @param int    $options
      */
     public static function cpdir($directory, $destination, $options = \FilesystemIterator::SKIP_DOTS)
-        {
-            if (! static::isdir($directory)) {
-                throw new \Exception(sprintf('Source folder does not exists: %s', $directory));
-            }
+    {
+        if (! static::isdir($directory)) {
+            throw new \Exception(sprintf('Source folder does not exists: %s', $directory));
+        }
 
-            if (! static::isdir($destination)) {
-                static::mkdir($destination, 0755);
-            }
+        if (! static::isdir($destination)) {
+            static::mkdir($destination, 0755);
+        }
 
-            $items = new \FilesystemIterator($directory, $options);
+        $items = new \FilesystemIterator($directory, $options);
 
-            foreach ($items as $item) {
-                $target = $destination.DS.$item->getBasename();
+        foreach ($items as $item) {
+            $target = $destination.DS.$item->getBasename();
 
-                if ($item->isDir()) {
-                    static::cpdir($item->getPathname(), $target, $options);
-                } else {
-                    static::copy($item->getPathname(), $target);
-                }
+            if ($item->isDir()) {
+                static::cpdir($item->getPathname(), $target, $options);
+            } else {
+                static::copy($item->getPathname(), $target);
             }
         }
+    }
 
     /**
      * Hapus sebuah direktori.
