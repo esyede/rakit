@@ -101,7 +101,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $response = Curl::get('http://mockbin.com/request?name=Budi', [
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ], ['age' => 28]);
 
         $this->assertEquals(200, $response->code);
@@ -113,7 +113,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testGetMultidimensionalArray()
     {
         $response = Curl::get('http://mockbin.com/request', [
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ], ['key' => 'value', 'items' => ['item1', 'item2']]);
 
         $this->assertEquals(200, $response->code);
@@ -126,7 +126,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testGetWithDots()
     {
         $response = Curl::get('http://mockbin.com/request', [
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ], ['user.name' => 'Budi', 'age' => 28]);
 
         $this->assertEquals(200, $response->code);
@@ -138,7 +138,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testGetWithDotsAlt()
     {
         $response = Curl::get('http://mockbin.com/request', [
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ], ['user.name' => 'Budi Purnomo', 'age' => 28]);
 
         $this->assertEquals(200, $response->code);
@@ -146,10 +146,11 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Budi Purnomo', $response->body->queryString->{'user.name'});
         $this->assertEquals(28, $response->body->queryString->age);
     }
+
     public function testGetWithEqualSign()
     {
         $response = Curl::get('http://mockbin.com/request', [
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ], ['name' => 'Budi=Hello']);
 
         $this->assertEquals(200, $response->code);
@@ -160,7 +161,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testGetWithEqualSignAlt()
     {
         $response = Curl::get('http://mockbin.com/request', [
-            'Accept' => 'application/json'
+            'Accept' => 'application/json',
         ], ['name' => 'Budi=Hello=Dewi']);
 
         $this->assertEquals(200, $response->code);
