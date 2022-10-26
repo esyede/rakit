@@ -381,10 +381,10 @@ class Requester
      *
      * <code>
      *
-     *    Requester::HEADER_CLIENT_IP:    (default: X-Forwarded-For, lihat getClientIp())
-     *    Requester::HEADER_CLIENT_HOST:  (default: X-Forwarded-Host, lihat getClientHost())
-     *    Requester::HEADER_CLIENT_PORT:  (default: X-Forwarded-Port, lihat getClientPort())
-     *    Requester::HEADER_CLIENT_PROTO: (default: X-Forwarded-Proto, lihat getScheme() and isSecure())
+     *    Requester::HEADER_CLIENT_IP:    (default: X-Forwarded-For,   lihat getClientIp())
+     *    Requester::HEADER_CLIENT_HOST:  (default: X-Forwarded-Host,  lihat getClientHost())
+     *    Requester::HEADER_CLIENT_PORT:  (default: X-Forwarded-Port,  lihat getClientPort())
+     *    Requester::HEADER_CLIENT_PROTO: (default: X-Forwarded-Proto, lihat getScheme() dan isSecure())
      *
      * </code>
      *
