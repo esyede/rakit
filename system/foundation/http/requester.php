@@ -372,7 +372,7 @@ class Requester
     public static function setTrustedProxies(array $proxies)
     {
         self::$trustedProxies = $proxies;
-        self::$trustProxy = empty($proxies) ? false : true;
+        self::$trustProxy = count($proxies) > 0;
     }
 
     /**
