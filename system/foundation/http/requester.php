@@ -1199,7 +1199,7 @@ class Requester
     {
         $requestUri = '';
 
-        if ($this->headers->has('X_ORIGINAL_URL')
+        if ($this->headers->has('X-Original-URL')
         && false !== stripos(PHP_OS, 'WIN')) {
             $requestUri = $this->headers->get('X-Original-URL');
         } elseif ($this->headers->has('X-Rewrite-URL')
