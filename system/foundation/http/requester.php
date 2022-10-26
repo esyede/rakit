@@ -124,7 +124,7 @@ class Requester
     {
         $request = new static($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
 
-        $type = $request->headers->get('CONTENT_TYPE');
+        $type = $request->headers->get('Content-Type');
         $method = strtoupper($request->server->get('REQUEST_METHOD', 'GET'));
 
         if (0 === strpos($type, 'application/x-www-form-urlencoded')
@@ -795,7 +795,7 @@ class Requester
         && $host = $this->headers->get($clientHost)) {
             $elements = explode(',', $host);
             $host = $elements[count($elements) - 1];
-        } elseif (! $host = $this->headers->get('HOST')) {
+        } elseif (! $host = $this->headers->get('Host')) {
             if (! $host = $this->server->get('SERVER_NAME')) {
                 $host = $this->server->get('SERVER_ADDR', '');
             }
@@ -834,7 +834,7 @@ class Requester
             if ('POST' === $this->method) {
                 $method = $this->query->get('_method', 'POST');
                 $method = $this->request->get('_method', $method);
-                $method = $this->headers->get('X-HTTP-METHOD-OVERRIDE', $method);
+                $method = $this->headers->get('X-Http-Method-Override', $method);
                 $this->method = strtoupper($method);
             }
         }
@@ -930,7 +930,7 @@ class Requester
      */
     public function getContentType()
     {
-        return $this->getFormat($this->headers->get('CONTENT_TYPE'));
+        return $this->getFormat($this->headers->get('Content-Type'));
     }
 
     /**
@@ -1022,7 +1022,7 @@ class Requester
      */
     public function getETags()
     {
-        return preg_split('/\s*,\s*/', $this->headers->get('if_none_match'), null, PREG_SPLIT_NO_EMPTY);
+        return preg_split('/\s*,\s*/', $this->headers->get('If-None-Match'), null, PREG_SPLIT_NO_EMPTY);
     }
 
     /**
@@ -1201,10 +1201,10 @@ class Requester
 
         if ($this->headers->has('X_ORIGINAL_URL')
         && false !== stripos(PHP_OS, 'WIN')) {
-            $requestUri = $this->headers->get('X_ORIGINAL_URL');
-        } elseif ($this->headers->has('X_REWRITE_URL')
+            $requestUri = $this->headers->get('X-Original-URL');
+        } elseif ($this->headers->has('X-Rewrite-URL')
         && false !== stripos(PHP_OS, 'WIN')) {
-            $requestUri = $this->headers->get('X_REWRITE_URL');
+            $requestUri = $this->headers->get('X-Rewrite-URL');
         } elseif ('1' === $this->server->get('IIS_WasUrlRewritten')
         && '' !== $this->server->get('UNENCODED_URL')) {
             $requestUri = $this->server->get('UNENCODED_URL');
