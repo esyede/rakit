@@ -47,7 +47,6 @@ $GLOBALS['rakit_paths']['base'] = __DIR__.DS;
 // --------------------------------------------------------------
 foreach ($paths as $name => $path) {
     if (! isset($GLOBALS['rakit_paths'][$name])) {
-
         if ('rakit_key' === $name) {
             $path = $GLOBALS['rakit_paths']['base'].$path;
         } else {
@@ -85,4 +84,18 @@ function path($path)
 function set_path($path, $value)
 {
     $GLOBALS['rakit_paths'][$path] = $value;
+}
+
+/**
+ * Polyfill untuk atribut #[\ReturnTypeWillChange]
+ */
+if (PHP_VERSION_ID < 80100) {
+    #[Attribute(Attribute::TARGET_METHOD)]
+    final class ReturnTypeWillChange
+    {
+        public function __construct()
+        {
+            //..
+        }
+    }
 }
