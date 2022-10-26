@@ -1199,14 +1199,8 @@ class Requester
     {
         $requestUri = '';
 
-        if ($this->headers->has('X-Original-URL')
-        && false !== stripos(PHP_OS, 'WIN')) {
-            $requestUri = $this->headers->get('X-Original-URL');
-        } elseif ($this->headers->has('X-Rewrite-URL')
-        && false !== stripos(PHP_OS, 'WIN')) {
-            $requestUri = $this->headers->get('X-Rewrite-URL');
-        } elseif ('1' === $this->server->get('IIS_WasUrlRewritten')
-        && '' !== $this->server->get('UNENCODED_URL')) {
+        if ('1' === (string) $this->server->get('IIS_WasUrlRewritten')
+        && '' !== (string) $this->server->get('UNENCODED_URL')) {
             $requestUri = $this->server->get('UNENCODED_URL');
         } elseif ($this->server->has('REQUEST_URI')) {
             $requestUri = $this->server->get('REQUEST_URI');
