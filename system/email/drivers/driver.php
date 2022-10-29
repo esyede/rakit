@@ -872,7 +872,7 @@ abstract class Driver
     protected static function standardize($string, $newline = null)
     {
         $config = Config::get('email');
-        $newline = $newline ? $newline : (isset($config['email.newline']) ? $config['email.newline'] : "\n");
+        $newline = $newline ? $newline : (isset($config['newline']) ? $config['newline'] : "\n");
         $replace = ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n", "\n" => $newline];
 
         foreach ($replace as $from => $to) {
@@ -894,7 +894,7 @@ abstract class Driver
     protected static function encode_string($string, $encoding, $newline = null)
     {
         $config = Config::get('email');
-        $newline = $newline ? $newline : (isset($config['email.newline']) ? $config['email.newline'] : "\n");
+        $newline = $newline ? $newline : (isset($config['newline']) ? $config['newline'] : "\n");
 
         switch ($encoding) {
             case '7bit':
