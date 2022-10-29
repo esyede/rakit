@@ -31,7 +31,7 @@
         <p>{{ __('home.resources.text') }}</p>
         <ul class="none">
             <li><a href="https://rakit.esyede.my.id" target="_blank">{{ __('home.links.site') }}</a></li>
-            <li><a href="https://rakit.esyede.my.id/api/{{ RAKIT_VERSION }}/index.html" target="_blank">{{ __('home.links.api') }}</a></li>
+            <li><a href="https://rakit.esyede.my.id/api/v{{ RAKIT_VERSION }}/index.html" target="_blank">{{ __('home.links.api') }}</a></li>
             <li><a href="https://rakit.esyede.my.id/repositories" target="_blank">{{ __('home.links.repos') }}</a></li>
             <li><a href="https://rakit.esyede.my.id/forum" target="_blank">{{ __('home.links.forum') }}</a></li>
             <li><a href="https://github.com/esyede/rakit">{{ __('home.links.source') }}</a></li>
