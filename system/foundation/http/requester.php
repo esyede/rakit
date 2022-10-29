@@ -1145,7 +1145,7 @@ class Requester
      */
     public function isXmlHttpRequest()
     {
-        return 'xmlhttprequest' === strtolower((string)  $this->headers->get('X-Requested-With'));
+        return 'xmlhttprequest' === strtolower((string) $this->headers->get('X-Requested-With'));
     }
 
     /**

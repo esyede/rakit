@@ -674,7 +674,7 @@ class Curl
         $formatted = [];
 
         foreach ($headers as $key => $value) {
-            $formatted[] = trim(strtolower((string)  $key)).': '.$value;
+            $formatted[] = trim(strtolower((string) $key)).': '.$value;
         }
 
         if (! array_key_exists('user-agent', $headers)) {

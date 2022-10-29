@@ -86,7 +86,7 @@ class Autoloader
     protected static function load_psr($class, $directory = null)
     {
         $file = str_replace(['\\', '_', '/'], DS, $class);
-        $lowercased = strtolower((string)  $file);
+        $lowercased = strtolower((string) $file);
         $directories = $directory ? (array) $directory : static::$directories;
 
         foreach ($directories as $directory) {

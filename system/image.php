@@ -422,7 +422,7 @@ class Image
             throw new \Exception(sprintf('Watermark file does not exists: %s', $watermark));
         }
 
-        $extension = strtolower((string)  Storage::extension($watermark));
+        $extension = strtolower((string) Storage::extension($watermark));
 
         switch ($extension) {
             case 'jpg':

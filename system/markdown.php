@@ -631,7 +631,7 @@ class Markdown
         $pattern = '/^<(\w[\w-]*)(?:[ ]*'.$this->attrs.')*[ ]*(\/)?>/';
 
         if (preg_match($pattern, $tag['text'], $matches)) {
-            $element = strtolower((string)  $matches[1]);
+            $element = strtolower((string) $matches[1]);
 
             if (in_array($element, $this->formattings)) {
                 return;
@@ -701,7 +701,7 @@ class Markdown
                 $data['title'] = $matches[3];
             }
 
-            $this->definitions['reference'][strtolower((string)  $matches[1])] = $data;
+            $this->definitions['reference'][strtolower((string) $matches[1])] = $data;
             return ['hidden' => true];
         }
     }
@@ -912,10 +912,10 @@ class Markdown
         } else {
             if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches)) {
                 $definition = mb_strlen((string) $matches[1], '8bit') ? $matches[1] : $elem['text'];
-                $definition = strtolower((string)  $definition);
+                $definition = strtolower((string) $definition);
                 $extent += mb_strlen((string) $matches[0], '8bit');
             } else {
-                $definition = strtolower((string)  $elem['text']);
+                $definition = strtolower((string) $elem['text']);
             }
 
             if (! isset($this->definitions['reference'][$definition])) {
@@ -1137,6 +1137,6 @@ class Markdown
         $len = mb_strlen((string) $needle, '8bit');
         return ($len > mb_strlen((string) $string, '8bit'))
             ? false
-            : strtolower((string)  substr((string) $string, 0, $len)) === strtolower((string)  $needle);
+            : strtolower((string) substr((string) $string, 0, $len)) === strtolower((string) $needle);
     }
 }
