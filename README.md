@@ -44,7 +44,7 @@ dengan cara yang lebih mudah dan efisien.
 
 ## Kebutuhan Sistem
 
-- PHP 5.4.0 sampai 8.0
+- PHP 5.4.0 sampai 8
 - Ekstensi [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
 - Ekstensi [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
 - Ekstensi [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
