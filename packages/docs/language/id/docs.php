@@ -23,6 +23,7 @@ return [
         'repositories' => 'Repositori',
         'forum' => 'Forum',
         'vcs' => 'Github',
+        'search' => 'Cari...',
     ],
     'content' => [
         'edit' => 'Edit',
