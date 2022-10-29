@@ -17,7 +17,7 @@ $iterator = Finder::create()
 
 $versions = GitVersionCollection::create(__DIR__.DS.'system')
     ->add('master', 'master')
-    ->add(RAKIT_VERSION, RAKIT_VERSION);
+    ->add('v'.RAKIT_VERSION, 'v'.RAKIT_VERSION);
 
 return new Doctum($iterator, [
     'title' => 'API',
