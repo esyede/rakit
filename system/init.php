@@ -24,7 +24,7 @@ if (is_file($path = path('rakit_key'))) {
         exit;
     }
 
-    if (strlen((string) $path) < 10) {
+    if (strlen((string) require $path) < 10) {
         http_response_code(500);
         require $dir.'too-short.phtml';
 
