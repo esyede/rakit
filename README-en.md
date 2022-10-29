@@ -27,7 +27,7 @@ in an easier and more efficient way.
 ## Features
 
 - Relatively small size (< 1MB includes offline documentation).
-- Runs on PHP 5.4.0 to PHP 8.0
+- Runs on PHP 5.4.0 to PHP 8
 - Can be used with or without [Composer](https://getcomposer.org).
 - Routing via Closure and Controller (MVC).
 - View and templating (native / blade).

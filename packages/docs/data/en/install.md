@@ -2,23 +2,23 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [System Requirements](#kebutuhan-sistem)
-- [Installation](#instalasi)
-    - [Install via Composer](#instal-via-composer)
-    - [Manual Installation](#install-manual)
-- [Problems?](#ada-kesulitan)
-- [Initial Configuration](#konfigurasi-awal)
-- [Pretty URL](#mempercantik-url)
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
+    - [Install via Composer](#install-via-composer)
+    - [Manual Installation](#manual-installation)
+- [Problems?](#problems)
+- [Initial Configuration](#initial-configuration)
+- [Pretty URL](#pretty-url)
     - [Apache](#apache)
     - [Nginx](#nginx)
 
 <!-- /MarkdownTOC -->
 
 
-<a id="kebutuhan-sistem"></a>
+<a id="system-requirements"></a>
 ## System Requirements
 
-- PHP 5.4.0 to PHP 8.0 (PHP 8.1+ not supported yet)
+- PHP 5.4.0 to PHP 8
 - [Mbstring](https://www.php.net/manual/en/book.mbstring.php) Extension
 - [OpenSSL](https://www.php.net/manual/en/book.openssl.php) Extension
 - [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) Extension
@@ -35,14 +35,14 @@ Installing the following extensions will help you get the full benefit of rakit,
 - [GD Image](https://www.php.net/manual/en/book.image.php) extension for image processing.
 
 
-<a id="instalasi"></a>
+<a id="installation"></a>
 ## Installation
 
 Rakit can be installed in 2 very easy ways, namely via [Composer](https://getcomposer.org) and manual installation.
 
 
 
-<a id="instal-via-composer"></a>
+<a id="install-via-composer"></a>
 ### Install via Composer
 
 If you have already installed **Composer** on your computer, installing rakit will be
@@ -62,7 +62,7 @@ cd rakit && php rakit serve
 ```
 
 
-<a id="install-manual"></a>
+<a id="manual-installation"></a>
 ### Manual Installation
 
 Manual installation is also very easy, as easy as counting one to three:
@@ -79,7 +79,7 @@ Get ready, there's a lot more to learn!
 
 
 
-<a id="ada-kesulitan"></a>
+<a id="problems"></a>
 ## Problems?
 
 If you're having trouble installing, try some of these suggestions:
@@ -92,7 +92,7 @@ If you're having trouble installing, try some of these suggestions:
 
 
 
-<a id="konfigurasi-awal"></a>
+<a id="initial-configuration"></a>
 ## Initial Configuration
 
 All configuration files are stored in the `config/` folder.
@@ -108,7 +108,7 @@ contains basic configuration options for your application.
   in `application/config/application.php` to an empty string.
 
 
-<a id="mempercantik-url"></a>
+<a id="pretty-url"></a>
 ## Pretty URL
 
 When you are ready to install your application to a production server,
