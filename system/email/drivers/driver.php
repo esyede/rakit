@@ -686,7 +686,7 @@ abstract class Driver
      */
     protected function encode($header)
     {
-        $encoding = ('quoted-printable' === $this->config['encoding']) ? 'Q' : 'B' ;
+        $encoding = ('quoted-printable' === $this->config['encoding']) ? 'Q' : 'B';
         return mb_encode_mimeheader($header, 'utf-8', $encoding, $this->config['newline']);
     }
 
