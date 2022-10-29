@@ -12,7 +12,7 @@ if (! function_exists('e')) {
      */
     function e($value)
     {
-        return htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+        return htmlentities((string) $value, ENT_QUOTES, 'UTF-8', false);
     }
 }
 
@@ -115,7 +115,7 @@ if (! function_exists('is_cli')) {
     {
         return defined('STDIN')
             || 'cli' === php_sapi_name()
-            || ('cgi' === substr(PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
+            || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
     }
 }
 
@@ -731,7 +731,7 @@ if (! function_exists('class_basename')) {
     function class_basename($class)
     {
         $class = is_object($class) ? get_class($class) : $class;
-        return basename(str_replace('\\', '/', $class));
+        return basename(str_replace('\\', '/', (string) $class));
     }
 }
 
@@ -977,7 +977,7 @@ if (! function_exists('get_cli_option')) {
         if (is_array($arguments)) {
             foreach ($arguments as $argument) {
                 if (Str::starts_with($argument, '--'.$option.'=')) {
-                    return substr($argument, mb_strlen($option, '8bit') + 3);
+                    return substr((string) $argument, mb_strlen((string) $option, '8bit') + 3);
                 }
             }
         }

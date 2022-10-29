@@ -189,7 +189,7 @@ abstract class Controller
      */
     protected static function load($package, $controller)
     {
-        $controller = strtolower(str_replace(['.', '/'], DS, $controller));
+        $controller = strtolower((string) str_replace(['.', '/'], DS, $controller));
         $controller = Package::path($package).'controllers'.DS.$controller.'.php';
 
         if (is_file($controller)) {
@@ -253,7 +253,7 @@ abstract class Controller
      */
     public function response($method, array $parameters = [])
     {
-        $action = $this->restful ? strtolower(Request::method()).'_'.$method : 'action_'.$method;
+        $action = $this->restful ? strtolower((string) Request::method()).'_'.$method : 'action_'.$method;
         $response = call_user_func_array([$this, $action], $parameters);
 
         return (is_null($response) && ! is_null($this->layout)) ? $this->layout : $response;
@@ -317,7 +317,7 @@ abstract class Controller
     public function layout()
     {
         return Str::starts_with($this->layout, 'name: ')
-            ? View::of(substr($this->layout, 6))
+            ? View::of(substr((string) $this->layout, 6))
             : View::make($this->layout);
     }
 

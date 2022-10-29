@@ -8,7 +8,7 @@ class Ean
 {
     public static function checksum($digits)
     {
-        $length = mb_strlen($digits, '8bit');
+        $length = mb_strlen((string) $digits, '8bit');
         $even = 0;
 
         for ($i = $length - 1; $i >= 0; $i -= 2) {
@@ -30,6 +30,6 @@ class Ean
             return false;
         }
 
-        return self::checksum(substr($ean, 0, -1)) === (int) substr($ean, -1);
+        return self::checksum(substr((string) $ean, 0, -1)) === (int) substr((string) $ean, -1);
     }
 }

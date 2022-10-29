@@ -67,7 +67,7 @@ class Cookie
         if ('' === $sameSite) {
             $sameSite = null;
         } elseif (null !== $sameSite) {
-            $sameSite = strtolower($sameSite);
+            $sameSite = strtolower((string) $sameSite);
         }
 
         if (! in_array($sameSite, ['lax', 'strict', 'none', null], true)) {

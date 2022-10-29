@@ -128,7 +128,7 @@ class Lorem extends Base
                 while ($size < $maxNbChars) {
                     $word = ($size ? ' ' : '').static::word();
                     $text[] = $word;
-                    $size += mb_strlen($word, '8bit');
+                    $size += mb_strlen((string) $word, '8bit');
                 }
 
                 array_pop($text);
@@ -143,7 +143,7 @@ class Lorem extends Base
                 while ($size < $maxNbChars) {
                     $sentence = ($size ? ' ' : '').static::sentence();
                     $text[] = $sentence;
-                    $size += mb_strlen($sentence, '8bit');
+                    $size += mb_strlen((string) $sentence, '8bit');
                 }
 
                 array_pop($text);
@@ -155,7 +155,7 @@ class Lorem extends Base
                 while ($size < $maxNbChars) {
                     $paragraph = ($size ? "\n" : '').static::paragraph();
                     $text[] = $paragraph;
-                    $size += mb_strlen($paragraph, '8bit');
+                    $size += mb_strlen((string) $paragraph, '8bit');
                 }
 
                 array_pop($text);

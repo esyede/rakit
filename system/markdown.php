@@ -160,7 +160,7 @@ class Markdown
 
         while ($excerpt = strpbrk($text, $this->markers)) {
             $marker = $excerpt[0];
-            $pos = strpos($text, $marker);
+            $pos = strpos((string) $text, $marker);
             $not = ['text' => $excerpt, 'context' => $text];
 
             foreach ($this->inlines[$marker] as $inline) {
@@ -186,15 +186,15 @@ class Markdown
                     $rows['element']['non_nestables'][] = $item;
                 }
 
-                $markup .= $this->unmarked(substr($text, 0, $rows['position']));
+                $markup .= $this->unmarked(substr((string) $text, 0, $rows['position']));
                 $markup .= isset($rows['markup']) ? $rows['markup'] : $this->element($rows['element']);
-                $text = substr($text, $rows['position'] + $rows['extent']);
+                $text = substr((string) $text, $rows['position'] + $rows['extent']);
 
                 continue 2;
             }
 
-            $markup .= $this->unmarked(substr($text, 0, $pos + 1));
-            $text = substr($text, $pos + 1);
+            $markup .= $this->unmarked(substr((string) $text, 0, $pos + 1));
+            $text = substr((string) $text, $pos + 1);
         }
 
         return $markup.$this->unmarked($text);
@@ -265,13 +265,13 @@ class Markdown
                 continue;
             }
 
-            if (false !== strpos($attri, "\t")) {
+            if (false !== strpos((string) $attri, "\t")) {
                 $parts = explode("\t", $attri);
                 $attri = $parts[0];
                 unset($parts[0]);
 
                 foreach ($parts as $part) {
-                    $attri .= str_repeat(' ', (4 - mb_strlen($attri, 'utf-8') % 4)).$part;
+                    $attri .= str_repeat(' ', (4 - mb_strlen((string) $attri, 'utf-8') % 4)).$part;
                 }
             }
 
@@ -281,7 +281,7 @@ class Markdown
                 ++$indent;
             }
 
-            $text = ($indent > 0) ? substr($attri, $indent) : $attri;
+            $text = ($indent > 0) ? substr((string) $attri, $indent) : $attri;
             $tag = ['body' => $attri, 'indent' => $indent, 'text' => $text];
 
             if (isset($curr['continuable'])) {
@@ -378,7 +378,7 @@ class Markdown
                 'element' => [
                     'name' => 'pre',
                     'handler' => 'element',
-                    'text' => ['name' => 'code', 'text' => substr($tag['body'], 4)],
+                    'text' => ['name' => 'code', 'text' => substr((string) $tag['body'], 4)],
                 ],
             ];
         }
@@ -392,7 +392,7 @@ class Markdown
                 unset($attrib['interrupted']);
             }
 
-            $attrib['element']['text']['text'] .= "\n".substr($tag['body'], 4);
+            $attrib['element']['text']['text'] .= "\n".substr((string) $tag['body'], 4);
             return $attrib;
         }
     }
@@ -446,7 +446,7 @@ class Markdown
             $elem = ['name' => 'code', 'text' => ''];
 
             if (isset($matches[1])) {
-                $language = substr($matches[1], 0, strcspn($matches[1], " \t\n\f\r"));
+                $language = substr((string) $matches[1], 0, strcspn($matches[1], " \t\n\f\r"));
                 $elem['attributes'] = ['class' => 'language-'.$language];
             }
 
@@ -469,7 +469,7 @@ class Markdown
         }
 
         if (preg_match('/^'.$attrib['char'].'{3,}[ ]*$/', $tag['text'])) {
-            $attrib['element']['text']['text'] = substr($attrib['element']['text']['text'], 1);
+            $attrib['element']['text']['text'] = substr((string) $attrib['element']['text']['text'], 1);
             $attrib['complete'] = true;
             return $attrib;
         }
@@ -631,14 +631,14 @@ class Markdown
         $pattern = '/^<(\w[\w-]*)(?:[ ]*'.$this->attrs.')*[ ]*(\/)?>/';
 
         if (preg_match($pattern, $tag['text'], $matches)) {
-            $element = strtolower($matches[1]);
+            $element = strtolower((string)  $matches[1]);
 
             if (in_array($element, $this->formattings)) {
                 return;
             }
 
             $attrib = ['name' => $matches[1], 'depth' => 0, 'markup' => $tag['text']];
-            $remainder = substr($tag['text'], strlen($matches[0]));
+            $remainder = substr((string) $tag['text'], strlen((string) $matches[0]));
 
             if ('' === trim($remainder)) {
                 if (isset($matches[2]) || in_array($matches[1], $this->voids)) {
@@ -701,7 +701,7 @@ class Markdown
                 $data['title'] = $matches[3];
             }
 
-            $this->definitions['reference'][strtolower($matches[1])] = $data;
+            $this->definitions['reference'][strtolower((string)  $matches[1])] = $data;
             return ['hidden' => true];
         }
     }
@@ -712,7 +712,7 @@ class Markdown
             return;
         }
 
-        if (false !== strpos($attr['element']['text'], '|') && '' === chop($tag['text'], ' -:|')) {
+        if (false !== strpos((string) $attr['element']['text'], '|') && '' === chop($tag['text'], ' -:|')) {
             $alignments = [];
             $cells = explode('|', trim(trim($tag['text']), '|'));
 
@@ -729,7 +729,7 @@ class Markdown
                     $alignment = 'left';
                 }
 
-                if (':' === substr($cell, -1)) {
+                if (':' === substr((string) $cell, -1)) {
                     $alignment = ('left' === $alignment) ? 'center' : 'right';
                 }
 
@@ -770,7 +770,7 @@ class Markdown
             return;
         }
 
-        if ('|' === $tag['text'][0] || strpos($tag['text'], '|')) {
+        if ('|' === $tag['text'][0] || strpos((string) $tag['text'], '|')) {
             preg_match_all('/(?:(\\\\[|])|[^|`]|`[^`]+`|`)+/', trim(trim($tag['text']), '|'), $matches);
             $elems = [];
 
@@ -803,17 +803,17 @@ class Markdown
 
         if (preg_match($pattern, $not['text'], $matches)) {
             $text = preg_replace("/[ ]*\n/", ' ', $matches[2]);
-            return ['extent' => mb_strlen($matches[0], '8bit'), 'element' => ['name' => 'code', 'text' => $text]];
+            return ['extent' => mb_strlen((string) $matches[0], '8bit'), 'element' => ['name' => 'code', 'text' => $text]];
         }
     }
 
     protected function inline_mailto(array $not)
     {
-        if (false !== strpos($not['text'], '>')
+        if (false !== strpos((string) $not['text'], '>')
         && preg_match('/^<((mailto:)?\S+?@\S+?)>/i', $not['text'], $matches)) {
             $url = isset($matches[2]) ? $matches[1] : 'mailto:'.$matches[1];
             return [
-                'extent' => mb_strlen($matches[0], '8bit'),
+                'extent' => mb_strlen((string) $matches[0], '8bit'),
                 'element' => ['name' => 'a', 'text' => $matches[1], 'attributes' => ['href' => $url]],
             ];
         }
@@ -836,7 +836,7 @@ class Markdown
         }
 
         return [
-            'extent' => mb_strlen($matches[0], '8bit'),
+            'extent' => mb_strlen((string) $matches[0], '8bit'),
             'element' => ['name' => $emphasis, 'handler' => 'line', 'text' => $matches[1]],
         ];
     }
@@ -854,7 +854,7 @@ class Markdown
             return;
         }
 
-        $not['text'] = substr($not['text'], 1);
+        $not['text'] = substr((string) $not['text'], 1);
         $href = $this->inline_link($not);
 
         if (null === $href) {
@@ -893,8 +893,8 @@ class Markdown
 
         if (preg_match('/\[((?:[^][]++|(?R))*+)\]/', $remainder, $matches)) {
             $elem['text'] = $matches[1];
-            $extent += mb_strlen($matches[0], '8bit');
-            $remainder = substr($remainder, $extent);
+            $extent += mb_strlen((string) $matches[0], '8bit');
+            $remainder = substr((string) $remainder, $extent);
         } else {
             return;
         }
@@ -905,17 +905,17 @@ class Markdown
             $elem['attributes']['href'] = URL::to($matches[1]);
 
             if (isset($matches[2])) {
-                $elem['attributes']['title'] = substr($matches[2], 1, -1);
+                $elem['attributes']['title'] = substr((string) $matches[2], 1, -1);
             }
 
-            $extent += mb_strlen($matches[0], '8bit');
+            $extent += mb_strlen((string) $matches[0], '8bit');
         } else {
             if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches)) {
-                $definition = mb_strlen($matches[1], '8bit') ? $matches[1] : $elem['text'];
-                $definition = strtolower($definition);
-                $extent += mb_strlen($matches[0], '8bit');
+                $definition = mb_strlen((string) $matches[1], '8bit') ? $matches[1] : $elem['text'];
+                $definition = strtolower((string)  $definition);
+                $extent += mb_strlen((string) $matches[0], '8bit');
             } else {
-                $definition = strtolower($elem['text']);
+                $definition = strtolower((string)  $elem['text']);
             }
 
             if (! isset($this->definitions['reference'][$definition])) {
@@ -932,24 +932,24 @@ class Markdown
 
     protected function inline_markup(array $not)
     {
-        if ($this->escaping || $this->safety || false === strpos($not['text'], '>')) {
+        if ($this->escaping || $this->safety || false === strpos((string) $not['text'], '>')) {
             return;
         }
 
         if ('/' === $not['text'][1] && preg_match('/^<\/\w[\w-]*[ ]*>/s', $not['text'], $matches)) {
-            return ['markup' => $matches[0], 'extent' => mb_strlen($matches[0], '8bit')];
+            return ['markup' => $matches[0], 'extent' => mb_strlen((string) $matches[0], '8bit')];
         }
 
         $pattern = '/^<!---?[^>-](?:-?[^-])*-->/s';
 
         if ('!' === $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
-            return ['markup' => $matches[0], 'extent' => mb_strlen($matches[0], '8bit')];
+            return ['markup' => $matches[0], 'extent' => mb_strlen((string) $matches[0], '8bit')];
         }
 
         $pattern = '/^<\w[\w-]*(?:[ ]*'.$this->attrs.')*[ ]*\/?>/s';
 
         if (' ' !== $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
-            return ['markup' => $matches[0], 'extent' => mb_strlen($matches[0], '8bit')];
+            return ['markup' => $matches[0], 'extent' => mb_strlen((string) $matches[0], '8bit')];
         }
     }
 
@@ -976,7 +976,7 @@ class Markdown
 
         if ('~' === $not['text'][1] && preg_match($pattern, $not['text'], $matches)) {
             return [
-                'extent' => mb_strlen($matches[0], '8bit'),
+                'extent' => mb_strlen((string) $matches[0], '8bit'),
                 'element' => ['name' => 'del', 'text' => $matches[1], 'handler' => 'line'],
             ];
         }
@@ -991,7 +991,7 @@ class Markdown
         if (preg_match('/\bhttps?:[\/]{2}[^\s<]+\b\/*/ui', $not['context'], $matches, PREG_OFFSET_CAPTURE)) {
             $url = $matches[0][0];
             return [
-                'extent' => mb_strlen($matches[0][0], '8bit'),
+                'extent' => mb_strlen((string) $matches[0][0], '8bit'),
                 'position' => $matches[0][1],
                 'element' => ['name' => 'a', 'text' => $url, 'attributes' => ['href' => $url]],
             ];
@@ -1002,10 +1002,10 @@ class Markdown
     {
         $pattern = '/^<(\w+:\/{2}[^ >]+)>/i';
 
-        if (false !== strpos($not['text'], '>') && preg_match($pattern, $not['text'], $matches)) {
+        if (false !== strpos((string) $not['text'], '>') && preg_match($pattern, $not['text'], $matches)) {
             $url = $matches[1];
             return [
-                'extent' => mb_strlen($matches[0], '8bit'),
+                'extent' => mb_strlen((string) $matches[0], '8bit'),
                 'element' => ['name' => 'a', 'text' => $url, 'attributes' => ['href' => $url]],
             ];
         }
@@ -1085,9 +1085,9 @@ class Markdown
     {
         $markup = trim($this->lines($lines));
 
-        if (! in_array('', $lines) && '<p>' === substr($markup, 0, 3)) {
-            $markup = substr($markup, 3);
-            $markup = substr_replace($markup, '', strpos($markup, '</p>'), 4);
+        if (! in_array('', $lines) && '<p>' === substr((string) $markup, 0, 3)) {
+            $markup = substr((string) $markup, 3);
+            $markup = substr_replace($markup, '', strpos((string) $markup, '</p>'), 4);
         }
 
         return $markup;
@@ -1134,7 +1134,9 @@ class Markdown
 
     protected static function starts($string, $needle)
     {
-        $len = mb_strlen($needle, '8bit');
-        return ($len > mb_strlen($string, '8bit')) ? false : strtolower(substr($string, 0, $len)) === strtolower($needle);
+        $len = mb_strlen((string) $needle, '8bit');
+        return ($len > mb_strlen((string) $string, '8bit'))
+            ? false
+            : strtolower((string)  substr((string) $string, 0, $len)) === strtolower((string)  $needle);
     }
 }

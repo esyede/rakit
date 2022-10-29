@@ -129,10 +129,10 @@ class Payment extends Base
         $number .= Luhn::computeCheckDigit($number);
 
         if ($formatted) {
-            $p1 = substr($number, 0, 4);
-            $p2 = substr($number, 4, 4);
-            $p3 = substr($number, 8, 4);
-            $p4 = substr($number, 12);
+            $p1 = substr((string) $number, 0, 4);
+            $p2 = substr((string) $number, 4, 4);
+            $p3 = substr((string) $number, 8, 4);
+            $p4 = substr((string) $number, 12);
             $number = $p1.$separator.$p2.$separator.$p3.$separator.$p4;
         }
 
@@ -163,7 +163,7 @@ class Payment extends Base
 
     protected static function iban($countryCode, $prefix = '', $length = null)
     {
-        $countryCode = strtoupper($countryCode);
+        $countryCode = strtoupper((string) $countryCode);
         $format = isset(static::$ibanFormats[$countryCode]) ? static::$ibanFormats[$countryCode] : [];
 
         if (null === $length) {
@@ -179,7 +179,7 @@ class Payment extends Base
         }
 
         $result = $prefix;
-        $length -= mb_strlen($prefix, '8bit');
+        $length -= mb_strlen((string) $prefix, '8bit');
         $nextPart = array_shift($format);
 
         if (false !== $nextPart) {
@@ -201,10 +201,10 @@ class Payment extends Base
                 case 'c':
                     $result .= (mt_rand(0, 100) <= 50)
                         ? static::randomDigit()
-                        : strtoupper(static::randomLetter());
+                        : strtoupper((string) static::randomLetter());
                     break;
                 case 'a':
-                    $result .= strtoupper(static::randomLetter());
+                    $result .= strtoupper((string) static::randomLetter());
                     break;
                 case 'n':
                     $result .= static::randomDigit();
@@ -217,7 +217,7 @@ class Payment extends Base
         $tempResult = $result.$countryNumber.'00';
         $checksum = (int) $tempResult[0];
 
-        for ($i = 1, $size = mb_strlen($tempResult, '8bit'); $i < $size; ++$i) {
+        for ($i = 1, $size = mb_strlen((string) $tempResult, '8bit'); $i < $size; ++$i) {
             $checksum = (10 * $checksum + (int) $tempResult[$i]) % 97;
         }
 

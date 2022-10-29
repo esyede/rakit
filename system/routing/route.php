@@ -350,7 +350,7 @@ class Route
      */
     public static function forward($method, $uri)
     {
-        return Router::route(strtoupper($method), $uri)->call();
+        return Router::route(strtoupper((string) $method), $uri)->call();
     }
 
     /**

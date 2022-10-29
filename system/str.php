@@ -50,7 +50,7 @@ class Str
      */
     public static function length($value)
     {
-        return mb_strlen($value, 'UTF-8');
+        return mb_strlen((string) $value, 'UTF-8');
     }
 
     /**
@@ -64,7 +64,7 @@ class Str
      */
     public static function substr($string, $start, $length = null)
     {
-        return mb_substr($string, $start, $length, 'UTF-8');
+        return mb_substr((string) $string, $start, $length, 'UTF-8');
     }
 
     /**
@@ -88,7 +88,7 @@ class Str
      */
     public static function lower($value)
     {
-        return mb_strtolower($value, 'UTF-8');
+        return mb_strtolower((string) $value, 'UTF-8');
     }
 
     /**
@@ -100,7 +100,7 @@ class Str
      */
     public static function upper($value)
     {
-        return mb_strtoupper($value, 'UTF-8');
+        return mb_strtoupper((string) $value, 'UTF-8');
     }
 
     /**
@@ -178,7 +178,7 @@ class Str
             static::$strings = Config::get('strings');
         }
 
-        if (in_array(mb_strtolower($string, 'UTF-8'), static::$strings['uncountable'])) {
+        if (in_array(mb_strtolower((string) $string, 'UTF-8'), static::$strings['uncountable'])) {
             return $string;
         }
 
@@ -212,7 +212,7 @@ class Str
             static::$strings = Config::get('strings');
         }
 
-        if (in_array(mb_strtolower($string, 'UTF-8'), static::$strings['uncountable'])) {
+        if (in_array(mb_strtolower((string) $string, 'UTF-8'), static::$strings['uncountable'])) {
             return $string;
         }
 
@@ -302,10 +302,10 @@ class Str
     {
         $string = '';
 
-        while (($length2 = mb_strlen($string, '8bit')) < $length) {
+        while (($length2 = mb_strlen((string) $string, '8bit')) < $length) {
             $size = $length - $length2;
             $bytes = base64_encode(static::bytes($size));
-            $string .= substr(str_replace(['/', '+', '='], '', $bytes), 0, $size);
+            $string .= substr((string) str_replace(['/', '+', '='], '', $bytes), 0, $size);
         }
 
         return $string;
@@ -341,7 +341,7 @@ class Str
         $bytes = openssl_random_pseudo_bytes($length, $strong);
 
         if (false !== $strong && false !== $bytes) {
-            if ($length === mb_strlen($bytes, '8bit')) {
+            if ($length === mb_strlen((string) $bytes, '8bit')) {
                 return $bytes;
             }
         }
@@ -352,7 +352,7 @@ class Str
             $basedir = ini_get('open_basedir');
 
             if (! empty($basedir)) {
-                $paths = explode(PATH_SEPARATOR, strtolower($basedir));
+                $paths = explode(PATH_SEPARATOR, strtolower((string) $basedir));
                 $urandom = ([] !== array_intersect(['/dev', '/dev/', '/dev/urandom'], $paths));
                 unset($paths);
             }
@@ -364,14 +364,14 @@ class Str
 
                 while ($read < $length) {
                     $local .= fread($file, $length - $read);
-                    $read = mb_strlen($local, '8bit');
+                    $read = mb_strlen((string) $local, '8bit');
                 }
 
                 fclose($file);
                 $bytes = str_pad($bytes, $length, "\0") ^ str_pad($local, $length, "\0");
             }
 
-            if ($read >= $length && $length === mb_strlen($bytes, '8bit')) {
+            if ($read >= $length && $length === mb_strlen((string) $bytes, '8bit')) {
                 return $bytes;
             }
         }
@@ -382,7 +382,7 @@ class Str
             try {
                 $bytes = mcrypt_create_iv($length, (int) MCRYPT_DEV_URANDOM);
 
-                if (false !== $bytes && $length === mb_strlen($bytes, '8bit')) {
+                if (false !== $bytes && $length === mb_strlen((string) $bytes, '8bit')) {
                     return $bytes;
                 }
             } catch (\Throwable $e) {
@@ -401,8 +401,8 @@ class Str
                 do {
                     $bytes .= base64_decode((string) $com->GetRandom($length, 0));
 
-                    if (mb_strlen($bytes, '8bit') >= $length) {
-                        $bytes = (string) mb_substr($bytes, 0, $length, '8bit');
+                    if (mb_strlen((string) $bytes, '8bit') >= $length) {
+                        $bytes = (string) mb_substr((string) $bytes, 0, $length, '8bit');
                     }
 
                     ++$count;
@@ -413,7 +413,7 @@ class Str
                 $bytes = false;
             }
 
-            if ($bytes && is_string($bytes) && $length === mb_strlen($bytes, '8bit')) {
+            if ($bytes && is_string($bytes) && $length === mb_strlen((string) $bytes, '8bit')) {
                 return $bytes;
             }
         }
@@ -525,8 +525,8 @@ class Str
         $default = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $characters = $characters ? $characters : $default;
         $size = ($size > 0) ? $size : 21;
-        $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
-        $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
+        $mask = (2 << (int) (log(strlen((string) $characters) - 1) / M_LN2)) - 1;
+        $step = (int) ceil(1.6 * $mask * $size / strlen((string) $characters));
         $result = '';
 
         while (true) {
@@ -538,7 +538,7 @@ class Str
                 if (isset($characters[$byte])) {
                     $result .= $characters[$byte];
 
-                    if (strlen($result) === $size) {
+                    if (strlen((string) $result) === $size) {
                         return $result;
                     }
                 }
@@ -592,10 +592,10 @@ class Str
             return $subject;
         }
 
-        $position = strpos($subject, $search);
+        $position = strpos((string) $subject, $search);
         return (false === $position)
             ? $subject
-            : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
+            : substr_replace($subject, $replace, $position, mb_strlen((string) $search, '8bit'));
     }
 
     public static function replace_last($search, $replace, $subject)
@@ -604,10 +604,10 @@ class Str
             return $subject;
         }
 
-        $position = strrpos($subject, $search);
+        $position = strrpos((string) $subject, $search);
         return (false === $position)
             ? $subject
-            : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
+            : substr_replace($subject, $replace, $position, mb_strlen((string) $search, '8bit'));
     }
 
     /**
@@ -748,7 +748,7 @@ class Str
         $needles = (array) $needles;
 
         foreach ($needles as $needle) {
-            if ('' !== $needle && false !== mb_strpos($haystack, $needle)) {
+            if ('' !== $needle && false !== mb_strpos((string) $haystack, $needle)) {
                 return true;
             }
         }
@@ -798,7 +798,7 @@ class Str
      */
     public static function starts_with($haystack, $needle)
     {
-        return ('' !== (string) $needle && 0 === strncmp($haystack, $needle, mb_strlen($needle, '8bit')));
+        return ('' !== (string) $needle && 0 === strncmp($haystack, $needle, mb_strlen((string) $needle, '8bit')));
     }
 
     /**
@@ -811,7 +811,9 @@ class Str
      */
     public static function ends_with($haystack, $needle)
     {
-        return ('' !== $needle && ((string) $needle === substr($haystack, -mb_strlen($needle, '8bit'))));
+        return (
+            '' !== $needle
+            && ((string) $needle === substr((string) $haystack, - mb_strlen((string) $needle, '8bit'))));
     }
 
     /**

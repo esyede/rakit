@@ -12,7 +12,7 @@ class Inn
         $sum = 0;
 
         for ($i = 1; $i <= 9; ++$i) {
-            $sum += (int) (substr($inn, $i - 1, 1)) * $multipliers[$i];
+            $sum += (int) (substr((string) $inn, $i - 1, 1)) * $multipliers[$i];
         }
 
         return (string) (($sum % 11) % 10);
@@ -20,6 +20,6 @@ class Inn
 
     public static function isValid($inn)
     {
-        return self::checksum(substr($inn, 0, -1)) === substr($inn, -1, 1);
+        return self::checksum(substr((string) $inn, 0, -1)) === substr((string) $inn, -1, 1);
     }
 }

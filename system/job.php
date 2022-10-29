@@ -187,7 +187,7 @@ class Job extends Event
         }
 
         if (Request::cli()) {
-            echo '['.date('Y-m-d H:i:s').'] ['.strtoupper($type).'] '.$message.PHP_EOL;
+            echo '['.date('Y-m-d H:i:s').'] ['.strtoupper((string) $type).'] '.$message.PHP_EOL;
         }
     }
 }

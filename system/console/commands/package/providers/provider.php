@@ -51,7 +51,7 @@ abstract class Provider
 
         $packages = glob(path('package').$package['name'].'*', GLOB_ONLYDIR);
 
-        if (isset($packages[0]) && basename($packages[0]) !== $package['name']) {
+        if (isset($packages[0]) && basename((string) $packages[0]) !== $package['name']) {
             rename($packages[0], path('package').$package['name']);
         }
 
@@ -109,7 +109,7 @@ abstract class Provider
         $type = curl_getinfo($ch);
         $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
 
-        if (false === strpos($type, 'application/zip')) {
+        if (false === strpos((string) $type, 'application/zip')) {
             echo PHP_EOL.sprintf(
                 "Error: Remote sever sending an invalid content type: '%s', expecting '%s'",
                 $type ? $type : 'null', 'application/zip'

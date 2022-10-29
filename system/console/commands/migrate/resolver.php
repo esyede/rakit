@@ -84,7 +84,7 @@ class Resolver
             require_once $path.$name.'.php';
 
             $prefix = Package::class_prefix($package);
-            $class = $prefix.Str::classify(substr($name, 18));
+            $class = $prefix.Str::classify(substr((string) $name, 18));
             $migration = new $class();
             $instances[] = compact('package', 'name', 'migration');
         }
@@ -112,7 +112,7 @@ class Resolver
         }
 
         foreach ($files as &$file) {
-            $file = Str::replace_last('.php', '', basename($file));
+            $file = Str::replace_last('.php', '', basename((string) $file));
         }
 
         sort($files);

@@ -8,7 +8,7 @@ class Iban
 {
     public static function checksum($iban)
     {
-        $string = substr($iban, 4).substr($iban, 0, 2).'00';
+        $string = substr((string) $iban, 4).substr((string) $iban, 0, 2).'00';
         $string = preg_replace_callback('/[A-Z]/', ['self', 'alphaToNumberCallback'], $string);
         $string = (98 - self::mod97($string));
 
@@ -29,7 +29,7 @@ class Iban
     {
         $checksum = (int) $number[0];
 
-        for ($i = 1, $size = mb_strlen($number, '8bit'); $i < $size; ++$i) {
+        for ($i = 1, $size = mb_strlen((string) $number, '8bit'); $i < $size; ++$i) {
             $checksum = (10 * $checksum + (int) $number[$i]) % 97;
         }
 
@@ -38,6 +38,6 @@ class Iban
 
     public static function isValid($iban)
     {
-        return self::checksum($iban) === substr($iban, 2, 2);
+        return self::checksum($iban) === substr((string) $iban, 2, 2);
     }
 }

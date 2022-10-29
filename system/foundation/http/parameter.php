@@ -74,13 +74,13 @@ class Parameter implements \IteratorAggregate, \Countable
      */
     public function get($path, $default = null, $deep = false)
     {
-        if (! $deep || false === ($pos = strpos($path, '['))) {
+        if (! $deep || false === ($pos = strpos((string) $path, '['))) {
             return array_key_exists($path, $this->parameters)
                 ? $this->parameters[$path]
                 : $default;
         }
 
-        $root = substr($path, 0, $pos);
+        $root = substr((string) $path, 0, $pos);
 
         if (! array_key_exists($root, $this->parameters)) {
             return $default;
@@ -89,7 +89,7 @@ class Parameter implements \IteratorAggregate, \Countable
         $value = $this->parameters[$root];
         $currentKey = null;
 
-        for ($i = $pos, $count = mb_strlen($path, '8bit'); $i < $count; ++$i) {
+        for ($i = $pos, $count = mb_strlen((string) $path, '8bit'); $i < $count; ++$i) {
             $char = $path[$i];
 
             if ('[' === $char) {
@@ -260,6 +260,7 @@ class Parameter implements \IteratorAggregate, \Countable
      *
      * @return \ArrayIterator
      */
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         return new \ArrayIterator($this->parameters);
@@ -270,6 +271,7 @@ class Parameter implements \IteratorAggregate, \Countable
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->parameters);

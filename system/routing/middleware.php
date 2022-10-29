@@ -53,7 +53,7 @@ class Middleware
         }
 
         if (Str::starts_with($name, 'pattern: ')) {
-            $patterns = explode(', ', substr($name, 9));
+            $patterns = explode(', ', substr((string) $name, 9));
 
             foreach ($patterns as $pattern) {
                 static::$patterns[$pattern] = $handler;

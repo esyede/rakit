@@ -177,39 +177,39 @@ class Internet extends Base
     {
         $format = static::randomElement(static::$emailFormats);
 
-        return mb_strtolower($this->generator->parse($format), 'UTF-8');
+        return mb_strtolower((string) $this->generator->parse($format), 'UTF-8');
     }
 
     final public function safeEmail()
     {
         $email = $this->userName().'@'.static::safeEmailDomain();
 
-        return mb_strtolower(preg_replace('/\s/u', '', $email), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public function freeEmail()
     {
         $email = $this->userName().'@'.static::freeEmailDomain();
 
-        return mb_strtolower(preg_replace('/\s/u', '', $email), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public function companyEmail()
     {
         $email = $this->userName().'@'.$this->domainName();
 
-        return mb_strtolower(preg_replace('/\s/u', '', $email), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public static function freeEmailDomain()
     {
-        return mb_strtolower(static::randomElement(static::$freeEmailDomain), 'UTF-8');
+        return mb_strtolower((string) static::randomElement(static::$freeEmailDomain), 'UTF-8');
     }
 
     final public static function safeEmailDomain()
     {
         $domains = ['example.com', 'example.org', 'example.net'];
-        return mb_strtolower(static::randomElement($domains), 'UTF-8');
+        return mb_strtolower((string) static::randomElement($domains), 'UTF-8');
     }
 
     public function userName()

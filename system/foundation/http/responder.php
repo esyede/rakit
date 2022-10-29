@@ -170,8 +170,8 @@ class Responder
 
         if (! $headers->has('Content-Type')) {
             $headers->set('Content-Type', 'text/html; charset='.$charset);
-        } elseif (0 === strpos($headers->get('Content-Type'), 'text/')
-        && false === strpos($headers->get('Content-Type'), 'charset')) {
+        } elseif (0 === strpos((string) $headers->get('Content-Type'), 'text/')
+        && false === strpos((string) $headers->get('Content-Type'), 'charset')) {
             $headers->set('Content-Type', $headers->get('Content-Type').'; charset='.$charset);
         }
 
@@ -717,7 +717,7 @@ class Responder
         if (null === $etag) {
             $this->headers->remove('Etag');
         } else {
-            if (0 !== strpos($etag, '"')) {
+            if (0 !== strpos((string) $etag, '"')) {
                 $etag = '"'.$etag.'"';
             }
 

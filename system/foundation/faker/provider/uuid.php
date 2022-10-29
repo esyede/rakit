@@ -13,11 +13,11 @@ class Uuid extends Base
         $bytes = bin2hex(Str::bytes(16));
         return sprintf(
             '%08s-%04s-4%03s-%04x-%012s',
-            substr($bytes, 0, 8),
-            substr($bytes, 8, 4),
-            substr($bytes, 13, 3),
-            hexdec(substr($bytes, 16, 4)) & 0x3fff | 0x8000,
-            substr($bytes, 20, 12)
+            substr((string) $bytes, 0, 8),
+            substr((string) $bytes, 8, 4),
+            substr((string) $bytes, 13, 3),
+            hexdec(substr((string) $bytes, 16, 4)) & 0x3fff | 0x8000,
+            substr((string) $bytes, 20, 12)
         );
     }
 }

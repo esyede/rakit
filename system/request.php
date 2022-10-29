@@ -116,7 +116,7 @@ class Request
      */
     public static function server($key, $default = null)
     {
-        return Arr::get(static::servers(), strtoupper($key), $default);
+        return Arr::get(static::servers(), strtoupper((string) $key), $default);
     }
 
     /**
@@ -315,8 +315,8 @@ class Request
     public static function bearer()
     {
         $authorization = (string) static::authorization();
-        return (0 === stripos($authorization, 'bearer '))
-            ? mb_substr($authorization, 7, null, '8bit')
+        return (0 === stripos((string) $authorization, 'bearer '))
+            ? mb_substr((string) $authorization, 7, null, '8bit')
             : null;
     }
 
@@ -434,7 +434,7 @@ class Request
     {
         return defined('STDIN')
             || 'cli' === php_sapi_name()
-            || ('cgi' === substr(PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
+            || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
     }
 
     /**

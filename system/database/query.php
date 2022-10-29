@@ -258,7 +258,7 @@ class Query
             return $this->where_nested($column, $connector);
         }
 
-        if (! in_array(strtolower((string) $operator), $this->operators) && null === $value) {
+        if (! in_array(strtolower((string)  $operator), $this->operators) && null === $value) {
             $value = $operator;
             $operator = '=';
         }
@@ -507,7 +507,7 @@ class Query
      */
     private function dynamic_where($method, array $parameters)
     {
-        $keyword = substr($method, 6);
+        $keyword = substr((string) $method, 6);
         $segments = preg_split('/(_and_|_or_)/i', $keyword, -1, PREG_SPLIT_DELIM_CAPTURE);
         $connector = 'AND';
 
@@ -518,7 +518,7 @@ class Query
                 $this->where($segment, '=', $parameters[$index], $connector);
                 ++$index;
             } else {
-                $connector = trim(strtoupper($segment), '_');
+                $connector = trim(strtoupper((string) $segment), '_');
             }
         }
 
@@ -913,7 +913,7 @@ class Query
      */
     public function __call($method, array $parameters)
     {
-        if (0 === strpos($method, 'where_')) {
+        if (0 === strpos((string) $method, 'where_')) {
             return $this->dynamic_where($method, $parameters, $this);
         }
 
@@ -922,7 +922,7 @@ class Query
                 $parameters[0] = '*';
             }
 
-            return $this->aggregate(strtoupper($method), (array) $parameters[0]);
+            return $this->aggregate(strtoupper((string) $method), (array) $parameters[0]);
         }
 
         throw new \Exception(sprintf('Method is not defined: %s', $method));

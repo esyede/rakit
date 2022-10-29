@@ -125,11 +125,11 @@ class Console
             $argument = $argv[$i];
 
             if (Str::starts_with($argument, '--')) {
-                list($key, $value) = [substr($argument, 2), true];
+                list($key, $value) = [substr((string) $argument, 2), true];
 
-                if (false !== ($equals = strpos($argument, '='))) {
-                    $key = substr($argument, 2, $equals - 2);
-                    $value = substr($argument, $equals + 1);
+                if (false !== ($equals = strpos((string) $argument, '='))) {
+                    $key = substr((string) $argument, 2, $equals - 2);
+                    $value = substr((string) $argument, $equals + 1);
                 }
 
                 $options[$key] = $value;

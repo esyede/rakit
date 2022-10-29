@@ -223,7 +223,7 @@ class Response
             throw new \Exception(sprintf('Target file not found: %s', $path));
         }
 
-        $name = is_null($name) ? basename($path) : $name;
+        $name = is_null($name) ? basename((string) $path) : $name;
 
         // Default headers.
         $defaults = [

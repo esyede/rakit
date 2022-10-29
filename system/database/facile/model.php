@@ -512,7 +512,7 @@ abstract class Model
      */
     public function table()
     {
-        return static::$table ? static::$table : strtolower(Str::plural(class_basename($this)));
+        return static::$table ? static::$table : strtolower((string) Str::plural(class_basename($this)));
     }
 
     /**
@@ -705,9 +705,9 @@ abstract class Model
         }
 
         if (Str::starts_with($method, 'get_')) {
-            return $this->get_attribute(substr($method, 4));
+            return $this->get_attribute(substr((string) $method, 4));
         } elseif (Str::starts_with($method, 'set_')) {
-            $this->set_attribute(substr($method, 4), $parameters[0]);
+            $this->set_attribute(substr((string) $method, 4), $parameters[0]);
         } else {
             return call_user_func_array([$this->query(), $method], $parameters);
         }

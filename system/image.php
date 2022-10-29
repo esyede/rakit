@@ -422,7 +422,7 @@ class Image
             throw new \Exception(sprintf('Watermark file does not exists: %s', $watermark));
         }
 
-        $extension = strtolower(Storage::extension($watermark));
+        $extension = strtolower((string)  Storage::extension($watermark));
 
         switch ($extension) {
             case 'jpg':
@@ -568,7 +568,7 @@ class Image
         $sprites = static::sprites();
         $image = imagecreatetruecolor($size, $size);
 
-        list($r, $g, $b) = static::rgb(hexdec(substr($hash, -3)));
+        list($r, $g, $b) = static::rgb(hexdec(substr((string) $hash, -3)));
 
         $color = imagecolorallocate($image, $r, $g, $b);
         imagefill($image, 0, 0, IMG_COLOR_TRANSPARENT);
@@ -617,7 +617,7 @@ class Image
     {
         $color = is_string($color) ? hexdec($color) : $color;
         $hex = str_pad(dechex($color), (($color < 4096) ? 3 : 6), '0', STR_PAD_LEFT);
-        $length = mb_strlen($hex, '8bit');
+        $length = mb_strlen((string) $hex, '8bit');
 
         if ($length > 6) {
             throw new \Exception(sprintf('Invalid color specified: 0x%s', $hex));

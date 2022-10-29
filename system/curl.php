@@ -425,7 +425,7 @@ class Curl
 
             curl_setopt(static::$handler, CURLOPT_POSTFIELDS, $body);
         } elseif (is_array($body)) {
-            $url .= (false !== strpos($url, '?')) ? '&' : '?';
+            $url .= (false !== strpos((string) $url, '?')) ? '&' : '?';
             $url .= urldecode(http_build_query(static::build_curl_query($body)));
         }
 
@@ -480,8 +480,8 @@ class Curl
             throw new \Exception($error);
         }
 
-        $raw_headers = substr($response, 0, $info['header_size']);
-        $body = substr($response, $info['header_size']);
+        $raw_headers = substr((string) $response, 0, $info['header_size']);
+        $body = substr((string) $response, $info['header_size']);
         $json_options = static::$json_options;
 
         $response = new \stdClass();
@@ -518,7 +518,7 @@ class Curl
 
                 $key = $item[0];
             } else {
-                if (substr($item[0], 0, 1) === "\t") {
+                if (substr((string) $item[0], 0, 1) === "\t") {
                     $headers[$key] .= "\r\n\t".trim($item[0]);
                 } elseif (! $key) {
                     $headers[0] = trim($item[0]);
@@ -555,7 +555,7 @@ class Curl
             return curl_file_create($path, $mime, $alias);
         }
 
-        return sprintf('@%s;filename=%s;type=%s', $path, $alias ? $alias : basename($path), $mime);
+        return sprintf('@%s;filename=%s;type=%s', $path, $alias ? $alias : basename((string) $path), $mime);
     }
 
     /**
@@ -674,7 +674,7 @@ class Curl
         $formatted = [];
 
         foreach ($headers as $key => $value) {
-            $formatted[] = trim(strtolower($key)).': '.$value;
+            $formatted[] = trim(strtolower((string)  $key)).': '.$value;
         }
 
         if (! array_key_exists('user-agent', $headers)) {

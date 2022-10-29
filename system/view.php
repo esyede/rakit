@@ -99,7 +99,7 @@ class View implements \ArrayAccess
     {
         $this->view = $view;
         $this->data = $data;
-        $this->path = Str::starts_with($view, 'path: ') ? substr($view, 6) : $this->path($view);
+        $this->path = Str::starts_with($view, 'path: ') ? substr((string) $view, 6) : $this->path($view);
 
         if (! isset($this->data['errors'])) {
             if (Session::started() && Session::has('errors')) {
@@ -121,7 +121,7 @@ class View implements \ArrayAccess
     public static function exists($view, $return_path = false)
     {
         if (Str::starts_with($view, 'name: ')
-        && array_key_exists($name = substr($view, 6), static::$names)) {
+        && array_key_exists($name = substr((string) $view, 6), static::$names)) {
             $view = static::$names[$name];
         }
 
@@ -282,7 +282,7 @@ class View implements \ArrayAccess
                 $result .= render($view, ['key' => $key, $iterator => $value]);
             }
         } else {
-            $result = (Str::starts_with($empty, 'raw|')) ? substr($empty, 4) : render($empty);
+            $result = (Str::starts_with($empty, 'raw|')) ? substr((string) $empty, 4) : render($empty);
         }
 
         return $result;
@@ -463,6 +463,7 @@ class View implements \ArrayAccess
     /**
      * Implementasi ArrayAccess::offsetExists().
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return array_key_exists($offset, $this->data);
@@ -471,6 +472,7 @@ class View implements \ArrayAccess
     /**
      * Implementasi ArrayAccess::offsetGet().
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return isset($this[$offset]) ? $this->data[$offset] : null;
@@ -479,6 +481,7 @@ class View implements \ArrayAccess
     /**
      * Implementasi ArrayAccess::offsetSet().
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         $this->data[$offset] = $value;
@@ -487,6 +490,7 @@ class View implements \ArrayAccess
     /**
      * Implementasi ArrayAccess::offsetUnset().
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         unset($this->data[$offset]);
@@ -534,8 +538,8 @@ class View implements \ArrayAccess
      */
     public function __call($method, array $parameters)
     {
-        if (0 === strpos($method, 'with_')) {
-            return $this->with(substr($method, 5), $parameters[0]);
+        if (0 === strpos((string) $method, 'with_')) {
+            return $this->with(substr((string) $method, 5), $parameters[0]);
         }
 
         throw new \Exception(sprintf('Method does not exists: %s', $method));

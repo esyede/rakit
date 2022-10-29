@@ -14,7 +14,7 @@ defined('DS') or exit('No direct script access.');
 if (is_file($path = path('rakit_key'))) {
     $dir = path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS;
 
-    if (! is_readable(dirname($path))) {
+    if (! is_readable(dirname((string) $path))) {
         http_response_code(500);
         require $dir.'unreadable.phtml';
 
@@ -36,7 +36,7 @@ if (is_file($path = path('rakit_key'))) {
 } else {
     $path = path('rakit_key');
 
-    if (! is_writable(dirname($path))) {
+    if (! is_writable(dirname((string) $path))) {
         http_response_code(500);
         require $dir.'unwritable.phtml';
 

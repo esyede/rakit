@@ -4,7 +4,7 @@ namespace System\Foundation\Http;
 
 defined('DS') or exit('No direct script access.');
 
-class Upload extends \SplFileInfo
+class Upload
 {
     private $size;
     private $error;
@@ -830,8 +830,6 @@ class Upload extends \SplFileInfo
         if (UPLOAD_ERR_OK === $this->error && ! is_file($path)) {
             throw new \Exception(sprintf('File does not exists: %s', $path));
         }
-
-        parent::__construct($path);
     }
 
     /**
@@ -915,8 +913,8 @@ class Upload extends \SplFileInfo
     protected function getName($name)
     {
         $original = str_replace('\\', '/', $name);
-        $position = strrpos($original, '/');
-        $original = (false === $position) ? $original : substr($original, $position + 1);
+        $position = strrpos((string) $original, '/');
+        $original = (false === $position) ? $original : substr((string) $original, $position + 1);
 
         return $original;
     }
@@ -1033,7 +1031,7 @@ class Upload extends \SplFileInfo
             return PHP_INT_MAX;
         }
 
-        switch (strtolower(substr($max, -1))) {
+        switch (strtolower((string) substr((string) $max, -1))) {
             case 't': $max *= 1024; // No break, memang disengaja.
             case 'g': $max *= 1024; // No break, memang disengaja.
             case 'm': $max *= 1024; // No break, memang disengaja.

@@ -64,7 +64,7 @@ class Helper extends Header
 
         $keys = ['cache-control', 'etag', 'last-modified', 'expires'];
 
-        if (in_array(strtr(strtolower($key), '_', '-'), $keys)) {
+        if (in_array(strtr(strtolower((string) $key), '_', '-'), $keys)) {
             $computed = $this->computeCacheControlValue();
             $this->headers['cache-control'] = [$computed];
             $this->computedCacheControl = $this->parseCacheControl($computed);
@@ -78,7 +78,7 @@ class Helper extends Header
     {
         parent::remove($key);
 
-        if ('cache-control' === strtr(strtolower($key), '_', '-')) {
+        if ('cache-control' === strtr(strtolower((string) $key), '_', '-')) {
             $this->computedCacheControl = [];
         }
     }
@@ -211,16 +211,16 @@ class Helper extends Header
             );
         }
 
-        if (false !== strpos($filenameFallback, '%')) {
+        if (false !== strpos((string) $filenameFallback, '%')) {
             throw new \InvalidArgumentException(
                 "The filename fallback cannot contain the '%' character."
             );
         }
 
-        if (false !== strpos($filename, '/')
-        || false !== strpos($filename, '\\')
-        || false !== strpos($filenameFallback, '/')
-        || false !== strpos($filenameFallback, '\\')) {
+        if (false !== strpos((string) $filename, '/')
+        || false !== strpos((string) $filename, '\\')
+        || false !== strpos((string) $filenameFallback, '/')
+        || false !== strpos((string) $filenameFallback, '\\')) {
             throw new \InvalidArgumentException(
                 "The filename and the fallback cannot contain the '/' and '\' characters."
             );

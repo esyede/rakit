@@ -19,9 +19,9 @@ class Request extends Requester
         $httpType = $request->server->get('HTTP_CONTENT_TYPE');
         $method = $request->server->get('REQUEST_METHOD', 'GET');
 
-        if ((0 === strpos($type, 'application/x-www-form-urlencoded')
-        || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
-        && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])) {
+        if ((0 === strpos((string) $type, 'application/x-www-form-urlencoded')
+        || (0 === strpos((string) $httpType, 'application/x-www-form-urlencoded')))
+        && in_array(strtoupper((string) $method), ['PUT', 'DELETE', 'PATCH'])) {
             parse_str($request->getContent(), $data);
             $request->request = new Parameter($data);
         }

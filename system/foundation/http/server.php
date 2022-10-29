@@ -16,8 +16,8 @@ class Server extends Parameter
         $headers = [];
 
         foreach ($this->parameters as $key => $value) {
-            if (0 === strpos($key, 'HTTP_')) {
-                $headers[substr($key, 5)] = $value;
+            if (0 === strpos((string) $key, 'HTTP_')) {
+                $headers[substr((string) $key, 5)] = $value;
             } elseif (in_array($key, ['CONTENT_LENGTH', 'CONTENT_MD5', 'CONTENT_TYPE'])) {
                 $headers[$key] = $value;
             }
@@ -56,8 +56,8 @@ class Server extends Parameter
             }
 
             if ((null !== $authHeader)
-            && (0 === stripos($authHeader, 'basic'))) {
-                $exploded = explode(':', base64_decode(substr($authHeader, 6)));
+            && (0 === stripos((string) $authHeader, 'basic'))) {
+                $exploded = explode(':', base64_decode(substr((string) $authHeader, 6)));
 
                 if (2 === count($exploded)) {
                     list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;

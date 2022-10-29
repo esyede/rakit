@@ -1253,11 +1253,11 @@ class Validator
     {
         $parameters = [];
 
-        if (false !== ($colon = strpos($rule, ':'))) {
-            $parameters = str_getcsv(substr($rule, $colon + 1));
+        if (false !== ($colon = strpos((string) $rule, ':'))) {
+            $parameters = str_getcsv(substr((string) $rule, $colon + 1));
         }
 
-        return [is_numeric($colon) ? substr($rule, 0, $colon) : $rule, $parameters];
+        return [is_numeric($colon) ? substr((string) $rule, 0, $colon) : $rule, $parameters];
     }
 
     /**
@@ -1319,7 +1319,7 @@ class Validator
      */
     public function __call($method, $parameters)
     {
-        if (isset(static::$validators[$method = substr($method, 9)])) {
+        if (isset(static::$validators[$method = substr((string) $method, 9)])) {
             return call_user_func_array(static::$validators[$method], $parameters);
         }
 

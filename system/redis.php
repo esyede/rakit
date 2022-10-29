@@ -119,13 +119,13 @@ class Redis
      */
     protected function parse($response)
     {
-        switch (substr($response, 0, 1)) {
-            case '-': throw new \Exception(sprintf('Redis error: %s', substr(trim($response), 4)));
+        switch (substr((string) $response, 0, 1)) {
+            case '-': throw new \Exception(sprintf('Redis error: %s', substr((string) trim($response), 4)));
             case '+':
             case ':': return $this->inline($response);
             case '$': return $this->bulk($response);
             case '*': return $this->multibulk($response);
-            default:  throw new \Exception(sprintf('Unknown response: %s', substr($response, 0, 1)));
+            default:  throw new \Exception(sprintf('Unknown response: %s', substr((string) $response, 0, 1)));
         }
     }
 
@@ -170,10 +170,12 @@ class Redis
      */
     protected function command($method, array $parameters)
     {
-        $command = '*'.(count($parameters) + 1).CRLF.'$'.mb_strlen($method, '8bit').CRLF.strtoupper($method).CRLF;
+        $command = '*'.(count($parameters) + 1).CRLF.
+            '$'.mb_strlen((string) $method, '8bit').CRLF.
+            strtoupper((string) $method).CRLF;
 
         foreach ($parameters as $parameter) {
-            $command .= '$'.mb_strlen($parameter, '8bit').CRLF.$parameter.CRLF;
+            $command .= '$'.mb_strlen((string) $parameter, '8bit').CRLF.$parameter.CRLF;
         }
 
         return $command;
@@ -188,7 +190,7 @@ class Redis
      */
     protected function inline($response)
     {
-        return substr(trim($response), 1);
+        return substr((string) trim($response), 1);
     }
 
     /**
@@ -204,7 +206,7 @@ class Redis
             return;
         }
 
-        list($read, $response, $size) = [0, '', substr($head, 1)];
+        list($read, $response, $size) = [0, '', substr((string) $head, 1)];
 
         if ($size > 0) {
             do {
@@ -228,7 +230,7 @@ class Redis
      */
     protected function multibulk($head)
     {
-        if ('-1' === ($count = substr($head, 1))) {
+        if ('-1' === ($count = substr((string) $head, 1))) {
             return;
         }
 

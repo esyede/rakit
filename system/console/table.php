@@ -239,7 +239,7 @@ class Table
     {
         $cell = $row ? $row[$index] : '-';
         $width = $this->column_widths[$index];
-        $pad = $row ? $width - mb_strlen($cell, 'UTF-8') : $width;
+        $pad = $row ? $width - mb_strlen((string) $cell, 'UTF-8') : $width;
         $padding = str_repeat($row ? ' ' : '-', $this->padding);
 
         $output = (0 === $index) ? str_repeat(' ', $this->indent) : '';
@@ -248,7 +248,7 @@ class Table
 
         $cell = trim(preg_replace('/\s+/', ' ', $cell));
         $content = preg_replace('#\x1b[[][^A-Za-z]*[A-Za-z]#', '', $cell);
-        $delta = mb_strlen($cell, 'UTF-8') - mb_strlen($content, 'UTF-8');
+        $delta = mb_strlen((string) $cell, 'UTF-8') - mb_strlen((string) $content, 'UTF-8');
 
         $output .= $this->strpad($cell, $width + $delta, $row ? ' ' : '-');
         $output .= $padding;
@@ -267,13 +267,13 @@ class Table
         foreach ($this->data as $y => $row) {
             if (is_array($row)) {
                 foreach ($row as $x => $col) {
-                    $width = mb_strlen(preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
+                    $width = mb_strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
 
                     if (! isset($this->column_widths[$x])) {
-                        $this->column_widths[$x] = mb_strlen($width, '8bit');
+                        $this->column_widths[$x] = mb_strlen((string) $width, '8bit');
                     } else {
-                        if (strlen($width) > $this->column_widths[$x]) {
-                            $this->column_widths[$x] = mb_strlen($width, '8bit');
+                        if (strlen((string) $width) > $this->column_widths[$x]) {
+                            $this->column_widths[$x] = mb_strlen((string) $width, '8bit');
                         }
                     }
                 }
@@ -295,8 +295,8 @@ class Table
      */
     private function strpad($str, $amount, $content = ' ', $direction = STR_PAD_RIGHT)
     {
-        $len = mb_strlen($str, 'UTF-8');
-        $padlen = mb_strlen($content, 'UTF-8');
+        $len = mb_strlen((string) $str, 'UTF-8');
+        $padlen = mb_strlen((string) $content, 'UTF-8');
 
         if (! $len && (STR_PAD_RIGHT === $direction || STR_PAD_LEFT === $direction)) {
             $len = 1;
@@ -311,15 +311,15 @@ class Table
 
         if (STR_PAD_RIGHT === $direction) {
             $result = $str.str_repeat($content, $repeat);
-            $result = mb_substr($result, 0, $amount, 'UTF-8');
+            $result = mb_substr((string) $result, 0, $amount, 'UTF-8');
         } elseif (STR_PAD_LEFT === $direction) {
             $result = str_repeat($content, $repeat).$str;
-            $result = mb_substr($result, -$amount, null, 'UTF-8');
+            $result = mb_substr((string) $result, -$amount, null, 'UTF-8');
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
             $repeat = ceil($length / $padlen);
-            $result = mb_substr(str_repeat($content, $repeat), 0, floor($length), 'UTF-8').
-                $str.mb_substr(str_repeat($content, $repeat), 0, ceil($length), 'UTF-8');
+            $result = mb_substr((string) str_repeat($content, $repeat), 0, floor($length), 'UTF-8').
+                $str.mb_substr((string) str_repeat($content, $repeat), 0, ceil($length), 'UTF-8');
         }
 
         return $result;

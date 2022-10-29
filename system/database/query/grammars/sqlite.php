@@ -20,7 +20,7 @@ class SQLite extends Grammar
         $sql = [];
 
         foreach ($query->orderings as $ordering) {
-            $direction = strtoupper($ordering['direction']);
+            $direction = strtoupper((string) $ordering['direction']);
             $sql[] = $this->wrap($ordering['column']).' COLLATE NOCASE '.$direction;
         }
 

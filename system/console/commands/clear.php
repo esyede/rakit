@@ -42,7 +42,7 @@ class Clear extends Command
             ];
 
             foreach ($files as $file) {
-                if (! in_array(basename($file), $preserves)) {
+                if (! in_array(basename((string) $file), $preserves)) {
                     @unlink($file);
                 }
             }

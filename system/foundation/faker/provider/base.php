@@ -177,10 +177,10 @@ class Base
     public static function shuffleString($string = '', $encoding = 'UTF-8')
     {
         $array = [];
-        $strlen = mb_strlen($string, $encoding);
+        $strlen = mb_strlen((string) $string, $encoding);
 
         for ($i = 0; $i < $strlen; ++$i) {
-            $array[] = mb_substr($string, $i, 1, $encoding);
+            $array[] = mb_substr((string) $string, $i, 1, $encoding);
         }
 
         return implode('', static::shuffleArray($array));
@@ -190,7 +190,7 @@ class Base
     {
         $toReplace = [];
 
-        for ($i = 0, $count = mb_strlen($string, '8bit'); $i < $count; ++$i) {
+        for ($i = 0, $count = mb_strlen((string) $string, '8bit'); $i < $count; ++$i) {
             if ('#' === $string[$i]) {
                 $toReplace[] = $i;
             }
@@ -274,12 +274,12 @@ class Base
 
     public static function toLower($string = '')
     {
-        return mb_strtolower($string, 'UTF-8');
+        return mb_strtolower((string) $string, 'UTF-8');
     }
 
     public static function toUpper($string = '')
     {
-        return mb_strtoupper($string, 'UTF-8');
+        return mb_strtoupper((string) $string, 'UTF-8');
     }
 
     public function optional($weight = 0.5, $default = null)

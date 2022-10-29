@@ -125,9 +125,9 @@ class Requester
         $request = new static($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
 
         $type = $request->headers->get('Content-Type');
-        $method = strtoupper($request->server->get('REQUEST_METHOD', 'GET'));
+        $method = strtoupper((string) $request->server->get('REQUEST_METHOD', 'GET'));
 
-        if (0 === strpos($type, 'application/x-www-form-urlencoded')
+        if (0 === strpos((string) $type, 'application/x-www-form-urlencoded')
         && in_array($method, ['PUT', 'DELETE', 'PATCH'])) {
             parse_str($request->getContent(), $data);
             $request->request = new Parameter($data);
@@ -202,7 +202,7 @@ class Requester
             $components['path'] = '/';
         }
 
-        switch (strtoupper($method)) {
+        switch (strtoupper((string) $method)) {
             case 'POST':
             case 'PUT':
             case 'DELETE':
@@ -227,7 +227,7 @@ class Requester
         $uri = $components['path'].('' !== $queryString ? '?'.$queryString : '');
 
         $server = array_replace($defaults, $server, [
-            'REQUEST_METHOD' => strtoupper($method),
+            'REQUEST_METHOD' => strtoupper((string) $method),
             'PATH_INFO' => '',
             'REQUEST_URI' => $uri,
             'QUERY_STRING' => $queryString,
@@ -340,7 +340,7 @@ class Requester
         $headers = $this->headers->all();
 
         foreach ($headers as $key => $value) {
-            $key = strtoupper(str_replace('-', '_', $key));
+            $key = strtoupper((string) str_replace('-', '_', $key));
 
             if (in_array($key, ['CONTENT_TYPE', 'CONTENT_LENGTH'])) {
                 $_SERVER[$key] = implode(', ', $value);
@@ -353,7 +353,7 @@ class Requester
 
         $orderings = ini_get('request_order');
         $orderings = $orderings ? $orderings : ini_get('variable_order');
-        $orderings = preg_replace('/[^cgp]/', '', strtolower($orderings));
+        $orderings = preg_replace('/[^cgp]/', '', strtolower((string) $orderings));
         $orderings = $orderings ? $orderings : 'gp';
 
         $_REQUEST = [];
@@ -427,7 +427,7 @@ class Requester
      */
     public static function normalizeQueryString($queryString)
     {
-        if ('' === $queryString) {
+        if (is_null($queryString)) {
             return '';
         }
 
@@ -774,11 +774,11 @@ class Requester
         $clientProto = self::$trustedHeaders[self::HEADER_CLIENT_PROTO];
 
         if (self::$trustProxy && $clientProto && $proto = $this->headers->get($clientProto)) {
-            return in_array(strtolower($proto), ['https', 'on', 'ssl', '1']);
+            return in_array(strtolower((string) $proto), ['https', 'on', 'ssl', '1']);
         }
 
         $https = $this->server->get('HTTPS');
-        return ('on' === $https || 1 === $https || (! empty($https) && 'off' !== strtolower($https)));
+        return ('on' === $https || 1 === $https || (! empty($https) && 'off' !== strtolower((string) $https)));
     }
 
     /**
@@ -801,7 +801,7 @@ class Requester
             }
         }
 
-        $host = strtolower(preg_replace('/:\d+$/', '', trim($host)));
+        $host = strtolower((string) preg_replace('/:\d+$/', '', trim($host)));
 
         if ($host && ! preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host)) {
             throw new \UnexpectedValueException(sprintf('Invalid host: %s', $host));
@@ -829,13 +829,13 @@ class Requester
     public function getMethod()
     {
         if (null === $this->method) {
-            $this->method = strtoupper($this->server->get('REQUEST_METHOD', 'GET'));
+            $this->method = strtoupper((string) $this->server->get('REQUEST_METHOD', 'GET'));
 
             if ('POST' === $this->method) {
                 $method = $this->query->get('_method', 'POST');
                 $method = $this->request->get('_method', $method);
                 $method = $this->headers->get('X-Http-Method-Override', $method);
-                $this->method = strtoupper($method);
+                $this->method = strtoupper((string) $method);
             }
         }
 
@@ -867,8 +867,8 @@ class Requester
      */
     public function getFormat($mimeType)
     {
-        if (false !== $pos = strpos($mimeType, ';')) {
-            $mimeType = substr($mimeType, 0, $pos);
+        if (false !== $pos = strpos((string) $mimeType, ';')) {
+            $mimeType = substr((string) $mimeType, 0, $pos);
         }
 
         if (null === static::$formats) {
@@ -976,7 +976,7 @@ class Requester
      */
     public function isMethod($method)
     {
-        return $this->getMethod() === strtoupper($method);
+        return $this->getMethod() === strtoupper((string) $method);
     }
 
     /**
@@ -1088,9 +1088,9 @@ class Requester
 
                     for ($i = 0, $max = $count; $i < $max; ++$i) {
                         if (0 === $i) {
-                            $lang = strtolower($codes[0]);
+                            $lang = strtolower((string) $codes[0]);
                         } else {
-                            $lang .= '_'.strtoupper($codes[$i]);
+                            $lang .= '_'.strtoupper((string) $codes[$i]);
                         }
                     }
                 }
@@ -1145,7 +1145,7 @@ class Requester
      */
     public function isXmlHttpRequest()
     {
-        return 'xmlhttprequest' === strtolower($this->headers->get('X-Requested-With'));
+        return 'xmlhttprequest' === strtolower((string)  $this->headers->get('X-Requested-With'));
     }
 
     /**
@@ -1166,8 +1166,8 @@ class Requester
 
         foreach (array_filter(explode(',', $header)) as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
-                $q = substr(trim($match[1]), 2);
-                $value = trim(substr($value, 0, -mb_strlen($match[0], '8bit')));
+                $q = substr((string) trim($match[1]), 2);
+                $value = trim(substr((string) $value, 0, - mb_strlen((string) $match[0], '8bit')));
             } else {
                 $q = 1;
             }
@@ -1206,8 +1206,8 @@ class Requester
             $requestUri = $this->server->get('REQUEST_URI');
             $schemeAndHttpHost = $this->getSchemeAndHttpHost();
 
-            if (0 === strpos($requestUri, $schemeAndHttpHost)) {
-                $requestUri = substr($requestUri, mb_strlen($schemeAndHttpHost, '8bit'));
+            if (0 === strpos((string) $requestUri, $schemeAndHttpHost)) {
+                $requestUri = substr((string) $requestUri, mb_strlen($schemeAndHttpHost, '8bit'));
             }
         } elseif ($this->server->has('ORIG_PATH_INFO')) {
             $requestUri = $this->server->get('ORIG_PATH_INFO');
@@ -1227,13 +1227,13 @@ class Requester
      */
     protected function prepareBaseUrl()
     {
-        $filename = basename($this->server->get('SCRIPT_FILENAME'));
+        $filename = basename((string) $this->server->get('SCRIPT_FILENAME'));
 
-        if (basename($this->server->get('SCRIPT_NAME')) === $filename) {
+        if (basename((string) $this->server->get('SCRIPT_NAME')) === $filename) {
             $baseUrl = $this->server->get('SCRIPT_NAME');
-        } elseif (basename($this->server->get('PHP_SELF')) === $filename) {
+        } elseif (basename((string) $this->server->get('PHP_SELF')) === $filename) {
             $baseUrl = $this->server->get('PHP_SELF');
-        } elseif (basename($this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
+        } elseif (basename((string) $this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
             // Kompatibilitas shared hosting 1and1.com
             $baseUrl = $this->server->get('ORIG_SCRIPT_NAME');
         } else {
@@ -1250,7 +1250,7 @@ class Requester
                 $seg = $segs[$index];
                 $baseUrl = '/'.$seg.$baseUrl;
                 ++$index;
-            } while ($last > $index && (false !== ($pos = strpos($path, $baseUrl))) && 0 !== $pos);
+            } while ($last > $index && (false !== ($pos = strpos((string) $path, $baseUrl))) && 0 !== $pos);
         }
 
         $requestUri = $this->getRequestUri();
@@ -1260,7 +1260,7 @@ class Requester
             return $prefix;
         }
 
-        $prefix = $this->getUrlencodedPrefix($requestUri, dirname($baseUrl));
+        $prefix = $this->getUrlencodedPrefix($requestUri, dirname((string) $baseUrl));
 
         if ($baseUrl && false !== $prefix) {
             return rtrim($prefix, '/');
@@ -1268,20 +1268,20 @@ class Requester
 
         $truncatedUri = $requestUri;
 
-        if (false !== ($pos = strpos($requestUri, '?'))) {
-            $truncatedUri = substr($requestUri, 0, $pos);
+        if (false !== ($pos = strpos((string) $requestUri, '?'))) {
+            $truncatedUri = substr((string) $requestUri, 0, $pos);
         }
 
-        $basename = basename($baseUrl);
+        $basename = basename((string) $baseUrl);
 
-        if (empty($basename) || ! strpos(rawurldecode($truncatedUri), $basename)) {
+        if (empty($basename) || ! strpos((string) rawurldecode($truncatedUri), $basename)) {
             return '';
         }
 
         if ((mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit'))
-        && ((false !== ($pos = strpos($requestUri, $baseUrl)))
+        && ((false !== ($pos = strpos((string) $requestUri, $baseUrl)))
         && (0 !== $pos))) {
-            $baseUrl = substr($requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
+            $baseUrl = substr((string) $requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
         }
 
         return rtrim($baseUrl, '/');
@@ -1294,15 +1294,15 @@ class Requester
      */
     protected function prepareBasePath()
     {
-        $filename = basename($this->server->get('SCRIPT_FILENAME'));
+        $filename = basename((string) $this->server->get('SCRIPT_FILENAME'));
         $baseUrl = $this->getBaseUrl();
 
         if (empty($baseUrl)) {
             return '';
         }
 
-        if (basename($baseUrl) === $filename) {
-            $basePath = dirname($baseUrl);
+        if (basename((string) $baseUrl) === $filename) {
+            $basePath = dirname((string) $baseUrl);
         } else {
             $basePath = $baseUrl;
         }
@@ -1330,12 +1330,12 @@ class Requester
 
         $pathInfo = '/';
 
-        if ($pos = strpos($requestUri, '?')) {
-            $requestUri = substr($requestUri, 0, $pos);
+        if ($pos = strpos((string) $requestUri, '?')) {
+            $requestUri = substr((string) $requestUri, 0, $pos);
         }
 
         if ((null !== $baseUrl)
-        && (false === ($pathInfo = substr($requestUri, mb_strlen($baseUrl, '8bit'))))) {
+        && (false === ($pathInfo = substr((string) $requestUri, mb_strlen($baseUrl, '8bit'))))) {
             return '/';
         } elseif (null === $baseUrl) {
             return $requestUri;
@@ -1392,7 +1392,7 @@ class Requester
     {
         $prefix = (string) $prefix;
 
-        if (! $prefix || 0 !== strpos(rawurldecode($string), $prefix)) {
+        if (! $prefix || 0 !== strpos((string) rawurldecode($string), $prefix)) {
             return false;
         }
 

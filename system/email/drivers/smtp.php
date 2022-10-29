@@ -85,7 +85,7 @@ class Smtp extends Driver
         );
 
         foreach ($lines as $line) {
-            $line = (('.' === substr($line, 0, 1)) ? '.' : '').$line;
+            $line = (('.' === substr((string) $line, 0, 1)) ? '.' : '').$line;
             fputs($this->connection, $line.$this->config['newline']);
         }
 
@@ -109,7 +109,7 @@ class Smtp extends Driver
             return;
         }
 
-        if (false === strpos($this->config['smtp']['host'], '://')) {
+        if (false === strpos((string) $this->config['smtp']['host'], '://')) {
             $this->config['smtp']['host'] = 'tcp://'.$this->config['smtp']['host'];
         }
 
@@ -142,7 +142,7 @@ class Smtp extends Driver
         }
 
         if (Arr::get($this->config, 'smtp.starttls', false)
-        && 0 === strpos($this->config['smtp']['host'], 'tcp://')) {
+        && 0 === strpos((string) $this->config['smtp']['host'], 'tcp://')) {
             try {
                 $this->command('STARTTLS', 220);
 
@@ -250,7 +250,7 @@ class Smtp extends Driver
         }
 
         $response = $this->response();
-        $number = (int) substr(trim($response), 0, 3);
+        $number = (int) substr((string) trim($response), 0, 3);
 
         if (false !== $expecting && ! in_array($number, $expecting)) {
             throw new \Exception(sprintf(
@@ -282,7 +282,7 @@ class Smtp extends Driver
 
             $data .= $str;
 
-            if (' ' === substr($str, 3, 1)) {
+            if (' ' === substr((string) $str, 3, 1)) {
                 break;
             }
         }

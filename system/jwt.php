@@ -44,7 +44,7 @@ class JWT
     public static function encode(array $payloads, $secret, $algorithm = 'HS256', array $headers = [])
     {
         $timestamp = static::$timestamp ? static::$timestamp : time();
-        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
+        $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
         $headers = $headers + ['typ' => 'JWT', 'alg' => $algorithm];
 
         $headers = static::encode_url(static::encode_json($headers));
@@ -132,7 +132,7 @@ class JWT
      */
     private static function signature($payload, $secret, $algorithm)
     {
-        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
+        $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
 
         if (! isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
@@ -156,7 +156,7 @@ class JWT
      */
     private static function verify($payload, $signature, $secret, $algorithm)
     {
-        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
+        $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
 
         if (! isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
@@ -183,7 +183,7 @@ class JWT
 
     private static function decode_url($data)
     {
-        $remainder = strlen($data) % 4;
+        $remainder = strlen((string) $data) % 4;
         $data .= $remainder ? str_repeat('=', 4 - $remainder) : '';
 
         return base64_decode(strtr($data, '-_', '+/'));

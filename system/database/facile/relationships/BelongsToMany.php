@@ -63,7 +63,7 @@ class BelongsToMany extends Relationship
         $models = [class_basename($model), class_basename($associated)];
         sort($models);
 
-        return strtolower($models[0].'_'.$models[1]);
+        return strtolower((string) $models[0].'_'.$models[1]);
     }
 
     /**
@@ -315,8 +315,8 @@ class BelongsToMany extends Relationship
             $pivot = new Pivot($this->joining, $this->model->connection());
 
             foreach ($result->attributes as $key => $value) {
-                if ('pivot_' === substr($key, 0, 6)) {
-                    $pivot->{substr($key, 6)} = $value;
+                if ('pivot_' === substr((string) $key, 0, 6)) {
+                    $pivot->{substr((string) $key, 6)} = $value;
                     $result->purge($key);
                 }
             }

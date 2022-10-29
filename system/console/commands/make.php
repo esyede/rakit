@@ -60,7 +60,7 @@ class Make extends Command
         if (Storage::isfile($file)) {
             echo 'Controller already exists: '.$display.'   (skipped)';
         } else {
-            $directory = Str::replace_last(basename($file), '', $file);
+            $directory = Str::replace_last(basename((string) $file), '', $file);
             $this->makedir($directory);
 
             $replace = [
@@ -125,7 +125,7 @@ class Make extends Command
         if (Storage::isfile($file)) {
             echo 'Controller already exists: '.$display.'   (skipped)';
         } else {
-            $directory = Str::replace_last(basename($file), '', $file);
+            $directory = Str::replace_last(basename((string) $file), '', $file);
             $this->makedir($directory);
 
             $replace = [
@@ -166,7 +166,7 @@ class Make extends Command
 
         $arguments[0] = $this->slashes($arguments[0]);
 
-        if (strpos($arguments[0], '/')) {
+        if (strpos((string) $arguments[0], '/')) {
             throw new \Exception('Cannot create model inside subdirectory.');
         }
 
@@ -266,7 +266,7 @@ class Make extends Command
 
         $arguments[0] = $this->slashes($arguments[0]);
 
-        if (strpos($arguments[0], '/')) {
+        if (strpos((string) $arguments[0], '/')) {
             throw new \Exception('Cannot create command inside subdirectory.');
         }
 
@@ -349,7 +349,7 @@ class Make extends Command
             throw new \Exception(sprintf('Test file already exists: %s', $display));
         }
 
-        $directory = Str::replace_last(basename($file), '', $file);
+        $directory = Str::replace_last(basename((string) $file), '', $file);
         $this->makedir($directory);
 
         $namespace = Str::studly($package);

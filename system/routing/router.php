@@ -182,7 +182,7 @@ class Router
                 continue;
             }
 
-            $uri = ltrim(str_replace('(:package)', static::$package, $uri), '/');
+            $uri = ltrim(str_replace('(:package)', (string) static::$package, $uri), '/');
             $uri = ('' === $uri) ? '/' : $uri;
 
             if ('(' === $uri[0]) {
@@ -256,7 +256,7 @@ class Router
      */
     protected static function root($identifier, $controller, $root)
     {
-        $home = ('home' === $controller) ? '' : dirname($controller);
+        $home = ('home' === $controller) ? '' : dirname((string) $controller);
         $pattern = trim($root.'/'.$home, '/');
 
         static::register('*', $pattern ? $pattern : '/', ['uses' => $identifier.'@index']);

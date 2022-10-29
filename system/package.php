@@ -88,7 +88,7 @@ class Package
 
         Event::fire('rakit.booted: '.$package);
 
-        static::$booted[] = strtolower($package);
+        static::$booted[] = strtolower((string) $package);
     }
 
     /**
@@ -181,7 +181,7 @@ class Package
      */
     public static function exists($package)
     {
-        return (DEFAULT_PACKAGE === $package || in_array(strtolower($package), static::names()));
+        return (DEFAULT_PACKAGE === $package || in_array(strtolower((string) $package), static::names()));
     }
 
     /**
@@ -191,7 +191,7 @@ class Package
      */
     public static function booted($package)
     {
-        return in_array(strtolower($package), static::$booted);
+        return in_array(strtolower((string) $package), static::$booted);
     }
 
     /**
@@ -201,7 +201,7 @@ class Package
      */
     public static function routed($package)
     {
-        return in_array(strtolower($package), static::$routed);
+        return in_array(strtolower((string) $package), static::$routed);
     }
 
     /**
@@ -251,7 +251,7 @@ class Package
             return path('app');
         } elseif ($location = Arr::get(static::$packages, $package.'.location')) {
             if (Str::starts_with($location, 'path: ')) {
-                return Str::finish(substr($location, 6), DS);
+                return Str::finish(substr((string) $location, 6), DS);
             }
 
             return Str::finish(path('package').$location, DS);
@@ -365,10 +365,10 @@ class Package
     public static function parse($identifier)
     {
         if (! isset(static::$elements[$identifier])) {
-            if (false !== strpos($identifier, '::')) {
-                $element = explode('::', strtolower($identifier));
+            if (false !== strpos((string) $identifier, '::')) {
+                $element = explode('::', strtolower((string) $identifier));
             } else {
-                $element = [DEFAULT_PACKAGE, strtolower($identifier)];
+                $element = [DEFAULT_PACKAGE, strtolower((string) $identifier)];
             }
 
             static::$elements[$identifier] = $element;

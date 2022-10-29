@@ -179,7 +179,7 @@ class Grammar extends \System\Database\Grammar
      */
     protected function where_nested($where)
     {
-        return '('.substr($this->wheres($where['query']), 6).')';
+        return '('.substr((string) $this->wheres($where['query']), 6).')';
     }
 
     /**
@@ -335,7 +335,7 @@ class Grammar extends \System\Database\Grammar
         $sql = [];
 
         foreach ($query->orderings as $ordering) {
-            $sql[] = $this->wrap($ordering['column']).' '.strtoupper($ordering['direction']);
+            $sql[] = $this->wrap($ordering['column']).' '.strtoupper((string) $ordering['direction']);
         }
 
         return 'ORDER BY '.implode(', ', $sql);
@@ -442,7 +442,7 @@ class Grammar extends \System\Database\Grammar
      */
     public function shortcut($sql, array &$bindings)
     {
-        if (false !== strpos($sql, '(...)')) {
+        if (false !== strpos((string) $sql, '(...)')) {
             for ($i = 0; $i < count($bindings); ++$i) {
                 if (is_array($bindings[$i])) {
                     $parameters = $this->parameterize($bindings[$i]);

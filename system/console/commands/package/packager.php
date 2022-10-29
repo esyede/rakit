@@ -58,7 +58,7 @@ class Packager extends Command
 
             $stdin = fopen('php://stdin', 'rb');
 
-            if (! in_array(strtolower(trim(fgets($stdin))), ['y', 'yes'])) {
+            if (! in_array(strtolower((string) trim(fgets($stdin))), ['y', 'yes'])) {
                 fclose($stdin);
                 throw new \Exception(PHP_EOL.'Operation aborted by user.');
             }
@@ -67,7 +67,7 @@ class Packager extends Command
                 echo  PHP_EOL.'This package is currently not maintained.';
                 echo  PHP_EOL.'Dou you wish to install anyway? [y/N] ';
 
-                if (! in_array(strtolower(trim(fgets($stdin))), ['y', 'yes'])) {
+                if (! in_array(strtolower((string) trim(fgets($stdin))), ['y', 'yes'])) {
                     fclose($stdin);
                     throw new \Exception(PHP_EOL.'Operation aborted by user.');
                 }
@@ -170,7 +170,7 @@ class Packager extends Command
             echo  PHP_EOL.'Dou you wish to upgrade anyway? [y/N] ';
 
             $answer = fgets(STDIN);
-            $answer = strtolower(trim($answer));
+            $answer = strtolower((string) trim($answer));
 
             if (! in_array($answer, ['y', 'yes'])) {
                 throw new \Exception(PHP_EOL.'Operation aborted by user.');
@@ -315,6 +315,6 @@ class Packager extends Command
             throw new \Exception(sprintf('Unsupported package provider: %s', $host));
         }
 
-        return strtolower($host);
+        return strtolower((string) $host);
     }
 }

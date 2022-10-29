@@ -183,11 +183,11 @@ class Connection
 
         list($statement, $result) = $this->execute($sql, $bindings);
 
-        if (0 === stripos($sql, 'select') || 0 === stripos($sql, 'show')) {
+        if (0 === stripos((string) $sql, 'select') || 0 === stripos((string) $sql, 'show')) {
             return $this->fetch($statement, Config::get('database.fetch'));
-        } elseif (0 === stripos($sql, 'update') || 0 === stripos($sql, 'delete')) {
+        } elseif (0 === stripos((string) $sql, 'update') || 0 === stripos((string) $sql, 'delete')) {
             return $statement->rowCount();
-        } elseif (0 === stripos($sql, 'insert') || false !== stripos($sql, 'returning')) {
+        } elseif (0 === stripos((string) $sql, 'insert') || false !== stripos((string) $sql, 'returning')) {
             return $this->fetch($statement, Config::get('database.fetch'));
         }
 
