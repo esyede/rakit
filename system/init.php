@@ -47,7 +47,16 @@ if (is_file($path = path('rakit_key'))) {
     }
 
     try {
-        unset($_COOKIE['rakit_session']);
+        if (isset($_SERVER['HTTP_COOKIE'])) {
+            $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+
+            foreach ($cookies as $cookie) {
+                $parts = explode('=', $cookie);
+                setcookie(trim($parts[0]), '', time() - 2628000);
+                setcookie(trim($parts[0]), '', time() - 2628000, '/');
+            }
+        }
+
         $key = bin2hex(openssl_random_pseudo_bytes(rand(5, 10)));
         file_put_contents(
             path('rakit_key'),
