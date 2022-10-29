@@ -17,7 +17,7 @@
                     <div class="dropdown" id="docsearch">
                         <div class="dropdown-trigger">
                             <div class="field control">
-                                <input id="userinput" class="input is-rounded is-narrow" type="search" placeholder="Cari..."/>
+                                <input id="userinput" class="input is-rounded is-narrow" type="search" placeholder="{{ trans('docs::docs.navbar.search') }}"/>
                             </div>
                         </div>
                         <div class="dropdown-menu" id="search-results" role="menu">
