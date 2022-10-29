@@ -89,6 +89,22 @@ if (! function_exists('optional')) {
     }
 }
 
+if (! function_exists('trans')) {
+    /**
+     * Ambil sebuah baris bahasa.
+     *
+     * @param string $key
+     * @param array  $replacements
+     * @param string $language
+     *
+     * @return string
+     */
+    function trans($key, array $replacements = [], $language = null)
+    {
+        return \System\Lang::has($key) ? \System\Lang::line($key, $replacements, $language) : $key;
+    }
+}
+
 if (! function_exists('__')) {
     /**
      * Ambil sebuah baris bahasa.
@@ -101,7 +117,7 @@ if (! function_exists('__')) {
      */
     function __($key, array $replacements = [], $language = null)
     {
-        return Lang::has($key) ? Lang::line($key, $replacements, $language) : $key;
+        return trans($key, $replacements, $language);
     }
 }
 
