@@ -279,7 +279,7 @@ class Request
      */
     public static function expects_json()
     {
-        return (static::ajax() && ! static::pjax() && $this->accept_any()) || static::wants_json();
+        return (static::ajax() && ! static::pjax() && static::accept_any()) || static::wants_json();
     }
 
     /**
