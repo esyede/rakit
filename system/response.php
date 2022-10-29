@@ -36,7 +36,7 @@ class Response
     /**
      * Ambil instance foundation rersponse.
      *
-     * @return ]System\Foundation\Http\Response
+     * @return \System\Foundation\Http\Response
      */
     public function foundation()
     {
@@ -114,7 +114,7 @@ class Response
      */
     public static function json($data, $status = 200, array $headers = [], $json_options = 0)
     {
-        $headers['content-type'] = 'application/json; charset=utf-8';
+        $headers['Content-Type'] = 'application/json; charset=utf-8';
         return new static(json_encode($data, $json_options), $status, $headers);
     }
 
@@ -136,7 +136,7 @@ class Response
      */
     public static function jsonp($callback, $data, $status = 200, array $headers = [])
     {
-        $headers['content-type'] = 'application/javascript; charset=utf-8';
+        $headers['Content-Type'] = 'application/javascript; charset=utf-8';
         return new static($callback.'('.json_encode($data).');', $status, $headers);
     }
 
@@ -158,7 +158,7 @@ class Response
      */
     public static function facile($data, $status = 200, array $headers = [])
     {
-        $headers['content-type'] = 'application/json; charset=utf-8';
+        $headers['Content-Type'] = 'application/json; charset=utf-8';
         return new static(facile_to_json($data), $status, $headers);
     }
 
@@ -227,14 +227,14 @@ class Response
 
         // Default headers.
         $defaults = [
-            'content-description' => 'File Transfer',
-            'content-type' => Storage::mime($path),
-            'content-transfer-encoding' => 'binary',
-            'expires' => 0,
-            'cache-control' => 'must-revalidate, post-check=0, pre-check=0',
-            'pragma' => 'public',
-            'content-length' => Storage::size($path),
-            'content-disposition' => 'attachment; filename="'.$name.'"',
+            'Content-Description' => 'File Transfer',
+            'Content-Type' => Storage::mime($path),
+            'Content-Transfer-Encoding' => 'binary',
+            'Expires' => 0,
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Pragma' => 'public',
+            'Content-Length' => Storage::size($path),
+            'Content-Disposition' => 'attachment; filename="'.$name.'"',
         ];
 
         $headers = array_merge($defaults, $headers);
