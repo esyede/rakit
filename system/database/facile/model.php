@@ -468,7 +468,7 @@ abstract class Model
      */
     protected function _query()
     {
-        return new Query($this);
+        return (new Query($this))->connection()->table($this->table());
     }
 
     /**
@@ -698,10 +698,12 @@ abstract class Model
             return static::${$method};
         }
 
-        $underscored = ['with', 'query'];
+        if ('with' === $method) {
+            return call_user_func_array([$this, '_with'], $parameters);
+        }
 
-        if (in_array($method, $underscored)) {
-            return call_user_func_array([$this, '_'.$method], $parameters);
+        if ('query' === $method) {
+            return call_user_func_array([$this, '_query'], $parameters);
         }
 
         if (Str::starts_with($method, 'get_')) {
