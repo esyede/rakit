@@ -4,7 +4,7 @@ namespace System\Foundation\Http;
 
 defined('DS') or exit('No direct script access.');
 
-class Upload
+class Upload extends \SplFileInfo
 {
     private $size;
     private $error;
@@ -799,29 +799,22 @@ class Upload
      * Kumpulkan informasi file diupload user, via variabel global $_FILES.
      *
      * @param string $path
-     * @param string $originalName
+     * @param string $origName
      * @param string $mimeType
      * @param int    $size
      * @param int    $error
      * @param bool   $test
      */
-    public function __construct(
-        $path,
-        $originalName,
-        $mimeType = null,
-        $size = null,
-        $error = null,
-        $test = false
-    ) {
+    public function __construct($path, $origName, $mimeType = null, $size = null, $error = null, $test = false)
+    {
         if (! ini_get('file_uploads')) {
             throw new \Exception(sprintf(
-                'Unable to create Upload because "file_uploads" directive '.
-                'is disabled in your php.ini file (%s)',
+                "Unable to create Upload because 'file_uploads' directive is disabled in your php.ini file (%s)",
                 get_cfg_var('cfg_file_path')
             ));
         }
 
-        $this->originalName = $this->getName($originalName);
+        $this->originalName = $this->getName($origName);
         $this->mimeType = $mimeType ? $mimeType : 'application/octet-stream';
         $this->size = $size;
         $this->error = $error ? $error : UPLOAD_ERR_OK;
@@ -830,6 +823,8 @@ class Upload
         if (UPLOAD_ERR_OK === $this->error && ! is_file($path)) {
             throw new \Exception(sprintf('File does not exists: %s', $path));
         }
+
+        parent::__construct($path);
     }
 
     /**
@@ -871,6 +866,7 @@ class Upload
      *
      * @return string|null
      */
+    #[\ReturnTypeWillChange]
     public function getExtension()
     {
         return pathinfo($this->getBasename(), PATHINFO_EXTENSION);
