@@ -98,7 +98,7 @@ class Connection
     }
 
     /**
-     * Jalankan callback transaksi database.
+     * Jalankan database transaction.
      *
      * @param \Closure $callback
      *
