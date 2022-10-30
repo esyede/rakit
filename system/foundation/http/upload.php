@@ -873,6 +873,22 @@ class Upload extends \SplFileInfo
     }
 
     /**
+     * Ambil isi file.
+     *
+     * @return string
+     */
+    public function getContent()
+    {
+        $content = file_get_contents($this->getPathname());
+
+        if (false === $content) {
+            throw new \Exception(sprintf('Could not get the content of the file: %s', $this->getPathname()));
+        }
+
+        return $content;
+    }
+
+    /**
      * Ambil target path tempat memindahkan file yang diupload user.
      *
      * @param string $directory
