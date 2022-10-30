@@ -798,7 +798,8 @@ class Str
      */
     public static function starts_with($haystack, $needle)
     {
-        return ('' !== (string) $needle && 0 === strncmp($haystack, $needle, mb_strlen((string) $needle, '8bit')));
+        return ('' !== (string) $needle
+            && 0 === strncmp($haystack, $needle, mb_strlen((string) $needle, '8bit')));
     }
 
     /**

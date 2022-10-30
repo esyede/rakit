@@ -498,7 +498,13 @@ class Markdown
                 return;
             }
 
-            return ['element' => ['name' => 'h'.min(6, $level), 'text' => trim($tag['text'], '# '), 'handler' => 'line']];
+            return [
+                'element' => [
+                    'name' => 'h'.min(6, $level),
+                    'text' => trim($tag['text'], '# '),
+                    'handler' => 'line',
+                ],
+            ];
         }
     }
 
@@ -541,7 +547,12 @@ class Markdown
 
             unset($attrib['li']);
 
-            $attrib['li'] = ['name' => 'li', 'handler' => 'li', 'text' => [isset($matches[1]) ? $matches[1] : '']];
+            $attrib['li'] = [
+                'name' => 'li',
+                'handler' => 'li',
+                'text' => [isset($matches[1]) ? $matches[1] : ''],
+            ];
+
             $attrib['element']['text'][] = &$attrib['li'];
 
             return $attrib;
@@ -581,7 +592,13 @@ class Markdown
     protected function block_quote(array $tag)
     {
         if (preg_match('/^>[ ]?(.*)/', $tag['text'], $matches)) {
-            return ['element' => ['name' => 'blockquote', 'handler' => 'lines', 'text' => (array) $matches[1]]];
+            return [
+                'element' => [
+                    'name' => 'blockquote',
+                    'handler' => 'lines',
+                    'text' => (array) $matches[1],
+                ],
+            ];
         }
     }
 
@@ -803,7 +820,10 @@ class Markdown
 
         if (preg_match($pattern, $not['text'], $matches)) {
             $text = preg_replace("/[ ]*\n/", ' ', $matches[2]);
-            return ['extent' => mb_strlen((string) $matches[0], '8bit'), 'element' => ['name' => 'code', 'text' => $text]];
+            return [
+                'extent' => mb_strlen((string) $matches[0], '8bit'),
+                'element' => ['name' => 'code', 'text' => $text],
+            ];
         }
     }
 

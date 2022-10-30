@@ -222,7 +222,9 @@ class Blade
         $regex = '/(@)?\{\{\s*(.+?)\s*\}\}(\r?\n)?/s';
         $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
             $ws = empty($matches[3]) ? '' : $matches[3].$matches[3];
-            return $matches[1] ? substr((string) $matches[0], 1) : '<?php echo e('.$compiler($matches[2]).') ?>'.$ws;
+            return $matches[1]
+                ? substr((string) $matches[0], 1)
+                : '<?php echo e('.$compiler($matches[2]).') ?>'.$ws;
         }, $value);
 
         return $value;

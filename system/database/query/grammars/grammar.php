@@ -447,7 +447,7 @@ class Grammar extends \System\Database\Grammar
                 if (is_array($bindings[$i])) {
                     $parameters = $this->parameterize($bindings[$i]);
                     array_splice($bindings, $i, 1, $bindings[$i]);
-                    $sql = preg_replace('~\(\.\.\.\)~', '('.$parameters.')', $sql, 1);
+                    $sql = preg_replace('/\(\.\.\.\)/', '('.$parameters.')', $sql, 1);
                 }
             }
         }

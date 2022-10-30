@@ -1042,7 +1042,11 @@ if (! function_exists('system_os')) {
             $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             $power = min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
 
-            return sprintf('%.'.$precision.'f %s', round($bytes / pow(1024, $power), $precision), $units[$power]);
+            return sprintf(
+                '%.'.$precision.'f %s',
+                round($bytes / pow(1024, $power), $precision),
+                $units[$power]
+            );
         }
     }
 }

@@ -186,7 +186,7 @@ class Query
 
         foreach ($with as $eagerload => $constraints) {
             if (Str::starts_with($eagerload, $relationship.'.')) {
-                $nested[substr((string) $eagerload, mb_strlen((string) $relationship.'.', '8bit'))] = $constraints;
+                $nested[substr((string) $eagerload, strlen((string) $relationship.'.'))] = $constraints;
             }
         }
 
