@@ -562,12 +562,13 @@ class Curl
      * Ubah deklarasi parameter menjadi string json.
      *
      * @param mixed $data
+     * @param int   $json_options
      *
      * @return string
      */
-    public static function body_json($data)
+    public static function body_json($data, $json_options = 0)
     {
-        return json_encode($data);
+        return json_encode($data, $json_options);
     }
 
     /**
