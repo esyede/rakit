@@ -368,7 +368,7 @@ class View implements \ArrayAccess
         $data = array_merge($this->data, static::$shared);
 
         foreach ($data as $key => $value) {
-            if ($value instanceof View || $value instanceof Response) {
+            if (($value instanceof View) || ($value instanceof Response)) {
                 $data[$key] = $value->render();
             }
         }

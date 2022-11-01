@@ -103,7 +103,7 @@ class Container
             ? Arr::get(static::$registry[$type], 'resolver', $type)
             : $type;
 
-        $object = ($resolver === $type || $resolver instanceof \Closure)
+        $object = ($resolver === $type || ($resolver instanceof \Closure))
             ? static::build($resolver, $parameters)
             : static::resolve($resolver);
 

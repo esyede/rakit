@@ -177,7 +177,7 @@ class Panic
         $title = ($e instanceof \ErrorException)
             ? Helpers::errorTypeToString($e->getSeverity())
             : Helpers::getClass($e);
-        $lastError = ($e instanceof \ErrorException || $e instanceof \Error) ? null : error_get_last();
+        $lastError = (($e instanceof \ErrorException) || ($e instanceof \Error)) ? null : error_get_last();
 
         $keysToHide = array_flip(array_map('strtolower', $this->keysToHide));
         $dump = function ($v, $k = null) use ($keysToHide) {

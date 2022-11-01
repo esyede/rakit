@@ -580,7 +580,7 @@ class Curl
      */
     public static function body_form($data)
     {
-        if (is_array($data) || is_object($data) || $data instanceof \Traversable) {
+        if (is_array($data) || is_object($data) || ($data instanceof \Traversable)) {
             return http_build_query(static::build_curl_query($data));
         }
 
@@ -631,7 +631,7 @@ class Curl
         foreach ($data as $key => $value) {
             $name = $parent ? sprintf('%s[%s]', $parent, $key) : $key;
 
-            if (! $value instanceof \CURLFile && (is_array($value) || is_object($value))) {
+            if (! ($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
                 $result = array_merge($result, static::build_curl_query($value, $name));
             } else {
                 $result[$name] = $value;

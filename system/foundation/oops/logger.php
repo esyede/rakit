@@ -85,7 +85,7 @@ class Logger
             );
         }
 
-        $excfile = (($message instanceof \Exception) || (class_exists('\Throwable') && $message instanceof \Throwable))
+        $excfile = (($message instanceof \Exception) || (class_exists('\Throwable') && ($message instanceof \Throwable)))
             ? $this->getExceptionFile($message)
             : null;
         $line = static::formatLogLine($message, $excfile, $priority);
@@ -121,7 +121,8 @@ class Logger
      */
     public static function formatMessage($message)
     {
-        if ($message instanceof \Exception || (class_exists('\Throwable') && $message instanceof \Throwable)) {
+        if (($message instanceof \Exception)
+        || (class_exists('\Throwable') && ($message instanceof \Throwable))) {
             while ($message) {
                 $tmp[] = (($message instanceof \ErrorException)
                     ? Helpers::errorTypeToString($message->getSeverity()).': '.$message->getMessage()
