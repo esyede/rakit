@@ -68,7 +68,7 @@ class Cache
 
         switch ($driver) {
             case 'apc':       return new Cache\Drivers\APC($key);
-            case 'file':      return new Cache\Drivers\File(path('storage').'cache'.DS);
+            case 'file':       return new Cache\Drivers\File(path('storage').'cache'.DS);
             case 'memcached': return new Cache\Drivers\Memcached(Memcached::connection(), $key);
             case 'memory':    return new Cache\Drivers\Memory();
             case 'redis':     return new Cache\Drivers\Redis(Redis::db());
