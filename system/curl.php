@@ -631,10 +631,18 @@ class Curl
         foreach ($data as $key => $value) {
             $name = $parent ? sprintf('%s[%s]', $parent, $key) : $key;
 
-            if (! ($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
-                $result = array_merge($result, static::build_curl_query($value, $name));
+            if (class_exists('\CURLFile')) {
+                if (! ($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
+                    $result = array_merge($result, static::build_curl_query($value, $name));
+                } else {
+                    $result[$name] = $value;
+                }
             } else {
-                $result[$name] = $value;
+                if (is_array($value) || is_object($value)) {
+                    $result = array_merge($result, static::build_curl_query($value, $name));
+                } else {
+                    $result[$name] = $value;
+                }
             }
         }
 
