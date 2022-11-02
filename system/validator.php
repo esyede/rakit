@@ -733,9 +733,17 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_array($attribute, $value)
+    protected function validate_array($attribute, $value, array $parameters = [])
     {
-        return is_array($value);
+        if (! is_array($value)) {
+            return false;
+        }
+
+        if (empty($attribute)) {
+            return true;
+        }
+
+        return empty(array_diff_key($value, array_fill_keys($parameters, '')));
     }
 
     /**
@@ -828,6 +836,36 @@ class Validator
     }
 
     /**
+     * Validasi bahwa atribut merupakan sebuah tanggal.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_date($attribute, $value)
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return true;
+        }
+
+        try {
+            if ((! is_string($value) && ! is_numeric($value)) || strtotime($value) === false) {
+                return false;
+            }
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $date = date_parse($value);
+
+        return checkdate($date['month'], $date['day'], $date['year']);
+    }
+
+    /**
      * Validasi tanggal ini adalah setelah tanggal yang ditentukan.
      *
      * @param string $attribute
@@ -852,7 +890,8 @@ class Validator
      */
     protected function validate_date_format($attribute, $value, array $parameters)
     {
-        return false !== date_create_from_format($parameters[0], $value);
+        return (is_string($parameters[0]) || is_numeric($parameters[0]))
+            && false !== date_create_from_format($parameters[0], $value);
     }
 
     /**

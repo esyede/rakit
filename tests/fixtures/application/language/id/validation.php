@@ -36,6 +36,8 @@ return [
     'countbetween' => 'Bilah :attribute harus diantara :min dan :max elemen.',
     'countmax' => 'Bilah :attribute harus lebih kurang dari :max elemen.',
     'countmin' => 'Bilah :attribute harus paling sedikit :min elemen.',
+    'date' => 'Bilah :attribute harus berisi tanggal.',
+    'date_format' => 'Bilah :attribute harus diisi tanggal dengan format :format.',
     'different' => 'Bilah :attribute dan :other harus berbeda.',
     'email' => 'Format isian :attribute tidak valid.',
     'exists' => 'Bilah :attribute yang dipilih tidak valid.',
