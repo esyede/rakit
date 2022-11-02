@@ -743,7 +743,8 @@ class Validator
             return true;
         }
 
-        return empty(array_diff_key($value, array_fill_keys($parameters, '')));
+        $value = array_diff_key($value, array_fill_keys($parameters, ''));
+        return empty($value);
     }
 
     /**
