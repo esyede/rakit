@@ -217,7 +217,7 @@ class Input
      * @param string $key
      * @param mixed  $default
      *
-     * @return Upload
+     * @return array
      */
     public static function file($key = null, $default = null)
     {
