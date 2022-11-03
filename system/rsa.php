@@ -123,7 +123,7 @@ class RSA
                 if (! openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'))) {
                     $errors = null;
 
-                    while (false !== ($mesage = openssl_error_string())) {
+                    while (false !== ($message = openssl_error_string())) {
                         $errors .= $message.PHP_EOL;
                     }
 
