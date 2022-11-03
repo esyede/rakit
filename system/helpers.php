@@ -565,7 +565,7 @@ if (! function_exists('fake')) {
      *
      * @return mixed
      */
-    function fake($local = null)
+    function fake($locale = null)
     {
         $locale = $locale ? $locale : config('application.language');
         return \System\Foundation\Faker\Factory::create($locale);
