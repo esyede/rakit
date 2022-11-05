@@ -198,7 +198,7 @@ class JWT
      */
     private static function encode_json($data)
     {
-        $json = (PHP_VERSION_ID >= 50500) ? json_encode($data, 0, 512) : json_encode($data);
+        $json = json_encode($data);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
             static::json_error(json_last_error());

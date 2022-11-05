@@ -318,7 +318,7 @@ if (! function_exists('facile_to_json')) {
      *
      * @return string
      */
-    function facile_to_json($models)
+    function facile_to_json($models, $json_options = 0)
     {
         if ($models instanceof \System\Database\Facile\Model) {
             $models = $models->to_array();
@@ -328,7 +328,7 @@ if (! function_exists('facile_to_json')) {
             }, $models);
         }
 
-        return json_encode($models, JSON_BIGINT_AS_STRING | JSON_PRETTY_PRINT);
+        return json_encode($models, $json_options);
     }
 }
 
