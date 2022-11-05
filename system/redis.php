@@ -245,6 +245,11 @@ class Redis
 
     /**
      * Tangani pemanggilan method secara dinamis.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public function __call($method, array $parameters)
     {
@@ -253,6 +258,11 @@ class Redis
 
     /**
      * Tangani pemanggilan static method secara dinamis.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public static function __callStatic($method, array $parameters)
     {
