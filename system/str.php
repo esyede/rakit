@@ -156,7 +156,7 @@ class Str
      */
     public static function words($value, $words = 100, $end = '...')
     {
-        preg_match('/^\s*+(?:\S++\s*+){1,'.$words.'}/u', $value, $matches);
+        preg_match('/^\s*+(?:\S++\s*+){1,'.((int) $words).'}/u', $value, $matches);
 
         if (! isset($matches[0]) || static::length($value) === static::length($matches[0])) {
             return $value;
@@ -814,7 +814,7 @@ class Str
     {
         return (
             '' !== $needle
-            && ((string) $needle === substr((string) $haystack, - mb_strlen((string) $needle, '8bit'))));
+            && ((string) $needle === substr((string) $haystack, -mb_strlen((string) $needle, '8bit'))));
     }
 
     /**

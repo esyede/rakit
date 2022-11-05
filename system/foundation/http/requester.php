@@ -1167,7 +1167,7 @@ class Requester
         foreach (array_filter(explode(',', $header)) as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
                 $q = substr((string) trim($match[1]), 2);
-                $value = trim(substr((string) $value, 0, - mb_strlen((string) $match[0], '8bit')));
+                $value = trim(substr((string) $value, 0, -mb_strlen((string) $match[0], '8bit')));
             } else {
                 $q = 1;
             }

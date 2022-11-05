@@ -609,7 +609,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     public function testTheUtf8Rule()
     {
         // Lihat: https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
-        $this->assertTrue(Validator::make(['foo' => "bar"], ['foo' => 'utf8'])->valid());
+        $this->assertTrue(Validator::make(['foo' => 'bar'], ['foo' => 'utf8'])->valid());
         $this->assertTrue(Validator::make(['foo' => "\xc3\xb1"], ['foo' => 'utf8'])->valid());
         $this->assertFalse(Validator::make(['foo' => "\xc3\x28"], ['foo' => 'utf8'])->valid());
         $this->assertFalse(Validator::make(['foo' => "\xa0\xa1"], ['foo' => 'utf8'])->valid());
