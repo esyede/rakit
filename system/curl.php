@@ -8,7 +8,7 @@ class Curl
 {
     /**
      * HTTP method registry.
-     * Lihat: http://www.iana.org/assignments/http-methods/http-methods.xhtml.
+     * Lihat: https://www.iana.org/assignments/http-methods/http-methods.xhtml.
      */
     const GET = 'GET';
     const HEAD = 'HEAD';

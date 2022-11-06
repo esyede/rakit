@@ -218,7 +218,7 @@ class JWT
      */
     private static function decode_json($data)
     {
-        $object = json_decode($data, false, 512, JSON_BIGINT_AS_STRING);
+        $object = json_decode($data, false);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
             static::json_error(json_last_error());
