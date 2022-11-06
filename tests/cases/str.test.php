@@ -294,8 +294,8 @@ class StrTest extends \PHPUnit_Framework_TestCase
 
     public function testUlid()
     {
-        $this->assertTrue(preg_match('/[0-9][A-Z]/', Str::ulid()));
-        $this->assertTrue(preg_match('/[0-9][a-z]/', Str::ulid(true)));
+        $this->assertTrue((bool) preg_match('/[0-9][A-Z]/', Str::ulid()));
+        $this->assertTrue((bool) preg_match('/[0-9][a-z]/', Str::ulid(true)));
         $this->assertTrue(strlen(Str::ulid()) === 26);
 
         $a = Str::ulid();
