@@ -54,6 +54,7 @@ Dalam keadaan default, hirarki folder rakit akan terlihat seperti berikut:
 │   └── /views
 ├── /system
 ├── index.php
+├── key.php    (auto-generated secret key)
 ├── paths.php
 ├── rakit
 └── robots.txt
