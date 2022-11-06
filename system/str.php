@@ -531,6 +531,7 @@ class Str
         $milliseconds = (int) (microtime(true) * 1000);
         $duplicate = $milliseconds === static::$ulids['time'];
         static::$ulids['time'] = $milliseconds;
+
         $chars = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
         $time = '';
         $random = '';
@@ -558,7 +559,7 @@ class Str
             $random .= $chars[static::$ulids['chars'][$i]];
         }
 
-        return $lowercase ? strtolower($time.$random) : strtoupper($time.$random);
+        return $lowercase ? strtolower($time.$random) : $time.$random;
     }
 
     /**
