@@ -638,7 +638,7 @@ if (! function_exists('abort')) {
         if (\System\Request::wants_json()) {
             $status = $code;
             $message = json_encode(compact('status', 'message'));
-            $headers = array_merge($headers, ['content-type' => 'application/json']);
+            $headers = array_merge($headers, ['Content-Type' => 'application/json']);
         } else {
             $view = \System\View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
             $message = \System\View::make($view)->render();
