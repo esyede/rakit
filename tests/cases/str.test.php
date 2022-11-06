@@ -292,6 +292,20 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue((bool) preg_match('/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/Di', $uuid));
     }
 
+    public function testUlid()
+    {
+        $this->assertTrue(preg_match('/[0-9][A-Z]/', Str::ulid()));
+        $this->assertTrue(preg_match('/[0-9][a-z]/', Str::ulid(true)));
+        $this->assertTrue(strlen(Str::ulid()) === 26);
+
+        $a = Str::ulid();
+        sleep(1);
+        $b = Str::ulid();
+        $ulids = [$b, $a];
+        usort($ulids, 'strcmp');
+        $this->assertSame([$a, $b], $ulids);
+    }
+
     public function testNanoid()
     {
         $nanoid = Str::nanoid(7);

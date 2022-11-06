@@ -42,6 +42,13 @@ class Str
     private static $strings = [];
 
     /**
+     * Bucket untuk ULID.
+     *
+     * @var array
+     */
+    private static $ulids = ['time' => 0, 'chars' => []];
+
+    /**
      * Hitung panjang string.
      *
      * @param string $value
@@ -497,6 +504,7 @@ class Str
 
     /**
      * Buat string UUID (versi 4).
+     * (Universally Unique Identifier versi 4)
      *
      * @return string
      */
@@ -508,6 +516,49 @@ class Str
         $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80);
 
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
+    }
+
+    /**
+     * Buat string ULID.
+     * (Universally Unique Lexicographically Sortable Identifier)
+     *
+     * @param bool $lowercase
+     *
+     * @return string
+     */
+    public static function ulid($lowercase = false)
+    {
+        $milliseconds = (int) (microtime(true) * 1000);
+        $duplicate = $milliseconds === static::$ulids['time'];
+        static::$ulids['time'] = $milliseconds;
+        $chars = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+        $time = '';
+        $random = '';
+
+
+        for ($i = 9; $i >= 0; $i--) {
+            $mod = $milliseconds % 32;
+            $time = $chars[$mod].$time;
+            $milliseconds = ($milliseconds - $mod) / 32;
+        }
+
+        if (! $duplicate) {
+            for ($i = 0; $i < 16; $i++) {
+                static::$ulids['chars'][$i] = static::integers(0, 31);
+            }
+        } else {
+            for ($i = 15; $i >= 0 && static::$ulids['chars'][$i] === 31; $i--) {
+                static::$ulids['chars'][$i] = 0;
+            }
+
+            static::$ulids['chars'][$i]++;
+        }
+
+        for ($i = 0; $i < 16; $i++) {
+            $random .= $chars[static::$ulids['chars'][$i]];
+        }
+
+        return $lowercase ? strtolower($time.$random) : strtoupper($time.$random);
     }
 
     /**

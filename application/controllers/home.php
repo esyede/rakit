@@ -11,6 +11,11 @@ class Home_Controller extends Base_Controller
      */
     public function action_index()
     {
+        for ($i=0; $i < 100; $i++) {
+            dump(Str::ulid());
+        }
+
+        dd(Str::ulid());
         return View::make('home.index');
     }
 }
