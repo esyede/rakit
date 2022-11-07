@@ -4,8 +4,6 @@ namespace System;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Routing\Router;
-
 class URL
 {
     /**
@@ -42,7 +40,7 @@ class URL
      */
     public static function home()
     {
-        return is_null(Router::find('home')) ? static::to('/') : static::to_route('home');
+        return is_null(Routing\Router::find('home')) ? static::to('/') : static::to_route('home');
     }
 
     /**
@@ -120,7 +118,7 @@ class URL
      */
     public static function to_action($action, array $parameters = [])
     {
-        $route = Router::uses($action);
+        $route = Routing\Router::uses($action);
         return is_null($route)
             ? static::convention($action, $parameters)
             : static::explicit($route, $action, $parameters);
@@ -196,7 +194,7 @@ class URL
      */
     public static function to_route($name, array $parameters = [])
     {
-        if (is_null($route = Router::find($name))) {
+        if (is_null($route = Routing\Router::find($name))) {
             throw new \Exception(sprintf('Error creating URL for undefined route: %s', $name));
         }
 
