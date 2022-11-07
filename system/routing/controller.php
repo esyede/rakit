@@ -176,7 +176,7 @@ abstract class Controller
         }
 
         $controller = static::format($package, $controller);
-        return Event::exists(static::FACTORY) ? Event::first(static::FACTORY, $controller) : new $controller();
+        return Event::exists(static::FACTORY) ? Event::first(static::FACTORY, [$controller]) : new $controller();
     }
 
     /**
