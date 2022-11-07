@@ -647,8 +647,8 @@ if (! function_exists('abort')) {
         $response = new \System\Response($message, $code, $headers);
         $response->render();
 
-        if (Config::get('session.driver')) {
-            Session::save();
+        if (\System\Config::get('session.driver')) {
+            \System\Session::save();
         }
 
         $response->send();
@@ -992,7 +992,7 @@ if (! function_exists('get_cli_option')) {
 
         if (is_array($arguments)) {
             foreach ($arguments as $argument) {
-                if (Str::starts_with($argument, '--'.$option.'=')) {
+                if (\System\Str::starts_with($argument, '--'.$option.'=')) {
                     return substr((string) $argument, mb_strlen((string) $option, '8bit') + 3);
                 }
             }
