@@ -603,7 +603,7 @@ class Image
         $result = imagepng($image);
         imagedestroy($image);
 
-        return $display ? Response::make($result, 200, ['content-type' => 'image/png']) : $result;
+        return $display ? Response::make($result, 200, ['Content-Type' => 'image/png']) : $result;
     }
 
     /**
