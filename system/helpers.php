@@ -629,7 +629,7 @@ if (! function_exists('abort')) {
      *
      * @return string
      */
-    function abort($code, $headers = [])
+    function abort($code, array $headers = [])
     {
         $code = (int) $code;
         $message = \System\Foundation\Http\Responder::$statusTexts;
