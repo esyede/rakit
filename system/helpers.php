@@ -668,7 +668,7 @@ if (! function_exists('abort_if')) {
      *
      * @return string
      */
-    function abort_if($condition, $code, $headers = [])
+    function abort_if($condition, $code, array $headers = [])
     {
         if ($condition) {
             return abort($code, $headers);
