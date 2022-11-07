@@ -5,7 +5,6 @@ namespace System;
 defined('DS') or exit('No direct script access.');
 
 use System\Routing\Router;
-use System\Routing\Route;
 
 class URL
 {
