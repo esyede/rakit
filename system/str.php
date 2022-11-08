@@ -456,11 +456,7 @@ class Str
             return (int) $min;
         }
 
-        $attempts = 0;
-        $bits = 0;
-        $bytes = 0;
-        $mask = 0;
-        $shift = 0;
+        $attempts = $bits = $bytes = $mask = $shift = 0;
         $range = $max - $min;
 
         if (! is_int($range)) {
@@ -504,14 +500,13 @@ class Str
 
     /**
      * Buat string UUID (versi 4).
-     * (Universally Unique Identifier versi 4)
+     * (Universally Unique Identifier versi 4).
      *
      * @return string
      */
     public static function uuid()
     {
         $bytes = static::bytes(16);
-
         $bytes[6] = chr(ord($bytes[6]) & 0x0f | 0x40);
         $bytes[8] = chr(ord($bytes[8]) & 0x3f | 0x80);
 
@@ -520,7 +515,7 @@ class Str
 
     /**
      * Buat string ULID.
-     * (Universally Unique Lexicographically Sortable Identifier)
+     * (Universally Unique Lexicographically Sortable Identifier).
      *
      * @param bool $lowercase
      *
@@ -535,7 +530,6 @@ class Str
         $chars = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
         $time = '';
         $random = '';
-
 
         for ($i = 9; $i >= 0; $i--) {
             $mod = $milliseconds % 32;
@@ -864,8 +858,7 @@ class Str
      */
     public static function ends_with($haystack, $needle)
     {
-        return (
-            '' !== $needle
+        return ('' !== (string) $needle
             && ((string) $needle === substr((string) $haystack, -mb_strlen((string) $needle, '8bit'))));
     }
 
