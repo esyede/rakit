@@ -74,7 +74,6 @@ class Blade
             }
 
             $view->path = $compiled;
-
             return ltrim($view->get());
         });
     }
@@ -279,11 +278,8 @@ class Blade
 
         foreach ($matches[0] as $forelse) {
             preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variable);
-
-            $if = '<?php if (count('.$variable[1].') > 0): ?>';
             $search = '/(\s*)@forelse(\s*\(.*\))/';
-            $replace = '$1'.$if.'<?php foreach$2: ?>';
-
+            $replace = '$1<?php if (count('.$variable[1].') > 0): ?><?php foreach$2: ?>';
             $blade = preg_replace($search, $replace, $forelse);
             $value = str_replace($forelse, $blade, $value);
         }
