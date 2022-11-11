@@ -37,13 +37,6 @@ if (! Container::registered('command: package')) {
     });
 }
 
-// Daftarkan kelas milik command 'key'.
-if (! Container::registered('command: key')) {
-    Container::singleton('command: key', function () {
-        return new Commands\Key();
-    });
-}
-
 // Daftarkan kelas milik command 'serve'.
 if (! Container::registered('command: serve')) {
     Container::singleton('command: serve', function () {

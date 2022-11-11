@@ -24,9 +24,9 @@ if (is_file($path = path('rakit_key'))) {
         exit;
     }
 
-    if (strlen((string) require $path) < 10) {
+    if (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
         http_response_code(500);
-        require $dir.'too-short.phtml';
+        require $dir.'invalid.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -57,7 +57,11 @@ if (is_file($path = path('rakit_key'))) {
             }
         }
 
-        $key = bin2hex(openssl_random_pseudo_bytes(rand(5, 10)));
+        $key = sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff),  mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
         file_put_contents(
             path('rakit_key'),
             '<?php'.PHP_EOL.PHP_EOL
@@ -70,7 +74,7 @@ if (is_file($path = path('rakit_key'))) {
             .'| File ini (key.php) dibuat otomatis oleh rakit. Salin file ini ke tempat'.PHP_EOL
             .'| yang aman karena file ini adalah kunci untuk membuka aplikasi anda.'.PHP_EOL
             .'|'.PHP_EOL
-            .'| Jika terjadi error "Hash verification Failed", silahkan muat ulang halaman.'.PHP_EOL
+            .'| Jika terjadi error "Hash verification failed", silahkan muat ulang halaman.'.PHP_EOL
             .'|'.PHP_EOL
             .'*/'.PHP_EOL
             .PHP_EOL

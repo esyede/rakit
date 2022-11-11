@@ -1,9 +1,4 @@
 {
-	"common": {
-      "key:generate": {
-      	"description": "Generate rakit key.",
-      	"command": "php rakit key:generate"
-      },
       "serve": {
       	"description": "Jalankan server bawaan.",
       	"command": "php rakit serve"
