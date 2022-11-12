@@ -6,7 +6,7 @@
     <meta name="robots" content="noindex">
     <meta name="generator" content="Rakit debugger">
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-    <title>{{ $code }} | {{ $message }}</title>
+    <title>500 | Unknown Error</title>
     <style>
         html, body {
             font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -29,7 +29,7 @@
 </head>
 <body>
     <div id="oops-error">
-        {{ $code }} | {{ $message }}
+        500 | Unknown Error
     </div>
 </body>
 </html>
