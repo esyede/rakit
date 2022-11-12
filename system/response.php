@@ -194,7 +194,7 @@ class Response
             return static::json(compact('status', 'message'), $code, $headers);
         }
 
-        $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
+        $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.unknown';
         return static::view($view, compact('code', 'message'), $code, $headers);
     }
 

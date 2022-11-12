@@ -640,7 +640,7 @@ if (! function_exists('abort')) {
             $message = json_encode(compact('status', 'message'));
             $headers = array_merge($headers, ['Content-Type' => 'application/json']);
         } else {
-            $view = \System\View::exists('error.'.$code) ? 'error.'.$code : 'error.default';
+            $view = \System\View::exists('error.'.$code) ? 'error.'.$code : 'error.unknown';
             $message = \System\View::make($view)->render();
         }
 
