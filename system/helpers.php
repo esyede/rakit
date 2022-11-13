@@ -572,6 +572,32 @@ if (! function_exists('fake')) {
     }
 }
 
+if (! function_exists('validate')) {
+    /**
+     * Buat instance validater.
+     *
+     * <code>
+     *
+     *      // Buat data validater menggunakan default locale.
+     *      $name = validate()->name;
+     *
+     *      // Buat data validater menggunakan custom locale.
+     *      $name = validate('en')->name;
+     *
+     * </code>
+     *
+     * @param array $attributes
+     * @param array $rules
+     * @param array $messages
+     *
+     * @return \System\Validator
+     */
+    function validate(array $attributes, array $rules, array $messages = [])
+    {
+        return \System\Validator::make($attributes, $rules, $messages);
+    }
+}
+
 if (! function_exists('redirect')) {
     /**
      * Buat sebuah redireksi.
