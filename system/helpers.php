@@ -608,6 +608,20 @@ if (! function_exists('old')) {
     }
 }
 
+if (! function_exists('redirect')) {
+    /**
+     * Buat sebuah redireksi.
+     *
+     * @param string $url
+     *
+     * @return \System\Redirect
+     */
+    function redirect($url)
+    {
+        return \System\Redirect::to($url);
+    }
+}
+
 if (! function_exists('back')) {
     /**
      * Buat sebuah redireksi ke halaman sebelumnya.
@@ -888,6 +902,20 @@ if (! function_exists('decrypt')) {
     function decrypt($data)
     {
         return \System\Crypter::decrypt($data);
+    }
+}
+
+if (! function_exists('bcrypt')) {
+    /**
+     * Buat hash password.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    function bcrypt($string)
+    {
+        return \System\Hash::make($string);
     }
 }
 
