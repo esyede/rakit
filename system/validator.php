@@ -79,11 +79,11 @@ class Validator
     /**
      * Buat sebuah instance validator baru.
      *
-     * @param mixed $attributes
+     * @param array $attributes
      * @param array $rules
      * @param array $messages
      */
-    public function __construct($attributes, $rules, array $messages = [])
+    public function __construct(array $attributes, array $rules, array $messages = [])
     {
         foreach ($rules as $key => &$rule) {
             $rule = is_string($rule) ? explode('|', $rule) : $rule;
@@ -91,7 +91,7 @@ class Validator
 
         $this->rules = $rules;
         $this->messages = $messages;
-        $this->attributes = is_object($attributes) ? get_object_vars($attributes) : $attributes;
+        $this->attributes = $attributes;
     }
 
     /**
@@ -103,7 +103,7 @@ class Validator
      *
      * @return Validator
      */
-    public static function make($attributes, $rules, array $messages = [])
+    public static function make(array $attributes, array $rules, array $messages = [])
     {
         return new static($attributes, $rules, $messages);
     }
