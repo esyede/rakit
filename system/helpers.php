@@ -574,17 +574,7 @@ if (! function_exists('fake')) {
 
 if (! function_exists('validate')) {
     /**
-     * Buat instance validater.
-     *
-     * <code>
-     *
-     *      // Buat data validater menggunakan default locale.
-     *      $name = validate()->name;
-     *
-     *      // Buat data validater menggunakan custom locale.
-     *      $name = validate('en')->name;
-     *
-     * </code>
+     * Buat instance validator.
      *
      * @param array $attributes
      * @param array $rules
