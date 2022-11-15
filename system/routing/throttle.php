@@ -26,13 +26,13 @@ class Throttle
     public static function check($limit, $minutes = 1)
     {
         $limit = (int) $limit;
-        $limit = ($limit < 1) ? 1 : $limit;
+        $limit = ($limit < 1) ? 3 : $limit;
 
         $minutes = (int) $minutes;
         $minutes = ($minutes < 1) ? 1 : $minutes;
 
         $key = static::key();
-        $ip = static::ip();
+        $ip = Request::ip();
 
         if (! Cache::has($key)) {
             $payloads = [
