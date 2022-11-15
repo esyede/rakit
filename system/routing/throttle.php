@@ -26,13 +26,13 @@ class Throttle
     public static function check($limit, $minutes = 1)
     {
         $limit = (int) $limit;
-        $limit = ($limit < 1) ? 3 : $limit;
+        $limit = ($limit < 3) ? 3 : $limit;
 
         $minutes = (int) $minutes;
         $minutes = ($minutes < 1) ? 1 : $minutes;
 
-        $key = static::key();
         $ip = Request::ip();
+        $key = static::PREFIX.'.'.sprintf('%u', ip2long($ip));
 
         if (! Cache::has($key)) {
             $payloads = [
@@ -93,18 +93,5 @@ class Throttle
         ];
 
         return Response::error(429, $headers);
-    }
-
-    /**
-     * Ambil cache key untuk request saat ini.
-     *
-     * @return string
-     */
-    public static function key()
-    {
-        $ip = Request::ip();
-        $ip = ('::1' === $ip || '[::1]' === $ip) ? '127.0.0.1' : $ip;
-
-        return static::PREFIX.'.'.str_replace('.', '-', $ip);
     }
 }
