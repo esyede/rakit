@@ -47,6 +47,12 @@ Route::middleware('csrf', function () {
 
 Route::middleware('auth', function () {
     if (Auth::guest()) {
-        return redirect('login');
+        return abort(401);
+    }
+});
+
+Route::middleware('throttle', function ($limit, $minutes) {
+    if (Throttle::exceeded($limit, $minutes)) {
+        return abort(429);
     }
 });
