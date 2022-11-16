@@ -111,8 +111,8 @@ return [
     */
 
     'from' => [
-        'email' => null,
-        'name' => null,
+        'email' => 'noreply@example.com',
+        'name' => 'Support Division',
     ],
 
     /*
