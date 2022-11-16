@@ -173,7 +173,7 @@ class Smtp extends Driver
         }
 
         try {
-            $this->command('HELP', 214);
+            $this->command('HELP', false);
         } catch (\Throwable $e) {
             throw new \Exception('Unable to send help command: '.$e->getMessage());
         } catch (\Exception $e) {
