@@ -306,18 +306,16 @@ class Make extends Command
     }
 
     /**
-     * Buat file resource controller baru.
+     * Buat auth scaffolding (login, register, forgot password).
+     * (NOTE: harus dijalankan pada keadaan fresh project).
      *
      * <code>
      *
-     *      // Buat file resource controller baru.
-     *      php rakit make:resource dashboard
+     *      // Buat auth scaffolding.
+     *      php rakit make:auth
      *
-     *      // Buat file resource controller baru didalam subdirektori.
-     *      php rakit make:resource admin.home
-     *
-     *      // Buat file resource controller baru di paket 'admin'.
-     *      php rakit make:resource admin::dashboard
+     *      // Selanjutkan jalankan migrasi database.
+     *      php rakit migrate
      *
      * </code>
      *
