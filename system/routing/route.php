@@ -231,6 +231,18 @@ class Route
     }
 
     /**
+     * Periksa apakah named-route telah terdaftar atau belum.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public static function has($name)
+    {
+        return in_array($name, array_values(array_filter(data_get(static::lists(), '*.*.as', []))));
+    }
+
+    /**
      * Daftarkan controller (auto-discovery).
      *
      * @param string|array $controllers
@@ -383,5 +395,15 @@ class Route
         static::get($route, function () use ($to, $status) {
             return Redirect::to($to, $status);
         });
+    }
+
+    /**
+     * Ambil list route yang telah terdaftar.
+     *
+     * @return array
+     */
+    public static function lists()
+    {
+        return Router::routes();
     }
 }
