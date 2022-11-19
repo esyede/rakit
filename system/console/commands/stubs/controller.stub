@@ -5,11 +5,12 @@ defined('DS') or exit('No direct script access.');
 class stub_class_Controller extends Controller
 {
     /**
-     * Aktifkan RESTful controller?
-     *
-     * @var bool
+     * Create a new controller instance.
      */
-    public $restful = false;
+    public function __construct()
+    {
+        $this->middleware('before', 'csrf|throttle:60,1');
+    }
 
 	/**
 	 * Action index.

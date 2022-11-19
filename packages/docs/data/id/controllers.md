@@ -54,9 +54,6 @@ Penamaan method untuk action harus diawali dengan kata `action_`.
 Semua method lain, jika namanya tidak diawali dengan kata `action_` maka ia **tidak akan bisa diakses**
 oleh pengunjung situs anda.
 
->  Kelas `Base_Controller` meng-extend kelas controller utama bawaan Rakit, dan memberi anda tempat
-   yang nyaman untuk meletakkan method yang umum digunakan oleh banyak controller.
-
 
 <a id="controller-routing"></a>
 ## Controller Routing

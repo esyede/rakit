@@ -68,6 +68,19 @@ class Request
     }
 
     /**
+     * Memeriksa tipe request method.
+     *
+     * @param string $method
+     *
+     * @return bool
+     */
+    public static function is_method($method)
+    {
+        $method = strtoupper($method);
+        return static::method() === (('HEAD' === $method) ? 'GET' : $method);
+    }
+
+    /**
      * Ambil request handler dari request saat ini.
      *
      * <code>

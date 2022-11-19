@@ -1,0 +1,56 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class Auth_Register_Controller extends Controller
+{
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('before', 'csrf|throttle:60,1');
+    }
+
+    /**
+     * Show the application's registration form.
+     *
+     * @return \System\Response
+     */
+    public function action_show()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle a registration request to the application.
+     *
+     * @return \System\Response
+     */
+    public function action_register()
+    {
+        $validation = Validator::make(Input::all(), [
+            'name' => 'required|min:3|max:255',
+            'email' => 'required|email|unique:users|max:255',
+            'password' => 'required|confirmed|min:8|max:255',
+        ]);
+
+        if ($validation->fails()) {
+            return Redirect::back()
+                ->with_input()
+                ->with_errors($validation);
+        }
+
+        $user = new User();
+        $user->name = Input::get('name');
+        $user->email = Input::get('email');
+        $user->password = Hash::make(Input::get('password'));
+        $user->save();
+
+        Auth::login($user->id);
+
+        return Redirect::to('/dashboard');
+    }
+}

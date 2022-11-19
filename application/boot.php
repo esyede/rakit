@@ -33,22 +33,6 @@ defined('DS') or exit('No direct script access.');
 
 /*
 |--------------------------------------------------------------------------
-| Autoload Mapping
-|--------------------------------------------------------------------------
-|
-| Untuk mendaftarkan class map, cukup oper array ke Autoloader::map()
-| seperti ini. Disini kita mendaftarkan kelas Base_controller via mapping
-| karena kelas tersebut belum mengikuti konvensi psr.
-|
-*/
-
-Autoloader::map([
-    'Base_Controller' => path('app').'controllers'.DS.'base.php',
-    // Tambahkan mapping lain disini..
-]);
-
-/*
-|--------------------------------------------------------------------------
 | Autoload Direktori
 |--------------------------------------------------------------------------
 |

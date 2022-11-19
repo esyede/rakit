@@ -1,0 +1,68 @@
+<?php
+
+defined('DS') or exit('No direct script access.');
+
+class Auth_Login_Controller extends Controller
+{
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('before', 'csrf|throttle:60,1');
+    }
+
+    /**
+     * Show the application's login form.
+     *
+     * @return \System\Response
+     */
+    public function action_show()
+    {
+        return View::make('auth.login');
+    }
+
+    /**
+     * Handle a login request to the application.
+     *
+     * @return \System\Response
+     */
+    public function action_login()
+    {
+        $validation = Validator::make(Input::all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if ($validation->fails()) {
+            return Redirect::back()
+                ->with_input()
+                ->with_errors($validation);
+        }
+
+        $credentials = Input::only('email', 'password');
+        $remember = Input::has('remember');
+
+        if (! Auth::attempt($credentials, $remember)) {
+            return Redirect::back()
+                ->with_input()
+                ->with('error', 'Invalid credentials.');
+        }
+
+        return Redirect::to('/dashboard');
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @return \System\Response
+     */
+    public function action_logout()
+    {
+        Auth::logout();
+
+        return Redirect::to('/');
+    }
+}

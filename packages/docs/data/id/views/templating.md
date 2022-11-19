@@ -23,7 +23,7 @@ Mendefinisikan layout sebuah controller akan membuat pengembangan anda jauh lebi
 #### Tambahkan property `$layout` ke controller anda:
 
 ```php
-class Base_Controller extends Controller
+class Home_Controller extends Controller
 {
 	public $layout = 'layouts.common';
 

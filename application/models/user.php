@@ -5,7 +5,7 @@ defined('DS') or exit('No direct script access.');
 class User extends Facile
 {
     /**
-     * Atribut yang mass-assignable.
+     * The attributes that are mass assignable.
      *
      * @var array
      */
@@ -13,16 +13,16 @@ class User extends Facile
         'name',
         'email',
         'password',
-        'email_verified_at',
     ];
 
     /**
-     * Atribut yang harus disembunyikan saat serialisasi.
+     * The attributes that should be hidden for serialization.
      *
      * @var array
      */
     public static $hidden = [
         'password',
+        'remember_token',
     ];
 
     // ..

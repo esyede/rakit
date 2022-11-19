@@ -57,10 +57,6 @@ All other methods, if the name does not starts with the word `action_` then it *
 by visitors to your site.
 
 
->  The `Base_Controller` class extends Rakit's system controller class, and gives you
-   a convenient place to put in common methods that will be used by many controllers.
-
-
 
 <a id="controller-routing"></a>
 ## Controller Routing

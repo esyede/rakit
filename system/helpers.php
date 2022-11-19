@@ -264,15 +264,16 @@ if (! function_exists('retry')) {
     /**
      * Ulangi eksekusi sebanyak jumlah yang diberikan.
      *
-     * @param int      $times
-     * @param callable $callback
-     * @param int      $sleep
+     * @param int           $times
+     * @param callable      $callback
+     * @param int           $sleep_ms
+     * @param callable|null $when
      *
      * @throws \Exception
      *
      * @return mixed
      */
-    function retry($times, callable $callback, $sleep = 0, $when = null)
+    function retry($times, callable $callback, $sleep_ms = 0, $when = null)
     {
         $attempts = 0;
         --$times;
@@ -289,8 +290,8 @@ if (! function_exists('retry')) {
 
             --$times;
 
-            if ($sleep) {
-                usleep($sleep * 1000);
+            if ($sleep_ms) {
+                usleep($sleep_ms * 1000);
             }
 
             goto beginning;
@@ -301,8 +302,8 @@ if (! function_exists('retry')) {
 
             --$times;
 
-            if ($sleep) {
-                usleep($sleep * 1000);
+            if ($sleep_ms) {
+                usleep($sleep_ms * 1000);
             }
 
             goto beginning;

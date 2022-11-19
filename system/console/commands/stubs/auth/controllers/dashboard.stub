@@ -2,23 +2,23 @@
 
 defined('DS') or exit('No direct script access.');
 
-class Home_Controller extends Controller
+class Dashboard_Controller extends Controller
 {
     /**
      * Create a new controller instance.
      */
     public function __construct()
     {
-        $this->middleware('before', 'csrf|throttle:60,1');
+        $this->middleware('before', 'csrf|throttle:60,1|auth');
     }
 
     /**
-     * Handle GET /.
+     * Show the application's dashboard.
      *
      * @return View
      */
     public function action_index()
     {
-        return View::make('home');
+        return View::make('dashboard');
     }
 }

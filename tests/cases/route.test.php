@@ -86,16 +86,19 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testCallingARouteCallsTheBeforeAndAfterMiddlewares()
     {
         $route = new Route('GET', '', [function () {
+            $_SERVER['before'] = true;
+            $_SERVER['after'] = true;
             return 'Hi!';
         }]);
 
-        $_SERVER['before'] = false;
-        $_SERVER['after'] = false;
+        unset($_SERVER['before'], $_SERVER['after']);
 
         $route->call();
 
         $this->assertTrue($_SERVER['before']);
         $this->assertTrue($_SERVER['after']);
+
+        unset($_SERVER['before'], $_SERVER['after']);
     }
 
     /**

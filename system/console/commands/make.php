@@ -237,7 +237,6 @@ class Make extends Command
         Storage::put($file, $this->stub_migration($package, $migration));
 
         echo 'Created migration: '.$prefix.'_'.$migration.PHP_EOL;
-
         return $file;
     }
 
@@ -304,6 +303,82 @@ class Make extends Command
         }
 
         return $file;
+    }
+
+    /**
+     * Buat file resource controller baru.
+     *
+     * <code>
+     *
+     *      // Buat file resource controller baru.
+     *      php rakit make:resource dashboard
+     *
+     *      // Buat file resource controller baru didalam subdirektori.
+     *      php rakit make:resource admin.home
+     *
+     *      // Buat file resource controller baru di paket 'admin'.
+     *      php rakit make:resource admin::dashboard
+     *
+     * </code>
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function auth(array $arguments = [])
+    {
+        $directories = [
+            'views'.DS.'layouts',
+            'views'.DS.'auth'.DS.'email',
+            'views'.DS.'auth'.DS.'passwords',
+            'controllers'.DS.'auth',
+        ];
+
+        foreach ($directories as $directory) {
+            if (! is_dir(path('app').$directory)) {
+                mkdir(path('app').$directory, 0755, true);
+            }
+        }
+
+        $views = [
+            'auth'.DS.'login.stub' => 'auth'.DS.'login.blade.php',
+            'auth'.DS.'register.stub' => 'auth'.DS.'register.blade.php',
+            'auth'.DS.'passwords'.DS.'email.stub' => 'auth'.DS.'passwords'.DS.'email.blade.php',
+            'auth'.DS.'passwords'.DS.'reset.stub' => 'auth'.DS.'passwords'.DS.'reset.blade.php',
+            'email'.DS.'reset.stub' => 'auth'.DS.'email'.DS.'reset.blade.php',
+            'layouts'.DS.'app.stub' => 'layouts'.DS.'app.blade.php',
+            'dashboard.stub' => 'dashboard.blade.php',
+        ];
+
+        foreach ($views as $key => $value) {
+            copy(
+                __DIR__.DS.'stubs'.DS.'auth'.DS.'views'.DS.$key,
+                path('app').'views'.DS.$value
+            );
+        }
+
+        $controllers = [
+            'dashboard.stub' => 'dashboard.php',
+            'login.stub' => 'auth'.DS.'login.php',
+            'register.stub' => 'auth'.DS.'register.php',
+            'password.stub' => 'auth'.DS.'password.php',
+        ];
+
+        foreach ($controllers as $key => $value) {
+            file_put_contents(
+                path('app').'controllers'.DS.$value,
+                file_get_contents(__DIR__.DS.'stubs'.DS.'auth'.DS.'controllers'.DS.$key)
+            );
+        }
+
+        file_put_contents(
+            path('app').DS.'routes.php',
+            file_get_contents(__DIR__.DS.'stubs'.DS.'auth'.DS.'routes.stub'),
+            LOCK_EX | FILE_APPEND
+        );
+
+        echo 'Authentication scaffolding generated successfully';
+        return true;
     }
 
     /**

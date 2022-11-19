@@ -77,8 +77,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Di sini anda dapat menentukan pesan validasi kuatom untuk atribut
-    | menggunakan konvensi 'atribut_rule'. Ini membantu menjaga validasi
-    | kustom anda tetap bersih dan rapi.
+    | menggunakan konvensi '[atribut] + _ + [rule]'. Ini membantu menjaga
+    | validasi kustom anda tetap bersih dan rapi.
     |
     | Jadi, katakanlah anda ingin menggunakan pesan validasi kuatom ketika
     | memvalidasi bahwa atribut 'email' itu unik.
@@ -86,7 +86,9 @@ return [
     |
     */
 
-    'custom' => [],
+    'custom' => [
+        // ..
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -102,5 +104,7 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        // ..
+    ],
 ];

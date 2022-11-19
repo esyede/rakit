@@ -79,7 +79,8 @@ class Messages
      */
     public function has($key)
     {
-        return '' !== $this->first($key);
+        $key = $this->first($key);
+        return '' !== $key && ! is_null($key);
     }
 
     /**

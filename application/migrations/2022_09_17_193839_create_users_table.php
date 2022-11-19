@@ -11,12 +11,13 @@ class Create_Users_Table
      */
     public function up()
     {
-        Schema::create(Config::get('auth.table'), function ($table) {
+        Schema::create('users', function ($table) {
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('password');
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('remember_token')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +29,6 @@ class Create_Users_Table
      */
     public function down()
     {
-        Schema::drop_if_exists(Config::get('auth.table'));
+        Schema::drop_if_exists('users');
     }
 }

@@ -18,45 +18,44 @@ class Throttle
     /**
      * Jalankan proses throttling.
      *
-     * @param int $limit
-     * @param int $minutes
+     * @param int $max_attempts
+     * @param int $decay_minutes
      *
      * @return \System\Response
      */
-    public static function check($limit, $minutes = 1)
+    public static function check($max_attempts, $decay_minutes = 1)
     {
-        $limit = (int) $limit;
-        $limit = ($limit < 3) ? 3 : $limit;
-
-        $minutes = (int) $minutes;
-        $minutes = ($minutes < 1) ? 1 : $minutes;
+        $max_attempts = (int) $max_attempts;
+        $max_attempts = ($max_attempts < 3) ? 3 : $max_attempts;
+        $decay_minutes = (int) $decay_minutes;
+        $decay_minutes = ($decay_minutes < 1) ? 1 : $decay_minutes;
 
         $ip = Request::ip();
         $key = static::PREFIX.'.'.sprintf('%u', ip2long($ip));
 
         if (! Cache::has($key)) {
-            $payloads = [
-                'limit' => $limit,
-                'remaining' => $limit,
-                'reset' => time() + ($minutes * 3600),
-                'retry' => $minutes * 3600,
+            $data = [
+                'limit' => $max_attempts,
+                'remaining' => $max_attempts,
+                'reset' => time() + ($decay_minutes * 3600),
+                'retry' => $decay_minutes * 3600,
                 'key' => $key,
                 'ip' => $ip,
             ];
 
-            Cache::put($key, $payloads, $minutes);
+            Cache::put($key, $data, $decay_minutes);
         }
 
-        $payloads = Cache::get($key);
+        $data = Cache::get($key);
 
-        if ($payloads['remaining'] > 0) {
-            $payloads['remaining'] = $payloads['remaining'] - 1;
-            Cache::put($key, $payloads, $minutes);
+        if ($data['remaining'] > 0) {
+            $data['remaining'] = $data['remaining'] - 1;
+            Cache::put($key, $data, $decay_minutes);
             return true;
         }
 
-        if ($payloads['reset'] > time()) {
-            $payloads['reset'] = time() + ($minutes * 3600);
+        if ($data['reset'] > time()) {
+            $data['reset'] = time() + ($decay_minutes * 3600);
             return false;
         }
 
@@ -67,14 +66,14 @@ class Throttle
     /**
      * Cek apakah request telah melebihi batas yang ditentukan.
      *
-     * @param int $limit
-     * @param int $minutes
+     * @param int $max_attempts
+     * @param int $decay_minutes
      *
      * @return bool
      */
-    public static function exceeded($limit, $minutes)
+    public static function exceeded($max_attempts, $decay_minutes)
     {
-        return ! static::check($limit, $minutes);
+        return ! static::check($max_attempts, $decay_minutes);
     }
 
     /**
@@ -84,14 +83,12 @@ class Throttle
      */
     public static function error()
     {
-        $headers = Cache::get(static::key());
-        $headers = [
-            'x-rate-limit-limit' => $headers['limit'],
-            'x-rate-limit-remaining' => $headers['remaining'],
-            'x-rate-limit-reset' => $headers['reset'],
-            'retry-after' => $headers['retry'],
-        ];
-
-        return Response::error(429, $headers);
+        $data = Cache::get(static::key());
+        return Response::error(429, [
+            'X-Rate-Limit-Limit' => $data['limit'],
+            'X-Rate-Limit-Remaining' => $data['remaining'],
+            'X-Rate-Limit-Reset' => $data['reset'],
+            'Retry-After' => $data['retry'],
+        ]);
     }
 }

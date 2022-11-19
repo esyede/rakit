@@ -36,7 +36,14 @@ class Facile extends Driver
      */
     public function attempt(array $arguments = [])
     {
-        $user = $this->model()->where(function ($query) use ($arguments) {
+        $model = Config::get('auth.model');
+
+        if (! $model) {
+            throw new \Exception('Please set the auth model in your config file.');
+        }
+
+        $model = new $model();
+        $user = $model->where(function ($query) use ($arguments) {
             $query->where('email', '=', $arguments['email']);
             $except = Arr::except($arguments, ['email', 'password', 'remember']);
 
@@ -50,21 +57,5 @@ class Facile extends Driver
         }
 
         return false;
-    }
-
-    /**
-     * Ambil instance model baru.
-     *
-     * @return Facile
-     */
-    protected function model()
-    {
-        $model = Config::get('auth.model');
-
-        if (! $model) {
-            throw new \Exception('Please set the auth model in your config file.');
-        }
-
-        return new $model();
     }
 }

@@ -468,6 +468,7 @@ abstract class Model
      */
     protected function _query()
     {
+        return new Query($this);
         return (new Query($this))->connection()->table($this->table());
     }
 
