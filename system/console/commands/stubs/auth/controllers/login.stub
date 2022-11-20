@@ -5,7 +5,7 @@ defined('DS') or exit('No direct script access.');
 class Auth_Login_Controller extends Controller
 {
     /**
-     * Create a new controller instance.
+     * Buat instance controller baru.
      *
      * @return void
      */
@@ -15,7 +15,7 @@ class Auth_Login_Controller extends Controller
     }
 
     /**
-     * Show the application's login form.
+     * Tampilkan formulir login.
      *
      * @return \System\Response
      */
@@ -25,7 +25,7 @@ class Auth_Login_Controller extends Controller
     }
 
     /**
-     * Handle a login request to the application.
+     * Tangani permintaan login.
      *
      * @return \System\Response
      */
@@ -55,7 +55,7 @@ class Auth_Login_Controller extends Controller
     }
 
     /**
-     * Log the user out of the application.
+     * Tangani permintaan logout.
      *
      * @return \System\Response
      */

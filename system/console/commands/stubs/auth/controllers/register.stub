@@ -5,7 +5,7 @@ defined('DS') or exit('No direct script access.');
 class Auth_Register_Controller extends Controller
 {
     /**
-     * Create a new controller instance.
+     * Buat instance controller baru.
      *
      * @return void
      */
@@ -15,7 +15,7 @@ class Auth_Register_Controller extends Controller
     }
 
     /**
-     * Show the application's registration form.
+     * Tampilkan formulir registrasi.
      *
      * @return \System\Response
      */
@@ -25,7 +25,7 @@ class Auth_Register_Controller extends Controller
     }
 
     /**
-     * Handle a registration request to the application.
+     * Tangani permintaan registrasi.
      *
      * @return \System\Response
      */
