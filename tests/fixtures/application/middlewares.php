@@ -31,7 +31,6 @@ Route::middleware('throttle', function ($limit, $minutes) {
     }
 });
 
-
 Route::middleware('before', function () {
     // ..
 });

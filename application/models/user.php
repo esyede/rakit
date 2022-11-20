@@ -5,7 +5,7 @@ defined('DS') or exit('No direct script access.');
 class User extends Facile
 {
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang dapat di assign secara massal.
      *
      * @var array
      */
@@ -16,7 +16,7 @@ class User extends Facile
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang harus disembunyikan saat serialisasi.
      *
      * @var array
      */
