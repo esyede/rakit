@@ -9,31 +9,26 @@ class Tcno
     public static function checksum($identityPrefix)
     {
         if (9 !== mb_strlen((string) $identityPrefix, '8bit')) {
-            throw new \InvalidArgumentException(
-                'Argument should be an integer and should be 9 digits.'
-            );
+            throw new \InvalidArgumentException('Argument should be an integer and should be 9 digits.');
         }
 
         $identity = array_map('intval', str_split($identityPrefix));
-        $oddSum = 0;
-        $evenSum = 0;
+        $odd = 0;
+        $even = 0;
 
         foreach ($identity as $index => $digit) {
             if (0 === $index % 2) {
-                $evenSum += $digit;
+                $even += $digit;
             } else {
-                $oddSum += $digit;
+                $odd += $digit;
             }
         }
 
-        $tenthDigit = (7 * $evenSum - $oddSum) % 10;
-        $eleventhDigit = ($evenSum + $oddSum + $tenthDigit) % 10;
-
-        return $tenthDigit.$eleventhDigit;
+        return ((7 * $even - $odd) % 10).(($even + $odd + ((7 * $even - $odd) % 10)) % 10);
     }
 
     public static function isValid($tcNo)
     {
-        return self::checksum(substr((string) $tcNo, 0, -2)) === substr((string) $tcNo, -2, 2);
+        return self::checksum(substr((string) $tcNo, 0, - 2)) === substr((string) $tcNo, -2, 2);
     }
 }

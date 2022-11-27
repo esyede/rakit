@@ -10,9 +10,7 @@ class Iban
     {
         $string = substr((string) $iban, 4).substr((string) $iban, 0, 2).'00';
         $string = preg_replace_callback('/[A-Z]/', ['self', 'alphaToNumberCallback'], $string);
-        $string = (98 - self::mod97($string));
-
-        return str_pad($string, 2, '0', STR_PAD_LEFT);
+        return str_pad(98 - self::mod97($string), 2, '0', STR_PAD_LEFT);
     }
 
     private static function alphaToNumberCallback($match)

@@ -9,7 +9,7 @@ class Luhn
     private static function checksum($number)
     {
         $number = (string) $number;
-        $length = mb_strlen((string) $number, '8bit');
+        $length = mb_strlen($number, '8bit');
         $sum = 0;
 
         for ($i = $length - 1; $i >= 0; $i -= 2) {
@@ -25,8 +25,8 @@ class Luhn
 
     public static function computeCheckDigit($partialNumber)
     {
-        $checkDigit = self::checksum($partialNumber.'0');
-        return (0 === $checkDigit) ? 0 : ((string) (10 - $checkDigit));
+        $digit = self::checksum($partialNumber.'0');
+        return (0 === $digit) ? 0 : ((string) (10 - $digit));
     }
 
     public static function isValid($number)
