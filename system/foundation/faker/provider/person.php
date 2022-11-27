@@ -26,9 +26,7 @@ class Person extends Base
         } elseif ($gender === static::GENDER_FEMALE) {
             $format = static::randomElement(static::$femaleNameFormats);
         } else {
-            $format = static::randomElement(
-                array_merge(static::$maleNameFormats, static::$femaleNameFormats)
-            );
+            $format = static::randomElement(array_merge(static::$maleNameFormats, static::$femaleNameFormats));
         }
 
         return $this->generator->parse($format);

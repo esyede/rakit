@@ -217,8 +217,7 @@ class Address extends BaseAddress
 
     public function city()
     {
-        $format = static::randomElement(static::$cityFormats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$cityFormats));
     }
 
     public static function street()

@@ -43,7 +43,7 @@ class Internet extends Base
 
     public static function toAscii($string)
     {
-        $transliterationTable = [
+        $pool = [
             'Ĳ' => 'I', 'Ö' => 'O', 'Œ' => 'O', 'Ü' => 'U', 'ä' => 'a', 'æ' => 'a',
             'ĳ' => 'i', 'ö' => 'o', 'œ' => 'o', 'ü' => 'u', 'ß' => 's', 'ſ' => 's',
             'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A',
@@ -152,52 +152,44 @@ class Internet extends Base
             'ք' => 'q', 'և' => 'ev', 'օ' => 'o', 'ֆ' => 'f',
         ];
 
-        return str_replace(
-            array_keys($transliterationTable),
-            array_values($transliterationTable),
-            $string
-        );
+        return str_replace(array_keys($pool), array_values($pool), $string);
     }
 
     private static function transliterate($string)
     {
-        $transId = 'Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC; Lower();';
+        $id = 'Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC; Lower();';
 
         if (function_exists('transliterator_transliterate')
-        && $transliterator = \Transliterator::create($transId)) {
-            $transString = $transliterator->transliterate($string);
+        && $trans = \Transliterator::create($id)) {
+            $result = $trans->transliterate($string);
         } else {
-            $transString = static::toAscii($string);
+            $result = static::toAscii($string);
         }
 
-        return preg_replace('/[^A-Za-z0-9_.]/u', '', $transString);
+        return preg_replace('/[^A-Za-z0-9_.]/u', '', $result);
     }
 
     public function email()
     {
         $format = static::randomElement(static::$emailFormats);
-
         return mb_strtolower((string) $this->generator->parse($format), 'UTF-8');
     }
 
     final public function safeEmail()
     {
         $email = $this->userName().'@'.static::safeEmailDomain();
-
         return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public function freeEmail()
     {
         $email = $this->userName().'@'.static::freeEmailDomain();
-
         return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public function companyEmail()
     {
         $email = $this->userName().'@'.$this->domainName();
-
         return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
@@ -208,16 +200,13 @@ class Internet extends Base
 
     final public static function safeEmailDomain()
     {
-        $domains = ['example.com', 'example.org', 'example.net'];
-        return mb_strtolower((string) static::randomElement($domains), 'UTF-8');
+        return mb_strtolower((string) static::randomElement(['example.com', 'example.org', 'example.net']), 'UTF-8');
     }
 
     public function userName()
     {
         $format = static::randomElement(static::$userNameFormats);
-        $username = static::bothify($this->generator->parse($format));
-
-        return static::transliterate($username);
+        return static::transliterate(static::bothify($this->generator->parse($format)));
     }
 
     public function password($minLength = 6, $maxLength = 20)
@@ -233,8 +222,7 @@ class Internet extends Base
 
     public function domainWord()
     {
-        $lastName = $this->generator->format('lastName');
-        return static::transliterate($lastName);
+        return static::transliterate($this->generator->format('lastName'));
     }
 
     public function tld()
@@ -244,8 +232,7 @@ class Internet extends Base
 
     public function url()
     {
-        $format = static::randomElement(static::$urlFormats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$urlFormats));
     }
 
     public function slug($nbWords = 6, $variableNbWords = true)
@@ -263,8 +250,7 @@ class Internet extends Base
 
     public function ipv4()
     {
-        $digits = (0 === mt_rand(0, 1)) ? mt_rand(-2147483648, 0) : mt_rand(1, 2147483647);
-        return long2ip($digits);
+        return long2ip((0 === mt_rand(0, 1)) ? mt_rand(- 2147483648, 0) : mt_rand(1, 2147483647));
     }
 
     public function ipv6()

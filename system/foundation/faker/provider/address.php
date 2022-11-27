@@ -43,20 +43,17 @@ class Address extends Base
 
     public function city()
     {
-        $format = static::randomElement(static::$cityFormats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$cityFormats));
     }
 
     public function streetName()
     {
-        $format = static::randomElement(static::$streetNameFormats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$streetNameFormats));
     }
 
     public function streetAddress()
     {
-        $format = static::randomElement(static::$streetAddressFormats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$streetAddressFormats));
     }
 
     public static function postcode()
@@ -66,8 +63,7 @@ class Address extends Base
 
     public function address()
     {
-        $format = static::randomElement(static::$addressFormats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$addressFormats));
     }
 
     public static function country()

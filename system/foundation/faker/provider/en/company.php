@@ -97,9 +97,6 @@ class Company extends BaseCompany
 
     public static function ein()
     {
-        $prefix = static::randomElement(static::$einPrefixes);
-        $suffix = static::numberBetween(0, 9999999);
-
-        return sprintf('%02d-%07d', $prefix, $suffix);
+        return sprintf('%02d-%07d', static::randomElement(static::$einPrefixes), static::numberBetween(0, 9999999));
     }
 }

@@ -11,8 +11,7 @@ class Company extends Base
 
     public function company()
     {
-        $format = static::randomElement(static::$formats);
-        return $this->generator->parse($format);
+        return $this->generator->parse(static::randomElement(static::$formats));
     }
 
     public static function companySuffix()

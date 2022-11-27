@@ -31,7 +31,6 @@ class Unique
 
         do {
             $result = call_user_func_array([$this->generator, $name], $arguments);
-
             ++$retry;
 
             if ($retry > $this->max_retries) {
@@ -42,7 +41,6 @@ class Unique
         } while (array_key_exists(serialize($result), $this->uniques[$name]));
 
         $this->uniques[$name][serialize($result)] = null;
-
         return $result;
     }
 }

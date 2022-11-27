@@ -52,7 +52,7 @@ class Generator
             }
         }
 
-        throw new InvalidArgumentException(sprintf('Unknown formatter: %s', $formatter));
+        throw new \InvalidArgumentException(sprintf('Unknown formatter: %s', $formatter));
     }
 
     public function parse($string)

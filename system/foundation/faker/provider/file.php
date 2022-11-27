@@ -513,14 +513,14 @@ class File extends Base
             throw new \InvalidArgumentException(sprintf('Source directory is empty: %s', $sourceDirectory));
         }
 
-        $sourceFullPath = $sourceDirectory.DS.static::randomElement($files);
-        $destinationFile = Uuid::uuid().'.'.pathinfo($sourceFullPath, PATHINFO_EXTENSION);
-        $destinationFullPath = $targetDirectory.DS.$destinationFile;
+        $from = $sourceDirectory.DS.static::randomElement($files);
+        $basename = Uuid::uuid().'.'.pathinfo($from, PATHINFO_EXTENSION);
+        $to = $targetDirectory.DS.$basename;
 
-        if (false === copy($sourceFullPath, $destinationFullPath)) {
+        if (false === copy($from, $to)) {
             return false;
         }
 
-        return $fullPath ? $destinationFullPath : $destinationFile;
+        return $fullPath ? $to : $basename;
     }
 }

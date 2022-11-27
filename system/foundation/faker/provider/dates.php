@@ -60,11 +60,8 @@ class Dates extends Base
             throw new \InvalidArgumentException('Start date must be anterior to end date.');
         }
 
-        $timestamp = mt_rand($start, $end);
-        $timestamp = new \DateTime('@'.$timestamp);
-        $timestamp->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-
-        return $timestamp;
+        return (new \DateTime('@'.mt_rand($start, $end)))
+            ->setTimezone(new \DateTimeZone(date_default_timezone_get()));
     }
 
     public static function dateTimeThisCentury($max = 'now')

@@ -223,9 +223,7 @@ class Person extends BasePerson
             return static::lastNameFemale();
         }
 
-        $random = static::randomElement(static::$lastNameFormat);
-
-        return $this->generator->parse($random);
+        return $this->generator->parse(static::randomElement(static::$lastNameFormat));
     }
 
     public static function lastNameMale()
@@ -252,12 +250,7 @@ class Person extends BasePerson
             $gender = $this->generator->randomElement([self::GENDER_MALE, self::GENDER_FEMALE]);
         }
 
-        if (self::GENDER_FEMALE === $gender) {
-            $nik .= $birthDate->format('d') + 40;
-        } else {
-            $nik .= $birthDate->format('d');
-        }
-
+        $nik .= $birthDate->format('d') + ((self::GENDER_FEMALE === $gender) ? 40 : 0);
         return $nik.$birthDate->format('my').$this->generator->numerify('####');
     }
 

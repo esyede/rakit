@@ -36,7 +36,6 @@ class Valid
 
         do {
             $result = call_user_func_array([$this->generator, $name], $arguments);
-
             ++$retry;
 
             if ($retry > $this->max_retries) {

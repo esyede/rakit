@@ -118,9 +118,7 @@ class Lorem extends Base
         $text = [];
 
         if ($maxNbChars < 5) {
-            throw new \InvalidArgumentException(
-                'text() can only generate text of at least 5 characters'
-            );
+            throw new \InvalidArgumentException('text() can only generate text of at least 5 characters');
         } elseif ($maxNbChars < 25) {
             while (empty($text)) {
                 $size = 0;

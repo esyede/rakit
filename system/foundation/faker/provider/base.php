@@ -88,55 +88,47 @@ class Base
 
     public static function randomElements(array $array = ['a', 'b', 'c'], $count = 1)
     {
-        $allKeys = array_keys($array);
-        $numKeys = count($allKeys);
+        $keys = array_keys($array);
+        $total = count($keys);
 
-        if ($numKeys < $count) {
+        if ($total < $count) {
             throw new \LengthException(sprintf(
-                'Cannot get %s elements, only %s elements is available the in array', $count, $numKeys
+                'Cannot get %s elements, only %s elements is available the in array', $count, $total
             ));
         }
 
-        $highKey = $numKeys - 1;
+        $high = $total - 1;
         $keys = $elements = [];
-        $numElements = 0;
+        $index = 0;
 
-        while ($numElements < $count) {
-            $num = mt_rand(0, $highKey);
+        while ($index < $count) {
+            $num = mt_rand(0, $high);
 
             if (isset($keys[$num])) {
                 continue;
             }
 
             $keys[$num] = true;
-            $elements[] = $array[$allKeys[$num]];
-            ++$numElements;
+            $elements[] = $array[$keys[$num]];
+            ++$index;
         }
 
         return $elements;
     }
 
-    public static function randomElement($array = ['a', 'b', 'c'])
+    public static function randomElement(array $array = ['a', 'b', 'c'])
     {
-        if (! $array) {
-            return;
-        }
-
-        $elements = static::randomElements($array, 1);
-
-        return $elements[0];
+        return empty($array) ? null : static::randomElements($array, 1)[0];
     }
 
-    public static function randomKey($array = [])
+    public static function randomKey(array $array = [])
     {
-        if (! $array) {
+        if (empty($array)) {
             return;
         }
 
         $keys = array_keys($array);
-        $key = $keys[mt_rand(0, count($keys) - 1)];
-
-        return $key;
+        return $keys[mt_rand(0, count($keys) - 1)];
     }
 
     public static function shuffle($arg = '')
@@ -188,27 +180,27 @@ class Base
 
     public static function numerify($string = '###')
     {
-        $toReplace = [];
+        $replacing = [];
 
         for ($i = 0, $count = mb_strlen((string) $string, '8bit'); $i < $count; ++$i) {
             if ('#' === $string[$i]) {
-                $toReplace[] = $i;
+                $replacing[] = $i;
             }
         }
 
-        if ($nbReplacements = count($toReplace)) {
-            $maxAtOnce = mb_strlen((string) mt_getrandmax(), '8bit') - 1;
+        if ($total = count($replacing)) {
+            $step = mb_strlen((string) mt_getrandmax(), '8bit') - 1;
             $numbers = '';
             $i = 0;
 
-            while ($i < $nbReplacements) {
-                $size = min($nbReplacements - $i, $maxAtOnce);
+            while ($i < $total) {
+                $size = min($total - $i, $step);
                 $numbers .= str_pad(static::randomNumber($size), $size, '0', STR_PAD_LEFT);
                 $i += $size;
             }
 
-            for ($i = 0; $i < $nbReplacements; ++$i) {
-                $string[$toReplace[$i]] = $numbers[$i];
+            for ($i = 0; $i < $total; ++$i) {
+                $string[$replacing[$i]] = $numbers[$i];
             }
         }
 
@@ -267,9 +259,8 @@ class Base
         $regex = preg_replace_callback('/\\\w/', 'static::randomLetter', $regex);
         $regex = preg_replace_callback('/\\\d/', 'static::randomDigit', $regex);
         $regex = preg_replace_callback('/(?<!\\\)\./', 'static::randomAscii', $regex);
-        $regex = str_replace('\\', '', $regex);
 
-        return $regex;
+        return str_replace('\\', '', $regex);
     }
 
     public static function toLower($string = '')

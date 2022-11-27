@@ -203,9 +203,11 @@ class Payment extends Base
                         ? static::randomDigit()
                         : strtoupper((string) static::randomLetter());
                     break;
+
                 case 'a':
                     $result .= strtoupper((string) static::randomLetter());
                     break;
+
                 case 'n':
                     $result .= static::randomDigit();
                     break;

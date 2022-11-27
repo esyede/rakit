@@ -56,8 +56,7 @@ class Phone extends BasePhone
 
     public function tollFreePhoneNumber()
     {
-        $format = self::randomElement(static::$tollFreeFormats);
-        return self::numerify($this->generator->parse($format));
+        return self::numerify($this->generator->parse(self::randomElement(static::$tollFreeFormats)));
     }
 
     public static function areaCode()
@@ -68,13 +67,7 @@ class Phone extends BasePhone
     public static function exchangeCode()
     {
         $digits = [self::numberBetween(2, 9), self::randomDigit()];
-
-        if (1 === $digits[1]) {
-            $digits[] = self::randomDigitNotNull(1);
-        } else {
-            $digits[] = self::randomDigit();
-        }
-
+        $digits[] = (1 === $digits[1]) ? self::randomDigitNotNull(1) : self::randomDigit();
         return implode('', $digits);
     }
 }
