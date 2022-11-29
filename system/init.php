@@ -64,8 +64,10 @@ if (is_file($path = path('rakit_key'))) {
         );
         file_put_contents(
             path('rakit_key'),
-            '<?php'.PHP_EOL.PHP_EOL
-            .'defined(\'DS\') or exit(\'No direct script access.\');'.PHP_EOL.PHP_EOL
+            '<?php'.PHP_EOL
+            .PHP_EOL
+            ."defined('DS') or exit('No direct script access.');".PHP_EOL
+            .PHP_EOL
             .'/*'.PHP_EOL
             .'|--------------------------------------------------------------------------'.PHP_EOL
             .'| Application Key'.PHP_EOL
@@ -78,7 +80,7 @@ if (is_file($path = path('rakit_key'))) {
             .'|'.PHP_EOL
             .'*/'.PHP_EOL
             .PHP_EOL
-            .sprintf('return \'%s\';', $key).PHP_EOL
+            .sprintf("return '%s';", $key).PHP_EOL
         );
     } catch (\Throwable $e) {
         require $dir.'unwritable.phtml';
