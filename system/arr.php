@@ -340,6 +340,36 @@ class Arr
     }
 
     /**
+     * Cek apakah sebuah array merupakan array sequential atau bukan.
+     * Sebuah array dianggap sequential jika key-nya terdiri atas
+     * angka berurutan dari 0 hingga count($array)-1.
+     *
+     * @param array $array
+     *
+     * @return bool
+     */
+    public static function sequential($array)
+    {
+        if (! is_array($array)) {
+            return false;
+        }
+
+        if ([] === $array || $array === array_values($array)) {
+            return true;
+        }
+
+        $next = -1;
+
+        foreach ($array as $key => $value) {
+            if ($key !== ++$next) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Ambil subset item dari array yang diberikan.
      *
      * @param array        $array
