@@ -64,7 +64,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
 
 class DatabaseConnectStub extends \System\Database
 {
-    protected static function connect($config)
+    protected static function connect(array $config)
     {
         return new PDOStub($config);
     }
