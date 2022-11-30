@@ -60,6 +60,7 @@ return [
     'not_in' => 'Bilah :attribute yang dipilih tidak valid.',
     'numeric' => 'Bilah :attribute harus berupa angka.',
     'required' => 'Bilah :attribute wajib diisi.',
+    'required_with' => 'Bilah :attribute wajib diisi dengan :field',
     'same' => 'Bilah :attribute dan :other harus sama.',
     'size' => [
         'numeric' => 'Bilah :attribute harus berukuran :size.',
