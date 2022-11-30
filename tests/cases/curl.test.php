@@ -19,7 +19,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testCurlOptions()
     {
         Curl::curl_option(CURLOPT_COOKIE, 'foo=bar');
-        $response = Curl::get('http://mockbin.com/request');
+        $response = Curl::get('https://mockbin.com/request');
         $this->assertTrue(property_exists($response->body->cookies, 'foo'));
         Curl::clear_curl_options();
     }
@@ -28,7 +28,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     {
         try {
             Curl::timeout(1);
-            Curl::get('http://mockbin.com/delay/1000');
+            Curl::get('https://mockbin.com/delay/1000');
             Curl::timeout(null);
         } catch (\Throwable $e) {
             $this->assertTrue(false !== strpos(strtolower($e->getMessage()), 'timed out'));
@@ -41,21 +41,21 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     {
         Curl::default_headers(['header1' => 'Hello', 'header2' => 'world']);
 
-        $response = Curl::get('http://mockbin.com/request');
+        $response = Curl::get('https://mockbin.com/request');
         $this->assertEquals(200, $response->code);
         $this->assertObjectHasAttribute('header1', $response->body->headers);
         $this->assertEquals('Hello', $response->body->headers->header1);
         $this->assertObjectHasAttribute('header2', $response->body->headers);
         $this->assertEquals('world', $response->body->headers->header2);
 
-        $response = Curl::get('http://mockbin.com/request', ['header1' => 'Custom value']);
+        $response = Curl::get('https://mockbin.com/request', ['header1' => 'Custom value']);
         $this->assertEquals(200, $response->code);
         $this->assertObjectHasAttribute('header1', $response->body->headers);
         $this->assertEquals('Custom value', $response->body->headers->header1);
 
         Curl::clear_default_headers();
 
-        $response = Curl::get('http://mockbin.com/request');
+        $response = Curl::get('https://mockbin.com/request');
         $this->assertEquals(200, $response->code);
         $this->assertObjectNotHasAttribute('header1', $response->body->headers);
         $this->assertObjectNotHasAttribute('header2', $response->body->headers);
@@ -65,14 +65,14 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     {
         Curl::default_header('Hello', 'custom');
 
-        $response = Curl::get('http://mockbin.com/request');
+        $response = Curl::get('https://mockbin.com/request');
         $this->assertEquals(200, $response->code);
         $this->assertTrue(property_exists($response->body->headers, 'hello'));
         $this->assertEquals('custom', $response->body->headers->hello);
 
         Curl::clear_default_headers();
 
-        $response = Curl::get('http://mockbin.com/request');
+        $response = Curl::get('https://mockbin.com/request');
 
         $this->assertEquals(200, $response->code);
         $this->assertFalse(property_exists($response->body->headers, 'hello'));
@@ -80,27 +80,28 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGzip()
     {
-        $response = Curl::get('http://mockbin.com/gzip/request');
+        $response = Curl::get('https://mockbin.com/gzip/request');
+        file_put_contents(path('base').'curl.json', json_encode($response));
         $this->assertEquals('gzip', $response->headers['Content-Encoding']);
     }
 
     public function testBasicAuthentication()
     {
         Curl::auth('user', 'password');
-        $response = Curl::get('http://mockbin.com/request');
+        $response = Curl::get('https://mockbin.com/request');
         $this->assertEquals('Basic dXNlcjpwYXNzd29yZA==', $response->body->headers->authorization);
     }
 
     public function testCustomHeaders()
     {
-        $response = Curl::get('http://mockbin.com/request', ['user-agent' => 'dummy-agent']);
+        $response = Curl::get('https://mockbin.com/request', ['user-agent' => 'dummy-agent']);
         $this->assertEquals(200, $response->code);
         $this->assertEquals('dummy-agent', $response->body->headers->{'user-agent'});
     }
 
     public function testGet()
     {
-        $response = Curl::get('http://mockbin.com/request?name=Budi', [
+        $response = Curl::get('https://mockbin.com/request?name=Budi', [
             'Accept' => 'application/json',
         ], ['age' => 28]);
 
@@ -112,7 +113,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetMultidimensionalArray()
     {
-        $response = Curl::get('http://mockbin.com/request', [
+        $response = Curl::get('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['key' => 'value', 'items' => ['item1', 'item2']]);
 
@@ -125,7 +126,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithDots()
     {
-        $response = Curl::get('http://mockbin.com/request', [
+        $response = Curl::get('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['user.name' => 'Budi', 'age' => 28]);
 
@@ -137,7 +138,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithDotsAlt()
     {
-        $response = Curl::get('http://mockbin.com/request', [
+        $response = Curl::get('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['user.name' => 'Budi Purnomo', 'age' => 28]);
 
@@ -149,7 +150,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithEqualSign()
     {
-        $response = Curl::get('http://mockbin.com/request', [
+        $response = Curl::get('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['name' => 'Budi=Hello']);
 
@@ -160,7 +161,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithEqualSignAlt()
     {
-        $response = Curl::get('http://mockbin.com/request', [
+        $response = Curl::get('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['name' => 'Budi=Hello=Dewi']);
 
@@ -171,7 +172,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithComplexQuery()
     {
-        $response = Curl::get('http://mockbin.com/request?query=[{"type":"/music/album","name":null,"artist":{"id":"/id/denny_caknan"},"limit":3}]&cursor');
+        $response = Curl::get('https://mockbin.com/request?query=[{"type":"/music/album","name":null,"artist":{"id":"/id/denny_caknan"},"limit":3}]&cursor');
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -181,7 +182,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testGetArray()
     {
-        $response = Curl::get('http://mockbin.com/request', [], ['name[0]' => 'Budi', 'name[1]' => 'Dewi']);
+        $response = Curl::get('https://mockbin.com/request', [], ['name[0]' => 'Budi', 'name[1]' => 'Dewi']);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('GET', $response->body->method);
@@ -191,13 +192,13 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testHead()
     {
-        $response = Curl::head('http://mockbin.com/request?name=Budi', ['Accept' => 'application/json']);
+        $response = Curl::head('https://mockbin.com/request?name=Budi', ['Accept' => 'application/json']);
         $this->assertEquals(200, $response->code);
     }
 
     public function testPost()
     {
-        $response = Curl::post('http://mockbin.com/request', [
+        $response = Curl::post('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['name' => 'Budi', 'age' => 28]);
 
@@ -210,7 +211,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testPostForm()
     {
         $body = Curl::body_form(['name' => 'Budi', 'age' => 28]);
-        $response = Curl::post('http://mockbin.com/request', ['Accept' => 'application/json'], $body);
+        $response = Curl::post('https://mockbin.com/request', ['Accept' => 'application/json'], $body);
 
         $this->assertEquals('POST', $response->body->method);
         $this->assertEquals('application/x-www-form-urlencoded', $response->body->headers->{'content-type'});
@@ -222,7 +223,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testPostMultipart()
     {
         $body = Curl::body_multipart(['name' => 'Budi', 'age' => 28]);
-        $response = Curl::post('http://mockbin.com/request', ['Accept' => 'application/json'], $body);
+        $response = Curl::post('https://mockbin.com/request', ['Accept' => 'application/json'], $body);
 
         $this->assertEquals('POST', $response->body->method);
         $this->assertEquals('multipart/form-data', explode(';', $response->body->headers->{'content-type'})[0]);
@@ -234,7 +235,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testPostWithEqualSign()
     {
         $body = Curl::body_form(['name' => 'Budi=Hello']);
-        $response = Curl::post('http://mockbin.com/request', ['Accept' => 'application/json'], $body);
+        $response = Curl::post('https://mockbin.com/request', ['Accept' => 'application/json'], $body);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -243,7 +244,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testPostArray()
     {
-        $response = Curl::post('http://mockbin.com/request', [
+        $response = Curl::post('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['name[0]' => 'Budi', 'name[1]' => 'Dewi']);
 
@@ -255,7 +256,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testPostWithDots()
     {
-        $response = Curl::post('http://mockbin.com/request', [
+        $response = Curl::post('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['user.name' => 'Budi', 'age' => 28]);
 
@@ -267,7 +268,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testRawPost()
     {
-        $response = Curl::post('http://mockbin.com/request', [
+        $response = Curl::post('https://mockbin.com/request', [
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ], json_encode(['author' => 'Budi Purnomo']));
@@ -280,7 +281,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testPostMultidimensionalArray()
     {
         $body = Curl::body_form(['key' => 'value', 'items' => ['item1', 'item2']]);
-        $response = Curl::post('http://mockbin.com/request', ['Accept' => 'application/json'], $body);
+        $response = Curl::post('https://mockbin.com/request', ['Accept' => 'application/json'], $body);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -291,7 +292,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testPut()
     {
-        $response = Curl::put('http://mockbin.com/request', [
+        $response = Curl::put('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['name' => 'Budi', 'age' => 28]);
 
@@ -303,7 +304,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testPatch()
     {
-        $response = Curl::patch('http://mockbin.com/request', [
+        $response = Curl::patch('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], ['name' => 'Budi', 'age' => 28]);
 
@@ -315,7 +316,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $response = Curl::delete('http://mockbin.com/request', [
+        $response = Curl::delete('https://mockbin.com/request', [
             'Accept' => 'application/json',
             'Content-Type' => 'application/x-www-form-urlencoded',
         ], ['name' => 'Budi', 'age' => 28]);
@@ -327,7 +328,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     public function testUpload()
     {
         $body = Curl::body_multipart(['name' => 'Budi'], ['file' => __DIR__.DS.'index.html']);
-        $response = Curl::post('http://mockbin.com/request', ['Accept' => 'application/json'], $body);
+        $response = Curl::post('https://mockbin.com/request', ['Accept' => 'application/json'], $body);
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('POST', $response->body->method);
@@ -337,7 +338,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testUploadWithoutHelper()
     {
-        $response = Curl::post('http://mockbin.com/request', [
+        $response = Curl::post('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], [
             'name' => 'Budi',
@@ -352,7 +353,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testUploadIfFilePartOfData()
     {
-        $response = Curl::post('http://mockbin.com/request', [
+        $response = Curl::post('https://mockbin.com/request', [
             'Accept' => 'application/json',
         ], [
             'name' => 'Budi',
