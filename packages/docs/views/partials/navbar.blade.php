@@ -29,7 +29,7 @@
             <div class="navbar-end">
                 <a class="navbar-item" id="homepage" href="{{ URL::home() }}">{{ trans('docs::docs.navbar.home') }}</a>
                 <a class="navbar-item" id="docs" href="{{ URL::to('docs/'.config('application.language')) }}">{{ trans('docs::docs.navbar.documentation') }}</a>
-                <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api/v{{ RAKIT_VERSION }}/index.html" target="_blank">{{ trans('docs::docs.navbar.api') }}</a>
+                <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api/master/index.html" target="_blank">{{ trans('docs::docs.navbar.api') }}</a>
                 <a class="navbar-item" id="repos" href="https://rakit.esyede.my.id/repositories" target="_blank">{{ trans('docs::docs.navbar.repositories') }}</a>
                 <a class="navbar-item" id="forum" href="https://rakit.esyede.my.id/forum" target="_blank">{{ trans('docs::docs.navbar.forum') }}</a>
                 <a class="navbar-item" id="github" href="https://github.com/esyede/rakit" target="_blank">{{ trans('docs::docs.navbar.vcs') }}</a>
