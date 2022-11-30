@@ -82,7 +82,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     {
         $response = Curl::get('https://mockbin.com/gzip/request');
         file_put_contents(path('base').'curl.json', json_encode($response));
-        $this->assertEquals('gzip', $response->headers['Content-Encoding']);
+        $this->assertEquals('gzip', $response->headers['Accept-Encoding']);
     }
 
     public function testBasicAuthentication()
