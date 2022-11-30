@@ -32,8 +32,8 @@ class Docs_Home_Controller extends Controller
      */
     public function action_index($lang = null)
     {
-        $lang = $lang ? $lang.'/' : config('application.language', 'id').'/';
-        return view('docs::home')
+        $lang = $lang ? $lang.'/' : Config::get('application.language', 'id').'/';
+        return View::make('docs::home')
             ->with_title(Docs::title('home'))
             ->with_sidebar(Docs::sidebar(Docs::render($lang.'000-sidebar')))
             ->with_content(Docs::content(Docs::render($lang.'home')))
@@ -51,13 +51,17 @@ class Docs_Home_Controller extends Controller
     public function action_page($section, $page = null)
     {
         $args = func_get_args();
-        $lang = isset($args[0]) ? $args[0].'/' : config('application.language', 'id').'/';
+        $lang = isset($args[0]) ? $args[0].'/' : Config::get('application.language', 'id').'/';
         $filename = rtrim(implode('/', $args), '/');
         $filename .= Docs::exists($filename.'/home') ? '/home' : '';
 
         abort_if(! Docs::exists($filename), 404);
 
-        return view('docs::home')
+        if (! Docs::exists($filename)) {
+            return Response::error(404);
+        }
+
+        return View::make('docs::home')
             ->with_title(Docs::title($filename))
             ->with_sidebar(Docs::sidebar(Docs::render($lang.'000-sidebar')))
             ->with_content(Docs::content(Docs::render($filename)))

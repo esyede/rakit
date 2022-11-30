@@ -7,13 +7,6 @@ defined('DS') or die('No direct script access.');
 class Crypter
 {
     /**
-     * Berisi cipher method.
-     *
-     * @var string
-     */
-    protected static $method;
-
-    /**
      * Enkrispsi string.
      *
      * @param string $data
@@ -22,10 +15,8 @@ class Crypter
      */
     public static function encrypt($data)
     {
-        $method = static::method();
         $iv = Str::bytes(16);
-
-        $hash = openssl_encrypt((string) $data, $method, RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
+        $hash = openssl_encrypt((string) $data, static::method(), RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
         $hmac = hash_hmac('sha256', $hash, RAKIT_KEY, true);
 
         if (false === $hash) {
@@ -44,9 +35,7 @@ class Crypter
      */
     public static function decrypt($hash)
     {
-        $method = static::method();
         $hash = base64_decode($hash);
-
         $iv = mb_substr((string) $hash, 0, 16, '8bit');
         $hmac = mb_substr((string) $hash, 16, 32, '8bit');
         $cipher = mb_substr((string) $hash, 48, null, '8bit');
@@ -56,7 +45,7 @@ class Crypter
             throw new \Exception('Hash verification failed.');
         }
 
-        $data = openssl_decrypt($cipher, $method, RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
+        $data = openssl_decrypt($cipher, static::method(), RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
 
         if (false === $data) {
             throw new \Exception('Unable to decrypt the data.');
@@ -106,21 +95,15 @@ class Crypter
      */
     protected static function method()
     {
-        if (static::$method) {
-            return static::$method;
-        }
-
         $methods = openssl_get_cipher_methods();
         $methods = is_array($methods) ? $methods : [$methods];
 
         if (in_array('AES-256-CBC', $methods)) {
-            static::$method = 'AES-256-CBC';
+            return 'AES-256-CBC';
         } elseif (in_array('aes-256-cbc', $methods)) {
-            static::$method = 'aes-256-cbc';
-        } else {
-            throw new \Exception('Required cipher method is not present on your system: aes-256-cbc');
+            return 'aes-256-cbc';
         }
 
-        return static::$method;
+        throw new \Exception('Required cipher method is not present on your system: aes-256-cbc');
     }
 }
