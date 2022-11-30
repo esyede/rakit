@@ -55,8 +55,6 @@ class Docs_Home_Controller extends Controller
         $filename = rtrim(implode('/', $args), '/');
         $filename .= Docs::exists($filename.'/home') ? '/home' : '';
 
-        abort_if(! Docs::exists($filename), 404);
-
         if (! Docs::exists($filename)) {
             return Response::error(404);
         }
