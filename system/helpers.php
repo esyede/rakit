@@ -663,7 +663,7 @@ if (! function_exists('abort')) {
     function abort($code, array $headers = [])
     {
         $code = (int) $code;
-        $message = \System\Foundation\Http\Responder::$statusTexts;
+        $message = \System\Foundation\Http\Response::$statusTexts;
         $message = isset($message[$code]) ? $message[$code] : 'Unknown Error';
 
         if (\System\Request::wants_json()) {

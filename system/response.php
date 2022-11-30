@@ -186,7 +186,7 @@ class Response
     public static function error($code, array $headers = [])
     {
         $code = (int) $code;
-        $message = Foundation\Http\Responder::$statusTexts;
+        $message = Foundation\Http\Response::$statusTexts;
         $message = isset($message[$code]) ? $message[$code] : 'Unknown Error';
 
         if (Request::wants_json()) {
