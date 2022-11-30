@@ -26,7 +26,7 @@ class Throttle
     public static function check($max_attempts, $decay_minutes = 1)
     {
         $max_attempts = (int) $max_attempts;
-        $max_attempts = ($max_attempts < 3) ? 3 : $max_attempts;
+        $max_attempts = ($max_attempts < 1) ? 1 : $max_attempts;
         $decay_minutes = (int) $decay_minutes;
         $decay_minutes = ($decay_minutes < 1) ? 1 : $decay_minutes;
 

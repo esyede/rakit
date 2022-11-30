@@ -30,11 +30,3 @@ Route::middleware('throttle', function ($limit, $minutes) {
         return Response::error(429);
     }
 });
-
-Route::middleware('before', function () {
-    // ..
-});
-
-Route::middleware('after', function ($response) {
-    // ..
-});
