@@ -52,6 +52,7 @@ class Docs_Home_Controller extends Controller
     {
         $args = func_get_args();
         $lang = isset($args[0]) ? $args[0].'/' : Config::get('application.language', 'id').'/';
+        $filename = rtrim(implode('/', $args), '/');
         $filename = rtrim(implode('/', $args), '/').(Docs::exists($filename.'/home') ? '/home' : '');
 
         if (! Docs::exists($filename)) {
