@@ -16,7 +16,7 @@ class Crypter
     public static function encrypt($data)
     {
         $iv = Str::bytes(16);
-        $hash = openssl_encrypt((string) $data, static::method(), RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
+        $hash = openssl_encrypt($data, static::method(), RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
         $hmac = hash_hmac('sha256', $hash, RAKIT_KEY, true);
 
         if (false === $hash) {
@@ -36,9 +36,11 @@ class Crypter
     public static function decrypt($hash)
     {
         $hash = base64_decode($hash);
-        $iv = mb_substr((string) $hash, 0, 16, '8bit');
-        $hmac = mb_substr((string) $hash, 16, 32, '8bit');
-        $cipher = mb_substr((string) $hash, 48, null, '8bit');
+        $iv = substr($hash, 0, 16);
+        $hmac = substr($hash, 16, 32);
+        // NOTE: Harus menggunakan substr()
+        // cipher mereturn NULL jika menggunakan mb_substr() di php 5.4
+        $cipher = substr($hash, 48);
         $hmac2 = hash_hmac('sha256', $cipher, RAKIT_KEY, true);
 
         if (! static::equals($hmac, $hmac2)) {
@@ -68,8 +70,8 @@ class Crypter
             return false;
         }
 
-        $length1 = mb_strlen((string) $known, '8bit');
-        $length2 = mb_strlen((string) $compared, '8bit');
+        $length1 = strlen($known);
+        $length2 = strlen($compared);
 
         if ($length1 !== $length2) {
             return false;
