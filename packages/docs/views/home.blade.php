@@ -25,8 +25,6 @@
         </div>
         <div class="content">
             {!! $content !!}
-
-            <script src="https://giscus.app/client.js" data-repo="esyede/website" data-repo-id="MDEwOlJlcG9zaXRvcnkzMzgxMjkwMzU=" data-category="General" data-category-id="DIC_kwDOFCdwi84CSo7w" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="id" data-loading="lazy" crossorigin="anonymous" async></script>
         </div>
     </div>
 </div>

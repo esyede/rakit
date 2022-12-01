@@ -48,6 +48,12 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
+            @media (prefers-color-scheme: dark) {
+                html, body {
+                    color: #dbdbdb;
+                    background-color: #17181c;
+                }
+            }
         </style>
     </head>
     <body>

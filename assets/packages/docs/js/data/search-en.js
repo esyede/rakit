@@ -8,6 +8,10 @@ var data = [
         "url": "auth/config#driver-otentikasi"
     },
     {
+        "title": "Default Username",
+        "url": "auth/config#username-default"
+    },
+    {
         "title": "Authentication Model",
         "url": "auth/config#model-otentikasi"
     },

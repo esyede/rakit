@@ -11,9 +11,10 @@
                 </div>
             </div>
         </section>
-        <div class="divider is-white"></div>
-        <div class="divider is-white"></div>
-        <div class="divider is-white"></div>
+        <br>
+        <br>
+        <br>
+        <br>
         @include('docs::partials.footer')
     </body>
 </html>
