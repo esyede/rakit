@@ -16,7 +16,7 @@ class Crypter
     public static function encrypt($data)
     {
         $iv = Str::bytes(16);
-        $hash = openssl_encrypt($data, static::method(), RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
+        $hash = openssl_encrypt($data, 'aes-256-cbc', RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
         $hmac = hash_hmac('sha256', $hash, RAKIT_KEY, true);
 
         if (false === $hash) {
@@ -36,18 +36,20 @@ class Crypter
     public static function decrypt($hash)
     {
         $hash = base64_decode($hash);
+
+        // NOTE: Harus menggunakan substr().
+        // Hash mismatch jika menggunakan mb_substr() di php 5.4.0.
         $iv = substr($hash, 0, 16);
         $hmac = substr($hash, 16, 32);
-        // NOTE: Harus menggunakan substr()
-        // cipher mereturn NULL jika menggunakan mb_substr() di php 5.4
         $cipher = substr($hash, 48);
+
         $hmac2 = hash_hmac('sha256', $cipher, RAKIT_KEY, true);
 
         if (! static::equals($hmac, $hmac2)) {
             throw new \Exception('Hash verification failed.');
         }
 
-        $data = openssl_decrypt($cipher, static::method(), RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
+        $data = openssl_decrypt($cipher, 'aes-256-cbc', RAKIT_KEY, OPENSSL_RAW_DATA, $iv);
 
         if (false === $data) {
             throw new \Exception('Unable to decrypt the data.');
@@ -84,28 +86,5 @@ class Crypter
         }
 
         return 0 === $result;
-    }
-
-    /**
-     * Ambil method untuk cipher.
-     * OpenSSL 1.1.1+ mereturn nama method dalam bentuk lowercase.
-     *
-     * Lihat: https://php.net/manual/en/function.openssl-get-cipher-methods.php#123319
-     * Lihat: https://github.com/oerdnj/deb.sury.org/issues/990
-     *
-     * @return string
-     */
-    protected static function method()
-    {
-        $methods = openssl_get_cipher_methods();
-        $methods = is_array($methods) ? $methods : [$methods];
-
-        if (in_array('AES-256-CBC', $methods)) {
-            return 'AES-256-CBC';
-        } elseif (in_array('aes-256-cbc', $methods)) {
-            return 'aes-256-cbc';
-        }
-
-        throw new \Exception('Required cipher method is not present on your system: aes-256-cbc');
     }
 }
