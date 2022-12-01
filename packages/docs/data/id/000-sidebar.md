@@ -38,7 +38,6 @@
 	- [Redirect Dengan Flash Data](/docs/views#redirect-dengan-flash-data)
 	- [Respon Download](/docs/views#respon-download)
 	- [Respon Error](/docs/views#respon-error)
-	- [Mengelola Aset](/docs/views/assets)
 	- [Templating](/docs/views/templating)
 	- [Paginasi Data](/docs/views/pagination)
 - [Input & Cookies](/docs/input) <!-- has-submenu -->

@@ -38,7 +38,6 @@
     - [Redirect with Flash Data](/docs/views#redirect-dengan-flash-data)
     - [Download Response](/docs/views#respon-download)
     - [Error Response](/docs/views#respon-error)
-    - [Managing Assets](/docs/views/assets)
     - [Templating](/docs/views/templating)
     - [Pagination](/docs/views/pagination)
 - [Input & Cookies](/docs/input) <!-- has-submenu -->
@@ -107,6 +106,6 @@
 - [JWT](/docs/jwt)
 - [Localization](/docs/localization)
 - [Markdown](/docs/markdown)
-- [Enkripsi RSA](/docs/rsa)
+- [RSA Encrypt](/docs/rsa)
 - [Storage](/docs/storage)
 - [String](/docs/strings)
