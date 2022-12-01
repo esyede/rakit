@@ -48,7 +48,7 @@ Throughout the documentation we will show the default location for each componen
 ## Community Support
 
 Rakit is quite lucky being supported by growing community of passionate and friendly people.
-[Forum](https://rakit.esyede.my.id/forum) is the right place to find help,
+[Forum](https://github.com/esyede/rakit/discussions) is the right place to find help,
 give suggestions, or just looking around to see what people said.
 
 You are welcome to ask questions, answering other people's questions,

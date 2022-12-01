@@ -70,7 +70,7 @@
                     <a href="{{ url('/docs/'.config('application.language')) }}">Docs</a>
                     <a href="https://rakit.esyede.my.id/api/v{{ RAKIT_VERSION }}">API</a>
                     <a href="https://rakit.esyede.my.id/repositories">Packages</a>
-                    <a href="https://rakit.esyede.my.id/forum">Forum</a>
+                    <a href="https://github.com/esyede/rakit/discussions">Forum</a>
                     <a href="https://github.com/esyede/rakit">GitHub</a>
                 </div>
             </div>

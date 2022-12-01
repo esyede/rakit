@@ -50,7 +50,7 @@ Sepanjang dokumentasi kami akan menunjukkan lokasi default untuk tiap-tiap kompo
 ## Dukungan Komunitas
 
 Rakit sangatlah beruntung karena didukung oleh komunitas yang terus berkembang, ramah dan antusias.
-[Forum](https://rakit.esyede.my.id/forum) adalah tempat yang tepat untuk mencari bantuan,
+[Forum](https://github.com/esyede/rakit/discussions) adalah tempat yang tepat untuk mencari bantuan,
 memberikan saran, atau sekadar melihat apa yang dikatakan orang lain.
 
 Anda dipersilakan untuk mengajukan pertanyaan, menjawab pertanyaan orang lain, atau hanya sekedar
