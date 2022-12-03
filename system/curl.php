@@ -754,17 +754,20 @@ class Curl
      */
     public static function fake_user_agent()
     {
-        $year = (int) gmdate('Y');
-        $version = 103 + (((($year < 2020) ? 2020 : $year) - 2020) * 2);
         $agents = [
-            'Windows' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
-            'Linux' => 'Mozilla/5.0 (Linux x86_64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
-            'Darwin' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:[v].0) Gecko/20100101 Firefox/[v].0',
-            'BSD' => 'Mozilla/5.0 (X11; FreeBSD amd64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
-            'Solaris' => 'Mozilla/5.0 (Solaris; Solaris x86_64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
+            'Windows' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:[v].[m]) Gecko/20100101 Firefox/[v].[m]',
+            'Linux' => 'Mozilla/5.0 (Linux x86_64; rv:[v].[m]) Gecko/20100101 Firefox/[v].[m]',
+            'Darwin' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:[v].[m]) Gecko/20100101 Firefox/[v].[m]',
+            'BSD' => 'Mozilla/5.0 (X11; FreeBSD amd64; rv:[v].[m]) Gecko/20100101 Firefox/[v].[m]',
+            'Solaris' => 'Mozilla/5.0 (Solaris; Solaris x86_64; rv:[v].[m]) Gecko/20100101 Firefox/[v].[m]',
         ];
 
         $platform = system_os();
-        return str_replace('[v]', $version, $agents[('Unknown' === $platform) ? 'Linux' : $platform]);
+        $platform = ('Unknown' === $platform) ? 'Linux' : $platform;
+        $year = (int) gmdate('Y');
+        $version = 103 + (((($year < 2020) ? 2020 : $year) - 2020) * 2);
+        $minor = rand(0, 3);
+
+        return str_replace(['[v]', '[m]'], [$version, $minor], $agents[$platform]);
     }
 }
