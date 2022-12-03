@@ -755,8 +755,7 @@ class Curl
     public static function fake_user_agent()
     {
         $year = (int) gmdate('Y');
-        $year = ($year < 2020) ? 2020 : $year;
-        $version = 79 + ($year - 2020);
+        $version = 103 + (((($year < 2020) ? 2020 : $year) - 2020) * 2);
         $agents = [
             'Windows' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
             'Linux' => 'Mozilla/5.0 (Linux x86_64; rv:[v].0) Gecko/20100101 Firefox/[v].0',
@@ -766,8 +765,6 @@ class Curl
         ];
 
         $platform = system_os();
-        $platform = ('Unknown' === $platform) ? 'Linux' : $platform;
-
-        return str_replace('[v]', $version, $agents[$platform]);
+        return str_replace('[v]', $version, $agents[('Unknown' === $platform) ? 'Linux' : $platform]);
     }
 }
