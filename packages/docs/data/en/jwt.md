@@ -50,6 +50,9 @@ $jwt = JWT::encode($data, $secret, 'HS384');
 // dd($jwt);
 ```
 
+> Supported values for algorithm are: `HS256` `HS384` and `HS512`.
+
+
 ### Header Tambahan
 
 Selain dapat menentukan jenis algoritma yang ingin digunakan,
