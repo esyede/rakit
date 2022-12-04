@@ -99,13 +99,3 @@ if (PHP_VERSION_ID < 80100) {
         }
     }
 }
-
-// --------------------------------------------------------------
-// Polyfill untuk Stringable interface.
-// -------------------------------------------------------------
-if (PHP_VERSION_ID < 80000) {
-    interface Stringable
-    {
-        public function __toString();
-    }
-}
