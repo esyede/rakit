@@ -94,11 +94,11 @@ class JWT
             throw new \Exception('Invalid signature encoding');
         }
 
-        if (empty($headers->alg)) {
+        if (! isset($headers->alg) || ! $headers->alg) {
             throw new \Exception('Empty algorithm');
         }
 
-        if (empty(static::$algorithms[$headers->alg])) {
+        if (! isset(static::$algorithms[$headers->alg]) || ! static::$algorithms[$headers->alg]) {
             throw new \Exception('Only these algorithm are supported: '.implode(', ', static::$algorithms));
         }
 
