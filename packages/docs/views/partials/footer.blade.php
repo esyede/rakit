@@ -19,6 +19,6 @@
 <!-- Footer end -->
 
 <script src="{{ asset('packages/docs/js/docs.min.js?v='.RAKIT_VERSION) }}"></script>
-<script src="{{ asset('packages/docs/js/data/search-'.(Str::contains(URI::full(), '/docs/en') ? 'en' : 'id').'.js') }}"></script>
+<script src="{{ asset('packages/docs/js/data/search-'.(Str::contains(URI::full(), '/docs/en') ? 'en' : 'id').'.js?v='.RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/search.js?v='.RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/language.js?v='.RAKIT_VERSION) }}"></script>
