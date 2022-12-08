@@ -29,6 +29,6 @@ class Tcno
 
     public static function isValid($tcNo)
     {
-        return self::checksum(substr((string) $tcNo, 0, - 2)) === substr((string) $tcNo, -2, 2);
+        return self::checksum(substr((string) $tcNo, 0, -2)) === substr((string) $tcNo, -2, 2);
     }
 }

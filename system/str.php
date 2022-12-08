@@ -570,7 +570,6 @@ class Str
         $size = ($size > 0) ? (int) $size : 21;
         $default = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $characters = $characters ? $characters : $default;
-        $size = ($size > 0) ? $size : 21;
         $mask = (2 << (int) (log(strlen((string) $characters) - 1) / M_LN2)) - 1;
         $step = (int) ceil(1.6 * $mask * $size / strlen((string) $characters));
         $result = '';

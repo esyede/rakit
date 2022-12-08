@@ -1003,7 +1003,7 @@ class Response
             while (($level = ob_get_level()) > 0 && $level !== $previous) {
                 $previous = $level;
 
-                if (isset($ob[$level - 1]) && isset($ob[$level - 1]['del'])  && $ob[$level - 1]['del']) {
+                if (isset($ob[$level - 1]) && isset($ob[$level - 1]['del']) && $ob[$level - 1]['del']) {
                     ob_end_flush();
                 }
             }

@@ -4,8 +4,6 @@ namespace System\Foundation\Faker;
 
 defined('DS') or exit('No direct script access.');
 
-use InvalidArgumentException;
-
 class Generator
 {
     protected $providers = [];

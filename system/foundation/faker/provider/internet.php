@@ -250,7 +250,7 @@ class Internet extends Base
 
     public function ipv4()
     {
-        return long2ip((0 === mt_rand(0, 1)) ? mt_rand(- 2147483648, 0) : mt_rand(1, 2147483647));
+        return long2ip((0 === mt_rand(0, 1)) ? mt_rand(-2147483648, 0) : mt_rand(1, 2147483647));
     }
 
     public function ipv6()
