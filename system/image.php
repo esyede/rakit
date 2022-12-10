@@ -556,7 +556,10 @@ class Image
      */
     public function reset()
     {
-        if (is_resource($this->image) || 'gd' === get_resource_type($this->image)) {
+        if (
+            is_resource($this->image)
+            || 'gd' === strtolower((string) get_resource_type($this->image))
+        ) {
             imagedestroy($this->image);
             unset($this->image);
         }
