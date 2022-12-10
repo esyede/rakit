@@ -16,7 +16,7 @@ class Image
     /**
      * Berisi resource gambar.
      *
-     * @var resource
+     * @var \GdImage|resource
      */
     protected $image;
 
@@ -153,7 +153,7 @@ class Image
      */
     public function width($value)
     {
-        $width = (int) $value;
+        $value = (int) $value;
         $new_height = ($value / $this->width) * $this->height;
         $canvas = imagecreatetruecolor($value, $new_height);
 
@@ -556,8 +556,9 @@ class Image
      */
     public function reset()
     {
-        if (is_resource($this->image)) {
+        if (is_resource($this->image) || 'gd' === get_resource_type($this->image)) {
             imagedestroy($this->image);
+            unset($this->image);
         }
 
         $this->image = null;

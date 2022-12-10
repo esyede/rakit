@@ -152,7 +152,7 @@ class Base
         $i = 0;
         reset($array);
 
-        while (list($key, $value) = each($array)) {
+        while (list($key, $value) = static::eachEvery($array)) {
             $j = (0 === $i) ? 0 : mt_rand(0, $i);
 
             if ($j === $i) {
@@ -287,5 +287,14 @@ class Base
         }
 
         return $this->unique;
+    }
+
+    protected static function eachEvery($array)
+    {
+        $key = key($array);
+        $value = current($array);
+        $each = is_null($key) ? false : [1 => $value, 'value' => $value, 0 => $key, 'key' => $key];
+        next($array);
+        return $each;
     }
 }

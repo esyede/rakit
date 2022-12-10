@@ -383,25 +383,7 @@ class Str
             }
         }
 
-        // /dev/urandom juga gagal, coba mcrypt
-        if (
-            $unix && ($windows || (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613))
-            && extension_loaded('mcrypt')
-        ) {
-            try {
-                $bytes = mcrypt_create_iv($length, (int) MCRYPT_DEV_URANDOM);
-
-                if (false !== $bytes && $length === mb_strlen((string) $bytes, '8bit')) {
-                    return $bytes;
-                }
-            } catch (\Throwable $e) {
-                $bytes = false;
-            } catch (\Exception $e) {
-                $bytes = false;
-            }
-        }
-
-        // Mcrypt juga masih saja gagal, coba CAPICOM (windows)
+        // /dev/urandom juga masih saja gagal, coba CAPICOM (windows)
         if ($windows && class_exists('\COM', false)) {
             try {
                 $com = new \COM('CAPICOM.Utilities.1');

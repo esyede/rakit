@@ -61,7 +61,8 @@ class Phone extends BasePhone
 
     public static function areaCode()
     {
-        return self::numberBetween(2, 9) . self::randomDigit() . self::randomDigitNotNull($digits[1]);
+        $digit = self::randomDigit();
+        return self::numberBetween(2, 9) . self::randomDigit() . self::randomDigitNotNull($digit);
     }
 
     public static function exchangeCode()

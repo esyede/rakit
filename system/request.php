@@ -463,7 +463,7 @@ class Request
     /**
      * Ambil instance http foundation request.
      *
-     * @return System\Faundation\Http\Request
+     * @return \System\Foundation\Http\Request
      */
     public static function foundation()
     {

@@ -323,7 +323,7 @@ class Response
 
         foreach (Cookie::$jar as $name => $cookie) {
             $config = array_values($cookie);
-            $this->headers()->setCookie($reflector->newInstanceArgs($config));
+            $this->headers->setCookie($reflector->newInstanceArgs($config));
         }
     }
 

@@ -77,12 +77,15 @@ class JWT
         }
 
         list($headers64, $payloads64, $signature64) = $jwt;
+        $headers = static::decode_json(static::decode_url($headers64));
 
-        if (null === ($headers = static::decode_json(static::decode_url($headers64)))) {
+        if (null === $headers) {
             throw new \Exception('Invalid header encoding');
         }
 
-        if (null === ($payloads = static::decode_json(static::decode_url($payloads64)))) {
+        $payloads = static::decode_json(static::decode_url($payloads64));
+
+        if (null === $payloads) {
             throw new \Exception('Invalid claims encoding');
         }
 
@@ -94,7 +97,7 @@ class JWT
             throw new \Exception('Invalid signature encoding');
         }
 
-        if (!isset($headers->alg) || !$headers->alg) {
+        if (!is_string(optional($headers)->alg)) {
             throw new \Exception('Empty algorithm');
         }
 
@@ -218,7 +221,7 @@ class JWT
      *
      * @param string $data
      *
-     * @return string
+     * @return \stdClass
      */
     private static function decode_json($data)
     {

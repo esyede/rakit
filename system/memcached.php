@@ -42,21 +42,21 @@ class Memcached
      *
      * @param array $servers
      *
-     * @return Memcached
+     * @return \Memcached
      */
     protected static function connect(array $servers)
     {
-        $memcache = new \Memcached();
+        $memcached = new \Memcached();
 
         foreach ($servers as $server) {
-            $memcache->addServer($server['host'], $server['port'], $server['weight']);
+            $memcached->addServer($server['host'], $server['port'], $server['weight']);
         }
 
-        if (false === $memcache->getVersion()) {
+        if (false === $memcached->getVersion()) {
             throw new \Exception('Could not establish memcached connection.');
         }
 
-        return $memcache;
+        return $memcached;
     }
 
     /**

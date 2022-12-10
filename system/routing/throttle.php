@@ -29,9 +29,7 @@ class Throttle
         $max_attempts = ($max_attempts < 1) ? 1 : $max_attempts;
         $decay_minutes = (int) $decay_minutes;
         $decay_minutes = ($decay_minutes < 1) ? 1 : $decay_minutes;
-
-        $ip = Request::ip();
-        $key = static::PREFIX . '.' . sprintf('%u', ip2long($ip));
+        $key = static::key();
 
         if (!Cache::has($key)) {
             $data = [
@@ -40,7 +38,7 @@ class Throttle
                 'reset' => time() + ($decay_minutes * 3600),
                 'retry' => $decay_minutes * 3600,
                 'key' => $key,
-                'ip' => $ip,
+                'ip' => Request::ip(),
             ];
 
             Cache::put($key, $data, $decay_minutes);
@@ -74,6 +72,16 @@ class Throttle
     public static function exceeded($max_attempts, $decay_minutes)
     {
         return !static::check($max_attempts, $decay_minutes);
+    }
+
+    /**
+     * Ambil cache key untuk throtler.
+     *
+     * @return string
+     */
+    public static function key()
+    {
+        return static::PREFIX . '.' . sprintf('%u', ip2long(Request::ip()));
     }
 
     /**
