@@ -2,6 +2,9 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Routing\Controller;
+use System\Routing\Middleware;
+
 class Middleware_Controller extends Controller
 {
     public function __construct()

@@ -42,7 +42,7 @@ defined('DS') or exit('No direct script access.');
 |
 */
 
-Autoloader::directories([
+\System\Autoloader::directories([
     path('app') . 'models',
     path('app') . 'libraries',
     // Tambahkan direktori lain disini..
@@ -58,8 +58,8 @@ Autoloader::directories([
 |
 */
 
-Event::listen(View::LOADER, function ($package, $view) {
-    return View::file($package, $view, Package::path($package) . 'views');
+\System\Event::listen(\System\View::LOADER, function ($package, $view) {
+    return \System\View::file($package, $view, \System\Package::path($package) . 'views');
 });
 
 /*
@@ -72,8 +72,8 @@ Event::listen(View::LOADER, function ($package, $view) {
 |
 */
 
-Event::listen(Lang::LOADER, function ($package, $language, $file) {
-    return Lang::file($package, $language, $file);
+\System\Event::listen(\System\Lang::LOADER, function ($package, $language, $file) {
+    return \System\Lang::file($package, $language, $file);
 });
 
 /*
@@ -86,7 +86,7 @@ Event::listen(Lang::LOADER, function ($package, $language, $file) {
 |
 */
 
-Blade::sharpen();
+\System\Blade::sharpen();
 
 /*
 |--------------------------------------------------------------------------
@@ -97,7 +97,7 @@ Blade::sharpen();
 |
 */
 
-date_default_timezone_set(Config::get('application.timezone', 'UTC'));
+date_default_timezone_set(\System\Config::get('application.timezone', 'UTC'));
 
 /*
 |--------------------------------------------------------------------------
@@ -108,8 +108,8 @@ date_default_timezone_set(Config::get('application.timezone', 'UTC'));
 |
 */
 
-if (!Request::cli() && '' !== Config::get('session.driver')) {
-    Session::load();
+if (!\System\Request::cli() && '' !== \System\Config::get('session.driver')) {
+    \System\Session::load();
 }
 
 /*
@@ -122,7 +122,7 @@ if (!Request::cli() && '' !== Config::get('session.driver')) {
 |
 */
 
-if (is_file($path = Config::get('application.composer_autoload'))) {
+if (is_file($path = \System\Config::get('application.composer_autoload'))) {
     require_once $path;
     unset($path);
 }

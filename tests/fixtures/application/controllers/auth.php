@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Routing\Controller;
+
 class Auth_Controller extends Controller
 {
     public function action_index()

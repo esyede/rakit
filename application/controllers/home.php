@@ -2,6 +2,9 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Routing\Controller;
+use System\View;
+
 class Home_Controller extends Controller
 {
     /**
