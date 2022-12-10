@@ -49,10 +49,10 @@ class JWT
 
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
-        $message = $headers.'.'.$payloads;
+        $message = $headers . '.' . $payloads;
         $signature = static::encode_url(static::signature($message, $secret, $algorithm));
 
-        return $headers.'.'.$payloads.'.'.$signature;
+        return $headers . '.' . $payloads . '.' . $signature;
     }
 
     /**
@@ -72,7 +72,7 @@ class JWT
         $timestamp = static::$timestamp ? static::$timestamp : time();
         $jwt = explode('.', $token);
 
-        if (! is_array($jwt) || count($jwt) !== 3) {
+        if (!is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');
         }
 
@@ -94,24 +94,24 @@ class JWT
             throw new \Exception('Invalid signature encoding');
         }
 
-        if (! isset($headers->alg) || ! $headers->alg) {
+        if (!isset($headers->alg) || !$headers->alg) {
             throw new \Exception('Empty algorithm');
         }
 
-        if (! isset(static::$algorithms[$headers->alg]) || ! static::$algorithms[$headers->alg]) {
-            throw new \Exception('Only these algorithm are supported: '.implode(', ', static::$algorithms));
+        if (!isset(static::$algorithms[$headers->alg]) || !static::$algorithms[$headers->alg]) {
+            throw new \Exception('Only these algorithm are supported: ' . implode(', ', static::$algorithms));
         }
 
-        if (! static::verify($headers64.'.'.$payloads64, $signature, $secret, $headers->alg)) {
+        if (!static::verify($headers64 . '.' . $payloads64, $signature, $secret, $headers->alg)) {
             throw new \Exception('Signature verification failed');
         }
 
         if (isset($payloads->nbf) && $payloads->nbf > ($timestamp + static::$leeway)) {
-            throw new \Exception('Cannot handle token prior to '.date(\DateTime::ISO8601, $payloads->nbf));
+            throw new \Exception('Cannot handle token prior to ' . date(\DateTime::ISO8601, $payloads->nbf));
         }
 
         if (isset($payloads->iat) && $payloads->iat > ($timestamp + static::$leeway)) {
-            throw new \Exception('Cannot handle token prior to '.date(\DateTime::ISO8601, $payloads->iat));
+            throw new \Exception('Cannot handle token prior to ' . date(\DateTime::ISO8601, $payloads->iat));
         }
 
         if (isset($payloads->exp) && ($timestamp - static::$leeway) >= $payloads->exp) {
@@ -134,10 +134,12 @@ class JWT
     {
         $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
 
-        if (! isset(static::$algorithms[$algorithm])) {
+        if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 'Only these algorithms are supported: %s, got: %s (%s)',
-                implode(', ', array_keys(static::$algorithms)), $algorithm, gettype($algorithm)
+                implode(', ', array_keys(static::$algorithms)),
+                $algorithm,
+                gettype($algorithm)
             ));
         }
 
@@ -158,10 +160,12 @@ class JWT
     {
         $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
 
-        if (! isset(static::$algorithms[$algorithm])) {
+        if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 'Only these algorithms are supported: %s, got: %s (%s)',
-                implode(', ', array_keys(static::$algorithms)), $algorithm, gettype($algorithm)
+                implode(', ', array_keys(static::$algorithms)),
+                $algorithm,
+                gettype($algorithm)
             ));
         }
 

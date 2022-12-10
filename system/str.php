@@ -83,7 +83,7 @@ class Str
      */
     public static function ucfirst($string)
     {
-        return static::upper(static::substr($string, 0, 1)).static::substr($string, 1);
+        return static::upper(static::substr($string, 0, 1)) . static::substr($string, 1);
     }
 
     /**
@@ -137,7 +137,7 @@ class Str
             return $value;
         }
 
-        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')).$end;
+        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')) . $end;
     }
 
     /**
@@ -163,13 +163,13 @@ class Str
      */
     public static function words($value, $words = 100, $end = '...')
     {
-        preg_match('/^\s*+(?:\S++\s*+){1,'.((int) $words).'}/u', $value, $matches);
+        preg_match('/^\s*+(?:\S++\s*+){1,' . ((int) $words) . '}/u', $value, $matches);
 
-        if (! isset($matches[0]) || static::length($value) === static::length($matches[0])) {
+        if (!isset($matches[0]) || static::length($value) === static::length($matches[0])) {
             return $value;
         }
 
-        return rtrim($matches[0]).$end;
+        return rtrim($matches[0]) . $end;
     }
 
     /**
@@ -190,7 +190,7 @@ class Str
         }
 
         foreach (static::$strings['irregular'] as $result => $pattern) {
-            $pattern = '/'.$pattern.'$/i';
+            $pattern = '/' . $pattern . '$/i';
 
             if (preg_match($pattern, $string)) {
                 return preg_replace($pattern, $result, $string);
@@ -224,7 +224,7 @@ class Str
         }
 
         foreach (static::$strings['irregular'] as $pattern => $result) {
-            $pattern = '/'.$pattern.'$/i';
+            $pattern = '/' . $pattern . '$/i';
 
             if (preg_match($pattern, $string)) {
                 return preg_replace($pattern, $result, $string);
@@ -252,7 +252,7 @@ class Str
     {
         $parts = preg_split('/(.)(?=[A-Z])/u', $value, -1, PREG_SPLIT_DELIM_CAPTURE);
         $last = array_pop($parts);
-        return implode('', $parts).static::plural(array_pop($parts), $count);
+        return implode('', $parts) . static::plural(array_pop($parts), $count);
     }
 
     /**
@@ -266,10 +266,10 @@ class Str
     public static function slug($value, $separator = '-')
     {
         $flip = ('-' === $separator) ? '_' : '-';
-        $value = preg_replace('!['.preg_quote($flip).']+!u', $separator, $value);
-        $value = str_replace('@', $separator.'at'.$separator, $value);
-        $value = preg_replace('![^'.preg_quote($separator).'\pL\pN\s]+!u', '', static::lower($value));
-        $value = preg_replace('!['.preg_quote($separator).'\s]+!u', $separator, $value);
+        $value = preg_replace('![' . preg_quote($flip) . ']+!u', $separator, $value);
+        $value = str_replace('@', $separator . 'at' . $separator, $value);
+        $value = preg_replace('![^' . preg_quote($separator) . '\pL\pN\s]+!u', '', static::lower($value));
+        $value = preg_replace('![' . preg_quote($separator) . '\s]+!u', $separator, $value);
 
         return trim($value, $separator);
     }
@@ -328,7 +328,7 @@ class Str
      */
     public static function bytes($length)
     {
-        if (! is_int($length)) {
+        if (!is_int($length)) {
             throw new \InvalidArgumentException('Bytes length must be a positive integer');
         }
 
@@ -358,7 +358,7 @@ class Str
             $urandom = true;
             $basedir = ini_get('open_basedir');
 
-            if (! empty($basedir)) {
+            if (!empty($basedir)) {
                 $paths = explode(PATH_SEPARATOR, strtolower((string) $basedir));
                 $urandom = ([] !== array_intersect(['/dev', '/dev/', '/dev/urandom'], $paths));
                 unset($paths);
@@ -384,8 +384,10 @@ class Str
         }
 
         // /dev/urandom juga gagal, coba mcrypt
-        if ($unix && ($windows || (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613))
-        && extension_loaded('mcrypt')) {
+        if (
+            $unix && ($windows || (PHP_VERSION_ID <= 50609 || PHP_VERSION_ID >= 50613))
+            && extension_loaded('mcrypt')
+        ) {
             try {
                 $bytes = mcrypt_create_iv($length, (int) MCRYPT_DEV_URANDOM);
 
@@ -459,7 +461,7 @@ class Str
         $attempts = $bits = $bytes = $mask = $shift = 0;
         $range = $max - $min;
 
-        if (! is_int($range)) {
+        if (!is_int($range)) {
             $bytes = PHP_INT_SIZE;
             $mask = ~0;
         } else {
@@ -493,7 +495,7 @@ class Str
             $val &= $mask;
             $val += $shift;
             ++$attempts;
-        } while (! is_int($val) || $val > $max || $val < $min);
+        } while (!is_int($val) || $val > $max || $val < $min);
 
         return (int) $val;
     }
@@ -533,11 +535,11 @@ class Str
 
         for ($i = 9; $i >= 0; $i--) {
             $mod = $milliseconds % 32;
-            $time = $chars[$mod].$time;
+            $time = $chars[$mod] . $time;
             $milliseconds = ($milliseconds - $mod) / 32;
         }
 
-        if (! $duplicate) {
+        if (!$duplicate) {
             for ($i = 0; $i < 16; $i++) {
                 static::$ulids['chars'][$i] = static::integers(0, 31);
             }
@@ -553,7 +555,7 @@ class Str
             $random .= $chars[static::$ulids['chars'][$i]];
         }
 
-        return $lowercase ? strtolower($time.$random) : $time.$random;
+        return $lowercase ? strtolower($time . $random) : $time . $random;
     }
 
     /**
@@ -614,7 +616,7 @@ class Str
 
             $pattern = str_replace('\*', '.*', preg_quote($pattern, '/'));
 
-            if (1 === preg_match('/^'.$pattern.'\z/u', $value)) {
+            if (1 === preg_match('/^' . $pattern . '\z/u', $value)) {
                 return true;
             }
         }
@@ -671,7 +673,7 @@ class Str
 
         foreach ($segments as $segment) {
             $replacer = array_shift($replace);
-            $result .= ($replacer ? $replacer : $search).$segment;
+            $result .= ($replacer ? $replacer : $search) . $segment;
         }
 
         return $result;
@@ -769,11 +771,11 @@ class Str
         }
 
         $chars = static::characterify($value);
-        $lowercased = is_string($chars) && '' !== $chars && ! preg_match('/[^a-z]/', $chars);
+        $lowercased = is_string($chars) && '' !== $chars && !preg_match('/[^a-z]/', $chars);
 
-        if (! $lowercased) {
+        if (!$lowercased) {
             $value = preg_replace('/\s+/u', '', ucwords($value));
-            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value));
+            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $value));
         }
 
         static::$snake[$key][$delimiter] = $value;
@@ -812,7 +814,7 @@ class Str
     public static function contains_all($haystack, array $needles)
     {
         foreach ($needles as $needle) {
-            if (! static::contains($haystack, $needle)) {
+            if (!static::contains($haystack, $needle)) {
                 return false;
             }
         }
@@ -830,7 +832,7 @@ class Str
      */
     public static function start($value, $prefix)
     {
-        return $prefix.preg_replace('/^(?:'.preg_quote($prefix, '/').')+/u', '', $value);
+        return $prefix . preg_replace('/^(?:' . preg_quote($prefix, '/') . ')+/u', '', $value);
     }
 
     /**
@@ -871,7 +873,7 @@ class Str
      */
     public static function finish($value, $cap)
     {
-        return preg_replace('/(?:'.preg_quote($cap, '/').')+$/u', '', $value).$cap;
+        return preg_replace('/(?:' . preg_quote($cap, '/') . ')+$/u', '', $value) . $cap;
     }
 
     /**
@@ -896,7 +898,7 @@ class Str
      */
     public static function characterify($value)
     {
-        if (! is_int($value)) {
+        if (!is_int($value)) {
             return $value;
         }
 

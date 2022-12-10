@@ -1,668 +1,665 @@
-(function() {
-	let nonce, contentId;
-	let baseUrl = location.href.split('#')[0];
-	baseUrl += (baseUrl.indexOf('?') < 0 ? '?' : '&');
+(function () {
+    let nonce, contentId;
+    let baseUrl = location.href.split('#')[0];
+    baseUrl += (baseUrl.indexOf('?') < 0 ? '?' : '&');
 
-	class Panel
-	{
-      constructor(id) {
-      	this.id = id;
-      	this.elem = document.getElementById(this.id);
-      	this.elem.Oops = this.elem.Oops || {};
-      }
+    class Panel {
+        constructor(id) {
+            this.id = id;
+            this.elem = document.getElementById(this.id);
+            this.elem.Oops = this.elem.Oops || {};
+        }
 
 
-      init() {
-      	let elem = this.elem;
+        init() {
+            let elem = this.elem;
 
-      	this.init = function() {};
-      	elem.innerHTML = addNonces(elem.dataset.oopsContent);
-      	Oops.Dumper.init(this.dumps, elem);
-      	delete elem.dataset.oopsContent;
-      	delete this.dumps;
-      	evalScripts(elem);
+            this.init = function () { };
+            elem.innerHTML = addNonces(elem.dataset.oopsContent);
+            Oops.Dumper.init(this.dumps, elem);
+            delete elem.dataset.oopsContent;
+            delete this.dumps;
+            evalScripts(elem);
 
-      	draggable(elem, {
-            handles: elem.querySelectorAll('h1'),
-            start: () => {
-            	if (!this.is(Panel.FLOAT)) {
-                  this.toFloat();
-            	}
-            	this.focus();
-            	this.peekPosition = false;
+            draggable(elem, {
+                handles: elem.querySelectorAll('h1'),
+                start: () => {
+                    if (!this.is(Panel.FLOAT)) {
+                        this.toFloat();
+                    }
+                    this.focus();
+                    this.peekPosition = false;
+                }
+            });
+
+            elem.addEventListener('mousedown', () => {
+                this.focus();
+            });
+
+            elem.addEventListener('mouseenter', () => {
+                clearTimeout(elem.Oops.displayTimeout);
+            });
+
+            elem.addEventListener('mouseleave', () => {
+                this.blur();
+            });
+
+            elem.addEventListener('mousemove', (e) => {
+                if (e.buttons && !this.is(Panel.RESIZED) && (elem.style.width || elem.style.height)) {
+                    elem.classList.add(Panel.RESIZED);
+                }
+            });
+
+            elem.addEventListener('oops-toggle', () => {
+                this.reposition();
+            });
+
+            forEach(elem.querySelectorAll('.oops-icons a'), (link) => {
+                link.addEventListener('click', (e) => {
+                    if (link.rel == 'close') {
+                        this.toPeek();
+                    } else if (link.rel == 'window') {
+                        this.toWindow();
+                    }
+                    e.preventDefault();
+                });
+            });
+
+            if (!this.is('oops-ajax')) {
+                Oops.Toggle.persist(elem);
             }
-      	});
+        }
 
-      	elem.addEventListener('mousedown', () => {
-            this.focus();
-      	});
 
-      	elem.addEventListener('mouseenter', () => {
-            clearTimeout(elem.Oops.displayTimeout);
-      	});
+        is(mode) {
+            return this.elem.classList.contains(mode);
+        }
 
-      	elem.addEventListener('mouseleave', () => {
-            this.blur();
-      	});
 
-      	elem.addEventListener('mousemove', (e) => {
-            if (e.buttons && !this.is(Panel.RESIZED) && (elem.style.width || elem.style.height)) {
-            	elem.classList.add(Panel.RESIZED);
+        focus() {
+            let elem = this.elem;
+            if (this.is(Panel.WINDOW)) {
+                elem.Oops.window.focus();
+
+            } else if (!this.is(Panel.FOCUSED)) {
+                for (let id in Debug.panels) {
+                    Debug.panels[id].elem.classList.remove(Panel.FOCUSED);
+                }
+                elem.classList.add(Panel.FOCUSED);
+                elem.style.zIndex = Oops.panelZIndex + Panel.zIndexCounter++;
             }
-      	});
+        }
 
-      	elem.addEventListener('oops-toggle', () => {
+
+        blur() {
+            let elem = this.elem;
+            if (this.is(Panel.PEEK)) {
+                clearTimeout(elem.Oops.displayTimeout);
+                elem.Oops.displayTimeout = setTimeout(() => {
+                    elem.classList.remove(Panel.FOCUSED);
+                }, 50);
+            }
+        }
+
+
+        toFloat() {
+            this.elem.classList.remove(Panel.WINDOW);
+            this.elem.classList.remove(Panel.PEEK);
+            this.elem.classList.add(Panel.FLOAT);
+            this.elem.classList.remove(Panel.RESIZED);
             this.reposition();
-      	});
-
-      	forEach(elem.querySelectorAll('.oops-icons a'), (link) => {
-            link.addEventListener('click', (e) => {
-            	if (link.rel == 'close') {
-                  this.toPeek();
-            	} else if (link.rel == 'window') {
-                  this.toWindow();
-            	}
-            	e.preventDefault();
-            });
-      	});
-
-      	if (!this.is('oops-ajax')) {
-            Oops.Toggle.persist(elem);
-      	}
-      }
+        }
 
 
-      is(mode) {
-      	return this.elem.classList.contains(mode);
-      }
-
-
-      focus() {
-      	let elem = this.elem;
-      	if (this.is(Panel.WINDOW)) {
-            elem.Oops.window.focus();
-
-      	} else if (!this.is(Panel.FOCUSED)) {
-            for (let id in Debug.panels) {
-            	Debug.panels[id].elem.classList.remove(Panel.FOCUSED);
-            }
-            elem.classList.add(Panel.FOCUSED);
-            elem.style.zIndex = Oops.panelZIndex + Panel.zIndexCounter++;
-      	}
-      }
-
-
-      blur() {
-      	let elem = this.elem;
-      	if (this.is(Panel.PEEK)) {
-            clearTimeout(elem.Oops.displayTimeout);
-            elem.Oops.displayTimeout = setTimeout(() => {
-            	elem.classList.remove(Panel.FOCUSED);
-            }, 50);
-      	}
-      }
-
-
-      toFloat() {
-      	this.elem.classList.remove(Panel.WINDOW);
-      	this.elem.classList.remove(Panel.PEEK);
-      	this.elem.classList.add(Panel.FLOAT);
-      	this.elem.classList.remove(Panel.RESIZED);
-      	this.reposition();
-      }
-
-
-      toPeek() {
-      	this.elem.classList.remove(Panel.WINDOW);
-      	this.elem.classList.remove(Panel.FLOAT);
-      	this.elem.classList.remove(Panel.FOCUSED);
-      	this.elem.classList.add(Panel.PEEK);
-      	this.elem.style.width = '';
-      	this.elem.style.height = '';
-      	this.elem.classList.remove(Panel.RESIZED);
-      }
-
-
-      toWindow() {
-      	let offset = getOffset(this.elem);
-      	offset.left += typeof window.screenLeft == 'number' ? window.screenLeft : (window.screenX + 10);
-      	offset.top += typeof window.screenTop == 'number' ? window.screenTop : (window.screenY + 50);
-
-      	let win = window.open('', this.id.replace(/-/g, '_'), 'left=' + offset.left + ',top=' + offset.top
-      	+ ',width=' + this.elem.offsetWidth + ',height=' + this.elem.offsetHeight + ',resizable=yes,scrollbars=yes');
-      	if (!win) {
-            return false;
-      	}
-
-      	let doc = win.document;
-      	doc.write('<!DOCTYPE html><meta charset="utf-8">'
-      	+ '<script src="' + (baseUrl.replace('&', '&amp;').replace('"', '&quot;')) + '_oops_bar=js&amp;XDEBUG_SESSION_STOP=1" onload="Oops.Dumper.init()" async></script>'
-      	+ '<body id="oops-debug">'
-      	);
-      	doc.body.innerHTML = '<div class="oops-panel oops-mode-window" id="' + this.elem.id + '">' + this.elem.innerHTML + '</div>';
-      	evalScripts(doc.body);
-      	if (this.elem.querySelector('h1')) {
-            doc.title = this.elem.querySelector('h1').textContent;
-      	}
-
-      	win.addEventListener('beforeunload', () => {
-            this.toPeek();
-            win.close(); // tutup paksa dengan F5
-      	});
-
-      	doc.addEventListener('keyup', (e) => {
-            if (e.keyCode == 27 && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
-            	win.close();
-            }
-      	});
-
-      	this.elem.classList.remove(Panel.FLOAT);
-      	this.elem.classList.remove(Panel.PEEK);
-      	this.elem.classList.remove(Panel.FOCUSED);
-      	this.elem.classList.remove(Panel.RESIZED);
-      	this.elem.classList.add(Panel.WINDOW);
-      	this.elem.Oops.window = win;
-      	return true;
-      }
-
-
-      reposition(deltaX, deltaY) {
-      	let pos = getPosition(this.elem);
-      	if (pos.width) {
-            setPosition(this.elem, {left: pos.left + (deltaX || 0), top: pos.top + (deltaY || 0)});
-            if (this.is(Panel.RESIZED)) {
-            	let size = getWindowSize();
-            	this.elem.style.width = Math.min(size.width, pos.width) + 'px';
-            	this.elem.style.height = Math.min(size.height, pos.height) + 'px';
-            }
-      	}
-      }
-
-
-      savePosition() {
-      	let pos = getPosition(this.elem);
-      	if (this.is(Panel.WINDOW)) {
-            localStorage.setItem(this.id, JSON.stringify({window: true}));
-      	} else if (pos.width) {
-            localStorage.setItem(this.id, JSON.stringify({right: pos.right, bottom: pos.bottom, width: pos.width, height: pos.height, zIndex: this.elem.style.zIndex - Oops.panelZIndex, resized: this.is(Panel.RESIZED)}));
-      	} else {
-            localStorage.removeItem(this.id);
-      	}
-      }
-
-
-      restorePosition() {
-      	let pos = JSON.parse(localStorage.getItem(this.id));
-      	if (!pos) {
+        toPeek() {
+            this.elem.classList.remove(Panel.WINDOW);
+            this.elem.classList.remove(Panel.FLOAT);
+            this.elem.classList.remove(Panel.FOCUSED);
             this.elem.classList.add(Panel.PEEK);
-      	} else if (pos.window) {
-            this.init();
-            this.toWindow() || this.toFloat();
-      	} else if (this.elem.dataset.oopsContent) {
-            this.init();
-            this.toFloat();
-            if (pos.resized) {
-            	this.elem.classList.add(Panel.RESIZED);
-            	this.elem.style.width = pos.width + 'px';
-            	this.elem.style.height = pos.height + 'px';
+            this.elem.style.width = '';
+            this.elem.style.height = '';
+            this.elem.classList.remove(Panel.RESIZED);
+        }
+
+
+        toWindow() {
+            let offset = getOffset(this.elem);
+            offset.left += typeof window.screenLeft == 'number' ? window.screenLeft : (window.screenX + 10);
+            offset.top += typeof window.screenTop == 'number' ? window.screenTop : (window.screenY + 50);
+
+            let win = window.open('', this.id.replace(/-/g, '_'), 'left=' + offset.left + ',top=' + offset.top
+                + ',width=' + this.elem.offsetWidth + ',height=' + this.elem.offsetHeight + ',resizable=yes,scrollbars=yes');
+            if (!win) {
+                return false;
             }
-            setPosition(this.elem, pos);
-            this.elem.style.zIndex = Oops.panelZIndex + (pos.zIndex || 1);
-            Panel.zIndexCounter = Math.max(Panel.zIndexCounter, (pos.zIndex || 1)) + 1;
-      	}
-      }
-	}
 
-	Panel.PEEK = 'oops-mode-peek';
-	Panel.FLOAT = 'oops-mode-float';
-	Panel.WINDOW = 'oops-mode-window';
-	Panel.FOCUSED = 'oops-focused';
-	Panel.RESIZED = 'oops-panel-resized';
-	Panel.zIndexCounter = 1;
-
-
-	class Bar
-	{
-      init() {
-      	this.id = 'oops-debug-bar';
-      	this.elem = document.getElementById(this.id);
-
-      	draggable(this.elem, {
-            handles: this.elem.querySelectorAll('li:first-child'),
-            draggedClass: 'oops-dragged',
-            stop: () => {
-            	this.savePosition();
+            let doc = win.document;
+            doc.write('<!DOCTYPE html><meta charset="utf-8">'
+                + '<script src="' + (baseUrl.replace('&', '&amp;').replace('"', '&quot;')) + '_oops_bar=js&amp;XDEBUG_SESSION_STOP=1" onload="Oops.Dumper.init()" async></script>'
+                + '<body id="oops-debug">'
+            );
+            doc.body.innerHTML = '<div class="oops-panel oops-mode-window" id="' + this.elem.id + '">' + this.elem.innerHTML + '</div>';
+            evalScripts(doc.body);
+            if (this.elem.querySelector('h1')) {
+                doc.title = this.elem.querySelector('h1').textContent;
             }
-      	});
 
-      	this.elem.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-      	});
+            win.addEventListener('beforeunload', () => {
+                this.toPeek();
+                win.close(); // tutup paksa dengan F5
+            });
 
-      	this.initTabs(this.elem);
-      	this.restorePosition();
+            doc.addEventListener('keyup', (e) => {
+                if (e.keyCode == 27 && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) {
+                    win.close();
+                }
+            });
 
-      	(new MutationObserver(() => {
+            this.elem.classList.remove(Panel.FLOAT);
+            this.elem.classList.remove(Panel.PEEK);
+            this.elem.classList.remove(Panel.FOCUSED);
+            this.elem.classList.remove(Panel.RESIZED);
+            this.elem.classList.add(Panel.WINDOW);
+            this.elem.Oops.window = win;
+            return true;
+        }
+
+
+        reposition(deltaX, deltaY) {
+            let pos = getPosition(this.elem);
+            if (pos.width) {
+                setPosition(this.elem, { left: pos.left + (deltaX || 0), top: pos.top + (deltaY || 0) });
+                if (this.is(Panel.RESIZED)) {
+                    let size = getWindowSize();
+                    this.elem.style.width = Math.min(size.width, pos.width) + 'px';
+                    this.elem.style.height = Math.min(size.height, pos.height) + 'px';
+                }
+            }
+        }
+
+
+        savePosition() {
+            let pos = getPosition(this.elem);
+            if (this.is(Panel.WINDOW)) {
+                localStorage.setItem(this.id, JSON.stringify({ window: true }));
+            } else if (pos.width) {
+                localStorage.setItem(this.id, JSON.stringify({ right: pos.right, bottom: pos.bottom, width: pos.width, height: pos.height, zIndex: this.elem.style.zIndex - Oops.panelZIndex, resized: this.is(Panel.RESIZED) }));
+            } else {
+                localStorage.removeItem(this.id);
+            }
+        }
+
+
+        restorePosition() {
+            let pos = JSON.parse(localStorage.getItem(this.id));
+            if (!pos) {
+                this.elem.classList.add(Panel.PEEK);
+            } else if (pos.window) {
+                this.init();
+                this.toWindow() || this.toFloat();
+            } else if (this.elem.dataset.oopsContent) {
+                this.init();
+                this.toFloat();
+                if (pos.resized) {
+                    this.elem.classList.add(Panel.RESIZED);
+                    this.elem.style.width = pos.width + 'px';
+                    this.elem.style.height = pos.height + 'px';
+                }
+                setPosition(this.elem, pos);
+                this.elem.style.zIndex = Oops.panelZIndex + (pos.zIndex || 1);
+                Panel.zIndexCounter = Math.max(Panel.zIndexCounter, (pos.zIndex || 1)) + 1;
+            }
+        }
+    }
+
+    Panel.PEEK = 'oops-mode-peek';
+    Panel.FLOAT = 'oops-mode-float';
+    Panel.WINDOW = 'oops-mode-window';
+    Panel.FOCUSED = 'oops-focused';
+    Panel.RESIZED = 'oops-panel-resized';
+    Panel.zIndexCounter = 1;
+
+
+    class Bar {
+        init() {
+            this.id = 'oops-debug-bar';
+            this.elem = document.getElementById(this.id);
+
+            draggable(this.elem, {
+                handles: this.elem.querySelectorAll('li:first-child'),
+                draggedClass: 'oops-dragged',
+                stop: () => {
+                    this.savePosition();
+                }
+            });
+
+            this.elem.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+            });
+
+            this.initTabs(this.elem);
             this.restorePosition();
-      	})).observe(this.elem, {childList: true, characterData: true, subtree: true});
-      }
+
+            (new MutationObserver(() => {
+                this.restorePosition();
+            })).observe(this.elem, { childList: true, characterData: true, subtree: true });
+        }
 
 
-      initTabs(elem) {
-      	forEach(elem.getElementsByTagName('a'), (link) => {
-            link.addEventListener('click', (e) => {
-            	if (link.rel == 'close') {
-                  this.close();
+        initTabs(elem) {
+            forEach(elem.getElementsByTagName('a'), (link) => {
+                link.addEventListener('click', (e) => {
+                    if (link.rel == 'close') {
+                        this.close();
 
-            	} else if (link.rel) {
-                  let panel = Debug.panels[link.rel];
-                  panel.init();
+                    } else if (link.rel) {
+                        let panel = Debug.panels[link.rel];
+                        panel.init();
 
-                  if (e.shiftKey) {
-                  	panel.toFloat();
-                  	panel.toWindow();
+                        if (e.shiftKey) {
+                            panel.toFloat();
+                            panel.toWindow();
 
-                  } else if (panel.is(Panel.FLOAT)) {
-                  	panel.toPeek();
+                        } else if (panel.is(Panel.FLOAT)) {
+                            panel.toPeek();
 
-                  } else {
-                  	panel.toFloat();
-                  	if (panel.peekPosition) {
-                        panel.reposition(-Math.round(Math.random() * 100) - 20, (Math.round(Math.random() * 100) + 20) * (this.isAtTop() ? 1 : -1));
-                        panel.peekPosition = false;
-                  	}
-                  }
-            	}
-            	e.preventDefault();
+                        } else {
+                            panel.toFloat();
+                            if (panel.peekPosition) {
+                                panel.reposition(-Math.round(Math.random() * 100) - 20, (Math.round(Math.random() * 100) + 20) * (this.isAtTop() ? 1 : -1));
+                                panel.peekPosition = false;
+                            }
+                        }
+                    }
+                    e.preventDefault();
+                });
+
+                link.addEventListener('mouseenter', (e) => {
+                    if (e.buttons || !link.rel || link.rel == 'close' || elem.classList.contains('oops-dragged')) {
+                        return;
+                    }
+
+                    clearTimeout(this.displayTimeout);
+                    this.displayTimeout = setTimeout(() => {
+                        let panel = Debug.panels[link.rel];
+                        panel.focus();
+
+                        if (panel.is(Panel.PEEK)) {
+                            panel.init();
+
+                            let pos = getPosition(panel.elem);
+                            setPosition(panel.elem, {
+                                left: getOffset(link).left + getPosition(link).width + 4 - pos.width,
+                                top: this.isAtTop()
+                                    ? getOffset(this.elem).top + getPosition(this.elem).height + 4
+                                    : getOffset(this.elem).top - pos.height - 4
+                            });
+                            panel.peekPosition = true;
+                        }
+                    }, 50);
+                });
+
+                link.addEventListener('mouseleave', () => {
+                    clearTimeout(this.displayTimeout);
+
+                    if (link.rel && link.rel !== 'close' && !elem.classList.contains('oops-dragged')) {
+                        Debug.panels[link.rel].blur();
+                    }
+                });
             });
+            this.autoHideLabels();
+        }
 
-            link.addEventListener('mouseenter', (e) => {
-            	if (e.buttons || !link.rel || link.rel == 'close' || elem.classList.contains('oops-dragged')) {
-                  return;
-            	}
 
-            	clearTimeout(this.displayTimeout);
-            	this.displayTimeout = setTimeout(() => {
-                  let panel = Debug.panels[link.rel];
-                  panel.focus();
-
-                  if (panel.is(Panel.PEEK)) {
-                  	panel.init();
-
-                  	let pos = getPosition(panel.elem);
-                  	setPosition(panel.elem, {
-                        left: getOffset(link).left + getPosition(link).width + 4 - pos.width,
-                        top: this.isAtTop()
-                        	? getOffset(this.elem).top + getPosition(this.elem).height + 4
-                        	: getOffset(this.elem).top - pos.height - 4
-                  	});
-                  	panel.peekPosition = true;
-                  }
-            	}, 50);
+        autoHideLabels() {
+            let width = getWindowSize().width;
+            forEach(this.elem.children, (ul) => {
+                let i, labels = ul.querySelectorAll('.oops-label');
+                for (i = 0; i < labels.length && ul.clientWidth < width; i++) {
+                    labels.item(i).hidden = false;
+                }
+                for (i = labels.length - 1; i >= 0 && ul.clientWidth >= width; i--) {
+                    labels.item(i).hidden = true;
+                }
             });
-
-            link.addEventListener('mouseleave', () => {
-            	clearTimeout(this.displayTimeout);
-
-            	if (link.rel && link.rel !== 'close' && !elem.classList.contains('oops-dragged')) {
-                  Debug.panels[link.rel].blur();
-            	}
-            });
-      	});
-      	this.autoHideLabels();
-      }
+        }
 
 
-      autoHideLabels() {
-      	let width = getWindowSize().width;
-      	forEach(this.elem.children, (ul) => {
-            let i, labels = ul.querySelectorAll('.oops-label');
-            for (i = 0; i < labels.length && ul.clientWidth < width; i++) {
-            	labels.item(i).hidden = false;
+        close() {
+            document.getElementById('oops-debug').style.display = 'none';
+        }
+
+
+        reposition(deltaX, deltaY) {
+            let pos = getPosition(this.elem);
+            if (pos.width) {
+                setPosition(this.elem, { left: pos.left + (deltaX || 0), top: pos.top + (deltaY || 0) });
+                this.savePosition();
             }
-            for (i = labels.length - 1; i >= 0 && ul.clientWidth >= width; i--) {
-            	labels.item(i).hidden = true;
+        }
+
+
+        savePosition() {
+            let pos = getPosition(this.elem);
+            if (pos.width) { // is visible?
+                localStorage.setItem(this.id, JSON.stringify(this.isAtTop() ? { right: pos.right, top: pos.top } : { right: pos.right, bottom: pos.bottom }));
             }
-      	});
-      }
+        }
 
 
-      close() {
-      	document.getElementById('oops-debug').style.display = 'none';
-      }
-
-
-      reposition(deltaX, deltaY) {
-      	let pos = getPosition(this.elem);
-      	if (pos.width) {
-            setPosition(this.elem, {left: pos.left + (deltaX || 0), top: pos.top + (deltaY || 0)});
+        restorePosition() {
+            let pos = JSON.parse(localStorage.getItem(this.id));
+            setPosition(this.elem, pos || { right: 0, bottom: 0 });
             this.savePosition();
-      	}
-      }
+        }
 
 
-      savePosition() {
-      	let pos = getPosition(this.elem);
-      	if (pos.width) { // is visible?
-            localStorage.setItem(this.id, JSON.stringify(this.isAtTop() ? {right: pos.right, top: pos.top} : {right: pos.right, bottom: pos.bottom}));
-      	}
-      }
+        isAtTop() {
+            let pos = getPosition(this.elem);
+            return pos.top < 100 && pos.bottom > pos.top;
+        }
+    }
 
 
-      restorePosition() {
-      	let pos = JSON.parse(localStorage.getItem(this.id));
-      	setPosition(this.elem, pos || {right: 0, bottom: 0});
-      	this.savePosition();
-      }
+    class Debug {
+        static init(content, dumps) {
+            Debug.layer = document.createElement('div');
+            Debug.layer.setAttribute('id', 'oops-debug');
+            Debug.layer.innerHTML = addNonces(content);
+            (document.body || document.documentElement).appendChild(Debug.layer);
+            evalScripts(Debug.layer);
+            Oops.Dumper.init();
+            Debug.layer.style.display = 'block';
+            Debug.bar.init();
+
+            forEach(document.querySelectorAll('.oops-panel'), (panel) => {
+                Debug.panels[panel.id] = new Panel(panel.id);
+                Debug.panels[panel.id].dumps = dumps;
+                Debug.panels[panel.id].restorePosition();
+            });
+
+            Debug.captureWindow();
+            Debug.captureAjax();
+        }
 
 
-      isAtTop() {
-      	let pos = getPosition(this.elem);
-      	return pos.top < 100 && pos.bottom > pos.top;
-      }
-	}
+        static loadAjax(content, dumps) {
+            forEach(Debug.layer.querySelectorAll('.oops-panel.oops-ajax'), (panel) => {
+                Debug.panels[panel.id].savePosition();
+                delete Debug.panels[panel.id];
+                panel.parentNode.removeChild(panel);
+            });
 
-
-	class Debug
-	{
-      static init(content, dumps) {
-      	Debug.layer = document.createElement('div');
-      	Debug.layer.setAttribute('id', 'oops-debug');
-      	Debug.layer.innerHTML = addNonces(content);
-      	(document.body || document.documentElement).appendChild(Debug.layer);
-      	evalScripts(Debug.layer);
-      	Oops.Dumper.init();
-      	Debug.layer.style.display = 'block';
-      	Debug.bar.init();
-
-      	forEach(document.querySelectorAll('.oops-panel'), (panel) => {
-            Debug.panels[panel.id] = new Panel(panel.id);
-            Debug.panels[panel.id].dumps = dumps;
-            Debug.panels[panel.id].restorePosition();
-      	});
-
-      	Debug.captureWindow();
-      	Debug.captureAjax();
-      }
-
-
-      static loadAjax(content, dumps) {
-      	forEach(Debug.layer.querySelectorAll('.oops-panel.oops-ajax'), (panel) => {
-            Debug.panels[panel.id].savePosition();
-            delete Debug.panels[panel.id];
-            panel.parentNode.removeChild(panel);
-      	});
-
-      	let ajaxBar = document.getElementById('oops-ajax-bar');
-      	if (ajaxBar) {
-            ajaxBar.parentNode.removeChild(ajaxBar);
-      	}
-
-      	Debug.layer.insertAdjacentHTML('beforeend', content);
-      	evalScripts(Debug.layer);
-      	ajaxBar = document.getElementById('oops-ajax-bar');
-      	Debug.bar.elem.appendChild(ajaxBar);
-
-      	forEach(document.querySelectorAll('.oops-panel'), (panel) => {
-            if (!Debug.panels[panel.id]) {
-            	Debug.panels[panel.id] = new Panel(panel.id);
-            	Debug.panels[panel.id].dumps = dumps;
-            	Debug.panels[panel.id].restorePosition();
-            }
-      	});
-
-      	Debug.bar.initTabs(ajaxBar);
-      }
-
-
-      static captureWindow() {
-      	let size = getWindowSize();
-
-      	window.addEventListener('resize', () => {
-            let newSize = getWindowSize();
-
-            Debug.bar.reposition(newSize.width - size.width, newSize.height - size.height);
-            Debug.bar.autoHideLabels();
-
-            for (let id in Debug.panels) {
-            	Debug.panels[id].reposition(newSize.width - size.width, newSize.height - size.height);
+            let ajaxBar = document.getElementById('oops-ajax-bar');
+            if (ajaxBar) {
+                ajaxBar.parentNode.removeChild(ajaxBar);
             }
 
-            size = newSize;
-      	});
+            Debug.layer.insertAdjacentHTML('beforeend', content);
+            evalScripts(Debug.layer);
+            ajaxBar = document.getElementById('oops-ajax-bar');
+            Debug.bar.elem.appendChild(ajaxBar);
 
-      	window.addEventListener('unload', () => {
-            for (let id in Debug.panels) {
-            	Debug.panels[id].savePosition();
+            forEach(document.querySelectorAll('.oops-panel'), (panel) => {
+                if (!Debug.panels[panel.id]) {
+                    Debug.panels[panel.id] = new Panel(panel.id);
+                    Debug.panels[panel.id].dumps = dumps;
+                    Debug.panels[panel.id].restorePosition();
+                }
+            });
+
+            Debug.bar.initTabs(ajaxBar);
+        }
+
+
+        static captureWindow() {
+            let size = getWindowSize();
+
+            window.addEventListener('resize', () => {
+                let newSize = getWindowSize();
+
+                Debug.bar.reposition(newSize.width - size.width, newSize.height - size.height);
+                Debug.bar.autoHideLabels();
+
+                for (let id in Debug.panels) {
+                    Debug.panels[id].reposition(newSize.width - size.width, newSize.height - size.height);
+                }
+
+                size = newSize;
+            });
+
+            window.addEventListener('unload', () => {
+                for (let id in Debug.panels) {
+                    Debug.panels[id].savePosition();
+                }
+            });
+        }
+
+
+        static captureAjax() {
+            let header = Oops.getAjaxHeader();
+            if (!header) {
+                return;
             }
-      	});
-      }
+            let oldOpen = XMLHttpRequest.prototype.open;
 
-
-      static captureAjax() {
-      	let header = Oops.getAjaxHeader();
-      	if (!header) {
-            return;
-      	}
-      	let oldOpen = XMLHttpRequest.prototype.open;
-
-      	XMLHttpRequest.prototype.open = function() {
-            oldOpen.apply(this, arguments);
-            if (window.OopsAutoRefresh !== false && new URL(arguments[1], location.origin).host == location.host) {
-            	this.setRequestHeader('X-Oops-Ajax', header);
-            	this.addEventListener('load', function() {
-                  if (this.getAllResponseHeaders().match(/^X-Oops-Ajax: 1/mi)) {
-                  	Debug.loadScript(baseUrl + '_oops_bar=content-ajax.' + header + '&XDEBUG_SESSION_STOP=1&v=' + Math.random());
-                  }
-            	});
-            }
-      	};
-
-      	if (window.fetch) {
-            let oldFetch = window.fetch;
-            window.fetch = function(request, options) {
-            	request = request instanceof Request ? request : new Request(request, options || {});
-
-            	if (window.OopsAutoRefresh !== false && new URL(request.url, location.origin).host == location.host) {
-                  request.headers.set('X-Oops-Ajax', header);
-                  return oldFetch(request).then((response) => {
-                  	if (response.headers.has('X-Oops-Ajax') && response.headers.get('X-Oops-Ajax')[0] == '1') {
-                        Debug.loadScript(baseUrl + '_oops_bar=content-ajax.' + header + '&XDEBUG_SESSION_STOP=1&v=' + Math.random());
-                  	}
-
-                  	return response;
-                  });
-            	}
-
-            	return oldFetch(request);
+            XMLHttpRequest.prototype.open = function () {
+                oldOpen.apply(this, arguments);
+                if (window.OopsAutoRefresh !== false && new URL(arguments[1], location.origin).host == location.host) {
+                    this.setRequestHeader('X-Oops-Ajax', header);
+                    this.addEventListener('load', function () {
+                        if (this.getAllResponseHeaders().match(/^X-Oops-Ajax: 1/mi)) {
+                            Debug.loadScript(baseUrl + '_oops_bar=content-ajax.' + header + '&XDEBUG_SESSION_STOP=1&v=' + Math.random());
+                        }
+                    });
+                }
             };
-      	}
-      }
 
+            if (window.fetch) {
+                let oldFetch = window.fetch;
+                window.fetch = function (request, options) {
+                    request = request instanceof Request ? request : new Request(request, options || {});
 
-      static loadScript(url) {
-      	if (Debug.scriptElem) {
-            Debug.scriptElem.parentNode.removeChild(Debug.scriptElem);
-      	}
-      	Debug.scriptElem = document.createElement('script');
-      	Debug.scriptElem.src = url;
-      	Debug.scriptElem.setAttribute('nonce', nonce);
-      	(document.body || document.documentElement).appendChild(Debug.scriptElem);
-      }
-	}
+                    if (window.OopsAutoRefresh !== false && new URL(request.url, location.origin).host == location.host) {
+                        request.headers.set('X-Oops-Ajax', header);
+                        return oldFetch(request).then((response) => {
+                            if (response.headers.has('X-Oops-Ajax') && response.headers.get('X-Oops-Ajax')[0] == '1') {
+                                Debug.loadScript(baseUrl + '_oops_bar=content-ajax.' + header + '&XDEBUG_SESSION_STOP=1&v=' + Math.random());
+                            }
 
+                            return response;
+                        });
+                    }
 
-	function evalScripts(elem) {
-      forEach(elem.getElementsByTagName('script'), (script) => {
-      	if ((!script.hasAttribute('type') || script.type == 'text/javascript' || script.type == 'application/javascript') && !script.oopsEvaluated) {
-            let document = script.ownerDocument;
-            let dolly = document.createElement('script');
-            dolly.textContent = script.textContent;
-            dolly.setAttribute('nonce', nonce);
-            (document.body || document.documentElement).appendChild(dolly);
-            script.oopsEvaluated = true;
-      	}
-      });
-	}
-
-
-	let dragging;
-
-	function draggable(elem, options) {
-      let dE = document.documentElement, started, deltaX, deltaY, clientX, clientY;
-      options = options || {};
-
-      let redraw = function () {
-      	if (dragging) {
-            setPosition(elem, {left: clientX + deltaX, top: clientY + deltaY});
-            requestAnimationFrame(redraw);
-      	}
-      };
-
-      let onMove = function(e) {
-      	if (e.buttons == 0) {
-            return onEnd(e);
-      	}
-      	if (!started) {
-            if (options.draggedClass) {
-            	elem.classList.add(options.draggedClass);
+                    return oldFetch(request);
+                };
             }
-            if (options.start) {
-            	options.start(e, elem);
+        }
+
+
+        static loadScript(url) {
+            if (Debug.scriptElem) {
+                Debug.scriptElem.parentNode.removeChild(Debug.scriptElem);
             }
-            started = true;
-      	}
+            Debug.scriptElem = document.createElement('script');
+            Debug.scriptElem.src = url;
+            Debug.scriptElem.setAttribute('nonce', nonce);
+            (document.body || document.documentElement).appendChild(Debug.scriptElem);
+        }
+    }
 
-      	clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      	clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      	return false;
-      };
 
-      let onEnd = function(e) {
-      	if (started) {
-            if (options.draggedClass) {
-            	elem.classList.remove(options.draggedClass);
+    function evalScripts(elem) {
+        forEach(elem.getElementsByTagName('script'), (script) => {
+            if ((!script.hasAttribute('type') || script.type == 'text/javascript' || script.type == 'application/javascript') && !script.oopsEvaluated) {
+                let document = script.ownerDocument;
+                let dolly = document.createElement('script');
+                dolly.textContent = script.textContent;
+                dolly.setAttribute('nonce', nonce);
+                (document.body || document.documentElement).appendChild(dolly);
+                script.oopsEvaluated = true;
             }
-            if (options.stop) {
-            	options.stop(e, elem);
+        });
+    }
+
+
+    let dragging;
+
+    function draggable(elem, options) {
+        let dE = document.documentElement, started, deltaX, deltaY, clientX, clientY;
+        options = options || {};
+
+        let redraw = function () {
+            if (dragging) {
+                setPosition(elem, { left: clientX + deltaX, top: clientY + deltaY });
+                requestAnimationFrame(redraw);
             }
-      	}
-      	dragging = null;
-      	dE.removeEventListener('mousemove', onMove);
-      	dE.removeEventListener('mouseup', onEnd);
-      	dE.removeEventListener('touchmove', onMove);
-      	dE.removeEventListener('touchend', onEnd);
-      	return false;
-      };
+        };
 
-      let onStart = function(e) {
-      	e.preventDefault();
-      	e.stopPropagation();
+        let onMove = function (e) {
+            if (e.buttons == 0) {
+                return onEnd(e);
+            }
+            if (!started) {
+                if (options.draggedClass) {
+                    elem.classList.add(options.draggedClass);
+                }
+                if (options.start) {
+                    options.start(e, elem);
+                }
+                started = true;
+            }
 
-      	if (dragging) {
-            return onEnd(e);
-      	}
+            clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return false;
+        };
 
-      	let pos = getPosition(elem);
-      	clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      	clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      	deltaX = pos.left - clientX;
-      	deltaY = pos.top - clientY;
-      	dragging = true;
-      	started = false;
-      	dE.addEventListener('mousemove', onMove);
-      	dE.addEventListener('mouseup', onEnd);
-      	dE.addEventListener('touchmove', onMove);
-      	dE.addEventListener('touchend', onEnd);
-      	requestAnimationFrame(redraw);
-      	if (options.start) {
-            options.start(e, elem);
-      	}
-      };
-
-      forEach(options.handles, (handle) => {
-      	handle.addEventListener('mousedown', onStart);
-      	handle.addEventListener('touchstart', onStart);
-
-      	handle.addEventListener('click', (e) => {
+        let onEnd = function (e) {
             if (started) {
-            	e.stopImmediatePropagation();
+                if (options.draggedClass) {
+                    elem.classList.remove(options.draggedClass);
+                }
+                if (options.stop) {
+                    options.stop(e, elem);
+                }
             }
-      	});
-      });
-	}
+            dragging = null;
+            dE.removeEventListener('mousemove', onMove);
+            dE.removeEventListener('mouseup', onEnd);
+            dE.removeEventListener('touchmove', onMove);
+            dE.removeEventListener('touchend', onEnd);
+            return false;
+        };
+
+        let onStart = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (dragging) {
+                return onEnd(e);
+            }
+
+            let pos = getPosition(elem);
+            clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            deltaX = pos.left - clientX;
+            deltaY = pos.top - clientY;
+            dragging = true;
+            started = false;
+            dE.addEventListener('mousemove', onMove);
+            dE.addEventListener('mouseup', onEnd);
+            dE.addEventListener('touchmove', onMove);
+            dE.addEventListener('touchend', onEnd);
+            requestAnimationFrame(redraw);
+            if (options.start) {
+                options.start(e, elem);
+            }
+        };
+
+        forEach(options.handles, (handle) => {
+            handle.addEventListener('mousedown', onStart);
+            handle.addEventListener('touchstart', onStart);
+
+            handle.addEventListener('click', (e) => {
+                if (started) {
+                    e.stopImmediatePropagation();
+                }
+            });
+        });
+    }
 
 
-	function getOffset(elem) {
-      let res = {left: elem.offsetLeft, top: elem.offsetTop};
-      while (elem = elem.offsetParent) {
-      	res.left += elem.offsetLeft; res.top += elem.offsetTop;
-      }
-      return res;
-	}
+    function getOffset(elem) {
+        let res = { left: elem.offsetLeft, top: elem.offsetTop };
+        while (elem = elem.offsetParent) {
+            res.left += elem.offsetLeft; res.top += elem.offsetTop;
+        }
+        return res;
+    }
 
 
-	function getWindowSize() {
-      return {
-      	width: document.documentElement.clientWidth,
-      	height: document.compatMode == 'BackCompat' ? window.innerHeight : document.documentElement.clientHeight
-      };
-	}
+    function getWindowSize() {
+        return {
+            width: document.documentElement.clientWidth,
+            height: document.compatMode == 'BackCompat' ? window.innerHeight : document.documentElement.clientHeight
+        };
+    }
 
 
-	function setPosition(elem, coords) {
-      let win = getWindowSize();
-      if (typeof coords.right !== 'undefined') {
-      	coords.left = win.width - elem.offsetWidth - coords.right;
-      }
-      if (typeof coords.bottom !== 'undefined') {
-      	coords.top = win.height - elem.offsetHeight - coords.bottom;
-      }
-      elem.style.left = Math.max(0, Math.min(coords.left, win.width - elem.offsetWidth)) + 'px';
-      elem.style.top = Math.max(0, Math.min(coords.top, win.height - elem.offsetHeight)) + 'px';
-	}
+    function setPosition(elem, coords) {
+        let win = getWindowSize();
+        if (typeof coords.right !== 'undefined') {
+            coords.left = win.width - elem.offsetWidth - coords.right;
+        }
+        if (typeof coords.bottom !== 'undefined') {
+            coords.top = win.height - elem.offsetHeight - coords.bottom;
+        }
+        elem.style.left = Math.max(0, Math.min(coords.left, win.width - elem.offsetWidth)) + 'px';
+        elem.style.top = Math.max(0, Math.min(coords.top, win.height - elem.offsetHeight)) + 'px';
+    }
 
 
-	function getPosition(elem) {
-      let win = getWindowSize();
-      return {
-      	left: elem.offsetLeft,
-      	top: elem.offsetTop,
-      	right: win.width - elem.offsetWidth - elem.offsetLeft,
-      	bottom: win.height - elem.offsetHeight - elem.offsetTop,
-      	width: elem.offsetWidth,
-      	height: elem.offsetHeight
-      };
-	}
+    function getPosition(elem) {
+        let win = getWindowSize();
+        return {
+            left: elem.offsetLeft,
+            top: elem.offsetTop,
+            right: win.width - elem.offsetWidth - elem.offsetLeft,
+            bottom: win.height - elem.offsetHeight - elem.offsetTop,
+            width: elem.offsetWidth,
+            height: elem.offsetHeight
+        };
+    }
 
 
-	function addNonces(html) {
-      let el = document.createElement('div');
-      el.innerHTML = html;
-      forEach(el.getElementsByTagName('style'), (style) => {
-      	style.setAttribute('nonce', nonce);
-      });
-      return el.innerHTML;
-	}
+    function addNonces(html) {
+        let el = document.createElement('div');
+        el.innerHTML = html;
+        forEach(el.getElementsByTagName('style'), (style) => {
+            style.setAttribute('nonce', nonce);
+        });
+        return el.innerHTML;
+    }
 
 
-	function forEach(arr, cb) {
-      Array.prototype.forEach.call(arr, cb);
-	}
+    function forEach(arr, cb) {
+        Array.prototype.forEach.call(arr, cb);
+    }
 
 
-	if (document.currentScript) {
-      nonce = document.currentScript.getAttribute('nonce') || document.currentScript.nonce;
-      contentId = document.currentScript.dataset.id;
-	}
+    if (document.currentScript) {
+        nonce = document.currentScript.getAttribute('nonce') || document.currentScript.nonce;
+        contentId = document.currentScript.dataset.id;
+    }
 
-	Oops = window.Oops || {};
-	Oops.panelZIndex = Oops.panelZIndex || 20000;
-	Oops.DebugPanel = Panel;
-	Oops.DebugBar = Bar;
-	Oops.Debug = Debug;
-	Oops.getAjaxHeader = () => contentId;
+    Oops = window.Oops || {};
+    Oops.panelZIndex = Oops.panelZIndex || 20000;
+    Oops.DebugPanel = Panel;
+    Oops.DebugBar = Bar;
+    Oops.Debug = Debug;
+    Oops.getAjaxHeader = () => contentId;
 
-	Debug.bar = new Bar;
-	Debug.panels = {};
+    Debug.bar = new Bar;
+    Debug.panels = {};
 })();

@@ -1,4 +1,5 @@
 <?php
+
 namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct script access.');
@@ -8,57 +9,76 @@ use System\Database;
 $queries = Database::profile();
 ?>
 <style class="oops-debug">
-	#oops-debug td.oops-db-panel-sql { background: white !important }
-	#oops-debug .oops-db-panel-source { color: #BBB !important }
-	#oops-debug .oops-db-panel-hint code { color:#c22!important }
-	#oops-debug .oops-db-panel-hint { margin-top: 15px }
-	#oops-debug .oops-db-panel-explain { margin-top: 15px }
-	#oops-debug .oops-db-panel-time { background-color: green; color:white;}
+    #oops-debug td.oops-db-panel-sql {
+        background: white !important
+    }
+
+    #oops-debug .oops-db-panel-source {
+        color: #BBB !important
+    }
+
+    #oops-debug .oops-db-panel-hint code {
+        color: #c22 !important
+    }
+
+    #oops-debug .oops-db-panel-hint {
+        margin-top: 15px
+    }
+
+    #oops-debug .oops-db-panel-explain {
+        margin-top: 15px
+    }
+
+    #oops-debug .oops-db-panel-time {
+        background-color: green;
+        color: white;
+    }
 </style>
 
 <h1>Database Profiler</h1>
 
 <div class="oops-inner">
-	<div class="oops-inner-container">
-      <?php if (count($queries) > 0): ?>
-      	<table>
-            <tr>
-            	<th>No.</th>
-            	<th>Queries</th>
-            	<th>Time</th>
-            	<th>Hints</th>
-            </tr>
-            <?php $i = 0; foreach ($queries as $query): ?>
-            	<?php $hints = Defaults::sqlHints($query['sql']) ?>
-            	<tr>
-                  <td width="5"><?php echo ++$i; ?>.</td>
-                  <td>
-                  	<code><?php echo Defaults::sqlHighlight($query['sql'], $query['bindings']) ?></code>
-                  </td>
-                  <td><?php echo $query['time'] ?>ms</td>
-                  <td colspan="2">
-                  	<?php if (count($hints) > 0): ?>
-                  	<a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-db-panel-hint">Expand</a>
-                        <?php $j = 0 ?>
-                        <table class="oops-collapsed oops-db-panel-hint" id="">
-                        	<tbody>
-                        	<?php foreach ($hints as $hint): ?>
-                              <tr>
-                              	<td colspan="2"><?php echo ++$j; ?>.</td>
-                              	<td><?php echo $hint ?></td>
-                              </tr>
-                        	<?php endforeach; ?>
-                        	</tbody>
-                        </table>
-                  	<?php else: ?>
-                        <code>None</code>
-                  	<?php endif ?>
-                  </td>
-            	</tr>
-            <?php endforeach ?>
-      	</table>
-      <?php else: ?>
-      	<b>No query data.</b>
-      <?php endif; ?>
-	</div>
+    <div class="oops-inner-container">
+        <?php if (count($queries) > 0) : ?>
+            <table>
+                <tr>
+                    <th>No.</th>
+                    <th>Queries</th>
+                    <th>Time</th>
+                    <th>Hints</th>
+                </tr>
+                <?php $i = 0;
+                foreach ($queries as $query) : ?>
+                    <?php $hints = Defaults::sqlHints($query['sql']) ?>
+                    <tr>
+                        <td width="5"><?php echo ++$i; ?>.</td>
+                        <td>
+                            <code><?php echo Defaults::sqlHighlight($query['sql'], $query['bindings']) ?></code>
+                        </td>
+                        <td><?php echo $query['time'] ?>ms</td>
+                        <td colspan="2">
+                            <?php if (count($hints) > 0) : ?>
+                                <a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-db-panel-hint">Expand</a>
+                                <?php $j = 0 ?>
+                                <table class="oops-collapsed oops-db-panel-hint" id="">
+                                    <tbody>
+                                        <?php foreach ($hints as $hint) : ?>
+                                            <tr>
+                                                <td colspan="2"><?php echo ++$j; ?>.</td>
+                                                <td><?php echo $hint ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            <?php else : ?>
+                                <code>None</code>
+                            <?php endif ?>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+            </table>
+        <?php else : ?>
+            <b>No query data.</b>
+        <?php endif; ?>
+    </div>
 </div>

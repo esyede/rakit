@@ -2,20 +2,20 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Controller Routing](#controller-routing)
-- [Controller Paket](#controller-paket)
-- [Action Middleware](#action-middleware)
-- [Nested Controller](#nested-controller)
-- [Layout Controller](#layout-controller)
-- [RESTful Controller](#restful-controller)
-- [Dependency Injection](#dependency-injection)
-- [Controller Factory](#controller-factory)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Controller Routing](#controller-routing)
+-   [Controller Paket](#controller-paket)
+-   [Action Middleware](#action-middleware)
+-   [Nested Controller](#nested-controller)
+-   [Layout Controller](#layout-controller)
+-   [RESTful Controller](#restful-controller)
+-   [Dependency Injection](#dependency-injection)
+-   [Controller Factory](#controller-factory)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Controller adalah kelas yang bertanggung jawab untuk menerima input pengguna dan mengelola interaksi
@@ -36,6 +36,7 @@ Kelas controller harus disimpan dalam folder `controllers/`. Kami telah menyerta
 kelas `Home_Controller` (di file `application/controllers/home.php`) sebagai contoh penggunaannya.
 
 <a id="membuat-controller-sederhana"></a>
+
 #### Membuat controller sederhana:
 
 ```php
@@ -54,8 +55,8 @@ Penamaan method untuk action harus diawali dengan kata `action_`.
 Semua method lain, jika namanya tidak diawali dengan kata `action_` maka ia **tidak akan bisa diakses**
 oleh pengunjung situs anda.
 
-
 <a id="controller-routing"></a>
+
 ## Controller Routing
 
 Penting untuk diketahui bahwa semua rute di Rakit harus didefinisikan secara eksplisit,
@@ -70,8 +71,8 @@ Dimungkinkan untuk secara otomatis mengekspos semua metode dalam controller meng
 Baca [halaman routing](/docs/id/routing#controller-routing) untuk panduan lebih lanjut mengenai
 controller routing.
 
-
 <a id="controller-paket"></a>
+
 ## Controller Paket
 
 Paket adalah sistem modularisasi yang sangat fleksibel. Paket dapat dengan mudah dikonfigurasi untuk
@@ -81,7 +82,6 @@ di dokumen lain.
 Membuat controller untuk paket hampir sama caranya dengan membuat controller biasa. Cukup awali
 nama kelas controller dengan nama paket. Jadi jika anda ingin membuat paket bernama `admin`,
 kelas controller anda akan terlihat seperti ini:
-
 
 #### Membuat controller untuk paket admin:
 
@@ -97,7 +97,6 @@ class Admin_Home_Controller extends Controller
 
 Lantas, bagaimana caranya mendaftarkan controller paket ke router? Mudah saja. Begini caranya:
 
-
 #### Mendaftarkan controller paket ke router:
 
 ```php
@@ -106,11 +105,11 @@ Route::controller('admin::home');
 
 Mantap! Sekarang kita dapat mengakses controller home milik paket `admin` dari web!
 
->  Secara default, sintaks `::` (kolon ganda) digunakan untuk merujuk segala informasi milik sebuah paket.
-   Informasi lebih lanjut mengenai paket dapat ditemukan di [dokumentasi paket](/docs/id/packages).
-
+> Secara default, sintaks `::` (kolon ganda) digunakan untuk merujuk segala informasi milik sebuah paket.
+> Informasi lebih lanjut mengenai paket dapat ditemukan di [dokumentasi paket](/docs/id/packages).
 
 <a id="action-middleware"></a>
+
 ## Action Middleware
 
 Action middleware adalah middleware yang dapat dijalankan sebelum atau sesudah action controller dieksekusi.
@@ -121,7 +120,6 @@ si middleware tersebut.
 Anda dapat mendefinisikan middleware `before()` dan `after()` melalui **constructor** milik controller.
 
 Mari kita coba tambahkan middleware ke controller paket `admin` diatas.
-
 
 #### Melampirkan middleware ke semua action:
 
@@ -148,7 +146,6 @@ Middleware `'auth'` ini adalah middleware bawaan Rakit dimana implementasinya da
 anda lihat di `application/middlewares.php`. Middleware auth memverifikasi bahwa
 user sudah login, dan me-redirect mereka ke halaman `'/login'` jika belum.
 
-
 #### Melampirkan middleware hanya untuk beberapa action saja:
 
 ```php
@@ -158,7 +155,6 @@ $this->middleware('before', 'auth')->only(['index', 'list']);
 Pada contoh diatas middleware `'auth'` hanya akan dijalankan sebelum method `action_index()`
 atau `action_list()` dieksekusi. User harus login dulu untuk dapat mengakses 2 action ini.
 Action lain tidak akan terpengaruh.
-
 
 #### Melampirkan middleware ke semua action kecuali yang disebutkan:
 
@@ -178,7 +174,6 @@ menambahkan action baru ke controller ini dan lupa menambahkannya ke method `onl
 Ini berpotensi menyebabkan action controller anda tidak dapat diakses secara tidak sengaja oleh
 user yang belum login.
 
-
 #### Melampirkan middleware untuk dijalankan hanya pada tipe request POST:
 
 ```php
@@ -195,10 +190,10 @@ middleware `'csrf'` ini di file `middlewares.php`.
 
 _Bacaan lebih lanjut:_
 
-- _[Middleware](/docs/id/routing#middleware)_
-
+-   _[Middleware](/docs/id/routing#middleware)_
 
 <a id="nested-controller"></a>
+
 ## Nested Controller
 
 Nested controller adalah controller yang diletakkan kedalam subfolder. Benar, anda boleh menyimpan
@@ -216,16 +211,14 @@ class Admin_Panel_Controller extends Controller
 }
 ```
 
-
 #### Daftarkan nested controller ke router menggunakan notasi dot:
 
 ```php
 Route::controller('admin.panel');
 ```
 
->  Saat menggunakan nested controller, selalu daftarkan controller anda dari yang berada di
-   subfolder paling dalam agar rute controller tidak saling tumpang tindih.
-
+> Saat menggunakan nested controller, selalu daftarkan controller anda dari yang berada di
+> subfolder paling dalam agar rute controller tidak saling tumpang tindih.
 
 #### Mengakses action `index` milik controller:
 
@@ -233,16 +226,17 @@ Route::controller('admin.panel');
 mysite.com/admin/panel
 ```
 
-
 <a id="layout-controller"></a>
+
 ## Layout Controller
 
 Dokumentasi lengkap tentang penggunaan layout dengan Controller dapat ditemukan di
 [halaman templating](/docs/id/views/templating).
 
-
 <a id="restful-controller"></a>
+
 ## RESTful Controller
+
 Rakit juga mendukung RESTful controller. Ini sangat berguna ketika membangun sistem
 [CRUD](https://en.wikipedia.org/wiki/Create,_read,_update_and_delete) karena anda dapat memisahkan
 logika pembuatan formulir HTML dari logika yang memvalidasi dan menyimpan hasilnya.
@@ -253,8 +247,8 @@ serta valuenya adalah `TRUE`.
 Alih-alih mengawali nama action controller dengan kata `action_`, anda boleh menggantinya
 dengan tipe request apa (misalnya `POST`, `GET`, `PUT` atau `DELETE`) yang harus ia respon.
 
-
 #### Menambahkan property `$restful` ke controller:
+
 ```php
 class Home_Controller extends Controller
 {
@@ -263,7 +257,6 @@ class Home_Controller extends Controller
     // ..
 }
 ```
-
 
 #### Membuat RESTful action pada controller:
 
@@ -285,8 +278,8 @@ class Home_Controller extends Controller
 }
 ```
 
-
 <a id="dependency-injection"></a>
+
 ## Dependency Injection
 
 Jika anda berfokus pada penulisan kode yang _test-able_ atau mudah diuji, anda mungkin perlu
@@ -307,16 +300,15 @@ Ketika request datang ke controller anda, Rakit akan secara otomatis memeriksa a
 tersebut terdaftar dalam container atau tidak, dan jika iya, maka Rakit akan menggunakan data ini
 untuk meresolve instance controller tersebut.
 
->  Sebelum menyelam lebih jauh kedalam Dependency Injection Controller,
-   anda mungkin ingin membaca dokumentasi tentang [Container](/docs/id/container).
-
+> Sebelum menyelam lebih jauh kedalam Dependency Injection Controller,
+> anda mungkin ingin membaca dokumentasi tentang [Container](/docs/id/container).
 
 <a id="controller-factory"></a>
+
 ## Controller Factory
 
 Jika anda ingin lebih punya kendali tentang cara instansiasi controller anda, seperti
 ketika menggunakan container pihak ketiga, anda harus menggunakan fitur controller factory ini.
-
 
 #### Daftarkan event untuk menangani instansiasi controller:
 

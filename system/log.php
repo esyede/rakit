@@ -68,7 +68,7 @@ class Log
      */
     protected static function write($type, $message, $data = null)
     {
-        if (! is_string($message)) {
+        if (!is_string($message)) {
             throw new \Exception(sprintf(
                 'The error message should be a string. %s given.',
                 gettype($message)
@@ -83,7 +83,7 @@ class Log
 
         $channel = static::$channel;
         $channel = (is_string($channel) && strlen((string) $channel)) ? Str::slug($channel) : date('Y-m-d');
-        $path = path('storage').'logs'.DS.$channel.'.log.php';
+        $path = path('storage') . 'logs' . DS . $channel . '.log.php';
         $message = static::format($type, $message);
 
         if (is_file($path)) {
@@ -104,6 +104,6 @@ class Log
     protected static function format($type, $message)
     {
         $context = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
-        return '['.date('Y-m-d H:i:s').'] '.$context.'.'.strtoupper((string) $type).': '.$message.PHP_EOL;
+        return '[' . date('Y-m-d H:i:s') . '] ' . $context . '.' . strtoupper((string) $type) . ': ' . $message . PHP_EOL;
     }
 }

@@ -41,9 +41,10 @@ class Repository
             }
         }
 
-        throw new \Exception(PHP_EOL.sprintf(
-            'Error: Package canot be found on the repository: %s', $name
-        ).PHP_EOL);
+        throw new \Exception(PHP_EOL . sprintf(
+            'Error: Package canot be found on the repository: %s',
+            $name
+        ) . PHP_EOL);
     }
 
     /**
@@ -58,8 +59,8 @@ class Repository
         $response = Curl::get(static::$repository);
         $packages = json_decode(json_encode($response->body), true);
 
-        if (! is_array($packages) || count($packages) < 1) {
-            throw new \Exception('Broken repository json data. Please contact rakit team.'.PHP_EOL);
+        if (!is_array($packages) || count($packages) < 1) {
+            throw new \Exception('Broken repository json data. Please contact rakit team.' . PHP_EOL);
         }
 
         return $packages;

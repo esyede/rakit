@@ -133,7 +133,7 @@ class Payment extends Base
             $p2 = substr((string) $number, 4, 4);
             $p3 = substr((string) $number, 8, 4);
             $p4 = substr((string) $number, 12);
-            $number = $p1.$separator.$p2.$separator.$p3.$separator.$p4;
+            $number = $p1 . $separator . $p2 . $separator . $p3 . $separator . $p4;
         }
 
         return $number;
@@ -216,7 +216,7 @@ class Payment extends Base
 
         $result = static::addBankCodeChecksum($result, $countryCode);
         $countryNumber = 100 * (ord($countryCode[0]) - 55) + (ord($countryCode[1]) - 55);
-        $tempResult = $result.$countryNumber.'00';
+        $tempResult = $result . $countryNumber . '00';
         $checksum = (int) $tempResult[0];
 
         for ($i = 1, $size = mb_strlen((string) $tempResult, '8bit'); $i < $size; ++$i) {
@@ -224,9 +224,9 @@ class Payment extends Base
         }
 
         $checksum = 98 - $checksum;
-        $checksum = ($checksum < 10) ? '0'.$checksum : $checksum;
+        $checksum = ($checksum < 10) ? '0' . $checksum : $checksum;
 
-        return $countryCode.$checksum.$result;
+        return $countryCode . $checksum . $result;
     }
 
     protected static function addBankCodeChecksum($iban, $countryCode = '')

@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Database as DB;
+
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
     /**

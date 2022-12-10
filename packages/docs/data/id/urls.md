@@ -2,23 +2,23 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [URL Ke Route](#url-ke-route)
-- [URL Ke Method Milik Controller](#url-ke-method-milik-controller)
-- [URL Ke Alih Bahasa](#url-ke-alih-bahasa)
-- [URL Ke Aset](#url-ke-aset)
-- [Helper Lainnya](#helper-lainnya)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [URL Ke Route](#url-ke-route)
+-   [URL Ke Method Milik Controller](#url-ke-method-milik-controller)
+-   [URL Ke Alih Bahasa](#url-ke-alih-bahasa)
+-   [URL Ke Aset](#url-ke-aset)
+-   [Helper Lainnya](#helper-lainnya)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
+
 Ketika membuat view, tentu anda perlu untuk mengarahkan URL ke resource yang anda inginkan,
 baik itu gambar, css, javascript atau resource lainnya.
 
 Di bagian ini anda akan dibawa untuk merasakan mudahnya membuat URL tersebut.
-
 
 #### Mengambil base URL aplikasi:
 
@@ -44,8 +44,8 @@ $url = URL::current();
 $url = URL::full();
 ```
 
-
 <a id="url-ke-route"></a>
+
 ## URL Ke Route
 
 #### Membuat URL ke named route:
@@ -67,10 +67,10 @@ $url = URL::to_route('profile', [$username]);
 
 _Bacaan lebih lanjut:_
 
-- [Named Route](/docs/id/routing#named-route)
-
+-   [Named Route](/docs/id/routing#named-route)
 
 <a id="url-ke-method-milik-controller"></a>
+
 ## URL Ke Method Milik Controller
 
 #### Membuat URL ke sebuah method milik controller:
@@ -85,8 +85,8 @@ $url = URL::to_action('user@profile');
 $url = URL::to_action('user@profile', [$username]);
 ```
 
-
 <a id="url-ke-alih-bahasa"></a>
+
 ## URL Ke Alih Bahasa
 
 #### Membuat URL ke halaman yang sama dalam bahasa lain:
@@ -101,8 +101,8 @@ $url = URL::to_language('fr');
 $url = URL::to_language('fr', true);
 ```
 
-
 <a id="url-ke-aset"></a>
+
 ## URL Ke Aset
 
 URL yang dibuat untuk aset tidak akan mengandung value milik konfigurasi `application.index`.
@@ -113,8 +113,8 @@ URL yang dibuat untuk aset tidak akan mengandung value milik konfigurasi `applic
 $url = URL::to_asset('js/jquery.js');
 ```
 
-
 <a id="helper-lainnya"></a>
+
 ## Helper Lainnya
 
 Kami juga telah menyediakan fungsi global yang dapat dimanfaatkan agar mempermudah pekerjaan anda dalam pembuatan URL:

@@ -1,11 +1,11 @@
-(function() {
+(function () {
     var index = new FlexSearch({
         profile: "match",
         encode: "balance",
         tokenize: "full",
         boolean: "or",
         sort: 'title',
-        doc: {id: "id", field: ["title", "url"]}
+        doc: { id: "id", field: ["title", "url"] }
     });
 
     for (var no = 0; no < data.length; no++) {
@@ -19,7 +19,7 @@
 
     userinput.addEventListener("input", function () {
         var value = this.value;
-        var results = index.search(value, {field: ["title", "url"], limit: 10});
+        var results = index.search(value, { field: ["title", "url"], limit: 10 });
         var entry;
         var childs = suggestions.childNodes;
         var i = 0;
@@ -36,7 +36,7 @@
         for (; i < len; i++) {
             entry = childs[i];
 
-            if (! entry) {
+            if (!entry) {
                 entry = document.createElement("div");
                 entry.classList.add("dropdown-item");
                 link = document.createElement("a");
@@ -58,9 +58,9 @@
         }
     }, true);
 
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
         var el = document.getElementById("docsearch");
-        if (! el.contains(event.target)) {
+        if (!el.contains(event.target)) {
             userinput.value = "";
             el.classList.remove("is-active");
         }

@@ -2,13 +2,13 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Bekerja Dengan URI](#bekerja-dengan-uri)
-- [Helper Lainnya](#helper-lainnya)
+-   [Bekerja Dengan URI](#bekerja-dengan-uri)
+-   [Helper Lainnya](#helper-lainnya)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="bekerja-dengan-uri"></a>
+
 ## Bekerja Dengan URI
 
 #### Mengambil URI saat ini:
@@ -54,8 +54,8 @@ if (URI::is('docs/*')) {
 }
 ```
 
-
 <a id="helper-lainnya"></a>
+
 ## Helper Lainnya
 
 #### Mengambil method request saat ini:

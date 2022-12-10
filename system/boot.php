@@ -53,10 +53,10 @@ Package::boot(DEFAULT_PACKAGE);
 
 use System\Foundation\Oops\Debugger;
 
-Debugger::enable(false, path('storage').'logs');
+Debugger::enable(false, path('storage') . 'logs');
 
 $debugger = Config::get('debugger');
-$template = path('app').'views'.DS.'error'.DS.'500.blade.php';
+$template = path('app') . 'views' . DS . 'error' . DS . '500.blade.php';
 
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
 Debugger::$strictMode = (bool) $debugger['strict'];
@@ -138,7 +138,7 @@ $languages[] = Config::get('application.language');
 */
 
 foreach ($languages as $language) {
-    if (preg_match('#^'.$language.'(?:$|/)#i', $uri)) {
+    if (preg_match('#^' . $language . '(?:$|/)#i', $uri)) {
         Config::set('application.language', $language);
         $uri = trim(substr((string) $uri, mb_strlen((string) $language, '8bit')), '/');
         break;

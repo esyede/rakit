@@ -18,9 +18,11 @@ class Helpers
         if ($editor = self::editorUri($origFile, $line)) {
             $file = strtr($file, '\\', '/');
 
-            if (preg_match('#(^[a-z]:)?/.{1,40}$#i', $file, $m)
-            && mb_strlen($file, '8bit') > mb_strlen($m[0], '8bit')) {
-                $file = '...'.$m[0];
+            if (
+                preg_match('#(^[a-z]:)?/.{1,40}$#i', $file, $m)
+                && mb_strlen($file, '8bit') > mb_strlen($m[0], '8bit')
+            ) {
+                $file = '...' . $m[0];
             }
 
             $file = strtr($file, '/', DIRECTORY_SEPARATOR);
@@ -28,14 +30,14 @@ class Helpers
             return self::formatHtml(
                 '<a href="%" title="%">%<b>%</b>%</a>',
                 $editor,
-                $origFile.($line ? ":$line" : ''),
-                rtrim(dirname($file), DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR,
+                $origFile . ($line ? ":$line" : ''),
+                rtrim(dirname($file), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR,
                 basename($file),
                 $line ? ":$line" : ''
             );
         }
 
-        return self::formatHtml('<span>%</span>', $file.($line ? ":$line" : ''));
+        return self::formatHtml('<span>%</span>', $file . ($line ? ":$line" : ''));
     }
 
     /**
@@ -78,10 +80,12 @@ class Helpers
         $m = explode('::', $method);
 
         foreach ($trace as $i => $item) {
-            if (isset($item['function'])
-            && $item['function'] === end($m)
-            && isset($item['class']) === isset($m[1])
-            && (! isset($item['class']) || '*' === $m[0] || is_a($item['class'], $m[0], true))) {
+            if (
+                isset($item['function'])
+                && $item['function'] === end($m)
+                && isset($item['class']) === isset($m[1])
+                && (!isset($item['class']) || '*' === $m[0] || is_a($item['class'], $m[0], true))
+            ) {
                 $index = $i;
                 return $item;
             }
@@ -116,7 +120,7 @@ class Helpers
                     'args' => [],
                 ];
 
-                if (! empty($row['class'])) {
+                if (!empty($row['class'])) {
                     $frame['type'] = (isset($row['type']) && 'dynamic' === $row['type']) ? '->' : '::';
                     $frame['class'] = $row['class'];
                 }
@@ -166,11 +170,11 @@ class Helpers
     public static function getSource()
     {
         if (isset($_SERVER['REQUEST_URI'])) {
-            return (! empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
-                .(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '').$_SERVER['REQUEST_URI'];
+            return (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
+                . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '') . $_SERVER['REQUEST_URI'];
         }
 
-        return 'CLI (PID: '.getmypid().')'.(empty($_SERVER['argv']) ? '' : ': '.implode(' ', $_SERVER['argv']));
+        return 'CLI (PID: ' . getmypid() . ')' . (empty($_SERVER['argv']) ? '' : ': ' . implode(' ', $_SERVER['argv']));
     }
 
     /** @internal */
@@ -178,11 +182,11 @@ class Helpers
     {
         $message = $e->getMessage();
 
-        if (! ($e instanceof \Error) && ! ($e instanceof \ErrorException)) {
+        if (!($e instanceof \Error) && !($e instanceof \ErrorException)) {
             // ..
         } elseif (preg_match('#^Call to undefined function (\S+\\\\)?(\w+)\(#', $message, $m)) {
             $funcs = array_merge(get_defined_functions()['internal'], get_defined_functions()['user']);
-            $hint = self::getSuggestion($funcs, $m[1].$m[2]);
+            $hint = self::getSuggestion($funcs, $m[1] . $m[2]);
             $hint = $hint ? $hint : self::getSuggestion($funcs, $m[2]);
             $message = "Call to undefined function $m[2](), did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
@@ -191,7 +195,7 @@ class Helpers
             $hint = self::getSuggestion($hint ? $hint : [], $m[2]);
             $message .= ", did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
-        } elseif (preg_match('#^Undefined variable: (\w+)#', $message, $m) && ! empty($e->context)) {
+        } elseif (preg_match('#^Undefined variable: (\w+)#', $message, $m) && !empty($e->context)) {
             $hint = self::getSuggestion(array_keys($e->context), $m[1]);
             $message = "Undefined variable $$m[1], did you mean $$hint?";
             $replace = ["$$m[1]", "$$hint"];
@@ -244,7 +248,7 @@ class Helpers
 
             $hint = self::getSuggestion($items, $m[2]);
 
-            return $hint ? $message.", did you mean $$hint?" : $message;
+            return $hint ? $message . ", did you mean $$hint?" : $message;
         }
 
         return $message;
@@ -261,7 +265,7 @@ class Helpers
             $parts = explode(DIRECTORY_SEPARATOR, $class);
 
             foreach ($parts as $i => $part) {
-                if (! isset($segments[$i]) || $part !== $segments[$i]) {
+                if (!isset($segments[$i]) || $part !== $segments[$i]) {
                     break;
                 }
             }
@@ -273,7 +277,7 @@ class Helpers
                     array_slice($segments, $i)
                 );
 
-                $res = implode(DIRECTORY_SEPARATOR, $res).'.php';
+                $res = implode(DIRECTORY_SEPARATOR, $res) . '.php';
             }
         }
 
@@ -309,7 +313,7 @@ class Helpers
     {
         return empty($_SERVER['HTTP_X_REQUESTED_WITH']) && empty($_SERVER['HTTP_X_OOPS_AJAX'])
             && PHP_SAPI !== 'cli'
-            && ! preg_match('#^Content-Type: (?!text/html)#im', implode("\n", headers_list()));
+            && !preg_match('#^Content-Type: (?!text/html)#im', implode("\n", headers_list()));
     }
 
     /** @internal */

@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct script access.');
 
-if (! function_exists('e')) {
+if (!function_exists('e')) {
     /**
      * Ubah karakter HTML ke entity-nya.
      *
@@ -16,7 +16,7 @@ if (! function_exists('e')) {
     }
 }
 
-if (! function_exists('dd')) {
+if (!function_exists('dd')) {
     /**
      * Dump variable dan hentikan eksekusi script.
      *
@@ -38,13 +38,13 @@ if (! function_exists('dd')) {
             array_map('\System\Foundation\Oops\Debugger::dump', $variables);
         }
 
-        if (! \System\Foundation\Oops\Debugger::$productionMode) {
+        if (!\System\Foundation\Oops\Debugger::$productionMode) {
             die;
         }
     }
 }
 
-if (! function_exists('bd')) {
+if (!function_exists('bd')) {
     /**
      * Dump variable ke debug bar tanpa menghentikan eksekusi script.
      *
@@ -59,7 +59,7 @@ if (! function_exists('bd')) {
     }
 }
 
-if (! function_exists('dump')) {
+if (!function_exists('dump')) {
     /**
      * Dump variable tanpa menghentikan eksekusi script.
      *
@@ -74,7 +74,7 @@ if (! function_exists('dump')) {
     }
 }
 
-if (! function_exists('optional')) {
+if (!function_exists('optional')) {
     /**
      * Izinkan akses ke objek opsional.
      *
@@ -89,7 +89,7 @@ if (! function_exists('optional')) {
     }
 }
 
-if (! function_exists('trans')) {
+if (!function_exists('trans')) {
     /**
      * Ambil sebuah baris bahasa.
      *
@@ -105,7 +105,7 @@ if (! function_exists('trans')) {
     }
 }
 
-if (! function_exists('__')) {
+if (!function_exists('__')) {
     /**
      * Ambil sebuah baris bahasa.
      *
@@ -121,7 +121,7 @@ if (! function_exists('__')) {
     }
 }
 
-if (! function_exists('is_cli')) {
+if (!function_exists('is_cli')) {
     /**
      * Cek apakah request saat ini datang dari CLI.
      *
@@ -135,7 +135,7 @@ if (! function_exists('is_cli')) {
     }
 }
 
-if (! function_exists('data_fill')) {
+if (!function_exists('data_fill')) {
     /**
      * Isi dengan data jika ia masih kosong.
      *
@@ -151,7 +151,7 @@ if (! function_exists('data_fill')) {
     }
 }
 
-if (! function_exists('data_get')) {
+if (!function_exists('data_get')) {
     /**
      * Ambil sebuah item dari array menggunakan notasi 'dot'.
      *
@@ -169,9 +169,9 @@ if (! function_exists('data_get')) {
 
         $key = is_array($key) ? $key : explode('.', $key);
 
-        while (! is_null($segment = array_shift($key))) {
+        while (!is_null($segment = array_shift($key))) {
             if ('*' === $segment) {
-                if (! is_array($target)) {
+                if (!is_array($target)) {
                     return value($default);
                 }
 
@@ -197,7 +197,7 @@ if (! function_exists('data_get')) {
     }
 }
 
-if (! function_exists('data_set')) {
+if (!function_exists('data_set')) {
     /**
      * Set sebuah item array mengunakan notasi 'dot'.
      *
@@ -213,7 +213,7 @@ if (! function_exists('data_set')) {
         $segments = is_array($key) ? $key : explode('.', $key);
 
         if ('*' === ($segment = array_shift($segments))) {
-            if (! \System\Arr::accessible($target)) {
+            if (!\System\Arr::accessible($target)) {
                 $target = [];
             }
 
@@ -228,22 +228,22 @@ if (! function_exists('data_set')) {
             }
         } elseif (\System\Arr::accessible($target)) {
             if ($segments) {
-                if (! \System\Arr::exists($target, $segment)) {
+                if (!\System\Arr::exists($target, $segment)) {
                     $target[$segment] = [];
                 }
 
                 data_set($target[$segment], $segments, $value, $overwrite);
-            } elseif ($overwrite || ! \System\Arr::exists($target, $segment)) {
+            } elseif ($overwrite || !\System\Arr::exists($target, $segment)) {
                 $target[$segment] = $value;
             }
         } elseif (is_object($target)) {
             if ($segments) {
-                if (! isset($target->{$segment})) {
+                if (!isset($target->{$segment})) {
                     $target->{$segment} = [];
                 }
 
                 data_set($target->{$segment}, $segments, $value, $overwrite);
-            } elseif ($overwrite || ! isset($target->{$segment})) {
+            } elseif ($overwrite || !isset($target->{$segment})) {
                 $target->{$segment} = $value;
             }
         } else {
@@ -260,7 +260,7 @@ if (! function_exists('data_set')) {
     }
 }
 
-if (! function_exists('retry')) {
+if (!function_exists('retry')) {
     /**
      * Ulangi eksekusi sebanyak jumlah yang diberikan.
      *
@@ -284,7 +284,7 @@ if (! function_exists('retry')) {
         try {
             return $callback($attempts);
         } catch (\Throwable $e) {
-            if (! $times || ($when && ! $when($e))) {
+            if (!$times || ($when && !$when($e))) {
                 throw $e;
             }
 
@@ -296,7 +296,7 @@ if (! function_exists('retry')) {
 
             goto beginning;
         } catch (\Exception $e) {
-            if (! $times || ($when && ! $when($e))) {
+            if (!$times || ($when && !$when($e))) {
                 throw $e;
             }
 
@@ -311,7 +311,7 @@ if (! function_exists('retry')) {
     }
 }
 
-if (! function_exists('facile_to_json')) {
+if (!function_exists('facile_to_json')) {
     /**
      * Ubah object Facile menjadi string JSON.
      *
@@ -333,7 +333,7 @@ if (! function_exists('facile_to_json')) {
     }
 }
 
-if (! function_exists('head')) {
+if (!function_exists('head')) {
     /**
      * Mereturn elemen pertama milik array.
      *
@@ -347,7 +347,7 @@ if (! function_exists('head')) {
     }
 }
 
-if (! function_exists('last')) {
+if (!function_exists('last')) {
     /**
      * Return elemen terakhir milik array.
      *
@@ -361,7 +361,7 @@ if (! function_exists('last')) {
     }
 }
 
-if (! function_exists('url')) {
+if (!function_exists('url')) {
     /**
      * Buat sebuah URL.
      *
@@ -385,7 +385,7 @@ if (! function_exists('url')) {
     }
 }
 
-if (! function_exists('asset')) {
+if (!function_exists('asset')) {
     /**
      * Buat URL ke sebuah aset.
      *
@@ -399,7 +399,7 @@ if (! function_exists('asset')) {
     }
 }
 
-if (! function_exists('action')) {
+if (!function_exists('action')) {
     /**
      * Buat URL ke sebuah action di controller.
      *
@@ -424,7 +424,7 @@ if (! function_exists('action')) {
     }
 }
 
-if (! function_exists('route')) {
+if (!function_exists('route')) {
     /**
      * Buat sebuah URL ke named route.
      *
@@ -449,7 +449,7 @@ if (! function_exists('route')) {
     }
 }
 
-if (! function_exists('config')) {
+if (!function_exists('config')) {
     /**
      * Get atau set config.
      *
@@ -482,7 +482,7 @@ if (! function_exists('config')) {
     }
 }
 
-if (! function_exists('cache')) {
+if (!function_exists('cache')) {
     /**
      * Get/set cache.
      *
@@ -515,7 +515,7 @@ if (! function_exists('cache')) {
     }
 }
 
-if (! function_exists('session')) {
+if (!function_exists('session')) {
     /**
      * Get/set session.
      *
@@ -548,7 +548,7 @@ if (! function_exists('session')) {
     }
 }
 
-if (! function_exists('fake')) {
+if (!function_exists('fake')) {
     /**
      * Buat instance faker.
      *
@@ -573,7 +573,7 @@ if (! function_exists('fake')) {
     }
 }
 
-if (! function_exists('validate')) {
+if (!function_exists('validate')) {
     /**
      * Buat instance validator.
      *
@@ -589,7 +589,7 @@ if (! function_exists('validate')) {
     }
 }
 
-if (! function_exists('redirect')) {
+if (!function_exists('redirect')) {
     /**
      * Buat sebuah redireksi.
      *
@@ -610,7 +610,7 @@ if (! function_exists('redirect')) {
     }
 }
 
-if (! function_exists('old')) {
+if (!function_exists('old')) {
     /**
      * Ambil old input dari session.
      *
@@ -625,7 +625,7 @@ if (! function_exists('old')) {
     }
 }
 
-if (! function_exists('redirect')) {
+if (!function_exists('redirect')) {
     /**
      * Buat sebuah redireksi.
      *
@@ -639,7 +639,7 @@ if (! function_exists('redirect')) {
     }
 }
 
-if (! function_exists('back')) {
+if (!function_exists('back')) {
     /**
      * Buat sebuah redireksi ke halaman sebelumnya.
      *
@@ -651,7 +651,7 @@ if (! function_exists('back')) {
     }
 }
 
-if (! function_exists('abort')) {
+if (!function_exists('abort')) {
     /**
      * Buat sebuah response error.
      *
@@ -671,7 +671,7 @@ if (! function_exists('abort')) {
             $message = json_encode(compact('status', 'message'));
             $headers = array_merge($headers, ['Content-Type' => 'application/json']);
         } else {
-            $view = \System\View::exists('error.'.$code) ? 'error.'.$code : 'error.unknown';
+            $view = \System\View::exists('error.' . $code) ? 'error.' . $code : 'error.unknown';
             $message = \System\View::make($view)->render();
         }
 
@@ -689,7 +689,7 @@ if (! function_exists('abort')) {
     }
 }
 
-if (! function_exists('abort_if')) {
+if (!function_exists('abort_if')) {
     /**
      * Buat sebuah response error jika kondisi terpenuhi.
      *
@@ -707,7 +707,7 @@ if (! function_exists('abort_if')) {
     }
 }
 
-if (! function_exists('csrf_name')) {
+if (!function_exists('csrf_name')) {
     /**
      * Ambil nama field CSRF token.
      *
@@ -722,7 +722,7 @@ if (! function_exists('csrf_name')) {
     }
 }
 
-if (! function_exists('csrf_token')) {
+if (!function_exists('csrf_token')) {
     /**
      * Ambil token CSRF saat ini.
      *
@@ -734,7 +734,7 @@ if (! function_exists('csrf_token')) {
     }
 }
 
-if (! function_exists('csrf_field')) {
+if (!function_exists('csrf_field')) {
     /**
      * Tambahkan hidden field untuk CSRF token.
      *
@@ -745,11 +745,11 @@ if (! function_exists('csrf_field')) {
      */
     function csrf_field()
     {
-        return '<input type="hidden" name="'.csrf_name().'" value="'.csrf_token().'">'.PHP_EOL;
+        return '<input type="hidden" name="' . csrf_name() . '" value="' . csrf_token() . '">' . PHP_EOL;
     }
 }
 
-if (! function_exists('root_namespace')) {
+if (!function_exists('root_namespace')) {
     /**
      * Ambil root namespace milik class.
      *
@@ -766,7 +766,7 @@ if (! function_exists('root_namespace')) {
     }
 }
 
-if (! function_exists('class_basename')) {
+if (!function_exists('class_basename')) {
     /**
      * Ambil 'class basename' milik sebuah kelas atau object.
      * Class basename adalah nama kelas tanpa namespace.
@@ -782,7 +782,7 @@ if (! function_exists('class_basename')) {
     }
 }
 
-if (! function_exists('value')) {
+if (!function_exists('value')) {
     /**
      * Mereturn value milik sebuah item.
      * Jika item merupakan sebuah Closure, hasil eksekusinya yang akan di-return.
@@ -793,11 +793,11 @@ if (! function_exists('value')) {
      */
     function value($value)
     {
-        return (is_callable($value) && ! is_string($value)) ? call_user_func($value) : $value;
+        return (is_callable($value) && !is_string($value)) ? call_user_func($value) : $value;
     }
 }
 
-if (! function_exists('view')) {
+if (!function_exists('view')) {
     /**
      * Buat instance kelas View.
      *
@@ -812,7 +812,7 @@ if (! function_exists('view')) {
     }
 }
 
-if (! function_exists('render')) {
+if (!function_exists('render')) {
     /**
      * Render view.
      *
@@ -827,7 +827,7 @@ if (! function_exists('render')) {
     }
 }
 
-if (! function_exists('render_each')) {
+if (!function_exists('render_each')) {
     /**
      * Ambil konten hasil render view parsial.
      *
@@ -844,7 +844,7 @@ if (! function_exists('render_each')) {
     }
 }
 
-if (! function_exists('yield_content')) {
+if (!function_exists('yield_content')) {
     /**
      * Ambil konten milik sebuah section.
      *
@@ -858,7 +858,7 @@ if (! function_exists('yield_content')) {
     }
 }
 
-if (! function_exists('yield_section')) {
+if (!function_exists('yield_section')) {
     /**
      * Hentikan injeksi konten kedalam section dan return kontennya.
      *
@@ -870,7 +870,7 @@ if (! function_exists('yield_section')) {
     }
 }
 
-if (! function_exists('section_start')) {
+if (!function_exists('section_start')) {
     /**
      * Mulai injeksi konten ke section.
      *
@@ -882,7 +882,7 @@ if (! function_exists('section_start')) {
     }
 }
 
-if (! function_exists('section_stop')) {
+if (!function_exists('section_stop')) {
     /**
      * Hentikan injeksi konten kedalam section.
      *
@@ -894,7 +894,7 @@ if (! function_exists('section_stop')) {
     }
 }
 
-if (! function_exists('encrypt')) {
+if (!function_exists('encrypt')) {
     /**
      * Enkripsi string.
      *
@@ -908,7 +908,7 @@ if (! function_exists('encrypt')) {
     }
 }
 
-if (! function_exists('decrypt')) {
+if (!function_exists('decrypt')) {
     /**
      * Enkripsi string.
      *
@@ -922,7 +922,7 @@ if (! function_exists('decrypt')) {
     }
 }
 
-if (! function_exists('bcrypt')) {
+if (!function_exists('bcrypt')) {
     /**
      * Buat hash password.
      *
@@ -936,7 +936,7 @@ if (! function_exists('bcrypt')) {
     }
 }
 
-if (! function_exists('event')) {
+if (!function_exists('event')) {
     /**
      * Jalankan event.
      *
@@ -952,7 +952,7 @@ if (! function_exists('event')) {
     }
 }
 
-if (! function_exists('dispatch')) {
+if (!function_exists('dispatch')) {
     /**
      * Jalankan sebuah job.
      *
@@ -966,7 +966,7 @@ if (! function_exists('dispatch')) {
     }
 }
 
-if (! function_exists('blank')) {
+if (!function_exists('blank')) {
     /**
      * Tentukan apakah value yang diberikan "kosong".
      *
@@ -996,7 +996,7 @@ if (! function_exists('blank')) {
     }
 }
 
-if (! function_exists('filled')) {
+if (!function_exists('filled')) {
     /**
      * Tentukan apakah value yang diberikan "tidak kosong".
      *
@@ -1006,11 +1006,11 @@ if (! function_exists('filled')) {
      */
     function filled($value)
     {
-        return ! blank($value);
+        return !blank($value);
     }
 }
 
-if (! function_exists('now')) {
+if (!function_exists('now')) {
     /**
      * Ambil instance tanggal saat ini.
      *
@@ -1022,7 +1022,7 @@ if (! function_exists('now')) {
     }
 }
 
-if (! function_exists('get_cli_option')) {
+if (!function_exists('get_cli_option')) {
     /**
      * Ambil parameter yang dioper ke rakit console.
      *
@@ -1037,7 +1037,7 @@ if (! function_exists('get_cli_option')) {
 
         if (is_array($arguments)) {
             foreach ($arguments as $argument) {
-                if (\System\Str::starts_with($argument, '--'.$option.'=')) {
+                if (\System\Str::starts_with($argument, '--' . $option . '=')) {
                     return substr((string) $argument, mb_strlen((string) $option, '8bit') + 3);
                 }
             }
@@ -1047,7 +1047,7 @@ if (! function_exists('get_cli_option')) {
     }
 }
 
-if (! function_exists('system_os')) {
+if (!function_exists('system_os')) {
     /**
      * Ambil platform / sistem operasi server.
      *
@@ -1072,7 +1072,7 @@ if (! function_exists('system_os')) {
         return isset($platforms[PHP_OS]) ? $platforms[PHP_OS] : 'Unknown';
     }
 
-    if (! function_exists('human_filesize')) {
+    if (!function_exists('human_filesize')) {
         /**
          * Format ukuran file (ramah manusia).
          *
@@ -1088,7 +1088,7 @@ if (! function_exists('system_os')) {
             $power = min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
 
             return sprintf(
-                '%.'.$precision.'f %s',
+                '%.' . $precision . 'f %s',
                 round($bytes / pow(1024, $power), $precision),
                 $units[$power]
             );

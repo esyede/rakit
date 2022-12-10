@@ -2,14 +2,14 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mengambil baris bahasa](#mengambil-baris-bahasa)
-- [Placeholder & Replacement](#placeholder--replacement)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Mengambil baris bahasa](#mengambil-baris-bahasa)
+-   [Placeholder & Replacement](#placeholder--replacement)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Alih bahasa adalah proses menerjemahkan aplikasi anda ke dalam berbagai bahasa. Komponen `Lang` menyediakan mekanisme sederhana untuk membantu anda mengatur dan mengambil teks aplikasi multibahasa anda.
@@ -42,8 +42,8 @@ return [
 
 Mantap! Sekarang anda sudah tahu caranya membuat file alih bahasa. Sangat mudah bukan?
 
-
 <a id="mengambil-baris-bahasa"></a>
+
 ## Mengambil baris bahasa
 
 #### Mengambil sebuah baris bahasa:
@@ -68,8 +68,8 @@ Perlu mengambil baris dalam bahasa selain bahasa default anda? Tidak masalah. Cu
 echo Lang::line('marketing.welcome')->get('fr');
 ```
 
-
 <a id="placeholder--replacement"></a>
+
 ## Placeholder & Replacement
 
 Sekarang, coba kita buat pesan selamat datang yang lebih spesifik. _"Selamat datang di situs kami!"_ adalah pesan yang terlalu umum. Akan sangat membantu jika anda dapat menyebutkan nama orang yang akan kita sambut.

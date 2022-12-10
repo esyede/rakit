@@ -1,4 +1,3 @@
-
 <h1 align="center">Rakit Web Framework</h1>
 
 <p align="center">
@@ -12,8 +11,6 @@
   <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
 </p>
 
-
-
 ## What is a rakit?
 
 Rakit is a simple and easy to learn web framework.
@@ -23,37 +20,35 @@ The most popular PHP framework today.
 More experienced users will have the opportunity to modulate their code
 in an easier and more efficient way.
 
-
 ## Features
 
-- Relatively small size (< 1MB includes offline documentation).
-- Runs on PHP 5.4.0 to PHP 8
-- Can be used with or without [Composer](https://getcomposer.org).
-- Routing via Closure and Controller (MVC).
-- View and templating (native / blade).
-- Database abstraction (Model and Query Builder).
-- Schema builder.
-- Migration of databases.
-- Simple authentication.
-- CLI tools.
-- And much more..
-
+-   Relatively small size (< 1MB includes offline documentation).
+-   Runs on PHP 5.4.0 to PHP 8
+-   Can be used with or without [Composer](https://getcomposer.org).
+-   Routing via Closure and Controller (MVC).
+-   View and templating (native / blade).
+-   Database abstraction (Model and Query Builder).
+-   Schema builder.
+-   Migration of databases.
+-   Simple authentication.
+-   CLI tools.
+-   And much more..
 
 ## System Requirements
 
-- PHP 5.4.0 up to 8
-- Extension [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
-- Extension [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-- Extension [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
+-   PHP 5.4.0 up to 8
+-   Extension [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
+-   Extension [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
+-   Extension [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
 
 **Additional Extensions:**
 
 Installing the following extensions will help you get the full benefit of the rakit,
 but not required:
 
-- Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) for SQLite, MySQL, PostgreSQL, or SQL Server for working with databases.
-- Extension [cURL](https://www.php.net/manual/en/book.curl.php) to install packages via assembly console.
-- Extension [GD Image](https://www.php.net/manual/en/book.image.php) for processing images.
+-   Driver [PDO](https://www.php.net/manual/en/pdo.installation.php) for SQLite, MySQL, PostgreSQL, or SQL Server for working with databases.
+-   Extension [cURL](https://www.php.net/manual/en/book.curl.php) to install packages via assembly console.
+-   Extension [GD Image](https://www.php.net/manual/en/book.image.php) for processing images.
 
 ## Documentation
 
@@ -67,8 +62,6 @@ Online documentation is also available at [official website](https://rakit.esyed
 To participate in helping the development of the rakit, please send a pull your request to the official rakit repository.
 
 In addition, you can also help the development of the rakit by answering questions submitted by other users in the [official forum](https://rakit.esyede.my.id/forum).
-
-
 
 ## License
 

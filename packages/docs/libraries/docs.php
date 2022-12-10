@@ -30,7 +30,7 @@ class Docs
      */
     public static function path($name)
     {
-        return dirname(__DIR__).DS.'data'.DS.str_replace(['/', '\\'], DS, $name).'.md';
+        return dirname(__DIR__) . DS . 'data' . DS . str_replace(['/', '\\'], DS, $name) . '.md';
     }
 
     /**
@@ -44,12 +44,12 @@ class Docs
     {
         $name = static::path($name);
 
-        if (filemtime($name) < (int) Cache::get('docs.'.md5($name).'.mtime')) {
-            return base64_decode(Cache::get('docs.'.md5($name).'.content'));
+        if (filemtime($name) < (int) Cache::get('docs.' . md5($name) . '.mtime')) {
+            return base64_decode(Cache::get('docs.' . md5($name) . '.content'));
         }
 
         $content = Markdown::render($name);
-        Cache::forever('docs.'.md5($name), [
+        Cache::forever('docs.' . md5($name), [
             'content' => base64_encode($content),
             'mtime' => filemtime($name),
         ]);

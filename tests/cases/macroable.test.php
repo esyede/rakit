@@ -45,9 +45,11 @@ class MacroableTest extends \PHPUnit_Framework_TestCase
         TestMacroable::macro('tryInstance', function () {
             return $this->protectedProp;
         });
+
         TestMacroable::macro('tryStatic', function () {
-            return static::getProtectedStatic();
+            return TestMacroable::getProtectedStatic();
         });
+
         $instance = new TestMacroable();
 
         $result = $instance->tryInstance();
@@ -127,7 +129,7 @@ class TestMixin
     protected function methodTwo()
     {
         return function ($value) {
-            return $this->protectedProp.'-'.$value;
+            return $this->protectedProp . '-' . $value;
         };
     }
 

@@ -18,27 +18,27 @@ class Publisher
      */
     public function publish($package)
     {
-        if (! Package::exists($package)) {
-            echo 'Package is not registered: '.$package;
+        if (!Package::exists($package)) {
+            echo 'Package is not registered: ' . $package;
             return;
         }
 
-        $source = path('package').$package.DS.'assets';
-        $destination = path('assets').'packages'.DS.$package;
+        $source = path('package') . $package . DS . 'assets';
+        $destination = path('assets') . 'packages' . DS . $package;
 
-        if (! is_dir($source)) {
-            echo 'Package does not caontains any assets!'.PHP_EOL;
+        if (!is_dir($source)) {
+            echo 'Package does not caontains any assets!' . PHP_EOL;
             return;
         }
 
         if (is_dir($destination)) {
-            echo 'Package assets already published!'.PHP_EOL;
+            echo 'Package assets already published!' . PHP_EOL;
             return;
         }
 
         Storage::cpdir($source, $destination);
 
-        echo 'Assets published for package: '.$package.PHP_EOL;
+        echo 'Assets published for package: ' . $package . PHP_EOL;
     }
 
     /**
@@ -50,10 +50,10 @@ class Publisher
      */
     public function unpublish($package)
     {
-        if (is_dir($destination = path('assets').'packages'.DS.$package)) {
+        if (is_dir($destination = path('assets') . 'packages' . DS . $package)) {
             Storage::rmdir($destination);
         }
 
-        echo 'Assets deleted for package: '.$package.PHP_EOL;
+        echo 'Assets deleted for package: ' . $package . PHP_EOL;
     }
 }

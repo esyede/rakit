@@ -44,7 +44,7 @@ class Make extends Command
             list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
         }
 
-        if (! Package::exists($package)) {
+        if (!Package::exists($package)) {
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
@@ -53,23 +53,23 @@ class Make extends Command
         }
 
         $class = Str::replace_last('_controller', '', Str::lower($class));
-        $root = Package::path($package).'controllers'.DS;
-        $file = $root.str_replace('/', DS, $this->slashes($class)).'.php';
+        $root = Package::path($package) . 'controllers' . DS;
+        $file = $root . str_replace('/', DS, $this->slashes($class)) . '.php';
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Controller already exists: '.$display.'   (skipped)';
+            echo 'Controller already exists: ' . $display . '   (skipped)';
         } else {
             $directory = Str::replace_last(basename((string) $file), '', $file);
             $this->makedir($directory);
 
             $replace = [
-                'stub_class' => Package::class_prefix($package).Str::classify($class),
+                'stub_class' => Package::class_prefix($package) . Str::classify($class),
             ];
 
             Storage::put($file, $this->stub_general($class, 'controller', $replace));
 
-            echo 'Created controller: '.$display;
+            echo 'Created controller: ' . $display;
         }
 
         return $file;
@@ -109,7 +109,7 @@ class Make extends Command
             list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
         }
 
-        if (! Package::exists($package)) {
+        if (!Package::exists($package)) {
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
@@ -118,24 +118,24 @@ class Make extends Command
         }
 
         $class = Str::replace_last('_controller', '', Str::lower($class));
-        $root = Package::path($package).'controllers'.DS;
-        $file = $root.str_replace('/', DS, $this->slashes($class)).'.php';
+        $root = Package::path($package) . 'controllers' . DS;
+        $file = $root . str_replace('/', DS, $this->slashes($class)) . '.php';
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Controller already exists: '.$display.'   (skipped)';
+            echo 'Controller already exists: ' . $display . '   (skipped)';
         } else {
             $directory = Str::replace_last(basename((string) $file), '', $file);
             $this->makedir($directory);
 
             $replace = [
-                'stub_class' => Package::class_prefix($package).Str::classify($class),
-                'stub_uri' => Str::lower((($package === DEFAULT_PACKAGE) ? '' : $package.'/').$class),
+                'stub_class' => Package::class_prefix($package) . Str::classify($class),
+                'stub_uri' => Str::lower((($package === DEFAULT_PACKAGE) ? '' : $package . '/') . $class),
             ];
 
             Storage::put($file, $this->stub_general($class, 'resource', $replace));
 
-            echo 'Created resource controller: '.$display;
+            echo 'Created resource controller: ' . $display;
         }
 
         return $file;
@@ -176,28 +176,28 @@ class Make extends Command
             list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
         }
 
-        if (! Package::exists($package)) {
+        if (!Package::exists($package)) {
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
         $class = Str::singular(Str::lower($class));
-        $directory = Package::path($package).'models'.DS;
-        $file = $directory.$class.'.php';
+        $directory = Package::path($package) . 'models' . DS;
+        $file = $directory . $class . '.php';
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Model already exists: '.$display.'   (skipped)';
+            echo 'Model already exists: ' . $display . '   (skipped)';
         } else {
             $this->makedir($directory);
 
             $replace = [
-                'stub_class' => Package::class_prefix($package).Str::classify($class),
+                'stub_class' => Package::class_prefix($package) . Str::classify($class),
                 'stub_table' => Str::plural($class),
             ];
 
             Storage::put($file, $this->stub_general($class, 'model', $replace));
 
-            echo 'Created model: '.$display;
+            echo 'Created model: ' . $display;
         }
 
         return $file;
@@ -218,25 +218,25 @@ class Make extends Command
 
         list($package, $migration) = Package::parse($arguments[0]);
 
-        if (! Package::exists($package)) {
+        if (!Package::exists($package)) {
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
         $prefix = date('Y_m_d_His');
-        $path = Package::path($package).'migrations'.DS;
+        $path = Package::path($package) . 'migrations' . DS;
 
-        if (! is_dir($path)) {
+        if (!is_dir($path)) {
             Storage::mkdir($path);
         }
 
-        if (class_exists('\\'.Str::classify($migration))) {
+        if (class_exists('\\' . Str::classify($migration))) {
             throw new \Exception(sprintf('Migration class already exists: %s', Str::classify($migration)));
         }
 
-        $file = $path.$prefix.'_'.$migration.'.php';
+        $file = $path . $prefix . '_' . $migration . '.php';
         Storage::put($file, $this->stub_migration($package, $migration));
 
-        echo 'Created migration: '.$prefix.'_'.$migration.PHP_EOL;
+        echo 'Created migration: ' . $prefix . '_' . $migration . PHP_EOL;
         return $file;
     }
 
@@ -275,7 +275,7 @@ class Make extends Command
             list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
         }
 
-        if (! Package::exists($package)) {
+        if (!Package::exists($package)) {
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
@@ -284,22 +284,22 @@ class Make extends Command
         }
 
         $class = Str::replace_last('_command', '', Str::lower($class));
-        $directory = Package::path($package).'commands'.DS;
-        $file = $directory.$class.'.php';
+        $directory = Package::path($package) . 'commands' . DS;
+        $file = $directory . $class . '.php';
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Command already exists: '.$display.'   (skipped)';
+            echo 'Command already exists: ' . $display . '   (skipped)';
         } else {
             $this->makedir($directory);
 
             $replace = [
-                'stub_class' => Package::class_prefix($package).Str::classify($class).'_Command',
+                'stub_class' => Package::class_prefix($package) . Str::classify($class) . '_Command',
             ];
 
             Storage::put($file, $this->stub_general($class, 'command', $replace));
 
-            echo 'Created command: '.$display;
+            echo 'Created command: ' . $display;
         }
 
         return $file;
@@ -326,52 +326,52 @@ class Make extends Command
     public function auth(array $arguments = [])
     {
         $directories = [
-            'views'.DS.'layouts',
-            'views'.DS.'auth'.DS.'email',
-            'views'.DS.'auth'.DS.'passwords',
-            'controllers'.DS.'auth',
+            'views' . DS . 'layouts',
+            'views' . DS . 'auth' . DS . 'email',
+            'views' . DS . 'auth' . DS . 'passwords',
+            'controllers' . DS . 'auth',
         ];
 
         foreach ($directories as $directory) {
-            if (! is_dir(path('app').$directory)) {
-                mkdir(path('app').$directory, 0755, true);
+            if (!is_dir(path('app') . $directory)) {
+                mkdir(path('app') . $directory, 0755, true);
             }
         }
 
         $views = [
-            'auth'.DS.'login.stub' => 'auth'.DS.'login.blade.php',
-            'auth'.DS.'register.stub' => 'auth'.DS.'register.blade.php',
-            'auth'.DS.'passwords'.DS.'email.stub' => 'auth'.DS.'passwords'.DS.'email.blade.php',
-            'auth'.DS.'passwords'.DS.'reset.stub' => 'auth'.DS.'passwords'.DS.'reset.blade.php',
-            'email'.DS.'reset.stub' => 'auth'.DS.'email'.DS.'reset.blade.php',
-            'layouts'.DS.'app.stub' => 'layouts'.DS.'app.blade.php',
+            'auth' . DS . 'login.stub' => 'auth' . DS . 'login.blade.php',
+            'auth' . DS . 'register.stub' => 'auth' . DS . 'register.blade.php',
+            'auth' . DS . 'passwords' . DS . 'email.stub' => 'auth' . DS . 'passwords' . DS . 'email.blade.php',
+            'auth' . DS . 'passwords' . DS . 'reset.stub' => 'auth' . DS . 'passwords' . DS . 'reset.blade.php',
+            'email' . DS . 'reset.stub' => 'auth' . DS . 'email' . DS . 'reset.blade.php',
+            'layouts' . DS . 'app.stub' => 'layouts' . DS . 'app.blade.php',
             'dashboard.stub' => 'dashboard.blade.php',
         ];
 
         foreach ($views as $key => $value) {
             copy(
-                __DIR__.DS.'stubs'.DS.'auth'.DS.'views'.DS.$key,
-                path('app').'views'.DS.$value
+                __DIR__ . DS . 'stubs' . DS . 'auth' . DS . 'views' . DS . $key,
+                path('app') . 'views' . DS . $value
             );
         }
 
         $controllers = [
             'dashboard.stub' => 'dashboard.php',
-            'login.stub' => 'auth'.DS.'login.php',
-            'register.stub' => 'auth'.DS.'register.php',
-            'password.stub' => 'auth'.DS.'password.php',
+            'login.stub' => 'auth' . DS . 'login.php',
+            'register.stub' => 'auth' . DS . 'register.php',
+            'password.stub' => 'auth' . DS . 'password.php',
         ];
 
         foreach ($controllers as $key => $value) {
             file_put_contents(
-                path('app').'controllers'.DS.$value,
-                file_get_contents(__DIR__.DS.'stubs'.DS.'auth'.DS.'controllers'.DS.$key)
+                path('app') . 'controllers' . DS . $value,
+                file_get_contents(__DIR__ . DS . 'stubs' . DS . 'auth' . DS . 'controllers' . DS . $key)
             );
         }
 
         file_put_contents(
-            path('app').DS.'routes.php',
-            file_get_contents(__DIR__.DS.'stubs'.DS.'auth'.DS.'routes.stub'),
+            path('app') . DS . 'routes.php',
+            file_get_contents(__DIR__ . DS . 'stubs' . DS . 'auth' . DS . 'routes.stub'),
             LOCK_EX | FILE_APPEND
         );
 
@@ -410,12 +410,12 @@ class Make extends Command
             list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
         }
 
-        if (! Package::exists($package)) {
+        if (!Package::exists($package)) {
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
-        $root = Package::path($package).'tests'.DS;
-        $file = $root.str_replace('/', DS, $this->slashes($class)).'.test.php';
+        $root = Package::path($package) . 'tests' . DS;
+        $file = $root . str_replace('/', DS, $this->slashes($class)) . '.test.php';
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
@@ -427,14 +427,14 @@ class Make extends Command
 
         $namespace = Str::studly($package);
         $replace = [
-                'stub_class' => Str::studly($class).'Test',
-                '// <namespace-declaration-placeholder>' => 'namespace '.$namespace.'\Tests;',
-                '<test-group-placeholder>' => Str::lower($package),
-            ];
+            'stub_class' => Str::studly($class) . 'Test',
+            '// <namespace-declaration-placeholder>' => 'namespace ' . $namespace . '\Tests;',
+            '<test-group-placeholder>' => Str::lower($package),
+        ];
 
         Storage::put($file, $this->stub_general($class, 'test', $replace));
 
-        echo 'Created test file: '.$display;
+        echo 'Created test file: ' . $display;
 
         return $file;
     }
@@ -450,7 +450,7 @@ class Make extends Command
      */
     protected function stub_general($class, $stub, array $replace = [])
     {
-        $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.$stub.'.stub');
+        $stub = Storage::get(path('system') . 'console' . DS . 'commands' . DS . 'stubs' . DS . $stub . '.stub');
         $class = Str::classify($class);
 
         foreach ($replace as $key => $value) {
@@ -470,9 +470,9 @@ class Make extends Command
      */
     protected function stub_migration($package, $migration)
     {
-        $stub = Storage::get(path('system').'console'.DS.'commands'.DS.'stubs'.DS.'migrate.stub');
+        $stub = Storage::get(path('system') . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'migrate.stub');
         $prefix = Package::class_prefix($package);
-        $class = $prefix.Str::classify($migration);
+        $class = $prefix . Str::classify($migration);
 
         return str_replace('stub_class', $class, $stub);
     }
@@ -486,7 +486,7 @@ class Make extends Command
      */
     protected function makedir($directory)
     {
-        if (! is_dir($directory)) {
+        if (!is_dir($directory)) {
             Storage::mkdir($directory, 0755);
         }
 

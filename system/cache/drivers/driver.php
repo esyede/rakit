@@ -86,7 +86,7 @@ abstract class Driver
      */
     public function remember($key, $default, $minutes, $function = 'put')
     {
-        if (! is_null($item = $this->get($key, null))) {
+        if (!is_null($item = $this->get($key, null))) {
             return $item;
         }
 

@@ -63,13 +63,13 @@ class Blade
     public static function sharpen()
     {
         Event::listen(View::ENGINE, function ($view) {
-            if (! Str::ends_with($view->path, '.blade.php')) {
+            if (!Str::ends_with($view->path, '.blade.php')) {
                 return;
             }
 
             $compiled = static::compiled($view->path);
 
-            if (! is_file($compiled) || static::expired($view->view, $view->path)) {
+            if (!is_file($compiled) || static::expired($view->view, $view->path)) {
                 Storage::put($compiled, static::compile($view), LOCK_EX);
             }
 
@@ -134,11 +134,11 @@ class Blade
         $compilers = static::$compilers;
 
         foreach ($compilers as $compiler) {
-            if ('csrf' === $compiler && ! Str::contains($value, '@csrf')) {
+            if ('csrf' === $compiler && !Str::contains($value, '@csrf')) {
                 continue;
             }
 
-            $value = static::{'compile_'.$compiler}($value, $view);
+            $value = static::{'compile_' . $compiler}($value, $view);
         }
 
         return $value;
@@ -154,7 +154,7 @@ class Blade
     public static function compile_php_block($value)
     {
         return preg_replace_callback('/(?<!@)@php(.*?)@endphp/s', function ($matches) {
-            return '<?php '.$matches[1].'?>';
+            return '<?php ' . $matches[1] . '?>';
         }, $value);
     }
 
@@ -167,7 +167,7 @@ class Blade
      */
     protected static function compile_layout($value)
     {
-        if (! Str::starts_with($value, '@layout')) {
+        if (!Str::starts_with($value, '@layout')) {
             return $value;
         }
 
@@ -206,24 +206,24 @@ class Blade
         // {{{  }}}
         $regex = '/\{\{\{\s*(.+?)\s*\}\}\}(\r?\n)?/s';
         $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
-            $ws = empty($matches[2]) ? '' : $matches[2].$matches[2];
-            return '<?php echo e('.$compiler($matches[1]).') ?>'.$ws;
+            $ws = empty($matches[2]) ? '' : $matches[2] . $matches[2];
+            return '<?php echo e(' . $compiler($matches[1]) . ') ?>' . $ws;
         }, $value);
 
         // {!!  !!}
         $regex = '/\{\!!\s*(.+?)\s*!!\}(\r?\n)?/s';
         $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
-            $ws = empty($matches[2]) ? '' : $matches[2].$matches[2];
-            return '<?php echo '.$compiler($matches[1]).' ?>'.$ws;
+            $ws = empty($matches[2]) ? '' : $matches[2] . $matches[2];
+            return '<?php echo ' . $compiler($matches[1]) . ' ?>' . $ws;
         }, $value);
 
         // @{{  }}, {{  }}
         $regex = '/(@)?\{\{\s*(.+?)\s*\}\}(\r?\n)?/s';
         $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
-            $ws = empty($matches[3]) ? '' : $matches[3].$matches[3];
+            $ws = empty($matches[3]) ? '' : $matches[3] . $matches[3];
             return $matches[1]
                 ? substr((string) $matches[0], 1)
-                : '<?php echo e('.$compiler($matches[2]).') ?>'.$ws;
+                : '<?php echo e(' . $compiler($matches[2]) . ') ?>' . $ws;
         }, $value);
 
         return $value;
@@ -279,7 +279,7 @@ class Blade
         foreach ($matches[0] as $forelse) {
             preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variable);
             $search = '/(\s*)@forelse(\s*\(.*\))/';
-            $replace = '$1<?php if (count('.$variable[1].') > 0): ?><?php foreach$2: ?>';
+            $replace = '$1<?php if (count(' . $variable[1] . ') > 0): ?><?php foreach$2: ?>';
             $blade = preg_replace($search, $replace, $forelse);
             $value = str_replace($forelse, $blade, $value);
         }
@@ -560,7 +560,7 @@ class Blade
      */
     public static function matcher($function)
     {
-        return '/(\s*)@'.$function.'(\s*\(.*\))/';
+        return '/(\s*)@' . $function . '(\s*\(.*\))/';
     }
 
     /**
@@ -588,6 +588,6 @@ class Blade
             }
         }
 
-        return path('storage').'views'.DS.sprintf('%s__%u', $name, $hash).'.bc.php';
+        return path('storage') . 'views' . DS . sprintf('%s__%u', $name, $hash) . '.bc.php';
     }
 }

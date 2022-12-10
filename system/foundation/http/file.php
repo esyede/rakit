@@ -32,7 +32,7 @@ class File extends Parameter
      */
     public function set($key, $value)
     {
-        if (! is_array($value) && ! ($value instanceof Upload)) {
+        if (!is_array($value) && !($value instanceof Upload)) {
             throw new \InvalidArgumentException(
                 'An uploaded file must be an array or an instance of \System\Foundation\Http\Upload class.'
             );
@@ -103,16 +103,18 @@ class File extends Parameter
      */
     protected function fixPhpFilesArray($data)
     {
-        if (! is_array($data)) {
+        if (!is_array($data)) {
             return $data;
         }
 
         $keys = array_keys($data);
         sort($keys);
 
-        if (self::$fileKeys !== $keys
-        || ! isset($data['name'])
-        || ! is_array($data['name'])) {
+        if (
+            self::$fileKeys !== $keys
+            || !isset($data['name'])
+            || !is_array($data['name'])
+        ) {
             return $data;
         }
 

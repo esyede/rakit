@@ -21,9 +21,9 @@ class Factory
         $locales = array_map(function ($item) {
             $item = explode(DS, $item);
             return end($item);
-        }, glob(path('system').'foundation'.DS.'faker'.DS.'provider'.DS.'*', GLOB_ONLYDIR));
+        }, glob(path('system') . 'foundation' . DS . 'faker' . DS . 'provider' . DS . '*', GLOB_ONLYDIR));
 
-        if (! in_array($locale, $locales)) {
+        if (!in_array($locale, $locales)) {
             throw new \InvalidArgumentException(sprintf('Locale folder cannot be found: %s', $locale));
         }
 
@@ -52,14 +52,16 @@ class Factory
         }
 
         throw new \InvalidArgumentException(sprintf(
-            "Unable to find provider '%s' with locale '%s'", $provider, $locale
+            "Unable to find provider '%s' with locale '%s'",
+            $provider,
+            $locale
         ));
     }
 
     protected static function findProviderClassname($provider, $locale = '')
     {
-        $locale = (! is_null($locale) && '' !== trim($locale)) ? $locale.'\\' : '';
-        $class = '\\System\\Foundation\\Faker\\Provider\\'.$locale.$provider;
+        $locale = (!is_null($locale) && '' !== trim($locale)) ? $locale . '\\' : '';
+        $class = '\\System\\Foundation\\Faker\\Provider\\' . $locale . $provider;
 
         if (class_exists($class, true)) {
             return $class;

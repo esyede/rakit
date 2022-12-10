@@ -2,22 +2,22 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Membuat Paket](#membuat-paket)
-- [Mendaftarkan Paket](#mendaftarkan-paket)
-- [Paket & Autoloading](#paket--autoloading)
-- [Booting Paket](#booting-paket)
-- [Routing Ke Paket](#routing-ke-paket)
-- [Menggunakan Paket](#menggunakan-paket)
-- [Aset Paket](#aset-paket)
-- [Menginstall Paket](#menginstall-paket)
-- [Mengupgrade Paket](#mengupgrade-paket)
-- [Menghapus Paket](#menghapus-paket)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Membuat Paket](#membuat-paket)
+-   [Mendaftarkan Paket](#mendaftarkan-paket)
+-   [Paket & Autoloading](#paket--autoloading)
+-   [Booting Paket](#booting-paket)
+-   [Routing Ke Paket](#routing-ke-paket)
+-   [Menggunakan Paket](#menggunakan-paket)
+-   [Aset Paket](#aset-paket)
+-   [Menginstall Paket](#menginstall-paket)
+-   [Mengupgrade Paket](#mengupgrade-paket)
+-   [Menghapus Paket](#menghapus-paket)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Paket adalah cara sederhana untuk memisahkan kode kedalam unit-unit yang lebih kecil sehingga
@@ -30,8 +30,8 @@ sampai CMS.
 Faktanya, folder `application/` juga merupakan sbuah paket, yaitu paket default. Bahkan halaman
 dokumentasi yang sedang anda baca ini juga merupakan sebuah paket.
 
-
 <a id="membuat-paket"></a>
+
 ## Membuat Paket
 
 Langkah pertama untuk membuat paket adalah membuat folder baru didalam folder `packages/`.
@@ -60,12 +60,12 @@ dari direktori `libraries/` milik paket kita.
 Anda dapat melakukan apa pun yang anda inginkan di file `boot.php`, tetapi file ini
 biasanya hanya digunakan untuk mendaftarkan kelas ke autoloader.
 
-Dan sebetulnya, anda **tidak diharuskan**  membuat file `boot.php` untuk paket anda.
+Dan sebetulnya, anda **tidak diharuskan** membuat file `boot.php` untuk paket anda.
 
 Selanjutnya, kita akan belajar bagaimana cara mendaftarkan paket kita ke rakit!
 
-
 <a id="mendaftarkan-paket"></a>
+
 ## Mendaftarkan Paket
 
 Setelah kita membuat paket admin, kita perlu mendaftarkannya ke rakit.
@@ -95,8 +95,8 @@ return [
 
 Sekarang rakit akan mencari paket kita di folder `packages/backend/admin`.
 
-
 <a id="paket--autoloading"></a>
+
 ## Paket & Autoloading
 
 Biasanya, file `boot.php` milik paket hanya berisi pendaftaran autoloading kelas.
@@ -136,8 +136,8 @@ ke masing-masing method yang sesuai di kelas `Autoloader`.
 Anda pasti juga melihat placeholder `(:package)` kan? Untuk kenyamanan, placeholder ini juga
 akan digantikan dengan path ke paket anda secara otomatis.
 
-
 <a id="booting-paket"></a>
+
 ## Booting Paket
 
 Jadi sampai disini paket kita sudah dibuat dan didaftarkan, tetapi kita belum dapat menggunakannya.
@@ -155,8 +155,7 @@ yangmana file tersebut akan mendaftarkan kelas-kelas di paket admin ke autoloade
 Pemanggilan method `boot()` tersebut juga sekaligus akan memuat file `routes.php` milik
 paket jika paket kita mempunyai file `routes.php`.
 
->  Paket hanya akan booting sekali saja. Pemanggilan berikutnya ke method `boot()` akan diabaikan.
-
+> Paket hanya akan booting sekali saja. Pemanggilan berikutnya ke method `boot()` akan diabaikan.
 
 Jika anda ingin menggunakan paket di seluruh aplikasi anda, anda mungkin perlu melakukan
 booting paket pada setiap request. Ini tentu kurang menyenangkan. Jika demikian, anda dapat
@@ -184,6 +183,7 @@ Setiap kali sebuah paket melakukan booting, sebuah event akan dijalankan. Event 
 gunakan ketika anda perlu melakukan sesuatu sebelum sebuah paket selesai booting:
 
 <a href="#listen-event-pengaktifan-paket"></a>
+
 #### Listen event pengaktifan paket:
 
 ```php
@@ -201,14 +201,15 @@ Package::freeze('admin');
 ```
 
 <a id="routing-ke-paket"></a>
+
 ## Routing Ke Paket
 
 Silahkan merujuk ke halaman [routing paket](/docs/id/routing#routing-paket) dan
 [controller paket](/docs/id/controllers#controller-paket) untuk panduan lebih detail mengenai
 mekanisme routing paket.
 
-
 <a id="menggunakan-paket"></a>
+
 ## Menggunakan Paket
 
 Seperti yang telah disebutkan sebelumnya, paket bisa memiliki controller, view, config,
@@ -269,13 +270,14 @@ $names = Package::names();
 ```
 
 <a id="aset-paket"></a>
+
 ## Aset Paket
 
 Jika paket yang ingin anda buat mengandung view, pastinya paket tersebut memiliki aset
 seperti CSS, JavaScript dan Gambar yang harus disertakan.
 
 Gampang, Cukup buat folder `assets/` didalam paket anda dan taruh file-file aset anda kedalamnya.
-Jadi, misalnya paket anda bernama  `admin`, maka taruh file-file aset anda ke folder `admin/assets/`.
+Jadi, misalnya paket anda bernama `admin`, maka taruh file-file aset anda ke folder `admin/assets/`.
 
 Loh, nanti bagaimana jika pengguna paket saya ingin menggunakan asetnya? sedangkan
 folder `admin/assets/` kan tidak readable?
@@ -308,8 +310,8 @@ atau,
 <script src="<?php echo asset('packages/themable/js/app.min.js') ?>"></script>
 ```
 
-
 <a id="menginstall-paket"></a>
+
 ## Menginstall Paket
 
 Tentu saja, anda boleh menginstall paket secara manual dengan mendownload arsipnya dan mengekstraknya
@@ -325,8 +327,7 @@ php rakit package:install themable
 ```
 
 > Pastikan anda sudah mengaktifkan ekstensi [cURL](https://www.php.net/manual/en/book.curl.php)
-  sebelum menjalankan perintah ini.
-
+> sebelum menjalankan perintah ini.
 
 Mantap! sekarang paket yang anda mau sudah terinstall, langkah selanjutnya tinggal
 [mendaftarkan](#mendaftarkan-paket) paket tersebut ke rakit.
@@ -334,13 +335,12 @@ Mantap! sekarang paket yang anda mau sudah terinstall, langkah selanjutnya tingg
 Ingin tahu paket apa saja yang bisa anda install? silahkan kunjungi
 [repositori resmi kami](https://rakit.esyede.my.id/repositories)
 
-
 <a id="mengupgrade-paket"></a>
+
 ## Mengupgrade Paket
 
 Ketika anda mengupgrade paket, Rakit akan menghapus file-file paket versi lama dan menginstall
 rilis stable terbaru dari paket tersebut.
-
 
 #### Mengupgrade paket via console:
 
@@ -348,15 +348,16 @@ rilis stable terbaru dari paket tersebut.
 php rakit package:upgrade <nama-paket>
 ```
 
->  Karena seluruh file paket lama akan dihapus ketika diupgrade, anda harus pastikan bahwa setiap
-   perubahan yang anda buat pada paket tersebut harus sudah di-backup sebelum menjalankan upgrade.
+> Karena seluruh file paket lama akan dihapus ketika diupgrade, anda harus pastikan bahwa setiap
+> perubahan yang anda buat pada paket tersebut harus sudah di-backup sebelum menjalankan upgrade.
 
->  Sebaiknya, jika anda perlu mengubah beberapa config sebuah paket, jangan mengubahnya
-   secara langsung, lakukan perubahan tersebut dengan me-listen event
-   [rakit.booted](#rakit.booted). Dan selalu letakkan kode-kode
-   seperti ini di file `application/boot.php` anda.
+> Sebaiknya, jika anda perlu mengubah beberapa config sebuah paket, jangan mengubahnya
+> secara langsung, lakukan perubahan tersebut dengan me-listen event
+> [rakit.booted](#rakit.booted). Dan selalu letakkan kode-kode
+> seperti ini di file `application/boot.php` anda.
 
 <a href="rakit.booted"></a>
+
 #### Me-listen event `'rakit-booted'` milik paket `admin`:
 
 ```php
@@ -367,15 +368,14 @@ Event::listen('rakit.booted: admin', function () {
 });
 ```
 
-
 <a id="menghapus-paket"></a>
+
 ## Menghapus Paket
 
 Selain menginstall dan mengupgrade paket, tentu anda juga dapat menghapus paket ketika ia
 sudah tidak anda gunakan lagi.
 
 Tersedia 2 cara untuk melakukannya, yaitu cara otomatis via console dan cara manual. Mari kita coba!
-
 
 #### Menghapus paket secara otomatis:
 
@@ -386,9 +386,8 @@ tabel-tabel database yang dulu pernah dibuatnya:
 php rakit migrate:reset <nama-paket>
 ```
 
->  Indikasi sebuah paket melakukan operasi migrasi database adalah paket tersebut
-   memiliki folder `migrations/` yang berisi file-file migrasi.
-
+> Indikasi sebuah paket melakukan operasi migrasi database adalah paket tersebut
+> memiliki folder `migrations/` yang berisi file-file migrasi.
 
 Selanjutnya, kita perlu bersihkan file dan aset bawaan paketnya:
 
@@ -399,13 +398,12 @@ php rakit package:uninstall <nama-paket>
 Perintah ini akan menghapus folder `packages/<nama-paket>/` dan
 folder `assets/packages/<nama-paket>/` dari apklikasi anda.
 
-
 Terakhir, tinggal hapus registri paket tersebut dari file `application/packages.php`.
-
 
 #### Menghapus paket secara manual:
 
 Untuk menghapus paket secara manual, anda perlu mengulangi perintah-perintah diatas secara manual:
-  1. Jika paketnya menjalankan migrasi, hapus tabel-tabel migrasinya dari database anda.
-  2. Hapus folder `assets/packages/<nama-paket>/` dan `packages/<nama-paket>/` jika ada.
-  3. Terakhir, hapus registri paketnya dari file `application/packages.php`
+
+1. Jika paketnya menjalankan migrasi, hapus tabel-tabel migrasinya dari database anda.
+2. Hapus folder `assets/packages/<nama-paket>/` dan `packages/<nama-paket>/` jika ada.
+3. Terakhir, hapus registri paketnya dari file `application/packages.php`

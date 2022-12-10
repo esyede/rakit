@@ -5,23 +5,23 @@ namespace System\Foundation\Oops;
 defined('DS') or exit('No direct script access.');
 ?>
 <style class="oops-debug">
-	#oops-debug .oops-DumpPanel h2 {
-      font: 11pt/1.5 sans-serif;
-      margin: 0;
-      padding: 2px 8px;
-      background: #3484d2;
-      color: white;
-	}
+    #oops-debug .oops-DumpPanel h2 {
+        font: 11pt/1.5 sans-serif;
+        margin: 0;
+        padding: 2px 8px;
+        background: #3484d2;
+        color: white;
+    }
 </style>
 
 <h1>Dumps</h1>
 
 <div class="oops-inner oops-DumpPanel">
-<?php foreach ($data as $item): ?>
-	<?php if ($item['title']):?>
-	<h2><?php echo Helpers::escapeHtml($item['title']) ?></h2>
-	<?php endif ?>
+    <?php foreach ($data as $item) : ?>
+        <?php if ($item['title']) : ?>
+            <h2><?php echo Helpers::escapeHtml($item['title']) ?></h2>
+        <?php endif ?>
 
-	<?php echo $item['dump'] ?>
-<?php endforeach ?>
+        <?php echo $item['dump'] ?>
+    <?php endforeach ?>
 </div>

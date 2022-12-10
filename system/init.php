@@ -12,11 +12,11 @@ defined('DS') or exit('No direct script access.');
 */
 
 if (is_file($path = path('rakit_key'))) {
-    $dir = path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'key'.DS;
+    $dir = path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key' . DS;
 
-    if (! is_readable(dirname((string) $path))) {
+    if (!is_readable(dirname((string) $path))) {
         http_response_code(500);
-        require $dir.'unreadable.phtml';
+        require $dir . 'unreadable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -26,7 +26,7 @@ if (is_file($path = path('rakit_key'))) {
 
     if (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
         http_response_code(500);
-        require $dir.'invalid.phtml';
+        require $dir . 'invalid.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -36,9 +36,9 @@ if (is_file($path = path('rakit_key'))) {
 } else {
     $path = path('rakit_key');
 
-    if (! is_writable(dirname((string) $path))) {
+    if (!is_writable(dirname((string) $path))) {
         http_response_code(500);
-        require $dir.'unwritable.phtml';
+        require $dir . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -59,31 +59,37 @@ if (is_file($path = path('rakit_key'))) {
 
         $key = sprintf(
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000,
-            mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
         );
         file_put_contents(
             path('rakit_key'),
-            '<?php'.PHP_EOL
-            .PHP_EOL
-            ."defined('DS') or exit('No direct script access.');".PHP_EOL
-            .PHP_EOL
-            .'/*'.PHP_EOL
-            .'|--------------------------------------------------------------------------'.PHP_EOL
-            .'| Application Key'.PHP_EOL
-            .'|--------------------------------------------------------------------------'.PHP_EOL
-            .'|'.PHP_EOL
-            .'| File ini (key.php) dibuat otomatis oleh rakit. Salin file ini ke tempat'.PHP_EOL
-            .'| yang aman karena file ini adalah kunci untuk membuka aplikasi anda.'.PHP_EOL
-            .'|'.PHP_EOL
-            .'| Jika terjadi error "Hash verification failed", silahkan muat ulang halaman.'.PHP_EOL
-            .'|'.PHP_EOL
-            .'*/'.PHP_EOL
-            .PHP_EOL
-            .sprintf("return '%s';", $key).PHP_EOL
+            '<?php' . PHP_EOL
+                . PHP_EOL
+                . "defined('DS') or exit('No direct script access.');" . PHP_EOL
+                . PHP_EOL
+                . '/*' . PHP_EOL
+                . '|--------------------------------------------------------------------------' . PHP_EOL
+                . '| Application Key' . PHP_EOL
+                . '|--------------------------------------------------------------------------' . PHP_EOL
+                . '|' . PHP_EOL
+                . '| File ini (key.php) dibuat otomatis oleh rakit. Salin file ini ke tempat' . PHP_EOL
+                . '| yang aman karena file ini adalah kunci untuk membuka aplikasi anda.' . PHP_EOL
+                . '|' . PHP_EOL
+                . '| Jika terjadi error "Hash verification failed", silahkan muat ulang halaman.' . PHP_EOL
+                . '|' . PHP_EOL
+                . '*/' . PHP_EOL
+                . PHP_EOL
+                . sprintf("return '%s';", $key) . PHP_EOL
         );
     } catch (\Throwable $e) {
-        require $dir.'unwritable.phtml';
+        require $dir . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -91,7 +97,7 @@ if (is_file($path = path('rakit_key'))) {
         exit;
     } catch (\Exception $e) {
         http_response_code(500);
-        require $dir.'unwritable.phtml';
+        require $dir . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();

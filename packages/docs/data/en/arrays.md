@@ -2,51 +2,51 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
-- [Helper List](#helper-list)
-    - [Arr::accessible\(\)](#arraccessible)
-    - [Arr::add\(\)](#arradd)
-    - [Arr::collapse\(\)](#arrcollapse)
-    - [Arr::divide\(\)](#arrdivide)
-    - [Arr::dot\(\)](#arrdot)
-    - [Arr::except\(\)](#arrexcept)
-    - [Arr::exists\(\)](#arrexists)
-    - [Arr::first\(\)](#arrfirst)
-    - [Arr::flatten\(\)](#arrflatten)
-    - [Arr::forget\(\)](#arrforget)
-    - [Arr::get\(\)](#arrget)
-    - [Arr::has\(\)](#arrhas)
-    - [Arr::associative\(\)](#arrassociative)
-    - [Arr::last\(\)](#arrlast)
-    - [Arr::only\(\)](#arronly)
-    - [Arr::pluck\(\)](#arrpluck)
-    - [Arr::prepend\(\)](#arrprepend)
-    - [Arr::pull\(\)](#arrpull)
-    - [Arr::random\(\)](#arrrandom)
-    - [Arr::set\(\)](#arrset)
-    - [Arr::shuffle\(\)](#arrshuffle)
-    - [Arr::sort\(\)](#arrsort)
-    - [Arr::recsort\(\)](#arrrecsort)
-    - [Arr::where\(\)](#arrwhere)
-    - [Arr::wrap\(\)](#arrwrap)
+-   [Basic Knowledge](#basic-knowledge)
+-   [Helper List](#helper-list)
+    -   [Arr::accessible\(\)](#arraccessible)
+    -   [Arr::add\(\)](#arradd)
+    -   [Arr::collapse\(\)](#arrcollapse)
+    -   [Arr::divide\(\)](#arrdivide)
+    -   [Arr::dot\(\)](#arrdot)
+    -   [Arr::except\(\)](#arrexcept)
+    -   [Arr::exists\(\)](#arrexists)
+    -   [Arr::first\(\)](#arrfirst)
+    -   [Arr::flatten\(\)](#arrflatten)
+    -   [Arr::forget\(\)](#arrforget)
+    -   [Arr::get\(\)](#arrget)
+    -   [Arr::has\(\)](#arrhas)
+    -   [Arr::associative\(\)](#arrassociative)
+    -   [Arr::last\(\)](#arrlast)
+    -   [Arr::only\(\)](#arronly)
+    -   [Arr::pluck\(\)](#arrpluck)
+    -   [Arr::prepend\(\)](#arrprepend)
+    -   [Arr::pull\(\)](#arrpull)
+    -   [Arr::random\(\)](#arrrandom)
+    -   [Arr::set\(\)](#arrset)
+    -   [Arr::shuffle\(\)](#arrshuffle)
+    -   [Arr::sort\(\)](#arrsort)
+    -   [Arr::recsort\(\)](#arrrecsort)
+    -   [Arr::where\(\)](#arrwhere)
+    -   [Arr::wrap\(\)](#arrwrap)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="basic-knowledge"></a>
+
 ## Basic Knowledge
 
 These components include various helpers to make your life easier when working with array.
 This is the list of available helpers for you:
 
-
 <a id="helper-list"></a>
+
 ## Helper List
 
 This is the list of available helpers for this component:
 
-
 <a id="arraccessible"></a>
+
 ### Arr::accessible()
 
 This method check whether given value is an accessible array:
@@ -57,8 +57,8 @@ return Arr::accessible('abc');                // false
 return Arr::accessible(new \stdClass());      // false
 ```
 
-
 <a id="arradd"></a>
+
 ### Arr::add()
 
 This method add certain key/value pair to the array if given key is not exist in the array or set to `NULL`:
@@ -71,8 +71,8 @@ return Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 // ['name' => 'Desk', 'price' => 100]
 ```
 
-
 <a id="arrcollapse"></a>
+
 ### Arr::collapse()
 
 This method shrink multi-dimension array into single array:
@@ -82,8 +82,8 @@ return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
 // [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-
 <a id="arrdivide"></a>
+
 ### Arr::divide()
 
 This method return two array, one contain the key, and the other contain the value of given array:
@@ -94,8 +94,8 @@ list($keys, $values) = Arr::divide(['name' => 'Desk']);
 // $values: ['Desk']
 ```
 
-
 <a id="arrdot"></a>
+
 ### Arr::dot()
 
 This method will shrink multi-dimension array into single array using "dot" notation to show array depth:
@@ -107,8 +107,8 @@ $array = ['products' => ['desk' => ['price' => 100]]];
 return Arr::dot($array); // ['products.desk.price' => 100]
 ```
 
-
 <a id="arrexcept"></a>
+
 ### Arr::except()
 
 This method remove certain key/value pair from the array:
@@ -119,8 +119,8 @@ $array = ['name' => 'Desk', 'price' => 100];
 return Arr::except($array, ['price']); // ['name' => 'Desk']
 ```
 
-
 <a id="arrexists"></a>
+
 ### Arr::exists()
 
 This method check whether given key exist in an array:
@@ -132,8 +132,8 @@ return Arr::exists($array, 'name');   // true
 return Arr::exists($array, 'salary'); // false
 ```
 
-
 <a id="arrfirst"></a>
+
 ### Arr::first()
 
 This method return first element of an array which passed given validity test:
@@ -156,6 +156,7 @@ return Arr::first($array, $callback, $default);
 ```
 
 <a id="arrflatten"></a>
+
 ### Arr::flatten()
 
 This method flatten multi-dimension array into a single array:
@@ -166,8 +167,8 @@ $array = ['name' => 'Dimas', 'languages' => ['PHP', 'Ruby']];
 return Arr::flatten($array); // ['Dimas', 'PHP', 'Ruby']
 ```
 
-
 <a id="arrforget"></a>
+
 ### Arr::forget()
 
 This method remove certain key/value pair from an array using "dot" notation:
@@ -180,8 +181,8 @@ Arr::forget($array, 'products.desk');
 return $array; // ['products' => []]
 ```
 
-
 <a id="arrget"></a>
+
 ### Arr::get()
 
 This method take one value from an array using "dot" notation:
@@ -198,8 +199,8 @@ This method also accept a default value, which will be returned if expected key 
 return Arr::get($array, 'products.desk.discount', 0); // 0
 ```
 
-
 <a id="arrhas"></a>
+
 ### Arr::has()
 
 This method check whether certain item exist in an array using "dot" notation:
@@ -212,8 +213,8 @@ return Arr::has($array, 'product.name'); // true
 return Arr::has($array, ['product.price', 'product.discount']); // false
 ```
 
-
 <a id="arrassociative"></a>
+
 ### Arr::associative()
 
 This method return `TRUE` if given array is an associative array.
@@ -227,8 +228,8 @@ return Arr::associative($array1); // true
 return Arr::associative($array2); // false
 ```
 
-
 <a id="arrlast"></a>
+
 ### Arr::last()
 
 This method return the last element of an array if it passed given truth test:
@@ -250,8 +251,8 @@ This value will be returned if there's no value passed from given truth test:
 return Arr::last($array, $callback, $default);
 ```
 
-
 <a id="arronly"></a>
+
 ### Arr::only()
 
 This method only return key/value pair which is decided by the array given:
@@ -263,8 +264,8 @@ return Arr::only($array, ['name', 'price']);
 // ['name' => 'Desk', 'price' => 100]
 ```
 
-
 <a id="arrpluck"></a>
+
 ### Arr::pluck()
 
 This method take all values belongs to certain key from an array:
@@ -286,8 +287,8 @@ return Arr::pluck($array, 'developer.name', 'developer.id');
 // [1 => 'Budi', 2 => 'Sarah']
 ```
 
-
 <a id="arrprepend"></a>
+
 ### Arr::prepend()
 
 This method will add an item to the beginning of an array:
@@ -308,8 +309,8 @@ $array = Arr::prepend($array, 'Desk', 'name');
 // ['name' => 'Desk', 'price' => 100]
 ```
 
-
 <a id="arrpull"></a>
+
 ### Arr::pull()
 
 This method will return and remove the key/value pair from an array:
@@ -329,8 +330,8 @@ This value will be returned if the your expected key is not found:
 $value = Arr::pull($array, $key, $default);
 ```
 
-
 <a id="arrrandom"></a>
+
 ### Arr::random()
 
 This method return a random value from an array:
@@ -349,8 +350,8 @@ Please note that if you use this option, returned value will not always an array
 return Arr::random($array, 2); // [2, 5] - (randomly obtained)
 ```
 
-
 <a id="arrset"></a>
+
 ### Arr::set()
 
 This method used to specify a value into an array using "dot" notation:
@@ -363,8 +364,8 @@ Arr::set($array, 'products.desk.price', 200);
 // $array: ['products' => ['desk' => ['price' => 200]]]
 ```
 
-
 <a id="arrshuffle"></a>
+
 ### Arr::shuffle()
 
 This method randomize items belong to an array:
@@ -374,8 +375,8 @@ return Arr::shuffle([1, 2, 3, 4, 5]);
 // [3, 2, 5, 1, 4] - (randomly generated)
 ```
 
-
 <a id="arrsort"></a>
+
 ### Arr::sort()
 
 This method will sort an array based on its value:
@@ -409,8 +410,8 @@ return array_values(Arr::sort($array, function ($value) {
 */
 ```
 
-
 <a id="arrrecsort"></a>
+
 ### Arr::recsort()
 
 This method will sort an array recursively with the help of [sort](https://php.net/manual/en/function.sort.php)
@@ -435,8 +436,8 @@ return Arr::recsort($array);
 */
 ```
 
-
 <a id="arrwhere"></a>
+
 ### Arr::where()
 
 This method used to filter an array using Closure:
@@ -451,8 +452,8 @@ return Arr::where($array, function ($value, $key) {
 // [1 => '200', 3 => '400']
 ```
 
-
 <a id="arrwrap"></a>
+
 ### Arr::wrap()
 
 This method wrap a given value in an array.

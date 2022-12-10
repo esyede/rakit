@@ -2,24 +2,24 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Instansiasi](#instansiasi)
-- [Tambah & Kurang](#tambah--kurang)
-- [Selisih](#selisih)
-- [Komparasi](#komparasi)
-- [Fitur Tambahan](#fitur-tambahan)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Instansiasi](#instansiasi)
+-   [Tambah & Kurang](#tambah--kurang)
+-   [Selisih](#selisih)
+-   [Komparasi](#komparasi)
+-   [Fitur Tambahan](#fitur-tambahan)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Komponen `Date` disediakan untuk membantu anda ketika bekerja dengan tanggal. Komponen ini
 sengaja dibuat sangat sederhana agar anda tidak harus repot mengingat banyak nama method.
 
-
 <a id="instansiasi"></a>
+
 ## Instansiasi
 
 Tersedia 2 cara untuk mmenginstansiasi kelas `Date` ini, yaitu via
@@ -49,15 +49,14 @@ $date = Date::make('last sunday');
 $date = Date::make(1621987200);
 ```
 
->  Anda dapat memasukkan string format waktu sesuai dokumentasi
-   [Supported Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) milik PHP.
-
+> Anda dapat memasukkan string format waktu sesuai dokumentasi
+> [Supported Date and Time Formats](https://www.php.net/manual/en/datetime.formats.php) milik PHP.
 
 <a id="tambah--kurang"></a>
+
 ## Tambah & Kurang
 
 Gunakan method `remake()` untuk melakukan operasi penambahan dan pengurangan seperti berikut:
-
 
 #### Tambah
 
@@ -67,7 +66,6 @@ $date = '2021-05-23';
 return Date::make($date)->remake('+ 3 days'); // 2021-05-26 (bertambah 3 hari)
 ```
 
-
 #### Kurang
 
 ```php
@@ -76,8 +74,8 @@ $date = '2021-05-23';
 return Date::make($date)->remake('- 3 days'); // 2021-05-20 00:00:00 (berkurang 3 hari)
 ```
 
-
 <a id="selisih"></a>
+
 ## Selisih
 
 Untuk mencari selisih antara 2 buah tanggal, gunakan method `diff()` seperti berikut:
@@ -118,8 +116,8 @@ dengan tanggal saat ini:
 return Date::diff('2021-05-23');
 ```
 
-
 <a id="komparasi"></a>
+
 ## Komparasi
 
 Jika anda perlu mengkomparasikan 2 buah tanggal, kami juga telah menyediakannya untuk anda:
@@ -131,7 +129,6 @@ $date = '2021-05-23 00:02:00';
 
 return Date::eq($date, '2021-05-23 00:02:00'); // true
 ```
-
 
 #### Lebih Dari
 
@@ -149,7 +146,6 @@ $date = '2021-05-23 00:01:50'; // - 10 detik
 return Date::lt($date, '2021-05-23 00:02:00'); // true
 ```
 
-
 #### Lebih Dari Atau Sama Dengan
 
 ```php
@@ -158,7 +154,6 @@ $date = '2021-05-23 00:02:10'; // + 10 detik
 return Date::gte($date, '2021-05-23 00:02:10'); // true, sama dengan
 return Date::gte($date, '2021-05-23 00:02:00'); // true, lebih besar
 ```
-
 
 #### Kurang Dari Atau Sama Dengan
 
@@ -169,13 +164,12 @@ return Date::lte($date, '2021-05-23 00:02:00'); // true, lebih kecil dari
 return Date::lte($date, '2021-05-23 00:01:50'); // true, sama dengan
 ```
 
-
 <a id="fitur-tambahan"></a>
+
 ## Fitur Tambahan
 
 Selain fitur-fitur diatas, kami juga tlah menyediakan fitur tambahan yang
 pastinya akan semakin memudahkan pekerjaan anda:
-
 
 #### Mengambil Timestamp
 
@@ -184,7 +178,6 @@ $date = Date::make('2021-05-23');
 
 return $date->timestamp(); // 1621728000
 ```
-
 
 #### Waktu Saat Ini
 
@@ -203,7 +196,6 @@ sesuai format yang anda inginkan, contohnya seperti ini:
 return Date::now('F j, Y H:i');
 ```
 
-
 #### Format
 
 ```php
@@ -212,7 +204,6 @@ $date = Date::make('2021-05-23');
 return $date->format('F j, Y'); // May 23, 2021
 ```
 
-
 #### Time Ago
 
 ```php
@@ -220,7 +211,6 @@ return Date::make('now - 15 minutes')->ago(); // 15 menit yang lalu
 
 return Date::make('now + 20 minutes')->ago(); // 20 menit dari sekarang
 ```
-
 
 #### Clone
 

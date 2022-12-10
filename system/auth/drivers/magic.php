@@ -45,7 +45,7 @@ class Magic extends Driver
             }
         })->first();
 
-        if (! is_null($user) && Hash::check($arguments['password'], $user->password)) {
+        if (!is_null($user) && Hash::check($arguments['password'], $user->password)) {
             return $this->login($user->id, Arr::get($arguments, 'remember'));
         }
 

@@ -1,28 +1,28 @@
 pre.oops-dump {
-	text-align: left;
-	color: #fff;
-	background: #272822;
+    text-align: left;
+    color: #fff;
+    background: #272822;
     padding: 10px;
 }
 
 pre.oops-dump div {
-	padding-left: 3ex;
+    padding-left: 3ex;
 }
 
 pre.oops-dump div div {
-	border-left: 1px solid rgba(0, 0, 0, .1);
-	margin-left: .5ex;
+    border-left: 1px solid rgba(0, 0, 0, .1);
+    margin-left: .5ex;
 }
 
 pre.oops-dump a {
-	color: #ad6af9;
-	text-decoration: none;
+    color: #ad6af9;
+    text-decoration: none;
 }
 
 pre.oops-dump a:hover,
 pre.oops-dump a:focus {
-	background-color: #7d25e1;
-	color: white;
+    background-color: #7d25e1;
+    color: white;
 }
 
 .oops-dump-array {
@@ -30,15 +30,15 @@ pre.oops-dump a:focus {
 }
 
 .oops-dump-object {
-	color: #f09721;
+    color: #f09721;
 }
 
 .oops-dump-string {
-	color: #e6db67;
+    color: #e6db67;
 }
 
 .oops-dump-number {
-	color: #9081ff;
+    color: #9081ff;
 }
 
 .oops-dump-null {
@@ -46,22 +46,20 @@ pre.oops-dump a:focus {
 }
 
 .oops-dump-bool {
-	color: #9081ff;
+    color: #9081ff;
 }
 
-.oops-dump-visibility {
-
-}
+.oops-dump-visibility {}
 
 .oops-dump-hash {
-	font-size: 85%;
+    font-size: 85%;
     color: #8959a8;
 }
 
 .oops-dump-indent {
-	display: none;
+    display: none;
 }
 
 span[data-oops-href] {
-	border-bottom: 1px dotted #8959a8;
+    border-bottom: 1px dotted #8959a8;
 }

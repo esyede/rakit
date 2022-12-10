@@ -180,7 +180,7 @@ class Table
 
         if (is_null($name)) {
             $name = str_replace(['-', '.'], '_', $this->name);
-            $name = $name.'_'.implode('_', $columns).'_'.$type;
+            $name = $name . '_' . implode('_', $columns) . '_' . $type;
         }
 
         return $this->command($type, compact('name', 'columns'));
@@ -432,7 +432,7 @@ class Table
      */
     public function creating()
     {
-        return (! is_null(Arr::first($this->commands, function ($key, $value) {
+        return (!is_null(Arr::first($this->commands, function ($key, $value) {
             return ('create' === $value->type);
         })));
     }

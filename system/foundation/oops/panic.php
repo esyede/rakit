@@ -82,7 +82,7 @@ class Panic
      */
     public function addPanel($panel)
     {
-        if (! in_array($panel, $this->panels, true)) {
+        if (!in_array($panel, $this->panels, true)) {
             $this->panels[] = $panel;
         }
 
@@ -117,7 +117,7 @@ class Panic
                 // ..
             });
 
-            $this->renderTemplate($e, __DIR__.'/assets/panic/content.phtml');
+            $this->renderTemplate($e, __DIR__ . '/assets/panic/content.phtml');
             $contentId = $_SERVER['HTTP_X_OOPS_AJAX'];
             $_SESSION['_oops']['panic'][$contentId] = [
                 'content' => ob_get_clean(),
@@ -125,7 +125,7 @@ class Panic
                 'time' => time(),
             ];
         } else {
-            $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml');
+            $this->renderTemplate($e, __DIR__ . '/assets/panic/page.phtml');
         }
     }
 
@@ -141,21 +141,21 @@ class Panic
     {
         $base = basename($file);
         $dir = substr_replace($file, '', strrpos($file, $base), strlen($base));
-        $file = $dir.DIRECTORY_SEPARATOR.$base;
+        $file = $dir . DIRECTORY_SEPARATOR . $base;
 
-        if (! is_dir($dir)) {
-            mkdir($dir.'aaaa');
-            file_put_contents($dir.'index.html', 'No direct script access.');
+        if (!is_dir($dir)) {
+            mkdir($dir . 'aaaa');
+            file_put_contents($dir . 'index.html', 'No direct script access.');
         }
 
-        if (! is_file($file)) {
+        if (!is_file($file)) {
             if ($handle = @fopen($file, 'x')) {
                 // Buffer ganda terkadang mencegah pengiriman HTTP header
                 ob_start();
                 ob_start(function ($buffer) use ($handle) {
                     fwrite($handle, $buffer);
                 }, 4096);
-                $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml', false);
+                $this->renderTemplate($e, __DIR__ . '/assets/panic/page.phtml', false);
                 ob_end_flush();
                 ob_end_clean();
                 fclose($handle);
@@ -195,7 +195,7 @@ class Panic
         };
 
         $css = array_map('file_get_contents', array_merge([
-            __DIR__.DS.'assets'.DS.'panic'.DS.'panic.css',
+            __DIR__ . DS . 'assets' . DS . 'panic' . DS . 'panic.css',
         ], Debugger::$customCssFiles));
 
         $css = preg_replace('#\s+#u', ' ', implode($css));
@@ -256,25 +256,29 @@ class Panic
         foreach ($this->actions as $callback) {
             $action = call_user_func($callback, $ex);
 
-            if (! empty($action['link']) && ! empty($action['label'])) {
+            if (!empty($action['link']) && !empty($action['label'])) {
                 $actions[] = $action;
             }
         }
 
-        if (property_exists($ex, 'oopsAction')
-        && ! empty($ex->oopsAction['link'])
-        && ! empty($ex->oopsAction['label'])) {
+        if (
+            property_exists($ex, 'oopsAction')
+            && !empty($ex->oopsAction['link'])
+            && !empty($ex->oopsAction['label'])
+        ) {
             $actions[] = $ex->oopsAction;
         }
 
         if (preg_match('# ([\'"])(\w{3,}(?:\\\\\w{3,})+)\\1#i', $ex->getMessage(), $m)) {
             $class = $m[2];
 
-            if (! class_exists($class)
-            && ! interface_exists($class)
-            && ! trait_exists($class)
-            && ($file = Helpers::guessClassFile($class))
-            && ! is_file($file)) {
+            if (
+                !class_exists($class)
+                && !interface_exists($class)
+                && !trait_exists($class)
+                && ($file = Helpers::guessClassFile($class))
+                && !is_file($file)
+            ) {
                 $actions[] = [
                     'link' => Helpers::editorUri($file, 1, 'create'),
                     'label' => 'create class',
@@ -286,24 +290,25 @@ class Panic
             $file = $m[2];
             $actions[] = [
                 'link' => Helpers::editorUri($file, 1, $label = is_file($file) ? 'open' : 'create'),
-                'label' => $label.' file',
+                'label' => $label . ' file',
             ];
         }
 
-        $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex).' ')
-            .preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
+        $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex) . ' ')
+            . preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
 
         $actions[] = [
-            'link' => 'https://www.google.com/search?sourceid=rakit_framework&q='.urlencode($query),
+            'link' => 'https://www.google.com/search?sourceid=rakit_framework&q=' . urlencode($query),
             'label' => 'search',
             'external' => true,
         ];
 
         if (($ex instanceof \ErrorException)
-        && ! empty($ex->skippable)
-        && preg_match('#^https?://#', $source = Helpers::getSource())) {
+            && !empty($ex->skippable)
+            && preg_match('#^https?://#', $source = Helpers::getSource())
+        ) {
             $actions[] = [
-                'link' => $source.(strpos($source, '?') ? '&' : '?').'_oops_skip_error',
+                'link' => $source . (strpos($source, '?') ? '&' : '?') . '_oops_skip_error',
                 'label' => 'skip error',
             ];
         }
@@ -329,7 +334,7 @@ class Panic
             $editor = Helpers::editorUri($file, $line);
 
             if ($editor) {
-                $source = substr_replace($source, ' data-oops-href="'.Helpers::escapeHtml($editor).'"', 4, 0);
+                $source = substr_replace($source, ' data-oops-href="' . Helpers::escapeHtml($editor) . '"', 4, 0);
             }
 
             return $source;
@@ -364,10 +369,11 @@ class Panic
         if ($vars) {
             $out = preg_replace_callback('#">\$(\w+)(&nbsp;)?</span>#', function ($m) use ($vars) {
                 return array_key_exists($m[1], $vars)
-                    ? '" title="'.str_replace(
+                    ? '" title="' . str_replace(
                         '"',
                         '&quot;',
-                        trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))).$m[0]
+                        trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))
+                    ) . $m[0]
                     : $m[0];
             }, $out);
         }
@@ -384,7 +390,7 @@ class Panic
      */
     public static function highlightLine($html, $line, $lines = 15)
     {
-        $source = explode("\n", "\n".str_replace("\r\n", "\n", $html));
+        $source = explode("\n", "\n" . str_replace("\r\n", "\n", $html));
         $out = '';
         $spans = 1;
         $start = $i = max(1, min($line, count($source) - 1) - (int) floor($lines * 2 / 3));
@@ -416,7 +422,7 @@ class Panic
             }
         }
 
-        $out .= str_repeat('</span>', $spans).'</code>';
+        $out .= str_repeat('</span>', $spans) . '</code>';
 
         return $out;
     }
@@ -430,10 +436,10 @@ class Panic
      */
     public function isCollapsed($file)
     {
-        $file = strtr($file, '\\', '/').'/';
+        $file = strtr($file, '\\', '/') . '/';
 
         foreach ($this->collapsePaths as $path) {
-            $path = strtr($path, '\\', '/').'/';
+            $path = strtr($path, '\\', '/') . '/';
 
             if (strncmp($file, $path, 0 === mb_strlen($path, '8bit'))) {
                 return true;

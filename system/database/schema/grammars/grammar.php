@@ -27,10 +27,10 @@ abstract class Grammar extends BaseGrammar
         $references = is_array($command->references) ? $command->references : [$command->references];
         $referenced = $this->columnize($references);
 
-        $sql = 'ALTER TABLE '.$table.' ADD CONSTRAINT '.$name.' ';
-        $sql .= 'FOREIGN KEY ('.$foreign.') REFERENCES '.$on.' ('.$referenced.')';
-        $sql .= is_null($command->on_delete) ? '' : ' ON DELETE '.$command->on_delete;
-        $sql .= is_null($command->on_update) ? '' : ' ON UPDATE '.$command->on_update;
+        $sql = 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $name . ' ';
+        $sql .= 'FOREIGN KEY (' . $foreign . ') REFERENCES ' . $on . ' (' . $referenced . ')';
+        $sql .= is_null($command->on_delete) ? '' : ' ON DELETE ' . $command->on_delete;
+        $sql .= is_null($command->on_update) ? '' : ' ON UPDATE ' . $command->on_update;
 
         return $sql;
     }
@@ -45,7 +45,7 @@ abstract class Grammar extends BaseGrammar
      */
     public function drop(Table $table, Magic $command)
     {
-        return 'DROP TABLE '.$this->wrap($table);
+        return 'DROP TABLE ' . $this->wrap($table);
     }
 
     /**
@@ -58,7 +58,7 @@ abstract class Grammar extends BaseGrammar
      */
     protected function drop_constraint(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT '.$command->name;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT ' . $command->name;
     }
 
     /**
@@ -88,7 +88,7 @@ abstract class Grammar extends BaseGrammar
      */
     protected function type(Magic $column)
     {
-        return $this->{'type_'.$column->type}($column);
+        return $this->{'type_' . $column->type}($column);
     }
 
     /**

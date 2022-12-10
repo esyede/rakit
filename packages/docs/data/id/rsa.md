@@ -2,15 +2,15 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Enkripsi Data](#enkripsi-data)
-- [Dekripsi Data](#dekripsi-data)
-- [Detail Data](#detail-data)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Enkripsi Data](#enkripsi-data)
+-   [Dekripsi Data](#dekripsi-data)
+-   [Detail Data](#detail-data)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Seperti namanya, komponen `RSA` menyediakan cara sederhana untuk menangani enkripsi dan dekripsi
@@ -18,10 +18,9 @@ data menggunakan private dan public key sebagai pengamannya.
 
 > Komponen ini hanya mendukung tipe private key RSA 2048 bit saja.
 
-
 <a id="enkripsi-data"></a>
-## Enkripsi Data
 
+## Enkripsi Data
 
 #### Mengenkripsi data:
 
@@ -35,12 +34,11 @@ $encrypted = RSA::encrypt($data);
 ```
 
 > Private key dan public key dibuat secara otomatis setiap kali operasi enkripsi dilakukan
-  sehingga anda tidak perlu repot lagi menyimpan public key dan private key.
-
+> sehingga anda tidak perlu repot lagi menyimpan public key dan private key.
 
 <a id="dekripsi-string"></a>
-## Dekripsi Data
 
+## Dekripsi Data
 
 #### Mendekripsi data:
 
@@ -51,10 +49,9 @@ $decrypted = RSA::decrypt($encrypted);
 // dd($decrypted);
 ```
 
-
 <a id="detail-data"></a>
-## Detail Data
 
+## Detail Data
 
 #### Detail data enkripsi:
 

@@ -2,6 +2,9 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Request;
+use System\Session;
+
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
     /**

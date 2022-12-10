@@ -40,17 +40,17 @@ chdir(__DIR__);
 // --------------------------------------------------------------
 // Definisikan path ke base direktori.
 // --------------------------------------------------------------
-$GLOBALS['rakit_paths']['base'] = __DIR__.DS;
+$GLOBALS['rakit_paths']['base'] = __DIR__ . DS;
 
 // --------------------------------------------------------------
 // Defininisikan konstanta lain yang belum ada.
 // --------------------------------------------------------------
 foreach ($paths as $name => $path) {
-    if (! isset($GLOBALS['rakit_paths'][$name])) {
+    if (!isset($GLOBALS['rakit_paths'][$name])) {
         if ('rakit_key' === $name) {
-            $path = $GLOBALS['rakit_paths']['base'].$path;
+            $path = $GLOBALS['rakit_paths']['base'] . $path;
         } else {
-            $path = realpath($path).DS;
+            $path = realpath($path) . DS;
         }
 
         $GLOBALS['rakit_paths'][$name] = $path;

@@ -47,7 +47,7 @@ class Config
      */
     public static function has($key)
     {
-        return ! is_null(static::get($key));
+        return !is_null(static::get($key));
     }
 
     /**
@@ -75,7 +75,7 @@ class Config
     {
         list($package, $file, $item) = static::parse($key);
 
-        if (! static::load($package, $file)) {
+        if (!static::load($package, $file)) {
             return value($default);
         }
 
@@ -135,7 +135,7 @@ class Config
      */
     protected static function parse($key)
     {
-        if (! array_key_exists($key, static::$cache)) {
+        if (!array_key_exists($key, static::$cache)) {
             $package = Package::name($key);
             $segments = explode('.', Package::element($key));
             static::$cache[$key] = (is_array($segments) && count($segments) >= 2)
@@ -156,7 +156,7 @@ class Config
      */
     public static function load($package, $file)
     {
-        if (! isset(static::$items[$package][$file])) {
+        if (!isset(static::$items[$package][$file])) {
             $config = Event::first(static::LOADER, [$package, $file]);
 
             if (is_array($config) && count($config) > 0) {
@@ -177,7 +177,7 @@ class Config
      */
     public static function file($package, $file)
     {
-        $file = Package::path($package).'config'.DS.$file.'.php';
+        $file = Package::path($package) . 'config' . DS . $file . '.php';
         return is_file($file) ? (require $file) : [];
     }
 }

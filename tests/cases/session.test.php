@@ -2,6 +2,12 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Str;
+use System\Config;
+use System\Cookie;
+use System\Crypter;
+use System\Session;
+
 class SessionTest extends \PHPUnit_Framework_TestCase
 {
     /**

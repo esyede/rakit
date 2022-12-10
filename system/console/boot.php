@@ -13,12 +13,12 @@ Package::boot(DEFAULT_PACKAGE);
 $default = Config::get('database.default');
 
 // Set database default jika user mengoper '--database'.
-if (! is_null($database = get_cli_option('database'))) {
+if (!is_null($database = get_cli_option('database'))) {
     Config::set('database.default', $database);
 }
 
 // Juga daftarkan dependensi command ke Container.
-require path('system').'console'.DS.'dependencies.php';
+require path('system') . 'console' . DS . 'dependencies.php';
 
 // Bungkus error kedalam try-catch agar lebih mudah dibaca.
 try {
@@ -26,10 +26,10 @@ try {
     Config::set('database.default', $default);
 } catch (\Throwable $e) {
     Config::set('database.default', $default);
-    echo 'Error: '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine();
+    echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
 } catch (\Exception $e) {
     Config::set('database.default', $default);
-    echo 'Error: '.$e->getMessage().' in '.$e->getFile().':'.$e->getLine();
+    echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
 }
 
 echo PHP_EOL;

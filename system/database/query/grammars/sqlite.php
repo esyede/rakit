@@ -21,10 +21,10 @@ class SQLite extends Grammar
 
         foreach ($query->orderings as $ordering) {
             $direction = strtoupper((string) $ordering['direction']);
-            $sql[] = $this->wrap($ordering['column']).' COLLATE NOCASE '.$direction;
+            $sql[] = $this->wrap($ordering['column']) . ' COLLATE NOCASE ' . $direction;
         }
 
-        return 'ORDER BY '.implode(', ', $sql);
+        return 'ORDER BY ' . implode(', ', $sql);
     }
 
     /**
@@ -49,11 +49,11 @@ class SQLite extends Grammar
         $columns = [];
 
         foreach (array_keys($values[0]) as $column) {
-            $columns[] = '? AS '.$this->wrap($column);
+            $columns[] = '? AS ' . $this->wrap($column);
         }
 
         $columns = array_fill(9, count($values), implode(', ', $columns));
 
-        return 'INSERT INTO '.$table.' ('.$names.') SELECT '.implode(' UNION SELECT ', $columns);
+        return 'INSERT INTO ' . $table . ' (' . $names . ') SELECT ' . implode(' UNION SELECT ', $columns);
     }
 }

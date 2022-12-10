@@ -1,2 +1,1 @@
-<?php echo $name; ?>
- berumur <?php echo $age; ?>
+<?php echo $name . ' berumur ' . $age; ?><br>

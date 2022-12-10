@@ -101,7 +101,7 @@ class View implements \ArrayAccess
         $this->data = $data;
         $this->path = Str::starts_with($view, 'path: ') ? substr((string) $view, 6) : $this->path($view);
 
-        if (! isset($this->data['errors'])) {
+        if (!isset($this->data['errors'])) {
             if (Session::started() && Session::has('errors')) {
                 $this->data['errors'] = Session::get('errors');
             } else {
@@ -120,8 +120,10 @@ class View implements \ArrayAccess
      */
     public static function exists($view, $return_path = false)
     {
-        if (Str::starts_with($view, 'name: ')
-        && array_key_exists($name = substr((string) $view, 6), static::$names)) {
+        if (
+            Str::starts_with($view, 'name: ')
+            && array_key_exists($name = substr((string) $view, 6), static::$names)
+        ) {
             $view = static::$names[$name];
         }
 
@@ -162,9 +164,9 @@ class View implements \ArrayAccess
     {
         $directory = Str::finish($directory, DS);
 
-        if (is_file($path = $directory.$view.'.php')) {
+        if (is_file($path = $directory . $view . '.php')) {
             return $path;
-        } elseif (is_file($path = $directory.$view.'.blade.php')) {
+        } elseif (is_file($path = $directory . $view . '.blade.php')) {
             return $path;
         }
     }
@@ -259,7 +261,7 @@ class View implements \ArrayAccess
         $views = (array) $views;
 
         foreach ($views as $view) {
-            Event::listen('rakit.composing: '.$view, $composer);
+            Event::listen('rakit.composing: ' . $view, $composer);
         }
     }
 
@@ -297,14 +299,14 @@ class View implements \ArrayAccess
     {
         ++static::$rendered;
 
-        Event::fire('rakit.composing: '.$this->view, [$this]);
+        Event::fire('rakit.composing: ' . $this->view, [$this]);
 
         $contents = null;
 
         if (Event::exists(static::ENGINE)) {
             $result = Event::until(static::ENGINE, [$this]);
 
-            if (! is_null($result)) {
+            if (!is_null($result)) {
                 $contents = $result;
             }
         }
@@ -335,7 +337,7 @@ class View implements \ArrayAccess
             static::$last = ['name' => $this->view, 'path' => $this->path];
             extract($this->data());
 
-            if (! isset(static::$cache[$this->path])) {
+            if (!isset(static::$cache[$this->path])) {
                 static::$cache[$this->path] = $this->path;
             }
 
@@ -451,7 +453,7 @@ class View implements \ArrayAccess
      */
     public static function flush()
     {
-        $files = glob(path('storage').'views'.DS.'*.php');
+        $files = glob(path('storage') . 'views' . DS . '*.php');
 
         if (is_array($files) && count($files) > 0) {
             foreach ($files as $file) {

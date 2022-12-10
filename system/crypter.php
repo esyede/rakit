@@ -23,7 +23,7 @@ class Crypter
             throw new \Exception('Unable to encrypt the data.');
         }
 
-        return base64_encode($iv.$hmac.$hash);
+        return base64_encode($iv . $hmac . $hash);
     }
 
     /**
@@ -45,7 +45,7 @@ class Crypter
 
         $hmac2 = hash_hmac('sha256', $cipher, RAKIT_KEY, true);
 
-        if (! static::equals($hmac, $hmac2)) {
+        if (!static::equals($hmac, $hmac2)) {
             throw new \Exception('Hash verification failed.');
         }
 
@@ -68,7 +68,7 @@ class Crypter
      */
     public static function equals($known, $compared)
     {
-        if (! is_string($known) || ! is_string($compared)) {
+        if (!is_string($known) || !is_string($compared)) {
             return false;
         }
 

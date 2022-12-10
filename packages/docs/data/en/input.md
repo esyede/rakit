@@ -2,25 +2,24 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Input](#input)
-- [JSON Input](#json-input)
-- [File](#file)
-- [Old Input](#old-input)
-- [Redirect With Old Input](#redirect-dengan-old-input)
-- [Cookies](#cookies)
-- [Merging & Replacing](#merge--replace)
-- [Clearing Input](#menghapus-data-input)
+-   [Input](#input)
+-   [JSON Input](#json-input)
+-   [File](#file)
+-   [Old Input](#old-input)
+-   [Redirect With Old Input](#redirect-dengan-old-input)
+-   [Cookies](#cookies)
+-   [Merging & Replacing](#merge--replace)
+-   [Clearing Input](#menghapus-data-input)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="input"></a>
+
 ## Input
 
 The Input component handles input that comes into your application
 via `GET`, `POST`, `PUT`, or `DELETE` requests.
 Here are some examples of how to access input data using it:
-
 
 #### Retrieve a value from the input array:
 
@@ -28,16 +27,14 @@ Here are some examples of how to access input data using it:
 $email = Input::get('email');
 ```
 
->  This `get()` method is used for all request types (`GET`, `POST`, `PUT`, and `DELETE`),
-not just GET requests.
-
+> This `get()` method is used for all request types (`GET`, `POST`, `PUT`, and `DELETE`),
+> not just GET requests.
 
 #### Retrieve all input from the input array:
 
 ```php
 $input = Input::get();
 ```
-
 
 #### Retrieve all input including the `$_FILES` array:
 
@@ -47,9 +44,7 @@ $input = Input::all();
 
 By default, `NULL` will be returned if the input item does not exist.
 
-
 However, you may pass a different default value as a second parameter to the method:
-
 
 #### Returning a default value if the requested input item doesn't exist:
 
@@ -71,10 +66,10 @@ if (Input::has('name')) {
 }
 ```
 
->  This `has()` method will return `FALSE` if the input item is an empty string.
-
+> This `has()` method will return `FALSE` if the input item is an empty string.
 
 <a id="json-input"></a>
+
 ## JSON Input
 
 When working with JavaScript MVC frameworks, you will need to get
@@ -86,8 +81,8 @@ the JSON posted by the application. To make your life easier, you can use this m
 $data = Input::json();
 ```
 
-
 <a id="file"></a>
+
 ## File
 
 #### Retrieving all items from the `$_FILES` array:
@@ -108,10 +103,10 @@ $picture = Input::file('picture');
 $size = Input::file('picture.size');
 ```
 
->  In order to use this `file()` method, you will need to add `"multipart/form-data"` to your HTML foem.
-
+> In order to use this `file()` method, you will need to add `"multipart/form-data"` to your HTML foem.
 
 <a id="old-input"></a>
+
 ## Old Input
 
 You'll commonly need to re-populate forms after invalid form submissions.
@@ -140,15 +135,14 @@ Input::flash('except', ['password', 'credit_card']);
 $name = Input::old('name');
 ```
 
->  You must specify a session driver before using this `old()` and `flash()` method.
-
+> You must specify a session driver before using this `old()` and `flash()` method.
 
 _Further Reading:_
 
-- _[Session](/docs/en/session/config)_
-
+-   _[Session](/docs/en/session/config)_
 
 <a id="redirect-dengan-old-input"></a>
+
 ## Redirect With Old Input
 
 Now that you know how to flash input to the session.
@@ -169,8 +163,8 @@ return Redirect::to('login')->with_input('only', ['username']);
 return Redirect::to('login')->with_input('except', ['password']);
 ```
 
-
 <a id="cookies"></a>
+
 ## Cookies
 
 Rakit provides a nice wrapper around the `$_COOKIE` array.
@@ -215,8 +209,8 @@ Cookie::forever('name', 'Anonymous');
 Cookie::forget('name');
 ```
 
-
 <a id="merge--replace"></a>
+
 ## Merging & Replacing
 
 Sometimes you may wish to merge or replace the current input. Here's how:
@@ -233,8 +227,8 @@ Input::merge(['name' => 'Agus']);
 Input::replace(['name' => 'Andi', 'age' => 23]);
 ```
 
-
 <a id="menghapus-data-input"></a>
+
 ## Clearing Input
 
 To clear all input data for the current request, you may use the `clear()` method:

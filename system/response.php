@@ -137,7 +137,7 @@ class Response
     public static function jsonp($callback, $data, $status = 200, array $headers = [])
     {
         $headers['Content-Type'] = 'application/javascript; charset=utf-8';
-        return new static($callback.'('.json_encode($data).');', $status, $headers);
+        return new static($callback . '(' . json_encode($data) . ');', $status, $headers);
     }
 
     /**
@@ -194,7 +194,7 @@ class Response
             return static::json(compact('status', 'message'), $code, $headers);
         }
 
-        $view = View::exists('error.'.$code) ? 'error.'.$code : 'error.unknown';
+        $view = View::exists('error.' . $code) ? 'error.' . $code : 'error.unknown';
         return static::view($view, compact('code', 'message'), $code, $headers);
     }
 
@@ -219,7 +219,7 @@ class Response
      */
     public static function download($path, $name = null, array $headers = [])
     {
-        if (! is_file($path)) {
+        if (!is_file($path)) {
             throw new \Exception(sprintf('Target file not found: %s', $path));
         }
 
@@ -234,7 +234,7 @@ class Response
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
             'Content-Length' => Storage::size($path),
-            'Content-Disposition' => 'attachment; filename="'.$name.'"',
+            'Content-Disposition' => 'attachment; filename="' . $name . '"',
         ];
 
         $headers = array_merge($defaults, $headers);
@@ -253,7 +253,7 @@ class Response
         $chunksize = (int) Config::get('application.chunk_size', 4) * 1024;
 
         if ($file = fopen($path, 'rb')) {
-            while (! feof($file) && 0 === connection_status() && ! connection_aborted()) {
+            while (!feof($file) && 0 === connection_status() && !connection_aborted()) {
                 echo fread($file, $chunksize);
                 flush();
             }

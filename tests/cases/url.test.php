@@ -2,6 +2,14 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\URI;
+use System\URL;
+use System\Input;
+use System\Config;
+use System\Request;
+use System\Routing\Route;
+use System\Routing\Router;
+
 class URLTest extends \PHPUnit_Framework_TestCase
 {
     /**

@@ -30,15 +30,15 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('docs-lang').classList.add('is-primary');
 
     var notice = '<div class="notification is-danger is-light">' +
-    'English documentation is still work in progress. We need your help to tackle ' +
-    '<a href="https://github.com/esyede/rakit/issues/4" target="_blank"><strong>this issue</strong><a>.' +
-    '</div>';
+        'English documentation is still work in progress. We need your help to tackle ' +
+        '<a href="https://github.com/esyede/rakit/issues/4" target="_blank"><strong>this issue</strong><a>.' +
+        '</div>';
 
     document.querySelector("body > section > div > div > div.column.is-9-desktop.is-9-tablet > div > div.content > h1")
         .insertAdjacentHTML('afterend', notice);
 
     for (var i = 0; i < a.length; i++) {
-        if (! a[i].classList.contains('has-submenu')) {
+        if (!a[i].classList.contains('has-submenu')) {
             if (/\/docs\/en(|\/)/.test(a[i].href)) {
                 a[i].setAttribute('href', a[i].href.replace(/\/docs\/id/, '/docs/en'));
             } else {
@@ -56,7 +56,7 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('repos').text = 'Repositori';
 
     for (var i = 0; i < a.length; i++) {
-        if (! a[i].classList.contains('has-submenu')) {
+        if (!a[i].classList.contains('has-submenu')) {
             if (/\/docs\/en(|\/)/.test(a[i].href)) {
                 a[i].setAttribute('href', a[i].href.replace(/\/docs\/en/, '/docs/id'));
             } else {
@@ -82,7 +82,7 @@ if (/\/docs\/en(|\/)/.test(window.location.href)) {
     document.getElementById('repos').text = 'Repositori';
 
     for (var i = 0; i < a.length; i++) {
-        if (! a[i].classList.contains('has-submenu')) {
+        if (!a[i].classList.contains('has-submenu')) {
             if (/\/docs\/en(|\/)/.test(a[i].href)) {
                 a[i].setAttribute('href', a[i].href.replace(/\/docs\/en/, '/docs/id'));
             } else {

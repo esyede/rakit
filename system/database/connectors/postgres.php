@@ -29,18 +29,18 @@ class Postgres extends Connector
      */
     public function connect(array $config)
     {
-        $host = isset($config['host']) ? 'host='.$config['host'].';' : '';
-        $dsn = 'pgsql:'.$host.'dbname='.$config['database'];
-        $dsn .= isset($config['port']) ? ';port='.$config['port'] : '';
+        $host = isset($config['host']) ? 'host=' . $config['host'] . ';' : '';
+        $dsn = 'pgsql:' . $host . 'dbname=' . $config['database'];
+        $dsn .= isset($config['port']) ? ';port=' . $config['port'] : '';
 
         $pdo = new PDO($dsn, $config['username'], $config['password'], $this->options($config));
 
         if (isset($config['charset'])) {
-            $pdo->prepare("SET NAMES '".$config['charset']."'")->execute();
+            $pdo->prepare("SET NAMES '" . $config['charset'] . "'")->execute();
         }
 
         if (isset($config['schema'])) {
-            $pdo->prepare('SET search_path TO '.$config['schema'])->execute();
+            $pdo->prepare('SET search_path TO ' . $config['schema'])->execute();
         }
 
         return $pdo;

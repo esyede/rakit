@@ -39,12 +39,12 @@ define('RAKIT_KEY', (string) require path('rakit_key'));
 |
 */
 
-require path('system').'container.php';
-require path('system').'event.php';
-require path('system').'package.php';
-require path('system').'config.php';
-require path('system').'helpers.php';
-require path('system').'autoloader.php';
+require path('system') . 'container.php';
+require path('system') . 'event.php';
+require path('system') . 'package.php';
+require path('system') . 'config.php';
+require path('system') . 'helpers.php';
+require path('system') . 'autoloader.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +80,7 @@ Autoloader::namespaces(['System' => path('system')]);
 | panjang dan tetap mudah dibaca. Nah, disini kita perlu memanggilnya.
 |
 */
+
 use System\Foundation\Http\Request as FoundationRequest;
 
 Request::$foundation = FoundationRequest::createFromGlobals();
@@ -114,7 +115,7 @@ if (Request::cli()) {
 |
 */
 
-$packages = require path('app').'packages.php';
+$packages = require path('app') . 'packages.php';
 
 foreach ($packages as $package => $config) {
     Package::register($package, $config);

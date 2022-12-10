@@ -19,7 +19,7 @@ class Sendmail extends Driver
                 ? $this->config['return_path']
                 : $this->config['from']['email'];
 
-            $handle = popen($this->config['sendmail_binary'].' -oi -f '.$retpath.' -t', 'w');
+            $handle = popen($this->config['sendmail_binary'] . ' -oi -f ' . $retpath . ' -t', 'w');
 
             fputs($handle, $message['header']);
             fputs($handle, $message['body']);
@@ -30,9 +30,9 @@ class Sendmail extends Driver
 
             return true;
         } catch (\Throwable $e) {
-            throw new \Exception('Failed sending email through sendmail: '.$e->getMessage());
+            throw new \Exception('Failed sending email through sendmail: ' . $e->getMessage());
         } catch (\Exception $e) {
-            throw new \Exception('Failed sending email through sendmail: '.$e->getMessage());
+            throw new \Exception('Failed sending email through sendmail: ' . $e->getMessage());
         }
     }
 }

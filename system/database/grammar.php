@@ -49,7 +49,7 @@ abstract class Grammar
             $prefix = $this->connection->config['prefix'];
         }
 
-        return $this->wrap($prefix.$table);
+        return $this->wrap($prefix . $table);
     }
 
     /**

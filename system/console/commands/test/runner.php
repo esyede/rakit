@@ -39,8 +39,8 @@ class Runner extends Command
      */
     public function core()
     {
-        $this->base = path('base').'tests'.DS;
-        $this->stub($this->base.'cases');
+        $this->base = path('base') . 'tests' . DS;
+        $this->stub($this->base . 'cases');
         $this->start();
     }
 
@@ -55,10 +55,10 @@ class Runner extends Command
     {
         $packages = is_array($packages) ? $packages : [$packages];
         $packages = (0 === count($packages)) ? Package::names() : $packages;
-        $this->base = path('system').'console'.DS.'commands'.DS.'test'.DS;
+        $this->base = path('system') . 'console' . DS . 'commands' . DS . 'test' . DS;
 
         foreach ($packages as $package) {
-            if (is_dir($base = Package::path($package).'tests')) {
+            if (is_dir($base = Package::path($package) . 'tests')) {
                 $this->stub($base);
                 $this->start();
             }
@@ -72,17 +72,17 @@ class Runner extends Command
      */
     protected function start()
     {
-        $phpunit = 'vendor'.DS.'bin'.DS.'phpunit';
-        $config = path('base').'phpunit.xml';
+        $phpunit = 'vendor' . DS . 'bin' . DS . 'phpunit';
+        $config = path('base') . 'phpunit.xml';
 
-        if (! is_file(path('base').$phpunit)) {
+        if (!is_file(path('base') . $phpunit)) {
             throw new \Exception(
                 "Error: test dependencies is not present. Please run 'composer install' first."
             );
         }
 
         $phpunit .= get_cli_option('verbose') ? ' --debug' : '';
-        passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
+        passthru('.' . DS . $phpunit . ' --configuration ' . escapeshellarg($config), $status);
 
         if (is_file($config)) {
             Storage::delete($config);
@@ -100,10 +100,10 @@ class Runner extends Command
      */
     protected function stub($directory)
     {
-        $stub = Storage::get(__DIR__.DS.'stub.xml');
-        $stub = $this->tokens($stub, ['[boot]' => $this->base.'phpunit.php', '[dir]' => $directory]);
+        $stub = Storage::get(__DIR__ . DS . 'stub.xml');
+        $stub = $this->tokens($stub, ['[boot]' => $this->base . 'phpunit.php', '[dir]' => $directory]);
 
-        file_put_contents(path('base').'phpunit.xml', $stub, LOCK_EX);
+        file_put_contents(path('base') . 'phpunit.xml', $stub, LOCK_EX);
     }
 
     /**

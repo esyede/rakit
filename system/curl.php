@@ -454,10 +454,10 @@ class Curl
             curl_setopt(static::$handler, CURLOPT_COOKIEJAR, static::$cookie_file);
         }
 
-        if (! empty(static::$auth['user'])) {
+        if (!empty(static::$auth['user'])) {
             curl_setopt_array(static::$handler, [
                 CURLOPT_HTTPAUTH => static::$auth['method'],
-                CURLOPT_USERPWD => static::$auth['user'].':'.static::$auth['pass'],
+                CURLOPT_USERPWD => static::$auth['user'] . ':' . static::$auth['pass'],
             ]);
         }
 
@@ -468,7 +468,7 @@ class Curl
                 CURLOPT_PROXYPORT => static::$proxy['port'],
                 CURLOPT_HTTPPROXYTUNNEL => static::$proxy['tunnel'],
                 CURLOPT_PROXYAUTH => static::$proxy['auth']['method'],
-                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'].':'.static::$proxy['auth']['pass'],
+                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'] . ':' . static::$proxy['auth']['pass'],
             ]);
         }
 
@@ -496,10 +496,6 @@ class Curl
             $response->body = $json;
         }
 
-        if (function_exists('http_parse_headers')) {
-            return http_parse_headers($raw_headers);
-        }
-
         $key = '';
         $headers = [];
         $items = explode("\n", $raw_headers);
@@ -508,7 +504,7 @@ class Curl
             $item = explode(':', $item, 2);
 
             if (isset($item[1])) {
-                if (! isset($headers[$item[0]])) {
+                if (!isset($headers[$item[0]])) {
                     $headers[$item[0]] = trim($item[1]);
                 } elseif (is_array($headers[$item[0]])) {
                     $headers[$item[0]] = array_merge($headers[$item[0]], [trim($item[1])]);
@@ -519,8 +515,8 @@ class Curl
                 $key = $item[0];
             } else {
                 if (substr((string) $item[0], 0, 1) === "\t") {
-                    $headers[$key] .= "\r\n\t".trim($item[0]);
-                } elseif (! $key) {
+                    $headers[$key] .= "\r\n\t" . trim($item[0]);
+                } elseif (!$key) {
                     $headers[0] = trim($item[0]);
                 }
             }
@@ -541,7 +537,7 @@ class Curl
      */
     public static function body_file($path, $alias = '')
     {
-        if (! is_file($path)) {
+        if (!is_file($path)) {
             throw new \Exception(sprintf('Target file not found: %s', $path));
         }
 
@@ -632,7 +628,7 @@ class Curl
             $name = $parent ? sprintf('%s[%s]', $parent, $key) : $key;
 
             if (class_exists('\CURLFile')) {
-                if (! ($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
+                if (!($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
                     $result = array_merge($result, static::build_curl_query($value, $name));
                 } else {
                     $result[$name] = $value;
@@ -683,14 +679,14 @@ class Curl
         $formatted = [];
 
         foreach ($headers as $key => $value) {
-            $formatted[] = trim(strtolower((string) $key)).': '.$value;
+            $formatted[] = trim(strtolower((string) $key)) . ': ' . $value;
         }
 
-        if (! array_key_exists('user-agent', $headers)) {
-            $formatted[] = 'user-agent: '.static::fake_user_agent();
+        if (!array_key_exists('user-agent', $headers)) {
+            $formatted[] = 'user-agent: ' . static::fake_user_agent();
         }
 
-        if (! array_key_exists('expect', $headers)) {
+        if (!array_key_exists('expect', $headers)) {
             $formatted[] = 'expect:';
         }
 
@@ -724,14 +720,14 @@ class Curl
     private static function encode_url($url)
     {
         $url = parse_url($url);
-        $scheme = $url['scheme'].'://';
+        $scheme = $url['scheme'] . '://';
         $host = (string) $url['host'];
-        $port = isset($url['port']) ? ':'.ltrim((string) $url['port'], ':') : null;
+        $port = isset($url['port']) ? ':' . ltrim((string) $url['port'], ':') : null;
         $path = isset($url['path']) ? (string) $url['path'] : null;
         $query = isset($url['query']) ? (string) $url['query'] : null;
-        $query = $query ? '?'.http_build_query(static::format_query($query)) : '';
+        $query = $query ? '?' . http_build_query(static::format_query($query)) : '';
 
-        return $scheme.$host.$port.$path.$query;
+        return $scheme . $host . $port . $path . $query;
     }
 
     /**

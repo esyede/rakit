@@ -2,52 +2,47 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [System Requirements](#system-requirements)
-- [Installation](#installation)
-    - [Install via Composer](#install-via-composer)
-    - [Manual Installation](#manual-installation)
-- [Problems?](#problems)
-- [Initial Configuration](#initial-configuration)
-- [Pretty URL](#pretty-url)
-    - [Apache](#apache)
-    - [Nginx](#nginx)
+-   [System Requirements](#system-requirements)
+-   [Installation](#installation)
+    -   [Install via Composer](#install-via-composer)
+    -   [Manual Installation](#manual-installation)
+-   [Problems?](#problems)
+-   [Initial Configuration](#initial-configuration)
+-   [Pretty URL](#pretty-url)
+    -   [Apache](#apache)
+    -   [Nginx](#nginx)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="system-requirements"></a>
+
 ## System Requirements
 
-- PHP 5.4.0 to PHP 8
-- [Mbstring](https://www.php.net/manual/en/book.mbstring.php) Extension
-- [OpenSSL](https://www.php.net/manual/en/book.openssl.php) Extension
-- [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) Extension
-
+-   PHP 5.4.0 to PHP 8
+-   [Mbstring](https://www.php.net/manual/en/book.mbstring.php) Extension
+-   [OpenSSL](https://www.php.net/manual/en/book.openssl.php) Extension
+-   [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) Extension
 
 **Additional Extensions:**
 
 Installing the following extensions will help you get the full benefit of rakit, but it is not mandatory:
 
-
-
-- [PDO](https://www.php.net/manual/en/pdo.installation.php) driver for SQLite, MySQL, PostgreSQL, or SQL Server
-- [cURL](https://www.php.net/manual/en/book.curl.php) extension to install packages via the rakit console
-- [GD Image](https://www.php.net/manual/en/book.image.php) extension for image processing.
-
+-   [PDO](https://www.php.net/manual/en/pdo.installation.php) driver for SQLite, MySQL, PostgreSQL, or SQL Server
+-   [cURL](https://www.php.net/manual/en/book.curl.php) extension to install packages via the rakit console
+-   [GD Image](https://www.php.net/manual/en/book.image.php) extension for image processing.
 
 <a id="installation"></a>
+
 ## Installation
 
 Rakit can be installed in 2 very easy ways, namely via [Composer](https://getcomposer.org) and manual installation.
 
-
-
 <a id="install-via-composer"></a>
+
 ### Install via Composer
 
 If you have already installed **Composer** on your computer, installing rakit will be
 very easy, just run the following command:
-
 
 ```bash
 composer create-project esyede/rakit
@@ -56,81 +51,71 @@ composer create-project esyede/rakit
 Then rakit will be installed in the `/rakit` folder, all you need to do is go to that folder
 and run the built-in webserver:
 
-
 ```bash
 cd rakit && php rakit serve
 ```
 
-
 <a id="manual-installation"></a>
+
 ### Manual Installation
 
 Manual installation is also very easy, as easy as counting one to three:
 
-
-  - [Download](https://rakit.esyede.my.id/download) and extract the archive to your web server.
-  - Make sure the `storage/views/` and `assets/` directories are writable.
-  - Done!
+-   [Download](https://rakit.esyede.my.id/download) and extract the archive to your web server.
+-   Make sure the `storage/views/` and `assets/` directories are writable.
+-   Done!
 
 View the results in your favorite web browser.
 If all is going well, you should see the beautiful rakit's splash page.
 
 Get ready, there's a lot more to learn!
 
-
-
 <a id="problems"></a>
+
 ## Problems?
 
 If you're having trouble installing, try some of these suggestions:
 
+-   If you use `mod_rewrite`, change `'index'` configuration options
+    in `application/config/application.php` to an empty string.
 
-- If you use `mod_rewrite`, change `'index'` configuration options
-  in `application/config/application.php` to an empty string.
-
-- Make sure the `storage/` and `assets/` folders and all their child folders are writable.
-
-
+-   Make sure the `storage/` and `assets/` folders and all their child folders are writable.
 
 <a id="initial-configuration"></a>
+
 ## Initial Configuration
 
 All configuration files are stored in the `config/` folder.
 We recommend you to take a look at these files to get basic understandings
 about the configuration options available to you.
 
-
 Pay special attention to the `application/config/application.php` file since it
 contains basic configuration options for your application.
 
-
 > If you use `mod_rewrite`, change `'index'` configuration options
-  in `application/config/application.php` to an empty string.
-
+> in `application/config/application.php` to an empty string.
 
 <a id="pretty-url"></a>
+
 ## Pretty URL
 
 When you are ready to install your application to a production server,
 there are a few important things to keep in mind
 you can do to make sure your application runs as efficiently as possible.
 
-
 In this document, we'll cover some good starting points to make sure
 your application is used properly.
-
 
 Of course, you also don't want your application URL to contain `/index.php`.
 You can remove it with URL Rewrite.
 
-
 <a id="apache"></a>
+
 ### Apache
 
 If your web server is Apache, make sure the `mod_rewrite` module is enabled,
 then create a file named `.htaccess` in the root of your web server
 (next to the `index.php` file) and copy the following code into it:
-
 
 ```apacheconf
 Options -MultiViews -Indexes
@@ -152,7 +137,6 @@ RewriteRule . index.php [L]
 ```
 
 Is the above configuration not working? Try this one:
-
 
 ```apacheconf
 <IfPackage mod_rewrite.c>
@@ -179,14 +163,13 @@ Is the above configuration not working? Try this one:
 ```
 
 <a id="nginx"></a>
+
 ### Nginx
 
 If you deploy your application to a server running Nginx, you can use
 The following configuration file serves as a starting point for configuring your web server.
 
-
 Most likely, this file will need to be adjusted according to your server configuration:
-
 
 ```nginx
 server {
@@ -233,11 +216,8 @@ server {
 }
 ```
 
-
 After you have finished setting up URL rewrite, you need to change the `'index'` option
 in `application/config/application.php` to an empty string.
 
-
->  Each web server has a different method of handling HTTP rewrites,
-   and may also require different configuration rules.
-
+> Each web server has a different method of handling HTTP rewrites,
+> and may also require different configuration rules.

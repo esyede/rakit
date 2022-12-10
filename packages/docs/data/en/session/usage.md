@@ -2,16 +2,16 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Menyimpan Item](#menyimpan-item)
-- [Mengambil Item](#mengambil-item)
-- [Menghapus Item](#menghapus-item)
-- [Flash Item](#flash-item)
-- [Regenerasi](#regenerasi)
+-   [Menyimpan Item](#menyimpan-item)
+-   [Mengambil Item](#mengambil-item)
+-   [Menghapus Item](#menghapus-item)
+-   [Flash Item](#flash-item)
+-   [Regenerasi](#regenerasi)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="menyimpan-item"></a>
+
 ## Menyimpan Item
 
 Menyimpan item kedalam session sangatlah sederhana. Cukup panggil method `put()` seperti ini:
@@ -22,8 +22,8 @@ Session::put('name', 'Budi');
 
 Parameter pertama adalah key ke item cache tersebut. Anda akan menggunakan key ini untuk mengambil item dari cache. Parameter kedua adalah valuenya.
 
-
 <a id="mengambil-item"></a>
+
 ## Mengambil Item
 
 Anda bisa menggunakan method `get()` untuk mengambil item dari session, termasuk flash data. Cukup sebutkan key item mana yang ingin anda ambil:
@@ -50,8 +50,8 @@ if (Session::has('name')) {
 }
 ```
 
-
 <a id="menghapus-item"></a>
+
 ## Menghapus Item
 
 Sekarang tinggal bagaimana menghapus item, kan? Tidak masalah. Cukup oper key dari item yang ingin anda hapus ke method `forget()` seperti ini:
@@ -66,8 +66,8 @@ Anda bahkan dapat menghapus semua item dari sesi menggunakan metode `flush()`:
 Session::flush();
 ```
 
-
 <a id="flash-item"></a>
+
 ## Flash Item
 
 Metode `flash()` menyimpan item kedalam session yang akan kadaluwarsa setelah request berikutnya. Ini berguna untuk menyimpan data sementara seperti status atau pesan error validasi:
@@ -100,8 +100,8 @@ Session::keep(['status', 'other_item']);
 Session::keep('status', 'other_item');
 ```
 
-
 <a id="regenerasi"></a>
+
 ## Regenerasi
 
 Terkadang anda mungkin ingin me-regenerasi" ID sesi. Ini berarti bahwa ID sesi lama akan diganti dengan ID ssi acak yang baru. Begini caranya:

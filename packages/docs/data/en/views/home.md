@@ -2,20 +2,20 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Binding Data Ke View](#binding-data-ke-view)
-- [Nested View](#nested-view)
-- [Named View](#named-view)
-- [View Composer](#view-composer)
-- [Redirect](#redirect)
-- [Redirect Dengan Flash Data](#redirect-dengan-flash-data)
-- [Respon Download](#respon-download)
-- [Respon Error](#respon-error)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Binding Data Ke View](#binding-data-ke-view)
+-   [Nested View](#nested-view)
+-   [Named View](#named-view)
+-   [View Composer](#view-composer)
+-   [Redirect](#redirect)
+-   [Redirect Dengan Flash Data](#redirect-dengan-flash-data)
+-   [Respon Download](#respon-download)
+-   [Respon Error](#respon-error)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 View berisi HTML yang ditampilkan ke pengunjung situs anda. Dengan memisahkan view dari logika bisnis,
@@ -28,10 +28,9 @@ cara sederhana untuk mengambil file view dan menampilkannya ke pengunjung.
 
 ```html
 <html>
-	Aku disimpan di views/home/index.php!
+    Aku disimpan di views/home/index.php!
 </html>
 ```
-
 
 #### Mereturn view dari sebuah rute:
 
@@ -41,7 +40,6 @@ Route::get('/', function () {
 });
 ```
 
-
 #### Mereturn view dari dalam action controller:
 
 ```php
@@ -50,7 +48,6 @@ public function action_index()
 	return View::make('home.index');
 }
 ```
-
 
 #### Memeriksa apakah view ada:
 
@@ -63,7 +60,6 @@ if (View::exists('home.index')) {
 Terkadang anda perlu kendali lebih atas respon yang dikirim ke browser. Misalnya, anda mungkin perlu
 mengirim custom header, atau mengubah HTTP status code. Begini caranya:
 
-
 #### Mereturn respon kustom:
 
 ```php
@@ -74,13 +70,11 @@ Route::get('/', function () {
 });
 ```
 
-
 #### Mereturn respon kustom yang berisi view, dengan binding data:
 
 ```php
 return Response::view('home', ['foo' => 'bar']);
 ```
-
 
 #### Mereturn respon JSON:
 
@@ -88,13 +82,11 @@ return Response::view('home', ['foo' => 'bar']);
 return Response::json(['name' => 'Budi']);
 ```
 
-
 #### Mereturn respon JSONP:
 
 ```php
 return Response::jsonp('myCallback', ['name' => 'Budi']);
 ```
-
 
 #### Mereturn Model dalam bentuk JSON:
 
@@ -102,8 +94,8 @@ return Response::jsonp('myCallback', ['name' => 'Budi']);
 return Response::facile(User::find(1));
 ```
 
-
 <a id="binding-data-ke-view"></a>
+
 ## Binding Data Ke View
 
 Biasanya, rute atau controller akan meminta data dari model yang perlu ditampilkan oleh view.
@@ -119,7 +111,6 @@ Route::get('/', function () {
 });
 ```
 
-
 #### Mengakses data dari dalam view:
 
 ```php
@@ -127,7 +118,6 @@ Route::get('/', function () {
 	Halo, <?php echo $name; ?>.
 </html>
 ```
-
 
 #### Binding beberapa data ke view:
 
@@ -138,13 +128,11 @@ View::make('home')
 	->with('hobby', 'Programming');
 ```
 
-
 #### Menggunakan array untuk binding data:
 
 ```php
 View::make('home', ['name' => 'Andi']);
 ```
-
 
 #### Memanfaatkan `compact()` untuk binding data:
 
@@ -153,7 +141,6 @@ $name = 'Andi';
 
 View::make('home', compact('name'));
 ```
-
 
 #### Memanfaatkan magic method `__set()` untuk binding data:
 
@@ -165,7 +152,6 @@ $view->name  = 'Andi';
 return $view;
 ```
 
-
 #### Memanfaatkan `ArrayAccess` untuk binding data:
 
 ```php
@@ -176,21 +162,19 @@ $view['name']  = 'Andi';
 return $view;
 ```
 
-
 <a id="nested-view"></a>
+
 ## Nested View
 
 Seperti halnya controller, seringkali anda ingin membuat nested view. Nested view ini kadang-kadang
 disebut sebagai partials (parsial) atau potongan-potongan view, ini membantu anda menjaga agar view
 tetap ramping dan fleksibel.
 
-
 #### Membuat nested view menggunakan method `nest()`:
 
 ```php
 View::make('home')->nest('footer', 'partials.footer');
 ```
-
 
 #### Binding data ke nested view:
 
@@ -202,7 +186,6 @@ $view->nest('content', 'orders', ['orders' => $orders]);
 
 Terkadang anda mungkin ingin langsung meng-include suatu view dari dalam view lain.
 Anda dapat memanfaatkan helper `render()`:
-
 
 #### Memanfaatkan helper `render()` untuk menampilkan view:
 
@@ -221,7 +204,6 @@ lalu menampilkan view parsial untuk setiap itemnya.
 
 Caranya sangat sederhana, gunakan helper `render_each()`:
 
-
 #### Render view parsial untuk setiap item dalam array:
 
 ```php
@@ -233,13 +215,12 @@ Caranya sangat sederhana, gunakan helper `render_each()`:
 Parameter pertama adalah nama view parsialnya, yang kedua adalah array datanya, dan yang ketiga adalah
 nama variabel yang harus digunakan ketika setiap item array dioperkan ke view parsial.
 
-
 <a id="named-view"></a>
+
 ## Named View
 
 Named view (view dengan nama) dapat membantu membuat kode anda lebih terorganisir.
 Penggunaannya juga sangat mudah:
-
 
 #### Mendaftarkan sebuah named view:
 
@@ -247,13 +228,11 @@ Penggunaannya juga sangat mudah:
 View::name('layouts.default', 'layout');
 ```
 
-
 #### Mengambil instance dari named view:
 
 ```php
 return View::of('layout');
 ```
-
 
 #### Binding data ke named view:
 
@@ -261,8 +240,8 @@ return View::of('layout');
 return View::of('layout', ['orders' => $orders]);
 ```
 
-
 <a id="view-composer"></a>
+
 ## View Composer
 
 Tunggu dulu, kita tidak sedang membicarakan [composer yang itu](https://getcomposer.org/).
@@ -279,7 +258,6 @@ me-render view anda. Jadi, tidak ada lagi kode-kode acak yang bertebaran di dala
 
 View composer biasanya didaftarkan di file `composers.php`. Contohnya seperti ini:
 
-
 #### Mendaftarkan sebuah view composer untuk view "home":
 
 ```php
@@ -291,7 +269,6 @@ View::composer('home', function ($view) {
 Sekarang setiap kali view `'home'` dimuat, sebuah instance dari kelas `View` akan dioper ke closure
 yang telah anda daftarkan diatas, sehingga anda dapat menyiapkan view sesuai keinginan anda.
 
-
 #### Mendaftarkan sebuah composer yang menangani beberapa view:
 
 ```php
@@ -300,11 +277,10 @@ View::composer(['home', 'profile'], function ($view) {
 });
 ```
 
->  Sebuah file view boleh memiliki lebih dari satu composer.
-
-
+> Sebuah file view boleh memiliki lebih dari satu composer.
 
 <a id="redirect"></a>
+
 ## Redirect
 
 Penting untuk dicatat bahwa baik rute maupun controller memerlukan respon untuk di-return.
@@ -314,13 +290,11 @@ Alih-alih hanya memanggil `Redirect::to()` ketika anda ingin me-redirect user, a
 Perbedaan ini penting karena berbeda dari kebanyakan framework PHP lainnya, dan mungkin mudah untuk
 secara tidak sengaja mengabaikan pentingnya praktik `return` ini.
 
-
 #### Redirect ke URI lain:
 
 ```php
 return Redirect::to('user/profile');
 ```
-
 
 #### Redirect dengan HTTP status kustom:
 
@@ -328,13 +302,11 @@ return Redirect::to('user/profile');
 return Redirect::to('user/profile', 301);
 ```
 
-
 #### Redirect ke root aplikasi:
 
 ```php
 return Redirect::home();
 ```
-
 
 #### Redirect kembali ke action sebelumnya:
 
@@ -342,13 +314,11 @@ return Redirect::home();
 return Redirect::back();
 ```
 
-
 #### Redirect ke named route:
 
 ```php
 return Redirect::to_route('profile');
 ```
-
 
 #### Redirect ke action controller:
 
@@ -360,13 +330,11 @@ Terkadang anda mungkin perlu me-redirect ke named route, tetapi juga perlu menen
 yang harus digunakan, selain URI wildcard bawaan rute. Juga sangat mudah untuk mengganti wildcard
 dengan parameter yang anda inginkan:
 
-
 #### Redirect ke named route dengan wildcard value:
 
 ```php
 return Redirect::to_route('profile', [$username]);
 ```
-
 
 #### Redirect ke action dengan wildcard value:
 
@@ -374,8 +342,8 @@ return Redirect::to_route('profile', [$username]);
 return Redirect::to_action('user@profile', [$username]);
 ```
 
-
 <a id="redirect-dengan-flash-data"></a>
+
 ## Redirect Dengan Flash Data
 
 Setelah user membuat akun ataupun login ke aplikasi anda, biasanya akan ditampilkan pesan
@@ -396,17 +364,15 @@ Anda dapat mengakses pesan ini dari view menggunakan method `Session::get()`:
 
 _Bacaan lebih lanjut:_
 
-- *[Session](/docs/en/session/config)*
-
+-   _[Session](/docs/en/session/config)_
 
 <a id="respon-download"></a>
+
 ## Respon Download
 
 Selain mengirim respon berupa HTML maupun JSON, anda juga dapat mengirim respon berupa download file.
 Hal ini sangat berguna ketika anda perlu mengirim file ke user tanpa harus menunjukkan dimana
 lokasi asli file di server anda.
-
-
 
 #### Mengirim respon download file:
 
@@ -414,15 +380,14 @@ lokasi asli file di server anda.
 return Response::download('path/file.jpg');
 ```
 
-
 #### Mengirim download file dan menentukan nama filenya:
 
 ```php
 return Response::download('path/file.jpg', 'kitten.jpg');
 ```
 
-
 <a id="respon-error"></a>
+
 ## Respon Error
 
 Untuk menghasilkan respon error yang tepat, cukup tentukan HTTP response code yang ingin anda tampilkan.
@@ -432,13 +397,11 @@ akan secara otomatis menampilkannya.
 Jadi, jika view error yang anda butuhkan belum ada, silahkan tambahkan sendiri ke folder tersebut.
 Anda juga boleh mengubah tampilannya sesuai kebutuhan.
 
-
 #### Membuat respon error 404:
 
 ```php
 return Response::error('404');
 ```
-
 
 #### Membuat respon error 500:
 

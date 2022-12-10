@@ -17,11 +17,11 @@ class Hash
      */
     public static function make($password, $cost = 10)
     {
-        if (! is_int($cost) || $cost < 4 || $cost > 31) {
+        if (!is_int($cost) || $cost < 4 || $cost > 31) {
             throw new \Exception('Cost parameter must be an integer between 4 to 31.');
         }
 
-        if (! function_exists('crypt')) {
+        if (!function_exists('crypt')) {
             throw new \Exception('Crypt must be loaded to use the hashing library.');
         }
 
@@ -29,7 +29,7 @@ class Hash
             $password = (string) $password;
         }
 
-        if (! is_string($password)) {
+        if (!is_string($password)) {
             throw new \Exception('Password must be a string.');
         }
 
@@ -41,9 +41,9 @@ class Hash
         );
 
         $salt = mb_substr((string) $salt, 0, 22, '8bit');
-        $hash = crypt($password, sprintf('$2y$%02d$', $cost).$salt);
+        $hash = crypt($password, sprintf('$2y$%02d$', $cost) . $salt);
 
-        if (! is_string($hash) || 60 !== mb_strlen((string) $hash, '8bit')) {
+        if (!is_string($hash) || 60 !== mb_strlen((string) $hash, '8bit')) {
             throw new \Exception('Malformatted password hash result.');
         }
 
@@ -61,15 +61,17 @@ class Hash
      */
     public static function check($password, $hash)
     {
-        if (! function_exists('crypt')) {
+        if (!function_exists('crypt')) {
             throw new \Exception('Crypt must be loaded to use the hashing library.');
         }
 
         $crypt = crypt($password, $hash);
 
-        if (! is_string($crypt)
-        || mb_strlen((string) $crypt, '8bit') !== mb_strlen((string) $hash, '8bit')
-        || mb_strlen((string) $crypt, '8bit') <= 13) {
+        if (
+            !is_string($crypt)
+            || mb_strlen((string) $crypt, '8bit') !== mb_strlen((string) $hash, '8bit')
+            || mb_strlen((string) $crypt, '8bit') <= 13
+        ) {
             return false;
         }
 
@@ -94,12 +96,14 @@ class Hash
      */
     public static function weak($hash, $cost = 10)
     {
-        if (! is_int($cost) || $cost < 4 || $cost > 31) {
+        if (!is_int($cost) || $cost < 4 || $cost > 31) {
             throw new \Exception('Cost parameter must be an integer between 4 to 31.');
         }
 
-        if ('$2y$' === mb_substr((string) $hash, 0, 4, '8bit')
-        && 60 === mb_strlen((string) $hash, '8bit')) {
+        if (
+            '$2y$' === mb_substr((string) $hash, 0, 4, '8bit')
+            && 60 === mb_strlen((string) $hash, '8bit')
+        ) {
             list($strength) = sscanf($hash, '$2y$%d$');
             return $cost !== $strength;
         }

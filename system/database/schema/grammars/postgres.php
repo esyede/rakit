@@ -20,7 +20,7 @@ class Postgres extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-        return 'CREATE TABLE '.$this->wrap($table).' ('.$columns.')';
+        return 'CREATE TABLE ' . $this->wrap($table) . ' (' . $columns . ')';
     }
 
     /**
@@ -34,10 +34,10 @@ class Postgres extends Grammar
     public function add(Table $table, Magic $command)
     {
         $columns = implode(', ', array_map(function ($column) {
-            return 'ADD COLUMN '.$column;
+            return 'ADD COLUMN ' . $column;
         }, $this->columns($table)));
 
-        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }
 
     /**
@@ -52,7 +52,7 @@ class Postgres extends Grammar
         $columns = [];
 
         foreach ($table->columns as $column) {
-            $sql = $this->wrap($column).' '.$this->type($column);
+            $sql = $this->wrap($column) . ' ' . $this->type($column);
             $sql .= $this->incrementer($table, $column);
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
@@ -85,8 +85,8 @@ class Postgres extends Grammar
      */
     protected function defaults(Table $table, Magic $column)
     {
-        if (! is_null($column->default)) {
-            return " DEFAULT '".$this->default_value($column->default)."'";
+        if (!is_null($column->default)) {
+            return " DEFAULT '" . $this->default_value($column->default) . "'";
         }
     }
 
@@ -116,7 +116,7 @@ class Postgres extends Grammar
     public function primary(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-        return 'ALTER TABLE '.$this->wrap($table).' ADD PRIMARY KEY ('.$columns.')';
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ADD PRIMARY KEY (' . $columns . ')';
     }
 
     /**
@@ -132,7 +132,7 @@ class Postgres extends Grammar
         $table = $this->wrap($table);
         $columns = $this->columnize($command->columns);
 
-        return 'ALTER TABLE '.$table.' ADD CONSTRAINT '.$command->name.' UNIQUE ('.$columns.')';
+        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $command->name . ' UNIQUE (' . $columns . ')';
     }
 
     /**
@@ -146,7 +146,7 @@ class Postgres extends Grammar
     public function fulltext(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-        return 'CREATE INDEX '.$command->name.' ON '.$this->wrap($table).' USING gin('.$columns.')';
+        return 'CREATE INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' USING gin(' . $columns . ')';
     }
 
     /**
@@ -176,7 +176,7 @@ class Postgres extends Grammar
         $columns = $this->columnize($command->columns);
         $create = $unique ? 'CREATE UNIQUE' : 'CREATE';
 
-        return $create.' INDEX '.$command->name.' ON '.$this->wrap($table).' ('.$columns.')';
+        return $create . ' INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' (' . $columns . ')';
     }
 
     /**
@@ -189,7 +189,7 @@ class Postgres extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' RENAME TO '.$this->wrap($command->name);
+        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME TO ' . $this->wrap($command->name);
     }
 
     /**
@@ -204,10 +204,10 @@ class Postgres extends Grammar
     {
         $columns = array_map([$this, 'wrap'], $command->columns);
         $columns = implode(', ', array_map(function ($column) {
-            return 'DROP COLUMN '.$column;
+            return 'DROP COLUMN ' . $column;
         }, $columns));
 
-        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }
 
     /**
@@ -220,7 +220,7 @@ class Postgres extends Grammar
      */
     public function drop_primary(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT '.$table->name.'_pkey';
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT ' . $table->name . '_pkey';
     }
 
     /**
@@ -272,7 +272,7 @@ class Postgres extends Grammar
      */
     protected function drop_key(Table $table, Magic $command)
     {
-        return 'DROP INDEX '.$command->name;
+        return 'DROP INDEX ' . $command->name;
     }
 
     /**
@@ -297,7 +297,7 @@ class Postgres extends Grammar
      */
     protected function type_string(Magic $column)
     {
-        return 'VARCHAR('.$column->length.')';
+        return 'VARCHAR(' . $column->length . ')';
     }
 
     /**
@@ -333,7 +333,7 @@ class Postgres extends Grammar
      */
     protected function type_decimal(Magic $column)
     {
-        return 'DECIMAL('.$column->precision.', '.$column->scale.')';
+        return 'DECIMAL(' . $column->precision . ', ' . $column->scale . ')';
     }
 
     /**

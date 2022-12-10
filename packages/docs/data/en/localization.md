@@ -2,14 +2,14 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#pengetahuan-dasar)
-- [Retrieving A Language Line](#mengambil-baris-bahasa)
-- [Placeholder & Replacement](#placeholder--replacement)
+-   [Basic Knowledge](#pengetahuan-dasar)
+-   [Retrieving A Language Line](#mengambil-baris-bahasa)
+-   [Placeholder & Replacement](#placeholder--replacement)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Basic Knowledge
 
 Localization is the process of translating your application into different languages.
@@ -44,6 +44,7 @@ return [
 
 Next, you should create a corresponding `marketing.php` file within
 the `application/language/id/` directory. The file would look something like this:
+
 ```php
 return [
 
@@ -55,8 +56,8 @@ return [
 Nice! Now you know how to get started setting up your language files and directories.
 Let's keep localizing!
 
-
 <a id="mengambil-baris-bahasa"></a>
+
 ## Retrieving A Language Line
 
 #### Retrieving a language line:
@@ -84,8 +85,8 @@ Getting a language line in a given language:
 echo Lang::line('marketing.welcome')->get('fr');
 ```
 
-
 <a id="placeholder--replacement"></a>
+
 ## Placeholder & Replacement
 
 Now, let's work on our welcome message. _"Selamat datang di situs kami!"_ is a pretty generic message.

@@ -13,7 +13,7 @@ require 'paths.php';
 // --------------------------------------------------------------
 // Panggil core bootstrapper.
 // --------------------------------------------------------------
-require path('system').'core.php';
+require path('system') . 'core.php';
 
 // --------------------------------------------------------------
 // Boot paket default.

@@ -107,8 +107,10 @@ class Container
             ? static::build($resolver, $parameters)
             : static::resolve($resolver);
 
-        if (isset(static::$registry[$type]['singleton'])
-        && true === static::$registry[$type]['singleton']) {
+        if (
+            isset(static::$registry[$type]['singleton'])
+            && true === static::$registry[$type]['singleton']
+        ) {
             static::$singletons[$type] = $object;
         }
 
@@ -133,7 +135,7 @@ class Container
 
         $reflector = new \ReflectionClass($type);
 
-        if (! $reflector->isInstantiable()) {
+        if (!$reflector->isInstantiable()) {
             throw new \Exception(sprintf('Resolution target is not instantiable: %s', $type));
         }
 

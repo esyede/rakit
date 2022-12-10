@@ -28,6 +28,6 @@ class Route extends Command
         $route = Router::route(Request::method(), $_SERVER['REQUEST_URI']);
         $route = is_null($route) ? '404: Not Found' : $route->response();
 
-        dd($route.PHP_EOL);
+        dd($route . PHP_EOL);
     }
 }

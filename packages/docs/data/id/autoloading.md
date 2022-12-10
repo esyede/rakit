@@ -2,17 +2,17 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mendaftarkan Folder](#mendaftarkan-folder)
-- [Mendaftarkan Mapping](#mendaftarkan-mapping)
-- [Mendaftarkan Namespace](#mendaftarkan-namespace)
-- [Composer Autoloader](#composer-autoloader)
-    - [Catatan untuk folder vendor](#catatan-untuk-folder-vendor)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Mendaftarkan Folder](#mendaftarkan-folder)
+-   [Mendaftarkan Mapping](#mendaftarkan-mapping)
+-   [Mendaftarkan Namespace](#mendaftarkan-namespace)
+-   [Composer Autoloader](#composer-autoloader)
+    -   [Catatan untuk folder vendor](#catatan-untuk-folder-vendor)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Autoloading memungkinkan anda untuk me-lazyload file kelas (memuat file kelas saat dibutuhkan saja)
@@ -34,8 +34,8 @@ Anda juga boleh menaruhnya kedalam subfolder. Cukup beri namespace kelasnya meng
 struktur folder yang anda buat. Jadi, kelas `Entities\User` harus ditaruh ke
 file `entities/user.php` didalam folder `models/`.
 
-
 <a id="mendaftarkan-folder"></a>
+
 ## Mendaftarkan Folder
 
 Seperti yang sudah dijelaskan diatas, folder `models/` dan `libraries/` secara default
@@ -51,8 +51,8 @@ Autoloader::directories([
 ]);
 ```
 
-
 <a id="mendaftarkan-mapping"></a>
+
 ## Mendaftarkan Mapping
 
 Terkadang anda mungkin ingin memetakan kelas secara manual ke file terkaitnya. Ini adalah cara
@@ -68,8 +68,8 @@ Autoloader::map([
 ]);
 ```
 
-
 <a id="mendaftarkan-namespace"></a>
+
 ## Mendaftarkan Namespace
 
 Banyak library pihak ketiga menggunakan standar PSR-4 dan PSR-0 untuk meng-autoload kelasnya.
@@ -109,6 +109,7 @@ Autoloader::underscored([
 ```
 
 <a id="composer-autoloader"></a>
+
 ## Composer Autoloader
 
 Tentunya anda pernah menggunakan [Composer](https://getcomposer.org). Composer umumnya
@@ -126,12 +127,11 @@ Jadi misalkan file autoload anda berada di `<root>/vendor/autoload.php` maka dii
 'composer_autoload' => path('base').'vendor/autoload.php',
 ```
 
->  Jika file autoload gagal dimuat karena path salah ataupun sebab yang lain,
-   aplikasi anda akan terus berjalan tanpa menampilkan error.
-
-
+> Jika file autoload gagal dimuat karena path salah ataupun sebab yang lain,
+> aplikasi anda akan terus berjalan tanpa menampilkan error.
 
 <a id="catatan-untuk-folder-vendor"></a>
+
 ### Catatan untuk folder vendor
 
 Patut diingat bahwa pada keadaan default, **tidak ada proteksi** yang disediakan jika
@@ -141,14 +141,11 @@ dapat diakses olek publik.
 Hal ini tentu sangat berbahaya karena mereka akan tahu library apa saja yang anda gunakan.
 Untuk itu, kami menyediakan beberapa opsi untuk menangani hal ini:
 
-
 #### Opsi 1: Rewrite URL
 
 Jika anda menggunakan Apache atau Nginx, ikuti panduan
 [mempercantik url](/docs/id/install#mempercantik-url) karena pada fitur tersebut, kami telah
 sekaligus menyediakan rule untuk memproteksi folder vendor.
-
-
 
 #### Opsi 2: Taruh diatas document root
 

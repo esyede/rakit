@@ -43,7 +43,7 @@ class Firelog
      */
     public function log($message, $priority = self::DEBUG)
     {
-        if (! isset($_SERVER['HTTP_X_FIRELOGGER']) || headers_sent()) {
+        if (!isset($_SERVER['HTTP_X_FIRELOGGER']) || headers_sent()) {
             return false;
         }
 
@@ -51,7 +51,7 @@ class Firelog
             'name' => 'PHP',
             'level' => $priority,
             'order' => count($this->payload['logs']),
-            'time' => str_pad(number_format((microtime(true) - Debugger::$time) * 1000, 1, '.', ' '), 8, '0', STR_PAD_LEFT).' ms',
+            'time' => str_pad(number_format((microtime(true) - Debugger::$time) * 1000, 1, '.', ' '), 8, '0', STR_PAD_LEFT) . ' ms',
             'template' => '',
             'message' => '',
             'style' => 'background:#767ab6',
@@ -67,23 +67,27 @@ class Firelog
             $e = array_shift($args);
             $trace = $e->getTrace();
 
-            if (isset($trace[0]['class'])
-            && 'System\Foundation\Oops\Debugger' === $trace[0]['class']
-            && ('shutdownHandler' === $trace[0]['function'] || 'errorHandler' === $trace[0]['function'])) {
+            if (
+                isset($trace[0]['class'])
+                && 'System\Foundation\Oops\Debugger' === $trace[0]['class']
+                && ('shutdownHandler' === $trace[0]['function'] || 'errorHandler' === $trace[0]['function'])
+            ) {
                 unset($trace[0]);
             }
 
             $file = str_replace(dirname(dirname(dirname($e->getFile()))), "\xE2\x80\xA6", $e->getFile());
-            $item['template'] = (($e instanceof \ErrorException) ? '' : Helpers::getClass($e).': ')
-                .$e->getMessage().($e->getCode() ? ' #'.$e->getCode() : '').' in '.$file.':'.$e->getLine();
+            $item['template'] = (($e instanceof \ErrorException) ? '' : Helpers::getClass($e) . ': ')
+                . $e->getMessage() . ($e->getCode() ? ' #' . $e->getCode() : '') . ' in ' . $file . ':' . $e->getLine();
             $item['pathname'] = $e->getFile();
             $item['lineno'] = $e->getLine();
         } else {
             $trace = debug_backtrace();
 
-            if (isset($trace[1]['class'])
-            && 'System\Foundation\Oops\Debugger' === $trace[1]['class']
-            && ('fireLog' === $trace[1]['function'])) {
+            if (
+                isset($trace[1]['class'])
+                && 'System\Foundation\Oops\Debugger' === $trace[1]['class']
+                && ('fireLog' === $trace[1]['function'])
+            ) {
                 unset($trace[0]);
             }
 
@@ -105,8 +109,10 @@ class Firelog
             $item['exc_frames'][] = $frame['args'];
         }
 
-        if (isset($args[0])
-        && in_array($args[0], [self::DEBUG, self::INFO, self::WARNING, self::ERROR, self::CRITICAL], true)) {
+        if (
+            isset($args[0])
+            && in_array($args[0], [self::DEBUG, self::INFO, self::WARNING, self::ERROR, self::CRITICAL], true)
+        ) {
             $item['level'] = array_shift($args);
         }
 
@@ -144,7 +150,7 @@ class Firelog
 
             if (isset($var[$marker])) {
                 return "\xE2\x80\xA6RECURSION\xE2\x80\xA6";
-            } elseif ($level < $this->maxDepth || ! $this->maxDepth) {
+            } elseif ($level < $this->maxDepth || !$this->maxDepth) {
                 $var[$marker] = true;
                 $res = [];
 
@@ -166,9 +172,9 @@ class Firelog
 
             if (in_array($var, $list, true)) {
                 return "\xE2\x80\xA6RECURSION\xE2\x80\xA6";
-            } elseif ($level < $this->maxDepth || ! $this->maxDepth) {
+            } elseif ($level < $this->maxDepth || !$this->maxDepth) {
                 $list[] = $var;
-                $res = ["\x00" => '(object) '.Helpers::getClass($var)];
+                $res = ["\x00" => '(object) ' . Helpers::getClass($var)];
 
                 foreach ($arr as $k => &$v) {
                     if (isset($k[0]) && "\x00" === $k[0]) {
@@ -185,7 +191,7 @@ class Firelog
 
             return " \xE2\x80\xA6 ";
         } elseif (is_resource($var)) {
-            return 'resource '.get_resource_type($var);
+            return 'resource ' . get_resource_type($var);
         }
 
         return 'unknown type';

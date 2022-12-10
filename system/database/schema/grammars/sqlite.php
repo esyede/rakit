@@ -21,14 +21,14 @@ class SQLite extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-        $sql = 'CREATE TABLE '.$this->wrap($table).' ('.$columns;
+        $sql = 'CREATE TABLE ' . $this->wrap($table) . ' (' . $columns;
         $primary = Arr::first($table->commands, function ($key, $value) {
             return ('primary' === $value->type);
         });
 
-        if (! is_null($primary)) {
+        if (!is_null($primary)) {
             $columns = $this->columnize($primary->columns);
-            $sql .= ', PRIMARY KEY ('.$columns.')';
+            $sql .= ', PRIMARY KEY (' . $columns . ')';
         }
 
         return $sql .= ')';
@@ -45,13 +45,13 @@ class SQLite extends Grammar
     public function add(Table $table, Magic $command)
     {
         $columns = array_map(function ($column) {
-            return 'ADD COLUMN '.$column;
+            return 'ADD COLUMN ' . $column;
         }, $this->columns($table));
 
         $sql = [];
 
         foreach ($columns as $column) {
-            $sql[] = 'ALTER TABLE '.$this->wrap($table).' '.$column;
+            $sql[] = 'ALTER TABLE ' . $this->wrap($table) . ' ' . $column;
         }
 
         return $sql;
@@ -69,7 +69,7 @@ class SQLite extends Grammar
         $columns = [];
 
         foreach ($table->columns as $column) {
-            $sql = $this->wrap($column).' '.$this->type($column);
+            $sql = $this->wrap($column) . ' ' . $this->type($column);
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
             $sql .= $this->incrementer($table, $column);
@@ -102,8 +102,8 @@ class SQLite extends Grammar
      */
     protected function defaults(Table $table, Magic $column)
     {
-        if (! is_null($column->default)) {
-            return ' DEFAULT '.$this->wrap($this->default_value($column->default));
+        if (!is_null($column->default)) {
+            return ' DEFAULT ' . $this->wrap($this->default_value($column->default));
         }
     }
 
@@ -146,7 +146,7 @@ class SQLite extends Grammar
     public function fulltext(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-        return 'CREATE VIRTUAL TABLE '.$this->wrap($table).' USING fts4('.$columns.')';
+        return 'CREATE VIRTUAL TABLE ' . $this->wrap($table) . ' USING fts4(' . $columns . ')';
     }
 
     /**
@@ -176,7 +176,7 @@ class SQLite extends Grammar
         $columns = $this->columnize($command->columns);
         $create = $unique ? 'CREATE UNIQUE' : 'CREATE';
 
-        return $create.' INDEX '.$command->name.' ON '.$this->wrap($table).' ('.$columns.')';
+        return $create . ' INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' (' . $columns . ')';
     }
 
     /**
@@ -189,7 +189,7 @@ class SQLite extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' RENAME TO '.$this->wrap($command->name);
+        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME TO ' . $this->wrap($command->name);
     }
 
     /**
@@ -228,7 +228,7 @@ class SQLite extends Grammar
      */
     protected function drop_key(Table $table, Magic $command)
     {
-        return 'DROP INDEX '.$this->wrap($command->name);
+        return 'DROP INDEX ' . $this->wrap($command->name);
     }
 
     /**

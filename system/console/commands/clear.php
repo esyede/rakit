@@ -13,7 +13,7 @@ class Clear extends Command
      */
     public function blade(array $arguments = [])
     {
-        $files = glob(path('storage').'views'.DS.'*.bc.php');
+        $files = glob(path('storage') . 'views' . DS . '*.bc.php');
 
         if (is_array($files) && count($files) > 0) {
             foreach ($files as $file) {
@@ -21,7 +21,7 @@ class Clear extends Command
             }
         }
 
-        echo 'Blade cache files cleared successfully.'.PHP_EOL;
+        echo 'Blade cache files cleared successfully.' . PHP_EOL;
     }
 
     /**
@@ -31,7 +31,7 @@ class Clear extends Command
      */
     public function logs(array $arguments = [])
     {
-        $files = glob(path('storage').'logs'.DS.'*');
+        $files = glob(path('storage') . 'logs' . DS . '*');
 
         if (is_array($files) && count($files) > 0) {
             $preserves = [
@@ -42,12 +42,12 @@ class Clear extends Command
             ];
 
             foreach ($files as $file) {
-                if (! in_array(basename((string) $file), $preserves)) {
+                if (!in_array(basename((string) $file), $preserves)) {
                     @unlink($file);
                 }
             }
         }
 
-        echo 'Log files cleared successfully.'.PHP_EOL;
+        echo 'Log files cleared successfully.' . PHP_EOL;
     }
 }

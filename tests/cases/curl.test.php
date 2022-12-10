@@ -320,7 +320,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testUpload()
     {
-        $body = Curl::body_multipart(['name' => 'Budi'], ['file' => __DIR__.DS.'index.html']);
+        $body = Curl::body_multipart(['name' => 'Budi'], ['file' => __DIR__ . DS . 'index.html']);
         $response = Curl::post('https://mockbin.com/request', ['Accept' => 'application/json'], $body);
 
         $this->assertEquals(200, $response->code);
@@ -335,7 +335,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
             'Accept' => 'application/json',
         ], [
             'name' => 'Budi',
-            'file' => Curl::body_file(__DIR__.DS.'index.html'),
+            'file' => Curl::body_file(__DIR__ . DS . 'index.html'),
         ]);
 
         $this->assertEquals(200, $response->code);
@@ -350,7 +350,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
             'Accept' => 'application/json',
         ], [
             'name' => 'Budi',
-            'files[owl.gif]' => Curl::body_file(__DIR__.DS.'index.html'),
+            'files[owl.gif]' => Curl::body_file(__DIR__ . DS . 'index.html'),
         ]);
 
         $this->assertEquals(200, $response->code);

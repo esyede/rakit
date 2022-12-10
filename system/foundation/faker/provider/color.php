@@ -43,13 +43,13 @@ class Color extends Base
 
     public static function hexColor()
     {
-        return '#'.str_pad(dechex(mt_rand(1, 16777215)), 6, '0', STR_PAD_LEFT);
+        return '#' . str_pad(dechex(mt_rand(1, 16777215)), 6, '0', STR_PAD_LEFT);
     }
 
     public static function safeHexColor()
     {
         $color = str_pad(dechex(mt_rand(0, 255)), 3, '0', STR_PAD_LEFT);
-        return '#'.$color[0].$color[0].$color[1].$color[1].$color[2].$color[2];
+        return '#' . $color[0] . $color[0] . $color[1] . $color[1] . $color[2] . $color[2];
     }
 
     public static function rgbColorAsArray()
@@ -69,7 +69,7 @@ class Color extends Base
 
     public static function rgbCssColor()
     {
-        return 'rgb('.static::rgbColor().')';
+        return 'rgb(' . static::rgbColor() . ')';
     }
 
     public static function safeColorName()

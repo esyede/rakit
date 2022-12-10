@@ -1,7 +1,10 @@
 {
     "name": "esyede/rakit",
     "description": "Rakit Web Framework",
-    "keywords": ["rakit", "framework"],
+    "keywords": [
+        "rakit",
+        "framework"
+    ],
     "homepage": "https://rakit.esyede.my.id/",
     "type": "project",
     "license": "MIT",
@@ -18,7 +21,9 @@
         "forum": "https://rakit.esyede.my.id/forum/",
         "source": "https://github.com/esyede/rakit"
     },
-    "bin": ["rakit"],
+    "bin": [
+        "rakit"
+    ],
     "require": {
         "php": ">=5.4.0",
         "ext-json": "*",
@@ -46,15 +51,17 @@
         }
     },
     "scripts": {
-        "post-create-project-cmd": ["@php rakit key:generate"]
-      },
-      "config": {
+        "post-create-project-cmd": [
+            "@php rakit key:generate"
+        ]
+    },
+    "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "allow-plugins": {
             "cweagans/composer-patches": true
         }
-      },
-      "minimum-stability": "dev",
-      "prefer-stable": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

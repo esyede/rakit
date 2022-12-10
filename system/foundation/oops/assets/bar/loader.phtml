@@ -6,16 +6,16 @@ defined('DS') or exit('No direct script access.');
 
 $baseUrl = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 $baseUrl .= (false === strpos($baseUrl, '?')) ? '?' : '&';
-$nonceAttr = $nonce ? ' nonce="'.Helpers::escapeHtml($nonce).'"' : '';
+$nonceAttr = $nonce ? ' nonce="' . Helpers::escapeHtml($nonce) . '"' : '';
 $asyncAttr = $async ? ' async' : '';
 ?>
-<?php if (empty($content)): ?>
-<script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=<?php echo urlencode("content.$contentId") ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>"<?php echo $asyncAttr, $nonceAttr ?>></script>
-<?php else: ?>
+<?php if (empty($content)) : ?>
+    <script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=<?php echo urlencode("content.$contentId") ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>" <?php echo $asyncAttr, $nonceAttr ?>></script>
+<?php else : ?>
 
-<!-- Rakit debug bar -->
-<script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=js&amp;v=<?php echo urlencode(RAKIT_VERSION) ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>"<?php echo $nonceAttr ?>></script>
-<script<?php echo $nonceAttr ?>>
-Oops.Debug.init(<?php echo str_replace('<!--', '<\!--', json_encode($content).', '.json_encode($dumps)) ?>);
-</script>
-<?php endif ?>
+    <!-- Rakit debug bar -->
+    <script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=js&amp;v=<?php echo urlencode(RAKIT_VERSION) ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>" <?php echo $nonceAttr ?>></script>
+    <script<?php echo $nonceAttr ?>>
+        Oops.Debug.init(<?php echo str_replace('<!--', '<\!--', json_encode($content) . ', ' . json_encode($dumps)) ?>);
+        </script>
+    <?php endif ?>

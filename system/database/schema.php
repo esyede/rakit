@@ -36,37 +36,38 @@ class Schema
     {
         $connection = DB::connection($connection);
         $driver = $connection->driver();
-        $database = Config::get('database.connections.'.$driver.'.database');
+        $database = Config::get('database.connections.' . $driver . '.database');
         $database = DB::escape($database);
 
         $query = '';
 
         switch ($driver) {
             case 'mysql':
-                $query = 'SELECT table_name FROM information_schema.tables'.
-                    " WHERE table_type='BASE TABLE' AND table_schema=".$database.
+                $query = 'SELECT table_name FROM information_schema.tables' .
+                    " WHERE table_type='BASE TABLE' AND table_schema=" . $database .
                     " AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
                 break;
 
             case 'pgsql':
-                $query = 'SELECT table_name FROM information_schema.tables'.
+                $query = 'SELECT table_name FROM information_schema.tables' .
                     " WHERE table_schema='public' AND table_type='BASE TABLE'";
                 break;
 
             case 'sqlite':
-                $query = 'SELECT table_name FROM sqlite_master'.
+                $query = 'SELECT table_name FROM sqlite_master' .
                     " WHERE type = 'table' AND table_name NOT LIKE 'sqlite_%'";
                 break;
 
             case 'sqlsrv':
-                $query = 'SELECT table_name FROM information_schema.tables'.
-                    " WHERE table_type='BASE TABLE' AND table_catalog=".$database.
+                $query = 'SELECT table_name FROM information_schema.tables' .
+                    " WHERE table_type='BASE TABLE' AND table_catalog=" . $database .
                     " AND table_name <> 'sysdiagrams'";
                 break;
 
             default:
                 throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s', $driver
+                    'Unsupported schema operations for selected driver: %s',
+                    $driver
                 ));
                 break;
         }
@@ -92,7 +93,7 @@ class Schema
     {
         $connection = DB::connection($connection);
         $driver = $connection->driver();
-        $database = Config::get('database.connections.'.$driver.'.database');
+        $database = Config::get('database.connections.' . $driver . '.database');
         $database = DB::escape($database);
         $table = DB::escape($table);
 
@@ -100,25 +101,26 @@ class Schema
 
         switch ($driver) {
             case 'mysql':
-                $query = 'SELECT column_name FROM information_schema.columns '.
-                    'WHERE table_schema='.$database.' AND table_name='.$table;
+                $query = 'SELECT column_name FROM information_schema.columns ' .
+                    'WHERE table_schema=' . $database . ' AND table_name=' . $table;
                 break;
 
             case 'pgsql':
-                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name='.$table;
+                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name=' . $table;
                 break;
 
             case 'sqlite':
-                $query = 'PRAGMA table_info('.str_replace('.', '__', $table).')';
+                $query = 'PRAGMA table_info(' . str_replace('.', '__', $table) . ')';
                 break;
 
             case 'sqlsrv':
-                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name=N'.$table;
+                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name=N' . $table;
                 break;
 
             default:
                 throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s', $driver
+                    'Unsupported schema operations for selected driver: %s',
+                    $driver
                 ));
                 break;
         }
@@ -174,17 +176,24 @@ class Schema
         $driver = $connection->driver();
 
         switch ($driver) {
-            case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=1;'; break;
-            case 'pqsql':  $query = 'SET CONSTRAINTS ALL IMMEDIATE;'; break;
-            case 'sqlite': $query = 'PRAGMA foreign_keys = ON;'; break;
+            case 'mysql':
+                $query = 'SET FOREIGN_KEY_CHECKS=1;';
+                break;
+            case 'pqsql':
+                $query = 'SET CONSTRAINTS ALL IMMEDIATE;';
+                break;
+            case 'sqlite':
+                $query = 'PRAGMA foreign_keys = ON;';
+                break;
             case 'sqlsrv':
-                $query = 'EXEC sp_msforeachtable @command1="print \''.$table.'\'", '.
-                    '@command2="ALTER TABLE '.$table.' WITH CHECK CHECK CONSTRAINT all";';
+                $query = 'EXEC sp_msforeachtable @command1="print \'' . $table . '\'", ' .
+                    '@command2="ALTER TABLE ' . $table . ' WITH CHECK CHECK CONSTRAINT all";';
                 break;
 
             default:
                 throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s', $driver
+                    'Unsupported schema operations for selected driver: %s',
+                    $driver
                 ));
                 break;
         }
@@ -211,16 +220,23 @@ class Schema
         $driver = $connection->driver();
 
         switch ($driver) {
-            case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=0;'; break;
-            case 'pqsql':  $query = 'SET CONSTRAINTS ALL DEFERRED;'; break;
-            case 'sqlite': $query = 'PRAGMA foreign_keys = OFF;'; break;
+            case 'mysql':
+                $query = 'SET FOREIGN_KEY_CHECKS=0;';
+                break;
+            case 'pqsql':
+                $query = 'SET CONSTRAINTS ALL DEFERRED;';
+                break;
+            case 'sqlite':
+                $query = 'PRAGMA foreign_keys = OFF;';
+                break;
             case 'sqlsrv':
-                $query = 'EXEC sp_msforeachtable "ALTER TABLE '.$table.' NOCHECK CONSTRAINT all";';
+                $query = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";';
                 break;
 
             default:
                 throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s', $driver
+                    'Unsupported schema operations for selected driver: %s',
+                    $driver
                 ));
                 break;
         }
@@ -256,7 +272,7 @@ class Schema
      */
     public static function create_if_not_exists($table, \Closure $builder)
     {
-        if (! static::has_table($table)) {
+        if (!static::has_table($table)) {
             static::create($table, $builder);
         }
     }
@@ -333,7 +349,7 @@ class Schema
      */
     protected static function implications($table)
     {
-        if (count($table->columns) > 0 && ! $table->creating()) {
+        if (count($table->columns) > 0 && !$table->creating()) {
             $command = new Magic(['type' => 'add']);
             array_unshift($table->commands, $command);
         }
@@ -356,7 +372,7 @@ class Schema
     /**
      * Mereturn query grammar yang sesuai untuk driver database saat ini.
      *
-     * @param Connection $connection
+     * @param \System\Database\Connection $connection
      *
      * @return Grammar
      */
@@ -370,13 +386,19 @@ class Schema
         }
 
         switch ($driver) {
-            case 'mysql':  return new Schema\Grammars\MySQL($connection);
-            case 'pgsql':  return new Schema\Grammars\Postgres($connection);
-            case 'sqlsrv': return new Schema\Grammars\SQLServer($connection);
-            case 'sqlite': return new Schema\Grammars\SQLite($connection);
-            default:       throw new \Exception(sprintf(
-                'Unsupported schema operations for selected driver: %s', $driver
-            ));
+            case 'mysql':
+                return new Schema\Grammars\MySQL($connection);
+            case 'pgsql':
+                return new Schema\Grammars\Postgres($connection);
+            case 'sqlsrv':
+                return new Schema\Grammars\SQLServer($connection);
+            case 'sqlite':
+                return new Schema\Grammars\SQLite($connection);
+            default:
+                throw new \Exception(sprintf(
+                    'Unsupported schema operations for selected driver: %s',
+                    $driver
+                ));
         }
     }
 }

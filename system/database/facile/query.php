@@ -164,7 +164,7 @@ class Query
         $query->table->reset_where();
         $query->eagerly_constrain($results);
 
-        if (! is_null($constraints)) {
+        if (!is_null($constraints)) {
             $query->table->where_nested($constraints);
         }
 
@@ -185,8 +185,8 @@ class Query
         $with = $this->model_with();
 
         foreach ($with as $eagerload => $constraints) {
-            if (Str::starts_with($eagerload, $relationship.'.')) {
-                $nested[substr((string) $eagerload, strlen((string) $relationship.'.'))] = $constraints;
+            if (Str::starts_with($eagerload, $relationship . '.')) {
+                $nested[substr((string) $eagerload, strlen((string) $relationship . '.'))] = $constraints;
             }
         }
 

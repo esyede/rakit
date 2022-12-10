@@ -8,7 +8,7 @@ class Iban
 {
     public static function checksum($iban)
     {
-        $string = substr((string) $iban, 4).substr((string) $iban, 0, 2).'00';
+        $string = substr((string) $iban, 4) . substr((string) $iban, 0, 2) . '00';
         $string = preg_replace_callback('/[A-Z]/', ['self', 'alphaToNumberCallback'], $string);
         return str_pad(98 - self::mod97($string), 2, '0', STR_PAD_LEFT);
     }

@@ -27,9 +27,9 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testMapsCanBeRegistered()
     {
-        Autoloader::map(['Foo' => path('app').'models'.DS.'foo.php']);
+        Autoloader::map(['Foo' => path('app') . 'models' . DS . 'foo.php']);
 
-        $this->assertEquals(path('app').'models'.DS.'foo.php', Autoloader::$mappings['Foo']);
+        $this->assertEquals(path('app') . 'models' . DS . 'foo.php', Autoloader::$mappings['Foo']);
     }
 
     /**
@@ -52,12 +52,12 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     public function testPsrDirectoriesCanBeRegistered()
     {
         Autoloader::directories([
-            path('app').'foo'.DS.'bar',
-            path('app').'foo'.DS.'baz'.DS.DS, // test trim()
+            path('app') . 'foo' . DS . 'bar',
+            path('app') . 'foo' . DS . 'baz' . DS . DS, // test trim()
         ]);
 
-        $this->assertTrue(in_array(path('app').'foo'.DS.'bar'.DS, Autoloader::$directories));
-        $this->assertTrue(in_array(path('app').'foo'.DS.'baz'.DS, Autoloader::$directories));
+        $this->assertTrue(in_array(path('app') . 'foo' . DS . 'bar' . DS, Autoloader::$directories));
+        $this->assertTrue(in_array(path('app') . 'foo' . DS . 'baz' . DS, Autoloader::$directories));
     }
 
     /**
@@ -68,12 +68,12 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     public function testNamespacesCanBeRegistered()
     {
         Autoloader::namespaces([
-            'NsOne' => path('package').'autoload'.DS.'models',
-            'NsTwo' => path('package').'autoload'.DS.'libraries'.DS.DS,
+            'NsOne' => path('package') . 'autoload' . DS . 'models',
+            'NsTwo' => path('package') . 'autoload' . DS . 'libraries' . DS . DS,
         ]);
 
-        $this->assertEquals(path('package').'autoload'.DS.'models'.DS, Autoloader::$namespaces['NsOne\\']);
-        $this->assertEquals(path('package').'autoload'.DS.'libraries'.DS, Autoloader::$namespaces['NsTwo\\']);
+        $this->assertEquals(path('package') . 'autoload' . DS . 'models' . DS, Autoloader::$namespaces['NsOne\\']);
+        $this->assertEquals(path('package') . 'autoload' . DS . 'libraries' . DS, Autoloader::$namespaces['NsTwo\\']);
     }
 
     /**
@@ -94,7 +94,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testHardcodedClassesCanBeLoaded()
     {
-        Autoloader::map(['Hardcoded' => path('app').'models'.DS.'hardcoded.php']);
+        Autoloader::map(['Hardcoded' => path('app') . 'models' . DS . 'hardcoded.php']);
 
         $this->assertInstanceOf('Hardcoded', new Hardcoded());
     }
@@ -106,7 +106,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
      */
     public function testClassesMappedByNamespaceCanBeLoaded()
     {
-        Autoloader::namespaces(['Dashboard' => path('package').'dashboard'.DS.'models']);
+        Autoloader::namespaces(['Dashboard' => path('package') . 'dashboard' . DS . 'models']);
 
         $this->assertInstanceOf('Dashboard\Repository', new Dashboard\Repository());
     }

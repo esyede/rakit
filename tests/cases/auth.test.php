@@ -174,7 +174,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         Session::$instance = new Payload($this->getMock('\System\Session\Drivers\Driver'));
 
-        $cookie = Crypter::encrypt('1|'.Str::random(40));
+        $cookie = Crypter::encrypt('1|' . Str::random(40));
         Cookie::forever('authloginstub_remember', $cookie);
 
         $auth = new AuthLoginStub();

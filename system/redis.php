@@ -75,8 +75,8 @@ class Redis
      */
     public static function db($name = 'default')
     {
-        if (! isset(static::$databases[$name])) {
-            if (empty($config = Config::get('database.redis.'.$name, []))) {
+        if (!isset(static::$databases[$name])) {
+            if (empty($config = Config::get('database.redis.' . $name, []))) {
                 throw new \Exception(sprintf('Redis database config is not configured: %s', $name));
             }
 
@@ -120,12 +120,17 @@ class Redis
     protected function parse($response)
     {
         switch (substr((string) $response, 0, 1)) {
-            case '-': throw new \Exception(sprintf('Redis error: %s', substr((string) trim($response), 4)));
+            case '-':
+                throw new \Exception(sprintf('Redis error: %s', substr((string) trim($response), 4)));
             case '+':
-            case ':': return $this->inline($response);
-            case '$': return $this->bulk($response);
-            case '*': return $this->multibulk($response);
-            default:  throw new \Exception(sprintf('Unknown response: %s', substr((string) $response, 0, 1)));
+            case ':':
+                return $this->inline($response);
+            case '$':
+                return $this->bulk($response);
+            case '*':
+                return $this->multibulk($response);
+            default:
+                throw new \Exception(sprintf('Unknown response: %s', substr((string) $response, 0, 1)));
         }
     }
 
@@ -136,7 +141,7 @@ class Redis
      */
     protected function connect()
     {
-        if (! is_null($this->connection)) {
+        if (!is_null($this->connection)) {
             return $this->connection;
         }
 
@@ -170,12 +175,12 @@ class Redis
      */
     protected function command($method, array $parameters)
     {
-        $command = '*'.(count($parameters) + 1).CRLF.
-            '$'.mb_strlen((string) $method, '8bit').CRLF.
-            strtoupper((string) $method).CRLF;
+        $command = '*' . (count($parameters) + 1) . CRLF .
+            '$' . mb_strlen((string) $method, '8bit') . CRLF .
+            strtoupper((string) $method) . CRLF;
 
         foreach ($parameters as $parameter) {
-            $command .= '$'.mb_strlen((string) $parameter, '8bit').CRLF.$parameter.CRLF;
+            $command .= '$' . mb_strlen((string) $parameter, '8bit') . CRLF . $parameter . CRLF;
         }
 
         return $command;

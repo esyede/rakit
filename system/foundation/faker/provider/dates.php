@@ -28,12 +28,12 @@ class Dates extends Base
 
     public static function dateTime($max = 'now')
     {
-        return new \DateTime('@'.static::unixTime($max));
+        return new \DateTime('@' . static::unixTime($max));
     }
 
     public static function dateTimeAD($max = 'now')
     {
-        return new \DateTime('@'.mt_rand(-62135597361, static::getMaxTimestamp($max)));
+        return new \DateTime('@' . mt_rand(-62135597361, static::getMaxTimestamp($max)));
     }
 
     public static function iso8601($max = 'now')
@@ -60,7 +60,7 @@ class Dates extends Base
             throw new \InvalidArgumentException('Start date must be anterior to end date.');
         }
 
-        return (new \DateTime('@'.mt_rand($start, $end)))
+        return (new \DateTime('@' . mt_rand($start, $end)))
             ->setTimezone(new \DateTimeZone(date_default_timezone_get()));
     }
 

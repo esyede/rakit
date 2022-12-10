@@ -69,16 +69,18 @@ class Date
      */
     public function format($format)
     {
-        if (! $this->timestamp) {
+        if (!$this->timestamp) {
             throw new \Exception(sprintf(
                 'Cannot format an invalid date timestamp: %s (%s)',
-                $this->timestamp, gettype($this->timestamp)
+                $this->timestamp,
+                gettype($this->timestamp)
             ));
         }
 
-        if (! is_string($format)) {
+        if (!is_string($format)) {
             throw new \InvalidArgumentException(sprintf(
-                'Date format should be a string, %s given.', gettype($format)
+                'Date format should be a string, %s given.',
+                gettype($format)
             ));
         }
 
@@ -95,10 +97,11 @@ class Date
      */
     public function remake($date, $clone = false)
     {
-        if (! $this->timestamp) {
+        if (!$this->timestamp) {
             throw new \Exception(sprintf(
                 'Cannot remake an invalid date timestamp: %s (%s)',
-                $this->timestamp, gettype($this->timestamp)
+                $this->timestamp,
+                gettype($this->timestamp)
             ));
         }
 
@@ -125,10 +128,11 @@ class Date
         $current = time();
         $timestamp = $this->timestamp();
 
-        if (! $timestamp) {
+        if (!$timestamp) {
             throw new \Exception(sprintf(
                 'Cannot create fuzzy time of an invalid date timestamp: %s (%s)',
-                $timestamp, gettype($timestamp)
+                $timestamp,
+                gettype($timestamp)
             ));
         }
 
@@ -152,10 +156,10 @@ class Date
 
         $diff = (int) round($diff);
         $lang = $future
-            ? ($units[$i].(($diff > 1) ? 's_from_now' : '_from_now'))
-            : ($units[$i].(($diff > 1) ? 's_ago' : '_ago'));
+            ? ($units[$i] . (($diff > 1) ? 's_from_now' : '_from_now'))
+            : ($units[$i] . (($diff > 1) ? 's_ago' : '_ago'));
 
-        return str_replace(':diff', number_format($diff), Lang::line('date.'.$lang)->get());
+        return str_replace(':diff', number_format($diff), Lang::line('date.' . $lang)->get());
     }
 
     /**
@@ -174,10 +178,13 @@ class Date
         $timestamp1 = $date1->timestamp();
         $timestamp2 = $date2->timestamp();
 
-        if (! $timestamp1 || ! $timestamp2) {
+        if (!$timestamp1 || !$timestamp2) {
             throw new \Exception(sprintf(
                 'Cannot diff an invalid date timestamp, date1: %s (%s). date2: %s (%s)',
-                $timestamp1, gettype($timestamp1), $timestamp2, gettype($timestamp2)
+                $timestamp1,
+                gettype($timestamp1),
+                $timestamp2,
+                gettype($timestamp2)
             ));
         }
 
@@ -269,20 +276,29 @@ class Date
         $timestamp1 = $date1->timestamp();
         $timestamp2 = $date2->timestamp();
 
-        if (! $timestamp1 || ! $timestamp2) {
+        if (!$timestamp1 || !$timestamp2) {
             throw new \Exception(sprintf(
                 'Cannot compare on an invalid date timestamp, date1: %s (%s). date2: %s (%s)',
-                $timestamp1, gettype($timestamp1), $timestamp2, gettype($timestamp2)
+                $timestamp1,
+                gettype($timestamp1),
+                $timestamp2,
+                gettype($timestamp2)
             ));
         }
 
         switch ($comparator) {
-            case 'eq':  return $timestamp1 === $timestamp2;
-            case 'gt':  return $timestamp1 > $timestamp2;
-            case 'lt':  return $timestamp1 < $timestamp2;
-            case 'gte': return ($timestamp1 > $timestamp2 || $timestamp1 === $timestamp2);
-            case 'lte': return ($timestamp1 < $timestamp2 || $timestamp1 === $timestamp2);
-            default:    throw new \Exception(sprintf("Invalid date comparator: '%s'", $comparator));
+            case 'eq':
+                return $timestamp1 === $timestamp2;
+            case 'gt':
+                return $timestamp1 > $timestamp2;
+            case 'lt':
+                return $timestamp1 < $timestamp2;
+            case 'gte':
+                return ($timestamp1 > $timestamp2 || $timestamp1 === $timestamp2);
+            case 'lte':
+                return ($timestamp1 < $timestamp2 || $timestamp1 === $timestamp2);
+            default:
+                throw new \Exception(sprintf("Invalid date comparator: '%s'", $comparator));
         }
     }
 
@@ -305,10 +321,11 @@ class Date
      */
     public function __toString()
     {
-        if (! is_numeric($this->timestamp)) {
+        if (!is_numeric($this->timestamp)) {
             throw new \Exception(sprintf(
                 'Cannot stringify an invalid date timestamp: %s (%s)',
-                $this->timestamp, gettype($this->timestamp)
+                $this->timestamp,
+                gettype($this->timestamp)
             ));
         }
 

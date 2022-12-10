@@ -2,25 +2,24 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Mulai Cepat Dengan SQLite](#mulai-cepat-dengan-sqlite)
-- [Menggunakan Database Lain](#menggunakan-database-lain)
-- [Mengatur Koneksi Default](#mengatur-koneksi-default)
-- [Menimpa Opsi PDO Default](#menimpa-opsi-pdo-default)
+-   [Mulai Cepat Dengan SQLite](#mulai-cepat-dengan-sqlite)
+-   [Menggunakan Database Lain](#menggunakan-database-lain)
+-   [Mengatur Koneksi Default](#mengatur-koneksi-default)
+-   [Menimpa Opsi PDO Default](#menimpa-opsi-pdo-default)
 
 <!-- /MarkdownTOC -->
 
-
 Rakit mendukung database berikut secara default:
 
-- MySQL
-- PostgreSQL
-- SQLite
-- SQL Server
+-   MySQL
+-   PostgreSQL
+-   SQLite
+-   SQL Server
 
 Seluruh opsi konfigurasi database berada di file `application/config/database.php`.
 
-
 <a id="mulai-cepat-dengan-sqlite"></a>
+
 ## Mulai Cepat Dengan SQLite
 
 [SQLite](https://sqlite.org) adalah salah satu sistem database yang bagus, konfigurasinya pun tidak rumit.
@@ -44,18 +43,18 @@ cukup ubah opsi konfigurasi di file `application/config/database.php` seperti in
 Jika aplikasi anda menerima kurang dari 100.000 kunjungan per hari, SQLite cukup mampu untuk menanganinya.
 Tetapi jika sebaliknya, silahkan gunakan MySQL atau PostgreSQL.
 
-
 <a id="menggunakan-database-lain"></a>
+
 ## Menggunakan Database Lain
 
 Jika anda menggunakan MySQL, SQL Server, atau PostgreSQL, anda perlu mengubah opsi konfigurasi
-di  `application/config/database.php` tadi. Di dalam file tersebut, anda dapat menemukan sampel
+di `application/config/database.php` tadi. Di dalam file tersebut, anda dapat menemukan sampel
 konfigurasi untuk tiap - tiap sistem database.
 
 Cukup ubah sesuai kebutuhan anda dan jangan lupa untuk mengatur koneksi defaultnya.
 
-
 <a id="mengatur-koneksi-default"></a>
+
 ## Mengatur Koneksi Default
 
 Seperti yang telah anda perhatikan, setiap koneksi database yang diatur dalam
@@ -71,8 +70,8 @@ Anda bebas mengubah nama koneksi ini. Koneksi default dapat diatur melalui opsi 
 Koneksi default inilah yang akan selalu digunakan oleh [Query Builder](/docs/en/database/magic).
 Jika anda perlu mengubah koneksi default saat request berlangsung, gunakan `Config::set()`.
 
-
 <a id="menimpa-opsi-pdo-default"></a>
+
 ## Menimpa Opsi PDO Default
 
 Komponen konektor database (`System\Database\Connector`) memiliki seperangkat definisi atribut PDO

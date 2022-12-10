@@ -60,7 +60,7 @@ class Messages
      */
     protected function unique($key, $message)
     {
-        return (! isset($this->messages[$key]) || ! in_array($message, $this->messages[$key]));
+        return (!isset($this->messages[$key]) || !in_array($message, $this->messages[$key]));
     }
 
     /**
@@ -80,7 +80,7 @@ class Messages
     public function has($key)
     {
         $key = $this->first($key);
-        return '' !== $key && ! is_null($key);
+        return '' !== $key && !is_null($key);
     }
 
     /**

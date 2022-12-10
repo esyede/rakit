@@ -56,7 +56,8 @@ class Server extends Parameter
             }
 
             if ((null !== $authHeader)
-            && (0 === stripos((string) $authHeader, 'basic'))) {
+                && (0 === stripos((string) $authHeader, 'basic'))
+            ) {
                 $exploded = explode(':', base64_decode(substr((string) $authHeader, 6)));
 
                 if (2 === count($exploded)) {
@@ -66,7 +67,7 @@ class Server extends Parameter
         }
 
         if (isset($headers['PHP_AUTH_USER'])) {
-            $basic = 'Basic '.base64_encode($headers['PHP_AUTH_USER'].':'.$headers['PHP_AUTH_PW']);
+            $basic = 'Basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
             $headers['AUTHORIZATION'] = $basic;
         }
 

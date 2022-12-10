@@ -63,7 +63,7 @@ class BelongsToMany extends Relationship
         $models = [class_basename($model), class_basename($associated)];
         sort($models);
 
-        return strtolower((string) $models[0].'_'.$models[1]);
+        return strtolower((string) $models[0] . '_' . $models[1]);
     }
 
     /**
@@ -103,7 +103,7 @@ class BelongsToMany extends Relationship
     {
         if ($ids instanceof Model) {
             $ids = [$ids->get_key()];
-        } elseif (! is_array($ids)) {
+        } elseif (!is_array($ids)) {
             $ids = [$ids];
         }
 
@@ -123,7 +123,7 @@ class BelongsToMany extends Relationship
         $current = $this->pivot()->lists($this->other_key());
 
         foreach ($ids as $id) {
-            if (! in_array($id, $current)) {
+            if (!in_array($id, $current)) {
                 $this->attach($id);
             }
         }
@@ -225,11 +225,11 @@ class BelongsToMany extends Relationship
      */
     protected function set_select($foreign, $other)
     {
-        $columns = [$this->model->table().'.*'];
+        $columns = [$this->model->table() . '.*'];
         $this->with = array_merge($this->with, [$foreign, $other]);
 
         foreach ($this->with as $column) {
-            $columns[] = $this->joining.'.'.$column.' AS pivot_'.$column;
+            $columns[] = $this->joining . '.' . $column . ' AS pivot_' . $column;
         }
 
         $this->table->select($columns);
@@ -244,7 +244,7 @@ class BelongsToMany extends Relationship
      */
     protected function set_join($other)
     {
-        $this->table->join($this->joining, $this->associated_key(), '=', $this->joining.'.'.$other);
+        $this->table->join($this->joining, $this->associated_key(), '=', $this->joining . '.' . $other);
         return $this;
     }
 
@@ -255,7 +255,7 @@ class BelongsToMany extends Relationship
      */
     protected function set_where($foreign)
     {
-        $this->table->where($this->joining.'.'.$foreign, '=', $this->base->get_key());
+        $this->table->where($this->joining . '.' . $foreign, '=', $this->base->get_key());
         return $this;
     }
 
@@ -279,7 +279,7 @@ class BelongsToMany extends Relationship
      */
     public function eagerly_constrain(array $results)
     {
-        $this->table->where_in($this->joining.'.'.$this->foreign_key(), $this->keys($results));
+        $this->table->where_in($this->joining . '.' . $this->foreign_key(), $this->keys($results));
     }
 
     /**
@@ -371,6 +371,6 @@ class BelongsToMany extends Relationship
      */
     protected function associated_key()
     {
-        return $this->model->table().'.'.$this->model->key();
+        return $this->model->table() . '.' . $this->model->key();
     }
 }

@@ -31,9 +31,9 @@ class Throttle
         $decay_minutes = ($decay_minutes < 1) ? 1 : $decay_minutes;
 
         $ip = Request::ip();
-        $key = static::PREFIX.'.'.sprintf('%u', ip2long($ip));
+        $key = static::PREFIX . '.' . sprintf('%u', ip2long($ip));
 
-        if (! Cache::has($key)) {
+        if (!Cache::has($key)) {
             $data = [
                 'limit' => $max_attempts,
                 'remaining' => $max_attempts,
@@ -73,7 +73,7 @@ class Throttle
      */
     public static function exceeded($max_attempts, $decay_minutes)
     {
-        return ! static::check($max_attempts, $decay_minutes);
+        return !static::check($max_attempts, $decay_minutes);
     }
 
     /**

@@ -1,5 +1,6 @@
 <?php defined('DS') or exit('No direct script access.'); ?>
 <!DOCTYPE html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,12 +9,16 @@
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <title>500 | Unknown Error</title>
     <style>
-        html, body {
+        html,
+        body {
             font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
-        pre, code {
+
+        pre,
+        code {
             font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", "Courier New", Courier, monospace;
         }
+
         #oops-error {
             display: flex;
             justify-content: center;
@@ -27,9 +32,11 @@
         }
     </style>
 </head>
+
 <body>
     <div id="oops-error">
         500 | Unknown Error
     </div>
 </body>
+
 </html>

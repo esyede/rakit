@@ -18,17 +18,17 @@ class Image extends Base
         $randomize = true,
         $word = null
     ) {
-        $url = 'http://lorempixel.com/'.$width.'/'.$height.'/';
+        $url = 'http://lorempixel.com/' . $width . '/' . $height . '/';
 
         if ($category) {
-            if (! in_array($category, static::$categories)) {
+            if (!in_array($category, static::$categories)) {
                 throw new \InvalidArgumentException(sprintf('Unkown image category: %s', $category));
             }
 
-            $url .= $category.'/'.($word ? $word.'/' : '');
+            $url .= $category . '/' . ($word ? $word . '/' : '');
         }
 
-        return $randomize ? $url.'?'.static::randomNumber(5, true) : $url;
+        return $randomize ? $url . '?' . static::randomNumber(5, true) : $url;
     }
 
     public static function image(
@@ -42,13 +42,13 @@ class Image extends Base
     ) {
         $dir = is_null($dir) ? sys_get_temp_dir() : $dir;
 
-        if (! is_dir($dir) || ! is_writable($dir)) {
+        if (!is_dir($dir) || !is_writable($dir)) {
             throw new \InvalidArgumentException(sprintf('Cannot write to directory: %s', $dir));
         }
 
         $name = Uuid::uuid();
-        $filename = md5($name).'.jpg';
-        $filepath = $dir.DS.$filename;
+        $filename = md5($name) . '.jpg';
+        $filepath = $dir . DS . $filename;
         $url = static::imageUrl($width, $height, $category, $randomize, $word);
 
         if (extension_loaded('curl')) {
@@ -60,8 +60,8 @@ class Image extends Base
             fclose($fp);
         } else {
             return new \RuntimeException(
-                'The image formatter downloads an image from a remote HTTP server. '.
-                'Therefore, it requires that PHP can request remote hosts via cURL'
+                'The image formatter downloads an image from a remote HTTP server. ' .
+                    'Therefore, it requires that PHP can request remote hosts via cURL'
             );
         }
 

@@ -36,7 +36,7 @@ class Database
      *
      * @param string $connection
      *
-     * @return Connection
+     * @return \System\Database\Connection|null
      */
     public static function connection($connection = null)
     {
@@ -44,8 +44,8 @@ class Database
             $connection = Config::get('database.default');
         }
 
-        if (! isset(static::$connections[$connection])) {
-            $config = Config::get('database.connections.'.$connection);
+        if (!isset(static::$connections[$connection])) {
+            $config = Config::get('database.connections.' . $connection);
 
             if (is_null($config)) {
                 throw new \Exception(sprintf('Database connection is not defined for: %s', $connection));
@@ -84,11 +84,16 @@ class Database
         }
 
         switch ($driver) {
-            case 'sqlite': return new Database\Connectors\SQLite();
-            case 'mysql':  return new Database\Connectors\MySQL();
-            case 'pgsql':  return new Database\Connectors\Postgres();
-            case 'sqlsrv': return new Database\Connectors\SQLServer();
-            default:       throw new \Exception(sprintf('Unsupported database driver: %s', $driver));
+            case 'sqlite':
+                return new Database\Connectors\SQLite();
+            case 'mysql':
+                return new Database\Connectors\MySQL();
+            case 'pgsql':
+                return new Database\Connectors\Postgres();
+            case 'sqlsrv':
+                return new Database\Connectors\SQLServer();
+            default:
+                throw new \Exception(sprintf('Unsupported database driver: %s', $driver));
         }
     }
 

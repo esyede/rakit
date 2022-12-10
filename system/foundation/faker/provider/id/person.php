@@ -243,15 +243,15 @@ class Person extends BasePerson
 
     public function nik($gender = null, $birthDate = null)
     {
-        $nik = $this->birthPlaceCode().$this->generator->numerify('##');
+        $nik = $this->birthPlaceCode() . $this->generator->numerify('##');
         $birthDate = $birthDate ? $birthDate : $this->generator->dateTimeBetween();
 
-        if (! $gender) {
+        if (!$gender) {
             $gender = $this->generator->randomElement([self::GENDER_MALE, self::GENDER_FEMALE]);
         }
 
         $nik .= $birthDate->format('d') + ((self::GENDER_FEMALE === $gender) ? 40 : 0);
-        return $nik.$birthDate->format('my').$this->generator->numerify('####');
+        return $nik . $birthDate->format('my') . $this->generator->numerify('####');
     }
 
     protected function birthPlaceCode()

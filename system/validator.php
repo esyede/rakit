@@ -146,7 +146,7 @@ class Validator
      */
     public function invalid()
     {
-        return ! $this->valid();
+        return !$this->valid();
     }
 
     /**
@@ -180,7 +180,7 @@ class Validator
         $value = Arr::get($this->attributes, $attribute);
         $validatable = $this->validatable($rule, $attribute, $value);
 
-        if ($validatable && ! $this->{'validate_'.$rule}($attribute, $value, $parameters, $this)) {
+        if ($validatable && !$this->{'validate_' . $rule}($attribute, $value, $parameters, $this)) {
             $this->error($attribute, $rule, $parameters);
         }
     }
@@ -244,9 +244,11 @@ class Validator
             return false;
         } elseif (is_string($value) && '' === trim($value)) {
             return false;
-        } elseif (! is_null(Input::file($attribute))
-        && is_array($value)
-        && '' === trim($value['tmp_name'])) {
+        } elseif (
+            !is_null(Input::file($attribute))
+            && is_array($value)
+            && '' === trim($value['tmp_name'])
+        ) {
             return false;
         }
 
@@ -281,7 +283,7 @@ class Validator
      */
     protected function validate_confirmed($attribute, $value)
     {
-        return $this->validate_same($attribute, $value, [$attribute.'_confirmation']);
+        return $this->validate_same($attribute, $value, [$attribute . '_confirmation']);
     }
 
     /**
@@ -379,7 +381,7 @@ class Validator
      */
     protected function validate_size($attribute, $value, array $parameters)
     {
-        if (! is_numeric($parameters[0])) {
+        if (!is_numeric($parameters[0])) {
             return false;
         }
 
@@ -474,7 +476,7 @@ class Validator
      */
     protected function validate_not_in($attribute, $value, array $parameters)
     {
-        return ! in_array($value, $parameters);
+        return !in_array($value, $parameters);
     }
 
     /**
@@ -599,7 +601,7 @@ class Validator
             return false;
         }
 
-        return ('' === $value) ? true : (! preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value));
+        return ('' === $value) ? true : (!preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value));
     }
 
     /**
@@ -612,7 +614,7 @@ class Validator
      */
     protected function validate_active_url($attribute, $value)
     {
-        if (! is_string($value)) {
+        if (!is_string($value)) {
             return false;
         }
 
@@ -712,7 +714,7 @@ class Validator
      */
     protected function validate_mimes($attribute, $value, array $parameters)
     {
-        if (! is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
+        if (!is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
             return true;
         }
 
@@ -735,7 +737,7 @@ class Validator
      */
     protected function validate_array($attribute, $value, array $parameters = [])
     {
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             return false;
         }
 
@@ -852,7 +854,7 @@ class Validator
         }
 
         try {
-            if ((! is_string($value) && ! is_numeric($value)) || strtotime($value) === false) {
+            if ((!is_string($value) && !is_numeric($value)) || strtotime($value) === false) {
                 return false;
             }
         } catch (\Throwable $e) {
@@ -930,11 +932,11 @@ class Validator
     protected function message($attribute, $rule)
     {
         $package = Package::prefix($this->package);
-        $custom = $attribute.'_'.$rule;
+        $custom = $attribute . '_' . $rule;
 
         if (array_key_exists($custom, $this->messages)) {
             return $this->messages[$custom];
-        } elseif (Lang::has($custom = $package.'validation.custom.'.$custom, $this->language)) {
+        } elseif (Lang::has($custom = $package . 'validation.custom.' . $custom, $this->language)) {
             return Lang::line($custom)->get($this->language);
         } elseif (array_key_exists($rule, $this->messages)) {
             return $this->messages[$rule];
@@ -942,7 +944,7 @@ class Validator
             return $this->size_message($package, $attribute, $rule);
         }
 
-        return Lang::line($package.'validation.'.$rule)->get($this->language);
+        return Lang::line($package . 'validation.' . $rule)->get($this->language);
     }
 
     /**
@@ -964,7 +966,7 @@ class Validator
             $line = 'string';
         }
 
-        return Lang::line($package.'validation.'.$rule.'.'.$line)->get($this->language);
+        return Lang::line($package . 'validation.' . $rule . '.' . $line)->get($this->language);
     }
 
     /**
@@ -980,7 +982,7 @@ class Validator
     protected function replace($message, $attribute, $rule, array $parameters)
     {
         $message = str_replace(':attribute', $this->attribute($attribute), $message);
-        $method = 'replace_'.$rule;
+        $method = 'replace_' . $rule;
 
         if (method_exists($this, $method)) {
             $message = $this->{$method}($message, $attribute, $rule, $parameters);
@@ -1254,7 +1256,7 @@ class Validator
     protected function attribute($attribute)
     {
         $package = Package::prefix($this->package);
-        $line = $package.'validation.attributes.'.$attribute;
+        $line = $package . 'validation.attributes.' . $attribute;
 
         return Lang::has($line, $this->language)
             ? Lang::line($line)->get($this->language)

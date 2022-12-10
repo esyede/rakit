@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Container;
+
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     /**

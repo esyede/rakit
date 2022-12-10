@@ -62,7 +62,7 @@ class BelongsTo extends Relationship
         $keys = [];
 
         foreach ($results as $result) {
-            if (! is_null($key = $result->{$this->foreign_key()})) {
+            if (!is_null($key = $result->{$this->foreign_key()})) {
                 $keys[] = $key;
             }
         }

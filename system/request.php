@@ -149,7 +149,7 @@ class Request
      */
     public static function spoofed()
     {
-        return ! is_null(static::foundation()->get(Request::SPOOFER));
+        return !is_null(static::foundation()->get(Request::SPOOFER));
     }
 
     /**
@@ -197,7 +197,7 @@ class Request
             }
 
             foreach ($types as $type) {
-                if (static::matches_type($accept, $type) || $accept === strtok($type, '/').'/*') {
+                if (static::matches_type($accept, $type) || $accept === strtok($type, '/') . '/*') {
                     return true;
                 }
             }
@@ -226,7 +226,7 @@ class Request
             foreach ($types as $ctype) {
                 $type = isset(static::$formats[$ctype]) ? static::$formats[$ctype] : $ctype;
 
-                if (static::matches_type($type, $accept) || $accept === strtok($type, '/').'/*') {
+                if (static::matches_type($type, $accept) || $accept === strtok($type, '/') . '/*') {
                     return $ctype;
                 }
             }
@@ -271,7 +271,7 @@ class Request
         $split = explode('/', $actual);
 
         return isset($split[1])
-            && preg_match('#'.preg_quote($split[0], '#').'/.+\+'.preg_quote($split[1], '#').'#', $type);
+            && preg_match('#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#', $type);
     }
 
     /**
@@ -292,7 +292,7 @@ class Request
      */
     public static function expects_json()
     {
-        return (static::ajax() && ! static::pjax() && static::accept_any()) || static::wants_json();
+        return (static::ajax() && !static::pjax() && static::accept_any()) || static::wants_json();
     }
 
     /**

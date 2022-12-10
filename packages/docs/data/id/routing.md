@@ -2,25 +2,25 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Routing Dasar](#routing-dasar)
-    - [Route Redirect](#route-redirect)
-    - [Route View](#route-view)
-- [URI Wildcard](#uri-wildcard)
-- [Event 404](#event-404)
-- [Middleware](#middleware)
-- [Middleware Pola URI](#middleware-pola-uri)
-- [Middleware Global](#middleware-global)
-- [Route Grouping](#route-grouping)
-- [Named Route](#named-route)
-- [Routing Paket](#routing-paket)
-- [Routing Controller](#routing-controller)
-- [Route Testing via CLI](#route-testing-via-cli)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Routing Dasar](#routing-dasar)
+    -   [Route Redirect](#route-redirect)
+    -   [Route View](#route-view)
+-   [URI Wildcard](#uri-wildcard)
+-   [Event 404](#event-404)
+-   [Middleware](#middleware)
+-   [Middleware Pola URI](#middleware-pola-uri)
+-   [Middleware Global](#middleware-global)
+-   [Route Grouping](#route-grouping)
+-   [Named Route](#named-route)
+-   [Routing Paket](#routing-paket)
+-   [Routing Controller](#routing-controller)
+-   [Route Testing via CLI](#route-testing-via-cli)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Tidak seperti kebanyakan framework lainnya, dengan Rakit memungkinkan untuk menanamkan
@@ -42,11 +42,11 @@ Parameter kedua adalah closure yang berisi logika untuk rute itu.
 Rute didefinisikan tanpa garis miring. Satu-satunya pengecualian adalah rute default
 yang diwakili dengan hanya sebuah garis miring.
 
->  Rute dievaluasi per baris sesuai urutannya, jadi daftarkan semua rute "wildcard" di
-   bagian bawah file `routes.php` anda.
-
+> Rute dievaluasi per baris sesuai urutannya, jadi daftarkan semua rute "wildcard" di
+> bagian bawah file `routes.php` anda.
 
 <a id="routing-dasar"></a>
+
 ## Routing Dasar
 
 Rute yang paling dasar menerima URI dan closure, menyediakan metode yang sangat sederhana dan
@@ -90,8 +90,8 @@ Route::delete('user/(:num)', function ($id) {
 Router::register(['GET', 'POST'], $uri, $callback);
 ```
 
-
 <a id="route-redirect"></a>
+
 ### Route Redirect
 
 Jika anda perlu membuat rute redireksi ke URI lain, anda bisa menggunakan method `Route::redirect()`.
@@ -109,8 +109,8 @@ tersebut menggunakan parameter ketiga seperti ini:
 Route::redirect('deleted-page', 'home', 301);
 ```
 
-
 <a id="route-view"></a>
+
 ### Route View
 
 Jika rute anda hanya perlu mereturn view, anda dapat menggunakan method `Route::view()`.
@@ -124,8 +124,8 @@ Route::view('/', 'home');
 Route::view('profile', 'profile', ['name' => 'Budi']);
 ```
 
-
 <a id="uri-wildcard"></a>
+
 ## URI Wildcard
 
 #### Memaksa segmen URI untuk hanya menerima string alfabet:
@@ -169,6 +169,7 @@ Route::get('page/(:any?)', function ($page = 'index') {
 ```
 
 <a id="event-404"></a>
+
 ## Event 404
 
 Jika request memasuki aplikasi anda tetapi tidak ada yang cocok dengan rute yang ada,
@@ -187,10 +188,10 @@ Anda bebas mengubah ini agar sesuai dengan kebutuhan aplikasi anda!
 
 _Bacaan lebih lanjut:_
 
-- _[Events](/docs/id/events)_
-
+-   _[Events](/docs/id/events)_
 
 <a id="middleware"></a>
+
 ## Middleware
 
 Middleware dapat dijalankan sebelum atau setelah rute dijalankan. Jika middleware `'before'`
@@ -240,8 +241,8 @@ Route::get('panel', ['before' => 'role:admin', function () {
 }]);
 ```
 
-
 <a id="middleware-pola-uri"></a>
+
 ## Middleware Pola URI
 
 Terkadang anda mungkin ingin melampirkan middleware ke semua request yang dimulai dengan pola
@@ -267,6 +268,7 @@ Route::middleware('pattern: admin/*', ['name' => 'auth', function () {
 ```
 
 <a id="middleware-global"></a>
+
 ## Middleware Global
 
 Rakit memiliki dua middleware global yaitu `"before"` yang berjalan sebelum request ditanggapi
@@ -275,10 +277,10 @@ dan `"after"` yang berjalan setelah request ditanggapi.
 Anda dapat menemukan keduanya di file `application/middlewares.php`. Middleware ini menjadi
 tempat yang bagus untuk menjalankan paket default atau kebutuhan lain.
 
->  Middleware `"after"` menerima objek `Response` untuk request saat ini.
-
+> Middleware `"after"` menerima objek `Response` untuk request saat ini.
 
 <a id="route-grouping"></a>
+
 ## Route Grouping
 
 Route grouping atau pengelompokan rute memberikan anda keleluasaan untuk melampirkan serangkaian atribut
@@ -297,8 +299,8 @@ Route::group(['before' => 'auth'], function () {
 });
 ```
 
-
 <a id="named-route"></a>
+
 ## Named Route
 
 Terlalu sering menggunakan URL atau redirect menggunakan URI dapat menyebabkan masalah ketika rute
@@ -339,8 +341,8 @@ if (Request::route()->is('home')) {
 }
 ```
 
-
 <a id="routing-paket"></a>
+
 ## Routing Paket
 
 Rakit adalah framework yang fleksibel, cara kerjanya mirip dengan manajer paket di Linux.
@@ -392,8 +394,8 @@ Route::get('(:package)/password', function () {
 });
 ```
 
-
 <a id="routing-controller"></a>
+
 ## Routing Controller
 
 Controller menyediakan cara lain untuk mengelola logika aplikasi anda. Jika anda belum paham dengan
@@ -424,10 +426,9 @@ ke method `detect()` tersebut.
 Jika tidak ada nama paket yang dioper, secara default Rakit akan mencari ke folder `application/controllers/`.
 
 > Penting untuk dicatat bahwa metode ini tidak memberi Anda kendali atas urutan pemuatan controller.
-  `Controller::detect()` hanya boleh digunakan untuk merutekan controller di situs yang tidak terlalu kompleks.
-  Pengontrol perutean "secara manual" memberi Anda lebih banyak kontrol, l
-  ebih mendokumentasikan diri sendiri, dan tentu saja disarankan.
-
+> `Controller::detect()` hanya boleh digunakan untuk merutekan controller di situs yang tidak terlalu kompleks.
+> Pengontrol perutean "secara manual" memberi Anda lebih banyak kontrol, l
+> ebih mendokumentasikan diri sendiri, dan tentu saja disarankan.
 
 #### Daftarkan semua controller untuk paket `admin`:
 
@@ -480,8 +481,8 @@ Route::get('/', ['uses' => 'home@index', 'after' => 'track']);
 Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);
 ```
 
-
 <a id="route-testing-via-cli"></a>
+
 ## Route Testing via CLI
 
 Anda dapat memanggil rute yang anda buat via [console](/docs/id/console#memanggil-rute).

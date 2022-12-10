@@ -25,7 +25,7 @@ class Job extends Command
 
         if (empty($names)) {
             if (Request::cli()) {
-                echo 'Please give at least one job name to execute!'.PHP_EOL;
+                echo 'Please give at least one job name to execute!' . PHP_EOL;
                 exit;
             }
             if ($config['logging']) {
@@ -62,11 +62,11 @@ class Job extends Command
         $jobs = Config::get('job.table', 'jobs');
         $failed = Config::get('job.failed_table', 'failed_jobs');
 
-        $migration1 = $make->migration(['create_'.$jobs.'_table']);
-        $migration2 = $make->migration(['create_'.$failed.'_table']);
+        $migration1 = $make->migration(['create_' . $jobs . '_table']);
+        $migration2 = $make->migration(['create_' . $failed . '_table']);
 
-        $stub1 = __DIR__.DS.'stubs'.DS.'jobs.stub';
-        $stub2 = __DIR__.DS.'stubs'.DS.'failed_jobs.stub';
+        $stub1 = __DIR__ . DS . 'stubs' . DS . 'jobs.stub';
+        $stub2 = __DIR__ . DS . 'stubs' . DS . 'failed_jobs.stub';
 
         Storage::put($migration1, Storage::get($stub1));
         Storage::put($migration2, Storage::get($stub2));

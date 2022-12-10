@@ -2,6 +2,16 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\URL;
+use System\Input;
+use System\Config;
+use System\Request;
+use System\Session;
+use System\Redirect;
+use System\Validator;
+use System\Routing\Route;
+use System\Routing\Router;
+
 class RedirectTest extends \PHPUnit_Framework_TestCase
 {
     /**

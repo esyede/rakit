@@ -73,7 +73,7 @@ class Image
         $this->reset();
         $this->path = $this->path($path);
 
-        if (! is_file($this->path)) {
+        if (!is_file($this->path)) {
             throw new \Exception(sprintf('Source image does not exists: %s', $this->path));
         }
 
@@ -93,7 +93,7 @@ class Image
      */
     public static function open($path, $quality = 75)
     {
-        if (! is_null(self::$singleton)) {
+        if (!is_null(self::$singleton)) {
             static::$singleton->reset();
             return static::$singleton;
         }
@@ -111,11 +111,11 @@ class Image
      */
     protected function load($path)
     {
-        if (! static::available()) {
+        if (!static::available()) {
             throw new \Exception('The PHP GD extension is not available.');
         }
 
-        if (! $this->acceptable($path)) {
+        if (!$this->acceptable($path)) {
             throw new \Exception('Only JPG, PNG or GIF file type is supported.');
         }
 
@@ -128,10 +128,17 @@ class Image
         }
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG: $this->image = imagecreatefromjpeg($path); break;
-            case IMAGETYPE_PNG:  $this->image = imagecreatefrompng($path);  break;
-            case IMAGETYPE_GIF:  $this->image = imagecreatefromgif($path);  break;
-            default:             throw new \Exception('Attempting to load unsupported image type.');
+            case IMAGETYPE_JPEG:
+                $this->image = imagecreatefromjpeg($path);
+                break;
+            case IMAGETYPE_PNG:
+                $this->image = imagecreatefrompng($path);
+                break;
+            case IMAGETYPE_GIF:
+                $this->image = imagecreatefromgif($path);
+                break;
+            default:
+                throw new \Exception('Attempting to load unsupported image type.');
         }
 
         return $this;
@@ -418,7 +425,7 @@ class Image
     {
         $watermark = $this->path($watermark);
 
-        if (! is_file($watermark)) {
+        if (!is_file($watermark)) {
             throw new \Exception(sprintf('Watermark file does not exists: %s', $watermark));
         }
 
@@ -426,10 +433,17 @@ class Image
 
         switch ($extension) {
             case 'jpg':
-            case 'jpeg': $watermark = imagecreatefromjpeg($watermark); break;
-            case 'png':  $watermark = imagecreatefrompng($watermark);  break;
-            case 'gif':  $watermark = imagecreatefromgif($watermark);  break;
-            default:     throw new \Exception('Only png, jpg and gif images are supported');
+            case 'jpeg':
+                $watermark = imagecreatefromjpeg($watermark);
+                break;
+            case 'png':
+                $watermark = imagecreatefrompng($watermark);
+                break;
+            case 'gif':
+                $watermark = imagecreatefromgif($watermark);
+                break;
+            default:
+                throw new \Exception('Only png, jpg and gif images are supported');
         }
 
         imagealphablending($this->image, true);
@@ -458,7 +472,7 @@ class Image
         $this->maintain();
         $this->path = $this->path($path);
 
-        if (is_file($path) && ! $overwrite) {
+        if (is_file($path) && !$overwrite) {
             throw new \Exception(sprintf('Destination file already exists: %s', $this->path));
         }
 
@@ -466,7 +480,7 @@ class Image
 
         switch ($extension) {
             case 'jpg':
-                if (! imagejpeg($this->image, $this->path, $this->quality)) {
+                if (!imagejpeg($this->image, $this->path, $this->quality)) {
                     throw new \Exception('The JPG file could not be saved!');
                 }
                 break;
@@ -475,13 +489,13 @@ class Image
                 imagealphablending($this->image, false);
                 imagesavealpha($this->image, true);
 
-                if (! imagepng($this->image, $this->path)) {
+                if (!imagepng($this->image, $this->path)) {
                     throw new \Exception('The PNG file could not be saved.');
                 }
                 break;
 
             case 'gif':
-                if (! imagegif($this->image, $this->path, $this->quality)) {
+                if (!imagegif($this->image, $this->path, $this->quality)) {
                     throw new \Exception('The GIF file could not be saved.');
                 }
                 break;
@@ -514,9 +528,15 @@ class Image
         $type = null;
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG: $type = 'image/jpeg'; break;
-            case IMAGETYPE_PNG:  $type = 'image/png';  break;
-            case IMAGETYPE_GIF:  $type = 'image/gif';  break;
+            case IMAGETYPE_JPEG:
+                $type = 'image/jpeg';
+                break;
+            case IMAGETYPE_PNG:
+                $type = 'image/png';
+                break;
+            case IMAGETYPE_GIF:
+                $type = 'image/gif';
+                break;
         }
 
         return [
@@ -559,7 +579,7 @@ class Image
      */
     public static function identicon($seed, $size = 64, $display = false)
     {
-        if (! static::available()) {
+        if (!static::available()) {
             throw new \Exception('The PHP GD extension is not available');
         }
 
@@ -678,7 +698,7 @@ class Image
      */
     public function path($path)
     {
-        return path('base').str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
+        return path('base') . str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
     }
 
     /**
@@ -717,10 +737,12 @@ class Image
     {
         $bounds = range($low, $high);
 
-        if (! in_array($value, $bounds)) {
+        if (!in_array($value, $bounds)) {
             throw new \Exception(sprintf(
                 'The %s level is out of bounds. It needs to be between %s to %s',
-                $method, $low, $high
+                $method,
+                $low,
+                $high
             ));
         }
 

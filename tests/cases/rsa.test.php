@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\RSA;
+
 class RSATest extends \PHPUnit_Framework_TestCase
 {
     private $plain = 'foobar';
@@ -12,11 +14,11 @@ class RSATest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        if (is_file($file = path('storage').'rsa-private.key')) {
+        if (is_file($file = path('storage') . 'rsa-private.key')) {
             unlink($file);
         }
 
-        if (is_file($file = path('storage').'rsa-public.key')) {
+        if (is_file($file = path('storage') . 'rsa-public.key')) {
             unlink($file);
         }
     }
@@ -26,11 +28,11 @@ class RSATest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        if (is_file($file = path('storage').'rsa-private.key')) {
+        if (is_file($file = path('storage') . 'rsa-private.key')) {
             unlink($file);
         }
 
-        if (is_file($file = path('storage').'rsa-public.key')) {
+        if (is_file($file = path('storage') . 'rsa-public.key')) {
             unlink($file);
         }
     }

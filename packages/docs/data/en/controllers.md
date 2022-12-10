@@ -2,20 +2,20 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#pengetahuan-dasar)
-- [Controller Routing](#controller-routing)
-- [Package Controller](#controller-paket)
-- [Action Middleware](#action-middleware)
-- [Nested Controller](#nested-controller)
-- [Controller Layout](#layout-controller)
-- [RESTful Controller](#restful-controller)
-- [Dependency Injection](#dependency-injection)
-- [Controller Factory](#controller-factory)
+-   [Basic Knowledge](#pengetahuan-dasar)
+-   [Controller Routing](#controller-routing)
+-   [Package Controller](#controller-paket)
+-   [Action Middleware](#action-middleware)
+-   [Nested Controller](#nested-controller)
+-   [Controller Layout](#layout-controller)
+-   [RESTful Controller](#restful-controller)
+-   [Dependency Injection](#dependency-injection)
+-   [Controller Factory](#controller-factory)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Basic Knowledge
 
 Controller is a class that is responsible for receiving user input and managing interactions
@@ -31,14 +31,12 @@ routing declaration via closure. This topic is discussed in detail at
 New users are advised to start with the controller. There's nothing closure-based application logic
 can do that controller-based cannot do.
 
-
 The controller class should be stored in the `controllers/` folder. We have included
 `Home_Controller` class (in `application/controllers/home.php` file) as a usage example.
 
-
 <a id="membuat-controller-sederhana"></a>
-#### Creating a simple controller:
 
+#### Creating a simple controller:
 
 ```php
 class Admin_Controller extends Controller
@@ -56,9 +54,8 @@ Method name for actions must begin with the word `action_`.
 All other methods, if the name does not starts with the word `action_` then it **will not be accessible**
 by visitors to your site.
 
-
-
 <a id="controller-routing"></a>
+
 ## Controller Routing
 
 It is important to know that all routes in Rakit must be defined explicitly,
@@ -73,9 +70,8 @@ registration. Routes controller registration is usually done in the `routes.php`
 Read the [routing page](/docs/en/routing#controller-routing) for more detailed documentation on
 controller routings.
 
-
-
 <a id="controller-paket"></a>
+
 ## Package Controller
 
 Packages are a very flexible modularization system. Packages can be easily configured to
@@ -85,7 +81,6 @@ in another document.
 Creating controller for a package is pretty much the same as creating a regular controller. Just start
 controller class name with package name. So if you want to create a package named `admin`,
 your controller class should look like this:
-
 
 #### Creating a controller for the admin package:
 
@@ -101,7 +96,6 @@ class Admin_Home_Controller extends Controller
 
 So, how to register this package's controller to the router? Easy. Here's how:
 
-
 #### Registering a package's controller to the router:
 
 ```php
@@ -110,13 +104,11 @@ Route::controller('admin::home');
 
 Excellent! Now we can access the `admin` package's home controller from the web!
 
-
 > By default, the `::` (double colon) syntax is used to refer to any information belonging to a package.
-  More information about packages can be found in [package documentation](/docs/en/packages).
-
-
+> More information about packages can be found in [package documentation](/docs/en/packages).
 
 <a id="action-middleware"></a>
+
 ## Action Middleware
 
 Action middleware is middleware that can be executed before or after a controller's action is executed.
@@ -126,7 +118,6 @@ can also choose what type of request (`GET`, `POST`, `PUT`, or `DELETE`) to acti
 You can define `before()` and `after()` middleware via the controller's class **constructor**.
 
 Let's try adding middleware to the controller above.
-
 
 #### Attach middleware to all actions:
 
@@ -153,9 +144,7 @@ This `'auth'` middleware is Rakit's default middleware, the implementation can b
 found in the `application/middlewares.php` file. The auth middleware verifies that
 the user is already logged in, and redirects them to the `'/login'` page if they not logged in.
 
-
 #### Attach middleware only to a few actions:
-
 
 ```php
 $this->middleware('before', 'auth')->only(['index', 'list']);
@@ -164,8 +153,6 @@ $this->middleware('before', 'auth')->only(['index', 'list']);
 In the above example the `'auth'` middleware will only be executed before the `action_index()` method
 or `action_list()` is executed. User must be logged in to be able to access those two actions.
 Other actions will not be affected.
-
-
 
 #### Melampirkan middleware ke semua action kecuali yang disebutkan:
 
@@ -185,8 +172,6 @@ add a new action to this controller and forgot to add it to the `only()` method.
 This has the potential to cause your action controller to be inadvertently accessible by
 users who have not logged in.
 
-
-
 #### Melampirkan middleware untuk dijalankan hanya pada tipe request POST:
 
 ```php
@@ -201,22 +186,18 @@ The `'csrf'` middleware is designed to prevent sending POST data from other part
 This middleware is also provided by default. You can see the default implementation
 of `'csrf'` middleware in the `middlewares.php` file.
 
-
 _Further reading :_
 
-
-- _[Middleware](/docs/en/routing#middleware)_
-
+-   _[Middleware](/docs/en/routing#middleware)_
 
 <a id="nested-controller"></a>
+
 ## Nested Controller
 
 Nested controllers are controllers that are placed in subfolders. Right, you can save
 controllers in a number of subfolders inside the `controllers/` folder.
 
-
 Try creating the following controller class and saving it as `controllers/admin/panel.php`:
-
 
 ```php
 class Admin_Panel_Controller extends Controller
@@ -228,35 +209,30 @@ class Admin_Panel_Controller extends Controller
 }
 ```
 
-
 #### Register the nested controller to the router using dot notation:
-
 
 ```php
 Route::controller('admin.panel');
 ```
 
->  When using nested controllers, always list your controllers from those in
-   innermost subfolders so controller routes don't overlap each other.
-
-
+> When using nested controllers, always list your controllers from those in
+> innermost subfolders so controller routes don't overlap each other.
 
 #### Accessing the controller's `index` action:
-
 
 ```ini
 mysite.com/admin/panel
 ```
 
-
 <a id="layout-controller"></a>
+
 ## Layout Controller
 
 Full documentation on using layouts with Controllers can be found at the
 [templating page](/docs/en/views/templating).
 
-
 <a id="restful-controller"></a>
+
 ## RESTful Controller
 
 Rakit also supports RESTful controllers. This will bw useful when building a
@@ -269,7 +245,6 @@ and the value is `TRUE`.
 Instead of prefixing the controller action name with the word `action_`, you can replace it
 with what type of request (eg `POST`, `GET`, `PUT` or `DELETE`) it should respond.
 
-
 #### Defining the `$restful` property to the controller:
 
 ```php
@@ -280,7 +255,6 @@ class Home_Controller extends Controller
     // ..
 }
 ```
-
 
 #### Creating a RESTful action in the controller:
 
@@ -302,8 +276,8 @@ class Home_Controller extends Controller
 }
 ```
 
-
 <a id="dependency-injection"></a>
+
 ## Dependency Injection
 
 If you are focused on writing _testable_ code, you may need to inject dependencies
@@ -325,18 +299,16 @@ is registered in the container or not, and if so, then Rakit will use this data
 to resolve the controller instance.
 
 > Before diving deeper into Dependency Injection Controller, you may want to read
-  the documentation about [Container](/docs/en/container).
-
+> the documentation about [Container](/docs/en/container).
 
 <a id="controller-factory"></a>
+
 ## Controller Factory
 
 If you want more control over how your controller is instantiated, like
 when using third party containers, you should use this controller factory feature.
 
-
 #### Register events to handle controller instantiation:
-
 
 ```php
 Event::listen(Controller::FACTORY, function ($controller) {
@@ -346,4 +318,3 @@ Event::listen(Controller::FACTORY, function ($controller) {
 
 The event will receive the name of the controller class that needs to be resolved.
 All you need to do is return an instance of the controller class.
-

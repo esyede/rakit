@@ -258,7 +258,7 @@ class Query
             return $this->where_nested($column, $connector);
         }
 
-        if (! in_array(strtolower((string) $operator), $this->operators) && null === $value) {
+        if (!in_array(strtolower((string) $operator), $this->operators) && null === $value) {
             $value = $operator;
             $operator = '=';
         }
@@ -694,7 +694,7 @@ class Query
             return $row->{$column};
         }, $results);
 
-        if (! is_null($key) && count($results)) {
+        if (!is_null($key) && count($results)) {
             return array_combine(array_map(function ($row) use ($key) {
                 return $row->{$key};
             }, $results), $values);
@@ -857,7 +857,7 @@ class Query
     protected function adjust($column, $amount, $operator)
     {
         $wrapped = $this->grammar->wrap($column);
-        $value = Database::raw($wrapped.$operator.$amount);
+        $value = Database::raw($wrapped . $operator . $amount);
 
         return $this->update([$column => $value]);
     }
@@ -888,7 +888,7 @@ class Query
      */
     public function delete($id = null)
     {
-        if (! is_null($id)) {
+        if (!is_null($id)) {
             $this->where('id', '=', $id);
         }
 

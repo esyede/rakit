@@ -1,18 +1,18 @@
 # Data Fiktif (Faker)
 
-
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Cara Penggunaan](#cara-penggunaan)
-- [Formatter](#formatter)
-- [Opsi Tambahan](#opsi-tambahan)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Cara Penggunaan](#cara-penggunaan)
+-   [Formatter](#formatter)
+-   [Opsi Tambahan](#opsi-tambahan)
 
 <a id="pengetahuan-dasar"></a>
+
 # Pengetahuan Dasar
 
 Faker adalah library yang menghasilkan data palsu untuk anda. Library ini sangat berguna untuk mem-bootstrap database anda, mengisi data untuk testing, atau menyamarkan data yang diambil dari server produksi. Library ini diadopsi dari [fzaninotto/faker](https://github.com/fzaninotto/faker) versi 1.5.0.
 
-
 <a id="cara-penggunaan"></a>
+
 ## Cara Penggunaan
 
 Gunakan `Faker::create()` untuk menginisiasi dan mulai menggunakan faker. Setelah diinisiasi, anda hanya tinggal memanggil propertinya sesuai data yang sedang anda butuhkan. Cukup mudah kan? Mari kita coba.
@@ -47,8 +47,8 @@ $faker->text;
 // Et sint et. Ut ducimus quod nemo ab voluptatum.
 ```
 
-
 <a id="formatter"></a>
+
 ## Formatter
 
 Setiap properti generator (seperti `name`, `address`, dan `lorem`) disebut "formatter". Berikut adalah daftar formatter yang tersedia secara default:
@@ -72,7 +72,6 @@ $faker->bothify('Hello ##??'); // 'Hello 42jz'
 $faker->asciify('Hello ***'); // 'Hello R6+'
 $faker->regexify('[0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}'); // '5@c.ojyc'
 ```
-
 
 ### Teks dummy
 
@@ -102,7 +101,6 @@ $faker->text($maxNbChars = 200);
 // 'Fuga totam reiciendis qui architecto fugiat nemo. Consequatur recusandae qui cupiditate eos quod.'
 ```
 
-
 ### Data pribadi
 
 ```php
@@ -116,7 +114,6 @@ $faker->firstNameMale;                             // 'Prima'
 $faker->firstNameFemale;                           // 'Novi'
 $faker->lastName;                                  // 'Gunawan'
 ```
-
 
 ### Alamat
 
@@ -138,13 +135,11 @@ $faker->latitude;         // 72.671642
 $faker->longitude;        // 82.754482
 ```
 
-
 ### Nomor telepon
 
 ```php
 $faker->phoneNumber; // '0248 4157 500'
 ```
-
 
 ### Perusahaan
 
@@ -155,7 +150,6 @@ $faker->company;       // 'PT Zulaika Kuswandari Tbk'
 $faker->companyPrefix; // 'CV'
 $faker->companySuffix; // '(Persero) Tbk'
 ```
-
 
 ### Waktu dan tanggal
 
@@ -193,7 +187,6 @@ $faker->century;                  // 'XVII'
 $faker->timezone;                 // 'Europe/Bratislava'
 ```
 
-
 ### Internet
 
 ```php
@@ -216,7 +209,6 @@ $faker->ipv6;            // 'b86b:5de8:f599:6663:70d6:7942:f55b:ba65'
 $faker->macAddress;      // 'BF:6C:E3:3E:70:77'
 ```
 
-
 ### User agent
 
 ```php
@@ -238,7 +230,6 @@ $faker->opera;
 $faker->internetExplorer;
 // 'Mozilla/5.0 (compatible; MSIE 11.0; Windows NT 6.0; Trident/5.0)'
 ```
-
 
 ### Kartu kredit
 
@@ -267,7 +258,6 @@ $faker->creditCardDetails;
 $faker->swiftBicNumber; // GNLMVB5BWWA
 ```
 
-
 ### Warna
 
 ```php
@@ -278,7 +268,6 @@ $faker->rgbCssColor;     // 'rgb(0, 255, 122)'
 $faker->safeColorName;   // 'fuchsia'
 $faker->colorName;       // 'Gainsbor'
 ```
-
 
 ### File
 
@@ -295,7 +284,6 @@ $faker->file($sourceDir = '/tmp', $targetDir = '/tmp');
 $faker->file($sourceDir, $targetDir, false);
 // '13b73edae8443990be1aa8f1a483bc27.jpg'
 ```
-
 
 ### Gambar
 
@@ -319,13 +307,11 @@ $faker->image($dir, $width, $height, 'cats', true, 'Si Kumis');
 // 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' gambar kucing dengan tulisan 'Si Kumis'
 ```
 
-
 ### UUID (version 4)
 
 ```php
 $faker->uuid; // '960e75d1-596e-445e-a28a-af45280343ad'
 ```
-
 
 ### Barcode
 
@@ -335,7 +321,6 @@ $faker->ean8;   // '73513537'
 $faker->isbn13; // '9790404436093'
 $faker->isbn10; // '4881416324'
 ```
-
 
 ### Lain-lain
 
@@ -353,7 +338,6 @@ $faker->languageCode; // en
 $faker->currencyCode; // EUR
 ```
 
-
 ### Bias
 
 ```php
@@ -363,8 +347,8 @@ $faker->currencyCode; // EUR
 $faker->biasedNumberBetween($min = 10, $max = 20, $function = 'sqrt');
 ```
 
-
 <a id="opsi-tambahan"></a>
+
 ## Opsi Tambahan
 
 Faker menyediakan dua opsi tambahan, `unique()` dan `optional()`, untuk dipanggil sebelum provider mana pun dieksekusi. Opsi `optional()` dapat berguna untuk mengisi data pada field yang tidak wajib diisi, seperti nomor telepon seluler; Sedangkan `unique()` diperlukan untuk mengisi field yang tidak dapat menerima dua kali nilai yang sama, seperti primary key.

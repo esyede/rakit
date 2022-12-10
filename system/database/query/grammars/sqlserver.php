@@ -49,17 +49,17 @@ class SQLServer extends Grammar
      */
     protected function selects(Query $query)
     {
-        if (! is_null($query->aggregate)) {
+        if (!is_null($query->aggregate)) {
             return;
         }
 
         $select = $query->distinct ? 'SELECT DISTINCT ' : 'SELECT ';
 
         if ($query->limit > 0 && $query->offset <= 0) {
-            $select .= 'TOP '.$query->limit.' ';
+            $select .= 'TOP ' . $query->limit . ' ';
         }
 
-        return $select.$this->columnize($query->selects);
+        return $select . $this->columnize($query->selects);
     }
 
     /**
@@ -72,12 +72,12 @@ class SQLServer extends Grammar
      */
     protected function ansi_offset(Query $query, $components)
     {
-        if (! isset($components['orderings'])) {
+        if (!isset($components['orderings'])) {
             $components['orderings'] = 'ORDER BY (SELECT 0)';
         }
 
         $orderings = $components['orderings'];
-        $components['selects'] .= ', ROW_NUMBER() OVER ('.$orderings.') AS RowNum';
+        $components['selects'] .= ', ROW_NUMBER() OVER (' . $orderings . ') AS RowNum';
 
         unset($components['orderings']);
 
@@ -85,14 +85,14 @@ class SQLServer extends Grammar
 
         if ($query->limit > 0) {
             $finish = $query->offset + $query->limit;
-            $constraint = 'BETWEEN '.$start.' AND '.$finish;
+            $constraint = 'BETWEEN ' . $start . ' AND ' . $finish;
         } else {
-            $constraint = '>= '.$start;
+            $constraint = '>= ' . $start;
         }
 
         $sql = $this->concatenate($components);
 
-        return 'SELECT * FROM ('.$sql.') AS TempTable WHERE RowNum '.$constraint;
+        return 'SELECT * FROM (' . $sql . ') AS TempTable WHERE RowNum ' . $constraint;
     }
 
     /**

@@ -2,25 +2,25 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#pengetahuan-dasar)
-- [The Basics](#routing-dasar)
-    - [Redirect Routes](#route-redirect)
-    - [View Routes](#route-view)
-- [Wildcards](#uri-wildcard)
-- [The 404 Event](#event-404)
-- [Middlewares](#middleware)
-- [Pattern Middlewares](#middleware-pola-uri)
-- [Global Middlewares](#middleware-global)
-- [Route Groups](#route-grouping)
-- [Named Routes](#named-route)
-- [Package Routes](#routing-paket)
-- [Controller Routing](#routing-controller)
-- [CLI Route Testing](#route-testing-via-cli)
+-   [Basic Knowledge](#pengetahuan-dasar)
+-   [The Basics](#routing-dasar)
+    -   [Redirect Routes](#route-redirect)
+    -   [View Routes](#route-view)
+-   [Wildcards](#uri-wildcard)
+-   [The 404 Event](#event-404)
+-   [Middlewares](#middleware)
+-   [Pattern Middlewares](#middleware-pola-uri)
+-   [Global Middlewares](#middleware-global)
+-   [Route Groups](#route-grouping)
+-   [Named Routes](#named-route)
+-   [Package Routes](#routing-paket)
+-   [Controller Routing](#routing-controller)
+-   [CLI Route Testing](#route-testing-via-cli)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Basic Knowledge
 
 Unlike many other frameworks with Rakit it's possible to embed application logic in two ways.
@@ -33,9 +33,7 @@ as you don't have to create a bunch of controllers just to expose half a dozen m
 or put a handful of unrelated methods into the same controller and then have to
 manually designate routes that point to them.
 
-
 Routes are usually defined in the `routes.php` file.
-
 
 In the following example the first parameter is the route that you're _"registering"_ with the router.
 The second parameter is the function containing the logic for that route.
@@ -43,16 +41,15 @@ The second parameter is the function containing the logic for that route.
 Routes are defined without a front-slash.
 The only exception to this is the default route which is represented with only a front-slash.
 
->  Routes are evaluated in the order that they are registered,
-   so register any "catch-all" routes at the bottom of your routes.php file.
-
+> Routes are evaluated in the order that they are registered,
+> so register any "catch-all" routes at the bottom of your routes.php file.
 
 <a id="routing-dasar"></a>
+
 ## The Basics
 
 The most basic route accepts both a URI and a closure, providing a very simple method and
 expressive way to define routes and behavior without complicated routing configuration files:
-
 
 #### Registering a route that responds to `GET`:
 
@@ -92,13 +89,12 @@ Route::delete('user/(:num)', function ($id) {
 Router::register(['GET', 'POST'], $uri, $callback);
 ```
 
-
 <a id="route-redirect"></a>
+
 ### Redirect Routes
 
 If you need to create a redirection route to another URI, you can use the `Route::redirect()` method.
 This method provides a convenient shortcut so you don't have to use Closure to do a simple redirect:
-
 
 ```php
 Route::redirect('deleted-page', 'home');
@@ -106,13 +102,12 @@ Route::redirect('deleted-page', 'home');
 
 By default, it will return the status code `302`. You can customize it of course:
 
-
 ```php
 Route::redirect('deleted-page', 'home', 301);
 ```
 
-
 <a id="route-view"></a>
+
 ### View Routes
 
 If your route only needs to return views, you can use the `Route::view()` method.
@@ -120,15 +115,14 @@ If your route only needs to return views, you can use the `Route::view()` method
 This method accepts the URI as its first argument and the view name as its second argument.
 Additionally, you can also pass an array of data to pass to the view as the third argument:
 
-
 ```php
 Route::view('/', 'home');
 
 Route::view('profile', 'profile', ['name' => 'Budi']);
 ```
 
-
 <a id="uri-wildcard"></a>
+
 ## Wildcards
 
 #### Forcing a URI segment to be any alphabets:
@@ -172,6 +166,7 @@ Route::get('page/(:any?)', function ($page = 'index') {
 ```
 
 <a id="event-404"></a>
+
 ## The 404 Event
 
 If a request enters your application but does not match any existing route, the 404 event
@@ -189,10 +184,10 @@ You are free to change this to fit the needs of your application!
 
 _Further Reading:_
 
-- _[Events](/docs/en/events)_
-
+-   _[Events](/docs/en/events)_
 
 <a id="middleware"></a>
+
 ## Middlewares
 
 Route middlewares may be run before or after a route is executed.
@@ -241,8 +236,8 @@ Route::get('panel', ['before' => 'role:admin', function () {
 }]);
 ```
 
-
 <a id="middleware-pola-uri"></a>
+
 ## Pattern Middlewares
 
 Sometimes you may want to attach a middleware to all requests that begin with a given URI.
@@ -267,6 +262,7 @@ Route::middleware('pattern: admin/*', ['name' => 'auth', function () {
 ```
 
 <a id="middleware-global"></a>
+
 ## Global Middlewares
 
 Rakit has two "global" middlewares that run before and after every request to your application.
@@ -276,8 +272,8 @@ These middlewares make great places to start common packages or other things.
 
 > The `"after"` middleware receives the `Response` object for the current request.
 
-
 <a id="route-grouping"></a>
+
 ## Route Groups
 
 Route groups allow you to attach a set of attributes to a group of routes,
@@ -296,8 +292,8 @@ Route::group(['before' => 'auth'], function () {
 });
 ```
 
-
 <a id="named-route"></a>
+
 ## Named Routes
 
 Constantly generating URLs or redirects using a route's URI can cause problems
@@ -336,8 +332,8 @@ if (Request::route()->is('home')) {
 }
 ```
 
-
 <a id="routing-paket"></a>
+
 ## Package Routes
 
 Rakit is a flexible framework, the way it works is similar to a package manager on Linux.
@@ -390,8 +386,8 @@ Route::get('(:package)/password', function () {
 });
 ```
 
-
 <a id="routing-controller"></a>
+
 ## Controller Routing
 
 Controllers provide another way to manage your application logic. If you're unfamiliar with controllers
@@ -422,8 +418,8 @@ If you wish to automatically detect the controllers in a package, just pass the 
 If no package is specified, the application folder's controller directory will be searched.
 
 > It is important to note that this method gives you no control over the order in which controllers are loaded.
-  `Controller::detect()` should only be used to Route controllers in very small sites.
-  "Manually" routing controllers gives you much more control, is more self-documenting, and is certainly advised.
+> `Controller::detect()` should only be used to Route controllers in very small sites.
+> "Manually" routing controllers gives you much more control, is more self-documenting, and is certainly advised.
 
 #### Register all controllers for the `"admin"` package:
 
@@ -476,8 +472,8 @@ Route::get('/', ['uses' => 'home@index', 'after' => 'track']);
 Route::get('/', ['uses' => 'home@index', 'as' => 'home.welcome']);
 ```
 
-
 <a id="route-testing-via-cli"></a>
+
 ## CLI Route Testing
 
 Anda dapat memanggil rute yang anda buat via [console](/docs/en/console#memanggil-rute).

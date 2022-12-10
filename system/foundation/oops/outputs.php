@@ -67,15 +67,15 @@ class Outputs
 
             foreach (array_slice($item[3], 1) as $t) {
                 $t += ['class' => '', 'type' => '', 'function' => ''];
-                $stack[] = $t['class'].$t['type'].$t['function'].'()'
-                    .(isset($t['file'], $t['line']) ? ' in '.basename($t['file']).':'.$t['line'] : '');
+                $stack[] = $t['class'] . $t['type'] . $t['function'] . '()'
+                    . (isset($t['file'], $t['line']) ? ' in ' . basename($t['file']) . ':' . $t['line'] : '');
             }
 
-            $res .= '<span title="'.Helpers::escapeHtml(implode("\n", $stack)).'">'
-                .Helpers::editorLink($item[0], $item[1]).' '
-                .str_replace(self::BOM, '<big>BOM</big>', Dumper::toHtml($item[2]))
-                ."</span><br>\n";
+            $res .= '<span title="' . Helpers::escapeHtml(implode("\n", $stack)) . '">'
+                . Helpers::editorLink($item[0], $item[1]) . ' '
+                . str_replace(self::BOM, '<big>BOM</big>', Dumper::toHtml($item[2]))
+                . "</span><br>\n";
         }
-        return $res.'</code>';
+        return $res . '</code>';
     }
 }

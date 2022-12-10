@@ -18,4 +18,4 @@ require 'paths.php';
 // --------------------------------------------------------------
 // Jalankan frameworknya.
 // --------------------------------------------------------------
-require path('system').'boot.php';
+require path('system') . 'boot.php';

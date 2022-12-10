@@ -2,23 +2,22 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Section](#section)
-- [Blade Template Engine](#blade-template-engine)
-- [Blade Kondisional & Looping](#blade-kondisional--looping)
-- [Blade Layout](#blade-layout)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Section](#section)
+-   [Blade Template Engine](#blade-template-engine)
+-   [Blade Kondisional & Looping](#blade-kondisional--looping)
+-   [Blade Layout](#blade-layout)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Aplikasi anda mungkin menggunakan layout umum di sebagian besar halamannya. Beruang kali membuat
 layout ini secara manual dalam setiap action di controller pastinya akan cukup menyebalkan.
 
 Mendefinisikan layout sebuah controller akan membuat pengembangan anda jauh lebih menyenangkan. Begini caranya:
-
 
 #### Tambahkan property `$layout` ke controller anda:
 
@@ -33,7 +32,6 @@ class Home_Controller extends Controller
 
 > Setelah property `$layout` diisi, rakit akan secara cerdas mengubahnya menjadi instance kelas `View`.
 
-
 #### Akses layoutnya dari action di controller:
 
 ```php
@@ -43,16 +41,15 @@ public function action_profile()
 }
 ```
 
->  Ketika controller anda menggunakan fitur layout ini, action tidak perlu mereturn apapun untuk menampilkan view.
-
+> Ketika controller anda menggunakan fitur layout ini, action tidak perlu mereturn apapun untuk menampilkan view.
 
 <a id="section"></a>
+
 ## Section
 
 View section (atau bagian dari view) menyediakan cara sederhana untuk menyisipkan konten
 ke dalam layout dari nested view. Misalnya, anda mungkin ingin menyisipkan JavaScript
 yang diperlukan nested view ke header layout anda. Begini caranya:
-
 
 #### Membuat section dalam view:
 
@@ -62,7 +59,6 @@ yang diperlukan nested view ke header layout anda. Begini caranya:
 <?php Section::stop(); ?>
 ```
 
-
 #### Menampilkan isi dari sebuah section:
 
 ```php
@@ -70,7 +66,6 @@ yang diperlukan nested view ke header layout anda. Begini caranya:
 	<?php echo Section::yield_content('scripts'); ?>
 </head>
 ```
-
 
 #### Menggunakan sintaks Blade untuk membuat section:
 
@@ -84,8 +79,8 @@ yang diperlukan nested view ke header layout anda. Begini caranya:
 </head>
 ```
 
-
 <a id="blade-template-engine"></a>
+
 ## Blade Template Engine
 
 Blade membuat penulisan view anda menjadi semakin menyenangkan. Untuk membuat view menggunakan blade,
@@ -94,13 +89,11 @@ cukup gunakan ekstensi `.blade.php` pada file view anda.
 Blade memungkinkan anda untuk menggunakan sintaks yang lebih sederhana dan elegan untuk menulis
 dan menampilkan data.
 
-
 #### Menampilkan variabel menggunakan Blade:
 
 ```php
 Hello, {{ $name }}.
 ```
-
 
 #### Menampilkan hasil fungsi menggunakan Blade:
 
@@ -108,10 +101,9 @@ Hello, {{ $name }}.
 {{ now() }}
 ```
 
- >  Sintaks `{{` `}}` sudah secara otomatis di-escape melalui fungsi
-   [htmlentities()](https://www.php.net/manual/en/function.htmlentities.php) sehingga
-   aman dari serangan XSS.
-
+> Sintaks `{{` `}}` sudah secara otomatis di-escape melalui fungsi
+> [htmlentities()](https://www.php.net/manual/en/function.htmlentities.php) sehingga
+> aman dari serangan XSS.
 
 #### Blade & Framework JavaScript
 
@@ -126,7 +118,6 @@ Halo, @{{ $name }}.
 Dalam contoh diatas, simbol `@` akan dihapus oleh Blade; namun, sintaks `{{ name }}` akan
 tetap tidak tersentuh oleh mesin Blade, sehingga sintaks ini bisa di-render oleh
 framework JavaScript anda.
-
 
 #### Menampilkan data dengan default value
 
@@ -147,7 +138,6 @@ shortcut yang lebih mudah:
 Dalam contoh diatas, jika variabel `$name` ada, valuenya akan ditampilkan. Namun, jika tidak ada,
 kata `Tamu` akan ditampilkan.
 
-
 #### Menampilkan data tanpa escape
 
 Secara default, data yang diapit oleh sintaks `{{ }}` akan secara otomatis di-escape menggunakan
@@ -160,9 +150,8 @@ Jika anda tidak ingin data anda di-escape, anda dapat menggunakan sintaks beriku
 Hello, {!! $name !!}
 ```
 
->  Berhati-hatilah saat menampilkan data hasil dari input user. Selalu gunakan
-   sintaks `{{` `}}` untuk menghindari entitas HTML apapun dalam data.
-
+> Berhati-hatilah saat menampilkan data hasil dari input user. Selalu gunakan
+> sintaks `{{` `}}` untuk menghindari entitas HTML apapun dalam data.
 
 #### Menampilkan sebuah view:
 
@@ -182,7 +171,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 @render('admin.list')
 ```
 
-
 #### Membuat komentar:
 
 ```php
@@ -195,13 +183,11 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 --}}
 ```
 
->  Tidak seperti komentar di HTML, komentar Blade tidak terlihat ketia di view-source.
-
-
+> Tidak seperti komentar di HTML, komentar Blade tidak terlihat ketia di view-source.
 
 <a id="blade-kondisional--looping"></a>
-## Blade Kondisional & Looping
 
+## Blade Kondisional & Looping
 
 #### If Statement:
 
@@ -210,7 +196,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
     Wah, harganya 5 ribu!
 @endif
 ```
-
 
 #### If Else Statement:
 
@@ -221,7 +206,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
     Tidak ada pesan baru!
 @endif
 ```
-
 
 #### Else If Statement:
 
@@ -234,7 +218,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
     Eh? mahluk apa ini?
 @endif
 ```
-
 
 #### Unless Statement:
 
@@ -250,7 +233,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 <?php endif; ?>
 ```
 
-
 #### Set Statement:
 
 ```php
@@ -261,7 +243,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 <?php $name = 'Budi'; ?>
 ```
 
-
 #### For Loop:
 
 ```php
@@ -270,7 +251,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 @endfor
 ```
 
-
 #### Foreach Loop:
 
 ```php
@@ -278,7 +258,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
     <p>ID user saat ini adalah: {{ $user->id }}</p>
 @endforeach
 ```
-
 
 #### For Else Loop:
 
@@ -290,7 +269,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 @endforelse
 ```
 
-
 #### While Loop:
 
 ```php
@@ -298,7 +276,6 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
     <p>Aku adalah infinite loop. Hahaha</p>
 @endwhile
 ```
-
 
 #### PHP Block:
 
@@ -316,8 +293,8 @@ dengan `@include()` kecuali view yang di-render **tidak mewarisi** data dari vie
 ?>
 ```
 
-
 <a id="blade-layout"></a>
+
 ## Blade Layout
 
 Blade tidak hanya menyediakan sintaks yang bersih dan elegan untuk struktur kontrol PHP yang umum,
@@ -361,8 +338,7 @@ return View::make('profile');
 View `profile` akan secara otomatis menggunakan template `master` berkat bantuan tag `@layout()`.
 
 > Pemanggilan `@layout()` harus selalu berada di baris paling pertama file view,
-  tanpa whitespace maupun newline.
-
+> tanpa whitespace maupun newline.
 
 #### Menambahkan konten menggunakan `@parent`
 

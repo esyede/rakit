@@ -2,6 +2,10 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Request;
+use System\Routing\Route;
+use System\Routing\Middleware;
+
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -164,7 +168,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testMiddlewareParametersArePassedToMiddleware()
     {
         Middleware::register('test-params', function ($var1, $var2) {
-            return $var1.$var2;
+            return $var1 . $var2;
         });
 
         $route = new Route('GET', '', ['before' => 'test-params:1,2']);

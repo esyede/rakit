@@ -2,29 +2,29 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Konvensi](#konvensi)
-- [Mengambil Model](#mengambil-model)
-- [Agregasi](#agregasi)
-- [Insert & Update Model](#insert--update-model)
-- [Relasi](#relasi)
-    - [One-To-One](#one-to-one)
-    - [One-To-Many](#one-to-many)
-    - [Many-To-Many](#many-to-many)
-- [Insert Ke Model Yang Berelasi](#insert-ke-model-yang-berelasi)
-    - [Insert Ke Model Yang Berelasi \(Many-To-Many\)](#insert-ke-model-yang-berelasi-many-to-many)
-- [Bekerja Dengan Intermediate Table](#bekerja-dengan-intermediate-table)
-- [Eagerloading](#eagerloading)
-- [Membatasi Eagerloading](#membatasi-eagerloading)
-- [Mutator & Accessor](#mutator--accessor)
-- [Mass-Assignment](#mass-assignment)
-- [Konversi Model Ke Array](#konversi-model-ke-array)
-- [Delete Model](#delete-model)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Konvensi](#konvensi)
+-   [Mengambil Model](#mengambil-model)
+-   [Agregasi](#agregasi)
+-   [Insert & Update Model](#insert--update-model)
+-   [Relasi](#relasi)
+    -   [One-To-One](#one-to-one)
+    -   [One-To-Many](#one-to-many)
+    -   [Many-To-Many](#many-to-many)
+-   [Insert Ke Model Yang Berelasi](#insert-ke-model-yang-berelasi)
+    -   [Insert Ke Model Yang Berelasi \(Many-To-Many\)](#insert-ke-model-yang-berelasi-many-to-many)
+-   [Bekerja Dengan Intermediate Table](#bekerja-dengan-intermediate-table)
+-   [Eagerloading](#eagerloading)
+-   [Membatasi Eagerloading](#membatasi-eagerloading)
+-   [Mutator & Accessor](#mutator--accessor)
+-   [Mass-Assignment](#mass-assignment)
+-   [Konversi Model Ke Array](#konversi-model-ke-array)
+-   [Delete Model](#delete-model)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Tentu anda sudah tahu apa itu ORM atau object-relational mappper ini, dan Rakit juga
@@ -46,19 +46,19 @@ Mantap! Perhatikan bahwa model kita meng-extends `Facile`.
 Dialah yang akan menyediakan seluruh fungsionalitas yang anda butuhkan untuk mulai bekerja
 dengan database anda.
 
->  Biasanya, Facile model diletakkan di folder `models/`.
-
+> Biasanya, Facile model diletakkan di folder `models/`.
 
 <a id="konvensi"></a>
+
 ## Konvensi
 
 Facile membuat beberapa asumsi dasar tentang struktur database anda:
 
-- Setiap tabel harus memiliki primary key bernama `'id'`.
-- Setiap nama tabel harus dinamai bentuk plural (jamak) dari nama modelnya.
+-   Setiap tabel harus memiliki primary key bernama `'id'`.
+-   Setiap nama tabel harus dinamai bentuk plural (jamak) dari nama modelnya.
 
 Tapi terkadang, anda mungkin ingin menggunakan nama tabel selain bentuk jamak dari model anda,
-atau kolom primary key  dengan nama selain `'id'`.
+atau kolom primary key dengan nama selain `'id'`.
 Tidak masalah. Cukup tambahkan properti `$table` dan `$key` ke model anda seperti ini:
 
 ```php
@@ -71,8 +71,8 @@ class User extends Facile
 }
 ```
 
-
 <a id="mengambil-model"></a>
+
 ## Mengambil Model
 
 Mengambil model menggunakan Facile sangatlah sederhana.
@@ -122,11 +122,11 @@ $users = User::where_in('id', [1, 2, 3])->or_where('email', '=', $email)->get();
 $users = User::order_by('votes', 'desc')->take(10)->get();
 ```
 
->  Jika tidak ada data yang ditemukan, method `first()` akan me-return `NULL`.
-   Sedangkan method `all()` dan `get()` akan me-return `array kosong`.
-
+> Jika tidak ada data yang ditemukan, method `first()` akan me-return `NULL`.
+> Sedangkan method `all()` dan `get()` akan me-return `array kosong`.
 
 <a id="agregasi"></a>
+
 ## Agregasi
 
 Perlu mengambil nilai `MIN`, `MAX`, `AVG`, `SUM`, atau `COUNT`? Cukup sebutkan nama kolomnya:
@@ -149,8 +149,8 @@ Tentu saja, anda juga boleh membatasi kueri menggunakan klausa `WHERE` terlebih 
 $count = User::where('id', '>', 10)->count();
 ```
 
-
 <a id="insert--update-model"></a>
+
 ## Insert & Update Model
 
 Insert record kedalam tabel juga sangat mudah, semudah menghitung satu sampai tiga.
@@ -212,7 +212,7 @@ $comment->touch();
 ```
 
 Anda juga dapat menggunakan method `timestamp()` untuk meng-update kolom `'updated_at'`
-tanpa langsung menyimpan  si model ke database.
+tanpa langsung menyimpan si model ke database.
 
 Perlu diingat bahwa setiap kali anda mengubah record di model,
 method ini sudah secara otomatis dipanggil, sehingga anda tidak perlu memanggilnya
@@ -227,10 +227,10 @@ $comment->timestamp();
 $comment->save();
 ```
 
->  Anda bisa mengubah timezone untuk aplikasi anda melalui file `application/config/application.php`.
-
+> Anda bisa mengubah timezone untuk aplikasi anda melalui file `application/config/application.php`.
 
 <a id="relasi"></a>
+
 ## Relasi
 
 Lazimnya, tabel di database anda akan berelasi satu sama lain.
@@ -239,17 +239,17 @@ Misalnya, `order` mungkin milik `user`. Atau, sebuah `post` mungkin memiliki ban
 Facile membuat pendefinisian relasi dan pengambilan model yang berelasi menjadi sederhana dan intuitif.
 Rakit mendukung tiga tipe relasi:
 
-- [One-To-One](#one-to-one)
-- [One-To-Many](#one-to-many)
-- [Many-To-Many](#many-to-many)
+-   [One-To-One](#one-to-one)
+-   [One-To-Many](#one-to-many)
+-   [Many-To-Many](#many-to-many)
 
 Untuk mendefinisikan relasi pada model, anda cukup membuat method yang me-return
 method `has_one()`, `has_many()`, `belongs_to()`, atau `belongs_to_many()`.
 
 Mari kita coba masing - masing method tersebut:
 
-
 <a id="one-to-one"></a>
+
 ### One-To-One
 
 Relasi one-to-one (atau, satu-ke-satu) adalah bentuk relasi yang paling dasar.
@@ -330,8 +330,8 @@ echo Phone::find(1)->user()->first()->email;
 echo Phone::find(1)->user->email;
 ```
 
-
 <a id="one-to-many"></a>
+
 ### One-To-Many
 
 Asumsikan sebuah `post` memiliki banyak `comment`. Anda bisa mendefinisikan relasi ini
@@ -386,8 +386,8 @@ $results = Post::find(1)->comments()
     ->get();
 ```
 
-
 <a id="many-to-many"></a>
+
 ### Many-To-Many
 
 Relasi many-to-many (atau banyak-ke-banyak) adalah yang paling rumit dari ketiga relasi.
@@ -401,20 +401,21 @@ tabel `'users'`, tabel `'roles'`, dan tabel `'role_user'`.
 Struktur setiap tabel akan terlihat seperti ini:
 
 **Tabel `users`:**
+
 ```sql
 id    - INTEGER
 email - VARCHAR
 ```
-
 
 **Tabel `roles`:**
+
 ```sql
 id    - INTEGER
 email - VARCHAR
 ```
 
-
 **Tabel `role_user`:**
+
 ```sql
 id      - INTEGER
 user_id - INTEGER
@@ -480,8 +481,8 @@ class User extends Facile
 }
 ```
 
-
 <a id="insert-ke-model-yang-berelasi"></a>
+
 ## Insert Ke Model Yang Berelasi
 
 Anggaplah anda memiliki model `Post` yang memiliki banyak `Comment`.
@@ -518,8 +519,8 @@ $post = Post::find(1);
 $post->comments()->save($data);
 ```
 
-
 <a id="insert-ke-model-yang-berelasi-many-to-many"></a>
+
 ### Insert Ke Model Yang Berelasi (Many-To-Many)
 
 Ini bahkan lebih membantu ketika bekerja dengan relasi many-to-many.
@@ -527,8 +528,6 @@ Misalnya, jika model `User` yang memiliki banyak role.
 Demikian pula, model `Role` mungkin memiliki banyak user.
 Jadi, tabel perantara untuk relasi ini memiliki kolom `'user_id'` dan `'role_id'`.
 Sekarang, mari kita masukkan Role baru untuk User:
-
-
 
 ```php
 $data = ['title' => 'Admin'];
@@ -566,8 +565,8 @@ hanya ID dalam array yang akan berada di tabel perantara.
 $user->roles()->sync([1, 2, 3]);
 ```
 
-
 <a id="bekerja-dengan-intermediate-table"></a>
+
 ## Bekerja Dengan Intermediate Table
 
 Seperti yang telah anda ketahui, relasi many-to-many (atau banyak-ke-banyak) memerlukan
@@ -620,8 +619,8 @@ $user->roles()->delete();
 Harap diingat bahwa ini tidak akan menghapus role dari tabel `roles`,
 tetapi hanya akan menghapus record dari tabel perantara yang berelasi role dengan user tertentu.
 
-
 <a id="eagerloading"></a>
+
 ## Eagerloading
 
 Eager loading ada untuk mengatasi masalah `N + 1` pada kueri. Masalah apa sih ini?
@@ -681,7 +680,7 @@ Perlu meng- eagerload lebih dari satu relasi? Bisa kok:
 $books = Book::with(['author', 'publisher'])->get();
 ```
 
->  Ketika melakukan eagerloading, pemanggilan method `with()` harus selalu dilakukan di awal kueri.
+> Ketika melakukan eagerloading, pemanggilan method `with()` harus selalu dilakukan di awal kueri.
 
 Anda bahkan boleh meng-eagerload nested relationship (atau relasi yang bersarang).
 Sebagai contoh, mari asumsikan model `Author` memiliki sebuah relasi `contacts`.
@@ -716,12 +715,12 @@ foreach (Book::all() as $book) {
 }
 ```
 
->  Method `with()` memiliki prioritas yang lebih tinggi dari properti `$with`,
-   sehingga penggunaan method `with()` akan meng-override value yang telah anda
-   tetapkan mmelalui properti `$with`.
-
+> Method `with()` memiliki prioritas yang lebih tinggi dari properti `$with`,
+> sehingga penggunaan method `with()` akan meng-override value yang telah anda
+> tetapkan mmelalui properti `$with`.
 
 <a id="membatasi-eagerloading"></a>
+
 ## Membatasi Eagerloading
 
 Terkadang anda mungkin ingin meng-eagerload sebuah relasi, tetapi juga menentukan
@@ -738,8 +737,8 @@ $users = User::with(['posts' => function ($query) {
 Pada contoh diatas, kita meng-eagerload `posts` untuk `users`,
 tetapi hanya akan dilakukan jika kolom `posts.title` mengandung kata 'foo'.
 
-
 <a id="mutator--accessor"></a>
+
 ## Mutator & Accessor
 
 Mutator memungkinkan anda untuk menangani penetapan atribut dengan cara khusus.
@@ -778,8 +777,8 @@ Panggil mutator tersebut sebagai property dan tanpa awalan `get_` seperti ini:
 echo $this->published_at; // output: Sep 14, 2020
 ```
 
-
 <a id="mass-assignment"></a>
+
 ## Mass-Assignment
 
 Mass-assignment adalah praktik mengoper array asosiatif ke suatu model yang kemudian
@@ -827,11 +826,11 @@ Selain itu, anda juga dapat melakukannya menggunakan method `fillable()` seperti
 User::fillable(['email', 'password', 'name']);
 ```
 
->  Harap lakukan validasi secara cermat terlebih dahulu sebelum menjalankan mass-assignment
-   menggunakan data inputan user. Keteledoran dapat menyebabkan celah keamanan yang serius.
-
+> Harap lakukan validasi secara cermat terlebih dahulu sebelum menjalankan mass-assignment
+> menggunakan data inputan user. Keteledoran dapat menyebabkan celah keamanan yang serius.
 
 <a id="konversi-model-ke-array"></a>
+
 ## Konversi Model Ke Array
 
 Ketika ingin membuat JSON API, anda akan perlu untuk mengubah model menjadi array
@@ -865,8 +864,8 @@ class User extends Facile
 }
 ```
 
-
 <a id="delete-model"></a>
+
 ## Delete Model
 
 Karena Facile mewarisi semua fitur dan method milik [query builder](/docs/en/database/magic),

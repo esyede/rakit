@@ -89,11 +89,16 @@ class Connection
         }
 
         switch ($this->driver()) {
-            case 'mysql':  return $this->grammar = new Query\Grammars\MySQL($this);
-            case 'sqlite': return $this->grammar = new Query\Grammars\SQLite($this);
-            case 'sqlsrv': return $this->grammar = new Query\Grammars\SQLServer($this);
-            case 'pgsql':  return $this->grammar = new Query\Grammars\Postgres($this);
-            default:       return $this->grammar = new Query\Grammars\Grammar($this);
+            case 'mysql':
+                return $this->grammar = new Query\Grammars\MySQL($this);
+            case 'sqlite':
+                return $this->grammar = new Query\Grammars\SQLite($this);
+            case 'sqlsrv':
+                return $this->grammar = new Query\Grammars\SQLServer($this);
+            case 'pgsql':
+                return $this->grammar = new Query\Grammars\Postgres($this);
+            default:
+                return $this->grammar = new Query\Grammars\Grammar($this);
         }
     }
 
@@ -206,7 +211,7 @@ class Connection
     protected function execute($sql, array $bindings = [])
     {
         $bindings = array_filter($bindings, function ($binding) {
-            return (! ($binding instanceof Expression));
+            return (!($binding instanceof Expression));
         });
 
         $bindings = array_values($bindings);

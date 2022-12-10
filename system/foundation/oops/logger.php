@@ -77,9 +77,9 @@ class Logger
      */
     public function log($message, $priority = self::INFO)
     {
-        if (! $this->directory) {
+        if (!$this->directory) {
             throw new \LogicException('Logging directory is not specified.');
-        } elseif (! is_dir($this->directory)) {
+        } elseif (!is_dir($this->directory)) {
             throw new \RuntimeException(
                 sprintf('Logging directory cannot be found or is not directory: %s', $this->directory)
             );
@@ -89,13 +89,13 @@ class Logger
             ? $this->getExceptionFile($message)
             : null;
         $line = static::formatLogLine($message, $excfile, $priority);
-        $file = $this->directory.DIRECTORY_SEPARATOR.date('Y-m-d').'.log.php';
+        $file = $this->directory . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log.php';
 
         try {
             if (is_file($file)) {
-                file_put_contents($file, $line.PHP_EOL, FILE_APPEND | LOCK_EX);
+                file_put_contents($file, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
             } else {
-                file_put_contents($file, $line.PHP_EOL, LOCK_EX);
+                file_put_contents($file, $line . PHP_EOL, LOCK_EX);
             }
         } catch (\Exception $e) {
             throw new \RuntimeException(
@@ -122,19 +122,20 @@ class Logger
     public static function formatMessage($message)
     {
         if (($message instanceof \Exception)
-        || (class_exists('\Throwable') && ($message instanceof \Throwable))) {
+            || (class_exists('\Throwable') && ($message instanceof \Throwable))
+        ) {
             while ($message) {
                 $tmp[] = (($message instanceof \ErrorException)
-                    ? Helpers::errorTypeToString($message->getSeverity()).': '.$message->getMessage()
-                    : Helpers::getClass($message).': '.$message->getMessage().
-                        ($message->getCode() ? ' #'.$message->getCode() : '')
-                ).' in '.$message->getFile().':'.$message->getLine();
+                    ? Helpers::errorTypeToString($message->getSeverity()) . ': ' . $message->getMessage()
+                    : Helpers::getClass($message) . ': ' . $message->getMessage() .
+                    ($message->getCode() ? ' #' . $message->getCode() : '')
+                ) . ' in ' . $message->getFile() . ':' . $message->getLine();
 
                 $message = $message->getPrevious();
             }
 
             $message = implode("\ncaused by ", $tmp);
-        } elseif (! is_string($message)) {
+        } elseif (!is_string($message)) {
             $message = Dumper::toText($message);
         }
 
@@ -178,16 +179,16 @@ class Logger
         }
 
         $hash = substr(md5(serialize($data)), 0, 10);
-        $dir = strtr($this->directory.'/', '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
+        $dir = strtr($this->directory . '/', '\\/', DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
 
         foreach (new \DirectoryIterator($this->directory) as $file) {
             if (strpos($file->getBasename(), $hash)) {
-                return $dir.$file;
+                return $dir . $file;
             }
         }
 
-        $dir .= 'html'.DIRECTORY_SEPARATOR;
-        return $dir.'exception--'.@date('Y-m-d--H-i')."--$hash.html";
+        $dir .= 'html' . DIRECTORY_SEPARATOR;
+        return $dir . 'exception--' . @date('Y-m-d--H-i') . "--$hash.html";
     }
 
     /**
@@ -219,10 +220,12 @@ class Logger
             ? $this->emailSnooze
             : (@strtotime($this->emailSnooze) - time());
 
-        if ($this->email
-        && $this->mailer
-        && @filemtime($this->directory.'/email-sent') + $snooze < time()
-        && @file_put_contents($this->directory.'/email-sent', 'sent')) {
+        if (
+            $this->email
+            && $this->mailer
+            && @filemtime($this->directory . '/email-sent') + $snooze < time()
+            && @file_put_contents($this->directory . '/email-sent', 'sent')
+        ) {
             call_user_func($this->mailer, $message, implode(', ', (array) $this->email));
         }
     }
@@ -244,13 +247,13 @@ class Logger
             ["\n", PHP_EOL],
             [
                 'headers' => implode("\n", [
-                    'From: '.($this->fromEmail ? $this->fromEmail : "noreply@$host"),
+                    'From: ' . ($this->fromEmail ? $this->fromEmail : "noreply@$host"),
                     'X-Mailer: Rakit debugger',
                     'Content-Type: text/plain; charset=UTF-8',
                     'Content-Transfer-Encoding: 8bit',
-                ])."\n",
+                ]) . "\n",
                 'subject' => "PHP: An error occurred on the server $host",
-                'body' => static::formatMessage($message)."\n\nsource: ".Helpers::getSource(),
+                'body' => static::formatMessage($message) . "\n\nsource: " . Helpers::getSource(),
             ]
         );
 

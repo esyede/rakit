@@ -28,10 +28,10 @@ class MySQL extends Grammar
     {
         $columns = implode(', ', $this->columns($table));
 
-        $sql = 'CREATE TABLE '.$this->wrap($table).' ('.$columns.')';
-        $sql .= is_null($table->engine) ? '' : ' ENGINE = '.$table->engine;
-        $sql .= is_null($table->charset) ? '' : ' DEFAULT CHARACTER SET = '.$table->charset;
-        $sql .= is_null($table->collation) ? '' : ' COLLATE = '.$table->collation;
+        $sql = 'CREATE TABLE ' . $this->wrap($table) . ' (' . $columns . ')';
+        $sql .= is_null($table->engine) ? '' : ' ENGINE = ' . $table->engine;
+        $sql .= is_null($table->charset) ? '' : ' DEFAULT CHARACTER SET = ' . $table->charset;
+        $sql .= is_null($table->collation) ? '' : ' COLLATE = ' . $table->collation;
 
         return $sql;
     }
@@ -48,10 +48,10 @@ class MySQL extends Grammar
     {
         $columns = $this->columns($table);
         $columns = implode(', ', array_map(function ($column) {
-            return 'ADD '.$column;
+            return 'ADD ' . $column;
         }, $columns));
 
-        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }
 
     /**
@@ -66,7 +66,7 @@ class MySQL extends Grammar
         $columns = [];
 
         foreach ($table->columns as $column) {
-            $sql = $this->wrap($column).' '.$this->type($column);
+            $sql = $this->wrap($column) . ' ' . $this->type($column);
 
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->charset($table, $column);
@@ -107,7 +107,7 @@ class MySQL extends Grammar
     protected function charset(Table $table, Magic $column)
     {
         if (in_array($column->type, ['string', 'text']) && $column->charset) {
-            return ' CHARACTER SET '.$column->charset;
+            return ' CHARACTER SET ' . $column->charset;
         }
     }
 
@@ -124,7 +124,7 @@ class MySQL extends Grammar
         // TODO: Beberapa tipe kolom (seperti char, enum, set) belum didukung oleh rakit.
         // saat ini dukungan masih terbatas pada tipe kolom yang berbasis teks.
         if (in_array($column->type, ['string', 'text']) && $column->collate) {
-            return ' CHARACTER SET '.$column->collate;
+            return ' CHARACTER SET ' . $column->collate;
         }
     }
 
@@ -151,8 +151,8 @@ class MySQL extends Grammar
      */
     protected function defaults(Table $table, Magic $column)
     {
-        if (! is_null($column->default)) {
-            return " DEFAULT '".$this->default_value($column->default)."'";
+        if (!is_null($column->default)) {
+            return " DEFAULT '" . $this->default_value($column->default) . "'";
         }
     }
 
@@ -235,7 +235,7 @@ class MySQL extends Grammar
     protected function key(Table $table, Magic $command, $type)
     {
         $keys = $this->columnize($command->columns);
-        return 'ALTER TABLE '.$this->wrap($table).' ADD '.$type.' '.$command->name.'('.$keys.')';
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ADD ' . $type . ' ' . $command->name . '(' . $keys . ')';
     }
 
     /**
@@ -248,7 +248,7 @@ class MySQL extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        return 'RENAME TABLE '.$this->wrap($table).' TO '.$this->wrap($command->name);
+        return 'RENAME TABLE ' . $this->wrap($table) . ' TO ' . $this->wrap($command->name);
     }
 
     /**
@@ -263,10 +263,10 @@ class MySQL extends Grammar
     {
         $columns = array_map([$this, 'wrap'], $command->columns);
         $columns = implode(', ', array_map(function ($column) {
-            return 'DROP '.$column;
+            return 'DROP ' . $column;
         }, $columns));
 
-        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }
 
     /**
@@ -279,7 +279,7 @@ class MySQL extends Grammar
      */
     public function drop_primary(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP PRIMARY KEY';
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP PRIMARY KEY';
     }
 
     /**
@@ -331,7 +331,7 @@ class MySQL extends Grammar
      */
     protected function drop_key(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP INDEX '.$command->name;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP INDEX ' . $command->name;
     }
 
     /**
@@ -344,7 +344,7 @@ class MySQL extends Grammar
      */
     public function drop_foreign(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP FOREIGN KEY '.$command->name;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP FOREIGN KEY ' . $command->name;
     }
 
     /**
@@ -356,7 +356,7 @@ class MySQL extends Grammar
      */
     protected function type_string(Magic $column)
     {
-        return 'VARCHAR('.$column->length.')';
+        return 'VARCHAR(' . $column->length . ')';
     }
 
     /**
@@ -392,7 +392,7 @@ class MySQL extends Grammar
      */
     protected function type_decimal(Magic $column)
     {
-        return 'DECIMAL('.$column->precision.', '.$column->scale.')';
+        return 'DECIMAL(' . $column->precision . ', ' . $column->scale . ')';
     }
 
     /**

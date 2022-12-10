@@ -24,7 +24,7 @@ class Tcno
             }
         }
 
-        return ((7 * $even - $odd) % 10).(($even + $odd + ((7 * $even - $odd) % 10)) % 10);
+        return ((7 * $even - $odd) % 10) . (($even + $odd + ((7 * $even - $odd) % 10)) % 10);
     }
 
     public static function isValid($tcNo)

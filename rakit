@@ -19,12 +19,12 @@ require 'paths.php';
 // --------------------------------------------------------------
 // Panggil init script sebelum first boot.
 // --------------------------------------------------------------
-require path('system').'init.php';
+require path('system') . 'init.php';
 
 // --------------------------------------------------------------
 // Bootstrap file core milik framework.
 // --------------------------------------------------------------
-require path('system').'core.php';
+require path('system') . 'core.php';
 
 // --------------------------------------------------------------
 // Pastikan script dijalankan via console.
@@ -34,4 +34,4 @@ is_cli() or exit('Please run this script from your console.');
 // --------------------------------------------------------------
 // Panggil consolenya.
 // --------------------------------------------------------------
-require path('system').'console'.DS.'boot.php';
+require path('system') . 'console' . DS . 'boot.php';

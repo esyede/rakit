@@ -9,7 +9,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        if (! Session::started()) {
+        if (!Session::started()) {
             Session::start('file');
         }
     }
@@ -24,7 +24,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
             if (is_file($file)) {
                 unlink($file);
             }
-        }, glob(path('storage').'sessions'.DS.'*.session.php'));
+        }, glob(path('storage') . 'sessions' . DS . '*.session.php'));
     }
 
     /**
@@ -84,14 +84,14 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     public function testControlStructuresAreCreatedCorrectly()
     {
         $blade1 = "@if (true)\nfoo\n@endif";
-        $blade2 = '@if (count('.'$something'.") > 0)\nfoo\n@endif";
+        $blade2 = '@if (count(' . '$something' . ") > 0)\nfoo\n@endif";
         $blade3 = "@if (true)\nfoo\n@elseif (false)\nbar\n@else\nfoobar\n@endif";
         $blade4 = "@if (true)\nfoo\n@elseif (false)\nbar\n@endif";
         $blade5 = "@if (true)\nfoo\n@else\nbar\n@endif";
-        $blade6 = '@unless (count('.'$something'.") > 0)\nfoobar\n@endunless";
-        $blade7 = '@for (Foo::all() as '.'$foo'.")\nfoo\n@endfor";
-        $blade8 = '@foreach (Foo::all() as '.'$foo'.")\nfoo\n@endforeach";
-        $blade9 = '@forelse (Foo::all() as '.'$foo'.")\nfoo\n@empty\nbar\n@endforelse";
+        $blade6 = '@unless (count(' . '$something' . ") > 0)\nfoobar\n@endunless";
+        $blade7 = '@for (Foo::all() as ' . '$foo' . ")\nfoo\n@endfor";
+        $blade8 = '@foreach (Foo::all() as ' . '$foo' . ")\nfoo\n@endforeach";
+        $blade9 = '@forelse (Foo::all() as ' . '$foo' . ")\nfoo\n@empty\nbar\n@endforelse";
         $blade10 = "@while (true)\nfoo\n@endwhile";
         $blade11 = "@while (Foo::bar())\nfoo\n@endwhile";
         $blade12 = "@guest\nfoo\n@endguest";
@@ -100,14 +100,14 @@ class BladeTest extends \PHPUnit_Framework_TestCase
 
         $out1 = "<?php if (true): ?>\nfoo\n<?php endif; ?>";
         $out2 = "<?php if (count(\$something) > 0): ?>\nfoo\n<?php endif; ?>";
-        $out3 = "<?php if (true): ?>\nfoo\n<?php elseif (false): ?>\nbar\n".
+        $out3 = "<?php if (true): ?>\nfoo\n<?php elseif (false): ?>\nbar\n" .
             "<?php else: ?>\nfoobar\n<?php endif; ?>";
         $out4 = "<?php if (true): ?>\nfoo\n<?php elseif (false): ?>\nbar\n<?php endif; ?>";
         $out5 = "<?php if (true): ?>\nfoo\n<?php else: ?>\nbar\n<?php endif; ?>";
         $out6 = "<?php if (! ( (count(\$something) > 0))): ?>\nfoobar\n<?php endif; ?>";
         $out7 = "<?php for (Foo::all() as \$foo): ?>\nfoo\n<?php endfor; ?>";
         $out8 = "<?php foreach (Foo::all() as \$foo): ?>\nfoo\n<?php endforeach; ?>";
-        $out9 = "<?php if (count(Foo::all()) > 0): ?><?php foreach (Foo::all() as \$foo): ?>\n".
+        $out9 = "<?php if (count(Foo::all()) > 0): ?><?php foreach (Foo::all() as \$foo): ?>\n" .
             "foo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; ?>";
         $out10 = "<?php while (true): ?>\nfoo\n<?php endwhile; ?>";
         $out11 = "<?php while (Foo::bar()): ?>\nfoo\n<?php endwhile; ?>";
@@ -180,7 +180,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $blade2 = "@include(Config::get('application.default_view', 'user.profile'))";
 
         $out1 = "<?php echo view('user.profile')->with(get_defined_vars())->render() ?>";
-        $out2 = "<?php echo view(Config::get('application.default_view', 'user.profile'))".
+        $out2 = "<?php echo view(Config::get('application.default_view', 'user.profile'))" .
             '->with(get_defined_vars())->render() ?>';
 
         $this->assertEquals($out1, Blade::translate($blade1));

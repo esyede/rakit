@@ -2,13 +2,13 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Cara Penggunaan](#cara-penggunaan)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Cara Penggunaan](#cara-penggunaan)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Komponen ini digunakan untuk mengantrekan event ke database untuk kemudian
@@ -24,8 +24,8 @@ $scheduled_at = Date::make('now')->remake('+24 hours');
 Job::add($name, $payloads, $scheduled_at);
 ```
 
-
 <a id="cara-penggunaan"></a>
+
 ## Cara Penggunaan
 
 Untuk menggunakan komponen ini, anda perlu membuat tabel `'jobs'`:

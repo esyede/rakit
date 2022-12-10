@@ -2,6 +2,10 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Str;
+use System\Config;
+use System\Validator;
+
 class ValidatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -463,11 +467,11 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheImageRule()
     {
-        $_FILES['photo']['tmp_name'] = path('storage').'test.png';
+        $_FILES['photo']['tmp_name'] = path('storage') . 'test.png';
         $rules = ['photo' => 'image'];
         $this->assertTrue(Validator::make($_FILES, $rules)->valid());
 
-        $_FILES['photo']['tmp_name'] = path('app').'routes.php';
+        $_FILES['photo']['tmp_name'] = path('app') . 'routes.php';
         $this->assertFalse(Validator::make($_FILES, $rules)->valid());
     }
 
@@ -523,14 +527,14 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheMimesRule()
     {
-        $_FILES['file']['tmp_name'] = path('app').'routes.php';
+        $_FILES['file']['tmp_name'] = path('app') . 'routes.php';
         $rules = ['file' => 'mimes:php,txt'];
         $this->assertTrue(Validator::make($_FILES, $rules)->valid());
 
         $rules = ['file' => 'mimes:jpg,bmp'];
         $this->assertFalse(Validator::make($_FILES, $rules)->valid());
 
-        $_FILES['file']['tmp_name'] = path('storage').'test.png';
+        $_FILES['file']['tmp_name'] = path('storage') . 'test.png';
         $rules['file'] = 'mimes:png,bmp';
         $this->assertTrue(Validator::make($_FILES, $rules)->valid());
 
@@ -635,7 +639,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testCorrectMessagesAreSet()
     {
-        $lng = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lng = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $input = ['email' => 'example-foo'];
         $rules = ['name' => 'required', 'email' => 'required|email'];
@@ -684,7 +688,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testNumericSizeReplacementsAreMade()
     {
-        $lng = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lng = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $input = ['amount' => 100];
         $rules = ['amount' => 'numeric|size:80'];
@@ -724,7 +728,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testStringSizeReplacementsAreMade()
     {
-        $lang = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lang = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $input = ['amount' => '100'];
         $rules = ['amount' => 'size:80'];
@@ -764,7 +768,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFileSizeReplacementsAreMade()
     {
-        $lang = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lang = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $_FILES['amount']['tmp_name'] = 'foo';
         $_FILES['amount']['size'] = 10000;
@@ -804,9 +808,9 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testValuesGetReplaced()
     {
-        $lang = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lang = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
-        $_FILES['file']['tmp_name'] = path('storage').'test.png';
+        $_FILES['file']['tmp_name'] = path('storage') . 'test.png';
         $rules = ['file' => 'mimes:php,txt'];
         $v = Validator::make($_FILES, $rules);
         $v->valid();
@@ -822,7 +826,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testCustomAttributesAreReplaced()
     {
-        $lang = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lang = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $rules = ['test_attribute' => 'required'];
         $v = Validator::make([], $rules);
@@ -839,7 +843,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testRequiredWithAttributesAreReplaced()
     {
-        $lang = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $lang = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $data = ['first_name' => 'Budi', 'last_name' => ''];
         $rules = ['first_name' => 'required', 'last_name' => 'required_with:first_name'];

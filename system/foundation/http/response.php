@@ -94,7 +94,7 @@ class Response
         $this->setStatusCode($status);
         $this->setProtocolVersion('1.0');
 
-        if (! $this->headers->has('Date')) {
+        if (!$this->headers->has('Date')) {
             $this->setDate(new \DateTime('now', new \DateTimeZone('UTC')));
         }
     }
@@ -131,7 +131,7 @@ class Response
             $this->version,
             $this->statusCode,
             $this->statusText
-        )."\r\n".$this->headers."\r\n".$this->getContent();
+        ) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
     }
 
     /**
@@ -158,7 +158,7 @@ class Response
             $this->setContent(null);
         }
 
-        if (! $headers->has('Content-Type')) {
+        if (!$headers->has('Content-Type')) {
             $format = $request->getRequestFormat();
 
             if (null !== $format && $mimeType = $request->getMimeType($format)) {
@@ -168,11 +168,13 @@ class Response
 
         $charset = $this->charset ? $this->charset : 'UTF-8';
 
-        if (! $headers->has('Content-Type')) {
-            $headers->set('Content-Type', 'text/html; charset='.$charset);
-        } elseif (0 === strpos((string) $headers->get('Content-Type'), 'text/')
-        && false === strpos((string) $headers->get('Content-Type'), 'charset')) {
-            $headers->set('Content-Type', $headers->get('Content-Type').'; charset='.$charset);
+        if (!$headers->has('Content-Type')) {
+            $headers->set('Content-Type', 'text/html; charset=' . $charset);
+        } elseif (
+            0 === strpos((string) $headers->get('Content-Type'), 'text/')
+            && false === strpos((string) $headers->get('Content-Type'), 'charset')
+        ) {
+            $headers->set('Content-Type', $headers->get('Content-Type') . '; charset=' . $charset);
         }
 
         if ($headers->has('Transfer-Encoding')) {
@@ -192,8 +194,10 @@ class Response
             $this->setProtocolVersion('1.1');
         }
 
-        if ('1.0' === $this->getProtocolVersion()
-        && 'no-cache' === $this->headers->get('Cache-Control')) {
+        if (
+            '1.0' === $this->getProtocolVersion()
+            && 'no-cache' === $this->headers->get('Cache-Control')
+        ) {
             $this->headers->set('pragma', 'no-cache');
             $this->headers->set('expires', -1);
         }
@@ -218,7 +222,7 @@ class Response
 
         foreach ($headers as $name => $values) {
             foreach ($values as $value) {
-                header($name.': '.$value, false);
+                header($name . ': ' . $value, false);
             }
         }
 
@@ -230,7 +234,7 @@ class Response
                     $cookie->getName(),
                     $cookie->getValue(),
                     $cookie->getExpiresTime(),
-                    $cookie->getPath().'; samesite='.$cookie->getSameSite(),
+                    $cookie->getPath() . '; samesite=' . $cookie->getSameSite(),
                     $cookie->getDomain(),
                     $cookie->isSecure(),
                     $cookie->isHttpOnly()
@@ -291,13 +295,15 @@ class Response
      */
     public function setContent($content)
     {
-        if (null !== $content
-        && ! is_string($content)
-        && ! is_numeric($content)
-        && ! is_callable([$content, '__toString'])) {
+        if (
+            null !== $content
+            && !is_string($content)
+            && !is_numeric($content)
+            && !is_callable([$content, '__toString'])
+        ) {
             throw new \UnexpectedValueException(
-                'The Response content must be a string or object '.
-                "implementing __toString(), '".gettype($content)."' given."
+                'The Response content must be a string or object ' .
+                    "implementing __toString(), '" . gettype($content) . "' given."
             );
         }
 
@@ -411,12 +417,14 @@ class Response
     {
         $cacheable = [200, 203, 300, 301, 302, 404, 410];
 
-        if (! in_array($this->statusCode, $cacheable)) {
+        if (!in_array($this->statusCode, $cacheable)) {
             return false;
         }
 
-        if ($this->headers->hasCacheControlDirective('no-store')
-        || $this->headers->getCacheControlDirective('private')) {
+        if (
+            $this->headers->hasCacheControlDirective('no-store')
+            || $this->headers->getCacheControlDirective('private')
+        ) {
             return false;
         }
 
@@ -503,7 +511,7 @@ class Response
     public function setDate(\DateTime $date)
     {
         $date->setTimezone(new \DateTimeZone('UTC'));
-        $this->headers->set('Date', $date->format('D, d M Y H:i:s').' GMT');
+        $this->headers->set('Date', $date->format('D, d M Y H:i:s') . ' GMT');
 
         return $this;
     }
@@ -558,7 +566,7 @@ class Response
         } else {
             $date = clone $date;
             $date->setTimezone(new \DateTimeZone('UTC'));
-            $this->headers->set('Expires', $date->format('D, d M Y H:i:s').' GMT');
+            $this->headers->set('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
         }
 
         return $this;
@@ -675,7 +683,7 @@ class Response
         } else {
             $date = clone $date;
             $date->setTimezone(new \DateTimeZone('UTC'));
-            $this->headers->set('Last-Modified', $date->format('D, d M Y H:i:s').' GMT');
+            $this->headers->set('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
         }
 
         return $this;
@@ -705,10 +713,10 @@ class Response
             $this->headers->remove('Etag');
         } else {
             if (0 !== strpos((string) $etag, '"')) {
-                $etag = '"'.$etag.'"';
+                $etag = '"' . $etag . '"';
             }
 
-            $this->headers->set('ETag', ($weak ? 'W/' : '').$etag);
+            $this->headers->set('ETag', ($weak ? 'W/' : '') . $etag);
         }
 
         return $this;
@@ -816,7 +824,7 @@ class Response
     {
         $vary = $this->headers->get('Vary');
 
-        if (! $vary) {
+        if (!$vary) {
             return [];
         }
 
@@ -848,7 +856,7 @@ class Response
      */
     public function isNotModified(Request $request)
     {
-        if (! $request->isMethodSafe()) {
+        if (!$request->isMethodSafe()) {
             return false;
         }
 
@@ -858,7 +866,7 @@ class Response
 
         if ($etags) {
             $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags))
-                && (! $lastModified || $this->headers->get('Last-Modified') === $lastModified);
+                && (!$lastModified || $this->headers->get('Last-Modified') === $lastModified);
         } elseif ($lastModified) {
             $notModified = ($lastModified === $this->headers->get('Last-Modified'));
         }
@@ -996,7 +1004,7 @@ class Response
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
-        } elseif (! $cliRequest) {
+        } elseif (!$cliRequest) {
             $previous = null;
             $ob = ob_get_status(true);
 

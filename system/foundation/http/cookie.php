@@ -38,7 +38,8 @@ class Cookie
     ) {
         if (preg_match('/[=,; \t\r\n\013\014]/', $name)) {
             throw new \InvalidArgumentException(sprintf(
-                "The cookie name '%s' contains invalid characters.", $name
+                "The cookie name '%s' contains invalid characters.",
+                $name
             ));
         }
 
@@ -48,7 +49,7 @@ class Cookie
 
         if ($expire instanceof \DateTime) {
             $expire = $expire->format('U');
-        } elseif (! is_numeric($expire)) {
+        } elseif (!is_numeric($expire)) {
             $expire = strtotime($expire);
 
             if (false === $expire || -1 === $expire) {
@@ -70,7 +71,7 @@ class Cookie
             $sameSite = strtolower((string) $sameSite);
         }
 
-        if (! in_array($sameSite, ['lax', 'strict', 'none', null], true)) {
+        if (!in_array($sameSite, ['lax', 'strict', 'none', null], true)) {
             throw new \InvalidArgumentException('The "sameSite" parameter value is not valid.');
         }
 
@@ -84,21 +85,21 @@ class Cookie
      */
     public function __toString()
     {
-        $str = urlencode($this->getName()).'=';
+        $str = urlencode($this->getName()) . '=';
 
         if ('' === (string) $this->getValue()) {
-            $str .= 'deleted; expires='.gmdate('D, d-M-Y H:i:s T', time() - 31536001);
+            $str .= 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001);
         } else {
             $str .= urlencode($this->getValue());
 
             if (0 !== $this->getExpiresTime()) {
-                $str .= '; expires='.gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime());
+                $str .= '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime());
             }
         }
 
-        $str .= ('/' !== $this->path) ? '; path='.$this->path : '';
-        $str .= (null !== $this->getSameSite()) ? '; samesite='.$this->getSameSite() : '';
-        $str .= (null !== $this->getDomain()) ? '; domain='.$this->getDomain() : '';
+        $str .= ('/' !== $this->path) ? '; path=' . $this->path : '';
+        $str .= (null !== $this->getSameSite()) ? '; samesite=' . $this->getSameSite() : '';
+        $str .= (null !== $this->getDomain()) ? '; domain=' . $this->getDomain() : '';
         $str .= (true === $this->isSecure()) ? '; secure' : '';
         $str .= (true === $this->isHttpOnly()) ? '; httponly' : '';
 

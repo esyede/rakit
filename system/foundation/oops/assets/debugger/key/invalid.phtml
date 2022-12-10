@@ -1,5 +1,6 @@
 <?php defined('DS') or exit('No direct script access.'); ?>
 <!DOCTYPE html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -8,13 +9,16 @@
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <title>500 | Rakit Key Too Short</title>
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
+
         body {
             margin: 0;
         }
+
         #oops-error {
             height: 100%;
             padding: 0;
@@ -23,31 +27,40 @@
             align-items: center;
             justify-content: center;
         }
+
         #row {
             width: auto;
         }
+
         #oops-error-item {
             text-align: center;
             color: #a0aec0;
             color: rgba(160, 174, 192, 1);
             font-size: 1.125em;
         }
-        a, a:visited {
+
+        a,
+        a:visited {
             color: #007bff;
         }
+
         p#hints {
             margin-top: 20px;
             font-size: 0.9em;
         }
-        code, span {
+
+        code,
+        span {
             font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", "Courier New", Courier, monospace;
         }
+
         span {
             font-family: monospace;
             color: hsl(348, 100%, 61%);
         }
+
         code {
-            background-color: ##f6f8fa;
+            background-color: #f6f8fa;
             border: 1px solid #E7E7E7;
             margin-top: 8px;
             padding: 10px;
@@ -56,6 +69,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="oops-error">
         <div id="row">
@@ -69,8 +83,14 @@
                     <code>
                         <?php echo sprintf(
                             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-                            mt_rand(0, 0xffff), mt_rand(0, 0xffff),  mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000,
-                            mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+                            mt_rand(0, 0xffff),
+                            mt_rand(0, 0xffff),
+                            mt_rand(0, 0xffff),
+                            mt_rand(0, 0x0fff) | 0x4000,
+                            mt_rand(0, 0x3fff) | 0x8000,
+                            mt_rand(0, 0xffff),
+                            mt_rand(0, 0xffff),
+                            mt_rand(0, 0xffff)
                         ); ?>
                     </code>
                 </p>
@@ -78,4 +98,5 @@
         </div>
     </div>
 </body>
+
 </html>

@@ -150,7 +150,7 @@ class Event
     public static function flush($queue)
     {
         foreach (static::$flushers[$queue] as $flusher) {
-            if (! isset(static::$queued[$queue])) {
+            if (!isset(static::$queued[$queue])) {
                 continue;
             }
 
@@ -193,7 +193,7 @@ class Event
                 foreach (static::$events[$event] as $handler) {
                     $response = call_user_func_array($handler, $parameters);
 
-                    if ($halt && ! is_null($response)) {
+                    if ($halt && !is_null($response)) {
                         return $response;
                     }
 

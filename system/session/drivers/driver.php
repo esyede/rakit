@@ -61,7 +61,7 @@ abstract class Driver
         do {
             $id = Str::random(40);
             $session = $this->load($id);
-        } while (! is_null($session));
+        } while (!is_null($session));
 
         return $id;
     }

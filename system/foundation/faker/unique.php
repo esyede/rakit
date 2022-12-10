@@ -23,7 +23,7 @@ class Unique
 
     public function __call($name, array $arguments)
     {
-        if (! isset($this->uniques[$name])) {
+        if (!isset($this->uniques[$name])) {
             $this->uniques[$name] = [];
         }
 
@@ -35,7 +35,8 @@ class Unique
 
             if ($retry > $this->max_retries) {
                 throw new \OverflowException(sprintf(
-                    'Maximum retries of %s reached without finding a unique value.', $this->max_retries
+                    'Maximum retries of %s reached without finding a unique value.',
+                    $this->max_retries
                 ));
             }
         } while (array_key_exists(serialize($result), $this->uniques[$name]));

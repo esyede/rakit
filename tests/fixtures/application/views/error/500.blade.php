@@ -1,5 +1,6 @@
 <?php defined('DS') or exit('No direct script access.'); ?>
 <!DOCTYPE html>
+
 <head>
     <!--
         PENTING !!
@@ -28,9 +29,11 @@
         }
     </style>
 </head>
+
 <body>
     <div id="oops-error">
         500 | Internal Server Error
     </div>
 </body>
+
 </html>

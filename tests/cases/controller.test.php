@@ -213,7 +213,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
     {
         $response = Controller::call('template.basic@index');
 
-        $home = file_get_contents(path('app').'views'.DS.'home'.DS.'index.php');
+        $home = file_get_contents(path('app') . 'views' . DS . 'home' . DS . 'index.php');
 
         $this->assertEquals($home, $response->content);
     }
@@ -229,7 +229,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
 
         $response = Controller::call('template.named@index');
 
-        $home = file_get_contents(path('app').'views'.DS.'home'.DS.'index.php');
+        $home = file_get_contents(path('app') . 'views' . DS . 'home' . DS . 'index.php');
         $home = trim(preg_replace('/[\t\n\r\s]+/', '', $home)); // abaikan whitespace
         $response = trim(preg_replace('/[\t\n\r\s]+/', '', $response->content)); // abaikan whitespace
 
@@ -256,7 +256,7 @@ class ControllerTest extends \PHPUnit_Framework_TestCase
     public function testResolveMethodChecksTheContainerContainer()
     {
         Container::register('controller: home', function () {
-            require_once path('app').'controllers'.DS.'home.php';
+            require_once path('app') . 'controllers' . DS . 'home.php';
 
             $controller = new Home_Controller();
             $controller->foo = 'bar';

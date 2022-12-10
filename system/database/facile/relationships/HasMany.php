@@ -36,7 +36,7 @@ class HasMany extends HasOneOrMany
             $model->{$foreign} = $this->base->get_key();
 
             $id = $model->get_key();
-            $model->exists = (! is_null($id) && in_array($id, $current));
+            $model->exists = (!is_null($id) && in_array($id, $current));
 
             $model->original = [];
             $model->save();

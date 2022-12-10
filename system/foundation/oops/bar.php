@@ -23,7 +23,7 @@ class Bar
         if (null === $id) {
             $counter = 0;
             do {
-                $id = get_class($panel).($counter++ ? "-$counter" : '');
+                $id = get_class($panel) . ($counter++ ? "-$counter" : '');
             } while (isset($this->panels[$id]));
         }
 
@@ -51,7 +51,7 @@ class Bar
      */
     public function renderLoader()
     {
-        if (! $this->useSession) {
+        if (!$this->useSession) {
             throw new \LogicException('Session started before debugger enabled.');
         }
 
@@ -60,7 +60,7 @@ class Bar
         $nonce = Helpers::getNonce();
         $async = true;
 
-        require __DIR__.'/assets/bar/loader.phtml';
+        require __DIR__ . '/assets/bar/loader.phtml';
     }
 
     /**
@@ -86,7 +86,7 @@ class Bar
         if (Helpers::isAjax()) {
             if ($useSession) {
                 $rows[] = (object) ['type' => 'ajax', 'panels' => $this->renderPanels('-ajax')];
-                $contentId = $_SERVER['HTTP_X_OOPS_AJAX'].'-ajax';
+                $contentId = $_SERVER['HTTP_X_OOPS_AJAX'] . '-ajax';
                 $_SESSION['_oops']['bar'][$contentId] = [
                     'content' => self::renderHtmlRows($rows),
                     'dumps' => Dumper::fetchLiveData(),
@@ -96,9 +96,9 @@ class Bar
         } elseif (preg_match('#^Location:#im', implode("\n", headers_list()))) { // redireksi
             if ($useSession) {
                 Dumper::fetchLiveData();
-                Dumper::$livePrefix = count($redirectQueue).'p';
+                Dumper::$livePrefix = count($redirectQueue) . 'p';
                 $redirectQueue[] = [
-                    'panels' => $this->renderPanels('-r'.count($redirectQueue)),
+                    'panels' => $this->renderPanels('-r' . count($redirectQueue)),
                     'dumps' => Dumper::fetchLiveData(),
                     'time' => time(),
                 ];
@@ -126,7 +126,7 @@ class Bar
                 $nonce = Helpers::getNonce();
                 $async = false;
 
-                require __DIR__.'/assets/bar/loader.phtml';
+                require __DIR__ . '/assets/bar/loader.phtml';
             }
         }
     }
@@ -140,8 +140,8 @@ class Bar
             // ..
         });
 
-        require __DIR__.'/assets/bar/panels.phtml';
-        require __DIR__.'/assets/bar/bar.phtml';
+        require __DIR__ . '/assets/bar/panels.phtml';
+        require __DIR__ . '/assets/bar/bar.phtml';
 
         return Helpers::fixEncoding(ob_get_clean());
     }
@@ -161,7 +161,7 @@ class Bar
         $panels = [];
 
         foreach ($this->panels as $id => $panel) {
-            $idHtml = preg_replace('#[^a-z0-9]+#i', '-', $id).$suffix;
+            $idHtml = preg_replace('#[^a-z0-9]+#i', '-', $id) . $suffix;
 
             try {
                 $tab = (string) $panel->getTab();
@@ -179,7 +179,7 @@ class Bar
 
                 $idHtml = "error-$idHtml";
                 $tab = "Error in $id";
-                $panelHtml = "<h1>Error: $id</h1><div class='oops-inner'>".nl2br(Helpers::escapeHtml($e)).'</div>';
+                $panelHtml = "<h1>Error: $id</h1><div class='oops-inner'>" . nl2br(Helpers::escapeHtml($e)) . '</div>';
                 unset($e);
             }
 
@@ -217,13 +217,13 @@ class Bar
         }
 
         if ($this->useSession && $asset && preg_match('#^content(-ajax)?\.(\w+)$#', $asset, $m)) {
-            $session = &$_SESSION['_oops']['bar'][$m[2].$m[1]];
+            $session = &$_SESSION['_oops']['bar'][$m[2] . $m[1]];
 
             header('Content-Type: application/javascript');
             header('Cache-Control: max-age=60');
             header_remove('Set-Cookie');
 
-            if (! $m[1]) {
+            if (!$m[1]) {
                 $this->renderAssets();
             }
 
@@ -249,24 +249,24 @@ class Bar
     private function renderAssets()
     {
         $css = array_map('file_get_contents', array_merge([
-            __DIR__.'/assets/bar/bar.css',
-            __DIR__.'/assets/toggle/toggle.css',
-            __DIR__.'/assets/dumper/dumper.css',
-            __DIR__.'/assets/panic/panic.css',
+            __DIR__ . '/assets/bar/bar.css',
+            __DIR__ . '/assets/toggle/toggle.css',
+            __DIR__ . '/assets/dumper/dumper.css',
+            __DIR__ . '/assets/panic/panic.css',
         ], Debugger::$customCssFiles));
 
         echo "(function(){
 	       var el = document.createElement('style');
 	       el.setAttribute('nonce', document.currentScript.getAttribute('nonce') || document.currentScript.nonce);
 	       el.className='oops-debug';
-	       el.textContent=".json_encode(preg_replace('#\s+#u', ' ', implode($css))).";
+	       el.textContent=" . json_encode(preg_replace('#\s+#u', ' ', implode($css))) . ";
 	       document.head.appendChild(el);})();\n";
 
         array_map('readfile', array_merge([
-            __DIR__.'/assets/bar/bar.js',
-            __DIR__.'/assets/toggle/toggle.js',
-            __DIR__.'/assets/dumper/dumper.js',
-            __DIR__.'/assets/panic/panic.js',
+            __DIR__ . '/assets/bar/bar.js',
+            __DIR__ . '/assets/toggle/toggle.js',
+            __DIR__ . '/assets/dumper/dumper.js',
+            __DIR__ . '/assets/panic/panic.js',
         ], Debugger::$customJsFiles));
     }
 }

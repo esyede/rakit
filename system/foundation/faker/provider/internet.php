@@ -159,8 +159,10 @@ class Internet extends Base
     {
         $id = 'Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC; Lower();';
 
-        if (function_exists('transliterator_transliterate')
-        && $trans = \Transliterator::create($id)) {
+        if (
+            function_exists('transliterator_transliterate')
+            && $trans = \Transliterator::create($id)
+        ) {
             $result = $trans->transliterate($string);
         } else {
             $result = static::toAscii($string);
@@ -177,19 +179,19 @@ class Internet extends Base
 
     final public function safeEmail()
     {
-        $email = $this->userName().'@'.static::safeEmailDomain();
+        $email = $this->userName() . '@' . static::safeEmailDomain();
         return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public function freeEmail()
     {
-        $email = $this->userName().'@'.static::freeEmailDomain();
+        $email = $this->userName() . '@' . static::freeEmailDomain();
         return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
     public function companyEmail()
     {
-        $email = $this->userName().'@'.$this->domainName();
+        $email = $this->userName() . '@' . $this->domainName();
         return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
     }
 
@@ -217,7 +219,7 @@ class Internet extends Base
 
     public function domainName()
     {
-        return $this->domainWord().'.'.$this->tld();
+        return $this->domainWord() . '.' . $this->tld();
     }
 
     public function domainWord()

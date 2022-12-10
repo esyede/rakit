@@ -126,13 +126,13 @@ class Route
     {
         $delegate = $this->delegate();
 
-        if (! is_null($delegate)) {
+        if (!is_null($delegate)) {
             return Controller::call($delegate, $this->parameters);
         }
 
         $handler = $this->handler();
 
-        if (! is_null($handler)) {
+        if (!is_null($handler)) {
             return call_user_func_array($handler, $this->parameters);
         }
     }
@@ -146,7 +146,7 @@ class Route
      */
     protected function middlewares($event)
     {
-        $global = Package::prefix($this->package).$event;
+        $global = Package::prefix($this->package) . $event;
         $middlewares = array_unique([$event, $global]);
 
         if (isset($this->action[$event])) {

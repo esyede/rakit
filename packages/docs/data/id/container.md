@@ -2,14 +2,14 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mendaftarkan Object](#mendaftarkan-object)
-- [Me-resolve Object](#me-resolve-object)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Mendaftarkan Object](#mendaftarkan-object)
+-   [Me-resolve Object](#me-resolve-object)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Container hanyalah cara mengelola pembuatan object. Anda dapat menggunakannya untuk menentukan pembuatan objek kompleks,
@@ -22,8 +22,8 @@ anda dapat mengisolasi kode yang anda uji dari dependensi eksternal
 menggunakan teknik [stub dan mocking](http://martinfowler.com/articles/mocksArentStubs.html).
 
 <a id="mendaftarkan-object"></a>
-## Mendaftarkan Object
 
+## Mendaftarkan Object
 
 #### Mendaftarkan resolver ke container:
 
@@ -51,7 +51,6 @@ Container::singleton('mailer', function () {
 
 Anda juga dapat mendaftarkan instance object yang sudah ada sebelumnya sebagai singleton ke container.
 
-
 #### Mendaftarkan instance yang ada ke container:
 
 ```php
@@ -59,6 +58,7 @@ Container::instance('mailer', $instance);
 ```
 
 <a id="me-resolve-object"></a>
+
 ## Me-resolve Object
 
 Setelah SwiftMailer terdaftar ke container, kita dapat dengan mudah me-resolvenya:
@@ -67,4 +67,4 @@ Setelah SwiftMailer terdaftar ke container, kita dapat dengan mudah me-resolveny
 $mailer = Container::resolve('mailer');
 ```
 
->  Anda juga boleh [mendaftarkan controller ke container](/docs/id/controllers#dependency-injection).
+> Anda juga boleh [mendaftarkan controller ke container](/docs/id/controllers#dependency-injection).

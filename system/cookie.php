@@ -22,7 +22,7 @@ class Cookie
      */
     public static function has($name)
     {
-        return ! is_null(static::get($name));
+        return !is_null(static::get($name));
     }
 
     /**
@@ -87,14 +87,14 @@ class Cookie
         $samesite = is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite;
         $samesite = is_string($samesite) ? strtolower((string) $samesite) : $samesite;
 
-        if (! in_array($samesite, ['lax', 'strict', 'none'])) {
+        if (!in_array($samesite, ['lax', 'strict', 'none'])) {
             throw new \InvalidArgumentException('The "samesite" parameter value is not valid.');
         }
 
         $value = Crypter::encrypt($value);
 
         // Jika $secure nilainya TRUE, cookie hanya bisa diakses via HTTPS.
-        if ($secure && ! Request::secure()) {
+        if ($secure && !Request::secure()) {
             throw new \Exception('Attempting to set secure cookie over HTTP.');
         }
 

@@ -2,32 +2,32 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Rule Validasi](#rule-validasi)
-    - [Wajib Diisi](#wajib-diisi)
-    - [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
-    - [Ukuran](#ukuran)
-    - [Angka](#angka)
-    - [Inklusi & Pengecualian](#inklusi--pengecualian)
-    - [Konfirmasi](#konfirmasi)
-    - [Persetujuan](#persetujuan)
-    - [Sama & Berbeda](#sama--berbeda)
-    - [Regular Expression](#regular-expression)
-    - [Keunikan & Eksistensi](#keunikan--eksistensi)
-    - [Tanggal](#tanggal)
-    - [E-Mail](#e-mail)
-    - [URL](#url)
-    - [File Upload](#file-upload)
-    - [Array](#array)
-- [Mengambil Pesan Error](#mengambil-pesan-error)
-- [Panduan Validasi](#panduan-validasi)
-- [Pesan Error Kustom](#pesan-error-kustom)
-- [Rule Validasi Kustom](#rule-validasi-kustom)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Rule Validasi](#rule-validasi)
+    -   [Wajib Diisi](#wajib-diisi)
+    -   [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
+    -   [Ukuran](#ukuran)
+    -   [Angka](#angka)
+    -   [Inklusi & Pengecualian](#inklusi--pengecualian)
+    -   [Konfirmasi](#konfirmasi)
+    -   [Persetujuan](#persetujuan)
+    -   [Sama & Berbeda](#sama--berbeda)
+    -   [Regular Expression](#regular-expression)
+    -   [Keunikan & Eksistensi](#keunikan--eksistensi)
+    -   [Tanggal](#tanggal)
+    -   [E-Mail](#e-mail)
+    -   [URL](#url)
+    -   [File Upload](#file-upload)
+    -   [Array](#array)
+-   [Mengambil Pesan Error](#mengambil-pesan-error)
+-   [Panduan Validasi](#panduan-validasi)
+-   [Pesan Error Kustom](#pesan-error-kustom)
+-   [Rule Validasi Kustom](#rule-validasi-kustom)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Hampir setiap aplikasi web interaktif perlu memvalidasi data. Misalnya, formulir pendaftaran
@@ -62,7 +62,6 @@ $rules = [
 ];
 ```
 
-
 #### Buat instance `Validator` dan validasilah datanya:
 
 ```php
@@ -82,28 +81,28 @@ Pesan error default tersebut disimpan di file `language/id/validation.php`.
 Sekarang anda sudah familiar dengan penggunaan dasar kelas `Validator`. Saatnya menggali
 lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 
-
 <a id="rule-validasi"></a>
+
 ## Rule Validasi
 
-- [Wajib Diisi](#wajib-diisi)
-- [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
-- [Ukuran](#ukuran)
-- [Angka](#angka)
-- [Inklusi & Pengecualian](#inklusi--pengecualian)
-- [Konfirmasi](#konfirmasi)
-- [Persetujuan](#persetujuan)
-- [Sama & Berbeda](#sama--berbeda)
-- [Regular Expression](#regular-expression)
-- [Keunikan & Eksistensi](#keunikan--eksistensi)
-- [Tanggal](#tanggal)
-- [E-Mail](#e-mail)
-- [URL](#url)
-- [File Upload](#file-upload)
-- [Array](#array)
-
+-   [Wajib Diisi](#wajib-diisi)
+-   [Alfabet, Angka & Tanda Hubung](#alfabet-angka--tanda-hubung)
+-   [Ukuran](#ukuran)
+-   [Angka](#angka)
+-   [Inklusi & Pengecualian](#inklusi--pengecualian)
+-   [Konfirmasi](#konfirmasi)
+-   [Persetujuan](#persetujuan)
+-   [Sama & Berbeda](#sama--berbeda)
+-   [Regular Expression](#regular-expression)
+-   [Keunikan & Eksistensi](#keunikan--eksistensi)
+-   [Tanggal](#tanggal)
+-   [E-Mail](#e-mail)
+-   [URL](#url)
+-   [File Upload](#file-upload)
+-   [Array](#array)
 
 <a id="wajib-diisi"></a>
+
 ### Wajib Diisi
 
 #### Validasi bahwa atribut harus ada dan bukan string kosong:
@@ -119,6 +118,7 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 ```
 
 <a id="alfabet-angka--tanda-hubung"></a>
+
 ### Alfabet, Angka & Tanda Hubung
 
 #### Validasi bahwa atribut hanya terdiri dari huruf alfabet:
@@ -139,8 +139,8 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 'username' => 'alpha_dash',
 ```
 
-
 <a id="ukuran"></a>
+
 ### Ukuran
 
 #### Validasi bahwa atribut memiliki panjang tertentu, atau, jika atribut berupa angka, ia adalah value tertentu:
@@ -155,8 +155,8 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 'payment' => 'between:10,50',
 ```
 
->  Nilai minimum dan maksimumnya bersifat inklusif. Maksudnya, jika user menginput `10` atau `50`
-   maka validasi `between()` diatas akan lolos.
+> Nilai minimum dan maksimumnya bersifat inklusif. Maksudnya, jika user menginput `10` atau `50`
+> maka validasi `between()` diatas akan lolos.
 
 #### Validasi bahwa atribut minimal harus memiliki ukuran yang ditentukan:
 
@@ -170,8 +170,8 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 'payment' => 'max:50',
 ```
 
-
 <a id="angka"></a>
+
 ### Angka
 
 #### Validasi bahwa atribut berupa angka:
@@ -186,8 +186,8 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 'payment' => 'integer',
 ```
 
-
 <a id="inklusi--pengecualian"></a>
+
 ### Inklusi & Pengecualian
 
 #### Validasi bahwa atribut ada dalam list tertentu:
@@ -202,8 +202,8 @@ lebih dalam rule apa saja yang bisa anda gunakan untuk memvalidasi data anda!
 'language' => 'not_in:cobol,assembler',
 ```
 
-
 <a id="konfirmasi"></a>
+
 ### Konfirmasi
 
 Rule `'confirmed'` memvalidasi bahwa, untuk atribut tertentu, harus memiliki atribut lain
@@ -218,8 +218,8 @@ bernama `'xxx_confirmation'`, dimana `'xxx'` adalah nama atribut asalnya.
 Pada contoh diatas, si validator akan memvalidasi bahwa value milik atribut `'password'`
 harus cocok dengan value di atribut `'password_confirmation'`.
 
-
 <a id="persetujuan"></a>
+
 ### Persetujuan
 
 Rule `'accepted'` memvalidasi bahwa value dari sebuah atribut merupakan salah satu
@@ -232,8 +232,8 @@ memvalidasi form checkbox, seperti checkbox persetujuan peraturan situs.
 'terms' => 'accepted',
 ```
 
-
 <a id="sama--berbeda"></a>
+
 ### Sama & Berbeda
 
 #### Validasi bahwa value sebuah atribut cocok dengan milik attribute lain:
@@ -248,8 +248,8 @@ memvalidasi form checkbox, seperti checkbox persetujuan peraturan situs.
 'password' => 'different:old_password',
 ```
 
-
 <a id="regular-expression"></a>
+
 ### Regular Expression
 
 Rule `'match'` memvalidasi bahwa value sebuah atribut cocok dengan pola regular expression tertentu.
@@ -269,8 +269,8 @@ $rules = [
 ];
 ```
 
-
 <a id="keunikan--eksistensi"></a>
+
 ### Keunikan & Eksistensi
 
 #### Validasi bahwa atribut unik pada tabel database tertentu:
@@ -317,8 +317,8 @@ Lalu bagaimana cara mengatasinya? Mudah saja:
 'city' => 'exists:cities,abbreviation',
 ```
 
-
 <a id="tanggal"></a>
+
 ### Tanggal
 
 #### Validasi bahwa atribut tanggal adalah sebelum tanggal tertentu:
@@ -333,9 +333,9 @@ Lalu bagaimana cara mengatasinya? Mudah saja:
 'birthdate' => 'after:1992-11-02',
 ```
 
->  Rule `before` dan `after` ini menggunakan fungsi
-   [strtotime()](https://php.net/manual/en/function.strtotime.php) untuk mengkonversi
-   string tanggal yang diberikan.
+> Rule `before` dan `after` ini menggunakan fungsi
+> [strtotime()](https://php.net/manual/en/function.strtotime.php) untuk mengkonversi
+> string tanggal yang diberikan.
 
 #### Validasi format atribut tanggal cocok dengan format tertentu:
 
@@ -343,14 +343,14 @@ Lalu bagaimana cara mengatasinya? Mudah saja:
 'start_date' => 'date_format:H\\:i',
 ```
 
->  Pada contoh diatas, `\\` (back-slash ganda) digunakan untuk meng-escape `:` (colon) sehingga karakter tersebut
-   tidak dianggap sebagai parameter separator oleh PHP.
+> Pada contoh diatas, `\\` (back-slash ganda) digunakan untuk meng-escape `:` (colon) sehingga karakter tersebut
+> tidak dianggap sebagai parameter separator oleh PHP.
 
 Opsi pemformatan untuk tanggal bisa anda baca di
 [PHP Date](https://php.net/manual/en/datetime.createfromformat.php#refsect1-datetime.createfromformat-parameters).
 
-
 <a id="e-mail"></a>
+
 ### E-Mail
 
 #### Validasi bahwa atribut merupakan sebuah alamat e-mail:
@@ -359,11 +359,11 @@ Opsi pemformatan untuk tanggal bisa anda baca di
 'address' => 'email',
 ```
 
->  Rule ini menggunakan fungsi [filter_var()](https://php.net/manual/en/function.filter-var.php)
-   untuk pengecekannya.
-
+> Rule ini menggunakan fungsi [filter_var()](https://php.net/manual/en/function.filter-var.php)
+> untuk pengecekannya.
 
 <a id="url"></a>
+
 ### URL
 
 #### Validasi bahwa atribut merupakan sebuah URL:
@@ -378,11 +378,11 @@ Opsi pemformatan untuk tanggal bisa anda baca di
 'link' => 'active_url',
 ```
 
->  Rule ini menggunakan fungsi [checkdnsrr()](https://php.net/manual/en/function.checkdnsrr.php)
-   untuk pengecekannya.
-
+> Rule ini menggunakan fungsi [checkdnsrr()](https://php.net/manual/en/function.checkdnsrr.php)
+> untuk pengecekannya.
 
 <a id="file-upload"></a>
+
 ### File Upload
 
 Rule `mimes` memvalidasi bahwa file yang diupload memiliki jenis MIME tertentu.
@@ -395,8 +395,8 @@ membaca konten file dan menentukan jenis MIME yang sebenarnya.
 'picture' => 'mimes:jpg,png,gif',
 ```
 
->  Ketika memvalidasi file, pastikan untuk menggunakan `Input::file()` atau `Input::all()`
-   untuk mengambil data input dari user.
+> Ketika memvalidasi file, pastikan untuk menggunakan `Input::file()` atau `Input::all()`
+> untuk mengambil data input dari user.
 
 #### Validasi bahwa file adalah gambar:
 
@@ -410,8 +410,8 @@ membaca konten file dan menentukan jenis MIME yang sebenarnya.
 'picture' => 'image|max:100',
 ```
 
-
 <a id="array"></a>
+
 ### Array
 
 #### Validasi bahwa atribut merupakan array:
@@ -444,8 +444,8 @@ membaca konten file dan menentukan jenis MIME yang sebenarnya.
 'categories' => 'array|countmax:2',
 ```
 
-
 <a id="mengambil-pesan-error"></a>
+
 ## Mengambil Pesan Error
 
 Penanganan pesan error menjadi sangat mudah berkat kelas error collector di rakit yang sederhana.
@@ -504,8 +504,8 @@ $messages = $validation->errors->all();
 $messages = $validation->errors->all('<p>:message</p>');
 ```
 
-
 <a id="panduan-validasi"></a>
+
 ## Panduan Validasi
 
 Setelah anda melakukan validasi, anda memerlukan cara mudah untuk mengembalikan pesan error tersebut
@@ -564,17 +564,17 @@ menggunakan sesuatu seperti Bootstrap. Misalnya, jika validasi email gagal, kita
 menambahkan kelas `"error"` dari Bootstrap ke `<div class="control-group">`.
 
 ```html
-<div class="control-group{{ $errors->has('email') ? ' error' : '' }}">
+<div class="control-group{{ $errors->has('email') ? ' error' : '' }}"></div>
 ```
 
 Saat validasinya gagal, view yang kita render akan memiliki kelas `'error'` yang ditambahkan tadi.
 
 ```html
-<div class="control-group error">
+<div class="control-group error"></div>
 ```
 
-
 <a id="pesan-error-kustom"></a>
+
 ## Pesan Error Kustom
 
 Ingin menggunakan pesan error selain default? Mungkin anda bahkan ingin menggunakan pesan error
@@ -591,7 +591,7 @@ $validation = Validator::make(Input::get(), $rules, $messages);
 ```
 
 Sekarang pesan kustom anda akan digunakan setiap kali pemeriksaan validasi yang diperlukan gagal.
-Tapi, apa  sih maksudnya `:attribute` itu? Kok tiba - tiba dia ada disitu?
+Tapi, apa sih maksudnya `:attribute` itu? Kok tiba - tiba dia ada disitu?
 
 Untuk membuat hidup anda lebih mudah, kelas `Validator` akan mengganti placeholder `:attribute`
 tersebut dengan nama atribut yang sebenarnya!
@@ -633,7 +633,6 @@ kode validasi tentu akan membuat kode anda menjadi rumit dan terkesan berantakan
 Oleh karena itu, anda dapat menaruh pesan kustom anda dalam array konfigurasi `'custom'` dalam
 file bahasa validasi:
 
-
 #### Menambahkan pesan error kustom via file bahasa validasi:
 
 ```php
@@ -642,8 +641,8 @@ file bahasa validasi:
 ]
 ```
 
-
 <a id="rule-validasi-kustom"></a>
+
 ## Rule Validasi Kustom
 
 Rakit telah menyediakan sejumlah rule validasi yang sering dipakai banyak orang.
@@ -731,7 +730,6 @@ Selanjutnya, hapus `Validator` dari array alias di file `config/application.php`
 diperlukan agar tidak ada 2 class bernama Validator karena tentunya akan bentrok satu sama lain.
 
 Selanjutnya, tinggal kita pindahkan rule `'humble'` kita tadi kedalam kelas tersebut:
-
 
 #### Menambahkan rule validasi kustom ke kelas:
 

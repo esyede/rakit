@@ -48,7 +48,7 @@ class Migrator extends Command
     public function run(array $arguments = [])
     {
         // Buat otomatis tabel migrasi jika belum ada.
-        if (! Schema::has_table('rakit_migrations')) {
+        if (!Schema::has_table('rakit_migrations')) {
             $this->install();
         }
 
@@ -76,14 +76,14 @@ class Migrator extends Command
 
         $batch = $this->database->batch() + 1;
 
-        echo 'Processing '.$total.' migrations...'.PHP_EOL;
+        echo 'Processing ' . $total . ' migrations...' . PHP_EOL;
 
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
-            echo 'Migrating: '.$file.PHP_EOL;
+            echo 'Migrating: ' . $file . PHP_EOL;
             $migration['migration']->up();
-            echo 'Migrated:  '.$file.PHP_EOL;
+            echo 'Migrated:  ' . $file . PHP_EOL;
 
             $this->database->log($migration['package'], $migration['name'], $batch);
         }
@@ -108,7 +108,7 @@ class Migrator extends Command
         }
 
         if (0 === count($migrations)) {
-            echo 'Nothing to rollback.'.PHP_EOL;
+            echo 'Nothing to rollback.' . PHP_EOL;
             return false;
         }
 
@@ -117,9 +117,9 @@ class Migrator extends Command
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
-            echo 'Rolling back: '.$file.PHP_EOL;
+            echo 'Rolling back: ' . $file . PHP_EOL;
             $migration['migration']->down();
-            echo 'Rolled back:  '.$file.PHP_EOL;
+            echo 'Rolled back:  ' . $file . PHP_EOL;
 
             $this->database->delete($migration['package'], $migration['name']);
         }
@@ -153,7 +153,7 @@ class Migrator extends Command
         $this->reset();
         echo PHP_EOL;
         $this->migrate();
-        echo 'The database was successfully rebuilt'.PHP_EOL;
+        echo 'The database was successfully rebuilt' . PHP_EOL;
     }
 
     /**
@@ -170,7 +170,7 @@ class Migrator extends Command
             $table->primary(['package', 'name']);
         });
 
-        echo 'Migration table created successfully.'.PHP_EOL;
+        echo 'Migration table created successfully.' . PHP_EOL;
     }
 
     /**
@@ -182,6 +182,6 @@ class Migrator extends Command
      */
     protected function display($migration)
     {
-        return $migration['package'].'/'.$migration['name'];
+        return $migration['package'] . '/' . $migration['name'];
     }
 }

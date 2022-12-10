@@ -2,30 +2,30 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mengambil Record](#mengambil-record)
-- [Membangun Klausa Where](#membangun-klausa-where)
-    - [where dan or_where](#where-dan-or_where)
-    - [where_in, where_not_in, or_where_in, dan or_where_not_in](#where_in-where_not_in-or_where_in-dan-or_where_not_in)
-    - [where_null, where_not_null, or_where_null, and or_where_not_null](#where_null-where_not_null-or_where_null-and-or_where_not_null)
-    - [where_between, where_not_between, or_where_between, and or_where_not_between](#where_between-where_not_between-or_where_between-and-or_where_not_between)
-- [Nested Where](#nested-where)
-- [Where Dinamis](#where-dinamis)
-- [Join Tabel](#join-tabel)
-- [Order By](#order-by)
-- [Group By](#group-by)
-- [Skip & Take](#skip--take)
-- [Agregasi](#agregasi)
-- [Ekspresi SQL Mentah](#ekspresi-sql-mentah)
-    - [Manual Escape](#manual-escape)
-- [Insert Record](#insert-record)
-- [Update Record](#update-record)
-- [Delete Record](#delete-record)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Mengambil Record](#mengambil-record)
+-   [Membangun Klausa Where](#membangun-klausa-where)
+    -   [where dan or_where](#where-dan-or_where)
+    -   [where_in, where_not_in, or_where_in, dan or_where_not_in](#where_in-where_not_in-or_where_in-dan-or_where_not_in)
+    -   [where_null, where_not_null, or_where_null, and or_where_not_null](#where_null-where_not_null-or_where_null-and-or_where_not_null)
+    -   [where_between, where_not_between, or_where_between, and or_where_not_between](#where_between-where_not_between-or_where_between-and-or_where_not_between)
+-   [Nested Where](#nested-where)
+-   [Where Dinamis](#where-dinamis)
+-   [Join Tabel](#join-tabel)
+-   [Order By](#order-by)
+-   [Group By](#group-by)
+-   [Skip & Take](#skip--take)
+-   [Agregasi](#agregasi)
+-   [Ekspresi SQL Mentah](#ekspresi-sql-mentah)
+    -   [Manual Escape](#manual-escape)
+-   [Insert Record](#insert-record)
+-   [Update Record](#update-record)
+-   [Delete Record](#delete-record)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Magic Query Builder adalah kelas yang disediakan untuk memudahkan anda membangun kueri SQL dan bekerja dengan database. Semua perintah disiapkan menggunakan [prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php) sehingga otomatis terlindung dari serangan [SQL Injection](https://en.wikipedia.org/wiki/SQL_injection).
@@ -38,8 +38,8 @@ $query = DB::table('users');
 
 Sekarang anda telah memiliki akses Magic Query Builder untuk tabel "users". Dengan query builder ini, anda bisa melakukan operasi - opreasi umum seperti select, insert, update, atau delete record dari tabel.
 
-
 <a id="mengambil-record"></a>
+
 ## Mengambil Record
 
 #### Mengambil sebuah array record dari database:
@@ -48,7 +48,7 @@ Sekarang anda telah memiliki akses Magic Query Builder untuk tabel "users". Deng
 $users = DB::table('users')->get();
 ```
 
->  Method `get()` ini akan me-rturn `array berisi object` dengan nama properti yang sesuai dengan nama - nama kolom pada tabel yang sedang dioperasikan.
+> Method `get()` ini akan me-rturn `array berisi object` dengan nama properti yang sesuai dengan nama - nama kolom pada tabel yang sedang dioperasikan.
 
 #### Mengambil record tunggal dari database:
 
@@ -62,7 +62,7 @@ $user = DB::table('users')->first();
 $user = DB::table('users')->find($id);
 ```
 
->  Jika tida ada hasil yang ditemukan, method `first()` akan me-return `NULL`. Sedangkan method `get()` akan me-return sebuah `Array Kosong`.
+> Jika tida ada hasil yang ditemukan, method `first()` akan me-return `NULL`. Sedangkan method `get()` akan me-return sebuah `Array Kosong`.
 
 #### Mengambil value milik sebuah kolom di database:
 
@@ -87,8 +87,7 @@ $users = DB::table('users')
 	->lists('email', 'id');
 ```
 
->  Parameter ke-dua sifatnya opsional, boleh diisi boleh tidak.
-
+> Parameter ke-dua sifatnya opsional, boleh diisi boleh tidak.
 
 #### Select distinct dari database:
 
@@ -98,12 +97,12 @@ $user = DB::table('users')
 	->get();
 ```
 
-
 <a id="membangun-klausa-where"></a>
+
 ## Membangun Klausa Where
 
-
 <a id="where-dan-or_where"></a>
+
 ### where dan or_where
 
 Tersedia beberapa method untuk membantu anda dalam pembangunan klausa where. Method paling dasar yang dapat anda coba adalah `where()` dan `or_where()`. Berikut contoh penggunaanya:
@@ -135,8 +134,8 @@ return DB::table('users')
 
 Seperti yang bisa anda bayangkan, secara default method `where()` akan ditambahkan ke susunan kueri menggunakan kondisi `AND`, sedangkan method `or_where()` akan menggunakan kondisi `OR`.
 
-
 <a id="where_in-where_not_in-or_where_in-dan-or_where_not_in"></a>
+
 ### where_in, where_not_in, or_where_in, dan or_where_not_in
 
 Kelompok method `where_in()` memudahkan anda untuk membangun query pencarian pada data array:
@@ -161,8 +160,8 @@ DB::table('users')
 	->get();
 ```
 
-
 <a id="where_null-where_not_null-or_where_null-and-or_where_not_null"></a>
+
 ### where_null, where_not_null, or_where_null, and or_where_not_null
 
 Kelompok method `where_null()` membuat pengecekan nilai NULL menjadi sangat mudah:
@@ -187,8 +186,8 @@ return DB::table('users')
 	->get();
 ```
 
-
 <a id="where_between-where_not_between-or_where_between-and-or_where_not_between"></a>
+
 ### where_between, where_not_between, or_where_between, and or_where_not_between
 
 Kelompok method `where_between()` membuat pengecekan `BETWEEN` antara rentang nilai menjadi sangat mudah:
@@ -217,8 +216,8 @@ return DB::table('users')
 	->get();
 ```
 
-
 <a id="nested-where"></a>
+
 ## Nested Where
 
 Dimasa mendatang, anda mungkin perlu mengelompokkan potongan - potongan klausa `WHERE` kedalam tanda kurung. Untuk melakukannya, anda hanya perlu mengoper `Closure` sebagai parameter ke method `where()` ataupun `or_where()` seperti berikut:
@@ -239,8 +238,8 @@ Contoh diatas akan menghasilkan query sebagai berikut:
 SELECT * FROM "users" WHERE "id" = ? OR ("age" > ? AND "votes" > ?)
 ```
 
-
 <a id="where-dinamis"></a>
+
 ## Where Dinamis
 
 Method where dinamis dapat meningkatkan kemudahan dalam membaca kodingan anda. Anda pun bisa dengan mudah melakukannya:
@@ -258,8 +257,8 @@ $user = DB::table('users')
 	->where_id_or_name(1, 'Budi'); // WHERE `id` = 1 OR `name`= 'Budi'
 ```
 
-
 <a id="join-tabel"></a>
+
 ## Join Tabel
 
 Perlu join tabel? Silahkan gunakan method `join()` atau `left_join()` seperti berikut:
@@ -292,8 +291,8 @@ DB::table('users')
 
 ```
 
-
 <a id="order-by"></a>
+
 ## Order By
 
 Anda dapat dengan mudah melakukan ordering / mengurutkan data hasil kueri menggunakan method `order_by()`. Cukup taruh nama kolom di parameter pertama dan tipe pengurutannya (`'asc'` atau `'desc'`) ke parameter kedua seperti ini:
@@ -313,8 +312,8 @@ return DB::table('users')
 	->get();
 ```
 
-
 <a id="group-by"></a>
+
 ## Group By
 
 Anda dapat dengan mudah melakukan grouping / pengelompokan data menggunakan method `group_by()` seperti ini:
@@ -325,8 +324,8 @@ return DB::table('users')
 	->get();
 ```
 
-
 <a id="skip--take"></a>
+
 ## Skip & Take
 
 Jika anda ingin me-`LIMIT` jumlah data hasil kueri, silahkan gunakan method `take()` seperti ini:
@@ -345,8 +344,8 @@ return DB::table('users')
 	->get();
 ```
 
-
 <a id="agregasi"></a>
+
 ## Agregasi
 
 Perlu mengambil nilai `MIN`, `MAX`, `AVG`, `SUM`, atau `COUNT`? Cukup sebutkan nama kolomnya:
@@ -371,8 +370,8 @@ $count = DB::table('users')
 	->count();
 ```
 
-
 <a id="ekspresi-sql-mentah"></a>
+
 ## Ekspresi SQL Mentah
 
 Terkadang, anda mungkin perlu menginsert nilai kolom menggunakan fungsi native SQL seperti `NOW()`. Tetapi, secara default, Magic Query Builder akan secara otomatis meng-quote dan meng-escape value yang anda oper padanya menggunakan parameter binding untuk mencegah sql injection). Untuk mem-bypass fitur ini, gunakan metode `raw()`, seperti ini:
@@ -389,8 +388,7 @@ DB::table('users')
 	->update(['votes' => DB::raw('votes + 1')]);
 ```
 
->  Gunakan `DB::raw()` hanya jika anda sudah tidak punya opsi lain ketika menggunakan Magic Query Builder. Hal ini karena SQL yang diinject langsung ke database sangat rentan akan SQL Injection. Terlebih jika datanya berasal dari inputan user.
-
+> Gunakan `DB::raw()` hanya jika anda sudah tidak punya opsi lain ketika menggunakan Magic Query Builder. Hal ini karena SQL yang diinject langsung ke database sangat rentan akan SQL Injection. Terlebih jika datanya berasal dari inputan user.
 
 Tetapi tentu saja, juga telah disediakan method yang lebih mudah untuk melakukan operasi increment dan decrement ini:
 
@@ -400,8 +398,8 @@ DB::table('users')->increment('votes');
 DB::table('users')->decrement('votes');
 ```
 
-
 <a id="manual-escape"></a>
+
 ### Manual Escape
 
 Seperti yang telah disebutkan diatas, penggunaan `DB::raw()` rentan terhadap serangan SQL Injection, oleh karena itu, disediakan method bantuan untuk meng-escape value pada potongan query mentah anda:
@@ -415,6 +413,7 @@ return DB::raw('SELECT * FROM users WHERE name='.$name)->get();
 ```
 
 <a id="insert-record"></a>
+
 ## Insert Record
 
 Method `insert()` mengharapkan data array. Method ini akan me-return `TRUE` atau `FALSE`, yang mengindikasikan suskses atau tidaknya operasi insert anda:
@@ -431,11 +430,10 @@ $id = DB::table('users')
 	->insert_get_id(['email' => 'example@gmail.com']);
 ```
 
->  Method `insert_get_id()` ini mewajibkan kolom auto-increment anda bernama `'id'`.
-
-
+> Method `insert_get_id()` ini mewajibkan kolom auto-increment anda bernama `'id'`.
 
 <a id="update-record"></a>
+
 ## Update Record
 
 Untuk mengupdate record, cukup oper array asosiatif ke method `update()` seperti berikut:
@@ -462,8 +460,8 @@ $affected = DB::table('users')
 	->update($data);
 ```
 
-
 <a id="delete-record"></a>
+
 ## Delete Record
 
 Sedangkan jika anda ingin menghapus record dari database, cukup panggil method `delete()` seperti ini:

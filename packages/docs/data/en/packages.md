@@ -2,22 +2,22 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#pengetahuan-dasar)
-- [Creating Package](#membuat-paket)
-- [Registering Package](#mendaftarkan-paket)
-- [Package & Autoloading](#paket--autoloading)
-- [Booting Packages](#booting-paket)
-- [Routing To Packages](#routing-ke-paket)
-- [Using Packages](#menggunakan-paket)
-- [Package Assets](#aset-paket)
-- [Installing Packages](#menginstall-paket)
-- [Upgrading Packages](#mengupgrade-paket)
-- [Deleting Packages](#menghapus-paket)
+-   [Basic Knowledge](#pengetahuan-dasar)
+-   [Creating Package](#membuat-paket)
+-   [Registering Package](#mendaftarkan-paket)
+-   [Package & Autoloading](#paket--autoloading)
+-   [Booting Packages](#booting-paket)
+-   [Routing To Packages](#routing-ke-paket)
+-   [Using Packages](#menggunakan-paket)
+-   [Package Assets](#aset-paket)
+-   [Installing Packages](#menginstall-paket)
+-   [Upgrading Packages](#mengupgrade-paket)
+-   [Deleting Packages](#menghapus-paket)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Basic Knowledge
 
 Packages are a simple way to separate code into smaller units so that
@@ -29,9 +29,8 @@ A package could be everything from a database ORM to a robust authentication sys
 In fact, the `application/` folder is also a package, the "default package".
 Even the documentation you are reading is also a package.
 
-
-
 <a id="membuat-paket"></a>
+
 ## Creating Package
 
 The first step in creating a package is to create a folder for
@@ -66,8 +65,8 @@ In fact, you aren't required to create a boot file for your package..
 
 Next, we'll look at how to register this package with our application!
 
-
 <a id="mendaftarkan-paket"></a>
+
 ## Registering Package
 
 Now that we have our admin package, we need to register it with Rakit.
@@ -88,7 +87,6 @@ By convention, Rakit will assume that the `Admin` package is located
 at the root level of the `packages/` directory,
 but we can specify another location if we wish:
 
-
 #### Registering a package with a custom location:
 
 ```php
@@ -103,8 +101,8 @@ return [
 
 Now rakit will look for our package in `packages/backend/admin` folder.
 
-
 <a id="paket--autoloading"></a>
+
 ## Package & Autoloading
 
 Typically, a package's `boot.php` file only contains autoloader registrations.
@@ -143,8 +141,8 @@ to the corresponding method on the `Autoloader` class.
 You may have also noticed the `(:package)` place-holder.
 For convenience, this will automatically be replaced with the path to the package.
 
-
 <a id="booting-paket"></a>
+
 ## Booting Packages
 
 So our package is created and registered, but we can't use it yet. First, we need to boot it:
@@ -158,8 +156,7 @@ Package::boot('admin');
 This tells rakit to run the `boot.php` file for the package, which will register its classes in the autoloader.
 The boot method will also load the `routes.php` file for the package if it is present.
 
->  The package will only be booted once. Subsequent calls to the `boot()` method will be ignored.
-
+> The package will only be booted once. Subsequent calls to the `boot()` method will be ignored.
 
 If you use a package throughout your application, you may want it to boot on every request.
 If this is the case, you can configure the package to auto-boot in your `application/packages.php` file:
@@ -187,6 +184,7 @@ the package will automatically be booted!
 Each time a package is booted, it fires an event. You can listen for the starting of packages like so:
 
 <a href="#listen-event-pengaktifan-paket"></a>
+
 #### Listen for a package's boot event:
 
 ```php
@@ -204,14 +202,15 @@ Package::freeze('admin');
 ```
 
 <a id="routing-ke-paket"></a>
+
 ## Routing To Packages
 
 Refer to the documentation on [package routing](/docs/en/routing#routing-paket) and
 [package controllers](/docs/en/controllers#controller-paket) for more information
 on routing and packages.
 
-
 <a id="menggunakan-paket"></a>
+
 ## Using Packages
 
 As mentioned previously, packages can have views, configuration, language files and more.
@@ -270,6 +269,7 @@ $names = Package::names();
 ```
 
 <a id="aset-paket"></a>
+
 ## Package Assets
 
 If your package contains views, it is likely you have assets such as JavaScript and images
@@ -281,7 +281,6 @@ and place all of your assets in this folder.
 Great! But, how do they get into the root `assets/` folder.
 The rakit console provides a simple command to copy all of your package's assets
 to the root's `assets/` directory. Here it is:
-
 
 #### Publish package assets into the root's assets directory:
 
@@ -313,8 +312,8 @@ or,
 <script src="<?php echo asset('packages/themable/js/app.min.js') ?>"></script>
 ```
 
-
 <a id="menginstall-paket"></a>
+
 ## Installing Packages
 
 Tentu saja, anda boleh menginstall paket secara manual dengan mendownload arsipnya dan mengekstraknya
@@ -333,20 +332,18 @@ php rakit package:install themable
 ```
 
 > Make sure you have enabled the [PHP cURL](https://www.php.net/manual/en/book.curl.php)
-  extension before running this command.
-
+> extension before running this command.
 
 Great! Now that you're package is installed, you're ready to [register it](#mendaftarkan-paket).
 
 Need a list of available packages?
 Check out the [official repository](https://rakit.esyede.my.id/repositories)
 
-
 <a id="mengupgrade-paket"></a>
+
 ## Upgrading Packages
 
 When you upgrade a package, rakit will automatically remove the old package and install a fresh copy.
-
 
 #### Mengupgrade paket via console:
 
@@ -355,15 +352,15 @@ php rakit package:upgrade <package-name>
 ```
 
 > Since the package is totally removed on an upgrade, you must be aware of
-  any changes you have made to the package code before upgrading.
+> any changes you have made to the package code before upgrading.
 
 > You may need to change some configuration options in a package.
-  Instead of modifying the package code directly,
-  use the package boot events to set them.
-  Place something like this in your `application/boot.php` file.
-
+> Instead of modifying the package code directly,
+> use the package boot events to set them.
+> Place something like this in your `application/boot.php` file.
 
 <a href="rakit.booted"></a>
+
 #### Listening for a package's boot event:
 
 ```php
@@ -374,31 +371,27 @@ Event::listen('rakit.booted: admin', function () {
 });
 ```
 
-
 <a id="menghapus-paket"></a>
+
 ## Deleting Packages
 
 Apart from installing and upgrading packages, of course you can also remove packages.
 
 There are 2 ways to do this, automatically and manually. Let's try!
 
-
 #### Menghapus paket secara otomatis:
 
 First, if the package performing database migrations, you need to remove
 the database tables that it had created before:
-
 
 ```bash
 php rakit migrate:reset <package-name>
 ```
 
 > An indication of a package performing database migrations is the package
-  has a `migrations/` folder which contains the migration files.
-
+> has a `migrations/` folder which contains the migration files.
 
 Next, we need to clean up the package's asset files:
-
 
 ```bash
 php rakit package:uninstall <package-name>
@@ -408,10 +401,10 @@ This command will delete `assets/packages/<package-name>/` folder from your appl
 
 Finally, just delete the package registry from the `application/packages.php` file.
 
-
 #### Manually deleting packages:
 
 To remove packages manually, you need to repeat the above commands manually:
-  1. If the package performing database migrations, you need to remove those database tables.
-  2. Delete the `assets/packages/<nama-paket>/` if any.
-  3. Finally, delete the package registry from the `application/packages.php` file.
+
+1. If the package performing database migrations, you need to remove those database tables.
+2. Delete the `assets/packages/<nama-paket>/` if any.
+3. Finally, delete the package registry from the `application/packages.php` file.

@@ -21,15 +21,15 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Model::__construct().
+     * Test untuk method TestModel::__construct().
      *
      * @group system
      */
     public function testAttributesAreSetByConstructor()
     {
-        $array = ['name' => 'Budi', 'age' => 25, 'setter' => 'foo'];
+        $array = ['name' => 'Budi', 'age' => 25, 'setter' => 'setter: foo'];
 
-        $model = new Model($array);
+        $model = new TestModel($array);
 
         $this->assertEquals('Budi', $model->name);
         $this->assertEquals(25, $model->age);
@@ -37,15 +37,15 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Model::fill().
+     * Test untuk method TestModel::fill().
      *
      * @group system
      */
     public function testAttributesAreSetByFillMethod()
     {
-        $array = ['name' => 'Budi', 'age' => 25, 'setter' => 'foo'];
+        $array = ['name' => 'Budi', 'age' => 25, 'setter' => 'setter: foo'];
 
-        $model = new Model();
+        $model = new TestModel();
         $model->fill($array);
 
         $this->assertEquals('Budi', $model->name);
@@ -54,7 +54,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Model::fill_raw().
+     * Test untuk method TestModel::fill_raw().
      *
      * @group system
      */
@@ -62,45 +62,45 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     {
         $array = ['name' => 'Budi', 'age' => 25, 'setter' => 'foo'];
 
-        $model = new Model();
+        $model = new TestModel();
         $model->fill_raw($array);
 
         $this->assertEquals($array, $model->attributes);
     }
 
     /**
-     * Test untuk method Model::fill dengan property $fillable.
+     * Test untuk method TestModel::fill dengan property $fillable.
      *
      * @group system
      */
     public function testAttributesAreSetByFillMethodWithFillable()
     {
-        Model::$fillable = ['name', 'age'];
+        TestModel::$fillable = ['name', 'age'];
 
         $array = ['name' => 'Budi', 'age' => 25, 'foo' => 'bar'];
 
-        $model = new Model();
+        $model = new TestModel();
         $model->fill($array);
 
         $this->assertEquals('Budi', $model->name);
         $this->assertEquals(25, $model->age);
         $this->assertNull($model->foo);
 
-        Model::$fillable = null;
+        TestModel::$fillable = null;
     }
 
     /**
-     * Test untuk method Model::fill() dengan property $fillable berisi array kosong.
+     * Test untuk method TestModel::fill() dengan property $fillable berisi array kosong.
      *
      * @group system
      */
     public function testAttributesAreSetByFillMethodWithEmptyAccessible()
     {
-        Model::$fillable = [];
+        TestModel::$fillable = [];
 
         $array = ['name' => 'Budi', 'age' => 25, 'foo' => 'bar'];
 
-        $model = new Model();
+        $model = new TestModel();
         $model->fill($array);
 
         $this->assertEquals([], $model->attributes);
@@ -108,95 +108,95 @@ class FacileTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($model->age);
         $this->assertNull($model->foo);
 
-        Model::$fillable = null;
+        TestModel::$fillable = null;
     }
 
     /**
-     * Test untuk method Model::fill_raw() dengan property $fillable.
+     * Test untuk method TestModel::fill_raw() dengan property $fillable.
      *
      * @group system
      */
     public function testAttributesAreSetByFillRawMethodWithAccessible()
     {
-        Model::$fillable = ['name', 'age'];
+        TestModel::$fillable = ['name', 'age'];
 
         $array = ['name' => 'budi', 'age' => 25, 'setter' => 'foo'];
 
-        $model = new Model();
+        $model = new TestModel();
         $model->fill_raw($array);
 
         $this->assertEquals($array, $model->attributes);
 
-        Model::$fillable = null;
+        TestModel::$fillable = null;
     }
 
     /**
-     * Test untuk method Model::__set().
+     * Test untuk method TestModel::__set().
      *
      * @group system
      */
     public function testAttributeMagicSetterMethodChangesAttribute()
     {
-        Model::$fillable = ['setter'];
+        TestModel::$fillable = ['setter'];
 
         $array = ['setter' => 'foo', 'getter' => 'bar'];
 
-        $model = new Model($array);
-        $model->setter = 'bar';
-        $model->getter = 'foo';
+        $model = new TestModel($array);
+        $model->setter = 'setter: bar';
+        $model->getter = 'getter: foo';
 
         $this->assertEquals('setter: bar', $model->get_attribute('setter'));
-        $this->assertEquals('foo', $model->get_attribute('getter'));
+        $this->assertEquals('getter: foo', $model->get_attribute('getter'));
 
-        Model::$fillable = null;
+        TestModel::$fillable = null;
     }
 
     /**
-     * Test untuk method Model::__get().
+     * Test untuk method TestModel::__get().
      *
      * @group system
      */
     public function testAttributeMagicGetterMethodReturnsAttribute()
     {
-        $array = ['setter' => 'foo', 'getter' => 'bar'];
+        $array = ['setter' => 'setter: foo', 'getter' => 'getter: bar'];
 
-        $model = new Model($array);
+        $model = new TestModel($array);
 
         $this->assertEquals('setter: foo', $model->setter);
         $this->assertEquals('getter: bar', $model->getter);
     }
 
     /**
-     * Test untuk method Model::set_XXX() (mutator).
+     * Test untuk method TestModel::set_XXX() (mutator).
      *
      * @group system
      */
     public function testAttributeSetterMethodChangesAttribute()
     {
-        Model::$fillable = ['setter'];
+        TestModel::$fillable = ['setter'];
 
         $array = ['setter' => 'foo', 'getter' => 'bar'];
 
-        $model = new Model($array);
-        $model->set_setter('bar');
-        $model->set_getter('foo');
+        $model = new TestModel($array);
+        $model->set_setter('setter: bar');
+        $model->set_getter('getter: foo');
 
         $this->assertEquals('setter: bar', $model->get_attribute('setter'));
-        $this->assertEquals('foo', $model->get_attribute('getter'));
+        $this->assertEquals('getter: foo', $model->get_attribute('getter'));
 
-        Model::$fillable = null;
+        TestModel::$fillable = null;
     }
 
     /**
-     * Test untuk method Model::get_XXX() (accessor).
+     * Test untuk method TestModel::get_XXX() (accessor).
      *
      * @group system
      */
     public function testAttributeGetterMethodReturnsAttribute()
     {
-        $array = ['setter' => 'foo', 'getter' => 'bar'];
+        $array = ['setter' => 'setter: foo', 'getter' => 'getter: bar'];
 
-        $model = new Model($array);
+        $model = new TestModel($array);
 
         $this->assertEquals('setter: foo', $model->get_setter());
         $this->assertEquals('getter: bar', $model->get_getter());
@@ -211,7 +211,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     {
         $array = ['name' => 'Budi', 'age' => 25, 'foo' => null];
 
-        $model = new Model($array, true);
+        $model = new TestModel($array, true);
         $model->name = 'Purnomo';
         $model->new = null;
 
@@ -234,7 +234,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Model::purge().
+     * Test untuk method TestModel::purge().
      *
      * @group system
      */
@@ -242,7 +242,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     {
         $array = ['name' => 'Budi', 'age' => 25];
 
-        $model = new Model($array);
+        $model = new TestModel($array);
         $model->name = 'Purnomo';
         $model->age = 26;
 
@@ -258,45 +258,45 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Model::table().
+     * Test untuk method TestModel::table().
      *
      * @group system
      */
     public function testTableMethodReturnsCorrectName()
     {
-        $model = new Model();
+        $model = new TestModel();
 
         // default, bentuk plural dari nama model.
-        $this->assertEquals('models', $model->table());
+        $this->assertEquals('testmodels', $model->table());
 
-        Model::$table = 'table';
+        TestModel::$table = 'table';
         $this->assertEquals('table', $model->table());
 
-        Model::$table = null;
+        TestModel::$table = null;
         // default, bentuk plural dari nama model.
-        $this->assertEquals('models', $model->table());
+        $this->assertEquals('testmodels', $model->table());
     }
 
     /**
-     * Test untuk method Model::to_array().
+     * Test untuk method TestModel::to_array().
      *
      * @group system
      */
     public function testConvertingToArray()
     {
-        Model::$hidden = ['password', 'hidden'];
+        TestModel::$hidden = ['password', 'hidden'];
 
         $array = ['name' => 'Budi', 'age' => 25, 'password' => 'rakit', 'null' => null];
 
-        $model = new Model($array);
+        $model = new TestModel($array);
 
-        $first = new Model(['first' => 'foo', 'password' => 'hidden']);
-        $second = new Model(['second' => 'bar', 'password' => 'hidden']);
-        $third = new Model(['third' => 'baz', 'password' => 'hidden']);
+        $first = new TestModel(['first' => 'foo', 'password' => 'hidden']);
+        $second = new TestModel(['second' => 'bar', 'password' => 'hidden']);
+        $third = new TestModel(['third' => 'baz', 'password' => 'hidden']);
 
-        $model->relationships['one'] = new Model(['foo' => 'bar', 'password' => 'hidden']);
+        $model->relationships['one'] = new TestModel(['foo' => 'bar', 'password' => 'hidden']);
         $model->relationships['many'] = [$first, $second, $third];
-        $model->relationships['hidden'] = new Model(['should' => 'not_visible']);
+        $model->relationships['hidden'] = new TestModel(['should' => 'not_visible']);
         $model->relationships['null'] = null;
 
         $expected = [
@@ -308,4 +308,9 @@ class FacileTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $model->to_array());
     }
+}
+
+class TestModel extends \System\Database\Facile\Model
+{
+    // ..
 }

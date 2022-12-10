@@ -1,5 +1,6 @@
 <?php defined('DS') or exit('No direct script access.'); ?>
 <!DOCTYPE html>
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,9 +22,11 @@
         }
     </style>
 </head>
+
 <body>
     <div id="oops-error">
         403 | Forbidden
     </div>
 </body>
+
 </html>

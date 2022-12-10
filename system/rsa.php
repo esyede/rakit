@@ -37,7 +37,7 @@ class RSA
             $data = mb_substr((string) $data, $length, null, '8bit');
             $temp = '';
 
-            if (! openssl_public_encrypt($chunk, $temp, $pub)) {
+            if (!openssl_public_encrypt($chunk, $temp, $pub)) {
                 throw new \Exception('Failed to encrypt the data');
             }
 
@@ -62,7 +62,7 @@ class RSA
     {
         static::generate();
 
-        if (! ($priv = openssl_pkey_get_private(static::$details['private_key']))) {
+        if (!($priv = openssl_pkey_get_private(static::$details['private_key']))) {
             throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $priv, gettype($priv)));
         }
 
@@ -75,7 +75,7 @@ class RSA
             $encrypted = mb_substr((string) $encrypted, $length, null, '8bit');
             $temp = '';
 
-            if (! openssl_private_decrypt($chunk, $temp, $priv)) {
+            if (!openssl_private_decrypt($chunk, $temp, $priv)) {
                 throw new \Exception('Failed to decrypt the data');
             }
 
@@ -96,13 +96,15 @@ class RSA
      */
     private static function generate()
     {
-        if (! static::$details['private_key'] || ! static::$details['public_key']) {
-            $config = path('storage').'openssl.conf';
-            $randfile = path('storage').'.rnd';
+        if (!static::$details['private_key'] || !static::$details['public_key']) {
+            $config = path('storage') . 'openssl.conf';
+            $randfile = path('storage') . '.rnd';
 
             static::$details['config'] = sprintf(
                 "HOME=%s\nRANDFILE=%s\n[req]\ndefault_bits=%s\n[v3_ca]\n",
-                path('storage'), $randfile, 2048
+                path('storage'),
+                $randfile,
+                2048
             );
 
             static::$details['options'] = [
@@ -117,24 +119,24 @@ class RSA
 
             file_put_contents($config, static::$details['config'], LOCK_EX);
 
-            if (! static::$details['private_key']) {
+            if (!static::$details['private_key']) {
                 $priv = openssl_pkey_new(static::$details['options']);
 
-                if (! openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'))) {
+                if (!openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'))) {
                     $errors = null;
 
                     while (false !== ($message = openssl_error_string())) {
-                        $errors .= $message.PHP_EOL;
+                        $errors .= $message . PHP_EOL;
                     }
 
                     throw new \Exception(sprintf('Failed to export private key: %s', $errors));
                 }
             }
 
-            if (! static::$details['public_key']) {
+            if (!static::$details['public_key']) {
                 $details = openssl_pkey_get_details($priv);
 
-                if (! isset($details['key'])) {
+                if (!isset($details['key'])) {
                     throw new \Exception('Failed to extract public key');
                 }
 

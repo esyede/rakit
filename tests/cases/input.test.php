@@ -2,6 +2,10 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Input;
+use System\Session;
+use System\Request;
+
 class InputTest extends \PHPUnit_Framework_TestCase
 {
     /**

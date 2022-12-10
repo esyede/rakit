@@ -14,7 +14,7 @@ defined('DS') or exit('No direct script access.');
 */
 
 Route::middleware('csrf', function () {
-    if (! Request::is_method('get') && Request::forged()) {
+    if (!Request::is_method('get') && Request::forged()) {
         return Response::error(422);
     }
 });

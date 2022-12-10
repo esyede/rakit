@@ -109,7 +109,7 @@ class Input
      */
     public static function json($as_array = false)
     {
-        if (! is_null(static::$json)) {
+        if (!is_null(static::$json)) {
             return static::$json;
         }
 
@@ -233,7 +233,7 @@ class Input
      */
     public static function has_file($key)
     {
-        return mb_strlen((string) static::file($key.'.tmp_name', ''), '8bit') > 0;
+        return mb_strlen((string) static::file($key . '.tmp_name', ''), '8bit') > 0;
     }
 
     /**

@@ -169,10 +169,10 @@ class Paginator
         // berdasarkan halaman-halaman terdekat, maka semua halaman akan ditampilkan.
         // Jika sebaliknya, kita buat slider 'terpotong'.
         $links = ($this->last < (7 + ($adjacent * 2))) ? $this->range(1, $this->last) : $this->slider($adjacent);
-        $content = $this->previous().$links.$this->next();
-        $content = "\t".'<ul class="pagination">'."\n".$content."\n\t".'</ul>';
+        $content = $this->previous() . $links . $this->next();
+        $content = "\t" . '<ul class="pagination">' . "\n" . $content . "\n\t" . '</ul>';
 
-        return '<nav class="pagination-nav">'."\n".$content."\n".'</nav>';
+        return '<nav class="pagination-nav">' . "\n" . $content . "\n" . '</nav>';
     }
 
     /**
@@ -200,17 +200,17 @@ class Paginator
 
         // 1 [2] 3 4 5 6 ... 23 24
         if ($this->page <= $window) {
-            return $this->range(1, $window + 2).' '.$this->ending();
+            return $this->range(1, $window + 2) . ' ' . $this->ending();
         }
         // 1 2 ... 32 33 34 35 [36] 37
         elseif ($this->page >= $this->last - $window) {
-            return $this->beginning().' '.$this->range($this->last - $window - 2, $this->last);
+            return $this->beginning() . ' ' . $this->range($this->last - $window - 2, $this->last);
         }
 
         // 1 2 ... 23 24 25 [26] 27 28 29 ... 51 52
         $content = $this->range($this->page - $adjacent, $this->page + $adjacent);
 
-        return $this->beginning().' '.$content.' '.$this->ending();
+        return $this->beginning() . ' ' . $content . ' ' . $this->ending();
     }
 
     /**
@@ -273,12 +273,12 @@ class Paginator
      */
     protected function element($element, $page, $text, \Closure $disabled)
     {
-        $class = $element.'_page';
-        $text = is_null($text) ? Lang::line('pagination.'.$element)->get($this->language) : $text;
+        $class = $element . '_page';
+        $text = is_null($text) ? Lang::line('pagination.' . $element)->get($this->language) : $text;
 
         if ($disabled($this->page, $this->last)) {
-            $attributes = trim(static::attributes(['class' => $class.' page-item disabled']));
-            return "\t\t".'<li '.$attributes.'><a class="page-link" href="#">'.$text.'</a></li>'."\n";
+            $attributes = trim(static::attributes(['class' => $class . ' page-item disabled']));
+            return "\t\t" . '<li ' . $attributes . '><a class="page-link" href="#">' . $text . '</a></li>' . "\n";
         }
 
         return $this->link($page, $text, $class);
@@ -291,7 +291,7 @@ class Paginator
      */
     protected function beginning()
     {
-        return $this->range(1, 2)." \t\t".$this->dots."\n";
+        return $this->range(1, 2) . " \t\t" . $this->dots . "\n";
     }
 
     /**
@@ -301,7 +301,7 @@ class Paginator
      */
     protected function ending()
     {
-        return "\t\t".$this->dots."\n".$this->range($this->last - 1, $this->last);
+        return "\t\t" . $this->dots . "\n" . $this->range($this->last - 1, $this->last);
     }
 
     /**
@@ -319,7 +319,7 @@ class Paginator
 
         for ($page = $start; $page <= $end; ++$page) {
             $pages[] = ($this->page === $page)
-                ? "\t\t".'<li class="page-item active"><a class="page-link" href="#">'.$page.'</a></li>'."\n"
+                ? "\t\t" . '<li class="page-item active"><a class="page-link" href="#">' . $page . '</a></li>' . "\n"
                 : $this->link($page, $page, null);
         }
 
@@ -337,11 +337,11 @@ class Paginator
      */
     protected function link($page, $text, $class)
     {
-        $query = '?page='.$page.$this->appendage($this->appends);
-        $attributes = trim(static::attributes(['class' => $class.' page-item']));
-        $uri = URI::current().$query;
+        $query = '?page=' . $page . $this->appendage($this->appends);
+        $attributes = trim(static::attributes(['class' => $class . ' page-item']));
+        $uri = URI::current() . $query;
 
-        return "\t\t".'<li '.$attributes.'><a class="page-link" href="'.$uri.'">'.e($text).'</a></li>'."\n";
+        return "\t\t" . '<li ' . $attributes . '><a class="page-link" href="' . $uri . '">' . e($text) . '</a></li>' . "\n";
     }
 
     /**
@@ -353,7 +353,7 @@ class Paginator
      */
     protected function appendage(array $appends)
     {
-        if (! is_null($this->appendage)) {
+        if (!is_null($this->appendage)) {
             return $this->appendage;
         }
 
@@ -362,7 +362,7 @@ class Paginator
             return $this->appendage;
         }
 
-        $this->appendage = '&'.http_build_query($appends);
+        $this->appendage = '&' . http_build_query($appends);
         return $this->appendage;
     }
 
@@ -395,12 +395,12 @@ class Paginator
                 $key = $value;
             }
 
-            if (! is_null($value)) {
-                $html[] = $key.'="'.e($value).'"';
+            if (!is_null($value)) {
+                $html[] = $key . '="' . e($value) . '"';
             }
         }
 
-        return (count($html) > 0) ? ' '.implode(' ', $html) : '';
+        return (count($html) > 0) ? ' ' . implode(' ', $html) : '';
     }
 
     /**

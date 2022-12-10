@@ -57,8 +57,10 @@ class Autoloader
         }
 
         foreach (static::$namespaces as $namespace => $directory) {
-            if ('' !== $namespace
-            && $namespace === substr((string) $class, 0, mb_strlen((string) $namespace, '8bit'))) {
+            if (
+                '' !== $namespace
+                && $namespace === substr((string) $class, 0, mb_strlen((string) $namespace, '8bit'))
+            ) {
                 return static::load_namespaced($class, $namespace, $directory);
             }
         }
@@ -91,9 +93,9 @@ class Autoloader
         $directories = $directory ? (array) $directory : static::$directories;
 
         foreach ($directories as $directory) {
-            if (is_file($path = $directory.$lowercased.'.php')) {
+            if (is_file($path = $directory . $lowercased . '.php')) {
                 return require $path;
-            } elseif (is_file($path = $directory.$file.'.php')) {
+            } elseif (is_file($path = $directory . $file . '.php')) {
                 return require $path;
             }
         }
@@ -166,7 +168,7 @@ class Autoloader
     protected static function format_mappings(array $mappings, $append)
     {
         foreach ($mappings as $namespace => $directory) {
-            $namespace = trim($namespace, $append).$append;
+            $namespace = trim($namespace, $append) . $append;
             unset(static::$namespaces[$namespace]);
             $namespaces[$namespace] = head(static::format((array) $directory));
         }
@@ -185,7 +187,7 @@ class Autoloader
     protected static function format(array $directories)
     {
         return array_map(function ($directory) {
-            return rtrim($directory, DS).DS;
+            return rtrim($directory, DS) . DS;
         }, $directories);
     }
 }

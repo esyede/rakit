@@ -44,7 +44,7 @@ class Memcached extends Sectionable
      */
     public function has($key)
     {
-        return ! is_null($this->get($key));
+        return !is_null($this->get($key));
     }
 
     /**
@@ -59,7 +59,7 @@ class Memcached extends Sectionable
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
             return $this->get_from_section($section, $key);
-        } elseif (false !== ($cache = $this->memcache->get($this->key.$key))) {
+        } elseif (false !== ($cache = $this->memcache->get($this->key . $key))) {
             return $cache;
         }
     }
@@ -85,7 +85,7 @@ class Memcached extends Sectionable
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
-        $this->memcache->set($this->key.$key, $value, $minutes * 60);
+        $this->memcache->set($this->key . $key, $value, $minutes * 60);
     }
 
     /**
@@ -120,7 +120,7 @@ class Memcached extends Sectionable
                 $this->forget_in_section($section, $key);
             }
         } else {
-            $this->memcache->delete($this->key.$key);
+            $this->memcache->delete($this->key . $key);
         }
     }
 
@@ -133,7 +133,7 @@ class Memcached extends Sectionable
      */
     public function forget_section($section)
     {
-        return $this->memcache->increment($this->key.$this->section_key($section));
+        return $this->memcache->increment($this->key . $this->section_key($section));
     }
 
     /**
@@ -159,7 +159,7 @@ class Memcached extends Sectionable
      */
     protected function section_key($section)
     {
-        return $section.'_section_key';
+        return $section . '_section_key';
     }
 
     /**
@@ -172,6 +172,6 @@ class Memcached extends Sectionable
      */
     protected function section_item_key($section, $key)
     {
-        return $section.'#'.$this->section_id($section).'#'.$key;
+        return $section . '#' . $this->section_id($section) . '#' . $key;
     }
 }

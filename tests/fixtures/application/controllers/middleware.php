@@ -35,7 +35,7 @@ class Middleware_Controller extends Controller
         });
 
         Middleware::register('test-param', function ($var1, $var2) {
-            return $var1.$var2;
+            return $var1 . $var2;
         });
 
         Middleware::register('test-multi-1', function () {

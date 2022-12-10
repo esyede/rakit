@@ -45,7 +45,7 @@ class Resolver
             $files = $this->migrations($package);
 
             foreach ($files as $key => $name) {
-                if (! in_array($name, $ran)) {
+                if (!in_array($name, $ran)) {
                     $migrations[] = compact('package', 'name');
                 }
             }
@@ -79,12 +79,12 @@ class Resolver
             $migration = (array) $migration;
             $package = $migration['package'];
             $name = $migration['name'];
-            $path = Package::path($package).'migrations'.DS;
+            $path = Package::path($package) . 'migrations' . DS;
 
-            require_once $path.$name.'.php';
+            require_once $path . $name . '.php';
 
             $prefix = Package::class_prefix($package);
-            $class = $prefix.Str::classify(substr((string) $name, 18));
+            $class = $prefix . Str::classify(substr((string) $name, 18));
             $migration = new $class();
             $instances[] = compact('package', 'name', 'migration');
         }
@@ -105,7 +105,7 @@ class Resolver
      */
     protected function migrations($package)
     {
-        $files = glob(Package::path($package).'migrations'.DS.'*_*.php');
+        $files = glob(Package::path($package) . 'migrations' . DS . '*_*.php');
 
         if (false === $files) {
             return [];

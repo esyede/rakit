@@ -32,7 +32,7 @@ class WinCache extends Driver
      */
     public function has($key)
     {
-        return ! is_null($this->get($key));
+        return !is_null($this->get($key));
     }
 
     /**
@@ -44,7 +44,7 @@ class WinCache extends Driver
      */
     protected function retrieve($key)
     {
-        $cache = wincache_ucache_get($this->key.$key);
+        $cache = wincache_ucache_get($this->key . $key);
         return (false === $cache) ? null : $cache;
     }
 
@@ -64,7 +64,7 @@ class WinCache extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        wincache_ucache_add($this->key.$key, $value, $minutes * 60);
+        wincache_ucache_add($this->key . $key, $value, $minutes * 60);
     }
 
     /**
@@ -85,6 +85,6 @@ class WinCache extends Driver
      */
     public function forget($key)
     {
-        wincache_ucache_delete($this->key.$key);
+        wincache_ucache_delete($this->key . $key);
     }
 }

@@ -58,7 +58,7 @@ abstract class Controller
      */
     public function __construct()
     {
-        if (! is_null($this->layout)) {
+        if (!is_null($this->layout)) {
             $this->layout = $this->layout();
         }
     }
@@ -74,8 +74,8 @@ abstract class Controller
     public static function detect($package = DEFAULT_PACKAGE, $directory = null)
     {
         $package_path = Package::path($package);
-        $root = $package_path.'controllers'.DS;
-        $directory = is_null($directory) ? $package_path.'controllers' : $directory;
+        $root = $package_path . 'controllers' . DS;
+        $directory = is_null($directory) ? $package_path . 'controllers' : $directory;
         $items = new \FilesystemIterator($directory, \FilesystemIterator::SKIP_DOTS);
 
         $controllers = [];
@@ -122,7 +122,7 @@ abstract class Controller
         list($name, $method) = explode('@', $destination);
         $controller = static::resolve($package, $name);
 
-        if (! is_null($route = Request::route())) {
+        if (!is_null($route = Request::route())) {
             $route->controller = $name;
             $route->controller_action = $method;
         }
@@ -141,11 +141,11 @@ abstract class Controller
     protected static function references(&$destination, array &$parameters)
     {
         foreach ($parameters as $key => $value) {
-            if (! is_string($value)) {
+            if (!is_string($value)) {
                 continue;
             }
 
-            $destination = str_replace('(:'.($key + 1).')', $value, $destination, $count);
+            $destination = str_replace('(:' . ($key + 1) . ')', $value, $destination, $count);
 
             if ($count > 0) {
                 unset($parameters[$key]);
@@ -165,14 +165,14 @@ abstract class Controller
      */
     public static function resolve($package, $controller)
     {
-        if (! static::load($package, $controller)) {
+        if (!static::load($package, $controller)) {
             return;
         }
 
         $identifier = Package::identifier($package, $controller);
 
-        if (Container::registered('controller: '.$identifier)) {
-            return Container::resolve('controller: '.$identifier);
+        if (Container::registered('controller: ' . $identifier)) {
+            return Container::resolve('controller: ' . $identifier);
         }
 
         $controller = static::format($package, $controller);
@@ -190,7 +190,7 @@ abstract class Controller
     protected static function load($package, $controller)
     {
         $controller = strtolower((string) str_replace(['.', '/'], DS, $controller));
-        $controller = Package::path($package).'controllers'.DS.$controller.'.php';
+        $controller = Package::path($package) . 'controllers' . DS . $controller . '.php';
 
         if (is_file($controller)) {
             require_once $controller;
@@ -210,7 +210,7 @@ abstract class Controller
      */
     protected static function format($package, $controller)
     {
-        return Package::class_prefix($package).Str::classify($controller).'_Controller';
+        return Package::class_prefix($package) . Str::classify($controller) . '_Controller';
     }
 
     /**
@@ -253,10 +253,10 @@ abstract class Controller
      */
     public function response($method, array $parameters = [])
     {
-        $action = $this->restful ? strtolower((string) Request::method()).'_'.$method : 'action_'.$method;
+        $action = $this->restful ? strtolower((string) Request::method()) . '_' . $method : 'action_' . $method;
         $response = call_user_func_array([$this, $action], $parameters);
 
-        return (is_null($response) && ! is_null($this->layout)) ? $this->layout : $response;
+        return (is_null($response) && !is_null($this->layout)) ? $this->layout : $response;
     }
 
     /**
@@ -294,7 +294,7 @@ abstract class Controller
      */
     protected function middlewares($event, $method)
     {
-        if (! isset($this->middlewares[$event])) {
+        if (!isset($this->middlewares[$event])) {
             return [];
         }
 
@@ -330,7 +330,7 @@ abstract class Controller
      */
     public function validate(array $rules)
     {
-        if (! Arr::associative($rules)) {
+        if (!Arr::associative($rules)) {
             throw new \Exception('Validation rules should be an associative array.');
         }
 

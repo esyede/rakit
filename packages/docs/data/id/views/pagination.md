@@ -2,27 +2,25 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Menggunakan Query Builder](#menggunakan-query-builder)
-- [Menambahkan Link Paginasi](#menambahkan-link-paginasi)
-- [Membuat Paginasi Manual](#membuat-paginasi-manual)
-- [Mempercantik Paginasi](#mempercantik-paginasi)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Menggunakan Query Builder](#menggunakan-query-builder)
+-   [Menambahkan Link Paginasi](#menambahkan-link-paginasi)
+-   [Membuat Paginasi Manual](#membuat-paginasi-manual)
+-   [Mempercantik Paginasi](#mempercantik-paginasi)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Library ini dibuat untuk memudahkan anda dalam pembuatan navigasi pada banyak data.
 
-
-
 <a id="menggunakan-query-builder"></a>
+
 ## Menggunakan Query Builder
 
 Mari kita telusuri contoh lengkap pagination menggunakan [Query Builder](/docs/id/database/magic):
-
 
 #### Ambil hasil paginasi dari kueri:
 
@@ -38,7 +36,6 @@ Anda juga bisa mengoper array nama kolom tabel yang ingin diambil dalam kueri:
 $orders = DB::table('orders')->paginate($perpage, ['id', 'name', 'created_at']);
 ```
 
-
 #### Tampilkan hasilnya ke view:
 
 ```php
@@ -46,7 +43,6 @@ $orders = DB::table('orders')->paginate($perpage, ['id', 'name', 'created_at']);
 	<?php echo $order->id; ?>
 <?php endforeach; ?>
 ```
-
 
 #### Tampilkan juga link paginasinya:
 
@@ -63,7 +59,6 @@ Previous 1 2 ... 24 25 26 27 28 29 30 ... 78 79 Next
 Paginator juga akan secara otomatis menentukan halaman mana anda saat ini dan memperbarui data
 dan linknya. Anda juga dapat membuat link _"next"_ dan _"previous"_ tentunya:
 
-
 #### Membuat link "next" dan "previous" sederhana:
 
 ```php
@@ -72,16 +67,14 @@ dan linknya. Anda juga dapat membuat link _"next"_ dan _"previous"_ tentunya:
 
 _Bacaan lebih lanjut:_
 
-- _[Query Builder](/docs/id/database/magic)_
-
-
+-   _[Query Builder](/docs/id/database/magic)_
 
 <a id="menambahkan-link-paginasi"></a>
+
 ## Menambahkan Link Paginasi
 
 Anda juga dapat menambahkan lebih banyak item ke string kueri link paginasi, seperti
 kolom yang anda sortir.
-
 
 #### Menambahkan query string ke link paginasi:
 
@@ -95,13 +88,12 @@ Contoh diatas akan menghasilkan URL yang terlihat seperti ini:
 mysite.com/movies?page=2&sort=votes
 ```
 
-
 <a id="membuat-paginasi-manual"></a>
+
 ## Membuat Paginasi Manual
 
 Terkadang anda mungkin perlu membuat paginasi secara manual, tanpa menggunakan query builder.
 Begini caranya:
-
 
 #### Membuat paginasi secara manua:
 
@@ -109,8 +101,8 @@ Begini caranya:
 $orders = Paginator::make($orders, $total, $perpage);
 ```
 
-
 <a id="mempercantik-paginasi"></a>
+
 ## Mempercantik Paginasi
 
 Semua elemen link paginasi dapat ditata menggunakan CSS. Berikut adalah contoh elemen HTML

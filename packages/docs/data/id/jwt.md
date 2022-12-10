@@ -2,14 +2,14 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Encode Data](#encode-data)
-- [Decode Data](#decode-data)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [Encode Data](#encode-data)
+-   [Decode Data](#decode-data)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Seperti namanya, komponen `JWT` menyediakan cara sederhana untuk menangani encode dan decode
@@ -19,10 +19,9 @@ yang banyak digunakan.
 
 > Komponen ini hanya mendukung 3 algoritma standar saja, yaitu `HS256`, `HS384` dan `HS512`.
 
-
 <a id="encode-data"></a>
-## Enkripsi Data
 
+## Enkripsi Data
 
 #### Meng-encode data:
 
@@ -52,7 +51,6 @@ $jwt = JWT::encode($data, $secret, 'HS384');
 
 > Algoritma yang didukung adalah: `HS256`, `HS384` and `HS512`.
 
-
 ### Header Tambahan
 
 Selain dapat menentukan jenis algoritma yang ingin digunakan,
@@ -68,10 +66,9 @@ $headers = [
 $jwt = JWT::encode($data, $secret, 'HS256', $headers);
 ```
 
-
 <a id="dekripsi-data"></a>
-## Decode Data
 
+## Decode Data
 
 #### Men-decode data:
 

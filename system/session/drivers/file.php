@@ -33,7 +33,7 @@ class File extends Driver implements Sweeper
      */
     public function load($id)
     {
-        if (is_file($path = $this->path.$this->naming($id))) {
+        if (is_file($path = $this->path . $this->naming($id))) {
             return unserialize($this->unguard(file_get_contents($path)));
         }
     }
@@ -47,7 +47,7 @@ class File extends Driver implements Sweeper
      */
     public function save(array $session, array $config, $exists)
     {
-        $path = $this->path.$this->naming($session['id']);
+        $path = $this->path . $this->naming($session['id']);
         $session = $this->guard(serialize($session));
 
         file_put_contents($path, $session, LOCK_EX);
@@ -60,7 +60,7 @@ class File extends Driver implements Sweeper
      */
     public function delete($id)
     {
-        if (is_file($path = $this->path.$this->naming($id))) {
+        if (is_file($path = $this->path . $this->naming($id))) {
             @unlink($path);
         }
     }
@@ -72,9 +72,9 @@ class File extends Driver implements Sweeper
      */
     public function sweep($expiration)
     {
-        $files = glob($this->path.'*.session.php');
+        $files = glob($this->path . '*.session.php');
 
-        if (false === $files || ! is_array($files) || 0 === count($files)) {
+        if (false === $files || !is_array($files) || 0 === count($files)) {
             return;
         }
 
@@ -94,7 +94,7 @@ class File extends Driver implements Sweeper
      */
     protected function naming($id)
     {
-        return sprintf('%u', crc32($id)).'.session.php';
+        return sprintf('%u', crc32($id)) . '.session.php';
     }
 
     /**
@@ -106,7 +106,7 @@ class File extends Driver implements Sweeper
      */
     protected static function guard($value)
     {
-        return "<?php defined('DS') or exit('No direct script access.');?>".$value;
+        return "<?php defined('DS') or exit('No direct script access.');?>" . $value;
     }
 
     /**

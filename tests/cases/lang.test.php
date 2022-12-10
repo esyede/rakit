@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Lang;
+
 class LangTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -27,12 +29,12 @@ class LangTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMethodCanGetFromDefaultLanguage()
     {
-        $validation = require path('app').'language'.DS.'id'.DS.'validation.php';
+        $validation = require path('app') . 'language' . DS . 'id' . DS . 'validation.php';
 
         $this->assertEquals($validation['required'], Lang::line('validation.required')->get());
         $this->assertEquals('Budi', Lang::line('validation.foo')->get(null, 'Budi'));
 
-        $validation = require path('app').'language'.DS.'en'.DS.'validation.php';
+        $validation = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
 
         $this->assertEquals($validation['required'], Lang::line('validation.required')->get('en'));
     }
@@ -44,7 +46,7 @@ class LangTest extends \PHPUnit_Framework_TestCase
      */
     public function testLineCanBeCastAsString()
     {
-        $validation = require path('app').'language'.DS.'id'.DS.'validation.php';
+        $validation = require path('app') . 'language' . DS . 'id' . DS . 'validation.php';
 
         $this->assertEquals($validation['required'], (string) Lang::line('validation.required'));
     }
@@ -56,7 +58,7 @@ class LangTest extends \PHPUnit_Framework_TestCase
      */
     public function testReplacementsAreMadeOnLines()
     {
-        $validation = require path('app').'language'.DS.'id'.DS.'validation.php';
+        $validation = require path('app') . 'language' . DS . 'id' . DS . 'validation.php';
         $line = str_replace(':attribute', 'e-mail', $validation['required']);
 
         $this->assertEquals($line, Lang::line('validation.required', ['attribute' => 'e-mail'])->get());

@@ -34,7 +34,7 @@ class File extends Driver
      */
     public function has($key)
     {
-        return ! is_null($this->get($key));
+        return !is_null($this->get($key));
     }
 
     /**
@@ -48,11 +48,11 @@ class File extends Driver
     {
         $key = $this->naming($key);
 
-        if (! is_file($this->path.$key)) {
+        if (!is_file($this->path . $key)) {
             return;
         }
 
-        $cache = Storage::get($this->path.$key);
+        $cache = Storage::get($this->path . $key);
         $cache = $this->unguard($cache);
 
         return (time() >= substr((string) $cache, 0, 10))
@@ -81,9 +81,9 @@ class File extends Driver
         }
 
         $key = $this->naming($key);
-        $value = $this->guard($this->expiration($minutes).serialize($value));
+        $value = $this->guard($this->expiration($minutes) . serialize($value));
 
-        Storage::put($this->path.$key, $value, LOCK_EX);
+        Storage::put($this->path . $key, $value, LOCK_EX);
     }
 
     /**
@@ -106,7 +106,7 @@ class File extends Driver
     {
         $key = $this->naming($key);
 
-        if (is_file($key = $this->path.$key)) {
+        if (is_file($key = $this->path . $key)) {
             Storage::delete($key);
         }
     }
@@ -120,7 +120,7 @@ class File extends Driver
      */
     protected function naming($key)
     {
-        return sprintf('%u', crc32((string) $key)).'.cache.php';
+        return sprintf('%u', crc32((string) $key)) . '.cache.php';
     }
 
     /**
@@ -133,7 +133,7 @@ class File extends Driver
     protected static function guard($value)
     {
         $guard = "<?php defined('DS') or exit('No direct script access.');?>";
-        return $guard.$value;
+        return $guard . $value;
     }
 
     /**

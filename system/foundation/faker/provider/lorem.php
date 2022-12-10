@@ -75,7 +75,7 @@ class Lorem extends Base
         $words = static::words($nbWords);
         $words[0] = ucwords($words[0]);
 
-        return implode(' ', $words).'.';
+        return implode(' ', $words) . '.';
     }
 
     public static function sentences($nb = 3, $asText = false)
@@ -124,7 +124,7 @@ class Lorem extends Base
                 $size = 0;
 
                 while ($size < $maxNbChars) {
-                    $word = ($size ? ' ' : '').static::word();
+                    $word = ($size ? ' ' : '') . static::word();
                     $text[] = $word;
                     $size += mb_strlen((string) $word, '8bit');
                 }
@@ -139,7 +139,7 @@ class Lorem extends Base
                 $size = 0;
 
                 while ($size < $maxNbChars) {
-                    $sentence = ($size ? ' ' : '').static::sentence();
+                    $sentence = ($size ? ' ' : '') . static::sentence();
                     $text[] = $sentence;
                     $size += mb_strlen((string) $sentence, '8bit');
                 }
@@ -151,7 +151,7 @@ class Lorem extends Base
                 $size = 0;
 
                 while ($size < $maxNbChars) {
-                    $paragraph = ($size ? "\n" : '').static::paragraph();
+                    $paragraph = ($size ? "\n" : '') . static::paragraph();
                     $text[] = $paragraph;
                     $size += mb_strlen((string) $paragraph, '8bit');
                 }

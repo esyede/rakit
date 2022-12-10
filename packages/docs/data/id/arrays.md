@@ -2,52 +2,52 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [List Helper](#list-helper)
-    - [Arr::accessible\(\)](#arraccessible)
-    - [Arr::add\(\)](#arradd)
-    - [Arr::collapse\(\)](#arrcollapse)
-    - [Arr::divide\(\)](#arrdivide)
-    - [Arr::dot\(\)](#arrdot)
-    - [Arr::undot\(\)](#arrundot)
-    - [Arr::except\(\)](#arrexcept)
-    - [Arr::exists\(\)](#arrexists)
-    - [Arr::first\(\)](#arrfirst)
-    - [Arr::flatten\(\)](#arrflatten)
-    - [Arr::forget\(\)](#arrforget)
-    - [Arr::get\(\)](#arrget)
-    - [Arr::has\(\)](#arrhas)
-    - [Arr::associative\(\)](#arrassociative)
-    - [Arr::last\(\)](#arrlast)
-    - [Arr::only\(\)](#arronly)
-    - [Arr::pluck\(\)](#arrpluck)
-    - [Arr::prepend\(\)](#arrprepend)
-    - [Arr::pull\(\)](#arrpull)
-    - [Arr::random\(\)](#arrrandom)
-    - [Arr::set\(\)](#arrset)
-    - [Arr::shuffle\(\)](#arrshuffle)
-    - [Arr::sort\(\)](#arrsort)
-    - [Arr::recsort\(\)](#arrrecsort)
-    - [Arr::where\(\)](#arrwhere)
-    - [Arr::wrap\(\)](#arrwrap)
+-   [Pengetahuan Dasar](#pengetahuan-dasar)
+-   [List Helper](#list-helper)
+    -   [Arr::accessible\(\)](#arraccessible)
+    -   [Arr::add\(\)](#arradd)
+    -   [Arr::collapse\(\)](#arrcollapse)
+    -   [Arr::divide\(\)](#arrdivide)
+    -   [Arr::dot\(\)](#arrdot)
+    -   [Arr::undot\(\)](#arrundot)
+    -   [Arr::except\(\)](#arrexcept)
+    -   [Arr::exists\(\)](#arrexists)
+    -   [Arr::first\(\)](#arrfirst)
+    -   [Arr::flatten\(\)](#arrflatten)
+    -   [Arr::forget\(\)](#arrforget)
+    -   [Arr::get\(\)](#arrget)
+    -   [Arr::has\(\)](#arrhas)
+    -   [Arr::associative\(\)](#arrassociative)
+    -   [Arr::last\(\)](#arrlast)
+    -   [Arr::only\(\)](#arronly)
+    -   [Arr::pluck\(\)](#arrpluck)
+    -   [Arr::prepend\(\)](#arrprepend)
+    -   [Arr::pull\(\)](#arrpull)
+    -   [Arr::random\(\)](#arrrandom)
+    -   [Arr::set\(\)](#arrset)
+    -   [Arr::shuffle\(\)](#arrshuffle)
+    -   [Arr::sort\(\)](#arrsort)
+    -   [Arr::recsort\(\)](#arrrecsort)
+    -   [Arr::where\(\)](#arrwhere)
+    -   [Arr::wrap\(\)](#arrwrap)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="pengetahuan-dasar"></a>
+
 ## Pengetahuan Dasar
 
 Komponen ini menyertakan berbagai helper untuk membuat hidup anda lebih mudah saat bekerja dengan array.
 Berikut adalah daftar helper yang tersedia untuk anda:
 
-
 <a id="list-helper"></a>
+
 ## List Helper
 
 Berikut dalah daftar helper yang tersedia untuk komponen ini:
 
-
 <a id="arraccessible"></a>
+
 ### Arr::accessible()
 
 Metohd ini memeriksa bahwa value yang diberikan merupakan array yang dapat diakses:
@@ -58,8 +58,8 @@ return Arr::accessible('abc');                // false
 return Arr::accessible(new \stdClass());      // false
 ```
 
-
 <a id="arradd"></a>
+
 ### Arr::add()
 
 Method ini menambahkan pasangan key / value tertentu ke array jika key yang diberikan
@@ -73,8 +73,8 @@ return Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 // ['name' => 'Desk', 'price' => 100]
 ```
 
-
 <a id="arrcollapse"></a>
+
 ### Arr::collapse()
 
 Metode ini menciutkan array multi-dimensi menjadi array tunggal:
@@ -84,8 +84,8 @@ return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
 // [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
-
 <a id="arrdivide"></a>
+
 ### Arr::divide()
 
 Method ini mereturn dua buah array, satu berisi key, dan yang lainnya berisi
@@ -97,8 +97,8 @@ list($keys, $values) = Arr::divide(['name' => 'Desk']);
 // $values: ['Desk']
 ```
 
-
 <a id="arrdot"></a>
+
 ### Arr::dot()
 
 Method ini meratakan array multi-dimensi menjadi array tunggal yang menggunakan notasi "dot"
@@ -112,6 +112,7 @@ return Arr::dot($array); // ['products.desk.price' => 100]
 ```
 
 <a id="arrundot"></a>
+
 ### Arr::undot()
 
 Method ini mengubah array satu dimensi bernotasi "titik" menjadi array multi-dimensi:
@@ -124,8 +125,8 @@ return Arr::undot($array);
 // ['user' => ['name' => 'Budi', 'age' => 28]]
 ```
 
-
 <a id="arrexcept"></a>
+
 ### Arr::except()
 
 Method ini menghapus pasangan key / value tertentu dari array:
@@ -136,8 +137,8 @@ $array = ['name' => 'Desk', 'price' => 100];
 return Arr::except($array, ['price']); // ['name' => 'Desk']
 ```
 
-
 <a id="arrexists"></a>
+
 ### Arr::exists()
 
 Method ini memeriksa bahwa key yang diberikan ada dalam sebuah array:
@@ -149,8 +150,8 @@ return Arr::exists($array, 'name');   // true
 return Arr::exists($array, 'salary'); // false
 ```
 
-
 <a id="arrfirst"></a>
+
 ### Arr::first()
 
 Method ini mereturn elemen pertama dari sebuah array yang lolos dari uji kebenaran yang diberikan:
@@ -173,6 +174,7 @@ return Arr::first($array, $callback, $default);
 ```
 
 <a id="arrflatten"></a>
+
 ### Arr::flatten()
 
 Method ini meratakan array multi-dimensi menjadi array tunggal:
@@ -183,8 +185,8 @@ $array = ['name' => 'Dimas', 'languages' => ['PHP', 'Ruby']];
 return Arr::flatten($array); // ['Dimas', 'PHP', 'Ruby']
 ```
 
-
 <a id="arrforget"></a>
+
 ### Arr::forget()
 
 Method ini menghapus pasangan key / value tertentu dari array menggunakan notasi "dot":
@@ -197,8 +199,8 @@ Arr::forget($array, 'products.desk');
 return $array; // ['products' => []]
 ```
 
-
 <a id="arrget"></a>
+
 ### Arr::get()
 
 Method ini mengambil sebuah value dari array menggunakan notasi "dot":
@@ -215,8 +217,8 @@ Method ini juga menerima default value, yang akan direturn jika key yang diminta
 return Arr::get($array, 'products.desk.discount', 0); // 0
 ```
 
-
 <a id="arrhas"></a>
+
 ### Arr::has()
 
 Method ini memeriksa apakah item tertentu ada dalam array menggunakan notasi "dor":
@@ -229,8 +231,8 @@ return Arr::has($array, 'product.name'); // true
 return Arr::has($array, ['product.price', 'product.discount']); // false
 ```
 
-
 <a id="arrassociative"></a>
+
 ### Arr::associative()
 
 Method ini mereturn `TRUE` jika array yang diberikan adalah array asosiatif. Sebuah array
@@ -244,8 +246,8 @@ return Arr::associative($array1); // true
 return Arr::associative($array2); // false
 ```
 
-
 <a id="arrlast"></a>
+
 ### Arr::last()
 
 Method ini mereturn elemen terakhir dari sebuah array yang lolos uji kebenaran yang diberikan:
@@ -267,8 +269,8 @@ Value ini akan di-return jika tidak ada value yang lolos dari uji kebenaran yang
 return Arr::last($array, $callback, $default);
 ```
 
-
 <a id="arronly"></a>
+
 ### Arr::only()
 
 Method ini hanya mereturn pasangan key / value yang ditentukan dari array yang diberikan:
@@ -280,8 +282,8 @@ return Arr::only($array, ['name', 'price']);
 // ['name' => 'Desk', 'price' => 100]
 ```
 
-
 <a id="arrpluck"></a>
+
 ### Arr::pluck()
 
 Metode ini mengambil semua value untuk milik key tertentu dari array:
@@ -303,8 +305,8 @@ return Arr::pluck($array, 'developer.name', 'developer.id');
 // [1 => 'Budi', 2 => 'Sarah']
 ```
 
-
 <a id="arrprepend"></a>
+
 ### Arr::prepend()
 
 Method ini akan menambahkan sebuah item ke bagian awal sebuah array:
@@ -325,8 +327,8 @@ $array = Arr::prepend($array, 'Desk', 'name');
 // ['name' => 'Desk', 'price' => 100]
 ```
 
-
 <a id="arrpull"></a>
+
 ### Arr::pull()
 
 Metode ini mereturn dan menghapus pasangan key / value dari sebuah array:
@@ -346,8 +348,8 @@ di-return jika key yang anda mau tidak ditemukan:
 $value = Arr::pull($array, $key, $default);
 ```
 
-
 <a id="arrrandom"></a>
+
 ### Arr::random()
 
 Method ini mereturn sebuah value acak dari array:
@@ -366,8 +368,8 @@ Patut diperhatikan bahwa jika opsi ini digunakan, return value yang anda dapat a
 return Arr::random($array, 2); // [2, 5] - (diperoleh secara acak)
 ```
 
-
 <a id="arrset"></a>
+
 ### Arr::set()
 
 Method ini digunakan untuk menetapkan sebuah value ke array menggunakan notasi "dot":
@@ -380,8 +382,8 @@ Arr::set($array, 'products.desk.price', 200);
 // $array: ['products' => ['desk' => ['price' => 200]]]
 ```
 
-
 <a id="arrshuffle"></a>
+
 ### Arr::shuffle()
 
 Method ini mengacak item milik sebuah array:
@@ -391,8 +393,8 @@ return Arr::shuffle([1, 2, 3, 4, 5]);
 // [3, 2, 5, 1, 4] - (dibuat secara acak)
 ```
 
-
 <a id="arrsort"></a>
+
 ### Arr::sort()
 
 Method ini mengurutkan array berdasarkan valuenya:
@@ -426,8 +428,8 @@ return array_values(Arr::sort($array, function ($value) {
 */
 ```
 
-
 <a id="arrrecsort"></a>
+
 ### Arr::recsort()
 
 Method ini mengurutkan array secara rekursif menggunakan
@@ -453,8 +455,8 @@ return Arr::recsort($array);
 */
 ```
 
-
 <a id="arrwhere"></a>
+
 ### Arr::where()
 
 Method ini dipakai untuk menyaring array menggunakan Closure:
@@ -469,8 +471,8 @@ return Arr::where($array, function ($value, $key) {
 // [1 => '200', 3 => '400']
 ```
 
-
 <a id="arrwrap"></a>
+
 ### Arr::wrap()
 
 Method ini membungkus value yang diberikan dalam sebuah array. Jika value yang diberikan

@@ -2,6 +2,9 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Date;
+use System\Config;
+
 class DateTest extends \PHPUnit_Framework_TestCase
 {
     /**

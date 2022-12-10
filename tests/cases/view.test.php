@@ -2,6 +2,11 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\View;
+use System\Event;
+use System\Package;
+use System\Response;
+
 class ViewTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -53,7 +58,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = new View('home.index');
 
         $this->assertEquals(
-            str_replace(DS, '/', path('app')).'views/home/index.php',
+            str_replace(DS, '/', path('app')) . 'views/home/index.php',
             str_replace(DS, '/', $view->path)
         );
     }
@@ -68,7 +73,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = new View('home.index');
 
         $this->assertEquals(
-            str_replace(DS, '/', Package::path(DEFAULT_PACKAGE)).'views/home/index.php',
+            str_replace(DS, '/', Package::path(DEFAULT_PACKAGE)) . 'views/home/index.php',
             str_replace(DS, '/', $view->path)
         );
     }
@@ -213,7 +218,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
         $view = View::make('tests.basic')->with('age', 25)->render();
 
-        $this->assertEquals('Budi berumur 25', $view);
+        $this->assertEquals('Budi berumur 25<br>', trim($view));
     }
 
     /**
@@ -227,7 +232,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
             ->with('age', 25)
             ->nest('name', 'tests.nested');
 
-        $this->assertEquals('Budi berumur 25', str_replace(["\n", "\t", "\r"], '', $view->render()));
+        $view = trim(str_replace(["\n", "\t", "\r"], '', $view->render()));
+        $this->assertEquals('Budi berumur 25<br>', $view);
     }
 
     /**
@@ -241,7 +247,8 @@ class ViewTest extends \PHPUnit_Framework_TestCase
             ->with('age', 25)
             ->with('name', Response::view('tests.nested'));
 
-        $this->assertEquals('Budi berumur 25', str_replace(["\n", "\t", "\r"], '', $view->render()));
+        $view = trim(str_replace(["\n", "\t", "\r"], '', $view->render()));
+        $this->assertEquals('Budi berumur 25<br>', $view);
     }
 
     /**
@@ -257,6 +264,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
 
         $view = View::make('tests.basic')->render();
 
-        $this->assertEquals('Budi berumur 25', str_replace(["\n", "\t", "\r"], '', $view));
+        $view = trim(str_replace(["\n", "\t", "\r"], '', $view));
+        $this->assertEquals('Budi berumur 25<br>', $view);
     }
 }

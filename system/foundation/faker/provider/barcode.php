@@ -9,7 +9,7 @@ class Barcode extends Base
     private function ean($length = 13)
     {
         $code = $this->numerify(str_repeat('#', $length - 1));
-        return $code.static::eanChecksum($code);
+        return $code . static::eanChecksum($code);
     }
 
     protected static function eanChecksum($input)
@@ -54,12 +54,12 @@ class Barcode extends Base
     public function isbn10()
     {
         $code = $this->numerify(str_repeat('#', 9));
-        return $code.static::isbnChecksum($code);
+        return $code . static::isbnChecksum($code);
     }
 
     public function isbn13()
     {
-        $code = '97'.static::numberBetween(8, 9).$this->numerify(str_repeat('#', 9));
-        return $code.static::eanChecksum($code);
+        $code = '97' . static::numberBetween(8, 9) . $this->numerify(str_repeat('#', 9));
+        return $code . static::eanChecksum($code);
     }
 }

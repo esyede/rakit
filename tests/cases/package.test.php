@@ -2,6 +2,10 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Event;
+use System\Config;
+use System\Package;
+
 class PackageTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -61,7 +65,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
             $_SERVER['booted.dummy'] = true;
 
             // Indikasi paket dummy telah di-boot: file routes.php miliknya ada di get_included_files()
-            if (in_array(path('package').'dummy'.DS.'routes.php', get_included_files())) {
+            if (in_array(path('package') . 'dummy' . DS . 'routes.php', get_included_files())) {
                 $_SERVER['package.dummy.routes']++;
             }
         });
@@ -149,7 +153,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(path('app'), Package::path(null));
         $this->assertEquals(path('app'), Package::path(DEFAULT_PACKAGE));
-        $this->assertEquals(path('package').'dashboard'.DS, Package::path('dashboard'));
+        $this->assertEquals(path('package') . 'dashboard' . DS, Package::path('dashboard'));
     }
 
     /**

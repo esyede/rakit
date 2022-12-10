@@ -42,11 +42,11 @@ class Job extends Event
         $config = Config::get('job');
         $name = Str::slug($name);
 
-        Event::fire('rakit.jobs.forget: '.$name);
+        Event::fire('rakit.jobs.forget: ' . $name);
 
         $jobs = Database::table($config['table'])->where('name', $name)->get();
 
-        if (! empty($jobs)) {
+        if (!empty($jobs)) {
             foreach ($jobs as $job) {
                 Database::table($config['table'])->where('id', $job->id)->delete();
             }
@@ -54,7 +54,7 @@ class Job extends Event
 
         $jobs = Database::table($config['failed_table'])->where('name', $name)->get();
 
-        if (! empty($jobs)) {
+        if (!empty($jobs)) {
             foreach ($jobs as $job) {
                 Database::table($config['failed_table'])->where('id', $job->id)->delete();
             }
@@ -75,7 +75,7 @@ class Job extends Event
         $config = Config::get('job');
         $name = Str::slug($name);
 
-        if (! $config['enabled']) {
+        if (!$config['enabled']) {
             static::log('Job is disabled', 'error');
             return;
         }
@@ -85,7 +85,7 @@ class Job extends Event
             return;
         }
 
-        if ($config['cli_only'] && ! Request::cli()) {
+        if ($config['cli_only'] && !Request::cli()) {
             static::log('Job is set to CLI only', 'error');
             return;
         }
@@ -102,13 +102,13 @@ class Job extends Event
         } else {
             foreach ($jobs as $job) {
                 try {
-                    Event::fire('rakit.jobs.run: '.$job->name, unserialize($job->payloads));
+                    Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
                     Database::table($config['table'])->where('id', $job->id)->delete();
                     static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                 } catch (\Throwable $e) {
                     $exception = get_class($e)
-                        .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                        .' in '.$e->getFile().':'.$e->getLine()."\nStack trace:\n".$e->getTraceAsString();
+                        . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
+                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n" . $e->getTraceAsString();
                     Database::table($config['failed_table'])->insert([
                         'job_id' => $job->id,
                         'name' => $job->name,
@@ -119,8 +119,8 @@ class Job extends Event
                     static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                 } catch (\Exception $e) {
                     $exception = get_class($e)
-                        .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                        .' in '.$e->getFile().':'.$e->getLine()."\nStack trace:\n".$e->getTraceAsString();
+                        . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
+                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n" . $e->getTraceAsString();
                     Database::table($config['failed_table'])->insert([
                         'job_id' => $job->id,
                         'name' => $job->name,
@@ -143,12 +143,12 @@ class Job extends Event
     {
         $config = Config::get('job');
 
-        if (! $config['enabled']) {
+        if (!$config['enabled']) {
             static::log('Job is disabled', 'error');
             return false;
         }
 
-        if ($config['cli_only'] && ! Request::cli()) {
+        if ($config['cli_only'] && !Request::cli()) {
             static::log('Job is set to CLI only', 'error');
             return false;
         }
@@ -164,7 +164,7 @@ class Job extends Event
         } else {
             foreach ($jobs as $job) {
                 try {
-                    Event::fire('rakit.jobs.run: '.$job->name, unserialize($job->payloads));
+                    Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
                     Database::table($config['table'])->where('id', $job->id)->delete();
                     static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                 } catch (\Throwable $e) {
@@ -187,7 +187,7 @@ class Job extends Event
         }
 
         if (Request::cli()) {
-            echo '['.date('Y-m-d H:i:s').'] ['.strtoupper((string) $type).'] '.$message.PHP_EOL;
+            echo '[' . date('Y-m-d H:i:s') . '] [' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
         }
     }
 }

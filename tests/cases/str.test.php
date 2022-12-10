@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Str;
+
 class StrTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -43,7 +45,7 @@ class StrTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertSame(' ', Str::words(' '));
 
-        $nbsp = chr(0xC2).chr(0xA0);
+        $nbsp = chr(0xC2) . chr(0xA0);
         $this->assertEquals($nbsp, Str::words($nbsp));
     }
 

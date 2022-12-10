@@ -38,7 +38,7 @@ class Database extends Driver implements Sweeper
     {
         $session = $this->table()->find($id);
 
-        if (! is_null($session)) {
+        if (!is_null($session)) {
             return [
                 'id' => $session->id,
                 'last_activity' => $session->last_activity,

@@ -2,14 +2,14 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Menyimpan Item](#menyimpan-item)
-- [Mengambil Item](#mengambil-item)
-- [Menghapus Item](#menghapus-item)
+-   [Menyimpan Item](#menyimpan-item)
+-   [Mengambil Item](#mengambil-item)
+-   [Menghapus Item](#menghapus-item)
 
 <!-- /MarkdownTOC -->
 
-
 <a id="menyimpan-item"></a>
+
 ## Menyimpan Item
 
 Menyimpan item kedalam cache sangatlah sederhana. Cukup panggil method `put()` seperti ini:
@@ -24,10 +24,10 @@ Parameter pertama adalah key ke item cache tersebut. Anda akan menggunakan key i
 Cache::forever('name', 'Budi');
 ```
 
->  Tidak perlu men-serialize object saat menyimpannya di cache karena rakit akan melakukannya untuk anda.
-
+> Tidak perlu men-serialize object saat menyimpannya di cache karena rakit akan melakukannya untuk anda.
 
 <a id="mengambil-item"></a>
+
 ## Mengambil Item
 
 Mengambil item dari cache bahkan lebih mudah daripada menyimpannya. Cukup gunakan method `get()` dan sebutkan key item mana yang ingin anda ambil:
@@ -70,8 +70,8 @@ if (Cache::has('name')) {
 }
 ```
 
-
 <a id="menghapus-item"></a>
+
 ## Menghapus Item
 
 Sekarang tinggal bagaimana menghapus item, kan? Tidak masalah. Cukup oper key dari item yang ingin anda hapus ke method `forget()` seperti ini:

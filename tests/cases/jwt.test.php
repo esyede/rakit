@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\JWT;
+
 class JWTTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -376,8 +378,8 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     {
         try {
             $encoded = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.'
-                .'eyJpZCI6MSwibmFtZSI6ImZvbyJ9.'
-                .'Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
+                . 'eyJpZCI6MSwibmFtZSI6ImZvbyJ9.'
+                . 'Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
             $decoded = JWT::decode($encoded, 'qwerty');
         } catch (\Throwable $e) {
             $this->assertTrue(

@@ -105,14 +105,14 @@ class Middleware
 
                 Package::boot(Package::name($middleware));
 
-                if (! isset(static::$middlewares[$middleware])) {
+                if (!isset(static::$middlewares[$middleware])) {
                     continue;
                 }
 
                 $callback = static::$middlewares[$middleware];
                 $response = call_user_func_array($callback, array_merge($pass, $parameters));
 
-                if (! is_null($response) && $override) {
+                if (!is_null($response) && $override) {
                     return $response;
                 }
             }

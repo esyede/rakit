@@ -24,14 +24,14 @@ class Mail extends Driver
                 $this->subject,
                 $message['body'],
                 $message['header'],
-                '-oi -f '.$retpath
+                '-oi -f ' . $retpath
             );
 
             return true;
         } catch (\Throwable $e) {
-            throw new \Exception('Failed sending email through mail: '.$e->getMessage());
+            throw new \Exception('Failed sending email through mail: ' . $e->getMessage());
         } catch (\Exception $e) {
-            throw new \Exception('Failed sending email through mail: '.$e->getMessage());
+            throw new \Exception('Failed sending email through mail: ' . $e->getMessage());
         }
     }
 }

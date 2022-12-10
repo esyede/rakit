@@ -2,6 +2,10 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Package;
+use System\Routing\Route;
+use System\Routing\Router;
+
 class RoutingTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -165,7 +169,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
      */
     public function testForeignCharsInRoutes()
     {
-        Route::get(urlencode('مدرس_رياضيات').'/(:any)', function () {
+        Route::get(urlencode('مدرس_رياضيات') . '/(:any)', function () {
             return 'foo';
         });
 
@@ -181,7 +185,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
             return 'qux';
         });
 
-        $test = Router::route('GET', urlencode('مدرس_رياضيات').'/'.urlencode('مدرس_رياضيات'))->parameters;
+        $test = Router::route('GET', urlencode('مدرس_رياضيات') . '/' . urlencode('مدرس_رياضيات'))->parameters;
         $this->assertEquals([urlencode('مدرس_رياضيات')], $test);
 
         $test = Router::route('GET', urlencode('مدرس_رياضيات'))->uri;

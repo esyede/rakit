@@ -43,8 +43,8 @@ defined('DS') or exit('No direct script access.');
 */
 
 Autoloader::directories([
-    path('app').'models',
-    path('app').'libraries',
+    path('app') . 'models',
+    path('app') . 'libraries',
     // Tambahkan direktori lain disini..
 ]);
 
@@ -59,7 +59,7 @@ Autoloader::directories([
 */
 
 Event::listen(View::LOADER, function ($package, $view) {
-    return View::file($package, $view, Package::path($package).'views');
+    return View::file($package, $view, Package::path($package) . 'views');
 });
 
 /*
@@ -108,7 +108,7 @@ date_default_timezone_set(Config::get('application.timezone', 'UTC'));
 |
 */
 
-if (! Request::cli() && '' !== Config::get('session.driver')) {
+if (!Request::cli() && '' !== Config::get('session.driver')) {
     Session::load();
 }
 
