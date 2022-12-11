@@ -61,7 +61,7 @@ class Defaults
      *
      * @return array
      */
-    public function sqlHints($sql)
+    public static function sqlHints($sql)
     {
         $hints = [];
 
@@ -108,7 +108,7 @@ class Defaults
      *
      * @return string
      */
-    public function sqlHighlight($sql, array $bindings = [])
+    public static function sqlHighlight($sql, array $bindings = [])
     {
         $sql = " $sql ";
         $sql = preg_replace('#(?<=[\\s,(])(' . static::SQL_KEYWORDS1 . ')(?=[\\s,)])#i', "\n\$1", $sql);

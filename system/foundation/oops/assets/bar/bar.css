@@ -71,7 +71,7 @@ body#oops-debug {
 #oops-debug h2,
 #oops-debug h3,
 #oops-debug p {
-    margin: .4em 0;
+    margin: 0.4em 0;
 }
 
 #oops-debug table {
@@ -116,7 +116,6 @@ body#oops-debug {
     display: inline;
 }
 
-
 /* bar */
 #oops-debug-bar {
     font: normal normal 13px/1.55 Tahoma, sans-serif;
@@ -130,12 +129,12 @@ body#oops-debug {
     white-space: nowrap;
 
     z-index: 30000;
-    opacity: .9;
+    opacity: 0.9;
     transition: opacity 0.2s;
     will-change: opacity, top, left;
 
     border-radius: 3px;
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, .15);
+    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.15);
 }
 
 #oops-debug-bar:hover {
@@ -149,7 +148,7 @@ body#oops-debug {
 }
 
 #oops-debug-bar ul:not(:first-child) li {
-    opacity: .6;
+    opacity: 0.6;
     background: #ffffff;
 }
 
@@ -171,17 +170,17 @@ body#oops-debug {
 }
 
 #oops-debug-bar .oops-label {
-    margin-left: .2em;
+    margin-left: 0.2em;
 }
 
-#oops-debug-bar li>a,
-#oops-debug-bar li>span {
+#oops-debug-bar li > a,
+#oops-debug-bar li > span {
     color: #566579;
     display: block;
-    padding: 0 .4em;
+    padding: 0 0.4em;
 }
 
-#oops-debug-bar li>a:hover {
+#oops-debug-bar li > a:hover {
     color: #566579;
     background: #dfe6ee;
 }
@@ -192,9 +191,8 @@ body#oops-debug {
 
 #oops-debug-logo svg {
     width: 3.4em;
-    margin: 0 .2em 0 .5em;
+    margin: 0 0.2em 0 0.5em;
 }
-
 
 /* panels */
 #oops-debug .oops-panel {
@@ -245,7 +243,6 @@ body#oops-debug .oops-panel {
 }
 
 @media (max-height: 555px) {
-
     #oops-debug .oops-mode-peek,
     #oops-debug .oops-mode-float:not(.oops-panel-resized) {
         max-height: 100vh;
@@ -258,7 +255,7 @@ body#oops-debug .oops-panel {
 
 #oops-debug .oops-mode-float {
     display: flex;
-    opacity: .95;
+    opacity: 0.95;
     transition: opacity 0.2s;
     will-change: opacity, top, left;
     overflow: auto;
@@ -295,7 +292,6 @@ body#oops-debug .oops-panel {
     color: white;
 }
 
-
 #oops-debug .oops-inner-container {
     min-width: 100%;
     float: left;
@@ -306,13 +302,13 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug pre.oops-dump div div {
-    border-left: 1px solid rgba(0, 0, 0, .1);
-    margin-left: .5ex;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    margin-left: 0.5ex;
 }
 
 #oops-debug pre.oops-dump {
     background: #ffffff;
-    padding: .4em .7em;
+    padding: 0.4em 0.7em;
     border: 1px dotted silver;
     overflow: auto;
 }
@@ -353,13 +349,12 @@ body#oops-debug .oops-panel {
 
 #oops-debug .oops-toggle:after {
     content: "\A0\25BC";
-    opacity: .4;
+    opacity: 0.4;
 }
 
 #oops-debug .oops-toggle.oops-collapsed:after {
     content: "\A0\25BA";
 }
-
 
 @media print {
     #oops-debug * {

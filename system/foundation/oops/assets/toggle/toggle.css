@@ -17,7 +17,7 @@
 
 .oops-toggle:after {
     content: "\A0\25BC";
-    opacity: .4;
+    opacity: 0.4;
 }
 
 .oops-toggle.oops-collapsed:after {

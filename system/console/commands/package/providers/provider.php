@@ -125,7 +125,7 @@ abstract class Provider
             curl_setopt_array($ch, [
                 CURLOPT_URL => $url,
                 CURLOPT_FILE => $fopen,
-                CURLOPT_BINARYTRANSFER => 1,
+                19914 => 1, // Fix deprecated CURLOPT_BINARYTRANSFER constant
             ]);
 
             if (false === curl_exec($ch)) {

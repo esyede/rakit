@@ -10,8 +10,8 @@ pre.oops-dump div {
 }
 
 pre.oops-dump div div {
-    border-left: 1px solid rgba(0, 0, 0, .1);
-    margin-left: .5ex;
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    margin-left: 0.5ex;
 }
 
 pre.oops-dump a {
@@ -48,8 +48,6 @@ pre.oops-dump a:focus {
 .oops-dump-bool {
     color: #9081ff;
 }
-
-.oops-dump-visibility {}
 
 .oops-dump-hash {
     font-size: 85%;

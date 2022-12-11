@@ -1,5 +1,7 @@
 #oops-panic {
-    font: 9pt/1.5 BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font: 9pt/1.5 BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+        Helvetica, Arial, sans-serif;
     background: #efeef4;
     color: hsl(0, 0%, 29%);
     position: absolute;
@@ -48,8 +50,8 @@
 
 #oops-panic-toggle {
     position: absolute;
-    right: .5em;
-    top: .5em;
+    right: 0.5em;
+    top: 0.5em;
     text-decoration: none;
     background: #ad6af9;
     color: #484467 !important;
@@ -65,12 +67,12 @@
 #oops-panic-error a {
     color: #fafafa !important;
     opacity: 0;
-    font-size: .7em;
+    font-size: 0.7em;
     border-bottom: none !important;
 }
 
 #oops-panic-error:hover a {
-    opacity: .6;
+    opacity: 0.6;
 }
 
 #oops-panic-error a:hover {
@@ -85,7 +87,7 @@
 #oops-panic h1 {
     font-size: 15pt;
     font-weight: normal;
-    margin: .7em 0;
+    margin: 0.7em 0;
 }
 
 #oops-panic h1 span {
@@ -94,7 +96,7 @@
 
 #oops-panic h2 {
     font-size: 14pt;
-    margin: .6em 0;
+    margin: 0.6em 0;
 }
 
 #oops-panic h3 {
@@ -106,7 +108,7 @@
 
 #oops-panic p,
 #oops-panic pre {
-    margin: .8em 0
+    margin: 0.8em 0;
 }
 
 #oops-panic pre,
@@ -119,7 +121,7 @@
 #oops-panic pre,
 #oops-panic table {
     background: #ffffff;
-    padding: .4em .7em;
+    padding: 0.4em 0.7em;
     border: 1px solid #fafbfc;
     overflow: auto;
 }
@@ -147,7 +149,7 @@
     font-weight: bold;
 }
 
-#oops-panic tr> :first-child {
+#oops-panic tr > :first-child {
     width: 20%;
 }
 
@@ -170,7 +172,7 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    opacity: .6;
+    opacity: 0.6;
     padding: 0;
     margin: 0;
 }
@@ -181,14 +183,13 @@
     transition: opacity 0.1s;
 }
 
-
 #oops-panic div.panel {
     padding: 1px 25px;
 }
 
 #oops-panic div.inner {
     background: #fbfafc;
-    padding: .1em 1em 1em;
+    padding: 0.1em 1em 1em;
     border-radius: 8px;
 }
 
@@ -196,9 +197,8 @@
     overflow: auto;
 }
 
-
 /* source code */
-#oops-panic pre.code>div {
+#oops-panic pre.code > div {
     min-width: 100%;
     float: left;
     white-space: pre;
@@ -210,8 +210,8 @@
     font-weight: bold;
     font-style: normal;
     display: block;
-    padding: 0 .4em;
-    margin: 0 -.4em;
+    padding: 0 0.4em;
+    margin: 0 -0.4em;
 }
 
 #oops-panic .line {
@@ -224,7 +224,7 @@
     border-bottom: 1px solid #fafbfc;
 }
 
-#oops-panic a[href^=editor\:] {
+#oops-panic a[href^="editor\:"] {
     color: inherit;
     border-bottom: 1px dotted #fafbfc;
 }
@@ -232,7 +232,6 @@
 #oops-panic span[data-oops-href] {
     border-bottom: 1px dotted #fafbfc;
 }
-
 
 /* toggle */
 html.oops-js #oops-panic .oops-collapsed {
@@ -254,13 +253,12 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 
 #oops-panic .oops-toggle:after {
     content: "\A0\25BC";
-    opacity: .4;
+    opacity: 0.4;
 }
 
 #oops-panic .oops-toggle.oops-collapsed:after {
     content: "\A0\25BA";
 }
-
 
 /* dump */
 #oops-panic .oops-dump-array,
@@ -301,12 +299,12 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 
 #oops-panic pre.oops-dump div div {
     border-left: 1px solid #fafbfc;
-    margin-left: .5ex;
+    margin-left: 0.5ex;
 }
 
 #oops-panic .caused {
     float: right;
-    padding: .3em .6em;
+    padding: 0.3em 0.6em;
     background: #8959a8;
     border-radius: 0 0 0 8px;
     white-space: nowrap;
