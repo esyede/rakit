@@ -99,7 +99,7 @@ return [
     |
     */
 
-    'priority' => \System\Email::NORMAL,
+    'priority' => System\Email::NORMAL,
 
     /*
     |--------------------------------------------------------------------------
