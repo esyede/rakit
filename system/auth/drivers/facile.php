@@ -21,7 +21,13 @@ class Facile extends Driver
     public function retrieve($token)
     {
         if (false !== filter_var($token, FILTER_VALIDATE_INT)) {
-            return $this->model()->find($token);
+            $model = Config::get('auth.model');
+
+            if (! $model) {
+                throw new \Exception('Please set the auth model in your config file.');
+            }
+
+            return (new $model())->find($token);
         } elseif (is_object($token) && get_class($token) === Config::get('auth.model')) {
             return $token;
         }
