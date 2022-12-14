@@ -538,11 +538,7 @@ class Image
                 $type = 'image/gif';
                 break;
             default:
-                throw new \Exception(sprintf(
-                    'Only jpg, png and gif image are supported, got %s (%s)',
-                    $this->type,
-                    gettype($this->type)
-                ));
+                throw new \Exception('Only jpg, png and gif image are supported');
         }
 
         return [
