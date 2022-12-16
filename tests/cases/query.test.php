@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Database as DB;
+use System\Database;
 
 class QueryTest extends \PHPUnit_Framework_TestCase
 {
@@ -23,32 +23,32 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method DB::find().
+     * Test untuk method Database::find().
      *
      * @group system
      */
     public function testFindMethodCanReturnByID()
     {
-        $result = DB::table('query_test')->find(1);
+        $result = Database::table('query_test')->find(1);
 
         $this->assertEquals('budi@example.com', $result->email);
     }
 
     /**
-     * Test untuk method DB::select().
+     * Test untuk method Database::select().
      *
      * @group system
      */
     public function testSelectMethodLimitsColumns()
     {
-        $result = DB::table('query_test')->select(['email'])->first();
+        $result = Database::table('query_test')->select(['email'])->first();
 
         $this->assertTrue(isset($result->email));
         $this->assertFalse(isset($result->name));
     }
 
     /**
-     * Test untuk method DB::raw_where().
+     * Test untuk method Database::raw_where().
      *
      * @group system
      */
@@ -58,33 +58,33 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method DB::where() dengan 2 parameter.
+     * Test untuk method Database::where() dengan 2 parameter.
      *
      * @group system
      */
     public function testWhereWithTwoParameters()
     {
-        $result = DB::table('users')->where('email', 'agung@gmail.com')->first();
+        $result = Database::table('users')->where('email', 'agung@gmail.com')->first();
 
         $this->assertTrue(isset($result->email));
         $this->assertFalse(is_null($result));
     }
 
     /**
-     * Test untuk method DB::where() dengan 3 parameter.
+     * Test untuk method Database::where() dengan 3 parameter.
      *
      * @group system
      */
     public function testWhereWithThreeParameters()
     {
-        $result = DB::table('users')->where('email', '=', 'agung@gmail.com')->first();
+        $result = Database::table('users')->where('email', '=', 'agung@gmail.com')->first();
 
         $this->assertTrue(isset($result->email));
         $this->assertFalse(is_null($result));
     }
 
     /**
-     * Test untuk method DB::where() dengan parameter ke-3
+     * Test untuk method Database::where() dengan parameter ke-3
      * berisi nilai yang salah (null atau object).
      *
      * @group system
@@ -92,7 +92,7 @@ class QueryTest extends \PHPUnit_Framework_TestCase
     public function testWhereWithThirdParameterIsInvalid()
     {
         try {
-            DB::table('users')->where('email', '!=', null)->first();
+            Database::table('users')->where('email', '!=', null)->first();
         } catch (\Exception $e) {
             $this->assertTrue(($e instanceof \InvalidArgumentException || $e instanceof \PDOException));
         }

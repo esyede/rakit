@@ -2,6 +2,12 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\View;
+use System\Request;
+use System\Container;
+use System\Routing\Controller;
+use System\Routing\Middleware;
+
 class ControllerTest extends \PHPUnit_Framework_TestCase
 {
     /**

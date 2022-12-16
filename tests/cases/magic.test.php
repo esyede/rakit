@@ -30,7 +30,6 @@ class MagicTest extends \PHPUnit_Framework_TestCase
     public function testAttributesAreSetByConstructor()
     {
         $array = ['name' => 'Budi', 'age' => 25];
-
         $magic = new Magic($array);
 
         $this->assertEquals($array, $magic->attributes);

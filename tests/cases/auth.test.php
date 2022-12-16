@@ -2,7 +2,16 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Str;
+use System\Auth;
+use System\Event;
+use System\Cookie;
+use System\Config;
+use System\Session;
+use System\Request;
+use System\Crypter;
 use System\Session\Payload;
+
 
 class AuthTest extends \PHPUnit_Framework_TestCase
 {
@@ -330,7 +339,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 }
 
-class AuthUserReturnsNull extends \Authenticator
+class AuthUserReturnsNull extends \System\Auth\Drivers\Driver
 {
     public function user()
     {

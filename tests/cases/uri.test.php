@@ -79,7 +79,6 @@ class URITest extends \PHPUnit_Framework_TestCase
     protected function setRequestUri($uri)
     {
         $_FILES = [];
-
         $_SERVER['REQUEST_URI'] = $uri;
 
         Request::$foundation = FoundationRequest::createFromGlobals();

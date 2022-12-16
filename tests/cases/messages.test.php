@@ -71,7 +71,6 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     public function testAnyMethodReturnsCorrectBoolean()
     {
         $this->assertFalse($this->object->any());
-
         $this->object->add('zero', 'one');
 
         $this->assertTrue($this->object->any());

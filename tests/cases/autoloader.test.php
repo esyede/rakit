@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\Autoloader;
+
 class AutoloaderTest extends \PHPUnit_Framework_TestCase
 {
     /**

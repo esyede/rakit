@@ -3,7 +3,7 @@
 defined('DS') or exit('No direct script access.');
 
 use System\Config;
-use System\Database as DB;
+use System\Database;
 
 class DatabaseTest extends \PHPUnit_Framework_TestCase
 {
@@ -12,7 +12,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        DB::$connections = [];
+        Database::$connections = [];
     }
 
     /**
@@ -20,28 +20,28 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        DB::$connections = [];
+        Database::$connections = [];
     }
 
     /**
-     * Test untuk method DB::connection().
+     * Test untuk method Database::connection().
      *
      * @group system
      */
     public function testConnectionMethodReturnsConnection()
     {
         $test = DatabaseConnectStub::connection();
-        $this->assertTrue(isset(DB::$connections[Config::get('database.default')]));
+        $this->assertTrue(isset(Database::$connections[Config::get('database.default')]));
 
         $test = DatabaseConnectStub::connection('mysql');
-        $this->assertTrue(isset(DB::$connections['mysql']));
+        $this->assertTrue(isset(Database::$connections['mysql']));
 
         $test = Config::get('database.connections.mysql');
-        $this->assertEquals(DB::$connections['mysql']->pdo()->testConfigs, $test);
+        $this->assertEquals(Database::$connections['mysql']->pdo()->testConfigs, $test);
     }
 
     /**
-     * Test untuk method DB::profile().
+     * Test untuk method Database::profile().
      *
      * @group system
      */
@@ -49,19 +49,19 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     {
         \System\Database\Connection::$queries = ['Budi'];
 
-        $this->assertEquals(['Budi'], DB::profile());
+        $this->assertEquals(['Budi'], Database::profile());
 
         \System\Database\Connection::$queries = [];
     }
 
     /**
-     * Test untuk method DB::__callStatic().
+     * Test untuk method Database::__callStatic().
      *
      * @group system
      */
     public function testConnectionMethodsCanBeCalledStaticly()
     {
-        $this->assertEquals('sqlite', DB::driver());
+        $this->assertEquals('sqlite', Database::driver());
     }
 }
 
