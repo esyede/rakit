@@ -406,7 +406,7 @@ class Blade
      */
     protected static function compile_guest($value)
     {
-        return str_replace('@guest', '<?php if (Auth::guest()): ?>', $value);
+        return str_replace('@guest', '<?php if (System\Auth::guest()): ?>', $value);
     }
 
     /**
@@ -430,7 +430,7 @@ class Blade
      */
     protected static function compile_auth($value)
     {
-        return str_replace('@auth', '<?php if (Auth::check()): ?>', $value);
+        return str_replace('@auth', '<?php if (System\Auth::check()): ?>', $value);
     }
 
     /**

@@ -89,6 +89,14 @@ function set_path($path, $value)
 // --------------------------------------------------------------
 // Polyfill untuk atribut #[\ReturnTypeWillChange].
 // --------------------------------------------------------------
+
+if (PHP_VERSION_ID < 80000) {
+    final class Attribute
+    {
+        const TARGET_METHOD = 4;
+    }
+}
+
 if (PHP_VERSION_ID < 80100) {
     #[Attribute(Attribute::TARGET_METHOD)]
     final class ReturnTypeWillChange
