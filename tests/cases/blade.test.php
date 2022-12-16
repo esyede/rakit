@@ -114,8 +114,8 @@ class BladeTest extends \PHPUnit_Framework_TestCase
             "foo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; ?>";
         $out10 = "<?php while (true): ?>\nfoo\n<?php endwhile; ?>";
         $out11 = "<?php while (Foo::bar()): ?>\nfoo\n<?php endwhile; ?>";
-        $out12 = "<?php if (Auth::guest()): ?>\nfoo\n<?php endif; ?>";
-        $out13 = "<?php if (Auth::check()): ?>\nfoo\n<?php endif; ?>";
+        $out12 = "<?php if (System\Auth::guest()): ?>\nfoo\n<?php endif; ?>";
+        $out13 = "<?php if (System\Auth::check()): ?>\nfoo\n<?php endif; ?>";
         $out14 = "<?php if (\$errors->has('foo')): ?>\nfoo\n<?php endif; ?>";
 
         $this->assertEquals($out1, Blade::translate($blade1));
