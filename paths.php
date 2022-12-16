@@ -93,7 +93,13 @@ function set_path($path, $value)
 if (PHP_VERSION_ID < 80000) {
     final class Attribute
     {
+        const TARGET_CLASS = 1;
+        const TARGET_FUNCTION = 2;
         const TARGET_METHOD = 4;
+        const TARGET_PROPERTY = 8;
+        const TARGET_CLASS_CONSTANT = 16;
+        const TARGET_PARAMETER = 32;
+        const TARGET_ALL = 63;
     }
 }
 
