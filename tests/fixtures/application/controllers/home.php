@@ -2,6 +2,7 @@
 
 defined('DS') or exit('No direct script access.');
 
+use System\View;
 use System\Routing\Controller;
 
 class Home_Controller extends Controller
@@ -13,6 +14,6 @@ class Home_Controller extends Controller
      */
     public function action_index()
     {
-        return view('home.index');
+        return View::make('home.index');
     }
 }

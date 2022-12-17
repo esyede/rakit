@@ -26,4 +26,4 @@ require path('system') . 'core.php';
 // --------------------------------------------------------------
 // Boot paket default.
 // --------------------------------------------------------------
-\System\Package::boot(DEFAULT_PACKAGE);
+System\Package::boot(DEFAULT_PACKAGE);

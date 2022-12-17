@@ -32,22 +32,6 @@ System\Autoloader::$aliases = System\Config::get('aliases');
 
 /*
 |--------------------------------------------------------------------------
-| Autoload Mapping
-|--------------------------------------------------------------------------
-|
-| Untuk mendaftarkan class map, cukup oper array ke Autoloader::map()
-| seperti ini. Disini kita mendaftarkan kelas Base_controller via mapping
-| karena kelas tersebut belum mengikuti konvensi psr.
-|
-*/
-
-System\Autoloader::map([
-    'Base_Controller' => path('app') . 'controllers/base.php',
-    // Tambahkan mapping lain disini..
-]);
-
-/*
-|--------------------------------------------------------------------------
 | Autoload Direktori
 |--------------------------------------------------------------------------
 |
