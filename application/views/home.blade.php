@@ -73,7 +73,7 @@
 <body>
     <div class="flex-center position-ref full-height">
 
-        @if (Syatem\Route::has('login'))
+        @if (System\Routing\Route::has('login'))
             <div class="top-right links">
                 @guest
                     <a href="{{ url('/login') }}">Login</a>
