@@ -59,7 +59,7 @@ class Barcode extends Base
 
     public function isbn13()
     {
-        $code = '97' . static::numberBetween(8, 9) . $this->numerify(str_repeat('#', 9));
+        $code = '97' . static::numberBetween(8, 9) . $this->numerify('#########');
         return $code . static::eanChecksum($code);
     }
 }

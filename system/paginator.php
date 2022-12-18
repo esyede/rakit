@@ -278,7 +278,11 @@ class Paginator
 
         if ($disabled($this->page, $this->last)) {
             $attributes = trim(static::attributes(['class' => $class . ' page-item disabled']));
-            return "\t\t" . '<li ' . $attributes . '><a class="page-link" href="#">' . $text . '</a></li>' . "\n";
+            return sprintf(
+                "\t\t<li %s><a class=\"page-link\" href=\"#\">%s</a></li>\n",
+                $attributes,
+                $text
+            );
         }
 
         return $this->link($page, $text, $class);
@@ -291,7 +295,7 @@ class Paginator
      */
     protected function beginning()
     {
-        return $this->range(1, 2) . " \t\t" . $this->dots . "\n";
+        return sprintf("%s\t\t%s\n", $this->range(1, 2), $this->dots);
     }
 
     /**
@@ -301,7 +305,7 @@ class Paginator
      */
     protected function ending()
     {
-        return "\t\t" . $this->dots . "\n" . $this->range($this->last - 1, $this->last);
+        return sprintf("\t\t%s\n%s", $this->dots, $this->range($this->last - 1, $this->last));
     }
 
     /**
@@ -319,7 +323,10 @@ class Paginator
 
         for ($page = $start; $page <= $end; ++$page) {
             $pages[] = ($this->page === $page)
-                ? "\t\t" . '<li class="page-item active"><a class="page-link" href="#">' . $page . '</a></li>' . "\n"
+                ? sprintf(
+                    "\t\t<li class=\"page-item active\"><a class=\"page-link\" href=\"#\">%s</a></li>\n",
+                    $page
+                )
                 : $this->link($page, $page, null);
         }
 
@@ -341,7 +348,12 @@ class Paginator
         $attributes = trim(static::attributes(['class' => $class . ' page-item']));
         $uri = URI::current() . $query;
 
-        return "\t\t" . '<li ' . $attributes . '><a class="page-link" href="' . $uri . '">' . e($text) . '</a></li>' . "\n";
+        return sprintf(
+            "\t\t<li %s><a class=\"page-link\" href=\"%s\">%s</a></li>\n",
+            $attributes,
+            $uri,
+            e($text)
+        );
     }
 
     /**

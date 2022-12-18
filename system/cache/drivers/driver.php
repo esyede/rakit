@@ -65,6 +65,24 @@ abstract class Driver
     abstract public function put($key, $value, $minutes);
 
     /**
+     * Simpan sebuah item ke cache selamanya (Aktif selama 5 tahun).
+     *
+     * <code>
+     *
+     *      // Simpan sebuah item ke cache selama 15 menit
+     *      Cache::forever('name', 'Budi');
+     *
+     * </code>
+     *
+     * @param string $key
+     * @param mixed  $value
+     */
+    public function forever($key, $value)
+    {
+        return $this->put($key, $value, 2628000);
+    }
+
+    /**
      * Ambil item dari cache, atau taruh item tersebut ke cache dan return default value.
      *
      * <code>
@@ -91,7 +109,6 @@ abstract class Driver
         }
 
         $this->{$function}($key, $default = value($default), $minutes);
-
         return $default;
     }
 

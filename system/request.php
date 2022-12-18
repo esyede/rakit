@@ -271,7 +271,10 @@ class Request
         $split = explode('/', $actual);
 
         return isset($split[1])
-            && preg_match('#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#', $type);
+            && preg_match(
+                '#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#',
+                $type
+            );
     }
 
     /**
@@ -328,8 +331,8 @@ class Request
     public static function bearer()
     {
         $authorization = (string) static::authorization();
-        return (0 === stripos((string) $authorization, 'bearer '))
-            ? mb_substr((string) $authorization, 7, null, '8bit')
+        return (0 === stripos($authorization, 'bearer '))
+            ? mb_substr($authorization, 7, null, '8bit')
             : null;
     }
 

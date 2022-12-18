@@ -131,12 +131,15 @@ class Image
             case IMAGETYPE_JPEG:
                 $this->image = imagecreatefromjpeg($path);
                 break;
+
             case IMAGETYPE_PNG:
                 $this->image = imagecreatefrompng($path);
                 break;
+
             case IMAGETYPE_GIF:
                 $this->image = imagecreatefromgif($path);
                 break;
+
             default:
                 throw new \Exception('Attempting to load unsupported image type.');
         }
@@ -436,12 +439,15 @@ class Image
             case 'jpeg':
                 $watermark = imagecreatefromjpeg($watermark);
                 break;
+
             case 'png':
                 $watermark = imagecreatefrompng($watermark);
                 break;
+
             case 'gif':
                 $watermark = imagecreatefromgif($watermark);
                 break;
+
             default:
                 throw new \Exception('Only png, jpg and gif images are supported');
         }
@@ -531,12 +537,15 @@ class Image
             case IMAGETYPE_JPEG:
                 $type = 'image/jpeg';
                 break;
+
             case IMAGETYPE_PNG:
                 $type = 'image/png';
                 break;
+
             case IMAGETYPE_GIF:
                 $type = 'image/gif';
                 break;
+
             default:
                 throw new \Exception('Only jpg, png and gif image are supported');
         }

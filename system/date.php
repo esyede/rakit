@@ -289,14 +289,19 @@ class Date
         switch ($comparator) {
             case 'eq':
                 return $timestamp1 === $timestamp2;
+
             case 'gt':
                 return $timestamp1 > $timestamp2;
+
             case 'lt':
                 return $timestamp1 < $timestamp2;
+
             case 'gte':
                 return ($timestamp1 > $timestamp2 || $timestamp1 === $timestamp2);
+
             case 'lte':
                 return ($timestamp1 < $timestamp2 || $timestamp1 === $timestamp2);
+
             default:
                 throw new \Exception(sprintf("Invalid date comparator: '%s'", $comparator));
         }

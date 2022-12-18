@@ -429,7 +429,7 @@ class Curl
             $url .= urldecode(http_build_query(static::build_curl_query($body)));
         }
 
-        $default_options = [
+        $defaults = [
             CURLOPT_URL => static::encode_url($url),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_FOLLOWLOCATION => true,
@@ -442,7 +442,7 @@ class Curl
         ];
 
         $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : PHP_INT_MAX;
-        curl_setopt_array(static::$handler, static::merge_options($default_options, static::$curl_options));
+        curl_setopt_array(static::$handler, static::merge_options($defaults, static::$curl_options));
         curl_setopt(static::$handler, CURLOPT_TIMEOUT, $timeout);
 
         if (static::$cookie) {
@@ -462,13 +462,14 @@ class Curl
         }
 
         if (static::$proxy['address'] !== false) {
+            $user_pass = static::$proxy['auth']['user'] . ':' . static::$proxy['auth']['pass'];
             curl_setopt_array(static::$handler, [
                 CURLOPT_PROXYTYPE => static::$proxy['type'],
                 CURLOPT_PROXY => static::$proxy['address'],
                 CURLOPT_PROXYPORT => static::$proxy['port'],
                 CURLOPT_HTTPPROXYTUNNEL => static::$proxy['tunnel'],
                 CURLOPT_PROXYAUTH => static::$proxy['auth']['method'],
-                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'] . ':' . static::$proxy['auth']['pass'],
+                CURLOPT_PROXYUSERPWD => $user_pass,
             ]);
         }
 

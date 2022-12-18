@@ -5,16 +5,15 @@ namespace System\Cache\Drivers;
 defined('DS') or exit('No direct script access.');
 
 use System\Str;
-use System\Memcached as BaseMemcached;
 
 class Memcached extends Sectionable
 {
     /**
      * Berisi instance Memcache.
      *
-     * @var Memcached
+     * @var \Memcached
      */
-    public $memcache;
+    public $memcached;
 
     /**
      * Nama key cache dari file konfigurasi.
@@ -26,13 +25,13 @@ class Memcached extends Sectionable
     /**
      * Buat instance driver memcached baru.
      *
-     * @param Memcached $memcache
-     * @param string    $key
+     * @param \Memcached $memcached
+     * @param string     $key
      */
-    public function __construct(BaseMemcached $memcache, $key)
+    public function __construct(\Memcached $memcached, $key)
     {
         $this->key = $key;
-        $this->memcache = $memcache;
+        $this->memcached = $memcached;
     }
 
     /**
@@ -59,7 +58,7 @@ class Memcached extends Sectionable
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
             return $this->get_from_section($section, $key);
-        } elseif (false !== ($cache = $this->memcache->get($this->key . $key))) {
+        } elseif (false !== ($cache = $this->memcached->get($this->key . $key))) {
             return $cache;
         }
     }
@@ -85,23 +84,7 @@ class Memcached extends Sectionable
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
-        $this->memcache->set($this->key . $key, $value, $minutes * 60);
-    }
-
-    /**
-     * Simpan item ke cache untuk selamanya (atau 5 tahun).
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function forever($key, $value)
-    {
-        if ($this->sectionable($key)) {
-            list($section, $key) = $this->parse($key);
-            return $this->forever_in_section($section, $key, $value);
-        }
-
-        return $this->put($key, $value, 0);
+        $this->memcached->set($this->key . $key, $value, $minutes * 60);
     }
 
     /**
@@ -120,7 +103,7 @@ class Memcached extends Sectionable
                 $this->forget_in_section($section, $key);
             }
         } else {
-            $this->memcache->delete($this->key . $key);
+            $this->memcached->delete($this->key . $key);
         }
     }
 
@@ -133,7 +116,7 @@ class Memcached extends Sectionable
      */
     public function forget_section($section)
     {
-        return $this->memcache->increment($this->key . $this->section_key($section));
+        return $this->memcached->increment($this->key . $this->section_key($section));
     }
 
     /**

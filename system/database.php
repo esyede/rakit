@@ -86,12 +86,16 @@ class Database
         switch ($driver) {
             case 'sqlite':
                 return new Database\Connectors\SQLite();
+
             case 'mysql':
                 return new Database\Connectors\MySQL();
+
             case 'pgsql':
                 return new Database\Connectors\Postgres();
+
             case 'sqlsrv':
                 return new Database\Connectors\SQLServer();
+
             default:
                 throw new \Exception(sprintf('Unsupported database driver: %s', $driver));
         }

@@ -173,10 +173,8 @@ class SQLite extends Grammar
      */
     protected function key(Table $table, Magic $command, $unique = false)
     {
-        $columns = $this->columnize($command->columns);
-        $create = $unique ? 'CREATE UNIQUE' : 'CREATE';
-
-        return $create . ' INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' (' . $columns . ')';
+        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name . ' ON '
+            . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
     }
 
     /**

@@ -40,8 +40,8 @@ class HasOne extends HasOneOrMany
         $foreign = $this->foreign_key();
         $dictionary = [];
 
-        foreach ($childrens as $childen) {
-            $dictionary[$childen->{$foreign}] = $child;
+        foreach ($childrens as $children) {
+            $dictionary[$children->{$foreign}] = $children;
         }
 
         foreach ($parents as $parent) {

@@ -202,7 +202,8 @@ class Internet extends Base
 
     final public static function safeEmailDomain()
     {
-        return mb_strtolower((string) static::randomElement(['example.com', 'example.org', 'example.net']), 'UTF-8');
+        $elements = ['example.com', 'example.org', 'example.net'];
+        return mb_strtolower((string) static::randomElement($elements), 'UTF-8');
     }
 
     public function userName()

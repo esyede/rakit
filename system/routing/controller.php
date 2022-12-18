@@ -127,7 +127,9 @@ abstract class Controller
             $route->controller_action = $method;
         }
 
-        return is_null($controller) ? Event::first('404') : $controller->execute($method, $parameters);
+        return is_null($controller)
+            ? Event::first('404')
+            : $controller->execute($method, $parameters);
     }
 
     /**
@@ -176,7 +178,10 @@ abstract class Controller
         }
 
         $controller = static::format($package, $controller);
-        return Event::exists(static::FACTORY) ? Event::first(static::FACTORY, [$controller]) : new $controller();
+
+        return Event::exists(static::FACTORY)
+            ? Event::first(static::FACTORY, [$controller])
+            : new $controller();
     }
 
     /**

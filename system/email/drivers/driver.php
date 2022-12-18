@@ -455,7 +455,6 @@ abstract class Driver
         $contents = chunk_split(base64_encode($contents), 76, $this->config['newline']);
 
         $this->attachments[$disp][$cid] = compact('file', 'contents', 'mime', 'disp', 'cid');
-
         return $this;
     }
 
@@ -481,7 +480,6 @@ abstract class Driver
         $contents = static::encode_string($contents, 'base64', $this->config['newline']);
 
         $this->attachments[$disp][$cid] = compact('file', 'contents', 'mime', 'disp', 'cid');
-
         return $this;
     }
 
@@ -588,7 +586,10 @@ abstract class Driver
 
         $type = $this->config['as_html'] ? 'html' : 'plain';
         $type .= ($this->config['as_html'] && !('' === trim($this->alt_body))) ? '_alt' : '';
-        $type .= ($this->config['as_html'] && count($this->attachments['inline']) > 0) ? '_inline' : '';
+        $type .= ($this->config['as_html'] && count($this->attachments['inline']) > 0)
+            ? '_inline'
+            : '';
+
         $type .= (count($this->attachments['attachment']) > 0) ? '_attach' : '';
         $this->type = $type;
 
@@ -603,22 +604,27 @@ abstract class Driver
                 case 'plain':
                     $type = 'text/plain';
                     break;
+
                 case 'plain_attach':
                 case 'html_attach':
                     $type = $relate . $bond;
                     break;
+
                 case 'html':
                     $type = 'text/html';
                     break;
+
                 case 'html_alt_attach':
                 case 'html_alt_inline_attach':
                     $type = 'multipart/mixed; ' . $bond;
                     break;
+
                 case 'html_alt_inline':
                 case 'html_alt':
                 case 'html_inline':
                     $type = 'multipart/alternative; ' . $bond;
                     break;
+
                 default:
                     throw new \Exception(sprintf('Invalid content-type: %s', $this->type));
             }
@@ -718,7 +724,10 @@ abstract class Driver
             $out .= '--' . $boundary . $eol;
             $out .= 'Content-Type: ' . $data['mime'] . '; name="' . $data['file'][1] . '"' . $eol;
             $out .= 'Content-Transfer-Encoding: base64' . $eol;
-            $out .= ('inline' === $type) ? 'Content-ID: <' . substr((string) $data['cid'], 4) . '>' . $eol : '';
+            $out .= ('inline' === $type)
+                ? 'Content-ID: <' . substr((string) $data['cid'], 4) . '>' . $eol
+                : '';
+
             $out .= 'Content-Disposition: ' . $type . '; filename="' . $data['file'][1] . '"' . $eol . $eol;
             $out .= $data['contents'] . $eol . $eol;
         }
@@ -784,7 +793,10 @@ abstract class Driver
                     $body .= 'Content-Type: text/' . $ctype . '; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->body . $eol . $eol;
-                    $ctype = (false !== stripos((string) $this->type, 'attach')) ? 'attachment' : 'inline';
+                    $ctype = (false !== stripos((string) $this->type, 'attach'))
+                        ? 'attachment'
+                        : 'inline';
+
                     $body .= $this->get_attachment_headers($ctype, $this->boundaries[0]);
                     $body .= '--' . $this->boundaries[0] . '--';
                     break;
@@ -795,7 +807,9 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->alt_body . $eol . $eol;
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $body .= 'Content-Type: multipart/related;' . $eol . "\tboundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
+                    $body .= 'Content-Type: multipart/related;' . $eol
+                        . "\tboundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
+
                     $body .= '--' . $this->boundaries[1] . $eol;
                     $body .= 'Content-Type: text/html; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
@@ -808,7 +822,8 @@ abstract class Driver
                 case 'html_alt_attach':
                 case 'html_inline_attach':
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $body .= 'Content-Type: multipart/alternative;' . $eol . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
+                    $body .= 'Content-Type: multipart/alternative;' . $eol
+                        . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
 
                     if (false !== stripos((string) $this->type, 'alt')) {
                         $body .= '--' . $this->boundaries[1] . $eol;
@@ -834,13 +849,17 @@ abstract class Driver
 
                 case 'html_alt_inline_attach':
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $body .= 'Content-Type: multipart/alternative;' . $eol . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
+                    $body .= 'Content-Type: multipart/alternative;' . $eol
+                        . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
+
                     $body .= '--' . $this->boundaries[1] . $eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->alt_body . $eol . $eol;
                     $body .= '--' . $this->boundaries[1] . $eol;
-                    $body .= 'Content-Type: multipart/related;' . $eol . "\t boundary=\"" . $this->boundaries[2] . '"' . $eol . $eol;
+                    $body .= 'Content-Type: multipart/related;' . $eol
+                        . "\t boundary=\"" . $this->boundaries[2] . '"' . $eol . $eol;
+
                     $body .= '--' . $this->boundaries[2] . $eol;
                     $body .= 'Content-Type: text/html; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
@@ -916,10 +935,13 @@ abstract class Driver
             case '7bit':
             case '8bit':
                 return static::standardize(rtrim($string, $newline), $newline);
+
             case 'quoted-printable':
                 return quoted_printable_encode($string);
+
             case 'base64':
                 return chunk_split(base64_encode($string), 76, $newline);
+
             default:
                 throw new \Exception(sprintf('Unupported encoding method: %s.', $encoding));
         }
@@ -977,7 +999,6 @@ abstract class Driver
         }
 
         $html = implode($newline, $result);
-
         return $wordwrap ? wordwrap($html, $wordwrap, $newline, true) : $html;
     }
 

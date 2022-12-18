@@ -237,9 +237,14 @@ class Debugger
         }
 
         self::$reserved = str_repeat('t', 30000);
-        self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
+        self::$time = isset($_SERVER['REQUEST_TIME_FLOAT'])
+            ? $_SERVER['REQUEST_TIME_FLOAT']
+            : microtime(true);
+
         self::$obLevel = ob_get_level();
-        self::$cpuUsage = (!self::$productionMode && function_exists('getrusage')) ? getrusage() : null;
+        self::$cpuUsage = (!self::$productionMode && function_exists('getrusage'))
+            ? getrusage()
+            : null;
 
         if ($email !== null) {
             self::$email = $email;
@@ -251,10 +256,7 @@ class Debugger
 
         if (self::$logDirectory) {
             if (!preg_match('#([a-z]+:)?[/\\\\]#Ai', self::$logDirectory)) {
-                self::exceptionHandler(new \RuntimeException(
-                    'Logging directory must be absolute path.'
-                ));
-
+                self::exceptionHandler(new \RuntimeException('Log directory must be absolute path.'));
                 self::$logDirectory = null;
             } elseif (!is_dir(self::$logDirectory)) {
                 self::exceptionHandler(new \RuntimeException(
@@ -270,7 +272,7 @@ class Debugger
             ini_set('html_errors', '0');
             ini_set('log_errors', '0');
         } elseif (
-            ini_get('display_errors') != (!self::$productionMode) // memang sengaja tidak menggunakan !==
+            ini_get('display_errors') != (!self::$productionMode) // != memang sengaja
             && ini_get('display_errors') !== (self::$productionMode ? 'stderr' : 'stdout')
         ) {
             self::exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
@@ -313,7 +315,10 @@ class Debugger
         } elseif (headers_sent($file, $line) || ob_get_length()) {
             throw new \LogicException(
                 'Debugger::dispatch() called after some output has been sent. '
-                    . ($file ? "Output started at $file:$line." : 'Try System\Foundation\Oops\Outputs to find where output started.')
+                    . ($file
+                        ? "Output started at $file:$line."
+                        : 'Try System\Foundation\Oops\Outputs to find where output started.'
+                    )
             );
         } elseif (self::$enabled && session_status() !== PHP_SESSION_ACTIVE) {
             ini_set('session.use_cookies', '1');
@@ -362,7 +367,16 @@ class Debugger
         self::$reserved = null;
 
         $error = error_get_last();
-        if (isset($error['type']) && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_RECOVERABLE_ERROR, E_USER_ERROR], true)) {
+        $errors = [
+            E_ERROR,
+            E_CORE_ERROR,
+            E_COMPILE_ERROR,
+            E_PARSE,
+            E_RECOVERABLE_ERROR,
+            E_USER_ERROR,
+        ];
+
+        if (isset($error['type']) && in_array($error['type'], $errors, true)) {
             self::exceptionHandler(
                 Helpers::fixStack(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line'])),
                 false
@@ -388,7 +402,9 @@ class Debugger
         self::$reserved = null;
 
         if (!headers_sent()) {
-            $code = (isset($_SERVER['HTTP_USER_AGENT']) && false !== strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE ')) ? 503 : 500;
+            $code = (isset($_SERVER['HTTP_USER_AGENT'])
+                && false !== strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE ')
+            ) ? 503 : 500;
             http_response_code($code);
 
             if (Helpers::isHtmlMode()) {
@@ -416,7 +432,7 @@ class Debugger
                     require __DIR__ . '/assets/debugger/500.phtml';
                 }
             } elseif ('cli' === PHP_SAPI) {
-                // BC-break di PHP 7.4+: @ mentrigger E_NOTICE ketika stderr tidak bisa diakses
+                // FIXME: BC-break di PHP 7.4+: @ mentrigger E_NOTICE ketika stderr tidak bisa diakses
                 @fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '
                     . (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
             }
@@ -492,9 +508,8 @@ class Debugger
         if ($severity === E_RECOVERABLE_ERROR || $severity === E_USER_ERROR) {
             if (Helpers::findTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), '*::__toString')) {
                 $previous = (isset($context['e'])
-                    && (($context['e'] instanceof \Exception) || ($context['e'] instanceof \Throwable)))
-                    ? $context['e']
-                    : null;
+                    && (($context['e'] instanceof \Exception) || ($context['e'] instanceof \Throwable))
+                ) ? $context['e'] : null;
                 $e = new \ErrorException($message, 0, $severity, $file, $line, $previous);
                 $e->context = $context;
                 self::exceptionHandler($e);
@@ -504,7 +519,7 @@ class Debugger
             $e->context = $context;
             throw $e;
         } elseif (($severity & error_reporting()) !== $severity) {
-            return false; // Panggil error handler bawaan PHP agar error_get_last() terisi data last error
+            return false;
         } elseif (self::$productionMode && ($severity & self::$logSeverity) === $severity) {
             $e = new \ErrorException($message, 0, $severity, $file, $line);
             $e->context = $context;
@@ -530,7 +545,8 @@ class Debugger
             self::exceptionHandler($e);
         }
 
-        $message = 'PHP ' . Helpers::errorTypeToString($severity) . ': ' . Helpers::improveError($message, $context);
+        $message = 'PHP ' . Helpers::errorTypeToString($severity)
+            . ': ' . Helpers::improveError($message, $context);
         $count = &self::getBar()->getPanel('Oops:errors')->data["$file|$line|$message"];
 
         if ($count++) {
@@ -755,7 +771,6 @@ class Debugger
     public static function detectDebugMode($list = null)
     {
         $addr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n');
-
         $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET]))
             ? $_COOKIE[self::COOKIE_SECRET]
             : null;

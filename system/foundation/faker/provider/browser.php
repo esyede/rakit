@@ -50,7 +50,9 @@ class Browser extends Base
 
     public static function firefox()
     {
-        $ver = 'Gecko/' . date('Ymd', mt_rand(strtotime('2010-1-1'), time())) . ' Firefox/' . mt_rand(35, 37) . '.0';
+        $ver = 'Gecko/' . date('Ymd', mt_rand(strtotime('2010-1-1'), time()))
+            . ' Firefox/' . mt_rand(35, 37) . '.0';
+
         $platforms = [
             '(' . static::windowsPlatformToken() . '; ' . static::randomElement(static::$lang)
                 . '; rv:1.9.' . mt_rand(0, 2) . '.20) ' . $ver,
@@ -77,7 +79,8 @@ class Browser extends Base
             '(' . static::macPlatformToken() . ' rv:' . mt_rand(2, 6)
                 . '.0; ' . static::randomElement(static::$lang)
                 . ") AppleWebKit/$saf (KHTML, like Gecko) Version/$ver Safari/$saf",
-            '(' . static::randomElement(['iPhone; CPU iPhone OS', 'iPad; CPU OS']) . ' ' . mt_rand(7, 8) . '_' . mt_rand(0, 2)
+            '(' . static::randomElement(['iPhone; CPU iPhone OS', 'iPad; CPU OS']) . ' '
+                . mt_rand(7, 8) . '_' . mt_rand(0, 2)
                 . '_' . mt_rand(1, 2) . ' like Mac OS X; ' . static::randomElement(static::$lang)
                 . ") AppleWebKit/$saf (KHTML, like Gecko) Version/" . mt_rand(3, 4)
                 . '.0.5 Mobile/8B' . mt_rand(111, 119) . " Safari/6$saf",
@@ -90,12 +93,15 @@ class Browser extends Base
     {
         $platforms = [
             '(' . static::linuxPlatformToken() . '; ' . static::randomElement(static::$lang)
-                . ') Presto/2.' . mt_rand(8, 12) . '.' . mt_rand(160, 355) . ' Version/' . mt_rand(10, 12) . '.00',
+                . ') Presto/2.' . mt_rand(8, 12) . '.' . mt_rand(160, 355)
+                . ' Version/' . mt_rand(10, 12) . '.00',
             '(' . static::windowsPlatformToken() . '; ' . static::randomElement(static::$lang)
-                . ') Presto/2.' . mt_rand(8, 12) . '.' . mt_rand(160, 355) . ' Version/' . mt_rand(10, 12) . '.00',
+                . ') Presto/2.' . mt_rand(8, 12) . '.' . mt_rand(160, 355)
+                . ' Version/' . mt_rand(10, 12) . '.00',
         ];
 
-        return 'Opera/' . mt_rand(8, 9) . '.' . mt_rand(10, 99) . ' ' . static::randomElement($platforms);
+        return 'Opera/' . mt_rand(8, 9) . '.' . mt_rand(10, 99) . ' '
+            . static::randomElement($platforms);
     }
 
     public static function internetExplorer()

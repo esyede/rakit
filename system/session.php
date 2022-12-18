@@ -63,18 +63,25 @@ class Session
         switch ($driver) {
             case 'apc':
                 return new Session\Drivers\APC(Cache::driver('apc'));
+
             case 'cookie':
                 return new Session\Drivers\Cookie();
+
             case 'database':
                 return new Session\Drivers\Database(Database::connection());
+
             case 'file':
                 return new Session\Drivers\File(path('storage') . 'sessions' . DS);
+
             case 'memcached':
                 return new Session\Drivers\Memcached(Cache::driver('memcached'));
+
             case 'memory':
                 return new Session\Drivers\Memory();
+
             case 'redis':
                 return new Session\Drivers\Redis(Cache::driver('redis'));
+
             default:
                 throw new \Exception(sprintf('Unsupported session driver: %s', $driver));
         }

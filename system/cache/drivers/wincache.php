@@ -64,18 +64,7 @@ class WinCache extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        wincache_ucache_add($this->key . $key, $value, $minutes * 60);
-    }
-
-    /**
-     * Simpan item ke cache untuk selamanya (atau 5 tahun).
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function forever($key, $value)
-    {
-        return $this->put($key, $value, 0);
+        return wincache_ucache_add($this->key . $key, $value, $minutes * 60);
     }
 
     /**
@@ -85,6 +74,6 @@ class WinCache extends Driver
      */
     public function forget($key)
     {
-        wincache_ucache_delete($this->key . $key);
+        return wincache_ucache_delete($this->key . $key);
     }
 }

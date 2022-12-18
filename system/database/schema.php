@@ -179,12 +179,15 @@ class Schema
             case 'mysql':
                 $query = 'SET FOREIGN_KEY_CHECKS=1;';
                 break;
+
             case 'pqsql':
                 $query = 'SET CONSTRAINTS ALL IMMEDIATE;';
                 break;
+
             case 'sqlite':
                 $query = 'PRAGMA foreign_keys = ON;';
                 break;
+
             case 'sqlsrv':
                 $query = 'EXEC sp_msforeachtable @command1="print \'' . $table . '\'", ' .
                     '@command2="ALTER TABLE ' . $table . ' WITH CHECK CHECK CONSTRAINT all";';
@@ -221,16 +224,19 @@ class Schema
 
         switch ($driver) {
             case 'mysql':
-                $query = 'SET FOREIGN_KEY_CHECKS=0;';
+                $sql = 'SET FOREIGN_KEY_CHECKS=0;';
                 break;
+
             case 'pqsql':
-                $query = 'SET CONSTRAINTS ALL DEFERRED;';
+                $sql = 'SET CONSTRAINTS ALL DEFERRED;';
                 break;
+
             case 'sqlite':
-                $query = 'PRAGMA foreign_keys = OFF;';
+                $sql = 'PRAGMA foreign_keys = OFF;';
                 break;
+
             case 'sqlsrv':
-                $query = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";';
+                $sql = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";';
                 break;
 
             default:
@@ -242,7 +248,7 @@ class Schema
         }
 
         try {
-            return false !== $connection->pdo()->exec($query);
+            return false !== $connection->pdo()->exec($sql);
         } catch (\PDOException $e) {
             return false;
         }
@@ -388,12 +394,16 @@ class Schema
         switch ($driver) {
             case 'mysql':
                 return new Schema\Grammars\MySQL($connection);
+
             case 'pgsql':
                 return new Schema\Grammars\Postgres($connection);
+
             case 'sqlsrv':
                 return new Schema\Grammars\SQLServer($connection);
+
             case 'sqlite':
                 return new Schema\Grammars\SQLite($connection);
+
             default:
                 throw new \Exception(sprintf(
                     'Unsupported schema operations for selected driver: %s',

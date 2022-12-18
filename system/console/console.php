@@ -104,7 +104,6 @@ class Console
             require_once $path;
 
             $command = static::format($package, $command);
-
             return new $command();
         }
     }

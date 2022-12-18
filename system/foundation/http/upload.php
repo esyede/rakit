@@ -78,7 +78,10 @@ class Upload extends \SplFileInfo
         'application/mp4' => ['mp4s'],
         'application/msword' => ['doc', 'dot'],
         'application/mxf' => ['mxf'],
-        'application/octet-stream' => ['bin', 'dms', 'lrf', 'mar', 'so', 'dist', 'distz', 'pkg', 'bpk', 'dump', 'elc', 'deploy'],
+        'application/octet-stream' => [
+            'bin', 'dms', 'lrf', 'mar', 'so', 'dist', 'distz',
+            'pkg', 'bpk', 'dump', 'elc', 'deploy',
+        ],
         'application/oda' => ['oda'],
         'application/oebps-package+xml' => ['opf'],
         'application/ogg' => ['ogx'],
@@ -806,11 +809,18 @@ class Upload extends \SplFileInfo
      * @param int    $error
      * @param bool   $test
      */
-    public function __construct($path, $origName, $mimeType = null, $size = null, $error = null, $test = false)
-    {
+    public function __construct(
+        $path,
+        $origName,
+        $mimeType = null,
+        $size = null,
+        $error = null,
+        $test = false
+    ) {
         if (!ini_get('file_uploads')) {
             throw new \Exception(sprintf(
-                "Unable to create Upload because 'file_uploads' directive is disabled in your php.ini file (%s)",
+                "Unable to create Upload because 'file_uploads' directive is "
+                    . "disabled in your php.ini file (%s)",
                 get_cfg_var('cfg_file_path')
             ));
         }
@@ -883,7 +893,9 @@ class Upload extends \SplFileInfo
         $content = file_get_contents($this->getPathname());
 
         if (false === $content) {
-            throw new \Exception(sprintf('Could not get the content of the file: %s', $this->getPathname()));
+            throw new \Exception(
+                sprintf('Could not get the content of the file: %s', $this->getPathname())
+            );
         }
 
         return $content;
@@ -1047,10 +1059,13 @@ class Upload extends \SplFileInfo
         switch (strtolower((string) substr((string) $max, -1))) {
             case 't':
                 $max *= 1024; // No break, memang disengaja.
+
             case 'g':
                 $max *= 1024; // No break, memang disengaja.
+
             case 'm':
                 $max *= 1024; // No break, memang disengaja.
+
             case 'k':
                 $max *= 1024; // No break, memang disengaja.
         }

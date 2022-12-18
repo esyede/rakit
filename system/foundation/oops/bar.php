@@ -179,7 +179,9 @@ class Bar
 
                 $idHtml = "error-$idHtml";
                 $tab = "Error in $id";
-                $panelHtml = "<h1>Error: $id</h1><div class='oops-inner'>" . nl2br(Helpers::escapeHtml($e)) . '</div>';
+                $panelHtml = "<h1>Error: $id</h1><div class='oops-inner'>"
+                    . nl2br(Helpers::escapeHtml($e)) . '</div>';
+
                 unset($e);
             }
 
@@ -229,14 +231,16 @@ class Bar
 
             if ($session) {
                 $method = $m[1] ? 'loadAjax' : 'init';
-                echo "Oops.Debug.$method(", json_encode($session['content']), ', ', json_encode($session['dumps']), ');';
+                echo "Oops.Debug.$method(" . json_encode($session['content'])
+                    . ', ' . json_encode($session['dumps']) . ');';
                 $session = null;
             }
 
             $session = &$_SESSION['_oops']['panic'][$m[2]];
 
             if ($session) {
-                echo 'Oops.Panic.loadAjax(', json_encode($session['content']), ', ', json_encode($session['dumps']), ');';
+                echo 'Oops.Panic.loadAjax(' . json_encode($session['content'])
+                    . ', ' . json_encode($session['dumps']) . ');';
                 $session = null;
             }
 

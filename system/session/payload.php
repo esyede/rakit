@@ -9,7 +9,6 @@ use System\Str;
 use System\Config;
 use System\Cookie;
 use System\Session;
-use System\Session\Drivers\Driver;
 use System\Session\Drivers\Sweeper;
 
 class Payload

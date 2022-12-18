@@ -123,7 +123,11 @@ class Person extends BasePerson
 
     public static function ssn()
     {
-        $area = mt_rand(0, 1) ? static::numberBetween(1, 665) : static::numberBetween(667, 899);
-        return sprintf('%03d-%02d-%04d', $area, static::numberBetween(1, 99), static::numberBetween(1, 9999));
+        return sprintf(
+            '%03d-%02d-%04d',
+            mt_rand(0, 1) ? static::numberBetween(1, 665) : static::numberBetween(667, 899),
+            static::numberBetween(1, 99),
+            static::numberBetween(1, 9999)
+        );
     }
 }

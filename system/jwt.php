@@ -93,7 +93,9 @@ class JWT
             $payloads = new \stdClass();
         }
 
-        if (false === ($signature = static::decode_url($signature64))) {
+        $signature = static::decode_url($signature64);
+
+        if (false === $signature) {
             throw new \Exception('Invalid signature encoding');
         }
 

@@ -9,7 +9,7 @@ class Tcno
     public static function checksum($identityPrefix)
     {
         if (9 !== mb_strlen((string) $identityPrefix, '8bit')) {
-            throw new \InvalidArgumentException('Argument should be an integer and should be 9 digits.');
+            throw new \Exception('Argument should be an integer and should be 9 digits.');
         }
 
         $identity = array_map('intval', str_split($identityPrefix));

@@ -122,13 +122,17 @@ class Redis
         switch (substr((string) $response, 0, 1)) {
             case '-':
                 throw new \Exception(sprintf('Redis error: %s', substr((string) trim($response), 4)));
+
             case '+':
             case ':':
                 return $this->inline($response);
+
             case '$':
                 return $this->bulk($response);
+
             case '*':
                 return $this->multibulk($response);
+
             default:
                 throw new \Exception(sprintf('Unknown response: %s', substr((string) $response, 0, 1)));
         }

@@ -181,7 +181,6 @@ abstract class Model
         }
 
         $this->validation = Validator::make($this->attributes, static::$rules, static::$messages);
-
         return $this->validation->passes();
     }
 
@@ -513,7 +512,9 @@ abstract class Model
      */
     public function table()
     {
-        return static::$table ? static::$table : strtolower((string) Str::plural(class_basename($this)));
+        return static::$table
+            ? static::$table
+            : strtolower((string) Str::plural(class_basename($this)));
     }
 
     /**

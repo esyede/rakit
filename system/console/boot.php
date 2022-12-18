@@ -26,10 +26,10 @@ try {
     Config::set('database.default', $default);
 } catch (\Throwable $e) {
     Config::set('database.default', $default);
-    echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
+    echo sprintf('Error: %s in %s:%s', $e->getMessage(), $e->getFile(), $e->getLine());
 } catch (\Exception $e) {
     Config::set('database.default', $default);
-    echo 'Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
+    echo sprintf('Error: %s in %s:%s', $e->getMessage(), $e->getFile(), $e->getLine());
 }
 
 echo PHP_EOL;

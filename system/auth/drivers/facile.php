@@ -23,7 +23,7 @@ class Facile extends Driver
         if (false !== filter_var($token, FILTER_VALIDATE_INT)) {
             $model = Config::get('auth.model');
 
-            if (! $model) {
+            if (!$model) {
                 throw new \Exception('Please set the auth model in your config file.');
             }
 
@@ -53,8 +53,8 @@ class Facile extends Driver
             $query->where('email', '=', $arguments['email']);
             $except = Arr::except($arguments, ['email', 'password', 'remember']);
 
-            foreach ($except as $column => $val) {
-                $query->where($column, '=', $val);
+            foreach ($except as $column => $value) {
+                $query->where($column, '=', $value);
             }
         })->first();
 

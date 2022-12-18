@@ -40,8 +40,8 @@ class Magic extends Driver
             $query->where('email', '=', $arguments['email']);
             $except = Arr::except($arguments, ['email', 'password', 'remember']);
 
-            foreach ($except as $column => $val) {
-                $query->where($column, '=', $val);
+            foreach ($except as $column => $value) {
+                $query->where($column, '=', $value);
             }
         })->first();
 

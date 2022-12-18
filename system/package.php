@@ -367,13 +367,9 @@ class Package
     public static function parse($identifier)
     {
         if (!isset(static::$elements[$identifier])) {
-            if (false !== strpos((string) $identifier, '::')) {
-                $element = explode('::', strtolower((string) $identifier));
-            } else {
-                $element = [DEFAULT_PACKAGE, strtolower((string) $identifier)];
-            }
-
-            static::$elements[$identifier] = $element;
+            static::$elements[$identifier] = (false !== strpos((string) $identifier, '::'))
+                ? explode('::', strtolower((string) $identifier))
+                : [DEFAULT_PACKAGE, strtolower((string) $identifier)];
         }
 
         return static::$elements[$identifier];

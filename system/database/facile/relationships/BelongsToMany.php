@@ -294,7 +294,7 @@ class BelongsToMany extends Relationship
         $dictionary = [];
 
         foreach ($childrens as $children) {
-            $dictionary[$children->pivot->{$foreign}][] = $child;
+            $dictionary[$children->pivot->{$foreign}][] = $children;
         }
 
         foreach ($parents as $parent) {

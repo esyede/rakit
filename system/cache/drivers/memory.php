@@ -69,22 +69,6 @@ class Memory extends Sectionable
     }
 
     /**
-     * Simpan item ke cache untuk selamanya (atau 5 tahun).
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function forever($key, $value)
-    {
-        if ($this->sectionable($key)) {
-            list($section, $key) = $this->parse($key);
-            return $this->forever_in_section($section, $key, $value);
-        }
-
-        $this->put($key, $value, 0);
-    }
-
-    /**
      * Hapus item dari cache.
      *
      * @param string $key

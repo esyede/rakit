@@ -122,8 +122,8 @@ class SQLServer extends Grammar
      */
     public function primary(Table $table, Magic $command)
     {
-        $columns = $this->columnize($command->columns);
-        return 'ALTER TABLE ' . $this->wrap($table) . ' ADD CONSTRAINT ' . $command->name . ' PRIMARY KEY (' . $columns . ')';
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ADD CONSTRAINT ' . $command->name
+            . ' PRIMARY KEY (' . $this->columnize($command->columns) . ')';
     }
 
     /**
@@ -149,12 +149,11 @@ class SQLServer extends Grammar
      */
     public function fulltext(Table $table, Magic $command)
     {
-        $columns = $this->columnize($command->columns);
-        $table = $this->wrap($table);
-
         return [
             'CREATE FULLTEXT CATALOG ' . $command->catalog,
-            'CREATE FULLTEXT INDEX ON ' . $table . ' (' . $columns . ') KEY INDEX ' . $command->key . ' ON ' . $command->catalog,
+            'CREATE FULLTEXT INDEX ON ' . $this->wrap($table)
+                . ' (' . $this->columnize($command->columns) . ') KEY INDEX ' . $command->key
+                . ' ON ' . $command->catalog,
         ];
     }
 
@@ -182,10 +181,8 @@ class SQLServer extends Grammar
      */
     protected function key(Table $table, Magic $command, $unique = false)
     {
-        $columns = $this->columnize($command->columns);
-        $create = $unique ? 'CREATE UNIQUE' : 'CREATE';
-
-        return $create . ' INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' (' . $columns . ')';
+        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name . ' ON '
+            . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
     }
 
     /**

@@ -731,7 +731,10 @@ class Markdown
             return;
         }
 
-        if (false !== strpos((string) $attr['element']['text'], '|') && '' === chop($tag['text'], ' -:|')) {
+        if (
+            false !== strpos((string) $attr['element']['text'], '|')
+            && '' === chop($tag['text'], ' -:|')
+        ) {
             $alignments = [];
             $cells = explode('|', trim(trim($tag['text']), '|'));
 
@@ -777,7 +780,11 @@ class Markdown
 
             $attr['element']['text'][] = ['name' => 'thead', 'handler' => 'elements'];
             $attr['element']['text'][] = ['name' => 'tbody', 'handler' => 'elements', 'text' => []];
-            $attr['element']['text'][0]['text'][] = ['name' => 'tr', 'handler' => 'elements', 'text' => $elems];
+            $attr['element']['text'][0]['text'][] = [
+                'name' => 'tr',
+                'handler' => 'elements',
+                'text' => $elems,
+            ];
 
             return $attr;
         }
@@ -797,7 +804,9 @@ class Markdown
                 $elem = ['name' => 'td', 'handler' => 'line', 'text' => trim($cell)];
 
                 if (isset($attrib['alignments'][$index])) {
-                    $elem['attributes'] = ['style' => 'text-align: ' . $attrib['alignments'][$index] . ';'];
+                    $elem['attributes'] = [
+                        'style' => 'text-align: ' . $attrib['alignments'][$index] . ';',
+                    ];
                 }
 
                 $elems[] = $elem;
@@ -1037,13 +1046,9 @@ class Markdown
 
     protected function unmarked($text)
     {
-        if ($this->breaks) {
-            $text = preg_replace('/[ ]*\n/', "<br />\n", $text);
-        } else {
-            $text = str_replace(" \n", "\n", preg_replace('/(?:[ ][ ]+|[ ]*\\\\)\n/', "<br />\n", $text));
-        }
-
-        return $text;
+        return $this->breaks
+            ? preg_replace('/[ ]*\n/', "<br />\n", $text)
+            : str_replace(" \n", "\n", preg_replace('/(?:[ ][ ]+|[ ]*\\\\)\n/', "<br />\n", $text));
     }
 
     protected function element(array $elem)

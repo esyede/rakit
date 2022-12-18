@@ -132,7 +132,8 @@ class Postgres extends Grammar
         $table = $this->wrap($table);
         $columns = $this->columnize($command->columns);
 
-        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $command->name . ' UNIQUE (' . $columns . ')';
+        return 'ALTER TABLE ' . $table . ' ADD CONSTRAINT ' . $command->name
+            . ' UNIQUE (' . $columns . ')';
     }
 
     /**
@@ -146,7 +147,8 @@ class Postgres extends Grammar
     public function fulltext(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-        return 'CREATE INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' USING gin(' . $columns . ')';
+        return 'CREATE INDEX ' . $command->name . ' ON ' . $this->wrap($table)
+            . ' USING gin(' . $columns . ')';
     }
 
     /**
@@ -173,10 +175,8 @@ class Postgres extends Grammar
      */
     protected function key(Table $table, Magic $command, $unique = false)
     {
-        $columns = $this->columnize($command->columns);
-        $create = $unique ? 'CREATE UNIQUE' : 'CREATE';
-
-        return $create . ' INDEX ' . $command->name . ' ON ' . $this->wrap($table) . ' (' . $columns . ')';
+        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name . ' ON '
+            . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
     }
 
     /**

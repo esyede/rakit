@@ -231,16 +231,15 @@ class Table
     /**
      * Ambil output sel.
      *
-     * @param int $index
-     * @param int $row
+     * @param int   $index
+     * @param array $row
      *
      * @return string
      */
-    private function get_cell_output($index, $row = null)
+    private function get_cell_output($index, array $row = [])
     {
         $cell = $row ? $row[$index] : '-';
         $width = $this->column_widths[$index];
-        $pad = $row ? $width - mb_strlen((string) $cell, 'UTF-8') : $width;
         $padding = str_repeat($row ? ' ' : '-', $this->padding);
 
         $output = (0 === $index) ? str_repeat(' ', $this->indent) : '';
@@ -253,7 +252,7 @@ class Table
 
         $output .= $this->strpad($cell, $width + $delta, $row ? ' ' : '-');
         $output .= $padding;
-        $output .= ($row && $index === count($row) - 1 && $this->border) ? ($row ? '|' : '+') : '';
+        $output .= ($row && $index === (count($row) - 1) && $this->border) ? ($row ? '|' : '+') : '';
 
         return $output;
     }
@@ -318,9 +317,9 @@ class Table
             $result = mb_substr((string) $result, -$amount, null, 'UTF-8');
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
-            $repeat = ceil($length / $padlen);
-            $result = mb_substr((string) str_repeat($content, $repeat), 0, floor($length), 'UTF-8') .
-                $str . mb_substr((string) str_repeat($content, $repeat), 0, ceil($length), 'UTF-8');
+            $repeat = str_repeat((string) $content, ceil($length / $padlen));
+            $result = mb_substr($repeat, 0, floor($length), 'UTF-8') .
+                $str . mb_substr($repeat, 0, ceil($length), 'UTF-8');
         }
 
         return $result;

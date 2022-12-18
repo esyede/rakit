@@ -302,8 +302,8 @@ class Response
             && !is_callable([$content, '__toString'])
         ) {
             throw new \UnexpectedValueException(
-                'The Response content must be a string or object ' .
-                    "implementing __toString(), '" . gettype($content) . "' given."
+                'The Response content must be a string or object '
+                    . "implementing __toString(), '" . gettype($content) . "' given."
             );
         }
 
@@ -358,7 +358,9 @@ class Response
         $this->statusCode = (int) $code;
 
         if ($this->isInvalid()) {
-            throw new \InvalidArgumentException(sprintf("The HTTP status code '%s' is not valid.", $code));
+            throw new \InvalidArgumentException(
+                sprintf("The HTTP status code '%s' is not valid.", $code)
+            );
         }
 
         if (null === $text) {
@@ -978,7 +980,10 @@ class Response
     public function isRedirect($location = null)
     {
         return in_array($this->statusCode, [201, 301, 302, 303, 307, 308])
-            && ((null === $location) ? true : ((string) $location === (string) $this->headers->get('Location')));
+            && ((null === $location)
+                ? true
+                : ((string) $location === (string) $this->headers->get('Location'))
+            );
     }
 
     /**

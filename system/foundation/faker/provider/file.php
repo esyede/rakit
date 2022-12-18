@@ -484,40 +484,40 @@ class File extends Base
         return is_array($random) ? static::randomElement($random) : $random;
     }
 
-    public static function file($sourceDirectory = '/tmp', $targetDirectory = '/tmp', $fullPath = true)
+    public static function file($sourceDir = '/tmp', $targetDir = '/tmp', $fullPath = true)
     {
-        if (!is_dir($sourceDirectory)) {
+        if (!is_dir($sourceDir)) {
             throw new \InvalidArgumentException(sprintf(
                 'Source directory does not exist or is not a directory: %s',
-                $sourceDirectory
+                $sourceDir
             ));
         }
 
-        if (!is_dir($targetDirectory)) {
+        if (!is_dir($targetDir)) {
             throw new \InvalidArgumentException(sprintf(
                 'Target directory does not exist or is not a directory: %s',
-                $targetDirectory
+                $targetDir
             ));
         }
 
-        if ($sourceDirectory === $targetDirectory) {
+        if ($sourceDir === $targetDir) {
             throw new \InvalidArgumentException('Source and target directories must differ.');
         }
 
         $files = array_filter(
-            array_values(array_diff(scandir($sourceDirectory), ['.', '..'])),
-            function ($file) use ($sourceDirectory) {
-                return is_file($sourceDirectory . DS . $file) && is_readable($sourceDirectory . DS . $file);
+            array_values(array_diff(scandir($sourceDir), ['.', '..'])),
+            function ($file) use ($sourceDir) {
+                return is_file($sourceDir . DS . $file) && is_readable($sourceDir . DS . $file);
             }
         );
 
         if (empty($files)) {
-            throw new \InvalidArgumentException(sprintf('Source directory is empty: %s', $sourceDirectory));
+            throw new \InvalidArgumentException(sprintf('Source directory is empty: %s', $sourceDir));
         }
 
-        $from = $sourceDirectory . DS . static::randomElement($files);
+        $from = $sourceDir . DS . static::randomElement($files);
         $basename = Uuid::uuid() . '.' . pathinfo($from, PATHINFO_EXTENSION);
-        $to = $targetDirectory . DS . $basename;
+        $to = $targetDir . DS . $basename;
 
         if (false === copy($from, $to)) {
             return false;

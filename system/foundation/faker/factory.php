@@ -24,7 +24,9 @@ class Factory
         }, glob(path('system') . 'foundation' . DS . 'faker' . DS . 'provider' . DS . '*', GLOB_ONLYDIR));
 
         if (!in_array($locale, $locales)) {
-            throw new \InvalidArgumentException(sprintf('Locale folder cannot be found: %s', $locale));
+            throw new \InvalidArgumentException(
+                sprintf('Locale folder cannot be found: %s', $locale)
+            );
         }
 
         $generator = new Generator();
@@ -43,7 +45,9 @@ class Factory
             return $class;
         }
 
-        if ($class = self::findProviderClassname($provider, Config::get('application.language', 'en'))) {
+        $language = Config::get('application.language', 'en');
+
+        if ($class = self::findProviderClassname($provider, $language)) {
             return $class;
         }
 

@@ -5,8 +5,9 @@ namespace System\Database\Query\Grammars;
 defined('DS') or exit('No direct script access.');
 
 use System\Database\Query;
+use System\Database\Grammar as BaseGrammar;
 
-class Grammar extends \System\Database\Grammar
+class Grammar extends BaseGrammar
 {
     /**
      * Format default untuk menyimpan DateTime.
@@ -84,7 +85,8 @@ class Grammar extends \System\Database\Grammar
             return;
         }
 
-        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ') . $this->columnize($query->selects);
+        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ')
+            . $this->columnize($query->selects);
     }
 
     /**
@@ -102,7 +104,8 @@ class Grammar extends \System\Database\Grammar
             $column = 'DISTINCT ' . $column;
         }
 
-        return 'SELECT ' . $query->aggregate['aggregator'] . '(' . $column . ') AS ' . $this->wrap('aggregate');
+        return 'SELECT ' . $query->aggregate['aggregator'] . '(' . $column . ') AS '
+            . $this->wrap('aggregate');
     }
 
     /**
@@ -133,9 +136,13 @@ class Grammar extends \System\Database\Grammar
             $clauses = [];
 
             foreach ($join->clauses as $clause) {
-                $column1 = $this->wrap($clause['column1']);
-                $column2 = $this->wrap($clause['column2']);
-                $clauses[] = $clause['connector'] . ' ' . $column1 . ' ' . $clause['operator'] . ' ' . $column2;
+                $clauses[] = sprintf(
+                    '%s %s %s %s',
+                    $clause['connector'],
+                    $this->wrap($clause['column1']),
+                    $clause['operator'],
+                    $this->wrap($clause['column2'])
+                );
             }
 
             $clauses[0] = str_replace(['AND ', 'OR '], '', $clauses[0]);
@@ -192,7 +199,6 @@ class Grammar extends \System\Database\Grammar
     protected function where($where)
     {
         $parameter = $this->parameter($where['value']);
-
         return $this->wrap($where['column']) . ' ' . $where['operator'] . ' ' . $parameter;
     }
 
@@ -335,7 +341,8 @@ class Grammar extends \System\Database\Grammar
         $sql = [];
 
         foreach ($query->orderings as $ordering) {
-            $sql[] = $this->wrap($ordering['column']) . ' ' . strtoupper((string) $ordering['direction']);
+            $ordering['direction'] = strtoupper((string) $ordering['direction']);
+            $sql[] = $this->wrap($ordering['column']) . ' ' . $ordering['direction'];
         }
 
         return 'ORDER BY ' . implode(', ', $sql);
@@ -416,7 +423,8 @@ class Grammar extends \System\Database\Grammar
             $columns[] = $this->wrap($column) . ' = ' . $this->parameter($value);
         }
 
-        return trim('UPDATE ' . $table . ' SET ' . implode(', ', $columns) . ' ' . $this->wheres($query));
+        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $columns) . ' ' . $this->wheres($query);
+        return trim($sql);
     }
 
     /**

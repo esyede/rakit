@@ -25,7 +25,9 @@ class Sendmail extends Driver
             fputs($handle, $message['body']);
 
             if (-1 === pclose($handle)) {
-                throw new \Exception('Failed sending email through sendmail: process file pointer fails');
+                throw new \Exception(
+                    'Failed sending email through sendmail: process file pointer fails'
+                );
             }
 
             return true;

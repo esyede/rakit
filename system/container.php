@@ -107,10 +107,7 @@ class Container
             ? static::build($resolver, $parameters)
             : static::resolve($resolver);
 
-        if (
-            isset(static::$registry[$type]['singleton'])
-            && true === static::$registry[$type]['singleton']
-        ) {
+        if (isset(static::$registry[$type]['singleton']) && static::$registry[$type]['singleton']) {
             static::$singletons[$type] = $object;
         }
 

@@ -91,12 +91,16 @@ class Connection
         switch ($this->driver()) {
             case 'mysql':
                 return $this->grammar = new Query\Grammars\MySQL($this);
+
             case 'sqlite':
                 return $this->grammar = new Query\Grammars\SQLite($this);
+
             case 'sqlsrv':
                 return $this->grammar = new Query\Grammars\SQLServer($this);
+
             case 'pgsql':
                 return $this->grammar = new Query\Grammars\Postgres($this);
+
             default:
                 return $this->grammar = new Query\Grammars\Grammar($this);
         }
@@ -192,7 +196,10 @@ class Connection
             return $this->fetch($statement, Config::get('database.fetch'));
         } elseif (0 === stripos((string) $sql, 'update') || 0 === stripos((string) $sql, 'delete')) {
             return $statement->rowCount();
-        } elseif (0 === stripos((string) $sql, 'insert') || false !== stripos((string) $sql, 'returning')) {
+        } elseif (
+            0 === stripos((string) $sql, 'insert')
+            || false !== stripos((string) $sql, 'returning')
+        ) {
             return $this->fetch($statement, Config::get('database.fetch'));
         }
 

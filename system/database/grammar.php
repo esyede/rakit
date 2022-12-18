@@ -67,10 +67,7 @@ abstract class Grammar
 
         if (false !== strpos((string) strtolower((string) $value), ' as ')) {
             $segments = explode(' ', $value);
-            $segments[0] = $this->wrap($segments[0]);
-            $segments[2] = $this->wrap($segments[2]);
-
-            return sprintf('%s AS %s', $segments[0], $segments[2]);
+            return sprintf('%s AS %s', $this->wrap($segments[0]), $this->wrap($segments[2]));
         }
 
         $segments = explode('.', $value);

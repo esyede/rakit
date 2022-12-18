@@ -4,7 +4,6 @@ namespace System\Database;
 
 defined('DS') or exit('No direct script access.');
 
-use Closure;
 use System\Database;
 use System\Paginator;
 use System\Database\Query\Grammars\Grammar;
@@ -176,13 +175,11 @@ class Query
      */
     public function join($table, $column1, $operator = null, $column2 = null, $type = 'INNER')
     {
-        if ($column1 instanceof Closure) {
+        if ($column1 instanceof \Closure) {
             $this->joins[] = new Query\Join($type, $table);
             call_user_func($column1, end($this->joins));
         } else {
-            $join = new Query\Join($type, $table);
-            $join->on($column1, $operator, $column2);
-            $this->joins[] = $join;
+            $this->joins[] = (new Query\Join($type, $table))->on($column1, $operator, $column2);
         }
 
         return $this;
@@ -254,7 +251,7 @@ class Query
      */
     public function where($column, $operator = null, $value = null, $connector = 'AND')
     {
-        if ($column instanceof Closure) {
+        if ($column instanceof \Closure) {
             return $this->where_nested($column, $connector);
         }
 
@@ -476,7 +473,7 @@ class Query
     /**
      * Tambahkan klausa NESTED WHERE ke query.
      *
-     * @param Closure $callback
+     * @param \Closure $callback
      * @param string  $connector
      *
      * @return Query
@@ -493,7 +490,6 @@ class Query
         }
 
         $this->bindings = array_merge($this->bindings, $query->bindings);
-
         return $this;
     }
 
@@ -728,7 +724,6 @@ class Query
         }
 
         $this->selects = null;
-
         return $results;
     }
 
@@ -748,7 +743,6 @@ class Query
         $result = $this->connection->only($sql, $this->bindings);
 
         $this->aggregate = null;
-
         return $result;
     }
 
@@ -771,7 +765,6 @@ class Query
         $this->orderings = $orderings;
 
         $results = $this->for_page($page, $perpage)->get($columns);
-
         return Paginator::make($results, $total, $perpage);
     }
 
@@ -792,7 +785,6 @@ class Query
         }
 
         $sql = $this->grammar->insert($this, $values);
-
         return $this->connection->query($sql, $bindings);
     }
 
@@ -893,7 +885,6 @@ class Query
         }
 
         $sql = $this->grammar->delete($this);
-
         return $this->connection->query($sql, $this->bindings);
     }
 

@@ -87,17 +87,6 @@ class File extends Driver
     }
 
     /**
-     * Simpan item ke cache untuk selamanya (atau 5 tahun).
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function forever($key, $value)
-    {
-        return $this->put($key, $value, 2628000);
-    }
-
-    /**
      * Hapus item dari cache.
      *
      * @param string $key

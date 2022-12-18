@@ -23,8 +23,8 @@ class Job extends Event
             'name' => $name,
             'payloads' => serialize($payloads),
             'scheduled_at' => Date::make($scheduled_at)->format('Y-m-d H:i:s'),
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
+            'created_at' => Date::make()->format('Y-m-d H:i:s'),
+            'updated_at' => Date::make()->format('Y-m-d H:i:s'),
         ]);
 
         static::log(sprintf('Job added: %s - #%s', $name, $id));
@@ -92,7 +92,7 @@ class Job extends Event
 
         $jobs = Database::table($config['table'])
             ->where('name', $name)
-            ->where('scheduled_at', '<=', date('Y-m-d H:i:s'))
+            ->where('scheduled_at', '<=', Date::make()->format('Y-m-d H:i:s'))
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -114,7 +114,7 @@ class Job extends Event
                         'name' => $job->name,
                         'payload' => serialize($job->payloads),
                         'exception' => $e,
-                        'failed_at' => date('Y-m-d H:i:s'),
+                        'failed_at' => Date::make()->format('Y-m-d H:i:s'),
                     ]);
                     static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                 } catch (\Exception $e) {
@@ -126,7 +126,7 @@ class Job extends Event
                         'name' => $job->name,
                         'payload' => serialize($job->payloads),
                         'exception' => $e,
-                        'failed_at' => date('Y-m-d H:i:s'),
+                        'failed_at' => Date::make()->format('Y-m-d H:i:s'),
                     ]);
                     static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                 }
@@ -154,7 +154,7 @@ class Job extends Event
         }
 
         $jobs = Database::table($config['table'])
-            ->where('scheduled_at', '<=', date('Y-m-d H:i:s'))
+            ->where('scheduled_at', '<=', Date::make()->format('Y-m-d H:i:s'))
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -187,7 +187,9 @@ class Job extends Event
         }
 
         if (Request::cli()) {
-            echo '[' . date('Y-m-d H:i:s') . '] [' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
+            $message = '[' . Date::make()->format('Y-m-d H:i:s') . '] ';
+            $message .= '[' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
+            echo $message;
         }
     }
 }

@@ -18,7 +18,9 @@ class Dates extends Base
             return (int) $max;
         }
 
-        return ($max instanceof \DateTime) ? $max->getTimestamp() : strtotime(empty($max) ? 'now' : $max);
+        return ($max instanceof \DateTime)
+            ? $max->getTimestamp()
+            : strtotime(empty($max) ? 'now' : $max);
     }
 
     public static function unixTime($max = 'now')
@@ -53,7 +55,10 @@ class Dates extends Base
 
     public static function dateTimeBetween($startDate = '-30 years', $endDate = 'now')
     {
-        $start = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : strtotime($startDate);
+        $start = ($startDate instanceof \DateTime)
+            ? $startDate->getTimestamp()
+            : strtotime($startDate);
+
         $end = static::getMaxTimestamp($endDate);
 
         if ($start > $end) {
