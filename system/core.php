@@ -25,7 +25,7 @@ define('RAKIT_VERSION', '0.9.9');
 
 define('CRLF', "\r\n");
 define('DEFAULT_PACKAGE', 'application');
-define('RAKIT_KEY', (string) require path('rakit_key'));
+define('RAKIT_KEY', require path('rakit_key'));
 
 /*
 |--------------------------------------------------------------------------
@@ -80,10 +80,7 @@ Autoloader::namespaces(['System' => path('system')]);
 | panjang dan tetap mudah dibaca. Nah, disini kita perlu memanggilnya.
 |
 */
-
-use System\Foundation\Http\Request as FoundationRequest;
-
-Request::$foundation = FoundationRequest::createFromGlobals();
+Request::$foundation = Foundation\Http\Request::createFromGlobals();
 
 /*
 |--------------------------------------------------------------------------
