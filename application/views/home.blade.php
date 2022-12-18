@@ -2,9 +2,10 @@
 <html lang="{{ config('application.language' . 'en') }}">
 
 <head>
+    <title>Welcome!</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome!</title>
+    <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <style>
         html,
         body {
@@ -57,15 +58,6 @@
 
         .m-b-md {
             margin-bottom: 30px;
-        }
-
-        @media (prefers-color-scheme: dark) {
-
-            html,
-            body {
-                color: #dbdbdb;
-                background-color: #17181c;
-            }
         }
     </style>
 </head>
