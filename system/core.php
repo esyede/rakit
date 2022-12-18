@@ -80,6 +80,7 @@ Autoloader::namespaces(['System' => path('system')]);
 | panjang dan tetap mudah dibaca. Nah, disini kita perlu memanggilnya.
 |
 */
+
 Request::$foundation = Foundation\Http\Request::createFromGlobals();
 
 /*
