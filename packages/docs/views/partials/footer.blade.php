@@ -24,7 +24,7 @@
 
 <script src="{{ asset('packages/docs/js/docs.js?v=' . RAKIT_VERSION) }}"></script>
 <script
-    src="{{ asset('packages/docs/js/data/search-' . (Str::contains(URI::full(), '/docs/en') ? 'en' : 'id') . '.js?v=' . RAKIT_VERSION) }}">
+    src="{{ asset('packages/docs/js/data/search-' . (System\Str::contains(System\URI::full(), '/docs/en') ? 'en' : 'id') . '.js?v=' . RAKIT_VERSION) }}">
 </script>
 <script src="{{ asset('packages/docs/js/search.js?v=' . RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/language.js?v=' . RAKIT_VERSION) }}"></script>

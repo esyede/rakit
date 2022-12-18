@@ -30,9 +30,9 @@
             </div>
             <div class="navbar-end">
                 <a class="navbar-item" id="homepage"
-                    href="{{ URL::home() }}">{{ trans('docs::docs.navbar.home') }}</a>
+                    href="{{ System\URL::home() }}">{{ trans('docs::docs.navbar.home') }}</a>
                 <a class="navbar-item" id="docs"
-                    href="{{ URL::to('docs/' . config('application.language')) }}">{{ trans('docs::docs.navbar.documentation') }}</a>
+                    href="{{ url('docs/' . config('application.language')) }}">{{ trans('docs::docs.navbar.documentation') }}</a>
                 <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api/master/index.html"
                     target="_blank">{{ trans('docs::docs.navbar.api') }}</a>
                 <a class="navbar-item" id="repos" href="https://rakit.esyede.my.id/repositories"
