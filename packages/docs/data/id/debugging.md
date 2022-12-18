@@ -47,11 +47,11 @@ menggunakan helper [bd()](/docs/id/helpers#bd).
 
 Tentunya, anda tahu bagaimana PHP melaporkan error:
 
-```
+```ini
 Parse error:  syntax error, unexpected '}' in foo.php on line 22
 ```
 
-```
+```ini
 Notice: Undefined variable: foo in /bar/baz/index.php on line 9
 PHP Fatal error: Uncaught Error: Call to a member function lolcat() on null in /bar/baz/qux.php:9
 Stack trace:
