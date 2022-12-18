@@ -9,7 +9,7 @@ class Memcached
     /**
      * Berisi instance koneksi Memcached.
      *
-     * @var Memcached
+     * @var \Memcached
      */
     protected static $connection;
 
@@ -26,7 +26,7 @@ class Memcached
      *
      * </code>
      *
-     * @return Memcached
+     * @return \Memcached
      */
     public static function connection()
     {
