@@ -77,7 +77,10 @@ class Autoloader
      */
     protected static function load_namespaced($class, $namespace, $directory)
     {
-        return static::load_psr(substr((string) $class, mb_strlen((string) $namespace, '8bit')), $directory);
+        return static::load_psr(
+            substr((string) $class, mb_strlen((string) $namespace, '8bit')),
+            $directory
+        );
     }
 
     /**
