@@ -11,6 +11,8 @@
   <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
 </p>
 
+> Dokumentasi versi bahasa Indonesia di [README.md](README.md)
+
 ## What is a rakit?
 
 Rakit is a simple and easy to learn web framework.
