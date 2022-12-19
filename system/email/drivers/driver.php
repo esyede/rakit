@@ -222,12 +222,12 @@ abstract class Driver
                             $images[1][$i] . '="' . $cid . '"',
                             $html
                         );
-                    } elseif ($scheme = Arr::get($this->config, 'protocol_replacement', false)
+                    } elseif (
+                        $scheme = Arr::get($this->config, 'protocol_replacement', false)
                         && 0 === strpos((string) $url, '//')
                     ) {
                         $html = preg_replace(
-                            '/' . $images[1][$i] . '="' . preg_quote($url, '/') .
-                                '"/Ui',
+                            '/' . $images[1][$i] . '="' . preg_quote($url, '/') . '"/Ui',
                             $images[1][$i] . '="' . $scheme . substr((string) $url, 2) . '"',
                             $html
                         );
@@ -690,10 +690,9 @@ abstract class Driver
         }
 
         if (array_key_exists($header, $this->headers)) {
-            $prefix = $formatted ? $header . ': ' : '';
-            $suffix = $formatted ? $this->config['newline'] : '';
-
-            return $prefix . $this->headers[$header] . $suffix;
+            return ($formatted ? $header . ': ' : '')
+                . $this->headers[$header]
+                . ($formatted ? $this->config['newline'] : '');
         }
 
         return '';
@@ -728,7 +727,9 @@ abstract class Driver
                 ? 'Content-ID: <' . substr((string) $data['cid'], 4) . '>' . $eol
                 : '';
 
-            $out .= 'Content-Disposition: ' . $type . '; filename="' . $data['file'][1] . '"' . $eol . $eol;
+            $out .= 'Content-Disposition: ' . $type . '; filename="' . $data['file'][1] . '"'
+                . $eol . $eol;
+
             $out .= $data['contents'] . $eol . $eol;
         }
 
@@ -789,15 +790,12 @@ abstract class Driver
                 case 'html_attach':
                 case 'html_inline':
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $ctype = (false !== stripos((string) $this->type, 'html')) ? 'html' : 'plain';
-                    $body .= 'Content-Type: text/' . $ctype . '; charset=utf-8' . $eol;
+                    $type = (false !== stripos((string) $this->type, 'html')) ? 'html' : 'plain';
+                    $body .= 'Content-Type: text/' . $type . '; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->body . $eol . $eol;
-                    $ctype = (false !== stripos((string) $this->type, 'attach'))
-                        ? 'attachment'
-                        : 'inline';
-
-                    $body .= $this->get_attachment_headers($ctype, $this->boundaries[0]);
+                    $type = (false !== stripos((string) $this->type, 'attach')) ? 'attachment' : 'inline';
+                    $body .= $this->get_attachment_headers($type, $this->boundaries[0]);
                     $body .= '--' . $this->boundaries[0] . '--';
                     break;
 
