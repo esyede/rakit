@@ -70,9 +70,7 @@ if (is_file($path = path('rakit_key'))) {
                 . '|--------------------------------------------------------------------------' . PHP_EOL
                 . '|' . PHP_EOL
                 . '| File ini (key.php) dibuat otomatis oleh rakit. Salin file ini ke tempat' . PHP_EOL
-                . '| yang aman karena file ini adalah kunci untuk membuka aplikasi anda.' . PHP_EOL
-                . '|' . PHP_EOL
-                . '| Jika terjadi error "Hash verification failed", silahkan muat ulang halaman.' . PHP_EOL
+                . '| yang aman karena file ini berisi kunci untuk membuka aplikasi anda.' . PHP_EOL
                 . '|' . PHP_EOL
                 . '*/' . PHP_EOL
                 . PHP_EOL

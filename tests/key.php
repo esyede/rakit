@@ -8,9 +8,7 @@ defined('DS') or exit('No direct script access.');
 |--------------------------------------------------------------------------
 |
 | File ini (key.php) dibuat otomatis oleh rakit. Salin file ini ke tempat
-| yang aman karena file ini adalah kunci untuk membuka aplikasi anda.
-|
-| Jika terjadi error "Hash verification failed", silahkan muat ulang halaman.
+| yang aman karena file ini berisi kunci untuk membuka aplikasi anda.
 |
 */
 
