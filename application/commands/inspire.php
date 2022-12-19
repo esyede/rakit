@@ -9,7 +9,7 @@ class Inspire_Command extends Command
     /**
      * Contoh command. Jalankan dengan 'php rakit inspire'.
      *
-     * @param string|array $arguments
+     * @param array $arguments
      *
      * @return void
      */

@@ -1,117 +1,120 @@
 {
-      "serve": {
-      	"description": "Jalankan server bawaan.",
-      	"command": "php rakit serve"
-      },
-      "clear:blade": {
-        "description": "Bersihkan seluruh file cache blade.",
-        "command": "php rakit clear:blade"
-      },
-      "clear:logs": {
-        "description": "Bersihkan seluruh file log.",
-        "command": "php rakit clear:logs"
-      }
-	},
-	"make": {
-      "make:controller": {
-      	"description": "Buat file controller.",
-      	"command": "php rakit make:controller"
-      },
-      "make:resource": {
-        "description": "Buat file resource controller.",
-        "command": "php rakit make:resource"
-      },
-      "make:model": {
-      	"description": "Buat file model.",
-      	"command": "php rakit make:model"
-      },
-      "make:migration": {
-        "description": "Buat file migrasi.",
-        "command": "php rakit make:migration create_users_table"
-      },
-      "make:command": {
-      	"description": "Buat file command.",
-      	"command": "php rakit make:command"
-      },
-      "make:test": {
-        "description": "Buat file unit test.",
-        "command": "php rakit make:test"
-      }
-	},
-	"session": {
-      "session:table": {
-      	"description": "Buat file migrasi untuk tabel session.",
-      	"command": "php rakit session:table"
-      }
-	},
-	"migration": {
-      "migrate:install": {
-      	"description": "Install tabel migrasi.",
-      	"command": "php rakit migrate:install"
-      },
-      "migrate": {
-      	"description": "Jalankan seluruh file migrasi.",
-      	"command": "php rakit migrate"
-      },
-      "migrate:rollback": {
-      	"description": "Roll back migrasi terakhir.",
-      	"command": "php rakit migrate:rollback"
-      },
-      "migrate:reset": {
-      	"description": "Roll back seluruh migrasi.",
-      	"command": "php rakit migrate:reset"
-      }
-	},
+    "clear": {
+        "clear:blade": {
+            "description": "Bersihkan seluruh file cache blade.",
+            "command": "php rakit clear:blade"
+        },
+        "clear:logs": {
+            "description": "Bersihkan seluruh file log.",
+            "command": "php rakit clear:logs"
+        }
+    },
     "job": {
         "job:table": {
-          "description": "Buat file migrasi untuk tabel job.",
-          "command": "php rakit job:table"
+            "description": "Buat file migrasi untuk tabel job.",
+            "command": "php rakit job:table"
         },
-      "job:run": {
-        "description": "Jalankan sebuah job.",
-        "command": "php rakit job:run send_email"
-      },
-      "job:runall": {
-        "description": "Jalankan seluruh job.",
-        "command": "php rakit job:runall"
-      }
+        "job:run": {
+            "description": "Jalankan sebuah job.",
+            "command": "php rakit job:run send_email"
+        },
+        "job:runall": {
+            "description": "Jalankan seluruh job.",
+            "command": "php rakit job:runall"
+        }
     },
-	"package": {
-      "package:install": {
-      	"description": "Install paket.",
-      	"command": "php rakit package:install <nama-paket>"
-      },
-      "package:uninstall": {
-      	"description": "Uninstall paket beserta resourcenya.",
-      	"command": "php rakit package:uninstall <nama-paket>"
-      },
-      "package:upgrade": {
-      	"description": "Upgrade paket.",
-      	"command": "php rakit package:upgrade <nama-paket>"
-      },
-      "package:publish": {
-      	"description": "Salin aset paket ke folder assets.",
-      	"command": "php rakit package:publish <nama-paket>"
-      },
-      "package:unpublish": {
-      	"description": "Hapus aset paket dari folder assets.",
-      	"command": "php rakit package:unpublish <nama-paket>"
-      }
-	},
-	"routing": {
-      "route:call": {
-      	"description": "Panggil route via konsol.",
-      	"command": "php rakit route:call get api/user/1"
-      }
-	},
+    "make": {
+        "make:controller": {
+            "description": "Buat file controller.",
+            "command": "php rakit make:controller"
+        },
+        "make:resource": {
+            "description": "Buat file resource controller.",
+            "command": "php rakit make:resource"
+        },
+        "make:model": {
+            "description": "Buat file model.",
+            "command": "php rakit make:model"
+        },
+        "make:migration": {
+            "description": "Buat file migrasi.",
+            "command": "php rakit make:migration create_users_table"
+        },
+        "make:command": {
+            "description": "Buat file command.",
+            "command": "php rakit make:command"
+        },
+        "make:test": {
+            "description": "Buat file unit test.",
+            "command": "php rakit make:test"
+        }
+    },
+    "migration": {
+        "migrate:install": {
+            "description": "Install tabel migrasi.",
+            "command": "php rakit migrate:install"
+        },
+        "migrate": {
+            "description": "Jalankan seluruh file migrasi.",
+            "command": "php rakit migrate"
+        },
+        "migrate:rollback": {
+            "description": "Roll back migrasi terakhir.",
+            "command": "php rakit migrate:rollback"
+        },
+        "migrate:reset": {
+            "description": "Roll back seluruh migrasi.",
+            "command": "php rakit migrate:reset"
+        }
+    },
+    "package": {
+        "package:install": {
+            "description": "Install paket.",
+            "command": "php rakit package:install <nama-paket>"
+        },
+        "package:uninstall": {
+            "description": "Uninstall paket beserta resourcenya.",
+            "command": "php rakit package:uninstall <nama-paket>"
+        },
+        "package:upgrade": {
+            "description": "Upgrade paket.",
+            "command": "php rakit package:upgrade <nama-paket>"
+        },
+        "package:publish": {
+            "description": "Salin aset paket ke folder assets.",
+            "command": "php rakit package:publish <nama-paket>"
+        },
+        "package:unpublish": {
+            "description": "Hapus aset paket dari folder assets.",
+            "command": "php rakit package:unpublish <nama-paket>"
+        }
+    },
+    "routing": {
+        "route:call": {
+            "description": "Panggil route via konsol.",
+            "command": "php rakit route:call get api/user/1"
+        }
+    },
+    "session": {
+        "session:table": {
+            "description": "Buat file migrasi untuk tabel session.",
+            "command": "php rakit session:table"
+        }
+    },
     "test": {
-      "test:core": {
-        "description": "Jalankan test folder system.",
-        "command": "php rakit test:core"
-      },
-      "test:package": {
-        "description": "Jalankan test milik sebuah paket.",
-        "command": "php rakit test:package blog"
-      }
+        "test:core": {
+            "description": "Jalankan test folder system.",
+            "command": "php rakit test:core"
+        },
+        "test:package": {
+            "description": "Jalankan test milik sebuah paket.",
+            "command": "php rakit test:package blog"
+        }
+    },
+    "webserver": {
+        "serve": {
+            "command": "php rakit serve",
+            "description": "Jalankan webserver bawaan."
+        }
     }
 }
