@@ -72,13 +72,10 @@ class Schema
                 break;
         }
 
-        try {
-            $statement = $connection->pdo()->prepare($query);
-            $statement->execute();
-            return $statement->fetchAll(\PDO::FETCH_COLUMN);
-        } catch (\PDOException $e) {
-            return [];
-        }
+        $statement = $connection->pdo()->prepare($query);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -125,13 +122,10 @@ class Schema
                 break;
         }
 
-        try {
-            $statement = $connection->pdo()->prepare($query);
-            $statement->execute();
-            return $statement->fetchAll(\PDO::FETCH_COLUMN);
-        } catch (\PDOException $e) {
-            return [];
-        }
+        $statement = $connection->pdo()->prepare($query);
+        $statement->execute();
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
