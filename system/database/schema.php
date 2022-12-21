@@ -7,6 +7,7 @@ defined('DS') or exit('No direct script access.');
 use System\Config;
 use System\Magic;
 use System\Database as DB;
+use System\Str;
 
 class Schema
 {
@@ -54,10 +55,10 @@ class Schema
                 break;
 
             case 'sqlite':
-                $query = "SELECT name FROM sqlite_master" .
-                    " WHERE type='table' AND name NOT LIKE 'sqlite_%'" .
-                    " UNION ALL SELECT name FROM sqlite_temp_master" .
-                    " WHERE type='table' ORDER BY 1";
+                $query = "SELECT name FROM sqlite_master " .
+                    "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' " .
+                    "UNION ALL SELECT name FROM sqlite_temp_master " .
+                    "WHERE type IN ('table','view') ORDER BY 1";
                 break;
 
             case 'sqlsrv':
@@ -105,7 +106,8 @@ class Schema
                 break;
 
             case 'pgsql':
-                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name=' . $table;
+                $query = 'SELECT column_name FROM information_schema.columns ' .
+                    'WHERE table_schema=' . $database . ' AND table_name=' . $table;
                 break;
 
             case 'sqlite':
@@ -113,7 +115,8 @@ class Schema
                 break;
 
             case 'sqlsrv':
-                $query = 'SELECT column_name FROM information_schema.columns WHERE table_name=N' . $table;
+                $query = 'SELECT column_name FROM information_schema.columns ' .
+                    'WHERE table_schema=N' . $database . ' AND table_name=N' . $table;
                 break;
 
             default:
@@ -127,7 +130,7 @@ class Schema
         $statement = $connection->pdo()->prepare($query);
         $statement->execute();
 
-        return $statement->fetchAll(\PDO::FETCH_COLUMN);
+        return $statement->fetchAll(\PDO::FETCH_COLUMN, ($driver === 'sqlite') ? 1 : 0);
     }
 
     /**
