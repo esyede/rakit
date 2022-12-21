@@ -480,12 +480,12 @@ class Query
      */
     public function where_nested(\Closure $callback, $connector = 'AND')
     {
-        $type = 'where_nested';
         $query = new Query($this->connection, $this->grammar, $this->from);
 
         call_user_func($callback, $query);
 
         if (null !== $query->wheres) {
+            $type = 'where_nested';
             $this->wheres[] = compact('type', 'query', 'connector');
         }
 
@@ -663,7 +663,7 @@ class Query
      *
      * @param array $columns
      *
-     * @return \stdClass||\System\Response
+     * @return \stdClass|\System\Response
      */
     public function first_or_fail($columns = ['*'])
     {

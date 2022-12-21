@@ -7,6 +7,7 @@ defined('DS') or exit('No direct script access.');
 use System\Config;
 use System\Container;
 use System\Storage;
+use System\Request;
 use System\Log;
 
 class Job extends Command
@@ -21,7 +22,7 @@ class Job extends Command
     public function run($names = [])
     {
         $config = Config::get('job');
-        $names = is_array($names) ? $names : func_get_args();
+        $names = is_array($names) ? $names : [$names];
 
         if (empty($names)) {
             if (Request::cli()) {
