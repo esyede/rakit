@@ -54,10 +54,10 @@ class Schema
                 break;
 
             case 'sqlite':
-                $query = "SELECT name FROM sqlite_master " .
-                    "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' " .
-                    "UNION ALL SELECT name FROM sqlite_temp_master " .
-                    "WHERE type IN ('table','view') ORDER BY 1";
+                $query = "SELECT name FROM sqlite_master" .
+                    " WHERE type='table' AND name NOT LIKE 'sqlite_%'" .
+                    " UNION ALL SELECT name FROM sqlite_temp_master" .
+                    " WHERE type='table' ORDER BY 1";
                 break;
 
             case 'sqlsrv':
