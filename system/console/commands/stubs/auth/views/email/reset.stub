@@ -36,7 +36,7 @@
                             </tr>
                           </tbody>
                         </table>
-                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">Or, you can also visit this link:<br><a href="{{ url('password/reset'.(isset($token) ? '/'.$token : '#')) }}">{{ url('password/reset'.(isset($token) ? '/'.$token : '#')) }}</a></p>
+                        <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">Or, you can also visit this link: <br><a href="{{ url('password/reset'.(isset($token) ? '/'.$token : '#')) }}">{{ url('password/reset'.(isset($token) ? '/'.$token : '#')) }}</a></p>
                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">In case you did not want to reset your password, just ignore this email.</p>
                         <p style="font-family: sans-serif; font-size: 14px; font-weight: normal; margin: 0; margin-bottom: 15px;">Regards,<br>{{ config('email.from.name') }}</p>
                       </td>

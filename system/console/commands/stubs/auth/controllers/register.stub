@@ -6,6 +6,7 @@ use System\Routing\Controller;
 use System\View;
 use System\Validator;
 use System\Redirect;
+use System\Database as DB;
 use System\Input;
 use System\Auth;
 use System\Hash;
@@ -51,13 +52,14 @@ class Auth_Register_Controller extends Controller
                 ->with_errors($validation);
         }
 
-        $user = new \User();
-        $user->name = Input::get('name');
-        $user->email = Input::get('email');
-        $user->password = Hash::make(Input::get('password'));
-        $user->save();
+        $user_id = DB::table('users')->insert_get_id([
+            'name' => Input::get('name'),
+            'email' => Input::get('email'),
+            'password' => Hash::make(Input::get('password')),
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
 
-        Auth::login($user->id);
+        Auth::login($user_id);
 
         return Redirect::to('/dashboard');
     }
