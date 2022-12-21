@@ -63,7 +63,7 @@ Online documentation is also available at [official website](https://rakit.esyed
 
 To participate in helping the development of the rakit, please send a pull your request to the official rakit repository.
 
-In addition, you can also help the development of the rakit by answering questions submitted by other users in the [official forum](https://rakit.esyede.my.id/forum).
+In addition, you can also help the development of the rakit by answering questions submitted by other users in the [discussion forum](https://github.com/esyede/rakit/discussions).
 
 ## License
 

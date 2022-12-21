@@ -66,7 +66,7 @@ Untuk ikut serta membantu pengembangan rakit, silahkan kirimkan pull
 request anda ke repositori resmi rakit.
 
 Selain itu, anda juga dapat membantu pengembangan rakit dengan cara menjawab pertanyaan
-yang diajukan oleh pengguna lain di [forum resmi](https://rakit.esyede.my.id/forum).
+yang diajukan oleh pengguna lain di [forum diskusi](https://github.com/esyede/rakit/discussions).
 
 ## Lisensi
 
