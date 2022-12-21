@@ -122,7 +122,6 @@ Routing\Router::register('*', '(:all)', function () {
 |
 */
 
-$uri = URI::current();
 $languages = Config::get('application.languages', []);
 $languages[] = Config::get('application.language');
 
@@ -137,10 +136,12 @@ $languages[] = Config::get('application.language');
 |
 */
 
+$uri = URI::current();
+
 foreach ($languages as $language) {
     if (preg_match('#^' . $language . '(?:$|/)#i', $uri)) {
         Config::set('application.language', $language);
-        $uri = trim(substr((string) $uri, mb_strlen((string) $language, '8bit')), '/');
+        $uri = trim(substr($uri, strlen($language), '/'));
         break;
     }
 }
