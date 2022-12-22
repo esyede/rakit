@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ config('application.language' . 'en') }}">
+<html lang="{{ config('application.language', 'en') }}">
 
 <head>
     <title>Welcome!</title>
