@@ -21,6 +21,7 @@ if (is_file($path = path('rakit_key'))) {
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
         exit;
     }
 
@@ -31,6 +32,7 @@ if (is_file($path = path('rakit_key'))) {
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
         exit;
     }
 } else {
@@ -43,6 +45,7 @@ if (is_file($path = path('rakit_key'))) {
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
         exit;
     }
 
@@ -82,6 +85,7 @@ if (is_file($path = path('rakit_key'))) {
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
         exit;
     } catch (\Exception $e) {
         http_response_code(500);
@@ -90,6 +94,7 @@ if (is_file($path = path('rakit_key'))) {
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
         }
+
         exit;
     }
 }
