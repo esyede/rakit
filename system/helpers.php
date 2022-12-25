@@ -341,7 +341,7 @@ if (!function_exists('head')) {
      *
      * @return mixed
      */
-    function head($array)
+    function head(array $array)
     {
         return reset($array);
     }
@@ -355,7 +355,7 @@ if (!function_exists('last')) {
      *
      * @return mixed
      */
-    function last($array)
+    function last(array $array)
     {
         return end($array);
     }
@@ -956,13 +956,15 @@ if (!function_exists('dispatch')) {
     /**
      * Jalankan sebuah job.
      *
-     * @param string $name
+     * @param string|array $events
+     * @param array        $parameters
+     * @param bool         $halt
      *
-     * @return array
+     * @return array|null
      */
-    function dispatch($name)
+    function dispatch($events, array $parameters = [], $halt = false)
     {
-        return \System\Job::run($name);
+        return \System\Event::fire($events, $parameters, $halt);
     }
 }
 

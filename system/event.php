@@ -181,7 +181,7 @@ class Event
      * @param array        $parameters
      * @param bool         $halt
      *
-     * @return array
+     * @return array|null
      */
     public static function fire($events, array $parameters = [], $halt = false)
     {
