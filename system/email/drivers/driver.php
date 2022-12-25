@@ -217,8 +217,7 @@ abstract class Driver
                         }
 
                         $html = preg_replace(
-                            '/' . $images[1][$i] . '="' . preg_quote($url, '/') .
-                                '"/Ui',
+                            '/' . $images[1][$i] . '="' . preg_quote($url, '/') . '"/Ui',
                             $images[1][$i] . '="' . $cid . '"',
                             $html
                         );
@@ -258,7 +257,10 @@ abstract class Driver
      */
     public function subject($subject)
     {
-        $this->subject = $this->config['encode_headers'] ? $this->encode((string) $subject) : (string) $subject;
+        $this->subject = isset($this->config['encode_headers']) && $this->config['encode_headers']
+            ? $this->encode((string) $subject)
+            : (string) $subject;
+
         return $this;
     }
 
@@ -979,17 +981,15 @@ abstract class Driver
         $html = trim(strip_tags(preg_replace('/<(head|title|style|script)[^>]*>.*?<\/\\1>/s', '', $html)));
         $lines = explode($newline, $html);
 
-        $first_newline = true;
+        $beginning = true;
         $result = [];
 
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if (!empty($line) || $first_newline) {
-                $first_newline = false;
+            if (!empty($line) || $beginning) {
+                $beginning = false;
                 $result[] = $line;
-            } else {
-                $first_newline = true;
             }
         }
 
