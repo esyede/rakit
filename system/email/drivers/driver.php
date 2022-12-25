@@ -258,10 +258,7 @@ abstract class Driver
      */
     public function subject($subject)
     {
-        $this->subject = $this->config['encode_headers']
-            ? $this->encode((string) $subject)
-            : (string) $subject;
-
+        $this->subject = $this->config['encode_headers'] ? $this->encode((string) $subject) : (string) $subject;
         return $this;
     }
 

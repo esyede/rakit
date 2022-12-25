@@ -139,6 +139,8 @@ class Smtp extends Driver
 
         try {
             $this->command('EHLO ' . Request::server('SERVER_NAME', 'localhost.local'), 250);
+        } catch (\Throwable $e) {
+            $this->command('HELO ' . Request::server('SERVER_NAME', 'localhost.local'), 250);
         } catch (\Exception $e) {
             $this->command('HELO ' . Request::server('SERVER_NAME', 'localhost.local'), 250);
         }
