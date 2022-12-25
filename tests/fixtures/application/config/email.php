@@ -12,7 +12,7 @@ return [
     | Tentu saja, beberapa driver bawaan juga sudah disediakan agar
     | anda bisa langsung mengirim email secara sederhana dan mudah.
     |
-    | Driver tersedia: 'mail', 'smtp', 'sendmail' atau 'dummy' (testing).
+    | Driver tersedia: 'mail', 'smtp', 'sendmail' atau 'log' (testing).
     |
     */
 
