@@ -331,9 +331,9 @@ class Curl
     /**
      * Jalankan POST request.
      *
-     * @param string    $url
-     * @param array     $headers
-     * @param mixed|nul $body
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $body
      *
      * @return \stdClass
      */
@@ -345,9 +345,9 @@ class Curl
     /**
      * Jalankan DELETE request.
      *
-     * @param string    $url
-     * @param array     $headers
-     * @param mixed|nul $body
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $body
      *
      * @return \stdClass
      */
@@ -359,9 +359,9 @@ class Curl
     /**
      * Jalankan PUT request.
      *
-     * @param string    $url
-     * @param array     $headers
-     * @param mixed|nul $body
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $body
      *
      * @return \stdClass
      */
@@ -373,9 +373,9 @@ class Curl
     /**
      * Jalankan PATCH request.
      *
-     * @param string    $url
-     * @param array     $headers
-     * @param mixed|nul $body
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $body
      *
      * @return \stdClass
      */
@@ -387,9 +387,9 @@ class Curl
     /**
      * Jalankan TRACE request.
      *
-     * @param string    $url
-     * @param array     $headers
-     * @param mixed|nul $body
+     * @param string     $url
+     * @param array      $headers
+     * @param mixed|null $body
      *
      * @return \stdClass
      */
@@ -401,10 +401,10 @@ class Curl
     /**
      * Jalankan curl request.
      *
-     * @param string    $method
-     * @param string    $url
-     * @param mixed|nul $body
-     * @param array     $headers
+     * @param string     $method
+     * @param string     $url
+     * @param mixed|null $body
+     * @param array      $headers
      *
      * @return \stdClass
      */
