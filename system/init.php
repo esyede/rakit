@@ -11,12 +11,12 @@ defined('DS') or exit('No direct script access.');
 | Pastikan file key.php sudah ada di base path, buat jika belum ada.
 */
 
-if (is_file($path = path('rakit_key'))) {
-    $dir = path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key' . DS;
+$dir = path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
 
+if (is_file($path = path('rakit_key'))) {
     if (!is_readable(dirname((string) $path))) {
         http_response_code(500);
-        require $dir . 'unreadable.phtml';
+        require $dir . DS . 'unreadable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -27,7 +27,7 @@ if (is_file($path = path('rakit_key'))) {
 
     if (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
         http_response_code(500);
-        require $dir . 'invalid.phtml';
+        require $dir . DS . 'invalid.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -40,7 +40,7 @@ if (is_file($path = path('rakit_key'))) {
 
     if (!is_writable(dirname((string) $path))) {
         http_response_code(500);
-        require $dir . 'unwritable.phtml';
+        require $dir . DS . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -80,7 +80,8 @@ if (is_file($path = path('rakit_key'))) {
                 . sprintf("return '%s';", $key) . PHP_EOL
         );
     } catch (\Throwable $e) {
-        require $dir . 'unwritable.phtml';
+        http_response_code(500);
+        require $dir . DS . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
@@ -89,7 +90,7 @@ if (is_file($path = path('rakit_key'))) {
         exit;
     } catch (\Exception $e) {
         http_response_code(500);
-        require $dir . 'unwritable.phtml';
+        require $dir . DS . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
