@@ -2,6 +2,8 @@
 
 namespace System;
 
+use DateTime;
+
 defined('DS') or exit('No direct script access.');
 
 class JWT
@@ -117,14 +119,14 @@ class JWT
         if (isset($payloads->nbf) && $payloads->nbf > ($timestamp + static::$leeway)) {
             throw new \Exception(sprintf(
                 'Cannot handle token prior to %s',
-                date(\DateTime::ISO8601, $payloads->nbf)
+                date(\DateTime::ATOM, $payloads->nbf)
             ));
         }
 
         if (isset($payloads->iat) && $payloads->iat > ($timestamp + static::$leeway)) {
             throw new \Exception(sprintf(
                 'Cannot handle token prior to %s',
-                date(\DateTime::ISO8601, $payloads->iat)
+                date(\DateTime::ATOM, $payloads->iat)
             ));
         }
 
