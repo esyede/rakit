@@ -99,12 +99,15 @@ class JWT
             throw new \Exception('Invalid signature encoding');
         }
 
-        if (!is_string(optional($headers)->alg)) {
+        if (!isset($headers->alg) && !is_string($headers->alg)) {
             throw new \Exception('Empty algorithm');
         }
 
         if (!isset(static::$algorithms[$headers->alg]) || !static::$algorithms[$headers->alg]) {
-            throw new \Exception('Only these algorithm are supported: ' . implode(', ', static::$algorithms));
+            throw new \Exception(sprintf(
+                'Only these algorithm are supported: %s',
+                implode(', ', static::$algorithms)
+            ));
         }
 
         if (!static::verify($headers64 . '.' . $payloads64, $signature, $secret, $headers->alg)) {
@@ -112,11 +115,17 @@ class JWT
         }
 
         if (isset($payloads->nbf) && $payloads->nbf > ($timestamp + static::$leeway)) {
-            throw new \Exception('Cannot handle token prior to ' . date(\DateTime::ISO8601, $payloads->nbf));
+            throw new \Exception(sprintf(
+                'Cannot handle token prior to %s',
+                date(\DateTime::ISO8601, $payloads->nbf)
+            ));
         }
 
         if (isset($payloads->iat) && $payloads->iat > ($timestamp + static::$leeway)) {
-            throw new \Exception('Cannot handle token prior to ' . date(\DateTime::ISO8601, $payloads->iat));
+            throw new \Exception(sprintf(
+                'Cannot handle token prior to %s',
+                date(\DateTime::ISO8601, $payloads->iat)
+            ));
         }
 
         if (isset($payloads->exp) && ($timestamp - static::$leeway) >= $payloads->exp) {
