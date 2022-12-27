@@ -58,7 +58,7 @@ class Packager extends Command
 
             $stdin = fopen('php://stdin', 'rb');
 
-            if (!in_array(strtolower((string) trim(fgets($stdin))), ['y', 'yes'])) {
+            if (!in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
                 fclose($stdin);
                 throw new \Exception(PHP_EOL . 'Operation aborted by user.');
             }
@@ -67,7 +67,7 @@ class Packager extends Command
                 echo  PHP_EOL . 'This package is currently not maintained.';
                 echo  PHP_EOL . 'Dou you wish to install anyway? [y/N] ';
 
-                if (!in_array(strtolower((string) trim(fgets($stdin))), ['y', 'yes'])) {
+                if (!in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
                     fclose($stdin);
                     throw new \Exception(PHP_EOL . 'Operation aborted by user.');
                 }
@@ -313,14 +313,15 @@ class Packager extends Command
      */
     protected function hostname($remotes)
     {
-        $host = parse_url(trim($remotes['repository']))['host'];
-        $host = explode('.', $host)[0];
+        $host = parse_url(trim($remotes['repository']));
+        $host = explode('.', isset($host['host']) ? $host['host'] : 'Unknown');
+        $host = isset($host[0]) ? $host[0] : 'Unknown';
         $provider = '\\System\\Console\\Commands\\Package\\Providers\\' . Str::classify($host);
 
         if (!class_exists($provider)) {
             throw new \Exception(sprintf('Unsupported package provider: %s', $host));
         }
 
-        return strtolower((string) $host);
+        return strtolower($host);
     }
 }

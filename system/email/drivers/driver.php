@@ -198,19 +198,21 @@ abstract class Driver
     public function html_body($html, $alternatify = null, $attachify = null)
     {
         $this->config['as_html'] = true;
-
+        $html = (string) $html;
         $alternatify = is_bool($alternatify) ? $alternatify : $this->config['alternatify'];
         $attachify = is_bool($attachify) ? $attachify : $this->config['attachify'];
         $strip = isset($this->config['strip_comments']) ? (bool) $this->config['strip_comments'] : true;
-        $html = $strip ? preg_replace('/<!--(.*)-->/', '', (string) $html) : $html;
+        $html = $strip ? preg_replace('/<!--(.*)-->/', '', $html) : $html;
 
         if ($attachify) {
             preg_match_all('/(src|background)="(.*)"/Ui', $html, $images);
 
             if (isset($images[2]) && !empty($images[2])) {
                 foreach ($images[2] as $i => $url) {
+                    $url = (string) $url;
+
                     if (!preg_match('/(^http\:\/\/|^https\:\/\/|^\/\/|^cid\:|^data\:|^#)/Ui', $url)) {
-                        $cid = 'cid:' . md5(basename((string) $url));
+                        $cid = 'cid:' . md5(basename($url));
 
                         if (!isset($this->attachments['inline'][$cid])) {
                             $this->attach($url, true, $cid);
@@ -223,11 +225,11 @@ abstract class Driver
                         );
                     } elseif (
                         $scheme = Arr::get($this->config, 'protocol_replacement', false)
-                        && 0 === strpos((string) $url, '//')
+                        && 0 === strpos($url, '//')
                     ) {
                         $html = preg_replace(
                             '/' . $images[1][$i] . '="' . preg_quote($url, '/') . '"/Ui',
-                            $images[1][$i] . '="' . $scheme . substr((string) $url, 2) . '"',
+                            $images[1][$i] . '="' . $scheme . substr($url, 2) . '"',
                             $html
                         );
                     }
@@ -447,8 +449,8 @@ abstract class Driver
         }
 
         $disp = $inline ? 'inline' : 'attachment';
-        $cid = empty($cid) ? 'cid:' . md5($file[1]) : trim($cid);
-        $cid = (0 === strpos((string) $cid, 'cid:')) ? $cid : 'cid:' . $cid;
+        $cid = empty($cid) ? 'cid:' . md5($file[1]) : trim((string) $cid);
+        $cid = (0 === strpos($cid, 'cid:')) ? $cid : 'cid:' . $cid;
 
         $mime = $mime ? $mime : static::mime($file[0]);
         $contents = chunk_split(base64_encode($contents), 76, $this->config['newline']);
@@ -471,8 +473,8 @@ abstract class Driver
     public function string_attach($contents, $filename, $cid = null, $inline = false, $mime = null)
     {
         $disp = $inline ? 'inline' : 'attachment';
-        $cid = empty($cid) ? 'cid:' . md5($filename) : trim($cid);
-        $cid = (0 === strpos((string) $cid, 'cid:')) ? $cid : 'cid:' . $cid;
+        $cid = empty($cid) ? 'cid:' . md5($filename) : trim((string) $cid);
+        $cid = (0 === strpos($cid, 'cid:')) ? $cid : 'cid:' . $cid;
 
         $mime = $mime ? $mime : static::mime($filename);
         $file = [$filename, basename((string) $filename)];
@@ -639,7 +641,7 @@ abstract class Driver
 
         $wrapping = $this->config['wordwrap'];
         $qp_mode = ($encoding === 'quoted-printable');
-        $as_html = (false !== stripos((string) $this->type, 'html'));
+        $as_html = (false !== stripos($this->type, 'html'));
 
         if ($wrapping && !$qp_mode) {
             $this->body = static::wrap($this->body, $wrapping, $newline, $as_html);
@@ -789,11 +791,11 @@ abstract class Driver
                 case 'html_attach':
                 case 'html_inline':
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $type = (false !== stripos((string) $this->type, 'html')) ? 'html' : 'plain';
+                    $type = (false !== stripos($this->type, 'html')) ? 'html' : 'plain';
                     $body .= 'Content-Type: text/' . $type . '; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->body . $eol . $eol;
-                    $type = (false !== stripos((string) $this->type, 'attach')) ? 'attachment' : 'inline';
+                    $type = (false !== stripos($this->type, 'attach')) ? 'attachment' : 'inline';
                     $body .= $this->get_attachment_headers($type, $this->boundaries[0]);
                     $body .= '--' . $this->boundaries[0] . '--';
                     break;
@@ -822,7 +824,7 @@ abstract class Driver
                     $body .= 'Content-Type: multipart/alternative;' . $eol
                         . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
 
-                    if (false !== stripos((string) $this->type, 'alt')) {
+                    if (false !== stripos($this->type, 'alt')) {
                         $body .= '--' . $this->boundaries[1] . $eol;
                         $body .= 'Content-Type: text/plain; charset=utf-8' . $eol;
                         $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
@@ -834,7 +836,7 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->body . $eol . $eol;
 
-                    if (false !== stripos((string) $this->type, 'inline')) {
+                    if (false !== stripos($this->type, 'inline')) {
                         $body .= $this->get_attachment_headers('inline', $this->boundaries[1]);
                         $body .= $this->alt_body . $eol . $eol;
                     }

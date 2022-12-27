@@ -503,8 +503,8 @@ class Query
      */
     private function dynamic_where($method, array $parameters)
     {
-        $keyword = substr((string) $method, 6);
-        $segments = preg_split('/(_and_|_or_)/i', $keyword, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $method = substr((string) $method, 6);
+        $segments = (array) preg_split('/(_and_|_or_)/i', $method, -1, PREG_SPLIT_DELIM_CAPTURE);
         $connector = 'AND';
 
         $index = 0;
@@ -514,7 +514,7 @@ class Query
                 $this->where($segment, '=', $parameters[$index], $connector);
                 ++$index;
             } else {
-                $connector = trim(strtoupper((string) $segment), '_');
+                $connector = trim(strtoupper($segment), '_');
             }
         }
 
@@ -904,7 +904,9 @@ class Query
      */
     public function __call($method, array $parameters)
     {
-        if (0 === strpos((string) $method, 'where_')) {
+        $method = (string) $method;
+
+        if (0 === strpos($method, 'where_')) {
             return $this->dynamic_where($method, $parameters, $this);
         }
 
@@ -913,7 +915,7 @@ class Query
                 $parameters[0] = '*';
             }
 
-            return $this->aggregate(strtoupper((string) $method), (array) $parameters[0]);
+            return $this->aggregate(strtoupper($method), (array) $parameters[0]);
         }
 
         throw new \Exception(sprintf('Method is not defined: %s', $method));

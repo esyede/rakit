@@ -124,13 +124,13 @@ class Request
     {
         $request = new static($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
 
-        $type = $request->server->get('CONTENT_TYPE');
-        $httpType = $request->server->get('HTTP_CONTENT_TYPE');
-        $method = $request->server->get('REQUEST_METHOD', 'GET');
+        $type = (string) $request->server->get('CONTENT_TYPE');
+        $httpType = (string) $request->server->get('HTTP_CONTENT_TYPE');
+        $method = (string) $request->server->get('REQUEST_METHOD', 'GET');
 
-        if ((0 === strpos((string) $type, 'application/x-www-form-urlencoded')
-                || (0 === strpos((string) $httpType, 'application/x-www-form-urlencoded')))
-            && in_array(strtoupper((string) $method), ['PUT', 'DELETE', 'PATCH'])
+        if ((0 === strpos($type, 'application/x-www-form-urlencoded')
+                || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
+            && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])
         ) {
             parse_str($request->getContent(), $data);
             $request->request = new Parameter($data);
@@ -205,16 +205,20 @@ class Request
             $components['path'] = '/';
         }
 
-        switch (strtoupper((string) $method)) {
+        $method = strtoupper((string) $method);
+
+        switch ($method) {
             case 'POST':
             case 'PUT':
             case 'DELETE':
                 $defaults['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
                 // no break, memang sengaja.
+
             case 'PATCH':
                 $request = $parameters;
                 $query = [];
                 break;
+
             default:
                 $request = [];
                 $query = $parameters;
@@ -226,14 +230,13 @@ class Request
             $query = array_replace($string, $query);
         }
 
-        $queryString = http_build_query($query, '', '&');
-        $uri = $components['path'] . ('' !== $queryString ? '?' . $queryString : '');
-
+        $qs = http_build_query($query, '', '&');
+        $uri = $components['path'] . ('' !== $qs ? '?' . $qs : '');
         $server = array_replace($defaults, $server, [
-            'REQUEST_METHOD' => strtoupper((string) $method),
+            'REQUEST_METHOD' => $method,
             'PATH_INFO' => '',
             'REQUEST_URI' => $uri,
-            'QUERY_STRING' => $queryString,
+            'QUERY_STRING' => $qs,
         ]);
 
         return new static($query, $request, [], $cookies, $files, $server, $content);
@@ -343,7 +346,7 @@ class Request
         $headers = $this->headers->all();
 
         foreach ($headers as $key => $value) {
-            $key = strtoupper((string) str_replace('-', '_', $key));
+            $key = strtoupper(str_replace('-', '_', (string) $key));
 
             if (in_array($key, ['CONTENT_TYPE', 'CONTENT_LENGTH'])) {
                 $_SERVER[$key] = implode(', ', $value);
@@ -355,8 +358,8 @@ class Request
         $request = ['g' => $_GET, 'p' => $_POST, 'c' => $_COOKIE];
 
         $orderings = ini_get('request_order');
-        $orderings = $orderings ? $orderings : ini_get('variable_order');
-        $orderings = preg_replace('/[^cgp]/', '', strtolower((string) $orderings));
+        $orderings = (string) ($orderings ? $orderings : ini_get('variable_order'));
+        $orderings = preg_replace('/[^cgp]/', '', strtolower($orderings));
         $orderings = $orderings ? $orderings : 'gp';
 
         $_REQUEST = [];
@@ -814,7 +817,7 @@ class Request
             }
         }
 
-        $host = strtolower((string) preg_replace('/:\d+$/', '', trim($host)));
+        $host = strtolower(preg_replace('/:\d+$/', '', trim((string) $host)));
 
         if ($host && !preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host)) {
             throw new \UnexpectedValueException(sprintf('Invalid host: %s', $host));
@@ -880,8 +883,10 @@ class Request
      */
     public function getFormat($mimeType)
     {
-        if (false !== $pos = strpos((string) $mimeType, ';')) {
-            $mimeType = substr((string) $mimeType, 0, $pos);
+        $mimeType = (string) $mimeType;
+
+        if (false !== $pos = strpos($mimeType, ';')) {
+            $mimeType = substr($mimeType, 0, $pos);
         }
 
         if (null === static::$formats) {
@@ -1193,7 +1198,7 @@ class Request
 
         foreach (array_filter(explode(',', $header)) as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
-                $q = substr((string) trim($match[1]), 2);
+                $q = substr(trim((string) $match[1]), 2);
                 $value = trim(substr((string) $value, 0, -mb_strlen((string) $match[0], '8bit')));
             } else {
                 $q = 1;
@@ -1232,11 +1237,11 @@ class Request
         ) {
             $requestUri = $this->server->get('UNENCODED_URL');
         } elseif ($this->server->has('REQUEST_URI')) {
-            $requestUri = $this->server->get('REQUEST_URI');
-            $schemeAndHttpHost = $this->getSchemeAndHttpHost();
+            $requestUri = (string) $this->server->get('REQUEST_URI');
+            $schemeAndHttpHost = (string) $this->getSchemeAndHttpHost();
 
-            if (0 === strpos((string) $requestUri, $schemeAndHttpHost)) {
-                $requestUri = substr((string) $requestUri, mb_strlen($schemeAndHttpHost, '8bit'));
+            if (0 === strpos($requestUri, $schemeAndHttpHost)) {
+                $requestUri = substr($requestUri, mb_strlen($schemeAndHttpHost, '8bit'));
             }
         } elseif ($this->server->has('ORIG_PATH_INFO')) {
             $requestUri = $this->server->get('ORIG_PATH_INFO');
@@ -1259,9 +1264,9 @@ class Request
         $filename = basename((string) $this->server->get('SCRIPT_FILENAME'));
 
         if (basename((string) $this->server->get('SCRIPT_NAME')) === $filename) {
-            $baseUrl = $this->server->get('SCRIPT_NAME');
+            $baseUrl = (string) $this->server->get('SCRIPT_NAME');
         } elseif (basename((string) $this->server->get('PHP_SELF')) === $filename) {
-            $baseUrl = $this->server->get('PHP_SELF');
+            $baseUrl = (string) $this->server->get('PHP_SELF');
         } elseif (basename((string) $this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
             // Kompatibilitas shared hosting 1and1.com
             $baseUrl = $this->server->get('ORIG_SCRIPT_NAME');
@@ -1282,14 +1287,14 @@ class Request
             } while ($last > $index && (false !== ($pos = strpos($path, $baseUrl))) && 0 !== $pos);
         }
 
-        $requestUri = $this->getRequestUri();
+        $requestUri = (string) $this->getRequestUri();
         $prefix = $this->getUrlencodedPrefix($requestUri, $baseUrl);
 
         if ($baseUrl && false !== $prefix) {
             return $prefix;
         }
 
-        $prefix = $this->getUrlencodedPrefix($requestUri, dirname((string) $baseUrl));
+        $prefix = $this->getUrlencodedPrefix($requestUri, dirname($baseUrl));
 
         if ($baseUrl && false !== $prefix) {
             return rtrim($prefix, '/');
@@ -1297,21 +1302,21 @@ class Request
 
         $truncatedUri = $requestUri;
 
-        if (false !== ($pos = strpos((string) $requestUri, '?'))) {
-            $truncatedUri = substr((string) $requestUri, 0, $pos);
+        if (false !== ($pos = strpos($requestUri, '?'))) {
+            $truncatedUri = substr($requestUri, 0, $pos);
         }
 
-        $basename = basename((string) $baseUrl);
+        $basename = basename($baseUrl);
 
-        if (empty($basename) || !strpos((string) rawurldecode($truncatedUri), $basename)) {
+        if (empty($basename) || !strpos(rawurldecode($truncatedUri), $basename)) {
             return '';
         }
 
         if ((mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit'))
-            && ((false !== ($pos = strpos((string) $requestUri, $baseUrl)))
+            && ((false !== ($pos = strpos($requestUri, $baseUrl)))
                 && (0 !== $pos))
         ) {
-            $baseUrl = substr((string) $requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
+            $baseUrl = substr($requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
         }
 
         return rtrim($baseUrl, '/');
@@ -1325,17 +1330,13 @@ class Request
     protected function prepareBasePath()
     {
         $filename = basename((string) $this->server->get('SCRIPT_FILENAME'));
-        $baseUrl = $this->getBaseUrl();
+        $baseUrl = (string) $this->getBaseUrl();
 
         if (empty($baseUrl)) {
             return '';
         }
 
-        if (basename((string) $baseUrl) === $filename) {
-            $basePath = dirname((string) $baseUrl);
-        } else {
-            $basePath = $baseUrl;
-        }
+        $basePath = (basename($baseUrl) === $filename) ? dirname($baseUrl) : $baseUrl;
 
         // Windows memang nyebelin
         if ('\\' === DIRECTORY_SEPARATOR) {

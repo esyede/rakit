@@ -14,10 +14,12 @@ class Barcode extends Base
 
     protected static function eanChecksum($input)
     {
-        $sequence = (8 === (mb_strlen((string) $input, '8bit') - 1)) ? [3, 1] : [1, 3];
+        $input = (string) $input;
+        $sequence = (8 === (mb_strlen($input, '8bit') - 1)) ? [3, 1] : [1, 3];
+        $inputs = str_split($input);
         $sums = 0;
 
-        foreach (str_split($input) as $n => $digit) {
+        foreach ($inputs as $n => $digit) {
             $sums += $digit * $sequence[$n % 2];
         }
 
@@ -26,9 +28,10 @@ class Barcode extends Base
 
     protected static function isbnChecksum($input)
     {
+        $input = (string) $input;
         $length = 9;
 
-        if ($length !== mb_strlen((string) $input, '8bit')) {
+        if ($length !== mb_strlen($input, '8bit')) {
             throw new \LengthException(sprintf('Input length should be equal to %s', $length));
         }
 

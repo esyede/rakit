@@ -55,7 +55,7 @@ abstract class Relationship extends Query
         }
 
         $model = is_object($model) ? class_basename($model) : $model;
-        return strtolower((string) basename((string) $model) . '_id');
+        return strtolower(basename((string) $model) . '_id');
     }
 
     /**

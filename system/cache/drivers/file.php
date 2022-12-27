@@ -53,11 +53,11 @@ class File extends Driver
         }
 
         $cache = Storage::get($this->path . $key);
-        $cache = $this->unguard($cache);
+        $cache = (string) $this->unguard($cache);
 
-        return (time() >= substr((string) $cache, 0, 10))
+        return (time() >= substr($cache, 0, 10))
             ? $this->forget($key)
-            : unserialize(substr((string) $cache, 10));
+            : unserialize(substr($cache, 10));
     }
 
     /**
@@ -109,7 +109,7 @@ class File extends Driver
      */
     protected function naming($key)
     {
-        return sprintf('%u', crc32((string) $key)) . '.cache.php';
+        return sprintf('%u', crc32($key)) . '.cache.php';
     }
 
     /**

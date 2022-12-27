@@ -256,7 +256,7 @@ class Smtp extends Driver
         }
 
         $response = $this->response();
-        $number = (int) substr((string) trim($response), 0, 3);
+        $number = (int) substr(trim((string) $response), 0, 3);
 
         if (false !== $expecting && !in_array($number, $expecting)) {
             throw new \Exception(sprintf(
@@ -281,7 +281,7 @@ class Smtp extends Driver
 
         stream_set_timeout($this->connection, $this->config['smtp']['timeout']);
 
-        while ($str = fgets($this->connection, 512)) {
+        while ($str = (string) fgets($this->connection, 512)) {
             $info = stream_get_meta_data($this->connection);
 
             if (isset($info['timed_out']) && $info['timed_out']) {
@@ -290,7 +290,7 @@ class Smtp extends Driver
 
             $data .= $str;
 
-            if (' ' === substr((string) $str, 3, 1)) {
+            if (' ' === substr($str, 3, 1)) {
                 break;
             }
         }

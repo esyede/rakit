@@ -88,7 +88,7 @@ class Package
 
         Event::fire('rakit.booted: ' . $package);
 
-        static::$booted[] = strtolower((string) $package);
+        static::$booted[] = strtolower($package);
     }
 
     /**
@@ -251,9 +251,9 @@ class Package
     {
         if (is_null($package) || DEFAULT_PACKAGE === $package) {
             return path('app');
-        } elseif ($location = Arr::get(static::$packages, $package . '.location')) {
-            if (Str::starts_with($location, 'path: ')) {
-                return Str::finish(substr((string) $location, 6), DS);
+        } elseif ($location = (string) Arr::get(static::$packages, $package . '.location')) {
+            if (0 === strpos($location, 'path: ')) {
+                return Str::finish(substr($location, 6), DS);
             }
 
             return Str::finish(path('package') . $location, DS);
@@ -366,10 +366,12 @@ class Package
      */
     public static function parse($identifier)
     {
+        $identifier = (string) $identifier;
+
         if (!isset(static::$elements[$identifier])) {
-            static::$elements[$identifier] = (false !== strpos((string) $identifier, '::'))
-                ? explode('::', strtolower((string) $identifier))
-                : [DEFAULT_PACKAGE, strtolower((string) $identifier)];
+            static::$elements[$identifier] = (false !== strpos($identifier, '::'))
+                ? explode('::', strtolower($identifier))
+                : [DEFAULT_PACKAGE, strtolower($identifier)];
         }
 
         return static::$elements[$identifier];

@@ -48,12 +48,10 @@ class Middleware
      */
     public static function register($name, callable $handler)
     {
-        if (isset(static::$aliases[$name])) {
-            $name = static::$aliases[$name];
-        }
+        $name = (string) (isset(static::$aliases[$name]) ? static::$aliases[$name] : $name);
 
-        if (Str::starts_with($name, 'pattern: ')) {
-            $patterns = explode(', ', substr((string) $name, 9));
+        if (0 === strpos($name, 'pattern: ')) {
+            $patterns = explode(', ', substr($name, 9));
 
             foreach ($patterns as $pattern) {
                 static::$patterns[$pattern] = $handler;

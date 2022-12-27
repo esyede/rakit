@@ -119,9 +119,12 @@ class Redis
      */
     protected function parse($response)
     {
-        switch (substr((string) $response, 0, 1)) {
+        $response = (string) $response;
+        $type = substr($response, 0, 1);
+
+        switch ($type) {
             case '-':
-                throw new \Exception(sprintf('Redis error: %s', substr((string) trim($response), 4)));
+                throw new \Exception(sprintf('Redis error: %s', substr(trim($response), 4)));
 
             case '+':
             case ':':
@@ -134,7 +137,7 @@ class Redis
                 return $this->multibulk($response);
 
             default:
-                throw new \Exception(sprintf('Unknown response: %s', substr((string) $response, 0, 1)));
+                throw new \Exception(sprintf("Unknown response type: '%s'", $type));
         }
     }
 
@@ -179,9 +182,9 @@ class Redis
      */
     protected function command($method, array $parameters)
     {
+        $method = (string) $method;
         $command = '*' . (count($parameters) + 1) . CRLF .
-            '$' . mb_strlen((string) $method, '8bit') . CRLF .
-            strtoupper((string) $method) . CRLF;
+            '$' . mb_strlen($method, '8bit') . CRLF . strtoupper($method) . CRLF;
 
         foreach ($parameters as $parameter) {
             $command .= '$' . mb_strlen((string) $parameter, '8bit') . CRLF . $parameter . CRLF;
@@ -199,7 +202,7 @@ class Redis
      */
     protected function inline($response)
     {
-        return substr((string) trim($response), 1);
+        return substr(trim((string) $response), 1);
     }
 
     /**
@@ -239,14 +242,17 @@ class Redis
      */
     protected function multibulk($head)
     {
-        if ('-1' === ($count = substr((string) $head, 1))) {
+        $count = substr((string) $head, 1);
+
+        if ('-1' === $count) {
             return;
         }
 
         $response = [];
+        $count = (int) $count;
 
         for ($i = 0; $i < $count; ++$i) {
-            $response[] = $this->parse(trim(fgets($this->connection, 512)));
+            $response[] = $this->parse(trim((string) fgets($this->connection, 512)));
         }
 
         return $response;

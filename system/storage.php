@@ -309,7 +309,7 @@ class Storage
      */
     public static function chmod($path, $mode = null)
     {
-        return $mode ? chmod($path, $mode) : substr((string) sprintf('%o', fileperms($path)), -4);
+        return $mode ? chmod($path, $mode) : substr(sprintf('%o', fileperms($path)), -4);
     }
 
     /**
@@ -477,7 +477,7 @@ class Storage
             return;
         }
 
-        $path = is_file($path) ? rtrim(dirname((string) $path), DS) : $path;
+        $path = is_file($path) ? rtrim(dirname($path), DS) : $path;
 
         if (!is_file($file = $path . DS . 'index.html')) {
             static::put($file, 'No direct script access.' . PHP_EOL);

@@ -109,10 +109,11 @@ abstract class Provider
         $type = curl_getinfo($ch);
         $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
 
-        if (false === strpos((string) $type, 'application/zip')) {
+        if (!is_string($type) || false === strpos($type, 'application/zip')) {
             echo PHP_EOL . sprintf(
-                "Error: Remote sever sending an invalid content type: '%s', expecting '%s'",
-                $type ? $type : 'null',
+                "Error: Remote sever sending an invalid content type: '%s (%s)', expecting '%s'",
+                $type,
+                gettype($type),
                 'application/zip'
             ) . PHP_EOL;
             exit;

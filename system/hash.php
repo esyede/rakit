@@ -40,7 +40,7 @@ class Hash
             './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
         );
 
-        $salt = mb_substr((string) $salt, 0, 22, '8bit');
+        $salt = mb_substr($salt, 0, 22, '8bit');
         $hash = crypt($password, sprintf('$2y$%02d$', $cost) . $salt);
 
         if (!is_string($hash) || 60 !== mb_strlen((string) $hash, '8bit')) {
@@ -69,14 +69,14 @@ class Hash
 
         if (
             !is_string($crypt)
-            || mb_strlen((string) $crypt, '8bit') !== mb_strlen((string) $hash, '8bit')
-            || mb_strlen((string) $crypt, '8bit') <= 13
+            || mb_strlen($crypt, '8bit') !== mb_strlen($hash, '8bit')
+            || mb_strlen($crypt, '8bit') <= 13
         ) {
             return false;
         }
 
         $status = 0;
-        $length = mb_strlen((string) $crypt, '8bit');
+        $length = mb_strlen($crypt, '8bit');
 
         for ($i = 0; $i < $length; $i++) {
             $status |= (ord($crypt[$i]) ^ ord($hash[$i]));
@@ -96,14 +96,13 @@ class Hash
      */
     public static function weak($hash, $cost = 10)
     {
+        $hash = (string) $hash;
+
         if (!is_int($cost) || $cost < 4 || $cost > 31) {
             throw new \Exception('Cost parameter must be an integer between 4 to 31.');
         }
 
-        if (
-            '$2y$' === mb_substr((string) $hash, 0, 4, '8bit')
-            && 60 === mb_strlen((string) $hash, '8bit')
-        ) {
+        if ('$2y$' === mb_substr($hash, 0, 4, '8bit') && 60 === mb_strlen($hash, '8bit')) {
             list($strength) = sscanf($hash, '$2y$%d$');
             return $cost !== $strength;
         }

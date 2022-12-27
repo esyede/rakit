@@ -568,8 +568,8 @@ class Image
     public function reset()
     {
         if (
-            'resource' === strtolower((string) gettype($this->image))
-            && 'gd' === strtolower((string) get_resource_type($this->image))
+            false !== stripos(gettype($this->image), 'resource')
+            && 'gd' === strtolower(get_resource_type($this->image))
         ) {
             imagedestroy($this->image);
         }
@@ -651,7 +651,7 @@ class Image
     {
         $color = is_string($color) ? hexdec($color) : $color;
         $hex = str_pad(dechex($color), (($color < 4096) ? 3 : 6), '0', STR_PAD_LEFT);
-        $length = mb_strlen((string) $hex, '8bit');
+        $length = mb_strlen($hex, '8bit');
 
         if ($length > 6) {
             throw new \Exception(sprintf('Invalid color specified: 0x%s', $hex));

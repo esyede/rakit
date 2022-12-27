@@ -238,7 +238,7 @@ class Table
      */
     private function get_cell_output($index, array $row = [])
     {
-        $cell = $row ? $row[$index] : '-';
+        $cell = $row ? (string) $row[$index] : '-';
         $width = $this->column_widths[$index];
         $padding = str_repeat($row ? ' ' : '-', $this->padding);
 
@@ -248,7 +248,7 @@ class Table
 
         $cell = trim(preg_replace('/\s+/', ' ', $cell));
         $content = preg_replace('#\x1b[[][^A-Za-z]*[A-Za-z]#', '', $cell);
-        $delta = mb_strlen((string) $cell, 'UTF-8') - mb_strlen((string) $content, 'UTF-8');
+        $delta = mb_strlen($cell, 'UTF-8') - mb_strlen($content, 'UTF-8');
 
         $output .= $this->strpad($cell, $width + $delta, $row ? ' ' : '-');
         $output .= $padding;
@@ -267,13 +267,13 @@ class Table
         foreach ($this->data as $y => $row) {
             if (is_array($row)) {
                 foreach ($row as $x => $col) {
-                    $width = mb_strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
+                    $width = strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col));
 
                     if (!isset($this->column_widths[$x])) {
-                        $this->column_widths[$x] = mb_strlen((string) $width, '8bit');
+                        $this->column_widths[$x] = $width;
                     } else {
-                        if (strlen((string) $width) > $this->column_widths[$x]) {
-                            $this->column_widths[$x] = mb_strlen((string) $width, '8bit');
+                        if ($width > $this->column_widths[$x]) {
+                            $this->column_widths[$x] = $width;
                         }
                     }
                 }
@@ -310,11 +310,9 @@ class Table
         $repeat = ceil($len - $padlen + $amount);
 
         if (STR_PAD_RIGHT === $direction) {
-            $result = $str . str_repeat($content, $repeat);
-            $result = mb_substr((string) $result, 0, $amount, 'UTF-8');
+            $result = mb_substr($str . str_repeat($content, $repeat), 0, $amount, 'UTF-8');
         } elseif (STR_PAD_LEFT === $direction) {
-            $result = str_repeat($content, $repeat) . $str;
-            $result = mb_substr((string) $result, -$amount, null, 'UTF-8');
+            $result = mb_substr(str_repeat($content, $repeat) . $str, -$amount, null, 'UTF-8');
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
             $repeat = str_repeat((string) $content, ceil($length / $padlen));

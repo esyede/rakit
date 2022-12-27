@@ -937,9 +937,9 @@ class Upload extends \SplFileInfo
      */
     protected function getName($name)
     {
-        $original = str_replace('\\', '/', $name);
-        $position = strrpos((string) $original, '/');
-        $original = (false === $position) ? $original : substr((string) $original, $position + 1);
+        $original = str_replace('\\', '/', (string) $name);
+        $position = strrpos($original, '/');
+        $original = (false === $position) ? $original : substr($original, $position + 1);
 
         return $original;
     }
@@ -1050,13 +1050,15 @@ class Upload extends \SplFileInfo
      */
     public static function getMaxFilesize()
     {
-        $max = trim(ini_get('upload_max_filesize'));
+        $max = trim((string) ini_get('upload_max_filesize'));
 
         if ('' === $max) {
             return PHP_INT_MAX;
         }
 
-        switch (strtolower((string) substr((string) $max, -1))) {
+        $metric = strtolower(substr($max, -1));
+
+        switch ($metric) {
             case 't':
                 $max *= 1024; // No break, memang disengaja.
 

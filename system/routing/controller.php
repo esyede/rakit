@@ -194,7 +194,7 @@ abstract class Controller
      */
     protected static function load($package, $controller)
     {
-        $controller = strtolower((string) str_replace(['.', '/'], DS, $controller));
+        $controller = strtolower(str_replace(['.', '/'], DS, (string) $controller));
         $controller = Package::path($package) . 'controllers' . DS . $controller . '.php';
 
         if (is_file($controller)) {
@@ -321,9 +321,8 @@ abstract class Controller
      */
     public function layout()
     {
-        return Str::starts_with($this->layout, 'name: ')
-            ? View::of(substr((string) $this->layout, 6))
-            : View::make($this->layout);
+        $layout = (string) $this->layout;
+        return (0 === strpos($layout, 'name: ')) ? View::of(substr($layout, 6)) : View::make($layout);
     }
 
     /**

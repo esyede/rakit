@@ -63,7 +63,7 @@ class BelongsToMany extends Relationship
         $models = [class_basename($model), class_basename($associated)];
         sort($models);
 
-        return strtolower((string) $models[0] . '_' . $models[1]);
+        return strtolower($models[0] . '_' . $models[1]);
     }
 
     /**

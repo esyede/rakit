@@ -1293,13 +1293,14 @@ class Validator
      */
     protected function parse($rule)
     {
+        $rule = (string) $rule;
         $parameters = [];
 
-        if (false !== ($colon = strpos((string) $rule, ':'))) {
-            $parameters = str_getcsv(substr((string) $rule, $colon + 1));
+        if (false !== ($colon = strpos($rule, ':'))) {
+            $parameters = str_getcsv(substr($rule, $colon + 1));
         }
 
-        return [is_numeric($colon) ? substr((string) $rule, 0, $colon) : $rule, $parameters];
+        return [is_numeric($colon) ? substr($rule, 0, $colon) : $rule, $parameters];
     }
 
     /**

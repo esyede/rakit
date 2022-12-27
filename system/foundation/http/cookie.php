@@ -65,13 +65,7 @@ class Cookie
         $this->secure = (bool) $secure;
         $this->httpOnly = (bool) $httpOnly;
 
-        if ('' === $sameSite) {
-            $sameSite = null;
-        } elseif (null !== $sameSite) {
-            $sameSite = strtolower((string) $sameSite);
-        }
-
-        if (!in_array($sameSite, ['lax', 'strict', 'none', null], true)) {
+        if (!in_array(strtolower((string) $sameSite), ['lax', 'strict', 'none'])) {
             throw new \InvalidArgumentException('The "sameSite" parameter value is not valid.');
         }
 

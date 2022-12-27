@@ -222,7 +222,7 @@ class Blade
         $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
             $ws = empty($matches[3]) ? '' : $matches[3] . $matches[3];
             return $matches[1]
-                ? substr((string) $matches[0], 1)
+                ? substr($matches[0], 1)
                 : '<?php echo e(' . $compiler($matches[2]) . ') ?>' . $ws;
         }, $value);
 
@@ -572,8 +572,8 @@ class Blade
      */
     public static function compiled($path)
     {
-        $name = Str::replace_last('.blade.php', '', basename((string) $path));
-        $len = strlen((string) $path);
+        $name = Str::replace_last('.blade.php', '', basename($path));
+        $len = strlen($path);
         $hash = 0xFFFF;
 
         for ($i = 0; $i < $len; $i++) {

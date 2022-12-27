@@ -2,8 +2,6 @@
 
 namespace System;
 
-use DateTime;
-
 defined('DS') or exit('No direct script access.');
 
 class JWT
@@ -45,8 +43,7 @@ class JWT
      */
     public static function encode(array $payloads, $secret, $algorithm = 'HS256', array $headers = [])
     {
-        $timestamp = static::$timestamp ? static::$timestamp : time();
-        $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
+        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
         $headers = $headers + ['typ' => 'JWT', 'alg' => $algorithm];
 
         $headers = static::encode_url(static::encode_json($headers));
@@ -174,7 +171,7 @@ class JWT
      */
     private static function verify($payload, $signature, $secret, $algorithm)
     {
-        $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
+        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(

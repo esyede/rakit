@@ -193,6 +193,9 @@ class Helper extends Header
      */
     public function makeDisposition($disposition, $filename, $filenameFallback = '')
     {
+        $filename = (string) $filename;
+        $filenameFallback = (string) $filenameFallback;
+
         if (!in_array($disposition, [self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE])) {
             throw new \InvalidArgumentException(sprintf(
                 "The disposition must be either '%s' or '%s'.",
@@ -211,17 +214,17 @@ class Helper extends Header
             );
         }
 
-        if (false !== strpos((string) $filenameFallback, '%')) {
+        if (false !== strpos($filenameFallback, '%')) {
             throw new \InvalidArgumentException(
                 "The filename fallback cannot contain the '%' character."
             );
         }
 
         if (
-            false !== strpos((string) $filename, '/')
-            || false !== strpos((string) $filename, '\\')
-            || false !== strpos((string) $filenameFallback, '/')
-            || false !== strpos((string) $filenameFallback, '\\')
+            false !== strpos($filename, '/')
+            || false !== strpos($filename, '\\')
+            || false !== strpos($filenameFallback, '/')
+            || false !== strpos($filenameFallback, '\\')
         ) {
             throw new \InvalidArgumentException(
                 "The filename and the fallback cannot contain the '/' and '\' characters."

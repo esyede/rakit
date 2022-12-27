@@ -14,7 +14,7 @@ defined('DS') or exit('No direct script access.');
 $dir = path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
 
 if (is_file($path = path('rakit_key'))) {
-    if (!is_readable(dirname((string) $path))) {
+    if (!is_readable(dirname($path))) {
         http_response_code(500);
         require $dir . DS . 'unreadable.phtml';
 

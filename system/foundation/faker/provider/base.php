@@ -182,9 +182,10 @@ class Base
 
     public static function numerify($string = '###')
     {
+        $string = (string) $string;
         $replacing = [];
 
-        for ($i = 0, $count = mb_strlen((string) $string, '8bit'); $i < $count; ++$i) {
+        for ($i = 0, $count = mb_strlen($string, '8bit'); $i < $count; ++$i) {
             if ('#' === $string[$i]) {
                 $replacing[] = $i;
             }

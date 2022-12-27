@@ -1039,8 +1039,10 @@ if (!function_exists('get_cli_option')) {
 
         if (is_array($arguments)) {
             foreach ($arguments as $argument) {
-                if (\System\Str::starts_with($argument, '--' . $option . '=')) {
-                    return substr((string) $argument, mb_strlen((string) $option, '8bit') + 3);
+                $argument = (string) $argument;
+
+                if (0 === strpos($argument, '--' . $option . '=')) {
+                    return substr($argument, mb_strlen($option, '8bit') + 3);
                 }
             }
         }

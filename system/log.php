@@ -22,7 +22,7 @@ class Log
      */
     public static function channel($name = null)
     {
-        $name = (is_string($name) && strlen((string) $name)) ? Str::slug($name) : date('Y-m-d');
+        $name = (is_string($name) && strlen($name)) ? Str::slug($name) : date('Y-m-d');
         static::$channel = Str::replace_last('.log', '', Str::replace_last('.php', '', $name));
     }
 
@@ -75,7 +75,7 @@ class Log
             ));
         }
 
-        $message .= ($data === null)
+        $message .= (null === $data)
             ? '(null)'
             : Foundation\Oops\Dumper::toText($data, ['truncate' => PHP_INT_MAX]);
 
@@ -84,7 +84,7 @@ class Log
         }
 
         $channel = static::$channel;
-        $channel = (is_string($channel) && strlen((string) $channel)) ? Str::slug($channel) : date('Y-m-d');
+        $channel = (is_string($channel) && strlen($channel)) ? Str::slug($channel) : date('Y-m-d');
         $path = path('storage') . 'logs' . DS . $channel . '.log.php';
         $message = static::format($type, $message);
 
@@ -105,7 +105,9 @@ class Log
      */
     protected static function format($type, $message)
     {
+        $type = strtoupper((string) $type);
         $context = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
-        return '[' . date('Y-m-d H:i:s') . '] ' . $context . '.' . strtoupper((string) $type) . ': ' . $message . PHP_EOL;
+
+        return sprintf('[%s] %s.%s: %s' . PHP_EOL, date('Y-m-d H:i:s'), $context, $type, $message);
     }
 }

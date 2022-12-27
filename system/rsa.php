@@ -30,11 +30,12 @@ class RSA
         static::generate();
         $pub = openssl_pkey_get_public(static::$details['public_key']);
         $length = ceil(openssl_pkey_get_details($pub)['bits'] / 8) - 11;
+        $data = (string) $data;
         $result = '';
 
         while ($data) {
-            $chunk = mb_substr((string) $data, 0, $length, '8bit');
-            $data = mb_substr((string) $data, $length, null, '8bit');
+            $chunk = mb_substr($data, 0, $length, '8bit');
+            $data = mb_substr($data, $length, null, '8bit');
             $temp = '';
 
             if (!openssl_public_encrypt($chunk, $temp, $pub)) {
@@ -71,8 +72,9 @@ class RSA
         $result = '';
 
         while ($encrypted) {
-            $chunk = mb_substr((string) $encrypted, 0, $length, '8bit');
-            $encrypted = mb_substr((string) $encrypted, $length, null, '8bit');
+            $encrypted = (string) $encrypted;
+            $chunk = mb_substr($encrypted, 0, $length, '8bit');
+            $encrypted = mb_substr($encrypted, $length, null, '8bit');
             $temp = '';
 
             if (!openssl_private_decrypt($chunk, $temp, $priv)) {

@@ -77,14 +77,14 @@ class Resolver
 
         foreach ($migrations as $migration) {
             $migration = (array) $migration;
-            $package = $migration['package'];
-            $name = $migration['name'];
+            $package = (string) $migration['package'];
+            $name = (string) $migration['name'];
             $path = Package::path($package) . 'migrations' . DS;
 
             require_once $path . $name . '.php';
 
             $prefix = Package::class_prefix($package);
-            $class = $prefix . Str::classify(substr((string) $name, 18));
+            $class = $prefix . Str::classify(substr($name, 18));
             $migration = new $class();
             $instances[] = compact('package', 'name', 'migration');
         }

@@ -223,7 +223,7 @@ class Response
             throw new \Exception(sprintf('Target file not found: %s', $path));
         }
 
-        $name = is_null($name) ? basename((string) $path) : $name;
+        $name = is_null($name) ? basename($path) : $name;
         $response = new static(Storage::get($path), 200, array_merge($headers, [
             'Content-Description' => 'File Transfer',
             'Content-Type' => Storage::mime($path),
