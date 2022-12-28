@@ -1362,7 +1362,7 @@ class Validator
      */
     public function __call($method, $parameters)
     {
-        if (isset(static::$validators[$method = substr((string) $method, 9)])) {
+        if (isset(static::$validators[$method = substr($method, 9)])) {
             return call_user_func_array(static::$validators[$method], $parameters);
         }
 

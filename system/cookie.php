@@ -45,7 +45,7 @@ class Cookie
      */
     public static function get($name, $default = null)
     {
-        if (isset(static::$jar[$name])) {
+        if (isset(static::$jar[$name]) && isset(static::$jar[$name]['value'])) {
             return Crypter::decrypt(static::$jar[$name]['value']);
         }
 
