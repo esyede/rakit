@@ -1,5 +1,5 @@
 ## Berkontribusi ke rakit
 
-  - [Laporkan masalah](http://github.com/esyede/rakit/issues)
-  - [Beri saran atau masukan](http://rakit.esyede.my.id/forum)
-  - [Kirim pull request](http://github.com/esyede/rakit/pulls)
+  - [Laporkan masalah](https://github.com/esyede/rakit/issues)
+  - [Beri saran atau masukan](https://github.com/esyede/rakit/discussions)
+  - [Kirim pull request](https://github.com/esyede/rakit/pulls)
