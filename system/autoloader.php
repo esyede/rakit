@@ -170,6 +170,8 @@ class Autoloader
      */
     protected static function format_mappings(array $mappings, $append)
     {
+        $namespaces = [];
+
         foreach ($mappings as $namespace => $directory) {
             $namespace = trim($namespace, $append) . $append;
             unset(static::$namespaces[$namespace]);

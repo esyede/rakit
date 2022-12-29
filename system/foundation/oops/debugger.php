@@ -547,7 +547,7 @@ class Debugger
 
         $message = 'PHP ' . Helpers::errorTypeToString($severity)
             . ': ' . Helpers::improveError($message, $context);
-        $count = &self::getBar()->getPanel('Oops:errors')->data["$file|$line|$message"];
+        $count = &self::getBar()->getPanel('Oops:info')->data["$file|$line|$message"];
 
         if ($count++) {
             return;

@@ -10,6 +10,10 @@ class Defaults
     const SQL_KEYWORDS2 = 'ALL|DISTINCT|DISTINCTROW|IGNORE|AS|USING|ON|AND|OR|IN|IS|NOT|NULL|[RI]?LIKE|REGEXP|TRUE|FALSE';
 
     public $data;
+    public $time;
+    public $profiler;
+    public $cpuUsage;
+
     private $id;
 
     public function __construct($id)
