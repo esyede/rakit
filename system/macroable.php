@@ -21,7 +21,7 @@ trait Macroable
      *
      * @return void
      */
-    public static function macro($name, callable $handler)
+    public static function macro($name, $handler)
     {
         static::$macros[$name] = $handler;
     }
@@ -34,7 +34,7 @@ trait Macroable
      *
      * @return void
      */
-    public static function mixin(callable $mixin, $replace = true)
+    public static function mixin($mixin, $replace = true)
     {
         $methods = (new \ReflectionClass($mixin))
             ->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED);
