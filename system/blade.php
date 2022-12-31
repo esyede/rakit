@@ -69,7 +69,7 @@ class Blade
 
             $compiled = static::compiled($view->path);
 
-            if (!is_file($compiled) || static::expired($view->view, $view->path)) {
+            if (!is_file($compiled) || static::expired($view->path)) {
                 Storage::put($compiled, static::compile($view), LOCK_EX);
             }
 
@@ -99,12 +99,11 @@ class Blade
     /**
      * Periksa apakah view sudah "kadaluwarsa" dan perlu dikompilasi ulang.
      *
-     * @param string $view
      * @param string $path
      *
      * @return bool
      */
-    public static function expired($view, $path)
+    public static function expired($path)
     {
         return filemtime($path) > filemtime(static::compiled($path));
     }
