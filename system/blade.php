@@ -70,7 +70,7 @@ class Blade
             $compiled = static::compiled($view->path);
 
             if (!is_file($compiled) || static::expired($view->path)) {
-                Storage::put($compiled, static::compile($view), LOCK_EX);
+                file_put_contents($compiled, static::compile($view), LOCK_EX);
             }
 
             $view->path = $compiled;
@@ -133,7 +133,7 @@ class Blade
         $compilers = static::$compilers;
 
         foreach ($compilers as $compiler) {
-            if ('csrf' === $compiler && !Str::contains($value, '@csrf')) {
+            if ('csrf' === $compiler && false === strpos($value, '@csrf')) {
                 continue;
             }
 
