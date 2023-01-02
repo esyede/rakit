@@ -64,7 +64,11 @@ class RSA
         static::generate();
 
         if (!($priv = openssl_pkey_get_private(static::$details['private_key']))) {
-            throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $priv, gettype($priv)));
+            throw new \Exception(sprintf(
+                'Failed to obtain private key: %s (%s)',
+                $priv,
+                gettype($priv)
+            ));
         }
 
         $key = openssl_pkey_get_details($priv);
@@ -123,8 +127,9 @@ class RSA
 
             if (!static::$details['private_key']) {
                 $priv = openssl_pkey_new(static::$details['options']);
+                $config = ['config' => $config];
 
-                if (!openssl_pkey_export($priv, static::$details['private_key'], null, compact('config'))) {
+                if (!openssl_pkey_export($priv, static::$details['private_key'], null, $config)) {
                     $errors = null;
 
                     while (false !== ($message = openssl_error_string())) {
@@ -145,7 +150,10 @@ class RSA
                 static::$details['public_key'] = $details['key'];
             }
 
-            if ((static::$details['private_key'] || static::$details['public_key']) && PHP_VERSION_ID < 80000) {
+            if (
+                (static::$details['private_key'] || static::$details['public_key'])
+                && PHP_VERSION_ID < 80000
+            ) {
                 openssl_free_key($priv);
             }
 
