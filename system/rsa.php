@@ -127,9 +127,9 @@ class RSA
 
             if (!static::$details['private_key']) {
                 $priv = openssl_pkey_new(static::$details['options']);
-                $config = ['config' => $config];
+                $conf = ['config' => $config];
 
-                if (!openssl_pkey_export($priv, static::$details['private_key'], null, $config)) {
+                if (!openssl_pkey_export($priv, static::$details['private_key'], null, $conf)) {
                     $errors = null;
 
                     while (false !== ($message = openssl_error_string())) {
