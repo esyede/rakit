@@ -7,7 +7,6 @@ defined('DS') or exit('No direct script access.');
 use System\Arr;
 use System\Str;
 use System\Event;
-use System\Database;
 use System\Validator;
 
 abstract class Model
