@@ -106,7 +106,7 @@ class Helper extends Header
      *
      * @param Cookie $cookie
      */
-    public function setCookie(Cookie $cookie)
+    public function setCookie($cookie)
     {
         $this->cookies[$cookie->getDomain()][$cookie->getPath()][$cookie->getName()] = $cookie;
     }
