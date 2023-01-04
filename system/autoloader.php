@@ -57,10 +57,9 @@ class Autoloader
         }
 
         foreach (static::$namespaces as $namespace => $directory) {
-            if (
-                '' !== $namespace
-                && $namespace === substr((string) $class, 0, mb_strlen((string) $namespace, '8bit'))
-            ) {
+            $class_namespace = substr((string) $class, 0, strlen((string) $namespace));
+
+            if ('' !== $namespace && $namespace === $class_namespace) {
                 return static::load_namespaced($class, $namespace, $directory);
             }
         }
@@ -77,10 +76,7 @@ class Autoloader
      */
     protected static function load_namespaced($class, $namespace, $directory)
     {
-        return static::load_psr(
-            substr((string) $class, mb_strlen((string) $namespace, '8bit')),
-            $directory
-        );
+        return static::load_psr(substr((string) $class, strlen((string) $namespace)), $directory);
     }
 
     /**
