@@ -267,14 +267,10 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
 
                         <h3><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Configuration options</a></h3>
                         <div class="outer oops-collapsed">
-                            <?php ob_start();
-                            @phpinfo(INFO_CONFIGURATION | INFO_MODULES);
-                            echo preg_replace('#^.+<body>|</body>.+\z#s', '', ob_get_clean()) // @ phpinfo can be disabled
-                            ?>
+                            <?php $this->renderPhpInfo() ?>
                         </div>
                     </div>
                 </div>
-
 
                 <div class="panel">
                     <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">HTTP request</a></h2>

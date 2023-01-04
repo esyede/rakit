@@ -499,11 +499,13 @@ class Debugger
      *
      * @return bool|null
      */
-    public static function errorHandler($severity, $message, $file, $line, $context = [])
+    public static function errorHandler($severity, $message, $file, $line, $context = null)
     {
         if (self::$scream) {
             error_reporting(E_ALL);
         }
+
+        $context = (array) $context;
 
         if ($severity === E_RECOVERABLE_ERROR || $severity === E_USER_ERROR) {
             if (Helpers::findTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), '*::__toString')) {

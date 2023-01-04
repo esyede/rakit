@@ -448,4 +448,22 @@ class Panic
 
         return false;
     }
+
+    public function renderPhpInfo()
+    {
+        ob_start();
+        @phpinfo(INFO_LICENSE); // @ = phpinfo mungkin saja dimatikan
+        $license = ob_get_clean();
+
+        ob_start();
+        @phpinfo(INFO_CONFIGURATION | INFO_MODULES); // @ = phpinfo mungkin saja dimatikan
+        $info = ob_get_clean();
+
+        if (strpos($license, '<body') === false) {
+            echo '<pre class="oops-dump">', Helpers::escapeHtml($info), '</pre>';
+        } else {
+            $info = str_replace('<table', '<table class="oops-sortable"', $info);
+            echo preg_replace('#^.+<body>|</body>.+\z#s', '', $info);
+        }
+    }
 }
