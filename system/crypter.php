@@ -22,7 +22,8 @@ class Crypter
             throw new \Exception('Could not encrypt the data.');
         }
 
-        $mac = hash_hmac('sha256', base64_encode($iv) . $value, RAKIT_KEY);
+        $iv = base64_encode($iv);
+        $mac = hash_hmac('sha256', $iv . $value, RAKIT_KEY);
         $value = json_encode(compact('iv', 'value', 'mac'), JSON_UNESCAPED_SLASHES);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
