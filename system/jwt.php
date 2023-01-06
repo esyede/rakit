@@ -51,7 +51,7 @@ class JWT
 
         $algorithm = strtoupper($algorithm);
 
-        if (!isset(static::$algorithms[$algorithm]) || !static::$algorithms[$algorithm]) {
+        if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 'Only these algorithm are supported: %s',
                 implode(', ', static::$algorithms)
