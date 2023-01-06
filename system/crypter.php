@@ -7,7 +7,7 @@ defined('DS') or exit('No direct script access.');
 class Crypter
 {
     /**
-     * Enkrispsi string.
+     * Enkripsi string.
      *
      * @param string $value
      *
@@ -22,8 +22,7 @@ class Crypter
             throw new \Exception('Could not encrypt the data.');
         }
 
-        $iv = base64_encode($iv);
-        $mac = hash_hmac('sha256', $iv . $value, RAKIT_KEY);
+        $mac = hash_hmac('sha256', base64_encode($iv) . $value, RAKIT_KEY);
         $value = json_encode(compact('iv', 'value', 'mac'), JSON_UNESCAPED_SLASHES);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -46,7 +45,7 @@ class Crypter
         $iv = base64_decode($value['iv']);
         $value = openssl_decrypt($value['value'], 'aes-256-cbc', RAKIT_KEY, 0, $iv);
 
-        if ($value === false) {
+        if (false === $value) {
             throw new \Exception('Could not decrypt the data.');
         }
 
@@ -54,7 +53,7 @@ class Crypter
     }
 
     /**
-     * Cek kesamaan antara 2 hash.
+     * Cek kesamaan antara 2 string.
      *
      * @param string $known
      * @param string $compared
@@ -120,10 +119,10 @@ class Crypter
             return false;
         }
 
-        $items = ['iv', 'value', 'mac'];
+        $keys = ['iv', 'value', 'mac'];
 
-        foreach ($items as $item) {
-            if (!isset($value[$item]) || !is_string($value[$item])) {
+        foreach ($keys as $key) {
+            if (!isset($value[$key]) || !is_string($value[$key])) {
                 return false;
             }
         }
