@@ -16,16 +16,15 @@ class Crypter
     public static function encrypt($value)
     {
         $iv = Str::bytes(16);
-        $value = openssl_encrypt($value, 'aes-256-cbc', RAKIT_KEY, 0, $iv, $tag);
+        $value = openssl_encrypt($value, 'aes-256-cbc', RAKIT_KEY, 0, $iv);
 
         if (false === $value) {
             throw new \Exception('Could not encrypt the data.');
         }
 
         $iv = base64_encode($iv);
-        $tag = base64_encode($tag ? $tag : '');
         $mac = hash_hmac('sha256', $iv . $value, RAKIT_KEY);
-        $value = json_encode(compact('iv', 'value', 'mac', 'tag'), JSON_UNESCAPED_SLASHES);
+        $value = json_encode(compact('iv', 'value', 'mac'), JSON_UNESCAPED_SLASHES);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Could not encrypt the data.');
@@ -37,23 +36,21 @@ class Crypter
     /**
      * Dekripsi string.
      *
-     * @param string $data
+     * @param string $value
      *
      * @return string
      */
-    public static function decrypt($data)
+    public static function decrypt($value)
     {
-        $data = static::payload($data);
-        $iv = base64_decode($data['iv']);
-        $tag = empty($data['tag']) ? null : base64_decode($data['tag']);
-        $tag = $tag ? $tag : ''; // Karena base64_decode() bisa mereturn string kosong
-        $data = openssl_decrypt($data['value'], 'aes-256-cbc', RAKIT_KEY, 0, $iv, $tag);
+        $value = static::payload($value);
+        $iv = base64_decode($value['iv']);
+        $value = openssl_decrypt($value['value'], 'aes-256-cbc', RAKIT_KEY, 0, $iv);
 
-        if ($data === false) {
+        if ($value === false) {
             throw new \Exception('Could not decrypt the data.');
         }
 
-        return $data;
+        return $value;
     }
 
     /**
@@ -89,52 +86,48 @@ class Crypter
     /**
      * Ambil data payload.
      *
-     * @param string $data
+     * @param string $value
      *
      * @return array
      */
-    protected static function payload($data)
+    protected static function payload($value)
     {
-        $data = json_decode(base64_decode($data), true);
+        $value = json_decode(base64_decode($value), true);
 
-        if (!static::valid($data)) {
+        if (!static::valid($value)) {
             throw new \Exception('The payload is invalid.');
         }
 
-        $mac = hash_hmac('sha256', $data['iv'] . $data['value'], RAKIT_KEY);
+        $mac = hash_hmac('sha256', $value['iv'] . $value['value'], RAKIT_KEY);
 
-        if (!static::equals($mac, $data['mac'])) {
+        if (!static::equals($mac, $value['mac'])) {
             throw new \Exception('The MAC is invalid.');
         }
 
-        return $data;
+        return $value;
     }
 
     /**
      * Validasi data payload.
      *
-     * @param mixed $data
+     * @param mixed $value
      *
      * @return bool
      */
-    protected static function valid($data)
+    protected static function valid($value)
     {
-        if (!is_array($data)) {
+        if (!is_array($value)) {
             return false;
         }
 
         $items = ['iv', 'value', 'mac'];
 
         foreach ($items as $item) {
-            if (!isset($data[$item]) || !is_string($data[$item])) {
+            if (!isset($value[$item]) || !is_string($value[$item])) {
                 return false;
             }
         }
 
-        if (isset($data['tag']) && !is_string($data['tag'])) {
-            return false;
-        }
-
-        return strlen(base64_decode($data['iv'], true)) === 16;
+        return strlen(base64_decode($value['iv'], true)) === 16;
     }
 }
