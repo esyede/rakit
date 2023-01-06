@@ -84,9 +84,6 @@ abstract class Provider
             Storage::delete($destination);
         }
 
-        $year = (int) gmdate('Y');
-        $version = rand(76, 80) + ((($year < 2020) ? 2020 : $year) - 2020);
-        $agent = 'Mozilla/5.0 (Linux x86_64; rv:' . $version . '.0) Gecko/20100101 Firefox/' . $version . '.0';
         $options = [
             CURLOPT_HTTPGET => 1,
             CURLOPT_SSL_VERIFYPEER => 0,
@@ -94,8 +91,12 @@ abstract class Provider
             CURLOPT_AUTOREFERER => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FOLLOWLOCATION => 1,
-            CURLOPT_USERAGENT => $agent,
             CURLOPT_VERBOSE => get_cli_option('verbose') ? 1 : 0,
+            CURLOPT_USERAGENT => sprintf(
+                'Mozilla/5.0 (Linux x86_64; rv:%s.0) Gecko/20100101 Firefox/%s.0',
+                mt_rand(90, 110),
+                mt_rand(90, 110)
+            ),
         ];
 
         $ch = curl_init();
@@ -107,6 +108,8 @@ abstract class Provider
         ]);
         $unused = curl_exec($ch);
         $type = curl_getinfo($ch);
+        curl_close($ch);
+
         $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
 
         if (!is_string($type) || false === strpos($type, 'application/zip')) {

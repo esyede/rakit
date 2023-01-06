@@ -4,8 +4,6 @@ namespace System\Console\Commands\Migrate;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Database as DB;
-
 class Database
 {
     /**
@@ -19,7 +17,11 @@ class Database
      */
     public function log($package, $name, $batch)
     {
-        $this->table()->insert(compact('package', 'name', 'batch'));
+        $this->table()->insert([
+            'package' => $package,
+            'name' => $name,
+            'batch' => $batch,
+        ]);
     }
 
     /**
@@ -32,7 +34,10 @@ class Database
      */
     public function delete($package, $name)
     {
-        $this->table()->where_package_and_name($package, $name)->delete();
+        $this->table()
+            ->where('package', $package)
+            ->where('name', $name)
+            ->delete();
     }
 
     /**
@@ -42,7 +47,10 @@ class Database
      */
     public function last()
     {
-        return $this->table()->where_batch($this->batch())->order_by('name', 'desc')->get();
+        return $this->table()
+            ->where('batch', $this->batch())
+            ->order_by('name', 'desc')
+            ->get();
     }
 
     /**
@@ -54,7 +62,9 @@ class Database
      */
     public function ran($package)
     {
-        return $this->table()->where_package($package)->lists('name');
+        return $this->table()
+            ->where('package', $package)
+            ->lists('name');
     }
 
     /**
@@ -70,10 +80,10 @@ class Database
     /**
      * Ambil instance query builder untuk tabel migrasi.
      *
-     * @return System\Database\Query
+     * @return \System\Database\Query
      */
     protected function table()
     {
-        return DB::connection()->table('rakit_migrations');
+        return \System\Database::connection()->table('rakit_migrations');
     }
 }

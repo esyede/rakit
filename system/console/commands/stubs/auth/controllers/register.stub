@@ -10,6 +10,7 @@ use System\Database as DB;
 use System\Input;
 use System\Auth;
 use System\Hash;
+use System\Date;
 
 class Auth_Register_Controller extends Controller
 {
@@ -41,9 +42,9 @@ class Auth_Register_Controller extends Controller
     public function action_register()
     {
         $validation = Validator::make(Input::all(), [
-            'name' => 'required|min:3|max:255',
-            'email' => 'required|email|unique:users|max:255',
-            'password' => 'required|confirmed|min:8|max:255',
+            'name' => 'required|min:3|max:191',
+            'email' => 'required|email|unique:users|max:191',
+            'password' => 'required|confirmed|min:8|max:191',
         ]);
 
         if ($validation->fails()) {
@@ -56,7 +57,7 @@ class Auth_Register_Controller extends Controller
             'name' => Input::get('name'),
             'email' => Input::get('email'),
             'password' => Hash::make(Input::get('password')),
-            'created_at' => date('Y-m-d H:i:s'),
+            'created_at' => Date::make(),
         ]);
 
         Auth::login($user_id);

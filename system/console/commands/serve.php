@@ -9,11 +9,13 @@ class Serve extends Command
     /**
      * Jalankan development server.
      *
+     * @param array $arguments
+     *
      * @return void
      */
     public function run(array $arguments = [])
     {
-        $port = empty($arguments) ? 8000 : $arguments[0];
+        $port = get_cli_option('port', 8000);
         $port = (int) ((is_numeric($port) && $port >= 20 && $port <= 65535) ? $port : 8000);
 
         echo 'Development server started at: http://localhost:' . $port . PHP_EOL;

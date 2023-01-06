@@ -14,7 +14,7 @@ class Create_Jobs_Table
 	 */
 	public function up()
 	{
-        Schema::create_if_not_exists(Config::get('job.table'), function ($table) {
+        Schema::create_if_not_exists('jobs_table_name', function ($table) {
             $table->increments('id');
             $table->string('name')->index();
             $table->text('payloads');
@@ -30,6 +30,6 @@ class Create_Jobs_Table
 	 */
 	public function down()
 	{
-        Schema::drop_if_exists(Config::get('job.table'));
+        Schema::drop_if_exists('jobs_table_name');
 	}
 }

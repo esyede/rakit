@@ -7,15 +7,21 @@ defined('DS') or exit('No direct script access.');
 $tabs = function ($panels) {
     foreach ($panels as $panel) {
         if ($panel->tab) { ?>
-            <li><?php if ($panel->panel) : ?><a href="#" rel="oops-debug-panel-<?php echo $panel->id ?>"><?php echo trim($panel->tab) ?></a><?php else : echo '<span>', trim($panel->tab), '</span>';
-                                                                                                                                        endif ?></li><?php
-                                                                                                                                                    }
-                                                                                                                                                }
-                                                                                                                                            };
-                                                                                                                                                        ?>
+            <li>
+                <?php if ($panel->panel) : ?>
+                    <a href="#" rel="oops-debug-panel-<?php echo $panel->id ?>">
+                        <?php echo trim($panel->tab) ?>
+                    </a>
+                <?php else : echo '<span>', trim($panel->tab), '</span>';
+                endif ?>
+            </li>
+<?php
+        }
+    }
+};
+?>
 
 <?php if ('main' === $rows[0]->type) : ?><div id="oops-debug-bar"><?php endif ?>
-
     <?php foreach ($rows as $row) : ?>
         <?php if ('main' === $row->type) : ?>
             <ul>
@@ -41,4 +47,5 @@ $tabs = function ($panels) {
     <?php endforeach ?>
 
     <?php if ('main' === $rows[0]->type) : ?>
-    </div><?php endif ?>
+    </div>
+<?php endif ?>

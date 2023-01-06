@@ -34,22 +34,22 @@ class Packager extends Command
     /**
      * Download dan instal paket.
      *
-     * @param array $names
+     * @param array $arguments
      *
      * @return void
      */
-    public function install(array $names)
+    public function install(array $arguments)
     {
-        $this->parameter($names);
+        $this->parameter($arguments);
 
-        $remotes = $this->repository->search($names[0]);
+        $remotes = $this->repository->search($arguments[0]);
 
-        if (Package::exists($names[0])) {
-            echo PHP_EOL . 'Package is already registered: ' . $names[0] . PHP_EOL;
+        if (Package::exists($arguments[0])) {
+            echo PHP_EOL . 'Package is already registered: ' . $arguments[0] . PHP_EOL;
             exit;
         }
 
-        $destination = Package::path($names[0]);
+        $destination = Package::path($arguments[0]);
 
         if (is_dir($destination)) {
             echo  PHP_EOL . 'Destination directory for this package is already exists in:';
@@ -76,14 +76,14 @@ class Packager extends Command
             fclose($stdin);
         }
 
-        echo 'Downloading package: ' . $names[0];
+        echo 'Downloading package: ' . $arguments[0];
 
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
 
-        if (is_dir($destination = path('package') . DS . $names[0] . DS . 'assets')) {
+        if (is_dir($destination = path('package') . DS . $arguments[0] . DS . 'assets')) {
             echo PHP_EOL . 'Publishing assets...';
-            Storage::cpdir($destination, path('assets') . 'packages' . DS . $names[0]);
+            Storage::cpdir($destination, path('assets') . 'packages' . DS . $arguments[0]);
             echo ' done!' . PHP_EOL;
         }
 
@@ -96,40 +96,40 @@ class Packager extends Command
     /**
      * Uninstal paket.
      *
-     * @param array $names
+     * @param array $arguments
      *
      * @return void
      */
-    public function uninstall(array $names)
+    public function uninstall(array $arguments)
     {
-        $this->parameter($names);
+        $this->parameter($arguments);
 
-        if (!Package::exists($names[0])) {
+        if (!Package::exists($arguments[0])) {
             throw new \Exception(PHP_EOL . sprintf(
                 'Error: Package is not registered: %s' . PHP_EOL .
                     'Currently registered packages are: ' . PHP_EOL .
                     '  ' . implode(', ', Package::names()) . '.',
-                $names[0]
+                $arguments[0]
             ) . PHP_EOL);
         }
 
-        echo 'Uninstalling package: ' . $names[0] . PHP_EOL;
+        echo 'Uninstalling package: ' . $arguments[0] . PHP_EOL;
 
         // TODO: Perlu dicek apakah suatu paket membuat migration atau tidak
         // sebelum menjalankan migrate:reset agar tidak error.
 
         // $migrator = Container::resolve('command: migrate');
-        // $migrator->reset($names[0]);
+        // $migrator->reset($arguments[0]);
 
-        if (is_dir($destination = path('package') . DS . $names[0])) {
+        if (is_dir($destination = path('package') . DS . $arguments[0])) {
             Storage::rmdir($destination);
         }
 
-        if (is_dir($destination = path('assets') . 'packages' . DS . $names[0])) {
+        if (is_dir($destination = path('assets') . 'packages' . DS . $arguments[0])) {
             Storage::rmdir($destination);
         }
 
-        echo 'Package uninstalled successfuly: ' . $names[0] . PHP_EOL;
+        echo 'Package uninstalled successfuly: ' . $arguments[0] . PHP_EOL;
 
         echo PHP_EOL;
         echo 'Now, you have to remove those package entry from your application/packages.php' . PHP_EOL;
@@ -138,25 +138,25 @@ class Packager extends Command
     /**
      * Upgrade paket.
      *
-     * @param array $names
+     * @param array $arguments
      *
      * @return void
      */
-    public function upgrade(array $names)
+    public function upgrade(array $arguments)
     {
-        $this->parameter($names);
+        $this->parameter($arguments);
 
-        if (!Package::exists($names[0])) {
+        if (!Package::exists($arguments[0])) {
             throw new \Exception(PHP_EOL . sprintf(
                 'Error: Package is not registered: %s' . PHP_EOL .
                     'Currently registered packages are: ' . PHP_EOL .
                     '  ' . implode(', ', Package::names()) . '.',
-                $names[0]
+                $arguments[0]
             ) . PHP_EOL);
         }
 
-        $remotes = $this->repository->search($names[0]);
-        $local = path('package') . $names[0] . DS . 'meta.json';
+        $remotes = $this->repository->search($arguments[0]);
+        $local = path('package') . $arguments[0] . DS . 'meta.json';
         $latest = $remotes['compatibilities']['v' . RAKIT_VERSION];
         $current = 0;
 
@@ -182,12 +182,12 @@ class Packager extends Command
             exit;
         }
 
-        $destination = Package::path($names[0]);
+        $destination = Package::path($arguments[0]);
 
         Storage::rmdir($destination);
 
         $publisher = Container::resolve('package.publisher');
-        $publisher->unpublish($names[0]);
+        $publisher->unpublish($arguments[0]);
 
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
@@ -198,31 +198,31 @@ class Packager extends Command
     /**
      * Salin aset milik paket ke direktori root 'assets/'.
      *
-     * @param array $names
+     * @param array $arguments
      *
      * @return void
      */
-    public function publish(array $names)
+    public function publish(array $arguments)
     {
-        $this->parameter($names);
+        $this->parameter($arguments);
 
         $publisher = Container::resolve('package.publisher');
-        $publisher->publish($names[0]);
+        $publisher->publish($arguments[0]);
     }
 
     /**
      * Hapus aset milik paket dari direktori root 'assets/'.
      *
-     * @param array $names
+     * @param array $arguments
      *
      * @return void
      */
-    public function unpublish(array $names)
+    public function unpublish(array $arguments)
     {
-        $this->parameter($names);
+        $this->parameter($arguments);
 
         $publisher = Container::resolve('package.publisher');
-        $publisher->unpublish($names[0]);
+        $publisher->unpublish($arguments[0]);
     }
 
     /**
@@ -277,14 +277,19 @@ class Packager extends Command
         switch ($comparator) {
             case '>':
                 return $current > $latest;
+
             case '<':
                 return $current < $latest;
+
             case '==':
                 return $current === $latest;
+
             case '>=':
                 return $current >= $latest;
+
             case '<=':
                 return $current <= $latest;
+
             default:
                 throw new \Exception('Only >, <, ==, >=, and <= comparators are supported.');
         }

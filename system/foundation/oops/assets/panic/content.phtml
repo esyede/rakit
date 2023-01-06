@@ -10,10 +10,12 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
     <a id="oops-panic-toggle" href="#" class="oops-toggle"></a>
     <div>
         <div id="oops-panic-error" class="panel">
-            <?php if ($e->getMessage()) : ?><p><?php echo Helpers::escapeHtml($title . $code) ?></p><?php endif ?>
+            <?php if ($e->getMessage()) : ?>
+                <p><?php echo Helpers::escapeHtml($title . $code) ?></p>
+            <?php endif ?>
 
-
-            <h1><span><?php echo $messageHtml ?: Helpers::escapeHtml($title . $code) ?></span>
+            <h1>
+                <span><?php echo $messageHtml ?: Helpers::escapeHtml($title . $code) ?></span>
                 <?php foreach ($actions as $item) : ?>
                     <a href="<?php echo Helpers::escapeHtml($item['link']) ?>" <?php echo empty($item['external']) ? '' : ' target="_blank" rel="noreferrer noopener"' ?>><?php echo Helpers::escapeHtml($item['label']) ?>&#x25ba;</a>
                 <?php endforeach ?>
@@ -27,8 +29,10 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
         <?php endif ?>
 
 
-        <?php $ex = $e;
-        $level = 0; ?>
+        <?php
+        $ex = $e;
+        $level = 0;
+        ?>
         <?php do { ?>
 
             <?php if ($level++) : ?>
@@ -43,7 +47,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         </div>
                     <?php endif ?>
 
-
                     <?php foreach ($this->renderPanels($ex) as $panel) : ?>
                         <div class="panel">
                             <h2><a data-oops-ref="^+" class="oops-toggle"><?php echo Helpers::escapeHtml($panel->tab) ?></a></h2>
@@ -57,7 +60,7 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
 
                     <?php $stack = $ex->getTrace();
                     $expanded = null ?>
-                    <?php if ((!$e instanceof \ErrorException || in_array($e->getSeverity(), [E_USER_NOTICE, E_USER_WARNING, E_USER_DEPRECATED], true)) && $this->isCollapsed($ex->getFile())) {
+                    <?php if ((!($e instanceof \ErrorException) || in_array($e->getSeverity(), [E_USER_NOTICE, E_USER_WARNING, E_USER_DEPRECATED], true)) && $this->isCollapsed($ex->getFile())) {
                         foreach ($stack as $key => $row) {
                             if (isset($row['file']) && !$this->isCollapsed($row['file'])) {
                                 $expanded = $key;
@@ -71,10 +74,11 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
 
                         <div class="<?php echo $collapsed ? 'oops-collapsed ' : '' ?>inner">
                             <p><b>File:</b> <?php echo Helpers::editorLink($ex->getFile(), $ex->getLine()) ?></p>
-                            <?php if (is_file($ex->getFile())) : ?><?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, $ex instanceof \ErrorException && isset($ex->context) ? $ex->context : null) ?><?php endif ?>
+                            <?php if (is_file($ex->getFile())) : ?>
+                                <?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, (($ex instanceof \ErrorException) && isset($ex->context)) ? $ex->context : null) ?>
+                            <?php endif ?>
                         </div>
                     </div>
-
 
                     <?php if (isset($stack[0]['class']) && 'System\Foundation\Oops\Debugger' === $stack[0]['class'] && ('shutdownHandler' === $stack[0]['function'] || 'errorHandler' === $stack[0]['function'])) unset($stack[0]) ?>
                     <?php if ($stack) : ?>
@@ -86,7 +90,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                                     <?php foreach ($stack as $key => $row) : ?>
                                         <li>
                                             <p>
-
                                                 <?php if (isset($row['file']) && is_file($row['file'])) : ?>
                                                     <?php echo Helpers::editorLink($row['file'], $row['line']) ?>
                                                 <?php else : ?>
@@ -116,7 +119,9 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                                                     <table>
                                                         <?php
                                                         try {
-                                                            $r = isset($row['class']) ? new \ReflectionMethod($row['class'], $row['function']) : new \ReflectionFunction($row['function']);
+                                                            $r = isset($row['class'])
+                                                                ? new  \ReflectionMethod($row['class'], $row['function'])
+                                                                : new \ReflectionFunction($row['function']);
                                                             $params = $r->getParameters();
                                                         } catch (\Throwable $e) {
                                                             $params = [];
@@ -140,7 +145,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         </div>
                     <?php endif ?>
 
-
                     <?php if ($ex instanceof \ErrorException && isset($ex->context) && is_array($ex->context)) : ?>
                         <div class="panel">
                             <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Variables</a></h2>
@@ -162,7 +166,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                 <?php } while ($ex = $ex->getPrevious()); ?>
                 <?php while (--$level) echo '</div></div>' ?>
 
-
                 <?php if (count((array) $e) > count((array) new \Exception())) : ?>
                     <div class="panel">
                         <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Exception</a></h2>
@@ -172,16 +175,16 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                     </div>
                 <?php endif ?>
 
-
                 <?php if ($lastError) : ?>
                     <div class="panel">
                         <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Last muted error</a></h2>
                         <div class="oops-collapsed inner">
-
                             <h3><?php echo Helpers::errorTypeToString($lastError['type']) ?>: <?php echo Helpers::escapeHtml($lastError['message']) ?></h3>
                             <?php if (isset($lastError['file']) && is_file($lastError['file'])) : ?>
-                                <p><?php echo Helpers::editorLink($lastError['file'], $lastError['line']) ?></p>
-                                <div><?php echo self::highlightFile($lastError['file'], $lastError['line']) ?></div>
+                                <p>
+                                <div>
+                                    <?php echo self::highlightFile($lastError['file'], $lastError['line']) ?>
+                                </div>
                             <?php else : ?>
                                 <p><i>inner-code</i><?php if (isset($lastError['line'])) echo ':', $lastError['line'] ?></p>
                             <?php endif ?>
@@ -189,7 +192,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         </div>
                     </div>
                 <?php endif ?>
-
 
                 <?php $bottomPanels = [] ?>
                 <?php foreach ($this->renderPanels(null) as $panel) : ?>
@@ -200,17 +202,14 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                     <?php $collapsedClass = !isset($panel->collapsed) || $panel->collapsed ? ' oops-collapsed' : ''; ?>
                     <div class="panel">
                         <h2><a data-oops-ref="^+" class="oops-toggle<?php echo $collapsedClass ?>"><?php echo Helpers::escapeHtml($panel->tab) ?></a></h2>
-
                         <div class="inner<?php echo $collapsedClass ?>">
                             <?php echo $panel->panel ?>
                         </div>
                     </div>
                 <?php endforeach ?>
 
-
                 <div class="panel">
                     <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Environment</a></h2>
-
                     <div class="oops-collapsed inner">
                         <h3><a data-oops-ref="^+" class="oops-toggle">$_SERVER</a></h3>
                         <div class="outer">
@@ -220,7 +219,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                                 ?>
                             </table>
                         </div>
-
 
                         <h3><a data-oops-ref="^+" class="oops-toggle">$_SESSION</a></h3>
                         <div class="outer">
@@ -235,7 +233,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                             <?php endif ?>
                         </div>
 
-
                         <?php if (!empty($_SESSION['__RF']['DATA'])) : ?>
                             <h3><a data-oops-ref="^+" class="oops-toggle">Rakit Session</a></h3>
                             <div class="outer">
@@ -246,7 +243,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                                 </table>
                             </div>
                         <?php endif ?>
-
 
                         <?php
                         $list = get_defined_constants(true);
@@ -264,7 +260,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                             </div>
                         <?php endif ?>
 
-
                         <h3><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Configuration options</a></h3>
                         <div class="outer oops-collapsed">
                             <?php $this->renderPhpInfo() ?>
@@ -274,7 +269,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
 
                 <div class="panel">
                     <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">HTTP request</a></h2>
-
                     <div class="oops-collapsed inner">
                         <?php if (function_exists('apache_request_headers')) : ?>
                             <h3>Headers</h3>
@@ -286,7 +280,6 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                                 </table>
                             </div>
                         <?php endif ?>
-
 
                         <?php foreach (['_GET', '_POST', '_COOKIE'] as $name) : ?>
                             <h3>$<?php echo Helpers::escapeHtml($name) ?></h3>
@@ -305,22 +298,17 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                     </div>
                 </div>
 
-
                 <div class="panel">
                     <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">HTTP response</a></h2>
-
                     <div class="oops-collapsed inner">
                         <h3>Headers</h3>
                         <?php if (headers_list()) : ?>
-                            <pre><?php
-                                    foreach (headers_list() as $s) echo Helpers::escapeHtml($s), '<br>';
-                                    ?></pre>
+                            <pre><?php foreach (headers_list() as $s) echo Helpers::escapeHtml($s), '<br>'; ?></pre>
                         <?php else : ?>
                             <p><i>no headers</i></p>
                         <?php endif ?>
                     </div>
                 </div>
-
 
                 <?php foreach ($bottomPanels as $panel) : ?>
                     <div class="panel">
@@ -332,10 +320,8 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                     </div>
                 <?php endforeach ?>
 
-
                 <ul>
-                    <li>Report generated at <?php echo @date('Y/m/d H:i:s') // @ timezone may not be set
-                                            ?></li>
+                    <li>Report generated at <?php echo @date('Y/m/d H:i:s'); ?></li>
                     <li><?php if ($sourceIsUrl) : ?><a href="<?php echo Helpers::escapeHtml($source) ?>"><?php endif ?><?php echo Helpers::escapeHtml($source) ?><?php if ($sourceIsUrl) : ?></a><?php endif ?></li>
                     <?php foreach ($info as $item) : ?><li><?php echo Helpers::escapeHtml($item) ?></li><?php endforeach ?>
                 </ul>

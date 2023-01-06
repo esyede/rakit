@@ -34,7 +34,6 @@ $nonceAttr = $nonce ? ' nonce="' . Helpers::escapeHtml($nonce) . '"' : '';
     <script<?php echo $nonceAttr ?>>document.documentElement.className += ' oops-js'</script>
 </head>
 
-
 <body>
     <?php require __DIR__ . DS . 'content.phtml' ?>
 
@@ -48,9 +47,7 @@ $nonceAttr = $nonce ? ' nonce="' . Helpers::escapeHtml($nonce) . '"' : '';
         <script<?php echo $nonceAttr ?>>
             Oops && Oops.Dumper.init(<?php echo str_replace('<!--', '<\!--', json_encode(Dumper::fetchLiveData())) ?>);
             </script>
-            <script<?php echo $nonceAttr ?>>
-                Oops && Oops.Panic.init();
-                </script>
+            <script<?php echo $nonceAttr ?>>Oops && Oops.Panic.init();</script>
 </body>
 
 </html>

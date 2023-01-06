@@ -6,9 +6,7 @@ defined('DS') or exit('No direct script access.');
 
 use System\Arr;
 use System\Str;
-use System\URI;
 use System\Package;
-use System\Request;
 use System\Response;
 use System\Redirect;
 use System\View;

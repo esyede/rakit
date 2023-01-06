@@ -11,9 +11,11 @@ class Help extends Command
     /**
      * List seluruh command bawaan rakit.
      *
+     * @param array $arguments
+     *
      * @return void
      */
-    public function run()
+    public function run(array $arguments = [])
     {
         echo 'Rakit Console v' . RAKIT_VERSION . PHP_EOL;
         echo PHP_EOL;

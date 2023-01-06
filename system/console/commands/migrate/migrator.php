@@ -4,7 +4,6 @@ namespace System\Console\Commands\Migrate;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Arr;
 use System\Console\Commands\Command;
 use System\Database\Schema;
 
@@ -52,25 +51,24 @@ class Migrator extends Command
             $this->install();
         }
 
-        $package = (0 === count($arguments)) ? null : Arr::get($arguments, 0);
-        $this->migrate($package);
+        $arguments = empty($arguments) ? [] : $arguments[0];
+        $this->migrate($arguments);
     }
 
     /**
      * Jalankan migrasi milik sebuah paket.
      *
-     * @param string $package
-     * @param int    $version
+     * @param array $arguments
      *
      * @return void
      */
-    public function migrate($package = null, $version = null)
+    public function migrate(array $arguments = [])
     {
-        $migrations = $this->resolver->outstanding($package);
+        $migrations = $this->resolver->outstanding($arguments);
         $total = count($migrations);
 
         if (0 === $total) {
-            echo 'No outstanding migrations.';
+            echo 'Done. No outstanding migrations.';
             return;
         }
 
@@ -81,9 +79,9 @@ class Migrator extends Command
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
-            echo 'Migrating: ' . $file . PHP_EOL;
+            echo 'Migrating : ' . $file . PHP_EOL;
             $migration['migration']->up();
-            echo 'Migrated:  ' . $file . PHP_EOL;
+            echo 'Migrated  : ' . $file . PHP_EOL;
 
             $this->database->log($migration['package'], $migration['name'], $batch);
         }
@@ -92,23 +90,22 @@ class Migrator extends Command
     /**
      * Rollback perintah migrasi terbaru.
      *
-     * @param array $packages
+     * @param array $arguments
      *
      * @return bool
      */
-    public function rollback(array $packages = [])
+    public function rollback(array $arguments = [])
     {
-        $packages = is_array($packages) ? $packages : [$packages];
         $migrations = $this->resolver->last();
 
-        if (is_array($packages) && count($packages) > 0) {
-            $migrations = array_filter($migrations, function ($migration) use ($packages) {
-                return in_array($migration['package'], $packages);
+        if (count($arguments) > 0) {
+            $migrations = array_filter($migrations, function ($migration) use ($arguments) {
+                return in_array($migration['package'], $arguments);
             });
         }
 
         if (0 === count($migrations)) {
-            echo 'Nothing to rollback.' . PHP_EOL;
+            echo 'Done. Nothing to rollback.' . PHP_EOL;
             return false;
         }
 
@@ -117,9 +114,9 @@ class Migrator extends Command
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
-            echo 'Rolling back: ' . $file . PHP_EOL;
+            echo 'Rolling back : ' . $file . PHP_EOL;
             $migration['migration']->down();
-            echo 'Rolled back:  ' . $file . PHP_EOL;
+            echo 'Rolled back  : ' . $file . PHP_EOL;
 
             $this->database->delete($migration['package'], $migration['name']);
         }
@@ -130,13 +127,13 @@ class Migrator extends Command
     /**
      * Rollback seluruh migrasi yang pernah dijalankan.
      *
-     * @param array $packages
+     * @param array $arguments
      *
      * @return void
      */
-    public function reset(array $packages = [])
+    public function reset(array $arguments = [])
     {
-        while ($this->rollback($packages)) {
+        while ($this->rollback($arguments)) {
             // Rollback semuanya..
         }
     }
@@ -148,20 +145,22 @@ class Migrator extends Command
      *
      * @return void
      */
-    public function rebuild()
+    public function refresh(array $arguments = [])
     {
         $this->reset();
         echo PHP_EOL;
         $this->migrate();
-        echo 'The database was successfully rebuilt' . PHP_EOL;
+        echo 'Done. The database was successfully refreshed.' . PHP_EOL;
     }
 
     /**
      * Buat tabel untuk pencatatan migrasi database.
      *
+     * @param array $arguments
+     *
      * @return void
      */
-    public function install()
+    public function install(array $arguments = [])
     {
         Schema::create('rakit_migrations', function ($table) {
             $table->string('package', 50);

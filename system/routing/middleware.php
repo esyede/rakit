@@ -4,7 +4,6 @@ namespace System\Routing;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Str;
 use System\Package;
 
 class Middleware

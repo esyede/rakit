@@ -14,7 +14,7 @@ class Create_Failed_Jobs_Table
 	 */
 	public function up()
 	{
-        Schema::create_if_not_exists(Config::get('job.failed_table'), function ($table) {
+        Schema::create_if_not_exists('failed_jobs_table_name', function ($table) {
             $table->increments('id');
             $table->integer('job_id')->unsigned();
             $table->text('name')->index();
@@ -31,6 +31,6 @@ class Create_Failed_Jobs_Table
 	 */
 	public function down()
 	{
-        Schema::drop_if_exists(Config::get('job.failed_table'));
+        Schema::drop_if_exists('failed_jobs_table_name');
 	}
 }

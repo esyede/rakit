@@ -13,7 +13,7 @@ Route::post('logout', 'auth.login@logout');
 Route::get('register', 'auth.register@show');
 Route::post('register', ['as' => 'register', 'uses' => 'auth.register@register']);
 
-// Password reset routes...
+// Password reset routes..
 Route::get('password/email', 'auth.password@show_resend');
 Route::post('password/email', 'auth.password@resend');
 Route::post('password/reset', 'auth.password@reset');

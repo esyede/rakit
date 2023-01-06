@@ -15,20 +15,21 @@ class Job extends Command
     /**
      * Jalankan satu atau beberapa job berdasarkan nama.
      *
-     * @param string|array $names
+     * @param array $arguments
      *
      * @return void
      */
-    public function run($names = [])
+    public function run(array $arguments = [])
     {
         $config = Config::get('job');
-        $names = is_array($names) ? $names : [$names];
+        $arguments = is_array($arguments) ? $arguments : [$arguments];
 
-        if (empty($names)) {
+        if (empty($arguments)) {
             if (Request::cli()) {
                 echo 'Please give at least one job name to execute!' . PHP_EOL;
                 exit;
             }
+
             if ($config['logging']) {
                 Log::error('Please give at least one job name to execute!');
             }
@@ -36,7 +37,7 @@ class Job extends Command
             return false;
         }
 
-        foreach ($names as $name) {
+        foreach ($arguments as $name) {
             \System\Job::run($name);
         }
     }
@@ -44,9 +45,11 @@ class Job extends Command
     /**
      * Jalankan semua job.
      *
+     * @param array $arguments
+     *
      * @return void
      */
-    public function runall()
+    public function runall(array $arguments = [])
     {
         \System\Job::runall();
     }
@@ -54,23 +57,25 @@ class Job extends Command
     /**
      * Buat tabel job.
      *
+     * @param array $arguments
+     *
      * @return void
      */
-    public function table()
+    public function table(array $arguments = [])
     {
         $make = Container::resolve('command: make');
 
-        $jobs = Config::get('job.table', 'jobs');
-        $failed = Config::get('job.failed_table', 'failed_jobs');
+        $jobs = Config::get('job.table', 'rakit_jobs');
+        $failed = Config::get('job.failed_table', 'rakit_failed_jobs');
 
         $migration1 = $make->migration(['create_' . $jobs . '_table']);
         $migration2 = $make->migration(['create_' . $failed . '_table']);
 
-        $stub1 = __DIR__ . DS . 'stubs' . DS . 'jobs.stub';
-        $stub2 = __DIR__ . DS . 'stubs' . DS . 'failed_jobs.stub';
+        $stub1 = Storage::get(__DIR__ . DS . 'stubs' . DS . 'jobs.stub');
+        $stub2 = Storage::get(__DIR__ . DS . 'stubs' . DS . 'failed_jobs.stub');
 
-        Storage::put($migration1, Storage::get($stub1));
-        Storage::put($migration2, Storage::get($stub2));
+        Storage::put($migration1, str_replace('jobs_table_name', $jobs, $stub1));
+        Storage::put($migration2, str_replace('failed_jobs_table_name', $jobs, $stub2));
 
         echo PHP_EOL;
     }

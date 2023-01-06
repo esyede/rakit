@@ -1,8 +1,8 @@
 {
     "clear": {
-        "clear:blade": {
-            "description": "Bersihkan seluruh file cache blade.",
-            "command": "php rakit clear:blade"
+        "clear:views": {
+            "description": "Bersihkan seluruh file cache view.",
+            "command": "php rakit clear:views"
         },
         "clear:logs": {
             "description": "Bersihkan seluruh file log.",
@@ -16,7 +16,7 @@
         },
         "job:run": {
             "description": "Jalankan sebuah job.",
-            "command": "php rakit job:run send_email"
+            "command": "php rakit job:run send_weekly_email"
         },
         "job:runall": {
             "description": "Jalankan seluruh job.",
@@ -26,27 +26,27 @@
     "make": {
         "make:controller": {
             "description": "Buat file controller.",
-            "command": "php rakit make:controller"
+            "command": "php rakit make:controller dashboard"
         },
         "make:resource": {
             "description": "Buat file resource controller.",
-            "command": "php rakit make:resource"
+            "command": "php rakit make:resource book"
         },
         "make:model": {
             "description": "Buat file model.",
-            "command": "php rakit make:model"
+            "command": "php rakit make:model book"
         },
         "make:migration": {
             "description": "Buat file migrasi.",
-            "command": "php rakit make:migration create_users_table"
+            "command": "php rakit make:migration create_books_table"
         },
         "make:command": {
             "description": "Buat file command.",
-            "command": "php rakit make:command"
+            "command": "php rakit make:command greet"
         },
         "make:test": {
             "description": "Buat file unit test.",
-            "command": "php rakit make:test"
+            "command": "php rakit make:test login"
         }
     },
     "migration": {
@@ -65,28 +65,32 @@
         "migrate:reset": {
             "description": "Roll back seluruh migrasi.",
             "command": "php rakit migrate:reset"
+        },
+        "migrate:refresh": {
+            "description": "Roll back lalu jalankan ulang seluruh migrasi.",
+            "command": "php rakit migrate:refresh"
         }
     },
     "package": {
         "package:install": {
             "description": "Install paket.",
-            "command": "php rakit package:install <nama-paket>"
+            "command": "php rakit package:install logviewer"
         },
         "package:uninstall": {
             "description": "Uninstall paket beserta resourcenya.",
-            "command": "php rakit package:uninstall <nama-paket>"
+            "command": "php rakit package:uninstall logviewer"
         },
         "package:upgrade": {
             "description": "Upgrade paket.",
-            "command": "php rakit package:upgrade <nama-paket>"
+            "command": "php rakit package:upgrade logviewer"
         },
         "package:publish": {
             "description": "Salin aset paket ke folder assets.",
-            "command": "php rakit package:publish <nama-paket>"
+            "command": "php rakit package:publish logviewer"
         },
         "package:unpublish": {
             "description": "Hapus aset paket dari folder assets.",
-            "command": "php rakit package:unpublish <nama-paket>"
+            "command": "php rakit package:unpublish logviewer"
         }
     },
     "routing": {
@@ -104,7 +108,7 @@
     "test": {
         "test:core": {
             "description": "Jalankan test folder system.",
-            "command": "php rakit test:core"
+            "command": "php rakit test:core --verbose=false"
         },
         "test:package": {
             "description": "Jalankan test milik sebuah paket.",
@@ -113,7 +117,7 @@
     },
     "webserver": {
         "serve": {
-            "command": "php rakit serve",
+            "command": "php rakit serve --port=8000",
             "description": "Jalankan webserver bawaan."
         }
     }

@@ -16,7 +16,7 @@ class Gitlab extends Provider
      *
      * @return void
      */
-    public function install(array $package, $path, $version)
+    public function install(array $package, $path)
     {
         $repository = $package['repository'];
         $compatible = isset($package['compatibilities']['v' . RAKIT_VERSION])

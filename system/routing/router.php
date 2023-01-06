@@ -7,7 +7,6 @@ defined('DS') or exit('No direct script access.');
 use System\Arr;
 use System\Str;
 use System\Package;
-use System\Request;
 
 class Router
 {

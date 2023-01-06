@@ -34,24 +34,37 @@ class JWT
     /**
      * Encode payload.
      *
-     * @param array  $payloads
-     * @param string $secret
-     * @param string $algorithm
-     * @param array  $headers
+     * @param array       $payloads
+     * @param string      $secret
+     * @param string|null $algorithm
+     * @param array       $headers
      *
      * @return string
      */
-    public static function encode(array $payloads, $secret, $algorithm = 'HS256', array $headers = [])
+    public static function encode(array $payloads, $secret, $algorithm = null, array $headers = [])
     {
-        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
-        $headers = $headers + ['typ' => 'JWT', 'alg' => $algorithm];
+        $algorithm = (null === $algorithm) ? 'HS256' : $algorithm;
 
+        if (!is_string($algorithm) || strlen($algorithm) < 1) {
+            throw new \Exception('Empty or non-string algorithm');
+        }
+
+        $algorithm = strtoupper($algorithm);
+
+        if (!isset(static::$algorithms[$algorithm]) || !static::$algorithms[$algorithm]) {
+            throw new \Exception(sprintf(
+                'Only these algorithm are supported: %s',
+                implode(', ', static::$algorithms)
+            ));
+        }
+
+        $headers = $headers + ['typ' => 'JWT', 'alg' => $algorithm];
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
         $message = $headers . '.' . $payloads;
         $signature = static::encode_url(static::signature($message, $secret, $algorithm));
 
-        return $headers . '.' . $payloads . '.' . $signature;
+        return $message . '.' . $signature;
     }
 
     /**
@@ -98,8 +111,8 @@ class JWT
             throw new \Exception('Invalid signature encoding');
         }
 
-        if (!isset($headers->alg) && !is_string($headers->alg)) {
-            throw new \Exception('Empty algorithm');
+        if (!isset($headers->alg) || !is_string($headers->alg) || strlen($headers->alg) < 1) {
+            throw new \Exception('Empty or non-string algorithm');
         }
 
         if (!isset(static::$algorithms[$headers->alg]) || !static::$algorithms[$headers->alg]) {

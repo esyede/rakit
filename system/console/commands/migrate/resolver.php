@@ -31,16 +31,16 @@ class Resolver
     /**
      * Resolve seluruh migrasi milik sebuah paket.
      *
-     * @param string $package
+     * @param array $arguments
      *
      * @return array
      */
-    public function outstanding($package = null)
+    public function outstanding(array $arguments = [])
     {
-        $packages = is_null($package) ? array_merge(Package::names(), ['application']) : [$package];
+        $arguments = empty($arguments) ? array_merge(Package::names(), ['application']) : $arguments;
         $migrations = [];
 
-        foreach ($packages as $package) {
+        foreach ($arguments as $package) {
             $ran = $this->database->ran($package);
             $files = $this->migrations($package);
 
@@ -83,8 +83,7 @@ class Resolver
 
             require_once $path . $name . '.php';
 
-            $prefix = Package::class_prefix($package);
-            $class = $prefix . Str::classify(substr($name, 18));
+            $class = Package::class_prefix($package) . Str::classify(substr($name, 18));
             $migration = new $class();
             $instances[] = compact('package', 'name', 'migration');
         }

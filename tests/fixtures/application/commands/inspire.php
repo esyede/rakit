@@ -16,7 +16,7 @@ class Inspire_Command extends Command
     public function run(array $arguments = [])
     {
         $quotes = $this->quotes();
-        $quotes = $quotes[rand(0, count($quotes) - 1)];
+        $quotes = $quotes[mt_rand(0, count($quotes) - 1)];
 
         echo $quotes;
     }
@@ -38,7 +38,7 @@ class Inspire_Command extends Command
             'One today is worth two tomorrows. - Benjamin Franklin',
             'Very little is needed to make a happy life. - Marcus Antoninus',
             'It is quality rather than quantity that matters. - Lucius Annaeus Seneca',
-            'Genius is one percent inspiration and ninety-nine percent perspiration. - Thomas Edison',
+            'Genius is 1% inspiration and 99% perspiration. - Thomas Edison',
             'It always seems impossible until it is done. - Nelson Mandela',
             'Once you choose hope, anythings possible. - Christopher Reeve',
             'One fails forward toward success. - Charles Kettering',

@@ -7,11 +7,13 @@ defined('DS') or exit('No direct script access.');
 class Clear extends Command
 {
     /**
-     * Bersihkan seluruh file cache blade.
+     * Bersihkan seluruh file cache views.
+     *
+     * @param array $arguments
      *
      * @return void
      */
-    public function blade(array $arguments = [])
+    public function views(array $arguments = [])
     {
         $files = glob(path('storage') . 'views' . DS . '*.bc.php');
 
@@ -21,7 +23,7 @@ class Clear extends Command
             }
         }
 
-        echo 'Blade cache files cleared successfully.' . PHP_EOL;
+        echo 'View cache files cleared successfully.' . PHP_EOL;
     }
 
     /**

@@ -17,6 +17,8 @@ foreach ($rows as $row) {
     foreach ($row->panels as $panel) {
         $content = $panel->panel ? $panel->panel . "\n" . $icons : '';
         $class = 'oops-panel' . (('ajax' === $row->type) ? ' oops-ajax' : ''); ?>
-        <div class="<?php echo $class ?>" id="oops-debug-panel-<?php echo $panel->id ?>" data-oops-content="<?php echo Helpers::escapeHtml($content) ?>"></div><?php
-                                                                                                                                                            }
-                                                                                                                                                        }
+        <div class="<?php echo $class ?>" id="oops-debug-panel-<?php echo $panel->id ?>" data-oops-content="<?php echo Helpers::escapeHtml($content) ?>">
+        </div>
+<?php
+    }
+}
