@@ -81,7 +81,12 @@ class Runner extends Command
             );
         }
 
-        $phpunit .= get_cli_option('verbose') ? ' --debug' : '';
+        $verbose = has_cli_flag('v')
+            || has_cli_flag('vv')
+            || has_cli_flag('vvv')
+            || has_cli_flag('verbose');
+
+        $phpunit .= $verbose ? ' --debug' : '';
         passthru('.' . DS . $phpunit . ' --configuration ' . escapeshellarg($config), $status);
 
         if (is_file($config)) {
