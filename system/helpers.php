@@ -1068,7 +1068,7 @@ if (!function_exists('get_cli_flag')) {
                 $argument = (string) $argument;
 
                 if (0 === strpos($argument, '-' . $flag)) {
-                    return substr($argument, mb_strlen($flag, '8bit') + 3);
+                    return substr($argument, 1);
                 }
             }
         }
