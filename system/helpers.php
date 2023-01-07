@@ -269,8 +269,6 @@ if (!function_exists('retry')) {
      * @param int           $sleep_ms
      * @param callable|null $when
      *
-     * @throws \Exception
-     *
      * @return mixed
      */
     function retry($times, callable $callback, $sleep_ms = 0, $when = null)
@@ -738,14 +736,15 @@ if (!function_exists('csrf_field')) {
     /**
      * Tambahkan hidden field untuk CSRF token.
      *
-     * @param string $name
-     * @param array  $parameters
-     *
      * @return string
      */
     function csrf_field()
     {
-        return '<input type="hidden" name="' . csrf_name() . '" value="' . csrf_token() . '">' . PHP_EOL;
+        return sprintf(
+            '<input type="hidden" name="%s" value="%s">' . PHP_EOL,
+            csrf_name(),
+            csrf_token()
+        );
     }
 }
 
@@ -1043,6 +1042,33 @@ if (!function_exists('get_cli_option')) {
 
                 if (0 === strpos($argument, '--' . $option . '=')) {
                     return substr($argument, mb_strlen($option, '8bit') + 3);
+                }
+            }
+        }
+
+        return value($default);
+    }
+}
+
+if (!function_exists('get_cli_flag')) {
+    /**
+     * Ambil parameter yang dioper ke rakit console.
+     *
+     * @param string $flag
+     * @param mixed  $default
+     *
+     * @return string
+     */
+    function get_cli_flag($flag, $default = null)
+    {
+        $arguments = \System\Request::foundation()->server->get('argv');
+
+        if (is_array($arguments)) {
+            foreach ($arguments as $argument) {
+                $argument = (string) $argument;
+
+                if (0 === strpos($argument, '-' . $flag)) {
+                    return substr($argument, mb_strlen($flag, '8bit') + 3);
                 }
             }
         }
