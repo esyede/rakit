@@ -1034,15 +1034,13 @@ if (!function_exists('get_cli_option')) {
      */
     function get_cli_option($option, $default = null)
     {
-        $arguments = \System\Request::foundation()->server->get('argv');
+        $arguments = (array) \System\Request::foundation()->server->get('argv');
 
-        if (is_array($arguments)) {
-            foreach ($arguments as $argument) {
-                $argument = (string) $argument;
+        foreach ($arguments as $argument) {
+            $argument = (string) $argument;
 
-                if (0 === strpos($argument, '--' . $option . '=')) {
-                    return substr($argument, mb_strlen($option, '8bit') + 3);
-                }
+            if (0 === strpos($argument, '--' . $option . '=')) {
+                return substr($argument, mb_strlen($option, '8bit') + 3);
             }
         }
 
@@ -1050,7 +1048,7 @@ if (!function_exists('get_cli_option')) {
     }
 }
 
-if (!function_exists('get_cli_flag')) {
+if (!function_exists('has_cli_flag')) {
     /**
      * Ambil parameter yang dioper ke rakit console.
      *
@@ -1059,21 +1057,19 @@ if (!function_exists('get_cli_flag')) {
      *
      * @return string
      */
-    function get_cli_flag($flag, $default = null)
+    function has_cli_flag($flag)
     {
-        $arguments = \System\Request::foundation()->server->get('argv');
+        $arguments = (array) \System\Request::foundation()->server->get('argv');
 
-        if (is_array($arguments)) {
-            foreach ($arguments as $argument) {
-                $argument = (string) $argument;
+        foreach ($arguments as $argument) {
+            $argument = (string) $argument;
 
-                if (0 === strpos($argument, '-' . $flag)) {
-                    return substr($argument, 1);
-                }
+            if (false !== strpos($argument, '-' . $flag)) {
+                return true;
             }
         }
 
-        return value($default);
+        return false;
     }
 }
 
