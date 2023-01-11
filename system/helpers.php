@@ -12,7 +12,8 @@ if (!function_exists('e')) {
      */
     function e($value)
     {
-        return htmlentities((string) $value, ENT_QUOTES, 'UTF-8', false);
+        $value = (string) $value;
+        return htmlentities($value, ENT_QUOTES, 'UTF-8', false);
     }
 }
 
@@ -623,20 +624,6 @@ if (!function_exists('old')) {
     }
 }
 
-if (!function_exists('redirect')) {
-    /**
-     * Buat sebuah redireksi.
-     *
-     * @param string $url
-     *
-     * @return \System\Redirect
-     */
-    function redirect($url)
-    {
-        return \System\Redirect::to($url);
-    }
-}
-
 if (!function_exists('back')) {
     /**
      * Buat sebuah redireksi ke halaman sebelumnya.
@@ -935,22 +922,6 @@ if (!function_exists('bcrypt')) {
     }
 }
 
-if (!function_exists('event')) {
-    /**
-     * Jalankan event.
-     *
-     * @param string|array $events
-     * @param array        $parameters
-     * @param bool         $halt
-     *
-     * @return array
-     */
-    function event($events, array $parameters = [], $halt = false)
-    {
-        return \System\Event::fire($events, $parameters, $halt);
-    }
-}
-
 if (!function_exists('dispatch')) {
     /**
      * Jalankan sebuah job.
@@ -1097,27 +1068,24 @@ if (!function_exists('system_os')) {
 
         return isset($platforms[PHP_OS]) ? $platforms[PHP_OS] : 'Unknown';
     }
+}
 
-    if (!function_exists('human_filesize')) {
-        /**
-         * Format ukuran file (ramah manusia).
-         *
-         * @param int $bytes
-         * @param int $precision
-         *
-         * @return string
-         */
-        function human_filesize($bytes, $precision = 2)
-        {
-            $precision = (int) $precision;
-            $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            $power = min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
+if (!function_exists('human_filesize')) {
+    /**
+     * Format ukuran file (ramah manusia).
+     *
+     * @param int $bytes
+     * @param int $precision
+     *
+     * @return string
+     */
+    function human_filesize($bytes, $precision = 2)
+    {
+        $precision = (int) $precision;
+        $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        $power = min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
+        $bytes = round($bytes / pow(1024, $power), $precision);
 
-            return sprintf(
-                '%.' . $precision . 'f %s',
-                round($bytes / pow(1024, $power), $precision),
-                $units[$power]
-            );
-        }
+        return sprintf('%.' . $precision . 'f %s', $bytes, $units[$power]);
     }
 }
