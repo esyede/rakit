@@ -106,7 +106,7 @@ class Job extends Event
                     Database::table($config['table'])->where('id', $job->id)->delete();
                     static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                 } catch (\Throwable $e) {
-                    $exception = get_class($e)
+                    $e = get_class($e)
                         . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                         . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n" . $e->getTraceAsString();
                     Database::table($config['failed_table'])->insert([
@@ -118,7 +118,7 @@ class Job extends Event
                     ]);
                     static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                 } catch (\Exception $e) {
-                    $exception = get_class($e)
+                    $e = get_class($e)
                         . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                         . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n" . $e->getTraceAsString();
                     Database::table($config['failed_table'])->insert([
