@@ -108,7 +108,8 @@ class Job extends Event
                 } catch (\Throwable $e) {
                     $e = get_class($e)
                         . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n" . $e->getTraceAsString();
+                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                        . $e->getTraceAsString();
                     Database::table($config['failed_table'])->insert([
                         'job_id' => $job->id,
                         'name' => $job->name,
@@ -120,7 +121,8 @@ class Job extends Event
                 } catch (\Exception $e) {
                     $e = get_class($e)
                         . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n" . $e->getTraceAsString();
+                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                        . $e->getTraceAsString();
                     Database::table($config['failed_table'])->insert([
                         'job_id' => $job->id,
                         'name' => $job->name,
