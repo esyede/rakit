@@ -154,13 +154,9 @@ class Lang
     {
         $package = Package::name($key);
         $segments = explode('.', Package::element($key));
+        $line = (count($segments) >= 2) ? implode('.', array_slice($segments, 1)) : null;
 
-        if (count($segments) >= 2) {
-            $line = implode('.', array_slice($segments, 1));
-            return [$package, $segments[0], $line];
-        }
-
-        return [$package, $segments[0], null];
+        return [$package, $segments[0], $line];
     }
 
     /**

@@ -189,16 +189,18 @@ class Event
         $responses = [];
 
         foreach ($events as $event) {
-            if (static::exists($event)) {
-                foreach (static::$events[$event] as $handler) {
-                    $response = call_user_func_array($handler, $parameters);
+            if (!static::exists($event)) {
+                continue;
+            }
 
-                    if ($halt && !is_null($response)) {
-                        return $response;
-                    }
+            foreach (static::$events[$event] as $handler) {
+                $response = call_user_func_array($handler, $parameters);
 
-                    $responses[] = $response;
+                if ($halt && !is_null($response)) {
+                    return $response;
                 }
+
+                $responses[] = $response;
             }
         }
 
