@@ -122,7 +122,8 @@ class Image
         list($this->width, $this->height, $this->type) = getimagesize($path);
 
         if ($this->type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
-            $this->exif = exif_read_data($path, 'IFD0');
+            $exif = exif_read_data($path, 'IFD0');
+            $this->exif = (is_array($exif) && !empty($exif)) ? $exif : [];
         } else {
             $this->exif = [];
         }
