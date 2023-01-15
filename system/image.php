@@ -648,7 +648,7 @@ class Image
      *
      * @return array|false
      */
-    public static function rgb($color)
+    private static function rgb($color)
     {
         $color = is_string($color) ? hexdec($color) : $color;
         $hex = str_pad(dechex($color), (($color < 4096) ? 3 : 6), '0', STR_PAD_LEFT);
