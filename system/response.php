@@ -317,8 +317,8 @@ class Response
         $reflector = new \ReflectionClass('\System\Foundation\Http\Cookie');
 
         foreach (Cookie::$jar as $name => $cookie) {
-            $config = array_values($cookie);
-            $this->foundation()->headers->setCookie($reflector->newInstanceArgs($config));
+            $cookie = array_values($cookie);
+            $this->foundation()->headers->setCookie($reflector->newInstanceArgs($cookie));
         }
     }
 
