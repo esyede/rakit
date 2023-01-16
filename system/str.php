@@ -630,6 +630,15 @@ class Str
             : substr_replace($subject, $replace, $position, mb_strlen($search, '8bit'));
     }
 
+    /**
+     * Ganti kemunculan terakhir dari value yang diberikan dalam string.
+     *
+     * @param string $search
+     * @param string $replace
+     * @param string $subject
+     *
+     * @return string
+     */
     public static function replace_last($search, $replace, $subject)
     {
         $subject = (string) $subject;
