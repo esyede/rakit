@@ -5,6 +5,7 @@ defined('DS') or exit('No direct script access.');
 class MacroableTest extends \PHPUnit_Framework_TestCase
 {
     private $macroable;
+    protected $protectedProp;
 
     /**
      * Setup.
@@ -119,6 +120,8 @@ class TestMacroable
 
 class TestMixin
 {
+    protected $protectedProp;
+
     public function methodOne()
     {
         return function ($value) {
