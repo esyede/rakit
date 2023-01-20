@@ -33,6 +33,6 @@ Route::middleware('auth', function () {
 
 Route::middleware('throttle', function ($limit, $minutes) {
     if (Throttle::exceeded($limit, $minutes)) {
-        return Response::error(429);
+        return Throttle::error();
     }
 });
