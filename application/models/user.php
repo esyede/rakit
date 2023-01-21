@@ -15,6 +15,7 @@ class User extends Facile
         'name',
         'email',
         'password',
+        'email_verified_at',
     ];
 
     /**
