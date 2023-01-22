@@ -279,11 +279,11 @@ class Arr
         $segments = explode('.', $key);
 
         foreach ($segments as $segment) {
-            if (static::accessible($array) && static::exists($array, $segment)) {
-                $array = $array[$segment];
-            } else {
+            if (!static::accessible($array) || !static::exists($array, $segment)) {
                 return value($default);
             }
+
+            $array = $array[$segment];
         }
 
         return $array;
@@ -310,11 +310,11 @@ class Arr
         $segments = explode('.', $key);
 
         foreach ($segments as $segment) {
-            if (static::accessible($array) && static::exists($array, $segment)) {
-                $array = $array[$segment];
-            } else {
+            if (!static::accessible($array) || !static::exists($array, $segment)) {
                 return false;
             }
+
+            $array = $array[$segment];
         }
 
         return true;
