@@ -1,14 +1,6 @@
-<?php defined('DS') or exit('No direct script access.'); ?>
-<!DOCTYPE html>
+<html lang="{{ config('application.language', 'en') }}">
 
 <head>
-    <!--
-        PENTING !!
-        Khusus di file ini saja (500.blade.php),
-        Anda tidak bisa menggunakan sintaks blade di file ini,
-        meskipun ini adalah file blade,
-        Maaf,
-    -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">

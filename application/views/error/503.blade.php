@@ -1,5 +1,4 @@
-<?php defined('DS') or exit('No direct script access.'); ?>
-<!DOCTYPE html>
+<html lang="{{ config('application.language', 'en') }}">
 
 <head>
     <meta charset="utf-8">
