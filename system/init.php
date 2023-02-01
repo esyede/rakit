@@ -14,20 +14,17 @@ defined('DS') or exit('No direct script access.');
 $dir = path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
 
 if (is_file($path = path('rakit_key'))) {
+    $error = null;
+
     if (!is_readable(dirname($path))) {
-        http_response_code(500);
-        require $dir . DS . 'unreadable.phtml';
-
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        }
-
-        exit;
+        $error = 'unreadable.phtml';
+    } elseif (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
+        $error = 'invalid.phtml';
     }
 
-    if (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
+    if ($error) {
         http_response_code(500);
-        require $dir . DS . 'invalid.phtml';
+        require $dir . DS . $error;
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
