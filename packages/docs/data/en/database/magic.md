@@ -21,6 +21,7 @@
 -   [Insert Record](#insert-record)
 -   [Update Record](#update-record)
 -   [Delete Record](#delete-record)
+-   [Transaction](#transaction)
 
 <!-- /MarkdownTOC -->
 
@@ -476,4 +477,35 @@ Ingin cara cepat menghapus data berdasarkan ID? Bisa. Langsung saja oper ID-nya 
 
 ```php
 $affected = DB::table('users')->delete(1);
+```
+
+<a id="transaction"></a>
+
+## Transaction
+
+Untuk melakukan database transaction, gunakan method `transaction()` seperti ini:
+
+```php
+DB::transaction(function () {
+    DB::table('users')
+        ->where('id', '=', 1)
+        ->delete();
+});
+```
+
+Ingin melakukan transaction secara manual? gunakan cara ini:
+
+```php
+DB::pdo()->beginTransaction();
+
+try {
+    DB::table('users')
+        ->where('id', '=', 1)
+        ->delete();
+
+    DB::pdo()->commit();
+} catch (\Exception $e) {
+    DB::pdo()->rollBack();
+    // Log::error($e->getMessage());
+}
 ```

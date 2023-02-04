@@ -282,6 +282,10 @@ var data = [
         "url": "database/magic#delete-record"
     },
     {
+        "title": "Transaction",
+        "url": "database/magic#transaction"
+    },
+    {
         "title": "Menyiapkan Database",
         "url": "database/migrations#menyiapkan-database"
     },
