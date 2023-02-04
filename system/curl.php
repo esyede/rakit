@@ -57,8 +57,8 @@ class Curl
     private static $default_headers = [];
     private static $json_options = [];
     private static $socket_timeout;
-    private static $verify_peer = false;
-    private static $verify_host = false;
+    private static $verify_peer = 0;
+    private static $verify_host = 0;
     private static $auth = [
         'user' => '',
         'pass' => '',
@@ -100,7 +100,7 @@ class Curl
      */
     public static function verify_peer($enabled = true)
     {
-        return static::$verify_peer = $enabled;
+        return static::$verify_peer = $enabled ? 1 : 0;
     }
 
     /**
@@ -112,7 +112,7 @@ class Curl
      */
     public static function verify_host($enabled = true)
     {
-        return static::$verify_host = $enabled;
+        return static::$verify_host = $enabled ? 2 : 0;
     }
 
     /**
@@ -436,8 +436,8 @@ class Curl
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_HTTPHEADER => static::format_headers($headers),
             CURLOPT_HEADER => true,
-            CURLOPT_SSL_VERIFYPEER => static::$verify_peer,
-            CURLOPT_SSL_VERIFYHOST => ((bool) static::$verify_host === false) ? 0 : 2,
+            CURLOPT_SSL_VERIFYPEER => (int) static::$verify_peer,
+            CURLOPT_SSL_VERIFYHOST => ((int) static::$verify_host > 0) ? 2 : 0,
             CURLOPT_ENCODING => '',
         ];
 
