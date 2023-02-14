@@ -3,6 +3,7 @@
 defined('DS') or exit('No direct script access.');
 
 use System\Routing\Route;
+use System\View;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,7 @@ use System\Routing\Route;
 */
 
 Route::get('/, home', ['as' => 'home', function () {
-    return view('home.index');
+    return View::make('home.index');
 }]);
 
 Route::controller([

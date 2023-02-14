@@ -11,6 +11,6 @@ use System\Autoloader;
 |
 */
 
-Autoloader::namespaces([
-    'Docs\Libraries' => __DIR__ . '/libraries',
+Autoloader::map([
+    'Docs\Libraries\Docs' => __DIR__ . '/libraries/docs.php',
 ]);

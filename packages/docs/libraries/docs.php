@@ -67,10 +67,7 @@ class Docs
     public static function title($title)
     {
         $title = strpos($title, '/') ? explode('/', $title) : [$title];
-        $title = array_map('ucwords', $title);
-        $title = str_replace('/', ' ~ ', implode('/', $title));
-
-        return $title;
+        return str_replace('/', ' ~ ', implode('/', array_map('ucwords', $title)));
     }
 
     /**

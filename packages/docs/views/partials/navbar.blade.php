@@ -1,4 +1,4 @@
-<!-- Navbar statrt -->
+<!-- Navbar start -->
 <nav id="navbar" class="navbar is-fixed-top has-shadow" role="navigation" aria-label="main navigation">
     <div class="container">
         <div class="navbar-brand">
@@ -51,4 +51,5 @@
         </div>
     </div>
 </nav>
+<!-- Navbar end -->
 <div style="margin-bottom: 50px"></div>
