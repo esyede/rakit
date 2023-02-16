@@ -30,7 +30,7 @@ return [
     ],
     'footer' => [
         'credit' => 'Made with :love by awesome :contributors. Released under the :license.',
-        'contributors' => 'Contributors',
+        'contributors' => 'Awesome Contributors',
         'license' => 'MIT License',
     ],
 ];

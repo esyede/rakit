@@ -68,7 +68,7 @@ $rules = [
 $validation = Validator::make($input, $rules);
 
 if ($validation->fails()) {
-    return $validation->errors;
+    dd($validation->errors);
 }
 ```
 
@@ -726,8 +726,19 @@ class Validator extends \System\Validator
 }
 ```
 
-Selanjutnya, hapus `Validator` dari array alias di file `config/application.php`. Hal ini
-diperlukan agar tidak ada 2 class bernama Validator karena tentunya akan bentrok satu sama lain.
+Selanjutnya, hapus `Validator` dari array alias di file `config/aliases.php`. Hal ini
+diperlukan agar tidak ada 2 class bernama Validator karena tentunya akan bentrok satu sama lain:
+
+```php
+'aliases' => [
+    // ..
+
+
+    'Validator' => 'System\Validator', // Hapus bagian ini
+
+    // ..
+],
+```
 
 Selanjutnya, tinggal kita pindahkan rule `'humble'` kita tadi kedalam kelas tersebut:
 
