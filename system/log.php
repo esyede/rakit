@@ -76,8 +76,8 @@ class Log
         }
 
         $message .= (null === $data)
-            ? '(null)'
-            : Foundation\Oops\Dumper::toText($data, ['truncate' => PHP_INT_MAX]);
+            ? ' (null)'
+            : ' ' . Foundation\Oops\Dumper::toText($data, ['truncate' => PHP_INT_MAX]);
 
         if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
