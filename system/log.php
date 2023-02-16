@@ -75,9 +75,7 @@ class Log
             ));
         }
 
-        $message .= (null === $data)
-            ? ' (null)'
-            : ' ' . Foundation\Oops\Dumper::toText($data, ['truncate' => PHP_INT_MAX]);
+        $message .= ' ' . Foundation\Oops\Dumper::toText($data, ['truncate' => PHP_INT_MAX]);
 
         if (Event::exists('rakit.log')) {
             Event::fire('rakit.log', [$type, $message]);
@@ -88,11 +86,7 @@ class Log
         $path = path('storage') . 'logs' . DS . $channel . '.log.php';
         $message = static::format($type, $message);
 
-        if (is_file($path)) {
-            file_put_contents($path, $message, LOCK_EX | FILE_APPEND);
-        } else {
-            file_put_contents($path, $message, LOCK_EX);
-        }
+        file_put_contents($path, $message, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
     }
 
     /**
