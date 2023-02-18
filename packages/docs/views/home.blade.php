@@ -15,7 +15,7 @@
     <div class="column is-9-desktop is-9-tablet">
         <div class="container">
             <div class="is-pulled-right is-hidden-mobile">
-                <a href="https://github.com/esyede/rakit/edit/master/packages/docs/data/{{ $filename }}.md"
+                <a href="https://github.com/esyede/rakit/edit/master/packages/docs/data/{{ $file }}.md"
                     class="button is-link is-light is-small is-rounded" target="_blank">
                     <span class="icon">
                         <svg id="i-github" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32"
