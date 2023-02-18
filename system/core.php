@@ -95,11 +95,8 @@ Request::$foundation = Foundation\Http\Request::createFromGlobals();
 */
 
 if (Request::cli()) {
-    $console = Console\Console::options($_SERVER['argv']);
-    list($arguments, $options) = $console;
-
-    $options = array_change_key_case($options, CASE_UPPER);
-    $_SERVER['CLI'] = $options;
+    list($arguments, $options) = Console\Console::options($_SERVER['argv']);
+    $_SERVER['CLI'] = array_change_key_case($options, CASE_UPPER);
 }
 
 /*
