@@ -183,7 +183,8 @@ class Package
      */
     public static function exists($package)
     {
-        return (DEFAULT_PACKAGE === $package || in_array(strtolower((string) $package), static::names()));
+        return DEFAULT_PACKAGE === $package
+            || in_array(strtolower((string) $package), static::names());
     }
 
     /**
@@ -269,7 +270,9 @@ class Package
      */
     public static function assets($package)
     {
-        return (is_null($package) || DEFAULT_PACKAGE === $package) ? '/' : '/packages/' . $package . '/';
+        return (is_null($package) || DEFAULT_PACKAGE === $package)
+            ? '/'
+            : '/packages/' . $package . '/';
     }
 
     /**
@@ -332,7 +335,9 @@ class Package
      */
     public static function identifier($package, $element)
     {
-        return (is_null($package) || DEFAULT_PACKAGE === $package) ? $element : $package . '::' . $element;
+        return (is_null($package) || DEFAULT_PACKAGE === $package)
+            ? $element
+            : $package . '::' . $element;
     }
 
     /**

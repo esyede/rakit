@@ -81,7 +81,7 @@ class Throttle
      */
     public static function key()
     {
-        return static::PREFIX . '.' . sprintf('%u', ip2long(Request::ip()));
+        return static::PREFIX . '.' . md5(Request::ip());
     }
 
     /**

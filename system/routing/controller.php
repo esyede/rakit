@@ -77,7 +77,6 @@ abstract class Controller
         $root = $package_path . 'controllers' . DS;
         $directory = is_null($directory) ? $package_path . 'controllers' : $directory;
         $items = new \FilesystemIterator($directory, \FilesystemIterator::SKIP_DOTS);
-
         $controllers = [];
 
         foreach ($items as $item) {
@@ -258,9 +257,11 @@ abstract class Controller
      */
     public function response($method, array $parameters = [])
     {
-        $action = $this->restful ? strtolower((string) Request::method()) . '_' . $method : 'action_' . $method;
-        $response = call_user_func_array([$this, $action], $parameters);
+        $action = $this->restful
+            ? strtolower((string) Request::method()) . '_' . $method
+            : 'action_' . $method;
 
+        $response = call_user_func_array([$this, $action], $parameters);
         return (is_null($response) && !is_null($this->layout)) ? $this->layout : $response;
     }
 
@@ -322,7 +323,9 @@ abstract class Controller
     public function layout()
     {
         $layout = (string) $this->layout;
-        return (0 === strpos($layout, 'name: ')) ? View::of(substr($layout, 6)) : View::make($layout);
+        return (0 === strpos($layout, 'name: '))
+            ? View::of(substr($layout, 6))
+            : View::make($layout);
     }
 
     /**
