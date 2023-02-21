@@ -436,7 +436,7 @@ class Curl
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_HTTPHEADER => static::format_headers($headers),
             CURLOPT_HEADER => true,
-            CURLOPT_SSL_VERIFYPEER => (int) static::$verify_peer,
+            CURLOPT_SSL_VERIFYPEER => (bool) static::$verify_peer,
             CURLOPT_SSL_VERIFYHOST => ((int) static::$verify_host > 0) ? 2 : 0,
             CURLOPT_ENCODING => '',
         ];
