@@ -82,7 +82,7 @@ bd($value, 'Breakpoint 1');
 
 <a id="__trans"></a>
 
-### \_\_
+### \_\_ & trans
 
 Fungsi `__` dan `trans` menerjemahkan string berdasarkan data dari file alih-bahasa yang ada di folder `languages`:
 
