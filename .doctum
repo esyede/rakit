@@ -13,20 +13,20 @@ require 'system/core.php';
 $iterator = Finder::create()
     ->files()
     ->name('*.php')
-    ->in(__DIR__.DS.'system');
+    ->in(__DIR__ . DS . 'system');
 
-$versions = GitVersionCollection::create(__DIR__.DS.'system')
+$versions = GitVersionCollection::create(__DIR__ . DS . 'system')
     ->add('master', 'master');
-    // ->add('v'.RAKIT_VERSION, 'v'.RAKIT_VERSION);
+// ->add('v'.RAKIT_VERSION, 'v' . RAKIT_VERSION);
 
 return new Doctum($iterator, [
     'title' => 'API',
     'version' => $versions,
     'language' => 'en',
-    'build_dir' =>  __DIR__.DS.'api'.DS.'api'.DS.'%version%'.DS,
-    'cache_dir' => __DIR__.DS.'api'.DS.'cache'.DS.'%version%'.DS,
-    'source_dir' => __DIR__.DS.'system',
-    'remote_repository' => new GitHubRemoteRepository('esyede/rakit', dirname(__DIR__.DS.'system')),
+    'build_dir' =>  __DIR__ . DS . 'api' . DS . 'api' . DS . '%version%' . DS,
+    'cache_dir' => __DIR__ . DS . 'api' . DS . 'cache' . DS . '%version%' . DS,
+    'source_dir' => __DIR__ . DS . 'system',
+    'remote_repository' => new GitHubRemoteRepository('esyede/rakit', dirname(__DIR__ . DS . 'system')),
     'default_opened_level' => 1,
     'base_url' => 'https://rakit.esyede.my.id/docs/',
 ]);
