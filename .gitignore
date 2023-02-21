@@ -1,5 +1,6 @@
 # Framework
 key.php
+_ide_helper.php
 /storage/cache
 /storage/console
 /storage/database

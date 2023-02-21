@@ -57,25 +57,11 @@ if (is_file($path = path('rakit_key'))) {
             }
         }
 
-        $key = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4));
-        file_put_contents(
-            path('rakit_key'),
-            '<?php' . PHP_EOL
-                . PHP_EOL
-                . "defined('DS') or exit('No direct script access.');" . PHP_EOL
-                . PHP_EOL
-                . '/*' . PHP_EOL
-                . '|--------------------------------------------------------------------------' . PHP_EOL
-                . '| Application Key' . PHP_EOL
-                . '|--------------------------------------------------------------------------' . PHP_EOL
-                . '|' . PHP_EOL
-                . '| File ini (key.php) dibuat otomatis oleh rakit. Salin file ini ke tempat' . PHP_EOL
-                . '| yang aman karena file ini berisi kunci untuk membuka aplikasi anda.' . PHP_EOL
-                . '|' . PHP_EOL
-                . '*/' . PHP_EOL
-                . PHP_EOL
-                . sprintf("return '%s';", $key) . PHP_EOL
-        );
+        file_put_contents(path('rakit_key'), str_replace(
+            '00000000-0000-0000-0000-000000000000',
+            vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4)),
+            file_get_contents(path('system') . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . 'key.stub')
+        ));
     } catch (\Throwable $e) {
         http_response_code(500);
         require $dir . DS . 'unwritable.phtml';
@@ -95,4 +81,8 @@ if (is_file($path = path('rakit_key'))) {
 
         exit;
     }
+}
+
+if (!is_file($file = path('base') . '_ide_helper.php')) {
+    copy(path('system') . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub', $file);
 }
