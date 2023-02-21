@@ -69,7 +69,7 @@ echo Lang::line('marketing.welcome')->get();
 #### Retrieving a language line using the helper:
 
 ```php
-echo __('marketing.welcome');
+echo trans('marketing.welcome');
 ```
 
 Notice how a dot was used to separate `'marketing'` and `'welcome'`?
@@ -111,5 +111,5 @@ echo Lang::line('marketing.welcome', ['name' => 'Budi'])->get();
 #### Retrieving a language line with replacements using helper:
 
 ```php
-echo __('marketing.welcome', ['name' => 'Budi']);
+echo trans('marketing.welcome', ['name' => 'Budi']);
 ```

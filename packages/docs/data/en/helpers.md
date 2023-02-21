@@ -23,7 +23,7 @@ Here is a list of all built-in helpers:
 
 |                             |                                   |                                   |                                 |                                   |                                   |
 | --------------------------- | --------------------------------- | --------------------------------- | ------------------------------- | --------------------------------- | --------------------------------- |
-| [e](#e)                     | [dd](#dd)                         | [dump](#dump)                     | [bd](#bd)                       | [\_\_](#__)                       | [is_cli](#is_cli)                 |
+| [e](#e)                     | [dd](#dd)                         | [dump](#dump)                     | [bd](#bd)                       | [\_\_ & trans](#__trans)      | [is_cli](#is_cli)                 |
 | [data_fill](#data_fill)     | [data_get](#data_get)             | [data_set](#data_set)             | [retry](#retry)                 | [facile_to_json](#facile_to_json) | [head](#head)                     |
 | [last](#last)               | [url](#url)                       | [asset](#asset)                   | [action](#action)               | [route](#route)                   | [redirect](#redirect)             |
 | [csrf_field](#csrf_field)   | [root_namespace](#root_namespace) | [class_basename](#class_basename) | [value](#value)                 | [view](#view)                     | [render](#render)                 |
@@ -82,14 +82,15 @@ bd($value);
 bd($value, 'Breakpoint 1');
 ```
 
-<a id="__"></a>
+<a id="__trans"></a>
 
-### \_\_
+### \_\_ and trans
 
-The `__` function translates the given translation key using your localization files in the `languages` folder:
+The `__` and the `trans` function translates the given translation key using your localization files in the `languages` folder:
 
 ```php
 echo __('marketing.welcome');
+echo trans('marketing.welcome');
 ```
 
 <a id="is_cli"></a>

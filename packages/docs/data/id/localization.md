@@ -55,7 +55,7 @@ echo Lang::line('marketing.welcome')->get();
 #### Mengambil baris bahasa menggunakan helper agar penulisannya lebih pendek:
 
 ```php
-echo __('marketing.welcome');
+echo trans('marketing.welcome');
 ```
 
 Perhatikan bagaimana tanda dot (titik) digunakan untuk memisahkan `marketing` dan `welcome`? Teks sebelum dot berhubungan dengan file bahasa, sedangkan teks setelah dot berhubungan dengan string tertentu di dalam file itu.
@@ -91,5 +91,5 @@ echo Lang::line('marketing.welcome', ['name' => 'Budi'])->get();
 #### Mengambil sebuah baris bahasa dengan replacement menggunakan helper:
 
 ```php
-echo __('marketing.welcome', ['name' => 'Budi']);
+echo trans('marketing.welcome', ['name' => 'Budi']);
 ```
