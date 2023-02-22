@@ -15,9 +15,11 @@ defined('DS') or exit('No direct script access.');
 class Arr extends System\Arr
 {
 }
+
 class Auth extends System\Auth
 {
 }
+
 class Authenticator extends System\Auth\Drivers\Driver
 {
     public function __construct()
@@ -35,78 +37,103 @@ class Authenticator extends System\Auth\Drivers\Driver
         return parent::attempt($arguments);
     }
 }
+
 class Autoloader extends System\Autoloader
 {
 }
+
 class Blade extends System\Blade
 {
 }
+
 class Cache extends System\Cache
 {
 }
+
 class Command extends System\Console\Commands\Command
 {
 }
+
 class Config extends System\Config
 {
 }
+
 class Console extends System\Console\Console
 {
 }
+
 class Container extends System\Container
 {
 }
+
 class Controller extends System\Routing\Controller
 {
 }
+
 class Cookie extends System\Cookie
 {
 }
+
 class Crypter extends System\Crypter
 {
 }
+
 class Curl extends System\Curl
 {
 }
+
 class Date extends System\Date
 {
 }
+
 class DB extends System\Database
 {
 }
+
 class Email extends System\Email
 {
 }
+
 class Event extends System\Event
 {
 }
+
 class Facile extends System\Database\Facile\Model
 {
 }
+
 class Faker extends System\Foundation\Faker\Factory
 {
 }
+
 class Hash extends System\Hash
 {
 }
+
 class Image extends System\Image
 {
 }
+
 class Input extends System\Input
 {
 }
+
 class Job extends System\Job
 {
 }
+
 class JWT extends System\JWT
 {
 }
+
 class Lang extends System\Lang
 {
 }
+
 class Log extends System\Log
 {
 }
+
 class Mailer extends System\Email\Drivers\Driver
 {
     public function __construct(array $config)
@@ -119,69 +146,91 @@ class Mailer extends System\Email\Drivers\Driver
         return parent::transmit();
     }
 }
+
 class Markdown extends System\Markdown
 {
 }
+
 class Memcached extends System\Memcached
 {
 }
+
 class Middleware extends System\Routing\Middleware
 {
 }
+
 class Package extends System\Package
 {
 }
+
 class Paginator extends System\Paginator
 {
 }
+
 class Redirect extends System\Redirect
 {
 }
+
 class Redis extends System\Redis
 {
 }
+
 class Request extends System\Request
 {
 }
+
 class Response extends System\Response
 {
 }
+
 class Route extends System\Routing\Route
 {
 }
+
 class Router extends System\Routing\Router
 {
 }
+
 class RSA extends System\RSA
 {
 }
+
 class Schema extends System\Database\Schema
 {
 }
+
 class Section extends System\Section
 {
 }
+
 class Session extends System\Session
 {
 }
+
 class Storage extends System\Storage
 {
 }
+
 class Str extends System\Str
 {
 }
+
 class Throttle extends System\Routing\Throttle
 {
 }
+
 class URI extends System\URI
 {
 }
+
 class URL extends System\URL
 {
 }
+
 class Validator extends System\Validator
 {
 }
+
 class View extends System\View
 {
 }
