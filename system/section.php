@@ -95,12 +95,9 @@ class Section
      */
     protected static function extend($section, $content)
     {
-        if (isset(static::$sections[$section])) {
-            $section_name = static::$sections[$section];
-            static::$sections[$section] = str_replace('@parent', $content, $section_name);
-        } else {
-            static::$sections[$section] = $content;
-        }
+        static::$sections[$section] = isset(static::$sections[$section])
+            ? str_replace('@parent', $content, static::$sections[$section])
+            : $content;
     }
 
     /**
@@ -111,11 +108,9 @@ class Section
      */
     public static function append($section, $content)
     {
-        if (isset(static::$sections[$section])) {
-            static::$sections[$section] .= $content;
-        } else {
-            static::$sections[$section] = $content;
-        }
+        static::$sections[$section] = isset(static::$sections[$section])
+            ? static::$sections[$section] . $content
+            : $content;
     }
 
     /**

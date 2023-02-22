@@ -186,12 +186,12 @@ class Job extends Event
             Log::channel('jobs');
             Log::{$type}($message);
             Log::channel(null);
-        }
 
-        if (Request::cli()) {
-            $message = '[' . Date::make()->format('Y-m-d H:i:s') . '] ';
-            $message .= '[' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
-            echo $message;
+            if (Request::cli()) {
+                $message = '[' . Date::make()->format('Y-m-d H:i:s') . '] ';
+                $message .= '[' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
+                echo $message;
+            }
         }
     }
 }

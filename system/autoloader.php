@@ -89,7 +89,9 @@ class Autoloader
     {
         $file = str_replace(['\\', '_', '/'], DS, (string) $class);
         $lowercased = strtolower($file);
-        $directories = $directory ? (array) $directory : static::$directories;
+        $directories = $directory ? array_map(function ($item) {
+            return str_replace(['\\', '/'], DS, (string) $item);
+        }, (array) $directory) : static::$directories;
 
         foreach ($directories as $directory) {
             if (is_file($path = $directory . $lowercased . '.php')) {
@@ -128,9 +130,7 @@ class Autoloader
      */
     public static function directories(array $directories)
     {
-        $directories = static::format($directories);
-        $directories = array_merge(static::$directories, $directories);
-
+        $directories = array_merge(static::$directories, static::format($directories));
         static::$directories = array_unique($directories);
     }
 

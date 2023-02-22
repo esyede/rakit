@@ -546,11 +546,11 @@ class Arr
      * Urutkan array menggunakan callback atau menggunakan notasi "dot".
      *
      * @param array                $array
-     * @param callable|string|null $callback
+     * @param callable|null $callback
      *
      * @return array
      */
-    public static function sort($array, $callback = null)
+    public static function sort($array, callable $callback = null)
     {
         $results = [];
 

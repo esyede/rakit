@@ -118,14 +118,13 @@ class Curl
     /**
      * Set request timeout (dalam detik).
      *
-     * @param int|null $seconds
+     * @param int $seconds
      *
      * @return int
      */
-    public static function timeout($seconds = null)
+    public static function timeout($seconds = 0)
     {
-        $seconds = (null === $seconds || $seconds < 1) ? PHP_INT_MAX : (int) $seconds;
-        return static::$socket_timeout = $seconds;
+        return static::$socket_timeout = ((int) $seconds < 1) ? PHP_INT_MAX : (int) $seconds;
     }
 
     /**
@@ -723,9 +722,9 @@ class Curl
         $url = parse_url($url);
         $scheme = $url['scheme'] . '://';
         $host = (string) $url['host'];
-        $port = isset($url['port']) ? ':' . ltrim((string) $url['port'], ':') : null;
-        $path = isset($url['path']) ? (string) $url['path'] : null;
-        $query = isset($url['query']) ? (string) $url['query'] : null;
+        $port = isset($url['port']) ? ':' . ltrim((string) $url['port'], ':') : '';
+        $path = isset($url['path']) ? (string) $url['path'] : '';
+        $query = isset($url['query']) ? (string) $url['query'] : '';
         $query = $query ? '?' . http_build_query(static::format_query($query)) : '';
 
         return $scheme . $host . $port . $path . $query;

@@ -670,6 +670,7 @@ if (!function_exists('abort')) {
         $response->send();
         \System\Event::fire('rakit.done', [$response]);
         $response->foundation()->finish();
+
         exit;
     }
 }

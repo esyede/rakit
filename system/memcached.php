@@ -30,7 +30,7 @@ class Memcached
      */
     public static function connection()
     {
-        if (is_null(static::$connection)) {
+        if (!static::$connection) {
             static::$connection = static::connect(Config::get('cache.memcached'));
         }
 

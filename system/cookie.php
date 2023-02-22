@@ -90,7 +90,7 @@ class Cookie
 
         $expiration = (0 === (int) $expiration) ? 0 : (time() + ($expiration * 60));
         $samesite = is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite;
-        $samesite = is_string($samesite) ? strtolower($samesite) : $samesite;
+        $samesite = strtolower((string) $samesite);
 
         if (!in_array($samesite, ['lax', 'strict', 'none'])) {
             throw new \Exception(sprintf(

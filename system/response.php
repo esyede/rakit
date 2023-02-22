@@ -220,7 +220,7 @@ class Response
     public static function download($path, $name = null, array $headers = [])
     {
         if (!is_file($path)) {
-            throw new \Exception(sprintf('Target file not found: %s', $path));
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
         $name = is_null($name) ? basename($path) : $name;
@@ -290,11 +290,9 @@ class Response
      */
     public function render()
     {
-        if (is_object($this->content) && method_exists($this->content, '__toString')) {
-            $this->content = $this->content->__toString();
-        } else {
-            $this->content = (string) $this->content;
-        }
+        $this->content = (is_object($this->content) && method_exists($this->content, '__toString'))
+            ? $this->content->__toString()
+            : (string) $this->content;
 
         $this->foundation()->setContent($this->content);
         return $this->content;
@@ -316,9 +314,8 @@ class Response
     {
         $reflector = new \ReflectionClass('\System\Foundation\Http\Cookie');
 
-        foreach (Cookie::$jar as $name => $cookie) {
-            $cookie = array_values($cookie);
-            $this->foundation()->headers->setCookie($reflector->newInstanceArgs($cookie));
+        foreach (Cookie::$jar as $name => $data) {
+            $this->foundation()->headers->setCookie($reflector->newInstanceArgs(array_values($data)));
         }
     }
 

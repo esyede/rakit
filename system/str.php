@@ -255,7 +255,6 @@ class Str
     public static function plural_studly($value, $count = 2)
     {
         $parts = preg_split('/(.)(?=[A-Z])/u', $value, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $last = array_pop($parts);
         return implode('', $parts) . static::plural(array_pop($parts), $count);
     }
 
@@ -511,13 +510,13 @@ class Str
         $duplicate = $milliseconds === static::$ulids['time'];
         static::$ulids['time'] = $milliseconds;
 
-        $chars = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+        $characters = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
         $time = '';
         $random = '';
 
         for ($i = 9; $i >= 0; $i--) {
             $mod = $milliseconds % 32;
-            $time = $chars[$mod] . $time;
+            $time = $characters[$mod] . $time;
             $milliseconds = ($milliseconds - $mod) / 32;
         }
 
@@ -534,7 +533,7 @@ class Str
         }
 
         for ($i = 0; $i < 16; $i++) {
-            $random .= $chars[static::$ulids['chars'][$i]];
+            $random .= $characters[static::$ulids['chars'][$i]];
         }
 
         return $lowercase ? strtolower($time . $random) : $time . $random;
@@ -686,7 +685,12 @@ class Str
      */
     public static function before($subject, $search)
     {
-        return ('' === $search) ? $subject : explode($search, $subject)[0];
+        if ('' === $search) {
+            return $subject;
+        }
+
+        $result = strstr($subject, (string) $search, true);
+        return (false === $result) ? $subject : $result;
     }
 
     /**

@@ -203,22 +203,22 @@ class Blade
         };
 
         // {{{  }}}
-        $regex = '/\{\{\{\s*(.+?)\s*\}\}\}(\r?\n)?/s';
-        $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
+        $matcher = '/\{\{\{\s*(.+?)\s*\}\}\}(\r?\n)?/s';
+        $value = preg_replace_callback($matcher, function ($matches) use ($compiler) {
             $ws = empty($matches[2]) ? '' : $matches[2] . $matches[2];
             return '<?php echo e(' . $compiler($matches[1]) . ') ?>' . $ws;
         }, $value);
 
         // {!!  !!}
-        $regex = '/\{\!!\s*(.+?)\s*!!\}(\r?\n)?/s';
-        $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
+        $matcher = '/\{\!!\s*(.+?)\s*!!\}(\r?\n)?/s';
+        $value = preg_replace_callback($matcher, function ($matches) use ($compiler) {
             $ws = empty($matches[2]) ? '' : $matches[2] . $matches[2];
             return '<?php echo ' . $compiler($matches[1]) . ' ?>' . $ws;
         }, $value);
 
         // @{{  }}, {{  }}
-        $regex = '/(@)?\{\{\s*(.+?)\s*\}\}(\r?\n)?/s';
-        $value = preg_replace_callback($regex, function ($matches) use ($compiler) {
+        $matcher = '/(@)?\{\{\s*(.+?)\s*\}\}(\r?\n)?/s';
+        $value = preg_replace_callback($matcher, function ($matches) use ($compiler) {
             $ws = empty($matches[3]) ? '' : $matches[3] . $matches[3];
             return $matches[1]
                 ? substr($matches[0], 1)
@@ -276,11 +276,10 @@ class Blade
         preg_match_all('/(\s*)@forelse(\s*\(.*\))(\s*)/', $value, $matches);
 
         foreach ($matches[0] as $forelse) {
-            preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variable);
+            preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variables);
             $search = '/(\s*)@forelse(\s*\(.*\))/';
-            $replace = '$1<?php if (count(' . $variable[1] . ') > 0): ?><?php foreach$2: ?>';
-            $blade = preg_replace($search, $replace, $forelse);
-            $value = str_replace($forelse, $blade, $value);
+            $replace = '$1<?php if (count(' . $variables[1] . ') > 0): ?><?php foreach$2: ?>';
+            $value = str_replace($forelse, preg_replace($search, $replace, $forelse), $value);
         }
 
         return $value;
@@ -319,8 +318,8 @@ class Blade
      */
     protected static function compile_structure_start($value)
     {
-        $regex = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
-        return preg_replace($regex, '$1<?php $2$3: ?>', $value);
+        $matcher = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
+        return preg_replace($matcher, '$1<?php $2$3: ?>', $value);
     }
 
     /**
@@ -332,8 +331,8 @@ class Blade
      */
     protected static function compile_structure_end($value)
     {
-        $regex = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
-        return preg_replace($regex, '$1<?php $2; ?>$3', $value);
+        $matcher = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
+        return preg_replace($matcher, '$1<?php $2; ?>$3', $value);
     }
 
     /**
@@ -453,10 +452,8 @@ class Blade
      */
     protected static function compile_include($value)
     {
-        $regex = static::matcher('include');
         $replacer = '$1<?php echo view$2->with(get_defined_vars())->render() ?>';
-
-        return preg_replace($regex, $replacer, $value);
+        return preg_replace(static::matcher('include'), $replacer, $value);
     }
 
     /**

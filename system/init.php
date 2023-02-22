@@ -84,5 +84,6 @@ if (is_file($path = path('rakit_key'))) {
 }
 
 if (!is_file($file = path('base') . '_ide_helper.php')) {
-    copy(path('system') . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub', $file);
+    $stub = path('system') . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub';
+    copy($stub, $file);
 }

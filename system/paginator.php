@@ -198,18 +198,14 @@ class Paginator
     {
         $window = $adjacent * 2;
 
-        // 1 [2] 3 4 5 6 ... 23 24
-        if ($this->page <= $window) {
+        if ($this->page <= $window) { // 1 [2] 3 4 5 6 ... 23 24
             return $this->range(1, $window + 2) . ' ' . $this->ending();
-        }
-        // 1 2 ... 32 33 34 35 [36] 37
-        elseif ($this->page >= $this->last - $window) {
+        } elseif ($this->page >= $this->last - $window) { // 1 2 ... 32 33 34 35 [36] 37
             return $this->beginning() . ' ' . $this->range($this->last - $window - 2, $this->last);
         }
 
         // 1 2 ... 23 24 25 [26] 27 28 29 ... 51 52
         $content = $this->range($this->page - $adjacent, $this->page + $adjacent);
-
         return $this->beginning() . ' ' . $content . ' ' . $this->ending();
     }
 

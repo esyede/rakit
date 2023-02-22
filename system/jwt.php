@@ -58,7 +58,7 @@ class JWT
             ));
         }
 
-        $headers = $headers + ['typ' => 'JWT', 'alg' => $algorithm];
+        $headers = array_merge($headers, ['typ' => 'JWT', 'alg' => $algorithm]);
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
         $message = $headers . '.' . $payloads;
@@ -158,7 +158,7 @@ class JWT
      */
     private static function signature($payload, $secret, $algorithm)
     {
-        $algorithm = is_string($algorithm) ? strtoupper((string) $algorithm) : $algorithm;
+        $algorithm = strtoupper((string) $algorithm);
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
@@ -184,7 +184,7 @@ class JWT
      */
     private static function verify($payload, $signature, $secret, $algorithm)
     {
-        $algorithm = is_string($algorithm) ? strtoupper($algorithm) : $algorithm;
+        $algorithm = strtoupper((string) $algorithm);
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(

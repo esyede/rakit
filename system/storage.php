@@ -382,7 +382,7 @@ class Storage
     public static function is($extensions, $path)
     {
         $extensions = is_array($extensions) ? array_values($extensions) : [$extensions];
-        $extensions = array_map('mb_strtolower', $extensions);
+        $extensions = array_map('strtolower', $extensions);
 
         $pool = Foundation\Http\Upload::$extensions;
         $mime = static::mime($path);
