@@ -73,9 +73,8 @@ abstract class Controller
      */
     public static function detect($package = DEFAULT_PACKAGE, $directory = null)
     {
-        $package_path = Package::path($package);
-        $root = $package_path . 'controllers' . DS;
-        $directory = is_null($directory) ? $package_path . 'controllers' : $directory;
+        $root = Package::path($package) . 'controllers';
+        $directory = is_null($directory) ? $root : $directory;
         $items = new \FilesystemIterator($directory, \FilesystemIterator::SKIP_DOTS);
         $controllers = [];
 
@@ -84,7 +83,7 @@ abstract class Controller
                 $nested = static::detect($package, $item->getRealPath());
                 $controllers = array_merge($controllers, $nested);
             } else {
-                $controller = str_replace([$root, '.php'], '', $item->getRealPath());
+                $controller = str_replace([$root . DS, '.php'], '', $item->getRealPath());
                 $controller = str_replace(DS, '.', $controller);
                 $controllers[] = Package::identifier($package, $controller);
             }
@@ -257,10 +256,7 @@ abstract class Controller
      */
     public function response($method, array $parameters = [])
     {
-        $action = $this->restful
-            ? strtolower((string) Request::method()) . '_' . $method
-            : 'action_' . $method;
-
+        $action = $this->restful ? strtolower(Request::method()) . '_' . $method : 'action_' . $method;
         $response = call_user_func_array([$this, $action], $parameters);
         return (is_null($response) && !is_null($this->layout)) ? $this->layout : $response;
     }
@@ -323,9 +319,7 @@ abstract class Controller
     public function layout()
     {
         $layout = (string) $this->layout;
-        return (0 === strpos($layout, 'name: '))
-            ? View::of(substr($layout, 6))
-            : View::make($layout);
+        return (0 === strpos($layout, 'name: ')) ? View::of(substr($layout, 6)) : View::make($layout);
     }
 
     /**

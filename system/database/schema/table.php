@@ -432,9 +432,9 @@ class Table
      */
     public function creating()
     {
-        return (!is_null(Arr::first($this->commands, function ($key, $value) {
-            return ('create' === $value->type);
-        })));
+        return !is_null(Arr::first($this->commands, function ($key, $value) {
+            return 'create' === $value->type;
+        }));
     }
 
     /**
@@ -447,8 +447,7 @@ class Table
      */
     protected function command($type, array $parameters = [])
     {
-        $parameters = array_merge(compact('type'), $parameters);
-        return $this->commands[] = new Magic($parameters);
+        return $this->commands[] = new Magic(array_merge(compact('type'), $parameters));
     }
 
     /**
@@ -461,7 +460,6 @@ class Table
      */
     protected function column($type, array $parameters = [])
     {
-        $parameters = array_merge(compact('type'), $parameters);
-        return $this->columns[] = new Magic($parameters);
+        return $this->columns[] = new Magic(array_merge(compact('type'), $parameters));
     }
 }

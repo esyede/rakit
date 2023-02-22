@@ -85,10 +85,9 @@ class Payload
      *
      * @return bool
      */
-    protected static function expired($session)
+    protected static function expired(array $session)
     {
-        $lifetime = Config::get('session.lifetime');
-        return (time() - $session['last_activity']) > ($lifetime * 60);
+        return (time() - $session['last_activity']) > (Config::get('session.lifetime') * 60);
     }
 
     /**
@@ -306,11 +305,10 @@ class Payload
      */
     protected function cookie(array $config)
     {
-        $minutes = $config['expire_on_close'] ? 0 : $config['lifetime'];
         Cookie::put(
             $config['cookie'],
             $this->session['id'],
-            $minutes,
+            $config['expire_on_close'] ? 0 : (int) $config['lifetime'],
             $config['path'],
             $config['domain'],
             $config['secure']

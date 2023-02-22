@@ -46,10 +46,9 @@ class MySQL extends Grammar
      */
     public function add(Table $table, Magic $command)
     {
-        $columns = $this->columns($table);
         $columns = implode(', ', array_map(function ($column) {
             return 'ADD ' . $column;
-        }, $columns));
+        }, $this->columns($table)));
 
         return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }
@@ -67,14 +66,12 @@ class MySQL extends Grammar
 
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column) . ' ' . $this->type($column);
-
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->charset($table, $column);
             $sql .= $this->collate($table, $column);
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
             $sql .= $this->incrementer($table, $column);
-
             $columns[] = $sql;
         }
 
@@ -261,10 +258,9 @@ class MySQL extends Grammar
      */
     public function drop_column(Table $table, Magic $command)
     {
-        $columns = array_map([$this, 'wrap'], $command->columns);
         $columns = implode(', ', array_map(function ($column) {
             return 'DROP ' . $column;
-        }, $columns));
+        }, array_map([$this, 'wrap'], $command->columns)));
 
         return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }

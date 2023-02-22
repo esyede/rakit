@@ -91,8 +91,7 @@ class Route
         $defaults = (array) Arr::get($action, 'defaults');
 
         if (count($defaults) > count($parameters)) {
-            $defaults = array_slice($defaults, count($parameters));
-            $parameters = array_merge($parameters, $defaults);
+            $parameters = array_merge($parameters, array_slice($defaults, count($parameters)));
         }
 
         $this->parameters = $parameters;
@@ -106,8 +105,7 @@ class Route
     public function call()
     {
         $response = Middleware::run($this->middlewares('before'), [], true);
-        $response = is_null($response) ? $this->response() : $response;
-        $response = Response::prepare($response);
+        $response = Response::prepare(is_null($response) ? $this->response() : $response);
 
         Middleware::run($this->middlewares('after'), [&$response]);
 
@@ -148,8 +146,7 @@ class Route
         $middlewares = array_unique([$event, $global]);
 
         if (isset($this->action[$event])) {
-            $assigned = Middleware::parse($this->action[$event]);
-            $middlewares = array_merge($middlewares, $assigned);
+            $middlewares = array_merge($middlewares, Middleware::parse($this->action[$event]));
         }
 
         if ('before' === $event) {

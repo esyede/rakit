@@ -68,7 +68,7 @@ class Grammar extends BaseGrammar
     final protected function concatenate(array $components)
     {
         return implode(' ', array_filter($components, function ($value) {
-            return ('' !== (string) $value);
+            return '' !== (string) $value;
         }));
     }
 
@@ -416,15 +416,14 @@ class Grammar extends BaseGrammar
      */
     public function update(Query $query, array $values)
     {
-        $columns = [];
         $table = $this->wrap_table($query->from);
+        $columns = [];
 
         foreach ($values as $column => $value) {
             $columns[] = $this->wrap($column) . ' = ' . $this->parameter($value);
         }
 
-        $sql = 'UPDATE ' . $table . ' SET ' . implode(', ', $columns) . ' ' . $this->wheres($query);
-        return trim($sql);
+        return 'UPDATE ' . $table . ' SET ' . implode(', ', $columns) . ' ' . trim($this->wheres($query));
     }
 
     /**
@@ -436,8 +435,7 @@ class Grammar extends BaseGrammar
      */
     public function delete(Query $query)
     {
-        $table = $this->wrap_table($query->from);
-        return trim('DELETE FROM ' . $table . ' ' . $this->wheres($query));
+        return 'DELETE FROM ' . $this->wrap_table($query->from) . ' ' . trim($this->wheres($query));
     }
 
     /**

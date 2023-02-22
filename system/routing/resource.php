@@ -73,14 +73,14 @@ class Resource
             $this->options = $options;
         }
 
-        $pieces = explode('.', $name);
+        $clauses = explode('.', $name);
 
-        if (isset($pieces[1]) && !empty($pieces[1])) {
-            $this->parent = $pieces[0];
+        if (isset($clauses[1]) && !empty($clauses[1])) {
+            $this->parent = $clauses[0];
             $prefix = $this->parent . '/(:any?)/';
         }
 
-        $this->name = (isset($pieces[1]) && !empty($pieces[1])) ? $pieces[1] : $name;
+        $this->name = (isset($clauses[1]) && !empty($clauses[1])) ? $clauses[1] : $name;
 
         foreach ($this->options as $option) {
             $method = Str::lower($option['method']);

@@ -16,14 +16,14 @@ class SQLServer extends Grammar
     protected $wrapper = '[%s]';
 
     /**
-     * The format for properly saving a DateTime.
+     * Format baku untuk menyimpan DateTime.
      *
      * @var string
      */
     public $datetime = 'Y-m-d H:i:s.000';
 
     /**
-     * Kompilasi statement SELECT dari instance query.
+     * Compile statement SELECT dari instance query.
      *
      * @param Query $query
      *

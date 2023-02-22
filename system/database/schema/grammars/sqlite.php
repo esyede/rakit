@@ -23,7 +23,7 @@ class SQLite extends Grammar
         $columns = implode(', ', $this->columns($table));
         $sql = 'CREATE TABLE ' . $this->wrap($table) . ' (' . $columns;
         $primary = Arr::first($table->commands, function ($key, $value) {
-            return ('primary' === $value->type);
+            return 'primary' === $value->type;
         });
 
         if (!is_null($primary)) {

@@ -141,6 +141,6 @@ abstract class Driver
      */
     protected function expiration($minutes)
     {
-        return (time() + ($minutes * 60));
+        return time() + ($minutes * 60);
     }
 }

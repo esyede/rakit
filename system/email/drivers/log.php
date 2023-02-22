@@ -4,7 +4,7 @@ namespace System\Email\Drivers;
 
 defined('DS') or exit('No direct script access.');
 
-use System\Storage;
+use System\Log as BaseLog;
 
 class Log extends Driver
 {
@@ -16,25 +16,12 @@ class Log extends Driver
     protected function transmit()
     {
         $message = $this->build();
-        $message['header'] = sprintf('%s', $message['header']);
-        $message['body'] = sprintf('%s', $message['body']);
-
-        $data = date('Y-m-d') . ' - NEW EMAIL!' . PHP_EOL;
-        $data .= 'To      : ' . e(static::format($this->to)) . PHP_EOL;
-        $data .= 'Subject : ' . e($this->subject) . PHP_EOL;
-        $data .= 'Header  : ' . e($message['header']) . PHP_EOL;
-        $data .= 'Body    : ' . e($message['body']) . PHP_EOL;
-        $data .= '------------------------------------------' . PHP_EOL;
-        $data .= PHP_EOL;
-
-        $path = path('storage') . 'logs' . DS . date('Y-m-d') . '.email.log.php';
-
-        if (is_file($path)) {
-            Storage::append($path, $data);
-        } else {
-            $guard = "<?php defined('DS') or exit('No direct script access.'); ?>" . PHP_EOL;
-            Storage::put($path, $guard . $data);
-        }
+        BaseLog::info('NEW EMAIL!', [
+            'to' => e(static::format($this->to)),
+            'subject' => e($this->subject),
+            'header' => e(sprintf('%s', $message['header'])),
+            'body' => e(sprintf('%s', $message['body'])),
+        ]);
 
         return true;
     }

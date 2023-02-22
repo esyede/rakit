@@ -202,10 +202,9 @@ class Postgres extends Grammar
      */
     public function drop_column(Table $table, Magic $command)
     {
-        $columns = array_map([$this, 'wrap'], $command->columns);
         $columns = implode(', ', array_map(function ($column) {
             return 'DROP COLUMN ' . $column;
-        }, $columns));
+        }, array_map([$this, 'wrap'], $command->columns)));
 
         return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
     }

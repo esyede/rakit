@@ -506,7 +506,6 @@ class Query
         $method = substr((string) $method, 6);
         $segments = (array) preg_split('/(_and_|_or_)/i', $method, -1, PREG_SPLIT_DELIM_CAPTURE);
         $connector = 'AND';
-
         $index = 0;
 
         foreach ($segments as $segment) {
@@ -911,10 +910,7 @@ class Query
         }
 
         if (in_array($method, ['count', 'min', 'max', 'avg', 'sum'])) {
-            if (0 === count($parameters)) {
-                $parameters[0] = '*';
-            }
-
+            $parameters[0] = (0 === count($parameters)) ? '*' : $parameters[0];
             return $this->aggregate(strtoupper($method), (array) $parameters[0]);
         }
 

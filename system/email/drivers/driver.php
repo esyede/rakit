@@ -433,13 +433,13 @@ abstract class Driver
      */
     public function attach($file, $inline = false, $cid = null, $mime = null, $name = null)
     {
-        $file = (array) $file;
+        $file = is_array($file) ? array_values($file) : [$file];
 
         if (!is_file($file[0])) {
             throw new \Exception(sprintf('Email attachment not found: %s', $file[0]));
         }
 
-        $file[1] = isset($file[1]) ? $file[1] : ($name ? $name : basename((string) $file[0]));
+        $file[1] = isset($file[1]) ? $file[1] : ($name ?: basename((string) $file[0]));
 
         if (false === ($contents = file_get_contents($file[0])) || empty($contents)) {
             throw new \Exception(sprintf(
@@ -451,8 +451,7 @@ abstract class Driver
         $disp = $inline ? 'inline' : 'attachment';
         $cid = empty($cid) ? 'cid:' . md5($file[1]) : trim((string) $cid);
         $cid = (0 === strpos($cid, 'cid:')) ? $cid : 'cid:' . $cid;
-
-        $mime = $mime ? $mime : static::mime($file[0]);
+        $mime = $mime ?: static::mime($file[0]);
         $contents = chunk_split(base64_encode($contents), 76, $this->config['newline']);
 
         $this->attachments[$disp][$cid] = compact('file', 'contents', 'mime', 'disp', 'cid');
@@ -475,8 +474,7 @@ abstract class Driver
         $disp = $inline ? 'inline' : 'attachment';
         $cid = empty($cid) ? 'cid:' . md5($filename) : trim((string) $cid);
         $cid = (0 === strpos($cid, 'cid:')) ? $cid : 'cid:' . $cid;
-
-        $mime = $mime ? $mime : static::mime($filename);
+        $mime = $mime ?: static::mime($filename);
         $file = [$filename, basename((string) $filename)];
         $contents = static::encode_string($contents, 'base64', $this->config['newline']);
 
@@ -494,7 +492,7 @@ abstract class Driver
     protected static function mime($file)
     {
         $mime = Storage::mime($file);
-        return $mime ? $mime : 'application/octet-stream';
+        return $mime ?: 'application/octet-stream';
     }
 
     /**
@@ -587,11 +585,9 @@ abstract class Driver
 
         $type = $this->config['as_html'] ? 'html' : 'plain';
         $type .= ($this->config['as_html'] && !('' === trim($this->alt_body))) ? '_alt' : '';
-        $type .= ($this->config['as_html'] && count($this->attachments['inline']) > 0)
-            ? '_inline'
-            : '';
-
+        $type .= ($this->config['as_html'] && count($this->attachments['inline']) > 0) ? '_inline' : '';
         $type .= (count($this->attachments['attachment']) > 0) ? '_attach' : '';
+
         $this->type = $type;
 
         $newline = $this->config['newline'];
@@ -640,7 +636,7 @@ abstract class Driver
         $this->alt_body = static::encode_string($this->alt_body, $encoding, $newline);
 
         $wrapping = $this->config['wordwrap'];
-        $qp_mode = ($encoding === 'quoted-printable');
+        $qp_mode = ('quoted-printable' === $encoding);
         $as_html = (false !== stripos($this->type, 'html'));
 
         if ($wrapping && !$qp_mode) {
@@ -691,8 +687,7 @@ abstract class Driver
         }
 
         if (array_key_exists($header, $this->headers)) {
-            return ($formatted ? $header . ': ' : '')
-                . $this->headers[$header]
+            return ($formatted ? $header . ': ' : '') . $this->headers[$header]
                 . ($formatted ? $this->config['newline'] : '');
         }
 
@@ -906,7 +901,7 @@ abstract class Driver
     protected static function standardize($string, $newline = null)
     {
         $config = Config::get('email');
-        $newline = $newline ? $newline : (isset($config['newline']) ? $config['newline'] : "\n");
+        $newline = $newline ?: (isset($config['newline']) ? $config['newline'] : "\n");
         $replace = ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n", "\n" => $newline];
 
         foreach ($replace as $from => $to) {
@@ -928,7 +923,7 @@ abstract class Driver
     protected static function encode_string($string, $encoding, $newline = null)
     {
         $config = Config::get('email');
-        $newline = $newline ? $newline : (isset($config['newline']) ? $config['newline'] : "\n");
+        $newline = $newline ?: (isset($config['newline']) ? $config['newline'] : "\n");
 
         switch ($encoding) {
             case '7bit':

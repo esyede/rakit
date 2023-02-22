@@ -63,12 +63,11 @@ class Console
      */
     protected static function parse($command)
     {
+        $method = 'run';
         list($package, $command) = Package::parse($command);
 
         if (Str::contains($command, ':')) {
             list($command, $method) = explode(':', $command);
-        } else {
-            $method = 'run';
         }
 
         return [$package, $command, $method];
@@ -102,7 +101,6 @@ class Console
 
         if (is_file($path = Package::path($package) . 'commands' . DS . $command . '.php')) {
             require_once $path;
-
             $command = static::format($package, $command);
             return new $command();
         }

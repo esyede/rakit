@@ -45,8 +45,7 @@ class Failure extends \Exception
      */
     protected function setMessage($sql, array $bindings)
     {
-        $this->message = $this->inner->getMessage();
-        $this->message .= PHP_EOL . ' SQL: ' . $sql . PHP_EOL;
-        $this->message .= ' Bindings: ' . var_export($bindings, true);
+        $this->message = $this->inner->getMessage() . ' --- SQL: ' . $sql . PHP_EOL;
+        $this->message .= ' --- Bindings: ' . var_export($bindings, true);
     }
 }

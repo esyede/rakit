@@ -105,7 +105,7 @@ class Query
      */
     public function paginate($perpage = null, array $columns = ['*'])
     {
-        $perpage = $perpage ? $perpage : $this->model->perpage();
+        $perpage = $perpage ?: $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
         $paginator->results = $this->hydrate($this->model, $paginator->results);
 

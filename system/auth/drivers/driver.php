@@ -202,7 +202,6 @@ abstract class Driver
      */
     protected function name()
     {
-        $child = get_class($this);
-        return Str::lower(str_replace('\\', '_', $child));
+        return Str::lower(str_replace('\\', '_', get_class($this)));
     }
 }

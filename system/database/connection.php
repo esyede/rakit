@@ -189,7 +189,6 @@ class Connection
     public function query($sql, array $bindings = [])
     {
         $sql = trim((string) $sql);
-
         list($statement, $result) = $this->execute($sql, $bindings);
 
         if (0 === stripos($sql, 'select') || 0 === stripos($sql, 'show')) {
@@ -215,7 +214,7 @@ class Connection
     protected function execute($sql, array $bindings = [])
     {
         $bindings = array_filter($bindings, function ($binding) {
-            return (!($binding instanceof Expression));
+            return !($binding instanceof Expression);
         });
 
         $bindings = array_values($bindings);
@@ -231,8 +230,8 @@ class Connection
         }
 
         try {
-            $statement = $this->pdo()->prepare($sql);
             $start = microtime(true);
+            $statement = $this->pdo()->prepare($sql);
             $result = $statement->execute($bindings);
         } catch (\Throwable $e) {
             throw new Failure($sql, $bindings, $e);

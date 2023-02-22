@@ -511,7 +511,7 @@ abstract class Model
      */
     public function table()
     {
-        return static::$table ? static::$table : strtolower(Str::plural((string) class_basename($this)));
+        return static::$table ?: strtolower(Str::plural((string) class_basename($this)));
     }
 
     /**
@@ -661,11 +661,11 @@ abstract class Model
     public function __isset($key)
     {
         if (array_key_exists($key, $this->attributes)) {
-            return (!empty($this->attributes[$key]));
+            return !empty($this->attributes[$key]);
         }
 
         if (array_key_exists($key, $this->relationships)) {
-            return (!empty($this->relationships[$key]));
+            return !empty($this->relationships[$key]);
         }
 
         return false;
