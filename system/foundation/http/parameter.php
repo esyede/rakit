@@ -96,17 +96,13 @@ class Parameter implements \IteratorAggregate, \Countable
 
             if ('[' === $char) {
                 if (null !== $currentKey) {
-                    throw new \InvalidArgumentException(
-                        sprintf("Malformed path. Unexpected '[' at position %s", $i)
-                    );
+                    throw new \Exception(sprintf("Malformed path. Unexpected '[' at position %s", $i));
                 }
 
                 $currentKey = '';
             } elseif (']' === $char) {
                 if (null === $currentKey) {
-                    throw new \InvalidArgumentException(
-                        sprintf("Malformed path. Unexpected ']' at position %s", $i)
-                    );
+                    throw new \Exception(sprintf("Malformed path. Unexpected ']' at position %s", $i));
                 }
 
                 if (!is_array($value) || !array_key_exists($currentKey, $value)) {
@@ -117,9 +113,7 @@ class Parameter implements \IteratorAggregate, \Countable
                 $currentKey = null;
             } else {
                 if (null === $currentKey) {
-                    throw new \InvalidArgumentException(
-                        sprintf("Malformed path. Unexpected '%s' at position %s", $char, $i)
-                    );
+                    throw new \Exception(sprintf("Malformed path. Unexpected '%s' at position %s", $char, $i));
                 }
 
                 $currentKey .= $char;
@@ -127,7 +121,7 @@ class Parameter implements \IteratorAggregate, \Countable
         }
 
         if (null !== $currentKey) {
-            throw new \InvalidArgumentException("Malformed path. Path must ended with ']'.");
+            throw new \Exception("Malformed path. Path must ended with ']'.");
         }
 
         return $value;

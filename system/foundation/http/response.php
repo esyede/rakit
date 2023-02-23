@@ -126,12 +126,8 @@ class Response
      */
     public function __toString()
     {
-        return sprintf(
-            'HTTP/%s %s %s',
-            $this->version,
-            $this->statusCode,
-            $this->statusText
-        ) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
+        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)
+            . "\r\n" . $this->headers . "\r\n" . $this->getContent();
     }
 
     /**
@@ -358,9 +354,7 @@ class Response
         $this->statusCode = (int) $code;
 
         if ($this->isInvalid()) {
-            throw new \InvalidArgumentException(
-                sprintf("The HTTP status code '%s' is not valid.", $code)
-            );
+            throw new \Exception(sprintf("The HTTP status code '%s' is not valid.", $code));
         }
 
         if (null === $text) {
@@ -604,7 +598,6 @@ class Response
     public function setMaxAge($value)
     {
         $this->headers->addCacheControlDirective('max-age', $value);
-
         return $this;
     }
 
@@ -714,10 +707,7 @@ class Response
         if (null === $etag) {
             $this->headers->remove('Etag');
         } else {
-            if (0 !== strpos((string) $etag, '"')) {
-                $etag = '"' . $etag . '"';
-            }
-
+            $etag = (0 !== strpos((string) $etag, '"')) ? '"' . $etag . '"' : $etag;
             $this->headers->set('ETag', ($weak ? 'W/' : '') . $etag);
         }
 
@@ -737,12 +727,10 @@ class Response
         $caching = ['etag', 'last_modified', 'max_age', 's_maxage', 'private', 'public'];
 
         if ($diff = array_diff(array_keys($options), $caching)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Response does not support the following options: %s',
-                    implode('", "', array_values($diff))
-                )
-            );
+            throw new \Exception(sprintf(
+                'Response does not support the following options: %s',
+                implode('", "', array_values($diff))
+            ));
         }
 
         if (isset($options['etag'])) {
@@ -825,12 +813,7 @@ class Response
     public function getVary()
     {
         $vary = $this->headers->get('Vary');
-
-        if (!$vary) {
-            return [];
-        }
-
-        return is_array($vary) ? $vary : preg_split('/[\s,]+/', $vary);
+        return $vary ? (is_array($vary) ? $vary : preg_split('/[\s,]+/', $vary)) : [];
     }
 
     /**
@@ -887,7 +870,7 @@ class Response
      */
     public function isInvalid()
     {
-        return ($this->statusCode < 100 || $this->statusCode >= 600);
+        return $this->statusCode < 100 || $this->statusCode >= 600;
     }
 
     /**
@@ -897,7 +880,7 @@ class Response
      */
     public function isInformational()
     {
-        return ($this->statusCode >= 100 && $this->statusCode < 200);
+        return $this->statusCode >= 100 && $this->statusCode < 200;
     }
 
     /**
@@ -907,7 +890,7 @@ class Response
      */
     public function isSuccessful()
     {
-        return ($this->statusCode >= 200 && $this->statusCode < 300);
+        return $this->statusCode >= 200 && $this->statusCode < 300;
     }
 
     /**
@@ -917,7 +900,7 @@ class Response
      */
     public function isRedirection()
     {
-        return ($this->statusCode >= 300 && $this->statusCode < 400);
+        return $this->statusCode >= 300 && $this->statusCode < 400;
     }
 
     /**
@@ -927,7 +910,7 @@ class Response
      */
     public function isClientError()
     {
-        return ($this->statusCode >= 400 && $this->statusCode < 500);
+        return $this->statusCode >= 400 && $this->statusCode < 500;
     }
 
     /**
@@ -937,7 +920,7 @@ class Response
      */
     public function isServerError()
     {
-        return ($this->statusCode >= 500 && $this->statusCode < 600);
+        return $this->statusCode >= 500 && $this->statusCode < 600;
     }
 
     /**
@@ -947,7 +930,7 @@ class Response
      */
     public function isOk()
     {
-        return (200 === $this->statusCode);
+        return 200 === $this->statusCode;
     }
 
     /**
@@ -957,7 +940,7 @@ class Response
      */
     public function isForbidden()
     {
-        return (403 === $this->statusCode);
+        return 403 === $this->statusCode;
     }
 
     /**
@@ -967,7 +950,7 @@ class Response
      */
     public function isNotFound()
     {
-        return (404 === $this->statusCode);
+        return 404 === $this->statusCode;
     }
 
     /**

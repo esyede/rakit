@@ -819,8 +819,7 @@ class Upload extends \SplFileInfo
     ) {
         if (!ini_get('file_uploads')) {
             throw new \Exception(sprintf(
-                "Unable to create Upload because 'file_uploads' directive is "
-                    . "disabled in your php.ini file (%s)",
+                "Unable to create Upload because 'file_uploads' directive is disabled in your php.ini file (%s)",
                 get_cfg_var('cfg_file_path')
             ));
         }
@@ -893,9 +892,10 @@ class Upload extends \SplFileInfo
         $content = file_get_contents($this->getPathname());
 
         if (false === $content) {
-            throw new \Exception(
-                sprintf('Could not get the content of the file: %s', $this->getPathname())
-            );
+            throw new \Exception(sprintf(
+                'Could not get the content of the file: %s',
+                $this->getPathname()
+            ));
         }
 
         return $content;
@@ -923,9 +923,7 @@ class Upload extends \SplFileInfo
             throw new \Exception(sprintf('Directory is not writable: %s', $directory));
         }
 
-        $name = is_null($name) ? $this->getBasename() : $this->getName($name);
-
-        return $directory . DS . $name;
+        return $directory . DS . (is_null($name) ? $this->getBasename() : $this->getName($name));
     }
 
     /**

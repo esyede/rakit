@@ -134,16 +134,11 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function set($key, $values, $replace = true)
     {
-        $values = (array) $values;
-
         $key = strtr(strtolower((string) $key), '_', '-');
-        $values = array_values($values);
-
-        if (true === $replace || !isset($this->headers[$key])) {
-            $this->headers[$key] = $values;
-        } else {
-            $this->headers[$key] = array_merge($this->headers[$key], $values);
-        }
+        $values = array_values((array) $values);
+        $this->headers[$key] = (true === $replace || !isset($this->headers[$key]))
+            ? $values
+            : array_merge($this->headers[$key], $values);
 
         if ('cache-control' === $key) {
             $this->cacheControl = $this->parseCacheControl($values[0]);
@@ -248,9 +243,7 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function getCacheControlDirective($key)
     {
-        return array_key_exists($key, $this->cacheControl)
-            ? $this->cacheControl[$key]
-            : null;
+        return array_key_exists($key, $this->cacheControl) ? $this->cacheControl[$key] : null;
     }
 
     /**

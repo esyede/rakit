@@ -84,11 +84,10 @@ class Cookie
         if ('' === (string) $this->getValue()) {
             $str .= 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001);
         } else {
-            $str .= urlencode($this->getValue());
-
-            if (0 !== $this->getExpiresTime()) {
-                $str .= '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime());
-            }
+            $str .= urlencode($this->getValue()) . ((0 !== $this->getExpiresTime())
+                ? '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime())
+                : ''
+            );
         }
 
         $str .= ('/' !== $this->path) ? '; path=' . $this->path : '';

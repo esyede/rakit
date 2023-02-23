@@ -33,8 +33,8 @@ class Helper extends Header
      */
     public function __toString()
     {
-        $string = '';
         $cookies = $this->getCookies();
+        $string = '';
 
         foreach ($cookies as $cookie) {
             $string .= 'Set-Cookie: ' . $cookie . "\r\n";
@@ -197,7 +197,7 @@ class Helper extends Header
         $filenameFallback = (string) $filenameFallback;
 
         if (!in_array($disposition, [self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE])) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new \Exception(sprintf(
                 "The disposition must be either '%s' or '%s'.",
                 self::DISPOSITION_ATTACHMENT,
                 self::DISPOSITION_INLINE
@@ -209,15 +209,11 @@ class Helper extends Header
         }
 
         if (preg_match('/[^\x00-\x7F]/', $filenameFallback)) {
-            throw new \InvalidArgumentException(
-                'The filename fallback must only contain ASCII characters.'
-            );
+            throw new \Exception('The filename fallback must only contain ASCII characters.');
         }
 
         if (false !== strpos($filenameFallback, '%')) {
-            throw new \InvalidArgumentException(
-                "The filename fallback cannot contain the '%' character."
-            );
+            throw new \Exception("The filename fallback cannot contain the '%' character.");
         }
 
         if (
@@ -226,7 +222,7 @@ class Helper extends Header
             || false !== strpos($filenameFallback, '/')
             || false !== strpos($filenameFallback, '\\')
         ) {
-            throw new \InvalidArgumentException(
+            throw new \Exception(
                 "The filename and the fallback cannot contain the '/' and '\' characters."
             );
         }
@@ -263,10 +259,7 @@ class Helper extends Header
 
         $header = $this->getCacheControlHeader();
 
-        if (
-            isset($this->cacheControl['public'])
-            || isset($this->cacheControl['private'])
-        ) {
+        if (isset($this->cacheControl['public']) || isset($this->cacheControl['private'])) {
             return $header;
         }
 

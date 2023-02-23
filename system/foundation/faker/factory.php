@@ -20,7 +20,7 @@ class Factory
         $locale = is_null($locale) ? Config::get('application.language', 'id') : $locale;
         $locales = array_map(function ($item) {
             $item = explode(DS, $item);
-            return end($item);
+            return end(explode(DS, $item));
         }, glob(path('system') . 'foundation' . DS . 'faker' . DS . 'provider' . DS . '*', GLOB_ONLYDIR));
 
         if (!in_array($locale, $locales)) {

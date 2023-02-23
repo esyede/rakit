@@ -303,8 +303,7 @@ class Request
     }
 
     /**
-     * Clone object request saat ini.
-     * (session tidak akan ikut ter-clone).
+     * Clone object request saat ini (session tidak akan ikut ter-clone).
      */
     public function __clone()
     {
@@ -402,9 +401,7 @@ class Request
     public static function setTrustedHeaderName($key, $value)
     {
         if (!array_key_exists($key, self::$trustedHeaders)) {
-            throw new \InvalidArgumentException(
-                sprintf("Unable to set the trusted header name for key '.%s'", $key)
-            );
+            throw new \Exception(sprintf("Unable to set the trusted header name for key '.%s'", $key));
         }
 
         self::$trustedHeaders[$key] = $value;
@@ -448,8 +445,7 @@ class Request
 
             $keyValuePair = explode('=', $param, 2);
             $parts[] = isset($keyValuePair[1])
-                ? rawurlencode(urldecode($keyValuePair[0]))
-                . '=' . rawurlencode(urldecode($keyValuePair[1]))
+                ? rawurlencode(urldecode($keyValuePair[0])) . '=' . rawurlencode(urldecode($keyValuePair[1]))
                 : rawurlencode(urldecode($keyValuePair[0]));
 
             $order[] = urldecode($keyValuePair[0]);
@@ -645,11 +641,7 @@ class Request
     {
         $clientPort = self::$trustedHeaders[self::HEADER_CLIENT_PORT];
 
-        if (
-            self::$trustProxy
-            && $clientPort
-            && $port = $this->headers->get($clientPort)
-        ) {
+        if (self::$trustProxy && $clientPort && $port = $this->headers->get($clientPort)) {
             return $port;
         }
 
@@ -741,15 +733,10 @@ class Request
      */
     public function getUri()
     {
-        $queryString = $this->getQueryString();
+        $query = $this->getQueryString();
+        $query = (null !== $query) ? '?' . $query : '';
 
-        if (null !== $queryString) {
-            $queryString = '?' . $queryString;
-        }
-
-        return $this->getSchemeAndHttpHost() .
-            $this->getBaseUrl() .
-            $this->getPathInfo() . $queryString;
+        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo() . $query;
     }
 
     /**
@@ -771,8 +758,8 @@ class Request
      */
     public function getQueryString()
     {
-        $queryString = static::normalizeQueryString($this->server->get('QUERY_STRING'));
-        return ('' === $queryString) ? null : $queryString;
+        $query = static::normalizeQueryString($this->server->get('QUERY_STRING'));
+        return ('' === $query) ? null : $query;
     }
 
     /**
@@ -788,11 +775,8 @@ class Request
             return in_array(strtolower((string) $proto), ['https', 'on', 'ssl', '1']);
         }
 
-        $https = $this->server->get('HTTPS');
-
-        return 'on' === $https
-            || 1 === (int) $https
-            || (!empty($https) && 'off' !== strtolower((string) $https));
+        $https = (string) $this->server->get('HTTPS');
+        return 'on' === $https || '1' === $https || ($https && 'off' !== strtolower($https));
     }
 
     /**
@@ -804,11 +788,7 @@ class Request
     {
         $clientHost = self::$trustedHeaders[self::HEADER_CLIENT_HOST];
 
-        if (
-            self::$trustProxy
-            && $clientHost
-            && $host = $this->headers->get($clientHost)
-        ) {
+        if (self::$trustProxy && $clientHost && $host = $this->headers->get($clientHost)) {
             $elements = explode(',', $host);
             $host = $elements[count($elements) - 1];
         } elseif (!$host = $this->headers->get('Host')) {
@@ -848,8 +828,7 @@ class Request
             $this->method = strtoupper((string) $this->server->get('REQUEST_METHOD', 'GET'));
 
             if ('POST' === $this->method) {
-                $method = $this->query->get('_method', 'POST');
-                $method = $this->request->get('_method', $method);
+                $method = $this->request->get('_method', $this->query->get('_method', 'POST'));
                 $method = $this->headers->get('X-Http-Method-Override', $method);
                 $this->method = strtoupper((string) $method);
             }
@@ -1026,10 +1005,7 @@ class Request
      */
     public function getContent($asResource = false)
     {
-        if (
-            false === $this->content
-            || (true === $asResource && null !== $this->content)
-        ) {
+        if (false === $this->content || (true === $asResource && null !== $this->content)) {
             throw new \LogicException(
                 'File::getContent() can only be called once when using the resource return type.'
             );
@@ -1145,8 +1121,7 @@ class Request
             return $this->charsets;
         }
 
-        $charsets = $this->headers->get('Accept-Charset');
-        $charsets = array_keys($this->splitHttpAcceptHeader($charsets));
+        $charsets = array_keys($this->splitHttpAcceptHeader($this->headers->get('Accept-Charset')));
         $this->charsets = $charsets;
 
         return $this->charsets;
@@ -1163,8 +1138,7 @@ class Request
             return $this->acceptableContentTypes;
         }
 
-        $acceptable = $this->headers->get('Accept');
-        $acceptable = array_keys($this->splitHttpAcceptHeader($acceptable));
+        $acceptable = array_keys($this->splitHttpAcceptHeader($this->headers->get('Accept')));
         $this->acceptableContentTypes = $acceptable;
 
         return $this->acceptableContentTypes;
@@ -1193,10 +1167,11 @@ class Request
             return [];
         }
 
+        $items = array_filter(explode(',', $header));
         $values = [];
         $groups = [];
 
-        foreach (array_filter(explode(',', $header)) as $value) {
+        foreach ($items as $value) {
             if (preg_match('/;\s*(q=.*$)/', $value, $match)) {
                 $q = substr(trim((string) $match[1]), 2);
                 $value = trim(substr((string) $value, 0, -mb_strlen((string) $match[0], '8bit')));
@@ -1271,18 +1246,17 @@ class Request
             // Kompatibilitas shared hosting 1and1.com
             $baseUrl = $this->server->get('ORIG_SCRIPT_NAME');
         } else {
-            $path = $this->server->get('PHP_SELF', '');
-            $file = $this->server->get('SCRIPT_FILENAME', '');
-            $segs = explode('/', trim($file, '/'));
-            $segs = array_reverse($segs);
+            $path = (string) $this->server->get('PHP_SELF', '');
+            $file = (string) $this->server->get('SCRIPT_FILENAME', '');
+            $segments = array_reverse(explode('/', trim($file, '/')));
 
             $index = 0;
-            $last = count($segs);
+            $last = count($segments);
             $baseUrl = '';
 
             do {
-                $seg = $segs[$index];
-                $baseUrl = '/' . $seg . $baseUrl;
+                $segment = $segments[$index];
+                $baseUrl = '/' . $segment . $baseUrl;
                 ++$index;
             } while ($last > $index && (false !== ($pos = strpos($path, $baseUrl))) && 0 !== $pos);
         }
@@ -1294,7 +1268,7 @@ class Request
             return $prefix;
         }
 
-        $prefix = $this->getUrlencodedPrefix($requestUri, dirname($baseUrl));
+        $prefix = (string) $this->getUrlencodedPrefix($requestUri, dirname($baseUrl));
 
         if ($baseUrl && false !== $prefix) {
             return rtrim($prefix, '/');
@@ -1337,11 +1311,7 @@ class Request
         }
 
         $basePath = (basename($baseUrl) === $filename) ? dirname($baseUrl) : $baseUrl;
-
-        // Windows memang nyebelin
-        if ('\\' === DIRECTORY_SEPARATOR) {
-            $basePath = str_replace('\\', '/', $basePath);
-        }
+        $basePath = ('\\' === DS) ? str_replace('\\', '/', $basePath) : $basePath;
 
         return rtrim($basePath, '/');
     }
@@ -1402,7 +1372,7 @@ class Request
     private function setPhpDefaultLocale($locale)
     {
         try {
-            if (class_exists('Locale', false)) {
+            if (class_exists('\Locale', false)) {
                 \Locale::setDefault($locale);
             }
         } catch (\Throwable $e) {
