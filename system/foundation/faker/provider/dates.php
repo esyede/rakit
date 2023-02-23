@@ -14,13 +14,9 @@ class Dates extends Base
 
     protected static function getMaxTimestamp($max = 'now')
     {
-        if (is_numeric($max)) {
-            return (int) $max;
-        }
-
-        return ($max instanceof \DateTime)
-            ? $max->getTimestamp()
-            : strtotime(empty($max) ? 'now' : $max);
+        return is_numeric($max)
+            ? (int) $max
+            : (($max instanceof \DateTime) ? $max->getTimestamp() : strtotime(empty($max) ? 'now' : $max));
     }
 
     public static function unixTime($max = 'now')
@@ -40,7 +36,12 @@ class Dates extends Base
 
     public static function iso8601($max = 'now')
     {
-        return static::date(\DateTime::ISO8601, $max);
+        return static::date('Y-m-d\TH:i:sO', $max);
+    }
+
+    public static function atom($max = 'now')
+    {
+        return static::date('Y-m-d\TH:i:sP', $max);
     }
 
     public static function date($format = 'Y-m-d', $max = 'now')
@@ -55,10 +56,7 @@ class Dates extends Base
 
     public static function dateTimeBetween($startDate = '-30 years', $endDate = 'now')
     {
-        $start = ($startDate instanceof \DateTime)
-            ? $startDate->getTimestamp()
-            : strtotime($startDate);
-
+        $start = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : strtotime($startDate);
         $end = static::getMaxTimestamp($endDate);
 
         if ($start > $end) {

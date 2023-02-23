@@ -33,7 +33,6 @@ class Defaults
         });
 
         $data = $this->data;
-
         require __DIR__ . '/assets/bar/' . $this->id . '.tab.phtml';
 
         return ob_get_clean();
@@ -141,8 +140,7 @@ class Defaults
 
             if (
                 is_string($binding)
-                && (preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $binding)
-                    || preg_last_error())
+                && (preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $binding) || preg_last_error())
             ) {
                 return '<i title="Length ' . mb_strlen($binding, '8bit') . ' bytes">&lt;binary&gt;</i>';
             }

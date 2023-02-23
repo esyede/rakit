@@ -12,6 +12,6 @@ class Internet extends BaseInternet
     protected static $tld = [
         'com', 'net', 'org', 'asia', 'tv', 'biz', 'info', 'in', 'name', 'co',
         'ac.id', 'sch.id', 'go.id', 'mil.id', 'co.id', 'or.id', 'web.id',
-        'my.id', 'biz.id', 'desa.id', 'id',
+        'my.id', 'biz.id', 'desa.id', 'ponpes.id', 'id',
     ];
 }

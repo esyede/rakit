@@ -129,11 +129,8 @@ class Payment extends Base
         $number .= Luhn::computeCheckDigit($number);
 
         if ($formatted) {
-            $p1 = substr($number, 0, 4);
-            $p2 = substr($number, 4, 4);
-            $p3 = substr($number, 8, 4);
-            $p4 = substr($number, 12);
-            $number = $p1 . $separator . $p2 . $separator . $p3 . $separator . $p4;
+            $number = substr($number, 0, 4) . $separator . substr($number, 4, 4)
+                . $separator . substr($number, 8, 4) . $separator . substr($number, 12);
         }
 
         return $number;
@@ -224,9 +221,7 @@ class Payment extends Base
         }
 
         $checksum = 98 - $checksum;
-        $checksum = ($checksum < 10) ? '0' . $checksum : $checksum;
-
-        return $countryCode . $checksum . $result;
+        return $countryCode . (($checksum < 10) ? '0' . $checksum : $checksum) . $result;
     }
 
     protected static function addBankCodeChecksum($iban, $countryCode = '')

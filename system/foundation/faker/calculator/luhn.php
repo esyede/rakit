@@ -40,6 +40,6 @@ class Luhn
             throw new \InvalidArgumentException('Argument should be an integer.');
         }
 
-        return $partialValue . Luhn::computeCheckDigit($partialValue);
+        return $partialValue . self::computeCheckDigit($partialValue);
     }
 }

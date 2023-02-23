@@ -24,9 +24,7 @@ class Factory
         }, glob(path('system') . 'foundation' . DS . 'faker' . DS . 'provider' . DS . '*', GLOB_ONLYDIR));
 
         if (!in_array($locale, $locales)) {
-            throw new \InvalidArgumentException(
-                sprintf('Locale folder cannot be found: %s', $locale)
-            );
+            throw new \InvalidArgumentException(sprintf('Locale folder cannot be found: %s', $locale));
         }
 
         $generator = new Generator();
@@ -55,11 +53,7 @@ class Factory
             return $class;
         }
 
-        throw new \InvalidArgumentException(sprintf(
-            "Unable to find provider '%s' with locale '%s'",
-            $provider,
-            $locale
-        ));
+        throw new \InvalidArgumentException(sprintf("Unable to find provider '%s' with locale '%s'", $provider, $locale));
     }
 
     protected static function findProviderClassname($provider, $locale = '')

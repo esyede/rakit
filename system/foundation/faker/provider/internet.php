@@ -159,10 +159,7 @@ class Internet extends Base
     {
         $id = 'Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC; Lower();';
 
-        if (
-            function_exists('transliterator_transliterate')
-            && $trans = \Transliterator::create($id)
-        ) {
+        if (function_exists('transliterator_transliterate') && $trans = \Transliterator::create($id)) {
             $result = $trans->transliterate($string);
         } else {
             $result = static::toAscii($string);
