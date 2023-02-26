@@ -67,10 +67,11 @@ class Job extends Event
      * Jalankan antrian job di database.
      *
      * @param string $name
+     * @param int $retries
      *
      * @return bool
      */
-    public static function run($name)
+    public static function run($name, $retries = 1)
     {
         $config = Config::get('job');
         $name = Str::slug($name);
@@ -100,38 +101,50 @@ class Job extends Event
         if (empty($jobs)) {
             static::log('Job is empty');
         } else {
-            foreach ($jobs as $job) {
-                try {
-                    Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
-                    Database::table($config['table'])->where('id', $job->id)->delete();
-                    static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
-                } catch (\Throwable $e) {
-                    $e = get_class($e)
-                        . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
-                        . $e->getTraceAsString();
-                    Database::table($config['failed_table'])->insert([
-                        'job_id' => $job->id,
-                        'name' => $job->name,
-                        'payload' => serialize($job->payloads),
-                        'exception' => $e,
-                        'failed_at' => Date::make()->format('Y-m-d H:i:s'),
-                    ]);
-                    static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
-                } catch (\Exception $e) {
-                    $e = get_class($e)
-                        . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                        . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
-                        . $e->getTraceAsString();
-                    Database::table($config['failed_table'])->insert([
-                        'job_id' => $job->id,
-                        'name' => $job->name,
-                        'payload' => serialize($job->payloads),
-                        'exception' => $e,
-                        'failed_at' => Date::make()->format('Y-m-d H:i:s'),
-                    ]);
-                    static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
-                }
+            $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
+            $failing = false;
+            try {
+                retry($retries, function () use ($failed) {
+                    foreach ($jobs as $job) {
+                        try {
+                            Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
+                            Database::table($config['table'])->where('id', $job->id)->delete();
+                            static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
+                        } catch (\Throwable $e) {
+                            $failing = true;
+                            $e = get_class($e)
+                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . $e->getTraceAsString();
+                            Database::table($config['failed_table'])->insert([
+                                'job_id' => $job->id,
+                                'name' => $job->name,
+                                'payload' => serialize($job->payloads),
+                                'exception' => $e,
+                                'failed_at' => Date::make()->format('Y-m-d H:i:s'),
+                            ]);
+                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                        } catch (\Exception $e) {
+                            $failing = true;
+                            $e = get_class($e)
+                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . $e->getTraceAsString();
+                            Database::table($config['failed_table'])->insert([
+                                'job_id' => $job->id,
+                                'name' => $job->name,
+                                'payload' => serialize($job->payloads),
+                                'exception' => $e,
+                                'failed_at' => Date::make()->format('Y-m-d H:i:s'),
+                            ]);
+                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                        }
+                    }
+                }, $failing);
+            } catch (\Throwable $e) {
+                // Skip retry() error.
+            } catch (\Exception $e) {
+                // Skip retry() error.
             }
         }
     }
@@ -139,9 +152,11 @@ class Job extends Event
     /**
      * Jalankan semua job di database.
      *
+     * @param int $retries
+     *
      * @return bool
      */
-    public static function runall()
+    public static function runall($retries = 1)
     {
         $config = Config::get('job');
 
@@ -164,18 +179,28 @@ class Job extends Event
         if (empty($jobs)) {
             static::log('Job is empty');
         } else {
-            foreach ($jobs as $job) {
-                try {
-                    Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
-                    Database::table($config['table'])->where('id', $job->id)->delete();
-                    static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
-                } catch (\Throwable $e) {
-                    static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
-                    return false;
-                } catch (\Exception $e) {
-                    static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
-                    return false;
-                }
+            $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
+            $failing = false;
+            try {
+                retry($retries, function () use ($failing) {
+                    foreach ($jobs as $job) {
+                        try {
+                            Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
+                            Database::table($config['table'])->where('id', $job->id)->delete();
+                            static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
+                        } catch (\Throwable $e) {
+                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                            return false;
+                        } catch (\Exception $e) {
+                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                            return false;
+                        }
+                    }
+                }, $failing);
+            } catch (\Throwable $e) {
+                // Skip retry() error.
+            } catch (\Exception $e) {
+                // Skip retry() error.
             }
         }
     }

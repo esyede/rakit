@@ -57,6 +57,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Max Retries
+    |--------------------------------------------------------------------------
+    | Batas maksimum sebuah job diulang ekseskusinya sampai dianggap gagal dan
+    | dimasukkan ke tabel failed jobs.
+    |
+    */
+
+    'max_retries' => 1,
+
+    /*
+    |--------------------------------------------------------------------------
     | Logging
     |--------------------------------------------------------------------------
     | Log setiap ekseskusi job ke file log rakit.
