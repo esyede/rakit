@@ -111,7 +111,7 @@ class Job extends Event
                             Database::table($config['table'])->where('id', $job->id)->delete();
                             static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                         } catch (\Throwable $e) {
-                            $failing = true;
+                            $failing = false;
                             $e = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                                 . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
@@ -190,18 +190,18 @@ class Job extends Event
                             static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                         } catch (\Throwable $e) {
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
-                            return false;
                         } catch (\Exception $e) {
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
-                            return false;
                         }
                     }
                 }, 0, $failing);
             } catch (\Throwable $e) {
-                // Skip retry() error.
+                return false;
             } catch (\Exception $e) {
-                // Skip retry() error.
+                return false;
             }
+
+            return true;
         }
     }
 
