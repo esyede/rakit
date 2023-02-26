@@ -67,11 +67,12 @@ class Job extends Event
      * Jalankan antrian job di database.
      *
      * @param string $name
-     * @param int $retries
+     * @param int    $retries
+     * @param int    $sleep_ms
      *
      * @return bool
      */
-    public static function run($name, $retries = 1)
+    public static function run($name, $retries = 1, $sleep_ms = 0)
     {
         $config = Config::get('job');
         $name = Str::slug($name);
@@ -102,7 +103,7 @@ class Job extends Event
             static::log('Job is empty');
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-            $failing = false;
+            $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
             try {
                 retry($retries, function () use ($failed) {
                     foreach ($jobs as $job) {
@@ -111,7 +112,6 @@ class Job extends Event
                             Database::table($config['table'])->where('id', $job->id)->delete();
                             static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                         } catch (\Throwable $e) {
-                            $failing = false;
                             $e = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                                 . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
@@ -125,7 +125,6 @@ class Job extends Event
                             ]);
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                         } catch (\Exception $e) {
-                            $failing = true;
                             $e = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                                 . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
@@ -140,7 +139,7 @@ class Job extends Event
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                         }
                     }
-                }, 0, $failing);
+                }, $sleep_ms);
             } catch (\Throwable $e) {
                 // Skip retry() error.
             } catch (\Exception $e) {
@@ -153,21 +152,22 @@ class Job extends Event
      * Jalankan semua job di database.
      *
      * @param int $retries
+     * @param int $sleep_ms
      *
      * @return bool
      */
-    public static function runall($retries = 1)
+    public static function runall($retries = 1, $sleep_ms = 0)
     {
         $config = Config::get('job');
 
         if (!$config['enabled']) {
             static::log('Job is disabled', 'error');
-            return false;
+            return;
         }
 
         if ($config['cli_only'] && !Request::cli()) {
             static::log('Job is set to CLI only', 'error');
-            return false;
+            return;
         }
 
         $jobs = Database::table($config['table'])
@@ -180,7 +180,7 @@ class Job extends Event
             static::log('Job is empty');
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-            $failing = false;
+            $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
             try {
                 retry($retries, function () use ($failing) {
                     foreach ($jobs as $job) {
@@ -194,14 +194,12 @@ class Job extends Event
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                         }
                     }
-                }, 0, $failing);
+                }, $sleep_ms);
             } catch (\Throwable $e) {
-                return false;
+                // Skip retry() error.
             } catch (\Exception $e) {
-                return false;
+                // Skip retry() error.
             }
-
-            return true;
         }
     }
 
