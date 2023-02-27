@@ -61,10 +61,9 @@ class JWT
         $headers = array_merge($headers, ['typ' => 'JWT', 'alg' => $algorithm]);
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
-        $message = $headers . '.' . $payloads;
-        $signature = static::encode_url(static::signature($message, $secret, $algorithm));
+        $signature = static::encode_url(static::signature($$headers . '.' . $payloads, $secret, $algorithm));
 
-        return $message . '.' . $signature;
+        return $headers . '.' . $payloads . '.' . $signature;
     }
 
     /**
