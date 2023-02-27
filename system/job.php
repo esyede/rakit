@@ -181,6 +181,7 @@ class Job extends Event
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
             $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
+
             try {
                 retry($retries, function () use ($failing) {
                     foreach ($jobs as $job) {

@@ -569,10 +569,10 @@ class Blade
     public static function compiled($path)
     {
         $name = Str::replace_last('.blade.php', '', basename($path));
-        $len = strlen($path);
+        $length = strlen($path);
         $hash = 0xFFFF;
 
-        for ($i = 0; $i < $len; $i++) {
+        for ($i = 0; $i < $length; $i++) {
             $hash ^= (ord($path[$i]) << 8);
 
             for ($j = 0; $j < 8; $j++) {

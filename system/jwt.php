@@ -81,8 +81,8 @@ class JWT
             throw new \Exception('Secret cannot be empty');
         }
 
-        $timestamp = static::$timestamp ? static::$timestamp : time();
         $jwt = explode('.', $token);
+        $timestamp = static::$timestamp ? static::$timestamp : time();
 
         if (!is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');
@@ -276,10 +276,9 @@ class JWT
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
         ];
 
-        $message = isset($messages[$errno])
+        throw new \Exception(isset($messages[$errno])
             ? $messages[$errno]
-            : sprintf('Unknown JSON error: %s', $errno);
-
-        throw new \Exception($message);
+            : sprintf('Unknown JSON error: %s', $errno)
+        );
     }
 }

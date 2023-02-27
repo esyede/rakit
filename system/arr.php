@@ -335,8 +335,8 @@ class Arr
             return false;
         }
 
-        $keys = array_keys($array);
-        return (array_keys($keys) !== $keys);
+        $array = array_keys($array);
+        return (array_keys($array) !== $array);
     }
 
     /**

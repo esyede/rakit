@@ -82,8 +82,7 @@ class URL
         }
 
         $config = Config::get('application');
-        $base = static::base();
-        $base .= $asset ? '' : '/' . $config['index'];
+        $base = static::base() . ($asset ? '' : '/' . $config['index']);
 
         if (!$asset && $locale && count($config['languages']) > 0) {
             if (in_array($config['language'], $config['languages'])) {
@@ -198,8 +197,7 @@ class URL
             throw new \Exception(sprintf('Error creating URL for undefined route: %s', $name));
         }
 
-        $uri = trim(static::transpose(key($route), $parameters), '/');
-        return static::to($uri);
+        return static::to(trim(static::transpose(key($route), $parameters), '/'));
     }
 
     /**

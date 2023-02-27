@@ -1,0 +1,5 @@
+{
+    "name": "logviewer",
+    "description": "Paket manajemen file log untuk rakit framework.",
+    "version": "v1.0.0"
+}

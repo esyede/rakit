@@ -184,9 +184,9 @@ class Storage
         if (function_exists('copy')) {
             copy($path, $target);
         } else {
-            $handle = fopen($target, 'w');
-            fwrite($handle, file_get_contents($path));
-            fclose($handle);
+            $fh = fopen($target, 'w');
+            fwrite($fh, file_get_contents($path));
+            fclose($fh);
         }
 
         static::protect($target);
@@ -381,9 +381,7 @@ class Storage
      */
     public static function is($extensions, $path)
     {
-        $extensions = is_array($extensions) ? array_values($extensions) : [$extensions];
-        $extensions = array_map('strtolower', $extensions);
-
+        $extensions = array_map('strtolower', is_array($extensions) ? array_values($extensions) : [$extensions]);
         $pool = Foundation\Http\Upload::$extensions;
         $mime = static::mime($path);
 

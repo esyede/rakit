@@ -12,8 +12,7 @@ if (!function_exists('e')) {
      */
     function e($value)
     {
-        $value = (string) $value;
-        return htmlentities($value, ENT_QUOTES, 'UTF-8', false);
+        return htmlentities((string) $value, ENT_QUOTES, 'UTF-8', false);
     }
 }
 
@@ -728,11 +727,7 @@ if (!function_exists('csrf_field')) {
      */
     function csrf_field()
     {
-        return sprintf(
-            '<input type="hidden" name="%s" value="%s">' . PHP_EOL,
-            csrf_name(),
-            csrf_token()
-        );
+        return sprintf('<input type="hidden" name="%s" value="%s">' . PHP_EOL, csrf_name(), csrf_token());
     }
 }
 
@@ -764,8 +759,7 @@ if (!function_exists('class_basename')) {
      */
     function class_basename($class)
     {
-        $class = is_object($class) ? get_class($class) : $class;
-        return basename(str_replace('\\', '/', (string) $class));
+        return basename(str_replace('\\', '/', is_object($class) ? get_class($class) : (string) $class));
     }
 }
 

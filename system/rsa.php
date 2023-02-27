@@ -64,11 +64,7 @@ class RSA
         static::generate();
 
         if (!($priv = openssl_pkey_get_private(static::$details['private_key']))) {
-            throw new \Exception(sprintf(
-                'Failed to obtain private key: %s (%s)',
-                $priv,
-                gettype($priv)
-            ));
+            throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $priv, gettype($priv)));
         }
 
         $key = openssl_pkey_get_details($priv);

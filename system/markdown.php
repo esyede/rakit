@@ -653,9 +653,7 @@ class Markdown
         $pattern = '/^<(\w[\w-]*)(?:[ ]*' . $this->attrs . ')*[ ]*(\/)?>/';
 
         if (preg_match($pattern, $tag['text'], $matches)) {
-            $element = strtolower($matches[1]);
-
-            if (in_array($element, $this->formattings)) {
+            if (in_array(strtolower($matches[1]), $this->formattings)) {
                 return;
             }
 
@@ -783,11 +781,7 @@ class Markdown
 
             $attr['element']['text'][] = ['name' => 'thead', 'handler' => 'elements'];
             $attr['element']['text'][] = ['name' => 'tbody', 'handler' => 'elements', 'text' => []];
-            $attr['element']['text'][0]['text'][] = [
-                'name' => 'tr',
-                'handler' => 'elements',
-                'text' => $elems,
-            ];
+            $attr['element']['text'][0]['text'][] = ['name' => 'tr', 'handler' => 'elements', 'text' => $elems];
 
             return $attr;
         }
@@ -807,9 +801,7 @@ class Markdown
                 $elem = ['name' => 'td', 'handler' => 'line', 'text' => trim($cell)];
 
                 if (isset($attrib['alignments'][$index])) {
-                    $elem['attributes'] = [
-                        'style' => 'text-align: ' . $attrib['alignments'][$index] . ';',
-                    ];
+                    $elem['attributes'] = ['style' => 'text-align: ' . $attrib['alignments'][$index] . ';'];
                 }
 
                 $elems[] = $elem;
@@ -947,8 +939,7 @@ class Markdown
             $extent += mb_strlen($matches[0], '8bit');
         } else {
             if (preg_match('/^\s*\[(.*?)\]/', $remainder, $matches)) {
-                $definition = mb_strlen($matches[1], '8bit') ? $matches[1] : $elem['text'];
-                $definition = strtolower($definition);
+                $definition = strtolower(mb_strlen($matches[1], '8bit') ? $matches[1] : $elem['text']);
                 $extent += mb_strlen($matches[0], '8bit');
             } else {
                 $definition = strtolower((string) $elem['text']);
@@ -1039,10 +1030,9 @@ class Markdown
         $pattern = '/^<(\w+:\/{2}[^ >]+)>/i';
 
         if (false !== strpos((string) $not['text'], '>') && preg_match($pattern, $not['text'], $matches)) {
-            $url = $matches[1];
             return [
                 'extent' => mb_strlen($matches[0], '8bit'),
-                'element' => ['name' => 'a', 'text' => $url, 'attributes' => ['href' => $url]],
+                'element' => ['name' => 'a', 'text' => $matches[1], 'attributes' => ['href' => $matches[1]]],
             ];
         }
     }
@@ -1086,15 +1076,9 @@ class Markdown
                 $elem['non_nestables'] = [];
             }
 
-            if (isset($elem['handler'])) {
-                $markup .= $this->{$elem['handler']}($text, $elem['non_nestables']);
-            } elseif (!$raw) {
-                $markup .= self::escape($text, true);
-            } else {
-                $markup .= $text;
-            }
-
-            $markup .= '</' . $elem['name'] . '>';
+            $markup .= (isset($elem['handler'])
+                ? $this->{$elem['handler']}($text, $elem['non_nestables'])
+                : ((!$raw) ? self::escape($text, true) : $text)) . '</' . $elem['name'] . '>';
         } else {
             $markup .= ' />';
         }
@@ -1127,16 +1111,15 @@ class Markdown
 
     protected function sanitize(array $elem)
     {
-        static $good = '/^[a-zA-Z0-9][a-zA-Z0-9-_]*+$/';
-        static $safenames = ['a' => 'href', 'img' => 'src'];
+        $safe = ['a' => 'href', 'img' => 'src'];
 
-        if (isset($safenames[$elem['name']])) {
-            $elem = $this->url_filter($elem, $safenames[$elem['name']]);
+        if (isset($safe[$elem['name']])) {
+            $elem = $this->url_filter($elem, $safe[$elem['name']]);
         }
 
         if (!empty($elem['attributes'])) {
             foreach ($elem['attributes'] as $att => $val) {
-                if (!preg_match($good, $att)) {
+                if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9-_]*+$/', $att)) {
                     unset($elem['attributes'][$att]);
                 } elseif (self::starts($att, 'on')) {
                     unset($elem['attributes'][$att]);

@@ -98,8 +98,7 @@ class Image
             return static::$singleton;
         }
 
-        static::$singleton = new static($path, $quality);
-        return static::$singleton;
+        return static::$singleton = new static($path, $quality);
     }
 
     /**
@@ -119,13 +118,12 @@ class Image
             throw new \Exception('Only JPG, PNG or GIF file type is supported.');
         }
 
+        $this->exif = [];
         list($this->width, $this->height, $this->type) = getimagesize($path);
 
         if ($this->type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
             $exif = exif_read_data($path, 'IFD0');
             $this->exif = (is_array($exif) && !empty($exif)) ? $exif : [];
-        } else {
-            $this->exif = [];
         }
 
         switch ($this->type) {
@@ -179,10 +177,10 @@ class Image
     public function height($value)
     {
         $value = (int) $value;
-        $new_width = ($value / $this->height) * $this->width;
-        $canvas = imagecreatetruecolor($new_width, $value);
+        $width = ($value / $this->height) * $this->width;
+        $canvas = imagecreatetruecolor($width, $value);
 
-        imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $new_width, $value, $this->width, $this->height);
+        imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $width, $value, $this->width, $this->height);
 
         $this->image = $canvas;
         $this->maintain();

@@ -111,12 +111,11 @@ class Package
             require $directory . 'routes.php';
 
             // Muat file event, middleware dan view composer.
-            $files = ['events.php', 'middlewares.php', 'composers.php'];
             array_map(function ($file) use ($directory) {
                 if (is_file($directory . $file)) {
                     require $directory . $file;
                 }
-            }, $files);
+            }, ['events.php', 'middlewares.php', 'composers.php']);
         }
     }
 
@@ -270,9 +269,7 @@ class Package
      */
     public static function assets($package)
     {
-        return (is_null($package) || DEFAULT_PACKAGE === $package)
-            ? '/'
-            : '/packages/' . $package . '/';
+        return (is_null($package) || DEFAULT_PACKAGE === $package) ? '/' : '/packages/' . $package . '/';
     }
 
     /**
@@ -335,9 +332,7 @@ class Package
      */
     public static function identifier($package, $element)
     {
-        return (is_null($package) || DEFAULT_PACKAGE === $package)
-            ? $element
-            : $package . '::' . $element;
+        return (is_null($package) || DEFAULT_PACKAGE === $package) ? $element : $package . '::' . $element;
     }
 
     /**

@@ -120,18 +120,12 @@ class View implements \ArrayAccess
      */
     public static function exists($view, $return_path = false)
     {
-        if (
-            0 === strpos($view, 'name: ')
-            && array_key_exists($name = substr($view, 6), static::$names)
-        ) {
+        if (0 === strpos($view, 'name: ') && array_key_exists($name = substr($view, 6), static::$names)) {
             $view = static::$names[$name];
         }
 
         list($package, $view) = Package::parse($view);
-
-        $view = str_replace(['.', '/'], DS, $view);
-        $path = Event::until(static::LOADER, [$package, $view]);
-
+        $path = Event::until(static::LOADER, [$package, str_replace(['.', '/'], DS, $view)]);
         return is_null($path) ? false : ($return_path ? $path : true);
     }
 
@@ -166,7 +160,9 @@ class View implements \ArrayAccess
 
         if (is_file($path = $directory . $view . '.php')) {
             return $path;
-        } elseif (is_file($path = $directory . $view . '.blade.php')) {
+        }
+
+        if (is_file($path = $directory . $view . '.blade.php')) {
             return $path;
         }
     }

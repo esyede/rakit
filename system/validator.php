@@ -224,9 +224,7 @@ class Validator
      */
     protected function error($attribute, $rule, array $parameters)
     {
-        $target = $this->message($attribute, $rule);
-        $message = $this->replace($target, $attribute, $rule, $parameters);
-
+        $message = $this->replace($this->message($attribute, $rule), $attribute, $rule, $parameters);
         $this->errors->add($attribute, $message);
     }
 
@@ -242,13 +240,13 @@ class Validator
     {
         if (is_null($value)) {
             return false;
-        } elseif (is_string($value) && '' === trim($value)) {
+        }
+
+        if (is_string($value) && '' === trim($value)) {
             return false;
-        } elseif (
-            !is_null(Input::file($attribute))
-            && is_array($value)
-            && '' === trim($value['tmp_name'])
-        ) {
+        }
+
+        if (!is_null(Input::file($attribute)) && is_array($value) && '' === trim($value['tmp_name'])) {
             return false;
         }
 
@@ -385,7 +383,7 @@ class Validator
             return false;
         }
 
-        // '==' memang disengaja untuk loose comparison.
+        // '==' memang disengaja untuk loosey comparison.
         return $this->size($attribute, $value) == $parameters[0];
     }
 
@@ -444,7 +442,9 @@ class Validator
     {
         if (is_numeric($value) && $this->has_rule($attribute, $this->numerics)) {
             return $this->attributes[$attribute];
-        } elseif (array_key_exists($attribute, Input::file())) {
+        }
+
+        if (array_key_exists($attribute, Input::file())) {
             return $value['size'] / 1024;
         }
 
@@ -498,8 +498,7 @@ class Validator
         $query = $this->db()->table($parameters[0])->where($attribute, '=', $value);
 
         if (isset($parameters[2])) {
-            $id = isset($parameters[3]) ? $parameters[3] : 'id';
-            $query->where($id, '<>', $parameters[2]);
+            $query->where(isset($parameters[3]) ? $parameters[3] : 'id', '<>', $parameters[2]);
         }
 
         return 0 === (int) $query->count();
@@ -595,13 +594,12 @@ class Validator
     {
         try {
             $value = (string) $value;
+            return ('' === $value) ? true : (!preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value));
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
             return false;
         }
-
-        return ('' === $value) ? true : (!preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value));
     }
 
     /**
@@ -936,11 +934,17 @@ class Validator
 
         if (array_key_exists($custom, $this->messages)) {
             return $this->messages[$custom];
-        } elseif (Lang::has($custom = $package . 'validation.custom.' . $custom, $this->language)) {
+        }
+
+        if (Lang::has($custom = $package . 'validation.custom.' . $custom, $this->language)) {
             return Lang::line($custom)->get($this->language);
-        } elseif (array_key_exists($rule, $this->messages)) {
+        }
+
+        if (array_key_exists($rule, $this->messages)) {
             return $this->messages[$rule];
-        } elseif (in_array($rule, $this->sizes)) {
+        }
+
+        if (in_array($rule, $this->sizes)) {
             return $this->size_message($package, $attribute, $rule);
         }
 
@@ -958,13 +962,9 @@ class Validator
      */
     protected function size_message($package, $attribute, $rule)
     {
-        if ($this->has_rule($attribute, $this->numerics)) {
-            $line = 'numeric';
-        } elseif (array_key_exists($attribute, Input::file())) {
-            $line = 'file';
-        } else {
-            $line = 'string';
-        }
+        $line = $this->has_rule($attribute, $this->numerics)
+            ? 'numeric'
+            : (array_key_exists($attribute, Input::file()) ? 'file' : 'string');
 
         return Lang::line($package . 'validation.' . $rule . '.' . $line)->get($this->language);
     }
@@ -982,13 +982,9 @@ class Validator
     protected function replace($message, $attribute, $rule, array $parameters)
     {
         $message = str_replace(':attribute', $this->attribute($attribute), $message);
-        $method = 'replace_' . $rule;
-
-        if (method_exists($this, $method)) {
-            $message = $this->{$method}($message, $attribute, $rule, $parameters);
-        }
-
-        return $message;
+        return method_exists($this, 'replace_' . $rule)
+            ? $this->{'replace_' . $rule}($message, $attribute, $rule, $parameters)
+            : $message;
     }
 
     /**
@@ -1294,12 +1290,7 @@ class Validator
     protected function parse($rule)
     {
         $rule = (string) $rule;
-        $parameters = [];
-
-        if (false !== ($colon = strpos($rule, ':'))) {
-            $parameters = str_getcsv(substr($rule, $colon + 1));
-        }
-
+        $parameters = (false !== ($colon = strpos($rule, ':'))) ? str_getcsv(substr($rule, $colon + 1)) : [];
         return [is_numeric($colon) ? substr($rule, 0, $colon) : $rule, $parameters];
     }
 
@@ -1350,11 +1341,7 @@ class Validator
      */
     protected function db()
     {
-        if (is_null($this->db)) {
-            $this->db = Database::connection();
-        }
-
-        return $this->db;
+        return $this->db = is_null($this->db) ? Database::connection() : $this->db;
     }
 
     /**

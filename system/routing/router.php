@@ -207,15 +207,9 @@ class Router
      */
     protected static function action($action)
     {
-        if (is_string($action)) {
-            $action = ['uses' => $action];
-        } elseif ($action instanceof \Closure) {
-            $action = [$action];
-        } else {
-            $action = (array) $action;
-        }
-
-        return $action;
+        return is_string($action)
+            ? ['uses' => $action]
+            : (($action instanceof \Closure) ? [$action] : (array) $action);
     }
 
     /**
@@ -287,8 +281,7 @@ class Router
         foreach ($routings as $method => $routes) {
             foreach ($routes as $key => $value) {
                 if (isset($value['as']) && $value['as'] === $name) {
-                    static::$names[$name] = [$key => $value];
-                    return static::$names[$name];
+                    return static::$names[$name] = [$key => $value];
                 }
             }
         }
@@ -314,8 +307,7 @@ class Router
         foreach ($routings as $method => $routes) {
             foreach ($routes as $key => $value) {
                 if (isset($value['uses']) && $action === $value['uses']) {
-                    static::$uses[$action] = [$key => $value];
-                    return static::$uses[$action];
+                    return static::$uses[$action] = [$key => $value];
                 }
             }
         }

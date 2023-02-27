@@ -162,8 +162,7 @@ class Redirect extends Response
      */
     public function with_errors($container)
     {
-        $errors = ($container instanceof Validator) ? $container->errors : $container;
-        return $this->with('errors', $errors);
+        return $this->with('errors', ($container instanceof Validator) ? $container->errors : $container);
     }
 
     /**

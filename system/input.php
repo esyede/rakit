@@ -109,12 +109,9 @@ class Input
      */
     public static function json($as_array = false)
     {
-        if (!is_null(static::$json)) {
-            return static::$json;
+        if (!static::$json) {
+            static::$json = json_decode(Request::foundation()->getContent(), $as_array);
         }
-
-        $content = Request::foundation()->getContent();
-        static::$json = json_decode($content, $as_array);
 
         return static::$json;
     }
@@ -140,8 +137,7 @@ class Input
      */
     public static function only($keys)
     {
-        $keys = is_array($keys) ? $keys : func_get_args();
-        return Arr::only(static::get(), $keys);
+        return Arr::only(static::get(), is_array($keys) ? $keys : func_get_args());
     }
 
     /**
@@ -165,8 +161,7 @@ class Input
      */
     public static function except($keys)
     {
-        $keys = is_array($keys) ? $keys : func_get_args();
-        return Arr::except(static::get(), $keys);
+        return Arr::except(static::get(), is_array($keys) ? $keys : func_get_args());
     }
 
     /**
@@ -283,8 +278,7 @@ class Input
      */
     public static function flash($filter = null, array $keys = [])
     {
-        $flash = is_null($filter) ? static::get() : static::{$filter}($keys);
-        Session::flash(Input::OLD, $flash);
+        Session::flash(Input::OLD, is_null($filter) ? static::get() : static::{$filter}($keys));
     }
 
     /**

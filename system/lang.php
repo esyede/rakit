@@ -129,8 +129,7 @@ class Lang
             return value($default);
         }
 
-        $lines = static::$lines[$package][$language][$file];
-        $line = Arr::get($lines, $line, $default);
+        $line = Arr::get(static::$lines[$package][$language][$file], $line, $default);
 
         if (is_string($line)) {
             foreach ($this->replacements as $key => $value) {

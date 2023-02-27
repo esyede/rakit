@@ -314,8 +314,7 @@ class Str
 
         while (($length2 = mb_strlen($string, '8bit')) < $length) {
             $size = $length - $length2;
-            $bytes = base64_encode(static::bytes($size));
-            $string .= substr(str_replace(['/', '+', '='], '', $bytes), 0, $size);
+            $string .= substr(str_replace(['/', '+', '='], '', base64_encode(static::bytes($size))), 0, $size);
         }
 
         return $string;
@@ -715,11 +714,10 @@ class Str
      */
     public static function camel($value)
     {
-        if (isset(static::$camel[$value])) {
-            return static::$camel[$value];
+        if (!isset(static::$camel[$value])) {
+            static::$camel[$value] = lcfirst(static::studly($value));
         }
 
-        static::$camel[$value] = lcfirst(static::studly($value));
         return static::$camel[$value];
     }
 
@@ -734,12 +732,9 @@ class Str
     {
         $key = $value;
 
-        if (isset(static::$studly[$key])) {
-            return static::$studly[$key];
+        if (!isset(static::$studly[$key])) {
+            static::$studly[$key] = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $value)));
         }
-
-        $value = ucwords(str_replace(['-', '_'], ' ', $value));
-        static::$studly[$key] = str_replace(' ', '', $value);
 
         return static::$studly[$key];
     }
@@ -779,8 +774,7 @@ class Str
             $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $value));
         }
 
-        static::$snake[$key][$delimiter] = $value;
-        return static::$snake[$key][$delimiter];
+        return static::$snake[$key][$delimiter] = $value;
     }
 
     /**
@@ -958,10 +952,7 @@ class Str
      */
     public static function __callStatic($method, $parameters)
     {
-        $method = array_key_exists($method, static::$macros)
-            ? static::$macros[$method]
-            : ['\System\Str', $method];
-
+        $method = array_key_exists($method, static::$macros) ? static::$macros[$method] : ['\System\Str', $method];
         return call_user_func_array($method, $parameters);
     }
 }

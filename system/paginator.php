@@ -99,10 +99,7 @@ class Paginator
      */
     public static function make($results, $total, $perpage)
     {
-        $page = static::page($total, $perpage);
-        $last = ceil($total / $perpage);
-
-        return new static($results, $page, $total, $perpage, $last);
+        return new static($results, static::page($total, $perpage), $total, $perpage, ceil($total / $perpage));
     }
 
     /**
@@ -340,14 +337,10 @@ class Paginator
      */
     protected function link($page, $text, $class)
     {
-        $query = '?page=' . $page . $this->appendage($this->appends);
-        $attributes = trim(static::attributes(['class' => $class . ' page-item']));
-        $uri = URI::current() . $query;
-
         return sprintf(
             "\t\t<li %s><a class=\"page-link\" href=\"%s\">%s</a></li>\n",
-            $attributes,
-            $uri,
+            trim(static::attributes(['class' => $class . ' page-item'])),
+            URI::current() . '?page=' . $page . $this->appendage($this->appends),
             e($text)
         );
     }
@@ -365,13 +358,7 @@ class Paginator
             return $this->appendage;
         }
 
-        if (count($appends) <= 0) {
-            $this->appendage = '';
-            return $this->appendage;
-        }
-
-        $this->appendage = '&' . http_build_query($appends);
-        return $this->appendage;
+        return $this->appendage = (count($appends) <= 0) ? '&' . http_build_query($appends) : '';
     }
 
     /**
