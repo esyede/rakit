@@ -32,7 +32,7 @@ class Date
                     $this->timestamp = $date;
                 } else {
                     $timestamp = strtotime($date);
-                    $this->timestamp = $timestamp ? $timestamp : false;
+                    $this->timestamp = $timestamp ?: false;
                 }
             }
         }
@@ -140,7 +140,9 @@ class Date
 
         if (0 === $diff || ($diff > 0 && $diff < 1)) {
             return Lang::line('date.just_now')->get();
-        } elseif ($diff < 0 && $diff > -1) {
+        }
+
+        if ($diff < 0 && $diff > -1) {
             return Lang::line('date.just_soon')->get();
         }
 
