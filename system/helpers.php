@@ -69,8 +69,7 @@ if (!function_exists('dump')) {
      */
     function dump($variables)
     {
-        $variables = is_array($variables) ? $variables : func_get_args();
-        array_map('\System\Foundation\Oops\Debugger::dump', $variables);
+        array_map('\System\Foundation\Oops\Debugger::dump', $is_array($variables) ? $variables : func_get_args());
     }
 }
 
@@ -566,8 +565,7 @@ if (!function_exists('fake')) {
      */
     function fake($locale = null)
     {
-        $locale = $locale ? $locale : config('application.language');
-        return \System\Foundation\Faker\Factory::create($locale);
+        return \System\Foundation\Faker\Factory::create($locale ? $locale : config('application.language'));
     }
 }
 
@@ -742,9 +740,7 @@ if (!function_exists('root_namespace')) {
      */
     function root_namespace($class, $separator = '\\')
     {
-        return \System\Str::contains($class, $separator)
-            ? head(explode($separator, $class))
-            : null;
+        return \System\Str::contains($class, $separator) ? head(explode($separator, $class)) : null;
     }
 }
 

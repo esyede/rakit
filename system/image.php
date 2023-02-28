@@ -596,7 +596,7 @@ class Image
             throw new \Exception('The PHP GD extension is not available');
         }
 
-        $size = ($size < 16) ? 16 : $size;
+        $size = ($size < 16) ? 16 : (int) $size;
         $hash = sha1($seed);
         $image = imagecreatetruecolor($size, $size);
         $sprites = [
@@ -741,12 +741,7 @@ class Image
         $bounds = range($low, $high);
 
         if (!in_array($value, $bounds)) {
-            throw new \Exception(sprintf(
-                'The %s level is out of bounds. It needs to be between %s to %s',
-                $method,
-                $low,
-                $high
-            ));
+            throw new \Exception(sprintf('The %s level should be between %s to %s', $method, $low, $high));
         }
 
         return  (int) $value;

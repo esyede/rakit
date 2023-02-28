@@ -265,8 +265,7 @@ class Validator
      */
     protected function validate_required_with($attribute, $value, array $parameters)
     {
-        $other = Arr::get($this->attributes, $parameters[0]);
-        return $this->validate_required($parameters[0], $other)
+        return $this->validate_required($parameters[0], Arr::get($this->attributes, $parameters[0]))
             ? $this->validate_required($attribute, $value)
             : true;
     }
@@ -323,8 +322,7 @@ class Validator
      */
     protected function validate_same($attribute, $value, array $parameters)
     {
-        return array_key_exists($parameters[0], $this->attributes)
-            && ($value === $this->attributes[$parameters[0]]);
+        return array_key_exists($parameters[0], $this->attributes) && ($value === $this->attributes[$parameters[0]]);
     }
 
     /**
@@ -338,8 +336,7 @@ class Validator
      */
     protected function validate_different($attribute, $value, array $parameters)
     {
-        return array_key_exists($parameters[0], $this->attributes)
-            && ($value !== $this->attributes[$parameters[0]]);
+        return array_key_exists($parameters[0], $this->attributes) && ($value !== $this->attributes[$parameters[0]]);
     }
 
     /**
@@ -515,9 +512,8 @@ class Validator
      */
     protected function validate_exists($attribute, $value, array $parameters)
     {
-        $attribute = isset($parameters[1]) ? $parameters[1] : $attribute;
-        $count = is_array($value) ? count($value) : 1;
         $query = $this->db()->table($parameters[0]);
+        $attribute = isset($parameters[1]) ? $parameters[1] : $attribute;
 
         if (is_array($value)) {
             $query->where_in($attribute, $value);
@@ -525,7 +521,7 @@ class Validator
             $query->where($attribute, '=', $value);
         }
 
-        return $query->count() >= $count;
+        return $query->count() >= (is_array($value) ? count($value) : 1);
     }
 
     /**
@@ -666,9 +662,7 @@ class Validator
      */
     protected function validate_alpha_num($attribute, $value)
     {
-        return (is_string($value) || is_numeric($value))
-            ? (preg_match('/^[\pL\pM\pN]+$/u', $value) > 0)
-            : false;
+        return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN]+$/u', $value) > 0) : false;
     }
 
     /**
@@ -682,9 +676,7 @@ class Validator
      */
     protected function validate_alpha_dash($attribute, $value)
     {
-        return (is_string($value) || is_numeric($value))
-            ? (preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0)
-            : false;
+        return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0) : false;
     }
 
     /**
@@ -862,7 +854,6 @@ class Validator
         }
 
         $date = date_parse($value);
-
         return checkdate($date['month'], $date['day'], $date['year']);
     }
 
@@ -906,17 +897,15 @@ class Validator
      */
     public function validate_utf8($attribute, $value, array $parameters)
     {
-        $pattern = '/\A(?:[\x00-\x7F]++
-            | [\xC2-\xDF][\x80-\xBF]
-            |  \xE0[\xA0-\xBF][\x80-\xBF]
-            | [\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}
-            |  \xED[\x80-\x9F][\x80-\xBF]
-            |  \xF0[\x90-\xBF][\x80-\xBF]{2}
-            | [\xF1-\xF3][\x80-\xBF]{3}
-            |  \xF4[\x80-\x8F][\x80-\xBF]{2}
-            )*+\z/x';
-
-        return preg_match($pattern, $value);
+        return preg_match('/\A(?:[\x00-\x7F]++
+            |[\xC2-\xDF][\x80-\xBF]
+            |\xE0[\xA0-\xBF][\x80-\xBF]
+            |[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}
+            |\xED[\x80-\x9F][\x80-\xBF]
+            |\xF0[\x90-\xBF][\x80-\xBF]{2}
+            |[\xF1-\xF3][\x80-\xBF]{3}
+            | \xF4[\x80-\x8F][\x80-\xBF]{2}
+            )*+\z/x', $value);
     }
 
     /**

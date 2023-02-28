@@ -115,10 +115,7 @@ class JWT
         }
 
         if (!isset(static::$algorithms[$headers->alg]) || !static::$algorithms[$headers->alg]) {
-            throw new \Exception(sprintf(
-                'Only these algorithm are supported: %s',
-                implode(', ', static::$algorithms)
-            ));
+            throw new \Exception(sprintf('Only these algorithm are supported: %s', implode(', ', static::$algorithms)));
         }
 
         if (!static::verify($headers64 . '.' . $payloads64, $signature, $secret, $headers->alg)) {
@@ -126,17 +123,11 @@ class JWT
         }
 
         if (isset($payloads->nbf) && $payloads->nbf > ($timestamp + static::$leeway)) {
-            throw new \Exception(sprintf(
-                'Cannot handle token prior to %s',
-                date(\DateTime::ATOM, $payloads->nbf)
-            ));
+            throw new \Exception(sprintf('Cannot handle token prior to %s', date(\DateTime::ATOM, $payloads->nbf)));
         }
 
         if (isset($payloads->iat) && $payloads->iat > ($timestamp + static::$leeway)) {
-            throw new \Exception(sprintf(
-                'Cannot handle token prior to %s',
-                date(\DateTime::ATOM, $payloads->iat)
-            ));
+            throw new \Exception(sprintf('Cannot handle token prior to %s', date(\DateTime::ATOM, $payloads->iat)));
         }
 
         if (isset($payloads->exp) && ($timestamp - static::$leeway) >= $payloads->exp) {
@@ -194,8 +185,7 @@ class JWT
             ));
         }
 
-        $hash = hash_hmac(static::$algorithms[$algorithm], $payload, $secret, true);
-        return Crypter::equals($signature, $hash);
+        return Crypter::equals($signature, hash_hmac(static::$algorithms[$algorithm], $payload, $secret, true));
     }
 
     /**
@@ -261,13 +251,13 @@ class JWT
     /**
      * Tangani error json.
      *
-     * @param int $errno
+     * @param int $code
      *
      * @return void
      */
-    private static function json_error($errno)
+    private static function json_error($code)
     {
-        $messages = [
+        $errors = [
             JSON_ERROR_DEPTH => 'Maximum stack depth exceeded',
             JSON_ERROR_STATE_MISMATCH => 'Invalid or malformed JSON',
             JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
@@ -275,9 +265,6 @@ class JWT
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
         ];
 
-        throw new \Exception(isset($messages[$errno])
-            ? $messages[$errno]
-            : sprintf('Unknown JSON error: %s', $errno)
-        );
+        throw new \Exception(isset($errors[$code]) ? $errors[$code] : sprintf('Unknown JSON error: %s', $code));
     }
 }

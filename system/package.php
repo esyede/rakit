@@ -182,8 +182,7 @@ class Package
      */
     public static function exists($package)
     {
-        return DEFAULT_PACKAGE === $package
-            || in_array(strtolower((string) $package), static::names());
+        return DEFAULT_PACKAGE === $package || in_array(strtolower((string) $package), static::names());
     }
 
     /**

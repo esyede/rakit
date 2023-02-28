@@ -220,9 +220,7 @@ class Blade
         $matcher = '/(@)?\{\{\s*(.+?)\s*\}\}(\r?\n)?/s';
         $value = preg_replace_callback($matcher, function ($matches) use ($compiler) {
             $ws = empty($matches[3]) ? '' : $matches[3] . $matches[3];
-            return $matches[1]
-                ? substr($matches[0], 1)
-                : '<?php echo e(' . $compiler($matches[2]) . ') ?>' . $ws;
+            return $matches[1] ? substr($matches[0], 1) : '<?php echo e(' . $compiler($matches[2]) . ') ?>' . $ws;
         }, $value);
 
         return $value;
@@ -277,9 +275,8 @@ class Blade
 
         foreach ($matches[0] as $forelse) {
             preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variables);
-            $search = '/(\s*)@forelse(\s*\(.*\))/';
             $replace = '$1<?php if (count(' . $variables[1] . ') > 0): ?><?php foreach$2: ?>';
-            $value = str_replace($forelse, preg_replace($search, $replace, $forelse), $value);
+            $value = str_replace($forelse, preg_replace('/(\s*)@forelse(\s*\(.*\))/', $replace, $forelse), $value);
         }
 
         return $value;
@@ -318,8 +315,7 @@ class Blade
      */
     protected static function compile_structure_start($value)
     {
-        $matcher = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
-        return preg_replace($matcher, '$1<?php $2$3: ?>', $value);
+        return preg_replace('/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/', '$1<?php $2$3: ?>', $value);
     }
 
     /**
@@ -331,8 +327,7 @@ class Blade
      */
     protected static function compile_structure_end($value)
     {
-        $matcher = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
-        return preg_replace($matcher, '$1<?php $2; ?>$3', $value);
+        return preg_replace('/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/', '$1<?php $2; ?>$3', $value);
     }
 
     /**
@@ -568,7 +563,7 @@ class Blade
      */
     public static function compiled($path)
     {
-        $name = Str::replace_last('.blade.php', '', basename($path));
+        $name = rtrim(basename($path), '.blade.php');
         $length = strlen($path);
         $hash = 0xFFFF;
 

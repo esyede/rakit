@@ -43,8 +43,7 @@ class Crypter
     public static function decrypt($value)
     {
         $value = static::payload($value);
-        $iv = base64_decode($value['iv']);
-        $value = openssl_decrypt($value['value'], 'aes-256-cbc', RAKIT_KEY, 0, $iv);
+        $value = openssl_decrypt($value['value'], 'aes-256-cbc', RAKIT_KEY, 0, base64_decode($value['iv']));
 
         if (false === $value) {
             throw new \Exception('Could not decrypt the data.');

@@ -28,8 +28,8 @@ class RSA
     public static function encrypt($data)
     {
         static::generate();
-        $pub = openssl_pkey_get_public(static::$details['public_key']);
-        $length = ceil(openssl_pkey_get_details($pub)['bits'] / 8) - 11;
+        $pubkey = openssl_pkey_get_public(static::$details['public_key']);
+        $length = (int) ceil(openssl_pkey_get_details($pubkey)['bits'] / 8) - 11;
         $data = (string) $data;
         $result = '';
 
@@ -38,7 +38,7 @@ class RSA
             $data = mb_substr($data, $length, null, '8bit');
             $temp = '';
 
-            if (!openssl_public_encrypt($chunk, $temp, $pub)) {
+            if (!openssl_public_encrypt($chunk, $temp, $pubkey)) {
                 throw new \Exception('Failed to encrypt the data');
             }
 
@@ -46,7 +46,7 @@ class RSA
         }
 
         if (PHP_VERSION_ID < 80000) {
-            openssl_free_key($pub);
+            openssl_free_key($pubkey);
         }
 
         return $result;
@@ -63,11 +63,11 @@ class RSA
     {
         static::generate();
 
-        if (!($priv = openssl_pkey_get_private(static::$details['private_key']))) {
-            throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $priv, gettype($priv)));
+        if (!($privkey = openssl_pkey_get_private(static::$details['private_key']))) {
+            throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $privkey, gettype($privkey)));
         }
 
-        $key = openssl_pkey_get_details($priv);
+        $key = openssl_pkey_get_details($privkey);
         $length = ceil($key['bits'] / 8);
         $result = '';
 
@@ -77,7 +77,7 @@ class RSA
             $encrypted = mb_substr($encrypted, $length, null, '8bit');
             $temp = '';
 
-            if (!openssl_private_decrypt($chunk, $temp, $priv)) {
+            if (!openssl_private_decrypt($chunk, $temp, $privkey)) {
                 throw new \Exception('Failed to decrypt the data');
             }
 
@@ -85,7 +85,7 @@ class RSA
         }
 
         if (PHP_VERSION_ID < 80000) {
-            openssl_free_key($priv);
+            openssl_free_key($privkey);
         }
 
         return $result;
@@ -122,10 +122,9 @@ class RSA
             file_put_contents($config, static::$details['config'], LOCK_EX);
 
             if (!static::$details['private_key']) {
-                $priv = openssl_pkey_new(static::$details['options']);
-                $conf = ['config' => $config];
+                $privkey = openssl_pkey_new(static::$details['options']);
 
-                if (!openssl_pkey_export($priv, static::$details['private_key'], null, $conf)) {
+                if (!openssl_pkey_export($privkey, static::$details['private_key'], null, ['config' => $config])) {
                     $errors = null;
 
                     while (false !== ($message = openssl_error_string())) {
@@ -137,7 +136,7 @@ class RSA
             }
 
             if (!static::$details['public_key']) {
-                $details = openssl_pkey_get_details($priv);
+                $details = openssl_pkey_get_details($privkey);
 
                 if (!isset($details['key'])) {
                     throw new \Exception('Failed to extract public key');
@@ -146,11 +145,8 @@ class RSA
                 static::$details['public_key'] = $details['key'];
             }
 
-            if (
-                (static::$details['private_key'] || static::$details['public_key'])
-                && PHP_VERSION_ID < 80000
-            ) {
-                openssl_free_key($priv);
+            if ((static::$details['private_key'] || static::$details['public_key']) && PHP_VERSION_ID < 80000) {
+                openssl_free_key($privkey);
             }
 
             if (is_file($config)) {

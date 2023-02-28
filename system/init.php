@@ -11,7 +11,7 @@ defined('DS') or exit('No direct script access.');
 | Pastikan file key.php sudah ada di base path, buat jika belum ada.
 */
 
-$dir = path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
+$dir = __DIR__ . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
 
 if (is_file($path = path('rakit_key'))) {
     $error = null;
@@ -60,7 +60,7 @@ if (is_file($path = path('rakit_key'))) {
         file_put_contents(path('rakit_key'), str_replace(
             '00000000-0000-0000-0000-000000000000',
             vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4)),
-            file_get_contents(path('system') . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . 'key.stub')
+            file_get_contents(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . 'key.stub')
         ));
     } catch (\Throwable $e) {
         http_response_code(500);
@@ -83,7 +83,7 @@ if (is_file($path = path('rakit_key'))) {
     }
 }
 
-if (!is_file($file = path('base') . '_ide_helper.php')) {
-    $stub = path('system') . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub';
+if (!is_file($file = dirname(__DIR__) . '_ide_helper.php')) {
+    $stub = __DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub';
     copy($stub, $file);
 }

@@ -1065,8 +1065,7 @@ class Markdown
             $text = $elem['text'];
         } elseif (isset($elem['raw'])) {
             $text = $elem['raw'];
-            $allow = isset($elem['loosey']) && $elem['loosey'];
-            $raw = ((!$this->safety) || $allow);
+            $raw = ((!$this->safety) || (isset($elem['loosey']) && $elem['loosey']));
         }
 
         if (isset($text)) {

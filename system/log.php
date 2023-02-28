@@ -69,10 +69,7 @@ class Log
     protected static function write($type, $message, $data = null)
     {
         if (!is_string($message)) {
-            throw new \Exception(sprintf(
-                'The error message should be a string. %s given.',
-                gettype($message)
-            ));
+            throw new \Exception(sprintf('The error message should be a string. %s given.', gettype($message)));
         }
 
         $message .= $data ? Foundation\Oops\Dumper::toText($data, ['truncate' => PHP_INT_MAX]) : '';
@@ -99,9 +96,7 @@ class Log
      */
     protected static function format($type, $message)
     {
-        $type = strtoupper((string) $type);
-        $context = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
-
-        return sprintf('[%s] %s.%s: %s' . PHP_EOL, date('Y-m-d H:i:s'), $context, $type, $message);
+        $env = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
+        return sprintf('[%s] %s.%s: %s' . PHP_EOL, date('Y-m-d H:i:s'), $env, strtoupper((string) $type), $message);
     }
 }

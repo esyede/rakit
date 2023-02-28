@@ -223,7 +223,6 @@ class Response
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        $name = is_null($name) ? basename($path) : $name;
         $response = new static(Storage::get($path), 200, array_merge($headers, [
             'Content-Description' => 'File Transfer',
             'Content-Type' => Storage::mime($path),
@@ -232,7 +231,7 @@ class Response
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
             'Content-Length' => Storage::size($path),
-            'Content-Disposition' => sprintf('attachment; filename="%s"', $name),
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $name ?: basename($name)),
         ]));
 
         if (Config::get('session.driver')) {

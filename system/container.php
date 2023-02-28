@@ -142,8 +142,7 @@ class Container
             return new $type();
         }
 
-        $dependencies = static::dependencies($constructor->getParameters(), $parameters);
-        return $reflector->newInstanceArgs($dependencies);
+        return $reflector->newInstanceArgs(static::dependencies($constructor->getParameters(), $parameters));
     }
 
     /**

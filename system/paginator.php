@@ -271,11 +271,7 @@ class Paginator
 
         if ($disabled($this->page, $this->last)) {
             $attributes = trim(static::attributes(['class' => $class . ' page-item disabled']));
-            return sprintf(
-                "\t\t<li %s><a class=\"page-link\" href=\"#\">%s</a></li>\n",
-                $attributes,
-                $text
-            );
+            return sprintf("\t\t<li %s><a class=\"page-link\" href=\"#\">%s</a></li>\n", $attributes, $text);
         }
 
         return $this->link($page, $text, $class);
@@ -316,10 +312,7 @@ class Paginator
 
         for ($page = $start; $page <= $end; ++$page) {
             $pages[] = ($this->page === $page)
-                ? sprintf(
-                    "\t\t<li class=\"page-item active\"><a class=\"page-link\" href=\"#\">%s</a></li>\n",
-                    $page
-                )
+                ? sprintf("\t\t<li class=\"page-item active\"><a class=\"page-link\" href=\"#\">%s</a></li>\n", $page)
                 : $this->link($page, $page, null);
         }
 

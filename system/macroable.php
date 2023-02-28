@@ -74,11 +74,7 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-
-        if ($macro instanceof \Closure) {
-            return call_user_func_array(\Closure::bind($macro, null, __CLASS__), $parameters);
-        }
-
+        $macro = ($macro instanceof \Closure) ? \Closure::bind($macro, null, __CLASS__) : $macro;
         return call_user_func_array($macro, $parameters);
     }
 
@@ -97,11 +93,7 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-
-        if ($macro instanceof \Closure) {
-            return call_user_func_array($macro->bindTo($this, __CLASS__), $parameters);
-        }
-
+        $macro = ($macro instanceof \Closure) ? $macro->bindTo($this, __CLASS__) : $macro;
         return call_user_func_array($macro, $parameters);
     }
 }

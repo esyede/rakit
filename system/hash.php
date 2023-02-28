@@ -40,8 +40,7 @@ class Hash
             './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
         );
 
-        $salt = mb_substr($salt, 0, 22, '8bit');
-        $hash = crypt($password, sprintf('$2y$%02d$', $cost) . $salt);
+        $hash = crypt($password, sprintf('$2y$%02d$', $cost) . mb_substr($salt, 0, 22, '8bit'));
 
         if (!is_string($hash) || 60 !== mb_strlen((string) $hash, '8bit')) {
             throw new \Exception('Malformatted password hash result.');

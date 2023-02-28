@@ -89,8 +89,7 @@ class Cookie
         }
 
         $expiration = (0 === (int) $expiration) ? 0 : (time() + ($expiration * 60));
-        $samesite = is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite;
-        $samesite = strtolower((string) $samesite);
+        $samesite = strtolower((string) is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite);
 
         if (!in_array($samesite, ['lax', 'strict', 'none'])) {
             throw new \Exception(sprintf(
@@ -100,10 +99,9 @@ class Cookie
             ));
         }
 
-        $value = Crypter::encrypt($value);
         static::$jar[$name] = [
             'name' => $name,
-            'value' => $value,
+            'value' => Crypter::encrypt($value),
             'expiration' => $expiration,
             'path' => $path,
             'domain' => $domain,

@@ -67,9 +67,7 @@ class Optional implements \ArrayAccess
      */
     public function __call($method, array $parameters)
     {
-        return is_object($this->value)
-            ? call_user_func_array([$this->value, $method], $parameters)
-            : null;
+        return is_object($this->value) ? call_user_func_array([$this->value, $method], $parameters) : null;
     }
 
     /**

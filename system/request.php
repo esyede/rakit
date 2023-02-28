@@ -161,8 +161,8 @@ class Request
      */
     public static function ip($default = '0.0.0.0')
     {
-        $client_ip = static::foundation()->getClientIp();
-        return is_null($client_ip) ? $default : $client_ip;
+        $address = static::foundation()->getClientIp();
+        return is_null($address) ? $default : $address;
     }
 
     /**
@@ -215,8 +215,8 @@ class Request
      */
     public function prefers($types)
     {
-        $accepts = static::accept();
         $types = is_array($types) ? $types : func_get_args();
+        $accepts = static::accept();
 
         foreach ($accepts as $accept) {
             if (in_array($accept, ['*/*', '*'])) {
@@ -270,11 +270,10 @@ class Request
 
         $split = explode('/', $actual);
 
-        return isset($split[1])
-            && false !== preg_match(
-                '#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#',
-                $type
-            );
+        return isset($split[1]) && false !== preg_match(
+            '#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#',
+            $type
+        );
     }
 
     /**
@@ -330,10 +329,8 @@ class Request
      */
     public static function bearer()
     {
-        $authorization = (string) static::authorization();
-        return (0 === stripos($authorization, 'bearer '))
-            ? mb_substr($authorization, 7, null, '8bit')
-            : null;
+        $auth = (string) static::authorization();
+        return (0 === stripos($auth, 'bearer ')) ? mb_substr($auth, 7, null, '8bit') : null;
     }
 
     /**

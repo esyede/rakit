@@ -423,10 +423,9 @@ class Storage
      */
     public static function latest($directory, $options = null)
     {
-        $latest = null;
         $time = 0;
-        $options = is_null($options) ? \FilesystemIterator::SKIP_DOTS : $options;
-        $items = new \FilesystemIterator($directory, $options);
+        $latest = null;
+        $items = new \FilesystemIterator($directory, is_null($options) ? \FilesystemIterator::SKIP_DOTS : $options);
 
         foreach ($items as $item) {
             if ($item->getMTime() > $time) {

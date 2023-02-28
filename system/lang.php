@@ -80,8 +80,7 @@ class Lang
      */
     public static function line($key, array $replacements = [], $language = null)
     {
-        $language = is_null($language) ? Config::get('application.language') : $language;
-        return new static($key, $replacements, $language);
+        return new static($key, $replacements, is_null($language) ? Config::get('application.language') : $language);
     }
 
     /**

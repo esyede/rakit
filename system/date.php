@@ -106,7 +106,7 @@ class Date
         }
 
         $timestamp = strtotime($date, $this->timestamp);
-        $timestamp = $timestamp ? $timestamp : false;
+        $timestamp = $timestamp ?: false;
 
         if ($clone) {
             $cloned = clone $this;
@@ -190,10 +190,7 @@ class Date
             ));
         }
 
-        $date1 = new \DateTime($date1->format('Y-m-d H:i:s'));
-        $date2 = new \DateTime($date2->format('Y-m-d H:i:s'));
-
-        return $date1->diff($date2);
+        return (new \DateTime($date1->format('Y-m-d H:i:s')))->diff(new \DateTime($date2->format('Y-m-d H:i:s')));
     }
 
     /**

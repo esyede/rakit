@@ -461,14 +461,13 @@ class Curl
         }
 
         if (static::$proxy['address'] !== false) {
-            $user_pass = static::$proxy['auth']['user'] . ':' . static::$proxy['auth']['pass'];
             curl_setopt_array(static::$handler, [
                 CURLOPT_PROXYTYPE => static::$proxy['type'],
                 CURLOPT_PROXY => static::$proxy['address'],
                 CURLOPT_PROXYPORT => static::$proxy['port'],
                 CURLOPT_HTTPPROXYTUNNEL => static::$proxy['tunnel'],
                 CURLOPT_PROXYAUTH => static::$proxy['auth']['method'],
-                CURLOPT_PROXYUSERPWD => $user_pass,
+                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'] . ':' . static::$proxy['auth']['pass'],
             ]);
         }
 
@@ -764,7 +763,6 @@ class Curl
         $version = 103 + (((($year < 2020) ? 2020 : $year) - 2020) * 2);
         $minor = rand(0, 3);
 
-        $agents = str_replace(['[v]', '[y]', '[m]'], [$version, $year, $minor], $agents[$platform]);
-        return 'Mozilla/5.0 ' . $agents;
+        return 'Mozilla/5.0 ' . str_replace(['[v]', '[y]', '[m]'], [$version, $year, $minor], $agents[$platform]);
     }
 }
