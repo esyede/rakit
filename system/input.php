@@ -233,6 +233,8 @@ class Input
         $keys = is_array($key) ? $key : func_get_args();
 
         foreach ($keys as $value) {
+            $value = static::get($value);
+
             if (is_bool($value) || is_array($value) || trim((string) $value) !== '') {
                 return false;
             }
