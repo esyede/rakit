@@ -200,6 +200,48 @@ class Input
     }
 
     /**
+     * Cek apakah satu atau beberapa input diisi seluruhnya.
+     *
+     * @param string|array $key
+     *
+     * @return bool
+     */
+    public static function filled($key)
+    {
+        $key = is_array($key) ? $key : func_get_args();
+
+        foreach ($key as $value) {
+            $value = static::get($value);
+
+            if (!is_bool($value) && !is_array($value) && trim((string) $value) === '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Cek apakah satu atau beberapa input tidak diisi.
+     *
+     * @param string|array $key
+     *
+     * @return bool
+     */
+    public function unfilled($key)
+    {
+        $keys = is_array($key) ? $key : func_get_args();
+
+        foreach ($keys as $value) {
+            if (is_bool($value) || is_array($value) || trim((string) $value) !== '') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Ambil item dari data file upload.
      *
      * <code>
