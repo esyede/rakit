@@ -579,6 +579,6 @@ class Blade
             }
         }
 
-        return path('storage') . 'views' . DS . sprintf('%s__%u', $name, $hash) . '.bc.php';
+        return path('storage') . 'views' . DS . $name . '__' . sprintf('%u', $hash) . '.bc.php';
     }
 }
