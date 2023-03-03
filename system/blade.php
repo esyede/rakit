@@ -563,7 +563,7 @@ class Blade
      */
     public static function compiled($path)
     {
-        $name = rtrim(basename($path), '.blade.php');
+        $name = Str::replace_last('.blade.php', '', basename($path));
         $length = strlen($path);
         $hash = 0xFFFF;
 
@@ -579,6 +579,6 @@ class Blade
             }
         }
 
-        return path('storage') . 'views' . DS . $name . '__' . sprintf('%u', $hash) . '.bc.php';
+        return path('storage') . 'views' . DS . sprintf('%s__%u', $name, $hash) . '.bc.php';
     }
 }
