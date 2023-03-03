@@ -321,6 +321,58 @@ class Str
     }
 
     /**
+     * Hasilkan string password acak.
+     *
+     * @param int  $length
+     * @param bool $letters
+     * @param bool $numbers
+     * @param bool $symbols
+     * @param bool $spaces
+     *
+     * @return string
+     */
+    public static function password($length = 32, $letters = true, $numbers = true, $symbols = true, $spaces = false)
+    {
+        $chars = [
+            'letters' => [
+                'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+                'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+                'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G',
+                'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+                'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            ],
+            'numbers' => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+            'symbols' => [
+                '~', '!', '#', '$', '%', '^', '&', '*', '(', ')', '-',
+                '_', '.', ',', '<', '>', '?', '/', '\\', '{', '}', '[',
+                ']', '|', ':', ';',
+            ],
+            'spaces' => [' '],
+        ];
+
+        $chars = array_merge(
+            [],
+            $letters ? $chars['letters'] : [],
+            $numbers ? $chars['numbers'] : [],
+            $symbols ? $chars['symbols'] : [],
+            $spaces ? $chars['spaces'] : []
+        );
+
+        $max = count($chars) - 1;
+        $result = '';
+
+        if ($max < 1 || $length < 1) {
+            return $result;
+        }
+
+        for ($i = 0; $i < $length; $i++) {
+            $result .= $chars[static::integers(0, $max - 1)];
+        }
+
+        return $result;
+    }
+
+    /**
      * Hasilkan byte acak yang aman secara kriptografi.
      * Method ini diadaptasi dari https://github.com/paragonie/random-compat.
      *

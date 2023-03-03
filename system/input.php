@@ -211,7 +211,7 @@ class Input
         $key = is_array($key) ? $key : func_get_args();
 
         foreach ($key as $value) {
-            $value = static::get($value);
+            $value = static::get($value, null);
 
             if (!is_bool($value) && !is_array($value) && trim((string) $value) === '') {
                 return false;
@@ -228,19 +228,9 @@ class Input
      *
      * @return bool
      */
-    public function unfilled($key)
+    public static function unfilled($key)
     {
-        $keys = is_array($key) ? $key : func_get_args();
-
-        foreach ($keys as $value) {
-            $value = static::get($value);
-
-            if (is_bool($value) || is_array($value) || trim((string) $value) !== '') {
-                return false;
-            }
-        }
-
-        return true;
+        return !static::filled(is_array($key) ? $key : func_get_args());
     }
 
     /**

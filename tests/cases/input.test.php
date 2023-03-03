@@ -108,6 +108,36 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test untuk method Input::filled().
+     *
+     * @group system
+     */
+    public function testFilledMethod()
+    {
+        Request::foundation()->request->add(['name' => 'Budi', 'age' => 28]);
+
+        $this->assertFalse(Input::filled('baz'));
+        $this->assertTrue(Input::filled('name'));
+        $this->assertTrue(Input::filled('name', 'age'));
+        $this->assertFalse(Input::filled('name', 'baz', 'age'));
+    }
+
+    /**
+     * Test untuk method Input::unfilled().
+     *
+     * @group system
+     */
+    public function testUnfilledMethod()
+    {
+        Request::foundation()->request->add(['name' => 'Budi', 'age' => 28]);
+
+        $this->assertTrue(Input::unfilled('baz'));
+        $this->assertFalse(Input::unfilled('name'));
+        $this->assertFalse(Input::unfilled('name', 'name'));
+        $this->assertTrue(Input::unfilled('name', 'baz', 'age'));
+    }
+
+    /**
      * Test untuk method Input::file().
      *
      * @group system

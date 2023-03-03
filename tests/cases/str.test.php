@@ -287,6 +287,16 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_string(Str::random()));
     }
 
+    public function testPassword()
+    {
+        $this->assertTrue(is_string(Str::random()));
+        $this->assertEquals(32, mb_strlen(Str::password(), '8bit'));
+        $this->assertTrue(false !== preg_match('/[^a-zA-Z]/', Str::random(10, false)));
+        $this->assertTrue(false !== preg_match('/[^0-9]/', Str::random(10, true, false, false)));
+        $this->assertTrue(false !== preg_match('/[^a-zA-Z0-9]/', Str::random(10, false, false, true)));
+        $this->assertEquals(0, mb_strlen(trim(Str::password(10, false, false, false, true)), '8bit'));
+    }
+
     public function testUuid()
     {
         $uuid = Str::uuid();
