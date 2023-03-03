@@ -34,7 +34,7 @@ class Docs_Home_Controller extends Controller
      */
     public function action_index($lang = null)
     {
-        $lang = $lang ? $lang . '/' : $this->lang . '/';
+        $lang = ($lang ?: $this->lang) . '/';
         return View::make('docs::home')
             ->with_title(Docs::title('home'))
             ->with_sidebar(Docs::sidebar(Docs::render($lang . '000-sidebar')))
@@ -53,7 +53,7 @@ class Docs_Home_Controller extends Controller
     public function action_page($section, $page = null)
     {
         $args = func_get_args();
-        $lang = isset($args[0]) ? $args[0] . '/' : $this->lang . '/';
+        $lang = (isset($args[0]) ? $args[0] : $this->lang) . '/';
         $file = Docs::exists(rtrim(implode('/', $args), '/') . '/home') ? '/home' : '';
         $file = rtrim(implode('/', $args), '/') . $file;
 
