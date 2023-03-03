@@ -196,7 +196,7 @@ class Input
      */
     public static function old($key = null, $default = null)
     {
-        return Arr::get(Session::get(Input::OLD, []), $key, $default);
+        return Arr::get(Session::get(static::OLD, []), $key, $default);
     }
 
     /**
@@ -312,7 +312,7 @@ class Input
      */
     public static function flash($filter = null, array $keys = [])
     {
-        Session::flash(Input::OLD, is_null($filter) ? static::get() : static::{$filter}($keys));
+        Session::flash(static::OLD, is_null($filter) ? static::get() : static::{$filter}($keys));
     }
 
     /**
@@ -320,7 +320,7 @@ class Input
      */
     public static function flush()
     {
-        Session::flash(Input::OLD, []);
+        Session::flash(static::OLD, []);
     }
 
     /**

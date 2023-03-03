@@ -149,7 +149,7 @@ class Request
      */
     public static function spoofed()
     {
-        return !is_null(static::foundation()->get(Request::SPOOFER));
+        return !is_null(static::foundation()->get(static::SPOOFER));
     }
 
     /**
