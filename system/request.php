@@ -86,7 +86,7 @@ class Request
      * <code>
      *
      *      // Ambil request handler dari request saat ini
-     *      $accept = Request::header('accept');
+     *      $accept = Request::header('Accept');
      *
      * </code>
      *
@@ -283,7 +283,7 @@ class Request
      */
     public static function is_json()
     {
-        $type = static::header('content-type');
+        $type = static::header('Content-Type');
         return Str::contains($type ?: '', ['/json', '+json']);
     }
 
@@ -317,7 +317,7 @@ class Request
      */
     public static function authorization()
     {
-        return static::header('authorization');
+        return static::header('Authorization');
     }
 
     /**
@@ -330,7 +330,7 @@ class Request
     public static function bearer()
     {
         $auth = (string) static::authorization();
-        return (0 === stripos($auth, 'bearer ')) ? mb_substr($auth, 7, null, '8bit') : null;
+        return (0 === stripos($auth, 'Bearer ')) ? mb_substr($auth, 7, null, '8bit') : null;
     }
 
     /**
@@ -372,7 +372,7 @@ class Request
      */
     public static function agent()
     {
-        return static::header('user-agent');
+        return static::header('User-Agent');
     }
 
     /**
@@ -404,7 +404,7 @@ class Request
      */
     public function pjax()
     {
-        return (bool) static::header('x-pjax') === true;
+        return (bool) static::header('X-PJAX') === true;
     }
 
     /**
@@ -414,8 +414,8 @@ class Request
      */
     public function prefetch()
     {
-        return strcasecmp(static::server('http_x_moz'), 'prefetch') === 0
-            || strcasecmp(static::header('purpose'), 'prefetch') === 0;
+        return strcasecmp(static::server('HTTP_X_MOZ'), 'prefetch') === 0
+            || strcasecmp(static::header('Purpose'), 'prefetch') === 0;
     }
 
     /**
@@ -425,7 +425,7 @@ class Request
      */
     public static function referrer()
     {
-        return static::header('referer');
+        return static::header('Referer');
     }
 
     /**

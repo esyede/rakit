@@ -194,8 +194,8 @@ class Response
             '1.0' === $this->getProtocolVersion()
             && 'no-cache' === $this->headers->get('Cache-Control')
         ) {
-            $this->headers->set('pragma', 'no-cache');
-            $this->headers->set('expires', -1);
+            $this->headers->set('Pragma', 'no-cache');
+            $this->headers->set('Expires', -1);
         }
 
         return $this;
@@ -705,7 +705,7 @@ class Response
     public function setEtag($etag = null, $weak = false)
     {
         if (null === $etag) {
-            $this->headers->remove('Etag');
+            $this->headers->remove('ETag');
         } else {
             $etag = (0 !== strpos((string) $etag, '"')) ? '"' . $etag . '"' : $etag;
             $this->headers->set('ETag', ($weak ? 'W/' : '') . $etag);

@@ -451,7 +451,7 @@ class Debugger
                 $file = self::log($e, self::EXCEPTION);
 
                 if ($file && !headers_sent()) {
-                    header("X-Oops-Error-Log: $file");
+                    header('X-Oops-Error-Log: ' . $file);
                 }
 
                 echo "$s\n" . ($file ? "(stored in $file)\n" : '');

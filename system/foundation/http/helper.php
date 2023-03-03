@@ -23,8 +23,8 @@ class Helper extends Header
     {
         parent::__construct($headers);
 
-        if (!isset($this->headers['cache-control'])) {
-            $this->set('cache-control', '');
+        if (!isset($this->headers['Cache-Control'])) {
+            $this->set('Cache-Control', '');
         }
     }
 
@@ -50,8 +50,8 @@ class Helper extends Header
     {
         parent::replace($headers);
 
-        if (!isset($this->headers['cache-control'])) {
-            $this->set('cache-control', '');
+        if (!isset($this->headers['Cache-Control'])) {
+            $this->set('Cache-Control', '');
         }
     }
 
@@ -62,11 +62,12 @@ class Helper extends Header
     {
         parent::set($key, $values, $replace);
 
-        $keys = ['cache-control', 'etag', 'last-modified', 'expires'];
+        $key = $this->standardizeKey($key);
+        $keys = ['Cache-Control', 'ETag', 'Last-Modified', 'Expires'];
 
-        if (in_array(strtr(strtolower((string) $key), '_', '-'), $keys)) {
+        if (in_array($key, $keys)) {
             $computed = $this->computeCacheControlValue();
-            $this->headers['cache-control'] = [$computed];
+            $this->headers['Cache-Control'] = [$computed];
             $this->computedCacheControl = $this->parseCacheControl($computed);
         }
     }
@@ -78,7 +79,7 @@ class Helper extends Header
     {
         parent::remove($key);
 
-        if ('cache-control' === strtr(strtolower((string) $key), '_', '-')) {
+        if ('Cache-Control' === $this->standardizeKey($key)) {
             $this->computedCacheControl = [];
         }
     }
@@ -222,9 +223,7 @@ class Helper extends Header
             || false !== strpos($filenameFallback, '/')
             || false !== strpos($filenameFallback, '\\')
         ) {
-            throw new \Exception(
-                "The filename and the fallback cannot contain the '/' and '\' characters."
-            );
+            throw new \Exception("The filename and the fallback cannot contain the '/' and '\' characters.");
         }
 
         $filenameFallback = str_replace('"', '\\"', $filenameFallback);
@@ -238,7 +237,7 @@ class Helper extends Header
     }
 
     /**
-     * Mereturn value yang header cache-control yang telah dikakulasi dan
+     * Mereturn value yang header Cache-Control yang telah dikakulasi dan
      * di modifikasi ke bentuk yang lebih masuk akal.
      *
      * @return string

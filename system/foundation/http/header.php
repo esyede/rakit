@@ -44,7 +44,7 @@ class Header implements \IteratorAggregate, \Countable
         $content = '';
 
         foreach ($this->headers as $name => $values) {
-            $name = implode('-', array_map('ucfirst', explode('-', $name)));
+            $name = $this->standardizeKey($name);
 
             foreach ($values as $value) {
                 $content .= sprintf("%-{$max}s %s\r\n", $name . ':', $value);
@@ -108,7 +108,7 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function get($key, $default = null, $first = true)
     {
-        $key = strtr(strtolower((string) $key), '_', '-');
+        $key = $this->standardizeKey($key);
 
         if (!array_key_exists($key, $this->headers)) {
             if (null === $default) {
@@ -134,13 +134,13 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function set($key, $values, $replace = true)
     {
-        $key = strtr(strtolower((string) $key), '_', '-');
+        $key = $this->standardizeKey($key);
         $values = array_values((array) $values);
         $this->headers[$key] = (true === $replace || !isset($this->headers[$key]))
             ? $values
             : array_merge($this->headers[$key], $values);
 
-        if ('cache-control' === $key) {
+        if ('Cache-Control' === $key) {
             $this->cacheControl = $this->parseCacheControl($values[0]);
         }
     }
@@ -154,7 +154,8 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function has($key)
     {
-        return array_key_exists(strtr(strtolower((string) $key), '_', '-'), $this->headers);
+        $key = $this->standardizeKey($key);
+        return array_key_exists($key, $this->headers);
     }
 
     /**
@@ -177,10 +178,11 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function remove($key)
     {
-        $key = strtr(strtolower((string) $key), '_', '-');
+        $key = $this->standardizeKey($key);
+
         unset($this->headers[$key]);
 
-        if ('cache-control' === $key) {
+        if ('Cache-Control' === $key) {
             $this->cacheControl = [];
         }
     }
@@ -195,16 +197,12 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function getDate($key, \DateTime $default = null)
     {
-        if (null === $value = $this->get($key)) {
+        if (null === ($value = $this->get($key))) {
             return $default;
         }
 
         if (false === ($date = \DateTime::createFromFormat(DATE_RFC2822, $value))) {
-            throw new \RuntimeException(sprintf(
-                "The '%s' HTTP header is not parseable (%s).",
-                $key,
-                $value
-            ));
+            throw new \RuntimeException(sprintf("The '%s' HTTP header is not parseable (%s).", $key, $value));
         }
 
         return $date;
@@ -330,5 +328,18 @@ class Header implements \IteratorAggregate, \Countable
         }
 
         return $parsed;
+    }
+
+    /**
+     * Standarisasi nama header
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    protected static function standardizeKey($key)
+    {
+        $key = strtr(strtolower((string) $key), '_', '-');
+        return str_replace(' ', '-', ucwords(strtr($key, '-', ' ')));
     }
 }

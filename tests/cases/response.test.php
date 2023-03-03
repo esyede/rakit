@@ -33,7 +33,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', $response->content);
         $this->assertEquals(201, $response->status());
-        $this->assertArrayHasKey('bar', $response->headers()->all());
+        $this->assertArrayHasKey('Bar', $response->headers()->all());
+        $this->assertTrue($response->headers()->has('bar'));
+        $this->assertTrue($response->headers()->has('Bar'));
+        $this->assertTrue($response->headers()->has('bAr'));
         $this->assertEquals('baz', $response->headers()->get('bar'));
     }
 
@@ -88,9 +91,11 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
      */
     public function testHeaderMethodSetsValueInHeaderArray()
     {
-        $response = Response::make('')->header('foo', 'bar');
+        $response = Response::make('')->header('Foo', 'bar');
 
+        $this->assertEquals('bar', $response->headers()->get('Foo'));
         $this->assertEquals('bar', $response->headers()->get('foo'));
+        $this->assertEquals('bar', $response->headers()->get('FoO'));
     }
 
     /**

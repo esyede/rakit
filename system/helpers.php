@@ -69,7 +69,7 @@ if (!function_exists('dump')) {
      */
     function dump($variables)
     {
-        array_map('\System\Foundation\Oops\Debugger::dump', $is_array($variables) ? $variables : func_get_args());
+        array_map('\System\Foundation\Oops\Debugger::dump', is_array($variables) ? $variables : func_get_args());
     }
 }
 
