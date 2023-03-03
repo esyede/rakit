@@ -209,7 +209,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Tambahkan penunjuk cache-control.
+     * Tambahkan header Cache-Control.
      *
      * @param string $key
      * @param mixed  $value
@@ -221,7 +221,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Periksa ada tidaknya suatu penunjuk cache-control.
+     * Periksa ada tidaknya suatu header Cache-Control.
      *
      * @param string $key
      *
@@ -233,7 +233,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil penunjuk cache-control berdasarkan key-nya.
+     * Ambil penunjuk Cache-Control berdasarkan key-nya.
      *
      * @param string $key
      *
@@ -245,7 +245,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Hapus penunjuk cache-control berdasarkan key-nya.
+     * Hapus penunjuk Cache-Control berdasarkan key-nya.
      *
      * @param string $key
      */
@@ -278,7 +278,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil seluruh data cache-control.
+     * Ambil seluruh data Cache-Control.
      *
      * @return string
      */
@@ -304,7 +304,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Parse header cache-control.
+     * Parse header Cache-Control.
      *
      * @param string $header
      *
