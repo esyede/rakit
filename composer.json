@@ -18,7 +18,7 @@
     ],
     "support": {
         "issues": "https://github.com/esyede/rakit/issues?state=open",
-        "forum": "https://rakit.esyede.my.id/forum/",
+        "forum": "https://github.com/esyede/rakit/discussions",
         "source": "https://github.com/esyede/rakit"
     },
     "bin": [
@@ -62,6 +62,6 @@
             "cweagans/composer-patches": true
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "dev-master",
     "prefer-stable": true
 }
