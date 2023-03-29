@@ -387,9 +387,15 @@ class Request
         $token = Session::token();
         $header = static::header('X-Csrf-Token');
 
-        return in_array(static::method(), ['GET', 'OPTIONS'])
-            || Input::get(Session::TOKEN) !== $token
-            || (false === stripos($header, 'nocheck') && $header !== $token);
+        if (
+            in_array(static::method(), ['GET', 'OPTIONS'])
+            || Input::get(Session::TOKEN) === Session::token()
+            || false !== stripos($header, 'nocheck')
+        ) {
+            return false;
+        }
+
+        return $token !== $header;
     }
 
     /**
