@@ -101,11 +101,11 @@ class Hash
             throw new \Exception('Cost parameter must be an integer between 4 to 31.');
         }
 
-        if ('$2y$' === mb_substr($hash, 0, 4, '8bit') && 60 === mb_strlen($hash, '8bit')) {
-            list($strength) = sscanf($hash, '$2y$%d$');
-            return $cost !== $strength;
+        if ('$2y$' !== mb_substr($hash, 0, 4, '8bit') || 60 !== mb_strlen($hash, '8bit')) {
+            return false;
         }
 
-        return false;
+        list($strength) = sscanf($hash, '$2y$%d$');
+        return $cost !== $strength;
     }
 }

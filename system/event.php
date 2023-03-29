@@ -47,9 +47,6 @@ class Event
      *      // Daftarkan callback untuk event 'boot'
      *      Event::listen('boot', function() { return 'Oke, Booted!'; } );
      *
-     *      // Daftarkan object sebagai callback event
-     *      Event::listen('event', [$object, 'nama_method']);
-     *
      * </code>
      *
      * @param string   $event

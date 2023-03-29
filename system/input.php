@@ -103,17 +103,16 @@ class Input
     /**
      * Ambil payload JSON untuk request saat ini.
      *
-     * @param bool $as_array
+     * @param bool $as_object
      *
-     * @return object
+     * @return mixed
      */
-    public static function json($as_array = false)
+    public static function json($as_object = false)
     {
-        if (!static::$json) {
-            static::$json = json_decode(Request::foundation()->getContent(), $as_array);
-        }
-
-        return static::$json;
+         static::$json = static::$json ?: json_decode(Request::foundation()->getContent());
+         return static::$json = $as_object
+            ? json_decode(json_encode(static::$json, JSON_FORCE_OBJECT), false)
+            : json_decode(json_encode(static::$json), true);
     }
 
     /**

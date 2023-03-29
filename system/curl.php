@@ -476,7 +476,7 @@ class Curl
         $info = static::info();
 
         if ($error) {
-            throw new \Exception($error);
+            throw new \Exception(sprintf('Curl error: %s', $error));
         }
 
         $raw_headers = substr((string) $response, 0, $info['header_size']);

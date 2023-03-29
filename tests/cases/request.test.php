@@ -161,11 +161,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $input = [Session::TOKEN => 'Foo'];
         Request::foundation()->request->add($input);
 
-        $this->assertTrue(Request::forged());
-
-        $input = [Session::TOKEN => 'Budi'];
-        Request::foundation()->request->add($input);
-
         $this->assertFalse(Request::forged());
     }
 

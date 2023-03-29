@@ -63,7 +63,7 @@ class Request
      */
     public static function method()
     {
-        $method = static::foundation()->getMethod();
+        $method = strtoupper((string) static::foundation()->getMethod());
         return ('HEAD' === $method) ? 'GET' : $method;
     }
 
@@ -384,7 +384,12 @@ class Request
      */
     public static function forged()
     {
-        return Input::get(Session::TOKEN) !== Session::token();
+        $token = Session::token();
+        $header = static::header('X-Csrf-Token');
+
+        return in_array(static::method(), ['GET', 'OPTIONS'])
+            || Input::get(Session::TOKEN) !== $token
+            || (false === stripos($header, 'nocheck') && $header !== $token);
     }
 
     /**
@@ -404,7 +409,7 @@ class Request
      */
     public function pjax()
     {
-        return (bool) static::header('X-PJAX') === true;
+        return (bool) static::header('X-Pjax') === true;
     }
 
     /**

@@ -2,6 +2,8 @@
 
 defined('DS') or exit('No direct script access.');
 
+$paths = [];
+
 // --------------------------------------------------------------
 // Path ke direktori paket default.
 // --------------------------------------------------------------
@@ -47,13 +49,9 @@ $GLOBALS['rakit_paths']['base'] = __DIR__ . DS;
 // --------------------------------------------------------------
 foreach ($paths as $name => $path) {
     if (!isset($GLOBALS['rakit_paths'][$name])) {
-        if ('rakit_key' === $name) {
-            $path = $GLOBALS['rakit_paths']['base'] . $path;
-        } else {
-            $path = realpath($path) . DS;
-        }
-
-        $GLOBALS['rakit_paths'][$name] = $path;
+        $GLOBALS['rakit_paths'][$name] = ('rakit_key' === $name)
+            ? $GLOBALS['rakit_paths']['base'] . $path
+            : realpath($path) . DS;
     }
 }
 

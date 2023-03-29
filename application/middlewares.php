@@ -20,7 +20,7 @@ use System\Routing\Throttle;
 */
 
 Route::middleware('csrf', function () {
-    if (!Request::is_method('get') && Request::forged()) {
+    if (Request::forged()) {
         return Response::error(422);
     }
 });

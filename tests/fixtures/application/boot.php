@@ -107,7 +107,7 @@ date_default_timezone_set(System\Config::get('application.timezone', 'UTC'));
 |
 */
 
-if (!System\Request::cli() && '' !== System\Config::get('session.driver')) {
+if (!System\Request::cli() && filled(System\Config::get('session.driver'))) {
     System\Session::load();
 }
 

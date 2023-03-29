@@ -78,10 +78,7 @@ class Date
         }
 
         if (!is_string($format)) {
-            throw new \InvalidArgumentException(sprintf(
-                'Date format should be a string, %s given.',
-                gettype($format)
-            ));
+            throw new \Exception(sprintf('The format should be a string, %s given.', gettype($format)));
         }
 
         return date($format, $this->timestamp);
@@ -109,9 +106,9 @@ class Date
         $timestamp = $timestamp ?: false;
 
         if ($clone) {
-            $cloned = clone $this;
-            $cloned->timestamp = $timestamp;
-            return $cloned;
+            $clone = clone $this;
+            $clone->timestamp = $timestamp;
+            return $clone;
         }
 
         $this->timestamp = $timestamp;
@@ -190,7 +187,8 @@ class Date
             ));
         }
 
-        return (new \DateTime($date1->format('Y-m-d H:i:s')))->diff(new \DateTime($date2->format('Y-m-d H:i:s')));
+        return (new \DateTime($date1->format('Y-m-d H:i:s')))
+            ->diff(new \DateTime($date2->format('Y-m-d H:i:s')));
     }
 
     /**

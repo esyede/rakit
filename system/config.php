@@ -137,10 +137,9 @@ class Config
     {
         if (!array_key_exists($key, static::$cache)) {
             $package = Package::name($key);
-            $segments = explode('.', Package::element($key));
-            static::$cache[$key] = (is_array($segments) && count($segments) >= 2)
-                ? [$package, $segments[0], implode('.', array_slice($segments, 1))]
-                : [$package, $segments[0], null];
+            $items = explode('.', Package::element($key));
+            $data = (is_array($items) && count($items) >= 2) ? implode('.', array_slice($items, 1)) : null;
+            static::$cache[$key] = [$package, $items[0], $data];
         }
 
         return static::$cache[$key];

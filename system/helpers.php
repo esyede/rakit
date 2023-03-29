@@ -69,7 +69,8 @@ if (!function_exists('dump')) {
      */
     function dump($variables)
     {
-        array_map('\System\Foundation\Oops\Debugger::dump', is_array($variables) ? $variables : func_get_args());
+        $variables = is_array($variables) ? $variables : func_get_args();
+        array_map('\System\Foundation\Oops\Debugger::dump', $variables);
     }
 }
 
@@ -106,7 +107,7 @@ if (!function_exists('trans')) {
 
 if (!function_exists('__')) {
     /**
-     * Ambil sebuah baris bahasa.
+     * Alias untuk trans().
      *
      * @param string $key
      * @param array  $replacements
@@ -460,8 +461,8 @@ if (!function_exists('config')) {
      *
      * </code>
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param string|array $key
+     * @param mixed        $default
      *
      * @return mixed
      */
@@ -493,8 +494,8 @@ if (!function_exists('cache')) {
      *
      * </code>
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param string|array $key
+     * @param mixed        $default
      *
      * @return mixed
      */
@@ -526,8 +527,8 @@ if (!function_exists('session')) {
      *
      * </code>
      *
-     * @param string $key
-     * @param mixed  $default
+     * @param string|array $key
+     * @param mixed        $default
      *
      * @return mixed
      */
@@ -597,12 +598,27 @@ if (!function_exists('redirect')) {
      * </code>
      *
      * @param string $url
+     * @param int    $status
      *
      * @return \System\Redirect
      */
-    function redirect($url)
+    function redirect($url, $status = 302)
     {
-        return \System\Redirect::to($url);
+        return \System\Redirect::to($url, $status);
+    }
+}
+
+if (!function_exists('back')) {
+    /**
+     * Buat sebuah redireksi ke halaman sebelumnya.
+     *
+     * @param int $status
+     *
+     * @return \System\Redirect
+     */
+    function back($status = 302)
+    {
+        return \System\Redirect::back($status);
     }
 }
 
@@ -618,18 +634,6 @@ if (!function_exists('old')) {
     function old($key, $default = null)
     {
         return \System\Input::old($key, $default);
-    }
-}
-
-if (!function_exists('back')) {
-    /**
-     * Buat sebuah redireksi ke halaman sebelumnya.
-     *
-     * @return \System\Redirect
-     */
-    function back()
-    {
-        return \System\Redirect::back();
     }
 }
 
@@ -868,6 +872,20 @@ if (!function_exists('section_stop')) {
     function section_stop()
     {
         return \System\Section::stop();
+    }
+}
+
+if (!function_exists('section_inject')) {
+    /**
+     * Injeksi konten kedalam section tertentu.
+     * @param string $section
+     * @param string $content
+     *
+     * @return string
+     */
+    function section_inject($section, $content)
+    {
+        return \System\Section::inject($section, $content);
     }
 }
 

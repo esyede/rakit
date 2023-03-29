@@ -47,6 +47,7 @@ class Blade
         'show',
         'section_start',
         'section_end',
+        'inject',
         'php_block',
     ];
 
@@ -522,6 +523,19 @@ class Blade
     protected static function compile_section_end($value)
     {
         return preg_replace('/@endsection/', '<?php section_stop() ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @inject ke bentuk PHP.
+     * Sintaks ini merupakan shortcut untuk method Section::inject().
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_inject($value)
+    {
+        return preg_replace(static::matcher('inject'), '$1<?php section_inject$2 ?>', $value);
     }
 
     /**
