@@ -84,9 +84,6 @@ class Cache
             case 'database':
                 return new Cache\Drivers\Database($key);
 
-            case 'wincache':
-                return new Cache\Drivers\WinCache($key);
-
             default:
                 throw new \Exception(sprintf('Unsupported cache driver: %s', $driver));
         }
