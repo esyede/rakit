@@ -106,7 +106,7 @@ class Job extends Event
             $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
 
             try {
-                retry($retries, function () use ($failed) {
+                retry($retries, function () use ($jobs, $config) {
                     foreach ($jobs as $job) {
                         try {
                             Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
@@ -184,7 +184,7 @@ class Job extends Event
             $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
 
             try {
-                retry($retries, function () use ($failing) {
+                retry($retries, function () use ($jobs, $config) {
                     foreach ($jobs as $job) {
                         try {
                             Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
