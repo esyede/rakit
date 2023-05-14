@@ -170,9 +170,10 @@ abstract class Controller
         }
 
         $identifier = Package::identifier($package, $controller);
+        $identifier = 'controller: ' . $identifier;
 
-        if (Container::registered('controller: ' . $identifier)) {
-            return Container::resolve('controller: ' . $identifier);
+        if (Container::registered($identifier)) {
+            return Container::resolve($identifier);
         }
 
         $controller = static::format($package, $controller);
