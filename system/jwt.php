@@ -53,8 +53,10 @@ class JWT
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
-                'Only these algorithm are supported: %s',
-                implode(', ', static::$algorithms)
+                "Only these algorithm are supported: %s. Got '%s' (%s)",
+                implode(', ', static::$algorithms),
+                $algorithm,
+                gettype($algorithm)
             ));
         }
 
@@ -115,7 +117,12 @@ class JWT
         }
 
         if (!isset(static::$algorithms[$headers->alg]) || !static::$algorithms[$headers->alg]) {
-            throw new \Exception(sprintf('Only these algorithm are supported: %s', implode(', ', static::$algorithms)));
+            throw new \Exception(sprintf(
+                "Only these algorithm are supported: %s. Got '%s' (%s)",
+                implode(', ', static::$algorithms),
+                $algorithm,
+                gettype($algorithm)
+            ));
         }
 
         if (!static::verify($headers64 . '.' . $payloads64, $signature, $secret, $headers->alg)) {
@@ -152,8 +159,8 @@ class JWT
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
-                'Only these algorithms are supported: %s, got: %s (%s)',
-                implode(', ', array_keys(static::$algorithms)),
+                "Only these algorithm are supported: %s. Got '%s' (%s)",
+                implode(', ', static::$algorithms),
                 $algorithm,
                 gettype($algorithm)
             ));

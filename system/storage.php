@@ -246,7 +246,13 @@ class Storage
             }
 
             if (!$preserve) {
-                @rmdir($path);
+                try {
+                    rmdir($path);
+                } catch (\Throwable $e) {
+                    throw new \Exception(sprintf('Unable to remove path: %s', $path));
+                } catch (\Exception $e) {
+                    throw new \Exception(sprintf('Unable to remove path: %s', $path));
+                }
             }
         }
     }
