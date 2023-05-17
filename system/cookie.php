@@ -99,15 +99,8 @@ class Cookie
             ));
         }
 
-        static::$jar[$name] = [
-            'name' => $name,
-            'value' => Crypter::encrypt($value),
-            'expiration' => $expiration,
-            'path' => $path,
-            'domain' => $domain,
-            'secure' => $secure,
-            'samesite' => $samesite,
-        ];
+        $value = Crypter::encrypt($value);
+        static::$jar[$name] = compact('name', 'value', 'expiration', 'path', 'domain', 'secure', 'samesite');
     }
 
     /**
