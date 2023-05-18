@@ -159,7 +159,7 @@ class Blade
     }
 
     /**
-     * Rewrites Blade "@layout" expressions into valid PHP.
+     * Kompilasi sintaks "@layout" ke bentuk PHP.
      *
      * @param string $value
      *
