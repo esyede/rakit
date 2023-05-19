@@ -16,7 +16,7 @@ class Crypter
     public static function encrypt($value)
     {
         $iv = Str::bytes(16);
-        $value = openssl_encrypt($value, 'aes-256-cbc', RAKIT_KEY, 0, $iv);
+        $value = openssl_encrypt((string) $value, 'aes-256-cbc', RAKIT_KEY, 0, $iv);
 
         if (false === $value) {
             throw new \Exception('Could not encrypt the data.');
