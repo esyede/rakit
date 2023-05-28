@@ -114,7 +114,7 @@ Mari kita lihat perintah - perintahya:
 | `$table->text('description');`     | Tambahkan kolom TEXT                                           |
 | `$table->blob('data');`            | Tambahkan kolom BLOB                                           |
 | `->nullable()`                     | Izinkan kolom diisi dengan NULL                                |
-| `->default($value)`                | Beri default value untuk kolom                                 |
+| `->defaults($value)`               | Beri default value untuk kolom                                 |
 | `->unsigned()`                     | Buat kolom INTEGER menjadi UNSIGNED                            |
 
 > Di semua RDBMS, setiap kolom `BOOLEAN` akan selalu diubah secara otomatis menjadi `SMALLINT`.
@@ -129,7 +129,7 @@ Schema::table('users', function ($table) {
     $table->string('email');
     $table->string('phone')->nullable();
     $table->integer('age')->nullable();
-    $table->boolean('married')->default(0);
+    $table->boolean('married')->defaults(0);
     $table->text('about');
     $table->timestamps();
 });

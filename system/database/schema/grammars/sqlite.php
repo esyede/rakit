@@ -71,7 +71,7 @@ class SQLite extends Grammar
         foreach ($table->columns as $column) {
             $sql = $this->wrap($column) . ' ' . $this->type($column);
             $sql .= $this->nullable($table, $column);
-            $sql .= $this->default($table, $column);
+            $sql .= $this->defaults($table, $column);
             $sql .= $this->incrementer($table, $column);
             $columns[] = $sql;
         }
@@ -100,10 +100,10 @@ class SQLite extends Grammar
      *
      * @return string
      */
-    protected function default(Table $table, Magic $column)
+    protected function defaults(Table $table, Magic $column)
     {
-        if (null !== $column->default) {
-            return ' DEFAULT ' . $this->wrap($this->default_value($column->default));
+        if (null !== $column->defaults) {
+            return ' DEFAULT ' . $this->wrap($this->default_value($column->defaults));
         }
     }
 
