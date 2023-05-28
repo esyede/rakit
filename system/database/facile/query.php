@@ -107,7 +107,7 @@ class Query
     {
         $perpage = $perpage ?: $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
-        // $paginator->results = $this->hydrate($this->model, $paginator->results);
+        $paginator->results = $this->hydrate($this->model, $paginator->results);
 
         return $paginator;
     }
@@ -122,24 +122,22 @@ class Query
      */
     public function hydrate($model, array $results)
     {
-        $class = get_class($model);
+        $model = get_class($model);
         $models = [];
 
         foreach ($results as $result) {
-            $new = new $class([], true);
-            $new->fill_raw((array) $result);
-            $models[] = $new;
+            $model = new $model([], true);
+            $model->fill_raw((array) $result);
+            $models[] = $model;
         }
 
         if (count($results) > 0) {
             $with = $this->model_with();
 
             foreach ($with as $relationship => $constraints) {
-                if (Str::contains($relationship, '.')) {
-                    continue;
+                if (!Str::contains($relationship, '.')) {
+                    $this->load($models, $relationship, $constraints);
                 }
-
-                $this->load($models, $relationship, $constraints);
             }
         }
 
