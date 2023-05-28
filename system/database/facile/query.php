@@ -107,7 +107,9 @@ class Query
     {
         $perpage = $perpage ?: $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
-        $paginator->results = $this->hydrate($this->model, $paginator->results);
+
+        // FIXME: harus memanggil `->attributes` untuk mengambil record hasil paginate
+        // $paginator->results = $this->hydrate($this->model, $paginator->results);
 
         return $paginator;
     }
