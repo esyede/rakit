@@ -102,7 +102,7 @@ class SQLite extends Grammar
      */
     protected function default(Table $table, Magic $column)
     {
-        if (!is_null($column->default)) {
+        if (null !== $column->default) {
             return ' DEFAULT ' . $this->wrap($this->default_value($column->default));
         }
     }
