@@ -363,8 +363,8 @@ class Table
      */
     public function timestamps()
     {
-        $this->date('created_at');
-        $this->date('updated_at');
+        $this->timestamp('created_at')->nullable();
+        $this->timestamp('updated_at')->nullable();
     }
 
     /**
