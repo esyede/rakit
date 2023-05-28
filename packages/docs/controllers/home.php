@@ -23,7 +23,7 @@ class Docs_Home_Controller extends Controller
     public function __construct()
     {
         $this->lang = Request::getPreferredLanguage();
-        $this->lang = (false !== stripos($this->lang, 'id')) ? 'id' : 'en';
+        $this->lang = (false !== stripos((string) $this->lang, 'id')) ? 'id' : 'en';
         $this->middleware('before', 'csrf')->on('post');
     }
 
