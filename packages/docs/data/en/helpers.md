@@ -23,7 +23,7 @@ Here is a list of all built-in helpers:
 
 |                             |                                   |                                   |                                 |                                   |                                   |
 | --------------------------- | --------------------------------- | --------------------------------- | ------------------------------- | --------------------------------- | --------------------------------- |
-| [e](#e)                     | [dd](#dd)                         | [dump](#dump)                     | [bd](#bd)                       | [\_\_ & trans](#__trans)          | [is_cli](#is_cli)                 |
+| [e](#e)                     | [dd](#dd)                         | [dump](#dump)                     | [bd](#bd)                       | [\_\_ & trans](#__trans)      | [is_cli](#is_cli)                 |
 | [data_fill](#data_fill)     | [data_get](#data_get)             | [data_set](#data_set)             | [retry](#retry)                 | [facile_to_json](#facile_to_json) | [head](#head)                     |
 | [last](#last)               | [url](#url)                       | [asset](#asset)                   | [action](#action)               | [route](#route)                   | [redirect](#redirect)             |
 | [csrf_field](#csrf_field)   | [root_namespace](#root_namespace) | [class_basename](#class_basename) | [value](#value)                 | [view](#view)                     | [render](#render)                 |

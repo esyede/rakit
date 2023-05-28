@@ -70,7 +70,7 @@ class MySQL extends Grammar
             $sql .= $this->charset($table, $column);
             $sql .= $this->collate($table, $column);
             $sql .= $this->nullable($table, $column);
-            $sql .= $this->defaults($table, $column);
+            $sql .= $this->default($table, $column);
             $sql .= $this->incrementer($table, $column);
             $columns[] = $sql;
         }
@@ -146,9 +146,9 @@ class MySQL extends Grammar
      *
      * @return string
      */
-    protected function defaults(Table $table, Magic $column)
+    protected function default(Table $table, Magic $column)
     {
-        if (!is_null($column->default)) {
+        if (null !== $column->default) {
             return " DEFAULT '" . $this->default_value($column->default) . "'";
         }
     }

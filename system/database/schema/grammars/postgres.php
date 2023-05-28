@@ -55,7 +55,7 @@ class Postgres extends Grammar
             $sql = $this->wrap($column) . ' ' . $this->type($column);
             $sql .= $this->incrementer($table, $column);
             $sql .= $this->nullable($table, $column);
-            $sql .= $this->defaults($table, $column);
+            $sql .= $this->default($table, $column);
             $columns[] = $sql;
         }
 
@@ -83,7 +83,7 @@ class Postgres extends Grammar
      *
      * @return string
      */
-    protected function defaults(Table $table, Magic $column)
+    protected function default(Table $table, Magic $column)
     {
         if (!is_null($column->default)) {
             return " DEFAULT '" . $this->default_value($column->default) . "'";

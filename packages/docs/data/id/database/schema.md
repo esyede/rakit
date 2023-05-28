@@ -129,7 +129,7 @@ Schema::table('users', function ($table) {
 	$table->string('email');
 	$table->string('phone')->nullable();
     $table->integer('age')->nullable();
-    $table->boolean('married')->defaults(0);
+    $table->boolean('married')->default(0);
 	$table->text('about');
 	$table->timestamps();
 });
