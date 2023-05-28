@@ -92,7 +92,7 @@ class SQLServer extends Grammar
      */
     protected function default(Table $table, Magic $column)
     {
-        if (!is_null($column->default)) {
+        if (null !== $column->default) {
             return " DEFAULT '" . $this->default_value($column->default) . "'";
         }
     }
