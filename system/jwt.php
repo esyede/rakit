@@ -43,6 +43,10 @@ class JWT
      */
     public static function encode(array $payloads, $secret, $algorithm = null, array $headers = [])
     {
+        if (!is_string($secret) || strlen($secret) < 1) {
+            throw new \Exception('Secret cannot be empty or non-string value');
+        }
+
         $algorithm = (null === $algorithm) ? 'HS256' : $algorithm;
 
         if (!is_string($algorithm) || strlen($algorithm) < 1) {
@@ -78,8 +82,8 @@ class JWT
      */
     public static function decode($token, $secret)
     {
-        if (empty($secret)) {
-            throw new \Exception('Secret cannot be empty');
+        if (!is_string($secret) || strlen($secret) < 1) {
+            throw new \Exception('Secret cannot be empty or non-string value');
         }
 
         $jwt = explode('.', $token);
