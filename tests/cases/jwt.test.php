@@ -292,9 +292,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
             $encoded = JWT::encode($payloads, 'secret');
             $decoded = JWT::decode($encoded, null);
         } catch (\Throwable $e) {
-            $this->assertEquals('Secret cannot be empty', $e->getMessage());
+            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
         } catch (\Exception $e) {
-            $this->assertEquals('Secret cannot be empty', $e->getMessage());
+            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
         }
     }
 
@@ -310,9 +310,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
             $encoded = JWT::encode($payloads, 'secret');
             $decoded = JWT::decode($encoded, '');
         } catch (\Throwable $e) {
-            $this->assertEquals('Secret cannot be empty', $e->getMessage());
+            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
         } catch (\Exception $e) {
-            $this->assertEquals('Secret cannot be empty', $e->getMessage());
+            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
         }
     }
 

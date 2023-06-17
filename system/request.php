@@ -390,7 +390,7 @@ class Request
         if (
             in_array(static::method(), ['GET', 'OPTIONS'])
             || Input::get(Session::TOKEN) === Session::token()
-            || false !== stripos($header, 'nocheck')
+            || false !== stripos((string) $header, 'nocheck')
         ) {
             return false;
         }
