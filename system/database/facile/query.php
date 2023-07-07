@@ -108,6 +108,11 @@ class Query
         $perpage = $perpage ?: $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
         $paginator->results = $this->hydrate($this->model, $paginator->results);
+        $paginator->results = array_map(function ($result) {
+            return (($result instanceof Model) && property_exists($result, 'attributes'))
+                ? (object) $result->attributes
+                : $result;
+        }, $paginator->results);
 
         return $paginator;
     }
@@ -128,7 +133,7 @@ class Query
         foreach ($results as $result) {
             $model = new $model([], true);
             $model->fill_raw((array) $result);
-            $models[] = (object) $model->attributes;
+            $models[] = $model;
         }
 
         if (count($results) > 0) {
