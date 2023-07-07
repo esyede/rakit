@@ -130,7 +130,7 @@ class Query
         foreach ($results as $result) {
             $model = new $model([], true);
             $model->fill_raw((array) $result);
-            $models[] = $model;
+            $models[] = (object) $model->attributes;
         }
 
         if (count($results) > 0) {
