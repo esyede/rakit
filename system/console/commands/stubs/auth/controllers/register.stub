@@ -2,16 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Routing\Controller;
-use System\View;
-use System\Validator;
-use System\Redirect;
-use System\Database as DB;
-use System\Input;
-use System\Auth;
-use System\Hash;
-use System\Date;
-
 class Auth_Register_Controller extends Controller
 {
     /**

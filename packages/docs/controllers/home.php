@@ -2,10 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Routing\Controller;
-use System\Request;
-use System\View;
-use System\Response;
 use Docs\Libraries\Docs;
 
 class Docs_Home_Controller extends Controller

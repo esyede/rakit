@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Database\Schema;
-
 class Create_Users_Table
 {
     /**

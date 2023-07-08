@@ -2,12 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Routing\Route;
-use System\Request;
-use System\Response;
-use System\Auth;
-use System\Routing\Throttle;
-
 /*
 |--------------------------------------------------------------------------
 | Middleware

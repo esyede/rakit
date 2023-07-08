@@ -2,9 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Config;
-use System\Database\Schema;
-
 class Create_Failed_Jobs_Table
 {
 	/**

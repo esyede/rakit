@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Console\Commands\Command;
-
 class Inspire_Command extends Command
 {
     /**

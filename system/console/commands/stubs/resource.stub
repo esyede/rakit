@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct script access.');
 
-use System\Routing\Controller;
-
 class stub_class_Controller extends Controller
 {
     public $restful = true;
