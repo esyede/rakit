@@ -24,6 +24,7 @@ return [
     'Autoloader' => 'System\Autoloader',
     'Blade' => 'System\Blade',
     'Cache' => 'System\Cache',
+    'Carbon' => 'System\Foundation\Carbon\Carbon',
     'Command' => 'System\Console\Commands\Command',
     'Config' => 'System\Config',
     'Console' => 'System\Console\Console',

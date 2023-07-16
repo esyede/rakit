@@ -995,11 +995,13 @@ if (!function_exists('now')) {
     /**
      * Ambil instance tanggal saat ini.
      *
+     * @param string|int|\System\Date|\DateTime $date
+     *
      * @return bool
      */
-    function now()
+    function now($date = null)
     {
-        return \System\Date::make(null);
+        return \System\Date::make($date);
     }
 }
 
