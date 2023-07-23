@@ -2,15 +2,9 @@
 
 namespace System\Foundation\Carbon;
 
-use Closure;
-use DateInterval;
-use InvalidArgumentException;
-use ReflectionClass;
-use ReflectionFunction;
-use ReflectionMethod;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class Interval extends DateInterval
+class Interval extends \DateInterval
 {
     const PERIOD_PREFIX = 'P';
     const PERIOD_YEARS = 'Y';
@@ -31,11 +25,11 @@ class Interval extends DateInterval
     public static function getCascadeFactors()
     {
         return static::$cascadeFactors ?: [
-            'minutes' => [Carbon::SECONDS_PER_MINUTE, 'seconds'],
-            'hours' => [Carbon::MINUTES_PER_HOUR, 'minutes'],
-            'dayz' => [Carbon::HOURS_PER_DAY, 'hours'],
-            'months' => [Carbon::DAYS_PER_WEEK * Carbon::WEEKS_PER_MONTH, 'dayz'],
-            'years' => [Carbon::MONTHS_PER_YEAR, 'months'],
+            'minutes' => [60, 'seconds'],
+            'hours' => [60, 'minutes'],
+            'dayz' => [24, 'hours'],
+            'months' => [28, 'dayz'],
+            'years' => [12, 'months'],
         ];
     }
 
@@ -49,6 +43,7 @@ class Interval extends DateInterval
     {
         if (!self::$flipCascadeFactors) {
             self::$flipCascadeFactors = [];
+
             foreach (static::getCascadeFactors() as $to => $tuple) {
                 list($factor, $from) = $tuple;
                 self::$flipCascadeFactors[self::standardizeUnit($from)] = [self::standardizeUnit($to), $factor];
@@ -64,7 +59,7 @@ class Interval extends DateInterval
         static::$cascadeFactors = $cascadeFactors;
     }
 
-    private static function wasCreatedFromDiff(DateInterval $interval)
+    private static function wasCreatedFromDiff(\DateInterval $interval)
     {
         return $interval->days !== false && $interval->days !== static::PHP_DAYS_FALSE;
     }
@@ -75,20 +70,18 @@ class Interval extends DateInterval
 
         if (!is_string($spec) || floatval($years) || preg_match('/^[0-9.]/', $years)) {
             $spec = static::PERIOD_PREFIX;
-            $spec .= $years > 0 ? $years . static::PERIOD_YEARS : '';
-            $spec .= $months > 0 ? $months . static::PERIOD_MONTHS : '';
-
             $specDays = 0;
-            $specDays += $weeks > 0 ? $weeks * static::getDaysPerWeek() : 0;
-            $specDays += $days > 0 ? $days : 0;
-
-            $spec .= $specDays > 0 ? $specDays . static::PERIOD_DAYS : '';
+            $spec .= ($years > 0) ? $years . static::PERIOD_YEARS : '';
+            $spec .= ($months > 0) ? $months . static::PERIOD_MONTHS : '';
+            $specDays += ($weeks > 0) ? $weeks * static::getDaysPerWeek() : 0;
+            $specDays += ($days > 0) ? $days : 0;
+            $spec .= ($specDays > 0) ? $specDays . static::PERIOD_DAYS : '';
 
             if ($hours > 0 || $minutes > 0 || $seconds > 0) {
                 $spec .= static::PERIOD_TIME_PREFIX;
-                $spec .= $hours > 0 ? $hours . static::PERIOD_HOURS : '';
-                $spec .= $minutes > 0 ? $minutes . static::PERIOD_MINUTES : '';
-                $spec .= $seconds > 0 ? $seconds . static::PERIOD_SECONDS : '';
+                $spec .= ($hours > 0) ? $hours . static::PERIOD_HOURS : '';
+                $spec .= ($minutes > 0) ? $minutes . static::PERIOD_MINUTES : '';
+                $spec .= ($seconds > 0) ? $seconds . static::PERIOD_SECONDS : '';
             }
 
             if ($spec === static::PERIOD_PREFIX) {
@@ -118,22 +111,22 @@ class Interval extends DateInterval
 
     public static function getDaysPerWeek()
     {
-        return static::getFactor('dayz', 'weeks') ?: Carbon::DAYS_PER_WEEK;
+        return static::getFactor('dayz', 'weeks') ?: 7;
     }
 
     public static function getHoursPerDay()
     {
-        return static::getFactor('hours', 'dayz') ?: Carbon::HOURS_PER_DAY;
+        return static::getFactor('hours', 'dayz') ?: 24;
     }
 
     public static function getMinutesPerHours()
     {
-        return static::getFactor('minutes', 'hours') ?: Carbon::MINUTES_PER_HOUR;
+        return static::getFactor('minutes', 'hours') ?: 60;
     }
 
     public static function getSecondsPerMinutes()
     {
-        return static::getFactor('seconds', 'minutes') ?: Carbon::SECONDS_PER_MINUTE;
+        return static::getFactor('seconds', 'minutes') ?: 60;
     }
 
     public static function create($years = 1, $months = null, $weeks = null, $days = null, $hours = null, $minutes = null, $seconds = null)
@@ -151,7 +144,7 @@ class Interval extends DateInterval
 
     public static function __callStatic($name, $args)
     {
-        $arg = count($args) === 0 ? 1 : $args[0];
+        $arg = (count($args) === 0) ? 1 : $args[0];
 
         switch ($name) {
             case 'years':
@@ -202,9 +195,7 @@ class Interval extends DateInterval
         $hours = 0;
         $minutes = 0;
         $seconds = 0;
-
-        $pattern = '/(\d+(?:\.\d+)?)\h*([^\d\h]*)/i';
-        preg_match_all($pattern, $intervalDefinition, $parts, PREG_SET_ORDER);
+        preg_match_all('/(\d+(?:\.\d+)?)\h*([^\d\h]*)/i', $intervalDefinition, $parts, PREG_SET_ORDER);
 
         while ($match = array_shift($parts)) {
             list($part, $value, $unit) = $match;
@@ -267,16 +258,14 @@ class Interval extends DateInterval
                     break;
 
                 default:
-                    throw new InvalidArgumentException(
-                        sprintf('Invalid part %s in definition %s', $part, $intervalDefinition)
-                    );
+                    throw new \Exception(sprintf('Invalid part %s in definition %s', $part, $intervalDefinition));
             }
         }
 
         return new static($years, $months, $weeks, $days, $hours, $minutes, $seconds);
     }
 
-    public static function instance(DateInterval $di, $trimMicroseconds = true)
+    public static function instance(\DateInterval $di, $trimMicroseconds = true)
     {
         $microseconds = ($trimMicroseconds || version_compare(PHP_VERSION, '7.1.0-dev', '<')) ? 0 : $di->f;
         $instance = new static(static::getDateIntervalSpec($di));
@@ -299,7 +288,7 @@ class Interval extends DateInterval
 
     public static function make($var)
     {
-        if ($var instanceof DateInterval) {
+        if ($var instanceof \DateInterval) {
             return static::instance($var);
         }
 
@@ -378,7 +367,7 @@ class Interval extends DateInterval
                 return $this->d % static::getDaysPerWeek();
 
             default:
-                throw new InvalidArgumentException(sprintf("Unknown getter '%s'", $name));
+                throw new \Exception(sprintf('Unknown getter: %s', $name));
         }
     }
 
@@ -433,8 +422,8 @@ class Interval extends DateInterval
 
     public static function mixin($mixin)
     {
-        $reflection = new ReflectionClass($mixin);
-        $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED);
+        $reflection = new \ReflectionClass($mixin);
+        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED);
 
         foreach ($methods as $method) {
             $method->setAccessible(true);
@@ -450,7 +439,7 @@ class Interval extends DateInterval
     protected function callMacro($name, $parameters)
     {
         $macro = static::$macros[$name];
-        $reflection = new ReflectionFunction($macro);
+        $reflection = new \ReflectionFunction($macro);
         $reflectionParameters = $reflection->getParameters();
         $expectedCount = count($reflectionParameters);
         $actualCount = count($parameters);
@@ -463,7 +452,7 @@ class Interval extends DateInterval
             $parameters[] = $this;
         }
 
-        if ($macro instanceof Closure && method_exists($macro, 'bindTo')) {
+        if (($macro instanceof \Closure) && method_exists($macro, 'bindTo')) {
             $macro = $macro->bindTo($this, get_class($this));
         }
 
@@ -559,7 +548,7 @@ class Interval extends DateInterval
         return $this;
     }
 
-    public function add(DateInterval $interval)
+    public function add(\DateInterval $interval)
     {
         $sign = (($this->invert === 1) !== ($interval->invert === 1)) ? -1 : 1;
 
@@ -606,7 +595,7 @@ class Interval extends DateInterval
         return $this;
     }
 
-    public static function getDateIntervalSpec(DateInterval $interval)
+    public static function getDateIntervalSpec(\DateInterval $interval)
     {
         $date = array_filter([
             static::PERIOD_YEARS => abs($interval->y),
@@ -642,7 +631,7 @@ class Interval extends DateInterval
         return static::getDateIntervalSpec($this);
     }
 
-    public static function compareDateIntervals(DateInterval $a, DateInterval $b)
+    public static function compareDateIntervals(\DateInterval $a, \DateInterval $b)
     {
         $current = Carbon::now();
         $passed = $current->copy()->add($b);
@@ -659,7 +648,7 @@ class Interval extends DateInterval
         return 0;
     }
 
-    public function compare(DateInterval $interval)
+    public function compare(\DateInterval $interval)
     {
         return static::compareDateIntervals($this, $interval);
     }
@@ -688,7 +677,7 @@ class Interval extends DateInterval
         if (in_array($unit, ['days', 'weeks'])) {
             $realUnit = 'dayz';
         } elseif (!in_array($unit, ['seconds', 'minutes', 'hours', 'dayz', 'months', 'years'])) {
-            throw new InvalidArgumentException("Unknown unit '$unit'.");
+            throw new \Exception(sprintf('Unknown unit: %s', $unit));
         }
 
         $result = 0;
@@ -732,13 +721,9 @@ class Interval extends DateInterval
         }
 
         if (!$unitFound) {
-            throw new \InvalidArgumentException("Unit $unit have no configuration to get total from other units.");
+            throw new \Exception(sprintf('Unit %s have no configuration to get total from other units.', $unit));
         }
 
-        if ($unit === 'weeks') {
-            return $result / static::getDaysPerWeek();
-        }
-
-        return $result;
+        return ($unit === 'weeks') ? ($result / static::getDaysPerWeek()) : $result;
     }
 }

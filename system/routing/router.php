@@ -79,7 +79,9 @@ class Router
      * @var array
      */
     public static $patterns = [
+        '(:alpha)' => '([a-zA-Z]+)',
         '(:num)' => '([0-9]+)',
+        '(:alnum)' => '([a-zA-Z0-9]+)',
         '(:any)' => '([a-zA-Z0-9\.\-_%=]+)',
         '(:segment)' => '([^/]+)',
         '(:all)' => '(.*)',
@@ -91,7 +93,9 @@ class Router
      * @var array
      */
     public static $optional = [
-        '/(:num?)' => '(?:/([0-9]+)',
+        '/(:alpha?)' => '(?:/([a-zA-Z]+)',
+        '/(:num?)' => '(?:/([a-zA-Z0-9]+)',
+        '/(:alnum?)' => '(?:/([0-9]+)',
         '/(:any?)' => '(?:/([a-zA-Z0-9\.\-_%=]+)',
         '/(:segment?)' => '(?:/([^/]+)',
         '/(:all?)' => '(?:/(.*)',

@@ -31,7 +31,7 @@ class Translator extends Translation\Translator
             return true;
         }
 
-        if (file_exists($filename = __DIR__.'/Lang/'.$locale.'.php')) {
+        if (is_file($filename = __DIR__ . '/Lang/' . $locale . '.php')) {
             static::$messages[$locale] = require $filename;
             $this->addResource('array', static::$messages[$locale], $locale);
             return true;
@@ -42,11 +42,7 @@ class Translator extends Translation\Translator
 
     protected function loadMessagesFromFile($locale)
     {
-        if (isset(static::$messages[$locale])) {
-            return true;
-        }
-
-        return $this->resetMessages($locale);
+        return (isset(static::$messages[$locale])) ? true : $this->resetMessages($locale);
     }
 
     public function setMessages($locale, $messages)

@@ -2,26 +2,16 @@
 
 namespace System\Foundation\Carbon;
 
-use Closure;
-use DateInterval;
-use DatePeriod;
-use DateTime;
-use DateTimeInterface;
-use DateTimeZone;
-use InvalidArgumentException;
-use JsonSerializable;
 use Symfony\Component\Translation\TranslatorInterface;
 
-class Carbon extends DateTime implements JsonSerializable
+class Carbon extends \DateTime implements \JsonSerializable
 {
     const NO_ZERO_DIFF = 01;
     const JUST_NOW = 02;
     const ONE_DAY_WORDS = 04;
     const TWO_DAY_WORDS = 010;
-
     const DIFF_RELATIVE_TO_NOW = 'relative-to-now';
     const DIFF_RELATIVE_TO_OTHER = 'relative-to-other';
-
     const SUNDAY = 0;
     const MONDAY = 1;
     const TUESDAY = 2;
@@ -30,26 +20,7 @@ class Carbon extends DateTime implements JsonSerializable
     const FRIDAY = 5;
     const SATURDAY = 6;
 
-    const YEARS_PER_MILLENNIUM = 1000;
-    const YEARS_PER_CENTURY = 100;
-    const YEARS_PER_DECADE = 10;
-    const MONTHS_PER_YEAR = 12;
-    const MONTHS_PER_QUARTER = 3;
-    const WEEKS_PER_YEAR = 52;
-    const WEEKS_PER_MONTH = 4;
-    const DAYS_PER_WEEK = 7;
-    const HOURS_PER_DAY = 24;
-    const MINUTES_PER_HOUR = 60;
-    const SECONDS_PER_MINUTE = 60;
-    const MICROSECONDS_PER_MILLISECOND = 1000;
-    const MICROSECONDS_PER_SECOND = 1000000;
-
-    const RFC7231_FORMAT = 'D, d M Y H:i:s \G\M\T';
-    const DEFAULT_TO_STRING_FORMAT = 'Y-m-d H:i:s';
-    const MOCK_DATETIME_FORMAT = 'Y-m-d H:i:s.u';
-
-    public static $PHPIntSize = PHP_INT_SIZE;
-    protected static $toStringFormat = self::DEFAULT_TO_STRING_FORMAT;
+    protected static $toStringFormat = 'Y-m-d H:i:s';
     protected static $weekStartsAt = self::MONDAY;
     protected static $weekEndsAt = self::SUNDAY;
     protected static $weekendDays = [self::SATURDAY, self::SUNDAY];
@@ -117,19 +88,19 @@ class Carbon extends DateTime implements JsonSerializable
     protected static $compareYearWithMonth = false;
     protected static $humanDiffOptions = self::NO_ZERO_DIFF;
 
-    public static function setHumanDiffOptions($humanDiffOptions)
+    public static function setHumanDiffOptions($options)
     {
-        static::$humanDiffOptions = $humanDiffOptions;
+        static::$humanDiffOptions = $options;
     }
 
-    public static function enableHumanDiffOption($humanDiffOption)
+    public static function enableHumanDiffOption($options)
     {
-        static::$humanDiffOptions = static::getHumanDiffOptions() | $humanDiffOption;
+        static::$humanDiffOptions = static::getHumanDiffOptions() | $options;
     }
 
-    public static function disableHumanDiffOption($humanDiffOption)
+    public static function disableHumanDiffOption($options)
     {
-        static::$humanDiffOptions = static::getHumanDiffOptions() & ~$humanDiffOption;
+        static::$humanDiffOptions = static::getHumanDiffOptions() & ~$options;
     }
 
     public static function getHumanDiffOptions()
@@ -137,9 +108,9 @@ class Carbon extends DateTime implements JsonSerializable
         return static::$humanDiffOptions;
     }
 
-    public static function useMicrosecondsFallback($microsecondsFallback = true)
+    public static function useMicrosecondsFallback($active = true)
     {
-        static::$microsecondsFallback = $microsecondsFallback;
+        static::$microsecondsFallback = $active;
     }
 
     public static function isMicrosecondsFallbackEnabled()
@@ -147,9 +118,9 @@ class Carbon extends DateTime implements JsonSerializable
         return static::$microsecondsFallback;
     }
 
-    public static function useMonthsOverflow($monthsOverflow = true)
+    public static function useMonthsOverflow($active = true)
     {
-        static::$monthsOverflow = $monthsOverflow;
+        static::$monthsOverflow = $active;
     }
 
     public static function resetMonthsOverflow()
@@ -162,9 +133,9 @@ class Carbon extends DateTime implements JsonSerializable
         return static::$monthsOverflow;
     }
 
-    public static function useYearsOverflow($yearsOverflow = true)
+    public static function useYearsOverflow($active = true)
     {
-        static::$yearsOverflow = $yearsOverflow;
+        static::$yearsOverflow = $active;
     }
 
     public static function resetYearsOverflow()
@@ -177,9 +148,9 @@ class Carbon extends DateTime implements JsonSerializable
         return static::$yearsOverflow;
     }
 
-    public static function compareYearWithMonth($compareYearWithMonth = true)
+    public static function compareYearWithMonth($active = true)
     {
-        static::$compareYearWithMonth = $compareYearWithMonth;
+        static::$compareYearWithMonth = $active;
     }
 
     public static function shouldCompareYearWithMonth()
@@ -190,10 +161,10 @@ class Carbon extends DateTime implements JsonSerializable
     protected static function safeCreateDateTimeZone($object)
     {
         if ($object === null) {
-            return new DateTimeZone(date_default_timezone_get());
+            return new \DateTimeZone(date_default_timezone_get());
         }
 
-        if ($object instanceof DateTimeZone) {
+        if ($object instanceof \DateTimeZone) {
             return $object;
         }
 
@@ -201,7 +172,7 @@ class Carbon extends DateTime implements JsonSerializable
             $tzName = timezone_name_from_abbr('', $object * 3600, true);
 
             if ($tzName === false) {
-                throw new InvalidArgumentException('Unknown or bad timezone (' . $object . ')');
+                throw new \Exception(sprintf('Unknown or bad timezone: %s', $object));
             }
 
             $object = $tzName;
@@ -216,12 +187,14 @@ class Carbon extends DateTime implements JsonSerializable
         if (strpos($object, ':') !== false) {
             try {
                 return static::createFromFormat('O', $object)->getTimezone();
-            } catch (InvalidArgumentException $e) {
+            } catch (\Throwable $e) {
+                // skip
+            } catch (\Exception $e) {
                 // skip
             }
         }
 
-        throw new InvalidArgumentException('Unknown or bad timezone (' . $object . ')');
+        throw new \Exception(sprintf('Unknown or bad timezone: %s', $object));
     }
 
     public function __construct($time = null, $tz = null)
@@ -229,35 +202,35 @@ class Carbon extends DateTime implements JsonSerializable
         $isNow = empty($time) || $time === 'now';
 
         if (static::hasTestNow() && ($isNow || static::hasRelativeKeywords($time))) {
-            $testInstance = clone static::getTestNow();
+            $clone = clone static::getTestNow();
 
             if ($tz !== null && $tz !== static::getTestNow()->getTimezone()) {
-                $testInstance->setTimezone($tz);
+                $clone->setTimezone($tz);
             } else {
-                $tz = $testInstance->getTimezone();
+                $tz = $clone->getTimezone();
             }
 
             if (static::hasRelativeKeywords($time)) {
-                $testInstance->modify($time);
+                $clone->modify($time);
             }
 
-            $time = $testInstance->format(static::MOCK_DATETIME_FORMAT);
+            $time = $clone->format('Y-m-d H:i:s.u');
         }
 
         $timezone = static::safeCreateDateTimeZone($tz);
 
         if (
             $isNow
-            && !isset($testInstance)
+            && !isset($clone)
             && static::isMicrosecondsFallbackEnabled()
             && (version_compare(PHP_VERSION, '7.1.0-dev', '<') || version_compare(PHP_VERSION, '7.1.3-dev', '>=')
                 && version_compare(PHP_VERSION, '7.1.4-dev', '<'))
         ) {
 
             list($microTime, $timeStamp) = explode(' ', microtime());
-            $dateTime = new DateTime('now', $timezone);
+            $dateTime = new \DateTime('now', $timezone);
             $dateTime->setTimestamp($timeStamp);
-            $time = $dateTime->format(static::DEFAULT_TO_STRING_FORMAT) . substr($microTime, 1, 7);
+            $time = $dateTime->format('Y-m-d H:i:s') . substr($microTime, 1, 7);
         }
 
         if (strpos((string) .1, '.') === false) {
@@ -311,7 +284,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public static function maxValue()
     {
-        if (self::$PHPIntSize === 4) {
+        if (PHP_INT_SIZE === 4) {
             return static::createFromTimestamp(PHP_INT_MAX);
         }
 
@@ -320,7 +293,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public static function minValue()
     {
-        if (self::$PHPIntSize === 4) {
+        if (PHP_INT_SIZE === 4) {
             return static::createFromTimestamp(~PHP_INT_MAX);
         }
 
@@ -433,34 +406,33 @@ class Carbon extends DateTime implements JsonSerializable
         $date = self::createFromFormatAndTimezone($format, $time, $tz);
         $lastErrors = parent::getLastErrors();
 
-        if (($mock = static::getTestNow()) && ($date instanceof DateTime || $date instanceof DateTimeInterface)) {
-            $nonEscaped = '(?<!\\\\)(\\\\{2})*';
-            $nonIgnored = preg_replace("/^.*{$nonEscaped}!/s", '', $format);
+        if (($mock = static::getTestNow()) && (($date instanceof \DateTime) || ($date instanceof \DateTimeInterface))) {
+            $nonIgnored = preg_replace("/^.*(?<!\\\\)(\\\\{2})*!/s", '', $format);
 
-            if ($tz === null && !preg_match("/{$nonEscaped}[eOPT]/", $nonIgnored)) {
+            if ($tz === null && !preg_match("/(?<!\\\\)(\\\\{2})*[eOPT]/", $nonIgnored)) {
                 $tz = $mock->getTimezone();
             }
 
-            if (!preg_match("/{$nonEscaped}[!|]/", $format)) {
-                $format = static::MOCK_DATETIME_FORMAT . ' ' . $format;
-                $time = $mock->format(static::MOCK_DATETIME_FORMAT) . ' ' . $time;
+            if (!preg_match("/(?<!\\\\)(\\\\{2})*[!|]/", $format)) {
+                $format = 'Y-m-d H:i:s.u ' . $format;
+                $time = $mock->format('Y-m-d H:i:s.u') . ' ' . $time;
             }
 
             $date = self::createFromFormatAndTimezone($format, $time, $tz);
         }
 
-        if ($date instanceof DateTime || $date instanceof DateTimeInterface) {
+        if (($date instanceof \DateTime) || ($date instanceof \DateTimeInterface)) {
             $instance = static::instance($date);
             $instance::setLastErrors($lastErrors);
             return $instance;
         }
 
-        throw new InvalidArgumentException(implode(PHP_EOL, $lastErrors['errors']));
+        throw new \Exception(implode(PHP_EOL, $lastErrors['errors']));
     }
 
-    private static function setLastErrors(array $lastErrors)
+    private static function setLastErrors(array $errors)
     {
-        static::$lastErrors = $lastErrors;
+        static::$lastErrors = $errors;
     }
 
     #[\ReturnTypeWillChange]
@@ -486,7 +458,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public static function make($var)
     {
-        if ($var instanceof DateTime || $var instanceof DateTimeInterface) {
+        if (($var instanceof \DateTime) || ($var instanceof \DateTimeInterface)) {
             return static::instance($var);
         }
 
@@ -513,16 +485,18 @@ class Carbon extends DateTime implements JsonSerializable
     protected static function expectDateTime($date, $other = [])
     {
         $message = 'Expected ';
+        $other = (array) $other;
 
-        foreach ((array) $other as $expect) {
-            $message .= "{$expect}, ";
+        foreach ($other as $expect) {
+            $message .= $expect . ', ';
         }
 
-        if (!$date instanceof DateTime && !$date instanceof DateTimeInterface) {
-            throw new InvalidArgumentException(
-                $message . 'DateTime or DateTimeInterface, ' .
-                    (is_object($date) ? get_class($date) : gettype($date)) . ' given'
-            );
+        if (!($date instanceof \DateTime) && !($date instanceof \DateTimeInterface)) {
+            throw new \Exception(sprintf(
+                '%sDateTime or DateTimeInterface, %s given',
+                $message,
+                is_object($date) ? get_class($date) : gettype($date)
+            ));
         }
     }
 
@@ -537,7 +511,7 @@ class Carbon extends DateTime implements JsonSerializable
         }
 
         static::expectDateTime($date, ['null', 'string']);
-        return $date instanceof self ? $date : static::instance($date);
+        return ($date instanceof self) ? $date : static::instance($date);
     }
 
     public function __get($name)
@@ -575,22 +549,22 @@ class Carbon extends DateTime implements JsonSerializable
                 return is_numeric($value) ? (int) $value : $value;
 
             case ($name === 'weekOfMonth'):
-                return (int) ceil($this->day / static::DAYS_PER_WEEK);
+                return (int) ceil($this->day / 7);
 
             case ($name === 'weekNumberInMonth'):
-                return (int) ceil(($this->day + $this->copy()->startOfMonth()->dayOfWeek - 1) / static::DAYS_PER_WEEK);
+                return (int) ceil(($this->day + $this->copy()->startOfMonth()->dayOfWeek - 1) / 7);
 
             case ($name === 'age'):
                 return $this->diffInYears();
 
             case ($name === 'quarter'):
-                return (int) ceil($this->month / static::MONTHS_PER_QUARTER);
+                return (int) ceil($this->month / 3);
 
             case ($name === 'offset'):
                 return $this->getOffset();
 
             case ($name === 'offsetHours'):
-                return $this->getOffset() / static::SECONDS_PER_MINUTE / static::MINUTES_PER_HOUR;
+                return $this->getOffset() / 3600;
 
             case ($name === 'dst'):
                 return $this->format('I') === '1';
@@ -608,7 +582,7 @@ class Carbon extends DateTime implements JsonSerializable
                 return $this->getTimezone()->getName();
 
             default:
-                throw new InvalidArgumentException(sprintf("Unknown getter '%s'", $name));
+                throw new \Exception(sprintf('Unknown getter: %s', $name));
         }
     }
 
@@ -616,7 +590,9 @@ class Carbon extends DateTime implements JsonSerializable
     {
         try {
             $this->__get($name);
-        } catch (InvalidArgumentException $e) {
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
             return false;
         }
 
@@ -647,7 +623,7 @@ class Carbon extends DateTime implements JsonSerializable
                 break;
 
             default:
-                throw new InvalidArgumentException(sprintf("Unknown setter '%s'", $name));
+                throw new \Exception(sprintf('Unknown setter: %s', $name));
         }
     }
 
@@ -758,7 +734,7 @@ class Carbon extends DateTime implements JsonSerializable
     public static function setWeekStartsAt($day)
     {
         if ($day > static::SATURDAY || $day < static::SUNDAY) {
-            throw new InvalidArgumentException('Day of a week should be greater than or equal to 0 and less than or equal to 6.');
+            throw new \Exception('Day of a week should be greater than or equal to 0 and less than or equal to 6.');
         }
 
         static::$weekStartsAt = $day;
@@ -772,7 +748,7 @@ class Carbon extends DateTime implements JsonSerializable
     public static function setWeekEndsAt($day)
     {
         if ($day > static::SATURDAY || $day < static::SUNDAY) {
-            throw new InvalidArgumentException('Day of a week should be greater than or equal to 0 and less than or equal to 6.');
+            throw new \Exception('Day of a week should be greater than or equal to 0 and less than or equal to 6.');
         }
 
         static::$weekEndsAt = $day;
@@ -819,9 +795,9 @@ class Carbon extends DateTime implements JsonSerializable
             return false;
         }
 
-        $date1 = new DateTime('2000-01-01T00:00:00Z');
+        $date1 = new \DateTime('2000-01-01T00:00:00Z');
         $date1->modify($time);
-        $date2 = new DateTime('2001-12-25T00:00:00Z');
+        $date2 = new \DateTime('2001-12-25T00:00:00Z');
         $date2->modify($time);
 
         return $date1 != $date2;
@@ -949,18 +925,170 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function formatLocalized($format)
     {
-
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $format = preg_replace('#(?<!%)((?:%%)*)%e#', '\1%#d', $format);
         }
 
-        $formatted = strftime($format, strtotime($this->toDateTimeString()));
+        $formatted = static::strftime($format, strtotime($this->toDateTimeString()));
         return static::$utf8 ? utf8_encode($formatted) : $formatted;
+    }
+
+    public static function strftime($format, $timestamp = null, $locale = null)
+    {
+        if (PHP_VERSION_ID < 80100) {
+            return strftime($format, $timestamp, $locale);
+        }
+
+        if ($timestamp instanceof \DateTimeInterface) {
+            $timestamp->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        } else {
+            $timestamp = is_int($timestamp) ? '@' . $timestamp : (string) $timestamp;
+
+            try {
+                $timestamp = new \DateTime($timestamp);
+            } catch (\Throwable $e) {
+                throw new \Exception('$timestamp argument is neither a valid UNIX timestamp, a valid date-time string or a DateTime object.', 0, $e);
+            } catch (\Exception $e) {
+                throw new \Exception('$timestamp argument is neither a valid UNIX timestamp, a valid date-time string or a DateTime object.', 0, $e);
+            }
+        }
+
+        if (empty($locale)) {
+            $locale = setlocale(LC_TIME, '0');
+        }
+
+        $locale = preg_replace('/[^\w-].*$/', '', $locale);
+        $formats = ['%a' => 'EEE', '%A' => 'EEEE', '%b' => 'MMM', '%B' => 'MMMM', '%h' => 'MMM'];
+        $formatter = function ($timestamp, $format) use ($formats, $locale) {
+            $tz = $timestamp->getTimezone();
+            $dateType = \IntlDateFormatter::FULL;
+            $timeType = \IntlDateFormatter::FULL;
+            $pattern = '';
+
+            switch ($format) {
+                case '%c':
+                    $dateType = \IntlDateFormatter::LONG;
+                    $timeType = \IntlDateFormatter::SHORT;
+                    break;
+
+                case '%x':
+                    $dateType = \IntlDateFormatter::SHORT;
+                    $timeType = \IntlDateFormatter::NONE;
+                    break;
+
+                case '%X':
+                    $dateType = \IntlDateFormatter::NONE;
+                    $timeType = \IntlDateFormatter::MEDIUM;
+                    break;
+
+                default:
+                    $pattern = $formats[$format];
+            }
+
+            $calendar = \IntlGregorianCalendar::createInstance();
+            $calendar->setGregorianChange(PHP_INT_MIN);
+
+            return (new \IntlDateFormatter($locale, $dateType, $timeType, $tz, $calendar, $pattern))->format($timestamp);
+        };
+
+        $translations = [
+            '%a' => $formatter,
+            '%A' => $formatter,
+            '%d' => 'd',
+            '%e' => function ($timestamp) {
+                return sprintf('% 2u', $timestamp->format('j'));
+            },
+            '%j' => function ($timestamp) {
+                return sprintf('%03d', $timestamp->format('z') + 1);
+            },
+            '%u' => 'N',
+            '%w' => 'w',
+            '%U' => function ($timestamp) {
+                $day = new \DateTime(sprintf('%d-01 Sunday', $timestamp->format('Y')));
+                return sprintf('%02u', 1 + ($timestamp->format('z') - $day->format('z')) / 7);
+            },
+            '%V' => 'W',
+            '%W' => function ($timestamp) {
+                $day = new \DateTime(sprintf('%d-01 Monday', $timestamp->format('Y')));
+                return sprintf('%02u', 1 + ($timestamp->format('z') - $day->format('z')) / 7);
+            },
+            '%b' => $formatter,
+            '%B' => $formatter,
+            '%h' => $formatter,
+            '%m' => 'm',
+            '%C' => function ($timestamp) {
+                return floor($timestamp->format('Y') / 100);
+            },
+            '%g' => function ($timestamp) {
+                return substr($timestamp->format('o'), -2);
+            },
+            '%G' => 'o',
+            '%y' => 'y',
+            '%Y' => 'Y',
+            '%H' => 'H',
+            '%k' => function ($timestamp) {
+                return sprintf('% 2u', $timestamp->format('G'));
+            },
+            '%I' => 'h',
+            '%l' => function ($timestamp) {
+                return sprintf('% 2u', $timestamp->format('g'));
+            },
+            '%M' => 'i',
+            '%p' => 'A',
+            '%P' => 'a',
+            '%r' => 'h:i:s A',
+            '%R' => 'H:i',
+            '%S' => 's',
+            '%T' => 'H:i:s',
+            '%X' => $formatter,
+            '%z' => 'O',
+            '%Z' => 'T',
+            '%c' => $formatter,
+            '%D' => 'm/d/Y',
+            '%F' => 'Y-m-d',
+            '%s' => 'U',
+            '%x' => $formatter,
+        ];
+
+        $out = preg_replace_callback('/(?<!%)%([_#-]?)([a-zA-Z])/', function ($match) use ($translations, $timestamp) {
+            $prefix = $match[1];
+            $char = $match[2];
+            $pattern = '%' . $char;
+
+            if ($pattern == '%n') {
+                return "\n";
+            } elseif ($pattern == '%t') {
+                return "\t";
+            }
+
+            if (!isset($translations[$pattern])) {
+                throw new \Exception(sprintf('Format "%s" is unknown in time format', $pattern));
+            }
+
+            $replace = $translations[$pattern];
+
+            if (is_string($replace)) {
+                $result = $timestamp->format($replace);
+            } else {
+                $result = $replace($timestamp, $pattern);
+            }
+
+            switch ($prefix) {
+                case '_':
+                    return preg_replace('/\G0(?=.)/', ' ', $result);
+                case '#':
+                case '-':
+                    return preg_replace('/^0+(?=.)/', '', $result);
+            }
+
+            return $result;
+        }, $format);
+        return str_replace('%%', '%', $out);
     }
 
     public static function resetToStringFormat()
     {
-        static::setToStringFormat(static::DEFAULT_TO_STRING_FORMAT);
+        static::setToStringFormat('Y-m-d H:i:s');
     }
 
     public static function setToStringFormat($format)
@@ -971,7 +1099,7 @@ class Carbon extends DateTime implements JsonSerializable
     public function __toString()
     {
         $format = static::$toStringFormat;
-        return $this->format(($format instanceof Closure) ? $format($this) : $format);
+        return $this->format(($format instanceof \Closure) ? $format($this) : $format);
     }
 
     public function toDateString()
@@ -1066,7 +1194,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function toRfc7231String()
     {
-        return $this->copy()->setTimezone('GMT')->format(static::RFC7231_FORMAT);
+        return $this->copy()->setTimezone('GMT')->format('D, d M Y H:i:s \G\M\T');
     }
 
     public function toArray()
@@ -1082,7 +1210,7 @@ class Carbon extends DateTime implements JsonSerializable
             'second' => $this->second,
             'micro' => $this->micro,
             'timestamp' => $this->timestamp,
-            'formatted' => $this->format(self::DEFAULT_TO_STRING_FORMAT),
+            'formatted' => $this->format('Y-m-d H:i:s'),
             'timezone' => $this->timezone,
         ];
     }
@@ -1103,8 +1231,8 @@ class Carbon extends DateTime implements JsonSerializable
             return null;
         }
 
-        $year = $this->year < 0 || $this->year > 9999
-            ? ($this->year < 0 ? '-' : '+') . str_pad(abs($this->year), 6, '0', STR_PAD_LEFT)
+        $year = ($this->year < 0 || $this->year > 9999)
+            ? (($this->year < 0) ? '-' : '+') . str_pad(abs($this->year), 6, '0', STR_PAD_LEFT)
             : str_pad($this->year, 4, '0', STR_PAD_LEFT);
 
         $tz = $keepOffset ? $this->format('P') : 'Z';
@@ -1120,7 +1248,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function toDateTime()
     {
-        return new DateTime($this->format('Y-m-d H:i:s.u'), $this->getTimezone());
+        return new \DateTime($this->format('Y-m-d H:i:s.u'), $this->getTimezone());
     }
 
     public function toDate()
@@ -1206,11 +1334,7 @@ class Carbon extends DateTime implements JsonSerializable
             $date2 = $temp;
         }
 
-        if ($equal) {
-            return $this->gte($date1) && $this->lte($date2);
-        }
-
-        return $this->gt($date1) && $this->lt($date2);
+        return $equal ? ($this->gte($date1) && $this->lte($date2)) : ($this->gt($date1) && $this->lt($date2));
     }
 
     protected function floatDiffInSeconds($date)
@@ -1368,7 +1492,6 @@ class Carbon extends DateTime implements JsonSerializable
         $date = $date ? static::instance($date) : static::now($this->tz);
         static::expectDateTime($date, 'null');
         $ofSameYear = is_null($ofSameYear) ? static::shouldCompareYearWithMonth() : $ofSameYear;
-
         return $this->quarter === $date->quarter && (!$ofSameYear || $this->isSameYear($date));
     }
 
@@ -1503,7 +1626,9 @@ class Carbon extends DateTime implements JsonSerializable
             static::createFromFormat($format, $date);
             $regex = strtr(preg_quote($format, '/'), static::$regexFormats);
             return (bool) preg_match('/^' . $regex . '$/', $date);
-        } catch (InvalidArgumentException $e) {
+        } catch (\Throwable $e) {
+            // skip
+        } catch (\Exception $e) {
             // skip
         }
 
@@ -1512,7 +1637,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addCenturies($value)
     {
-        return $this->addYears(static::YEARS_PER_CENTURY * $value);
+        return $this->addYears(100 * $value);
     }
 
     public function addCentury($value = 1)
@@ -1532,11 +1657,9 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addYears($value)
     {
-        if ($this->shouldOverflowYears()) {
-            return $this->addYearsWithOverflow($value);
-        }
-
-        return $this->addYearsNoOverflow($value);
+        return $this->shouldOverflowYears()
+            ? $this->addYearsWithOverflow($value)
+            : $this->addYearsNoOverflow($value);
     }
 
     public function addYear($value = 1)
@@ -1546,7 +1669,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addYearsNoOverflow($value)
     {
-        return $this->addMonthsNoOverflow($value * static::MONTHS_PER_YEAR);
+        return $this->addMonthsNoOverflow($value * 12);
     }
 
     public function addYearNoOverflow($value = 1)
@@ -1556,7 +1679,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addYearsWithOverflow($value)
     {
-        return $this->modify((int) $value . ' year');
+        return $this->modify(((int) $value) . ' year');
     }
 
     public function addYearWithOverflow($value = 1)
@@ -1576,7 +1699,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function subYearsNoOverflow($value)
     {
-        return $this->subMonthsNoOverflow($value * static::MONTHS_PER_YEAR);
+        return $this->subMonthsNoOverflow($value * 12);
     }
 
     public function subYearNoOverflow($value = 1)
@@ -1586,7 +1709,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function subYearsWithOverflow($value)
     {
-        return $this->subMonthsWithOverflow($value * static::MONTHS_PER_YEAR);
+        return $this->subMonthsWithOverflow($value * 12);
     }
 
     public function subYearWithOverflow($value = 1)
@@ -1596,7 +1719,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addQuarters($value)
     {
-        return $this->addMonths(static::MONTHS_PER_QUARTER * $value);
+        return $this->addMonths(3 * $value);
     }
 
     public function addQuarter($value = 1)
@@ -1616,11 +1739,9 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addMonths($value)
     {
-        if (static::shouldOverflowMonths()) {
-            return $this->addMonthsWithOverflow($value);
-        }
-
-        return $this->addMonthsNoOverflow($value);
+        return static::shouldOverflowMonths()
+            ? $this->addMonthsWithOverflow($value)
+            : $this->addMonthsNoOverflow($value);
     }
 
     public function addMonth($value = 1)
@@ -1661,7 +1782,7 @@ class Carbon extends DateTime implements JsonSerializable
     public function addMonthsNoOverflow($value)
     {
         $day = $this->day;
-        $this->modify((int) $value . ' month');
+        $this->modify(((int) $value) . ' month');
 
         if ($day !== $this->day) {
             $this->modify('last day of previous month');
@@ -1707,10 +1828,10 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addWeekdays($value)
     {
-        $t = $this->toTimeString();
-        $this->modify((int) $value . ' weekday');
+        $time = $this->toTimeString();
+        $this->modify(((int) $value) . ' weekday');
 
-        return $this->setTimeFromTimeString($t);
+        return $this->setTimeFromTimeString($time);
     }
 
     public function addWeekday($value = 1)
@@ -1730,7 +1851,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addWeeks($value)
     {
-        return $this->modify((int) $value . ' week');
+        return $this->modify(((int) $value) . ' week');
     }
 
     public function addWeek($value = 1)
@@ -1750,12 +1871,12 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addHours($value)
     {
-        return $this->modify((int) $value . ' hour');
+        return $this->modify(((int) $value) . ' hour');
     }
 
     public function addRealHours($value)
     {
-        return $this->addRealMinutes($value * static::MINUTES_PER_HOUR);
+        return $this->addRealMinutes($value * 60);
     }
 
     public function addHour($value = 1)
@@ -1790,12 +1911,12 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addMinutes($value)
     {
-        return $this->modify((int) $value . ' minute');
+        return $this->modify(((int) $value) . ' minute');
     }
 
     public function addRealMinutes($value)
     {
-        return $this->addRealSeconds($value * static::SECONDS_PER_MINUTE);
+        return $this->addRealSeconds($value * 60);
     }
 
     public function addMinute($value = 1)
@@ -1830,7 +1951,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function addSeconds($value)
     {
-        return $this->modify((int) $value . ' second');
+        return $this->modify(((int) $value) . ' second');
     }
 
     public function addRealSeconds($value)
@@ -1868,7 +1989,7 @@ class Carbon extends DateTime implements JsonSerializable
         return $this->subRealSeconds($value);
     }
 
-    protected static function fixDiffInterval(DateInterval $diff, $absolute, $trimMicroseconds)
+    protected static function fixDiffInterval(\DateInterval $diff, $absolute, $trimMicroseconds)
     {
         $diff = Interval::instance($diff, $trimMicroseconds);
 
@@ -1948,12 +2069,12 @@ class Carbon extends DateTime implements JsonSerializable
     public function diffInMonths($date = null, $absolute = true)
     {
         $date = $this->resolveCarbon($date);
-        return $this->diffInYears($date, $absolute) * static::MONTHS_PER_YEAR + (int) $this->diff($date, $absolute)->format('%r%m');
+        return $this->diffInYears($date, $absolute) * 12 + (int) $this->diff($date, $absolute)->format('%r%m');
     }
 
     public function diffInWeeks($date = null, $absolute = true)
     {
-        return (int) ($this->diffInDays($date, $absolute) / static::DAYS_PER_WEEK);
+        return (int) ($this->diffInDays($date, $absolute) / 7);
     }
 
     public function diffInDays($date = null, $absolute = true)
@@ -1961,17 +2082,17 @@ class Carbon extends DateTime implements JsonSerializable
         return (int) $this->diff($this->resolveCarbon($date), $absolute)->format('%r%a');
     }
 
-    public function diffInDaysFiltered(Closure $callback, $date = null, $absolute = true)
+    public function diffInDaysFiltered(\Closure $callback, $date = null, $absolute = true)
     {
         return $this->diffFiltered(Interval::day(), $callback, $date, $absolute);
     }
 
-    public function diffInHoursFiltered(Closure $callback, $date = null, $absolute = true)
+    public function diffInHoursFiltered(\Closure $callback, $date = null, $absolute = true)
     {
         return $this->diffFiltered(Interval::hour(), $callback, $date, $absolute);
     }
 
-    public function diffFiltered(Interval $ci, Closure $callback, $date = null, $absolute = true)
+    public function diffFiltered(Interval $ci, \Closure $callback, $date = null, $absolute = true)
     {
         $start = $this;
         $end = $this->resolveCarbon($date);
@@ -1983,7 +2104,7 @@ class Carbon extends DateTime implements JsonSerializable
             $inverse = true;
         }
 
-        $period = new DatePeriod($start, $ci, $end);
+        $period = new \DatePeriod($start, $ci, $end);
         $values = array_filter(iterator_to_array($period), function ($date) use ($callback) {
             return call_user_func($callback, Carbon::instance($date));
         });
@@ -2008,22 +2129,22 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function diffInHours($date = null, $absolute = true)
     {
-        return (int) ($this->diffInSeconds($date, $absolute) / static::SECONDS_PER_MINUTE / static::MINUTES_PER_HOUR);
+        return (int) ($this->diffInSeconds($date, $absolute) / 3600);
     }
 
     public function diffInRealHours($date = null, $absolute = true)
     {
-        return (int) ($this->diffInRealSeconds($date, $absolute) / static::SECONDS_PER_MINUTE / static::MINUTES_PER_HOUR);
+        return (int) ($this->diffInRealSeconds($date, $absolute) / 3600);
     }
 
     public function diffInMinutes($date = null, $absolute = true)
     {
-        return (int) ($this->diffInSeconds($date, $absolute) / static::SECONDS_PER_MINUTE);
+        return (int) ($this->diffInSeconds($date, $absolute) / 60);
     }
 
     public function diffInRealMinutes($date = null, $absolute = true)
     {
-        return (int) ($this->diffInRealSeconds($date, $absolute) / static::SECONDS_PER_MINUTE);
+        return (int) ($this->diffInRealSeconds($date, $absolute) / 60);
     }
 
     public function diffInSeconds($date = null, $absolute = true)
@@ -2034,40 +2155,31 @@ class Carbon extends DateTime implements JsonSerializable
             $diff = static::fixDiffInterval($diff, $absolute, false);
         }
 
-        $value = $diff->days * static::HOURS_PER_DAY * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE +
-            $diff->h * static::MINUTES_PER_HOUR * static::SECONDS_PER_MINUTE +
-            $diff->i * static::SECONDS_PER_MINUTE +
-            $diff->s;
-
-        return $absolute || !$diff->invert ? $value : -$value;
+        $value = $diff->days * 24 * 3600 + $diff->h * 3600 + $diff->i * 60 + $diff->s;
+        return ($absolute || !$diff->invert) ? $value : -$value;
     }
 
     public function diffInRealSeconds($date = null, $absolute = true)
     {
-        $date = $this->resolveCarbon($date);
-        $value = $date->getTimestamp() - $this->getTimestamp();
-
+        $value = $this->resolveCarbon($date)->getTimestamp() - $this->getTimestamp();
         return $absolute ? abs($value) : $value;
     }
 
     public function diffInMilliseconds($date = null, $absolute = true)
     {
-        return (int) ($this->diffInMicroseconds($date, $absolute) / static::MICROSECONDS_PER_MILLISECOND);
+        return (int) ($this->diffInMicroseconds($date, $absolute) / 1000);
     }
 
     public function diffInRealMilliseconds($date = null, $absolute = true)
     {
-        return (int) ($this->diffInRealMicroseconds($date, $absolute) / static::MICROSECONDS_PER_MILLISECOND);
+        return (int) ($this->diffInRealMicroseconds($date, $absolute) / 1000);
     }
 
     public function diffInMicroseconds($date = null, $absolute = true)
     {
         $diff = $this->diff($this->resolveCarbon($date));
         $micro = isset($diff->f) ? $diff->f : 0;
-        $value = (int) round((((($diff->days * static::HOURS_PER_DAY) +
-            $diff->h) * static::MINUTES_PER_HOUR +
-            $diff->i) * static::SECONDS_PER_MINUTE +
-            ($micro + $diff->s)) * static::MICROSECONDS_PER_SECOND);
+        $value = (int) round((((($diff->days * 24) + $diff->h) * 60 + $diff->i) * 60 + ($micro + $diff->s)) * 1000000);
 
         return ($absolute || !$diff->invert) ? $value : -$value;
     }
@@ -2076,7 +2188,7 @@ class Carbon extends DateTime implements JsonSerializable
     {
 
         $date = $this->resolveCarbon($date);
-        $value = ($date->timestamp - $this->timestamp) * static::MICROSECONDS_PER_SECOND + $date->micro - $this->micro;
+        $value = ($date->timestamp - $this->timestamp) * 1000000 + $date->micro - $this->micro;
 
         return $absolute ? abs($value) : $value;
     }
@@ -2111,18 +2223,18 @@ class Carbon extends DateTime implements JsonSerializable
 
         if ($isNow) {
             $other = $this->nowWithSameTz();
-        } elseif (!$other instanceof DateTime && !$other instanceof DateTimeInterface) {
+        } elseif (!($other instanceof \DateTime) && !($other instanceof \DateTimeInterface)) {
             $other = static::parse($other);
         }
 
         $diffInterval = $this->diff($other);
         $diffIntervalArray = [
-            ['value' => $diffInterval->y, 'unit' => 'year',    'unitShort' => 'y'],
-            ['value' => $diffInterval->m, 'unit' => 'month',   'unitShort' => 'm'],
-            ['value' => $diffInterval->d, 'unit' => 'day',     'unitShort' => 'd'],
-            ['value' => $diffInterval->h, 'unit' => 'hour',    'unitShort' => 'h'],
-            ['value' => $diffInterval->i, 'unit' => 'minute',  'unitShort' => 'min'],
-            ['value' => $diffInterval->s, 'unit' => 'second',  'unitShort' => 's'],
+            ['value' => $diffInterval->y, 'unit' => 'year', 'unitShort' => 'y'],
+            ['value' => $diffInterval->m, 'unit' => 'month', 'unitShort' => 'm'],
+            ['value' => $diffInterval->d, 'unit' => 'day', 'unitShort' => 'd'],
+            ['value' => $diffInterval->h, 'unit' => 'hour', 'unitShort' => 'h'],
+            ['value' => $diffInterval->i, 'unit' => 'minute', 'unitShort' => 'min'],
+            ['value' => $diffInterval->s, 'unit' => 'second', 'unitShort' => 's'],
         ];
 
         foreach ($diffIntervalArray as $diffIntervalData) {
@@ -2130,11 +2242,11 @@ class Carbon extends DateTime implements JsonSerializable
                 $unit = $short ? $diffIntervalData['unitShort'] : $diffIntervalData['unit'];
                 $count = $diffIntervalData['value'];
 
-                if ($diffIntervalData['unit'] === 'day' && $count >= static::DAYS_PER_WEEK) {
+                if ($diffIntervalData['unit'] === 'day' && $count >= 7) {
                     $unit = $short ? 'w' : 'week';
-                    $count = (int) ($count / static::DAYS_PER_WEEK);
+                    $count = (int) ($count / 7);
                     $interval[] = static::translator()->transChoice($unit, $count, [':count' => $count]);
-                    $numOfDaysCount = (int) ($diffIntervalData['value'] - ($count * static::DAYS_PER_WEEK));
+                    $numOfDaysCount = (int) ($diffIntervalData['value'] - ($count * 7));
 
                     if ($numOfDaysCount > 0 && count($interval) < $parts) {
                         $unit = $short ? 'd' : 'day';
@@ -2239,7 +2351,7 @@ class Carbon extends DateTime implements JsonSerializable
     {
         $other = null;
 
-        if ($absolute instanceof DateTimeInterface) {
+        if ($absolute instanceof \DateTimeInterface) {
             list($other, $absolute, $short, $parts) = array_pad(func_get_args(), 5, null);
         }
 
@@ -2255,7 +2367,7 @@ class Carbon extends DateTime implements JsonSerializable
     {
         $other = null;
 
-        if ($absolute instanceof DateTimeInterface) {
+        if ($absolute instanceof \DateTimeInterface) {
             list($other, $absolute, $short, $parts) = array_pad(func_get_args(), 5, null);
         }
 
@@ -2284,14 +2396,13 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function startOfQuarter()
     {
-        $month = ($this->quarter - 1) * static::MONTHS_PER_QUARTER + 1;
-
+        $month = ($this->quarter - 1) * 3 + 1;
         return $this->setDate($this->year, $month, 1)->startOfDay();
     }
 
     public function endOfQuarter()
     {
-        return $this->startOfQuarter()->addMonths(static::MONTHS_PER_QUARTER - 1)->endOfMonth();
+        return $this->startOfQuarter()->addMonths(3 - 1)->endOfMonth();
     }
 
     public function startOfYear()
@@ -2306,37 +2417,37 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function startOfDecade()
     {
-        $year = $this->year - $this->year % static::YEARS_PER_DECADE;
+        $year = $this->year - $this->year % 10;
         return $this->setDate($year, 1, 1)->startOfDay();
     }
 
     public function endOfDecade()
     {
-        $year = $this->year - $this->year % static::YEARS_PER_DECADE + static::YEARS_PER_DECADE - 1;
+        $year = $this->year - $this->year % 10 + 9;
         return $this->setDate($year, 12, 31)->endOfDay();
     }
 
     public function startOfCentury()
     {
-        $year = $this->year - ($this->year - 1) % static::YEARS_PER_CENTURY;
+        $year = $this->year - ($this->year - 1) % 100;
         return $this->setDate($year, 1, 1)->startOfDay();
     }
 
     public function endOfCentury()
     {
-        $year = $this->year - 1 - ($this->year - 1) % static::YEARS_PER_CENTURY + static::YEARS_PER_CENTURY;
+        $year = $this->year - 1 - ($this->year - 1) % 100 + 100;
         return $this->setDate($year, 12, 31)->endOfDay();
     }
 
     public function startOfMillennium()
     {
-        $year = $this->year - ($this->year - 1) % static::YEARS_PER_MILLENNIUM;
+        $year = $this->year - ($this->year - 1) % 1000;
         return $this->setDate($year, 1, 1)->startOfDay();
     }
 
     public function endOfMillennium()
     {
-        $year = $this->year - 1 - ($this->year - 1) % static::YEARS_PER_MILLENNIUM + static::YEARS_PER_MILLENNIUM;
+        $year = $this->year - 1 - ($this->year - 1) % 1000 + 1000;
         return $this->setDate($year, 12, 31)->endOfDay();
     }
 
@@ -2365,7 +2476,7 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function endOfHour()
     {
-        return $this->modify("$this->hour:59:59.999999");
+        return $this->modify($this->hour . ':59:59.999999');
     }
 
     public function startOfMinute()
@@ -2375,17 +2486,17 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function endOfMinute()
     {
-        return $this->modify("$this->hour:$this->minute:59.999999");
+        return $this->modify($this->hour . ':' . $this->minute . ':59.999999');
     }
 
     public function startOfSecond()
     {
-        return $this->modify("$this->hour:$this->minute:$this->second.0");
+        return $this->modify($this->hour . ':' . $this->minute . ':' . $this->second . '.0');
     }
 
     public function endOfSecond()
     {
-        return $this->modify("$this->hour:$this->minute:$this->second.999999");
+        return $this->modify($this->hour . ':' . $this->minute . ':' . $this->second . '.999999');
     }
 
     public function midDay()
@@ -2475,17 +2586,17 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function firstOfQuarter($dayOfWeek = null)
     {
-        return $this->setDate($this->year, $this->quarter * static::MONTHS_PER_QUARTER - 2, 1)->firstOfMonth($dayOfWeek);
+        return $this->setDate($this->year, $this->quarter * 3 - 2, 1)->firstOfMonth($dayOfWeek);
     }
 
     public function lastOfQuarter($dayOfWeek = null)
     {
-        return $this->setDate($this->year, $this->quarter * static::MONTHS_PER_QUARTER, 1)->lastOfMonth($dayOfWeek);
+        return $this->setDate($this->year, $this->quarter * 3, 1)->lastOfMonth($dayOfWeek);
     }
 
     public function nthOfQuarter($nth, $dayOfWeek)
     {
-        $date = $this->copy()->day(1)->month($this->quarter * static::MONTHS_PER_QUARTER);
+        $date = $this->copy()->day(1)->month($this->quarter * 3);
         $lastMonth = $date->month;
         $year = $date->year;
         $date->firstOfQuarter()->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
@@ -2500,13 +2611,13 @@ class Carbon extends DateTime implements JsonSerializable
 
     public function lastOfYear($dayOfWeek = null)
     {
-        return $this->month(static::MONTHS_PER_YEAR)->lastOfMonth($dayOfWeek);
+        return $this->month(12)->lastOfMonth($dayOfWeek);
     }
 
     public function nthOfYear($nth, $dayOfWeek)
     {
         $date = $this->copy()->firstOfYear()->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
-        return $this->year === $date->year ? $this->modify($date) : false;
+        return ($this->year === $date->year) ? $this->modify($date) : false;
     }
 
     public function average($date = null)
@@ -2540,8 +2651,8 @@ class Carbon extends DateTime implements JsonSerializable
     {
         $instance = @unserialize($value);
 
-        if (!$instance instanceof static) {
-            throw new InvalidArgumentException('Invalid serialized value.');
+        if (!($instance instanceof static)) {
+            throw new \Exception('Invalid serialized value.');
         }
 
         return $instance;
@@ -2599,11 +2710,11 @@ class Carbon extends DateTime implements JsonSerializable
     public static function __callStatic($method, $parameters)
     {
         if (!static::hasMacro($method)) {
-            throw new \BadMethodCallException("Method $method does not exist.");
+            throw new \Exception(sprintf('Call to undefined method: %s', $method));
         }
 
-        if (static::$localMacros[$method] instanceof Closure && method_exists('Closure', 'bind')) {
-            return call_user_func_array(Closure::bind(static::$localMacros[$method], null, get_called_class()), $parameters);
+        if ((static::$localMacros[$method] instanceof \Closure) && method_exists('\Closure', 'bind')) {
+            return call_user_func_array(\Closure::bind(static::$localMacros[$method], null, get_called_class()), $parameters);
         }
 
         return call_user_func_array(static::$localMacros[$method], $parameters);
@@ -2612,24 +2723,23 @@ class Carbon extends DateTime implements JsonSerializable
     public function __call($method, $parameters)
     {
         if (!static::hasMacro($method)) {
-            throw new \BadMethodCallException("Method $method does not exist.");
+            throw new \Exception(sprintf('Call to undefined method: %s', $method));
         }
 
         $macro = static::$localMacros[$method];
-        $reflexion = new \ReflectionFunction($macro);
-        $reflectionParameters = $reflexion->getParameters();
-        $expectedCount = count($reflectionParameters);
-        $actualCount = count($parameters);
+        $args = (new \ReflectionFunction($macro))->getParameters();
+        $expected = count($args);
+        $actual = count($parameters);
 
-        if ($expectedCount > $actualCount && $reflectionParameters[$expectedCount - 1]->name === 'self') {
-            for ($i = $actualCount; $i < $expectedCount - 1; $i++) {
-                $parameters[] = $reflectionParameters[$i]->getDefaultValue();
+        if ($expected > $actual && $args[$expected - 1]->name === 'self') {
+            for ($i = $actual; $i < $expected - 1; $i++) {
+                $parameters[] = $args[$i]->getDefaultValue();
             }
 
             $parameters[] = $this;
         }
 
-        if ($macro instanceof Closure && method_exists($macro, 'bindTo')) {
+        if (($macro instanceof \Closure) && method_exists($macro, 'bindTo')) {
             return call_user_func_array($macro->bindTo($this, get_class($this)), $parameters);
         }
 
@@ -2643,12 +2753,15 @@ class Carbon extends DateTime implements JsonSerializable
         });
     }
 
-    public function cast($className)
+    public function cast($class)
     {
-        if (!method_exists($className, 'instance')) {
-            throw new \InvalidArgumentException("$className has not the instance() method needed to cast the date.");
+        if (!method_exists($class, 'instance')) {
+            throw new \Exception(sprintf(
+                'The %s class does not have the instance() method needed to cast the date.',
+                $class
+            ));
         }
 
-        return $className::instance($this);
+        return $class::instance($this);
     }
 }

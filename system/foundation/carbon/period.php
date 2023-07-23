@@ -2,18 +2,7 @@
 
 namespace System\Foundation\Carbon;
 
-use BadMethodCallException;
-use Closure;
-use Countable;
-use DateInterval;
-use InvalidArgumentException;
-use Iterator;
-use ReflectionClass;
-use ReflectionFunction;
-use ReflectionMethod;
-use RuntimeException;
-
-class Period implements Iterator, Countable
+class Period implements \Iterator, \Countable
 {
     const RECURRENCES_FILTER = '\System\Foundation\Carbon\Period::filterRecurrences';
     const END_DATE_FILTER = '\System\Foundation\Carbon\Period::filterEndDate';
@@ -43,7 +32,7 @@ class Period implements Iterator, Countable
 
     public static function createFromArray(array $params)
     {
-        return (new ReflectionClass('\System\Foundation\Carbon\Period'))->newInstanceArgs($params);
+        return (new \ReflectionClass('\System\Foundation\Carbon\Period'))->newInstanceArgs($params);
     }
 
     public static function createFromIso($iso, $options = null)
@@ -58,14 +47,20 @@ class Period implements Iterator, Countable
         return $instance;
     }
 
-    protected static function intervalHasTime(DateInterval $interval)
+    protected static function intervalHasTime(\DateInterval $interval)
     {
-        return $interval->h || $interval->i || $interval->s || array_key_exists('f', get_object_vars($interval)) && $interval->f;
+        return $interval->h
+            || $interval->i
+            || $interval->s
+            || array_key_exists('f', get_object_vars($interval))
+            && $interval->f;
     }
 
     protected static function isCarbonPredicateMethod($callable)
     {
-        return is_string($callable) && substr($callable, 0, 2) === 'is' && (method_exists('Carbon\Carbon', $callable) || Carbon::hasMacro($callable));
+        return is_string($callable)
+            && substr($callable, 0, 2) === 'is'
+            && (method_exists('\System\Foundation\Carbon\Carbon', $callable) || Carbon::hasMacro($callable));
     }
 
     protected static function isIso8601($var)
@@ -74,9 +69,7 @@ class Period implements Iterator, Countable
             return false;
         }
 
-        $part = '[a-z]+(?:[_-][a-z]+)*';
-        preg_match("#\b$part/$part\b|(/)#i", $var, $match);
-
+        preg_match("/\b[a-z]+(?:[_-][a-z]+)*/[a-z]+(?:[_-][a-z]+)*\b|(/)/i", $var, $match);
         return isset($match[1]);
     }
 
@@ -97,7 +90,7 @@ class Period implements Iterator, Countable
             } elseif ($end === null && $parsed = Carbon::make(static::addMissingParts($start, $part))) {
                 $end = $part;
             } else {
-                throw new InvalidArgumentException("Invalid ISO 8601 specification: $iso.");
+                throw new \Exception(sprintf('Invalid ISO 8601 specification: %s', $iso));
             }
 
             $result[] = $parsed;
@@ -110,7 +103,6 @@ class Period implements Iterator, Countable
     {
         $pattern = '/' . preg_replace('/[0-9]+/', '[0-9]+', preg_quote($target, '/')) . '$/';
         $result = preg_replace($pattern, $target, $source, 1, $count);
-
         return $count ? $result : $target;
     }
 
@@ -126,8 +118,8 @@ class Period implements Iterator, Countable
 
     public static function mixin($mixin)
     {
-        $reflection = new ReflectionClass($mixin);
-        $methods = $reflection->getMethods(ReflectionMethod::IS_PUBLIC | ReflectionMethod::IS_PROTECTED);
+        $reflection = new \ReflectionClass($mixin);
+        $methods = $reflection->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED);
 
         foreach ($methods as $method) {
             $method->setAccessible(true);
@@ -165,7 +157,7 @@ class Period implements Iterator, Countable
             } elseif ($this->options === null && (is_int($argument) || $argument === null)) {
                 $this->setOptions($argument);
             } else {
-                throw new InvalidArgumentException('Invalid constructor parameters.');
+                throw new \Exception('Invalid constructor parameters.');
             }
         }
 
@@ -186,11 +178,11 @@ class Period implements Iterator, Countable
     public function setDateInterval($interval)
     {
         if (!$interval = Interval::make($interval)) {
-            throw new InvalidArgumentException('Invalid interval.');
+            throw new \Exception('Invalid interval.');
         }
 
         if ($interval->spec() === 'PT0S') {
-            throw new InvalidArgumentException('Empty interval is not accepted.');
+            throw new \Exception('Empty interval is not accepted.');
         }
 
         $this->dateInterval = $interval;
@@ -217,7 +209,7 @@ class Period implements Iterator, Countable
     public function setOptions($options)
     {
         if (!is_int($options) && !is_null($options)) {
-            throw new InvalidArgumentException('Invalid options.');
+            throw new \Exception('Invalid options.');
         }
 
         $this->options = $options ?: 0;
@@ -293,10 +285,8 @@ class Period implements Iterator, Countable
 
     public function prependFilter($callback, $name = null)
     {
-        $tuple = $this->createFilterTuple(func_get_args());
-        array_unshift($this->filters, $tuple);
+        array_unshift($this->filters, $this->createFilterTuple(func_get_args()));
         $this->handleChangedParameters();
-
         return $this;
     }
 
@@ -316,14 +306,12 @@ class Period implements Iterator, Countable
     public function removeFilter($filter)
     {
         $key = is_callable($filter) ? 0 : 1;
-
         $this->filters = array_values(array_filter($this->filters, function ($tuple) use ($key, $filter) {
             return $tuple[$key] !== $filter;
         }));
 
         $this->updateInternalState();
         $this->handleChangedParameters();
-
         return $this;
     }
 
@@ -367,7 +355,6 @@ class Period implements Iterator, Countable
         }
 
         $this->handleChangedParameters();
-
         return $this;
     }
 
@@ -385,7 +372,7 @@ class Period implements Iterator, Countable
     public function setRecurrences($recurrences)
     {
         if (!is_numeric($recurrences) && !is_null($recurrences) || $recurrences < 0) {
-            throw new InvalidArgumentException('Invalid number of recurrences.');
+            throw new \Exception('Invalid number of recurrences.');
         }
 
         if ($recurrences === null) {
@@ -399,23 +386,18 @@ class Period implements Iterator, Countable
         }
 
         $this->handleChangedParameters();
-
         return $this;
     }
 
     protected function filterRecurrences($current, $key)
     {
-        if ($key < $this->recurrences) {
-            return true;
-        }
-
-        return static::END_ITERATION;
+        return ($key < $this->recurrences) ? true : static::END_ITERATION;
     }
 
     public function setStartDate($date, $inclusive = null)
     {
         if (!$date = Carbon::make($date)) {
-            throw new InvalidArgumentException('Invalid start date.');
+            throw new \Exception('Invalid start date.');
         }
 
         $this->startDate = $date;
@@ -430,7 +412,7 @@ class Period implements Iterator, Countable
     public function setEndDate($date, $inclusive = null)
     {
         if (!is_null($date) && !$date = Carbon::make($date)) {
-            throw new InvalidArgumentException('Invalid end date.');
+            throw new \Exception('Invalid end date.');
         }
 
         if (!$date) {
@@ -448,7 +430,6 @@ class Period implements Iterator, Countable
         }
 
         $this->handleChangedParameters();
-
         return $this;
     }
 
@@ -458,7 +439,7 @@ class Period implements Iterator, Countable
             return true;
         }
 
-        if ($this->dateInterval->invert ? $current > $this->endDate : $current < $this->endDate) {
+        if ($this->dateInterval->invert ? ($current > $this->endDate) : ($current < $this->endDate)) {
             return true;
         }
 
@@ -587,7 +568,7 @@ class Period implements Iterator, Countable
             $this->validationResult = null;
 
             if (++$attempts > static::NEXT_MAX_ATTEMPTS) {
-                throw new RuntimeException('Could not find next valid date.');
+                throw new \Exception('Could not find next valid date.');
             }
         } while ($this->validateCurrentDate() === false);
     }
@@ -614,7 +595,7 @@ class Period implements Iterator, Countable
     {
         $parts = [];
         $translator = Carbon::getTranslator();
-        $format = !$this->startDate->isStartOfDay() || $this->endDate && !$this->endDate->isStartOfDay()
+        $format = (!$this->startDate->isStartOfDay() || $this->endDate && !$this->endDate->isStartOfDay())
             ? 'Y-m-d H:i:s'
             : 'Y-m-d';
 
@@ -640,12 +621,7 @@ class Period implements Iterator, Countable
 
     public function toArray()
     {
-        $state = [
-            $this->key,
-            $this->current ? $this->current->copy() : null,
-            $this->validationResult,
-        ];
-
+        $state = [$this->key, $this->current ? $this->current->copy() : null, $this->validationResult];
         $result = iterator_to_array($this);
         list($this->key, $this->current, $this->validationResult) = $state;
 
@@ -675,8 +651,7 @@ class Period implements Iterator, Countable
     protected function callMacro($name, $parameters)
     {
         $macro = static::$macros[$name];
-        $reflection = new ReflectionFunction($macro);
-        $reflectionParameters = $reflection->getParameters();
+        $reflectionParameters = (new \ReflectionFunction($macro))->getParameters();
         $expectedCount = count($reflectionParameters);
         $actualCount = count($parameters);
 
@@ -688,7 +663,7 @@ class Period implements Iterator, Countable
             $parameters[] = $this;
         }
 
-        if ($macro instanceof Closure && method_exists($macro, 'bindTo')) {
+        if (($macro instanceof \Closure) && method_exists($macro, 'bindTo')) {
             $macro = $macro->bindTo($this, get_class($this));
         }
 
@@ -779,6 +754,6 @@ class Period implements Iterator, Countable
                 ));
         }
 
-        throw new BadMethodCallException("Method $method does not exist.");
+        throw new \Exception(sprintf('Call to undefined method: %s', $method));
     }
 }

@@ -5,6 +5,7 @@ namespace System\Database\Facile;
 defined('DS') or exit('No direct script access.');
 
 use System\Str;
+use System\Arr;
 use System\Database;
 
 class Query
@@ -108,10 +109,22 @@ class Query
         $perpage = $perpage ?: $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
         $paginator->results = $this->hydrate($this->model, $paginator->results);
+
+        // FIXME: Temporary workaround
         $paginator->results = array_map(function ($result) {
-            return (($result instanceof Model) && property_exists($result, 'attributes'))
-                ? (object) $result->attributes
-                : $result;
+            if ($result instanceof Model) {
+                if (property_exists($result, 'relationships')) {
+                    foreach ($result->relationships as $key => $value) {
+                        $result->{$key} = $value->attributes;
+                    }
+                }
+
+                if (property_exists($result, 'attributes')) {
+                    $result = $result->attributes;
+                }
+            }
+
+            return $result;
         }, $paginator->results);
 
         return $paginator;
