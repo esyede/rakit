@@ -47,7 +47,7 @@ class Redis extends Driver
     protected function retrieve($key)
     {
         $cache = $this->redis->get($key);
-        return is_null($cache) ? null : unserialize($cache);
+        return (null === $cache) ? null : unserialize($cache);
     }
 
     /**
@@ -66,7 +66,7 @@ class Redis extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        $this->forever($key, $value);
+        $this->redis->set($key, serialize($value));
         $this->redis->expire($key, $minutes * 60);
     }
 
@@ -78,7 +78,7 @@ class Redis extends Driver
      */
     public function forever($key, $value)
     {
-        $this->put($key, serialize($value), 2628000);
+        $this->put($key, $value, 2628000);
     }
 
     /**

@@ -42,16 +42,11 @@ class Facile extends Driver
      */
     public function attempt(array $arguments = [])
     {
-        $model = Config::get('auth.model');
-
-        if (!$model) {
-            throw new \Exception('Please set the auth model in your config file.');
-        }
-
-        $model = new $model();
-        $user = $model->where(function ($query) use ($arguments) {
-            $query->where('email', '=', $arguments['email']);
-            $except = Arr::except($arguments, ['email', 'password', 'remember']);
+        $model = Config::get('auth.model', 'User');
+        $user = (new $model())->where(function ($query) use ($arguments) {
+            $identifier = Config::get('auth.identifier', 'email');
+            $query->where($identifier, '=', $arguments[$identifier]);
+            $except = Arr::except($arguments, [$identifier, 'password', 'remember']);
 
             foreach ($except as $column => $value) {
                 $query->where($column, '=', $value);
