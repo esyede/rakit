@@ -24,6 +24,7 @@ class HasOneOrMany extends Relationship
         }
 
         $attributes[$this->foreign_key()] = $this->base->get_key();
+
         return $this->model->create($attributes);
     }
 

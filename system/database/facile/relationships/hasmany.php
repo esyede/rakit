@@ -31,13 +31,10 @@ class HasMany extends HasOneOrMany
         foreach ($models as $attributes) {
             $class = get_class($this->model);
             $model = ($attributes instanceof $class) ? $attributes : $this->fresh_model($attributes);
-
             $foreign = $this->foreign_key();
             $model->{$foreign} = $this->base->get_key();
-
             $id = $model->get_key();
             $model->exists = (!is_null($id) && in_array($id, $current));
-
             $model->original = [];
             $model->save();
         }
