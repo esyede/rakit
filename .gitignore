@@ -1,12 +1,6 @@
 # Framework
 key.php
 _ide_helper.php
-/storage/cache
-/storage/console
-/storage/database
-/storage/logs
-/storage/sessions
-/storage/views
 /storage/*.pem
 
 
