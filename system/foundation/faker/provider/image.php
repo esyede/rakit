@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Faker\Provider;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Image extends Base
 {

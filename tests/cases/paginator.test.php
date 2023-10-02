@@ -1,6 +1,6 @@
 <?php
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class PaginatorTest extends \PHPUnit_Framework_TestCase
 {

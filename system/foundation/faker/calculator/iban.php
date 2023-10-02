@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Faker\Calculator;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Iban
 {

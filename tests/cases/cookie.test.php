@@ -2,7 +2,7 @@
 
 namespace SystemCookieTest;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Cookie;
 use System\Crypter;

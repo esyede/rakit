@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Faker;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Generator
 {

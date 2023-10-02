@@ -2,7 +2,7 @@
 
 namespace System\Database;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Database;
 use System\Paginator;

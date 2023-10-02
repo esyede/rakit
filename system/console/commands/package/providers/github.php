@@ -2,7 +2,7 @@
 
 namespace System\Console\Commands\Package\Providers;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Github extends Provider
 {

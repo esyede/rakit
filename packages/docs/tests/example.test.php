@@ -2,7 +2,7 @@
 
 namespace Docs\Tests;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class ExampleTest extends \PHPUnit_Framework_TestCase
 {

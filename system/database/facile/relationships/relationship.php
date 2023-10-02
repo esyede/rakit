@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile\Relationships;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Database\Facile\Model;
 use System\Database\Facile\Query;
