@@ -6,7 +6,7 @@ defined('DS') or exit('No direct access.');
 
 /*
 |--------------------------------------------------------------------------
-| Buat / Baca Rakit Key
+| Buat Application Key
 |--------------------------------------------------------------------------
 | Pastikan file key.php sudah ada di base path, buat jika belum ada.
 */
@@ -82,6 +82,13 @@ if (is_file($path = path('rakit_key'))) {
         exit;
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Salin _ide_helper.php
+|--------------------------------------------------------------------------
+| Utuk mengakomodasi autocomplete IDE anda agar lebih akurat.
+*/
 
 if (!is_file($file = dirname(__DIR__) . DS . '_ide_helper.php')) {
     $stub = __DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub';
