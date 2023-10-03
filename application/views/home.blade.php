@@ -65,7 +65,7 @@
 <body>
     <div class="flex-center position-ref full-height">
 
-        @if (System\Routing\Route::has('login'))
+        @if (Route::has('login'))
             <div class="top-right links">
                 @guest
                     <a href="{{ url('/login') }}">Login</a>
