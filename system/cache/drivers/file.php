@@ -57,7 +57,7 @@ class File extends Driver
 
         return (time() >= substr($cache, 0, 10))
             ? $this->forget($key)
-            : json_decode(substr($cache, 10), true);
+            : unserialize(substr($cache, 10));
     }
 
     /**
@@ -81,7 +81,7 @@ class File extends Driver
         }
 
         $key = $this->naming($key);
-        $value = $this->guard($this->expiration($minutes) . json_encode($value));
+        $value = $this->guard($this->expiration($minutes) . serialize($value));
 
         Storage::put($this->path . $key, $value, LOCK_EX);
     }
