@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Faker\Provider\id;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Foundation\Faker\Provider\Company as BaseCompany;
 

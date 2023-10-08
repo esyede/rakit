@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Oops;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Panic
 {
@@ -145,7 +145,7 @@ class Panic
 
         if (!is_dir($dir)) {
             mkdir($dir . 'aaaa');
-            file_put_contents($dir . 'index.html', 'No direct script access.');
+            file_put_contents($dir . 'index.html', 'No direct access.');
         }
 
         if (!is_file($file)) {

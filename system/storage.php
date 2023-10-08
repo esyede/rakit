@@ -2,7 +2,7 @@
 
 namespace System;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Storage
 {
@@ -483,7 +483,7 @@ class Storage
         $path = is_file($path) ? rtrim(dirname($path), DS) : $path;
 
         if (!is_file($file = $path . DS . 'index.html')) {
-            static::put($file, 'No direct script access.' . PHP_EOL);
+            static::put($file, 'No direct access.' . PHP_EOL);
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace System\Session\Drivers;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class File extends Driver implements Sweeper
 {
@@ -106,7 +106,7 @@ class File extends Driver implements Sweeper
      */
     protected static function guard($value)
     {
-        return "<?php defined('DS') or exit('No direct script access.');?>" . $value;
+        return "<?php defined('DS') or exit('No direct access.');?>" . $value;
     }
 
     /**
@@ -119,6 +119,6 @@ class File extends Driver implements Sweeper
      */
     protected static function unguard($value)
     {
-        return str_replace("<?php defined('DS') or exit('No direct script access.');?>", '', $value);
+        return str_replace("<?php defined('DS') or exit('No direct access.');?>", '', $value);
     }
 }

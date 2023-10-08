@@ -2,7 +2,7 @@
 
 namespace System\Email\Drivers;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Log as BaseLog;
 

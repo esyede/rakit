@@ -2,7 +2,7 @@
 
 namespace System\Console\Commands\Package;
 
-defined('DS') or die('No direct script access.');
+defined('DS') or die('No direct access.');
 
 use System\Container;
 use System\Storage;

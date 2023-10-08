@@ -2,7 +2,7 @@
 
 namespace System\Routing;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Cache;
 use System\Request;

@@ -2,7 +2,7 @@
 
 namespace System\Database\Query\Grammars;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Database\Query;
 

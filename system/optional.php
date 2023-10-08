@@ -2,7 +2,7 @@
 
 namespace System;
 
-defined('DS') or die('No direct script access.');
+defined('DS') or die('No direct access.');
 
 class Optional implements \ArrayAccess
 {

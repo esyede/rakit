@@ -2,7 +2,7 @@
 
 namespace System\Console\Commands;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Request;
 use System\Routing\Router;

@@ -2,7 +2,7 @@
 
 namespace System\Database\Schema\Grammars;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Arr;
 use System\Magic;

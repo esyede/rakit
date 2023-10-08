@@ -2,7 +2,7 @@
 
 namespace System\Session\Drivers;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 use System\Cache\Drivers\Memcached as CacheMemcached;
 
