@@ -2,7 +2,7 @@
 
 namespace System;
 
-defined('DS') or die('No direct access.');
+defined('DS') or die('No direct script access.');
 
 class Config
 {

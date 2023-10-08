@@ -2,7 +2,7 @@
 
 namespace System\Auth\Drivers;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Str;
 use System\Cookie;

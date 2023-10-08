@@ -2,7 +2,7 @@
 
 namespace System\Cache\Drivers;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Redis as BaseRedis;
 

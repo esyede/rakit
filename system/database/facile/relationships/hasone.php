@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile\Relationships;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class HasOne extends HasOneOrMany
 {
@@ -37,8 +37,8 @@ class HasOne extends HasOneOrMany
      */
     public function match($relationship, array &$parents, array $childrens)
     {
-        $dictionary = [];
         $foreign = $this->foreign_key();
+        $dictionary = [];
 
         foreach ($childrens as $children) {
             $dictionary[$children->{$foreign}] = $children;

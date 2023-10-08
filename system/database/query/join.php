@@ -2,7 +2,7 @@
 
 namespace System\Database\Query;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Join
 {

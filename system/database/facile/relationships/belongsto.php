@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile\Relationships;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Database\Facile\Model;
 
@@ -108,8 +108,6 @@ class BelongsTo extends Relationship
 
     /**
      * Bind objek ke relasi belongs-to menggunakan id-nya.
-     *
-     * @param int $id
      *
      * @return Facile
      */

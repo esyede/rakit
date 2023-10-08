@@ -2,7 +2,7 @@
 
 namespace System\Console\Commands\Test;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Storage;
 use System\Package;

@@ -4,7 +4,7 @@ namespace System\Foundation\Faker\Provider;
 
 use System\Foundation\Faker\Calculator\Luhn;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Payment extends Base
 {

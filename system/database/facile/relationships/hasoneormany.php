@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile\Relationships;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Database\Facile\Model;
 
@@ -24,7 +24,6 @@ class HasOneOrMany extends Relationship
         }
 
         $attributes[$this->foreign_key()] = $this->base->get_key();
-
         return $this->model->create($attributes);
     }
 

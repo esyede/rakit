@@ -2,7 +2,7 @@
 
 namespace System\Console\Commands\Package;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Repository
 {

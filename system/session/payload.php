@@ -2,7 +2,7 @@
 
 namespace System\Session;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Arr;
 use System\Str;

@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Http;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Parameter implements \IteratorAggregate, \Countable
 {

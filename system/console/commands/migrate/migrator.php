@@ -2,7 +2,7 @@
 
 namespace System\Console\Commands\Migrate;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Console\Commands\Command;
 use System\Database\Schema;

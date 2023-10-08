@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile\Relationships;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Database\Facile\Model;
 use System\Database\Facile\Pivot;
@@ -61,7 +61,6 @@ class BelongsToMany extends Relationship
     protected function joining($model, $associated)
     {
         $models = [class_basename($model), class_basename($associated)];
-
         sort($models);
 
         return strtolower($models[0] . '_' . $models[1]);
@@ -214,6 +213,7 @@ class BelongsToMany extends Relationship
     {
         $other = $this->other_key();
         $foreign = $this->foreign_key();
+
         $this->set_select($foreign, $other)->set_join($other)->set_where($foreign);
     }
 
@@ -233,6 +233,7 @@ class BelongsToMany extends Relationship
         }
 
         $this->table->select($columns);
+
         return $this;
     }
 
@@ -338,6 +339,7 @@ class BelongsToMany extends Relationship
         $columns = is_array($columns) ? $columns : func_get_args();
         $this->with = array_unique(array_merge($this->with, $columns));
         $this->set_select($this->foreign_key(), $this->other_key());
+
         return $this;
     }
 

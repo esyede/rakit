@@ -2,11 +2,12 @@
 
 namespace System\Database;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Config;
 use System\Magic;
 use System\Database as DB;
+use System\Str;
 
 class Schema
 {

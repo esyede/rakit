@@ -2,7 +2,7 @@
 
 namespace System;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Response
 {
@@ -194,7 +194,15 @@ class Response
             return static::json(compact('status', 'message'), $code, $headers);
         }
 
-        $view = View::exists('error.' . $code) ? 'error.' . $code : 'error.unknown';
+        $view = View::exists('error.' . $code)
+            ? 'error.' . $code 
+            : (View::exists('error.unknown') ? 'error.unknown' : false);
+        
+        if (!$view) {
+            $view = Storage::get(path('system') . DS . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . '500.phtml');
+            return static::make($view, 500, $headers);
+        }
+
         return static::view($view, compact('code', 'message'), $code, $headers);
     }
 

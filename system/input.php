@@ -2,7 +2,7 @@
 
 namespace System;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Input
 {
@@ -109,8 +109,8 @@ class Input
      */
     public static function json($as_object = false)
     {
-        static::$json = static::$json ?: json_decode(Request::foundation()->getContent());
-        return static::$json = $as_object
+         static::$json = static::$json ?: json_decode(Request::foundation()->getContent());
+         return static::$json = $as_object
             ? json_decode(json_encode(static::$json, JSON_FORCE_OBJECT), false)
             : json_decode(json_encode(static::$json), true);
     }

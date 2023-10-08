@@ -2,7 +2,7 @@
 
 namespace System;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Redis
 {
@@ -76,9 +76,7 @@ class Redis
     public static function db($name = 'default')
     {
         if (!isset(static::$databases[$name])) {
-            $config = Config::get('database.redis.' . $name, []);
-
-            if (empty($config)) {
+            if (empty($config = Config::get('database.redis.' . $name, []))) {
                 throw new \Exception(sprintf('Redis database config is not configured: %s', $name));
             }
 

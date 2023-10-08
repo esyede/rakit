@@ -2,7 +2,7 @@
 
 namespace System\Console;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Package;
 use System\Config;

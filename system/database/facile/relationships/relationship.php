@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile\Relationships;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Database\Facile\Model;
 use System\Database\Facile\Query;
@@ -55,7 +55,6 @@ abstract class Relationship extends Query
         }
 
         $model = is_object($model) ? class_basename($model) : $model;
-
         return strtolower(basename((string) $model) . '_id');
     }
 

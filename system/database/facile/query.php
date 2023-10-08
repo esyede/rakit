@@ -2,7 +2,7 @@
 
 namespace System\Database\Facile;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 use System\Str;
 use System\Arr;

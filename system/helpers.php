@@ -1,6 +1,6 @@
 <?php
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 if (!function_exists('e')) {
     /**
