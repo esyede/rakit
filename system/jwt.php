@@ -124,8 +124,8 @@ class JWT
             throw new \Exception(sprintf(
                 "Only these algorithm are supported: %s. Got '%s' (%s)",
                 implode(', ', static::$algorithms),
-                $algorithm,
-                gettype($algorithm)
+                $headers->alg,
+                gettype($headers->alg)
             ));
         }
 
