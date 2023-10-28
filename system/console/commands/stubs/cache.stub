@@ -14,7 +14,7 @@ class Create_Caches_Table
         Schema::create_if_not_exists('caches', function ($table) {
             $table->string('key')->length(60)->primary('cache_primary');
             $table->text('value');
-            $table->timestamp('expiration');
+            $table->string('expiration');
         });
 	}
 

@@ -50,7 +50,8 @@ class Database extends Driver
         $cache = $this->table()->where('key', '=', $this->key . $key)->first();
 
         if (!is_null($cache)) {
-            return (time() >= $cache->expiration) ? $this->forget($key) : unserialize($cache->value);
+            $expiration = (new \DateTime('@' . $cache->expiration))->getTimestamp();
+            return (time() >= $expiration) ? $this->forget($key) : unserialize($cache->value);
         }
     }
 
