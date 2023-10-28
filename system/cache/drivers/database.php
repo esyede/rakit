@@ -102,7 +102,7 @@ class Database extends Driver
     protected function table()
     {
         $db = Config::get('cache.database');
-        $connection = isset($db['connection']) ? $db['connection'] : null;
-        return DB::connection($connection)->table($db['table']);
+        $db['connection'] = isset($db['connection']) ? $db['connection'] : null;
+        return DB::connection($db['connection'])->table($db['table']);
     }
 }
