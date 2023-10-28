@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct access.');
 
-class Create_Session_Table
+class Create_Sessions_Table
 {
 	/**
 	 * Buat perubahan di database.
