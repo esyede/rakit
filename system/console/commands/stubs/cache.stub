@@ -1,0 +1,30 @@
+<?php
+
+defined('DS') or exit('No direct access.');
+
+class Create_Caches_Table
+{
+	/**
+	 * Buat perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function up()
+	{
+        Schema::create_if_not_exists('caches', function ($table) {
+            $table->string('key')->length(60)->primary('cache_primary');
+            $table->text('value');
+            $table->integer('expiration');
+        });
+	}
+
+	/**
+	 * Urungkan perubahan di database.
+	 *
+	 * @return void
+	 */
+	public function down()
+	{
+        Schema::drop_if_exists('caches');
+	}
+}

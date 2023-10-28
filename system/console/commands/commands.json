@@ -1,4 +1,10 @@
 {
+    "cache": {
+        "cache:table": {
+            "description": "Buat file migrasi untuk tabel cache.",
+            "command": "php rakit cache:table"
+        }
+    },
     "clear": {
         "clear:views": {
             "description": "Bersihkan seluruh file cache view.",
