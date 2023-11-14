@@ -102,11 +102,9 @@ class View implements \ArrayAccess
         $this->path = (0 === strpos($view, 'path: ')) ? substr($view, 6) : $this->path($view);
 
         if (!isset($this->data['errors'])) {
-            if (Session::started() && Session::has('errors')) {
-                $this->data['errors'] = Session::get('errors');
-            } else {
-                $this->data['errors'] = new Messages();
-            }
+            $this->data['errors'] = (Session::started() && Session::has('errors'))
+                ? Session::get('errors')
+                : new Messages();
         }
     }
 
