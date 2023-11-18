@@ -260,6 +260,50 @@ class Route
     }
 
     /**
+     * Daftarkan sebuah route HEAD.
+     *
+     * @param string|array $route
+     * @param mixed        $action
+     */
+    public static function head($route, $action)
+    {
+        Router::register('HEAD', $route, $action);
+    }
+
+    /**
+     * Daftarkan sebuah route TRACE.
+     *
+     * @param string|array $route
+     * @param mixed        $action
+     */
+    public static function trace($route, $action)
+    {
+        Router::register('TRACE', $route, $action);
+    }
+
+    /**
+     * Daftarkan sebuah route CONNECT.
+     *
+     * @param string|array $route
+     * @param mixed        $action
+     */
+    public static function connect($route, $action)
+    {
+        Router::register('CONNECT', $route, $action);
+    }
+
+    /**
+     * Daftarkan sebuah route OPTIONS.
+     *
+     * @param string|array $route
+     * @param mixed        $action
+     */
+    public static function options($route, $action)
+    {
+        Router::register('OPTIONS', $route, $action);
+    }
+
+    /**
      * Daftarkan sebuah route POST.
      *
      * @param string|array $route
@@ -279,6 +323,17 @@ class Route
     public static function put($route, $action)
     {
         Router::register('PUT', $route, $action);
+    }
+
+    /**
+     * Daftarkan sebuah route PATCH.
+     *
+     * @param string|array $route
+     * @param mixed        $action
+     */
+    public static function patch($route, $action)
+    {
+        Router::register('PATCH', $route, $action);
     }
 
     /**

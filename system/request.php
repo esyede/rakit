@@ -16,7 +16,7 @@ class Request
     /**
      * Berisi seluruh instance route untuk penanganan request.
      *
-     * @var array
+     * @var mixed
      */
     public static $route;
 
@@ -63,8 +63,7 @@ class Request
      */
     public static function method()
     {
-        $method = strtoupper((string) static::foundation()->getMethod());
-        return ('HEAD' === $method) ? 'GET' : $method;
+        return strtoupper((string) static::foundation()->getMethod());
     }
 
     /**
@@ -76,8 +75,7 @@ class Request
      */
     public static function is_method($method)
     {
-        $method = strtoupper($method);
-        return static::method() === (('HEAD' === $method) ? 'GET' : $method);
+        return static::method() === strtoupper((string) $method);
     }
 
     /**
@@ -388,7 +386,7 @@ class Request
         $header = static::header('X-Csrf-Token');
 
         if (
-            in_array(static::method(), ['GET', 'OPTIONS'])
+            in_array(static::method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])
             || Input::get(Session::TOKEN) === Session::token()
             || false !== stripos((string) $header, 'nocheck')
         ) {

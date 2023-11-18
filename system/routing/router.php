@@ -36,6 +36,8 @@ class Router
         'DELETE' => [],
         'PATCH' => [],
         'HEAD' => [],
+        'TRACE' => [],
+        'CONNECT' => [],
         'OPTIONS' => [],
     ];
 
@@ -51,6 +53,8 @@ class Router
         'DELETE' => [],
         'PATCH' => [],
         'HEAD' => [],
+        'TRACE' => [],
+        'CONNECT' => [],
         'OPTIONS' => [],
     ];
 
@@ -106,7 +110,7 @@ class Router
      *
      * @var array
      */
-    public static $methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
+    public static $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'TRACE', 'CONNECT', 'OPTIONS'];
 
     /**
      * Daftarkan sebuah action untuk menangani beberapa route sekaligus.
