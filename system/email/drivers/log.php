@@ -16,7 +16,7 @@ class Log extends Driver
     protected function transmit()
     {
         $message = $this->build();
-        BaseLog::info('NEW EMAIL!', [
+        BaseLog::info(sprintf('Email sent: %s (to: %s)', e($this->subject), e(static::format($this->to))), [
             'to' => e(static::format($this->to)),
             'subject' => e($this->subject),
             'header' => e(sprintf('%s', $message['header'])),

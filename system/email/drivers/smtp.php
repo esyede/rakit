@@ -30,7 +30,7 @@ class Smtp extends Driver
                 $this->disconnect();
             }
 
-            throw $e;
+            throw new \Exception('Failed sending email through smtp: ' . $e->getMessage());
         } catch (\Exception $e) {
             if ($this->connection) {
                 $this->disconnect();
