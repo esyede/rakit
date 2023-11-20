@@ -2,8 +2,6 @@
 
 namespace System\Foundation\Carbon;
 
-use Symfony\Component\Translation\TranslatorInterface;
-
 class Carbon extends \DateTime implements \JsonSerializable
 {
     const NO_ZERO_DIFF = 01;
@@ -77,7 +75,6 @@ class Carbon extends \DateTime implements \JsonSerializable
     ];
 
     protected static $testNow;
-    protected static $translator;
     protected static $lastErrors;
     protected static $serializer;
     protected static $localMacros = [];
@@ -803,23 +800,9 @@ class Carbon extends \DateTime implements \JsonSerializable
         return $date1 != $date2;
     }
 
-    protected static function translator()
-    {
-        if (static::$translator === null) {
-            static::$translator = Translator::get();
-        }
-
-        return static::$translator;
-    }
-
     public static function getTranslator()
     {
         return static::translator();
-    }
-
-    public static function setTranslator(TranslatorInterface $translator)
-    {
-        static::$translator = $translator;
     }
 
     public static function getLocale()
@@ -841,83 +824,6 @@ class Carbon extends \DateTime implements \JsonSerializable
         return $result;
     }
 
-    public static function localeHasShortUnits($locale)
-    {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
-            return $newLocale &&
-                (
-                    ($y = $translator->trans('y')) !== 'y' &&
-                    $y !== $translator->trans('year')
-                ) || (
-                    ($y = $translator->trans('d')) !== 'd' &&
-                    $y !== $translator->trans('day')
-                ) || (
-                    ($y = $translator->trans('h')) !== 'h' &&
-                    $y !== $translator->trans('hour')
-                );
-        });
-    }
-
-    public static function localeHasDiffSyntax($locale)
-    {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
-            return $newLocale &&
-                $translator->trans('ago') !== 'ago' &&
-                $translator->trans('from_now') !== 'from_now' &&
-                $translator->trans('before') !== 'before' &&
-                $translator->trans('after') !== 'after';
-        });
-    }
-
-    public static function localeHasDiffOneDayWords($locale)
-    {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
-            return $newLocale &&
-                $translator->trans('diff_now') !== 'diff_now' &&
-                $translator->trans('diff_yesterday') !== 'diff_yesterday' &&
-                $translator->trans('diff_tomorrow') !== 'diff_tomorrow';
-        });
-    }
-
-    public static function localeHasDiffTwoDayWords($locale)
-    {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
-            return $newLocale &&
-                $translator->trans('diff_before_yesterday') !== 'diff_before_yesterday' &&
-                $translator->trans('diff_after_tomorrow') !== 'diff_after_tomorrow';
-        });
-    }
-
-    public static function localeHasPeriodSyntax($locale)
-    {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
-            return $newLocale &&
-                $translator->trans('period_recurrences') !== 'period_recurrences' &&
-                $translator->trans('period_interval') !== 'period_interval' &&
-                $translator->trans('period_start_date') !== 'period_start_date' &&
-                $translator->trans('period_end_date') !== 'period_end_date';
-        });
-    }
-
-    public static function getAvailableLocales()
-    {
-        $translator = static::translator();
-        $locales = [];
-
-        if ($translator instanceof Translator) {
-            // languages
-            $files = glob(__DIR__ . '/Lang/*.php');
-
-            foreach ($files as $file) {
-                $locales[] = substr($file, strrpos($file, '/') + 1, -4);
-            }
-
-            $locales = array_unique(array_merge($locales, array_keys($translator->getMessages())));
-        }
-
-        return $locales;
-    }
-
     public static function setUtf8($utf8)
     {
         static::$utf8 = $utf8;
@@ -935,11 +841,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function strftime($format, $timestamp = null, $locale = null)
     {
-        if (PHP_VERSION_ID < 80100) {
-            return strftime($format, $timestamp, $locale);
-        }
-
-        if ($timestamp instanceof \DateTimeInterface) {
+        if ($timestamp instanceof \DateTime || is_object($timestamp) && method_exists($timestamp, 'setTimezone')) {
             $timestamp->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         } else {
             $timestamp = is_int($timestamp) ? '@' . $timestamp : (string) $timestamp;
