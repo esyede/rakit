@@ -121,7 +121,7 @@ class DateTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Date::createFromDate(1999, 12, 31)->between(Date::createFromDate(2000, 1, 31), Date::createFromDate(2000, 1, 1), true));
         $this->assertFalse(Date::createFromDate(2000, 1, 1)->between(Date::createFromDate(2000, 1, 31), Date::createFromDate(2000, 1, 1), false));
 
-        $this->assertTrue((Date::now())->min() instanceof Date);
+        $this->assertTrue(Date::now()->min() instanceof Date);
         $this->assertTrue(Date::create(2012, 1, 1, 0, 0, 0)->min() instanceof Date);
         $dt1 = Date::create(2013, 12, 31, 23, 59, 59);
         $dt2 = Date::create(2012, 1, 1, 0, 0, 0)->min($dt1);
