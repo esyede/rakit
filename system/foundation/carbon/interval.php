@@ -2,6 +2,8 @@
 
 namespace System\Foundation\Carbon;
 
+use Symfony\Component\Translation\TranslatorInterface;
+
 class Interval extends \DateInterval
 {
     const PERIOD_PREFIX = 'P';
@@ -303,9 +305,23 @@ class Interval extends \DateInterval
         }
     }
 
+    protected static function translator()
+    {
+        if (static::$translator === null) {
+            static::$translator = Translator::get();
+        }
+
+        return static::$translator;
+    }
+
     public static function getTranslator()
     {
         return static::translator();
+    }
+
+    public static function setTranslator(TranslatorInterface $translator)
+    {
+        static::$translator = $translator;
     }
 
     public static function getLocale()
