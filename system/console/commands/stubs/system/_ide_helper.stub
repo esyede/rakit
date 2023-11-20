@@ -50,10 +50,6 @@ class Cache extends System\Cache
 {
 }
 
-class Carbon extends System\Foundation\Carbon\Carbon
-{
-}
-
 class Command extends System\Console\Commands\Command
 {
 }
@@ -83,6 +79,10 @@ class Crypter extends System\Crypter
 }
 
 class Curl extends System\Curl
+{
+}
+
+class Date extends System\Date
 {
 }
 

@@ -18,13 +18,14 @@ class Job extends Event
     public static function add($name, array $payloads = [], $scheduled_at = null)
     {
         $config = Config::get('job');
+        $tz = Config::get('application.timezone');
         $name = Str::slug($name);
         $id = Database::table($config['table'])->insert_get_id([
             'name' => $name,
             'payloads' => serialize($payloads),
-            'scheduled_at' => Date::make($scheduled_at)->format('Y-m-d H:i:s'),
-            'created_at' => Date::make()->format('Y-m-d H:i:s'),
-            'updated_at' => Date::make()->format('Y-m-d H:i:s'),
+            'scheduled_at' => (new \DateTime($scheduled_at, new \DateTimeZone($tz)))->format('Y-m-d H:i:s'),
+            'created_at' => (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s'),
+            'updated_at' => (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s'),
         ]);
 
         static::log(sprintf('Job added: %s - #%s', $name, $id));
@@ -94,7 +95,7 @@ class Job extends Event
 
         $jobs = Database::table($config['table'])
             ->where('name', $name)
-            ->where('scheduled_at', '<=', Date::make()->format('Y-m-d H:i:s'))
+            ->where('scheduled_at', '<=', (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s'))
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -122,7 +123,7 @@ class Job extends Event
                                 'name' => $job->name,
                                 'payload' => serialize($job->payloads),
                                 'exception' => $e,
-                                'failed_at' => Date::make()->format('Y-m-d H:i:s'),
+                                'failed_at' => (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s'),
                             ]);
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                         } catch (\Exception $e) {
@@ -135,7 +136,7 @@ class Job extends Event
                                 'name' => $job->name,
                                 'payload' => serialize($job->payloads),
                                 'exception' => $e,
-                                'failed_at' => Date::make()->format('Y-m-d H:i:s'),
+                                'failed_at' => (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s'),
                             ]);
                             static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
                         }
@@ -172,7 +173,7 @@ class Job extends Event
         }
 
         $jobs = Database::table($config['table'])
-            ->where('scheduled_at', '<=', Date::make()->format('Y-m-d H:i:s'))
+            ->where('scheduled_at', '<=', (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s'))
             ->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
@@ -213,7 +214,7 @@ class Job extends Event
             Log::channel(null);
 
             if (Request::cli()) {
-                $message = '[' . Date::make()->format('Y-m-d H:i:s') . '] ';
+                $message = '[' . (new \DateTime('now', new \DateTimeZone($tz)))->format('Y-m-d H:i:s') . '] ';
                 $message .= '[' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
                 echo $message;
             }

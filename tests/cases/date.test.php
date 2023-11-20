@@ -24,175 +24,313 @@ class DateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk Date::make().
+     * Test tambah.
      *
      * @group system
      */
-    public function testMake()
+    public function testAdd()
     {
-        $this->assertInstanceOf('\System\Date', Date::make());
-        $this->assertInstanceOf('\System\Date', Date::make(1621987200));
-        $this->assertInstanceOf('\System\Date', Date::make(new \DateTime()));
-        $this->assertInstanceOf('\System\Date', Date::make('last sunday'));
+        $this->assertSame(1976, Date::createFromDate(1975)->addYears(1)->year);
+        $this->assertSame(1975, Date::createFromDate(1975)->addYears(0)->year);
+        $this->assertSame(1974, Date::createFromDate(1975)->addYears(-1)->year);
+        $this->assertSame(1976, Date::createFromDate(1975)->addYear()->year);
+        $this->assertSame(1, Date::createFromDate(1975, 12)->addMonths(1)->month);
+        $this->assertSame(12, Date::createFromDate(1975, 12)->addMonths(0)->month);
+        $this->assertSame(11, Date::createFromDate(1975, 12, 1)->addMonths(-1)->month);
+        $this->assertSame(1, Date::createFromDate(1975, 12)->addMonth()->month);
+        $this->assertSame(3, Date::createFromDate(2012, 1, 31)->addMonth()->month);
+
+        $this->assertSame('2012-02-29', Date::createFromDate(2012, 1, 31)->addMonthNoOverflow()->toDateString());
+        $this->assertSame('2012-03-31', Date::createFromDate(2012, 1, 31)->addMonthsNoOverflow(2)->toDateString());
+        $this->assertSame('2012-03-29', Date::createFromDate(2012, 2, 29)->addMonthNoOverflow()->toDateString());
+        $this->assertSame('2012-02-29', Date::createFromDate(2011, 12, 31)->addMonthsNoOverflow(2)->toDateString());
+        $this->assertSame(12, Date::createFromDate(1975, 12)->addMonths(0)->month);
+        $this->assertSame('2012-01-29', Date::createFromDate(2012, 2, 29)->addMonthsNoOverflow(-1)->toDateString());
+        $this->assertSame('2012-01-31', Date::createFromDate(2012, 3, 31)->addMonthsNoOverflow(-2)->toDateString());
+        $this->assertSame('2012-02-29', Date::createFromDate(2012, 3, 31)->addMonthsNoOverflow(-1)->toDateString());
+        $this->assertSame('2011-12-31', Date::createFromDate(2012, 1, 31)->addMonthsNoOverflow(-1)->toDateString());
+
+        $this->assertSame(1, Date::createFromDate(1975, 5, 31)->addDays(1)->day);
+        $this->assertSame(31, Date::createFromDate(1975, 5, 31)->addDays(0)->day);
+        $this->assertSame(30, Date::createFromDate(1975, 5, 31)->addDays(-1)->day);
+        $this->assertSame(1, Date::createFromDate(1975, 5, 31)->addDay()->day);
+
+        $this->assertSame(17, Date::createFromDate(2012, 1, 4)->addWeekdays(9)->day);
+        $this->assertSame(4, Date::createFromDate(2012, 1, 4)->addWeekdays(0)->day);
+        $this->assertSame(18, Date::createFromDate(2012, 1, 31)->addWeekdays(-9)->day);
+
+        $this->assertSame(28, Date::createFromDate(1975, 5, 21)->addWeeks(1)->day);
+        $this->assertSame(21, Date::createFromDate(1975, 5, 21)->addWeeks(0)->day);
+        $this->assertSame(14, Date::createFromDate(1975, 5, 21)->addWeeks(-1)->day);
+        $this->assertSame(28, Date::createFromDate(1975, 5, 21)->addWeek()->day);
+
+        $this->assertSame(1, Date::createFromTime(0)->addHours(1)->hour);
+        $this->assertSame(0, Date::createFromTime(0)->addHours(0)->hour);
+        $this->assertSame(23, Date::createFromTime(0)->addHours(-1)->hour);
+        $this->assertSame(1, Date::createFromTime(0)->addHour()->hour);
+
+        $this->assertSame(1, Date::createFromTime(0, 0)->addMinutes(1)->minute);
+        $this->assertSame(0, Date::createFromTime(0, 0)->addMinutes(0)->minute);
+        $this->assertSame(59, Date::createFromTime(0, 0)->addMinutes(-1)->minute);
+        $this->assertSame(1, Date::createFromTime(0, 0)->addMinute()->minute);
+
+        $this->assertSame(1, Date::createFromTime(0, 0, 0)->addSeconds(1)->second);
+        $this->assertSame(0, Date::createFromTime(0, 0, 0)->addSeconds(0)->second);
+        $this->assertSame(59, Date::createFromTime(0, 0, 0)->addSeconds(-1)->second);
+        $this->assertSame(1, Date::createFromTime(0, 0, 0)->addSecond()->second);
     }
 
     /**
-     * Test untuk Date::remake().
+     * Test komparasi.
      *
      * @group system
      */
-    public function testAdjust()
+    public function testCompare()
     {
-        $date = Date::make('2021-05-23');
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->eq(Date::createFromDate(2000, 1, 1)));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->eq(Date::createFromDate(2000, 1, 2)));
+        $this->assertTrue(Date::create(2000, 1, 1, 12, 0, 0, 'America/Toronto')->eq(Date::create(2000, 1, 1, 9, 0, 0, 'America/Vancouver')));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1, 'America/Toronto')->eq(Date::createFromDate(2000, 1, 1, 'America/Vancouver')));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->ne(Date::createFromDate(2000, 1, 2)));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->ne(Date::createFromDate(2000, 1, 1)));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1, 'America/Toronto')->ne(Date::createFromDate(2000, 1, 1, 'America/Vancouver')));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->gt(Date::createFromDate(1999, 12, 31)));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->gt(Date::createFromDate(2000, 1, 2)));
 
-        $this->assertInstanceOf('\System\Date', $date->remake('-2 days'));
-        $this->assertInstanceOf('\System\Date', $date->remake('-2 days', true));
+        $dt1 = Date::create(2000, 1, 1, 12, 0, 0, 'America/Toronto');
+        $dt2 = Date::create(2000, 1, 1, 8, 59, 59, 'America/Vancouver');
+        $this->assertTrue($dt1->gt($dt2));
 
-        $date = Date::make('2021-05-23');
+        $dt1 = Date::create(2000, 1, 1, 12, 0, 0, 'America/Toronto');
+        $dt2 = Date::create(2000, 1, 1, 9, 0, 1, 'America/Vancouver');
+        $this->assertFalse($dt1->gt($dt2));
 
-        $this->assertSame('2021-05-21', $date->remake('-2 days')->format('Y-m-d'));
-        $this->assertSame('2021-07-21', $date->remake('+2 months')->format('Y-m-d'));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->gte(Date::createFromDate(1999, 12, 31)));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->gte(Date::createFromDate(2000, 1, 1)));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->lt(Date::createFromDate(2000, 1, 2)));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->lt(Date::createFromDate(1999, 12, 31)));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->lte(Date::createFromDate(2000, 1, 2)));
+        $this->assertTrue(Date::createFromDate(2000, 1, 1)->lte(Date::createFromDate(2000, 1, 1)));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->lte(Date::createFromDate(1999, 12, 31)));
+        $this->assertTrue(Date::createFromDate(2000, 1, 15)->between(Date::createFromDate(2000, 1, 1), Date::createFromDate(2000, 1, 31), true));
+        $this->assertTrue(Date::createFromDate(2000, 1, 15)->between(Date::createFromDate(2000, 1, 1), Date::createFromDate(2000, 1, 31), false));
+        $this->assertFalse(Date::createFromDate(1999, 12, 31)->between(Date::createFromDate(2000, 1, 1), Date::createFromDate(2000, 1, 31), true));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->between(Date::createFromDate(2000, 1, 1), Date::createFromDate(2000, 1, 31), false));
+        $this->assertTrue(Date::createFromDate(2000, 1, 15)->between(Date::createFromDate(2000, 1, 31), Date::createFromDate(2000, 1, 1), true));
+        $this->assertTrue(Date::createFromDate(2000, 1, 15)->between(Date::createFromDate(2000, 1, 31), Date::createFromDate(2000, 1, 1), false));
+        $this->assertFalse(Date::createFromDate(1999, 12, 31)->between(Date::createFromDate(2000, 1, 31), Date::createFromDate(2000, 1, 1), true));
+        $this->assertFalse(Date::createFromDate(2000, 1, 1)->between(Date::createFromDate(2000, 1, 31), Date::createFromDate(2000, 1, 1), false));
+
+        $this->assertTrue((Date::now())->min() instanceof Date);
+        $this->assertTrue(Date::create(2012, 1, 1, 0, 0, 0)->min() instanceof Date);
+        $dt1 = Date::create(2013, 12, 31, 23, 59, 59);
+        $dt2 = Date::create(2012, 1, 1, 0, 0, 0)->min($dt1);
+        $this->assertTrue($dt2 instanceof Date);
+        $this->assertTrue((Date::now())->max() instanceof Date);
+        $this->assertTrue(Date::create(2099, 12, 31, 23, 59, 59)->max() instanceof Date);
+
+        $dt1 = Date::create(2012, 1, 1, 0, 0, 0);
+        $dt2 = Date::create(2099, 12, 31, 23, 59, 59)->max($dt1);
+        $this->assertTrue($dt2 instanceof Date);
+
+        $dt1 = Date::createFromDate(1987, 4, 23);
+        $dt2 = Date::createFromDate(2014, 9, 26);
+        $dt3 = Date::createFromDate(2014, 4, 23);
+        $this->assertFalse($dt2->isBirthday($dt1));
+        $this->assertTrue($dt3->isBirthday($dt1));
     }
 
     /**
-     * Test untuk Date::time().
+     * Test konstruktor.
      *
      * @group system
      */
-    public function testTimestamp()
+    public function testConstruct()
     {
-        $this->assertTrue(is_numeric(Date::make()->timestamp()));
+        $dt = new Date();
+        $now = Date::now();
+        $p = Date::parse();
+        $o = new Date('first day of January 2008');
+        $ps = Date::parse('first day of January 2008');
+        $this->assertTrue($dt instanceof Date);
+        $this->assertTrue($now instanceof Date);
+        $this->assertSame($now->tzName, $dt->tzName);
+        $this->assertSame($now->tzName, $p->tzName);
+        $this->assertSame(Config::get('application.timezone'), (new Date('now'))->tzName);
+
+        $tz = 'Europe/London';
+        $dst = (new \DateTime('now', new \DateTimeZone($tz)))->format('I');
+        $dst2 = new Date('now', new \DateTimeZone($tz));
+        $this->assertSame($tz, $dst2->tzName);
+        $this->assertSame(0 + $dst, $dst2->offsetHours);
+
+        $tz = 'Asia/Tokyo';
+        $dst = (new \DateTime('now', new \DateTimeZone($tz)))->format('I');
+        $dst2 = Date::parse('now', $tz);
+        $this->assertSame($tz, $dst2->tzName);
+        $this->assertSame(9 + $dst, $dst2->offsetHours);
     }
 
     /**
-     * Test untuk Date::format().
+     * Test copy.
      *
      * @group system
      */
-    public function testFormat()
+    public function testCopy()
     {
-        $this->assertTrue(is_string(Date::make()->format('Y-m-d H:i:s')));
-        $this->assertSame(date('F, j Y H:i:s'), Date::make()->format('F, j Y H:i:s'));
+        $dt = Date::now();
+        $dt2 = $dt->copy();
+        $this->assertNotSame($dt, $dt2);
 
-        $this->assertFalse(Date::make()->format('F, j Y H:i:s') === date('Y-m-d H:i:s'));
+        $dt = Date::createFromDate(2000, 1, 1, 'Europe/London');
+        $dt2 = $dt->copy();
+        $this->assertSame($dt->tzName, $dt2->tzName);
+        $this->assertSame($dt->offset, $dt2->offset);
+
+        $micro = 254687;
+        $dt = Date::createFromFormat('Y-m-d H:i:s.u', '2014-02-01 03:45:27.' . $micro);
+        $dt2 = $dt->copy();
+        $this->assertSame($micro, $dt2->micro);
     }
 
     /**
-     * Test untuk Date::remake().
+     * Test createFromDate.
      *
      * @group system
      */
-    public function testRemake()
+    public function testCreateFromDate()
     {
-        $this->assertInstanceOf('\System\Date', Date::make()->remake('+1 day'));
-        $this->assertInstanceOf('\System\Date', Date::make()->remake('+1 day', true));
+        $dt = Date::createFromDate();
+        $this->assertSame($dt->timestamp, Date::create(null, null, null, null, null, null)->timestamp);
+
+        $dt = Date::createFromDate(1975, 5, 21);
+        $this->assertTrue($dt instanceof Date);
+
+        $dt = Date::createFromDate(1975);
+        $this->assertSame(1975, $dt->year);
+
+        $dt = Date::createFromDate(null, 5);
+        $this->assertSame(5, $dt->month);
+
+        $dt = Date::createFromDate(null, null, 21);
+        $this->assertSame(21, $dt->day);
+
+        $dt = Date::createFromDate(1975, 5, 21, 'Europe/London');
+        $this->assertTrue($dt instanceof Date);
+        $this->assertSame('Europe/London', $dt->tzName);
+
+        $dt = Date::createFromDate(1975, 5, 21, new \DateTimeZone('Europe/London'));
+        $this->assertTrue($dt instanceof Date);
+        $this->assertSame('Europe/London', $dt->tzName);
     }
 
     /**
-     * Test untuk Date::ago().
+     * Test createFromFormat.
      *
      * @group system
      */
-    public function testAgo()
+    public function testCreateFromFormat()
     {
-        $language = Config::get('application.language');
+        $dt = Date::createFromFormat('Y-m-d H:i:s', '1975-05-21 22:32:11');
+        $this->assertTrue($dt instanceof Date);
 
-        Config::set('application.language', 'en');
-        $this->assertSame('3 days from now', Date::make()->remake('+3 days')->ago());
-        $this->assertSame('1 week ago', Date::make()->remake('-8 days')->ago());
+        $dt = Date::createFromFormat('Y-m-d H:i:s', '1975-05-21 22:32:11', 'Europe/London');
+        $this->assertSame('Europe/London', $dt->tzName);
 
-        Config::set('application.language', 'id');
-        $this->assertSame('3 hari dari sekarang', Date::make()->remake('+3 days')->ago());
-        $this->assertSame('1 minggu yang lalu', Date::make()->remake('-8 days')->ago());
-        Config::set('application.language', $language);
+        $dt = Date::createFromFormat('Y-m-d H:i:s', '1975-05-21 22:32:11', new \DateTimeZone('Europe/London'));
+        $this->assertSame('Europe/London', $dt->tzName);
+
+        $dt = Date::createFromFormat('Y-m-d H:i:s.u', '1975-05-21 22:32:11.254687');
+        $this->assertSame(254687, $dt->micro);
     }
 
     /**
-     * Test untuk Date::diff().
+     * Test createFromTime.
      *
      * @group system
      */
-    public function testDiff()
+    public function testCreateFromTime()
     {
-        $this->assertInstanceOf('\DateInterval', Date::diff('2021-05-23', '2021-05-26'));
-        $this->assertInstanceOf('\DateInterval', Date::diff('2021-05-23', 1621987200));
-        $this->assertInstanceOf('\DateInterval', Date::diff('2021-05-23', new \DateTime('2021-05-26')));
+        $dt = Date::createFromTime();
+        $this->assertSame($dt->timestamp, Date::create(null, null, null, null, null, null)->timestamp);
 
-        $diff = Date::diff('2021-05-23', '2021-05-26');
+        $dt = Date::createFromTime(23, 5, 21);
+        $this->assertTrue($dt instanceof Date);
 
-        $this->assertTrue($diff->d === 3);
-        $this->assertSame('3 hari', $diff->format('%d hari'));
+        $dt = Date::createFromTime(22);
+        $this->assertSame(22, $dt->hour);
+        $this->assertSame(0, $dt->minute);
+        $this->assertSame(0, $dt->second);
+
+        $dt = Date::createFromTime(null, 5);
+        $this->assertSame(5, $dt->minute);
+
+        $dt = Date::createFromTime(null, null, 21);
+        $this->assertSame(21, $dt->second);
+
+        $dt = Date::createFromTime(12, 0, 0, new \DateTimeZone('Europe/London'));
+        $this->assertSame('Europe/London', $dt->tzName);
+
+        $dt = Date::createFromTime(12, 0, 0, 'Europe/London');
+        $this->assertSame('Europe/London', $dt->tzName);
     }
 
     /**
-     * Test untuk Date::eq().
+     * Test createFromTimestamp.
      *
      * @group system
      */
-    public function testEq()
+    public function testCreateFromTimestamp()
     {
-        $date1 = Date::make('2021-05-23');
-        $date2 = Date::make('2021-05-23');
+        $dt = Date::createFromTimestamp(Date::create(1975, 5, 21, 22, 32, 5)->timestamp);
+        $this->assertTrue($dt instanceof Date);
 
-        $this->assertTrue(Date::eq($date1, $date2));
-        $this->assertFalse(Date::eq($date1, $date2->remake('-2 days')));
+        $dt = Date::createFromTimestamp(0, new \DateTimeZone('UTC'));
+        $this->assertSame('UTC', $dt->tzName);
+
+        $dt = Date::createFromTimestamp(0, 'UTC');
+        $this->assertSame(0, $dt->offset);
+        $this->assertSame('UTC', $dt->tzName);
+
+        $dt = Date::createFromTimestampUTC(0);
+        $this->assertSame(0, $dt->offset);
     }
 
     /**
-     * Test untuk Date::gt().
+     * Test create instance.
      *
      * @group system
      */
-    public function testGt()
+    public function testCreateInstance()
     {
-        $date1 = Date::make('2021-05-23');
-        $date2 = Date::make('2021-05-23');
+        $this->assertTrue(Date::create() instanceof Date);
+        $this->assertSame(Date::create()->timestamp, Date::now()->timestamp);
+        $this->assertSame(2012, Date::create(2012)->year);
+        $this->assertSame(3, Date::create(null, 3)->month);
+        $this->assertSame(21, Date::create(null, null, 21)->day);
 
-        $this->assertFalse(Date::gt($date1, $date2));
-        $this->assertTrue(Date::gt($date1->remake('+2 days'), $date2));
+        $dt = Date::create(null, null, null, 14);
+        $this->assertSame(14, $dt->hour);
+        $this->assertSame(0, $dt->minute);
+        $this->assertSame(0, $dt->second);
+        $this->assertSame(58, Date::create(null, null, null, null, 58)->minute);
+        $this->assertSame(59, Date::create(null, null, null, null, null, 59)->second);
+        $this->assertSame('Europe/London', Date::create(2012, 1, 1, 0, 0, 0, new \DateTimeZone('Europe/London'))->tzName);
     }
 
     /**
-     * Test untuk Date::lt().
+     * Test dayOfWeek.
      *
      * @group system
      */
-    public function testLt()
+    public function testDayOfWeek()
     {
-        $date1 = Date::make('2021-05-23');
-        $date2 = Date::make('2021-05-23');
-
-        $this->assertFalse(Date::lt($date1, $date2));
-        $this->assertTrue(Date::lt($date1->remake('-2 days'), $date2));
+        $this->assertTrue(Date::create(1980, 8, 7, 12, 11, 9)->startOfWeek() instanceof Date);
+        $this->assertFalse(Date::createFromDate(1975, 12, 5)->nthOfMonth(6, Date::MONDAY));
+        $this->assertFalse(Date::createFromDate(1975, 12, 5)->nthOfMonth(55, Date::MONDAY));
+        $this->assertFalse(Date::createFromDate(1975, 1, 5)->nthOfQuarter(20, Date::MONDAY));
+        $this->assertFalse(Date::createFromDate(1975, 1, 5)->nthOfQuarter(55, Date::MONDAY));
     }
 
-    /**
-     * Test untuk Date::gte().
-     *
-     * @group system
-     */
-    public function testGte()
-    {
-        $date1 = Date::make('2021-05-23');
-        $date2 = Date::make('2021-05-23');
-
-        $this->assertTrue(Date::gte($date1, $date2));
-        $this->assertFalse(Date::gte($date1->remake('-2 days'), $date2));
-        $this->assertTrue(Date::gte($date1->remake('+4 days'), $date2));
-    }
-
-    /**
-     * Test untuk Date::lte().
-     *
-     * @group system
-     */
-    public function testLte()
-    {
-        $date1 = Date::make('2021-05-23');
-        $date2 = Date::make('2021-05-23');
-
-        $this->assertTrue(Date::lte($date1, $date2));
-        $this->assertTrue(Date::lte($date1->remake('-2 days'), $date2));
-        $this->assertFalse(Date::lte($date1->remake('+4 days'), $date2));
-    }
+    // TODO: selesaikan test unit test ini.
 }
