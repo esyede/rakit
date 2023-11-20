@@ -2,8 +2,6 @@
 
 namespace System\Foundation\Carbon;
 
-use Symfony\Component\Translation\TranslatorInterface;
-
 class Carbon extends \DateTime implements \JsonSerializable
 {
     const NO_ZERO_DIFF = 01;
@@ -817,7 +815,7 @@ class Carbon extends \DateTime implements \JsonSerializable
         return static::translator();
     }
 
-    public static function setTranslator(TranslatorInterface $translator)
+    public static function setTranslator(Translator $translator)
     {
         static::$translator = $translator;
     }
@@ -843,7 +841,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function localeHasShortUnits($locale)
     {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
+        return static::executeWithLocale($locale, function ($newLocale, Translator $translator) {
             return $newLocale &&
                 (
                     ($y = $translator->trans('y')) !== 'y' &&
@@ -860,7 +858,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function localeHasDiffSyntax($locale)
     {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
+        return static::executeWithLocale($locale, function ($newLocale, Translator $translator) {
             return $newLocale &&
                 $translator->trans('ago') !== 'ago' &&
                 $translator->trans('from_now') !== 'from_now' &&
@@ -871,7 +869,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function localeHasDiffOneDayWords($locale)
     {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
+        return static::executeWithLocale($locale, function ($newLocale, Translator $translator) {
             return $newLocale &&
                 $translator->trans('diff_now') !== 'diff_now' &&
                 $translator->trans('diff_yesterday') !== 'diff_yesterday' &&
@@ -881,7 +879,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function localeHasDiffTwoDayWords($locale)
     {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
+        return static::executeWithLocale($locale, function ($newLocale, Translator $translator) {
             return $newLocale &&
                 $translator->trans('diff_before_yesterday') !== 'diff_before_yesterday' &&
                 $translator->trans('diff_after_tomorrow') !== 'diff_after_tomorrow';
@@ -890,7 +888,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function localeHasPeriodSyntax($locale)
     {
-        return static::executeWithLocale($locale, function ($newLocale, TranslatorInterface $translator) {
+        return static::executeWithLocale($locale, function ($newLocale, Translator $translator) {
             return $newLocale &&
                 $translator->trans('period_recurrences') !== 'period_recurrences' &&
                 $translator->trans('period_interval') !== 'period_interval' &&
@@ -935,11 +933,7 @@ class Carbon extends \DateTime implements \JsonSerializable
 
     public static function strftime($format, $timestamp = null, $locale = null)
     {
-        if (PHP_VERSION_ID < 80100) {
-            return strftime($format, $timestamp, $locale);
-        }
-
-        if ($timestamp instanceof \DateTimeInterface) {
+        if ($timestamp instanceof \DateTime || (is_object($timestamp) && method_exists($timestamp, 'setTimezone'))) {
             $timestamp->setTimezone(new \DateTimeZone(date_default_timezone_get()));
         } else {
             $timestamp = is_int($timestamp) ? '@' . $timestamp : (string) $timestamp;

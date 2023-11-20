@@ -319,7 +319,7 @@ class Interval extends \DateInterval
         return static::translator();
     }
 
-    public static function setTranslator(TranslatorInterface $translator)
+    public static function setTranslator(Translator $translator)
     {
         static::$translator = $translator;
     }
