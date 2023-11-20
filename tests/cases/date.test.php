@@ -126,7 +126,7 @@ class DateTest extends \PHPUnit_Framework_TestCase
         $dt1 = Date::create(2013, 12, 31, 23, 59, 59);
         $dt2 = Date::create(2012, 1, 1, 0, 0, 0)->min($dt1);
         $this->assertTrue($dt2 instanceof Date);
-        $this->assertTrue((Date::now())->max() instanceof Date);
+        $this->assertTrue(Date::now()->max() instanceof Date);
         $this->assertTrue(Date::create(2099, 12, 31, 23, 59, 59)->max() instanceof Date);
 
         $dt1 = Date::create(2012, 1, 1, 0, 0, 0);
