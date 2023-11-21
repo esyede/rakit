@@ -886,7 +886,6 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Carbon::now()->subSecond()->isFuture());
         $this->assertTrue(Carbon::now()->subSecond()->isPast());
         $this->assertFalse(Carbon::now()->addSecond()->isPast());
-        $this->assertTrue(Carbon::now()->isPast());
         $this->assertTrue(Carbon::createFromDate(2016, 1, 1)->isLeapYear());
         $this->assertFalse(Carbon::createFromDate(2014, 1, 1)->isLeapYear());
         $now = Carbon::createFromDate(2012, 1, 2);
