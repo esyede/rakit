@@ -14,9 +14,13 @@ class Date extends \DateTime
     const FRIDAY = 5;
     const SATURDAY = 6;
 
-    protected static $test_now;
+    protected static $now;
     protected static $format = 'Y-m-d H:i:s';
-    protected static $relatives = ['this', 'next', 'last', 'tomorrow', 'yesterday', '+', '-', 'first', 'last', 'ago'];
+    protected static $relatives = [
+        'this', 'next', 'last', 'tomorrow',
+        'yesterday', '+', '-', 'first', 'last', 'ago',
+    ];
+
     protected static $days = [
         self::SUNDAY => 'Sunday',
         self::MONDAY => 'Monday',
@@ -36,7 +40,7 @@ class Date extends \DateTime
                 $test->modify($time);
             }
 
-            if ($tz !== null && $tz != static::getTestNow()->tz) {
+            if ($tz !== null && $tz !== static::getTestNow()->tz) {
                 $test->setTimezone($tz);
             } else {
                 $tz = $test->tz;
@@ -59,13 +63,13 @@ class Date extends \DateTime
         }
 
         try {
-            $zone = timezone_open((string) $tz);
+            $tz = new \DateTimeZone($tz);
 
             if (false === $tz) {
-                throw new \Exception('Unknown or bad timezone (' . $tz . ')');
+                throw new \Exception('Unknown or bad timezone');
             }
 
-            return $zone;
+            return $tz;
         } catch (\Throwable $e) {
             throw new \Exception($e->getMessage());
         } catch (\Exception $e) {
@@ -122,14 +126,15 @@ class Date extends \DateTime
         $second = null,
         $tz = null
     ) {
-        $year = ($year === null) ? date('Y') : $year;
-        $month = ($month === null) ? date('n') : $month;
-        $day = ($day === null) ? date('j') : $day;
+        $dt = new \DateTime();
+        $year = ($year === null) ? $dt->format('Y') : $year;
+        $month = ($month === null) ? $dt->format('n') : $month;
+        $day = ($day === null) ? $dt->format('j') : $day;
 
         if ($hour === null) {
-            $hour = date('G');
-            $minute = ($minute === null) ? date('i') : $minute;
-            $second = ($second === null) ? date('s') : $second;
+            $hour = $dt->format('G');
+            $minute = ($minute === null) ? $dt->format('i') : $minute;
+            $second = ($second === null) ? $dt->format('s') : $second;
         } else {
             $minute = ($minute === null) ? 0 : $minute;
             $second = ($second === null) ? 0 : $second;
@@ -152,18 +157,16 @@ class Date extends \DateTime
     #[\ReturnTypeWillChange]
     public static function createFromFormat($format, $time, $tz = null)
     {
-        if ($tz !== null) {
-            $dt = parent::createFromFormat($format, $time, static::safeCreateDateTimeZone($tz));
-        } else {
-            $dt = parent::createFromFormat($format, $time);
-        }
+        $dt = ($tz !== null)
+            ? parent::createFromFormat($format, $time, static::safeCreateDateTimeZone($tz))
+            : parent::createFromFormat($format, $time);
 
         if ($dt instanceof \DateTime) {
             return static::instance($dt);
         }
 
-        $errors = static::getLastErrors();
-        throw new \Exception(implode(PHP_EOL, $errors['errors']));
+        $last = static::getLastErrors();
+        throw new \Exception(implode(PHP_EOL, $last['errors']));
     }
 
     public static function createFromTimestamp($timestamp, $tz = null)
@@ -184,33 +187,23 @@ class Date extends \DateTime
     public function __get($name)
     {
         $formats = [
-            'year' => 'Y',
-            'yearIso' => 'o',
-            'month' => 'n',
-            'day' => 'j',
-            'hour' => 'G',
-            'minute' => 'i',
-            'second' => 's',
-            'micro' => 'u',
-            'dayOfWeek' => 'w',
-            'dayOfYear' => 'z',
-            'weekOfYear' => 'W',
-            'daysInMonth' => 't',
-            'timestamp' => 'U',
+            'year' => 'Y', 'yearIso' => 'o', 'month' => 'n', 'day' => 'j', 'hour' => 'G',
+            'minute' => 'i', 'second' => 's', 'micro' => 'u', 'dayOfWeek' => 'w',
+            'dayOfYear' => 'z', 'weekOfYear' => 'W', 'daysInMonth' => 't', 'timestamp' => 'U',
         ];
 
         switch (true) {
             case array_key_exists($name, $formats):
-                return (int) $this->format($formats[$name]);
+                return intval($this->format($formats[$name]));
 
             case $name === 'weekOfMonth':
-                return (int) ceil($this->day / 7);
+                return intval(ceil($this->day / 7));
 
             case $name === 'age':
-                return (int) $this->diffInYears();
+                return intval($this->diffInYears());
 
             case $name === 'quarter':
-                return (int) ceil($this->month / 3);
+                return intval(ceil($this->month / 3));
 
             case $name === 'offset':
                 return $this->getOffset();
@@ -222,7 +215,7 @@ class Date extends \DateTime
                 return $this->format('I') == '1';
 
             case $name === 'local':
-                return $this->offset == $this->copy()->setTimezone(date_default_timezone_get())->offset;
+                return $this->offset == $this->copy()->setTimezone(Config::get('application.timezone'))->offset;
 
             case $name === 'utc':
                 return $this->offset == 0;
@@ -356,14 +349,14 @@ class Date extends \DateTime
         return $this;
     }
 
-    public static function setTestNow(Date $test_now = null)
+    public static function setTestNow(Date $now = null)
     {
-        static::$test_now = $test_now;
+        static::$now = $now;
     }
 
     public static function getTestNow()
     {
-        return static::$test_now;
+        return static::$now;
     }
 
     public static function hasTestNow()
@@ -481,6 +474,7 @@ class Date extends \DateTime
 
     public function eq(Date $dt)
     {
+        $this->validate($dt);
         return $this == $dt;
     }
 
@@ -491,21 +485,25 @@ class Date extends \DateTime
 
     public function gt(Date $dt)
     {
+        $this->validate($dt);
         return $this > $dt;
     }
 
     public function gte(Date $dt)
     {
+        $this->validate($dt);
         return $this >= $dt;
     }
 
     public function lt(Date $dt)
     {
+        $this->validate($dt);
         return $this < $dt;
     }
 
     public function lte(Date $dt)
     {
+        $this->validate($dt);
         return $this <= $dt;
     }
 
@@ -569,7 +567,7 @@ class Date extends \DateTime
 
     public function isLeapYear()
     {
-        return $this->format('L') == '1';
+        return $this->format('L') === '1';
     }
 
     public function isSameDay(Date $dt)
@@ -579,7 +577,7 @@ class Date extends \DateTime
 
     public function addYears($value)
     {
-        return $this->modify((int) $value . ' year');
+        return $this->modify(intval($value) . ' year');
     }
 
     public function addYear()
@@ -599,7 +597,7 @@ class Date extends \DateTime
 
     public function addMonths($value)
     {
-        return $this->modify((int) $value . ' month');
+        return $this->modify(intval($value) . ' month');
     }
 
     public function addMonth()
@@ -621,7 +619,7 @@ class Date extends \DateTime
     {
         $date = $this->copy()->addMonths($value);
 
-        if ($date->day != $this->day) {
+        if ($date->day !== $this->day) {
             $date->day(1)->subMonth()->day($date->daysInMonth);
         }
 
@@ -645,7 +643,7 @@ class Date extends \DateTime
 
     public function addDays($value)
     {
-        return $this->modify((int) $value . ' day');
+        return $this->modify(intval($value) . ' day');
     }
 
     public function addDay()
@@ -665,7 +663,7 @@ class Date extends \DateTime
 
     public function addWeekdays($value)
     {
-        return $this->modify((int) $value . ' weekday');
+        return $this->modify(intval($value) . ' weekday');
     }
 
     public function addWeekday()
@@ -685,7 +683,7 @@ class Date extends \DateTime
 
     public function addWeeks($value)
     {
-        return $this->modify((int) $value . ' week');
+        return $this->modify(intval($value) . ' week');
     }
 
     public function addWeek()
@@ -705,7 +703,7 @@ class Date extends \DateTime
 
     public function addHours($value)
     {
-        return $this->modify((int) $value . ' hour');
+        return $this->modify(intval($value) . ' hour');
     }
 
     public function addHour()
@@ -725,7 +723,7 @@ class Date extends \DateTime
 
     public function addMinutes($value)
     {
-        return $this->modify((int) $value . ' minute');
+        return $this->modify(intval($value) . ' minute');
     }
 
     public function addMinute()
@@ -745,7 +743,7 @@ class Date extends \DateTime
 
     public function addSeconds($value)
     {
-        return $this->modify((int) $value . ' second');
+        return $this->modify(intval($value) . ' second');
     }
 
     public function addSecond()
@@ -766,7 +764,7 @@ class Date extends \DateTime
     public function diffInYears(Date $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
-        return (int) $this->diff($dt, $abs)->format('%r%y');
+        return intval($this->diff($dt, $abs)->format('%r%y'));
     }
 
     public function diffInMonths(Date $dt = null, $abs = true)
@@ -777,13 +775,13 @@ class Date extends \DateTime
 
     public function diffInWeeks(Date $dt = null, $abs = true)
     {
-        return (int) ($this->diffInDays($dt, $abs) / 7);
+        return intval($this->diffInDays($dt, $abs) / 7);
     }
 
     public function diffInDays(Date $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
-        return (int) $this->diff($dt, $abs)->format('%r%a');
+        return intval($this->diff($dt, $abs)->format('%r%a'));
     }
 
     public function diffInDaysFiltered(\Closure $callback, Date $dt = null, $abs = true)
@@ -823,18 +821,19 @@ class Date extends \DateTime
 
     public function diffInHours(Date $dt = null, $abs = true)
     {
-        return (int) ($this->diffInSeconds($dt, $abs) / 60 / 60);
+        return intval($this->diffInSeconds($dt, $abs) / 3600);
     }
 
     public function diffInMinutes(Date $dt = null, $abs = true)
     {
-        return (int) ($this->diffInSeconds($dt, $abs) / 60);
+        return intval($this->diffInSeconds($dt, $abs) / 60);
     }
 
     public function diffInSeconds(Date $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         $value = $dt->getTimestamp() - $this->getTimestamp();
+
         return $abs ? abs($value) : $value;
     }
 
@@ -850,68 +849,56 @@ class Date extends \DateTime
 
     public function diffForHumans(Date $other = null, $absolute = false)
     {
-        $isNow = $other === null;
-
-        if ($isNow) {
-            $other = static::now($this->tz);
-        }
-
-        $diffInterval = $this->diff($other);
+        $other = ($other === null) ? static::now($this->tz) : $other;
+        $diff = $this->diff($other);
 
         switch (true) {
-            case ($diffInterval->y > 0):
+            case ($diff->y > 0):
                 $unit = 'year';
-                $delta = $diffInterval->y;
+                $delta = $diff->y;
                 break;
 
-            case ($diffInterval->m > 0):
+            case ($diff->m > 0):
                 $unit = 'month';
-                $delta = $diffInterval->m;
+                $delta = $diff->m;
                 break;
 
-            case ($diffInterval->d > 0):
+            case ($diff->d > 0):
                 $unit = 'day';
-                $delta = $diffInterval->d;
+                $delta = $diff->d;
+
                 if ($delta >= 7) {
                     $unit = 'week';
                     $delta = floor($delta / 7);
                 }
                 break;
 
-            case ($diffInterval->h > 0):
+            case ($diff->h > 0):
                 $unit = 'hour';
-                $delta = $diffInterval->h;
+                $delta = $diff->h;
                 break;
 
-            case ($diffInterval->i > 0):
+            case ($diff->i > 0):
                 $unit = 'minute';
-                $delta = $diffInterval->i;
+                $delta = $diff->i;
                 break;
 
             default:
-                $delta = $diffInterval->s;
+                $delta = $diff->s;
                 $unit = 'second';
                 break;
         }
 
-        if ($delta == 0) {
-            $delta = 1;
-        }
-
-        $txt = $delta . ' ' . $unit;
-        $txt .= $delta == 1 ? '' : 's';
+        $delta = ($delta === 0) ? 1 : $delta;
+        $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta === 1) ? '' : 's'))->get();
 
         if ($absolute) {
-            return $txt;
+            return $str;
         }
 
-        $isFuture = $diffInterval->invert === 1;
-
-        if ($isNow) {
-            return $txt . ($isFuture ? ' from now' : 'ago');
-        }
-
-        return $txt . ($isFuture ? ' after' : ' before');
+        return ($other === null)
+            ? ($str . ' ' . Lang::line('date.' . (($diff->invert === 1) ? 'from_now' : 'ago'))->get())
+            : ($str . ' ' . Lang::line('date.' . (($diff->invert === 1) ? 'after' : 'before'))->get());
     }
 
     public function startOfDay()
@@ -966,7 +953,7 @@ class Date extends \DateTime
 
     public function startOfWeek()
     {
-        if ($this->dayOfWeek != static::MONDAY) {
+        if ($this->dayOfWeek !== static::MONDAY) {
             $this->previous(static::MONDAY);
         }
 
@@ -975,7 +962,7 @@ class Date extends \DateTime
 
     public function endOfWeek()
     {
-        if ($this->dayOfWeek != static::SUNDAY) {
+        if ($this->dayOfWeek !== static::SUNDAY) {
             $this->next(static::SUNDAY);
         }
 
@@ -984,51 +971,39 @@ class Date extends \DateTime
 
     public function next($dayOfWeek = null)
     {
-        if ($dayOfWeek === null) {
-            $dayOfWeek = $this->dayOfWeek;
-        }
-
+        $dayOfWeek = ($dayOfWeek === null) ? $this->dayOfWeek : $dayOfWeek;
         return $this->startOfDay()->modify('next ' . static::$days[$dayOfWeek]);
     }
 
     public function previous($dayOfWeek = null)
     {
-        if ($dayOfWeek === null) {
-            $dayOfWeek = $this->dayOfWeek;
-        }
-
+        $dayOfWeek = ($dayOfWeek === null) ? $this->dayOfWeek : $dayOfWeek;
         return $this->startOfDay()->modify('last ' . static::$days[$dayOfWeek]);
     }
 
     public function firstOfMonth($dayOfWeek = null)
     {
         $this->startOfDay();
-
-        if ($dayOfWeek === null) {
-            return $this->day(1);
-        }
-
-        return $this->modify('first ' . static::$days[$dayOfWeek] . ' of ' . $this->format('F') . ' ' . $this->year);
+        return ($dayOfWeek === null)
+            ? $this->day(1)
+            : $this->modify('first ' . static::$days[$dayOfWeek] . ' of ' . $this->format('F') . ' ' . $this->year);
     }
 
     public function lastOfMonth($dayOfWeek = null)
     {
         $this->startOfDay();
-
-        if ($dayOfWeek === null) {
-            return $this->day($this->daysInMonth);
-        }
-
-        return $this->modify('last ' . static::$days[$dayOfWeek] . ' of ' . $this->format('F') . ' ' . $this->year);
+        return ($dayOfWeek === null)
+            ? $this->day($this->daysInMonth)
+            : $this->modify('last ' . static::$days[$dayOfWeek] . ' of ' . $this->format('F') . ' ' . $this->year);
     }
 
     public function nthOfMonth($nth, $dayOfWeek)
     {
         $dt = $this->copy()->firstOfMonth();
-        $check = $dt->format('Y-m');
+        $dt2 = $dt->format('Y-m');
         $dt->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
 
-        return ($dt->format('Y-m') === $check) ? $this->modify($dt) : false;
+        return ($dt->format('Y-m') === $dt2) ? $this->modify($dt) : false;
     }
 
     public function firstOfQuarter($dayOfWeek = null)
@@ -1044,11 +1019,11 @@ class Date extends \DateTime
     public function nthOfQuarter($nth, $dayOfWeek)
     {
         $dt = $this->copy()->day(1)->month($this->quarter * 3);
-        $last_month = $dt->month;
+        $lastMonth = $dt->month;
         $year = $dt->year;
         $dt->firstOfQuarter()->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
 
-        return ($last_month < $dt->month || $year !== $dt->year) ? false : $this->modify($dt);
+        return ($lastMonth < $dt->month || $year !== $dt->year) ? false : $this->modify($dt);
     }
 
     public function firstOfYear($dayOfWeek = null)
@@ -1064,17 +1039,24 @@ class Date extends \DateTime
     public function nthOfYear($nth, $dayOfWeek)
     {
         $dt = $this->copy()->firstOfYear()->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
-        return ($this->year == $dt->year) ? $this->modify($dt) : false;
+        return ($this->year === $dt->year) ? $this->modify($dt) : false;
     }
 
     public function average(Date $dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
-        return $this->addSeconds((int) ($this->diffInSeconds($dt, false) / 2));
+        return $this->addSeconds(intval($this->diffInSeconds($dt, false) / 2));
     }
 
     public function isBirthday(Date $dt)
     {
         return $this->format('md') === $dt->format('md');
+    }
+
+    private function validate($dt)
+    {
+        if ($dt === null || is_bool($dt)) {
+            throw new \Exception('Cannot compare with null or boolean value');
+        }
     }
 }

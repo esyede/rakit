@@ -1001,7 +1001,7 @@ if (!function_exists('now')) {
      */
     function now($tz = null)
     {
-        return \System\Date::now($date);
+        return \System\Date::now($tz);
     }
 }
 
