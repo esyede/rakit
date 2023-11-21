@@ -18,6 +18,8 @@ return [
     'months' => 'months',
     'week' => 'week',
     'weeks' => 'weeks',
+    'day' => 'day',
+    'days' => 'days',
     'hour' => 'hour',
     'hours' => 'hours',
     'minute' => 'minute',

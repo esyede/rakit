@@ -18,6 +18,8 @@ return [
     'months' => 'bulan',
     'week' => 'minggu',
     'weeks' => 'minggu',
+    'day' => 'hari',
+    'days' => 'hari',
     'hour' => 'jam',
     'hours' => 'jam',
     'minute' => 'menit',

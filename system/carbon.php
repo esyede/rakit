@@ -4,7 +4,7 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
-class Date extends \DateTime
+class Carbon extends \DateTime
 {
     const SUNDAY = 0;
     const MONDAY = 1;
@@ -349,7 +349,7 @@ class Date extends \DateTime
         return $this;
     }
 
-    public static function setTestNow(Date $now = null)
+    public static function setTestNow(Carbon $now = null)
     {
         static::$now = $now;
     }
@@ -429,7 +429,7 @@ class Date extends \DateTime
 
     public function toIso8601String()
     {
-        return $this->format('Y-m-d\TH:i:s');
+        return $this->format('c');
     }
 
     public function toRfc822String()
@@ -472,42 +472,42 @@ class Date extends \DateTime
         return $this->format(static::W3C);
     }
 
-    public function eq(Date $dt)
+    public function eq(Carbon $dt)
     {
         $this->validate($dt);
         return $this == $dt;
     }
 
-    public function ne(Date $dt)
+    public function ne(Carbon $dt)
     {
         return !$this->eq($dt);
     }
 
-    public function gt(Date $dt)
+    public function gt(Carbon $dt)
     {
         $this->validate($dt);
         return $this > $dt;
     }
 
-    public function gte(Date $dt)
+    public function gte(Carbon $dt)
     {
         $this->validate($dt);
         return $this >= $dt;
     }
 
-    public function lt(Date $dt)
+    public function lt(Carbon $dt)
     {
         $this->validate($dt);
         return $this < $dt;
     }
 
-    public function lte(Date $dt)
+    public function lte(Carbon $dt)
     {
         $this->validate($dt);
         return $this <= $dt;
     }
 
-    public function between(Date $dt1, Date $dt2, $equal = true)
+    public function between(Carbon $dt1, Carbon $dt2, $equal = true)
     {
         if ($dt1->gt($dt2)) {
             $temp = $dt1;
@@ -518,13 +518,13 @@ class Date extends \DateTime
         return $equal ? ($this->gte($dt1) && $this->lte($dt2)) : ($this->gt($dt1) && $this->lt($dt2));
     }
 
-    public function min(Date $dt = null)
+    public function min(Carbon $dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->lt($dt) ? $this : $dt;
     }
 
-    public function max(Date $dt = null)
+    public function max(Carbon $dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->gt($dt) ? $this : $dt;
@@ -570,7 +570,7 @@ class Date extends \DateTime
         return $this->format('L') === '1';
     }
 
-    public function isSameDay(Date $dt)
+    public function isSameDay(Carbon $dt)
     {
         return $this->toDateString() === $dt->toDateString();
     }
@@ -761,30 +761,30 @@ class Date extends \DateTime
         return $this->addSeconds(-1 * $value);
     }
 
-    public function diffInYears(Date $dt = null, $abs = true)
+    public function diffInYears(Carbon $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return intval($this->diff($dt, $abs)->format('%r%y'));
     }
 
-    public function diffInMonths(Date $dt = null, $abs = true)
+    public function diffInMonths(Carbon $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->diffInYears($dt, $abs) * 12 + $this->diff($dt, $abs)->format('%r%m');
     }
 
-    public function diffInWeeks(Date $dt = null, $abs = true)
+    public function diffInWeeks(Carbon $dt = null, $abs = true)
     {
         return intval($this->diffInDays($dt, $abs) / 7);
     }
 
-    public function diffInDays(Date $dt = null, $abs = true)
+    public function diffInDays(Carbon $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return intval($this->diff($dt, $abs)->format('%r%a'));
     }
 
-    public function diffInDaysFiltered(\Closure $callback, Date $dt = null, $abs = true)
+    public function diffInDaysFiltered(\Closure $callback, Carbon $dt = null, $abs = true)
     {
         $start = $this;
         $end = ($dt === null) ? static::now($this->tz) : $dt;
@@ -798,38 +798,38 @@ class Date extends \DateTime
 
         $period = new \DatePeriod($start, new \DateInterval('P1D'), $end);
         $days = array_filter(iterator_to_array($period), function (\DateTime $date) use ($callback) {
-            return call_user_func($callback, Date::instance($date));
+            return call_user_func($callback, static::instance($date));
         });
 
         $diff = count($days);
         return ($inverse && !$abs) ? -$diff : $diff;
     }
 
-    public function diffInWeekdays(Date $dt = null, $abs = true)
+    public function diffInWeekdays(Carbon $dt = null, $abs = true)
     {
-        return $this->diffInDaysFiltered(function (Date $date) {
+        return $this->diffInDaysFiltered(function (Carbon $date) {
             return $date->isWeekday();
         }, $dt, $abs);
     }
 
-    public function diffInWeekendDays(Date $dt = null, $abs = true)
+    public function diffInWeekendDays(Carbon $dt = null, $abs = true)
     {
-        return $this->diffInDaysFiltered(function (Date $date) {
+        return $this->diffInDaysFiltered(function (Carbon $date) {
             return $date->isWeekend();
         }, $dt, $abs);
     }
 
-    public function diffInHours(Date $dt = null, $abs = true)
+    public function diffInHours(Carbon $dt = null, $abs = true)
     {
         return intval($this->diffInSeconds($dt, $abs) / 3600);
     }
 
-    public function diffInMinutes(Date $dt = null, $abs = true)
+    public function diffInMinutes(Carbon $dt = null, $abs = true)
     {
         return intval($this->diffInSeconds($dt, $abs) / 60);
     }
 
-    public function diffInSeconds(Date $dt = null, $abs = true)
+    public function diffInSeconds(Carbon $dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         $value = $dt->getTimestamp() - $this->getTimestamp();
@@ -847,59 +847,95 @@ class Date extends \DateTime
         return $this->diffInSeconds($this->copy()->endOfDay());
     }
 
-    public function diffForHumans(Date $other = null, $absolute = false)
-    {
-        $other = ($other === null) ? static::now($this->tz) : $other;
-        $diff = $this->diff($other);
+    // public function diffForHumans(Carbon $other = null, $absolute = false)
+    // {
+    //     $now = $other === null;
+    //     $diff = $this->diff($now ? static::now($this->tz) : $other);
 
-        switch (true) {
-            case ($diff->y > 0):
-                $unit = 'year';
-                $delta = $diff->y;
+    //     switch (true) {
+    //         case ($diff->y > 0):
+    //             $unit = 'year';
+    //             $delta = $diff->y;
+    //             break;
+
+    //         case ($diff->m > 0):
+    //             $unit = 'month';
+    //             $delta = $diff->m;
+    //             break;
+
+    //         case ($diff->d > 0):
+    //             $unit = 'day';
+    //             $delta = $diff->d;
+
+    //             if ($delta >= 7) {
+    //                 $unit = 'week';
+    //                 $delta = floor($delta / 7);
+    //             }
+    //             break;
+
+    //         case ($diff->h > 0):
+    //             $unit = 'hour';
+    //             $delta = $diff->h;
+    //             break;
+
+    //         case ($diff->i > 0):
+    //             $unit = 'minute';
+    //             $delta = $diff->i;
+    //             break;
+
+    //         default:
+    //             $delta = $diff->s;
+    //             $unit = 'second';
+    //             break;
+    //     }
+
+    //     $delta = floor(($delta === 0) ? 1 : $delta);
+    //     $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta < 2) ? '' : 's'))->get();
+
+    //     if ($absolute) {
+    //         return $str;
+    //     }
+
+    //     $future = $diff->invert === 1;
+
+    //     if ($now) {
+    //         return $str . ' ' . Lang::line('date.' . ($future ? 'from_now' : 'ago'))->get();
+    //     }
+
+    //     return $str . ' ' . Lang::line('date.' . ($future ? 'after' : 'before'))->get();
+    // }
+
+    public function diffForHumans(Carbon $other = null, $absolute = false)
+   {
+        $now = $other === null;
+        $other = $now ? static::now($this->tz) : $other;
+        $future = $this->gt($other);
+        $delta = $other->diffInSeconds($this);
+        $divs = ['second' => 60, 'minute' => 60, 'hour' => 24, 'day' => 7, 'week' => 4, 'month' => 12];
+        $unit = 'year';
+
+        foreach ($divs as $key => $value) {
+            if ($delta < $value) {
+                $unit = $key;
                 break;
+            }
 
-            case ($diff->m > 0):
-                $unit = 'month';
-                $delta = $diff->m;
-                break;
-
-            case ($diff->d > 0):
-                $unit = 'day';
-                $delta = $diff->d;
-
-                if ($delta >= 7) {
-                    $unit = 'week';
-                    $delta = floor($delta / 7);
-                }
-                break;
-
-            case ($diff->h > 0):
-                $unit = 'hour';
-                $delta = $diff->h;
-                break;
-
-            case ($diff->i > 0):
-                $unit = 'minute';
-                $delta = $diff->i;
-                break;
-
-            default:
-                $delta = $diff->s;
-                $unit = 'second';
-                break;
+            $delta = floor($delta / $value);
         }
 
-        $delta = ($delta === 0) ? 1 : $delta;
-        $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta === 1) ? '' : 's'))->get();
+        $delta = ($delta <= 0) ? 1 : $delta;
+        $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta <= 1) ? '' : 's'))->get();
 
         if ($absolute) {
             return $str;
         }
 
-        return ($other === null)
-            ? ($str . ' ' . Lang::line('date.' . (($diff->invert === 1) ? 'from_now' : 'ago'))->get())
-            : ($str . ' ' . Lang::line('date.' . (($diff->invert === 1) ? 'after' : 'before'))->get());
-    }
+        if ($now) {
+            return $str . ' ' . Lang::line('date.' . ($future ? 'from_now' : 'ago'))->get();
+        }
+
+        return $str . ' ' . Lang::line('date.' . ($future ? 'after' : 'before'))->get();
+   }
 
     public function startOfDay()
     {
@@ -1042,13 +1078,13 @@ class Date extends \DateTime
         return ($this->year === $dt->year) ? $this->modify($dt) : false;
     }
 
-    public function average(Date $dt = null)
+    public function average(Carbon $dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->addSeconds(intval($this->diffInSeconds($dt, false) / 2));
     }
 
-    public function isBirthday(Date $dt)
+    public function isBirthday(Carbon $dt)
     {
         return $this->format('md') === $dt->format('md');
     }
