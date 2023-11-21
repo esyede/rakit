@@ -4,6 +4,7 @@ namespace Docs\Libraries;
 
 defined('DS') or exit('No direct access.');
 
+use System\Arr;
 use System\Cache;
 use System\Markdown;
 
@@ -43,18 +44,16 @@ class Docs
     public static function render($name)
     {
         $name = static::path($name);
+        $mtime = filemtime($name);
+        $cache = Cache::get('docs.' . md5($name));
 
-        if (filemtime($name) < (int) Cache::get('docs.' . md5($name) . '.mtime')) {
-            return base64_decode(Cache::get('docs.' . md5($name) . '.content'));
+        if ($mtime > intval(Arr::get(Arr::wrap($cache), 'mtime'))) {
+            Cache::forget('docs.' . md5($name));
+            Cache::forever('docs.' . md5($name), ['content' => Markdown::render($name), 'mtime' => $mtime]);
         }
 
-        $content = Markdown::render($name);
-        Cache::forever('docs.' . md5($name), [
-            'content' => base64_encode($content),
-            'mtime' => filemtime($name),
-        ]);
-
-        return $content;
+        $cache = Cache::get('docs.' . md5($name));
+        return Arr::get(Arr::wrap($cache), 'content');
     }
 
     /**
