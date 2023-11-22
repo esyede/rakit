@@ -847,64 +847,6 @@ class Carbon extends \DateTime
         return $this->diffInSeconds($this->copy()->endOfDay());
     }
 
-    // public function diffForHumans(Carbon $other = null, $absolute = false)
-    // {
-    //     $now = $other === null;
-    //     $diff = $this->diff($now ? static::now($this->tz) : $other);
-
-    //     switch (true) {
-    //         case ($diff->y > 0):
-    //             $unit = 'year';
-    //             $delta = $diff->y;
-    //             break;
-
-    //         case ($diff->m > 0):
-    //             $unit = 'month';
-    //             $delta = $diff->m;
-    //             break;
-
-    //         case ($diff->d > 0):
-    //             $unit = 'day';
-    //             $delta = $diff->d;
-
-    //             if ($delta >= 7) {
-    //                 $unit = 'week';
-    //                 $delta = floor($delta / 7);
-    //             }
-    //             break;
-
-    //         case ($diff->h > 0):
-    //             $unit = 'hour';
-    //             $delta = $diff->h;
-    //             break;
-
-    //         case ($diff->i > 0):
-    //             $unit = 'minute';
-    //             $delta = $diff->i;
-    //             break;
-
-    //         default:
-    //             $delta = $diff->s;
-    //             $unit = 'second';
-    //             break;
-    //     }
-
-    //     $delta = floor(($delta === 0) ? 1 : $delta);
-    //     $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta < 2) ? '' : 's'))->get();
-
-    //     if ($absolute) {
-    //         return $str;
-    //     }
-
-    //     $future = $diff->invert === 1;
-
-    //     if ($now) {
-    //         return $str . ' ' . Lang::line('date.' . ($future ? 'from_now' : 'ago'))->get();
-    //     }
-
-    //     return $str . ' ' . Lang::line('date.' . ($future ? 'after' : 'before'))->get();
-    // }
-
     public function diffForHumans(Carbon $other = null, $absolute = false)
    {
         $now = $other === null;
