@@ -260,6 +260,26 @@ if (!function_exists('data_set')) {
     }
 }
 
+if (!function_exists('tap')) {
+    /**
+     * Panggil closure dengan value yang diberikan lalu return hasilnya.
+     *
+     * @param mixed    $value
+     * @param \Closure $callback
+     *
+     * @return mixed
+     */
+    function tap($value, \Closure $callback)
+    {
+        if (is_null($callback) || !($callback instanceof \Closure)) {
+            return $value;
+        }
+
+        $callback($value);
+        return $value;
+    }
+}
+
 if (!function_exists('retry')) {
     /**
      * Ulangi eksekusi sebanyak jumlah yang diberikan.
