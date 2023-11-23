@@ -471,7 +471,7 @@ class Carbon extends \DateTime
 
     public function eq(Carbon $dt)
     {
-        $this->validate($dt);
+        $this->checkComparator($dt);
         return $this == $dt; // '==' memang disengaja
     }
 
@@ -482,25 +482,25 @@ class Carbon extends \DateTime
 
     public function gt(Carbon $dt)
     {
-        $this->validate($dt);
+        $this->checkComparator($dt);
         return $this > $dt;
     }
 
     public function gte(Carbon $dt)
     {
-        $this->validate($dt);
+        $this->checkComparator($dt);
         return $this >= $dt;
     }
 
     public function lt(Carbon $dt)
     {
-        $this->validate($dt);
+        $this->checkComparator($dt);
         return $this < $dt;
     }
 
     public function lte(Carbon $dt)
     {
-        $this->validate($dt);
+        $this->checkComparator($dt);
         return $this <= $dt;
     }
 
@@ -1028,7 +1028,7 @@ class Carbon extends \DateTime
         return $this->format('md') === $dt->format('md');
     }
 
-    private function validate($dt)
+    private function checkComparator($dt)
     {
         if ($dt === null || is_bool($dt)) {
             throw new \Exception('Cannot compare with null or boolean value');
