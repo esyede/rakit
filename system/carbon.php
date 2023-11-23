@@ -212,13 +212,13 @@ class Carbon extends \DateTime
                 return $this->getOffset() / 60 / 60;
 
             case $name === 'dst':
-                return $this->format('I') == '1';
+                return $this->format('I') === '1';
 
             case $name === 'local':
-                return $this->offset == $this->copy()->setTimezone(Config::get('application.timezone'))->offset;
+                return $this->offset === $this->copy()->setTimezone(Config::get('application.timezone'))->offset;
 
             case $name === 'utc':
-                return $this->offset == 0;
+                return $this->offset === 0;
 
             case $name === 'timezone' || $name === 'tz':
                 return $this->getTimezone();
@@ -475,7 +475,7 @@ class Carbon extends \DateTime
     public function eq(Carbon $dt)
     {
         $this->validate($dt);
-        return $this == $dt;
+        return $this == $dt; // '==' memang disengaja
     }
 
     public function ne(Carbon $dt)
@@ -532,7 +532,7 @@ class Carbon extends \DateTime
 
     public function isWeekday()
     {
-        return ($this->dayOfWeek != static::SUNDAY && $this->dayOfWeek != static::SATURDAY);
+        return ($this->dayOfWeek !== static::SUNDAY && $this->dayOfWeek !== static::SATURDAY);
     }
 
     public function isWeekend()
