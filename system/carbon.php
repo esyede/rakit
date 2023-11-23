@@ -214,9 +214,6 @@ class Carbon extends \DateTime
             case $name === 'dst':
                 return $this->format('I') === '1';
 
-            case $name === 'local':
-                return $this->offset === $this->copy()->setTimezone(Config::get('application.timezone'))->offset;
-
             case $name === 'utc':
                 return $this->offset === 0;
 
