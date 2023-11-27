@@ -27,7 +27,7 @@ class Generator
             if (PHP_VERSION_ID < 70100) {
                 mt_srand((int) $seed);
             } else {
-                mt_srand((int) $seed, MT_RAND_PHP);
+                mt_srand((int) $seed, MT_RAND_MT19937);
             }
         }
     }
