@@ -50,6 +50,10 @@ class Cache extends System\Cache
 {
 }
 
+class Carbon extends System\Carbon
+{
+}
+
 class Command extends System\Console\Commands\Command
 {
 }
