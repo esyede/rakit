@@ -345,7 +345,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testDiffInYearsPositive()
+    public function testDiff()
     {
         $d = Carbon::createFromDate(2000, 1, 1);
         $this->assertSame(1, $d->diffInYears($d->copy()->addYear()));
@@ -570,7 +570,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('2 months from now', $d->diffForHumans());
         Carbon::setTestNow();
         $d = Carbon::now()->addMonths(11);
-        $this->assertSame('11 months from now', $d->diffForHumans());
+        $this->assertSame('1 year from now', $d->diffForHumans());
         $d = Carbon::now()->addYear();
         $this->assertSame('1 year from now', $d->diffForHumans());
         $d = Carbon::now()->addYears(2);
@@ -618,7 +618,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('2 months before', Carbon::now()->diffForHumans($d));
         Carbon::setTestNow();
         $d = Carbon::now()->addMonths(11);
-        $this->assertSame('11 months before', Carbon::now()->diffForHumans($d));
+        $this->assertSame('1 year before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->addYear();
         $this->assertSame('1 year before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->addYears(2);

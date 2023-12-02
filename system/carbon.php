@@ -862,7 +862,7 @@ class Carbon extends \DateTime
             $delta = floor($delta / $value);
         }
 
-        $delta = ($delta <= 0) ? 1 : $delta;
+        $delta = ($delta < 1) ? 1 : $delta;
         $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta <= 1) ? '' : 's'))->get();
 
         if ($absolute) {
