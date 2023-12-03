@@ -863,17 +863,17 @@ class Carbon extends \DateTime
         }
 
         $delta = ($delta < 1) ? 1 : $delta;
-        $str = $delta . ' ' . Lang::line('date.' . $unit . (($delta <= 1) ? '' : 's'))->get();
+        $str = $delta . ' ' . Lang::line('carbon.' . $unit . (($delta <= 1) ? '' : 's'))->get();
 
         if ($absolute) {
             return $str;
         }
 
         if ($now) {
-            return $str . ' ' . Lang::line('date.' . ($future ? 'from_now' : 'ago'))->get();
+            return $str . ' ' . Lang::line('carbon.' . ($future ? 'from_now' : 'ago'))->get();
         }
 
-        return $str . ' ' . Lang::line('date.' . ($future ? 'after' : 'before'))->get();
+        return $str . ' ' . Lang::line('carbon.' . ($future ? 'after' : 'before'))->get();
    }
 
     public function startOfDay()

@@ -5,10 +5,10 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Date Language Lines
+    | Carbon Language Lines
     |--------------------------------------------------------------------------
     |
-    | Baris - baris bahasa brikut ini digunakan oleh library Date.
+    | Baris - baris bahasa brikut ini digunakan oleh library Carbon.
     |
     */
 
