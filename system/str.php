@@ -593,6 +593,8 @@ class Str
      * @param int  $count
      * @param int  $max
      * @param bool $standard
+     *
+     * @return string
      */
     public static function lorem($count = 1, $max = 20, $standard = true)
     {
