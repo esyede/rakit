@@ -49,7 +49,7 @@ class Carbon extends \DateTime
             $time = $test->toDateTimeString();
         }
 
-        parent::__construct($time, static::safeCreateDateTimeZone($tz));
+        parent::__construct($time ? $time : 'now', static::safeCreateDateTimeZone($tz));
     }
 
     protected static function safeCreateDateTimeZone($tz)
