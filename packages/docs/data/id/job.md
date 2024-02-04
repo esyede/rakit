@@ -19,7 +19,7 @@ Ini akan berguna ketika anda perlu, misalnya, menjadwalkan email ke pengguna 24 
 ```php
 $name         = 'email24';
 $payloads     = ['user_id' => 1, 'message' => 'Welcome new member!'];
-$scheduled_at = Date::make('now')->remake('+24 hours');
+$scheduled_at = now()->addDay();
 
 Job::add($name, $payloads, $scheduled_at);
 ```

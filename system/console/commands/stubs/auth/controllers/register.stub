@@ -47,7 +47,7 @@ class Auth_Register_Controller extends Controller
             'name' => Input::get('name'),
             'email' => Input::get('email'),
             'password' => Hash::make(Input::get('password')),
-            'created_at' => Date::make(),
+            'created_at' => now(),
         ]);
 
         Auth::login($user_id);

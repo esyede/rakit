@@ -20,7 +20,7 @@ schedule an e-mail to an user 24 hours after the registration.
 ```php
 $name         = 'email24';
 $payloads     = ['user_id' => 1, 'message' => 'Welcome new member!'];
-$scheduled_at = Date::make('now')->remake('+24 hours');
+$scheduled_at = now()->addDay();
 
 Job::add($name, $payloads, $scheduled_at);
 ```
