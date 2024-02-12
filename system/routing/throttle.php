@@ -30,8 +30,9 @@ class Throttle
         $decay_minutes = (int) $decay_minutes;
         $decay_minutes = ($decay_minutes < 1) ? 1 : $decay_minutes;
         $key = static::key();
+        $data = Cache::get($key);
 
-        if (!Cache::has($key)) {
+        if (!$data) {
             $data = [
                 'limit' => $max_attempts,
                 'remaining' => $max_attempts,
@@ -40,11 +41,8 @@ class Throttle
                 'key' => $key,
                 'ip' => Request::ip(),
             ];
-
             Cache::put($key, $data, $decay_minutes);
         }
-
-        $data = Cache::get($key);
 
         if ($data['remaining'] > 0) {
             $data['remaining'] = $data['remaining'] - 1;
