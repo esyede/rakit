@@ -620,7 +620,7 @@ if (!function_exists('redirect')) {
      * @param string $url
      * @param int    $status
      *
-     * @return \System\Redirect
+     * @return \System\Redirect|mixed
      */
     function redirect($url, $status = 302)
     {
@@ -634,7 +634,7 @@ if (!function_exists('back')) {
      *
      * @param int $status
      *
-     * @return \System\Redirect
+     * @return \System\Redirect|mixed
      */
     function back($status = 302)
     {
@@ -1017,7 +1017,7 @@ if (!function_exists('now')) {
      *
      * @param string $tz
      *
-     * @return \System\Date|string
+     * @return \System\Carbon|string
      */
     function now($tz = null)
     {

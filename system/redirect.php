@@ -11,7 +11,7 @@ class Redirect extends Response
      *
      * @param int $status
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public static function home($status = 302)
     {
@@ -23,7 +23,7 @@ class Redirect extends Response
      *
      * @param int $status
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public static function back($status = 302)
     {
@@ -46,7 +46,7 @@ class Redirect extends Response
      * @param string $url
      * @param int    $status
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public static function to($url, $status = 302)
     {
@@ -60,7 +60,7 @@ class Redirect extends Response
      * @param array  $parameters
      * @param int    $status
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public static function to_action($action, array $parameters = [], $status = 302)
     {
@@ -84,7 +84,7 @@ class Redirect extends Response
      * @param array  $parameters
      * @param int    $status
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public static function to_route($route, array $parameters = [], $status = 302)
     {
@@ -105,7 +105,7 @@ class Redirect extends Response
      * @param string $key
      * @param mixed  $value
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public function with($key, $value)
     {
@@ -137,7 +137,7 @@ class Redirect extends Response
      * @param string $filter
      * @param array  $items
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public function with_input($filter = null, array $items = [])
     {
@@ -158,7 +158,7 @@ class Redirect extends Response
      *
      * @param Validator|Messages $container
      *
-     * @return Redirect
+     * @return Redirect|mixed
      */
     public function with_errors($container)
     {
