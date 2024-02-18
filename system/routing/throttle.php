@@ -79,7 +79,7 @@ class Throttle
      */
     public static function key()
     {
-        return static::PREFIX . '.' . md5(Request::ip());
+        return static::PREFIX . '.' . RAKIT_KEY . '.' . md5(Request::ip());
     }
 
     /**
