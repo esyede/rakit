@@ -86,7 +86,7 @@ class Curl extends System\Curl
 {
 }
 
-class Date extends System\Date
+class Carbon extends System\Carbon
 {
 }
 
