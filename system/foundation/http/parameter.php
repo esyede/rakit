@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Http;
 
-defined('DS') or exit('No direct access.');
+defined('DS') or exit('No direct script access.');
 
 class Parameter implements \IteratorAggregate, \Countable
 {
@@ -74,9 +74,7 @@ class Parameter implements \IteratorAggregate, \Countable
      */
     public function get($path, $default = null, $deep = false)
     {
-        $path = (string) $path;
-
-        if (!$deep || false === ($pos = strpos($path, '['))) {
+        if (! $deep || false === ($pos = strpos($path, '['))) {
             return array_key_exists($path, $this->parameters)
                 ? $this->parameters[$path]
                 : $default;
@@ -84,28 +82,32 @@ class Parameter implements \IteratorAggregate, \Countable
 
         $root = substr($path, 0, $pos);
 
-        if (!array_key_exists($root, $this->parameters)) {
+        if (! array_key_exists($root, $this->parameters)) {
             return $default;
         }
 
         $value = $this->parameters[$root];
         $currentKey = null;
 
-        for ($i = $pos, $count = mb_strlen($path, '8bit'); $i < $count; ++$i) {
+        for ($i = $pos, $count = strlen($path); $i < $count; ++$i) {
             $char = $path[$i];
 
             if ('[' === $char) {
                 if (null !== $currentKey) {
-                    throw new \Exception(sprintf("Malformed path. Unexpected '[' at position %s", $i));
+                    throw new \InvalidArgumentException(
+                        sprintf("Malformed path. Unexpected '[' at position %s", $i)
+                    );
                 }
 
                 $currentKey = '';
             } elseif (']' === $char) {
                 if (null === $currentKey) {
-                    throw new \Exception(sprintf("Malformed path. Unexpected ']' at position %s", $i));
+                    throw new \InvalidArgumentException(
+                        sprintf("Malformed path. Unexpected ']' at position %s", $i)
+                    );
                 }
 
-                if (!is_array($value) || !array_key_exists($currentKey, $value)) {
+                if (! is_array($value) || ! array_key_exists($currentKey, $value)) {
                     return $default;
                 }
 
@@ -113,7 +115,9 @@ class Parameter implements \IteratorAggregate, \Countable
                 $currentKey = null;
             } else {
                 if (null === $currentKey) {
-                    throw new \Exception(sprintf("Malformed path. Unexpected '%s' at position %s", $char, $i));
+                    throw new \InvalidArgumentException(
+                        sprintf("Malformed path. Unexpected '%s' at position %s", $char, $i)
+                    );
                 }
 
                 $currentKey .= $char;
@@ -121,7 +125,7 @@ class Parameter implements \IteratorAggregate, \Countable
         }
 
         if (null !== $currentKey) {
-            throw new \Exception("Malformed path. Path must ended with ']'.");
+            throw new \InvalidArgumentException("Malformed path. Path must ended with ']'.");
         }
 
         return $value;
@@ -240,11 +244,11 @@ class Parameter implements \IteratorAggregate, \Countable
     ) {
         $value = $this->get($key, $default, $deep);
 
-        if (!is_array($options) && $options) {
+        if (! is_array($options) && $options) {
             $options = ['flags' => $options];
         }
 
-        if (is_array($value) && !isset($options['flags'])) {
+        if (is_array($value) && ! isset($options['flags'])) {
             $options['flags'] = FILTER_REQUIRE_ARRAY;
         }
 
