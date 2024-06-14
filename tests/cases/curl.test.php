@@ -309,10 +309,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
     public function testDelete()
     {
-        $response = Curl::delete('https://rakit.esyede.my.id/mock', [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ], ['name' => 'Budi', 'age' => 28]);
+        $response = Curl::delete('https://rakit.esyede.my.id/mock');
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('DELETE', $response->body->method);

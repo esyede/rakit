@@ -346,7 +346,7 @@ class Carbon extends \DateTime
         return $this;
     }
 
-    public static function setTestNow(Carbon $now = null)
+    public static function setNow(Carbon $now = null)
     {
         static::$now = $now;
     }
@@ -845,7 +845,7 @@ class Carbon extends \DateTime
     }
 
     public function diffForHumans(Carbon $other = null, $absolute = false)
-   {
+    {
         $now = $other === null;
         $other = $now ? static::now($this->tz) : $other;
         $future = $this->gt($other);
@@ -859,7 +859,7 @@ class Carbon extends \DateTime
                 break;
             }
 
-            $delta = floor($delta / $value);
+            $delta = round($delta / $value);
         }
 
         $delta = ($delta < 1) ? 1 : $delta;
@@ -874,7 +874,7 @@ class Carbon extends \DateTime
         }
 
         return $str . ' ' . Lang::line('carbon.' . ($future ? 'after' : 'before'))->get();
-   }
+    }
 
     public function startOfDay()
     {
