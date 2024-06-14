@@ -2,7 +2,7 @@
 
 namespace System\Foundation\Http;
 
-defined('DS') or exit('No direct script access.');
+defined('DS') or exit('No direct access.');
 
 class Header implements \IteratorAggregate, \Countable
 {
@@ -31,20 +31,23 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function __toString()
     {
-        if (! $this->headers) {
+        if (!$this->headers) {
             return '';
         }
 
-        $max = max(array_map('strlen', array_keys($this->headers))) + 1;
+        $max = max(array_map(function ($key) {
+            return mb_strlen((string) $key, '8bit');
+        }, array_keys($this->headers))) + 1;
+
         ksort($this->headers);
 
         $content = '';
 
         foreach ($this->headers as $name => $values) {
-            $name = implode('-', array_map('ucfirst', explode('-', $name)));
+            $name = $this->standardizeKey($name);
 
             foreach ($values as $value) {
-                $content .= sprintf("%-{$max}s %s\r\n", $name.':', $value);
+                $content .= sprintf("%-{$max}s %s\r\n", $name . ':', $value);
             }
         }
 
@@ -105,9 +108,9 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function get($key, $default = null, $first = true)
     {
-        $key = strtr(strtolower($key), '_', '-');
+        $key = $this->standardizeKey($key);
 
-        if (! array_key_exists($key, $this->headers)) {
+        if (!array_key_exists($key, $this->headers)) {
             if (null === $default) {
                 return $first ? null : [];
             }
@@ -131,18 +134,13 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function set($key, $values, $replace = true)
     {
-        $values = (array) $values;
+        $key = $this->standardizeKey($key);
+        $values = array_values((array) $values);
+        $this->headers[$key] = (true === $replace || !isset($this->headers[$key]))
+            ? $values
+            : array_merge($this->headers[$key], $values);
 
-        $key = strtr(strtolower($key), '_', '-');
-        $values = array_values($values);
-
-        if (true === $replace || ! isset($this->headers[$key])) {
-            $this->headers[$key] = $values;
-        } else {
-            $this->headers[$key] = array_merge($this->headers[$key], $values);
-        }
-
-        if ('cache-control' === $key) {
+        if ('Cache-Control' === $key) {
             $this->cacheControl = $this->parseCacheControl($values[0]);
         }
     }
@@ -156,7 +154,8 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function has($key)
     {
-        return array_key_exists(strtr(strtolower($key), '_', '-'), $this->headers);
+        $key = $this->standardizeKey($key);
+        return array_key_exists($key, $this->headers);
     }
 
     /**
@@ -179,10 +178,11 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function remove($key)
     {
-        $key = strtr(strtolower($key), '_', '-');
+        $key = $this->standardizeKey($key);
+
         unset($this->headers[$key]);
 
-        if ('cache-control' === $key) {
+        if ('Cache-Control' === $key) {
             $this->cacheControl = [];
         }
     }
@@ -197,21 +197,19 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function getDate($key, \DateTime $default = null)
     {
-        if (null === $value = $this->get($key)) {
+        if (null === ($value = $this->get($key))) {
             return $default;
         }
 
         if (false === ($date = \DateTime::createFromFormat(DATE_RFC2822, $value))) {
-            throw new \RuntimeException(sprintf(
-                "The '%s' HTTP header is not parseable (%s).", $key, $value
-            ));
+            throw new \RuntimeException(sprintf("The '%s' HTTP header is not parseable (%s).", $key, $value));
         }
 
         return $date;
     }
 
     /**
-     * Tambahkan penunjuk cache-control.
+     * Tambahkan header Cache-Control.
      *
      * @param string $key
      * @param mixed  $value
@@ -223,7 +221,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Periksa ada tidaknya suatu penunjuk cache-control.
+     * Periksa ada tidaknya suatu header Cache-Control.
      *
      * @param string $key
      *
@@ -235,7 +233,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil penunjuk cache-control berdasarkan key-nya.
+     * Ambil penunjuk Cache-Control berdasarkan key-nya.
      *
      * @param string $key
      *
@@ -243,13 +241,11 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function getCacheControlDirective($key)
     {
-        return array_key_exists($key, $this->cacheControl)
-            ? $this->cacheControl[$key]
-            : null;
+        return array_key_exists($key, $this->cacheControl) ? $this->cacheControl[$key] : null;
     }
 
     /**
-     * Hapus penunjuk cache-control berdasarkan key-nya.
+     * Hapus penunjuk Cache-Control berdasarkan key-nya.
      *
      * @param string $key
      */
@@ -282,7 +278,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil seluruh data cache-control.
+     * Ambil seluruh data Cache-Control.
      *
      * @return string
      */
@@ -296,11 +292,11 @@ class Header implements \IteratorAggregate, \Countable
             if (true === $value) {
                 $parts[] = $key;
             } else {
-                if (preg_match('#[^a-zA-Z0-9._-]#', $value)) {
-                    $value = '"'.$value.'"';
+                if (preg_match('/[^a-zA-Z0-9._-]/', $value)) {
+                    $value = '"' . $value . '"';
                 }
 
-                $parts[] = $key.'='.$value;
+                $parts[] = $key . '=' . $value;
             }
         }
 
@@ -308,7 +304,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Parse header cache-control.
+     * Parse header Cache-Control.
      *
      * @param string $header
      *
@@ -317,7 +313,7 @@ class Header implements \IteratorAggregate, \Countable
     protected function parseCacheControl($header)
     {
         preg_match_all(
-            '#([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?#',
+            '/([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?/',
             $header,
             $matches,
             PREG_SET_ORDER
@@ -326,11 +322,24 @@ class Header implements \IteratorAggregate, \Countable
         $parsed = [];
 
         foreach ($matches as $match) {
-            $parsed[strtolower($match[1])] = isset($match[3])
+            $parsed[strtolower((string) $match[1])] = isset($match[3])
                 ? $match[3]
                 : (isset($match[2]) ? $match[2] : true);
         }
 
         return $parsed;
+    }
+
+    /**
+     * Standarisasi nama header
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    protected static function standardizeKey($key)
+    {
+        $key = strtr(strtolower((string) $key), '_', '-');
+        return str_replace(' ', '-', ucwords(strtr($key, '-', ' ')));
     }
 }
