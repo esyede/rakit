@@ -86,10 +86,6 @@ class Curl extends System\Curl
 {
 }
 
-class Carbon extends System\Carbon
-{
-}
-
 class DB extends System\Database
 {
 }
