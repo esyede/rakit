@@ -141,7 +141,7 @@ $uri = URI::current();
 foreach ($languages as $language) {
     if (preg_match('#^' . $language . '(?:$|/)#i', $uri)) {
         Config::set('application.language', $language);
-        $uri = trim(substr((string) $uri, strlen($language), '/'));
+        $uri = trim(substr((string) $uri, strlen($language)), '/');
         break;
     }
 }
