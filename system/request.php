@@ -387,13 +387,13 @@ class Request
 
         if (
             in_array(static::method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])
-            || Input::get(Session::TOKEN) === Session::token()
             || false !== stripos((string) $header, 'nocheck')
+            || Crypter::equals(Input::get(Session::TOKEN), Session::token())
         ) {
             return false;
         }
 
-        return $token !== $header;
+        return !Crypter::equals($token, $header);
     }
 
     /**
