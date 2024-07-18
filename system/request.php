@@ -384,16 +384,17 @@ class Request
     {
         $token = Session::token();
         $header = static::header('X-Csrf-Token');
+        $header = $header ?: static::header('X-Xsrf-Token');
 
         if (
             in_array(static::method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])
+            || Input::get(Session::TOKEN) === Session::token()
             || false !== stripos((string) $header, 'nocheck')
-            || Crypter::equals(Input::get(Session::TOKEN), Session::token())
         ) {
             return false;
         }
 
-        return !Crypter::equals($token, $header);
+        return $token !== $header;
     }
 
     /**
