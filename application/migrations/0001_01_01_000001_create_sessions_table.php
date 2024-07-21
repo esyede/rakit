@@ -13,7 +13,7 @@ class Create_Sessions_Table
     {
         $table = Config::get('session.table');
         Schema::create($table, function ($table) {
-            $table->string('id', 60)->primary('session_primary');
+            $table->string('id', 191)->primary('session_primary');
             $table->integer('last_activity');
             $table->text('data');
         });

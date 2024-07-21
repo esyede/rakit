@@ -12,8 +12,8 @@ class Create_Caches_Table
     public function up()
     {
         $table = Config::get('cache.database.table');
-        Schema::create_if_not_exists($table, function ($table) {
-            $table->string('key', 60)->primary('cache_primary');
+        Schema::create($table, function ($table) {
+            $table->string('key', 191)->primary('cache_primary');
             $table->text('value');
             $table->string('expiration', 30)->index();
         });
