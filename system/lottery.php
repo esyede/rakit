@@ -232,7 +232,7 @@ class Lottery
      */
     public static function fix($sequence, $when_missing = null)
     {
-        return static::sequencify($sequence, $when_missing);
+        return static::sequence($sequence, $when_missing);
     }
 
     /**
@@ -242,7 +242,7 @@ class Lottery
      * @param  callable|null  $when_missing
      * @return void
      */
-    public static function sequencify($sequence, $when_missing = null)
+    public static function sequence($sequence, $when_missing = null)
     {
         $next = 0;
         $when_missing = $when_missing ? $when_missing : function ($chances, $out_of) use (&$next) {

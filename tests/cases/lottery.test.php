@@ -106,7 +106,7 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
     public function testItCanForceTheResultViaSequence()
     {
         $result = null;
-        Lottery::sequencify([
+        Lottery::sequence([
             true, false, true, false, true,
             false, true, false, true, false,
         ]);
@@ -126,7 +126,7 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
     public function testItCanHandleMissingSequenceItems()
     {
         $result = null;
-        Lottery::sequencify([
+        Lottery::sequence([
             0 => true,
             1 => true,
             // 2 => ...
