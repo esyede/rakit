@@ -1,11 +1,9 @@
 {
-    "cache": {
-        "cache:table": {
-            "description": "Buat file migrasi untuk tabel cache.",
-            "command": "php rakit cache:table"
-        }
-    },
     "clear": {
+        "clear:cache": {
+            "description": "Bersihkan seluruh cache.",
+            "command": "php rakit clear:cache"
+        },
         "clear:views": {
             "description": "Bersihkan seluruh file cache view.",
             "command": "php rakit clear:views"
@@ -16,10 +14,6 @@
         }
     },
     "job": {
-        "job:table": {
-            "description": "Buat file migrasi untuk tabel job.",
-            "command": "php rakit job:table"
-        },
         "job:run": {
             "description": "Jalankan sebuah job.",
             "command": "php rakit job:run send_weekly_email"
@@ -106,9 +100,9 @@
         }
     },
     "session": {
-        "session:table": {
-            "description": "Buat file migrasi untuk tabel session.",
-            "command": "php rakit session:table"
+        "session:sweep": {
+            "description": "Sweep all expired sessions.",
+            "command": "php rakit session:sweep"
         }
     },
     "test": {

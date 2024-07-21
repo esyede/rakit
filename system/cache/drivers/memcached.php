@@ -108,6 +108,14 @@ class Memcached extends Sectionable
     }
 
     /**
+     * Hapus seluruh item cache.
+     */
+    public function flush()
+    {
+        return $this->memcached->flush();
+    }
+
+    /**
      * Hapus keseluruhan section dari cache.
      *
      * @param string $section

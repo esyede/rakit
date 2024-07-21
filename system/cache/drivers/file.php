@@ -101,6 +101,20 @@ class File extends Driver
     }
 
     /**
+     * Hapus seluruhitem cache.
+     */
+    public function flush()
+    {
+        $files = glob(path('storage') . 'cache' . DS . '*.cache.php');
+
+        if (is_array($files) && count($files) > 0) {
+            foreach ($files as $file) {
+                @unlink($file);
+            }
+        }
+    }
+
+    /**
      * Helper untuk format nama file cache.
      *
      * @param string $key

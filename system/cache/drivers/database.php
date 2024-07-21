@@ -5,6 +5,7 @@ namespace System\Cache\Drivers;
 defined('DS') or exit('No direct access.');
 
 use System\Config;
+use System\Carbon;
 use System\Database as DB;
 
 class Database extends Driver
@@ -50,8 +51,9 @@ class Database extends Driver
         $cache = $this->table()->where('key', '=', $this->key . $key)->first();
 
         if (!is_null($cache)) {
-            $expiration = (new \DateTime('@' . $cache->expiration))->getTimestamp();
-            return (time() >= $expiration) ? $this->forget($key) : unserialize($cache->value);
+            return Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now())
+                ? $this->forget($key)
+                : unserialize($cache->value);
         }
     }
 
@@ -92,6 +94,16 @@ class Database extends Driver
     public function forget($key)
     {
         $this->table()->where('key', '=', $this->key . $key)->delete();
+    }
+
+    /**
+     * Hapus seluruh item cache.
+     */
+    public function flush()
+    {
+        $db = Config::get('cache.database');
+        $db['connection'] = isset($db['connection']) ? $db['connection'] : null;
+        DB::connection($db['connection'])->query('TRUNCATE TABLE ' . $db['table']);
     }
 
     /**

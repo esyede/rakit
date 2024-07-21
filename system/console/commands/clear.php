@@ -7,6 +7,19 @@ defined('DS') or exit('No direct access.');
 class Clear extends Command
 {
     /**
+     * Bersihkan seluruh cache data.
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function cache(array $arguments = [])
+    {
+        \System\Cache::flush();
+        echo 'Cache data has been cleared.' . PHP_EOL;
+    }
+
+    /**
      * Bersihkan seluruh file cache views.
      *
      * @param array $arguments

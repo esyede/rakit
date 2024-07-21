@@ -133,6 +133,11 @@ abstract class Driver
     abstract public function forget($key);
 
     /**
+     * Hapus seluruh item cache.
+     */
+    abstract public function flush();
+
+    /**
      * Ambil waktu kedaluwarsa cache (dalam unix timestamp).
      *
      * @param int $minutes

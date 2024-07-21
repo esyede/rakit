@@ -90,4 +90,12 @@ class Redis extends Driver
     {
         $this->redis->del($key);
     }
+
+    /**
+     * Hapus seluruhitem cache.
+     */
+    public function flush()
+    {
+        $this->redis->flushall();
+    }
 }

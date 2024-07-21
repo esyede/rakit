@@ -77,4 +77,14 @@ class APC extends Driver
     {
         apc_delete($this->key . $key);
     }
+
+    /**
+     * Hapus seluruh item cache.
+     */
+    public function flush()
+    {
+        apc_clear_cache();
+        apc_clear_cache('user');
+        apc_clear_cache('opcode');
+    }
 }
