@@ -1,6 +1,6 @@
 <?php
 
-namespace System;
+defined('DS') or exit('No direct access.');
 
 use System\Lottery;
 
@@ -8,7 +8,7 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
 {
     protected function tearDown()
     {
-        Lottery::determine();
+        Lottery::normal();
     }
 
     public function testItCanWin()

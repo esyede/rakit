@@ -21,7 +21,7 @@ class Lottery
     protected $out_of;
 
     /**
-     * The winning callback.
+     * Callback ketika menang.
      *
      * @var null|callable
      */
@@ -35,17 +35,17 @@ class Lottery
     protected $loser;
 
     /**
-     * The factory that should be used to generate results.
+     * Generator hasil.
      *
      * @var callable|null
      */
     protected static $factory;
 
     /**
-     * Create a new Lottery instance.
+     * Konstruktor.
      *
-     * @param  int|float  $chances
-     * @param  int|null  $out_of
+     * @param int|float $chances
+     * @param int|null  $out_of
      *
      * @return void
      */
@@ -60,10 +60,11 @@ class Lottery
     }
 
     /**
-     * Create a new Lottery instance.
+     * Buat instance baru.
      *
-     * @param  int|float  $chances
-     * @param  int|null  $out_of
+     * @param int|float $chances
+     * @param int|null  $out_of
+     *
      * @return static
      */
     public static function odds($chances, $out_of = null)
@@ -72,9 +73,10 @@ class Lottery
     }
 
     /**
-     * Set the winner callback.
+     * Set callback ketika menang.
      *
-     * @param  callable  $callback
+     * @param callable $callback
+     *
      * @return $this
      */
     public function winner($callback)
@@ -84,9 +86,10 @@ class Lottery
     }
 
     /**
-     * Set the loser callback.
+     * Set callback ketika kalah.
      *
-     * @param  callable  $callback
+     * @param callable $callback
+     *
      * @return $this
      */
     public function loser($callback)
@@ -96,9 +99,10 @@ class Lottery
     }
 
     /**
-     * Run the lottery.
+     * Jalankan.
      *
-     * @param  mixed  ...$args
+     * @param mixed ...$args
+     *
      * @return mixed
      */
     public function __invoke(/** ...$args */)
@@ -108,9 +112,10 @@ class Lottery
     }
 
     /**
-     * Run the lottery.
+     * Jalankan.
      *
-     * @param  null|int  $times
+     * @param null|int $times
+     *
      * @return mixed
      */
     public function choose($times = null)
@@ -129,9 +134,10 @@ class Lottery
     }
 
     /**
-     * Run the winner or loser callback, randomly.
+     * Set callback ketika menang atau kalah, secara acak.
      *
-     * @param  mixed  ...$args
+     * @param mixed ...$args
+     *
      * @return callable
      */
     protected function run_callback(/** ...$args */)
@@ -146,7 +152,7 @@ class Lottery
     }
 
     /**
-     * Determine if the lottery "wins" or "loses".
+     * Cek apakah hasilnya menang.
      *
      * @return bool
      */
@@ -157,7 +163,7 @@ class Lottery
     }
 
     /**
-     * The factory that determines the lottery result.
+     * Generator hasil.
      *
      * @return callable
      */
@@ -175,9 +181,10 @@ class Lottery
     }
 
     /**
-     * Force the lottery to always result in a win.
+     * Paksa agar hasilnya menang terus.
      *
-     * @param  callable|null  $callback
+     * @param callable|null $callback
+     *
      * @return void
      */
     public static function always_win($callback = null)
@@ -191,13 +198,14 @@ class Lottery
         }
 
         $callback();
-        static::determine();
+        static::normal();
     }
 
     /**
-     * Force the lottery to always result in a lose.
+     * Paksa agar hasilnya kalah terus.
      *
-     * @param  callable|null  $callback
+     * @param callable|null $callback
+     *
      * @return void
      */
     public static function always_lose($callback = null)
@@ -211,14 +219,15 @@ class Lottery
         }
 
         $callback();
-        static::determine();
+        static::normal();
     }
 
     /**
-     * Set the sequence that will be used to determine lottery results.
+     * Atur urutan yang akan digunakan untuk menentukan hasil (alias).
      *
-     * @param  array  $sequence
-     * @param  callable|null  $when_missing
+     * @param array         $sequence
+     * @param callable|null $when_missing
+     *
      * @return void
      */
     public static function fix($sequence, $when_missing = null)
@@ -227,7 +236,7 @@ class Lottery
     }
 
     /**
-     * Set the sequence that will be used to determine lottery results.
+     * Atur urutan yang akan digunakan untuk menentukan hasil.
      *
      * @param  array  $sequence
      * @param  callable|null  $when_missing
@@ -252,29 +261,30 @@ class Lottery
     }
 
     /**
-     * Indicate that the lottery results should be determined normally.
+     * Menunjukkan bahwa hasil harus ditentukan secara normal (alias).
      *
      * @return void
      */
-    public static function determines()
+    public static function normally()
     {
-        return static::determine();
+        return static::normal();
     }
 
     /**
-     * Indicate that the lottery results should be determined normally.
+     * Menunjukkan bahwa hasil harus ditentukan secara normal.
      *
      * @return void
      */
-    public static function determine()
+    public static function normal()
     {
         static::$factory = null;
     }
 
     /**
-     * Set the factory that should be used to determine the lottery results.
+     * Set generator yang harus digunakan untuk hasil normal.
      *
-     * @param  callable  $factory
+     * @param callable $factory
+     *
      * @return void
      */
     public static function set_factory($factory)
