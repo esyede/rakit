@@ -16,8 +16,8 @@ class Create_Users_Table
             $table->increments('id');
             $table->string('name', 191);
             $table->string('email', 191)->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 60);
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });
 
