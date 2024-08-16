@@ -47,6 +47,18 @@ class Section
     }
 
     /**
+     * Cek apakah sebuah section ada (dan tidak kosong) atau tidak.
+     *
+     * @param string $section
+     *
+     * @return bool
+     */
+    public static function has($section)
+    {
+        return isset(static::$sections[$section]);
+    }
+
+    /**
      * Inject konten inline kedalam section.
      * Ini berguna untuk menginjeksi string sederhana seperti judul halaman.
      *
