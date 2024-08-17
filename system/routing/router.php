@@ -260,7 +260,7 @@ class Router
         $home = ('home' === $controller) ? '' : dirname((string) $controller);
         $pattern = trim($root . '/' . $home, '/');
 
-        static::register('*', $pattern ? $pattern : '/', ['uses' => $identifier . '@index']);
+        static::register('*', $pattern ?: '/', ['uses' => $identifier . '@index']);
     }
 
     /**

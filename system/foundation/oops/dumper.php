@@ -398,7 +398,7 @@ class Dumper
 
             static $counter = 1;
 
-            $obj = $obj ? $obj : [
+            $obj = $obj ?: [
                 'id' => self::$livePrefix . '0' . $counter++,
                 'name' => Helpers::getClass($var),
                 'editor' => $editorInfo,

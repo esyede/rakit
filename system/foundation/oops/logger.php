@@ -200,8 +200,8 @@ class Logger
      */
     protected function logException($exception, $file = null)
     {
-        $file = $file ? $file : $this->getExceptionFile($exception);
-        $panic = $this->panic ? $this->panic : new Panic();
+        $file = $file ?: $this->getExceptionFile($exception);
+        $panic = $this->panic ?: new Panic();
 
         // FIXME: Apakah log html detail error juga perlu dirender?
         // $panic->renderToFile($exception, $file);
@@ -247,7 +247,7 @@ class Logger
             ["\n", PHP_EOL],
             [
                 'headers' => implode("\n", [
-                    'From: ' . ($this->fromEmail ? $this->fromEmail : "noreply@$host"),
+                    'From: ' . ($this->fromEmail ?: "noreply@$host"),
                     'X-Mailer: Rakit debugger',
                     'Content-Type: text/plain; charset=UTF-8',
                     'Content-Transfer-Encoding: 8bit',

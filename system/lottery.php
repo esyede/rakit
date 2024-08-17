@@ -245,7 +245,7 @@ class Lottery
     public static function sequence($sequence, $when_missing = null)
     {
         $next = 0;
-        $when_missing = $when_missing ? $when_missing : function ($chances, $out_of) use (&$next) {
+        $when_missing = $when_missing ?: function ($chances, $out_of) use (&$next) {
             $cache = static::$factory;
             static::$factory = null;
             $factory = static::factory();

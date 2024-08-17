@@ -87,7 +87,7 @@ class JWT
         }
 
         $jwt = explode('.', $token);
-        $timestamp = static::$timestamp ? static::$timestamp : time();
+        $timestamp = static::$timestamp ?: time();
 
         if (!is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');

@@ -42,7 +42,7 @@ class BelongsToMany extends Relationship
     public function __construct($model, $associated, $table, $foreign, $other)
     {
         $this->other = $other;
-        $this->joining = $table ? $table : $this->joining($model, $associated);
+        $this->joining = $table ?: $this->joining($model, $associated);
 
         if (Pivot::$timestamps) {
             $this->with[] = 'created_at';

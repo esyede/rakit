@@ -187,12 +187,12 @@ class Helpers
         } elseif (preg_match('#^Call to undefined function (\S+\\\\)?(\w+)\(#', $message, $m)) {
             $funcs = array_merge(get_defined_functions()['internal'], get_defined_functions()['user']);
             $hint = self::getSuggestion($funcs, $m[1] . $m[2]);
-            $hint = $hint ? $hint : self::getSuggestion($funcs, $m[2]);
+            $hint = $hint ?: self::getSuggestion($funcs, $m[2]);
             $message = "Call to undefined function $m[2](), did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
         } elseif (preg_match('#^Call to undefined method ([\w\\\\]+)::(\w+)#', $message, $m)) {
             $hint = get_class_methods($m[1]);
-            $hint = self::getSuggestion($hint ? $hint : [], $m[2]);
+            $hint = self::getSuggestion($hint ?: [], $m[2]);
             $message .= ", did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
         } elseif (preg_match('#^Undefined variable: (\w+)#', $message, $m) && !empty($e->context)) {

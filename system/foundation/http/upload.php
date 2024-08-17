@@ -825,9 +825,9 @@ class Upload extends \SplFileInfo
         }
 
         $this->originalName = $this->getName($origName);
-        $this->mimeType = $mimeType ? $mimeType : 'application/octet-stream';
+        $this->mimeType = $mimeType ?: 'application/octet-stream';
         $this->size = $size;
-        $this->error = $error ? $error : UPLOAD_ERR_OK;
+        $this->error = $error ?: UPLOAD_ERR_OK;
         $this->test = (bool) $test;
 
         if (UPLOAD_ERR_OK === $this->error && !is_file($path)) {

@@ -357,9 +357,9 @@ class Request
         $request = ['g' => $_GET, 'p' => $_POST, 'c' => $_COOKIE];
 
         $orderings = ini_get('request_order');
-        $orderings = (string) ($orderings ? $orderings : ini_get('variable_order'));
+        $orderings = (string) ($orderings ?: ini_get('variable_order'));
         $orderings = preg_replace('/[^cgp]/', '', strtolower($orderings));
-        $orderings = $orderings ? $orderings : 'gp';
+        $orderings = $orderings ?: 'gp';
 
         $_REQUEST = [];
         $orders = str_split($orderings);

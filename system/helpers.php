@@ -586,7 +586,7 @@ if (!function_exists('fake')) {
      */
     function fake($locale = null)
     {
-        return \System\Foundation\Faker\Factory::create($locale ? $locale : config('application.language'));
+        return \System\Foundation\Faker\Factory::create($locale ?: config('application.language'));
     }
 }
 

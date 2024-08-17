@@ -55,7 +55,7 @@ class Bar
             throw new \LogicException('Session started before debugger enabled.');
         }
 
-        $this->contentId = $this->contentId ? $this->contentId : substr(md5(uniqid('', true)), 0, 10);
+        $this->contentId = $this->contentId ?: substr(md5(uniqid('', true)), 0, 10);
         $contentId = $this->contentId;
         $nonce = Helpers::getNonce();
         $async = true;

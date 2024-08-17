@@ -769,7 +769,7 @@ class Str
 
         foreach ($segments as $segment) {
             $replacer = array_shift($replace);
-            $result .= ($replacer ? $replacer : $search) . $segment;
+            $result .= ($replacer ?: $search) . $segment;
         }
 
         return $result;

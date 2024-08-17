@@ -162,7 +162,7 @@ class Response
             }
         }
 
-        $charset = $this->charset ? $this->charset : 'UTF-8';
+        $charset = $this->charset ?: 'UTF-8';
 
         if (!$headers->has('Content-Type')) {
             $headers->set('Content-Type', 'text/html; charset=' . $charset);
@@ -520,7 +520,7 @@ class Response
     public function getAge()
     {
         $age = $this->headers->get('Age');
-        return $age ? $age : max(time() - $this->getDate()->format('U'), 0);
+        return $age ?: max(time() - $this->getDate()->format('U'), 0);
     }
 
     /**

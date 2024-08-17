@@ -550,7 +550,7 @@ class Curl
             return curl_file_create($path, $mime, $alias);
         }
 
-        return sprintf('@%s;filename=%s;type=%s', $path, $alias ? $alias : basename($path), $mime);
+        return sprintf('@%s;filename=%s;type=%s', $path, $alias ?: basename($path), $mime);
     }
 
     /**
