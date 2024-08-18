@@ -22,7 +22,7 @@ class Log
      */
     public static function channel($name = null)
     {
-        $name = (is_string($name) && strlen($name)) ? Str::slug($name) : date('Y-m-d');
+        $name = (is_string($name) && strlen($name)) ? Str::slug($name) : Carbon::now()->format('Y-m-d');
         static::$channel = Str::replace_last('.log', '', Str::replace_last('.php', '', $name));
     }
 
@@ -79,7 +79,7 @@ class Log
         }
 
         $channel = static::$channel;
-        $channel = (is_string($channel) && strlen($channel)) ? Str::slug($channel) : date('Y-m-d');
+        $channel = (is_string($channel) && strlen($channel)) ? Str::slug($channel) : Carbon::now()->format('Y-m-d');
         $path = path('storage') . 'logs' . DS . $channel . '.log.php';
         $message = static::format($type, $message);
 
@@ -97,6 +97,7 @@ class Log
     protected static function format($type, $message)
     {
         $env = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
-        return sprintf('[%s] %s.%s: %s' . PHP_EOL, date('Y-m-d H:i:s'), $env, strtoupper((string) $type), $message);
+        $date = Carbon::now()->format('Y-m-d H:i:s');
+        return sprintf('[%s] %s.%s: %s' . PHP_EOL, $date, $env, strtoupper((string) $type), $message);
     }
 }

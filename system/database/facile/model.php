@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Arr;
 use System\Str;
 use System\Event;
+use System\Carbon;
 use System\Validator;
 
 abstract class Model
@@ -443,7 +444,7 @@ abstract class Model
      */
     public function timestamp()
     {
-        $this->updated_at = date('Y-m-d H:i:s');
+        $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
 
         if (!$this->exists) {
             $this->created_at = $this->updated_at;

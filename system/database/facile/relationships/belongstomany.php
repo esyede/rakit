@@ -4,6 +4,7 @@ namespace System\Database\Facile\Relationships;
 
 defined('DS') or exit('No direct access.');
 
+use System\Carbon;
 use System\Database\Facile\Model;
 use System\Database\Facile\Pivot;
 
@@ -189,7 +190,7 @@ class BelongsToMany extends Relationship
     protected function insert_joining(array $attributes)
     {
         if (Pivot::$timestamps) {
-            $attributes['created_at'] = date('Y-m-d H:i:s');
+            $attributes['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
             $attributes['updated_at'] = $attributes['created_at'];
         }
 

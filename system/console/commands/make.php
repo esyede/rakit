@@ -5,6 +5,7 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct access.');
 
 use System\Str;
+use System\Carbon;
 use System\Storage;
 use System\Package;
 
@@ -222,7 +223,7 @@ class Make extends Command
             throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
         }
 
-        $prefix = date('Y_m_d_His');
+        $prefix = Carbon::now()->format('Y_m_d_His');
         $path = Package::path($package) . 'migrations' . DS;
 
         if (!is_dir($path)) {

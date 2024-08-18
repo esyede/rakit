@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Arr;
 use System\Str;
 use System\Email;
+use System\Carbon;
 use System\Config;
 use System\Storage;
 
@@ -552,7 +553,7 @@ abstract class Driver
         $this->headers = [];
         $boundary = md5(Str::random(16));
         $this->boundaries = ['B1_' . $boundary, 'B2_' . $boundary, 'B3_' . $boundary];
-        $this->set_header('Date', date('r'));
+        $this->set_header('Date', Carbon::now()->format('r'));
 
         $path = (false === $this->config['return_path'])
             ? $this->config['from']['email']
