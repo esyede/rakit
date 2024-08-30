@@ -18,7 +18,6 @@ class Job extends Event
     public static function add($name, array $payloads = [], $scheduled_at = null)
     {
         $config = Config::get('job');
-        $tz = Config::get('application.timezone');
         $name = Str::slug($name);
         $id = Database::table($config['table'])->insert_get_id([
             'name' => $name,
@@ -84,7 +83,7 @@ class Job extends Event
         }
 
         if (empty($name)) {
-            static::log('Job is empty', 'error');
+            static::log('Job is empty');
             return;
         }
 
@@ -114,7 +113,7 @@ class Job extends Event
                             Database::table($config['table'])->where('id', $job->id)->delete();
                             static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                         } catch (\Throwable $e) {
-                            $e = get_class($e)
+                            $error = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                                 . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
                                 . $e->getTraceAsString();
@@ -122,12 +121,12 @@ class Job extends Event
                                 'job_id' => $job->id,
                                 'name' => $job->name,
                                 'payloads' => serialize($job->payloads),
-                                'exception' => $e,
+                                'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                            static::log(sprintf('Job failed: %s - #%s ::: %s', $job->name, $job->id, $e->getMessage()), 'error');
                         } catch (\Exception $e) {
-                            $e = get_class($e)
+                            $error = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                                 . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
                                 . $e->getTraceAsString();
@@ -135,10 +134,10 @@ class Job extends Event
                                 'job_id' => $job->id,
                                 'name' => $job->name,
                                 'payloads' => serialize($job->payloads),
-                                'exception' => $e,
+                                'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                            static::log(sprintf('Job failed: %s - #%s ::: %s', $job->name, $job->id, $e->getMessage()), 'error');
                         }
                     }
                 }, $sleep_ms);
@@ -192,9 +191,9 @@ class Job extends Event
                             Database::table($config['table'])->where('id', $job->id)->delete();
                             static::log(sprintf('Job executed: %s - #%s', $job->name, $job->id));
                         } catch (\Throwable $e) {
-                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                            static::log(sprintf('Job failed: %s - #%s ::: %s', $job->name, $job->id, $e->getMessage()), 'error');
                         } catch (\Exception $e) {
-                            static::log(sprintf('Job failed: %s - #%s', $job->name, $job->id));
+                            static::log(sprintf('Job failed: %s - #%s ::: %s', $job->name, $job->id, $e->getMessage()), 'error');
                         }
                     }
                 }, $sleep_ms);
