@@ -4,6 +4,7 @@ namespace System\Database;
 
 defined('DS') or exit('No direct access.');
 
+use System\Carbon;
 use System\Database;
 use System\Paginator;
 use System\Database\Query\Grammars\Grammar;
@@ -116,12 +117,37 @@ class Query
      * @var array
      */
     public $operators = [
-        '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
-        'like', 'like binary', 'not like', 'ilike',
-        '&', '|', '^', '<<', '>>', '&~',
-        'rlike', 'not rlike', 'regexp', 'not regexp',
-        '~', '~*', '!~', '!~*', 'similar to',
-        'not similar to', 'not ilike', '~~*', '!~~*',
+        '=',
+        '<',
+        '>',
+        '<=',
+        '>=',
+        '<>',
+        '!=',
+        '<=>',
+        'like',
+        'like binary',
+        'not like',
+        'ilike',
+        '&',
+        '|',
+        '^',
+        '<<',
+        '>>',
+        '&~',
+        'rlike',
+        'not rlike',
+        'regexp',
+        'not regexp',
+        '~',
+        '~*',
+        '!~',
+        '!~*',
+        'similar to',
+        'not similar to',
+        'not ilike',
+        '~~*',
+        '!~~*',
     ];
 
     /**
@@ -872,7 +898,6 @@ class Query
      * Jalankan query sebagai statement DELETE.
      * Oper ID untuk menghapus row spesifik.
      *
-     *
      * @param int $id
      *
      * @return int
@@ -890,11 +915,58 @@ class Query
     /**
      * Ambil representasi SQL dari kueri.
      *
+     * @param bool $with_bindings
+     *
      * @return string
      */
-    public function to_sql()
+    public function to_sql($with_bindings = false)
     {
-        return $this->grammar->select($this);
+        $sql = $this->grammar->select($this);
+
+        if (!$with_bindings) {
+            return $sql;
+        }
+
+        foreach ($this->bindings as $i => $binding) {
+            $type = gettype($binding);
+
+            switch ($type) {
+                case 'boolean':
+                    $str = (int) $binding;
+                    $str = "$str";
+                    break;
+
+                case 'integer':
+                case 'double':
+                    $str = "$binding";
+                    break;
+
+                case 'string':
+                    $str = "'$binding'";
+                    break;
+
+                case 'object':
+                    if (!($binding instanceof \DateTime) && !($binding instanceof Carbon)) {
+                        throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
+                    }
+
+                    $str = $binding->format('Y-m-d H:i:s') . "'";
+                    break;
+
+                default:
+                    throw new \Exception(sprintf('Unexpected binding argument type: %s', $type));
+            }
+
+            $pos = strpos($sql, '?');
+
+            if (false === $pos) {
+                throw new \Exception(sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i));
+            }
+
+            $sql = substr($sql, 0, $pos) . $str . substr($sql, $pos + 1);
+        }
+
+        return $sql;
     }
 
     /**
