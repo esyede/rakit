@@ -49,7 +49,7 @@ class Packager extends Command
             exit;
         }
 
-        $destination = Package::path($arguments[0]);
+        $destination = (string) Package::path($arguments[0]);
 
         if (is_dir($destination)) {
             echo  PHP_EOL . 'Destination directory for this package is already exists in:';
