@@ -76,13 +76,12 @@ class Database extends Driver
         $key = $this->key . $key;
         $value = serialize($value);
         $expiration = $this->expiration($minutes);
+        $record = $this->table()->where('key', $key);
 
-        try {
+        if ($record->first()) {
+            $record->update(compact('value', 'expiration'));
+        } else {
             $this->table()->insert(compact('key', 'value', 'expiration'));
-        } catch (\Throwable $e) {
-            $this->table()->where('key', '=', $key)->update(compact('value', 'expiration'));
-        } catch (\Exception $e) {
-            $this->table()->where('key', '=', $key)->update(compact('value', 'expiration'));
         }
     }
 
