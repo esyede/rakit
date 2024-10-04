@@ -39,7 +39,7 @@ class Throttle
                 'reset' => time() + ($decay_minutes * 3600),
                 'retry' => $decay_minutes * 3600,
                 'key' => $key,
-                'ip' => Request::ip(),
+                'ip' => Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip(),
             ];
             Cache::put($key, $data, $decay_minutes);
         }
@@ -79,7 +79,7 @@ class Throttle
      */
     public static function key()
     {
-        return static::PREFIX . '.' . RAKIT_KEY . '.' . md5(Request::ip());
+        return static::PREFIX . '.' . RAKIT_KEY . '.' . md5(Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip());
     }
 
     /**
