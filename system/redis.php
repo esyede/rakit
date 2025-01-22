@@ -76,7 +76,9 @@ class Redis
     public static function db($name = 'default')
     {
         if (!isset(static::$databases[$name])) {
-            if (empty($config = Config::get('database.redis.' . $name, []))) {
+            $config = Config::get('database.redis.' . $name, []);
+
+            if (empty($config)) {
                 throw new \Exception(sprintf('Redis database config is not configured: %s', $name));
             }
 

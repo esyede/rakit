@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Carbon;
 use System\Database;
 use System\Paginator;
-use System\Database\Query\Grammars\Grammar;
+use System\Database\Query\Grammars\Grammar as QueryGrammar;
 use System\Database\Query\Grammars\Postgres;
 use System\Database\Query\Grammars\SQLServer;
 
@@ -23,7 +23,7 @@ class Query
     /**
      * Berisi instance query grammar.
      *
-     * @var Query\Grammars\Grammar
+     * @var QueryGrammar
      */
     public $grammar;
 
@@ -153,11 +153,11 @@ class Query
     /**
      * Buat instance query baru.
      *
-     * @param Connection $connection
-     * @param Grammar    $grammar
-     * @param string     $table
+     * @param Connection   $connection
+     * @param QueryGrammar $grammar
+     * @param string       $table
      */
-    public function __construct(Connection $connection, Grammar $grammar, $table)
+    public function __construct(Connection $connection, QueryGrammar $grammar, $table)
     {
         $this->from = $table;
         $this->grammar = $grammar;
