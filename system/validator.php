@@ -690,7 +690,7 @@ class Validator
      */
     protected function validate_match($attribute, $value, array $parameters)
     {
-        return preg_match($parameters[0], $value);
+        return preg_match(implode(',', (array) $parameters), $value);
     }
 
     /**
