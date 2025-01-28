@@ -155,8 +155,8 @@ class Query
      *
      * @param Connection   $connection
      * @param QueryGrammar $grammar
-     * @param string       $tabl
-     * e
+     * @param string       $table
+     *
      */
     public function __construct(Connection $connection, QueryGrammar $grammar, $table)
     {

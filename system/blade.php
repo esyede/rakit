@@ -579,17 +579,17 @@ class Blade
     {
         $name = Str::replace_last('.blade.php', '', basename($path));
         $length = strlen($path);
-        $hash = 0xFFFF;
+        $hash = 65535;
 
         for ($i = 0; $i < $length; $i++) {
             $hash ^= (ord($path[$i]) << 8);
 
             for ($j = 0; $j < 8; $j++) {
-                if (($hash <<= 1) & 0x10000) {
-                    $hash ^= 0x1021;
+                if (($hash <<= 1) & 65536) {
+                    $hash ^= 4129;
                 }
 
-                $hash &= 0xFFFF;
+                $hash &= 65535;
             }
         }
 
