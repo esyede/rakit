@@ -368,6 +368,18 @@ class MySQL extends Grammar
     }
 
     /**
+     * Buat definisi tipe data big integer.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_biginteger(Magic $column)
+    {
+        return 'BIGINT';
+    }
+
+    /**
      * Buat definisi tipe data float.
      *
      * @param Magic $column
