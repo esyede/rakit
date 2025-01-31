@@ -321,6 +321,19 @@ class Table
     }
 
     /**
+     * Tambahkan kolom big integer ke tabel.
+     *
+     * @param string $name
+     * @param bool   $increment
+     *
+     * @return Magic
+     */
+    public function biginteger($name, $increment = false)
+    {
+        return $this->column('biginteger', compact('name', 'increment'));
+    }
+
+    /**
      * Tambahkan kolom float ke tabel.
      *
      * @param string $name
