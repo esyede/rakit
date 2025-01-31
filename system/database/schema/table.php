@@ -404,6 +404,18 @@ class Table
     }
 
     /**
+     * Tambahkan kolom longtext ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function longtext($name)
+    {
+        return $this->column('longtext', compact('name'));
+    }
+
+    /**
      * Tambahkan kolom blob ke tabel.
      *
      * @param string $name

@@ -393,6 +393,18 @@ class SQLServer extends Grammar
     }
 
     /**
+     * Buat definisi tipe data longtext.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_longtext(Magic $column)
+    {
+        return 'NVARCHAR(MAX)';
+    }
+
+    /**
      * Buat definisi tipe data blob.
      *
      * @param Magic $column

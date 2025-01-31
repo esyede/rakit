@@ -384,6 +384,18 @@ class Postgres extends Grammar
     }
 
     /**
+     * Buat definisi tipe data longtext.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_longtext(Magic $column)
+    {
+        return 'TEXT';
+    }
+
+    /**
      * Buat definisi tipe data blob.
      *
      * @param Magic $column
