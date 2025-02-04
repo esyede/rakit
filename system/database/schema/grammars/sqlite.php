@@ -290,6 +290,22 @@ class SQLite extends Grammar
     }
 
     /**
+     * Buat definisi tipe data enum.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_enum(Magic $column)
+    {
+        $allowed = array_map(function ($item) {
+            return "'" . $item . "'";
+        }, $column->allowed);
+
+        return sprintf('VARCHAR CHECK ("%s" IN (%s))', $column->name, implode(', ', $allowed));
+    }
+
+    /**
      * Buat definisi tipe data boolean.
      *
      * @param Magic $column

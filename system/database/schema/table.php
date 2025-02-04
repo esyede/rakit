@@ -354,6 +354,20 @@ class Table
      *
      * @return Magic
      */
+    public function enum($name, array $allowed)
+    {
+        return $this->column('enum', compact('name', 'allowed'));
+    }
+
+    /**
+     * Tambahkan kolom enum ke tabel.
+     *
+     * @param string $name
+     * @param int    $precision
+     * @param int    $scale
+     *
+     * @return Magic
+     */
     public function decimal($name, $precision, $scale)
     {
         return $this->column('decimal', compact('name', 'precision', 'scale'));
