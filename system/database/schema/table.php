@@ -346,11 +346,10 @@ class Table
     }
 
     /**
-     * Tambahkan kolom desimal ke tabel.
+     * Tambahkan kolom enum ke tabel.
      *
      * @param string $name
-     * @param int    $precision
-     * @param int    $scale
+     * @param array  $allowed
      *
      * @return Magic
      */
