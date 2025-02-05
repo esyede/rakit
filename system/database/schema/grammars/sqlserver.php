@@ -365,11 +365,11 @@ class SQLServer extends Grammar
      */
     protected function type_enum(Magic $column)
     {
-        $allowed = array_map(function ($item) {
+        $allowed = implode(', ', array_map(function ($item) {
             return "'" . $item . "'";
-        }, $column->allowed);
+        }, $column->allowed));
 
-        return sprintf('VARCHAR(255) CHECK ("%s" IN (%s))', $column->name, implode(', ', $allowed));
+        return sprintf('VARCHAR(255) CHECK ("%s" IN (%s))', $column->name, $allowed);
     }
 
     /**

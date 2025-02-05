@@ -412,11 +412,11 @@ class MySQL extends Grammar
      */
     protected function type_enum(Magic $column)
     {
-        $allowed = array_map(function ($item) {
+        $allowed = implode(', ', array_map(function ($item) {
             return "'" . $item . "'";
-        }, $column->allowed);
+        }, $column->allowed));
 
-        return 'ENUM(' . implode(', ', $allowed) . ')';
+        return sprintf('ENUM(%s)', $allowed);
     }
 
     /**
