@@ -13,7 +13,7 @@ class Throttle
     /**
      * Prefix untuk cache milik throttle.
      */
-    const PREFIX = 'rakit.throttle';
+    const PREFIX = 'throttle';
 
     /**
      * Jalankan proses throttling.
