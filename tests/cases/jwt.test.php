@@ -324,7 +324,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     public function testInvalidAlgorithm()
     {
         try {
-            $encoded = JWT::encode(['foo' => 'bar'], 'secret', 'RS256'); // unsupported algo
+            $encoded = JWT::encode(['foo' => 'bar'], 'secret', [], 'RS256'); // unsupported algo
         } catch (\Throwable $e) {
             $this->assertTrue(false !== strpos($e->getMessage(), 'Only these algorithm are supported:'));
         } catch (\Exception $e) {
@@ -339,7 +339,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
      */
     public function testAdditionalHeaders()
     {
-        $encoded = JWT::encode(['foo' => 'bar'], 'secret', 'HS256', ['cty' => 'test-eit;v=1']);
+        $encoded = JWT::encode(['foo' => 'bar'], 'secret', ['cty' => 'test-eit;v=1']);
 
         $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
     }

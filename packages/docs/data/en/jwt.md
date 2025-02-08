@@ -40,17 +40,6 @@ $jwt = JWT::encode($data, $secret);
 // dd($jwt);
 ```
 
-Secara default, proses diatas akan menggunakan algoritma `HS256`.
-
-Namun tentu saja anda juga bisa menggantinya dengan yang lain:
-
-```php
-$jwt = JWT::encode($data, $secret, 'HS384');
-// dd($jwt);
-```
-
-> Supported values for algorithm are: `HS256` `HS384` and `HS512`.
-
 ### Header Tambahan
 
 Selain dapat menentukan jenis algoritma yang ingin digunakan,
@@ -63,8 +52,22 @@ $headers = [
     'foo' => 'bar',
 ];
 
-$jwt = JWT::encode($data, $secret, 'HS256', $headers);
+$jwt = JWT::encode($data, $secret, $headers);
 ```
+
+### Algoritma
+
+Secara default, proses diatas akan menggunakan algoritma `HS256`.
+
+Namun tentu saja anda juga bisa menggantinya dengan yang lain:
+
+```php
+$jwt = JWT::encode($data, $secret, $headers, 'HS384');
+// dd($jwt);
+```
+
+> Hanya mendukung algoritma berikut: `HS256` `HS384` dan `HS512`.
+
 
 <a id="dekripsi-data"></a>
 

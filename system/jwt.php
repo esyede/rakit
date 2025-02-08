@@ -34,20 +34,18 @@ class JWT
     /**
      * Encode payload.
      *
-     * @param array       $payloads
-     * @param string      $secret
-     * @param string|null $algorithm
-     * @param array       $headers
+     * @param array  $payloads
+     * @param string $secret
+     * @param array  $headers
+     * @param string $algorithm
      *
      * @return string
      */
-    public static function encode(array $payloads, $secret, $algorithm = null, array $headers = [])
+    public static function encode(array $payloads, $secret, array $headers = [], $algorithm = 'HS256')
     {
         if (!is_string($secret) || strlen($secret) < 1) {
             throw new \Exception('Secret cannot be empty or non-string value');
         }
-
-        $algorithm = (null === $algorithm) ? 'HS256' : $algorithm;
 
         if (!is_string($algorithm) || strlen($algorithm) < 1) {
             throw new \Exception('Empty or non-string algorithm');
