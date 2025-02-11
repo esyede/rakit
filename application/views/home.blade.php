@@ -80,7 +80,7 @@
             <div class="title m-b-md">rakit</div>
             <div class="links">
                 <a href="{{ url('/docs/' . config('application.language')) }}">Docs</a>
-                <a href="https://rakit.esyede.my.id/api/master/index.html">API</a>
+                <a href="https://rakit.esyede.my.id/api/main/index.html">API</a>
                 <a href="https://rakit.esyede.my.id/repositories">Packages</a>
                 <a href="https://github.com/esyede/rakit/discussions">Forum</a>
                 <a href="https://github.com/esyede/rakit">GitHub</a>

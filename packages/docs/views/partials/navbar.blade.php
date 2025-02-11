@@ -33,7 +33,7 @@
                     href="{{ System\URL::home() }}">{{ trans('docs::docs.navbar.home') }}</a>
                 <a class="navbar-item" id="docs"
                     href="{{ url('docs/' . config('application.language')) }}">{{ trans('docs::docs.navbar.documentation') }}</a>
-                <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api/master/index.html"
+                <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api/main/index.html"
                     target="_blank">{{ trans('docs::docs.navbar.api') }}</a>
                 <a class="navbar-item" id="repos" href="https://rakit.esyede.my.id/repositories"
                     target="_blank">{{ trans('docs::docs.navbar.repositories') }}</a>
