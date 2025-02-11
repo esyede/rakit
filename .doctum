@@ -16,7 +16,7 @@ $iterator = Finder::create()
     ->in(__DIR__ . DS . 'system');
 
 $versions = GitVersionCollection::create(__DIR__ . DS . 'system')
-    ->add('master', 'master');
+    ->add('main', 'main');
 // ->add('v'.RAKIT_VERSION, 'v' . RAKIT_VERSION);
 
 return new Doctum($iterator, [
