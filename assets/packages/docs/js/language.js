@@ -1,7 +1,7 @@
 var lang = document.getElementById('docs-lang');
 var search = document.getElementById('suggestions');
 
-if (lang != null) {
+if (lang) {
     lang.addEventListener('click', function () {
         if (/\/docs\/en(|\/)/.test(window.location.href)) {
             window.location.href = window.location.href.replace(/\/docs\/en/, '/docs/id');
