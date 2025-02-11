@@ -26,7 +26,7 @@ class Job extends Command
 
         if (empty($arguments)) {
             if (Request::cli()) {
-                echo 'Please give at least one job name to execute!' . PHP_EOL;
+                $this->error('Please give at least one job name to execute!');
                 exit;
             }
 

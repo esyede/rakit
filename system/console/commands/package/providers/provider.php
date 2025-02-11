@@ -36,16 +36,16 @@ abstract class Provider
         }
 
         if (is_dir(path('package') . $package['name'])) {
-            echo PHP_EOL . sprintf('Package already downloaded: %s', $package['name']) . PHP_EOL;
+            echo PHP_EOL . $this->error(sprintf('Package already downloaded: %s', $package['name']));
             exit;
         }
 
         chmod(Storage::latest(path('package'))->getRealPath(), 0755);
-        echo PHP_EOL . 'Downloading zipball...';
+        echo PHP_EOL . $this->info('Downloading zipball...', false);
         $this->download($url, $zipball);
         echo ' done!';
 
-        echo PHP_EOL . 'Extracting zipball...';
+        echo PHP_EOL . $this->info('Extracting zipball...', false);
 
         static::unzip($zipball, path('package'));
 
@@ -64,7 +64,7 @@ abstract class Provider
             if (!is_dir($destination)) {
                 Storage::cpdir($assets, $destination);
             } else {
-                echo PHP_EOL . sprintf('Assets already exists: %s', $destination) . PHP_EOL;
+                echo PHP_EOL . $this->error(sprintf('Assets already exists: %s', $destination));
                 exit;
             }
         }
@@ -133,17 +133,17 @@ abstract class Provider
             ]);
 
             if (false === curl_exec($ch)) {
-                echo PHP_EOL . 'Error: ' . curl_error($ch) . PHP_EOL;
+                echo PHP_EOL . $this->error('Error: ' . curl_error($ch));
                 exit;
             }
 
             curl_close($ch);
             fclose($fopen);
         } catch (\Throwable $e) {
-            echo PHP_EOL . 'Error: ' . $e->getMessage() . PHP_EOL;
+            echo PHP_EOL . $this->error('Error: ' . $e->getMessage());
             exit;
         } catch (\Exception $e) {
-            echo PHP_EOL . 'Error: ' . $e->getMessage() . PHP_EOL;
+            echo PHP_EOL . $this->error('Error: ' . $e->getMessage());
             exit;
         }
     }
@@ -165,14 +165,14 @@ abstract class Provider
         }
 
         if (!extension_loaded('zip') || !class_exists('\ZipArchive')) {
-            echo PHP_EOL . 'Please enable php-zip extension on this server' . PHP_EOL;
+            echo PHP_EOL . $this->error('Please enable php-zip extension on this server');
             exit;
         }
 
         $zip = new \ZipArchive();
 
         if (!$zip->open($file)) {
-            echo PHP_EOL . sprintf('Error: Could not open zip file: %s', $file) . PHP_EOL;
+            echo PHP_EOL . $this->error(sprintf('Error: Could not open zip file: %s', $file));
             exit;
         }
 

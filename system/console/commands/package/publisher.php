@@ -27,18 +27,18 @@ class Publisher
         $destination = path('assets') . 'packages' . DS . $package;
 
         if (!is_dir($source)) {
-            echo 'Package does not caontains any assets!' . PHP_EOL;
+            echo $this->error('Package does not caontains any assets!');
             return;
         }
 
         if (is_dir($destination)) {
-            echo 'Package assets already published!' . PHP_EOL;
+            echo $this->error('Package assets already published!');
             return;
         }
 
         Storage::cpdir($source, $destination);
 
-        echo 'Assets published for package: ' . $package . PHP_EOL;
+        echo $this->info('Assets published for package: ' . $package);
     }
 
     /**
@@ -54,6 +54,6 @@ class Publisher
             Storage::rmdir($destination);
         }
 
-        echo 'Assets deleted for package: ' . $package . PHP_EOL;
+        echo $this->info('Assets deleted for package: ' . $package);
     }
 }

@@ -17,11 +17,11 @@ class Help extends Command
      */
     public function run(array $arguments = [])
     {
-        echo 'Rakit Console v' . RAKIT_VERSION . PHP_EOL;
+        echo $this->info('Rakit Console v' . RAKIT_VERSION);
         echo PHP_EOL;
 
         echo 'Usage:' . PHP_EOL;
-        echo '  command [options] [arguments]' . PHP_EOL;
+        echo $this->info('  command [options] [arguments]');
         echo PHP_EOL;
 
         $options = json_decode(Storage::get(__DIR__ . DS . 'options.json'));
@@ -30,7 +30,7 @@ class Help extends Command
         echo 'Options:' . PHP_EOL;
 
         foreach ($options as $option => $data) {
-            echo '  ' . str_pad($option, 20) . str_pad($data->description, 30) . PHP_EOL;
+            echo $this->info('  ' . str_pad($option, 20) . str_pad($data->description, 30));
         }
 
         echo PHP_EOL;
@@ -41,7 +41,7 @@ class Help extends Command
             echo PHP_EOL . $category . PHP_EOL;
 
             foreach ($commands as $heading => $data) {
-                echo '  ' . str_pad($heading, 20) . str_pad($data->description, 30) . PHP_EOL;
+                echo $this->info('  ' . str_pad($heading, 20) . str_pad($data->description, 30));
             }
         }
     }

@@ -26,6 +26,6 @@ class Session extends Command
             $driver->sweep(time() - ($lifetime * 60));
         }
 
-        echo 'The session table has been swept!' . PHP_EOL;
+        echo $this->info('The session table has been swept!');
     }
 }

@@ -45,16 +45,16 @@ class Packager extends Command
         $remotes = $this->repository->search($arguments[0]);
 
         if (Package::exists($arguments[0])) {
-            echo PHP_EOL . 'Package is already registered: ' . $arguments[0] . PHP_EOL;
+            echo $this->error('Package is already registered: ' . $arguments[0]);
             exit;
         }
 
         $destination = (string) Package::path($arguments[0]);
 
         if (is_dir($destination)) {
-            echo  PHP_EOL . 'Destination directory for this package is already exists in:';
-            echo  PHP_EOL . '  ' . $destination . PHP_EOL;
-            echo  PHP_EOL . 'Dou you wish to continue and overwrite it? [y/N] ';
+            echo  PHP_EOL . $this->warning('Destination directory for this package is already exists:');
+            echo  PHP_EOL . $this->warning('  ' . $destination);
+            echo  PHP_EOL . $this->warning('Dou you wish to continue and overwrite it? [y/N] ', false);
 
             $stdin = fopen('php://stdin', 'rb');
 
@@ -64,8 +64,8 @@ class Packager extends Command
             }
 
             if (true !== (bool) $remotes['maintained']) {
-                echo  PHP_EOL . 'This package is currently not maintained.';
-                echo  PHP_EOL . 'Dou you wish to install anyway? [y/N] ';
+                echo  PHP_EOL . $this->warning('This package is currently not maintained.');
+                echo  $this->warning('Dou you wish to install anyway? [y/N] ', false);
 
                 if (!in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
                     fclose($stdin);
@@ -76,21 +76,21 @@ class Packager extends Command
             fclose($stdin);
         }
 
-        echo 'Downloading package: ' . $arguments[0];
+        echo $this->info('Downloading package: ') . $arguments[0];
 
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
 
         if (is_dir($destination = path('package') . DS . $arguments[0] . DS . 'assets')) {
-            echo PHP_EOL . 'Publishing assets...';
+            echo PHP_EOL . $this->info('Publishing assets...', false);
             Storage::cpdir($destination, path('assets') . 'packages' . DS . $arguments[0]);
-            echo ' done!' . PHP_EOL;
+            echo $this->info(' done!');
         }
 
-        echo PHP_EOL . 'Package installed successfuly!';
+        echo PHP_EOL . $this->info('Package installed successfuly!');
 
         echo PHP_EOL;
-        echo 'Now, you can register it to your application/packages.php' . PHP_EOL;
+        echo $this->warning('Now, you can register it to your application/packages.php');
     }
 
     /**
@@ -113,7 +113,7 @@ class Packager extends Command
             ) . PHP_EOL);
         }
 
-        echo 'Uninstalling package: ' . $arguments[0] . PHP_EOL;
+        echo $this->info('Uninstalling package: ' . $arguments[0]);
 
         // TODO: Perlu dicek apakah suatu paket membuat migration atau tidak
         // sebelum menjalankan migrate:reset agar tidak error.
@@ -129,10 +129,10 @@ class Packager extends Command
             Storage::rmdir($destination);
         }
 
-        echo 'Package uninstalled successfuly: ' . $arguments[0] . PHP_EOL;
+        echo $this->info('Package uninstalled successfuly: ' . $arguments[0]);
 
         echo PHP_EOL;
-        echo 'Now, you have to remove those package entry from your application/packages.php' . PHP_EOL;
+        echo $this->warning('Now, you have to remove those package entry from your application/packages.php');
     }
 
     /**
@@ -166,8 +166,8 @@ class Packager extends Command
         }
 
         if (true !== (bool) $remotes['maintained']) {
-            echo  PHP_EOL . 'This package is currently not maintained.';
-            echo  PHP_EOL . 'Dou you wish to upgrade anyway? [y/N] ';
+            echo PHP_EOL . $this->warning('This package is currently not maintained.');
+            echo $this->warning('Dou you wish to upgrade anyway? [y/N] ', false);
 
             $answer = fgets(STDIN);
             $answer = strtolower((string) trim($answer));
@@ -178,7 +178,7 @@ class Packager extends Command
         }
 
         if ($this->compare($current, $latest, '>=')) {
-            echo PHP_EOL . 'You already using latest compatible version of this package.' . PHP_EOL;
+            echo $this->error('You already using latest compatible version of this package.');
             exit;
         }
 
@@ -192,7 +192,7 @@ class Packager extends Command
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
 
-        echo PHP_EOL . 'Package upgraded successfuly!' . PHP_EOL;
+        echo PHP_EOL . $this->info('Package upgraded successfuly!');
     }
 
     /**

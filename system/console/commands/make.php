@@ -59,7 +59,7 @@ class Make extends Command
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Controller already exists: ' . $display . '   (skipped)';
+            echo $this->warning('Controller already exists: ' . $display . '   (skipped)');
         } else {
             $directory = Str::replace_last(basename($file), '', $file);
             $this->makedir($directory);
@@ -70,7 +70,7 @@ class Make extends Command
 
             Storage::put($file, $this->stub_general($class, 'controller', $replace));
 
-            echo 'Created controller: ' . $display;
+            echo $this->info('Created controller: ' . $display);
         }
 
         return $file;
@@ -124,7 +124,7 @@ class Make extends Command
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Controller already exists: ' . $display . '   (skipped)';
+            echo $this->warning('Controller already exists: ' . $display . '   (skipped)');
         } else {
             $directory = Str::replace_last(basename($file), '', $file);
             $this->makedir($directory);
@@ -136,7 +136,7 @@ class Make extends Command
 
             Storage::put($file, $this->stub_general($class, 'resource', $replace));
 
-            echo 'Created resource controller: ' . $display;
+            echo $this->info('Created resource controller: ' . $display);
         }
 
         return $file;
@@ -187,7 +187,7 @@ class Make extends Command
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Model already exists: ' . $display . '   (skipped)';
+            echo $this->warning('Model already exists: ' . $display . '   (skipped)');
         } else {
             $this->makedir($directory);
 
@@ -198,7 +198,7 @@ class Make extends Command
 
             Storage::put($file, $this->stub_general($class, 'model', $replace));
 
-            echo 'Created model: ' . $display;
+            echo $this->info('Created model: ' . $display);
         }
 
         return $file;
@@ -237,7 +237,7 @@ class Make extends Command
         $file = $path . $prefix . '_' . $migration . '.php';
         Storage::put($file, $this->stub_migration($package, $migration));
 
-        echo 'Created migration: ' . $prefix . '_' . $migration . PHP_EOL;
+        echo $this->info('Created migration: ' . $prefix . '_' . $migration);
         return $file;
     }
 
@@ -290,7 +290,7 @@ class Make extends Command
         $display = Str::replace_first(path('base'), '', $file);
 
         if (Storage::isfile($file)) {
-            echo 'Command already exists: ' . $display . '   (skipped)';
+            echo $this->warning('Command already exists: ' . $display . '   (skipped)');
         } else {
             $this->makedir($directory);
 
@@ -300,7 +300,7 @@ class Make extends Command
 
             Storage::put($file, $this->stub_general($class, 'command', $replace));
 
-            echo 'Created command: ' . $display;
+            echo $this->info('Created command: ' . $display);
         }
 
         return $file;
@@ -376,7 +376,7 @@ class Make extends Command
             LOCK_EX | FILE_APPEND
         );
 
-        echo 'Authentication scaffolding generated successfully';
+        echo $this->info('Authentication scaffolding generated successfully');
         return true;
     }
 
@@ -435,7 +435,7 @@ class Make extends Command
 
         Storage::put($file, $this->stub_general($class, 'test', $replace));
 
-        echo 'Created test file: ' . $display;
+        echo $this->info('Created test file: ' . $display);
 
         return $file;
     }

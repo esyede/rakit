@@ -68,20 +68,20 @@ class Migrator extends Command
         $total = count($migrations);
 
         if (0 === $total) {
-            echo 'Done. No outstanding migrations.';
+            echo $this->info('Done. No outstanding migrations.');
             return;
         }
 
         $batch = $this->database->batch() + 1;
 
-        echo 'Processing ' . $total . ' migrations...' . PHP_EOL;
+        echo $this->warning('Processing ' . $total . ' migrations...');
 
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
             echo 'Migrating : ' . $file . PHP_EOL;
             $migration['migration']->up();
-            echo 'Migrated  : ' . $file . PHP_EOL;
+            echo $this->info('Migrated  : ' . $file);
 
             $this->database->log($migration['package'], $migration['name'], $batch);
         }
@@ -105,7 +105,7 @@ class Migrator extends Command
         }
 
         if (0 === count($migrations)) {
-            echo 'Done. Nothing to rollback.' . PHP_EOL;
+            echo $this->info('Done. Nothing to rollback.');
             return false;
         }
 
@@ -116,7 +116,7 @@ class Migrator extends Command
 
             echo 'Rolling back : ' . $file . PHP_EOL;
             $migration['migration']->down();
-            echo 'Rolled back  : ' . $file . PHP_EOL;
+            echo $this->info('Rolled back  : ' . $file);
 
             $this->database->delete($migration['package'], $migration['name']);
         }
@@ -150,7 +150,7 @@ class Migrator extends Command
         $this->reset();
         echo PHP_EOL;
         $this->migrate();
-        echo 'Done. The database was successfully refreshed.' . PHP_EOL;
+        echo $this->info('Done. The database was successfully refreshed.');
     }
 
     /**
@@ -169,7 +169,7 @@ class Migrator extends Command
             $table->primary(['package', 'name']);
         });
 
-        echo 'Migration table created successfully.' . PHP_EOL;
+        echo $this->info('Migration table created successfully.');
     }
 
     /**

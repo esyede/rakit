@@ -16,7 +16,7 @@ class Clear extends Command
     public function cache(array $arguments = [])
     {
         \System\Cache::flush();
-        echo 'Cache data has been cleared.' . PHP_EOL;
+        echo $this->info('Cache data has been cleared.');
     }
 
     /**
@@ -36,7 +36,7 @@ class Clear extends Command
             }
         }
 
-        echo 'View cache files cleared successfully.' . PHP_EOL;
+        echo $this->info('View cache files cleared successfully.');
     }
 
     /**
@@ -63,6 +63,6 @@ class Clear extends Command
             }
         }
 
-        echo 'Log files cleared successfully.' . PHP_EOL;
+        echo $this->info('Log files cleared successfully.');
     }
 }
