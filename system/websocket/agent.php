@@ -33,8 +33,8 @@ class Agent
         $this->headers = $headers;
 
         if (
-            isset($this->server->events()['connect'])
-            && is_callable($function = $this->server->events()['connect'])
+            isset($this->server()->events()['connect'])
+            && is_callable($function = $this->server()->events()['connect'])
         ) {
             $function($this);
         }
@@ -121,14 +121,14 @@ class Agent
         }
 
         $buffer .= $data;
-        if (is_bool($this->server->write($this->socket, $buffer))) {
+        if (is_bool($this->server()->write($this->socket, $buffer))) {
             return false;
         }
 
         if (
             !in_array($opcode, [Server::PONG, Server::CLOSE])
-            && isset($this->server->events()['send'])
-            && is_callable($function = $this->server->events()['send'])
+            && isset($this->server()->events()['send'])
+            && is_callable($function = $this->server()->events()['send'])
         ) {
             $function($this, $opcode, $data);
         }
@@ -143,7 +143,7 @@ class Agent
      */
     public function fetch()
     {
-        if (is_bool($buffer = $this->server->read($this->socket))) {
+        if (is_bool($buffer = $this->server()->read($this->socket))) {
             return false;
         }
 
@@ -184,7 +184,7 @@ class Agent
                     break;
 
                 case Server::CLOSE:
-                    $this->server->close($this->socket);
+                    $this->server()->close($this->socket);
                     break;
 
                 case Server::TEXT:
@@ -192,8 +192,8 @@ class Agent
 
                 case Server::BINARY:
                     if (
-                        isset($this->server->events()['receive'])
-                        && is_callable($function = $this->server->events()['receive'])
+                        isset($this->server()->events()['receive'])
+                        && is_callable($function = $this->server()->events()['receive'])
                     ) {
                         $function($this, $opcode, $data);
                     }
@@ -210,8 +210,8 @@ class Agent
     public function __destruct()
     {
         if (
-            isset($this->server->events()['disconnect'])
-            && is_callable($function = $this->server->events()['disconnect'])
+            isset($this->server()->events()['disconnect'])
+            && is_callable($function = $this->server()->events()['disconnect'])
         ) {
             $function($this);
         }

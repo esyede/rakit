@@ -57,7 +57,7 @@ class Server
         $lines = explode("\r\n", trim($buffer));
 
         foreach ($lines as $line)
-            if (preg_match('/^(\w+)\s(.+)\sHTTP\/[\d.]{1,3}$/', trim($line),$match)) {
+            if (preg_match('/^(\w+)\s(.+)\sHTTP\/[\d.]{1,3}$/', trim($line), $match)) {
                 $verb = $match[1];
                 $uri = $match[2];
             } else {
@@ -263,7 +263,7 @@ class Server
                         continue;
                     }
 
-                    if ($socket == $listen) {
+                    if ($socket === $listen) {
                         if ($socket = @stream_socket_accept($listen, 0)) {
                             $this->allocate($socket);
                         } else {
