@@ -33,12 +33,30 @@ try {
     Config::set('database.default', $default);
 } catch (\Throwable $e) {
     Config::set('database.default', $default);
-    $e = sprintf("Error: %s \r\n\tin %s:%s", $e->getMessage(), $e->getFile(), $e->getLine());
-    echo $color ? "\033[31m{$e}\033[m" : $e;
+    $err = sprintf('Error: %s', $e->getMessage());
+    if (Config::get('debugger.activate')) {
+        $err = sprintf(
+            "Error: %s \r\n\tin %s:%s\nStack Trace:\r\n%s",
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            $e->getTraceAsString()
+        );
+    }
+    echo $color ? "\033[31m{$err}\033[m" : $err;
 } catch (\Exception $e) {
     Config::set('database.default', $default);
-    $e = sprintf("Error: %s \r\n\tin %s:%s", $e->getMessage(), $e->getFile(), $e->getLine());
-    echo $color ? "\033[31m{$e}\033[m" : $e;
+    $err = sprintf('Error: %s', $e->getMessage());
+    if (Config::get('debugger.activate')) {
+        $err = sprintf(
+            "Error: %s \r\n\tin %s:%s\nStack Trace:\r\n%s",
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            $e->getTraceAsString()
+        );
+    }
+    echo $color ? "\033[31m{$err}\033[m" : $err;
 }
 
 echo PHP_EOL;
