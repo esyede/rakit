@@ -72,11 +72,9 @@ abstract class Grammar extends BaseGrammar
     {
         if ($value instanceof Table) {
             return $this->wrap_table($value->name);
-        } elseif ($value instanceof Magic) {
-            $value = $value->name;
         }
 
-        return parent::wrap($value);
+        return parent::wrap(($value instanceof Magic) ? $value->name : $value);
     }
 
     /**
