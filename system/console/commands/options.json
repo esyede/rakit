@@ -6,5 +6,9 @@
     "--verbose=true": {
         "description": "Verbose output untuk package:install.",
         "command": "php rakit package:install foobar --verbose=true"
+    },
+    "--port=": {
+        "description": "Ubah port bawaan.",
+        "command": "php rakit serve --port=9000"
     }
 }

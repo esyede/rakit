@@ -50,10 +50,6 @@
         }
     },
     "migration": {
-        "migrate:install": {
-            "description": "Install tabel migrasi.",
-            "command": "php rakit migrate:install"
-        },
         "migrate": {
             "description": "Jalankan seluruh file migrasi.",
             "command": "php rakit migrate"
@@ -119,6 +115,12 @@
         "serve": {
             "command": "php rakit serve --port=8000",
             "description": "Jalankan webserver bawaan."
+        }
+    },
+    "websocket": {
+        "websocket:run": {
+            "command": "php rakit websocket",
+            "description": "Jalankan websocket bawaan."
         }
     }
 }

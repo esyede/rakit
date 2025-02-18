@@ -106,3 +106,10 @@ if (!Container::registered('command: test')) {
         return new Commands\Test\Runner();
     });
 }
+
+// Daftarkan kelas milik cpmmand 'test'
+if (!Container::registered('command: websocket')) {
+    Container::singleton('command: websocket', function () {
+        return new Commands\Websocket();
+    });
+}
