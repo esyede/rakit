@@ -63,7 +63,8 @@ class Cache
             return $resolver();
         }
 
-        $key = Config::get('cache.key');
+        $key = (string) Config::get('cache.key');
+        $key = ((strlen($key) > 0 && Str::ends_with($key, '.')) ? rtrim($key, '.') : $key) . '.';
 
         switch ($driver) {
             case 'apc':
