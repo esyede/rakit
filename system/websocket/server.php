@@ -56,18 +56,20 @@ class Server
         $uri = null;
         $lines = explode("\r\n", trim($buffer));
 
-        foreach ($lines as $line)
-            if (preg_match('/^(\w+)\s(.+)\sHTTP\/[\d.]{1,3}$/', trim($line), $match)) {
+        foreach ($lines as $line) {
+            if (false !== preg_match('/^(\w+)\s(.+)\sHTTP\/[\d.]{1,3}$/', trim($line), $match)) {
                 $verb = $match[1];
                 $uri = $match[2];
             } else {
-                if (preg_match('/^(.+): (.+)/', trim($line), $match)) {
+                if (false !== preg_match('/^(.+): (.+)/', trim($line), $match)) {
                     $headers[strtr(ucwords(strtolower(strtr($match[1],'-',' '))), ' ', '-')] = $match[2];
                 } else {
                     $this->close($socket);
                     return;
                 }
             }
+        }
+
         if (empty($headers['Upgrade']) && empty($headers['Sec-Websocket-Key'])) {
             if ($verb && $uri) {
                 $this->write($socket, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n");
