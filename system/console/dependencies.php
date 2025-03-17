@@ -100,14 +100,14 @@ if (!Container::registered('command: help')) {
     });
 }
 
-// Daftarkan kelas milik cpmmand 'test'
+// Daftarkan kelas milik command 'test'
 if (!Container::registered('command: test')) {
     Container::singleton('command: test', function () {
         return new Commands\Test\Runner();
     });
 }
 
-// Daftarkan kelas milik cpmmand 'test'
+// Daftarkan kelas milik command 'websocket'
 if (!Container::registered('command: websocket')) {
     Container::singleton('command: websocket', function () {
         return new Commands\Websocket();
