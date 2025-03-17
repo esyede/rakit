@@ -299,16 +299,10 @@ class View implements \ArrayAccess
 
         if (Event::exists(static::ENGINE)) {
             $result = Event::until(static::ENGINE, [$this]);
-
-            if (!is_null($result)) {
-                $contents = $result;
-            }
+            $contents = $result ?: $contents;
         }
 
-        if (is_null($contents)) {
-            $contents = $this->get();
-        }
-
+        $contents = $contents ?: $this->get();
         --static::$rendered;
 
         if (0 === static::$rendered) {
