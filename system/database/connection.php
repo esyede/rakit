@@ -226,6 +226,8 @@ class Connection
         for ($i = 0; $i < $count; ++$i) {
             if ($bindings[$i] instanceof \DateTime) {
                 $bindings[$i] = $bindings[$i]->format($datetime);
+            } elseif (is_bool($bindings[$i])) {
+                $bindings[$i] = intval($bindings[$i]);
             }
         }
 
