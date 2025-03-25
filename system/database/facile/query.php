@@ -5,7 +5,6 @@ namespace System\Database\Facile;
 defined('DS') or exit('No direct access.');
 
 use System\Str;
-use System\Arr;
 use System\Database;
 
 class Query

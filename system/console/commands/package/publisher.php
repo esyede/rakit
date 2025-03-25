@@ -6,6 +6,7 @@ defined('DS') or die('No direct access.');
 
 use System\Storage;
 use System\Package;
+use System\Console\Color;
 
 class Publisher
 {
@@ -19,7 +20,7 @@ class Publisher
     public function publish($package)
     {
         if (!Package::exists($package)) {
-            echo 'Package is not registered: ' . $package;
+            echo Color::red('Package is not registered: ' . $package);
             return;
         }
 
@@ -27,18 +28,18 @@ class Publisher
         $destination = path('assets') . 'packages' . DS . $package;
 
         if (!is_dir($source)) {
-            echo $this->error('Package does not caontains any assets!');
+            echo Color::red('Package does not caontains any assets!');
             return;
         }
 
         if (is_dir($destination)) {
-            echo $this->error('Package assets already published!');
+            echo Color::red('Package assets already published!');
             return;
         }
 
         Storage::cpdir($source, $destination);
 
-        echo $this->info('Assets published for package: ' . $package);
+        echo Color::green('Assets published for package: ' . $package);
     }
 
     /**
@@ -54,6 +55,6 @@ class Publisher
             Storage::rmdir($destination);
         }
 
-        echo $this->info('Assets deleted for package: ' . $package);
+        echo Color::green('Assets deleted for package: ' . $package);
     }
 }

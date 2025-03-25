@@ -5,6 +5,7 @@ namespace System\Console\Commands\Package\Providers;
 defined('DS') or exit('No direct access.');
 
 use System\Storage;
+use System\Console\Color;
 
 abstract class Provider
 {
@@ -36,16 +37,16 @@ abstract class Provider
         }
 
         if (is_dir(path('package') . $package['name'])) {
-            echo PHP_EOL . $this->error(sprintf('Package already downloaded: %s', $package['name']));
+            echo PHP_EOL . Color::red(sprintf('Package already downloaded: %s', $package['name']));
             exit;
         }
 
         chmod(Storage::latest(path('package'))->getRealPath(), 0755);
-        echo PHP_EOL . $this->info('Downloading zipball...', false);
+        echo PHP_EOL . Color::green('Downloading zipball...', false);
         $this->download($url, $zipball);
         echo ' done!';
 
-        echo PHP_EOL . $this->info('Extracting zipball...', false);
+        echo PHP_EOL . Color::green('Extracting zipball...', false);
 
         static::unzip($zipball, path('package'));
 
@@ -64,7 +65,7 @@ abstract class Provider
             if (!is_dir($destination)) {
                 Storage::cpdir($assets, $destination);
             } else {
-                echo PHP_EOL . $this->error(sprintf('Assets already exists: %s', $destination));
+                echo PHP_EOL . Color::red(sprintf('Assets already exists: %s', $destination));
                 exit;
             }
         }
@@ -113,12 +114,12 @@ abstract class Provider
         $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
 
         if (!is_string($type) || false === strpos($type, 'application/zip')) {
-            echo PHP_EOL . sprintf(
+            echo PHP_EOL . Color::red(sprintf(
                 "Error: Remote sever sending an invalid content type: '%s (%s)', expecting '%s'",
                 $type,
                 gettype($type),
                 'application/zip'
-            ) . PHP_EOL;
+            ));
             exit;
         }
 
@@ -133,17 +134,17 @@ abstract class Provider
             ]);
 
             if (false === curl_exec($ch)) {
-                echo PHP_EOL . $this->error('Error: ' . curl_error($ch));
+                echo PHP_EOL . Color::red('Error: ' . curl_error($ch));
                 exit;
             }
 
             curl_close($ch);
             fclose($fopen);
         } catch (\Throwable $e) {
-            echo PHP_EOL . $this->error('Error: ' . $e->getMessage());
+            echo PHP_EOL . Color::red('Error: ' . $e->getMessage());
             exit;
         } catch (\Exception $e) {
-            echo PHP_EOL . $this->error('Error: ' . $e->getMessage());
+            echo PHP_EOL . Color::red('Error: ' . $e->getMessage());
             exit;
         }
     }
@@ -165,14 +166,14 @@ abstract class Provider
         }
 
         if (!extension_loaded('zip') || !class_exists('\ZipArchive')) {
-            echo PHP_EOL . $this->error('Please enable php-zip extension on this server');
+            echo PHP_EOL . Color::red('Please enable php-zip extension on this server');
             exit;
         }
 
         $zip = new \ZipArchive();
 
         if (!$zip->open($file)) {
-            echo PHP_EOL . $this->error(sprintf('Error: Could not open zip file: %s', $file));
+            echo PHP_EOL . Color::red(sprintf('Error: Could not open zip file: %s', $file));
             exit;
         }
 
