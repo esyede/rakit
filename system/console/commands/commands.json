@@ -104,7 +104,7 @@
     "test": {
         "test:run": {
             "description": "Jalankan test folder application.",
-            "command": "php rakit test"
+            "command": "php rakit test:run"
         },
         "test:core": {
             "description": "Jalankan test folder system.",
