@@ -97,11 +97,15 @@
     },
     "session": {
         "session:sweep": {
-            "description": "Sweep all expired sessions.",
+            "description": "Hapus seluruh sesi kedaluwarsa.",
             "command": "php rakit session:sweep"
         }
     },
     "test": {
+        "test": {
+            "description": "Jalankan test folder application.",
+            "command": "php rakit test"
+        },
         "test:core": {
             "description": "Jalankan test folder system.",
             "command": "php rakit test:core --verbose=false"
