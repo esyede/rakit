@@ -123,7 +123,7 @@
     },
     "websocket": {
         "websocket:run": {
-            "command": "php rakit websocket",
+            "command": "php rakit websocket:run",
             "description": "Jalankan websocket bawaan."
         }
     }
