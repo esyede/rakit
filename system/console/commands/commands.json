@@ -117,14 +117,14 @@
     },
     "webserver": {
         "serve": {
-            "command": "php rakit serve --port=8000",
-            "description": "Jalankan webserver bawaan."
+            "description": "Jalankan webserver bawaan.",
+            "command": "php rakit serve --port=8000"
         }
     },
     "websocket": {
         "websocket:run": {
-            "command": "php rakit websocket:run",
-            "description": "Jalankan websocket bawaan."
+            "description": "Jalankan websocket bawaan.",
+            "command": "php rakit websocket:run"
         }
     }
 }
