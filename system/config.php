@@ -175,27 +175,33 @@ class Config
      * @return array
      */
     public static function file($package, $file)
-    {
-        $directories = [Package::path($package) . 'config' . DS];
+	{
+        $directories = static::paths($package);
+		$config = [];
 
-        if (!empty(Request::env())) {
-            $directories[] = $directories[count($directories) - 1] . Request::env() . DS;
-        }
+		foreach ($directories as $directory) {
+			if (!empty($directory) && is_file($path = $directory . $file . '.php')) {
+				$config = array_merge($config, require $path);
+			}
+		}
 
-        $config = [];
+		return $config;
+	}
 
-        foreach ($directories as $directory) {
-            if (!empty($directory) && is_file($path = $directory . $file . '.php')) {
-                $content = require $path;
+    /**
+	 * Get the array of configuration paths that should be searched for a package.
+	 *
+	 * @param  string  $package
+	 * @return array
+	 */
+	protected static function paths($package)
+	{
+		$paths[] = Package::path($package) . 'config' . DS;
 
-                if (!is_array($content)) {
-                    throw new \RuntimeException('Config file must return an array.');
-                }
+		if (!empty(Request::env())) {
+			$paths[] = $paths[count($paths) - 1] . Request::env() . DS;
+		}
 
-                $config = array_merge($config, $content);
-            }
-        }
-
-        return $config;
-    }
+		return $paths;
+	}
 }
