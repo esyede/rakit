@@ -186,7 +186,13 @@ class Config
 
         foreach ($directories as $directory) {
             if (!empty($directory) && is_file($path = $directory . $file . '.php')) {
-                $config = array_merge($config, require $path);
+                $content = require $path;
+
+                if (!is_array($path)) {
+                    throw new \RuntimeException('Config file must return an array.');
+                }
+
+                $config = array_merge($config, $content);
             }
         }
 
