@@ -176,14 +176,13 @@ class Config
      */
     public static function file($package, $file)
 	{
-        $directories = static::paths($package);
+        $package = static::paths($package);
 		$config = [];
 
-		foreach ($directories as $directory) {
-            if ($directory && is_file($path = $directory . $file . '.php')) {
-                $path = require $path;
-                $config = array_merge($config, $path);
-            }
+		foreach ($package as $directory) {
+            $file = $directory . $file . '.php';
+            $file = (!empty($directory) && is_file($file)) ? (require $file) : [];
+            $config = array_merge($config, $file);
 		}
 
 		return $config;
