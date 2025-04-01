@@ -180,16 +180,16 @@ class Config
 		$config = [];
 
 		foreach ($directories as $directory) {
-			if (!empty($directory) && is_file($path = $directory . $file . '.php')) {
-				$config = array_merge($config, require $path);
-			}
+            if ($directory && is_file($path = $directory . $file . '.php')) {
+                $config = array_merge($config, require $path);
+            }
 		}
 
 		return $config;
 	}
 
     /**
-	 * Get the array of configuration paths that should be searched for a package.
+	 * Ambil path ke direktori konfigurasi dari sebuah paket.
 	 *
 	 * @param  string  $package
 	 * @return array
