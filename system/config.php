@@ -176,47 +176,21 @@ class Config
      */
     public static function file($package, $file)
 	{
-        $package = static::paths($package);
-		$config = [];
-
-		foreach ($package as $directory) {
-            if (!empty($directory)) {
-                $file = static::requires($directory . $file . '.php');
-                $config = array_merge($config, $file);
-            }
-		}
-
-		return $config;
-	}
-
-    /**
-	 * Ambil path ke direktori konfigurasi dari sebuah paket.
-	 *
-	 * @param  string  $package
-	 * @return array
-	 */
-	protected static function paths($package)
-	{
-		$paths = [Package::path($package) . 'config' . DS];
+        $config = [];
         $env = Request::env();
+        $paths = [Package::path($package) . 'config' . DS];
 
 		if (!empty($env)) {
 			$paths[] = $paths[count($paths) - 1] . $env . DS;
 		}
 
-		return $paths;
+		foreach ($paths as $path) {
+            if (!empty($path) && is_file($path = $path . $file . '.php')) {
+                $file = require $path;
+                $config = array_merge($config, is_array($file) ? $file : []);
+            }
+		}
+
+		return $config;
 	}
-
-
-    /**
-     * Ambil data konfigurasi dari file.
-     *
-     * @param string $path
-     *
-     * @return array
-     */
-    protected static function requires($path)
-    {
-        return is_file($path) ? (require $path) : [];
-    }
 }
