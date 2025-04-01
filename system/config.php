@@ -180,9 +180,12 @@ class Config
 		$config = [];
 
 		foreach ($package as $directory) {
-            $file = $directory . $file . '.php';
-            $file = (!empty($directory) && is_file($file)) ? (require $file) : [];
-            $config = array_merge($config, $file);
+            if ((!empty($directory) && is_file($file = $directory . $file . '.php'))) {
+                $file = function () use ($file) {
+                    return require $file;
+                };
+                $config = array_merge($config, $file);
+            }
 		}
 
 		return $config;
