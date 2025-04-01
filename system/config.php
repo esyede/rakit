@@ -188,7 +188,7 @@ class Config
             if (!empty($directory) && is_file($path = $directory . $file . '.php')) {
                 $content = require $path;
 
-                if (!is_array($path)) {
+                if (!is_array($content)) {
                     throw new \RuntimeException('Config file must return an array.');
                 }
 
