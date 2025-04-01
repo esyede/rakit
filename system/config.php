@@ -181,7 +181,8 @@ class Config
 
 		foreach ($directories as $directory) {
             if ($directory && is_file($path = $directory . $file . '.php')) {
-                $config = array_merge($config, require $path);
+                $path = require $path;
+                $config = array_merge($config, $path);
             }
 		}
 
