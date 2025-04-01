@@ -198,9 +198,10 @@ class Config
 	protected static function paths($package)
 	{
 		$paths = [Package::path($package) . 'config' . DS];
+        $env = Request::env();
 
-		if (!empty(Request::env())) {
-			$paths[] = $paths[count($paths) - 1] . Request::env() . DS;
+		if (!empty($env)) {
+			$paths[] = $paths[count($paths) - 1] . $env . DS;
 		}
 
 		return $paths;
