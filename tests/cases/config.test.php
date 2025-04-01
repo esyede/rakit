@@ -61,6 +61,18 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+	 * Test apakah konfigurasi environment dimuat dengan benar.
+	 *
+	 * @group system
+	 */
+	public function testEnvironmentConfigsOverrideNormalConfigurations()
+	{
+		$_SERVER['RAKIT_ENV'] = 'local';
+		$this->assertEquals('sqlite', Config::get('database.default'));
+		unset($_SERVER['RAKIT_ENV']);
+	}
+
+    /**
      * Test item config tetap bisa diubah lagi setelah seluruh file termuat.
      *
      * @group system

@@ -461,6 +461,59 @@ class Request
     }
 
     /**
+     * Ambil environment milik request saat ini.
+     *
+     * @return string|null
+     */
+    public static function env()
+    {
+        return static::foundation()->server->get('RAKIT_ENV');
+    }
+
+    /**
+     * Set environment request saat ini.
+     *
+     * @param string $env
+     *
+     * @return void
+     */
+    public static function set_env($env)
+    {
+        static::foundation()->server->set('RAKIT_ENV', $env);
+    }
+
+    /**
+     * Cek environment request saat ini.
+     *
+     * @param string $env
+     *
+     * @return bool
+     */
+    public static function is_env($env)
+    {
+        return static::env() === $env;
+    }
+
+    /**
+     * Deteksi environment saat ini berdasarkan konfigurasi.
+     *
+     * @param array  $environments
+     * @param string $uri
+     *
+     * @return string|null
+     */
+    public static function detect_env(array $environments, $uri)
+    {
+        foreach ($environments as $environment => $patterns) {
+            foreach ($patterns as $pattern) {
+                if (Str::is($pattern, $uri) || $pattern === gethostname()) {
+                    return $environment;
+                }
+            }
+        }
+    }
+
+    /**
      * Ambil routw handler utama milik request saat ini.
      *
      * @return Route

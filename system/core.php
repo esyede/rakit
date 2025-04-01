@@ -85,6 +85,41 @@ Request::$foundation = Foundation\Http\Request::createFromGlobals();
 
 /*
 |--------------------------------------------------------------------------
+| Tentukan Environment Aplikasi
+|--------------------------------------------------------------------------
+|
+| Selanjutnya, kita siap menentukan environment aplikasi. Ini dapat
+| diatur melalui CLI atau melalui mapping URI ke environment yang
+| ada di file "paths.php". Saat menentukan evironment via CLI,
+| opsi CLI "--env=" akan otomatis menggantikan mapping di "paths.php".
+|
+*/
+
+if (Request::cli()) {
+    $environment = get_cli_option('env', getenv('RAKIT_ENV'));
+    $environment = empty($environment) ? Request::detect_env($environments, gethostname()) : $environment;
+} else {
+    $environment = Request::detect_env($environments, Request::foundation()->getRootUrl());
+}
+
+/*
+|--------------------------------------------------------------------------
+| Set Environment Aplikasi
+|--------------------------------------------------------------------------
+|
+| Setelah kita menentukan lingkungan aplikasi, kita akan mengaturnya pada
+| array server global dari request foundation.
+| Ini akan membuatnya tersedia di seluruh aplikasi, meskipun ini hanya
+| digunakan untuk menentukan konfigurasi mana yang akan ditimpa.
+|
+*/
+
+if (isset($environment) && !empty($environment)) {
+    Request::set_env($environment);
+}
+
+/*
+|--------------------------------------------------------------------------
 | Set Array Option CLI
 |--------------------------------------------------------------------------
 |

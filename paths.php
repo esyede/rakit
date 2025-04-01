@@ -2,12 +2,28 @@
 
 defined('DS') or exit('No direct access.');
 
-$paths = [];
+/*
+|----------------------------------------------------------------
+| Environment aplikasi
+|----------------------------------------------------------------
+|
+| Rakit takes a dead simple approach to environments, and we
+| think you'll love it. Just specify which URLs belong to a
+| given environment, and when you access your application
+| from a URL matching that pattern, we'll be sure to
+| merge in that environment's configuration files.
+|
+*/
+
+$environments = [
+    'local' => ['http://localhost*', 'http://127.0.0.1*', '*.test'],
+    // ..
+];
 
 // --------------------------------------------------------------
 // Path ke direktori paket default.
 // --------------------------------------------------------------
-$paths['app'] = 'application';
+$paths = ['app' => 'application'];
 
 // --------------------------------------------------------------
 // Path ke file key.
