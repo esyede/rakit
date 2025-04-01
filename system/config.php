@@ -180,8 +180,8 @@ class Config
 		$config = [];
 
 		foreach ($package as $directory) {
-            if ((!empty($directory) && is_file($file = $directory . $file . '.php'))) {
-                $file = require $file;
+            if (!empty($directory)) {
+                $file = static::requires($directory . $file . '.php');
                 $config = array_merge($config, $file);
             }
 		}
@@ -197,7 +197,7 @@ class Config
 	 */
 	protected static function paths($package)
 	{
-		$paths[] = Package::path($package) . 'config' . DS;
+		$paths = [Package::path($package) . 'config' . DS];
 
 		if (!empty(Request::env())) {
 			$paths[] = $paths[count($paths) - 1] . Request::env() . DS;
@@ -205,4 +205,17 @@ class Config
 
 		return $paths;
 	}
+
+
+    /**
+     * Ambil data konfigurasi dari file.
+     *
+     * @param string $path
+     *
+     * @return array
+     */
+    protected static function requires($path)
+    {
+        return is_file($path) ? (require $path) : [];
+    }
 }
