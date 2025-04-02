@@ -31,40 +31,38 @@ class Image extends Base
         return $randomize ? $url . '?' . static::randomNumber(5, true) : $url;
     }
 
-    public static function image(
-        $dir = null,
-        $width = 640,
-        $height = 480,
-        $category = null,
-        $fullPath = true,
-        $randomize = true,
-        $word = null
-    ) {
+    public static function image($dir = null, $width = 640, $height = 480, $category = null, $fullPath = true, $randomize = true, $word = null)
+    {
         $dir = is_null($dir) ? sys_get_temp_dir() : $dir;
 
         if (!is_dir($dir) || !is_writable($dir)) {
-            throw new \InvalidArgumentException(sprintf('Cannot write to directory: %s', $dir));
+            throw new \InvalidArgumentException(sprintf('Cannot write to directory "%s"', $dir));
         }
 
-        $name = Uuid::uuid();
-        $filename = md5($name) . '.jpg';
-        $filepath = $dir . DS . $filename;
+        $name = md5(\System\Str::random());
+        $filename = $name .'.jpg';
+        $filepath = $dir . DIRECTORY_SEPARATOR . $filename;
         $url = static::imageUrl($width, $height, $category, $randomize, $word);
-
-        if (extension_loaded('curl')) {
+        if (function_exists('curl_exec')) {
             $fp = fopen($filepath, 'w');
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_FILE, $fp);
             $success = curl_exec($ch);
             curl_close($ch);
             fclose($fp);
+        } elseif (ini_get('allow_url_fopen')) {
+            $success = copy($url, $filepath);
         } else {
             return new \RuntimeException(
                 'The image formatter downloads an image from a remote HTTP server. ' .
-                    'Therefore, it requires that PHP can request remote hosts via cURL'
+                'Therefore, it requires that PHP can request remote hosts, either via cURL or fopen()'
             );
         }
 
-        return $success ? ($fullPath ? $filepath : $filename) : false;
+        if (!$success) {
+            return false;
+        }
+
+        return $fullPath ? $filepath : $filename;
     }
 }

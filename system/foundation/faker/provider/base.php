@@ -44,9 +44,7 @@ class Base
         $max = pow(10, $nbDigits) - 1;
 
         if ($max > mt_getrandmax()) {
-            throw new \InvalidArgumentException(
-                'randomNumber() can only generate numbers up to mt_getrandmax()'
-            );
+            throw new \InvalidArgumentException('randomNumber() can only generate numbers up to mt_getrandmax()');
         }
 
         return $strict ? mt_rand(pow(10, $nbDigits - 1), $max) : mt_rand(0, $max);
@@ -88,39 +86,40 @@ class Base
 
     public static function randomElements(array $array = ['a', 'b', 'c'], $count = 1)
     {
-        $keys = array_keys($array);
-        $total = count($keys);
+        $allKeys = array_keys($array);
+        $numKeys = count($allKeys);
 
-        if ($total < $count) {
-            throw new \LengthException(sprintf(
-                'Cannot get %s elements, only %s elements is available the in array',
-                $count,
-                $total
-            ));
+        if ($numKeys < $count) {
+            throw new \LengthException(sprintf('Cannot get %d elements, only %d in array', $count, $numKeys));
         }
 
-        $high = $total - 1;
-        $keys = $elements = [];
-        $index = 0;
+        $highKey = $numKeys - 1;
+        $keys = $elements = array();
+        $numElements = 0;
 
-        while ($index < $count) {
-            $num = mt_rand(0, $high);
-
+        while ($numElements < $count) {
+            $num = mt_rand(0, $highKey);
             if (isset($keys[$num])) {
                 continue;
             }
 
             $keys[$num] = true;
-            $elements[] = $array[$keys[$num]];
-            ++$index;
+            $elements[] = $array[$allKeys[$num]];
+            $numElements++;
         }
 
         return $elements;
     }
 
-    public static function randomElement(array $array = ['a', 'b', 'c'])
+    public static function randomElement($array = ['a', 'b', 'c'])
     {
-        return empty($array) ? null : static::randomElements($array, 1)[0];
+        if (!$array) {
+            return null;
+        }
+
+        $elements = static::randomElements($array, 1);
+
+        return $elements[0];
     }
 
     public static function randomKey(array $array = [])
@@ -151,9 +150,12 @@ class Base
         $shuffled = [];
         $i = 0;
         reset($array);
-
-        while (list($key, $value) = static::eachEvery($array)) {
-            $j = (0 === $i) ? 0 : mt_rand(0, $i);
+        foreach ($array as $key => $value) {
+            if ($i === 0) {
+                $j = 0;
+            } else {
+                $j = mt_rand(0, $i);
+            }
 
             if ($j === $i) {
                 $shuffled[] = $value;
@@ -162,7 +164,7 @@ class Base
                 $shuffled[$j] = $value;
             }
 
-            ++$i;
+            $i++;
         }
 
         return $shuffled;

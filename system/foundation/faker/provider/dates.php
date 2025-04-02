@@ -8,15 +8,20 @@ class Dates extends Base
 {
     protected static $century = [
         'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
-        'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX',
-        'XX', 'XXI',
+        'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI',
     ];
 
     protected static function getMaxTimestamp($max = 'now')
     {
-        return is_numeric($max)
-            ? (int) $max
-            : (($max instanceof \DateTime) ? $max->getTimestamp() : strtotime(empty($max) ? 'now' : $max));
+        if (is_numeric($max)) {
+            return (int) $max;
+        }
+
+        if (false !== ($max instanceof \DateTime)) {
+            return $max->getTimestamp();
+        }
+
+        return strtotime(empty($max) ? 'now' : $max);
     }
 
     public static function unixTime($max = 'now')
@@ -36,12 +41,7 @@ class Dates extends Base
 
     public static function iso8601($max = 'now')
     {
-        return static::date('Y-m-d\TH:i:sO', $max);
-    }
-
-    public static function atom($max = 'now')
-    {
-        return static::date('Y-m-d\TH:i:sP', $max);
+        return static::date(\DateTime::ISO8601, $max);
     }
 
     public static function date($format = 'Y-m-d', $max = 'now')
@@ -56,15 +56,18 @@ class Dates extends Base
 
     public static function dateTimeBetween($startDate = '-30 years', $endDate = 'now')
     {
-        $start = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : strtotime($startDate);
-        $end = static::getMaxTimestamp($endDate);
+        $startTimestamp = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : (new \DateTime($startDate))->getTimestamp();
+        $endTimestamp = static::getMaxTimestamp($endDate);
 
-        if ($start > $end) {
+        if ($startTimestamp > $endTimestamp) {
             throw new \InvalidArgumentException('Start date must be anterior to end date.');
         }
 
-        return (new \DateTime('@' . mt_rand($start, $end)))
-            ->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        $timestamp = mt_rand($startTimestamp, $endTimestamp);
+        $ts = new \DateTime('@' . $timestamp);
+        $ts->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+
+        return $ts;
     }
 
     public static function dateTimeThisCentury($max = 'now')
