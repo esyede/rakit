@@ -22,6 +22,11 @@ class FakerEnImageTest extends \PHPUnit_Framework_TestCase
         // ..
     }
 
+    public function testFakerImageUsable()
+    {
+        $this->assertTrue(extension_loaded('curl'));
+    }
+
     public function testImageUrlUses640x680AsTheDefaultSize()
     {
         $this->assertRegExp('#^http://lorempixel.com/640/480/#', Image::imageUrl());

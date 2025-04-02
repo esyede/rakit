@@ -534,7 +534,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
         $request = new Request();
 
         $request->initialize(['foo' => 'bar']);
-        $this->assertEquals('/', $request->getHost(), '->getHost() return empty string if not initialized');
+        $this->assertEquals('', $request->getHost(), '->getHost() return empty string if not initialized');
 
         $request->initialize([], [], [], [], [], ['HTTP_HOST' => 'www.exemple.com']);
         $this->assertEquals('www.exemple.com', $request->getHost(), '->getHost() from Host Header');
@@ -703,33 +703,33 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
     public function testGetBasePath()
     {
         $request = new Request();
-        $this->assertEquals('/', $request->getBasePath());
+        $this->assertEquals('', $request->getBasePath());
 
         $server = [];
         $server['SCRIPT_FILENAME'] = '/some/where/index.php';
         $request->initialize([], [], [], [], [], $server);
-        $this->assertEquals('/', $request->getBasePath());
+        $this->assertEquals('', $request->getBasePath());
 
         $server = [];
         $server['SCRIPT_FILENAME'] = '/some/where/index.php';
         $server['SCRIPT_NAME'] = '/index.php';
         $request->initialize([], [], [], [], [], $server);
 
-        $this->assertEquals('/', $request->getBasePath());
+        $this->assertEquals('', $request->getBasePath());
 
         $server = [];
         $server['SCRIPT_FILENAME'] = '/some/where/index.php';
         $server['PHP_SELF'] = '/index.php';
         $request->initialize([], [], [], [], [], $server);
 
-        $this->assertEquals('/', $request->getBasePath());
+        $this->assertEquals('', $request->getBasePath());
 
         $server = [];
         $server['SCRIPT_FILENAME'] = '/some/where/index.php';
         $server['ORIG_SCRIPT_NAME'] = '/index.php';
         $request->initialize([], [], [], [], [], $server);
 
-        $this->assertEquals('/', $request->getBasePath());
+        $this->assertEquals('', $request->getBasePath());
     }
 
     public function testGetPathInfo()
@@ -942,7 +942,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
                     'PHP_SELF' => '/foo bar/app.php',
                 ],
                 '/foo%20bar',
-                '',
+                '/',
             ],
             [
                 '/foo%20bar/home',
