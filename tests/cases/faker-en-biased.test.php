@@ -41,6 +41,7 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
     public function testUnbiased()
     {
         $this->performFake(['\System\Foundation\Faker\Provider\Biased', 'unbiased']);
+
         foreach ($this->results as $number => $amount) {
             $assumed = (1 / self::MAX * $number) - (1 / self::MAX * ($number - 1));
             $assumed /= 1;
@@ -51,7 +52,8 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
 
     public function testLinearHigh()
     {
-        $this->performFake(array('\System\Foundation\Faker\Provider\Biased', 'linearHigh'));
+        $this->performFake(['\System\Foundation\Faker\Provider\Biased', 'linearHigh']);
+
         foreach ($this->results as $number => $amount) {
             $assumed = 0.5 * pow(1 / self::MAX * $number, 2) - 0.5 * pow(1 / self::MAX * ($number - 1), 2);
             $assumed /= pow(1, 2) * .5;
@@ -62,7 +64,8 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
 
     public function testLinearLow()
     {
-        $this->performFake(array('\System\Foundation\Faker\Provider\Biased', 'linearLow'));
+        $this->performFake(['\System\Foundation\Faker\Provider\Biased', 'linearLow']);
+
         foreach ($this->results as $number => $amount) {
             $assumed = -0.5 * pow(1 / self::MAX * $number, 2) - -0.5 * pow(1 / self::MAX * ($number - 1), 2);
             $assumed += 1 / self::MAX;

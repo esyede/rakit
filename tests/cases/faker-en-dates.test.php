@@ -65,8 +65,7 @@ class FakerEnDatesTest extends \PHPUnit_Framework_TestCase
 
     public function testTime()
     {
-        $date = Dates::time();
-        $this->assertRegExp('/^\d{2}:\d{2}:\d{2}$/', $date);
+        $this->assertRegExp('/^\d{2}:\d{2}:\d{2}$/', Dates::time());
     }
 
     /**

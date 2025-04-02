@@ -29,30 +29,28 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
 
     public function testAll()
     {
-        $bag = new Parameter(['foo' => 'bar']);
-        $this->assertEquals(['foo' => 'bar'], $bag->all(), '->all() gets all the input');
+        $this->assertEquals(['foo' => 'bar'], (new Parameter(['foo' => 'bar']))->all());
     }
 
     public function testReplace()
     {
         $bag = new Parameter(['foo' => 'bar']);
         $bag->replace(['FOO' => 'BAR']);
-        $this->assertEquals(['FOO' => 'BAR'], $bag->all(), '->replace() replaces the input with the argument');
-        $this->assertFalse($bag->has('foo'), '->replace() overrides previously set the input');
+        $this->assertEquals(['FOO' => 'BAR'], $bag->all());
+        $this->assertFalse($bag->has('foo'));
     }
 
     public function testGet()
     {
         $bag = new Parameter(['foo' => 'bar', 'null' => null]);
-        $this->assertEquals('bar', $bag->get('foo'), '->get() gets the value of a parameter');
-        $this->assertEquals('default', $bag->get('unknown', 'default'), '->get() returns second argument as default if a parameter is not defined');
-        $this->assertNull($bag->get('null', 'default'), '->get() returns null if null is set');
+        $this->assertEquals('bar', $bag->get('foo'));
+        $this->assertEquals('default', $bag->get('unknown', 'default'));
+        $this->assertNull($bag->get('null', 'default'));
     }
 
     public function testGetDoesNotUseDeepByDefault()
     {
-        $bag = new Parameter(['foo' => ['bar' => 'moo']]);
-        $this->assertNull($bag->get('foo[bar]'));
+        $this->assertNull((new Parameter(['foo' => ['bar' => 'moo']]))->get('foo[bar]'));
     }
 
     /**
@@ -61,8 +59,7 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetDeepWithInvalidPaths($path)
     {
-        $bag = new Parameter(['foo' => ['bar' => 'moo']]);
-        $bag->get($path, null, true);
+        (new Parameter(['foo' => ['bar' => 'moo']]))->get($path, null, true);
     }
 
     public function getInvalidPaths()
@@ -85,50 +82,50 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
         $bag = new Parameter([]);
 
         $bag->set('foo', 'bar');
-        $this->assertEquals('bar', $bag->get('foo'), '->set() sets the value of parameter');
+        $this->assertEquals('bar', $bag->get('foo'));
 
         $bag->set('foo', 'baz');
-        $this->assertEquals('baz', $bag->get('foo'), '->set() overrides previously set parameter');
+        $this->assertEquals('baz', $bag->get('foo'));
     }
 
     public function testHas()
     {
         $bag = new Parameter(['foo' => 'bar']);
 
-        $this->assertTrue($bag->has('foo'), '->has() returns true if a parameter is defined');
-        $this->assertFalse($bag->has('unknown'), '->has() return false if a parameter is not defined');
+        $this->assertTrue($bag->has('foo'));
+        $this->assertFalse($bag->has('unknown'));
     }
 
     public function testGetAlpha()
     {
         $bag = new Parameter(['word' => 'foo_BAR_012']);
 
-        $this->assertEquals('fooBAR', $bag->getAlpha('word'), '->getAlpha() gets only alphabetic characters');
-        $this->assertEquals('', $bag->getAlpha('unknown'), '->getAlpha() returns empty string if a parameter is not defined');
+        $this->assertEquals('fooBAR', $bag->getAlpha('word'));
+        $this->assertEquals('', $bag->getAlpha('unknown'));
     }
 
     public function testGetAlnum()
     {
         $bag = new Parameter(['word' => 'foo_BAR_012']);
 
-        $this->assertEquals('fooBAR012', $bag->getAlnum('word'), '->getAlnum() gets only alphanumeric characters');
-        $this->assertEquals('', $bag->getAlnum('unknown'), '->getAlnum() returns empty string if a parameter is not defined');
+        $this->assertEquals('fooBAR012', $bag->getAlnum('word'));
+        $this->assertEquals('', $bag->getAlnum('unknown'));
     }
 
     public function testGetDigits()
     {
         $bag = new Parameter(['word' => 'foo_BAR_012']);
 
-        $this->assertEquals('012', $bag->getDigits('word'), '->getDigits() gets only digits as string');
-        $this->assertEquals('', $bag->getDigits('unknown'), '->getDigits() returns empty string if a parameter is not defined');
+        $this->assertEquals('012', $bag->getDigits('word'));
+        $this->assertEquals('', $bag->getDigits('unknown'));
     }
 
     public function testGetInt()
     {
         $bag = new Parameter(['digits' => '0123']);
 
-        $this->assertEquals(123, $bag->getInt('digits'), '->getInt() gets a value of parameter as integer');
-        $this->assertEquals(0, $bag->getInt('unknown'), '->getInt() returns zero if a parameter is not defined');
+        $this->assertEquals(123, $bag->getInt('digits'));
+        $this->assertEquals(0, $bag->getInt('unknown'));
     }
 
     public function testFilter()
@@ -142,31 +139,27 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
             'array' => ['bang'],
         ]);
 
-        $this->assertEmpty($bag->filter('nokey'), '->filter() should return empty by default if no key is found');
-        $this->assertEquals('0123', $bag->filter('digits', '', false, FILTER_SANITIZE_NUMBER_INT), '->filter() gets a value of parameter as integer filtering out invalid characters');
-        $this->assertEquals('example@example.com', $bag->filter('email', '', false, FILTER_VALIDATE_EMAIL), '->filter() gets a value of parameter as email');
+        $this->assertEmpty($bag->filter('nokey'));
+        $this->assertEquals('0123', $bag->filter('digits', '', false, FILTER_SANITIZE_NUMBER_INT));
+        $this->assertEquals('example@example.com', $bag->filter('email', '', false, FILTER_VALIDATE_EMAIL));
         $this->assertEquals(
             'http://example.com/foo',
-            $bag->filter('url', '', false, FILTER_VALIDATE_URL, ['flags' => FILTER_FLAG_PATH_REQUIRED]),
-            '->filter() gets a value of parameter as url with a path'
+            $bag->filter('url', '', false, FILTER_VALIDATE_URL, ['flags' => FILTER_FLAG_PATH_REQUIRED])
         );
 
         $this->assertEquals(
             'http://example.com/foo',
-            $bag->filter('url', '', false, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED),
-            '->filter() gets a value of parameter as url with a path'
+            $bag->filter('url', '', false, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)
         );
         $this->assertFalse(
-            $bag->filter('dec', '', false, FILTER_VALIDATE_INT, ['flags'   => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]]),
-            '->filter() gets a value of parameter as integer between boundaries'
+            $bag->filter('dec', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]])
         );
 
         $this->assertFalse(
-            $bag->filter('hex', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]]),
-            '->filter() gets a value of parameter as integer between boundaries'
+            $bag->filter('hex', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]])
         );
 
-        $this->assertEquals(['bang'], $bag->filter('array', '', false), '->filter() gets a value of parameter as an array');
+        $this->assertEquals(['bang'], $bag->filter('array', '', false));
 
     }
 
@@ -175,6 +168,7 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
         $parameters = ['foo' => 'bar', 'hello' => 'world'];
         $bag = new Parameter($parameters);
         $i = 0;
+
         foreach ($bag as $key => $val) {
             $i++;
             $this->assertEquals($parameters[$key], $val);

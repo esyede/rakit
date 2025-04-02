@@ -180,8 +180,7 @@ class HttpHelperTest extends \PHPUnit_Framework_TestCase
      */
     public function testMakeDispositionInvalidDisposition()
     {
-        $headers = new Helper();
-        $headers->makeDisposition('invalid', 'foo.html');
+        (new Helper())->makeDisposition('invalid', 'foo.html');
     }
 
     public function testMakeDisposition()

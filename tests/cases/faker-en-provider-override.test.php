@@ -156,6 +156,7 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         }
 
         $glob = glob(path('system') . 'foundation/faker/provider/*/*.php');
+
         foreach ($glob as $file) {
             $localisation = basename(dirname($file));
             if (isset($locales[ $localisation ])) {

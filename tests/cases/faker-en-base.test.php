@@ -75,11 +75,8 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
 
         public function testNumberBetween()
         {
-            $min = 5;
-            $max = 6;
-
-            $this->assertGreaterThanOrEqual($min, BaseProvider::numberBetween($min, $max));
-            $this->assertGreaterThanOrEqual(BaseProvider::numberBetween($min, $max), $max);
+            $this->assertGreaterThanOrEqual(5, BaseProvider::numberBetween(5, 6));
+            $this->assertGreaterThanOrEqual(BaseProvider::numberBetween(5, 6), 6);
         }
 
         public function testNumberBetweenAcceptsZeroAsMax()
@@ -92,9 +89,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
             $min = 4;
             $max = 10;
             $nbMaxDecimals = 8;
-
             $result = BaseProvider::randomFloat($nbMaxDecimals, $min, $max);
-
             $parts = explode('.', $result);
 
             $this->assertInternalType('float', $result);
@@ -115,8 +110,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
 
         public function testRandomLetterReturnsLowercaseLetter()
         {
-            $lowercaseLetters = 'abcdefghijklmnopqrstuvwxyz';
-            $this->assertTrue(strpos($lowercaseLetters, BaseProvider::randomLetter()) !== false);
+            $this->assertTrue(strpos('abcdefghijklmnopqrstuvwxyz', BaseProvider::randomLetter()) !== false);
         }
 
         public function testRandomAsciiReturnsString()
@@ -177,26 +171,22 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
 
         public function testShuffleArrayReturnsAnArrayOfTheSameSize()
         {
-            $array = [1, 2, 3, 4, 5];
-            $this->assertSameSize($array, BaseProvider::shuffleArray($array));
+            $this->assertSameSize([1, 2, 3, 4, 5], BaseProvider::shuffleArray([1, 2, 3, 4, 5]));
         }
 
         public function testShuffleArrayReturnsAnArrayWithSameElements()
         {
-            $array = [2, 4, 6, 8, 10];
-            $shuffleArray = BaseProvider::shuffleArray($array);
-            $this->assertContains(2, $shuffleArray);
-            $this->assertContains(4, $shuffleArray);
-            $this->assertContains(6, $shuffleArray);
-            $this->assertContains(8, $shuffleArray);
-            $this->assertContains(10, $shuffleArray);
+            $shuffled = BaseProvider::shuffleArray([2, 4, 6, 8, 10]);
+            $this->assertContains(2, $shuffled);
+            $this->assertContains(4, $shuffled);
+            $this->assertContains(6, $shuffled);
+            $this->assertContains(8, $shuffled);
+            $this->assertContains(10, $shuffled);
         }
 
         public function testShuffleArrayReturnsADifferentArrayThanTheOriginal()
         {
-            $arr = [1, 2, 3, 4, 5];
-            $shuffledArray = BaseProvider::shuffleArray($arr);
-            $this->assertNotEquals($arr, $shuffledArray);
+            $this->assertNotEquals([1, 2, 3, 4, 5], BaseProvider::shuffleArray([1, 2, 3, 4, 5]));
         }
 
         public function testShuffleArrayLeavesTheOriginalArrayUntouched()
@@ -220,12 +210,12 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
         public function testShuffleStringReturnsAnStringWithSameElements()
         {
             $string = 'acegi';
-            $shuffleString = BaseProvider::shuffleString($string);
-            $this->assertContains('a', $shuffleString);
-            $this->assertContains('c', $shuffleString);
-            $this->assertContains('e', $shuffleString);
-            $this->assertContains('g', $shuffleString);
-            $this->assertContains('i', $shuffleString);
+            $shuffled = BaseProvider::shuffleString($string);
+            $this->assertContains('a', $shuffled);
+            $this->assertContains('c', $shuffled);
+            $this->assertContains('e', $shuffled);
+            $this->assertContains('g', $shuffled);
+            $this->assertContains('i', $shuffled);
         }
 
         public function testShuffleStringReturnsADifferentStringThanTheOriginal()
@@ -264,8 +254,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
 
         public function testNumerifyCanGenerateALargeNumberOfDigits()
         {
-            $largePattern = str_repeat('#', 20); // definitely larger than PHP_INT_MAX on all systems
-            $this->assertEquals(20, strlen(BaseProvider::numerify($largePattern)));
+            $this->assertEquals(20, strlen(BaseProvider::numerify(str_repeat('#', 20))));
         }
 
         public function testLexifyReturnsSameStringWhenItContainsNoQuestionMark()
@@ -357,7 +346,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
         {
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
-            $faker->addProvider(new \ArrayObject([1])); // hack because method_exists forbids stubs
+            $faker->addProvider(new \ArrayObject([1]));
             $this->assertEquals(1, $faker->optional(1)->count);
             $this->assertNull($faker->optional(0)->count);
         }
@@ -366,7 +355,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
         {
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
-            $faker->addProvider(new \ArrayObject([1])); // hack because method_exists forbids stubs
+            $faker->addProvider(new \ArrayObject([1]));
             $this->assertEquals(1, $faker->optional(1)->count());
             $this->assertNull($faker->optional(0)->count());
         }
@@ -376,9 +365,11 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
             $values = [];
-            for ($i=0; $i < 10; $i++) {
-                $values[]= $faker->optional()->randomDigit;
+
+            for ($i = 0; $i < 10; $i++) {
+                $values[] = $faker->optional()->randomDigit;
             }
+
             $this->assertContains(null, $values);
         }
 
@@ -386,7 +377,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
         {
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
-            $faker->addProvider(new \ArrayObject([1])); // hack because method_exists forbids stubs
+            $faker->addProvider(new \ArrayObject([1]));
             $this->assertEquals(1, $faker->unique()->count);
         }
 
@@ -394,7 +385,7 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
         {
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
-            $faker->addProvider(new \ArrayObject([1])); // hack because method_exists forbids stubs
+            $faker->addProvider(new \ArrayObject([1]));
             $this->assertEquals(1, $faker->unique()->count());
         }
 
@@ -403,9 +394,11 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
             $values = [];
-            for ($i=0; $i < 10; $i++) {
-                $values[]= $faker->unique()->randomDigit;
+
+            for ($i = 0; $i < 10; $i++) {
+                $values[] = $faker->unique()->randomDigit;
             }
+
             sort($values);
             $this->assertEquals([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], $values);
         }
@@ -417,7 +410,8 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
         {
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
-            for ($i=0; $i < 11; $i++) {
+
+            for ($i = 0; $i < 11; $i++) {
                 $faker->unique()->randomDigit;
             }
         }
@@ -427,13 +421,17 @@ class FakerEnBaseTest extends \PHPUnit_Framework_TestCase
             $faker = new \System\Foundation\Faker\Generator();
             $faker->addProvider(new \System\Foundation\Faker\Provider\Base($faker));
             $values = [];
-            for ($i=0; $i < 10; $i++) {
-                $values[]= $faker->unique()->randomDigit;
+
+            for ($i = 0; $i < 10; $i++) {
+                $values[] = $faker->unique()->randomDigit;
             }
-            $values[]= $faker->unique(true)->randomDigit;
-            for ($i=0; $i < 9; $i++) {
-                $values[]= $faker->unique()->randomDigit;
+
+            $values[] = $faker->unique(true)->randomDigit;
+
+            for ($i = 0; $i < 9; $i++) {
+                $values[] = $faker->unique()->randomDigit;
             }
+
             sort($values);
             $this->assertEquals([0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9], $values);
         }

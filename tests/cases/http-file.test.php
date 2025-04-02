@@ -20,7 +20,9 @@ class HttpFileTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        foreach (glob(sys_get_temp_dir() . '/form_test/*') as $file) {
+        $files = glob(sys_get_temp_dir() . '/form_test/*');
+
+        foreach ($files as $file) {
             unlink($file);
         }
 

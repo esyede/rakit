@@ -25,6 +25,7 @@ class FakerEnLocalizationTest extends \PHPUnit_Framework_TestCase
     public function testLocalizedNameProvidersDoNotThrowErrors()
     {
         $glob = glob(path('system') . 'foundation/faker/provider/*/person.php');
+
         foreach ($glob as $localized) {
             preg_match('#/([a-z]+)/person\.php#', $localized, $matches);
             $faker = Factory::create($matches[1]);
@@ -35,6 +36,7 @@ class FakerEnLocalizationTest extends \PHPUnit_Framework_TestCase
     public function testLocalizedAddressProvidersDoNotThrowErrors()
     {
         $glob = glob(path('system') . 'foundation/faker/provider/*/address.php');
+
         foreach ($glob as $localized) {
             preg_match('#/([a-z]+)/address\.php#', $localized, $matches);
             $faker = Factory::create($matches[1]);

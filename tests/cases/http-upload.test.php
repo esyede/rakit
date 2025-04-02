@@ -32,14 +32,7 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
 
     public function testFileUploadsWithNoMimeType()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            null,
-            filesize($this->getFilePath('test.png')),
-            UPLOAD_ERR_OK
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', null, filesize($this->getFilePath('test.png')), UPLOAD_ERR_OK);
         $this->assertEquals('application/octet-stream', $file->getClientMimeType());
 
         if (extension_loaded('fileinfo')) {
@@ -49,40 +42,19 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
 
     public function testFileUploadsWithUnknownMimeType()
     {
-        $file = new Upload(
-            $this->getFilePath('test.unknown'),
-            'original.png',
-            null,
-            filesize($this->getFilePath('test.unknown')),
-            UPLOAD_ERR_OK
-        );
-
+        $file = new Upload($this->getFilePath('test.unknown'), 'original.png', null, filesize($this->getFilePath('test.unknown')), UPLOAD_ERR_OK);
         $this->assertEquals('application/octet-stream', $file->getClientMimeType());
     }
 
     public function testErrorIsOkByDefault()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            'image/png',
-            filesize($this->getFilePath('test.png')),
-            null
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', 'image/png', filesize($this->getFilePath('test.png')), null);
         $this->assertEquals(UPLOAD_ERR_OK, $file->getError());
     }
 
     public function testGetClientOriginalName()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            'image/png',
-            filesize($this->getFilePath('test.png')),
-            null
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', 'image/png', filesize($this->getFilePath('test.png')), null);
         $this->assertEquals('original.png', $file->getClientOriginalName());
     }
 
@@ -91,15 +63,8 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveLocalFileIsNotAllowed()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            'image/png',
-            filesize($this->getFilePath('test.png')),
-            UPLOAD_ERR_OK
-        );
-
-        $moved = $file->move(__DIR__.'/Fixtures/directory');
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', 'image/png', filesize($this->getFilePath('test.png')), UPLOAD_ERR_OK);
+        $moved = $file->move($this->getFilePath('foo/bar'));
     }
 
     public function testMoveLocalFileIsAllowedInTestMode()
@@ -110,15 +75,7 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
         @unlink($target);
         copy($this->getFilePath('test.png'), $path);
 
-        $file = new Upload(
-            $path,
-            'original.png',
-            'image/png',
-            filesize($path),
-            UPLOAD_ERR_OK,
-            true
-        );
-
+        $file = new Upload($path, 'original.png', 'image/png', filesize($path), UPLOAD_ERR_OK, true);
         $moved = $file->move($this->getFilePath('logs'));
 
         $this->assertTrue(file_exists($target));
@@ -130,59 +87,28 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
 
     public function testGetClientOriginalNameSanitizeFilename()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            '../../original.png',
-            'image/png',
-            filesize($this->getFilePath('test.png')),
-            null
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), '../../original.png', 'image/png',  filesize($this->getFilePath('test.png')), null);
         $this->assertEquals('original.png', $file->getClientOriginalName());
     }
 
     public function testGetSize()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            'image/png',
-            filesize($this->getFilePath('test.png')),
-            null
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', 'image/png', filesize($this->getFilePath('test.png')), null);
         $this->assertEquals(filesize($this->getFilePath('test.png')), $file->getSize());
 
-        $file = new Upload(
-            $this->getFilePath('test'),
-            'original.png',
-            'image/png'
-        );
-
+        $file = new Upload($this->getFilePath('test'), 'original.png', 'image/png');
         $this->assertEquals(filesize($this->getFilePath('test')), $file->getSize());
     }
 
     public function testGetExtension()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            null
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', null);
         $this->assertEquals('png', $file->getExtension());
     }
 
     public function testIsValid()
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            null,
-            filesize($this->getFilePath('test.png')),
-            UPLOAD_ERR_OK
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', null, filesize($this->getFilePath('test.png')), UPLOAD_ERR_OK);
         $this->assertTrue($file->isValid());
     }
 
@@ -191,14 +117,7 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
      */
     public function testIsInvalidOnUploadError($error)
     {
-        $file = new Upload(
-            $this->getFilePath('test.png'),
-            'original.png',
-            null,
-            filesize($this->getFilePath('test.png')),
-            $error
-        );
-
+        $file = new Upload($this->getFilePath('test.png'), 'original.png', null, filesize($this->getFilePath('test.png')), $error);
         $this->assertFalse($file->isValid());
     }
 

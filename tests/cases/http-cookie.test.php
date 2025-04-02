@@ -29,7 +29,7 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider invalidNames
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testInstantiationThrowsExceptionIfCookieNameContainsInvalidCharacters($name)
     {
@@ -37,7 +37,7 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testInvalidExpiration()
     {
@@ -46,51 +46,42 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
 
     public function testGetValue()
     {
-        $value = 'MyValue';
-        $cookie = new Cookie('MyCookie', $value);
-        $this->assertSame($value, $cookie->getValue(), '->getValue() returns the proper value');
+        $this->assertSame('MyValue', (new Cookie('MyCookie', 'MyValue'))->getValue());
     }
 
     public function testGetPath()
     {
-        $cookie = new Cookie('foo', 'bar');
-        $this->assertSame('/', $cookie->getPath(), '->getPath() returns / as the default path');
+        $this->assertSame('/', (new Cookie('foo', 'bar'))->getPath());
     }
 
     public function testGetExpiresTime()
     {
-        $cookie = new Cookie('foo', 'bar', 3600);
-        $this->assertEquals(3600, $cookie->getExpiresTime(), '->getExpiresTime() returns the expire date');
+        $this->assertEquals(3600, (new Cookie('foo', 'bar', 3600))->getExpiresTime());
     }
 
     public function testGetDomain()
     {
-        $cookie = new Cookie('foo', 'bar', 3600, '/', '.myfoodomain.com');
-        $this->assertEquals('.myfoodomain.com', $cookie->getDomain(), '->getDomain() returns the domain name on which the cookie is valid');
+        $this->assertEquals('.myfoodomain.com', (new Cookie('foo', 'bar', 3600, '/', '.myfoodomain.com'))->getDomain());
     }
 
     public function testIsSecure()
     {
-        $cookie = new Cookie('foo', 'bar', 3600, '/', '.myfoodomain.com', true);
-        $this->assertTrue($cookie->isSecure(), '->isSecure() returns whether the cookie is transmitted over HTTPS');
+        $this->assertTrue((new Cookie('foo', 'bar', 3600, '/', '.myfoodomain.com', true))->isSecure());
     }
 
     public function testIsHttpOnly()
     {
-        $cookie = new Cookie('foo', 'bar', 3600, '/', '.myfoodomain.com', false, true);
-        $this->assertTrue($cookie->isHttpOnly(), '->isHttpOnly() returns whether the cookie is only transmitted over HTTP');
+        $this->assertTrue((new Cookie('foo', 'bar', 3600, '/', '.myfoodomain.com', false, true))->isHttpOnly());
     }
 
     public function testCookieIsNotCleared()
     {
-        $cookie = new Cookie('foo', 'bar', time()+3600*24);
-        $this->assertFalse($cookie->isCleared(), '->isCleared() returns false if the cookie did not expire yet');
+        $this->assertFalse((new Cookie('foo', 'bar', time() + 3600 * 24))->isCleared());
     }
 
     public function testCookieIsCleared()
     {
-        $cookie = new Cookie('foo', 'bar', time()-20);
-        $this->assertTrue($cookie->isCleared(), '->isCleared() returns true if the cookie has expired');
+        $this->assertTrue((new Cookie('foo', 'bar', time() - 20))->isCleared());
     }
 
     public function testToString()
@@ -98,15 +89,13 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
         $cookie = new Cookie('foo', 'bar', strtotime('Fri, 20-May-2011 15:25:52 GMT'), '/', '.myfoodomain.com', true);
         $this->assertEquals(
             'foo=bar; expires=Fri, 20-May-2011 15:25:52 GMT; samesite=lax; domain=.myfoodomain.com; secure; httponly',
-            $cookie->__toString(),
-            '->__toString() returns string representation of the cookie'
+            $cookie->__toString()
         );
 
         $cookie = new Cookie('foo', null, 1, '/admin/', '.myfoodomain.com');
         $this->assertEquals(
-            'foo=deleted; expires=' . gmdate("D, d-M-Y H:i:s T", time()-31536001) . '; path=/admin/; samesite=lax; domain=.myfoodomain.com; httponly',
-            $cookie->__toString(),
-            '->__toString() returns string representation of a cleared cookie if value is NULL'
+            'foo=deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time()  -31536001) . '; path=/admin/; samesite=lax; domain=.myfoodomain.com; httponly',
+            $cookie->__toString()
         );
     }
 }

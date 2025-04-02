@@ -47,11 +47,11 @@ class FakerEnPaymentTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider creditCardNumberProvider
      */
-    public function testCreditCardNumberReturnsValidCreditCardNumber($type, $regexp)
+    public function testCreditCardNumberReturnsValidCreditCardNumber($type, $pattern)
     {
-        $cardNumber = $this->faker->creditCardNumber($type);
-        $this->assertRegExp($regexp, $cardNumber);
-        $this->assertTrue(Luhn::isValid($cardNumber));
+        $number = $this->faker->creditCardNumber($type);
+        $this->assertRegExp($pattern, $number);
+        $this->assertTrue(Luhn::isValid($number));
     }
 
     public function testCreditCardNumberCanFormatOutput()
@@ -61,9 +61,9 @@ class FakerEnPaymentTest extends \PHPUnit_Framework_TestCase
 
     public function testCreditCardExpirationDateReturnsValidDateByDefault()
     {
-        $expirationDate = $this->faker->creditCardExpirationDate;
-        $this->assertTrue(intval($expirationDate->format('U')) > strtotime('now'));
-        $this->assertTrue(intval($expirationDate->format('U')) < strtotime('+36 months'));
+        $exp = $this->faker->creditCardExpirationDate;
+        $this->assertTrue(intval($exp->format('U')) > strtotime('now'));
+        $this->assertTrue(intval($exp->format('U')) < strtotime('+36 months'));
     }
 
     public function testRandomCard()
