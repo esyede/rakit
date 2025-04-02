@@ -19,12 +19,12 @@ jobs:
                 name: get composer cache directory
                 id: composer-cache
                 run: >-
-                    echo "::set-output name=dir::$(composer config cache-files-dir)"
+                    echo "directory=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
             -
                 name: cache composer dependencies
                 uses: actions/cache@v4
                 with:
-                    path: '${{ steps.composer-cache.outputs.dir }}'
+                    path: '${{ steps.composer-cache.outputs.directory }}'
                     key: >-
                         ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
                     restore-keys: '${{ runner.os }}-composer-'
