@@ -7,11 +7,10 @@ defined('DS') or exit('No direct access.');
 | Environment aplikasi
 |----------------------------------------------------------------
 |
-| Rakit takes a dead simple approach to environments, and we
-| think you'll love it. Just specify which URLs belong to a
-| given environment, and when you access your application
-| from a URL matching that pattern, we'll be sure to
-| merge in that environment's configuration files.
+| Rakit menggunakan pendekatan sederhana terhadap environment.
+| Cukup tentukan URL mana yang termasuk dalam environment itu,
+| saat aplikasi diakses dari URL yang sesuai dengan pola tersebut,
+| konten file konfigurasi environment tersebut akan ditimpa.
 |
 */
 
