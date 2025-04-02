@@ -580,6 +580,7 @@ class Request
     {
         if (null === $this->pathInfo) {
             $this->pathInfo = $this->preparePathInfo();
+            $this->pathInfo = ($this->pathInfo === '/') ? '' : $this->pathInfo;
         }
 
         return $this->pathInfo;
