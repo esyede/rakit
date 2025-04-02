@@ -16,6 +16,11 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         Curl::timeout(null);
     }
 
+    public function testCurlExists()
+    {
+        $this->assertTrue(extension_loaded('curl'));
+    }
+
     public function testCurlOptions()
     {
         Curl::curl_option(CURLOPT_COOKIE, 'foo=bar');

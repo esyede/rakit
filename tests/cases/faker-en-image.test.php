@@ -57,24 +57,4 @@ class FakerEnImageTest extends \PHPUnit_Framework_TestCase
     {
         Image::imageUrl(800, 400, 'bullhonky');
     }
-
-    public function testDownloadWithDefaults()
-    {
-        // FIXME: Error cannot get the image
-        // $file = Image::image(sys_get_temp_dir());
-        // $this->assertTrue(is_file($file));
-
-        // if (function_exists('getimagesize')) {
-        //     list($width, $height, $type, $attr) = getimagesize($file);
-        //     $this->assertEquals(640, $width);
-        //     $this->assertEquals(480, $height);
-        //     $this->assertEquals(constant('IMAGETYPE_JPEG'), $type);
-        // } else {
-        //     $this->assertEquals('jpg', pathinfo($file, PATHINFO_EXTENSION));
-        // }
-
-        // if (file_exists($file)) {
-        //     unlink($file);
-        // }
-    }
 }
