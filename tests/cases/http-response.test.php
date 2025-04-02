@@ -130,7 +130,7 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
     {
         $response = new Response('', 200, ['Date' => $this->createDateTimeOneHourAgo()->format(DATE_RFC2822)]);
         $this->assertEquals(0, $this->createDateTimeOneHourAgo()->diff($response->getDate())->format('%s'));
-        $this->assertLessThan(1, ((new Response())->getDate())->diff(new \DateTime(), true)->format('%s'));
+        $this->assertLessThan(1, (new Response())->getDate()->diff(new \DateTime(), true)->format('%s'));
 
         $response = new Response('', 200, ['Date' => $this->createDateTimeOneHourAgo()->format(DATE_RFC2822)]);
         $now = $this->createDateTimeNow();
