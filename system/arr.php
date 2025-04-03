@@ -321,6 +321,35 @@ class Arr
     }
 
     /**
+     * Cek apakah salah satu key ada dalam suatu array menggunakan notasi "dot".
+     *
+     * @param \ArrayAccess|array $array
+     * @param string|array       $keys
+     *
+     * @return bool
+     */
+    public static function has_any($array, $keys)
+    {
+        if (is_null($keys)) {
+            return false;
+        }
+
+        $keys = (array) $keys;
+
+        if (!$array || $keys === []) {
+            return false;
+        }
+
+        foreach ($keys as $key) {
+            if (static::has($array, $key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Cek apakah sebuah array merupakan array asosiatif atau bukan.
      * Sebuah array dianggap asosiatif apabila ia tidak mengandung
      * key numerik urut yang dimulai dari nol.

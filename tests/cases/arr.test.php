@@ -307,6 +307,33 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test untuk method Arr::has_any().
+     *
+     * @group system
+     */
+    public function testHasAny()
+    {
+        $array = ['name' => 'Budi', 'age' => '', 'city' => null];
+        $this->assertTrue(Arr::has_any($array, 'name'));
+        $this->assertTrue(Arr::has_any($array, 'age'));
+        $this->assertTrue(Arr::has_any($array, 'city'));
+        $this->assertFalse(Arr::has_any($array, 'foo'));
+        $this->assertTrue(Arr::has_any($array, 'name', 'email'));
+        $this->assertTrue(Arr::has_any($array, ['name', 'email']));
+
+        $array = ['name' => 'Budi', 'email' => 'foo'];
+        $this->assertTrue(Arr::has_any($array, 'name', 'email'));
+        $this->assertFalse(Arr::has_any($array, 'surname', 'password'));
+        $this->assertFalse(Arr::has_any($array, ['surname', 'password']));
+
+        $array = ['foo' => ['bar' => null, 'baz' => '']];
+        $this->assertTrue(Arr::has_any($array, 'foo.bar'));
+        $this->assertTrue(Arr::has_any($array, 'foo.baz'));
+        $this->assertFalse(Arr::has_any($array, 'foo.bax'));
+        $this->assertTrue(Arr::has_any($array, ['foo.bax', 'foo.baz']));
+    }
+
+    /**
      * Test untuk method Arr::associative().
      *
      * @group system

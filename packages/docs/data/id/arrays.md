@@ -17,6 +17,7 @@
     -   [Arr::forget\(\)](#arrforget)
     -   [Arr::get\(\)](#arrget)
     -   [Arr::has\(\)](#arrhas)
+    -   [Arr::has_any\(\)](#arrhas_any)
     -   [Arr::associative\(\)](#arrassociative)
     -   [Arr::last\(\)](#arrlast)
     -   [Arr::only\(\)](#arronly)
@@ -221,7 +222,7 @@ return Arr::get($array, 'products.desk.discount', 0); // 0
 
 ### Arr::has()
 
-Method ini memeriksa apakah item tertentu ada dalam array menggunakan notasi "dor":
+Method ini memeriksa apakah item tertentu ada dalam array menggunakan notasi "dot":
 
 ```php
 
@@ -230,6 +231,20 @@ $array = ['product' => ['name' => 'Desk', 'price' => 100]];
 return Arr::has($array, 'product.name'); // true
 return Arr::has($array, ['product.price', 'product.discount']); // false
 ```
+
+<a id="arrhas_any"></a>
+
+### Arr::has_any()
+
+Method memeriksa apakah salah satu key ada dalam suatu array menggunakan notasi "dot".:
+
+```php
+$array = ['product' => ['name' => 'Desk', 'price' => 100]];
+
+return Arr::has_any($array, 'product.name'); // true
+return Arr::has_any($array, ['product.name', 'product.discount']); // true
+return Arr::has_any($array, ['category', 'product.discount']); // false
+````
 
 <a id="arrassociative"></a>
 

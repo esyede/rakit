@@ -16,6 +16,7 @@
     -   [Arr::forget\(\)](#arrforget)
     -   [Arr::get\(\)](#arrget)
     -   [Arr::has\(\)](#arrhas)
+    -   [Arr::has_any\(\)](#arrhas_any)
     -   [Arr::associative\(\)](#arrassociative)
     -   [Arr::last\(\)](#arrlast)
     -   [Arr::only\(\)](#arronly)
@@ -212,6 +213,20 @@ $array = ['product' => ['name' => 'Desk', 'price' => 100]];
 return Arr::has($array, 'product.name'); // true
 return Arr::has($array, ['product.price', 'product.discount']); // false
 ```
+
+<a id="arrhas_any"></a>
+
+### Arr::has_any()
+
+This method checks whether any item in a given set exists in an array using "dot" notation:
+
+```php
+$array = ['product' => ['name' => 'Desk', 'price' => 100]];
+
+return Arr::has_any($array, 'product.name'); // true
+return Arr::has_any($array, ['product.name', 'product.discount']); // true
+return Arr::has_any($array, ['category', 'product.discount']); // false
+````
 
 <a id="arrassociative"></a>
 
