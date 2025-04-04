@@ -114,10 +114,10 @@ class Agent
         $length = strlen($data);
         $buffer = pack('CC', $mask, $length);
 
-        if ($length > 65535) {
-            $buffer = pack('CCNN', $mask, 127, $length);
-        } elseif ($length > 118) {
-            $buffer = pack('CCn', $mask, 126, $length);
+        if ($length > 0xffff) {
+            $buffer = pack('CCNN', $mask, 0x7f, $length);
+        } elseif ($length > 0x7d) {
+            $buffer = pack('CCn', $mask, 0x7e, $length);
         }
 
         $buffer .= $data;
@@ -152,16 +152,15 @@ class Agent
             $length = ord($buffer[1]) & Server::LENGTH;
             $position = 2;
 
-            if ($length === 126) {
+            if ($length === 0x7e) {
                 $length = ord($buffer[2]) * 256 + ord($buffer[3]);
                 $position += 2;
-            } else {
-                if ($length === 127) {
-                    for ($i = 0, $length = 0; $i < 8; ++$i) {
-                        $length = $length * 256 + ord($buffer[$i + 2]);
-                    }
-                    $position += 8;
+            } elseif ($length === 0x7f) {
+                for ($i = 0, $length = 0; $i < 8; ++$i) {
+                    $length = $length * 256 + ord($buffer[$i + 2]);
                 }
+
+                $position += 8;
             }
 
             for ($i = 0, $mask = []; $i < 4; ++$i) {
