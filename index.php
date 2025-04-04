@@ -13,7 +13,7 @@ define('DS', DIRECTORY_SEPARATOR);
 // --------------------------------------------------------------
 // Include konstanta path milik framework.
 // --------------------------------------------------------------
-require 'paths.php';
+require __DIR__ . DS . 'paths.php';
 
 // --------------------------------------------------------------
 // Jalankan frameworknya.
