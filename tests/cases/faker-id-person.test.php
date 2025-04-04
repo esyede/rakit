@@ -7,6 +7,8 @@ use System\Foundation\Faker\Provider\id\Person;
 
 class FakerIdPersonTest extends \PHPUnit_Framework_TestCase
 {
+    private $faker;
+
     /**
      * Setup.
      */
