@@ -11,8 +11,7 @@ class Create_Caches_Table
      */
     public function up()
     {
-        $table = Config::get('cache.database.table');
-        Schema::create($table, function ($table) {
+        Schema::create(config('cache.database.table'), function ($table) {
             $table->string('key', 191)->primary('cache_primary');
             $table->longtext('value');
             $table->string('expiration', 30)->index();
@@ -26,7 +25,6 @@ class Create_Caches_Table
      */
     public function down()
     {
-        $table = Config::get('cache.database.table');
-        Schema::drop_if_exists($table);
+        Schema::drop_if_exists(config('cache.database.table'));
     }
 }

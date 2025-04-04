@@ -11,8 +11,7 @@ class Create_Users_Table
      */
     public function up()
     {
-        $table = Config::get('auth.table');
-        Schema::create($table, function ($table) {
+        Schema::create(config('auth.table'), function ($table) {
             $table->increments('id');
             $table->string('name', 191);
             $table->string('email', 191)->unique();
@@ -36,8 +35,7 @@ class Create_Users_Table
      */
     public function down()
     {
-        $table = Config::get('auth.table');
-        Schema::drop_if_exists($table);
+        Schema::drop_if_exists(config('auth.table'));
         Schema::drop_if_exists('password_resets');
     }
 }

@@ -11,10 +11,7 @@ class Create_Jobs_Table
      */
     public function up()
     {
-        $table = Config::get('job.table');
-        $failed_table = Config::get('job.failed_table');
-
-        Schema::create($table, function ($table) {
+        Schema::create(config('job.table'), function ($table) {
             $table->increments('id');
             $table->string('name', 191)->index();
             $table->text('payloads');
@@ -22,7 +19,7 @@ class Create_Jobs_Table
             $table->timestamps();
         });
 
-        Schema::create($failed_table, function ($table) {
+        Schema::create(config('job.failed_table'), function ($table) {
             $table->increments('id');
             $table->integer('job_id')->unsigned()->index();
             $table->string('name', 191)->index();
@@ -39,10 +36,7 @@ class Create_Jobs_Table
      */
     public function down()
     {
-        $table = Config::get('job.table');
-        $failed_table = Config::get('job.failed_table');
-
-        Schema::drop_if_exists($table);
-        Schema::drop_if_exists($failed_table);
+        Schema::drop_if_exists(config('job.table'));
+        Schema::drop_if_exists(config('job.failed_table'));
     }
 }
