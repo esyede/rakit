@@ -186,8 +186,7 @@ class Config
 
 		foreach ($paths as $path) {
             if (!empty($path) && is_file($path = $path . $file . '.php')) {
-                $file = require $path;
-                $config = array_merge($config, is_array($file) ? $file : []);
+                $config = array_merge($config, (array) require $path);
             }
 		}
 
