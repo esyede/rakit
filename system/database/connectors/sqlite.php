@@ -24,9 +24,7 @@ class SQLite extends Connector
             return new PDO('sqlite::memory:', null, null, $options);
         }
 
-        $path = md5(Str::slug(RAKIT_KEY)) . '-' . $config['database'];
-        $path = path('storage') . 'database' . DS . $path;
-
+        $path = path('storage') . 'database' . DS . $config['database'] . '.sqlite';
         return new PDO('sqlite:' . $path, null, null, $options);
     }
 }
