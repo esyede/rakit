@@ -15,8 +15,7 @@ class Inspire_Command extends Command
     {
         $quotes = $this->quotes();
         $quotes = $quotes[mt_rand(0, count($quotes) - 1)];
-
-        echo $quotes;
+        echo $this->info($quotes);
     }
 
     /**
