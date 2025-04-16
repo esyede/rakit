@@ -13,6 +13,13 @@ class Inspire_Command extends Command
      */
     public function run(array $arguments = [])
     {
+        $confirmed = $this->confirm('Do you want to display the quote?');
+
+        if (!$confirmed) {
+            echo $this->error('Aborted.');
+            return;
+        }
+
         $quotes = $this->quotes();
         $quotes = $quotes[mt_rand(0, count($quotes) - 1)];
         echo $this->info($quotes);
