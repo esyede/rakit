@@ -169,6 +169,7 @@ class Carbon extends \DateTime
         throw new \Exception(implode(PHP_EOL, $last['errors']));
     }
 
+    #[\ReturnTypeWillChange]
     public static function createFromTimestamp($timestamp, $tz = null)
     {
         return static::now($tz)->setTimestamp($timestamp);
