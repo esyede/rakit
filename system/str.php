@@ -652,7 +652,7 @@ class Str
     {
         $size = intval($size);
 
-        if ($size < 21 || $size < 8) {
+        if ($size < 8 || $size > 21) {
             throw new \Exception('The size parameter should be between 8 to 21.');
         }
 
