@@ -1473,13 +1473,11 @@ class TestAccessorFacileTestStub
 
     public function __get($attribute)
     {
-        $accessor = 'get_' . $attribute;
-
-        if (method_exists($this, $accessor)) {
-            return $this->$accessor();
+        if (method_exists($this, 'get_' . $attribute)) {
+            return $this->{'get_' . $attribute}();
         }
 
-        return $this->$attribute;
+        return isset($this->attributes[$attribute]) ? $this->attributes[$attribute] : null;
     }
 
     public function __isset($attribute)
@@ -1490,12 +1488,12 @@ class TestAccessorFacileTestStub
             return !is_null($this->$accessor());
         }
 
-        return isset($this->$attribute);
+        return isset($this->attributes[$attribute]);
     }
 
-    public function getSomeAttribute()
+    public function get_some()
     {
-        return $this->attributes['some'];
+        return isset($this->attributes['some']) ? $this->attributes['some'] : null;
     }
 }
 
