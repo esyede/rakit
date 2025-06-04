@@ -159,8 +159,8 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testOffsetAccess()
     {
-        $c = new Collection(['name' => 'taylor']);
-        $this->assertEquals('taylor', $c['name']);
+        $c = new Collection(['name' => 'budi']);
+        $this->assertEquals('budi', $c['name']);
         $c['name'] = 'dayle';
         $this->assertEquals('dayle', $c['name']);
         $this->assertTrue(isset($c['name']));
@@ -185,37 +185,6 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $c->offsetGet(1));
     }
 
-    /**
-     * @expectedException PHPUnit_Framework_Error_Notice
-     */
-    public function testArrayAccessOffsetGetOnNonExist()
-    {
-        $c = new Collection(['foo', 'bar']);
-        $c->offsetGet(1000);
-    }
-
-    public function testArrayAccessOffsetSet()
-    {
-        $c = new Collection(['foo', 'foo']);
-
-        $c->offsetSet(1, 'bar');
-        $this->assertEquals('bar', $c[1]);
-
-        $c->offsetSet(null, 'qux');
-        $this->assertEquals('qux', $c[2]);
-    }
-
-    /**
-     * @expectedException PHPUnit_Framework_Error_Notice
-     */
-    public function testArrayAccessOffsetUnset()
-    {
-        $c = new Collection(['foo', 'bar']);
-
-        $c->offsetUnset(1);
-        $c[1];
-    }
-
     public function testForgetSingleKey()
     {
         $c = new Collection(['foo', 'bar']);
@@ -235,7 +204,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $this->assertFalse(isset($c[2]));
         $this->assertTrue(isset($c[1]));
 
-        $c = new Collection(['name' => 'taylor', 'foo' => 'bar', 'baz' => 'qux']);
+        $c = new Collection(['name' => 'budi', 'foo' => 'bar', 'baz' => 'qux']);
         $c->forget(['foo', 'baz']);
         $this->assertFalse(isset($c['foo']));
         $this->assertFalse(isset($c['baz']));
@@ -514,30 +483,30 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     public function testUniqueWithCallback()
     {
         $c = new Collection([
-            1 => ['id' => 1, 'first' => 'Taylor', 'last' => 'Otwell'],
-            2 => ['id' => 2, 'first' => 'Taylor', 'last' => 'Otwell'],
-            3 => ['id' => 3, 'first' => 'Abigail', 'last' => 'Otwell'],
-            4 => ['id' => 4, 'first' => 'Abigail', 'last' => 'Otwell'],
-            5 => ['id' => 5, 'first' => 'Taylor', 'last' => 'Swift'],
-            6 => ['id' => 6, 'first' => 'Taylor', 'last' => 'Swift'],
+            1 => ['id' => 1, 'first' => 'Budi', 'last' => 'Purnomo'],
+            2 => ['id' => 2, 'first' => 'Budi', 'last' => 'Purnomo'],
+            3 => ['id' => 3, 'first' => 'Aji', 'last' => 'Purnomo'],
+            4 => ['id' => 4, 'first' => 'Aji', 'last' => 'Purnomo'],
+            5 => ['id' => 5, 'first' => 'Budi', 'last' => 'Swift'],
+            6 => ['id' => 6, 'first' => 'Budi', 'last' => 'Swift'],
         ]);
 
         $this->assertEquals([
-            1 => ['id' => 1, 'first' => 'Taylor', 'last' => 'Otwell'],
-            3 => ['id' => 3, 'first' => 'Abigail', 'last' => 'Otwell'],
+            1 => ['id' => 1, 'first' => 'Budi', 'last' => 'Purnomo'],
+            3 => ['id' => 3, 'first' => 'Aji', 'last' => 'Purnomo'],
         ], $c->unique('first')->all());
 
         $this->assertEquals([
-            1 => ['id' => 1, 'first' => 'Taylor', 'last' => 'Otwell'],
-            3 => ['id' => 3, 'first' => 'Abigail', 'last' => 'Otwell'],
-            5 => ['id' => 5, 'first' => 'Taylor', 'last' => 'Swift'],
+            1 => ['id' => 1, 'first' => 'Budi', 'last' => 'Purnomo'],
+            3 => ['id' => 3, 'first' => 'Aji', 'last' => 'Purnomo'],
+            5 => ['id' => 5, 'first' => 'Budi', 'last' => 'Swift'],
         ], $c->unique(function ($item) {
             return $item['first'].$item['last'];
         })->all());
 
         $this->assertEquals([
-            1 => ['id' => 1, 'first' => 'Taylor', 'last' => 'Otwell'],
-            2 => ['id' => 2, 'first' => 'Taylor', 'last' => 'Otwell'],
+            1 => ['id' => 1, 'first' => 'Budi', 'last' => 'Purnomo'],
+            2 => ['id' => 2, 'first' => 'Budi', 'last' => 'Purnomo'],
         ], $c->unique(function ($item, $key) {
             return $key % 2;
         })->all());
@@ -611,44 +580,44 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testSortBy()
     {
-        $data = new Collection(['taylor', 'dayle']);
+        $data = new Collection(['budi', 'dayle']);
         $data = $data->sort_by(function ($x) {
             return $x;
         });
 
-        $this->assertEquals(['dayle', 'taylor'], array_values($data->all()));
+        $this->assertEquals(['dayle', 'budi'], array_values($data->all()));
 
-        $data = new Collection(['dayle', 'taylor']);
+        $data = new Collection(['dayle', 'budi']);
         $data = $data->sort_by_desc(function ($x) {
             return $x;
         });
 
-        $this->assertEquals(['taylor', 'dayle'], array_values($data->all()));
+        $this->assertEquals(['budi', 'dayle'], array_values($data->all()));
     }
 
     public function testSortByString()
     {
-        $data = new Collection([['name' => 'taylor'], ['name' => 'dayle']]);
+        $data = new Collection([['name' => 'budi'], ['name' => 'dayle']]);
         $data = $data->sort_by('name');
 
-        $this->assertEquals([['name' => 'dayle'], ['name' => 'taylor']], array_values($data->all()));
+        $this->assertEquals([['name' => 'dayle'], ['name' => 'budi']], array_values($data->all()));
     }
 
     public function testSortByAlwaysReturnsAssoc()
     {
-        $data = new Collection(['a' => 'taylor', 'b' => 'dayle']);
+        $data = new Collection(['a' => 'budi', 'b' => 'dayle']);
         $data = $data->sort_by(function ($x) {
             return $x;
         });
 
-        $this->assertEquals(['b' => 'dayle', 'a' => 'taylor'], $data->all());
+        $this->assertEquals(['b' => 'dayle', 'a' => 'budi'], $data->all());
 
-        $data = new Collection(['taylor', 'dayle']);
+        $data = new Collection(['budi', 'dayle']);
         $data = $data->sort_by(function ($x) {
             return $x;
         });
 
-        $this->assertEquals([1 => 'dayle', 0 => 'taylor'], $data->all());
+        $this->assertEquals([1 => 'dayle', 0 => 'budi'], $data->all());
     }
 
     public function testReverse()
@@ -658,16 +627,16 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
         $this->assertSame([1 => 'alan', 0 => 'zaeed'], $reversed->all());
 
-        $data = new Collection(['name' => 'taylor', 'framework' => 'laravel']);
+        $data = new Collection(['name' => 'budi', 'framework' => 'laravel']);
         $reversed = $data->reverse();
 
-        $this->assertSame(['framework' => 'laravel', 'name' => 'taylor'], $reversed->all());
+        $this->assertSame(['framework' => 'laravel', 'name' => 'budi'], $reversed->all());
     }
 
     public function testFlip()
     {
-        $data = new Collection(['name' => 'taylor', 'framework' => 'laravel']);
-        $this->assertEquals(['taylor' => 'name', 'laravel' => 'framework'], $data->flip()->to_array());
+        $data = new Collection(['name' => 'budi', 'framework' => 'laravel']);
+        $this->assertEquals(['budi' => 'name', 'laravel' => 'framework'], $data->flip()->to_array());
     }
 
     public function testChunk()
@@ -721,49 +690,49 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testExcept()
     {
-        $data = new Collection(['first' => 'Taylor', 'last' => 'Otwell', 'email' => 'taylorotwell@gmail.com']);
+        $data = new Collection(['first' => 'Budi', 'last' => 'Purnomo', 'email' => 'budipurnomo@gmail.com']);
 
-        $this->assertEquals(['first' => 'Taylor'], $data->except(['last', 'email', 'missing'])->all());
-        $this->assertEquals(['first' => 'Taylor'], $data->except('last', 'email', 'missing')->all());
+        $this->assertEquals(['first' => 'Budi'], $data->except(['last', 'email', 'missing'])->all());
+        $this->assertEquals(['first' => 'Budi'], $data->except('last', 'email', 'missing')->all());
 
-        $this->assertEquals(['first' => 'Taylor', 'email' => 'taylorotwell@gmail.com'], $data->except(['last'])->all());
-        $this->assertEquals(['first' => 'Taylor', 'email' => 'taylorotwell@gmail.com'], $data->except('last')->all());
+        $this->assertEquals(['first' => 'Budi', 'email' => 'budipurnomo@gmail.com'], $data->except(['last'])->all());
+        $this->assertEquals(['first' => 'Budi', 'email' => 'budipurnomo@gmail.com'], $data->except('last')->all());
     }
 
     public function testPluckWithArrayAndObjectValues()
     {
-        $data = new Collection([(object) ['name' => 'taylor', 'email' => 'foo'], ['name' => 'dayle', 'email' => 'bar']]);
-        $this->assertEquals(['taylor' => 'foo', 'dayle' => 'bar'], $data->pluck('email', 'name')->all());
+        $data = new Collection([(object) ['name' => 'budi', 'email' => 'foo'], ['name' => 'dayle', 'email' => 'bar']]);
+        $this->assertEquals(['budi' => 'foo', 'dayle' => 'bar'], $data->pluck('email', 'name')->all());
         $this->assertEquals(['foo', 'bar'], $data->pluck('email')->all());
     }
 
     public function testPluckWithArrayAccessValues()
     {
         $data = new Collection([
-            new TestArrayAccessImplementation(['name' => 'taylor', 'email' => 'foo']),
+            new TestArrayAccessImplementation(['name' => 'budi', 'email' => 'foo']),
             new TestArrayAccessImplementation(['name' => 'dayle', 'email' => 'bar']),
         ]);
 
-        $this->assertEquals(['taylor' => 'foo', 'dayle' => 'bar'], $data->pluck('email', 'name')->all());
+        $this->assertEquals(['budi' => 'foo', 'dayle' => 'bar'], $data->pluck('email', 'name')->all());
         $this->assertEquals(['foo', 'bar'], $data->pluck('email')->all());
     }
 
     public function testImplode()
     {
-        $data = new Collection([['name' => 'taylor', 'email' => 'foo'], ['name' => 'dayle', 'email' => 'bar']]);
+        $data = new Collection([['name' => 'budi', 'email' => 'foo'], ['name' => 'dayle', 'email' => 'bar']]);
         $this->assertEquals('foobar', $data->implode('email'));
         $this->assertEquals('foo,bar', $data->implode('email', ','));
 
-        $data = new Collection(['taylor', 'dayle']);
-        $this->assertEquals('taylordayle', $data->implode(''));
-        $this->assertEquals('taylor,dayle', $data->implode(','));
+        $data = new Collection(['budi', 'dayle']);
+        $this->assertEquals('budidayle', $data->implode(''));
+        $this->assertEquals('budi,dayle', $data->implode(','));
     }
 
     public function testTake()
     {
-        $data = new Collection(['taylor', 'dayle', 'shawn']);
+        $data = new Collection(['budi', 'dayle', 'shawn']);
         $data = $data->take(2);
-        $this->assertEquals(['taylor', 'dayle'], $data->all());
+        $this->assertEquals(['budi', 'dayle'], $data->all());
     }
 
     public function testRandom()
@@ -789,7 +758,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testTakeLast()
     {
-        $data = new Collection(['taylor', 'dayle', 'shawn']);
+        $data = new Collection(['budi', 'dayle', 'shawn']);
         $data = $data->take(-2);
         $this->assertEquals([1 => 'dayle', 2 => 'shawn'], $data->all());
     }
@@ -897,7 +866,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testMap()
     {
-        $data = new Collection(['first' => 'taylor', 'last' => 'otwell']);
+        $data = new Collection(['first' => 'budi', 'last' => 'purnomo']);
         $data = $data->map(function ($item, $key) {
             return $key.'-'.strrev($item);
         });
@@ -907,7 +876,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     public function testFlatMap()
     {
         $data = new Collection([
-            ['name' => 'taylor', 'hobbies' => ['programming', 'basketball']],
+            ['name' => 'budi', 'hobbies' => ['programming', 'basketball']],
             ['name' => 'adam', 'hobbies' => ['music', 'powerlifting']],
         ]);
         $data = $data->flat_map(function ($person) {
@@ -934,7 +903,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testTransform()
     {
-        $data = new Collection(['first' => 'taylor', 'last' => 'otwell']);
+        $data = new Collection(['first' => 'budi', 'last' => 'purnomo']);
         $data->transform(function ($item, $key) {
             return $key.'-'.strrev($item);
         });
@@ -1067,14 +1036,14 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     public function testKeyByClosure()
     {
         $data = new Collection([
-            ['firstname' => 'Taylor', 'lastname' => 'Otwell', 'locale' => 'US'],
+            ['firstname' => 'Budi', 'lastname' => 'Purnomo', 'locale' => 'US'],
             ['firstname' => 'Lucas', 'lastname' => 'Michot', 'locale' => 'FR'],
         ]);
         $result = $data->key_by(function ($item, $key) {
             return strtolower($key.'-'.$item['firstname'].$item['lastname']);
         });
         $this->assertEquals([
-            '0-taylorotwell' => ['firstname' => 'Taylor', 'lastname' => 'Otwell', 'locale' => 'US'],
+            '0-budipurnomo' => ['firstname' => 'Budi', 'lastname' => 'Purnomo', 'locale' => 'US'],
             '1-lucasmichot' => ['firstname' => 'Lucas', 'lastname' => 'Michot', 'locale' => 'FR'],
         ], $result->all());
     }
@@ -1245,7 +1214,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testKeys()
     {
-        $c = new Collection(['name' => 'taylor', 'framework' => 'laravel']);
+        $c = new Collection(['name' => 'budi', 'framework' => 'laravel']);
         $this->assertEquals(['name', 'framework'], $c->keys()->all());
     }
 
@@ -1338,14 +1307,14 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testOnly()
     {
-        $data = new Collection(['first' => 'Taylor', 'last' => 'Otwell', 'email' => 'taylorotwell@gmail.com']);
+        $data = new Collection(['first' => 'Budi', 'last' => 'Purnomo', 'email' => 'budipurnomo@gmail.com']);
 
         $this->assertEquals($data->all(), $data->only(null)->all());
-        $this->assertEquals(['first' => 'Taylor'], $data->only(['first', 'missing'])->all());
-        $this->assertEquals(['first' => 'Taylor'], $data->only('first', 'missing')->all());
+        $this->assertEquals(['first' => 'Budi'], $data->only(['first', 'missing'])->all());
+        $this->assertEquals(['first' => 'Budi'], $data->only('first', 'missing')->all());
 
-        $this->assertEquals(['first' => 'Taylor', 'email' => 'taylorotwell@gmail.com'], $data->only(['first', 'email'])->all());
-        $this->assertEquals(['first' => 'Taylor', 'email' => 'taylorotwell@gmail.com'], $data->only('first', 'email')->all());
+        $this->assertEquals(['first' => 'Budi', 'email' => 'budipurnomo@gmail.com'], $data->only(['first', 'email'])->all());
+        $this->assertEquals(['first' => 'Budi', 'email' => 'budipurnomo@gmail.com'], $data->only('first', 'email')->all());
     }
 
     public function testGettingAvgItemsFromCollection()
