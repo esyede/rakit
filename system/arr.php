@@ -57,6 +57,34 @@ class Arr
     }
 
     /**
+     * Gabungkan silang array yang diberikan, kembalikan semua kemungkinan permutasi.
+     *
+     * @param array ...$arrays
+     *
+     * @return array
+     */
+    public static function cross_join(/* ...$arrays */)
+    {
+        $arrays = func_get_args();
+        $results = [[]];
+
+        foreach ($arrays as $index => $array) {
+            $append = [];
+
+            foreach ($results as $product) {
+                foreach ($array as $item) {
+                    $product[$index] = $item;
+                    $append[] = $product;
+                }
+            }
+
+            $results = $append;
+        }
+
+        return $results;
+    }
+
+    /**
      * Membagi array menjadi dua array.
      * Satu berdasarkan key dan satu lagi berdasarkan value.
      *

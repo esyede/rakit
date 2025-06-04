@@ -54,6 +54,10 @@ class Carbon extends System\Carbon
 {
 }
 
+class Collection extends System\Collection
+{
+}
+
 class Command extends System\Console\Commands\Command
 {
 }

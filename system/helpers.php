@@ -566,6 +566,20 @@ if (!function_exists('session')) {
     }
 }
 
+if (! function_exists('collect')) {
+    /**
+     * Buat collection dari value yang diberikan.
+     *
+     * @param mixed|null $value
+     *
+     * @return \System\Collection
+     */
+    function collect($value = [])
+    {
+        return new \System\Collection($value);
+    }
+}
+
 if (!function_exists('fake')) {
     /**
      * Buat instance faker.
@@ -795,6 +809,23 @@ if (!function_exists('value')) {
     function value($value)
     {
         return (is_callable($value) && !is_string($value)) ? call_user_func($value) : $value;
+    }
+}
+
+if (! function_exists('when')) {
+    /**
+     * Return sebuah value jika kondisinya true.
+     *
+     * @param mixed          $condition
+     * @param \Closure|mixed $value
+     * @param \Closure|mixed $default
+     *
+     * @return mixed
+     */
+    function when($condition, $value, $default = null)
+    {
+        $condition = ($condition instanceof \Closure) ? $condition() : $condition;
+        return $condition ? value($value, $condition) : value($default, $condition);
     }
 }
 
