@@ -638,10 +638,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $results[$key] = $callback($value, $key);
         }
 
-        $descending ? arsort($results, $options) : asort($results, $options);
-        $keys = array_keys($results);
+        if (is_string($results[key($results)])) {
+            $options = SORT_NATURAL | SORT_FLAG_CASE;
+        }
 
-        foreach ($keys as $key) {
+        $descending ? arsort($results, $options) : asort($results, $options);
+
+        foreach (array_keys($results) as $key) {
             $results[$key] = $this->items[$key];
         }
 
