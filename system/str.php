@@ -652,12 +652,12 @@ class Str
     {
         $size = intval($size);
 
-        if ($size < 21 || $size < 8) {
+        if ($size > 21 || $size < 8) {
             throw new \Exception('The size parameter should be between 8 to 21.');
         }
 
         $default = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
-        $characters = (!is_string($characters) || is_null($characters)) ? $default : $characters;
+        $characters = (!is_string($characters) || empty($characters)) ? $default : $characters;
         $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
         $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
         $result = '';

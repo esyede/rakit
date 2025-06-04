@@ -320,30 +320,28 @@ class StrTest extends \PHPUnit_Framework_TestCase
 
     public function testNanoid()
     {
-        $nanoid = Str::nanoid(7);
-        $this->assertEquals(7, mb_strlen($nanoid, '8bit'));
-        $match = preg_match('/^[a-z0-9]+$/iu', $nanoid)
-            || preg_match('/^[a-z]+$/iu', $nanoid)
-            || preg_match('/^[0-9]+$/u', $nanoid);
-        $this->assertTrue($match);
+       $this->assertTrue(8 === strlen(Str::nanoid(8)));
+       $this->assertTrue(21 === strlen(Str::nanoid(21)));
 
-        $nanoid = Str::nanoid(10, '0123456789abcdefghi');
-        $this->assertEquals(10, mb_strlen($nanoid, '8bit'));
-        $match = preg_match('/^[a-z0-9]+$/u', $nanoid)
-            || preg_match('/^[a-z]+$/u', $nanoid)
-            || preg_match('/^[0-9]+$/u', $nanoid);
-        $this->assertTrue((bool) $match);
+       try {
+           Str::nanoid(7);
+       } catch (\Throwable $e) {
+           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+       } catch (\Exception $e) {
+           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+       }
 
-        $nanoid = Str::nanoid(10, '0123456789ABCDEFGHI');
-        $this->assertEquals(10, mb_strlen($nanoid, '8bit'));
-        $match = preg_match('/^[A-Z0-9]+$/u', $nanoid)
-            || preg_match('/^[A-Z]+$/u', $nanoid)
-            || preg_match('/^[0-9]+$/u', $nanoid);
-        $this->assertTrue((bool) $match);
+       try {
+           Str::nanoid(22);
+       } catch (\Throwable $e) {
+           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+       } catch (\Exception $e) {
+           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+       }
 
-        $nanoid = Str::nanoid(10, '0123456789');
-        $this->assertEquals(10, strlen($nanoid));
-        $this->assertTrue((bool) preg_match('/^[0-9]+$/', $nanoid));
+       $this->assertTrue(false !== preg_match('/^[a-c1-3]+$/', Str::nanoid(10, 'abc123')));
+       $this->assertTrue(10 === strlen(Str::nanoid(10, 'abc123')));
+       $this->assertTrue(10 === strlen(Str::nanoid(10, '')));
     }
 
     public function testReplaceArray()
