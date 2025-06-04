@@ -169,17 +169,25 @@ if (!function_exists('data_get')) {
 
         $key = is_array($key) ? $key : explode('.', $key);
 
-        foreach ($key as $segment) {
-            if (is_array($target) && array_key_exists($segment, $target)) {
-                $target = $target[$segment];
-            } elseif (is_object($target)) {
-                if (isset($target->{$segment})) {
-                    $target = $target->{$segment};
-                } elseif (method_exists($target, 'get_' . $segment)) {
-                    $target = $target->{'get_' . $segment}();
-                } else {
+        while (!is_null($segment = array_shift($key))) {
+            if ('*' === $segment) {
+                if (!is_array($target)) {
                     return value($default);
                 }
+
+                $result = [];
+
+                foreach ($target as $item) {
+                    $result[] = data_get($item, $key);
+                }
+
+                return in_array('*', $key) ? \System\Arr::collapse($result) : $result;
+            }
+
+            if (\System\Arr::accessible($target) && \System\Arr::exists($target, $segment)) {
+                $target = $target[$segment];
+            } elseif (is_object($target) && isset($target->{$segment})) {
+                $target = $target->{$segment};
             } else {
                 return value($default);
             }

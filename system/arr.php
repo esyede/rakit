@@ -458,14 +458,6 @@ class Arr
         foreach ($array as $item) {
             $item_value = data_get($item, $value);
 
-            if (is_object($item)) {
-                try {
-                    $item_value = $item->{$value};
-                } catch (\Exception $e) {
-                    $item_value = null;
-                }
-            }
-
             if (is_null($key)) {
                 $results[] = $item_value;
             } else {

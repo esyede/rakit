@@ -1482,10 +1482,8 @@ class TestAccessorFacileTestStub
 
     public function __isset($attribute)
     {
-        $accessor = 'get_' . $attribute;
-
-        if (method_exists($this, $accessor)) {
-            return !is_null($this->$accessor());
+        if (method_exists($this, 'get_' . $attribute)) {
+            return !is_null($this->{'get_' . $attribute}());
         }
 
         return isset($this->attributes[$attribute]);
