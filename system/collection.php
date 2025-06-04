@@ -43,7 +43,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             return;
         }
 
-        $values = (isset($key) ? $this->pluck($key) : $this)->sort()->values();
+        $values = isset($key) ? $this->pluck($key)->sort()->values() : $this->sort()->values();
         $middle = (int) ($count / 2);
 
         if ($count % 2) {
