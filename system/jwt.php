@@ -26,25 +26,28 @@ class JWT
      * @var array
      */
     private static $algorithms = [
-        'HS256' => 'SHA256',
-        'HS384' => 'SHA384',
-        'HS512' => 'SHA512',
+        'HS256' => ['hash' => 'SHA256', 'type' => 'symmetric'],
+        'HS384' => ['hash' => 'SHA384', 'type' => 'symmetric'],
+        'HS512' => ['hash' => 'SHA512', 'type' => 'symmetric'],
+        'RS256' => ['hash' => 'SHA256', 'type' => 'asymmetric'],
+        'RS384' => ['hash' => 'SHA384', 'type' => 'asymmetric'],
+        'RS512' => ['hash' => 'SHA512', 'type' => 'asymmetric'],
     ];
 
     /**
      * Encode payload.
      *
      * @param array  $payloads
-     * @param string $secret
+     * @param string $key
      * @param array  $headers
      * @param string $algorithm
      *
      * @return string
      */
-    public static function encode(array $payloads, $secret, array $headers = [], $algorithm = 'HS256')
+    public static function encode(array $payloads, $key, array $headers = [], $algorithm = 'HS256')
     {
-        if (!is_string($secret) || strlen($secret) < 1) {
-            throw new \Exception('Secret cannot be empty or non-string value');
+        if (!is_string($key) || strlen($key) < 1) {
+            throw new \Exception('Key cannot be empty or non-string value');
         }
 
         if (!is_string($algorithm) || strlen($algorithm) < 1) {
@@ -55,8 +58,8 @@ class JWT
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
-                "Only these algorithm are supported: %s. Got '%s' (%s)",
-                implode(', ', static::$algorithms),
+                "Only these algorithms are supported: %s. Got '%s' (%s)",
+                implode(', ', array_keys(static::$algorithms)),
                 $algorithm,
                 gettype($algorithm)
             ));
@@ -65,7 +68,7 @@ class JWT
         $headers = array_merge($headers, ['typ' => 'JWT', 'alg' => $algorithm]);
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
-        $signature = static::encode_url(static::signature($headers . '.' . $payloads, $secret, $algorithm));
+        $signature = static::encode_url(static::signature($headers . '.' . $payloads, $key, $algorithm));
 
         return $headers . '.' . $payloads . '.' . $signature;
     }
@@ -74,14 +77,14 @@ class JWT
      * Decode payload.
      *
      * @param string $token
-     * @param string $secret
+     * @param string $key
      *
      * @return \stdClass
      */
-    public static function decode($token, $secret)
+    public static function decode($token, $key)
     {
-        if (!is_string($secret) || strlen($secret) < 1) {
-            throw new \Exception('Secret cannot be empty or non-string value');
+        if (!is_string($key) || strlen($key) < 1) {
+            throw new \Exception('Key cannot be empty or non-string value');
         }
 
         $jwt = explode('.', $token);
@@ -118,16 +121,20 @@ class JWT
             throw new \Exception('Empty or non-string algorithm');
         }
 
-        if (!isset(static::$algorithms[$headers->alg]) || !static::$algorithms[$headers->alg]) {
+        if (!isset(static::$algorithms[$headers->alg])) {
             throw new \Exception(sprintf(
-                "Only these algorithm are supported: %s. Got '%s' (%s)",
-                implode(', ', static::$algorithms),
+                "Only these algorithms are supported: %s. Got '%s' (%s)",
+                implode(', ', array_keys(static::$algorithms)),
                 $headers->alg,
                 gettype($headers->alg)
             ));
         }
 
-        if (!static::verify($headers64 . '.' . $payloads64, $signature, $secret, $headers->alg)) {
+        if (!isset($headers->typ) || $headers->typ !== 'JWT') {
+            throw new \Exception('Invalid token type');
+        }
+
+        if (!static::verify($headers64 . '.' . $payloads64, $signature, $key, $headers->alg)) {
             throw new \Exception('Signature verification failed');
         }
 
@@ -150,25 +157,33 @@ class JWT
      * Buat signature untuk encode.
      *
      * @param string $payload
-     * @param string $secret
+     * @param string $key
      * @param string $algorithm
      *
      * @return string
      */
-    private static function signature($payload, $secret, $algorithm)
+    private static function signature($payload, $key, $algorithm)
     {
         $algorithm = strtoupper((string) $algorithm);
 
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
-                "Only these algorithm are supported: %s. Got '%s' (%s)",
-                implode(', ', static::$algorithms),
+                "Only these algorithms are supported: %s. Got '%s' (%s)",
+                implode(', ', array_keys(static::$algorithms)),
                 $algorithm,
                 gettype($algorithm)
             ));
         }
 
-        return hash_hmac(static::$algorithms[$algorithm], $payload, $secret, true);
+        $info = static::$algorithms[$algorithm];
+
+        if ($info['type'] === 'symmetric') {
+            return hash_hmac($info['hash'], $payload, $key, true);
+        } elseif ($info['type'] === 'asymmetric') {
+            return static::rsa_sign($payload, $key, $algorithm);
+        }
+
+        throw new \Exception('Unsupported algorithm type');
     }
 
     /**
@@ -176,12 +191,12 @@ class JWT
      *
      * @param string $payload
      * @param string $signature
-     * @param string $secret
+     * @param string $key
      * @param string $algorithm
      *
      * @return bool
      */
-    private static function verify($payload, $signature, $secret, $algorithm)
+    private static function verify($payload, $signature, $key, $algorithm)
     {
         $algorithm = strtoupper((string) $algorithm);
 
@@ -194,7 +209,65 @@ class JWT
             ));
         }
 
-        return Crypter::equals($signature, hash_hmac(static::$algorithms[$algorithm], $payload, $secret, true));
+        $info = static::$algorithms[$algorithm];
+
+        if ($info['type'] === 'symmetric') {
+            $expected = hash_hmac($info['hash'], $payload, $key, true);
+            return Crypter::equals($expected, $signature);
+        } elseif ($info['type'] === 'asymmetric') {
+            return static::rsa_verify($payload, $signature, $key, $algorithm);
+        }
+
+        throw new \Exception('Unsupported algorithm type');
+    }
+
+    /**
+     * Buat signature RSA.
+     *
+     * @param string $payload
+     * @param string $private_key
+     * @param string $algorithm
+     *
+     * @return string
+     */
+    private static function rsa_sign($payload, $private_key, $algorithm)
+    {
+        if (!function_exists('openssl_sign')) {
+            throw new \Exception('OpenSSL extension is not available');
+        }
+
+        $success = openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash']);
+
+        if (!$success) {
+            throw new \Exception('OpenSSL unable to sign data');
+        }
+
+        return $signature;
+    }
+
+    /**
+     * Verifikasi signature RSA.
+     *
+     * @param string $payload
+     * @param string $signature
+     * @param string $public_key
+     * @param string $algorithm
+     *
+     * @return bool
+     */
+    private static function rsa_verify($payload, $signature, $public_key, $algorithm)
+    {
+        if (!function_exists('openssl_verify')) {
+            throw new \Exception('OpenSSL extension is not available');
+        }
+
+        $result = openssl_verify($payload, $signature, $public_key, static::$algorithms[$algorithm]['hash']);
+
+        if ($result === -1) {
+            throw new \Exception('OpenSSL error: ' . openssl_error_string());
+        }
+
+        return $result === 1;
     }
 
     /**
@@ -209,6 +282,13 @@ class JWT
         return str_replace('=', '', strtr(base64_encode($data), '+/', '-_'));
     }
 
+    /**
+     * Decode string dari url base64.
+     *
+     * @param string $data
+     *
+     * @return string
+     */
     private static function decode_url($data)
     {
         $remainder = strlen((string) $data) % 4;
