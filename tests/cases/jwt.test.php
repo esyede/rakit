@@ -6,40 +6,13 @@ use System\JWT;
 
 class JWTTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * Setup.
-     */
-    public function setUp()
-    {
-        // ..
-    }
-
-    /**
-     * Tear down.
-     */
-    public function tearDown()
-    {
-        // ..
-    }
-
-    /**
-     * Test hanya izinkan karakter URL-friendly.
-     *
-     * @group system
-     */
-    public function testUrlSafeCharacters()
+    public function testEncodeDecode()
     {
         $encoded = JWT::encode(['foo' => 'f?'], 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertEquals('f?', $decoded->foo);
     }
 
-    /**
-     * Test hanya izinkan UTF-8.
-     *
-     * @group system
-     */
     public function testMalformedUtf8StringsFail()
     {
         try {
@@ -47,21 +20,16 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         } catch (\Throwable $e) {
             $this->assertTrue(
                 'Malformed UTF-8 characters' === $e->getMessage()
-                    || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
+                || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
             );
         } catch (\Exception $e) {
             $this->assertTrue(
                 'Malformed UTF-8 characters' === $e->getMessage()
-                    || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
+                || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
             );
         }
     }
 
-    /**
-     * Test expired token gagal.
-     *
-     * @group system
-     */
     public function testExpiredToken()
     {
         try {
@@ -75,11 +43,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test invalid token dengan nbf gagal.
-     *
-     * @group system
-     */
     public function testBeforeValidTokenWithNbf()
     {
         try {
@@ -93,11 +56,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test invalid token dengan iat gagal.
-     *
-     * @group system
-     */
     public function testBeforeValidTokenWithIat()
     {
         try {
@@ -111,47 +69,27 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test valid token sukses.
-     *
-     * @group system
-     */
     public function testValidToken()
     {
         $payloads = ['foo' => 'bar', 'exp' => time() + JWT::$leeway + 20];
         $encoded = JWT::encode($payloads, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertEquals('bar', $decoded->foo);
     }
 
-    /**
-     * Test valid token dengan leeway sukses.
-     *
-     * @group system
-     */
     public function testValidTokenWithLeeway()
     {
         JWT::$leeway = 60;
-
         $payloads = ['foo' => 'bar'];
         $encoded = JWT::encode($payloads, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertEquals('bar', $decoded->foo);
-
         JWT::$leeway = 0;
     }
 
-    /**
-     * Test invalid token dengan leeway gagal.
-     *
-     * @group system
-     */
     public function testExpiredTokenWithLeeway()
     {
         JWT::$leeway = 60;
-
         try {
             $payloads = ['foo' => 'bar', 'exp' => time() - 70];
             $encoded = JWT::encode($payloads, 'secret');
@@ -166,47 +104,27 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test valid token dengan nbf sukses.
-     *
-     * @group system
-     */
     public function testValidTokenWithNbf()
     {
         $payload = ['foo' => 'bar', 'iat' => time(), 'exp' => time() + 20, 'nbf' => time() - 20];
         $encoded = JWT::encode($payload, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertEquals($decoded->foo, 'bar');
     }
 
-    /**
-     * Test valid token dengan nbf & leeway sukses.
-     *
-     * @group system
-     */
     public function testValidTokenWithNbfLeeway()
     {
         JWT::$leeway = 60;
-
         $payload = ['foo' => 'bar', 'nbf' => time() + 20];
         $encoded = JWT::encode($payload, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertEquals($decoded->foo, 'bar');
-
         JWT::$leeway = 0;
     }
 
-    /**
-     * Test invalid token dengan nbf & leeway gagal.
-     *
-     * @group system
-     */
     public function testInvalidTokenWithNbfLeeway()
     {
         JWT::$leeway = 60;
-
         try {
             $payloads = ['foo' => 'bar', 'nbf' => time() + 65];
             $encoded = JWT::encode($payloads, 'secret');
@@ -221,33 +139,19 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test valid token dengan nbf & iat sukses.
-     *
-     * @group system
-     */
     public function testValidTokenWithIatLeeway()
     {
         JWT::$leeway = 60;
-
         $payloads = ['foo' => 'bar', 'iat' => time() + 20];
         $encoded = JWT::encode($payloads, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertEquals('bar', $decoded->foo);
-
         JWT::$leeway = 0;
     }
 
-    /**
-     * Test invalid token dengan iat & leeway gagal.
-     *
-     * @group system
-     */
     public function testInvalidTokenWithIatLeeway()
     {
         JWT::$leeway = 60;
-
         try {
             $payloads = ['foo' => 'bar', 'iat' => time() + 65];
             $encoded = JWT::encode($payloads, 'secret');
@@ -262,11 +166,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test invalid token gagal.
-     *
-     * @group system
-     */
     public function testInvalidToken()
     {
         try {
@@ -280,11 +179,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test invalid key/secret gagal.
-     *
-     * @group system
-     */
     public function testNullKeyFails()
     {
         try {
@@ -292,17 +186,12 @@ class JWTTest extends \PHPUnit_Framework_TestCase
             $encoded = JWT::encode($payloads, 'secret');
             $decoded = JWT::decode($encoded, null);
         } catch (\Throwable $e) {
-            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
+            $this->assertEquals('Key cannot be empty or non-string value', $e->getMessage());
         } catch (\Exception $e) {
-            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
+            $this->assertEquals('Key cannot be empty or non-string value', $e->getMessage());
         }
     }
 
-    /**
-     * Test key/secret kosong gagal.
-     *
-     * @group system
-     */
     public function testEmptyKeyFails()
     {
         try {
@@ -310,45 +199,29 @@ class JWTTest extends \PHPUnit_Framework_TestCase
             $encoded = JWT::encode($payloads, 'secret');
             $decoded = JWT::decode($encoded, '');
         } catch (\Throwable $e) {
-            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
+            $this->assertEquals('Key cannot be empty or non-string value', $e->getMessage());
         } catch (\Exception $e) {
-            $this->assertEquals('Secret cannot be empty or non-string value', $e->getMessage());
+            $this->assertEquals('Key cannot be empty or non-string value', $e->getMessage());
         }
     }
 
-    /**
-     * Test invalid algorithm gagal.
-     *
-     * @group system
-     */
     public function testInvalidAlgorithm()
     {
         try {
-            $encoded = JWT::encode(['foo' => 'bar'], 'secret', [], 'RS256'); // unsupported algo
+            $encoded = JWT::encode(['foo' => 'bar'], 'secret', [], 'UNSUPPORTED');
         } catch (\Throwable $e) {
-            $this->assertTrue(false !== strpos($e->getMessage(), 'Only these algorithm are supported:'));
+            $this->assertTrue(false !== strpos($e->getMessage(), 'Only these algorithms are supported:'));
         } catch (\Exception $e) {
-            $this->assertTrue(false !== strpos($e->getMessage(), 'Only these algorithm are supported:'));
+            $this->assertTrue(false !== strpos($e->getMessage(), 'Only these algorithms are supported:'));
         }
     }
 
-    /**
-     * Test header tambahan sukses.
-     *
-     * @group system
-     */
     public function testAdditionalHeaders()
     {
         $encoded = JWT::encode(['foo' => 'bar'], 'secret', ['cty' => 'test-eit;v=1']);
-
         $this->assertEquals('bar', JWT::decode($encoded, 'secret')->foo);
     }
 
-    /**
-     * Test invalid segment count gagal.
-     *
-     * @group system
-     */
     public function testInvalidSegmentCount()
     {
         try {
@@ -360,42 +233,30 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Test invalid signature encoding gagal.
-     *
-     * @group system
-     */
     public function testInvalidSignatureEncoding()
     {
         try {
-            $encoded = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.'
-                . 'eyJpZCI6MSwibmFtZSI6ImZvbyJ9.'
-                . 'Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
+            $encoded = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwibmFtZSI6ImZvbyJ9.Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
             $decoded = JWT::decode($encoded, 'qwerty');
         } catch (\Throwable $e) {
             $this->assertTrue(
                 'Invalid signature encoding' === $e->getMessage()
-                    || 'Signature verification failed' === $e->getMessage()
+                || 'Signature verification failed' === $e->getMessage()
             );
         } catch (\Exception $e) {
             $this->assertTrue(
                 'Invalid signature encoding' === $e->getMessage()
-                    || 'Signature verification failed' === $e->getMessage()
+                || 'Signature verification failed' === $e->getMessage()
             );
         }
     }
 
-    /**
-     * Test payload array kososng sukses.
-     *
-     * @group system
-     */
     public function testDecodesEmptyArrayAsObject()
     {
         $payloads = [];
         $encoded = JWT::encode($payloads, 'secret');
         $decoded = JWT::decode($encoded, 'secret');
-
         $this->assertTrue(count(get_object_vars($decoded)) === count($payloads));
     }
 }
+

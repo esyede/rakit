@@ -6,26 +6,7 @@ defined('DS') or exit('No direct access.');
 
 class JWT
 {
-    /**
-     * Timestamp saat ini.
-     *
-     * @var int
-     */
-    public static $timestamp = 0;
-
-    /**
-     * Leeway time.
-     *
-     * @var int
-     */
-    public static $leeway = 0;
-
-    /**
-     * Algoritma yang didukung.
-     *
-     * @var array
-     */
-    private static $algorithms = [
+    protected static $algorithms = [
         'HS256' => ['hash' => 'SHA256', 'type' => 'symmetric'],
         'HS384' => ['hash' => 'SHA384', 'type' => 'symmetric'],
         'HS512' => ['hash' => 'SHA512', 'type' => 'symmetric'],
@@ -33,6 +14,9 @@ class JWT
         'RS384' => ['hash' => 'SHA384', 'type' => 'asymmetric'],
         'RS512' => ['hash' => 'SHA512', 'type' => 'asymmetric'],
     ];
+
+    public static $leeway = 0;
+    public static $timestamp;
 
     /**
      * Encode payload.
@@ -69,7 +53,6 @@ class JWT
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
         $signature = static::encode_url(static::signature($headers . '.' . $payloads, $key, $algorithm));
-
         return $headers . '.' . $payloads . '.' . $signature;
     }
 
@@ -89,20 +72,17 @@ class JWT
 
         $jwt = explode('.', $token);
         $timestamp = static::$timestamp ?: time();
-
         if (!is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');
         }
 
         list($headers64, $payloads64, $signature64) = $jwt;
         $headers = static::decode_json(static::decode_url($headers64));
-
         if (null === $headers) {
             throw new \Exception('Invalid header encoding');
         }
 
         $payloads = static::decode_json(static::decode_url($payloads64));
-
         if (null === $payloads) {
             throw new \Exception('Invalid claims encoding');
         }
@@ -112,7 +92,6 @@ class JWT
         }
 
         $signature = static::decode_url($signature64);
-
         if (false === $signature) {
             throw new \Exception('Invalid signature encoding');
         }
@@ -165,7 +144,6 @@ class JWT
     private static function signature($payload, $key, $algorithm)
     {
         $algorithm = strtoupper((string) $algorithm);
-
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 "Only these algorithms are supported: %s. Got '%s' (%s)",
@@ -176,7 +154,6 @@ class JWT
         }
 
         $info = static::$algorithms[$algorithm];
-
         if ($info['type'] === 'symmetric') {
             return hash_hmac($info['hash'], $payload, $key, true);
         } elseif ($info['type'] === 'asymmetric') {
@@ -199,7 +176,6 @@ class JWT
     private static function verify($payload, $signature, $key, $algorithm)
     {
         $algorithm = strtoupper((string) $algorithm);
-
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 'Only these algorithms are supported: %s, got: %s (%s)',
@@ -210,7 +186,6 @@ class JWT
         }
 
         $info = static::$algorithms[$algorithm];
-
         if ($info['type'] === 'symmetric') {
             $expected = hash_hmac($info['hash'], $payload, $key, true);
             return Crypter::equals($expected, $signature);
@@ -237,7 +212,6 @@ class JWT
         }
 
         $success = openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash']);
-
         if (!$success) {
             throw new \Exception('OpenSSL unable to sign data');
         }
@@ -262,7 +236,6 @@ class JWT
         }
 
         $result = openssl_verify($payload, $signature, $public_key, static::$algorithms[$algorithm]['hash']);
-
         if ($result === -1) {
             throw new \Exception('OpenSSL error: ' . openssl_error_string());
         }
@@ -293,7 +266,6 @@ class JWT
     {
         $remainder = strlen((string) $data) % 4;
         $data .= $remainder ? str_repeat('=', 4 - $remainder) : '';
-
         return base64_decode(strtr($data, '-_', '+/'));
     }
 
@@ -307,7 +279,6 @@ class JWT
     private static function encode_json($data)
     {
         $json = json_encode($data);
-
         if (JSON_ERROR_NONE !== json_last_error()) {
             static::json_error(json_last_error());
         } elseif ($json === 'null' && $data !== null) {
@@ -327,7 +298,6 @@ class JWT
     private static function decode_json($data)
     {
         $object = json_decode($data, false);
-
         if (JSON_ERROR_NONE !== json_last_error()) {
             static::json_error(json_last_error());
         } elseif ($object === null && $data !== 'null') {
@@ -353,7 +323,6 @@ class JWT
             JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
         ];
-
         throw new \Exception(isset($errors[$code]) ? $errors[$code] : sprintf('Unknown JSON error: %s', $code));
     }
 }
