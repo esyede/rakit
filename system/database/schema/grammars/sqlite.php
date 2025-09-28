@@ -117,7 +117,7 @@ class SQLite extends Grammar
      */
     protected function incrementer(Table $table, Magic $column)
     {
-        if ('integer' === $column->type && $column->increment) {
+        if (in_array($column->type, ['integer', 'biginteger']) && $column->increment) {
             return ' PRIMARY KEY AUTOINCREMENT';
         }
     }
