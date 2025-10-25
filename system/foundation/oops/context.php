@@ -9,19 +9,10 @@ class Context
     /** @var \WeakMap|\SplObjectStorage|null */
     private static $map = null;
 
-    /** @var bool|null */
-    private static $useWeak = null;
-
     private static function map()
     {
         if (null === self::$map) {
-            if (class_exists('\WeakMap')) {
-                self::$map = new \WeakMap();
-                self::$useWeak = true;
-            } else {
-                self::$map = new \SplObjectStorage();
-                self::$useWeak = false;
-            }
+            self::$map = class_exists('\WeakMap') ? new \WeakMap() : new \SplObjectStorage();
         }
 
         return self::$map;
