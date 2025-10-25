@@ -215,13 +215,13 @@ class Panic
         $res = [];
 
         foreach ($this->panels as $callback) {
+            $name = '(unknown)';
+            $e = '';
             try {
                 $panel = call_user_func($callback, $ex);
-
                 if (empty($panel['tab']) || empty($panel['panel'])) {
                     continue;
                 }
-
                 $res[] = (object) $panel;
                 continue;
             } catch (\Throwable $e) {
@@ -261,12 +261,9 @@ class Panic
             }
         }
 
-        if (
-            property_exists($ex, 'oopsAction')
-            && !empty($ex->oopsAction['link'])
-            && !empty($ex->oopsAction['label'])
-        ) {
-            $actions[] = $ex->oopsAction;
+        $oopsAction = \System\Foundation\Oops\Context::getOopsAction($ex);
+        if (!empty($oopsAction['link']) && !empty($oopsAction['label'])) {
+            $actions[] = $oopsAction;
         }
 
         if (preg_match('# ([\'"])(\w{3,}(?:\\\\\w{3,})+)\\1#i', $ex->getMessage(), $m)) {
@@ -304,7 +301,7 @@ class Panic
         ];
 
         if (($ex instanceof \ErrorException)
-            && !empty($ex->skippable)
+            && \System\Foundation\Oops\Context::isSkippable($ex)
             && preg_match('#^https?://#', $source = Helpers::getSource())
         ) {
             $actions[] = [
@@ -325,7 +322,7 @@ class Panic
      *
      * @return string|null
      */
-    public static function highlightFile($file, $line, $lines = 15, array $vars = null)
+    public static function highlightFile($file, $line, $lines = 15, ?array $vars = null)
     {
         $source = @file_get_contents($file);
 
@@ -350,7 +347,7 @@ class Panic
      *
      * @return string
      */
-    public static function highlightPhp($source, $line, $lines = 15, array $vars = null)
+    public static function highlightPhp($source, $line, $lines = 15, ?array $vars = null)
     {
         // if (function_exists('ini_set')) {
         //     ini_set('highlight.comment', '#6a737d');

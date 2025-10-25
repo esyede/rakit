@@ -111,8 +111,8 @@ class Helpers
     {
         if (function_exists('xdebug_get_function_stack')) {
             $stack = [];
-
-            foreach (array_slice(array_reverse(xdebug_get_function_stack()), 2, -1) as $row) {
+            $rows = array_slice(array_reverse(xdebug_get_function_stack()), 2, -1);
+            foreach ($rows as $row) {
                 $frame = [
                     'file' => $row['file'],
                     'line' => $row['line'],
@@ -158,10 +158,12 @@ class Helpers
             E_USER_WARNING => 'User Warning',
             E_NOTICE => 'Notice',
             E_USER_NOTICE => 'User Notice',
-            E_STRICT => 'Strict standards',
             E_DEPRECATED => 'Deprecated',
             E_USER_DEPRECATED => 'User Deprecated',
         ];
+        if (defined('E_STRICT')) {
+            $types[E_STRICT] = 'Strict standards';
+        }
 
         return isset($types[$type]) ? $types[$type] : 'Unknown error';
     }
@@ -195,8 +197,9 @@ class Helpers
             $hint = self::getSuggestion($hint ?: [], $m[2]);
             $message .= ", did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
-        } elseif (preg_match('#^Undefined variable: (\w+)#', $message, $m) && !empty($e->context)) {
-            $hint = self::getSuggestion(array_keys($e->context), $m[1]);
+        } elseif (preg_match('#^Undefined variable: (\w+)#', $message, $m) && (null !== Context::getContext($e))) {
+            $ctx = Context::getContext($e);
+            $hint = self::getSuggestion(array_keys($ctx), $m[1]);
             $message = "Undefined variable $$m[1], did you mean $$hint?";
             $replace = ["$$m[1]", "$$hint"];
         } elseif (preg_match('#^Undefined property: ([\w\\\\]+)::\$(\w+)#', $message, $m)) {
@@ -225,10 +228,11 @@ class Helpers
             $ref = new \ReflectionProperty($e, 'message');
             $ref->setAccessible(true);
             $ref->setValue($e, $message);
-            $e->oopsAction = [
+            // Store oopsAction via Context helper
+            Context::setOopsAction($e, [
                 'link' => self::editorUri($e->getFile(), $e->getLine(), 'fix', $replace[0], $replace[1]),
                 'label' => 'fix it',
-            ];
+            ]);
         }
     }
 
@@ -325,8 +329,6 @@ class Helpers
     /** @internal */
     public static function getNonce()
     {
-        return preg_match('#^Content-Security-Policy(?:-Report-Only)?:.*\sscript-src\s+(?:[^;]+\s)?\'nonce-([\w+/]+=*)\'#mi', implode("\n", headers_list()), $m)
-            ? $m[1]
-            : null;
+        return preg_match('#^Content-Security-Policy(?:-Report-Only)?:.*\sscript-src\s+(?:[^;]+\s)?\'nonce-([\w+/]+=*)\'#mi', implode("\n", headers_list()), $m) ? $m[1] : null;
     }
 }

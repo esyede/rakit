@@ -447,22 +447,42 @@ class Debugger
             $s = get_class($e) . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                 . ' in ' . $e->getFile() . ':' . $e->getLine()
                 . "\nStack trace:\n" . $e->getTraceAsString();
+
             try {
-                $file = self::log($e, self::EXCEPTION);
+                $file = null;
 
-                if ($file && !headers_sent()) {
-                    header('X-Oops-Error-Log: ' . $file);
+                // Only attempt to write a file if a log directory is configured.
+                if (self::$logDirectory) {
+                    $file = self::log($e, self::EXCEPTION);
+
+                    if ($file && !headers_sent()) {
+                        header('X-Oops-Error-Log: ' . $file);
+                    }
                 }
 
-                echo "$s\n" . ($file ? "(stored in $file)\n" : '');
+                // In CLI/non-html mode, avoid noisy output when exceptionHandler was
+                // explicitly called with $exit = false (used by tests). Only print
+                // details when we have a file or when exit is true.
+                if ($file) {
+                    echo "$s\n" . ("(stored in $file)\n");
 
-                if ($file && self::$browser) {
-                    exec(self::$browser . ' ' . escapeshellarg($file));
+                    if (self::$browser) {
+                        exec(self::$browser . ' ' . escapeshellarg($file));
+                    }
+                } elseif ($exit) {
+                    // Fallback: print basic info when this is a real fatal handling.
+                    echo "$s\n";
                 }
-            } catch (\Throwable $e) {
-                echo "$s\nUnable to log error: {$e->getMessage()}\n";
-            } catch (\Exception $e) {
-                echo "$s\nUnable to log error: {$e->getMessage()}\n";
+            } catch (\Throwable $ex) {
+                if ($exit) {
+                    echo "$s\nUnable to log error: {$ex->getMessage()}\n";
+                }
+                // otherwise suppress logging errors during non-fatal invocation
+            } catch (\Exception $ex) {
+                if ($exit) {
+                    echo "$s\nUnable to log error: {$ex->getMessage()}\n";
+                }
+                // otherwise suppress logging errors during non-fatal invocation
             }
         }
 
@@ -513,18 +533,19 @@ class Debugger
                     && (($context['e'] instanceof \Exception) || ($context['e'] instanceof \Throwable))
                 ) ? $context['e'] : null;
                 $e = new \ErrorException($message, 0, $severity, $file, $line, $previous);
-                $e->context = $context;
+                // Store context via Context helper instead of dynamic property
+                Context::setContext($e, $context);
                 self::exceptionHandler($e);
             }
 
             $e = new \ErrorException($message, 0, $severity, $file, $line);
-            $e->context = $context;
+            Context::setContext($e, $context);
             throw $e;
         } elseif (($severity & error_reporting()) !== $severity) {
             return false;
         } elseif (self::$productionMode && ($severity & self::$logSeverity) === $severity) {
             $e = new \ErrorException($message, 0, $severity, $file, $line);
-            $e->context = $context;
+            Context::setContext($e, $context);
             Helpers::improveException($e);
 
             try {
@@ -542,8 +563,8 @@ class Debugger
             && (is_bool(self::$strictMode) ? self::$strictMode : ((self::$strictMode & $severity) === $severity))
         ) {
             $e = new \ErrorException($message, 0, $severity, $file, $line);
-            $e->context = $context;
-            $e->skippable = true;
+            Context::setContext($e, $context);
+            Context::setSkippable($e, true);
             self::exceptionHandler($e);
         }
 
@@ -771,13 +792,8 @@ class Debugger
     public static function detectDebugMode($list = null)
     {
         $addr = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : php_uname('n');
-        $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET]))
-            ? $_COOKIE[self::COOKIE_SECRET]
-            : null;
-
-        $list = is_string($list)
-            ? preg_split('#[,\s]+#', $list)
-            : (array) $list;
+        $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])) ? $_COOKIE[self::COOKIE_SECRET] : null;
+        $list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
 
         if (!isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !isset($_SERVER['HTTP_FORWARDED'])) {
             $list[] = '127.0.0.1';

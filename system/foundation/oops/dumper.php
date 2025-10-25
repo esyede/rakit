@@ -83,7 +83,7 @@ class Dumper
      *
      * @return mixed
      */
-    public static function dump($var, array $options = null)
+    public static function dump($var, $options = null)
     {
         if (PHP_SAPI !== 'cli' && !preg_match('#^Content-Type: (?!text/html)#im', implode("\n", headers_list()))) {
             echo self::toHtml($var, $options);
@@ -101,7 +101,7 @@ class Dumper
      *
      * @return string
      */
-    public static function toHtml($var, array $options = null)
+    public static function toHtml($var, $options = null)
     {
         $options = (array) $options + [
             self::DEPTH => 4,
@@ -145,7 +145,7 @@ class Dumper
      *
      * @return string
      */
-    public static function toText($var, array $options = null)
+    public static function toText($var, $options = null)
     {
         return htmlspecialchars_decode(strip_tags(self::toHtml($var, $options)), ENT_QUOTES);
     }
@@ -155,7 +155,7 @@ class Dumper
      *
      * @return string
      */
-    public static function toTerminal($var, array $options = null)
+    public static function toTerminal($var, $options = null)
     {
         $regex = '#<span class="oops-dump-(\w+)">|</span>#';
         return htmlspecialchars_decode(strip_tags(preg_replace_callback($regex, function ($m) {
