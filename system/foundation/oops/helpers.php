@@ -160,10 +160,8 @@ class Helpers
             E_USER_NOTICE => 'User Notice',
             E_DEPRECATED => 'Deprecated',
             E_USER_DEPRECATED => 'User Deprecated',
+            2048 => 'Strict Standards',
         ];
-        if (defined('E_STRICT')) {
-            $types[E_STRICT] = 'Strict standards';
-        }
 
         return isset($types[$type]) ? $types[$type] : 'Unknown error';
     }
