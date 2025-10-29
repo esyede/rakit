@@ -67,14 +67,6 @@ class Unique
         return $result;
     }
 
-    /**
-     * Create a deterministic key for a result value.
-     * Scalars are prefixed with type. Arrays/objects are canonicalized and JSON-encoded.
-     * If JSON encoding fails, fall back to serialize().
-     *
-     * @param mixed $value
-     * @return string
-     */
     protected function makeKey($value)
     {
         if (is_null($value)) {
@@ -85,9 +77,7 @@ class Unique
             return gettype($value) . ':' . (string) $value;
         }
 
-        // For arrays or objects, attempt a canonical JSON representation
         if (is_object($value)) {
-            // convert object to array for canonicalization
             $value = (array) $value;
         }
 
@@ -100,13 +90,11 @@ class Unique
             }
         }
 
-        // Fallback
         return 'ser:' . serialize($value);
     }
 
     protected function canonicalizeArray(array $arr)
     {
-        // Sort keys recursively to make representation deterministic
         ksort($arr);
 
         foreach ($arr as $k => $v) {

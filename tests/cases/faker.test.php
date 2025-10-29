@@ -176,7 +176,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testUniqueThrowsOverflowWhenExhausted()
     {
-        $gen = $this->getMockBuilder('\System\Foundation\Faker\Generator')->setMethods(array('value'))->getMock();
+        $gen = $this->getMockBuilder('\System\Foundation\Faker\Generator')->setMethods(['value'])->getMock();
         $gen->expects($this->any())->method('value')->will($this->returnValue('same'));
         $this->setExpectedException('\OverflowException');
         $unique = new Unique($gen, 10);
