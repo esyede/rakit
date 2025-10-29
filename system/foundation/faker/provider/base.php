@@ -285,8 +285,17 @@ class Base
 
     public function unique($reset = false, $max_retries = 10000)
     {
-        if ($reset || !$this->unique) {
+        if (!$this->unique) {
             $this->unique = new Unique($this->generator, $max_retries);
+            return $this->unique;
+        }
+
+        if ($reset) {
+            $this->unique->reset();
+        }
+
+        if ($max_retries !== null) {
+            $this->unique->setMaxRetries($max_retries);
         }
 
         return $this->unique;

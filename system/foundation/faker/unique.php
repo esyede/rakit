@@ -10,10 +10,30 @@ class Unique
     protected $max_retries;
     protected $uniques = [];
 
-    public function __construct(Generator $generator, $max_retries = 10000)
+    public function __construct($generator, $max_retries = 10000)
     {
         $this->generator = $generator;
         $this->max_retries = $max_retries;
+    }
+
+    public function reset($name = null)
+    {
+        if (is_null($name)) {
+            $this->uniques = [];
+            return;
+        }
+
+        unset($this->uniques[$name]);
+    }
+
+    public function setMaxRetries($max)
+    {
+        $this->max_retries = (int) $max;
+    }
+
+    public function getMaxRetries()
+    {
+        return $this->max_retries;
     }
 
     public function __get($attribute)
@@ -39,9 +59,64 @@ class Unique
                     $this->max_retries
                 ));
             }
-        } while (array_key_exists(serialize($result), $this->uniques[$name]));
 
-        $this->uniques[$name][serialize($result)] = null;
+            $key = $this->makeKey($result);
+        } while (array_key_exists($key, $this->uniques[$name]));
+
+        $this->uniques[$name][$key] = null;
         return $result;
+    }
+
+    /**
+     * Create a deterministic key for a result value.
+     * Scalars are prefixed with type. Arrays/objects are canonicalized and JSON-encoded.
+     * If JSON encoding fails, fall back to serialize().
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected function makeKey($value)
+    {
+        if (is_null($value)) {
+            return 'null:';
+        }
+
+        if (is_scalar($value)) {
+            return gettype($value) . ':' . (string) $value;
+        }
+
+        // For arrays or objects, attempt a canonical JSON representation
+        if (is_object($value)) {
+            // convert object to array for canonicalization
+            $value = (array) $value;
+        }
+
+        if (is_array($value)) {
+            $canonical = $this->canonicalizeArray($value);
+            $json = json_encode($canonical);
+
+            if (false !== $json) {
+                return 'json:' . $json;
+            }
+        }
+
+        // Fallback
+        return 'ser:' . serialize($value);
+    }
+
+    protected function canonicalizeArray(array $arr)
+    {
+        // Sort keys recursively to make representation deterministic
+        ksort($arr);
+
+        foreach ($arr as $k => $v) {
+            if (is_array($v)) {
+                $arr[$k] = $this->canonicalizeArray($v);
+            } elseif (is_object($v)) {
+                $arr[$k] = $this->canonicalizeArray((array) $v);
+            }
+        }
+
+        return $arr;
     }
 }

@@ -5,6 +5,7 @@ defined('DS') or exit('No direct access.');
 use System\Foundation\Faker\Common;
 use System\Foundation\Faker\Generator as FakerGenerator;
 use System\Foundation\Faker\Calculator\Luhn;
+use System\Foundation\Faker\Unique;
 
 class FakerTest extends \PHPUnit_Framework_TestCase
 {
@@ -157,58 +158,84 @@ class FakerTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($mtRandWithoutSeed, mt_rand(), 'seed() should not be deterministic.');
     }
 
+    public function testUniqueReturnsUniqueScalarValues()
+    {
+        $gen = $this->getMockBuilder('\System\Foundation\Faker\Generator')->setMethods(['value'])->getMock();
+        $gen->expects($this->any())->method('value')->will($this->returnCallback(function () {
+            return mt_rand(1, 1000000);
+        }));
+
+        $unique = new Unique($gen);
+        $values = [];
+        for ($i = 0; $i < 1000; $i++) {
+            $v = $unique->value();
+            $this->assertNotContains($v, $values);
+            $values[] = $v;
+        }
+    }
+
+    public function testUniqueThrowsOverflowWhenExhausted()
+    {
+        $gen = $this->getMockBuilder('\System\Foundation\Faker\Generator')->setMethods(array('value'))->getMock();
+        $gen->expects($this->any())->method('value')->will($this->returnValue('same'));
+        $this->setExpectedException('\OverflowException');
+        $unique = new Unique($gen, 10);
+        $unique->value();
+        $unique->value();
+    }
+
     public function checkDigitProvider()
-        {
-            return [
-                ['7992739871', '3'],
-                ['3852000002323', '7'],
-                ['37144963539843', '1'],
-                ['561059108101825', '0'],
-                ['601100099013942', '4'],
-                ['510510510510510', '0'],
-                [7992739871, '3'],
-                [3852000002323, '7'],
-                [37144963539843, '1'],
-                [561059108101825, '0'],
-                [601100099013942, '4'],
-                [510510510510510, '0']
-            ];
-        }
+    {
+        return [
+            ['7992739871', '3'],
+            ['3852000002323', '7'],
+            ['37144963539843', '1'],
+            ['561059108101825', '0'],
+            ['601100099013942', '4'],
+            ['510510510510510', '0'],
+            [7992739871, '3'],
+            [3852000002323, '7'],
+            [37144963539843, '1'],
+            [561059108101825, '0'],
+            [601100099013942, '4'],
+            [510510510510510, '0']
+        ];
+    }
 
-        /**
-         * @dataProvider checkDigitProvider
-         */
-        public function testComputeCheckDigit($partialNumber, $checkDigit)
-        {
-            $this->assertInternalType('string', $checkDigit);
-            $this->assertEquals($checkDigit, Luhn::computeCheckDigit($partialNumber));
-        }
+    /**
+     * @dataProvider checkDigitProvider
+     */
+    public function testComputeCheckDigit($partialNumber, $checkDigit)
+    {
+        $this->assertInternalType('string', $checkDigit);
+        $this->assertEquals($checkDigit, Luhn::computeCheckDigit($partialNumber));
+    }
 
-        public function validatorProvider()
-        {
-            return [
-                ['79927398710', false],
-                ['79927398711', false],
-                ['79927398712', false],
-                ['79927398713', true],
-                ['79927398714', false],
-                ['79927398715', false],
-                ['79927398716', false],
-                ['79927398717', false],
-                ['79927398718', false],
-                ['79927398719', false],
-                [79927398713, true],
-                [79927398714, false],
-            ];
-        }
+    public function validatorProvider()
+    {
+        return [
+            ['79927398710', false],
+            ['79927398711', false],
+            ['79927398712', false],
+            ['79927398713', true],
+            ['79927398714', false],
+            ['79927398715', false],
+            ['79927398716', false],
+            ['79927398717', false],
+            ['79927398718', false],
+            ['79927398719', false],
+            [79927398713, true],
+            [79927398714, false],
+        ];
+    }
 
-        /**
-         * @dataProvider validatorProvider
-         */
-        public function testIsValid($number, $isValid)
-        {
-            $this->assertEquals($isValid, Luhn::isValid($number));
-        }
+    /**
+     * @dataProvider validatorProvider
+     */
+    public function testIsValid($number, $isValid)
+    {
+        $this->assertEquals($isValid, Luhn::isValid($number));
+    }
 }
 
 class FooProvider
