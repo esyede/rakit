@@ -569,7 +569,7 @@ class Request
      *
      *      http://localhost/mysite              mereturn  string kosong
      *      http://localhost/mysite/about        mereturn  '/about'
-     *      htpp://localhost/mysite/enco%20ded   mereturn  '/enco%20ded'
+     *      http://localhost/mysite/enco%20ded   mereturn  '/enco%20ded'
      *      http://localhost/mysite/about?var=1  mereturn  '/about'
      *
      * <code>

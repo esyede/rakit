@@ -109,7 +109,13 @@ class Redis
     public function run($method, array $parameters)
     {
         fwrite($this->connect(), $this->command($method, $parameters));
-        return $this->parse(trim(fgets($this->connection, 512)));
+        $line = stream_get_line($this->connection, 512, CRLF);
+
+        if ($line === false) {
+            throw new \Exception('Failed to read response from Redis server.');
+        }
+
+        return $this->parse($line);
     }
 
     /**
@@ -216,22 +222,30 @@ class Redis
      */
     protected function bulk($head)
     {
-        if ('$-1' === $head) {
+        if (strpos((string) $head, '$-1') === 0) {
             return;
         }
 
-        list($read, $response, $size) = [0, '', substr((string) $head, 1)];
+        $size = (int) substr((string) $head, 1);
 
-        if ($size > 0) {
-            do {
-                // Hitung dan baca bytes dari respon Redis server (baca per 1024 bytes)
-                $block = (($remaining = $size - $read) < 1024) ? $remaining : 1024;
-                $response .= fread($this->connection, $block);
-                $read += $block;
-            } while ($read < $size);
+        if ($size === 0) {
+            stream_get_line($this->connection, 2, CRLF);
+            return '';
         }
 
-        fread($this->connection, 2);
+        $response = '';
+        $remaining = $size;
+        while ($remaining > 0) {
+            $block = ($remaining < 8192) ? $remaining : 8192;
+            $chunk = fread($this->connection, $block);
+            if ($chunk === false || $chunk === '') {
+                break;
+            }
+            $response .= $chunk;
+            $remaining -= strlen($chunk);
+        }
+
+        stream_get_line($this->connection, 2, CRLF);
         return $response;
     }
 
@@ -244,17 +258,22 @@ class Redis
      */
     protected function multibulk($head)
     {
-        $count = substr((string) $head, 1);
+        $count = (int) substr((string) $head, 1);
 
-        if ('-1' === $count) {
+        if ($count === -1) {
             return;
         }
 
         $response = [];
-        $count = (int) $count;
 
         for ($i = 0; $i < $count; ++$i) {
-            $response[] = $this->parse(trim((string) fgets($this->connection, 512)));
+            $line = stream_get_line($this->connection, 512, CRLF);
+
+            if ($line === false) {
+                throw new \Exception('Failed to read multibulk element header from Redis server.');
+            }
+
+            $response[] = $this->parse($line);
         }
 
         return $response;
