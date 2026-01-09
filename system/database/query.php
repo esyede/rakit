@@ -49,6 +49,13 @@ class Query
     public $distinct = false;
 
     /**
+     * Berisi union queries.
+     *
+     * @var array
+     */
+    public $unions = [];
+
+    /**
      * Berisi nama tabel.
      *
      * @var string
@@ -228,6 +235,34 @@ class Query
     }
 
     /**
+     * Tambahkan UNION ke query.
+     *
+     * @param Query $query
+     * @param bool  $all
+     *
+     * @return Query
+     */
+    public function union($query, $all = false)
+    {
+        $this->unions[] = ['query' => $query, 'all' => $all];
+        $this->bindings = array_merge($this->bindings, $query->bindings);
+
+        return $this;
+    }
+
+    /**
+     * Tambahkan UNION ALL ke query.
+     *
+     * @param Query $query
+     *
+     * @return Query
+     */
+    public function union_all($query)
+    {
+        return $this->union($query, true);
+    }
+
+    /**
      * Reset klausa WHERE.
      */
     public function reset_where()
@@ -380,7 +415,429 @@ class Query
     }
 
     /**
-     * Tambahkan klausa BETWEEN ke query.
+     * Tambahkan klausa WHERE IN dengan subquery ke query.
+     *
+     * @param string $column
+     * @param Query  $query
+     * @param string $connector
+     * @param bool   $not
+     *
+     * @return Query
+     */
+    public function where_in_sub($column, Query $query, $connector = 'AND', $not = false)
+    {
+        $type = $not ? 'where_not_in_sub' : 'where_in_sub';
+        $this->wheres[] = compact('type', 'column', 'query', 'connector');
+        $this->bindings = array_merge($this->bindings, $query->bindings);
+
+        return $this;
+    }
+
+    /**
+     * Tambahkan klausa WHERE NOT IN dengan subquery ke query.
+     *
+     * @param string $column
+     * @param Query  $query
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_not_in_sub($column, Query $query, $connector = 'AND')
+    {
+        return $this->where_in_sub($column, $query, $connector, true);
+    }
+
+    /**
+     * Tambahkan klausa WHERE EXISTS dengan subquery ke query.
+     *
+     * @param Query  $query
+     * @param string $connector
+     * @param bool   $not
+     *
+     * @return Query
+     */
+    public function where_exists($query, $connector = 'AND', $not = false)
+    {
+        $type = $not ? 'where_not_exists' : 'where_exists';
+        $this->wheres[] = compact('type', 'query', 'connector');
+        $this->bindings = array_merge($this->bindings, $query->bindings);
+
+        return $this;
+    }
+
+    /**
+     * Tambahkan klausa WHERE NOT EXISTS dengan subquery ke query.
+     *
+     * @param Query  $query
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_not_exists($query, $connector = 'AND')
+    {
+        return $this->where_exists($query, $connector, true);
+    }
+
+    /**
+     * Reset klausa LIMIT dan OFFSET.
+     *
+     * @return Query
+     */
+    public function reset_limit_offset()
+    {
+        $this->limit = null;
+        $this->offset = null;
+
+        return $this;
+    }
+
+    /**
+     * Reset semua klausa query.
+     *
+     * @return Query
+     */
+    public function reset()
+    {
+        $this->reset_limit_offset();
+        $this->reset_where();
+        $this->selects = null;
+        $this->orderings = null;
+        $this->groupings = null;
+        $this->havings = null;
+        $this->unions = null;
+        $this->distinct = false;
+        $this->bindings = [];
+
+        return $this;
+    }
+
+    /**
+     * Buat salinan query saat ini.
+     *
+     * @return Query
+     */
+    public function copy()
+    {
+        $query = new static($this->connection, $this->grammar, $this->from);
+
+        $query->selects = $this->selects;
+        $query->aggregate = $this->aggregate;
+        $query->distinct = $this->distinct;
+        $query->unions = $this->unions;
+        $query->joins = $this->joins;
+        $query->wheres = $this->wheres;
+        $query->groupings = $this->groupings;
+        $query->havings = $this->havings;
+        $query->orderings = $this->orderings;
+        $query->limit = $this->limit;
+        $query->offset = $this->offset;
+        $query->bindings = $this->bindings;
+
+        return $query;
+    }
+
+    /**
+     * Buat query untuk keperluan debugging.
+     *
+     * @return string
+     */
+    public function debug()
+    {
+        $sql = $this->to_sql(true);
+        $bindings = $this->bindings;
+
+        foreach ($bindings as $key => $value) {
+            if (is_array($value)) {
+                $value = implode(', ', $value);
+            } elseif (is_object($value)) {
+                if ($value instanceof \DateTime) {
+                    $value = $value->format('Y-m-d H:i:s');
+                } elseif ($value instanceof Carbon) {
+                    $value = $value->toDateTimeString();
+                } else {
+                    $value = get_class($value);
+                }
+            }
+
+            $bindings[$key] = $value;
+        }
+
+        return vsprintf(str_replace('?', '%s', $sql), $bindings);
+    }
+
+    /**
+     * Eksekusi query SELECT dan return hasilnya.
+     *
+     * @param array $columns
+     *
+     * @return array
+     */
+    public function get($columns = ['*'])
+    {
+        if (is_null($this->selects)) {
+            $this->select($columns);
+        }
+
+        $sql = $this->grammar->select($this);
+        return $this->connection->query($sql, $this->bindings);
+    }
+
+    /**
+     * Eksekusi query SELECT dan return record pertama.
+     *
+     * @param array $columns
+     *
+     * @return mixed
+     */
+    public function first($columns = ['*'])
+    {
+        $this->limit = 1;
+        $results = $this->get($columns);
+        return (count($results) > 0) ? $results[0] : null;
+    }
+
+    /**
+     * Cari record berdasarkan primary key.
+     *
+     * @param mixed $id
+     * @param array $columns
+     *
+     * @return mixed
+     */
+    public function find($id, $columns = ['*'])
+    {
+        return $this->where('id', '=', $id)->first($columns);
+    }
+
+    /**
+     * Eksekusi query INSERT.
+     *
+     * @param array $values
+     *
+     * @return bool
+     */
+    public function insert(array $values)
+    {
+        $values = is_array(reset($values)) ? $values : [$values];
+        $bindings = [];
+
+        foreach ($values as $value) {
+            $bindings = array_merge($bindings, array_values($value));
+        }
+
+        $sql = $this->grammar->insert($this, $values);
+        return $this->connection->query($sql, $bindings);
+    }
+
+    /**
+     * Eksekusi query INSERT dan return ID yang dihasilkan.
+     *
+     * @param array $values
+     * @param string $column
+     *
+     * @return int
+     */
+    public function insert_get_id(array $values, $column = 'id')
+    {
+        $sql = $this->grammar->insert_get_id($this, $values, $column);
+        $bindings = array_merge(array_values($values), $this->bindings);
+        $result = $this->connection->query($sql, $bindings);
+        return isset($result[0]) ? $result[0]->$column : null;
+    }
+
+    /**
+     * Eksekusi query UPDATE.
+     *
+     * @param array $values
+     *
+     * @return int
+     */
+    public function update(array $values)
+    {
+        $sql = $this->grammar->update($this, $values);
+        $bindings = array_merge(array_values($values), $this->bindings);
+        return $this->connection->query($sql, $bindings);
+    }
+
+    /**
+     * Eksekusi query DELETE.
+     *
+     * @return int
+     */
+    public function delete()
+    {
+        $sql = $this->grammar->delete($this);
+        return $this->connection->query($sql, $this->bindings);
+    }
+
+    /**
+     * Increment nilai kolom.
+     *
+     * @param string $column
+     * @param int    $amount
+     *
+     * @return int
+     */
+    public function increment($column, $amount = 1)
+    {
+        return $this->update([$column => $this->raw($column . ' + ' . $amount)]);
+    }
+
+    /**
+     * Decrement nilai kolom.
+     *
+     * @param string $column
+     * @param int    $amount
+     *
+     * @return int
+     */
+    public function decrement($column, $amount = 1)
+    {
+        return $this->update([$column => $this->raw($column . ' - ' . $amount)]);
+    }
+
+    /**
+     * Buat raw expression untuk query.
+     *
+     * @param string $value
+     *
+     * @return Expression
+     */
+    public function raw($value)
+    {
+        return new Expression($value);
+    }
+
+    /**
+     * Handle dynamic where methods seperti where_name, where_email, dll.
+     *
+     * @param string $method
+     * @param array  $parameters
+     * @param Query  $query
+     *
+     * @return Query
+     */
+    protected function dynamic_where($method, array $parameters, $query = null)
+    {
+        $query = is_null($query) ? $this : $query;
+        $method = substr((string) $method, 6);
+        $segments = (array) preg_split('/(_and_|_or_)/i', $method, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $connector = 'AND';
+        $index = 0;
+
+        foreach ($segments as $segment) {
+            if ('_and_' !== $segment && '_or_' !== $segment) {
+                $query->where($segment, '=', $parameters[$index], $connector);
+                ++$index;
+            } else {
+                $connector = trim(strtoupper($segment), '_');
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * Eksekusi fungsi agregasi seperti COUNT, SUM, AVG, dll.
+     *
+     * @param string $aggregator
+     * @param array  $columns
+     *
+     * @return mixed
+     */
+    public function aggregate($aggregator, array $columns)
+    {
+        $this->aggregate = compact('aggregator', 'columns');
+
+        $sql = $this->grammar->select($this);
+        $result = $this->connection->only($sql, $this->bindings);
+
+        $this->aggregate = null;
+        return $result;
+    }
+
+    /**
+     * Tambahkan nested WHERE clause dengan callback.
+     *
+     * @param \Closure $callback
+     * @param string   $connector
+     *
+     * @return Query
+     */
+    public function where_nested(\Closure $callback, $connector = 'AND')
+    {
+        $query = new static($this->connection, $this->grammar, $this->from);
+
+        call_user_func($callback, $query);
+
+        if (!is_null($query->wheres)) {
+            $type = 'where_nested';
+            $this->wheres[] = compact('type', 'query', 'connector');
+        }
+
+        $this->bindings = array_merge($this->bindings, $query->bindings);
+        return $this;
+    }
+
+    /**
+     * Compile query menjadi SQL string.
+     *
+     * @param bool $with_bindings
+     *
+     * @return string
+     */
+    public function to_sql($with_bindings = false)
+    {
+        $sql = $this->grammar->select($this);
+
+        if (!$with_bindings) {
+            return $sql;
+        }
+
+        foreach ($this->bindings as $i => $binding) {
+            $type = gettype($binding);
+
+            switch ($type) {
+                case 'boolean':
+                    $str = (int) $binding;
+                    $str = "$str";
+                    break;
+
+                case 'integer':
+                case 'double':
+                    $str = "$binding";
+                    break;
+
+                case 'string':
+                    $str = "'$binding'";
+                    break;
+
+                case 'object':
+                    if (!($binding instanceof \DateTime) && !($binding instanceof Carbon)) {
+                        throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
+                    }
+
+                    $str = "'" . $binding->format('Y-m-d H:i:s');
+                    break;
+
+                default:
+                    throw new \Exception(sprintf('Unexpected binding argument type: %s', $type));
+            }
+
+            $pos = strpos($sql, '?');
+
+            if (false === $pos) {
+                throw new \Exception(sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i));
+            }
+
+            $sql = substr($sql, 0, $pos) . $str . substr($sql, $pos + 1);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Tambahkan klausa WHERE BETWEEN ke query.
      *
      * @param string $column
      * @param mixed  $min
@@ -402,7 +859,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR BETWEEN ke query.
+     * Tambahkan klausa OR WHERE BETWEEN ke query.
      *
      * @param string $column
      * @param mixed  $min
@@ -416,11 +873,12 @@ class Query
     }
 
     /**
-     * Tambahkan klausa NOT BETWEEN ke query.
+     * Tambahkan klausa WHERE NOT BETWEEN ke query.
      *
      * @param string $column
      * @param mixed  $min
      * @param mixed  $max
+     * @param string $connector
      *
      * @return Query
      */
@@ -430,7 +888,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR NOT BETWEEN ke query.
+     * Tambahkan klausa OR WHERE NOT BETWEEN ke query.
      *
      * @param string $column
      * @param mixed  $min
@@ -498,56 +956,6 @@ class Query
     }
 
     /**
-     * Tambahkan klausa NESTED WHERE ke query.
-     *
-     * @param \Closure $callback
-     * @param string  $connector
-     *
-     * @return Query
-     */
-    public function where_nested(\Closure $callback, $connector = 'AND')
-    {
-        $query = new Query($this->connection, $this->grammar, $this->from);
-
-        call_user_func($callback, $query);
-
-        if (null !== $query->wheres) {
-            $type = 'where_nested';
-            $this->wheres[] = compact('type', 'query', 'connector');
-        }
-
-        $this->bindings = array_merge($this->bindings, $query->bindings);
-        return $this;
-    }
-
-    /**
-     * Tambahkan klausa WHERE DINAMIS ke query.
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return Query
-     */
-    private function dynamic_where($method, array $parameters)
-    {
-        $method = substr((string) $method, 6);
-        $segments = (array) preg_split('/(_and_|_or_)/i', $method, -1, PREG_SPLIT_DELIM_CAPTURE);
-        $connector = 'AND';
-        $index = 0;
-
-        foreach ($segments as $segment) {
-            if ('_and_' !== $segment && '_or_' !== $segment) {
-                $this->where($segment, '=', $parameters[$index], $connector);
-                ++$index;
-            } else {
-                $connector = trim(strtoupper($segment), '_');
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * Tambahkan klausa GROUP BY ke query.
      *
      * @param string $column
@@ -566,6 +974,8 @@ class Query
      * @param string $column
      * @param string $operator
      * @param mixed  $value
+     *
+     * @return Query
      */
     public function having($column, $operator, $value)
     {
@@ -576,47 +986,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa ORDER BY ke query.
-     *
-     * @param string $column
-     * @param string $direction
-     *
-     * @return Query
-     */
-    public function order_by($column, $direction = 'asc')
-    {
-        $this->orderings[] = compact('column', 'direction');
-        return $this;
-    }
-
-    /**
-     * Tambahkan klausa OFFSET ke query.
-     *
-     * @param int $amount
-     *
-     * @return Query
-     */
-    public function skip($amount)
-    {
-        $this->offset = $amount;
-        return $this;
-    }
-
-    /**
-     * Tambahkan klausa LIMIT ke query.
-     *
-     * @param int $amount
-     *
-     * @return Query
-     */
-    public function take($amount)
-    {
-        $this->limit = $amount;
-        return $this;
-    }
-
-    /**
-     * Set klausa LIMIT dan OFFSET ke halaman tertentu (untuk paginasi).
+     * Set pagination untuk query.
      *
      * @param int $page
      * @param int $perpage
@@ -629,35 +999,21 @@ class Query
     }
 
     /**
-     * Return hasil pertama berdasarkan primary key.
+     * Cari record berdasarkan primary key atau fail.
      *
-     * @param int   $id
+     * @param mixed $id
      * @param array $columns
      *
-     * @return \stdClass|null
-     */
-    public function find($id, array $columns = ['*'])
-    {
-        return $this->where('id', '=', $id)->first($columns);
-    }
-
-    /**
-     * Return hasil pertama berdasarkan primary key,
-     * atau redirect ke 404 jika tidak ada yang cocok.
-     *
-     * @param int   $id
-     * @param array $columns
-     *
-     * @return \stdClass|null
+     * @return mixed
      */
     public function find_or_fail($id, array $columns = ['*'])
     {
-        $results = $this->find($id, $columns);
-        return (null === $results) ? abort(404) : $results;
+        $result = $this->find($id, $columns);
+        return (null === $result) ? abort(404) : $result;
     }
 
     /**
-     * Jalankan query sebagai statement SELECT dan return sebuah kolom.
+     * Return hanya kolom tertentu dari hasil query.
      *
      * @param string $column
      *
@@ -670,37 +1026,20 @@ class Query
     }
 
     /**
-     * Return hasil pertama.
+     * Return record pertama atau fail.
      *
      * @param array $columns
      *
-     * @return \stdClass|null
-     */
-    public function first($columns = ['*'])
-    {
-        $columns = is_array($columns) ? $columns : func_get_args();
-        $results = $this->take(1)->get($columns);
-
-        return (count($results) > 0) ? $results[0] : null;
-    }
-
-    /**
-     * Return hasil pertama atau redirect ke 404 jika tidak ada yang cocok.
-     *
-     * @param array $columns
-     *
-     * @return \stdClass|\System\Response
+     * @return mixed
      */
     public function first_or_fail($columns = ['*'])
     {
-        $columns = is_array($columns) ? $columns : func_get_args();
-        $results = $this->first($columns);
-
-        return (null === $results) ? abort(404) : $results;
+        $result = $this->first($columns);
+        return (null === $result) ? abort(404) : $result;
     }
 
     /**
-     * Mereturn value milik kolom tertentu dalam bentuk array.
+     * Return array dari kolom tertentu.
      *
      * @param string $column
      * @param string $key
@@ -709,71 +1048,24 @@ class Query
      */
     public function lists($column, $key = null)
     {
-        $columns = is_null($key) ? [$column] : [$column, $key];
-        $results = $this->get($columns);
+        $results = $this->get();
 
-        $values = array_map(function ($row) use ($column) {
-            return $row->{$column};
-        }, $results);
-
-        if (!is_null($key) && count($results)) {
-            return array_combine(array_map(function ($row) use ($key) {
-                return $row->{$key};
-            }, $results), $values);
+        if (is_null($key)) {
+            return array_map(function ($result) use ($column) {
+                return $result->$column;
+            }, $results);
         }
 
-        return $values;
+        $list = [];
+        foreach ($results as $result) {
+            $list[$result->$key] = $result->$column;
+        }
+
+        return $list;
     }
 
     /**
-     * Jalankan query sebagai statement SELECT.
-     *
-     * @param array $columns
-     *
-     * @return array
-     */
-    public function get($columns = ['*'])
-    {
-        $columns = is_array($columns) ? $columns : func_get_args();
-
-        if (is_null($this->selects)) {
-            $this->select($columns);
-        }
-
-        $sql = $this->grammar->select($this);
-        $results = $this->connection->query($sql, $this->bindings);
-
-        if ($this->offset > 0 && $this->grammar instanceof SQLServer) {
-            array_walk($results, function ($result) {
-                unset($result->rownum);
-            });
-        }
-
-        $this->selects = null;
-        return $results;
-    }
-
-    /**
-     * Mereturn nilai agregasi.
-     *
-     * @param string $aggregator
-     * @param array  $columns
-     *
-     * @return mixed
-     */
-    public function aggregate($aggregator, array $columns)
-    {
-        $this->aggregate = compact('aggregator', 'columns');
-
-        $sql = $this->grammar->select($this);
-        $result = $this->connection->only($sql, $this->bindings);
-
-        $this->aggregate = null;
-        return $result;
-    }
-
-    /**
-     * Mereturn hasil query sebagai instance Paginator.
+     * Lakukan pagination pada query.
      *
      * @param int   $perpage
      * @param array $columns
@@ -795,194 +1087,54 @@ class Query
     }
 
     /**
-     * Insert array data ke tabel.
-     *
-     * @param array $values
-     *
-     * @return bool
-     */
-    public function insert(array $values)
-    {
-        $values = is_array(reset($values)) ? $values : [$values];
-        $bindings = [];
-
-        foreach ($values as $value) {
-            $bindings = array_merge($bindings, array_values($value));
-        }
-
-        $sql = $this->grammar->insert($this, $values);
-        return $this->connection->query($sql, $bindings);
-    }
-
-    /**
-     * Insert array data ke tabel dan return key-nya.
-     *
-     * @param array  $values
-     * @param string $column
-     *
-     * @return mixed
-     */
-    public function insert_get_id(array $values, $column = 'id')
-    {
-        $sql = $this->grammar->insert_get_id($this, $values, $column);
-        $result = $this->connection->query($sql, array_values($values));
-
-        if (isset($values[$column])) {
-            return $values[$column];
-        } elseif ($this->grammar instanceof Postgres) {
-            $row = (array) $result[0];
-            return (int) $row[$column];
-        }
-
-        return (int) $this->connection->pdo()->lastInsertId();
-    }
-
-    /**
-     * Tambah nilai suatu kolom sebanyak value yang diberikan.
+     * Hitung jumlah record.
      *
      * @param string $column
-     * @param int    $amount
      *
      * @return int
      */
-    public function increment($column, $amount = 1)
+    public function count($column = '*')
     {
-        return $this->adjust($column, $amount, ' + ');
+        return $this->aggregate('COUNT', [$column]);
     }
 
     /**
-     * Kurangi nilai suatu kolom sebanyak value yang diberikan.
+     * Tambahkan klausa ORDER BY ke query.
      *
      * @param string $column
-     * @param int    $amount
+     * @param string $direction
      *
-     * @return int
+     * @return Query
      */
-    public function decrement($column, $amount = 1)
+    public function order_by($column, $direction = 'asc')
     {
-        return $this->adjust($column, $amount, ' - ');
+        $this->orderings[] = compact('column', 'direction');
+        return $this;
     }
 
     /**
-     * Tambah atau kurangi nilai suatu kolom sebanyak value yang diberikan.
-     *
-     * @param string $column
-     * @param int    $amount
-     * @param string $operator
-     *
-     * @return int
-     */
-    protected function adjust($column, $amount, $operator)
-    {
-        $wrapped = $this->grammar->wrap($column);
-        $value = Database::raw($wrapped . $operator . $amount);
-
-        return $this->update([$column => $value]);
-    }
-
-    /**
-     * Update tabel di database.
-     *
-     * @param array $values
-     *
-     * @return int
-     */
-    public function update(array $values)
-    {
-        $bindings = array_merge(array_values($values), $this->bindings);
-        $sql = $this->grammar->update($this, $values);
-
-        return $this->connection->query($sql, $bindings);
-    }
-
-    /**
-     * Jalankan query sebagai statement DELETE.
-     * Oper ID untuk menghapus row spesifik.
-     *
-     * @param int $id
-     *
-     * @return int
-     */
-    public function delete($id = null)
-    {
-        if (!is_null($id)) {
-            $this->where('id', '=', $id);
-        }
-
-        $sql = $this->grammar->delete($this);
-        return $this->connection->query($sql, $this->bindings);
-    }
-
-    /**
-     * Ambil representasi SQL dari kueri.
-     *
-     * @param bool $with_bindings
-     *
-     * @return string
-     */
-    public function to_sql($with_bindings = false)
-    {
-        $sql = $this->grammar->select($this);
-
-        if (!$with_bindings) {
-            return $sql;
-        }
-
-        foreach ($this->bindings as $i => $binding) {
-            $type = gettype($binding);
-
-            switch ($type) {
-                case 'boolean':
-                    $str = (int) $binding;
-                    $str = "$str";
-                    break;
-
-                case 'integer':
-                case 'double':
-                    $str = "$binding";
-                    break;
-
-                case 'string':
-                    $str = "'$binding'";
-                    break;
-
-                case 'object':
-                    if (!($binding instanceof \DateTime) && !($binding instanceof Carbon)) {
-                        throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
-                    }
-
-                    $str = $binding->format('Y-m-d H:i:s') . "'";
-                    break;
-
-                default:
-                    throw new \Exception(sprintf('Unexpected binding argument type: %s', $type));
-            }
-
-            $pos = strpos($sql, '?');
-
-            if (false === $pos) {
-                throw new \Exception(sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i));
-            }
-
-            $sql = substr($sql, 0, $pos) . $str . substr($sql, $pos + 1);
-        }
-
-        return $sql;
-    }
-
-    /**
-     * Magic method untuk menangani pemanggilan method dinamis.
+     * Tangani pemanggilan method secara dinamis.
      * Seperti fungsi agregasi dan where.
      */
     public function __call($method, array $parameters)
     {
         $method = (string) $method;
 
+        if ($method === 'take') {
+            $this->limit = isset($parameters[0]) ? $parameters[0] : null;
+            return $this;
+        }
+
+        if ($method === 'skip') {
+            $this->offset = isset($parameters[0]) ? $parameters[0] : null;
+            return $this;
+        }
+
         if (0 === strpos($method, 'where_')) {
             return $this->dynamic_where($method, $parameters, $this);
         }
 
-        if (in_array($method, ['count', 'min', 'max', 'avg', 'sum'])) {
+        if (in_array($method, ['min', 'max', 'avg', 'sum'])) {
             $parameters[0] = (0 === count($parameters)) ? '*' : $parameters[0];
             return $this->aggregate(strtoupper($method), (array) $parameters[0]);
         }

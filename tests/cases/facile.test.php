@@ -300,7 +300,9 @@ class FacileTest extends \PHPUnit_Framework_TestCase
         $model->relationships['null'] = null;
 
         $expected = [
-            'name' => 'Budi', 'age' => 25, 'null' => null,
+            'name' => 'Budi',
+            'age' => 25,
+            'null' => null,
             'one' => ['foo' => 'bar'],
             'many' => [['first' => 'foo'], ['second' => 'bar'], ['third' => 'baz']],
             'null' => null,
@@ -312,5 +314,43 @@ class FacileTest extends \PHPUnit_Framework_TestCase
 
 class TestModel extends \System\Database\Facile\Model
 {
-    // ..
+    /**
+     * Setter untuk atribut 'setter'.
+     *
+     * @param mixed $value
+     */
+    public function set_setter($value)
+    {
+        $this->set_attribute('setter', $value);
+    }
+
+    /**
+     * Getter untuk atribut 'setter'.
+     *
+     * @return mixed
+     */
+    public function get_setter()
+    {
+        return $this->get_attribute('setter');
+    }
+
+    /**
+     * Setter untuk atribut 'getter'.
+     *
+     * @param mixed $value
+     */
+    public function set_getter($value)
+    {
+        $this->set_attribute('getter', $value);
+    }
+
+    /**
+     * Getter untuk atribut 'getter'.
+     *
+     * @return mixed
+     */
+    public function get_getter()
+    {
+        return $this->get_attribute('getter');
+    }
 }

@@ -22,8 +22,17 @@ class Grammar extends BaseGrammar
      * @var array
      */
     protected $components = [
-        'aggregate', 'selects', 'from', 'joins', 'wheres',
-        'groupings', 'havings', 'orderings', 'limit', 'offset',
+        'aggregate',
+        'selects',
+        'from',
+        'joins',
+        'wheres',
+        'groupings',
+        'havings',
+        'unions',
+        'orderings',
+        'limit',
+        'offset',
     ];
 
     /**
@@ -173,7 +182,7 @@ class Grammar extends BaseGrammar
         }
 
         if (isset($sql)) {
-            return 'WHERE ' . preg_replace('/AND |OR /', '', implode(' ', $sql), 1);
+            return 'WHERE ' . preg_replace('/AND |OR /i', '', implode(' ', $sql), 1);
         }
     }
 
@@ -229,6 +238,58 @@ class Grammar extends BaseGrammar
     }
 
     /**
+     * Compile klausa WHERE IN dengan subquery.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_in_sub($where)
+    {
+        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
+        return $this->wrap($where['column']) . ' IN ' . $query;
+    }
+
+    /**
+     * Compile klausa WHERE NOT IN dengan subquery.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_not_in_sub($where)
+    {
+        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
+        return $this->wrap($where['column']) . ' NOT IN ' . $query;
+    }
+
+    /**
+     * Compile klausa WHERE EXISTS dengan subquery.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_exists($where)
+    {
+        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
+        return 'EXISTS ' . $query;
+    }
+
+    /**
+     * Compile klausa WHERE NOT EXISTS dengan subquery.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_not_exists($where)
+    {
+        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
+        return 'NOT EXISTS ' . $query;
+    }
+
+    /**
      * Compile klausa WHERE BETWEEN.
      *
      * @param array $where
@@ -239,7 +300,6 @@ class Grammar extends BaseGrammar
     {
         $min = $this->parameter($where['min']);
         $max = $this->parameter($where['max']);
-
         return $this->wrap($where['column']) . ' BETWEEN ' . $min . ' AND ' . $max;
     }
 
@@ -254,7 +314,6 @@ class Grammar extends BaseGrammar
     {
         $min = $this->parameter($where['min']);
         $max = $this->parameter($where['max']);
-
         return $this->wrap($where['column']) . ' NOT BETWEEN ' . $min . ' AND ' . $max;
     }
 
@@ -280,18 +339,6 @@ class Grammar extends BaseGrammar
     protected function where_not_null($where)
     {
         return $this->wrap($where['column']) . ' IS NOT NULL';
-    }
-
-    /**
-     * Compile klausa WHERE mentah.
-     *
-     * @param array $where
-     *
-     * @return string
-     */
-    final protected function where_raw($where)
-    {
-        return $where['sql'];
     }
 
     /**
@@ -346,6 +393,25 @@ class Grammar extends BaseGrammar
         }
 
         return 'ORDER BY ' . implode(', ', $sql);
+    }
+
+    /**
+     * Compile klausa UNION.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function unions(Query $query)
+    {
+        $sql = [];
+
+        foreach ($query->unions as $union) {
+            $union_sql = $union['query']->grammar->select($union['query']);
+            $sql[] = ($union['all'] ? 'UNION ALL ' : 'UNION ') . $union_sql;
+        }
+
+        return implode(' ', $sql);
     }
 
     /**

@@ -6,6 +6,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Str;
 use System\Database;
+use System\Database\Exceptions\ModelNotFoundException;
 
 class Query
 {
@@ -36,8 +37,30 @@ class Query
      * @var array
      */
     public $passthru = [
-        'lists', 'only', 'insert', 'insert_get_id', 'update', 'increment',
-        'delete', 'decrement', 'count', 'min', 'max', 'avg', 'sum',
+        'lists',
+        'only',
+        'get',
+        'first',
+        'find',
+        'find_or_fail',
+        'first_or_fail',
+        'paginate',
+        'count',
+        'insert',
+        'insert_get_id',
+        'update',
+        'increment',
+        'delete',
+        'decrement',
+        'min',
+        'max',
+        'avg',
+        'sum',
+        'order_by',
+        'where_in',
+        'where_not_in',
+        'or_where_in',
+        'or_where_not_in',
     ];
 
     /**
@@ -83,6 +106,43 @@ class Query
     }
 
     /**
+     * Cari model berdasarkan primary key-nya atau throw exception jika tidak ditemukan.
+     *
+     * @param mixed $id
+     * @param array $columns
+     *
+     * @return Model
+     */
+    public function find_or_fail($id, array $columns = ['*'])
+    {
+        $result = $this->find($id, $columns);
+
+        if (is_null($result)) {
+            throw new ModelNotFoundException(get_class($this->model) . ' with id ' . $id . ' not found.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Ambil model pertama yang cocok dengan query atau throw exception jika tidak ditemukan.
+     *
+     * @param array $columns
+     *
+     * @return Model
+     */
+    public function first_or_fail($columns = ['*'])
+    {
+        $result = $this->first($columns);
+
+        if (is_null($result)) {
+            throw new ModelNotFoundException(get_class($this->model) . ' not found.');
+        }
+
+        return $result;
+    }
+
+    /**
      * Ambil seluruh model yang cocok dengan query.
      *
      * @param array $columns
@@ -108,23 +168,6 @@ class Query
         $perpage = $perpage ?: $this->model->perpage();
         $paginator = $this->table->paginate($perpage, $columns);
         $paginator->results = $this->hydrate($this->model, $paginator->results);
-
-        // FIXME: Temporary workaround
-        $paginator->results = array_map(function ($result) {
-            if ($result instanceof Model) {
-                if (property_exists($result, 'relationships')) {
-                    foreach ($result->relationships as $key => $value) {
-                        $result->{$key} = $value->attributes;
-                    }
-                }
-
-                if (property_exists($result, 'attributes')) {
-                    $result = $result->attributes;
-                }
-            }
-
-            return $result;
-        }, $paginator->results);
 
         return $paginator;
     }

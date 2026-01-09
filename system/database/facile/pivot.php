@@ -60,4 +60,15 @@ class Pivot extends Model
     {
         return $this->pivot_connection;
     }
+
+    /**
+     * Sinkronkan atribut original dengan atribut saat ini.
+     *
+     * @return $this
+     */
+    public function sync()
+    {
+        $this->original = $this->attributes;
+        return $this;
+    }
 }

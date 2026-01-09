@@ -4,11 +4,11 @@ namespace System\Database\Facile;
 
 defined('DS') or exit('No direct access.');
 
-use System\Arr;
 use System\Str;
 use System\Event;
 use System\Carbon;
 use System\Validator;
+use System\Database\Exceptions\ModelNotFoundException;
 
 abstract class Model
 {
@@ -60,6 +60,20 @@ abstract class Model
      * @var array
      */
     public static $fillable;
+
+    /**
+     * Berisi list atribut model yang tidak boleh di mass-assigment.
+     *
+     * @var array
+     */
+    public static $guarded = [];
+
+    /**
+     * Penanda bahwa model ini menggunakan soft deletes.
+     *
+     * @var bool
+     */
+    public static $soft_delete = false;
 
     /**
      * Berisi list atribut yang harus disembunyikan ketika memanggil method to_array().
@@ -200,6 +214,10 @@ abstract class Model
                 continue;
             }
 
+            if (is_array(static::$guarded) && in_array($key, static::$guarded)) {
+                continue;
+            }
+
             if (is_array(static::$fillable)) {
                 if (in_array($key, static::$fillable)) {
                     $this->{$key} = $value;
@@ -227,6 +245,240 @@ abstract class Model
     public function fill_raw(array $attributes)
     {
         return $this->fill($attributes, true);
+    }
+
+    /**
+     * Set atribut pada model.
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return void
+     */
+    public function set_attribute($key, $value)
+    {
+        $this->attributes[$key] = $value;
+    }
+
+    /**
+     * Get atribut dari model.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function get_attribute($key)
+    {
+        return isset($this->attributes[$key]) ? $this->attributes[$key] : null;
+    }
+
+    /**
+     * Ambil nama koneksi database yang sedang digunakan.
+     *
+     * @return string
+     */
+    public function connection()
+    {
+        return static::$connection;
+    }
+
+    /**
+     * Ambil nama tabel yang sedang digunakan.
+     *
+     * @return string
+     */
+    public function table()
+    {
+        if (static::$table) {
+            return static::$table;
+        }
+
+        $class_name = get_called_class();
+        // Hapus namespace jika ada
+        if (strpos($class_name, '\\') !== false) {
+            $class_name = basename(str_replace('\\', '/', $class_name));
+        }
+
+        return strtolower(Str::plural($class_name));
+    }
+
+    /**
+     * Ambil nama kolom primary key.
+     *
+     * @return string
+     */
+    public function key()
+    {
+        return static::$key;
+    }
+
+    /**
+     * Ambil jumlah item per halaman untuk paginasi.
+     *
+     * @return int
+     */
+    public function perpage()
+    {
+        return static::$perpage;
+    }
+
+    /**
+     * Ambil nilai primary key.
+     *
+     * @return mixed
+     */
+    public function get_key()
+    {
+        return isset($this->attributes[static::$key]) ? $this->attributes[static::$key] : null;
+    }
+
+    /**
+     * Set nilai primary key.
+     *
+     * @param mixed $value
+     *
+     * @return void
+     */
+    public function set_key($value)
+    {
+        $this->attributes[static::$key] = $value;
+    }
+
+    /**
+     * Ambil atribut yang telah berubah.
+     *
+     * @return array
+     */
+    public function get_dirty()
+    {
+        $dirty = [];
+
+        foreach ($this->attributes as $key => $value) {
+            if (!array_key_exists($key, $this->original) || $this->original[$key] !== $value) {
+                $dirty[$key] = $value;
+            }
+        }
+
+        return $dirty;
+    }
+
+    /**
+     * Check apakah model memiliki atribut yang berubah.
+     *
+     * @return bool
+     */
+    public function dirty()
+    {
+        return count($this->get_dirty()) > 0;
+    }
+
+    /**
+     * Sinkronkan atribut original dengan atribut saat ini.
+     *
+     * @return $this
+     */
+    public function sync()
+    {
+        $this->original = $this->attributes;
+        return $this;
+    }
+
+    /**
+     * Check apakah atribut tertentu telah berubah.
+     *
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function changed($attribute)
+    {
+        if (!array_key_exists($attribute, $this->attributes)) {
+            return false;
+        }
+
+        if (!array_key_exists($attribute, $this->original)) {
+            return false;
+        }
+
+        return $this->attributes[$attribute] !== $this->original[$attribute];
+    }
+
+    /**
+     * Hapus atribut dari model.
+     *
+     * @param string $key
+     *
+     * @return void
+     */
+    public function purge($key)
+    {
+        unset($this->attributes[$key], $this->original[$key]);
+    }
+
+    /**
+     * Convert model dan relasinya menjadi array.
+     *
+     * @return array
+     */
+    public function to_array()
+    {
+        $attributes = [];
+
+        foreach ($this->attributes as $key => $value) {
+            if (is_array(static::$hidden) && in_array($key, static::$hidden)) {
+                continue;
+            }
+
+            $attributes[$key] = $value;
+        }
+
+        foreach ($this->relationships as $key => $value) {
+            if (is_array(static::$hidden) && in_array($key, static::$hidden)) {
+                continue;
+            }
+
+            if (is_array($value)) {
+                $attributes[$key] = array_map(function ($item) {
+                    return ($item instanceof Model) ? $item->to_array() : $item;
+                }, $value);
+            } elseif ($value instanceof Model) {
+                $attributes[$key] = $value->to_array();
+            } else {
+                $attributes[$key] = $value;
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Ambil nama tabel yang sedang digunakan (alias untuk table()).
+     *
+     * @return string
+     */
+    public function getTable()
+    {
+        return $this->table();
+    }
+
+    /**
+     * Ambil nama koneksi database yang sedang digunakan (alias untuk connection()).
+     *
+     * @return string
+     */
+    public function getConnectionName()
+    {
+        return $this->connection();
+    }
+
+    /**
+     * Check apakah model menggunakan timestamps.
+     *
+     * @return bool
+     */
+    public function timestamps()
+    {
+        return static::$timestamps;
     }
 
     /**
@@ -271,7 +523,7 @@ abstract class Model
         $model->fill($attributes);
 
         if (static::$timestamps) {
-            $model->timestamp();
+            $model->updated_at = Carbon::now()->format('Y-m-d H:i:s');
         }
 
         return $model->query()->where($model->key(), '=', $id)->update($model->attributes);
@@ -285,6 +537,83 @@ abstract class Model
     public static function all()
     {
         return (new static())->query()->get();
+    }
+
+    /**
+     * Cari model berdasarkan primary key-nya.
+     *
+     * @param mixed $id
+     * @param array $columns
+     *
+     * @return Model|null
+     */
+    public static function find($id, array $columns = ['*'])
+    {
+        return (new static())->query()->find($id, $columns);
+    }
+
+    /**
+     * Cari model berdasarkan primary key-nya atau throw exception jika tidak ditemukan.
+     *
+     * @param mixed $id
+     * @param array $columns
+     *
+     * @return Model
+     */
+    public static function findOrFail($id, array $columns = ['*'])
+    {
+        $result = static::find($id, $columns);
+
+        if (is_null($result)) {
+            throw new ModelNotFoundException(get_called_class() . ' with id ' . $id . ' not found.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Ambil model pertama yang cocok dengan query.
+     *
+     * @param array $columns
+     *
+     * @return Model|null
+     */
+    public static function first(array $columns = ['*'])
+    {
+        return (new static())->query()->first($columns);
+    }
+
+    /**
+     * Ambil model pertama yang cocok dengan query atau throw exception jika tidak ditemukan.
+     *
+     * @param array $columns
+     *
+     * @return Model
+     */
+    public static function firstOrFail(array $columns = ['*'])
+    {
+        $result = static::first($columns);
+
+        if (is_null($result)) {
+            throw new ModelNotFoundException(get_called_class() . ' not found.');
+        }
+
+        return $result;
+    }
+
+    /**
+     * Buat query builder dengan klausa WHERE.
+     *
+     * @param string|array $column
+     * @param mixed        $operator
+     * @param mixed        $value
+     * @param string       $boolean
+     *
+     * @return \System\Database\Facile\Query
+     */
+    public static function where($column, $operator = null, $value = null, $boolean = 'and')
+    {
+        return (new static())->query()->where($column, $operator, $value, $boolean);
     }
 
     /**
@@ -336,12 +665,7 @@ abstract class Model
      */
     public function belongs_to($model, $foreign = null)
     {
-        if (is_null($foreign)) {
-            list($unused, $caller) = debug_backtrace(false);
-            $foreign = $caller['function'] . '_id';
-            unset($unused, $caller);
-        }
-
+        $foreign = is_null($foreign) ? 'belongs_to_id' : $foreign;
         return new Relationships\BelongsTo($this, $model, $foreign);
     }
 
@@ -358,6 +682,75 @@ abstract class Model
     public function belongs_to_many($model, $table = null, $foreign = null, $other = null)
     {
         return new Relationships\BelongsToMany($this, $model, $table, $foreign, $other);
+    }
+
+    /**
+     * Ambil query untuk relasi polymorphic one-to-one.
+     *
+     * @param string $model
+     * @param string $name
+     * @param string $type
+     * @param string $id
+     * @param string $foreign
+     *
+     * @return Relationships\MorphOne
+     */
+    public function morph_one($model, $name, $type = null, $id = null, $foreign = null)
+    {
+        $type = is_null($type) ? $name . '_type' : $type;
+        $id = is_null($id) ? $name . '_id' : $id;
+        return new Relationships\MorphOne($this, $model, $type, $id, $foreign);
+    }
+
+    /**
+     * Ambil query untuk relasi polymorphic one-to-many.
+     *
+     * @param string $model
+     * @param string $name
+     * @param string $type
+     * @param string $id
+     * @param string $foreign
+     *
+     * @return Relationships\MorphMany
+     */
+    public function morph_many($model, $name, $type = null, $id = null, $foreign = null)
+    {
+        $type = is_null($type) ? $name . '_type' : $type;
+        $id = is_null($id) ? $name . '_id' : $id;
+        return new Relationships\MorphMany($this, $model, $type, $id, $foreign);
+    }
+
+    /**
+     * Ambil query untuk relasi polymorphic belongs-to (inverse).
+     *
+     * @param string $name
+     * @param string $type
+     * @param string $id
+     *
+     * @return Relationships\MorphTo
+     */
+    public function morph_to($name, $type = null, $id = null)
+    {
+        $type = is_null($type) ? $name . '_type' : $type;
+        $id = is_null($id) ? $name . '_id' : $id;
+        $model = $this->get_attribute($type);
+        return new Relationships\MorphTo($this, $model, $type, $id);
+    }
+
+    /**
+     * Ambil query untuk relasi polymorphic many-to-many.
+     *
+     * @param string $model
+     * @param string $name
+     * @param string $table
+     * @param string $foreign
+     * @param string $other
+     *
+     * @return Relationships\MorphToMany
+     */
+    public function morph_to_many($model, $name, $table = null, $foreign = null, $other = null)
+    {
+        return new Relationships\MorphToMany($this, $model, $name, $table, $foreign, $other);
     }
 
     /**
@@ -390,7 +783,11 @@ abstract class Model
         }
 
         if (static::$timestamps) {
-            $this->timestamp();
+            if (!$this->exists) {
+                $this->created_at = Carbon::now()->format('Y-m-d H:i:s');
+            }
+
+            $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
         }
 
         Event::fire(['facile.saving', 'facile.saving: ' . get_class($this)], [$this]);
@@ -405,7 +802,7 @@ abstract class Model
         } else {
             $id = $this->query()->insert_get_id($this->attributes, $this->key());
             $this->set_key($id);
-            $this->exists = $result = is_numeric($this->get_key());
+            $this->exists = $result = !is_null($this->get_key()) && !empty($this->get_key());
 
             if ($result) {
                 Event::fire(['facile.created', 'facile.created: ' . get_class($this)], [$this]);
@@ -431,8 +828,52 @@ abstract class Model
         if ($this->exists) {
             Event::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
 
-            $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
+            if (static::$soft_delete) {
+                // Soft delete
+                $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
+                $result = $this->query()->where(static::$key, '=', $this->get_key())->update(['deleted_at' => $this->deleted_at]);
+                $this->exists = false;
+                Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+            } else {
+                // Hard delete
+                $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
+                Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+            }
 
+            return $result;
+        }
+    }
+
+    /**
+     * Restore soft deleted model.
+     *
+     * @return bool
+     */
+    public function restore()
+    {
+        if (static::$soft_delete && !$this->exists && !is_null($this->deleted_at)) {
+            $result = $this->query()->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
+
+            if ($result) {
+                $this->deleted_at = null;
+                $this->exists = true;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Force delete model (bypass soft delete).
+     *
+     * @return int
+     */
+    public function force_delete()
+    {
+        if ($this->exists || !is_null($this->deleted_at)) {
+            Event::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+            $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
             Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
 
             return $result;
@@ -440,24 +881,76 @@ abstract class Model
     }
 
     /**
-     * Update timestamp milik model.
+     * Check if model is soft deleted.
+     *
+     * @return bool
      */
-    public function timestamp()
+    public function trashed()
     {
-        $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
-
-        if (!$this->exists) {
-            $this->created_at = $this->updated_at;
-        }
+        return static::$soft_delete && !is_null($this->deleted_at);
     }
 
     /**
-     * Update timestamp milik model dan langsung simpan (tanpa mengubah kolom lain).
+     * Reload model from database.
+     *
+     * @return Model
      */
-    public function touch()
+    public function fresh()
     {
-        $this->timestamp();
-        $this->save();
+        return $this->exists ? static::find($this->get_key()) : null;
+    }
+
+    /**
+     * Reload model from database (alias for fresh()).
+     *
+     * @return Model
+     */
+    public function reload()
+    {
+        return $this->fresh();
+    }
+
+    /**
+     * Get query builder with trashed records included.
+     *
+     * @return Query
+     */
+    public static function with_trashed()
+    {
+        return (new static())->query();
+    }
+
+    /**
+     * Get query builder with only trashed records.
+     *
+     * @return Query
+     */
+    public static function only_trashed()
+    {
+        return (new static())->query()->where_not_null('deleted_at');
+    }
+
+    /**
+     * Ambil instance Facile query builder baru.
+     *
+     * @return \System\Database\Facile\Query
+     */
+    public function query()
+    {
+        return new \System\Database\Facile\Query($this);
+    }
+
+    /**
+     * Apply global scopes to query.
+     *
+     * @param Query $query
+     *
+     * @return Query
+     */
+    protected function apply_scopes($query)
+    {
+        // Apply segala global scopes disini jika ada
+        return $query;
     }
 
     /**
@@ -467,257 +960,19 @@ abstract class Model
      */
     protected function _query()
     {
-        return new Query($this);
-        return (new Query($this))->connection()->table($this->table());
-    }
+        $query = (new Query($this))->connection()->table($this->table());
 
-    /**
-     * Timpa atribut asli dengan yang baru.
-     *
-     * @return bool
-     */
-    final public function sync()
-    {
-        $this->original = $this->attributes;
-        return true;
-    }
-
-    /**
-     * Cek apakah ada perubahan yang dilakukan pada atribut.
-     *
-     * @param string $attribute
-     *
-     * @return bool
-     */
-    public function changed($attribute)
-    {
-        return Arr::get($this->attributes, $attribute) !== Arr::get($this->original, $attribute);
-    }
-
-    /**
-     * Cek apakah sudah ada perubahan model dari kondisi aslinya (atau istilahnya 'dirty').
-     * Model yang belum disimpan ke database akan selalu dianggap 'dirty'.
-     *
-     * @return bool
-     */
-    public function dirty()
-    {
-        return (!$this->exists || count($this->get_dirty()) > 0);
-    }
-
-    /**
-     * Ambil nama tabel yang digunakan.
-     *
-     * @return string
-     */
-    public function table()
-    {
-        return static::$table ?: strtolower(Str::plural((string) class_basename($this)));
-    }
-
-    /**
-     * Ambil atribut - atribut 'dirty' milik model.
-     *
-     * @return array
-     */
-    public function get_dirty()
-    {
-        $dirty = [];
-
-        foreach ($this->attributes as $key => $value) {
-            if (!array_key_exists($key, $this->original) || $value !== $this->original[$key]) {
-                $dirty[$key] = $value;
-            }
+        // Auto-apply soft delete filter
+        if (static::$soft_delete) {
+            $query->where_null('deleted_at');
         }
 
-        return $dirty;
+        // Apply global scopes
+        return $this->apply_scopes($query);
     }
 
     /**
-     * Ambil value dari kolom primary key milik model.
-     *
-     * @return int
-     */
-    public function get_key()
-    {
-        return Arr::get($this->attributes, static::$key);
-    }
-
-    /**
-     * Set value kolom primary key milik model.
-     *
-     * @param int $value
-     */
-    public function set_key($value)
-    {
-        return $this->set_attribute(static::$key, $value);
-    }
-
-    /**
-     * Ambil value atribut milik model.
-     *
-     * @param string $key
-     */
-    public function get_attribute($key)
-    {
-        return Arr::get($this->attributes, $key);
-    }
-
-    /**
-     * Set value atribut milik model.
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function set_attribute($key, $value)
-    {
-        $this->attributes[$key] = $value;
-    }
-
-    /**
-     * Hapus atribut dari model.
-     *
-     * @param string $key
-     */
-    final public function purge($key)
-    {
-        unset($this->original[$key], $this->attributes[$key]);
-    }
-
-    /**
-     * Ambil atribut dan relasi model dalam bentuk array.
-     *
-     * @return array
-     */
-    public function to_array()
-    {
-        $attributes = [];
-        $keys = array_keys($this->attributes);
-
-        foreach ($keys as $attribute) {
-            if (!in_array($attribute, static::$hidden)) {
-                $attributes[$attribute] = $this->{$attribute};
-            }
-        }
-
-        foreach ($this->relationships as $name => $models) {
-            if (in_array($name, static::$hidden)) {
-                continue;
-            }
-
-            if ($models instanceof Model) {
-                $attributes[$name] = $models->to_array();
-            } elseif (is_array($models)) {
-                $attributes[$name] = [];
-
-                foreach ($models as $id => $model) {
-                    $attributes[$name][$id] = $model->to_array();
-                }
-            } elseif (is_null($models)) {
-                $attributes[$name] = $models;
-            }
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * Tangani pemanggilan dinamis getter atribut dan relasi.
-     *
-     * @param string $key
-     *
-     * @return mixed
-     */
-    public function __get($key)
-    {
-        if (array_key_exists($key, $this->relationships)) {
-            return $this->relationships[$key];
-        } elseif (array_key_exists($key, $this->attributes)) {
-            return $this->{'get_' . $key}();
-        } elseif (method_exists($this, $key)) {
-            return $this->relationships[$key] = $this->{$key}()->results();
-        }
-
-        return $this->{'get_' . $key}();
-    }
-
-    /**
-     * Tangani pemanggilan dinamis setter atribut dan relasi.
-     *
-     * @param string $key
-     * @param mixed  $value
-     */
-    public function __set($key, $value)
-    {
-        $this->{'set_' . $key}($value);
-    }
-
-    /**
-     * Cek apakah atribut yang diberikn ada di dalam model.
-     *
-     * @param string $key
-     *
-     * @return bool
-     */
-    public function __isset($key)
-    {
-        if (array_key_exists($key, $this->attributes)) {
-            return !empty($this->attributes[$key]);
-        }
-
-        if (array_key_exists($key, $this->relationships)) {
-            return !empty($this->relationships[$key]);
-        }
-
-        return false;
-    }
-
-    /**
-     * Hapus sebuah atribut dari model.
-     *
-     * @param string $key
-     */
-    public function __unset($key)
-    {
-        unset($this->attributes[$key], $this->relationships[$key]);
-    }
-
-    /**
-     * Tangani pemanggilan method dinamis pada model.
-     *
-     * @param string $method
-     * @param array  $parameters
-     *
-     * @return mixed
-     */
-    public function __call($method, array $parameters)
-    {
-        $method = (string) $method;
-        $methods = ['key', 'table', 'connection', 'sequence', 'perpage', 'timestamps'];
-
-        if (in_array($method, $methods)) {
-            return static::${$method};
-        }
-
-        if ('with' === $method) {
-            return call_user_func_array([$this, '_with'], $parameters);
-        }
-
-        if ('query' === $method) {
-            return call_user_func_array([$this, '_query'], $parameters);
-        }
-
-        if (Str::starts_with($method, 'get_')) {
-            return $this->get_attribute(substr($method, 4));
-        } elseif (Str::starts_with($method, 'set_')) {
-            $this->set_attribute(substr($method, 4), $parameters[0]);
-        } else {
-            return call_user_func_array([$this->query(), $method], $parameters);
-        }
-    }
-
-    /**
-     * Tangani secara dinamis pemanggilan method statis pada model.
+     * Handle static method calls.
      *
      * @param string $method
      * @param array  $parameters
@@ -726,9 +981,31 @@ abstract class Model
      */
     public static function __callStatic($method, array $parameters)
     {
-        $model = get_called_class();
-        $model = new $model();
+        return call_user_func_array([(new static())->query(), $method], $parameters);
+    }
 
-        return call_user_func_array([$model, $method], $parameters);
+    /**
+     * Handle dynamic property access for getting attributes.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        return $this->get_attribute($key);
+    }
+
+    /**
+     * Handle dynamic property access for setting attributes.
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return void
+     */
+    public function __set($key, $value)
+    {
+        $this->set_attribute($key, $value);
     }
 }

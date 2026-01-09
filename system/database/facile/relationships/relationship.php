@@ -33,9 +33,15 @@ abstract class Relationship extends Query
     public function __construct($model, $associated, $foreign)
     {
         $this->foreign = $foreign;
-        $this->model = ($associated instanceof Model) ? $associated : new $associated();
+        $this->model = (!is_null($associated) && !empty($associated))
+            ? (($associated instanceof Model) ? $associated : new $associated())
+            : null;
+
         $this->base = ($model instanceof Model) ? $model : new $model();
-        $this->table = $this->table();
+
+        if ($this->model) {
+            $this->table = $this->table();
+        }
 
         $this->constrain();
     }
