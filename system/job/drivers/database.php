@@ -231,6 +231,27 @@ class Database extends Driver
                                 usleep($sleep_ms * 1000);
                             }
                         }
+                    } catch (\Exception $e) {
+                        if ($attempts >= $retries) {
+                            $error = get_class($e)
+                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . $e->getTraceAsString();
+                            DB::table($config['failed_table'])->insert([
+                                'job_id' => $job->id,
+                                'name' => $job->name,
+                                'payloads' => serialize($job->payloads),
+                                'exception' => $error,
+                                'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                            ]);
+                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $job->name, $job->id, $e->getMessage(), $attempts), 'error');
+                        } else {
+                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
+
+                            if ($sleep_ms > 0) {
+                                usleep($sleep_ms * 1000);
+                            }
+                        }
                     }
                 }
             }
