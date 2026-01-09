@@ -597,6 +597,27 @@ class Query
     }
 
     /**
+     * Ambil generator untuk iterate hasil query satu per satu (memory efficient).
+     * Method ini menggunakan generator (PHP 5.5+) untuk efisiensi memori.
+     * Untuk PHP 5.4, akan fallback ke get() biasa.
+     *
+     * @param array $columns
+     * @param int   $chunk_size
+     *
+     * @return \Generator|array
+     */
+    public function cursor($columns = ['*'], $chunk_size = 1000)
+    {
+        if (PHP_VERSION_ID < 50500) {
+            // PHP < 5.5.0 tidak mendukung generator, langsung return get()
+            return $this->get($columns);
+        }
+
+        // PHP 5.5+ - load generator implementation dari file terpisah
+        // Ini mencegah syntax error di PHP 5.4 karena yield tidak di-parse
+        return include __DIR__ . DS . 'cursor.php';
+    }
+    /**
      * Cari record berdasarkan primary key.
      *
      * @param mixed $id
