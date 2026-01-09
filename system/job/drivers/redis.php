@@ -150,6 +150,16 @@ class Redis extends Driver
                                 usleep($sleep_ms * 1000);
                             }
                         }
+                    } catch (\Exception $e) {
+                        if ($attempts >= $retries) {
+                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $data['name'], $data['id'], $e->getMessage(), $attempts), 'error');
+                        } else {
+                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+
+                            if ($sleep_ms > 0) {
+                                usleep($sleep_ms * 1000);
+                            }
+                        }
                     }
                 }
             }

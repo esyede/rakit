@@ -189,6 +189,18 @@ class Memcached extends Driver
                             usleep($sleep_ms * 1000);
                         }
                     }
+                } catch (\Exception $e) {
+                    if ($attempts >= $retries) {
+                        $this->move_to_failed($data);
+                        $successful[] = ['timestamp' => $timestamp, 'id' => $id]; // Mark for deletion even if failed
+                        $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
+                    } else {
+                        $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
+
+                        if ($sleep_ms > 0) {
+                            usleep($sleep_ms * 1000);
+                        }
+                    }
                 }
             }
         }
