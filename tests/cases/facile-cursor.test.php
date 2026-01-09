@@ -50,12 +50,11 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     public function testCursorReturnsGeneratorOnPhp55Plus()
     {
         if (PHP_VERSION_ID < 50500) {
-            // Dummy. Generator hanya tersedia di PHP 5.5.0+
-            $this->assertTrue(!empty(PHP_VERSION_ID));
-        } else {
-            $cursor = CursorTestModel::cursor();
-            $this->assertInstanceOf('\Generator', $cursor);
+            $this->markTestSkipped('This test is for PHP 5.5.0+ only');
         }
+
+        $cursor = CursorTestModel::cursor();
+        $this->assertInstanceOf('\Generator', $cursor);
     }
 
     /**
@@ -66,12 +65,11 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     public function testCursorReturnsArrayOnPhp54()
     {
         if (PHP_VERSION_ID >= 50500) {
-            // Dummy. Test ini hanya untuk PHP 5.4
-            $this->assertTrue(!empty(PHP_VERSION_ID));
-        } else {
-            $cursor = CursorTestModel::cursor();
-            $this->assertTrue(is_array($cursor));
+            $this->markTestSkipped('This test is for PHP 5.4 only');
         }
+
+        $cursor = CursorTestModel::cursor();
+        $this->assertTrue(is_array($cursor));
     }
 
     /**
