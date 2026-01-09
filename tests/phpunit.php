@@ -8,7 +8,7 @@ define('DS', DIRECTORY_SEPARATOR);
 // --------------------------------------------------------------
 // Definisikan konstanta untuk menandai PHPUnit sedang berjalan.
 // --------------------------------------------------------------
-define('PHPUNIT_RUNNING', true);
+define('RAKIT_PHPUNIT_RUNNING', true);
 
 // --------------------------------------------------------------
 // Include konstanta path milik framework.

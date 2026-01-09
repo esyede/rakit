@@ -125,13 +125,40 @@ class Cookie
 
         $path = (!is_string($path) || empty($path)) ? '/' : $path;
 
-        if (!is_null($domain) && !filter_var($domain, FILTER_VALIDATE_DOMAIN)) {
-            throw new \Exception('Cookie domain must be a valid domain.');
+        if (!is_null($domain)) {
+            if (PHP_VERSION_ID >= 70000) {
+                $check = (strpos($domain, '.') === 0) ? substr($domain, 1) : $domain;
+                if (!filter_var($check, FILTER_VALIDATE_DOMAIN)) {
+                    throw new \Exception('Cookie domain must be a valid domain.');
+                }
+            } else {
+                $trimmed = trim($domain);
+                $predot = (strpos($trimmed, '.') === 0);
+                $target = $predot ? substr($trimmed, 1) : $trimmed;
+
+                if (strlen($target) > 253 || strlen($target) === 0) {
+                    throw new \Exception('Cookie domain must be a valid domain.');
+                }
+
+                $labels = explode('.', $target);
+
+                if (count($labels) < 1) {
+                    throw new \Exception('Cookie domain must be a valid domain.');
+                }
+
+                foreach ($labels as $label) {
+                    if (strlen($label) === 0 || strlen($label) > 63) {
+                        throw new \Exception('Cookie domain must be a valid domain.');
+                    }
+
+                    if (!preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i', $label)) {
+                        throw new \Exception('Cookie domain must be a valid domain.');
+                    }
+                }
+            }
         }
 
-        // Jika $secure nilainya TRUE, cookie hanya bisa diakses via HTTPS.
-        // Skip validasi ini jika dalam mode testing (PHPUnit)
-        if ($secure && !Request::secure() && !defined('PHPUNIT_RUNNING')) {
+        if ($secure && !Request::secure() && !defined('RAKIT_PHPUNIT_RUNNING')) {
             throw new \Exception('Attempting to set secure cookie over HTTP.');
         }
 
@@ -139,15 +166,13 @@ class Cookie
         $samesite = strtolower((string) is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite);
 
         if (!in_array($samesite, ['lax', 'strict', 'none'])) {
-            throw new \Exception(sprintf(
-                'The "samesite" parameter value is not valid: %s (%s)',
-                $samesite,
-                gettype($samesite)
-            ));
+            throw new \Exception(sprintf('The "samesite" parameter value is not valid: %s (%s)', $samesite, gettype($samesite)));
         }
 
         try {
             $encrypted = Crypter::encrypt($value);
+        } catch (\Throwable $e) {
+            throw new \Exception('Failed to encrypt cookie value: ' . $e->getMessage());
         } catch (\Exception $e) {
             throw new \Exception('Failed to encrypt cookie value: ' . $e->getMessage());
         }
