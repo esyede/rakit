@@ -802,7 +802,8 @@ abstract class Model
         } else {
             $id = $this->query()->insert_get_id($this->attributes, $this->key());
             $this->set_key($id);
-            $result = !is_null($this->get_key()) && !empty($this->get_key());
+            $key = $this->get_key();
+            $result = !is_null($key) && !empty($key);
             $this->exists = $result;
 
             if ($result) {
