@@ -22,6 +22,13 @@ class Config
     public static $cache = [];
 
     /**
+     * Cache untuk hasil loading file konfigurasi.
+     *
+     * @var array
+     */
+    public static $files = [];
+
+    /**
      * Nama event untuk config loader.
      *
      * @var string
@@ -175,21 +182,42 @@ class Config
      * @return array
      */
     public static function file($package, $file)
-	{
+    {
+        if (
+            strpos($package, '..') !== false || strpos($package, '/') !== false || strpos($package, '\\') !== false ||
+            strpos($file, '..') !== false || strpos($file, '/') !== false || strpos($file, '\\') !== false
+        ) {
+            return [];
+        }
+
+        $key = $package . '::' . $file;
+
+        if (isset(static::$files[$key])) {
+            return static::$files[$key];
+        }
+
         $config = [];
         $env = Request::env();
         $paths = [Package::path($package) . 'config' . DS];
 
-		if (!empty($env)) {
-			$paths[] = $paths[count($paths) - 1] . $env . DS;
-		}
+        if (!empty($env)) {
+            $paths[] = $paths[count($paths) - 1] . $env . DS;
+        }
 
-		foreach ($paths as $path) {
+        foreach ($paths as $path) {
             if (!empty($path) && is_file($path = $path . $file . '.php')) {
-                $config = array_merge($config, (array) require $path);
+                try {
+                    $loaded = require $path;
+                    $config = array_merge($config, (array) $loaded);
+                } catch (\Throwable $e) {
+                    return [];
+                } catch (\Exception $e) {
+                    return [];
+                }
             }
-		}
+        }
 
-		return $config;
-	}
+        static::$files[$key] = $config;
+        return $config;
+    }
 }

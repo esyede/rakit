@@ -312,7 +312,7 @@ class Debugger
     {
         if (self::$productionMode || 'cli' === PHP_SAPI) {
             return;
-        } elseif (headers_sent($file, $line) || ob_get_length()) {
+        } elseif (headers_sent($file, $line)) {
             throw new \LogicException(
                 'Debugger::dispatch() called after some output has been sent. '
                     . ($file
@@ -320,8 +320,19 @@ class Debugger
                         : 'Try System\Foundation\Oops\Outputs to find where output started.'
                     )
             );
-        } elseif (self::$enabled && session_status() !== PHP_SESSION_ACTIVE) {
+        }
+
+        $bufferedOutput = '';
+        if (ob_get_length() > 0) {
+            // Simpan output yang dibuffer dan bersihkan
+            $bufferedOutput = ob_get_clean();
+        }
+
+        if (self::$enabled && session_status() !== PHP_SESSION_ACTIVE) {
             ini_set('session.use_cookies', '1');
+            ini_set('session.use_only_cookies', '1');
+            ini_set('session.use_trans_sid', '0');
+            ini_set('session.cookie_path', '/');
             ini_set('session.use_only_cookies', '1');
             ini_set('session.use_trans_sid', '0');
             ini_set('session.cookie_path', '/');
@@ -331,6 +342,11 @@ class Debugger
 
         if (self::getBar()->dispatchAssets()) {
             exit;
+        }
+
+        // Kembalikan output yang dibuffer
+        if (!empty($bufferedOutput)) {
+            echo $bufferedOutput;
         }
     }
 

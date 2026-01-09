@@ -71,6 +71,7 @@ class Repository
             ),
         ]);
         $packages = curl_exec($ch);
+        /** @disregard */
         curl_close($ch);
 
         $packages = json_decode($packages, true);

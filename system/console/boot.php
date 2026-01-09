@@ -22,6 +22,7 @@ require path('system') . 'console' . DS . 'dependencies.php';
 
 // Cek apakah konsol support warna
 $color = function_exists('posix_isatty') && @posix_isatty(STDOUT);
+
 if (DS === '\\') {
     $color = (function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
         || (getenv('ANSICON') !== false || getenv('ConEmuANSI') === 'ON');
@@ -32,8 +33,10 @@ try {
     Console::run(array_slice($arguments, 1));
     Config::set('database.default', $default);
 } catch (\Throwable $e) {
+
     Config::set('database.default', $default);
     $err = sprintf('Error: %s', $e->getMessage());
+
     if (Config::get('debugger.activate')) {
         $err = sprintf(
             "Error: %s \r\n\tin %s:%s\nStack Trace:\r\n%s",
@@ -47,6 +50,7 @@ try {
 } catch (\Exception $e) {
     Config::set('database.default', $default);
     $err = sprintf('Error: %s', $e->getMessage());
+
     if (Config::get('debugger.activate')) {
         $err = sprintf(
             "Error: %s \r\n\tin %s:%s\nStack Trace:\r\n%s",
@@ -56,6 +60,7 @@ try {
             $e->getTraceAsString()
         );
     }
+
     echo $color ? "\033[31m{$err}\033[m" : $err;
 }
 

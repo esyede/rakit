@@ -78,6 +78,13 @@ class Router
     public static $segments = 5;
 
     /**
+     * Nodes untuk trie routing (internal).
+     *
+     * @var array
+     */
+    public static $nodes = [];
+
+    /**
      * Pola - pola regex yang didukung.
      *
      * @var array
@@ -86,9 +93,9 @@ class Router
         '(:alpha)' => '([a-zA-Z]+)',
         '(:num)' => '([0-9]+)',
         '(:alnum)' => '([a-zA-Z0-9]+)',
-        '(:any)' => '([a-zA-Z0-9\.\-_%=]+)',
-        '(:segment)' => '([^/]+)',
-        '(:all)' => '(.*)',
+        '(:any)' => '([a-zA-Z0-9\.\-_%=]{1,255})',
+        '(:segment)' => '([^/]{1,255})',
+        '(:all)' => '(.{1,1000})',
     ];
 
     /**
@@ -164,6 +171,9 @@ class Router
      */
     public static function register($method, $route, $action)
     {
+        // Inisialisasi trie jika belum ada
+        static::init_nodes();
+
         $route = Str::characterify($route);
         $digits = is_string($route) && '' !== $route && !preg_match('/[^0-9]/', $route);
 
@@ -203,6 +213,8 @@ class Router
             if (!is_null(static::$group)) {
                 $routes[$method][$uri] += static::$group;
             }
+
+            static::insert_node($method, $uri, $routes[$method][$uri]);
         }
     }
 
@@ -354,6 +366,17 @@ class Router
      */
     protected static function match($method, $uri)
     {
+        // Coba match dari trie node dulu
+        $result = static::match_node($method, $uri);
+
+        if ($result) {
+            // Convert associative params ke indexed array untuk konsistensi
+            $params = array_values($result['params']);
+            $pattern = isset($result['pattern_uri']) ? $result['pattern_uri'] : $uri;
+            return new Route($method, $pattern, $result['action'], $params);
+        }
+
+        // Fallback ke regex loop
         $routes = static::method($method);
 
         foreach ($routes as $route => $action) {
@@ -440,5 +463,124 @@ class Router
     protected static function repeat($pattern, $times)
     {
         return implode('/', array_fill(0, $times, $pattern));
+    }
+
+    /**
+     * Inisialisasi trie nodes jika belum ada.
+     */
+    private static function init_nodes()
+    {
+        if (empty(static::$nodes)) {
+            $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'TRACE', 'CONNECT', 'OPTIONS'];
+
+            foreach ($methods as $method) {
+                static::$nodes[$method] = ['children' => [], 'action' => null, 'is_param' => false, 'param_name' => null, 'pattern_uri' => null];
+            }
+        }
+    }
+
+    /**
+     * Insert route ke trie internal.
+     */
+    private static function insert_node($method, $uri, $action)
+    {
+        static::init_nodes();
+        $node = &static::$nodes[$method];
+        $segments = explode('/', trim($uri, '/'));
+
+        // Jika URI adalah '/', segments kosong, set action langsung
+        if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
+            $node['action'] = $action;
+            $node['pattern_uri'] = $uri;
+            return;
+        }
+
+        foreach ($segments as $segment) {
+            if (empty($segment)) {
+                continue;
+            }
+
+            // Cek jika segment adalah parameter (e.g., (:num))
+            if (preg_match('/^\(:(\w+)\)$/', $segment, $matches)) {
+                $param_name = $matches[1];
+                $key = ':param';
+
+                if (!isset($node['children'][$key])) {
+                    $node['children'][$key] = ['children' => [], 'action' => null, 'is_param' => true, 'param_name' => $param_name, 'pattern_uri' => null];
+                }
+
+                $node = &$node['children'][$key];
+            } else {
+                if (!isset($node['children'][$segment])) {
+                    $node['children'][$segment] = ['children' => [], 'action' => null, 'is_param' => false, 'param_name' => null, 'pattern_uri' => null];
+                }
+
+                $node = &$node['children'][$segment];
+            }
+        }
+
+        $node['action'] = $action;
+        $node['pattern_uri'] = $uri;
+    }
+
+    /**
+     * Match URI dari trie internal dan ekstrak parameter.
+     */
+    private static function match_node($method, $uri)
+    {
+        if (!isset(static::$nodes[$method])) {
+            return null;
+        }
+
+        $node = static::$nodes[$method];
+        $segments = explode('/', trim($uri, '/'));
+
+        // Jika URI adalah '/', segments kosong, return action root
+        if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
+            return $node['action'] ? ['action' => $node['action'], 'params' => [], 'pattern_uri' => $node['pattern_uri']] : null;
+        }
+
+        $params = [];
+
+        foreach ($segments as $segment) {
+            if (empty($segment)) {
+                continue;
+            }
+
+            $found = false;
+
+            if (isset($node['children'][$segment])) { // Coba cocokkan segment statis
+                $node = $node['children'][$segment];
+                $found = true;
+            } elseif (isset($node['children'][':param'])) { // Jika tidak, coba parameter
+                $param_node = $node['children'][':param'];
+                $param_name = $param_node['param_name'];
+
+                // Validasi parameter sesuai tipenya
+                $valid = true;
+                if ($param_name === 'num') {
+                    $valid = preg_match('/^[0-9]+$/', $segment);
+                } elseif ($param_name === 'alpha') {
+                    $valid = preg_match('/^[a-zA-Z]+$/', $segment);
+                } elseif ($param_name === 'alnum') {
+                    $valid = preg_match('/^[a-zA-Z0-9]+$/', $segment);
+                }
+                // 'any' tidak perlu validasi, terima semua
+
+                if ($valid) {
+                    $node = $param_node;
+                    $params[$param_name] = $segment;
+                    $found = true;
+                }
+            }
+
+            if (!$found) {
+                return null;
+            }
+        }
+
+        return (isset($node['action']) && !empty($node['action']))
+            ? ['action' => $node['action'], 'params' => $params, 'pattern_uri' => $node['pattern_uri']]
+            : null;
     }
 }

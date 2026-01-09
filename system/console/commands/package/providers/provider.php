@@ -107,8 +107,10 @@ abstract class Provider
             CURLOPT_HEADER => 1,
             CURLOPT_NOBODY => 1,
         ]);
+        /** @disregard */
         $unused = curl_exec($ch);
         $type = curl_getinfo($ch);
+        /** @disregard */
         curl_close($ch);
 
         $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
@@ -138,6 +140,7 @@ abstract class Provider
                 exit;
             }
 
+            /** @disregard */
             curl_close($ch);
             fclose($fopen);
         } catch (\Throwable $e) {

@@ -67,7 +67,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
+        // Pastikan SCRIPT_NAME ada
+        if (!isset($_SERVER['SCRIPT_NAME'])) {
+            $_SERVER['SCRIPT_NAME'] = '/index.php';
+        }
+
+        // Pastikan HTTP_HOST ada
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = 'localhost';
+        }
+
         Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
+
+        // Reset cache foundation
+        Request::reset_foundation();
     }
 
     /**
@@ -105,14 +118,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testIPMethodReturnsClientIPAddress()
     {
-        $this->setServerVar('REMOTE_ADDR', 'something');
-        $this->assertEquals('something', Request::ip());
+        $this->setServerVar('REMOTE_ADDR', '192.168.1.100');
+        $this->assertEquals('192.168.1.100', Request::ip());
 
-        $this->setServerVar('HTTP_CLIENT_IP', 'something');
-        $this->assertEquals('something', Request::ip());
+        $this->setServerVar('REMOTE_ADDR', '10.0.0.5');
+        $this->assertEquals('10.0.0.5', Request::ip());
 
-        $this->setServerVar('HTTP_CLIENT_IP', 'something');
-        $this->assertEquals('something', Request::ip());
+        $this->setServerVar('REMOTE_ADDR', '172.16.0.1');
+        $this->assertEquals('172.16.0.1', Request::ip());
 
         $scriptname = $_SERVER['SCRIPT_NAME'];
         $_SERVER = [];
@@ -158,10 +171,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         Session::$instance = new SessionPayloadTokenStub();
 
-        $input = [Session::TOKEN => 'Foo'];
+        // Set ke POST untuk menjalankan CSRF check
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
+        Request::reset_foundation();
+
+        $input = [Session::TOKEN => 'Budi'];
         Request::foundation()->request->add($input);
 
         $this->assertFalse(Request::forged());
+
+        // Test untuk forged request
+        $input2 = [Session::TOKEN => 'WrongToken'];
+        Request::foundation()->request->replace($input2);
+
+        $this->assertTrue(Request::forged());
     }
 
     /**
@@ -182,5 +209,14 @@ class SessionPayloadTokenStub
     public function token()
     {
         return 'Budi';
+    }
+
+    public function get($key, $default = null)
+    {
+        if ($key === Session::TOKEN) {
+            return 'Budi';
+        }
+
+        return $default;
     }
 }

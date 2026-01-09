@@ -190,6 +190,29 @@ class URLTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
+        // Pastikan SCRIPT_NAME ada
+        if (!isset($_SERVER['SCRIPT_NAME'])) {
+            $_SERVER['SCRIPT_NAME'] = '/index.php';
+        }
+
+        // Pastikan HTTP_HOST ada untuk URL generation
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = 'localhost';
+        }
+
+        // Set port based on HTTPS status
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            $_SERVER['SERVER_PORT'] = 443;
+        } else {
+            $_SERVER['SERVER_PORT'] = 80;
+        }
+
         Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
+
+        // Reset cache foundation
+        Request::reset_foundation();
+
+        // Clear URL cache jika ada
+        URL::$base = null;
     }
 }

@@ -58,7 +58,12 @@ class Memcached extends Sectionable
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
             return $this->get_from_section($section, $key);
-        } elseif (false !== ($cache = $this->memcached->get($this->key . $key))) {
+        }
+
+        /** @disregard */
+        $cache = $this->memcached->get($this->key . $key);
+
+        if (false !== $cache) {
             return $cache;
         }
     }
@@ -84,6 +89,7 @@ class Memcached extends Sectionable
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
+        /** @disregard */
         $this->memcached->set($this->key . $key, $value, $minutes * 60);
     }
 
@@ -103,6 +109,7 @@ class Memcached extends Sectionable
                 $this->forget_in_section($section, $key);
             }
         } else {
+            /** @disregard */
             $this->memcached->delete($this->key . $key);
         }
     }
@@ -112,6 +119,7 @@ class Memcached extends Sectionable
      */
     public function flush()
     {
+        /** @disregard */
         return $this->memcached->flush();
     }
 
@@ -124,6 +132,7 @@ class Memcached extends Sectionable
      */
     public function forget_section($section)
     {
+        /** @disregard */
         return $this->memcached->increment($this->key . $this->section_key($section));
     }
 

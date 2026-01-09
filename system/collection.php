@@ -228,6 +228,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $this->where_in($key, $values, true);
     }
 
+    /** @disregard */
     public function first(callable $callback = null, $default = null)
     {
         if (is_null($callback)) {
@@ -382,6 +383,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return new static(array_keys($this->items));
     }
 
+    /** @disregard */
     public function last(callable $callback = null, $default = null)
     {
         if (is_null($callback)) {
@@ -621,6 +623,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return new static($chunks);
     }
 
+    /** @disregard */
     public function sort(callable $callback = null)
     {
         $items = $this->items;

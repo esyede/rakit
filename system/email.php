@@ -94,6 +94,14 @@ class Email
     }
 
     /**
+     * Reset cache$driver untuk cegah memori-leak di aplikasi yang berjalan lama.
+     */
+    public static function reset()
+    {
+        static::$drivers = [];
+    }
+
+    /**
      * Magic Method untuk pemanggilan method pada driver email default.
      *
      * @param string $method

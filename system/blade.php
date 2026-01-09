@@ -44,6 +44,7 @@ class Blade
         'yield',
         'set',
         'unset',
+        'json',
         'show',
         'section_start',
         'section_end',
@@ -59,6 +60,13 @@ class Blade
     protected static $extensions = [];
 
     /**
+     * Cache untuk hasil translate blade.
+     *
+     * @var array
+     */
+    protected static $translated = [];
+
+    /**
      * Daftarkan blade engine ke sistem.
      */
     public static function sharpen()
@@ -70,12 +78,18 @@ class Blade
 
             $compiled = static::compiled($view->path);
 
-            if (!is_file($compiled) || static::expired($view->path)) {
-                file_put_contents($compiled, static::compile($view), LOCK_EX);
-            }
+            try {
+                if (!is_file($compiled) || static::expired($view->path)) {
+                    file_put_contents($compiled, static::compile($view), LOCK_EX);
+                }
 
-            $view->path = $compiled;
-            return ltrim($view->get());
+                $view->path = $compiled;
+                return ltrim($view->get());
+            } catch (\Throwable $e) {
+                return ltrim($view->get());
+            } catch (\Exception $e) {
+                return ltrim($view->get());
+            }
         });
     }
 
@@ -261,6 +275,48 @@ class Blade
     protected static function compile_unset($value)
     {
         return preg_replace("/@unset\(['\"](.*?)['\"]\)/", '<?php unset($$1)?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @json() ke bentuk PHP.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_json($value)
+    {
+        $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
+        $result = $value;
+        $offset = 0;
+
+        while (($pos = strpos($result, '@json(', $offset)) !== false) {
+            $start = $pos + 6;
+            $depth = 1;
+            $current = $start;
+            $len = strlen($result);
+
+            while ($current < $len && $depth > 0) {
+                if ($result[$current] === '(') {
+                    $depth++;
+                } elseif ($result[$current] === ')') {
+                    $depth--;
+                }
+                $current++;
+            }
+
+            if ($depth === 0) {
+                $expression = substr($result, $start, $current - $start - 1);
+                $original = substr($result, $pos, $current - $pos);
+                $replacement = '<?php echo json_encode(' . trim($expression) . ', ' . $flags . '); ?>';
+                $result = substr_replace($result, $replacement, $pos, strlen($original));
+                $offset = $pos + strlen($replacement);
+            } else {
+                $offset = $pos + 1;
+            }
+        }
+
+        return $result;
     }
 
     /**

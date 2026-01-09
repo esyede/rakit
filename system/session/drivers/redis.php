@@ -35,6 +35,7 @@ class Redis extends Driver
      */
     public function load($id)
     {
+        /** @disregard */
         return $this->redis->get($id);
     }
 
@@ -47,6 +48,7 @@ class Redis extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
+        /** @disregard */
         $this->redis->put($session['id'], $session, $config['lifetime']);
     }
 
@@ -57,6 +59,7 @@ class Redis extends Driver
      */
     public function delete($id)
     {
+        /** @disregard */
         $this->redis->forget($id);
     }
 }

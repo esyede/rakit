@@ -61,10 +61,11 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
 
         $this->setServerVar('HTTPS', 'on');
         $redirect = Redirect::to('user/profile', 301);
-        $this->setServerVar('HTTPS', 'off');
 
         $this->assertEquals(301, $redirect->status());
         $this->assertEquals('https://localhost/user/profile', $redirect->headers()->get('location'));
+
+        $this->setServerVar('HTTPS', 'off');
     }
 
     /**
@@ -83,8 +84,8 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
 
         $this->setServerVar('HTTPS', 'on');
         $redirect3 = Redirect::to_route('redirect-3', [], 302)->headers()->get('location');
-        $this->setServerVar('HTTPS', 'off');
 
+        $this->setServerVar('HTTPS', 'off');
         $redirect4 = Redirect::to_route('redirect-2', ['1', '2'])->headers()->get('location');
 
         $this->assertEquals(301, $redirect1);
@@ -182,6 +183,29 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
+        // Pastikan SCRIPT_NAME ada
+        if (!isset($_SERVER['SCRIPT_NAME'])) {
+            $_SERVER['SCRIPT_NAME'] = '/index.php';
+        }
+
+        // Pastikan HTTP_HOST ada untuk URL generation
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = 'localhost';
+        }
+
+        // Set port based on HTTPS status
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
+            $_SERVER['SERVER_PORT'] = 443;
+        } else {
+            $_SERVER['SERVER_PORT'] = 80;
+        }
+
         Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
+
+        // Reset cache foundation
+        Request::reset_foundation();
+
+        // Clear URL cache jika ada
+        URL::$base = null;
     }
 }

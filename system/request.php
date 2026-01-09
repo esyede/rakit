@@ -21,11 +21,18 @@ class Request
     public static $route;
 
     /**
-     * Berisi instance miik http foundation.
+     * Berisi instance milik http foundation.
      *
-     * @var \System\Faundation\Http\Request
+     * @var \System\Foundation\Http\Request
      */
     public static $foundation;
+
+    /**
+     * Cache foundation instance untuk performance.
+     *
+     * @var \System\Foundation\Http\Request|null
+     */
+    private static $cached_foundation = null;
 
     /**
      * List format request.
@@ -131,7 +138,7 @@ class Request
     }
 
     /**
-     * Ambil suluruh item dari array global $_SERVER.
+     * Ambil seluruh item dari array global $_SERVER.
      *
      * @return array
      */
@@ -160,7 +167,7 @@ class Request
     public static function ip($default = '0.0.0.0')
     {
         $address = static::foundation()->getClientIp();
-        return is_null($address) ? $default : $address;
+        return (is_null($address) || !filter_var($address, FILTER_VALIDATE_IP)) ? $default : $address;
     }
 
     /**
@@ -174,7 +181,7 @@ class Request
     }
 
     /**
-     * Cek apakah requset saat ini bisa menerima content-type yg diberikan.
+     * Cek apakah request saat ini bisa menerima content-type yg diberikan.
      *
      * @param string|array $types
      *
@@ -211,7 +218,7 @@ class Request
      *
      * @return string|null
      */
-    public function prefers($types)
+    public static function prefers($types)
     {
         $types = is_array($types) ? $types : func_get_args();
         $accepts = static::accept();
@@ -232,17 +239,17 @@ class Request
     }
 
     /**
-     * Cek apakah requset saat ini bisa menerima html.
+     * Cek apakah request saat ini bisa menerima html.
      *
      * @return bool
      */
-    public function accept_html()
+    public static function accept_html()
     {
-        return $this->accepts('text/html');
+        return static::accepts('text/html');
     }
 
     /**
-     * Cek apakah requset saat ini bisa menerima content-type apapun.
+     * Cek apakah request saat ini bisa menerima content-type apapun.
      *
      * @return bool
      */
@@ -267,7 +274,6 @@ class Request
         }
 
         $split = explode('/', $actual);
-
         return isset($split[1]) && false !== preg_match(
             '#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#',
             $type
@@ -328,7 +334,15 @@ class Request
     public static function bearer()
     {
         $auth = (string) static::authorization();
-        return (0 === stripos($auth, 'Bearer ')) ? mb_substr($auth, 7, null, '8bit') : null;
+        if (0 === stripos($auth, 'Bearer ')) {
+            $token = mb_substr($auth, 7, null, '8bit');
+            // Validasi token: diisi dan hanya karakter aman
+            if (!empty($token) && preg_match('/^[A-Za-z0-9\-_\.\+\/=]+$/', $token)) {
+                return $token;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -383,6 +397,11 @@ class Request
     public static function forged()
     {
         $token = Session::token();
+
+        if (empty($token)) {
+            return true;
+        }
+
         $header = static::header('X-Csrf-Token');
         $header = $header ?: static::header('X-Xsrf-Token');
 
@@ -412,7 +431,7 @@ class Request
      *
      * @return bool
      */
-    public function pjax()
+    public static function pjax()
     {
         return (bool) static::header('X-Pjax') === true;
     }
@@ -422,7 +441,7 @@ class Request
      *
      * @return bool
      */
-    public function prefetch()
+    public static function prefetch()
     {
         return strcasecmp(static::server('HTTP_X_MOZ'), 'prefetch') === 0
             || strcasecmp(static::header('Purpose'), 'prefetch') === 0;
@@ -514,7 +533,7 @@ class Request
     }
 
     /**
-     * Ambil routw handler utama milik request saat ini.
+     * Ambil route handler utama milik request saat ini.
      *
      * @return Route
      */
@@ -530,11 +549,25 @@ class Request
      */
     public static function foundation()
     {
-        return static::$foundation;
+        if (static::$cached_foundation !== null) {
+            return static::$cached_foundation;
+        }
+
+        return static::$cached_foundation = static::$foundation;
     }
 
     /**
-     * Oper method-method lainnya ke http foundation request.
+     * Reset cache foundation (untuk testing).
+     *
+     * @return void
+     */
+    public static function reset_foundation()
+    {
+        static::$cached_foundation = null;
+    }
+
+    /**
+     * Proxy method-method lainnya ke http foundation request.
      *
      * @param string $method
      * @param array  $parameters

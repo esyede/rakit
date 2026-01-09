@@ -11,7 +11,7 @@ defined('DS') or exit('No direct access.');
 | Panggil init script sebelum first boot.
 */
 
-require 'init.php';
+require __DIR__ . DS . 'init.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -25,7 +25,7 @@ require 'init.php';
 |
 */
 
-require 'core.php';
+require __DIR__ . DS . 'core.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -122,8 +122,14 @@ Routing\Router::register('*', '(:all)', function () {
 |
 */
 
-$languages = Config::get('application.languages', []);
-$languages[] = Config::get('application.language');
+$languages = Config::get('application.languages', ['en']);
+$languages[] = Config::get('application.language', 'en');
+$languages = array_filter($languages, function ($lang) {
+    return is_string($lang) && preg_match('/^[a-zA-Z0-9_-]+$/', $lang);
+});
+usort($languages, function ($a, $b) {
+    return strlen($b) - strlen($a);
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +143,7 @@ $languages[] = Config::get('application.language');
 */
 
 $uri = URI::current();
+$uri = (!is_string($uri) || empty($uri)) ? '/' : $uri;
 
 foreach ($languages as $language) {
     if (preg_match('#^' . $language . '(?:$|/)#i', $uri)) {
@@ -159,8 +166,16 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 |
 */
 
-Request::$route = Routing\Router::route(Request::method(), $uri);
-$response = Request::$route->call();
+try {
+    Request::$route = Routing\Router::route(Request::method(), $uri);
+    $response = Request::$route->call();
+} catch (\Throwable $e) {
+    Log::error('Routing error: ' . $e->getMessage());
+    $response = Response::error(500, []);
+} catch (\Exception $e) {
+    Log::error('Routing error: ' . $e->getMessage());
+    $response = Response::error(500, []);
+}
 
 /*
 |--------------------------------------------------------------------------

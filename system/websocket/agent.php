@@ -13,6 +13,9 @@ class Agent
     protected $verb;
     protected $uri;
     protected $headers;
+    protected $fragments = [];
+    protected $fragment_opcode = null;
+    protected $last_activity;
 
     /**
      * Konstruktor.
@@ -31,6 +34,7 @@ class Agent
         $this->verb = $verb;
         $this->uri = $uri;
         $this->headers = $headers;
+        $this->last_activity = time();
 
         if (
             isset($this->server()->events()['connect'])
@@ -101,6 +105,16 @@ class Agent
     }
 
     /**
+     * Mereturn last activity timestamp.
+     *
+     * @return int
+     */
+    public function last_activity()
+    {
+        return $this->last_activity;
+    }
+
+    /**
      * Siapkan dan kirim payload.
      *
      * @param int    $opcode
@@ -110,6 +124,7 @@ class Agent
      */
     public function send($opcode, $data = '')
     {
+        $this->last_activity = time();
         $mask = Server::FINALE | $opcode & Server::OPCODE;
         $length = strlen($data);
         $buffer = pack('CC', $mask, $length);
@@ -121,7 +136,9 @@ class Agent
         }
 
         $buffer .= $data;
+
         if (is_bool($this->server()->write($this->socket, $buffer))) {
+            $this->server()->close($this->socket);
             return false;
         }
 
@@ -147,8 +164,19 @@ class Agent
             return false;
         }
 
+        $this->last_activity = time();
+
         while ($buffer) {
+            $finale = (ord($buffer[0]) & Server::FINALE) ? true : false;
             $opcode = ord($buffer[0]) & Server::OPCODE;
+
+            if ($this->fragment_opcode === null) {
+                $this->fragment_opcode = $opcode;
+            } elseif ($opcode !== 0 && $finale) {
+                $this->server()->close($this->socket);
+                return false;
+            }
+
             $length = ord($buffer[1]) & Server::LENGTH;
             $position = 2;
 
@@ -176,6 +204,20 @@ class Agent
             for ($i = 0, $data = ''; $i < $length; ++$i) {
                 $data .= chr(ord($buffer[$position + $i]) ^ $mask[$i % 4]);
             }
+
+            if (!$finale) {
+                $this->fragments[] = $data;
+                $buffer = substr($buffer, $length + $position);
+                continue;
+            }
+
+            if (!empty($this->fragments)) {
+                $data = implode('', $this->fragments) . $data;
+                $this->fragments = [];
+            }
+
+            $opcode = $this->fragment_opcode;
+            $this->fragment_opcode = null;
 
             switch ($opcode & Server::OPCODE) {
                 case Server::PING:

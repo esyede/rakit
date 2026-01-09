@@ -35,6 +35,7 @@ return [
         'password' => '',
         'timeout' => 5,
         'starttls' => true,
+        'keep_alive' => false,
         'options' => [
             // ..
         ],
@@ -112,7 +113,7 @@ return [
 
     'from' => [
         'email' => 'noreply@example.com',
-        'name' => 'Support Division',
+        'name' => 'Administrator',
     ],
 
     /*

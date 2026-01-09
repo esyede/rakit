@@ -44,6 +44,7 @@ class APC extends Driver
      */
     protected function retrieve($key)
     {
+        /** @disregard */
         if (false !== ($cache = apc_fetch($this->key . $key))) {
             return $cache;
         }
@@ -65,6 +66,7 @@ class APC extends Driver
      */
     public function put($key, $value, $minutes)
     {
+        /** @disregard */
         apc_store($this->key . $key, $value, $minutes * 60);
     }
 
@@ -75,6 +77,7 @@ class APC extends Driver
      */
     public function forget($key)
     {
+        /** @disregard */
         apc_delete($this->key . $key);
     }
 
@@ -83,8 +86,11 @@ class APC extends Driver
      */
     public function flush()
     {
+        /** @disregard */
         apc_clear_cache();
+        /** @disregard */
         apc_clear_cache('user');
+        /** @disregard */
         apc_clear_cache('opcode');
     }
 }

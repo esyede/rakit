@@ -109,14 +109,6 @@ class Memory extends Sectionable
     }
 
     /**
-     * Kosongkan seluruh cache.
-     */
-    public function flush()
-    {
-        $this->storage = [];
-    }
-
-    /**
      * Ambil nama key item section milik section dan key tertentu.
      *
      * @param string $section

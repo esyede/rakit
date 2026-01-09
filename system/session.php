@@ -34,6 +34,10 @@ class Session
     {
         static::start(Config::get('session.driver'));
         static::$instance->load(Cookie::get(Config::get('session.cookie')));
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(false);
+        }
     }
 
     /**
@@ -43,6 +47,10 @@ class Session
      */
     public static function start($driver)
     {
+        if (!is_string($driver) || empty($driver)) {
+            throw new \Exception('Session driver must be a non-empty string');
+        }
+
         static::$instance = new Session\Payload(static::factory($driver));
     }
 
@@ -55,6 +63,10 @@ class Session
      */
     public static function factory($driver)
     {
+        if (!is_string($driver) || empty($driver)) {
+            throw new \Exception('Session driver must be a non-empty string');
+        }
+
         if (isset(static::$registrar[$driver])) {
             $resolver = static::$registrar[$driver];
             return $resolver();

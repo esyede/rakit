@@ -89,7 +89,10 @@ class Logger
             ? $this->getExceptionFile($message)
             : null;
         $line = static::formatLogLine($message, $excfile, $priority);
-        $file = $this->directory . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log.php';
+        $prefix = \System\Config::get('application.name')
+            ? \System\Str::slug(\System\Config::get('application.name')) . '_'
+            : '';
+        $file = $this->directory . DIRECTORY_SEPARATOR . $prefix . date('Y-m-d') . '.log.php';
 
         try {
             if (is_file($file)) {
@@ -124,19 +127,9 @@ class Logger
         if (($message instanceof \Exception)
             || (class_exists('\Throwable') && ($message instanceof \Throwable))
         ) {
-            while ($message) {
-                $tmp[] = (($message instanceof \ErrorException)
-                    ? Helpers::errorTypeToString($message->getSeverity()) . ': ' . $message->getMessage()
-                    : Helpers::getClass($message) . ': ' . $message->getMessage() .
-                    ($message->getCode() ? ' #' . $message->getCode() : '')
-                ) . ' in ' . $message->getFile() . ':' . $message->getLine();
-
-                $message = $message->getPrevious();
-            }
-
-            $message = implode("\ncaused by ", $tmp);
+            return static::formatExceptionForRakitLog($message);
         } elseif (!is_string($message)) {
-            $message = Dumper::toText($message);
+            return static::formatValueForRakitLog($message);
         }
 
         return trim($message);
@@ -144,15 +137,19 @@ class Logger
 
     /**
      * @param mixed $message
+     * @param string $excfile
+     * @param string $priority
      *
      * @return string
      */
     public static function formatLogLine($message, $excfile = null, $priority = self::INFO)
     {
-        $context = (Debugger::$productionMode ? 'production' : 'development');
-        return vsprintf('[%s] %s.%s: %s', [
-            date('Y-m-d H:i:s'), $context, strtoupper($priority), static::formatMessage($message),
-        ]);
+        $env = (Debugger::$productionMode ? 'production' : 'local');
+        $date = \System\Carbon::now()->format('Y-m-d H:i:s');
+        $level = strtoupper((string) $priority);
+        $output = sprintf('[%s] %s.%s: %s', $date, $env, $level, static::formatMessage($message));
+
+        return $output . PHP_EOL;
     }
 
     /**
@@ -258,5 +255,84 @@ class Logger
         );
 
         mail($email, $parts['subject'], $parts['body'], $parts['headers']);
+    }
+
+    /**
+     * Format nilai untuk logging dengan aman.
+     *
+     * @param mixed $value
+     * @param array $objects
+     * @param array $arrays
+     *
+     * @return mixed
+     */
+    protected static function formatValueForRakitLog($value, array &$objects = [], array &$arrays = [])
+    {
+        $exception = (PHP_VERSION_ID < 70000) ? ($value instanceof \Exception) : ($value instanceof \Throwable || $value instanceof \Exception);
+
+        if ($exception) {
+            return static::formatExceptionForRakitLog($value);
+        }
+
+        if (is_object($value)) {
+            $id = function_exists('spl_object_id') ? spl_object_id($value) : spl_object_hash($value);
+
+            if (isset($objects[$id])) {
+                return sprintf('[object] (%s) [circular]', get_class($value));
+            }
+
+            $objects[$id] = true;
+            $json = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            unset($objects[$id]);
+            return (json_last_error() === JSON_ERROR_NONE) ? $json : sprintf('[object] (%s)', get_class($value));
+        }
+
+        if (is_resource($value)) {
+            return sprintf('[resource] (%s)', get_resource_type($value));
+        }
+
+        if (is_array($value)) {
+            $hash = md5(serialize($value));
+
+            if (isset($arrays[$hash])) {
+                return '[array] [circular]';
+            }
+
+            $arrays[$hash] = true;
+            $formatted = [];
+
+            foreach ($value as $k => $v) {
+                $formatted[$k] = static::formatValueForRakitLog($v, $objects, $arrays);
+            }
+
+            unset($arrays[$hash]);
+            return $formatted;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Format exception untuk logging.
+     *
+     * @param \Exception|object $e
+     *
+     * @return string
+     */
+    protected static function formatExceptionForRakitLog($e)
+    {
+        $class = get_class($e);
+        $message = $e->getMessage();
+        $file = $e->getFile();
+        $line = $e->getLine();
+        $trace = $e->getTraceAsString();
+        $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', $class, $e->getCode(), $message, $file, $line);
+
+        if ($trace) {
+            $output .= PHP_EOL . $trace;
+        }
+
+        return $output;
     }
 }

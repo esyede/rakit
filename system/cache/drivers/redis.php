@@ -34,6 +34,7 @@ class Redis extends Driver
      */
     public function has($key)
     {
+        /** @disregard */
         return !is_null($this->redis->get($key));
     }
 
@@ -46,6 +47,7 @@ class Redis extends Driver
      */
     protected function retrieve($key)
     {
+        /** @disregard */
         $cache = $this->redis->get($key);
 
         if (null === $cache) {
@@ -58,6 +60,7 @@ class Redis extends Driver
 
         if ($value === false && $cache !== serialize(false)) {
             try {
+                /** @disregard */
                 $this->redis->del($key);
             } catch (\Exception $e) {
                 // ignore error
@@ -85,7 +88,9 @@ class Redis extends Driver
      */
     public function put($key, $value, $minutes)
     {
+        /** @disregard */
         $this->redis->set($key, serialize($value));
+        /** @disregard */
         $this->redis->expire($key, $minutes * 60);
     }
 
@@ -107,6 +112,7 @@ class Redis extends Driver
      */
     public function forget($key)
     {
+        /** @disregard */
         $this->redis->del($key);
     }
 
@@ -115,6 +121,7 @@ class Redis extends Driver
      */
     public function flush()
     {
+        /** @disregard */
         $this->redis->flushall();
     }
 }

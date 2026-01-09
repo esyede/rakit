@@ -25,7 +25,6 @@ return [
     'Blade' => 'System\Blade',
     'Cache' => 'System\Cache',
     'Carbon' => 'System\Carbon',
-    'Collection' => 'System\Collection',
     'Command' => 'System\Console\Commands\Command',
     'Config' => 'System\Config',
     'Console' => 'System\Console\Console',

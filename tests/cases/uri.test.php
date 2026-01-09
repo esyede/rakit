@@ -81,6 +81,22 @@ class URITest extends \PHPUnit_Framework_TestCase
         $_FILES = [];
         $_SERVER['REQUEST_URI'] = $uri;
 
+        // Pastikan server vars yang dibutuhkan ada
+        if (!isset($_SERVER['SCRIPT_NAME'])) {
+            $_SERVER['SCRIPT_NAME'] = '/index.php';
+        }
+
+        if (!isset($_SERVER['HTTP_HOST'])) {
+            $_SERVER['HTTP_HOST'] = 'localhost';
+        }
+
+        // Reset URI cache
+        URI::$uri = null;
+        URI::$segments = [];
+
         Request::$foundation = FoundationRequest::createFromGlobals();
+
+        // Reset cache foundation
+        Request::reset_foundation();
     }
 }

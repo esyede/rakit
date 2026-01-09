@@ -35,6 +35,7 @@ class APC extends Driver
      */
     public function load($id)
     {
+        /** @disregard */
         return $this->apc->get($id);
     }
 
@@ -47,6 +48,7 @@ class APC extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
+        /** @disregard */
         $this->apc->put($session['id'], $session, $config['lifetime']);
     }
 
@@ -57,6 +59,7 @@ class APC extends Driver
      */
     public function delete($id)
     {
+        /** @disregard */
         $this->apc->forget($id);
     }
 }

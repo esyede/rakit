@@ -36,8 +36,8 @@ class Throttle
             $data = [
                 'limit' => $max_attempts,
                 'remaining' => $max_attempts,
-                'reset' => time() + ($decay_minutes * 3600),
-                'retry' => $decay_minutes * 3600,
+                'reset' => time() + ($decay_minutes * 60),
+                'retry' => $decay_minutes * 60,
                 'key' => $key,
                 'ip' => Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip(),
             ];
@@ -51,12 +51,20 @@ class Throttle
         }
 
         if ($data['reset'] > time()) {
-            $data['reset'] = time() + ($decay_minutes * 3600);
             return false;
         }
 
-        Cache::forget($key);
-        return false;
+        // Reset counter jika waktu habis
+        $data = [
+            'limit' => $max_attempts,
+            'remaining' => $max_attempts - 1,
+            'reset' => time() + ($decay_minutes * 60),
+            'retry' => $decay_minutes * 60,
+            'key' => $key,
+            'ip' => Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip(),
+        ];
+        Cache::put($key, $data, $decay_minutes);
+        return true;
     }
 
     /**

@@ -17,6 +17,13 @@ class Smtp extends Driver
     protected $connection;
 
     /**
+     * Apakah koneksi dapat di-reuse.
+     *
+     * @var bool
+     */
+    protected $keep_alive = false;
+
+    /**
      * Mulai proses transmisi data.
      *
      * @return bool
@@ -53,6 +60,9 @@ class Smtp extends Driver
             throw new \Exception('Must supply a SMTP host and port, none given.');
         }
 
+        // Set keep_alive dari config untuk connection pooling
+        $this->keep_alive = Arr::get($this->config, 'smtp.keep_alive', false);
+
         $authenticate = (empty($this->connection)
             && !empty($this->config['smtp']['username'])
             && !empty($this->config['smtp']['password']));
@@ -72,6 +82,9 @@ class Smtp extends Driver
         $lists = ['to', 'cc', 'bcc'];
 
         foreach ($lists as $list) {
+            if (!is_array($this->{$list})) {
+                throw new \Exception('Invalid recipient list for ' . $list . ': must be an array.');
+            }
             foreach ($this->{$list} as $recipient) {
                 $this->command('RCPT TO: <' . $recipient['email'] . '>', [250, 251]);
             }
@@ -86,12 +99,14 @@ class Smtp extends Driver
 
         foreach ($lines as $line) {
             $line = (('.' === substr((string) $line, 0, 1)) ? '.' : '') . $line;
-            fputs($this->connection, $line . $this->config['newline']);
+            if (!fputs($this->connection, $line . $this->config['newline'])) {
+                throw new \Exception('Failed to send data to SMTP server.');
+            }
         }
 
         $this->command('.', 250);
 
-        if (!$this->pipelining) {
+        if (!$this->keep_alive) {
             $this->disconnect();
         }
 
@@ -122,17 +137,30 @@ class Smtp extends Driver
             stream_context_set_option($context, $this->config['smtp']['options']);
         }
 
-        $this->connection = stream_socket_client(
-            $this->config['smtp']['host'] . ':' . $this->config['smtp']['port'],
-            $errno,
-            $errstr,
-            $this->config['smtp']['timeout'],
-            STREAM_CLIENT_CONNECT,
-            $context
-        );
+        $retry_count = Arr::get($this->config, 'smtp.retry', 3);
+        $retry_delay = Arr::get($this->config, 'smtp.retry_delay', 1); // detik
+
+        for ($attempt = 0; $attempt < $retry_count; $attempt++) {
+            $this->connection = stream_socket_client(
+                $this->config['smtp']['host'] . ':' . $this->config['smtp']['port'],
+                $errno,
+                $errstr,
+                $this->config['smtp']['timeout'],
+                STREAM_CLIENT_CONNECT,
+                $context
+            );
+
+            if ($this->connection) {
+                break;
+            }
+
+            if ($attempt < $retry_count - 1) {
+                sleep($retry_delay);
+            }
+        }
 
         if (empty($this->connection)) {
-            throw new \Exception(sprintf('Could not connect to SMTP: (%s) %s.', $errno, $errstr));
+            throw new \Exception(sprintf('Could not connect to SMTP after %d attempts: (%s) %s.', $retry_count, $errno, $errstr));
         }
 
         $this->response();
@@ -155,6 +183,10 @@ class Smtp extends Driver
                 $crypto = STREAM_CRYPTO_METHOD_TLS_CLIENT;
 
                 // Lihat: https://www.php.net/manual/en/function.stream-socket-enable-crypto.php#119122
+                if (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT')) {
+                    $crypto |= STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
+                }
+
                 if (defined('STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT')) {
                     $crypto |= STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
                     $crypto |= STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT;
@@ -278,6 +310,8 @@ class Smtp extends Driver
     protected function response()
     {
         $data = '';
+        $max = 100; // Cegah infinite loop
+        $iterations = 0;
 
         stream_set_timeout($this->connection, $this->config['smtp']['timeout']);
 
@@ -292,6 +326,11 @@ class Smtp extends Driver
 
             if (' ' === substr($str, 3, 1)) {
                 break;
+            }
+
+            $iterations++;
+            if ($iterations >= $max) {
+                throw new \Exception('SMTP response loop exceeded maximum iterations.');
             }
         }
 

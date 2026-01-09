@@ -111,7 +111,9 @@ class Helpers
     {
         if (function_exists('xdebug_get_function_stack')) {
             $stack = [];
+            /** @disregard */
             $rows = array_slice(array_reverse(xdebug_get_function_stack()), 2, -1);
+
             foreach ($rows as $row) {
                 $frame = [
                     'file' => $row['file'],
@@ -129,6 +131,7 @@ class Helpers
             }
 
             $ref = new \ReflectionProperty('Exception', 'trace');
+            /** @disregard */
             $ref->setAccessible(true);
             $ref->setValue($e, $stack);
         }
@@ -224,6 +227,7 @@ class Helpers
 
         if (isset($hint)) {
             $ref = new \ReflectionProperty($e, 'message');
+            /** @disregard */
             $ref->setAccessible(true);
             $ref->setValue($e, $message);
             // Store oopsAction via Context helper

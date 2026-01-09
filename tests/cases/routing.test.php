@@ -17,6 +17,9 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         Package::$routed = [];
         Router::$names = [];
         Router::$routes = [];
+        Router::$fallback = [];
+        Router::$uses = [];
+        Router::$nodes = [];
     }
 
     /**
@@ -28,6 +31,9 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         Package::$routed = [];
         Router::$names = [];
         Router::$routes = [];
+        Router::$fallback = [];
+        Router::$uses = [];
+        Router::$nodes = [];
     }
 
     /**

@@ -14,9 +14,9 @@ class Response
     public $content;
 
     /**
-     * Berisi instanve http foundation response.
+     * Berisi instance http foundation response.
      *
-     * @var \System\Faundation\Http\Response
+     * @var \System\Foundation\Http\Response
      */
     protected $foundation;
 
@@ -29,12 +29,16 @@ class Response
      */
     public function __construct($content, $status = 200, array $headers = [])
     {
+        if ($status < 100 || $status > 599) {
+            throw new \Exception('Invalid HTTP status code: ' . $status);
+        }
+
         $this->content = $content;
         $this->foundation = new Foundation\Http\Response('', $status, $headers);
     }
 
     /**
-     * Ambil instance foundation rersponse.
+     * Ambil instance foundation response.
      *
      * @return \System\Foundation\Http\Response
      */
@@ -136,6 +140,10 @@ class Response
      */
     public static function jsonp($callback, $data, $status = 200, array $headers = [])
     {
+        if (!preg_match('/^[a-zA-Z_$][a-zA-Z0-9_$]*$/', $callback)) {
+            throw new \Exception('Invalid JSONP callback name: ' . $callback);
+        }
+
         $headers['Content-Type'] = 'application/javascript; charset=utf-8';
         return new static($callback . '(' . json_encode($data) . ');', $status, $headers);
     }
@@ -239,7 +247,7 @@ class Response
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
             'Content-Length' => Storage::size($path),
-            'Content-Disposition' => sprintf('attachment; filename="%s"', $name ?: basename($name)),
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $name ?: basename($path)),
         ]));
 
         if (Config::get('session.driver')) {
@@ -281,7 +289,7 @@ class Response
     }
 
     /**
-     * Kirim haeder dan konten response ke browser.
+     * Kirim header dan konten response ke browser.
      */
     public function send()
     {

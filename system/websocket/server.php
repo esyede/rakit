@@ -24,6 +24,8 @@ class Server
     protected $protocol;
     protected $agents = [];
     protected $events = [];
+    protected $allowed_origins = [];
+    protected $ping_timeout = 60;
 
     /**
      * Konstruktor.
@@ -62,12 +64,18 @@ class Server
                 $uri = $match[2];
             } else {
                 if (false !== preg_match('/^(.+): (.+)/', trim($line), $match)) {
-                    $headers[strtr(ucwords(strtolower(strtr($match[1],'-',' '))), ' ', '-')] = $match[2];
+                    $headers[strtr(ucwords(strtolower(strtr($match[1], '-', ' '))), ' ', '-')] = $match[2];
                 } else {
                     $this->close($socket);
                     return;
                 }
             }
+        }
+
+        if (!empty($this->allowed_origins) && isset($headers['Origin']) && !in_array($headers['Origin'], $this->allowed_origins)) {
+            $this->write($socket, "HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n");
+            $this->close($socket);
+            return;
         }
 
         if (empty($headers['Upgrade']) && empty($headers['Sec-Websocket-Key'])) {
@@ -88,7 +96,7 @@ class Server
         $key  = base64_encode(sha1($headers['Sec-Websocket-Key'] . static::MAGIC, true));
         $buffer .= 'Sec-WebSocket-Accept: ' . $key . "\r\n\r\n";
 
-        if ($this->write($socket,$buffer)) {
+        if ($this->write($socket, $buffer)) {
             $this->sockets[(int) $socket] = $socket;
             $this->agents[(int) $socket] = new Agent($this, $socket, $verb, $uri, $headers);
         }
@@ -198,6 +206,32 @@ class Server
     }
 
     /**
+     * Set allowed origins for security.
+     *
+     * @param array $origins
+     *
+     * @return object
+     */
+    public function allowed_origins(array $origins)
+    {
+        $this->allowed_origins = $origins;
+        return $this;
+    }
+
+    /**
+     * Set ping timeout in seconds.
+     *
+     * @param int $timeout
+     *
+     * @return object
+     */
+    public function ping_timeout($timeout)
+    {
+        $this->ping_timeout = $timeout;
+        return $this;
+    }
+
+    /**
      * Hentikan server.
      */
     public function kill()
@@ -210,6 +244,7 @@ class Server
      */
     public function run()
     {
+
         declare(ticks=1);
 
         if (!extension_loaded('pcntl') || !is_callable('pcntl_signal')) {
@@ -219,8 +254,10 @@ class Server
         pcntl_signal(SIGINT, [$this, 'kill']);
         pcntl_signal(SIGTERM, [$this, 'kill']);
         gc_enable();
+
         $listen = stream_socket_server($this->address, $errno, $error, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $this->context);
         $socket = socket_import_stream($listen);
+
         register_shutdown_function(function () use ($listen) {
             foreach ($this->sockets as $socket) {
                 if ($socket !== $listen) {
@@ -295,13 +332,21 @@ class Server
                     if (!is_resource($socket)) {
                         continue;
                     }
+
                     if (
                         $socket != $listen
                         && isset($this->agents[$id])
                         && isset($this->events['idle'])
                         && is_callable($function = $this->events['idle'])
                     ) {
-                        $function($this->agents[$id]);
+                        $agent = $this->agents[$id];
+
+                        if (time() - $agent->lastActivity() > $this->ping_timeout) {
+                            $this->close($socket);
+                            continue;
+                        }
+
+                        $function($agent);
                     }
                 }
 

@@ -42,6 +42,13 @@ class Autoloader
     public static $aliases = [];
 
     /**
+     * Cache untuk file yang sudah dimuat.
+     *
+     * @var array
+     */
+    protected static $loaded = [];
+
+    /**
      * Muat file berdasarkan class yang diberikan.
      * Method ini adalah autoloader default sistem.
      *
@@ -49,22 +56,26 @@ class Autoloader
      */
     public static function load($class)
     {
-        if (isset(static::$aliases[$class])) {
-            return class_alias(static::$aliases[$class], $class);
-        } elseif (isset(static::$mappings[$class])) {
-            require static::$mappings[$class];
+        try {
+            if (isset(static::$aliases[$class])) {
+                return class_alias(static::$aliases[$class], $class);
+            } elseif (isset(static::$mappings[$class])) {
+                require static::$mappings[$class];
+                return;
+            }
+
+            foreach (static::$namespaces as $namespace => $directory) {
+                $class_namespace = substr((string) $class, 0, strlen((string) $namespace));
+
+                if ('' !== $namespace && $namespace === $class_namespace) {
+                    return static::load_namespaced($class, $namespace, $directory);
+                }
+            }
+
+            static::load_psr($class);
+        } catch (\Throwable $e) {
             return;
         }
-
-        foreach (static::$namespaces as $namespace => $directory) {
-            $class_namespace = substr((string) $class, 0, strlen((string) $namespace));
-
-            if ('' !== $namespace && $namespace === $class_namespace) {
-                return static::load_namespaced($class, $namespace, $directory);
-            }
-        }
-
-        static::load_psr($class);
     }
 
     /**
@@ -89,15 +100,38 @@ class Autoloader
     {
         $file = str_replace(['\\', '_', '/'], DS, (string) $class);
         $lowercased = strtolower($file);
+
+        // Sanitasi path untuk mencegah path traversal
+        if (strpos($file, '..') !== false || strpos($file, '/') === 0 || strpos($file, '\\') === 0) {
+            return;
+        }
+
+        // Cek cache agar tidak perlu load ulang file yang sama
+        if (isset(static::$loaded[$file]) || isset(static::$loaded[$lowercased])) {
+            return;
+        }
+
         $directories = $directory ? array_map(function ($item) {
             return str_replace(['\\', '/'], DS, (string) $item);
         }, (array) $directory) : static::$directories;
 
         foreach ($directories as $directory) {
             if (is_file($path = $directory . $lowercased . '.php')) {
-                return require $path;
+                try {
+                    require $path;
+                    static::$loaded[$lowercased] = $path;
+                    return;
+                } catch (\Throwable $e) {
+                    return;
+                }
             } elseif (is_file($path = $directory . $file . '.php')) {
-                return require $path;
+                try {
+                    require $path;
+                    static::$loaded[$file] = $path;
+                    return;
+                } catch (\Throwable $e) {
+                    return;
+                }
             }
         }
     }

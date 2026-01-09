@@ -573,9 +573,15 @@ class Validator
      */
     protected function validate_uuid($attribute, $value)
     {
-        return is_string($value)
-            ? (bool) preg_match('/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/Di', $value)
-            : false;
+        try {
+            return is_string($value)
+                ? (bool) preg_match('/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/Di', $value)
+                : false;
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -612,17 +618,22 @@ class Validator
             return false;
         }
 
-        if ($url = parse_url(trim($value), PHP_URL_HOST)) {
-            try {
-                return count(dns_get_record($url, DNS_A | DNS_AAAA)) > 0;
-            } catch (\Throwable $e) {
-                return false;
-            } catch (\Exception $e) {
-                return false;
-            }
+        $url = trim($value);
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return false;
         }
 
-        return false;
+        // Gunakan cURL untuk pengecekan yang lebih efisien daripada dns_get_record
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout 5 detik untuk performa
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        /** @disregard */
+        curl_close($ch);
+
+        return $httpCode >= 200 && $httpCode < 400;
     }
 
     /**
@@ -649,7 +660,13 @@ class Validator
      */
     protected function validate_alpha($attribute, $value)
     {
-        return is_string($value) && preg_match('/^[\pL\pM]+$/u', $value);
+        try {
+            return is_string($value) && preg_match('/^[\pL\pM]+$/u', $value);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -662,7 +679,13 @@ class Validator
      */
     protected function validate_alpha_num($attribute, $value)
     {
-        return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN]+$/u', $value) > 0) : false;
+        try {
+            return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN]+$/u', $value) > 0) : false;
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -676,7 +699,13 @@ class Validator
      */
     protected function validate_alpha_dash($attribute, $value)
     {
-        return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0) : false;
+        try {
+            return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0) : false;
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -690,7 +719,13 @@ class Validator
      */
     protected function validate_match($attribute, $value, array $parameters)
     {
-        return preg_match(implode(',', (array) $parameters), $value);
+        try {
+            return preg_match(implode(',', (array) $parameters), $value);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -897,15 +932,21 @@ class Validator
      */
     public function validate_utf8($attribute, $value, array $parameters)
     {
-        return preg_match('/\A(?:[\x00-\x7F]++
-            |[\xC2-\xDF][\x80-\xBF]
-            |\xE0[\xA0-\xBF][\x80-\xBF]
-            |[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}
-            |\xED[\x80-\x9F][\x80-\xBF]
-            |\xF0[\x90-\xBF][\x80-\xBF]{2}
-            |[\xF1-\xF3][\x80-\xBF]{3}
-            | \xF4[\x80-\x8F][\x80-\xBF]{2}
-            )*+\z/x', $value);
+        try {
+            $pattern = '/\A(?:[\x00-\x7F]++|' .
+                '[\xC2-\xDF][\x80-\xBF]|' .
+                '\xE0[\xA0-\xBF][\x80-\xBF]|' .
+                '[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|' .
+                '\xED[\x80-\x9F][\x80-\xBF]|' .
+                '\xF0[\x90-\xBF][\x80-\xBF]{2}|' .
+                '[\xF1-\xF3][\x80-\xBF]{3}|' .
+                '\xF4[\x80-\x8F][\x80-\xBF]{2})*+\z/x';
+            return preg_match($pattern, $value);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**

@@ -101,8 +101,10 @@ class Database extends Driver
     public function flush()
     {
         $db = Config::get('cache.database');
-        $db['connection'] = isset($db['connection']) ? $db['connection'] : null;
-        DB::connection($db['connection'])->query('TRUNCATE TABLE ' . $db['table']);
+        $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
+        $connection = DB::connection($db['connection']);
+        $driver = $connection->driver();
+        $connection->query((('sqlite' === $driver) ? 'DELETE FROM ' : 'TRUNCATE TABLE ') . $db['table']);
     }
 
     /**
@@ -113,7 +115,7 @@ class Database extends Driver
     protected function table()
     {
         $db = Config::get('cache.database');
-        $db['connection'] = isset($db['connection']) ? $db['connection'] : null;
+        $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
         return DB::connection($db['connection'])->table($db['table']);
     }
 }

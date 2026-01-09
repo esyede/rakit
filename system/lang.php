@@ -43,6 +43,13 @@ class Lang
     protected static $lines = [];
 
     /**
+     * Cache untuk hasil loading file bahasa.
+     *
+     * @var array
+     */
+    protected static $files = [];
+
+    /**
      * Buat instance kelas Lang baru.
      *
      * @param string $key
@@ -189,8 +196,36 @@ class Lang
      */
     public static function file($package, $language, $file)
     {
-        $file = static::path($package, $language, $file);
-        return is_file($file) ? (require $file) : [];
+        if (
+            strpos($package, '..') !== false || strpos($package, '/') !== false || strpos($package, '\\') !== false ||
+            strpos($language, '..') !== false || strpos($language, '/') !== false || strpos($language, '\\') !== false ||
+            strpos($file, '..') !== false || strpos($file, '/') !== false || strpos($file, '\\') !== false
+        ) {
+            return [];
+        }
+
+        $key = $package . '::' . $language . '::' . $file;
+        if (isset(static::$files[$key])) {
+            return static::$files[$key];
+        }
+
+        $filePath = static::path($package, $language, $file);
+        if (!is_file($filePath)) {
+            static::$files[$key] = [];
+            return [];
+        }
+
+        try {
+            $loaded = require $filePath;
+            static::$files[$key] = (array) $loaded;
+            return static::$files[$key];
+        } catch (\Throwable $e) {
+            static::$files[$key] = [];
+            return [];
+        } catch (\Exception $e) {
+            static::$files[$key] = [];
+            return [];
+        }
     }
 
     /**

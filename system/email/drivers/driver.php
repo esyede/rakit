@@ -745,9 +745,19 @@ abstract class Driver
         $eol = $this->config['newline'];
         $encoding = $this->config['encoding'];
         $parts = [
-            'Date', 'Return-Path', 'From', 'To',
-            'Cc', 'Bcc', 'Reply-To', 'Subject', 'Message-ID',
-            'X-Priority', 'X-Mailer', 'MIME-Version', 'Content-Type',
+            'Date',
+            'Return-Path',
+            'From',
+            'To',
+            'Cc',
+            'Bcc',
+            'Reply-To',
+            'Subject',
+            'Message-ID',
+            'X-Priority',
+            'X-Mailer',
+            'MIME-Version',
+            'Content-Type',
         ];
 
         if ($without_bcc) {

@@ -35,6 +35,7 @@ class Memcached extends Driver
      */
     public function load($id)
     {
+        /** @disregard */
         return $this->memcached->get($id);
     }
 
@@ -47,6 +48,7 @@ class Memcached extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
+        /** @disregard */
         $this->memcached->put($session['id'], $session, $config['lifetime']);
     }
 
@@ -57,6 +59,7 @@ class Memcached extends Driver
      */
     public function delete($id)
     {
+        /** @disregard */
         $this->memcached->forget($id);
     }
 }
