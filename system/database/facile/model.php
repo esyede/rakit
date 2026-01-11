@@ -466,7 +466,7 @@ abstract class Model
      *
      * @return string
      */
-    public function getConnectionName()
+    public function get_connection_name()
     {
         return $this->connection();
     }
@@ -560,7 +560,7 @@ abstract class Model
      *
      * @return Model
      */
-    public static function findOrFail($id, array $columns = ['*'])
+    public static function find_or_fail($id, array $columns = ['*'])
     {
         $result = static::find($id, $columns);
 
@@ -590,7 +590,7 @@ abstract class Model
      *
      * @return Model
      */
-    public static function firstOrFail(array $columns = ['*'])
+    public static function first_or_fail(array $columns = ['*'])
     {
         $result = static::first($columns);
 
