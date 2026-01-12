@@ -282,7 +282,8 @@ class Autoloader
             }
         }
 
-        $content = "<?php"."\n\n";
+        $content = "<?php\n\n";
+        $content .= "defined('DS') or exit('No direct access.');\n\n";
         $content .= "/**\n";
         $content .= " * Auto-generated optimized class map.\n";
         $content .= " * Generated on: " . Carbon::now()->format('Y-m-d H:i:s') . "\n";
