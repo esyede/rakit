@@ -113,3 +113,10 @@ if (!Container::registered('command: websocket')) {
         return new Commands\Websocket();
     });
 }
+
+// Daftarkan kelas milik command 'optimize'
+if (!Container::registered('command: optimize')) {
+    Container::singleton('command: optimize', function () {
+        return new Commands\Optimize();
+    });
+}

@@ -106,6 +106,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Generate Classmap
+    |--------------------------------------------------------------------------
+    |
+    | Optimalkan kinerja autoloader rakit. Jika diaktifkan, rakit akan
+    | mengoptimalkan kinerja autoloader dengan menggabungkan semua file
+    | autoload menjadi satu file di storage/classmap.php.
+    |
+    | Aktifkan opsi ini ketika dijalankan di lingkungan produksi agar
+    | kinerja aplikasi anda meningkat.
+    |
+    */
+
+    'generate_classmap' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Composer Autoload
     |--------------------------------------------------------------------------
     |

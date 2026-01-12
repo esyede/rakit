@@ -4,6 +4,7 @@ namespace System\Console\Commands\Package;
 
 defined('DS') or die('No direct access.');
 
+use System\Autoloader;
 use System\Container;
 use System\Storage;
 use System\Package;
@@ -89,6 +90,8 @@ class Packager extends Command
 
         echo PHP_EOL . $this->info('Package installed successfuly!');
 
+        $this->regenerate_classmap_if_enabled();
+
         echo PHP_EOL;
         echo $this->warning('Now, you can register it to your application/packages.php');
     }
@@ -130,6 +133,8 @@ class Packager extends Command
         }
 
         echo $this->info('Package uninstalled successfuly: ' . $arguments[0]);
+
+        $this->regenerate_classmap_if_enabled();
 
         echo PHP_EOL;
         echo $this->warning('Now, you have to remove those package entry from your application/packages.php');
@@ -191,6 +196,8 @@ class Packager extends Command
 
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
+
+        $this->regenerate_classmap_if_enabled();
 
         echo PHP_EOL . $this->info('Package upgraded successfuly!');
     }
@@ -328,5 +335,45 @@ class Packager extends Command
         }
 
         return strtolower($host);
+    }
+
+    /**
+     * Regenerate classmap jika config application.generate_classmap aktif.
+     *
+     * @return void
+     */
+    protected function regenerate_classmap_if_enabled()
+    {
+        if (!config('application.generate_classmap', false)) {
+            return;
+        }
+
+        if (is_file($file = path('storage') . 'classmap.php')) {
+            @unlink($file);
+            echo PHP_EOL . $this->info('Clearing old classmap...');
+        }
+
+        echo $this->info('Regenerating classmap...');
+
+        $directories = [
+            path('system'),
+            path('app') . 'models',
+            path('app') . 'controllers',
+            path('app') . 'libraries',
+            path('app') . 'commands',
+        ];
+
+        if (is_dir($package_path = path('package'))) {
+            $packages = scandir($package_path);
+
+            foreach ($packages as $package) {
+                if ($package !== '.' && $package !== '..' && is_dir($package_path . $package)) {
+                    $directories[] = $package_path . $package;
+                }
+            }
+        }
+
+        $classmap = Autoloader::generate_classmap($directories);
+        echo $this->info('Classmap regenerated: ' . count($classmap) . ' classes mapped.');
     }
 }

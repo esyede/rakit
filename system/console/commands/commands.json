@@ -11,6 +11,10 @@
         "clear:logs": {
             "description": "Bersihkan seluruh file log.",
             "command": "php rakit clear:logs"
+        },
+        "clear:classmap": {
+            "description": "Bersihkan file classmap yang di-generate.",
+            "command": "php rakit clear:classmap"
         }
     },
     "job": {
@@ -87,6 +91,24 @@
         "package:unpublish": {
             "description": "Hapus aset paket dari folder assets.",
             "command": "php rakit package:unpublish logviewer"
+        }
+    },
+    "optimize": {
+        "optimize": {
+            "description": "Generate optimized classmap untuk production.",
+            "command": "php rakit optimize:classmap"
+        },
+        "optimize:test": {
+            "description": "Test load classmap yang sudah di-generate.",
+            "command": "php rakit optimize:test"
+        },
+        "optimize:stats": {
+            "description": "Tampilkan statistik autoloader.",
+            "command": "php rakit optimize:stats"
+        },
+        "optimize:clear": {
+            "description": "Bersihkan file classmap yang di-generate.",
+            "command": "php rakit optimize:clear"
         }
     },
     "routing": {

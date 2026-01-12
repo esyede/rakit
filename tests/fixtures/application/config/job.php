@@ -5,13 +5,14 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Enable
+    | Default Driver
     |--------------------------------------------------------------------------
-    | Aktifkan / nonaktifkan jobs.
+    | Driver default yang digunakan untuk menyimpan dan mengelola jobs.
+    | Pilihan: file, database, redis, memcached
     |
     */
 
-    'enabled' => true,
+    'driver' => 'file',
 
     /*
     |--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ return [
     |
     */
 
-    'table' => 'rakit_jobs',
+    'table' => 'jobs',
 
     /*
     |--------------------------------------------------------------------------
@@ -31,18 +32,7 @@ return [
     |
     */
 
-    'failed_table' => 'rakit_failed_jobs',
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLI Only
-    |--------------------------------------------------------------------------
-    | Hanya izinkan job dijalankan dari CLI, FALSE untuk menjalankan via web.
-    | Pastikan route diproteksi jika ingin dijalankan via web.
-    |
-    */
-
-    'cli_only' => true,
+    'failed_table' => 'failed_jobs',
 
     /*
     |--------------------------------------------------------------------------
@@ -84,5 +74,16 @@ return [
     |
     */
 
-    'logging' => true,
+    'logging' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Job Key
+    |--------------------------------------------------------------------------
+    | Key prefix yang akan ditambahkan ke key item yang disimpan menggunakan
+    | Redis atau Memcached untuk mencegah kesamaan nama key dengan aplikasi lain di server.
+    |
+    */
+
+    'key' => 'rakit.job',
 ];

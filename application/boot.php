@@ -50,6 +50,45 @@ System\Autoloader::directories([
 
 /*
 |--------------------------------------------------------------------------
+| Auto-Generate Classmap
+|--------------------------------------------------------------------------
+|
+| Jika config 'application.generate_classmap' diaktifkan, sistem akan
+| otomatis men-generate classmap saat pertama kali berjalan untuk
+| meningkatkan performa autoloading di production.
+|
+*/
+
+if (System\Config::get('application.generate_classmap', false)) {
+    $classmap = path('storage') . 'classmap.php';
+
+    if (!is_file($classmap)) {
+        $directories = [
+            path('system'),
+            path('app') . 'models',
+            path('app') . 'controllers',
+            path('app') . 'libraries',
+            path('app') . 'commands',
+        ];
+
+        if (is_dir($package_path = path('package'))) {
+            $packages = scandir($package_path);
+
+            foreach ($packages as $package) {
+                if ($package !== '.' && $package !== '..' && is_dir($package_path . $package)) {
+                    $directories[] = $package_path . $package;
+                }
+            }
+        }
+
+        System\Autoloader::generate_classmap($directories);
+    }
+
+    System\Autoloader::load_classmap($classmap);
+}
+
+/*
+|--------------------------------------------------------------------------
 | View Loader
 |--------------------------------------------------------------------------
 |
