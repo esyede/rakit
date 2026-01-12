@@ -5,11 +5,8 @@ namespace System\Database;
 defined('DS') or exit('No direct access.');
 
 use System\Carbon;
-use System\Database;
 use System\Paginator;
 use System\Database\Query\Grammars\Grammar as QueryGrammar;
-use System\Database\Query\Grammars\Postgres;
-use System\Database\Query\Grammars\SQLServer;
 
 class Query
 {
@@ -662,8 +659,10 @@ class Query
     {
         $sql = $this->grammar->insert_get_id($this, $values, $column);
         $bindings = array_merge(array_values($values), $this->bindings);
-        $result = $this->connection->query($sql, $bindings);
-        return isset($result[0]) ? $result[0]->$column : null;
+        $this->connection->query($sql, $bindings);
+        $id = $this->connection->pdo()->lastInsertId();
+
+        return $id ? intval($id) : null;
     }
 
     /**
