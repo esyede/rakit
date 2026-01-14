@@ -6,11 +6,32 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else if (savedTheme === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        }
+    </script>
     <style>
+        :root {
+            --background: #fff;
+            --foreground: #636b6f;
+            --primary: #636b6f;
+        }
+
+        .dark {
+            --background: #282c34;
+            --foreground: #abb2bf;
+            --primary: #61afef;
+        }
+
         html,
         body {
-            background-color: #fff;
-            color: #636b6f;
+            background-color: var(--background);
+            color: var(--foreground);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
                 sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
             font-weight: 200;
@@ -47,7 +68,7 @@
         }
 
         .links>a {
-            color: #636b6f;
+            color: var(--primary);
             padding: 0 25px;
             font-size: 13px;
             font-weight: 600;

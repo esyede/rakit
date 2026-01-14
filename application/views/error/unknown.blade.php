@@ -6,10 +6,26 @@
     <meta name="robots" content="noindex">
     <meta name="generator" content="Rakit debugger">
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-    <title>500 | Unknown Error</title>
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <title>404 | Not Found</title>
     <style>
+        :root {
+            --background: #fff;
+            --foreground: #a0aec0;
+        }
+
+        .dark {
+            --background: #282c34;
+            --foreground: #abb2bf;
+        }
+
         html,
         body {
+            background-color: var(--background);
             font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
@@ -24,8 +40,7 @@
             align-items: center;
             text-align: center;
             min-height: 95vh;
-            color: #a0aec0;
-            color: rgba(160, 174, 192, 1);
+            color: var(--foreground);
             font-size: 1.125em;
             text-transform: uppercase;
         }

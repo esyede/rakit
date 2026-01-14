@@ -26,3 +26,25 @@
 <script src="{{ asset('packages/docs/js/data/search-' . (System\Str::contains(System\URI::full(), '/docs/en') ? 'en' : 'id') . '.js?v=' . RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/search.js?v=' . RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/language.js?v=' . RAKIT_VERSION) }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('dark-mode-toggle');
+    const html = document.documentElement;
+
+    // Check for saved theme preference or default to light mode
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+        html.classList.add('dark');
+        toggleButton.textContent = 'Light';
+    } else {
+        toggleButton.textContent = 'Dark';
+    }
+
+    toggleButton.addEventListener('click', function() {
+        html.classList.toggle('dark');
+        const theme = html.classList.contains('dark') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+        toggleButton.textContent = theme === 'dark' ? 'Light' : 'Dark';
+    });
+});
+</script>
