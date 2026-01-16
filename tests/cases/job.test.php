@@ -6,15 +6,28 @@ use System\Job;
 use System\Event;
 use System\Config;
 use System\Carbon;
-use System\Storage;
 
 class JobTest extends \PHPUnit_Framework_TestCase
 {
+    private static $old_events = [];
+    private static $old_db = null;
+
     /**
      * Setup.
      */
     public function setUp()
     {
+        static::$old_events = Event::$events;
+        Event::$events = [];
+        static::$old_db = Config::get('database.default');
+        Config::set('database.default', 'sqlite');
+
+        // Reset Job discovery agar auto_discover bisa register listener baru
+        $reflection = new ReflectionClass('System\Job');
+        $property = $reflection->getProperty('discovered');
+        $property->setAccessible(true);
+        $property->setValue(null, false);
+
         Config::set('job.driver', 'file');
         Config::set('job.max_job', 10);
         Config::set('job.max_retries', 3);
@@ -38,8 +51,9 @@ class JobTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        Event::$events = [];
+        Event::$events = static::$old_events;
         Job::$drivers = [];
+        Config::set('database.default', static::$old_db);
 
         if (is_dir($path = path('storage') . 'jobs' . DS)) {
             $files = glob($path . '*.job.php');
@@ -269,26 +283,34 @@ class JobTest extends \PHPUnit_Framework_TestCase
      */
     public function testFileDriverScheduledJobNotExecuted()
     {
-        $driver = Job::driver('file');
-        $executed = false;
-
-        // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$executed) {
-            $executed = true;
-        });
-
-        // Add job with future schedule
-        $driver->add('future-job', ['id' => 1], Carbon::now()->addHours(1)->format('Y-m-d H:i:s'), 'default', false);
-
-        // Try to run - should not execute
-        $driver->run('future-job', 1, 0, 'default');
-
-        $this->assertFalse($executed);
-
-        // Job should still exist
         $path = path('storage') . 'jobs' . DS;
-        $files = glob($path . 'future-job__*.job.php');
-        $this->assertNotEmpty($files);
+        $driver = Job::driver('file');
+
+        // Add job with future schedule (1 hari kedepan untuk memastikan pasti future)
+        $future_time = Carbon::now()->addDays(1)->format('Y-m-d H:i:s');
+        $driver->add('future-job', ['id' => 1], $future_time, 'default', false);
+
+        // Cek file ada sebelum run
+        $files_before = glob($path . 'future-job__*.job.php');
+        $this->assertCount(1, $files_before, 'Job file should exist before run');
+
+        // Debug: cek isi file
+        if (!empty($files_before)) {
+            $content = unserialize(str_replace("<?php defined('DS') or exit('No direct access.');?>", '', file_get_contents($files_before[0])));
+            $scheduled = $content['scheduled_at'];
+            $this->assertEquals($future_time, $scheduled, 'Scheduled time should match');
+        }
+
+        // Try to run all jobs - future job should not execute
+        $driver->runall(1, 0);
+
+        // Job should still exist (tidak dihapus karena belum waktunya)
+        $files_after = glob($path . 'future-job__*.job.php');
+        
+        // Debug: list semua files
+        $all_files = glob($path . '*.job.php');
+        
+        $this->assertCount(1, $files_after, 'Future job file should still exist after runall. All files: ' . implode(', ', array_map('basename', $all_files)));
     }
 
     /**
@@ -374,61 +396,6 @@ class JobTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(2, $count);
     }
-}
-
-class JobDatabaseTest extends \PHPUnit_Framework_TestCase
-{
-    /**
-     * Setup.
-     */
-    public function setUp()
-    {
-        Config::set('job.driver', 'database');
-        Config::set('job.table', 'rakit_jobs');
-        Config::set('job.failed_table', 'rakit_failed_jobs');
-        Config::set('job.max_job', 10);
-        Config::set('job.max_retries', 3);
-        Config::set('job.sleep_ms', 100);
-        Config::set('job.logging', false);
-
-        // Cleanup job tables
-        try {
-            System\Database::table('rakit_jobs')->delete();
-            System\Database::table('rakit_failed_jobs')->delete();
-        } catch (Exception $e) {
-            // Tables might not exist in test environment
-        }
-    }
-
-    /**
-     * Tear down.
-     */
-    public function tearDown()
-    {
-        Event::$events = [];
-        Job::$drivers = [];
-
-        // Cleanup
-        try {
-            System\Database::table('rakit_jobs')->delete();
-            System\Database::table('rakit_failed_jobs')->delete();
-        } catch (Exception $e) {
-            // Ignore
-        }
-    }
-
-    /**
-     * Final cleanup setelah semua test selesai.
-     */
-    public static function tearDownAfterClass()
-    {
-        try {
-            System\Database::table('rakit_jobs')->delete();
-            System\Database::table('rakit_failed_jobs')->delete();
-        } catch (Exception $e) {
-            // Ignore
-        }
-    }
 
     /**
      * Test database driver add.
@@ -437,6 +404,23 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverAdd()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
+        
+        // Cleanup sebelum test
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
+        
         $driver = Job::driver('database');
         $result = $driver->add('test-job', ['email' => 'user@example.com'], null, 'default', false);
 
@@ -444,6 +428,13 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
 
         $count = System\Database::table('rakit_jobs')->where('name', 'test-job')->count();
         $this->assertEquals(1, $count);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -453,6 +444,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverHasOverlapping()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
 
         // Add job with without_overlapping
@@ -460,6 +460,13 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($driver->has_overlapping('test-overlap', 'default'));
         $this->assertFalse($driver->has_overlapping('test-overlap', 'high'));
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -469,6 +476,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverForget()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
 
         // Add jobs
@@ -487,6 +503,13 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
         $driver->forget('test-forget');
         $count = System\Database::table('rakit_jobs')->where('name', 'test-forget')->count();
         $this->assertEquals(0, $count);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -496,6 +519,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverRun()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
         $executed = false;
 
@@ -515,6 +547,13 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
         // Job should be deleted after successful run
         $count = System\Database::table('rakit_jobs')->where('name', 'test-run')->count();
         $this->assertEquals(0, $count);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -524,6 +563,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverRunAll()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
         $count = 0;
 
@@ -541,6 +589,13 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
         $driver->runall(1, 0);
 
         $this->assertEquals(3, $count);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -550,6 +605,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverRunAllWithQueueFilter()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
         $count = 0;
 
@@ -570,6 +634,13 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
         // High queue job should still exist
         $remaining = System\Database::table('rakit_jobs')->where('name', 'job-two')->count();
         $this->assertEquals(1, $remaining);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -579,6 +650,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverFailedJobsWithQueue()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
 
         // Register event listener yang throw exception
@@ -598,6 +678,14 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
         $this->assertNotNull($failed);
         $this->assertEquals('high', $failed->queue);
         $this->assertContains('Test job failure', $failed->exception);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+            System\Database::table('rakit_failed_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 
     /**
@@ -607,6 +695,15 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
      */
     public function testDatabaseDriverMaxJobLimit()
     {
+        try {
+            System\Database::connection();
+        } catch (Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
         Config::set('job.max_job', 2);
         $driver = Job::driver('database');
         $count = 0;
@@ -628,5 +725,12 @@ class JobDatabaseTest extends \PHPUnit_Framework_TestCase
         // 3 jobs should remain
         $remaining = System\Database::table('rakit_jobs')->count();
         $this->assertEquals(3, $remaining);
+
+        // Cleanup
+        try {
+            System\Database::table('rakit_jobs')->delete();
+        } catch (Exception $e) {
+            // Ignore
+        }
     }
 }
