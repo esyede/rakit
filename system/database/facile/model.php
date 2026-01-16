@@ -486,9 +486,9 @@ abstract class Model
      *
      * @param array $attributes
      */
-    public static function fillable(array $attributes = null)
+    public static function fillable(array $attributes = [])
     {
-        if (is_null($attributes) || count($attributes) <= 0) {
+        if (empty($attributes)) {
             return static::$fillable;
         }
 
@@ -653,6 +653,37 @@ abstract class Model
     public function has_many($model, $foreign = null)
     {
         return new Relationships\HasMany($this, $model, $foreign);
+    }
+
+    /**
+     * Ambil query untuk relasi has-many-through.
+     *
+     * @param string $model
+     * @param string $through
+     * @param string $first_key
+     * @param string $second_key
+     * @param string $local_key
+     * @param string $second_local_key
+     *
+     * @return Relationships\HasManyThrough
+     */
+    public function has_many_through(
+        $model,
+        $through,
+        $first_key = null,
+        $second_key = null,
+        $local_key = null,
+        $second_local_key = null
+    ) {
+        return new Relationships\HasManyThrough(
+            $this,
+            $model,
+            $through,
+            $first_key,
+            $second_key,
+            $local_key,
+            $second_local_key
+        );
     }
 
     /**
@@ -833,7 +864,9 @@ abstract class Model
             if (static::$soft_delete) {
                 // Soft delete
                 $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
-                $result = $this->query()->where(static::$key, '=', $this->get_key())->update(['deleted_at' => $this->deleted_at]);
+                $result = $this->query()
+                    ->where(static::$key, '=', $this->get_key())
+                    ->update(['deleted_at' => $this->deleted_at]);
                 $this->exists = false;
                 Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
             } else {

@@ -176,7 +176,7 @@ class Log
     }
 
     /**
-     * Format context data ke JSON seperti Laravel.
+     * Format context data ke JSON.
      *
      * @param array $context
      *

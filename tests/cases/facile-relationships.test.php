@@ -325,3 +325,5 @@ class RoleModel extends \System\Database\Facile\Model
         return $this->belongs_to_many('UserModel', 'role_user', 'role_id', 'user_id');
     }
 }
+
+
