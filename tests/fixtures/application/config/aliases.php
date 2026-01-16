@@ -34,6 +34,7 @@ return [
     'Crypter' => 'System\Crypter',
     'Curl' => 'System\Curl',
     'DB' => 'System\Database',
+    'Email' => 'System\Email',
     'Event' => 'System\Event',
     'Facile' => 'System\Database\Facile\Model',
     'Faker' => 'System\Foundation\Faker\Factory',
@@ -41,10 +42,11 @@ return [
     'Image' => 'System\Image',
     'Input' => 'System\Input',
     'Job' => 'System\Job',
+    'Jobable' => 'System\Jobable',
     'JWT' => 'System\JWT',
     'Lang' => 'System\Lang',
     'Log' => 'System\Log',
-    'Mailer' => 'System\Mailer',
+    'Mailer' => 'System\Email\Drivers\Driver',
     'Markdown' => 'System\Markdown',
     'Memcached' => 'System\Memcached',
     'Middleware' => 'System\Routing\Middleware',
@@ -62,10 +64,11 @@ return [
     'Session' => 'System\Session',
     'Storage' => 'System\Storage',
     'Str' => 'System\Str',
+    'Throttle' => 'System\Routing\Throttle',
     'URI' => 'System\URI',
     'URL' => 'System\URL',
     'Validator' => 'System\Validator',
     'View' => 'System\View',
 
-    // Tambahkan alias lain disini..
+    // ..
 ];

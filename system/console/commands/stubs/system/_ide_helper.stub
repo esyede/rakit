@@ -126,6 +126,14 @@ class Job extends System\Job
 {
 }
 
+class Jobable extends System\Jobable
+{
+    public function run()
+    {
+        // ..
+    }
+}
+
 class JWT extends System\JWT
 {
 }

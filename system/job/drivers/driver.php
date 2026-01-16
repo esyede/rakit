@@ -17,40 +17,61 @@ abstract class Driver
      * @param string      $name
      * @param array       $payloads
      * @param string|null $scheduled_at
+     * @param string      $queue
+     * @param bool        $without_overlapping
      *
      * @return bool
      */
-    abstract public function add($name, array $payloads = [], $scheduled_at = null);
+    abstract public function add(
+        $name,
+        array $payloads = [],
+        $scheduled_at = null,
+        $queue = 'default',
+        $without_overlapping = false
+    );
+
+    /**
+     * Cek apakah job sedang overlapping.
+     *
+     * @param string $name
+     * @param string $queue
+     *
+     * @return bool
+     */
+    abstract public function has_overlapping($name, $queue = 'default');
 
     /**
      * Hapus job berdasarkan nama.
      *
-     * @param string $name
+     * @param string      $name
+     * @param string|null $queue
      *
      * @return bool
      */
-    abstract public function forget($name);
+    abstract public function forget($name, $queue = null);
 
     /**
      * Jalankan antrian job di database.
      *
-     * @param string $name
-     * @param int    $retries
-     * @param int    $sleep_ms
+     * @param string      $name
+     * @param int         $retries
+     * @param int         $sleep_ms
+     * @param string|null $queue
      *
      * @return bool
      */
-    abstract public function run($name, $retries = 1, $sleep_ms = 0);
+    abstract public function run($name, $retries = 1, $sleep_ms = 0, $queue = null);
 
     /**
      * Jalankan semua job di database.
      *
-     * @param int $retries
-     * @param int $sleep_ms
+     * @param int         $retries
+     * @param int         $sleep_ms
+     * @param array|null  $queues
      *
      * @return bool
      */
-    abstract public function runall($retries = 1, $sleep_ms = 0);
+    abstract public function runall($retries = 1, $sleep_ms = 0, $queues = null);
 
     /**
      * Log pesan job.

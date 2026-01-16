@@ -15,7 +15,7 @@ class Memcached extends Driver
     /**
      * Instance Memcached.
      *
-     * @var \Memcached
+     * @var \System\Memcached
      */
     protected $memcached;
 
@@ -29,13 +29,13 @@ class Memcached extends Driver
     /**
      * Constructor.
      *
-     * @param \Memcached|null $memcached
-     * @param string|null     $key
+     * @param \System\Memcached |null $memcached
+     * @param string|null             $key
      */
     public function __construct(BaseMemcached $memcached, $key = null)
     {
         $this->memcached = $memcached;
-        $this->key = $key ?: Config::get('job.key') . ':';
+        $this->key = $key ?: Config::get('job.key', 'rakit.job') . ':';
     }
 
     /**
@@ -44,10 +44,12 @@ class Memcached extends Driver
      * @param string      $name
      * @param array       $payloads
      * @param string|null $scheduled_at
+     * @param string      $queue
+     * @param bool        $without_overlapping
      *
      * @return bool
      */
-    public function add($name, array $payloads = [], $scheduled_at = null)
+    public function add($name, array $payloads = [], $scheduled_at = null, $queue = 'default', $without_overlapping = false)
     {
         $name = Str::slug($name);
         $scheduled_at = $scheduled_at ?: Carbon::now();
@@ -56,91 +58,168 @@ class Memcached extends Driver
         $data = [
             'id' => $id,
             'name' => $name,
+            'queue' => $queue,
+            'without_overlapping' => $without_overlapping ? 1 : 0,
             'payloads' => serialize($payloads),
             'scheduled_at' => $timestamp,
             'created_at' => Carbon::now()->timestamp,
             'attempts' => 0,
         ];
 
-        $key = $this->key . 'data:' . $id;
         /** @disregard */
-        $this->memcached->set($key, $data, 0); // 0 = tidak pernah expired
-
-        $queue = $this->key . 'queue:' . $name;
+        $this->memcached->set($this->key . 'data:' . $id, $data, 0); // 0 = tidak pernah expired
         /** @disregard */
-        $this->memcached->add($queue, [$timestamp => $id], 0);
-
-        $keys = $this->key . 'all_jobs';
+        $jobs = $this->memcached->get($this->key . 'queue:' . $queue . ':' . $name);
+        $jobs = $jobs ?: [];
+        $jobs[$timestamp . ':' . $id] = $id;
         /** @disregard */
-        $all = $this->memcached->get($keys) ?: [];
-        $all[$timestamp] = $id;
+        $this->memcached->set($this->key . 'queue:' . $queue . ':' . $name, $jobs, 0);
         /** @disregard */
-        $this->memcached->set($keys, $all, 0);
-
-        $this->log(sprintf('Job added: %s - %s', $name, $id));
+        $all = $this->memcached->get($this->key . 'all_jobs');
+        $all = $all ?: [];
+        $all[$timestamp . ':' . $id] = ['id' => $id, 'queue' => $queue, 'name' => $name];
+        /** @disregard */
+        $this->memcached->set($this->key . 'all_jobs', $all, 0);
+        $this->log(sprintf('Job added: %s - %s (queue: %s)', $name, $id, $queue));
 
         return true;
     }
 
     /**
-     * Hapus job berdasarkan nama.
+     * Cek apakah job sedang overlapping.
      *
      * @param string $name
+     * @param string $queue
      *
      * @return bool
      */
-    public function forget($name)
+    public function has_overlapping($name, $queue = 'default')
     {
         $name = Str::slug($name);
-        $queue = $this->key . 'queue:' . $name;
         /** @disregard */
-        $jobs = $this->memcached->get($queue) ?: [];
+        $jobs = $this->memcached->get($this->key . 'queue:' . $queue . ':' . $name);
+        $jobs = $jobs ?: [];
 
-        foreach ($jobs as $timestamp => $id) {
-            $key = $this->key . 'data:' . $id;
+        foreach ($jobs as $id) {
             /** @disregard */
-            $this->memcached->delete($key);
+            $data = $this->memcached->get($this->key . 'data:' . $id);
+
+            if ($data && isset($data['without_overlapping']) && (int) $data['without_overlapping'] === 1) {
+                if (isset($data['queue']) && $data['queue'] === $queue) {
+                    return true;
+                }
+            }
         }
 
-        /** @disregard */
-        $this->memcached->delete($queue);
-        $this->log(sprintf('Jobs forgotten: %s (%d jobs)', $name, count($jobs)));
+        return false;
+    }
 
-        $keys = $this->key . 'all_jobs';
-        /** @disregard */
-        $all = $this->memcached->get($keys) ?: [];
+    /**
+     * Hapus job berdasarkan nama.
+     *
+     * @param string      $name
+     * @param string|null $queue
+     *
+     * @return bool
+     */
+    public function forget($name, $queue = null)
+    {
+        $name = Str::slug($name);
+        $deleted = 0;
 
-        foreach ($jobs as $timestamp => $id) {
-            unset($all[$timestamp]);
+        if ($queue) {
+            /** @disregard */
+            $jobs = $this->memcached->get($this->key . 'queue:' . $queue . ':' . $name);
+            $jobs = $jobs ?: [];
+
+            foreach ($jobs as $id) {
+                /** @disregard */
+                $this->memcached->delete($this->key . 'data:' . $id);
+                $deleted++;
+            }
+
+            /** @disregard */
+            $this->memcached->delete($this->key . 'queue:' . $queue . ':' . $name);
+        } else {
+            /** @disregard */
+            $all = $this->memcached->get($this->key . 'all_jobs');
+            $all = $all ?: [];
+            $new_all = [];
+
+            foreach ($all as $key => $job) {
+                if ($job['name'] === $name) {
+                    /** @disregard */
+                    $this->memcached->delete($this->key . 'data:' . $job['id']);
+                    /** @disregard */
+                    $jobs = $this->memcached->get($this->key . 'queue:' . $job['queue'] . ':' . $name);
+                    $jobs = $jobs ?: [];
+
+                    if (isset($jobs[$key])) {
+                        unset($jobs[$key]);
+                    }
+
+                    /** @disregard */
+                    $this->memcached->set($this->key . 'queue:' . $job['queue'] . ':' . $name, $jobs, 0);
+                    $deleted++;
+                } else {
+                    $new_all[$key] = $job;
+                }
+            }
+
+            /** @disregard */
+            $this->memcached->set($this->key . 'all_jobs', $new_all, 0);
         }
 
-        /** @disregard */
-        $this->memcached->set($keys, $all, 0);
+        $this->log(sprintf('Jobs forgotten: %s (queue: %s, %d jobs deleted)', $name, $queue ?: 'all', $deleted));
         return true;
     }
 
     /**
      * Jalankan antrian job.
      *
-     * @param string $name
-     * @param int    $retries
-     * @param int    $sleep_ms
+     * @param string      $name
+     * @param int         $retries
+     * @param int         $sleep_ms
+     * @param string|null $queue
      *
      * @return bool
      */
-    public function run($name, $retries = 1, $sleep_ms = 0)
+    public function run($name, $retries = 1, $sleep_ms = 0, $queue = null)
     {
         $config = Config::get('job');
         $name = Str::slug($name);
-        $queue = $this->key . 'queue:' . $name;
         $now = Carbon::now()->timestamp;
-        /** @disregard */
-        $jobs = $this->memcached->get($queue) ?: [];
         $ready = [];
 
-        foreach ($jobs as $timestamp => $id) {
-            if ($timestamp <= $now) {
-                $ready[$timestamp] = $id;
+        if ($queue) {
+            /** @disregard */
+            $jobs = $this->memcached->get( $this->key . 'queue:' . $queue . ':' . $name);
+            $jobs = $jobs ?: [];
+
+            if (!empty($jobs)) {
+                foreach ($jobs as $key => $id) {
+                    $timestamp = explode(':', $key)[0];
+
+                    if (intval($timestamp) <= $now) {
+                        $ready[$key] = $id;
+                    }
+                }
+            }
+        } else {
+            /** @disregard */
+            $all = $this->memcached->get($this->key . 'all_jobs');
+            $all = $all ?: [];
+
+            if (!empty($all)) {
+                foreach ($all as $key => $job) {
+                    if ($job['name'] === $name) {
+                        $timestamp = explode(':', $key)[0];
+
+                        if (intval($timestamp) <= $now) {
+                            $ready[$key] = $job['id'];
+                        }
+                    }
+                }
             }
         }
 
@@ -149,21 +228,19 @@ class Memcached extends Driver
             return true;
         }
 
-        // Sort berdasarkan timestamp (FIFO)
         ksort($ready);
 
         $ready = array_slice($ready, 0, $config['max_job'], true);
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
+        $retries = intval(($retries > 1) ? $retries : $config['max_retries']);
+        $sleep_ms = intval(($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
         $successful = [];
 
-        foreach ($ready as $timestamp => $id) {
-            $key = $this->key . 'data:' . $id;
+        foreach ($ready as $key => $id) {
             /** @disregard */
-            $data = $this->memcached->get($key);
+            $data = $this->memcached->get($this->key . 'data:' . $id);
 
             if (!$data) {
-                continue; // Job sudah dihapus
+                continue;
             }
 
             $attempts = 0;
@@ -173,14 +250,14 @@ class Memcached extends Driver
                 $attempts++;
 
                 try {
-                    Event::fire('rakit.jobs.run: ' . $data['name'], unserialize($data['payloads']));
-                    $successful[] = ['timestamp' => $timestamp, 'id' => $id];
+                    Event::fire('rakit.jobs.process', [$data]);
+                    $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                     $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
                     $success = true;
                 } catch (\Throwable $e) {
                     if ($attempts >= $retries) {
-                        $this->move_to_failed($data);
-                        $successful[] = ['timestamp' => $timestamp, 'id' => $id]; // Mark for deletion even if failed
+                        $this->move_to_failed($data, $e);
+                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                         $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
@@ -191,8 +268,8 @@ class Memcached extends Driver
                     }
                 } catch (\Exception $e) {
                     if ($attempts >= $retries) {
-                        $this->move_to_failed($data);
-                        $successful[] = ['timestamp' => $timestamp, 'id' => $id]; // Mark for deletion even if failed
+                        $this->move_to_failed($data, $e);
+                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                         $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
@@ -205,50 +282,41 @@ class Memcached extends Driver
             }
         }
 
-        foreach ($successful as $job) {
-            $key = $this->key . 'data:' . $job['id'];
-            /** @disregard */
-            $this->memcached->delete($key);
-            unset($jobs[$job['timestamp']]);
-        }
-
-        /** @disregard */
-        $this->memcached->set($queue, $jobs, 0);
-
-        $keys = $this->key . 'all_jobs';
-        /** @disregard */
-        $all = $this->memcached->get($keys) ?: [];
-
-        foreach ($successful as $job) {
-            unset($all[$job['timestamp']]);
-        }
-
-        /** @disregard */
-        $this->memcached->set($keys, $all, 0);
-
+        $this->cleanup_successful($successful);
         return true;
     }
 
     /**
      * Jalankan semua job.
      *
-     * @param int $retries
-     * @param int $sleep_ms
+     * @param int        $retries
+     * @param int        $sleep_ms
+     * @param array|null $queues
      *
      * @return bool
      */
-    public function runall($retries = 1, $sleep_ms = 0)
+    public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
         $config = Config::get('job');
         $now = Carbon::now()->timestamp;
-        $keys = $this->key . 'all_jobs';
         /** @disregard */
-        $all = $this->memcached->get($keys) ?: [];
+        $all = $this->memcached->get($this->key . 'all_jobs');
+        $all = $all ?: [];
         $ready = [];
 
-        foreach ($all as $timestamp => $id) {
-            if ($timestamp <= $now) {
-                $ready[$timestamp] = $id;
+        if (!empty($all)) {
+            foreach ($all as $key => $job) {
+                $timestamp = (int) explode(':', $key)[0];
+
+                if ($timestamp <= $now) {
+                    if ($queues && is_array($queues) && !empty($queues)) {
+                        if (in_array($job['queue'], $queues)) {
+                            $ready[$key] = $job['id'];
+                        }
+                    } else {
+                        $ready[$key] = $job['id'];
+                    }
+                }
             }
         }
 
@@ -257,7 +325,6 @@ class Memcached extends Driver
             return true;
         }
 
-        // Sort berdasarkan timestamp (FIFO)
         ksort($ready);
 
         $ready = array_slice($ready, 0, $config['max_job'], true);
@@ -265,13 +332,12 @@ class Memcached extends Driver
         $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
         $successful = [];
 
-        foreach ($ready as $timestamp => $id) {
-            $key = $this->key . 'data:' . $id;
+        foreach ($ready as $key => $id) {
             /** @disregard */
-            $data = $this->memcached->get($key);
+            $data = $this->memcached->get($this->key . 'data:' . $id);
 
             if (!$data) {
-                continue; // Job sudah dihapus
+                continue;
             }
 
             $attempts = 0;
@@ -281,14 +347,14 @@ class Memcached extends Driver
                 $attempts++;
 
                 try {
-                    Event::fire('rakit.jobs.run: ' . $data['name'], unserialize($data['payloads']));
-                    $successful[] = ['timestamp' => $timestamp, 'id' => $id, 'name' => $data['name']];
+                    Event::fire('rakit.jobs.process', [$data]);
+                    $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                     $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
                     $success = true;
                 } catch (\Throwable $e) {
                     if ($attempts >= $retries) {
-                        $this->move_to_failed($data);
-                        $successful[] = ['timestamp' => $timestamp, 'id' => $id];
+                        $this->move_to_failed($data, $e);
+                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                         $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
@@ -299,8 +365,8 @@ class Memcached extends Driver
                     }
                 } catch (\Exception $e) {
                     if ($attempts >= $retries) {
-                        $this->move_to_failed($data);
-                        $successful[] = ['timestamp' => $timestamp, 'id' => $id];
+                        $this->move_to_failed($data, $e);
+                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                         $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
@@ -313,45 +379,62 @@ class Memcached extends Driver
             }
         }
 
+        $this->cleanup_successful($successful);
+        return true;
+    }
+
+    /**
+     * Cleanup successful jobs.
+     *
+     * @param array $successful
+     */
+    protected function cleanup_successful($successful)
+    {
+        /** @disregard */
+        $all = $this->memcached->get($this->key . 'all_jobs');
+        $all = $all ?: [];
+
         foreach ($successful as $job) {
-            $key = $this->key . 'data:' . $job['id'];
             /** @disregard */
-            $this->memcached->delete($key);
-            unset($all[$job['timestamp']]);
+            $this->memcached->delete($this->key . 'data:' . $job['id']);
+
+            if (isset($all[$job['key']])) {
+                unset($all[$job['key']]);
+            }
+
+            /** @disregard */
+            $jobs = $this->memcached->get($this->key . 'queue:' . $job['queue'] . ':' . $job['name']);
+            $jobs = $jobs ?: [];
+
+            if (isset($jobs[$job['key']])) {
+                unset($jobs[$job['key']]);
+            }
+
+            /** @disregard */
+            $this->memcached->set($this->key . 'queue:' . $job['queue'] . ':' . $job['name'], $jobs, 0);
         }
 
         /** @disregard */
-        $this->memcached->set($keys, $all, 0);
-
-        foreach ($successful as $job) {
-            $key = $this->key . 'queue:' . $job['name'];
-            /** @disregard */
-            $queues = $this->memcached->get($key) ?: [];
-            unset($queues[$job['timestamp']]);
-            /** @disregard */
-            $this->memcached->set($key, $queues, 0);
-        }
-
-        return true;
+        $this->memcached->set($this->key . 'all_jobs', $all, 0);
     }
 
     /**
      * Pindahkan job ke failed jobs.
      *
-     * @param array $data
+     * @param array      $data
+     * @param \Exception $exception
      */
-    protected function move_to_failed($data)
+    protected function move_to_failed($data, $exception)
     {
-        $key = $this->key . 'failed:' . $data['id'];
         $data['failed_at'] = Carbon::now()->timestamp;
+        $data['exception'] = $exception->getMessage();
         /** @disregard */
-        $this->memcached->set($key, $data, 0);
-
-        $list = $this->key . 'failed_jobs';
+        $this->memcached->set($this->key . 'failed:' . $data['id'], $data, 0);
         /** @disregard */
-        $fails = $this->memcached->get($list) ?: [];
+        $fails = $this->memcached->get($this->key . 'failed_jobs');
+        $fails = $fails ?: [];
         $fails[] = $data['id'];
         /** @disregard */
-        $this->memcached->set($list, $fails, 0);
+        $this->memcached->set($this->key . 'failed_jobs', $fails, 0);
     }
 }

@@ -1,0 +1,39 @@
+<?php
+
+use System\Database\Schema;
+
+class CreateJobsTableNameTable
+{
+    /**
+     * Jalankan migrasi.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('jobs_table_name', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('queue')->default('default');
+            $table->longtext('payloads');
+            $table->boolean('without_overlapping')->default(false);
+            $table->datetime('scheduled_at')->nullable();
+            $table->timestamps();
+
+            $table->index('name');
+            $table->index('queue');
+            $table->index('scheduled_at');
+            $table->index(['name', 'queue']);
+        });
+    }
+
+    /**
+     * Kembalikan migrasi.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::drop('jobs_table_name');
+    }
+}

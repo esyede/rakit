@@ -14,17 +14,22 @@ class Create_Jobs_Table
         Schema::create(config('job.table'), function ($table) {
             $table->increments('id');
             $table->string('name', 191)->index();
-            $table->text('payloads');
+            $table->string('queue', 50)->default('default')->index();
+            $table->longtext('payloads');
+            $table->boolean('without_overlapping')->default(false);
             $table->timestamp('scheduled_at')->index();
             $table->timestamps();
+            $table->index(['name', 'queue']);
+            $table->index(['queue', 'scheduled_at']);
         });
 
         Schema::create(config('job.failed_table'), function ($table) {
             $table->increments('id');
-            $table->integer('job_id')->unsigned()->index();
+            $table->integer('job_id')->unsigned()->nullable()->index();
             $table->string('name', 191)->index();
-            $table->text('payloads');
-            $table->text('exception');
+            $table->string('queue', 50)->default('default')->index();
+            $table->longtext('payloads');
+            $table->longtext('exception');
             $table->timestamp('failed_at')->index();
         });
     }

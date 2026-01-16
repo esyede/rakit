@@ -28,6 +28,7 @@ System\Event::listen(System\Config::LOADER, function ($package, $file) {
 | dan tentunya anda juga dapat menambahkan alias lain sesuai kebutuhan.
 |
 */
+
 System\Autoloader::$aliases = System\Config::get('aliases');
 
 /*
@@ -44,8 +45,50 @@ System\Autoloader::$aliases = System\Config::get('aliases');
 System\Autoloader::directories([
     path('app') . 'models',
     path('app') . 'libraries',
+    path('app') . 'commands',
+    path('app') . 'jobs',
     // Tambahkan direktori lain disini..
 ]);
+
+/*
+|--------------------------------------------------------------------------
+| Auto-Generate Classmap
+|--------------------------------------------------------------------------
+|
+| Jika config 'application.generate_classmap' diaktifkan, sistem akan
+| otomatis men-generate classmap saat pertama kali berjalan untuk
+| meningkatkan performa autoloading di production.
+|
+*/
+
+if (System\Config::get('application.generate_classmap', false)) {
+    $classmap = path('storage') . 'classmap.php';
+
+    if (!is_file($classmap)) {
+        $directories = [
+            path('system'),
+            path('app') . 'models',
+            path('app') . 'controllers',
+            path('app') . 'libraries',
+            path('app') . 'commands',
+            path('app') . 'jobs',
+        ];
+
+        if (is_dir($package_path = path('package'))) {
+            $packages = scandir($package_path);
+
+            foreach ($packages as $package) {
+                if ($package !== '.' && $package !== '..' && is_dir($package_path . $package)) {
+                    $directories[] = $package_path . $package;
+                }
+            }
+        }
+
+        System\Autoloader::generate_classmap($directories);
+    }
+
+    System\Autoloader::load_classmap($classmap);
+}
 
 /*
 |--------------------------------------------------------------------------

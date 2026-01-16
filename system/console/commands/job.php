@@ -51,7 +51,29 @@ class Job extends Command
      */
     public function runall(array $arguments = [])
     {
-        \System\Job::runall();
+        $retries = 1;
+        $sleep = 0;
+        $queues = null;
+
+        // Parse arguments
+        foreach ($arguments as $arg) {
+            if (strpos($arg, '--retries=') === 0) {
+                $retries = (int) substr($arg, 10);
+            } elseif (strpos($arg, '--sleep=') === 0) {
+                $sleep = (int) substr($arg, 8);
+            } elseif (strpos($arg, '--queue=') === 0) {
+                $queueStr = substr($arg, 8);
+                $queues = array_map('trim', explode(',', $queueStr));
+            }
+        }
+
+        if ($queues) {
+            $this->info('Running jobs from queues: ' . implode(', ', $queues));
+        } else {
+            $this->info('Running all jobs from all queues');
+        }
+
+        \System\Job::runall($retries, $sleep, $queues);
     }
 
     /**

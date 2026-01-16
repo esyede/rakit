@@ -45,6 +45,8 @@ System\Autoloader::$aliases = System\Config::get('aliases');
 System\Autoloader::directories([
     path('app') . 'models',
     path('app') . 'libraries',
+    path('app') . 'commands',
+    path('app') . 'jobs',
     // Tambahkan direktori lain disini..
 ]);
 
@@ -69,6 +71,7 @@ if (System\Config::get('application.generate_classmap', false)) {
             path('app') . 'controllers',
             path('app') . 'libraries',
             path('app') . 'commands',
+            path('app') . 'jobs',
         ];
 
         if (is_dir($package_path = path('package'))) {

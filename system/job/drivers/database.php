@@ -18,39 +18,74 @@ class Database extends Driver
      * @param string      $name
      * @param array       $payloads
      * @param string|null $scheduled_at
+     * @param string      $queue
+     * @param bool        $without_overlapping
      *
      * @return bool
      */
-    public function add($name, array $payloads = [], $scheduled_at = null)
+    public function add($name, array $payloads = [], $scheduled_at = null, $queue = 'default', $without_overlapping = false)
     {
         $config = Config::get('job');
         $name = Str::slug($name);
         $id = DB::table($config['table'])->insert_get_id([
             'name' => $name,
             'payloads' => serialize($payloads),
+            'queue' => $queue,
+            'without_overlapping' => $without_overlapping ? 1 : 0,
             'scheduled_at' => Carbon::parse($scheduled_at)->format('Y-m-d H:i:s'),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
 
-        $this->log(sprintf('Job added: %s - #%s', $name, $id));
+        $this->log(sprintf('Job added: %s - #%s (queue: %s)', $name, $id, $queue));
+
+        return true;
+    }
+
+    /**
+     * Cek apakah job sedang overlapping.
+     *
+     * @param string $name
+     * @param string $queue
+     *
+     * @return bool
+     */
+    public function has_overlapping($name, $queue = 'default')
+    {
+        $config = Config::get('job');
+        $name = Str::slug($name);
+
+        $count = DB::table($config['table'])
+            ->where('name', $name)
+            ->where('queue', $queue)
+            ->where('without_overlapping', 1)
+            ->count();
+
+        return $count > 0;
     }
 
     /**
      * Hapus job berdasarkan nama.
      *
-     * @param string $name
+     * @param string      $name
+     * @param string|null $queue
      *
      * @return bool
      */
-    public function forget($name)
+    public function forget($name, $queue = null)
     {
         $config = Config::get('job');
         $name = Str::slug($name);
 
         Event::fire('rakit.jobs.forget: ' . $name);
 
-        $jobs = DB::table($config['table'])->where('name', $name)->get();
+        $query = DB::table($config['table'])->where('name', $name);
+
+        if ($queue) {
+            $query->where('queue', $queue);
+        }
+
+        $jobs = $query->get();
 
         if (!empty($jobs)) {
             $ids = [];
@@ -62,7 +97,13 @@ class Database extends Driver
             DB::table($config['table'])->where_in('id', $ids)->delete();
         }
 
-        $jobs = DB::table($config['failed_table'])->where('name', $name)->get();
+        $fails = DB::table($config['failed_table'])->where('name', $name);
+
+        if ($queue) {
+            $fails->where('queue', $queue);
+        }
+
+        $jobs = $fails->get();
 
         if (!empty($jobs)) {
             $ids = [];
@@ -74,32 +115,40 @@ class Database extends Driver
             DB::table($config['failed_table'])->where_in('id', $ids)->delete();
         }
 
-        $this->log(sprintf('Jobs deleted: %s', $name));
+        $this->log(sprintf('Jobs deleted: %s (queue: %s)', $name, $queue ?: 'all'));
+
+        return true;
     }
 
     /**
      * Jalankan antrian job di database.
      *
-     * @param string $name
-     * @param int    $retries
-     * @param int    $sleep_ms
+     * @param string      $name
+     * @param int         $retries
+     * @param int         $sleep_ms
+     * @param string|null $queue
      *
      * @return bool
      */
-    public function run($name, $retries = 1, $sleep_ms = 0)
+    public function run($name, $retries = 1, $sleep_ms = 0, $queue = null)
     {
         $config = Config::get('job');
         $name = Str::slug($name);
 
         if (empty($name)) {
             $this->log('Job is empty');
-            return;
+            return false;
         }
 
-        $jobs = DB::table($config['table'])
+        $query = DB::table($config['table'])
             ->where('name', $name)
-            ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'))
-            ->order_by('created_at', 'ASC')
+            ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'));
+
+        if ($queue) {
+            $query->where('queue', $queue);
+        }
+
+        $jobs = $query->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
 
@@ -118,7 +167,7 @@ class Database extends Driver
                     $attempts++;
 
                     try {
-                        Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
+                        Event::fire('rakit.jobs.process', [$job]);
                         $successful[] = $job->id;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
                         $success = true;
@@ -131,7 +180,8 @@ class Database extends Driver
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
-                                'payloads' => serialize($job->payloads),
+                                'queue' => $job->queue,
+                                'payloads' => $job->payloads,
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
@@ -152,7 +202,8 @@ class Database extends Driver
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
-                                'payloads' => serialize($job->payloads),
+                                'queue' => $job->queue,
+                                'payloads' => $job->payloads,
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
@@ -177,17 +228,23 @@ class Database extends Driver
     /**
      * Jalankan semua job di database.
      *
-     * @param int $retries
-     * @param int $sleep_ms
+     * @param int        $retries
+     * @param int        $sleep_ms
+     * @param array|null $queues
      *
      * @return bool
      */
-    public function runall($retries = 1, $sleep_ms = 0)
+    public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
         $config = Config::get('job');
-        $jobs = DB::table($config['table'])
-            ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'))
-            ->order_by('created_at', 'ASC')
+        $query = DB::table($config['table'])
+            ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'));
+
+        if ($queues && is_array($queues)) {
+            $query->where_in('queue', $queues);
+        }
+
+        $jobs = $query->order_by('created_at', 'ASC')
             ->take($config['max_job'])
             ->get();
 
@@ -206,7 +263,7 @@ class Database extends Driver
                     $attempts++;
 
                     try {
-                        Event::fire('rakit.jobs.run: ' . $job->name, unserialize($job->payloads));
+                        Event::fire('rakit.jobs.process', [$job]);
                         $successful[] = $job->id;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
                         $success = true;
@@ -219,7 +276,8 @@ class Database extends Driver
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
-                                'payloads' => serialize($job->payloads),
+                                'queue' => $job->queue,
+                                'payloads' => $job->payloads,
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
@@ -240,7 +298,8 @@ class Database extends Driver
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
-                                'payloads' => serialize($job->payloads),
+                                'queue' => $job->queue,
+                                'payloads' => $job->payloads,
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);

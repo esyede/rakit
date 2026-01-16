@@ -48,6 +48,10 @@
             "description": "Buat file command.",
             "command": "php rakit make:command greet"
         },
+        "make:job": {
+            "description": "Buat file job.",
+            "command": "php rakit make:job notify"
+        },
         "make:test": {
             "description": "Buat file unit test.",
             "command": "php rakit make:test login"

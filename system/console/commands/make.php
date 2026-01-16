@@ -307,6 +307,71 @@ class Make extends Command
     }
 
     /**
+     * Buat file job baru.
+     *
+     * <code>
+     *
+     *      // Buat file job baru.
+     *      php rakit make:job dashboard
+     *
+     *      // Buat file job baru di paket 'admin'.
+     *      php rakit make:job admin::dashboard
+     *
+     * </code>
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function job(array $arguments = [])
+    {
+        if (0 === count($arguments)) {
+            throw new \Exception('I need to know what to name the file to be make.');
+        }
+
+        $arguments[0] = $this->slashes($arguments[0]);
+
+        if (false !== strpos($arguments[0], '/')) {
+            throw new \Exception('Cannot create job inside subdirectory.');
+        }
+
+        if (false !== strstr($arguments[0], '::')) {
+            list($package, $class) = Package::parse($arguments[0]);
+        } else {
+            list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
+        }
+
+        if (!Package::exists($package)) {
+            throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
+        }
+
+        if ('_job' === Str::lower($class)) {
+            throw new \Exception('Please choose another name for job.');
+        }
+
+        $class = Str::replace_last('_job', '', Str::lower($class));
+        $directory = Package::path($package) . 'jobs' . DS;
+        $file = $directory . $class . '.php';
+        $display = Str::replace_first(path('base'), '', $file);
+
+        if (Storage::isfile($file)) {
+            echo $this->warning('Job already exists: ' . $display . '   (skipped)');
+        } else {
+            $this->makedir($directory);
+
+            $replace = [
+                'stub_class' => Package::class_prefix($package) . Str::classify($class) . '_Job',
+            ];
+
+            Storage::put($file, $this->stub_general($class, 'job', $replace));
+
+            echo $this->info('Created job: ' . $display);
+        }
+
+        return $file;
+    }
+
+    /**
      * Buat auth scaffolding (login, register, forgot password).
      * (NOTE: harus dijalankan pada keadaan fresh project).
      *

@@ -1,0 +1,17 @@
+<?php
+
+defined('DS') or exit('No direct access.');
+
+class stub_class extends Jobable
+{
+    /**
+     * Handle job execution.
+     *
+     * @return void
+     */
+    public function run(array $arguments = [])
+    {
+        $message = $this->get('message', 'stub_class executed');
+        return $message;
+    }
+}
