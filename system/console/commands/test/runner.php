@@ -87,6 +87,11 @@ class Runner extends Command
             || has_cli_flag('verbose');
 
         $phpunit .= $verbose ? ' --debug' : '';
+
+        // Forward semua parameter PHPUnit dari CLI
+        $args = $this->arguments();
+        $phpunit .= $args ? ' ' . $args : '';
+
         passthru('.' . DS . $phpunit . ' --configuration ' . escapeshellarg($config), $status);
 
         if (is_file($config)) {
@@ -122,5 +127,46 @@ class Runner extends Command
     protected function tokens($stub, array $tokens)
     {
         return str_replace(array_keys($tokens), array_values($tokens), $stub);
+    }
+
+    /**
+     * Ambil semua parameter PHPUnit dari argument CLI.
+     *
+     * @return string
+     */
+    protected function arguments()
+    {
+        $argv = (array) \System\Request::foundation()->server->get('argv');
+        $argv = empty($argv) ? [] : $argv;
+        $args = [];
+
+        // Deteksi posisi command test (test:core dan test:package package_name)
+        $cmdpos = 0;
+
+        foreach ($argv as $index => $arg) {
+            if (strpos($arg, 'test:') !== false) {
+                $cmdpos = $index;
+                break;
+            }
+        }
+
+        // Skip argument setelah command dan nama package (jika test:package)
+        $istart = $cmdpos + 1;
+
+        // Jika test:package, skip juga nama package
+        if (isset($argv[$cmdpos]) && strpos($argv[$cmdpos], 'test:package') !== false) {
+            $istart++;
+        }
+
+        foreach (array_slice($argv, $istart) as $argument) {
+            // Skip parameter verbose dan configuration karena sudah dihandle
+            if (in_array($argument, ['-v', '-vv', '-vvv', '--verbose', '-c', '--configuration'])) {
+                continue;
+            }
+
+            $args[] = escapeshellarg($argument);
+        }
+
+        return implode(' ', $args);
     }
 }
