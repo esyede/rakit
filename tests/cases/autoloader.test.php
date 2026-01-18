@@ -128,6 +128,8 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 
         $file = $directory . 'TestClass.php';
         file_put_contents($file, "<?php\n\nnamespace TestNamespace;\n\nclass TestClass {}\n");
+        @unlink(path('storage') . 'classmap.php');
+        Autoloader::clear_classmap();
         $classmap = Autoloader::generate_classmap([$directory]);
 
         $this->assertArrayHasKey('TestNamespace\TestClass', $classmap);
