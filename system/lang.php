@@ -205,25 +205,26 @@ class Lang
         }
 
         $key = $package . '::' . $language . '::' . $file;
-        if (isset(static::$files[$key])) {
-            return static::$files[$key];
+        $path = static::path($package, $language, $file);
+
+        if (isset(static::$files[$key]) && is_file($path) && static::$files[$key]['mtime'] === filemtime($path)) {
+            return static::$files[$key]['data'];
         }
 
-        $filePath = static::path($package, $language, $file);
-        if (!is_file($filePath)) {
-            static::$files[$key] = [];
+        if (!is_file($path)) {
+            static::$files[$key] = ['data' => [], 'mtime' => 0];
             return [];
         }
 
         try {
-            $loaded = require $filePath;
-            static::$files[$key] = (array) $loaded;
-            return static::$files[$key];
+            $loaded = require $path;
+            static::$files[$key] = ['data' => (array) $loaded, 'mtime' => filemtime($path)];
+            return static::$files[$key]['data'];
         } catch (\Throwable $e) {
-            static::$files[$key] = [];
+            static::$files[$key] = ['data' => [], 'mtime' => 0];
             return [];
         } catch (\Exception $e) {
-            static::$files[$key] = [];
+            static::$files[$key] = ['data' => [], 'mtime' => 0];
             return [];
         }
     }

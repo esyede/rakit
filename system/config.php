@@ -29,6 +29,13 @@ class Config
     public static $files = [];
 
     /**
+     * Cache untuk hasil Config::get().
+     *
+     * @var array
+     */
+    public static $gets = [];
+
+    /**
      * Nama event untuk config loader.
      *
      * @var string
@@ -82,12 +89,33 @@ class Config
     {
         list($package, $file, $item) = static::parse($key);
 
+        if (isset(static::$gets[$key])) {
+            $cached = static::$gets[$key];
+            $path = Package::path($package) . 'config' . DS . $file . '.php';
+
+            if (is_file($path) && filemtime($path) > $cached['mtime']) {
+                foreach (static::$gets as $k => $v) {
+                    list($pkg, $node, $unused) = static::parse($k);
+
+                    if ($pkg === $package && $node === $file) {
+                        unset(static::$gets[$k]);
+                    }
+                }
+            } else {
+                return $cached['value'];
+            }
+        }
+
         if (!static::load($package, $file)) {
             return value($default);
         }
 
         $items = static::$items[$package][$file];
-        return is_null($item) ? $items : Arr::get($items, $item, $default);
+        $result = is_null($item) ? $items : Arr::get($items, $item, $default);
+        $path = Package::path($package) . 'config' . DS . $file . '.php';
+
+        static::$gets[$key] = ['value' => $result, 'mtime' => is_file($path) ? filemtime($path) : 0];
+        return $result;
     }
 
     /**
@@ -129,6 +157,15 @@ class Config
             Arr::set(static::$items[$package], $file, $value);
         } else {
             Arr::set(static::$items[$package][$file], $item, $value);
+        }
+
+        // Invalidate cache for all keys in the same package and file
+        foreach (static::$gets as $k => $v) {
+            list($pkg, $node, $unused) = static::parse($k);
+
+            if ($pkg === $package && $node === $file) {
+                unset(static::$gets[$k]);
+            }
         }
     }
 

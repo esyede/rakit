@@ -48,6 +48,7 @@ class File extends Driver
     {
         $name = Str::slug($name);
         $id = Str::nanoid();
+        $now = Carbon::now()->format('Y-m-d H:i:s');
         $data = [
             'id' => $id,
             'name' => $name,
@@ -55,8 +56,8 @@ class File extends Driver
             'without_overlapping' => $without_overlapping,
             'payloads' => serialize($payloads),
             'scheduled_at' => Carbon::parse($scheduled_at)->format('Y-m-d H:i:s'),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
 
         $file = $this->path . $name . '__' . $id . '.job.php';
@@ -86,13 +87,8 @@ class File extends Driver
         foreach ($files as $file) {
             if (is_file($file)) {
                 $data = unserialize(static::unguard(Storage::get($file)));
-
-                if (
-                    isset($data['queue']) && $data['queue'] === $queue
-                    && isset($data['without_overlapping']) && $data['without_overlapping']
-                ) {
-                    return true;
-                }
+                return (isset($data['queue']) && $data['queue'] === $queue)
+                    && (isset($data['without_overlapping']) && $data['without_overlapping']);
             }
         }
 

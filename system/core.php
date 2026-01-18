@@ -45,6 +45,9 @@ require path('system') . 'package.php';
 require path('system') . 'config.php';
 require path('system') . 'helpers.php';
 require path('system') . 'autoloader.php';
+require path('system') . 'request.php';
+require path('system') . 'response.php';
+require path('system') . 'blade.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +60,17 @@ require path('system') . 'autoloader.php';
 */
 
 spl_autoload_register(['\System\Autoloader', 'load']);
+
+/*
+|--------------------------------------------------------------------------
+| Preload Classmap
+|--------------------------------------------------------------------------
+|
+| Preload classmap di awal untuk mengurangi I/O pada request pertama.
+|
+*/
+
+Autoloader::load_classmap();
 
 /*
 |--------------------------------------------------------------------------
@@ -136,10 +150,12 @@ if (Request::cli()) {
 
 /*
 |--------------------------------------------------------------------------
-| Daftarkan Seluruh Paket
+| Daftarkan Seluruh Paket (Lazy Loading)
 |--------------------------------------------------------------------------
 |
 | Akhirnya kita akan mendaftarkan seluruh paket yang telah didefinisikan.
+| Register dilakukan secara lazy: paket hanya di-boot saat pertama kali
+| diakses, bukan di awal aplikasi. Ini mengurangi overhead startup.
 | Disini tidak akan dilakukan auto-boot, hanya akan di-set agar bisa
 | dipanggil oleh si developer ketika ia membutuhkannya saja.
 |

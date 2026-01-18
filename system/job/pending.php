@@ -119,7 +119,7 @@ class Pending
             return false;
         }
 
-        $driver = $this->driver ? Job::driver($this->driver) : Job::driver();
+        $driver = Job::driver($this->driver ?: null);
 
         // Cek overlapping
         if ($this->without_overlapping && $driver->has_overlapping($this->name, $this->queue)) {

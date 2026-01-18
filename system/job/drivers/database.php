@@ -52,11 +52,8 @@ class Database extends Driver
      */
     public function has_overlapping($name, $queue = 'default')
     {
-        $config = Config::get('job');
-        $name = Str::slug($name);
-
-        $count = DB::table($config['table'])
-            ->where('name', $name)
+        $count = DB::table(Config::get('job.table'))
+            ->where('name', Str::slug($name))
             ->where('queue', $queue)
             ->where('without_overlapping', 1)
             ->count();
@@ -240,7 +237,7 @@ class Database extends Driver
         $query = DB::table($config['table'])
             ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'));
 
-        if ($queues && is_array($queues)) {
+        if (is_array($queues) && !empty($queues)) {
             $query->where_in('queue', $queues);
         }
 

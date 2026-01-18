@@ -52,6 +52,7 @@ class Redis extends Driver
     {
         $name = Str::slug($name);
         $id = Str::nanoid();
+        $now = Carbon::now()->format('Y-m-d H:i:s');
         $data = [
             'id' => $id,
             'name' => $name,
@@ -59,8 +60,8 @@ class Redis extends Driver
             'without_overlapping' => $without_overlapping ? '1' : '0',
             'payloads' => serialize($payloads),
             'scheduled_at' => Carbon::parse($scheduled_at)->format('Y-m-d H:i:s'),
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
 
         /** @disregard */
@@ -376,7 +377,6 @@ class Redis extends Driver
      */
     protected function move_to_failed($data, $exception)
     {
-        $failed_key = $this->key . 'failed:' . $data['id'];
         $error = get_class($exception)
             . (('' === $exception->getMessage()) ? '' : ': ' . $exception->getMessage())
             . ' in ' . $exception->getFile() . ':' . $exception->getLine();
@@ -385,7 +385,7 @@ class Redis extends Driver
             'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
         /** @disregard */
-        $this->redis->hmset($failed_key, $data);
+        $this->redis->hmset($this->key . 'failed:' . $data['id'], $data);
         /** @disregard */
         $this->redis->lpush($this->key . 'failed_jobs', $data['id']);
     }

@@ -40,6 +40,31 @@ abstract class Driver
     }
 
     /**
+     * Ambil sebuah item dari cache dan hapus item tersebut.
+     *
+     * <code>
+     *
+     *      // Ambil dan hapus sebuah item dari cache
+     *      $value = Cache::pull('key');
+     *
+     *      // Return default value jika item tidak ditemukan
+     *      $value = Cache::pull('key', 'default');
+     *
+     * </code>
+     *
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function pull($key, $default = null)
+    {
+        $value = $this->get($key, $default);
+        $this->forget($key);
+        return $value;
+    }
+
+    /**
      * Ambil item dari driver cache.
      *
      * @param string $key
@@ -88,21 +113,21 @@ abstract class Driver
      * <code>
      *
      *      // Ambil sebuah item dari cache, atau taruh item tersebut ke cache selama 15 menit
-     *      $name = Cache::remember('name', 'Budi', 15);
+     *      $name = Cache::remember('name', 15, 'Budi');
      *
      *      // Gunakan closure sebagai value item cache
-     *      $count = Cache::remember('count', function() { return User::count(); }, 15);
+     *      $count = Cache::remember('count', 15, function() { return User::count(); });
      *
      * </code>
      *
      * @param string $key
-     * @param mixed  $default
      * @param int    $minutes
+     * @param mixed  $default
      * @param string $function
      *
      * @return mixed
      */
-    public function remember($key, $default, $minutes, $function = 'put')
+    public function remember($key, $minutes, $default, $function = 'put')
     {
         if (!is_null($item = $this->get($key, null))) {
             return $item;
@@ -122,7 +147,7 @@ abstract class Driver
      */
     public function sear($key, $default)
     {
-        return $this->remember($key, $default, null, 'forever');
+        return $this->remember($key, null, $default, 'forever');
     }
 
     /**

@@ -97,24 +97,6 @@
             "command": "php rakit package:unpublish logviewer"
         }
     },
-    "optimize": {
-        "optimize": {
-            "description": "Generate optimized classmap untuk production.",
-            "command": "php rakit optimize:classmap"
-        },
-        "optimize:test": {
-            "description": "Test load classmap yang sudah di-generate.",
-            "command": "php rakit optimize:test"
-        },
-        "optimize:stats": {
-            "description": "Tampilkan statistik autoloader.",
-            "command": "php rakit optimize:stats"
-        },
-        "optimize:clear": {
-            "description": "Bersihkan file classmap yang di-generate.",
-            "command": "php rakit optimize:clear"
-        }
-    },
     "routing": {
         "route:call": {
             "description": "Panggil route via konsol.",

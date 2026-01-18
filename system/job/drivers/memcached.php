@@ -144,7 +144,7 @@ class Memcached extends Driver
             /** @disregard */
             $all = $this->memcached->get($this->key . 'all_jobs');
             $all = $all ?: [];
-            $new_all = [];
+            $items = [];
 
             foreach ($all as $key => $job) {
                 if ($job['name'] === $name) {
@@ -162,12 +162,12 @@ class Memcached extends Driver
                     $this->memcached->set($this->key . 'queue:' . $job['queue'] . ':' . $name, $jobs, 0);
                     $deleted++;
                 } else {
-                    $new_all[$key] = $job;
+                    $items[$key] = $job;
                 }
             }
 
             /** @disregard */
-            $this->memcached->set($this->key . 'all_jobs', $new_all, 0);
+            $this->memcached->set($this->key . 'all_jobs', $items, 0);
         }
 
         $this->log(sprintf('Jobs forgotten: %s (queue: %s, %d jobs deleted)', $name, $queue ?: 'all', $deleted));
@@ -309,7 +309,7 @@ class Memcached extends Driver
                 $timestamp = (int) explode(':', $key)[0];
 
                 if ($timestamp <= $now) {
-                    if ($queues && is_array($queues) && !empty($queues)) {
+                    if (is_array($queues) && !empty($queues)) {
                         if (in_array($job['queue'], $queues)) {
                             $ready[$key] = $job['id'];
                         }

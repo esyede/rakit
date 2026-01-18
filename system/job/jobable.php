@@ -41,11 +41,8 @@ abstract class Jobable
      */
     public static function name()
     {
-        $class = get_called_class();
-        $parts = explode('\\', $class);
-        $class = end($parts);
-
-        return Str::slug($class);
+        $class = explode('\\', get_called_class());
+        return Str::slug(end($class));
     }
 
     /**
@@ -58,9 +55,7 @@ abstract class Jobable
      */
     public static function dispatch(array $data = [], $dispatch_at = null)
     {
-        $name = static::name();
-        $class = get_called_class();
-        return Job::dispatch($name, ['class' => $class, 'data' => $data], $dispatch_at);
+        return Job::dispatch(static::name(), ['class' => get_called_class(), 'data' => $data], $dispatch_at);
     }
 
     /**
