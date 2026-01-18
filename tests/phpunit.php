@@ -32,3 +32,8 @@ require path('system') . 'core.php';
 // Boot paket default.
 // --------------------------------------------------------------
 System\Package::boot(DEFAULT_PACKAGE);
+
+// --------------------------------------------------------------
+// Load classmap setelah boot.
+// --------------------------------------------------------------
+System\Autoloader::load_classmap();

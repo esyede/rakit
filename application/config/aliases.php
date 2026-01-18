@@ -42,7 +42,7 @@ return [
     'Image' => 'System\Image',
     'Input' => 'System\Input',
     'Job' => 'System\Job',
-    'Jobable' => 'System\Jobable',
+    'Jobable' => 'System\Job\Jobable',
     'JWT' => 'System\JWT',
     'Lang' => 'System\Lang',
     'Log' => 'System\Log',

@@ -63,17 +63,6 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 
 /*
 |--------------------------------------------------------------------------
-| Preload Classmap
-|--------------------------------------------------------------------------
-|
-| Preload classmap di awal untuk mengurangi I/O pada request pertama.
-|
-*/
-
-Autoloader::load_classmap();
-
-/*
-|--------------------------------------------------------------------------
 | Daftarkan Namespace 'System'
 |--------------------------------------------------------------------------
 |
