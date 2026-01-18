@@ -230,7 +230,26 @@ class Config
         $key = $package . '::' . $file;
 
         if (isset(static::$files[$key])) {
-            return static::$files[$key];
+            $cached = static::$files[$key];
+            $env = Request::env();
+            $paths = [Package::path($package) . 'config' . DS];
+
+            if (!empty($env)) {
+                $paths[] = $paths[count($paths) - 1] . $env . DS;
+            }
+
+            $latest = 0;
+
+            foreach ($paths as $path) {
+                if (!empty($path) && is_file($filePath = $path . $file . '.php')) {
+                    $mtime = filemtime($filePath);
+                    $latest = ($mtime > $latest) ? $mtime : $latest;
+                }
+            }
+
+            if ($latest <= $cached['mtime']) {
+                return $cached['data'];
+            }
         }
 
         $config = [];
@@ -241,11 +260,14 @@ class Config
             $paths[] = $paths[count($paths) - 1] . $env . DS;
         }
 
+        $latest = 0;
         foreach ($paths as $path) {
             if (!empty($path) && is_file($path = $path . $file . '.php')) {
                 try {
                     $loaded = require $path;
                     $config = array_merge($config, (array) $loaded);
+                    $mtime = filemtime($path);
+                    $latest = ($mtime > $latest) ? $mtime : $latest;
                 } catch (\Throwable $e) {
                     return [];
                 } catch (\Exception $e) {
@@ -254,7 +276,7 @@ class Config
             }
         }
 
-        static::$files[$key] = $config;
+        static::$files[$key] = ['data' => $config, 'mtime' => $latest];
         return $config;
     }
 }

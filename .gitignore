@@ -2,8 +2,6 @@
 key.php
 _ide_helper.php
 /storage/*.pem
-/storage/classmap.php
-tests/fixtures/storage/classmap.php
 
 
 # Phpstorm

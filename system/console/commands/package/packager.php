@@ -131,8 +131,6 @@ class Packager extends Command
 
         echo $this->info('Package uninstalled successfuly: ' . $arguments[0]);
 
-        $this->regenerate_classmap_if_enabled();
-
         echo PHP_EOL;
         echo $this->warning('Now, you have to remove those package entry from your application/packages.php');
     }

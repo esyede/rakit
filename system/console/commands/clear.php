@@ -66,20 +66,5 @@ class Clear extends Command
         echo $this->info('Log files cleared successfully.');
     }
 
-    /**
-     * Bersihkan file classmap yang sudah di-generate.
-     *
-     * @param array $arguments
-     *
-     * @return void
-     */
-    public function classmap(array $arguments = [])
-    {
-        if (is_file($file = path('storage') . 'classmap.php')) {
-            @unlink($file);
-            echo $this->info('Classmap file cleared successfully.');
-        } else {
-            echo $this->info('No classmap file found.');
-        }
-    }
+
 }

@@ -75,33 +75,6 @@ Autoloader::namespaces(['System' => path('system')]);
 
 /*
 |--------------------------------------------------------------------------
-| Preload Core Aliases
-|--------------------------------------------------------------------------
-|
-| Preload aliases dari config untuk memungkinkan safe loading classmap
-| dengan scanning direktori yang aman.
-|
-*/
-
-if (is_file($aliases = path('app') . 'config' . DS . 'aliases.php')) {
-    $aliases = require $aliases;
-    Autoloader::$aliases = array_merge(Autoloader::$aliases, $aliases);
-    unset($aliases);
-}
-
-/*
-|--------------------------------------------------------------------------
-| Preload Classmap
-|--------------------------------------------------------------------------
-|
-| Preload classmap di awal untuk mengurangi I/O pada request pertama.
-|
-*/
-
-Autoloader::load_classmap();
-
-/*
-|--------------------------------------------------------------------------
 | Buat Foundation Request
 |--------------------------------------------------------------------------
 |
