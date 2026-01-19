@@ -322,7 +322,7 @@ class Panic
      *
      * @return string|null
      */
-    public static function highlightFile($file, $line, $lines = 15, ?array $vars = null)
+    public static function highlightFile($file, $line, $lines = 15, array $vars = [])
     {
         $source = @file_get_contents($file);
 
@@ -347,7 +347,7 @@ class Panic
      *
      * @return string
      */
-    public static function highlightPhp($source, $line, $lines = 15, ?array $vars = null)
+    public static function highlightPhp($source, $line, $lines = 15, array $vars = [])
     {
         // if (function_exists('ini_set')) {
         //     ini_set('highlight.comment', '#6a737d');
@@ -363,7 +363,7 @@ class Panic
         $source = str_replace('<br />', "\n", $source[1]);
         $out .= static::highlightLine($source, $line, $lines);
 
-        if ($vars) {
+        if (!empty($vars)) {
             $out = preg_replace_callback('#">\$(\w+)(&nbsp;)?</span>#', function ($m) use ($vars) {
                 return array_key_exists($m[1], $vars)
                     ? '" title="' . str_replace(
