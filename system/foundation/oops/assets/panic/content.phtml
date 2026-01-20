@@ -75,8 +75,8 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         <div class="<?php echo $collapsed ? 'oops-collapsed ' : '' ?>inner">
                             <p><b>File:</b> <?php echo Helpers::editorLink($ex->getFile(), $ex->getLine()) ?></p>
                             <?php if (is_file($ex->getFile())) : ?>
-                                <?php $ctx = (\ErrorException::class === get_class($ex) || $ex instanceof \ErrorException) ? \System\Foundation\Oops\Context::getContext($ex) : null; ?>
-                                <?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, is_array($ctx) ? $ctx : null) ?>
+                                <?php $ctx = (in_array(get_class($ex), ['ErrorException', '\ErrorException']) || $ex instanceof \ErrorException) ? \System\Foundation\Oops\Context::getContext($ex) : null; ?>
+                                <?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, is_array($ctx) ? $ctx : []); ?>
                             <?php endif ?>
                         </div>
                     </div>
@@ -146,7 +146,7 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         </div>
                     <?php endif ?>
 
-                    <?php $vars = (\ErrorException::class === get_class($ex) || $ex instanceof \ErrorException) ? \System\Foundation\Oops\Context::getContext($ex) : null; ?>
+                    <?php $vars = (in_array(get_class($ex), ['ErrorException', '\ErrorException']) || $ex instanceof \ErrorException) ? \System\Foundation\Oops\Context::getContext($ex) : null; ?>
                     <?php if (is_array($vars) && $vars) : ?>
                         <div class="panel">
                             <h2><a data-oops-ref="^+" class="oops-toggle oops-collapsed">Variables</a></h2>

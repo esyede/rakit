@@ -75,7 +75,7 @@ class Context
         return (isset($entry['oopsAction']) && !empty($entry['oopsAction'])) ? $entry['oopsAction'] : null;
     }
 
-    public static function hasOopsAction($e): bool
+    public static function hasOopsAction($e)
     {
         $entry = self::entryFor($e);
         return array_key_exists('oopsAction', $entry) && !empty($entry['oopsAction']);
