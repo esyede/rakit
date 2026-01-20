@@ -151,6 +151,7 @@ abstract class Model
     {
         $this->exists = $exists;
         $this->fill($attributes);
+        $this->original = $this->attributes;
     }
 
     /**
@@ -225,10 +226,6 @@ abstract class Model
             } else {
                 $this->{$key} = $value;
             }
-        }
-
-        if (0 === count($this->original)) {
-            $this->original = $this->attributes;
         }
 
         return $this;
@@ -456,7 +453,7 @@ abstract class Model
      *
      * @return string
      */
-    public function getTable()
+    public function get_table()
     {
         return $this->table();
     }
