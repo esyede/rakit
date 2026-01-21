@@ -22,12 +22,16 @@ class Blade
         'extensions',
         'layout',
         'comment',
+        'verbatim',
+        'once',
+        'endonce',
         'echo',
         'csrf',
         'forelse',
         'empty',
         'endforelse',
         'structure_start',
+        'foreach',
         'structure_end',
         'else',
         'unless',
@@ -49,6 +53,12 @@ class Blade
         'section_start',
         'section_end',
         'inject',
+        'method',
+        'push',
+        'endpush',
+        'stack',
+        'hassection',
+        'sectionmissing',
         'php_block',
     ];
 
@@ -145,6 +155,13 @@ class Blade
      */
     public static function translate($value, $view = null)
     {
+        $verbatims = [];
+        $value = preg_replace_callback('/@verbatim(.*?)@endverbatim/s', function ($matches) use (&$verbatims) {
+            $token = '___VERBATIM_' . count($verbatims) . '___';
+            $verbatims[$token] = $matches[1];
+            return $token;
+        }, $value);
+
         $compilers = static::$compilers;
 
         foreach ($compilers as $compiler) {
@@ -153,6 +170,10 @@ class Blade
             }
 
             $value = static::{'compile_' . $compiler}($value, $view);
+        }
+
+        foreach ($verbatims as $token => $content) {
+            $value = str_replace($token, $content, $value);
         }
 
         return $value;
@@ -332,7 +353,7 @@ class Blade
 
         foreach ($matches[0] as $forelse) {
             preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variables);
-            $replace = '$1<?php if (count(' . $variables[1] . ') > 0): ?><?php foreach$2: ?>';
+            $replace = '$1<?php if (count(' . $variables[1] . ') > 0): ?><?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count(' . $variables[1] . '), "count" => count(' . $variables[1] . '), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; foreach$2: $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
             $value = str_replace($forelse, preg_replace('/(\s*)@forelse(\s*\(.*\))/', $replace, $forelse), $value);
         }
 
@@ -360,7 +381,7 @@ class Blade
      */
     protected static function compile_endforelse($value)
     {
-        return str_replace('@endforelse', '<?php endif; ?>', $value);
+        return str_replace('@endforelse', '<?php endif; array_pop($__loop_stack); ?>', $value);
     }
 
     /**
@@ -372,7 +393,7 @@ class Blade
      */
     protected static function compile_structure_start($value)
     {
-        return preg_replace('/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/', '$1<?php $2$3: ?>', $value);
+        return preg_replace('/(\s*)@(if|elseif|for|while)(\s*\(.*\))/', '$1<?php $2$3: ?>', $value);
     }
 
     /**
@@ -384,7 +405,20 @@ class Blade
      */
     protected static function compile_structure_end($value)
     {
-        return preg_replace('/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/', '$1<?php $2; ?>$3', $value);
+        return preg_replace_callback('/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/', function ($matches) {
+            return $matches[1] . '<?php ' . $matches[2] . '; ?>' . (('endforeach' === $matches[2]) ? '<?php array_pop($__loop_stack); ?>' : '') . $matches[3];
+        }, $value);
+    }
+
+    protected static function compile_foreach($value)
+    {
+        return preg_replace_callback('/@foreach(\s*\(.*\))/', function ($matches) {
+            if (preg_match('/\(\s*([^=]+?)\s+as\s+/', $matches[1], $arrays)) {
+                return '<?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count(' . trim($arrays[1]) . '), "count" => count(' . trim($arrays[1]) . '), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; foreach' . $matches[1] . ': $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
+            }
+
+            return $matches[0];
+        }, $value);
     }
 
     /**
@@ -592,6 +626,126 @@ class Blade
     protected static function compile_inject($value)
     {
         return preg_replace(static::matcher('inject'), '$1<?php section_inject$2 ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @verbatim (placeholder, di-handle oleh method translate).
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_verbatim($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Ubah sintaks @once ke eksekusi sekali.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_once($value)
+    {
+        return preg_replace_callback('/@once(.*?)@endonce/s', function ($matches) {
+            static $onces = [];
+            $key = md5($matches[1]);
+
+            if (!isset($onces[$key])) {
+                $onces[$key] = true;
+                return $matches[1];
+            }
+
+            return '';
+        }, $value);
+    }
+
+    /**
+     * Ubah sintaks @endonce (placeholder).
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_endonce($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Ubah sintaks @method ke input hidden.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_method($value)
+    {
+        return preg_replace_callback(static::matcher('method'), function ($matches) {
+            return $matches[1] . '<input type="hidden" name="_method" value="' . trim(trim($matches[2], '()'), "'\"") . '" />';
+        }, $value);
+    }
+
+    /**
+     * Ubah sintaks @push ke Section::push.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_push($value)
+    {
+        return preg_replace(static::matcher('push'), '$1<?php Section::push$2 ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @endpush ke Section::endpush.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_endpush($value)
+    {
+        return str_replace('@endpush', '<?php Section::endpush() ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @stack ke Section::stack.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_stack($value)
+    {
+        return preg_replace(static::matcher('stack'), '$1<?php echo Section::stack$2 ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @hassection ke kondisi has.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_hassection($value)
+    {
+        return preg_replace(static::matcher('hassection'), '$1<?php if (Section::has$2): ?>', $value);
+    }
+
+    /**
+     * Ubah sintaks @sectionmissing ke kondisi !has.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_sectionmissing($value)
+    {
+        return preg_replace(static::matcher('sectionmissing'), '$1<?php if (!Section::has$2): ?>', $value);
     }
 
     /**

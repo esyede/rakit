@@ -100,6 +100,12 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $blade12 = "@guest\nfoo\n@endguest";
         $blade13 = "@auth\nfoo\n@endauth";
         $blade14 = "@error('foo')\nfoo\n@enderror";
+        $blade15 = "@method('PUT')";
+        $blade16 = "@push('scripts')\n<script></script>\n@endpush";
+        $blade17 = "@stack('scripts')";
+        $blade18 = "@hassection('content')\nContent\n@endif";
+        $blade19 = "@sectionmissing('content')\nNo content\n@endif";
+        $blade20 = "@verbatim\n{{ \$var }}\n@endverbatim";
 
         $out1 = "<?php if (true): ?>\nfoo\n<?php endif; ?>";
         $out2 = "<?php if (count(\$something) > 0): ?>\nfoo\n<?php endif; ?>";
@@ -109,14 +115,25 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $out5 = "<?php if (true): ?>\nfoo\n<?php else: ?>\nbar\n<?php endif; ?>";
         $out6 = "<?php if (! ( (count(\$something) > 0))): ?>\nfoobar\n<?php endif; ?>";
         $out7 = "<?php for (Foo::all() as \$foo): ?>\nfoo\n<?php endfor; ?>";
-        $out8 = "<?php foreach (Foo::all() as \$foo): ?>\nfoo\n<?php endforeach; ?>";
-        $out9 = "<?php if (count(Foo::all()) > 0): ?><?php foreach (Foo::all() as \$foo): ?>\n" .
-            "foo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; ?>";
+        $out8 = "<?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php array_pop(\$__loop_stack); ?>";
+        $out9 = "<?php if (count(Foo::all()) > 0): ?><?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; array_pop(\$__loop_stack); ?>";
         $out10 = "<?php while (true): ?>\nfoo\n<?php endwhile; ?>";
         $out11 = "<?php while (Foo::bar()): ?>\nfoo\n<?php endwhile; ?>";
         $out12 = "<?php if (System\Auth::guest()): ?>\nfoo\n<?php endif; ?>";
         $out13 = "<?php if (System\Auth::check()): ?>\nfoo\n<?php endif; ?>";
         $out14 = "<?php if (\$errors->has('foo')): ?>\nfoo\n<?php endif; ?>";
+        $out15 = "<input type=\"hidden\" name=\"_method\" value=\"PUT\" />";
+        $out16 = "<?php Section::push('scripts') ?>\n<script></script>\n<?php Section::endpush() ?>";
+        $out17 = "<?php echo Section::stack('scripts') ?>";
+        $out18 = "<?php if (Section::has('content')): ?>\nContent\n<?php endif; ?>";
+        $out19 = "<?php if (!Section::has('content')): ?>\nNo content\n<?php endif; ?>";
+        $out20 = "\n{{ \$var }}\n";
+        $out15 = "<input type=\"hidden\" name=\"_method\" value=\"PUT\" />";
+        $out16 = "<?php Section::push('scripts') ?>\n<script></script>\n<?php Section::endpush() ?>";
+        $out17 = "<?php echo Section::stack('scripts') ?>";
+        $out18 = "<?php if (Section::has('content')): ?>\nContent\n<?php endif; ?>";
+        $out19 = "<?php if (!Section::has('content')): ?>\nNo content\n<?php endif; ?>";
+        $out20 = "\n{{ \$var }}\n";
 
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
@@ -132,6 +149,12 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($out12, Blade::translate($blade12));
         $this->assertEquals($out13, Blade::translate($blade13));
         $this->assertEquals($out14, Blade::translate($blade14));
+        $this->assertEquals($out15, Blade::translate($blade15));
+        $this->assertEquals($out16, Blade::translate($blade16));
+        $this->assertEquals($out17, Blade::translate($blade17));
+        $this->assertEquals($out18, Blade::translate($blade18));
+        $this->assertEquals($out19, Blade::translate($blade19));
+        $this->assertEquals($out20, Blade::translate($blade20));
     }
 
     public function testErrorAndEnderrorAreCompiledCorrectly()
@@ -205,5 +228,45 @@ class BladeTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
+    }
+
+    /**
+     * Test untuk $loop di @foreach.
+     *
+     * @group system
+     */
+    public function testLoopVariableInForeach()
+    {
+        $blade = '@foreach ($items as $item)' . "\n" . '{{ $loop->index }}' . "\n" . '@endforeach';
+        $translated = Blade::translate($blade);
+        $this->assertContains('isset($__loop_stack)', $translated);
+        $this->assertContains('$loop = $__loop_stack[count($__loop_stack)-1]', $translated);
+        $this->assertContains('array_pop($__loop_stack)', $translated);
+    }
+
+    /**
+     * Test untuk $loop di @forelse.
+     *
+     * @group system
+     */
+    public function testLoopVariableInForelse()
+    {
+        $blade = '@forelse ($items as $item)' . "\n" . '{{ $loop->iteration }}' . "\n" . '@empty' . "\n" . 'No items' . "\n" . '@endforelse';
+        $translated = Blade::translate($blade);
+        $this->assertContains('isset($__loop_stack)', $translated);
+        $this->assertContains('$loop = $__loop_stack[count($__loop_stack)-1]', $translated);
+        $this->assertContains('array_pop($__loop_stack)', $translated);
+    }
+
+    /**
+     * Test untuk @once.
+     *
+     * @group system
+     */
+    public function testOnceDirective()
+    {
+        $blade = '@once' . "\n" . 'Unique content' . "\n" . '@endonce';
+        $translated = Blade::translate($blade);
+        $this->assertEquals("\nUnique content\n", $translated);
     }
 }

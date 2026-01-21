@@ -21,6 +21,13 @@ class Section
     public static $last = [];
 
     /**
+     * Berisi seluruh stacks yang terdaftar.
+     *
+     * @var array
+     */
+    public static $stacks = [];
+
+    /**
      * Mulai injeksi konten ke section.
      *
      * <code>
@@ -135,5 +142,43 @@ class Section
     public static function yield_content($section)
     {
         return isset(static::$sections[$section]) ? static::$sections[$section] : '';
+    }
+
+    /**
+     * Mulai push konten ke stack.
+     *
+     * @param string $stack
+     */
+    public static function push($stack)
+    {
+        ob_start();
+        static::$last[] = $stack;
+    }
+
+    /**
+     * Akhiri push konten ke stack.
+     */
+    public static function endpush()
+    {
+        $last = array_pop(static::$last);
+        $content = ob_get_clean();
+
+        if (!isset(static::$stacks[$last])) {
+            static::$stacks[$last] = [];
+        }
+
+        static::$stacks[$last][] = $content;
+    }
+
+    /**
+     * Ambil konten milik sebuah stack.
+     *
+     * @param string $stack
+     *
+     * @return string
+     */
+    public static function stack($stack)
+    {
+        return isset(static::$stacks[$stack]) ? implode('', static::$stacks[$stack]) : '';
     }
 }

@@ -307,6 +307,7 @@ class View implements \ArrayAccess
 
         if (0 === static::$rendered) {
             Section::$sections = [];
+            Section::$stacks = [];
         }
 
         return $contents;
