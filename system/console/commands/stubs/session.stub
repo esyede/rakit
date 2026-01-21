@@ -14,7 +14,7 @@ class Create_Sessions_Table
         Schema::create_if_not_exists('sessions', function ($table) {
             $table->string('id')->length(60)->primary('session_primary');
             $table->integer('last_activity');
-            $table->text('data');
+            $table->longtext('data');
         });
 	}
 

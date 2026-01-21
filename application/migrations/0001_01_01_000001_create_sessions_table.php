@@ -14,7 +14,7 @@ class Create_Sessions_Table
         Schema::create(config('session.table'), function ($table) {
             $table->string('id', 191)->primary('session_primary');
             $table->integer('last_activity');
-            $table->text('data');
+            $table->longtext('data');
         });
     }
 
