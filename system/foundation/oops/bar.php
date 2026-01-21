@@ -45,7 +45,7 @@ class Bar
     }
 
     /**
-     * Render loading tag <script>.
+     * Render loading tag.
      *
      * @return void
      */
