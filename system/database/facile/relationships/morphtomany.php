@@ -91,11 +91,7 @@ class MorphToMany extends Relationship
      */
     public function results(array $results = [])
     {
-        if (count($results) === 0) {
-            return [];
-        }
-
-        return $this->get();
+        return (count($results) === 0) ? [] : $this->get();
     }
 
     /**

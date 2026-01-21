@@ -43,7 +43,8 @@ class MorphMany extends HasMany
      */
     protected function constrain()
     {
-        $this->table->where($this->type, '=', get_class($this->base))
+        $this->table
+            ->where($this->type, '=', get_class($this->base))
             ->where($this->id, '=', $this->base->get_key());
     }
 

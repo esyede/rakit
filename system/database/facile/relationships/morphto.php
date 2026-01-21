@@ -57,19 +57,15 @@ class MorphTo extends Relationship
             return null;
         }
 
-        $result = head($results);
-
-        $type = $result->{$this->type};
-        $id = $result->{$this->id};
+        $results = head($results);
+        $type = $results->{$this->type};
+        $id = $results->{$this->id};
 
         if (is_null($type) || is_null($id)) {
             return null;
         }
 
-        $class = $type;
-        $instance = new $class();
-
-        return $instance->find($id);
+        return (new $type())->find($id);
     }
 
     /**

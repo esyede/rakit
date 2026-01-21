@@ -290,13 +290,11 @@ abstract class Model
             return static::$table;
         }
 
-        $class_name = get_called_class();
+        $class = get_called_class();
         // Hapus namespace jika ada
-        if (strpos($class_name, '\\') !== false) {
-            $class_name = basename(str_replace('\\', '/', $class_name));
-        }
+        $class = (false !== strpos($class, '\\')) ? basename(str_replace('\\', '/', $class)) : $class;
 
-        return strtolower(Str::plural($class_name));
+        return strtolower(Str::plural($class));
     }
 
     /**
@@ -858,16 +856,14 @@ abstract class Model
         if ($this->exists) {
             Event::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
 
-            if (static::$soft_delete) {
-                // Soft delete
+            if (static::$soft_delete) { // Soft delete
                 $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
                 $result = $this->query()
                     ->where(static::$key, '=', $this->get_key())
                     ->update(['deleted_at' => $this->deleted_at]);
                 $this->exists = false;
                 Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
-            } else {
-                // Hard delete
+            } else { // Hard delete
                 $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
                 Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
             }

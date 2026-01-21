@@ -171,7 +171,7 @@ class Query
 
         if (PHP_VERSION_ID < 50500) {
             // PHP < 5.5.0 tidak mendukung generator, langsung return get()
-            return $this->get($columns);
+            return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
         }
 
         // PHP 5.5+ - load generator implementation dari file terpisah
