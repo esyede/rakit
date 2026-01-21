@@ -273,7 +273,6 @@ class Response
 
         Event::fire('rakit.done', [$response]);
         $response->foundation()->finish();
-        exit;
     }
 
     /**
@@ -345,6 +344,52 @@ class Response
     public function header($name, $value)
     {
         $this->foundation()->headers->set($name, $value);
+        return $this;
+    }
+
+    /**
+     * Set multiple headers dengan chaining.
+     *
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public function with_headers(array $headers)
+    {
+        foreach ($headers as $name => $value) {
+            $this->header($name, $value);
+        }
+        return $this;
+    }
+
+    /**
+     * Set cookie dengan chaining.
+     *
+     * @param string $name
+     * @param string $value
+     * @param int    $minutes
+     * @param string $path
+     * @param string $domain
+     * @param bool   $secure
+     *
+     * @return Response
+     */
+    public function with_cookie($name, $value = null, $minutes = 0, $path = '/', $domain = null, $secure = false)
+    {
+        Cookie::put($name, $value, $minutes, $path, $domain, $secure);
+        return $this;
+    }
+
+    /**
+     * Set status code dengan chaining.
+     *
+     * @param int $code
+     *
+     * @return Response
+     */
+    public function set_status_code($code)
+    {
+        $this->status($code);
         return $this;
     }
 
