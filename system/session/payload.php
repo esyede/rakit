@@ -9,7 +9,6 @@ use System\Str;
 use System\Config;
 use System\Cookie;
 use System\Session;
-use System\Session\Drivers\Sweeper;
 
 class Payload
 {
@@ -271,22 +270,6 @@ class Payload
         $config = Config::get('session');
         $this->driver->save($this->session, $config, $this->exists);
         $this->cookie($config);
-
-        $sweepage = $config['sweepage'];
-
-        if (mt_rand(1, $sweepage[1]) <= $sweepage[0]) {
-            $this->sweep();
-        }
-    }
-
-    /**
-     * Bersihkan seluruh session yang telah kedaluwarsa (garbage collection).
-     */
-    public function sweep()
-    {
-        if ($this->driver instanceof Sweeper) {
-            $this->driver->sweep(time() - (Config::get('session.lifetime') * 60));
-        }
     }
 
     /**

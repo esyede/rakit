@@ -5,25 +5,25 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct access.');
 
 use System\Config;
+use System\Database as DB;
 use System\Session as BaseSession;
-use System\Session\Drivers\Sweeper;
 
 class Session extends Command
 {
     /**
-     * Bersihkan session yang telah kedaluwarsa.
+     * Bersihkan session database yang telah kedaluwarsa.
      *
      * @param array $arguments
      *
      * @return void
      */
-    public function sweep(array $arguments = [])
+    public function gc(array $arguments = [])
     {
-        $driver = BaseSession::factory(Config::get('session.driver'));
+        $driver = Config::get('session.driver');
 
-        if ($driver instanceof Sweeper) {
+        if ('database' === $driver) {
             $lifetime = Config::get('session.lifetime');
-            $driver->sweep(time() - ($lifetime * 60));
+            DB::table(Config::get('session.table'))->where('last_activity', '<', time() - ($lifetime * 60))->delete();
         }
 
         echo $this->info('The session table has been swept!');

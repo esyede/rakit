@@ -296,78 +296,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($session['data'][':new:'], $payload->session['data'][':old:']);
     }
 
-    /**
-     * Test untuk method Payload::save() - 2.
-     *
-     * @group system
-     */
-    public function testSaveMethodSweepsIfSweeperAndOddsHitWithTimeGreaterThanThreshold()
-    {
-        Config::set('session.sweepage', [100, 100]);
 
-        $payload = $this->getPayload();
-        $payload->driver = $this->getMock('\System\Session\Drivers\File', ['save', 'sweep'], [null]);
-        $payload->session = $this->getSession();
-
-        $expiration = time() - (Config::get('session.lifetime') * 60);
-
-        // Disini kita set expected time minus 5 detik agar PHP punya waktu untuk
-        // mengeksekusi script kita. Di test berikutnya, kita akan kembali
-        // menambahkan kekurangan 5 detik tersebut agar waktunya pas.
-
-        $payload->driver->expects($this->once())
-            ->method('sweep')
-            ->with($this->greaterThan($expiration - 5));
-
-        $payload->save();
-
-        Config::set('session.sweepage', [2, 100]);
-    }
-
-    /**
-     * Test untuk method Payload::save() - 3.
-     *
-     * @group system
-     */
-    public function testSaveMethodSweepsIfSweeperAndOddsHitWithTimeLessThanThreshold()
-    {
-        Config::set('session.sweepage', [100, 100]);
-
-        $payload = $this->getPayload();
-        $payload->driver = $this->getMock('\System\Session\Drivers\File', ['save', 'sweep'], [null]);
-        $payload->session = $this->getSession();
-
-        $expiration = time() - (Config::get('session.lifetime') * 60);
-
-        $payload->driver->expects($this->once())
-            ->method('sweep')
-            ->with($this->lessThan($expiration + 5));
-
-        $payload->save();
-
-        Config::set('session.sweepage', [2, 100]);
-    }
-
-    /**
-     * Test bahwa session sweeper tidak akan bisa dipanggil jika
-     * driver tidak meng-implements interface sweeper.
-     *
-     * @group system
-     */
-    public function testSweeperShouldntBeCalledIfDriverIsntSweeper()
-    {
-        Config::set('session.sweepage', [100, 100]);
-
-        $payload = $this->getPayload();
-
-        $payload->driver = $this->getMock('\System\Session\Drivers\APC', ['save', 'sweep'], [], '', false);
-        $payload->session = $this->getSession();
-
-        $payload->driver->expects($this->never())->method('sweep');
-        $payload->save();
-
-        Config::set('session.sweepage', [2, 100]);
-    }
 
     /**
      * Test untuk method Payload::save() - 4.

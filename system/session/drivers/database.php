@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Config;
 use System\Database\Connection;
 
-class Database extends Driver implements Sweeper
+class Database extends Driver
 {
     /**
      * Berisi resource koneksi database.
@@ -78,16 +78,6 @@ class Database extends Driver implements Sweeper
     public function delete($id)
     {
         $this->table()->delete($id);
-    }
-
-    /**
-     * Hapus seluruh session yang telah kedaluwarsa.
-     *
-     * @param int $expiration
-     */
-    public function sweep($expiration)
-    {
-        $this->table()->where('last_activity', '<', $expiration)->delete();
     }
 
     /**

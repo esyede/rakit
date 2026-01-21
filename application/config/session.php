@@ -33,23 +33,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | GC Probability
-    |--------------------------------------------------------------------------
-    |
-    | Beberapa driver session memerlukan pembersihan manual terhadap session
-    | yang telah kedaluwarsa. Opsi ini menentukan kemungkinan terjadinya
-    | pengumpulan sampah session untuk setiap request yang datang ke aplikasi.
-    |
-    | Misalnya, default value dibawah ini menyatakan bahwa pengumpulan sampah
-    | memiliki peluang 2% terjadi untuk setiap request yang datang ke aplikasi.
-    | Jangan ragu untuk menyesuaikan ini dengan kebutuhan anda.
-    |
-    */
-
-    'sweepage' => [2, 100],
-
-    /*
-    |--------------------------------------------------------------------------
     | Lifetime Session
     |--------------------------------------------------------------------------
     |
@@ -127,4 +110,28 @@ return [
     */
 
     'samesite' => 'Lax',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session ID Length
+    |--------------------------------------------------------------------------
+    |
+    | Panjang session ID dalam karakter. Default 32 untuk PHP 7.1+.
+    | Biarkan null untuk menggunakan default PHP.
+    |
+    */
+
+    'sid_length' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Serialize Handler
+    |--------------------------------------------------------------------------
+    |
+    | Handler serialisasi session. Default 'php' untuk PHP 5.5.4+.
+    | Opsi: 'php', 'php_serialize', 'php_binary'.
+    |
+    */
+
+    'serialize' => 'php',
 ];

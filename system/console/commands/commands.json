@@ -100,9 +100,9 @@
         }
     },
     "session": {
-        "session:sweep": {
+        "session:gc": {
             "description": "Hapus seluruh sesi kedaluwarsa.",
-            "command": "php rakit session:sweep"
+            "command": "php rakit session:gc"
         }
     },
     "test": {
