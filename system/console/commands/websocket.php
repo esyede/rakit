@@ -5,7 +5,7 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct access.');
 
 use System\Websocket\Server;
-use System\Websocket\Agent;
+use System\Websocket\Client;
 
 class Websocket extends Command
 {
@@ -33,10 +33,10 @@ class Websocket extends Command
 
     private function broadcast(Server $server, $message)
     {
-        $agents = $server->agents();
+        $clients = $server->clients();
 
-        foreach ($agents as $agent) {
-            $agent->send(Server::TEXT, $message);
+        foreach ($clients as $client) {
+            $client->send(Server::TEXT, $message);
         }
     }
 
@@ -64,50 +64,50 @@ class Websocket extends Command
         $this->debug('WebSocket server stopped');
     }
 
-    public function connect(Agent $agent)
+    public function connect(Client $client)
     {
-        $this->debug('Agent #' . $agent->id() . ' connected');
-        $this->broadcast($agent->server(), sprintf('Client with ID %s joined', $agent->id()));
+        $this->debug('Client #' . $client->id() . ' connected');
+        $this->broadcast($client->server(), sprintf('Client with ID %s joined', $client->id()));
     }
 
-    public function disconnect(Agent $agent)
+    public function disconnect(Client $client)
     {
-        $this->debug('Agent #' . $agent->id() . ' disconnected');
+        $this->debug('Client #' . $client->id() . ' disconnected');
 
         if ($error = socket_last_error()) {
             $this->debug(socket_strerror($error), true);
             socket_clear_error();
         }
 
-        $this->broadcast($agent->server(), sprintf('Client with ID %s left', $agent->id()));
+        $this->broadcast($client->server(), sprintf('Client with ID %s left', $client->id()));
     }
 
-    public function idle(Agent $agent)
+    public function idle(Client $client)
     {
-        $this->debug('Agent #' . $agent->id() . ' idles');
+        $this->debug('Client #' . $client->id() . ' idles');
     }
 
-    public function receive(Agent $agent, $opcode, $data)
+    public function receive(Client $client, $opcode, $data)
     {
         if (intval($opcode) !== Server::TEXT) {
-            $this->debug(sprintf('Agent #%s sent a message with ignored opcode %s.', $agent->id(), $opcode));
+            $this->debug(sprintf('Client #%s sent a message with ignored opcode %s.', $client->id(), $opcode));
             return;
         }
 
-        $this->debug(sprintf('Agent #%s sent a message: %s', $agent->id(), $data));
-        $message = json_encode(['author' => $agent->id(), 'message' => trim($data)]);
+        $this->debug(sprintf('Client #%s sent a message: %s', $client->id(), $data));
+        $message = json_encode(['author' => $client->id(), 'message' => trim($data)]);
         $this->debug('Broadcast message to all clients: ' . $message);
-        $this->broadcast($agent->server(), $message);
+        $this->broadcast($client->server(), $message);
     }
 
-    public function send(Agent $agent, $opcode, $data)
+    public function send(Client $client, $opcode, $data)
     {
-        $this->debug(sprintf('Agent #%s will receive a message: %s', $agent->id(), $data));
+        $this->debug(sprintf('Client #%s will receive a message: %s', $client->id(), $data));
     }
 
     private function debug($message, $error = false)
     {
         $memory = human_filesize(memory_get_usage(true));
-        echo $error ? $this->error($message) : $this->info(now() . ' | ' . $memory . ' | ' . $message);
+        return $error ? $this->error($message) : $this->info(now() . ' | ' . $memory . ' | ' . $message);
     }
 }

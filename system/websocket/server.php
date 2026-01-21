@@ -22,7 +22,7 @@ class Server
     protected $wait;
     protected $sockets;
     protected $protocol;
-    protected $agents = [];
+    protected $clients = [];
     protected $events = [];
     protected $allowed_origins = [];
     protected $ping_timeout = 60;
@@ -54,13 +54,13 @@ class Server
         }
 
         $headers = [];
-        $verb = null;
+        $method = null;
         $uri = null;
         $lines = explode("\r\n", trim($buffer));
 
         foreach ($lines as $line) {
             if (false !== preg_match('/^(\w+)\s(.+)\sHTTP\/[\d.]{1,3}$/', trim($line), $match)) {
-                $verb = $match[1];
+                $method = $match[1];
                 $uri = $match[2];
             } else {
                 if (false !== preg_match('/^(.+): (.+)/', trim($line), $match)) {
@@ -79,7 +79,7 @@ class Server
         }
 
         if (empty($headers['Upgrade']) && empty($headers['Sec-Websocket-Key'])) {
-            if ($verb && $uri) {
+            if ($method && $uri) {
                 $this->write($socket, "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n");
             }
 
@@ -98,7 +98,7 @@ class Server
 
         if ($this->write($socket, $buffer)) {
             $this->sockets[(int) $socket] = $socket;
-            $this->agents[(int) $socket] = new Agent($this, $socket, $verb, $uri, $headers);
+            $this->clients[(int) $socket] = new client($this, $socket, $method, $uri, $headers);
         }
     }
 
@@ -109,8 +109,8 @@ class Server
      */
     public function close($socket)
     {
-        if (isset($this->agents[(int) $socket])) {
-            unset($this->sockets[(int) $socket], $this->agents[(int) $socket]);
+        if (isset($this->clients[(int) $socket])) {
+            unset($this->sockets[(int) $socket], $this->clients[(int) $socket]);
         }
 
         stream_socket_shutdown($socket, STREAM_SHUT_WR);
@@ -168,15 +168,15 @@ class Server
     }
 
     /**
-     * Mereturn socket agent.
+     * Mereturn socket client.
      *
      * @param string $uri
      *
      * @return array
      */
-    public function agents($uri = null)
+    public function clients($uri = null)
     {
-        return array_filter($this->agents, function ($val) use ($uri) {
+        return array_filter($this->clients, function ($val) use ($uri) {
             return $uri ? ($val->uri() === $uri) : true;
         });
     }
@@ -311,8 +311,8 @@ class Server
                             }
                         }
                     } else {
-                        if (isset($this->agents[(int) $socket])) {
-                            $this->agents[(int) $socket]->fetch();
+                        if (isset($this->clients[(int) $socket])) {
+                            $this->clients[(int) $socket]->fetch();
                         }
                     }
                 }
@@ -334,19 +334,19 @@ class Server
                     }
 
                     if (
-                        $socket != $listen
-                        && isset($this->agents[$id])
+                        $socket !== $listen
+                        && isset($this->clients[$id])
                         && isset($this->events['idle'])
                         && is_callable($function = $this->events['idle'])
                     ) {
-                        $agent = $this->agents[$id];
+                        $client = $this->clients[$id];
 
-                        if (time() - $agent->lastActivity() > $this->ping_timeout) {
+                        if (time() - $client->last_activity() > $this->ping_timeout) {
                             $this->close($socket);
                             continue;
                         }
 
-                        $function($agent);
+                        $function($client);
                     }
                 }
 

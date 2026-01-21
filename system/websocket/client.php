@@ -4,42 +4,40 @@ namespace System\Websocket;
 
 defined('DS') or exit('No direct access.');
 
-class Agent
+class Client
 {
     protected $server;
     protected $id;
     protected $socket;
     protected $flag;
-    protected $verb;
+    protected $method;
     protected $uri;
     protected $headers;
     protected $fragments = [];
-    protected $fragment_opcode = null;
     protected $last_activity;
+    protected $opcode = null;
 
     /**
      * Konstruktor.
      *
      * @param Server   $server
      * @param resource $socket
-     * @param string   $verb
+     * @param string   $method
      * @param string   $uri
      * @param array    $headers
      */
-    public function __construct($server, $socket, $verb, $uri, array $headers)
+    public function __construct($server, $socket, $method, $uri, array $headers)
     {
         $this->server = $server;
         $this->id = stream_socket_get_name($socket, true);
         $this->socket = $socket;
-        $this->verb = $verb;
+        $this->method = $method;
         $this->uri = $uri;
         $this->headers = $headers;
         $this->last_activity = time();
+        $events = $this->server()->events();
 
-        if (
-            isset($this->server()->events()['connect'])
-            && is_callable($function = $this->server()->events()['connect'])
-        ) {
+        if (isset($events['connect']) && is_callable($function = $events['connect'])) {
             $function($this);
         }
     }
@@ -79,9 +77,9 @@ class Agent
      *
      * @return string
      */
-    public function verb()
+    public function method()
     {
-        return $this->verb;
+        return $this->method;
     }
 
     /**
@@ -142,10 +140,12 @@ class Agent
             return false;
         }
 
+        $events = $this->server()->events();
+
         if (
             !in_array($opcode, [Server::PONG, Server::CLOSE])
-            && isset($this->server()->events()['send'])
-            && is_callable($function = $this->server()->events()['send'])
+            && isset($events['send'])
+            && is_callable($function = $events['send'])
         ) {
             $function($this, $opcode, $data);
         }
@@ -170,8 +170,8 @@ class Agent
             $finale = (ord($buffer[0]) & Server::FINALE) ? true : false;
             $opcode = ord($buffer[0]) & Server::OPCODE;
 
-            if ($this->fragment_opcode === null) {
-                $this->fragment_opcode = $opcode;
+            if ($this->opcode === null) {
+                $this->opcode = $opcode;
             } elseif ($opcode !== 0 && $finale) {
                 $this->server()->close($this->socket);
                 return false;
@@ -216,8 +216,8 @@ class Agent
                 $this->fragments = [];
             }
 
-            $opcode = $this->fragment_opcode;
-            $this->fragment_opcode = null;
+            $opcode = $this->opcode;
+            $this->opcode = null;
 
             switch ($opcode & Server::OPCODE) {
                 case Server::PING:
@@ -232,10 +232,9 @@ class Agent
                     $data = trim($data);
 
                 case Server::BINARY:
-                    if (
-                        isset($this->server()->events()['receive'])
-                        && is_callable($function = $this->server()->events()['receive'])
-                    ) {
+                    $events = $this->server()->events();
+
+                    if (isset($events['receive']) && is_callable($function = $events['receive'])) {
                         $function($this, $opcode, $data);
                     }
                     break;
@@ -250,10 +249,9 @@ class Agent
      */
     public function __destruct()
     {
-        if (
-            isset($this->server()->events()['disconnect'])
-            && is_callable($function = $this->server()->events()['disconnect'])
-        ) {
+        $events = $this->server()->events();
+
+        if (isset($events['disconnect']) && is_callable($function = $events['disconnect'])) {
             $function($this);
         }
     }
