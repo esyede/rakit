@@ -847,60 +847,29 @@ class Carbon extends \DateTime
         return $this->diffInSeconds($this->copy()->endOfDay());
     }
 
-    public function diffForHumans($other = null, $absolute = false)
+    public function diffForHumans(Carbon $other = null, $absolute = false)
     {
         $now = $other === null;
         $other = $now ? static::now($this->tz) : $other;
         $future = $this->gt($other);
-        $years = $this->diffInYears($other, false);
+        $delta = abs($this->diffInSeconds($other, false));
+        $divs = [
+            'year' => 31536000, // approx 365 days
+            'month' => 2628000, // approx 30.44 days
+            'week' => 604800,   // 7 days
+            'day' => 86400,     // 24 hours
+            'hour' => 3600,     // 60 minutes
+            'minute' => 60,     // 60 seconds
+            'second' => 1,
+        ];
 
-        if (abs($years) > 0) {
-            $unit = 'year';
-            $delta = abs($years);
-        } else {
-            $months = $this->diffInMonths($other, false);
+        $unit = 'second';
 
-            if (abs($months) > 0) {
-                $unit = 'month';
-                $delta = abs($months);
-            } else {
-                $weeks = $this->diffInWeeks($other, false);
-
-                if (abs($weeks) == 4) {
-                    $unit = 'month';
-                    $delta = 1;
-                } elseif (abs($weeks) > 0) {
-                    $unit = 'week';
-                    $delta = abs($weeks);
-                } else {
-                    $days = $this->diffInDays($other, false);
-
-                    if (abs($days) >= 7) {
-                        $unit = 'week';
-                        $delta = round(abs($days) / 7);
-                    } elseif (abs($days) > 0) {
-                        $unit = 'day';
-                        $delta = abs($days);
-                    } else {
-                        $hours = $this->diffInHours($other, false);
-
-                        if (abs($hours) > 0) {
-                            $unit = 'hour';
-                            $delta = abs($hours);
-                        } else {
-                            $minutes = $this->diffInMinutes($other, false);
-
-                            if (abs($minutes) > 0) {
-                                $unit = 'minute';
-                                $delta = abs($minutes);
-                            } else {
-                                $seconds = $this->diffInSeconds($other, false);
-                                $unit = 'second';
-                                $delta = abs($seconds);
-                            }
-                        }
-                    }
-                }
+        foreach ($divs as $u => $d) {
+            if ($delta >= $d) {
+                $unit = $u;
+                $delta = round($delta / $d);
+                break;
             }
         }
 

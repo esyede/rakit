@@ -515,7 +515,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('3 weeks ago', $d->diffForHumans());
         Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->subWeeks(4);
-        $this->assertSame('1 month ago', $d->diffForHumans());
+        $this->assertSame('4 weeks ago', $d->diffForHumans());
         $d = Carbon::now()->subMonth();
         $this->assertSame('1 month ago', $d->diffForHumans());
         Carbon::setNow();
@@ -561,7 +561,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('3 weeks from now', $d->diffForHumans());
         Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->addWeeks(4);
-        $this->assertSame('1 month from now', $d->diffForHumans());
+        $this->assertSame('4 weeks from now', $d->diffForHumans());
         $d = Carbon::now()->addMonth();
         $this->assertSame('1 month from now', $d->diffForHumans());
         Carbon::setNow();
@@ -570,7 +570,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('2 months from now', $d->diffForHumans());
         Carbon::setNow();
         $d = Carbon::now()->addMonths(11);
-        $this->assertSame('10 months from now', $d->diffForHumans());
+        $this->assertSame('11 months from now', $d->diffForHumans());
         Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->addYear();
         $this->assertSame('1 year from now', $d->diffForHumans());
@@ -612,7 +612,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('3 weeks before', Carbon::now()->diffForHumans($d));
         Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->addWeeks(4);
-        $this->assertSame('1 month before', Carbon::now()->diffForHumans($d));
+        $this->assertSame('4 weeks before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->addMonth();
         $this->assertSame('1 month before', Carbon::now()->diffForHumans($d));
         Carbon::setNow();
@@ -621,11 +621,11 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('2 months before', Carbon::now()->diffForHumans($d));
         Carbon::setNow();
         $d = Carbon::now()->addMonths(11);
-        $this->assertSame('10 months before', Carbon::now()->diffForHumans($d));
-        $d = Carbon::now()->addYear();
         $this->assertSame('11 months before', Carbon::now()->diffForHumans($d));
-        $d = Carbon::now()->addYears(2);
+        $d = Carbon::now()->addYear();
         $this->assertSame('1 year before', Carbon::now()->diffForHumans($d));
+        $d = Carbon::now()->addYears(2);
+        $this->assertSame('2 years before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subSecond();
         $this->assertSame('1 second after', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subSeconds(2);
@@ -660,7 +660,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('3 weeks after', Carbon::now()->diffForHumans($d));
         Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->subWeeks(4);
-        $this->assertSame('1 month after', Carbon::now()->diffForHumans($d));
+        $this->assertSame('4 weeks after', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subMonth();
         $this->assertSame('1 month after', Carbon::now()->diffForHumans($d));
         Carbon::setNow();
@@ -701,10 +701,10 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $d = Carbon::now()->subYears(1);
         $this->assertSame('1 year', Carbon::now()->diffForHumans($d, true));
         $d = Carbon::now()->addYears(1);
-        $this->assertSame('11 months', Carbon::now()->diffForHumans($d, true));
+        $this->assertSame('1 year', Carbon::now()->diffForHumans($d, true));
         $feb15 = Carbon::parse('2015-02-15');
         $mar15 = Carbon::parse('2015-03-15');
-        $this->assertSame('1 month after', $mar15->diffForHumans($feb15));
+        $this->assertSame('4 weeks after', $mar15->diffForHumans($feb15));
     }
 
     /**
