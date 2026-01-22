@@ -873,28 +873,24 @@ class Carbon extends \DateTime
                     $unit = 'week';
                     $delta = abs($weeks);
                 } else {
-                    $days = $this->diffInDays($other, false);
+                    $hours = $this->diffInHours($other, false);
 
-                    if (abs($days) > 0) {
+                    if (abs($hours) >= 24) {
                         $unit = 'day';
-                        $delta = abs($days);
+                        $delta = round(abs($hours) / 24);
+                    } elseif (abs($hours) > 0) {
+                        $unit = 'hour';
+                        $delta = abs($hours);
                     } else {
-                        $hours = $this->diffInHours($other, false);
+                        $minutes = $this->diffInMinutes($other, false);
 
-                        if (abs($hours) > 0) {
-                            $unit = 'hour';
-                            $delta = abs($hours);
+                        if (abs($minutes) > 0) {
+                            $unit = 'minute';
+                            $delta = abs($minutes);
                         } else {
-                            $minutes = $this->diffInMinutes($other, false);
-
-                            if (abs($minutes) > 0) {
-                                $unit = 'minute';
-                                $delta = abs($minutes);
-                            } else {
-                                $seconds = $this->diffInSeconds($other, false);
-                                $unit = 'second';
-                                $delta = abs($seconds);
-                            }
+                            $seconds = $this->diffInSeconds($other, false);
+                            $unit = 'second';
+                            $delta = abs($seconds);
                         }
                     }
                 }
