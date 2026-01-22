@@ -347,7 +347,7 @@ class Carbon extends \DateTime
         return $this;
     }
 
-    public static function setNow(Carbon $now = null)
+    public static function setNow($now = null)
     {
         static::$now = $now;
     }
@@ -516,13 +516,13 @@ class Carbon extends \DateTime
         return $equal ? ($this->gte($dt1) && $this->lte($dt2)) : ($this->gt($dt1) && $this->lt($dt2));
     }
 
-    public function min(Carbon $dt = null)
+    public function min($dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->lt($dt) ? $this : $dt;
     }
 
-    public function max(Carbon $dt = null)
+    public function max($dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->gt($dt) ? $this : $dt;
@@ -535,7 +535,7 @@ class Carbon extends \DateTime
 
     public function isWeekend()
     {
-        return !$this->isWeekDay();
+        return !$this->isWeekday();
     }
 
     public function isYesterday()
@@ -550,6 +550,7 @@ class Carbon extends \DateTime
 
     public function isTomorrow()
     {
+        /** @disregard */
         return $this->toDateString() === static::tomorrow($this->tz)->toDateString();
     }
 
@@ -616,8 +617,9 @@ class Carbon extends \DateTime
     public function addMonthsNoOverflow($value)
     {
         $date = $this->copy()->addMonths($value);
-
+        /** @disregard */
         if ($date->day !== $this->day) {
+            /** @disregard */
             $date->day(1)->subMonth()->day($date->daysInMonth);
         }
 
@@ -759,30 +761,30 @@ class Carbon extends \DateTime
         return $this->addSeconds(-1 * $value);
     }
 
-    public function diffInYears(Carbon $dt = null, $abs = true)
+    public function diffInYears($dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return intval($this->diff($dt, $abs)->format('%r%y'));
     }
 
-    public function diffInMonths(Carbon $dt = null, $abs = true)
+    public function diffInMonths($dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->diffInYears($dt, $abs) * 12 + $this->diff($dt, $abs)->format('%r%m');
     }
 
-    public function diffInWeeks(Carbon $dt = null, $abs = true)
+    public function diffInWeeks($dt = null, $abs = true)
     {
         return intval($this->diffInDays($dt, $abs) / 7);
     }
 
-    public function diffInDays(Carbon $dt = null, $abs = true)
+    public function diffInDays($dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return intval($this->diff($dt, $abs)->format('%r%a'));
     }
 
-    public function diffInDaysFiltered(\Closure $callback, Carbon $dt = null, $abs = true)
+    public function diffInDaysFiltered(\Closure $callback, $dt = null, $abs = true)
     {
         $start = $this;
         $end = ($dt === null) ? static::now($this->tz) : $dt;
@@ -803,31 +805,31 @@ class Carbon extends \DateTime
         return ($inverse && !$abs) ? -$diff : $diff;
     }
 
-    public function diffInWeekdays(Carbon $dt = null, $abs = true)
+    public function diffInWeekdays($dt = null, $abs = true)
     {
         return $this->diffInDaysFiltered(function (Carbon $date) {
             return $date->isWeekday();
         }, $dt, $abs);
     }
 
-    public function diffInWeekendDays(Carbon $dt = null, $abs = true)
+    public function diffInWeekendDays($dt = null, $abs = true)
     {
         return $this->diffInDaysFiltered(function (Carbon $date) {
             return $date->isWeekend();
         }, $dt, $abs);
     }
 
-    public function diffInHours(Carbon $dt = null, $abs = true)
+    public function diffInHours($dt = null, $abs = true)
     {
         return intval($this->diffInSeconds($dt, $abs) / 3600);
     }
 
-    public function diffInMinutes(Carbon $dt = null, $abs = true)
+    public function diffInMinutes($dt = null, $abs = true)
     {
         return intval($this->diffInSeconds($dt, $abs) / 60);
     }
 
-    public function diffInSeconds(Carbon $dt = null, $abs = true)
+    public function diffInSeconds($dt = null, $abs = true)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         $value = $dt->getTimestamp() - $this->getTimestamp();
@@ -845,22 +847,58 @@ class Carbon extends \DateTime
         return $this->diffInSeconds($this->copy()->endOfDay());
     }
 
-    public function diffForHumans(Carbon $other = null, $absolute = false)
+    public function diffForHumans($other = null, $absolute = false)
     {
         $now = $other === null;
         $other = $now ? static::now($this->tz) : $other;
         $future = $this->gt($other);
-        $delta = $other->diffInSeconds($this);
-        $divs = ['second' => 60, 'minute' => 60, 'hour' => 24, 'day' => 7, 'week' => 4, 'month' => 12];
-        $unit = 'year';
+        $years = $this->diffInYears($other, false);
 
-        foreach ($divs as $key => $value) {
-            if ($delta < $value) {
-                $unit = $key;
-                break;
+        if (abs($years) > 0) {
+            $unit = 'year';
+            $delta = abs($years);
+        } else {
+            $months = $this->diffInMonths($other, false);
+
+            if (abs($months) > 0) {
+                $unit = 'month';
+                $delta = abs($months);
+            } else {
+                $weeks = $this->diffInWeeks($other, false);
+
+                if (abs($weeks) == 4) {
+                    $unit = 'month';
+                    $delta = 1;
+                } elseif (abs($weeks) > 0) {
+                    $unit = 'week';
+                    $delta = abs($weeks);
+                } else {
+                    $days = $this->diffInDays($other, false);
+
+                    if (abs($days) > 0) {
+                        $unit = 'day';
+                        $delta = abs($days);
+                    } else {
+                        $hours = $this->diffInHours($other, false);
+
+                        if (abs($hours) > 0) {
+                            $unit = 'hour';
+                            $delta = abs($hours);
+                        } else {
+                            $minutes = $this->diffInMinutes($other, false);
+
+                            if (abs($minutes) > 0) {
+                                $unit = 'minute';
+                                $delta = abs($minutes);
+                            } else {
+                                $seconds = $this->diffInSeconds($other, false);
+                                $unit = 'second';
+                                $delta = abs($seconds);
+                            }
+                        }
+                    }
+                }
             }
-
-            $delta = round($delta / $value);
         }
 
         $delta = ($delta < 1) ? 1 : $delta;
@@ -979,7 +1017,7 @@ class Carbon extends \DateTime
         $dt2 = $dt->format('Y-m');
         $dt->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
 
-        return ($dt->format('Y-m') === $dt2) ? $this->modify($dt) : false;
+        return ($dt->format('Y-m') === $dt2) ? $this->modify($dt->format('Y-m-d H:i:s')) : false;
     }
 
     public function firstOfQuarter($dayOfWeek = null)
@@ -999,7 +1037,7 @@ class Carbon extends \DateTime
         $year = $dt->year;
         $dt->firstOfQuarter()->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
 
-        return ($lastMonth < $dt->month || $year !== $dt->year) ? false : $this->modify($dt);
+        return ($lastMonth < $dt->month || $year !== $dt->year) ? false : $this->modify($dt->format('Y-m-d H:i:s'));
     }
 
     public function firstOfYear($dayOfWeek = null)
@@ -1015,10 +1053,11 @@ class Carbon extends \DateTime
     public function nthOfYear($nth, $dayOfWeek)
     {
         $dt = $this->copy()->firstOfYear()->modify('+' . $nth . ' ' . static::$days[$dayOfWeek]);
-        return ($this->year === $dt->year) ? $this->modify($dt) : false;
+        /** @disregard */
+        return ($this->year === $dt->year) ? $this->modify($dt->format('Y-m-d H:i:s')) : false;
     }
 
-    public function average(Carbon $dt = null)
+    public function average($dt = null)
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         return $this->addSeconds(intval($this->diffInSeconds($dt, false) / 2));

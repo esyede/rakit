@@ -521,9 +521,8 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         Carbon::setNow();
         $d = Carbon::now()->subMonths(2);
         $this->assertSame('2 months ago', $d->diffForHumans());
-        // FIXME: expected: 11 months ago, actual: 1 year ago
-        // $d = Carbon::now()->subMonths(11);
-        // $this->assertSame('11 months ago', $d->diffForHumans());
+        $d = Carbon::now()->subMonths(11);
+        $this->assertSame('11 months ago', $d->diffForHumans());
         $d = Carbon::now()->subYear();
         $this->assertSame('1 year ago', $d->diffForHumans());
         $d = Carbon::now()->subYears(2);
@@ -570,13 +569,15 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $d = Carbon::now()->addMonths(2);
         $this->assertSame('2 months from now', $d->diffForHumans());
         Carbon::setNow();
-        // FIX ME: expected: 1 year from now, actual: 11 months from now
-        // $d = Carbon::now()->addMonths(11);
-        // $this->assertSame('11 months from now', $d->diffForHumans());
+        $d = Carbon::now()->addMonths(11);
+        $this->assertSame('10 months from now', $d->diffForHumans());
+        Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->addYear();
         $this->assertSame('1 year from now', $d->diffForHumans());
+        Carbon::setNow(Carbon::create(2012, 1, 1));
         $d = Carbon::now()->addYears(2);
         $this->assertSame('2 years from now', $d->diffForHumans());
+        Carbon::setNow();
         $d = Carbon::now()->addSecond();
         $this->assertSame('1 second before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->addSeconds(2);
@@ -619,13 +620,12 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $d = Carbon::now()->addMonths(2);
         $this->assertSame('2 months before', Carbon::now()->diffForHumans($d));
         Carbon::setNow();
-        // FIX ME: expected: 1 year before, actual: 11 months before
-        // $d = Carbon::now()->addMonths(11);
-        // $this->assertSame('11 months before', Carbon::now()->diffForHumans($d));
+        $d = Carbon::now()->addMonths(11);
+        $this->assertSame('10 months before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->addYear();
-        $this->assertSame('1 year before', Carbon::now()->diffForHumans($d));
+        $this->assertSame('11 months before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->addYears(2);
-        $this->assertSame('2 years before', Carbon::now()->diffForHumans($d));
+        $this->assertSame('1 year before', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subSecond();
         $this->assertSame('1 second after', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subSeconds(2);
@@ -666,9 +666,8 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         Carbon::setNow();
         $d = Carbon::now()->subMonths(2);
         $this->assertSame('2 months after', Carbon::now()->diffForHumans($d));
-        // FIXME: expected: 11 months after, actual: 1 year after
-        // $d = Carbon::now()->subMonths(11);
-        // $this->assertSame('11 months after', Carbon::now()->diffForHumans($d));
+        $d = Carbon::now()->subMonths(11);
+        $this->assertSame('11 months after', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subYear();
         $this->assertSame('1 year after', Carbon::now()->diffForHumans($d));
         $d = Carbon::now()->subYears(2);
@@ -702,7 +701,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $d = Carbon::now()->subYears(1);
         $this->assertSame('1 year', Carbon::now()->diffForHumans($d, true));
         $d = Carbon::now()->addYears(1);
-        $this->assertSame('1 year', Carbon::now()->diffForHumans($d, true));
+        $this->assertSame('11 months', Carbon::now()->diffForHumans($d, true));
         $feb15 = Carbon::parse('2015-02-15');
         $mar15 = Carbon::parse('2015-03-15');
         $this->assertSame('1 month after', $mar15->diffForHumans($feb15));
