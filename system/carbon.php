@@ -873,24 +873,31 @@ class Carbon extends \DateTime
                     $unit = 'week';
                     $delta = abs($weeks);
                 } else {
-                    $hours = $this->diffInHours($other, false);
+                    $days = $this->diffInDays($other, false);
 
-                    if (abs($hours) >= 24) {
+                    if (abs($days) >= 7) {
+                        $unit = 'week';
+                        $delta = round(abs($days) / 7);
+                    } elseif (abs($days) > 0) {
                         $unit = 'day';
-                        $delta = round(abs($hours) / 24);
-                    } elseif (abs($hours) > 0) {
-                        $unit = 'hour';
-                        $delta = abs($hours);
+                        $delta = abs($days);
                     } else {
-                        $minutes = $this->diffInMinutes($other, false);
+                        $hours = $this->diffInHours($other, false);
 
-                        if (abs($minutes) > 0) {
-                            $unit = 'minute';
-                            $delta = abs($minutes);
+                        if (abs($hours) > 0) {
+                            $unit = 'hour';
+                            $delta = abs($hours);
                         } else {
-                            $seconds = $this->diffInSeconds($other, false);
-                            $unit = 'second';
-                            $delta = abs($seconds);
+                            $minutes = $this->diffInMinutes($other, false);
+
+                            if (abs($minutes) > 0) {
+                                $unit = 'minute';
+                                $delta = abs($minutes);
+                            } else {
+                                $seconds = $this->diffInSeconds($other, false);
+                                $unit = 'second';
+                                $delta = abs($seconds);
+                            }
                         }
                     }
                 }
