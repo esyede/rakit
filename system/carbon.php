@@ -853,17 +853,16 @@ class Carbon extends \DateTime
         $other = $now ? static::now($this->tz) : $other;
         $future = $this->gt($other);
         $delta = abs($this->diffInSeconds($other, false));
-        $divs = [
-            'year' => 31536000, // approx 365 days
-            'month' => 2628000, // approx 30.44 days
-            'week' => 604800,   // 7 days
-            'day' => 86400,     // 24 hours
-            'hour' => 3600,     // 60 minutes
-            'minute' => 60,     // 60 seconds
-            'second' => 1,
-        ];
-
         $unit = 'second';
+        $divs = [
+            'year' => 31536000, // sekitar 365 hari
+            'month' => 2628000, // sekitar 30.44 hari
+            'week' => 604800,   // 7 hari
+            'day' => 86400,     // 24 jam
+            'hour' => 3600,     // 60 menit
+            'minute' => 60,     // 60 detik
+            'second' => 1,      // 1 detik
+        ];
 
         foreach ($divs as $u => $d) {
             if ($delta >= $d) {
