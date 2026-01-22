@@ -540,6 +540,7 @@ class Carbon extends \DateTime
 
     public function isYesterday()
     {
+        /** @disregard */
         return $this->toDateString() === static::yesterday($this->tz)->toDateString();
     }
 
