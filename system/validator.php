@@ -4,6 +4,8 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
+use System\Database\Connection;
+
 class Validator
 {
     /**
@@ -37,7 +39,7 @@ class Validator
     /**
      * Berisi koneksi database untuk validasi data terhadap database.
      *
-     * @var Database\Connection
+     * @var Connection
      */
     protected $db;
 
@@ -199,6 +201,10 @@ class Validator
      */
     protected function validatable($rule, $attribute, $value)
     {
+        if (in_array('nullable', $this->rules[$attribute]) && is_null($value)) {
+            return false;
+        }
+
         return $this->validate_required($attribute, $value) || $this->implicit($rule);
     }
 
@@ -212,7 +218,18 @@ class Validator
      */
     protected function implicit($rule)
     {
-        return ('required' === $rule || 'accepted' === $rule || 'required_with' === $rule);
+        return in_array($rule, [
+            'required',
+            'accepted',
+            'required_with',
+            'present',
+            'filled',
+            'required_if',
+            'required_unless',
+            'required_with_all',
+            'required_without',
+            'required_without_all',
+        ]);
     }
 
     /**
@@ -322,7 +339,8 @@ class Validator
      */
     protected function validate_same($attribute, $value, array $parameters)
     {
-        return array_key_exists($parameters[0], $this->attributes) && ($value === $this->attributes[$parameters[0]]);
+        return array_key_exists($parameters[0], $this->attributes)
+            && ($value === $this->attributes[$parameters[0]]);
     }
 
     /**
@@ -336,7 +354,8 @@ class Validator
      */
     protected function validate_different($attribute, $value, array $parameters)
     {
-        return array_key_exists($parameters[0], $this->attributes) && ($value !== $this->attributes[$parameters[0]]);
+        return array_key_exists($parameters[0], $this->attributes)
+            && ($value !== $this->attributes[$parameters[0]]);
     }
 
     /**
@@ -425,6 +444,528 @@ class Validator
     protected function validate_max($attribute, $value, array $parameters)
     {
         return $this->size($attribute, $value) <= $parameters[0];
+    }
+
+    /**
+     * Validasi bahwa atribut lebih besar dari atribut lainnya.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_gt($attribute, $value, array $parameters)
+    {
+        if (!array_key_exists($parameters[0], $this->attributes)) {
+            return false;
+        }
+
+        return $value > $this->attributes[$parameters[0]];
+    }
+
+    /**
+     * Validasi bahwa atribut lebih besar atau sama dengan atribut lainnya.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_gte($attribute, $value, array $parameters)
+    {
+        if (!array_key_exists($parameters[0], $this->attributes)) {
+            return false;
+        }
+
+        return $value >= $this->attributes[$parameters[0]];
+    }
+
+    /**
+     * Validasi bahwa atribut lebih kecil dari atribut lainnya.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_lt($attribute, $value, array $parameters)
+    {
+        if (!array_key_exists($parameters[0], $this->attributes)) {
+            return false;
+        }
+
+        return $value < $this->attributes[$parameters[0]];
+    }
+
+    /**
+     * Validasi bahwa atribut lebih kecil atau sama dengan atribut lainnya.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_lte($attribute, $value, array $parameters)
+    {
+        if (!array_key_exists($parameters[0], $this->attributes)) {
+            return false;
+        }
+
+        return $value <= $this->attributes[$parameters[0]];
+    }
+
+    /**
+     * Validasi bahwa atribut memiliki jumlah digit yang tepat.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_digits($attribute, $value, array $parameters)
+    {
+        return is_numeric($value) && strlen((string) $value) === (int) $parameters[0];
+    }
+
+    /**
+     * Validasi bahwa atribut memiliki jumlah digit antara nilai minimum dan maksimum.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_digits_between($attribute, $value, array $parameters)
+    {
+        $length = strlen((string) $value);
+        return is_numeric($value) && $length >= (int) $parameters[0] && $length <= (int) $parameters[1];
+    }
+
+    /**
+     * Validasi bahwa atribut adalah string.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_string($attribute, $value)
+    {
+        return is_string($value);
+    }
+
+    /**
+     * Validasi bahwa atribut adalah JSON yang valid.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_json($attribute, $value)
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        json_decode($value);
+
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
+     * Validasi bahwa atribut adalah timezone yang valid.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_timezone($attribute, $value)
+    {
+        return in_array($value, timezone_identifiers_list());
+    }
+
+    /**
+     * Validasi bahwa atribut adalah alamat IPv4 yang valid.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_ipv4($attribute, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+    }
+
+    /**
+     * Validasi bahwa atribut adalah alamat IPv6 yang valid.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_ipv6($attribute, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+    }
+
+    /**
+     * Validasi bahwa atribut tidak cocok dengan pola regex.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_not_regex($attribute, $value, array $parameters)
+    {
+        try {
+            return 1 !== preg_match($parameters[0], $value);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validasi bahwa atribut ada dalam input, meskipun kosong.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_present($attribute, $value)
+    {
+        return array_key_exists($attribute, $this->attributes);
+    }
+
+    /**
+     * Validasi bahwa atribut ada dan tidak kosong jika ada.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_filled($attribute, $value)
+    {
+        return !empty($value);
+    }
+
+    /**
+     * Validasi bahwa atribut adalah file yang diupload.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_file($attribute, $value)
+    {
+        return is_array($value) && isset($value['tmp_name']) && is_uploaded_file($value['tmp_name']);
+    }
+
+    /**
+     * Validasi bahwa atribut file memiliki MIME type yang ditentukan.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_mimetypes($attribute, $value, array $parameters)
+    {
+        if (!is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
+            return true;
+        }
+
+        $mime = finfo_file(finfo_open(FILEINFO_MIME_TYPE), $value['tmp_name']);
+        return in_array($mime, $parameters);
+    }
+
+    /**
+     * Validasi dimensi gambar.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_dimensions($attribute, $value, array $parameters)
+    {
+        if (!is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
+            return true;
+        }
+
+        $image = getimagesize($value['tmp_name']);
+
+        if (!$image) {
+            return false;
+        }
+
+        $dimensions = [];
+
+        foreach ($parameters as $parameter) {
+            list($key, $val) = explode('=', $parameter);
+            $dimensions[$key] = $val;
+        }
+
+        if (isset($dimensions['width']) && $image[0] != $dimensions['width']) {
+            return false;
+        }
+
+        if (isset($dimensions['height']) && $image[1] != $dimensions['height']) {
+            return false;
+        }
+
+        if (isset($dimensions['min_width']) && $image[0] < $dimensions['min_width']) {
+            return false;
+        }
+
+        if (isset($dimensions['max_width']) && $image[0] > $dimensions['max_width']) {
+            return false;
+        }
+
+        if (isset($dimensions['min_height']) && $image[1] < $dimensions['min_height']) {
+            return false;
+        }
+
+        if (isset($dimensions['max_height']) && $image[1] > $dimensions['max_height']) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Validasi bahwa elemen array unik.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_distinct($attribute, $value)
+    {
+        if (!is_array($value)) {
+            return true;
+        }
+
+        return count($value) === count(array_unique($value));
+    }
+
+    /**
+     * Validasi bahwa string diakhiri dengan nilai tertentu.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_ends_with($attribute, $value, array $parameters)
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        foreach ($parameters as $end) {
+            if (substr($value, -strlen($end)) === $end) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validasi bahwa string dimulai dengan nilai tertentu.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_starts_with($attribute, $value, array $parameters)
+    {
+        if (!is_string($value)) {
+            return false;
+        }
+
+        foreach ($parameters as $start) {
+            if (strpos($value, $start) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Validasi bahwa nilai ada dalam array dari atribut lain.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_in_array($attribute, $value, array $parameters)
+    {
+        if (!array_key_exists($parameters[0], $this->attributes)) {
+            return false;
+        }
+
+        $other = $this->attributes[$parameters[0]];
+        return is_array($other) && in_array($value, $other);
+    }
+
+    /**
+     * Validasi bahwa tanggal sama dengan tanggal lain.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_date_equals($attribute, $value, array $parameters)
+    {
+        try {
+            return (new \DateTime($value)) == (new \DateTime($parameters[0]));
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validasi bahwa atribut diperlukan jika kondisi terpenuhi.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_required_if($attribute, $value, array $parameters)
+    {
+        $other = Arr::get($this->attributes, $parameters[0]);
+
+        if (in_array($other, array_slice($parameters, 1))) {
+            return $this->validate_required($attribute, $value);
+        }
+
+        return true;
+    }
+
+    /**
+     * Validasi bahwa atribut diperlukan kecuali kondisi terpenuhi.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_required_unless($attribute, $value, array $parameters)
+    {
+        $other = Arr::get($this->attributes, $parameters[0]);
+
+        if (!in_array($other, array_slice($parameters, 1))) {
+            return $this->validate_required($attribute, $value);
+        }
+
+        return true;
+    }
+
+    /**
+     * Validasi bahwa atribut diperlukan dengan semua atribut lain.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_required_with_all($attribute, $value, array $parameters)
+    {
+        foreach ($parameters as $param) {
+            if (!$this->validate_required($param, Arr::get($this->attributes, $param))) {
+                return true;
+            }
+        }
+
+        return $this->validate_required($attribute, $value);
+    }
+
+    /**
+     * Validasi bahwa atribut diperlukan tanpa atribut lain.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_required_without($attribute, $value, array $parameters)
+    {
+        foreach ($parameters as $param) {
+            if ($this->validate_required($param, Arr::get($this->attributes, $param))) {
+                return true;
+            }
+        }
+
+        return $this->validate_required($attribute, $value);
+    }
+
+    /**
+     * Validasi bahwa atribut diperlukan tanpa semua atribut lain.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_required_without_all($attribute, $value, array $parameters)
+    {
+        foreach ($parameters as $param) {
+            if (!$this->validate_required($param, Arr::get($this->attributes, $param))) {
+                return true;
+            }
+        }
+
+        return $this->validate_required($attribute, $value);
+    }
+
+    /**
+     * Validasi bahwa atribut adalah nullable (tidak wajib divalidasi jika null).
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_nullable($attribute, $value)
+    {
+        return true;
     }
 
     /**
@@ -585,26 +1126,6 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan string ASCII yang valid.
-     *
-     * @param string $attribute
-     * @param mixed  $value
-     *
-     * @return bool
-     */
-    protected function validate_ascii($attribute, $value)
-    {
-        try {
-            $value = (string) $value;
-            return ('' === $value) ? true : (!preg_match('/[^\x09\x10\x13\x0A\x0D\x20-\x7E]/', $value));
-        } catch (\Throwable $e) {
-            return false;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
      * Validasi bahwa atribut merupakan URL yang aktif.
      *
      * @param string $attribute
@@ -619,6 +1140,7 @@ class Validator
         }
 
         $url = trim($value);
+
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
         }
@@ -629,11 +1151,11 @@ class Validator
         curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout 5 detik untuk performa
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         /** @disregard */
         curl_close($ch);
 
-        return $httpCode >= 200 && $httpCode < 400;
+        return $code >= 200 && $code < 400;
     }
 
     /**
@@ -661,7 +1183,7 @@ class Validator
     protected function validate_alpha($attribute, $value)
     {
         try {
-            return is_string($value) && preg_match('/^[\pL\pM]+$/u', $value);
+            return is_string($value) && 1 === preg_match('/^[\pL\pM]+$/u', $value);
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
@@ -680,7 +1202,7 @@ class Validator
     protected function validate_alpha_num($attribute, $value)
     {
         try {
-            return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN]+$/u', $value) > 0) : false;
+            return (is_string($value) || is_numeric($value)) ? (1 === preg_match('/^[\pL\pM\pN]+$/u', $value)) : false;
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
@@ -700,7 +1222,7 @@ class Validator
     protected function validate_alpha_dash($attribute, $value)
     {
         try {
-            return (is_string($value) || is_numeric($value)) ? (preg_match('/^[\pL\pM\pN_-]+$/u', $value) > 0) : false;
+            return (is_string($value) || is_numeric($value)) ? (1 === preg_match('/^[\pL\pM\pN_-]+$/u', $value)) : false;
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
@@ -720,7 +1242,27 @@ class Validator
     protected function validate_match($attribute, $value, array $parameters)
     {
         try {
-            return preg_match(implode(',', (array) $parameters), $value);
+            return 1 === preg_match(implode(',', (array) $parameters), $value);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validasi bahwa atribut lolos dari pengecekan regex.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_regex($attribute, $value, array $parameters)
+    {
+        try {
+            return 1 === preg_match($parameters[0], $value);
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
@@ -846,7 +1388,13 @@ class Validator
      */
     protected function validate_before($attribute, $value, array $parameters)
     {
-        return strtotime($value) < strtotime($parameters[0]);
+        try {
+            return (new \DateTime($value)) < (new \DateTime($parameters[0]));
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -860,7 +1408,13 @@ class Validator
      */
     protected function validate_before_or_equals($attribute, $value, array $parameters)
     {
-        return strtotime($value) <= strtotime($parameters[0]);
+        try {
+            return (new \DateTime($value)) <= (new \DateTime($parameters[0]));
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -903,7 +1457,13 @@ class Validator
      */
     protected function validate_after($attribute, $value, array $parameters)
     {
-        return strtotime($value) > strtotime($parameters[0]);
+        try {
+            return (new \DateTime($value)) > (new \DateTime($parameters[0]));
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -921,33 +1481,7 @@ class Validator
             && false !== date_create_from_format($parameters[0], $value);
     }
 
-    /**
-     * Validasi bahwa string berisi karakter UTF-8 yang valid.
-     *
-     * @param string $attribute
-     * @param mixed  $value
-     * @param array  $parameters
-     *
-     * @return bool
-     */
-    public function validate_utf8($attribute, $value, array $parameters)
-    {
-        try {
-            $pattern = '/\A(?:[\x00-\x7F]++|' .
-                '[\xC2-\xDF][\x80-\xBF]|' .
-                '\xE0[\xA0-\xBF][\x80-\xBF]|' .
-                '[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|' .
-                '\xED[\x80-\x9F][\x80-\xBF]|' .
-                '\xF0[\x90-\xBF][\x80-\xBF]{2}|' .
-                '[\xF1-\xF3][\x80-\xBF]{3}|' .
-                '\xF4[\x80-\x8F][\x80-\xBF]{2})*+\z/x';
-            return preg_match($pattern, $value);
-        } catch (\Throwable $e) {
-            return false;
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
+
 
     /**
      * Ambil pesan error yang sesuai untuk sebuah atribut dan rule.
@@ -1273,6 +1807,250 @@ class Validator
     }
 
     /**
+     * Replace placeholder untuk rule 'gt'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_gt($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':value', $this->attribute($parameters[0]), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'gte'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_gte($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':value', $this->attribute($parameters[0]), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'lt'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_lt($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':value', $this->attribute($parameters[0]), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'lte'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_lte($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':value', $this->attribute($parameters[0]), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'digits'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_digits($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':digits', $parameters[0], $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'digits_between'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_digits_between($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace([':min', ':max'], $parameters, $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'mimetypes'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_mimetypes($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'ends_with'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_ends_with($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'starts_with'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_starts_with($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'in_array'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_in_array($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':other', $this->attribute($parameters[0]), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'date_equals'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_date_equals($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':date', $parameters[0], $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'required_if'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_required_if($message, $attribute, $rule, array $parameters)
+    {
+        $other = $this->attribute($parameters[0]);
+        $values = implode(', ', array_slice($parameters, 1));
+        return str_replace([':other', ':value'], [$other, $values], $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'required_unless'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_required_unless($message, $attribute, $rule, array $parameters)
+    {
+        $other = $this->attribute($parameters[0]);
+        $values = implode(', ', array_slice($parameters, 1));
+        return str_replace([':other', ':value'], [$other, $values], $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'required_with_all'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_required_with_all($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', array_map([$this, 'attribute'], $parameters)), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'required_without'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_required_without($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', array_map([$this, 'attribute'], $parameters)), $message);
+    }
+
+    /**
+     * Replace placeholder untuk rule 'required_without_all'.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_required_without_all($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', array_map([$this, 'attribute'], $parameters)), $message);
+    }
+
+    /**
      * Ambil nama atribut dari atribut yang diberikan.
      *
      * @param string $attribute
@@ -1299,6 +2077,10 @@ class Validator
      */
     protected function has_rule($attribute, $rules)
     {
+        if (!isset($this->rules[$attribute])) {
+            return false;
+        }
+
         foreach ($this->rules[$attribute] as $rule) {
             list($rule, $parameters) = $this->parse($rule);
 
@@ -1354,11 +2136,11 @@ class Validator
     /**
      * Set koneksi database mana yang harus digunakan oleh validator.
      *
-     * @param Database\Connection $connection
+     * @param Connection $connection
      *
      * @return $this
      */
-    public function connection(Database\Connection $connection)
+    public function connection(Connection $connection)
     {
         $this->db = $connection;
         return $this;
@@ -1367,7 +2149,7 @@ class Validator
     /**
      * Ambil object koneksi database.
      *
-     * @return Database\Connection
+     * @return Connection
      */
     protected function db()
     {

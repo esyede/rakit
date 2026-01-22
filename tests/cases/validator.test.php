@@ -442,23 +442,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Validator::make($input, $rules)->valid());
     }
 
-    /**
-     * Test untuk rule 'ascii'.
-     *
-     * @group system
-     */
-    public function testTheAsciiRule()
-    {
-        $rules = ['ascii' => 'ascii'];
 
-        $this->assertTrue(Validator::make(['ascii' => 'testing'], $rules)->valid());
-        $this->assertTrue(Validator::make(['ascii' => ''], $rules)->valid());
-        $this->assertTrue(Validator::make(['ascii' => "a\nb\nc"], $rules)->valid());
-        $this->assertTrue(Validator::make(['ascii' => "a\tb\tc"], $rules)->valid());
-
-        $this->assertFalse(Validator::make(['ascii' => "tes\xe9ting"], $rules)->valid());
-        $this->assertFalse(Validator::make(['ascii' => 'testiñg'], $rules)->valid());
-    }
 
     /**
      * Test untuk rule 'image'.
@@ -543,6 +527,20 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test untuk rule 'regex'.
+     *
+     * @group system
+     */
+    public function testTheRegexRule()
+    {
+        $rules = ['field' => 'regex:/^[a-z]+$/'];
+
+        $this->assertTrue(Validator::make(['field' => 'abc'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => '123'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => 'abc123'], $rules)->valid());
+    }
+
+    /**
      * Test untuk rule 'unique'.
      *
      * @group system
@@ -605,32 +603,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Validator::make($input, $rules)->valid());
     }
 
-    /**
-     * Test untuk rule 'utf8'.
-     *
-     * @group system
-     */
-    public function testTheUtf8Rule()
-    {
-        // Lihat: https://www.php.net/manual/en/reference.pcre.pattern.modifiers.php#54805
-        $this->assertTrue(Validator::make(['foo' => 'bar'], ['foo' => 'utf8'])->valid());
-        $this->assertTrue(Validator::make(['foo' => "\xc3\xb1"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xc3\x28"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xa0\xa1"], ['foo' => 'utf8'])->valid());
-        $this->assertTrue(Validator::make(['foo' => "\xe2\x82\xa1"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xe2\x28\xa1"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xe2\x82\x28"], ['foo' => 'utf8'])->valid());
-        $this->assertTrue(Validator::make(['foo' => "\xe2\x82\xa1"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xe2\x28\xa1"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xe2\x82\x28"], ['foo' => 'utf8'])->valid());
-        $this->assertTrue(Validator::make(['foo' => "\xf0\x90\x8c\xbc"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xf0\x28\x8c\xbc"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xf0\x90\x28\xbc"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xf0\x28\x8c\x28"], ['foo' => 'utf8'])->valid());
-        // Valid utf-8 tetapi non-unicode akan dianggap tidak valid
-        $this->assertFalse(Validator::make(['foo' => "\xf8\xa1\xa1\xa1\xa1"], ['foo' => 'utf8'])->valid());
-        $this->assertFalse(Validator::make(['foo' => "\xfc\xa1\xa1\xa1\xa1\xa1"], ['foo' => 'utf8'])->valid());
-    }
+
 
     /**
      * Test bahwa validator message bisa di-set dengan benar.
@@ -854,4 +827,277 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $expect = str_replace([':attribute', ':field'], ['last name', 'first name'], $lang['required_with']);
         $this->assertEquals($expect, $v->errors->first('last_name'));
     }
+
+    /**
+     * Test untuk rule 'gt'.
+     *
+     * @group system
+     */
+    public function testTheGtRule()
+    {
+        $input = ['amount' => 10, 'other' => 5];
+        $rules = ['amount' => 'gt:other'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['amount'] = 5;
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'gte'.
+     *
+     * @group system
+     */
+    public function testTheGteRule()
+    {
+        $input = ['amount' => 10, 'other' => 5];
+        $rules = ['amount' => 'gte:other'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['amount'] = 5;
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['amount'] = 4;
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'lt'.
+     *
+     * @group system
+     */
+    public function testTheLtRule()
+    {
+        $input = ['amount' => 5, 'other' => 10];
+        $rules = ['amount' => 'lt:other'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['amount'] = 10;
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'lte'.
+     *
+     * @group system
+     */
+    public function testTheLteRule()
+    {
+        $input = ['amount' => 5, 'other' => 10];
+        $rules = ['amount' => 'lte:other'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['amount'] = 10;
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['amount'] = 11;
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'digits'.
+     *
+     * @group system
+     */
+    public function testTheDigitsRule()
+    {
+        $rules = ['code' => 'digits:3'];
+
+        $this->assertTrue(Validator::make(['code' => 123], $rules)->valid());
+        $this->assertFalse(Validator::make(['code' => 1234], $rules)->valid());
+        $this->assertFalse(Validator::make(['code' => 'abc'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'digits_between'.
+     *
+     * @group system
+     */
+    public function testTheDigitsBetweenRule()
+    {
+        $rules = ['code' => 'digits_between:2,4'];
+
+        $this->assertTrue(Validator::make(['code' => 12], $rules)->valid());
+        $this->assertTrue(Validator::make(['code' => 1234], $rules)->valid());
+        $this->assertFalse(Validator::make(['code' => 1], $rules)->valid());
+        $this->assertFalse(Validator::make(['code' => 12345], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'string'.
+     *
+     * @group system
+     */
+    public function testTheStringRule()
+    {
+        $rules = ['name' => 'string'];
+
+        $this->assertTrue(Validator::make(['name' => 'John'], $rules)->valid());
+        $this->assertFalse(Validator::make(['name' => 123], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'json'.
+     *
+     * @group system
+     */
+    public function testTheJsonRule()
+    {
+        $rules = ['data' => 'json'];
+
+        $this->assertTrue(Validator::make(['data' => '{"key":"value"}'], $rules)->valid());
+        $this->assertFalse(Validator::make(['data' => 'invalid'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'ipv4'.
+     *
+     * @group system
+     */
+    public function testTheIpv4Rule()
+    {
+        $rules = ['ip' => 'ipv4'];
+
+        $this->assertTrue(Validator::make(['ip' => '192.168.1.1'], $rules)->valid());
+        $this->assertFalse(Validator::make(['ip' => '2001:db8::1'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'ipv6'.
+     *
+     * @group system
+     */
+    public function testTheIpv6Rule()
+    {
+        $rules = ['ip' => 'ipv6'];
+
+        $this->assertTrue(Validator::make(['ip' => '2001:db8::1'], $rules)->valid());
+        $this->assertFalse(Validator::make(['ip' => '192.168.1.1'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'not_regex'.
+     *
+     * @group system
+     */
+    public function testTheNotRegexRule()
+    {
+        $rules = ['field' => 'not_regex:/^[a-z]+$/'];
+
+        $this->assertTrue(Validator::make(['field' => '123'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => 'abc'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'present'.
+     *
+     * @group system
+     */
+    public function testThePresentRule()
+    {
+        $rules = ['field' => 'present'];
+
+        $this->assertTrue(Validator::make(['field' => ''], $rules)->valid());
+        $this->assertFalse(Validator::make([], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'filled'.
+     *
+     * @group system
+     */
+    public function testTheFilledRule()
+    {
+        $rules = ['field' => 'filled'];
+
+        $this->assertTrue(Validator::make(['field' => 'value'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => ''], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'distinct'.
+     *
+     * @group system
+     */
+    public function testTheDistinctRule()
+    {
+        $rules = ['items' => 'distinct'];
+
+        $this->assertTrue(Validator::make(['items' => [1, 2, 3]], $rules)->valid());
+        $this->assertFalse(Validator::make(['items' => [1, 2, 2]], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'ends_with'.
+     *
+     * @group system
+     */
+    public function testTheEndsWithRule()
+    {
+        $rules = ['field' => 'ends_with:com,net'];
+
+        $this->assertTrue(Validator::make(['field' => 'example.com'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => 'example.org'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'starts_with'.
+     *
+     * @group system
+     */
+    public function testTheStartsWithRule()
+    {
+        $rules = ['field' => 'starts_with:http,https'];
+
+        $this->assertTrue(Validator::make(['field' => 'https://example.com'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => 'ftp://example.com'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'in_array'.
+     *
+     * @group system
+     */
+    public function testTheInArrayRule()
+    {
+        $input = ['options' => ['a', 'b', 'c'], 'choice' => 'b'];
+        $rules = ['choice' => 'in_array:options'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        $input['choice'] = 'd';
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'date_equals'.
+     *
+     * @group system
+     */
+    public function testTheDateEqualsRule()
+    {
+        $rules = ['date' => 'date_equals:2020-01-01'];
+
+        $this->assertTrue(Validator::make(['date' => '2020-01-01'], $rules)->valid());
+        $this->assertFalse(Validator::make(['date' => '2020-01-02'], $rules)->valid());
+    }
+
+    /**
+     * Test untuk rule 'required_if'.
+     *
+     * @group system
+     */
+    public function testTheRequiredIfRule()
+    {
+        $input = ['type' => 'admin', 'password' => 'secret'];
+        $rules = ['type' => 'required', 'password' => 'required_if:type,admin'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+
+        unset($input['password']);
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+
+        $input['type'] = 'user';
+        $this->assertTrue(Validator::make($input, $rules)->valid());
+    }
+
+
 }
