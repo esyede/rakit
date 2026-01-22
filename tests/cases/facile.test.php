@@ -252,7 +252,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($model->name); // seharusnya null
 
-        $this->assertTrue($model->changed('age'));
+        $this->assertFalse($model->changed('age'));
         $this->assertEquals(26, $model->age);
         $this->assertEquals(['age' => 26], $model->get_dirty());
     }

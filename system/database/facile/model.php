@@ -151,7 +151,10 @@ abstract class Model
     {
         $this->exists = $exists;
         $this->fill($attributes);
-        $this->original = $this->attributes;
+
+        if ($exists) {
+            $this->original = $this->attributes;
+        }
     }
 
     /**
