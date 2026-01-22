@@ -617,6 +617,7 @@ class Carbon extends \DateTime
     public function addMonthsNoOverflow($value)
     {
         $date = $this->copy()->addMonths($value);
+
         /** @disregard */
         if ($date->day !== $this->day) {
             /** @disregard */
@@ -847,7 +848,7 @@ class Carbon extends \DateTime
         return $this->diffInSeconds($this->copy()->endOfDay());
     }
 
-    public function diffForHumans(Carbon $other = null, $absolute = false)
+    public function diffForHumans($other = null, $absolute = false)
     {
         $now = $other === null;
         $other = $now ? static::now($this->tz) : $other;
