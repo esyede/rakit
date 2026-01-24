@@ -127,6 +127,7 @@ class Crypter
             }
         }
 
-        return strlen(base64_decode($value['iv'], true)) === 16;
+        $value = base64_decode($value['iv'], true);
+        return false !== $value && strlen($value) === 16;
     }
 }

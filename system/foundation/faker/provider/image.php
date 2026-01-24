@@ -49,8 +49,12 @@ class Image extends Base
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_FILE, $fp);
             $success = curl_exec($ch);
-            /** @disregard */
-            curl_close($ch);
+
+            if (PHP_VERSION_ID < 80000) {
+                /** @disregard */
+                curl_close($ch);
+            }
+
             fclose($fp);
         } elseif (ini_get('allow_url_fopen')) {
             $success = copy($url, $filepath);

@@ -258,5 +258,83 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         $decoded = JWT::decode($encoded, 'secret');
         $this->assertTrue(count(get_object_vars($decoded)) === count($payloads));
     }
+
+    public function testValidTokenWithAudIss()
+    {
+        $payloads = ['foo' => 'bar', 'aud' => 'expected_aud', 'iss' => 'expected_iss'];
+        $encoded = JWT::encode($payloads, 'secret');
+        $decoded = JWT::decode($encoded, 'secret', ['aud' => 'expected_aud', 'iss' => 'expected_iss']);
+        $this->assertEquals('bar', $decoded->foo);
+    }
+
+    public function testInvalidAud()
+    {
+        try {
+            $payloads = ['foo' => 'bar', 'aud' => 'wrong_aud'];
+            $encoded = JWT::encode($payloads, 'secret');
+            $decoded = JWT::decode($encoded, 'secret', ['aud' => 'expected_aud']);
+        } catch (\Throwable $e) {
+            $this->assertEquals('Invalid audience', $e->getMessage());
+        } catch (\Exception $e) {
+            $this->assertEquals('Invalid audience', $e->getMessage());
+        }
+    }
+
+    public function testInvalidIss()
+    {
+        try {
+            $payloads = ['foo' => 'bar', 'iss' => 'wrong_iss'];
+            $encoded = JWT::encode($payloads, 'secret');
+            $decoded = JWT::decode($encoded, 'secret', ['iss' => 'expected_iss']);
+        } catch (\Throwable $e) {
+            $this->assertEquals('Invalid issuer', $e->getMessage());
+        } catch (\Exception $e) {
+            $this->assertEquals('Invalid issuer', $e->getMessage());
+        }
+    }
+
+    public function testCustomValidatorSuccess()
+    {
+        $payloads = ['foo' => 'bar', 'sub' => 'user123'];
+        $encoded = JWT::encode($payloads, 'secret');
+        $decoded = JWT::decode($encoded, 'secret', [
+            'validator' => function($payloads, $headers) {
+                if (!isset($payloads->sub)) {
+                    throw new \Exception('Missing subject');
+                }
+            }
+        ]);
+        $this->assertEquals('bar', $decoded->foo);
+    }
+
+    public function testCustomValidatorFail()
+    {
+        try {
+            $payloads = ['foo' => 'bar'];
+            $encoded = JWT::encode($payloads, 'secret');
+            $decoded = JWT::decode($encoded, 'secret', [
+                'validator' => function($payloads, $headers) {
+                    if (!isset($payloads->sub)) {
+                        throw new \Exception('Missing subject');
+                    }
+                }
+            ]);
+        } catch (\Throwable $e) {
+            $this->assertEquals('Missing subject', $e->getMessage());
+        } catch (\Exception $e) {
+            $this->assertEquals('Missing subject', $e->getMessage());
+        }
+    }
+
+    public function testRefreshToken()
+    {
+        $payloads = ['foo' => 'bar', 'exp' => time() + 100];
+        $encoded = JWT::encode($payloads, 'secret');
+        $new_exp = time() + 200;
+        $refreshed = JWT::refresh($encoded, 'secret', $new_exp);
+        $decoded = JWT::decode($refreshed, 'secret');
+        $this->assertEquals('bar', $decoded->foo);
+        $this->assertEquals($new_exp, $decoded->exp);
+    }
 }
 

@@ -23,7 +23,11 @@ class CurlTest extends \PHPUnit_Framework_TestCase
                 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
                 $result = @curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                curl_close($ch);
+
+                if (PHP_VERSION_ID < 80000) {
+                    /** @disregard */
+                    curl_close($ch);
+                }
 
                 // Hanya jalankan test jika endpoint mereturn 200 OK
                 if ($httpCode === 200) {

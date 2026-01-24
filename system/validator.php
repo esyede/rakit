@@ -1152,10 +1152,13 @@ class Validator
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        /** @disregard */
-        curl_close($ch);
 
-        return $code >= 200 && $code < 400;
+        if (PHP_VERSION_ID < 80000) {
+            /** @disregard */
+            curl_close($ch);
+        }
+
+        return ($code >= 200 && $code < 400);
     }
 
     /**

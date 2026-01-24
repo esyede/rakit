@@ -141,6 +141,7 @@ class Autoloader
             if (!isset(static::$caches[$lowercase_path])) {
                 static::$caches[$lowercase_path] = is_file($lowercase_path);
             }
+
             if (static::$caches[$lowercase_path]) {
                 try {
                     require $lowercase_path;
@@ -157,6 +158,7 @@ class Autoloader
             if (!isset(static::$caches[$original_path])) {
                 static::$caches[$original_path] = is_file($original_path);
             }
+
             if (static::$caches[$original_path]) {
                 try {
                     require $original_path;
@@ -268,7 +270,7 @@ class Autoloader
      *
      * @return array
      */
-    public static function get_stats()
+    public static function stats()
     {
         return [
             'loaded_files' => count(static::$loaded),

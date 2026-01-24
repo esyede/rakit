@@ -61,10 +61,11 @@ class JWT
      *
      * @param string $token
      * @param string $key
+     * @param array  $options
      *
      * @return \stdClass
      */
-    public static function decode($token, $key)
+    public static function decode($token, $key, array $options = [])
     {
         if (!is_string($key) || strlen($key) < 1) {
             throw new \Exception('Key cannot be empty or non-string value');
@@ -127,6 +128,18 @@ class JWT
 
         if (isset($payloads->exp) && ($timestamp - static::$leeway) >= $payloads->exp) {
             throw new \Exception('Expired token');
+        }
+
+        if (isset($options['aud']) && isset($payloads->aud) && $payloads->aud !== $options['aud']) {
+            throw new \Exception('Invalid audience');
+        }
+
+        if (isset($options['iss']) && isset($payloads->iss) && $payloads->iss !== $options['iss']) {
+            throw new \Exception('Invalid issuer');
+        }
+
+        if (isset($options['validator']) && is_callable($options['validator'])) {
+            call_user_func($options['validator'], $payloads, $headers);
         }
 
         return $payloads;
@@ -323,6 +336,25 @@ class JWT
             JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
             JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
         ];
+
         throw new \Exception(isset($errors[$code]) ? $errors[$code] : sprintf('Unknown JSON error: %s', $code));
+    }
+
+    /**
+     * Refresh token dengan exp baru.
+     *
+     * @param string $token
+     * @param string $key
+     * @param int    $new_exp
+     * @param array  $headers
+     * @param string $algorithm
+     *
+     * @return string
+     */
+    public static function refresh($token, $key, $new_exp, array $headers = [], $algorithm = 'HS256')
+    {
+        $payloads = static::decode($token, $key);
+        $payloads->exp = $new_exp;
+        return static::encode((array) $payloads, $key, $headers, $algorithm);
     }
 }

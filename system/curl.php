@@ -475,6 +475,11 @@ class Curl
         $error = curl_error(static::$handler);
         $info = static::info();
 
+        if (PHP_VERSION_ID < 80000) {
+            /** @disregard */
+            curl_close(static::$handler);
+        }
+
         if ($error) {
             throw new \Exception(sprintf('Curl error: %s', $error));
         }

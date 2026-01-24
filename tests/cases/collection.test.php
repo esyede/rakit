@@ -1322,7 +1322,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     public function testMode()
     {
         $collection = new Collection([1, 2, 3, 4, 4, 5]);
-        $this->assertEquals([4], $collection->mode());
+        $this->assertEquals([4], $collection->mode()->to_array());
     }
 
     public function testModeValueByKey()
@@ -1333,13 +1333,13 @@ class CollectionTest extends PHPUnit_Framework_TestCase
             (object) ['foo' => 2],
             (object) ['foo' => 4],
         ]);
-        $this->assertEquals([1], $collection->mode('foo'));
+        $this->assertEquals([1], $collection->mode('foo')->to_array());
     }
 
     public function testWithMultipleModeValues()
     {
         $collection = new Collection([1, 2, 2, 1]);
-        $this->assertEquals([1, 2], $collection->mode());
+        $this->assertEquals([1, 2], $collection->mode()->to_array());
     }
 
     public function testSliceOffset()

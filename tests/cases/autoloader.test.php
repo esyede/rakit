@@ -114,13 +114,13 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Autoloader::get_stats().
+     * Test untuk method Autoloader::stats().
      *
      * @group system
      */
-    public function testGetStats()
+    public function testStats()
     {
-        $stats = Autoloader::get_stats();
+        $stats = Autoloader::stats();
 
         $this->assertArrayHasKey('loaded_files', $stats);
         $this->assertArrayHasKey('mappings', $stats);

@@ -29,6 +29,7 @@ return [
     */
 
     'smtp' => [
+        'method' => 'LOGIN', // LOGIN, PLAIN, CRAM-MD5
         'host' => '',
         'port' => 465,
         'username' => '',

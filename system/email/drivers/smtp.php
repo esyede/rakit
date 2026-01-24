@@ -24,6 +24,13 @@ class Smtp extends Driver
     protected $keep_alive = false;
 
     /**
+     * Metode otentikasi yang didukung.
+     *
+     * @var array
+     */
+    protected $methods = ['LOGIN', 'PLAIN', 'CRAM-MD5'];
+
+    /**
      * Mulai proses transmisi data.
      *
      * @return bool
@@ -242,17 +249,40 @@ class Smtp extends Driver
      */
     protected function authenticate()
     {
-        $username = base64_encode($this->config['smtp']['username']);
-        $password = base64_encode($this->config['smtp']['password']);
+        $method = strtoupper(Arr::get($this->config, 'smtp.method', 'LOGIN'));
+
+        if (!in_array($method, $this->methods)) {
+            throw new \Exception('Unsupported SMTP auth method: ' . $method);
+        }
 
         try {
-            $this->command('AUTH LOGIN', 334);
-            $this->command($username, 334);
-            $this->command($password, 235);
+            switch ($method) {
+                case 'PLAIN':
+                    $auth = base64_encode("\0" . $this->config['smtp']['username'] . "\0" . $this->config['smtp']['password']);
+                    $this->command('AUTH PLAIN ' . $auth, 235);
+                    break;
+
+                case 'CRAM-MD5':
+                    $response = $this->command('AUTH CRAM-MD5', 334);
+                    $challenge = base64_decode(substr(trim($response), 4));
+                    $digest = hash_hmac('md5', $challenge, $this->config['smtp']['password']);
+                    $auth_response = base64_encode($this->config['smtp']['username'] . ' ' . $digest);
+                    $this->command($auth_response, 235);
+                    break;
+
+                case 'LOGIN':
+                default:
+                    $username = base64_encode($this->config['smtp']['username']);
+                    $password = base64_encode($this->config['smtp']['password']);
+                    $this->command('AUTH LOGIN', 334);
+                    $this->command($username, 334);
+                    $this->command($password, 235);
+                    break;
+            }
         } catch (\Throwable $e) {
-            throw new \Exception('AUTH LOGIN failed.');
+            throw new \Exception('SMTP authentication failed using method: ' . $method);
         } catch (\Exception $e) {
-            throw new \Exception('AUTH LOGIN failed.');
+            throw new \Exception('SMTP authentication failed using method: ' . $method);
         }
     }
 

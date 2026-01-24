@@ -22,14 +22,16 @@ class RSA
      * Enkripsi string menggunakan RSA key.
      *
      * @param string $data
+     * @param int    $padding
      *
      * @return string
      */
-    public static function encrypt($data)
+    public static function encrypt($data, $padding = OPENSSL_PKCS1_PADDING)
     {
         static::generate();
         $pubkey = openssl_pkey_get_public(static::$details['public_key']);
-        $length = (int) ceil(openssl_pkey_get_details($pubkey)['bits'] / 8) - 11;
+        $key_details = openssl_pkey_get_details($pubkey);
+        $length = (int) ceil($key_details['bits'] / 8) - ($padding === OPENSSL_PKCS1_OAEP_PADDING ? 42 : 11);
         $data = (string) $data;
         $result = '';
 
@@ -38,8 +40,9 @@ class RSA
             $data = mb_substr($data, $length, null, '8bit');
             $temp = '';
 
-            if (!openssl_public_encrypt($chunk, $temp, $pubkey)) {
-                throw new \Exception('Failed to encrypt the data');
+            if (!openssl_public_encrypt($chunk, $temp, $pubkey, $padding)) {
+                $errors = static::get_openssl_errors();
+                throw new \Exception('Failed to encrypt the data: ' . $errors);
             }
 
             $result .= $temp;
@@ -57,15 +60,17 @@ class RSA
      * Dekripsi data menggunakan RSA key.
      *
      * @param string $encrypted
+     * @param int    $padding
      *
      * @return string
      */
-    public static function decrypt($encrypted)
+    public static function decrypt($encrypted, $padding = OPENSSL_PKCS1_PADDING)
     {
         static::generate();
 
         if (!($privkey = openssl_pkey_get_private(static::$details['private_key']))) {
-            throw new \Exception(sprintf('Failed to obtain private key: %s (%s)', $privkey, gettype($privkey)));
+            $errors = static::get_openssl_errors();
+            throw new \Exception('Failed to obtain private key: ' . $errors);
         }
 
         $key = openssl_pkey_get_details($privkey);
@@ -78,8 +83,9 @@ class RSA
             $encrypted = mb_substr($encrypted, $length, null, '8bit');
             $temp = '';
 
-            if (!openssl_private_decrypt($chunk, $temp, $privkey)) {
-                throw new \Exception('Failed to decrypt the data');
+            if (!openssl_private_decrypt($chunk, $temp, $privkey, $padding)) {
+                $errors = static::get_openssl_errors();
+                throw new \Exception('Failed to decrypt the data: ' . $errors);
             }
 
             $result .= $temp;
@@ -160,6 +166,76 @@ class RSA
                 unlink($randfile);
             }
         }
+    }
+
+    /**
+     * Load existing private dan public keys.
+     *
+     * @param string $private_key
+     * @param string $public_key
+     *
+     * @return void
+     */
+    public static function load_keys($private_key, $public_key = null)
+    {
+        static::$details['private_key'] = $private_key;
+
+        if ($public_key) {
+            static::$details['public_key'] = $public_key;
+        } else {
+            $privkey = openssl_pkey_get_private($private_key);
+
+            if (!$privkey) {
+                $errors = static::get_openssl_errors();
+                throw new \Exception('Invalid private key: ' . $errors);
+            }
+
+            $details = openssl_pkey_get_details($privkey);
+            static::$details['public_key'] = $details['key'];
+
+            if (PHP_VERSION_ID < 80000) {
+                /** @disregard */
+                openssl_free_key($privkey);
+            }
+        }
+    }
+
+    /**
+     * Export private key.
+     *
+     * @return string
+     */
+    public static function export_private()
+    {
+        static::generate();
+        return static::$details['private_key'];
+    }
+
+    /**
+     * Export public key.
+     *
+     * @return string
+     */
+    public static function export_public()
+    {
+        static::generate();
+        return static::$details['public_key'];
+    }
+
+    /**
+     * Ambil OpenSSL errors.
+     *
+     * @return string
+     */
+    private static function get_openssl_errors()
+    {
+        $errors = '';
+
+        while (false !== ($message = openssl_error_string())) {
+            $errors .= $message . PHP_EOL;
+        }
+
+        return trim($errors);
     }
 
     /**

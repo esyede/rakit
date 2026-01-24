@@ -69,9 +69,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         });
 
         $max = max($counts);
-        return array_keys(array_filter($counts, function ($value) use ($max) {
+        $modes = array_keys(array_filter($counts, function ($value) use ($max) {
             return $value == $max;
         }));
+
+        return new static($modes);
     }
 
     public function collapse()
@@ -167,6 +169,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return new static(Arr::except($this->items, $keys));
     }
 
+    /** @disregard */
     public function filter(callable $callback = null)
     {
         if ($callback) {
@@ -186,7 +189,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
     public function where($key, $operator, $value = null)
     {
-        if (func_num_args() == 2) {
+        if (func_num_args() === 2) {
             $value = $operator;
             $operator = '=';
         }
@@ -583,14 +586,16 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function shuffle($seed = null)
     {
         $items = $this->items;
+
         if (is_null($seed)) {
             shuffle($items);
         } else {
-            srand($seed);
+            mt_srand($seed);
             usort($items, function () {
-                return rand(-1, 1);
+                return mt_rand(-1, 1);
             });
         }
+
         return new static($items);
     }
 
