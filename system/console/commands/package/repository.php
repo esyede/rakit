@@ -70,9 +70,13 @@ class Repository
                 mt_rand(90, 110)
             ),
         ]);
+
         $packages = curl_exec($ch);
-        /** @disregard */
-        curl_close($ch);
+
+        if (PHP_VERSION_ID <= 80000) {
+            /** @disregard */
+            curl_close($ch);
+        }
 
         $packages = json_decode($packages, true);
 
