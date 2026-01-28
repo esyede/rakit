@@ -56,6 +56,11 @@
         ]
     },
     "config": {
+        "audit": {
+            "ignore": [
+                "PKSA-z3gr-8qht-p93v"
+            ]
+        },
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "allow-plugins": {
