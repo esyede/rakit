@@ -15,6 +15,39 @@ require __DIR__ . DS . 'init.php';
 
 /*
 |--------------------------------------------------------------------------
+| Muat helpers dan autoloader awal untuk debugger
+|--------------------------------------------------------------------------
+|
+| Muat helpers dan autoloader sebelum core untuk inisialisasi debugger early.
+|
+*/
+
+require path('system') . 'helpers.php';
+require_once path('system') . 'autoloader.php';
+spl_autoload_register(['\System\Autoloader', 'load']);
+\System\Autoloader::namespaces(['System' => path('system')]);
+
+/*
+|--------------------------------------------------------------------------
+| Inisialisasi debugger awal
+|--------------------------------------------------------------------------
+|
+| Enable debugger sebelum boot package untuk tangkap error early seperti
+| koneksi Redis yang gagal saat session init.
+|
+*/
+
+use System\Foundation\Oops\Debugger;
+
+if (file_exists($debugger = path('app') . 'config' . DS . 'debugger.php')) {
+    $debugger = require $debugger;
+    Debugger::$productionMode = (false === (bool) $debugger['activate']);
+    Debugger::enable(null, path('storage') . 'logs');
+    unset($debugger);
+}
+
+/*
+|--------------------------------------------------------------------------
 | Jalankan Core Boot
 |--------------------------------------------------------------------------
 |
@@ -38,10 +71,8 @@ require __DIR__ . DS . 'core.php';
 */
 
 $debugger = require path('app') . 'config' . DS . 'debugger.php';
-
-use System\Foundation\Oops\Debugger;
-
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
+unset($debugger);
 
 /*
 |--------------------------------------------------------------------------

@@ -46,41 +46,26 @@ if (is_file($path = path('rakit_key'))) {
         exit(255);
     }
 
-    try {
-        if (isset($_SERVER['HTTP_COOKIE'])) {
-            $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
+    if (isset($_SERVER['HTTP_COOKIE'])) {
+        $cookies = explode(';', $_SERVER['HTTP_COOKIE']);
 
-            foreach ($cookies as $cookie) {
-                $parts = explode('=', $cookie);
+        foreach ($cookies as $cookie) {
+            $parts = explode('=', $cookie);
+            if (PHP_VERSION_ID < 70300) {
+                setcookie(trim($parts[0]), '', time() - 2628000, '/; samesite=Lax');
                 setcookie(trim($parts[0]), '', time() - 2628000);
-                setcookie(trim($parts[0]), '', time() - 2628000, '/');
+            } else {
+                setcookie(trim($parts[0]), '', ['expires' => time() - 2628000, 'path' => '/', 'samesite' => 'Lax']);
+                setcookie(trim($parts[0]), '', ['expires' => time() - 2628000, 'samesite' => 'Lax']);
             }
         }
-
-        file_put_contents(path('rakit_key'), str_replace(
-            '00000000-0000-0000-0000-000000000000',
-            vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4)),
-            file_get_contents(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . 'key.stub')
-        ));
-    } catch (\Throwable $e) {
-        http_response_code(500);
-        require $dir . DS . 'unwritable.phtml';
-
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        }
-
-        exit(255);
-    } catch (\Exception $e) {
-        http_response_code(500);
-        require $dir . DS . 'unwritable.phtml';
-
-        if (function_exists('fastcgi_finish_request')) {
-            fastcgi_finish_request();
-        }
-
-        exit(255);
     }
+
+    file_put_contents(path('rakit_key'), str_replace(
+        '00000000-0000-0000-0000-000000000000',
+        vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4)),
+        file_get_contents(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . 'key.stub')
+    ));
 }
 
 if (!is_file($file = dirname(__DIR__) . DS . '_ide_helper.php')) {

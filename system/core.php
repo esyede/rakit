@@ -44,7 +44,7 @@ require path('system') . 'event.php';
 require path('system') . 'package.php';
 require path('system') . 'config.php';
 require path('system') . 'helpers.php';
-require path('system') . 'autoloader.php';
+require_once path('system') . 'autoloader.php';
 require path('system') . 'request.php';
 require path('system') . 'response.php';
 require path('system') . 'blade.php';
