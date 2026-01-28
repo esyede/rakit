@@ -252,12 +252,12 @@ class Bar
 
     private function renderAssets()
     {
-        $css = array_map('file_get_contents', array_merge([
+        $css = array_map('file_get_contents', [
             __DIR__ . '/assets/bar/bar.css',
             __DIR__ . '/assets/toggle/toggle.css',
             __DIR__ . '/assets/dumper/dumper.css',
             __DIR__ . '/assets/panic/panic.css',
-        ], Debugger::$customCssFiles));
+        ]);
 
         echo "(function(){
 	       var el = document.createElement('style');
@@ -266,11 +266,11 @@ class Bar
 	       el.textContent=" . json_encode(preg_replace('#\s+#u', ' ', implode($css))) . ";
 	       document.head.appendChild(el);})();\n";
 
-        array_map('readfile', array_merge([
+        array_map('readfile', [
             __DIR__ . '/assets/bar/bar.js',
             __DIR__ . '/assets/toggle/toggle.js',
             __DIR__ . '/assets/dumper/dumper.js',
             __DIR__ . '/assets/panic/panic.js',
-        ], Debugger::$customJsFiles));
+        ]);
     }
 }

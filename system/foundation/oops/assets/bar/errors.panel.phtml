@@ -12,7 +12,7 @@ defined('DS') or exit('No direct access.');
             <tr>
                 <td class="oops-right"><?php echo $count ? "$count\xC3\x97" : '' ?></td>
                 <td>
-                    <pre><?php echo Helpers::escapeHtml($message), ' in ', Helpers::editorLink($file, $line) ?></pre>
+                    <pre><?php echo Helpers::escapeHtml($message), ' in ', '<span>', $file . ($line ? ":$line" : ''), '</span>' ?></pre>
                 </td>
             </tr>
         <?php endforeach ?>

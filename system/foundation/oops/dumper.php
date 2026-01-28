@@ -124,19 +124,13 @@ class Dumper
 
         $live = !empty($options[self::LIVE]) && $var && (is_array($var) || is_object($var) || is_resource($var));
         list($file, $line, $code) = $loc ? self::findLocation() : [null, null, null];
-        $locAttrs = ($file && ($loc & self::LOCATION_SOURCE)) ? Helpers::formatHtml(
-            ' data-oops-href="%"',
-            "$code\n",
-            $file,
-            $line,
-            Helpers::editorUri($file, $line)
-        ) : null;
+        $locAttrs = null;
 
         return '<pre class="oops-dump' . (($live && true === $options[self::COLLAPSE]) ? ' oops-collapsed' : '') . '"'
             . $locAttrs
             . ($live ? " data-oops-dump='" . json_encode(self::toJson($var, $options), JSON_HEX_APOS | JSON_HEX_AMP) . "'>" : '>')
             . ($live ? '' : self::dumpVar($var, $options))
-            . (($file && ($loc & self::LOCATION_LINK)) ? '<small>in ' . Helpers::editorLink($file, $line) . '</small>' : '')
+
             . "</pre>\n";
     }
 
@@ -260,23 +254,7 @@ class Dumper
     {
         $fields = self::exportObject($var, $options[self::OBJECT_EXPORTERS], $options[self::DEBUGINFO]);
 
-        $editorAttributes = '';
-
-        if ($options[self::LOCATION] & self::LOCATION_CLASS) {
-            $rc = ($var instanceof \Closure) ? new \ReflectionFunction($var) : new \ReflectionClass($var);
-            $editor = Helpers::editorUri($rc->getFileName(), $rc->getStartLine());
-
-            if ($editor) {
-                $editorAttributes = Helpers::formatHtml(
-                    ' title="Declared in file % on line %" data-oops-href="%"',
-                    $rc->getFileName(),
-                    $rc->getStartLine(),
-                    $editor
-                );
-            }
-        }
-
-        $out = '<span class="oops-dump-object"' . $editorAttributes . '>'
+        $out = '<span class="oops-dump-object">'
             . Helpers::escapeHtml(Helpers::getClass($var))
             . '</span> <span class="oops-dump-hash">#' . substr(md5(spl_object_hash($var)), 0, 4) . '</span>';
 
@@ -387,21 +365,11 @@ class Dumper
                 return ['object' => $obj['id']];
             }
 
-            $editorInfo = null;
-
-            if ($options[self::LOCATION] & self::LOCATION_CLASS) {
-                $rc = ($var instanceof \Closure) ? new \ReflectionFunction($var) : new \ReflectionClass($var);
-                $editor = Helpers::editorUri($rc->getFileName(), $rc->getStartLine());
-                $ed = ['file' => $rc->getFileName(), 'line' => $rc->getStartLine(), 'url' => $editor];
-                $editorInfo = $editor ? $ed : null;
-            }
-
             static $counter = 1;
 
             $obj = $obj ?: [
                 'id' => self::$livePrefix . '0' . $counter++,
                 'name' => Helpers::getClass($var),
-                'editor' => $editorInfo,
                 'level' => $level,
                 'object' => $var,
             ];

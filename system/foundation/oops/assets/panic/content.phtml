@@ -73,7 +73,7 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         <h2><a data-oops-ref="^+" class="oops-toggle<?php echo ($collapsed = $expanded !== null) ? ' oops-collapsed' : '' ?>">Source file</a></h2>
 
                         <div class="<?php echo $collapsed ? 'oops-collapsed ' : '' ?>inner">
-                            <p><b>File:</b> <?php echo Helpers::editorLink($ex->getFile(), $ex->getLine()) ?></p>
+                            <p><b>File:</b> <span><?php echo $ex->getFile() . ($ex->getLine() ? ":$ex->getLine()" : '') ?></span></p>
                             <?php if (is_file($ex->getFile())) : ?>
                                 <?php $ctx = (in_array(get_class($ex), ['ErrorException', '\ErrorException']) || $ex instanceof \ErrorException) ? \System\Foundation\Oops\Context::getContext($ex) : null; ?>
                                 <?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, is_array($ctx) ? $ctx : []); ?>
@@ -87,62 +87,8 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                             <h2><a data-oops-ref="^+" class="oops-toggle">Call stack</a></h2>
 
                             <div class="inner">
-                                <ol>
-                                    <?php foreach ($stack as $key => $row) : ?>
-                                        <li>
-                                            <p>
-                                                <?php if (isset($row['file']) && is_file($row['file'])) : ?>
-                                                    <?php echo Helpers::editorLink($row['file'], $row['line']) ?>
-                                                <?php else : ?>
-                                                    <i>inner-code</i><?php if (isset($row['line'])) echo ':', $row['line'] ?>
-                                                <?php endif ?>
-
-                                                <?php if (isset($row['file']) && is_file($row['file'])) : ?><a data-oops-ref="^p + .file" class="oops-toggle<?php if ($expanded !== $key) echo ' oops-collapsed' ?>">source</a>&nbsp; <?php endif ?>
-
-                                                <?php
-                                                if (isset($row['object'])) echo "<a data-oops-ref='^p + .object' class='oops-toggle oops-collapsed'>";
-                                                if (isset($row['class'])) echo Helpers::escapeHtml($row['class'] . $row['type']);
-                                                if (isset($row['object'])) echo '</a>';
-                                                echo Helpers::escapeHtml($row['function']), '(';
-                                                if (!empty($row['args'])) : ?><a data-oops-ref="^p + .args" class="oops-toggle oops-collapsed">arguments</a><?php endif ?>)
-                                            </p>
-
-                                            <?php if (isset($row['file']) && is_file($row['file'])) : ?>
-                                                <div class="<?php if ($expanded !== $key) echo 'oops-collapsed ' ?>file"><?php echo self::highlightFile($row['file'], $row['line']) ?></div>
-                                            <?php endif ?>
-
-                                            <?php if (isset($row['object'])) : ?>
-                                                <div class="oops-collapsed outer object"><?php echo $dump($row['object']) ?></div>
-                                            <?php endif ?>
-
-                                            <?php if (!empty($row['args'])) : ?>
-                                                <div class="oops-collapsed outer args">
-                                                    <table>
-                                                        <?php
-                                                        try {
-                                                            $r = isset($row['class'])
-                                                                ? new  \ReflectionMethod($row['class'], $row['function'])
-                                                                : new \ReflectionFunction($row['function']);
-                                                            $params = $r->getParameters();
-                                                        } catch (\Throwable $e) {
-                                                            $params = [];
-                                                        } catch (\Exception $e) {
-                                                            $params = [];
-                                                        }
-
-                                                        foreach ($row['args'] as $k => $v) {
-                                                            echo '<tr><th>', Helpers::escapeHtml(isset($params[$k]) ? '$' . $params[$k]->name : "#$k"), '</th><td>';
-                                                            echo $dump($v, isset($params[$k]) ? $params[$k]->name : null);
-                                                            echo "</td></tr>\n";
-                                                        }
-                                                        ?>
-                                                    </table>
-                                                </div>
-                                            <?php endif ?>
-                                        </li>
-                                    <?php endforeach ?>
-                                </ol>
-                            </div>
+                                    <p>Call stack: <?php echo count($stack) ?> frames</p>
+                                </div>
                         </div>
                     <?php endif ?>
 

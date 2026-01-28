@@ -6,60 +6,7 @@ defined('DS') or exit('No direct access.');
 
 class Helpers
 {
-    /**
-     * Mereturn link HTML ke lokasi editor.
-     *
-     * @return string
-     */
-    public static function editorLink($file, $line = null)
-    {
-        $file = strtr($origFile = $file, Debugger::$editorMapping);
 
-        if ($editor = self::editorUri($origFile, $line)) {
-            $file = strtr($file, '\\', '/');
-
-            if (
-                preg_match('#(^[a-z]:)?/.{1,40}$#i', $file, $m)
-                && mb_strlen($file, '8bit') > mb_strlen($m[0], '8bit')
-            ) {
-                $file = '...' . $m[0];
-            }
-
-            $file = strtr($file, '/', DIRECTORY_SEPARATOR);
-
-            return self::formatHtml(
-                '<a href="%" title="%">%<b>%</b>%</a>',
-                $editor,
-                $origFile . ($line ? ":$line" : ''),
-                rtrim(dirname($file), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR,
-                basename($file),
-                $line ? ":$line" : ''
-            );
-        }
-
-        return self::formatHtml('<span>%</span>', $file . ($line ? ":$line" : ''));
-    }
-
-    /**
-     * Mereturn link kee lokasi editor.
-     *
-     * @return string|null
-     */
-    public static function editorUri($file, $line = null, $action = 'open', $search = null, $replace = null)
-    {
-        if (Debugger::$editor && $file && ('create' === $action || is_file($file))) {
-            $file = strtr($file, '/', DIRECTORY_SEPARATOR);
-            $file = strtr($file, Debugger::$editorMapping);
-
-            return strtr(Debugger::$editor, [
-                '%action' => $action,
-                '%file' => rawurlencode($file),
-                '%line' => $line ? (int) $line : 1,
-                '%search' => rawurlencode($search),
-                '%replace' => rawurlencode($replace),
-            ]);
-        }
-    }
 
     public static function formatHtml($mask)
     {
@@ -231,10 +178,7 @@ class Helpers
             $ref->setAccessible(true);
             $ref->setValue($e, $message);
             // Store oopsAction via Context helper
-            Context::setOopsAction($e, [
-                'link' => self::editorUri($e->getFile(), $e->getLine(), 'fix', $replace[0], $replace[1]),
-                'label' => 'fix it',
-            ]);
+            // Editor link removed
         }
     }
 

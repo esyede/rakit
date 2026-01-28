@@ -162,7 +162,9 @@ class Log
      */
     protected static function format($type, $message, array $context = [])
     {
-        $env = Foundation\Oops\Debugger::$productionMode ? 'production' : 'local';
+        $env = (class_exists('\System\Foundation\Oops\Debugger') && isset(\System\Foundation\Oops\Debugger::$productionMode))
+            ? (\System\Foundation\Oops\Debugger::$productionMode ? 'production' : 'local')
+            : 'unknown';
         $date = Carbon::now()->format('Y-m-d H:i:s');
         $level = strtoupper((string) $type);
         $output = sprintf('[%s] %s.%s: %s', $date, $env, $level, $message);

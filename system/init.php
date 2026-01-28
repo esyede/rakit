@@ -30,7 +30,7 @@ if (is_file($path = path('rakit_key'))) {
             fastcgi_finish_request();
         }
 
-        exit;
+        exit(255);
     }
 } else {
     $path = path('rakit_key');
@@ -43,7 +43,7 @@ if (is_file($path = path('rakit_key'))) {
             fastcgi_finish_request();
         }
 
-        exit;
+        exit(255);
     }
 
     try {
@@ -70,7 +70,7 @@ if (is_file($path = path('rakit_key'))) {
             fastcgi_finish_request();
         }
 
-        exit;
+        exit(255);
     } catch (\Exception $e) {
         http_response_code(500);
         require $dir . DS . 'unwritable.phtml';
@@ -79,7 +79,7 @@ if (is_file($path = path('rakit_key'))) {
             fastcgi_finish_request();
         }
 
-        exit;
+        exit(255);
     }
 }
 

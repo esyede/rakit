@@ -72,7 +72,7 @@ class Outputs
             }
 
             $res .= '<span title="' . Helpers::escapeHtml(implode("\n", $stack)) . '">'
-                . Helpers::editorLink($item[0], $item[1]) . ' '
+                . '<span>' . $item[0] . ($item[1] ? ":$item[1]" : '') . '</span> '
                 . str_replace(self::BOM, '<big>BOM</big>', Dumper::toHtml($item[2]))
                 . "</span><br>\n";
         }

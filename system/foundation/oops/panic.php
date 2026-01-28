@@ -194,9 +194,9 @@ class Panic
             ]);
         };
 
-        $css = array_map('file_get_contents', array_merge([
+        $css = array_map('file_get_contents', [
             __DIR__ . DS . 'assets' . DS . 'panic' . DS . 'panic.css',
-        ], Debugger::$customCssFiles));
+        ]);
 
         $css = preg_replace('#\s+#u', ' ', implode($css));
 
@@ -269,27 +269,10 @@ class Panic
         if (preg_match('# ([\'"])(\w{3,}(?:\\\\\w{3,})+)\\1#i', $ex->getMessage(), $m)) {
             $class = $m[2];
 
-            if (
-                !class_exists($class)
-                && !interface_exists($class)
-                && !trait_exists($class)
-                && ($file = Helpers::guessClassFile($class))
-                && !is_file($file)
-            ) {
-                $actions[] = [
-                    'link' => Helpers::editorUri($file, 1, 'create'),
-                    'label' => 'create class',
-                ];
-            }
+            // Editor link for create class removed
         }
 
-        if (preg_match('# ([\'"])((?:/|[a-z]:[/\\\\])\w[^\'"]+\.\w{2,5})\\1#i', $ex->getMessage(), $m)) {
-            $file = $m[2];
-            $actions[] = [
-                'link' => Helpers::editorUri($file, 1, $label = is_file($file) ? 'open' : 'create'),
-                'label' => $label . ' file',
-            ];
-        }
+        // Editor link for file removed
 
         $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex) . ' ')
             . preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
@@ -328,11 +311,6 @@ class Panic
 
         if ($source) {
             $source = static::highlightPhp($source, $line, $lines, $vars);
-            $editor = Helpers::editorUri($file, $line);
-
-            if ($editor) {
-                $source = substr_replace($source, ' data-oops-href="' . Helpers::escapeHtml($editor) . '"', 4, 0);
-            }
 
             return $source;
         }

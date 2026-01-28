@@ -27,34 +27,6 @@ class Debugger
     public static $showBar = true;
 
     /**
-     * Kirimkan data ke Firelogger?
-     *
-     * @var bool
-     */
-    public static $showFirelog = true;
-
-    /**
-     * Aktifkan debugger?
-     *
-     * @var bool
-     */
-    private static $enabled = false;
-
-    /**
-     * Indikator untuk menghindari output ganda.
-     *
-     * @var string|null
-     */
-    private static $reserved;
-
-    /**
-     * Output buffer level awal.
-     *
-     * @var int
-     */
-    private static $obLevel;
-
-    /**
      * Langsung hentinkan aplikasi saat terjadi error?
      * Isi dengan boolean atau konstanta error PHP (E_NOTICE, E_WARNING dsb.).
      *
@@ -120,7 +92,7 @@ class Debugger
     public static $email;
 
     /**
-     * Konstants untuk Debugger::log() dan Debugger::fireLog().
+     * Konstants untuk Debugger::log().
      */
     const DEBUG = Logger::DEBUG;
     const INFO = Logger::INFO;
@@ -137,27 +109,6 @@ class Debugger
     public static $time;
 
     /**
-     * URI untuk fitur open in editor.
-     *
-     * @var string
-     */
-    public static $editor = 'editor://%action/?file=%file&line=%line&search=%search&replace=%replace';
-
-    /**
-     * Mapping path editor.
-     *
-     * @var array
-     */
-    public static $editorMapping = [];
-
-    /**
-     * Perintah untuk membuka browser (gunakan 'start ""' di Windows).
-     *
-     * @var string
-     */
-    public static $browser;
-
-    /**
      * Path view untuk halaman error.
      *
      * @var string
@@ -165,18 +116,27 @@ class Debugger
     public static $errorTemplate;
 
     /**
-     * Path untuk css kustom.
+     * Aktifkan debugger?
      *
-     * @var array
+     * @var bool
      */
-    public static $customCssFiles = [];
+    private static $enabled = false;
 
     /**
-     * Path untuk js kustom.
+     * Indikator untuk menghindari output ganda.
      *
-     * @var array
+     * @var string|null
+    */
+    private static $reserved;
+
+    /**
+     * Output buffer level awal.
+     *
+     * @var int
      */
-    public static $customJsFiles = [];
+    private static $obLevel;
+
+
 
     /**
      * Data penggunaan CPU.
@@ -205,13 +165,6 @@ class Debugger
      * @var Logger
      */
     private static $logger;
-
-    /**
-     * Berisi object kelas Firelog.
-     *
-     * @var Firelog
-     */
-    private static $fireLogger;
 
     /**
      * Jangan izinkan instansiasi kelas.
@@ -293,7 +246,6 @@ class Debugger
             '\System\Foundation\Oops\Panic',
             '\System\Foundation\Oops\Defaults',
             '\System\Foundation\Oops\Dumper',
-            '\System\Foundation\Oops\Firelog',
             '\System\Foundation\Oops\Helpers',
             '\System\Foundation\Oops\Logger',
         ]);
@@ -431,9 +383,13 @@ class Debugger
         Helpers::improveException($e);
         self::removeOutputBuffers(true);
 
+        if (PHP_SAPI !== 'cli' && !headers_sent()) {
+            http_response_code(500);
+        }
+
         if (self::$productionMode) {
             try {
-                self::log($e, self::EXCEPTION);
+                \System\Log::error('Exception occurred', ['exception' => $e]);
             } catch (\Throwable $e) {
                 // Skip error
             } catch (\Exception $e) {
@@ -441,9 +397,18 @@ class Debugger
             }
 
             if (Helpers::isHtmlMode()) {
-                $logged = empty($e);
                 if (is_file(static::$errorTemplate)) {
-                    require static::$errorTemplate;
+                    if (\System\Event::exists('rakit.view.engine') && substr(static::$errorTemplate, -10) === '.blade.php') {
+                        try {
+                            echo \System\View::make('error.500')->render();
+                        } catch (\Throwable $e) {
+                            require __DIR__ . '/assets/debugger/500.phtml';
+                        } catch (\Exception $e) {
+                            require __DIR__ . '/assets/debugger/500.phtml';
+                        }
+                    } else {
+                        require static::$errorTemplate;
+                    }
                 } else {
                     require __DIR__ . '/assets/debugger/500.phtml';
                 }
@@ -453,40 +418,49 @@ class Debugger
                     . (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
             }
         } elseif (!connection_aborted() && (Helpers::isHtmlMode() || Helpers::isAjax())) {
+            $isJsonRequest = isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
+            if (Helpers::isAjax() && $isJsonRequest) {
+                \System\Log::error($e->getMessage(), [
+                    'exception' => $e,
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                header('Content-Type: application/json; charset=UTF-8');
+                echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
+                if (function_exists('fastcgi_finish_request')) {
+                    fastcgi_finish_request();
+                }
+                exit(255);
+            }
             self::getPanic()->render($e);
 
             if (self::$showBar) {
                 self::getBar()->render();
             }
         } else {
-            self::fireLog($e);
             $s = get_class($e) . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
                 . ' in ' . $e->getFile() . ':' . $e->getLine()
                 . "\nStack trace:\n" . $e->getTraceAsString();
 
             try {
                 $file = null;
-
-                // Only attempt to write a file if a log directory is configured.
                 if (self::$logDirectory) {
+                    \System\Log::error($e->getMessage(), [
+                        'exception' => $e,
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'trace' => $e->getTraceAsString(),
+                    ]);
                     $file = self::log($e, self::EXCEPTION);
-
                     if ($file && !headers_sent()) {
                         header('X-Oops-Error-Log: ' . $file);
                     }
                 }
 
-                // In CLI/non-html mode, avoid noisy output when exceptionHandler was
-                // explicitly called with $exit = false (used by tests). Only print
-                // details when we have a file or when exit is true.
                 if ($file) {
                     echo "$s\n" . ("(stored in $file)\n");
-
-                    if (self::$browser) {
-                        exec(self::$browser . ' ' . escapeshellarg($file));
-                    }
                 } elseif ($exit) {
-                    // Fallback: print basic info when this is a real fatal handling.
                     echo "$s\n";
                 }
             } catch (\Throwable $ex) {
@@ -515,7 +489,7 @@ class Debugger
 
         if ($e) {
             try {
-                self::log($e, self::EXCEPTION);
+                \System\Log::error('Exception occurred', ['exception' => $e]);
             } catch (\Throwable $e) {
                 // Skip error
             } catch (\Exception $e) {
@@ -524,6 +498,9 @@ class Debugger
         }
 
         if ($exit) {
+            if (function_exists('fastcgi_finish_request')) {
+                fastcgi_finish_request();
+            }
             exit(255);
         }
     }
@@ -565,7 +542,7 @@ class Debugger
             Helpers::improveException($e);
 
             try {
-                self::log($e, self::ERROR);
+                \System\Log::error('Error occurred', ['error' => $e]);
             } catch (\Throwable $foo) {
                 // Skip error
             } catch (\Exception $foo) {
@@ -592,7 +569,7 @@ class Debugger
             return;
         } elseif (self::$productionMode) {
             try {
-                self::log("$message in $file:$line", self::ERROR);
+                \System\Log::error($message, ['file' => $file, 'line' => $line]);
             } catch (\Throwable $foo) {
                 // Skip error
             } catch (\Exception $foo) {
@@ -600,8 +577,6 @@ class Debugger
             }
             return;
         } else {
-            self::fireLog(new \ErrorException($message, 0, $severity, $file, $line));
-
             // 'FALSE' akan memanggil error handler bawaan PHP
             return (Helpers::isHtmlMode() || Helpers::isAjax()) ? null : false;
         }
@@ -678,18 +653,6 @@ class Debugger
         }
 
         return self::$logger;
-    }
-
-    /**
-     * @return Logger
-     */
-    public static function getFirelog()
-    {
-        if (!self::$fireLogger) {
-            self::$fireLogger = new Firelog();
-        }
-
-        return self::$fireLogger;
     }
 
     /**
@@ -782,20 +745,6 @@ class Debugger
     public static function log($message, $priority = Logger::INFO)
     {
         return self::getLogger()->log($message, $priority);
-    }
-
-    /**
-     * Kirim pesan ke konsolFirelog.
-     *
-     * @param mixed $message
-     *
-     * @return bool was successful?
-     */
-    public static function fireLog($message)
-    {
-        if (!self::$productionMode && self::$showFirelog) {
-            return self::getFirelog()->log($message);
-        }
     }
 
     /**
