@@ -39,12 +39,9 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 
 use System\Foundation\Oops\Debugger;
 
-if (file_exists($debugger = path('app') . 'config' . DS . 'debugger.php')) {
-    $debugger = require $debugger;
-    Debugger::$productionMode = (false === (bool) $debugger['activate']);
-    Debugger::enable(null, path('storage') . 'logs');
-    unset($debugger);
-}
+$debugger = require path('app') . 'config' . DS . 'debugger.php';
+Debugger::$productionMode = (false === (bool) $debugger['activate']);
+Debugger::enable(null, path('storage') . 'logs');
 
 /*
 |--------------------------------------------------------------------------
@@ -59,20 +56,6 @@ if (file_exists($debugger = path('app') . 'config' . DS . 'debugger.php')) {
 */
 
 require __DIR__ . DS . 'core.php';
-
-/*
-|--------------------------------------------------------------------------
-| Load Config Debugger Base
-|--------------------------------------------------------------------------
-|
-| Load base config debugger untuk set productionMode sebelum enable,
-| agar error early tidak tampil HTML debugger.
-|
-*/
-
-$debugger = require path('app') . 'config' . DS . 'debugger.php';
-Debugger::$productionMode = (false === (bool) $debugger['activate']);
-unset($debugger);
 
 /*
 |--------------------------------------------------------------------------
@@ -110,10 +93,9 @@ Package::boot(DEFAULT_PACKAGE);
 |
 */
 
-$debugger = Config::get('debugger'); // Gunakan Config::get untuk konsistensi
+$debugger = Config::get('debugger');
 $template = path('app') . 'views' . DS . 'error' . DS . '500.blade.php';
 
-// ProductionMode sudah di-set awal, tapi pastikan sesuai config
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
 Debugger::$strictMode = (bool) $debugger['strict'];
 Debugger::$scream = (bool) $debugger['scream'];
