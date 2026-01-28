@@ -1,48 +1,47 @@
 ---
 name: build
 on:
-  - push
-  - pull_request
+    - push
+    - pull_request
 jobs:
-  build:
-    strategy:
-      matrix:
-        operating-system:
-          - ubuntu-latest
-        php-versions:
-          - "5.4"
-          - "5.5"
-          - "5.6"
-          - "7.0"
-          - "7.1"
-          - "7.2"
-          - "7.3"
-          - "7.4"
-          - "8.0"
-          - "8.1"
-          - "8.2"
-          - "8.3"
-          - "8.4"
-    runs-on: ${{ matrix.operating-system }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      - name: setup php
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, simplexml, dom, fileinfo, openssl, curl, gd, pdo_sqlite,
-            pdo_mysql, pdo_pgsql, pdo_mssql
-      - name: get composer cache directory
-        id: composer-cache
-        run: echo "directory=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
-      - name: cache composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.composer-cache.outputs.directory }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
-      - name: install dependencies
-        run: composer install --no-progress --prefer-dist --optimize-autoloader
-      - name: test with phpunit 4.8.34 (patched)
-        run: php ./rakit test:core
+    build:
+        strategy:
+            matrix:
+                operating-system:
+                    - ubuntu-latest
+                php-versions:
+                    - "5.4"
+                    - "5.5"
+                    - "5.6"
+                    - "7.0"
+                    - "7.1"
+                    - "7.2"
+                    - "7.3"
+                    - "7.4"
+                    - "8.0"
+                    - "8.1"
+                    - "8.2"
+                    - "8.3"
+                    - "8.4"
+        runs-on: ${{ matrix.operating-system }}
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+            - name: setup php
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: mbstring, simplexml, dom, fileinfo, openssl, curl, gd, pdo_sqlite, pdo_mysql, pdo_pgsql
+            - name: get composer cache directory
+              id: composer-cache
+              run: echo "directory=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+            - name: cache composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache.outputs.directory }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+            - name: install dependencies
+              run: composer install --no-progress --prefer-dist --optimize-autoloader
+            - name: test with phpunit 4.8.34 (patched)
+              run: php ./rakit test:core
