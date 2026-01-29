@@ -420,7 +420,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $input = [];
         $rules = ['url' => 'active_url'];
 
-        $input['url'] = 'https://github.com';
+        $input['url'] = 'https://google.com';
         $this->assertTrue(Validator::make($input, $rules)->valid());
 
         $input['url'] = 'https://hj2ks-kgs142tfsfhv0bvs8vvgjgs-afsvsbgtfs';
