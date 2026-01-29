@@ -344,6 +344,20 @@ class StrTest extends \PHPUnit_Framework_TestCase
        $this->assertTrue(10 === strlen(Str::nanoid(10, '')));
     }
 
+    public function testCuid()
+    {
+        $cuid = Str::cuid();
+        $this->assertTrue(strlen($cuid) === 25);
+        $this->assertTrue(Str::starts_with($cuid, 'c'));
+        $this->assertTrue((bool) preg_match('/^[c0-9a-z]+$/', $cuid));
+
+        $cuids = [];
+        for ($i = 0; $i < 10; $i++) {
+            $cuids[] = Str::cuid();
+        }
+        $this->assertTrue(count(array_unique($cuids)) === count($cuids));
+    }
+
     public function testReplaceArray()
     {
         $this->assertSame('foo/bar/baz', Str::replace_array('?', ['foo', 'bar', 'baz'], '?/?/?'));

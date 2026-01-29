@@ -49,6 +49,13 @@ class Str
     private static $ulids = ['time' => 0, 'chars' => []];
 
     /**
+     * Bucket untuk CUID.
+     *
+     * @var array
+     */
+    private static $cuids = ['counter' => 0, 'fingerprint' => null];
+
+    /**
      * Hitung panjang string.
      *
      * @param string $value
@@ -587,6 +594,67 @@ class Str
         return $lowercase ? strtolower($time . $random) : $time . $random;
     }
 
+    public static function cuid()
+    {
+        $result = 'c' . str_pad(base_convert((string) floor(microtime(true) * 1000), 10, 36), 8, '0', STR_PAD_LEFT);
+        static::$cuids['counter']++;
+        static::$cuids['counter'] = (static::$cuids['counter'] > 1679615) ? 0 : static::$cuids['counter'];
+        $result .= str_pad(base_convert(static::$cuids['counter'], 10, 36), 4, '0', STR_PAD_LEFT);
+
+        if (static::$cuids['fingerprint'] === null) {
+            $pid = function_exists('getmypid') ? getmypid() : static::integers(1, 32768);
+            $dec = hexdec(substr(md5((gethostname() ?: 'unknown') . $pid . bin2hex(static::bytes(2))), 0, 8));
+            static::$cuids['fingerprint'] = str_pad(substr(base_convert($dec, 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
+        }
+
+        $result .= static::$cuids['fingerprint'];
+        $result .= str_pad(substr(base_convert(hexdec(bin2hex(static::bytes(2))), 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
+        $result .= str_pad(substr(base_convert(hexdec(bin2hex(static::bytes(2))), 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
+
+        return $result;
+    }
+
+    /**
+     * Buat string nano id.
+     * Diadaptasi dari: https://github.com/hidehalo/nanoid-php.
+     *
+     * @param int         $size
+     * @param string|null $characters
+     *
+     * @return string|null
+     */
+    public static function nanoid($size = 21, $characters = null)
+    {
+        $size = intval($size);
+
+        if ($size > 21 || $size < 8) {
+            throw new \Exception('The size parameter should be between 8 to 21.');
+        }
+
+        $default = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
+        $characters = (!is_string($characters) || empty($characters)) ? $default : $characters;
+        $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
+        $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
+        $result = '';
+
+        while (true) {
+            $bytes = unpack('C*', static::bytes($step));
+
+            foreach ($bytes as $byte) {
+                $byte &= $mask;
+
+                if (isset($characters[$byte])) {
+                    $result .= $characters[$byte];
+
+                    if (strlen($result) === $size) {
+                        return $result;
+                    }
+                }
+            }
+        }
+    }
+
+
     /**
      * Buat string dummy lorem ipsum.
      *
@@ -637,46 +705,6 @@ class Str
         }
 
         return $result;
-    }
-
-    /**
-     * Buat string nano id.
-     * Diadaptasi dari: https://github.com/hidehalo/nanoid-php.
-     *
-     * @param int         $size
-     * @param string|null $characters
-     *
-     * @return string|null
-     */
-    public static function nanoid($size = 21, $characters = null)
-    {
-        $size = intval($size);
-
-        if ($size > 21 || $size < 8) {
-            throw new \Exception('The size parameter should be between 8 to 21.');
-        }
-
-        $default = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
-        $characters = (!is_string($characters) || empty($characters)) ? $default : $characters;
-        $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
-        $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
-        $result = '';
-
-        while (true) {
-            $bytes = unpack('C*', static::bytes($step));
-
-            foreach ($bytes as $byte) {
-                $byte &= $mask;
-
-                if (isset($characters[$byte])) {
-                    $result .= $characters[$byte];
-
-                    if (strlen($result) === $size) {
-                        return $result;
-                    }
-                }
-            }
-        }
     }
 
     /**
