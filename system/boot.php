@@ -201,26 +201,8 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 |
 */
 
-try {
-    Request::$route = Routing\Router::route(Request::method(), $uri);
-    $response = Request::$route->call();
-} catch (\Throwable $e) {
-    Log::error('Routing error: ' . $e->getMessage(), [
-        'exception' => $e,
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'trace' => $e->getTraceAsString(),
-    ]);
-    $response = Response::error(500, []);
-} catch (\Exception $e) {
-    Log::error('Routing error: ' . $e->getMessage(), [
-        'exception' => $e,
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'trace' => $e->getTraceAsString(),
-    ]);
-    $response = Response::error(500, []);
-}
+Request::$route = Routing\Router::route(Request::method(), $uri);
+$response = Request::$route->call();
 
 /*
 |--------------------------------------------------------------------------
