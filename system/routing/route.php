@@ -381,6 +381,17 @@ class Route
     }
 
     /**
+     * Daftarkan sebuah route group dengan domain tertentu.
+     *
+     * @param string   $domain
+     * @param \Closure $callback
+     */
+    public static function domain($domain, \Closure $callback)
+    {
+        static::group(['domain' => $domain], $callback);
+    }
+
+    /**
      * Daftarkan sebuah action untuk menangani beberapa route sekaligus.
      *
      * @param array $routes

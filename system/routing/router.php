@@ -202,6 +202,14 @@ class Router
             $uri = ltrim(str_replace('(:package)', (string) static::$package, $uri), '/');
             $uri = ('' === $uri) ? '/' : $uri;
 
+            // Handle prefix from group
+            if (!is_null(static::$group) && isset(static::$group['prefix'])) {
+                $prefix = trim(static::$group['prefix'], '/');
+                if (!empty($prefix)) {
+                    $uri = $prefix . '/' . ltrim($uri, '/');
+                }
+            }
+
             if ('(' === $uri[0]) {
                 $routes = &static::$fallback;
             } else {
@@ -338,20 +346,26 @@ class Router
      *
      * @param string $method
      * @param string $uri
+     * @param string $domain
      *
      * @return Route
      */
-    public static function route($method, $uri)
+    public static function route($method, $uri, $domain = null)
     {
         Package::boot(Package::handles($uri));
 
         $routes = (array) static::method($method);
 
         if (array_key_exists($uri, $routes)) {
-            return new Route($method, $uri, $routes[$uri]);
+            $action = $routes[$uri];
+            if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
+                // Domain tidak cocok, lanjut ke match
+            } else {
+                return new Route($method, $uri, $action);
+            }
         }
 
-        if (!is_null($route = static::match($method, $uri))) {
+        if (!is_null($route = static::match($method, $uri, $domain))) {
             return $route;
         }
     }
@@ -361,25 +375,34 @@ class Router
      *
      * @param string $method
      * @param string $uri
+     * @param string $domain
      *
      * @return Route
      */
-    protected static function match($method, $uri)
+    protected static function match($method, $uri, $domain = null)
     {
         // Coba match dari trie node dulu
         $result = static::match_node($method, $uri);
 
         if ($result) {
-            // Convert associative params ke indexed array untuk konsistensi
-            $params = array_values($result['params']);
-            $pattern = isset($result['pattern_uri']) ? $result['pattern_uri'] : $uri;
-            return new Route($method, $pattern, $result['action'], $params);
+            $action = $result['action'];
+            if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
+                // Domain tidak cocok, skip
+            } else {
+                // Convert associative params ke indexed array untuk konsistensi
+                $params = array_values($result['params']);
+                $pattern = isset($result['pattern_uri']) ? $result['pattern_uri'] : $uri;
+                return new Route($method, $pattern, $action, $params);
+            }
         }
 
         // Fallback ke regex loop
         $routes = static::method($method);
 
         foreach ($routes as $route => $action) {
+            if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
+                continue;
+            }
             if (Str::contains($route, '(')) {
                 $pattern = '#^' . static::wildcards($route) . '$#u';
 
@@ -388,6 +411,32 @@ class Router
                 }
             }
         }
+    }
+
+    /**
+     * Cek apakah domain cocok dengan pattern domain route.
+     *
+     * @param string $pattern
+     * @param string $domain
+     *
+     * @return bool
+     */
+    protected static function domain_matches($pattern, $domain)
+    {
+        if (is_null($pattern) || is_null($domain)) {
+            return $pattern === $domain;
+        }
+
+        // Jika pattern mengandung {}, ubah menjadi regex
+        if (Str::contains($pattern, '{')) {
+            $pattern = preg_quote($pattern, '#');
+            $pattern = preg_replace('/\\\{([^}]+)\\\}/', '(?P<$1>[a-zA-Z0-9\.\-_]+)', $pattern);
+            $pattern = '#^' . $pattern . '$#';
+            return (bool) preg_match($pattern, $domain);
+        }
+
+        // Jika tidak ada wildcard, cocokkan langsung
+        return $pattern === $domain;
     }
 
     /**
@@ -402,9 +451,10 @@ class Router
         list($search, $replace) = Arr::divide(static::$optional);
 
         $key = str_replace($search, $replace, $key, $count);
+        $key = strtr($key, static::$patterns);
         $key .= ($count > 0) ? str_repeat(')?', $count) : '';
 
-        return strtr($key, static::$patterns);
+        return $key;
     }
 
     /**
@@ -474,7 +524,7 @@ class Router
             $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'TRACE', 'CONNECT', 'OPTIONS'];
 
             foreach ($methods as $method) {
-                static::$nodes[$method] = ['children' => [], 'action' => null, 'is_param' => false, 'param_name' => null, 'pattern_uri' => null];
+                static::$nodes[$method] = ['children' => [], 'action' => null, 'is_param' => false, 'param_name' => null, 'pattern_uri' => null, 'uri' => null];
             }
         }
     }
@@ -492,6 +542,7 @@ class Router
         if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
             $node['action'] = $action;
             $node['pattern_uri'] = $uri;
+            $node['uri'] = $uri;
             return;
         }
 
@@ -506,13 +557,13 @@ class Router
                 $key = ':param';
 
                 if (!isset($node['children'][$key])) {
-                    $node['children'][$key] = ['children' => [], 'action' => null, 'is_param' => true, 'param_name' => $param_name, 'pattern_uri' => null];
+                    $node['children'][$key] = ['children' => [], 'action' => null, 'is_param' => true, 'param_name' => $param_name, 'pattern_uri' => null, 'uri' => null];
                 }
 
                 $node = &$node['children'][$key];
             } else {
                 if (!isset($node['children'][$segment])) {
-                    $node['children'][$segment] = ['children' => [], 'action' => null, 'is_param' => false, 'param_name' => null, 'pattern_uri' => null];
+                    $node['children'][$segment] = ['children' => [], 'action' => null, 'is_param' => false, 'param_name' => null, 'pattern_uri' => null, 'uri' => null];
                 }
 
                 $node = &$node['children'][$segment];
@@ -521,6 +572,7 @@ class Router
 
         $node['action'] = $action;
         $node['pattern_uri'] = $uri;
+        $node['uri'] = $uri;
     }
 
     /**
@@ -537,7 +589,7 @@ class Router
 
         // Jika URI adalah '/', segments kosong, return action root
         if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
-            return $node['action'] ? ['action' => $node['action'], 'params' => [], 'pattern_uri' => $node['pattern_uri']] : null;
+            return ($node['action'] && $node['uri'] === $uri) ? ['action' => $node['action'], 'params' => [], 'pattern_uri' => $node['pattern_uri']] : null;
         }
 
         $params = [];
@@ -579,7 +631,7 @@ class Router
             }
         }
 
-        return (isset($node['action']) && !empty($node['action']))
+        return (isset($node['action']) && !empty($node['action']) && $node['uri'] === $uri)
             ? ['action' => $node['action'], 'params' => $params, 'pattern_uri' => $node['pattern_uri']]
             : null;
     }

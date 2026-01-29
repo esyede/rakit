@@ -201,7 +201,8 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 |
 */
 
-Request::$route = Routing\Router::route(Request::method(), $uri);
+$domain = Request::foundation()->getHost();
+Request::$route = Routing\Router::route(Request::method(), $uri, $domain);
 $response = Request::$route->call();
 
 /*

@@ -203,4 +203,87 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         $test = Router::route('GET', urlencode('私は料理が大好き'))->uri;
         $this->assertEquals(urlencode('私は料理が大好き'), $test);
     }
+
+    /**
+     * Test bahwa subdomain routing dapat ditangani dengan benar.
+     *
+     * @group system
+     */
+    public function testSubdomainRoutesCanBeRouted()
+    {
+        Route::domain('api', function () {
+            Route::get('api', function () {
+                return 'api home';
+            });
+            Route::get('api/users', function () {
+                return 'api users';
+            });
+        });
+
+        Route::domain('{subdomain}.example.com', function () {
+            Route::get('sub', function () {
+                return 'subdomain home';
+            });
+        });
+
+        // Test exact domain match
+        $route = Router::route('GET', 'api', 'api');
+        $this->assertEquals('api', $route->uri);
+        $this->assertEquals('api', $route->action['domain']);
+
+        $route = Router::route('GET', 'api/users', 'api');
+        $this->assertEquals('api/users', $route->uri);
+        $this->assertEquals('api', $route->action['domain']);
+
+        // Test pattern domain match
+        $route = Router::route('GET', 'sub', 'sub.example.com');
+        $this->assertEquals('sub', $route->uri);
+        $this->assertEquals('{subdomain}.example.com', $route->action['domain']);
+
+        // Test no match
+        $this->assertNull(Router::route('GET', 'api', 'other'));
+        $this->assertNull(Router::route('GET', 'api/users', 'other'));
+        $this->assertNull(Router::route('GET', 'sub', 'other'));
+    }
+
+    /**
+     * Test bahwa prefix di route group dapat ditangani dengan benar.
+     *
+     * @group system
+     */
+    public function testPrefixRoutesCanBeRouted()
+    {
+        Route::group(['prefix' => 'api'], function () {
+            Route::get('/', function () {
+                return 'api home';
+            });
+            Route::get('users', function () {
+                return 'api users';
+            });
+        });
+
+        Route::group(['prefix' => 'admin/v1'], function () {
+            Route::get('dashboard', function () {
+                return 'admin dashboard';
+            });
+        });
+
+        // Test prefix route
+        $route = Router::route('GET', 'api/');
+        $this->assertEquals('api/', $route->uri);
+        $this->assertEquals('api home', $route->response());
+
+        $route = Router::route('GET', 'api/users');
+        $this->assertEquals('api/users', $route->uri);
+        $this->assertEquals('api users', $route->response());
+
+        // Test nested prefix
+        $route = Router::route('GET', 'admin/v1/dashboard');
+        $this->assertEquals('admin/v1/dashboard', $route->uri);
+        $this->assertEquals('admin dashboard', $route->response());
+
+        // Test no match
+        $this->assertNull(Router::route('GET', 'api'));
+        $this->assertNull(Router::route('GET', 'users'));
+    }
 }

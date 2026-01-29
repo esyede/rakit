@@ -567,6 +567,18 @@ class Request
     }
 
     /**
+     * Ambil subdomain dari host request saat ini.
+     *
+     * @return string|null
+     */
+    public static function subdomain()
+    {
+        $host = static::foundation()->getHost();
+        $parts = explode('.', $host);
+        return (count($parts) > 2) ? $parts[0] : null;
+    }
+
+    /**
      * Proxy method-method lainnya ke http foundation request.
      *
      * @param string $method
