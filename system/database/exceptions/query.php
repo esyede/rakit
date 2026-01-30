@@ -4,57 +4,105 @@ namespace System\Database\Exceptions;
 
 defined('DS') or exit('No direct access.');
 
-class QueryException extends DatabaseException
+class QueryException extends \PDOException
 {
     /**
-     * SQLSTATE error code.
+     * Berisi nama koneksi database.
      *
      * @var string
      */
-    protected $sqlState;
+    protected $connection;
 
     /**
-     * Driver specific error code.
+     * Berisi SQL untuk query.
      *
-     * @var int
+     * @var string
      */
-    protected $errorCode;
+    protected $sql;
 
     /**
-     * Buat instance exception baru.
+     * Berisi bindings untuk query.
      *
-     * @param string     $message
-     * @param string     $query
-     * @param array      $bindings
-     * @param string     $sqlState
-     * @param int        $errorCode
-     * @param \Exception $previous
+     * @var array
      */
-    public function __construct($message = '', $query = '', array $bindings = [], $sqlState = '', $errorCode = 0, \Exception $previous = null)
+    protected $bindings;
+
+    /**
+     * Buat instance baru dari QueryException.
+     *
+     * @param string                $connection
+     * @param string                $sql
+     * @param array                 $bindings
+     * @param \Throwable|\Exception $previous
+     */
+    public function __construct($connection, $sql, array $bindings, $previous)
     {
-        $this->sqlState = $sqlState;
-        $this->errorCode = $errorCode;
-
-        parent::__construct($message, $query, $bindings, $errorCode, $previous);
+        $this->connection = $connection;
+        $this->sql = $sql;
+        $this->bindings = $bindings;
+        parent::__construct($this->formatMessage($connection, $sql, $bindings, $previous), 0, $previous);
     }
 
     /**
-     * Ambil SQLSTATE error code.
+     * Format pesan error.
+     *
+     * @param string                $connection
+     * @param string                $sql
+     * @param array                 $bindings
+     * @param \Throwable|\Exception $previous
      *
      * @return string
      */
-    public function getSqlState()
+    protected function formatMessage($connection, $sql, array $bindings, $previous)
     {
-        return $this->sqlState;
+        $query = $this->substituteBindings($sql, $bindings);
+        return $previous->getMessage() . ' (Connection: ' . $connection . ', SQL: ' . $query . ')';
     }
 
     /**
-     * Ambil driver specific error code.
+     * Ambil nama koneksi database.
      *
-     * @return int
+     * @return string
      */
-    public function getErrorCode()
+    public function getConnectionName()
     {
-        return $this->errorCode;
+        return $this->connection;
+    }
+
+    /**
+     * Ambil SQL untuk query.
+     *
+     * @return string
+     */
+    public function getSql()
+    {
+        return $this->sql;
+    }
+
+    /**
+     * Ambil bindings untuk query.
+     *
+     * @return array
+     */
+    public function getBindings()
+    {
+        return $this->bindings;
+    }
+
+    /**
+     * Substitute bindings ke dalam SQL untuk debugging.
+     *
+     * @param string $sql
+     * @param array  $bindings
+     *
+     * @return string
+     */
+    protected function substituteBindings($sql, array $bindings)
+    {
+        foreach ($bindings as $binding) {
+            $sql = preg_replace('/\?/', (is_string($binding) ? "'$binding'" : $binding), $sql, 1);
+        }
+
+        return $sql;
     }
 }

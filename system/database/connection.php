@@ -5,9 +5,10 @@ namespace System\Database;
 defined('DS') or exit('No direct access.');
 
 use PDO;
+use System\Event;
 use System\Config;
 use System\Database;
-use System\Event;
+use System\Database\Exceptions\QueryException;
 
 class Connection
 {
@@ -236,9 +237,9 @@ class Connection
             $statement = $this->pdo()->prepare($sql);
             $result = $statement->execute($bindings);
         } catch (\Throwable $e) {
-            throw new Failure($sql, $bindings, $e);
+            throw new QueryException($this->driver(), $sql, $bindings, $e);
         } catch (\Exception $e) {
-            throw new Failure($sql, $bindings, $e);
+            throw new QueryException($this->driver(), $sql, $bindings, $e);
         }
 
         if (Config::get('debugger.database')) {
