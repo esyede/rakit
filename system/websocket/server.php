@@ -6,14 +6,14 @@ defined('DS') or exit('No direct access.');
 
 class Server
 {
-    const TEXT = 0x01;
-    const BINARY = 0x02;
-    const CLOSE = 0x08;
-    const PING = 0x09;
-    const PONG = 0x0a;
-    const OPCODE = 0x0f;
-    const FINALE = 0x80;
-    const LENGTH = 0x7f;
+    const TEXT = 1;
+    const BINARY = 2;
+    const CLOSE = 8;
+    const PING = 9;
+    const PONG = 10;
+    const OPCODE = 15;
+    const FINALE = 128;
+    const LENGTH = 127;
     const PACKET = 65536;
     const MAGIC = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
@@ -286,7 +286,7 @@ class Server
         while (true) {
             $active = $this->sockets;
             $mark = microtime(true);
-            $count = @stream_select($active, [], [], (int) $wait, round(1e6 * ($wait - (int) $wait)));
+            $count = @stream_select($active, [], [], (int) $wait, round(1000000 * ($wait - (int) $wait)));
 
             if (is_bool($count) && $wait) {
                 if (isset($this->events['crash']) && is_callable($function = $this->events['crash'])) {
@@ -319,7 +319,7 @@ class Server
 
                 $wait -= microtime(true) - $mark;
 
-                while ($wait < 1e-6) {
+                while ($wait < 0.000001) {
                     $wait += $this->wait;
                     $count = 0;
                 }

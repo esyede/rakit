@@ -127,10 +127,10 @@ class Client
         $length = strlen($data);
         $buffer = pack('CC', $mask, $length);
 
-        if ($length > 0xffff) {
-            $buffer = pack('CCNN', $mask, 0x7f, $length);
-        } elseif ($length > 0x7d) {
-            $buffer = pack('CCn', $mask, 0x7e, $length);
+        if ($length > 65535) {
+            $buffer = pack('CCNN', $mask, 127, $length);
+        } elseif ($length > 125) {
+            $buffer = pack('CCn', $mask, 126, $length);
         }
 
         $buffer .= $data;
@@ -180,10 +180,10 @@ class Client
             $length = ord($buffer[1]) & Server::LENGTH;
             $position = 2;
 
-            if ($length === 0x7e) {
+            if ($length === 126) {
                 $length = ord($buffer[2]) * 256 + ord($buffer[3]);
                 $position += 2;
-            } elseif ($length === 0x7f) {
+            } elseif ($length === 127) {
                 for ($i = 0, $length = 0; $i < 8; ++$i) {
                     $length = $length * 256 + ord($buffer[$i + 2]);
                 }
