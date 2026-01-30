@@ -38,7 +38,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $this->assertInstanceOf(Client::class, $this->client);
+        $this->assertInstanceOf('\System\Websocket\Client', $this->client);
         $this->assertSame($this->server, $this->client->server());
         $this->assertSame($this->socket, $this->client->socket());
         $this->assertEquals('GET', $this->client->method());
@@ -68,7 +68,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendText()
     {
-        $mock = $this->getMockBuilder(Server::class)
+        $mock = $this->getMockBuilder('\System\Websocket\Server')
             ->setConstructorArgs(['tcp://127.0.0.1:8080'])
             ->setMethods(['write'])
             ->getMock();
@@ -86,7 +86,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendClose()
     {
-        $mock = $this->getMockBuilder(Server::class)
+        $mock = $this->getMockBuilder('\System\Websocket\Server')
             ->setConstructorArgs(['tcp://127.0.0.1:8080'])
             ->setMethods(['write'])
             ->getMock();

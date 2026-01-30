@@ -48,8 +48,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $server = new Server('tcp://127.0.0.1:8080');
-        $this->assertInstanceOf(Server::class, $server);
+        $this->assertInstanceOf('\System\Websocket\Server', new Server('tcp://127.0.0.1:8080'));
     }
 
     /**
@@ -59,8 +58,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testClients()
     {
-        $server = new Server('tcp://127.0.0.1:8080');
-        $clients = $server->clients();
+        $clients = (new Server('tcp://127.0.0.1:8080'))->clients();
         $this->assertInternalType('array', $clients);
         $this->assertEmpty($clients);
     }
