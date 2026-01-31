@@ -167,7 +167,7 @@ class Query
      */
     public function cursor($columns = ['*'], $chunk_size = 1000)
     {
-        $columns = is_array($columns) ? $columns : func_get_args();
+        $columns = is_array($columns) ? $columns : [$columns];
         // PHP < 5.5.0 tidak mendukung generator yield, langsung return hasil get()
         return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
     }

@@ -605,14 +605,9 @@ class Query
      */
     public function cursor($columns = ['*'], $chunk_size = 1000)
     {
-        if (PHP_VERSION_ID < 50500) {
-            // PHP < 5.5.0 tidak mendukung generator, langsung return get()
-            return $this->get($columns);
-        }
-
-        // PHP 5.5+ - load generator implementation dari file terpisah
-        // Ini mencegah syntax error di PHP 5.4 karena yield tidak di-parse
-        return include __DIR__ . DS . 'cursor.php';
+        $columns = is_array($columns) ? $columns : [$columns];
+        // PHP < 5.5.0 tidak mendukung generator yield, langsung return hasil get()
+        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
     }
     /**
      * Cari record berdasarkan primary key.
