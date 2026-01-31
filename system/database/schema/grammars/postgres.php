@@ -88,8 +88,8 @@ class Postgres extends Grammar
      */
     protected function defaults(Table $table, Magic $column)
     {
-        if (isset($column->default) && null !== $column->default) {
-            return " DEFAULT '" . $this->default_value($column->default) . "'";
+        if (isset($column->defaults) && null !== $column->defaults) {
+            return " DEFAULT '" . $this->default_value($column->defaults) . "'";
         }
     }
 

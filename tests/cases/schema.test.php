@@ -87,16 +87,16 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier default().
+     * Test untuk modifier defaults().
      *
      * @group system
      */
-    public function testDefaultModifier()
+    public function testDefaultsModifier()
     {
         $table = new Table('users');
-        $table->integer('status')->default(1);
+        $table->integer('status')->defaults(1);
         $column = end($table->columns);
-        $this->assertEquals(1, $column->default);
+        $this->assertEquals(1, $column->defaults);
     }
 
     /**

@@ -693,12 +693,12 @@ class Table
      *
      * @return $this
      */
-    public function default($value)
+    public function defaults($value)
     {
         $column = end($this->columns);
 
         if ($column) {
-            $column->default = $value;
+            $column->defaults = $value;
         }
 
         return $this;
