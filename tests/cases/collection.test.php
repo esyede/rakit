@@ -139,6 +139,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
         $class = new \ReflectionClass($collection);
         $method = $class->getMethod('get_arrayable_items');
+        /** @disregard */
         $method->setAccessible(true);
 
         $items = new TestJsonSerializeObject;
@@ -156,10 +157,8 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testToJsonEncodesTheJsonSerializeResult()
     {
-        $c = $this->getMockBuilder('\System\Collection')->setMethods(['jsonSerialize'])->getMock();
-        $c->expects($this->once())->method('jsonSerialize')->will($this->returnValue('foo'));
-        $results = $c->to_json();
-        $this->assertJsonStringEqualsJsonString(json_encode('foo'), $results);
+        $c = new Collection(['foo' => 'bar']);
+        $this->assertJsonStringEqualsJsonString(json_encode(['foo' => 'bar']), $c->to_json());
     }
 
     public function testCastingToStringJsonEncodesTheToArrayResult()

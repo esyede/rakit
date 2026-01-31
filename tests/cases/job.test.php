@@ -25,6 +25,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         // Reset Job discovery agar auto_discover bisa register listener baru
         $reflection = new ReflectionClass('System\Job');
         $property = $reflection->getProperty('discovered');
+        /** @disregard */
         $property->setAccessible(true);
         $property->setValue(null, false);
 
@@ -306,10 +307,10 @@ class JobTest extends \PHPUnit_Framework_TestCase
 
         // Job should still exist (tidak dihapus karena belum waktunya)
         $files_after = glob($path . 'future-job__*.job.php');
-        
+
         // Debug: list semua files
         $all_files = glob($path . '*.job.php');
-        
+
         $this->assertCount(1, $files_after, 'Future job file should still exist after runall. All files: ' . implode(', ', array_map('basename', $all_files)));
     }
 
@@ -413,14 +414,14 @@ class JobTest extends \PHPUnit_Framework_TestCase
         Config::set('job.driver', 'database');
         Config::set('job.table', 'rakit_jobs');
         Config::set('job.failed_table', 'rakit_failed_jobs');
-        
+
         // Cleanup sebelum test
         try {
             System\Database::table('rakit_jobs')->delete();
         } catch (Exception $e) {
             // Ignore
         }
-        
+
         $driver = Job::driver('database');
         $result = $driver->add('test-job', ['email' => 'user@example.com'], null, 'default', false);
 

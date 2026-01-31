@@ -118,6 +118,13 @@ abstract class Model
     public static $perpage = 20;
 
     /**
+     * Berisi global scopes yang diterapkan ke setiap query.
+     *
+     * @var array
+     */
+    protected static $global_scopes = [];
+
+    /**
      * Berisi array nama field dan rules untuk kebutuhan validasi data model.
      * Anda bisa melakukan validasi data inputan menggunakan method ini.
      *
@@ -972,7 +979,7 @@ abstract class Model
     }
 
     /**
-     * Apply global scopes to query.
+     * Terapkan global scopes ke query.
      *
      * @param Query $query
      *
@@ -980,8 +987,56 @@ abstract class Model
      */
     protected function apply_scopes($query)
     {
-        // Apply segala global scopes disini jika ada
+        foreach (static::$global_scopes as $scope) {
+            if ($scope instanceof \Closure) {
+                $scope($query);
+            } elseif (is_object($scope) && method_exists($scope, 'apply')) {
+                $scope->apply($query, $this);
+            }
+        }
+
         return $query;
+    }
+
+    /**
+     * Tambahkan global scope ke model.
+     *
+     * @param string|\Closure|object $scope
+     * @param \Closure|object        $implementation
+     *
+     * @return $this
+     */
+    public static function add_global_scope($scope, $implementation = null)
+    {
+        if (is_string($scope) && !is_null($implementation)) {
+            static::$global_scopes[$scope] = $implementation;
+        } elseif ($scope instanceof \Closure) {
+            static::$global_scopes[spl_object_hash($scope)] = $scope;
+        } elseif (is_object($scope)) {
+            static::$global_scopes[get_class($scope)] = $scope;
+        }
+    }
+
+    /**
+     * Hapus global scope dari model.
+     *
+     * @param string $scope
+     *
+     * @return $this
+     */
+    public static function remove_global_scope($scope)
+    {
+        unset(static::$global_scopes[$scope]);
+    }
+
+    /**
+     * Ambil global scopes yang diterapkan ke model.
+     *
+     * @return array
+     */
+    public static function get_global_scopes()
+    {
+        return static::$global_scopes;
     }
 
     /**
@@ -1003,7 +1058,7 @@ abstract class Model
     }
 
     /**
-     * Handle static method calls.
+     * Handle pemanggilan static method.
      *
      * @param string $method
      * @param array  $parameters
@@ -1012,11 +1067,19 @@ abstract class Model
      */
     public static function __callStatic($method, array $parameters)
     {
-        return call_user_func_array([(new static())->query(), $method], $parameters);
+        $instance = new static();
+        $query = $instance->query();
+        $scope = 'scope_' . $method;
+
+        if (method_exists($instance, $scope)) {
+            return call_user_func_array([$instance, $scope], array_merge([$query], $parameters));
+        }
+
+        return call_user_func_array([$query, $method], $parameters);
     }
 
     /**
-     * Handle dynamic property access for getting attributes.
+     * Handle akses property dinamis untuk mengambil attriv=butes.
      *
      * @param string $key
      *
@@ -1028,7 +1091,7 @@ abstract class Model
     }
 
     /**
-     * Handle dynamic property access for setting attributes.
+     * Handle akses property dinamis untuk mengatur attributes.
      *
      * @param string $key
      * @param mixed  $value

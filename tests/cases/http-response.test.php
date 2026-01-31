@@ -446,6 +446,7 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
         $response->setStatusCode($code, $text);
         $statusText = new \ReflectionProperty($response, 'statusText');
+        /** @disregard */
         $statusText->setAccessible(true);
         $this->assertEquals($expectedText, $statusText->getValue($response));
     }

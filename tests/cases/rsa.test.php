@@ -17,6 +17,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
         // Reset static details for isolation
         $reflection = new \ReflectionClass('System\RSA');
         $details = $reflection->getProperty('details');
+        /** @disregard */
         $details->setAccessible(true);
         $details->setValue([
             'public_key' => null,
@@ -105,6 +106,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
         // Reset and load
         $reflection = new \ReflectionClass('System\RSA');
         $details = $reflection->getProperty('details');
+        /** @disregard */
         $details->setAccessible(true);
         $details->setValue([
             'public_key' => null,
@@ -134,6 +136,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
         // Reset
         $reflection = new \ReflectionClass('System\RSA');
         $details = $reflection->getProperty('details');
+        /** @disregard */
         $details->setAccessible(true);
         $details->setValue([
             'public_key' => null,

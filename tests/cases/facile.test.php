@@ -310,6 +310,119 @@ class FacileTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $model->to_array());
     }
+
+    /**
+     * Test untuk method TestModel::add_global_scope() dengan string dan implementation.
+     *
+     * @group system
+     */
+    public function testAddGlobalScopeWithStringAndImplementation()
+    {
+        TestModel::add_global_scope('test_scope', function ($query) {
+            $query->where('active', '=', 1);
+        });
+
+        $scopes = TestModel::get_global_scopes();
+        $this->assertArrayHasKey('test_scope', $scopes);
+        $this->assertInstanceOf('Closure', $scopes['test_scope']);
+
+        TestModel::remove_global_scope('test_scope');
+    }
+
+    /**
+     * Test untuk method TestModel::add_global_scope() dengan closure.
+     *
+     * @group system
+     */
+    public function testAddGlobalScopeWithClosure()
+    {
+        $scope = function ($query) {
+            $query->where('status', '=', 'active');
+        };
+
+        TestModel::add_global_scope($scope);
+
+        $scopes = TestModel::get_global_scopes();
+        $this->assertContains($scope, $scopes);
+
+        TestModel::remove_global_scope(spl_object_hash($scope));
+    }
+
+    /**
+     * Test untuk method TestModel::remove_global_scope().
+     *
+     * @group system
+     */
+    public function testRemoveGlobalScope()
+    {
+        TestModel::add_global_scope('remove_test', function ($query) {
+            // dummy
+        });
+
+        $this->assertArrayHasKey('remove_test', TestModel::get_global_scopes());
+
+        TestModel::remove_global_scope('remove_test');
+
+        $this->assertArrayNotHasKey('remove_test', TestModel::get_global_scopes());
+    }
+
+    /**
+     * Test untuk method TestModel::get_global_scopes().
+     *
+     * @group system
+     */
+    public function testGetGlobalScopes()
+    {
+        $initial = TestModel::get_global_scopes();
+
+        TestModel::add_global_scope('get_test', function ($query) {
+            // dummy
+        });
+
+        $after = TestModel::get_global_scopes();
+
+        $this->assertCount(count($initial) + 1, $after);
+        $this->assertArrayHasKey('get_test', $after);
+
+        TestModel::remove_global_scope('get_test');
+    }
+
+    /**
+     * Test bahwa global scopes diterapkan di query (sederhana).
+     *
+     * @group system
+     */
+    public function testGlobalScopesAppliedToQuery()
+    {
+        $applied = false;
+
+        TestModel::add_global_scope('apply_test', function ($query) use (&$applied) {
+            $applied = true;
+        });
+
+        $model = new TestModel();
+
+        // Gunakan reflection untuk akses protected method
+        $reflection = new \ReflectionMethod($model, '_query');
+        /** @disregard */
+        $reflection->setAccessible(true);
+        $reflection->invoke($model);
+
+        $this->assertTrue($applied);
+
+        TestModel::remove_global_scope('apply_test');
+    }
+
+    /**
+     * Test untuk local scope.
+     *
+     * @group system
+     */
+    public function test_local_scope()
+    {
+        $query = TestModel::active();
+        $this->assertInstanceOf('\System\Database\Facile\Query', $query);
+    }
 }
 
 class TestModel extends \System\Database\Facile\Model
@@ -352,5 +465,17 @@ class TestModel extends \System\Database\Facile\Model
     public function get_getter()
     {
         return $this->get_attribute('getter');
+    }
+
+    /**
+     * Local scope untuk filter active.
+     *
+     * @param Query $query
+     *
+     * @return Query
+     */
+    public function scope_active($query)
+    {
+        return $query->where('active', '=', 1);
     }
 }
