@@ -1,3 +1,9 @@
 *
 !.gitignore
 !index.html
+!cache/
+!console/
+!database/
+!jobs/
+!logs/
+!sessions/
