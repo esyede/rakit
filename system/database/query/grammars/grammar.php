@@ -342,6 +342,18 @@ class Grammar extends BaseGrammar
     }
 
     /**
+     * Compile klausa WHERE COLUMN.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_column($where)
+    {
+        return $this->wrap($where['column1']) . ' ' . $where['operator'] . ' ' . $this->wrap($where['column2']);
+    }
+
+    /**
      * Compile klausa GROUP BY.
      *
      * @param Query $query

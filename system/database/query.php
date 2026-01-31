@@ -1128,6 +1128,204 @@ class Query
     }
 
     /**
+     * Tambahkan klausa WHERE untuk tanggal.
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_date($column, $operator, $value, $connector = 'AND')
+    {
+        return $this->where($this->raw('DATE(' . $column . ')'), $operator, $value, $connector);
+    }
+
+    /**
+     * Tambahkan klausa WHERE untuk bulan.
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_month($column, $operator, $value, $connector = 'AND')
+    {
+        return $this->where($this->raw('MONTH(' . $column . ')'), $operator, $value, $connector);
+    }
+
+    /**
+     * Tambahkan klausa WHERE untuk hari.
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_day($column, $operator, $value, $connector = 'AND')
+    {
+        return $this->where($this->raw('DAY(' . $column . ')'), $operator, $value, $connector);
+    }
+
+    /**
+     * Tambahkan klausa WHERE untuk tahun.
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_year($column, $operator, $value, $connector = 'AND')
+    {
+        return $this->where($this->raw('YEAR(' . $column . ')'), $operator, $value, $connector);
+    }
+
+    /**
+     * Tambahkan klausa WHERE untuk waktu.
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_time($column, $operator, $value, $connector = 'AND')
+    {
+        return $this->where($this->raw('TIME(' . $column . ')'), $operator, $value, $connector);
+    }
+
+    /**
+     * Tambahkan klausa WHERE untuk membandingkan dua kolom.
+     *
+     * @param string $column1
+     * @param string $operator
+     * @param string $column2
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_column($column1, $operator, $column2, $connector = 'AND')
+    {
+        $this->wheres[] = [
+            'type' => 'where_column',
+            'column1' => $column1,
+            'operator' => $operator,
+            'column2' => $column2,
+            'connector' => $connector,
+        ];
+        return $this;
+    }
+
+    /**
+     * Tambahkan ORDER BY untuk record terbaru.
+     *
+     * @param string $column
+     *
+     * @return Query
+     */
+    public function latest($column = 'created_at')
+    {
+        return $this->order_by($column, 'desc');
+    }
+
+    /**
+     * Tambahkan ORDER BY untuk record tertua.
+     *
+     * @param string $column
+     *
+     * @return Query
+     */
+    public function oldest($column = 'created_at')
+    {
+        return $this->order_by($column, 'asc');
+    }
+
+    /**
+     * Check apakah query memiliki hasil.
+     *
+     * @return bool
+     */
+    public function exists()
+    {
+        $query = $this->copy();
+        $query->selects = ['*'];
+        $query->limit = 1;
+        $sql = $query->grammar->select($query);
+        $result = $query->connection->query($sql, $query->bindings);
+
+        return count($result) > 0;
+    }
+
+    /**
+     * Check apakah query tidak memiliki hasil.
+     *
+     * @return bool
+     */
+    public function doesnt_exist()
+    {
+        return !$this->exists();
+    }
+
+    /**
+     * Lakukan chunk berdasarkan ID.
+     *
+     * @param int      $count
+     * @param callable $callback
+     * @param string   $column
+     * @param string   $alias
+     *
+     * @return bool
+     */
+    public function chunk_by_id($count, callable $callback, $column = 'id', $alias = null)
+    {
+        $count = (int) $count;
+        $alias = $alias ?: $column;
+        $last_id = null;
+
+        do {
+            $clone = $this->copy();
+
+            if (!is_null($last_id)) {
+                $clone->where($column, '>', $last_id);
+            }
+
+            $clone->order_by($column, 'asc')->take($count);
+            $results = $clone->get();
+            $counts = count($results);
+
+            if ($counts === 0) {
+                break;
+            }
+
+            if ($callback($results) === false) {
+                return false;
+            }
+
+            $last_id = $results[$counts - 1]->$alias;
+        } while ($counts === $count);
+
+        return true;
+    }
+
+    /**
+     * Dump query dan die.
+     *
+     * @return void
+     */
+    public function dd()
+    {
+        dd($this->debug());
+    }
+
+    /**
      * Tangani pemanggilan method secara dinamis.
      * Seperti fungsi agregasi dan where.
      */
