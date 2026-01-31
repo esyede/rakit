@@ -454,11 +454,516 @@ class Table
     }
 
     /**
+     * Tambahkan kolom double ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function double($name)
+    {
+        return $this->column('double', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom medium integer ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function mediuminteger($name)
+    {
+        return $this->column('mediuminteger', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom tiny integer ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function tinyinteger($name)
+    {
+        return $this->column('tinyinteger', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom small integer ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function smallinteger($name)
+    {
+        return $this->column('smallinteger', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom json ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function json($name)
+    {
+        return $this->column('json', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom jsonb ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function jsonb($name)
+    {
+        return $this->column('jsonb', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom uuid ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function uuid($name)
+    {
+        return $this->column('uuid', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom ip address ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function ipaddress($name)
+    {
+        return $this->column('ipaddress', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom mac address ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function macaddress($name)
+    {
+        return $this->column('macaddress', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom geometry ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function geometry($name)
+    {
+        return $this->column('geometry', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom point ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function point($name)
+    {
+        return $this->column('point', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom linestring ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function linestring($name)
+    {
+        return $this->column('linestring', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom polygon ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function polygon($name)
+    {
+        return $this->column('polygon', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom geometrycollection ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function geometrycollection($name)
+    {
+        return $this->column('geometrycollection', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom multipoint ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function multipoint($name)
+    {
+        return $this->column('multipoint', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom multilinestring ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function multilinestring($name)
+    {
+        return $this->column('multilinestring', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom multipolygon ke tabel.
+     *
+     * @param string $name
+     *
+     * @return Magic
+     */
+    public function multipolygon($name)
+    {
+        return $this->column('multipolygon', compact('name'));
+    }
+
+    /**
+     * Tambahkan kolom set ke tabel.
+     *
+     * @param string $name
+     * @param array  $allowed
+     *
+     * @return Magic
+     */
+    public function set($name, array $allowed)
+    {
+        return $this->column('set', compact('name', 'allowed'));
+    }
+
+    /**
+     * Set kolom sebagai nullable.
+     *
+     * @return $this
+     */
+    public function nullable()
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->nullable = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set default value untuk kolom.
+     *
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function default($value)
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->default = $value;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set kolom sebagai unsigned.
+     *
+     * @return $this
+     */
+    public function unsigned()
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->unsigned = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set comment untuk kolom.
+     *
+     * @param string $comment
+     *
+     * @return $this
+     */
+    public function comment($comment)
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->comment = $comment;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set kolom setelah kolom tertentu.
+     *
+     * @param string $column
+     *
+     * @return $this
+     */
+    public function after($column)
+    {
+        $current = end($this->columns);
+
+        if ($current) {
+            $current->after = $column;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set kolom sebagai first.
+     *
+     * @return $this
+     */
+    public function first()
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->first = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Mark kolom untuk diubah.
+     *
+     * @return $this
+     */
+    public function change()
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->change = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set references untuk foreign key.
+     *
+     * @param string|array $columns
+     *
+     * @return $this
+     */
+    public function references($columns)
+    {
+        $command = end($this->commands);
+
+        if ($command && $command->type === 'foreign') {
+            $command->references = $columns;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set on table untuk foreign key.
+     *
+     * @param string $table
+     *
+     * @return $this
+     */
+    public function on($table)
+    {
+        $command = end($this->commands);
+
+        if ($command && $command->type === 'foreign') {
+            $command->on = $table;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set on delete action untuk foreign key.
+     *
+     * @param string $action
+     *
+     * @return $this
+     */
+    public function on_delete($action)
+    {
+        $command = end($this->commands);
+
+        if ($command && $command->type === 'foreign') {
+            $command->on_delete = $action;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set on update action untuk foreign key.
+     *
+     * @param string $action
+     *
+     * @return $this
+     */
+    public function on_update($action)
+    {
+        $command = end($this->commands);
+
+        if ($command && $command->type === 'foreign') {
+            $command->on_update = $action;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Rename kolom.
+     *
+     * @param string $from
+     * @param string $to
+     *
+     * @return Magic
+     */
+    public function rename_column($from, $to)
+    {
+        return $this->command('rename_column', compact('from', 'to'));
+    }
+
+    /**
+     * Buat spatial index pada tabel.
+     *
+     * @param string|array $columns
+     * @param string       $name
+     *
+     * @return Magic
+     */
+    public function spatial_index($columns, $name = null)
+    {
+        return $this->key('spatial', $columns, $name);
+    }
+
+    /**
+     * Set engine untuk tabel.
+     *
+     * @param string $engine
+     *
+     * @return $this
+     */
+    public function engine($engine)
+    {
+        $this->engine = $engine;
+        return $this;
+    }
+
+    /**
+     * Buat kolom deleted_at untuk soft deletes.
+     */
+    public function soft_deletes()
+    {
+        $this->timestamp('deleted_at')->nullable();
+    }
+
+    /**
+     * Hapus kolom jika ada.
+     *
+     * @param string|array $columns
+     */
+    public function drop_column_if_exists($columns)
+    {
+        $columns = is_array($columns) ? $columns : array($columns);
+        return $this->command('drop_column_if_exists', compact('columns'));
+    }
+
+    /**
+     * Hapus index jika ada.
+     *
+     * @param string $name
+     */
+    public function drop_index_if_exists($name)
+    {
+        return $this->command('drop_index_if_exists', compact('name'));
+    }
+
+    /**
+     * Hapus unique index jika ada.
+     *
+     * @param string $name
+     */
+    public function drop_unique_if_exists($name)
+    {
+        return $this->command('drop_unique_if_exists', compact('name'));
+    }
+
+    /**
+     * Hapus full-text index jika ada.
+     *
+     * @param string $name
+     */
+    public function drop_fulltext_if_exists($name)
+    {
+        return $this->command('drop_fulltext_if_exists', compact('name'));
+    }
+
+    /**
+     * Hapus foreign key jika ada.
+     *
+     * @param string $name
+     */
+    public function drop_foreign_if_exists($name)
+    {
+        return $this->command('drop_foreign_if_exists', compact('name'));
+    }
+
+    /**
      * Set koneksi database untuk operasi tabel.
      *
      * @param string $connection
      */
-    public function on($connection)
+    public function connection($connection)
     {
         $this->connection = $connection;
     }

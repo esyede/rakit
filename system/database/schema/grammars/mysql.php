@@ -72,6 +72,9 @@ class MySQL extends Grammar
             $sql .= $this->nullable($table, $column);
             $sql .= $this->defaults($table, $column);
             $sql .= $this->incrementer($table, $column);
+            $sql .= $this->comment($table, $column);
+            $sql .= $this->after($table, $column);
+            $sql .= $this->first($table, $column);
             $columns[] = $sql;
         }
 
@@ -88,7 +91,9 @@ class MySQL extends Grammar
      */
     protected function unsigned(Table $table, Magic $column)
     {
-        if (in_array($column->type, ['integer', 'biginteger']) && ($column->unsigned || $column->increment)) {
+        $integers = ['integer', 'biginteger', 'medium_integer', 'tiny_integer', 'small_integer', 'float', 'double', 'decimal'];
+
+        if (in_array($column->type, $integers) && isset($column->unsigned) && $column->unsigned) {
             return ' UNSIGNED';
         }
     }
@@ -103,7 +108,9 @@ class MySQL extends Grammar
      */
     protected function charset(Table $table, Magic $column)
     {
-        if (in_array($column->type, ['string', 'text']) && $column->charset) {
+        $strings = ['string', 'text', 'json', 'jsonb', 'enum', 'set'];
+
+        if (in_array($column->type, $strings) && isset($column->charset) && $column->charset) {
             return ' CHARACTER SET ' . $column->charset;
         }
     }
@@ -118,10 +125,10 @@ class MySQL extends Grammar
      */
     protected function collate(Table $table, Magic $column)
     {
-        // TODO: Beberapa tipe kolom (seperti char, enum, set) belum didukung oleh rakit.
-        // saat ini dukungan masih terbatas pada tipe kolom yang berbasis teks.
-        if (in_array($column->type, ['string', 'text']) && $column->collate) {
-            return ' CHARACTER SET ' . $column->collate;
+        $strings = ['string', 'text', 'json', 'jsonb', 'enum', 'set'];
+
+        if (in_array($column->type, $strings) && isset($column->collate) && $column->collate) {
+            return ' COLLATE ' . $column->collate;
         }
     }
 
@@ -135,7 +142,7 @@ class MySQL extends Grammar
      */
     protected function nullable(Table $table, Magic $column)
     {
-        return $column->nullable ? ' NULL' : ' NOT NULL';
+        return (isset($column->nullable) && $column->nullable) ? ' NULL' : ' NOT NULL';
     }
 
     /**
@@ -148,8 +155,8 @@ class MySQL extends Grammar
      */
     protected function defaults(Table $table, Magic $column)
     {
-        if (null !== $column->defaults) {
-            return " DEFAULT '" . $this->default_value($column->defaults) . "'";
+        if (isset($column->default) && null !== $column->default) {
+            return " DEFAULT '" . $this->default_value($column->default) . "'";
         }
     }
 
@@ -163,8 +170,55 @@ class MySQL extends Grammar
      */
     protected function incrementer(Table $table, Magic $column)
     {
-        if (in_array($column->type, ['integer', 'biginteger']) && $column->increment) {
+        $integers = ['integer', 'biginteger', 'mediuminteger', 'tinyinteger', 'smallinteger'];
+
+        if (in_array($column->type, $integers) && $column->increment) {
             return ' AUTO_INCREMENT PRIMARY KEY';
+        }
+    }
+
+    /**
+     * Buat sintaks sql untuk comment kolom.
+     *
+     * @param Table $table
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function comment(Table $table, Magic $column)
+    {
+        if (isset($column->comment) && $column->comment) {
+            return " COMMENT '" . addslashes($column->comment) . "'";
+        }
+    }
+
+    /**
+     * Buat sintaks sql untuk after kolom.
+     *
+     * @param Table $table
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function after(Table $table, Magic $column)
+    {
+        if (isset($column->after) && $column->after) {
+            return ' AFTER ' . $this->wrap($column->after);
+        }
+    }
+
+    /**
+     * Buat sintaks sql untuk first kolom.
+     *
+     * @param Table $table
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function first(Table $table, Magic $column)
+    {
+        if (isset($column->first) && $column->first) {
+            return ' FIRST';
         }
     }
 
@@ -344,6 +398,101 @@ class MySQL extends Grammar
     }
 
     /**
+     * Buat sintaks sql untuk spatial index.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function spatial(Table $table, Magic $command)
+    {
+        return $this->key($table, $command, 'SPATIAL INDEX');
+    }
+
+    /**
+     * Buat sintaks sql untuk rename kolom.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function rename_column(Table $table, Magic $command)
+    {
+        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME COLUMN ' . $this->wrap($command->from) . ' TO ' . $this->wrap($command->to);
+    }
+
+    /**
+     * Buat sintaks sql untuk drop kolom jika ada.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_column_if_exists(Table $table, Magic $command)
+    {
+        $columns = implode(', ', array_map(function ($column) {
+            return 'DROP COLUMN ' . $column;
+        }, array_map([$this, 'wrap'], $command->columns)));
+
+        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
+    }
+
+    /**
+     * Buat sintaks sql untuk drop index jika ada.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_index_if_exists(Table $table, Magic $command)
+    {
+        return $this->drop_key($table, $command);
+    }
+
+    /**
+     * Buat sintaks sql untuk drop unique jika ada.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_unique_if_exists(Table $table, Magic $command)
+    {
+        return $this->drop_key($table, $command);
+    }
+
+    /**
+     * Buat sintaks sql untuk drop fulltext jika ada.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_fulltext_if_exists(Table $table, Magic $command)
+    {
+        return $this->drop_key($table, $command);
+    }
+
+    /**
+     * Buat sintaks sql untuk drop foreign jika ada.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_foreign_if_exists(Table $table, Magic $command)
+    {
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP FOREIGN KEY ' . $command->name;
+    }
+
+    /**
      * Buat definisi tipe data string.
      *
      * @param Magic $column
@@ -353,6 +502,226 @@ class MySQL extends Grammar
     protected function type_string(Magic $column)
     {
         return 'VARCHAR(' . $column->length . ')';
+    }
+
+    /**
+     * Buat definisi tipe data double.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_double(Magic $column)
+    {
+        return 'DOUBLE';
+    }
+
+    /**
+     * Buat definisi tipe data medium integer.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_mediuminteger(Magic $column)
+    {
+        return 'MEDIUMINT';
+    }
+
+    /**
+     * Buat definisi tipe data tiny integer.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_tinyinteger(Magic $column)
+    {
+        return 'TINYINT';
+    }
+
+    /**
+     * Buat definisi tipe data small integer.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_smallinteger(Magic $column)
+    {
+        return 'SMALLINT';
+    }
+
+    /**
+     * Buat definisi tipe data json.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_json(Magic $column)
+    {
+        return 'JSON';
+    }
+
+    /**
+     * Buat definisi tipe data jsonb.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_jsonb(Magic $column)
+    {
+        return 'JSON';
+    }
+
+    /**
+     * Buat definisi tipe data uuid.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_uuid(Magic $column)
+    {
+        return 'CHAR(36)';
+    }
+
+    /**
+     * Buat definisi tipe data ip address.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_ipaddress(Magic $column)
+    {
+        return 'VARCHAR(45)';
+    }
+
+    /**
+     * Buat definisi tipe data mac address.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_macaddress(Magic $column)
+    {
+        return 'VARCHAR(17)';
+    }
+
+    /**
+     * Buat definisi tipe data geometry.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_geometry(Magic $column)
+    {
+        return 'GEOMETRY';
+    }
+
+    /**
+     * Buat definisi tipe data point.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_point(Magic $column)
+    {
+        return 'POINT';
+    }
+
+    /**
+     * Buat definisi tipe data linestring.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_linestring(Magic $column)
+    {
+        return 'LINESTRING';
+    }
+
+    /**
+     * Buat definisi tipe data polygon.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_polygon(Magic $column)
+    {
+        return 'POLYGON';
+    }
+
+    /**
+     * Buat definisi tipe data geometrycollection.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_geometrycollection(Magic $column)
+    {
+        return 'GEOMETRYCOLLECTION';
+    }
+
+    /**
+     * Buat definisi tipe data multipoint.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_multipoint(Magic $column)
+    {
+        return 'MULTIPOINT';
+    }
+
+    /**
+     * Buat definisi tipe data multilinestring.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_multilinestring(Magic $column)
+    {
+        return 'MULTILINESTRING';
+    }
+
+    /**
+     * Buat definisi tipe data multipolygon.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_multipolygon(Magic $column)
+    {
+        return 'MULTIPOLYGON';
+    }
+
+    /**
+     * Buat definisi tipe data set.
+     *
+     * @param Magic $column
+     *
+     * @return string
+     */
+    protected function type_set(Magic $column)
+    {
+        $allowed = implode(', ', array_map(function ($item) {
+            return "'" . $item . "'";
+        }, $column->allowed));
+
+        return sprintf('SET(%s)', $allowed);
     }
 
     /**
