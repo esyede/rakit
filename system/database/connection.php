@@ -122,7 +122,7 @@ class Connection
             call_user_func($callback);
         } catch (\Throwable $e) {
             $this->pdo()->rollBack();
-            throw $e;
+            throw new \Exception($e->getMessage(), $e->getCode(), $e);
         } catch (\Exception $e) {
             $this->pdo()->rollBack();
             throw $e;

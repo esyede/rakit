@@ -303,7 +303,7 @@ if (!function_exists('retry')) {
             return $callback($attempts);
         } catch (\Throwable $e) {
             if (!$times || ($when && !$when($e))) {
-                throw $e;
+                throw new \Exception($e->getMessage(), $e->getCode(), $e);
             }
 
             --$times;

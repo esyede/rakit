@@ -341,7 +341,7 @@ class View implements \ArrayAccess
             return $content;
         } catch (\Throwable $e) {
             ob_get_clean();
-            throw $e;
+            throw new \Exception($e->getMessage(), $e->getCode(), $e);
         } catch (\Exception $e) {
             ob_get_clean();
             throw $e;
