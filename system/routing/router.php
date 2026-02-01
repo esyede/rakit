@@ -59,7 +59,12 @@ class Router
     ];
 
     /**
-     * Berisi data atribut yang route group.
+     * Berisi stack atribut route group.
+     */
+    public static $groups = [];
+
+    /**
+     * Berisi data atribut yang route group (merged).
      */
     public static $group;
 
@@ -147,9 +152,11 @@ class Router
      */
     public static function group(array $attributes, \Closure $handler)
     {
-        static::$group = $attributes;
+        array_push(static::$groups, $attributes);
+        static::$group = static::merge_groups();
         call_user_func($handler);
-        static::$group = null;
+        array_pop(static::$groups);
+        static::$group = static::merge_groups();
     }
 
     /**
@@ -210,6 +217,9 @@ class Router
                 }
             }
 
+            $uri = rtrim($uri, '/');
+            $uri = ('' === $uri) ? '/' : $uri;
+
             if ('(' === $uri[0]) {
                 $routes = &static::$fallback;
             } else {
@@ -224,6 +234,26 @@ class Router
 
             static::insert_node($method, $uri, $routes[$method][$uri]);
         }
+    }
+
+    /**
+     * Merge semua group attributes.
+     *
+     * @return array|null
+     */
+    protected static function merge_groups()
+    {
+        if (empty(static::$groups)) {
+            return null;
+        }
+
+        $groups = [];
+
+        foreach (static::$groups as $group) {
+            $groups = array_merge($groups, $group);
+        }
+
+        return $groups;
     }
 
     /**
@@ -353,6 +383,9 @@ class Router
     public static function route($method, $uri, $domain = null)
     {
         Package::boot(Package::handles($uri));
+
+        $uri = ltrim($uri, '/');
+        $uri = ('' === $uri) ? '/' : $uri;
 
         $routes = (array) static::method($method);
 
@@ -536,7 +569,9 @@ class Router
     {
         static::init_nodes();
         $node = &static::$nodes[$method];
-        $segments = explode('/', trim($uri, '/'));
+        $uri = trim($uri, '/');
+        $uri = ('' === $uri) ? '/' : $uri;
+        $segments = explode('/', $uri);
 
         // Jika URI adalah '/', segments kosong, set action langsung
         if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
@@ -585,7 +620,9 @@ class Router
         }
 
         $node = static::$nodes[$method];
-        $segments = explode('/', trim($uri, '/'));
+        $uri = trim($uri, '/');
+        $uri = ('' === $uri) ? '/' : $uri;
+        $segments = explode('/', $uri);
 
         // Jika URI adalah '/', segments kosong, return action root
         if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {

@@ -270,7 +270,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
 
         // Test prefix route
         $route = Router::route('GET', 'api/');
-        $this->assertEquals('api/', $route->uri);
+        $this->assertEquals('api', $route->uri);
         $this->assertEquals('api home', $route->response());
 
         $route = Router::route('GET', 'api/users');
@@ -283,7 +283,6 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('admin dashboard', $route->response());
 
         // Test no match
-        $this->assertNull(Router::route('GET', 'api'));
         $this->assertNull(Router::route('GET', 'users'));
     }
 }
