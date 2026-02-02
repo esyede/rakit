@@ -61,6 +61,10 @@ class Query
         'where_not_in',
         'or_where_in',
         'or_where_not_in',
+        'to_sql',
+        'debug',
+        'exists',
+        'doesnt_exist',
     ];
 
     /**
