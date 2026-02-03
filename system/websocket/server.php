@@ -29,7 +29,8 @@ class Server
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
-        list($host, $port) = explode(':', str_replace('tcp://', '', $address));
+        $address = str_replace('tcp://', '', $address);
+        list($host, $port) = explode(':', $address);
         $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
         if (!$this->master) {
@@ -344,19 +345,24 @@ class Server
 
     protected function check_protocol($protocol)
     {
-        $protocols = array_map('trim', explode(',', $protocol));
-        return empty($this->config['supported_protocols']) ? true : !empty(array_intersect($protocols, $this->config['supported_protocols']));
+        $protocol = explode(',', $protocol);
+        $protocols = array_map('trim', $protocol);
+        $intersect = array_intersect($protocols, $this->config['supported_protocols']);
+        return empty($this->config['supported_protocols']) ? true : !empty($intersect);
     }
 
     protected function check_extensions($extensions)
     {
-        $exts = array_map('trim', explode(',', $extensions));
-        return empty($this->config['supported_extensions']) ? true : !empty(array_intersect($exts, $this->config['supported_extensions']));
+        $extensions = explode(',', $extensions);
+        $extensions = array_map('trim', $extensions);
+        $intersect = array_intersect($extensions, $this->config['supported_extensions']);
+        return empty($this->config['supported_extensions']) ? true : !empty($intersect);
     }
 
     protected function protocol($protocol)
     {
-        $protocols = array_map('trim', explode(',', $protocol));
+        $protocol = explode(',', $protocol);
+        $protocols = array_map('trim', $protocol);
 
         foreach ($protocols as $protocol) {
             if (in_array($protocol, $this->config['supported_protocols'])) {
@@ -369,7 +375,8 @@ class Server
 
     protected function extensions($extensions)
     {
-        $extensions = array_map('trim', explode(',', $extensions));
+        $extensions = explode(',', $extensions);
+        $extensions = array_map('trim', $extensions);
 
         foreach ($extensions as $extension) {
             if (in_array($extension, $this->config['supported_extensions'])) {
@@ -683,7 +690,7 @@ class Server
 
     protected function check_rsv_bits($headers, $user)
     {
-        return boolval((ord($headers['rsv1']) + ord($headers['rsv2']) + ord($headers['rsv3']) > 0));
+        return boolval(($headers['rsv1'] + $headers['rsv2'] + $headers['rsv3']) > 0);
     }
 
     public function clients($uri = null)
