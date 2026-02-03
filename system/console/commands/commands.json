@@ -127,7 +127,7 @@
     },
     "websocket": {
         "websocket:run": {
-            "description": "Jalankan websocket bawaan.",
+            "description": "Jalankan websocket server.",
             "command": "php rakit websocket:run"
         }
     }

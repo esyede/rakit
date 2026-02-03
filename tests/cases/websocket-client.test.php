@@ -18,7 +18,11 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
     {
         $this->server = new Server('tcp://127.0.0.1:8080');
         $this->socket = fopen('php://temp', 'r+');
-        $this->client = new Client($this->server, $this->socket, 'GET', '/ws', []);
+        $this->client = new Client('test_id', $this->socket);
+        $this->client->of($this->server);
+        $this->client->uri = '/ws';
+        $this->client->headers = [];
+        $this->client->user = null; // Initialize user property
     }
 
     /**
@@ -41,10 +45,11 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\System\Websocket\Client', $this->client);
         $this->assertSame($this->server, $this->client->server());
         $this->assertSame($this->socket, $this->client->socket());
-        $this->assertEquals('GET', $this->client->method());
+        $this->assertEquals('test_id', $this->client->id());
         $this->assertEquals('/ws', $this->client->uri());
         $this->assertInternalType('array', $this->client->headers());
         $this->assertInternalType('int', $this->client->last_activity());
+        $this->assertNull($this->client->user); // Test user property
     }
 
     /**
@@ -54,11 +59,24 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetters()
     {
-        $this->assertEquals(stream_socket_get_name($this->socket, true), $this->client->id());
+        $this->assertEquals('test_id', $this->client->id());
         $this->assertEquals('GET', $this->client->method());
         $this->assertEquals('/ws', $this->client->uri());
         $this->assertInternalType('array', $this->client->headers());
         $this->assertInternalType('int', $this->client->last_activity());
+    }
+
+    /**
+     * Test user property.
+     *
+     * @group system
+     */
+    public function testUserProperty()
+    {
+        $this->assertNull($this->client->user);
+        $mockUser = (object) ['name' => 'John', 'email' => 'john@example.com'];
+        $this->client->user = $mockUser;
+        $this->assertEquals($mockUser, $this->client->user);
     }
 
     /**
@@ -70,13 +88,13 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockBuilder('\System\Websocket\Server')
             ->setConstructorArgs(['tcp://127.0.0.1:8080'])
-            ->setMethods(['write'])
+            ->setMethods(['frame'])
             ->getMock();
-        $mock->expects($this->once())->method('write')->willReturn(5);
+        $mock->expects($this->once())->method('frame')->with('Hello', $this->anything(), 'text')->willReturn('framed_message');
 
-        $client = new Client($mock, $this->socket, 'GET', '/ws', []);
-        $result = $client->send(Server::TEXT, 'Hello');
-        $this->assertEquals('Hello', $result);
+        $client = new Client('test_id', $this->socket);
+        $client->of($mock);
+        $client->send(Server::TEXT, 'Hello');
     }
 
     /**
@@ -88,12 +106,66 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockBuilder('\System\Websocket\Server')
             ->setConstructorArgs(['tcp://127.0.0.1:8080'])
-            ->setMethods(['write'])
+            ->setMethods(['frame'])
             ->getMock();
-        $mock->expects($this->once())->method('write')->willReturn(0);
+        $mock->expects($this->once())->method('frame')->with('', $this->anything(), 'close')->willReturn('framed_close');
 
-        $client = new Client($mock, $this->socket, 'GET', '/ws', []);
-        $result = $client->send(Server::CLOSE);
-        $this->assertSame('', $result);
+        $client = new Client('test_id', $this->socket);
+        $client->of($mock);
+        $client->send(Server::CLOSE);
+    }
+
+    /**
+     * Test send binary.
+     *
+     * @group system
+     */
+    public function testSendBinary()
+    {
+        $mock = $this->getMockBuilder('\System\Websocket\Server')
+            ->setConstructorArgs(['tcp://127.0.0.1:8080'])
+            ->setMethods(['frame'])
+            ->getMock();
+        $mock->expects($this->once())->method('frame')->with('data', $this->anything(), 'binary')->willReturn('framed_binary');
+
+        $client = new Client('test_id', $this->socket);
+        $client->of($mock);
+        $client->send(Server::BINARY, 'data');
+    }
+
+    /**
+     * Test send ping.
+     *
+     * @group system
+     */
+    public function testSendPing()
+    {
+        $mock = $this->getMockBuilder('\System\Websocket\Server')
+            ->setConstructorArgs(['tcp://127.0.0.1:8080'])
+            ->setMethods(['frame'])
+            ->getMock();
+        $mock->expects($this->once())->method('frame')->with('ping', $this->anything(), 'ping')->willReturn('framed_ping');
+
+        $client = new Client('test_id', $this->socket);
+        $client->of($mock);
+        $client->send(Server::PING, 'ping');
+    }
+
+    /**
+     * Test send pong.
+     *
+     * @group system
+     */
+    public function testSendPong()
+    {
+        $mock = $this->getMockBuilder('\System\Websocket\Server')
+            ->setConstructorArgs(['tcp://127.0.0.1:8080'])
+            ->setMethods(['frame'])
+            ->getMock();
+        $mock->expects($this->once())->method('frame')->with('pong', $this->anything(), 'pong')->willReturn('framed_pong');
+
+        $client = new Client('test_id', $this->socket);
+        $client->of($mock);
+        $client->send(Server::PONG, 'pong');
     }
 }

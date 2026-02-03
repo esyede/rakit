@@ -110,3 +110,4 @@
 -   [RSA Encrypt](/docs/rsa)
 -   [Storage](/docs/storage)
 -   [String](/docs/strings)
+-   [Websocket](/docs/websocket)

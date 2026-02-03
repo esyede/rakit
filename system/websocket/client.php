@@ -4,254 +4,119 @@ namespace System\Websocket;
 
 defined('DS') or exit('No direct access.');
 
+use System\Carbon;
+
 class Client
 {
+    public $socket;
+    public $id;
+    public $headers = [];
+    public $handshake = false;
+    public $uri = '';
+    public $busy = false;
+    public $buffer = "";
+    public $continuous = false;
+    public $message = "";
+    public $disconnecting = false;
+    public $channels = [];
+    public $user;
+
     protected $server;
-    protected $id;
-    protected $socket;
-    protected $flag;
-    protected $method;
-    protected $uri;
-    protected $headers;
-    protected $fragments = [];
     protected $last_activity;
-    protected $opcode = null;
 
-    /**
-     * Konstruktor.
-     *
-     * @param Server   $server
-     * @param resource $socket
-     * @param string   $method
-     * @param string   $uri
-     * @param array    $headers
-     */
-    public function __construct($server, $socket, $method, $uri, array $headers)
+    public function __construct($id, $socket)
     {
-        $this->server = $server;
-        $this->id = stream_socket_get_name($socket, true);
+        $this->id = $id;
         $this->socket = $socket;
-        $this->method = $method;
-        $this->uri = $uri;
-        $this->headers = $headers;
-        $this->last_activity = time();
-        $events = $this->server()->events();
-
-        if (isset($events['connect']) && is_callable($function = $events['connect'])) {
-            $function($this);
-        }
+        $this->last_activity = Carbon::now()->timestamp;
     }
 
-    /**
-     * Mereturn instance server.
-     *
-     * @return Server
-     */
     public function server()
     {
         return $this->server;
     }
 
-    /**
-     * Mereturn socket ID.
-     *
-     * @return string
-     */
+    public function of($server)
+    {
+        $this->server = $server;
+    }
+
     public function id()
     {
         return $this->id;
     }
 
-    /**
-     * Mereturn socket.
-     *
-     * @return resource
-     */
     public function socket()
     {
         return $this->socket;
     }
 
-    /**
-     * Mereturn request method.
-     *
-     * @return string
-     */
     public function method()
     {
-        return $this->method;
+        return 'GET';
     }
 
-    /**
-     * Mereturn request URI.
-     *
-     * @return string
-     */
     public function uri()
     {
         return $this->uri;
     }
 
-    /**
-     * Mereturn socket header.
-     *
-     * @return array
-     */
     public function headers()
     {
         return $this->headers;
     }
 
-    /**
-     * Mereturn last activity timestamp.
-     *
-     * @return int
-     */
     public function last_activity()
     {
         return $this->last_activity;
     }
 
-    /**
-     * Siapkan dan kirim payload.
-     *
-     * @param int    $opcode
-     * @param string $data
-     *
-     * @return string|false
-     */
     public function send($opcode, $data = '')
     {
-        $this->last_activity = time();
-        $mask = Server::FINALE | $opcode & Server::OPCODE;
-        $length = strlen($data);
-        $buffer = pack('CC', $mask, $length);
+        $this->last_activity = Carbon::now()->timestamp;
+        $type = 'text';
 
-        if ($length > 65535) {
-            $buffer = pack('CCNN', $mask, 127, $length);
-        } elseif ($length > 125) {
-            $buffer = pack('CCn', $mask, 126, $length);
+        switch ($opcode) {
+            case Server::TEXT:
+                $type = 'text';
+                break;
+
+            case Server::BINARY:
+                $type = 'binary';
+                break;
+
+            case Server::CLOSE:
+                $type = 'close';
+                break;
+
+            case Server::PING:
+                $type = 'ping';
+                break;
+
+            case Server::PONG:
+                $type = 'pong';
+                break;
         }
 
-        $buffer .= $data;
-
-        if (is_bool($this->server()->write($this->socket, $buffer))) {
-            $this->server()->close($this->socket);
-            return false;
-        }
-
-        $events = $this->server()->events();
+        $message = $this->server()->frame($data, $this, $type);
+        $result = @socket_write($this->socket, $message, strlen($message));
 
         if (
-            !in_array($opcode, [Server::PONG, Server::CLOSE])
-            && isset($events['send'])
-            && is_callable($function = $events['send'])
+            isset($this->server()->events['send'])
+            && is_callable($function = $this->server()->events['send'])
         ) {
             $function($this, $opcode, $data);
         }
 
-        return $data;
+        return $result;
     }
 
-    /**
-     * Ambil dan proses payload.
-     *
-     * @return bool|null
-     */
-    public function fetch()
-    {
-        if (is_bool($buffer = $this->server()->read($this->socket))) {
-            return false;
-        }
-
-        $this->last_activity = time();
-
-        while ($buffer) {
-            $finale = (ord($buffer[0]) & Server::FINALE) ? true : false;
-            $opcode = ord($buffer[0]) & Server::OPCODE;
-
-            if ($this->opcode === null) {
-                $this->opcode = $opcode;
-            } elseif ($opcode !== 0 && $finale) {
-                $this->server()->close($this->socket);
-                return false;
-            }
-
-            $length = ord($buffer[1]) & Server::LENGTH;
-            $position = 2;
-
-            if ($length === 126) {
-                $length = ord($buffer[2]) * 256 + ord($buffer[3]);
-                $position += 2;
-            } elseif ($length === 127) {
-                for ($i = 0, $length = 0; $i < 8; ++$i) {
-                    $length = $length * 256 + ord($buffer[$i + 2]);
-                }
-
-                $position += 8;
-            }
-
-            for ($i = 0, $mask = []; $i < 4; ++$i) {
-                $mask[$i] = ord($buffer[$position + $i]);
-            }
-
-            $position += 4;
-
-            if (strlen($buffer) < $length + $position) {
-                return false;
-            }
-
-            for ($i = 0, $data = ''; $i < $length; ++$i) {
-                $data .= chr(ord($buffer[$position + $i]) ^ $mask[$i % 4]);
-            }
-
-            if (!$finale) {
-                $this->fragments[] = $data;
-                $buffer = substr($buffer, $length + $position);
-                continue;
-            }
-
-            if (!empty($this->fragments)) {
-                $data = implode('', $this->fragments) . $data;
-                $this->fragments = [];
-            }
-
-            $opcode = $this->opcode;
-            $this->opcode = null;
-
-            switch ($opcode & Server::OPCODE) {
-                case Server::PING:
-                    $this->send(Server::PONG);
-                    break;
-
-                case Server::CLOSE:
-                    $this->server()->close($this->socket);
-                    break;
-
-                case Server::TEXT:
-                    $data = trim($data);
-
-                case Server::BINARY:
-                    $events = $this->server()->events();
-
-                    if (isset($events['receive']) && is_callable($function = $events['receive'])) {
-                        $function($this, $opcode, $data);
-                    }
-                    break;
-            }
-
-            $buffer = substr($buffer, $length + $position);
-        }
-    }
-
-    /**
-     * Destruktor.
-     */
     public function __destruct()
     {
-        $events = $this->server()->events();
-
-        if (isset($events['disconnect']) && is_callable($function = $events['disconnect'])) {
+        if (
+            isset($this->server()->events['disconnect'])
+            && is_callable($function = $this->server()->events['disconnect'])
+        ) {
             $function($this);
         }
     }
