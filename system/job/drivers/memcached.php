@@ -54,7 +54,7 @@ class Memcached extends Driver
         $name = Str::slug($name);
         $scheduled_at = $scheduled_at ?: Carbon::now();
         $timestamp = Carbon::parse($scheduled_at)->timestamp;
-        $id = Str::nanoid();
+        $id = Str::ulid();
         $data = [
             'id' => $id,
             'name' => $name,

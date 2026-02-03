@@ -47,7 +47,7 @@ class File extends Driver
     public function add($name, array $payloads = [], $scheduled_at = null, $queue = 'default', $without_overlapping = false)
     {
         $name = Str::slug($name);
-        $id = Str::nanoid();
+        $id = Str::ulid();
         $now = Carbon::now()->format('Y-m-d H:i:s');
         $data = [
             'id' => $id,
