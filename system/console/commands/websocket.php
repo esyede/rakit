@@ -142,7 +142,7 @@ class Websocket extends Command
     public function receive(Client $client, $opcode, $data)
     {
         if (intval($opcode) !== Server::TEXT) {
-            if (intval($opcode) === 9) { // Ping
+            if (intval($opcode) === Server::PING) {
                 $pong = $client->server()->frame('', $client, 'pong');
                 @socket_write($client->socket, $pong, strlen($pong));
             } else {
