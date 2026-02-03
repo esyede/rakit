@@ -709,12 +709,20 @@ class Server
     public function shutdown()
     {
         foreach ($this->sockets as $socket) {
-            if ($socket !== $this->master) {
+            if ($socket !== $this->master && is_resource($socket)) {
+                /** @disregard */
                 socket_close($socket);
+            } else {
+                $socket = null;
             }
         }
 
-        socket_close($this->master);
+        if (is_resource($this->master)) {
+            /** @disregard */
+            socket_close($this->master);
+        } else {
+            $this->master = null;
+        }
 
         if (isset($this->events['stop']) && is_callable($function = $this->events['stop'])) {
             $function($this);

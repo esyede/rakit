@@ -67,7 +67,8 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructor()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $this->assertInstanceOf('\System\Websocket\Server', new Server('tcp://127.0.0.1:0'));
+        $server = new Server('tcp://127.0.0.1:0');
         $this->assertInstanceOf('\System\Websocket\Server', $server);
         $server->shutdown();
     }
@@ -79,7 +80,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testClients()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $clients = $server->clients();
         $this->assertInternalType('array', $clients);
         $this->assertEmpty($clients);
@@ -93,7 +94,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckOrigin()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'allowed_origins', []);
         $this->assertTrue($this->callProtectedMethod($server, 'check_origin', ['any-origin']));
 
@@ -110,7 +111,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckHost()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'allowed_hosts', []);
         $this->assertTrue($this->callProtectedMethod($server, 'check_host', ['any-host']));
 
@@ -127,7 +128,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckProtocol()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'supported_protocols', []);
         $this->assertTrue($this->callProtectedMethod($server, 'check_protocol', ['any-protocol']));
 
@@ -145,7 +146,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCheckExtensions()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'supported_extensions', []);
         $this->assertTrue($this->callProtectedMethod($server, 'check_extensions', ['any-extension']));
 
@@ -163,7 +164,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testProtocol()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'supported_protocols', ['chat']);
         $this->assertEquals("Sec-WebSocket-Protocol: chat\r\n", $this->callProtectedMethod($server, 'protocol', ['chat']));
         $this->assertEquals('', $this->callProtectedMethod($server, 'protocol', ['unsupported']));
@@ -178,7 +179,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtensions()
     {
-        $server = new Server('tcp://127.0.0.1:18081');
+        $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'supported_extensions', ['permessage-deflate']);
         $this->assertEquals(
             "Sec-WebSocket-Extensions: permessage-deflate\r\n",
