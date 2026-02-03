@@ -27,7 +27,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     protected function setConfig(Server $server, $key, $value)
     {
-        $reflection = new ReflectionProperty(Server::class, 'config');
+        $reflection = new ReflectionProperty('\System\Websocket\Server', 'config');
         /** @disregard */
         $reflection->setAccessible(true);
         $config = $reflection->getValue($server);
@@ -40,7 +40,8 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
      */
     protected function callProtectedMethod(Server $server, $method, $args = [])
     {
-        $reflection = new ReflectionMethod(Server::class, $method);
+        $reflection = new ReflectionMethod('\System\Websocket\Server', $method);
+        /** @disregard */
         $reflection->setAccessible(true);
         return $reflection->invokeArgs($server, $args);
     }
