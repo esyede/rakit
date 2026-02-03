@@ -1,7 +1,3 @@
-<file_path>
-rakit\packages\docs\data\id\websocket.md
-</file_path>
-
 # WebSocket
 
 Paket WebSocket menyediakan kemampuan komunikasi real-time untuk aplikasi Rakit menggunakan protokol WebSocket.
