@@ -605,16 +605,11 @@ class Server
     protected function extract_headers($message)
     {
         $header = [
-            'fin' => $message[0] & chr(128),
-            'rsv1' => $message[0] & chr(64),
-            'rsv2' => $message[0] & chr(32),
-            'rsv3' => $message[0] & chr(16),
             'fin' => ord($message[0]) & 128,
             'rsv1' => ord($message[0]) & 64,
             'rsv2' => ord($message[0]) & 32,
             'rsv3' => ord($message[0]) & 16,
             'opcode' => ord($message[0]) & 15,
-            'hasmask' => $message[1] & chr(128),
             'hasmask' => ord($message[1]) & 128,
             'length' => 0,
             'mask' => '',
