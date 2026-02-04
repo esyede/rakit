@@ -144,7 +144,7 @@ class Panic
         $file = $dir . DIRECTORY_SEPARATOR . $base;
 
         if (!is_dir($dir)) {
-            mkdir($dir . 'aaaa');
+            mkdir($dir, 0755, true);
             file_put_contents($dir . 'index.html', 'No direct access.');
         }
 
