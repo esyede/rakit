@@ -52,7 +52,7 @@ class SQLite extends Grammar
             $columns[] = '? AS ' . $this->wrap($column);
         }
 
-        $columns = array_fill(9, count($values), implode(', ', $columns));
+        $columns = array_fill(0, count($values), implode(', ', $columns));
 
         return 'INSERT INTO ' . $table . ' (' . $names . ') SELECT ' . implode(' UNION SELECT ', $columns);
     }

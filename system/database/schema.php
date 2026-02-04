@@ -179,7 +179,7 @@ class Schema
                 $query = 'SET FOREIGN_KEY_CHECKS=1;';
                 break;
 
-            case 'pqsql':
+            case 'pgsql':
                 $query = 'SET CONSTRAINTS ALL IMMEDIATE;';
                 break;
 
@@ -223,19 +223,19 @@ class Schema
 
         switch ($driver) {
             case 'mysql':
-                $sql = 'SET FOREIGN_KEY_CHECKS=0;';
+                $query = 'SET FOREIGN_KEY_CHECKS=0;';
                 break;
 
-            case 'pqsql':
-                $sql = 'SET CONSTRAINTS ALL DEFERRED;';
+            case 'pgsql':
+                $query = 'SET CONSTRAINTS ALL DEFERRED;';
                 break;
 
             case 'sqlite':
-                $sql = 'PRAGMA foreign_keys = OFF;';
+                $query = 'PRAGMA foreign_keys = OFF;';
                 break;
 
             case 'sqlsrv':
-                $sql = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";';
+                $query = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";';
                 break;
 
             default:
@@ -247,7 +247,7 @@ class Schema
         }
 
         try {
-            return false !== $connection->pdo()->exec($sql);
+            return false !== $connection->pdo()->exec($query);
         } catch (\PDOException $e) {
             return false;
         }
