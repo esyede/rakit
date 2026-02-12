@@ -18,7 +18,7 @@ if (!function_exists('e')) {
 
 if (!function_exists('dd')) {
     /**
-     * Dump variable dan hentikan eksekusi script.
+     * Dump variable then stop script execution.
      *
      * @param mixed|array $variables
      *
@@ -46,7 +46,7 @@ if (!function_exists('dd')) {
 
 if (!function_exists('bd')) {
     /**
-     * Dump variable ke debug bar tanpa menghentikan eksekusi script.
+     * Dump variable to the debug bar without stopping script execution.
      *
      * @param mixed       $variable
      * @param string|null $title
@@ -61,7 +61,7 @@ if (!function_exists('bd')) {
 
 if (!function_exists('dump')) {
     /**
-     * Dump variable tanpa menghentikan eksekusi script.
+     * Dump variable without stopping script execution.
      *
      * @param mixed|array $variables
      *
@@ -76,7 +76,7 @@ if (!function_exists('dump')) {
 
 if (!function_exists('optional')) {
     /**
-     * Izinkan akses ke objek opsional.
+     * Allow accessing properties/methods of a given object that could be null.
      *
      * @param mixed         $value
      * @param callable|null $callback
