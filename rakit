@@ -12,7 +12,7 @@ ob_start();
 define('RAKIT_START', microtime(true));
 
 // --------------------------------------------------------------
-// Definisikan konstanta untuk directory separator.
+// Define the directory separator constant
 // --------------------------------------------------------------
 define('DS', DIRECTORY_SEPARATOR);
 

@@ -1,7 +1,7 @@
-# Autodetect file teks
-*          text=auto
+# Auto-detect text files and perform LF normalization
+*  text=auto
 
-# Perlakukan file - file ini sebagai teks
+# Ensure consistent encoding for text files
 *.php      text
 *.css      text
 *.js       text
@@ -13,7 +13,7 @@
 *.sql      text
 *.yml      text
 
-# Pastikan file - file ini tidak diutak-atik
+# Ensure binary files are not modified
 *.png      binary
 *.jpg      binary
 *.gif      binary
@@ -21,7 +21,7 @@
 *.phar     binary
 *.pem      binary
 
-# Jangan sertakan file dan folder ini ke arsip rilis
+# Do not include development and configuration files in the export
 /.github   export-ignore
 /tests     export-ignore
 /.gitattributes export-ignore

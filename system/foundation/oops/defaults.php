@@ -461,7 +461,9 @@ class Defaults
         );
 
         // Format bindings
-        $bindings = array_map([static::class, 'formatBinding'], $bindings);
+        $bindings = array_map(function ($binding) {
+            return call_user_func([__CLASS__, 'formatBinding'], $binding);
+        }, $bindings);
         $sql = str_replace(['%', '?'], ['%%', '%s'], $sql);
 
         return '<div><code>' . nl2br(trim(vsprintf($sql, $bindings))) . '</code></div>';

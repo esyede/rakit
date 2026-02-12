@@ -32,7 +32,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $perpage = 2;
         $paginator = \System\Paginator::make($results, $total, $perpage);
 
-        $this->assertInstanceOf(\System\Paginator::class, $paginator);
+        $this->assertInstanceOf('\System\Paginator', $paginator);
         $this->assertEquals($results, $paginator->results);
         $this->assertEquals(1, $paginator->page); // Assuming page 1
         $this->assertEquals(5, $paginator->last); // ceil(10/2)
@@ -61,7 +61,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testValidPage()
     {
-        $reflection = new \ReflectionClass(\System\Paginator::class);
+        $reflection = new \ReflectionClass('\System\Paginator');
         $method = $reflection->getMethod('valid');
         /** @disregard */
         $method->setAccessible(true);

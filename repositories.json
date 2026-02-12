@@ -1,7 +1,7 @@
 [
     {
         "name": "hcaptcha",
-        "description": "Paket integrasi hcaptcha untuk rakit framework.",
+        "description": "Hcaptcha integration package for rakit framework.",
         "category": "authentication",
         "repository": "https://github.com/esyede/hcaptcha",
         "maintained": true,
@@ -14,7 +14,7 @@
     },
     {
         "name": "captcha",
-        "description": "Paket captcha sederhana untuk rakit framework.",
+        "description": "Simple captcha package for rakit framework.",
         "category": "authentication",
         "repository": "https://github.com/esyede/captcha",
         "maintained": true,
@@ -27,7 +27,7 @@
     },
     {
         "name": "access",
-        "description": "Paket role-based access control untuk rakit",
+        "description": "Role and permission management package for rakit framework.",
         "category": "authorization",
         "repository": "https://github.com/esyede/access",
         "maintained": true,
@@ -40,7 +40,7 @@
     },
     {
         "name": "tinyfilemanager",
-        "description": "Paket managemen file berbasis tinyfilemanager untuk rakit framework.",
+        "description": "Tinyfilemanager integration package for rakit framework.",
         "category": "others",
         "repository": "https://github.com/esyede/tinyfilemanager",
         "maintained": true,
@@ -53,7 +53,7 @@
     },
     {
         "name": "datatables",
-        "description": "Paket DataTables server-side untuk rakit framework.",
+        "description": "Datatables server-side package for rakit framework.",
         "category": "others",
         "repository": "https://github.com/esyede/datatables",
         "maintained": true,
@@ -66,7 +66,7 @@
     },
     {
         "name": "logviewer",
-        "description": "Paket manajemen file log untuk rakit framework.",
+        "description": "Log file management package for rakit framework.",
         "category": "logging",
         "repository": "https://github.com/esyede/logviewer",
         "maintained": true,
@@ -79,7 +79,7 @@
     },
     {
         "name": "file-auth",
-        "description": "Paket driver otentikasi berbasis file untuk rakit framework.",
+        "description": "File-based authentication driver package for rakit framework.",
         "category": "authentication",
         "repository": "https://github.com/esyede/file-auth",
         "maintained": true,
@@ -92,7 +92,7 @@
     },
     {
         "name": "notyf",
-        "description": "Paket flash message sederhana berbasis notyf-js untuk rakit framework.",
+        "description": "Simple flash message package based on notyf-js for rakit framework.",
         "category": "notification",
         "repository": "https://github.com/esyede/notyf",
         "maintained": true,
@@ -105,7 +105,7 @@
     },
     {
         "name": "impersonate",
-        "description": "Paket impersonate (login as other user) untuk rakit framework.",
+        "description": "Simple user impersonation package for rakit framework.",
         "category": "authentication",
         "repository": "https://github.com/esyede/impersonate",
         "maintained": true,
@@ -118,7 +118,7 @@
     },
     {
         "name": "adminer",
-        "description": "Paket manajemen database berbasis Adminer untuk rakit framework.",
+        "description": "Adminer-based database management package for rakit framework.",
         "category": "database",
         "repository": "https://github.com/esyede/adminer",
         "maintained": true,
