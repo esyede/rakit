@@ -11,61 +11,52 @@
   <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
 </p>
 
-## What is a rakit?
+## What is Rakit?
 
-Rakit is a simple and easy to learn web framework.
-New users will enjoy the same ease of development found in
-The most popular PHP framework today.
-
-More experienced users will have the opportunity to modulate their code
-in an easier and more efficient way.
+Rakit is a lightweight, easy-to-learn PHP web framework built for simplicity and efficiency.
+Whether you're a beginner or an experienced developer,
+Rakit offers a smooth development experience similar to other popular PHP frameworks,
+while giving you the flexibility to write clean, modular code.
 
 ## Features
 
--   Relatively small size (< 1MB zipped, includes offline documentation).
--   Runs on PHP 5.4.0 to PHP 8
--   Can be used with or without [Composer](https://getcomposer.org).
--   Routing via Closure and Controller (MVC).
--   View and templating (native / blade).
--   Database abstraction (Model and Query Builder).
--   Schema builder.
--   Migration of databases.
--   Simple authentication.
--   CLI tools.
--   And much more..
+- **Compact Size**: Less than 1MB zipped, including offline documentation.
+- **Wide PHP Support**: Compatible with PHP 5.4.0 to PHP 8.x.
+- **Flexible Installation**: Works with or without [Composer](https://getcomposer.org).
+- **Powerful Routing**: Supports closures and controllers (MVC architecture).
+- **Templating Options**: Native views or Blade templating engine.
+- **Database Abstraction**: Models and query builders for seamless database interactions.
+- **Schema & Migrations**: Easy database schema building and migration tools.
+- **Authentication**: Simple, built-in user authentication.
+- **CLI Tools**: Command-line utilities for efficient development.
+- **And More**: Extensive features to boost your productivity!
 
 ## System Requirements
 
--   PHP 5.4.0 up to 8
--   Extension [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
--   Extension [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
--   Extension [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
+- **PHP**: 5.4.0 to 8.x
+- **Extensions**:
+  - [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
+  - [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
+  - [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
 
-**Additional Extensions:**
-
-Installing the following extensions will help you get the full benefit of the rakit,
-but not required:
-
--   The [PDO](https://www.php.net/manual/en/pdo.installation.php) extension for SQLite, MySQL, PostgreSQL, or SQL Server for working with databases.
--   The [cURL](https://www.php.net/manual/en/book.curl.php) extension to install packages via assembly console.
--   The [GD Image](https://www.php.net/manual/en/book.image.php) extension for processing images.
--   The [Socket](https://www.php.net/manual/en/book.sockets.php) extension for websocket support.
+**Recommended Extensions** (for full functionality):
+- [PDO](https://www.php.net/manual/en/pdo.installation.php) for database support (SQLite, MySQL, PostgreSQL, SQL Server).
+- [cURL](https://www.php.net/manual/en/book.curl.php) for package installation via console.
+- [GD Image](https://www.php.net/manual/en/book.image.php) for image processing.
+- [Socket](https://www.php.net/manual/en/book.sockets.php) for WebSocket support.
 
 ## Documentation
 
-Documentation is included with every release archive you download, so you can still learn it even without an internet connection.
+Every release includes offline documentation, so you can learn even without internet access.
+For the latest updates, check out the [official website](https://rakit.esyede.my.id).
 
-Online documentation is also available at [official website](https://rakit.esyede.my.id).
+## Get Involved
 
-## Come Help
-
-To participate in helping the development of the rakit, please send a pull your request to the official rakit repository.
-
-In addition, you can also help the development of the rakit by answering questions submitted by other users in the [discussion forum](https://github.com/esyede/rakit/discussions).
+Help shape Rakit! Submit pull requests to the [official repository](https://github.com/esyede/rakit)
+or join discussions in our [forum](https://github.com/esyede/rakit/discussions) to assist fellow developers.
 
 ## License
 
 Rakit is released under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
-
-This means that you may modify, redistribute and use it for personal or commercial needs,
-provided that the original manufacturer's information is included, and there is no guarantee and no responsibility for any damage caused.
+You can modify, redistribute, and use it for personal or commercial purposes, as long as the original attribution is included.
+No warranties or liabilities are provided for any damages.

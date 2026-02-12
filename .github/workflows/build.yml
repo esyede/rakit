@@ -1,8 +1,12 @@
 ---
 name: build
 on:
-    - push
-    - pull_request
+    push:
+        paths:
+            - '**/*.php'
+    pull_request:
+        paths:
+            - '**/*.php'
 jobs:
     build:
         strategy:
