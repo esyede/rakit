@@ -1,8 +1,12 @@
 ---
 name: phpcs
 on:
-    - push
-    - pull_request
+    push:
+        paths:
+            - '**/*.php'
+    pull_request:
+        paths:
+            - '**/*.php'
 jobs:
     build:
         runs-on: ubuntu-latest
