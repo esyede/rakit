@@ -1,133 +1,133 @@
 {
     "clear": {
         "clear:cache": {
-            "description": "Bersihkan seluruh cache.",
+            "description": "Clear all cache.",
             "command": "php rakit clear:cache"
         },
         "clear:views": {
-            "description": "Bersihkan seluruh file cache view.",
+            "description": "Clear all view cache.",
             "command": "php rakit clear:views"
         },
         "clear:logs": {
-            "description": "Bersihkan seluruh file log.",
+            "description": "Clear all log files.",
             "command": "php rakit clear:logs"
         }
     },
     "job": {
         "job:run": {
-            "description": "Jalankan sebuah job.",
+            "description": "Run a job.",
             "command": "php rakit job:run send_weekly_email"
         },
         "job:runall": {
-            "description": "Jalankan seluruh job.",
+            "description": "Run all jobs.",
             "command": "php rakit job:runall"
         }
     },
     "make": {
         "make:controller": {
-            "description": "Buat file controller.",
+            "description": "Create a controller.",
             "command": "php rakit make:controller dashboard"
         },
         "make:resource": {
-            "description": "Buat file resource controller.",
+            "description": "Create a resource controller.",
             "command": "php rakit make:resource book"
         },
         "make:model": {
-            "description": "Buat file model.",
+            "description": "Create a model.",
             "command": "php rakit make:model book"
         },
         "make:migration": {
-            "description": "Buat file migrasi.",
+            "description": "Create a migration.",
             "command": "php rakit make:migration create_books_table"
         },
         "make:command": {
-            "description": "Buat file command.",
+            "description": "Create a command.",
             "command": "php rakit make:command greet"
         },
         "make:job": {
-            "description": "Buat file job.",
+            "description": "Create a job.",
             "command": "php rakit make:job notify"
         },
         "make:test": {
-            "description": "Buat file unit test.",
+            "description": "Create a unit test.",
             "command": "php rakit make:test login"
         }
     },
     "migration": {
         "migrate": {
-            "description": "Jalankan seluruh file migrasi.",
+            "description": "Run all migrations.",
             "command": "php rakit migrate"
         },
         "migrate:rollback": {
-            "description": "Roll back migrasi terakhir.",
+            "description": "Roll back the last migration.",
             "command": "php rakit migrate:rollback"
         },
         "migrate:reset": {
-            "description": "Roll back seluruh migrasi.",
+            "description": "Roll back all migrations.",
             "command": "php rakit migrate:reset"
         },
         "migrate:refresh": {
-            "description": "Roll back lalu jalankan ulang seluruh migrasi.",
+            "description": "Roll back and run all migrations.",
             "command": "php rakit migrate:refresh"
         }
     },
     "package": {
         "package:install": {
-            "description": "Install paket.",
+            "description": "Install a package.",
             "command": "php rakit package:install logviewer"
         },
         "package:uninstall": {
-            "description": "Uninstall paket beserta resourcenya.",
+            "description": "Uninstall a package.",
             "command": "php rakit package:uninstall logviewer"
         },
         "package:upgrade": {
-            "description": "Upgrade paket.",
+            "description": "Upgrade a package.",
             "command": "php rakit package:upgrade logviewer"
         },
         "package:publish": {
-            "description": "Salin aset paket ke folder assets.",
+            "description": "Publish a package assets.",
             "command": "php rakit package:publish logviewer"
         },
         "package:unpublish": {
-            "description": "Hapus aset paket dari folder assets.",
+            "description": "Unpublish a package assets.",
             "command": "php rakit package:unpublish logviewer"
         }
     },
     "routing": {
         "route:call": {
-            "description": "Panggil route via konsol.",
+            "description": "Call route via console.",
             "command": "php rakit route:call get api/user/1"
         }
     },
     "session": {
         "session:gc": {
-            "description": "Hapus seluruh sesi kedaluwarsa.",
+            "description": "Clear expired session from database.",
             "command": "php rakit session:gc"
         }
     },
     "test": {
         "test:run": {
-            "description": "Jalankan test folder application.",
+            "description": "Run test of application folder.",
             "command": "php rakit test:run"
         },
         "test:core": {
-            "description": "Jalankan test folder system.",
+            "description": "Run test of system folder.",
             "command": "php rakit test:core --verbose=false"
         },
         "test:package": {
-            "description": "Jalankan test milik sebuah paket.",
+            "description": "Run test of application folder.",
             "command": "php rakit test:package blog"
         }
     },
     "webserver": {
         "serve": {
-            "description": "Jalankan webserver bawaan.",
+            "description": "Run the development server.",
             "command": "php rakit serve --port=8000"
         }
     },
     "websocket": {
         "websocket:run": {
-            "description": "Jalankan websocket server.",
+            "description": "Run the websocket server.",
             "command": "php rakit websocket:run"
         }
     }

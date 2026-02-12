@@ -13,195 +13,195 @@ use System\Crypter;
 
 abstract class Driver
 {
-  /**
-   * Berisi user saat ini.
-   *
-   * @var mixed
-   */
-  public $user;
+    /**
+     * Contains the current user.
+     *
+     * @var mixed
+     */
+    public $user;
 
-  /**
-   * Berisi token user.
-   *
-   * @var string|null
-   */
-  public $token;
+    /**
+     * Contains the user token.
+     *
+     * @var string|null
+     */
+    public $token;
 
-  /**
-   * Buat instance auth driver baru.
-   */
-  public function __construct()
-  {
-    if (Session::started()) {
-      $this->token = Session::get($this->token());
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        if (Session::started()) {
+            $this->token = Session::get($this->token());
+        }
+
+        if (is_null($this->token)) {
+            $this->token = $this->recall();
+        }
     }
 
-    if (is_null($this->token)) {
-      $this->token = $this->recall();
-    }
-  }
-
-  /**
-   * Cek apakah user belum login.
-   * Method ini adalah kebalikan dari method check().
-   *
-   * @return bool
-   */
-  public function guest()
-  {
-    return !$this->check();
-  }
-
-  /**
-   * Cek apakah user sudah login.
-   *
-   * @return bool
-   */
-  public function check()
-  {
-    return !is_null($this->user());
-  }
-
-  /**
-   * Ambil user saat ini.
-   * Jika ia belum login, NULL akan direturn.
-   *
-   * @return mixed|null
-   */
-  public function user()
-  {
-    if (!$this->user) {
-      $this->user = $this->retrieve($this->token);
+    /**
+     * Check if the user is not logged in.
+     * This method is the opposite of the check() method.
+     *
+     * @return bool
+     */
+    public function guest()
+    {
+        return !$this->check();
     }
 
-    return $this->user;
-  }
-
-  /**
-   * Ambil user berdasarkan ID.
-   *
-   * @param int $id
-   *
-   * @return mixed
-   */
-  abstract public function retrieve($id);
-
-  /**
-   * Coba loginkan user.
-   *
-   * @param array $arguments
-   */
-  abstract public function attempt(array $arguments = []);
-
-  /**
-   * Loginkan user berdasarkan token miliknya.
-   * Token ini berupa ID numerik milik user.
-   *
-   * @param string $token
-   * @param bool   $remember
-   *
-   * @return bool
-   */
-  public function login($token, $remember = false)
-  {
-    $this->token = $token;
-    $this->store($token);
-    $this->user = $this->retrieve($this->token);
-
-    if ($remember) {
-      $this->remember($token);
+    /**
+     * Check if the user is logged in.
+     *
+     * @return bool
+     */
+    public function check()
+    {
+        return !is_null($this->user());
     }
 
-    Event::fire('rakit.auth: login');
-    return true;
-  }
+    /**
+     * Get the current user.
+     * If the user is not logged in, NULL will be returned.
+     *
+     * @return mixed|null
+     */
+    public function user()
+    {
+        if (!$this->user) {
+            $this->user = $this->retrieve($this->token);
+        }
 
-  /**
-   * Logoutkan user dari aplikasi.
-   */
-  public function logout()
-  {
-    $this->user = null;
+        return $this->user;
+    }
 
-    $this->cookie($this->recaller(), '', -2628000);
-    Session::forget($this->token());
-    Event::fire('rakit.auth: logout');
+    /**
+     * Get the user by ID.
+     *
+     * @param int $id
+     *
+     * @return mixed
+     */
+    abstract public function retrieve($id);
 
-    $this->token = null;
-  }
+    /**
+     * Try to login the user.
+     *
+     * @param array $arguments
+     */
+    abstract public function attempt(array $arguments = []);
 
-  /**
-   * Simpan token user ke session.
-   *
-   * @param string $token
-   */
-  protected function store($token)
-  {
-    Session::put($this->token(), $token);
-  }
+    /**
+     * Log in the user based on their token.
+     * The token is a numeric ID of the user.
+     *
+     * @param string $token
+     * @param bool   $remember
+     *
+     * @return bool
+     */
+    public function login($token, $remember = false)
+    {
+        $this->token = $token;
+        $this->store($token);
+        $this->user = $this->retrieve($this->token);
 
-  /**
-   * Simpan token user ke cookie selamanya (5 tahun).
-   *
-   * @param string $token
-   */
-  protected function remember($token)
-  {
-    $token = Crypter::encrypt($token . '|' . Str::random(40));
-    $this->cookie($this->recaller(), $token, 2628000);
-  }
+        if ($remember) {
+            $this->remember($token);
+        }
 
-  /**
-   * Coba cari cookie "remember me" milik user.
-   *
-   * @return string|null
-   */
-  protected function recall()
-  {
-    $cookie = Cookie::get($this->recaller());
-    return is_null($cookie) ? null : head(explode('|', Crypter::decrypt($cookie)));
-  }
+        Event::fire('rakit.auth: login');
+        return true;
+    }
 
-  /**
-   * Simpan sebuah cookie otentikasi.
-   *
-   * @param string $name
-   * @param string $value
-   * @param int    $minutes
-   */
-  protected function cookie($name, $value, $minutes)
-  {
-    $config = Config::get('session');
-    Cookie::put($name, $value, $minutes, $config['path'], $config['domain'], $config['secure']);
-  }
+    /**
+     * Logout the user from the application.
+     */
+    public function logout()
+    {
+        $this->user = null;
 
-  /**
-   * Ambil nama cookie token user.
-   *
-   * @return string
-   */
-  protected function token()
-  {
-    return $this->name() . '_login';
-  }
+        $this->cookie($this->recaller(), '', -2628000);
+        Session::forget($this->token());
+        Event::fire('rakit.auth: logout');
 
-  /**
-   * Ambil nama cookie remember me.
-   *
-   * @return string
-   */
-  protected function recaller()
-  {
-    return $this->name() . '_remember';
-  }
+        $this->token = null;
+    }
 
-  /**
-   * Ambil nama driver dalam format snake-case.
-   *
-   * @return string
-   */
-  protected function name()
-  {
-    return Str::lower(str_replace('\\', '_', get_class($this)));
-  }
+    /**
+     * Save the user token to the session.
+     *
+     * @param string $token
+     */
+    protected function store($token)
+    {
+        Session::put($this->token(), $token);
+    }
+
+    /**
+     * Save the user token to the cookie forever (5 years).
+     *
+     * @param string $token
+     */
+    protected function remember($token)
+    {
+        $token = Crypter::encrypt($token . '|' . Str::random(40));
+        $this->cookie($this->recaller(), $token, 2628000);
+    }
+
+    /**
+     * Try to find the "remember me" cookie of the user.
+     *
+     * @return string|null
+     */
+    protected function recall()
+    {
+        $cookie = Cookie::get($this->recaller());
+        return is_null($cookie) ? null : head(explode('|', Crypter::decrypt($cookie)));
+    }
+
+    /**
+     * Save an authentication cookie.
+     *
+     * @param string $name
+     * @param string $value
+     * @param int    $minutes
+     */
+    protected function cookie($name, $value, $minutes)
+    {
+        $config = Config::get('session');
+        Cookie::put($name, $value, $minutes, $config['path'], $config['domain'], $config['secure']);
+    }
+
+    /**
+     * Get the name of the user token cookie.
+     *
+     * @return string
+     */
+    protected function token()
+    {
+        return $this->name() . '_login';
+    }
+
+    /**
+     * Get the name of the user remember me cookie.
+     *
+     * @return string
+     */
+    protected function recaller()
+    {
+        return $this->name() . '_remember';
+    }
+
+    /**
+     * Get the name of the driver in snake-case format.
+     *
+     * @return string
+     */
+    protected function name()
+    {
+        return Str::lower(str_replace('\\', '_', get_class($this)));
+    }
 }

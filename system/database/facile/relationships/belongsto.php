@@ -9,7 +9,7 @@ use System\Database\Facile\Model;
 class BelongsTo extends Relationship
 {
     /**
-     * Ambil hasil mass-assignment milik relasi.
+     * Get the results of the relationship.
      *
      * @return Model
      */
@@ -19,7 +19,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Update model induk relasi.
+     * Update the parent model of the relationship.
      *
      * @param Model|array $attributes
      *
@@ -32,7 +32,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi.
+     * Set the constraints for a relational query.
      */
     protected function constrain()
     {
@@ -40,7 +40,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Mulai relasi terhadap beberapa model induk.
+     * Start the eager loading process for the relationship.
      *
      * @param array  $parents
      * @param string $relationship
@@ -53,7 +53,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi yang di eagerload.
+     * Set the constraints for an eager load of the relationship.
      *
      * @param array $results
      */
@@ -75,7 +75,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Cocokkan model anak yang di eagerload dengan model induknya.
+     * Match the eagerly loaded results to their parents.
      *
      * @param array $children
      * @param array $parents
@@ -97,7 +97,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Ambil value foreign key milik base model.
+     * Get the value of the foreign key.
      *
      * @return mixed
      */
@@ -107,7 +107,7 @@ class BelongsTo extends Relationship
     }
 
     /**
-     * Bind objek ke relasi belongs-to menggunakan id-nya.
+     * Bind object to the parent by updating the foreign key.
      *
      * @return Facile
      */

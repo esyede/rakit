@@ -25,22 +25,20 @@ $tabs = function ($panels) {
     <?php foreach ($rows as $row) : ?>
         <?php if ('main' === $row->type) : ?>
             <ul>
-                <li title="Rakit debugger">
-                    <b>Debugger</b>
-                </li>
+                <li><span title="Main request">Main</span></li>
                 <?php $tabs($row->panels) ?>
                 <li><a href="#" rel="close" title="close debug bar">&times;</a></li>
             </ul>
         <?php endif;
         if ('redirect' === $row->type) : ?>
             <ul>
-                <li><span title="Previous request before redirect">redirect</span></li>
+                <li><span title="Previous request before redirect">Redirect</span></li>
                 <?php $tabs($row->panels) ?>
             </ul>
         <?php endif;
         if ('ajax' === $row->type) : ?>
             <ul id="oops-ajax-bar">
-                <li>AJAX</li>
+                <li>Ajax</li>
                 <?php $tabs($row->panels) ?>
             </ul>
         <?php endif ?>

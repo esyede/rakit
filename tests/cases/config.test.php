@@ -24,7 +24,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Config::get().
+     * Test for Config::get().
      *
      * @group system
      */
@@ -36,7 +36,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Config::has().
+     * Test for Config::has().
      *
      * @group system
      */
@@ -47,7 +47,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Config::set().
+     * Test for Config::set().
      *
      * @group system
      */
@@ -61,7 +61,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-	 * Test apakah konfigurasi environment dimuat dengan benar.
+	 * Test for environment-specific configuration overrides.
 	 *
 	 * @group system
 	 */
@@ -73,7 +73,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 	}
 
     /**
-     * Test item config tetap bisa diubah lagi setelah seluruh file termuat.
+     * Test for setting items after entire file is loaded.
      *
      * @group system
      */

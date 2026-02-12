@@ -7,8 +7,9 @@ return [
     |--------------------------------------------------------------------------
     | Default Driver
     |--------------------------------------------------------------------------
-    | Driver default yang digunakan untuk menyimpan dan mengelola jobs.
-    | Pilihan: file, database, redis, memcached
+    | Default driver used to store and manage jobs.
+    |
+    | Available options: file, database, redis, memcached
     |
     */
 
@@ -18,7 +19,7 @@ return [
     |--------------------------------------------------------------------------
     | Jobs Table
     |--------------------------------------------------------------------------
-    | Nama tabel jobs.
+    | Job table name (used to store jobs).
     |
     */
 
@@ -28,7 +29,7 @@ return [
     |--------------------------------------------------------------------------
     | Failed Jobs Table
     |--------------------------------------------------------------------------
-    | Nama tabel failed jobs (untuk mencatat job yang gagal dijalankan)
+    | Failed job table name (used to store failed jobs).
     |
     */
 
@@ -38,8 +39,7 @@ return [
     |--------------------------------------------------------------------------
     | Max Job
     |--------------------------------------------------------------------------
-    | Batas maksimum baris job di database yang akan dieksekusi setiap kali
-    | job dijalankan.
+    | Maximum number of jobs to be executed at once.
     |
     */
 
@@ -49,8 +49,8 @@ return [
     |--------------------------------------------------------------------------
     | Max Retries
     |--------------------------------------------------------------------------
-    | Batas maksimum sebuah job diulang ekseskusinya sampai dianggap gagal dan
-    | dimasukkan ke tabel failed jobs.
+    | Maximum number of retries for a job before it is considered failed and
+    | moved to the failed jobs table.
     |
     */
 
@@ -60,7 +60,7 @@ return [
     |--------------------------------------------------------------------------
     | Sleep
     |--------------------------------------------------------------------------
-    | Jeda antar setiap percobaan pengulangan ekseskusi job (dalam milidetik).
+    | Sleep duration between job retries (in milliseconds).
     |
     */
 
@@ -70,7 +70,7 @@ return [
     |--------------------------------------------------------------------------
     | Logging
     |--------------------------------------------------------------------------
-    | Log setiap ekseskusi job ke file log rakit.
+    | Log every job execution to the Rakit log file?
     |
     */
 
@@ -80,8 +80,8 @@ return [
     |--------------------------------------------------------------------------
     | Job Key
     |--------------------------------------------------------------------------
-    | Key prefix yang akan ditambahkan ke key item yang disimpan menggunakan
-    | Redis atau Memcached untuk mencegah kesamaan nama key dengan aplikasi lain di server.
+    | Prefix for job keys stored using Redis or Memcached to prevent key name
+    | conflicts with other applications on the server.
     |
     */
 

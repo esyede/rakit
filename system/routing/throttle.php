@@ -11,12 +11,12 @@ use System\Response;
 class Throttle
 {
     /**
-     * Prefix untuk cache milik throttle.
+     * Prefix for the rate-limiter cache key.
      */
     const PREFIX = 'throttle';
 
     /**
-     * Jalankan proses throttling.
+     * Run the throttling process.
      *
      * @param int $max_attempts
      * @param int $decay_minutes
@@ -54,7 +54,7 @@ class Throttle
             return false;
         }
 
-        // Reset counter jika waktu habis
+        // Reset rate limit after decay period
         $data = [
             'limit' => $max_attempts,
             'remaining' => $max_attempts - 1,
@@ -68,7 +68,7 @@ class Throttle
     }
 
     /**
-     * Cek apakah request telah melebihi batas yang ditentukan.
+     * Check if the rate limit has been exceeded.
      *
      * @param int $max_attempts
      * @param int $decay_minutes
@@ -81,7 +81,7 @@ class Throttle
     }
 
     /**
-     * Ambil cache key untuk throtler.
+     * Get the cache key for the rate limiter.
      *
      * @return string
      */
@@ -91,7 +91,7 @@ class Throttle
     }
 
     /**
-     * Kirim response error ke klien.
+     * Send the rate limit exceeded response.
      *
      * @return \System\Response
      */

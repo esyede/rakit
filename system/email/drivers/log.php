@@ -9,7 +9,7 @@ use System\Log as BaseLog;
 class Log extends Driver
 {
     /**
-     * Mulai proses transmisi data.
+     * Starts the email transmission.
      *
      * @return bool
      */

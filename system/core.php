@@ -6,36 +6,34 @@ defined('DS') or exit('No direct access.');
 
 /*
 |--------------------------------------------------------------------------
-| Versi Framework Saat Ini
+| Define Framework Version
 |--------------------------------------------------------------------------
-| Definisikan info versi framework yang saat ini sedang digunakan.
+| Define the framework version that is currently being used.
 */
 
 define('RAKIT_VERSION', '0.9.9');
 
 /*
 |--------------------------------------------------------------------------
-| Konstanta Framework
+| Define Framework Constants
 |--------------------------------------------------------------------------
 |
-| Daftarkan konstanta tambahan. Konstanta ini dibuat agar aksesnya
-| lebih mudah karena tersedia secara global.
+| Define additional constants. These constants are created to make access
+| easier because they are available globally.
 |
 */
 
-define('CRLF', "\r\n");
 define('DEFAULT_PACKAGE', 'application');
 define('RAKIT_KEY', require path('rakit_key'));
 
 /*
 |--------------------------------------------------------------------------
-| Muat Kelas - Kelas Inti
+| Load Core Classes
 |--------------------------------------------------------------------------
 |
-| Di sini kita memuat kelas-kelas yang digunakan di setiap request, atau
-| yang digunakan oleh kelas konfigurasi.
-| Lebih cepat dan lebih mudah untuk memuatnya secara manual daripada
-| menggunakan autoloader.
+| Here we load the classes that are used in every request, or
+| that are used by the configuration classes.
+| Faster and easier to load manually than using an autoloader.
 |
 */
 
@@ -51,11 +49,11 @@ require path('system') . 'blade.php';
 
 /*
 |--------------------------------------------------------------------------
-| Dafarkan Autoloader Framework
+| Register the Framework Autoloader
 |--------------------------------------------------------------------------
 |
-| Selanjutnya kita daftarkan kelas Autoloader ke SPL autoloader stack
-| agar kelas bisa di-lazyload ketika kita membutuhkannya.
+| Next we register the Framework Autoloader to the SPL autoloader stack
+| so that classes can be lazyloaded when we need them.
 |
 */
 
@@ -63,11 +61,11 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 
 /*
 |--------------------------------------------------------------------------
-| Daftarkan Namespace 'System'
+| Register the 'System' Namespace
 |--------------------------------------------------------------------------
 |
-| Daftarkan namespace 'System' dan direktori mappingnya agar bisa dimuat
-| oleh autoloader menggunakan konvensi PSR-0.
+| Register the 'System' namespace and its directory mapping so that it can be
+| loaded by the autoloader using PSR-0 conventions.
 |
 */
 
@@ -75,12 +73,12 @@ Autoloader::namespaces(['System' => path('system')]);
 
 /*
 |--------------------------------------------------------------------------
-| Buat Foundation Request
+| Build the Foundation Request
 |--------------------------------------------------------------------------
 |
-| Rakit memisahkan implementasi detail penanganan http request ke
-| folder 'foundation/http/' agar file 'system/request.php' tidak terlalu
-| panjang dan tetap mudah dibaca. Nah, disini kita perlu memanggilnya.
+| Rakit separates the implementation details of handling HTTP requests into
+| the 'foundation/http/' folder to keep the 'system/request.php' file from
+| being too long and still easy to read. Here, we need to call it.
 |
 */
 
@@ -88,13 +86,13 @@ Request::$foundation = Foundation\Http\Request::createFromGlobals();
 
 /*
 |--------------------------------------------------------------------------
-| Tentukan Environment Aplikasi
+| Determine Application Environment
 |--------------------------------------------------------------------------
 |
-| Selanjutnya, kita siap menentukan environment aplikasi. Ini dapat
-| diatur melalui CLI atau melalui mapping URI ke environment yang
-| ada di file "paths.php". Saat menentukan evironment via CLI,
-| opsi CLI "--env=" akan otomatis menggantikan mapping di "paths.php".
+| Next, we are ready to determine the application environment. This can
+| be set via CLI or via mapping URI to the environment defined in the
+| "paths.php" file. When determining the environment via CLI option,
+| the "--env=" option will automatically override the mapping in "paths.php".
 |
 */
 
@@ -107,13 +105,13 @@ if (Request::cli()) {
 
 /*
 |--------------------------------------------------------------------------
-| Set Environment Aplikasi
+| Set the Application Environment
 |--------------------------------------------------------------------------
 |
-| Setelah kita menentukan lingkungan aplikasi, kita akan mengaturnya pada
-| array server global dari request foundation.
-| Ini akan membuatnya tersedia di seluruh aplikasi, meskipun ini hanya
-| digunakan untuk menentukan konfigurasi mana yang akan ditimpa.
+| After we have determined the application environment, we will set it on
+| the array server global from the request foundation.
+| This will make it available throughout the application, even though it is
+| only used to determine which configuration should be overridden.
 |
 */
 
@@ -123,12 +121,12 @@ if (isset($environment) && !empty($environment)) {
 
 /*
 |--------------------------------------------------------------------------
-| Set Array Option CLI
+| Set the CLI Options
 |--------------------------------------------------------------------------
 |
-| Jika request saat ini datang dari rakit console, kita parse argumen dan
-| optionnya, lalu kita set ke variabel global $_SERVER agar bisa
-| diakses dari mana saja.
+| When the request is coming from the Rakit console, we parse the arguments
+| and options, then set them to the global $_SERVER variable so they can be
+| accessed from anywhere.
 |
 */
 
@@ -139,14 +137,14 @@ if (Request::cli()) {
 
 /*
 |--------------------------------------------------------------------------
-| Daftarkan Seluruh Paket (Lazy Loading)
+| Register All Packages (Lazy Loading)
 |--------------------------------------------------------------------------
 |
-| Akhirnya kita akan mendaftarkan seluruh paket yang telah didefinisikan.
-| Register dilakukan secara lazy: paket hanya di-boot saat pertama kali
-| diakses, bukan di awal aplikasi. Ini mengurangi overhead startup.
-| Disini tidak akan dilakukan auto-boot, hanya akan di-set agar bisa
-| dipanggil oleh si developer ketika ia membutuhkannya saja.
+| Finally, we will register all packages that have been defined.
+| Registration is done lazily: packages are only booted when they are first
+| accessed, not at the beginning of the application. This reduces startup
+| overhead. Here, we will not perform auto-boot, only set it so that it can
+| be called by the developer when they need it.
 |
 */
 

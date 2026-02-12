@@ -25,7 +25,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::add() - 1.
+     * Test for Messages::add() - 1.
      *
      * @group system
      */
@@ -38,7 +38,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::add() - 2.
+     * Test for Messages::add() - 2.
      *
      * @group system
      */
@@ -51,7 +51,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::has() - 1.
+     * Test for Messages::has() - 1.
      *
      * @group system
      */
@@ -64,7 +64,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::any().
+     * Test for Messages::any().
      *
      * @group system
      */
@@ -77,7 +77,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::first().
+     * Test for Messages::first().
      *
      * @group system
      */
@@ -102,7 +102,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::all().
+     * Test for Messages::all().
      *
      * @group system
      */
@@ -114,7 +114,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Messages::get() dengan custom message.
+     * Test for Messages::get() with custom message.
      *
      * @group system
      */

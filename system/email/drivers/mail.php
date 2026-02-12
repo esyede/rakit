@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Mail extends Driver
 {
     /**
-     * Mulai proses transmisi data.
+     * Starts the email transmission.
      *
      * @return bool
      */

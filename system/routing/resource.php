@@ -59,7 +59,7 @@ class Resource
     ];
 
     /**
-     * Buat resource route baru.
+     * Constructor.
      *
      * @param string $name
      * @param array  $template
@@ -97,7 +97,7 @@ class Resource
     }
 
     /**
-     * Buat resource route baru (static).
+     * Create a new resource instance.
      *
      * @param string $name
      * @param array  $options
@@ -110,7 +110,7 @@ class Resource
     }
 
     /**
-     * Proses opsi-opsi pada route.
+     * Parse route options.
      *
      * @param array $options
      *
@@ -134,7 +134,7 @@ class Resource
     }
 
     /**
-     * Replace placeholder pada route options.
+     * Replace :name placeholder in a string.
      *
      * @param string $placeholder
      *

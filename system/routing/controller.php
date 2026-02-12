@@ -19,42 +19,42 @@ use System\Validator;
 abstract class Controller
 {
     /**
-     * Nama event untuk controller factory rakit.
+     * The event name for controller factory.
      *
      * @var string
      */
     const FACTORY = 'rakit.controller.factory';
 
     /**
-     * Berisi layout yang sedang digunakan oleh controller.
+     * Contains the layout view for the controller.
      *
      * @var string
      */
     public $layout;
 
     /**
-     * Berisi nama paket pemilik controller.
+     * Contains the package identifier for the controller.
      *
      * @var string
      */
     public $package;
 
     /**
-     * Indikasi bahwa controller menggunakan RESTful routing.
+     * Indicates whether the controller is RESTful.
      *
      * @var bool
      */
     public $restful = false;
 
     /**
-     * Berisi list middleware yang dilampirkan ke controller ini.
+     * Contains the middlewares attached to the controller.
      *
      * @var array
      */
     protected $middlewares = [];
 
     /**
-     * Buat instance Controller baru.
+     * Constructor.
      */
     public function __construct()
     {
@@ -64,7 +64,7 @@ abstract class Controller
     }
 
     /**
-     * Deteksi seluruh controller milik paket yang diberikan.
+     * Detect all controllers in a package.
      *
      * @param string $package
      * @param string $directory
@@ -93,14 +93,14 @@ abstract class Controller
     }
 
     /**
-     * Panggil sebuah method action milik controller.
+     * Call a controller action statically.
      *
      * <code>
      *
-     *      // Panggil method User_Controller::show()
+     *      // Call User_Controller::show()
      *      $response = Controller::call('user@show');
      *
-     *      // Panggil method User_Admin_Controller::profile() dan oper parameter
+     *      // Call User_Admin_Controller::profile() and pass parameters
      *      $response = Controller::call('user.admin@profile', [$name]);
      *
      * </code>
@@ -131,7 +131,7 @@ abstract class Controller
     }
 
     /**
-     * Ganti seluruh back-reference milik rute.
+     * Replace back references in the destination string with parameter values.
      *
      * @param string $destination
      * @param array  $parameters
@@ -156,7 +156,7 @@ abstract class Controller
     }
 
     /**
-     * Resolve nama paket dan nama controller menjadi instance kelas controller.
+     * Resolve a package name and controller name into a controller instance.
      *
      * @param string $package
      * @param string $controller
@@ -184,7 +184,7 @@ abstract class Controller
     }
 
     /**
-     * Muat file controller.
+     * Load the controller file.
      *
      * @param string $package
      * @param string $controller
@@ -205,7 +205,7 @@ abstract class Controller
     }
 
     /**
-     * Format identifier paket dan controller menjadi nama kelas controller.
+     * Format the package identifier and controller name into a class name.
      *
      * @param string $package
      * @param string $controller
@@ -218,7 +218,7 @@ abstract class Controller
     }
 
     /**
-     * Eksekusi method controller dengan parameter yang diberikan.
+     * Execute a controller action with given parameters and return the response.
      *
      * @param string $method
      * @param array  $parameters
@@ -245,10 +245,10 @@ abstract class Controller
     }
 
     /**
-     * Eksekusi action controller dan return responnya.
+     * Execute a controller action and return it's raw response.
      *
-     * Berbeda dengan method execute(), tidak akan ada middleware yang akan dijalankan
-     * dan respon dari action controllertidak akan diubah sebelum ia direturn.
+     * Unlike the execute() method, no middleware will be run
+     * and the response from the controller action will not be modified before it is returned.
      *
      * @param string $method
      * @param array  $parameters
@@ -263,14 +263,14 @@ abstract class Controller
     }
 
     /**
-     * Lampirkan middleware ke controller.
+     * Attach middleware to the controller.
      *
      * <code>
      *
-     *      // Set sebuah middleware after 'foo' untuk seluruh method di controller
+     *      // Set a middleware after 'foo' for all methods in the controller
      *      $this->middleware('before', 'foo');
      *
-     *      // Set middleware after 'foo' dan 'bar' hanya untuk bebrapa method saja
+     *      // Set middleware after 'foo' and 'bar' for only some methods
      *      $this->middleware('after', 'foo|bar')->only(['user', 'profile']);
      *
      * </code>
@@ -288,7 +288,7 @@ abstract class Controller
     }
 
     /**
-     * Ambil list nama middleware yang dilampirkan ke method.
+     * Get the middlewares for a specific event and method.
      *
      * @param string $event
      * @param string $method
@@ -313,7 +313,7 @@ abstract class Controller
     }
 
     /**
-     * Definisikan view layout untuk controller saat ini.
+     * Define the layout view for the controller.
      *
      * @return View
      */
@@ -324,7 +324,7 @@ abstract class Controller
     }
 
     /**
-     * Validasi input.
+     * Validate the current request input against the given rules.
      *
      * @param array $rules
      *
@@ -344,8 +344,7 @@ abstract class Controller
     }
 
     /**
-     * Method ini akan terpanggil sebelum setiap request ke
-     * controller ini dieksekusi.
+     * This method will be called before every request to this controller is executed.
      */
     public function before()
     {
@@ -353,8 +352,7 @@ abstract class Controller
     }
 
     /**
-     * Method ini akan terpanggil sebelum setiap request ke
-     * controller ini dieksekusi.
+     * This method will be called after every request to this controller is executed.
      *
      * @param Response $response
      */
@@ -364,7 +362,7 @@ abstract class Controller
     }
 
     /**
-     * Handle request yang tidak cocok dengan definsi rute yang ada.
+     * Handle invalid method calls.
      *
      * @param string $method
      * @param array  $parameters
@@ -377,7 +375,7 @@ abstract class Controller
     }
 
     /**
-     * Resolve item dari Container secara dinamis.
+     * Resolve objects from the container dynamically.
      *
      * @param string $method
      *
@@ -385,10 +383,8 @@ abstract class Controller
      *
      * <code>
      *
-     *      // Resolve object yang terdaftar di container (cara 1)
-     *      $mailer = $this->mailer;
-     *
-     *      // Resolve object yang terdaftar di container (cara 2)
+     *      // Resolve registered object 'mailer' from container
+     *      $mailer = $this->mailer; // equivalent to:
      *      $mailer = Container::resolve('mailer');
      *
      * </code>

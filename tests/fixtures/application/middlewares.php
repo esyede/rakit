@@ -2,20 +2,16 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Routing\Route;
-use System\Request;
-use System\Response;
-use System\Auth;
-use System\Routing\Throttle;
-
 /*
 |--------------------------------------------------------------------------
-| Middleware
+| Route Middlewares
 |--------------------------------------------------------------------------
 |
-| Middleware menyediakan cara untuk melampirkan fungsionalitas ke rute anda.
-| Middleware bawaan 'before' dan 'after' akan dipanggil sebelum dan sesudah
-| setiap request direspon.
+| Middleware provides a way to attach functionality to your routes.
+| It allows you to define middleware functions that can be applied to
+| specific routes or groups of routes. Middleware functions can perform
+| tasks such as authentication, authorization, rate limiting, and more.
+|
 |
 */
 

@@ -47,7 +47,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test konstanta.
+     * Test constants.
      *
      * @group system
      */
@@ -62,7 +62,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test konstruktor.
+     * Test constructor.
      *
      * @group system
      */
@@ -183,12 +183,12 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
         $server = new Server('tcp://127.0.0.1:0');
         $this->setConfig($server, 'supported_extensions', ['permessage-deflate']);
         $this->assertEquals(
-            "Sec-WebSocket-Extensions: permessage-deflate\r\n",
+            'Sec-WebSocket-Extensions: permessage-deflate' . CRLF,
             $this->callProtectedMethod($server, 'extensions', ['permessage-deflate'])
         );
         $this->assertEquals('', $this->callProtectedMethod($server, 'extensions', ['unsupported']));
         $this->assertEquals(
-            "Sec-WebSocket-Extensions: permessage-deflate\r\n",
+            'Sec-WebSocket-Extensions: permessage-deflate' . CRLF,
             $this->callProtectedMethod($server, 'extensions', ['permessage-deflate, other'])
         );
         $server->shutdown();

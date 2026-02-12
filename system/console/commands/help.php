@@ -9,7 +9,7 @@ use System\Storage;
 class Help extends Command
 {
     /**
-     * List seluruh command bawaan rakit.
+     * List all built-in commands.
      *
      * @param array $arguments
      *

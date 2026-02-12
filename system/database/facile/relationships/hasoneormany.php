@@ -10,8 +10,8 @@ use System\Database\Facile\Model;
 class HasOneOrMany extends Relationship
 {
     /**
-     * Insert record baru ke relasi.
-     * Jika model berhasil disimpan, data model akan direturn. FALSE jika sebaliknya.
+     * Insert a new record for the relationship.
+     * If a Model instance is passed, it will be saved directly.
      *
      * @param Model|array $attributes
      *
@@ -29,7 +29,7 @@ class HasOneOrMany extends Relationship
     }
 
     /**
-     * Update record relasi.
+     * Update the records of the relationship.
      *
      * @param array $attributes
      *
@@ -45,7 +45,7 @@ class HasOneOrMany extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi.
+     * Set the appropriate constraint on the relational query.
      */
     protected function constrain()
     {
@@ -53,7 +53,7 @@ class HasOneOrMany extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi untuk eagerload.
+     * Set the constraints for an eager load of the relationship.
      *
      * @param array $results
      */

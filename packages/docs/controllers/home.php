@@ -7,19 +7,10 @@ use Docs\Libraries\Docs;
 class Docs_Home_Controller extends Controller
 {
     /**
-     * Bahasa default.
-     *
-     * @var string
-     */
-    private $lang;
-
-    /**
      * Jalankan CSRF middleware di setiap POST request.
      */
     public function __construct()
     {
-        $this->lang = Request::getPreferredLanguage();
-        $this->lang = (false !== stripos((string) $this->lang, 'id')) ? 'id' : 'en';
         $this->middleware('before', 'csrf')->on('post');
     }
 
@@ -28,14 +19,13 @@ class Docs_Home_Controller extends Controller
      *
      * @return View
      */
-    public function action_index($lang = null)
+    public function action_index()
     {
-        $lang = ($lang ?: $this->lang) . '/';
         return View::make('docs::home')
             ->with_title(Docs::title('home'))
-            ->with_sidebar(Docs::sidebar(Docs::render($lang . '000-sidebar')))
-            ->with_content(Docs::content(Docs::render($lang . 'home')))
-            ->with_file($lang . 'home');
+            ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
+            ->with_content(Docs::content(Docs::render('home')))
+            ->with_file('home');
     }
 
     /**
@@ -49,7 +39,6 @@ class Docs_Home_Controller extends Controller
     public function action_page($section, $page = null)
     {
         $args = func_get_args();
-        $lang = (isset($args[0]) ? $args[0] : $this->lang) . '/';
         $file = Docs::exists(rtrim(implode('/', $args), '/') . '/home') ? '/home' : '';
         $file = rtrim(implode('/', $args), '/') . $file;
 
@@ -59,7 +48,7 @@ class Docs_Home_Controller extends Controller
 
         return View::make('docs::home')
             ->with_title(Docs::title($file))
-            ->with_sidebar(Docs::sidebar(Docs::render($lang . '000-sidebar')))
+            ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
             ->with_content(Docs::content(Docs::render($file)))
             ->with_file($file);
     }

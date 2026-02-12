@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Clear extends Command
 {
     /**
-     * Bersihkan seluruh cache data.
+     * Clear all cache data.
      *
      * @param array $arguments
      *
@@ -20,7 +20,7 @@ class Clear extends Command
     }
 
     /**
-     * Bersihkan seluruh file cache views.
+     * Clear all view cache files.
      *
      * @param array $arguments
      *
@@ -40,7 +40,7 @@ class Clear extends Command
     }
 
     /**
-     * Bersihkan seluruh file log.
+     * Clear all log files.
      *
      * @return void
      */

@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class Messages
 {
     /**
-     * Berisi seluruh message yang terdaftar.
+     * Contains all registered messages.
      *
      * @var array
      */
     public $messages;
 
     /**
-     * Format default untuk output.
+     * The default format for output.
      *
      * @var string
      */
     public $format = ':message';
 
     /**
-     * Buat instance Message baru.
+     * Create a new Messages instance.
      *
      * @param array $messages
      */
@@ -31,11 +31,11 @@ class Messages
     }
 
     /**
-     * Tambahkan sebuat message ke collector.
+     * Add a message to the collector.
      *
      * <code>
      *
-     *      // Tambahkam message untuk atribut 'email'
+     *      // Add message for 'email' attribute
      *      $messages->add('email', 'Email yang Anda masukkan tidak sah.');
      *
      * </code>
@@ -51,7 +51,7 @@ class Messages
     }
 
     /**
-     * Cek apakah kombinasi key dan message sudah ada atau belum.
+     * Check if a combination of key and message already exists.
      *
      * @param string $key
      * @param string $message
@@ -64,11 +64,11 @@ class Messages
     }
 
     /**
-     * Cek apakah key ini memiliki message atau tidak.
+     * Check if a key has any messages.
      *
      * <code>
      *
-     *      // Adakah message untuk atribut 'email'?
+     *      // Is there any message for 'email' attribute?
      *      return $messages->has('email');
      *
      * </code>
@@ -84,11 +84,11 @@ class Messages
     }
 
     /**
-     * Cek apakah message masih kosong.
+     * Check if message is empty.
      *
      * <code>
      *
-     *      // Apakah message masih kosong?
+     *      // Is the message empty?
      *      return $messages->any();
      *
      * </code>
@@ -103,12 +103,12 @@ class Messages
     }
 
     /**
-     * Set format output default.
+     * Set the default output format.
      *
      * <code>
      *
-     *      // Set format output default baru.
-     *      $messages->format('email', '<p>:message ini punyaku</p>');
+     *      // Set new default format
+     *      $messages->format('email', '<p>:message is used bro</p>');
      *
      * </code>
      *
@@ -120,17 +120,17 @@ class Messages
     }
 
     /**
-     * Ambil value message pertama dari key yang diberikan.
+     * Get the first message from the given key.
      *
      * <code>
      *
-     *      // Tampilkan message pertama dari seluruh message yang ada.
+     *      // Show the first message
      *      echo $messages->first();
      *
-     *      // Tampilkan message pertama milik atribut 'email'
+     *      // Show the first message from the 'email' key
      *      echo $messages->first('email');
      *
-     *      // Format ulang message pertama milik atribut 'email'
+     *      // Re-format the first message from the 'email' key
      *      echo $messages->first('email', '<p>:message</p>');
      *
      * </code>
@@ -149,14 +149,14 @@ class Messages
     }
 
     /**
-     * Ambil semua message milik key yang diberikan.
+     * Get all messages from the given key.
      *
      * <code>
      *
-     *      // Tampilkan semua message milik atribut 'email'
+     *      // Show all messages from the 'email' key
      *      echo $messages->get('email');
      *
-     *      // Format ulang semua message milik atribut 'email'
+     *      // Format all messages from the 'email' key
      *      echo $messages->get('email', '<p>:message</p>');
      *
      * </code>
@@ -175,14 +175,14 @@ class Messages
     }
 
     /**
-     * Ambil seluruh pesan milik seluruh key yang terdaftar di collector.
+     * Get all messages from all keys.
      *
      * <code>
      *
-     *      // Ambil seluruh pesan yang terdaftar di collector
+     *      // Get all messages from all keys
      *      $all = $messages->all();
      *
-     *      // Format ulang seluruh pesan yang terdaftar di collector
+     *      // Format all messages from all keys
      *      $all = $messages->all('<p>:message</p>');
      *
      * </code>
@@ -204,7 +204,7 @@ class Messages
     }
 
     /**
-     * Format ulang array message.
+     * Re-format array message.
      *
      * @param array  $messages
      * @param string $format

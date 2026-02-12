@@ -7,9 +7,9 @@ defined('DS') or exit('No direct access.');
 class Storage
 {
     /**
-     * Cek apakah file atau direktori ada.
-     * Method ini tidak cocok untuk mengecek ada tidaknya file.
-     * Gunakan Storage::isfile() untuk kebutuhan itu!
+     * Check if file or directory exists.
+     * This method is not suitable for checking the existence of a file.
+     * Use Storage::isfile() for that purpose!
      *
      * @param string $path
      *
@@ -21,7 +21,7 @@ class Storage
     }
 
     /**
-     * Cek apakah path yang diberikan merupakan sebuah file atau bukan.
+     * Check if the given path is a file.
      *
      * @param string $path
      *
@@ -33,7 +33,7 @@ class Storage
     }
 
     /**
-     * Cek apakah path yang diberikan merupakan sebuah direktori atau bukan.
+     * Check if the given path is a directory.
      *
      * @param string $path
      *
@@ -45,15 +45,15 @@ class Storage
     }
 
     /**
-     * Ambil konten file.
+     * Get the contents of a file.
      *
      * <code>
      *
-     *      // Ambil konten file
+     *      // Get the contents of a file
      *      $contents = Storage::get(path('app').'routes.php');
      *
-     *      // Ambil konten file atau return default value jika file tidak ketemu
-     *      $contents = Storage::get(path('app').'routes.php', 'Filenya nggak ada gaes!');
+     *      // Get the contents of a file or return default value if file not found
+     *      $contents = Storage::get(path('app').'routes.php', 'File not found!');
      *
      * </code>
      *
@@ -68,7 +68,7 @@ class Storage
     }
 
     /**
-     * Tulis data file.
+     * Write data to a file.
      *
      * @param string $path
      * @param string $data
@@ -81,7 +81,7 @@ class Storage
     }
 
     /**
-     * Prepend data ke file.
+     * Prepend data to a file.
      *
      * @param string $path
      * @param string $data
@@ -92,7 +92,7 @@ class Storage
     }
 
     /**
-     * Append data ke file.
+     * Append data to a file.
      *
      * @param string $path
      * @param string $data
@@ -103,9 +103,9 @@ class Storage
     }
 
     /**
-     * Hapus sebuah file.
+     * Delete a file.
      *
-     * @param string $pathl
+     * @param string $path
      */
     public static function delete($path)
     {
@@ -117,7 +117,7 @@ class Storage
     }
 
     /**
-     * Kosongkan direktori dari file dan folder.
+     * Empty a directory from files and folders.
      *
      * @param string $path
      */
@@ -127,7 +127,7 @@ class Storage
     }
 
     /**
-     * Pindahkan file ke lokasi baru.
+     * Move a file to a new location.
      *
      * @param string $from
      * @param string $to
@@ -148,7 +148,7 @@ class Storage
     }
 
     /**
-     * Pindahkan sebuah direktori.
+     * Move a directory.
      *
      * @param string $from
      * @param string $to
@@ -174,7 +174,7 @@ class Storage
     }
 
     /**
-     * Copy file ke lokasi baru.
+     * Copy file to a new location.
      *
      * @param string $path
      * @param string $target
@@ -193,7 +193,7 @@ class Storage
     }
 
     /**
-     * Copy direktori ke lokasi lain.
+     * Copy directory to a new location.
      *
      * @param string $directory
      * @param string $destination
@@ -223,7 +223,7 @@ class Storage
     }
 
     /**
-     * Hapus sebuah direktori.
+     * Delete a directory.
      *
      * @param string $path
      * @param bool   $preserve
@@ -258,7 +258,7 @@ class Storage
     }
 
     /**
-     * Ambil ekstensi file.
+     * Get file extension.
      *
      * @param string $path
      *
@@ -270,7 +270,7 @@ class Storage
     }
 
     /**
-     * Ambil tipe file.
+     * Get file type.
      *
      * @param string $path
      *
@@ -282,7 +282,7 @@ class Storage
     }
 
     /**
-     * Ambil ukuran file.
+     * Get file size.
      *
      * @param string $path
      *
@@ -294,7 +294,7 @@ class Storage
     }
 
     /**
-     * Ambil waktu modifikasi terakhir file.
+     * Get file modification time.
      *
      * @param string $path
      *
@@ -306,7 +306,7 @@ class Storage
     }
 
     /**
-     * Get atau set perizinan file/folder.
+     * Get or set file/folder permissions.
      *
      * @param string   $path
      * @param int|null $mode
@@ -319,7 +319,7 @@ class Storage
     }
 
     /**
-     * Ambil nama file dari sebuah path.
+     * Get file name from a path.
      *
      * @param string $path
      *
@@ -331,7 +331,7 @@ class Storage
     }
 
     /**
-     * Ambil base file name dari sebuah path.
+     * Get base file name from a path.
      *
      * @param string $path
      *
@@ -343,7 +343,7 @@ class Storage
     }
 
     /**
-     * Ambil direktori induk dari sebuah path.
+     * Get directory name from a path.
      *
      * @param string $path
      *
@@ -355,7 +355,7 @@ class Storage
     }
 
     /**
-     * Tentukan Mime-type berdasarkan ekstensi.
+     * Guess file mime type from a path.
      *
      * @param string $path
      *
@@ -367,16 +367,16 @@ class Storage
     }
 
     /**
-     * Cek apakah tipe file benar (menggunakan Fileinfo).
-     * Gunakan ini untuk menangani upload file.
+     * Check if file is valid based on its mime type.
+     * Use this method to validate uploaded files.
      *
      * <code>
      *
-     *      // Cek apakah file merupakan gambar JPG
+     *      // Check if file is a JPG image
      *      $jpg = Storage::is('jpg', 'path/to/file.jpg');
      *
-     *      // Cek apakah tipe file ada di array yang diberikan
-     *      $image = Storage::is(['jpg', 'png', 'gif'], 'path/to/file');
+     *      // Check if file is a JPG or PNG image
+     *      $image = Storage::is(['jpg', 'png'], 'path/to/file');
      *
      * </code>
      *
@@ -403,8 +403,8 @@ class Storage
     }
 
     /**
-     * Buat direktori baru secara rekursif.
-     * Method ini juga sekaligus menambahkan file index.html di setiap subfolder.
+     * Create a new directory recursively.
+     * This method also creates an index.html file in each subfolder.
      *
      * @param string $path
      * @param int    $chmod
@@ -420,7 +420,7 @@ class Storage
     }
 
     /**
-     * Ambil file yang baru saja dimodifikasi dalam direktori.
+     * Get the latest file in a directory.
      *
      * @param string $directory
      * @param int    $options
@@ -444,7 +444,7 @@ class Storage
     }
 
     /**
-     * Ambil MD5 hash sebuah file.
+     * Get the MD5 hash of a file.
      *
      * @param string $path
      *
@@ -456,7 +456,7 @@ class Storage
     }
 
     /**
-     * Cari path berdasarkan pencocokan pola.
+     * Find path based on pattern matching.
      *
      * @param string $pattern
      * @param int    $flags
@@ -469,8 +469,7 @@ class Storage
     }
 
     /**
-     * Proteksi path dari akses nakal via browser
-     * dengan cara menambahkan file index.html.
+     * Protect path from malicious access via browser by adding an index.html file.
      *
      * @param string $path
      */

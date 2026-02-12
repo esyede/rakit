@@ -23,7 +23,7 @@ class LangTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Lang::line().
+     * Test for Lang::line().
      *
      * @group system
      */
@@ -40,7 +40,7 @@ class LangTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Lang::__toString().
+     * Test for Lang::__toString().
      *
      * @group system
      */
@@ -52,7 +52,7 @@ class LangTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk penggantian placeholder ':attribute'.
+     * Test for the ':attribute' replacement in language lines.
      *
      * @group system
      */
@@ -65,7 +65,7 @@ class LangTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Lang::has().
+     * Test for Lang::has().
      *
      * @group system
      */

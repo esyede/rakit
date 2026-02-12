@@ -10,7 +10,7 @@ use System\Request;
 use System\Foundation\Http\Request as FoundationRequest;
 
 /**
- * Override beberapa fungsi bawaan PHP untuk keperluan testing.
+ * Override the native setcookie function.
  */
 function setcookie($name, $value, $time, $path, $domain, $secure)
 {
@@ -41,7 +41,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Helper: set value di $_SERVER.
+     * Helper: set value on $_SERVER and restart request.
      *
      * @param string $key
      * @param string $value
@@ -49,24 +49,22 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     protected function setServerVar($key, $value)
     {
         $_SERVER[$key] = $value;
-
         $this->restartRequest();
     }
 
     /**
-     * Inisialisasi ulang global request.
+     * Re-initialize the request instance.
      *
      * @return void
      */
     protected function restartRequest()
     {
         $_FILES = [];
-
         Request::$foundation = FoundationRequest::createFromGlobals();
     }
 
     /**
-     * Test untuk method Cookie::has().
+     * Test for Cookie::has().
      *
      * @group system
      */
@@ -78,28 +76,25 @@ class CookieTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Cookie::has('bar'));
 
         Cookie::put('baz', 'qux');
-
         $this->assertTrue(Cookie::has('baz'));
     }
 
     /**
-     * Test untuk method Cookie::get().
+     * Test for Cookie::get().
      *
      * @group system
      */
     public function testGetMethodCanReturnValueOfCookies()
     {
         Cookie::$jar['foo'] = ['value' => Crypter::encrypt('bar')];
-
         $this->assertEquals('bar', Cookie::get('foo'));
 
         Cookie::put('bar', 'baz');
-
         $this->assertEquals('baz', Cookie::get('bar'));
     }
 
     /**
-     * Test untuk method Cookie::forever().
+     * Test for Cookie::forever().
      *
      * @group system
      */
@@ -119,7 +114,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Cookie::forget().
+     * Test for Cookie::forget().
      *
      * @group system
      */

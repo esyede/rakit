@@ -9,7 +9,7 @@ class FacileHasManyThroughTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // Setup koneksi database untuk testing
+        // Setup
     }
 
     /**
@@ -122,7 +122,7 @@ class FacileHasManyThroughTest extends \PHPUnit_Framework_TestCase
         $country = new CountryModel(['id' => 1]);
         $relation = $country->posts();
 
-        // results() method harus mereturn hasil query
+        // results() method should exist and return an array (even if empty)
         $this->assertTrue(method_exists($relation, 'results'));
     }
 
@@ -148,7 +148,7 @@ class FacileHasManyThroughTest extends \PHPUnit_Framework_TestCase
 }
 
 /**
- * Test model untuk Country.
+ * Test model for Country.
  */
 class CountryModel extends \System\Database\Facile\Model
 {
@@ -156,7 +156,7 @@ class CountryModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi has many ke User.
+     * The relasi has many through relationship to User (intermediary model).
      */
     public function users()
     {
@@ -164,7 +164,8 @@ class CountryModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi has many through ke Post melalui User.
+     * The relasi has many through relationship to Post (final model)
+     * through User (intermediary model).
      */
     public function posts()
     {
@@ -172,7 +173,8 @@ class CountryModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi has many through dengan custom keys.
+     * The relasi has many through relationship to Post (final model)
+     * through User (intermediary model) with custom keys.
      */
     public function postsWithCustomKeys()
     {
@@ -188,7 +190,7 @@ class CountryModel extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk User (perantara).
+ * Test model for User (intermediary).
  */
 class ThroughUserModel extends \System\Database\Facile\Model
 {
@@ -196,7 +198,7 @@ class ThroughUserModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to ke Country.
+     * The belongs to relationship to Country (parent model).
      */
     public function country()
     {
@@ -204,7 +206,7 @@ class ThroughUserModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi has many ke Post.
+     * The has many relationship to Post (final model).
      */
     public function posts()
     {
@@ -213,7 +215,7 @@ class ThroughUserModel extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Post (tujuan).
+ * Test model for Post (final model).
  */
 class ThroughPostModel extends \System\Database\Facile\Model
 {
@@ -221,7 +223,7 @@ class ThroughPostModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to ke User.
+     * The belongs to relationship to User (intermediary model).
      */
     public function user()
     {

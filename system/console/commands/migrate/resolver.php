@@ -10,14 +10,14 @@ use System\Str;
 class Resolver
 {
     /**
-     * Berisi instance database migrasi.
+     * Contains instance of database migration.
      *
      * @var Database
      */
     protected $database;
 
     /**
-     * Buat instance migration resolver baru.
+     * Create new migration resolver instance.
      *
      * @param Database $database
      *
@@ -29,7 +29,7 @@ class Resolver
     }
 
     /**
-     * Resolve seluruh migrasi milik sebuah paket.
+     * Resolve all migrations belonging to a package.
      *
      * @param array $arguments
      *
@@ -55,7 +55,7 @@ class Resolver
     }
 
     /**
-     * Resolve array migrasi batch terakhir.
+     * Resolve array of last batch migrations.
      *
      * @return array
      */
@@ -65,7 +65,7 @@ class Resolver
     }
 
     /**
-     * Resolve array instance migrasi.
+     * Resolve array of instance migrations.
      *
      * @param array $migrations
      *
@@ -96,7 +96,7 @@ class Resolver
     }
 
     /**
-     * Ambil seluruh nama file migrasi milik sebuah paket.
+     * Get array of migration files belonging to a package.
      *
      * @param string $package
      *

@@ -37,7 +37,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Router::find().
+     * Test for Router::find().
      *
      * @group system
      */
@@ -54,7 +54,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk mekanisme routing dasar.
+     * Test for basic routing.
      *
      * @group system
      */
@@ -74,7 +74,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa router dapat menangani wildcard dasar.
+     * Test that wildcard routes can be handled correctly.
      *
      * @group system
      */
@@ -104,7 +104,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa wildcard opsional juga bisa ditangani dengan benar.
+     * Test that optional wildcard routes can be handled correctly.
      *
      * @group system
      */
@@ -130,7 +130,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa conntroller dasar bisa bekerja dengan benar.
+     * Test that basic route to controller can be handled correctly.
      *
      * @group system
      */
@@ -144,7 +144,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa routing dasar untuk paket dapat ditangani dengan benar.
+     * Test that routes to packages can be resolved correctly.
      *
      * @group system
      */
@@ -155,7 +155,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa controller milik paket dapat ditemukan dengan benar.
+     * Test that package controllers can be resolved correctly.
      *
      * @group system
      */
@@ -169,7 +169,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa karakter asing juga bisa digunakan untuk routing.
+     * Test that foreign characters in routes are handled correctly.
      *
      * @group system
      */
@@ -205,7 +205,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa subdomain routing dapat ditangani dengan benar.
+     * Test that subdomain routes can be handled correctly.
      *
      * @group system
      */
@@ -247,7 +247,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa prefix di route group dapat ditangani dengan benar.
+     * Test that prefix routes can be handled correctly.
      *
      * @group system
      */
@@ -284,5 +284,15 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
 
         // Test no match
         $this->assertNull(Router::route('GET', 'users'));
+    }
+
+    /**
+     * Test that Router::find returns null for non-existent routes.
+     *
+     * @group system
+     */
+    public function testFindReturnsNullForNonExistentRoute()
+    {
+        $this->assertNull(Router::find('nonexistent'));
     }
 }

@@ -11,28 +11,28 @@ use System\Database\Facile\Pivot;
 class BelongsToMany extends Relationship
 {
     /**
-     * Berisi nama tabel perantara yang sedang di join.
+     * Contains the name of the joining table.
      *
      * @var string
      */
     protected $joining;
 
     /**
-     * Berisi primary key milik tabel gabungan yang berelasi.
+     * Contains the name of the other foreign key.
      *
      * @var string
      */
     protected $other;
 
     /**
-     * List kolom di tabel gabungan yang harus daimbil.
+     * List of pivot columns to retrieve.
      *
      * @var array
      */
     public $with = ['id'];
 
     /**
-     * Buat instance relasi many-to-many baru.
+     * Constructor.
      *
      * @param Model  $model
      * @param string $associated
@@ -54,8 +54,8 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Tentukan nama tabel gabungan untuk relasi.
-     * Secara default, penamaannya mengikuti pola snake_case.
+     * Set the joining table name.
+     * By default, the naming follows the snake_case pattern.
      *
      * @return string
      */
@@ -68,7 +68,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Ambil properti hasil mass-assignment untuk relasi.
+     * Get the results of mass-assignment against the relationship.
      *
      * @return array
      */
@@ -78,7 +78,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Insert record baru ke tabel gabungan.
+     * Insert a new record into the joining table.
      *
      * @param Model|int $id
      * @param array     $attributes
@@ -94,7 +94,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Hapus record dari tabel gabungan.
+     * Delete a record from the joining table.
      *
      * @param array|Model|int $ids
      *
@@ -112,7 +112,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Sinkronkan tabel gabungan dengan array ID yang diberikan.
+     * Sync the joining table with a list of IDs.
      *
      * @param array $ids
      *
@@ -137,7 +137,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Insert record baru ke relasi.
+     * Insert a new record into the related table and the joining table.
      *
      * @param Model|array $attributes
      * @param array       $joining
@@ -158,7 +158,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Hapus seluruh record milik tabel gabungan.
+     * Delete all records from the joining table.
      *
      * @return int
      */
@@ -168,7 +168,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Buat array yang mewakili record gabungan baru untuk relasi.
+     * Generate an array representation of a joining record.
      *
      * @param int $id
      *
@@ -183,7 +183,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Insert record baru ke tabel gabungan relasi.
+     * Insert a new record into the joining table.
      *
      * @param array $attributes
      */
@@ -198,7 +198,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Ambil query builder untuk tabel gabungan relasi.
+     * Get the query builder for the joining table.
      *
      * @return Query
      */
@@ -208,7 +208,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi.
+     * Set the constraints for a relational query.
      */
     protected function constrain()
     {
@@ -219,7 +219,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set klausa SELECT pada query builder relasi.
+     * Set the SELECT clause on the related query builder.
      *
      * @param string $foreign
      * @param string $other
@@ -239,7 +239,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set klausa JOIN pada query builder relasi.
+     * Set the JOIN clause on the related query builder.
      *
      * @param string $other
      */
@@ -250,7 +250,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set klausa WHERE pada query builder relasi.
+     * Set the WHERE clause on the related query builder.
      *
      * @param string $foreign
      */
@@ -261,7 +261,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Mulai relasi pada beberapa model induk.
+     * Start the eager loading process for the relationship.
      *
      * @param array  $parents
      * @param string $relationship
@@ -274,7 +274,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi yang di eagerload.
+     * Set the constraints for an eager load of the relationship.
      *
      * @param array $results
      */
@@ -284,7 +284,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Cocokkan model anak yang di eagerload dengan model induknya.
+     * Match the eagerly loaded results to their parents.
      *
      * @param array $parents
      * @param array $childrens
@@ -306,7 +306,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Hidrasi model pivot pada array result.
+     * Hydrate the pivot models on the results.
      *
      * @param array $results
      */
@@ -329,7 +329,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set list kolom tabel gabungan yang harus diambil.
+     * Set the pivot columns to retrieve.
      *
      * @param array $column
      *
@@ -345,7 +345,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Ambil instance relasi milik tabel pivot.
+     * Get a new query builder for the pivot table.
      *
      * @return HasMany
      */
@@ -356,7 +356,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Ambil foreign key untuk relasi saat ini.
+     * Get foreign key name for the other model.
      *
      * @return string
      */
@@ -366,7 +366,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Ambil primary key tabel yang berelasi.
+     * Get the associated key for the related model.
      *
      * @return string
      */

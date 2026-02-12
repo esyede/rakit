@@ -9,7 +9,7 @@ class File extends Parameter
     private static $fileKeys = ['error', 'name', 'size', 'tmp_name', 'type'];
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param array $parameters
      */
@@ -53,7 +53,7 @@ class File extends Parameter
     }
 
     /**
-     * Ubah data file upload menjadi instance kelas Upload.
+     * Convert file infprmation to Upload instance.
      *
      * @param array|Upload $file
      *
@@ -84,11 +84,11 @@ class File extends Parameter
     }
 
     /**
-     * Perbaiki bug pada array $_FILES.
+     * Fix the $_FILES array bug.
      *
-     * PHP memiliki bug yaitu format array $_FILES kadang berbeda,
-     * tergantung pada apakah bidang file yang diunggah memiliki nama yang normal
-     * atau namanya menyerupai array ("normal" vs. "foo[bar]").
+     * PHP has a bug where the format of the $_FILES array is sometimes different,
+     * depending on whether the uploaded file fields have normal names
+     * or names that resemble an array ("normal" vs. "foo[bar]").
      *
      * @param array $data
      *

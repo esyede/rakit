@@ -1,12 +1,12 @@
 <?php
 
 // --------------------------------------------------------------
-// Aktifkan output buffering
+// Activate output buffering
 // --------------------------------------------------------------
 ob_start();
 
 // --------------------------------------------------------------
-// Catat timer awal (untuk benchmark)
+// Record the start timer (for benchmark)
 // --------------------------------------------------------------
 define('RAKIT_START', microtime(true));
 
@@ -16,11 +16,11 @@ define('RAKIT_START', microtime(true));
 define('DS', DIRECTORY_SEPARATOR);
 
 // --------------------------------------------------------------
-// Include konstanta path milik framework.
+// Include the framework's path constants
 // --------------------------------------------------------------
 require __DIR__ . DS . 'paths.php';
 
 // --------------------------------------------------------------
-// Jalankan frameworknya.
+// Run the framework
 // --------------------------------------------------------------
 require path('system') . 'boot.php';

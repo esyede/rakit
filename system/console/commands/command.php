@@ -9,7 +9,7 @@ defined('DS') or exit('No direct access.');
 abstract class Command
 {
     /**
-     * Tampilkan pesan informasi.
+     * Show an informational message.
      *
      * @param string $text
      * @param bool   $newline
@@ -22,7 +22,7 @@ abstract class Command
     }
 
     /**
-     * Tampilkan pesan peringatan.
+     * Show a warning message.
      *
      * @param string $text
      * @param bool   $newline
@@ -35,7 +35,7 @@ abstract class Command
     }
 
     /**
-     * Tampilkan pesan error.
+     * Show an error message.
      *
      * @param string $text
      * @param bool   $newline
@@ -48,7 +48,7 @@ abstract class Command
     }
 
     /**
-     * Tampilkan progress bar.
+     * Show a progress bar.
      *
      * @param int $current_percentage
      *
@@ -66,6 +66,14 @@ abstract class Command
         return $this->info(sprintf('%s%s', str_repeat('▓', $done), str_repeat('▓', 10 - $done)), false);
     }
 
+    /**
+     * Ask a question and return the answer.
+     *
+     * @param string $question
+     * @param string $default
+     *
+     * @return string
+     */
     protected function ask($question, $default = null)
     {
         echo Color::yellow($question . ($default ? ' ' . $default : ''), true);
@@ -77,7 +85,14 @@ abstract class Command
         return $answer ?: $default;
     }
 
-
+    /**
+     * Ask a confirmation question.
+     *
+     * @param string $question
+     * @param bool   $default
+     *
+     * @return bool
+     */
     protected function confirm($question, $default = false)
     {
         $answers = ['y'=> true, 'n' => false];
@@ -99,5 +114,4 @@ abstract class Command
 
         return $answers[$answer];
     }
-
 }

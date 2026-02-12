@@ -7,7 +7,7 @@
 body#oops-debug {
     margin: 0;
     display: block;
-    color: #566579;
+    color: #333333;
 }
 
 #oops-debug:not(body) {
@@ -58,14 +58,14 @@ body#oops-debug {
 }
 
 #oops-debug a {
-    color: #37a0dd;
+    color: #0066cc;
     text-decoration: none;
 }
 
 #oops-debug a:hover,
 #oops-debug a:focus {
-    background-color: #37a0dd;
-    color: white;
+    background-color: rgba(0, 102, 204, 0.1);
+    color: #004499;
 }
 
 #oops-debug h2,
@@ -80,28 +80,26 @@ body#oops-debug {
     width: 100%;
 }
 
-#oops-debug tr:nth-child(2n) td {
-    background: #ffffff;
-}
-
 #oops-debug td,
 #oops-debug th {
-    border: 1px solid #efefef;
-    padding: 2px 5px;
+    border: 1px solid #ddd;
+    padding: 2px 2px;
     vertical-align: top;
     text-align: left;
 }
 
 #oops-debug th {
-    background: #ebf1f5;
-    color: #566579;
+    background: #e0e0e0;
+    color: #333333;
     font-size: 90%;
     font-weight: bold;
 }
 
 #oops-debug pre,
 #oops-debug code {
-    font: 9pt/1.5 Consolas, monospace;
+    font:
+        9pt/1.5 Consolas,
+        monospace;
 }
 
 #oops-debug pre {
@@ -118,9 +116,11 @@ body#oops-debug {
 
 /* bar */
 #oops-debug-bar {
-    font: normal normal 13px/1.55 Tahoma, sans-serif;
-    color: #566579;
-    border: 1px solid #eeeeee;
+    font:
+        normal normal 13px/1.55 Tahoma,
+        sans-serif;
+    color: #333333;
+    border: 1px solid #ddd;
     background-color: #ffffff;
     position: fixed;
     padding-left: 5px;
@@ -134,7 +134,7 @@ body#oops-debug {
     will-change: opacity, top, left;
 
     border-radius: 3px;
-    box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 #oops-debug-bar:hover {
@@ -148,8 +148,8 @@ body#oops-debug {
 }
 
 #oops-debug-bar ul:not(:first-child) li {
-    opacity: 0.6;
-    background: #ffffff;
+    opacity: 0.7;
+    background: transparent;
 }
 
 #oops-debug-bar ul:not(:first-child) li:first-child {
@@ -167,6 +167,7 @@ body#oops-debug {
     vertical-align: bottom;
     width: 1.23em;
     height: 1.55em;
+    fill: currentColor; /* Ensures SVG color follows text */
 }
 
 #oops-debug-bar .oops-label {
@@ -175,14 +176,14 @@ body#oops-debug {
 
 #oops-debug-bar li > a,
 #oops-debug-bar li > span {
-    color: #566579;
+    color: #333333;
     display: block;
     padding: 0 0.4em;
 }
 
 #oops-debug-bar li > a:hover {
-    color: #566579;
-    background: #dfe6ee;
+    color: #0066cc;
+    background: #f0f0f0;
 }
 
 #oops-debug-bar li:first-child {
@@ -198,8 +199,8 @@ body#oops-debug {
 #oops-debug .oops-panel {
     display: none;
     font: normal normal 12px/1.5 sans-serif;
-    background: white;
-    color: #566579;
+    background: #ffffff;
+    color: #333333;
     text-align: left;
 }
 
@@ -208,8 +209,10 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug h1 {
-    font: normal normal 23px/1.4 Tahoma, sans-serif;
-    color: #566579;
+    font:
+        normal normal 18px/1.4 Tahoma,
+        sans-serif;
+    color: #0066cc;
     margin: -5px -5px 5px;
     padding: 0 25px 0 5px;
     word-wrap: break-word;
@@ -232,8 +235,9 @@ body#oops-debug .oops-panel {
     min-width: 200px;
     min-height: 80px;
     border-radius: 5px;
-    box-shadow: 1px 1px 20px rgba(102, 102, 102, 0.36);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    background: #ffffff;
 }
 
 #oops-debug .oops-mode-peek,
@@ -255,7 +259,7 @@ body#oops-debug .oops-panel {
 
 #oops-debug .oops-mode-float {
     display: flex;
-    opacity: 0.95;
+    opacity: 0.98;
     transition: opacity 0.2s;
     will-change: opacity, top, left;
     overflow: auto;
@@ -285,16 +289,18 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug .oops-icons a {
-    color: #566579;
+    color: #666666;
 }
 
 #oops-debug .oops-icons a:hover {
-    color: white;
+    color: #0066cc;
 }
 
 #oops-debug .oops-inner-container {
     min-width: 100%;
     float: left;
+    background: #ffffff;
+    color: #333333;
 }
 
 #oops-debug pre.oops-dump div {
@@ -308,8 +314,9 @@ body#oops-debug .oops-panel {
 
 #oops-debug pre.oops-dump {
     background: #ffffff;
+    color: #333333;
     padding: 0.4em 0.7em;
-    border: 1px dotted silver;
+    border: 1px solid #ddd;
     overflow: auto;
 }
 
@@ -319,28 +326,35 @@ body#oops-debug .oops-panel {
     border: none;
 }
 
-#oops-debug .oops-dump-array,
+/* Syntax Highlighting Updated for light mode */
+#oops-debug .oops-dump-array {
+    color: #0000ff;
+    font-weight: bold;
+}
+
 #oops-debug .oops-dump-object {
-    color: #c22;
+    color: #008000;
+    font-weight: bold;
 }
 
 #oops-debug .oops-dump-string {
-    color: #b47cd8;
+    color: #a52a2a;
 }
 
 #oops-debug .oops-dump-number {
-    color: #22863a;
+    color: #008000;
 }
 
 #oops-debug .oops-dump-null,
 #oops-debug .oops-dump-bool {
-    color: #f5871f;
+    color: #000080;
+    font-style: italic;
 }
 
 #oops-debug .oops-dump-visibility,
 #oops-debug .oops-dump-hash {
     font-size: 85%;
-    color: #8959a8;
+    color: #666666;
 }
 
 #oops-debug .oops-dump-indent {
@@ -349,7 +363,7 @@ body#oops-debug .oops-panel {
 
 #oops-debug .oops-toggle:after {
     content: "\A0\25BC";
-    opacity: 0.4;
+    opacity: 0.6;
 }
 
 #oops-debug .oops-toggle.oops-collapsed:after {
@@ -360,4 +374,30 @@ body#oops-debug .oops-panel {
     #oops-debug * {
         display: none;
     }
+}
+
+/* Styling Scrollbar untuk Panel Debug */
+#oops-debug *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+#oops-debug *::-webkit-scrollbar-track {
+    background: #ffffff;
+}
+
+#oops-debug *::-webkit-scrollbar-thumb {
+    background: #cccccc;
+    border: 2px solid #ffffff;
+    border-radius: 5px;
+}
+
+#oops-debug *::-webkit-scrollbar-thumb:hover {
+    background: #0066cc;
+}
+
+/* Dukungan untuk Firefox */
+#oops-debug * {
+    scrollbar-width: thin;
+    scrollbar-color: #cccccc #ffffff;
 }

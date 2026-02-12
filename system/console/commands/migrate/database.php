@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Database
 {
     /**
-     * Catat migrasi kedalam tabel migrasi.
+     * Log a migration into the migrations table.
      *
      * @param string $package
      * @param string $name
@@ -25,7 +25,7 @@ class Database
     }
 
     /**
-     * Hapus sebuah baris dari tabel migrasi.
+     * Delete a row from the migrations table.
      *
      * @param string $package
      * @param string $name
@@ -41,7 +41,7 @@ class Database
     }
 
     /**
-     * Me-return array berisi batch migrasi terbaru.
+     * Get the last batch of migrations.
      *
      * @return array
      */
@@ -54,7 +54,7 @@ class Database
     }
 
     /**
-     * Ambil list migrasi yang telah dijalankan oleh paket tertentu.
+     * Get the list of migrations that have been run by a specific package.
      *
      * @param string $package
      *
@@ -68,7 +68,7 @@ class Database
     }
 
     /**
-     * Ambil ID batch terbaru dari tabel migrasi.
+     * Get the ID of the latest batch from the migrations table.
      *
      * @return int
      */
@@ -78,7 +78,7 @@ class Database
     }
 
     /**
-     * Ambil instance query builder untuk tabel migrasi.
+     * Get an instance of the query builder for the migrations table.
      *
      * @return \System\Database\Query
      */

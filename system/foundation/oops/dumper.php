@@ -123,11 +123,7 @@ class Dumper
         });
 
         $live = !empty($options[self::LIVE]) && $var && (is_array($var) || is_object($var) || is_resource($var));
-        list($file, $line, $code) = $loc ? self::findLocation() : [null, null, null];
-        $locAttrs = null;
-
         return '<pre class="oops-dump' . (($live && true === $options[self::COLLAPSE]) ? ' oops-collapsed' : '') . '"'
-            . $locAttrs
             . ($live ? " data-oops-dump='" . json_encode(self::toJson($var, $options), JSON_HEX_APOS | JSON_HEX_AMP) . "'>" : '>')
             . ($live ? '' : self::dumpVar($var, $options))
 
@@ -168,11 +164,18 @@ class Dumper
      */
     private static function dumpVar(&$var, array $options, $level = 0)
     {
-        if (method_exists('\System\Foundation\Oops\Dumper', $m = 'dump' . gettype($var))) {
-            return self::$m($var, $options, $level);
+        switch (gettype($var)) {
+            case 'NULL':              return self::dumpNull();
+            case 'boolean':           return self::dumpBoolean($var);
+            case 'integer':           return self::dumpInteger($var);
+            case 'double':            return self::dumpDouble($var);
+            case 'string':            return self::dumpString($var, $options);
+            case 'array':             return self::dumpArray($var, $options, $level);
+            case 'object':            return self::dumpObject($var, $options, $level);
+            case 'resource':          return self::dumpResource($var, $options, $level);
+            case 'resource (closed)': return self::dumpResource($var, $options, $level);
+            default:                  return "<span>unknown type</span>\n";
         }
-
-        return "<span>unknown type</span>\n";
     }
 
     private static function dumpNull()

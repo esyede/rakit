@@ -9,7 +9,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // Setup koneksi database untuk testing
+        // ..
     }
 
     /**
@@ -17,11 +17,11 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // Cleanup
+        // ..
     }
 
     /**
-     * Test has one relationship.
+     * Test for has one relationship.
      *
      * @group system
      */
@@ -34,7 +34,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test has many relationship.
+     * Test for has many relationship.
      *
      * @group system
      */
@@ -47,7 +47,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test belongs to relationship.
+     * Test for belongs to relationship.
      *
      * @group system
      */
@@ -60,7 +60,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test belongs to many relationship.
+     * Test for belongs to many relationship.
      *
      * @group system
      */
@@ -73,7 +73,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model fillable.
+     * Test for model's fillable.
      *
      * @group system
      */
@@ -91,7 +91,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model guarded.
+     * Test for model's guarded.
      *
      * @group system
      */
@@ -109,7 +109,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model dirty tracking.
+     * Test for model's dirty tracking.
      *
      * @group system
      */
@@ -129,7 +129,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model sync().
+     * Test for model sync().
      *
      * @group system
      */
@@ -137,7 +137,6 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     {
         $user = new UserModel(['name' => 'John', 'email' => 'john@example.com'], true);
         $user->name = 'Jane';
-
         $this->assertTrue($user->dirty());
 
         $user->sync();
@@ -148,14 +147,13 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model to_array().
+     * Test for model to_array().
      *
      * @group system
      */
     public function testModelToArray()
     {
         UserModel::$hidden = ['password'];
-
         $user = new UserModel(['name' => 'John', 'email' => 'john@example.com', 'password' => 'secret']);
 
         $array = $user->to_array();
@@ -168,7 +166,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model purge().
+     * Test for model purge().
      *
      * @group system
      */
@@ -176,7 +174,6 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     {
         $user = new UserModel(['name' => 'John', 'email' => 'john@example.com'], true);
         $user->name = 'Jane';
-
         $this->assertEquals('Jane', $user->name);
 
         $user->purge('name');
@@ -186,25 +183,23 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model timestamps.
+     * Test for model's timestamps.
      *
      * @group system
      */
     public function testModelTimestamps()
     {
         $user = new UserModel();
-
         $this->assertTrue($user->timestamps());
 
         UserModel::$timestamps = false;
-
         $this->assertFalse($user->timestamps());
 
         UserModel::$timestamps = true;
     }
 
     /**
-     * Test model table name.
+     * Test for model's table name.
      *
      * @group system
      */
@@ -212,7 +207,7 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     {
         $user = new UserModel();
 
-        // UserModel sudah punya property public static $table = 'users' dari awal
+        // UserModel already has a public static property $table = 'users' from the start
         $this->assertEquals('users', $user->table());
 
         UserModel::$table = 'custom_users';
@@ -221,29 +216,26 @@ class FacileRelationshipsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model key.
+     * Test for model's key.
      *
      * @group system
      */
     public function testModelKey()
     {
         $user = new UserModel();
-
         $this->assertEquals('id', $user->key());
 
         $user->id = 123;
-
         $this->assertEquals(123, $user->get_key());
 
         $user->set_key(456);
-
         $this->assertEquals(456, $user->get_key());
         $this->assertEquals(456, $user->id);
     }
 }
 
 /**
- * Test model untuk User.
+ * Test model for User.
  */
 class UserModel extends \System\Database\Facile\Model
 {
@@ -251,7 +243,7 @@ class UserModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi has one ke Profile.
+     * The has one relationship to Profile.
      */
     public function profile()
     {
@@ -259,7 +251,7 @@ class UserModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi has many ke Post.
+     * The has many relationship to Post.
      */
     public function posts()
     {
@@ -267,7 +259,7 @@ class UserModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi belongs to many ke Role.
+     * The belongs to many relationship to Role.
      */
     public function roles()
     {
@@ -276,7 +268,7 @@ class UserModel extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Profile.
+ * Test model for Profile.
  */
 class ProfileModel extends \System\Database\Facile\Model
 {
@@ -284,7 +276,7 @@ class ProfileModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to ke User.
+     * The belongs to relationship to User.
      */
     public function user()
     {
@@ -293,7 +285,7 @@ class ProfileModel extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Post.
+ * Test model for Post.
  */
 class PostModel extends \System\Database\Facile\Model
 {
@@ -301,7 +293,7 @@ class PostModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to ke User.
+     * The belongs to relationship to User.
      */
     public function author()
     {
@@ -310,7 +302,7 @@ class PostModel extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Role.
+ * Test model for Role.
  */
 class RoleModel extends \System\Database\Facile\Model
 {
@@ -318,12 +310,10 @@ class RoleModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to many ke User.
+     * The belongs to many relationship to User.
      */
     public function users()
     {
         return $this->belongs_to_many('UserModel', 'role_user', 'role_id', 'user_id');
     }
 }
-
-

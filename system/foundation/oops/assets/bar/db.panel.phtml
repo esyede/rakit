@@ -35,11 +35,69 @@ $queries = Database::profile();
     }
 </style>
 
-<h1>Database Profiler</h1>
+<h1>DB Queries</h1>
 
 <div class="oops-inner">
     <div class="oops-inner-container">
         <?php if (count($queries) > 0) : ?>
+            <?php
+            // Detect N+1 queries
+            $n1Problems = Defaults::detectN1Queries($queries);
+            ?>
+
+            <?php if (count($n1Problems) > 0) : ?>
+                <div style="background: #fff3cd; border: 2px solid #f0ad4e; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
+                    <h3 style="margin-top: 0; color: #856404;">
+                        ⚠️ N+1 Query Problem Detected!
+                    </h3>
+                    <p style="margin: 10px 0;">
+                        Found <strong><?php echo count($n1Problems); ?></strong> potential N+1 query pattern<?php echo count($n1Problems) > 1 ? 's' : ''; ?>.
+                        These queries could be optimized for better performance.
+                    </p>
+
+                    <?php foreach ($n1Problems as $idx => $problem) : ?>
+                        <div style="background: white; border: 1px solid #ddd; border-radius: 3px; padding: 12px; margin: 10px 0;">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <span style="background: <?php echo $problem['severity'] === 'error' ? '#d9534f' : '#f0ad4e'; ?>; color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-right: 10px;">
+                                    <?php echo htmlspecialchars($problem['severity']); ?>
+                                </span>
+                                <strong style="color: #333;">
+                                    Query executed <?php echo $problem['count']; ?> times
+                                </strong>
+                                <span style="margin-left: auto; color: #999;">
+                                    Total: <?php echo $problem['total_time']; ?>ms
+                                    | Potential savings: ~<?php echo $problem['time_saved']; ?>ms (<?php echo $problem['percentage']; ?>%)
+                                </span>
+                            </div>
+
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 3px; font-family: monospace; font-size: 12px; margin: 8px 0;">
+                                <?php echo htmlspecialchars($problem['pattern']); ?>
+                            </div>
+
+                            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-n1-details-<?php echo $idx; ?>" style="color: #007bff; cursor: pointer; text-decoration: underline;">
+                                Show solution & details
+                            </a>
+
+                            <div class="oops-collapsed oops-n1-details-<?php echo $idx; ?>" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-left: 3px solid #007bff;">
+                                <?php echo Defaults::getN1Suggestion($problem['pattern'], $problem['count']); ?>
+
+                                <details style="margin-top: 10px;">
+                                    <summary style="cursor: pointer; color: #666;">Show all <?php echo $problem['count']; ?> queries</summary>
+                                    <div style="margin-top: 8px; max-height: 200px; overflow-y: auto;">
+                                        <?php foreach ($problem['queries'] as $qIdx => $q) : ?>
+                                            <div style="font-size: 11px; padding: 4px; border-bottom: 1px solid #ddd;">
+                                                #<?php echo ($q['index'] + 1); ?>: <?php echo htmlspecialchars(substr($q['sql'], 0, 100)); ?>...
+                                                <span style="color: #999;">(<?php echo $q['time']; ?>ms)</span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
             <table>
                 <tr>
                     <th>No.</th>
@@ -47,31 +105,78 @@ $queries = Database::profile();
                     <th>Time</th>
                     <th>Hints</th>
                 </tr>
-                <?php $i = 0;
-                foreach ($queries as $query) : ?>
+                <?php
+                $i = 0;
+                // Build index map untuk highlight N+1 queries
+                $n1QueryIndexes = [];
+                foreach ($n1Problems as $problem) {
+                    foreach ($problem['queries'] as $q) {
+                        $n1QueryIndexes[$q['index']] = $problem['severity'];
+                    }
+                }
+
+                foreach ($queries as $query) :
+                    $isN1 = isset($n1QueryIndexes[$i]);
+                    $n1Severity = $isN1 ? $n1QueryIndexes[$i] : null;
+                ?>
                     <?php $hints = Defaults::sqlHints($query['sql']) ?>
-                    <tr>
-                        <td width="5"><?php echo ++$i; ?>.</td>
+                    <tr<?php if ($isN1) : ?> style="background: <?php echo $n1Severity === 'error' ? '#ffe6e6' : '#fff3cd'; ?>;"<?php endif; ?>>
+                        <td width="5">
+                            <?php echo ++$i; ?>.
+                            <?php if ($isN1) : ?>
+                                <span style="color: <?php echo $n1Severity === 'error' ? '#d9534f' : '#f0ad4e'; ?>; font-weight: bold;" title="Part of N+1 query problem">⚠️</span>
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <code><?php echo Defaults::sqlHighlight($query['sql'], $query['bindings']) ?></code>
                         </td>
                         <td><?php echo $query['time'] ?>ms</td>
                         <td colspan="2">
                             <?php if (count($hints) > 0) : ?>
-                                <a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-db-panel-hint">Expand</a>
+                                <a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-db-panel-hint">
+                                    <strong><?php echo count($hints); ?></strong> hint<?php echo count($hints) > 1 ? 's' : ''; ?>
+                                </a>
                                 <?php $j = 0 ?>
                                 <table class="oops-collapsed oops-db-panel-hint" id="">
                                     <tbody>
                                         <?php foreach ($hints as $hint) : ?>
+                                            <?php
+                                            // Support both old string format and new array format
+                                            if (is_array($hint)) {
+                                                $severity = isset($hint['severity']) ? $hint['severity'] : 'info';
+                                                $category = isset($hint['category']) ? $hint['category'] : 'general';
+                                                $message = isset($hint['message']) ? $hint['message'] : '';
+
+                                                // Severity badge colors
+                                                $severityColors = [
+                                                    'error' => '#d9534f',
+                                                    'warning' => '#f0ad4e',
+                                                    'info' => '#5bc0de',
+                                                ];
+                                                $badgeColor = isset($severityColors[$severity]) ? $severityColors[$severity] : '#999';
+                                            } else {
+                                                // Backward compatibility with old string format
+                                                $severity = 'info';
+                                                $category = 'general';
+                                                $message = $hint;
+                                                $badgeColor = '#5bc0de';
+                                            }
+                                            ?>
                                             <tr>
-                                                <td colspan="2"><?php echo ++$j; ?>.</td>
-                                                <td><?php echo $hint ?></td>
+                                                <td width="5"><?php echo ++$j; ?>.</td>
+                                                <td width="80">
+                                                    <span style="background: <?php echo $badgeColor; ?>; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
+                                                        <?php echo htmlspecialchars($severity); ?>
+                                                    </span>
+                                                    <small style="color: #999; margin-left: 5px;">[<?php echo htmlspecialchars($category); ?>]</small>
+                                                </td>
+                                                <td><?php echo $message; ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
                             <?php else : ?>
-                                <code>None</code>
+                                <span style="color: #5cb85c;">✓ No issues</span>
                             <?php endif ?>
                         </td>
                     </tr>

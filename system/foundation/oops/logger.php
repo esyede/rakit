@@ -58,8 +58,9 @@ class Logger
     /**
      * @param string|null       $directory
      * @param string|array|null $email
+     * @param Panic|null        $panic
      */
-    public function __construct($directory, $email = null, Panic $panic = null)
+    public function __construct($directory, $email = null, $panic = null)
     {
         $this->directory = $directory;
         $this->email = $email;
@@ -199,10 +200,8 @@ class Logger
     {
         $file = $file ?: $this->getExceptionFile($exception);
         $panic = $this->panic ?: new Panic();
-
         // FIXME: Apakah log html detail error juga perlu dirender?
         // $panic->renderToFile($exception, $file);
-
         return $file;
     }
 
@@ -322,17 +321,7 @@ class Logger
      */
     protected static function formatExceptionForRakitLog($e)
     {
-        $class = get_class($e);
-        $message = $e->getMessage();
-        $file = $e->getFile();
-        $line = $e->getLine();
-        $trace = $e->getTraceAsString();
-        $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', $class, $e->getCode(), $message, $file, $line);
-
-        if ($trace) {
-            $output .= PHP_EOL . $trace;
-        }
-
-        return $output;
+        $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
+        return $e->getTraceAsString() ? $output . PHP_EOL . $e->getTraceAsString() : $output;
     }
 }

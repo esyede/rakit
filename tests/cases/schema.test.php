@@ -6,8 +6,21 @@ use System\Database\Schema\Table;
 
 class SchemaTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        // ..
+    }
+
     /**
-     * Test untuk method Table::increments().
+     * Tear down.
+     */
+    public function tearDown()
+    {
+        // ..
+    }
+
+    /**
+     * Test for Table::increments().
      *
      * @group system
      */
@@ -21,7 +34,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::string().
+     * Test for Table::string().
      *
      * @group system
      */
@@ -35,7 +48,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::double().
+     * Test for Table::double().
      *
      * @group system
      */
@@ -48,7 +61,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::json().
+     * Test for Table::json().
      *
      * @group system
      */
@@ -61,7 +74,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::uuid().
+     * Test for Table::uuid().
      *
      * @group system
      */
@@ -74,7 +87,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier nullable().
+     * Test for the nullable() modifier.
      *
      * @group system
      */
@@ -87,7 +100,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier defaults().
+     * Test for the defaults() modifier.
      *
      * @group system
      */
@@ -100,7 +113,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier unsigned().
+     * Test for the unsigned() modifier.
      *
      * @group system
      */
@@ -113,7 +126,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier comment().
+     * Test for the comment() modifier.
      *
      * @group system
      */
@@ -126,7 +139,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk foreign key fluent interface.
+     * Test for foreign key definition using fluent syntax.
      *
      * @group system
      */
@@ -142,7 +155,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::rename_column().
+     * Test for Table::rename_column().
      *
      * @group system
      */
@@ -156,7 +169,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::spatial_index().
+     * Test for Table::spatial_index().
      *
      * @group system
      */
@@ -170,7 +183,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::engine().
+     * Test for Table::engine().
      *
      * @group system
      */
@@ -182,7 +195,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::soft_deletes().
+     * Test for Table::soft_deletes().
      *
      * @group system
      */
@@ -197,7 +210,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::mediuminteger().
+     * Test for Table::mediuminteger().
      *
      * @group system
      */
@@ -210,7 +223,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::tinyinteger().
+     * Test for Table::tinyinteger().
      *
      * @group system
      */
@@ -223,7 +236,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::smallinteger().
+     * Test for Table::smallinteger().
      *
      * @group system
      */
@@ -236,7 +249,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::ipaddress().
+     * Test for Table::ipaddress().
      *
      * @group system
      */
@@ -249,7 +262,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::macaddress().
+     * Test for Table::macaddress().
      *
      * @group system
      */
@@ -262,7 +275,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::geometry().
+     * Test for Table::geometry().
      *
      * @group system
      */
@@ -275,7 +288,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::point().
+     * Test for Table::point().
      *
      * @group system
      */
@@ -288,7 +301,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::linestring().
+     * Test for Table::linestring().
      *
      * @group system
      */
@@ -301,7 +314,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::polygon().
+     * Test for Table::polygon().
      *
      * @group system
      */
@@ -314,7 +327,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::geometrycollection().
+     * Test for Table::geometrycollection().
      *
      * @group system
      */
@@ -327,7 +340,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::multipoint().
+     * Test for Table::multipoint().
      *
      * @group system
      */
@@ -340,7 +353,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::multilinestring().
+     * Test for Table::multilinestring().
      *
      * @group system
      */
@@ -353,7 +366,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::multipolygon().
+     * Test for Table::multipolygon().
      *
      * @group system
      */
@@ -366,7 +379,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::set().
+     * Test for Table::set().
      *
      * @group system
      */
@@ -380,7 +393,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier after().
+     * Test for the after() modifier.
      *
      * @group system
      */
@@ -393,7 +406,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier first().
+     * Test for the first() modifier.
      *
      * @group system
      */
@@ -406,7 +419,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier change().
+     * Test for the first() modifier.
      *
      * @group system
      */
@@ -419,7 +432,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk modifier collate().
+     * Test for the collate() modifier.
      *
      * @group system
      */
@@ -432,7 +445,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::drop_column_if_exists().
+     * Test for Table::drop_column_if_exists().
      *
      * @group system
      */
@@ -445,7 +458,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::drop_index_if_exists().
+     * Test for Table::drop_index_if_exists().
      *
      * @group system
      */
@@ -458,7 +471,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::drop_unique_if_exists().
+     * Test for Table::drop_unique_if_exists().
      *
      * @group system
      */
@@ -471,7 +484,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::drop_fulltext_if_exists().
+     * Test for Table::drop_fulltext_if_exists().
      *
      * @group system
      */
@@ -484,7 +497,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Table::drop_foreign_if_exists().
+     * Test for Table::drop_foreign_if_exists().
      *
      * @group system
      */
@@ -497,7 +510,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk table charset().
+     * Test for the table charset().
      *
      * @group system
      */
@@ -509,7 +522,7 @@ class SchemaTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk table collate().
+     * Test for the table collate().
      *
      * @group system
      */

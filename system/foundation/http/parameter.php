@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Parameter implements \IteratorAggregate, \Countable
 {
     /**
-     * Berisi list parameter.
+     * Contains all parameters.
      *
      * @var array
      */
@@ -24,7 +24,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil seluruh data parameter.
+     * Get all parameters.
      *
      * @return array
      */
@@ -34,7 +34,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil seluruh key parameter.
+     * Get all parameter keys.
      *
      * @return array
      */
@@ -44,7 +44,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ganti parameter saat ini dengan yang baru.
+     * Replace all parameters.
      *
      * @param array
      */
@@ -54,7 +54,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Tambahkan parameter.
+     * Add array of parameters.
      *
      * @param array $parameters
      */
@@ -64,7 +64,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil data parameter berdasarkan nama.
+     * Get a parameter by name.
      *
      * @param string $path
      * @param mixed  $default
@@ -128,7 +128,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Set sebuah parameter berdasarkan nama.
+     * Set  a parameter by name.
      *
      * @param string $key
      * @param mixed  $value
@@ -139,7 +139,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Cek apakah parameter ada.
+     * Check if parameter exists by name.
      *
      * @param string $key
      *
@@ -151,7 +151,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Hapus sebuah parameter.
+     * Remove a parameter by name.
      *
      * @param string $key
      */
@@ -161,7 +161,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn hanya karakter alfabet milik suatu parameter.
+     * Get only alphabetic characters of a parameter.
      *
      * @param string $key
      * @param mixed  $default
@@ -175,7 +175,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn karakter alfabet dan angka milik suatu parameter.
+     * Get only alphanumeric characters of a parameter.
      *
      * @param string $key
      * @param mixed  $default
@@ -189,7 +189,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn hanya karakter angka milik suatu parameter.
+     * Get only alphanumeric nummeric characters of a parameter.
      *
      * @param string $key
      * @param mixed  $default
@@ -200,14 +200,14 @@ class Parameter implements \IteratorAggregate, \Countable
     public function getDigits($key, $default = '', $deep = false)
     {
         $digits = $this->filter($key, $default, $deep, FILTER_SANITIZE_NUMBER_INT);
-        // Lewati karakter - dan + karena karakter ini boleh dipkai oleh filter
+        // Skip the - and + characters because these characters are allowed by the filter
         $digits = str_replace(['-', '+'], '', $digits);
 
         return $digits;
     }
 
     /**
-     * Mereturn value milik parameter yang telah dikonversikan ke integer.
+     * Get integer value of a parameter.
      *
      * @param string $key
      * @param mixed  $default
@@ -221,7 +221,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Filter parameter.
+     * Filter a parameter with a specific filter.
      *
      * @param string $key
      * @param mixed  $default
@@ -252,7 +252,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn array iterator untuk data parameter.
+     * ArrayIterator implementation.
      *
      * @return \ArrayIterator
      */
@@ -263,7 +263,7 @@ class Parameter implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Hitung jumlah seluruh parameter.
+     * Countable implementation.
      *
      * @return int
      */

@@ -25,7 +25,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'required'.
+     * Test for 'required' rule.
      *
      * @group system
      */
@@ -49,7 +49,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'confirmed'.
+     * Test for 'confirmed' rule.
      *
      * @group system
      */
@@ -67,7 +67,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'different'.
+     * Test for 'different' rule.
      *
      * @group system
      */
@@ -85,7 +85,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'accepted'.
+     * Test for 'accepted' rule.
      *
      * @group system
      */
@@ -107,7 +107,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'boolean'.
+     * Test for 'boolean' rule.
      *
      * @group system
      */
@@ -131,7 +131,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'before'.
+     * Test for 'before' rule.
      *
      * @group system
      */
@@ -147,7 +147,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'before_or_equals'.
+     * Test for 'before_or_equals' rule.
      *
      * @group system
      */
@@ -166,7 +166,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'numeric'.
+     * Test for 'numeric' rule.
      *
      * @group system
      */
@@ -187,7 +187,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'integer'.
+     * Test for 'integer' rule.
      *
      * @group system
      */
@@ -208,7 +208,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'size'.
+     * Test for 'size' rule.
      *
      * @group system
      */
@@ -221,7 +221,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'numeric|size:1'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika tidak ada rule 'numeric', perlakukan dia sebagai string.
+        // If there is no 'numeric' rule, treat it as a string.
         $input = ['amount' => '111'];
         $rules = ['amount' => 'size:3'];
         $this->assertTrue(Validator::make($input, $rules)->valid());
@@ -229,7 +229,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'size:4'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika merupakan sebuah file, cek ukurannya dalam Kilobytes (KB)
+        // If it's a file, check its size in Kilobytes (KB)
         $_FILES['photo']['tmp_name'] = 'foo';
         $_FILES['photo']['size'] = 10240;
         $rules = ['photo' => 'size:10'];
@@ -240,7 +240,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'between'.
+     * Test for 'between' rule.
      *
      * @group system
      */
@@ -253,7 +253,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'numeric|between:2,3'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika tidak ada rule 'numeric', perlakukan dia sebagai string.
+        // If there is no 'numeric' rule, treat it as a string.
         $input = ['amount' => '111'];
         $rules = ['amount' => 'between:1,3'];
         $this->assertTrue(Validator::make($input, $rules)->valid());
@@ -261,7 +261,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'between:100,111'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika merupakan sebuah file, cek ukurannya dalam Kilobytes (KB)
+        // If it's a file, check its size in Kilobytes (KB)
         $_FILES['photo']['tmp_name'] = 'foo';
         $_FILES['photo']['size'] = 10240;
         $rules = ['photo' => 'between:9,11'];
@@ -272,7 +272,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'min'.
+     * Test for 'min' rule.
      *
      * @group system
      */
@@ -285,7 +285,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'numeric|min:2'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika tidak ada rule 'numeric', perlakukan dia sebagai string.
+        // If there is no 'numeric' rule, treat it as a string.
         $input = ['amount' => '01'];
         $rules = ['amount' => 'min:2'];
         $this->assertTrue(Validator::make($input, $rules)->valid());
@@ -293,7 +293,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'min:3'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika merupakan sebuah file, cek ukurannya dalam Kilobytes (KB)
+        // If it's a file, check its size in Kilobytes (KB)
         $_FILES['photo']['tmp_name'] = 'foo';
         $_FILES['photo']['size'] = 10240;
         $rules = ['photo' => 'min:9'];
@@ -304,7 +304,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'max'.
+     * Test for 'max' rule.
      *
      * @group system
      */
@@ -317,7 +317,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'numeric|max:1'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika tidak ada rule 'numeric', perlakukan dia sebagai string.
+        // If there is no 'numeric' rule, treat it as a string.
         $input = ['amount' => '01'];
         $rules = ['amount' => 'max:3'];
         $this->assertTrue(Validator::make($input, $rules)->valid());
@@ -325,7 +325,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $rules = ['amount' => 'max:1'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
 
-        // Jika merupakan sebuah file, cek ukurannya dalam Kilobytes (KB)
+        // If it's a file, check its size in Kilobytes (KB)
         $_FILES['photo']['tmp_name'] = 'foo';
         $_FILES['photo']['size'] = 10240;
         $rules = ['photo' => 'max:11'];
@@ -336,7 +336,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'in'.
+     * Test for 'in' rule.
      *
      * @group system
      */
@@ -351,7 +351,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'not_in'.
+     * Test for 'not_in' rule.
      *
      * @group system
      */
@@ -366,7 +366,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'ip'.
+     * Test for 'ip' rule.
      *
      * @group system
      */
@@ -381,7 +381,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'email'.
+     * Test for 'email' rule.
      *
      * @group system
      */
@@ -396,7 +396,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'url'.
+     * Test for 'url' rule.
      *
      * @group system
      */
@@ -411,7 +411,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'active_url'.
+     * Test for 'active_url' rule.
      *
      * @group system
      */
@@ -428,7 +428,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'uuid'.
+     * Test for 'uuid' rule.
      *
      * @group system
      */
@@ -445,7 +445,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * Test untuk rule 'image'.
+     * Test for 'image' rule.
      *
      * @group system
      */
@@ -460,7 +460,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'alpha'.
+     * Test for 'alpha' rule.
      *
      * @group system
      */
@@ -475,7 +475,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'alpha_num'.
+     * Test for 'alpha_num' rule.
      *
      * @group system
      */
@@ -490,7 +490,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'alpha_dash'.
+     * Test for 'alpha_dash' rule.
      *
      * @group system
      */
@@ -505,7 +505,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'mimes'.
+     * Test for 'mimes' rule.
      *
      * @group system
      */
@@ -527,7 +527,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'regex'.
+     * Test for 'regex' rule.
      *
      * @group system
      */
@@ -541,7 +541,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'unique'.
+     * Test for 'unique' rule.
      *
      * @group system
      */
@@ -560,7 +560,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'exists'.
+     * Test for 'exists' rule.
      *
      * @group system
      */
@@ -582,7 +582,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'date_format'.
+     * Test for 'date_format' rule.
      *
      * @group system
      */
@@ -603,10 +603,8 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Validator::make($input, $rules)->valid());
     }
 
-
-
     /**
-     * Test bahwa validator message bisa di-set dengan benar.
+     * Test that validation messages are set correctly.
      *
      * @group system
      */
@@ -625,7 +623,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa message kustom juga bisa digunakan.
+     * Test that custom messages are recognized.
      *
      * @group system
      */
@@ -654,8 +652,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa placeholder ':attribute',':size', ':min' dan ':max'
-     * pada rule size numerik bisa direplace dengan benar.
+     * Test that the placeholders ':attribute',':size', ':min' and ':max' in numeric size rules can be replaced correctly.
      *
      * @group system
      */
@@ -694,8 +691,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa placeholder ':attribute',':size', ':min' dan ':max'
-     * pada rule size string bisa direplace dengan benar.
+     * Test that the placeholders ':attribute',':size', ':min' and ':max' in the rule size string can be replaced correctly.
      *
      * @group system
      */
@@ -734,8 +730,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa placeholder ':attribute',':size', ':min' dan ':max'
-     * pada rule size string bisa direplace dengan benar.
+     * Test that the placeholders ':attribute',':size', ':min' and ':max' in the rule size string can be replaced correctly.
      *
      * @group system
      */
@@ -775,7 +770,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa placeholder ':values' bisa direplace dengan benar.
+     * Test that the ':values' placeholder is replaced correctly.
      *
      * @group system
      */
@@ -793,7 +788,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa nama atribut kustom dapat direplace dengan benar.
+     * Test that custom attribute names are replaced correctly.
      *
      * @group system
      */
@@ -810,7 +805,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa nama atribut required_with direplace dengan benar.
+     * Test that the 'required_with' rule placeholders are replaced correctly.
      *
      * @group system
      */
@@ -829,7 +824,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'gt'.
+     * Test for 'gt' rule.
      *
      * @group system
      */
@@ -844,7 +839,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'gte'.
+     * Test for 'gte' rule.
      *
      * @group system
      */
@@ -862,7 +857,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'lt'.
+     * Test for 'lt' rule.
      *
      * @group system
      */
@@ -877,7 +872,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'lte'.
+     * Test for 'lte' rule.
      *
      * @group system
      */
@@ -895,7 +890,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'digits'.
+     * Test for 'digits' rule.
      *
      * @group system
      */
@@ -909,7 +904,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'digits_between'.
+     * Test for 'digits_between' rule.
      *
      * @group system
      */
@@ -924,7 +919,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'string'.
+     * Test for 'string' rule.
      *
      * @group system
      */
@@ -937,7 +932,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'json'.
+     * Test for 'json' rule.
      *
      * @group system
      */
@@ -950,7 +945,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'ipv4'.
+     * Test for 'ipv4' rule.
      *
      * @group system
      */
@@ -963,7 +958,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'ipv6'.
+     * Test for 'ipv6' rule.
      *
      * @group system
      */
@@ -976,7 +971,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'not_regex'.
+     * Test for 'not_regex' rule.
      *
      * @group system
      */
@@ -989,7 +984,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'present'.
+     * Test for 'present' rule.
      *
      * @group system
      */
@@ -1002,7 +997,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'filled'.
+     * Test for 'filled' rule.
      *
      * @group system
      */
@@ -1015,7 +1010,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'distinct'.
+     * Test for 'distinct' rule.
      *
      * @group system
      */
@@ -1028,7 +1023,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'ends_with'.
+     * Test for 'ends_with' rule.
      *
      * @group system
      */
@@ -1041,7 +1036,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'starts_with'.
+     * Test for 'starts_with' rule.
      *
      * @group system
      */
@@ -1054,7 +1049,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'in_array'.
+     * Test for 'in_array' rule.
      *
      * @group system
      */
@@ -1069,7 +1064,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'date_equals'.
+     * Test for 'date_equals' rule.
      *
      * @group system
      */
@@ -1082,7 +1077,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk rule 'required_if'.
+     * Test for 'required_if' rule.
      *
      * @group system
      */
@@ -1098,6 +1093,4 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $input['type'] = 'user';
         $this->assertTrue(Validator::make($input, $rules)->valid());
     }
-
-
 }

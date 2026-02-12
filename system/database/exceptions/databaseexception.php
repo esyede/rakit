@@ -7,28 +7,28 @@ defined('DS') or exit('No direct access.');
 class DatabaseException extends \Exception
 {
     /**
-     * Query yang menyebabkan error.
+     * Contains the query that caused the error.
      *
      * @var string
      */
     protected $query;
 
     /**
-     * Bindings yang digunakan dalam query.
+     * Contains the bindings used.
      *
      * @var array
      */
     protected $bindings;
 
     /**
-     * Berisi data exception mentah.
+     * Contains the raw exception data.
      *
      * @var \Exception
      */
     protected $inner;
 
     /**
-     * Buat instance exception baru.
+     * Constructor.
      *
      * @param string                     $message
      * @param string                     $query
@@ -55,7 +55,7 @@ class DatabaseException extends \Exception
     }
 
     /**
-     * Ambil query yang menyebabkan error.
+     * Get the query that caused the error.
      *
      * @return string
      */
@@ -65,7 +65,7 @@ class DatabaseException extends \Exception
     }
 
     /**
-     * Ambil bindings yang digunakan.
+     * Get the bindings used.
      *
      * @return array
      */
@@ -75,7 +75,7 @@ class DatabaseException extends \Exception
     }
 
     /**
-     * Format query dengan bindings untuk debugging.
+     * Get the formatted query with bindings in place.
      *
      * @return string
      */
@@ -96,7 +96,7 @@ class DatabaseException extends \Exception
     }
 
     /**
-     * Ambil data exception mentah.
+     * Get the raw exception data.
      *
      * @return \Throwable|\Exception|null
      */

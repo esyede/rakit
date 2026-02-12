@@ -1,0 +1,311 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'CLI';
+$statusCode = http_response_code();
+$uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'N/A';
+$protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.1';
+?>
+<style class="oops-debug">
+    #oops-debug .oops-RequestPanel h2 {
+        margin-top: 20px;
+        padding: 8px 10px;
+        background: #ffffff;
+        border-left: 3px solid #2196F3;
+    }
+
+    #oops-debug .oops-RequestPanel table {
+        width: 100%;
+    }
+
+    #oops-debug .oops-RequestPanel td:first-child {
+        width: 25%;
+        font-weight: bold;
+        color: #666;
+    }
+
+    #oops-debug .oops-RequestPanel .oops-empty {
+        color: #999;
+        font-style: italic;
+    }
+
+    #oops-debug .oops-RequestPanel .oops-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+        color: white;
+    }
+
+    #oops-debug .oops-RequestPanel .oops-badge-success {
+        background: #4CAF50;
+    }
+
+    #oops-debug .oops-RequestPanel .oops-badge-error {
+        background: #F44336;
+    }
+
+    #oops-debug .oops-RequestPanel .oops-badge-warning {
+        background: #FF9800;
+    }
+
+    #oops-debug .oops-RequestPanel .oops-badge-info {
+        background: #2196F3;
+    }
+
+    #oops-debug .oops-RequestPanel pre {
+        background: #f8f8f8;
+        padding: 10px;
+        border-radius: 3px;
+        overflow-x: auto;
+    }
+</style>
+
+<h1>Request / Response</h1>
+
+<div class="oops-inner oops-RequestPanel">
+    <div class="oops-inner-container">
+
+        <!-- Request Info -->
+        <h2>Request</h2>
+        <table>
+            <tr>
+                <td>Method</td>
+                <td>
+                    <span class="oops-badge oops-badge-info"><?php echo htmlspecialchars($method); ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td>URI</td>
+                <td><?php echo htmlspecialchars($uri); ?></td>
+            </tr>
+            <tr>
+                <td>Protocol</td>
+                <td><?php echo htmlspecialchars($protocol); ?></td>
+            </tr>
+            <tr>
+                <td>AJAX Request</td>
+                <td><?php echo (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') ? '<span class="oops-badge oops-badge-success">Yes</span>' : '<span class="oops-badge oops-badge-info">No</span>'; ?></td>
+            </tr>
+            <tr>
+                <td>Secure (HTTPS)</td>
+                <td><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ? '<span class="oops-badge oops-badge-success">Yes</span>' : '<span class="oops-badge oops-badge-info">No</span>'; ?></td>
+            </tr>
+        </table>
+
+        <!-- Response Info -->
+        <h2>Response</h2>
+        <table>
+            <tr>
+                <td>Status Code</td>
+                <td>
+                    <?php
+                    $statusCode = $statusCode ?: 200;
+                    $badgeClass = 'oops-badge-info';
+                    if ($statusCode >= 200 && $statusCode < 300) {
+                        $badgeClass = 'oops-badge-success';
+                    } elseif ($statusCode >= 400) {
+                        $badgeClass = 'oops-badge-error';
+                    } elseif ($statusCode >= 300) {
+                        $badgeClass = 'oops-badge-warning';
+                    }
+                    ?>
+                    <span class="oops-badge <?php echo $badgeClass; ?>"><?php echo $statusCode; ?></span>
+                </td>
+            </tr>
+            <tr>
+                <td>Content Type</td>
+                <td><?php echo isset($_SERVER['CONTENT_TYPE']) ? htmlspecialchars($_SERVER['CONTENT_TYPE']) : '<span class="oops-empty">Not set</span>'; ?></td>
+            </tr>
+        </table>
+
+        <!-- Headers -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-headers">
+                Request Headers (<?php echo count(getallheaders()); ?>)
+            </a>
+        </h2>
+        <div class="oops-request-headers oops-collapsed">
+            <?php if (function_exists('getallheaders') && ($headers = getallheaders())) : ?>
+                <table>
+                    <?php foreach ($headers as $key => $value) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($key); ?></td>
+                            <td><?php echo htmlspecialchars($value); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else : ?>
+                <p class="oops-empty">No headers available</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Response Headers -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-response-headers">
+                Response Headers (<?php echo count(headers_list()); ?>)
+            </a>
+        </h2>
+        <div class="oops-response-headers oops-collapsed">
+            <?php if ($responseHeaders = headers_list()) : ?>
+                <table>
+                    <?php foreach ($responseHeaders as $header) : ?>
+                        <?php
+                        $parts = explode(':', $header, 2);
+                        $key = $parts[0];
+                        $value = isset($parts[1]) ? trim($parts[1]) : '';
+                        ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($key); ?></td>
+                            <td><?php echo htmlspecialchars($value); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else : ?>
+                <p class="oops-empty">No response headers sent yet</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- GET Parameters -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-get">
+                GET Parameters (<?php echo count($_GET); ?>)
+            </a>
+        </h2>
+        <div class="oops-request-get oops-collapsed">
+            <?php if (!empty($_GET)) : ?>
+                <table>
+                    <?php foreach ($_GET as $key => $value) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($key); ?></td>
+                            <td><pre><?php echo htmlspecialchars(print_r($value, true)); ?></pre></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else : ?>
+                <p class="oops-empty">No GET parameters</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- POST Parameters -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-post">
+                POST Parameters (<?php echo count($_POST); ?>)
+            </a>
+        </h2>
+        <div class="oops-request-post oops-collapsed">
+            <?php if (!empty($_POST)) : ?>
+                <table>
+                    <?php foreach ($_POST as $key => $value) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($key); ?></td>
+                            <td><pre><?php echo htmlspecialchars(print_r($value, true)); ?></pre></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else : ?>
+                <p class="oops-empty">No POST parameters</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- FILES -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-files">
+                Uploaded Files (<?php echo count($_FILES); ?>)
+            </a>
+        </h2>
+        <div class="oops-request-files oops-collapsed">
+            <?php if (!empty($_FILES)) : ?>
+                <table>
+                    <?php foreach ($_FILES as $key => $file) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($key); ?></td>
+                            <td><pre><?php echo htmlspecialchars(print_r($file, true)); ?></pre></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else : ?>
+                <p class="oops-empty">No uploaded files</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Cookies -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-cookies">
+                Cookies (<?php echo count($_COOKIE); ?>)
+            </a>
+        </h2>
+        <div class="oops-request-cookies oops-collapsed">
+            <?php if (!empty($_COOKIE)) : ?>
+                <table>
+                    <?php foreach ($_COOKIE as $key => $value) : ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($key); ?></td>
+                            <td><?php echo htmlspecialchars(is_array($value) ? print_r($value, true) : $value); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php else : ?>
+                <p class="oops-empty">No cookies</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Session -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-session">
+                Session (<?php echo (session_status() === PHP_SESSION_ACTIVE) ? count($_SESSION) : 0; ?>)
+            </a>
+        </h2>
+        <div class="oops-request-session oops-collapsed">
+            <?php if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION)) : ?>
+                <table>
+                    <tr>
+                        <td>Session ID</td>
+                        <td><?php echo htmlspecialchars(session_id()); ?></td>
+                    </tr>
+                    <tr>
+                        <td>Session Name</td>
+                        <td><?php echo htmlspecialchars(session_name()); ?></td>
+                    </tr>
+                </table>
+                <h3 style="margin-top: 15px;">Session Data:</h3>
+                <table>
+                    <?php foreach ($_SESSION as $key => $value) : ?>
+                        <?php if ($key !== '_oops') : // Skip debugger session data ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($key); ?></td>
+                                <td><pre><?php echo htmlspecialchars(print_r($value, true)); ?></pre></td>
+                            </tr>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </table>
+            <?php elseif (session_status() === PHP_SESSION_ACTIVE) : ?>
+                <p class="oops-empty">Session is active but empty</p>
+            <?php else : ?>
+                <p class="oops-empty">No active session</p>
+            <?php endif; ?>
+        </div>
+
+        <!-- Server Variables -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-request-server">
+                Server Variables (<?php echo count($_SERVER); ?>)
+            </a>
+        </h2>
+        <div class="oops-request-server oops-collapsed">
+            <table>
+                <?php foreach ($_SERVER as $key => $value) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($key); ?></td>
+                        <td><?php echo htmlspecialchars(is_array($value) ? print_r($value, true) : $value); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+
+    </div>
+</div>

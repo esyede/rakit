@@ -7,28 +7,28 @@ defined('DS') or exit('No direct access.');
 class Request
 {
     /**
-     * Nama keey untuk request spoofing.
+     * The key name for request spoofing.
      *
      * @var string
      */
     const SPOOFER = '_method';
 
     /**
-     * Berisi seluruh instance route untuk penanganan request.
+     * Contains all route instances for handling requests.
      *
      * @var mixed
      */
     public static $route;
 
     /**
-     * Berisi instance milik http foundation.
+     * Contains instance of http foundation.
      *
      * @var \System\Foundation\Http\Request
      */
     public static $foundation;
 
     /**
-     * Cache foundation instance untuk performance.
+     * Cache foundation instance for performance.
      *
      * @var \System\Foundation\Http\Request|null
      */
@@ -54,7 +54,7 @@ class Request
     ];
 
     /**
-     * Ambil URI request saat ini.
+     * Get current request URI.
      *
      * @return string
      */
@@ -64,7 +64,7 @@ class Request
     }
 
     /**
-     * Ambil request method dari request saat ini.
+     * Get current request method.
      *
      * @return string
      */
@@ -74,7 +74,7 @@ class Request
     }
 
     /**
-     * Memeriksa tipe request method.
+     * Check request method type.
      *
      * @param string $method
      *
@@ -86,11 +86,11 @@ class Request
     }
 
     /**
-     * Ambil request handler dari request saat ini.
+     * Get current request handler.
      *
      * <code>
      *
-     *      // Ambil request handler dari request saat ini
+     *      // Get current request handler
      *      $accept = Request::header('Accept');
      *
      * </code>
@@ -106,7 +106,7 @@ class Request
     }
 
     /**
-     * Ambil seluruh HTTP request header.
+     * Get all HTTP request headers.
      *
      * @return array
      */
@@ -125,7 +125,7 @@ class Request
     }
 
     /**
-     * Ambil sebuah item dari array global $_SERVER.
+     * Get an item from global $_SERVER array.
      *
      * @param string $key
      * @param mixed  $default
@@ -138,7 +138,7 @@ class Request
     }
 
     /**
-     * Ambil seluruh item dari array global $_SERVER.
+     * Get all items from global $_SERVER array.
      *
      * @return array
      */
@@ -148,7 +148,7 @@ class Request
     }
 
     /**
-     * Cek apakah request method di-spoof dengan hidden form atau tidak.
+     * Check if request method is spoofed with hidden form.
      *
      * @return bool
      */
@@ -158,7 +158,7 @@ class Request
     }
 
     /**
-     * Ambil IP si pengirim request.
+     * Get IP address of the request sender.
      *
      * @param mixed $default
      *
@@ -171,7 +171,7 @@ class Request
     }
 
     /**
-     * Ambil list acceptable content-types dari request saat ini.
+     * Get list of acceptable content-types from the current request.
      *
      * @return array
      */
@@ -181,7 +181,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini bisa menerima content-type yg diberikan.
+     * Check if the current request can accept the given content-type.
      *
      * @param string|array $types
      *
@@ -212,7 +212,7 @@ class Request
     }
 
     /**
-     * Mereturn content-type yang paling cocok dari daftar yang tersedia.
+     * Get preferred content-type from the current request.
      *
      * @param string|array $types
      *
@@ -239,7 +239,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini bisa menerima html.
+     * Check if the current request can accept HTML.
      *
      * @return bool
      */
@@ -249,7 +249,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini bisa menerima content-type apapun.
+     * Check if the current request can accept any content-type.
      *
      * @return bool
      */
@@ -260,7 +260,7 @@ class Request
     }
 
     /**
-     * Cek kecocokan content type.
+     * Check if the current content-type matches the given type.
      *
      * @param string $actual
      * @param string $type
@@ -281,7 +281,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini mengirim json.
+     * Check if the current request has the json content-type.
      *
      * @return bool
      */
@@ -292,7 +292,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini mungkin mengharapkan response json atau tidak.
+     * Check if the current request has expected json response.
      *
      * @return bool
      */
@@ -302,7 +302,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini meminta json.
+     * Check if the current request wants json.
      *
      * @return bool
      */
@@ -313,7 +313,7 @@ class Request
     }
 
     /**
-     * Ambil authorization header.
+     * Get the authorization header.
      *
      * @param mixed $default
      *
@@ -325,7 +325,7 @@ class Request
     }
 
     /**
-     * Ambil bearer token header.
+     * Get the bearer token header.
      *
      * @param mixed $default
      *
@@ -334,8 +334,10 @@ class Request
     public static function bearer()
     {
         $auth = (string) static::authorization();
+
         if (0 === stripos($auth, 'Bearer ')) {
             $token = mb_substr($auth, 7, null, '8bit');
+
             // Validasi token: diisi dan hanya karakter aman
             if (!empty($token) && preg_match('/^[A-Za-z0-9\-_\.\+\/=]+$/', $token)) {
                 return $token;
@@ -346,7 +348,7 @@ class Request
     }
 
     /**
-     * Ambil request body.
+     * Get the request body.
      *
      * @param bool $as_resource
      *
@@ -358,7 +360,7 @@ class Request
     }
 
     /**
-     * Ambil language list yang bisa diterima browser si klien.
+     * Get the language list that can be accepted by the browser client.
      *
      * @return array
      */
@@ -368,7 +370,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini datang via HTTPS atau bukan.
+     * Check if the request is coming via HTTPS or not.
      *
      * @return bool
      */
@@ -378,9 +380,9 @@ class Request
     }
 
     /**
-     * Ambil user-agent milik pengirim request saat ini.
+     * Get the user-agent of the sender of the current request.
      *
-     * @return bool
+     * @return string|null
      */
     public static function agent()
     {
@@ -388,9 +390,8 @@ class Request
     }
 
     /**
-     * Cek apakah request sudah dibuat atau belum,
-     * Indikasi request sudah dibuat adalah token CSRF yang dikirim user sama dengan
-     * token CSRF yang ada di Session.
+     * Check if the request has been forged.
+     * Forged request is indicated by the absence of a valid CSRF token.
      *
      * @return bool
      */
@@ -417,7 +418,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini merupakan AJAX request atau bukan.
+     * Check if the request is AJAX.
      *
      * @return bool
      */
@@ -427,7 +428,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini merupakan hasil PJAX atau bukan.
+     * Check if the request is PJAX.
      *
      * @return bool
      */
@@ -437,7 +438,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini merupakan hasil prefetch atau bukan.
+     * Check if the request is prefetch.
      *
      * @return bool
      */
@@ -448,7 +449,7 @@ class Request
     }
 
     /**
-     * Ambil HTTP Referrer milik request.
+     * Get the HTTP Referrer.
      *
      * @return string
      */
@@ -458,7 +459,7 @@ class Request
     }
 
     /**
-     * Ambil timestamp kapan sebuah request dimulai.
+     * Get the timestamp when the request started.
      *
      * @return int
      */
@@ -468,7 +469,7 @@ class Request
     }
 
     /**
-     * Cek apakah request saat ini datang dari konsol atau bukan.
+     * Check if the request is from the console.
      *
      * @return bool
      */
@@ -480,7 +481,7 @@ class Request
     }
 
     /**
-     * Ambil environment milik request saat ini.
+     * Get the environment of the request.
      *
      * @return string|null
      */
@@ -490,7 +491,7 @@ class Request
     }
 
     /**
-     * Set environment request saat ini.
+     * Set the environment of the request.
      *
      * @param string $env
      *
@@ -502,7 +503,7 @@ class Request
     }
 
     /**
-     * Cek environment request saat ini.
+     * Check environment of the request.
      *
      * @param string $env
      *
@@ -514,7 +515,7 @@ class Request
     }
 
     /**
-     * Deteksi environment saat ini berdasarkan konfigurasi.
+     * Detect environment of the request based on configuration in paths.php.
      *
      * @param array  $environments
      * @param string $uri
@@ -533,7 +534,7 @@ class Request
     }
 
     /**
-     * Ambil route handler utama milik request saat ini.
+     * Get the route handler of the request.
      *
      * @return Route
      */
@@ -543,7 +544,7 @@ class Request
     }
 
     /**
-     * Ambil instance http foundation request.
+     * Get the instance of http request foundation.
      *
      * @return \System\Foundation\Http\Request
      */
@@ -557,7 +558,7 @@ class Request
     }
 
     /**
-     * Reset cache foundation (untuk testing).
+     * Reset the cached foundation (for testing).
      *
      * @return void
      */
@@ -567,7 +568,7 @@ class Request
     }
 
     /**
-     * Ambil subdomain dari host request saat ini.
+     * Get the subdomain of the request.
      *
      * @return string|null
      */
@@ -579,7 +580,7 @@ class Request
     }
 
     /**
-     * Proxy method-method lainnya ke http foundation request.
+     * Handle static method calls on the request foundation.
      *
      * @param string $method
      * @param array  $parameters

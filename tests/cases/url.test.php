@@ -44,7 +44,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method URL::to().
+     * Test for URL::to().
      *
      * @group system
      */
@@ -65,7 +65,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method URL::to_action().
+     * Test for URL::to_action().
      *
      * @group system
      */
@@ -80,7 +80,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method URL::to_asset().
+     * Test for URL::to_asset().
      *
      * @group system
      */
@@ -97,7 +97,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method URL::to_route().
+     * Test for URL::to_route().
      *
      * @group system
      */
@@ -123,7 +123,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method URL::to_language().
+     * Test for URL::to_language().
      *
      * @group system
      */
@@ -143,7 +143,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa pembuatan URL berdasarkan lokalisasi bahasa bisa dihasilkan dengan benar.
+     * Test that URLs are generated correctly when languages are enabled.
      *
      * @group system
      */
@@ -169,7 +169,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Helper: set variabel $_SERVER.
+     * Helper: set variable in $_SERVER.
      *
      * @param string $key
      * @param mixed  $value
@@ -182,7 +182,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Inisialisasi ulang global request.
+     * RE-initialize the Request object after changing $_SERVER superglobal.
      *
      * @return void
      */
@@ -190,12 +190,12 @@ class URLTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
-        // Pastikan SCRIPT_NAME ada
+        // Ensure SCRIPT_NAME is set
         if (!isset($_SERVER['SCRIPT_NAME'])) {
             $_SERVER['SCRIPT_NAME'] = '/index.php';
         }
 
-        // Pastikan HTTP_HOST ada untuk URL generation
+        // Ensure HTTP_HOST is set for URL generation
         if (!isset($_SERVER['HTTP_HOST'])) {
             $_SERVER['HTTP_HOST'] = 'localhost';
         }
@@ -212,7 +212,7 @@ class URLTest extends \PHPUnit_Framework_TestCase
         // Reset cache foundation
         Request::reset_foundation();
 
-        // Clear URL cache jika ada
+        // Clear URL cache if any
         URL::$base = null;
     }
 }

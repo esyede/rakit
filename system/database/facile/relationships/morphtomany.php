@@ -9,35 +9,35 @@ use System\Database\Facile\Model;
 class MorphToMany extends Relationship
 {
     /**
-     * Berisi morph type.
+     * Contains morph type.
      *
      * @var string
      */
     protected $type;
 
     /**
-     * Berisi morph id.
+     * Contains the morph id.
      *
      * @var string
      */
     protected $id;
 
     /**
-     * Berisi nama tabel pivot.
+     * Contains the pivot table name.
      *
      * @var string
      */
     protected $pivot_table;
 
     /**
-     * Berisi foreign key untuk model terkait.
+     * Contains the other key.
      *
      * @var string
      */
     protected $other;
 
     /**
-     * Buat instance morph to many relationship baru.
+     * Constructor.
      *
      * @param Model  $model
      * @param string $associated
@@ -62,7 +62,7 @@ class MorphToMany extends Relationship
     }
 
     /**
-     * Ambil nama tabel pivot default.
+     * Get the default pivot table name.
      *
      * @return string
      */
@@ -75,15 +75,15 @@ class MorphToMany extends Relationship
     }
 
     /**
-     * Set constraint untuk query.
+     * Set the appropriate constraint on the relational query.
      */
     protected function constrain()
     {
-        // MorphToMany uses pivot table, constraint is applied in results() method
+        // MorphToMany uses pivot table, constraint is applied in results() method.
     }
 
     /**
-     * Ambil hasil relasi.
+     * Get the results of the relationship.
      *
      * @param array $results
      *
@@ -95,7 +95,7 @@ class MorphToMany extends Relationship
     }
 
     /**
-     * Ambil hasil query.
+     * Get the results of the relationship.
      *
      * @param array $columns
      *
@@ -121,7 +121,7 @@ class MorphToMany extends Relationship
     }
 
     /**
-     * Ambil eager loaded results.
+     * Get the results of the eager load of the relationship.
      *
      * @param array $results
      *
@@ -179,7 +179,7 @@ class MorphToMany extends Relationship
     }
 
     /**
-     * Ambil nama relasi.
+     * Get the name of the relationship.
      *
      * @return string
      */

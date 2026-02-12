@@ -8,10 +8,9 @@ return [
     | PDO Fetch Style
     |--------------------------------------------------------------------------
     |
-    | Secara default, record hasil dari kueri database akan direturn sebagai
-    | instance dari objek stdClass; namun, anda mungkin ingin mengambil record
-    | tersebut sebagai array, bukan sebagai objek. Di sini anda dapat
-    | mengontrol gaya pengambilan record PDO dari hasil kueri anda.
+    | By default, database query results will be returned as instances of
+    | stdClass objects; however, you may wish to retrieve them as arrays
+    | instead. Here you can set the fetch mode for PDO records.
     |
     */
 
@@ -19,14 +18,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Koneksi Database Default
+    | Default Connection Name
     |--------------------------------------------------------------------------
     |
-    | Nama koneksi database default anda. Koneksi ini akan digunakan sebagai
-    | default untuk semua operasi database kecuali anda memberikan
-    | nama koneksi lain saat melakukan operasi tersebut.
+    | The default connection name for the application. This connection name will
+    | be used by default for all database work except when another connection
+    | name is explicitly specified.
     |
-    | Nama koneksi ini harus terdaftar dalam list koneksi database di bawah.
+    | The default connection name must be listed in the database connections
+    | array below.
     |
     */
 
@@ -34,15 +34,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | List Koneksi Database
+    | Database Connections
     |--------------------------------------------------------------------------
     |
-    | List koneksi database yang digunakan oleh aplikasi anda. Biasanya,
-    | aplikasi anda hanya akan menggunakan satu koneksi; namun, anda memiliki
-    | kebebasan untuk menentukan berapapun koneksi yang ingin anda tangani.
+    | Database connections are used to connect to your database. You can use
+    | multiple connections if you need to connect to multiple databases.
     |
-    | Seluruh pengelolaan database di rakit dilakukan melalui fasilitas PDO,
-    | jadi pastikan driver PDO untuk database pilihan anda sudah diinstal.
+    | All database management in rakit is done through the PDO facilities,
+    | so make sure the PDO driver for your chosen database is installed.
     |
     |
     */
@@ -90,15 +89,14 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Database Redis
+    | Redis Database Configuration
     |--------------------------------------------------------------------------
     |
-    | Redis adalah penyimpanan berbasis key-value yang cepat dan canggih.
-    | Dia juga menyediakan sekumpulan perintah yang lebih kaya daripada
-    | penyimpanan berbasis key-value biasa seperti APC atau memcache.
-    | Banyak orang menyukainya.
+    | Redis is a key-value store that is fast and powerful.
+    | It also provides a rich set of commands beyond the basic key-value store.
+    | Many people love it.
     |
-    | Untuk mengetahui informasi tentang Redis, lihat: https://redis.io
+    | To learn more about Redis, visit: https://redis.io
     |
     */
 

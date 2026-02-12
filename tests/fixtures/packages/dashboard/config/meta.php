@@ -2,6 +2,4 @@
 
 defined('DS') or exit('No direct access.');
 
-return [
-    'package' => 'dashboard',
-];
+return ['package' => 'dashboard'];

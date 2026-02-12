@@ -9,14 +9,14 @@ use System\Cache\Drivers\APC as CacheAPC;
 class APC extends Driver
 {
     /**
-     * Berisi instance driver cache APC.
+     * Contains the APC cache driver instance.
      *
      * @var System\Cache\Drivers\APC
      */
     private $apc;
 
     /**
-     * Buat instance baru driver session APC.
+     * Constructor.
      *
      * @param System\Cache\Drivers\APC $apc
      */
@@ -26,8 +26,8 @@ class APC extends Driver
     }
 
     /**
-     * Muat session berdasarkan ID yang diberikan.
-     * Jika session tidak ditemukan, NULL akan direturn.
+     * Load the session based on the given ID.
+     * If the session is not found, NULL will be returned.
      *
      * @param string $id
      *
@@ -40,7 +40,7 @@ class APC extends Driver
     }
 
     /**
-     * Simpan session.
+     * Save the session data.
      *
      * @param array $session
      * @param array $config
@@ -53,7 +53,7 @@ class APC extends Driver
     }
 
     /**
-     * Hapus session berdasarkan ID yang diberikan.
+     * Delete the session with the given ID.
      *
      * @param string $id
      */

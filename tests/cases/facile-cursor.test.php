@@ -21,18 +21,19 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor method exists on Facile model.
+     * Test that cursor() method exists on model.
      *
      * @group system
      */
     public function testCursorMethodExistsOnModel()
     {
-        // Method cursor() dipanggil via __callStatic ke query builder
+        // The cursor() method should be available on the query builder,
+        // so we can check it through the model's query() method
         $query = (new CursorTestModel())->query();
         $this->assertTrue(method_exists($query, 'cursor'));
     }
     /**
-     * Test cursor bisa dipanggil secara static.
+     * Test that cursor() can be called statically on the model.
      *
      * @group system
      */
@@ -43,7 +44,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor me-return generator di PHP 5.5.0+.
+     * Test that cursor() returns a Generator on PHP >= 5.5.
      *
      * @group system
      */
@@ -58,7 +59,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor me-return array di PHP 5.4.
+     * Test that cursor() returns an array on PHP <= 5.4.
      *
      * @group system
      */
@@ -73,7 +74,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor iterable.
+     * Test that cursor is iterable.
      *
      * @group system
      */
@@ -86,6 +87,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
             $count++;
             $this->assertInstanceOf('\System\Database\Facile\Model', $model);
 
+            // Check only first 3 records
             if ($count >= 3) {
                 break;
             }
@@ -95,7 +97,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor dengan klausa where.
+     * Test cursor with where clause.
      *
      * @group system
      */
@@ -106,7 +108,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor dengan custom chunk size.
+     * Test cursor with custom chunk size.
      *
      * @group system
      */
@@ -117,7 +119,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cursor dengan custom select columns.
+     * Test cursor with select columns.
      *
      * @group system
      */
@@ -128,7 +130,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test edisiensi memory (konseptual).
+     * Test that cursor is memory efficient (returns Generator on PHP 5.5+).
      *
      * @group system
      */
@@ -137,17 +139,17 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
         $cursor = CursorTestModel::cursor();
 
         if (PHP_VERSION_ID >= 50500) {
-            // Pada PHP 5.5+, cursor menggunakan generator yang lebih efisien
+            // On PHP 5.5+, cursor should return a Generator which is memory efficient
             $this->assertInstanceOf('\Generator', $cursor);
         } else {
-            // Pada PHP 5.4, akan fallback ke array biasa
+            // On PHP 5.4, will fallback to a regular array
             $this->assertTrue(is_array($cursor));
         }
     }
 }
 
 /**
- * Test model untuk cursor.
+ * Test model for cursor.
  */
 class CursorTestModel extends \System\Database\Facile\Model
 {

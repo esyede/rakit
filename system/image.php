@@ -7,63 +7,63 @@ defined('DS') or exit('No direct access.');
 class Image
 {
     /**
-     * Berisi object singleton dari kelas ini.
+     * Contains the singleton instance of this class.
      *
      * @var object
      */
     private static $singleton;
 
     /**
-     * Berisi resource gambar.
+     * Contains the resource of the image.
      *
      * @var \GdImage|resource
      */
     protected $image;
 
     /**
-     * Berisi file path (absolut).
+     * Contains the file path (absolute).
      *
      * @var string
      */
     protected $path;
 
     /**
-     * Berisi tipe gambar saat ini.
+     * Contains the type of the image.
      *
      * @var string
      */
     protected $type;
 
     /**
-     * Berisi kualitas gambar.
+     * Contains the quality of the image.
      *
      * @var int
      */
     protected $quality;
 
     /**
-     * Berisi lebar gambar.
+     * Contains the width of the image.
      *
      * @var int
      */
     protected $width;
 
     /**
-     * Berisi tinggi gambar.
+     * Contains the height of the image.
      *
      * @var int
      */
     protected $height;
 
     /**
-     * Berisi info exif data.
+     * Contains the exif data.
      *
      * @var array
      */
     protected $exif = [];
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param string $path
      * @param int    $quality
@@ -85,7 +85,7 @@ class Image
     }
 
     /**
-     * Buka gambar untuk diproses (jpg, png, gif).
+     * Open image for processing (jpg, png, gif).
      *
      * @param string $path
      *
@@ -102,7 +102,7 @@ class Image
     }
 
     /**
-     * Muat file gambar.
+     * Load image file.
      *
      * @param string $path
      *
@@ -147,7 +147,7 @@ class Image
     }
 
     /**
-     * Resize lebar gambar.
+     * Change the width of the image.
      *
      * @param int $value
      *
@@ -168,7 +168,7 @@ class Image
     }
 
     /**
-     * Resize tinggi gambar.
+     * Change the height of the image.
      *
      * @param int $value
      *
@@ -189,7 +189,7 @@ class Image
     }
 
     /**
-     * Putar gambar per 90 derajat.
+     * Rotate the image by 90 degrees.
      *
      * @param int $angle
      *
@@ -210,7 +210,7 @@ class Image
     }
 
     /**
-     * Crop gambar.
+     * Crop the image.
      *
      * @param int $left
      * @param int $top
@@ -235,9 +235,9 @@ class Image
     }
 
     /**
-     * Resize gambar dari tengah menggunakan rasio yang diberikan.
-     * cth: 500x200 rasio 1:1 (kotak) = 200x200.
-     * cth: 500x200 rasio 3:4 = 150x200.
+     * Resize the image from the center using the given ratio.
+     * e.g. 500x200 ratio 1:1 (square) = 200x200.
+     * e.g: 500x200 ratio 3:4 = 150x200.
      *
      * @param int $width
      * @param int $height
@@ -275,13 +275,13 @@ class Image
             $y = ($this->height / 2) - $new_height / 2;
         }
 
-        // Crop dari tengah
+        // Crop from center
         $this->crop($x, $y, $new_width, $new_height);
         return $this;
     }
 
     /**
-     * Atur kontras gambar (rentang: -100 to +100).
+     * Adjust the contrast of the image (range: -100 to +100).
      *
      * @param int $level
      *
@@ -295,7 +295,7 @@ class Image
     }
 
     /**
-     * Atur kecerahan gambar (rentang: -100 to +100).
+     * Adjust the brightness of the image (range: -100 to +100).
      *
      * @param int $level
      *
@@ -309,7 +309,7 @@ class Image
     }
 
     /**
-     * Atur kelembutan gambar (rentang: -100 to +100).
+     * Adjust the smoothness of the image (range: -100 to +100).
      *
      * @param int $level
      *
@@ -323,7 +323,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek buram (gaussian / selective blur).
+     * Apply selective blur effect.
      *
      * @param bool $selective
      *
@@ -336,7 +336,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek grayscale.
+     * Apply grayscale effect.
      *
      * @return $this
      */
@@ -347,7 +347,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek sepia.
+     * Apply sepia effect.
      *
      * @return $this
      */
@@ -359,7 +359,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek edges-highlight.
+     * Apply edge-highlight effect.
      *
      * @return $this
      */
@@ -370,7 +370,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek emboss.
+     * Apply emboss effect.
      *
      * @return $this
      */
@@ -381,7 +381,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek sketch.
+     * Apply sketch effect.
      *
      * @return $this
      */
@@ -392,7 +392,7 @@ class Image
     }
 
     /**
-     * Tambahkan efek inversi warna.
+     * Apply invert effect.
      *
      * @return $this
      */
@@ -403,7 +403,7 @@ class Image
     }
 
     /**
-     * Tambahkah efek pixelate (rentang: -100 to +100).
+     * Apply pixelate effect (range: -100 to +100).
      *
      * @param int $value
      *
@@ -417,7 +417,7 @@ class Image
     }
 
     /**
-     * Tambahkan watermark ke gambar.
+     * Apply watermark to image.
      *
      * @param string $watermark
      *
@@ -459,13 +459,19 @@ class Image
         $dst_y = $this->height - $src_h - 10;
 
         imagecopy($this->image, $watermark, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
-        imagedestroy($watermark);
+
+         if (PHP_VERSION_ID < 80000) {
+             /** @disregard */
+             imagedestroy($watermark);
+         } else {
+             $watermark = null;
+         }
 
         return $this;
     }
 
     /**
-     * Simpan perubahan ke disk.
+     * Save changes to disk.
      *
      * @param string $path
      * @param bool   $overwrite
@@ -511,7 +517,7 @@ class Image
     }
 
     /**
-     * Return resource gambar.
+     * Return the image resource.
      *
      * @return resource
      */
@@ -524,7 +530,7 @@ class Image
     }
 
     /**
-     * Ambil info gambar.
+     * Get image information.
      *
      * @return array
      */
@@ -560,7 +566,7 @@ class Image
     }
 
     /**
-     * Reset.
+     * Reset the image resource.
      *
      * @return void
      */
@@ -570,7 +576,12 @@ class Image
             false !== stripos(gettype($this->image), 'resource')
             && 'gd' === strtolower(get_resource_type($this->image))
         ) {
-            imagedestroy($this->image);
+            if (PHP_VERSION_ID < 80000) {
+                /** @disregard */
+                imagedestroy($this->image);
+            } else {
+                $this->image = null;
+            }
         }
 
         $this->image = null;
@@ -582,7 +593,7 @@ class Image
     }
 
     /**
-     * Buat identicon.
+     * Create an identicon.
      *
      * @param string $seed
      * @param int    $size
@@ -645,19 +656,30 @@ class Image
                     $image = imagerotate($image, 90, imagecolorallocatealpha($image, 0, 0, 0, 127));
                 }
 
-                imagedestroy($sprite);
+                if (PHP_VERSION_ID >= 80000) {
+                    /** @disregard */
+                    imagedestroy($sprite);
+                } else {
+                    $sprite = null;
+                }
             }
         }
 
         imagesavealpha($image, true);
         $result = imagepng($image);
-        imagedestroy($image);
+
+        if (PHP_VERSION_ID >= 80000) {
+            /** @disregard */
+            imagedestroy($image);
+        } else {
+            $image = null;
+        }
 
         return $display ? Response::make($result, 200, ['Content-Type' => 'image/png']) : $result;
     }
 
     /**
-     * Ubah RGB ke bentuk array.
+     * Transform RGB color to array.
      *
      * @param int|string $color
      *
@@ -684,7 +706,7 @@ class Image
     }
 
     /**
-     * Helper untuk set atribut lebar dan tinggi gambar.
+     * Helper method to maintain image dimensions.
      */
     protected function maintain()
     {
@@ -693,7 +715,7 @@ class Image
     }
 
     /**
-     * Mereturn path ke file gambar (absolut).
+     * Retrieve the path to the image file (absolute).
      *
      * @param string $path
      *
@@ -705,7 +727,7 @@ class Image
     }
 
     /**
-     * Periksa ketersediaan eksensi php-gd.
+     * Check if PHP GD extension is loaded.
      *
      * @return bool
      */
@@ -715,7 +737,7 @@ class Image
     }
 
     /**
-     * Periksa apakah tipe gambar diizinkan.
+     * Check if the image file is acceptable.
      *
      * @param string $path
      *
@@ -727,7 +749,7 @@ class Image
     }
 
     /**
-     * Helper validasi level.
+     * Helper method to validate level.
      *
      * @param int    $value
      * @param int    $low
@@ -748,7 +770,7 @@ class Image
     }
 
     /**
-     * Destruktor.
+     * Destructor.
      */
     public function __destruct()
     {

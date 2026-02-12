@@ -5,9 +5,12 @@ defined('DS') or exit('No direct access.');
 class Auth_Login_Controller extends Controller
 {
     /**
-     * Buat instance controller baru.
-     *
-     * @return void
+     * Enable RESTful routing.
+     */
+    public $restful = true;
+
+    /**
+     * Constructor.
      */
     public function __construct()
     {
@@ -15,21 +18,21 @@ class Auth_Login_Controller extends Controller
     }
 
     /**
-     * Tampilkan formulir login.
+     * action_show
      *
-     * @return \System\Response
+     * @return View
      */
-    public function action_show()
+    public function get_show()
     {
-        return View::make('auth.login');
+        return view('auth.login');
     }
 
     /**
-     * Tangani permintaan login.
+     * Handle login request.
      *
-     * @return \System\Response
+     * @return Response
      */
-    public function action_login()
+    public function post_login()
     {
         $validation = Validator::make(Input::all(), [
             'email' => 'required|email',
@@ -37,32 +40,27 @@ class Auth_Login_Controller extends Controller
         ]);
 
         if ($validation->fails()) {
-            return Redirect::back()
-                ->with_input()
-                ->with_errors($validation);
+            return back()->with_input()->with_errors($validation);
         }
 
         $credentials = Input::only('email', 'password');
         $remember = Input::has('remember');
 
-        if (! Auth::attempt($credentials, $remember)) {
-            return Redirect::back()
-                ->with_input()
-                ->with('error', 'Invalid credentials.');
+        if (!Auth::attempt($credentials, $remember)) {
+            return back()->with_input()->with('error', 'Invalid credentials.');
         }
 
         return Redirect::to('/dashboard');
     }
 
     /**
-     * Tangani permintaan logout.
+     * Handle logout request.
      *
-     * @return \System\Response
+     * @return Response
      */
-    public function action_logout()
+    public function post_logout()
     {
         Auth::logout();
-
         return Redirect::to('/');
     }
 }

@@ -11,42 +11,42 @@ use System\Database\Facile\Model;
 class HasManyThrough extends Relationship
 {
     /**
-     * Berisi model perantara.
+     * Contains the through model.
      *
      * @var Model
      */
     protected $through;
 
     /**
-     * Berisi foreign key pada model perantara.
+     * Contains foreign key on the through model.
      *
      * @var string
      */
     protected $first_key;
 
     /**
-     * Berisi foreign key pada model tujuan.
+     * Contains foreign key on the associated model.
      *
      * @var string
      */
     protected $second_key;
 
     /**
-     * Berisi local key pada model induk.
+     * Contains local key on the base model.
      *
      * @var string
      */
     protected $local_key;
 
     /**
-     * Berisi local key pada model perantara.
+     * Contains local key on the through model.
      *
      * @var string
      */
     protected $second_local_key;
 
     /**
-     * Buat instance relasi has many through baru.
+     * Constructoor.
      *
      * @param Model  $model
      * @param string $associated
@@ -80,7 +80,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi.
+     *  Set the appropriate constraints on the relationship query.
      */
     protected function constrain()
     {
@@ -96,7 +96,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Set constraint yang sesuai pada tabel relasi untuk eagerload.
+     * Set the constraints for an eager load of the relationship.
      *
      * @param array $results
      */
@@ -117,7 +117,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Mulai relasi terhadap beberapa model induk.
+     * Initialize the relationship on a set of models.
      *
      * @param array  $parents
      * @param string $relationship
@@ -130,7 +130,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Cocokkan model anak yang di eagerload dengan model induknya.
+     * Match the eagerly loaded results to their parents.
      *
      * @param string $relationship
      * @param array  $parents
@@ -161,7 +161,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Ambil hasil mass-assignment milik relasi.
+     * Get the results of the relationship.
      *
      * @return array
      */
@@ -171,7 +171,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Ambil query builder untuk model yang digunakan.
+     * Get a new query builder for the model's table.
      *
      * @return \System\Database\Query
      */
@@ -181,7 +181,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Ambil koneksi database untuk query.
+     * Get the database connection instance.
      *
      * @return \System\Database\Connection
      */
@@ -191,8 +191,8 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Ambil foreign key untuk through model.
-     * Menggunakan singular table name dari through model.
+     * Get the through key name.
+     * It usess the singular form of the through table name.
      *
      * @return string
      */

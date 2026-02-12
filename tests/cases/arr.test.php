@@ -23,7 +23,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::accessible().
+     * Test for Arr::accessible().
      *
      * @group system
      */
@@ -40,7 +40,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::add().
+     * Test for Arr::add().
      *
      * @group system
      */
@@ -51,7 +51,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::collapse().
+     * Test for Arr::collapse().
      *
      * @group system
      */
@@ -62,7 +62,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::divide().
+     * Test for Arr::divide().
      *
      * @group system
      */
@@ -74,7 +74,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::dot().
+     * Test for Arr::dot().
      *
      * @group system
      */
@@ -94,7 +94,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::undot().
+     * Test for Arr::undot().
      *
      * @group system
      */
@@ -105,7 +105,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::except().
+     * Test for Arr::except().
      *
      * @group system
      */
@@ -117,7 +117,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::exists().
+     * Test for Arr::exists().
      *
      * @group system
      */
@@ -134,7 +134,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::first().
+     * Test for Arr::first().
      *
      * @group system
      */
@@ -151,7 +151,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::last().
+     * Test for Arr::last().
      *
      * @group system
      */
@@ -166,7 +166,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::flatten() - 1.
+     * Test for Arr::flatten() - 1.
      *
      * @group system
      */
@@ -186,7 +186,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::flatten() - 2.
+     * Test for Arr::flatten() - 2.
      *
      * @group system
      */
@@ -203,7 +203,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::get().
+     * Test for Arr::get().
      *
      * @group system
      */
@@ -264,7 +264,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::has().
+     * Test for Arr::has().
      *
      * @group system
      */
@@ -307,7 +307,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::has_any().
+     * Test for Arr::has_any().
      *
      * @group system
      */
@@ -334,7 +334,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::associative().
+     * Test for Arr::associative().
      *
      * @group system
      */
@@ -348,7 +348,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::only().
+     * Test for Arr::only().
      *
      * @group system
      */
@@ -360,7 +360,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::pluck() - 1.
+     * Test for Arr::pluck() - 1.
      *
      * @group system
      */
@@ -377,7 +377,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::pluck() - 2.
+     * Test for Arr::pluck() - 2.
      *
      * @group system
      */
@@ -399,7 +399,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::prepend().
+     * Test for Arr::prepend().
      *
      * @group system
      */
@@ -413,7 +413,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::pull().
+     * Test for Arr::pull().
      *
      * @group system
      */
@@ -436,7 +436,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::set().
+     * Test for Arr::set().
      *
      * @group system
      */
@@ -448,7 +448,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::sort().
+     * Test for Arr::sort().
      *
      * @group system
      */
@@ -465,7 +465,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::recsort().
+     * Test for Arr::recsort().
      *
      * @group system
      */
@@ -495,7 +495,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::where().
+     * Test for Arr::where().
      *
      * @group system
      */
@@ -511,7 +511,7 @@ class ArrTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Arr::forget().
+     * Test for Arr::forget().
      *
      * @group system
      */

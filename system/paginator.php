@@ -7,71 +7,70 @@ defined('DS') or exit('No direct access.');
 class Paginator
 {
     /**
-     * Berisi hasil paginasi saat ini.
+     * Contains the current pagination results.
      *
      * @var array
      */
     public $results;
 
     /**
-     * Halaman saat ini.
+     * Contains the current page number.
      *
      * @var int
      */
     public $page;
 
     /**
-     * Halaman terakhir.
+     * Contains the last page number.
      *
      * @var int
      */
     public $last;
 
     /**
-     * Total halaman.
+     * Contains the total number of pages.
      *
      * @var int
      */
     public $total;
 
     /**
-     * Jumlah item perhalaman.
+     * Contains the number of items per page.
      *
      * @var int
      */
     public $perpage;
 
     /**
-     * Value yang harus di-append ke akhir query string.
+     * Value that should be appended to the end of the query string.
      *
      * @var array
      */
     protected $appends;
 
     /**
-     * Akhiran yang akan ditambahkan ke link.
-     * Berisi placeholder nomor halaman dan query string dengan format sprintf().
+     * Appends the page number to the query string.
      *
      * @var string
      */
     protected $appendage;
 
     /**
-     * Bahasa yang harus digunakan ketika membuat link paginasi.
+     * Language that should be used when creating pagination links.
      *
      * @var string
      */
     protected $language;
 
     /**
-     * Elemet 'titik-titik' yang digunakan di slider paginasi.
+     * The dots element used in the pagination slider.
      *
      * @var string
      */
     protected $dots = '<li class="page-item page-dots disabled"><a class="page-link" href="#">...</a></li>';
 
     /**
-     * Buat instance Paginator baru.
+     * Constructor.
      *
      * @param array $results
      * @param int   $page
@@ -86,10 +85,12 @@ class Paginator
         $this->total = $total;
         $this->results = $results;
         $this->perpage = $perpage;
+        $this->appends = [];
+        $this->language = null;
     }
 
     /**
-     * Buat instance Paginator baru.
+     * Creates a new Paginator instance.
      *
      * @param array $results
      * @param int   $total
@@ -103,7 +104,7 @@ class Paginator
     }
 
     /**
-     * Ambil halaman saat ini dari query string.
+     * Get the current page from the query string.
      *
      * @param int $total
      * @param int $perpage
@@ -123,8 +124,8 @@ class Paginator
     }
 
     /**
-     * Cek apakah nomor yang diberikan merupakan nomor halaman yang valid atau bukan.
-     * Nomor halaman dianggap valid apabila ia berupa integer yang lebih besar atau sama dengan 1.
+     * Check if the given number is a valid page number.
+     * A page number is considered valid if it is an integer greater than or equal to 1.
      *
      * @param int $page
      *
@@ -136,14 +137,14 @@ class Paginator
     }
 
     /**
-     * Buat link paginasi.
+     * Create pagination links.
      *
      * <code>
      *
-     *      // Buat link paginasi
+     *      // Create pagination links
      *      echo $paginator->links();
      *
-     *      // Buat link paginasi nmenggunakan rentang tertentu.
+     *      // Create pagination links using a specific range.
      *      echo $paginator->links(5);
      *
      * </code>
@@ -158,13 +159,12 @@ class Paginator
             return '';
         }
 
-        // Angka 7 yang di hard-code adalah untuk menghitung semua elemen konstan
-        // dalam rentang 'slider', seperti laman saat ini, dua elipsis, dan dua
-        // halaman awal dan akhir.
+        // The number 7 is hard-coded to calculate all constant elements
+        // in the 'slider' range, such as the current page, two ellipses, and two
+        // first and last pages.
 
-        // Jika tidak ada cukup halaman untuk memungkinkan pembuatan slider
-        // berdasarkan halaman-halaman terdekat, maka semua halaman akan ditampilkan.
-        // Jika sebaliknya, kita buat slider 'terpotong'.
+        // If there are not enough pages to create a slider based on adjacent pages,
+        // all pages will be displayed. Otherwise, we create a 'truncated' slider.
         $links = ($this->last < (7 + ($adjacent * 2))) ? $this->range(1, $this->last) : $this->slider($adjacent);
         $content = $this->previous() . $links . $this->next();
         $content = "\t" . '<ul class="pagination">' . "\n" . $content . "\n\t" . '</ul>';
@@ -173,16 +173,16 @@ class Paginator
     }
 
     /**
-     * Buat slider HTML berisi link numerik.
-     * Method ini mirip dengan links(), perbedaannya hanya
-     * ini tidak menampilkan halaman pertama dan terakhir.
+     * Make slider HTML containing numeric links.
+     * This method is similar to links(), the difference is that
+     * this one does not display the first and last page.
      *
      * <code>
      *
-     *      // Buat slider paginasi
+     *      // Make a pagination slider
      *      echo $paginator->slider();
      *
-     *      // Buat slider paginasi berdasarkan rentang tertentu
+     *      // Make a pagination slider based on a specific range
      *      echo $paginator->slider(5);
      *
      * </code>
@@ -207,15 +207,15 @@ class Paginator
     }
 
     /**
-     * Buat link 'Sebelumnya'.
+     * Make a 'Previous' link.
      *
      * <code>
      *
-     *      // Buat link 'sebelumnya'
+     *      // Make a 'Previous' link
      *      echo $paginator->previous();
      *
-     *      // Buat link 'seblumnya' dengan teks kustom
-     *      echo $paginator->previous('Balik');
+     *      // Make a 'Previous' link with custom text
+     *      echo $paginator->previous('Back');
      *
      * </code>
      *
@@ -231,15 +231,15 @@ class Paginator
     }
 
     /**
-     * Buat link 'Selanjutnya'.
+     * Make a 'Next' link.
      *
      * <code>
      *
-     *      // Buat link 'selanjutnya'
+     *      // Make a 'Next' link
      *      echo $paginator->next();
      *
-     *      // Buat link 'selanjutnya' dengN TEKS KUSTOM
-     *      echo $paginator->next('Lanjut');
+     *      // Make a 'Next' link with custom text
+     *      echo $paginator->next('Forward');
      *
      * </code>
      *
@@ -255,7 +255,7 @@ class Paginator
     }
 
     /**
-     * Buat link urutan paginasi, seperti 'sebelumnya' atau 'selanjutnya'.
+     * Make a numbered pagination link.
      *
      * @param string   $element
      * @param int      $page
@@ -278,7 +278,7 @@ class Paginator
     }
 
     /**
-     * Buat 2 halaman awal silder paginasi.
+     * Make 2 initial pagination links.
      *
      * @return string
      */
@@ -288,7 +288,7 @@ class Paginator
     }
 
     /**
-     * Buat 2 halaman akhir silder paginasi.
+     * Make 2 final pagination links.
      *
      * @return string
      */
@@ -298,8 +298,8 @@ class Paginator
     }
 
     /**
-     * Buat link numerik berisi angka paginasi.
-     * Hanya tampilkan sebagai teks untuk halaman saat ini.
+     * Make a numbered pagination link.
+     * Only show as text for the current page.
      *
      * @param int $start
      * @param int $end
@@ -320,7 +320,7 @@ class Paginator
     }
 
     /**
-     * Buat link halaman.
+     * Make a numbered pagination link.
      *
      * @param int    $page
      * @param string $text
@@ -339,23 +339,24 @@ class Paginator
     }
 
     /**
-     * Buat akhiran untuk di-append ke tiap-tiap link paginasi.
+     * Make an ending pagination link to be appended to each pagination link.
      *
      * @param array $appends
      *
      * @return string
      */
-    protected function appendage(array $appends)
+    protected function appendage(array $appends = [])
     {
         if (!is_null($this->appendage)) {
             return $this->appendage;
         }
 
+        $appends = empty($appends) ? [] : $appends;
         return $this->appendage = (count($appends) <= 0) ? '&' . http_build_query($appends) : '';
     }
 
     /**
-     * Set item apa yang harus di-append ke query string link paginasi.
+     * Append values to the query string of pagination links.
      *
      * @param array $values
      *
@@ -368,7 +369,7 @@ class Paginator
     }
 
     /**
-     * Buat listing atribut HTML dari array yang diberikan.
+     * Make an HTML attribute string from the given array.
      *
      * @param array $attributes
      *
@@ -392,7 +393,7 @@ class Paginator
     }
 
     /**
-     * Set bahasa apa yang harus digunakan untuk membuat link paginasi.
+     * Set the language to be used for creating pagination links.
      *
      * @param string $language
      *

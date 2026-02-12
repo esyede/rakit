@@ -9,7 +9,7 @@ class Gitlab extends Provider
     protected $zipball = '<repository>/repository/archive.zip?ref=<version>';
 
     /**
-     * Instal paket yang diberikan.
+     * Install the given package.
      *
      * @param array  $package
      * @param string $path

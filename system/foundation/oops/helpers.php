@@ -6,8 +6,6 @@ defined('DS') or exit('No direct access.');
 
 class Helpers
 {
-
-
     public static function formatHtml($mask)
     {
         $args = func_get_args();
@@ -131,6 +129,7 @@ class Helpers
     public static function improveException($e)
     {
         $message = $e->getMessage();
+        $replalce = [];
 
         if (!($e instanceof \Error) && !($e instanceof \ErrorException)) {
             // ..
@@ -177,8 +176,6 @@ class Helpers
             /** @disregard */
             $ref->setAccessible(true);
             $ref->setValue($e, $message);
-            // Store oopsAction via Context helper
-            // Editor link removed
         }
     }
 
@@ -187,7 +184,6 @@ class Helpers
     {
         if (preg_match('#^Undefined variable: (\w+)#', $message, $m) && $context) {
             $hint = self::getSuggestion(array_keys($context), $m[1]);
-
             return $hint ? "Undefined variable $$m[1], did you mean $$hint?" : $message;
         } elseif (preg_match('#^Undefined property: ([\w\\\\]+)::\$(\w+)#', $message, $m)) {
             $rc = new \ReflectionClass($m[1]);
@@ -197,7 +193,6 @@ class Helpers
             );
 
             $hint = self::getSuggestion($items, $m[2]);
-
             return $hint ? $message . ", did you mean $$hint?" : $message;
         }
 
@@ -226,7 +221,6 @@ class Helpers
                     array_slice(explode(DIRECTORY_SEPARATOR, $file), 0, $i - count($parts)),
                     array_slice($segments, $i)
                 );
-
                 $res = implode(DIRECTORY_SEPARATOR, $res) . '.php';
             }
         }
@@ -275,6 +269,9 @@ class Helpers
     /** @internal */
     public static function getNonce()
     {
-        return preg_match('#^Content-Security-Policy(?:-Report-Only)?:.*\sscript-src\s+(?:[^;]+\s)?\'nonce-([\w+/]+=*)\'#mi', implode("\n", headers_list()), $m) ? $m[1] : null;
+        return preg_match(
+            '#^Content-Security-Policy(?:-Report-Only)?:.*\sscript-src\s+(?:[^;]+\s)?\'nonce-([\w+/]+=*)\'#mi',
+            implode("\n", headers_list()),
+        $matches) ? $matches[1] : null;
     }
 }

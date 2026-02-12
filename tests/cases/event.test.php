@@ -23,7 +23,7 @@ class EventTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test pemanggilan event.
+     * Test event listeners are fired when an event is fired.
      *
      * @group system
      */
@@ -37,13 +37,12 @@ class EventTest extends \PHPUnit_Framework_TestCase
         });
 
         $responses = Event::fire('test.event');
-
         $this->assertEquals('event_one', $responses[0]);
         $this->assertEquals('event_two', $responses[1]);
     }
 
     /**
-     * Test bahwa bisa mengoper parameter ke listener.
+     * Test that parameters can be passed to event listeners when an event is fired.
      *
      * @group system
      */
@@ -54,7 +53,6 @@ class EventTest extends \PHPUnit_Framework_TestCase
         });
 
         $responses = Event::fire('test.event', ['foo']);
-
         $this->assertEquals('foo', $responses[0]);
     }
 }

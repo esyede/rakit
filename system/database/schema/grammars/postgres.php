@@ -10,7 +10,7 @@ use System\Database\Schema\Table;
 class Postgres extends Grammar
 {
     /**
-     * Buat sintaks sql untuk pembuatan tabel.
+     * Create the sql syntax for creating a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -24,7 +24,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk modifikasi tabel.
+     * Create the sql syntax for modifying a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -41,7 +41,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk definisi kolom.
+     * Create the sql syntax for column definitions.
      *
      * @param Table $table
      *
@@ -66,7 +66,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql indikasi bahwa kolom boleh null.
+     * Create the sql syntax for indicating that the column can be null.
      *
      * @param Table $table
      * @param Magic $column
@@ -79,7 +79,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql set default value kolom.
+     * Create the sql syntax for setting the default value of the column.
      *
      * @param Table $table
      * @param Magic $column
@@ -94,7 +94,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk definisi kolom auto-increment.
+     * Create the sql syntax for auto-increment column definition.
      *
      * @param Table $table
      * @param Magic $column
@@ -111,7 +111,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi unsigned column.
+     * Create the sql syntax for indicating unsigned column.
      *
      * @param Table $table
      * @param Magic $column
@@ -120,12 +120,12 @@ class Postgres extends Grammar
      */
     protected function unsigned(Table $table, Magic $column)
     {
-        // PostgreSQL tidak mendukung unsigned, skip
+        // PostgreSQL does not support unsigned, skip
         return '';
     }
 
     /**
-     * Buat sintaks sql untuk collate kolom.
+     * Create the sql syntax for column collation.
      *
      * @param Table $table
      * @param Magic $column
@@ -142,7 +142,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk comment kolom.
+     * Create the sql syntax for column comment.
      *
      * @param Table $table
      * @param Magic $column
@@ -152,12 +152,13 @@ class Postgres extends Grammar
     protected function comment(Table $table, Magic $column)
     {
         if (isset($column->comment) && $column->comment) {
-            return "; COMMENT ON COLUMN " . $this->wrap($table) . "." . $this->wrap($column) . " IS '" . addslashes($column->comment) . "'";
+            return "; COMMENT ON COLUMN " . $this->wrap($table) . "." . $this->wrap($column)
+                . " IS '" . addslashes($column->comment) . "'";
         }
     }
 
     /**
-     * Buat sintaks sql untuk membuat kolom primary key.
+     * Create the sql syntax for creating a primary key column.
      *
      * @param Table $table
      * @param Magic $command
@@ -171,7 +172,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat unique index.
+     * Create the sql syntax for creating a unique index.
      *
      * @param Table $table
      * @param Magic $command
@@ -188,7 +189,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat full-text index.
+     * Create the sql syntax for creating a full-text index.
      *
      * @param Table $table
      * @param Magic $command
@@ -203,7 +204,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index biasa.
+     * Create the sql syntax for creating a standard index.
      *
      * @param Table $table
      * @param Magic $command
@@ -216,7 +217,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index baru.
+     * Create the sql syntax for creating a new index.
      *
      * @param Table $table
      * @param Magic $command
@@ -231,7 +232,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk rename tabel.
+     * Create the sql syntax for renaming a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -244,7 +245,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk dropp kolom.
+     * Create the sql syntax for dropping columns.
      *
      * @param Table $table
      * @param Magic $command
@@ -261,7 +262,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop primary key.
+     * Create the sql syntax for dropping a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -274,7 +275,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique key.
+     * Create the sql syntax for dropping a unique constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -287,7 +288,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk fulltext key.
+     * Create the sql syntax for dropping a unique constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -300,7 +301,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop index key.
+     * Create the sql syntax for dropping an index.
      *
      * @param Table $table
      * @param Magic $command
@@ -313,7 +314,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop key.
+     * Create the sql syntax for dropping an index.
      *
      * @param Table $table
      * @param Magic $command
@@ -326,7 +327,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop foreign key constraint.
+     * Create the sql syntax for dropping a foreign key constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -339,7 +340,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk spatial index.
+     * Create the sql syntax for creating a spatial index.
      *
      * @param Table $table
      * @param Magic $command
@@ -353,7 +354,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk rename kolom.
+     * Create the sql syntax for renaming a column.
      *
      * @param Table $table
      * @param Magic $command
@@ -362,11 +363,13 @@ class Postgres extends Grammar
      */
     public function rename_column(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME COLUMN ' . $this->wrap($command->from) . ' TO ' . $this->wrap($command->to);
+        return 'ALTER TABLE ' . $this->wrap($table)
+            . ' RENAME COLUMN ' . $this->wrap($command->from)
+            . ' TO ' . $this->wrap($command->to);
     }
 
     /**
-     * Buat sintaks sql untuk drop kolom jika ada.
+     * Create the sql syntax for drop column if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -383,7 +386,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop index jika ada.
+     * Create the sql syntax for drop index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -396,7 +399,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique jika ada.
+     * Create the sql syntax for drop index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -409,7 +412,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop fulltext jika ada.
+     * Create the sql syntax for drop fulltext if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -422,7 +425,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop foreign jika ada.
+     * Create the sql syntax for drop fulltext if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -435,7 +438,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data string.
+     * Create the sql definition for string type.
      *
      * @param Magic $column
      *
@@ -447,7 +450,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data integer.
+     * Create the sql definition for integer type.
      *
      * @param Magic $column
      *
@@ -459,7 +462,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data big integer.
+     * Create the sql definition for big integer type.
      *
      * @param Magic $column
      *
@@ -471,7 +474,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data float.
+     * Create the sql definition for float type.
      *
      * @param Magic $column
      *
@@ -483,7 +486,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data decimal.
+     * Create the sql definition for decimal type.
      *
      * @param Magic $column
      *
@@ -495,7 +498,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data enum.
+     * Create the sql definition for enum type.
      *
      * @param Magic $column
      *
@@ -511,7 +514,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data boolean.
+     * Create the sql definition for boolean type.
      *
      * @param Magic $column
      *
@@ -523,7 +526,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data date.
+     * Create the sql definition for date type.
      *
      * @param Magic $column
      *
@@ -535,7 +538,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data timestamp.
+     * Create the sql definition for datetime type.
      *
      * @param Magic $column
      *
@@ -547,7 +550,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data text.
+     * Create the sql definition for text type.
      *
      * @param Magic $column
      *
@@ -559,7 +562,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data longtext.
+     * Create the sql definition for longtext type.
      *
      * @param Magic $column
      *
@@ -571,7 +574,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data blob.
+     * Create the sql definition for blob type.
      *
      * @param Magic $column
      *
@@ -583,7 +586,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data double.
+     * Create the sql definition for double type.
      *
      * @param Magic $column
      *
@@ -595,7 +598,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data medium integer.
+     * Create the sql definition for medium integer type.
      *
      * @param Magic $column
      *
@@ -607,7 +610,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data tiny integer.
+     * Create the sql definition for tiny integer type.
      *
      * @param Magic $column
      *
@@ -619,7 +622,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data small integer.
+     * Create the sql definition for small integer type.
      *
      * @param Magic $column
      *
@@ -631,7 +634,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data json.
+     * Create the sql definition for json type.
      *
      * @param Magic $column
      *
@@ -643,7 +646,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data jsonb.
+     * Create the sql definition for jsonb type.
      *
      * @param Magic $column
      *
@@ -655,7 +658,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data uuid.
+     * Create the sql definition for uuid type.
      *
      * @param Magic $column
      *
@@ -667,7 +670,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data ip address.
+     * Create the sql definition for ip address type.
      *
      * @param Magic $column
      *
@@ -679,7 +682,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data mac address.
+     * Create the sql definition for mac address type.
      *
      * @param Magic $column
      *
@@ -691,7 +694,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometry.
+     * Create the sql definition for geometry type.
      *
      * @param Magic $column
      *
@@ -703,7 +706,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data point.
+     * Create the sql definition for point type.
      *
      * @param Magic $column
      *
@@ -715,7 +718,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data linestring.
+     * Create the sql definition for linestring type.
      *
      * @param Magic $column
      *
@@ -727,7 +730,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data polygon.
+     * Create the sql definition for polygon type.
      *
      * @param Magic $column
      *
@@ -739,7 +742,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometrycollection.
+     * Create the sql definition for geometrycollection type.
      *
      * @param Magic $column
      *
@@ -751,7 +754,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipoint.
+     * Create the sql definition for multipoint type.
      *
      * @param Magic $column
      *
@@ -763,7 +766,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multilinestring.
+     * Create the sql definition for multilinestring type.
      *
      * @param Magic $column
      *
@@ -775,7 +778,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipolygon.
+     * Create the sql definition for multipolygon type.
      *
      * @param Magic $column
      *
@@ -787,7 +790,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Buat definisi tipe data set.
+     * Create the sql definition for set type.
      *
      * @param Magic $column
      *

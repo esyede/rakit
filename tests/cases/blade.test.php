@@ -31,7 +31,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token echo.
+     * Test for echo.
      *
      * @group system
      */
@@ -51,7 +51,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token csrf.
+     * Test for csrf.
      *
      * @group system
      */
@@ -63,7 +63,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token comment.
+     * Test for comment.
      *
      * @group system
      */
@@ -80,7 +80,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token control structure.
+     * Test for control structures.
      *
      * @group system
      */
@@ -170,7 +170,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token @yield.
+     * Test for @yield.
      *
      * @group system
      */
@@ -183,7 +183,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token @section dan @endsection.
+     * Test for @section and @endsection.
      *
      * @group system
      */
@@ -196,7 +196,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk token @include().
+     * Test for @include().
      *
      * @group system
      */
@@ -206,15 +206,14 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $blade2 = "@include(Config::get('application.default_view', 'user.profile'))";
 
         $out1 = "<?php echo view('user.profile')->with(get_defined_vars())->render() ?>";
-        $out2 = "<?php echo view(Config::get('application.default_view', 'user.profile'))" .
-            '->with(get_defined_vars())->render() ?>';
+        $out2 = "<?php echo view(Config::get('application.default_view', 'user.profile'))->with(get_defined_vars())->render() ?>";
 
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
     }
 
     /**
-     * Test untuk token @render().
+     * Test for @render().
      *
      * @group system
      */
@@ -231,7 +230,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk $loop di @foreach.
+     * Test untuk $loop in @foreach.
      *
      * @group system
      */
@@ -245,7 +244,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk $loop di @forelse.
+     * Test untuk $loop in @forelse.
      *
      * @group system
      */
@@ -259,7 +258,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk @once.
+     * Test for @once.
      *
      * @group system
      */

@@ -11,7 +11,7 @@ use System\Console\Color;
 class Publisher
 {
     /**
-     * Salin aset milik paket ke direktori root 'assets/'.
+     * Copy assets from package to root 'assets/' directory.
      *
      * @param string $package
      *
@@ -28,7 +28,7 @@ class Publisher
         $destination = path('assets') . 'packages' . DS . $package;
 
         if (!is_dir($source)) {
-            echo Color::red('Package does not caontains any assets!');
+            echo Color::red('Package does not contain any assets!');
             return;
         }
 
@@ -43,7 +43,7 @@ class Publisher
     }
 
     /**
-     * Hapus aset milik paket dari direktori root 'assets/'.
+     * Remove assets from package from root 'assets/' directory.
      *
      * @param string $package
      *

@@ -23,7 +23,7 @@ class MagicTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Magic::__construct().
+     * Test for Magic::__construct().
      *
      * @group system
      */
@@ -36,7 +36,7 @@ class MagicTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Magic::get().
+     * Test for Magic::get().
      *
      * @group system
      */
@@ -51,7 +51,7 @@ class MagicTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk penggunaan magic method.
+     * Test for Magic's magic methods.
      *
      * @group system
      */

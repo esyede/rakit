@@ -5,7 +5,12 @@ defined('DS') or exit('No direct access.');
 class Dashboard_Controller extends Controller
 {
     /**
-     * Buat instance controller baru.
+     * Enable RESTful routing.
+     */
+    public $restful = true;
+
+    /**
+     * Constructor.
      */
     public function __construct()
     {
@@ -13,12 +18,12 @@ class Dashboard_Controller extends Controller
     }
 
     /**
-     * Tampilkan halaman dashboard.
+     * Display the dashboard page.
      *
-     * @return \System\Response
+     * @return View
      */
-    public function action_index()
+    public function get_index()
     {
-        return View::make('dashboard');
+        return view('dashboard');
     }
 }

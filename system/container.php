@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class Container
 {
     /**
-     * Berisi list dependensi terdaftar.
+     * Contains registered dependencies.
      *
      * @var array
      */
     public static $registry = [];
 
     /**
-     * Berisi instance singleton yang telah diresolve.
+     * Contains resolved singletons.
      *
      * @var array
      */
     public static $singletons = [];
 
     /**
-     * Daftarkan objek berikut resolvernya.
+     * Register an object with its resolver.
      *
      * @param string $name
      * @param mixed  $resolver
@@ -34,7 +34,7 @@ class Container
     }
 
     /**
-     * Periksa apakah objek sudah terdaftar di container atau belum.
+     * Check if an object is registered in the container.
      *
      * @param string $name
      *
@@ -46,23 +46,23 @@ class Container
     }
 
     /**
-     * Daftarkan sebuah objek (singleton).
-     * Singleton hanya akan diinstansiasi sekali saja, saat objek itu diresolve.
+     * Register a singleton object.
+     * Singleton will only be instantiated once, when the object is resolved.
      *
      * @param string   $name
      * @param \Closure $resolver
      */
-    public static function singleton($name, \Closure $resolver = null)
+    public static function singleton($name, $resolver = null)
     {
         static::register($name, $resolver, true);
     }
 
     /**
-     * Daftarkan instance yang sudah ada sebagai singleton.
+     * Register an instance as a singleton.
      *
      * <code>
      *
-     *      // Daftarkan instance mailer sebagai singleton.
+     *      // Register instance mailer as a singleton.
      *      Container::instance('mailer', new Mailer());
      *
      * </code>
@@ -76,14 +76,14 @@ class Container
     }
 
     /**
-     * Resolve nama yang diberikan menjadi sebuah instance objek.
+     * Resolve a name into an object instance.
      *
      * <code>
      *
-     *      // Ambil instance objek 'mailer'
+     *      // Get the 'mailer' instance
      *      $mailer = Container::resolve('mailer');
      *
-     *      // Ambil instance objek 'mailer' dan oper sebuah parameter
+     *      // Get the 'mailer' instance and pass a parameter
      *      $mailer = Container::resolve('mailer', ['test']);
      *
      * </code>
@@ -117,7 +117,7 @@ class Container
     }
 
     /**
-     * Instansiasi tipe objek yang diberikan.
+     * Instantiate a type.
      *
      * @param string $type
      * @param array  $parameters
@@ -146,7 +146,7 @@ class Container
     }
 
     /**
-     * Resolve seluruh dependensi dari ReflectionParameter.
+     * Resolve dependencies for a \ReflectionParameter.
      *
      * @param array $parameters
      * @param array $arguments
@@ -171,7 +171,7 @@ class Container
     }
 
     /**
-     * Resolve parameter opsional untuk dependency injection kita.
+     * Resolve optional parameter for dependency injection.
      *
      * @param \ReflectionParameter $paameter
      *

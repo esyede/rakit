@@ -26,7 +26,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::all().
+     * Test for Input::all().
      *
      * @group system
      */
@@ -40,7 +40,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::has().
+     * Test for Input::has().
      *
      * @group system
      */
@@ -54,7 +54,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::get().
+     * Test for Input::get().
      *
      * @group system
      */
@@ -67,7 +67,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::only().
+     * Test for Input::only().
      *
      * @group system
      */
@@ -79,7 +79,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::except().
+     * Test for Input::except().
      *
      * @group system
      */
@@ -91,7 +91,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::old().
+     * Test for Input::old().
      *
      * @group system
      */
@@ -108,7 +108,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::filled().
+     * Test for Input::filled().
      *
      * @group system
      */
@@ -123,7 +123,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::unfilled().
+     * Test for Input::unfilled().
      *
      * @group system
      */
@@ -138,7 +138,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::file().
+     * Test for Input::file().
      *
      * @group system
      */
@@ -151,7 +151,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::flash().
+     * Test for Input::flash().
      *
      * @group system
      */
@@ -173,7 +173,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Input::flush().
+     * Test for Input::flush().
      *
      * @group system
      */

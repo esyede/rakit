@@ -11,15 +11,15 @@ use System\Container;
 class Console
 {
     /**
-     * Panggil sebuhah command konsol.
+     * Run the console command.
      *
      * <code>
      *
-     *      // Panggil command migrate
+     *      // Run the migrate command
      *      Console::run('migrate');
      *
-     *      // Panggil command migrate dengan argumen tambahan
-     *      Console::run(['migrate:rollback', 'nama-paket'])
+     *      // Run the migrate command with additional arguments
+     *      Console::run(['migrate:rollback', 'package-name'])
      *
      * </code>
      *
@@ -55,7 +55,7 @@ class Console
     }
 
     /**
-     * Ekstrak nama paket, command, dan method.
+     * Extract package name, command, and method.
      *
      * @param string $command
      *
@@ -74,14 +74,12 @@ class Console
     }
 
     /**
-     * Resolve instance dari nama command yang diberikan.
+     * Resolve instance from a given command.
      *
      * <code>
      *
-     *      // Resolve instance dari sebuah command
+     *      // Resolve instance from a given command
      *      $command = Console::resolve('application', 'migrate');
-     *
-     *      // Resolve instance dari sebuah command milik sebuah paket
      *      $command = Console::resolve('nama_paket', 'foo');
      *
      * </code>
@@ -107,7 +105,7 @@ class Console
     }
 
     /**
-     * Ambil opsi-opsi command.
+     * Extract options from a given array.
      *
      * @param array $argv
      *
@@ -139,7 +137,7 @@ class Console
     }
 
     /**
-     * Ubah paket dan command menjadi nama kelas.
+     * Transform package name and command into a class name.
      *
      * @param string $package
      * @param string $command

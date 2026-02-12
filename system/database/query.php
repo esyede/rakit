@@ -11,112 +11,112 @@ use System\Database\Query\Grammars\Grammar as QueryGrammar;
 class Query
 {
     /**
-     * Berisi instance koneksi database.
+     * Contains the database connection instance.
      *
      * @var Connection
      */
     public $connection;
 
     /**
-     * Berisi instance query grammar.
+     * Contains the query grammar instance.
      *
      * @var QueryGrammar
      */
     public $grammar;
 
     /**
-     * Berisi klausa SELECT.
+     * Contains the selected columns for the SELECT clause.
      *
      * @var array
      */
     public $selects;
 
     /**
-     * Berisi kolom dan fungsi agregasi.
+     * Contains aggregate function information.
      *
      * @var array
      */
     public $aggregate;
 
     /**
-     * Menunjukkan apakah query harus mereturn distinct result atau tidak.
+     * Indicates whether to select distinct results.
      *
      * @var bool
      */
     public $distinct = false;
 
     /**
-     * Berisi union queries.
+     * BContains the UNION clauses.
      *
      * @var array
      */
     public $unions = [];
 
     /**
-     * Berisi nama tabel.
+     * Contains the table name for the FROM clause.
      *
      * @var string
      */
     public $from;
 
     /**
-     * Berisi kalusa join tabel.
+     * Contains the JOIN clauses.
      *
      * @var array
      */
     public $joins;
 
     /**
-     * Berisi kalusa WHERE.
+     * Contains the WHERE clauses.
      *
      * @var array
      */
     public $wheres;
 
     /**
-     * Berisi kalusa GROUP BY.
+     * Contains the GROUP BY clauses.
      *
      * @var array
      */
     public $groupings;
 
     /**
-     * Berisi kalusa HAVING.
+     * Contains the HAVING clauses.
      *
      * @var array
      */
     public $havings;
 
     /**
-     * Berisi kalusa ORDER BY.
+     * Contains the ORDER BY clauses.
      *
      * @var array
      */
     public $orderings;
 
     /**
-     * Berisi nilai LIMIT.
+     * Contains the LIMIT value.
      *
      * @var int
      */
     public $limit;
 
     /**
-     * Berisi nilai OFFSET.
+     * Contains the OFFSET value.
      *
      * @var int
      */
     public $offset;
 
     /**
-     * Berisi binding data untuk query.
+     * Contains the query bindings.
      *
      * @var array
      */
     public $bindings = [];
 
     /**
-     * Berisi daftar operator komparasi.
+     * Contains the list of valid SQL operators.
      *
      * @var array
      */
@@ -155,7 +155,7 @@ class Query
     ];
 
     /**
-     * Buat instance query baru.
+     * Constructor.
      *
      * @param Connection   $connection
      * @param QueryGrammar $grammar
@@ -170,7 +170,7 @@ class Query
     }
 
     /**
-     * Paksa query untuk mereturn distinct result.
+     * Make the SELECT clause distinct.
      *
      * @return Query
      */
@@ -181,7 +181,7 @@ class Query
     }
 
     /**
-     * Tambahkan beberapa kolom ke klausa SELECT.
+     * Add columns to the SELECT clause.
      *
      * @param array $columns
      *
@@ -194,7 +194,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa join ke query.
+     * Add JOIN clause to the query.
      *
      * @param string $table
      * @param string $column1
@@ -217,7 +217,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa LEFT JOIN ke query.
+     * Add LEFT JOIN clause to the query.
      *
      * @param string $table
      * @param string $column1
@@ -232,7 +232,7 @@ class Query
     }
 
     /**
-     * Tambahkan UNION ke query.
+     * Add UNION clause to the query.
      *
      * @param Query $query
      * @param bool  $all
@@ -248,7 +248,7 @@ class Query
     }
 
     /**
-     * Tambahkan UNION ALL ke query.
+     * Add UNION ALL clause to the query.
      *
      * @param Query $query
      *
@@ -260,7 +260,7 @@ class Query
     }
 
     /**
-     * Reset klausa WHERE.
+     * Reset the WHERE clauses.
      */
     public function reset_where()
     {
@@ -269,7 +269,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE mentah ke query.
+     * Add a raw WHERE clause to the query.
      *
      * @param string $where
      * @param array  $bindings
@@ -286,7 +286,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE mentah ke query.
+     * Add a raw OR WHERE clause to the query.
      *
      * @param string $where
      * @param array  $bindings
@@ -299,7 +299,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE ke query.
+     * Add a WHERE clause to the query.
      *
      * @param string $column
      * @param string $operator
@@ -327,7 +327,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE ke query.
+     * Add an OR WHERE clause to the query.
      *
      * @param string $column
      * @param string $operator
@@ -341,7 +341,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE untuk PRIMARY KEY ke query.
+     * Add a WHERE clause for the 'id' (default primary key) column.
      *
      * @param mixed $value
      *
@@ -353,7 +353,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE IN ke query.
+     * Add a WHERE IN clause to the query.
      *
      * @param string $column
      * @param array  $values
@@ -372,7 +372,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE IN ke query.
+     * Add an OR WHERE IN clause to the query.
      *
      * @param string $column
      * @param array  $values
@@ -385,7 +385,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE NOT IN ke query.
+     * Add a WHERE NOT IN clause to the query.
      *
      * @param string $column
      * @param array  $values
@@ -399,7 +399,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE NOT IN ke query.
+     * Add an OR WHERE NOT IN clause to the query.
      *
      * @param string $column
      * @param array  $values
@@ -412,7 +412,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE IN dengan subquery ke query.
+     * Add a WHERE IN clause with subquery to the query.
      *
      * @param string $column
      * @param Query  $query
@@ -431,7 +431,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE NOT IN dengan subquery ke query.
+     * Add a WHERE NOT IN clause with subquery to the query.
      *
      * @param string $column
      * @param Query  $query
@@ -445,7 +445,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE EXISTS dengan subquery ke query.
+     * Add a WHERE EXISTS clause with subquery to the query.
      *
      * @param Query  $query
      * @param string $connector
@@ -463,7 +463,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE NOT EXISTS dengan subquery ke query.
+     * Add a WHERE NOT EXISTS clause with subquery to the query.
      *
      * @param Query  $query
      * @param string $connector
@@ -476,7 +476,7 @@ class Query
     }
 
     /**
-     * Reset klausa LIMIT dan OFFSET.
+     * Reset the LIMIT and OFFSET clauses.
      *
      * @return Query
      */
@@ -489,7 +489,7 @@ class Query
     }
 
     /**
-     * Reset semua klausa query.
+     * Reset all parts of the query.
      *
      * @return Query
      */
@@ -509,7 +509,7 @@ class Query
     }
 
     /**
-     * Buat salinan query saat ini.
+     * Copy the current query instance.
      *
      * @return Query
      */
@@ -534,7 +534,7 @@ class Query
     }
 
     /**
-     * Buat query untuk keperluan debugging.
+     * Make a debug string of the query with bindings.
      *
      * @return string
      */
@@ -559,7 +559,7 @@ class Query
     }
 
     /**
-     * Eksekusi query SELECT dan return hasilnya.
+     * Execute the SELECT query and return the results.
      *
      * @param array $columns
      *
@@ -576,7 +576,7 @@ class Query
     }
 
     /**
-     * Eksekusi query SELECT dan return record pertama.
+     * EExecute the SELECT query and return the first result.
      *
      * @param array $columns
      *
@@ -590,9 +590,7 @@ class Query
     }
 
     /**
-     * Ambil generator untuk iterate hasil query satu per satu (memory efficient).
-     * Method ini menggunakan generator (PHP 5.5+) untuk efisiensi memori.
-     * Untuk PHP 5.4, akan fallback ke get() biasa.
+     * Get a generator for the results of the query.
      *
      * @param array $columns
      * @param int   $chunk_size
@@ -602,11 +600,11 @@ class Query
     public function cursor($columns = ['*'], $chunk_size = 1000)
     {
         $columns = is_array($columns) ? $columns : [$columns];
-        // PHP < 5.5.0 tidak mendukung generator yield, langsung return hasil get()
+        // PHP < 5.5.0 does not support yield, directly return the results of get()
         return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
     }
     /**
-     * Cari record berdasarkan primary key.
+     * Find a record by primary key.
      *
      * @param mixed $id
      * @param array $columns
@@ -619,7 +617,7 @@ class Query
     }
 
     /**
-     * Eksekusi query INSERT.
+     * Execute the INSERT query.
      *
      * @param array $values
      *
@@ -639,7 +637,7 @@ class Query
     }
 
     /**
-     * Eksekusi query INSERT dan return ID yang dihasilkan.
+     * Execute the INSERT query and get the inserted ID.
      *
      * @param array $values
      * @param string $column
@@ -657,7 +655,7 @@ class Query
     }
 
     /**
-     * Eksekusi query UPDATE.
+     * Execute the UPDATE query.
      *
      * @param array $values
      *
@@ -671,7 +669,7 @@ class Query
     }
 
     /**
-     * Eksekusi query DELETE.
+     * Execute the DELETE query.
      *
      * @return int
      */
@@ -682,7 +680,7 @@ class Query
     }
 
     /**
-     * Increment nilai kolom.
+     * Increment the value of a column.
      *
      * @param string $column
      * @param int    $amount
@@ -695,7 +693,7 @@ class Query
     }
 
     /**
-     * Decrement nilai kolom.
+     * Decrement the value of a column.
      *
      * @param string $column
      * @param int    $amount
@@ -708,7 +706,7 @@ class Query
     }
 
     /**
-     * Buat raw expression untuk query.
+     * Make a raw database expression.
      *
      * @param string $value
      *
@@ -720,7 +718,7 @@ class Query
     }
 
     /**
-     * Handle dynamic where methods seperti where_name, where_email, dll.
+     * Handle dynamic WHERE clauses.
      *
      * @param string $method
      * @param array  $parameters
@@ -749,7 +747,7 @@ class Query
     }
 
     /**
-     * Eksekusi fungsi agregasi seperti COUNT, SUM, AVG, dll.
+     * Execute an aggregate function query.
      *
      * @param string $aggregator
      * @param array  $columns
@@ -768,7 +766,7 @@ class Query
     }
 
     /**
-     * Tambahkan nested WHERE clause dengan callback.
+     * Add a nested WHERE clause to the query.
      *
      * @param \Closure $callback
      * @param string   $connector
@@ -791,7 +789,7 @@ class Query
     }
 
     /**
-     * Compile query menjadi SQL string.
+     * Compile the query to SQL string.
      *
      * @param bool $with_bindings
      *
@@ -848,7 +846,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE BETWEEN ke query.
+     * Aadd a WHERE BETWEEN clause to the query.
      *
      * @param string $column
      * @param mixed  $min
@@ -870,7 +868,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE BETWEEN ke query.
+     * Add a OR WHERE BETWEEN clause to the query.
      *
      * @param string $column
      * @param mixed  $min
@@ -884,7 +882,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE NOT BETWEEN ke query.
+     * Add a WHERE NOT BETWEEN clause to the query.
      *
      * @param string $column
      * @param mixed  $min
@@ -899,7 +897,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE NOT BETWEEN ke query.
+     * Add a OR WHERE NOT BETWEEN clause to the query.
      *
      * @param string $column
      * @param mixed  $min
@@ -913,7 +911,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE NULL ke query.
+     * Add a WHERE NULL clause to the query.
      *
      * @param string $column
      * @param string $connector
@@ -930,7 +928,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE NULL ke query.
+     * Add a OR WHERE NULL clause to the query.
      *
      * @param string $column
      *
@@ -942,7 +940,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE NOT NULL ke query.
+     * Add a WHERE NOT NULL clause to the query.
      *
      * @param string $column
      * @param string $connector
@@ -955,7 +953,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa OR WHERE NOT NULL ke query.
+     * Add a OR WHERE NOT NULL clause to the query.
      *
      * @param string $column
      *
@@ -967,7 +965,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa GROUP BY ke query.
+     * Add a GROUP BY clause to the query.
      *
      * @param string $column
      *
@@ -980,7 +978,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa HAVING ke query.
+     * Add a HAVING clause to the query.
      *
      * @param string $column
      * @param string $operator
@@ -997,7 +995,7 @@ class Query
     }
 
     /**
-     * Set pagination untuk query.
+     * Set the LIMIT and OFFSET clause for pagination.
      *
      * @param int $page
      * @param int $perpage
@@ -1010,7 +1008,7 @@ class Query
     }
 
     /**
-     * Cari record berdasarkan primary key atau fail.
+     * Find a record by primary key or fail.
      *
      * @param mixed $id
      * @param array $columns
@@ -1024,7 +1022,7 @@ class Query
     }
 
     /**
-     * Return hanya kolom tertentu dari hasil query.
+     * Get only a single column's values from the result set.
      *
      * @param string $column
      *
@@ -1037,7 +1035,7 @@ class Query
     }
 
     /**
-     * Return record pertama atau fail.
+     * Get the first result or fail.
      *
      * @param array $columns
      *
@@ -1050,7 +1048,7 @@ class Query
     }
 
     /**
-     * Return array dari kolom tertentu.
+     * Get an associative array of column values.
      *
      * @param string $column
      * @param string $key
@@ -1076,7 +1074,7 @@ class Query
     }
 
     /**
-     * Lakukan pagination pada query.
+     * Paginate the query results.
      *
      * @param int   $perpage
      * @param array $columns
@@ -1098,7 +1096,7 @@ class Query
     }
 
     /**
-     * Hitung jumlah record.
+     * Count the number of records.
      *
      * @param string $column
      *
@@ -1110,7 +1108,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa ORDER BY ke query.
+     * Add an ORDER BY clause to the query.
      *
      * @param string $column
      * @param string $direction
@@ -1124,7 +1122,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE untuk tanggal.
+     * Add a WHERE clause for date.
      *
      * @param string $column
      * @param string $operator
@@ -1139,7 +1137,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE untuk bulan.
+     * Add a WHERE clause for month.
      *
      * @param string $column
      * @param string $operator
@@ -1154,7 +1152,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE untuk hari.
+     * Add a WHERE clause for day.
      *
      * @param string $column
      * @param string $operator
@@ -1169,7 +1167,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE untuk tahun.
+     * Add a WHERE clause for year.
      *
      * @param string $column
      * @param string $operator
@@ -1184,7 +1182,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE untuk waktu.
+     * Add a WHERE clause for time.
      *
      * @param string $column
      * @param string $operator
@@ -1199,7 +1197,7 @@ class Query
     }
 
     /**
-     * Tambahkan klausa WHERE untuk membandingkan dua kolom.
+     * Add a WHERE clause comparing two columns.
      *
      * @param string $column1
      * @param string $operator
@@ -1221,7 +1219,7 @@ class Query
     }
 
     /**
-     * Tambahkan ORDER BY untuk record terbaru.
+     * Add an ORDER BY for latest record.
      *
      * @param string $column
      *
@@ -1233,7 +1231,7 @@ class Query
     }
 
     /**
-     * Tambahkan ORDER BY untuk record tertua.
+     * Add an ORDER BY for oldest record.
      *
      * @param string $column
      *
@@ -1245,7 +1243,7 @@ class Query
     }
 
     /**
-     * Check apakah query memiliki hasil.
+     * Check if query has any results.
      *
      * @return bool
      */
@@ -1261,7 +1259,7 @@ class Query
     }
 
     /**
-     * Check apakah query tidak memiliki hasil.
+     * Check if query has no results.
      *
      * @return bool
      */
@@ -1271,7 +1269,7 @@ class Query
     }
 
     /**
-     * Lakukan chunk berdasarkan ID.
+     * Chunk the results by primary key.
      *
      * @param int      $count
      * @param callable $callback
@@ -1312,7 +1310,7 @@ class Query
     }
 
     /**
-     * Dump query dan die.
+     * Dump the query then die for debugging.
      *
      * @return void
      */
@@ -1322,8 +1320,17 @@ class Query
     }
 
     /**
-     * Tangani pemanggilan method secara dinamis.
-     * Seperti fungsi agregasi dan where.
+     * Dump the query to the debug bar for debugging.
+     *
+     * @return void
+     */
+    public function bd()
+    {
+        bd($this->debug());
+    }
+
+    /**
+     * Handle dynamic method calls.
      */
     public function __call($method, array $parameters)
     {

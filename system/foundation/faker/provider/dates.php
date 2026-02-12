@@ -56,7 +56,9 @@ class Dates extends Base
 
     public static function dateTimeBetween($startDate = '-30 years', $endDate = 'now')
     {
-        $startTimestamp = ($startDate instanceof \DateTime) ? $startDate->getTimestamp() : (new \DateTime($startDate))->getTimestamp();
+        $startTimestamp = ($startDate instanceof \DateTime)
+            ? $startDate->getTimestamp()
+            : (new \DateTime($startDate))->getTimestamp();
         $endTimestamp = static::getMaxTimestamp($endDate);
 
         if ($startTimestamp > $endTimestamp) {

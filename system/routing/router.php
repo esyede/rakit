@@ -11,21 +11,22 @@ use System\Package;
 class Router
 {
     /**
-     * Berisi list nama route yang telah dicocokkan.
+     * Contains list of route names.
      *
      * @var array
      */
     public static $names = [];
 
     /**
-     * Berisi list nama action route.
+     * Contains list of route actions.
      *
      * @var array
      */
     public static $uses = [];
 
     /**
-     * Berisi list seluruh route yang terdaftar.
+     * Contains list of all registered routes.
+     * Grouped by HTTP request method.
      *
      * @var array
      */
@@ -42,7 +43,8 @@ class Router
     ];
 
     /**
-     * Berisi list seluruh route 'fallback' yang terdaftar.
+     * Contains list of all registered 'fallback' routes.
+     * Grouped by HTTP request method.
      *
      * @var array
      */
@@ -59,38 +61,38 @@ class Router
     ];
 
     /**
-     * Berisi stack atribut route group.
+     * Contains list of route groups.
      */
     public static $groups = [];
 
     /**
-     * Berisi data atribut yang route group (merged).
+     * Contains current route group attributes.
      */
     public static $group;
 
     /**
-     * Berisi nama paket untuk route saat ini.
+     * Contains package name for the current route.
      *
      * @var string
      */
     public static $package;
 
     /**
-     * Jumlah maksimal segmen URI yang diizinkan sebagai argumen method.
+     * Maximum number of segments for controller auto-discovery.
      *
      * @var int
      */
     public static $segments = 5;
 
     /**
-     * Nodes untuk trie routing (internal).
+     * Contains node list for trie structure (internal).
      *
      * @var array
      */
     public static $nodes = [];
 
     /**
-     * Pola - pola regex yang didukung.
+     * List of supported regex patterns.
      *
      * @var array
      */
@@ -104,7 +106,7 @@ class Router
     ];
 
     /**
-     * Pola - pola regex opsional yang didukung.
+     * List of supported optional regex patterns.
      *
      * @var array
      */
@@ -118,18 +120,18 @@ class Router
     ];
 
     /**
-     * List HTTP request method.
+     * List of HTTP request methods.
      *
      * @var array
      */
     public static $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'TRACE', 'CONNECT', 'OPTIONS'];
 
     /**
-     * Daftarkan sebuah action untuk menangani beberapa route sekaligus.
+     * Register a shared action for multiple routes.
      *
      * <code>
      *
-     *      // Daftarkan sebuah action untuk menangani sekelompok URI.
+     *      // Register a shared action for multiple URIs.
      *      Router::share([['GET', '/'], ['POST', '/']], 'home@index');
      *
      * </code>
@@ -145,7 +147,7 @@ class Router
     }
 
     /**
-     * Daftarkan sebuah route group.
+     * Register a route group with shared attributes.
      *
      * @param array    $attributes
      * @param \Closure $handler
@@ -160,14 +162,14 @@ class Router
     }
 
     /**
-     * Daftarkan sebuah route.
+     * Register a new route.
      *
      * <code>
      *
-     *      // Daftarkan sebuah route GET.
+     *      // Register a GET route.
      *      Router::register('GET', '/', function() { return 'Home!'; } );
      *
-     *      // Daftarkan sebuah action untuk menangani beberapa route sekaligus.
+     *      // Register a shared action for multiple routes.
      *      Router::register(['GET', '/', 'GET /home'], function() { return 'Home!'; } );
      *
      * </code>
@@ -178,7 +180,7 @@ class Router
      */
     public static function register($method, $route, $action)
     {
-        // Inisialisasi trie jika belum ada
+        // Initialize trie nodes
         static::init_nodes();
 
         $route = Str::characterify($route);
@@ -237,7 +239,7 @@ class Router
     }
 
     /**
-     * Merge semua group attributes.
+     * Merge all route group attributes.
      *
      * @return array|null
      */
@@ -257,7 +259,7 @@ class Router
     }
 
     /**
-     * Ubah action menjadi bentuk array action yang valid.
+     * Generate action array from array, string, or Closure.
      *
      * @param mixed $action
      *
@@ -271,7 +273,7 @@ class Router
     }
 
     /**
-     * Daftarkan controller (auto-discovery).
+     * Register controller routes automatically based on package controllers.
      *
      * @param string|array $controllers
      * @param string|array $defaults
@@ -299,7 +301,7 @@ class Router
     }
 
     /**
-     * Daftarkan sebuah route sebagai root controller.
+     * Register root route for a controller.
      *
      * @param string $identifier
      * @param string $controller
@@ -314,7 +316,7 @@ class Router
     }
 
     /**
-     * Cari route berdasarkan nama yang diberikan.
+     * Find a route by its name.
      *
      * @param string $name
      *
@@ -346,7 +348,7 @@ class Router
     }
 
     /**
-     * Cari route berdasarkan action yang diberikan.
+     * Find a route by its action.
      *
      * @param string $action
      *
@@ -372,7 +374,7 @@ class Router
     }
 
     /**
-     * Cari route berdasarkan kecocokan nama method dan URI-nya.
+     * Find a route by its method and URI.
      *
      * @param string $method
      * @param string $uri
@@ -392,7 +394,7 @@ class Router
         if (array_key_exists($uri, $routes)) {
             $action = $routes[$uri];
             if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
-                // Domain tidak cocok, lanjut ke match
+                // Domain does not match, continue to pattern matching
             } else {
                 return new Route($method, $uri, $action);
             }
@@ -404,7 +406,7 @@ class Router
     }
 
     /**
-     * Cari route dengan mencocokkan pola URI-nya.
+     * Find a route by matching URI patterns.
      *
      * @param string $method
      * @param string $uri
@@ -414,22 +416,22 @@ class Router
      */
     protected static function match($method, $uri, $domain = null)
     {
-        // Coba match dari trie node dulu
+        // Try to match using trie first
         $result = static::match_node($method, $uri);
 
         if ($result) {
             $action = $result['action'];
             if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
-                // Domain tidak cocok, skip
+                // Domain does not match, continue to regex matching
             } else {
-                // Convert associative params ke indexed array untuk konsistensi
+                // Convert associative params to indexed array
                 $params = array_values($result['params']);
                 $pattern = isset($result['pattern_uri']) ? $result['pattern_uri'] : $uri;
                 return new Route($method, $pattern, $action, $params);
             }
         }
 
-        // Fallback ke regex loop
+        // Fallback to regex matching
         $routes = static::method($method);
 
         foreach ($routes as $route => $action) {
@@ -447,7 +449,7 @@ class Router
     }
 
     /**
-     * Cek apakah domain cocok dengan pattern domain route.
+     * Check if domain matches the given pattern.
      *
      * @param string $pattern
      * @param string $domain
@@ -460,7 +462,7 @@ class Router
             return $pattern === $domain;
         }
 
-        // Jika pattern mengandung {}, ubah menjadi regex
+        // When pattern contains wildcards like {subdomain}, compare using regex
         if (Str::contains($pattern, '{')) {
             $pattern = preg_quote($pattern, '#');
             $pattern = preg_replace('/\\\{([^}]+)\\\}/', '(?P<$1>[a-zA-Z0-9\.\-_]+)', $pattern);
@@ -468,12 +470,12 @@ class Router
             return (bool) preg_match($pattern, $domain);
         }
 
-        // Jika tidak ada wildcard, cocokkan langsung
+        // No wildcards, direct comparison
         return $pattern === $domain;
     }
 
     /**
-     * Ubah URI wildcard menjadi regex.
+     * Convert URI wildcards to regex.
      *
      * @param string $key
      *
@@ -491,8 +493,8 @@ class Router
     }
 
     /**
-     * Ambil list seluruh route yang telah didaftarkan.
-     * Fallback route ditaruh di bagian bawah.
+     * Get all registered routes.
+     * Fallback routes are placed at the bottom.
      *
      * @return array
      */
@@ -513,7 +515,7 @@ class Router
     }
 
     /**
-     * Ambil seluruh route berdasarkan HTTP request method yang diberikan.
+     * Get all registered routes for a specific method.
      *
      * @param string $method
      *
@@ -526,7 +528,7 @@ class Router
     }
 
     /**
-     * Ambil seluruh pola wildcard route.
+     * Get all supported patterns.
      *
      * @return array
      */
@@ -536,7 +538,7 @@ class Router
     }
 
     /**
-     * Ulangi string pola URI sebanyak jumlah yang diberikan.
+     * Repeat a pattern for controller auto-discovery.
      *
      * @param string $pattern
      * @param int    $times
@@ -549,7 +551,7 @@ class Router
     }
 
     /**
-     * Inisialisasi trie nodes jika belum ada.
+     * Inisialize trie nodes.
      */
     private static function init_nodes()
     {

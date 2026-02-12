@@ -10,7 +10,7 @@ class Home_Controller extends Controller
     public $foo;
 
     /**
-     * Handler untuk request ke root aplikasi.
+     * Handle GET /.
      *
      * @return View
      */

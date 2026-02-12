@@ -7,8 +7,7 @@ defined('DS') or exit('No direct access.');
 class Hash
 {
     /**
-     * Buat hash password.
-     * Method ini diadaptasi dari https://github.com/ircmaxell/password-compat.
+     * Hash a password.
      *
      * @param string $password
      * @param int    $cost
@@ -50,8 +49,7 @@ class Hash
     }
 
     /**
-     * Cek cocok atau tidaknya sebuah password dengan hashnya.
-     * Method ini diadaptasi dari https://github.com/ircmaxell/password-compat.
+     * Check if a password matches the hash.
      *
      * @param string $password
      * @param string $hash
@@ -85,8 +83,7 @@ class Hash
     }
 
     /**
-     * Cek apakah hash yang dihasilkan masih lemah berdasarkan cost yang diberikan.
-     * Method ini diadaptasi dari https://github.com/ircmaxell/password-compat.
+     * Check if a hash is weak.
      *
      * @param string $hash
      * @param int    $cost

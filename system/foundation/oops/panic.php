@@ -236,11 +236,7 @@ class Panic
             }
 
             is_callable($callback, true, $name);
-
-            $res[] = (object) [
-                'tab' => "Error in panel $name",
-                'panel' => nl2br(Helpers::escapeHtml($e)),
-            ];
+            $res[] = (object) ['tab' => "Error in panel $name", 'panel' => nl2br(Helpers::escapeHtml($e))];
         }
 
         return $res;
@@ -262,17 +258,14 @@ class Panic
         }
 
         $oopsAction = \System\Foundation\Oops\Context::getOopsAction($ex);
+
         if (!empty($oopsAction['link']) && !empty($oopsAction['label'])) {
             $actions[] = $oopsAction;
         }
 
         if (preg_match('# ([\'"])(\w{3,}(?:\\\\\w{3,})+)\\1#i', $ex->getMessage(), $m)) {
             $class = $m[2];
-
-            // Editor link for create class removed
         }
-
-        // Editor link for file removed
 
         $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex) . ' ')
             . preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
@@ -307,12 +300,8 @@ class Panic
      */
     public static function highlightFile($file, $line, $lines = 15, array $vars = [])
     {
-        $source = @file_get_contents($file);
-
-        if ($source) {
-            $source = static::highlightPhp($source, $line, $lines, $vars);
-
-            return $source;
+        if ($source = @file_get_contents($file)) {
+            return static::highlightPhp($source, $line, $lines, $vars);
         }
     }
 
@@ -327,13 +316,13 @@ class Panic
      */
     public static function highlightPhp($source, $line, $lines = 15, array $vars = [])
     {
-        // if (function_exists('ini_set')) {
-        //     ini_set('highlight.comment', '#6a737d');
-        //     ini_set('highlight.default', '#484467');
-        //     ini_set('highlight.html', '#22863a');
-        //     ini_set('highlight.keyword', '#8959a8');
-        //     ini_set('highlight.string', '#00C02D');
-        // }
+        if (function_exists('ini_set')) {
+            ini_set('highlight.comment', '#8c8c8c');
+            ini_set('highlight.default', '#e0e0e0');
+            ini_set('highlight.html', '#ff6b6b');
+            ini_set('highlight.keyword', '#91a7ff');
+            ini_set('highlight.string', '#69db7c');
+        }
 
         $source = str_replace(["\r\n", "\r"], "\n", $source);
         $source = explode("\n", highlight_string($source, true));
@@ -354,7 +343,6 @@ class Panic
         }
 
         $out = str_replace('&nbsp;', ' ', $out);
-
         return "<pre class='code'><div>$out</div></pre>";
     }
 
@@ -398,7 +386,6 @@ class Panic
         }
 
         $out .= str_repeat('</span>', $spans) . '</code>';
-
         return $out;
     }
 

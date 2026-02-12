@@ -5,13 +5,13 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Ukuran Buffer Maksimal
+    | Max Buffer Size
     |--------------------------------------------------------------------------
     |
-    | Ukuran maksimal buffer untuk menerima data dari socket. Nilai ini
-    | menentukan berapa banyak data yang dapat dibaca dalam satu kali
-    | operasi socket_recv. Jika pesan lebih besar dari ukuran ini,
-    | pesan akan dipotong atau ditangani dalam beberapa bagian.
+    | Maximum buffer size for receiving data from socket. This value
+    | determines how much data can be read in a single socket_recv operation.
+    | If the message is larger than this size, it will be split or handled
+    | in multiple parts. The default value is 2048 bytes.
     |
     */
 
@@ -19,12 +19,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Origin Diperlukan
+    | Require Origin
     |--------------------------------------------------------------------------
     |
-    | Menentukan apakah header Origin diperlukan dalam handshake WebSocket.
-    | Jika diaktifkan, koneksi tanpa header Origin yang valid akan ditolak.
-    | Ini berguna untuk keamanan, terutama dalam produksi.
+    | Determines whether the Origin header is required in the WebSocket handshake.
+    | If enabled, connections without a valid Origin header will be rejected.
+    | This is useful for security, especially in production environments.
     |
     */
 
@@ -32,12 +32,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Protokol Diperlukan
+    | Require Protocol
     |--------------------------------------------------------------------------
     |
-    | Menentukan apakah header Sec-WebSocket-Protocol diperlukan.
-    | Jika diaktifkan, koneksi tanpa protokol yang didukung akan ditolak.
-    | Protokol ini digunakan untuk subprotokol WebSocket seperti chat atau binary.
+    | Determines whether the Sec-WebSocket-Protocol header is required.
+    | If enabled, connections without a supported protocol will be rejected.
+    | The protocol is used for subprotocols like chat or binary.
     |
     */
 
@@ -45,12 +45,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Ekstensi Diperlukan
+    | Require Extensions
     |--------------------------------------------------------------------------
     |
-    | Menentukan apakah header Sec-WebSocket-Extensions diperlukan.
-    | Jika diaktifkan, koneksi tanpa ekstensi yang didukung akan ditolak.
-    | Ekstensi ini dapat digunakan untuk kompresi atau fitur lainnya.
+    | Determines whether the Sec-WebSocket-Extensions header is required.
+    | If enabled, connections without a supported extension will be rejected.
+    | Extensions can be used for compression or other features.
     |
     */
 
@@ -58,12 +58,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Origin yang Diizinkan
+    | Allowed Origins
     |--------------------------------------------------------------------------
     |
-    | Daftar origin (domain) yang diizinkan untuk koneksi WebSocket.
-    | Jika origin_required aktif, hanya origin dalam daftar ini yang diterima.
-    | Kosongkan array untuk mengizinkan semua origin (tidak aman untuk produksi).
+    | List of allowed origins (domains) for WebSocket connections.
+    | If origin_required is enabled, only origins in this list are accepted.
+    | Leave empty to allow all origins (not recommended for production).
     |
     */
 
@@ -71,11 +71,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Host yang Diizinkan
+    | Allowed Hosts
     |--------------------------------------------------------------------------
     |
-    | Daftar host yang diizinkan untuk koneksi WebSocket.
-    | Jika kosong, semua host diizinkan.
+    | List of allowed hosts for WebSocket connections.
+    | If host_required is enabled, only hosts in this list are accepted.
+    | Leave empty to allow all hosts (not recommended for production).
     |
     */
 
@@ -83,11 +84,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Protokol yang Didukung
+    | Allowed Protocols
     |--------------------------------------------------------------------------
     |
-    | Daftar subprotokol WebSocket yang didukung server.
-    | Jika kosong, semua protokol diterima (jika protocol_required aktif).
+    | List of allowed protocols for WebSocket connections.
+    | If protocol_required is enabled, only protocols in this list are accepted.
+    | Leave empty to allow all protocols (not recommended for production).
     |
     */
 
@@ -95,11 +97,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Ekstensi yang Didukung
+    | Allowed Extensions
     |--------------------------------------------------------------------------
     |
-    | Daftar ekstensi WebSocket yang didukung server.
-    | Jika kosong, semua ekstensi diterima (jika extensions_required aktif).
+    | List of allowed extensions for WebSocket connections.
+    | If extensions_required is enabled, only extensions in this list are accepted.
+    | Leave empty to allow all extensions (not recommended for production).
     |
     */
 
@@ -107,12 +110,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Timeout Ping
+    | Ping Timeout
     |--------------------------------------------------------------------------
     |
-    | Waktu dalam detik untuk menunggu aktivitas dari klien sebelum
-    | menganggap koneksi idle dan memutuskan. Ping digunakan untuk
-    | menjaga koneksi tetap hidup. Nilai 0 menonaktifkan timeout.
+    | Time in seconds to wait for activity from the client before
+    | considering the connection idle and disconnecting. Ping is used to
+    | keep the connection alive. A value of 0 disables the timeout.
     |
     */
 
@@ -120,11 +123,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Logging Diaktifkan
+    | Enable Logging
     |--------------------------------------------------------------------------
     |
-    | Menentukan apakah logging untuk WebSocket server diaktifkan.
-    | Jika dinonaktifkan, tidak ada log yang akan dicatat.
+    | Enable logging for WebSocket server.
     |
     */
 
@@ -132,11 +134,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Output Logging
+    | Logging Output
     |--------------------------------------------------------------------------
     |
-    | Menentukan tempat output logging: 'file' untuk menyimpan ke file log
-    | menggunakan class Log, atau 'stdout' untuk output ke console.
+    | Specify the output location for logging: 'file' to save to a log file
+    | using the Log class, or 'stdout' to output to the console.
+    |
+    | Available options: 'file', 'stdout'
     |
     */
 

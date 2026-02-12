@@ -11,7 +11,7 @@ use System\Database\Grammar as BaseGrammar;
 abstract class Grammar extends BaseGrammar
 {
     /**
-     * Buat sql untuk pembuatan foreign key.
+     * Generate the sql for a foreign key constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -36,7 +36,7 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
-     * Buat sql untuk drop tabel.
+     * Generate the sql for dropping a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -49,7 +49,7 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
-     * Buat sql untuk drop constaint.
+     * Generate the sql for dropping a constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -62,7 +62,7 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
-     * Bungkus value identifier keyword.
+     * Wrap a table name or a column name.
      *
      * @param Table|string $value
      *
@@ -78,7 +78,7 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
-     * Ambil tipe data yang cocok untuk kolom.
+     * Get the sql for a column's type.
      *
      * @param Magic $column
      *
@@ -90,7 +90,7 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
-     * Format value agar bisa digunakan di klausa DEFAULT.
+     * Format the default value for a column.
      *
      * @param mixed $value
      *

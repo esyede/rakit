@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 abstract class Grammar
 {
     /**
-     * Berisi keyword identifier untuk sistem database tertentu.
+     * Contains the wrapper format for keyword identifiers.
      *
      * @var string
      */
     protected $wrapper = '"%s"';
 
     /**
-     * Berisi instance koneksi database untuk grammar saat ini.
+     * Contains the database connection instance.
      *
      * @var Connection
      */
     protected $connection;
 
     /**
-     * Buat instance database grammar baru.
+     * Constructor.
      *
      * @param Connection $connection
      */
@@ -31,7 +31,7 @@ abstract class Grammar
     }
 
     /**
-     * Bungkus tabel dalam keyword identifier.
+     * Wrap table name in keyword identifier.
      *
      * @param string $table
      *
@@ -53,7 +53,7 @@ abstract class Grammar
     }
 
     /**
-     * Bungkus vlue dalam keyword identifier.
+     * Wrap value in keyword identifier.
      *
      * @param string $value
      *
@@ -83,7 +83,7 @@ abstract class Grammar
     }
 
     /**
-     * Bungkus sebuah string value dalam keyword identifier.
+     * Wrap a single string value in keyword identifier.
      *
      * @param string $value
      *
@@ -95,14 +95,14 @@ abstract class Grammar
     }
 
     /**
-     * Buat parameter query dari sebuah array.
+     * Create a comma-separated list of parameter place-holders.
      *
      * <code>
      *
-     *      // Mereturn '?, ?, ?', yang nantinya bisa digunakan untuk place-holder
+     *      // Returning '?, ?, ?', which can be used as place-holders
      *      $parameters = $grammar->parameterize([1, 2, 3]);
      *
-     *      // Mereturn '?, "Budi"' karena ada raw query yang digunakan
+     *      // Returning '?, "Budi"' because a raw query is used
      *      $parameters = $grammar->parameterize([1, DB::raw('Budi')]);
      *
      * </code>
@@ -117,14 +117,14 @@ abstract class Grammar
     }
 
     /**
-     * Ambil string parameter query yang sesuai untuk sebuah value.
+     * Get the parameter place-holder for a value.
      *
      * <code>
      *
-     *      // Mereturn sebuah '?' untuk place-holder
+     *      // Returning a '?' as a place-holder
      *      $value = $grammar->parameter('Budi Purnomo');
      *
-     *      // Mereturn 'Budi Purnomo' karena ada raw query yang digunakan
+     *      // Returning 'Budi Purnomo' because a raw query is used
      *      $value = $grammar->parameter(DB::raw('Budi Purnomo'));
      *
      * </code>
@@ -139,11 +139,11 @@ abstract class Grammar
     }
 
     /**
-     * Buat list nama kolom yang dibungkus dan dipisahkan dengan koma.
+     * Create a comma-separated list of wrapped column names.
      *
      * <code>
      *
-     *      // Mereturn '"Budi", "Purnomo"' ketika identifiernya berupa tanda kutip
+     *      // Returning '"Budi", "Purnomo"' when the wrapper is '"%s"'
      *      $columns = $grammar->columnize(['Budi', 'Purnomo']);
      *
      * </code>

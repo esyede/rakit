@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class URI
 {
     /**
-     * Berisi URI request saat ini.
+     * Contains the current request URI.
      *
      * @var string
      */
     public static $uri;
 
     /**
-     * Berisi segmen-segmen URI request saat ini.
+     * Contains the segments of the current request URI.
      *
      * @var array
      */
     public static $segments = [];
 
     /**
-     * Ambil full URI (termasuk query string).
+     * Get the full URI (including query string).
      *
      * @return string
      */
@@ -31,7 +31,7 @@ class URI
     }
 
     /**
-     * Ambil URI request saat ini.
+     * Get the current request URI.
      *
      * @return string
      */
@@ -47,7 +47,7 @@ class URI
     }
 
     /**
-     * Memformat URI yang diberikan.
+     * Format the given URI.
      *
      * @param string $uri
      *
@@ -60,7 +60,7 @@ class URI
     }
 
     /**
-     * Cek apakah URI saat ini cocok dengan pola URI yang diberikan.
+     * Check if the current URI matches the given URI pattern.
      *
      * @param string $pattern
      *
@@ -72,15 +72,14 @@ class URI
     }
 
     /**
-     * Ambil segmen URI berdasarkan indexnya (index dimulai dari 1, bukan nol).
+     * Get the segment of the current URI based on its index (index starts from 1).
      *
      * <code>
      *
-     *      // Ambil segmen URI berdasarkan index
+     *      // Get URI segment based on index
      *      $segment = URI::segment(1);
      *
-     *      // Ambil segmen URI berdasarkan index
-     *      // return default value jika tidak ketemu
+     *      // Get URI segment based on index, return default value if not found
      *      $segment = URI::segment(2, 'Budi');
      *
      * </code>
@@ -97,7 +96,7 @@ class URI
     }
 
     /**
-     * Set segmen-segmen URI untuk request saat ini.
+     * Set the segments of the current URI for the current request.
      *
      * @param string $uri
      */

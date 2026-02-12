@@ -9,7 +9,7 @@ use System\Database\Facile\Model;
 class MorphMany extends HasMany
 {
     /**
-     * Berisi morph type.
+     * Contains morph type.
      *
      * @var string
      */
@@ -23,7 +23,7 @@ class MorphMany extends HasMany
     protected $id;
 
     /**
-     * Buat instance morph many relationship baru.
+     * Constructor.
      *
      * @param Model  $model
      * @param string $associated
@@ -39,7 +39,7 @@ class MorphMany extends HasMany
     }
 
     /**
-     * Set constraint untuk query.
+     * Set the appropriate constraint on the relational query.
      */
     protected function constrain()
     {
@@ -49,7 +49,7 @@ class MorphMany extends HasMany
     }
 
     /**
-     * Set foreign key untuk relasi baru.
+     * Set the foreign key on a given model.
      *
      * @param Model $model
      */

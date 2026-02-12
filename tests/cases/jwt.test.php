@@ -18,15 +18,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $encoded = JWT::encode(['foo' => pack('c', 128)], 'secret');
         } catch (\Throwable $e) {
-            $this->assertTrue(
-                'Malformed UTF-8 characters' === $e->getMessage()
-                || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
-            );
+            $this->assertTrue('Malformed UTF-8 characters' === $e->getMessage() || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage());
         } catch (\Exception $e) {
-            $this->assertTrue(
-                'Malformed UTF-8 characters' === $e->getMessage()
-                || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage()
-            );
+            $this->assertTrue('Malformed UTF-8 characters' === $e->getMessage() || 'json_encode(): Invalid UTF-8 sequence in argument' === $e->getMessage());
         }
     }
 
@@ -239,15 +233,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase
             $encoded = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwibmFtZSI6ImZvbyJ9.Q4Kee9E8o0Xfo4ADXvYA8t7dN_X_bU9K5w6tXuiSjlUxx';
             $decoded = JWT::decode($encoded, 'qwerty');
         } catch (\Throwable $e) {
-            $this->assertTrue(
-                'Invalid signature encoding' === $e->getMessage()
-                || 'Signature verification failed' === $e->getMessage()
-            );
+            $this->assertTrue('Invalid signature encoding' === $e->getMessage() || 'Signature verification failed' === $e->getMessage());
         } catch (\Exception $e) {
-            $this->assertTrue(
-                'Invalid signature encoding' === $e->getMessage()
-                || 'Signature verification failed' === $e->getMessage()
-            );
+            $this->assertTrue('Invalid signature encoding' === $e->getMessage() || 'Signature verification failed' === $e->getMessage());
         }
     }
 
@@ -312,13 +300,11 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar'];
             $encoded = JWT::encode($payloads, 'secret');
-            $decoded = JWT::decode($encoded, 'secret', [
-                'validator' => function($payloads, $headers) {
-                    if (!isset($payloads->sub)) {
-                        throw new \Exception('Missing subject');
-                    }
+            $decoded = JWT::decode($encoded, 'secret', ['validator' => function($payloads, $headers) {
+                if (!isset($payloads->sub)) {
+                    throw new \Exception('Missing subject');
                 }
-            ]);
+            }]);
         } catch (\Throwable $e) {
             $this->assertEquals('Missing subject', $e->getMessage());
         } catch (\Exception $e) {
@@ -337,4 +323,3 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($new_exp, $decoded->exp);
     }
 }
-

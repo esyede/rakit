@@ -7,28 +7,28 @@ defined('DS') or exit('No direct access.');
 class QueryException extends \PDOException
 {
     /**
-     * Berisi nama koneksi database.
+     * Contains the name of the database connection.
      *
      * @var string
      */
     protected $connection;
 
     /**
-     * Berisi SQL untuk query.
+     * Contains the SQL for the query.
      *
      * @var string
      */
     protected $sql;
 
     /**
-     * Berisi bindings untuk query.
+     * Contains the bindings for the query.
      *
      * @var array
      */
     protected $bindings;
 
     /**
-     * Buat instance baru dari QueryException.
+     * Constructor.
      *
      * @param string                $connection
      * @param string                $sql
@@ -44,7 +44,7 @@ class QueryException extends \PDOException
     }
 
     /**
-     * Format pesan error.
+     * Format the error message.
      *
      * @param string                $connection
      * @param string                $sql
@@ -60,7 +60,7 @@ class QueryException extends \PDOException
     }
 
     /**
-     * Ambil nama koneksi database.
+     * Get the name of the database connection.
      *
      * @return string
      */
@@ -70,7 +70,7 @@ class QueryException extends \PDOException
     }
 
     /**
-     * Ambil SQL untuk query.
+     * Get the SQL for the query.
      *
      * @return string
      */
@@ -80,7 +80,7 @@ class QueryException extends \PDOException
     }
 
     /**
-     * Ambil bindings untuk query.
+     * Get the bindings for the query.
      *
      * @return array
      */
@@ -90,7 +90,7 @@ class QueryException extends \PDOException
     }
 
     /**
-     * Substitute bindings ke dalam SQL untuk debugging.
+     * Substitute the bindings into the SQL query.
      *
      * @param string $sql
      * @param array  $bindings

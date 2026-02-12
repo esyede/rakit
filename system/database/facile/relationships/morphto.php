@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class MorphTo extends Relationship
 {
     /**
-     * Berisi morph type.
+     * Contains morph type.
      *
      * @var string
      */
     protected $type;
 
     /**
-     * Berisi morph id.
+     * Contains the morph id.
      *
      * @var string
      */
     protected $id;
 
     /**
-     * Buat instance morph to relationship baru.
+     * Constructor.
      *
      * @param Model  $model
      * @param string $associated
@@ -37,15 +37,15 @@ class MorphTo extends Relationship
     }
 
     /**
-     * Set constraint untuk query.
+     * Set the appropriate constraint on the relational query.
      */
     protected function constrain()
     {
-        // MorphTo tidak butuh constraint karena sudah di resolve secara dinamis
+        // MorphTo does not need constraints because it is resolved dynamically
     }
 
     /**
-     * Ambil hasil relasi.
+     * Get the results of the relationship.
      *
      * @param array $results
      *
@@ -69,7 +69,7 @@ class MorphTo extends Relationship
     }
 
     /**
-     * Ambil eager loaded results.
+     * Get the results of the eager load of the relationship.
      *
      * @param array $results
      *
@@ -116,7 +116,7 @@ class MorphTo extends Relationship
     }
 
     /**
-     * Ambil nama relasi.
+     * Get the name of the relationship.
      *
      * @return string
      */

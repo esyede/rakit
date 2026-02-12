@@ -23,7 +23,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Container::register() dan Container::resolve().
+     * Test for Container::register() and Container::resolve().
      *
      * @group system
      */
@@ -32,12 +32,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         Container::register('foo', function () {
             return 'bar';
         });
-
         $this->assertEquals('bar', Container::resolve('foo'));
     }
 
     /**
-     * Test untuk method Container::singleton().
+     * Test for Container::singleton().
      *
      * @group system
      */
@@ -48,12 +47,11 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         });
 
         $object = Container::resolve('foo');
-
         $this->assertTrue($object === Container::resolve('foo'));
     }
 
     /**
-     * Test untuk method Container::instance().
+     * Test for Container::instance().
      *
      * @group system
      */
@@ -67,7 +65,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Container::registered().
+     * Test for Container::registered().
      */
     public function testRegisteredMethodIndicatesIfRegistered()
     {
@@ -80,7 +78,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Container::controller().
+     * Test for Container::controller().
      *
      * @group system
      */
@@ -94,17 +92,16 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa kelas dengan parameter opsional bisa diresolve.
+     * Test that TestOptionalParamClassForContainer class can be resolved.
      */
     public function testOptionalParamClassResolves()
     {
         $object = Container::resolve('TestOptionalParamClassForContainer');
-
         $this->assertInstanceOf('TestOptionalParamClassForContainer', $object);
     }
 
     /**
-     * Test bahwa kelas TestParentClassForContainer bisa diresolve via Container.
+     * Test that TestParentClassForContainer class can be resolved.
      */
     public function testClassOneForContainerResolves()
     {
@@ -114,7 +111,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa kelas TestChildClassForContainer bisa diresolve.
+     * Test that TestChildClassForContainer class can be resolved.
      */
     public function testClassTwoForContainerResolves()
     {
@@ -124,8 +121,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa ketika kelas TestChildClassForContainer diresolve.
-     * dependensi miliknya juga harus ter-resolve.
+     * Test that ketika kelas TestChildClassForContainer diresolve,
+     * Dependencies of TestParentClassForContainer should be resolved otomatically.
      */
     public function testClassTwoResolvesClassOneDependency()
     {
@@ -134,9 +131,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa ketika kelas TestChildClassForContainer diresolve dengan,
-     * sebuah parameter, parameter itulah yang harus digunakan oleh si kelas ini,
-     * bukan hanya objek TestParentClassForContainer kosong.
+     * Test that when resolving TestChildClassForContainer with an argument,
+     * the passed argument is used as dependency.
      */
     public function testClassTwoResolvesClassOneWithArgument()
     {

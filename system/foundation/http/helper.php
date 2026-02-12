@@ -15,7 +15,7 @@ class Helper extends Header
     protected $cookies = [];
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param array $headers
      */
@@ -113,8 +113,7 @@ class Helper extends Header
     }
 
     /**
-     * Hapus cookie berdasarkan namanya
-     * (cookie di browser tidak akan dihapus).
+     * Remove cookie by name (cookie in browser will not be removed).
      *
      * @param string $name
      * @param string $path
@@ -138,7 +137,7 @@ class Helper extends Header
     }
 
     /**
-     * Mereturn seluruh data cookie.
+     * Get all cookies in specified format.
      *
      * @param string $format
      *
@@ -172,7 +171,7 @@ class Helper extends Header
     }
 
     /**
-     * Hapus cookie di browser berdasarkan namanya.
+     * Clears a cookie (by setting it's expiration time to the past).
      *
      * @param string $name
      * @param string $path
@@ -184,7 +183,7 @@ class Helper extends Header
     }
 
     /**
-     * Buat header content-disposition.
+     * Create a Content-Disposition header value.
      *
      * @param string $disposition
      * @param string $filename
@@ -237,8 +236,7 @@ class Helper extends Header
     }
 
     /**
-     * Mereturn value yang header Cache-Control yang telah dikakulasi dan
-     * di modifikasi ke bentuk yang lebih masuk akal.
+     * Get the Cache-Control header value that has been accumulated and modified into a more reasonable form.
      *
      * @return string
      */

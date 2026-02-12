@@ -94,7 +94,7 @@ class Markdown
     ];
 
     /**
-     * Render file markdown menjadi html.
+     * Render a markdown file to HTML.
      *
      * @param string $file
      *
@@ -106,7 +106,7 @@ class Markdown
     }
 
     /**
-     * Parse string markdown menjadi html.
+     * Parse markdown string into HTML.
      *
      * @param string $string
      *
@@ -118,7 +118,7 @@ class Markdown
     }
 
     /**
-     * Ambil singleton object.
+     * Get singleton object.
      *
      * @return $this
      */
@@ -132,7 +132,7 @@ class Markdown
     }
 
     /**
-     * Ubah string markdown menjadi html.
+     * Translate markdown string into HTML.
      *
      * @param string $string
      *
@@ -202,7 +202,7 @@ class Markdown
     }
 
     /**
-     * Ubah newline menjadi tag HTML '<br />'.
+     * Translate new line into HTML.
      *
      * @param bool $enable
      *
@@ -215,7 +215,7 @@ class Markdown
     }
 
     /**
-     * Aktifkan escape htmlspecialchars.
+     * Enable escaping with htmlspecialchars.
      *
      * @param bool $enable
      *
@@ -228,7 +228,7 @@ class Markdown
     }
 
     /**
-     * Ubah string URL menjadi link aktif.
+     * Translate the hyperlink into HTML.
      *
      * @param bool $enable
      *
@@ -241,7 +241,7 @@ class Markdown
     }
 
     /**
-     * Aktifkan fitur keamanan (basic).
+     * Enable basic security features.
      *
      * @param bool $enable
      *
@@ -370,7 +370,7 @@ class Markdown
         return method_exists($this, 'block_' . $type . '_complete');
     }
 
-    protected function block_code($tag, array $attrib = null)
+    protected function block_code($tag, $attrib = null)
     {
         if (isset($attrib) && !isset($attrib['type']) && !isset($attrib['interrupted'])) {
             return;
@@ -632,7 +632,7 @@ class Markdown
         }
     }
 
-    protected function block_setext(array $tag, array $attrib = null)
+    protected function block_setext(array $tag, $attrib = null)
     {
         if (!isset($attrib) || isset($attrib['type']) || isset($attrib['interrupted'])) {
             return;
@@ -726,9 +726,11 @@ class Markdown
         }
     }
 
-    protected function block_table(array $tag, array $attr = null)
+    protected function block_table(array $tag, $attr = null)
     {
-        if (!isset($attr) || isset($attr['type']) || isset($attr['interrupted'])) {
+        $attr = is_array($attr) ? $attr : [];
+
+        if (!isset($attr['element']) || isset($attr['type']) || isset($attr['interrupted'])) {
             return;
         }
 

@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class Repository
 {
     /**
-     * Target repository.
+     * Repository URL.
      *
      * @var string
      */
     public static $repository = 'https://rakit.esyede.my.id/repositories.json';
 
     /**
-     * Konstruktor.
+     * Constructor.
      */
     public function __construct()
     {
@@ -22,7 +22,7 @@ class Repository
     }
 
     /**
-     * Cari data paket di repositori.
+     * Search package data in repository.
      *
      * @param string $name
      *
@@ -40,15 +40,13 @@ class Repository
         }
 
         throw new \Exception(PHP_EOL . sprintf(
-            'Error: Package canot be found on the repository: %s',
+            'Error: Package cannot be found on the repository: %s',
             $name
         ) . PHP_EOL);
     }
 
     /**
-     * Ambil data seluruh paket yang ada di repositori.
-     *
-     * @param string $name
+     * Get all package data from repository.
      *
      * @return array
      */

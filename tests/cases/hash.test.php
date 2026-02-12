@@ -7,7 +7,7 @@ use System\Hash;
 class HashTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * Test untuk method Hash::make().
+     * Test for Hash::make().
      *
      * @group system
      */
@@ -17,7 +17,7 @@ class HashTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Hash::check().
+     * Test for Hash::check().
      *
      * @group system
      */
@@ -30,7 +30,7 @@ class HashTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Hash::weak().
+     * Test for Hash::weak().
      *
      * @group system
      */

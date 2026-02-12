@@ -11,56 +11,56 @@ use System\Config;
 class Table
 {
     /**
-     * Berisi nama tabel database.
+     * Contains the name of the table.
      *
      * @var string
      */
     public $name;
 
     /**
-     * Berisi koneksi database default yang harus digunakan oleh tabel.
+     * Contains the database connection that should be used by the table.
      *
      * @var string
      */
     public $connection;
 
     /**
-     * Berisi engine database yang harus digunakan oleh tabel.
+     * Contains the storage engine that should be used by the table.
      *
      * @var string
      */
     public $engine;
 
     /**
-     * Berisi charset yang harus digunakan oleh tabel.
+     * Contains the charset that should be used by the table.
      *
      * @var string
      */
     public $charset;
 
     /**
-     * Berisi collation yang harus digunakan oleh tabel.
+     * Contains the collation that should be used by the table.
      *
      * @var string
      */
     public $collation;
 
     /**
-     * Berisi list kolom yang harus ditambahkan ke tabel.
+     * Contains the list of columns that should be created/modified.
      *
      * @var array
      */
     public $columns = [];
 
     /**
-     * Berisi list command yang harus dieksekusi terhadap tabel.
+     * Contains the list of commands that should be run for the table.
      *
      * @var array
      */
     public $commands = [];
 
     /**
-     * Buat instance schema table baru.
+     * Constructor.
      *
      * @param string $name
      */
@@ -71,7 +71,7 @@ class Table
     }
 
     /**
-     * Penanda bahwa tabel harus dibuat.
+     * Create the database table.
      *
      * @return Magic
      */
@@ -81,7 +81,7 @@ class Table
     }
 
     /**
-     * Buat primary key pada tabel.
+     * Create primary key pada tabel.
      *
      * @param string|array $columns
      * @param string       $name
@@ -94,7 +94,7 @@ class Table
     }
 
     /**
-     * Set charset untuk tabel.
+     * Set the charset for the table.
      *
      * @param string $charset
      */
@@ -104,7 +104,7 @@ class Table
     }
 
     /**
-     * Set collation untuk tabel.
+     * Set the collation for the table.
      *
      * @param string $collation
      */
@@ -114,7 +114,7 @@ class Table
     }
 
     /**
-     * Buat unique index pada tabel.
+     * Create a unique index on the table.
      *
      * @param string|array $columns
      * @param string       $name
@@ -127,7 +127,7 @@ class Table
     }
 
     /**
-     * Buat full-text index pada tabel.
+     * Create a full-text index on the table.
      *
      * @param string|array $columns
      * @param string       $name
@@ -140,7 +140,7 @@ class Table
     }
 
     /**
-     * Buat index pada tabel.
+     * Create a standard index pada tabel.
      *
      * @param string|array $columns
      * @param string       $name
@@ -153,7 +153,7 @@ class Table
     }
 
     /**
-     * Buat foreign key constraint pada tabel.
+     * Create a foreign key constraint on the table.
      *
      * @param string|array $columns
      * @param string       $name
@@ -166,7 +166,7 @@ class Table
     }
 
     /**
-     * Buat command untuk pembuatan index.
+     * Create a key on the table.
      *
      * @param string       $type
      * @param string|array $columns
@@ -187,7 +187,7 @@ class Table
     }
 
     /**
-     * Rename tabel database.
+     * Rename the database table.
      *
      * @param string $name
      *
@@ -199,7 +199,7 @@ class Table
     }
 
     /**
-     * Hapus tabel database.
+     * Delete the database table.
      *
      * @return Magic
      */
@@ -209,7 +209,7 @@ class Table
     }
 
     /**
-     * Hapus kolom dari database.
+     * Delete a column from the table.
      *
      * @param string|array $columns
      */
@@ -220,7 +220,7 @@ class Table
     }
 
     /**
-     * Hapus primary key dari tabel.
+     * Delete primary key from the table.
      *
      * @param string $name
      */
@@ -230,7 +230,7 @@ class Table
     }
 
     /**
-     * Hapus unique index dari tabel.
+     * Delete unique index from the table.
      *
      * @param string $name
      */
@@ -240,7 +240,7 @@ class Table
     }
 
     /**
-     * Hapus full-text index dari tabel.
+     * Delete full-text index from the table.
      *
      * @param string $name
      */
@@ -250,7 +250,7 @@ class Table
     }
 
     /**
-     * Hapus index dari tabel.
+     * Delete index from the table.
      *
      * @param string $name
      */
@@ -260,7 +260,7 @@ class Table
     }
 
     /**
-     * Hapus foreign key constraint dari tabel.
+     * Delet foreign key constraint from the table.
      *
      * @param string $name
      */
@@ -270,7 +270,7 @@ class Table
     }
 
     /**
-     * Buat command penghapusan index.
+     * Drop key from the table.
      *
      * @param string $type
      * @param string $name
@@ -283,7 +283,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom auto-increment ke tabel.
+     * Add auto-incrementing integer column to the table.
      *
      * @param string $name
      *
@@ -295,7 +295,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom string ke tabel.
+     * ADD A varchar column to the table.
      *
      * @param string $name
      * @param int    $length
@@ -308,7 +308,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom integer ke tabel.
+     * Add integer column to the table.
      *
      * @param string $name
      * @param bool   $increment
@@ -321,7 +321,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom big integer ke tabel.
+     * Add big integer column to the table.
      *
      * @param string $name
      * @param bool   $increment
@@ -334,7 +334,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom float ke tabel.
+     * Add float column to the table.
      *
      * @param string $name
      *
@@ -346,7 +346,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom enum ke tabel.
+     * Add enum column to the table.
      *
      * @param string $name
      * @param array  $allowed
@@ -359,7 +359,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom enum ke tabel.
+     * Add decimal column to the table.
      *
      * @param string $name
      * @param int    $precision
@@ -373,7 +373,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom boolean ke tabel.
+     * Add boolean column to the table.
      *
      * @param string $name
      *
@@ -385,7 +385,7 @@ class Table
     }
 
     /**
-     * Buat kolom datetime created_at dan updated_at.
+     * Add add created_at and updated_at timestamp columns to the table.
      */
     public function timestamps()
     {
@@ -394,7 +394,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom datetime ke tabel.
+     * Add date column to the table.
      *
      * @param string $name
      *
@@ -406,7 +406,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom timestamp ke tabel.
+     * Add datetime column to the table.
      *
      * @param string $name
      *
@@ -418,7 +418,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom text ke tabel.
+     * Add text column to the table.
      *
      * @param string $name
      *
@@ -430,7 +430,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom longtext ke tabel.
+     * Add longtext column to the table.
      *
      * @param string $name
      *
@@ -442,7 +442,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom blob ke tabel.
+     * Add blob column to the table.
      *
      * @param string $name
      *
@@ -454,7 +454,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom double ke tabel.
+     * Add blob column to the table.
      *
      * @param string $name
      *
@@ -466,7 +466,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom medium integer ke tabel.
+     * Add medium integer column to the table.
      *
      * @param string $name
      *
@@ -478,7 +478,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom tiny integer ke tabel.
+     * Add tiny integer column to the table.
      *
      * @param string $name
      *
@@ -490,7 +490,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom small integer ke tabel.
+     * Add small integer column to the table.
      *
      * @param string $name
      *
@@ -502,7 +502,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom json ke tabel.
+     * Add json column to the table.
      *
      * @param string $name
      *
@@ -514,7 +514,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom jsonb ke tabel.
+     * Add json column to the table.
      *
      * @param string $name
      *
@@ -526,7 +526,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom uuid ke tabel.
+     * Add uuid column to the table.
      *
      * @param string $name
      *
@@ -538,7 +538,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom ip address ke tabel.
+     * Add ip address column to the table.
      *
      * @param string $name
      *
@@ -550,7 +550,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom mac address ke tabel.
+     * Add mac address column to the table.
      *
      * @param string $name
      *
@@ -562,7 +562,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom geometry ke tabel.
+     * Add geometry column to the table.
      *
      * @param string $name
      *
@@ -574,7 +574,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom point ke tabel.
+     * Add point column to the table.
      *
      * @param string $name
      *
@@ -586,7 +586,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom linestring ke tabel.
+     * Add linestring column to the table.
      *
      * @param string $name
      *
@@ -598,7 +598,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom polygon ke tabel.
+     * Add polygon column to the table.
      *
      * @param string $name
      *
@@ -610,7 +610,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom geometrycollection ke tabel.
+     * Add geometrycollection column to the table.
      *
      * @param string $name
      *
@@ -622,7 +622,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom multipoint ke tabel.
+     * Add geometrycollection column to the table.
      *
      * @param string $name
      *
@@ -634,7 +634,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom multilinestring ke tabel.
+     * Add multilinestring column to the table.
      *
      * @param string $name
      *
@@ -646,7 +646,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom multipolygon ke tabel.
+     * Add multipolygon column to the table.
      *
      * @param string $name
      *
@@ -658,7 +658,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom set ke tabel.
+     * Add set column to the table.
      *
      * @param string $name
      * @param array  $allowed
@@ -671,7 +671,7 @@ class Table
     }
 
     /**
-     * Set kolom sebagai nullable.
+     * Set the column as nullable.
      *
      * @return $this
      */
@@ -687,7 +687,7 @@ class Table
     }
 
     /**
-     * Set default value untuk kolom.
+     * Set the default value for the column.
      *
      * @param mixed $value
      *
@@ -705,7 +705,7 @@ class Table
     }
 
     /**
-     * Set kolom sebagai unsigned.
+     * Set the column as unsigned.
      *
      * @return $this
      */
@@ -721,7 +721,7 @@ class Table
     }
 
     /**
-     * Set comment untuk kolom.
+     * Set a comment for the column.
      *
      * @param string $comment
      *
@@ -739,7 +739,7 @@ class Table
     }
 
     /**
-     * Set kolom setelah kolom tertentu.
+     * Set a column to be added after another column.
      *
      * @param string $column
      *
@@ -757,7 +757,7 @@ class Table
     }
 
     /**
-     * Set kolom sebagai first.
+     * Set a column to be the first column.
      *
      * @return $this
      */
@@ -773,7 +773,7 @@ class Table
     }
 
     /**
-     * Mark kolom untuk diubah.
+     * Mark the column as changed.
      *
      * @return $this
      */
@@ -789,7 +789,7 @@ class Table
     }
 
     /**
-     * Set references untuk foreign key.
+     * Set the referenced columns for foreign key.
      *
      * @param string|array $columns
      *
@@ -807,7 +807,7 @@ class Table
     }
 
     /**
-     * Set on table untuk foreign key.
+     * Set on table for foreign key.
      *
      * @param string $table
      *
@@ -825,7 +825,7 @@ class Table
     }
 
     /**
-     * Set on delete action untuk foreign key.
+     * Set on delete action for foreign key.
      *
      * @param string $action
      *
@@ -843,7 +843,7 @@ class Table
     }
 
     /**
-     * Set on update action untuk foreign key.
+     * Set on update action for foreign key.
      *
      * @param string $action
      *
@@ -861,7 +861,7 @@ class Table
     }
 
     /**
-     * Rename kolom.
+     * Rename clomun on the table.
      *
      * @param string $from
      * @param string $to
@@ -874,7 +874,7 @@ class Table
     }
 
     /**
-     * Buat spatial index pada tabel.
+     * Make a spatial index on the table.
      *
      * @param string|array $columns
      * @param string       $name
@@ -887,7 +887,7 @@ class Table
     }
 
     /**
-     * Set engine untuk tabel.
+     * Set the storage engine for the table.
      *
      * @param string $engine
      *
@@ -900,7 +900,7 @@ class Table
     }
 
     /**
-     * Buat kolom deleted_at untuk soft deletes.
+     * Make soft delete column on the table.
      */
     public function soft_deletes()
     {
@@ -908,7 +908,7 @@ class Table
     }
 
     /**
-     * Hapus kolom jika ada.
+     * Delete column if exists.
      *
      * @param string|array $columns
      */
@@ -919,7 +919,7 @@ class Table
     }
 
     /**
-     * Hapus index jika ada.
+     * Delet index if exists.
      *
      * @param string $name
      */
@@ -929,7 +929,7 @@ class Table
     }
 
     /**
-     * Hapus unique index jika ada.
+     * Delete unique index if exists.
      *
      * @param string $name
      */
@@ -939,7 +939,7 @@ class Table
     }
 
     /**
-     * Hapus full-text index jika ada.
+     * Delete full-text index if exists.
      *
      * @param string $name
      */
@@ -949,7 +949,7 @@ class Table
     }
 
     /**
-     * Hapus foreign key jika ada.
+     * Delet foreign key constraint if exists.
      *
      * @param string $name
      */
@@ -959,7 +959,7 @@ class Table
     }
 
     /**
-     * Set koneksi database untuk operasi tabel.
+     * Set the database connection that should be used by the table.
      *
      * @param string $connection
      */
@@ -969,7 +969,7 @@ class Table
     }
 
     /**
-     * Cek apakah schema memiliki command 'create'.
+     * Check if the table is being created.
      *
      * @return bool
      */
@@ -981,7 +981,7 @@ class Table
     }
 
     /**
-     * Buat instance command baru.
+     * Create a new command instance.
      *
      * @param string $type
      * @param array  $parameters
@@ -994,7 +994,7 @@ class Table
     }
 
     /**
-     * Buat instance column baru.
+     * Create a new column instance.
      *
      * @param string $type
      * @param array  $parameters

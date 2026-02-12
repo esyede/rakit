@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class MySQL extends Grammar
 {
     /**
-     * Identifier keyword engine database.
+     * Contains the wrapper format.
      *
      * @var string
      */

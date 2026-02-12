@@ -7,34 +7,34 @@ defined('DS') or exit('No direct access.');
 class Session
 {
     /**
-     * Nama string CSRF token yang disimpan di session.
+     * The CSRF token name stored in session.
      *
      * @var string
      */
     const TOKEN = 'csrf_token';
 
     /**
-     * Berisi instance session (singleton).
+     * Contains the instance session (singleton).
      *
      * @var Session\Payload
      */
     public static $instance;
 
     /**
-     * Berisi list registrar driver pihak ketiga.
+     * Contains the list of third-party session drivers.
      *
      * @var array
      */
     public static $registrar = [];
 
     /**
-     * Buat payload session dan muat sessionnya.
+     * Create payload session and load session.
      */
     public static function load()
     {
         $config = Config::get('session');
 
-        // Override session config bawaan PHP
+        // Override PHP session configuration
         ini_set('session.gc_maxlifetime', $config['lifetime'] * 60);
         ini_set('session.cookie_lifetime', $config['expire_on_close'] ? 0 : $config['lifetime'] * 60);
         ini_set('session.cookie_path', $config['path']);
@@ -47,7 +47,7 @@ class Session
             ini_set('session.sid_length', $config['sid_length']);
         }
 
-        // Set save path untuk driver file
+        // Set save path for file driver
         if ($config['driver'] === 'file') {
             ini_set('session.save_path', path('storage') . 'sessions' . DS);
         }
@@ -61,7 +61,7 @@ class Session
     }
 
     /**
-     * Buat instance payload session baru.
+     * Create a new instance of the session payload.
      *
      * @param string $driver
      */
@@ -75,7 +75,7 @@ class Session
     }
 
     /**
-     * Buat instance driver session baru.
+     * Create a new instance of the session driver.
      *
      * @param string $driver
      *
@@ -120,14 +120,14 @@ class Session
     }
 
     /**
-     * Ambil instance payload session yang sedang aktif.
+     * Get the current session instance.
      *
      * <code>
      *
-     *      // Ambil instance session lalu ambil sebuah item
+     *      // Get the current session instance and retrieve an item
      *      Session::instance()->get('name');
      *
-     *      // Ambil instance session lalu taruh sebuah item kedalam session
+     *      // Get the current session instance and put an item into session
      *      Session::instance()->put('name', 'Budi');
      *
      * </code>
@@ -144,7 +144,7 @@ class Session
     }
 
     /**
-     * Cek apakah session sudah dimulai atau belum.
+     * Check if the session has started.
      *
      * @return bool
      */
@@ -154,7 +154,7 @@ class Session
     }
 
     /**
-     * Daftarkan sebuah driver session pihak ketiga.
+     * Register a third-party session driver.
      *
      * @param string   $driver
      * @param \Closure $resolver
@@ -165,18 +165,16 @@ class Session
     }
 
     /**
-     * Magic Method untuk memanggil method milik instance session secara statis.
+     * Magic method for calling methods on the current session instance statically.
      *
      * <code>
      *
-     *      // Ambil item dari session
+     *      // Get an item from session
      *      $value = Session::get('name');
      *
-     *      // Taruh item ke session (cara 1)
-     *      $value = Session::put('name', 'Budi');
-     *
-     *      // Taruh item ke session (cara 2)
-     *      $value = Session::instance()->put('name', 'Budi');
+     *      // Put an item into session
+     *      Session::put('name', 'Budi');
+     *      Session::instance()->put('name', 'Budi');
      *
      * </code>
      */

@@ -800,7 +800,7 @@ class Upload extends \SplFileInfo
     ];
 
     /**
-     * Kumpulkan informasi file diupload user, via variabel global $_FILES.
+     * Gather informations of uploaded file via the $_FILES global variable.
      *
      * @param string $path
      * @param string $origName
@@ -838,7 +838,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Tebak ekstensi file yang diupload user.
+     * Guess the file extension.
      *
      * @return string|null
      */
@@ -852,7 +852,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Ambil mime-type file yang diupload user.
+     * Get the mimi-type.
      *
      * @return string|null
      */
@@ -872,7 +872,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Ambil ekstensi file yang diupload user.
+     * Get the file extension.
      *
      * @return string|null
      */
@@ -883,7 +883,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Ambil isi file.
+     * Get the file content.
      *
      * @return string
      */
@@ -902,7 +902,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Ambil target path tempat memindahkan file yang diupload user.
+     * Get the target upload path.
      *
      * @param string $directory
      * @param string $name
@@ -927,7 +927,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Mereturn base name dari path yang diberikan.
+     * Get the file base name.
      *
      * @param string $name
      *
@@ -943,7 +943,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Mereturn nama file asli yang diupload user.
+     * Get the file's original name.
      *
      * @return string|null
      */
@@ -953,8 +953,8 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Mereturn mime-type file yang diupload user.
-     * (Jangan gunakan ini untuk mengambil mime-type file, tidak aman).
+     * Get the uploaded file mime-type
+     * (Do not use this to get the file mime-type, it's insecure).
      *
      * @return string|null
      */
@@ -974,8 +974,8 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Mereturn konstanta error upload PHP.
-     * Jika tidak ada error yang terjadi, ia akan mereturn UPLOAD_ERR_OK.
+     * Get the PHP upload error constant.
+     * If there's no error, UPLOAD_ERR_OK will be returned.
      *
      * @return int
      */
@@ -985,7 +985,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Periksa apakah file berhasil diupload.
+     * Check if file is successfully uploaded.
      *
      * @return bool
      */
@@ -995,7 +995,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Pindahkan file upload ke lokasi baru.
+     * Move uploaded file to a new location.
      *
      * @param string $directory
      * @param string $name
@@ -1042,7 +1042,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Mereturn max upload size dari php.ini.
+     * Get the max upload size from php.ini.
      *
      * @return int
      */
@@ -1057,17 +1057,10 @@ class Upload extends \SplFileInfo
         $metric = strtolower(substr($max, -1));
 
         switch ($metric) {
-            case 't':
-                $max *= 1024; // No break, memang disengaja.
-
-            case 'g':
-                $max *= 1024; // No break, memang disengaja.
-
-            case 'm':
-                $max *= 1024; // No break, memang disengaja.
-
-            case 'k':
-                $max *= 1024; // No break, memang disengaja.
+            case 't': $max *= 1024; // No break (intentional)
+            case 'g': $max *= 1024; // No break (intentional)
+            case 'm': $max *= 1024; // No break (intentional)
+            case 'k': $max *= 1024; // No break (intentional)
         }
 
         return (int) $max;

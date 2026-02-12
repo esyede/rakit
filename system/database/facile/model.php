@@ -13,136 +13,133 @@ use System\Database\Exceptions\ModelNotFoundException;
 abstract class Model
 {
     /**
-     * Berisi selruh atribut milik model.
+     * Contains all attributes of the model.
      *
      * @var array
      */
     public $attributes = [];
 
     /**
-     * Berisi selruh atribut milik model dalam kondisi asli.
+     * Contains original attributes of the model for change tracking.
      *
      * @var array
      */
     public $original = [];
 
     /**
-     * Berisi list relasi model.
+     * Contains loaded relationships of the model.
      *
      * @var array
      */
     public $relationships = [];
 
     /**
-     * Penanda bahwa model ada di database.
+     * Determine whether the model exists in the database.
      *
      * @var bool
      */
     public $exists = false;
 
     /**
-     * Berisi list relasi yang harus di eagerload.
+     * Contains list of relationships to eager load.
      *
      * @var array
      */
     public $with = [];
 
     /**
-     * Nama kolom primary key milik si model.
+     * Model's primary key column name.
      *
      * @var string
      */
     public static $key = 'id';
 
     /**
-     * Berisi list atribut model yang boleh di mass-assigment.
+     * Contains list of attributes that are mass-assignable.
      *
      * @var array
      */
     public static $fillable;
 
     /**
-     * Berisi list atribut model yang tidak boleh di mass-assigment.
+     * Contains list of attributes that are not mass-assignable.
      *
      * @var array
      */
     public static $guarded = [];
 
     /**
-     * Penanda bahwa model ini menggunakan soft deletes.
+     * Determine whether the model uses soft deletes.
      *
      * @var bool
      */
     public static $soft_delete = false;
 
     /**
-     * Berisi list atribut yang harus disembunyikan ketika memanggil method to_array().
+     * Contains list of attributes that should be hidden when the model is converted to an array or JSON.
      *
      * @var array
      */
     public static $hidden = [];
 
     /**
-     * Penanda bahwa model ini memiliki kolom timestamp created / updated at.
+     * Determine whether the model uses timestamps for created_at and updated_at columns.
      *
      * @var bool
      */
     public static $timestamps = true;
 
     /**
-     * Berisi nama tabel yang sedang digunakan.
+     * Contains the table name that is associated with the model.
      *
      * @var string
      */
     public static $table;
 
     /**
-     * Berisi nama koneksi database yang sedang digunakan.
+     * Contains the database connection name that the model uses.
      *
      * @var string
      */
     public static $connection;
 
     /**
-     * Berisi nama sequence yang sedang digunakan.
+     * Contains the sequence name for databases that use sequences (e.g., PostgreSQL).
      *
      * @var string
      */
     public static $sequence;
 
     /**
-     * Jumlah item yang harus ditampilkan per halaman (untuk paginasi).
+     * Number of items per page for pagination.
      *
      * @var int
      */
     public static $perpage = 20;
 
     /**
-     * Berisi global scopes yang diterapkan ke setiap query.
+     * Contains global scopes that are applied to all queries for the model.
      *
      * @var array
      */
     protected static $global_scopes = [];
 
     /**
-     * Berisi array nama field dan rules untuk kebutuhan validasi data model.
-     * Anda bisa melakukan validasi data inputan menggunakan method ini.
+     * Contains array of validation rules for the model.
      *
      * @var array
      */
     public static $rules = [];
 
     /**
-     * Berisi array pesan error validasi.
+     * Contains custom validation messages for the model.
      *
      * @var array
      */
     public static $messages = [];
 
     /**
-     * Berisi object kelas Validator setelah user memanggil method is_valid().
-     * Object ini bisa diakses secara publik sehingga dapat digunakan untuk
-     * redirect dengan pesan error.
+     * Contains the validation instance after running is_valid().
      *
      * @var bool|\System\Validator
      */
@@ -165,16 +162,12 @@ abstract class Model
     }
 
     /**
-     * Validasi model terhadap inputan user.
+     * Validate model's attributes using the defined rules.
      *
      * <code>
      *
-     *      // Definisi di model:
-     *
      *      class User extends Facile
      *      {
-     *          public static $fillable = ['name', 'address'];
-     *
      *          public static $rules = [
      *              'name' => 'required|alpha|min:2|max:100',
      *              'address' => 'required|min:3|max:255',
@@ -183,14 +176,14 @@ abstract class Model
      *      }
      *
      *
-     *      // Pemanggilan dari dalam kontroler:
+     *      // Calling the is_valid() method from the controller:
      *
      *      $user = new User(Input::all());
      *      $user->name = 'Budi Purnomo';
      *      $user->address = 'Jln. Semangka No. 23';
      *
-     *      if (! $user->is_valid()) {
-     *          return Redirect::back()->with_input()->with_errors($user->validation);
+     *      if (!$user->is_valid()) {
+     *          return back()->with_input()->with_errors($user->validation);
      *      }
      *
      *      $user->save();
@@ -210,7 +203,7 @@ abstract class Model
     }
 
     /**
-     * Lakukan mass-assignment ke model saat ini.
+     * Do mass-assignment to the current model.
      *
      * @param array $attributes
      * @param bool  $raw
@@ -242,8 +235,8 @@ abstract class Model
     }
 
     /**
-     * Lakukan mass-assignment ke model saat ini.
-     * Seluruh mutator dan accessor akan diabaikan.
+     * Do mass-assignment to the current model without applying fillable/guarded rules.
+     * All mutators and accessors will be ignored too.
      *
      * @param array $attributes
      *
@@ -255,7 +248,7 @@ abstract class Model
     }
 
     /**
-     * Set atribut pada model.
+     * Set a model's attribute value.
      *
      * @param string $key
      * @param mixed  $value
@@ -268,7 +261,7 @@ abstract class Model
     }
 
     /**
-     * Get atribut dari model.
+     * Get a model's attribute value.
      *
      * @param string $key
      *
@@ -280,7 +273,7 @@ abstract class Model
     }
 
     /**
-     * Ambil nama koneksi database yang sedang digunakan.
+     * Get the name of the database connection being used.
      *
      * @return string
      */
@@ -290,7 +283,7 @@ abstract class Model
     }
 
     /**
-     * Ambil nama tabel yang sedang digunakan.
+     * Get the table name associated with the model.
      *
      * @return string
      */
@@ -301,14 +294,14 @@ abstract class Model
         }
 
         $class = get_called_class();
-        // Hapus namespace jika ada
+        // Remove the namespace if present
         $class = (false !== strpos($class, '\\')) ? basename(str_replace('\\', '/', $class)) : $class;
 
         return strtolower(Str::plural($class));
     }
 
     /**
-     * Ambil nama kolom primary key.
+     * Get the primary key column name.
      *
      * @return string
      */
@@ -318,7 +311,7 @@ abstract class Model
     }
 
     /**
-     * Ambil jumlah item per halaman untuk paginasi.
+     * Get the number of items per page for pagination.
      *
      * @return int
      */
@@ -328,7 +321,7 @@ abstract class Model
     }
 
     /**
-     * Ambil nilai primary key.
+     * Get the value of primary key.
      *
      * @return mixed
      */
@@ -338,7 +331,7 @@ abstract class Model
     }
 
     /**
-     * Set nilai primary key.
+     * Set the value of primary key.
      *
      * @param mixed $value
      *
@@ -350,7 +343,7 @@ abstract class Model
     }
 
     /**
-     * Ambil atribut yang telah berubah.
+     * Get the attributes that have been changed since last sync.
      *
      * @return array
      */
@@ -368,7 +361,7 @@ abstract class Model
     }
 
     /**
-     * Check apakah model memiliki atribut yang berubah.
+     * Check if the model has any changed attributes.
      *
      * @return bool
      */
@@ -378,7 +371,7 @@ abstract class Model
     }
 
     /**
-     * Sinkronkan atribut original dengan atribut saat ini.
+     * Sync the original attributes with the current attributes.
      *
      * @return $this
      */
@@ -389,7 +382,7 @@ abstract class Model
     }
 
     /**
-     * Check apakah atribut tertentu telah berubah.
+     * Check if a specific attribute has been changed.
      *
      * @param string $attribute
      *
@@ -409,7 +402,7 @@ abstract class Model
     }
 
     /**
-     * Hapus atribut dari model.
+     * Unset an attribute from the model.
      *
      * @param string $key
      *
@@ -421,7 +414,7 @@ abstract class Model
     }
 
     /**
-     * Convert model dan relasinya menjadi array.
+     * Convert the model and its relationships into an array.
      *
      * @return array
      */
@@ -457,7 +450,7 @@ abstract class Model
     }
 
     /**
-     * Ambil nama tabel yang sedang digunakan (alias untuk table()).
+     * Get the table name associated with the model (alias for table()).
      *
      * @return string
      */
@@ -467,7 +460,7 @@ abstract class Model
     }
 
     /**
-     * Ambil nama koneksi database yang sedang digunakan (alias untuk connection()).
+     * Get the name of database connection being used (alias for connection()).
      *
      * @return string
      */
@@ -477,7 +470,7 @@ abstract class Model
     }
 
     /**
-     * Check apakah model menggunakan timestamps.
+     * Check if the model uses timestamps.
      *
      * @return bool
      */
@@ -487,7 +480,7 @@ abstract class Model
     }
 
     /**
-     * Set list atribut yang boleh diisi data.
+     * Set the attributes that are mass-assignable.
      *
      * @param array $attributes
      */
@@ -501,8 +494,8 @@ abstract class Model
     }
 
     /**
-     * Buat model baru dan simpan ke database.
-     * Jika model berhasil disimpan, data model akan direturn. FALSE jika sebaliknya.
+     * Create a new model and save it to the database.
+     * If the model is successfully saved, the model instance will be returned. FALSE otherwise.
      *
      * @param array $attributes
      *
@@ -515,7 +508,7 @@ abstract class Model
     }
 
     /**
-     * Update model di database.
+     * Update the model in the database with the given attributes.
      *
      * @param mixed $id
      * @param array $attributes
@@ -535,7 +528,7 @@ abstract class Model
     }
 
     /**
-     * Ambil seluruh model di database.
+     * Get all models from the database.
      *
      * @return array
      */
@@ -545,7 +538,7 @@ abstract class Model
     }
 
     /**
-     * Cari model berdasarkan primary key-nya.
+     * Find a model by its primary key.
      *
      * @param mixed $id
      * @param array $columns
@@ -558,7 +551,7 @@ abstract class Model
     }
 
     /**
-     * Cari model berdasarkan primary key-nya atau throw exception jika tidak ditemukan.
+     * Find a model by its primary key or throw exception if not found.
      *
      * @param mixed $id
      * @param array $columns
@@ -577,7 +570,7 @@ abstract class Model
     }
 
     /**
-     * Ambil model pertama yang cocok dengan query.
+     * Get the first model that matches the query.
      *
      * @param array $columns
      *
@@ -589,7 +582,7 @@ abstract class Model
     }
 
     /**
-     * Ambil model pertama yang cocok dengan query atau throw exception jika tidak ditemukan.
+     * Get the first model that matches the query or throw exception if not found.
      *
      * @param array $columns
      *
@@ -607,7 +600,7 @@ abstract class Model
     }
 
     /**
-     * Buat query builder dengan klausa WHERE.
+     * Make a basic where clause on the model's query.
      *
      * @param string|array $column
      * @param mixed        $operator
@@ -622,7 +615,7 @@ abstract class Model
     }
 
     /**
-     * Set list relasi yang harus di eagerload.
+     * Set the list of relationships to eager load on the model.
      *
      * @param array $with
      *
@@ -635,7 +628,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi one-to-one (satu-ke-satu).
+     * Get the query for a one-to-one relationship.
      *
      * @param string $model
      * @param string $foreign
@@ -648,7 +641,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi one-to-many (satu-ke-banyak).
+     * Get the query for a one-to-many relationship.
      *
      * @param string $model
      * @param string $foreign
@@ -661,7 +654,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi has-many-through.
+     * Get the query for a has-many-through relationship.
      *
      * @param string $model
      * @param string $through
@@ -692,7 +685,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi one-to-one (inverse).
+     * Get the query for a belongs-to relationship.
      *
      * @param string $model
      * @param string $foreign
@@ -706,7 +699,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi one-to-many.
+     * Get the query for a belongs-to-many relationship.
      *
      * @param string $model
      * @param string $table
@@ -721,7 +714,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi polymorphic one-to-one.
+     * Get the query for a polymorphic one-to-one relationship.
      *
      * @param string $model
      * @param string $name
@@ -739,7 +732,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi polymorphic one-to-many.
+     * Get the query for a polymorphic one-to-many relationship.
      *
      * @param string $model
      * @param string $name
@@ -757,7 +750,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi polymorphic belongs-to (inverse).
+     * Get the query for a polymorphic morph-to relationship.
      *
      * @param string $name
      * @param string $type
@@ -774,7 +767,7 @@ abstract class Model
     }
 
     /**
-     * Ambil query untuk relasi polymorphic many-to-many.
+     * Get the query for a polymorphic many-to-many relationship.
      *
      * @param string $model
      * @param string $name
@@ -790,7 +783,7 @@ abstract class Model
     }
 
     /**
-     * Simpan model dan seluruh relasinya ke database.
+     * Save the model and all of its relationships to the database.
      *
      * @return bool
      */
@@ -808,7 +801,7 @@ abstract class Model
     }
 
     /**
-     * Simpan model ke database.
+     * Save the model to the database.
      *
      * @return bool
      */
@@ -857,7 +850,7 @@ abstract class Model
     }
 
     /**
-     * Hapus model dari database.
+     * Delete the model from the database.
      *
      * @return int
      */
@@ -883,7 +876,7 @@ abstract class Model
     }
 
     /**
-     * Restore soft deleted model.
+     * Restore a soft-deleted model.
      *
      * @return bool
      */
@@ -903,7 +896,7 @@ abstract class Model
     }
 
     /**
-     * Force delete model (bypass soft delete).
+     * Force delete a model from the database (bypass soft delete).
      *
      * @return int
      */
@@ -969,7 +962,7 @@ abstract class Model
     }
 
     /**
-     * Ambil instance Facile query builder baru.
+     * Get a new query builder for the model.
      *
      * @return \System\Database\Facile\Query
      */
@@ -979,7 +972,7 @@ abstract class Model
     }
 
     /**
-     * Terapkan global scopes ke query.
+     * Apply all global scopes to the query.
      *
      * @param Query $query
      *
@@ -999,7 +992,7 @@ abstract class Model
     }
 
     /**
-     * Tambahkan global scope ke model.
+     * Add a global scope to the model.
      *
      * @param string|\Closure|object $scope
      * @param \Closure|object        $implementation
@@ -1018,7 +1011,7 @@ abstract class Model
     }
 
     /**
-     * Hapus global scope dari model.
+     * Removw a global scope from the model.
      *
      * @param string $scope
      *
@@ -1030,7 +1023,7 @@ abstract class Model
     }
 
     /**
-     * Ambil global scopes yang diterapkan ke model.
+     * Get all global scopes applied to the model.
      *
      * @return array
      */
@@ -1040,7 +1033,7 @@ abstract class Model
     }
 
     /**
-     * Ambil instance query builder baru.
+     * Get the base query for the model, applying soft delete filter and global scopes.
      *
      * @return Query
      */
@@ -1058,7 +1051,7 @@ abstract class Model
     }
 
     /**
-     * Handle pemanggilan static method.
+     * Handle static method calls into the model.
      *
      * @param string $method
      * @param array  $parameters
@@ -1079,7 +1072,7 @@ abstract class Model
     }
 
     /**
-     * Handle akses property dinamis untuk mengambil attriv=butes.
+     * Handle dynamic property access for getting attributes.
      *
      * @param string $key
      *
@@ -1091,7 +1084,7 @@ abstract class Model
     }
 
     /**
-     * Handle akses property dinamis untuk mengatur attributes.
+     * Handle dynamic property access for setting attributes.
      *
      * @param string $key
      * @param mixed  $value

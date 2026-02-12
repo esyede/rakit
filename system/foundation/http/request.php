@@ -44,7 +44,7 @@ class Request
     const HEADER_CLIENT_PORT = 'client_port';
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param array  $query
      * @param array  $request
@@ -75,8 +75,8 @@ class Request
     }
 
     /**
-     * Set parameter untuk request saat ini.
-     * Method ini juga menginisialisasi ulang seluruh property.
+     * Set parameters for the request.
+     * This method will also re-initialize the request.
      *
      * @param array  $query
      * @param array  $request
@@ -116,7 +116,7 @@ class Request
     }
 
     /**
-     * Buat object request baru menggunakan data milik PHP.
+     * Make an request object from PHP global variables.
      *
      * @return Request
      */
@@ -140,7 +140,7 @@ class Request
     }
 
     /**
-     * Buat object request baru berdasarkan URI dan konfigurasi yang diberikan.
+     * Make a request object from the given parameters.
      *
      * @param string $uri
      * @param string $method
@@ -212,7 +212,7 @@ class Request
             case 'PUT':
             case 'DELETE':
                 $defaults['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-                // no break, memang sengaja.
+                // No break, intended to fall through
 
             case 'PATCH':
                 $request = $parameters;
@@ -243,24 +243,24 @@ class Request
     }
 
     /**
-     * Clone object request dan timpa beberapa property-nya.
+     * Clone the current request object with modified parameters.
      *
-     * @param array $query
-     * @param array $request
-     * @param array $attributes
-     * @param array $cookies
-     * @param array $files
-     * @param array $server
+     * @param array|null $query
+     * @param array|null $request
+     * @param array|null $attributes
+     * @param array|null $cookies
+     * @param array|null $files
+     * @param array|null $server
      *
      * @return static
      */
     public function duplicate(
-        array $query = null,
-        array $request = null,
-        array $attributes = null,
-        array $cookies = null,
-        array $files = null,
-        array $server = null
+        $query = null,
+        $request = null,
+        $attributes = null,
+        $cookies = null,
+        $files = null,
+        $server = null
     ) {
         $clone = clone $this;
 
@@ -303,7 +303,7 @@ class Request
     }
 
     /**
-     * Clone object request saat ini (session tidak akan ikut ter-clone).
+     * Clone current object request (session will not be cloned).
      */
     public function __clone()
     {
@@ -317,7 +317,7 @@ class Request
     }
 
     /**
-     * Mereturn object request sebagai string.
+     * Convert request to string.
      *
      * @return string
      */
@@ -332,9 +332,9 @@ class Request
     }
 
     /**
-     * Timpa variabel global PHP menurut instance object request saat ini.
-     * Ini akan menimpa value $_GET, $_POST, $_REQUEST, $_SERVER, dan $_COOKIE.
-     * Variabel $_FILES tidak akan ditimpa.
+     * Replace PHP global variables with the current request values.
+     * This will replace values of $_GET, $_POST, $_REQUEST, $_SERVER, and $_COOKIE.
+     * The $_FILES variable will not be replaced.
      */
     public function overrideGlobals()
     {
@@ -370,7 +370,7 @@ class Request
     }
 
     /**
-     * Set list trusted proxy.
+     * Set list of trusted proxies.
      *
      * @param array $proxies
      */
@@ -381,19 +381,18 @@ class Request
     }
 
     /**
-     * Set nama trusted header.
-     * Hanya mendukung header - heder berikut:.
+     * Set a trusted header name.
+     * Only headers defined below can be set,
+     * Passing empty value will disable the trusted header.
      *
      * <code>
      *
-     *    Request::HEADER_CLIENT_IP:    (default: X-Forwarded-For,   lihat getClientIp())
-     *    Request::HEADER_CLIENT_HOST:  (default: X-Forwarded-Host,  lihat getClientHost())
-     *    Request::HEADER_CLIENT_PORT:  (default: X-Forwarded-Port,  lihat getClientPort())
-     *    Request::HEADER_CLIENT_PROTO: (default: X-Forwarded-Proto, lihat getScheme() dan isSecure())
+     *    Request::HEADER_CLIENT_IP:    (default: X-Forwarded-For,   see getClientIp())
+     *    Request::HEADER_CLIENT_HOST:  (default: X-Forwarded-Host,  see getClientHost())
+     *    Request::HEADER_CLIENT_PORT:  (default: X-Forwarded-Port,  see getClientPort())
+     *    Request::HEADER_CLIENT_PROTO: (default: X-Forwarded-Proto, see getScheme() and isSecure())
      *
      * </code>
-     *
-     * Mengoper value kosong berarti menonaktifkan trusted header milik key yang diberikan.
      *
      * @param string $key
      * @param string $value
@@ -408,7 +407,7 @@ class Request
     }
 
     /**
-     * Periksa apakah isi $_SERVER datang dari trusted proxy atau bukan.
+     * Check if proxy is trusted.
      *
      * @return bool
      */
@@ -418,11 +417,10 @@ class Request
     }
 
     /**
-     * Normalisasi query string.
-     *
-     * Normalisasi ini akan mengurutkan query string mengikuti alfabet,
-     * menghapus delimiter yang tidk diperlukan, serta
-     * memberi mekanisme escape yang lebih konsisten.
+     * Normalize query string.
+     * This will sort the query string alphabetically,
+     * remove unnecessary delimiters, and
+     * provide a more consistent escape mechanism.
      *
      * @param string $queryString
      *
@@ -457,12 +455,10 @@ class Request
     }
 
     /**
-     * Ambil value 'parameter'.
-     *
-     * Method ini sedianya digunakan untuk fleksibilitas saja.
-     * Jangan gunakan method ini pada controller anda karena ia sangat lambat.
-     *
-     * Urutan: GET, PATH, POST.
+     * Get a parameter from any bag.
+     * This method is intended for flexibility only.
+     * Don't use it on your controller, as it's very slow.
+     * Order of search: GET, PATH, POST.
      *
      * @param string $key
      * @param mixed  $default
@@ -480,7 +476,7 @@ class Request
     }
 
     /**
-     * Ambil object session.
+     * Get the session object.
      *
      * @return object|null
      */
@@ -490,8 +486,7 @@ class Request
     }
 
     /**
-     * Periksa apakah request saat ini mengandung session yang telah
-     * aktif di request - request sebelumnya.
+     * Check if the request contains active session from previous request.
      *
      * @return bool
      */
@@ -502,7 +497,7 @@ class Request
     }
 
     /**
-     * Periksa apakah request saat ini mengandung object session.
+     * Check if the request contains a session object.
      *
      * @return bool
      */
@@ -512,7 +507,7 @@ class Request
     }
 
     /**
-     * Set object session.
+     * Set the session object.
      *
      * @param object $session
      */
@@ -522,7 +517,7 @@ class Request
     }
 
     /**
-     * Ambil IP klien.
+     * Get client IP address.
      *
      * @return string
      */
@@ -551,7 +546,7 @@ class Request
     }
 
     /**
-     * Ambil script name.
+     * Get the script name.
      *
      * @return string
      */
@@ -563,14 +558,14 @@ class Request
     }
 
     /**
-     * Mereturn path request saat ini. Contoh:.
+     * Get the path info for the current request. Sample:
      *
      * <code>
      *
-     *      http://localhost/mysite              mereturn  string kosong
-     *      http://localhost/mysite/about        mereturn  '/about'
-     *      http://localhost/mysite/enco%20ded   mereturn  '/enco%20ded'
-     *      http://localhost/mysite/about?var=1  mereturn  '/about'
+     *      http://localhost/mysite              returns  string kosong
+     *      http://localhost/mysite/about        returns  '/about'
+     *      http://localhost/mysite/enco%20ded   returns  '/enco%20ded'
+     *      http://localhost/mysite/about?var=1  returns  '/about'
      *
      * <code>
      *
@@ -587,14 +582,14 @@ class Request
     }
 
     /**
-     * Mereturn root path request saat ini. Contoh:.
+     * Get base path. Sample:
      *
      * <code>
      *
-     *      http://localhost/index.php         mereturn  string kosong
-     *      http://localhost/index.php/page    mereturn  string kosong
-     *      http://localhost/web/index.php     mereturn  '/web'
-     *      http://localhost/we%20b/index.php  mereturn  '/we%20b'
+     *      http://localhost/index.php         returns  string kosong
+     *      http://localhost/index.php/page    returns  string kosong
+     *      http://localhost/web/index.php     returns  '/web'
+     *      http://localhost/we%20b/index.php  returns  '/we%20b'
      *
      * <code>
      *
@@ -610,7 +605,7 @@ class Request
     }
 
     /**
-     * Mereturn URL root (tanpa akhiran '/').
+     * Get the base URL (without trailng slash suffix)
      *
      * @return string
      */
@@ -624,7 +619,7 @@ class Request
     }
 
     /**
-     * Ambil skema request (http / https).
+     * Get the http scheme of the request.
      *
      * @return string
      */
@@ -634,7 +629,7 @@ class Request
     }
 
     /**
-     * Mereturn port.
+     * Get the port number of the request.
      *
      * @return string
      */
@@ -650,7 +645,7 @@ class Request
     }
 
     /**
-     * Mereturn user pada auth basic PHP.
+     * Get the user on Basic Auth.
      *
      * @return string|null
      */
@@ -660,7 +655,7 @@ class Request
     }
 
     /**
-     * Mereturn password pada auth basic PHP.
+     * Get the password on Basic Auth.
      *
      * @return string|null
      */
@@ -670,7 +665,7 @@ class Request
     }
 
     /**
-     * Ambil info user dan password pada auth basic PHP.
+     * Get the Basic Auth user and password (in 'user:pass' format).
      *
      * @return string
      */
@@ -684,8 +679,7 @@ class Request
     }
 
     /**
-     * Mereturn host untuk request saat ini.
-     * Juga akan ditambahkan portnya jika tidak menggunakan port standar.
+     * Get the HTTP host (with port if not usinng the standard port).
      *
      * @return string
      */
@@ -704,7 +698,7 @@ class Request
     }
 
     /**
-     * Mereturn URI.
+     * Get the request URI.
      *
      * @return string
      */
@@ -718,7 +712,7 @@ class Request
     }
 
     /**
-     * Ambil skema dan host.
+     * Get the scheme and HTTP host.
      *
      * @return string
      */
@@ -728,7 +722,7 @@ class Request
     }
 
     /**
-     * Mereturn URI request yang telah dinormalisasi.
+     * Get the full URI for the request.
      *
      * @return string
      */
@@ -741,7 +735,7 @@ class Request
     }
 
     /**
-     * Mereturn URI ke path yang telah dinormalisasi.
+     * Get the full URI for the given path.
      *
      * @param string $path
      *
@@ -753,7 +747,7 @@ class Request
     }
 
     /**
-     * Mereturn query string yang telah dinormalisasi.
+     * Get the query string.
      *
      * @return string|null
      */
@@ -764,7 +758,7 @@ class Request
     }
 
     /**
-     * Periksa apakah request saat ini menggunakan koneksi aman.
+     * Checj if the request is secure (https).
      *
      * @return bool
      */
@@ -781,7 +775,7 @@ class Request
     }
 
     /**
-     * Mereturn hostname.
+     * Get the host name.
      *
      * @return string
      */
@@ -808,7 +802,7 @@ class Request
     }
 
     /**
-     * Set request method.
+     * Set the request method.
      *
      * @param string $method
      */
@@ -819,7 +813,7 @@ class Request
     }
 
     /**
-     * Ambil request method dalam bentuk uppercase.
+     * Get the request method (uppercased).
      *
      * @return string
      */
@@ -839,7 +833,7 @@ class Request
     }
 
     /**
-     * Ambil mime-type berdsarkan format yang diberikan.
+     * Get the mime-type for the given format.
      *
      * @param string $format
      *
@@ -855,7 +849,7 @@ class Request
     }
 
     /**
-     * Ambil format berdsarkan mimetype yang diberikan.
+     * Get the format for the given mime-type.
      *
      * @param string $mimeType
      *
@@ -881,7 +875,7 @@ class Request
     }
 
     /**
-     * Pasangkan format dengan mime-typenya.
+     * Pair format with mime-types.
      *
      * @param string       $format
      * @param string|array $mimeTypes
@@ -896,7 +890,7 @@ class Request
     }
 
     /**
-     * Ambil format request.
+     * Get the request format.
      *
      * @param string $default
      *
@@ -912,7 +906,7 @@ class Request
     }
 
     /**
-     * Set format request.
+     * Set the request format.
      *
      * @param string $format
      */
@@ -922,7 +916,7 @@ class Request
     }
 
     /**
-     * Ambil format berdasarkan request.
+     * Get the content type of the request.
      *
      * @return string|null
      */
@@ -932,7 +926,7 @@ class Request
     }
 
     /**
-     * Set default bahasa.
+     * Set default language.
      *
      * @param string $locale
      */
@@ -946,7 +940,7 @@ class Request
     }
 
     /**
-     * Set bahasa.
+     * Set locale.
      *
      * @param string $locale
      */
@@ -956,7 +950,7 @@ class Request
     }
 
     /**
-     * Ambil bahasa.
+     * Get locale.
      *
      * @return string
      */
@@ -966,7 +960,7 @@ class Request
     }
 
     /**
-     * Periksa apakah request method saat ini cocok dengan method yang diberikan.
+     * Check if the request method matches the given method.
      *
      * @param string $method
      *
@@ -978,7 +972,7 @@ class Request
     }
 
     /**
-     * Periksa apakah request method saat ini aman.
+     * Check if the request method is safe (GET, HEAD).
      *
      * @return bool
      */
@@ -988,7 +982,7 @@ class Request
     }
 
     /**
-     * Ambil URL root aplikasi.
+     * Get the root URL.
      *
      * @return string
      */
@@ -998,7 +992,7 @@ class Request
     }
 
     /**
-     * Mereturn the konten body milik request.
+     * Get the request body content.
      *
      * @param bool $asResource
      *
@@ -1025,7 +1019,7 @@ class Request
     }
 
     /**
-     * Ambil ETag.
+     * Get the ETags from If-None-Match header.
      *
      * @return array
      */
@@ -1035,24 +1029,23 @@ class Request
     }
 
     /**
-     * Periksa apakah pragma no-cache aktif atau tidak.
+     * Check if the request has a no-cache directive.
      *
      * @return bool
      */
     public function isNoCache()
     {
-        return $this->headers->hasCacheControlDirective('no-cache')
-            || ('no-cache' === $this->headers->get('Pragma'));
+        return $this->headers->hasCacheControlDirective('no-cache') || ('no-cache' === $this->headers->get('Pragma'));
     }
 
     /**
-     * Mereturn preferred language.
+     * Get the prefered language
      *
      * @param array $locales
      *
      * @return string|null
      */
-    public function getPreferredLanguage(array $locales = null)
+    public function getPreferredLanguage(array $locales = [])
     {
         $preferred = $this->getLanguages();
 
@@ -1069,7 +1062,7 @@ class Request
     }
 
     /**
-     * Ambil list bahasa yang bisa diterima oleh browser klien.
+     * Get client's accepted language list.
      *
      * @return array
      */
@@ -1112,7 +1105,7 @@ class Request
     }
 
     /**
-     * Ambil list charset yang bisa diterima oleh browser klien.
+     * Get client's accepted charset list.
      *
      * @return array
      */
@@ -1129,7 +1122,7 @@ class Request
     }
 
     /**
-     * Ambil list content-type yang bisa diterima oleh browser klien.
+     * Get client's accepted content-type list.
      *
      * @return array
      */
@@ -1146,7 +1139,7 @@ class Request
     }
 
     /**
-     * Periksa apakah request saat ini menggunakan ajax.
+     * Check if current request is AJAX.
      *
      * @return bool
      */
@@ -1156,7 +1149,7 @@ class Request
     }
 
     /**
-     * Potong - potong header Accept-*.
+     * Splits the Accept-* headers.
      *
      * @param string $header
      *
@@ -1199,7 +1192,7 @@ class Request
     }
 
     /**
-     * Siapkan URI request.
+     * Prepare the request URI.
      *
      * @return string
      */
@@ -1231,7 +1224,7 @@ class Request
     }
 
     /**
-     * Siapkan base URL.
+     * Prepare the base URL.
      *
      * @return string
      */
@@ -1244,7 +1237,7 @@ class Request
         } elseif (basename((string) $this->server->get('PHP_SELF')) === $filename) {
             $baseUrl = (string) $this->server->get('PHP_SELF');
         } elseif (basename((string) $this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
-            // Kompatibilitas shared hosting 1and1.com
+            // Compatibility with 1and1.com (ionos.com) shared hosting
             $baseUrl = $this->server->get('ORIG_SCRIPT_NAME');
         } else {
             $path = (string) $this->server->get('PHP_SELF', '');
@@ -1298,7 +1291,7 @@ class Request
     }
 
     /**
-     * Siapkan base path.
+     * Prepare the base path.
      *
      * @return string
      */
@@ -1318,7 +1311,7 @@ class Request
     }
 
     /**
-     * Siapkan path info.
+     * Prepare the path info.
      *
      * @return string
      */
@@ -1348,7 +1341,7 @@ class Request
     }
 
     /**
-     * Inisialisasi format request.
+     * Initialize the request formats.
      */
     protected static function initializeFormats()
     {
@@ -1366,7 +1359,7 @@ class Request
     }
 
     /**
-     * Set bahasa default PHP.
+     * Set PHP default language.
      *
      * @param string $locale
      */
@@ -1384,7 +1377,7 @@ class Request
     }
 
     /**
-     * Mereturn prefix yang telah di-encode.
+     * Get url-encoded prefix.
      *
      * @param string $string
      * @param string $prefix

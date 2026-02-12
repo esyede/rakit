@@ -10,21 +10,21 @@ use System\Database\Schema;
 class Migrator extends Command
 {
     /**
-     * Berisi instance migration resolver.
+     * Contains the migration resolver instance.
      *
      * @var Resolver
      */
     protected $resolver;
 
     /**
-     * Berisi instance database migrasi.
+     * Contains the database migration instance.
      *
      * @var Database
      */
     protected $database;
 
     /**
-     * Buat instance migrator baru.
+     * Creates a new migrator instance.
      *
      * @param Resolver $resolver
      * @param Database $database
@@ -38,7 +38,7 @@ class Migrator extends Command
     }
 
     /**
-     * Jalankan command migrasi database.
+     * Runs the database migration command.
      *
      * @param array $arguments
      *
@@ -46,7 +46,7 @@ class Migrator extends Command
      */
     public function run(array $arguments = [])
     {
-        // Buat otomatis tabel migrasi jika belum ada.
+        // Create the migrations table automatically if it doesn't exist.
         if (!Schema::has_table('rakit_migrations')) {
             $this->install();
         }
@@ -56,7 +56,7 @@ class Migrator extends Command
     }
 
     /**
-     * Jalankan migrasi milik sebuah paket.
+     * Runs the migrations for a given package.
      *
      * @param array $arguments
      *
@@ -88,7 +88,7 @@ class Migrator extends Command
     }
 
     /**
-     * Rollback perintah migrasi terbaru.
+     * Rollback the last migration.
      *
      * @param array $arguments
      *
@@ -125,7 +125,7 @@ class Migrator extends Command
     }
 
     /**
-     * Rollback seluruh migrasi yang pernah dijalankan.
+     * Rollback all migrations that have been run.
      *
      * @param array $arguments
      *
@@ -139,7 +139,7 @@ class Migrator extends Command
     }
 
     /**
-     * Reset dan jalankan ulang seluruh migrasi database.
+     * Reset then run all database migrations.
      *
      * @param array $arguments
      *
@@ -154,7 +154,7 @@ class Migrator extends Command
     }
 
     /**
-     * Buat tabel untuk pencatatan migrasi database.
+     * Create the table for tracking database migrations.
      *
      * @param array $arguments
      *
@@ -173,7 +173,7 @@ class Migrator extends Command
     }
 
     /**
-     * Ambil paket dan nama migrasi (untuk tampilan saja).
+     * Get the package and migration name (for display purposes only).
      *
      * @param array $migration
      *

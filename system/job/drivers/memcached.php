@@ -13,14 +13,14 @@ use System\Memcached as BaseMemcached;
 class Memcached extends Driver
 {
     /**
-     * Instance Memcached.
+     * Contains the Memcached instance.
      *
      * @var \System\Memcached
      */
     protected $memcached;
 
     /**
-     * Prefix key untuk job.
+     * Prefix key for job storage.
      *
      * @var string
      */
@@ -39,7 +39,7 @@ class Memcached extends Driver
     }
 
     /**
-     * Tambahkan sebuah job.
+     * Add a new job to the queue.
      *
      * @param string      $name
      * @param array       $payloads
@@ -86,7 +86,7 @@ class Memcached extends Driver
     }
 
     /**
-     * Cek apakah job sedang overlapping.
+     * Check if there is an overlapping job.
      *
      * @param string $name
      * @param string $queue
@@ -115,7 +115,7 @@ class Memcached extends Driver
     }
 
     /**
-     * Hapus job berdasarkan nama.
+     * Delete a job from the queue.
      *
      * @param string      $name
      * @param string|null $queue
@@ -175,7 +175,7 @@ class Memcached extends Driver
     }
 
     /**
-     * Jalankan antrian job.
+     * Run a specific job.
      *
      * @param string      $name
      * @param int         $retries
@@ -287,7 +287,7 @@ class Memcached extends Driver
     }
 
     /**
-     * Jalankan semua job.
+     * Run all available jobs.
      *
      * @param int        $retries
      * @param int        $sleep_ms
@@ -419,7 +419,7 @@ class Memcached extends Driver
     }
 
     /**
-     * Pindahkan job ke failed jobs.
+     * Move the failed job to the failed jobs storage.
      *
      * @param array      $data
      * @param \Exception $exception

@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class Input
 {
     /**
-     * Key yang digunakan untuk menyimpan old input di session.
+     * Key used to store old input in session.
      *
      * @var string
      */
     const OLD = 'rakit_old_input';
 
     /**
-     * Berisi payload JSON untuk aplikasi.
+     * Contains the JSON payload of the request.
      *
      * @var object
      */
     public static $json;
 
     /**
-     * Ambil semua data inputan, termasuk file.
+     * Get all input data, including files.
      *
      * @return array
      */
@@ -34,8 +34,8 @@ class Input
     }
 
     /**
-     * Cek apakah item yang diberikan ada di input data.
-     * Jika item inputannya adalah string kosong, ia akan mereturn FALSE.
+     * Check if the given item exists in the input data.
+     * If the input item is an empty string, it will return FALSE.
      *
      * @param string $key
      *
@@ -47,15 +47,15 @@ class Input
     }
 
     /**
-     * Ambil item dari data inputan.
-     * Method ini digunakan untuk semua request method (GET, POST, PUT, dan DELETE).
+     * Get an item from the input data.
+     * This method is used for all request methods (GET, POST, PUT, and DELETE).
      *
      * <code>
      *
-     *      // Mengambil item 'email' dari data inputan
+     *      // Get item 'email' from input data
      *      $email = Input::get('email');
      *
-     *      // Return default value jika item tidak ditemukan
+     *      // Fallback to default value if item is not found
      *      $email = Input::get('name', 'Budi');
      *
      * </code>
@@ -78,14 +78,14 @@ class Input
     }
 
     /**
-     * Ambil item dari query string.
+     * Get one or all query parameters.
      *
      * <code>
      *
-     *      // Ambi item 'email' dari query string
+     *      // Get the 'email' query parameter
      *      $email = Input::query('email');
      *
-     *      // Return default value jika item tidak ditemukan
+     *      // Return default value if item is not found
      *      $email = Input::query('name', 'Budi');
      *
      * </code>
@@ -101,7 +101,7 @@ class Input
     }
 
     /**
-     * Ambil payload JSON untuk request saat ini.
+     * Get all JSON payload for the current request.
      *
      * @param bool $as_object
      *
@@ -116,17 +116,13 @@ class Input
     }
 
     /**
-     * Ambil sebagian item dari data input.
+     * Get only specified items from the input data.
      *
      * <code>
      *
-     *      // Ambil hanya email dari data inputan
-     *      $value = Input::only('email');
-     *
-     *      // Ambil hanya name dan email dari data inputan
+     *      // Get only email and password from input data
      *      $input = Input::only(['name', 'email']);
-     *
-     *      $input = Input::only('name', 'email');
+     *      $input = Input::only('email', 'password');
      *
      * </code>
      *
@@ -140,17 +136,14 @@ class Input
     }
 
     /**
-     * Ambil semua data input kecuali item-item yang diberikan.
+     * Get all items except specified items.
      *
      * <code>.
      *
-     *      // Ambil semua data inputan kecuali name
-     *      $input = Input::except('name');.
-     *
-     *      // Ambil semua data inputan kecuali name dan email
-     *      $input = Input::except(['name', 'email']);
-     *
-     *      $input = Input::except('name', 'email');
+     *      // Get all input data except name
+     *      $inputs = Input::except('name');.
+     *      $inputs = Input::except(['name', 'email']);
+     *      $inputs = Input::except('name', 'email');
      *
      * </code>
      *
@@ -164,7 +157,7 @@ class Input
     }
 
     /**
-     * Cek apakah item yang diminta ada di old input atau tidak.
+     * Check if item is present in old input.
      *
      * @param string $key
      *
@@ -176,14 +169,14 @@ class Input
     }
 
     /**
-     * Ambil data input dari request sebelumnya.
+     * Get input data from the previous request.
      *
      * <code>
      *
-     *      // Ambil item 'email' dari old input
+     *      // Get item 'email' from old input
      *      $email = Input::old('email');
      *
-     *      // Return default value jika item tidak ditemukan
+     *      // Fallback to default value if item is not found
      *      $email = Input::old('name', 'Budi');
      *
      * </code>
@@ -199,7 +192,7 @@ class Input
     }
 
     /**
-     * Cek apakah satu atau beberapa input diisi seluruhnya.
+     * Check if one or more inputs are filled.
      *
      * @param string|array $key
      *
@@ -221,7 +214,7 @@ class Input
     }
 
     /**
-     * Cek apakah satu atau beberapa input tidak diisi.
+     * Check if one or more inputs are not filled.
      *
      * @param string|array $key
      *
@@ -233,12 +226,12 @@ class Input
     }
 
     /**
-     * Ambil item dari data file upload.
+     * Get item from uploaded file data.
      *
      * <code>
      *
-     *      // Ambilo array informasi dari form upload bernama 'foto'
-     *      $foto = Input::file('foto');
+     *      // Get array information from form upload named 'avatar'
+     *      $avatar = Input::file('avatar');
      *
      * </code>
      *
@@ -253,7 +246,7 @@ class Input
     }
 
     /**
-     * Cek apakah data yang diupload mengandung file atau tidak.
+     * Check if one or more inputs have uploaded files.
      *
      * @param string $key
      *
@@ -265,13 +258,12 @@ class Input
     }
 
     /**
-     * Pindahkan file terupload ke internal storage.
-     * Method ini hanyalah wrapper fungsi move_uploaded_file().
+     * Move uploaded file to internal storage.
      *
      * <code>
      *
-     *      // Pindahkan file 'foto' ke lokasi baru di internal storage
-     *      Input::upload('foto', 'path/to/folder', 'nama_file.jpg');
+     *      // Move file 'avatar' to a new location in internal storage
+     *      Input::upload('avatar', 'path/to/folder', 'avatar.jpg');
      *
      * </code>
      *
@@ -291,18 +283,18 @@ class Input
     }
 
     /**
-     * Flash data inputan saat ini ke session.
+     * Flash the current input data to session.
      *
      * <code>
      *
-     *      // Flash semua data inputan saat ini ke session
+     *      // Flash all input data to session
      *      Input::flash();
      *
-     *      // Flash hanya bebrapa data inputan saat ini ke session
+     *      // Flash only specific input data to session
      *      Input::flash('only', ['name', 'email']);
      *
-     *      // Flash semua data inputan saat ini ke session kecuali yang disebutkan
-     *      Input::flash('except', ['password', 'nomor_telepon']);
+     *      // Flash all input data to session except for specific keys
+     *      Input::flash('except', ['password', 'email']);
      *
      * </code>
      *
@@ -315,7 +307,7 @@ class Input
     }
 
     /**
-     * Bersihkan seluruh old input dari session.
+     * Clear all old input from session.
      */
     public static function flush()
     {
@@ -323,7 +315,7 @@ class Input
     }
 
     /**
-     * Merge data baru ke array data inputan saat ini.
+     * Merge new data into the current input data.
      *
      * @param array $inputs
      */
@@ -333,7 +325,7 @@ class Input
     }
 
     /**
-     * Replace data inputan saat ini.
+     * Replace input data.
      *
      * @param array $inputs
      */
@@ -343,7 +335,7 @@ class Input
     }
 
     /**
-     * Bersihkan/buang data inputan saat ini.
+     * Clear all input data.
      */
     public static function clear()
     {

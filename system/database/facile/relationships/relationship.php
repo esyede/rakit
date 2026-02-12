@@ -10,21 +10,21 @@ use System\Database\Facile\Query;
 abstract class Relationship extends Query
 {
     /**
-     * Berisi base model untuk relasi.
+     * Contains the base model.
      *
      * @var Model
      */
     protected $base;
 
     /**
-     * Berisi foreign key.
+     * Contains the foreign key.
      *
      * @var string
      */
     protected $foreign;
 
     /**
-     * Buat instance relasi has one or many baru.
+     * Constructor.
      *
      * @param Model  $model
      * @param string $associated
@@ -47,7 +47,7 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Ambil nama foreign key milik model.
+     * Get foreign key name for the relationship.
      *
      * @param string $model
      * @param string $foreign
@@ -65,7 +65,7 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Ambil instance baru kelas model yang berelasi.
+     * Generate a fresh instance of the related model.
      *
      * @param array $attributes
      *
@@ -78,7 +78,7 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Ambil foreign key untuk relasi.
+     * Get the foreign key name for the relationship.
      *
      * @return string
      */
@@ -88,7 +88,7 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Kumpulkan seluruh primary key dari sebuuh result set.
+     * Get all unique keys from the results.
      *
      * @param Model|array $results
      *
@@ -106,7 +106,7 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Set daftar relasi yang harus di eagerload.
+     * Set the relationships to eager load.
      *
      * @param array $with
      *

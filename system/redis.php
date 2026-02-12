@@ -7,42 +7,42 @@ defined('DS') or exit('No direct access.');
 class Redis
 {
     /**
-     * Berisi host Redis.
+     * Contains the Redis host
      *
      * @var string
      */
     protected $host;
 
     /**
-     * Berisi port Redis.
+     * Contains the Redis port.
      *
      * @var int
      */
     protected $port;
 
     /**
-     * Berisi nomor database yang terpilih saat load.
+     * Contains the selected Redis database number when loaded.
      *
      * @var int
      */
     protected $database;
 
     /**
-     * Berisi koneksi ke Redis.
+     * Contains the Redis connection.
      *
      * @var resource
      */
     protected $connection;
 
     /**
-     * Berisi list instance database Redis aktif.
+     * Contains the list of active Redis database instances.
      *
      * @var array
      */
     protected static $databases = [];
 
     /**
-     * Buat instance koneksi Redis baru.
+     * Constructor.
      *
      * @param string $host
      * @param string $port
@@ -56,16 +56,16 @@ class Redis
     }
 
     /**
-     * Ambil instance koneksi database Redis.
-     * Nama yang diberikan harus sesuai dengan data yang ada di file konfigurasi database.
+     * Get the Redis database instance.
+     * The name given must match the data in the database configuration file.
      *
      * <code>
      *
-     *      // Ambil instance database default.
+     *      // Get the default Redis database instance.
      *      $redis = Redis::db();
      *
-     *      // Ambil instance database tertentu.
-     *      $reids = Redis::db('redis_2');
+     *      // Get a specific Redis database instance.
+     *      $redis = Redis::db('redis_2');
      *
      * </code>
      *
@@ -89,15 +89,15 @@ class Redis
     }
 
     /**
-     * Eksekusi perintah database Redis.
+     * Execute a Redis command.
      *
      * <code>
      *
-     *      // Eksekusi perintah GET untuk key 'name'
+     *      // Execute the GET command for key 'name'
      *      $name = Redis::db()->run('get', ['name']);
      *
-     *      // Eksekusi perintah LRANGE untuk key 'list'
-     *      $list = Redis::db()->run('lrange', [0, 5]);
+     *      // Execute the LRANGE command for key 'list'
+     *      $list = Redis::db()->run('lrange', ['list', 0, 5]);
      *
      * </code>
      *
@@ -119,7 +119,7 @@ class Redis
     }
 
     /**
-     * Parse dan return respon dari Redis server.
+     * Parse and return response from Redis server.
      *
      * @param string $response
      *
@@ -150,7 +150,7 @@ class Redis
     }
 
     /**
-     * Buat koneksi ke Redis server.
+     * Make a connection to the Redis server.
      *
      * @return resource
      */
@@ -171,17 +171,17 @@ class Redis
     }
 
     /**
-     * Susun perintah Redis berdasarkan method dan parameter yang diberikan.
-     * Perintah-perintah Redis harus mengikuti format berikut:.
+     * Prepare a Redis command based on the method and parameters provided.
+     * Redis commands must follow the following format:
      *
-     *     *<jumlah argumen> CR LF
-     *     $<jumlah bytes milik argumen 1> CR LF
-     *     <data argumen> CR LF
+     *     *<arguments count> CR LF
+     *     $<length of argument 1> CR LF
+     *     <data argument 1> CR LF
      *     ...
-     *     $<jumlah bytes milik argumen ke-N> CR LF
-     *     <data argumen> CR LF
+     *     $<length of argument N> CR LF
+     *     <data argument N> CR LF
      *
-     * Referensi: http://redis.io/topics/protocol
+     * Reference: http://redis.io/topics/protocol
      *
      * @param string $method
      * @param array  $parameters
@@ -202,7 +202,7 @@ class Redis
     }
 
     /**
-     * Parse dan tangani respon inline dari database Redis.
+     * Parse and handle inline response from Redis database.
      *
      * @param string $response
      *
@@ -214,7 +214,7 @@ class Redis
     }
 
     /**
-     * Parse dan tangani respon bulk dari database Redis.
+     * Parse and handle bulk response from Redis database.
      *
      * @param string $head
      *
@@ -235,12 +235,15 @@ class Redis
 
         $response = '';
         $remaining = $size;
+
         while ($remaining > 0) {
             $block = ($remaining < 8192) ? $remaining : 8192;
             $chunk = fread($this->connection, $block);
+
             if ($chunk === false || $chunk === '') {
                 break;
             }
+
             $response .= $chunk;
             $remaining -= strlen($chunk);
         }
@@ -250,7 +253,7 @@ class Redis
     }
 
     /**
-     * Parse dan tangani respon multi-bulk dari database Redis.
+     * Parse and handle multi-bulk response from Redis database.
      *
      * @param string $head
      *
@@ -280,7 +283,7 @@ class Redis
     }
 
     /**
-     * Tangani pemanggilan method secara dinamis.
+     * Handle dynamic method calls.
      *
      * @param string $method
      * @param array  $parameters
@@ -293,7 +296,7 @@ class Redis
     }
 
     /**
-     * Tangani pemanggilan static method secara dinamis.
+     * Handle dynamic static method calls.
      *
      * @param string $method
      * @param array  $parameters
@@ -306,7 +309,7 @@ class Redis
     }
 
     /**
-     * Tutup koneksi ke Redis server.
+     * Close connection to Redis server.
      */
     public function __destruct()
     {

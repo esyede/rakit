@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class ModelNotFoundException extends DatabaseException
 {
     /**
-     * Nama model yang tidak ditemukan.
+     * Contains the model name that was not found.
      *
      * @var string
      */
     protected $model;
 
     /**
-     * IDs yang dicari.
+     * Contains the IDs that were searched for.
      *
      * @var array
      */
     protected $ids;
 
     /**
-     * Buat instance exception baru.
+     * Constructor.
      *
      * @param string $model
      * @param array  $ids
@@ -38,7 +38,7 @@ class ModelNotFoundException extends DatabaseException
     }
 
     /**
-     * Ambil nama model.
+     * Get the model name that was not found.
      *
      * @return string
      */
@@ -48,7 +48,7 @@ class ModelNotFoundException extends DatabaseException
     }
 
     /**
-     * Ambil IDs yang dicari.
+     * Get the IDs that were searched for.
      *
      * @return array
      */

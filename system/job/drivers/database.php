@@ -13,7 +13,7 @@ use System\Str;
 class Database extends Driver
 {
     /**
-     * Tambahkan sebuah job.
+     * Add a new job to the database.
      *
      * @param string      $name
      * @param array       $payloads
@@ -43,7 +43,7 @@ class Database extends Driver
     }
 
     /**
-     * Cek apakah job sedang overlapping.
+     * Check if there is an overlapping job in the database.
      *
      * @param string $name
      * @param string $queue
@@ -62,7 +62,7 @@ class Database extends Driver
     }
 
     /**
-     * Hapus job berdasarkan nama.
+     * Delete a job from the database.
      *
      * @param string      $name
      * @param string|null $queue
@@ -118,7 +118,7 @@ class Database extends Driver
     }
 
     /**
-     * Jalankan antrian job di database.
+     * Run a specific job from the database.
      *
      * @param string      $name
      * @param int         $retries
@@ -223,7 +223,7 @@ class Database extends Driver
     }
 
     /**
-     * Jalankan semua job di database.
+     * Run all available jobs from the database.
      *
      * @param int        $retries
      * @param int        $sleep_ms

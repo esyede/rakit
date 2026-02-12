@@ -142,23 +142,10 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
         $this->assertEmpty($bag->filter('nokey'));
         $this->assertEquals('0123', $bag->filter('digits', '', false, FILTER_SANITIZE_NUMBER_INT));
         $this->assertEquals('example@example.com', $bag->filter('email', '', false, FILTER_VALIDATE_EMAIL));
-        $this->assertEquals(
-            'http://example.com/foo',
-            $bag->filter('url', '', false, FILTER_VALIDATE_URL, ['flags' => FILTER_FLAG_PATH_REQUIRED])
-        );
-
-        $this->assertEquals(
-            'http://example.com/foo',
-            $bag->filter('url', '', false, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED)
-        );
-        $this->assertFalse(
-            $bag->filter('dec', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]])
-        );
-
-        $this->assertFalse(
-            $bag->filter('hex', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]])
-        );
-
+        $this->assertEquals('http://example.com/foo', $bag->filter('url', '', false, FILTER_VALIDATE_URL, ['flags' => FILTER_FLAG_PATH_REQUIRED]));
+        $this->assertEquals('http://example.com/foo', $bag->filter('url', '', false, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED));
+        $this->assertFalse($bag->filter('dec', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]]));
+        $this->assertFalse($bag->filter('hex', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]]));
         $this->assertEquals(['bang'], $bag->filter('array', '', false));
 
     }

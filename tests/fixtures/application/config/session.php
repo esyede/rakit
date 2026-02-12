@@ -5,15 +5,15 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Driver Session
+    | Session Driver
     |--------------------------------------------------------------------------
     |
-    | Nama driver session yang digunakan oleh aplikasi anda. Karena HTTP
-    | bersifat state-less, session inilah yang digunakan untuk mensimulasikan
-    | "state" di seluruh request yang dikirim oleh user. Dengan kata lain,
-    | begitulah cara aplikasi mengetahui siapa anda sebenarnya.
+    | Name of the session driver to be used by your application. Since HTTP
+    | is stateless, this session is used to simulate "state" across all requests
+    | sent by the user. In other words, this is how the application knows who
+    | you really are.
     |
-    | Driver bawaan: 'cookie', 'file', 'database', 'memcached', 'apc', 'redis'.
+    | Available drivers: 'cookie', 'file', 'database', 'memcached', 'apc', 'redis'.
     |
     */
 
@@ -21,11 +21,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Tabel Session
+    | Session Table
     |--------------------------------------------------------------------------
     |
-    | Tabel tempat session harus disimpan. Opsi ini hanya penting jika anda
-    | memilih "database" sebagai driver session untuk aplikasi anda.
+    | Table where session data should be stored. This option is only applicable
+    | when you choose "database" as your session driver. The table definition
+    | should match with the one included in the database migration.
     |
     */
 
@@ -33,10 +34,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Lifetime Session
+    | Session Lifetime
     |--------------------------------------------------------------------------
     |
-    | Jumlah menit session tersedia sebelum ia kedaluwarsa.
+    | The number of minutes the session should be valid.
     |
     */
 
@@ -47,7 +48,7 @@ return [
     | Expire On Close
     |--------------------------------------------------------------------------
     |
-    | Apakah session harus kedaluwarsa jika user menutup web browser mereka?
+    | Do session expire when the browser is closed?
     |
     */
 
@@ -55,10 +56,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Nama Cookie Session
+    | Session Cookie Name
     |--------------------------------------------------------------------------
     |
-    | Nama yang harus diberikan ke cookie session.
+    | Name that should be given to the session cookie.
     |
     */
 
@@ -66,10 +67,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Path Cookie Session
+    | Session Cookie Path
     |--------------------------------------------------------------------------
     |
-    | Path dimana cookie session tersedia.
+    | Path where the session cookie is available.
     |
     */
 
@@ -77,10 +78,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Domain Cookie Session
+    | Session Cookie Domain
     |--------------------------------------------------------------------------
     |
-    | Domain dimana cookie session tersedia.
+    | Domain where the session cookie is available.
     |
     */
 
@@ -88,10 +89,10 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Cookie Session Hanya HTTPS
+    | Session Cookie Secure
     |--------------------------------------------------------------------------
     |
-    | Menentukan apakah cookie hanya boleh dikirim melalui HTTPS.
+    | Determine whether the session cookie should be secure.
     |
     */
 
@@ -102,10 +103,10 @@ return [
     | Same-site Cookie
     |--------------------------------------------------------------------------
     |
-    | Atribut samesite cookie di PHP 7.3+. Biarkan default agar mengikuti
-    | aturan yang telah ditentukan oleh web browser.
+    | The SameSite attribute of the session cookie. Set to 'Lax' or 'Strict'
+    | for default behavior, or 'None' if you want to allow cross-site requests.
     |
-    | Value yang bisa digunakan: 'Lax' (default), 'Strict' atau 'None'.
+    | Available options: 'Lax', 'Strict', 'None'.
     |
     */
 
@@ -116,8 +117,8 @@ return [
     | Session ID Length
     |--------------------------------------------------------------------------
     |
-    | Panjang session ID dalam karakter. Default 32 untuk PHP 7.1+.
-    | Biarkan null untuk menggunakan default PHP.
+    | Length of session ID in characters. Default 32 for PHP 7.1+.
+    | Leave null to use default PHP.
     |
     */
 
@@ -128,8 +129,15 @@ return [
     | Session Serialize Handler
     |--------------------------------------------------------------------------
     |
-    | Handler serialisasi session. Default 'php' untuk PHP 5.5.4+.
-    | Opsi: 'php', 'php_serialize', 'php_binary'.
+    | Serialization handler for session data. Default to 'php'
+    |
+    | Available options: 'php', 'php_serialize', 'php_binary'.
+    |
+    | php: Default PHP serializer using serialize()/unserialize()
+    | php_serialize: Improved serialize(), better for objects and security,
+    |                Requires PHP 5.5.4 or newer.
+    | php_binary: Binary serialization, more compact and faster,
+    |             but not human-readable.
     |
     */
 

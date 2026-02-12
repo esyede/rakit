@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Redirect extends Response
 {
     /**
-     * Buat respon redirect ke root aplikasi.
+     * Create a redirect response to the home page.
      *
      * @param int $status
      *
@@ -19,7 +19,7 @@ class Redirect extends Response
     }
 
     /**
-     * Buat respon redirect ke halaman sebelumnya.
+     * Create a redirect response to the previous page.
      *
      * @param int $status
      *
@@ -31,14 +31,15 @@ class Redirect extends Response
     }
 
     /**
-     * Buat respon redirect.
+     * Create a redirect response to a given URL.
      *
      * <code>
      *
-     *      // Buat redirect ke lokasi tertentu dalam lingkup aplikasi
+     *      // Create a redirect to a specific location
      *      return Redirect::to('user/profile');
+     *      return Redirect::to('https://google.com');
      *
-     *      // Buat redirect dengan status code 301
+     *      // Create a redirect with status code 301
      *      return Redirect::to('user/profile', 301);
      *
      * </code>
@@ -54,7 +55,7 @@ class Redirect extends Response
     }
 
     /**
-     * Buat respon redirect sebuah action milik controller.
+     * Create a redirect to a given controller action.
      *
      * @param string $action
      * @param array  $parameters
@@ -68,14 +69,14 @@ class Redirect extends Response
     }
 
     /**
-     * Buat respon redirect ke named route.
+     * Create a redirect to a named route.
      *
      * <code>
      *
-     *      // Buat respon redirect ke named route bernama 'login'
+     *      // Create a redirect to the 'login' named route
      *      return Redirect::to_route('login');
      *
-     *      // Buat respon redirect ke named route bernama 'profile' dengan parameter tambahan
+     *      // Create a redirect to the 'profile' named route with additional parameters
      *      return Redirect::to_route('profile', [$name]);
      *
      * </code>
@@ -92,13 +93,13 @@ class Redirect extends Response
     }
 
     /**
-     * Tambahkan sebuah item ke flash data (disimpan ke session).
-     * Flash data akan tetap tersedia pada request selanjutnya.
+     * Add an item to the flash data (stored in session).
+     * Flash data will be available on the next request.
      *
      * <code>
      *
-     *      // Buat respon redirect dengan flash data.
-     *      return Redirect::to('profile')->with('message', 'Selamat datang kembali!');
+     *      // Create a redirect with flash data.
+     *      return Redirect::to('profile')->with('message', 'Welcome back!');
      *
      * </code>
      *
@@ -118,19 +119,19 @@ class Redirect extends Response
     }
 
     /**
-     * Flash data inputan lama ke session dan return instance Redirect.
-     * Setelah inputan lama di-flash, Anda bisa mengambilnya dengan Input::old().
+     * Flash old input data to the session and return the Redirect instance.
+     * After old input data is flashed, you can retrieve it using Input::old().
      *
      * <code>
      *
-     *      // Redirect dan flash semua data inputan ke session.
+     *      // Redirect and flash all input data to the session.
      *      return Redirect::to('login')->with_input();
      *
-     *      // Redirect dan flash hanya beberapa data inputan ke session.
+     *      // Redirect and flash only some input data to the session.
      *      return Redirect::to('login')->with_input('only', ['email', 'name']);
      *
-     *      // Redirect dan flash semua data kecuali data-data yang disebutkan
-     *      return Redirect::to('login')->with_input('except', ['password', 'api_token']);
+     *      // Redirect and flash all input data except the specified items
+     *      return Redirect::to('login')->with_input('except', ['password', 'email']);
      *
      * </code>
      *
@@ -146,13 +147,12 @@ class Redirect extends Response
     }
 
     /**
-     * Flash pesan error dari kelas Validator ke session.
-     * Method ini memudahkan Anda ketika ingin mengoper pesan error validasi ke view.
+     * Flash an error message to the session.
      *
      * <code>
      *
-     *      // Redirect dan flash pesan error validator ke session
-     *      return Redirect::to('register')->with_errors($validator);
+     *      // Redirect and flash an error message to the session.
+     *      return Redirect::to('register')->with_error('email', 'Email is required');
      *
      * </code>
      *
@@ -166,7 +166,7 @@ class Redirect extends Response
     }
 
     /**
-     * Kirim header dan konten respon ke browser.
+     * Send the redirect response to the browser.
      */
     public function send()
     {

@@ -7,15 +7,15 @@ defined('DS') or exit('No direct access.');
 class Memory extends Driver
 {
     /**
-     * Berisi data payload session yang akan direturn oleh driver.
+     * Contains the session data in memory.
      *
      * @var array
      */
     public $session;
 
     /**
-     * Muat session berdasarkan ID yang diberikan.
-     * Jika session tidak ditemukan, NULL akan direturn.
+     * Load the session based on the given ID.
+     * If the session is not found, NULL will be returned.
      *
      * @param string $id
      *
@@ -27,7 +27,7 @@ class Memory extends Driver
     }
 
     /**
-     * Simpan session.
+     * Save the session data.
      *
      * @param array $session
      * @param array $config
@@ -39,7 +39,7 @@ class Memory extends Driver
     }
 
     /**
-     * Hapus session berdasarkan ID yang diberikan.
+     * Delete the session with the given ID.
      *
      * @param string $id
      */

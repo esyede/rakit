@@ -11,7 +11,7 @@ use System\Database\Schema\Table;
 class SQLite extends Grammar
 {
     /**
-     * Buat sintaks sql untuk pembuatan tabel.
+     * Create the sql syntax for creating a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -35,7 +35,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk modifikasi tabel.
+     * Create the sql syntax for modifying a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -58,7 +58,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql definisi kolom.
+     * Create the sql syntax for column definitions.
      *
      * @param Table $table
      *
@@ -82,7 +82,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi bahwa kolom boleh null.
+     * Create the sql syntax for nullable column.
      *
      * @param Table $table
      * @param Magic $column
@@ -95,7 +95,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk set default value kolom.
+     * Create the sql syntax for defaults column.
      *
      * @param Table $table
      * @param Magic $column
@@ -110,7 +110,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk definisi kolom auto-increment.
+     * Create the sql syntax for incrementer column.
      *
      * @param Table $table
      * @param Magic $column
@@ -127,7 +127,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi unsigned column.
+     * Create the sql syntax for unsigned column.
      *
      * @param Table $table
      * @param Magic $column
@@ -136,12 +136,12 @@ class SQLite extends Grammar
      */
     protected function unsigned(Table $table, Magic $column)
     {
-        // SQLite tidak mendukung unsigned, skip
+        // SQLite does not unsigned, skip
         return '';
     }
 
     /**
-     * Buat sintaks sql untuk comment kolom.
+     * Create the sql syntax for comment column.
      *
      * @param Table $table
      * @param Magic $column
@@ -150,12 +150,12 @@ class SQLite extends Grammar
      */
     protected function comment(Table $table, Magic $column)
     {
-        // SQLite tidak mendukung comment pada kolom, skip
+        // SQLite does not support column comments, skip
         return '';
     }
 
     /**
-     * Buat sintaks sql untuk collate kolom.
+     * Create the sql syntax for collate column.
      *
      * @param Table $table
      * @param Magic $column
@@ -172,7 +172,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat unique index.
+     * Create the sql syntax for creating unique index.
      *
      * @param Table $table
      * @param Magic $command
@@ -185,7 +185,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat fulltext index.
+     * Create the sql syntax for creating fulltext index.
      *
      * @param Table $table
      * @param Magic $command
@@ -199,7 +199,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index biasa.
+     * Create the sql syntax for creating index.
      *
      * @param Table $table
      * @param Magic $command
@@ -212,7 +212,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index baru.
+     * Create the sql syntax for creating key.
      *
      * @param Table $table
      * @param Magic $command
@@ -222,12 +222,12 @@ class SQLite extends Grammar
      */
     protected function key(Table $table, Magic $command, $unique = false)
     {
-        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name . ' ON '
-            . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
+        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name
+            . ' ON ' . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
     }
 
     /**
-     * Buat sintaks sql untuk rename tabel.
+     * Create the sql syntax for renaming a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -240,7 +240,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique key.
+     * Create the sql syntax for drop unique key.
      *
      * @param Table $table
      * @param Magic $command
@@ -253,7 +253,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique key.
+     * Create the sql syntax for drop index.
      *
      * @param Table $table
      * @param Magic $command
@@ -266,7 +266,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop key.
+     * Create the sql syntax for drop key.
      *
      * @param Table $table
      * @param Magic $command
@@ -279,7 +279,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk spatial index.
+     * Create the sql syntax for creating spatial index.
      *
      * @param Table $table
      * @param Magic $command
@@ -288,12 +288,13 @@ class SQLite extends Grammar
      */
     public function spatial(Table $table, Magic $command)
     {
-        // SQLite spatial menggunakan R-Tree, asumsikan extension
-        return 'CREATE VIRTUAL TABLE ' . $this->wrap($table) . ' USING rtree(' . $this->columnize($command->columns) . ')';
+        // SQLite spatial index will be using R-Tree module
+        return 'CREATE VIRTUAL TABLE ' . $this->wrap($table)
+            . ' USING rtree(' . $this->columnize($command->columns) . ')';
     }
 
     /**
-     * Buat sintaks sql untuk rename kolom.
+     * Create the sql syntax for renaming a column.
      *
      * @param Table $table
      * @param Magic $command
@@ -306,7 +307,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop kolom jika ada.
+     * Create the sql syntax for drop column if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -319,7 +320,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop index jika ada.
+     * Create the sql syntax for drop index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -332,7 +333,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique jika ada.
+     * Create the sql syntax for drop index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -345,7 +346,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop fulltext jika ada.
+     * Create the sql syntax for drop fulltext if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -358,7 +359,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop foreign jika ada.
+     * Create the sql syntax for drop foreign key if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -371,7 +372,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data string.
+     * Create a definition for string type.
      *
      * @param Magic $column
      *
@@ -383,7 +384,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data integer.
+     * Create a definition for integer type.
      *
      * @param Magic $column
      *
@@ -395,7 +396,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data big integer.
+     * Create a definition for big integer type.
      *
      * @param Magic $column
      *
@@ -407,7 +408,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data float.
+     * Create a definition for float type.
      *
      * @param Magic $column
      *
@@ -419,7 +420,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data decimal.
+     * Create a definition for decimal type.
      *
      * @param Magic $column
      *
@@ -431,7 +432,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data enum.
+     * Create a definition for enum type.
      *
      * @param Magic $column
      *
@@ -447,7 +448,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data boolean.
+     * Create a definition for boolean type.
      *
      * @param Magic $column
      *
@@ -459,7 +460,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data date.
+     * Create a definition for date type.
      *
      * @param Magic $column
      *
@@ -471,7 +472,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data timestamp.
+     * Create a definition for datetime type.
      *
      * @param Magic $column
      *
@@ -483,7 +484,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data text.
+     * Create a definition for text type.
      *
      * @param Magic $column
      *
@@ -495,7 +496,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data longtext.
+     * Create a definition for longtext type.
      *
      * @param Magic $column
      *
@@ -507,7 +508,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data blob.
+     * Create a definition for blob type.
      *
      * @param Magic $column
      *
@@ -519,7 +520,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data double.
+     * Create a definition for double type.
      *
      * @param Magic $column
      *
@@ -531,7 +532,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data medium integer.
+     * Create a definition for medium integer type.
      *
      * @param Magic $column
      *
@@ -543,7 +544,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data tiny integer.
+     * Create a definition for medium integer type.
      *
      * @param Magic $column
      *
@@ -555,7 +556,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data small integer.
+     * Create a definition for small integer type.
      *
      * @param Magic $column
      *
@@ -567,7 +568,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data json.
+     * Create a definition for json type.
      *
      * @param Magic $column
      *
@@ -579,7 +580,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data jsonb.
+     * Create a definition for jsonb type.
      *
      * @param Magic $column
      *
@@ -591,7 +592,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data uuid.
+     * Create a definition for uuid type.
      *
      * @param Magic $column
      *
@@ -603,7 +604,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data ip address.
+     * Create a definition for ip address type.
      *
      * @param Magic $column
      *
@@ -615,7 +616,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data mac address.
+     * Create a definition for mac address type.
      *
      * @param Magic $column
      *
@@ -627,7 +628,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometry.
+     * Create a definition for geometry type.
      *
      * @param Magic $column
      *
@@ -639,7 +640,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data point.
+     * Create a definition for point type.
      *
      * @param Magic $column
      *
@@ -651,7 +652,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data linestring.
+     * Create a definition for linestring type.
      *
      * @param Magic $column
      *
@@ -663,7 +664,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data polygon.
+     * Create a definition for polygon type.
      *
      * @param Magic $column
      *
@@ -675,7 +676,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometrycollection.
+     * Create a definition for geometrycollection type.
      *
      * @param Magic $column
      *
@@ -687,7 +688,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipoint.
+     * Create a definition for multipoint type.
      *
      * @param Magic $column
      *
@@ -699,7 +700,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multilinestring.
+     * Create a definition for multilinestring type.
      *
      * @param Magic $column
      *
@@ -711,7 +712,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipolygon.
+     * Create a definition for multipolygon type.
      *
      * @param Magic $column
      *
@@ -723,7 +724,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Buat definisi tipe data set.
+     * Create a definition for set type.
      *
      * @param Magic $column
      *

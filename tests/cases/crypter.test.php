@@ -87,18 +87,13 @@ class CrypterTest extends \PHPUnit_Framework_TestCase
         $data = 'secret';
         $encrypted = Crypter::encrypt($data);
         $tampered = substr($encrypted, 0, -1) . 'x'; // Tamper last char
+
         try {
             Crypter::decrypt($tampered);
         } catch (\Throwable $e) {
-            $this->assertTrue(
-                $e->getMessage() === 'The payload is invalid.' ||
-                $e->getMessage() === 'The MAC is invalid.'
-            );
+            $this->assertTrue($e->getMessage() === 'The payload is invalid.' || $e->getMessage() === 'The MAC is invalid.');
         } catch (\Exception $e) {
-            $this->assertTrue(
-                $e->getMessage() === 'The payload is invalid.' ||
-                $e->getMessage() === 'The MAC is invalid.'
-            );
+            $this->assertTrue($e->getMessage() === 'The payload is invalid.' || $e->getMessage() === 'The MAC is invalid.');
         }
     }
 }

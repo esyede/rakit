@@ -5,14 +5,14 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Driver Cache
+    | Cache Driver
     |--------------------------------------------------------------------------
     |
-    | Berbagai driver bawaan telah tersedia untuk anda. Beberapa, seperti APC,
-    | sangat cepat. Namun, jika itu bukan pilihan untuk anda, coba driver
-    | lain seperti file atau database.
+    | Various cache drivers are available for you. Some, like APC,
+    | are very fast. However, if that is not an option for you, try the file
+    | or database driver.
     |
-    | Driver bawaan: 'file', 'memcached', 'apc', 'redis', 'database'.
+    | Available: 'file', 'memcached', 'apc', 'redis', 'database'.
     |
     */
 
@@ -23,12 +23,10 @@ return [
     | Cache Key
     |--------------------------------------------------------------------------
     |
-    | Key ini akan ditambahkan ke key item yang disimpan menggunakan Memcached
-    | dan APC untuk mencegah kesamaan nama key dengan aplikasi lain di server.
-    |
-    | Karena penyimpanan berbasis memori dapat digunakan bersama oleh
-    | aplikasi lain, kami harus bersikap sopan dan menggunakan awalan untuk
-    | mengidentifikasi item kami secara unik.
+    | This key will be added to the key item that is stored using Memcached
+    | and APC to prevent key name collisions with other applications on the
+    | same server because memory-based storage can be shared by other apps,
+    | we must be polite and use a prefix to identify our items uniquely.
     |
     */
 
@@ -39,10 +37,9 @@ return [
     | Cache Database
     |--------------------------------------------------------------------------
     |
-    | Ketika anda memilih "database" sebagai cache driver, tabel database ini
-    | akan digunakan untuk menyimpan item cache. Jika mau, anda juga boleh
-    | menambahkan opsi "connection" untuk menentukan koneksi database mana
-    | yang harus digunakan.
+    | When you select "database" as the cache driver, this table will be used
+    | to store cache items. If you want, you can also add the "connection"
+    | option to specify which database connection should be used.
     |
     */
 
@@ -50,15 +47,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Server Memcached
-    |--------------------------------------------------------------------------
+    | Memcached Server
+    |----------------------------------------------------------------------
     |
-    | Server memcached yang digunakan oleh aplikasi anda. Memcached adalah
-    | sistem cache berbasis memori terdistribusi yang gratis, open source dan
-    | berperforma tinggi. Ini bersifat umum tetapi dimaksudkan untuk digunakan
-    | dalam mempercepat aplikasi web dengan mengurangi beban database.
+    | The Memcached server used by your application. Memcached is a free,
+    | open-source, and high-performance distributed memory-based caching system.
+    | It is general-purpose but is intended for use in speeding up
+    | web applications by reducing database load.
     |
-    | Untuk informasi lebih lanjut, lihat: https://memcached.org
+    | For more information, see: https://memcached.org
     |
     */
 

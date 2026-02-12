@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class URL
 {
     /**
-     * Berisi Base URL (diambil dari cache).
+     * Contains Base URL (from cache).
      *
      * @var string
      */
     public static $base;
 
     /**
-     * Berisi full URI (termasuk query string).
+     * Get full URI (including query string).
      *
      * @return string
      */
@@ -24,7 +24,7 @@ class URL
     }
 
     /**
-     * Ambil full URL untuk request saat ini.
+     * Get current request URI.
      *
      * @return string
      */
@@ -34,7 +34,7 @@ class URL
     }
 
     /**
-     * Ambil URL root aplikasi.
+     * Get the application home URL.
      *
      * @return string
      */
@@ -44,7 +44,7 @@ class URL
     }
 
     /**
-     * Ambi Base URL aplikasi.
+     * Get the application base URL.
      *
      * @return string
      */
@@ -59,11 +59,11 @@ class URL
     }
 
     /**
-     * Buat URL aplikasi.
+     * Create an URL to a location within application scope.
      *
      * <code>
      *
-     *      // Buat URL ke lokasi didalam lingkup aplikasi
+     *      // Create URL to user profile
      *      $url = URL::to('user/profile');
      *
      * </code>
@@ -98,14 +98,14 @@ class URL
     }
 
     /**
-     * Buat URK ke action miik controller.
+     * Create URL to the controller action.
      *
      * <code>
      *
-     *      // Buat URK ke action 'index' miik controller 'user'
+     *      // Create URL to action 'index' in 'user' controller
      *      $url = URL::to_action('user@index');
      *
-     *      // Buat URL ke http://situsku.com/user/profile/budi
+     *      // Create URL to action 'profile' in 'user' controller with parameters
      *      $url = URL::to_action('user@profile', ['budi']);
      *
      * </code>
@@ -124,7 +124,7 @@ class URL
     }
 
     /**
-     * But action URL dari sebuah definisi route.
+     * Create action URL from a route definition.
      *
      * @param array  $route
      * @param string $action
@@ -138,7 +138,7 @@ class URL
     }
 
     /**
-     * Buat action URI berdasarkan konvensi.
+     * Create action URL based on convention.
      *
      * @param string $action
      * @param array  $parameters
@@ -160,7 +160,7 @@ class URL
     }
 
     /**
-     * Buat URL ke sebuah aset.
+     * Create URL to the assets folder.
      *
      * @param string $url
      *
@@ -174,14 +174,14 @@ class URL
     }
 
     /**
-     * Buat URL from dari named route.
+     * Create URL from named route.
      *
      * <code>
      *
-     *      // Buat URL from dari named route bernama 'profile'
+     *      // Create URL from named route named 'profile'
      *      $url = URL::to_route('profile');
      *
-     *      // Buat URL from dari named route bernama 'profile' dengan  parameter wildcard
+     *      // Create URL from named route named 'profile' with parameters
      *      $url = URL::to_route('profile', [$name]);
      *
      * </code>
@@ -201,10 +201,10 @@ class URL
     }
 
     /**
-     * Ambil URL untuk beralih bahasa, menjaga halaman saat ini atau tidak.
+     * Create URL for switching language, keeping current page or not.
      *
-     * @param string $language Nama bahasa baru
-     * @param bool   $reset    Navigasi harus direset ulang atau tidak?
+     * @param string $language
+     * @param bool   $reset
      *
      * @return string
      */
@@ -217,7 +217,7 @@ class URL
     }
 
     /**
-     * Ganti parameter di URI yang diberikan.
+     * Replace parameters in the given URI.
      *
      * @param string $uri
      * @param array  $parameters
@@ -236,7 +236,7 @@ class URL
     }
 
     /**
-     * Periksa apakah URL yang diberikan valid atau tidak.
+     * Check if the given URL is valid.
      *
      * @param string $url
      *

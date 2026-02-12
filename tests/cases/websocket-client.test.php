@@ -33,13 +33,14 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
         if (isset($this->server)) {
             $this->server->shutdown();
         }
+
         if (is_resource($this->socket)) {
             fclose($this->socket);
         }
     }
 
     /**
-     * Test konstruktor.
+     * Test constructor.
      *
      * @group system
      */
@@ -107,10 +108,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendClose()
     {
-        $mock = $this->getMockBuilder('\System\Websocket\Server')
-            ->setConstructorArgs(['tcp://127.0.0.1:0'])
-            ->setMethods(['frame'])
-            ->getMock();
+        $mock = $this->getMockBuilder('\System\Websocket\Server')->setConstructorArgs(['tcp://127.0.0.1:0'])->setMethods(['frame'])->getMock();
         $mock->expects($this->once())->method('frame')->with('', $this->anything(), 'close')->willReturn('framed_close');
 
         $client = new Client('test_id', $this->socket);
@@ -125,10 +123,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendBinary()
     {
-        $mock = $this->getMockBuilder('\System\Websocket\Server')
-            ->setConstructorArgs(['tcp://127.0.0.1:0'])
-            ->setMethods(['frame'])
-            ->getMock();
+        $mock = $this->getMockBuilder('\System\Websocket\Server')->setConstructorArgs(['tcp://127.0.0.1:0'])->setMethods(['frame'])->getMock();
         $mock->expects($this->once())->method('frame')->with('data', $this->anything(), 'binary')->willReturn('framed_binary');
 
         $client = new Client('test_id', $this->socket);
@@ -143,10 +138,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendPing()
     {
-        $mock = $this->getMockBuilder('\System\Websocket\Server')
-            ->setConstructorArgs(['tcp://127.0.0.1:0'])
-            ->setMethods(['frame'])
-            ->getMock();
+        $mock = $this->getMockBuilder('\System\Websocket\Server')->setConstructorArgs(['tcp://127.0.0.1:0'])->setMethods(['frame'])->getMock();
         $mock->expects($this->once())->method('frame')->with('ping', $this->anything(), 'ping')->willReturn('framed_ping');
 
         $client = new Client('test_id', $this->socket);
@@ -161,10 +153,7 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendPong()
     {
-        $mock = $this->getMockBuilder('\System\Websocket\Server')
-            ->setConstructorArgs(['tcp://127.0.0.1:0'])
-            ->setMethods(['frame'])
-            ->getMock();
+        $mock = $this->getMockBuilder('\System\Websocket\Server')->setConstructorArgs(['tcp://127.0.0.1:0'])->setMethods(['frame'])->getMock();
         $mock->expects($this->once())->method('frame')->with('pong', $this->anything(), 'pong')->willReturn('framed_pong');
 
         $client = new Client('test_id', $this->socket);

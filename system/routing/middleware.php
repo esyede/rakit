@@ -9,35 +9,35 @@ use System\Package;
 class Middleware
 {
     /**
-     * Berisi list seluruh middleware yang terdaftar.
+     * Contains the list of registered middlewares.
      *
      * @var array
      */
     public static $middlewares = [];
 
     /**
-     * Berisi list middleware yang berbasis pola URI.
+     * Contains the list of registered middleware patterns.
      *
      * @var array
      */
     public static $patterns = [];
 
     /**
-     * Berisi list alias untuk setiap middleware yang terdaftar.
+     * Contains the list of middleware aliases.
      *
      * @var array
      */
     public static $aliases = [];
 
     /**
-     * Daftarkan sebuah middleware.
+     * Register a middleware.
      *
      * <code>
      *
-     *      // Daftarkan sebuah middleware via closure
+     *      // Register a middleware via closure
      *      Middleware::register('before', function() { });
      *
-     *      // Daftarkan sebuah middleware via callback
+     *      // Register a middleware via callback
      *      Middleware::register('before', ['ClassName', 'method']);
      *
      * </code>
@@ -61,8 +61,8 @@ class Middleware
     }
 
     /**
-     * Buat nama alias untuk sebuah middleware agar bisa dipanggil dengan nama lain.
-     * Ini memudahkan untuk memperpendek pemanggilan middleware bawaan sebuah paket.
+     * Make an alias for a middleware.
+     * This makes it easier to shorten the call to a package's built-in middleware.
      *
      *
      * @param string $middleware
@@ -74,7 +74,7 @@ class Middleware
     }
 
     /**
-     * Parse definisi middleware ke bentuk array.
+     * Parse middlewares from string or array to array.
      *
      * @param string|array $middlewares
      *
@@ -86,7 +86,7 @@ class Middleware
     }
 
     /**
-     * Panggil satu atau beberapa middleware.
+     * Call the given middlewares.
      *
      * @param array $collections
      * @param array $pass

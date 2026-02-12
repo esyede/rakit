@@ -5,10 +5,10 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | Nama Aplikasi
+    | Application Name
     |--------------------------------------------------------------------------
     |
-    | Nama aplikasi anda.
+    | The name of your application.
     |
     */
 
@@ -16,11 +16,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | URL Aplikasi
+    | Application URL
     |--------------------------------------------------------------------------
     |
-    | URL yang digunakan untuk mengakses aplikasi anda, tanpa garis miring.
-    | Tidak harus diisi. Jika tidak diisi, kami akan mencoba untuk menebaknya.
+    | The URL used to access your application, without a trailing slash.
+    | If not provided, we will attempt to guess it.
     |
     */
 
@@ -31,9 +31,9 @@ return [
     | Index
     |--------------------------------------------------------------------------
     |
-    | Jika anda ingin menyertakan "index.php" di URL, abaikan saja opsi ini.
-    | Namun, jika anda menggunakan mod_rewrite untuk mempercantik URL,
-    | cukup isi opsi ini dengan string kosong.
+    | If you want to include "index.php" in your URL, leave this option alone.
+    | However, if you are using mod_rewrite to prettify your URLs,
+    | simply set this option to an empty string.
     |
     */
 
@@ -44,9 +44,9 @@ return [
     | Character Encoding
     |--------------------------------------------------------------------------
     |
-    | Character encoding default yang digunakan oleh aplikasi anda. Encoding ini
-    | akan digunakan oleh kelas Str, HTML, Form, dan kelas lainnya yang perlu
-    | mengetahui jenis encoding yang akan digunakan untuk aplikasi anda.
+    | Default character encoding used by your application. This encoding will
+    | be used by the Str, HTML, Form, and other classes that need to know the
+    | character encoding used by your application.
     |
     */
 
@@ -54,11 +54,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Bahasa
+    | Application Language
     |--------------------------------------------------------------------------
     |
-    | Bahasa default aplikasi anda. Bahasa ini akan digunakan oleh kelas Lang
-    | sebagai bahasa default untuk fitur alih-bahasa.
+    | Default language used by your application. This language will be used by
+    | the Lang class as the default language for language switching features.
     |
     */
 
@@ -66,12 +66,12 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | List Bahasa
+    | Supported Languages
     |--------------------------------------------------------------------------
     |
-    | Bahasa ini mungkin juga didukung oleh aplikasi anda. Jika request URI
-    | ke aplikasi anda diawali dengan salah satu value dari list dibawah ini,
-    | bahasa default diatas akan otomatis disetel ke bahasa itu.
+    | Languages supported by your application. If the request URI starts with
+    | one of the values in this list, the default language will be automatically
+    | set to that language.
     |
     */
 
@@ -79,12 +79,11 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Zona Waktu
+    | Application Timezone
     |--------------------------------------------------------------------------
     |
-    | Zona waktu default aplikasi anda. Zona waktu akan digunakan saat rakit
-    | membutuhkan tanggal, seperti saat menulis ke file log atau ketika anda
-    | menggunakan library Date.
+    | Default timezone used by your application. This timezone will be used by
+    | the Date library.
     |
     */
 
@@ -95,10 +94,10 @@ return [
     | Download Chunk Size
     |--------------------------------------------------------------------------
     |
-    | Berapa banyak ukuran (dalam Mega Bytes) dari setiap potongan file binari
-    | yang harus dikirim ke browser saat anda mengirimkan file ke user.
+    | Chunk size (in Mega Bytes) of each binary file chunk that should be sent
+    | to the browser when you send a file to the user.
     |
-    | Opsi ini digunakan untuk Response::download().
+    | This option is used by Response::download().
     |
     */
 
@@ -109,11 +108,11 @@ return [
     | Composer Autoload
     |--------------------------------------------------------------------------
     |
-    | Lokasi file autoload milik composer. Jika anda menggunakan composer di
-    | aplikasi anda, atur opsi ini ke path dimana file "autoload.php" berada.
+    | Location of composer's autoload file. If you are using composer in your
+    | application, set this option to the path where the "autoload.php" file is.
     |
-    | Jika path tidak ditemukan, aplikasi anda akan tetap berjalan, namun,
-    | library yang anda install via composer tidak akan dikenali oleh rakit.
+    | If path is not found, your application will still run, but
+    | libraries installed via composer will not be recognized by rakit.
     |
     */
 

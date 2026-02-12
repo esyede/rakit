@@ -23,7 +23,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Response::make().
+     * Test for Response::make().
      *
      * @group system
      */
@@ -41,7 +41,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Response::view().
+     * Test for Response::view().
      *
      * @group system
      */
@@ -54,7 +54,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Response::error().
+     * Test for Response::error().
      *
      * @group system
      */
@@ -67,7 +67,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Response::prepare().
+     * Test for Response::prepare().
      *
      * @group system
      */
@@ -85,7 +85,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Response::header().
+     * Test for Response::header().
      *
      * @group system
      */
@@ -99,7 +99,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Response::status().
+     * Test for Response::status().
      *
      * @group system
      */
@@ -108,5 +108,101 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = Response::make('')->status(404);
 
         $this->assertEquals(404, $response->status());
+    }
+
+    /**
+     * Test for Response::json().
+     *
+     * @group system
+     */
+    public function testJsonMethodCreatesJsonResponse()
+    {
+        $data = ['name' => 'Budi'];
+        $response = Response::json($data);
+
+        $this->assertEquals('application/json; charset=utf-8', $response->headers()->get('Content-Type'));
+        $this->assertEquals(json_encode($data), $response->content);
+    }
+
+    /**
+     * Test for Response::jsonp().
+     *
+     * @group system
+     */
+    public function testJsonpMethodCreatesJsonpResponse()
+    {
+        $data = ['name' => 'Budi'];
+        $response = Response::jsonp('callback', $data);
+
+        $this->assertEquals('application/javascript; charset=utf-8', $response->headers()->get('Content-Type'));
+        $this->assertEquals('callback(' . json_encode($data) . ');', $response->content);
+    }
+
+    /**
+     * Test for Response::render().
+     *
+     * @group system
+     */
+    public function testRenderMethodRendersContentToString()
+    {
+        $response = Response::make('test');
+        $this->assertEquals('test', $response->render());
+    }
+
+    /**
+     * Test for Response::with_headers().
+     *
+     * @group system
+     */
+    public function testWithHeadersMethodSetsMultipleHeaders()
+    {
+        $response = Response::make('')->with_headers(['Foo' => 'bar', 'Baz' => 'qux']);
+
+        $this->assertEquals('bar', $response->headers()->get('Foo'));
+        $this->assertEquals('qux', $response->headers()->get('Baz'));
+    }
+
+    /**
+     * Test for Response::with_cookie().
+     *
+     * @group system
+     */
+    public function testWithCookieMethodSetsCookie()
+    {
+        $response = Response::make('')->with_cookie('test', 'value');
+        $this->assertInstanceOf('\System\Response', $response);
+    }
+
+    /**
+     * Test for Response::with_status_code().
+     *
+     * @group system
+     */
+    public function testWithStatusCodeMethodSetsStatus()
+    {
+        $response = Response::make('')->with_status_code(404);
+        $this->assertEquals(404, $response->status());
+    }
+
+    /**
+     * Test for Response::__toString().
+     *
+     * @group system
+     */
+    public function testToStringMethodRendersResponse()
+    {
+        $response = Response::make('test');
+        $this->assertEquals('test', (string) $response);
+    }
+
+    /**
+     * Test for Response::foundation().
+     *
+     * @group system
+     */
+    public function testFoundationMethodReturnsFoundationInstance()
+    {
+        $response = Response::make('test');
+        $this->assertInstanceOf('\System\Foundation\Http\Response', $response->foundation());
     }
 }

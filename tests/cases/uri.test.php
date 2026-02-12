@@ -28,7 +28,7 @@ class URITest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method URI::current().
+     * Test for URI::current().
      *
      * @group system
      *
@@ -37,25 +37,23 @@ class URITest extends \PHPUnit_Framework_TestCase
     public function testCorrectURIIsReturnedByCurrentMethod($uri, $expectation)
     {
         $this->setRequestUri($uri);
-
         $this->assertEquals($expectation, URI::current());
     }
 
     /**
-     * Test untuk method URI::segment().
+     * Test for URI::segment().
      *
      * @group system
      */
     public function testSegmentMethodReturnsAURISegment()
     {
         $this->setRequestUri('/user/profile');
-
         $this->assertEquals('user', URI::segment(1));
         $this->assertEquals('profile', URI::segment(2));
     }
 
     /**
-     * Data provider untuk test URI::current().
+     * Data provider for URI::current().
      */
     public function requestUriProvider()
     {
@@ -81,7 +79,7 @@ class URITest extends \PHPUnit_Framework_TestCase
         $_FILES = [];
         $_SERVER['REQUEST_URI'] = $uri;
 
-        // Pastikan server vars yang dibutuhkan ada
+        // Ensure required server variables are set
         if (!isset($_SERVER['SCRIPT_NAME'])) {
             $_SERVER['SCRIPT_NAME'] = '/index.php';
         }
@@ -95,7 +93,6 @@ class URITest extends \PHPUnit_Framework_TestCase
         URI::$segments = [];
 
         Request::$foundation = FoundationRequest::createFromGlobals();
-
         // Reset cache foundation
         Request::reset_foundation();
     }

@@ -11,7 +11,7 @@ class Bar
     private $contentId;
 
     /**
-     * Tambahkan panel baru.
+     * Add a panel.
      *
      * @param object $panel
      * @param string $id
@@ -33,7 +33,7 @@ class Bar
     }
 
     /**
-     * Ambil panel berdasarkan id.
+     * Get a panel by ID.
      *
      * @param string $id
      *
@@ -45,7 +45,7 @@ class Bar
     }
 
     /**
-     * Render loading tag.
+     * Render debug bar loader.
      *
      * @return void
      */
@@ -194,7 +194,7 @@ class Bar
     }
 
     /**
-     * Render aset debug bar.
+     * Render or dispatch assets.
      *
      * @return bool
      */

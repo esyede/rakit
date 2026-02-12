@@ -7,42 +7,42 @@ defined('DS') or exit('No direct access.');
 class Lottery
 {
     /**
-     * Jumlah ekspektasi kemenangan.
+     * Contains the chances of winning.
      *
      * @var int|float
      */
     protected $chances;
 
     /**
-     * Jumlah peluang potensi kemenangan.
+     * Contains the total number of chances.
      *
      * @var int|null
      */
     protected $out_of;
 
     /**
-     * Callback ketika menang.
+     * Callback when winning.
      *
      * @var null|callable
      */
     protected $winner;
 
     /**
-     * Callback ketika kalah.
+     * Callback when losing.
      *
      * @var null|callable
      */
     protected $loser;
 
     /**
-     * Generator hasil.
+     * Result generator.
      *
      * @var callable|null
      */
     protected static $factory;
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param int|float $chances
      * @param int|null  $out_of
@@ -60,7 +60,7 @@ class Lottery
     }
 
     /**
-     * Buat instance baru.
+     * Create a new instance.
      *
      * @param int|float $chances
      * @param int|null  $out_of
@@ -73,7 +73,7 @@ class Lottery
     }
 
     /**
-     * Set callback ketika menang.
+     * Set callback when winning.
      *
      * @param callable $callback
      *
@@ -86,7 +86,7 @@ class Lottery
     }
 
     /**
-     * Set callback ketika kalah.
+     * Set callback when losing.
      *
      * @param callable $callback
      *
@@ -99,7 +99,7 @@ class Lottery
     }
 
     /**
-     * Jalankan.
+     * Invoke the lottery.
      *
      * @param mixed ...$args
      *
@@ -112,7 +112,7 @@ class Lottery
     }
 
     /**
-     * Jalankan.
+     * Run the lottery.
      *
      * @param null|int $times
      *
@@ -134,7 +134,7 @@ class Lottery
     }
 
     /**
-     * Set callback ketika menang atau kalah, secara acak.
+     * Set callback when winning or losing, randomly.
      *
      * @param mixed ...$args
      *
@@ -152,7 +152,7 @@ class Lottery
     }
 
     /**
-     * Cek apakah hasilnya menang.
+     * Check if the result is a win.
      *
      * @return bool
      */
@@ -163,7 +163,7 @@ class Lottery
     }
 
     /**
-     * Generator hasil.
+     * Result generator.
      *
      * @return callable
      */
@@ -181,7 +181,7 @@ class Lottery
     }
 
     /**
-     * Paksa agar hasilnya menang terus.
+     * Force the result to always win.
      *
      * @param callable|null $callback
      *
@@ -202,7 +202,7 @@ class Lottery
     }
 
     /**
-     * Paksa agar hasilnya kalah terus.
+     * Force the result to always lose.
      *
      * @param callable|null $callback
      *
@@ -223,7 +223,7 @@ class Lottery
     }
 
     /**
-     * Atur urutan yang akan digunakan untuk menentukan hasil (alias).
+     * Alias for sequence.
      *
      * @param array         $sequence
      * @param callable|null $when_missing
@@ -236,7 +236,7 @@ class Lottery
     }
 
     /**
-     * Atur urutan yang akan digunakan untuk menentukan hasil.
+     * Set the sequence to be used for determining the result.
      *
      * @param  array  $sequence
      * @param  callable|null  $when_missing
@@ -261,7 +261,7 @@ class Lottery
     }
 
     /**
-     * Menunjukkan bahwa hasil harus ditentukan secara normal (alias).
+     * Alias for normal.
      *
      * @return void
      */
@@ -271,7 +271,7 @@ class Lottery
     }
 
     /**
-     * Menunjukkan bahwa hasil harus ditentukan secara normal.
+     * Indicates that the result should be determined normally.
      *
      * @return void
      */
@@ -281,7 +281,7 @@ class Lottery
     }
 
     /**
-     * Set generator yang harus digunakan untuk hasil normal.
+     * Set the result generator.
      *
      * @param callable $factory
      *

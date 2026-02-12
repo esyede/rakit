@@ -81,7 +81,7 @@ class Response
     ];
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param string $content
      * @param int    $status
@@ -100,13 +100,7 @@ class Response
     }
 
     /**
-     * Factory method untuk chainability.
-     *
-     * <code>
-     *
-     *     return Response::create($body, 200)->setSharedMaxAge(300);
-     *
-     * </code>
+     * Factory method for chainability.
      *
      * @param string $content
      * @param int    $status
@@ -120,7 +114,7 @@ class Response
     }
 
     /**
-     * Mereturn object Response sebagai string.
+     * Get the Response object as string.
      *
      * @return string
      */
@@ -131,7 +125,7 @@ class Response
     }
 
     /**
-     * Clone instance Response saat ini.
+     * Clone the current Response instance.
      */
     public function __clone()
     {
@@ -139,8 +133,7 @@ class Response
     }
 
     /**
-     * Prepares the Response before it is sent to the client.
-     * Siapkan response untuk dikirim ke klien (mengikuti RFC 2616).
+     * Prepares the Response before it is sent to the client (comply with RFC 2616).
      *
      * @param Request $request
      *
@@ -202,7 +195,7 @@ class Response
     }
 
     /**
-     * Kirim HTTP header.
+     * Send HTTP headers.
      *
      * @return $this
      */
@@ -251,7 +244,7 @@ class Response
     }
 
     /**
-     * Kirim konten response ke browser.
+     * Send response content to the browser.
      *
      * @return $this
      */
@@ -263,7 +256,7 @@ class Response
     }
 
     /**
-     * Kirim response saat ini.
+     * Send the current response.
      *
      * @param bool $finishRequest
      *
@@ -282,8 +275,8 @@ class Response
     }
 
     /**
-     * Set konten response.
-     * (berupa string, angka atau object yang mengimplementasikan magic method __toString()).
+     * Set response content.
+     * (Can be a string, number, or object implementing the __toString() magic method).
      *
      * @param mixed $content
      *
@@ -309,7 +302,7 @@ class Response
     }
 
     /**
-     * Ambil konten response saat ini.
+     * Get the current response content.
      *
      * @return string
      */
@@ -319,7 +312,7 @@ class Response
     }
 
     /**
-     * Set versi protokol http (1.0 atau 1.1).
+     * Set HTTP protocol version (1.0 or 1.1).
      *
      * @param string $version
      *
@@ -332,7 +325,7 @@ class Response
     }
 
     /**
-     * Ambil versi protokol http.
+     * Get HTTP protocol version.
      *
      * @return string
      */
@@ -372,7 +365,7 @@ class Response
     }
 
     /**
-     * Ambil status code saat ini.
+     * Get the current status code.
      *
      * @return string
      */
@@ -395,7 +388,7 @@ class Response
     }
 
     /**
-     * Ambil charset.
+     * Get charset.
      *
      * @return string
      */
@@ -405,15 +398,13 @@ class Response
     }
 
     /**
-     * Periksa apakah response bisa di-cache atau tidak.
+     * Check if the response can be cached or not.
      *
      * @return bool
      */
     public function isCacheable()
     {
-        $cacheable = [200, 203, 300, 301, 302, 404, 410];
-
-        if (!in_array($this->statusCode, $cacheable)) {
+        if (!in_array($this->statusCode, [200, 203, 300, 301, 302, 404, 410])) {
             return false;
         }
 
@@ -428,8 +419,8 @@ class Response
     }
 
     /**
-     * Periksa apakah response masih 'fresh'.
-     * Sebuah response dianggap fresh ketika time-to-live-nya lebih besar dari nol.
+     * Check if the response is still 'fresh'.
+     * A response is considered fresh when its time-to-live is greater than zero.
      *
      * @return bool
      */
@@ -439,7 +430,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response memiliki header validasi.
+     * Check if the response has validation headers.
      *
      * @return bool
      */
@@ -449,8 +440,8 @@ class Response
     }
 
     /**
-     * Tandai response sebagai 'private'.
-     * Ini akan membuat response tidak dapat digunakan untuk melayani klien lain.
+     * Mark the response as 'private'.
+     * This will make the response unusable for serving other clients.
      *
      * @return $this
      */
@@ -463,8 +454,8 @@ class Response
     }
 
     /**
-     * Tandai response sebagai 'public'.
-     * Ini akan membuat response dapat digunakan untuk melayani klien lain.
+     * Mark the response as 'public'.
+     * This will make the response usable for serving other clients.
      *
      * @return $this
      */
@@ -477,7 +468,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response harus di validasi ulang menurut cachenya.
+     * Check if the response must be revalidated according to its cache.
      *
      * @return bool
      */
@@ -488,7 +479,7 @@ class Response
     }
 
     /**
-     * Ambil value header Date sebagai instance object \DateTime.
+     * Get the Date header value as a \DateTime object instance.
      *
      * @return \DateTime
      */
@@ -498,7 +489,7 @@ class Response
     }
 
     /**
-     * Set header Date.
+     * Set the Date header.
      *
      * @param \DateTime $date
      *
@@ -513,7 +504,7 @@ class Response
     }
 
     /**
-     * Mereturn usia response.
+     * Return the response age.
      *
      * @return int
      */
@@ -524,7 +515,7 @@ class Response
     }
 
     /**
-     * Tandai response sebagai 'sudah kedaluwarsa'.
+     * Mark the response as 'expired'.
      *
      * @return $this
      */
@@ -538,7 +529,7 @@ class Response
     }
 
     /**
-     * Ambil value header Expires sebagai instance object \DateTime.
+     * Get the Expires header value as a \DateTime object instance.
      *
      * @return \DateTime
      */
@@ -548,14 +539,14 @@ class Response
     }
 
     /**
-     * Set value header Expires.
-     * jika yang dioper adalah NULL, header Expires akan dihapus.
+     * Set the Expires header value.
+     * If NULL is passed, the Expires header will be removed.
      *
-     * @param \DateTime $date
+     * @param \DateTime|null $date
      *
      * @return $this
      */
-    public function setExpires(\DateTime $date = null)
+    public function setExpires($date = null)
     {
         if (null === $date) {
             $this->headers->remove('Expires');
@@ -569,7 +560,7 @@ class Response
     }
 
     /**
-     * Ambil value header Max-Age.
+     * Get the Max-Age header value.
      *
      * @return int|null
      */
@@ -589,7 +580,7 @@ class Response
     }
 
     /**
-     * Set value header Max-Age.
+     * Set the Max-Age header value.
      *
      * @param int $value
      *
@@ -602,7 +593,7 @@ class Response
     }
 
     /**
-     * Set value header S-MaxAge (shared max-age).
+     * Set the S-MaxAge (shared max-age) header value.
      *
      * @param int $value
      *
@@ -617,7 +608,7 @@ class Response
     }
 
     /**
-     * Ambil time-to-live (TTL) response dalam detik.
+     * Get the response time-to-live (TTL) in seconds.
      *
      * @return int|null
      */
@@ -628,7 +619,7 @@ class Response
     }
 
     /**
-     * Set TTL untuk shared max-age (s-maxage).
+     * Set TTL for shared max-age (s-maxage).
      *
      * @param int $seconds
      *
@@ -641,7 +632,7 @@ class Response
     }
 
     /**
-     * Set TTL untuk cache private/client (max-age).
+     * Set TTL for private/client cache (max-age).
      *
      * @param int $seconds
      *
@@ -654,7 +645,7 @@ class Response
     }
 
     /**
-     * Ambil value header Last-Modified dalam bentuk object \DateTime.
+     * Get the Last-Modified header value as a \DateTime object.
      *
      * @return \DateTime
      */
@@ -664,14 +655,14 @@ class Response
     }
 
     /**
-     * Set value header Last-Modified
-     * Jika yang dioper adalah NULL, maka header Last-Modified akan dihapus.
+     * Set the Last-Modified header value.
+     * If NULL is passed, the Last-Modified header will be removed.
      *
-     * @param \DateTime $date
+     * @param \DateTime|null $date
      *
      * @return $this
      */
-    public function setLastModified(\DateTime $date = null)
+    public function setLastModified($date = null)
     {
         if (null === $date) {
             $this->headers->remove('Last-Modified');
@@ -685,7 +676,7 @@ class Response
     }
 
     /**
-     * Ambil value header ETag.
+     * Get the ETag header value.
      *
      * @return string
      */
@@ -695,7 +686,7 @@ class Response
     }
 
     /**
-     * Set value header ETag.
+     * Set the ETag header value.
      *
      * @param string $etag
      * @param bool   $weak
@@ -715,8 +706,8 @@ class Response
     }
 
     /**
-     * Set header - header untuk caching.
-     * Opsi yang tersedia adalah: etag, last_modified, max_age, s_maxage, private dan public.
+     * Set headers for caching.
+     * Available options are: etag, last_modified, max_age, s_maxage, private, and public.
      *
      * @param array $options
      *
@@ -769,7 +760,7 @@ class Response
     }
 
     /**
-     * Modifikasi response agar mengikuti aturan http status 304.
+     * Modify the response to follow HTTP status 304 rules.
      *
      * @return $this
      */
@@ -796,7 +787,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response memiliki header Vary.
+     * Check if the response has a Vary header.
      *
      * @return bool
      */
@@ -806,7 +797,7 @@ class Response
     }
 
     /**
-     * Ambil value header Vary.
+     * Get the Vary header value.
      *
      * @return array
      */
@@ -817,7 +808,7 @@ class Response
     }
 
     /**
-     * Sets value header Vary.
+     * Set the Vary header value.
      *
      * @param string|array $headers
      * @param bool         $replace
@@ -831,9 +822,7 @@ class Response
     }
 
     /**
-     * Periksa apakah validator response (ETag, Last-Modified) tidak berubah.
-     *
-     * Jika
+     * Check if the response validators (ETag, Last-Modified) have not changed.
      *
      * @param Request $request
      *
@@ -864,7 +853,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini invalid.
+     * Check if the current response is invalid.
      *
      * @return bool
      */
@@ -874,7 +863,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini informasional.
+     * Check if the current response is informational.
      *
      * @return bool
      */
@@ -884,7 +873,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini sukses.
+     * Check if the current response is successful.
      *
      * @return bool
      */
@@ -894,7 +883,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini adalah redireksi.
+     * Check if the current response is a redirection.
      *
      * @return bool
      */
@@ -904,7 +893,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini adalah client error.
+     * Check if the current response is a client error.
      *
      * @return bool
      */
@@ -914,7 +903,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini adalah server error.
+     * Check if the current response is a server error.
      *
      * @return bool
      */
@@ -924,7 +913,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini OK.
+     * Check if the current response is OK.
      *
      * @return bool
      */
@@ -934,7 +923,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini forbidden.
+     * Check if the current response is forbidden.
      *
      * @return bool
      */
@@ -944,7 +933,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini not found.
+     * Check if the current response is not found.
      *
      * @return bool
      */
@@ -954,7 +943,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini merupakan redireksi.
+     * Check if the current response is a redirection.
      *
      * @param string $location
      *
@@ -970,7 +959,7 @@ class Response
     }
 
     /**
-     * Periksa apakah response saat ini empty.
+     * Check if the current response is empty.
      *
      * @return bool
      */

@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Crypter
 {
     /**
-     * Enkripsi string.
+     * Encrypt a string.
      *
      * @param string $value
      *
@@ -34,7 +34,7 @@ class Crypter
     }
 
     /**
-     * Dekripsi string.
+     * Decrypt a string.
      *
      * @param string $value
      *
@@ -53,7 +53,7 @@ class Crypter
     }
 
     /**
-     * Cek kesamaan antara 2 string.
+     * Check equality of two strings.
      *
      * @param string $known
      * @param string $compared
@@ -83,7 +83,7 @@ class Crypter
     }
 
     /**
-     * Ambil data payload.
+     * Get the payload.
      *
      * @param string $value
      *
@@ -107,7 +107,7 @@ class Crypter
     }
 
     /**
-     * Validasi data payload.
+     * Validate the payload.
      *
      * @param mixed $value
      *

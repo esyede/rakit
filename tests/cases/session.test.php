@@ -27,7 +27,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Session::__callStatic().
+     * Test for Session::__callStatic().
      *
      * @group system
      */
@@ -38,7 +38,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Session::started().
+     * Test for Session::started().
      *
      * @group system
      */
@@ -47,12 +47,11 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Session::started());
 
         Session::$instance = 'foo';
-
         $this->assertTrue(Session::started());
     }
 
     /**
-     * Test untuk method Payload::load() - 1.
+     * Test for Payload::load() - 1.
      *
      * @group system
      */
@@ -65,7 +64,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Payload::load() - 2.
+     * Test for Payload::load() - 2.
      *
      * @group system
      */
@@ -75,18 +74,14 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $session = $this->getSession();
         $session['last_activity'] = time() - 10000;
 
-        $payload->driver->expects($this->any())
-            ->method('load')
-            ->will($this->returnValue($session));
-
+        $payload->driver->expects($this->any())->method('load')->will($this->returnValue($session));
         $payload->load('foo');
-
         $this->verifyNewSession($payload);
         $this->assertTrue($payload->session['id'] !== $session['id']);
     }
 
     /**
-     * Pastikan bahwa session saat ini merupakan session baru.
+     * Test helper to verify new session.
      *
      * @param Payload $payload
      *
@@ -102,7 +97,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Payload::load() - 3.
+     * Test for Payload::load() - 3.
      *
      * @group system
      */
@@ -110,18 +105,13 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $payload = $this->getPayload();
         $session = $this->getSession();
-
-        $payload->driver->expects($this->any())
-            ->method('load')
-            ->will($this->returnValue($session));
-
+        $payload->driver->expects($this->any())->method('load')->will($this->returnValue($session));
         $payload->load('foo');
-
         $this->assertEquals($session, $payload->session);
     }
 
     /**
-     * Test untuk method Payload::load() - 4.
+     * Test for Payload::load() - 4.
      *
      * @group system
      */
@@ -132,10 +122,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         unset($session['data'][Session::TOKEN]);
 
-        $payload->driver->expects($this->any())
-            ->method('load')
-            ->will($this->returnValue($session));
-
+        $payload->driver->expects($this->any())->method('load')->will($this->returnValue($session));
         $payload->load('foo');
 
         $this->assertEquals('foo', $payload->session['id']);
@@ -143,7 +130,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Session::has() dan Session::get().
+     * Test for Session::has() and Session::get().
      *
      * @group system
      */
@@ -166,7 +153,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test pengambilan data session.
+     * Test for Session::put(), Session::flash(), Session::reflash(), and Session::keep().
      *
      * @group system
      */
@@ -176,28 +163,28 @@ class SessionTest extends \PHPUnit_Framework_TestCase
 
         $payload->session = $this->getSession();
 
-        // Test untuk method Session::put() and Session::flash().
+        // Test for Session::put() and Session::flash().
         $payload->put('name', 'Weldon');
         $this->assertEquals('Weldon', $payload->session['data']['name']);
 
         $payload->flash('language', 'php');
         $this->assertEquals('php', $payload->session['data'][':new:']['language']);
 
-        // Test untuk method Session::reflash().
+        // Test for Session::reflash().
         $payload->session['data'][':new:'] = ['name' => 'Budi'];
         $payload->session['data'][':old:'] = ['age' => 25];
         $payload->reflash();
 
         $this->assertEquals(['name' => 'Budi', 'age' => 25], $payload->session['data'][':new:']);
 
-        // Test untuk method Session::keep().
+        // Test for Session::keep().
         $payload->session['data'][':new:'] = [];
         $payload->keep(['age']);
         $this->assertEquals(25, $payload->session['data'][':new:']['age']);
     }
 
     /**
-     * Test untuk method Payload::forget().
+     * Test for Payload::forget().
      *
      * @group system
      */
@@ -205,16 +192,14 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $payload = $this->getPayload();
         $payload->session = $this->getSession();
-
         $this->assertTrue(isset($payload->session['data']['name']));
 
         $payload->forget('name');
-
         $this->assertFalse(isset($payload->session['data']['name']));
     }
 
     /**
-     * Test untuk method Payload::flush().
+     * Test for Payload::flush().
      *
      * @group system
      */
@@ -222,7 +207,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $payload = $this->getPayload();
         $payload->session = $this->getSession();
-
         $this->assertTrue(isset($payload->session['data']['name']));
 
         $payload->flush();
@@ -234,7 +218,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Payload::regenerate().
+     * Test for Payload::regenerate().
      *
      * @group system
      */
@@ -252,7 +236,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Payload::token().
+     * Test for Payload::token().
      *
      * @group system
      */
@@ -260,12 +244,11 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $payload = $this->getPayload();
         $payload->session = $this->getSession();
-
         $this->assertEquals('bar', $payload->token());
     }
 
     /**
-     * Test untuk method Payload::save() - 1.
+     * Test for Payload::save() - 1.
      *
      * @group system
      */
@@ -283,23 +266,20 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $expect['data'][':old:'] = $session['data'][':new:'];
         $expect['data'][':new:'] = [];
 
-        $payload->driver->expects($this->once())
-            ->method('save')
-            ->with(
-                $this->equalTo($expect),
-                $this->equalTo($config),
-                $this->equalTo(true)
-            );
+        $payload->driver->expects($this->once())->method('save')->with(
+            $this->equalTo($expect),
+            $this->equalTo($config),
+            $this->equalTo(true)
+        );
 
         $payload->save();
-
         $this->assertEquals($session['data'][':new:'], $payload->session['data'][':old:']);
     }
 
 
 
     /**
-     * Test untuk method Payload::save() - 4.
+     * Test for Payload::save() - 4.
      *
      * @group system
      */
@@ -310,13 +290,15 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $payload->save();
 
         $this->assertTrue(isset(Cookie::$jar[Config::get('session.cookie')]));
-
         $cookie = Cookie::$jar[Config::get('session.cookie')];
+
         $this->assertEquals('foo', Crypter::decrypt($cookie['value']));
 
-        // Tidak bisa di-test karena default cookie expiration di PHP disimpan
-        // dalam bentuk timestamp sedangkan rakit menggunakan menit.
-        // $this->assertEquals(Config::get('session.lifetime'), $cookie['expiration']);
+        // Count expiration
+        $expected = time() + (Config::get('session.lifetime') * 60);
+        // Give a 2 seconds leeway for test execution time
+        $this->assertGreaterThanOrEqual($expected - 2, $cookie['expiration']);
+        $this->assertLessThanOrEqual($expected + 2, $cookie['expiration']);
 
         $this->assertEquals(Config::get('session.domain'), $cookie['domain']);
         $this->assertEquals(Config::get('session.path'), $cookie['path']);
@@ -324,7 +306,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Session::activity().
+     * Test for Session::activity().
      *
      * @group system
      */
@@ -332,12 +314,11 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $payload = $this->getPayload();
         $payload->session['last_activity'] = 10;
-
         $this->assertEquals(10, $payload->activity());
     }
 
     /**
-     * Ambil instance payload baru.
+     * Get instance of Payload with mock driver.
      *
      * @return Payload
      */
@@ -347,36 +328,25 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ambil instance mock driver baru.
+     * Get mock driver.
      *
      * @return Driver
      */
     protected function getMockDriver()
     {
         $mock = $this->getMock('\System\Session\Drivers\Driver', ['id', 'load', 'save', 'delete']);
-
-        $mock->expects($this->any())
-            ->method('id')
-            ->will($this->returnValue(Str::random(40)));
-
+        $mock->expects($this->any())->method('id')->will($this->returnValue(Str::random(40)));
         return $mock;
     }
 
     /**
-     * Ambil data dummy session.
+     * Get a sample session array.
      *
      * @return array
      */
     protected function getSession()
     {
-        $data = [
-            'name' => 'Budi',
-            'age' => 25,
-            Session::TOKEN => 'bar',
-            ':new:' => ['votes' => 10],
-            ':old:' => ['city' => 'JKT'],
-        ];
-
+        $data = ['name' => 'Budi', 'age' => 25, Session::TOKEN => 'bar', ':new:' => ['votes' => 10], ':old:' => ['city' => 'JKT']];
         return ['id' => 'foo', 'last_activity' => time(), 'data' => $data];
     }
 }

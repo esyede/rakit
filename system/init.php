@@ -6,9 +6,9 @@ defined('DS') or exit('No direct access.');
 
 /*
 |--------------------------------------------------------------------------
-| Buat / Baca Rakit Key
+| Auto-generate App Key
 |--------------------------------------------------------------------------
-| Pastikan file key.php sudah ada di base path, buat jika belum ada.
+| Ensure the key.php file exists in the base path, create it if it doesn't.
 */
 
 $dir = __DIR__ . DS . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
@@ -51,6 +51,7 @@ if (is_file($path = path('rakit_key'))) {
 
         foreach ($cookies as $cookie) {
             $parts = explode('=', $cookie);
+
             if (PHP_VERSION_ID < 70300) {
                 setcookie(trim($parts[0]), '', time() - 2628000, '/; samesite=Lax');
                 setcookie(trim($parts[0]), '', time() - 2628000);

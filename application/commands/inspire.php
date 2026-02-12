@@ -5,7 +5,7 @@ defined('DS') or exit('No direct access.');
 class Inspire_Command extends Command
 {
     /**
-     * Contoh command. Jalankan dengan 'php rakit inspire'.
+     * Sample console command. Run with 'php rakit inspire'.
      *
      * @param array $arguments
      *
@@ -26,7 +26,7 @@ class Inspire_Command extends Command
     }
 
     /**
-     * List quotes.
+     * Quotes.
      *
      * @return array
      */

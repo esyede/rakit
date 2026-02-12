@@ -7,87 +7,87 @@ defined('DS') or exit('No direct access.');
 class View implements \ArrayAccess
 {
     /**
-     * Nama event view loader.
+     * Name of the view loader event.
      *
      * @var string
      */
     const LOADER = 'rakit.view.loader';
 
     /**
-     * Nama event view engine.
+     * Name of the view engine event.
      *
      * @var string
      */
     const ENGINE = 'rakit.view.engine';
 
     /**
-     * Berisi nama view.
+     * Contains the view name.
      *
      * @var string
      */
     public $view;
 
     /**
-     * Berisi data-data view.
+     * Contains the view data.
      *
      * @var array
      */
     public $data;
 
     /**
-     * Berisi path (absolut) view di disk.
+     * Contains the (absolute) view path on disk.
      *
      * @var string
      */
     public $path;
 
     /**
-     * Berisi data-data view yang di-share.
+     * Contains the view data that will be shared.
      *
      * @var array
      */
     public static $shared = [];
 
     /**
-     * Berisi list nama-nama view terdaftar.
+     * Contains the list of registered view names.
      *
      * @var array
      */
     public static $names = [];
 
     /**
-     * Berisi list konten cache view.
+     * Contains the list of cached view contents.
      *
      * @var array
      */
     public static $cache = [];
 
     /**
-     * Berisi view terakhir yang akan di-render.
+     * Contains the view that will be rendered last.
      *
      * @var string
      */
     public static $last;
 
     /**
-     * Counter operasi render view.
+     * The number of times a view has been rendered.
      *
      * @var int
      */
     public static $rendered = 0;
 
     /**
-     * Buat instance view baru.
+     * Constructor.
      *
      * <code>
      *
-     *      // Buat sebuah instance view baru
+     *      // Create a new view instance
      *      $view = new View('home.index');
      *
-     *      // Buat sebuah instance view baru (milik paket)
+     *      // Create a new view instance (package)
      *      $view = new View('admin::home.index');
      *
-     *      // Buat sebuah instance view baru dengan view data
+     *      // Create a new view instance with view data
      *      $view = new View('home.index', ['name' => 'Budi']);
      *
      * </code>
@@ -109,7 +109,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Periksa apakah view yang diberikan ada atau tidak.
+     * Check if the given view exists.
      *
      * @param string $view
      * @param bool   $return_path
@@ -128,7 +128,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Ambil path (absolut) view di disk.
+     * Get the absolute path of the view on disk.
      *
      * @param string $view
      *
@@ -144,13 +144,13 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Ambil path ke view menggunakan kovensi default.
+     * Get the absolute path to the view using the default convention.
      *
      * @param string $package
      * @param string $view
      * @param string $directory
      *
-     * @return string
+     * @return string|null
      */
     public static function file($package, $view, $directory)
     {
@@ -163,20 +163,22 @@ class View implements \ArrayAccess
         if (is_file($path = $directory . $view . '.blade.php')) {
             return $path;
         }
+
+        return null;
     }
 
     /**
-     * Buat sebuah instance view baru.
+     * Create a new instance view.
      *
      * <code>
      *
-     *      // Buat sebuah instance view baru
+     *      // Create a new view instance
      *      $view = View::make('home.index');
      *
-     *      // Buat sebuah instance view baru (milik paket)
+     *      // Create a new view instance (belonging to a package)
      *      $view = View::make('admin::home.index');
      *
-     *      // Buat sebuah instance view baru dengan view data
+     *      // Create a new view instance with view data
      *      $view = View::make('home.index', ['name' => 'Budi']);
      *
      * </code>
@@ -192,14 +194,14 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Buat sebuah instance view baru dari sebuah named view.
+     * Create a new instance view from a named view.
      *
      * <code>
      *
-     *      // Buat sebuah instance view baru dari sebuah named view
+     *      // Create a new view instance from a named view
      *      $view = View::of('profile');
      *
-     *      // Buat sebuah instance view baru dari sebuah named view dengan view data
+     *      // Create a new view instance from a named view with view data
      *      $view = View::of('profile', ['name' => 'Budi']);
      *
      * </code>
@@ -215,14 +217,14 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Beri nama ke sebuah view.
+     * Give a name to a view.
      *
      * <code>
      *
-     *      // Beri nama ke sebuah view
+     *      // Give a name to a view
      *      View::name('partials.profile', 'profile');
      *
-     *      // Resolve instance ke sebuah named view
+     *      // Resolve instance to a named view
      *      $view = View::of('profile');
      *
      * </code>
@@ -236,13 +238,13 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Daftarkan view composer menggunakan kelas \System\Event.
+     * Register view composer using the Event class.
      *
      * <code>
      *
-     *      // Daftarkan view composer untuk view 'home.index'
+     *      // Register view composer for 'home.index'
      *      View::composer('home.index', function ($view) {
-     *          $view['title'] = 'Beranda';
+     *          $view['title'] = 'Homepage';
      *      });
      *
      * </code>
@@ -260,7 +262,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Ambil hasil render view parsial dari sebuah loop.
+     * Get the rendered content of a partial view from a loop.
      *
      * @param string $view
      * @param array  $data
@@ -285,7 +287,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Ambil string konten hasil evaluasi dari sebuah view.
+     * Render a view.
      *
      * @return string
      */
@@ -310,11 +312,24 @@ class View implements \ArrayAccess
             Section::$stacks = [];
         }
 
+        // Track view rendering for debugger
+        if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
+            if (!\System\Foundation\Oops\Debugger::$productionMode) {
+                \System\Foundation\Oops\Collectors::trackView(
+                    $this->view,
+                    $this->path,
+                    $this->data,
+                    0,
+                    strlen($contents)
+                );
+            }
+        }
+
         return $contents;
     }
 
     /**
-     * Ambil konten hasil evaluasi sebuah view.
+     * Get the rendered content of a view instance.
      *
      * @return string
      */
@@ -341,7 +356,7 @@ class View implements \ArrayAccess
             return $content;
         } catch (\Throwable $e) {
             ob_get_clean();
-            throw new \Exception($e->getMessage(), $e->getCode(), $e);
+            throw $e;
         } catch (\Exception $e) {
             ob_get_clean();
             throw $e;
@@ -349,8 +364,8 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Ambil array view data untuk instance view.
-     * Shared view data akan dicampur dengan view data biasa.
+     * Get the view instance data.
+     * Shared view data will be merged.
      *
      * @return array
      */
@@ -368,14 +383,14 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Tambahkan instance view ke view data.
+     * Add a view instance to the view data.
      *
      * <code>
      *
-     *      // Tambahkan instance view ke view data (cara 1)
+     *      // Add a view instance to the view data (method 1)
      *      $view = View::make('foo')->nest('footer', 'partials.footer');
      *
-     *      // Tambahkan instance view ke view data (cara 2)
+     *      // Add a view instance to the view data (method 2)
      *      $view = View::make('foo')->with('footer', View::make('partials.footer'));
      *
      * </code>
@@ -392,8 +407,8 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Tambahkan sebuah data key-value ke view data,
-     * data ini bisa diakses di view sebagai variabel.
+     * Bind a key-value data into the view,
+     * This data can be accessed in the view as a variable.
      *
      * @param string $key
      * @param mixed  $value
@@ -412,7 +427,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Chainable View::share().
+     * Alias for share().
      *
      * @param string $key
      * @param mixed  $value
@@ -426,8 +441,8 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Tambahkan sebuah data key-value ke shared view data,
-     * Shared view data bisa diakses oleh semua view di lingkup aplikasi.
+     * Add a data into shared view data,
+     * Shared view data can be accessed by all views in the application scope.
      *
      * @param string $key
      * @param mixed  $value
@@ -438,7 +453,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Bersihkan seluruh file hasil kompilasi blade.
+     * Clear all compiled blade files.
      */
     public static function flush()
     {
@@ -452,7 +467,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Implementasi ArrayAccess::offsetExists().
+     * ArrayAccess implementation
      */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
@@ -461,7 +476,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Implementasi ArrayAccess::offsetGet().
+     * ArrayAccess implementation
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -470,7 +485,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Implementasi ArrayAccess::offsetSet().
+     * ArrayAccess implementation
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
@@ -479,7 +494,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Implementasi ArrayAccess::offsetUnset().
+     * ArrayAccess implementation
      */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
@@ -488,7 +503,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Magic Method getter.
+     * Magic method implementation.
      */
     public function __get($key)
     {
@@ -496,7 +511,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Magic Method setter.
+     * Magic method implementation.
      */
     public function __set($key, $value)
     {
@@ -504,7 +519,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Magic Method untuk data checking.
+     * Magic method implementation.
      */
     public function __isset($key)
     {
@@ -512,7 +527,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Mereturn string hasil eveluasi view.
+     * Returns the rendered view.
      *
      * @return string
      */
@@ -522,8 +537,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Magic Method menangani pemanggilan method secara dinamis.
-     * Method ini menangai pemanggilan helper 'with_xxx'.
+     * Handle dynamic method calls.
      *
      * @return $this
      */

@@ -9,7 +9,7 @@ use System\Database\Query;
 class Postgres extends Grammar
 {
     /**
-     * Compile sql INSERT dari instance query dan return ID-nya.
+     * Compile the SQL to insert a new record and get the ID of the inserted record.
      *
      * @param Query  $query
      * @param array  $values

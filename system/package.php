@@ -9,35 +9,35 @@ use System\Routing\Router;
 class Package
 {
     /**
-     * Berisi list paket milik aplikasi.
+     * Contains list of packages.
      *
      * @var array
      */
     public static $packages = [];
 
     /**
-     * Berisi cache elemen-elemen paket setelah diparsing.
+     * Contains cached elements after parsing.
      *
      * @var array
      */
     public static $elements = [];
 
     /**
-     * Berisi list paket yang telah di-boot.
+     * Contains list of packages that have been booted.
      *
      * @var array
      */
     public static $booted = [];
 
     /**
-     * Berisi list paket yang membawa file routes.php tersendiri.
+     * Contains list of packages that have routes.
      *
      * @var array
      */
     public static $routed = [];
 
     /**
-     * Daftarkan paket ke aplikasi.
+     * Register a package.
      *
      * @param string       $package
      * @param string|array $config
@@ -63,8 +63,7 @@ class Package
     }
 
     /**
-     * Muat paket dengan menjalankan file boot-up miliknya (file 'boot.php')
-     * Jika sebelumnya si paket sudah di-boot, langkah ini akan di-skip.
+     * Load a package by name.
      *
      * @param string $package
      */
@@ -92,7 +91,7 @@ class Package
     }
 
     /**
-     * Muat file routes untuk paket yang diberikan.
+     * Load the route file for the given package.
      *
      * @param string $package
      */
@@ -110,7 +109,7 @@ class Package
             static::$routed[] = $package;
             require $directory . 'routes.php';
 
-            // Muat file event, middleware dan view composer.
+            // Load event, middleware and view composer files.
             array_map(function ($file) use ($directory) {
                 if (is_file($directory . $file)) {
                     require $directory . $file;
@@ -120,7 +119,7 @@ class Package
     }
 
     /**
-     * Daftarkan konfigurasi autoloading untuk paket yang diberikan.
+     * Register the autoload configuration for the given package.
      *
      * @param string $package
      * @param array  $config
@@ -139,7 +138,7 @@ class Package
     }
 
     /**
-     * Bekukan sebuah paket agar tidak bisa di-boot.
+     * Freeze (disable) a package so it cannot be booted.
      *
      * @param string $package
      */
@@ -149,8 +148,8 @@ class Package
     }
 
     /**
-     * Tentukan paket apa yang harus menangani URI yang diberikan.
-     * Package default (application) akan direturn jika belum ada paket lain yang ditugaskan.
+     * Determine which package should handle the given URI.
+     * The default package (application) will be returned if no other package is assigned.
      *
      * @param string $uri
      *
@@ -174,7 +173,7 @@ class Package
     }
 
     /**
-     * Cek ada atau tidaknya suatu paket didalam direktori packages/.
+     * Check if a package exists.
      *
      * @param string $package
      *
@@ -186,7 +185,7 @@ class Package
     }
 
     /**
-     * Cek apakah paket sudah di-boot atau belum untuk request saat ini.
+     * Check if a package has been booted for the current request.
      *
      * @param string $package
      */
@@ -196,7 +195,7 @@ class Package
     }
 
     /**
-     * Cek apakah file routes milik paket yang diberikan sudah dimuat atau belum.
+     * Check if a package has been routed for the current request.
      *
      * @param string $package
      */
@@ -206,7 +205,7 @@ class Package
     }
 
     /**
-     * Ambil prefix identifier untuk paket yang diberikan.
+     * Get the prefix identifier for the given package.
      *
      * @param string $package
      *
@@ -218,7 +217,7 @@ class Package
     }
 
     /**
-     * Ambil prefix kelas untuk paket yang diberikan.
+     * Get the class prefix for the given package.
      *
      * @param string $package
      *
@@ -230,14 +229,14 @@ class Package
     }
 
     /**
-     * Mereturn path ke paket yang diberikan.
+     * Return the path to the given package.
      *
      * <code>
      *
-     *      // Mereturn path ke paket yang diberikan 'admin'
+     *      // Return path to the 'admin' package
      *      $path = Package::path('admin');
      *
-     *      // Mereturn konstanta path('app') sebagai paket default
+     *      // Return path to the 'application' package
      *      $path = Package::path('application');
      *
      * </code>
@@ -260,7 +259,7 @@ class Package
     }
 
     /**
-     * Mereturn root path aset untuk paket yang diberikan.
+     * Return the root path to the assets for the given package.
      *
      * @param string $package
      *
@@ -272,11 +271,11 @@ class Package
     }
 
     /**
-     * Ambil nama paket berdasarkan identifier yang diberikan.
+     * Get the name of the package based on the given identifier.
      *
      * <code>
      *
-     *      // Mereturn 'admin' sebagai nama paket untuk identifier
+     *      // Returns 'admin' as the package name for the identifier
      *      $package = Package::name('admin::home.index');
      *
      * </code>
@@ -292,12 +291,12 @@ class Package
     }
 
     /**
-     * Ambil nama elemen dari identifier yang diberikan.
+     * Get the name of the element from the given identifier.
      *
      * <code>
      *
      *      // Returns "home.index" as the element name for the identifier
-     *      $package = Package::package('admin::home.index');
+     *      $package = Package::element('admin::home.index');
      *
      * </code>
      *
@@ -312,14 +311,14 @@ class Package
     }
 
     /**
-     * Rekonstruksi identifier dari sebuah paket dan elemen yang diberikan.
+     * Return the identifier of the package and element.
      *
      * <code>
      *
-     *      // Mereturn 'admin::home.index'
+     *      // Retuns 'admin::home.index'
      *      $identifier = Package::identifier('admin', 'home.index');
      *
-     *      // Mereturn 'home.index'
+     *      // Retuns 'home.index'
      *      $identifier = Package::identifier('application', 'home.index');
      *
      * </code>
@@ -335,7 +334,7 @@ class Package
     }
 
     /**
-     * Mereturn nama paket jika paketnya ada, mereturn default paket jika tidak ada.
+     * Return the name of the package.
      *
      * @param string $package
      *
@@ -347,14 +346,14 @@ class Package
     }
 
     /**
-     * Parse identifier elemen dan return nama paket dan elemennya.
+     * Parse identifier element and return package name and element.
      *
      * <code>
      *
-     *      // Mereturn array [null, 'admin.user']
+     *      // Returns array [null, 'admin.user']
      *      $element = Package::parse('admin.user');
      *
-     *      // Memparsing 'admin::user' menjadi array ['admin', 'user']
+     *      // Returns an array ['admin', 'user']
      *      $element = Package::parse('admin::user');
      *
      * </code>
@@ -377,7 +376,7 @@ class Package
     }
 
     /**
-     * Ambil informasi sebuah paket.
+     * Get the package information.
      *
      * @param string $package
      *
@@ -389,7 +388,7 @@ class Package
     }
 
     /**
-     * Ambil opsi sebuah paket.
+     * Get the package options.
      *
      * @param string $package
      * @param string $option
@@ -404,7 +403,7 @@ class Package
     }
 
     /**
-     * Ambil list informasi paket yang terinstall.
+     * Get the list of installed package information.
      *
      * @return array
      */
@@ -414,7 +413,7 @@ class Package
     }
 
     /**
-     * Ambil list nama paket yang terinstall.
+     * Get the list of installed package names.
      *
      * @return array
      */
@@ -424,7 +423,7 @@ class Package
     }
 
     /**
-     * Expand path paket.
+     * Expand the path of a package.
      *
      * @param string $path
      *

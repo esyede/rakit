@@ -7,14 +7,14 @@ defined('DS') or die('No direct access.');
 class Optional implements \ArrayAccess
 {
     /**
-     * Penampung data.
+     * Container for the value.
      *
      * @var mixed
      */
     protected $value;
 
     /**
-     * Buat instance baru.
+     * Constructor.
      *
      * @param mixed $value
      *
@@ -26,7 +26,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     *  Akses properti objek secara dinamis.
+     * Access object properties dynamically.
      *
      * @param string $key
      *
@@ -38,7 +38,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     * Cek apakah properti ada pada objek secara dinamis.
+     * Check if property exists on object dynamically.
      *
      * @param mixed $name
      *
@@ -58,7 +58,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     * Panggil method objek secara dinamis.
+     * Call object methods dynamically.
      *
      * @param string $method
      * @param array  $parameters
@@ -71,7 +71,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     * Cek apakah item ada dalam offset.
+     * Check if item exists in offset.
      *
      * @param mixed $key
      *
@@ -84,7 +84,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     * Ambil item berdasarkan offset.
+     * Get item based on offset.
      *
      * @param mixed $key
      *
@@ -97,7 +97,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     * Set item berdasarkan offset.
+     * Set item based on offset.
      *
      * @param mixed $key
      * @param mixed $value
@@ -113,7 +113,7 @@ class Optional implements \ArrayAccess
     }
 
     /**
-     * Unset item berdasarkan offset.
+     * Unset item based on offset.
      *
      * @param string $key
      *

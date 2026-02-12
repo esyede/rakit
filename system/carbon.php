@@ -867,13 +867,13 @@ class Carbon extends \DateTime
         $delta = abs($this->diffInSeconds($other, false));
         $unit = 'second';
         $divs = [
-            'year' => 31536000, // sekitar 365 hari
-            'month' => 2628000, // sekitar 30.44 hari
-            'week' => 604800,   // 7 hari
-            'day' => 86400,     // 24 jam
-            'hour' => 3600,     // 60 menit
-            'minute' => 60,     // 60 detik
-            'second' => 1,      // 1 detik
+            'year' => 31536000, // approximately 365 days
+            'month' => 2628000, // approximately 30.44 days
+            'week' => 604800,   // 7 days
+            'day' => 86400,     // 24 hours
+            'hour' => 3600,     // 60 minutes
+            'minute' => 60,     // 60 minutes
+            'second' => 1,      // 1 second
         ];
 
         foreach ($divs as $u => $d) {

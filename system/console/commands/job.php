@@ -11,7 +11,7 @@ use System\Log;
 class Job extends Command
 {
     /**
-     * Jalankan satu atau beberapa job berdasarkan nama.
+     * Run one or more jobs based on name.
      *
      * @param array $arguments
      *
@@ -41,7 +41,7 @@ class Job extends Command
     }
 
     /**
-     * Jalankan semua job.
+     * Run all jobs.
      *
      * @param array $arguments
      *
@@ -60,8 +60,8 @@ class Job extends Command
             } elseif (strpos($arg, '--sleep=') === 0) {
                 $sleep = (int) substr($arg, 8);
             } elseif (strpos($arg, '--queue=') === 0) {
-                $queueStr = substr($arg, 8);
-                $queues = array_map('trim', explode(',', $queueStr));
+                $str = explode(',', substr($arg, 8));
+                $queues = array_map('trim', $str);
             }
         }
 

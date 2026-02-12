@@ -1,0 +1,295 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\View;
+
+$views = isset($this->data['views']) ? $this->data['views'] : [];
+$totalTime = 0;
+$totalSize = 0;
+
+foreach ($views as $view) {
+    $totalTime += isset($view['time']) ? $view['time'] : 0;
+    $totalSize += isset($view['size']) ? $view['size'] : 0;
+}
+?>
+<style class="oops-debug">
+    #oops-debug .oops-ViewPanel h2 {
+        margin-top: 20px;
+        padding: 8px 10px;
+        background: #ffffff;
+        border-left: 3px solid #9C27B0;
+    }
+
+    #oops-debug .oops-ViewPanel table {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    #oops-debug .oops-ViewPanel td {
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-view-row {
+        border-bottom: 1px solid #eee;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-view-name {
+        font-family: monospace;
+        font-weight: bold;
+        color: #9C27B0;
+        font-size: 14px;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-view-path {
+        font-family: monospace;
+        font-size: 11px;
+        color: #999;
+        margin-top: 3px;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-view-time {
+        color: #666;
+        font-size: 12px;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-view-data {
+        background: #ffffff;
+        padding: 10px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 11px;
+        margin-top: 5px;
+        overflow-x: auto;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-summary {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-summary-item {
+        background: #f3e5f5;
+        padding: 10px 15px;
+        border-radius: 5px;
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-summary-count {
+        font-size: 24px;
+        font-weight: bold;
+        color: #9C27B0;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-summary-label {
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+        margin-top: 5px;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        background: #e1bee7;
+        color: #4A148C;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-shared-badge {
+        background: #4CAF50;
+        color: white;
+    }
+
+    #oops-debug .oops-ViewPanel .oops-empty {
+        color: #999;
+        font-style: italic;
+        text-align: center;
+        padding: 40px;
+    }
+</style>
+
+<h1>Views</h1>
+
+<div class="oops-inner oops-ViewPanel">
+    <div class="oops-inner-container">
+
+        <?php if (!empty($views)) : ?>
+            <!-- Summary -->
+            <div class="oops-summary">
+                <div class="oops-summary-item">
+                    <div class="oops-summary-count"><?php echo count($views); ?></div>
+                    <div class="oops-summary-label">Total Views</div>
+                </div>
+                <div class="oops-summary-item">
+                    <div class="oops-summary-count"><?php echo number_format($totalTime * 1000, 2); ?></div>
+                    <div class="oops-summary-label">Total Time (ms)</div>
+                </div>
+                <?php if ($totalSize > 0) : ?>
+                    <div class="oops-summary-item">
+                        <div class="oops-summary-count"><?php echo number_format($totalSize / 1024, 2); ?></div>
+                        <div class="oops-summary-label">Total Size (KB)</div>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- Rendered Views -->
+            <h2>Rendered Views (<?php echo count($views); ?>)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">#</th>
+                        <th width="40%">View</th>
+                        <th width="15%">Time</th>
+                        <th width="15%">Size</th>
+                        <th width="25%">Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $i = 0; ?>
+                    <?php foreach ($views as $view) : ?>
+                        <?php $i++; ?>
+                        <tr class="oops-view-row">
+                            <td><?php echo $i; ?>.</td>
+                            <td>
+                                <div class="oops-view-name">
+                                    <?php echo htmlspecialchars(isset($view['name']) ? $view['name'] : 'Unknown'); ?>
+                                </div>
+                                <?php if (!empty($view['path'])) : ?>
+                                    <div class="oops-view-path">
+                                        <?php echo htmlspecialchars($view['path']); ?>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td class="oops-view-time">
+                                <?php if (isset($view['time'])) : ?>
+                                    <?php echo number_format($view['time'] * 1000, 2); ?> ms
+                                <?php else : ?>
+                                    <span style="color: #ccc;">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (isset($view['size'])) : ?>
+                                    <?php echo number_format($view['size'] / 1024, 2); ?> KB
+                                <?php else : ?>
+                                    <span style="color: #ccc;">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($view['data'])) : ?>
+                                    <a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-view-data-<?php echo $i; ?>" style="font-size: 11px;">
+                                        <span class="oops-badge">
+                                            <?php echo count($view['data']); ?> variable<?php echo count($view['data']) !== 1 ? 's' : ''; ?>
+                                        </span>
+                                    </a>
+                                    <div class="oops-view-data oops-view-data-<?php echo $i; ?> oops-collapsed">
+                                        <pre><?php echo htmlspecialchars(print_r($view['data'], true)); ?></pre>
+                                    </div>
+                                <?php else : ?>
+                                    <span style="color: #ccc;">No data</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else : ?>
+            <p class="oops-empty">No views rendered during this request</p>
+        <?php endif; ?>
+
+        <!-- Shared Data -->
+        <?php if (!empty(View::$shared)) : ?>
+            <h2>
+                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-shared-data">
+                    Shared View Data (<?php echo count(View::$shared); ?>)
+                </a>
+            </h2>
+            <div class="oops-shared-data oops-collapsed">
+                <table>
+                    <?php foreach (View::$shared as $key => $value) : ?>
+                        <tr>
+                            <td width="25%">
+                                <strong><?php echo htmlspecialchars($key); ?></strong>
+                                <span class="oops-badge oops-shared-badge" style="margin-left: 5px;">Shared</span>
+                            </td>
+                            <td>
+                                <pre style="background: #ffffff; padding: 10px; border-radius: 3px; font-size: 11px; margin: 0;"><?php echo htmlspecialchars(print_r($value, true)); ?></pre>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <!-- Registered Named Views -->
+        <?php if (!empty(View::$names)) : ?>
+            <h2>
+                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-named-views">
+                    Named Views (<?php echo count(View::$names); ?>)
+                </a>
+            </h2>
+            <div class="oops-named-views oops-collapsed">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="30%">Name</th>
+                            <th width="70%">View Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach (View::$names as $name => $path) : ?>
+                            <tr>
+                                <td><strong><?php echo htmlspecialchars($name); ?></strong></td>
+                                <td>
+                                    <span style="font-family: monospace; font-size: 12px; color: #666;">
+                                        <?php echo htmlspecialchars($path); ?>
+                                    </span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <!-- View Cache Info -->
+        <?php if (!empty(View::$cache)) : ?>
+            <h2>
+                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-view-cache">
+                    Cached Views (<?php echo count(View::$cache); ?>)
+                </a>
+            </h2>
+            <div class="oops-view-cache oops-collapsed">
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
+                    Views that have been loaded and cached in memory during this request.
+                </p>
+                <table>
+                    <?php foreach (View::$cache as $name => $content) : ?>
+                        <tr>
+                            <td width="30%">
+                                <span style="font-family: monospace;">
+                                    <?php echo htmlspecialchars(str_replace(path('base'), '', $name)); ?>
+                                </span>
+                            </td>
+                            <td width="20%">
+                                <?php echo number_format(strlen($content) / 1024, 2); ?> KB
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        <?php endif; ?>
+
+    </div>
+</div>

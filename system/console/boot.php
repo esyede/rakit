@@ -7,20 +7,20 @@ defined('DS') or exit('No direct access.');
 use System\Package;
 use System\Config;
 
-// Boot paket default agar seluruh dependensi terdaftar di Container.
+// Boot the default package to register all dependencies in the Container.
 Package::boot(DEFAULT_PACKAGE);
 
 $default = Config::get('database.default');
 
-// Set database default jika user mengoper '--database'.
+// Set the default database if the user provides '--database'.
 if (!is_null($database = get_cli_option('database'))) {
     Config::set('database.default', $database);
 }
 
-// Juga daftarkan dependensi command ke Container.
+// Also register command dependencies in the Container.
 require path('system') . 'console' . DS . 'dependencies.php';
 
-// Cek apakah konsol support warna
+// Check if console supports color
 $color = function_exists('posix_isatty') && @posix_isatty(STDOUT);
 
 if (DS === '\\') {
@@ -28,7 +28,7 @@ if (DS === '\\') {
         || (getenv('ANSICON') !== false || getenv('ConEmuANSI') === 'ON');
 }
 
-// Bungkus error kedalam try-catch agar lebih mudah dibaca.
+// Wrap error in try-catch for easier reading.
 try {
     Console::run(array_slice($arguments, 1));
     Config::set('database.default', $default);

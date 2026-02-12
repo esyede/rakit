@@ -21,7 +21,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::__construct().
+     * Test for TestModel::__construct().
      *
      * @group system
      */
@@ -37,7 +37,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::fill().
+     * Test for TestModel::fill().
      *
      * @group system
      */
@@ -54,7 +54,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::fill_raw().
+     * Test for TestModel::fill_raw().
      *
      * @group system
      */
@@ -69,7 +69,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::fill dengan property $fillable.
+     * Test for TestModel::fill with $fillable property.
      *
      * @group system
      */
@@ -90,7 +90,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::fill() dengan property $fillable berisi array kosong.
+     * Test for TestModel::fill() with empty array for $fillable property.
      *
      * @group system
      */
@@ -112,7 +112,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::fill_raw() dengan property $fillable.
+     * Test for TestModel::fill_raw() with $fillable property.
      *
      * @group system
      */
@@ -131,7 +131,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::__set().
+     * Test for TestModel::__set().
      *
      * @group system
      */
@@ -152,7 +152,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::__get().
+     * Test for TestModel::__get().
      *
      * @group system
      */
@@ -167,7 +167,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::set_XXX() (mutator).
+     * Test for TestModel::set_xxx() (mutator).
      *
      * @group system
      */
@@ -188,7 +188,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::get_XXX() (accessor).
+     * Test for TestModel::get_xxx() (accessor).
      *
      * @group system
      */
@@ -203,7 +203,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test pengecekan perubahan atribut (cek dirty).
+     * Test for TestModel::changed() and TestModel::dirty().
      *
      * @group system
      */
@@ -234,7 +234,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::purge().
+     * Test for TestModel::purge().
      *
      * @group system
      */
@@ -249,8 +249,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
         $model->purge('name');
 
         $this->assertFalse($model->changed('name'));
-
-        $this->assertNull($model->name); // seharusnya null
+        $this->assertNull($model->name); // should be null
 
         $this->assertFalse($model->changed('age'));
         $this->assertEquals(26, $model->age);
@@ -258,7 +257,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::table().
+     * Test for TestModel::table().
      *
      * @group system
      */
@@ -266,19 +265,19 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     {
         $model = new TestModel();
 
-        // default, bentuk plural dari nama model.
+        // default, plural form of the class name
         $this->assertEquals('testmodels', $model->table());
 
         TestModel::$table = 'table';
         $this->assertEquals('table', $model->table());
 
         TestModel::$table = null;
-        // default, bentuk plural dari nama model.
+        // default, plural form of the class name
         $this->assertEquals('testmodels', $model->table());
     }
 
     /**
-     * Test untuk method TestModel::to_array().
+     * Test for TestModel::to_array().
      *
      * @group system
      */
@@ -312,7 +311,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::add_global_scope() dengan string dan implementation.
+     * Test for TestModel::add_global_scope() with string name and implementation.
      *
      * @group system
      */
@@ -330,7 +329,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::add_global_scope() dengan closure.
+     * Test for TestModel::add_global_scope() with closure only.
      *
      * @group system
      */
@@ -349,7 +348,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::remove_global_scope().
+     * Test for TestModel::remove_global_scope().
      *
      * @group system
      */
@@ -367,7 +366,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method TestModel::get_global_scopes().
+     * Test for TestModel::get_global_scopes().
      *
      * @group system
      */
@@ -388,7 +387,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa global scopes diterapkan di query (sederhana).
+     * Test that global scopes are applied to query (simple).
      *
      * @group system
      */
@@ -402,7 +401,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
 
         $model = new TestModel();
 
-        // Gunakan reflection untuk akses protected method
+        // Use reflection to access protected _query() method
         $reflection = new \ReflectionMethod($model, '_query');
         /** @disregard */
         $reflection->setAccessible(true);
@@ -414,7 +413,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk local scope.
+     * Test for local scope method.
      *
      * @group system
      */
@@ -425,10 +424,13 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 }
 
+/**
+ * Test model
+ */
 class TestModel extends \System\Database\Facile\Model
 {
     /**
-     * Setter untuk atribut 'setter'.
+     * Setter for 'setter' attribute.
      *
      * @param mixed $value
      */
@@ -438,7 +440,7 @@ class TestModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Getter untuk atribut 'setter'.
+     * Getter for 'setter' attribute.
      *
      * @return mixed
      */
@@ -448,7 +450,7 @@ class TestModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Setter untuk atribut 'getter'.
+     * Setter for 'getter' attribute.
      *
      * @param mixed $value
      */
@@ -458,7 +460,7 @@ class TestModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Getter untuk atribut 'getter'.
+     * Getter for 'getter' attribute.
      *
      * @return mixed
      */
@@ -468,7 +470,7 @@ class TestModel extends \System\Database\Facile\Model
     }
 
     /**
-     * Local scope untuk filter active.
+     * Local scope for the 'active' query.
      *
      * @param Query $query
      *

@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class Memcached
 {
     /**
-     * Berisi instance koneksi Memcached.
+     * Contains the Memcached connection instance.
      *
      * @var \Memcached
      */
     protected static $connection;
 
     /**
-     * Ambil instance koneksi Memcached.
+     * Get the Memcached connection instance.
      *
      * <code>
      *
-     *      // Ambil instance koneksi Memcached lalu ambil sebuah item dari cache.
+     *      // Get the Memcached connection instance and retrieve an item from cache.
      *      $name = Memcached::connection()->get('name');
      *
-     *      // Ambil instance koneksi Memcached lalu taruh sebuah item ke cache.
+     *      // Get the Memcached connection instance and store an item in cache.
      *      Memcached::connection()->set('name', 'Budi');
      *
      * </code>
@@ -38,7 +38,7 @@ class Memcached
     }
 
     /**
-     * Buat instance koneksi Memcached baru.
+     * Create a new Memcached connection instance.
      *
      * @param array $servers
      *
@@ -62,14 +62,14 @@ class Memcached
     }
 
     /**
-     * Oper seluruh pemanggilan method lain ke Memcached secara dinamis.
+     * Magic method to handle static calls to the Memcached instance.
      *
      * <code>
      *
-     *      // Ambil sebuah item dari instance Memcached.
+     *      // Get an item from the Memcached instance.
      *      $name = Memcached::get('name');
      *
-     *      // Taruh sebuah item ke Memcache server.
+     *      // Store an item in the Memcached instance.
      *      Memcached::set('name', 'Budi');
      *
      * </code>

@@ -7,50 +7,50 @@ defined('DS') or exit('No direct access.');
 class Lang
 {
     /**
-     * Nama event language loader.
+     * The name of the language loader event.
      *
      * @var string
      */
     const LOADER = 'rakit.language.loader';
 
     /**
-     * Berisi key dari baris bahasa yang sedang diambil.
+     * Contains the key of the language line being fetched.
      *
      * @var string
      */
     protected $key;
 
     /**
-     * Berisi pengganti yang untuk baris bahasa saat ini.
+     * Contains the replacements for the current language line.
      *
      * @var array
      */
     protected $replacements;
 
     /**
-     * Dari bahasa apa barisnya harus diambil?
+     * From which language the line should be fetched?
      *
      * @var string
      */
     protected $language;
 
     /**
-     * Berisi seluruh baris bahasa yang telah dimuat.
-     * Key array-nya mengikuti pola [$package][$language][$file].
+     * Contains all loaded language lines.
+     * The array key follows this pattern: [$package][$language][$file].
      *
      * @var array
      */
     protected static $lines = [];
 
     /**
-     * Cache untuk hasil loading file bahasa.
+     * Contains cached language files.
      *
      * @var array
      */
     protected static $files = [];
 
     /**
-     * Buat instance kelas Lang baru.
+     * Constructor.
      *
      * @param string $key
      * @param array  $replacements
@@ -64,18 +64,21 @@ class Lang
     }
 
     /**
-     * Buat instance language line baru.
+     * Create a new language line instance.
      *
      * <code>
      *
-     *      // Buat sebuah instance language line baru untuk baris yang diberikan
+     *      // Create a new language line instance for the given line
      *      $line = Lang::line('validation.required');
      *
-     *      // Buat sebuah instance language line baru untuk baris yang diberikan (milik paket)
+     *      // Create a new language line instance for the given line (package)
      *      $line = Lang::line('admin::messages.welcome');
      *
-     *      // Ganti atribut milik language line yang diberikan
-     *      $line = Lang::line('validation.required', ['attribute' => 'email']);
+     *      // Create a new language line instance for the given line (package, language)
+     *      $line = Lang::line('admin::messages.welcome', [], 'en');
+     *
+     *      // Create a new language line instance for the given line (package, language, replacements)
+     *      $line = Lang::line('admin::messages.welcome', ['name' => 'John'], 'en');
      *
      * </code>
      *
@@ -91,7 +94,7 @@ class Lang
     }
 
     /**
-     * Cek apakah language line ada atau tidak.
+     * Check if language line exists.
      *
      * @param string $key
      * @param string $language
@@ -104,17 +107,17 @@ class Lang
     }
 
     /**
-     * Ambil language line sebagai string.
+     * Get language line as string.
      *
      * <code>
      *
-     *      // Ambil language line
+     *      // Get a language line
      *      $line = Lang::line('validation.required')->get();
      *
-     *      // Ambil language line milik bahasa tertentu
+     *      // Get a language line in a specific language
      *      $line = Lang::line('validation.required')->get('en'); // en = english
      *
-     *      // Return default value jika language line tidak ketemu
+     *      // Fallback to default value if language line not found
      *      $line = Lang::line('validation.required')->get(null, 'Default');
      *
      * </code>
@@ -147,9 +150,8 @@ class Lang
     }
 
     /**
-     * Parse language key menjadi segmen paket, file dan linenya
-     * Pemanggilan language line mengikuti konvensi berikut:
-     * [nama_paket]::[nama_file].[language_linenya].
+     * Parse a language key into package, file, and line segments.
+     * Language line calls follow this convention: [package_name]::[file_name].[language_line].
      *
      * @param string $key
      *
@@ -165,7 +167,7 @@ class Lang
     }
 
     /**
-     * Muat seluruh language line dari sebuah file.
+     * Load language lines from a file.
      *
      * @param string $package
      * @param string $language
@@ -186,7 +188,7 @@ class Lang
     }
 
     /**
-     * Muat array language dari sebuah file.
+     * Load language array from a file.
      *
      * @param string $package
      * @param string $language
@@ -244,7 +246,7 @@ class Lang
     }
 
     /**
-     * Ambil konten (string) language line.
+     * String representation of the language line.
      *
      * @return string
      */

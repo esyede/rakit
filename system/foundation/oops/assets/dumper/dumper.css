@@ -1,63 +1,85 @@
 pre.oops-dump {
     text-align: left;
-    color: #fff;
-    background: #272822;
-    padding: 10px;
+    color: #d4d4d4; /* Soft white/grey */
+    background: #1e1e1e; /* Deep Charcoal */
+    padding: 0.7rem;
+    border-radius: 8px;
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-x: auto;
+    border: 1px solid #333;
 }
 
+/* Container untuk nesting */
 pre.oops-dump div {
-    padding-left: 3ex;
+    padding-left: 2ch;
 }
 
+/* Garis Indentasi yang lebih subtle */
 pre.oops-dump div div {
-    border-left: 1px solid rgba(0, 0, 0, 0.1);
-    margin-left: 0.5ex;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    margin-left: 0.5ch;
+    transition: border-color 0.2s;
 }
 
+pre.oops-dump div div:hover {
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Link & Toggles */
 pre.oops-dump a {
-    color: #ad6af9;
+    color: #4fc1ff;
     text-decoration: none;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: all 0.2s;
 }
 
 pre.oops-dump a:hover,
 pre.oops-dump a:focus {
-    background-color: #7d25e1;
-    color: white;
+    background-color: rgba(79, 193, 255, 0.2);
+    color: #9cdcfe;
 }
 
+/* Syntax Highlighting yang lebih modern */
 .oops-dump-array {
-    color: #6cf2ff;
+    color: #9cdcfe; /* Light Blue */
+    font-weight: bold;
 }
 
 .oops-dump-object {
-    color: #f09721;
+    color: #4ec9b0; /* Teal/Greenish */
+    font-weight: bold;
 }
 
 .oops-dump-string {
-    color: #e6db67;
+    color: #ce9178; /* Soft Orange/Coral */
 }
 
 .oops-dump-number {
-    color: #9081ff;
+    color: #b5cea8; /* Pale Green */
 }
 
-.oops-dump-null {
-    color: #9081ff;
-}
-
+.oops-dump-null,
 .oops-dump-bool {
-    color: #9081ff;
+    color: #569cd6; /* Bright Blue */
+    font-style: italic;
 }
 
 .oops-dump-hash {
-    font-size: 85%;
-    color: #8959a8;
+    font-size: 12px;
+    color: #808080;
+    opacity: 0.7;
 }
 
+/* Hidden elements */
 .oops-dump-indent {
     display: none;
 }
 
+/* Reference styling */
 span[data-oops-href] {
-    border-bottom: 1px dotted #8959a8;
+    border-bottom: 1px dashed #569cd6;
+    cursor: help;
 }

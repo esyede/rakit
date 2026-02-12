@@ -13,14 +13,14 @@ use System\Console\Commands\Command;
 class Packager extends Command
 {
     /**
-     * Berisi repositori API paket.
+     * Contains package repository API.
      *
      * @var Repository
      */
     protected $repository;
 
     /**
-     * Buat instance manajer paket baru.
+     * Create a new package manager instance.
      *
      * @param Repository $repository
      *
@@ -32,7 +32,7 @@ class Packager extends Command
     }
 
     /**
-     * Download dan instal paket.
+     * Download and install package.
      *
      * @param array $arguments
      *
@@ -94,7 +94,7 @@ class Packager extends Command
     }
 
     /**
-     * Uninstal paket.
+     * Uninstall a package.
      *
      * @param array $arguments
      *
@@ -115,9 +115,7 @@ class Packager extends Command
 
         echo $this->info('Uninstalling package: ' . $arguments[0]);
 
-        // TODO: Perlu dicek apakah suatu paket membuat migration atau tidak
-        // sebelum menjalankan migrate:reset agar tidak error.
-
+        // TODO: We need to check if the package has migrations or not before running migrate:reset to avoid errors.
         // $migrator = Container::resolve('command: migrate');
         // $migrator->reset($arguments[0]);
 
@@ -129,14 +127,14 @@ class Packager extends Command
             Storage::rmdir($destination);
         }
 
-        echo $this->info('Package uninstalled successfuly: ' . $arguments[0]);
+        echo $this->info('Package uninstalled successfully: ' . $arguments[0]);
 
         echo PHP_EOL;
         echo $this->warning('Now, you have to remove those package entry from your application/packages.php');
     }
 
     /**
-     * Upgrade paket.
+     * Upgrade a package.
      *
      * @param array $arguments
      *
@@ -196,7 +194,7 @@ class Packager extends Command
     }
 
     /**
-     * Salin aset milik paket ke direktori root 'assets/'.
+     * Copy assets from package to root 'assets/' directory.
      *
      * @param array $arguments
      *
@@ -211,7 +209,7 @@ class Packager extends Command
     }
 
     /**
-     * Hapus aset milik paket dari direktori root 'assets/'.
+     * Delete package's assets from root 'assets/' directory.
      *
      * @param array $arguments
      *
@@ -226,7 +224,7 @@ class Packager extends Command
     }
 
     /**
-     * Download paket berdsarkan url provider.
+     * Download package based on provider URL.
      *
      * @param array  $remotes
      * @param string $path
@@ -240,7 +238,7 @@ class Packager extends Command
     }
 
     /**
-     * Tambahkan meta.json ke direktori instalasi paket (jika belum ada).
+     * Add meta.json to package installation directory (if not exists).
      *
      * @param array  $remotes
      * @param string $destination
@@ -261,7 +259,7 @@ class Packager extends Command
     }
 
     /**
-     * Bandingkan apakah paket yang digunakan sudah versi paling baru.
+     * Check if the package being used is the latest version.
      *
      * @param string $current
      * @param string $latest
@@ -271,32 +269,20 @@ class Packager extends Command
      */
     protected function compare($current, $latest, $comparator = null)
     {
-        $current = (int) ltrim(preg_replace('/[^0-9]/', '', $current), '0');
-        $latest = (int) ltrim(preg_replace('/[^0-9]/', '', $latest), '0');
+        $result = version_compare($current, $latest);
 
         switch ($comparator) {
-            case '>':
-                return $current > $latest;
-
-            case '<':
-                return $current < $latest;
-
-            case '==':
-                return $current === $latest;
-
-            case '>=':
-                return $current >= $latest;
-
-            case '<=':
-                return $current <= $latest;
-
-            default:
-                throw new \Exception('Only >, <, ==, >=, and <= comparators are supported.');
+            case '>':  return $result === 1;
+            case '<':  return $result === -1;
+            case '==': return $result === 0;
+            case '>=': return $result >= 0;
+            case '<=': return $result <= 0;
+            default:   throw new \Exception('Only >, <, ==, >=, and <= comparators are supported.');
         }
     }
 
     /**
-     * Cek apakah nama paket sudah diberikan.
+     * Check if the package being used is the latest version.
      *
      * @param array $parameters
      *
@@ -310,7 +296,7 @@ class Packager extends Command
     }
 
     /**
-     * Ambil nama host dari string URL.
+     * Get the hostname from a string URL.
      *
      * @param array $remotes
      *

@@ -7,35 +7,35 @@ defined('DS') or exit('No direct access.');
 class Section
 {
     /**
-     * Berisi seluruh section yang terdaftar.
+     * Contains all registered sections.
      *
      * @var array
      */
     public static $sections = [];
 
     /**
-     * Berisi section terakhir dimana injeksi dimulai.
+     * Contains the last section where injection started.
      *
      * @var array
      */
     public static $last = [];
 
     /**
-     * Berisi seluruh stacks yang terdaftar.
+     * Contains all registered stacks.
      *
      * @var array
      */
     public static $stacks = [];
 
     /**
-     * Mulai injeksi konten ke section.
+     * Start injecting content into a section.
      *
      * <code>
      *
-     *      // Mulai menginjeksi section bernama 'header'
+     *      // Start injecting content into section named 'header'
      *      Section::start('header');
      *
-     *      // Mulai menginjeksi string mentah ke section bernama 'header' tanpa buffering
+     *      // Start injecting raw string into section named 'header' without buffering
      *      Section::start('header', '<title>rakit</title>');
      *
      * </code>
@@ -54,7 +54,7 @@ class Section
     }
 
     /**
-     * Cek apakah sebuah section ada (dan tidak kosong) atau tidak.
+     * Check if a section exists and is not empty.
      *
      * @param string $section
      *
@@ -66,12 +66,12 @@ class Section
     }
 
     /**
-     * Inject konten inline kedalam section.
-     * Ini berguna untuk menginjeksi string sederhana seperti judul halaman.
+     * Inject content into a section.
+     * This will replace the existing content of the section.
      *
      * <code>
      *
-     *      // Inject konten inline kedalam section bernama 'header'
+     *      // Inject inline content into section named 'header'
      *      Section::inject('header', '<title>rakit</title>');
      *
      * </code>
@@ -85,17 +85,7 @@ class Section
     }
 
     /**
-     * Hentikan injeksi konten kedalam section dan return kontennya.
-     *
-     * @return string
-     */
-    public static function yield_section()
-    {
-        return static::yield_content(static::stop());
-    }
-
-    /**
-     * Hentikan injeksi konten kedalam section.
+     * Stop injecting content into a section.
      *
      * @return string
      */
@@ -107,7 +97,7 @@ class Section
     }
 
     /**
-     * Extend konten kedalam section yang diberikan.
+     * Extend content into a section.
      *
      * @param string $section
      * @param string $content
@@ -120,7 +110,7 @@ class Section
     }
 
     /**
-     * Append konten kedalam section yang diberikan.
+     * Append content into a section.
      *
      * @param string $section
      * @param string $content
@@ -133,7 +123,7 @@ class Section
     }
 
     /**
-     * Ambil konten milik sebuah section.
+     * Get content of a section.
      *
      * @param string $section
      *
@@ -145,7 +135,19 @@ class Section
     }
 
     /**
-     * Mulai push konten ke stack.
+     * Stop injecting content into a section and return its content.
+     *
+     * @param string|null $section
+     *
+     * @return string
+     */
+    public static function yield_section($section = null)
+    {
+        return static::yield_content((null === $section) ?  static::stop() : $section);
+    }
+
+    /**
+     * Start pushing content to stack.
      *
      * @param string $stack
      */
@@ -156,7 +158,7 @@ class Section
     }
 
     /**
-     * Akhiri push konten ke stack.
+     * Stop pushing content to stack.
      */
     public static function endpush()
     {
@@ -171,7 +173,7 @@ class Section
     }
 
     /**
-     * Ambil konten milik sebuah stack.
+     * Get content of a stack.
      *
      * @param string $stack
      *

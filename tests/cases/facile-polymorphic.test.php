@@ -9,7 +9,7 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // Setup koneksi database untuk testing
+        // ..
     }
 
     /**
@@ -17,11 +17,11 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // Cleanup
+        // ..
     }
 
     /**
-     * Test inisialisasi morph one relationship.
+     * Test initializesi morph one relationship.
      *
      * @group system
      */
@@ -33,7 +33,7 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test inisialisasi morph many relationship.
+     * Test initialize morph many relationship.
      *
      * @group system
      */
@@ -41,12 +41,11 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
     {
         $post = new Post();
         $comments = $post->comments();
-
         $this->assertInstanceOf('\System\Database\Facile\Relationships\MorphMany', $comments);
     }
 
     /**
-     * Test inisialisasi morph to relationship.
+     * Test initialize morph to relationship.
      *
      * @group system
      */
@@ -54,12 +53,11 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
     {
         $comment = new Comment();
         $commentable = $comment->commentable();
-
         $this->assertInstanceOf('\System\Database\Facile\Relationships\MorphTo', $commentable);
     }
 
     /**
-     * Test inisialisasi morph to many relationship.
+     * Test initialize morph to many relationship.
      *
      * @group system
      */
@@ -67,12 +65,11 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
     {
         $post = new Post();
         $tags = $post->tags();
-
         $this->assertInstanceOf('\System\Database\Facile\Relationships\MorphToMany', $tags);
     }
 
     /**
-     * Test inisialisasi belongs to many relationship.
+     * Test initialize belongs to many relationship.
      *
      * @group system
      */
@@ -137,7 +134,7 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test fungsionalitas soft delete.
+     * Test soft delete functionality.
      *
      * @group system
      */
@@ -150,7 +147,7 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test fungsionalitas timestamps.
+     * Test timestamps functionality.
      *
      * @group system
      */
@@ -162,7 +159,7 @@ class FacilePolymorphicTest extends \PHPUnit_Framework_TestCase
 }
 
 /**
- * Test model untuk Post.
+ * Test model for Post.
  */
 class Post extends \System\Database\Facile\Model
 {
@@ -170,7 +167,7 @@ class Post extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi morph one ke Image.
+     * The morph one relationship to Image.
      */
     public function image()
     {
@@ -178,7 +175,7 @@ class Post extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi morph many ke Comment.
+     * The morph many relationship to Comment.
      */
     public function comments()
     {
@@ -186,7 +183,7 @@ class Post extends \System\Database\Facile\Model
     }
 
     /**
-     * Relasi morph to many ke Tag.
+     * The morph to many relationship to Tag.
      */
     public function tags()
     {
@@ -195,7 +192,7 @@ class Post extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Comment.
+ * Test model for Comment.
  */
 class Comment extends \System\Database\Facile\Model
 {
@@ -203,7 +200,7 @@ class Comment extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi morph to ke Commentable.
+     * The morph to relationship to Commentable.
      */
     public function commentable()
     {
@@ -212,7 +209,7 @@ class Comment extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Image.
+ * Test model for Image.
  */
 class Image extends \System\Database\Facile\Model
 {
@@ -220,7 +217,7 @@ class Image extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi morph to ke Imageable.
+     * The morph to relationship to Imageable.
      */
     public function imageable()
     {
@@ -229,7 +226,7 @@ class Image extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Tag.
+ * Test model for Tag.
  */
 class Tag extends \System\Database\Facile\Model
 {
@@ -237,7 +234,7 @@ class Tag extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi morph to many ke Taggable.
+     * The morph to many relationship to Post.
      */
     public function posts()
     {
@@ -246,7 +243,7 @@ class Tag extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk User.
+ * Test model for User.
  */
 class User extends \System\Database\Facile\Model
 {
@@ -254,7 +251,7 @@ class User extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to many ke Role.
+     * The belongs to many relationship to Role.
      */
     public function roles()
     {
@@ -263,7 +260,7 @@ class User extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk Role.
+ * Test model for Role.
  */
 class Role extends \System\Database\Facile\Model
 {
@@ -271,7 +268,7 @@ class Role extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * Relasi belongs to many ke User.
+     * The belongs to many relationship to User.
      */
     public function users()
     {
@@ -280,7 +277,7 @@ class Role extends \System\Database\Facile\Model
 }
 
 /**
- * Test model untuk soft delete.
+ * Test model for soft delete.
  */
 class SoftDeletableModel extends \System\Database\Facile\Model
 {

@@ -1,21 +1,31 @@
 <?php
 
 // --------------------------------------------------------------
-// Definisikan konstanta untuk directory separator.
+// Activate output buffering
+// --------------------------------------------------------------
+ob_start();
+
+// --------------------------------------------------------------
+// Record the start timer (for benchmark)
+// --------------------------------------------------------------
+define('RAKIT_START', microtime(true));
+
+// --------------------------------------------------------------
+// Define constant for directory separator
 // --------------------------------------------------------------
 define('DS', DIRECTORY_SEPARATOR);
 
 // --------------------------------------------------------------
-// Include konstanta path milik framework.
+// Include path constants
 // --------------------------------------------------------------
 require 'paths.php';
 
 // --------------------------------------------------------------
-// Panggil core bootstrapper.
+// Run the core boot
 // --------------------------------------------------------------
 require path('system') . 'core.php';
 
 // --------------------------------------------------------------
-// Boot paket default.
+// Boot the default package
 // --------------------------------------------------------------
 \System\Package::boot(DEFAULT_PACKAGE);

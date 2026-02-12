@@ -13,35 +13,35 @@ use System\Database\Exceptions\QueryException;
 class Connection
 {
     /**
-     * Berisi array konfigurasi koneksi.
+     * Contans database configuration.
      *
      * @var array
      */
     public $config;
 
     /**
-     * Berisi instance kelas PDO.
+     * Contans PDO connection instance.
      *
      * @var \PDO
      */
     protected $pdo;
 
     /**
-     * Berisi isntance kelas query grammar.
+     * Contains query grammar instance.
      *
      * @var Query\Grammars\Grammar
      */
     protected $grammar;
 
     /**
-     * Berisi catatan seluruh query yang telah dijalankan.
+     * Contans logged queries.
      *
      * @var array
      */
     public static $queries = [];
 
     /**
-     * Buat instance koneksi database baru.
+     * Constructor.
      *
      * @param PDO   $pdo
      * @param array $config
@@ -53,14 +53,14 @@ class Connection
     }
 
     /**
-     * Mulai query builder terhadap sebuah tabel.
+     * Start a new query builder against a table.
      *
      * <code>
      *
-     *      // Mulai query builder terhadap tabel 'users'
+     *      // Start a new query builder against the 'users' table
      *      $query = DB::connection()->table('users');
      *
-     *      // Mulai query builder terhadap tabel 'users' dan ambi seluruh datanya
+     *      // Start a new query builder against the 'users' table and get all data
      *      $users = DB::connection()->table('users')->get();
      *
      * </code>
@@ -75,7 +75,7 @@ class Connection
     }
 
     /**
-     * Buat query grammar baru untuk koneksi saat ini.
+     * Create a new instance of the query grammar.
      *
      * @return Query\Grammars\Grammar
      */
@@ -90,25 +90,16 @@ class Connection
         }
 
         switch ($this->driver()) {
-            case 'mysql':
-                return $this->grammar = new Query\Grammars\MySQL($this);
-
-            case 'sqlite':
-                return $this->grammar = new Query\Grammars\SQLite($this);
-
-            case 'sqlsrv':
-                return $this->grammar = new Query\Grammars\SQLServer($this);
-
-            case 'pgsql':
-                return $this->grammar = new Query\Grammars\Postgres($this);
-
-            default:
-                return $this->grammar = new Query\Grammars\Grammar($this);
+            case 'mysql':  return $this->grammar = new Query\Grammars\MySQL($this);
+            case 'sqlite': return $this->grammar = new Query\Grammars\SQLite($this);
+            case 'sqlsrv': return $this->grammar = new Query\Grammars\SQLServer($this);
+            case 'pgsql':  return $this->grammar = new Query\Grammars\Postgres($this);
+            default:       return $this->grammar = new Query\Grammars\Grammar($this);
         }
     }
 
     /**
-     * Jalankan database transaction.
+     * Run the database transaction.
      *
      * @param \Closure $callback
      *
@@ -132,14 +123,14 @@ class Connection
     }
 
     /**
-     * Jalankan sebuah query terhadap koneksi saat ini dan return hasil sebuah kolom.
+     * Run the query and return a single value from the first column of the first row.
      *
      * <code>
      *
-     *      // Ambil total baris milik tabel users
+     *      // Get the number of users from the users table.
      *      $count = DB::connection()->only('SELECT COUNT(*) FROM users');
      *
-     *      // Ambil jumlah harga dari tabel foods.
+     *      // Get the sum of prices from the foods table.
      *      $sum = DB::connection()->only('SELECT SUM(price) FROM foods');
      *
      * </code>
@@ -156,14 +147,14 @@ class Connection
     }
 
     /**
-     * Jalankan sebuah query terhadap koneksi saat ini dan return hasil pertama.
+     * Run the query and return the first row of the result.
      *
      * <code>
      *
-     *      // Jalankan sebuah query terhadap koneksi
+     *      // Run a query against the connection
      *      $user = DB::connection()->first('SELECT * FROM users');
      *
-     *      // Jalankan sebuah query terhadap koneksi dengan tambahan binding data
+     *      // Run a query against the connection with additional binding data
      *      $user = DB::connection()->first('SELECT * FROM users WHERE id = ?', [$id]);
      *
      * </code>
@@ -180,7 +171,7 @@ class Connection
     }
 
     /**
-     * Jalankan sebuah query dan return array berisi objek stdClass.
+     * Run the query and return an array of stdClass objects.
      *
      * @param string $sql
      * @param array  $bindings
@@ -204,8 +195,8 @@ class Connection
     }
 
     /**
-     * Jalankan sebuah query terhadap koneksi saat ini.
-     * Akan mereturn array berisi query dan hasil query tersebut (berupa boolean).
+     * Run the query against the connection.
+     * Will return an array containing the query and the result of the query (as a boolean).
      *
      * @param string $sql
      * @param array  $bindings
@@ -250,7 +241,7 @@ class Connection
     }
 
     /**
-     * Ambil seluruh baris untuk statement yang diberikan.
+     * Fetch all rows from the executed statement.
      *
      * @param \PDOStatement $statement
      * @param int           $style
@@ -267,7 +258,7 @@ class Connection
     }
 
     /**
-     * Log query dan jalankan event query.
+     * Log the executed query.
      *
      * @param string $sql
      * @param array  $bindings
@@ -283,7 +274,7 @@ class Connection
     }
 
     /**
-     * Ambil nama driver database milik koneksi saat ini.
+     * Get current database driver.
      *
      * @return string
      */
@@ -293,7 +284,7 @@ class Connection
     }
 
     /**
-     * Ambil object koneksi PDO.
+     * Get the PDO connection instance.
      *
      * @return \PDO
      */
@@ -303,7 +294,7 @@ class Connection
     }
 
     /**
-     * Magic method untuk memulai query ke tabel secara dinamis.
+     * Handle dynamic method calls to the connection instance.
      */
     public function __call($method, array $parameters)
     {

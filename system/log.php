@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class Log
 {
     /**
-     * Prefix nama file log.
+     * Contains the name of the log channel.
      *
      * @var string
      */
     protected static $channel;
 
     /**
-     * Set nama file tempat menyimpan log.
+     * Set the name of the log channel.
      *
      * @param string|null $name
      *
@@ -26,7 +26,7 @@ class Log
     }
 
     /**
-     * Tulis log emergency.
+     * Write an emergency log.
      *
      * @param string $message
      * @param array  $context
@@ -37,7 +37,7 @@ class Log
     }
 
     /**
-     * Tulis log alert.
+     * Write an alert log.
      *
      * @param string $message
      * @param array  $context
@@ -48,7 +48,7 @@ class Log
     }
 
     /**
-     * Tulis log critical.
+     * Write a critical log.
      *
      * @param string $message
      * @param array  $context
@@ -59,7 +59,7 @@ class Log
     }
 
     /**
-     * Tulis log error.
+     * Write an error log.
      *
      * @param string $message
      * @param array  $context
@@ -70,7 +70,7 @@ class Log
     }
 
     /**
-     * Tulis log warning.
+     * Write a warning log.
      *
      * @param string $message
      * @param array  $context
@@ -81,7 +81,7 @@ class Log
     }
 
     /**
-     * Tulis log notice.
+     * Write a notice log.
      *
      * @param string $message
      * @param array  $context
@@ -92,7 +92,7 @@ class Log
     }
 
     /**
-     * Tulis log info.
+     * Write an info log.
      *
      * @param string $message
      * @param array  $context
@@ -103,7 +103,7 @@ class Log
     }
 
     /**
-     * Tulis log debug.
+     * Write a debug log.
      *
      * @param string $message
      * @param array  $context
@@ -114,7 +114,7 @@ class Log
     }
 
     /**
-     * Tulis pesan ke file log.
+     * Write log into file.
      *
      * @param string $type
      * @param string $message
@@ -139,20 +139,47 @@ class Log
             $formatted = static::format($type, $message, $context);
 
             file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+        } catch (\Throwable $e) {
+            $path = path('storage') . 'logs' . DS . 'rakit.log.php';
+            $formatted = static::format($type, $message, $context);
+
+            try {
+                file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+            } catch (\Throwable $exception) {
+                // Silent fail when fallback also fails
+            } catch (\Exception $exception) {
+                // Silent fail when fallback also fails
+            }
         } catch (\Exception $e) {
             $path = path('storage') . 'logs' . DS . 'rakit.log.php';
             $formatted = static::format($type, $message, $context);
 
             try {
                 file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+            } catch (\Throwable $exception) {
+                // Silent fail when fallback also fails
             } catch (\Exception $exception) {
-                // Silent fail jika fallback juga gagal
+                // Silent fail when fallback also fails
+            }
+        }
+
+        // Track log for debugger
+        if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
+            if (!\System\Foundation\Oops\Debugger::$productionMode) {
+                $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+                \System\Foundation\Oops\Collectors::addLog(
+                    $type,
+                    $message,
+                    $context,
+                    isset($trace[1]['file']) ? $trace[1]['file'] : null,
+                    isset($trace[1]['line']) ? $trace[1]['line'] : null
+                );
             }
         }
     }
 
     /**
-     * Format pesan logging.
+     * Format the log message.
      *
      * @param string $type
      * @param string $message
@@ -178,7 +205,7 @@ class Log
     }
 
     /**
-     * Format context data ke JSON.
+     * Format the context data into JSON.
      *
      * @param array $context
      *
@@ -200,7 +227,7 @@ class Log
     }
 
     /**
-     * Format nilai untuk logging dengan aman.
+     * Format the log value.
      *
      * @param mixed $value
      * @param array $objects
@@ -256,7 +283,7 @@ class Log
     }
 
     /**
-     * Format exception untuk logging.
+     * Format the exception message.
      *
      * @param \Exception|object $e
      *
@@ -270,11 +297,7 @@ class Log
         $line = $e->getLine();
         $trace = $e->getTraceAsString();
         $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', $class, $e->getCode(), $message, $file, $line);
-
-        if ($trace) {
-            $output .= PHP_EOL . $trace;
-        }
-
+        $output .= $trace ? PHP_EOL . $trace : '';
         return $output;
     }
 }

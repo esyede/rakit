@@ -24,7 +24,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Database::connection().
+     * Test for Database::connection().
      *
      * @group system
      */
@@ -41,21 +41,20 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Database::profile().
+     * Test for Database::profile().
      *
      * @group system
      */
     public function testProfileMethodReturnsQueries()
     {
         \System\Database\Connection::$queries = ['Budi'];
-
         $this->assertEquals(['Budi'], Database::profile());
 
         \System\Database\Connection::$queries = [];
     }
 
     /**
-     * Test untuk method Database::__callStatic().
+     * Test for Database::__callStatic().
      *
      * @group system
      */

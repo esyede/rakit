@@ -10,14 +10,14 @@ use System\Database\Grammar as BaseGrammar;
 class Grammar extends BaseGrammar
 {
     /**
-     * Format default untuk menyimpan DateTime.
+     * Format for date columns.
      *
      * @var string
      */
     public $datetime = 'Y-m-d H:i:s';
 
     /**
-     * List seluruh komponen query serta urutan pembangunannya.
+     * List of all components of a select statement.
      *
      * @var array
      */
@@ -36,7 +36,7 @@ class Grammar extends BaseGrammar
     ];
 
     /**
-     * Kompilasi statement SELECT.
+     * Compile the SELECT statement.
      *
      * @param Query $query
      *
@@ -48,7 +48,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Buat sql untuk setiap komponen query.
+     * Make array of sql segments from each query component.
      *
      * @param Query $query
      *
@@ -68,7 +68,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Buang bagian kosong dari array segmen sql.
+     * Concatenate the sql segments into a single string.
      *
      * @param array $components
      *
@@ -82,7 +82,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa SELECT.
+     * Compile the SELECT clause.
      *
      * @param Query $query
      *
@@ -94,12 +94,11 @@ class Grammar extends BaseGrammar
             return;
         }
 
-        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ')
-            . $this->columnize($query->selects);
+        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ') . $this->columnize($query->selects);
     }
 
     /**
-     * Compile klausa agregasi SELECT.
+     * Compile the SELECT aggregate clause.
      *
      * @param Query $query
      *
@@ -113,12 +112,11 @@ class Grammar extends BaseGrammar
             $column = 'DISTINCT ' . $column;
         }
 
-        return 'SELECT ' . $query->aggregate['aggregator'] . '(' . $column . ') AS '
-            . $this->wrap('aggregate');
+        return 'SELECT ' . $query->aggregate['aggregator'] . '(' . $column . ') AS ' . $this->wrap('aggregate');
     }
 
     /**
-     * Compile klausa FROM.
+     * Compile the FROM clause.
      *
      * @param Query $query
      *
@@ -130,7 +128,7 @@ class Grammar extends BaseGrammar
     }
 
     /**\
-     * Compile klausa JOIN.
+     * Compile the JOIN clause.
      *
      * @param Query $query
      *
@@ -163,7 +161,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE.
+     * Compile the WHERE clause.
      *
      * @param Query $query
      *
@@ -187,7 +185,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa nested WHERE.
+     * Compile the nested WHERE clause.
      *
      * @param array $where
      *
@@ -199,7 +197,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE sederhana.
+     * Compile the basic WHERE clause.
      *
      * @param array $where
      *
@@ -212,7 +210,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE IN.
+     * Compile the WHERE IN clause.
      *
      * @param array $where
      *
@@ -225,7 +223,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE NOT IN.
+     * Compile the WHERE NOT IN clause.
      *
      * @param array $where
      *
@@ -238,7 +236,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE IN dengan subquery.
+     * Compile the WHERE IN clause with subquery.
      *
      * @param array $where
      *
@@ -251,7 +249,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE NOT IN dengan subquery.
+     * Compile the WHERE NOT IN clause with subquery.
      *
      * @param array $where
      *
@@ -264,7 +262,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE EXISTS dengan subquery.
+     * Compile the WHERE EXISTS with subquery.
      *
      * @param array $where
      *
@@ -277,7 +275,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE NOT EXISTS dengan subquery.
+     * Compile the WHERE NOT EXISTS with subquery.
      *
      * @param array $where
      *
@@ -290,7 +288,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE BETWEEN.
+     * Compile the WHERE BETWEEN clause.
      *
      * @param array $where
      *
@@ -304,7 +302,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE NOT BETWEEN.
+     * Compile the WHERE NOT BETWEEN clause.
      *
      * @param array $where
      *
@@ -318,7 +316,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE NULL.
+     * Compile the WHERE NULL clause.
      *
      * @param array $where
      *
@@ -330,7 +328,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE NOT NULL.
+     * Compile the WHERE NOT NULL clause.
      *
      * @param array $where
      *
@@ -342,7 +340,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa WHERE COLUMN.
+     * Compile the WHERE column to column comparison clause.
      *
      * @param array $where
      *
@@ -354,7 +352,19 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa GROUP BY.
+     * Compile the raw WHERE clause.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_raw($where)
+    {
+        return $where['sql'];
+    }
+
+    /**
+     * Compile the GROUP BY clause.
      *
      * @param Query $query
      *
@@ -366,7 +376,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa HAVING.
+     * Compile the HAVING clause.
      *
      * @param Query $query
      *
@@ -389,7 +399,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa ORDER BY.
+     * Compile the ORDER BY clause.
      *
      * @param Query $query
      *
@@ -408,7 +418,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa UNION.
+     * Compile the UNION clauses.
      *
      * @param Query $query
      *
@@ -427,7 +437,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa LIMIT.
+     * Compile the LIMIT clause.
      *
      * @param Query $query
      *
@@ -439,7 +449,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile klausa OFFSET.
+     * Compile the OFFSET clause.
      *
      * @param Query $query
      *
@@ -451,8 +461,8 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile sql INSERT.
-     * Method ini menangani kompilasi insert row tunggal dan batch.
+     * Compile the INSERT statement.
+     * This method handles inserting multiple records at once using a single query.
      *
      * @param Query $query
      * @param array $values
@@ -471,7 +481,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile sql INSERT dan return ID-nya.
+     * Compile the INSERT statement and get the last inserted ID.
      *
      * @param Query  $query
      * @param array  $values
@@ -485,7 +495,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile sql UPDATE.
+     * Compile the UPDATE statement.
      *
      * @param Query $query
      * @param array $values
@@ -505,7 +515,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile sql DELETE.
+     * Compile the DELETE statement.
      *
      * @param Query $query
      *
@@ -517,7 +527,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Ubah short-cut sql menjadi sql biasa agar bisa digunakan oleh PDO.
+     * Replace the (...) in the sql with parameterized values.
      *
      * @param string $sql
      * @param array  $bindings

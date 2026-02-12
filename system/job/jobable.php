@@ -10,7 +10,7 @@ use System\Str;
 abstract class Jobable
 {
     /**
-     * Berisi payload data untuk job.
+     * Contains the job data payload.
      *
      * @var array
      */
@@ -27,15 +27,15 @@ abstract class Jobable
     }
 
     /**
-     * Handle job execution.
-     * Method ini harus di-implement di child class.
+     * Handle the job logic.
+     * This method must be implemented by the child class.
      *
      * @return void
      */
     abstract public function run();
 
     /**
-     * Get job name dari class name.
+     * Get the job name from class name.
      *
      * @return string
      */
@@ -46,7 +46,7 @@ abstract class Jobable
     }
 
     /**
-     * Dispatch job ke queue.
+     * Dispatch the job to the job queue.
      *
      * @param array       $data
      * @param string|null $dispatch_at
@@ -59,7 +59,7 @@ abstract class Jobable
     }
 
     /**
-     * Dispatch job dengan schedule.
+     * Dispatch the job to be executed at a specific time.
      *
      * @param string $dispatch_at
      * @param array  $data
@@ -72,7 +72,7 @@ abstract class Jobable
     }
 
     /**
-     * Execute job dari payload.
+     * Execute the job from the given payload.
      *
      * @param array $payload
      *
@@ -94,7 +94,7 @@ abstract class Jobable
     }
 
     /**
-     * Get data dari payload.
+     * Get a data from the job data payload.
      *
      * @param string     $key
      * @param mixed|null $default

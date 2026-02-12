@@ -11,8 +11,8 @@ use System\Config;
 class Facile extends Driver
 {
     /**
-     * Ambil user saat ini.
-     * Jika ia belum login, NULL akan direturn.
+     * Get the current user.
+     * If the user is not logged in, NULL will be returned.
      *
      * @param int|object $token
      *
@@ -34,7 +34,7 @@ class Facile extends Driver
     }
 
     /**
-     * Coba loginkan user.
+     * Try to login the user.
      *
      * @param array $arguments
      *

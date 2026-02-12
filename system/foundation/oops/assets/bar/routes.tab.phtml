@@ -1,0 +1,29 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Routing\Router;
+
+$routeCount = 0;
+foreach (Router::$routes as $routes) {
+    $routeCount += count($routes);
+}
+?>
+<span title="Routes">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" enable-background="new 0 0 48 48">
+        <g fill="#FF9800">
+            <circle cx="14" cy="24" r="6"/>
+            <circle cx="34" cy="12" r="6"/>
+            <circle cx="34" cy="36" r="6"/>
+        </g>
+        <g fill="#FF6F00">
+            <rect x="17" y="22" width="13" height="4" transform="rotate(-30 23.5 24)"/>
+            <rect x="17" y="26" width="13" height="4" transform="rotate(30 23.5 28)"/>
+        </g>
+    </svg>
+    <span class="oops-label">
+        <?php echo $routeCount; ?> route<?php echo $routeCount !== 1 ? 's' : ''; ?>
+    </span>
+</span>

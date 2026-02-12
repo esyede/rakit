@@ -10,14 +10,14 @@ use System\Database\Schema\Table;
 class SQLServer extends Grammar
 {
     /**
-     * Identifier keyword engine database.
+     * Wrapper format.
      *
      * @var string
      */
     public $wrapper = '[%s]';
 
     /**
-     * Buat sintaks sql untuk pembuatan tabel.
+     * Create the sql syntax for creating a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -31,7 +31,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk modifikasi tabel.
+     * Create the sql syntax for adding new columns to a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -48,7 +48,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql definisi kolom.
+     * Create the column definitions for a table.
      *
      * @param Table $table
      *
@@ -73,7 +73,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi bahwa kolom boleh null.
+     * Create the sql syntax for setting column nullability.
      *
      * @param Table $table
      * @param Magic $column
@@ -86,7 +86,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk set default value kolom.
+     * Create the sql syntax for setting column nullability.
      *
      * @param Table $table
      * @param Magic $column
@@ -101,7 +101,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk definisi kolom auto-increment.
+     * Create the sql syntax for setting column incrementer.
      *
      * @param Table $table
      * @param Magic $column
@@ -118,7 +118,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi unsigned column.
+     * Create the sql syntax for setting column unsigned.
      *
      * @param Table $table
      * @param Magic $column
@@ -127,12 +127,12 @@ class SQLServer extends Grammar
      */
     protected function unsigned(Table $table, Magic $column)
     {
-        // SQL Server tidak mendukung unsigned, skip
+        // SQL Server does not support unsigned types natively.
         return '';
     }
 
     /**
-     * Buat sintaks sql untuk comment kolom.
+     * Create the sql syntax for setting column comment.
      *
      * @param Table $table
      * @param Magic $column
@@ -145,7 +145,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk collate kolom.
+     * Create the sql syntax for setting column collation.
      *
      * @param Table $table
      * @param Magic $column
@@ -162,7 +162,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat kolom primary key.
+     * Create the sql syntax for adding a foreign key constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -176,7 +176,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat unique index.
+     * Create the sql syntax for adding a unique index.
      *
      * @param Table $table
      * @param Magic $command
@@ -189,7 +189,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat fulltext index.
+     * Create the sql syntax for adding a fulltext index.
      *
      * @param Table $table
      * @param Magic $command
@@ -207,7 +207,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index biasa.
+     * Create the sql syntax for adding a standard index.
      *
      * @param Table $table
      * @param Magic $command
@@ -220,7 +220,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index baru.
+     * Create the sql syntax for adding a key.
      *
      * @param Table $table
      * @param Magic $command
@@ -235,7 +235,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk rename tabel.
+     * Create the sql syntax for creating a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -248,7 +248,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop kolom.
+     * Create the sql syntax for dropping columns from a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -265,7 +265,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop primary key.
+     * Create the sql syntax for drop primary key.
      *
      * @param Table $table
      * @param Magic $command
@@ -278,7 +278,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique key.
+     * Create the sql syntax for drop unique key.
      *
      * @param Table $table
      * @param Magic $command
@@ -291,7 +291,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop fulltext key.
+     * Create the sql syntax for drop fulltext key.
      *
      * @param Table $table
      * @param Magic $command
@@ -307,7 +307,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop key index biasa.
+     * Create the sql syntax for drop index key.
      *
      * @param Table $table
      * @param Magic $command
@@ -320,7 +320,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop key.
+     * Create the sql syntax for drop key.
      *
      * @param Table $table
      * @param Magic $command
@@ -333,7 +333,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Drop foreign key constraint dari tabel.
+     * Drop a foreign key constraint.
      *
      * @param Table $table
      * @param Magic $command
@@ -346,7 +346,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk spatial index.
+     * Create the sql syntax for adding a spatial index.
      *
      * @param Table $table
      * @param Magic $command
@@ -360,7 +360,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk rename kolom.
+     * Create the sql syntax for renaming a column.
      *
      * @param Table $table
      * @param Magic $command
@@ -373,7 +373,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop kolom jika ada.
+     * Create the sql syntax for drop column if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -390,7 +390,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop index jika ada.
+     * Create the sql syntax for drop index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -403,7 +403,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique jika ada.
+     * Create the sql syntax for drop primary if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -416,7 +416,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop fulltext jika ada.
+     * Create the sql syntax for drop fulltext if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -432,7 +432,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop foreign jika ada.
+     * Create the sql syntax for drop foreign if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -445,7 +445,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data string.
+     * Create a defunition for string type.
      *
      * @param Magic $column
      *
@@ -457,7 +457,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data integer.
+     * Create a defunition for integer type.
      *
      * @param Magic $column
      *
@@ -469,7 +469,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data big integer.
+     * Create a defunition for biginteger type.
      *
      * @param Magic $column
      *
@@ -481,7 +481,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data float.
+     * Create a defunition for float type.
      *
      * @param Magic $column
      *
@@ -493,7 +493,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data decimal.
+     * create a defunition for decimal type.
      *
      * @param Magic $column
      *
@@ -505,7 +505,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data enum.
+     * create a defunition for enum type.
      *
      * @param Magic $column
      *
@@ -521,7 +521,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data boolean.
+     * Create a defunition for boolean type.
      *
      * @param Magic $column
      *
@@ -533,7 +533,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data date.
+     * Create a defunition for date type.
      *
      * @param Magic $column
      *
@@ -545,7 +545,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data timestamp.
+     * Create a defunition for datetime type.
      *
      * @param Magic $column
      *
@@ -557,7 +557,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data text.
+     * Create a defunition for text type.
      *
      * @param Magic $column
      *
@@ -569,7 +569,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data longtext.
+     * Create a defunition for longtext type.
      *
      * @param Magic $column
      *
@@ -581,7 +581,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data blob.
+     * Create a defunition for blob type.
      *
      * @param Magic $column
      *
@@ -593,7 +593,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data double.
+     * Create a defunition for double type.
      *
      * @param Magic $column
      *
@@ -605,7 +605,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data medium integer.
+     * Create a defunition for medium integer type.
      *
      * @param Magic $column
      *
@@ -617,7 +617,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data tiny integer.
+     * Create a defunition for tiny integer type.
      *
      * @param Magic $column
      *
@@ -629,7 +629,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data small integer.
+     * Create a defunition for small integer type.
      *
      * @param Magic $column
      *
@@ -641,7 +641,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data json.
+     * Create a defunition for json type.
      *
      * @param Magic $column
      *
@@ -653,7 +653,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data jsonb.
+     * Create a defunition for jsonb type.
      *
      * @param Magic $column
      *
@@ -665,7 +665,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data uuid.
+     * Create a defunition for uuid type.
      *
      * @param Magic $column
      *
@@ -677,7 +677,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data ip address.
+     * Create a defunition for ip address type.
      *
      * @param Magic $column
      *
@@ -689,7 +689,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data mac address.
+     * Create a defunition for mac address type.
      *
      * @param Magic $column
      *
@@ -701,7 +701,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometry.
+     * Create a defunition for geometry type.
      *
      * @param Magic $column
      *
@@ -713,7 +713,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data point.
+     * Create a defunition for point type.
      *
      * @param Magic $column
      *
@@ -725,7 +725,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data linestring.
+     * Create a defunition for linestring type.
      *
      * @param Magic $column
      *
@@ -737,7 +737,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data polygon.
+     * Create a defunition for polygon type.
      *
      * @param Magic $column
      *
@@ -749,7 +749,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometrycollection.
+     * Create a defunition for geometrycollection type.
      *
      * @param Magic $column
      *
@@ -761,7 +761,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipoint.
+     * Create a defunition for multipoint type.
      *
      * @param Magic $column
      *
@@ -773,7 +773,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multilinestring.
+     * Create a defunition for multilinestring type.
      *
      * @param Magic $column
      *
@@ -785,7 +785,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipolygon.
+     * Create a defunition for multipolygon type.
      *
      * @param Magic $column
      *
@@ -797,7 +797,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat definisi tipe data set.
+     * Create a defunition for set type.
      *
      * @param Magic $column
      *

@@ -12,7 +12,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     {
         Curl::timeout(240);
 
-        // Check jika endpoint mock tersedia (hanya sekali)
+        // Check if network endpoint is reachable
         if (is_null(self::$skipNetworkTests)) {
             self::$skipNetworkTests = true;
 
@@ -29,12 +29,10 @@ class CurlTest extends \PHPUnit_Framework_TestCase
                     curl_close($ch);
                 }
 
-                // Hanya jalankan test jika endpoint mereturn 200 OK
-                if ($httpCode === 200) {
-                    self::$skipNetworkTests = false;
-                }
+                // Only disable skip if we get HTTP 200
+                self::$skipNetworkTests = (int) $httpCode !== 200;
             } catch (\Exception $e) {
-                // Biarkan skipNetworkTests tetap true
+                // Let skipNetworkTests remain true
             }
         }
     }

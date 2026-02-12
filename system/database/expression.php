@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class Expression
 {
     /**
-     * Berisi value dari ekspresi database.
+     * Contains value of the database expression.
      *
      * @var string
      */
     protected $value;
 
     /**
-     * Buat instance ekspresi database baru.
+     * Constructor.
      *
      * @param string $value
      */
@@ -24,7 +24,7 @@ class Expression
     }
 
     /**
-     * Ambil value ekspresi database alam bentuk string.
+     * Get the value of the database expression.
      *
      * @return string
      */
@@ -34,7 +34,7 @@ class Expression
     }
 
     /**
-     * Ambil value ekspresi database alam bentuk string.
+     * Get the string representation of the database expression value.
      *
      * @return string
      */

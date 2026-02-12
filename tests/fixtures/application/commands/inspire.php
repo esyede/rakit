@@ -2,27 +2,31 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Console\Commands\Command;
-
 class Inspire_Command extends Command
 {
     /**
-     * Contoh command. Jalankan dengan 'php rakit inspire'.
+     * Sample console command. Run with 'php rakit inspire'.
      *
-     * @param string|array $arguments
+     * @param array $arguments
      *
      * @return void
      */
     public function run(array $arguments = [])
     {
+        $confirmed = $this->confirm('Do you want to display the quote?');
+
+        if (!$confirmed) {
+            echo $this->error('Aborted.');
+            return;
+        }
+
         $quotes = $this->quotes();
         $quotes = $quotes[mt_rand(0, count($quotes) - 1)];
-
-        echo $quotes;
+        echo $this->info($quotes);
     }
 
     /**
-     * List quotes.
+     * Quotes.
      *
      * @return array
      */

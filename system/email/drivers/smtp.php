@@ -10,28 +10,28 @@ use System\Request;
 class Smtp extends Driver
 {
     /**
-     * Koneksi SMTP.
+     * Contains the SMTP connection resource.
      *
      * @var resource
      */
     protected $connection;
 
     /**
-     * Apakah koneksi dapat di-reuse.
+     * Determine if the connection should be kept alive for multiple emails.
      *
      * @var bool
      */
     protected $keep_alive = false;
 
     /**
-     * Metode otentikasi yang didukung.
+     * List of supported authentication methods.
      *
      * @var array
      */
     protected $methods = ['LOGIN', 'PLAIN', 'CRAM-MD5'];
 
     /**
-     * Mulai proses transmisi data.
+     * Starts the email transmission.
      *
      * @return bool
      */
@@ -55,7 +55,7 @@ class Smtp extends Driver
     }
 
     /**
-     * Lakukan transmisi email.
+     * Do the actual delivery of the email.
      *
      * @return bool
      */
@@ -67,7 +67,7 @@ class Smtp extends Driver
             throw new \Exception('Must supply a SMTP host and port, none given.');
         }
 
-        // Set keep_alive dari config untuk connection pooling
+        // Set the keep alive config option
         $this->keep_alive = Arr::get($this->config, 'smtp.keep_alive', false);
 
         $authenticate = (empty($this->connection)
@@ -121,7 +121,7 @@ class Smtp extends Driver
     }
 
     /**
-     * Buat koneksi ke server SMTP.
+     * Connect to the SMTP server.
      *
      * @return null
      */
@@ -189,7 +189,7 @@ class Smtp extends Driver
 
                 $crypto = STREAM_CRYPTO_METHOD_TLS_CLIENT;
 
-                // Lihat: https://www.php.net/manual/en/function.stream-socket-enable-crypto.php#119122
+                // See: https://www.php.net/manual/en/function.stream-socket-enable-crypto.php#119122
                 if (defined('STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT')) {
                     $crypto |= STREAM_CRYPTO_METHOD_TLSv1_3_CLIENT;
                 }
@@ -227,7 +227,7 @@ class Smtp extends Driver
     }
 
     /**
-     * Putuskan koneksi dari server SMTP.
+     * Disconnect from the SMTP server.
      *
      * @return void
      */
@@ -243,7 +243,7 @@ class Smtp extends Driver
     }
 
     /**
-     * Jalankan proses otentikasi.
+     * Authenticate with the SMTP server.
      *
      * @return void
      */
@@ -287,7 +287,7 @@ class Smtp extends Driver
     }
 
     /**
-     * Kirim sebaris perintah ke server SMTP.
+     * Send a command to the SMTP server and check the response code.
      *
      * @param string      $command
      * @param string|bool $expecting
@@ -333,14 +333,14 @@ class Smtp extends Driver
     }
 
     /**
-     * Ambil respon dari server SMTP.
+     * Get the response from the SMTP server.
      *
      * @return string
      */
     protected function response()
     {
         $data = '';
-        $max = 100; // Cegah infinite loop
+        $max = 100; // Prevent an infinite loop
         $iterations = 0;
 
         stream_set_timeout($this->connection, $this->config['smtp']['timeout']);
@@ -368,7 +368,7 @@ class Smtp extends Driver
     }
 
     /**
-     * Destruktor.
+     * Destructor to ensure the SMTP connection is closed.
      */
     public function __destruct()
     {

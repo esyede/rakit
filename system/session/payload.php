@@ -13,28 +13,28 @@ use System\Session;
 class Payload
 {
     /**
-     * Berisi array session yang disimpan di driver saat ini.
+     * Contains the session data.
      *
      * @var array
      */
     public $session;
 
     /**
-     * Berisi nama driver yang sedang digunakan.
+     * Contains the session driver.
      *
      * @var \System\Session\Drivers\Driver
      */
     public $driver;
 
     /**
-     * Indikasi bahwa session sudah ada di penyimpanan.
+     * Indicates whether the session exists in storage.
      *
      * @var bool
      */
     public $exists = true;
 
     /**
-     * Buat instance payload baru.
+     * Constructor.
      *
      * @param \System\Session\Drivers\Driver $driver
      */
@@ -46,7 +46,7 @@ class Payload
     }
 
     /**
-     * Ambil semua data session.
+     * Get all session data.
      *
      * @return array
      */
@@ -56,7 +56,7 @@ class Payload
     }
 
     /**
-     * Muat session untuk request saat ini.
+     * Load the session payload from storage.
      *
      * @param string $id
      */
@@ -77,8 +77,8 @@ class Payload
     }
 
     /**
-     * Cek apakah instance paylod session yang diberikan valid.
-     * Session dianggap valid jika ia ada di penyimpanan dan belum kedaluwarsa.
+     * Check if the session has expired.
+     * Session considers expired if last activity time + lifetime < current time.
      *
      * @param array $session
      *
@@ -90,7 +90,7 @@ class Payload
     }
 
     /**
-     * Cek apakah ada/tidaknya item di session atau flash data.
+     * Check if an item exists in the session.
      *
      * @param string $key
      *
@@ -102,15 +102,15 @@ class Payload
     }
 
     /**
-     * Ambil item di session saat ini.
-     * Pencarian juga akan dilakukan di flash data, tidak hanya di session saja.
+     * Get an item from the session.
+     * The search will also be performed in flash data, not just in the session.
      *
      * <code>
      *
-     *      // Ambil sebuah item dari session
+     *      // Get an item from the session
      *      $name = Session::get('name');
      *
-     *      // Return default value jika itemnya tidak ketemu
+     *      // Return default value if the item is not found
      *      $name = Session::get('name', 'Budi');
      *
      * </code>
@@ -138,11 +138,11 @@ class Payload
     }
 
     /**
-     * Taruh item ke session.
+     * Put an item into the session.
      *
      * <code>
      *
-     *      // Taruh sebuah item ke session
+     *      // Put an item into the session
      *      Session::put('name', 'Budi');
      *
      * </code>
@@ -156,12 +156,12 @@ class Payload
     }
 
     /**
-     * Taruh sebuah item ke flash data.
-     * Flash data hanya akan tersedia di request saat ini dan request berikutnya.
+     * Put an item into the flash data.
+     * Flash data will only last for the next request.
      *
      * <code>
      *
-     *      // Taruh sebuah item ke flash data
+     *      // Put an item into the flash data
      *      Session::flash('name', 'Budi');
      *
      * </code>
@@ -175,7 +175,7 @@ class Payload
     }
 
     /**
-     * Pertahankan item flash data agar tdak kedaluwarsa setelah request dijalankan.
+     * Keep all flash data for the next request.
      */
     public function reflash()
     {
@@ -184,14 +184,14 @@ class Payload
     }
 
     /**
-     * Pertahankan item flash data agar tidak kedaluwarsa di akhir request.
+     * Keep a flash data items from expiring at the end of the request.
      *
      * <code>
      *
-     *      // Pertahankan item 'name' agar tidak kedaluwarsa
+     *      // Keep the 'name' item from expiring
      *      Session::keep('name');
      *
-     *      // Pertahankan item 'name' dan 'email' agar tidak kedaluwarsa
+     *      // Keep the 'name' and 'email' items from expiring
      *      Session::keep(['name', 'email']);
      *
      *      Session::keep('name', 'email');
@@ -210,7 +210,7 @@ class Payload
     }
 
     /**
-     * Hapus sebuah item dari session.
+     * Delete one or more items from the session.
      *
      * @param string $keys
      */
@@ -221,7 +221,7 @@ class Payload
     }
 
     /**
-     * Hapus seluruh item dari session (kecuali token CSRF).
+     * Delete all session data (except the CSRF token).
      */
     public function flush()
     {
@@ -230,7 +230,7 @@ class Payload
     }
 
     /**
-     * Set session-id baru untuk session.
+     * Set new session id.
      */
     public function regenerate()
     {
@@ -239,7 +239,7 @@ class Payload
     }
 
     /**
-     * Ambil token CSRF.
+     * Get the session token.
      *
      * @return string
      */
@@ -249,7 +249,7 @@ class Payload
     }
 
     /**
-     * Ambil info 'last actvity'.
+     * Get the last activity time.
      *
      * @return int
      */
@@ -259,8 +259,8 @@ class Payload
     }
 
     /**
-     * Simpan payload session.
-     * Method ini akan otomatis terpanggil di akhir setiap request.
+     * Save the session payload to storage.
+     * This method will be automatically called at the end of each request.
      */
     public function save()
     {
@@ -273,7 +273,7 @@ class Payload
     }
 
     /**
-     * Buat flash data kedaluwarsa.
+     * Empty the old flash data.
      */
     protected function age()
     {
@@ -282,7 +282,7 @@ class Payload
     }
 
     /**
-     * Kirim cookie session-id ke browser.
+     * Set the session cookie.
      *
      * @param array $config
      */

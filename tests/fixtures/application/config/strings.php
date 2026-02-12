@@ -5,16 +5,16 @@ defined('DS') or exit('No direct access.');
 return [
     /*
     |--------------------------------------------------------------------------
-    | String Infleksi
+    | String Inflection
     |--------------------------------------------------------------------------
     |
-    | Ini adalah array berisi kata tunggal (singular) dan jamak (plural).
-    | Array ini digunakan oleh Str::plural() dan Str::singular() untuk
-    | mengubah kata tertentu dari tunggal menjadi jamak dan sebaliknya.
+    | This array contains singular and plural forms of words.
+    | This array is used by Str::plural() and Str::singular() to
+    | change certain words from singular to plural and vice versa.
     |
-    | Perhatikan bahwa pola regex dibawah ini hanya bekerja untuk kata
-    | dalam bahasa Inggris. Untuk mengubah string non-Inggris, silahkan
-    | tambahkan bentuk tunggal dan jamaknya ke array "irregular".
+    | Note that the regex patterns below only work for English words.
+    | To change non-English strings, please add their singular and plural forms
+    | to the "irregular" array.
     |
     */
 

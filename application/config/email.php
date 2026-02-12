@@ -8,11 +8,11 @@ return [
     | Mail Driver
     |--------------------------------------------------------------------------
     |
-    | Rakit menerapkan penanganan pengiriman email berbasis driver.
-    | Tentu saja, beberapa driver bawaan juga sudah disediakan agar
-    | anda bisa langsung mengirim email secara sederhana dan mudah.
+    | Rakit implements email sending based on driver.
+    | Of course, some built-in drivers are also provided so that
+    | you can send email easily and simply.
     |
-    | Driver tersedia: 'mail', 'smtp', 'sendmail' atau 'log' (testing).
+    | Available drivers: 'mail', 'smtp', 'sendmail' or 'log' (testing).
     |
     */
 
@@ -23,13 +23,14 @@ return [
     | SMTP
     |--------------------------------------------------------------------------
     |
-    | Setelan akun SMTP. Digunakan ketika anda memilih 'smtp'
-    | sebagai driver email default.
+    | SMTP settings. Used when you choose 'smtp' as the default email driver.
+    |
+    | Available login methods: LOGIN (default), PLAIN, CRAM-MD5
     |
     */
 
     'smtp' => [
-        'method' => 'LOGIN', // LOGIN, PLAIN, CRAM-MD5
+        'method' => 'LOGIN',
         'host' => '',
         'port' => 465,
         'username' => '',
@@ -47,8 +48,7 @@ return [
     | Sendmail
     |--------------------------------------------------------------------------
     |
-    | Path file binary sendmail. Digunakan ketika anda memilih 'sendmail'
-    | sebagai driver email default.
+    | Path to the sendmail binary.
     |
     */
 
@@ -59,8 +59,8 @@ return [
     | Mail Type
     |--------------------------------------------------------------------------
     |
-    | Tentukan apakah email perlu dikirim dalam bentuk html atau teks biasa,
-    | set ke NULL untuk pendeteksian otomatis.
+    | Choose whether email should be sent as HTML or plain text.
+    | Set to NULL for automatic detection.
     |
     */
 
@@ -71,9 +71,9 @@ return [
     | Character Encoding
     |--------------------------------------------------------------------------
     |
-    | Character encoding default yang digunakan oleh email anda.
+    | Default character encoding for email.
     |
-    | Opsi tersedia: '8bit', 'base64' atau 'quoted-printable'.
+    | Available options: '8bit', 'base64', 'quoted-printable'.
     |
     */
 
@@ -84,7 +84,7 @@ return [
     | Encode Headers
     |--------------------------------------------------------------------------
     |
-    | Apakah subjek dan nama penerima juga perlu di-encode?
+    | Do the subject and recipient names also need to be encoded?
     |
     */
 
@@ -95,9 +95,9 @@ return [
     | Priority
     |--------------------------------------------------------------------------
     |
-    | Atur prioritas pengiriman email.
+    | Set the email priority.
     |
-    | Opsi tersedia: LOWEST, LOW, NORMAL, HIGH, HIGHEST
+    | Available options: LOWEST, LOW, NORMAL, HIGH, HIGHEST
     |
     */
 
@@ -108,7 +108,7 @@ return [
     | Default Sender
     |--------------------------------------------------------------------------
     |
-    | Identitas default anda sebagai pengirim email.
+    | Default sender information.
     |
     */
 
@@ -122,7 +122,7 @@ return [
     | Validation
     |--------------------------------------------------------------------------
     |
-    | Validasi alamat email?
+    | Validate email addresses?
     |
     */
 
@@ -133,7 +133,7 @@ return [
     | Auto-attach
     |--------------------------------------------------------------------------
     |
-    | Lampirkan file inline secara otomatis?
+    | Automatically attach files inline?
     |
     */
 
@@ -144,7 +144,7 @@ return [
     | Auto-generate Alt Body
     |--------------------------------------------------------------------------
     |
-    | Buat alt-body secara otomatis dari tag <body> html?
+    | Automatically generate alt-body from html body?
     |
     */
 
@@ -155,7 +155,7 @@ return [
     | Force Mixed
     |--------------------------------------------------------------------------
     |
-    | Ubah paksa content-type multipart/related menjadi multipart/mixed?
+    | Force content-type multipart/related to multipart/mixed?
     |
     */
 
@@ -166,8 +166,8 @@ return [
     | Wordwrap
     |--------------------------------------------------------------------------
     |
-    | Ukuran wordwrap (pemenggalan kalimat). Set ke NULL, 0 atau FALSE untuk
-    | mematikan fitur ini.
+    | Size of wordwrap (sentence breaking). Set to NULL, 0 or FALSE to disable
+    | the wordwrap feature.
     |
     */
 
@@ -178,18 +178,18 @@ return [
     | Newline
     |--------------------------------------------------------------------------
     |
-    | Karakter newline untuk penyusunan header dan body email.
+    | The newline character used for email headers and body.
     |
     */
 
-    'newline' => "\r\n",
+    'newline' => CRLF,
 
     /*
     |--------------------------------------------------------------------------
     | Return Path
     |--------------------------------------------------------------------------
     |
-    | Return path default untuk email anda.
+    | Default return path for your email.
     |
     */
 
@@ -200,7 +200,7 @@ return [
     | Strip Comments
     |--------------------------------------------------------------------------
     |
-    | Bersihkan seluruh html comment dari body email?
+    | Strip HTML comments from email body?
     |
     */
 
@@ -211,10 +211,10 @@ return [
     | Replace Protocol
     |--------------------------------------------------------------------------
     |
-    | Ketika protokol URI relatif ('//fooobar') digunakan di body email,
-    | anda dapat menentukan di sini dengan apa anda ingin menggantinya.
+    | When relative URI protocol ('//fooobar') is used in email body,
+    | you can specify what you want to replace it with.
     |
-    | Opsi yang tersedia adalah: 'http://', 'https://' atau FALSE.
+    | Options are: 'http://', 'https://' or FALSE.
     |
     */
 

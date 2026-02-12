@@ -225,7 +225,6 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(Str::is(['*2*', 'b*'], 11211));
 
         $this->assertTrue(Str::is('*/foo', 'blah/baz/foo'));
-
         $this->assertFalse(Str::is([], 'test'));
     }
 
@@ -352,9 +351,11 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue((bool) preg_match('/^[c0-9a-z]+$/', $cuid));
 
         $cuids = [];
+
         for ($i = 0; $i < 10; $i++) {
             $cuids[] = Str::cuid();
         }
+
         $this->assertTrue(count(array_unique($cuids)) === count($cuids));
     }
 
@@ -478,6 +479,8 @@ class StrTest extends \PHPUnit_Framework_TestCase
             Str::macro('reverse', function ($value) {
                 return strrev($value);
             });
+        } catch (\Throwable $e) {
+            $this->assertTrue($e instanceof \Throwable || $e instanceof \Exception);
         } catch (\Exception $e) {
             $this->assertTrue($e instanceof \Exception);
         }

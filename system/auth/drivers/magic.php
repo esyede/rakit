@@ -12,8 +12,8 @@ use System\Database;
 class Magic extends Driver
 {
     /**
-     * Ambil user saat ini.
-     * Jika ia belum login, NULL akan direturn.
+     * Get the current user.
+     * If the user is not logged in, NULL will be returned.
      *
      * @param int $id
      *
@@ -27,7 +27,7 @@ class Magic extends Driver
     }
 
     /**
-     * Coba loginkan user.
+     * Try to login the user.
      *
      * @param array $arguments
      *

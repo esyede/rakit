@@ -17,7 +17,7 @@ class Metadata
     protected $meta = [];
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param string $storageKey
      */
@@ -40,7 +40,7 @@ class Metadata
     }
 
     /**
-     * Ambil waktu kedaluwarsa cookie session.
+     * Get the lifetime of the metadata.
      *
      * @return int
      */
@@ -50,7 +50,7 @@ class Metadata
     }
 
     /**
-     * Buat timestamp baru untuk metadata.
+     * Create a new stamp for the metadata.
      *
      * @param int $lifetime
      */
@@ -60,7 +60,7 @@ class Metadata
     }
 
     /**
-     * Ambil nama storage key metadata.
+     * Get storage key.
      *
      * @return string
      */
@@ -70,7 +70,7 @@ class Metadata
     }
 
     /**
-     * Ambil timestamp waktu pembuatan.
+     * Get the created timestamp.
      *
      * @return int
      */
@@ -80,7 +80,7 @@ class Metadata
     }
 
     /**
-     * Ambil timestamp waktu penggunaan terakhir.
+     * Get the last used timestamp.
      *
      * @return int
      */
@@ -95,7 +95,7 @@ class Metadata
     }
 
     /**
-     * Ambil nama key metadata.
+     * Get the metadata key name.
      *
      * @return string
      */
@@ -105,7 +105,7 @@ class Metadata
     }
 
     /**
-     * Set nama key metadata.
+     * Set the metadata key name.
      *
      * @param string $name
      */
@@ -115,7 +115,7 @@ class Metadata
     }
 
     /**
-     * Perbarui timestamp.
+     * Renew the created and updated timestamps.
      *
      * @param int|null $lifetime
      */
@@ -126,7 +126,6 @@ class Metadata
         $this->meta[self::CREATED] = $timeStamp;
         $this->meta[self::UPDATED] = $timeStamp;
         $this->lastUsed = $timeStamp;
-
         $this->meta[self::LIFETIME] = (null === $lifetime)
             ? ini_get('session.cookie_lifetime')
             : $lifetime;

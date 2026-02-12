@@ -2,65 +2,74 @@
 
 defined('DS') or exit('No direct access.');
 
+// --------------------------------------------------------------
+// Define special character constants.
+// --------------------------------------------------------------
+define('CRLF', "\r\n");
+define('TAB', "\t");
+define('CR', "\r");
+define('LF', "\n");
+
 /*
 |----------------------------------------------------------------
-| Environment aplikasi
+| Application Environments
 |----------------------------------------------------------------
 |
-| Rakit menggunakan pendekatan sederhana terhadap environment.
-| Cukup tentukan URL mana yang termasuk dalam environment itu,
-| saat aplikasi diakses dari URL yang sesuai dengan pola tersebut,
-| konten file konfigurasi environment tersebut akan ditimpa.
+| Rakit uses a simple approach to environment.
+| Just define which URL belongs to which environment, when the
+| application is accessed from a URL that matches the pattern,
+| the content of the environment config file will be overwritten.
 |
 */
 
 $environments = [
     'local' => ['http://localhost*', 'http://127.0.0.1*', '*.test'],
-    // ..
+
+    // Add another environment here if needed..
 ];
 
 // --------------------------------------------------------------
-// Path ke direktori paket default.
+// Path to default package directory.
 // --------------------------------------------------------------
 $paths = ['app' => 'application'];
 
 // --------------------------------------------------------------
-// Path ke file key.
+// Path to the application key file.
 // --------------------------------------------------------------
 $paths['rakit_key'] = 'key.php';
 
 // --------------------------------------------------------------
-// Path ke direktori sistem.
+// Path to the system directory.
 // --------------------------------------------------------------
 $paths['system'] = 'system';
 
 // --------------------------------------------------------------
-// Path ke direktori utama paket.
+// Path to the packages directory.
 // --------------------------------------------------------------
 $paths['package'] = 'packages';
 
 // --------------------------------------------------------------
-// Path ke direktori storage.
+// Path to the storage directory.
 // --------------------------------------------------------------
 $paths['storage'] = 'storage';
 
 // --------------------------------------------------------------
-// Path ke direktori aset.
+// Path to the assets directory.
 // --------------------------------------------------------------
 $paths['assets'] = 'assets';
 
 // --------------------------------------------------------------
-// Ubah direktori kerja ke direktori root.
+// Change working directory to root directory.
 // --------------------------------------------------------------
 chdir(__DIR__);
 
 // --------------------------------------------------------------
-// Definisikan path ke base direktori.
+// Define path to base directory.
 // --------------------------------------------------------------
 $GLOBALS['rakit_paths']['base'] = __DIR__ . DS;
 
 // --------------------------------------------------------------
-// Defininisikan konstanta lain yang belum ada.
+// Define path to system directory.
 // --------------------------------------------------------------
 foreach ($paths as $name => $path) {
     if (!isset($GLOBALS['rakit_paths'][$name])) {
@@ -71,7 +80,7 @@ foreach ($paths as $name => $path) {
 }
 
 /**
- * Fungsi global untuk akses path.
+ * Global function for accessing path.
  *
  * <code>
  *
@@ -89,7 +98,7 @@ function path($path)
 }
 
 /**
- * Fungsi global untuk setting path.
+ * Global function for setting path.
  *
  * @param string $path
  * @param string $value
@@ -100,10 +109,10 @@ function set_path($path, $value)
 }
 
 // --------------------------------------------------------------
-// Polyfill untuk Throwable interface (PHP < 7.0).
+// Polyfill for Throwable interface (PHP < 7.0).
 // --------------------------------------------------------------
 
-if (PHP_VERSION_ID < 70000 && !interface_exists('Throwable')) {
+if (PHP_VERSION_ID < 70000) {
     interface Throwable
     {
         public function getMessage();
@@ -118,7 +127,7 @@ if (PHP_VERSION_ID < 70000 && !interface_exists('Throwable')) {
 }
 
 // --------------------------------------------------------------
-// Polyfill untuk atribut #[\ReturnTypeWillChange].
+// Polyfill for Attribute interface (PHP < 8.0).
 // --------------------------------------------------------------
 
 if (PHP_VERSION_ID < 80000) {
@@ -131,6 +140,7 @@ if (PHP_VERSION_ID < 80000) {
         const TARGET_CLASS_CONSTANT = 16;
         const TARGET_PARAMETER = 32;
         const TARGET_ALL = 63;
+        const IS_REPEATABLE = 64;
     }
 }
 

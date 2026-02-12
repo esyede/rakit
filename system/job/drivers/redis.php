@@ -12,21 +12,21 @@ use System\Config;
 class Redis extends Driver
 {
     /**
-     * Berisi instance database redis.
+     * Container the Redis instance.
      *
      * @var System\Redis
      */
     protected $redis;
 
     /**
-     * Prefix key untuk redis.
+     * Prefix key for redis storage.
      *
      * @var string
      */
     protected $key = 'rakit.job:';
 
     /**
-     * Buat instance driver redis baru.
+     * Constructor.
      *
      * @param System\Redis $redis
      * @param string|null  $key
@@ -38,7 +38,7 @@ class Redis extends Driver
     }
 
     /**
-     * Tambahkan sebuah job.
+     * Add a new job to the redis queue.
      *
      * @param string      $name
      * @param array       $payloads
@@ -75,7 +75,7 @@ class Redis extends Driver
     }
 
     /**
-     * Cek apakah job sedang overlapping.
+     * Check if there is an overlapping job.
      *
      * @param string $name
      * @param string $queue
@@ -112,7 +112,7 @@ class Redis extends Driver
     }
 
     /**
-     * Hapus job berdasarkan nama.
+     * Delete job from redis queue.
      *
      * @param string      $name
      * @param string|null $queue
@@ -163,7 +163,7 @@ class Redis extends Driver
     }
 
     /**
-     * Jalankan antrian job di redis.
+     * Run a specific job from redis.
      *
      * @param string      $name
      * @param int         $retries
@@ -269,7 +269,7 @@ class Redis extends Driver
     }
 
     /**
-     * Jalankan semua job di redis.
+     * Run all available jobs from redis.
      *
      * @param int        $retries
      * @param int        $sleep_ms
@@ -370,7 +370,7 @@ class Redis extends Driver
     }
 
     /**
-     * Pindahkan job ke failed jobs.
+     * Move failed job to failed jobs list.
      *
      * @param array      $data
      * @param \Exception $exception

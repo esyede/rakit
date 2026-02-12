@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Arr
 {
     /**
-     * Periksa apakah value yang diberikan merupakan array dan dapat diakses.
+     * Check if the given value is accessible.
      *
      * @param mixed $value
      *
@@ -19,7 +19,7 @@ class Arr
     }
 
     /**
-     * Tambahkan sebuah elemen ke array menggunakan dot-notation (jika belum ada).
+     * Add an element to an array using dot-notation (if it doesn't exist).
      *
      * @param array  $array
      * @param string $key
@@ -37,7 +37,7 @@ class Arr
     }
 
     /**
-     * Collapse sebuah array bersarang menjadi sebuah array.
+     * Collapse a nested array into a single array.
      *
      * @param array $array
      *
@@ -57,7 +57,7 @@ class Arr
     }
 
     /**
-     * Gabungkan silang array yang diberikan, kembalikan semua kemungkinan permutasi.
+     * Cross join multiple arrays.
      *
      * @param array ...$arrays
      *
@@ -85,8 +85,8 @@ class Arr
     }
 
     /**
-     * Membagi array menjadi dua array.
-     * Satu berdasarkan key dan satu lagi berdasarkan value.
+     * Divide array into two arrays.
+     * One based on key and one based on value.
      *
      * @param array $array
      *
@@ -98,7 +98,7 @@ class Arr
     }
 
     /**
-     * Ratakan array asosiatif multi-dimensi dengan dot.
+     * Flatten a multi-dimensional associative array with dots.
      *
      * @param array  $array
      * @param string $prepend
@@ -121,7 +121,7 @@ class Arr
     }
 
     /**
-     * Ubah array notasi "dot" menjadi array biasa.
+     * Change array dot notation to array.
      *
      * @param array $array
      *
@@ -139,7 +139,7 @@ class Arr
     }
 
     /**
-     * Ambil semua array kecuali key yang ditentukan.
+     * Get all array except key that specified.
      *
      * @param array        $array
      * @param array|string $keys
@@ -153,7 +153,7 @@ class Arr
     }
 
     /**
-     * Cek apakah key yang diberikan ada di array.
+     * Check if key that specified exists in array.
      *
      * @param \ArrayAccess|array $array
      * @param string|int         $key
@@ -168,7 +168,7 @@ class Arr
     }
 
     /**
-     * Mereturn elemen pertama dalam array yang melewati tes kebenaran yang diberikan.
+     * Return the first element in the array that passes the given truth test.
      *
      * @param array         $array
      * @param callable|null $callback
@@ -176,7 +176,7 @@ class Arr
      *
      * @return mixed
      */
-    public static function first($array, callable $callback = null, $default = null)
+    public static function first($array, $callback = null, $default = null)
     {
         if (is_null($callback)) {
             if (empty($array)) {
@@ -198,7 +198,7 @@ class Arr
     }
 
     /**
-     * Mereturn elemen terakhir dalam array yang melewati tes kebenaran yang diberikan.
+     * Return the last element in the array that passes the given truth test.
      *
      * @param array         $array
      * @param callable|null $callback
@@ -206,7 +206,7 @@ class Arr
      *
      * @return mixed
      */
-    public static function last($array, callable $callback = null, $default = null)
+    public static function last($array, $callback = null, $default = null)
     {
         return is_null($callback)
             ? (empty($array) ? value($default) : end($array))
@@ -214,7 +214,7 @@ class Arr
     }
 
     /**
-     * Ratakan array multi-dimensi menjadi satu level.
+     * Flatten multi-dimensional array into one level.
      *
      * @param array $array
      * @param int   $depth
@@ -244,7 +244,7 @@ class Arr
     }
 
     /**
-     * Hapus satu atau beberapa item array menggunakan notasi "dot".
+     * Remove one or more items from array using "dot" notation.
      *
      * @param array        $array
      * @param array|string $keys
@@ -282,7 +282,7 @@ class Arr
     }
 
     /**
-     * Ambil item dari array menggunakan notasi "dot".
+     * Get item from array using "dot" notation.
      *
      * @param \ArrayAccess|array $array
      * @param string|int         $key
@@ -318,7 +318,7 @@ class Arr
     }
 
     /**
-     * Cek apakah ada satu atau beberapa item dalam array menggunakan notasi "dot".
+     * Check if one or more items exist in array using "dot" notation.
      *
      * @param \ArrayAccess|array $array
      * @param string|array       $keys
@@ -349,7 +349,7 @@ class Arr
     }
 
     /**
-     * Cek apakah salah satu key ada dalam suatu array menggunakan notasi "dot".
+     * Check if one or more items exist in array using "dot" notation.
      *
      * @param \ArrayAccess|array $array
      * @param string|array       $keys
@@ -378,9 +378,8 @@ class Arr
     }
 
     /**
-     * Cek apakah sebuah array merupakan array asosiatif atau bukan.
-     * Sebuah array dianggap asosiatif apabila ia tidak mengandung
-     * key numerik urut yang dimulai dari nol.
+     * Check if array is associative.
+     * Associative arrays have keys that are not sequential integers.
      *
      * @param array $array
      *
@@ -397,9 +396,8 @@ class Arr
     }
 
     /**
-     * Cek apakah sebuah array merupakan array sequential atau bukan.
-     * Sebuah array dianggap sequential jika key-nya terdiri atas
-     * angka berurutan dari 0 hingga count($array)-1.
+     * Check if array is sequential.
+     * Sequential arrays have keys that are sequential integers.
      *
      * @param array $array
      *
@@ -427,7 +425,7 @@ class Arr
     }
 
     /**
-     * Ambil subset item dari array yang diberikan.
+     * Get a subset of items from the given array.
      *
      * @param array        $array
      * @param array|string $keys
@@ -440,7 +438,7 @@ class Arr
     }
 
     /**
-     * Ambil array nilai dari array.
+     * Get array values from the given array.
      *
      * @param array             $array
      * @param string|array      $value
@@ -470,7 +468,7 @@ class Arr
     }
 
     /**
-     * Taruh item ke awal array.
+     * Prepend an item to the beginning of an array.
      *
      * @param array $array
      * @param mixed $value
@@ -490,7 +488,7 @@ class Arr
     }
 
     /**
-     * Ambil sebuah value dari array, dan hapus key-nya.
+     * Pull an item from the array, and remove it.
      *
      * @param array  $array
      * @param string $key
@@ -507,7 +505,7 @@ class Arr
     }
 
     /**
-     * Ambil satu atau beberapa nilai acak dari array.
+     * Pick a random item from the array.
      *
      * @param array    $array
      * @param int|null $number
@@ -546,8 +544,8 @@ class Arr
     }
 
     /**
-     * Set item array ke value yang diberikan menggunakan notasi "dot"
-     * Jika tidak ada key yang diberikan untuk method ini, seluruh array akan di-replace.
+     * Set array value using dot notation.
+     * If no key is given for this method, the entire array will be replaced.
      *
      * @param array  $array
      * @param string $key
@@ -579,7 +577,7 @@ class Arr
     }
 
     /**
-     * Acak array yang diberikan dan kembalikan hasilnya.
+     * Shuffle array then return the result.
      *
      * @param array    $array
      * @param int|null $seed
@@ -600,14 +598,14 @@ class Arr
     }
 
     /**
-     * Urutkan array menggunakan callback atau menggunakan notasi "dot".
+     * Sort array using callback or dot notatio.
      *
-     * @param array                $array
+     * @param array         $array
      * @param callable|null $callback
      *
      * @return array
      */
-    public static function sort($array, callable $callback = null)
+    public static function sort($array, $callback = null)
     {
         $results = [];
 
@@ -633,7 +631,7 @@ class Arr
     }
 
     /**
-     * Urutkan array berdasarkan key dan value secara rekursif.
+     * Recursively sort array using callback or dot notation.
      *
      * @param array $array
      *
@@ -657,7 +655,7 @@ class Arr
     }
 
     /**
-     * Saring array menggunakan callback.
+     * Filter array using callback.
      *
      * @param array    $array
      * @param callable $callback
@@ -678,7 +676,7 @@ class Arr
     }
 
     /**
-     * Bungkus value kedalam array.
+     * Wrap value into array.
      *
      * @param mixed $value
      *

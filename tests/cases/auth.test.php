@@ -50,7 +50,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Helper: set value di $_SERVER.
+     * Helper: set value in $_SERVER.
      *
      * @param string $key
      * @param string $value
@@ -63,7 +63,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Inisialisasi ulang global request.
+     * Restart the request instance.
      *
      * @return void
      */
@@ -75,7 +75,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::user() - 1.
+     * Test for Auth::user() - 1.
      *
      * @group system
      */
@@ -87,7 +87,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::check() - 1.
+     * Test for Auth::check() - 1.
      *
      * @group system
      */
@@ -99,7 +99,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::check() - 2.
+     * Test for Auth::check() - 2.
      *
      * @group system
      */
@@ -111,7 +111,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::guest() - 1.
+     * Test for Auth::guest() - 1.
      *
      * @group system
      */
@@ -123,7 +123,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::guest() - 2.
+     * Test for Auth::guest() - 2.
      *
      * @group system
      */
@@ -135,7 +135,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::user() - 2.
+     * Test for Auth::user() - 2.
      *
      * @group system
      */
@@ -147,7 +147,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::user() - 3.
+     * Test for Auth::user() - 3.
      *
      * @group system
      */
@@ -162,7 +162,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::user() - 4.
+     * Test for Auth::user() - 4.
      *
      * @group system
      */
@@ -175,7 +175,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::recall().
+     * Test for Auth::recall().
      *
      * @group system
      */
@@ -193,7 +193,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::attempt() - 1.
+     * Test for Auth::attempt() - 1.
      *
      * @group system
      */
@@ -207,7 +207,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::attempt() - 2.
+     * Test for Auth::attempt() - 2.
      *
      * @group system
      */
@@ -235,7 +235,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::login() - 1.
+     * Test for Auth::login() - 1.
      *
      * @group system
      */
@@ -260,7 +260,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::login() - 2.
+     * Test for Auth::login() - 2.
      *
      * @group system
      */
@@ -294,7 +294,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Auth::logout().
+     * Test for Auth::logout().
      *
      * @group system
      */
@@ -311,7 +311,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test event 'rakit.auth: login' dan 'rakit.auth: logout' bisa terpanggil dengan benar.
+     * Test 'rakit.auth: login' dan 'rakit.auth: logout' can be called.
      *
      * @group system
      */

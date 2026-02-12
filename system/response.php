@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class Response
 {
     /**
-     * Berisi konten response.
+     * Contains the response content.
      *
      * @var mixed
      */
     public $content;
 
     /**
-     * Berisi instance http foundation response.
+     * Contains the instance of http foundation response.
      *
      * @var \System\Foundation\Http\Response
      */
     protected $foundation;
 
     /**
-     * Buat instance Response baru.
+     * Create a new Response instance.
      *
      * @param mixed $content
      * @param int   $status
@@ -38,7 +38,7 @@ class Response
     }
 
     /**
-     * Ambil instance foundation response.
+     * Get the instance of the foundation response.
      *
      * @return \System\Foundation\Http\Response
      */
@@ -48,17 +48,17 @@ class Response
     }
 
     /**
-     * Buat instance Response baru.
+     * Create a new Response instance.
      *
      * <code>
      *
-     *      // Buat sebuah instance response dengan konten berupa string
+     *      // Create a response instance with content as string
      *      return Response::make(json_encode($user));
      *
-     *      // Buat sebuah instance response dengan status code kustom
+     *      // Create a response instance with custom status code
      *      return Response::make('Not Found', 404);
      *
-     *      // Buat sebuah instance response dengan beberapa custom headers
+     *      // Create a response instance with custom status code and headers
      *      return Response::make(json_encode($user), 200, ['header' => 'value']);
      *
      * </code>
@@ -75,14 +75,14 @@ class Response
     }
 
     /**
-     * Buat sebuah instance response baru berupa view.
+     * Create a new Response instance with a view.
      *
      * <code>
      *
-     *      // Buat sebuah instance response berupa sebuah view
+     *      // Create a response instance with a view
      *      return Response::view('home.index');
      *
-     *      // Buat sebuah instance response berupa sebuah view dan data
+     *      // Create a response instance with a view and data
      *      return Response::view('home.index', ['name' => 'Budi']);
      *
      * </code>
@@ -100,11 +100,11 @@ class Response
     }
 
     /**
-     * Buat sebuah instance response JSON.
+     * Create a new Response instance with JSON content.
      *
      * <code>
      *
-     *      // Buat sebuah instance response berupa JSON.
+     *      // Create a response instance with JSON content.
      *      return Response::json($data, 200, ['header' => 'value']);
      *
      * </code>
@@ -123,11 +123,11 @@ class Response
     }
 
     /**
-     * Buat sebuah instance response JSONP.
+     * Create a new Response instance with JSONP content.
      *
      * <code>
      *
-     *      // Buat sebuah instance response JSONP.
+     *      // Create a response instance with JSONP content.
      *      return Response::jsonp('myFunctionCall', $data, 200, ['header' => 'value']);
      *
      * </code>
@@ -149,11 +149,11 @@ class Response
     }
 
     /**
-     * Buat sebuah instance response dari Facile Model yang diubah ke JSON.
+     * Create a new Response instance with Facile Model content.
      *
      * <code>
      *
-     *      // Buat sebuah instance response dari Facile Model yang diubah ke JSON
+     *      // Create a response instance with Facile Model content.
      *      return Response::facile($data, 200, ['header' => 'value']);
      *
      * </code>
@@ -171,18 +171,17 @@ class Response
     }
 
     /**
-     * Buat instance response error.
-     * Status code dari response errornya harus menggunakan HTTP status codes.
-     * Error code yang dipilih juga harus cocok dengan nama file view
-     * di dalam folder application/views/error/.
-     * Silahkan tambahkan file view error baru jika belum ada.
+     * Create a new Response instance with error content.
+     * Status code of the error response must use HTTP status codes.
+     * The error code must match the name of the view file in the application/views/error/ folder.
+     * If the view file does not exist, you can add a new one there.
      *
      * <code>
      *
-     *      // Buat response 404
+     *      // Create a 404 response
      *      return Response::error(404);
      *
-     *      // Buat response error dengan custom header
+     *      // Create a response error with custom header
      *      return Response::error(429, ['Retry-After' => 1234567]);
      *
      * </code>
@@ -215,14 +214,14 @@ class Response
     }
 
     /**
-     * Buat instance response download.
+     * Create a new Response instance with download content.
      *
      * <code>
      *
-     *      // Buat response download ke sebuah file
+     *      // Create a response download to a file
      *      return Response::download('path/to/file.jpg');
      *
-     *      // Buat response download ke sebuah file dengan nama kustom
+     *      // Create a response download to a file with a custom name
      *      return Response::download('path/to/file.jpg', 'kittens.jpg');
      *
      * </code>
@@ -254,7 +253,7 @@ class Response
             Session::save();
         }
 
-        // Lihat: https://www.php.net/manual/en/function.fpassthru.php#55519
+        // See: https://www.php.net/manual/en/function.fpassthru.php#55519
         session_write_close();
         ob_end_clean();
 
@@ -276,7 +275,7 @@ class Response
     }
 
     /**
-     * Siapkan sebuah response dari value yang diberikan.
+     * Prepare a new Response instance with download content.
      *
      * @param mixed $response
      *
@@ -288,7 +287,7 @@ class Response
     }
 
     /**
-     * Kirim header dan konten response ke browser.
+     * Send the response to the browser.
      */
     public function send()
     {
@@ -298,7 +297,7 @@ class Response
     }
 
     /**
-     * Ubah konten response menjadi string.
+     * Render the content of the response to a string.
      *
      * @return string
      */
@@ -313,7 +312,7 @@ class Response
     }
 
     /**
-     * Kirim semua headers ke browser.
+     * Send all headers to the browser.
      */
     public function send_headers()
     {
@@ -322,7 +321,7 @@ class Response
     }
 
     /**
-     * Set cookie di http foundation response.
+     * Set cookie in http foundation response.
      */
     protected function cookies()
     {
@@ -334,7 +333,7 @@ class Response
     }
 
     /**
-     * Tambahkan header ke array response headers.
+     * Add a header to the response headers array.
      *
      * @param string $name
      * @param string $value
@@ -348,7 +347,7 @@ class Response
     }
 
     /**
-     * Set multiple headers dengan chaining.
+     * Set multiple headers with chaining.
      *
      * @param array $headers
      *
@@ -359,11 +358,12 @@ class Response
         foreach ($headers as $name => $value) {
             $this->header($name, $value);
         }
+
         return $this;
     }
 
     /**
-     * Set cookie dengan chaining.
+     * Set cookie with chaining.
      *
      * @param string $name
      * @param string $value
@@ -381,20 +381,20 @@ class Response
     }
 
     /**
-     * Set status code dengan chaining.
+     * Set status code with chaining.
      *
      * @param int $code
      *
      * @return Response
      */
-    public function set_status_code($code)
+    public function with_status_code($code)
     {
         $this->status($code);
         return $this;
     }
 
     /**
-     * Ambil headers dari http foundation response.
+     * Get response headers.
      *
      * @return \System\Foundation\Http\Parameter
      */
@@ -404,7 +404,7 @@ class Response
     }
 
     /**
-     * Get / set status code response.
+     * Get or set response status code.
      *
      * @param int $status
      *
@@ -421,7 +421,7 @@ class Response
     }
 
     /**
-     * Merender response ketika di cast ke string.
+     * Render response when cast to string.
      *
      * @return string
      */

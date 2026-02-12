@@ -7,18 +7,18 @@ defined('DS') or exit('No direct access.');
 class Magic
 {
     /**
-     * Berisi atribut-atribut yang di-set ke container.
+     * Contains attributes set to container.
      *
      * @var array
      */
     public $attributes = [];
 
     /**
-     * Buat instance magic container baru.
+     * Create a new magic container instance.
      *
      * <code>
      *
-     *      // Buat instance magic container baru denngan atribut tambahan.
+     *      // Create a new magic container instance with additional attributes.
      *      $magic = new Magic(['name' => 'Budi']);
      *
      * </code>
@@ -33,7 +33,7 @@ class Magic
     }
 
     /**
-     * Ambil value atribut dari magic container.
+     * Get value attribute from magic container.
      *
      * @param string $attribute
      * @param mixed  $default
@@ -46,7 +46,7 @@ class Magic
     }
 
     /**
-     * Tangani pemanggilan set atribut secara dinamis.
+     * Handle dynamic attribute setting.
      *
      * <code>
      *
@@ -65,7 +65,7 @@ class Magic
     }
 
     /**
-     * Ambil value atribut secara dinamis.
+     * Get value attribute dynamically.
      */
     public function __get($key)
     {
@@ -75,7 +75,7 @@ class Magic
     }
 
     /**
-     * Set value atribut secara dinamis.
+     * Set value attribute dynamically.
      */
     public function __set($key, $value)
     {
@@ -83,7 +83,7 @@ class Magic
     }
 
     /**
-     * Cek secara dinamis value atribut sudah di-set atau belum.
+     * Check dynamically if attribute value is set.
      */
     public function __isset($key)
     {
@@ -91,7 +91,7 @@ class Magic
     }
 
     /**
-     * Unset value atribut secara dinamis.
+     * Unset value attribute dynamically.
      */
     public function __unset($key)
     {

@@ -10,14 +10,14 @@ use System\Database\Schema\Table;
 class MySQL extends Grammar
 {
     /**
-     * Identifier keyword milik engine database.
+     * Wrapper format.
      *
      * @var string
      */
     public $wrapper = '`%s`';
 
     /**
-     * Buat sintaks sql untuk pembuatan tabel.
+     * Create the sql for creating a new table.
      *
      * @param Table $table
      * @param Magic $command
@@ -37,7 +37,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk modifikasi tabel.
+     * Create the sql for adding new columns to a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -54,7 +54,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql definisi kolom.
+     * Create the column definitions for a table.
      *
      * @param Table $table
      *
@@ -82,7 +82,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi unsigned column.
+     * Create the sql for unsigned attribute.
      *
      * @param Table $table
      * @param Magic $column
@@ -99,7 +99,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk set charset.
+     * Create the sql for set charset.
      *
      * @param Table $table
      * @param Magic $column
@@ -116,7 +116,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk set collation.
+     * Create the sql for set collation.
      *
      * @param Table $table
      * @param Magic $column
@@ -133,7 +133,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk indikasi bahwa kolom boleh null.
+     * Create the sql for nullable attribute.
      *
      * @param Table $table
      * @param Magic $column
@@ -146,7 +146,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk set default value kolom.
+     * Create the sql for default value attribute.
      *
      * @param Table $table
      * @param Magic $column
@@ -161,7 +161,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk definisi kolom auto-increment.
+     * Create the sql for incrementer attribute.
      *
      * @param Table $table
      * @param Magic $column
@@ -178,7 +178,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk comment kolom.
+     * Create the sql for comment attribute.
      *
      * @param Table $table
      * @param Magic $column
@@ -193,7 +193,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk after kolom.
+     * Create the sql for after column.
      *
      * @param Table $table
      * @param Magic $column
@@ -208,7 +208,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk first kolom.
+     * Create the sql for first column.
      *
      * @param Table $table
      * @param Magic $column
@@ -223,7 +223,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat kolom primary key.
+     * Create the sql for primary key.
      *
      * @param Table $table
      * @param Magic $command
@@ -236,7 +236,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat unique index.
+     * Create the sql for unique index.
      *
      * @param Table $table
      * @param Magic $command
@@ -249,7 +249,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat fulltext index.
+     * Create the sql for fulltext index.
      *
      * @param Table $table
      * @param Magic $command
@@ -262,7 +262,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index biasa.
+     * Create the sql for standard index.
      *
      * @param Table $table
      * @param Magic $command
@@ -275,7 +275,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk membuat index baru.
+     * Create the sql for key.
      *
      * @param Table  $table
      * @param Magic  $command
@@ -290,7 +290,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk rename tabel.
+     * Create the sql for renaming a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -303,7 +303,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop kolom.
+     * Create the sql for drop column.
      *
      * @param Table $table
      * @param Magic $command
@@ -320,7 +320,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop primary key.
+     * Create the sql for drop primary key.
      *
      * @param Table $table
      * @param Magic $command
@@ -333,7 +333,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique key.
+     * Create the sql for drop unique key.
      *
      * @param Table $table
      * @param Magic $command
@@ -346,7 +346,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop fultext key.
+     * Create the sql for drop fulltext key.
      *
      * @param Table $table
      * @param Magic $command
@@ -359,7 +359,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop key index biasa.
+     * Create the sql for drop index key.
      *
      * @param Table $table
      * @param Magic $command
@@ -372,7 +372,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop key.
+     * Create the sql for drop key.
      *
      * @param Table $table
      * @param Magic $command
@@ -385,7 +385,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Drop foreign key constraint dari tabel.
+     * Drop a foreign key constraint from a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -398,7 +398,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk spatial index.
+     * Create the sql for spatial index.
      *
      * @param Table $table
      * @param Magic $command
@@ -411,7 +411,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk rename kolom.
+     * Rename a column on a table.
      *
      * @param Table $table
      * @param Magic $command
@@ -420,11 +420,12 @@ class MySQL extends Grammar
      */
     public function rename_column(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME COLUMN ' . $this->wrap($command->from) . ' TO ' . $this->wrap($command->to);
+        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME COLUMN '
+            . $this->wrap($command->from) . ' TO ' . $this->wrap($command->to);
     }
 
     /**
-     * Buat sintaks sql untuk drop kolom jika ada.
+     * Create sql syntax to drop column if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -441,7 +442,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop index jika ada.
+     * Create sql syntax to drop index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -454,7 +455,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop unique jika ada.
+     * Create sql syntax to drop unique index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -467,7 +468,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop fulltext jika ada.
+     * Create sql syntax to drop fulltext index if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -480,7 +481,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat sintaks sql untuk drop foreign jika ada.
+     * Create sql syntax to drop foreign key if exists.
      *
      * @param Table $table
      * @param Magic $command
@@ -493,7 +494,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data string.
+     * Create a definition for string type.
      *
      * @param Magic $column
      *
@@ -505,7 +506,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data double.
+     * Create a definition for double type.
      *
      * @param Magic $column
      *
@@ -517,7 +518,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data medium integer.
+     * Create a definition for medium integer type.
      *
      * @param Magic $column
      *
@@ -529,7 +530,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data tiny integer.
+     * Create a definition for tiny integer type.
      *
      * @param Magic $column
      *
@@ -541,7 +542,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data small integer.
+     * Create a definition for small integer type.
      *
      * @param Magic $column
      *
@@ -553,7 +554,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data json.
+     * Create a definition for json type.
      *
      * @param Magic $column
      *
@@ -565,7 +566,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data jsonb.
+     * Create a definition for jsonb type.
      *
      * @param Magic $column
      *
@@ -577,7 +578,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data uuid.
+     * Create a definition for uuid type.
      *
      * @param Magic $column
      *
@@ -589,7 +590,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data ip address.
+     * Create a definition for ip address type.
      *
      * @param Magic $column
      *
@@ -601,7 +602,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data mac address.
+     * Create a definition for ip address type.
      *
      * @param Magic $column
      *
@@ -613,7 +614,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometry.
+     * Create a definition for geometry type.
      *
      * @param Magic $column
      *
@@ -625,7 +626,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data point.
+     * Create a definition for point type.
      *
      * @param Magic $column
      *
@@ -637,7 +638,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data linestring.
+     * Create a definition for linestring type.
      *
      * @param Magic $column
      *
@@ -649,7 +650,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data polygon.
+     * Create a definition for polygon type.
      *
      * @param Magic $column
      *
@@ -661,7 +662,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data geometrycollection.
+     * Create a definition for geometrycollection type.
      *
      * @param Magic $column
      *
@@ -673,7 +674,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipoint.
+     * Create a definition for multipoint type.
      *
      * @param Magic $column
      *
@@ -685,7 +686,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multilinestring.
+     * Create a definition for multilinestring type.
      *
      * @param Magic $column
      *
@@ -697,7 +698,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data multipolygon.
+     * Create a definition for multipolygon type.
      *
      * @param Magic $column
      *
@@ -709,7 +710,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data set.
+     * Create a definition for set type.
      *
      * @param Magic $column
      *
@@ -725,7 +726,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data integer.
+     * Create a definition for integer type.
      *
      * @param Magic $column
      *
@@ -737,7 +738,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data big integer.
+     * Create a definition for big integer type.
      *
      * @param Magic $column
      *
@@ -749,7 +750,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data float.
+     * Create a definition for float type.
      *
      * @param Magic $column
      *
@@ -761,7 +762,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data decimal.
+     * Create a definition for decimal type.
      *
      * @param Magic $column
      *
@@ -773,7 +774,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data enum.
+     * Create a definition for enum type.
      *
      * @param Magic $column
      *
@@ -789,7 +790,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data boolean.
+     * Create a definition for boolean type.
      *
      * @param Magic $column
      *
@@ -801,7 +802,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data date.
+     * Create a definition for date type.
      *
      * @param Magic $column
      *
@@ -813,7 +814,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data timestamp.
+     * Create a definition for timestamp type.
      *
      * @param Magic $column
      *
@@ -825,7 +826,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data text.
+     * Create a definition for text type.
      *
      * @param Magic $column
      *
@@ -837,7 +838,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data longtext.
+     * Create a definition for longtext type.
      *
      * @param Magic $column
      *
@@ -849,7 +850,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Buat definisi tipe data blob.
+     * Create a definition for mediumtext type.
      *
      * @param Magic $column
      *

@@ -14,56 +14,56 @@ use System\View;
 class Route
 {
     /**
-     * Berisi URI yang sedang direspon oleh route.
+     * Contains the URI being responded to by the route.
      *
      * @var string
      */
     public $uri;
 
     /**
-     * Berisi HTTP request method yang sedang direspon oleh route.
+     * Contains the HTTP method used by the route.
      *
      * @var string
      */
     public $method;
 
     /**
-     * Berisi nama paket tempat rute didefinisikan.
+     * Contains the package name that handles the route.
      *
      * @var string
      */
     public $package;
 
     /**
-     * Berisi nama controller yang digunakan oleh route.
+     * Contains the name of the controller used by the route.
      *
      * @var string
      */
     public $controller;
 
     /**
-     * Berisi nama action controller yang digunakan oleh route.
+     * Contains the name of the controller action used by the route.
      *
      * @var string
      */
     public $controller_action;
 
     /**
-     * Berisi nama action milik si route.
+     * Contains the action array of the route.
      *
      * @var mixed
      */
     public $action;
 
     /**
-     * Berisi parameter yang akan dioper ke callback route.
+     * Contains the route parameters.
      *
      * @var array
      */
     public $parameters;
 
     /**
-     * Buat instaance kelas route baru.
+     * Constructor.
      *
      * @param string $method
      * @param string $uri
@@ -81,7 +81,7 @@ class Route
     }
 
     /**
-     * Set array parameter ke value yang valid.
+     * Set the route parameters, merging with default values if necessary.
      *
      * @param array $action
      * @param array $parameters
@@ -98,7 +98,7 @@ class Route
     }
 
     /**
-     * Eksekusi route beserta middleware miliknya dan return responnya.
+     * Call the route and return the response.
      *
      * @return Response
      */
@@ -113,8 +113,8 @@ class Route
     }
 
     /**
-     * Eksekusi route dan return responnya.
-     * Berbeda dengan method call(), tidak ada middleware yang akan dieksekusi.
+     * Execute the route and return the raw response.
+     * Unlike the call() method, no middleware will be executed.
      *
      * @return mixed
      */
@@ -134,7 +134,7 @@ class Route
     }
 
     /**
-     * Ambil middleware yang dilampirkan ke route untuk event tertentu.
+     * Get the middlewares for the given event.
      *
      * @param string $event
      *
@@ -157,7 +157,7 @@ class Route
     }
 
     /**
-     * Ambil pola middleware untuk route.
+     * Get the middlewares that match the current route URI patterns.
      *
      * @return array
      */
@@ -181,8 +181,8 @@ class Route
     }
 
     /**
-     * Ambil nama action controller milik route
-     * Jika actionnya tidak ditemukan, NULL akan direturn.
+     * Get the controller action that handles the route.
+     * If the action is not found, NULL will be returned.
      *
      * @return string
      */
@@ -192,7 +192,7 @@ class Route
     }
 
     /**
-     * Ambil closure yang menangani route.
+     * Get the Closure handler that handles the route.
      *
      * @return \Closure
      */
@@ -204,14 +204,13 @@ class Route
     }
 
     /**
-     * Periksa apakah rute saat ini sesuai dengan nama yang diberikan.
-     * (Digunakan pada named-route).
+     * Check if the current route matches the given name (used for named routes).
      *
      * <code>
      *
-     *      // Periksa apakah rute saat ini bernama 'login'
+     *      // Check if the current route is named 'login'
      *      if (Request::route()->is('login')) {
-     *          // Rute saat ini bernama 'login'
+     *          // The current route is named 'login'
      *      }
      *
      * </code>
@@ -226,7 +225,7 @@ class Route
     }
 
     /**
-     * Periksa apakah named-route telah terdaftar atau belum.
+     * Check if a route with the given name exists.
      *
      * @param string $name
      *
@@ -238,7 +237,7 @@ class Route
     }
 
     /**
-     * Daftarkan controller (auto-discovery).
+     * Register a controller route.
      *
      * @param string|array $controllers
      * @param string|array $defaults
@@ -249,7 +248,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route GET.
+     * Register a GET route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -260,7 +259,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route HEAD.
+     * Register a HEAD route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -271,7 +270,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route TRACE.
+     * Register a TRACE route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -282,7 +281,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route CONNECT.
+     * Register a CONNECT route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -293,7 +292,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route OPTIONS.
+     * Register a OPTIONS route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -304,7 +303,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route POST.
+     * Register a POST route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -315,7 +314,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route PUT.
+     * Register a PUT route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -326,7 +325,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route PATCH.
+     * Register a PATCH route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -337,7 +336,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route DELETE.
+     * Register a DELETE route.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -348,7 +347,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah resource controller.
+     * Register a resource route.
      *
      * @param string $controller
      * @param array  $options
@@ -359,7 +358,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route untuk semua tipe request (GET, POST, PUT, DELETE).
+     * Register a route that responds to any HTTP method.
      *
      * @param string|array $route
      * @param mixed        $action
@@ -370,7 +369,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route group.
+     * Register a route group.
      *
      * @param array    $attributes
      * @param \Closure $callback
@@ -381,7 +380,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah route group dengan domain tertentu.
+     * Register a route group with a specific domain.
      *
      * @param string   $domain
      * @param \Closure $callback
@@ -392,7 +391,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah action untuk menangani beberapa route sekaligus.
+     * Register a shared route action.
      *
      * @param array $routes
      * @param mixed $action
@@ -403,7 +402,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah middleware.
+     * Register a middleware handler.
      *
      * @param string   $name
      * @param callable $handler
@@ -414,7 +413,7 @@ class Route
     }
 
     /**
-     * Panggil route yang diberikan dan return hasilnya (tanpa output ke browser).
+     * Forward a request to a given URI and return the response.
      *
      * @param string $method
      * @param string $uri
@@ -427,7 +426,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah view route.
+     * Register a view route.
      *
      * @param string $route
      * @param string $view
@@ -443,7 +442,7 @@ class Route
     }
 
     /**
-     * Daftarkan sebuah redirect route.
+     * Register a redirect route.
      *
      * @param strng $route
      * @param strng $to
@@ -459,7 +458,7 @@ class Route
     }
 
     /**
-     * Ambil list route yang telah terdaftar.
+     * Get the list of all registered routes.
      *
      * @return array
      */

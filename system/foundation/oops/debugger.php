@@ -10,90 +10,6 @@ class Debugger
     const PRODUCTION = true;
     const DETECT = null;
 
-    const COOKIE_SECRET = 'oops-debug';
-
-    /**
-     * Beralih ke mode produksi (matikan seluruh fitur debugger).
-     *
-     * @var bool
-     */
-    public static $productionMode = self::DETECT;
-
-    /**
-     * Tampilkan debug bar?
-     *
-     * @var bool
-     */
-    public static $showBar = true;
-
-    /**
-     * Langsung hentinkan aplikasi saat terjadi error?
-     * Isi dengan boolean atau konstanta error PHP (E_NOTICE, E_WARNING dsb.).
-     *
-     * @var bool|int
-     */
-    public static $strictMode = false;
-
-    /**
-     * Abaikan operator @ (diam!) agar seluruh error bisa ditampilkan.
-     *
-     * @var bool
-     */
-    public static $scream = false;
-
-    /**
-     * Berisi closure yang akan otomatis terpanggil saat terjadi fatal error.
-     *
-     * @var array|callable
-     */
-    public static $onFatalError = [];
-
-    /**
-     * Berapa dalam array/object yang harus ditampilkan oleh dump()?
-     *
-     * @var int
-     */
-    public static $maxDepth = 0;
-
-    /**
-     * Berapa banyak karakter harus ditampilkan oleh dump()?
-     *
-     * @var int
-     */
-    public static $maxLength = 0;
-
-    /**
-     * Tampilkan juga lokasi file ketika memanggil dump()?
-     *
-     * @var bool
-     */
-    public static $showLocation = false;
-
-    /**
-     * Path ke direktori tempat menyimpan log error.
-     *
-     * @var string|null
-     */
-    public static $logDirectory;
-
-    /**
-     * Log error - error ini saat berada di mode produksi.
-     * Isi dengan 0 (semua) atau konstanta error PHP (E_NOTICE, E_WARNING dsb.).
-     *
-     * @var int
-     */
-    public static $logSeverity = 0;
-
-    /**
-     * Alamat email untuk yang akan dikirimi log ketika terjadi error.
-     *
-     * @var string|array
-     */
-    public static $email;
-
-    /**
-     * Konstants untuk Debugger::log().
-     */
     const DEBUG = Logger::DEBUG;
     const INFO = Logger::INFO;
     const WARNING = Logger::WARNING;
@@ -101,73 +17,152 @@ class Debugger
     const EXCEPTION = Logger::EXCEPTION;
     const CRITICAL = Logger::CRITICAL;
 
+    const COOKIE_SECRET = 'oops-debug';
+
     /**
-     * Timestamp awal request dimulai (dalam microsecond).
+     * Switch to production mode?
+     *
+     * @var bool
+     */
+    public static $productionMode = self::DETECT;
+
+    /**
+     * Show debug bar?
+     *
+     * @var bool
+     */
+    public static $showBar = true;
+
+    /**
+     * Stop the script on strict errors?
+     * Fill with boolean or error level constants (E_NOTICE, E_WARNING, etc.).
+     *
+     * @var bool|int
+     */
+    public static $strictMode = false;
+
+    /**
+     * Show all errors, even those suppressed by @ operator?
+     *
+     * @var bool
+     */
+    public static $scream = false;
+
+    /**
+     * Contains callbacks that will be executed on fatal error.
+     *
+     * @var array|callable
+     */
+    public static $onFatalError = [];
+
+    /**
+     * How deep the dump() should go into nested structure? 0 means no limit.
+     *
+     * @var int
+     */
+    public static $maxDepth = 0;
+
+    /**
+     * How many characters should dump() output at most? 0 means no limit.
+     *
+     * @var int
+     */
+    public static $maxLength = 0;
+
+    /**
+     * Show location (file and line) for dumped variables?
+     *
+     * @var bool
+     */
+    public static $showLocation = false;
+
+    /**
+     * Contains directory where log files will be stored.
+     *
+     * @var string|null
+     */
+    public static $logDirectory;
+
+    /**
+     * Log severity level. This controls which errors are logged.
+     * Fill with 0 (all) or PHP error constants (E_NOTICE, E_WARNING, etc.).
+     *
+     * @var int
+     */
+    public static $logSeverity = 0;
+
+    /**
+     * Contains email address or array of email addresses where error should be sent.
+     *
+     * @var string|array
+     */
+    public static $email;
+
+    /**
+     * Initial request time.
      *
      * @var int
      */
     public static $time;
 
     /**
-     * Path view untuk halaman error.
+     * Contains path to error template file.
      *
      * @var string
      */
     public static $errorTemplate;
 
     /**
-     * Aktifkan debugger?
+     * Activate the debugger?
      *
      * @var bool
      */
     private static $enabled = false;
 
     /**
-     * Indikator untuk menghindari output ganda.
+     * Reserved memory to handle fatal errors.
      *
      * @var string|null
     */
     private static $reserved;
 
     /**
-     * Output buffer level awal.
+     * Contains output buffering level at the time of enabling debugger.
      *
      * @var int
      */
     private static $obLevel;
 
-
-
     /**
-     * Data penggunaan CPU.
+     * Contains CPU usage data at the time of enabling debugger.
      *
      * @var int
      */
     private static $cpuUsage;
 
     /**
-     * Berisi object kelas Panic.
+     * Contains the Panic object.
      *
      * @var Panic
      */
     private static $panic;
 
     /**
-     * Berisi object kelas Bar.
+     * Contains the Bar object.
      *
      * @var Bar
      */
     private static $bar;
 
     /**
-     * Berisi object kelas Logger.
+     * Contains the Logger object.
      *
      * @var Logger
      */
     private static $logger;
 
     /**
-     * Jangan izinkan instansiasi kelas.
+     * Disable instance creation.
      */
     final public function __construct()
     {
@@ -175,7 +170,7 @@ class Debugger
     }
 
     /**
-     * Aktifkan debugger?
+     * Enable debugger?
      *
      * @param mixed  $mode
      * @param string $logDirectory
@@ -221,11 +216,11 @@ class Debugger
         }
 
         if (function_exists('ini_set')) {
-            ini_set('display_errors', self::$productionMode ? '0' : '1'); // atau 'stderr'
+            ini_set('display_errors', self::$productionMode ? '0' : '1');
             ini_set('html_errors', '0');
             ini_set('log_errors', '0');
         } elseif (
-            ini_get('display_errors') != (!self::$productionMode) // != memang sengaja
+            ini_get('display_errors') != (!self::$productionMode) // != is intentional to cover '1' and '0'
             && ini_get('display_errors') !== (self::$productionMode ? 'stderr' : 'stdout')
         ) {
             self::exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
@@ -255,8 +250,8 @@ class Debugger
     }
 
     /**
-     * Restart debugger.
-     * Gunakan ini jika ada session baru yang dibuat setelah Debugger::enable() dipanggil.
+     * Restart the debugger dispatching.
+     * Use this if a new session is created after Debugger::enable() is called.
      *
      * @return void
      */
@@ -274,13 +269,10 @@ class Debugger
             );
         }
 
-        $bufferedOutput = '';
-        if (ob_get_length() > 0) {
-            // Simpan output yang dibuffer dan bersihkan
-            $bufferedOutput = ob_get_clean();
-        }
+        $bufferedOutput = (ob_get_length() > 0) ? ob_get_clean() : '';
 
         if (self::$enabled && session_status() !== PHP_SESSION_ACTIVE) {
+            ini_set('session.save_path', sys_get_temp_dir());
             ini_set('session.use_cookies', '1');
             ini_set('session.use_only_cookies', '1');
             ini_set('session.use_trans_sid', '0');
@@ -296,14 +288,14 @@ class Debugger
             exit;
         }
 
-        // Kembalikan output yang dibuffer
+        // Restore buffered output
         if (!empty($bufferedOutput)) {
             echo $bufferedOutput;
         }
     }
 
     /**
-     * Render loading tag.
+     * Render the debug bar loader.
      *
      * @return void
      */
@@ -335,14 +327,7 @@ class Debugger
         self::$reserved = null;
 
         $error = error_get_last();
-        $errors = [
-            E_ERROR,
-            E_CORE_ERROR,
-            E_COMPILE_ERROR,
-            E_PARSE,
-            E_RECOVERABLE_ERROR,
-            E_USER_ERROR,
-        ];
+        $errors = [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE, E_RECOVERABLE_ERROR, E_USER_ERROR];
 
         if (isset($error['type']) && in_array($error['type'], $errors, true)) {
             self::exceptionHandler(
@@ -467,12 +452,10 @@ class Debugger
                 if ($exit) {
                     echo "$s\nUnable to log error: {$ex->getMessage()}\n";
                 }
-                // otherwise suppress logging errors during non-fatal invocation
             } catch (\Exception $ex) {
                 if ($exit) {
                     echo "$s\nUnable to log error: {$ex->getMessage()}\n";
                 }
-                // otherwise suppress logging errors during non-fatal invocation
             }
         }
 
@@ -506,7 +489,7 @@ class Debugger
     }
 
     /**
-     * Error hander.
+     * Error handler.
      *
      * @throws ErrorException
      *
@@ -526,7 +509,6 @@ class Debugger
                     && (($context['e'] instanceof \Exception) || ($context['e'] instanceof \Throwable))
                 ) ? $context['e'] : null;
                 $e = new \ErrorException($message, 0, $severity, $file, $line, $previous);
-                // Store context via Context helper instead of dynamic property
                 Context::setContext($e, $context);
                 self::exceptionHandler($e);
             }
@@ -577,7 +559,7 @@ class Debugger
             }
             return;
         } else {
-            // 'FALSE' akan memanggil error handler bawaan PHP
+            // 'FALSE' will let the normal error handler continue
             return (Helpers::isHtmlMode() || Helpers::isAjax()) ? null : false;
         }
     }
@@ -593,7 +575,7 @@ class Debugger
 
             $fnc = $status['chunk_size'] || !$errorOccurred ? 'ob_end_flush' : 'ob_end_clean';
 
-            if (!@$fnc()) { // @ untuk menghindari error
+            if (!@$fnc()) { // @ to suppress potential warnings
                 break;
             }
         }
@@ -628,6 +610,22 @@ class Debugger
 
             self::$bar->addPanel(new Defaults('errors'), 'Oops:errors');
             self::$bar->addPanel(new Defaults('db'), 'db');
+
+            // Initialize collectors for new panels
+            Collectors::initialize();
+
+            // Add new debug panels
+            self::$bar->addPanel($request = new Defaults('request'), 'Oops:request');
+            self::$bar->addPanel($routes = new Defaults('routes'), 'Oops:routes');
+            self::$bar->addPanel($events = new Defaults('events'), 'Oops:events');
+            self::$bar->addPanel($view = new Defaults('view'), 'Oops:view');
+            self::$bar->addPanel($cache = new Defaults('cache'), 'Oops:cache');
+
+            // Collect data for new panels
+            $routes->data = Collectors::collectRoutes();
+            $events->data = Collectors::getData('events');
+            $view->data = Collectors::getData('views');
+            $cache->data = Collectors::getData('cache');
         }
 
         return self::$bar;
@@ -656,8 +654,8 @@ class Debugger
     }
 
     /**
-     * Dump variable ke format yang lebih mudah dibaca.
-     * Method ini bisa dipakai di mode produksi.
+     * Dump variable into a more readable format.
+     * This method can be used in production mode.
      *
      * @param mixed $var
      * @param bool  $return
@@ -668,8 +666,8 @@ class Debugger
     {
         if ($return) {
             ob_start(function () {
-                // ..
-            });
+                return '';
+            }); // disable output buffering
 
             Dumper::dump($var, [
                 Dumper::DEPTH => self::$maxDepth,
@@ -689,7 +687,7 @@ class Debugger
     }
 
     /**
-     * Mulai/hentikan timer (untuk benchmark).
+     * Start or stop a timer and return the elapsed time in seconds.
      *
      * @param string $name
      *
@@ -707,16 +705,16 @@ class Debugger
     }
 
     /**
-     * Dump variable ke debug bar.
-     * Method ini bisa dipakai di mode produksi.
+     * Dump variable to the debug bar.
+     * This method can be used in production mode.
      *
      * @param mixed  $var
      * @param string $title
      * @param array  $options
      *
-     * @return mixed variable itself
+     * @return mixed
      */
-    public static function barDump($var, $title = null, array $options = null)
+    public static function barDump($var, $title = null, array $options = [])
     {
         if (!self::$productionMode) {
             static $panel;
@@ -725,7 +723,9 @@ class Debugger
                 self::getBar()->addPanel($panel = new Defaults('dumps'), 'Oops:dumps');
             }
 
-            $panel->data[] = ['title' => $title, 'dump' => Dumper::toHtml($var, (array) $options + [
+            $panel->data[] = [
+            'title' => is_scalar($title) ? (string) $title : null,
+            'dump' => Dumper::toHtml($var, (array) $options + [
                 Dumper::DEPTH => self::$maxDepth,
                 Dumper::TRUNCATE => self::$maxLength,
                 Dumper::LOCATION => self::$showLocation ?: (Dumper::LOCATION_CLASS | Dumper::LOCATION_SOURCE),
@@ -736,7 +736,7 @@ class Debugger
     }
 
     /**
-     * Log pesab atau exception.
+     * Log a message into log file.
      *
      * @param mixed $message
      *
@@ -748,7 +748,7 @@ class Debugger
     }
 
     /**
-     * Deteksi mode debugging berdasarkan alamat IP.
+     * Detect debug mode based on IP address list.
      *
      * @param string|array $list IP
      *

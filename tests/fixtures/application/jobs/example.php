@@ -5,7 +5,7 @@ defined('DS') or exit('No direct access.');
 class Example_Job extends Jobable
 {
     /**
-     * Handle job execution.
+     * Sample job command.
      *
      * @return void
      */

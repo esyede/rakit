@@ -1,0 +1,41 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Cache;
+
+$cacheData = isset($this->data['cache']) ? $this->data['cache'] : [];
+$hitCount = isset($cacheData['hits']) ? $cacheData['hits'] : 0;
+$missCount = isset($cacheData['misses']) ? $cacheData['misses'] : 0;
+$totalOps = $hitCount + $missCount;
+$hitRate = $totalOps > 0 ? round(($hitCount / $totalOps) * 100) : 0;
+?>
+<span title="Cache">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" enable-background="new 0 0 48 48">
+        <g fill="#00BCD4">
+            <path d="M39.6,39.6c0.3,0.3,0.4,0.7,0.4,1.1s-0.1,0.8-0.4,1.1l-1.5,1.5c-0.6,0.6-1.5,0.6-2.1,0L24,31.3L12,43.3
+                c-0.6,0.6-1.5,0.6-2.1,0l-1.5-1.5c-0.3-0.3-0.4-0.7-0.4-1.1s0.1-0.8,0.4-1.1L20.7,27L8.4,14.7c-0.3-0.3-0.4-0.7-0.4-1.1
+                s0.1-0.8,0.4-1.1l1.5-1.5c0.6-0.6,1.5-0.6,2.1,0L24,22.7L36,10.7c0.6-0.6,1.5-0.6,2.1,0l1.5,1.5c0.3,0.3,0.4,0.7,0.4,1.1
+                s-0.1,0.8-0.4,1.1L27.3,27L39.6,39.6z"/>
+        </g>
+        <circle fill="#00BCD4" cx="24" cy="24" r="18"/>
+        <circle fill="#FFF" cx="24" cy="24" r="12"/>
+        <g fill="#00BCD4">
+            <circle cx="24" cy="24" r="4"/>
+            <rect x="22" y="14" width="4" height="6"/>
+            <rect x="22" y="28" width="4" height="6"/>
+            <rect x="14" y="22" width="6" height="4"/>
+            <rect x="28" y="22" width="6" height="4"/>
+        </g>
+    </svg>
+    <span class="oops-label">
+        <?php echo $totalOps; ?> op<?php echo $totalOps !== 1 ? 's' : ''; ?>
+        <?php if ($totalOps > 0) : ?>
+            <span style="color: <?php echo $hitRate >= 80 ? '#4CAF50' : ($hitRate >= 50 ? '#FF9800' : '#F44336'); ?>; margin-left: 3px;">
+                (<?php echo $hitRate; ?>%)
+            </span>
+        <?php endif; ?>
+    </span>
+</span>

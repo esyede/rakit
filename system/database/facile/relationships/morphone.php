@@ -9,21 +9,21 @@ use System\Database\Facile\Model;
 class MorphOne extends HasOne
 {
     /**
-     * Berisi morph type.
+     * Contains morph type.
      *
      * @var string
      */
     protected $type;
 
     /**
-     * Berisi morph id.
+     * Contains the morph id.
      *
      * @var string
      */
     protected $id;
 
     /**
-     * Buat instance morph one relationship baru.
+     * Constructor.
      *
      * @param Model  $model
      * @param string $associated
@@ -40,7 +40,7 @@ class MorphOne extends HasOne
     }
 
     /**
-     * Set constraint untuk query.
+     * Set the appropriate constraint on the relational query.
      */
     protected function constrain()
     {
@@ -50,7 +50,7 @@ class MorphOne extends HasOne
     }
 
     /**
-     * Set foreign key untuk relasi baru.
+     * Set the foreign key on a given model.
      *
      * @param Model $model
      */

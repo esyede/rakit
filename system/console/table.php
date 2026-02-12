@@ -19,7 +19,7 @@ class Table
     private $column_widths = [];
 
     /**
-     * Tambahkan header tabel.
+     * Add a table header.
      *
      * @param string $content
      */
@@ -30,7 +30,7 @@ class Table
     }
 
     /**
-     * Alias untuk add_header.
+     * Alias for add_header.
      *
      * @param array $content
      */
@@ -41,7 +41,7 @@ class Table
     }
 
     /**
-     * Ambil header tabel.
+     * Get table header.
      *
      * @return array
      */
@@ -51,15 +51,15 @@ class Table
     }
 
     /**
-     * Tambahkan baris.
+     * Add a table row.
      *
      * @param array|null $data
      */
-    public function add_row(array $data = null)
+    public function add_row(array $data = [])
     {
         $this->row_index++;
 
-        if (is_array($data)) {
+        if (is_array($data) && !empty($data)) {
             foreach ($data as $col => $content) {
                 $this->data[$this->row_index][$col] = $content;
             }
@@ -69,7 +69,7 @@ class Table
     }
 
     /**
-     * Tambahkan kolom.
+     * Add a table column.
      *
      * @param array $content
      * @param int   $column
@@ -89,7 +89,7 @@ class Table
     }
 
     /**
-     * Tampilkan border tabel?
+     * Show table border?
      */
     public function show_border()
     {
@@ -98,7 +98,7 @@ class Table
     }
 
     /**
-     * Sembunyukan border tabel?
+     * Hide table border?
      */
     public function hide_border()
     {
@@ -107,7 +107,7 @@ class Table
     }
 
     /**
-     * Tampilkan semua border tabel?
+     * Show all table borders?
      */
     public function show_borders()
     {
@@ -129,7 +129,7 @@ class Table
     }
 
     /**
-     * Set indentasi tabel.
+     * Set table indentation.
      *
      * @param int $value
      */
@@ -140,7 +140,7 @@ class Table
     }
 
     /**
-     * Tambah garis border.
+     * Add border line.
      */
     public function add_border_line()
     {
@@ -151,7 +151,7 @@ class Table
     }
 
     /**
-     * Cetak/tampilkan hasil tabel.
+     * Print/display the table.
      */
     public function display()
     {
@@ -159,7 +159,7 @@ class Table
     }
 
     /**
-     * Render tabel.
+     * Render the table.
      *
      * @return string
      */
@@ -201,7 +201,7 @@ class Table
     }
 
     /**
-     * Ambil garis border.
+     * Get the border line.
      *
      * @return string
      */
@@ -229,7 +229,7 @@ class Table
     }
 
     /**
-     * Ambil output sel.
+     * Get the cell output.
      *
      * @param int   $index
      * @param array $row
@@ -258,7 +258,7 @@ class Table
     }
 
     /**
-     * Hitung lebar kolom.
+     * Calculate column width.
      *
      * @return int
      */
@@ -284,7 +284,7 @@ class Table
     }
 
     /**
-     * Strpad dengan dukungan unicode.
+     * Pad a string.
      *
      * @param string $str
      * @param int    $amount

@@ -76,6 +76,7 @@ class Outputs
                 . str_replace(self::BOM, '<big>BOM</big>', Dumper::toHtml($item[2]))
                 . "</span><br>\n";
         }
+
         return $res . '</code>';
     }
 }

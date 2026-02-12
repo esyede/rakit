@@ -10,42 +10,42 @@ use System\Str;
 class Pending
 {
     /**
-     * Nama job.
+     * Contains the job name.
      *
      * @var string
      */
     protected $name;
 
     /**
-     * Payload job.
+     * Contains the job data payload.
      *
      * @var array
      */
     protected $payload;
 
     /**
-     * Waktu dispatch.
+     * Contains the dispatch time.
      *
      * @var string|null
      */
     protected $dispatch_at;
 
     /**
-     * Nama queue.
+     * Contains the queue name.
      *
      * @var string
      */
     protected $queue = 'default';
 
     /**
-     * Flag without overlapping.
+     * Indicates whether to prevent overlapping jobs.
      *
      * @var bool
      */
     protected $without_overlapping = false;
 
     /**
-     * Driver yang digunakan.
+     * Contains the driver name.
      *
      * @var string|null
      */
@@ -63,7 +63,7 @@ class Pending
         $this->name = Str::slug($name);
         $this->payload = $payload;
         $this->dispatch_at = $dispatch_at;
-        // Auto-dispatch jika tidak ada chaining
+        // Auto-dispatch when not chained
         register_shutdown_function(function () {
             if ($this->name) {
                 $this->execute();
@@ -72,7 +72,7 @@ class Pending
     }
 
     /**
-     * Set queue name.
+     * Get the queue name.
      *
      * @param string $queue
      *
@@ -85,7 +85,7 @@ class Pending
     }
 
     /**
-     * Set without overlapping.
+     * Prevent overlapping jobs.
      *
      * @return $this
      */
@@ -96,7 +96,7 @@ class Pending
     }
 
     /**
-     * Set driver.
+     * Set the driver to use.
      *
      * @param string $driver
      *
@@ -109,7 +109,7 @@ class Pending
     }
 
     /**
-     * Execute dispatch.
+     * Execute the job dispatch.
      *
      * @return bool
      */
@@ -121,12 +121,12 @@ class Pending
 
         $driver = Job::driver($this->driver ?: null);
 
-        // Cek overlapping
+        // Check for overlapping
         if ($this->without_overlapping && $driver->has_overlapping($this->name, $this->queue)) {
             return false;
         }
 
-        // Add job dengan queue
+        // Add job to the queue
         $result = $driver->add(
             $this->name,
             $this->payload,
@@ -142,7 +142,7 @@ class Pending
     }
 
     /**
-     * Force dispatch sekarang.
+     * Force dispatch now.
      *
      * @return bool
      */
@@ -152,7 +152,7 @@ class Pending
     }
 
     /**
-     * Destructor - pastikan job di-dispatch.
+     * Destructor - ensure the job is dispatched.
      */
     public function __destruct()
     {

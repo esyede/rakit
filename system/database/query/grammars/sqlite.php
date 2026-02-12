@@ -9,7 +9,7 @@ use System\Database\Query;
 class SQLite extends Grammar
 {
     /**
-     * Compile klausa ORDER BY.
+     * Compile the "order by" portions of the query.
      *
      * @param Query $query
      *
@@ -28,8 +28,8 @@ class SQLite extends Grammar
     }
 
     /**
-     * Compile sql INSERT dari instance query.
-     * Method ini menangani kompilasi insert row tunggal dan batch.
+     * Compile the INSERT statement.
+     * This method handles inserting multiple records at once using a single query.
      *
      * @param Query $query
      * @param array $values
@@ -53,7 +53,6 @@ class SQLite extends Grammar
         }
 
         $columns = array_fill(0, count($values), implode(', ', $columns));
-
         return 'INSERT INTO ' . $table . ' (' . $names . ') SELECT ' . implode(' UNION SELECT ', $columns);
     }
 }

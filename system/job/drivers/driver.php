@@ -12,7 +12,7 @@ use System\Log;
 abstract class Driver
 {
     /**
-     * Tambahkan sebuah job.
+     * Add a new job to the queue.
      *
      * @param string      $name
      * @param array       $payloads
@@ -31,7 +31,7 @@ abstract class Driver
     );
 
     /**
-     * Cek apakah job sedang overlapping.
+     * Check if there is an overlapping job.
      *
      * @param string $name
      * @param string $queue
@@ -41,7 +41,7 @@ abstract class Driver
     abstract public function has_overlapping($name, $queue = 'default');
 
     /**
-     * Hapus job berdasarkan nama.
+     * Delete a job from the queue.
      *
      * @param string      $name
      * @param string|null $queue
@@ -51,7 +51,7 @@ abstract class Driver
     abstract public function forget($name, $queue = null);
 
     /**
-     * Jalankan antrian job di database.
+     * Run a specific job in the database.
      *
      * @param string      $name
      * @param int         $retries
@@ -63,7 +63,7 @@ abstract class Driver
     abstract public function run($name, $retries = 1, $sleep_ms = 0, $queue = null);
 
     /**
-     * Jalankan semua job di database.
+     * Run all available jobs in the database.
      *
      * @param int         $retries
      * @param int         $sleep_ms
@@ -74,7 +74,7 @@ abstract class Driver
     abstract public function runall($retries = 1, $sleep_ms = 0, $queues = null);
 
     /**
-     * Log pesan job.
+     * Log the job message.
      *
      * @param string $message
      * @param string $type
@@ -87,9 +87,7 @@ abstract class Driver
             Log::channel(null);
 
             if (Request::cli()) {
-                $message = '[' . Carbon::now()->format('Y-m-d H:i:s') . '] ';
-                $message .= '[' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
-                echo $message;
+                echo '[' . Carbon::now()->format('Y-m-d H:i:s') . '] [' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
             }
         }
     }

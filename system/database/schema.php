@@ -12,7 +12,7 @@ use System\Str;
 class Schema
 {
     /**
-     * Mulai operasi schema terhadap tabel.
+     * Start the schema builder for a table.
      *
      * @param string   $table
      * @param \Closure $builder
@@ -27,7 +27,7 @@ class Schema
     }
 
     /**
-     * List semua tabel di database saat ini.
+     * List all tables in the current database.
      *
      * @param string $connection
      *
@@ -82,7 +82,7 @@ class Schema
     }
 
     /**
-     * List seluruh kolom milik suatu tabel saat ini.
+     * List all columns of a table.
      *
      * @param string      $table
      * @param string|null $connection
@@ -134,7 +134,7 @@ class Schema
     }
 
     /**
-     * Cek apakah tabel ada di database saat ini.
+     * Check if a table exists in the database.
      *
      * @param string      $table
      * @param string|null $connection
@@ -147,7 +147,7 @@ class Schema
     }
 
     /**
-     * Cek apakah kolom ada di suatu tabel.
+     * Check if a column exists in a table.
      *
      * @param string      $table
      * @param string      $column
@@ -161,7 +161,7 @@ class Schema
     }
 
     /**
-     * Hidupkan foreign key constraint checking.
+     * Enable foreign key constraint checking.
      *
      * @param string      $table
      * @param string|null $connection
@@ -208,7 +208,7 @@ class Schema
     }
 
     /**
-     * Matikan foreign key constraint checking.
+     * Disable foreign key constraint checking.
      *
      * @param string      $table
      * @param string|null $connection
@@ -254,7 +254,7 @@ class Schema
     }
 
     /**
-     * Buat skema tabel baru.
+     * Create a new table schema.
      *
      * @param string   $table
      * @param \Closure $builder
@@ -270,7 +270,7 @@ class Schema
     }
 
     /**
-     * Buat skema tabel baru jika tabel belum ada.
+     * Create a new table schema if it does not exist.
      *
      * @param string   $table
      * @param \Closure $builder
@@ -283,7 +283,7 @@ class Schema
     }
 
     /**
-     * Ganti nama tabel.
+     * Rename a table in the schema.
      *
      * @param string $table
      * @param string $new_name
@@ -297,7 +297,7 @@ class Schema
     }
 
     /**
-     * Hapus tabel dari skema.
+     * Delete a table from the schema.
      *
      * @param string $table
      * @param string $connection
@@ -312,7 +312,7 @@ class Schema
     }
 
     /**
-     * Hapus tabel dari skema (hanya jika tabelnya ada).
+     * Drop a table from the schema if it exists.
      *
      * @param string $table
      * @param string $connection
@@ -325,7 +325,7 @@ class Schema
     }
 
     /**
-     * Jalankan operasi skema terhadap database.
+     * Execute the schema operations for a table.
      *
      * @param Schema\Table $table
      */
@@ -348,7 +348,7 @@ class Schema
     }
 
     /**
-     * Tambahkan perintah implisit apapun ke operasi skema.
+     * Add an implicit command to the table if necessary.
      *
      * @param Schema\Table $table
      */
@@ -375,7 +375,7 @@ class Schema
     }
 
     /**
-     * Mereturn query grammar yang sesuai untuk driver database saat ini.
+     * Get a schema grammar instance for the connection.
      *
      * @param \System\Database\Connection $connection
      *
@@ -391,23 +391,14 @@ class Schema
         }
 
         switch ($driver) {
-            case 'mysql':
-                return new Schema\Grammars\MySQL($connection);
-
-            case 'pgsql':
-                return new Schema\Grammars\Postgres($connection);
-
-            case 'sqlsrv':
-                return new Schema\Grammars\SQLServer($connection);
-
-            case 'sqlite':
-                return new Schema\Grammars\SQLite($connection);
-
-            default:
-                throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s',
-                    $driver
-                ));
+            case 'mysql':  return new Schema\Grammars\MySQL($connection);
+            case 'pgsql':  return new Schema\Grammars\Postgres($connection);
+            case 'sqlsrv': return new Schema\Grammars\SQLServer($connection);
+            case 'sqlite': return new Schema\Grammars\SQLite($connection);
+            default:       throw new \Exception(sprintf(
+                'Unsupported schema operations for selected driver: %s',
+                $driver
+            ));
         }
     }
 }

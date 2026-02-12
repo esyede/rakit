@@ -23,7 +23,7 @@ class stub_class extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Contoh test sederhana.
+     * Sample test.
      *
      * @group <test-group-placeholder>
      */

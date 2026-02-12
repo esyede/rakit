@@ -5,7 +5,7 @@ defined('DS') or exit('No direct access.');
 class Home_Controller extends Controller
 {
     /**
-     * Buat instance controller baru.
+     * Constructor.
      */
     public function __construct()
     {
@@ -19,6 +19,7 @@ class Home_Controller extends Controller
      */
     public function action_index()
     {
+        bd([[get_declared_classes(), get_declared_classes()]]);
         return View::make('home');
     }
 }

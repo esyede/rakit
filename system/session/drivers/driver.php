@@ -9,8 +9,8 @@ use System\Str;
 abstract class Driver
 {
     /**
-     * Muat session berdasarkan ID yang diberikan.
-     * Jika session tidak ditemukan, NULL akan direturn.
+     * Load the session based on the given ID.
+     * If the session is not found, NULL will be returned.
      *
      * @param string $id
      *
@@ -19,7 +19,7 @@ abstract class Driver
     abstract public function load($id);
 
     /**
-     * Simpan session.
+     * Save the session data.
      *
      * @param array $session
      * @param array $config
@@ -28,14 +28,14 @@ abstract class Driver
     abstract public function save(array $session, array $config, $exists);
 
     /**
-     * Hapus session berdasarkan ID yang diberikan.
+     * Delete the session with the given ID.
      *
      * @param string $id
      */
     abstract public function delete($id);
 
     /**
-     * Buat data session baru dengan ID yang unik.
+     * Generate a fresh session array.
      *
      * @return array
      */
@@ -45,7 +45,7 @@ abstract class Driver
     }
 
     /**
-     * Ambil ID unik yang belum pernah dipakai oleh session.
+     * Get a unique session ID.
      *
      * @return string
      */

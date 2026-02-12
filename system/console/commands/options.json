@@ -1,22 +1,22 @@
 {
     "--env=": {
-        "description": "Ubah environment bawaan.",
+        "description": "Switch environment.",
         "command": "php rakit serve --env=local"
     },
     "--database=": {
-        "description": "Set koneksi database default.",
+        "description": "Change default database connection.",
         "command": "php rakit command --database=mysql"
     },
     "--verbose=true": {
-        "description": "Verbose output untuk package:install.",
+        "description": "Verbose output for package:install.",
         "command": "php rakit package:install foobar --verbose=true"
     },
     "--host=": {
-        "description": "Ubah host bawaan.",
+        "description": "Change default host.",
         "command": "php rakit serve --host=0.0.0.0"
     },
     "--port=": {
-        "description": "Ubah port bawaan.",
+        "description": "Change default port.",
         "command": "php rakit serve --port=9000"
     }
 }

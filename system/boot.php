@@ -6,19 +6,19 @@ defined('DS') or exit('No direct access.');
 
 /*
 |--------------------------------------------------------------------------
-| Panggil Init Script
+| Call Init Script
 |--------------------------------------------------------------------------
-| Panggil init script sebelum first boot.
+| Call init script before first boot.
 */
 
 require __DIR__ . DS . 'init.php';
 
 /*
 |--------------------------------------------------------------------------
-| Muat helpers dan autoloader awal untuk debugger
+| Load Helpers and Autoloader
 |--------------------------------------------------------------------------
 |
-| Muat helpers dan autoloader sebelum core untuk inisialisasi debugger early.
+| Load Helpers and Autoloader before core for early debugger initialization.
 |
 */
 
@@ -29,11 +29,25 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 
 /*
 |--------------------------------------------------------------------------
-| Inisialisasi debugger awal
+| Run the Core Boot
 |--------------------------------------------------------------------------
 |
-| Enable debugger sebelum boot package untuk tangkap error early seperti
-| koneksi Redis yang gagal saat session init.
+| With the inclusion of this file, the core boot of the framework
+| will be executed, which contains the autoloader and package registration.
+| In essence, after including this file, the rakit framework is
+| ready to be used by the developer.
+|
+*/
+
+require __DIR__ . DS . 'core.php';
+
+/*
+|--------------------------------------------------------------------------
+| Early Debugger Initialization
+|--------------------------------------------------------------------------
+|
+| Enable debugger before boot package for early error capture like
+| failed Redis/Database connection during session init.
 |
 */
 
@@ -42,41 +56,15 @@ use System\Foundation\Oops\Debugger;
 $debugger = require path('app') . 'config' . DS . 'debugger.php';
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
 Debugger::enable(null, path('storage') . 'logs');
-
 /*
 |--------------------------------------------------------------------------
-| Jalankan Core Boot
+| Boot the 'application' Package
 |--------------------------------------------------------------------------
 |
-| Dengan meng-include file ini, core boot milik framework akan dijalankan,
-| yang mana didalamnya mengandung autoloader dan registrasi paket.
-| Pada dasarnya, setelah file ini diinclude, rakit framework
-| sudah dapat digunakan oleh si developer.
-|
-*/
-
-require __DIR__ . DS . 'core.php';
-
-/*
-|--------------------------------------------------------------------------
-| Enable Debugger Lebih Awal
-|--------------------------------------------------------------------------
-|
-| Enable debugger sebelum boot package untuk tangkap error early seperti
-| koneksi Redis yang gagal saat session init.
-|
-*/
-
-Debugger::enable(null, path('storage') . 'logs');
-/*
-|--------------------------------------------------------------------------
-| Mulai Paket 'application'
-|--------------------------------------------------------------------------
-|
-| Paket 'application' ini adalah paket default di rakit framework.
-| Ya, folder application/ itu adalah sebuah paket, tepatnya paket default.
-| Kita perlu menjalankannya pertama kali, karena paket ini akan memuat
-| seluruh konfigurasi inti framework.
+| The 'application' package is the default package in the rakit framework.
+| Yes, the application/ folder is a package, the default package.
+| We need to boot it first, because this package will load all the core
+| configuration of the framework.
 |
 */
 
@@ -84,12 +72,12 @@ Package::boot(DEFAULT_PACKAGE);
 
 /*
 |--------------------------------------------------------------------------
-| Konfigurasi Debugger
+| Re-configure the Debugger
 |--------------------------------------------------------------------------
 |
-| Atur konfigurasi debugger sesuai data yang diberikan user di file
-| application/config/debugger.php. Config sudah dimuat awal, tapi set ulang
-| untuk memastikan konsistensi setelah package boot.
+| Re-configure the debugger based on the configuration settings in the
+| application/config/debugger.php file. The config has already been loaded,
+| we need to re-configure it to ensure consistency after the package boot.
 |
 */
 
@@ -111,17 +99,19 @@ Debugger::$showLocation = (bool) $debugger['location'];
 Debugger::$maxDepth = (int) $debugger['depth'];
 Debugger::$maxLength = (int) $debugger['length'];
 Debugger::$email = (string) $debugger['email'];
+Debugger::detectDebugMode();
+Debugger::dispatch();
 
 unset($debugger, $template, $debugger);
 
 /*
 |--------------------------------------------------------------------------
-| Jalankan Paket Lain
+| Boot Other Packages
 |--------------------------------------------------------------------------
 |
-| Kita tahu, paket yang digunakan di aplikasi anda bisa di-autoboot
-| sehingga dia bisa langsung digunakan tanpa harus di-boot secara manual.
-| Nah, disini kita melakukannya.
+| We know, the packages used in your application can be autoboot
+| so they can be used directly without having to be manually booted.
+| Here we do it.
 |
 */
 
@@ -133,12 +123,12 @@ foreach (Package::$packages as $package => $config) {
 
 /*
 |--------------------------------------------------------------------------
-| Daftarkan Catch-All Route
+| Register Catch-All Route
 |--------------------------------------------------------------------------
 |
-| Catch-all route ini menangani seluruh rute yang tidak dapat ditemukan di
-| aplikasi Anda, dan akan menjalankan event 404 sehingga si developer
-| bisa dengan mudah mengubah cara penanganannya sesuai kebutuhan.
+| This route handles all routes that cannot be found in your application,
+| and will trigger the 404 event so that developers can easily change
+| how it is handled according to their needs.
 |
 */
 
@@ -148,12 +138,12 @@ Routing\Router::register('*', '(:all)', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Baca URI Dan Locale
+| Read URI And Locale
 |--------------------------------------------------------------------------
 |
-| Ketika request diarahkan, kita perlu mengambil URI dan locale (bahasa)
-| yang didukung oleh rute tujuan agar kita bisa mengarahkan requestnya ke
-| lokasi yang tepat serta men-set bahasa yang sesuai dengan yang diminta.
+| When a request is routed, we need to read the URI and supported locale
+| of the destination route so that we can redirect the request to the
+| appropriate location and set the appropriate language.
 |
 */
 
@@ -168,12 +158,12 @@ usort($languages, function ($a, $b) {
 
 /*
 |--------------------------------------------------------------------------
-| Set Locale Berdasarkan Rute
+| Set the Locale Based On Route
 |--------------------------------------------------------------------------
 |
-| Jika URI diawali dengan salah satu 'locale' yang didukung, kita akan set
-| bahasa default sesuai segmen URI tersebut, lalu kita set URI-nya
-| dan kita beri tahu Router agar tidak menyertakan segmen 'locale'-nya.
+| When the URI starts with one of the supported 'locale', we will set
+| the default language based on the URI segment, then we set the URI
+| and we tell the Router not to include the 'locale' segment.
 |
 */
 
@@ -192,12 +182,12 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 
 /*
 |--------------------------------------------------------------------------
-| Arahkan Request Yang Datang
+| Direct Incoming Request
 |--------------------------------------------------------------------------
 |
-| Fiuh! Akhirnya kita bisa mengarahkan request ke lokasi yang tepat dan
-| mengeksekusinya untuk mendapatkan respon. Si respon ini berupa instance
-| dari kelas \System\Response yang bisa kita kirim ke browser.
+| Finally, we can direct the request to the correct location and execute it
+| to get a response. This response is an instance of the \System\Response
+| class that we can send to the browser.
 |
 */
 
@@ -207,10 +197,10 @@ $response = Request::$route->call();
 
 /*
 |--------------------------------------------------------------------------
-| Render Responnya
+| Render the Response
 |--------------------------------------------------------------------------
 |
-| Method render() ini mengevaluasi konten respon dan mengubahnya ke string.
+| This method evaluates the response content and converts it to a string.
 |
 */
 
@@ -218,12 +208,12 @@ $response->render();
 
 /*
 |--------------------------------------------------------------------------
-| Pertahankan Session
+| Persist Session
 |--------------------------------------------------------------------------
 |
-| Jika sudah ada session yang aktif, kita akan simpan sessionnya
-| agar tetap bisa dipakai di request berikutnya. Ini juga akan men-set
-| session cookie di cookie jar untuk dikirim ke user.
+| If there is an active session, we will save it so that it can be used in
+| the next request. This will also set the session cookie in the cookie
+| jar to be sent to the user.
 |
 */
 
@@ -233,11 +223,11 @@ if (Config::get('session.driver')) {
 
 /*
 |--------------------------------------------------------------------------
-| Kirim Responnya Ke Browser
+| Send Response to Browser
 |--------------------------------------------------------------------------
 |
-| Disini kita akan mengirim responnya ke browser. Method ini akan
-| mengirim seluruh headers dan konten respon Anda ke browser.
+| Here we will send the response to the browser. This method will send
+| all headers and content of the response to the browser.
 |
 */
 
@@ -245,11 +235,11 @@ $response->send();
 
 /*
 |--------------------------------------------------------------------------
-| Oke, Selesai!
+| Okay, Done!
 |--------------------------------------------------------------------------
 |
-| Jalankan event 'done' agar output lainnya bisa ditambahkan ke respon.
-| Output lain yang dimaksud misalnya Anda melakukan semacam logging.
+| Fire the 'done' event to allow other outputs (such as logging, error handling)
+| to be added to the response.
 |
 */
 
@@ -257,11 +247,10 @@ Event::fire('rakit.done', [$response]);
 
 /*
 |--------------------------------------------------------------------------
-| Selesaikan Request PHP-FastCGI
+| Finish the Request
 |--------------------------------------------------------------------------
 |
-| Hentikan proses PHP untuk server pengguna FastCGI agar ekseskusi script
-| bisa (agak) lebih cepat.
+| Send the response to the browser and finish the request.
 */
 
 $response->foundation()->finish();

@@ -9,7 +9,7 @@ class Github extends Provider
     protected $zipball = '<repository>/archive/refs/tags/<version>.zip';
 
     /**
-     * Instal paket yang diberikan.
+     * Install the given package.
      *
      * @param array  $package
      * @param string $path

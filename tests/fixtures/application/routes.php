@@ -2,17 +2,14 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Routing\Route;
-use System\View;
-
 /*
 |--------------------------------------------------------------------------
-| Route
+| Routes
 |--------------------------------------------------------------------------
 |
-| Cukup beri tahu rakit kata kerja HTTP dan URI yang harus ditanggapi.
-| Rakit juga mendukung RESTful routing yang sangat cocok untuk membangun
-| aplikasi berskala besar maupun API sederhana.
+| Simply tell Rakit the HTTP verbs and URIs it should respond to. It is a
+| breeze to setup your application using Rakit's RESTful routing and it
+| is perfectly suited for building large applications and simple APIs.
 |
 */
 

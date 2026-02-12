@@ -50,7 +50,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method RSA::encrypt() dan RSA::decrypt().
+     * Test for RSA::encrypt() and RSA::decrypt().
      *
      * @group system
      */
@@ -62,7 +62,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test encrypt/decrypt dengan data besar.
+     * Test encrypt/decrypt with large data.
      *
      * @group system
      */
@@ -75,7 +75,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test encrypt/decrypt dengan OAEP padding.
+     * Test encrypt/decrypt with OAEP padding.
      *
      * @group system
      */
@@ -88,7 +88,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test load_keys dan export.
+     * Test load_keys and export.
      *
      * @group system
      */
@@ -123,7 +123,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test load_keys tanpa public key.
+     * Test load_keys without public key.
      *
      * @group system
      */
@@ -153,7 +153,7 @@ class RSATest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test invalid private key di load_keys.
+     * Test invalid private key in load_keys.
      *
      * @group system
      */

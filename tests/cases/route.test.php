@@ -5,6 +5,8 @@ defined('DS') or exit('No direct access.');
 use System\Request;
 use System\Routing\Route;
 use System\Routing\Middleware;
+use System\URL;
+use System\Config;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
@@ -13,7 +15,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // ..
+        URL::$base = 'http://localhost/';
+        Config::set('application.index', '');
     }
 
     /**
@@ -22,6 +25,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         Request::$route = null;
+        URL::$base = '';
+        Config::set('application.index', 'index.php');
     }
 
     /**
@@ -40,7 +45,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Route::is().
+     * Test for Route::is().
      *
      * @group system
      */
@@ -52,7 +57,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk eksekusi route dasar.
+     * Test for Route::call().
      *
      * @group system
      */
@@ -67,7 +72,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa parameter dioper di route bisa ditangkap oleh route handler.
+     * Test that route parameters are passed into the handler.
      *
      * @group system
      */
@@ -82,8 +87,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa middleware global 'before' dan 'after' otomatis ikut
-     * terpanggil ketika route dijalankan.
+     * Test that global 'before' and 'after' middlewares are automatically called when a route is executed.
      *
      * @group system
      */
@@ -106,7 +110,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa middleware 'before' dapat memanipulasi respon route.
+     * Test that 'before' middleware can override the route response.
      *
      * @group system
      */
@@ -124,7 +128,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa middleware 'after' tidak boleh mempengaruhi respon route.
+     * Test that 'after' middleware does not affect the route response.
      *
      * @group system
      */
@@ -147,21 +151,19 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test bahwa route memanggil controller yang sesuai ketika menggunakan 'uses'.
+     * Test that controller action is called when delegating.
      *
      * @group system
      */
     public function testControllerActionCalledWhenDelegating()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-
         $route = new Route('GET', '', ['uses' => 'auth@index']);
-
         $this->assertEquals('action_index', $route->call()->content);
     }
 
     /**
-     * Test bahwa parameter yang dioper pada middleware bisa ditangkap dengan benar.
+     * Test that middleware parameters are passed to the middleware.
      *
      * @group system
      */
@@ -172,12 +174,11 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         });
 
         $route = new Route('GET', '', ['before' => 'test-params:1,2']);
-
         $this->assertEquals('12', $route->call()->content);
     }
 
     /**
-     * Test bahwa sebuah route dapat dilampiri lebih dari satu middleware.
+     * Test that multiple middlewares can be assigned to a route.
      *
      * @group system
      */
@@ -200,5 +201,49 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($_SERVER['test-multi-1']);
         $this->assertTrue($_SERVER['test-multi-2']);
+    }
+
+    /**
+     * Test for Route::has().
+     *
+     * @group system
+     */
+    public function testHasMethodChecksIfNamedRouteExists()
+    {
+        Route::get('/', ['as' => 'home']);
+
+        $this->assertTrue(Route::has('home'));
+        $this->assertFalse(Route::has('nonexistent'));
+    }
+
+    /**
+     * Test for Route::view().
+     *
+     * @group system
+     */
+    public function testViewMethodRegistersViewRoute()
+    {
+        Route::view('welcome', 'home.index', ['name' => 'Budi']);
+
+        $route = Router::route('GET', 'welcome');
+
+        $this->assertEquals('home.index', $route->response()->view);
+        $this->assertEquals('Budi', $route->response()->data['name']);
+    }
+
+    /**
+     * Test for Route::redirect().
+     *
+     * @group system
+     */
+    public function testRedirectMethodRegistersRedirectRoute()
+    {
+        Route::redirect('old', 'new', 301);
+
+        $route = Router::route('GET', 'old');
+        $response = $route->call();
+
+        $this->assertEquals(301, $response->status());
+        $this->assertEquals('http://localhost/new', $response->headers()->get('location'));
     }
 }

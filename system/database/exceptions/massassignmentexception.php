@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class MassAssignmentException extends DatabaseException
 {
     /**
-     * Nama model yang mengalami mass assignment error.
+     * Contains the model name that caused the mass assignment error.
      *
      * @var string
      */
     protected $model;
 
     /**
-     * Atribut yang tidak diizinkan.
+     * Contains the attributes that were not fillable.
      *
      * @var array
      */
     protected $attributes;
 
     /**
-     * Buat instance exception baru.
+     * Constructor.
      *
      * @param string $model
      * @param array  $attributes
@@ -38,7 +38,7 @@ class MassAssignmentException extends DatabaseException
     }
 
     /**
-     * Ambil nama model.
+     * Get the model name that caused the mass assignment error.
      *
      * @return string
      */
@@ -48,7 +48,7 @@ class MassAssignmentException extends DatabaseException
     }
 
     /**
-     * Ambil atribut yang tidak diizinkan.
+     * Get the attributes that were not fillable.
      *
      * @return array
      */

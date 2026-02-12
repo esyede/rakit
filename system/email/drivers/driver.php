@@ -14,112 +14,112 @@ use System\Storage;
 abstract class Driver
 {
     /**
-     * Konfigurasi.
+     * Container the email configurations.
      *
      * @var array
      */
     protected $config = [];
 
     /**
-     * List penerima email.
+     * Contains list of email recipients.
      *
      * @var array
      */
     protected $to = [];
 
     /**
-     * List penerima email (copy carbon).
+     * Contains list of carbon copy email recipients.
      *
      * @var array
      */
     protected $cc = [];
 
     /**
-     * List penerima email (back copy carbon).
+     * Contains list of blind carbon copy email recipients.
      *
      * @var array
      */
     protected $bcc = [];
 
     /**
-     * List penerima balasan email.
+     * Contains list of reply-to email recipients.
      *
      * @var array
      */
     protected $replyto = [];
 
     /**
-     * List lampiran.
+     * Contains list of attachments.
      *
      * @var array
      */
     protected $attachments = ['inline' => [], 'attachment' => []];
 
     /**
-     * Body email.
+     * Contains the email body.
      *
      * @var string
      */
     protected $body = '';
 
     /**
-     * Alternate body.
+     * Contains the alternative email body.
      *
      * @var string
      */
     protected $alt_body = '';
 
     /**
-     * Subyek email.
+     * Contains the email subject.
      *
      * @var string
      */
     protected $subject = '';
 
     /**
-     * List alamat email yang tidak lolos validasi.
+     * Contains list of invalid email addresses.
      *
      * @var array
      */
     protected $invalid_addresses = [];
 
     /**
-     * Pembatas pesan.
+     * Contains list of MIME boundaries.
      *
      * @var array
      */
     protected $boundaries = [];
 
     /**
-     * List header.
+     * Contains list of email headers.
      *
      * @var array
      */
     protected $headers = [];
 
     /**
-     * List header kustom.
+     * Contains extra headers
      *
      * @var array
      */
     protected $extras = [];
 
     /**
-     * Aktifkan pipelining?
+     * Enable pipelining feature?
      *
      * @var bool
      */
     protected $pipelining = false;
 
     /**
-     * Tipe email.
+     * The email content type.
      *
      * @var string
      */
     protected $type = 'plain';
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param array $config
      */
@@ -129,7 +129,7 @@ abstract class Driver
     }
 
     /**
-     * Aktif/nonaktifkan pipelining driver.
+     * Enable or disable pipelining feature.
      *
      * @param bool $activate
      *
@@ -142,7 +142,7 @@ abstract class Driver
     }
 
     /**
-     * Set body email.
+     * Set the body email.
      *
      * @param string $body
      *
@@ -155,7 +155,7 @@ abstract class Driver
     }
 
     /**
-     * Set alternative body email.
+     * Set the alternate body email.
      *
      * @param string $body
      *
@@ -168,7 +168,7 @@ abstract class Driver
     }
 
     /**
-     * Set prioritas email.
+     * Set the email priority.
      *
      * @param string $priority
      *
@@ -187,8 +187,8 @@ abstract class Driver
     }
 
     /**
-     * Set body email (HTML).
-     * Method ini juga membuat alternate body secara otomatis.
+     * Set the (HTML) body email.
+     * This method also automatically creates the alternate body.
      *
      * @param string $html
      * @param bool   $alternatify
@@ -241,18 +241,14 @@ abstract class Driver
         $this->body = $html;
 
         if ($alternatify) {
-            $this->alt_body = static::alternatify(
-                $html,
-                $this->config['wordwrap'],
-                $this->config['newline']
-            );
+            $this->alt_body = static::alternatify($html, $this->config['wordwrap'], $this->config['newline']);
         }
 
         return $this;
     }
 
     /**
-     * Set subyek email.
+     * Set the email subject.
      *
      * @param string $subject
      *
@@ -268,7 +264,7 @@ abstract class Driver
     }
 
     /**
-     * Set alamat pengirim email.
+     * Set the from address.
      *
      * @param string      $email
      * @param bool|string $name
@@ -288,7 +284,7 @@ abstract class Driver
     }
 
     /**
-     * Tambahkan list penerima email.
+     * Set the to address.
      *
      * @param string|array $email
      * @param string|bool  $name
@@ -302,7 +298,7 @@ abstract class Driver
     }
 
     /**
-     * Tambahkan list penerima email (copy carbon).
+     * Add a carbon copy email recipient.
      *
      * @param string|array $email
      * @param string|bool  $name
@@ -316,7 +312,7 @@ abstract class Driver
     }
 
     /**
-     * Tambahkan list penerima email (back copy carbon).
+     * Add a blind carbon copy email recipient.
      *
      * @param string|array $email
      * @param string|bool  $name
@@ -330,7 +326,7 @@ abstract class Driver
     }
 
     /**
-     * Tambahkan list penerima balasan email.
+     * Add a reply-to email recipient.
      *
      * @param string|array $email
      * @param string|bool  $name
@@ -344,7 +340,7 @@ abstract class Driver
     }
 
     /**
-     * Set alamat return-path.
+     * Set the return-path address.
      *
      * @param string $email
      *
@@ -357,7 +353,7 @@ abstract class Driver
     }
 
     /**
-     * Tambahkan ke list penerima.
+     * Append email to list.
      *
      * @param string       $list
      * @param string|array $email
@@ -381,7 +377,7 @@ abstract class Driver
     }
 
     /**
-     * Reset properti email.
+     * Reset the email object.
      *
      * @return $this
      */
@@ -397,7 +393,7 @@ abstract class Driver
     }
 
     /**
-     * Set header kustom.
+     * Set custom header(s) for the email.
      *
      * @param string|array $headers
      * @param string       $value
@@ -422,7 +418,7 @@ abstract class Driver
     }
 
     /**
-     * Lampirkan file ke email.
+     * Attach file to the email.
      *
      * @param string $file
      * @param bool   $inline
@@ -460,7 +456,7 @@ abstract class Driver
     }
 
     /**
-     * Lampirkan file menggunakan inputan string.
+     * Attach string content as file to the email.
      *
      * @param string $contents
      * @param string $filename
@@ -484,7 +480,7 @@ abstract class Driver
     }
 
     /**
-     * Tebak mime-type file lampiran.
+     * Guess the mime type of a file.
      *
      * @param string $file
      *
@@ -497,7 +493,7 @@ abstract class Driver
     }
 
     /**
-     * Validasi seuruh alamat email.
+     * Validate the email addresses.
      *
      * @return bool|array
      */
@@ -518,7 +514,7 @@ abstract class Driver
     }
 
     /**
-     * Mulai proses pengiriman.
+     * Send the email.
      *
      * @param bool $validate
      *
@@ -544,10 +540,7 @@ abstract class Driver
                 $error .= $list . ': ' . e(static::format($contents)) . '.' . PHP_EOL;
             }
 
-            throw new \Exception(sprintf(
-                'One or more email addresses did not pass validation: %s',
-                $error
-            ));
+            throw new \Exception(sprintf('One or more email addresses did not pass validation: %s', $error));
         }
 
         $this->headers = [];
@@ -555,10 +548,7 @@ abstract class Driver
         $this->boundaries = ['B1_' . $boundary, 'B2_' . $boundary, 'B3_' . $boundary];
         $this->set_header('Date', Carbon::now()->format('r'));
 
-        $path = (false === $this->config['return_path'])
-            ? $this->config['from']['email']
-            : $this->config['return_path'];
-
+        $path = (false === $this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
         $this->set_header('Return-Path', $path);
 
         if (!($this instanceof Mail)) {
@@ -651,7 +641,7 @@ abstract class Driver
     }
 
     /**
-     * Ambil list alamat email yang tidak lolos validasi.
+     * Get invalid email addresses.
      *
      * @return array
      */
@@ -661,7 +651,7 @@ abstract class Driver
     }
 
     /**
-     * Set header email.
+     * Set the email header.
      *
      * @param string
      * @param string
@@ -674,7 +664,7 @@ abstract class Driver
     }
 
     /**
-     * Ambil header email.
+     * Get the email header(s).
      *
      * @param string $header
      * @param bool   $formatted
@@ -688,15 +678,14 @@ abstract class Driver
         }
 
         if (array_key_exists($header, $this->headers)) {
-            return ($formatted ? $header . ': ' : '') . $this->headers[$header]
-                . ($formatted ? $this->config['newline'] : '');
+            return ($formatted ? $header . ': ' : '') . $this->headers[$header] . ($formatted ? $this->config['newline'] : '');
         }
 
         return '';
     }
 
     /**
-     * Encode mime header.
+     * Encode the header string.
      *
      * @param string $header
      *
@@ -709,7 +698,7 @@ abstract class Driver
     }
 
     /**
-     * Ambil header lampiran.
+     * Get the attachment headers.
      */
     protected function get_attachment_headers($type, $boundary)
     {
@@ -720,13 +709,8 @@ abstract class Driver
             $out .= '--' . $boundary . $eol;
             $out .= 'Content-Type: ' . $data['mime'] . '; name="' . $data['file'][1] . '"' . $eol;
             $out .= 'Content-Transfer-Encoding: base64' . $eol;
-            $out .= ('inline' === $type)
-                ? 'Content-ID: <' . substr((string) $data['cid'], 4) . '>' . $eol
-                : '';
-
-            $out .= 'Content-Disposition: ' . $type . '; filename="' . $data['file'][1] . '"'
-                . $eol . $eol;
-
+            $out .= ('inline' === $type) ? 'Content-ID: <' . substr((string) $data['cid'], 4) . '>' . $eol : '';
+            $out .= 'Content-Disposition: ' . $type . '; filename="' . $data['file'][1] . '"' . $eol . $eol;
             $out .= $data['contents'] . $eol . $eol;
         }
 
@@ -734,7 +718,7 @@ abstract class Driver
     }
 
     /**
-     * Susun header dan body email.
+     * Build the email header and body.
      *
      * @param bool $without_bcc
      *
@@ -812,9 +796,7 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->alt_body . $eol . $eol;
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $body .= 'Content-Type: multipart/related;' . $eol
-                        . "\tboundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
-
+                    $body .= 'Content-Type: multipart/related;' . $eol . "\tboundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
                     $body .= '--' . $this->boundaries[1] . $eol;
                     $body .= 'Content-Type: text/html; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
@@ -854,17 +836,13 @@ abstract class Driver
 
                 case 'html_alt_inline_attach':
                     $body .= '--' . $this->boundaries[0] . $eol;
-                    $body .= 'Content-Type: multipart/alternative;' . $eol
-                        . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
-
+                    $body .= 'Content-Type: multipart/alternative;' . $eol . "\t boundary=\"" . $this->boundaries[1] . '"' . $eol . $eol;
                     $body .= '--' . $this->boundaries[1] . $eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
                     $body .= $this->alt_body . $eol . $eol;
                     $body .= '--' . $this->boundaries[1] . $eol;
-                    $body .= 'Content-Type: multipart/related;' . $eol
-                        . "\t boundary=\"" . $this->boundaries[2] . '"' . $eol . $eol;
-
+                    $body .= 'Content-Type: multipart/related;' . $eol . "\t boundary=\"" . $this->boundaries[2] . '"' . $eol . $eol;
                     $body .= '--' . $this->boundaries[2] . $eol;
                     $body .= 'Content-Type: text/html; charset=utf-8' . $eol;
                     $body .= 'Content-Transfer-Encoding: ' . $encoding . $eol . $eol;
@@ -883,7 +861,7 @@ abstract class Driver
     }
 
     /**
-     * Wrap teks.
+     * Wrap the message.
      *
      * @param string $message
      * @param int    $length
@@ -897,12 +875,11 @@ abstract class Driver
         $length = ($length > 76) ? 76 : $length;
         $message = $as_html ? preg_replace('/[\r\n\t ]+/m', ' ', $message) : $message;
         $message = wordwrap($message, $length, $newline, false);
-
         return $message;
     }
 
     /**
-     * Standarisasi newline.
+     * Standardize newlines in the string.
      *
      * @param string $string
      * @param string $newline
@@ -923,7 +900,7 @@ abstract class Driver
     }
 
     /**
-     * Encode string menurut encoding yang diberikan.
+     * Encode the string based on the encoding method.
      *
      * @param string $string
      * @param string $encoding
@@ -938,22 +915,15 @@ abstract class Driver
 
         switch ($encoding) {
             case '7bit':
-            case '8bit':
-                return static::standardize(rtrim($string, $newline), $newline);
-
-            case 'quoted-printable':
-                return quoted_printable_encode($string);
-
-            case 'base64':
-                return chunk_split(base64_encode($string), 76, $newline);
-
-            default:
-                throw new \Exception(sprintf('Unupported encoding method: %s.', $encoding));
+            case '8bit': return static::standardize(rtrim($string, $newline), $newline);
+            case 'quoted-printable': return quoted_printable_encode($string);
+            case 'base64': return chunk_split(base64_encode($string), 76, $newline);
+            default:  throw new \Exception(sprintf('Unupported encoding method: %s.', $encoding));
         }
     }
 
     /**
-     * Mereturn string alamat email yang telah diformat.
+     * Format the email addresses.
      *
      * @param array $addresses
      *
@@ -975,7 +945,7 @@ abstract class Driver
     }
 
     /**
-     * Buat alternate body.
+     * Format HTML to plain text alternative.
      *
      * @param string $html
      * @param int    $wordwrap
@@ -988,7 +958,6 @@ abstract class Driver
         $html = preg_replace('/[ |  ]{2,}/m', ' ', $html);
         $html = trim(strip_tags(preg_replace('/<(head|title|style|script)[^>]*>.*?<\/\\1>/s', '', $html)));
         $lines = explode($newline, $html);
-
         $beginning = true;
         $result = [];
 
@@ -1006,7 +975,7 @@ abstract class Driver
     }
 
     /**
-     * Mulai proses transmisi data.
+     * Start the email transmission.
      *
      * @return bool
      */

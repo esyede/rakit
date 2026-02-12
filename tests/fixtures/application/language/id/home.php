@@ -8,7 +8,7 @@ return [
     | Home Language
     |--------------------------------------------------------------------------
     |
-    | Baris - baris bahasa berikut ini digunakan untuk lokalisasi homepage
+    | This file contains the language strings used by the Home page.
     |
     */
 

@@ -9,7 +9,7 @@ use PDO;
 class SQLServer extends Connector
 {
     /**
-     * Opsi default koneksi PDO.
+     * Contains default PDO connection options.
      *
      * @var array
      */
@@ -21,7 +21,7 @@ class SQLServer extends Connector
     ];
 
     /**
-     * Buat koneksi PDO.
+     * Connect to the database and return the PDO instance.
      *
      * @param array $config
      *

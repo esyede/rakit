@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class File extends Driver
 {
     /**
-     * Path tempat menyimpan file session.
+     * Contains the path to the session files.
      *
      * @var string
      */
     private $path;
 
     /**
-     * Buat instance baru driver session File.
+     * Constructor.
      *
      * @param string $path
      */
@@ -24,8 +24,8 @@ class File extends Driver
     }
 
     /**
-     * Muat session berdasarkan ID yang diberikan.
-     * Jika session tidak ditemukan, NULL akan direturn.
+     * Load the session based on the given ID.
+     * If the session is not found, NULL will be returned.
      *
      * @param string $id
      *
@@ -39,7 +39,7 @@ class File extends Driver
     }
 
     /**
-     * Simpan session.
+     * Save the session data.
      *
      * @param array $session
      * @param array $config
@@ -54,7 +54,7 @@ class File extends Driver
     }
 
     /**
-     * Hapus session berdasarkan ID yang diberikan.
+     * Delete the session with the given ID.
      *
      * @param string $id
      */
@@ -66,7 +66,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk format nama file session.
+     * Format the session file name based on the given ID.
      *
      * @param string $id
      *
@@ -78,7 +78,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk proteksi akses file via browser.
+     * Protect the session file from direct access via browser.
      *
      * @param string $value
      *
@@ -90,8 +90,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk buang proteksi akses file via browser.
-     * (Kebalikan dari method guard).
+     * Remove the protection from the session file.
      *
      * @param string $value
      *

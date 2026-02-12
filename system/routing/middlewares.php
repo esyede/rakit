@@ -10,42 +10,42 @@ use System\Request;
 class Middlewares
 {
     /**
-     * Berisi list seluruh middleware yang terdaftar.
+     * Contains the list of middlewares.
      *
      * @var string|array
      */
     public $middlewares = [];
 
     /**
-     * Berisi parameter yng di oper ke middleware.
+     * Contains the middleware parameters.
      *
      * @var mixed
      */
     public $parameters;
 
     /**
-     * Berisi list nama method controller untuk middleware only().
+     * Contains the list of controller method names for middleware only().
      *
      * @var array
      */
     public $only = [];
 
     /**
-     * Berisi list nama method controller untuk middleware except().
+     * Contains the list of controller method names for middleware except().
      *
      * @var array
      */
     public $except = [];
 
     /**
-     * Berisi list nama http requset method untuk middleware on().
+     * Contains the list of controller method names for middleware on().
      *
      * @var array
      */
     public $methods = [];
 
     /**
-     * Buat instance Middlewares baru.
+     * Constructor.
      *
      * @param string|array $middlewares
      * @param mixed        $parameters
@@ -57,7 +57,7 @@ class Middlewares
     }
 
     /**
-     * Parse string middleware menjadi nama middleware dan parameternya.
+     * Parse middleware string and return the middleware name and it's parameters.
      *
      * @param string $middleware
      *
@@ -85,7 +85,7 @@ class Middlewares
     }
 
     /**
-     * Evaluasi parameter middleware.
+     * Evaluate the parameters if it's a Closure.
      *
      * @return array
      */
@@ -99,7 +99,7 @@ class Middlewares
     }
 
     /**
-     * Periksa apakah middleware yang diberikan berlaku pada method controller yang diberikan.
+     * Check if the middleware applies to the given method.
      *
      * @param string $method
      *
@@ -120,18 +120,16 @@ class Middlewares
     }
 
     /**
-     * Set method controller yang harus dikeculikan dari middleware.
-     * Nama - nama method ini tidak akan dilampiri middleware.
+     * Set the controller method names to be excluded.
+     * These method names will not be attached with middleware.
      *
      * <code>
      *
-     *      // Lampirkan middleware ke semua method selain 'index'
+     *      // Attach middleware to all methods except 'index'
      *      $this->middleware('before', 'auth')->except('index');
      *
-     *      // Lampirkan middleware ke semua method selain 'index' dan 'home'
+     *      // Attach middleware to all methods except 'index' and 'home'
      *      $this->middleware('before', 'auth')->except(['index', 'home']);
-     *
-     *      $this->middleware('before', 'auth')->except('index', 'home');
      *
      * </code>
      *
@@ -172,17 +170,15 @@ class Middlewares
     }
 
     /**
-     * Set HTTP method yang harus dimiddleware.
+     * Set the HTTP methods for which the middleware will run.
      *
      * <code>
      *
-     *      // Set agar middleware hanya berjalan di POST saja
+     *      // Set middleware to run only on POST requests
      *      $this->middleware('before', 'csrf')->on('post');
      *
-     *      // Set agar middleware hanya berjalan di POST dan PUT
+     *      // Set middleware to run only on POST and PUT requests
      *      $this->middleware('before', 'csrf')->on(['post', 'put']);
-     *
-     *      $this->middleware('before', 'csrf')->on('post', 'put');
      *
      * </code>
      *

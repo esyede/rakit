@@ -27,6 +27,10 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
         URL::$base = 'http://localhost/';
 
         Config::set('application.index', '');
+
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['HTTP_HOST'] = 'localhost';
+        $this->restartRequest();
     }
 
     /**
@@ -34,21 +38,23 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // TODO: bersihkan data request di http foundation.
         Config::set('session.driver', '');
-
         Router::$routes = [];
         Router::$names = [];
-
         URL::$base = '';
-
         Config::set('application.index', 'index.php');
-
         Session::$instance = null;
+
+        // Cleanup request data from the last test
+        $scriptname = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '/index.php';
+        $_SERVER = [];
+        $_SERVER['SCRIPT_NAME'] = $scriptname;
+        Request::$foundation = null;
+        Request::reset_foundation();
     }
 
     /**
-     * Test untuk method Redirect::to().
+     * Test for Redirect::to().
      *
      * @group system
      */
@@ -69,7 +75,7 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Redirect::to_route().
+     * Test for Redirect::to_route().
      *
      * @group system
      */
@@ -95,21 +101,19 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Redirect::with().
+     * Test for Redirect::with().
      *
      * @group system
      */
     public function testWithMethodFlashesItemToSession()
     {
         $this->instantiateSession();
-
         $redirect = Redirect::to('')->with('name', 'Budi');
-
         $this->assertEquals('Budi', Session::instance()->session['data'][':new:']['name']);
     }
 
     /**
-     * Test untuk method Redirect::with_input().
+     * Test for Redirect::with_input().
      *
      * @group system
      */
@@ -131,7 +135,7 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Redirect::with_errors().
+     * Test for Redirect::with_errors().
      *
      * @group system
      */
@@ -152,17 +156,54 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Instansiasi payload session.
+     * Test for Redirect::home().
+     *
+     * @group system
+     */
+    public function testHomeRedirect()
+    {
+        $redirect = Redirect::home();
+
+        $this->assertEquals(302, $redirect->status());
+        $this->assertEquals(URL::home(), $redirect->headers()->get('location'));
+
+        $redirect301 = Redirect::home(301);
+
+        $this->assertEquals(301, $redirect301->status());
+        $this->assertEquals(URL::home(), $redirect301->headers()->get('location'));
+    }
+
+    /**
+     * Test for Redirect::back().
+     *
+     * @group system
+     */
+    public function testBackRedirect()
+    {
+        $this->setServerVar('HTTP_REFERER', 'http://example.com');
+
+        $redirect = Redirect::back();
+
+        $this->assertEquals(302, $redirect->status());
+        $this->assertEquals('http://example.com', $redirect->headers()->get('location'));
+
+        $redirect301 = Redirect::back(301);
+
+        $this->assertEquals(301, $redirect301->status());
+        $this->assertEquals('http://example.com', $redirect301->headers()->get('location'));
+    }
+
+    /**
+     * Instantiate the session for testing.
      */
     protected function instantiateSession()
     {
         $driver = $this->getMock('\System\Session\Drivers\Driver');
-
         Session::$instance = new \System\Session\Payload($driver);
     }
 
     /**
-     * Helper: set variabel $_SERVER.
+     * Helper: set server variable and restart request.
      *
      * @param string $key
      * @param mixed  $value
@@ -170,7 +211,6 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     protected function setServerVar($key, $value)
     {
         $_SERVER[$key] = $value;
-
         $this->restartRequest();
     }
 
@@ -183,12 +223,12 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = [];
 
-        // Pastikan SCRIPT_NAME ada
+        // Ensure SCRIPT_NAME is set
         if (!isset($_SERVER['SCRIPT_NAME'])) {
             $_SERVER['SCRIPT_NAME'] = '/index.php';
         }
 
-        // Pastikan HTTP_HOST ada untuk URL generation
+        // Ensure HTTP_HOST is set for URL generation
         if (!isset($_SERVER['HTTP_HOST'])) {
             $_SERVER['HTTP_HOST'] = 'localhost';
         }
@@ -205,7 +245,7 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
         // Reset cache foundation
         Request::reset_foundation();
 
-        // Clear URL cache jika ada
+        // Clear URL cache if any
         URL::$base = null;
     }
 }

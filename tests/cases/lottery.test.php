@@ -14,10 +14,9 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
     public function testItCanWin()
     {
         $wins = false;
-        Lottery::odds(1, 1)
-            ->winner(function () use (&$wins) {
-                $wins = true;
-            })->choose();
+        Lottery::odds(1, 1)->winner(function () use (&$wins) {
+            $wins = true;
+        })->choose();
 
         $this->assertTrue($wins);
     }
@@ -27,12 +26,11 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
         $wins = false;
         $loses = false;
 
-        Lottery::odds(0, 1)
-            ->winner(function () use (&$wins) {
-                $wins = true;
-            })->loser(function () use (&$loses) {
-                $loses = true;
-            })->choose();
+        Lottery::odds(0, 1)->winner(function () use (&$wins) {
+            $wins = true;
+        })->loser(function () use (&$loses) {
+            $loses = true;
+        })->choose();
 
         $this->assertFalse($wins);
         $this->assertTrue($loses);
@@ -183,10 +181,9 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
     {
         $wins = false;
 
-        Lottery::odds(1.0)
-            ->winner(function () use (&$wins) {
-                $wins = true;
-            })->choose();
+        Lottery::odds(1.0)->winner(function () use (&$wins) {
+            $wins = true;
+        })->choose();
 
         $this->assertTrue($wins);
     }
@@ -196,12 +193,11 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
         $wins = false;
         $loses = false;
 
-        Lottery::odds(0.0)
-            ->winner(function () use (&$wins) {
-                $wins = true;
-            })->loser(function () use (&$loses) {
-                $loses = true;
-            })->choose();
+        Lottery::odds(0.0)->winner(function () use (&$wins) {
+            $wins = true;
+        })->loser(function () use (&$loses) {
+            $loses = true;
+        })->choose();
 
         $this->assertFalse($wins);
         $this->assertTrue($loses);

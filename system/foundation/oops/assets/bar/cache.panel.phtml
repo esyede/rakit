@@ -1,0 +1,327 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Cache;
+
+$cacheData = isset($this->data['cache']) ? $this->data['cache'] : [];
+$operations = isset($cacheData['operations']) ? $cacheData['operations'] : [];
+$hitCount = isset($cacheData['hits']) ? $cacheData['hits'] : 0;
+$missCount = isset($cacheData['misses']) ? $cacheData['misses'] : 0;
+$writeCount = isset($cacheData['writes']) ? $cacheData['writes'] : 0;
+$deleteCount = isset($cacheData['deletes']) ? $cacheData['deletes'] : 0;
+$totalOps = $hitCount + $missCount + $writeCount + $deleteCount;
+$hitRate = ($hitCount + $missCount) > 0 ? round(($hitCount / ($hitCount + $missCount)) * 100) : 0;
+
+$driver = isset($cacheData['driver']) ? $cacheData['driver'] : 'unknown';
+$driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
+?>
+<style class="oops-debug">
+    #oops-debug .oops-CachePanel h2 {
+        margin-top: 20px;
+        padding: 8px 10px;
+        background: #ffffff;
+        border-left: 3px solid #00BCD4;
+    }
+
+    #oops-debug .oops-CachePanel table {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    #oops-debug .oops-CachePanel td {
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-CachePanel .oops-cache-row {
+        border-bottom: 1px solid #eee;
+    }
+
+    #oops-debug .oops-CachePanel .oops-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    #oops-debug .oops-CachePanel .oops-badge-hit {
+        background: #4CAF50;
+    }
+
+    #oops-debug .oops-CachePanel .oops-badge-miss {
+        background: #F44336;
+    }
+
+    #oops-debug .oops-CachePanel .oops-badge-write {
+        background: #2196F3;
+    }
+
+    #oops-debug .oops-CachePanel .oops-badge-delete {
+        background: #FF9800;
+    }
+
+    #oops-debug .oops-CachePanel .oops-cache-key {
+        font-family: monospace;
+        font-size: 12px;
+        color: #333;
+        word-break: break-all;
+    }
+
+    #oops-debug .oops-CachePanel .oops-cache-value {
+        background: #f8f8f8;
+        padding: 10px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 11px;
+        margin-top: 5px;
+        overflow-x: auto;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    #oops-debug .oops-CachePanel .oops-summary {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    #oops-debug .oops-CachePanel .oops-summary-item {
+        background: #e0f7fa;
+        padding: 10px 15px;
+        border-radius: 5px;
+        flex: 1;
+        min-width: 100px;
+        text-align: center;
+    }
+
+    #oops-debug .oops-CachePanel .oops-summary-count {
+        font-size: 24px;
+        font-weight: bold;
+        color: #00BCD4;
+    }
+
+    #oops-debug .oops-CachePanel .oops-summary-label {
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+        margin-top: 5px;
+    }
+
+    #oops-debug .oops-CachePanel .oops-hitrate {
+        font-size: 48px;
+        font-weight: bold;
+        margin: 20px 0;
+    }
+
+    #oops-debug .oops-CachePanel .oops-hitrate-good {
+        color: #4CAF50;
+    }
+
+    #oops-debug .oops-CachePanel .oops-hitrate-medium {
+        color: #FF9800;
+    }
+
+    #oops-debug .oops-CachePanel .oops-hitrate-poor {
+        color: #F44336;
+    }
+
+    #oops-debug .oops-CachePanel .oops-cache-time {
+        color: #999;
+        font-size: 11px;
+    }
+
+    #oops-debug .oops-CachePanel .oops-empty {
+        color: #999;
+        font-style: italic;
+        text-align: center;
+        padding: 40px;
+    }
+
+    #oops-debug .oops-CachePanel .oops-chart-container {
+        text-align: center;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    #oops-debug .oops-CachePanel .oops-chart-bar {
+        display: inline-block;
+        width: 100%;
+        max-width: 400px;
+        height: 30px;
+        background: #e0e0e0;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    #oops-debug .oops-CachePanel .oops-chart-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4CAF50, #8BC34A);
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+    }
+</style>
+
+<h1>Cache</h1>
+
+<div class="oops-inner oops-CachePanel">
+    <div class="oops-inner-container">
+
+        <!-- Driver Info -->
+        <table>
+            <tr>
+                <td width="20%"><strong>Driver</strong></td>
+                <td><code><?php echo htmlspecialchars($driver); ?></code></td>
+            </tr>
+            <?php if (!empty($driverConfig)) : ?>
+                <?php foreach ($driverConfig as $key => $value) : ?>
+                    <tr>
+                        <td width="20%"><strong><?php echo htmlspecialchars(ucfirst($key)); ?></strong></td>
+                        <td><?php echo htmlspecialchars(is_array($value) ? json_encode($value) : $value); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </table>
+
+        <?php if ($totalOps > 0) : ?>
+            <!-- Hit Rate Chart -->
+            <?php if (($hitCount + $missCount) > 0) : ?>
+                <div class="oops-chart-container">
+                    <h3 style="margin-top: 0;">Cache Hit Rate</h3>
+                    <div class="oops-hitrate <?php echo $hitRate >= 80 ? 'oops-hitrate-good' : ($hitRate >= 50 ? 'oops-hitrate-medium' : 'oops-hitrate-poor'); ?>">
+                        <?php echo $hitRate; ?>%
+                    </div>
+                    <div class="oops-chart-bar">
+                        <div class="oops-chart-fill" style="width: <?php echo $hitRate; ?>%;">
+                            <?php if ($hitRate > 15) : ?>
+                                <?php echo $hitCount; ?> / <?php echo ($hitCount + $missCount); ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <p style="color: #666; font-size: 12px; margin-top: 10px;">
+                        <?php echo $hitCount; ?> hit<?php echo $hitCount !== 1 ? 's' : ''; ?> ·
+                        <?php echo $missCount; ?> miss<?php echo $missCount !== 1 ? 'es' : ''; ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+
+            <!-- Summary -->
+            <div class="oops-summary">
+                <div class="oops-summary-item" style="background: #e8f5e9;">
+                    <div class="oops-summary-count" style="color: #4CAF50;"><?php echo $hitCount; ?></div>
+                    <div class="oops-summary-label" style="color: #4CAF50;">Hits</div>
+                </div>
+                <div class="oops-summary-item" style="background: #ffebee;">
+                    <div class="oops-summary-count" style="color: #F44336;"><?php echo $missCount; ?></div>
+                    <div class="oops-summary-label" style="color: #F44336;">Misses</div>
+                </div>
+                <div class="oops-summary-item" style="background: #e3f2fd;">
+                    <div class="oops-summary-count" style="color: #2196F3;"><?php echo $writeCount; ?></div>
+                    <div class="oops-summary-label" style="color: #2196F3;">Writes</div>
+                </div>
+                <div class="oops-summary-item" style="background: #fff3e0;">
+                    <div class="oops-summary-count" style="color: #FF9800;"><?php echo $deleteCount; ?></div>
+                    <div class="oops-summary-label" style="color: #FF9800;">Deletes</div>
+                </div>
+            </div>
+
+            <!-- Operations Log -->
+            <?php if (!empty($operations)) : ?>
+                <h2>Cache Operations (<?php echo count($operations); ?>)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="10%">Type</th>
+                            <th width="10%">Time</th>
+                            <th width="40%">Key</th>
+                            <th width="35%">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $i = 0; ?>
+                        <?php foreach ($operations as $op) : ?>
+                            <?php $i++; ?>
+                            <tr class="oops-cache-row">
+                                <td><?php echo $i; ?>.</td>
+                                <td>
+                                    <?php
+                                    $type = strtolower(isset($op['type']) ? $op['type'] : 'unknown');
+                                    $badgeClass = 'oops-badge-' . $type;
+                                    ?>
+                                    <span class="oops-badge <?php echo $badgeClass; ?>">
+                                        <?php echo htmlspecialchars($type); ?>
+                                    </span>
+                                </td>
+                                <td class="oops-cache-time">
+                                    <?php if (isset($op['time'])) : ?>
+                                        <?php echo number_format($op['time'] * 1000, 2); ?> ms
+                                    <?php else : ?>
+                                        —
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="oops-cache-key">
+                                        <?php echo htmlspecialchars(isset($op['key']) ? $op['key'] : 'N/A'); ?>
+                                    </div>
+                                </td>
+                                <td>
+                                    <?php if (isset($op['value']) && ($type === 'hit' || $type === 'write')) : ?>
+                                        <a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-cache-value-<?php echo $i; ?>" style="font-size: 11px;">
+                                            Show value
+                                        </a>
+                                        <div class="oops-cache-value oops-cache-value-<?php echo $i; ?> oops-collapsed">
+                                            <pre><?php echo htmlspecialchars(print_r($op['value'], true)); ?></pre>
+                                        </div>
+                                    <?php elseif (isset($op['ttl'])) : ?>
+                                        <small style="color: #666;">TTL: <?php echo htmlspecialchars($op['ttl']); ?>s</small>
+                                    <?php elseif ($type === 'miss') : ?>
+                                        <small style="color: #999;">Key not found</small>
+                                    <?php elseif ($type === 'delete') : ?>
+                                        <small style="color: #999;">Key deleted</small>
+                                    <?php else : ?>
+                                        <span style="color: #ccc;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+
+            <!-- Performance Tips -->
+            <?php if ($hitRate < 80 && ($hitCount + $missCount) >= 10) : ?>
+                <div style="background: #fff3cd; border: 2px solid #f0ad4e; border-radius: 5px; padding: 15px; margin-top: 20px;">
+                    <h3 style="margin-top: 0; color: #856404;">
+                        💡 Performance Tip
+                    </h3>
+                    <p style="margin: 0; color: #856404;">
+                        Your cache hit rate is <?php echo $hitRate; ?>%, which could be improved.
+                        Consider reviewing your caching strategy, increasing TTL values, or pre-warming frequently accessed cache keys.
+                    </p>
+                </div>
+            <?php endif; ?>
+
+        <?php else : ?>
+            <p class="oops-empty">No cache operations recorded during this request</p>
+            <p style="text-align: center; color: #999; font-size: 12px;">
+                Cache tracking may be disabled or no cache operations were performed.
+            </p>
+        <?php endif; ?>
+
+    </div>
+</div>

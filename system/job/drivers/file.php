@@ -13,14 +13,14 @@ use System\Config;
 class File extends Driver
 {
     /**
-     * Berisi path direktori penyimpanan job.
+     * Contains the path to the job files.
      *
      * @var string
      */
     protected $path;
 
     /**
-     * Buat instance driver file baru.
+     * Constructor.
      *
      * @param string $path
      */
@@ -34,7 +34,7 @@ class File extends Driver
     }
 
     /**
-     * Tambahkan sebuah job.
+     * Add a new job to the queue.
      *
      * @param string      $name
      * @param array       $payloads
@@ -68,7 +68,7 @@ class File extends Driver
     }
 
     /**
-     * Cek apakah job sedang overlapping.
+     * Check if there is an overlapping job.
      *
      * @param string $name
      * @param string $queue
@@ -96,7 +96,7 @@ class File extends Driver
     }
 
     /**
-     * Hapus job berdasarkan nama.
+     * Delete a job from the queue.
      *
      * @param string      $name
      * @param string|null $queue
@@ -126,7 +126,7 @@ class File extends Driver
     }
 
     /**
-     * Jalankan antrian job.
+     * Run a specific job in the file.
      *
      * @param string      $name
      * @param int         $retries
@@ -220,7 +220,7 @@ class File extends Driver
     }
 
     /**
-     * Jalankan semua job.
+     * Run all available jobs in the file.
      *
      * @param int        $retries
      * @param int        $sleep_ms
@@ -319,7 +319,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk proteksi akses file via browser.
+     * Protect the job file from direct access via browser.
      *
      * @param string $value
      *
@@ -332,8 +332,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk buang proteksi akses file via browser.
-     * (Kebalikan dari method guard).
+     * Remove the protection from the job file.
      *
      * @param string $value
      *
@@ -346,7 +345,7 @@ class File extends Driver
     }
 
     /**
-     * Pindahkan job ke failed jobs.
+     * Move the failed job to a separate file.
      *
      * @param array      $data
      * @param \Exception $exception

@@ -10,15 +10,15 @@ use System\Cookie as BaseCookie;
 class Cookie extends Driver
 {
     /**
-     * Nama cookie untuk menyimpan payoad session.
+     * The session payload cookie name.
      *
      * @var string
      */
     const PAYLOAD = 'session_payload';
 
     /**
-     * Muat session berdasarkan ID yang diberikan.
-     * Jika session tidak ditemukan, NULL akan direturn.
+     * Load the session based on the given ID.
+     * If the session is not found, NULL will be returned.
      *
      * @param string $id
      *
@@ -32,7 +32,7 @@ class Cookie extends Driver
     }
 
     /**
-     * Simpan session.
+     * Save the session data.
      *
      * @param array $session
      * @param array $config
@@ -52,7 +52,7 @@ class Cookie extends Driver
     }
 
     /**
-     * Hapus session berdasarkan ID yang diberikan.
+     * Delete the session with the given ID.
      *
      * @param string $id
      */

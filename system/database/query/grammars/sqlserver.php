@@ -9,21 +9,21 @@ use System\Database\Query;
 class SQLServer extends Grammar
 {
     /**
-     * Identifier keyword untuk engine database.
+     * Contains the wrapper format.
      *
      * @var string
      */
     protected $wrapper = '[%s]';
 
     /**
-     * Format baku untuk menyimpan DateTime.
+     * Format for datetime columns.
      *
      * @var string
      */
     public $datetime = 'Y-m-d H:i:s.000';
 
     /**
-     * Compile statement SELECT dari instance query.
+     * Compile the SELECT statement.
      *
      * @param Query $query
      *
@@ -41,7 +41,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile klausa SELECT.
+     * Compile the SELECT clause.
      *
      * @param Query $query
      *
@@ -63,7 +63,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Buat klausa OFFSET mengikuti standar ANSI.
+     * Make an ANSI-compliant OFFSET clause.
      *
      * @param Query $query
      * @param array $components
@@ -96,7 +96,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile klausa UPDATE.
+     * Compile the LIMIT clause.
      *
      * @param Query $query
      *
@@ -108,7 +108,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile klausa OFFSET.
+     * Compile the OFFSET clause.
      *
      * @param Query $query
      *

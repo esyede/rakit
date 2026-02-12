@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class Join
 {
     /**
-     * Berisi tipe operasi join yang sedang dilakukan.
+     * Contains the type of join.
      *
      * @var string
      */
     public $type;
 
     /**
-     * Berisi tabel tempat klausa join.
+     * Contains the table to join.
      *
      *
      * @var string
@@ -22,14 +22,14 @@ class Join
     public $table;
 
     /**
-     * Berisi klausa ON untuk join.
+     * Contains the join clauses.
      *
      * @var array
      */
     public $clauses = [];
 
     /**
-     * Buat instance baru query join.
+     * Constructor.
      *
      * @param string $type
      * @param string $table
@@ -41,7 +41,7 @@ class Join
     }
 
     /**
-     * Tambahkan klausa ON ke query join.
+     * Add an ON clause to the join query.
      *
      * @param string $column1
      * @param string $operator
@@ -57,7 +57,7 @@ class Join
     }
 
     /**
-     * Tambahkan klausa OR ON ke query join.
+     * Add an OR ON clause to the join query.
      *
      * @param string $column1
      * @param string $operator

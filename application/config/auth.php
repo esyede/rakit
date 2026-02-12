@@ -8,13 +8,13 @@ return [
     | Auth Driver
     |--------------------------------------------------------------------------
     |
-    | Rakit menerapkan penanganan otentikasi berbasis driver yang fleksibel.
-    | Anda bebas mendaftarkan driver anda sendiri via metode Auth::extended().
+    | Rakit uses a flexible driver-based authentication system.
+    | You can register your own driver via Auth::extended().
     |
-    | Tentu saja, beberapa driver bawaan juga sudah disediakan agar
-    | otentikasi dasar bisa langsung dilakukan secara sederhana dan mudah.
+    | Of course, some built-in drivers are also provided to make basic
+    | authentication easy and straightforward.
     |
-    | Driver bawaan: 'magic', 'facile'.
+    | Built-in drivers: 'magic', 'facile'.
     |
     */
 
@@ -22,13 +22,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Identifier
+    | Auth Identifier
     |--------------------------------------------------------------------------
     |
-    | Di sini anda dapat menentukan kolom database yang harus dianggap
-    | sebagai "username" untuk pengguna aplikasi anda. Biasanya, ini bisa
-    | berupa "username" atau "email".
-    | Tentu saja, anda bebas mengubahnya sesuai kebutuhan.
+    | Here, you can specify the database column that should be considered
+    | as "username" for your application users. Typically, this can be
+    | a "username" or "email".
+    | Of course, you can change it according to your needs.
     |
     */
 
@@ -39,9 +39,9 @@ return [
     | Auth Table
     |--------------------------------------------------------------------------
     |
-    | Ketika anda memilih "magic" sebagai auth driver, tabel database yang
-    | digunakan untuk memuat user dapat ditentukan di sini. Tabel ini akan
-    | digunakan oleh magic query builder untuk mengautentikasi user.
+    | When you choose "magic" as the auth driver, the database table that
+    | should be used to load users can be specified here. This table will
+    | be used by magic query builder to authenticate users.
     |
     */
 
@@ -52,9 +52,9 @@ return [
     | Auth Model
     |--------------------------------------------------------------------------
     |
-    | Ketika anda memilih "facile" sebagai auth driver, anda dapat menentukan
-    | model mana yang harus digunakan sebagai model "User". Model ini akan
-    | digunakan untuk mengautentikasi user.
+    | When you choose "facile" as the auth driver, you can specify the model
+    | that should be used as the "User" model. This model will be used for
+    | authentication purposes.
     |
     */
 

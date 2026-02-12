@@ -1,0 +1,358 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$logs = isset($this->data['logs']) ? $this->data['logs'] : [];
+$events = isset($this->data['events']) ? $this->data['events'] : [];
+$timers = isset($this->data['timers']) ? $this->data['timers'] : [];
+
+// Count logs by level
+$logLevels = [
+    'debug' => 0,
+    'info' => 0,
+    'warning' => 0,
+    'error' => 0,
+    'critical' => 0,
+];
+
+foreach ($logs as $log) {
+    $level = strtolower(isset($log['level']) ? $log['level'] : 'info');
+    if (isset($logLevels[$level])) {
+        $logLevels[$level]++;
+    }
+}
+?>
+<style class="oops-debug">
+    #oops-debug .oops-EventsPanel h2 {
+        margin-top: 20px;
+        padding: 8px 10px;
+        background: #ffffff;
+        border-left: 3px solid #FFC107;
+    }
+
+    #oops-debug .oops-EventsPanel table {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    #oops-debug .oops-EventsPanel td {
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-log-row {
+        border-bottom: 1px solid #eee;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-badge-debug {
+        background: #9E9E9E;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-badge-info {
+        background: #2196F3;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-badge-warning {
+        background: #FF9800;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-badge-error {
+        background: #F44336;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-badge-critical {
+        background: #880E4F;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-log-message {
+        font-family: monospace;
+        font-size: 12px;
+        color: #333;
+        word-break: break-word;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-log-context {
+        background: #f8f8f8;
+        padding: 10px;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 11px;
+        margin-top: 5px;
+        overflow-x: auto;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-log-time {
+        color: #999;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #ddd;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timeline-item {
+        position: relative;
+        padding: 10px 0;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -24px;
+        top: 15px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #2196F3;
+        border: 2px solid white;
+        box-shadow: 0 0 0 2px #2196F3;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-summary {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-summary-item {
+        background: #ffffff;
+        padding: 10px 15px;
+        border-radius: 5px;
+        flex: 1;
+        min-width: 100px;
+        text-align: center;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-summary-count {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-summary-label {
+        font-size: 11px;
+        color: #666;
+        text-transform: uppercase;
+        margin-top: 5px;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-event-name {
+        font-weight: bold;
+        color: #1976D2;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timer-bar {
+        background: #e0e0e0;
+        height: 20px;
+        border-radius: 3px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timer-fill {
+        background: #4CAF50;
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    #oops-debug .oops-EventsPanel .oops-timer-label {
+        position: absolute;
+        top: 2px;
+        left: 5px;
+        font-size: 11px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+</style>
+
+<h1>Events & Logs</h1>
+
+<div class="oops-inner oops-EventsPanel">
+    <div class="oops-inner-container">
+
+        <!-- Summary -->
+        <div class="oops-summary">
+            <div class="oops-summary-item">
+                <div class="oops-summary-count"><?php echo count($logs); ?></div>
+                <div class="oops-summary-label">Total Logs</div>
+            </div>
+            <div class="oops-summary-item" style="background: #fdecea;">
+                <div class="oops-summary-count" style="color: #F44336;"><?php echo $logLevels['error'] + $logLevels['critical']; ?></div>
+                <div class="oops-summary-label" style="color: #F44336;">Errors</div>
+            </div>
+            <div class="oops-summary-item" style="background: #fff3e0;">
+                <div class="oops-summary-count" style="color: #FF9800;"><?php echo $logLevels['warning']; ?></div>
+                <div class="oops-summary-label" style="color: #FF9800;">Warnings</div>
+            </div>
+            <div class="oops-summary-item">
+                <div class="oops-summary-count"><?php echo count($events); ?></div>
+                <div class="oops-summary-label">Events</div>
+            </div>
+        </div>
+
+        <!-- Logs by Level -->
+        <?php if (!empty($logs)) : ?>
+            <h2>Logs (<?php echo count($logs); ?>)</h2>
+
+            <!-- Filter by level tabs -->
+            <div style="margin-bottom: 15px;">
+                <?php foreach ($logLevels as $level => $count) : ?>
+                    <?php if ($count > 0) : ?>
+                        <a class="oops-toggle" data-oops-ref="^div .oops-logs-<?php echo $level; ?>" style="margin-right: 10px; cursor: pointer;">
+                            <span class="oops-badge oops-badge-<?php echo $level; ?>"><?php echo $level; ?> (<?php echo $count; ?>)</span>
+                        </a>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+
+            <?php foreach ($logLevels as $level => $count) : ?>
+                <?php if ($count > 0) : ?>
+                    <?php
+                    $levelLogs = array_filter($logs, function($log) use ($level) {
+                        return strtolower(isset($log['level']) ? $log['level'] : 'info') === $level;
+                    });
+                    ?>
+                    <div class="oops-logs-<?php echo $level; ?>" style="margin-bottom: 20px;">
+                        <table>
+                            <?php foreach ($levelLogs as $log) : ?>
+                                <tr class="oops-log-row">
+                                    <td width="5%">
+                                        <span class="oops-badge oops-badge-<?php echo $level; ?>"><?php echo htmlspecialchars($level); ?></span>
+                                    </td>
+                                    <td width="10%" class="oops-log-time">
+                                        <?php echo isset($log['time']) ? htmlspecialchars(date('H:i:s', $log['time'])) : '—'; ?>
+                                    </td>
+                                    <td>
+                                        <div class="oops-log-message">
+                                            <?php echo htmlspecialchars((isset($log['message']) ? $log['message'] : 'No message')); ?>
+                                        </div>
+                                        <?php if (!empty($log['context'])) : ?>
+                                            <a class="oops-toggle oops-collapsed" data-oops-ref="^td .oops-log-context-<?php echo isset($log['id']) ? $log['id'] : uniqid(); ?>" style="font-size: 11px; margin-top: 5px; display: inline-block;">
+                                                Show context
+                                            </a>
+                                            <div class="oops-log-context oops-log-context-<?php echo isset($log['id']) ? $log['id'] : uniqid(); ?> oops-collapsed">
+                                                <pre><?php echo htmlspecialchars(print_r($log['context'], true)); ?></pre>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if (!empty($log['file'])) : ?>
+                                            <div style="font-size: 11px; color: #999; margin-top: 5px;">
+                                                <?php echo htmlspecialchars($log['file']); ?>
+                                                <?php if (!empty($log['line'])) : ?>
+                                                    : <?php echo htmlspecialchars($log['line']); ?>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        <?php else : ?>
+            <p style="color: #999; font-style: italic;">No logs recorded</p>
+        <?php endif; ?>
+
+        <!-- Timers -->
+        <?php if (!empty($timers)) : ?>
+            <h2>
+                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-timers">
+                    Timers (<?php echo count($timers); ?>)
+                </a>
+            </h2>
+            <div class="oops-timers oops-collapsed">
+                <?php
+                // Find max time for percentage calculation
+                $maxTime = 0;
+                foreach ($timers as $timer) {
+                    if ($timer['duration'] > $maxTime) {
+                        $maxTime = $timer['duration'];
+                    }
+                }
+                ?>
+                <table>
+                    <?php foreach ($timers as $name => $timer) : ?>
+                        <tr>
+                            <td width="20%">
+                                <strong><?php echo htmlspecialchars($name); ?></strong>
+                            </td>
+                            <td width="15%">
+                                <?php echo number_format($timer['duration'] * 1000, 2); ?> ms
+                            </td>
+                            <td>
+                                <div class="oops-timer-bar">
+                                    <div class="oops-timer-fill" style="width: <?php echo $maxTime > 0 ? ($timer['duration'] / $maxTime * 100) : 0; ?>%;"></div>
+                                    <div class="oops-timer-label"><?php echo number_format($timer['duration'] / ($this->time ?: 1) * 100, 1); ?>%</div>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <!-- Events Timeline -->
+        <?php if (!empty($events)) : ?>
+            <h2>
+                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-events-timeline">
+                    Events Timeline (<?php echo count($events); ?>)
+                </a>
+            </h2>
+            <div class="oops-events-timeline oops-collapsed">
+                <div class="oops-timeline">
+                    <?php foreach ($events as $event) : ?>
+                        <div class="oops-timeline-item">
+                            <div>
+                                <span class="oops-event-name"><?php echo htmlspecialchars(isset($event['name']) ? $event['name'] : 'Unknown Event'); ?></span>
+                                <span class="oops-log-time" style="margin-left: 10px;">
+                                    <?php echo isset($event['time']) ? htmlspecialchars(date('H:i:s.u', $event['time'])) : '—'; ?>
+                                </span>
+                            </div>
+                            <?php if (!empty($event['data'])) : ?>
+                                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-event-data-<?php echo isset($event['id']) ? $event['id'] : uniqid(); ?>" style="font-size: 11px; margin-top: 5px; display: inline-block;">
+                                    Show data
+                                </a>
+                                <div class="oops-event-data-<?php echo isset($event['id']) ? $event['id'] : uniqid(); ?> oops-collapsed" style="margin-top: 5px;">
+                                    <pre style="background: #f8f8f8; padding: 10px; border-radius: 3px; font-size: 11px;"><?php echo htmlspecialchars(print_r($event['data'], true)); ?></pre>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if (empty($logs) && empty($events) && empty($timers)) : ?>
+            <p style="color: #999; font-style: italic; text-align: center; padding: 40px;">
+                No events or logs recorded during this request
+            </p>
+        <?php endif; ?>
+
+    </div>
+</div>

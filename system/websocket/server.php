@@ -59,7 +59,7 @@ class Server
 
     protected function process($user, $message)
     {
-        // Override di subclass
+        // Override in the subclass
     }
 
     protected function connected($user)
@@ -78,13 +78,13 @@ class Server
 
     protected function connecting($user)
     {
-        // Override jika diperlukan
+        // Override this if needed
         // $this->stdout(sprintf('Client #%s is connecting', $user->id()));
     }
 
     protected function tick()
     {
-        // Override untuk tugas periodik
+        // Override this for periodic tasks
         // $this->stdout('Tick');
     }
 
@@ -171,7 +171,7 @@ class Server
                         $user = $this->find($socket);
 
                         if (!$user->handshake) {
-                            if (strpos(str_replace("\r", '', $buffer), "\n\n") === false) {
+                            if (strpos(str_replace(CR, '', $buffer), LF . LF) === false) {
                                 $this->stdout('Handshake buffer incomplete for socket ' . $socket);
                                 continue;
                             }
@@ -260,7 +260,7 @@ class Server
         if (isset($headers['get'])) {
             $user->uri = $headers['get'];
         } else {
-            $response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
+            $response = 'HTTP/1.1 405 Method Not Allowed' . CRLF . CRLF;
         }
 
         if (!isset($headers['host']) || !$this->check_host($headers['host'])) {
@@ -280,7 +280,7 @@ class Server
         }
 
         if (!isset($headers['sec-websocket-version']) || intval(strtolower($headers['sec-websocket-version'])) !== 13) {
-            $response = "HTTP/1.1 426 Upgrade Required\r\nSec-WebSocketVersion: 13";
+            $response = 'HTTP/1.1 426 Upgrade Required' . CRLF . 'Sec-WebSocketVersion: 13';
         }
 
         if (
@@ -320,13 +320,11 @@ class Server
             $token .= chr(hexdec(substr($hash, $i * 2, 2)));
         }
 
-        $token = base64_encode($token) . "\r\n";
+        $token = base64_encode($token) . CRLF;
         $protocol = (isset($headers['sec-websocket-protocol'])) ? $this->protocol($headers['sec-websocket-protocol']) : '';
         $extensions = (isset($headers['sec-websocket-extensions'])) ? $this->extensions($headers['sec-websocket-extensions']) : '';
-        $response = "HTTP/1.1 101 Switching Protocols\r\n" .
-            "Upgrade: websocket\r\n" .
-            "Connection: Upgrade\r\n" .
-            "Sec-WebSocket-Accept: $token$protocol$extensions\r\n";
+        $response = 'HTTP/1.1 101 Switching Protocols' . CRLF . 'Upgrade: websocket' . CRLF . 'Connection: Upgrade' . CRLF .
+            'Sec-WebSocket-Accept: ' . $token . $protocol . $extensions . CRLF;
 
         socket_write($user->socket, $response, strlen($response));
         $this->stdout('Handshake completed for client ' . $user->id());
@@ -366,7 +364,7 @@ class Server
 
         foreach ($protocols as $protocol) {
             if (in_array($protocol, $this->config['supported_protocols'])) {
-                return "Sec-WebSocket-Protocol: $protocol\r\n";
+                return 'Sec-WebSocket-Protocol: ' . $protocol . CRLF;
             }
         }
 
@@ -380,7 +378,7 @@ class Server
 
         foreach ($extensions as $extension) {
             if (in_array($extension, $this->config['supported_extensions'])) {
-                return "Sec-WebSocket-Extensions: $extension\r\n";
+                return 'Sec-WebSocket-Extensions: ' . $extension . CRLF;
             }
         }
 
@@ -519,11 +517,12 @@ class Server
                 } else {
                     if ((preg_match('//u', $message)) || ($headers['opcode'] == 2)) {
                         $this->process($user, $message);
+
                         if (isset($this->events['receive']) && is_callable($function = $this->events['receive'])) {
                             $function($user, $headers['opcode'], $message);
                         }
                     } else {
-                        $this->stderr("Not UTF-8\n");
+                        $this->stderr('Not UTF-8' . PHP_EOL);
                     }
                 }
             }
@@ -592,6 +591,7 @@ class Server
             socket_write($user->socket, $reply, strlen($reply));
             return false;
         }
+
         if ($headers['length'] > strlen($this->apply_mask($headers, $payload))) {
             $user->busy = true;
             $user->buffer = $message;
@@ -705,8 +705,6 @@ class Server
         $this->events[$event] = $function;
         return $this;
     }
-
-
 
     public function kill()
     {

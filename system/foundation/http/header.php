@@ -10,7 +10,7 @@ class Header implements \IteratorAggregate, \Countable
     protected $cacheControl;
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param array $headers
      */
@@ -25,7 +25,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Return data header dalam bentuk string.
+     * Return string representation of the headers.
      *
      * @return string
      */
@@ -55,7 +55,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn seluruh data header.
+     * Get all headers.
      *
      * @return array
      */
@@ -65,7 +65,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Meretrn seluruh key header.
+     * Get all header keys.
      *
      * @return array
      */
@@ -75,7 +75,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ganti seluruh header dengan yang baru.
+     * Replace all headers.
      *
      * @param array $headers
      */
@@ -86,7 +86,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Tambahkan data header baru.
+     * Add array of headers.
      *
      * @param array $headers
      */
@@ -98,7 +98,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn value header berdasarkan key yang diberikan.
+     * Get header value by key.
      *
      * @param string $key
      * @param mixed  $default
@@ -126,7 +126,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Set data header berdasarkan key.
+     * Set header value by key.
      *
      * @param string       $key
      * @param string|array $values
@@ -146,7 +146,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Periksa ada tidaknya suatu header.
+     * Check if header exists by key.
      *
      * @param string $key
      *
@@ -159,7 +159,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn TRUE jika header mengandung value yang diberikan.
+     * Check if header contains specific value.
      *
      * @param string $key
      * @param string $value
@@ -172,7 +172,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Hapus header berdasarkan key-nya.
+     * Remove header by key.
      *
      * @param string $key
      */
@@ -188,14 +188,14 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn value header yang dikonversikan ke bentuk tanggal.
+     * Get header date value by key.
      *
      * @param string    $key
      * @param \DateTime $default
      *
      * @return \DateTime|null
      */
-    public function getDate($key, \DateTime $default = null)
+    public function getDate($key, $default = null)
     {
         if (null === ($value = $this->get($key))) {
             return $default;

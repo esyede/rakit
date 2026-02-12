@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class JWT
 {
+    /**
+     * List of supported algorithms.
+     *
+     * @var array
+     */
     protected static $algorithms = [
         'HS256' => ['hash' => 'SHA256', 'type' => 'symmetric'],
         'HS384' => ['hash' => 'SHA384', 'type' => 'symmetric'],
@@ -15,7 +20,18 @@ class JWT
         'RS512' => ['hash' => 'SHA512', 'type' => 'asymmetric'],
     ];
 
+    /**
+     * Leeway in seconds for token expiration.
+     *
+     * @var int
+     */
     public static $leeway = 0;
+
+    /**
+     * Timestamp for token creation.
+     *
+     * @var int
+     */
     public static $timestamp;
 
     /**
@@ -73,17 +89,20 @@ class JWT
 
         $jwt = explode('.', $token);
         $timestamp = static::$timestamp ?: time();
+
         if (!is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');
         }
 
         list($headers64, $payloads64, $signature64) = $jwt;
         $headers = static::decode_json(static::decode_url($headers64));
+
         if (null === $headers) {
             throw new \Exception('Invalid header encoding');
         }
 
         $payloads = static::decode_json(static::decode_url($payloads64));
+
         if (null === $payloads) {
             throw new \Exception('Invalid claims encoding');
         }
@@ -93,6 +112,7 @@ class JWT
         }
 
         $signature = static::decode_url($signature64);
+
         if (false === $signature) {
             throw new \Exception('Invalid signature encoding');
         }
@@ -146,7 +166,7 @@ class JWT
     }
 
     /**
-     * Buat signature untuk encode.
+     * Create a JWT signature.
      *
      * @param string $payload
      * @param string $key
@@ -157,6 +177,7 @@ class JWT
     private static function signature($payload, $key, $algorithm)
     {
         $algorithm = strtoupper((string) $algorithm);
+
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 "Only these algorithms are supported: %s. Got '%s' (%s)",
@@ -167,6 +188,7 @@ class JWT
         }
 
         $info = static::$algorithms[$algorithm];
+
         if ($info['type'] === 'symmetric') {
             return hash_hmac($info['hash'], $payload, $key, true);
         } elseif ($info['type'] === 'asymmetric') {
@@ -177,7 +199,7 @@ class JWT
     }
 
     /**
-     * Verifikasi signature.
+     * Verify a JWT signature.
      *
      * @param string $payload
      * @param string $signature
@@ -189,6 +211,7 @@ class JWT
     private static function verify($payload, $signature, $key, $algorithm)
     {
         $algorithm = strtoupper((string) $algorithm);
+
         if (!isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 'Only these algorithms are supported: %s, got: %s (%s)',
@@ -199,6 +222,7 @@ class JWT
         }
 
         $info = static::$algorithms[$algorithm];
+
         if ($info['type'] === 'symmetric') {
             $expected = hash_hmac($info['hash'], $payload, $key, true);
             return Crypter::equals($expected, $signature);
@@ -210,7 +234,7 @@ class JWT
     }
 
     /**
-     * Buat signature RSA.
+     * Create an RSA signature.
      *
      * @param string $payload
      * @param string $private_key
@@ -225,6 +249,7 @@ class JWT
         }
 
         $success = openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash']);
+
         if (!$success) {
             throw new \Exception('OpenSSL unable to sign data');
         }
@@ -233,7 +258,7 @@ class JWT
     }
 
     /**
-     * Verifikasi signature RSA.
+     * Verify an RSA signature.
      *
      * @param string $payload
      * @param string $signature
@@ -249,6 +274,7 @@ class JWT
         }
 
         $result = openssl_verify($payload, $signature, $public_key, static::$algorithms[$algorithm]['hash']);
+
         if ($result === -1) {
             throw new \Exception('OpenSSL error: ' . openssl_error_string());
         }
@@ -257,7 +283,7 @@ class JWT
     }
 
     /**
-     * Encode string ke url base64.
+     * Encode string to Base64 URL.
      *
      * @param string $data
      *
@@ -269,7 +295,7 @@ class JWT
     }
 
     /**
-     * Decode string dari url base64.
+     * Decode string from Base64 URL.
      *
      * @param string $data
      *
@@ -283,7 +309,7 @@ class JWT
     }
 
     /**
-     * Encode data ke bentuk json.
+     * Encode data to JSON.
      *
      * @param mixed $data
      *
@@ -292,6 +318,7 @@ class JWT
     private static function encode_json($data)
     {
         $json = json_encode($data);
+
         if (JSON_ERROR_NONE !== json_last_error()) {
             static::json_error(json_last_error());
         } elseif ($json === 'null' && $data !== null) {
@@ -302,7 +329,7 @@ class JWT
     }
 
     /**
-     * Decode json ke bentuk object.
+     * Decode JSON to object.
      *
      * @param string $data
      *
@@ -311,6 +338,7 @@ class JWT
     private static function decode_json($data)
     {
         $object = json_decode($data, false);
+
         if (JSON_ERROR_NONE !== json_last_error()) {
             static::json_error(json_last_error());
         } elseif ($object === null && $data !== 'null') {
@@ -321,7 +349,7 @@ class JWT
     }
 
     /**
-     * Tangani error json.
+     * Handle JSON error.
      *
      * @param int $code
      *
@@ -341,7 +369,7 @@ class JWT
     }
 
     /**
-     * Refresh token dengan exp baru.
+     * Refresh token with new expiration.
      *
      * @param string $token
      * @param string $key

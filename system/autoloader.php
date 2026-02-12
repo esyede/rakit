@@ -7,59 +7,57 @@ defined('DS') or exit('No direct access.');
 class Autoloader
 {
     /**
-     * Berisi mapping nama kelas dan path filenya.
+     * Contains class name and file path mappings.
      *
      * @var array
      */
     public static $mappings = [];
 
     /**
-     * Berisi direktori yang menggunakan konvensi PSR-0.
+     * Contains directories using PSR-0 convention.
      *
      * @var array
      */
     public static $directories = [];
 
     /**
-     * Berisi mapping namespace dan path direktorinya.
+     * Contains namespaces and directory mappings.
      *
      * @var array
      */
     public static $namespaces = [];
 
     /**
-     * Berisi mapping library dan direktori yang menggunakan konvensi 'Garis_bawah'.
+     * Contains library and directory mappings using 'underscore' convention.
      *
      * @var array
      */
     public static $underscored = [];
 
     /**
-     * Berisi seluruh class alias yang didaftarkan ke autoloader.
+     * Contains class aliases.
      *
      * @var array
      */
     public static $aliases = [];
 
     /**
-     * Cache untuk file yang sudah dimuat.
+     * Cache for loaded files.
      *
      * @var array
      */
     protected static $loaded = [];
 
-
-
     /**
-     * Cache untuk hasil is_file.
+     * Cache for file existence checks.
      *
      * @var array
      */
     protected static $caches = [];
 
     /**
-     * Muat file berdasarkan class yang diberikan.
-     * Method ini adalah autoloader default sistem.
+     * Load a file based on the given class.
+     * This method is the default autoloader.
      *
      * @param string $class
      */
@@ -73,7 +71,7 @@ class Autoloader
                 return;
             }
 
-            // Jika directories belum didaftarkan, daftar default
+            // If directories are not registered, register defaults
             if (empty(static::$directories)) {
                 static::directories([
                     path('app') . 'controllers',
@@ -99,7 +97,7 @@ class Autoloader
     }
 
     /**
-     * Muat class bernamespace dari direktori yang diberikan.
+     * Load a namespace-based class.
      *
      * @param string $class
      * @param string $namespace
@@ -111,7 +109,7 @@ class Autoloader
     }
 
     /**
-     * Coba resolve class menggunakan konvensi PSR-0.
+     * Resolve a class using PSR-0 conventions.
      *
      * @param string $class
      * @param string $directory
@@ -137,7 +135,6 @@ class Autoloader
             $lowercase_path = $directory . $lowercased . '.php';
             $original_path = $directory . $file . '.php';
 
-            // Cache is_file untuk lowercase
             if (!isset(static::$caches[$lowercase_path])) {
                 static::$caches[$lowercase_path] = is_file($lowercase_path);
             }
@@ -154,7 +151,6 @@ class Autoloader
                 }
             }
 
-            // Cache is_file untuk original
             if (!isset(static::$caches[$original_path])) {
                 static::$caches[$original_path] = is_file($original_path);
             }
@@ -174,7 +170,7 @@ class Autoloader
     }
 
     /**
-     * Daftarkan array class ke path map.
+     * Register array class to path map.
      *
      * @param array $mappings
      */
@@ -184,7 +180,7 @@ class Autoloader
     }
 
     /**
-     * Daftarkan class alias dengan autoloader.
+     * Register class alias with autoloader.
      *
      * @param string $class
      * @param string $alias
@@ -195,7 +191,7 @@ class Autoloader
     }
 
     /**
-     * Daftarkan direktori untuk di-autoload dengan konvensi PSR-0.
+     * Register directory for autoload with PSR-0 convention.
      *
      * @param array $directories
      */
@@ -206,7 +202,7 @@ class Autoloader
     }
 
     /**
-     * Map namespace ke direktori.
+     * Map namespace to directory mapping.
      *
      * @param array  $mappings
      * @param string $append
@@ -218,7 +214,7 @@ class Autoloader
     }
 
     /**
-     * Daftarkan "namespace garis bawah" ke mapping direktori.
+     * Register "underscore namespace" to directory mapping.
      *
      * @param array $mappings
      */
@@ -228,7 +224,7 @@ class Autoloader
     }
 
     /**
-     * Format array namespace ke direktori mapping.
+     * Format namespaces to directory mapping.
      *
      * @param array  $mappings
      * @param string $append
@@ -249,7 +245,7 @@ class Autoloader
     }
 
     /**
-     * Format directory-separator agar sesuai dengan OS di server.
+     * Format directory-separator to match OS.
      * (Windows = \, Linux/Mac = /).
      *
      * @param array $directories
@@ -266,7 +262,7 @@ class Autoloader
 
 
     /**
-     * Get statistics autoloader untuk debugging.
+     * Get statistics for debugging.
      *
      * @return array
      */

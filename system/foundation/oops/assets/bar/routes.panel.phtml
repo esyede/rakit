@@ -1,0 +1,300 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Routing\Route;
+
+// Get current route info
+$currentRoute = isset($this->data['current_route']) ? $this->data['current_route'] : null;
+$currentUri = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : null;
+$currentMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+
+// Get all registered routes
+$allRoutes = [];
+$registeredRoutes = Route::lists();
+foreach ($registeredRoutes as $method => $routes) {
+    foreach ($routes as $uri => $route) {
+        if ($uri !== '(:all)') {
+            $allRoutes[] = [
+                'method' => $method,
+                'uri' => $uri,
+                'name' => isset($route['as']) ? $route['as'] : null,
+                'action' => $route,
+                'https' => isset($route['https']) ? $route['https'] : false,
+                'filters' => isset($route['filters']) ? $route['filters'] : [],
+            ];
+        }
+    }
+}
+
+// Sort routes by URI
+usort($allRoutes, function ($a, $b) {
+    return strcmp($a['uri'], $b['uri']);
+});
+
+$totalRoutes = count($allRoutes);
+?>
+<style class="oops-debug">
+    #oops-debug .oops-RoutesPanel h2 {
+        margin-top: 20px;
+        padding: 8px 10px;
+        background: #ffffff;
+        border-left: 3px solid #FF9800;
+    }
+
+    #oops-debug .oops-RoutesPanel table {
+        width: 100%;
+        font-size: 13px;
+    }
+
+    #oops-debug .oops-RoutesPanel td {
+        padding: 8px;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-route-current {
+        background: #fff3e0 !important;
+        border-left: 3px solid #FF9800;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        color: white;
+        margin-right: 5px;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-get {
+        background: #4CAF50;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-post {
+        background: #2196F3;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-put {
+        background: #FF9800;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-delete {
+        background: #F44336;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-patch {
+        background: #9C27B0;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-options {
+        background: #607D8B;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-badge-head {
+        background: #795548;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-route-uri {
+        font-family: monospace;
+        color: #333;
+        font-weight: bold;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-route-name {
+        color: #666;
+        font-size: 12px;
+        font-style: italic;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-route-action {
+        font-family: monospace;
+        font-size: 12px;
+        color: #555;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-current-info {
+        background: #e3f2fd;
+        border: 2px solid #2196F3;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-current-info h3 {
+        margin-top: 0;
+        color: #1976D2;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-filter-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        background: #f0f0f0;
+        border-radius: 3px;
+        font-size: 11px;
+        color: #666;
+        margin: 2px;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-https-badge {
+        background: #4CAF50;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: bold;
+        margin-left: 5px;
+    }
+</style>
+
+<h1>Routes</h1>
+
+<div class="oops-inner oops-RoutesPanel">
+    <div class="oops-inner-container">
+
+        <?php if ($currentRoute) : ?>
+            <!-- Current Route Info -->
+            <div class="oops-current-info">
+                <h3>📍 Current Route</h3>
+                <table>
+                    <?php if (isset($currentRoute['name'])) : ?>
+                        <tr>
+                            <td width="20%"><strong>Name</strong></td>
+                            <td><span class="oops-route-name"><?php echo htmlspecialchars($currentRoute['name']); ?></span></td>
+                        </tr>
+                    <?php endif; ?>
+                    <tr>
+                        <td width="20%"><strong>URI</strong></td>
+                        <td><span class="oops-route-uri"><?php echo htmlspecialchars(isset($currentRoute['uri']) ? $currentRoute['uri'] : (isset($currentUri) ? $currentUri : 'N/A')); ?></span></td>
+                    </tr>
+                    <tr>
+                        <td width="20%"><strong>Method</strong></td>
+                        <td>
+                            <?php $method = strtoupper($currentRoute['method'] ? $currentRoute['method'] : $currentMethod); ?>
+                            <span class="oops-badge oops-badge-<?php echo strtolower($method); ?>"><?php echo $method; ?></span>
+                        </td>
+                    </tr>
+                    <?php if (isset($currentRoute['controller'])) : ?>
+                        <tr>
+                            <td width="20%"><strong>Controller</strong></td>
+                            <td><code><?php echo htmlspecialchars($currentRoute['controller']); ?></code></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if (isset($currentRoute['action'])) : ?>
+                        <tr>
+                            <td width="20%"><strong>Action</strong></td>
+                            <td><code><?php echo htmlspecialchars(is_callable($currentRoute['action']) ? 'Closure' : (is_array($currentRoute['action']) ? implode('@', $currentRoute['action']) : $currentRoute['action'])); ?></code></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($currentRoute['parameters'])) : ?>
+                        <tr>
+                            <td width="20%"><strong>Parameters</strong></td>
+                            <td>
+                                <pre><?php echo htmlspecialchars(print_r($currentRoute['parameters'], true)); ?></pre>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if (!empty($currentRoute['filters'])) : ?>
+                        <tr>
+                            <td width="20%"><strong>Filters/Middleware</strong></td>
+                            <td>
+                                <?php foreach ((array) $currentRoute['filters'] as $filter) : ?>
+                                    <span class="oops-filter-badge"><?php echo htmlspecialchars($filter); ?></span>
+                                <?php endforeach; ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <!-- All Routes -->
+        <h2>
+            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-all-routes">
+                All Registered Routes (<?php echo $totalRoutes; ?>)
+            </a>
+        </h2>
+        <div class="oops-all-routes oops-collapsed">
+            <?php if ($totalRoutes > 0) : ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="10%">Method</th>
+                            <th width="30%">URI</th>
+                            <th width="20%">Name</th>
+                            <th width="30%">Action</th>
+                            <th width="10%">Info</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($allRoutes as $route) : ?>
+                            <?php
+                            $isCurrent = false;
+                            if ($currentRoute && isset($currentRoute['uri'])) {
+                                $isCurrent = ($route['uri'] === $currentRoute['uri'] && $route['method'] === (isset($currentRoute['method']) ? $currentRoute['method'] : $currentMethod));
+                            }
+                            ?>
+                            <tr<?php echo $isCurrent ? ' class="oops-route-current"' : ''; ?>>
+                                <td>
+                                    <span class="oops-badge oops-badge-<?php echo strtolower($route['method']); ?>">
+                                        <?php echo htmlspecialchars($route['method']); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="oops-route-uri"><?php echo htmlspecialchars($route['uri']); ?></span>
+                                    <?php if ($route['https']) : ?>
+                                        <span class="oops-https-badge">HTTPS</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($route['name']) : ?>
+                                        <span class="oops-route-name"><?php echo htmlspecialchars($route['name']); ?></span>
+                                    <?php else : ?>
+                                        <span style="color: #ccc;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <span class="oops-route-action">
+                                        <?php
+                                        if (is_callable($route['action'])) {
+                                            echo 'Closure';
+                                        } elseif (is_array($route['action'])) {
+                                            if (isset($route['action']['uses'])) {
+                                                echo htmlspecialchars($route['action']['uses']);
+                                            } else {
+                                                if (is_string($route['action'])) {
+                                                    echo htmlspecialchars(implode('@', $route['action']));
+                                                } else {
+                                                    echo gettype($route['action']);
+                                                }
+                                            }
+                                        } elseif (is_string($route['action'])) {
+                                            echo htmlspecialchars($route['action']);
+                                        } else {
+                                            echo '<span style="color: #999;">Unknown</span>';
+                                        }
+                                        ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($route['filters'])) : ?>
+                                        <small title="<?php echo htmlspecialchars(implode(', ', (array) $route['filters'])); ?>">
+                                            <?php echo count((array) $route['filters']); ?> filter<?php echo count((array) $route['filters']) > 1 ? 's' : ''; ?>
+                                        </small>
+                                    <?php else : ?>
+                                        <span style="color: #ccc;">—</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else : ?>
+                <p style="color: #999; font-style: italic;">No routes registered</p>
+            <?php endif; ?>
+        </div>
+
+    </div>
+</div>

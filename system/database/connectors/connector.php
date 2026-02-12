@@ -9,7 +9,7 @@ use PDO;
 abstract class Connector
 {
     /**
-     * Opsi default koneksi PDO.
+     * Contains default PDO connection options.
      *
      * @var array
      */
@@ -22,7 +22,7 @@ abstract class Connector
     ];
 
     /**
-     * Buat koneksi PDO.
+     * Connect to the database and return the PDO instance.
      *
      * @param array $config
      *
@@ -31,8 +31,7 @@ abstract class Connector
     abstract public function connect(array $config);
 
     /**
-     * Ambil konfigurasi opsi koneksi PDO.
-     * Opsi default akan ditimpa oleh opsi kustom yang diberikan.
+     * Get the PDO connection options.
      *
      * @param array $config
      *

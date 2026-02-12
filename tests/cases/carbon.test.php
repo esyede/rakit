@@ -77,7 +77,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test kurang.
+     * Test substraction.
      *
      * @group system
      */
@@ -118,7 +118,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test komparasi.
+     * Test compare.
      *
      * @group system
      */
@@ -172,7 +172,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test konstruktor.
+     * Test construct.
      *
      * @group system
      */
@@ -246,7 +246,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test createFromFormat.
+     * Test for createFromFormat.
      *
      * @group system
      */
@@ -263,7 +263,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test createFromTime.
+     * Test for createFromTime.
      *
      * @group system
      */
@@ -288,7 +288,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test createFromTimestamp.
+     * Test for createFromTimestamp.
      *
      * @group system
      */
@@ -306,7 +306,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test buat instance.
+     * Test for create().
      *
      * @group system
      */
@@ -708,7 +708,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test setter dinamis.
+     * Test dynamic setter.
      *
      * @group system
      */
@@ -898,7 +898,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test property ada.
+     * Test property exists.
      *
      * @group system
      */
@@ -950,7 +950,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test waktu relatif.
+     * Test relative time getters.
      *
      * @group system
      */
@@ -1074,7 +1074,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test startOf & endOf.
+     * Test startOf and endOf.
      *
      * @group system
      */
@@ -1158,7 +1158,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test konversi ke string.
+     * Test string conversion.
      *
      * @group system
      */
@@ -1211,7 +1211,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test lain-lain.
+     * Test other methods.
      *
      * @group system
      */

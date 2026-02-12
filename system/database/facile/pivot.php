@@ -7,28 +7,28 @@ defined('DS') or exit('No direct access.');
 class Pivot extends Model
 {
     /**
-     * Berisi nama tabel pivot.
+     * Contains the name of the pivot table.
      *
      * @var string
      */
     protected $pivot_table;
 
     /**
-     * Berisi koneksi database yang sedang digunakan.
+     * Contains the database connection used by the pivot model.
      *
      * @var System\Database\Connection
      */
     protected $pivot_connection;
 
     /**
-     * Penanda bahwa model ini memiliki kolom timestamp created / updated at.
+     * Determine wheter the pivot model should maintain timestamps.
      *
      * @var bool
      */
     public static $timestamps = true;
 
     /**
-     * Buat instance pivot baru.
+     * Constructor.
      *
      * @param string $table
      * @param string $connection
@@ -42,7 +42,7 @@ class Pivot extends Model
     }
 
     /**
-     * Ambil nama tabel pivot.
+     * Get the name of the pivot table.
      *
      * @return string
      */
@@ -52,7 +52,7 @@ class Pivot extends Model
     }
 
     /**
-     * Ambil koneksi database yang sedang digunakan.
+     * Get the database connection used by the pivot model.
      *
      * @return string
      */
@@ -62,7 +62,7 @@ class Pivot extends Model
     }
 
     /**
-     * Sinkronkan atribut original dengan atribut saat ini.
+     * Sync the original attributes with the current.
      *
      * @return $this
      */

@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class HasMany extends HasOneOrMany
 {
     /**
-     * Ambil hasil mass-assignment milik relasi.
+     * Get all results of the relationship.
      *
      * @return array
      */
@@ -17,7 +17,7 @@ class HasMany extends HasOneOrMany
     }
 
     /**
-     * Simpan tabel relasi dengan array model.
+     * Save the related models for the relationship.
      *
      * @param mixed $models
      *
@@ -46,7 +46,7 @@ class HasMany extends HasOneOrMany
     }
 
     /**
-     * Mulai relasi terhadap beberapa model induk.
+     * Start the eager loading process for the relationship.
      *
      * @param array  $parents
      * @param string $relationship
@@ -59,7 +59,7 @@ class HasMany extends HasOneOrMany
     }
 
     /**
-     * Cocokkan model anak yang di eagerload dengan model induknya.
+     * Match the eagerly loaded results to their parents.
      *
      * @param array $parents
      * @param array $childrens

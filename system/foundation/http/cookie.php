@@ -16,7 +16,7 @@ class Cookie
     protected $sameSite;
 
     /**
-     * Konstruktor.
+     * Constructor.
      *
      * @param string               $name
      * @param string               $value
@@ -73,7 +73,7 @@ class Cookie
     }
 
     /**
-     * Mereturn object cookie sebagai string.
+     * Return cookie as string.
      *
      * @return string
      */
@@ -100,7 +100,7 @@ class Cookie
     }
 
     /**
-     * Ambil nama cookie.
+     * Get the cookie name.
      *
      * @return string
      */
@@ -110,7 +110,7 @@ class Cookie
     }
 
     /**
-     * Ambil value cookie.
+     * Get the cookie value.
      *
      * @return string
      */
@@ -120,7 +120,7 @@ class Cookie
     }
 
     /**
-     * Ambil domain cookie.
+     * Get the cookie domain.
      *
      * @return string
      */
@@ -130,7 +130,7 @@ class Cookie
     }
 
     /**
-     * Ambil waktu kedaluwarsa cookie.
+     * Get the cookie expiration time.
      *
      * @return int
      */
@@ -140,7 +140,7 @@ class Cookie
     }
 
     /**
-     * Ambil path cookie di server.
+     * Get the cookie path.
      *
      * @return string
      */
@@ -150,7 +150,7 @@ class Cookie
     }
 
     /**
-     * Cek apakah cookie hanya boleh dikirimkan via HTTPS saja.
+     * Check if cookie hanya boleh dikirim via koneksi aman HTTPS.
      *
      * @return bool
      */
@@ -160,7 +160,7 @@ class Cookie
     }
 
     /**
-     * Cek apakah cookie hanya boleh tersedia via HTTP saja.
+     * Check if cookie can only be accessed via HTTP protocol.
      *
      * @return bool
      *
@@ -172,7 +172,7 @@ class Cookie
     }
 
     /**
-     * Cek apakah cookie sudah waktunya untuk dibersihkan.
+     * Check if the cookie has been cleared.
      *
      * @return bool
      */
@@ -182,7 +182,7 @@ class Cookie
     }
 
     /**
-     * Ambil atribut samesite cookie.
+     * Get the SameSite attribute.
      *
      * @return string
      */

@@ -4,13 +4,12 @@ defined('DS') or exit('No direct access.');
 
 /*
 |--------------------------------------------------------------------------
-| Konfigurasi Paket
+| Packages Configuration
 |--------------------------------------------------------------------------
 |
-| Paket memungkinkan anda untuk memodularisasi aplikasi anda dengan mudah.
-| Bayangkan paket sebagai aplikasi mandiri. Mereka dapat memiliki route,
-| kontroler, model, view, konfigurasi, dll.
-|
+| Packages allow you to modularize your application easily.
+| Imagine packages as standalone applications. They can have routes,
+| controllers, models, views, configuration, etc.
 */
 
 return [

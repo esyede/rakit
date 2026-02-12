@@ -5,7 +5,12 @@ defined('DS') or exit('No direct access.');
 class stub_class_Controller extends Controller
 {
     /**
-     * Buat instance controller baru.
+     * Enable RESTful routing.
+     */
+    public $restful = false;
+
+    /**
+     * Constructor.
      */
     public function __construct()
     {
@@ -13,12 +18,12 @@ class stub_class_Controller extends Controller
     }
 
 	/**
-	 * Action index.
+	 * Default action.
 	 *
 	 * @return View
 	 */
 	public function action_index()
 	{
-        return 'Hello from stub_class_Controller::action_index()';
+        return 'Hello from stub_class_Controller';
 	}
 }

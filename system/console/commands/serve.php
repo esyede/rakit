@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Serve extends Command
 {
     /**
-     * Jalankan development server.
+     * Run the development server.
      *
      * @param array $arguments
      *

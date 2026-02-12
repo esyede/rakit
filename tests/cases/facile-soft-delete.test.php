@@ -9,7 +9,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // Setup koneksi database untuk testing
+        // ..
     }
 
     /**
@@ -17,11 +17,11 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // Cleanup
+        // ..
     }
 
     /**
-     * Test soft delete model setup.
+     * Test for soft delete model setup.
      *
      * @group system
      */
@@ -32,7 +32,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test trashed() pada non-deleted model.
+     * Test the trashed() method on non-deleted model.
      *
      * @group system
      */
@@ -44,7 +44,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test trashed() pada deleted model.
+     * Test the trashed() method on deleted model.
      *
      * @group system
      */
@@ -56,7 +56,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model tanpa soft delete.
+     * Test model without soft delete.
      *
      * @group system
      */
@@ -67,7 +67,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test restore().
+     * Test for restore() method.
      *
      * @group system
      */
@@ -82,7 +82,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test force_delete().
+     * Test for force_delete() method.
      *
      * @group system
      */
@@ -97,7 +97,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test with_trashed static method.
+     * Test for with_trashed static method.
      *
      * @group system
      */
@@ -108,20 +108,20 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test only_trashed static method.
+     * Test for only_trashed static method.
      *
      * @group system
      */
     public function testOnlyTrashedStaticMethod()
     {
         $query = SoftDeleteModel::only_trashed();
-        // Seharusnya me-return instance query builder
+        // This should return a query builder instance
         $this->assertNotNull($query);
     }
 }
 
 /**
- * Test model dengan soft delete.
+ * Test model with soft delete.
  */
 class SoftDeleteModel extends \System\Database\Facile\Model
 {
@@ -131,7 +131,7 @@ class SoftDeleteModel extends \System\Database\Facile\Model
 }
 
 /**
- * Test model tanpa soft delete.
+ * Test model without soft delete.
  */
 class NormalModel extends \System\Database\Facile\Model
 {

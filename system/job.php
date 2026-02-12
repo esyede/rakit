@@ -10,47 +10,41 @@ use System\Memcached;
 class Job
 {
     /**
-     * Berisi seluruh job driver yang aktif.
+     * Contains job drivers.
      *
      * @var array
      */
     public static $drivers = [];
 
     /**
-     * Berisi registrar job driver pihak ketiga.
+     * Contains third-party job driver registrar.
      *
      * @var array
      */
     public static $registrar = [];
 
     /**
-     * Berisi flag untuk auto-discovery.
+     * Contains flag for auto-discovery.
      *
      * @var bool
      */
     protected static $discovered = false;
 
     /**
-     * Dispatch job ke queue.
+     * Dispatch job to queue.
      *
      * <code>
      *
-     *      // Dispatch job sekarang
+     *      // Dispatch now
      *      Job::dispatch('notify', ['to' => 'user@example.com']);
      *
-     *      // Dispatch dengan schedule (string)
+     *      // Dispatch with schedule (delay)
      *      Job::dispatch('notify', ['to' => 'user@example.com'], '2024-12-31 10:00:00');
-     *
-     *      // Dispatch dengan Carbon
      *      Job::dispatch('notify', ['to' => 'user@example.com'], Carbon::now()->addMinutes(5));
-     *
-     *      // Dispatch dengan DateTime
      *      Job::dispatch('notify', ['to' => 'user@example.com'], new DateTime('2025-01-20 10:00:00'));
-     *
-     *      // Dispatch dengan unix timestamp
      *      Job::dispatch('notify', ['to' => 'user@example.com'], time() + 600);
      *
-     *      // Dengan chaining
+     *      // With method chaining
      *      Job::dispatch('notify', ['to' => 'user@example.com'])
      *          ->on_queue('high')
      *          ->without_overlapping();
@@ -66,8 +60,8 @@ class Job
     public static function dispatch($name, array $payload = [], $dispatch_at = null)
     {
         static::auto_discover();
-        
-        // Normalisasi dispatch_at
+
+        // Normalize dispatch_at
         if ($dispatch_at instanceof \DateTime) {
             $dispatch_at = $dispatch_at->format('Y-m-d H:i:s');
         } elseif (is_numeric($dispatch_at)) {
@@ -79,12 +73,12 @@ class Job
         } elseif (is_null($dispatch_at)) {
             $dispatch_at = Carbon::now()->format('Y-m-d H:i:s');
         }
-        
+
         return new Job\Pending($name, $payload, $dispatch_at);
     }
 
     /**
-     * Auto-discover dan register job listeners.
+     * Auto-discover and register job listeners.
      */
     protected static function auto_discover()
     {
@@ -97,7 +91,7 @@ class Job
 
         Event::listen('rakit.jobs.process', function ($data) {
             $job = is_array($data) ? (object) $data : $data;
-            
+
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
                 Event::fire('rakit.jobs.run: ' . $job->name, $payloads);
@@ -106,7 +100,7 @@ class Job
     }
 
     /**
-     * Load dan register semua job classes.
+     * Load and register job classes.
      */
     protected static function load_job_classes()
     {
@@ -143,15 +137,14 @@ class Job
     }
 
     /**
-     * Ambil instance job driver.
-     * Atau return driver default jika tidak ada driver yang dipilih.
+     * Get the job driver instance.
      *
      * <code>
      *
-     *      // Ambil instance driver default
+     *      // Get the default job driver instance
      *      $driver = Job::driver();
      *
-     *      // Ambil instance driver tertentu
+     *      // Get the job driver instance for a specific driver
      *      $driver = Job::driver('database');
      *
      * </code>
@@ -172,7 +165,7 @@ class Job
     }
 
     /**
-     * Buat instance job driver baru.
+     * Create a new job driver instance.
      *
      * @param string $driver
      *
@@ -199,7 +192,7 @@ class Job
     }
 
     /**
-     * Daftarkan job driver pihak ketiga.
+     * Register a new job driver instance.
      *
      * @param string   $driver
      * @param \Closure $resolver
@@ -210,14 +203,14 @@ class Job
     }
 
     /**
-     * Magic Method untuk memanggil method milik job driver default.
+     * Magic method for calling methods on the default job driver.
      *
      * <code>
      *
-     *      // Panggil method push() milik job driver default.
+     *      // Call the push() method on the default job driver.
      *      Job::push('send-email', ['to' => 'user@example.com']);
      *
-     *      // Panggil method process() milik job driver default.
+     *      // Call the process() method on the default job driver.
      *      Job::process('send-email');
      *
      * </code>

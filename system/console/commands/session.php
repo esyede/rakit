@@ -11,7 +11,7 @@ use System\Session as BaseSession;
 class Session extends Command
 {
     /**
-     * Bersihkan session database yang telah kedaluwarsa.
+     * Clear expired session data from the database.
      *
      * @param array $arguments
      *

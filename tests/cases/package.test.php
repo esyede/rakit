@@ -15,7 +15,6 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     {
         Package::$booted = [];
         Package::$elements = [];
-
         unset(Package::$packages['foo']);
     }
 
@@ -26,12 +25,11 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     {
         Package::$booted = [];
         Package::$elements = [];
-
         unset(Package::$packages['foo']);
     }
 
     /**
-     * Test untuk method Package::register().
+     * Test for Package::register().
      *
      * @group system
      */
@@ -51,7 +49,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::boot().
+     * Test for Package::boot().
      *
      * @group system
      */
@@ -63,8 +61,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
 
         Event::listen('rakit.booted: dummy', function () {
             $_SERVER['booted.dummy'] = true;
-
-            // Indikasi paket dummy telah di-boot: file routes.php miliknya ada di get_included_files()
+            // Indicates that the dummy package has been booted: it's routes.php file is in get_included_files()
             if (in_array(path('package') . 'dummy' . DS . 'routes.php', get_included_files())) {
                 $_SERVER['package.dummy.routes']++;
             }
@@ -85,7 +82,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::handles().
+     * Test for Package::handles().
      *
      * @group system
      */
@@ -99,7 +96,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::exist().
+     * Test for Package::exist().
      *
      * @group system
      */
@@ -110,7 +107,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::booted().
+     * Test for Package::booted().
      *
      * @group system
      */
@@ -123,7 +120,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::prefix().
+     * Test for Package::prefix().
      *
      * @group system
      */
@@ -134,7 +131,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::class_prefix().
+     * Test for Package::class_prefix().
      *
      * @group system
      */
@@ -145,7 +142,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::path().
+     * Test for Package::path().
      *
      * @group system
      */
@@ -157,7 +154,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::asset().
+     * Test for Package::asset().
      *
      * @group system
      */
@@ -170,7 +167,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::name().
+     * Test for Package::name().
      *
      * @group system
      */
@@ -182,7 +179,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::element().
+     * Test for Package::element().
      *
      * @group system
      */
@@ -194,7 +191,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::identifier().
+     * Test for Package::identifier().
      *
      * @group system
      */
@@ -206,7 +203,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::resolve().
+     * Test for Package::resolve().
      *
      * @group system
      */
@@ -217,7 +214,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::parse().
+     * Test for Package::parse().
      *
      * @group system
      */
@@ -230,7 +227,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::get().
+     * Test for Package::get().
      *
      * @group system
      */
@@ -241,28 +238,26 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Package::all().
+     * Test for Package::all().
      *
      * @group system
      */
     public function testAllMethodReturnsPackageArray()
     {
         Package::register('foo');
-
         $this->assertEquals(Package::$packages, Package::all());
 
         unset(Package::$packages['foo']);
     }
 
     /**
-     * Test untuk method Package::names().
+     * Test for Package::names().
      *
      * @group system
      */
     public function testNamesMethodReturnsPackageNames()
     {
         Package::register('foo');
-
         $this->assertEquals(['dashboard', 'dummy', 'foo'], Package::names());
 
         unset(Package::$packages['foo']);

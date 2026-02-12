@@ -23,7 +23,7 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk get target yang memang ada (object).
+     * Test for existing target.
      *
      * @group system
      */
@@ -32,12 +32,11 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
         $target = new \stdClass();
         $target->item = 'test';
         $optional = new Optional($target);
-
         $this->assertEquals('test', $optional->item);
     }
 
     /**
-     * Test untuk get target yang tidak ada (object).
+     * Test for non-existing target.
      *
      * @group system
      */
@@ -45,12 +44,11 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = new \stdClass();
         $optional = new Optional($target);
-
         $this->assertNull($optional->item);
     }
 
     /**
-     * Test untuk isset target yang memang ada (object).
+     * Test for isset on existing target (object).
      *
      * @group system
      */
@@ -59,12 +57,11 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
         $target = new \stdClass();
         $target->item = '';
         $optional = new Optional($target);
-
         $this->assertTrue(isset($optional->item));
     }
 
     /**
-     * Test untuk isset target yang tidak ada (object).
+     * Test for isset on non-existing target (object).
      *
      * @group system
      */
@@ -72,12 +69,11 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = new \stdClass();
         $optional = new Optional($target);
-
         $this->assertFalse(isset($optional->item));
     }
 
     /**
-     * Test untuk get target yang memang ada (array).
+     * Test for get target that exists (array).
      *
      * @group system
      */
@@ -85,12 +81,11 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = ['item' => 'test'];
         $optional = new Optional($target);
-
         $this->assertEquals('test', $optional['item']);
     }
 
     /**
-     * Test untuk get target yang tidak ada (array).
+     * Test for get target that does not exist (array).
      *
      * @group system
      */
@@ -98,12 +93,11 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = [];
         $optional = new Optional($target);
-
         $this->assertNull($optional['item']);
     }
 
     /**
-     * Test untuk isset target yang memang ada (array).
+     * Test for isset target that exists (array).
      *
      * @group system
      */
@@ -111,13 +105,12 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = ['item' => ''];
         $optional = new Optional($target);
-
         $this->assertTrue(isset($optional['item']));
         $this->assertTrue(isset($optional->item));
     }
 
     /**
-     * Test untuk isset target yang tidak ada (array).
+     * Test for isset target that does not exist (array).
      *
      * @group system
      */
@@ -125,13 +118,12 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = [];
         $optional = new Optional($target);
-
         $this->assertFalse(isset($optional['item']));
         $this->assertFalse(isset($optional->item));
     }
 
     /**
-     * Test untuk isset target yang memang ada tetapi null.
+     * Test for isset on null target.
      *
      * @group system
      */
@@ -139,7 +131,6 @@ class OptionalTest extends \PHPUnit_Framework_TestCase
     {
         $target = null;
         $optional = new Optional($target);
-
         $this->assertFalse(isset($optional->item));
     }
 }

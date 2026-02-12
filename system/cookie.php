@@ -7,21 +7,21 @@ defined('DS') or exit('No direct access.');
 class Cookie
 {
     /**
-     * Berisi list cookie terdaftar.
+     * Contains list of registered cookies.
      *
      * @var array
      */
     public static $jar = [];
 
     /**
-     * Cache untuk decrypted cookie values.
+     * Cache for decrypted cookie values.
      *
      * @var array
      */
     private static $cache = [];
 
     /**
-     * Cek cookie ada atau tidak.
+     * Check if a cookie exists.
      *
      * @param string $name
      *
@@ -33,15 +33,15 @@ class Cookie
     }
 
     /**
-     * Ambil value cookie.
+     * Get the value of a cookie.
      *
      * <code>
      *
-     *      // Ambil value cookie 'makanan'
-     *      $makanan = Cookie::get('makanan');
+     *      // Get value of a cookie
+     *      $food = Cookie::get('food');
      *
-     *      // Return default value jika cookie tidak ketemu
-     *      $makanan = Cookie::get('makanan', 'Mie Ayam');
+     *      // Return default value if cookie not found
+     *      $food = Cookie::get('food', 'Pizza');
      *
      * </code>
      *
@@ -86,15 +86,15 @@ class Cookie
     }
 
     /**
-     * Set value cookie.
+     * Set a cookie.
      *
      * <code>
      *
-     *      // Set value cookie 'makanan'
-     *      Cookie::put('makanan', 'Mie Ayam');
+     *      // Set a cookie
+     *      Cookie::put('food', 'Pizza');
      *
-     *      // Set waktu kadaluwarsa cookie 20 menit
-     *      Cookie::put('makanan', 'Mie Ayam', 20);
+     *      // Set a cookie with expiration time of 20 minutes
+     *      Cookie::put('food', 'Pizza', 20);
      *
      * </code>
      *
@@ -184,12 +184,12 @@ class Cookie
     }
 
     /**
-     * Set cookie permanen (Aktif selama 5 tahun).
+     * Set a permanent cookie (Active for 5 years).
      *
      * <code>
      *
-     *      // Set cookie 'makanan' secara permanen
-     *      Cookie::forever('makanan', 'Bakso');
+     *      // Set cookie 'food' permanently
+     *      Cookie::forever('food', 'Pizza');
      *
      * </code>
      *
@@ -214,7 +214,7 @@ class Cookie
     }
 
     /**
-     * Hapus cookie.
+     * Delete a cookie.
      *
      * @param string $name
      * @param string $path

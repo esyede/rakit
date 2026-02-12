@@ -30,7 +30,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test inject.
+     * Test for inject.
      *
      * @group system
      */
@@ -41,7 +41,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test has.
+     * Test for has.
      *
      * @group system
      */
@@ -53,7 +53,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test append.
+     * Test for append.
      *
      * @group system
      */
@@ -65,7 +65,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test extend with @parent.
+     * Test for extend with @parent.
      *
      * @group system
      */
@@ -79,7 +79,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test push and stack.
+     * Test for push and stack.
      *
      * @group system
      */
@@ -99,7 +99,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * Test yield_content empty.
+     * Test for yield_content with empty value.
      *
      * @group system
      */
@@ -109,7 +109,7 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test stack empty.
+     * Test for stack with empty value.
      *
      * @group system
      */

@@ -23,31 +23,29 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Autoloader::map().
+     * Test for Autoloader::map().
      *
      * @group system
      */
     public function testMapsCanBeRegistered()
     {
         Autoloader::map(['Foo' => path('app') . 'models' . DS . 'foo.php']);
-
         $this->assertEquals(path('app') . 'models' . DS . 'foo.php', Autoloader::$mappings['Foo']);
     }
 
     /**
-     * Test untuk method Autoloader::alias().
+     * Test for Autoloader::alias().
      *
      * @group system
      */
     public function testAliasesCanBeRegistered()
     {
         Autoloader::alias('Foo\Bar', 'Foo');
-
         $this->assertEquals('Foo\Bar', Autoloader::$aliases['Foo']);
     }
 
     /**
-     * Test untuk method Autoloader::directories().
+     * Test for Autoloader::directories().
      *
      * @group system
      */
@@ -63,7 +61,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk method Autoloader::namespaces().
+     * Test for Autoloader::namespaces().
      *
      * @group system
      */
@@ -97,7 +95,6 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     public function testHardcodedClassesCanBeLoaded()
     {
         Autoloader::map(['Hardcoded' => path('app') . 'models' . DS . 'hardcoded.php']);
-
         $this->assertInstanceOf('Hardcoded', new Hardcoded());
     }
 
@@ -109,12 +106,11 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     public function testClassesMappedByNamespaceCanBeLoaded()
     {
         Autoloader::namespaces(['Dashboard' => path('package') . 'dashboard' . DS . 'models']);
-
         $this->assertInstanceOf('Dashboard\Repository', new Dashboard\Repository());
     }
 
     /**
-     * Test untuk method Autoloader::stats().
+     * Test for Autoloader::stats().
      *
      * @group system
      */

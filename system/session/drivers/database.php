@@ -10,14 +10,14 @@ use System\Database\Connection;
 class Database extends Driver
 {
     /**
-     * Berisi resource koneksi database.
+     * Contains the database connection instance.
      *
      * @var Connection
      */
     protected $connection;
 
     /**
-     * Buat instance baru driver session database.
+     * Constructor.
      *
      * @param Connection $connection
      */
@@ -27,8 +27,8 @@ class Database extends Driver
     }
 
     /**
-     * Muat session berdasarkan ID yang diberikan.
-     * Jika session tidak ditemukan, NULL akan direturn.
+     * Load the session based on the given ID.
+     * If the session is not found, NULL will be returned.
      *
      * @param string $id
      *
@@ -48,7 +48,7 @@ class Database extends Driver
     }
 
     /**
-     * Simpan session.
+     * Save the session data.
      *
      * @param array $session
      * @param array $config
@@ -71,7 +71,7 @@ class Database extends Driver
     }
 
     /**
-     * Hapus session berdasarkan ID yang diberikan.
+     * Delete the session with the given ID.
      *
      * @param string $id
      */
@@ -81,7 +81,7 @@ class Database extends Driver
     }
 
     /**
-     * Ambil object query builder untuk tabel session.
+     * Get a new query builder for the session table.
      *
      * @return Query
      */

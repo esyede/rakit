@@ -10,7 +10,7 @@ use System\Console\Color;
 abstract class Provider
 {
     /**
-     * Download paket yang diberikan.
+     * Download the given package.
      *
      * @param array  $package
      * @param string $path
@@ -20,7 +20,7 @@ abstract class Provider
     abstract public function install(array $package, $path);
 
     /**
-     * Download dan ekstrak arsip paket yang diberikan.
+     * Download and extract the given package.
      *
      * @param string $url
      * @param array  $package
@@ -38,7 +38,7 @@ abstract class Provider
 
         if (is_dir(path('package') . $package['name'])) {
             echo PHP_EOL . Color::red(sprintf('Package already downloaded: %s', $package['name']));
-            exit;
+            return;
         }
 
         chmod(Storage::latest(path('package'))->getRealPath(), 0755);
@@ -66,7 +66,7 @@ abstract class Provider
                 Storage::cpdir($assets, $destination);
             } else {
                 echo PHP_EOL . Color::red(sprintf('Assets already exists: %s', $destination));
-                exit;
+                return;
             }
         }
 
@@ -74,7 +74,7 @@ abstract class Provider
     }
 
     /**
-     * Download arsip zip milik sebuah paket.
+     * Download the zipball archive of the given package.
      *
      * @param string $url
      * @param string $destination
@@ -126,7 +126,7 @@ abstract class Provider
                 gettype($type),
                 'application/zip'
             ));
-            exit;
+            return;
         }
 
         try {
@@ -141,7 +141,7 @@ abstract class Provider
 
             if (false === curl_exec($ch)) {
                 echo PHP_EOL . Color::red('Error: ' . curl_error($ch));
-                exit;
+                return;
             }
 
             if (PHP_VERSION_ID < 80000) {
@@ -152,15 +152,15 @@ abstract class Provider
             fclose($fopen);
         } catch (\Throwable $e) {
             echo PHP_EOL . Color::red('Error: ' . $e->getMessage());
-            exit;
+            return;
         } catch (\Exception $e) {
             echo PHP_EOL . Color::red('Error: ' . $e->getMessage());
-            exit;
+            return;
         }
     }
 
     /**
-     * Unzip arsip paket.
+     * Unzip the given package archive.
      *
      * @param string $file
      * @param string $destination
@@ -177,14 +177,14 @@ abstract class Provider
 
         if (!extension_loaded('zip') || !class_exists('\ZipArchive')) {
             echo PHP_EOL . Color::red('Please enable php-zip extension on this server');
-            exit;
+            return;
         }
 
         $zip = new \ZipArchive();
 
         if (!$zip->open($file)) {
             echo PHP_EOL . Color::red(sprintf('Error: Could not open zip file: %s', $file));
-            exit;
+            return;
         }
 
         $zip->extractTo($destination);

@@ -4,7 +4,7 @@ defined('DS') or exit('No direct access.');
 
 if (!function_exists('e')) {
     /**
-     * Ubah karakter HTML ke entity-nya.
+     * Escape HTML characters.
      *
      * @param string $value
      *
@@ -48,8 +48,8 @@ if (!function_exists('bd')) {
     /**
      * Dump variable ke debug bar tanpa menghentikan eksekusi script.
      *
-     * @param mixed  $variable
-     * @param string $title
+     * @param mixed       $variable
+     * @param string|null $title
      *
      * @return void
      */
@@ -83,7 +83,7 @@ if (!function_exists('optional')) {
      *
      * @return mixed
      */
-    function optional($value = null, callable $callback = null)
+    function optional($value = null, $callback = null)
     {
         return is_null($callback) ? (new \System\Optional($value)) : $callback($value);
     }
@@ -91,7 +91,7 @@ if (!function_exists('optional')) {
 
 if (!function_exists('trans')) {
     /**
-     * Ambil sebuah baris bahasa.
+     * Alias for trans().
      *
      * @param string $key
      * @param array  $replacements
@@ -101,13 +101,13 @@ if (!function_exists('trans')) {
      */
     function trans($key, array $replacements = [], $language = null)
     {
-        return \System\Lang::has($key) ? \System\Lang::line($key, $replacements, $language) : $key;
+        return Lang::line($key, $replacements, $language);
     }
 }
 
 if (!function_exists('__')) {
     /**
-     * Alias untuk trans().
+     * Alias for trans().
      *
      * @param string $key
      * @param array  $replacements
@@ -123,7 +123,7 @@ if (!function_exists('__')) {
 
 if (!function_exists('is_cli')) {
     /**
-     * Cek apakah request saat ini datang dari CLI.
+     * Check if the current request is coming from CLI.
      *
      * @return bool
      */
@@ -137,7 +137,7 @@ if (!function_exists('is_cli')) {
 
 if (!function_exists('data_fill')) {
     /**
-     * Isi dengan data jika ia masih kosong.
+     * Fill with data if it is still empty.
      *
      * @param mixed        $target
      * @param string|array $key
@@ -153,7 +153,7 @@ if (!function_exists('data_fill')) {
 
 if (!function_exists('data_get')) {
     /**
-     * Ambil sebuah item dari array menggunakan notasi 'dot'.
+     * Get an item from array using 'dot' notation.
      *
      * @param mixed        $target
      * @param string|array $key
@@ -199,7 +199,7 @@ if (!function_exists('data_get')) {
 
 if (!function_exists('data_set')) {
     /**
-     * Set sebuah item array mengunakan notasi 'dot'.
+     * Set an item array using 'dot' notation.
      *
      * @param mixed        $target
      * @param string|array $key
@@ -262,7 +262,7 @@ if (!function_exists('data_set')) {
 
 if (!function_exists('tap')) {
     /**
-     * Panggil closure dengan value yang diberikan lalu return hasilnya.
+     * Call the given closure with the given value and return the value.
      *
      * @param mixed    $value
      * @param \Closure $callback
@@ -282,7 +282,7 @@ if (!function_exists('tap')) {
 
 if (!function_exists('retry')) {
     /**
-     * Ulangi eksekusi sebanyak jumlah yang diberikan.
+     * Retry execution for the given number of times.
      *
      * @param int           $times
      * @param callable      $callback
@@ -331,7 +331,7 @@ if (!function_exists('retry')) {
 
 if (!function_exists('facile_to_json')) {
     /**
-     * Ubah object Facile menjadi string JSON.
+     * Transform Facile object to JSON string.
      *
      * @param Facile|array $models
      *
@@ -353,7 +353,7 @@ if (!function_exists('facile_to_json')) {
 
 if (!function_exists('head')) {
     /**
-     * Mereturn elemen pertama milik array.
+     * Return the first element of an array.
      *
      * @param array $array
      *
@@ -367,7 +367,7 @@ if (!function_exists('head')) {
 
 if (!function_exists('last')) {
     /**
-     * Return elemen terakhir milik array.
+     * Return the last element of an array.
      *
      * @param array $array
      *
@@ -381,14 +381,14 @@ if (!function_exists('last')) {
 
 if (!function_exists('url')) {
     /**
-     * Buat sebuah URL.
+     * Create a URL.
      *
      * <code>
      *
-     *      // Buat URL ke lokasi di dalam lingkungan aplikasi
+     *      // Create URL to location within application environment
      *      $url = url('user/profile');
      *
-     *      // Buat URL ke lokasi di dalam lingkungan aplikasi (https)
+     *      // Create URL to location within application environment (https)
      *      $url = url('user/profile', true);
      *
      * </code>
@@ -405,7 +405,7 @@ if (!function_exists('url')) {
 
 if (!function_exists('asset')) {
     /**
-     * Buat URL ke sebuah aset.
+     * Create a URL to an asset.
      *
      * @param string $url
      *
@@ -419,15 +419,15 @@ if (!function_exists('asset')) {
 
 if (!function_exists('action')) {
     /**
-     * Buat URL ke sebuah action di controller.
+     * Create a URL to a controller action.
      *
      * <code>
      *
-     *      // Buat URL ke method 'index' milik controller 'user'
+     *      // Create URL to the 'index' method of the 'user' controller.
      *      $url = action('user@index');
      *
-     *      // Buat URL ke http://situsku.com/user/profile/budi
-     *      $url = action('user@profile', ['budi']);
+     *      // Create URL to the 'profile' method of the 'user' controller with parameter.
+     *      $url = action('user@profile', ['john']);
      *
      * </code>
      *
@@ -444,15 +444,15 @@ if (!function_exists('action')) {
 
 if (!function_exists('route')) {
     /**
-     * Buat sebuah URL ke named route.
+     * Create a URL to a named route.
      *
      * <code>
      *
-     *      // Buat URL ke route yang bernama 'profile'.
+     *      // Create URL to the route named 'profile'.
      *      $url = route('profile');
      *
-     *      // Buat URL ke route yang bernama 'profile' dengan parameter tambahan.
-     *      $url = route('profile', [$name]);
+     *      // Create URL to the route named 'profile' with parameter.
+     *      $url = route('profile', ['john']);
      *
      * </code>
      *
@@ -469,7 +469,7 @@ if (!function_exists('route')) {
 
 if (!function_exists('config')) {
     /**
-     * Get atau set config.
+     * Get or set config.
      *
      * <code>
      *
@@ -502,7 +502,7 @@ if (!function_exists('config')) {
 
 if (!function_exists('cache')) {
     /**
-     * Get/set cache.
+     * Get or set cache.
      *
      * <code>
      *
@@ -535,7 +535,7 @@ if (!function_exists('cache')) {
 
 if (!function_exists('session')) {
     /**
-     * Get/set session.
+     * Get or set session.
      *
      * <code>
      *
@@ -568,7 +568,7 @@ if (!function_exists('session')) {
 
 if (! function_exists('collect')) {
     /**
-     * Buat collection dari value yang diberikan.
+     * Create collection from given value.
      *
      * @param mixed|null $value
      *
@@ -582,7 +582,7 @@ if (! function_exists('collect')) {
 
 if (!function_exists('fake')) {
     /**
-     * Buat instance faker.
+     * Create a faker instance.
      *
      * <code>
      *
@@ -606,7 +606,7 @@ if (!function_exists('fake')) {
 
 if (!function_exists('validate')) {
     /**
-     * Buat instance validator.
+     * Create a validator instance.
      *
      * @param array $attributes
      * @param array $rules
@@ -622,7 +622,7 @@ if (!function_exists('validate')) {
 
 if (!function_exists('redirect')) {
     /**
-     * Buat sebuah redireksi.
+     * Create a redirect.
      *
      * <code>
      *
@@ -644,7 +644,7 @@ if (!function_exists('redirect')) {
 
 if (!function_exists('back')) {
     /**
-     * Buat sebuah redireksi ke halaman sebelumnya.
+     * Create a redirect back.
      *
      * @param int $status
      *
@@ -658,7 +658,7 @@ if (!function_exists('back')) {
 
 if (!function_exists('old')) {
     /**
-     * Ambil old input dari session.
+     * Get or set old input from session.
      *
      * @param string $key
      * @param mixed  $default
@@ -673,7 +673,7 @@ if (!function_exists('old')) {
 
 if (!function_exists('abort')) {
     /**
-     * Buat sebuah response error.
+     * Create a response error.
      *
      * @param string $code
      * @param array  $headers
@@ -712,7 +712,7 @@ if (!function_exists('abort')) {
 
 if (!function_exists('abort_if')) {
     /**
-     * Buat sebuah response error jika kondisi terpenuhi.
+     * Create a response error if condition is true.
      *
      * @param bool   $condition
      * @param string $code
@@ -730,7 +730,7 @@ if (!function_exists('abort_if')) {
 
 if (!function_exists('csrf_name')) {
     /**
-     * Ambil nama field CSRF token.
+     * Get the CSRF token name.
      *
      * @param string $name
      * @param array  $parameters
@@ -745,7 +745,7 @@ if (!function_exists('csrf_name')) {
 
 if (!function_exists('csrf_token')) {
     /**
-     * Ambil token CSRF saat ini.
+     * Get the CSRF token value.
      *
      * @return string|null
      */
@@ -757,7 +757,7 @@ if (!function_exists('csrf_token')) {
 
 if (!function_exists('csrf_field')) {
     /**
-     * Tambahkan hidden field untuk CSRF token.
+     * Add a hidden field for CSRF token.
      *
      * @return string
      */
@@ -769,7 +769,7 @@ if (!function_exists('csrf_field')) {
 
 if (!function_exists('root_namespace')) {
     /**
-     * Ambil root namespace milik class.
+     * Get the root namespace of a class.
      *
      * @param string $class
      * @param string $separator
@@ -784,8 +784,8 @@ if (!function_exists('root_namespace')) {
 
 if (!function_exists('class_basename')) {
     /**
-     * Ambil 'class basename' milik sebuah kelas atau object.
-     * Class basename adalah nama kelas tanpa namespace.
+     * Get the class basename of a class or object.
+     * Class basename is the class name without namespace.
      *
      * @param object|string $class
      *
@@ -799,8 +799,8 @@ if (!function_exists('class_basename')) {
 
 if (!function_exists('value')) {
     /**
-     * Mereturn value milik sebuah item.
-     * Jika item merupakan sebuah Closure, hasil eksekusinya yang akan di-return.
+     * Return the value of an item.
+     * If the item is a Closure, the result of its execution will be returned.
      *
      * @param mixed $value
      *
@@ -814,7 +814,7 @@ if (!function_exists('value')) {
 
 if (! function_exists('when')) {
     /**
-     * Return sebuah value jika kondisinya true.
+     * Return a value if the condition is true.
      *
      * @param mixed          $condition
      * @param \Closure|mixed $value
@@ -831,7 +831,7 @@ if (! function_exists('when')) {
 
 if (!function_exists('view')) {
     /**
-     * Buat instance kelas View.
+     * Create an instance of the View class.
      *
      * @param string $view
      * @param array  $data
@@ -846,7 +846,7 @@ if (!function_exists('view')) {
 
 if (!function_exists('render')) {
     /**
-     * Render view.
+     * Render a view.
      *
      * @param string $view
      * @param array  $data
@@ -861,7 +861,7 @@ if (!function_exists('render')) {
 
 if (!function_exists('render_each')) {
     /**
-     * Ambil konten hasil render view parsial.
+     * Get the content of a rendered partial view.
      *
      * @param string $partial
      * @param array  $data
@@ -878,7 +878,7 @@ if (!function_exists('render_each')) {
 
 if (!function_exists('yield_content')) {
     /**
-     * Ambil konten milik sebuah section.
+     * Get the content of a section.
      *
      * @param string $section
      *
@@ -892,7 +892,7 @@ if (!function_exists('yield_content')) {
 
 if (!function_exists('yield_section')) {
     /**
-     * Hentikan injeksi konten kedalam section dan return kontennya.
+     * Stop injecting content into a section and return its content.
      *
      * @return string
      */
@@ -904,7 +904,7 @@ if (!function_exists('yield_section')) {
 
 if (!function_exists('section_start')) {
     /**
-     * Mulai injeksi konten ke section.
+     * Start injecting content into a section.
      *
      * @return string
      */
@@ -916,7 +916,7 @@ if (!function_exists('section_start')) {
 
 if (!function_exists('section_stop')) {
     /**
-     * Hentikan injeksi konten kedalam section.
+     * Stop injecting content into a section.
      *
      * @return string
      */
@@ -928,7 +928,7 @@ if (!function_exists('section_stop')) {
 
 if (!function_exists('section_inject')) {
     /**
-     * Injeksi konten kedalam section tertentu.
+     * Inject content into a section.
      * @param string $section
      * @param string $content
      *
@@ -942,7 +942,7 @@ if (!function_exists('section_inject')) {
 
 if (!function_exists('encrypt')) {
     /**
-     * Enkripsi string.
+     * Encrypt a string.
      *
      * @param string $data
      *
@@ -956,7 +956,7 @@ if (!function_exists('encrypt')) {
 
 if (!function_exists('decrypt')) {
     /**
-     * Enkripsi string.
+     * Decrypt a string.
      *
      * @param string $data
      *
@@ -970,7 +970,7 @@ if (!function_exists('decrypt')) {
 
 if (!function_exists('bcrypt')) {
     /**
-     * Buat hash password.
+     * Create a hash password.
      *
      * @param string $string
      *
@@ -984,7 +984,7 @@ if (!function_exists('bcrypt')) {
 
 if (!function_exists('dispatch')) {
     /**
-     * Jalankan sebuah job.
+     * Run a job.
      *
      * @param string|array $events
      * @param array        $parameters
@@ -1000,7 +1000,7 @@ if (!function_exists('dispatch')) {
 
 if (!function_exists('blank')) {
     /**
-     * Tentukan apakah value yang diberikan "kosong".
+     * Determine if the given value is "blank".
      *
      * @param mixed $value
      *
@@ -1030,7 +1030,7 @@ if (!function_exists('blank')) {
 
 if (!function_exists('filled')) {
     /**
-     * Tentukan apakah value yang diberikan "tidak kosong".
+     * Determine if the given value is "filled".
      *
      * @param mixed $value
      *
@@ -1044,7 +1044,7 @@ if (!function_exists('filled')) {
 
 if (!function_exists('now')) {
     /**
-     * Ambil instance tanggal saat ini.
+     * Get the current date and time.
      *
      * @param string $tz
      *
@@ -1058,7 +1058,7 @@ if (!function_exists('now')) {
 
 if (!function_exists('get_cli_option')) {
     /**
-     * Ambil parameter yang dioper ke rakit console.
+     * Get the parameter passed to rakit console.
      *
      * @param string $option
      * @param mixed  $default
@@ -1083,7 +1083,7 @@ if (!function_exists('get_cli_option')) {
 
 if (!function_exists('has_cli_flag')) {
     /**
-     * Ambil parameter yang dioper ke rakit console.
+     * Check if the given flag is passed to rakit console.
      *
      * @param string $flag
      * @param mixed  $default
@@ -1108,7 +1108,7 @@ if (!function_exists('has_cli_flag')) {
 
 if (!function_exists('system_os')) {
     /**
-     * Ambil platform / sistem operasi server.
+     * Get the server's operating system.
      *
      * @return string
      */
@@ -1134,7 +1134,7 @@ if (!function_exists('system_os')) {
 
 if (!function_exists('human_filesize')) {
     /**
-     * Format ukuran file (ramah manusia).
+     * Format file size (human-friendly).
      *
      * @param int $bytes
      * @param int $precision

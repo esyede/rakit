@@ -6,14 +6,14 @@ defined('DS') or exit('No direct access.');
 
 use System\Container;
 
-// Daftarkan kelas milik command 'make'.
+// Register classes for the 'make' command.
 if (!Container::registered('command: make')) {
     Container::register('command: make', function () {
         return new Commands\Make();
     });
 }
 
-// Daftarkan kelas milik command 'migrate'.
+// Register classes for the 'migrate' command.
 if (!Container::registered('command: migrate')) {
     Container::register('command: migrate', function () {
         $database = new Commands\Migrate\Database();
@@ -22,14 +22,14 @@ if (!Container::registered('command: migrate')) {
     });
 }
 
-// Daftarkan kelas milik command 'job'.
+// Register classes for the 'job' command.
 if (!Container::registered('command: job')) {
     Container::register('command: job', function () {
         return new Commands\Job();
     });
 }
 
-// Daftarkan kelas milik command 'package'.
+// Register classes for the 'package' command.
 if (!Container::registered('command: package')) {
     Container::register('command: package', function () {
         $repository = Container::resolve('package.repository');
@@ -37,77 +37,77 @@ if (!Container::registered('command: package')) {
     });
 }
 
-// Daftarkan kelas milik command 'serve'.
+// Register classes for the 'serve' command.
 if (!Container::registered('command: serve')) {
     Container::singleton('command: serve', function () {
         return new Commands\Serve();
     });
 }
 
-// Daftarkan kelas milik command 'clear'.
+// Register classes for the 'clear' command.
 if (!Container::registered('command: clear')) {
     Container::singleton('command: clear', function () {
         return new Commands\Clear();
     });
 }
 
-// Daftarkan kelas milik command 'session'.
+// Register classes for the 'session' command.
 if (!Container::registered('command: session')) {
     Container::singleton('command: session', function () {
         return new Commands\Session();
     });
 }
 
-// Daftarkan kelas milik command 'route'.
+// Register classes for the 'route' command.
 if (!Container::registered('command: route')) {
     Container::singleton('command: route', function () {
         return new Commands\Route();
     });
 }
 
-// Daftarkan kelas pengelola repositori paket.
+// Register the package repository manager class.
 if (!Container::registered('package.repository')) {
     Container::singleton('package.repository', function () {
         return new Commands\Package\Repository();
     });
 }
 
-// Daftarkan kelas pengelola repositori paket untuk provider github.
+// Register the package repository manager class for the github provider.
 if (!Container::registered('package.provider: github')) {
     Container::singleton('package.provider: github', function () {
         return new Commands\Package\Providers\Github();
     });
 }
 
-// Daftarkan kelas pengelola repositori paket untuk provider gitlab.
+// Register the package repository manager class for the gitlab provider.
 if (!Container::registered('package.provider: gitlab')) {
     Container::singleton('package.provider: gitlab', function () {
         return new Commands\Package\Providers\Gitlab();
     });
 }
 
-// Daftarkan kelas pengelola aset.
+// Register classes for the package publisher.
 if (!Container::registered('package.publisher')) {
     Container::singleton('package.publisher', function () {
         return new Commands\Package\Publisher();
     });
 }
 
-// Daftarkan kelas milik command 'help'.
+// Register classes for the 'help' command.
 if (!Container::registered('command: help')) {
     Container::singleton('command: help', function () {
         return new Commands\Help();
     });
 }
 
-// Daftarkan kelas milik command 'test'
+// Register classes for the 'test' command.
 if (!Container::registered('command: test')) {
     Container::singleton('command: test', function () {
         return new Commands\Test\Runner();
     });
 }
 
-// Daftarkan kelas milik command 'websocket'
+// Register classes for the 'websocket' command.
 if (!Container::registered('command: websocket')) {
     Container::singleton('command: websocket', function () {
         return new Commands\Websocket();

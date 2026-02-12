@@ -44,8 +44,6 @@
                 <div class="navbar-item">
                     <div class="buttons">
                         <button class="button is-rounded is-small" id="dark-mode-toggle">Dark</button>
-                        <span class="button is-rounded is-small is-info" id="docs-lang"
-                            data-value="{{ config('application.language') }}">{{ 'id' === config('application.language') ? 'Indonesian' : 'English' }}</span>
                     </div>
                 </div>
             </div>

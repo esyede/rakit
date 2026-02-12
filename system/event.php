@@ -7,28 +7,28 @@ defined('DS') or exit('No direct access.');
 class Event
 {
     /**
-     * Berisi seluruh event terdaftar.
+     * Contains all registered events.
      *
      * @var array
      */
     public static $events = [];
 
     /**
-     * Berisi antrian event yang menunggu di-flush.
+     * Contains queued events waiting to be flushed.
      *
      * @var array
      */
     public static $queued = [];
 
     /**
-     * Berisi callback milik queue-flusher terdaftar.
+     * Contains callback listeners for queued events.
      *
      * @var array
      */
     public static $flushers = [];
 
     /**
-     * Tentukan apakah event punya listener atau tidak.
+     * Determines if an event has listeners or not.
      *
      * @param string $event
      *
@@ -40,11 +40,11 @@ class Event
     }
 
     /**
-     * Daftarkan callback untuk item yang diberikan.
+     * Registers a callback for the given event.
      *
      * <code>
      *
-     *      // Daftarkan callback untuk event 'boot'
+     *      // Register callback for event 'boot'
      *      Event::listen('boot', function() { return 'Oke, Booted!'; } );
      *
      * </code>
@@ -58,7 +58,7 @@ class Event
     }
 
     /**
-     * Timpa seluruh callback milik event dengan callback yang baru.
+     * Overrides all callback listeners for the given event with a new one.
      *
      * @param string   $event
      * @param \Closure $handler
@@ -70,19 +70,7 @@ class Event
     }
 
     /**
-     * Tambahkan item ke antrian event untuk diproses.
-     *
-     * @param string $queue
-     * @param string $key
-     * @param array  $data
-     */
-    public static function queue($queue, $key, array $data = [])
-    {
-        static::$queued[$queue][$key] = $data;
-    }
-
-    /**
-     * Daftarkan callback queue flusher.
+     * Registers a callback queue flusher.
      *
      * @param string   $queue
      * @param \Closure $handler
@@ -93,7 +81,7 @@ class Event
     }
 
     /**
-     * Hapus semua listener milik event yang diberikan.
+     * Removes all listeners for the given event.
      *
      * @param string $event
      */
@@ -103,14 +91,14 @@ class Event
     }
 
     /**
-     * Jalankan event dan return respon pertamanya.
+     * Runs the event and returns the first response.
      *
      * <code>
      *
-     *      // Jalankan event 'boot'
+     *      // Run the 'boot' event
      *      $response = Event::first('boot');
      *
-     *      // Jalankan event 'boot' dengan tambahan parameter kustom
+     *      // Run the 'boot' event with custom parameters
      *      $response = Event::first('boot', ['rakit', 'framework']);
      *
      * </code>
@@ -126,8 +114,7 @@ class Event
     }
 
     /**
-     * Jalankan event dan return respon pertamanya.
-     * Eksekusi akan dihentikan setelah respon valid pertama ditemukan.
+     * Runs the event until a response is returned.
      *
      * @param string $event
      * @param array  $parameters
@@ -140,7 +127,7 @@ class Event
     }
 
     /**
-     * Flush antrian event, jalankan flusher untuk setiap payload.
+     * Flushes the event queue, running the flusher for each payload.
      *
      * @param string $queue
      */
@@ -159,17 +146,17 @@ class Event
     }
 
     /**
-     * Jalankan sebuah event agar semua listener ikut terpanggil.
+     * Runs an event so that all listeners are called.
      *
      * <code>
      *
-     *      // Jalankan event 'boot'
+     *      // Run the 'boot' event
      *      $responses = Event::fire('boot');
      *
-     *      // Jalankan event 'boot' dengan tambahan parameter
+     *      // Run the 'boot' event with additional parameters
      *      $responses = Event::fire('boot', ['rakit', 'framework']);
      *
-     *      // Jalankan beberapa event dengan parameter yang sama
+     *      // Run multiple events with the same parameters
      *      $responses = Event::fire(['boot', 'loading'], $parameters);
      *
      * </code>
@@ -186,6 +173,13 @@ class Event
         $responses = [];
 
         foreach ($events as $event) {
+            // Track event for debugger
+            if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
+                if (!\System\Foundation\Oops\Debugger::$productionMode) {
+                    \System\Foundation\Oops\Collectors::trackEvent($event, $parameters);
+                }
+            }
+
             if (!static::exists($event)) {
                 continue;
             }

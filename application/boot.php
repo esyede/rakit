@@ -7,10 +7,10 @@ defined('DS') or exit('No direct access.');
 | Config Loader
 |--------------------------------------------------------------------------
 |
-| Config loader bertanggung jawab untuk mereturn array konfigurasi untuk
-| paket dan file tertentu. Secara default, kami menggunakan file yang
-| telah disediakan rakit; namun, anda bebas untuk menggunakan mekanisme
-| penyimpanan anda sendiri untuk menangani array konfigurasi.
+| Config loader is responsible for returning configuration array for
+| packages and specific files. By default, we use the file provided by
+| rakit; however, you are free to use your own mechanism to handle
+| configuration array.
 |
 */
 
@@ -23,9 +23,9 @@ System\Event::listen(System\Config::LOADER, function ($package, $file) {
 | Class Alias
 |--------------------------------------------------------------------------
 |
-| Class alias memungkinkan anda menggunakan kelas tanpa perlu mengimpornya.
-| Di sini kami hanya mendaftarkan alias untuk kelas bawaan rakit saja,
-| dan tentunya anda juga dapat menambahkan alias lain sesuai kebutuhan.
+| Class alias allows you to use classes without having to import them.
+| Here we only register alias for rakit's built-in classes, and of course
+| you can add your own alias as needed.
 |
 */
 
@@ -33,12 +33,12 @@ System\Autoloader::$aliases = System\Config::get('aliases');
 
 /*
 |--------------------------------------------------------------------------
-| Autoload Direktori
+| Autoload Directories
 |--------------------------------------------------------------------------
 |
-| Autoloader rakit juga dapat meng-autoload direktori via konvensi psr.
-| Konvensi ini pada dasarnya mengelola kelas dengan menggunakan namespace
-| sebagai penunjuk struktur direktori dan lokasi kelas.
+| Rakit's autoloader also supports autoloading directories via PSR-0
+| convention. This convention basically manages classes using namespace
+| as directory structure and class location.
 |
 */
 
@@ -48,7 +48,8 @@ System\Autoloader::directories([
     path('app') . 'libraries',
     path('app') . 'commands',
     path('app') . 'jobs',
-    // Tambahkan direktori lain disini..
+
+    // Add your own directories here..
 ]);
 
 /*
@@ -56,8 +57,7 @@ System\Autoloader::directories([
 | View Loader
 |--------------------------------------------------------------------------
 |
-| View loader bertanggung jawab mereturn path file paket dan view.
-| Tentu saja, implementasi default telah disediakan sesuai konvensi rakit.
+| View loader is responsible for returning the path of the package and view.
 |
 */
 
@@ -70,8 +70,7 @@ System\Event::listen(System\View::LOADER, function ($package, $view) {
 | Language Loader
 |--------------------------------------------------------------------------
 |
-| Language loader bertanggung jawab mereturn array baris bahasa.
-|Tentu saja, implementasi default telah disediakan sesuai konvensi rakit.
+| Language loader is responsible for returning the array of language lines.
 |
 */
 
@@ -81,11 +80,11 @@ System\Event::listen(System\Lang::LOADER, function ($package, $language, $file) 
 
 /*
 |--------------------------------------------------------------------------
-| Aktifkan Blade Engine
+| Enable Blade Engine
 |--------------------------------------------------------------------------
 |
-| Kami perlu mengktifkn blade engine disini agar langsung bisa digunakan
-| dari dalam kontroler anda.
+| We need to enable the blade engine here so that it can be used
+| directly from within your controllers.
 |
 */
 
@@ -96,7 +95,7 @@ System\Blade::sharpen();
 | Set Default Timezone
 |--------------------------------------------------------------------------
 |
-| Lalu setel default timezone sesuai konfigurasi yang anda berikan.
+| Here we set the default timezone according to your configuration.
 |
 */
 
@@ -107,7 +106,7 @@ date_default_timezone_set(System\Config::get('application.timezone', 'UTC'));
 | Load Session
 |--------------------------------------------------------------------------
 |
-| Kami juga perlu memuat session jika anda telah menyetel driver session.
+| We also need to load session if you have set the session driver.
 |
 */
 
@@ -117,11 +116,11 @@ if (!System\Request::cli() && filled(System\Config::get('session.driver'))) {
 
 /*
 |--------------------------------------------------------------------------
-| Autoload Composer
+| Autoload Composer Dependencies
 |--------------------------------------------------------------------------
 |
-| Dan terakhir, kita muat autoloader milik Composer agar seluruh kelas
-| didalam folder vendornya dapat dikenali oleh rakit.
+| Then we autoload composer dependencies so that all classes
+| inside vendor folder can be recognized by rakit.
 |
 */
 
@@ -132,11 +131,10 @@ if (is_file($path = System\Config::get('application.composer_autoload'))) {
 
 /*
 |--------------------------------------------------------------------------
-| Lain - Lain
+| Custom Booting Logic
 |--------------------------------------------------------------------------
 |
-| Tambahkan logic lain yang harus segera berjalan setelah
-| booting aplikasi selesai, seperti ekstensi untuk custom driver dll.
+| If you have any custom booting logic, you can add it here.
 |
 */
 

@@ -7,50 +7,50 @@ defined('DS') or die('No direct access.');
 class Config
 {
     /**
-     * Berisi semua item konfigurasi.
-     * Array konfigurasi diberi key berdsarkan paket dan file pemiliknya.
+     * Contains all configuration items.
+     * Configuration array is keyed by package and owner file.
      *
      * @var array
      */
     public static $items = [];
 
     /**
-     * Berisi cache hasil parsing item konfigurasi.
+     * Contains cached results of parsed configuration items.
      *
      * @var array
      */
     public static $cache = [];
 
     /**
-     * Cache untuk hasil loading file konfigurasi.
+     * Contains cached results of loaded configuration files.
      *
      * @var array
      */
     public static $files = [];
 
     /**
-     * Cache untuk hasil Config::get().
+     * Contains cached results of Config::get().
      *
      * @var array
      */
     public static $gets = [];
 
     /**
-     * Nama event untuk config loader.
+     * Event name for config loader.
      *
      * @var string
      */
     const LOADER = 'rakit.config.loader';
 
     /**
-     * Periksa apakah item konfigurasi ada atau tidak.
+     * Check if configuration item exists.
      *
      * <code>
      *
-     *      // Periksa apakah file config bernama 'session.php' ada
+     *      // Check if config file named 'session.php' exists
      *      $exists = Config::has('session');
      *
-     *      // Cek apakah opsi 'timezone' ada di file konfigurasi 'application.php'
+     *      // Check if 'timezone' option exists in config file 'application.php'
      *      $exists = Config::has('application.timezone');
      *
      * </code>
@@ -65,18 +65,18 @@ class Config
     }
 
     /**
-     * Ambil item konfigurasi.
+     * Get configuration item.
      *
      * <code>
      *
-     *      // Ambil config milik 'session.php'
+     *      // Get the 'session' config item
      *      $session = Config::get('session');
      *
-     *      // Ambil item 'first' di file config 'names.php' milik paket 'admin'
+     *      // Get the 'first' config item from 'names.php' file in the 'admin' package
      *      $name = Config::get('admin::names.first');
      *
-     *      // Ambil item 'timezone' di file config 'application.php'
-     *      $timezone = Config::get('application.timezone');
+     *      // Get the 'timezone' config item from 'application.php' file in the 'application' package
+     *      $timezone = Config::get('application::application.timezone');
      *
      * </code>
      *
@@ -119,7 +119,7 @@ class Config
     }
 
     /**
-     * Ambil seluruh item konfigurasi.
+     * Get all configuration items.
      *
      * @return array
      */
@@ -129,17 +129,17 @@ class Config
     }
 
     /**
-     * Set item konfigurasi.
+     * Set a configuration item.
      *
      * <code>
      *
-     *      // Set array konfigurasi 'session'
+     *      // Set array to 'session' configuration file
      *      Config::set('session', $new_value);
      *
-     *      // Set item konfigurasi milik paket 'admin'
+     *      // Set configuration item of 'admin' package
      *      Config::set('admin::names.first', 'Budi');
      *
-     *      // Set item 'timezone' milik file config 'application.php'
+     *      // Set 'timezone' configuration item of 'application' package
      *      Config::set('application.timezone', 'UTC');
      *
      * </code>
@@ -160,18 +160,18 @@ class Config
         }
 
         // Invalidate cache for all keys in the same package and file
-        foreach (static::$gets as $k => $v) {
-            list($pkg, $node, $unused) = static::parse($k);
+        foreach (static::$gets as $name => $data) {
+            list($pkg, $node, $unused) = static::parse($name);
 
             if ($pkg === $package && $node === $file) {
-                unset(static::$gets[$k]);
+                unset(static::$gets[$name]);
             }
         }
     }
 
     /**
-     * Parse sebuah key dan return paket, file, dan segmen keynya.
-     * Item konfiguasi dinamai menggunakan konvensi [nama paket]::[nama file].[nama item].
+     * Parse a key and return package, file, and key segments.
+     * Configuration items are named using this convention: [package name]::[file name].[item name].
      *
      * @param string $key
      *
@@ -190,7 +190,7 @@ class Config
     }
 
     /**
-     * Muat semua item dari sebuah file konfigurasi.
+     * Load all items from a configuration file.
      *
      * @param string $package
      * @param string $file
@@ -211,7 +211,7 @@ class Config
     }
 
     /**
-     * Muat item konfigurasi milik sebuah file.
+     * Load configuration items from a file.
      *
      * @param string $package
      * @param string $file

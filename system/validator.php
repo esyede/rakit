@@ -9,77 +9,77 @@ use System\Database\Connection;
 class Validator
 {
     /**
-     * Berisi array data yang sedang divalidasi.
+     * Contains the data being validated.
      *
      * @var array
      */
     public $attributes;
 
     /**
-     * Berisi list pesan error hasil proses validasi.
+     * Contains the list of error messages resulting from the validation process.
      *
      * @var Messages
      */
     public $errors;
 
     /**
-     * Berisi list rule validasi.
+     * Contains the list of validation rules.
      *
      * @var array
      */
     protected $rules = [];
 
     /**
-     * Berisi list pesan error validasi.
+     * Contains the list of validation error messages.
      *
      * @var array
      */
     protected $messages = [];
 
     /**
-     * Berisi koneksi database untuk validasi data terhadap database.
+     * Contains the database connection for validating data against the database.
      *
      * @var Connection
      */
     protected $db;
 
     /**
-     * Package tempat dimana validasi dijalankan.
+     * Package where validation is executed.
      *
      * @var string
      */
     protected $package = DEFAULT_PACKAGE;
 
     /**
-     * Dari bahasa mana pesan-pesan error harus diambil.
+     * Language from which error messages should be retrieved.
      *
      * @var string
      */
     protected $language;
 
     /**
-     * List rule validasi yang berhubungan dengan ukuran.
+     * List of validation rules that are related to size.
      *
      * @var array
      */
     protected $sizes = ['size', 'between', 'min', 'max'];
 
     /**
-     * List rule validasi yang berhubungan dengan angka.
+     * List of validation rules that are related to numeric values.
      *
      * @var array
      */
     protected $numerics = ['numeric', 'integer'];
 
     /**
-     * Berisi list validator kustom yang didaftarkan oleh user.
+     * Contains the list of custom validators registered by the user.
      *
      * @var array
      */
     protected static $validators = [];
 
     /**
-     * Buat sebuah instance validator baru.
+     * Constructor.
      *
      * @param array $attributes
      * @param array $rules
@@ -97,7 +97,7 @@ class Validator
     }
 
     /**
-     * Buat sebuah instance validator baru.
+     * Create a new validator instance.
      *
      * @param array $attributes
      * @param array $rules
@@ -111,7 +111,7 @@ class Validator
     }
 
     /**
-     * Daftarkan sebuah validator kustom.
+     * Register a custom validator.
      *
      * @param string   $name
      * @param \Closure $validator
@@ -122,7 +122,7 @@ class Validator
     }
 
     /**
-     * Validasi array target menggunakan ruleset yang diberikan.
+     * Check if the validation passes (alias).
      *
      * @return bool
      */
@@ -132,7 +132,7 @@ class Validator
     }
 
     /**
-     * Validasi array target menggunakan ruleset yang diberikan.
+     * Check if the validation fails (alias).
      *
      * @return bool
      */
@@ -142,7 +142,7 @@ class Validator
     }
 
     /**
-     * Validasi array target menggunakan ruleset yang diberikan.
+     * Check if the validation fails.
      *
      * @return bool
      */
@@ -152,7 +152,7 @@ class Validator
     }
 
     /**
-     * Validasi array target menggunakan ruleset yang diberikan.
+     * Check if the validation passes.
      *
      * @return bool
      */
@@ -170,7 +170,7 @@ class Validator
     }
 
     /**
-     * Evaluasi atribut terhadap sebuah rule validasi.
+     * Evaluate attribute against a validation rule.
      *
      * @param string $attribute
      * @param string $rule
@@ -188,10 +188,7 @@ class Validator
     }
 
     /**
-     * Periksa apakah atribut benar-benar bisa divalidasi.
-     * Atribut diannpggap bisa divalidasi jika atributnya ada, atau rule
-     * yang di periksa harus secara implisit memvalidasi 'required',
-     * seperti required yang ada di rule 'accepted'.
+     * Determine if the attribute can be validated.
      *
      * @param string $rule
      * @param string $attribute
@@ -209,8 +206,7 @@ class Validator
     }
 
     /**
-     * Tentukan apakah rule yang diberikan mengimplikasikan bahwa
-     * atribut tersebut diperlukan.
+     * Determine if the given rule implies a required attribute.
      *
      * @param string $rule
      *
@@ -233,7 +229,7 @@ class Validator
     }
 
     /**
-     * Tambahkan sebuah pesan error ke list error validasi.
+     * Add an error message to the validation errors.
      *
      * @param string $attribute
      * @param string $rule
@@ -246,7 +242,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut yang diperlukan ada di array atribut.
+     * Validate that the required attribute is present in the attribute array.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -271,8 +267,8 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut ada dalam array atribut, jika atribut lain
-     * ada dalam array atribut.
+     * Validate that the required attribute is present only if
+     * any of the other given fields are present.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -288,7 +284,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut memiliki atribut konfirmasi yang cocok.
+     * Validate that attribute has been confirmed.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -301,8 +297,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut 'diterima'.
-     * Rule validasi ini mengimplikasikan bahwa atribut ini 'required'.
+     * Validate that attribute has been accepted.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -316,7 +311,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut berisi boolean.
+     * Validate that attribute is a boolean.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -329,7 +324,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut sama dengan atribut lainnya.
+     * Validate that attribute is the same as another attribute.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -344,7 +339,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut berbeda dengan atribut lainnya.
+     * Validate that attribute is different from another attribute.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -359,7 +354,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut adalah angka.
+     * Validate that attribute is a number.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -372,7 +367,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa suatu atribut adalah bilangan bulat.
+     * Validate that attribute is an integer.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -385,7 +380,7 @@ class Validator
     }
 
     /**
-     * Validasi ukuran atribut.
+     * Validate the size of the attribute.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -404,7 +399,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa ukuran atribut berada diantara seperangkat nilai.
+     * Validate that the size of the attribute is between a range of values.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -419,7 +414,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa ukuran atribut lebih besar dari nilai minimumnya.
+     * Validate that the size of the attribute is greater than the minimum value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -433,7 +428,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa ukuran atribut lebih kecil dari nilai maksimumnya.
+     * Validate that the size of the attribute is less than the maximum value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -447,7 +442,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut lebih besar dari atribut lainnya.
+     * Validate that the size of the attribute is greater than the minimum value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -465,7 +460,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut lebih besar atau sama dengan atribut lainnya.
+     * Validate that the size of the attribute is greater than or equal to the minimum value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -483,7 +478,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut lebih kecil dari atribut lainnya.
+     * Validate that the size of the attribute is less than the maximum value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -501,7 +496,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut lebih kecil atau sama dengan atribut lainnya.
+     * Validate that the size of the attribute is less than or equal to the maximum value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -519,7 +514,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut memiliki jumlah digit yang tepat.
+     * Validate that the attribute must have digits with exact length.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -533,7 +528,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut memiliki jumlah digit antara nilai minimum dan maksimum.
+     * Validate that the attribute must have digits with length between minimum and maximum.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -548,7 +543,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah string.
+     * Validate that the attribute must be a string.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -561,7 +556,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah JSON yang valid.
+     * Validate that the attribute must be a valid JSON string.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -580,7 +575,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah timezone yang valid.
+     * Validate that the attribute must be a valid timezone.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -593,7 +588,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah alamat IPv4 yang valid.
+     * Validate that the attribute must be a valid IPv4 address.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -606,7 +601,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah alamat IPv6 yang valid.
+     * Validate that the attribute must be a valid IPv6 address.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -619,7 +614,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut tidak cocok dengan pola regex.
+     * Validate that the attribute must not match the given regex pattern.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -639,7 +634,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut ada dalam input, meskipun kosong.
+     * Validate that the attribute must be present in the input, even if empty.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -652,7 +647,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut ada dan tidak kosong jika ada.
+     * Validate that the attribute must be present in the input and not empty.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -665,7 +660,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah file yang diupload.
+     * Validate that the attribute must be a valid file.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -678,7 +673,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut file memiliki MIME type yang ditentukan.
+     * Validate that the attribute must have a given MIME type.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -697,7 +692,7 @@ class Validator
     }
 
     /**
-     * Validasi dimensi gambar.
+     * Validate that the attribute must have a valid image dimensions.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -752,7 +747,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa elemen array unik.
+     * Validate that the attribute must not have any duplicate array elements.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -769,7 +764,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa string diakhiri dengan nilai tertentu.
+     * Validate that the attribute ends with a given value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -793,7 +788,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa string dimulai dengan nilai tertentu.
+     * Validate that the attribute starts with a given value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -817,7 +812,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa nilai ada dalam array dari atribut lain.
+     * Validate that the attribute must be in the given array.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -836,7 +831,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa tanggal sama dengan tanggal lain.
+     * Validate that the attribute must have an equal date value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -856,7 +851,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut diperlukan jika kondisi terpenuhi.
+     * Validate that the attribute must be present if the second field is equal to any value.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -876,7 +871,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut diperlukan kecuali kondisi terpenuhi.
+     * Validate that the attribute is required unless the condition is met.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -896,7 +891,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut diperlukan dengan semua atribut lain.
+     * Validate that the attribute is required with all other attributes.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -916,7 +911,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut diperlukan tanpa atribut lain.
+     * Validate that the attribute is required without any other attributes.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -936,7 +931,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut diperlukan tanpa semua atribut lain.
+     * Validate that the attribute is required without all other attributes.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -956,7 +951,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut adalah nullable (tidak wajib divalidasi jika null).
+     * Validate that the attribute is nullable (not required if null).
      *
      * @param string $attribute
      * @param mixed  $value
@@ -965,11 +960,11 @@ class Validator
      */
     protected function validate_nullable($attribute, $value)
     {
-        return true;
+        return $value === null || $this->validate_required($attribute, $value);
     }
 
     /**
-     * Ambil ukuran atribut.
+     * Get the size of the attribute.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -990,7 +985,7 @@ class Validator
     }
 
     /**
-     * Vaidasi bahwa atribut ada dalam array.
+     * Validate that the attribute is in the array.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1004,7 +999,7 @@ class Validator
     }
 
     /**
-     * Vaidasi bahwa atribut tidak ada dalam array.
+     * Validate that the attribute is not in the array.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1018,8 +1013,7 @@ class Validator
     }
 
     /**
-     * Validasi keunikan value atribut pada tabel database yang diberikan.
-     * Jika kolom database tidak ditentukan, atribut akan digunakan sebagai nama kolom.
+     * Validate the uniqueness of the attribute value in the database table.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1043,7 +1037,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa value atribut ada didalam tabel database.
+     * Validate that the value of the attribute exists in the database table.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1066,7 +1060,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan alamat IP yang valid.
+     * Validate that the attribute is a valid IP address.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1079,7 +1073,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan alamat email yang valid.
+     * Validate that the attribute is a valid email address.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1092,7 +1086,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan URL yang valid.
+     * Validate that the attribute is a valid URL.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1105,7 +1099,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan string UUID (v4) yang valid.
+     * Validate that the attribute is a valid UUID (v4).
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1126,7 +1120,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan URL yang aktif.
+     * Validate that the attribute is an active URL.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1145,10 +1139,9 @@ class Validator
             return false;
         }
 
-        // Gunakan cURL untuk pengecekan yang lebih efisien daripada dns_get_record
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_NOBODY, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout 5 detik untuk performa
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5); // Timeout in 5 seconds
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -1162,8 +1155,8 @@ class Validator
     }
 
     /**
-     * Validasi bahwa mime-type sebuah file merupakan mime-type gambar.
-     * Mime-type gambar yang valid adalah: jpeg, png, gif, bmp, svg dan webp.
+     * Validate that the attribute is an image.
+     * Valid mime types are: jpeg, png, gif, bmp, svg and webp.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1176,7 +1169,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut hanya mengandung karakter-karakter alfabet.
+     * Validate that the attribute is an alphabetic string.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1195,7 +1188,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut hanya mengandung karakter-karakter alfabet dan angka.
+     * Validate that the attribute is an alphanumeric string.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1214,8 +1207,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut hanya mengandung karakter-karakter
-     * alfabet, angka, tanda hubung dan garis bawah.
+     * Validate that the attribute is an alphanumeric string with dashes and underscores.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1234,7 +1226,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut lolos dari pengecekan regex.
+     * Validate that the attribute matches the given regex pattern.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1254,7 +1246,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut lolos dari pengecekan regex.
+     * Validate that the attribute passes the given regex pattern.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1274,7 +1266,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut file upload ada dalam array mime-type yang ditentukan.
+     * Validate that the attribute has a valid MIME type.
      *
      * @param string $attribute
      * @param array  $value
@@ -1298,7 +1290,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan sebuah array.
+     * Validate that the attribute is an array.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1320,8 +1312,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan array dengan jumlah elemen
-     * yang sama dengan jumlah elemen yang ditentukan.
+     * Validate that the attribute is an array and has the same number of elements.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1335,8 +1326,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan array dengan jumlah elemen yang
-     * tidak kurang dari jumlah elemen minimum yang ditentukan.
+     * Validate that the attribute is an array and has at least the number of given elements.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1350,8 +1340,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan array dengan jumlah elemen yang
-     * tidak lebih dari jumlah elemen maksimum yang ditentukan.
+     * Validate that the attribute is an array and has at most the number of given elements.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1365,8 +1354,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan array dengan jumlah elemen yang
-     * berada pada rentang elemen minimum dan maksimum yang ditentukan.
+     * Validate that the attribute is an array and has numbers of elements between the given range.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1381,7 +1369,7 @@ class Validator
     }
 
     /**
-     * Validasi tanggal ini adalah sebelum tanggal yang ditentukan.
+     * Validate that the attribute's date is before the given date.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1401,7 +1389,7 @@ class Validator
     }
 
     /**
-     * Validasi tanggal ini adalah sebelum atau tepat tanggal yang ditentukan.
+     * Validate that the attribute's date is before or equal to the given date.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1421,7 +1409,7 @@ class Validator
     }
 
     /**
-     * Validasi bahwa atribut merupakan sebuah tanggal.
+     * Validate that the attribute is a valid date.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1450,7 +1438,7 @@ class Validator
     }
 
     /**
-     * Validasi tanggal ini adalah setelah tanggal yang ditentukan.
+     * Validate that the date is after the given date.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1470,7 +1458,7 @@ class Validator
     }
 
     /**
-     * Validasi format tanggal cocok dengan format yang ditentukan.
+     * Validate that the date is matches the given format.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1484,10 +1472,8 @@ class Validator
             && false !== date_create_from_format($parameters[0], $value);
     }
 
-
-
     /**
-     * Ambil pesan error yang sesuai untuk sebuah atribut dan rule.
+     * Get the proper error messages.
      *
      * @param string $attribute
      * @param string $rule
@@ -1537,7 +1523,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder di pesan error dengan value aslinya.
+     * Replace all placeholders in the error message.
      *
      * @param string $message
      * @param string $attribute
@@ -1555,7 +1541,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'required_with'.
+     * Replace placeholders for the 'required_with' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1570,7 +1556,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'between'.
+     * Replace placeholders for the 'between' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1585,7 +1571,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'size'.
+     * Replace placeholders for the 'size' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1600,7 +1586,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'min'.
+     * Replace placeholders for the 'min' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1615,7 +1601,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'max'.
+     * Replace placeholders for the 'max' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1630,7 +1616,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'in'.
+     * Replace placeholders for the 'in' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1645,7 +1631,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'not_in'.
+     * Replace placeholders for the 'not_in' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1660,7 +1646,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'mimes'.
+     * Replace placeholders for the 'mimes' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1675,7 +1661,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'same'.
+     * Replace placeholders for the 'same' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1690,7 +1676,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'different'.
+     * Replace placeholders for the 'different' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1705,7 +1691,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'before'.
+     * Replace placeholders for the 'before' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1720,7 +1706,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'before_or_equals'.
+     * Replace placeholders for the 'before_or_equals' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1735,7 +1721,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'after'.
+     * Replace placeholders for the 'after' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1750,7 +1736,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'count'.
+     * Replace placeholders for the 'count' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1765,7 +1751,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'countmin'.
+     * Replace placeholders for the 'countmin' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1780,7 +1766,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'countmax'.
+     * Replace placeholders for the 'countmax' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1795,7 +1781,7 @@ class Validator
     }
 
     /**
-     * Replace seluruh palceholder untuk rule 'countbetween'.
+     * Replace placeholders for the 'countbetween' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1810,7 +1796,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'gt'.
+     * Replace placeholders for the 'gt' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1825,7 +1811,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'gte'.
+     * Replace placeholders for the 'gte' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1840,7 +1826,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'lt'.
+     * Replace placeholders for the 'lt' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1855,7 +1841,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'lte'.
+     * Replace placeholders for the 'lte' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1870,7 +1856,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'digits'.
+     * Replace placeholders for the 'digits' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1885,7 +1871,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'digits_between'.
+     * Replace placeholders for the 'digits_between' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1900,7 +1886,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'mimetypes'.
+     * Replace placeholders for the 'mimetypes' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1915,7 +1901,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'ends_with'.
+     * Replace placeholders for the 'ends_with' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1930,7 +1916,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'starts_with'.
+     * Replace placeholders for the 'starts_with' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1945,7 +1931,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'in_array'.
+     * Replace placeholders for the 'in_array' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1960,7 +1946,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'date_equals'.
+     * Replace placeholders for the 'date_equals' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1975,7 +1961,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'required_if'.
+     * Replace placeholders for the 'required_if' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -1992,7 +1978,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'required_unless'.
+     * Replace placeholders for the 'required_unless' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -2009,7 +1995,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'required_with_all'.
+     * Replace placeholders for the 'required_with_all' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -2024,7 +2010,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'required_without'.
+     * Replace placeholders for the 'required_without' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -2039,7 +2025,7 @@ class Validator
     }
 
     /**
-     * Replace placeholder untuk rule 'required_without_all'.
+     * Replace placeholders for the 'required_without_all' rule.
      *
      * @param string $message
      * @param string $attribute
@@ -2054,7 +2040,7 @@ class Validator
     }
 
     /**
-     * Ambil nama atribut dari atribut yang diberikan.
+     * Get the name of the attribute from the given attribute.
      *
      * @param string $attribute
      *
@@ -2071,7 +2057,7 @@ class Validator
     }
 
     /**
-     * Tentukan apakah atribut memiliki rulw yang ditetapkan untuknya.
+     * Determine if the attribute has a rule set for it.
      *
      * @param string $attribute
      * @param array  $rules
@@ -2096,7 +2082,7 @@ class Validator
     }
 
     /**
-     * Ambil nama dan parameter rule dari sebuah rule.
+     * Get the name and parameter rule from a rule.
      *
      * @param string $rule
      *
@@ -2110,8 +2096,8 @@ class Validator
     }
 
     /**
-     * Set paket mana yang harus menjalankan validator.
-     * Ini untuk menentukan validation language mana yang akan digunakan.
+     * Set the package that should run the validator.
+     * This is to determine which validation language will be used.
      *
      * @param string $package
      *
@@ -2124,7 +2110,7 @@ class Validator
     }
 
     /**
-     * Set dari bahasa mana pesan-pesan error harus diambil.
+     * Set the language from which error messages should be retrieved.
      *
      * @param string $language
      *
@@ -2137,7 +2123,7 @@ class Validator
     }
 
     /**
-     * Set koneksi database mana yang harus digunakan oleh validator.
+     * Set the database connection that should be used by the validator.
      *
      * @param Connection $connection
      *
@@ -2150,7 +2136,7 @@ class Validator
     }
 
     /**
-     * Ambil object koneksi database.
+     * Get the database connection that should be used by the validator.
      *
      * @return Connection
      */
@@ -2160,7 +2146,7 @@ class Validator
     }
 
     /**
-     * Tangani pemanggilan custom validator.
+     * Handle custom validator calls.
      */
     public function __call($method, $parameters)
     {
