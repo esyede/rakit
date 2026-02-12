@@ -19,7 +19,6 @@ class Home_Controller extends Controller
      */
     public function action_index()
     {
-        bd([[get_declared_classes(), get_declared_classes()]]);
         return View::make('home');
     }
 }
