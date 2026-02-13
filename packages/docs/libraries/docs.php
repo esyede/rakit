@@ -111,4 +111,46 @@ class Docs
 
         return str_replace(array_keys($replacers), array_values($replacers), $sidebar);
     }
+
+    public static function ensure_search_data_exists()
+    {
+        $srcdir = dirname(__DIR__) . DS . 'data';
+        $destfile = path('base') . 'assets' . DS . 'packages' . DS . 'docs' . DS . 'js' . DS . 'data.json';
+
+        if (is_file($destfile)) {
+            return;
+        }
+
+        $files = static::get_markdown_files($srcdir);
+        $documents = [];
+
+        foreach ($files as $file) {
+            $content = file_get_contents($file);
+            preg_match('/^#\s*(.+)$/m', $content, $matches);
+            $title = isset($matches[1]) ? trim($matches[1]) : basename($file, '.md');
+            $relpath = str_replace($srcdir . DS, '', $file);
+            $url = str_replace(DS, '/', dirname($relpath) . '/' . basename($relpath, '.md'));
+
+            if (strpos($url, '000-sidebar') !== false) {
+                continue;
+            }
+
+            $url = trim($url, '/');
+            $documents[] = ['id' => $url, 'title' => $title, 'url' => $url, 'content' => $content];
+        }
+
+        file_put_contents($destfile, json_encode($documents));
+    }
+
+    protected static function get_markdown_files($directory)
+    {
+        $files = glob($directory . DS . '*.md');
+        $dirs = glob($directory . DS . '*', GLOB_ONLYDIR);
+
+        foreach ($dirs as $dir) {
+            $files = array_merge($files, static::get_markdown_files($dir));
+        }
+
+        return $files;
+    }
 }

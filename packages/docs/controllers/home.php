@@ -21,7 +21,9 @@ class Docs_Home_Controller extends Controller
      */
     public function action_index()
     {
-        return View::make('docs::home')
+        Docs::ensure_search_data_exists();
+
+        return view('docs::home')
             ->with_title(Docs::title('home'))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
             ->with_content(Docs::content(Docs::render('home')))
@@ -42,11 +44,11 @@ class Docs_Home_Controller extends Controller
         $file = Docs::exists(rtrim(implode('/', $args), '/') . '/home') ? '/home' : '';
         $file = rtrim(implode('/', $args), '/') . $file;
 
-        if (!Docs::exists($file)) {
-            return Response::error(404);
-        }
+        abort_if(!Docs::exists($file), 404);
 
-        return View::make('docs::home')
+        Docs::ensure_search_data_exists();
+
+        return view('docs::home')
             ->with_title(Docs::title($file))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
             ->with_content(Docs::content(Docs::render($file)))

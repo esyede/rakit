@@ -56,3 +56,6 @@ yarn-error.log
 
 # Others
 *.phar
+
+# Docs search index (auto-generated)
+assets/packages/docs/js/data.json

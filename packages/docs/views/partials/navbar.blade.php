@@ -15,31 +15,22 @@
         <div id="navMenuMore" class="navbar-menu">
             <div class="navbar-start">
                 <div class="navbar-item">
-                    <div class="dropdown" id="docsearch">
-                        <div class="dropdown-trigger">
-                            <div class="field control">
-                                <input id="userinput" class="input is-rounded is-narrow" type="search" placeholder="Search.." />
-                            </div>
-                        </div>
-                        <div class="dropdown-menu" id="search-results" role="menu">
-                            <div class="dropdown-content" id="suggestions"></div>
-                        </div>
+                    <div class="field control">
+                        <input id="userinput" class="input is-rounded is-narrow" type="search" placeholder="Search.."
+                            autocomplete="off" />
                     </div>
                 </div>
             </div>
             <div class="navbar-end">
-                <a class="navbar-item" id="homepage"
-                    href="{{ url('/') }}">Home</a>
-                <a class="navbar-item" id="docs"
-                    href="{{ url('docs') }}">Documentation</a>
+                <a class="navbar-item" id="homepage" href="{{ url('/') }}">Home</a>
+                <a class="navbar-item" id="docs" href="{{ url('docs') }}">Documentation</a>
                 <a class="navbar-item" id="api" href="https://rakit.esyede.my.id/api/main/index.html"
                     target="_blank">API</a>
                 <a class="navbar-item" id="repos" href="https://rakit.esyede.my.id/repositories"
                     target="_blank">Repositories</a>
                 <a class="navbar-item" id="forum" href="https://github.com/esyede/rakit/discussions"
                     target="_blank">Forum</a>
-                <a class="navbar-item" id="github" href="https://github.com/esyede/rakit"
-                    target="_blank">GitHub</a>
+                <a class="navbar-item" id="github" href="https://github.com/esyede/rakit" target="_blank">GitHub</a>
                 <div class="navbar-item">
                     <div class="buttons">
                         <button class="button is-rounded is-small" id="dark-mode-toggle">Dark</button>
