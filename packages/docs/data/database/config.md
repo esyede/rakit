@@ -66,7 +66,7 @@ You can freely change these connection names. The default connection can be set 
 'default' => 'sqlite';
 ```
 
-This default connection is what will always be used by the [Query Builder](/docs/id/database/magic).
+This default connection is what will always be used by the [Query Builder](/docs/database/magic).
 If you need to change the default connection during request execution, use `Config::set()`.
 
 <a id="overriding-default-pdo-options"></a>

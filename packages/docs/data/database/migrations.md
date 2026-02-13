@@ -41,7 +41,7 @@ php rakit migrate:install
 
 ## Creating Migration Files
 
-You can easily create migrations through the [console](/docs/id/console) like this:
+You can easily create migrations through the [console](/docs/console) like this:
 
 **Creating a migration file:**
 
@@ -62,7 +62,7 @@ php rakit make:migration nama_package::create_users_table
 
 _Further reading:_
 
--   [Schema Builder](/docs/id/database/schema)
+-   [Schema Builder](/docs/database/schema)
 
 <a id="running-migrations"></a>
 

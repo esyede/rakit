@@ -71,11 +71,11 @@ By default, Rakit is already configured to use this driver.
 
 ## Database Driver
 
-To use the database driver, you must first [configure the database connection](/docs/id/database/config).
+To use the database driver, you must first [configure the database connection](/docs/database/config).
 
 Next, you need to create a session table. Here are some SQL queries to help you get started.
 
-However, you can also use the [console](/docs/id/console) to create this table automatically!
+However, you can also use the [console](/docs/console) to create this table automatically!
 
 <a id="console"></a>
 

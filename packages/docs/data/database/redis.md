@@ -82,4 +82,4 @@ $name = Redis::get('name');
 $values = Redis::lrange('names', 5, 10);
 ```
 
-> Rakit also provides a Redis driver for [cache](/docs/id/cache/config#redis) and [session](/docs/id/session/config#redis).
+> Rakit also provides a Redis driver for [cache](/docs/cache/config#redis) and [session](/docs/session/config#redis).

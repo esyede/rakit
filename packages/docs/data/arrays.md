@@ -622,4 +622,4 @@ $empty = null;
 return Arr::wrap($empty); // []
 ```
 
-> Some additional helpers for array operations are also available on the [Helpers](/docs/id/helpers) page.
+> Some additional helpers for array operations are also available on the [Helpers](/docs/helpers) page.

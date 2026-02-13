@@ -83,4 +83,4 @@ if (Container::registered('mailer')) {
 }
 ```
 
-> You can also [register controllers to the container](/docs/en/controllers#dependency-injection).
+> You can also [register controllers to the container](/docs/controllers#dependency-injection).

@@ -145,9 +145,9 @@ class Log
 
             try {
                 file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
-            } catch (\Throwable $exception) {
+            } catch (\Throwable $ex) {
                 // Silent fail when fallback also fails
-            } catch (\Exception $exception) {
+            } catch (\Exception $ex) {
                 // Silent fail when fallback also fails
             }
         } catch (\Exception $e) {
@@ -156,9 +156,9 @@ class Log
 
             try {
                 file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
-            } catch (\Throwable $exception) {
+            } catch (\Throwable $ex) {
                 // Silent fail when fallback also fails
-            } catch (\Exception $exception) {
+            } catch (\Exception $ex) {
                 // Silent fail when fallback also fails
             }
         }

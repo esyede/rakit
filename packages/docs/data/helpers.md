@@ -78,7 +78,7 @@ dump($value1, $value2, $value3, ...);
 
 ### bd
 
-The `bd` function will dump the contents of a variable to the [debug bar](/docs/en/debugging#debug-bar).
+The `bd` function will dump the contents of a variable to the [debug bar](/docs/debugging#debug-bar).
 Script execution will continue:
 
 ```php
@@ -384,7 +384,7 @@ $url = action('post@show', ['2024', '01', 'my-post']);
 
 ### route
 
-The `route` function generates a URL to a [named route](/docs/en/routing#named-route):
+The `route` function generates a URL to a [named route](/docs/routing#named-route):
 
 ```php
 // URL to route named 'profile'
@@ -579,7 +579,7 @@ return view('user.profile')
 
 ### render
 
-The `render` function compiles a [Blade](/docs/en/views/templating) view into an HTML string:
+The `render` function compiles a [Blade](/docs/views/templating) view into an HTML string:
 
 ```php
 // File: views/home.blade.php

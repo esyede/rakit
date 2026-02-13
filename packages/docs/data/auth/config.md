@@ -26,8 +26,8 @@ Rakit's authentication mechanism is driver-based, meaning the responsibility for
 
 By default, we have included two drivers:
 
--   The `'facile'` driver that uses the [Facile Model](/docs/id/database/facile) to load your application users, and is the default driver.
--   The `'magic'` driver that uses the [Magic Query Builder](/docs/id/database/magic) to load your users.
+-   The `'facile'` driver that uses the [Facile Model](/docs/database/facile) to load your application users, and is the default driver.
+-   The `'magic'` driver that uses the [Magic Query Builder](/docs/database/magic) to load your users.
 
 **Selecting a driver:**
 

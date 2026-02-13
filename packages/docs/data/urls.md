@@ -91,7 +91,7 @@ $url = URL::to_route('profile', [$username]);
 
 _Further reading:_
 
--   [Named Route](/docs/en/routing#named-route)
+-   [Named Route](/docs/routing#named-route)
 
 <a id="url-to-controller-method"></a>
 

@@ -6,7 +6,7 @@
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <link rel="stylesheet" href="{{ asset('packages/docs/css/docs.css?v=' . RAKIT_VERSION) }}">
     <link rel="stylesheet" href="{{ asset('packages/docs/css/dark-mode.css?v=' . RAKIT_VERSION) }}">
-    <title>Rakit :: {{ trans('docs::docs.header.documentation') }} ~ {{ $title }}</title>
+    <title>Rakit :: Documentation ~ {{ $title }}</title>
 
     <script>
         const savedTheme = localStorage.getItem('theme');
@@ -19,8 +19,8 @@
     </script>
 
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Rakit :: {{ trans('docs::docs.header.documentation') }}">
-    <meta property="og:description" content="{{ trans('docs::docs.header.description') }}">
-    <meta property="og:site_name" content="Rakit :: {{ trans('docs::docs.header.documentation') }}">
+    <meta property="og:title" content="Rakit :: Documentation">
+    <meta property="og:description" content="Rakit framework documentation">
+    <meta property="og:site_name" content="Rakit :: Documentation">
 </head>
 <!-- Header end -->

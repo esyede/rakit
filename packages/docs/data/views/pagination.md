@@ -26,7 +26,7 @@ Rakit provides a simple and easy-to-use API for pagination.
 
 ## Using Query Builder
 
-Let's explore a complete example of pagination using [Query Builder](/docs/id/database/magic):
+Let's explore a complete example of pagination using [Query Builder](/docs/database/magic):
 
 #### Get paginated results from query:
 
@@ -152,7 +152,7 @@ You can also create "next" and "previous" links:
 
 _Read more:_
 
--   _[Query Builder](/docs/id/database/magic)_
+-   _[Query Builder](/docs/database/magic)_
 
 <a id="adding-pagination-links"></a>
 

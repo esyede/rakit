@@ -109,7 +109,7 @@ The `packages/` folder contains the package folders you install.
 
 The `storage/` folder contains built-in rakit subfolders for storing non-public files such as
 cache files, sessions, database files (sqlite) and rendered files
-from the [Blade Template Engine](/docs/id/views/templating#blade-template-engine).
+from the [Blade Template Engine](/docs/views/templating#blade-template-engine).
 
 <a id="system-folder"></a>
 

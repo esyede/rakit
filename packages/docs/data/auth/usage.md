@@ -20,8 +20,8 @@
 
 Auth provides an easy and secure authentication mechanism for your application. Before using the `Auth` class, make sure you have:
 
-1. [Configured the session driver](/docs/id/session/config)
-2. [Configured the auth driver](/docs/id/auth/config)
+1. [Configured the session driver](/docs/session/config)
+2. [Configured the auth driver](/docs/auth/config)
 3. A user table/model with a hashed password column
 
 > Rakit automatically handles sessions and cookies for authentication, so you don't need to manage them manually.
@@ -212,7 +212,7 @@ if (Auth::attempt($credentials)) {
 
 ## Protecting Routes
 
-It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` filter. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, they will be redirected to the [named route](/docs/id/routing#named-route) called `'login'`.
+It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` filter. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, they will be redirected to the [named route](/docs/routing#named-route) called `'login'`.
 
 **Protecting a single route:**
 

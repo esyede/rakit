@@ -88,28 +88,28 @@ class User_Controller extends Controller
     public function action_register()
     {
         $input = Input::all();
-        
+
         $rules = [
             'name'     => 'required|max:50',
             'email'    => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
         ];
-        
+
         $validation = Validator::make($input, $rules);
-        
+
         if ($validation->fails()) {
             return Redirect::back()
                 ->with_input()
                 ->with_errors($validation);
         }
-        
+
         // Save new user
         $user = new User();
         $user->name = Input::get('name');
         $user->email = Input::get('email');
         $user->password = Hash::make(Input::get('password'));
         $user->save();
-        
+
         return Redirect::to('login')
             ->with('message', 'Registration successful!');
     }
@@ -162,28 +162,28 @@ class User_Controller extends Controller
     public function action_register()
     {
         $input = Input::all();
-        
+
         $rules = [
             'name'     => 'required|max:50',
             'email'    => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
         ];
-        
+
         $validation = Validator::make($input, $rules);
-        
+
         if ($validation->fails()) {
             return Redirect::back()
                 ->with_input()
                 ->with_errors($validation);
         }
-        
+
         // Save new user
         $user = new User();
         $user->name = Input::get('name');
         $user->email = Input::get('email');
         $user->password = Hash::make(Input::get('password'));
         $user->save();
-        
+
         return Redirect::to('login')
             ->with('message', 'Registration successful!');
     }
@@ -1008,7 +1008,7 @@ For example, if email validation fails, we can look for `'email'` in the `$error
 $errors->has('email')
 ```
 
-With [Blade](/docs/en/views/templating#blade-template-engine), we can then add
+With [Blade](/docs/views/templating#blade-template-engine), we can then add
 the error message to our view conditionally:
 
 ```php
@@ -1064,7 +1064,7 @@ public function action_store()
         'name'  => 'required|max:50',
         'email' => 'required|email|unique:users',
     ];
-    
+
     $messages = [
         'name.required'  => 'Name is required.',
         'name.max'       => 'Name maximum 50 characters.',
@@ -1072,15 +1072,15 @@ public function action_store()
         'email.email'    => 'Invalid email format.',
         'email.unique'   => 'Email is already registered.',
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules, $messages);
-    
+
     if ($validation->fails()) {
         return Redirect::back()
             ->with_input()
             ->with_errors($validation);
     }
-    
+
     // Save data
 }
 ```
@@ -1096,7 +1096,7 @@ public function action_store()
             <span class="help-block"><?php echo $errors->first('name'); ?></span>
         <?php endif; ?>
     </div>
-    
+
     <div class="form-group<?php echo $errors->has('email') ? ' has-error' : ''; ?>">
         <label>Email</label>
         <input type="email" name="email" value="<?php echo Input::old('email'); ?>">
@@ -1104,7 +1104,7 @@ public function action_store()
             <span class="help-block"><?php echo $errors->first('email'); ?></span>
         <?php endif; ?>
     </div>
-    
+
     <button type="submit">Submit</button>
 </form>
 ```
@@ -1259,9 +1259,9 @@ necessary because there would be two classes named Validator otherwise, which wo
 ```php
 'aliases' => [
     // ..
-    
+
     'Validator' => 'System\Validator', // Remove this part
-    
+
     // ..
 ],
 ```

@@ -143,7 +143,7 @@ For this, we provide several options to handle this:
 #### Option 1: URL Rewrite
 
 If you are using Apache or Nginx, follow the guide
-[pretty URLs](/docs/id/install#pretty-urls) because in that feature, we have
+[pretty URLs](/docs/install#pretty-urls) because in that feature, we have
 also provided rules to protect the vendor folder.
 
 #### Option 2: Place above document root

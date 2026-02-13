@@ -78,7 +78,7 @@ Then, add your Memcached servers to the `'servers'` array:
 
 Redis is an advanced open-source key-value storage software. It is often called a data structure server because its keys can contain [strings](http://redis.io/topics/data-types#strings), [hashes](http://redis.io/topics/data-types#hashes), [lists](http://redis.io/topics/data-types#lists), [sets](http://redis.io/topics/data-types#sets), and [sorted sets](http://redis.io/topics/data-types#sorted-sets).
 
-Before using this Redis driver, you must [configure your Redis server](/docs/id/database/redis#config). After that, you just need to change the `'driver'` in the `application/config/cache.php` file to redis like this:
+Before using this Redis driver, you must [configure your Redis server](/docs/database/redis#config). After that, you just need to change the `'driver'` in the `application/config/cache.php` file to redis like this:
 
 ```php
 'driver' => 'redis'

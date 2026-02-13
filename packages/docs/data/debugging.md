@@ -26,7 +26,7 @@ The 500 error page displayed comes from the file `application/views/error/500.ph
 
 ## Debug Bar
 
-The Debug Bar is a floating panel displayed in the bottom right corner of your screen. This panel contains various information about your application such as page load time, server configuration, list of executed SQL queries, and the contents of variables you dump using the [bd()](/docs/id/helpers#bd) helper.
+The Debug Bar is a floating panel displayed in the bottom right corner of your screen. This panel contains various information about your application such as page load time, server configuration, list of executed SQL queries, and the contents of variables you dump using the [bd()](/docs/helpers#bd) helper.
 
 
 

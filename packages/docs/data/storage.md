@@ -86,7 +86,7 @@ Storage::delete('path/to/file.ext');
 Input::upload('picture', 'path/to/pictures', 'filename.ext');
 ```
 
-> You can easily validate file uploads using [Validator](/docs/en/validation).
+> You can easily validate file uploads using [Validator](/docs/validation).
 
 <a id="file-extension"></a>
 

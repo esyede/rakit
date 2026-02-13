@@ -126,7 +126,7 @@ return [
 ];
 ```
 
-Notice that each key in the above array corresponds to the names of methods in the [Autoloader](/docs/id/autoloading) class.
+Notice that each key in the above array corresponds to the names of methods in the [Autoloader](/docs/autoloading) class.
 
 The values of each configuration array above will be automatically passed to the corresponding method in the `Autoloader` class.
 
@@ -215,7 +215,7 @@ if (Package::routed('admin')) {
 
 ## Routing to Packages
 
-Please refer to the [package routing](/docs/id/routing#routing-paket) and [package controllers](/docs/id/controllers#controller-paket) pages for more detailed guidance on the package routing mechanism.
+Please refer to the [package routing](/docs/routing#routing-paket) and [package controllers](/docs/controllers#controller-paket) pages for more detailed guidance on the package routing mechanism.
 
 <a id="using-packages"></a>
 
@@ -378,7 +378,7 @@ Or with the `asset()` helper:
 
 ## Installing Packages
 
-Of course, you can install packages manually by downloading their archive and extracting it to the `packages/` folder. However, there is a more practical way to install packages, namely via [Rakit Console](/docs/id/console).
+Of course, you can install packages manually by downloading their archive and extracting it to the `packages/` folder. However, there is a more practical way to install packages, namely via [Rakit Console](/docs/console).
 
 Rakit uses a simple ZIP extraction mechanism for package installation. Here's how:
 
