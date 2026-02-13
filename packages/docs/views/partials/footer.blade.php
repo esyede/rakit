@@ -162,7 +162,7 @@
                 html.classList.toggle('dark');
                 const theme = html.classList.contains('dark') ? 'dark' : 'light';
                 localStorage.setItem('theme', theme);
-                toggleButton.textContent = theme === 'dark' ? 'Light' : 'Dark';
+                toggleButton.textContent = (theme === 'dark') ? 'Light' : 'Dark';
             });
         }
     });
