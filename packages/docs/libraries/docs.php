@@ -11,7 +11,7 @@ use System\Markdown;
 class Docs
 {
     /**
-     * Cek apakah file markdown ada atau tidak.
+     * Check if a markdown file exists.
      *
      * @param string $name
      *
@@ -23,7 +23,7 @@ class Docs
     }
 
     /**
-     * Ambil full path ke file markdown.
+     * Get the path to a markdown file.
      *
      * @param string $name
      *
@@ -35,7 +35,7 @@ class Docs
     }
 
     /**
-     * Ubah sintaks markdown ke html.
+     * Render markdown to HTML (with caching).
      *
      * @param string $name
      *
@@ -57,7 +57,7 @@ class Docs
     }
 
     /**
-     * Dekorasi tampilan nama halaman.
+     * Decorate page title.
      *
      * @param string $title
      *
@@ -70,7 +70,7 @@ class Docs
     }
 
     /**
-     * Dekorasi konten.
+     * Decorate content.
      *
      * @param string $content
      *
@@ -89,7 +89,7 @@ class Docs
     }
 
     /**
-     * Dekorasi tampilan sidebar.
+     * Decorate sidebar content.
      *
      * @param string $sidebar
      *
@@ -112,36 +112,50 @@ class Docs
         return str_replace(array_keys($replacers), array_values($replacers), $sidebar);
     }
 
+    /**
+     * Ensure that search data exists.
+     *
+     * @return void
+     */
     public static function ensure_search_data_exists()
     {
         $srcdir = dirname(__DIR__) . DS . 'data';
-        $destfile = path('base') . 'assets' . DS . 'packages' . DS . 'docs' . DS . 'js' . DS . 'data.json';
+        $destfile = path('assets') . 'packages' . DS . 'docs' . DS . 'js' . DS . 'data.json';
+        $cache_key = 'docs.search_data_mtime';
+        $current_mtime = static::get_directory_mtime($srcdir);
 
-        if (is_file($destfile)) {
-            return;
-        }
+        $cached_mtime = Cache::get($cache_key);
+        if ($cached_mtime !== $current_mtime || !is_file($destfile)) {
+            $files = static::get_markdown_files($srcdir);
+            $documents = [];
 
-        $files = static::get_markdown_files($srcdir);
-        $documents = [];
+            foreach ($files as $file) {
+                $content = file_get_contents($file);
+                preg_match('/^#\s*(.+)$/m', $content, $matches);
+                $title = isset($matches[1]) ? trim($matches[1]) : basename($file, '.md');
+                $relpath = str_replace($srcdir . DS, '', $file);
+                $url = str_replace(DS, '/', dirname($relpath) . '/' . basename($relpath, '.md'));
 
-        foreach ($files as $file) {
-            $content = file_get_contents($file);
-            preg_match('/^#\s*(.+)$/m', $content, $matches);
-            $title = isset($matches[1]) ? trim($matches[1]) : basename($file, '.md');
-            $relpath = str_replace($srcdir . DS, '', $file);
-            $url = str_replace(DS, '/', dirname($relpath) . '/' . basename($relpath, '.md'));
+                if (strpos($url, '000-sidebar') !== false) {
+                    continue;
+                }
 
-            if (strpos($url, '000-sidebar') !== false) {
-                continue;
+                $url = trim($url, '/');
+                $documents[] = ['id' => $url, 'title' => $title, 'url' => $url, 'content' => $content];
             }
 
-            $url = trim($url, '/');
-            $documents[] = ['id' => $url, 'title' => $title, 'url' => $url, 'content' => $content];
+            file_put_contents($destfile, json_encode($documents));
+            Cache::forever($cache_key, $current_mtime);
         }
-
-        file_put_contents($destfile, json_encode($documents));
     }
 
+    /**
+     * Recursively get all markdown files in a directory.
+     *
+     * @param string $directory
+     *
+     * @return array
+     */
     protected static function get_markdown_files($directory)
     {
         $files = glob($directory . DS . '*.md');
@@ -152,5 +166,24 @@ class Docs
         }
 
         return $files;
+    }
+
+    /**
+     * Get the maximum modification time of all markdown files in a directory.
+     *
+     * @param string $directory
+     *
+     * @return int
+     */
+    protected static function get_directory_mtime($directory)
+    {
+        $files = static::get_markdown_files($directory);
+
+        if (empty($files)) {
+            return 0;
+        }
+
+        $mtimes = array_map('filemtime', $files);
+        return max($mtimes);
     }
 }

@@ -7,11 +7,19 @@ use Docs\Libraries\Docs;
 class Docs_Home_Controller extends Controller
 {
     /**
-     * Jalankan CSRF middleware di setiap POST request.
+     * Indicates that the controller is RESTful.
+     *
+     * @var bool
+     */
+    public $restful = true;
+
+    /**
+     * Construtor.
      */
     public function __construct()
     {
         $this->middleware('before', 'csrf')->on('post');
+        Docs::ensure_search_data_exists();
     }
 
     /**
@@ -19,10 +27,8 @@ class Docs_Home_Controller extends Controller
      *
      * @return View
      */
-    public function action_index()
+    public function get_index()
     {
-        Docs::ensure_search_data_exists();
-
         return view('docs::home')
             ->with_title(Docs::title('home'))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
@@ -38,15 +44,13 @@ class Docs_Home_Controller extends Controller
      *
      * @return Response
      */
-    public function action_page($section, $page = null)
+    public function get_page($section, $page = null)
     {
         $args = func_get_args();
         $file = Docs::exists(rtrim(implode('/', $args), '/') . '/home') ? '/home' : '';
         $file = rtrim(implode('/', $args), '/') . $file;
 
         abort_if(!Docs::exists($file), 404);
-
-        Docs::ensure_search_data_exists();
 
         return view('docs::home')
             ->with_title(Docs::title($file))
