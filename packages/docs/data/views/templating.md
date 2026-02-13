@@ -89,7 +89,7 @@ For example, you might want to insert the JavaScript required by the nested view
 
 #### Using Blade syntax to create a section:
 
-```php
+```blade
 @section('scripts')
 	<script src="jquery.js"></script>
 @endsection
@@ -109,13 +109,13 @@ Blade allows you to use simpler and more elegant syntax for writing and displayi
 
 #### Displaying variables using Blade:
 
-```php
+```blade
 Hello, {{ $name }}.
 ```
 
 #### Displaying function results using Blade:
 
-```php
+```blade
 {{ now() }}
 ```
 
@@ -127,7 +127,7 @@ the [htmlentities()](https://www.php.net/manual/en/function.htmlentities.php) fu
 Since many JavaScript frameworks also use curly braces to indicate that the given syntax should be displayed in the browser,
 you can use the `@` symbol to tell the Blade rendering engine to ignore this syntax. For example:
 
-```php
+```blade
 Hello, @{{ $name }}.
 ```
 
@@ -139,13 +139,13 @@ the `{{ name }}` syntax will remain untouched by the Blade engine, so this synta
 Sometimes you may want to display a variable, but you are not sure if the variable has been defined or not.
 Indeed, you can write it verbosely like:
 
-```php
+```blade
 {{ isset($name) ? $name : 'Guest' }}
 ```
 
 However, instead of writing using the ternary operator like above, Blade gives you an easier shortcut:
 
-```php
+```blade
 {{ $name or 'Guest' }}
 ```
 
@@ -159,7 +159,7 @@ using the [htmlentities](https://www.php.net/manual/en/function.htmlentities.php
 
 If you do not want your data to be escaped, you can use the following syntax:
 
-```php
+```blade
 Hello, {!! $name !!}
 ```
 
@@ -170,7 +170,7 @@ Hello, {!! $name !!}
 Use the `@include()` syntax to import a view into another view.
 The imported view will automatically inherit all data from the current view.
 
-```php
+```blade
 <h1>Profile</h1>
 
 @include('user.profile')
@@ -179,13 +179,13 @@ The imported view will automatically inherit all data from the current view.
 You can also use `@render()`, which behaves almost the same as `@include()` except that the
 rendered view **does not inherit** data from the current view.
 
-```php
+```blade
 @render('admin.list')
 ```
 
 **Difference between `@include()` and `@render()`:**
 
-```php
+```blade
 // @include() - view inherits all data from parent
 @include('partials.user', ['user' => $user])
 // View 'partials.user' can access $user variable and all variables from parent
@@ -197,7 +197,7 @@ rendered view **does not inherit** data from the current view.
 
 #### Creating comments:
 
-```php
+```blade
 {{-- This is a one-line comment --}}
 
 {{--
@@ -215,7 +215,7 @@ rendered view **does not inherit** data from the current view.
 
 #### If Statement:
 
-```php
+```blade
 @if (5000 === $price)
     Wow, the price is 5 thousand!
 @endif
@@ -223,7 +223,7 @@ rendered view **does not inherit** data from the current view.
 
 #### If Else Statement:
 
-```php
+```blade
 @if (count($messages) > 0)
     There are new messages!
 @else
@@ -233,7 +233,7 @@ rendered view **does not inherit** data from the current view.
 
 #### Else If Statement:
 
-```php
+```blade
 @if ('male' === $gender)
     Hello sir!
 @elseif ('female' === $gender)
@@ -245,7 +245,7 @@ rendered view **does not inherit** data from the current view.
 
 #### Unless Statement:
 
-```php
+```blade
 @unless(Auth::check())
     Please login first!
 @endunless
@@ -259,7 +259,7 @@ rendered view **does not inherit** data from the current view.
 
 #### Set Statement:
 
-```php
+```blade
 @set('name', 'Budi')
 
 // same as..
@@ -269,7 +269,7 @@ rendered view **does not inherit** data from the current view.
 
 #### For Loop:
 
-```php
+```blade
 @for ($i = 0; $i < 10; $i++)
     The current number is: {{ $i }}
 @endfor
@@ -277,7 +277,7 @@ rendered view **does not inherit** data from the current view.
 
 #### Foreach Loop:
 
-```php
+```blade
 @foreach ($users as $user)
     <p>The current user ID is: {{ $user->id }}</p>
 @endforeach
@@ -285,7 +285,7 @@ rendered view **does not inherit** data from the current view.
 
 #### For Else Loop:
 
-```php
+```blade
 @forelse ($users as $user)
     <li>{{ $user->name }}</li>
 @empty
@@ -295,7 +295,7 @@ rendered view **does not inherit** data from the current view.
 
 #### While Loop:
 
-```php
+```blade
 @while (true)
     <p>I am an infinite loop. Hahaha</p>
 @endwhile
@@ -303,7 +303,7 @@ rendered view **does not inherit** data from the current view.
 
 #### PHP Block:
 
-```php
+```blade
 @php
 	$name = 'Angga';
 	echo 'Hello '.$name;
@@ -329,7 +329,7 @@ For example, if your application uses the `'master'` view to provide a consisten
 
 **File: `application/views/master.blade.php`**
 
-```php
+```blade
 <html>
 	<ul class="navigation">
 		@section('navigation')
@@ -348,7 +348,7 @@ Notice the `'content'` section that is yielded. We need to fill this section wit
 
 **File: `application/views/profile.blade.php`**
 
-```php
+```blade
 @layout('master')
 
 @section('content')
@@ -388,7 +388,7 @@ For example, consider the navigation list in the `master` layout [above](#blade-
 
 Suppose we just want to add a `Contact` link to that navigation list. Here's how:
 
-```php
+```blade
 @layout('master')
 
 @section('navigation')

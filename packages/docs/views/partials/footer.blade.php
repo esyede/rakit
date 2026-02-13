@@ -58,7 +58,9 @@
         closeModalBtn.addEventListener('click', closeSearchModal);
         modalBg.addEventListener('click', closeSearchModal);
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && searchModal.classList.contains('is-active')) closeSearchModal();
+            if (e.key === 'Escape' && searchModal.classList.contains('is-active')) {
+                closeSearchModal();
+            }
         });
 
         if (userinput) {
@@ -83,20 +85,17 @@
                     q.term(value, {
                         fields: ['title'],
                         boost: 10,
-                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard
-                            .TRAILING
+                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
                     });
                     q.term(value, {
                         fields: ['content'],
                         boost: 5,
-                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard
-                            .TRAILING
+                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
                     });
                     q.term(value, {
                         fields: ['url'],
                         boost: 2,
-                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard
-                            .TRAILING
+                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
                     });
                 });
                 var len = results.length;
@@ -118,7 +117,6 @@
                         entry.href = homepage.replace(/\/+$/, '') + '/docs/' + doc.url;
                         entry.title = doc.url;
                         entry.innerHTML = '<strong>' + doc.title + '</strong>';
-                        // Tampilkan snippet content yang mengandung keyword dan highlight
                         var keyword = value.toLowerCase();
                         var content = doc.content || '';
                         var contentLower = content.toLowerCase();
@@ -129,43 +127,33 @@
                             var start = Math.max(0, idx - snippetLength / 2);
                             var end = Math.min(content.length, idx + snippetLength / 2);
                             snippet = content.substring(start, end);
-                            // Highlight keyword
                             var re = new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
                             snippet = snippet.replace(re, function(match) {
                                 return '<mark>' + match + '</mark>';
                             });
                         }
-                        if (snippet) {
-                            entry.innerHTML += '<div class="snippet">' + snippet + '</div>';
-                        }
+                        entry.innerHTML += snippet ? '<div class="snippet">' + snippet + '</div>' : '';
                         modalSuggestions.appendChild(entry);
                     }
                 }
             });
         }
-        fetch("{{ asset('packages/docs/js/data.json') }}")
-            .then(response => response.json())
-            .then(json => {
-                data = json;
-                index = lunr(function() {
-                    this.ref('id');
-                    this.field('title', {
-                        boost: 10
-                    });
-                    this.field('url');
-                    this.field('content');
-                    data.forEach(function(doc) {
-                        this.add(doc);
-                    }, this);
+        fetch("{{ asset('packages/docs/js/data.json') }}").then(response => response.json()).then(json => {
+            data = json;
+            index = lunr(function() {
+                this.ref('id');
+                this.field('title', {
+                    boost: 10
                 });
-            })
-            .catch(error => console.error('Error loading search data:', error));
-    });
-</script>
+                this.field('url');
+                this.field('content');
+                data.forEach(function(doc) {
+                    this.add(doc);
+                }, this);
+            });
+        }).catch(error => console.error('Error loading search data:', error.message));
 
-<script>
-    // Event handler untuk tombol dark mode toggle dan hapus dark-preload agar body tampil
-    document.addEventListener('DOMContentLoaded', function() {
+        // Handle dark mode toggle
         document.documentElement.classList.remove('dark-preload');
         const toggleButton = document.getElementById('dark-mode-toggle');
         if (toggleButton) {
