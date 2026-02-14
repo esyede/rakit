@@ -52,6 +52,7 @@ return [
     'Middleware' => 'System\Routing\Middleware',
     'Package' => 'System\Package',
     'Paginator' => 'System\Paginator',
+    'Pending' => 'System\Job\Pending',
     'Redirect' => 'System\Redirect',
     'Redis' => 'System\Redis',
     'Request' => 'System\Request',
