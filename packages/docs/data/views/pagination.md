@@ -175,7 +175,7 @@ the column you are sorting.
 
 The above example will produce URLs that look like this:
 
-```
+```html
 mysite.com/orders?page=2&sort=votes
 mysite.com/orders?page=3&sort=votes&order=desc
 ```

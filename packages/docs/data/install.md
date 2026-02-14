@@ -220,4 +220,3 @@ option in `application/config/application.php` to an empty string.
 
 > Every web server has a different method of handling HTTP rewrite,
 > and may also require different configuration rules.
-```

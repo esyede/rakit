@@ -75,7 +75,7 @@ For example, you might want to insert the JavaScript required by the nested view
 
 ```php
 <?php Section::start('scripts'); ?>
-	<script src="jquery.js"></script>
+	<script src="<?php echo asset('js/jquery.js'); ?>"></script>
 <?php Section::stop(); ?>
 ```
 

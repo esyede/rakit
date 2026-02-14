@@ -41,7 +41,7 @@
     -   [Download Responses](/docs/views#download-responses)
     -   [Error Responses](/docs/views#error-responses)
     -   [Templating](/docs/views/templating)
-    -   [Data Pagination](/docs/views/data-pagination)
+    -   [Data Pagination](/docs/views/pagination)
 -   [Input & Cookies](/docs/input) <!-- has-submenu -->
     -   [Input](/docs/input#input)
     -   [Files](/docs/input#files)
@@ -58,7 +58,7 @@
     -   [Package Assets](/docs/packages#package-assets)
     -   [Installing Packages](/docs/packages#installing-packages)
     -   [Upgrading Packages](/docs/packages#upgrading-packages)
-        -   [Removing Packages](/docs/packages#removing-packages)
+    -   [Removing Packages](/docs/packages#removing-packages)
 -   [Autoloading](/docs/autoloading)
 -   [Errors & Debugging](/docs/debugging)
 -   [Runtime Configuration](/docs/config)

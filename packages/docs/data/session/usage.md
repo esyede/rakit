@@ -1,11 +1,3 @@
-<file_path>
-rakit\packages\docs\data\session\usage.md
-</file_path>
-
-<edit_description>
-Translate usage.md to English
-</edit_description>
-
 # Using Session
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
@@ -129,10 +121,10 @@ public function action_store()
 {
     // Save data
     $user = User::create(Input::all());
-    
+
     // Flash success message
     Session::flash('message', 'User created successfully!');
-    
+
     return Redirect::to('users');
 }
 ```
@@ -185,14 +177,14 @@ Session::regenerate();
 public function action_login()
 {
     $credentials = Input::only('email', 'password');
-    
+
     if (Auth::attempt($credentials)) {
         // Regenerate session ID for security
         Session::regenerate();
-        
+
         return Redirect::to('dashboard');
     }
-    
+
     return Redirect::back()->with('error', 'Login failed!');
 }
 ```
@@ -214,9 +206,9 @@ $token = Session::token();
 ```php
 <form method="POST" action="/users">
     <input type="hidden" name="csrf_token" value="<?php echo Session::token(); ?>">
-    
+
     <!-- Form fields -->
-    
+
     <button type="submit">Submit</button>
 </form>
 ```

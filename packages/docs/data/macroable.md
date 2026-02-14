@@ -38,12 +38,10 @@ With this trait, you can:
 To make your class macroable, simply use the `Macroable` trait:
 
 ```php
-use System\Macroable;
-
 class MyClass
 {
     use Macroable;
-    
+
     public function existing_method()
     {
         return 'Original method';
@@ -59,8 +57,6 @@ Now the `MyClass` can accept new macros.
 Use the static `macro()` method to add a new method:
 
 ```php
-use System\Macroable;
-
 class Str
 {
     use Macroable;
@@ -121,13 +117,13 @@ Multiple parameters:
 ```php
 Str::macro('format_name', function ($first, $last, $middle = '') {
     $name = $first;
-    
+
     if ($middle) {
         $name .= ' ' . $middle;
     }
-    
+
     $name .= ' ' . $last;
-    
+
     return $name;
 });
 
@@ -153,21 +149,21 @@ class StringMixin
             return strrev($text);
         };
     }
-    
+
     public function shuffle()
     {
         return function ($text) {
             return str_shuffle($text);
         };
     }
-    
+
     public function truncate()
     {
         return function ($text, $length = 100, $suffix = '...') {
             if (strlen($text) <= $length) {
                 return $text;
             }
-            
+
             return substr($text, 0, $length) . $suffix;
         };
     }
@@ -224,20 +220,20 @@ When a macro is called from an instance, `$this` inside the closure will refer t
 class Calculator
 {
     use Macroable;
-    
+
     protected $value = 0;
-    
+
     public function __construct($value = 0)
     {
         $this->value = $value;
     }
-    
+
     public function add($number)
     {
         $this->value += $number;
         return $this;
     }
-    
+
     public function get_value()
     {
         return $this->value;
@@ -289,9 +285,9 @@ Str::macro('mask', function ($text, $char = '*', $start = 0, $length = null) {
     if ($length === null) {
         $length = strlen($text) - $start;
     }
-    
-    return substr($text, 0, $start) 
-        . str_repeat($char, $length) 
+
+    return substr($text, 0, $start)
+        . str_repeat($char, $length)
         . substr($text, $start + $length);
 });
 
@@ -308,8 +304,6 @@ echo Str::mask('johndoe@email.com', '*', 0, strpos('johndoe@email.com', '@'));
 Add custom methods to Collection:
 
 ```php
-use System\Collection;
-
 // Add method to extract values
 Collection::macro('to_select_options', function ($value, $label) {
     return $this->map(function ($item) use ($value, $label) {
@@ -362,11 +356,11 @@ Helper::macro('human_date', function ($date) {
 Helper::macro('random_string', function ($length = 10) {
     $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     $string = '';
-    
+
     for ($i = 0; $i < $length; $i++) {
         $string .= $chars[rand(0, strlen($chars) - 1)];
     }
-    
+
     return $string;
 });
 
@@ -414,7 +408,7 @@ Route::post('api/login', function () {
     if (!Auth::attempt(Input::only('email', 'password'))) {
         return Response::error('Invalid credentials', 401);
     }
-    
+
     return Response::success(['token' => Auth::user()->token]);
 });
 ```
@@ -432,7 +426,7 @@ Route::post('api/login', function () {
    ```php
    // Good
    Str::macro('to_slug', function ($text) { ... });
-   
+
    // Bad
    Str::macro('ts', function ($text) { ... });
    ```
@@ -441,7 +435,7 @@ Route::post('api/login', function () {
    ```php
    /**
     * Convert text to URL-friendly slug
-    * 
+    *
     * @param string $text
     * @return string
     */

@@ -1051,8 +1051,6 @@ php rakit route:call "POST /login" --data='{"email":"user@test.com","password":"
 **File: `application/routes.php`**
 
 ```php
-<?php
-
 // Home
 Route::get('/', ['as' => 'home', function () {
     return View::make('home');
@@ -1117,8 +1115,6 @@ Route::get('blog/(:any)', function ($slug) {
 **File: `application/middlewares.php`**
 
 ```php
-<?php
-
 // CSRF Protection
 Route::middleware('csrf', function () {
     if (Request::forged()) {

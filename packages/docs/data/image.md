@@ -378,5 +378,3 @@ Identicons are useful for:
 
 > The same identicon will always be generated from the same string,
 > so it's suitable for consistent avatars without needing to store images.
-
-```

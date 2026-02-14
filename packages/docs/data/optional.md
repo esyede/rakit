@@ -28,8 +28,6 @@ When you access a property or method from an object that is `null` through `Opti
 You can create an `Optional` instance in several ways:
 
 ```php
-use System\Optional;
-
 // Directly with constructor
 $optional = new Optional($value);
 

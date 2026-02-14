@@ -22,7 +22,8 @@
 
 ## Basic Knowledge
 
-Job System is a component for queuing and running tasks asynchronously (background processing). This system uses **auto-discovery** so you only need to create a Job class and it can be run directly without manual registration.
+Job System is a component for queuing and running tasks asynchronously (background processing).
+This system uses **auto-discovery** so you only need to create a Job class and it can be run directly without manual registration.
 
 The job system supports several drivers: **file**, **database**, **redis**, and **memcached**.
 
@@ -59,28 +60,23 @@ return [
 
 ## Creating Job Class
 
-Create files in the `application/jobs/` folder. All classes must extend `System\Job\Jobable`.
+Create files in the `application/jobs/` folder. All classes must extend `Jobable` class.
 
 ### Example: Send Email Job
 
-File: `application/jobs/SendEmail.php`
+File: `application/jobs/mailing.php`
 
 ```php
-<?php
-
-use System\Job\Jobable;
-use System\Mail;
-
-class SendEmail extends Jobable
+class Mailing_Job extends Jobable
 {
     public function run()
     {
         $to = $this->get('to');
         $subject = $this->get('subject');
         $view = $this->get('view', 'emails.notification');
-        $data = $this->get('data', array());
+        $data = $this->get('data', []);
 
-        Mail::send($view, $data, function($mail) use ($to, $subject) {
+        Mail::send('emails.notification', $data, function ($mail) use ($to, $subject) {
             $mail->to($to)->subject($subject);
         });
     }
@@ -89,15 +85,10 @@ class SendEmail extends Jobable
 
 ### Example: Process Upload Job
 
-File: `application/jobs/ProcessUpload.php`
+File: `application/jobs/upload.php`
 
 ```php
-<?php
-
-use System\Job\Jobable;
-use System\Log;
-
-class ProcessUpload extends Jobable
+class Upload_Job extends Jobable
 {
     public function run()
     {
@@ -105,12 +96,12 @@ class ProcessUpload extends Jobable
         $userId = $this->get('user_id');
 
         // Process file (resize, optimize, etc)
-        $this->processImage($file);
+        $this->process_image($file);
 
         Log::info('File processed: ' . $file);
     }
 
-    protected function processImage($file)
+    protected function process_image($file)
     {
         // Image processing logic
     }
@@ -119,15 +110,10 @@ class ProcessUpload extends Jobable
 
 ### Example: Generate Report Job
 
-File: `application/jobs/GenerateReport.php`
+File: `application/jobs/reporting.php`
 
 ```php
-<?php
-
-use System\Job\Jobable;
-use System\Database as DB;
-
-class GenerateReport extends Jobable
+class Reporting_Job extends Jobable
 {
     public function run()
     {
@@ -138,10 +124,10 @@ class GenerateReport extends Jobable
             ->where('date', $date)
             ->get();
 
-        $this->generatePDF($data, $type);
+        $this->generate_pdf($data, $type);
     }
 
-    protected function generatePDF($data, $type)
+    protected function generate_pdf($data, $type)
     {
         // PDF generation logic
         $filename = $type . '_report_' . $date . '.pdf';
@@ -162,21 +148,17 @@ When creating a Job class, you can use the following methods:
 -   `name()` - Static method to get job name
 
 ```php
-<?php
-
-use System\Job\Jobable;
-
-class MyJob extends Jobable
+class Sample_Job extends Jobable
 {
     public function run()
     {
         // Retrieve data from payload
         $userId = $this->get('user_id');
         $email = $this->get('email', 'default@example.com');
-        
+
         // Retrieve all data
         $allData = $this->data();
-        
+
         // Job logic here
     }
 }
@@ -190,31 +172,29 @@ class MyJob extends Jobable
 
 ```php
 // Simple dispatch
-SendEmail::dispatch([
+Mailing_Job::dispatch([
     'to' => 'user@example.com',
     'subject' => 'Welcome!',
     'view' => 'emails.welcome',
-    'data' => array('name' => 'John')
+    'data' => ['name' => 'John'],
 ]);
 ```
 
 ### Method 2: Via Job Facade
 
 ```php
-use System\Job;
-
 Job::dispatch('send-email', [
     'to' => 'user@example.com',
     'subject' => 'Welcome!'
 ])->on_queue('default');
 ```
 
-> **Note:** This method can still be used, but dispatching via Job Class (method 1) is more recommended.
+> **Note:** This method can still be used, but dispatching via Job class (method 1) is more recommended.
 
 ### Usage in Controller
 
 ```php
-class UserController extends BaseController
+class User_Controller extends Controller
 {
     public function action_register()
     {
@@ -224,12 +204,12 @@ class UserController extends BaseController
         $user->save();
 
         // Send welcome email
-        SendEmail::dispatch(array(
+        Mailing_Job::dispatch([
             'to' => $user->email,
-            'subject' => 'Welcome!',
+            'subject' => 'Welcome to our site!',
             'view' => 'emails.welcome',
-            'data' => array('user' => $user)
-        ));
+            'data' => ['name' => $user->name],
+        ]);
 
         return Redirect::to('login');
     }
@@ -242,12 +222,12 @@ class UserController extends BaseController
         move_uploaded_file($file['tmp_name'], $path);
 
         // Process in background
-        ProcessUpload::dispatch(array(
+        Upload_Job::dispatch([
             'file' => $path,
-            'user_id' => Auth::user()->id
-        ));
+            'user_id' => Auth::id(),
+        ]);
 
-        return Response::json(array('message' => 'Processing...'));
+        return Response::json(['message' => 'Processing...']);
     }
 }
 ```
@@ -295,10 +275,11 @@ This command will run a specific job based on name. Useful for testing or manual
 
 ### Return Value
 
-The `dispatch()` method will return a `System\Job\Pending` instance that can be chained with other methods like `on_queue()`, `without_overlapping()`, and `via()`.
+The `dispatch()` method will return a `System\Job\Pending` instance that can be
+chained with other methods like `on_queue()`, `without_overlapping()`, and `via()`.
 
 ```php
-$pending = SendEmail::dispatch([
+$pending = Mailing_Job::dispatch([
     'to' => 'user@example.com',
     'subject' => 'Welcome!',
 ]);
@@ -316,13 +297,13 @@ Use the `on_queue()` method to specify queue priority (which queue to use):
 
 ```php
 // High priority (critical)
-SendEmail::dispatch($data)->on_queue('high');
+Mailing_Job::dispatch($data)->on_queue('high');
 
 // Default priority (normal)
-SendEmail::dispatch($data)->on_queue('default');
+Mailing_Job::dispatch($data)->on_queue('default');
 
 // Low priority (background tasks)
-SendEmail::dispatch($data)->on_queue('low');
+Mailing_Job::dispatch($data)->on_queue('low');
 ```
 
 **Recommendations:**
@@ -338,10 +319,10 @@ Use `without_overlapping()` to prevent duplicate jobs from running simultaneousl
 
 ```php
 // Prevent duplicate report generation
-GenerateReport::dispatch(array(
+Reporting_Job::dispatch([
     'type' => 'monthly',
-    'month' => date('Y-m')
-))->without_overlapping();
+    'date' => date('Y-m-d'),
+])->without_overlapping();
 ```
 
 Useful for jobs that should only run once, such as generating reports or syncing data.
@@ -355,20 +336,20 @@ Useful for jobs that should only run once, such as generating reports or syncing
 ```php
 // Send email tomorrow at 10 AM (string format)
 $tomorrow = date('Y-m-d 10:00:00', strtotime('+1 day'));
-SendEmail::dispatch($data, $tomorrow);
+Mailing_Job::dispatch($data, $tomorrow);
 
 // Using dispatch_at() method
-SendEmail::dispatch_at('2024-12-31 10:00:00', $data);
+Mailing_Job::dispatch_at('2024-12-31 10:00:00', $data);
 
 // Using timestamp
-SendEmail::dispatch($data, time() + 3600); // 1 hour from now
+Mailing_Job::dispatch($data, time() + 3600); // 1 hour from now
 
 // Using DateTime object
 $datetime = new DateTime('2024-12-31 10:00:00');
-SendEmail::dispatch($data, $datetime);
+Mailing_Job::dispatch($data, $datetime);
 
 // Using Carbon (if available)
-SendEmail::dispatch($data, Carbon::now()->addMinutes(30));
+Mailing_Job::dispatch($data, Carbon::now()->addMinutes(30));
 ```
 
 Supported formats for the `$dispatch_at` parameter:
@@ -384,9 +365,9 @@ Supported formats for the `$dispatch_at` parameter:
 // Schedule cleanup tonight at 11 PM
 $tonight = date('Y-m-d 23:00:00');
 
-CleanupFiles::dispatch([
+Cleanup_Job::dispatch([
     'path' => path('storage') . 'temp',
-    'days' => 7
+    'days' => 7,
 ], $tonight)->on_queue('low')->without_overlapping();
 ```
 
@@ -394,20 +375,21 @@ CleanupFiles::dispatch([
 
 ## Choosing Driver
 
-By default, jobs will use the driver set in the configuration. However, you can choose a different driver for a specific job using the `via()` method:
+By default, jobs will use the driver set in the configuration.
+However, you can choose a different driver for a specific job using the `via()` method:
 
 ```php
 // Use file driver for this job
-SendEmail::dispatch($data)->via('file');
+Mailing_Job::dispatch($data)->via('file');
 
 // Use redis driver for this job
-ProcessUpload::dispatch($data)->via('redis');
+Upload_Job::dispatch($data)->via('redis');
 
 // Use database driver for this job
-GenerateReport::dispatch($data)->via('database');
+Reporting_Job::dispatch($data)->via('database');
 
 // Use memcached driver for this job
-CleanupFiles::dispatch($data)->via('memcached');
+Cleanup_Job::dispatch($data)->via('memcached');
 ```
 
 The `via()` method is useful when you want to:
@@ -419,7 +401,7 @@ The `via()` method is useful when you want to:
 
 ```php
 // Dispatch with all options
-SendEmail::dispatch([
+Mailing_Job::dispatch([
     'to' => 'user@example.com',
     'subject' => 'Welcome!',
 ], '2024-12-31 10:00:00')
@@ -557,9 +539,7 @@ If you are still using event-based, here's how to migrate:
 ```php
 // Old way (event-based)
 Event::listen('rakit.jobs.run: send-notification', function ($payload) {
-    Mail::send('emails.notification', $payload, function ($mail) use ($payload) {
-        $mail->to($payload['to'])->subject($payload['subject']);
-    });
+    // Send notification email logic here
 });
 
 Job::dispatch('send-notification', ['to' => 'user@example.com']);
@@ -567,19 +547,14 @@ Job::dispatch('send-notification', ['to' => 'user@example.com']);
 
 ```php
 // New way (class-based)
-// File: application/jobs/SendNotification.php
-<?php
-
-use System\Job\Jobable;
-use System\Mail;
-
-class SendNotification extends Jobable
+// File: application/jobs/notify.php
+class Notify_Job extends Jobable
 {
     public function run()
     {
         $to = $this->get('to');
         $subject = $this->get('subject');
-        
+
         Mail::send('emails.notification', $this->data(), function ($mail) use ($to, $subject) {
             $mail->to($to)->subject($subject);
         });
@@ -587,7 +562,7 @@ class SendNotification extends Jobable
 }
 
 // Dispatch
-SendNotification::dispatch(['to' => 'user@example.com', 'subject' => 'Hello']);
+Notify_Job::dispatch(['to' => 'user@example.com', 'subject' => 'Hello']);
 ```
 
 <a id="best-practices"></a>
@@ -597,8 +572,8 @@ SendNotification::dispatch(['to' => 'user@example.com', 'subject' => 'Hello']);
 ### 1. Keep Jobs Simple
 
 ```php
-// ✅ GOOD - Simple & focused
-class SendEmail extends Jobable
+// GOOD - Simple & focused
+class Mailing_Job extends Jobable
 {
     public function run()
     {
@@ -606,12 +581,12 @@ class SendEmail extends Jobable
     }
 }
 
-// ❌ BAD - Too complex
-class DoEverything extends Jobable
+// BAD - Too complex
+class Doall_Job extends Jobable
 {
     public function run()
     {
-        $this->sendEmail();
+        $this->notifyEmail();
         $this->updateDatabase();
         $this->callApi();
         $this->generateReport();
@@ -622,14 +597,14 @@ class DoEverything extends Jobable
 ### 2. Small Payload
 
 ```php
-// ✅ GOOD - Send ID only
-ProcessOrder::dispatch(['order_id' => $orderId]);
+// GOOD - Send ID only
+Ordering_Job::dispatch(['order_id' => $orderId]);
 
-// ❌ BAD - Send large object
-ProcessOrder::dispatch(['order' => $orderObject]);
+// BAD - Send large object
+Ordering_Job::dispatch(['order' => $orderObject]);
 ```
 
-**Reason:** 
+**Reason:**
 -   Payload is stored as a serialized string
 -   Large objects will increase database/file size
 -   Better to fetch data inside the job using ID
@@ -646,7 +621,7 @@ public function run()
         Log::error('Job failed: ' . $e->getMessage());
 
         // Notify admin if needed
-        SendEmail::dispatch([
+        Mailing_Job::dispatch([
             'to' => 'admin@example.com',
             'subject' => 'Job Failed',
             'view' => 'emails.job-failed',
@@ -665,14 +640,14 @@ public function run()
 
 ```php
 // Critical jobs
-SendVerificationEmail::dispatch($data)->on_queue('high');
-ProcessPayment::dispatch($data)->on_queue('high');
+Verifying_Job::dispatch($data)->on_queue('high');
+Pay_Job::dispatch($data)->on_queue('high');
 
 // Normal jobs
-SendNotification::dispatch($data)->on_queue('default');
+Notify_Job::dispatch($data)->on_queue('default');
 
 // Background tasks
-CleanupFiles::dispatch($data)->on_queue('low');
+Cleanup_Job::dispatch($data)->on_queue('low');
 UpdateStatistics::dispatch($data)->on_queue('low');
 ```
 
@@ -690,10 +665,10 @@ SyncExternalData::dispatch($data)->without_overlapping();
 
 ```php
 // Critical jobs - use redis (fast, in-memory)
-ProcessPayment::dispatch($data)->via('redis')->on_queue('high');
+Pay_Job::dispatch($data)->via('redis')->on_queue('high');
 
 // Normal jobs - use database (persistent, reliable)
-SendEmail::dispatch($data)->via('database');
+Mailing_Job::dispatch($data)->via('database');
 
 // Development/testing - use file (simple, no setup)
 TestJob::dispatch($data)->via('file');
@@ -708,13 +683,13 @@ LogEvent::dispatch($data)->via('memcached')->on_queue('low');
 public function run()
 {
     $startTime = microtime(true);
-    
+
     try {
         Log::info('Job started: ' . static::name(), $this->data());
-        
+
         // Process job
         $this->processData();
-        
+
         $duration = microtime(true) - $startTime;
         Log::info('Job completed: ' . static::name() . ' in ' . $duration . 's');
     } catch (\Exception $e) {
@@ -725,4 +700,3 @@ public function run()
 ```
 
 > **Tip:** Enable `'logging' => true` in job configuration for auto-logging.
-```

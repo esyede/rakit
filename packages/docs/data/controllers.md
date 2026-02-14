@@ -58,8 +58,6 @@ Controllers are stored in the `application/controllers/` folder and must extend 
 The simplest controller:
 
 ```php
-<?php
-
 class Home_Controller extends Controller
 {
     public function action_index()
@@ -77,8 +75,6 @@ class Home_Controller extends Controller
 Actions are methods in the controller that can be accessed from the web. Actions must be prefixed with `action_`:
 
 ```php
-<?php
-
 class User_Controller extends Controller
 {
     // URL: /user
@@ -110,8 +106,6 @@ class User_Controller extends Controller
 **Action with parameters:**
 
 ```php
-<?php
-
 class Post_Controller extends Controller
 {
     // URL: /post/show/123
@@ -206,7 +200,7 @@ Route::controller(Controller::detect());
 ```
 
 **URL Convention with auto routing:**
-```
+```bash
 /{controller}/{action}/{param1}/{param2}/...
 ```
 
@@ -240,8 +234,6 @@ Route::post('password/email', 'password@email');
 Set the `$restful = true` property to use RESTful convention:
 
 ```php
-<?php
-
 class User_Controller extends Controller
 {
     public $restful = true;
@@ -323,8 +315,6 @@ Request routing automatically:
 Resource controller for standard CRUD operations:
 
 ```php
-<?php
-
 class Post_Controller extends Controller
 {
     // GET /posts
@@ -421,8 +411,6 @@ Route::resource('posts', ['controller' => 'blog.post']);
 Middleware executed before action:
 
 ```php
-<?php
-
 class Admin_Controller extends Controller
 {
     public function __construct()
@@ -449,8 +437,6 @@ class Admin_Controller extends Controller
 Middleware executed after action:
 
 ```php
-<?php
-
 class Api_Controller extends Controller
 {
     public function __construct()
@@ -472,8 +458,6 @@ class Api_Controller extends Controller
 **Apply middleware only to specific actions:**
 
 ```php
-<?php
-
 class Post_Controller extends Controller
 {
     public function __construct()
@@ -507,8 +491,6 @@ class Post_Controller extends Controller
 **Specify HTTP method:**
 
 ```php
-<?php
-
 class Form_Controller extends Controller
 {
     public function __construct()
@@ -539,8 +521,6 @@ class Form_Controller extends Controller
 ### Middleware with Parameter
 
 ```php
-<?php
-
 class Admin_Controller extends Controller
 {
     public function __construct()
@@ -559,8 +539,6 @@ class Admin_Controller extends Controller
 **Multiple middleware:**
 
 ```php
-<?php
-
 class Secure_Controller extends Controller
 {
     public function __construct()
@@ -593,8 +571,6 @@ application/
 **File: `application/controllers/admin/user.php`**
 
 ```php
-<?php
-
 class Admin_User_Controller extends Controller
 {
     public function __construct()
@@ -632,8 +608,6 @@ Route::controller(Controller::detect());
 ### Defining Layout
 
 ```php
-<?php
-
 class Base_Controller extends Controller
 {
     public $layout = 'layouts.master';
@@ -653,8 +627,6 @@ class Base_Controller extends Controller
 ### Using Layout
 
 ```php
-<?php
-
 class Home_Controller extends Base_Controller
 {
     public $layout = 'layouts.master';
@@ -701,8 +673,6 @@ class Home_Controller extends Base_Controller
 ### Nested Layout
 
 ```php
-<?php
-
 class User_Controller extends Controller
 {
     public $layout = 'layouts.user';
@@ -724,8 +694,6 @@ Controllers support dependency injection via constructor and methods:
 **Constructor injection:**
 
 ```php
-<?php
-
 use System\Database\Database;
 use System\Cache\Cache;
 
@@ -756,8 +724,6 @@ class User_Controller extends Controller
 **Method injection:**
 
 ```php
-<?php
-
 class Post_Controller extends Controller
 {
     public function action_show($id, Request $request, Cache $cache)
@@ -805,8 +771,6 @@ Controllers for packages with package name prefix:
 **File: `packages/admin/controllers/home.php`**
 
 ```php
-<?php
-
 class Admin_Home_Controller extends Controller
 {
     public function action_index()
@@ -843,8 +807,6 @@ return [
 **File: `application/controllers/post.php`**
 
 ```php
-<?php
-
 class Post_Controller extends Controller
 {
     public $layout = 'layouts.app';
@@ -1056,8 +1018,6 @@ class Post_Controller extends Controller
 **File: `application/controllers/base.php`**
 
 ```php
-<?php
-
 abstract class Base_Controller extends Controller
 {
     public $layout = 'layouts.master';

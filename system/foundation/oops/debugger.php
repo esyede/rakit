@@ -281,6 +281,7 @@ class Debugger
             ini_set('session.use_trans_sid', '0');
             ini_set('session.cookie_path', '/');
             ini_set('session.cookie_httponly', '1');
+            ini_set('session.name', 'rakit_debugger');
             session_start();
         }
 

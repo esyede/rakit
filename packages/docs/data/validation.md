@@ -118,7 +118,6 @@ class User_Controller extends Controller
 
 Now you are familiar with the basic usage of the `Validator` class. It's time to delve deeper
 into what rules you can use to validate your data!
-```
 
 #### Define validation rules for each data:
 

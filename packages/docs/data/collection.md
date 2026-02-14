@@ -4,7 +4,6 @@
 
 - [Basic Knowledge](#basic-knowledge)
 - [Creating Collections](#creating-collections)
-- [Available Methods](#available-methods)
 - [Method Reference](#method-reference)
   - [all()](#all)
   - [avg() / average()](#avg--average)
@@ -89,56 +88,6 @@ $users = DB::table('users')->get(); // Returns Collection
 $collection = collect(['item1', 'item2']); // Shortcut for new Collection()
 ```
 
-<a id="available-methods"></a>
-
-## Available Methods
-
-Here is a list of methods available in Collection:
-
-- all()
-- avg() / average()
-- collapse()
-- contains()
-- diff()
-- each()
-- filter()
-- first()
-- flatten()
-- forget()
-- get()
-- group_by()
-- key_by()
-- implode()
-- is_empty()
-- keys()
-- last()
-- map()
-- max()
-- median()
-- merge()
-- min()
-- pluck()
-- pop()
-- prepend()
-- pull()
-- push()
-- put()
-- reduce()
-- reject()
-- reverse()
-- search()
-- shuffle()
-- slice()
-- sort()
-- sort_by()
-- sum()
-- take()
-- to_array()
-- to_json()
-- unique()
-- values()
-- where()
-- zip()
 
 <a id="method-reference"></a>
 
