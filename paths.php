@@ -109,7 +109,7 @@ function set_path($path, $value)
 }
 
 // --------------------------------------------------------------
-// Polyfill for Throwable interface (PHP < 7.0).
+// Polyfill for newer PHP versions.
 // --------------------------------------------------------------
 
 if (PHP_VERSION_ID < 70000) {
@@ -125,10 +125,6 @@ if (PHP_VERSION_ID < 70000) {
         public function __toString();
     }
 }
-
-// --------------------------------------------------------------
-// Polyfill for Attribute interface (PHP < 8.0).
-// --------------------------------------------------------------
 
 if (PHP_VERSION_ID < 80000) {
     final class Attribute
