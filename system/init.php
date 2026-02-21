@@ -11,7 +11,7 @@ defined('DS') or exit('No direct access.');
 | Ensure the key.php file exists in the base path, create it if it doesn't.
 */
 
-$dir = __DIR__ . DS . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . 'key';
+$dir = __DIR__ . DS . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger';
 
 if (is_file($path = path('rakit_key'))) {
     $error = null;
