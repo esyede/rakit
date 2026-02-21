@@ -174,20 +174,11 @@ class Job
     protected static function factory($driver)
     {
         switch ($driver) {
-            case 'file':
-                return new Job\Drivers\File(path('storage') . 'jobs' . DS);
-
-            case 'database':
-                return new Job\Drivers\Database();
-
-            case 'redis':
-                return new Job\Drivers\Redis(Redis::db());
-
-            case 'memcached':
-                return new Job\Drivers\Memcached(Memcached::connection());
-
-            default:
-                throw new \Exception(sprintf('Unsupported job driver: %s', $driver));
+            case 'file':      return new Job\Drivers\File(path('storage') . 'jobs' . DS);
+            case 'database':  return new Job\Drivers\Database();
+            case 'redis':     return new Job\Drivers\Redis(Redis::db());
+            case 'memcached': return new Job\Drivers\Memcached(Memcached::connection());
+            default:          throw new \Exception(sprintf('Unsupported job driver: %s', $driver));
         }
     }
 

@@ -53,14 +53,9 @@ class Auth
         }
 
         switch ($driver) {
-            case 'magic':
-                return new Auth\Drivers\Magic(Config::get('auth.table'));
-
-            case 'facile':
-                return new Auth\Drivers\Facile(Config::get('auth.model'));
-
-            default:
-                throw new \Exception(sprintf('Unsupported auth driver: %s', $driver));
+            case 'magic':  return new Auth\Drivers\Magic(Config::get('auth.table'));
+            case 'facile': return new Auth\Drivers\Facile(Config::get('auth.model'));
+            default:       throw new \Exception(sprintf('Unsupported auth driver: %s', $driver));
         }
     }
 
