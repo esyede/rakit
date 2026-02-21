@@ -11,12 +11,16 @@ ob_start();
 define('RAKIT_START', microtime(true));
 
 // --------------------------------------------------------------
-// Definisikan konstanta untuk directory separator.
+// Define some useful constants
 // --------------------------------------------------------------
 define('DS', DIRECTORY_SEPARATOR);
+define('CRLF', "\r\n");
+define('TAB', "\t");
+define('CR', "\r");
+define('LF', "\n");
 
 // --------------------------------------------------------------
-// Include the framework's path constants
+// Include the framework's path definitions
 // --------------------------------------------------------------
 require __DIR__ . DS . 'paths.php';
 

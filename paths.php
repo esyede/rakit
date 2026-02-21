@@ -2,14 +2,6 @@
 
 defined('DS') or exit('No direct access.');
 
-// --------------------------------------------------------------
-// Define special character constants.
-// --------------------------------------------------------------
-define('CRLF', "\r\n");
-define('TAB', "\t");
-define('CR', "\r");
-define('LF', "\n");
-
 /*
 |----------------------------------------------------------------
 | Application Environments

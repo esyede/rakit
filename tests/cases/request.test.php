@@ -12,7 +12,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        defined('RAKIT_START') or define('RAKIT_START', microtime(true));
         $this->restartRequest();
     }
 
