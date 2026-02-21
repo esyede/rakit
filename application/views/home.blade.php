@@ -59,12 +59,36 @@
             top: 18px;
         }
 
+        .donate {
+            position: absolute;
+            left: 5px;
+            bottom: 5px;
+            z-index: 10;
+        }
+
+        @media (max-width: 768px) {
+            .donate {
+                left: auto;
+                bottom: auto;
+                right: 5px;
+                top: 5px;
+            }
+
+            .top-right {
+                top: 50px;
+            }
+        }
+
         .content {
             text-align: center;
         }
 
         .title {
             font-size: 84px;
+        }
+
+        @media (max-width: 600px) {
+            .title { font-size: 50px; }
         }
 
         .links>a {
@@ -106,6 +130,12 @@
                 <a href="https://github.com/esyede/rakit/discussions">Forum</a>
                 <a href="https://github.com/esyede/rakit">GitHub</a>
             </div>
+        </div>
+
+        <div class="donate">
+            <a href='https://ko-fi.com/A0A61UOVND' target='_blank'>
+                <img height='26' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee' />
+            </a>
         </div>
     </div>
 </body>

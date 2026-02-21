@@ -58,6 +58,9 @@ For the latest updates, check out the [official website](https://rakit.esyede.my
 
 Help shape Rakit! Submit pull requests to the [official repository](https://github.com/esyede/rakit)
 or join discussions in our [forum](https://github.com/esyede/rakit/discussions) to assist fellow developers.
+You can also donate to support ongoing development and maintenance. Every contribution, big or small, is appreciated!
+
+<a href='https://ko-fi.com/A0A61UOVND' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
 
 
 ## License
