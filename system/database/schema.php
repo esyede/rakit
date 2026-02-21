@@ -7,7 +7,6 @@ defined('DS') or exit('No direct access.');
 use System\Config;
 use System\Magic;
 use System\Database as DB;
-use System\Str;
 
 class Schema
 {
@@ -44,34 +43,31 @@ class Schema
 
         switch ($driver) {
             case 'mysql':
-                $query = 'SELECT table_name FROM information_schema.tables' .
-                    " WHERE table_type='BASE TABLE' AND table_schema=" . $database .
-                    " AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
+                $query = 'SELECT table_name FROM information_schema.tables'
+                    . " WHERE table_type='BASE TABLE' AND table_schema=" . $database
+                    . " AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
                 break;
 
             case 'pgsql':
-                $query = 'SELECT table_name FROM information_schema.tables' .
-                    " WHERE table_schema='public' AND table_type='BASE TABLE'";
+                $query = 'SELECT table_name FROM information_schema.tables'
+                    . " WHERE table_schema='public' AND table_type='BASE TABLE'";
                 break;
 
             case 'sqlite':
-                $query = "SELECT name FROM sqlite_master " .
-                    "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' " .
-                    "UNION ALL SELECT name FROM sqlite_temp_master " .
-                    "WHERE type IN ('table','view') ORDER BY 1";
+                $query = "SELECT name FROM sqlite_master "
+                    . "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' "
+                    . "UNION ALL SELECT name FROM sqlite_temp_master "
+                    . "WHERE type IN ('table','view') ORDER BY 1";
                 break;
 
             case 'sqlsrv':
-                $query = 'SELECT table_name FROM information_schema.tables' .
-                    " WHERE table_type='BASE TABLE' AND table_catalog=" . $database .
-                    " AND table_name <> 'sysdiagrams'";
+                $query = 'SELECT table_name FROM information_schema.tables'
+                    . " WHERE table_type='BASE TABLE' AND table_catalog=" . $database
+                    . " AND table_name <> 'sysdiagrams'";
                 break;
 
             default:
-                throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s',
-                    $driver
-                ));
+                throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
                 break;
         }
 
@@ -101,13 +97,13 @@ class Schema
 
         switch ($driver) {
             case 'mysql':
-                $query = 'SELECT column_name FROM information_schema.columns ' .
-                    'WHERE table_schema=' . $database . ' AND table_name=' . $table;
+                $query = 'SELECT column_name FROM information_schema.columns '
+                    . 'WHERE table_schema=' . $database . ' AND table_name=' . $table;
                 break;
 
             case 'pgsql':
-                $query = 'SELECT column_name FROM information_schema.columns ' .
-                    'WHERE table_schema=' . $database . ' AND table_name=' . $table;
+                $query = 'SELECT column_name FROM information_schema.columns '
+                    . 'WHERE table_schema=' . $database . ' AND table_name=' . $table;
                 break;
 
             case 'sqlite':
@@ -115,15 +111,12 @@ class Schema
                 break;
 
             case 'sqlsrv':
-                $query = 'SELECT column_name FROM information_schema.columns ' .
-                    'WHERE table_schema=N' . $database . ' AND table_name=N' . $table;
+                $query = 'SELECT column_name FROM information_schema.columns '
+                    . 'WHERE table_schema=N' . $database . ' AND table_name=N' . $table;
                 break;
 
             default:
-                throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s',
-                    $driver
-                ));
+                throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
                 break;
         }
 
@@ -188,15 +181,12 @@ class Schema
                 break;
 
             case 'sqlsrv':
-                $query = 'EXEC sp_msforeachtable @command1="print \'' . $table . '\'", ' .
-                    '@command2="ALTER TABLE ' . $table . ' WITH CHECK CHECK CONSTRAINT all";';
+                $query = 'EXEC sp_msforeachtable @command1="print \'' . $table . '\'",'
+                    . ' @command2="ALTER TABLE ' . $table . ' WITH CHECK CHECK CONSTRAINT all";';
                 break;
 
             default:
-                throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s',
-                    $driver
-                ));
+                throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
                 break;
         }
 
@@ -239,10 +229,7 @@ class Schema
                 break;
 
             default:
-                throw new \Exception(sprintf(
-                    'Unsupported schema operations for selected driver: %s',
-                    $driver
-                ));
+                throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
                 break;
         }
 
@@ -395,10 +382,7 @@ class Schema
             case 'pgsql':  return new Schema\Grammars\Postgres($connection);
             case 'sqlsrv': return new Schema\Grammars\SQLServer($connection);
             case 'sqlite': return new Schema\Grammars\SQLite($connection);
-            default:       throw new \Exception(sprintf(
-                'Unsupported schema operations for selected driver: %s',
-                $driver
-            ));
+            default:       throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
         }
     }
 }
