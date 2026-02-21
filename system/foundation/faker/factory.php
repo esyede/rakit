@@ -28,8 +28,9 @@ class Factory
         }
 
         $generator = new Generator();
+        $providers = static::$providers;
 
-        foreach (static::$providers as $provider) {
+        foreach ($providers as $provider) {
             $class = self::getProviderClassname($provider, $locale);
             $generator->addProvider(new $class($generator));
         }
