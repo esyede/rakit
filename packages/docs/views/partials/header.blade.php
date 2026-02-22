@@ -17,8 +17,8 @@
         }
     </script>
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-    <link rel="stylesheet" href="{{ asset('packages/docs/css/docs.css?v=' . RAKIT_VERSION) }}">
-    <link rel="stylesheet" href="{{ asset('packages/docs/css/dark.css?v=' . RAKIT_VERSION) }}">
+    <link rel="stylesheet" href="{{ asset('packages/docs/css/docs.min.css?v=' . RAKIT_VERSION) }}">
+    <link rel="stylesheet" href="{{ asset('packages/docs/css/dark.min.css?v=' . RAKIT_VERSION) }}">
     <title>Rakit :: Documentation ~ {{ $title }}</title>
 
     <style>

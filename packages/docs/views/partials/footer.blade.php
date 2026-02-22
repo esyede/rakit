@@ -18,9 +18,9 @@
 </footer>
 <!-- Footer end -->
 
-<script src="{{ asset('packages/docs/js/docs.js?v=' . RAKIT_VERSION) }}"></script>
+<script src="{{ asset('packages/docs/js/docs.min.js?v=' . RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/es5-shim.min.js?v=' . RAKIT_VERSION) }}"></script>
-<script src="{{ asset('packages/docs/js/lunr.js?v=' . RAKIT_VERSION) }}"></script>
+<script src="{{ asset('packages/docs/js/lunr.min.js?v=' . RAKIT_VERSION) }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var index;
@@ -138,7 +138,7 @@
                 }
             });
         }
-        fetch("{{ asset('packages/docs/js/data.json') }}").then(response => response.json()).then(json => {
+        fetch("{{ url('docs/search') }}").then(response => response.json()).then(json => {
             data = json;
             index = lunr(function() {
                 this.ref('id');

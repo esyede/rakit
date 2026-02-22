@@ -58,4 +58,4 @@ yarn-error.log
 *.phar
 
 # Docs search index (auto-generated)
-assets/packages/docs/js/data.json
+storage/docs-search-data.json

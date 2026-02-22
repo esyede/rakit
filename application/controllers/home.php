@@ -9,7 +9,7 @@ class Home_Controller extends Controller
      */
     public function __construct()
     {
-        $this->middleware('before', 'csrf');
+        // $this->middleware('before', 'csrf|throttle:60,1')->on('post');
     }
 
     /**

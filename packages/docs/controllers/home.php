@@ -3,6 +3,7 @@
 defined('DS') or exit('No direct access.');
 
 use Docs\Libraries\Docs;
+use System\Response;
 
 class Docs_Home_Controller extends Controller
 {
@@ -18,7 +19,7 @@ class Docs_Home_Controller extends Controller
      */
     public function __construct()
     {
-        $this->middleware('before', 'csrf')->on('post');
+        // $this->middleware('before', 'csrf|throttle:60,1')->on('post');
         Docs::ensure_search_data_exists();
     }
 
@@ -42,7 +43,7 @@ class Docs_Home_Controller extends Controller
      * @param string $section
      * @param string $page
      *
-     * @return Response
+     * @return View
      */
     public function get_page($section, $page = null)
     {
@@ -57,5 +58,16 @@ class Docs_Home_Controller extends Controller
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
             ->with_content(Docs::content(Docs::render($file)))
             ->with_file($file);
+    }
+
+    /**
+     * Handle GET /docs/search.
+     *
+     * @return Response
+     */
+    public function get_search()
+    {
+        $data = file_get_contents(path('storage') . 'docs-search-data.json');
+        return Response::json(json_decode($data, true));
     }
 }

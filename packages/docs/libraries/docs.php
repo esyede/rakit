@@ -120,12 +120,10 @@ class Docs
     public static function ensure_search_data_exists()
     {
         $srcdir = dirname(__DIR__) . DS . 'data';
-        $destfile = path('assets') . 'packages' . DS . 'docs' . DS . 'js' . DS . 'data.json';
-        $cache_key = 'docs.search_data_mtime';
-        $current_mtime = static::get_directory_mtime($srcdir);
+        $destfile = path('storage') . 'docs-search-data.json';
+        $mtime = static::get_directory_mtime($srcdir);
 
-        $cached_mtime = Cache::get($cache_key);
-        if ($cached_mtime !== $current_mtime || !is_file($destfile)) {
+        if (Cache::get('docs.search_data_mtime') !== $mtime || !is_file($destfile)) {
             $files = static::get_markdown_files($srcdir);
             $documents = [];
 
@@ -145,7 +143,7 @@ class Docs
             }
 
             file_put_contents($destfile, json_encode($documents));
-            Cache::forever($cache_key, $current_mtime);
+            Cache::forever('docs.search_data_mtime', $mtime);
         }
     }
 
