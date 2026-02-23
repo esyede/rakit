@@ -204,38 +204,18 @@ class Carbon extends \DateTime
         ];
 
         switch (true) {
-            case array_key_exists($name, $formats):
-                return intval($this->format($formats[$name]));
+            case array_key_exists($name, $formats): return intval($this->format($formats[$name]));
 
-            case $name === 'weekOfMonth':
-                return intval(ceil($this->day / 7));
-
-            case $name === 'age':
-                return intval($this->diffInYears());
-
-            case $name === 'quarter':
-                return intval(ceil($this->month / 3));
-
-            case $name === 'offset':
-                return $this->getOffset();
-
-            case $name === 'offsetHours':
-                return $this->getOffset() / 60 / 60;
-
-            case $name === 'dst':
-                return $this->format('I') === '1';
-
-            case $name === 'utc':
-                return $this->offset === 0;
-
-            case $name === 'timezone' || $name === 'tz':
-                return $this->getTimezone();
-
-            case $name === 'timezoneName' || $name === 'tzName':
-                return $this->getTimezone()->getName();
-
-            default:
-                throw new \Exception(sprintf("Unknown getter '%s'", $name));
+            case $name === 'weekOfMonth':                        return intval(ceil($this->day / 7));
+            case $name === 'age':                                return intval($this->diffInYears());
+            case $name === 'quarter':                            return intval(ceil($this->month / 3));
+            case $name === 'offset':                             return $this->getOffset();
+            case $name === 'offsetHours':                        return $this->getOffset() / 60 / 60;
+            case $name === 'dst':                                return $this->format('I') === '1';
+            case $name === 'utc':                                return $this->offset === 0;
+            case $name === 'timezone' || $name === 'tz':         return $this->getTimezone();
+            case $name === 'timezoneName' || $name === 'tzName': return $this->getTimezone()->getName();
+            default:                                             throw new \Exception(sprintf("Unknown getter '%s'", $name));
         }
     }
 
@@ -255,41 +235,16 @@ class Carbon extends \DateTime
     public function __set($name, $value)
     {
         switch ($name) {
-            case 'year':
-                $this->setDate($value, $this->month, $this->day);
-                break;
-
-            case 'month':
-                $this->setDate($this->year, $value, $this->day);
-                break;
-
-            case 'day':
-                $this->setDate($this->year, $this->month, $value);
-                break;
-
-            case 'hour':
-                $this->setTime($value, $this->minute, $this->second);
-                break;
-
-            case 'minute':
-                $this->setTime($this->hour, $value, $this->second);
-                break;
-
-            case 'second':
-                $this->setTime($this->hour, $this->minute, $value);
-                break;
-
-            case 'timestamp':
-                parent::setTimestamp($value);
-                break;
-
-            case 'timezone':
             case 'tz':
-                $this->setTimezone($value);
-                break;
-
-            default:
-                throw new \Exception(sprintf("Unknown setter '%s'", $name));
+            case 'timezone':  $this->setTimezone($value); break;
+            case 'timestamp': parent::setTimestamp($value); break;
+            case 'year':      $this->setDate($value, $this->month, $this->day); break;
+            case 'month':     $this->setDate($this->year, $value, $this->day); break;
+            case 'day':       $this->setDate($this->year, $this->month, $value); break;
+            case 'hour':      $this->setTime($value, $this->minute, $this->second); break;
+            case 'minute':    $this->setTime($this->hour, $value, $this->second); break;
+            case 'second':    $this->setTime($this->hour, $this->minute, $value); break;
+            default:          throw new \Exception(sprintf("Unknown setter '%s'", $name));
         }
     }
 
