@@ -35,6 +35,7 @@
     -   [Str::replace_last\(\)](#strreplace_last)
     -   [Str::singular\(\)](#strsingular)
     -   [Str::slug\(\)](#strslug)
+    -   [Str::accentless\(\)](#straccentless)
     -   [Str::snake\(\)](#strsnake)
     -   [Str::start\(\)](#strstart)
     -   [Str::starts_with\(\)](#strstarts_with)
@@ -470,6 +471,17 @@ This method converts the given string to a URL-friendly string:
 
 ```php
 $slug = Str::slug('Hello World', '-'); // hello-world
+```
+
+<a id="straccentless"></a>
+
+### Str::accentless()
+
+This method removes accents from the given string:
+
+```php
+Str::accentless('ÀÂÄÈÊËÎÏÔŒÙÛÜŸ'); // AAAeEEEIIOOEUUUeY
+Str::accentless('á é í ó ú ñ ü'); // a e i o u n ue
 ```
 
 <a id="strsnake"></a>
