@@ -188,6 +188,12 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('', Str::slug(''));
     }
 
+    public function testAccentless()
+    {
+        $this->assertSame('AAAeEEEIIOOEUUUeY', Str::accentless('ÀÂÄÈÊËÎÏÔŒÙÛÜŸ'));
+        $this->assertSame('a e i o u n ue', Str::accentless('á é í ó ú ñ ü'));
+    }
+
     public function testStrStart()
     {
         $this->assertSame('/test/string', Str::start('test/string', '/'));
