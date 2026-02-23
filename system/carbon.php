@@ -204,8 +204,7 @@ class Carbon extends \DateTime
         ];
 
         switch (true) {
-            case array_key_exists($name, $formats): return intval($this->format($formats[$name]));
-
+            case array_key_exists($name, $formats):              return intval($this->format($formats[$name]));
             case $name === 'weekOfMonth':                        return intval(ceil($this->day / 7));
             case $name === 'age':                                return intval($this->diffInYears());
             case $name === 'quarter':                            return intval(ceil($this->month / 3));
