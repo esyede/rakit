@@ -49,15 +49,8 @@ class Clear extends Command
         $files = glob(path('storage') . 'logs' . DS . '*');
 
         if (is_array($files) && count($files) > 0) {
-            $preserves = [
-                '.gitignore',
-                '.htaccess',
-                'index.html',
-                'index.php',
-            ];
-
             foreach ($files as $file) {
-                if (!in_array(basename((string) $file), $preserves)) {
+                if (!in_array(basename((string) $file), ['.gitignore', '.htaccess', 'index.html', 'index.php'])) {
                     @unlink($file);
                 }
             }

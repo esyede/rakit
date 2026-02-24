@@ -338,7 +338,7 @@ class Request
         if (0 === stripos($auth, 'Bearer ')) {
             $token = mb_substr($auth, 7, null, '8bit');
 
-            // Validasi token: diisi dan hanya karakter aman
+            // Validate token: filled and only safe characters
             if (!empty($token) && preg_match('/^[A-Za-z0-9\-_\.\+\/=]+$/', $token)) {
                 return $token;
             }

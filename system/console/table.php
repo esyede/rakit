@@ -84,7 +84,6 @@ class Table
         }
 
         $this->data[$row][$column] = $content;
-
         return $this;
     }
 
@@ -210,22 +209,18 @@ class Table
         $output = '';
 
         if (isset($this->data[0])) {
-            $columnCount = count($this->data[0]);
+            $count = count($this->data[0]);
         } elseif (isset($this->data[self::HEADER_INDEX])) {
-            $columnCount = count($this->data[self::HEADER_INDEX]);
+            $count = count($this->data[self::HEADER_INDEX]);
         } else {
             return $output;
         }
 
-        for ($column = 0; $column < $columnCount; $column++) {
+        for ($column = 0; $column < $count; $column++) {
             $output .= $this->get_cell_output($column);
         }
 
-        if ($this->border) {
-            $output .= '+';
-        }
-
-        return $output . PHP_EOL;
+        return $output . ($this->border ? '+' : '') . PHP_EOL;
     }
 
     /**
@@ -316,8 +311,7 @@ class Table
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
             $repeat = str_repeat((string) $content, ceil($length / $padlen));
-            $result = mb_substr($repeat, 0, floor($length), 'UTF-8') .
-                $str . mb_substr($repeat, 0, ceil($length), 'UTF-8');
+            $result = mb_substr($repeat, 0, floor($length), 'UTF-8') . $str . mb_substr($repeat, 0, ceil($length), 'UTF-8');
         }
 
         return $result;

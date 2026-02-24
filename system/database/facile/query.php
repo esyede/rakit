@@ -39,34 +39,10 @@ class Query
      * @var array
      */
     public $passthru = [
-        'lists',
-        'only',
-        'get',
-        'first',
-        'find',
-        'find_or_fail',
-        'first_or_fail',
-        'paginate',
-        'count',
-        'insert',
-        'insert_get_id',
-        'update',
-        'increment',
-        'delete',
-        'decrement',
-        'min',
-        'max',
-        'avg',
-        'sum',
-        'order_by',
-        'where_in',
-        'where_not_in',
-        'or_where_in',
-        'or_where_not_in',
-        'to_sql',
-        'debug',
-        'exists',
-        'doesnt_exist',
+        'lists', 'only', 'get', 'first', 'find', 'find_or_fail', 'first_or_fail', 'paginate',
+        'count', 'insert', 'insert_get_id', 'update', 'increment', 'delete', 'decrement',
+        'min', 'max', 'avg', 'sum', 'order_by', 'where_in', 'where_not_in', 'or_where_in',
+        'or_where_not_in', 'to_sql', 'debug', 'exists', 'doesnt_exist',
     ];
 
     /**

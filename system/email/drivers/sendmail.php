@@ -15,19 +15,14 @@ class Sendmail extends Driver
     {
         try {
             $message = $this->build();
-            $retpath = (false !== $this->config['return_path'])
-                ? $this->config['return_path']
-                : $this->config['from']['email'];
-
+            $retpath = (false !== $this->config['return_path']) ? $this->config['return_path'] : $this->config['from']['email'];
             $handle = popen($this->config['sendmail_binary'] . ' -oi -f ' . $retpath . ' -t', 'w');
 
             fputs($handle, $message['header']);
             fputs($handle, $message['body']);
 
             if (-1 === pclose($handle)) {
-                throw new \Exception(
-                    'Failed sending email through sendmail: process file pointer fails'
-                );
+                throw new \Exception('Failed sending email through sendmail: process file pointer fails');
             }
 
             return true;

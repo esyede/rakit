@@ -64,10 +64,7 @@ class Make extends Command
             $directory = Str::replace_last(basename($file), '', $file);
             $this->makedir($directory);
 
-            $replace = [
-                'stub_class' => Package::class_prefix($package) . Str::classify($class),
-            ];
-
+            $replace = ['stub_class' => Package::class_prefix($package) . Str::classify($class)];
             Storage::put($file, $this->stub_general($class, 'controller', $replace));
 
             echo $this->info('Created controller: ' . $display);
@@ -294,10 +291,7 @@ class Make extends Command
         } else {
             $this->makedir($directory);
 
-            $replace = [
-                'stub_class' => Package::class_prefix($package) . Str::classify($class) . '_Command',
-            ];
-
+            $replace = ['stub_class' => Package::class_prefix($package) . Str::classify($class) . '_Command'];
             Storage::put($file, $this->stub_general($class, 'command', $replace));
 
             echo $this->info('Created command: ' . $display);
@@ -359,10 +353,7 @@ class Make extends Command
         } else {
             $this->makedir($directory);
 
-            $replace = [
-                'stub_class' => Package::class_prefix($package) . Str::classify($class) . '_Job',
-            ];
-
+            $replace = ['stub_class' => Package::class_prefix($package) . Str::classify($class) . '_Job'];
             Storage::put($file, $this->stub_general($class, 'job', $replace));
 
             echo $this->info('Created job: ' . $display);

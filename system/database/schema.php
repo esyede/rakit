@@ -212,25 +212,11 @@ class Schema
         $driver = $connection->driver();
 
         switch ($driver) {
-            case 'mysql':
-                $query = 'SET FOREIGN_KEY_CHECKS=0;';
-                break;
-
-            case 'pgsql':
-                $query = 'SET CONSTRAINTS ALL DEFERRED;';
-                break;
-
-            case 'sqlite':
-                $query = 'PRAGMA foreign_keys = OFF;';
-                break;
-
-            case 'sqlsrv':
-                $query = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";';
-                break;
-
-            default:
-                throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
-                break;
+            case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=0;'; break;
+            case 'pgsql':  $query = 'SET CONSTRAINTS ALL DEFERRED;'; break;
+            case 'sqlite': $query = 'PRAGMA foreign_keys = OFF;'; break;
+            case 'sqlsrv': $query = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";'; break;
+            default:       throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
         }
 
         try {

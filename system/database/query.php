@@ -520,9 +520,7 @@ class Query
             if (is_array($value)) {
                 $value = implode(', ', $value);
             } elseif (is_object($value)) {
-                $value = ($value instanceof \DateTime || $value instanceof Carbon)
-                    ? $value->format('Y-m-d H:i:s')
-                    : get_class($value);
+                $value = ($value instanceof \DateTime || $value instanceof Carbon) ? $value->format('Y-m-d H:i:s') : get_class($value);
             }
 
             $bindings[$key] = $value;
@@ -1039,6 +1037,7 @@ class Query
         }
 
         $list = [];
+
         foreach ($results as $result) {
             $list[$result->$key] = $result->$column;
         }

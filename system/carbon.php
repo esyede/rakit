@@ -188,18 +188,9 @@ class Carbon extends \DateTime
     public function __get($name)
     {
         $formats = [
-            'year' => 'Y',
-            'yearIso' => 'o',
-            'month' => 'n',
-            'day' => 'j',
-            'hour' => 'G',
-            'minute' => 'i',
-            'second' => 's',
-            'micro' => 'u',
-            'dayOfWeek' => 'w',
-            'dayOfYear' => 'z',
-            'weekOfYear' => 'W',
-            'daysInMonth' => 't',
+            'year' => 'Y', 'yearIso' => 'o', 'month' => 'n', 'day' => 'j',
+            'hour' => 'G', 'minute' => 'i', 'second' => 's', 'micro' => 'u',
+            'dayOfWeek' => 'w', 'dayOfYear' => 'z', 'weekOfYear' => 'W', 'daysInMonth' => 't',
             'timestamp' => 'U',
         ];
 

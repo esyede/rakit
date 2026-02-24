@@ -589,32 +589,16 @@ abstract class Driver
             $relate = $this->config['force_mixed'] ? 'multipart/mixed; ' : 'multipart/related; ';
 
             switch ($this->type) {
-                case 'plain':
-                    $type = 'text/plain';
-                    break;
-
+                case 'plain':                  $type = 'text/plain'; break;
                 case 'plain_attach':
-                case 'html_attach':
-                    $type = $relate . $bond;
-                    break;
-
-                case 'html':
-                    $type = 'text/html';
-                    break;
-
+                case 'html_attach':            $type = $relate . $bond; break;
+                case 'html':                   $type = 'text/html'; break;
                 case 'html_alt_attach':
-                case 'html_alt_inline_attach':
-                    $type = 'multipart/mixed; ' . $bond;
-                    break;
-
+                case 'html_alt_inline_attach': $type = 'multipart/mixed; ' . $bond; break;
                 case 'html_alt_inline':
                 case 'html_alt':
-                case 'html_inline':
-                    $type = 'multipart/alternative; ' . $bond;
-                    break;
-
-                default:
-                    throw new \Exception(sprintf('Invalid content-type: %s', $this->type));
+                case 'html_inline':            $type = 'multipart/alternative; ' . $bond; break;
+                default:                       throw new \Exception(sprintf('Invalid content-type: %s', $this->type));
             }
 
             $this->set_header('Content-Type', $type);
@@ -728,21 +712,7 @@ abstract class Driver
     {
         $eol = $this->config['newline'];
         $encoding = $this->config['encoding'];
-        $parts = [
-            'Date',
-            'Return-Path',
-            'From',
-            'To',
-            'Cc',
-            'Bcc',
-            'Reply-To',
-            'Subject',
-            'Message-ID',
-            'X-Priority',
-            'X-Mailer',
-            'MIME-Version',
-            'Content-Type',
-        ];
+        $parts = ['Date', 'Return-Path', 'From', 'To', 'Cc', 'Bcc', 'Reply-To', 'Subject', 'Message-ID', 'X-Priority', 'X-Mailer', 'MIME-Version', 'Content-Type'];
 
         if ($without_bcc) {
             array_splice($parts, 5, 1);
@@ -915,10 +885,10 @@ abstract class Driver
 
         switch ($encoding) {
             case '7bit':
-            case '8bit': return static::standardize(rtrim($string, $newline), $newline);
+            case '8bit':             return static::standardize(rtrim($string, $newline), $newline);
             case 'quoted-printable': return quoted_printable_encode($string);
-            case 'base64': return chunk_split(base64_encode($string), 76, $newline);
-            default:  throw new \Exception(sprintf('Unupported encoding method: %s.', $encoding));
+            case 'base64':           return chunk_split(base64_encode($string), 76, $newline);
+            default:                 throw new \Exception(sprintf('Unupported encoding method: %s.', $encoding));
         }
     }
 

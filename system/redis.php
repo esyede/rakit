@@ -131,21 +131,12 @@ class Redis
         $type = substr($response, 0, 1);
 
         switch ($type) {
-            case '-':
-                throw new \Exception(sprintf('Redis error: %s', substr(trim($response), 4)));
-
             case '+':
-            case ':':
-                return $this->inline($response);
-
-            case '$':
-                return $this->bulk($response);
-
-            case '*':
-                return $this->multibulk($response);
-
-            default:
-                throw new \Exception(sprintf("Unknown response type: '%s'", $type));
+            case ':': return $this->inline($response);
+            case '$': return $this->bulk($response);
+            case '*': return $this->multibulk($response);
+            case '-': throw new \Exception(sprintf('Redis error: %s', substr(trim($response), 4)));
+            default:  throw new \Exception(sprintf("Unknown response type: '%s'", $type));
         }
     }
 

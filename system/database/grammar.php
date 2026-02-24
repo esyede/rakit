@@ -74,9 +74,7 @@ abstract class Grammar
         $wrapped = [];
 
         foreach ($segments as $key => $value) {
-            $wrapped[] = (0 === $key && count($segments) > 1)
-                ? $this->wrap_table($value)
-                : $this->wrap_value($value);
+            $wrapped[] = (0 === $key && count($segments) > 1) ? $this->wrap_table($value) : $this->wrap_value($value);
         }
 
         return implode('.', $wrapped);

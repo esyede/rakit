@@ -62,11 +62,7 @@ class Repository
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FOLLOWLOCATION => 1,
             CURLOPT_VERBOSE => get_cli_option('verbose') ? 1 : 0,
-            CURLOPT_USERAGENT => sprintf(
-                'Mozilla/5.0 (Linux x86_64; rv:%s.0) Gecko/20100101 Firefox/%s.0',
-                mt_rand(90, 110),
-                mt_rand(90, 110)
-            ),
+            CURLOPT_USERAGENT => sprintf('Mozilla/5.0 (Linux x86_64; rv:%s.0) Gecko/20100101 Firefox/%s.0', mt_rand(90, 110), mt_rand(90, 110)),
         ]);
 
         $packages = curl_exec($ch);

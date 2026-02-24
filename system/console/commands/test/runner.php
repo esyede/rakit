@@ -76,16 +76,10 @@ class Runner extends Command
         $config = path('base') . 'phpunit.xml';
 
         if (!is_file(path('base') . $phpunit)) {
-            throw new \Exception(
-                "Error: test dependencies is not present. Please run 'composer install' first."
-            );
+            throw new \Exception("Error: test dependencies is not present. Please run 'composer install' first.");
         }
 
-        $verbose = has_cli_flag('v')
-            || has_cli_flag('vv')
-            || has_cli_flag('vvv')
-            || has_cli_flag('verbose');
-
+        $verbose = has_cli_flag('v') || has_cli_flag('vv') || has_cli_flag('vvv') || has_cli_flag('verbose');
         $phpunit .= $verbose ? ' --debug' : '';
 
         // Forward all phpunit arguments
@@ -112,7 +106,6 @@ class Runner extends Command
     {
         $stub = Storage::get(__DIR__ . DS . 'stub.xml');
         $stub = $this->tokens($stub, ['[boot]' => $this->base . 'phpunit.php', '[dir]' => $directory]);
-
         file_put_contents(path('base') . 'phpunit.xml', $stub, LOCK_EX);
     }
 

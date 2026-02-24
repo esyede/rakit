@@ -69,10 +69,7 @@ class Smtp extends Driver
 
         // Set the keep alive config option
         $this->keep_alive = Arr::get($this->config, 'smtp.keep_alive', false);
-
-        $authenticate = (empty($this->connection)
-            && !empty($this->config['smtp']['username'])
-            && !empty($this->config['smtp']['password']));
+        $authenticate = (empty($this->connection) && !empty($this->config['smtp']['username']) && !empty($this->config['smtp']['password']));
 
         $this->connect();
 
@@ -80,10 +77,7 @@ class Smtp extends Driver
             $this->authenticate();
         }
 
-        $retpath = empty($this->config['return_path'])
-            ? $this->config['from']['email']
-            : $this->config['return_path'];
-
+        $retpath = empty($this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
         $this->command('MAIL FROM: <' . $retpath . '>', 250);
 
         $lists = ['to', 'cc', 'bcc'];
@@ -99,10 +93,7 @@ class Smtp extends Driver
 
         $this->command('DATA', 354);
 
-        $lines = explode(
-            $this->config['newline'],
-            $message['header'] . preg_replace('/^\./m', '..$1', $message['body'])
-        );
+        $lines = explode($this->config['newline'], $message['header'] . preg_replace('/^\./m', '..$1', $message['body']));
 
         foreach ($lines as $line) {
             $line = (('.' === substr((string) $line, 0, 1)) ? '.' : '') . $line;
@@ -359,6 +350,7 @@ class Smtp extends Driver
             }
 
             $iterations++;
+
             if ($iterations >= $max) {
                 throw new \Exception('SMTP response loop exceeded maximum iterations.');
             }

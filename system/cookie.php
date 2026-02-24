@@ -106,15 +106,8 @@ class Cookie
      * @param bool   $secure
      * @param string $samesite
      */
-    public static function put(
-        $name,
-        $value,
-        $expiration = 0,
-        $path = '/',
-        $domain = null,
-        $secure = false,
-        $samesite = 'lax'
-    ) {
+    public static function put($name, $value, $expiration = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
+    {
         if (!is_string($name) || empty($name) || !preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
             throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, and hyphens.');
         }
@@ -202,14 +195,8 @@ class Cookie
      *
      * @return bool
      */
-    public static function forever(
-        $name,
-        $value,
-        $path = '/',
-        $domain = null,
-        $secure = false,
-        $samesite = 'lax'
-    ) {
+    public static function forever($name, $value, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
+    {
         return static::put($name, $value, 2628000, $path, $domain, $secure, $samesite);
     }
 
@@ -224,13 +211,8 @@ class Cookie
      *
      * @return bool
      */
-    public static function forget(
-        $name,
-        $path = '/',
-        $domain = null,
-        $secure = false,
-        $samesite = 'lax'
-    ) {
+    public static function forget($name, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
+    {
         return static::put($name, '', -2628000, $path, $domain, $secure, $samesite);
     }
 }

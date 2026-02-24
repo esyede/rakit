@@ -94,14 +94,11 @@ class Blade
                 }
 
                 $view->path = $compiled;
-                $result = ltrim($view->get());
-                return $result;
+                return ltrim($view->get());
             } catch (\Throwable $e) {
-                $result = ltrim($view->get());
-                return $result;
+                return ltrim($view->get());
             } catch (\Exception $e) {
-                $result = ltrim($view->get());
-                return $result;
+                return ltrim($view->get());
             }
         });
     }
