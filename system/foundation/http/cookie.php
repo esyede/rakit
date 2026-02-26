@@ -25,6 +25,7 @@ class Cookie
      * @param string               $domain
      * @param bool                 $secure
      * @param bool                 $httpOnly
+     * @param string               $sameSite
      */
     public function __construct(
         $name,
