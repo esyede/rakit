@@ -93,8 +93,6 @@ Debugger::$logSeverity = 0;
 Debugger::$errorTemplate = is_file($template) ? $template : null;
 Debugger::$time = RAKIT_START;
 
-
-
 Debugger::$showBar = (bool) $debugger['debugbar'];
 Debugger::$showLocation = (bool) $debugger['location'];
 Debugger::$maxDepth = (int) $debugger['depth'];
