@@ -56,6 +56,7 @@ use System\Foundation\Oops\Debugger;
 $debugger = require path('app') . 'config' . DS . 'debugger.php';
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
 Debugger::enable(null, path('storage') . 'logs');
+
 /*
 |--------------------------------------------------------------------------
 | Boot the 'application' Package
