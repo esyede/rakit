@@ -78,7 +78,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | How deep should arrays and objects be displayed when calling
-    | the dd(), bd(), and dump() helper functions?
+    | the dd(), bd(), and dump() helper? Zero (0) will display everything.
     |
     */
 
@@ -90,7 +90,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | How many characters should be displayed when calling
-    | the dd(), bd(), and dump() helper functions?
+    | the dd(), bd(), and dump() helper? Zero (0) will display everything.
     |
     */
 
@@ -102,7 +102,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Should the file location also be displayed when calling
-    | the dd(), bd(), and dump() helper functions?
+    | the dd(), bd(), and dump() helper?
     |
     */
 

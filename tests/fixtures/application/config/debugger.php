@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'activate' => false,
+    'activate' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -45,7 +45,7 @@ return [
     |
     */
 
-    'database' => false,
+    'database' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -78,11 +78,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | How deep should arrays and objects be displayed when calling
-    | the dd(), bd(), and dump() helper functions?
+    | the dd(), bd(), and dump() helper? Zero (0) will display everything.
     |
     */
 
-    'depth' => 50,
+    'depth' => 1000,
 
     /*
     |--------------------------------------------------------------------------
@@ -90,11 +90,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | How many characters should be displayed when calling
-    | the dd(), bd(), and dump() helper functions?
+    | the dd(), bd(), and dump() helper? Zero (0) will display everything.
     |
     */
 
-    'length' => 10000,
+    'length' => 1000,
 
     /*
     |--------------------------------------------------------------------------
@@ -102,7 +102,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Should the file location also be displayed when calling
-    | the dd(), bd(), and dump() helper functions?
+    | the dd(), bd(), and dump() helper?
     |
     */
 
