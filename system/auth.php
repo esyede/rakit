@@ -25,7 +25,7 @@ class Auth
      *
      * @param string $driver
      *
-     * @return Driver
+     * @return \System\Auth\Drivers\Driver
      */
     public static function driver($driver = null)
     {
@@ -43,7 +43,7 @@ class Auth
      *
      * @param string $driver
      *
-     * @return Driver
+     * @return \System\Auth\Drivers\Driver
      */
     protected static function factory($driver)
     {
