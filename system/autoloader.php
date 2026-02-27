@@ -132,17 +132,17 @@ class Autoloader
         }, (array) $directory) : static::$directories;
 
         foreach ($directories as $directory) {
-            $lowercase_path = $directory . $lowercased . '.php';
-            $original_path = $directory . $file . '.php';
+            $lowerpath = $directory . $lowercased . '.php';
+            $origpath = $directory . $file . '.php';
 
-            if (!isset(static::$caches[$lowercase_path])) {
-                static::$caches[$lowercase_path] = is_file($lowercase_path);
+            if (!isset(static::$caches[$lowerpath])) {
+                static::$caches[$lowerpath] = is_file($lowerpath);
             }
 
-            if (static::$caches[$lowercase_path]) {
+            if (static::$caches[$lowerpath]) {
                 try {
-                    require $lowercase_path;
-                    static::$loaded[$lowercased] = $lowercase_path;
+                    require $lowerpath;
+                    static::$loaded[$lowercased] = $lowerpath;
                     return;
                 } catch (\Throwable $e) {
                     return;
@@ -151,14 +151,14 @@ class Autoloader
                 }
             }
 
-            if (!isset(static::$caches[$original_path])) {
-                static::$caches[$original_path] = is_file($original_path);
+            if (!isset(static::$caches[$origpath])) {
+                static::$caches[$origpath] = is_file($origpath);
             }
 
-            if (static::$caches[$original_path]) {
+            if (static::$caches[$origpath]) {
                 try {
-                    require $original_path;
-                    static::$loaded[$file] = $original_path;
+                    require $origpath;
+                    static::$loaded[$file] = $origpath;
                     return;
                 } catch (\Throwable $e) {
                     return;

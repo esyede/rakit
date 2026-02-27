@@ -121,7 +121,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
         $max = max($counts);
         $modes = array_keys(array_filter($counts, function ($value) use ($max) {
-            return $value == $max;
+            return $value == $max; // '==' intended for loose comparison to match modes with different counts
         }));
 
         return new static($modes);
@@ -382,11 +382,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function first($callback = null, $default = null)
     {
         if (is_null($callback)) {
-            if (empty($this->items)) {
-                return value($default);
-            }
-
-            return reset($this->items);
+            return empty($this->items) ? value($default) : reset($this->items);
         }
 
         foreach ($this->items as $key => $value) {
@@ -539,12 +535,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function implode($value, $glue = null)
     {
         $first = $this->first();
-
-        if (is_array($first) || is_object($first)) {
-            return implode($glue, $this->pluck($value)->all());
-        }
-
-        return implode($value, $this->items);
+        return (is_array($first) || is_object($first))
+            ? implode($glue, $this->pluck($value)->all())
+            : implode($value, $this->items);
     }
 
     /**
@@ -890,12 +883,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
 
         $keys = array_rand($this->items, $amount);
-
-        if (intval($amount) === 1) {
-            return $this->items[$keys];
-        }
-
-        return new static(array_intersect_key($this->items, array_flip($keys)));
+        return (intval($amount) === 1)
+            ? $this->items[$keys]
+            : new static(array_intersect_key($this->items, array_flip($keys)));
     }
 
     /**

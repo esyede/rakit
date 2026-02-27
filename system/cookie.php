@@ -62,9 +62,8 @@ class Cookie
 
         if (isset(static::$jar[$name]) && isset(static::$jar[$name]['value'])) {
             try {
-                $value = Crypter::decrypt(static::$jar[$name]['value']);
-                static::$cache[$name] = $value;
-                return $value;
+                static::$cache[$name] = Crypter::decrypt(static::$jar[$name]['value']);
+                return static::$cache[$name];
             } catch (\Exception $e) {
                 throw new \Exception('Failed to decrypt cookie value: ' . $e->getMessage());
             }
@@ -77,9 +76,8 @@ class Cookie
         }
 
         try {
-            $decrypted = Crypter::decrypt($value);
-            static::$cache[$name] = $decrypted;
-            return $decrypted;
+            static::$cache[$name] = Crypter::decrypt($value);
+            return static::$cache[$name];
         } catch (\Exception $e) {
             throw new \Exception('Failed to decrypt cookie value: ' . $e->getMessage());
         }
@@ -121,13 +119,13 @@ class Cookie
         if (!is_null($domain)) {
             if (PHP_VERSION_ID >= 70000) {
                 $check = (strpos($domain, '.') === 0) ? substr($domain, 1) : $domain;
+
                 if (!filter_var($check, FILTER_VALIDATE_DOMAIN)) {
                     throw new \Exception('Cookie domain must be a valid domain.');
                 }
             } else {
                 $trimmed = trim($domain);
-                $predot = (strpos($trimmed, '.') === 0);
-                $target = $predot ? substr($trimmed, 1) : $trimmed;
+                $target = (strpos($trimmed, '.') === 0) ? substr($trimmed, 1) : $trimmed;
 
                 if (strlen($target) > 253 || strlen($target) === 0) {
                     throw new \Exception('Cookie domain must be a valid domain.');

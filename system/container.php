@@ -161,10 +161,7 @@ class Container
             $dependency = (PHP_VERSION_ID >= 80000) ? $parameter->getType() : $parameter->getClass();
             $dependencies[] = (count($arguments) > 0)
                 ? array_shift($arguments)
-                : (is_null($dependency)
-                    ? static::resolve_non_class($parameter)
-                    : static::resolve($dependency->getName())
-                );
+                : (is_null($dependency) ? static::resolve_non_class($parameter) : static::resolve($dependency->getName()));
         }
 
         return $dependencies;

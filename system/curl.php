@@ -59,22 +59,13 @@ class Curl
     private static $socket_timeout;
     private static $verify_peer = 0;
     private static $verify_host = 0;
-    private static $auth = [
-        'user' => '',
-        'pass' => '',
-        'method' => CURLAUTH_BASIC,
-    ];
-
+    private static $auth = ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC];
     private static $proxy = [
         'port' => false,
         'tunnel' => false,
         'address' => false,
         'type' => CURLPROXY_HTTP,
-        'auth' => [
-            'user' => '',
-            'pass' => '',
-            'method' => CURLAUTH_BASIC,
-        ],
+        'auth' => ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC],
     ];
 
     /**

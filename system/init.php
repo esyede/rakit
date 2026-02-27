@@ -70,6 +70,5 @@ if (is_file($path = path('rakit_key'))) {
 }
 
 if (!is_file($file = dirname(__DIR__) . DS . '_ide_helper.php')) {
-    $stub = __DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub';
-    copy($stub, $file);
+    copy(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub', $file);
 }

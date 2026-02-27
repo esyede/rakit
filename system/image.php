@@ -146,10 +146,10 @@ class Image
     public function width($value)
     {
         $value = (int) $value;
-        $new_height = ($value / $this->width) * $this->height;
-        $canvas = imagecreatetruecolor($value, $new_height);
+        $height = ($value / $this->width) * $this->height;
+        $canvas = imagecreatetruecolor($value, $height);
 
-        imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $value, $new_height, $this->width, $this->height);
+        imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $value, $height, $this->width, $this->height);
 
         $this->image = $canvas;
         $this->maintain();

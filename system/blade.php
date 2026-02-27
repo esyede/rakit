@@ -28,6 +28,13 @@ class Blade
     ];
 
     /**
+     * Contains the names of sections that should only be rendered once.
+     *
+     * @var array
+     */
+    protected static $onces = [];
+
+    /**
      * Contains custom compilers names created by the user.
      *
      * @var array
@@ -272,7 +279,6 @@ class Blade
      */
     protected static function compile_json($value)
     {
-        $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
         $result = $value;
         $offset = 0;
 
@@ -295,6 +301,7 @@ class Blade
             if ($depth === 0) {
                 $expression = substr($result, $start, $current - $start - 1);
                 $original = substr($result, $pos, $current - $pos);
+                $flags = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE;
                 $replacement = '<?php echo json_encode(' . trim($expression) . ', ' . $flags . '); ?>';
                 $result = substr_replace($result, $replacement, $pos, strlen($original));
                 $offset = $pos + strlen($replacement);
@@ -612,11 +619,10 @@ class Blade
     protected static function compile_once($value)
     {
         return preg_replace_callback('/@once(.*?)@endonce/s', function ($matches) {
-            static $onces = [];
             $key = md5($matches[1]);
 
-            if (!isset($onces[$key])) {
-                $onces[$key] = true;
+            if (!isset(static::$onces[$key])) {
+                static::$onces[$key] = true;
                 return $matches[1];
             }
 

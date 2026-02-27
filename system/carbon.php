@@ -190,8 +190,8 @@ class Carbon extends \DateTime
         $formats = [
             'year' => 'Y', 'yearIso' => 'o', 'month' => 'n', 'day' => 'j',
             'hour' => 'G', 'minute' => 'i', 'second' => 's', 'micro' => 'u',
-            'dayOfWeek' => 'w', 'dayOfYear' => 'z', 'weekOfYear' => 'W', 'daysInMonth' => 't',
-            'timestamp' => 'U',
+            'dayOfWeek' => 'w', 'dayOfYear' => 'z', 'weekOfYear' => 'W',
+            'daysInMonth' => 't', 'timestamp' => 'U',
         ];
 
         switch (true) {
@@ -428,7 +428,8 @@ class Carbon extends \DateTime
     public function eq(Carbon $dt)
     {
         $this->checkComparator($dt);
-        return $this == $dt; // '==' memang disengaja
+        // '==' intended for value comparison, not object identity
+        return $this == $dt;
     }
 
     public function ne(Carbon $dt)
@@ -812,8 +813,8 @@ class Carbon extends \DateTime
         $delta = abs($this->diffInSeconds($other, false));
         $unit = 'second';
         $divs = [
-            'year' => 31536000, // approximately 365 days
-            'month' => 2628000, // approximately 30.44 days
+            'year' => 31536000, // ~365 days
+            'month' => 2628000, // ~30.44 days
             'week' => 604800,   // 7 days
             'day' => 86400,     // 24 hours
             'hour' => 3600,     // 60 minutes
@@ -836,11 +837,8 @@ class Carbon extends \DateTime
             return $str;
         }
 
-        if ($now) {
-            return $str . ' ' . Lang::line('carbon.' . ($future ? 'from_now' : 'ago'))->get();
-        }
-
-        return $str . ' ' . Lang::line('carbon.' . ($future ? 'after' : 'before'))->get();
+        $now = $now ? ($future ? 'from_now' : 'ago') : ($future ? 'after' : 'before');
+        return $str . ' ' . Lang::line('carbon.' . $now)->get();
     }
 
     public function startOfDay()
