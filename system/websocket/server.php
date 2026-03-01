@@ -146,23 +146,11 @@ class Server
                     if ($bytes === false) {
                         $errno = socket_last_error($socket);
 
-                        switch ($errno) {
-                            case 102:
-                            case 103:
-                            case 104:
-                            case 108:
-                            case 110:
-                            case 111:
-                            case 112:
-                            case 113:
-                            case 121:
-                            case 125:
-                                $this->stderr('Unusual disconnect on socket ' . $socket);
-                                $this->disconnect($socket, true, $errno);
-                                break;
-
-                            default:
-                                $this->stderr('Socket error: ' . socket_strerror($errno));
+                        if (in_array((int) $errno, [102, 103, 104, 108, 110, 111, 112, 113, 121])) {
+                            $this->stderr('Unusual disconnect on socket ' . $socket);
+                            $this->disconnect($socket, true, $errno);
+                        } else {
+                            $this->stderr('Socket error: ' . socket_strerror($errno));
                         }
                     } elseif ($bytes == 0) {
                         $this->disconnect($socket);
@@ -183,6 +171,7 @@ class Server
                     }
                 }
             }
+
             if (!$count) {
                 foreach ($this->sockets as $id => $socket) {
                     if (
