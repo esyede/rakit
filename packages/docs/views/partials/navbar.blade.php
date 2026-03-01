@@ -33,7 +33,7 @@
                 <a class="navbar-item" id="github" href="https://github.com/esyede/rakit" target="_blank">GitHub</a>
                 <div class="navbar-item">
                     <div class="buttons">
-                        <button class="button is-rounded is-small" id="dark-mode-toggle">Dark</button>
+                        <button class="button is-rounded is-small" style="width: 30px; height: 30px; padding: 0;" id="dark-mode-toggle"> 🌙 </button>
                     </div>
                 </div>
             </div>
