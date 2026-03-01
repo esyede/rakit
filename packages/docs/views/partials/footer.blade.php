@@ -157,9 +157,8 @@
         document.documentElement.classList.remove('dark-preload');
         const toggleButton = document.getElementById('dark-mode-toggle');
         if (toggleButton) {
-            toggleButton.textContent = (localStorage.getItem('theme') === 'dark')
-                ? '☀️'
-                : ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? '☀️' : '🌙');
+            const preferedTheme = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            toggleButton.textContent = (preferedTheme === 'dark') ? '☀️' : '🌙';
             toggleButton.addEventListener('click', function() {
                 const html = document.documentElement;
                 html.classList.toggle('dark');
