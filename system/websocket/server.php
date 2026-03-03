@@ -232,9 +232,8 @@ class Server
     protected function handshake($user, $buffer)
     {
         $this->stdout('Handshake started for client ' . $user->id());
-        $guid = self::MAGIC;
+        $lines = explode(LF, $buffer);
         $headers = [];
-        $lines = explode("\n", $buffer);
 
         foreach ($lines as $line) {
             if (strpos($line, ':') !== false) {
@@ -302,7 +301,7 @@ class Server
         $user->headers = $headers;
         $user->handshake = $buffer;
 
-        $hash = sha1($headers['sec-websocket-key'] . $guid);
+        $hash = sha1($headers['sec-websocket-key'] . static::MAGIC);
         $token = '';
 
         for ($i = 0; $i < 20; $i++) {

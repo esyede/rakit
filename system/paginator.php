@@ -167,9 +167,9 @@ class Paginator
         // all pages will be displayed. Otherwise, we create a 'truncated' slider.
         $links = ($this->last < (7 + ($adjacent * 2))) ? $this->range(1, $this->last) : $this->slider($adjacent);
         $content = $this->previous() . $links . $this->next();
-        $content = "\t" . '<ul class="pagination">' . "\n" . $content . "\n\t" . '</ul>';
+        $content = "\t" . '<ul class="pagination">' . LF . $content . LF . TAB . '</ul>';
 
-        return '<nav class="pagination-nav">' . "\n" . $content . "\n" . '</nav>';
+        return '<nav class="pagination-nav">' . LF . $content . LF . '</nav>';
     }
 
     /**

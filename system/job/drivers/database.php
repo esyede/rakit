@@ -172,7 +172,7 @@ class Database extends Driver
                         if ($attempts >= $retries) {
                             $error = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
                                 . $e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
@@ -194,7 +194,7 @@ class Database extends Driver
                         if ($attempts >= $retries) {
                             $error = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
                                 . $e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
@@ -268,7 +268,7 @@ class Database extends Driver
                         if ($attempts >= $retries) {
                             $error = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
                                 . $e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
@@ -290,7 +290,7 @@ class Database extends Driver
                         if ($attempts >= $retries) {
                             $error = get_class($e)
                                 . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\nStack trace:\n"
+                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
                                 . $e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,

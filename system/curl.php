@@ -493,7 +493,7 @@ class Curl
 
         $key = '';
         $headers = [];
-        $items = explode("\n", $raw_headers);
+        $items = explode(LF, $raw_headers);
 
         foreach ($items as $index => $item) {
             $item = explode(':', $item, 2);

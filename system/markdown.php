@@ -141,9 +141,9 @@ class Markdown
     public function translate($string)
     {
         $this->definitions = [];
-        $string = explode("\n", trim(str_replace(["\r\n", "\r"], "\n", $string), "\n"));
+        $string = explode(LF, trim(str_replace([CRLF, CR], LF, $string), LF));
 
-        return trim($this->lines($string), "\n");
+        return trim($this->lines($string), LF);
     }
 
     /**
@@ -331,7 +331,7 @@ class Markdown
             }
 
             if (isset($curr) && !isset($curr['type']) && !isset($curr['interrupted'])) {
-                $curr['element']['text'] .= "\n" . $text;
+                $curr['element']['text'] .= LF . $text;
             } else {
                 $attribs[] = $curr;
                 $curr = $this->paragraph($tag);
@@ -353,11 +353,10 @@ class Markdown
                 continue;
             }
 
-            $markup .= "\n";
-            $markup .= isset($attrib['markup']) ? $attrib['markup'] : $this->element($attrib['element']);
+            $markup .= LF . (isset($attrib['markup']) ? $attrib['markup'] : $this->element($attrib['element']));
         }
 
-        return $markup . "\n";
+        return $markup . LF;
     }
 
     protected function continuable($type)
@@ -391,11 +390,11 @@ class Markdown
     {
         if ($tag['indent'] >= 4) {
             if (isset($attrib['interrupted'])) {
-                $attrib['element']['text']['text'] .= "\n";
+                $attrib['element']['text']['text'] .= LF;
                 unset($attrib['interrupted']);
             }
 
-            $attrib['element']['text']['text'] .= "\n" . substr((string) $tag['body'], 4);
+            $attrib['element']['text']['text'] .= LF . substr((string) $tag['body'], 4);
             return $attrib;
         }
     }
@@ -434,7 +433,7 @@ class Markdown
             return;
         }
 
-        $attrib['markup'] .= "\n" . $tag['body'];
+        $attrib['markup'] .= LF . $tag['body'];
 
         if (preg_match('/-->$/', $tag['text'])) {
             $attrib['closed'] = true;
@@ -469,7 +468,7 @@ class Markdown
         }
 
         if (isset($attrib['interrupted'])) {
-            $attrib['element']['text']['text'] .= "\n";
+            $attrib['element']['text']['text'] .= LF;
             unset($attrib['interrupted']);
         }
 
@@ -479,7 +478,7 @@ class Markdown
             return $attrib;
         }
 
-        $attrib['element']['text']['text'] .= "\n" . $tag['body'];
+        $attrib['element']['text']['text'] .= LF . $tag['body'];
         return $attrib;
     }
 
@@ -702,11 +701,11 @@ class Markdown
         }
 
         if (isset($attrib['interrupted'])) {
-            $attrib['markup'] .= "\n";
+            $attrib['markup'] .= LF;
             unset($attrib['interrupted']);
         }
 
-        $attrib['markup'] .= "\n" . $tag['body'];
+        $attrib['markup'] .= LF . $tag['body'];
         return $attrib;
     }
 
@@ -1042,8 +1041,8 @@ class Markdown
     protected function unmarked($text)
     {
         return $this->breaks
-            ? preg_replace('/[ ]*\n/', "<br />\n", $text)
-            : str_replace(" \n", "\n", preg_replace('/(?:[ ][ ]+|[ ]*\\\\)\n/', "<br />\n", $text));
+            ? preg_replace('/[ ]*\n/', '<br />' . LF, $text)
+            : str_replace(' ' . LF, LF, preg_replace('/(?:[ ][ ]+|[ ]*\\\\)\n/', "<br />\n", $text));
     }
 
     protected function element(array $elem)
@@ -1092,10 +1091,10 @@ class Markdown
         $markup = '';
 
         foreach ($elems as $elem) {
-            $markup .= "\n" . $this->element($elem);
+            $markup .= LF . $this->element($elem);
         }
 
-        return $markup . "\n";
+        return $markup . LF;
     }
 
     protected function li(array $lines)

@@ -859,8 +859,8 @@ abstract class Driver
     protected static function standardize($string, $newline = null)
     {
         $config = Config::get('email');
-        $newline = $newline ?: (isset($config['newline']) ? $config['newline'] : "\n");
-        $replace = ["\r\n" => "\n", "\n\r" => "\n", "\r" => "\n", "\n" => $newline];
+        $newline = $newline ?: (isset($config['newline']) ? $config['newline'] : LF);
+        $replace = [CRLF => LF, LF . CR => LF, CR => LF, LF => $newline];
 
         foreach ($replace as $from => $to) {
             $string = str_replace($from, $to, $string);
@@ -881,7 +881,7 @@ abstract class Driver
     protected static function encode_string($string, $encoding, $newline = null)
     {
         $config = Config::get('email');
-        $newline = $newline ?: (isset($config['newline']) ? $config['newline'] : "\n");
+        $newline = $newline ?: (isset($config['newline']) ? $config['newline'] : LF);
 
         switch ($encoding) {
             case '7bit':

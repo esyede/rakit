@@ -107,7 +107,7 @@ class Lorem extends Base
             $paragraphs[] = static::paragraph();
         }
 
-        return $asText ? implode("\n\n", $paragraphs) : $paragraphs;
+        return $asText ? implode(LF . LF, $paragraphs) : $paragraphs;
     }
 
     public static function text($maxNbChars = 200)
@@ -148,7 +148,7 @@ class Lorem extends Base
                 $size = 0;
 
                 while ($size < $maxNbChars) {
-                    $paragraph = ($size ? "\n" : '') . static::paragraph();
+                    $paragraph = ($size ? LF : '') . static::paragraph();
                     $text[] = $paragraph;
                     $size += mb_strlen((string) $paragraph, '8bit');
                 }

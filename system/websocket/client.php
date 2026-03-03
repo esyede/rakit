@@ -8,18 +8,18 @@ use System\Carbon;
 
 class Client
 {
-    public $socket;
     public $id;
-    public $headers = [];
-    public $handshake = false;
+    public $user;
+    public $socket;
     public $uri = '';
-    public $busy = false;
     public $buffer = '';
-    public $continuous = false;
     public $message = '';
+    public $busy = false;
+    public $handshake = false;
+    public $continuous = false;
     public $disconnecting = false;
     public $channels = [];
-    public $user;
+    public $headers = [];
 
     protected $server;
     protected $last_activity;

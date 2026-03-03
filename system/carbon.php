@@ -16,11 +16,7 @@ class Carbon extends \DateTime
 
     protected static $now;
     protected static $format = 'Y-m-d H:i:s';
-    protected static $relatives = [
-        'this', 'next', 'last', 'tomorrow',
-        'yesterday', '+', '-', 'first', 'last', 'ago',
-    ];
-
+    protected static $relatives = ['this', 'next', 'last', 'tomorrow', 'yesterday', '+', '-', 'first', 'last', 'ago'];
     protected static $days = [
         self::SUNDAY => 'Sunday',
         self::MONDAY => 'Monday',
