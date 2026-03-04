@@ -144,7 +144,6 @@ class Messages
     {
         $format = is_null($format) ? $this->format : $format;
         $messages = is_null($key) ? $this->all($format) : $this->get($key, $format);
-
         return (count($messages) > 0) ? $messages[0] : '';
     }
 

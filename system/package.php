@@ -160,11 +160,7 @@ class Package
         $uri = rtrim($uri, '/') . '/';
 
         foreach (static::$packages as $key => $value) {
-            if (
-                isset($value['handles'])
-                && Str::starts_with($uri, $value['handles'] . '/')
-                || '/' === $value['handles']
-            ) {
+            if (isset($value['handles']) && (0 === strpos($uri, $value['handles'] . '/') || '/' === $value['handles'])) {
                 return $key;
             }
         }
