@@ -340,11 +340,9 @@ class Websocket extends Command
     private function log($message, $is_error = false)
     {
         if ($this->config['logging_enabled']) {
-            echo $is_error
-                ? $this->error('[' . Carbon::now() . '] ' . $message)
-                : $this->info('[' . Carbon::now() . '] ' . $message);
+            echo $is_error ? $this->error('[' . Carbon::now() . '] ' . $message) : $this->info('[' . Carbon::now() . '] ' . $message);
             flush();
-            ob_flush();
+            ob_get_contents() && ob_flush();
         }
     }
 }

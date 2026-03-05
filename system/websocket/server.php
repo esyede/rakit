@@ -324,9 +324,9 @@ class Server
         return empty($this->config['allowed_origins']) ? true : in_array($origin, $this->config['allowed_origins']);
     }
 
-    protected function check_host($hostName)
+    protected function check_host($host)
     {
-        return empty($this->config['allowed_hosts']) ? true : in_array($hostName, $this->config['allowed_hosts']);
+        return empty($this->config['allowed_hosts']) ? true : in_array($host, $this->config['allowed_hosts']);
     }
 
     protected function check_protocol($protocol)
@@ -420,7 +420,7 @@ class Server
         }
     }
 
-    public function frame($message, $user, $type = 'text', $messageContinues = false)
+    public function frame($message, $user, $type = 'text', $continue = false)
     {
         switch ($type) {
             case 'continuous': $b1 = 0; break;
@@ -431,7 +431,7 @@ class Server
             case 'pong':       $b1 = 10; break;
         }
 
-        if ($messageContinues) {
+        if ($continue) {
             $user->continuous = true;
         } else {
             $b1 += 128;
@@ -543,25 +543,15 @@ class Server
         $headers = $this->extract_headers($message);
         $pong = false;
         $close = false;
+
         switch ($headers['opcode']) {
             case 0:
             case 1:
             case 2:
-                break;
-
-            case 8:
-                $user->disconnecting = true;
-                return '';
-
-            case 9:
-                $pong = true;
-
-            case 10:
-                break;
-
-            default:
-                $close = true;
-                break;
+            case 10: break;
+            case 8:  $user->disconnecting = true; return '';
+            case 9:  $pong = true;
+            default: $close = true; break;
         }
 
         if ($this->check_rsv_bits($headers, $user)) {
@@ -600,25 +590,21 @@ class Server
     protected function extract_headers($message)
     {
         $header = [
-            'fin' => ord($message[0]) & 128,
-            'rsv1' => ord($message[0]) & 64,
-            'rsv2' => ord($message[0]) & 32,
-            'rsv3' => ord($message[0]) & 16,
-            'opcode' => ord($message[0]) & 15,
-            'hasmask' => ord($message[1]) & 128,
-            'length' => 0,
-            'mask' => '',
+            'fin' => ord($message[0]) & 128, 'rsv1' => ord($message[0]) & 64,
+            'rsv2' => ord($message[0]) & 32,  'rsv3' => ord($message[0]) & 16,
+            'opcode' => ord($message[0]) & 15,  'hasmask' => ord($message[1]) & 128,
+            'length' => 0, 'mask' => '',
         ];
 
         $header['length'] = (ord($message[1]) >= 128) ? ord($message[1]) - 128 : ord($message[1]);
 
-        if ($header['length'] == 126) {
+        if ($header['length'] === 126) {
             if ($header['hasmask']) {
                 $header['mask'] = $message[4] . $message[5] . $message[6] . $message[7];
             }
 
             $header['length'] = ord($message[2]) * 256 + ord($message[3]);
-        } elseif ($header['length'] == 127) {
+        } elseif ($header['length'] === 127) {
             if ($header['hasmask']) {
                 $header['mask'] = $message[10] . $message[11] . $message[12] . $message[13];
             }
