@@ -11,9 +11,13 @@ ob_start();
 define('RAKIT_START', microtime(true));
 
 // --------------------------------------------------------------
-// Define constant for directory separator
+// Define some useful constants
 // --------------------------------------------------------------
 define('DS', DIRECTORY_SEPARATOR);
+define('CRLF', "\r\n");
+define('TAB', "\t");
+define('CR', "\r");
+define('LF', "\n");
 
 // --------------------------------------------------------------
 // Include path constants

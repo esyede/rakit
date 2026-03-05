@@ -146,7 +146,6 @@ class Console
      */
     protected static function format($package, $command)
     {
-        $prefix = Package::class_prefix($package);
-        return '\\' . $prefix . Str::classify($command) . '_Command';
+        return '\\' . Package::class_prefix($package) . Str::classify($command) . '_Command';
     }
 }

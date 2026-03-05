@@ -54,10 +54,7 @@ class File extends Driver
 
         $cache = Storage::get($this->path . $key);
         $cache = (string) $this->unguard($cache);
-
-        return (time() >= substr($cache, 0, 10))
-            ? $this->forget($key)
-            : unserialize(substr($cache, 10));
+        return (time() >= substr($cache, 0, 10)) ? $this->forget($key) : unserialize(substr($cache, 10));
     }
 
     /**
@@ -82,7 +79,6 @@ class File extends Driver
 
         $key = $this->naming($key);
         $value = $this->guard($this->expiration($minutes) . serialize($value));
-
         Storage::put($this->path . $key, $value, LOCK_EX);
     }
 
@@ -135,8 +131,7 @@ class File extends Driver
      */
     protected static function guard($value)
     {
-        $guard = "<?php defined('DS') or exit('No direct access.');?>";
-        return $guard . $value;
+        return "<?php defined('DS') or exit('No direct access.');?>" . $value;
     }
 
     /**
@@ -149,7 +144,6 @@ class File extends Driver
      */
     protected static function unguard($value)
     {
-        $guard = "<?php defined('DS') or exit('No direct access.');?>";
-        return str_replace($guard, '', $value);
+        return str_replace("<?php defined('DS') or exit('No direct access.');?>", '', $value);
     }
 }

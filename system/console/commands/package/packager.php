@@ -218,7 +218,6 @@ class Packager extends Command
     public function unpublish(array $arguments)
     {
         $this->parameter($arguments);
-
         $publisher = Container::resolve('package.publisher');
         $publisher->unpublish($arguments[0]);
     }

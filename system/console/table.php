@@ -112,7 +112,6 @@ class Table
     {
         $this->show_border();
         $this->all_borders = true;
-
         return $this;
     }
 
@@ -145,7 +144,6 @@ class Table
     {
         $this->row_index++;
         $this->data[$this->row_index] = self::HORIZONTAL_ROW;
-
         return $this;
     }
 

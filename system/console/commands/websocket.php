@@ -68,11 +68,7 @@ class Websocket extends Command
     {
         $clients = $server->clients();
         $users = array_map(function ($client) {
-            return [
-                'id' => $client->id(),
-                'name' => optional($client->user)->name ?: 'Guest',
-                'connected_at' => Carbon::now()->timestamp,
-            ];
+            return ['id' => $client->id(), 'name' => optional($client->user)->name ?: 'Guest', 'connected_at' => Carbon::now()->timestamp];
         }, $clients);
         $message = json_encode(['type' => 'presence', 'users' => $users]);
         $this->broadcast($server, $message);

@@ -22,8 +22,7 @@ class Session extends Command
         $driver = Config::get('session.driver');
 
         if ('database' === $driver) {
-            $lifetime = Config::get('session.lifetime');
-            DB::table(Config::get('session.table'))->where('last_activity', '<', time() - ($lifetime * 60))->delete();
+            DB::table(Config::get('session.table'))->where('last_activity', '<', time() - (Config::get('session.lifetime') * 60))->delete();
         }
 
         echo $this->info('The session table has been swept!');

@@ -17,11 +17,7 @@ class Database
      */
     public function log($package, $name, $batch)
     {
-        $this->table()->insert([
-            'package' => $package,
-            'name' => $name,
-            'batch' => $batch,
-        ]);
+        $this->table()->insert(['package' => $package, 'name' => $name, 'batch' => $batch]);
     }
 
     /**
@@ -34,10 +30,7 @@ class Database
      */
     public function delete($package, $name)
     {
-        $this->table()
-            ->where('package', $package)
-            ->where('name', $name)
-            ->delete();
+        $this->table()->where('package', $package)->where('name', $name)->delete();
     }
 
     /**
@@ -47,10 +40,7 @@ class Database
      */
     public function last()
     {
-        return $this->table()
-            ->where('batch', $this->batch())
-            ->order_by('name', 'desc')
-            ->get();
+        return $this->table()->where('batch', $this->batch())->order_by('name', 'desc')->get();
     }
 
     /**
@@ -62,9 +52,7 @@ class Database
      */
     public function ran($package)
     {
-        return $this->table()
-            ->where('package', $package)
-            ->lists('name');
+        return $this->table()->where('package', $package)->lists('name');
     }
 
     /**

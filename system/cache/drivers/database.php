@@ -103,8 +103,7 @@ class Database extends Driver
         $db = Config::get('cache.database');
         $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
         $connection = DB::connection($db['connection']);
-        $driver = $connection->driver();
-        $connection->query((('sqlite' === $driver) ? 'DELETE FROM ' : 'TRUNCATE TABLE ') . $db['table']);
+        $connection->query((('sqlite' === $connection->driver()) ? 'DELETE FROM ' : 'TRUNCATE TABLE ') . $db['table']);
     }
 
     /**

@@ -406,10 +406,7 @@ class Make extends Command
         ];
 
         foreach ($views as $key => $value) {
-            copy(
-                __DIR__ . DS . 'stubs' . DS . 'auth' . DS . 'views' . DS . $key,
-                path('app') . 'views' . DS . $value
-            );
+            copy(__DIR__ . DS . 'stubs' . DS . 'auth' . DS . 'views' . DS . $key, path('app') . 'views' . DS . $value);
         }
 
         $controllers = [

@@ -19,18 +19,12 @@ class Github extends Provider
     public function install(array $package, $path)
     {
         $repository = $package['repository'];
-        $compatible = isset($package['compatibilities']['v' . RAKIT_VERSION])
-            ? $package['compatibilities']['v' . RAKIT_VERSION]
-            : null;
+        $compatible = isset($package['compatibilities']['v' . RAKIT_VERSION]) ? $package['compatibilities']['v' . RAKIT_VERSION] : null;
 
         if (!$compatible) {
-            throw new \Exception(PHP_EOL . sprintf(
-                'Error: No compatible package for your rakit version (v%s)',
-                RAKIT_VERSION
-            ) . PHP_EOL);
+            throw new \Exception(PHP_EOL . sprintf('Error: No compatible package for your rakit version (v%s)', RAKIT_VERSION) . PHP_EOL);
         }
 
-        $url = str_replace(['<repository>', '<version>'], [$repository, $compatible], $this->zipball);
-        parent::zipball($url, $package, $path);
+        parent::zipball(str_replace(['<repository>', '<version>'], [$repository, $compatible], $this->zipball), $package, $path);
     }
 }

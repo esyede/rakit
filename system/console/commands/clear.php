@@ -58,6 +58,4 @@ class Clear extends Command
 
         echo $this->info('Log files cleared successfully.');
     }
-
-
 }

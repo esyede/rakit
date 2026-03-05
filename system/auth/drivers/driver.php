@@ -147,8 +147,7 @@ abstract class Driver
      */
     protected function remember($token)
     {
-        $token = Crypter::encrypt($token . '|' . Str::random(40));
-        $this->cookie($this->recaller(), $token, 2628000);
+        $this->cookie($this->recaller(), Crypter::encrypt($token . '|' . Str::random(40)), 2628000);
     }
 
     /**

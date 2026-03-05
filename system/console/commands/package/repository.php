@@ -39,10 +39,7 @@ class Repository
             }
         }
 
-        throw new \Exception(PHP_EOL . sprintf(
-            'Error: Package cannot be found on the repository: %s',
-            $name
-        ) . PHP_EOL);
+        throw new \Exception(PHP_EOL . sprintf('Error: Package cannot be found on the repository: %s', $name) . PHP_EOL);
     }
 
     /**

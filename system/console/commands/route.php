@@ -37,14 +37,10 @@ class Route extends Command
 
         // Flatten routes for easier display
         $routes = [];
+
         foreach ($routes as $method => $uris) {
             foreach ($uris as $uri => $action) {
-                $routes[] = [
-                    'method' => $method,
-                    'uri' => $uri,
-                    'action' => $action,
-                    'name' => isset($action['as']) ? $action['as'] : '',
-                ];
+                $routes[] = ['method' => $method, 'uri' => $uri, 'action' => $action, 'name' => isset($action['as']) ? $action['as'] : ''];
             }
         }
 
@@ -63,12 +59,9 @@ class Route extends Command
         foreach ($routes as $route) {
             $method = str_pad($route['method'], 8);
             $uri = str_pad($route['uri'], 40);
-            $action = is_array($route['action']) && isset($route['action']['uses'])
-                ? $route['action']['uses']
-                : (is_string($route['action']) ? $route['action'] : 'Closure');
+            $action = is_array($route['action']) && isset($route['action']['uses']) ? $route['action']['uses'] : (is_string($route['action']) ? $route['action'] : 'Closure');
             $action = str_pad($action, 30);
             $name = $route['name'];
-
             $lists .= $method . ' | ' . $uri . ' | ' . $action . ' | ' . ($name ?: 'N/A') . PHP_EOL;
         }
 

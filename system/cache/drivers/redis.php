@@ -62,6 +62,8 @@ class Redis extends Driver
             try {
                 /** @disregard */
                 $this->redis->del($key);
+            } catch (\Throwable $e) {
+                // ignore error
             } catch (\Exception $e) {
                 // ignore error
             }

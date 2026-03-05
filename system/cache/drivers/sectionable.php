@@ -74,8 +74,7 @@ abstract class Sectionable extends Driver
      */
     public function remember_in_section($section, $key, $default, $minutes, $function = 'put')
     {
-        $key = $this->section_item_key($section, $key);
-        return $this->remember($key, $default, $minutes, $function);
+        return $this->remember($this->section_item_key($section, $key), $default, $minutes, $function);
     }
 
     /**
