@@ -90,21 +90,13 @@ class Logger
             ? $this->getExceptionFile($message)
             : null;
         $line = static::formatLogLine($message, $excfile, $priority);
-        $prefix = \System\Config::get('application.name')
-            ? \System\Str::slug(\System\Config::get('application.name')) . '_'
-            : '';
+        $prefix = \System\Config::get('application.name') ? \System\Str::slug(\System\Config::get('application.name')) . '_' : '';
         $file = $this->directory . DIRECTORY_SEPARATOR . $prefix . date('Y-m-d') . '.log.php';
 
         try {
-            if (is_file($file)) {
-                file_put_contents($file, $line . PHP_EOL, FILE_APPEND | LOCK_EX);
-            } else {
-                file_put_contents($file, $line . PHP_EOL, LOCK_EX);
-            }
+            file_put_contents($file, $line . PHP_EOL, is_file($file) ? FILE_APPEND | LOCK_EX : LOCK_EX);
         } catch (\Exception $e) {
-            throw new \RuntimeException(
-                sprintf("Unable to write to log file '%s'. Is that directory writable?", $file)
-            );
+            throw new \RuntimeException(sprintf("Unable to write to log file '%s'. Is that directory writable?", $file));
         }
 
         if ($excfile) {
@@ -125,9 +117,7 @@ class Logger
      */
     public static function formatMessage($message)
     {
-        if (($message instanceof \Exception)
-            || (class_exists('\Throwable') && ($message instanceof \Throwable))
-        ) {
+        if (($message instanceof \Exception) || (class_exists('\Throwable') && ($message instanceof \Throwable))) {
             return static::formatExceptionForRakitLog($message);
         } elseif (!is_string($message)) {
             return static::formatValueForRakitLog($message);
@@ -172,7 +162,6 @@ class Logger
                     return $item;
                 }, $exception->getTrace()),
             ];
-
             $exception = $exception->getPrevious();
         }
 
@@ -185,8 +174,7 @@ class Logger
             }
         }
 
-        $dir .= 'html' . DIRECTORY_SEPARATOR;
-        return $dir . 'exception--' . @date('Y-m-d--H-i') . "--$hash.html";
+        return $dir . 'html' . DIRECTORY_SEPARATOR . 'exception--' . @date('Y-m-d--H-i') . '--' . $hash . '.html';
     }
 
     /**
@@ -212,9 +200,7 @@ class Logger
      */
     protected function sendEmail($message)
     {
-        $snooze = is_numeric($this->emailSnooze)
-            ? $this->emailSnooze
-            : (@strtotime($this->emailSnooze) - time());
+        $snooze = is_numeric($this->emailSnooze) ? $this->emailSnooze : (@strtotime($this->emailSnooze) - time());
 
         if (
             $this->email

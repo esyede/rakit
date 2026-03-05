@@ -182,8 +182,7 @@ class Redis
     protected function command($method, array $parameters)
     {
         $method = (string) $method;
-        $command = '*' . (count($parameters) + 1) . CRLF .
-            '$' . mb_strlen($method, '8bit') . CRLF . strtoupper($method) . CRLF;
+        $command = '*' . (count($parameters) + 1) . CRLF . '$' . mb_strlen($method, '8bit') . CRLF . strtoupper($method) . CRLF;
 
         foreach ($parameters as $parameter) {
             $command .= '$' . mb_strlen((string) $parameter, '8bit') . CRLF . $parameter . CRLF;
@@ -228,8 +227,7 @@ class Redis
         $remaining = $size;
 
         while ($remaining > 0) {
-            $block = ($remaining < 8192) ? $remaining : 8192;
-            $chunk = fread($this->connection, $block);
+            $chunk = fread($this->connection, ($remaining < 8192) ? $remaining : 8192);
 
             if ($chunk === false || $chunk === '') {
                 break;

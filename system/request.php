@@ -274,10 +274,7 @@ class Request
         }
 
         $split = explode('/', $actual);
-        return isset($split[1]) && false !== preg_match(
-            '#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#',
-            $type
-        );
+        return isset($split[1]) && false !== preg_match('#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#', $type);
     }
 
     /**
@@ -287,8 +284,7 @@ class Request
      */
     public static function is_json()
     {
-        $type = static::header('Content-Type');
-        return Str::contains($type ?: '', ['/json', '+json']);
+        return Str::contains(static::header('Content-Type') ?: '', ['/json', '+json']);
     }
 
     /**
@@ -403,8 +399,7 @@ class Request
             return true;
         }
 
-        $header = static::header('X-Csrf-Token');
-        $header = $header ?: static::header('X-Xsrf-Token');
+        $header = static::header('X-Csrf-Token') ?: static::header('X-Xsrf-Token');
 
         if (in_array(static::method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])) {
             return false;
@@ -444,8 +439,7 @@ class Request
      */
     public static function prefetch()
     {
-        return strcasecmp(static::server('HTTP_X_MOZ'), 'prefetch') === 0
-            || strcasecmp(static::header('Purpose'), 'prefetch') === 0;
+        return strcasecmp(static::server('HTTP_X_MOZ'), 'prefetch') === 0 || strcasecmp(static::header('Purpose'), 'prefetch') === 0;
     }
 
     /**
@@ -475,9 +469,7 @@ class Request
      */
     public static function cli()
     {
-        return defined('STDIN')
-            || 'cli' === php_sapi_name()
-            || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
+        return defined('STDIN') || 'cli' === php_sapi_name() || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
     }
 
     /**

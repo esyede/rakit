@@ -31,10 +31,7 @@ abstract class Provider
     protected function zipball($url, array $package, $path)
     {
         $zipball = path('storage') . 'console' . DS . 'zipball.zip';
-
-        if (is_file($zipball)) {
-            Storage::delete($zipball);
-        }
+        is_file($zipball) && Storage::delete($zipball);
 
         if (is_dir(path('package') . $package['name'])) {
             echo PHP_EOL . Color::red(sprintf('Package already downloaded: %s', $package['name']));

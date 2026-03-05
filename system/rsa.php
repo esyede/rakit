@@ -106,25 +106,10 @@ class RSA
     {
         if (!static::$details['private_key'] || !static::$details['public_key']) {
             $config = path('storage') . 'openssl.conf';
-            $randfile = path('storage') . '.rnd';
-
-            static::$details['config'] = sprintf(
-                "HOME=%s\nRANDFILE=%s\n[req]\ndefault_bits=%s\n[v3_ca]\n",
-                path('storage'),
-                $randfile,
-                2048
-            );
-
-            static::$details['options'] = [
-                'private_key_bits' => 2048,
-                'private_key_type' => OPENSSL_KEYTYPE_RSA,
-                'config' => $config,
-            ];
-
-            if (is_file($config)) {
-                unlink($config);
-            }
-
+            $rnd = path('storage') . '.rnd';
+            static::$details['options'] = ['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA, 'config' => $config];
+            static::$details['config'] = 'HOME=' . path('storage') . LF . 'RANDFILE=' . $rnd . LF . '[req]' . LF . 'default_bits=2048' . LF . '[v3_ca]' . LF;
+            is_file($config) && unlink($config);
             file_put_contents($config, static::$details['config'], LOCK_EX);
 
             if (!static::$details['private_key']) {
@@ -156,13 +141,8 @@ class RSA
                 openssl_free_key($privkey);
             }
 
-            if (is_file($config)) {
-                unlink($config);
-            }
-
-            if (is_file($randfile)) {
-                unlink($randfile);
-            }
+            is_file($config) && unlink($config);
+            is_file($rnd) && unlink($rnd);
         }
     }
 

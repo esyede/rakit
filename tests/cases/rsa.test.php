@@ -19,20 +19,9 @@ class RSATest extends \PHPUnit_Framework_TestCase
         $details = $reflection->getProperty('details');
         /** @disregard */
         $details->setAccessible(true);
-        $details->setValue([
-            'public_key' => null,
-            'private_key' => null,
-            'config' => null,
-            'options' => [],
-        ]);
-
-        if (is_file($file = path('storage') . 'rsa-private.key')) {
-            unlink($file);
-        }
-
-        if (is_file($file = path('storage') . 'rsa-public.key')) {
-            unlink($file);
-        }
+        $details->setValue(['public_key' => null, 'private_key' => null, 'config' => null, 'options' => []]);
+        is_file($file = path('storage') . 'rsa-private.key') && unlink($file);
+        is_file($file = path('storage') . 'rsa-public.key') && unlink($file);
     }
 
     /**
@@ -40,13 +29,8 @@ class RSATest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        if (is_file($file = path('storage') . 'rsa-private.key')) {
-            unlink($file);
-        }
-
-        if (is_file($file = path('storage') . 'rsa-public.key')) {
-            unlink($file);
-        }
+        is_file($file = path('storage') . 'rsa-private.key') && unlink($file);
+        is_file($file = path('storage') . 'rsa-public.key') && unlink($file);
     }
 
     /**

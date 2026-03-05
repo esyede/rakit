@@ -291,13 +291,9 @@ class Log
      */
     protected static function format_exception($e)
     {
-        $class = get_class($e);
-        $message = $e->getMessage();
-        $file = $e->getFile();
-        $line = $e->getLine();
-        $trace = $e->getTraceAsString();
-        $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', $class, $e->getCode(), $message, $file, $line);
-        $output .= $trace ? PHP_EOL . $trace : '';
-        return $output;
+        return vsprintf(
+            '[object] (%s(code: %s): %s at %s:%s)',
+            [get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine()]
+        ) . $e->getTraceAsString() ? PHP_EOL . $e->getTraceAsString() : '';
     }
 }

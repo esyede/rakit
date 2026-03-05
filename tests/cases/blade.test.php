@@ -24,9 +24,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     {
         Session::$instance = null;
         array_map(function ($file) {
-            if (is_file($file)) {
-                unlink($file);
-            }
+            is_file($file) && unlink($file);
         }, glob(path('storage') . 'sessions' . DS . '*.session.php'));
     }
 

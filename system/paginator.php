@@ -167,8 +167,7 @@ class Paginator
         // all pages will be displayed. Otherwise, we create a 'truncated' slider.
         $links = ($this->last < (7 + ($adjacent * 2))) ? $this->range(1, $this->last) : $this->slider($adjacent);
         $content = $this->previous() . $links . $this->next();
-        $content = "\t" . '<ul class="pagination">' . LF . $content . LF . TAB . '</ul>';
-
+        $content = TAB . '<ul class="pagination">' . LF . $content . LF . TAB . '</ul>';
         return '<nav class="pagination-nav">' . LF . $content . LF . '</nav>';
     }
 
@@ -271,7 +270,7 @@ class Paginator
 
         if ($disabled($this->page, $this->last)) {
             $attributes = trim(static::attributes(['class' => $class . ' page-item disabled']));
-            return sprintf("\t\t<li %s><a class=\"page-link\" href=\"#\">%s</a></li>\n", $attributes, $text);
+            return TAB . TAB . '<li ' . $attributes . '><a class="page-link" href="#">' . $text . '</a></li>' . LF;
         }
 
         return $this->link($page, $text, $class);
@@ -284,7 +283,7 @@ class Paginator
      */
     protected function beginning()
     {
-        return sprintf("%s\t\t%s\n", $this->range(1, 2), $this->dots);
+        return $this->range(1, 2) . TAB . TAB . $this->dots . LF;
     }
 
     /**
@@ -294,7 +293,7 @@ class Paginator
      */
     protected function ending()
     {
-        return sprintf("\t\t%s\n%s", $this->dots, $this->range($this->last - 1, $this->last));
+        return TAB . TAB . $this->dots . LF . $this->range($this->last - 1, $this->last);
     }
 
     /**
@@ -312,7 +311,7 @@ class Paginator
 
         for ($page = $start; $page <= $end; ++$page) {
             $pages[] = ($this->page === $page)
-                ? sprintf("\t\t<li class=\"page-item active\"><a class=\"page-link\" href=\"#\">%s</a></li>\n", $page)
+                ? TAB . TAB . '<li class="page-item active"><a class="page-link" href="#">' . $page . '</a></li>' . LF
                 : $this->link($page, $page, null);
         }
 
@@ -330,12 +329,9 @@ class Paginator
      */
     protected function link($page, $text, $class)
     {
-        return sprintf(
-            "\t\t<li %s><a class=\"page-link\" href=\"%s\">%s</a></li>\n",
-            trim(static::attributes(['class' => $class . ' page-item'])),
-            URI::current() . '?page=' . $page . $this->appendage($this->appends),
-            e($text)
-        );
+        return TAB . TAB . '<li ' . trim(static::attributes(['class' => $class . ' page-item'])) . '>' .
+            '<a class="page-link" href="' . URI::current() . '?page=' . $page . $this->appendage($this->appends) .
+            '">' .  e($text) . '</a></li>' . LF;
     }
 
     /**

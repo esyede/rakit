@@ -224,8 +224,7 @@ class JWT
         $info = static::$algorithms[$algorithm];
 
         if ($info['type'] === 'symmetric') {
-            $expected = hash_hmac($info['hash'], $payload, $key, true);
-            return Crypter::equals($expected, $signature);
+            return Crypter::equals(hash_hmac($info['hash'], $payload, $key, true), $signature);
         } elseif ($info['type'] === 'asymmetric') {
             return static::rsa_verify($payload, $signature, $key, $algorithm);
         }
@@ -248,9 +247,7 @@ class JWT
             throw new \Exception('OpenSSL extension is not available');
         }
 
-        $success = openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash']);
-
-        if (!$success) {
+        if (!openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash'])) {
             throw new \Exception('OpenSSL unable to sign data');
         }
 

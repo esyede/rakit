@@ -246,11 +246,7 @@ class Package
         if (is_null($package) || DEFAULT_PACKAGE === $package) {
             return path('app');
         } elseif ($location = (string) Arr::get(static::$packages, $package . '.location')) {
-            if (0 === strpos($location, 'path: ')) {
-                return Str::finish(substr($location, 6), DS);
-            }
-
-            return Str::finish(path('package') . $location, DS);
+            return Str::finish((0 === strpos($location, 'path: ')) ? substr($location, 6) : path('package') . $location, DS);
         }
     }
 

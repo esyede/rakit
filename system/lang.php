@@ -161,9 +161,7 @@ class Lang
     {
         $package = Package::name($key);
         $segments = explode('.', Package::element($key));
-        $line = (count($segments) >= 2) ? implode('.', array_slice($segments, 1)) : null;
-
-        return [$package, $segments[0], $line];
+        return [$package, $segments[0], (count($segments) >= 2) ? implode('.', array_slice($segments, 1)) : null];
     }
 
     /**
@@ -181,10 +179,8 @@ class Lang
             return true;
         }
 
-        $lines = Event::first(static::LOADER, [$package, $language, $file]);
-        static::$lines[$package][$language][$file] = $lines;
-
-        return count($lines) > 0;
+        static::$lines[$package][$language][$file] = Event::first(static::LOADER, [$package, $language, $file]);
+        return count(static::$lines[$package][$language][$file]) > 0;
     }
 
     /**

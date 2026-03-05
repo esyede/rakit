@@ -36,8 +36,7 @@ trait Macroable
      */
     public static function mixin($mixin, $replace = true)
     {
-        $methods = (new \ReflectionClass($mixin))
-            ->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED);
+        $methods = (new \ReflectionClass($mixin))->getMethods(\ReflectionMethod::IS_PUBLIC | \ReflectionMethod::IS_PROTECTED);
 
         foreach ($methods as $method) {
             if ($replace || !static::has_macro($method->name)) {

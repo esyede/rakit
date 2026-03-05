@@ -279,8 +279,7 @@ class Image
      */
     public function contrast($level)
     {
-        $level = $this->level($level, -100, 100, 'contrast');
-        imagefilter($this->image, IMG_FILTER_CONTRAST, $level);
+        imagefilter($this->image, IMG_FILTER_CONTRAST, $this->level($level, -100, 100, 'contrast'));
         return $this;
     }
 
@@ -293,8 +292,7 @@ class Image
      */
     public function brightness($level)
     {
-        $level = $this->level($level, -100, 100, 'brightness');
-        imagefilter($this->image, IMG_FILTER_BRIGHTNESS, $level);
+        imagefilter($this->image, IMG_FILTER_BRIGHTNESS, $this->level($level, -100, 100, 'brightness'));
         return $this;
     }
 
@@ -307,8 +305,7 @@ class Image
      */
     public function smoothness($level)
     {
-        $level = $this->level($level, -100, 100, 'smoothness');
-        imagefilter($this->image, IMG_FILTER_SMOOTH, $level);
+        imagefilter($this->image, IMG_FILTER_SMOOTH, $this->level($level, -100, 100, 'smoothness'));
         return $this;
     }
 
@@ -401,8 +398,7 @@ class Image
      */
     public function pixelate($value)
     {
-        $value = $this->level($value, -100, 100, 'pixelate');
-        imagefilter($this->image, IMG_FILTER_PIXELATE, $value);
+        imagefilter($this->image, IMG_FILTER_PIXELATE, $this->level($value, -100, 100, 'pixelate'));
         return $this;
     }
 
@@ -505,7 +501,6 @@ class Image
     {
         $result = imagepng($this->image);
         $this->reset();
-
         return $result;
     }
 
@@ -730,9 +725,7 @@ class Image
      */
     private function level($value, $low, $high, $method)
     {
-        $bounds = range($low, $high);
-
-        if (!in_array($value, $bounds)) {
+        if (!in_array($value, range($low, $high))) {
             throw new \Exception(sprintf('The %s level should be between %s to %s', $method, $low, $high));
         }
 

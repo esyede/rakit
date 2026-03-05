@@ -85,13 +85,8 @@ class Runner extends Command
         // Forward all phpunit arguments
         $args = $this->arguments();
         $phpunit .= $args ? ' ' . $args : '';
-
         passthru('.' . DS . $phpunit . ' --configuration ' . escapeshellarg($config), $status);
-
-        if (is_file($config)) {
-            Storage::delete($config);
-        }
-
+        is_file($config) && Storage::delete($config);
         exit($status);
     }
 
