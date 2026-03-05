@@ -73,13 +73,8 @@ class Autoloader
 
             // If directories are not registered, register defaults
             if (empty(static::$directories)) {
-                static::directories([
-                    path('app') . 'controllers',
-                    path('app') . 'models',
-                    path('app') . 'libraries',
-                    path('app') . 'commands',
-                    path('app') . 'jobs',
-                ]);
+                $app = path('app');
+                static::directories([$app . 'controllers', $app . 'models', $app . 'libraries', $app . 'commands', $app . 'jobs']);
             }
 
             foreach (static::$namespaces as $namespace => $directory) {

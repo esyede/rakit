@@ -78,10 +78,7 @@ abstract class Provider
      */
     protected function download($url, $destination)
     {
-        if (is_dir($destination)) {
-            Storage::delete($destination);
-        }
-
+        is_dir($destination) && Storage::delete($destination);
         $options = [
             CURLOPT_HTTPGET => 1,
             CURLOPT_SSL_VERIFYPEER => 0,

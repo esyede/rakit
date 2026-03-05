@@ -119,13 +119,10 @@ class Packager extends Command
         // $migrator = Container::resolve('command: migrate');
         // $migrator->reset($arguments[0]);
 
-        if (is_dir($destination = path('package') . DS . $arguments[0])) {
-            Storage::rmdir($destination);
-        }
-
-        if (is_dir($destination = path('assets') . 'packages' . DS . $arguments[0])) {
-            Storage::rmdir($destination);
-        }
+        $destination = path('package') . DS . $arguments[0];
+        is_dir($destination) && Storage::rmdir($destination);
+        $destination = path('assets') . 'packages' . DS . $arguments[0];
+        is_dir($destination) && Storage::rmdir($destination);
 
         echo $this->info('Package uninstalled successfully: ' . $arguments[0]);
 

@@ -51,10 +51,8 @@ class Publisher
      */
     public function unpublish($package)
     {
-        if (is_dir($destination = path('assets') . 'packages' . DS . $package)) {
-            Storage::rmdir($destination);
-        }
-
+        $destination = path('assets') . 'packages' . DS . $package;
+        is_dir($destination) && Storage::rmdir($destination);
         echo Color::green('Assets deleted for package: ' . $package);
     }
 }

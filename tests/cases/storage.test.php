@@ -14,10 +14,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         self::$temp = path('storage') . 'temp';
-
-        if (!is_dir(self::$temp)) {
-            mkdir(self::$temp);
-        }
+        is_dir(self::$temp) || mkdir(self::$temp);
     }
 
     /**
@@ -25,10 +22,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        if (is_dir(self::$temp)) {
-            Storage::rmdir(self::$temp);
-        }
-
+        is_dir(self::$temp) && Storage::rmdir(self::$temp);
         self::$temp = null;
     }
 
