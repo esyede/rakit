@@ -28,6 +28,8 @@ if (is_file($path = path('rakit_key'))) {
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
+        } elseif (function_exists('litespeed_finish_request')) {
+            litespeed_finish_request();
         }
 
         exit(255);
@@ -41,6 +43,8 @@ if (is_file($path = path('rakit_key'))) {
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
+        } elseif (function_exists('litespeed_finish_request')) {
+            litespeed_finish_request();
         }
 
         exit(255);

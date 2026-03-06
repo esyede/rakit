@@ -416,6 +416,8 @@ class Debugger
                 echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
                 if (function_exists('fastcgi_finish_request')) {
                     fastcgi_finish_request();
+                } elseif (function_exists('litespeed_finish_request')) {
+                    litespeed_finish_request();
                 }
                 exit(255);
             }
@@ -484,6 +486,8 @@ class Debugger
         if ($exit) {
             if (function_exists('fastcgi_finish_request')) {
                 fastcgi_finish_request();
+            } elseif (function_exists('litespeed_finish_request')) {
+                litespeed_finish_request();
             }
             exit(255);
         }

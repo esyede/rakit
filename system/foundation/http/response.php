@@ -981,6 +981,8 @@ class Response
 
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
+        } elseif (function_exists('litespeed_finish_request')) {
+            litespeed_finish_request();
         } elseif (!$cliRequest) {
             $previous = null;
             $ob = ob_get_status(true);
