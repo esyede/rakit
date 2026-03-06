@@ -123,7 +123,7 @@ class Debugger
      * Reserved memory to handle fatal errors.
      *
      * @var string|null
-    */
+     */
     private static $reserved;
 
     /**
@@ -415,8 +415,10 @@ class Debugger
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
                 if (function_exists('fastcgi_finish_request')) {
+                    /** @disregard */
                     fastcgi_finish_request();
                 } elseif (function_exists('litespeed_finish_request')) {
+                    /** @disregard */
                     litespeed_finish_request();
                 }
                 exit(255);
@@ -485,8 +487,10 @@ class Debugger
 
         if ($exit) {
             if (function_exists('fastcgi_finish_request')) {
+                /** @disregard */
                 fastcgi_finish_request();
             } elseif (function_exists('litespeed_finish_request')) {
+                /** @disregard */
                 litespeed_finish_request();
             }
             exit(255);
@@ -496,7 +500,7 @@ class Debugger
     /**
      * Error handler.
      *
-     * @throws ErrorException
+     * @throws \ErrorException
      *
      * @return bool|null
      */
@@ -729,12 +733,13 @@ class Debugger
             }
 
             $panel->data[] = [
-            'title' => is_scalar($title) ? (string) $title : null,
-            'dump' => Dumper::toHtml($var, (array) $options + [
-                Dumper::DEPTH => self::$maxDepth,
-                Dumper::TRUNCATE => self::$maxLength,
-                Dumper::LOCATION => self::$showLocation ?: (Dumper::LOCATION_CLASS | Dumper::LOCATION_SOURCE),
-            ])];
+                'title' => is_scalar($title) ? (string) $title : null,
+                'dump' => Dumper::toHtml($var, (array) $options + [
+                    Dumper::DEPTH => self::$maxDepth,
+                    Dumper::TRUNCATE => self::$maxLength,
+                    Dumper::LOCATION => self::$showLocation ?: (Dumper::LOCATION_CLASS | Dumper::LOCATION_SOURCE),
+                ])
+            ];
         }
 
         return $var;

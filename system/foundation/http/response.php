@@ -980,8 +980,10 @@ class Response
             || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
 
         if (function_exists('fastcgi_finish_request')) {
+            /** @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
+            /** @disregard */
             litespeed_finish_request();
         } elseif (!$cliRequest) {
             $previous = null;

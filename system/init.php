@@ -27,8 +27,10 @@ if (is_file($path = path('rakit_key'))) {
         require $dir . DS . $error;
 
         if (function_exists('fastcgi_finish_request')) {
+            /** @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
+            /** @disregard */
             litespeed_finish_request();
         }
 
@@ -42,8 +44,10 @@ if (is_file($path = path('rakit_key'))) {
         require $dir . DS . 'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
+            /** @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
+            /** @disregard */
             litespeed_finish_request();
         }
 
