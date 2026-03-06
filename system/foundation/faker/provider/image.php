@@ -11,27 +11,13 @@ class Image extends Base
         'fashion', 'people', 'nature', 'sports', 'technics', 'transport',
     ];
 
-    public static function imageUrl(
-        $width = 640,
-        $height = 480,
-        $category = null,
-        $randomize = true,
-        $word = null
-    ) {
-        $url = 'http://lorempixel.com/' . $width . '/' . $height . '/';
-
-        if ($category) {
-            if (!in_array($category, static::$categories)) {
-                throw new \InvalidArgumentException(sprintf('Unkown image category: %s', $category));
-            }
-
-            $url .= $category . '/' . ($word ? $word . '/' : '');
-        }
-
-        return $randomize ? $url . '?' . static::randomNumber(5, true) : $url;
+    public static function imageUrl($width = 640, $height = 480, $hexBackgroundColor = null, $hexForegroundColor = null, $word = null)
+    {
+        return 'https://placehold.co/' . $width . '/' . $height . ($hexBackgroundColor ? '/' . ltrim($hexBackgroundColor, '#') : '')
+            . ($hexForegroundColor ? '/' . ltrim($hexForegroundColor, '#') : '') . '/jpg' . ($word ? '?text=' . urlencode($word) : '');
     }
 
-    public static function image($dir = null, $width = 640, $height = 480, $category = null, $fullPath = true, $randomize = true, $word = null)
+    public static function image($dir = null, $width = 640, $height = 480, $hexBackgroundColor = null, $hexForegroundColor = null, $word = null, $fullPath = true)
     {
         $dir = is_null($dir) ? sys_get_temp_dir() : $dir;
 
@@ -41,29 +27,20 @@ class Image extends Base
 
         $name = md5(\System\Str::random());
         $filename = $name .'.jpg';
-        $filepath = $dir . DIRECTORY_SEPARATOR . $filename;
-        $url = static::imageUrl($width, $height, $category, $randomize, $word);
+        $filepath = $dir . DS . $filename;
+        $url = static::imageUrl($width, $height, $hexBackgroundColor, $hexForegroundColor, $word);
 
-        if (function_exists('curl_exec')) {
-            $fp = fopen($filepath, 'w');
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            $success = curl_exec($ch);
+        $fp = fopen($filepath, 'w');
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_FILE, $fp);
+        $success = curl_exec($ch);
 
-            if (PHP_VERSION_ID < 80000) {
-                /** @disregard */
-                curl_close($ch);
-            }
-
-            fclose($fp);
-        } elseif (ini_get('allow_url_fopen')) {
-            $success = copy($url, $filepath);
-        } else {
-            return new \RuntimeException(
-                'The image formatter downloads an image from a remote HTTP server. ' .
-                'Therefore, it requires that PHP can request remote hosts, either via cURL or fopen()'
-            );
+        if (PHP_VERSION_ID < 80000) {
+            /** @disregard */
+            curl_close($ch);
         }
+
+        fclose($fp);
 
         if (!$success) {
             return false;

@@ -292,22 +292,22 @@ $faker->file($sourceDir, $targetDir, false);
 
 ```php
 $faker->imageUrl($width = 640, $height = 480);
-// 'http://lorempixel.com/640/480/'
+// 'https://placehold.co/640/480/jpg'
 
-$faker->imageUrl($width, $height, 'cats');
-// 'http://lorempixel.com/800/600/cats/'
+$faker->imageUrl($width, $height, 'cdcdcd');
+// 'https://placehold.co/800/400/cdcdcd/jpg'
 
-$faker->imageUrl($width, $height, 'cats', true, 'kittykat');
-// 'http://lorempixel.com/800/400/cats/kittykat'
+$faker->imageUrl($width, $height, 'cdcdcd', 'ffffff, 'Hello World');
+// 'https://placehold.co/800/400/cdcdcd/ffffff/jpg?text=Hello+World'
 
 $faker->image($dir = '/tmp', $width = 640, $height = 480);
 // '/tmp/13b73edae8443990be1aa8f1a483bc27.jpg'
 
-$faker->image($dir, $width, $height, 'cats');
-// 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' cat image!
+$faker->image($dir, $width, $height, 'cdcdcd');
+// 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' image with #cdcdcd background color
 
-$faker->image($dir, $width, $height, 'cats', true, 'Si Kumis');
-// 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' cat image with 'Si Kumis' text
+$faker->image($dir, $width, $height, 'cdcdcd', 'ffffff, 'Hello World');
+// 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' image with #cdcdcd background color, #ffffff foreground color, and 'Hello World' text
 ```
 
 ### UUID (version 4)

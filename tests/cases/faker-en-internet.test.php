@@ -40,7 +40,7 @@ class FakerEnInternetTest extends \PHPUnit_Framework_TestCase
 
         foreach ($localePaths as $path) {
             $parts = explode(DS, $path);
-            $locales[] = array($parts[count($parts) - 1]);
+            $locales[] = [$parts[count($parts) - 1]];
         }
 
         return $locales;

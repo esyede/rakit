@@ -22,10 +22,7 @@ class File extends Base
         'application/mods+xml' => 'mods',
         'application/mp4' => 'mp4s',
         'application/msword' => ['doc', 'dot'],
-        'application/octet-stream' => [
-            'bin', 'dms', 'lrf', 'mar', 'so', 'dist', 'distz',
-            'pkg', 'bpk', 'dump', 'elc', 'deploy',
-        ],
+        'application/octet-stream' => ['bin', 'dms', 'lrf', 'mar', 'so', 'dist', 'distz', 'pkg', 'bpk', 'dump', 'elc', 'deploy'],
         'application/ogg' => 'ogx',
         'application/omdoc+xml' => 'omdoc',
         'application/pdf' => 'pdf',
