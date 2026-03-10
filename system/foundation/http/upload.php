@@ -809,14 +809,8 @@ class Upload extends \SplFileInfo
      * @param int    $error
      * @param bool   $test
      */
-    public function __construct(
-        $path,
-        $origName,
-        $mimeType = null,
-        $size = null,
-        $error = null,
-        $test = false
-    ) {
+    public function __construct($path, $origName, $mimeType = null, $size = null, $error = null, $test = false)
+    {
         if (!ini_get('file_uploads')) {
             throw new \Exception(sprintf(
                 "Unable to create Upload because 'file_uploads' directive is disabled in your php.ini file (%s)",
@@ -892,10 +886,7 @@ class Upload extends \SplFileInfo
         $content = file_get_contents($this->getPathname());
 
         if (false === $content) {
-            throw new \Exception(sprintf(
-                'Could not get the content of the file: %s',
-                $this->getPathname()
-            ));
+            throw new \Exception(sprintf('Could not get the content of the file: %s', $this->getPathname()));
         }
 
         return $content;
@@ -938,7 +929,6 @@ class Upload extends \SplFileInfo
         $original = str_replace('\\', '/', (string) $name);
         $position = strrpos($original, '/');
         $original = (false === $position) ? $original : substr($original, $position + 1);
-
         return $original;
     }
 
@@ -1010,12 +1000,7 @@ class Upload extends \SplFileInfo
             if ($this->test) {
                 if (!@rename($this->getPathname(), $target)) {
                     $error = error_get_last();
-                    throw new \Exception(sprintf(
-                        "Could not move the file '%s' to '%s' (%s).",
-                        $this->getPathname(),
-                        $target,
-                        $error['message']
-                    ));
+                    throw new \Exception(sprintf("Could not move the file '%s' to '%s' (%s).", $this->getPathname(), $target, $error['message']));
                 }
 
                 @chmod($target, 0666 & ~umask());
@@ -1024,16 +1009,10 @@ class Upload extends \SplFileInfo
             } elseif (is_uploaded_file($this->getPathname())) {
                 if (false === @move_uploaded_file($this->getPathname(), $target)) {
                     $error = error_get_last();
-                    throw new \Exception(sprintf(
-                        "Could not move the file '%s' to '%s' (%s).",
-                        $this->getPathname(),
-                        $target,
-                        $error['message']
-                    ));
+                    throw new \Exception(sprintf("Could not move the file '%s' to '%s' (%s).", $this->getPathname(), $target, $error['message']));
                 }
 
                 @chmod($target, 0666 & ~umask());
-
                 return $target;
             }
         }

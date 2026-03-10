@@ -77,9 +77,7 @@ class Parameter implements \IteratorAggregate, \Countable
         $path = (string) $path;
 
         if (!$deep || false === ($pos = strpos($path, '['))) {
-            return array_key_exists($path, $this->parameters)
-                ? $this->parameters[$path]
-                : $default;
+            return array_key_exists($path, $this->parameters) ? $this->parameters[$path] : $default;
         }
 
         $root = substr($path, 0, $pos);
@@ -199,11 +197,8 @@ class Parameter implements \IteratorAggregate, \Countable
      */
     public function getDigits($key, $default = '', $deep = false)
     {
-        $digits = $this->filter($key, $default, $deep, FILTER_SANITIZE_NUMBER_INT);
         // Skip the - and + characters because these characters are allowed by the filter
-        $digits = str_replace(['-', '+'], '', $digits);
-
-        return $digits;
+        return str_replace(['-', '+'], '', $this->filter($key, $default, $deep, FILTER_SANITIZE_NUMBER_INT));
     }
 
     /**
@@ -231,13 +226,8 @@ class Parameter implements \IteratorAggregate, \Countable
      *
      * @return mixed
      */
-    public function filter(
-        $key,
-        $default = null,
-        $deep = false,
-        $filter = FILTER_DEFAULT,
-        $options = []
-    ) {
+    public function filter($key, $default = null, $deep = false, $filter = FILTER_DEFAULT, $options = [])
+    {
         $value = $this->get($key, $default, $deep);
 
         if (!is_array($options) && $options) {

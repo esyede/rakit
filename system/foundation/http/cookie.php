@@ -27,21 +27,10 @@ class Cookie
      * @param bool                 $httpOnly
      * @param string               $sameSite
      */
-    public function __construct(
-        $name,
-        $value = null,
-        $expire = 0,
-        $path = '/',
-        $domain = null,
-        $secure = false,
-        $httpOnly = true,
-        $sameSite = 'lax'
-    ) {
+    public function __construct($name, $value = null, $expire = 0, $path = '/', $domain = null, $secure = false, $httpOnly = true, $sameSite = 'lax')
+    {
         if (preg_match('/[=,; \t\r\n\013\014]/', $name)) {
-            throw new \InvalidArgumentException(sprintf(
-                "The cookie name '%s' contains invalid characters.",
-                $name
-            ));
+            throw new \InvalidArgumentException(sprintf("The cookie name '%s' contains invalid characters.", $name));
         }
 
         if (empty($name)) {
@@ -85,10 +74,7 @@ class Cookie
         if ('' === (string) $this->getValue()) {
             $str .= 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001);
         } else {
-            $str .= urlencode($this->getValue()) . ((0 !== $this->getExpiresTime())
-                ? '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime())
-                : ''
-            );
+            $str .= urlencode($this->getValue()) . ((0 !== $this->getExpiresTime()) ? '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime()) : '');
         }
 
         $str .= ('/' !== $this->path) ? '; path=' . $this->path : '';

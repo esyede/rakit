@@ -10,11 +10,11 @@ class Metadata
     const UPDATED = 'u';
     const LIFETIME = 'l';
 
+    protected $meta = [];
+
     private $name = '__metadata';
     private $storageKey;
     private $lastUsed;
-
-    protected $meta = [];
 
     /**
      * Constructor.
@@ -121,13 +121,10 @@ class Metadata
      */
     private function stampCreated($lifetime = null)
     {
-        $timeStamp = time();
-
-        $this->meta[self::CREATED] = $timeStamp;
-        $this->meta[self::UPDATED] = $timeStamp;
-        $this->lastUsed = $timeStamp;
-        $this->meta[self::LIFETIME] = (null === $lifetime)
-            ? ini_get('session.cookie_lifetime')
-            : $lifetime;
+        $time = time();
+        $this->meta[self::CREATED] = $time;
+        $this->meta[self::UPDATED] = $time;
+        $this->lastUsed = $time;
+        $this->meta[self::LIFETIME] = (null === $lifetime) ? ini_get('session.cookie_lifetime') : $lifetime;
     }
 }

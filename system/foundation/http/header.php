@@ -38,9 +38,7 @@ class Header implements \IteratorAggregate, \Countable
         $max = max(array_map(function ($key) {
             return mb_strlen((string) $key, '8bit');
         }, array_keys($this->headers))) + 1;
-
         ksort($this->headers);
-
         $content = '';
 
         foreach ($this->headers as $name => $values) {
@@ -111,18 +109,10 @@ class Header implements \IteratorAggregate, \Countable
         $key = $this->standardizeKey($key);
 
         if (!array_key_exists($key, $this->headers)) {
-            if (null === $default) {
-                return $first ? null : [];
-            }
-
-            return $first ? $default : [$default];
+            return (null === $default) ? ($first ? null : []) : ($first ? $default : [$default]);
         }
 
-        if ($first) {
-            return count($this->headers[$key]) ? $this->headers[$key][0] : $default;
-        }
-
-        return $this->headers[$key];
+        return $first ? (count($this->headers[$key]) ? $this->headers[$key][0] : $default) : $this->headers[$key];
     }
 
     /**
@@ -136,9 +126,7 @@ class Header implements \IteratorAggregate, \Countable
     {
         $key = $this->standardizeKey($key);
         $values = array_values((array) $values);
-        $this->headers[$key] = (true === $replace || !isset($this->headers[$key]))
-            ? $values
-            : array_merge($this->headers[$key], $values);
+        $this->headers[$key] = (true === $replace || !isset($this->headers[$key])) ? $values : array_merge($this->headers[$key], $values);
 
         if ('Cache-Control' === $key) {
             $this->cacheControl = $this->parseCacheControl($values[0]);
@@ -179,7 +167,6 @@ class Header implements \IteratorAggregate, \Countable
     public function remove($key)
     {
         $key = $this->standardizeKey($key);
-
         unset($this->headers[$key]);
 
         if ('Cache-Control' === $key) {
@@ -285,7 +272,6 @@ class Header implements \IteratorAggregate, \Countable
     protected function getCacheControlHeader()
     {
         ksort($this->cacheControl);
-
         $parts = [];
 
         foreach ($this->cacheControl as $key => $value) {
@@ -312,19 +298,11 @@ class Header implements \IteratorAggregate, \Countable
      */
     protected function parseCacheControl($header)
     {
-        preg_match_all(
-            '/([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?/',
-            $header,
-            $matches,
-            PREG_SET_ORDER
-        );
-
+        preg_match_all('/([a-zA-Z][a-zA-Z_-]*)\s*(?:=(?:"([^"]*)"|([^ \t",;]*)))?/', $header, $matches, PREG_SET_ORDER);
         $parsed = [];
 
         foreach ($matches as $match) {
-            $parsed[strtolower((string) $match[1])] = isset($match[3])
-                ? $match[3]
-                : (isset($match[2]) ? $match[2] : true);
+            $parsed[strtolower((string) $match[1])] = isset($match[3]) ? $match[3] : (isset($match[2]) ? $match[2] : true);
         }
 
         return $parsed;
@@ -339,7 +317,6 @@ class Header implements \IteratorAggregate, \Countable
      */
     protected static function standardizeKey($key)
     {
-        $key = strtr(strtolower((string) $key), '_', '-');
-        return str_replace(' ', '-', ucwords(strtr($key, '-', ' ')));
+        return str_replace(' ', '-', ucwords(strtr(strtr(strtolower((string) $key), '_', '-'), '-', ' ')));
     }
 }

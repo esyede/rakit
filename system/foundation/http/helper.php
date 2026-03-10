@@ -61,7 +61,6 @@ class Helper extends Header
     public function set($key, $values, $replace = true)
     {
         parent::set($key, $values, $replace);
-
         $key = $this->standardizeKey($key);
         $keys = ['Cache-Control', 'ETag', 'Last-Modified', 'Expires'];
 
@@ -97,9 +96,7 @@ class Helper extends Header
      */
     public function getCacheControlDirective($key)
     {
-        return array_key_exists($key, $this->computedCacheControl)
-            ? $this->computedCacheControl[$key]
-            : null;
+        return array_key_exists($key, $this->computedCacheControl) ? $this->computedCacheControl[$key] : null;
     }
 
     /**
@@ -146,11 +143,7 @@ class Helper extends Header
     public function getCookies($format = self::COOKIES_FLAT)
     {
         if (!in_array($format, [self::COOKIES_FLAT, self::COOKIES_ARRAY])) {
-            throw new \InvalidArgumentException(sprintf(
-                'Format "%s" invalid (%s).',
-                $format,
-                implode(', ', [self::COOKIES_FLAT, self::COOKIES_ARRAY])
-            ));
+            throw new \InvalidArgumentException(sprintf('Format "%s" invalid (%s).', $format, implode(', ', [self::COOKIES_FLAT, self::COOKIES_ARRAY])));
         }
 
         if (self::COOKIES_ARRAY === $format) {
@@ -197,11 +190,7 @@ class Helper extends Header
         $filenameFallback = (string) $filenameFallback;
 
         if (!in_array($disposition, [self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE])) {
-            throw new \Exception(sprintf(
-                "The disposition must be either '%s' or '%s'.",
-                self::DISPOSITION_ATTACHMENT,
-                self::DISPOSITION_INLINE
-            ));
+            throw new \Exception(sprintf("The disposition must be either '%s' or '%s'.", self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE));
         }
 
         if ('' === $filenameFallback) {
@@ -216,12 +205,7 @@ class Helper extends Header
             throw new \Exception("The filename fallback cannot contain the '%' character.");
         }
 
-        if (
-            false !== strpos($filename, '/')
-            || false !== strpos($filename, '\\')
-            || false !== strpos($filenameFallback, '/')
-            || false !== strpos($filenameFallback, '\\')
-        ) {
+        if (false !== strpos($filename, '/') || false !== strpos($filename, '\\') || false !== strpos($filenameFallback, '/') || false !== strpos($filenameFallback, '\\')) {
             throw new \Exception("The filename and the fallback cannot contain the '/' and '\' characters.");
         }
 
@@ -242,11 +226,7 @@ class Helper extends Header
      */
     protected function computeCacheControlValue()
     {
-        if (
-            !$this->cacheControl && !$this->has('ETag')
-            && !$this->has('Last-Modified')
-            && !$this->has('Expires')
-        ) {
+        if (!$this->cacheControl && !$this->has('ETag') && !$this->has('Last-Modified') && !$this->has('Expires')) {
             return 'no-cache';
         }
 
@@ -260,10 +240,6 @@ class Helper extends Header
             return $header;
         }
 
-        if (!isset($this->cacheControl['s-maxage'])) {
-            return $header . ', private';
-        }
-
-        return $header;
+        return isset($this->cacheControl['s-maxage']) ? $header : $header . ', private';
     }
 }

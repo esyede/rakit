@@ -27,9 +27,7 @@ class Server extends Parameter
 
         if (isset($this->parameters['PHP_AUTH_USER'])) {
             $headers['PHP_AUTH_USER'] = $this->parameters['PHP_AUTH_USER'];
-            $headers['PHP_AUTH_PW'] = isset($this->parameters['PHP_AUTH_PW'])
-                ? $this->parameters['PHP_AUTH_PW']
-                : '';
+            $headers['PHP_AUTH_PW'] = isset($this->parameters['PHP_AUTH_PW']) ? $this->parameters['PHP_AUTH_PW'] : '';
         } else {
             /**
              * B default, php-cgi under apache eill not pass Basic Auth's user and password

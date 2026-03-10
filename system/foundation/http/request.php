@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Request
 {
+    const HEADER_CLIENT_IP = 'client_ip';
+    const HEADER_CLIENT_HOST = 'client_host';
+    const HEADER_CLIENT_PROTO = 'client_proto';
+    const HEADER_CLIENT_PORT = 'client_port';
+
     public $attributes;
     public $request;
     public $query;
@@ -38,11 +43,6 @@ class Request
         self::HEADER_CLIENT_PORT => 'X_FORWARDED_PORT',
     ];
 
-    const HEADER_CLIENT_IP = 'client_ip';
-    const HEADER_CLIENT_HOST = 'client_host';
-    const HEADER_CLIENT_PROTO = 'client_proto';
-    const HEADER_CLIENT_PORT = 'client_port';
-
     /**
      * Constructor.
      *
@@ -54,24 +54,9 @@ class Request
      * @param array  $server
      * @param string $content
      */
-    public function __construct(
-        array $query = [],
-        array $request = [],
-        array $attributes = [],
-        array $cookies = [],
-        array $files = [],
-        array $server = [],
-        $content = null
-    ) {
-        $this->initialize(
-            $query,
-            $request,
-            $attributes,
-            $cookies,
-            $files,
-            $server,
-            $content
-        );
+    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    {
+        $this->initialize($query, $request, $attributes, $cookies, $files, $server, $content);
     }
 
     /**
@@ -86,15 +71,8 @@ class Request
      * @param array  $server
      * @param string $content
      */
-    public function initialize(
-        array $query = [],
-        array $request = [],
-        array $attributes = [],
-        array $cookies = [],
-        array $files = [],
-        array $server = [],
-        $content = null
-    ) {
+    public function initialize(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    {
         $this->request = new Parameter($request);
         $this->query = new Parameter($query);
         $this->attributes = new Parameter($attributes);
@@ -152,15 +130,8 @@ class Request
      *
      * @return static
      */
-    public static function create(
-        $uri,
-        $method = 'GET',
-        array $parameters = [],
-        array $cookies = [],
-        array $files = [],
-        array $server = [],
-        $content = null
-    ) {
+    public static function create($uri, $method = 'GET', array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null)
+    {
         $defaults = [
             'SERVER_NAME' => 'localhost',
             'SERVER_PORT' => 80,
@@ -232,13 +203,7 @@ class Request
 
         $qs = http_build_query($query, '', '&');
         $uri = $components['path'] . ('' !== $qs ? '?' . $qs : '');
-        $server = array_replace($defaults, $server, [
-            'REQUEST_METHOD' => $method,
-            'PATH_INFO' => '',
-            'REQUEST_URI' => $uri,
-            'QUERY_STRING' => $qs,
-        ]);
-
+        $server = array_replace($defaults, $server, ['REQUEST_METHOD' => $method, 'PATH_INFO' => '', 'REQUEST_URI' => $uri, 'QUERY_STRING' => $qs]);
         return new static($query, $request, [], $cookies, $files, $server, $content);
     }
 
@@ -254,14 +219,8 @@ class Request
      *
      * @return static
      */
-    public function duplicate(
-        $query = null,
-        $request = null,
-        $attributes = null,
-        $cookies = null,
-        $files = null,
-        $server = null
-    ) {
+    public function duplicate($query = null, $request = null, $attributes = null, $cookies = null, $files = null, $server = null)
+    {
         $clone = clone $this;
 
         if (null !== $query) {
@@ -323,12 +282,7 @@ class Request
      */
     public function __toString()
     {
-        return sprintf(
-            '%s %s %s',
-            $this->getMethod(),
-            $this->getRequestUri(),
-            $this->server->get('SERVER_PROTOCOL')
-        ) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
+        return sprintf('%s %s %s', $this->getMethod(), $this->getRequestUri(), $this->server->get('SERVER_PROTOCOL')) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
     }
 
     /**
@@ -445,12 +399,10 @@ class Request
             $parts[] = isset($keyValuePair[1])
                 ? rawurlencode(urldecode($keyValuePair[0])) . '=' . rawurlencode(urldecode($keyValuePair[1]))
                 : rawurlencode(urldecode($keyValuePair[0]));
-
             $order[] = urldecode($keyValuePair[0]);
         }
 
         array_multisort($order, SORT_ASC, $parts);
-
         return implode('&', $parts);
     }
 
@@ -471,7 +423,6 @@ class Request
         $result = $this->request->get($key, $default, $deep);
         $result = $this->attributes->get($key, $result, $deep);
         $result = $this->query->get($key, $result, $deep);
-
         return $result;
     }
 
@@ -492,8 +443,7 @@ class Request
      */
     public function hasPreviousSession()
     {
-        return $this->hasSession()
-            && $this->cookies->has($this->session->getName());
+        return $this->hasSession() && $this->cookies->has($this->session->getName());
     }
 
     /**
@@ -529,10 +479,7 @@ class Request
             return $ip;
         }
 
-        if (
-            !self::$trustedHeaders[self::HEADER_CLIENT_IP]
-            || !$this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])
-        ) {
+        if (!self::$trustedHeaders[self::HEADER_CLIENT_IP] || !$this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])) {
             return $ip;
         }
 
@@ -541,7 +488,6 @@ class Request
         $clientIps[] = $ip;
         $trustedProxies = (self::$trustProxy && !self::$trustedProxies) ? [$ip] : self::$trustedProxies;
         $clientIps = array_diff($clientIps, $trustedProxies);
-
         return array_pop($clientIps);
     }
 
@@ -552,9 +498,7 @@ class Request
      */
     public function getScriptName()
     {
-        $original = $this->server->get('ORIG_SCRIPT_NAME', '');
-
-        return $this->server->get('SCRIPT_NAME', $original);
+        return $this->server->get('SCRIPT_NAME', $this->server->get('ORIG_SCRIPT_NAME', ''));
     }
 
     /**
@@ -671,11 +615,8 @@ class Request
      */
     public function getUserInfo()
     {
-        $userinfo = $this->getUser();
         $pass = $this->getPassword();
-        $userinfo .= ('' === $pass) ? '' : ':' . $pass;
-
-        return $userinfo;
+        return $this->getUser() . (('' === $pass) ? '' : ':' . $pass);
     }
 
     /**
@@ -687,14 +628,7 @@ class Request
     {
         $scheme = $this->getScheme();
         $port = $this->getPort();
-
-        if (('http' === $scheme && 80 === (int) $port)
-            || ('https' === $scheme && 443 === (int) $port)
-        ) {
-            return $this->getHost();
-        }
-
-        return $this->getHost() . ':' . $port;
+        return $this->getHost() . ((('http' === $scheme && 80 === (int) $port) || ('https' === $scheme && 443 === (int) $port)) ? '' : ':' . $port);
     }
 
     /**
@@ -729,9 +663,7 @@ class Request
     public function getUri()
     {
         $query = $this->getQueryString();
-        $query = (null !== $query) ? '?' . $query : '';
-
-        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo() . $query;
+        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo() . ((null !== $query) ? '?' . $query : '');
     }
 
     /**
@@ -1001,9 +933,7 @@ class Request
     public function getContent($asResource = false)
     {
         if (false === $this->content || (true === $asResource && null !== $this->content)) {
-            throw new \LogicException(
-                'File::getContent() can only be called once when using the resource return type.'
-            );
+            throw new \LogicException('File::getContent() can only be called once when using the resource return type.');
         }
 
         if (true === $asResource) {
@@ -1074,7 +1004,6 @@ class Request
 
         $accept = $this->headers->get('Accept-Language');
         $languages = $this->splitHttpAcceptHeader($accept);
-
         $this->languages = [];
 
         foreach ($languages as $lang => $q) {
@@ -1117,7 +1046,6 @@ class Request
 
         $charsets = array_keys($this->splitHttpAcceptHeader($this->headers->get('Accept-Charset')));
         $this->charsets = $charsets;
-
         return $this->charsets;
     }
 
@@ -1134,7 +1062,6 @@ class Request
 
         $acceptable = array_keys($this->splitHttpAcceptHeader($this->headers->get('Accept')));
         $this->acceptableContentTypes = $acceptable;
-
         return $this->acceptableContentTypes;
     }
 
@@ -1200,10 +1127,7 @@ class Request
     {
         $requestUri = '';
 
-        if (
-            '1' === (string) $this->server->get('IIS_WasUrlRewritten')
-            && '' !== (string) $this->server->get('UNENCODED_URL')
-        ) {
+        if ('1' === (string) $this->server->get('IIS_WasUrlRewritten') && '' !== (string) $this->server->get('UNENCODED_URL')) {
             $requestUri = $this->server->get('UNENCODED_URL');
         } elseif ($this->server->has('REQUEST_URI')) {
             $requestUri = (string) $this->server->get('REQUEST_URI');
@@ -1280,10 +1204,7 @@ class Request
             return '';
         }
 
-        if ((mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit'))
-            && ((false !== ($pos = strpos($requestUri, $baseUrl)))
-                && (0 !== $pos))
-        ) {
+        if ((mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit')) && ((false !== ($pos = strpos($requestUri, $baseUrl))) && (0 !== $pos))) {
             $baseUrl = substr($requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
         }
 
@@ -1306,7 +1227,6 @@ class Request
 
         $basePath = (basename($baseUrl) === $filename) ? dirname($baseUrl) : $baseUrl;
         $basePath = ('\\' === DS) ? str_replace('\\', '/', $basePath) : $basePath;
-
         return rtrim($basePath, '/');
     }
 
@@ -1329,9 +1249,7 @@ class Request
             $requestUri = substr((string) $requestUri, 0, $pos);
         }
 
-        if ((null !== $baseUrl)
-            && (false === ($pathInfo = substr((string) $requestUri, mb_strlen($baseUrl, '8bit'))))
-        ) {
+        if ((null !== $baseUrl) && (false === ($pathInfo = substr((string) $requestUri, mb_strlen($baseUrl, '8bit'))))) {
             return '/';
         } elseif (null === $baseUrl) {
             return $requestUri;
@@ -1393,11 +1311,6 @@ class Request
         }
 
         $len = mb_strlen($prefix, '8bit');
-
-        if (preg_match('#^(%[[:xdigit:]]{2}|.){' . $len . '}#', $string, $match)) {
-            return $match[0];
-        }
-
-        return false;
+        return preg_match('#^(%[[:xdigit:]]{2}|.){' . $len . '}#', $string, $match) ? $match[0] : false;
     }
 }

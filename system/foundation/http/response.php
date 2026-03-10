@@ -6,12 +6,6 @@ defined('DS') or exit('No direct access.');
 
 class Response
 {
-    protected $content;
-    protected $version;
-    protected $statusCode;
-    protected $statusText;
-    protected $charset;
-
     public $headers;
 
     public static $statusTexts = [
@@ -80,6 +74,12 @@ class Response
         511 => 'Network Authentication Required',
     ];
 
+    protected $content;
+    protected $version;
+    protected $statusCode;
+    protected $statusText;
+    protected $charset;
+
     /**
      * Constructor.
      *
@@ -120,8 +120,7 @@ class Response
      */
     public function __toString()
     {
-        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)
-            . "\r\n" . $this->headers . "\r\n" . $this->getContent();
+        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
     }
 
     /**
@@ -183,10 +182,7 @@ class Response
             $this->setProtocolVersion('1.1');
         }
 
-        if (
-            '1.0' === $this->getProtocolVersion()
-            && 'no-cache' === $this->headers->get('Cache-Control')
-        ) {
+        if ('1.0' === $this->getProtocolVersion() && 'no-cache' === $this->headers->get('Cache-Control')) {
             $this->headers->set('Pragma', 'no-cache');
             $this->headers->set('Expires', -1);
         }
@@ -206,7 +202,6 @@ class Response
         }
 
         header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText));
-
         $headers = $this->headers->all();
 
         foreach ($headers as $name => $values) {
@@ -251,7 +246,6 @@ class Response
     public function sendContent()
     {
         echo $this->content;
-
         return $this;
     }
 
@@ -284,20 +278,11 @@ class Response
      */
     public function setContent($content)
     {
-        if (
-            null !== $content
-            && !is_string($content)
-            && !is_numeric($content)
-            && !is_callable([$content, '__toString'])
-        ) {
-            throw new \UnexpectedValueException(sprintf(
-                'Response content must be a string or object implementing __toString(), %s given.',
-                gettype($content)
-            ));
+        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([$content, '__toString'])) {
+            throw new \UnexpectedValueException(sprintf('Response content must be a string or object implementing __toString(), %s given.', gettype($content)));
         }
 
         $this->content = (string) $content;
-
         return $this;
     }
 
@@ -408,10 +393,7 @@ class Response
             return false;
         }
 
-        if (
-            $this->headers->hasCacheControlDirective('no-store')
-            || $this->headers->getCacheControlDirective('private')
-        ) {
+        if ($this->headers->hasCacheControlDirective('no-store') || $this->headers->getCacheControlDirective('private')) {
             return false;
         }
 
@@ -449,7 +431,6 @@ class Response
     {
         $this->headers->removeCacheControlDirective('public');
         $this->headers->addCacheControlDirective('private');
-
         return $this;
     }
 
@@ -463,7 +444,6 @@ class Response
     {
         $this->headers->addCacheControlDirective('public');
         $this->headers->removeCacheControlDirective('private');
-
         return $this;
     }
 
@@ -474,8 +454,7 @@ class Response
      */
     public function mustRevalidate()
     {
-        return $this->headers->hasCacheControlDirective('Must-Revalidate')
-            || $this->headers->has('Proxy-Revalidate');
+        return $this->headers->hasCacheControlDirective('Must-Revalidate') || $this->headers->has('Proxy-Revalidate');
     }
 
     /**
@@ -499,7 +478,6 @@ class Response
     {
         $date->setTimezone(new \DateTimeZone('UTC'));
         $this->headers->set('Date', $date->format('D, d M Y H:i:s') . ' GMT');
-
         return $this;
     }
 
@@ -603,7 +581,6 @@ class Response
     {
         $this->setPublic();
         $this->headers->addCacheControlDirective('s-maxage', $value);
-
         return $this;
     }
 
@@ -718,10 +695,7 @@ class Response
         $caching = ['etag', 'last_modified', 'max_age', 's_maxage', 'private', 'public'];
 
         if ($diff = array_diff(array_keys($options), $caching)) {
-            throw new \Exception(sprintf(
-                'Response does not support the following options: %s',
-                implode('", "', array_values($diff))
-            ));
+            throw new \Exception(sprintf('Response does not support the following options: %s', implode('", "', array_values($diff))));
         }
 
         if (isset($options['etag'])) {
@@ -768,16 +742,7 @@ class Response
     {
         $this->setStatusCode(304);
         $this->setContent(null);
-
-        $headers = [
-            'Allow',
-            'Content-Encoding',
-            'Content-Language',
-            'Content-Length',
-            'Content-MD5',
-            'Content-Type',
-            'Last-Modified',
-        ];
+        $headers = ['Allow', 'Content-Encoding', 'Content-Language', 'Content-Length', 'Content-MD5', 'Content-Type', 'Last-Modified'];
 
         foreach ($headers as $header) {
             $this->headers->remove($header);
@@ -839,8 +804,7 @@ class Response
         $notModified = false;
 
         if ($etags) {
-            $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags))
-                && (!$lastModified || $this->headers->get('Last-Modified') === $lastModified);
+            $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags)) && (!$lastModified || $this->headers->get('Last-Modified') === $lastModified);
         } elseif ($lastModified) {
             $notModified = ($lastModified === $this->headers->get('Last-Modified'));
         }
@@ -951,11 +915,7 @@ class Response
      */
     public function isRedirect($location = null)
     {
-        return in_array($this->statusCode, [201, 301, 302, 303, 307, 308])
-            && ((null === $location)
-                ? true
-                : ((string) $location === (string) $this->headers->get('Location'))
-            );
+        return in_array($this->statusCode, [201, 301, 302, 303, 307, 308]) && ((null === $location) ? true : ((string) $location === (string) $this->headers->get('Location')));
     }
 
     /**
@@ -975,9 +935,7 @@ class Response
      */
     public function finish()
     {
-        $cliRequest = defined('STDIN')
-            || 'cli' === php_sapi_name()
-            || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
+        $cliRequest = defined('STDIN') || 'cli' === php_sapi_name() || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
 
         if (function_exists('fastcgi_finish_request')) {
             /** @disregard */
