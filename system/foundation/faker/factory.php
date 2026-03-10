@@ -31,7 +31,7 @@ class Factory
         $providers = static::$providers;
 
         foreach ($providers as $provider) {
-            $class = self::getProviderClassname($provider, $locale);
+            $class = static::getProviderClassname($provider, $locale);
             $generator->addProvider(new $class($generator));
         }
 
@@ -40,17 +40,15 @@ class Factory
 
     protected static function getProviderClassname($provider, $locale = '')
     {
-        if ($class = self::findProviderClassname($provider, $locale)) {
+        if ($class = static::findProviderClassname($provider, $locale)) {
             return $class;
         }
 
-        $language = Config::get('application.language', 'en');
-
-        if ($class = self::findProviderClassname($provider, $language)) {
+        if ($class = static::findProviderClassname($provider, Config::get('application.language', 'en'))) {
             return $class;
         }
 
-        if ($class = self::findProviderClassname($provider)) {
+        if ($class = static::findProviderClassname($provider)) {
             return $class;
         }
 

@@ -39,13 +39,9 @@ class Valid
             ++$retry;
 
             if ($retry > $this->max_retries) {
-                throw new \OverflowException(sprintf(
-                    'Maximum retries of %s reached without finding a unique value.',
-                    $this->max_retries
-                ));
+                throw new \OverflowException(sprintf('Maximum retries of %s reached without finding a unique value.', $this->max_retries));
             }
         } while (!call_user_func($this->validator, $result));
-
         return $result;
     }
 }

@@ -25,8 +25,7 @@ class Image extends Base
             throw new \InvalidArgumentException(sprintf('Cannot write to directory "%s"', $dir));
         }
 
-        $name = md5(\System\Str::random());
-        $filename = $name .'.jpg';
+        $filename = md5(\System\Str::random()) .'.jpg';
         $filepath = $dir . DS . $filename;
         $url = static::imageUrl($width, $height, $hexBackgroundColor, $hexForegroundColor, $word);
 
@@ -41,11 +40,6 @@ class Image extends Base
         }
 
         fclose($fp);
-
-        if (!$success) {
-            return false;
-        }
-
-        return $fullPath ? $filepath : $filename;
+        return $success ? ($fullPath ? $filepath : $filename) : false;
     }
 }

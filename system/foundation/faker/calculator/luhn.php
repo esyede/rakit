@@ -25,13 +25,13 @@ class Luhn
 
     public static function computeCheckDigit($partialNumber)
     {
-        $digit = self::checksum($partialNumber . '0');
+        $digit = static::checksum($partialNumber . '0');
         return (0 === $digit) ? 0 : ((string) (10 - $digit));
     }
 
     public static function isValid($number)
     {
-        return 0 === self::checksum($number);
+        return 0 === static::checksum($number);
     }
 
     public static function generateLuhnNumber($partialValue)
@@ -40,6 +40,6 @@ class Luhn
             throw new \InvalidArgumentException('Argument should be an integer.');
         }
 
-        return $partialValue . self::computeCheckDigit($partialValue);
+        return $partialValue . static::computeCheckDigit($partialValue);
     }
 }

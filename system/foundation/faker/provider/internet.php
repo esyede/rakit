@@ -6,39 +6,14 @@ defined('DS') or exit('No direct access.');
 
 class Internet extends Base
 {
-    protected static $freeEmailDomain = [
-        'gmail.com', 'yahoo.com', 'hotmail.com',
-        'qqmail.com', 'baidu.com', 'mail.ru',
-    ];
-
-    protected static $tld = [
-        'com', 'com', 'com', 'com', 'com', 'com',
-        'biz', 'info', 'net', 'org',
-    ];
-
-    protected static $userNameFormats = [
-        '{{lastName}}.{{firstName}}',
-        '{{firstName}}.{{lastName}}',
-        '{{firstName}}##',
-        '?{{lastName}}',
-    ];
-
-    protected static $emailFormats = [
-        '{{userName}}@{{domainName}}',
-        '{{userName}}@{{freeEmailDomain}}',
-    ];
-
+    protected static $freeEmailDomain = ['gmail.com', 'yahoo.com', 'hotmail.com', 'qqmail.com', 'baidu.com', 'mail.ru'];
+    protected static $tld = ['com', 'com', 'com', 'com', 'com', 'com', 'biz', 'info', 'net', 'org'];
+    protected static $userNameFormats = ['{{lastName}}.{{firstName}}', '{{firstName}}.{{lastName}}', '{{firstName}}##', '?{{lastName}}'];
+    protected static $emailFormats = ['{{userName}}@{{domainName}}', '{{userName}}@{{freeEmailDomain}}'];
     protected static $urlFormats = [
-        'http://www.{{domainName}}/',
-        'http://{{domainName}}/',
-        'http://www.{{domainName}}/{{slug}}',
-        'http://www.{{domainName}}/{{slug}}',
-        'https://www.{{domainName}}/{{slug}}',
-        'http://www.{{domainName}}/{{slug}}.html',
-        'http://{{domainName}}/{{slug}}',
-        'http://{{domainName}}/{{slug}}',
-        'http://{{domainName}}/{{slug}}.html',
-        'https://{{domainName}}/{{slug}}.html',
+        'http://www.{{domainName}}/', 'http://{{domainName}}/','http://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}',
+        'https://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}.html', 'http://{{domainName}}/{{slug}}',
+        'http://{{domainName}}/{{slug}}', 'http://{{domainName}}/{{slug}}.html', 'https://{{domainName}}/{{slug}}.html',
     ];
 
     public static function toAscii($string)
@@ -170,26 +145,22 @@ class Internet extends Base
 
     public function email()
     {
-        $format = static::randomElement(static::$emailFormats);
-        return mb_strtolower((string) $this->generator->parse($format), 'UTF-8');
+        return mb_strtolower((string) $this->generator->parse(static::randomElement(static::$emailFormats)), 'UTF-8');
     }
 
     final public function safeEmail()
     {
-        $email = $this->userName() . '@' . static::safeEmailDomain();
-        return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName() . '@' . static::safeEmailDomain()), 'UTF-8');
     }
 
     public function freeEmail()
     {
-        $email = $this->userName() . '@' . static::freeEmailDomain();
-        return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName() . '@' . static::freeEmailDomain()), 'UTF-8');
     }
 
     public function companyEmail()
     {
-        $email = $this->userName() . '@' . $this->domainName();
-        return mb_strtolower((string) preg_replace('/\s/u', '', $email), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName() . '@' . $this->domainName()), 'UTF-8');
     }
 
     public static function freeEmailDomain()
@@ -199,20 +170,17 @@ class Internet extends Base
 
     final public static function safeEmailDomain()
     {
-        $elements = ['example.com', 'example.org', 'example.net'];
-        return mb_strtolower((string) static::randomElement($elements), 'UTF-8');
+        return mb_strtolower((string) static::randomElement(['example.com', 'example.org', 'example.net']), 'UTF-8');
     }
 
     public function userName()
     {
-        $format = static::randomElement(static::$userNameFormats);
-        return static::transliterate(static::bothify($this->generator->parse($format)));
+        return static::transliterate(static::bothify($this->generator->parse(static::randomElement(static::$userNameFormats))));
     }
 
     public function password($minLength = 6, $maxLength = 20)
     {
-        $pattern = str_repeat('*', $this->numberBetween($minLength, $maxLength));
-        return $this->asciify($pattern);
+        return $this->asciify(str_repeat('*', $this->numberBetween($minLength, $maxLength)));
     }
 
     public function domainName()
@@ -266,13 +234,7 @@ class Internet extends Base
 
     public static function localIpv4()
     {
-        if (0 === static::numberBetween(0, 1)) {
-            $ip = long2ip(static::numberBetween(167772160, 184549375));
-        } else {
-            $ip = long2ip(static::numberBetween(3232235520, 3232301055));
-        }
-
-        return $ip;
+        return (0 === static::numberBetween(0, 1)) ? long2ip(static::numberBetween(167772160, 184549375)) : long2ip(static::numberBetween(3232235520, 3232301055));
     }
 
     public static function macAddress()

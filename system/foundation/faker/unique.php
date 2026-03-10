@@ -82,8 +82,7 @@ class Unique
         }
 
         if (is_array($value)) {
-            $canonical = $this->canonicalizeArray($value);
-            $json = json_encode($canonical);
+            $json = json_encode($this->canonicalizeArray($value));
 
             if (false !== $json) {
                 return 'json:' . $json;

@@ -6,15 +6,14 @@ defined('DS') or exit('No direct access.');
 
 class Biased extends Base
 {
-    public function biasedNumberBetween($min = 0, $max = 100, callable $function = null)
+    public function biasedNumberBetween($min = 0, $max = 100, $callback = null)
     {
-        $function = is_null($function) ? 'sqrt' : $function;
+        $callback = is_null($callback) ? 'sqrt' : $callback;
 
         do {
             $x = mt_rand() / mt_getrandmax();
             $y = mt_rand() / (mt_getrandmax() + 1);
-        } while (call_user_func($function, $x) < $y);
-
+        } while (call_user_func($callback, $x) < $y);
         return floor($x * ($max - $min + 1) + $min);
     }
 

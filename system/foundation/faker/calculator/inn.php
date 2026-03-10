@@ -20,6 +20,6 @@ class Inn
 
     public static function isValid($inn)
     {
-        return self::checksum(substr((string) $inn, 0, -1)) === substr((string) $inn, -1, 1);
+        return static::checksum(substr((string) $inn, 0, -1)) === substr((string) $inn, -1, 1);
     }
 }

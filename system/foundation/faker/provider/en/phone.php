@@ -10,65 +10,41 @@ class Phone extends BasePhone
 {
     protected static $tollFreeAreaCodes = [800, 844, 855, 866, 877, 888];
     protected static $formats = [
-        '+1-{{areaCode}}-{{exchangeCode}}-####',
-        '+1 ({{areaCode}}) {{exchangeCode}}-####',
-        '+1-{{areaCode}}-{{exchangeCode}}-####',
-        '+1.{{areaCode}}.{{exchangeCode}}.####',
-        '+1{{areaCode}}{{exchangeCode}}####',
-
-        '{{areaCode}}-{{exchangeCode}}-####',
-        '({{areaCode}}) {{exchangeCode}}-####',
-        '1-{{areaCode}}-{{exchangeCode}}-####',
-        '{{areaCode}}.{{exchangeCode}}.####',
-
-        '{{areaCode}}-{{exchangeCode}}-####',
-        '({{areaCode}}) {{exchangeCode}}-####',
-        '1-{{areaCode}}-{{exchangeCode}}-####',
-        '{{areaCode}}.{{exchangeCode}}.####',
-
-        '{{areaCode}}-{{exchangeCode}}-#### x###',
-        '({{areaCode}}) {{exchangeCode}}-#### x###',
-        '1-{{areaCode}}-{{exchangeCode}}-#### x###',
-        '{{areaCode}}.{{exchangeCode}}.#### x###',
-
-        '{{areaCode}}-{{exchangeCode}}-#### x####',
-        '({{areaCode}}) {{exchangeCode}}-#### x####',
-        '1-{{areaCode}}-{{exchangeCode}}-#### x####',
-        '{{areaCode}}.{{exchangeCode}}.#### x####',
-
-        '{{areaCode}}-{{exchangeCode}}-#### x#####',
-        '({{areaCode}}) {{exchangeCode}}-#### x#####',
-        '1-{{areaCode}}-{{exchangeCode}}-#### x#####',
+        '+1-{{areaCode}}-{{exchangeCode}}-####', '+1 ({{areaCode}}) {{exchangeCode}}-####', '+1-{{areaCode}}-{{exchangeCode}}-####',
+        '+1.{{areaCode}}.{{exchangeCode}}.####', '+1{{areaCode}}{{exchangeCode}}####', '{{areaCode}}-{{exchangeCode}}-####',
+        '({{areaCode}}) {{exchangeCode}}-####', '1-{{areaCode}}-{{exchangeCode}}-####', '{{areaCode}}.{{exchangeCode}}.####',
+        '{{areaCode}}-{{exchangeCode}}-####', '({{areaCode}}) {{exchangeCode}}-####', '1-{{areaCode}}-{{exchangeCode}}-####',
+        '{{areaCode}}.{{exchangeCode}}.####', '{{areaCode}}-{{exchangeCode}}-#### x###', '({{areaCode}}) {{exchangeCode}}-#### x###',
+        '1-{{areaCode}}-{{exchangeCode}}-#### x###', '{{areaCode}}.{{exchangeCode}}.#### x###', '{{areaCode}}-{{exchangeCode}}-#### x####',
+        '({{areaCode}}) {{exchangeCode}}-#### x####', '1-{{areaCode}}-{{exchangeCode}}-#### x####', '{{areaCode}}.{{exchangeCode}}.#### x####',
+        '{{areaCode}}-{{exchangeCode}}-#### x#####', '({{areaCode}}) {{exchangeCode}}-#### x#####', '1-{{areaCode}}-{{exchangeCode}}-#### x#####',
         '{{areaCode}}.{{exchangeCode}}.#### x#####',
     ];
 
     protected static $tollFreeFormats = [
-        '{{tollFreeAreaCode}}-{{exchangeCode}}-####',
-        '({{tollFreeAreaCode}}) {{exchangeCode}}-####',
-        '1-{{tollFreeAreaCode}}-{{exchangeCode}}-####',
-        '{{tollFreeAreaCode}}.{{exchangeCode}}.####',
+        '{{tollFreeAreaCode}}-{{exchangeCode}}-####', '({{tollFreeAreaCode}}) {{exchangeCode}}-####',
+        '1-{{tollFreeAreaCode}}-{{exchangeCode}}-####', '{{tollFreeAreaCode}}.{{exchangeCode}}.####',
     ];
 
     public function tollFreeAreaCode()
     {
-        return self::randomElement(static::$tollFreeAreaCodes);
+        return static::randomElement(static::$tollFreeAreaCodes);
     }
 
     public function tollFreePhoneNumber()
     {
-        return self::numerify($this->generator->parse(self::randomElement(static::$tollFreeFormats)));
+        return static::numerify($this->generator->parse(static::randomElement(static::$tollFreeFormats)));
     }
 
     public static function areaCode()
-    {
-        $digit = self::randomDigit();
-        return self::numberBetween(2, 9) . self::randomDigit() . self::randomDigitNotNull($digit);
+    {;
+        return static::numberBetween(2, 9) . static::randomDigit() . static::randomDigitNotNull(static::randomDigit());
     }
 
     public static function exchangeCode()
     {
-        $digits = [self::numberBetween(2, 9), self::randomDigit()];
-        $digits[] = (1 === $digits[1]) ? self::randomDigitNotNull(1) : self::randomDigit();
+        $digits = [static::numberBetween(2, 9), static::randomDigit()];
+        $digits[] = (1 === $digits[1]) ? static::randomDigitNotNull(1) : static::randomDigit();
         return implode('', $digits);
     }
 }

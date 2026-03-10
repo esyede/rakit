@@ -31,10 +31,7 @@ class Base
     public static function randomNumber($nbDigits = null, $strict = false)
     {
         if (!is_bool($strict)) {
-            throw new \InvalidArgumentException(
-                'randomNumber() generates numbers of fixed width. To generate numbers ' .
-                    'between two boundaries, use numberBetween() instead.'
-            );
+            throw new \InvalidArgumentException('randomNumber() generates numbers of fixed width. To generate numbers between two boundaries, use numberBetween() instead.');
         }
 
         if (null === $nbDigits) {
@@ -118,7 +115,6 @@ class Base
         }
 
         $elements = static::randomElements($array, 1);
-
         return $elements[0];
     }
 
@@ -150,6 +146,7 @@ class Base
         $shuffled = [];
         $i = 0;
         reset($array);
+
         foreach ($array as $key => $value) {
             if ($i === 0) {
                 $j = 0;
@@ -238,29 +235,23 @@ class Base
         $regex = preg_replace_callback('/(\[[^\]]+\])\{(\d+),(\d+)\}/', function ($matches) {
             return str_repeat($matches[1], Base::randomElement(range($matches[2], $matches[3])));
         }, $regex);
-
         $regex = preg_replace_callback('/(\([^\)]+\))\{(\d+),(\d+)\}/', function ($matches) {
             return str_repeat($matches[1], Base::randomElement(range($matches[2], $matches[3])));
         }, $regex);
-
         $regex = preg_replace_callback('/(\\\?.)\{(\d+),(\d+)\}/', function ($matches) {
             return str_repeat($matches[1], Base::randomElement(range($matches[2], $matches[3])));
         }, $regex);
-
         $regex = preg_replace_callback('/\((.*?)\)/', function ($matches) {
             return Base::randomElement(explode('|', str_replace(['(', ')'], '', $matches[1])));
         }, $regex);
-
         $regex = preg_replace_callback('/\[([^\]]+)\]/', function ($matches) {
             return '[' . preg_replace_callback('/(\w|\d)\-(\w|\d)/', function ($range) {
                 return implode('', range($range[1], $range[2]));
             }, $matches[1]) . ']';
         }, $regex);
-
         $regex = preg_replace_callback('/\[([^\]]+)\]/', function ($matches) {
             return Base::randomElement(str_split($matches[1]));
         }, $regex);
-
         $regex = preg_replace_callback('/\\\w/', 'static::randomLetter', $regex);
         $regex = preg_replace_callback('/\\\d/', 'static::randomDigit', $regex);
         $regex = preg_replace_callback('/(?<!\\\)\./', 'static::randomAscii', $regex);

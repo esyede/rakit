@@ -10,46 +10,20 @@ class Payment extends Base
 {
     public static $expirationDateFormat = 'm/y';
     protected static $cardVendors = [
-        'Visa', 'Visa', 'Visa', 'Visa', 'Visa',
-        'MasterCard', 'MasterCard', 'MasterCard', 'MasterCard', 'MasterCard',
-        'American Express', 'Discover Card',
+        'Visa', 'Visa', 'Visa', 'Visa', 'Visa', 'MasterCard', 'MasterCard', 'MasterCard',
+        'MasterCard', 'MasterCard', 'American Express', 'Discover Card',
     ];
 
     protected static $cardParams = [
         'Visa' => [
-            '4539########',
-            '4539###########',
-            '4556########',
-            '4556###########',
-            '4916########',
-            '4916###########',
-            '4532########',
-            '4532###########',
-            '4929########',
-            '4929###########',
-            '40240071####',
-            '40240071#######',
-            '4485########',
-            '4485###########',
-            '4716########',
-            '4716###########',
-            '4###########',
-            '4##############',
+            '4539########', '4539###########', '4556########', '4556###########', '4916########',
+            '4916###########',  '4532########', '4532###########', '4929########', '4929###########',
+            '40240071####', '40240071#######', '4485########', '4485###########', '4716########',
+            '4716###########', '4###########', '4##############',
         ],
-        'MasterCard' => [
-            '51#############',
-            '52#############',
-            '53#############',
-            '54#############',
-            '55#############',
-        ],
-        'American Express' => [
-            '34############',
-            '37############',
-        ],
-        'Discover Card' => [
-            '6011###########',
-        ],
+        'MasterCard' => ['51#############', '52#############', '53#############', '54#############', '55#############'],
+        'American Express' => ['34############', '37############'],
+        'Discover Card' => ['6011###########'],
     ];
 
     protected static $ibanFormats = [
@@ -123,14 +97,11 @@ class Payment extends Base
 
     public static function creditCardNumber($type = null, $formatted = false, $separator = '-')
     {
-        $type = is_null($type) ? static::creditCardType() : $type;
-        $mask = static::randomElement(static::$cardParams[$type]);
-        $number = static::numerify($mask);
+        $number = static::numerify(static::randomElement(static::$cardParams[is_null($type) ? static::creditCardType() : $type]));
         $number .= Luhn::computeCheckDigit($number);
 
         if ($formatted) {
-            $number = substr($number, 0, 4) . $separator . substr($number, 4, 4)
-                . $separator . substr($number, 8, 4) . $separator . substr($number, 12);
+            $number = substr($number, 0, 4) . $separator . substr($number, 4, 4) . $separator . substr($number, 8, 4) . $separator . substr($number, 12);
         }
 
         return $number;
@@ -143,8 +114,7 @@ class Payment extends Base
 
     public function creditCardExpirationDateString($valid = true, $expirationDateFormat = null)
     {
-        $date = is_null($expirationDateFormat) ? static::$expirationDateFormat : $expirationDateFormat;
-        return $this->creditCardExpirationDate($valid)->format($date);
+        return $this->creditCardExpirationDate($valid)->format(is_null($expirationDateFormat) ? static::$expirationDateFormat : $expirationDateFormat);
     }
 
     public function creditCardDetails($valid = true)
@@ -168,6 +138,7 @@ class Payment extends Base
                 $length = 24;
             } else {
                 $length = 0;
+
                 foreach ($format as $part) {
                     list($class, $groupCount) = $part;
                     $length += $groupCount;
@@ -195,19 +166,9 @@ class Payment extends Base
             }
             switch ($class) {
                 default:
-                case 'c':
-                    $result .= (mt_rand(0, 100) <= 50)
-                        ? static::randomDigit()
-                        : strtoupper((string) static::randomLetter());
-                    break;
-
-                case 'a':
-                    $result .= strtoupper((string) static::randomLetter());
-                    break;
-
-                case 'n':
-                    $result .= static::randomDigit();
-                    break;
+                case 'c': $result .= (mt_rand(0, 100) <= 50) ? static::randomDigit() : strtoupper((string) static::randomLetter()); break;
+                case 'a': $result .= strtoupper((string) static::randomLetter()); break;
+                case 'n': $result .= static::randomDigit(); break;
             }
         }
 

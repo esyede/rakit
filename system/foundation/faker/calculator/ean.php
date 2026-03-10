@@ -33,6 +33,6 @@ class Ean
             return false;
         }
 
-        return self::checksum(substr($ean, 0, -1)) === (int) substr($ean, -1);
+        return static::checksum(substr($ean, 0, -1)) === (int) substr($ean, -1);
     }
 }
