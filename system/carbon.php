@@ -113,15 +113,8 @@ class Carbon extends \DateTime
         return static::createFromTimestamp(~PHP_INT_MAX);
     }
 
-    public static function create(
-        $year = null,
-        $month = null,
-        $day = null,
-        $hour = null,
-        $minute = null,
-        $second = null,
-        $tz = null
-    ) {
+    public static function create($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null, $tz = null)
+    {
         $dt = new \DateTime();
         $year = ($year === null) ? $dt->format('Y') : $year;
         $month = ($month === null) ? $dt->format('n') : $month;
@@ -368,12 +361,12 @@ class Carbon extends \DateTime
 
     public function toAtomString()
     {
-        return $this->format(static::ATOM);
+        return $this->format('Y-m-d\TH:i:sP');
     }
 
     public function toCookieString()
     {
-        return $this->format(static::COOKIE);
+        return $this->format('l, d-M-Y H:i:s T');
     }
 
     public function toIso8601String()
@@ -383,49 +376,48 @@ class Carbon extends \DateTime
 
     public function toRfc822String()
     {
-        return $this->format(static::RFC822);
+        return $this->format('D, d M y H:i:s O');
     }
 
     public function toRfc850String()
     {
-        return $this->format(static::RFC850);
+        return $this->format('l, d-M-y H:i:s T');
     }
 
     public function toRfc1036String()
     {
-        return $this->format(static::RFC1036);
+        return $this->format('D, d M y H:i:s O');
     }
 
     public function toRfc1123String()
     {
-        return $this->format(static::RFC1123);
+        return $this->format('D, d M Y H:i:s O');
     }
 
     public function toRfc2822String()
     {
-        return $this->format(static::RFC2822);
+        return $this->format('D, d M Y H:i:s O');
     }
 
     public function toRfc3339String()
     {
-        return $this->format(static::RFC3339);
+        return $this->format('Y-m-d\TH:i:sP');
     }
 
     public function toRssString()
     {
-        return $this->format(static::RSS);
+        return $this->format('D, d M Y H:i:s O');
     }
 
     public function toW3cString()
     {
-        return $this->format(static::W3C);
+        return $this->format('Y-m-d\TH:i:sP');
     }
 
     public function eq(Carbon $dt)
     {
         $this->checkComparator($dt);
-        // '==' intended for value comparison, not object identity
-        return $this == $dt;
+        return $this == $dt; // '==' intended for value comparison, not object identity
     }
 
     public function ne(Carbon $dt)
@@ -787,7 +779,6 @@ class Carbon extends \DateTime
     {
         $dt = ($dt === null) ? static::now($this->tz) : $dt;
         $value = $dt->getTimestamp() - $this->getTimestamp();
-
         return $abs ? abs($value) : $value;
     }
 
