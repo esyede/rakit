@@ -81,6 +81,7 @@
                     modalSuggestions.innerHTML = '';
                     return;
                 }
+                value = value.toLowerCase();
                 var results = index.query(function(q) {
                     q.term(value, {
                         fields: ['title'],
