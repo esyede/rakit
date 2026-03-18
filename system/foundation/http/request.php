@@ -106,10 +106,8 @@ class Request
         $httpType = (string) $request->server->get('HTTP_CONTENT_TYPE');
         $method = (string) $request->server->get('REQUEST_METHOD', 'GET');
 
-        if ((0 === strpos($type, 'application/x-www-form-urlencoded')
-                || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
-            && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])
-        ) {
+        if ((0 === strpos($type, 'application/x-www-form-urlencoded') || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
+        && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])) {
             parse_str($request->getContent(), $data);
             $request->request = new Parameter($data);
         }
@@ -1305,12 +1303,8 @@ class Request
     private function getUrlencodedPrefix($string, $prefix)
     {
         $prefix = (string) $prefix;
-
-        if (!$prefix || 0 !== strpos((string) rawurldecode($string), $prefix)) {
-            return false;
-        }
-
-        $len = mb_strlen($prefix, '8bit');
-        return preg_match('#^(%[[:xdigit:]]{2}|.){' . $len . '}#', $string, $match) ? $match[0] : false;
+        return (!$prefix || 0 !== strpos((string) rawurldecode($string), $prefix))
+            ? false
+            : (preg_match('#^(%[[:xdigit:]]{2}|.){' . mb_strlen($prefix, '8bit') . '}#', $string, $match) ? $match[0] : false);
     }
 }

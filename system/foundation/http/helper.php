@@ -235,11 +235,8 @@ class Helper extends Header
         }
 
         $header = $this->getCacheControlHeader();
-
-        if (isset($this->cacheControl['public']) || isset($this->cacheControl['private'])) {
-            return $header;
-        }
-
-        return isset($this->cacheControl['s-maxage']) ? $header : $header . ', private';
+        return (isset($this->cacheControl['public']) || isset($this->cacheControl['private']))
+            ? $header
+            : (isset($this->cacheControl['s-maxage']) ? $header : $header . ', private');
     }
 }

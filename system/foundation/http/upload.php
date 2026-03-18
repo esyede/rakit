@@ -926,10 +926,9 @@ class Upload extends \SplFileInfo
      */
     protected function getName($name)
     {
-        $original = str_replace('\\', '/', (string) $name);
-        $position = strrpos($original, '/');
-        $original = (false === $position) ? $original : substr($original, $position + 1);
-        return $original;
+        $name = str_replace('\\', '/', (string) $name);
+        $position = strrpos($name, '/');
+        return (false === $position) ? $name : substr($name, $position + 1);
     }
 
     /**
@@ -1004,7 +1003,6 @@ class Upload extends \SplFileInfo
                 }
 
                 @chmod($target, 0666 & ~umask());
-
                 return $target;
             } elseif (is_uploaded_file($this->getPathname())) {
                 if (false === @move_uploaded_file($this->getPathname(), $target)) {

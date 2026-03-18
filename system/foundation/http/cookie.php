@@ -70,13 +70,9 @@ class Cookie
     public function __toString()
     {
         $str = urlencode($this->getName()) . '=';
-
-        if ('' === (string) $this->getValue()) {
-            $str .= 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001);
-        } else {
-            $str .= urlencode($this->getValue()) . ((0 !== $this->getExpiresTime()) ? '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime()) : '');
-        }
-
+        $str .= ('' === (string) $this->getValue())
+            ? 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001)
+            : urlencode($this->getValue()) . ((0 !== $this->getExpiresTime()) ? '; expires=' . gmdate('D, d-M-Y H:i:s T', $this->getExpiresTime()) : '');
         $str .= ('/' !== $this->path) ? '; path=' . $this->path : '';
         $str .= (null !== $this->getSameSite()) ? '; samesite=' . $this->getSameSite() : '';
         $str .= (null !== $this->getDomain()) ? '; domain=' . $this->getDomain() : '';

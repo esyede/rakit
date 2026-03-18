@@ -107,12 +107,9 @@ class Header implements \IteratorAggregate, \Countable
     public function get($key, $default = null, $first = true)
     {
         $key = $this->standardizeKey($key);
-
-        if (!array_key_exists($key, $this->headers)) {
-            return (null === $default) ? ($first ? null : []) : ($first ? $default : [$default]);
-        }
-
-        return $first ? (count($this->headers[$key]) ? $this->headers[$key][0] : $default) : $this->headers[$key];
+        return array_key_exists($key, $this->headers)
+            ? ($first ? (count($this->headers[$key]) ? $this->headers[$key][0] : $default) : $this->headers[$key])
+            : ((null === $default) ? ($first ? null : []) : ($first ? $default : [$default]));
     }
 
     /**
@@ -142,8 +139,7 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function has($key)
     {
-        $key = $this->standardizeKey($key);
-        return array_key_exists($key, $this->headers);
+        return array_key_exists($this->standardizeKey($key), $this->headers);
     }
 
     /**
