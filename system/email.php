@@ -34,7 +34,7 @@ class Email
      *
      * @param string $driver
      *
-     * @return Driver
+     * @return \System\Email\Drivers\Driver
      */
     public static function driver($driver = null)
     {
@@ -52,7 +52,7 @@ class Email
      *
      * @param string $driver
      *
-     * @return Driver
+     * @return \System\Email\Drivers\Driver
      */
     protected static function factory($driver)
     {
