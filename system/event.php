@@ -133,12 +133,20 @@ class Event
      */
     public static function flush($queue)
     {
-        foreach (static::$flushers[$queue] as $flusher) {
-            if (!isset(static::$queued[$queue])) {
+        $flushers = static::$flushers[$queue] ?: [];
+
+        if (empty($flushers)) {
+            return;
+        }
+
+        foreach ($flushers as $flusher) {
+            $queues = static::$queued[$queue];
+
+            if (!isset($queues)) {
                 continue;
             }
 
-            foreach (static::$queued[$queue] as $key => $payload) {
+            foreach ($queues as $key => $payload) {
                 array_unshift($payload, $key);
                 call_user_func_array($flusher, $payload);
             }
@@ -184,7 +192,13 @@ class Event
                 continue;
             }
 
-            foreach (static::$events[$event] as $handler) {
+            $handlers = static::$events[$event];
+
+            if (empty($handlers)) {
+                continue;
+            }
+
+            foreach ($handlers as $handler) {
                 $response = call_user_func_array($handler, $parameters);
 
                 if ($halt && !is_null($response)) {
