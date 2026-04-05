@@ -77,7 +77,7 @@ class Database extends Driver
      */
     public function delete($id)
     {
-        $this->table()->delete($id);
+        $this->table()->where('id', $id)->delete();
     }
 
     /**
