@@ -282,7 +282,7 @@ class Query
     /**
      * Get the database connection used by the model.
      *
-     * @return Connection
+     * @return \System\Database\Connection
      */
     public function connection()
     {

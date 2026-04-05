@@ -12,7 +12,6 @@ return [
     | is stateless, this session is used to simulate "state" across all requests
     | sent by the user. In other words, this is how the application knows who
     | you really are.
-    |
     | Available drivers: 'cookie', 'file', 'database', 'memcached', 'apc', 'redis'.
     |
     */
@@ -105,7 +104,6 @@ return [
     |
     | The SameSite attribute of the session cookie. Set to 'Lax' or 'Strict'
     | for default behavior, or 'None' if you want to allow cross-site requests.
-    |
     | Available options: 'Lax', 'Strict', 'None'.
     |
     */
@@ -130,7 +128,6 @@ return [
     |--------------------------------------------------------------------------
     |
     | Serialization handler for session data. Default to 'php'
-    |
     | Available options: 'php', 'php_serialize', 'php_binary'.
     |
     | php: Default PHP serializer using serialize()/unserialize()

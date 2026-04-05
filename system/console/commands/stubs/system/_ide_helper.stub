@@ -126,7 +126,7 @@ class Job extends System\Job
 {
 }
 
-class Jobable extends System\Jobable
+class Jobable extends System\Job\Jobable
 {
     public function run()
     {

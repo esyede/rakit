@@ -8,7 +8,6 @@ return [
     | Default Driver
     |--------------------------------------------------------------------------
     | Default driver used to store and manage jobs.
-    |
     | Available options: file, database, redis, memcached
     |
     */
