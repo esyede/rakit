@@ -9,14 +9,14 @@ use System\Arr;
 class Memory extends Sectionable
 {
     /**
-     * Berisi array item cache (temporer).
+     * Contains the cached items.
      *
      * @var string
      */
     public $storage = [];
 
     /**
-     * Cek apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -28,7 +28,7 @@ class Memory extends Sectionable
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -45,11 +45,11 @@ class Memory extends Sectionable
     }
 
     /**
-     * Simpan item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit.
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -69,7 +69,7 @@ class Memory extends Sectionable
     }
 
     /**
-     * Hapus item dari cache.
+     * Remove an item from the cache.
      *
      * @param string $key
      */
@@ -89,7 +89,7 @@ class Memory extends Sectionable
     }
 
     /**
-     * Hapus seluruh item cache.
+     * Remove all items from the cache.
      */
     public function flush()
     {
@@ -97,7 +97,7 @@ class Memory extends Sectionable
     }
 
     /**
-     * Hapus keseluruhan section dari cache.
+     * Remove an item from a section.
      *
      * @param string $section
      *
@@ -109,7 +109,7 @@ class Memory extends Sectionable
     }
 
     /**
-     * Ambil nama key item section milik section dan key tertentu.
+     * Get the key for an item in a section.
      *
      * @param string $section
      * @param string $key

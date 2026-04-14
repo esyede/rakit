@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 abstract class Driver
 {
     /**
-     * Periksa apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -16,14 +16,14 @@ abstract class Driver
     abstract public function has($key);
 
     /**
-     * Ambil sebuah item dari cache.
+     * Retrieve an item from the cache. If the item does not exist, return the default value.
      *
      * <code>
      *
-     *      // Ambil sebuah item dari driver cache
+     *      // Retrieve an item from the cache driver
      *      $name = Cache::driver('name');
      *
-     *      // Return default value jika item tidak ditemukan
+     *      // Return default value if the item does not exist
      *      $name = Cache::get('name', 'Budi');
      *
      * </code>
@@ -40,7 +40,7 @@ abstract class Driver
     }
 
     /**
-     * Ambil sebuah item dari cache dan hapus item tersebut.
+     * Retrieve an item from the cache and delete it. If the item does not exist, return the default value.
      *
      * <code>
      *
@@ -65,7 +65,7 @@ abstract class Driver
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -74,11 +74,11 @@ abstract class Driver
     abstract protected function retrieve($key);
 
     /**
-     * Simpan sebuah item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -90,11 +90,11 @@ abstract class Driver
     abstract public function put($key, $value, $minutes);
 
     /**
-     * Simpan sebuah item ke cache selamanya (Aktif selama 5 tahun).
+     * Store an item in the cache indefinitely (or for 5 years).
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit
+     *      // Store an item in the cache indefinitely (or for 5 years)
      *      Cache::forever('name', 'Budi');
      *
      * </code>
@@ -108,14 +108,14 @@ abstract class Driver
     }
 
     /**
-     * Ambil item dari cache, atau taruh item tersebut ke cache dan return default value.
+     * Retrieve an item from the cache, or store the default value in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Ambil sebuah item dari cache, atau taruh item tersebut ke cache selama 15 menit
+     *      // Retrieve an item from the cache, or store the default value in the cache for 15 minutes
      *      $name = Cache::remember('name', 15, 'Budi');
      *
-     *      // Gunakan closure sebagai value item cache
+     *      // Retrieve an item from the cache, or store the default value in the cache for 15 minutes using a Closure
      *      $count = Cache::remember('count', 15, function() { return User::count(); });
      *
      * </code>
@@ -138,7 +138,7 @@ abstract class Driver
     }
 
     /**
-     * Anbil sebuah item dari cache, atau taruh item tersebut ke cache selamanya (atau 5 tahun).
+     * Retrieve an item from the cache, or store the default value in the cache indefinitely (or for 5 years).
      *
      * @param string $key
      * @param mixed  $default
@@ -151,19 +151,19 @@ abstract class Driver
     }
 
     /**
-     * Hapus sebuah item dari cache.
+     * Remove an item from the cache.
      *
      * @param string $key
      */
     abstract public function forget($key);
 
     /**
-     * Hapus seluruh item cache.
+     * Remove all items from the cache.
      */
     abstract public function flush();
 
     /**
-     * Ambil waktu kedaluwarsa cache (dalam unix timestamp).
+     * Get the expiration time for a given number of minutes.
      *
      * @param int $minutes
      *
@@ -172,5 +172,20 @@ abstract class Driver
     protected function expiration($minutes)
     {
         return time() + ($minutes * 60);
+    }
+
+    /**
+     * Increment a numeric value in the cache.
+     *
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    public function increment($key, $minutes = 1)
+    {
+        $new = ((int) ($this->get($key) ?: 0)) + 1;
+        $this->put($key, $new, $minutes);
+        return $new;
     }
 }

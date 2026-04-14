@@ -16,55 +16,31 @@ class Throttle
     const PREFIX = 'throttle';
 
     /**
-     * Run the throttling process.
+     * Run the throttling process and return whether the request is allowed.
      *
      * @param int $max_attempts
      * @param int $decay_minutes
      *
-     * @return \System\Response
+     * @return bool
      */
     public static function check($max_attempts, $decay_minutes = 1)
     {
-        $max_attempts = (int) $max_attempts;
-        $max_attempts = ($max_attempts < 1) ? 1 : $max_attempts;
-        $decay_minutes = (int) $decay_minutes;
-        $decay_minutes = ($decay_minutes < 1) ? 1 : $decay_minutes;
+        $max_attempts = max(1, (int) $max_attempts);
+        $decay_minutes = max(1, (int) $decay_minutes);
         $key = static::key();
-        $data = Cache::get($key);
+        $meta = $key . ':meta';
 
-        if (!$data) {
-            $data = [
+        $hits = Cache::increment($key, $decay_minutes);
+
+        if ($hits === 1) {
+            Cache::put($meta, [
                 'limit' => $max_attempts,
-                'remaining' => $max_attempts,
                 'reset' => time() + ($decay_minutes * 60),
-                'retry' => $decay_minutes * 60,
-                'key' => $key,
                 'ip' => Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip(),
-            ];
-            Cache::put($key, $data, $decay_minutes);
+            ], $decay_minutes);
         }
 
-        if ($data['remaining'] > 0) {
-            $data['remaining'] = $data['remaining'] - 1;
-            Cache::put($key, $data, $decay_minutes);
-            return true;
-        }
-
-        if ($data['reset'] > time()) {
-            return false;
-        }
-
-        // Reset rate limit after decay period
-        $data = [
-            'limit' => $max_attempts,
-            'remaining' => $max_attempts - 1,
-            'reset' => time() + ($decay_minutes * 60),
-            'retry' => $decay_minutes * 60,
-            'key' => $key,
-            'ip' => Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip(),
-        ];
-        Cache::put($key, $data, $decay_minutes);
-        return true;
+        return $hits <= $max_attempts;
     }
 
     /**
@@ -87,22 +63,27 @@ class Throttle
      */
     public static function key()
     {
-        return static::PREFIX . '.' . RAKIT_KEY . '.' . md5(Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip());
+        $path = trim(Request::foundation()->getPathInfo(), '/');
+        $ip = Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip();
+        return static::PREFIX . '.' . RAKIT_KEY . '.' . md5($path . '|' . $ip);
     }
 
     /**
-     * Send the rate limit exceeded response.
+     * Return a 429 Too Many Requests response with standard rate-limit headers.
      *
      * @return \System\Response
      */
     public static function error()
     {
-        $data = Cache::get(static::key());
+        $meta = Cache::get(static::key() . ':meta') ?: [];
+        $limit = isset($meta['limit']) ? (int) $meta['limit'] : 0;
+        $reset = isset($meta['reset']) ? (int) $meta['reset'] : time();
+
         return Response::error(429, [
-            'X-Rate-Limit-Limit' => $data['limit'],
-            'X-Rate-Limit-Remaining' => $data['remaining'],
-            'X-Rate-Limit-Reset' => $data['reset'],
-            'Retry-After' => $data['retry'],
+            'X-Rate-Limit-Limit' => $limit,
+            'X-Rate-Limit-Remaining' => 0,
+            'X-Rate-Limit-Reset' => $reset,
+            'Retry-After' => max(0, $reset - time()),
         ]);
     }
 }

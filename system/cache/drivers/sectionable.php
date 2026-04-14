@@ -9,21 +9,21 @@ use System\Str;
 abstract class Sectionable extends Driver
 {
     /**
-     * Menunjukkan bahwa section caching implisit berdasarkan keynya.
+     * Indicates whether the driver should implicitly handle sectioned keys.
      *
      * @var bool
      */
     public $implicit = true;
 
     /**
-     * Pembatas untuk section key implisit.
+     * The delimiter used to separate sections and keys in a sectioned key.
      *
      * @var string
      */
     public $delimiter = '::';
 
     /**
-     * Ambil potongan item section dari driver cache.
+     * Get a section item from the cache.
      *
      * @param string $section
      * @param string $key
@@ -37,7 +37,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Simpan potongan item section ke cache.
+     * Store a section item in the cache for a given number of minutes.
      *
      * @param string $section
      * @param string $key
@@ -50,7 +50,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Simpan potongan item section ke cache selamanya (atau 5 tahun).
+     * Store a section item in the cache indefinitely (or 5 years).
      *
      * @param string $section
      * @param string $key
@@ -62,7 +62,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Ambil potongan item section dari cache, atau simpan dan return nilai defaultnya.
+     * Get a section item from the cache, or store the default value.
      *
      * @param string $section
      * @param string $key
@@ -78,7 +78,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Ambil potongan item section dari cache, atau simpan nilai defaultnya.
+     * Get a section item from the cache, or return the default value.
      *
      * @param string $section
      * @param string $key
@@ -92,7 +92,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Hapus potongan item section dari cache.
+     * Remove a section item from the cache.
      *
      * @param string $section
      * @param string $key
@@ -103,7 +103,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Ambil nama key item section milik section dan key tertentu.
+     * Get the key for an item in a section.
      *
      * @param string $section
      * @param string $key
@@ -113,7 +113,7 @@ abstract class Sectionable extends Driver
     abstract protected function section_item_key($section, $key);
 
     /**
-     * Hapus keseluruhan section dari cache.
+     * Remove all items from a section.
      *
      * @param string $section
      *
@@ -122,7 +122,7 @@ abstract class Sectionable extends Driver
     abstract public function forget_section($section);
 
     /**
-     * Indikasi bahwa key bisa terdiri dari beberapa section.
+     * Check if the given key is sectionable.
      *
      * @param string $key
      *
@@ -134,7 +134,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Cek apakah key terdiri dari beberapa section.
+     * Check if the given key is sectioned.
      *
      * @param string $key
      *
@@ -146,7 +146,7 @@ abstract class Sectionable extends Driver
     }
 
     /**
-     * Ambil section dan key milik sebuah item.
+     * Get the section and key from a sectioned key.
      *
      * @param string $key
      *

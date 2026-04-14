@@ -9,14 +9,14 @@ use System\Redis as BaseRedis;
 class Redis extends Driver
 {
     /**
-     * Berisi instance database redis.
+     * Contains the Redis instance.
      *
      * @var System\Redis
      */
     protected $redis;
 
     /**
-     * Buat instance driver redis baru.
+     * Make a new Redis cache driver instance.
      *
      * @param System\Redis $redis
      */
@@ -26,7 +26,7 @@ class Redis extends Driver
     }
 
     /**
-     * Cek apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -39,7 +39,7 @@ class Redis extends Driver
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -75,11 +75,11 @@ class Redis extends Driver
     }
 
     /**
-     * Simpan item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit.
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -97,7 +97,28 @@ class Redis extends Driver
     }
 
     /**
-     * Simpan item ke cache untuk selamanya (atau 5 tahun).
+     * Increment a numeric value in the cache (atomic).
+     *
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    public function increment($key, $minutes = 1)
+    {
+        /** @disregard */
+        $current = (int) $this->redis->incr($key);
+
+        if ($current === 1) {
+            /** @disregard */
+            $this->redis->expire($key, $minutes * 60);
+        }
+
+        return $current;
+    }
+
+    /**
+     * Store an item in the cache indefinitely (or 5 years).
      *
      * @param string $key
      * @param mixed  $value
@@ -108,7 +129,7 @@ class Redis extends Driver
     }
 
     /**
-     * Hapus item dari cache.
+     * Remove an item from the cache.
      *
      * @param string $key
      */
@@ -119,7 +140,7 @@ class Redis extends Driver
     }
 
     /**
-     * Hapus seluruhitem cache.
+     * Remove all items from the cache.
      */
     public function flush()
     {

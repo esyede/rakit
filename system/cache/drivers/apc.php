@@ -7,14 +7,14 @@ defined('DS') or exit('No direct access.');
 class APC extends Driver
 {
     /**
-     * Nama key cache dari file konfigurasi.
+     * Contains the cache key prefix from the configuration file.
      *
      * @var string
      */
     protected $key;
 
     /**
-     * Buat instance driver APC baru.
+     * Make a new APC cache driver instance.
      *
      * @param string $key
      */
@@ -24,7 +24,7 @@ class APC extends Driver
     }
 
     /**
-     * Cek apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -36,7 +36,7 @@ class APC extends Driver
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -51,11 +51,11 @@ class APC extends Driver
     }
 
     /**
-     * Simpan item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit.
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -71,7 +71,29 @@ class APC extends Driver
     }
 
     /**
-     * Hapus item dari cache.
+     * Increment a numeric value in the cache (atomic).
+     *
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    public function increment($key, $minutes = 1)
+    {
+        /** @disregard */
+        $current = apc_inc($this->key . $key);
+
+        if ($current !== false) {
+            return (int) $current;
+        }
+
+        /** @disregard */
+        apc_store($this->key . $key, 1, $minutes * 60);
+        return 1;
+    }
+
+    /**
+     * Remove an item from the cache.
      *
      * @param string $key
      */
@@ -82,7 +104,7 @@ class APC extends Driver
     }
 
     /**
-     * Hapus seluruh item cache.
+     * Remove all items from the cache.
      */
     public function flush()
     {

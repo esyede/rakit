@@ -11,14 +11,14 @@ use System\Database as DB;
 class Database extends Driver
 {
     /**
-     * Nama key cache dari file konfigurasi.
+     * Contains the cache key prefix from the configuration file.
      *
      * @var string
      */
     protected $key;
 
     /**
-     * Buat instance driver database baru.
+     * Make a new database cache driver instance.
      *
      * @param string $key
      */
@@ -28,7 +28,7 @@ class Database extends Driver
     }
 
     /**
-     * Cek apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -40,7 +40,7 @@ class Database extends Driver
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -58,11 +58,11 @@ class Database extends Driver
     }
 
     /**
-     * Simpan item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit.
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -86,7 +86,43 @@ class Database extends Driver
     }
 
     /**
-     * Hapus item dari cache.
+     * Increment a numeric value in the cache (atomic).
+     *
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    public function increment($key, $minutes = 1)
+    {
+        $db = Config::get('cache.database');
+        $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
+        $connection = DB::connection($db['connection']);
+        $table = $db['table'];
+        $prefixed = $this->key . $key;
+        $expiration = $this->expiration($minutes);
+        $new = 1;
+
+        $connection->transaction(function () use ($connection, $table, $prefixed, $expiration, &$new) {
+            $cache = $connection->table($table)->where('key', '=', $prefixed)->first();
+            $expired = !is_null($cache) && Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now());
+
+            if (is_null($cache) || $expired) {
+                $connection->table($table)->where('key', '=', $prefixed)->delete();
+                $connection->table($table)->insert(['key' => $prefixed, 'value' => serialize(1), 'expiration' => $expiration]);
+                $new = 1;
+            } else {
+                $current = (int) unserialize($cache->value);
+                $new = $current + 1;
+                $connection->table($table)->where('key', '=', $prefixed)->update(['value' => serialize($new)]);
+            }
+        });
+
+        return $new;
+    }
+
+    /**
+     * Remove an item from the cache.
      *
      * @param string $key
      */
@@ -96,7 +132,7 @@ class Database extends Driver
     }
 
     /**
-     * Hapus seluruh item cache.
+     * Remove all items from the cache.
      */
     public function flush()
     {
@@ -107,7 +143,7 @@ class Database extends Driver
     }
 
     /**
-     * Ambil query builder untuk tabel di database.
+     * Get a query builder for the cache table.
      *
      * @return System\Database\Query
      */

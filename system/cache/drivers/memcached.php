@@ -9,21 +9,21 @@ use System\Str;
 class Memcached extends Sectionable
 {
     /**
-     * Berisi instance Memcache.
+     * Contains the Memcached instance.
      *
      * @var \Memcached
      */
     public $memcached;
 
     /**
-     * Nama key cache dari file konfigurasi.
+     * The cache key prefix from the configuration file.
      *
      * @var string
      */
     protected $key;
 
     /**
-     * Buat instance driver memcached baru.
+     * Make a new Memcached cache driver instance.
      *
      * @param \Memcached $memcached
      * @param string     $key
@@ -35,7 +35,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Cek apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -47,7 +47,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -69,11 +69,11 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Simpan item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit.
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -94,7 +94,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Hapus item dari cache.
+     * Remove an item from the cache.
      *
      * @param string $key
      */
@@ -115,7 +115,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Hapus seluruh item cache.
+     * Remove all items from the cache.
      */
     public function flush()
     {
@@ -124,9 +124,29 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Hapus keseluruhan section dari cache.
+     * Increment a numeric value in the cache (atomic).
      *
-     * @param string $section
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    public function increment($key, $minutes = 1)
+    {
+        $prefixed = $this->key . $key;
+
+        /** @disregard */
+        if ($this->memcached->add($prefixed, 1, $minutes * 60)) {
+            return 1;
+        }
+
+        /** @disregard */
+        $current = $this->memcached->increment($prefixed);
+        return ($current !== false) ? (int) $current : 1;
+    }
+
+    /**
+     * Remove an entire section from the cache.
      *
      * @return int|bool
      */
@@ -137,7 +157,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Ambil ID section saat ini milik section tertentu.
+     * Get the section ID for a given section.
      *
      * @param string $section
      *
@@ -151,7 +171,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Ambil nama key milik section tertentu.
+     * Get the section key for a given section.
      *
      * @param string $section
      *
@@ -163,7 +183,7 @@ class Memcached extends Sectionable
     }
 
     /**
-     * Ambil nama key item section milik section dan key tertentu.
+     * Get the section item key for a given section and key.
      *
      * @param string $section
      * @param string $key

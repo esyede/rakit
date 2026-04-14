@@ -9,14 +9,14 @@ use System\Storage;
 class File extends Driver
 {
     /**
-     * Berisi path file cache.
+     * Contains the path to the cache directory.
      *
      * @var string
      */
     protected $path;
 
     /**
-     * Buat instance driver file baru.
+     * Make a new file cache driver instance.
      *
      * @param string $path
      */
@@ -26,7 +26,7 @@ class File extends Driver
     }
 
     /**
-     * Cek apakah item ada di cache.
+     * Check if an item exists in the cache.
      *
      * @param string $key
      *
@@ -38,7 +38,7 @@ class File extends Driver
     }
 
     /**
-     * Ambil item dari driver cache.
+     * Retrieve an item from the cache driver.
      *
      * @param string $key
      *
@@ -58,11 +58,11 @@ class File extends Driver
     }
 
     /**
-     * Simpan item ke cache untuk beberapa menit.
+     * Store an item in the cache for a given number of minutes.
      *
      * <code>
      *
-     *      // Simpan sebuah item ke cache selama 15 menit.
+     *      // Store an item in the cache for 15 minutes
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
@@ -83,7 +83,7 @@ class File extends Driver
     }
 
     /**
-     * Hapus item dari cache.
+     * Remove an item from the cache.
      *
      * @param string $key
      */
@@ -94,7 +94,7 @@ class File extends Driver
     }
 
     /**
-     * Hapus seluruhitem cache.
+     * Remove all items from the cache.
      */
     public function flush()
     {
@@ -108,7 +108,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk format nama file cache.
+     * Helper methhod for creating a unique file name for the given cache key.
      *
      * @param string $key
      *
@@ -120,7 +120,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk proteksi akses file via browser.
+     * Helper method for adding protection to the cache file to prevent direct access via browser.
      *
      * @param string $value
      *
@@ -132,8 +132,7 @@ class File extends Driver
     }
 
     /**
-     * Helper untuk buang proteksi akses file via browser.
-     * (Kebalikan dari method guard).
+     * Helper method for removing the protection from the cache file when retrieving the value.
      *
      * @param string $value
      *
