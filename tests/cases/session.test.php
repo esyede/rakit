@@ -226,7 +226,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     {
         $payload = $this->getPayload();
 
-        $payload->sesion = $this->getSession();
+        $payload->session = $this->getSession();
         $payload->exists = true;
 
         $payload->regenerate();
