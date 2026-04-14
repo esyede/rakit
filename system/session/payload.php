@@ -231,10 +231,27 @@ class Payload
 
     /**
      * Set new session id.
+     * Deletes the old session from storage before generating a new ID,
+     * but preserves the current session data (e.g. after impersonate logout).
      */
     public function regenerate()
     {
+        $this->driver->delete($this->session['id']);
         $this->session['id'] = $this->driver->id();
+        $this->exists = false;
+    }
+
+    /**
+     * Invalidate the current session.
+     * Deletes the old session from storage, generates a new session ID,
+     * and resets all session data with a fresh CSRF token.
+     * Use this on logout instead of regenerate() to avoid orphaned sessions.
+     */
+    public function invalidate()
+    {
+        $this->driver->delete($this->session['id']);
+        $this->session['id'] = $this->driver->id();
+        $this->session['data'] = [Session::TOKEN => Str::random(40), ':new:' => [], ':old:' => []];
         $this->exists = false;
     }
 

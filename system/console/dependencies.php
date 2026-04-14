@@ -113,3 +113,10 @@ if (!Container::registered('command: websocket')) {
         return new Commands\Websocket();
     });
 }
+
+// Register classes for the 'fiddle' command.
+if (!Container::registered('command: fiddle')) {
+    Container::singleton('command: fiddle', function () {
+        return new Commands\Fiddle();
+    });
+}

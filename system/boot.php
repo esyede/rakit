@@ -216,7 +216,7 @@ $response->render();
 |
 */
 
-if (Config::get('session.driver')) {
+if (Config::get('session.driver') && Session::started()) {
     Session::save();
 }
 

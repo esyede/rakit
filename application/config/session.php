@@ -139,4 +139,22 @@ return [
     */
 
     'serialize' => 'php',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stateless Routes
+    |--------------------------------------------------------------------------
+    |
+    | URL path patterns that should NOT start a session. Useful for API
+    | endpoints, webhooks, and other server-to-server routes that never send
+    | a session cookie. Use '*' as a wildcard to match any sequence of
+    | characters, e.g. 'api/*' matches 'api/v1/accounts', 'api/v2/anything',
+    | etc. Patterns without '*' are treated as exact matches.
+    |
+    */
+
+    'stateless' => [
+        'api/*',
+        // ..
+    ],
 ];

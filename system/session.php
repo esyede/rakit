@@ -34,6 +34,29 @@ class Session
     {
         $config = Config::get('session');
 
+        // Skip session for stateless routes (e.g. API endpoints, webhooks).
+        $stateless = isset($config['stateless']) ? (array) $config['stateless'] : [];
+
+        if (!empty($stateless)) {
+            $path = trim(Request::foundation()->getPathInfo(), '/');
+
+            foreach ($stateless as $pattern) {
+                $pattern = trim((string) $pattern, '/');
+
+                if ($pattern === $path) {
+                    return;
+                }
+
+                if (strpos($pattern, '*') !== false) {
+                    $regex = '#^' . str_replace('\*', '.*', preg_quote($pattern, '#')) . '\z#u';
+
+                    if (preg_match($regex, $path)) {
+                        return;
+                    }
+                }
+            }
+        }
+
         // Override PHP session configuration
         ini_set('session.gc_maxlifetime', $config['lifetime'] * 60);
         ini_set('session.cookie_lifetime', $config['expire_on_close'] ? 0 : $config['lifetime'] * 60);
