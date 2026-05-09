@@ -100,7 +100,7 @@ class Paginator
      */
     public static function make($results, $total, $perpage)
     {
-        return new static($results, static::page($total, $perpage), $total, $perpage, ceil($total / $perpage));
+        return new static($results, static::page($total, $perpage), $total, $perpage, (int) ceil($total / $perpage));
     }
 
     /**
@@ -116,7 +116,7 @@ class Paginator
         $page = Input::get('page', 1);
 
         if (is_numeric($page) && $page > ceil($total / $perpage)) {
-            $last = ceil($total / $perpage);
+            $last = (int) ceil($total / $perpage);
             return ($last > 0) ? $last : 1;
         }
 

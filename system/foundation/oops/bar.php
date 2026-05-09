@@ -163,6 +163,9 @@ class Bar
         foreach ($this->panels as $id => $panel) {
             $idHtml = preg_replace('#[^a-z0-9]+#i', '-', $id) . $suffix;
 
+            $tab = null;
+            $panelHtml = null;
+
             try {
                 $tab = (string) $panel->getTab();
                 $panelHtml = $tab ? (string) $panel->getPanel() : null;
@@ -263,7 +266,7 @@ class Bar
 	       var el = document.createElement('style');
 	       el.setAttribute('nonce', document.currentScript.getAttribute('nonce') || document.currentScript.nonce);
 	       el.className='oops-debug';
-	       el.textContent=" . json_encode(preg_replace('#\s+#u', ' ', implode($css))) . ";
+	       el.textContent=" . json_encode(preg_replace('#\s+#u', ' ', implode('', $css))) . ";
 	       document.head.appendChild(el);})();\n";
 
         array_map('readfile', [

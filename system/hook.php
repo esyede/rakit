@@ -133,14 +133,14 @@ class Hook
      */
     public static function flush($queue)
     {
-        $flushers = static::$flushers[$queue] ?: [];
+        $flushers = isset(static::$flushers[$queue]) ? static::$flushers[$queue] : [];
 
         if (empty($flushers)) {
             return;
         }
 
         foreach ($flushers as $flusher) {
-            $queues = static::$queued[$queue];
+            $queues = isset(static::$queued[$queue]) ? static::$queued[$queue] : null;
 
             if (!isset($queues)) {
                 continue;

@@ -40,7 +40,7 @@ class Cookie
         if ($expire instanceof \DateTime) {
             $expire = $expire->format('U');
         } elseif (!is_numeric($expire)) {
-            $expire = strtotime($expire);
+            $expire = strtotime((string) $expire);
 
             if (false === $expire || -1 === $expire) {
                 throw new \InvalidArgumentException('The cookie expiration time is not valid.');

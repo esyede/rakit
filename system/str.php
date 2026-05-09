@@ -838,8 +838,8 @@ class Str
     public static function censor($string, $replacement = '*')
     {
         $string = (string) $string;
-        $len = strlen($string) - floor(strlen($string) / 2);
-        return substr_replace($string, str_repeat($replacement, $len), floor($len / 2), $len);
+        $len = strlen($string) - (int) floor(strlen($string) / 2);
+        return substr_replace($string, str_repeat($replacement, $len), (int) floor($len / 2), $len);
     }
 
     /**

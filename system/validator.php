@@ -259,7 +259,7 @@ class Validator
             return false;
         }
 
-        if (!is_null(Input::file($attribute)) && is_array($value) && '' === trim($value['tmp_name'])) {
+        if (!is_null(Input::file($attribute)) && is_array($value) && '' === trim((string) $value['tmp_name'])) {
             return false;
         }
 
@@ -625,7 +625,7 @@ class Validator
     protected function validate_not_regex($attribute, $value, array $parameters)
     {
         try {
-            return 1 !== preg_match($parameters[0], $value);
+            return 1 !== preg_match($parameters[0], (string) $value);
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
@@ -981,7 +981,7 @@ class Validator
             return $value['size'] / 1024;
         }
 
-        return Str::length(trim($value));
+        return Str::length(trim((string) $value));
     }
 
     /**
@@ -1237,7 +1237,7 @@ class Validator
     protected function validate_match($attribute, $value, array $parameters)
     {
         try {
-            return 1 === preg_match(implode(',', (array) $parameters), $value);
+            return 1 === preg_match(implode(',', (array) $parameters), (string) $value);
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {
@@ -1257,7 +1257,7 @@ class Validator
     protected function validate_regex($attribute, $value, array $parameters)
     {
         try {
-            return 1 === preg_match($parameters[0], $value);
+            return 1 === preg_match($parameters[0], (string) $value);
         } catch (\Throwable $e) {
             return false;
         } catch (\Exception $e) {

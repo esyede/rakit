@@ -73,7 +73,7 @@ class RSA
         }
 
         $key = openssl_pkey_get_details($privkey);
-        $length = ceil($key['bits'] / 8);
+        $length = (int) ceil($key['bits'] / 8);
         $result = '';
 
         while ($encrypted) {
@@ -127,6 +127,10 @@ class RSA
             }
 
             if (!static::$details['public_key']) {
+                if (!isset($privkey)) {
+                    $privkey = openssl_pkey_get_private(static::$details['private_key']);
+                }
+
                 $details = openssl_pkey_get_details($privkey);
 
                 if (!isset($details['key'])) {

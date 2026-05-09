@@ -62,7 +62,7 @@ abstract class Command
             throw new \Exception('Current progress percentage should not be greater than 100');
         }
 
-        $done = floor((10 * floor(($current_percentage * 100) / 100)) / 100);
+        $done = (int) floor((10 * floor(($current_percentage * 100) / 100)) / 100);
         return $this->info(sprintf('%s%s', str_repeat('▓', $done), str_repeat('▓', 10 - $done)), false);
     }
 

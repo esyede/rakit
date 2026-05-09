@@ -1009,7 +1009,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function split($number_of_groups)
     {
-        return $this->is_empty() ? new static() : $this->chunk(ceil($this->count() / $number_of_groups));
+        return $this->is_empty() ? new static() : $this->chunk((int) ceil($this->count() / $number_of_groups));
     }
 
     /**

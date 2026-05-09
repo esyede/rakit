@@ -300,7 +300,7 @@ class Table
         }
 
         $result = null;
-        $repeat = ceil($len - $padlen + $amount);
+        $repeat = (int) ceil($len - $padlen + $amount);
 
         if (STR_PAD_RIGHT === $direction) {
             $result = mb_substr($str . str_repeat($content, $repeat), 0, $amount, 'UTF-8');
@@ -308,8 +308,8 @@ class Table
             $result = mb_substr(str_repeat($content, $repeat) . $str, -$amount, null, 'UTF-8');
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
-            $repeat = str_repeat((string) $content, ceil($length / $padlen));
-            $result = mb_substr($repeat, 0, floor($length), 'UTF-8') . $str . mb_substr($repeat, 0, ceil($length), 'UTF-8');
+            $repeat = str_repeat((string) $content, (int) ceil($length / $padlen));
+            $result = mb_substr($repeat, 0, (int) floor($length), 'UTF-8') . $str . mb_substr($repeat, 0, (int) ceil($length), 'UTF-8');
         }
 
         return $result;

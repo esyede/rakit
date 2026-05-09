@@ -1145,7 +1145,7 @@ if (!function_exists('human_filesize')) {
     {
         $precision = (int) $precision;
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        $power = min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
+        $power = (int) min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
         $bytes = round($bytes / pow(1024, $power), $precision);
 
         return sprintf('%.' . $precision . 'f %s', $bytes, $units[$power]);

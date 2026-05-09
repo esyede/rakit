@@ -198,7 +198,7 @@ class Panic
             __DIR__ . DS . 'assets' . DS . 'panic' . DS . 'panic.css',
         ]);
 
-        $css = preg_replace('#\s+#u', ' ', implode($css));
+        $css = preg_replace('#\s+#u', ' ', implode('', $css));
 
         $nonce = $toScreen ? Helpers::getNonce() : null;
         $actions = $toScreen ? $this->renderActions($e) : [];
@@ -414,11 +414,11 @@ class Panic
     public function renderPhpInfo()
     {
         ob_start();
-        @phpinfo(INFO_LICENSE); // @ = phpinfo mungkin saja dimatikan
+        @phpinfo(INFO_LICENSE); // @ = phpinfo may be disabled
         $license = ob_get_clean();
 
         ob_start();
-        @phpinfo(INFO_CONFIGURATION | INFO_MODULES); // @ = phpinfo mungkin saja dimatikan
+        @phpinfo(INFO_CONFIGURATION | INFO_MODULES); // @ = phpinfo may be disabled
         $info = ob_get_clean();
 
         if (strpos($license, '<body') === false) {
