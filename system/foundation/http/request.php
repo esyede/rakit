@@ -816,7 +816,7 @@ class Request
             static::initializeFormats();
         }
 
-        static::$formats[$format] = is_array($mimeTypes) ? $mimeTypes : [$mimeTypes];
+        static::$formats[null === $format ? '' : $format] = is_array($mimeTypes) ? $mimeTypes : [$mimeTypes];
     }
 
     /**
@@ -953,7 +953,7 @@ class Request
      */
     public function getETags()
     {
-        return preg_split('/\s*,\s*/', $this->headers->get('If-None-Match'), -1, PREG_SPLIT_NO_EMPTY);
+        return preg_split('/\s*,\s*/', (string) $this->headers->get('If-None-Match'), -1, PREG_SPLIT_NO_EMPTY);
     }
 
     /**

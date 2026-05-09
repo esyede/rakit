@@ -53,7 +53,7 @@ class Blade
      */
     public static function sharpen()
     {
-        Event::listen(View::ENGINE, function ($view) {
+        Hook::listen(View::ENGINE, function ($view) {
             if (!Str::ends_with($view->path, '.blade.php')) {
                 return;
             }

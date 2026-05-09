@@ -18,103 +18,84 @@
 
 ## System Requirements
 
--   PHP 5.4.0 or higher (tested up to PHP 8.x)
--   [Mbstring](https://www.php.net/manual/en/book.mbstring.php) extension
--   [OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension
--   [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extension
+**Required**
 
-**Additional Extensions:**
+-   PHP 5.4 — 8.5
+-   [mbstring](https://www.php.net/manual/en/book.mbstring.php), [OpenSSL](https://www.php.net/manual/en/book.openssl.php), and [fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extensions
 
-Installing the following extensions will help you get the full benefits of rakit, but are not required:
+**Optional** (enable as needed)
 
--   [PDO](https://www.php.net/manual/en/pdo.installation.php) driver for SQLite,
-    MySQL, PostgreSQL, or SQL Server to work with databases.
--   [cURL](https://www.php.net/manual/en/book.curl.php) extension to install packages via rakit console.
--   [GD Image](https://www.php.net/manual/en/book.image.php) extension for image processing.
+-   [PDO](https://www.php.net/manual/en/pdo.installation.php) — database support (SQLite, MySQL, PostgreSQL, SQL Server)
+-   [cURL](https://www.php.net/manual/en/book.curl.php) — required for installing packages via the `rakit` console
+-   [GD](https://www.php.net/manual/en/book.image.php) — image processing
+-   [sockets](https://www.php.net/manual/en/book.sockets.php) — WebSocket support
 
 <a id="installation"></a>
 
 ## Installation
 
-Rakit can be installed in 2 very easy ways, namely installation via [Composer](https://getcomposer.org)
-and manual installation.
+Pick whichever method matches your workflow.
 
 <a id="install-via-composer"></a>
 
 ### Install via Composer
 
-If you have installed Composer on your computer, installing rakit will be
-very easy, just run the following command:
-
 ```bash
 composer create-project esyede/rakit
+cd rakit
+php rakit serve
 ```
 
-Then rakit will be installed in the `/rakit` folder, all you need to do is go to that folder and
-run the built-in webserver:
-
-```bash
-cd rakit && php rakit serve
-```
+The framework will be created inside the `rakit/` folder, and `php rakit serve`
+starts the built-in PHP web server so you can browse your app right away.
 
 <a id="manual-install"></a>
 
 ### Manual Install
 
-This installation method is also very easy, as easy as counting from one to three:
+1.  [Download](https://rakit.esyede.my.id/download) the Rakit archive and extract it
+    into your web server's document root.
+2.  Make `storage/` and `assets/` writable by PHP.
+3.  Open the site in a browser. You should see the Rakit splash page.
 
--   [Download](https://rakit.esyede.my.id/download) and extract the Rakit archive to your web server.
--   Make sure the `storage/views/` and `assets/` directories can be written by PHP.
--   Ready to test!
-
-See the results through your favorite browser. If everything is fine, you will see the beautiful Rakit splash page.
-
-Get ready, there's a lot more to learn!
+That's it — you're ready to start building.
 
 <a id="having-trouble"></a>
 
 ## Having Trouble?
 
-If you have trouble installing, try some of the following suggestions:
-
--   If you are using `mod_rewrite`, change the configuration option `'index'`
-    in `application/config/application.php` to an empty string.
--   Make sure the `storage/` and `assets/` folders and all folders inside them can be written by PHP.
+-   **404 errors / `/index.php` showing in URLs**: enable URL rewriting (see
+    [Pretty URLs](#pretty-urls) below), then set the `'index'` option in
+    `application/config/application.php` to an empty string `''`.
+-   **Permission errors writing to `storage/` or `assets/`**: make sure those
+    folders (and everything under them) are writable by the PHP process.
 
 <a id="initial-configuration"></a>
 
 ## Initial Configuration
 
-All configuration files are stored in the `config/` folder.
-We recommend you look at those files to get a basic understanding
-of the configuration options available to you.
+Configuration files live in `application/config/`. Skim them to see what is
+available — most defaults are sensible and you only need to change a few values
+to get started.
 
-Pay special attention to the `application/config/application.php` file because it
-contains the basic configuration options for your application.
-
-> If you are using `mod_rewrite`, change the `'index'`
-> option in `application/config/application.php` to an empty string.
+The most important file is `application/config/application.php`. It controls
+the application URL, key, default timezone, and the URL `index` option used
+for pretty URLs.
 
 <a id="pretty-urls"></a>
 
 ## Pretty URLs
 
-When you are ready to deploy your application to production, there are some important things
-you can do to ensure your application runs as efficiently as possible.
-
-In this document, we will discuss some good starting points to ensure
-your application is used correctly.
-
-Of course, you also don't want your application's URLs to contain `/index.php`.
-You can remove it using URL Rewrite.
+By default URLs look like `http://example.com/index.php/users`. To make them
+look like `http://example.com/users`, configure URL rewriting on your web
+server, then set `'index' => ''` in `application/config/application.php`.
 
 <a id="apache"></a>
 
 ### Apache
 
-If your web server uses Apache, make sure the `mod_rewrite` module is enabled,
-then create a file named `.htaccess` in your web server root
-(side by side with the `index.php` file) and copy the following code into it:
+Make sure `mod_rewrite` is enabled, then create a `.htaccess` file next to
+`index.php` with the following contents:
 
 ```apacheconf
 Options -MultiViews -Indexes
@@ -135,13 +116,15 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . index.php [L]
 ```
 
-Doesn't the above configuration work? Try replacing it with this:
+If that does not work on your hosting, try the variant below — it wraps the
+rules in `<IfModule>` guards so they are only applied when the relevant Apache
+modules are loaded:
 
 ```apacheconf
-<IfPackage mod_rewrite.c>
-    <IfPackage mod_negotiation.c>
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
-    </IfPackage>
+    </IfModule>
 
     RewriteEngine On
 
@@ -158,17 +141,15 @@ Doesn't the above configuration work? Try replacing it with this:
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-</IfPackage>
+</IfModule>
 ```
 
 <a id="nginx"></a>
 
 ### Nginx
 
-If you deploy your application to a server running Nginx, you can use
-the following configuration file as a starting point to configure your web server.
-
-Most likely, this file needs to be adjusted according to your server configuration:
+Use the snippet below as a starting point. Adjust `server_name`, `root`, and
+the PHP-FPM socket path to match your server:
 
 ```nginx
 server {
@@ -181,9 +162,7 @@ server {
     add_header X-Content-Type-Options "nosniff";
 
     index index.php;
-
     charset utf-8;
-
     autoindex off;
 
     location / {
@@ -204,7 +183,8 @@ server {
     error_page 404 /index.php;
 
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+        # Adjust this path to your installed PHP-FPM version.
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
         include fastcgi_params;
     }
@@ -215,8 +195,6 @@ server {
 }
 ```
 
-After finishing setting up URL rewrite, you need to change the `'index'`
-option in `application/config/application.php` to an empty string.
-
-> Every web server has a different method of handling HTTP rewrite,
-> and may also require different configuration rules.
+> Different web servers handle URL rewriting differently. The snippets above
+> are starting points, not one-size-fits-all configs. Once rewriting works,
+> remember to set `'index' => ''` in `application/config/application.php`.

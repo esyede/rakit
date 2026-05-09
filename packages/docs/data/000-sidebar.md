@@ -64,7 +64,7 @@
 -   [Runtime Configuration](/docs/config)
 -   [Checking Requests](/docs/requests)
 -   [Creating URLs](/docs/urls)
--   [Events & Listeners](/docs/events)
+-   [Hooks (Events & Listeners)](/docs/hooks)
 -   [Data Validation](/docs/validation)
 
 ### Database

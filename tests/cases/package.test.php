@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Event;
+use System\Hook;
 use System\Config;
 use System\Package;
 
@@ -59,7 +59,7 @@ class PackageTest extends \PHPUnit_Framework_TestCase
         $_SERVER['package.dummy.routes'] = 0;
         $_SERVER['booted.dummy'] = false;
 
-        Event::listen('rakit.booted: dummy', function () {
+        Hook::listen('rakit.booted: dummy', function () {
             $_SERVER['booted.dummy'] = true;
             // Indicates that the dummy package has been booted: it's routes.php file is in get_included_files()
             if (in_array(path('package') . 'dummy' . DS . 'routes.php', get_included_files())) {

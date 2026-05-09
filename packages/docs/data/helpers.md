@@ -1044,7 +1044,7 @@ if (Hash::check(Input::get('password'), $user->password)) {
 
 ### dispatch
 
-The `dispatch` function sends an event (alias for `Event::fire()`):
+The `dispatch` function sends an event (alias for `Hook::fire()`):
 
 ```php
 // Dispatch simple event
@@ -1057,7 +1057,7 @@ dispatch(['user.login', 'log.activity'], [$user]);
 $result = dispatch('user.verify', [$user], true);
 
 // Example with listener
-Event::listen('user.login', function ($user) {
+Hook::listen('user.login', function ($user) {
     Log::info('User logged in: ' . $user->email);
 });
 

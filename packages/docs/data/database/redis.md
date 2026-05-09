@@ -41,6 +41,15 @@ Just give each server configuration a name, and specify the host and port used b
 
 ## Usage
 
+> **Note about the class name:** the Rakit Redis class lives at `System\Redis`. The short alias `Redis` is **not** registered by default because PHP's [phpredis extension](https://github.com/phpredis/phpredis) exposes a built-in `Redis` class with the same name. Use either the fully-qualified namespace or import it via `use`:
+>
+> ```php
+> use System\Redis;
+> // ...now you can call Redis::db() in this file
+> ```
+>
+> All examples below assume the `use System\Redis;` import is present at the top of your file. Alternatively, replace every `Redis::` with `\System\Redis::`.
+
 You can get a Redis instance by calling the `db()` method like this:
 
 ```php

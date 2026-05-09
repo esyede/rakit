@@ -268,7 +268,7 @@ class Response
             fclose($file);
         }
 
-        Event::fire('rakit.done', [$response]);
+        Hook::fire('rakit.done', [$response]);
         $response->foundation()->finish();
     }
 

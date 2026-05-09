@@ -3,7 +3,7 @@
 defined('DS') or exit('No direct access.');
 
 use System\Job;
-use System\Event;
+use System\Hook;
 use System\Config;
 use System\Carbon;
 
@@ -17,8 +17,8 @@ class JobTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        static::$old_events = Event::$events;
-        Event::$events = [];
+        static::$old_events = Hook::$events;
+        Hook::$events = [];
         static::$old_db = Config::get('database.default');
         Config::set('database.default', 'sqlite');
 
@@ -26,7 +26,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $reflection = new ReflectionClass('System\Job');
         $property = $reflection->getProperty('discovered');
         /** @disregard */
-        $property->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $property->setAccessible(true);
         $property->setValue(null, false);
 
         Config::set('job.driver', 'file');
@@ -52,7 +52,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        Event::$events = static::$old_events;
+        Hook::$events = static::$old_events;
         Job::$drivers = [];
         Config::set('database.default', static::$old_db);
 
@@ -198,7 +198,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $executed = false;
 
         // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$executed) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$executed) {
             $executed = true;
         });
 
@@ -226,7 +226,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $count = 0;
 
         // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 
@@ -252,7 +252,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $count = 0;
 
         // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 
@@ -353,7 +353,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         file_put_contents($path . 'failed__failed123.job.php', $guard . serialize($data));
 
         $count = 0;
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 
@@ -377,7 +377,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $driver = Job::driver('file');
         $count = 0;
 
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 
@@ -544,7 +544,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $executed = false;
 
         // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$executed) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$executed) {
             $executed = true;
         });
 
@@ -592,7 +592,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $count = 0;
 
         // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 
@@ -638,7 +638,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $count = 0;
 
         // Register event listener
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 
@@ -686,7 +686,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $driver = Job::driver('database');
 
         // Register event listener yang throw exception
-        Event::listen('rakit.jobs.process', function ($data) {
+        Hook::listen('rakit.jobs.process', function ($data) {
             throw new \Exception('Test job failure');
         });
 
@@ -736,7 +736,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $driver = Job::driver('database');
         $count = 0;
 
-        Event::listen('rakit.jobs.process', function ($data) use (&$count) {
+        Hook::listen('rakit.jobs.process', function ($data) use (&$count) {
             $count++;
         });
 

@@ -140,7 +140,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $class = new \ReflectionClass($collection);
         $method = $class->getMethod('get_arrayable_items');
         /** @disregard */
-        $method->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
 
         $items = new TestJsonSerializeObject;
         $array = $method->invokeArgs($collection, [$items]);

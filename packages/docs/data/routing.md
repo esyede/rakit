@@ -46,17 +46,11 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Routing is a way to direct HTTP requests to the appropriate handler. Rakit provides a powerful and expressive routing system for defining your application's routes.
+A route maps an HTTP request (method + URI) to either a closure or a
+controller action. Rakit evaluates routes in declaration order — the first
+match wins.
 
-Routes are defined in the `application/routes.php` file and will be evaluated according to their definition order.
-
-**Advantages of routing in Rakit:**
-- Clean and expressive syntax
-- Support for closures and controllers
-- Named routes for easier maintenance
-- Route grouping for better organization
-- Middleware support for request filtering
-- Automatic dependency injection
+All application routes live in `application/routes.php`.
 
 <a id="basic-routing"></a>
 ## Basic Routing
@@ -91,17 +85,17 @@ Route::post('users', function () {
 });
 
 // PUT request
-Route::put('users/{id}', function ($id) {
+Route::put('users/(:num)', function ($id) {
     return 'Update user ' . $id;
 });
 
 // PATCH request
-Route::patch('users/{id}', function ($id) {
+Route::patch('users/(:num)', function ($id) {
     return 'Partial update user ' . $id;
 });
 
 // DELETE request
-Route::delete('users/{id}', function ($id) {
+Route::delete('users/(:num)', function ($id) {
     return 'Delete user ' . $id;
 });
 
@@ -196,15 +190,17 @@ Route::get('page/(:num?)', function ($page = 1) {
 
 **Available wildcards:**
 
-| Wildcard | Constraint | Example |
-|----------|------------|---------|
-| `(:num)` | Numeric only | `123`, `456` |
-| `(:alpha)` | Alphabetic only | `abc`, `xyz` |
-| `(:any)` | Alphanumeric + dash/underscore | `hello-world`, `hello_world` |
-| `(:all)` | All characters (including `/`) | `path/to/file.txt` |
-| `(:num?)` | Optional numeric | |
-| `(:alpha?)` | Optional alpha | |
-| `(:any?)` | Optional any | |
+| Wildcard      | Matches                                          | Example match            |
+|---------------|--------------------------------------------------|--------------------------|
+| `(:num)`      | digits only                                      | `42`, `1024`             |
+| `(:alpha)`    | letters only (a–z, A–Z)                          | `abc`, `XYZ`             |
+| `(:alnum)`    | letters or digits                                | `hello42`                |
+| `(:any)`      | letters, digits, `.`, `-`, `_`, `%`, `=` (1–255) | `hello-world`, `v1.0`    |
+| `(:segment)`  | any single URL segment (no `/`)                  | `posts`, `user-profile`  |
+| `(:all)`      | anything, including `/`                          | `path/to/file.txt`       |
+
+Append `?` to any of the above (e.g. `(:num?)`, `(:any?)`) to make the
+parameter optional. Optional parameters must be the last segment in the URI.
 
 **Usage examples:**
 
@@ -524,7 +520,7 @@ Route::domain('blog.example.com', function () {
         return View::make('blog.home');
     }]);
 
-    Route::get('post/{id}', ['as' => 'blog.post', function ($id) {
+    Route::get('post/(:num)', ['as' => 'blog.post', function ($id) {
         return View::make('blog.post', ['id' => $id]);
     }]);
 });
@@ -769,28 +765,44 @@ Route::get('register', [
 ```
 
 <a id="restful-controller"></a>
-### RESTful Controller
+### Auto-Routed Controller
 
-Automatically route to RESTful controller methods:
+`Route::controller()` registers a single catch-all route for the controller and
+dispatches the URL segment after the controller name to an action of the same
+name. It accepts any HTTP method.
 
 ```php
 Route::controller('users');
 ```
 
-**Request routing:**
-- `GET /users` → `user@get_index()`
-- `POST /users` → `user@post_index()`
-- `GET /users/123` → `user@get_show(123)`
-- `PUT /users/123` → `user@put_update(123)`
-- `DELETE /users/123` → `user@delete_destroy(123)`
+The route above maps URLs to action methods like this (anything after the
+action name is passed as parameters). Note the `action_` prefix is part of
+the controller method name (see [Controllers](/docs/controllers)):
 
-**Multiple controllers:**
+| URL                  | Action called             |
+|----------------------|---------------------------|
+| `/users`             | `users@index` → `action_index()` |
+| `/users/show`        | `users@show` → `action_show()`   |
+| `/users/show/123`    | `users@show` → `action_show(123)` |
+| `/users/edit/42`     | `users@edit` → `action_edit(42)` |
+
+If you want different behavior per HTTP verb, prefer the explicit form:
+
+```php
+Route::get('users',           'users@index');
+Route::get('users/(:num)',    'users@show');
+Route::post('users',          'users@store');
+Route::put('users/(:num)',    'users@update');
+Route::delete('users/(:num)', 'users@destroy');
+```
+
+**Multiple controllers at once:**
 
 ```php
 Route::controller([
     'users',
     'posts',
-    'comments'
+    'comments',
 ]);
 ```
 
@@ -805,15 +817,15 @@ Route::resource('posts');
 
 **Generated routes:**
 
-| Method | URI | Controller Action | Route Name |
-|--------|-----|-------------------|------------|
-| GET | `/posts` | `post@index` | `posts.index` |
-| GET | `/posts/create` | `post@create` | `posts.create` |
-| POST | `/posts` | `post@store` | `posts.store` |
-| GET | `/posts/(:num)` | `post@show` | `posts.show` |
-| GET | `/posts/(:num)/edit` | `post@edit` | `posts.edit` |
-| PUT | `/posts/(:num)` | `post@update` | `posts.update` |
-| DELETE | `/posts/(:num)` | `post@destroy` | `posts.destroy` |
+| Method | URI                  | Controller Action | Route Name      |
+|--------|----------------------|-------------------|-----------------|
+| GET    | `/posts`             | `posts@index`     | `posts.index`   |
+| GET    | `/posts/create`      | `posts@create`    | `posts.create`  |
+| POST   | `/posts`             | `posts@store`     | `posts.store`   |
+| GET    | `/posts/(:any)`      | `posts@show`      | `posts.show`    |
+| GET    | `/posts/(:any)/edit` | `posts@edit`      | `posts.edit`    |
+| PUT    | `/posts/(:any)`      | `posts@update`    | `posts.update`  |
+| DELETE | `/posts/(:any)`      | `posts@delete`    | `posts.delete`  |
 
 **With options:**
 
@@ -964,10 +976,10 @@ Route::connect('proxy', function () {
 <a id="404-handler"></a>
 ## 404 Handler
 
-Handler for not found routes is defined in `application/events.php`:
+Handler for not found routes is defined in `application/hooks.php`:
 
 ```php
-Event::listen('404', function () {
+Hook::listen('404', function () {
     return Response::error('404');
 });
 ```
@@ -975,12 +987,12 @@ Event::listen('404', function () {
 **Custom 404 handler:**
 
 ```php
-Event::listen('404', function () {
+Hook::listen('404', function () {
     return View::make('errors.404');
 });
 
 // Or with custom logic
-Event::listen('404', function () {
+Hook::listen('404', function () {
     $uri = Request::uri();
 
     // Log 404
@@ -1031,19 +1043,15 @@ if (Route::has('profile')) {
 <a id="route-testing-via-cli"></a>
 ## Route Testing via CLI
 
-Test route from command line:
+Run a route from the command line and dump its response. Pass the HTTP method
+and the URI as two separate arguments:
 
 ```bash
-# Test GET request
-php rakit route:call "GET /"
-php rakit route:call "GET /users"
-php rakit route:call "GET /user/123"
+php rakit route:call GET /
+php rakit route:call GET /users
+php rakit route:call GET /user/123
 
-# Test POST request
-php rakit route:call "POST /users"
-
-# Test with data
-php rakit route:call "POST /login" --data='{"email":"user@test.com","password":"secret"}'
+php rakit route:call POST /users
 ```
 
 ## Complete Example

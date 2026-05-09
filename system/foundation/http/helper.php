@@ -106,7 +106,9 @@ class Helper extends Header
      */
     public function setCookie($cookie)
     {
-        $this->cookies[$cookie->getDomain()][$cookie->getPath()][$cookie->getName()] = $cookie;
+        $domain = $cookie->getDomain();
+        $path = $cookie->getPath();
+        $this->cookies[null === $domain ? '' : $domain][null === $path ? '' : $path][$cookie->getName()] = $cookie;
     }
 
     /**
@@ -120,6 +122,10 @@ class Helper extends Header
     {
         if (null === $path) {
             $path = '/';
+        }
+
+        if (null === $domain) {
+            $domain = '';
         }
 
         unset($this->cookies[$domain][$path][$name]);

@@ -4,7 +4,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Str;
 use System\Auth;
-use System\Event;
+use System\Hook;
 use System\Cookie;
 use System\Config;
 use System\Session;
@@ -319,11 +319,11 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     {
         Session::$instance = new Payload($this->getMock('\System\Session\Drivers\Driver'));
 
-        Event::listen('rakit.auth: login', function () {
+        Hook::listen('rakit.auth: login', function () {
             $_SERVER['auth.user.login'] = 'foo';
         });
 
-        Event::listen('rakit.auth: logout', function () {
+        Hook::listen('rakit.auth: logout', function () {
             $_SERVER['auth.user.logout'] = 'foo';
         });
 

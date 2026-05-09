@@ -703,7 +703,7 @@ if (!function_exists('abort')) {
         }
 
         $response->send();
-        \System\Event::fire('rakit.done', [$response]);
+        \System\Hook::fire('rakit.done', [$response]);
         $response->foundation()->finish();
 
         exit;
@@ -994,7 +994,7 @@ if (!function_exists('dispatch')) {
      */
     function dispatch($events, array $parameters = [], $halt = false)
     {
-        return \System\Event::fire($events, $parameters, $halt);
+        return \System\Hook::fire($events, $parameters, $halt);
     }
 }
 

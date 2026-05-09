@@ -51,23 +51,23 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Facile is the ORM (Object-Relational Mapper) provided by Rakit to facilitate interaction with the database.
-With Facile, each database table has a "Model" used to interact with that table.
+Facile is Rakit's ORM. Each database table is mapped to a model class, and
+each row to an instance of that class. You can query, insert, update, and
+delete records by calling methods on the model rather than writing SQL.
 
-The model allows you to query data from the table, as well as insert, update, and delete records with expressive and easy-to-understand syntax.
-
-**Creating a simple model:**
+A bare-bones model is just a class extending `Facile`:
 
 ```php
 <?php
 
 class User extends Facile
 {
-    // Model properties...
+    // Conventions take care of everything by default.
 }
 ```
 
-This model will interact with the `users` table in the database.
+By convention this model talks to the `users` table — see
+[Conventions](#conventions) below for the rules and how to override them.
 
 <a id="conventions"></a>
 ## Conventions

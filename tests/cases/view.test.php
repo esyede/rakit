@@ -3,7 +3,7 @@
 defined('DS') or exit('No direct access.');
 
 use System\View;
-use System\Event;
+use System\Hook;
 use System\Package;
 use System\Response;
 
@@ -23,7 +23,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         View::$shared = [];
-        unset(Event::$events['composing: test.basic']);
+        unset(Hook::$events['composing: test.basic']);
     }
 
     /**

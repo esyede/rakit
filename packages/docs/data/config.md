@@ -12,13 +12,13 @@
 
 ## Basic Knowledge
 
-Sometimes you may need to change configuration options at runtime. For example, when you
+`Config` reads and writes configuration values at runtime. It uses **dot
+notation** to address nested keys: the part before the first dot is the file
+name (relative to `application/config/`), the rest is the key path inside
+that file.
 
-have two database connections and want to switch connections dynamically.
-
-For this need, you can utilize the `Config` component, it uses **dot** syntax
-
-to access files and their configuration options.
+For example, `Config::get('application.url')` reads the `'url'` key from
+`application/config/application.php`.
 
 <a id="retrieving-configuration-items"></a>
 
@@ -26,17 +26,12 @@ to access files and their configuration options.
 
 #### Retrieving a configuration option:
 
-Retrieving the application url configuration:
-
 ```php
 $value = Config::get('application.url');
 ```
 
-By default this method will return `NULL` if the data is not found.
-
-However, if you want to change this default return, just pass the default return value that
-
-you want to the second parameter like this:
+`get()` returns `NULL` when the key is missing. Pass a default as the second
+argument if you want a different fallback:
 
 ```php
 $value = Config::get('application.timezone', 'UTC');

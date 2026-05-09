@@ -18,8 +18,8 @@ class RSATest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\RSA');
         $details = $reflection->getProperty('details');
         /** @disregard */
-        $details->setAccessible(true);
-        $details->setValue(['public_key' => null, 'private_key' => null, 'config' => null, 'options' => []]);
+        PHP_VERSION_ID < 80100 && $details->setAccessible(true);
+        $details->setValue(null, ['public_key' => null, 'private_key' => null, 'config' => null, 'options' => []]);
         is_file($file = path('storage') . 'rsa-private.key') && unlink($file);
         is_file($file = path('storage') . 'rsa-public.key') && unlink($file);
     }
@@ -91,8 +91,8 @@ class RSATest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\RSA');
         $details = $reflection->getProperty('details');
         /** @disregard */
-        $details->setAccessible(true);
-        $details->setValue([
+        PHP_VERSION_ID < 80100 && $details->setAccessible(true);
+        $details->setValue(null, [
             'public_key' => null,
             'private_key' => null,
             'config' => null,
@@ -121,8 +121,8 @@ class RSATest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\RSA');
         $details = $reflection->getProperty('details');
         /** @disregard */
-        $details->setAccessible(true);
-        $details->setValue([
+        PHP_VERSION_ID < 80100 && $details->setAccessible(true);
+        $details->setValue(null, [
             'public_key' => null,
             'private_key' => null,
             'config' => null,

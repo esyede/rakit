@@ -64,7 +64,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('\System\Paginator');
         $method = $reflection->getMethod('valid');
         /** @disregard */
-        $method->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
 
         $this->assertTrue($method->invoke(null, 1));
         $this->assertTrue($method->invoke(null, 5));
@@ -136,7 +136,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($paginator);
         $property = $reflection->getProperty('appends');
         /** @disregard */
-        $property->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $property->setAccessible(true);
         $this->assertEquals(['key' => 'value'], $property->getValue($paginator));
     }
 
@@ -153,7 +153,7 @@ class PaginatorTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($paginator);
         $property = $reflection->getProperty('language');
         /** @disregard */
-        $property->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $property->setAccessible(true);
         $this->assertEquals('en', $property->getValue($paginator));
     }
 }

@@ -148,7 +148,7 @@ This method will execute the `boot.php` file of the admin package, which registe
 
 Calling the `boot()` method also automatically loads the following files (if they exist):
 - `routes.php` - Package routes
-- `events.php` - Event listeners
+- `hooks.php` - Hook (event) listeners
 - `middlewares.php` - Middleware definitions
 - `composers.php` - View composers
 
@@ -175,7 +175,7 @@ Every time a package boots, an event is fired. You can use this event when you n
 #### Listen to package booting event:
 
 ```php
-Event::listen('rakit.booted: admin', function () {
+Hook::listen('rakit.booted: admin', function () {
     // The 'admin' package has successfully booted!
     // You can perform additional configuration here
     Config::set('admin::general.pagename', 'My Admin Panel');
@@ -429,7 +429,7 @@ If you need to change package configurations, **don't edit the package files dir
 ```php
 // File: application/boot.php
 
-Event::listen('rakit.booted: admin', function () {
+Hook::listen('rakit.booted: admin', function () {
     Config::set('admin::general.pagename', 'Admin Panel');
 });
 ```

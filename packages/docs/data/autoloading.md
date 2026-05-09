@@ -6,6 +6,7 @@
 -   [Registering Folders](#registering-folders)
 -   [Registering Mappings](#registering-mappings)
 -   [Registering Namespaces](#registering-namespaces)
+-   [Registering Class Aliases](#registering-class-aliases)
 -   [Composer Autoloader](#composer-autoloader)
     -   [Notes for vendor folder](#notes-for-vendor-folder)
 
@@ -107,6 +108,68 @@ Autoloader::underscored([
 	'Swift' => path('libraries').'Swift_Mailer',
 ]);
 ```
+
+<a id="registering-class-aliases"></a>
+
+## Registering Class Aliases
+
+The autoloader can also register short, top-level aliases for namespaced classes
+so you can refer to them without writing the full namespace each time.
+
+By default, the aliases configured in `application/config/aliases.php` are
+registered during boot via:
+
+```php
+Autoloader::aliases(Config::get('aliases'));
+```
+
+You can also call this method (or its singular sibling `Autoloader::alias()`)
+yourself, for example from a package or a custom bootstrapper:
+
+```php
+// Register one alias at a time
+Autoloader::alias('System\Cookie', 'Cookie');
+
+// Or a batch
+Autoloader::aliases([
+    'Cookie' => 'System\Cookie',
+    'Url'    => 'System\URL',
+]);
+```
+
+#### Conflict detection with built-in PHP classes
+
+Using `Autoloader::aliases()` (the plural form) automatically checks every
+alias name against PHP's built-in classes. PHP loads built-in classes from
+extensions **before** any userland autoloader runs, so silently shadowed
+aliases produce confusing `Call to undefined method` errors at runtime.
+
+If a conflict is detected, the offending alias is **skipped** (not registered)
+and a warning is written to STDERR / the PHP error log so you can rename the
+alias or disable the conflicting extension.
+
+The default alias map intentionally does **not** include the following names
+because they collide with widely-used PHP extensions:
+
+| Name        | Conflicting PHP extension                                |
+| ----------- | -------------------------------------------------------- |
+| `Event`     | [event](https://pecl.php.net/package/event) (libevent)    |
+| `Redis`     | [redis (phpredis)](https://github.com/phpredis/phpredis) |
+| `Memcached` | [memcached](https://pecl.php.net/package/memcached)      |
+
+The framework's event dispatcher class lives at `System\Hook` and is exposed
+under the short alias **`Hook`**. For Redis and Memcached, use the
+fully-qualified namespace or import them:
+
+```php
+use System\Redis;
+use System\Memcached;
+
+$redis = Redis::db();
+```
+
+> Tip: the fully-qualified target classes (`\System\Hook`, `\System\Redis`,
+> `\System\Memcached`) **always work** regardless of alias configuration.
 
 <a id="composer-autoloader"></a>
 

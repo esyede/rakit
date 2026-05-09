@@ -100,15 +100,19 @@ $users = Cache::get('users_count', function () {
 
 **The remember() method:**
 
-The `remember()` method retrieves an item from the cache, and if it doesn't exist, it will execute the Closure and store the result in the cache:
+`remember()` returns the cached value if it exists, otherwise it runs the
+Closure, caches its return value, and returns it. The argument order is
+`($key, $minutes, $callback)`:
 
 ```php
-$users = Cache::remember('users_count', function () {
+$count = Cache::remember('users_count', 60, function () {
     return DB::table('users')->count();
-}, 60);
+});
 ```
 
-Let's discuss the example above. If the `'users_count'` item exists in the cache, that will be returned. If it doesn't exist, the return value from the Closure will be stored in the cache for 60 minutes and returned at the same time.
+In the example above, if `'users_count'` is already cached the cached value
+is returned immediately. Otherwise the Closure runs, the result is stored
+for 60 minutes, and the same value is returned to the caller.
 
 **The sear() method:**
 
@@ -139,20 +143,20 @@ if (Cache::has('users')) {
 // Cache data with dynamic key
 public function get_user($id)
 {
-    return Cache::remember("user:{$id}", function () use ($id) {
+    return Cache::remember("user:{$id}", 30, function () use ($id) {
         return User::find($id);
-    }, 30);
+    });
 }
 
 // Cache complex query results
 public function get_popular_posts()
 {
-    return Cache::remember('popular_posts', function () {
+    return Cache::remember('popular_posts', 120, function () {
         return Post::where('published', '=', true)
             ->order_by('views', 'desc')
             ->take(10)
             ->get();
-    }, 120);
+    });
 }
 ```
 

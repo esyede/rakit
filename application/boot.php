@@ -14,7 +14,7 @@ defined('DS') or exit('No direct access.');
 |
 */
 
-System\Event::listen(System\Config::LOADER, function ($package, $file) {
+System\Hook::listen(System\Config::LOADER, function ($package, $file) {
     return System\Config::file($package, $file);
 });
 
@@ -29,7 +29,7 @@ System\Event::listen(System\Config::LOADER, function ($package, $file) {
 |
 */
 
-System\Autoloader::$aliases = System\Config::get('aliases');
+System\Autoloader::aliases((array) System\Config::get('aliases'));
 
 /*
 |--------------------------------------------------------------------------
@@ -61,7 +61,7 @@ System\Autoloader::directories([
 |
 */
 
-System\Event::listen(System\View::LOADER, function ($package, $view) {
+System\Hook::listen(System\View::LOADER, function ($package, $view) {
     return System\View::file($package, $view, System\Package::path($package) . 'views');
 });
 
@@ -74,7 +74,7 @@ System\Event::listen(System\View::LOADER, function ($package, $view) {
 |
 */
 
-System\Event::listen(System\Lang::LOADER, function ($package, $language, $file) {
+System\Hook::listen(System\Lang::LOADER, function ($package, $language, $file) {
     return System\Lang::file($package, $language, $file);
 });
 

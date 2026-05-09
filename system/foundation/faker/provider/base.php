@@ -206,12 +206,12 @@ class Base
             }
         }
 
-        return preg_replace_callback('/\%/u', 'static::randomDigitNotNull', $string);
+        return preg_replace_callback('/\%/u', [get_called_class(), 'randomDigitNotNull'], $string);
     }
 
     public static function lexify($string = '????')
     {
-        return preg_replace_callback('/\?/u', 'static::randomLetter', $string);
+        return preg_replace_callback('/\?/u', [get_called_class(), 'randomLetter'], $string);
     }
 
     public static function bothify($string = '## ??')
@@ -221,7 +221,7 @@ class Base
 
     public static function asciify($string = '****')
     {
-        return preg_replace_callback('/\*/u', 'static::randomAscii', $string);
+        return preg_replace_callback('/\*/u', [get_called_class(), 'randomAscii'], $string);
     }
 
     public static function regexify($regex = '')
@@ -252,9 +252,9 @@ class Base
         $regex = preg_replace_callback('/\[([^\]]+)\]/', function ($matches) {
             return Base::randomElement(str_split($matches[1]));
         }, $regex);
-        $regex = preg_replace_callback('/\\\w/', 'static::randomLetter', $regex);
-        $regex = preg_replace_callback('/\\\d/', 'static::randomDigit', $regex);
-        $regex = preg_replace_callback('/(?<!\\\)\./', 'static::randomAscii', $regex);
+        $regex = preg_replace_callback('/\\\w/', [get_called_class(), 'randomLetter'], $regex);
+        $regex = preg_replace_callback('/\\\d/', [get_called_class(), 'randomDigit'], $regex);
+        $regex = preg_replace_callback('/(?<!\\\)\./', [get_called_class(), 'randomAscii'], $regex);
 
         return str_replace('\\', '', $regex);
     }

@@ -33,12 +33,12 @@
 
 ## Basic Knowledge
 
-Almost every interactive web application needs to validate data. For example, a registration form
-might require a password to be confirmed. Maybe the email address must be unique.
+The `Validator` component checks user input against a set of rules and
+returns the failures, if any. It is commonly used right after `Input::all()`
+in a controller action: validate, and on failure redirect back with the
+errors.
 
-Validating data can be an impractical process. Fortunately, this is not the case with Rakit.
-The `Validator` component provides an amazing number of validation helpers to make
-the process of validating your data easy. Let's look at an example:
+A typical flow looks like this:
 
 #### Get the array of input data to be validated:
 

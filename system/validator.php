@@ -2091,7 +2091,7 @@ class Validator
     protected function parse($rule)
     {
         $rule = (string) $rule;
-        $parameters = (false !== ($colon = strpos($rule, ':'))) ? str_getcsv(substr($rule, $colon + 1)) : [];
+        $parameters = (false !== ($colon = strpos($rule, ':'))) ? str_getcsv(substr($rule, $colon + 1), ',', '"', '\\') : [];
         return [is_numeric($colon) ? substr($rule, 0, $colon) : $rule, $parameters];
     }
 

@@ -132,7 +132,7 @@ foreach (Package::$packages as $package => $config) {
 */
 
 Routing\Router::register('*', '(:all)', function () {
-    return Event::first('404');
+    return Hook::first('404');
 });
 
 /*
@@ -242,7 +242,7 @@ $response->send();
 |
 */
 
-Event::fire('rakit.done', [$response]);
+Hook::fire('rakit.done', [$response]);
 
 /*
 |--------------------------------------------------------------------------

@@ -946,7 +946,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
         $request = new Request;
         $me = new \ReflectionMethod($request, 'getUrlencodedPrefix');
         /** @disregard */
-        $me->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $me->setAccessible(true);
 
         $this->assertSame($expect, $me->invoke($request, $string, $prefix));
     }

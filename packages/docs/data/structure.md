@@ -39,7 +39,7 @@ By default, the rakit folder hierarchy will look like this:
 │   ├── /views
 │   ├── boot.php
 │   ├── composers.php
-│   ├── events.php
+│   ├── hooks.php
 │   ├── index.html
 │   ├── middlewares.php
 │   ├── packages.php

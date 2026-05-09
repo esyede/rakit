@@ -179,7 +179,7 @@ class Lang
             return true;
         }
 
-        static::$lines[$package][$language][$file] = Event::first(static::LOADER, [$package, $language, $file]);
+        static::$lines[$package][$language][$file] = Hook::first(static::LOADER, [$package, $language, $file]);
         return count(static::$lines[$package][$language][$file]) > 0;
     }
 

@@ -5,7 +5,7 @@ namespace System\Database;
 defined('DS') or exit('No direct access.');
 
 use PDO;
-use System\Event;
+use System\Hook;
 use System\Config;
 use System\Database;
 use System\Database\Exceptions\QueryException;
@@ -268,7 +268,7 @@ class Connection
     {
         $time = number_format((microtime(true) - $start) * 1000, 2);
 
-        Event::fire('rakit.query', [$sql, $bindings, $time]);
+        Hook::fire('rakit.query', [$sql, $bindings, $time]);
 
         static::$queries[] = compact('sql', 'bindings', 'time');
     }

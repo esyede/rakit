@@ -5,7 +5,7 @@ namespace System\Job\Drivers;
 defined('DS') or exit('No direct access.');
 
 use System\Str;
-use System\Event;
+use System\Hook;
 use System\Carbon;
 use System\Storage;
 use System\Config;
@@ -172,7 +172,7 @@ class File extends Driver
                     $attempts++;
 
                     try {
-                        Event::fire('rakit.jobs.process', [$data]);
+                        Hook::fire('rakit.jobs.process', [$data]);
                         $successful[] = $file;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
                         $success = true;
@@ -271,7 +271,7 @@ class File extends Driver
                     $attempts++;
 
                     try {
-                        Event::fire('rakit.jobs.process', [$data]);
+                        Hook::fire('rakit.jobs.process', [$data]);
                         $successful[] = $file;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
                         $success = true;

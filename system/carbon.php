@@ -308,6 +308,8 @@ class Carbon extends \DateTime
 
     public static function hasRelativeKeywords($time)
     {
+        $time = (string) $time;
+
         if (preg_match('/[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}/', $time) !== 1) {
             foreach (static::$relatives as $keyword) {
                 if (stripos($time, $keyword) !== false) {

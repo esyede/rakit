@@ -40,14 +40,10 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Schema Builder provides a database-agnostic API for creating and modifying tables. Schema Builder works with all databases supported by Rakit and provides a unified API for all database systems.
-
-**Advantages of using Schema Builder:**
-
-- Consistent syntax for all databases
-- No need to write different raw SQL
-- Safer and avoids typos
-- Integrated with the Migration system
+Schema Builder is a database-agnostic API for creating, altering, and
+dropping tables. The same code runs against MySQL, PostgreSQL, SQLite, and
+SQL Server, and integrates with [Migrations](/docs/database/migrations) so
+you can version-control your schema.
 
 <a id="creating--deleting-tables"></a>
 ## Creating & Deleting Tables

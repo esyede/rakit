@@ -6,7 +6,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Config;
 use System\Carbon;
-use System\Event;
+use System\Hook;
 use System\Str;
 use System\Memcached as BaseMemcached;
 
@@ -250,7 +250,7 @@ class Memcached extends Driver
                 $attempts++;
 
                 try {
-                    Event::fire('rakit.jobs.process', [$data]);
+                    Hook::fire('rakit.jobs.process', [$data]);
                     $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                     $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
                     $success = true;
@@ -347,7 +347,7 @@ class Memcached extends Driver
                 $attempts++;
 
                 try {
-                    Event::fire('rakit.jobs.process', [$data]);
+                    Hook::fire('rakit.jobs.process', [$data]);
                     $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
                     $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
                     $success = true;

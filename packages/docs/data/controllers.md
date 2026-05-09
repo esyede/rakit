@@ -38,16 +38,12 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Controllers are classes responsible for receiving HTTP requests and managing interactions between Models, Libraries, and Views. Controllers provide a more organized structure compared to using Closures in routes.
+Controllers group related route actions inside a single class. They are useful
+once your route closures grow large or share common dependencies (auth checks,
+layouts, repositories, etc.).
 
-**Advantages of using Controllers:**
-- Better code organization
-- Reusable logic
-- Dependency injection support
-- Middleware support per action
-- Easier to test
-
-Controllers are stored in the `application/controllers/` folder and must extend the `Controller` class.
+Each controller lives in `application/controllers/`, extends the base
+`Controller` class, and exposes its actions as `action_*()` methods.
 
 <a id="creating-controllers"></a>
 ## Creating Controllers
@@ -360,7 +356,7 @@ class Post_Controller extends Controller
     }
 
     // DELETE /posts/123
-    public function action_destroy($id)
+    public function action_delete($id)
     {
         Post::delete($id);
         return Redirect::to('posts');
@@ -368,10 +364,15 @@ class Post_Controller extends Controller
 }
 ```
 
+> The default `Route::resource()` mapping uses `action_delete()` for DELETE
+> requests (matching the route name `posts.delete`). If you prefer the more
+> conventional `action_destroy()`, register the DELETE route manually instead
+> of using `Route::resource()`.
+
 <a id="resource-routing"></a>
 ### Resource Routing
 
-Register all resource routes:
+Register all resource routes at once with `Route::resource()`:
 
 ```php
 Route::resource('posts');
@@ -379,27 +380,28 @@ Route::resource('posts');
 
 Generated routes:
 
-| Method | URI | Action | Route Name |
-|--------|-----|--------|------------|
-| GET | `/posts` | `index` | `posts.index` |
-| GET | `/posts/create` | `create` | `posts.create` |
-| POST | `/posts` | `store` | `posts.store` |
-| GET | `/posts/(:num)` | `show` | `posts.show` |
-| GET | `/posts/(:num)/edit` | `edit` | `posts.edit` |
-| PUT | `/posts/(:num)` | `update` | `posts.update` |
-| DELETE | `/posts/(:num)` | `destroy` | `posts.destroy` |
+| Method | URI                  | Action   | Route Name      |
+|--------|----------------------|----------|-----------------|
+| GET    | `/posts`             | `index`  | `posts.index`   |
+| GET    | `/posts/create`      | `create` | `posts.create`  |
+| POST   | `/posts`             | `store`  | `posts.store`   |
+| GET    | `/posts/(:any)`      | `show`   | `posts.show`    |
+| GET    | `/posts/(:any)/edit` | `edit`   | `posts.edit`    |
+| PUT    | `/posts/(:any)`      | `update` | `posts.update`  |
+| DELETE | `/posts/(:any)`      | `delete` | `posts.delete`  |
 
-**Resource with options:**
+> The `(:any)` segment matches any URL-safe identifier (slugs, UUIDs, numbers,
+> etc.). If you need to constrain the parameter to digits only, register the
+> routes manually with `(:num)`.
+
+**Nested resource:**
+
+To nest a resource under a parent (e.g. comments belonging to a post), use a
+dotted name:
 
 ```php
-// Only specific actions
-Route::resource('posts', ['only' => ['index', 'show']]);
-
-// Exclude specific actions
-Route::resource('posts', ['except' => ['destroy']]);
-
-// Custom controller location
-Route::resource('posts', ['controller' => 'blog.post']);
+Route::resource('posts.comments');
+// Generates URIs like /posts/(:any?)/comments, /posts/(:any?)/comments/(:any), ...
 ```
 
 <a id="controller-middleware"></a>
@@ -689,53 +691,51 @@ class User_Controller extends Controller
 <a id="dependency-injection"></a>
 ## Dependency Injection
 
-Controllers support dependency injection via constructor and methods:
+Controllers are constructed with `new $controller()` by default, so they do
+not receive automatic constructor injection. To get a controller built with
+custom dependencies, register it explicitly with the [Container](/docs/container)
+or use a [controller factory](#controller-factory):
 
-**Constructor injection:**
+**Container binding (recommended):**
 
 ```php
-use System\Database\Database;
-use System\Cache\Cache;
+// In application/boot.php, packages/.../boot.php, or any bootstrap code
+Container::singleton('controller: user', function () {
+    return new User_Controller(new UserRepository(), new MailService());
+});
+```
 
+The `'controller: <name>'` key is resolved automatically when the route
+dispatches to that controller. The `<name>` matches the route's
+`controller@action` identifier (without the `@action` part).
+
+**Constructor with custom dependencies:**
+
+```php
 class User_Controller extends Controller
 {
-    protected $db;
-    protected $cache;
+    protected $users;
+    protected $mailer;
 
-    public function __construct(Database $db, Cache $cache)
+    public function __construct(UserRepository $users, MailService $mailer)
     {
-        $this->db = $db;
-        $this->cache = $cache;
+        $this->users = $users;
+        $this->mailer = $mailer;
 
         $this->middleware('before', 'auth');
     }
 
     public function action_index()
     {
-        $users = $this->cache->remember('users', 60, function () {
-            return $this->db->table('users')->get();
-        });
-
-        return View::make('user.index', compact('users'));
+        return View::make('user.index', ['users' => $this->users->all()]);
     }
 }
 ```
 
-**Method injection:**
-
-```php
-class Post_Controller extends Controller
-{
-    public function action_show($id, Request $request, Cache $cache)
-    {
-        $post = $cache->remember('post.' . $id, 3600, function () use ($id) {
-            return Post::find($id);
-        });
-
-        return View::make('post.show', compact('post'));
-    }
-}
-```
+> Method parameters in actions (`action_show($id, ...)`) receive **route
+> parameters** captured from the URL — they are not auto-injected from the
+> container. Use `Container::resolve('foo')` inside the action if you need
+> services on demand.
 
 <a id="controller-factory"></a>
 ## Controller Factory
@@ -745,7 +745,7 @@ Custom controller instantiation:
 **Register factory in `application/boot.php`:**
 
 ```php
-Event::listen('rakit.controller.factory', function ($controller) {
+Hook::listen('rakit.controller.factory', function ($controller) {
     // Custom logic to instantiate controller
     if ($controller === 'Admin_User_Controller') {
         return new $controller(new UserRepository());
@@ -978,7 +978,7 @@ class Post_Controller extends Controller
      * Delete post
      * DELETE /posts/123
      */
-    public function action_destroy($id)
+    public function action_delete($id)
     {
         $post = Post::find($id);
 
@@ -1059,10 +1059,12 @@ abstract class Base_Controller extends Controller
 **Routing: `application/routes.php`**
 
 ```php
-// Resource controller
-Route::resource('posts', ['controller' => 'post']);
+// Resource routes for posts (uses Post_Controller).
+Route::resource('posts');
 
-// Additional routes
+// Additional routes for the same controller.
+// Place these BEFORE the resource registration if you want them to win on
+// overlapping URIs (e.g. /posts/search vs /posts/(:any)).
 Route::get('posts/search', 'post@search');
 Route::get('posts/category/(:any)', 'post@category');
 Route::post('posts/(:num)/comment', 'post@add_comment');

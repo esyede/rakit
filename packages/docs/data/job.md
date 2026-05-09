@@ -512,7 +512,7 @@ The job system is still compatible with the old event-based approach. However, t
 
 ```php
 // Register event listener (in bootstrap/start.php or routes.php)
-Event::listen('rakit.jobs.run: send-notification', function ($payload) {
+Hook::listen('rakit.jobs.run: send-notification', function ($payload) {
     Mail::send('emails.notification', $payload, function ($mail) use ($payload) {
         $mail->to($payload['to'])->subject($payload['subject']);
     });
@@ -538,7 +538,7 @@ If you are still using event-based, here's how to migrate:
 
 ```php
 // Old way (event-based)
-Event::listen('rakit.jobs.run: send-notification', function ($payload) {
+Hook::listen('rakit.jobs.run: send-notification', function ($payload) {
     // Send notification email logic here
 });
 

@@ -42,15 +42,13 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The `Input` class provides an easy and consistent way to access input from HTTP requests. Input can come from various sources such as `$_GET`, `$_POST`, `$_FILES`, or JSON request body.
+`Input` is a single, consistent API for reading data the client sent with the
+request — query string, form fields, JSON body, and uploaded files. It also
+exposes flash ("old") input for redirect-after-validation flows.
 
-**Advantages of using Input:**
-- Consistent API for all input types
-- Automatic XSS protection
-- Support for old input (flash data)
-- JSON input support
-- File upload handling
-- Cookie management
+> **Security note:** `Input` returns raw values. It does not sanitize or escape
+> them. Always escape on output (Blade does this by default with `{{ ... }}`)
+> and bind values via prepared statements when querying the database.
 
 <a id="retrieving-input"></a>
 ## Retrieving Input
@@ -666,10 +664,12 @@ Route::post('contact', function () {
     }
     
     // Send email
-    Email::send('emails.contact', Input::all(), function ($message) {
-        $message->to('admin@example.com')
-                ->subject('New Contact Message');
-    });
+    $body = View::make('emails.contact', Input::all())->render();
+
+    Email::to('admin@example.com')
+        ->subject('New Contact Message')
+        ->body($body)
+        ->send();
     
     return Redirect::back()
         ->with('message', 'Message sent successfully!');

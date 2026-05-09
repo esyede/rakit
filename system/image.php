@@ -146,7 +146,7 @@ class Image
     public function width($value)
     {
         $value = (int) $value;
-        $height = ($value / $this->width) * $this->height;
+        $height = (int) (($value / $this->width) * $this->height);
         $canvas = imagecreatetruecolor($value, $height);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $value, $height, $this->width, $this->height);
@@ -167,7 +167,7 @@ class Image
     public function height($value)
     {
         $value = (int) $value;
-        $width = ($value / $this->height) * $this->width;
+        $width = (int) (($value / $this->height) * $this->width);
         $canvas = imagecreatetruecolor($width, $value);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $width, $value, $this->width, $this->height);
@@ -252,17 +252,17 @@ class Image
         }
 
         if ($new < $original) {
-            $new_width = ($this->height / $height) * $width;
-            $new_height = $this->height;
-            $x = ($this->width / 2) - $new_width / 2;
+            $new_width = (int) (($this->height / $height) * $width);
+            $new_height = (int) $this->height;
+            $x = (int) (($this->width / 2) - $new_width / 2);
             $y = 0;
         }
 
         if ($new > $original) {
-            $new_height = ($this->width / $width) * $height;
-            $new_width = $this->width;
+            $new_height = (int) (($this->width / $width) * $height);
+            $new_width = (int) $this->width;
             $x = 0;
-            $y = ($this->height / 2) - $new_height / 2;
+            $y = (int) (($this->height / 2) - $new_height / 2);
         }
 
         // Crop from center
@@ -612,7 +612,12 @@ class Image
                     $block[$k] *= $dim;
                 }
 
-                imagefilledpolygon($sprite, $block, $points / 2, $color);
+                if (PHP_VERSION_ID >= 80100) {
+                    imagefilledpolygon($sprite, $block, $color);
+                } else {
+                    /** @disregard */
+                    imagefilledpolygon($sprite, $block, $points / 2, $color);
+                }
 
                 $sh = $dim / 2;
 
@@ -621,7 +626,7 @@ class Image
                     $image = imagerotate($image, 90, imagecolorallocatealpha($image, 0, 0, 0, 127));
                 }
 
-                if (PHP_VERSION_ID >= 80000) {
+                if (PHP_VERSION_ID < 80000) {
                     /** @disregard */
                     imagedestroy($sprite);
                 } else {
@@ -633,7 +638,7 @@ class Image
         imagesavealpha($image, true);
         $result = imagepng($image);
 
-        if (PHP_VERSION_ID >= 80000) {
+        if (PHP_VERSION_ID < 80000) {
             /** @disregard */
             imagedestroy($image);
         } else {

@@ -40,8 +40,10 @@ trait Macroable
 
         foreach ($methods as $method) {
             if ($replace || !static::has_macro($method->name)) {
-                /** @disregard */
-                $method->setAccessible(true);
+                if (PHP_VERSION_ID < 80100) {
+                    /** @disregard */
+                    $method->setAccessible(true);
+                }
                 static::macro($method->name, $method->invoke($mixin));
             }
         }

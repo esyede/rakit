@@ -50,17 +50,14 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Views are the presentation layer in the application that contains HTML displayed to the user. Views separate business logic from display,
-making code more organized and maintainable.
+Views hold the HTML (or other text) sent back to the client. Keeping views
+separate from controllers and models makes the code easier to read and reuse.
 
-**Advantages of using Views:**
-- Separation of concerns
-- Code reusability
-- Easier maintenance
-- Template inheritance (Blade)
-- Easy data binding
+Views live in `application/views/`. The framework recognizes two formats:
 
-Views are stored in the `application/views/` folder with `.php` or `.blade.php` extension (for Blade template).
+-   `.php` — plain PHP templates (e.g. `home.php`).
+-   `.blade.php` — [Blade](/docs/views/templating) templates with helpers
+    like `{{ $var }}`, `@foreach`, `@if`, and template inheritance.
 
 <a id="creating-view"></a>
 ## Creating View
@@ -151,7 +148,7 @@ return View::make('admin::dashboard');
 **Single data:**
 
 ```php
-Route::get('user/{id}', function ($id) {
+Route::get('user/(:num)', function ($id) {
     $user = User::find($id);
 
     return View::make('user.profile')->with('user', $user);
@@ -443,8 +440,11 @@ $html = View::render_each('user.item', $users, 'user', 'user.empty');
 $view = View::make('email.welcome', ['user' => $user]);
 $html = $view->render();
 
-// Send via email
-Email::send($user->email, 'Welcome!', $html);
+// Send via email (see /docs/email for the full API)
+Email::to($user->email)
+    ->subject('Welcome!')
+    ->body($html)
+    ->send();
 ```
 
 <a id="response-types"></a>
@@ -553,7 +553,7 @@ return Response::jsonp('myCallback', $data, 200, [
 **Response model as JSON:**
 
 ```php
-Route::get('api/users/{id}', function ($id) {
+Route::get('api/users/(:num)', function ($id) {
     $user = User::find($id);
 
     if (!$user) {
@@ -576,14 +576,14 @@ Route::get('api/users', function () {
 **Force download file:**
 
 ```php
-Route::get('download/{file}', function ($file) {
+Route::get('download/(:any)', function ($file) {
     $path = path('storage') . 'downloads/' . $file;
 
     return Response::download($path);
 });
 
 // With custom filename
-Route::get('invoice/{id}', function ($id) {
+Route::get('invoice/(:num)', function ($id) {
     $invoice = Invoice::find($id);
     $path = $invoice->pdf_path;
 

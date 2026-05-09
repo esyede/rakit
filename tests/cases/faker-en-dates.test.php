@@ -77,7 +77,7 @@ class FakerEnDatesTest extends \PHPUnit_Framework_TestCase
         $date = Dates::dateTimeBetween($start, $end);
         $this->assertInstanceOf('\DateTime', $date);
         $this->assertGreaterThanOrEqual(new \DateTime($start), $date);
-        $this->assertLessThanOrEqual(new \DateTime($end), $date);
+        $this->assertLessThanOrEqual(new \DateTime(null === $end ? 'now' : $end), $date);
     }
 
     public function providerDateTimeBetween()

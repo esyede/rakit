@@ -29,7 +29,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     {
         $reflection = new ReflectionProperty('\System\Websocket\Server', 'config');
         /** @disregard */
-        $reflection->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $reflection->setAccessible(true);
         $config = $reflection->getValue($server);
         $config[$key] = $value;
         $reflection->setValue($server, $config);
@@ -42,7 +42,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     {
         $reflection = new ReflectionMethod('\System\Websocket\Server', $method);
         /** @disregard */
-        $reflection->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $reflection->setAccessible(true);
         return $reflection->invokeArgs($server, $args);
     }
 

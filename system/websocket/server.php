@@ -664,7 +664,7 @@ class Server
 
     protected function check_rsv_bits($headers, $user)
     {
-        return boolval(($headers['rsv1'] + $headers['rsv2'] + $headers['rsv3']) > 0);
+        return (bool) (($headers['rsv1'] + $headers['rsv2'] + $headers['rsv3']) > 0);
     }
 
     public function clients($uri = null)

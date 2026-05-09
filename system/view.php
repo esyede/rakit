@@ -123,7 +123,7 @@ class View implements \ArrayAccess
         }
 
         list($package, $view) = Package::parse($view);
-        $path = Event::until(static::LOADER, [$package, str_replace(['.', '/'], DS, $view)]);
+        $path = Hook::until(static::LOADER, [$package, str_replace(['.', '/'], DS, $view)]);
         return is_null($path) ? false : ($return_path ? $path : true);
     }
 
@@ -257,7 +257,7 @@ class View implements \ArrayAccess
         $views = (array) $views;
 
         foreach ($views as $view) {
-            Event::listen('rakit.composing: ' . $view, $composer);
+            Hook::listen('rakit.composing: ' . $view, $composer);
         }
     }
 
@@ -295,12 +295,12 @@ class View implements \ArrayAccess
     {
         ++static::$rendered;
 
-        Event::fire('rakit.composing: ' . $this->view, [$this]);
+        Hook::fire('rakit.composing: ' . $this->view, [$this]);
 
         $contents = null;
 
-        if (Event::exists(static::ENGINE)) {
-            $result = Event::until(static::ENGINE, [$this]);
+        if (Hook::exists(static::ENGINE)) {
+            $result = Hook::until(static::ENGINE, [$this]);
             $contents = $result ?: $contents;
         }
 
@@ -349,8 +349,8 @@ class View implements \ArrayAccess
 
             $content = ob_get_clean();
 
-            if (Event::exists('view.middleware')) {
-                return Event::first('view.middleware', [$content, $this->path]);
+            if (Hook::exists('view.middleware')) {
+                return Hook::first('view.middleware', [$content, $this->path]);
             }
 
             return $content;

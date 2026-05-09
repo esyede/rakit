@@ -384,7 +384,7 @@ class Debugger
 
             if (Helpers::isHtmlMode()) {
                 if (is_file(static::$errorTemplate)) {
-                    if (\System\Event::exists('rakit.view.engine') && substr(static::$errorTemplate, -10) === '.blade.php') {
+                    if (\System\Hook::exists('rakit.view.engine') && substr(static::$errorTemplate, -10) === '.blade.php') {
                         try {
                             echo \System\View::make('error.500')->render();
                         } catch (\Throwable $e) {

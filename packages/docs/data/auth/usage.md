@@ -18,42 +18,37 @@
 
 ## Basic Knowledge
 
-Auth provides an easy and secure authentication mechanism for your application. Before using the `Auth` class, make sure you have:
+`Auth` is the entry point for logging users in and out, checking the current
+user, and protecting routes. Before using it, make sure:
 
-1. [Configured the session driver](/docs/session/config)
-2. [Configured the auth driver](/docs/auth/config)
-3. A user table/model with a hashed password column
+1.  The [session driver](/docs/session/config) is configured.
+2.  The [auth driver](/docs/auth/config) is configured.
+3.  Your user table has a column that stores a **hashed** password.
 
-> Rakit automatically handles sessions and cookies for authentication, so you don't need to manage them manually.
+Sessions and cookies for authentication are managed for you — there is no
+need to set them manually.
 
 <a id="encrypting-passwords"></a>
 
 ## Encrypting Passwords
 
-If you are using the Auth class, we strongly recommend encrypting all passwords. Web application development should be done responsibly. Encrypted passwords minimize the potential for data breaches of your users' information.
-
-Now, let's proceed to encrypt passwords:
+Always store passwords as bcrypt hashes — never plain text. Use `Hash::make()`
+to create a hash and `Hash::check()` to compare a plain-text password against
+a stored hash.
 
 ```php
 $hash = Hash::make('admin123');
-```
 
-By default, `Hash::make()` will use the default cost of `10`, but you can also increase or decrease it if necessary:
-
-```php
-$cost = 22;
-
-$hash = Hash::make('admin123', $cost);
-```
-
-> The cost should only be an integer between `4` and `31`. The higher the cost, the more secure the password, but the slower the hashing process.
-
-You can compare an unencrypted value with an encrypted value using the `check()` method like this:
-
-```php
 if (Hash::check('admin123', $hash)) {
-	return 'Password is correct!';
+    return 'Password is correct!';
 }
+```
+
+`Hash::make()` accepts an optional cost factor (default `10`, range `4`–`31`).
+Higher cost is more secure but slower:
+
+```php
+$hash = Hash::make('admin123', 12);
 ```
 
 **Example of user registration with hashed password:**
@@ -141,17 +136,19 @@ If the user's credentials are valid, the user ID will be stored in the session a
 
 **Login without credential validation:**
 
-Use the `login()` method to log in a user without checking their credentials. Useful after successful registration or in impersonation processes:
+Use `Auth::login()` to log in a user without checking credentials — useful
+right after registration or for impersonation flows. The argument is the
+user's primary key, not the model instance:
 
 ```php
-// Login by user ID
+// Log in the user with this ID
 Auth::login($user->id);
 
-// Login by user ID (directly with number)
+// Same thing with a literal ID
 Auth::login(15);
 
-// Login by user object (for Facile driver)
-Auth::login($user);
+// Optional second argument enables "remember me"
+Auth::login($user->id, true);
 ```
 
 <a id="remember-me"></a>

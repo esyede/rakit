@@ -330,7 +330,13 @@ class Defaults
 
             // Threshold: 3+ identical queries = potential N+1
             if ($count >= 3) {
-                $totalTime = array_sum(array_column($group, 'time'));
+                $times = [];
+                foreach ($group as $entry) {
+                    if (isset($entry['time'])) {
+                        $times[] = $entry['time'];
+                    }
+                }
+                $totalTime = array_sum($times);
                 $avgTime = $totalTime / $count;
                 // Estimate time saved if optimized (using JOIN/eager load)
                 $estimatedOptimizedTime = $avgTime * 1.5; // Assume JOIN takes 1.5x single query

@@ -25,6 +25,19 @@ define('LF', "\n");
 define('RAKIT_PHPUNIT_RUNNING', true);
 
 // --------------------------------------------------------------
+// Mute deprecation noise from vendor (PHPUnit 4.x, Prophecy, etc.)
+// --------------------------------------------------------------
+// PHPUnit 4.x converts E_DEPRECATED into test errors and PHP itself
+// prints any deprecations its handler skips. Vendor libraries emit
+// many such warnings on PHP 8.4+ that the framework cannot fix
+// without upgrading them. Framework deprecations have been resolved,
+// so deprecations are filtered out here to keep results meaningful.
+if (class_exists('PHPUnit_Framework_Error_Deprecated')) {
+    PHPUnit_Framework_Error_Deprecated::$enabled = false;
+}
+error_reporting(error_reporting() & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
+// --------------------------------------------------------------
 // Include framework's path definitions
 // --------------------------------------------------------------
 require dirname(__DIR__) . DS . 'paths.php';

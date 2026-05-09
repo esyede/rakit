@@ -16,13 +16,13 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Email');
         $drivers = $reflection->getProperty('drivers');
         /** @disregard */
-        $drivers->setAccessible(true);
-        $drivers->setValue([]);
+        PHP_VERSION_ID < 80100 && $drivers->setAccessible(true);
+        $drivers->setValue(null, []);
 
         $registrar = $reflection->getProperty('registrar');
         /** @disregard */
-        $registrar->setAccessible(true);
-        $registrar->setValue([]);
+        PHP_VERSION_ID < 80100 && $registrar->setAccessible(true);
+        $registrar->setValue(null, []);
 
         // Set up config
         Config::set('email.driver', 'dummy');
@@ -57,8 +57,8 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('\System\Email');
         $drivers = $reflection->getProperty('drivers');
         /** @disregard */
-        $drivers->setAccessible(true);
-        $drivers->setValue([]);
+        PHP_VERSION_ID < 80100 && $drivers->setAccessible(true);
+        $drivers->setValue(null, []);
     }
 
     /**
@@ -100,7 +100,7 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Email');
         $factory = $reflection->getMethod('factory');
         /** @disregard */
-        $factory->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $factory->setAccessible(true);
 
         $driver = $factory->invoke(null, 'dummy');
         $this->assertInstanceOf('System\Email\Drivers\Log', $driver);
@@ -114,7 +114,7 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Email');
         $factory = $reflection->getMethod('factory');
         /** @disregard */
-        $factory->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $factory->setAccessible(true);
 
         $this->setExpectedException('Exception', 'Unsupported email driver: invalid');
         $factory->invoke(null, 'invalid');
@@ -133,7 +133,7 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Email');
         $factory = $reflection->getMethod('factory');
         /** @disregard */
-        $factory->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $factory->setAccessible(true);
 
         $driver = $factory->invoke(null, 'custom');
         $this->assertInstanceOf('System\Email\Drivers\Log', $driver);
@@ -149,7 +149,7 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Email');
         $drivers = $reflection->getProperty('drivers');
         /** @disregard */
-        $drivers->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $drivers->setAccessible(true);
         $this->assertNotEmpty($drivers->getValue());
 
         Email::reset();
@@ -166,13 +166,13 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Email');
         $drivers = $reflection->getProperty('drivers');
         /** @disregard */
-        $drivers->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $drivers->setAccessible(true);
         $cached_drivers = $drivers->getValue();
         $driver = $cached_drivers['dummy'];
 
         $prop = new \ReflectionProperty($driver, 'subject');
         /** @disregard */
-        $prop->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $prop->setAccessible(true);
         $this->assertEquals('Test Subject', $prop->getValue($driver));
     }
 }

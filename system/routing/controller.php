@@ -8,7 +8,7 @@ use System\Arr;
 use System\Str;
 use System\View;
 use System\Input;
-use System\Event;
+use System\Hook;
 use System\Package;
 use System\Request;
 use System\Response;
@@ -126,7 +126,7 @@ abstract class Controller
         }
 
         return is_null($controller)
-            ? Event::first('404')
+            ? Hook::first('404')
             : $controller->execute($method, $parameters);
     }
 
@@ -178,8 +178,8 @@ abstract class Controller
 
         $controller = static::format($package, $controller);
 
-        return Event::exists(static::FACTORY)
-            ? Event::first(static::FACTORY, [$controller])
+        return Hook::exists(static::FACTORY)
+            ? Hook::first(static::FACTORY, [$controller])
             : new $controller();
     }
 

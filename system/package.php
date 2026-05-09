@@ -85,7 +85,7 @@ class Package
 
         static::routes($package);
 
-        Event::fire('rakit.booted: ' . $package);
+        Hook::fire('rakit.booted: ' . $package);
 
         static::$booted[] = strtolower($package);
     }
@@ -109,12 +109,12 @@ class Package
             static::$routed[] = $package;
             require $directory . 'routes.php';
 
-            // Load event, middleware and view composer files.
+            // Load hook, middleware and view composer files.
             array_map(function ($file) use ($directory) {
                 if (is_file($directory . $file)) {
                     require $directory . $file;
                 }
-            }, ['events.php', 'middlewares.php', 'composers.php']);
+            }, ['hooks.php', 'middlewares.php', 'composers.php']);
         }
     }
 

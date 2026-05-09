@@ -111,7 +111,7 @@ class Container
             static::$singletons[$type] = $object;
         }
 
-        Event::fire('rakit.resolving', [$type, $object]);
+        Hook::fire('rakit.resolving', [$type, $object]);
 
         return $object;
     }

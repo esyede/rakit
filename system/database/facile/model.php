@@ -5,7 +5,7 @@ namespace System\Database\Facile;
 defined('DS') or exit('No direct access.');
 
 use System\Str;
-use System\Event;
+use System\Hook;
 use System\Carbon;
 use System\Validator;
 use System\Database\Exceptions\ModelNotFoundException;
@@ -819,14 +819,14 @@ abstract class Model
             $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
         }
 
-        Event::fire(['facile.saving', 'facile.saving: ' . get_class($this)], [$this]);
+        Hook::fire(['facile.saving', 'facile.saving: ' . get_class($this)], [$this]);
 
         if ($this->exists) {
             $query = $this->query()->where(static::$key, '=', $this->get_key());
             $result = (1 === $query->update($this->get_dirty()));
 
             if ($result) {
-                Event::fire(['facile.updated', 'facile.updated: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.updated', 'facile.updated: ' . get_class($this)], [$this]);
             }
         } else {
             $id = $this->query()->insert_get_id($this->attributes, $this->key());
@@ -836,14 +836,14 @@ abstract class Model
             $this->exists = $result;
 
             if ($result) {
-                Event::fire(['facile.created', 'facile.created: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.created', 'facile.created: ' . get_class($this)], [$this]);
             }
         }
 
         $this->original = $this->attributes;
 
         if ($result) {
-            Event::fire(['facile.saved', 'facile.saved: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.saved', 'facile.saved: ' . get_class($this)], [$this]);
         }
 
         return $result;
@@ -857,7 +857,7 @@ abstract class Model
     public function delete()
     {
         if ($this->exists) {
-            Event::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
 
             if (static::$soft_delete) { // Soft delete
                 $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
@@ -865,10 +865,10 @@ abstract class Model
                     ->where(static::$key, '=', $this->get_key())
                     ->update(['deleted_at' => $this->deleted_at]);
                 $this->exists = false;
-                Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
             } else { // Hard delete
                 $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
-                Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
             }
 
             return $result;
@@ -903,9 +903,9 @@ abstract class Model
     public function force_delete()
     {
         if ($this->exists || !is_null($this->deleted_at)) {
-            Event::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
             $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
-            Event::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
 
             return $result;
         }

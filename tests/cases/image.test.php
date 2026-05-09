@@ -46,8 +46,8 @@ class ImageTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('System\Image');
         $singleton = $reflection->getProperty('singleton');
         /** @disregard */
-        $singleton->setAccessible(true);
-        $singleton->setValue(null);
+        PHP_VERSION_ID < 80100 && $singleton->setAccessible(true);
+        $singleton->setValue(null, null);
     }
 
     /**
@@ -396,7 +396,7 @@ class ImageTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($image);
         $path = $reflection->getProperty('path');
         /** @disregard */
-        $path->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $path->setAccessible(true);
 
         $this->assertNull($path->getValue($image));
     }

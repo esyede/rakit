@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Str;
 use System\Cookie;
 use System\Config;
-use System\Event;
+use System\Hook;
 use System\Session;
 use System\Crypter;
 
@@ -112,7 +112,7 @@ abstract class Driver
             $this->remember($token);
         }
 
-        Event::fire('rakit.auth: login');
+        Hook::fire('rakit.auth: login');
         return true;
     }
 
@@ -125,7 +125,7 @@ abstract class Driver
 
         $this->cookie($this->recaller(), '', -2628000);
         Session::forget($this->token());
-        Event::fire('rakit.auth: logout');
+        Hook::fire('rakit.auth: logout');
 
         $this->token = null;
     }

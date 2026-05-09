@@ -4,7 +4,7 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
-use System\Event;
+use System\Hook;
 use System\Memcached;
 
 class Job
@@ -89,12 +89,12 @@ class Job
         static::$discovered = true;
         static::load_job_classes();
 
-        Event::listen('rakit.jobs.process', function ($data) {
+        Hook::listen('rakit.jobs.process', function ($data) {
             $job = is_array($data) ? (object) $data : $data;
 
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
-                Event::fire('rakit.jobs.run: ' . $job->name, $payloads);
+                Hook::fire('rakit.jobs.run: ' . $job->name, $payloads);
             }
         });
     }
@@ -127,7 +127,7 @@ class Job
 
                 if (class_exists($class, true)) {
                     if ((new \ReflectionClass($class))->isSubclassOf('\System\Job\Jobable')) {
-                        Event::listen('rakit.jobs.run: ' . $class::name(), function ($payload) use ($class) {
+                        Hook::listen('rakit.jobs.run: ' . $class::name(), function ($payload) use ($class) {
                             $class::execute($payload);
                         });
                     }

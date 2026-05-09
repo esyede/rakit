@@ -186,6 +186,60 @@ class Autoloader
     }
 
     /**
+     * Register a batch of class aliases. Detects conflicts with built-in
+     * classes provided by PHP extensions (e.g. the `event` extension exposes
+     * a built-in `Event` class that would shadow our alias). Built-in classes
+     * are loaded before any userland autoloader runs, so silent shadowing
+     * causes confusing "Call to undefined method" errors at runtime.
+     *
+     * Conflicting aliases are skipped (not registered) and reported via an
+     * E_USER_WARNING so the framework still boots for non-conflicting uses,
+     * but the developer is alerted to rename or remove the alias.
+     *
+     * @param array $aliases
+     */
+    public static function aliases(array $aliases)
+    {
+        $conflicts = [];
+
+        foreach (array_keys($aliases) as $alias) {
+            if (class_exists($alias, false) || interface_exists($alias, false) || trait_exists($alias, false)) {
+                $reflection = new \ReflectionClass($alias);
+
+                if ($reflection->isInternal()) {
+                    $conflicts[$alias] = $reflection->getExtensionName() ?: 'core';
+                    unset($aliases[$alias]);
+                }
+            }
+        }
+
+        static::$aliases = array_merge(static::$aliases, $aliases);
+
+        if (!empty($conflicts)) {
+            $lines = [];
+
+            foreach ($conflicts as $alias => $extension) {
+                $lines[] = sprintf('"%s" (conflicts with extension "%s")', $alias, $extension);
+            }
+
+            $message = '[Rakit] Class alias(es) skipped because they collide with built-in PHP classes: '
+                . implode(', ', $lines)
+                . '. PHP loads built-in classes before any userland autoloader runs, so these '
+                . 'names cannot be aliased. Disable the conflicting extension or rename the alias '
+                . 'in application/config/aliases.php. The fully-qualified target class remains '
+                . 'available (e.g. via "use Vendor\\Namespace\\Target;").';
+
+            // Write to STDERR directly to avoid triggering PHPUnit's error handler
+            // (which would convert the warning into spurious test failures).
+            if (defined('STDERR')) {
+                fwrite(STDERR, $message . PHP_EOL);
+            } else {
+                error_log($message);
+            }
+        }
+    }
+
+    /**
      * Register directory for autoload with PSR-0 convention.
      *
      * @param array $directories

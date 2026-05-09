@@ -15,59 +15,47 @@
 
 ## Basic Knowledge
 
-Welcome to the documentation page.
-These documents are intended to serve both as a guide to get started and as a feature reference.
-
-Although you can jump to any section and start learning, we recommend reading the documentation
-sequentially to allow us to gradually build the concepts that will be used
-in subsequent documents.
+This documentation works as both a getting-started guide and a feature reference.
+Each topic is short and self-contained, so you can jump to any section. New users
+should still read the early chapters in order — later chapters build on them.
 
 <a id="what-is-rakit"></a>
 
 ## What is Rakit?
 
-Rakit is a simple and easy-to-learn PHP framework.
-New users will enjoy the ease of development found in other popular PHP frameworks.
+Rakit is a small, easy-to-learn PHP framework. It is familiar to anyone who has
+used a popular PHP framework before, and it lets you organize larger applications
+into reusable packages without ceremony.
 
-More experienced users will have the opportunity to modularize their code
-in ways not possible with other frameworks.
-
-Its flexibility allows your organization to update and shape applications over time
-as needed, its expressiveness will allow you and your team to develop
-concise and readable code.
+The codebase is intentionally compact. The same flexibility you get for small
+prototypes scales up to production apps, and the source is short enough to read
+when you need to understand what is happening under the hood.
 
 <a id="application-structure"></a>
 
 ## Application Structure
 
-The directory structure is intentionally designed to be familiar to users of other frameworks.
-Web applications of all shapes and sizes can be easily created using this structure,
-similar to how they would be created in other frameworks.
-
-Throughout our documentation, we will show the default locations for each component being discussed.
+The directory layout is similar to other PHP frameworks, so you should feel at
+home. Throughout the docs we show the default location for every component
+discussed.
 
 <a id="community-support"></a>
 
 ## Community Support
 
-Rakit is very fortunate to be supported by a growing, friendly, and enthusiastic community.
-The [Forum](https://github.com/esyede/rakit/discussions) is the right place to seek help,
-provide suggestions, or just see what others are saying.
-
-You are welcome to ask questions, answer others' questions, or just
-read and learn from others' answered questions.
-Many friends have already joined, so don't be a stranger!
+The [Forum](https://github.com/esyede/rakit/discussions) is the place to ask
+questions, share suggestions, or follow along with what other users are doing.
+Both new and experienced users are welcome — answering someone else's question
+is also a great way to learn.
 
 
 <a id="donations"></a>
 
 ## Donations
 
-Rakit is an open-source project that relies on the support of its community to continue development and maintenance.
-
-If you find Rakit useful and would like to contribute, consider making a donation to help sustain the project.
-
-Your support, whether big or small, is greatly appreciated and helps ensure that Rakit can continue to grow and improve for everyone.
+Rakit is an open-source project maintained by volunteers. If it is useful to
+you, please consider donating — every contribution helps keep development
+going.
 
 <a href='https://ko-fi.com/A0A61UOVND' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee' /></a>
 

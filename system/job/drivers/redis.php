@@ -5,7 +5,7 @@ namespace System\Job\Drivers;
 defined('DS') or exit('No direct access.');
 
 use System\Str;
-use System\Event;
+use System\Hook;
 use System\Carbon;
 use System\Config;
 
@@ -213,7 +213,7 @@ class Redis extends Driver
                             $attempts++;
 
                             try {
-                                Event::fire('rakit.jobs.process', [$data]);
+                                Hook::fire('rakit.jobs.process', [$data]);
                                 $successful[] = ['list' => $list, 'jid' => $jid, 'key' => $key];
                                 $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
                                 $success = true;
@@ -325,7 +325,7 @@ class Redis extends Driver
                             $attempts++;
 
                             try {
-                                Event::fire('rakit.jobs.process', [$data]);
+                                Hook::fire('rakit.jobs.process', [$data]);
                                 $successful[] = ['queue' => $queue, 'jid' => $jid, 'key' => $key];
                                 $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
                                 $success = true;

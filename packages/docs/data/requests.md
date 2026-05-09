@@ -42,14 +42,10 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The `Request` class provides an object-oriented interface for the HTTP request being handled by the application. The Request object contains information about the HTTP request such as URI, headers, method, input data, and more.
-
-**Advantages of using Request:**
-- Centralized access to all request information
-- Consistent and easy-to-use API
-- Type detection (AJAX, HTTPS, CLI, JSON)
-- Content negotiation support
-- URI manipulation and pattern matching
+`Request` is the object-oriented entry point for the current HTTP request. Use
+it to read the URI, method, headers, IP, server values, and to detect the
+request kind (AJAX, JSON, HTTPS, CLI). For input data (form fields, JSON body,
+uploaded files), see [Input](/docs/input).
 
 <a id="accessing-request"></a>
 ## Accessing Request

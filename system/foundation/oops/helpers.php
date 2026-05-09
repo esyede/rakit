@@ -76,8 +76,10 @@ class Helpers
             }
 
             $ref = new \ReflectionProperty('Exception', 'trace');
-            /** @disregard */
-            $ref->setAccessible(true);
+            if (PHP_VERSION_ID < 80100) {
+                /** @disregard */
+                $ref->setAccessible(true);
+            }
             $ref->setValue($e, $stack);
         }
 
@@ -173,8 +175,10 @@ class Helpers
 
         if (isset($hint)) {
             $ref = new \ReflectionProperty($e, 'message');
-            /** @disregard */
-            $ref->setAccessible(true);
+            if (PHP_VERSION_ID < 80100) {
+                /** @disregard */
+                $ref->setAccessible(true);
+            }
             $ref->setValue($e, $message);
         }
     }

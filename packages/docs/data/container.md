@@ -12,14 +12,18 @@
 
 ## Basic Knowledge
 
-The Container is just a way to manage object creation. You can use it to define the creation of complex objects,
-allowing you to resolve them throughout your application with just one line of code.
-You can also use it to _inject_ dependencies into your classes and controllers.
+The Container is a service locator: you teach it how to build an object once
+(under a name), and resolve that name anywhere in the app to get a ready
+instance.
 
-The Container helps make your application more flexible and easier to test.
-Since you can register alternative implementations of interfaces via this container,
-you can isolate the code you are testing from external dependencies
-using [stub and mocking](http://martinfowler.com/articles/mocksArentStubs.html) techniques.
+This is mostly useful for two things:
+
+1.  **Centralizing complex construction.** Build a mailer, queue, or external
+    SDK in one place — every caller gets the same recipe.
+2.  **Swapping implementations in tests.** Register a fake implementation under
+    the same name to isolate the code under test from real services. See
+    [stubs and mocks](http://martinfowler.com/articles/mocksArentStubs.html)
+    for the broader pattern.
 
 <a id="registering-objects"></a>
 

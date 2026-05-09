@@ -33,8 +33,8 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass('\System\Markdown');
         $factory = $reflection->getProperty('factory');
         /** @disregard */
-        $factory->setAccessible(true);
-        $factory->setValue(null);
+        PHP_VERSION_ID < 80100 && $factory->setAccessible(true);
+        $factory->setValue(null, null);
     }
 
     /**
@@ -165,7 +165,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($markdown);
         $breaks = $reflection->getProperty('breaks');
         /** @disregard */
-        $breaks->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $breaks->setAccessible(true);
         $this->assertTrue($breaks->getValue($markdown));
     }
 
@@ -180,7 +180,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($markdown);
         $escaping = $reflection->getProperty('escaping');
         /** @disregard */
-        $escaping->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $escaping->setAccessible(true);
         $this->assertTrue($escaping->getValue($markdown));
     }
 
@@ -195,7 +195,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($markdown);
         $linking = $reflection->getProperty('linking');
         /** @disregard */
-        $linking->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $linking->setAccessible(true);
         $this->assertFalse($linking->getValue($markdown));
     }
 
@@ -210,7 +210,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $reflection = new \ReflectionClass($markdown);
         $safety = $reflection->getProperty('safety');
         /** @disregard */
-        $safety->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $safety->setAccessible(true);
         $this->assertTrue($safety->getValue($markdown));
     }
 

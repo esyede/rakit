@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Config;
 use System\Carbon;
 use System\Database as DB;
-use System\Event;
+use System\Hook;
 use System\Str;
 
 class Database extends Driver
@@ -74,7 +74,7 @@ class Database extends Driver
         $config = Config::get('job');
         $name = Str::slug($name);
 
-        Event::fire('rakit.jobs.forget: ' . $name);
+        Hook::fire('rakit.jobs.forget: ' . $name);
 
         $query = DB::table($config['table'])->where('name', $name);
 
@@ -164,7 +164,7 @@ class Database extends Driver
                     $attempts++;
 
                     try {
-                        Event::fire('rakit.jobs.process', [$job]);
+                        Hook::fire('rakit.jobs.process', [$job]);
                         $successful[] = $job->id;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
                         $success = true;
@@ -260,7 +260,7 @@ class Database extends Driver
                     $attempts++;
 
                     try {
-                        Event::fire('rakit.jobs.process', [$job]);
+                        Hook::fire('rakit.jobs.process', [$job]);
                         $successful[] = $job->id;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
                         $success = true;

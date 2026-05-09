@@ -14,13 +14,10 @@
 
 ## Basic Knowledge
 
-Pagination makes it easy for you to display large amounts of data by dividing it into several pages.
-Rakit provides a simple and easy-to-use API for pagination.
-
-**Advantages of using Pagination:**
-- Improves performance by limiting the amount of data loaded
-- Improves user experience with easy navigation
-- Reduces server and database load
+Pagination splits large result sets into pages so the database fetches less
+data and the user can navigate the results. Rakit's query builder and Facile
+models both expose a `paginate()` helper that returns a `Paginator` instance
+ready for rendering.
 
 <a id="using-query-builder"></a>
 

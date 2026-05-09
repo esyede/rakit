@@ -38,7 +38,7 @@ define('RAKIT_KEY', require path('rakit_key'));
 */
 
 require path('system') . 'container.php';
-require path('system') . 'event.php';
+require path('system') . 'hook.php';
 require path('system') . 'package.php';
 require path('system') . 'config.php';
 require path('system') . 'helpers.php';

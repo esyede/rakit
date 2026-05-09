@@ -98,7 +98,7 @@ class Email extends System\Email
 {
 }
 
-class Event extends System\Event
+class Hook extends System\Hook
 {
 }
 
@@ -163,10 +163,6 @@ class Markdown extends System\Markdown
 {
 }
 
-class Memcached extends System\Memcached
-{
-}
-
 class Middleware extends System\Routing\Middleware
 {
 }
@@ -180,10 +176,6 @@ class Paginator extends System\Paginator
 }
 
 class Redirect extends System\Redirect
-{
-}
-
-class Redis extends System\Redis
 {
 }
 

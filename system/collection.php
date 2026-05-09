@@ -536,8 +536,8 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         $first = $this->first();
         return (is_array($first) || is_object($first))
-            ? implode($glue, $this->pluck($value)->all())
-            : implode($value, $this->items);
+            ? implode(null === $glue ? '' : $glue, $this->pluck($value)->all())
+            : implode(null === $value ? '' : $value, $this->items);
     }
 
     /**

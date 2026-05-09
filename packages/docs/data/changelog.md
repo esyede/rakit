@@ -6,6 +6,7 @@
 -   [v0.9.7 \(pre-release\)](#v097-pre-release)
 -   [v0.9.8 \(pre-release\)](#v098-pre-release)
 -   [v0.9.9 \(pre-release\)](#v099-pre-release)
+-   [v0.9.10 \(pre-release\)](#v0910-pre-release)
 
 <!-- /MarkdownTOC -->
 
@@ -100,3 +101,102 @@ For more details, please visit [this link](https://github.com/esyede/rakit/relea
 **Upgrade method**:
 
 -   Redownload. Not compatible with previous versions.
+
+<a id="v0910-pre-release"></a>
+
+## v0.9.10 (pre-release)
+
+This release focuses on PHP 5.4 - 8.5 compatibility and resolving class-alias collisions with built-in PHP classes shipped by popular extensions.
+
+### Class rename / alias removal (BREAKING)
+
+Rakit's autoloader uses `class_alias()` to expose framework classes under short global names (`Event`, `Redis`, etc.). Built-in PHP classes are loaded **before** any userland autoloader runs, so when an extension provides a class with the same name, our alias is silently shadowed and you get confusing `Call to undefined method` errors at runtime.
+
+The event dispatcher class itself has been **renamed from `System\Event` to `System\Hook`** so the class name and its short alias stay consistent. The default alias map in `application/config/aliases.php` has been updated to avoid the collisions:
+
+| Old name (class / alias)        | New name / replacement                                                | Conflicting extension                                    |
+| ------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------- |
+| `System\Event` / `Event`        | **`System\Hook`** / **`Hook`**                                        | [event](https://pecl.php.net/package/event) (libevent)    |
+| `System\Redis` / `Redis`        | `System\Redis` (alias **removed** — use `\System\Redis` or `use System\Redis`) | [redis (phpredis)](https://github.com/phpredis/phpredis) |
+| `System\Memcached` / `Memcached`| `System\Memcached` (alias **removed** — use `\System\Memcached` or `use System\Memcached`) | [memcached](https://pecl.php.net/package/memcached)      |
+
+The file `system/event.php` has been removed and its contents now live in `system/hook.php`. The Redis and Memcached classes themselves are unchanged — only their aliases are gone.
+
+#### Migration
+
+Search-and-replace these patterns in your application code:
+
+```php
+// Before — short alias
+Event::listen('user.login', function ($user) { /* ... */ });
+Event::fire('rakit.done', [$response]);
+
+// After
+Hook::listen('user.login', function ($user) { /* ... */ });
+Hook::fire('rakit.done', [$response]);
+```
+
+```php
+// Before — fully-qualified name or `use` import
+use System\Event;
+\System\Event::fire('something');
+
+// After
+use System\Hook;
+\System\Hook::fire('something');
+```
+
+For `Redis` and `Memcached`, either import the class with `use` or call it via FQN:
+
+```php
+// Option 1: import once at the top of the file
+use System\Redis;
+
+$redis = Redis::db();
+
+// Option 2: fully-qualified name
+$redis = \System\Redis::db();
+```
+
+> The fully-qualified target classes (`\System\Hook`, `\System\Redis`, `\System\Memcached`) **always work** regardless of alias configuration. If you prefer not to rely on aliases at all, you can use FQN everywhere.
+
+### Autoloader collision detection
+
+`System\Autoloader` gained a new `aliases(array $aliases)` method that registers a batch of aliases and detects conflicts with built-in PHP classes. Conflicting names are skipped (not registered) and a warning is written to STDERR / error log so you know to either disable the conflicting extension or rename the alias.
+
+```php
+// New (preferred)
+System\Autoloader::aliases(System\Config::get('aliases'));
+
+// Old (still works, but skips conflict detection)
+System\Autoloader::$aliases = System\Config::get('aliases');
+```
+
+The default `application/boot.php` and `tests/fixtures/application/boot.php` have been updated to use the new method.
+
+### PHP 5.4 - 8.5 compatibility fixes
+
+A pass through the framework has resolved every deprecation, warning, and runtime error reported by PHP 8.4 / 8.5:
+
+-   **Faker** ([system/foundation/faker/provider/base.php](https://github.com/esyede/rakit/blob/main/system/foundation/faker/provider/base.php)): replaced `'static::method'` string callables (deprecated in 8.5) with `[get_called_class(), 'method']`, which works in 5.4+.
+-   **Validator** ([system/validator.php](https://github.com/esyede/rakit/blob/main/system/validator.php)): pass the explicit `$escape` parameter to `str_getcsv()` (required from 8.4 onwards to avoid the deprecation notice).
+-   **Macroable** ([system/macroable.php](https://github.com/esyede/rakit/blob/main/system/macroable.php)) and **Oops helpers** ([system/foundation/oops/helpers.php](https://github.com/esyede/rakit/blob/main/system/foundation/oops/helpers.php)): guard `Reflection*::setAccessible(true)` behind `PHP_VERSION_ID < 80100` (the call is a no-op on 8.1+ and emits a deprecation on 8.5).
+-   **Image** ([system/image.php](https://github.com/esyede/rakit/blob/main/system/image.php)): cast resize/crop dimensions to `int` to silence implicit float→int warnings; switched `imagefilledpolygon()` to the 3-argument form on 8.1+ (the `$num_points` parameter was deprecated); fixed an inverted `PHP_VERSION_ID` check around `imagedestroy()` so the function is no longer called on 8.0+ (where it has no effect and is deprecated in 8.5).
+-   **HTTP foundation** ([system/foundation/http/helper.php](https://github.com/esyede/rakit/blob/main/system/foundation/http/helper.php), [system/foundation/http/request.php](https://github.com/esyede/rakit/blob/main/system/foundation/http/request.php)): coerce `null` array keys to `''` (deprecated in 8.1+) and pass `(string)` casts before `preg_split()` calls that previously could receive `null`.
+-   **Collection** ([system/collection.php](https://github.com/esyede/rakit/blob/main/system/collection.php)): coerce `null` glue to `''` for `implode()` (deprecated in 8.1+).
+-   **Carbon** ([system/carbon.php](https://github.com/esyede/rakit/blob/main/system/carbon.php)): cast `$time` to string before `preg_match()` / `stripos()` to avoid null-to-string deprecations.
+-   **PHP 5.4 baseline**: replaced `array_column()` (5.5+) and `boolval()` (5.5+) usages in `system/foundation/oops/defaults.php` and `system/websocket/server.php` with equivalents that work all the way back to 5.4.
+
+### Test suite
+
+-   `php rakit test:core` now passes cleanly on PHP **7.4, 8.2, 8.3, 8.4, and 8.5** (1368 tests, 4764 assertions, no errors or deprecations).
+-   `tests/phpunit.php` now silences PHPUnit 4.x's own deprecation chatter (PHPUnit 4 cannot be upgraded without dropping PHP 5.4 support).
+-   Test cases that touch private state via reflection now use the two-argument `setValue(null, $value)` form (single-argument call is deprecated since 8.3).
+
+For more details, please visit [this link](https://github.com/esyede/rakit/releases/tag/v0.9.10).
+
+**Upgrade method**:
+
+1.  Redownload the framework. Not compatible with previous versions.
+2.  Search your application code for the renamed/removed aliases and apply the migration shown above.
+3.  If you maintain custom packages that ship their own `aliases.php`, prefer `Autoloader::aliases([...])` so collisions are reported.

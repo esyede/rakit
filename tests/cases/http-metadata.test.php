@@ -32,7 +32,7 @@ class HttpMetadataTest extends \PHPUnit_Framework_TestCase
     {
         $p = new \ReflectionProperty('\System\Foundation\Http\Metadata', 'meta');
         /** @disregard */
-        $p->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $p->setAccessible(true);
 
         $bag1 = new Metadata();
         $array = [];

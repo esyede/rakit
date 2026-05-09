@@ -404,7 +404,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
         // Use reflection to access protected _query() method
         $reflection = new \ReflectionMethod($model, '_query');
         /** @disregard */
-        $reflection->setAccessible(true);
+        PHP_VERSION_ID < 80100 && $reflection->setAccessible(true);
         $reflection->invoke($model);
 
         $this->assertTrue($applied);

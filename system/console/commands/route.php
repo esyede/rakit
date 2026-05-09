@@ -33,12 +33,12 @@ class Route extends Command
 
     public function list()
     {
-        $routes = Router::routes();
+        $grouped = Router::routes();
 
         // Flatten routes for easier display
         $routes = [];
 
-        foreach ($routes as $method => $uris) {
+        foreach ($grouped as $method => $uris) {
             foreach ($uris as $uri => $action) {
                 $routes[] = ['method' => $method, 'uri' => $uri, 'action' => $action, 'name' => isset($action['as']) ? $action['as'] : ''];
             }

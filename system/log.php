@@ -126,8 +126,8 @@ class Log
             throw new \Exception(sprintf('The error message should be a string. %s given.', gettype($message)));
         }
 
-        if (Event::exists('rakit.log')) {
-            Event::fire('rakit.log', [$type, $message, $context]);
+        if (Hook::exists('rakit.log')) {
+            Hook::fire('rakit.log', [$type, $message, $context]);
         }
 
         try {
