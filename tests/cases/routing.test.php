@@ -247,6 +247,113 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that domain route and non-domain route with the same URI do not
+     * overwrite each other (key collision bug fix).
+     *
+     * Uses a unique URI prefix "test-domain-" to avoid conflicts with
+     * controller auto-discovery and package fixture routes.
+     *
+     * @group system
+     */
+    public function testDomainAndNonDomainRoutesWithSameURIDoNotCollide()
+    {
+        Route::domain('{sub}.example.com', function () {
+            Route::get('test-domain-root', function () {
+                return 'subdomain home';
+            });
+        });
+
+        Route::get('test-domain-root', function () {
+            return 'main home';
+        });
+
+        // Subdomain request must hit domain route
+        $route = Router::route('GET', 'test-domain-root', 'foo.example.com');
+        $this->assertNotNull($route);
+        $this->assertEquals('test-domain-root', $route->uri);
+        $this->assertEquals('{sub}.example.com', $route->action['domain']);
+        $this->assertEquals('subdomain home', $route->response());
+
+        // Main domain request must hit non-domain route
+        $route = Router::route('GET', 'test-domain-root', 'example.com');
+        $this->assertNotNull($route);
+        $this->assertEquals('test-domain-root', $route->uri);
+        $this->assertFalse(isset($route->action['domain']));
+        $this->assertEquals('main home', $route->response());
+
+        // No-domain request (domain = null) must hit non-domain route
+        $route = Router::route('GET', 'test-domain-root');
+        $this->assertNotNull($route);
+        $this->assertFalse(isset($route->action['domain']));
+        $this->assertEquals('main home', $route->response());
+    }
+
+    /**
+     * Test that domain pattern routes and non-domain pattern routes with the
+     * same URI pattern do not overwrite each other.
+     *
+     * @group system
+     */
+    public function testDomainAndNonDomainPatternRoutesWithSameURIDoNotCollide()
+    {
+        Route::domain('{sub}.example.com', function () {
+            Route::get('test-domain-items/(:num)', function () {
+                return 'domain items';
+            });
+        });
+
+        Route::get('test-domain-items/(:num)', function () {
+            return 'main items';
+        });
+
+        // Subdomain request must hit domain route
+        $route = Router::route('GET', 'test-domain-items/42', 'foo.example.com');
+        $this->assertNotNull($route);
+        $this->assertEquals('test-domain-items/(:num)', $route->uri);
+        $this->assertEquals('{sub}.example.com', $route->action['domain']);
+        $this->assertEquals('domain items', $route->response());
+
+        // Main domain request must hit non-domain route
+        $route = Router::route('GET', 'test-domain-items/42', 'example.com');
+        $this->assertNotNull($route);
+        $this->assertEquals('test-domain-items/(:num)', $route->uri);
+        $this->assertFalse(isset($route->action['domain']));
+        $this->assertEquals('main items', $route->response());
+    }
+
+    /**
+     * Test that multiple wildcard subdomain patterns resolve correctly.
+     *
+     * @group system
+     */
+    public function testMultipleWildcardSubdomainPatternsResolveCorrectly()
+    {
+        Route::domain('{sub}.example.com', function () {
+            Route::get('test-domain-panel', function () {
+                return 'example panel';
+            });
+        });
+
+        Route::domain('{sub}.other.com', function () {
+            Route::get('test-domain-panel', function () {
+                return 'other panel';
+            });
+        });
+
+        $route = Router::route('GET', 'test-domain-panel', 'foo.example.com');
+        $this->assertNotNull($route);
+        $this->assertEquals('{sub}.example.com', $route->action['domain']);
+        $this->assertEquals('example panel', $route->response());
+
+        $route = Router::route('GET', 'test-domain-panel', 'bar.other.com');
+        $this->assertNotNull($route);
+        $this->assertEquals('{sub}.other.com', $route->action['domain']);
+        $this->assertEquals('other panel', $route->response());
+
+        $this->assertNull(Router::route('GET', 'test-domain-panel', 'baz.unknown.com'));
+    }
+
+    /**
      * Test that prefix routes can be handled correctly.
      *
      * @group system
