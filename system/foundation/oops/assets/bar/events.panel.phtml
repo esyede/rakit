@@ -331,7 +331,7 @@ foreach ($logs as $log) {
                             <div>
                                 <span class="oops-event-name"><?php echo htmlspecialchars(isset($event['name']) ? $event['name'] : 'Unknown Event'); ?></span>
                                 <span class="oops-log-time" style="margin-left: 10px;">
-                                    <?php echo isset($event['time']) ? htmlspecialchars(date('H:i:s.u', $event['time'])) : '—'; ?>
+                                    <?php echo isset($event['time']) ? htmlspecialchars(date('H:i:s', (int) $event['time']) . '.' . sprintf('%06d', (int) (($event['time'] - (int) $event['time']) * 1000000))) : '—'; ?>
                                 </span>
                             </div>
                             <?php if (!empty($event['data'])) : ?>
