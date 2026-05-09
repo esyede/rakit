@@ -22,7 +22,6 @@ class Log extends Driver
             'header' => e(sprintf('%s', $message['header'])),
             'body' => e(sprintf('%s', $message['body'])),
         ]);
-
         return true;
     }
 }
