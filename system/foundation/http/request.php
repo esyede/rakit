@@ -1160,7 +1160,7 @@ class Request
             $baseUrl = (string) $this->server->get('PHP_SELF');
         } elseif (basename((string) $this->server->get('ORIG_SCRIPT_NAME')) === $filename) {
             // Compatibility with 1and1.com (ionos.com) shared hosting
-            $baseUrl = $this->server->get('ORIG_SCRIPT_NAME');
+            $baseUrl = (string) $this->server->get('ORIG_SCRIPT_NAME');
         } else {
             $path = (string) $this->server->get('PHP_SELF', '');
             $file = (string) $this->server->get('SCRIPT_FILENAME', '');

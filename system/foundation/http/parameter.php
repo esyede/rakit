@@ -169,7 +169,7 @@ class Parameter implements \IteratorAggregate, \Countable
      */
     public function getAlpha($key, $default = '', $deep = false)
     {
-        return preg_replace('/[^[:alpha:]]/', '', $this->get($key, $default, $deep));
+        return preg_replace('/[^[:alpha:]]/', '', (string) $this->get($key, $default, $deep));
     }
 
     /**
@@ -183,7 +183,7 @@ class Parameter implements \IteratorAggregate, \Countable
      */
     public function getAlnum($key, $default = '', $deep = false)
     {
-        return preg_replace('/[^[:alnum:]]/', '', $this->get($key, $default, $deep));
+        return preg_replace('/[^[:alnum:]]/', '', (string) $this->get($key, $default, $deep));
     }
 
     /**

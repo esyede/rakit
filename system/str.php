@@ -126,7 +126,7 @@ class Str
      */
     public static function title($value)
     {
-        return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
+        return mb_convert_case((string) $value, MB_CASE_TITLE, 'UTF-8');
     }
 
     /**
@@ -140,6 +140,8 @@ class Str
      */
     public static function limit($value, $limit = 100, $end = '...')
     {
+        $value = (string) $value;
+
         if (mb_strwidth($value, 'UTF-8') <= $limit) {
             return $value;
         }
@@ -156,7 +158,7 @@ class Str
      */
     public static function trim($value)
     {
-        return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', $value);
+        return preg_replace('/^[\pZ\pC]+|[\pZ\pC]+$/u', '', (string) $value);
     }
 
     /**
@@ -170,6 +172,8 @@ class Str
      */
     public static function words($value, $words = 100, $end = '...')
     {
+        $value = (string) $value;
+
         preg_match('/^\s*+(?:\S++\s*+){1,' . ((int) $words) . '}/u', $value, $matches);
 
         if (!isset($matches[0]) || static::length($value) === static::length($matches[0])) {
@@ -261,7 +265,7 @@ class Str
      */
     public static function plural_studly($value, $count = 2)
     {
-        $parts = preg_split('/(.)(?=[A-Z])/u', $value, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $parts = preg_split('/(.)(?=[A-Z])/u', (string) $value, -1, PREG_SPLIT_DELIM_CAPTURE);
         return implode('', $parts) . static::plural(array_pop($parts), $count);
     }
 
@@ -275,6 +279,7 @@ class Str
      */
     public static function slug($value, $separator = '-')
     {
+        $value = (string) $value;
         $flip = ('-' === $separator) ? '_' : '-';
         $value = preg_replace('![' . preg_quote($flip) . ']+!u', $separator, $value);
         $value = str_replace('@', $separator . 'at' . $separator, $value);
@@ -337,7 +342,7 @@ class Str
      */
     public static function segments($value)
     {
-        return array_diff(explode('/', trim($value, '/')), ['']);
+        return array_diff(explode('/', trim((string) $value, '/')), ['']);
     }
 
     /**
@@ -454,9 +459,10 @@ class Str
                 unset($paths);
             }
 
+            $read = 0;
+
             if ($urandom && @is_readable('/dev/urandom')) {
                 $file = fopen('/dev/urandom', 'r');
-                $read = 0;
                 $local = '';
 
                 while ($read < $length) {
@@ -990,7 +996,7 @@ class Str
      */
     public static function start($value, $prefix)
     {
-        return $prefix . preg_replace('/^(?:' . preg_quote($prefix, '/') . ')+/u', '', $value);
+        return $prefix . preg_replace('/^(?:' . preg_quote((string) $prefix, '/') . ')+/u', '', (string) $value);
     }
 
     /**
@@ -1004,7 +1010,7 @@ class Str
     public static function starts_with($haystack, $needle)
     {
         $needle = (string) $needle;
-        return ('' !== $needle && 0 === strncmp($haystack, $needle, mb_strlen($needle, '8bit')));
+        return ('' !== $needle && 0 === strncmp((string) $haystack, $needle, mb_strlen($needle, '8bit')));
     }
 
     /**
