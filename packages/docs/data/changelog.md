@@ -193,8 +193,6 @@ A pass through the framework has resolved every deprecation, warning, and runtim
 -   `tests/phpunit.php` now silences PHPUnit 4.x's own deprecation chatter (PHPUnit 4 cannot be upgraded without dropping PHP 5.4 support).
 -   Test cases that touch private state via reflection now use the two-argument `setValue(null, $value)` form (single-argument call is deprecated since 8.3).
 
-For more details, please visit [this link](https://github.com/esyede/rakit/releases/tag/v0.9.10).
-
 **Upgrade method**:
 
 1.  Redownload the framework. Not compatible with previous versions.
