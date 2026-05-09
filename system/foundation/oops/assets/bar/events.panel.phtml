@@ -187,7 +187,7 @@ foreach ($logs as $log) {
         font-size: 11px;
         font-weight: bold;
         color: white;
-        text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
 </style>
 
@@ -234,7 +234,7 @@ foreach ($logs as $log) {
             <?php foreach ($logLevels as $level => $count) : ?>
                 <?php if ($count > 0) : ?>
                     <?php
-                    $levelLogs = array_filter($logs, function($log) use ($level) {
+                    $levelLogs = array_filter($logs, function ($log) use ($level) {
                         return strtolower(isset($log['level']) ? $log['level'] : 'info') === $level;
                     });
                     ?>
@@ -246,7 +246,7 @@ foreach ($logs as $log) {
                                         <span class="oops-badge oops-badge-<?php echo $level; ?>"><?php echo htmlspecialchars($level); ?></span>
                                     </td>
                                     <td width="10%" class="oops-log-time">
-                                        <?php echo isset($log['time']) ? htmlspecialchars(date('H:i:s', $log['time'])) : '—'; ?>
+                                        <?php echo isset($log['time']) ? htmlspecialchars(date('H:i:s', (int) $log['time'])) : '—'; ?>
                                     </td>
                                     <td>
                                         <div class="oops-log-message">
