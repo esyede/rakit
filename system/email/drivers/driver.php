@@ -842,7 +842,7 @@ abstract class Driver
      */
     protected static function wrap($message, $length, $newline, $as_html = true)
     {
-        $length = ($length > 76) ? 76 : $length;
+        $length = (int) min(76, max(1, (int) $length));
         $message = $as_html ? preg_replace('/[\r\n\t ]+/m', ' ', $message) : $message;
         $message = wordwrap($message, $length, $newline, false);
         return $message;
@@ -941,7 +941,7 @@ abstract class Driver
         }
 
         $html = implode($newline, $result);
-        return $wordwrap ? wordwrap($html, $wordwrap, $newline, true) : $html;
+        return $wordwrap ? wordwrap($html, (int) $wordwrap, $newline, true) : $html;
     }
 
     /**

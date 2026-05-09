@@ -55,7 +55,7 @@ class URI
      */
     protected static function format($uri)
     {
-        $url = trim($uri, '/');
+        $url = trim((string) $uri, '/');
         return $url ?: '/';
     }
 

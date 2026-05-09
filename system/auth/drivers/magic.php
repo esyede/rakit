@@ -36,8 +36,13 @@ class Magic extends Driver
     public function attempt(array $arguments = [])
     {
         $table = Config::get('auth.table', 'users');
-        $user = Database::table($table)->where(function ($query) use ($arguments) {
-            $identifier = Config::get('auth.identifier', 'email');
+        $identifier = Config::get('auth.identifier', 'email');
+
+        if (!isset($arguments[$identifier]) || !isset($arguments['password'])) {
+            return false;
+        }
+
+        $user = Database::table($table)->where(function ($query) use ($arguments, $identifier) {
             $query->where($identifier, '=', $arguments[$identifier]);
             $except = Arr::except($arguments, [$identifier, 'password', 'remember']);
 

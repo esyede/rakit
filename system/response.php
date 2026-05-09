@@ -140,7 +140,7 @@ class Response
      */
     public static function jsonp($callback, $data, $status = 200, array $headers = [])
     {
-        if (!preg_match('/^[a-zA-Z_$][a-zA-Z0-9_$]*$/', $callback)) {
+        if (!is_string($callback) || !preg_match('/^[a-zA-Z_$][a-zA-Z0-9_$]*$/', $callback)) {
             throw new \Exception('Invalid JSONP callback name: ' . $callback);
         }
 

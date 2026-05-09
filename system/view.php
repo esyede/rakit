@@ -320,7 +320,7 @@ class View implements \ArrayAccess
                     $this->path,
                     $this->data,
                     0,
-                    strlen($contents)
+                    strlen((string) $contents)
                 );
             }
         }
@@ -339,7 +339,8 @@ class View implements \ArrayAccess
 
         try {
             static::$last = ['name' => $this->view, 'path' => $this->path];
-            extract($this->data());
+            $data = $this->data();
+            extract($data);
 
             if (!isset(static::$cache[$this->path])) {
                 static::$cache[$this->path] = $this->path;

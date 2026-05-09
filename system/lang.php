@@ -179,7 +179,8 @@ class Lang
             return true;
         }
 
-        static::$lines[$package][$language][$file] = Hook::first(static::LOADER, [$package, $language, $file]);
+        $lines = Hook::first(static::LOADER, [$package, $language, $file]);
+        static::$lines[$package][$language][$file] = is_array($lines) ? $lines : [];
         return count(static::$lines[$package][$language][$file]) > 0;
     }
 
