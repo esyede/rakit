@@ -523,7 +523,7 @@ if (!function_exists('cache')) {
     {
         if (is_array($key)) {
             foreach ($key as $name => $value) {
-                \System\Cache::set($name, $value);
+                \System\Cache::forever($name, $value);
             }
 
             return true;

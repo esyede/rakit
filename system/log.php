@@ -294,6 +294,6 @@ class Log
         return vsprintf(
             '[object] (%s(code: %s): %s at %s:%s)',
             [get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine()]
-        ) . $e->getTraceAsString() ? PHP_EOL . $e->getTraceAsString() : '';
+        ) . ($e->getTraceAsString() ? PHP_EOL . $e->getTraceAsString() : '');
     }
 }
