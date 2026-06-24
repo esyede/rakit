@@ -751,7 +751,14 @@ if (!function_exists('csrf_token')) {
      */
     function csrf_token()
     {
-        return \System\Session::get(csrf_name());
+        $token = \System\Session::get(csrf_name());
+
+        if (empty($token)) {
+            $token = \System\Str::random(40);
+            \System\Session::put(csrf_name(), $token);
+        }
+
+        return $token;
     }
 }
 

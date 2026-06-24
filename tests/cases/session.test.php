@@ -93,7 +93,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($payload->session['id']));
         $this->assertEquals([], $payload->session['data'][':new:']);
         $this->assertEquals([], $payload->session['data'][':old:']);
-        $this->assertTrue(isset($payload->session['data'][Session::TOKEN]));
+        $this->assertFalse(isset($payload->session['data'][Session::TOKEN]));
     }
 
     /**
@@ -115,7 +115,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testLoadMethodSetsCSRFTokenIfDoesntExist()
+    public function testLoadMethodDoesNotAutoSetCSRFTokenIfDoesntExist()
     {
         $payload = $this->getPayload();
         $session = $this->getSession();
@@ -126,7 +126,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $payload->load('foo');
 
         $this->assertEquals('foo', $payload->session['id']);
-        $this->assertTrue(isset($payload->session['data'][Session::TOKEN]));
+        $this->assertFalse(isset($payload->session['data'][Session::TOKEN]));
     }
 
     /**

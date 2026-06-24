@@ -70,10 +70,6 @@ class Payload
             $this->exists = false;
             $this->session = $this->driver->fresh();
         }
-
-        if (!$this->has(Session::TOKEN)) {
-            $this->put(Session::TOKEN, Str::random(40));
-        }
     }
 
     /**
