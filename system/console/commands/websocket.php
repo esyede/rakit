@@ -139,11 +139,6 @@ class Websocket extends Command
     {
         $this->log('WebSocket server crashed!', true);
 
-        if ($error = socket_last_error()) {
-            $this->log('Socket error: ' . socket_strerror($error), true);
-            socket_clear_error();
-        }
-
         if ($error = error_get_last()) {
             $this->log('PHP error: ' . $error['message'], true);
         }
@@ -182,11 +177,6 @@ class Websocket extends Command
      */
     public function disconnect(Client $client)
     {
-        if ($error = socket_last_error()) {
-            $this->log(socket_strerror($error), true);
-            socket_clear_error();
-        }
-
         $this->broadcast($client->server(), sprintf('Client #%s disconnected', $client->id()));
         $this->presence($client->server());
     }
@@ -217,7 +207,7 @@ class Websocket extends Command
         if (intval($opcode) !== Server::TEXT) {
             if (intval($opcode) === Server::PING) {
                 $pong = $client->server()->frame('', $client, 'pong');
-                @socket_write($client->socket, $pong, strlen($pong));
+                @fwrite($client->socket, $pong, strlen($pong));
             } else {
                 $this->log(sprintf('Client #%s sent a message with ignored opcode %s.', $client->id(), $opcode));
             }

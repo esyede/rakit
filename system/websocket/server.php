@@ -29,28 +29,14 @@ class Server
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
-        $address = str_replace('tcp://', '', $address);
-        list($host, $port) = explode(':', $address);
-        $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $dsn = str_replace('tcp://', '', $address);
+        $dsn = (strpos($dsn, '://') === false) ? 'tcp://' . $dsn : $dsn;
+        $context = stream_context_create(['socket' => ['so_reuseaddr' => true]]);
+        $this->master = @stream_socket_server($dsn, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $context);
 
         if (!$this->master) {
-            $this->stderr('Failed: socket_create()');
-            die('Failed: socket_create()');
-        }
-
-        if (!socket_set_option($this->master, SOL_SOCKET, SO_REUSEADDR, 1)) {
-            $this->stderr('Failed: socket_option()');
-            die('Failed: socket_option()');
-        }
-
-        if (!socket_bind($this->master, $host, $port)) {
-            $this->stderr('Failed: socket_bind()');
-            die('Failed: socket_bind()');
-        }
-
-        if (!socket_listen($this->master, 20)) {
-            $this->stderr('Failed: socket_listen()');
-            die('Failed: socket_listen()');
+            $this->stderr('Failed: stream_socket_server() - ' . $errstr . ' (' . $errno . ')');
+            die('Failed: stream_socket_server() - ' . $errstr);
         }
 
         $this->sockets['master'] = $this->master;
@@ -110,6 +96,13 @@ class Server
         }
     }
 
+    protected function communicate($socket, $data)
+    {
+        $length = strlen($data);
+        $written = @fwrite($socket, $data, $length);
+        return ($written !== false && $written === $length) ? $written : false;
+    }
+
     public function run()
     {
         if (isset($this->events['start']) && is_callable($function = $this->events['start'])) {
@@ -121,46 +114,49 @@ class Server
                 $this->sockets['master'] = $this->master;
             }
 
-            $read = $this->sockets;
+            $read = array_values($this->sockets);
             $write = $except = null;
             $this->pendings();
             $this->tick();
-            $count = @socket_select($read, $write, $except, 5);
+            $count = @stream_select($read, $write, $except, 5);
+
+            if ($count === false) {
+                $this->stderr('stream_select() failed');
+                break;
+            }
 
             foreach ($read as $socket) {
-                if ($socket == $this->master) {
-                    $client = socket_accept($socket);
+                if ($socket === $this->master) {
+                    $client = @stream_socket_accept($this->master, 5);
 
-                    if ($client < 0) {
-                        $this->stderr('Failed: socket_accept()');
+                    if ($client === false) {
+                        $this->stderr('Failed: stream_socket_accept()');
                         continue;
                     } else {
                         $this->connect($client);
-                        $this->stdout('Client connected. ' . $client);
+                        $this->stdout('Client connected. ' . (int) $client);
                     }
                 } else {
-                    $this->stdout('Reading from socket ' . $socket);
-                    $bytes = @socket_recv($socket, $buffer, $this->config['max_buffer_size'], 0);
-                    $this->stdout('Received ' . $bytes . ' bytes from socket ' . $socket);
+                    $this->stdout('Reading from socket ' . (int) $socket);
+                    $buffer = @fread($socket, $this->config['max_buffer_size']);
 
-                    if ($bytes === false) {
-                        $errno = socket_last_error($socket);
-
-                        if (in_array((int) $errno, [102, 103, 104, 108, 110, 111, 112, 113, 121])) {
-                            $this->stderr('Unusual disconnect on socket ' . $socket);
-                            $this->disconnect($socket, true, $errno);
+                    if ($buffer === false || $buffer === '') {
+                        if (feof($socket)) {
+                            $this->disconnect($socket);
+                            $this->stderr('Client disconnected. TCP connection lost: ' . (int) $socket);
                         } else {
-                            $this->stderr('Socket error: ' . socket_strerror($errno));
+                            $error = error_get_last();
+                            $this->stderr('Socket error: ' . ($error['message'] ?? 'Unknown error'));
+                            $this->disconnect($socket, true);
                         }
-                    } elseif ($bytes == 0) {
-                        $this->disconnect($socket);
-                        $this->stderr('Client disconnected. TCP connection lost: ' . $socket);
                     } else {
+                        $bytes = strlen($buffer);
+                        $this->stdout('Received ' . $bytes . ' bytes from socket ' . (int) $socket);
                         $user = $this->find($socket);
 
                         if (!$user->handshake) {
                             if (strpos(str_replace(CR, '', $buffer), LF . LF) === false) {
-                                $this->stdout('Handshake buffer incomplete for socket ' . $socket);
+                                $this->stdout('Handshake buffer incomplete for socket ' . (int) $socket);
                                 continue;
                             }
 
@@ -214,17 +210,13 @@ class Server
                 unset($this->sockets[$disconnected->id]);
             }
 
-            if (!is_null($errno)) {
-                socket_clear_error($socket);
-            }
-
             if ($close) {
-                $this->stdout('Client disconnected. ' . $disconnected->socket);
+                $this->stdout('Client disconnected. ' . (int) $disconnected->socket);
                 $this->closed($disconnected);
-                socket_close($disconnected->socket);
+                @fclose($disconnected->socket);
             } else {
                 $message = $this->frame('', $disconnected, 'close');
-                @socket_write($disconnected->socket, $message, strlen($message));
+                $this->communicate($disconnected->socket, $message);
             }
         }
     }
@@ -293,7 +285,7 @@ class Server
         }
 
         if (isset($response)) {
-            socket_write($user->socket, $response, strlen($response));
+            $this->communicate($user->socket, $response);
             $this->disconnect($user->socket);
             return;
         }
@@ -314,7 +306,7 @@ class Server
         $response = 'HTTP/1.1 101 Switching Protocols' . CRLF . 'Upgrade: websocket' . CRLF . 'Connection: Upgrade' . CRLF .
             'Sec-WebSocket-Accept: ' . $token . $protocol . $extensions . CRLF;
 
-        socket_write($user->socket, $response, strlen($response));
+        $this->communicate($user->socket, $response);
         $this->stdout('Handshake completed for client ' . $user->id());
         $this->connected($user);
     }
@@ -410,7 +402,7 @@ class Server
     {
         if ($user->handshake) {
             $message = $this->frame($message, $user);
-            $result = @socket_write($user->socket, $message, strlen($message));
+            $result = $this->communicate($user->socket, $message);
 
             if (isset($this->events['send']) && is_callable($function = $this->events['send'])) {
                 $function($user, Server::TEXT, $message);
@@ -566,7 +558,7 @@ class Server
 
         if ($pong) {
             $reply = $this->frame($payload, $user, 'pong');
-            socket_write($user->socket, $reply, strlen($reply));
+            $this->communicate($user->socket, $reply);
             return false;
         }
 
@@ -690,7 +682,7 @@ class Server
         foreach ($this->sockets as $socket) {
             if ($socket !== $this->master && is_resource($socket)) {
                 /** @disregard */
-                socket_close($socket);
+                @fclose($socket);
             } else {
                 $socket = null;
             }
@@ -698,7 +690,7 @@ class Server
 
         if (is_resource($this->master)) {
             /** @disregard */
-            socket_close($this->master);
+            @fclose($this->master);
         } else {
             $this->master = null;
         }

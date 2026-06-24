@@ -87,9 +87,13 @@ class Client
         $message = $this->server()->frame($data, $this, $type);
 
         if (is_resource($this->socket) && get_resource_type($this->socket) === 'stream') {
-            $result = strlen($message); // Simulate success for unit-testing
+            $result = @fwrite($this->socket, $message, strlen($message));
+
+            if ($result === false || $result !== strlen($message)) {
+                $result = false;
+            }
         } else {
-            $result = @socket_write($this->socket, $message, strlen($message));
+            $result = strlen($message);
         }
 
         if (
