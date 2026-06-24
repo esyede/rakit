@@ -38,7 +38,9 @@ class Session
         $stateless = isset($config['stateless']) ? (array) $config['stateless'] : [];
 
         if (!empty($stateless)) {
-            $path = trim(Request::foundation()->getPathInfo(), '/');
+            $request_uri = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/', PHP_URL_PATH);
+            $request_uri = empty($request_uri) ? '' : (string) $request_uri;
+            $path = trim($request_uri ?: '/', '/');
 
             foreach ($stateless as $pattern) {
                 $pattern = trim((string) $pattern, '/');
