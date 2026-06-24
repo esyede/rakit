@@ -146,7 +146,7 @@ class Server
                             $this->stderr('Client disconnected. TCP connection lost: ' . (int) $socket);
                         } else {
                             $error = error_get_last();
-                            $this->stderr('Socket error: ' . ($error['message'] ?? 'Unknown error'));
+                            $this->stderr('Socket error: ' . (isset($error['message']) ? $error['message'] : 'Unknown error'));
                             $this->disconnect($socket, true);
                         }
                     } else {
