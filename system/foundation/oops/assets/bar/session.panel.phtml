@@ -4,13 +4,12 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$d = is_array($this->data) ? $this->data : array();
+$d = is_array($this->data) ? $this->data : [];
 $started = !empty($d['started']);
-$data = isset($d['data']) ? $d['data'] : array();
-$flashNew = isset($d['flash_new']) ? $d['flash_new'] : array();
-$flashOld = isset($d['flash_old']) ? $d['flash_old'] : array();
+$data = isset($d['data']) ? $d['data'] : [];
+$flashNew = isset($d['flash_new']) ? $d['flash_new'] : [];
+$flashOld = isset($d['flash_old']) ? $d['flash_old'] : [];
 
-// Render nilai session: skalar apa adanya, selainnya via print_r.
 $renderValue = function ($value) {
     if (is_scalar($value) || is_null($value)) {
         return Helpers::escapeHtml((string) $value);
@@ -19,7 +18,6 @@ $renderValue = function ($value) {
     return '<pre>' . Helpers::escapeHtml(print_r($value, true)) . '</pre>';
 };
 
-// Render satu tabel key => value.
 $renderTable = function ($rows) use ($renderValue) {
     echo '<table>';
     foreach ($rows as $key => $value) {

@@ -4,15 +4,13 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$timers = isset($this->data['timers']) ? $this->data['timers'] : array();
+$timers = isset($this->data['timers']) ? $this->data['timers'] : [];
 
 $total = (microtime(true) - Debugger::$time) * 1000; // ms
 if ($total <= 0) {
     $total = 1;
 }
 
-// Urutkan baris secara kronologis berdasarkan offset mulai (bukan urutan
-// penyisipan) agar timeline terbaca dari atas ke bawah.
 uasort($timers, function ($a, $b) {
     $sa = isset($a['start']) ? (float) $a['start'] : 0;
     $sb = isset($b['start']) ? (float) $b['start'] : 0;
@@ -22,15 +20,13 @@ uasort($timers, function ($a, $b) {
     return ($sa < $sb) ? -1 : 1;
 });
 
-// Warna khas per fase inti; blok ukur milik developer memakai warna default.
-$phaseColors = array(
+$phaseColors = [
     'Booting' => '#7E57C2',
     'Routing' => '#42A5F5',
     'Controller' => '#26A69A',
     'Render' => '#FFA726',
-);
+];
 
-// Ringkasan DB (jumlah query + total waktu) untuk konteks tambahan.
 $dbCount = 0;
 $dbTime = 0;
 if (class_exists('\System\Database')) {
@@ -116,7 +112,7 @@ $peakMem = memory_get_peak_usage(true) / 1048576; // MB
                     <tr>
                         <td class="oops-tl-name" style="width: 22%;"><?php echo Helpers::escapeHtml($name) ?></td>
                         <td style="width: 58%;">
-                            <div class="oops-tl-track" title="mulai @<?php echo number_format($start, 2) ?> ms">
+                            <div class="oops-tl-track" title="start @<?php echo number_format($start, 2) ?> ms">
                                 <div class="oops-tl-bar" style="left: <?php echo $left ?>%; width: <?php echo $width ?>%; background: <?php echo $color ?>;"></div>
                             </div>
                         </td>
@@ -127,7 +123,7 @@ $peakMem = memory_get_peak_usage(true) / 1048576; // MB
 
             <div class="oops-tl-summary">
                 <span class="oops-tl-chip">Total <strong><?php echo number_format($total, 2) ?> ms</strong></span>
-                <span class="oops-tl-chip">Database <strong><?php echo $dbCount ?></strong> query<?php echo $dbCount !== 1 ? 'es' : '' ?> &middot; <strong><?php echo number_format($dbTime, 2) ?> ms</strong></span>
+                <span class="oops-tl-chip">Database <strong><?php echo $dbCount ?></strong> <?php echo ($dbCount !== 1) ? 'queries' : 'query' ?> &middot; <strong><?php echo number_format($dbTime, 2) ?> ms</strong></span>
                 <span class="oops-tl-chip">Peak memory <strong><?php echo number_format($peakMem, 2) ?> MB</strong></span>
             </div>
         <?php endif ?>

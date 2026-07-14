@@ -4,7 +4,7 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$events = isset($this->data['events']) ? $this->data['events'] : array();
+$events = isset($this->data['events']) ? $this->data['events'] : [];
 ?>
 <style class="oops-debug">
     #oops-debug .oops-EventsPanel td:first-child {
@@ -41,7 +41,7 @@ $events = isset($this->data['events']) ? $this->data['events'] : array();
                 </tr>
                 <?php foreach ($events as $event) :
                     $name = isset($event['name']) ? $event['name'] : '(unknown)';
-                    $payload = isset($event['data']) ? $event['data'] : array();
+                    $payload = isset($event['data']) ? $event['data'] : [];
                 ?>
                     <tr>
                         <td><?php echo Helpers::escapeHtml($name) ?></td>

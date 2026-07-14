@@ -4,13 +4,13 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$logs = isset($this->data['logs']) ? $this->data['logs'] : array();
+$logs = isset($this->data['logs']) ? $this->data['logs'] : [];
 
-$levelColors = array(
+$levelColors = [
     'emergency' => '#b71c1c', 'alert' => '#c62828', 'critical' => '#d32f2f',
     'error' => '#e53935', 'warning' => '#f9a825', 'notice' => '#1e88e5',
     'info' => '#43a047', 'debug' => '#757575',
-);
+];
 ?>
 <style class="oops-debug">
     #oops-debug .oops-MessagesPanel .oops-msg {
@@ -42,12 +42,12 @@ $levelColors = array(
     }
 </style>
 
-<h1>Messages</h1>
+<h1>Logs</h1>
 
 <div class="oops-inner oops-MessagesPanel">
     <div class="oops-inner-container">
         <?php if (empty($logs)) : ?>
-            <p class="oops-empty">No messages logged</p>
+            <p class="oops-empty">Log is empty</p>
         <?php else : ?>
             <?php foreach ($logs as $log) :
                 $level = strtolower(isset($log['level']) ? $log['level'] : 'debug');

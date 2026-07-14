@@ -7,7 +7,6 @@ defined('DS') or exit('No direct access.');
 use System\Request;
 use System\Routing\Route;
 
-// Buang prefix "domain||" pada key rute komposit (lihat Router::routes()).
 $stripDomain = function ($key) {
     $pos = strpos($key, '||');
     return (false !== $pos) ? substr($key, $pos + 2) : $key;
@@ -15,10 +14,6 @@ $stripDomain = function ($key) {
 
 $currentMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 $currentUri = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : null;
-
-// Sumber current route yang andal: rute yang benar-benar cocok pada request ini
-// (diset di boot.php via Request::$route). Berlaku untuk request biasa maupun AJAX,
-// karena tiap request punya Request::$route sendiri dan panel dirender saat shutdown.
 $currentRoute = null;
 $matched = Request::route();
 
@@ -34,17 +29,16 @@ if ($matched instanceof Route) {
         $uses = 'Closure';
     }
 
-    $currentRoute = array(
+    $currentRoute = [
         'uri' => $stripDomain($matched->uri),
         'method' => $matched->method ? $matched->method : $currentMethod,
         'name' => $name,
         'action' => $uses,
         'controller' => $matched->controller ? $matched->controller : null,
-        'parameters' => is_array($matched->parameters) ? array_filter($matched->parameters, 'strlen') : array(),
-        'filters' => (is_array($action) && isset($action['filters'])) ? $action['filters'] : array(),
-    );
+        'parameters' => is_array($matched->parameters) ? array_filter($matched->parameters, 'strlen') : [],
+        'filters' => (is_array($action) && isset($action['filters'])) ? $action['filters'] : [],
+    ];
 } elseif (isset($this->data['current_route'])) {
-    // Cadangan: data yang dikumpulkan collector (jika Request::$route belum tersedia).
     $currentRoute = $this->data['current_route'];
 }
 
@@ -211,7 +205,7 @@ $totalRoutes = count($allRoutes);
         <?php if ($currentRoute) : ?>
             <!-- Current Route Info -->
             <div class="oops-current-info">
-                <h3>📍 Current Route</h3>
+                <h3>Current Route</h3>
                 <table>
                     <?php if (isset($currentRoute['name'])) : ?>
                         <tr>

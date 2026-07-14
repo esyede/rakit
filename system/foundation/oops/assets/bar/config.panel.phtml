@@ -7,19 +7,99 @@ defined('DS') or exit('No direct access.');
 use System\Config;
 
 // Semua config yang termuat, dikelompokkan per file/paket.
-$all = array();
+$all = [];
 try {
     $c = Config::all();
-    $all = is_array($c) ? $c : array();
+    $all = is_array($c) ? $c : [];
 } catch (\Throwable $e) {
-    $all = array();
+    $all = [];
 } catch (\Exception $e) {
-    $all = array();
+    $all = [];
 }
 ksort($all);
 
-// Kunci yang nilainya harus disamarkan (kredensial) di berapa pun kedalaman.
-$sensitive = array('password', 'passwd', 'secret', 'salt', 'private', 'credential', 'api_key', 'api_token', 'token', 'dsn');
+// List of sensitive fields.
+$sensitive = [
+  '2fa',
+  '2fa_code',
+  '2fa_pin',
+  '2fa_token',
+  '_csrf',
+  'acc_number',
+  'access_token',
+  'account_bank_number',
+  'account_number',
+  'account_routing_number',
+  'api_key',
+  'api_token',
+  'auth_token',
+  'bank_acc',
+  'bank_acc_num',
+  'bank_acc_number',
+  'bank_account',
+  'bank_account_num',
+  'bank_account_number',
+  'card_cvv',
+  'card_num',
+  'card_number',
+  'cc_num',
+  'cc_number',
+  'cert',
+  'certificate',
+  'confirm_passwd',
+  'confirm_password',
+  'credentials',
+  'credit_card',
+  'credit_card_num',
+  'credit_card_number',
+  'creds',
+  'csrf',
+  'cvv',
+  'dsn',
+  'issuer_certificate',
+  'key',
+  'mysql_pwd',
+  'new_password',
+  'old_password',
+  'otp',
+  'otp_code',
+  'otp_pin',
+  'otp_token',
+  'passwd',
+  'passwd_confirm',
+  'password',
+  'password1',
+  'password2',
+  'password_confirm',
+  'pin',
+  'private_key',
+  'pwd',
+  'raw',
+  'repeat_password',
+  'routing_acc',
+  'routing_acc_num',
+  'routing_acc_number',
+  'routing_account_number',
+  'routing_number',
+  'salt',
+  'secret',
+  'security_code',
+  'security_pin',
+  'security_token',
+  'social_security_num',
+  'social_security_number',
+  'ssn',
+  'stripe_token',
+  'token',
+  'totp',
+  'totp_code',
+  'totp_pin',
+  'totp_token',
+  'two_factor_code',
+  'two_factor_pin',
+  'two_factor_token',
+];
+
 $isSensitive = function ($key) use ($sensitive) {
     $key = strtolower((string) $key);
     if ('key' === $key) {
@@ -38,7 +118,7 @@ $mask = function ($value) use (&$mask, $isSensitive) {
     if (!is_array($value)) {
         return $value;
     }
-    $out = array();
+    $out = [];
     foreach ($value as $k => $v) {
         if ($isSensitive($k) && (is_scalar($v) || is_null($v)) && '' !== (string) $v) {
             $out[$k] = '•••••••• (masked)';
@@ -52,7 +132,7 @@ $mask = function ($value) use (&$mask, $isSensitive) {
 // Ringkasan lingkungan runtime.
 $exts = get_loaded_extensions();
 sort($exts);
-$env = array(
+$env = [
     'PHP Version' => PHP_VERSION,
     'SAPI' => PHP_SAPI,
     'OS' => PHP_OS,
@@ -63,10 +143,10 @@ $env = array(
     'Post Max' => ini_get('post_max_size'),
     'Display Errors' => ini_get('display_errors') ? 'On' : 'Off',
     'Extensions' => count($exts),
-);
+];
 
 if (defined('RAKIT_VERSION')) {
-    $env = array_merge(array('Rakit Version' => constant('RAKIT_VERSION')), $env);
+    $env = array_merge(['Rakit Version' => constant('RAKIT_VERSION')], $env);
 }
 ?>
 <style class="oops-debug">

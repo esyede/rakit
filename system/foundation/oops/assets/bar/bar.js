@@ -362,8 +362,8 @@
             let btn = this.elem.querySelector('.oops-theme-toggle');
             if (btn) {
                 btn.title = (this.theme === 'dark')
-                    ? 'Tema: gelap (klik untuk terang)'
-                    : 'Tema: terang (klik untuk gelap)';
+                    ? 'Theme: dark (click to change)'
+                    : 'Theme: light (click to change)';
             }
         }
 
@@ -454,7 +454,7 @@
             if (!li) {
                 li = document.createElement('li');
                 li.className = 'oops-ajax-tab';
-                li.innerHTML = '<a href="#" rel="' + rel + '" title="Request AJAX">'
+                li.innerHTML = '<a href="#" rel="' + rel + '" title="AJAX Request">'
                     + '<svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z" fill="currentColor"/></svg>'
                     + '<span class="oops-label oops-ajax-count"></span></a>';
                 mainTabs.appendChild(li);

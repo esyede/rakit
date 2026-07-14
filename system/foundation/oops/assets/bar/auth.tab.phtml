@@ -17,9 +17,9 @@ try {
     if ($check) {
         $user = Auth::user();
         $label = 'User';
-        $fields = is_object($user) ? get_object_vars($user) : (is_array($user) ? $user : array());
+        $fields = is_object($user) ? get_object_vars($user) : (is_array($user) ? $user : []);
 
-        foreach (array('username', 'name', 'email', 'id') as $f) {
+        foreach (['username', 'name', 'email', 'id'] as $f) {
             if (isset($fields[$f]) && '' !== (string) $fields[$f]) {
                 $label = (string) $fields[$f];
                 break;
