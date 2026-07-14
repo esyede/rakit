@@ -1,0 +1,22 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$total = (microtime(true) - Debugger::$time) * 1000;
+?>
+<span title="Timeline">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <g fill="#26A69A">
+            <circle cx="24" cy="24" r="20" />
+        </g>
+        <g fill="#FFF">
+            <rect x="22" y="11" width="4" height="15" />
+            <rect x="24" y="22" width="11" height="4" />
+        </g>
+    </svg>
+    <span class="oops-label">
+        <?php echo number_format($total, 1, '.', ' '); ?> ms
+    </span>
+</span>

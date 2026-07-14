@@ -16,11 +16,23 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
 
             <h1>
                 <span><?php echo $messageHtml ?: Helpers::escapeHtml($title . $code) ?></span>
+                <a href="#" id="oops-copy-md" class="oops-copy-md" role="button" title="Salin ringkasan error sebagai Markdown untuk di-feed ke AI">Copy as Markdown</a>
                 <?php foreach ($actions as $item) : ?>
                     <a href="<?php echo Helpers::escapeHtml($item['link']) ?>" <?php echo empty($item['external']) ? '' : ' target="_blank" rel="noreferrer noopener"' ?>><?php echo Helpers::escapeHtml($item['label']) ?>&#x25ba;</a>
                 <?php endforeach ?>
             </h1>
+
+            <?php
+            $reqMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
+            $reqUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+            $reqLine = trim($reqMethod . ' ' . $reqUri);
+            ?>
+            <?php if ('' !== $reqLine) : ?>
+                <p class="oops-req"><?php echo Helpers::escapeHtml($reqLine) ?></p>
+            <?php endif ?>
         </div>
+
+        <textarea id="oops-md-source" aria-hidden="true" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;"><?php echo Helpers::escapeHtml(self::toMarkdown($e)) ?></textarea>
 
         <?php if ($prev = $e->getPrevious()) : ?>
             <div class="caused">

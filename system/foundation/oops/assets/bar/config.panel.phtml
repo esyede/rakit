@@ -1,0 +1,140 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Config;
+
+// Semua config yang termuat, dikelompokkan per file/paket.
+$all = array();
+try {
+    $c = Config::all();
+    $all = is_array($c) ? $c : array();
+} catch (\Throwable $e) {
+    $all = array();
+} catch (\Exception $e) {
+    $all = array();
+}
+ksort($all);
+
+// Kunci yang nilainya harus disamarkan (kredensial) di berapa pun kedalaman.
+$sensitive = array('password', 'passwd', 'secret', 'salt', 'private', 'credential', 'api_key', 'api_token', 'token', 'dsn');
+$isSensitive = function ($key) use ($sensitive) {
+    $key = strtolower((string) $key);
+    if ('key' === $key) {
+        return true; // mis. application 'key'
+    }
+    foreach ($sensitive as $s) {
+        if (false !== strpos($key, $s)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+// Samarkan rekursif nilai kredensial sebelum ditampilkan.
+$mask = function ($value) use (&$mask, $isSensitive) {
+    if (!is_array($value)) {
+        return $value;
+    }
+    $out = array();
+    foreach ($value as $k => $v) {
+        if ($isSensitive($k) && (is_scalar($v) || is_null($v)) && '' !== (string) $v) {
+            $out[$k] = '•••••••• (masked)';
+        } else {
+            $out[$k] = is_array($v) ? $mask($v) : $v;
+        }
+    }
+    return $out;
+};
+
+// Ringkasan lingkungan runtime.
+$exts = get_loaded_extensions();
+sort($exts);
+$env = array(
+    'PHP Version' => PHP_VERSION,
+    'SAPI' => PHP_SAPI,
+    'OS' => PHP_OS,
+    'Timezone' => date_default_timezone_get(),
+    'Memory Limit' => ini_get('memory_limit'),
+    'Max Execution' => ini_get('max_execution_time') . 's',
+    'Upload Max' => ini_get('upload_max_filesize'),
+    'Post Max' => ini_get('post_max_size'),
+    'Display Errors' => ini_get('display_errors') ? 'On' : 'Off',
+    'Extensions' => count($exts),
+);
+
+if (defined('RAKIT_VERSION')) {
+    $env = array_merge(array('Rakit Version' => constant('RAKIT_VERSION')), $env);
+}
+?>
+<style class="oops-debug">
+    #oops-debug .oops-ConfigPanel td:first-child {
+        font-weight: bold;
+        width: 26%;
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-ConfigPanel pre {
+        margin: 0;
+        font-size: 11px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 260px;
+        overflow: auto;
+    }
+
+    #oops-debug .oops-ConfigPanel .oops-ext {
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        color: #777;
+        word-break: break-word;
+    }
+</style>
+
+<h1>Config</h1>
+
+<div class="oops-inner oops-ConfigPanel">
+    <div class="oops-inner-container">
+
+        <h2>Environment</h2>
+        <table>
+            <?php foreach ($env as $key => $value) : ?>
+                <tr>
+                    <td><?php echo Helpers::escapeHtml($key); ?></td>
+                    <td><?php echo Helpers::escapeHtml((string) $value); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <td>Loaded Extensions</td>
+                <td class="oops-ext"><?php echo Helpers::escapeHtml(implode(', ', $exts)); ?></td>
+            </tr>
+        </table>
+
+        <h2>Application Config (<?php echo count($all); ?>)</h2>
+        <?php if (empty($all)) : ?>
+            <p class="oops-empty">No configuration loaded</p>
+        <?php else : ?>
+            <table>
+                <?php foreach ($all as $group => $values) : ?>
+                    <tr>
+                        <td><?php echo Helpers::escapeHtml($group); ?></td>
+                        <td>
+                            <?php if (is_array($values)) : ?>
+                                <pre><?php echo Helpers::escapeHtml(print_r($mask($values), true)); ?></pre>
+                            <?php elseif ($isSensitive($group)) : ?>
+                                <span class="oops-mask">•••••••• (masked)</span>
+                            <?php else : ?>
+                                <?php echo Helpers::escapeHtml((string) $values); ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php endif; ?>
+
+    </div>
+</div>

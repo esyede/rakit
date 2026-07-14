@@ -614,27 +614,24 @@ class Debugger
         if (!self::$bar) {
             self::$bar = new Bar();
             self::$bar->addPanel($info = new Defaults('info'), 'Oops:info');
-
             $info->cpuUsage = self::$cpuUsage;
 
-            self::$bar->addPanel(new Defaults('errors'), 'Oops:errors');
-            self::$bar->addPanel(new Defaults('db'), 'db');
-
-            // Initialize collectors for new panels
             Collectors::initialize();
 
-            // Add new debug panels
-            self::$bar->addPanel($request = new Defaults('request'), 'Oops:request');
+            self::$bar->addPanel(new Defaults('messages'), 'Oops:messages');
+            self::$bar->addPanel(new Defaults('timeline'), 'Oops:timeline');
+            self::$bar->addPanel(new Defaults('errors'), 'Oops:errors');
+            self::$bar->addPanel(new Defaults('view'), 'Oops:view');
             self::$bar->addPanel($routes = new Defaults('routes'), 'Oops:routes');
-            self::$bar->addPanel($events = new Defaults('events'), 'Oops:events');
-            self::$bar->addPanel($view = new Defaults('view'), 'Oops:view');
-            self::$bar->addPanel($cache = new Defaults('cache'), 'Oops:cache');
+            self::$bar->addPanel(new Defaults('db'), 'db');
+            self::$bar->addPanel(new Defaults('session'), 'Oops:session');
+            self::$bar->addPanel(new Defaults('auth'), 'Oops:auth');
+            self::$bar->addPanel(new Defaults('request'), 'Oops:request');
+            self::$bar->addPanel(new Defaults('cache'), 'Oops:cache');
+            self::$bar->addPanel(new Defaults('events'), 'Oops:events');
+            self::$bar->addPanel(new Defaults('config'), 'Oops:config');
 
-            // Collect data for new panels
             $routes->data = Collectors::collectRoutes();
-            $events->data = Collectors::getData('events');
-            $view->data = Collectors::getData('views');
-            $cache->data = Collectors::getData('cache');
         }
 
         return self::$bar;
@@ -711,6 +708,32 @@ class Debugger
         $time[$name] = $now;
 
         return $delta;
+    }
+
+    /**
+     * Measure how long a block of code takes and record it on the Timeline
+     * panel. Returns whatever the callback returns, so it can wrap an
+     * expression transparently:
+     *
+     *     $users = Debugger::measure('Load users', function () {
+     *         return User::all();
+     *     });
+     *
+     * @param string   $name
+     * @param callable $callback
+     *
+     * @return mixed
+     */
+    public static function measure($name, $callback)
+    {
+        $start = microtime(true);
+        $result = call_user_func($callback);
+
+        if (!self::$productionMode) {
+            Collectors::addTimer((string) $name, (microtime(true) - $start) * 1000, ($start - self::$time) * 1000);
+        }
+
+        return $result;
     }
 
     /**

@@ -1,0 +1,142 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Auth;
+use System\Config;
+
+$check = false;
+$user = null;
+$err = null;
+
+try {
+    $check = Auth::check();
+    $user = $check ? Auth::user() : null;
+} catch (\Throwable $e) {
+    $err = $e->getMessage();
+} catch (\Exception $e) {
+    $err = $e->getMessage();
+}
+
+$driver = Config::get('auth.driver', 'magic');
+$table = Config::get('auth.table', 'users');
+$username = Config::get('auth.username', 'email');
+
+// Field yang tidak boleh dibocorkan di panel.
+$sensitive = array('password', 'passwd', 'secret', 'salt', 'remember_token', 'token', 'api_key', 'api_token', 'private');
+$isSensitive = function ($key) use ($sensitive) {
+    $key = strtolower((string) $key);
+    foreach ($sensitive as $s) {
+        if (false !== strpos($key, $s)) {
+            return true;
+        }
+    }
+    return false;
+};
+
+$fields = array();
+if (is_object($user)) {
+    $fields = get_object_vars($user);
+} elseif (is_array($user)) {
+    $fields = $user;
+}
+?>
+<style class="oops-debug">
+    #oops-debug .oops-AuthPanel td:first-child {
+        font-weight: bold;
+        width: 28%;
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-AuthPanel .oops-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: bold;
+        color: #fff;
+    }
+
+    #oops-debug .oops-AuthPanel .oops-badge-on {
+        background: #4CAF50;
+    }
+
+    #oops-debug .oops-AuthPanel .oops-badge-off {
+        background: #9E9E9E;
+    }
+
+    #oops-debug .oops-AuthPanel .oops-mask {
+        color: #999;
+        font-style: italic;
+    }
+
+    #oops-debug .oops-AuthPanel pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+</style>
+
+<h1>Auth</h1>
+
+<div class="oops-inner oops-AuthPanel">
+    <div class="oops-inner-container">
+        <?php if ($err !== null) : ?>
+            <p class="oops-empty">Auth tidak tersedia: <?php echo Helpers::escapeHtml($err); ?></p>
+        <?php endif; ?>
+
+        <table>
+            <tr>
+                <td>Status</td>
+                <td>
+                    <?php if ($check) : ?>
+                        <span class="oops-badge oops-badge-on">Authenticated</span>
+                    <?php else : ?>
+                        <span class="oops-badge oops-badge-off">Guest</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <tr>
+                <td>Driver</td>
+                <td><?php echo Helpers::escapeHtml($driver); ?></td>
+            </tr>
+            <tr>
+                <td>User Table</td>
+                <td><?php echo Helpers::escapeHtml($table); ?></td>
+            </tr>
+            <tr>
+                <td>Username Field</td>
+                <td><?php echo Helpers::escapeHtml($username); ?></td>
+            </tr>
+        </table>
+
+        <?php if ($check) : ?>
+            <h2>User (<?php echo count($fields); ?> field<?php echo count($fields) !== 1 ? 's' : ''; ?>)</h2>
+            <?php if (empty($fields)) : ?>
+                <p class="oops-empty">User object has no readable fields</p>
+            <?php else : ?>
+                <table>
+                    <?php foreach ($fields as $key => $value) : ?>
+                        <tr>
+                            <td><?php echo Helpers::escapeHtml($key); ?></td>
+                            <td>
+                                <?php if ($isSensitive($key)) : ?>
+                                    <span class="oops-mask">•••••••• (masked)</span>
+                                <?php elseif (is_scalar($value) || is_null($value)) : ?>
+                                    <?php echo Helpers::escapeHtml((string) $value); ?>
+                                <?php else : ?>
+                                    <pre><?php echo Helpers::escapeHtml(print_r($value, true)); ?></pre>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            <?php endif; ?>
+        <?php else : ?>
+            <p class="oops-empty">No authenticated user (guest request).</p>
+        <?php endif; ?>
+    </div>
+</div>

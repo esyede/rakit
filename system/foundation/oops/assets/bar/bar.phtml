@@ -4,46 +4,116 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$tabs = function ($panels) {
-    foreach ($panels as $panel) {
-        if ($panel->tab) { ?>
-            <li>
-                <?php if ($panel->panel) : ?>
-                    <a href="#" rel="oops-debug-panel-<?php echo $panel->id ?>">
-                        <?php echo trim($panel->tab) ?>
-                    </a>
-                <?php else : echo '<span>', trim($panel->tab), '</span>';
-                endif ?>
-            </li>
-<?php
-        }
+/*
+|--------------------------------------------------------------------------
+| Rakit Debug Bar (gaya Laravel Debugbar)
+|--------------------------------------------------------------------------
+|
+| Bar horizontal menempel di dasar layar. Setiap request (Main / Redirect /
+| Ajax) menjadi satu "dataset" tab; hanya SATU dataset tampil pada satu waktu
+| dan pengguna berpindah lewat selector (lihat bar.js). Indikator waktu/
+| memori/PHP di kanan selalu untuk request halaman (main).
+|
+*/
+
+// Render satu tab <li> untuk sebuah panel.
+// Catatan: atribut rel HARUS "oops-debug-panel-<id>" agar cocok dengan
+// id kontainer panel di panels.phtml dan dipakai oleh bar.js.
+$renderTab = function ($panel) {
+    if (!$panel->tab) {
+        return;
+    }
+
+    if ($panel->panel) {
+        echo '<li><a href="#" rel="oops-debug-panel-', $panel->id, '">', trim($panel->tab), '</a></li>';
+    } else {
+        echo '<li><span>', trim($panel->tab), '</span></li>';
     }
 };
+
+// Pisahkan baris berdasarkan tipe (main / redirect / ajax).
+$main = null;
+$redirects = array();
+$ajax = null;
+
+foreach ($rows as $row) {
+    if ('main' === $row->type) {
+        $main = $row;
+    } elseif ('redirect' === $row->type) {
+        $redirects[] = $row;
+    } elseif ('ajax' === $row->type) {
+        $ajax = $row;
+    }
+}
+
+$memory = memory_get_peak_usage(true) / 1048576;
+$elapsed = (microtime(true) - Debugger::$time) * 1000;
 ?>
 
-<?php if ('main' === $rows[0]->type) : ?><div id="oops-debug-bar"><?php endif ?>
-    <?php foreach ($rows as $row) : ?>
-        <?php if ('main' === $row->type) : ?>
-            <ul>
-                <li><span title="Main request">Main</span></li>
-                <?php $tabs($row->panels) ?>
-                <li><a href="#" rel="close" title="close debug bar">&times;</a></li>
-            </ul>
-        <?php endif;
-        if ('redirect' === $row->type) : ?>
-            <ul>
-                <li><span title="Previous request before redirect">Redirect</span></li>
-                <?php $tabs($row->panels) ?>
-            </ul>
-        <?php endif;
-        if ('ajax' === $row->type) : ?>
-            <ul id="oops-ajax-bar">
-                <li>Ajax</li>
-                <?php $tabs($row->panels) ?>
-            </ul>
-        <?php endif ?>
-    <?php endforeach ?>
+<?php if ($main) : ?>
+<div id="oops-debug-bar">
+    <a href="#" rel="minimize" class="oops-brand" title="Rakit Debugbar (klik untuk minimalkan)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z" /></svg>
+        <span class="oops-brand-label">Rakit</span>
+    </a>
 
-    <?php if ('main' === $rows[0]->type) : ?>
+    <div class="oops-datasets">
+        <ul class="oops-tabs oops-dataset oops-dataset-active" data-label="Main">
+            <?php
+            $info = null;
+
+            foreach ($main->panels as $panel) {
+                if ('Oops-info' === $panel->id) {
+                    $info = $panel; // dipindah ke area indikator kanan
+                    continue;
+                }
+
+                $renderTab($panel);
+            }
+            ?>
+        </ul>
+
+        <?php foreach ($redirects as $redirect) : ?>
+            <ul class="oops-tabs oops-dataset" data-label="Redirect">
+                <?php foreach ($redirect->panels as $panel) {
+                    $renderTab($panel);
+                } ?>
+            </ul>
+        <?php endforeach ?>
     </div>
+
+    <div class="oops-switcher"></div>
+
+    <div class="oops-indicators">
+        <?php if ($info && $info->tab) : ?>
+            <a href="#" rel="oops-debug-panel-<?php echo $info->id ?>" class="oops-indicator oops-indicator-info" title="Waktu eksekusi (klik untuk info)"><?php echo trim($info->tab) ?></a>
+        <?php else : ?>
+            <span class="oops-indicator" title="Waktu eksekusi"><?php echo number_format($elapsed, 1, '.', ' ') ?> ms</span>
+        <?php endif ?>
+        <span class="oops-indicator" title="Puncak penggunaan memori"><?php echo number_format($memory, 2) ?> MB</span>
+        <span class="oops-indicator" title="Versi PHP">PHP <?php echo PHP_VERSION ?></span>
+        <a href="#" rel="theme" class="oops-indicator oops-theme-toggle" title="Ganti tema (terang/gelap)">
+            <svg class="oops-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-5a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1zM4.2 5.6a1 1 0 0 1 1.4 0l1.4 1.4A1 1 0 0 1 5.6 8.4L4.2 7A1 1 0 0 1 4.2 5.6zm12.8 12.8a1 1 0 0 1 1.4 0l1.4 1.4a1 1 0 0 1-1.4 1.4L17 19.8a1 1 0 0 1 0-1.4zM2 12a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm17 0a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1-1-1zM5.6 17l1.4-1.4A1 1 0 0 1 8.4 17L7 18.4A1 1 0 0 1 5.6 17zm12.8-12.8L19.8 5.6A1 1 0 0 1 18.4 7L17 5.6A1 1 0 0 1 18.4 4.2z"/></svg>
+            <svg class="oops-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </a>
+    </div>
+</div>
+<?php endif ?>
+
+<?php if ($ajax) : ?>
+    <?php
+    // Label dataset AJAX ala Laravel Debugbar: "METHOD /path".
+    // Dirender saat request AJAX itu sendiri, jadi $_SERVER = request AJAX-nya.
+    $ajaxMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'AJAX';
+    $ajaxPath = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
+    $ajaxLabel = trim($ajaxMethod . ' ' . $ajaxPath);
+    if ('' === $ajaxLabel) {
+        $ajaxLabel = 'AJAX';
+    }
+    ?>
+    <ul id="oops-ajax-bar" class="oops-tabs oops-dataset" data-label="<?php echo Helpers::escapeHtml($ajaxLabel) ?>">
+        <?php foreach ($ajax->panels as $panel) {
+            $renderTab($panel);
+        } ?>
+    </ul>
 <?php endif ?>

@@ -290,6 +290,92 @@ class Panic
     }
 
     /**
+     * Render exception as markdown.
+     *
+     * @param \Throwable|\Exception $e
+     *
+     * @return string
+     */
+    public static function toMarkdown($e)
+    {
+        $nl = "\n";
+        $out = '# ' . Helpers::getClass($e) . ($e->getCode() ? ' #' . $e->getCode() : '') . $nl . $nl;
+        $out .= '**Message:** ' . trim((string) $e->getMessage()) . $nl;
+
+        $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        $req = trim($method . ' ' . $uri);
+
+        if ('' !== $req) {
+            $out .= '**Request:** ' . $req . $nl;
+        }
+
+        $out .= '**Location:** ' . $e->getFile() . ':' . $e->getLine() . $nl;
+        $out .= '**PHP:** ' . PHP_VERSION . $nl . $nl;
+
+        $snippet = static::plainSnippet($e->getFile(), (int) $e->getLine(), 12);
+
+        if (null !== $snippet) {
+            $out .= '## Source (' . basename($e->getFile()) . ':' . $e->getLine() . ')' . $nl;
+            $out .= '```php' . $nl . $snippet . $nl . '```' . $nl . $nl;
+        }
+
+        $out .= '## Stack trace' . $nl;
+        $out .= '```' . $nl . $e->getTraceAsString() . $nl . '```' . $nl;
+
+        // Chained (previous) exceptions
+        $prev = $e->getPrevious();
+        $guard = 0;
+        $maxDepth = 5;
+
+        while ($prev && $guard++ < $maxDepth) {
+            $out .= $nl . '## Caused by: ' . Helpers::getClass($prev) . $nl;
+            $out .= '**Message:** ' . trim((string) $prev->getMessage()) . $nl;
+            $out .= '**Location:** ' . $prev->getFile() . ':' . $prev->getLine() . $nl;
+            $prev = $prev->getPrevious();
+        }
+
+        return $out;
+    }
+
+    /**
+     * Extract a snippet of raw code (without HTML) around a specific line,
+     * with a ">" marker on the line containing the error. Used for Markdown output.
+     *
+     * @param string $file
+     * @param int    $line
+     * @param int    $around
+     *
+     * @return string|null
+     */
+    private static function plainSnippet($file, $line, $around = 12)
+    {
+        if (!is_file($file)) {
+            return null;
+        }
+
+        $lines = @file($file, FILE_IGNORE_NEW_LINES);
+
+        if (!is_array($lines) || empty($lines)) {
+            return null;
+        }
+
+        $total = count($lines);
+        $half = (int) floor($around / 2);
+        $start = max(1, $line - $half);
+        $end = min($total, $line + $half);
+
+        $out = [];
+
+        for ($i = $start; $i <= $end; $i++) {
+            $prefix = ($i === $line) ? '> ' : '  ';
+            $out[] = $prefix . $i . ': ' . $lines[$i - 1];
+        }
+
+        return implode("\n", $out);
+    }
+
+    /**
      * Terapkan syntax highlighter ke isi file.
      *
      * @param string $file
@@ -325,19 +411,27 @@ class Panic
         }
 
         $source = str_replace(["\r\n", "\r"], "\n", $source);
-        $source = explode("\n", highlight_string($source, true));
-        $out = $source[0]; // <code><span color=highlight.html>
-        $source = str_replace('<br />', "\n", $source[1]);
-        $out .= static::highlightLine($source, $line, $lines);
+
+        if (PHP_VERSION_ID >= 80300) {
+            $html = highlight_string($source, true);
+            $html = preg_replace('#^<pre[^>]*>#', '', $html);
+            $html = preg_replace('#</pre>\s*\z#', '', $html);
+            $pos = strpos($html, '>');
+            $content = (false === $pos) ? $html : substr($html, $pos + 1);
+            $content = preg_replace('#</code>\s*\z#', '', $content);
+            $out = '<code>';
+            $out .= static::highlightLine($content, $line, $lines);
+        } else {
+            $source = explode("\n", highlight_string($source, true));
+            $out = $source[0]; // <code><span color=highlight.html>
+            $source = str_replace('<br />', "\n", $source[1]);
+            $out .= static::highlightLine($source, $line, $lines);
+        }
 
         if (!empty($vars)) {
             $out = preg_replace_callback('#">\$(\w+)(&nbsp;)?</span>#', function ($m) use ($vars) {
                 return array_key_exists($m[1], $vars)
-                    ? '" title="' . str_replace(
-                        '"',
-                        '&quot;',
-                        trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))
-                    ) . $m[0]
+                    ? '" title="' . str_replace('"', '&quot;', trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))) . $m[0]
                     : $m[0];
             }, $out);
         }

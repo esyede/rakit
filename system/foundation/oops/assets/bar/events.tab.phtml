@@ -4,26 +4,16 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$logCount = isset($this->data['logs']) ? count($this->data['logs']) : 0;
-$errorCount = isset($this->data['error_count']) ? $this->data['error_count'] : 0;
+$events = isset($this->data['events']) ? $this->data['events'] : array();
+$count = count($events);
 ?>
-<span title="Events & Logs">
-    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" enable-background="new 0 0 48 48">
-        <g fill="#FFC107">
-            <path d="M38,40H10c-2.2,0-4-1.8-4-4V12c0-2.2,1.8-4,4-4h28c2.2,0,4,1.8,4,4v24C42,38.2,40.2,40,38,40z"/>
-        </g>
-        <g fill="#FFF">
-            <rect x="12" y="14" width="24" height="3"/>
-            <rect x="12" y="20" width="24" height="3"/>
-            <rect x="12" y="26" width="16" height="3"/>
+<span title="Hooks">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <g fill="#FF7043">
+            <path d="M24,4C12.9,4,4,12.9,4,24s8.9,20,20,20s20-8.9,20-20S35.1,4,24,4z M26,34h-4v-4h4V34z M26,26h-4V14h4V26z" />
         </g>
     </svg>
     <span class="oops-label">
-        <?php echo $logCount; ?> log<?php echo $logCount !== 1 ? 's' : ''; ?>
-        <?php if ($errorCount > 0) : ?>
-            <span style="background: #F44336; color: white; padding: 1px 5px; border-radius: 3px; font-size: 10px; margin-left: 5px;">
-                <?php echo $errorCount; ?>
-            </span>
-        <?php endif; ?>
+        <?php echo $count; ?> hook<?php echo $count !== 1 ? 's' : ''; ?>
     </span>
 </span>

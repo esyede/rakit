@@ -8,13 +8,35 @@ $baseUrl = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 $baseUrl .= (false === strpos($baseUrl, '?')) ? '?' : '&';
 $nonceAttr = $nonce ? ' nonce="' . Helpers::escapeHtml($nonce) . '"' : '';
 $asyncAttr = $async ? ' async' : '';
+
+// Cache-buster: bundel JS/CSS bar (lihat Bar::renderAssets) di-cache lama oleh
+// browser (max-age panjang). Sertakan mtime SEMUA aset yang dibundel — termasuk
+// panic.css/panic.js — agar setiap perubahan langsung terambil tanpa hard-refresh.
+$assetsDir = dirname(__DIR__); // .../assets
+$assetFiles = array(
+    __DIR__ . DS . 'bar.css',
+    __DIR__ . DS . 'bar.js',
+    $assetsDir . DS . 'toggle' . DS . 'toggle.css',
+    $assetsDir . DS . 'toggle' . DS . 'toggle.js',
+    $assetsDir . DS . 'dumper' . DS . 'dumper.css',
+    $assetsDir . DS . 'dumper' . DS . 'dumper.js',
+    $assetsDir . DS . 'panic' . DS . 'panic.css',
+    $assetsDir . DS . 'panic' . DS . 'panic.js',
+);
+$assetMtime = 0;
+foreach ($assetFiles as $assetPath) {
+    if (is_file($assetPath)) {
+        $assetMtime = max($assetMtime, (int) filemtime($assetPath));
+    }
+}
+$assetVersion = RAKIT_VERSION . '.' . $assetMtime;
 ?>
 <?php if (empty($content)) : ?>
     <script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=<?php echo urlencode("content.$contentId") ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>" <?php echo $asyncAttr, $nonceAttr ?>></script>
 <?php else : ?>
 
     <!-- Rakit debug bar -->
-    <script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=js&amp;v=<?php echo urlencode(RAKIT_VERSION) ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>" <?php echo $nonceAttr ?>></script>
+    <script src="<?php echo Helpers::escapeHtml($baseUrl) ?>_oops_bar=js&amp;v=<?php echo urlencode($assetVersion) ?>&amp;XDEBUG_SESSION_STOP=1" data-id="<?php echo Helpers::escapeHtml($contentId) ?>" <?php echo $nonceAttr ?>></script>
     <script<?php echo $nonceAttr ?>>
         Oops.Debug.init(<?php echo str_replace('<!--', '<\!--', json_encode($content) . ', ' . json_encode($dumps)) ?>);
         </script>

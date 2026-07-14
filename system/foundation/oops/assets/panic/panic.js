@@ -27,6 +27,8 @@
                 sessionStorage.setItem('oops-toggles-panickey', id);
             }
 
+            Panic.bindCopyMarkdown(panic);
+
             if (inited) {
                 return;
             }
@@ -36,6 +38,60 @@
             document.addEventListener('keyup', function (e) {
                 if (e.keyCode == 27 && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey) { // ESC
                     Oops.Toggle.toggle(document.getElementById('oops-panic-toggle'));
+                }
+            });
+        }
+
+
+        // Tombol "Copy as Markdown": salin ringkasan error (dari <textarea>
+        // tersembunyi) ke clipboard agar mudah di-feed ke asisten AI.
+        static bindCopyMarkdown(panic) {
+            if (!panic) {
+                return;
+            }
+
+            var btn = panic.querySelector('#oops-copy-md');
+            var source = panic.querySelector('#oops-md-source');
+
+            if (!btn || !source || btn.dataset.bound) {
+                return;
+            }
+
+            btn.dataset.bound = '1';
+            var label = btn.textContent;
+
+            var flash = function (msg, ok) {
+                btn.textContent = msg;
+                btn.classList.toggle('oops-copied', !!ok);
+                setTimeout(function () {
+                    btn.textContent = label;
+                    btn.classList.remove('oops-copied');
+                }, 1800);
+            };
+
+            var fallback = function () {
+                var prev = source.style.cssText;
+                source.style.cssText = 'position:fixed;left:0;top:0;opacity:0;';
+                source.focus();
+                source.select();
+                try {
+                    flash(document.execCommand('copy') ? '✓ Copied!' : 'Press Ctrl+C', true);
+                } catch (e) {
+                    flash('Press Ctrl+C to copy', false);
+                }
+                source.style.cssText = prev;
+            };
+
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                var text = source.value;
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function () {
+                        flash('✓ Copied!', true);
+                    }, fallback);
+                } else {
+                    fallback();
                 }
             });
         }

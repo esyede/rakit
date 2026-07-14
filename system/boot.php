@@ -105,6 +105,24 @@ unset($debugger, $template, $debugger);
 
 /*
 |--------------------------------------------------------------------------
+| Timeline: Log Boot Phase
+|--------------------------------------------------------------------------
+|
+| After the debugger is dispatched (and the collector initialized),
+| record the boot phase duration for the debug bar's Timeline panel.
+| This is placed *after* the dispatch so that it is not overwritten
+| by `Collectors::initialize()`.
+|
+*/
+
+$rakit_boot_done = microtime(true);
+
+if (class_exists('\System\Foundation\Oops\Debugger') && !\System\Foundation\Oops\Debugger::$productionMode) {
+    Foundation\Oops\Collectors::addTimer('Booting', ($rakit_boot_done - RAKIT_START) * 1000, 0);
+}
+
+/*
+|--------------------------------------------------------------------------
 | Boot Other Packages
 |--------------------------------------------------------------------------
 |
@@ -191,8 +209,15 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 */
 
 $domain = Request::foundation()->getHost();
+
+// Mark the boundaries of each phase (routing -> controller -> render).
+$rakit_timeline_route_start = microtime(true);
 Request::$route = Routing\Router::route(Request::method(), $uri, $domain);
+
+$rakit_timeline_controller_start = microtime(true);
 $response = Request::$route->call();
+
+$rakit_timeline_render_start = microtime(true);
 
 /*
 |--------------------------------------------------------------------------
@@ -204,6 +229,37 @@ $response = Request::$route->call();
 */
 
 $response->render();
+$rakit_timeline_render_done = microtime(true);
+
+/*
+|--------------------------------------------------------------------------
+| Timeline: Mark the Routing / Controller / Render Phase
+|--------------------------------------------------------------------------
+|
+| Break down the application's execution duration into phases so that
+| the debug bar's Timeline panel shows where time is spent
+| (routing, controller/action, and view rendering).
+| The bar is positioned relative to RAKIT_START.
+|
+*/
+
+if (class_exists('\System\Foundation\Oops\Debugger') && !\System\Foundation\Oops\Debugger::$productionMode) {
+    Foundation\Oops\Collectors::addTimer(
+        'Routing',
+        ($rakit_timeline_controller_start - $rakit_timeline_route_start) * 1000,
+        ($rakit_timeline_route_start - RAKIT_START) * 1000
+    );
+    Foundation\Oops\Collectors::addTimer(
+        'Controller',
+        ($rakit_timeline_render_start - $rakit_timeline_controller_start) * 1000,
+        ($rakit_timeline_controller_start - RAKIT_START) * 1000
+    );
+    Foundation\Oops\Collectors::addTimer(
+        'Render',
+        ($rakit_timeline_render_done - $rakit_timeline_render_start) * 1000,
+        ($rakit_timeline_render_start - RAKIT_START) * 1000
+    );
+}
 
 /*
 |--------------------------------------------------------------------------

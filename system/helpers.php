@@ -69,8 +69,37 @@ if (!function_exists('dump')) {
      */
     function dump($variables)
     {
-        $variables = is_array($variables) ? $variables : func_get_args();
-        array_map('\System\Foundation\Oops\Debugger::dump', $variables);
+        $variables = func_get_args();
+        $toBar = \System\Foundation\Oops\Debugger::$showBar
+            && !\System\Foundation\Oops\Debugger::$productionMode
+            && !is_cli();
+
+        $handler = $toBar
+            ? '\System\Foundation\Oops\Debugger::barDump'
+            : '\System\Foundation\Oops\Debugger::dump';
+
+        array_map($handler, $variables);
+    }
+}
+
+if (!function_exists('measure')) {
+    /**
+     * Measure a code block and record it on the debug bar Timeline panel.
+     *
+     * <code>
+     *      $users = measure('Load users', function () {
+     *          return DB::table('users')->get();
+     *      });
+     * </code>
+     *
+     * @param string   $name
+     * @param callable $callback
+     *
+     * @return mixed
+     */
+    function measure($name, $callback)
+    {
+        return \System\Foundation\Oops\Debugger::measure($name, $callback);
     }
 }
 

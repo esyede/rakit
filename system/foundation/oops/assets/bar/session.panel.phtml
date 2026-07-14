@@ -1,0 +1,96 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$d = is_array($this->data) ? $this->data : array();
+$started = !empty($d['started']);
+$data = isset($d['data']) ? $d['data'] : array();
+$flashNew = isset($d['flash_new']) ? $d['flash_new'] : array();
+$flashOld = isset($d['flash_old']) ? $d['flash_old'] : array();
+
+// Render nilai session: skalar apa adanya, selainnya via print_r.
+$renderValue = function ($value) {
+    if (is_scalar($value) || is_null($value)) {
+        return Helpers::escapeHtml((string) $value);
+    }
+
+    return '<pre>' . Helpers::escapeHtml(print_r($value, true)) . '</pre>';
+};
+
+// Render satu tabel key => value.
+$renderTable = function ($rows) use ($renderValue) {
+    echo '<table>';
+    foreach ($rows as $key => $value) {
+        echo '<tr><td>', Helpers::escapeHtml($key), '</td><td>', $renderValue($value), '</td></tr>';
+    }
+    echo '</table>';
+};
+?>
+<style class="oops-debug">
+    #oops-debug .oops-SessionPanel td:first-child {
+        font-weight: bold;
+        width: 25%;
+        white-space: nowrap;
+        vertical-align: top;
+    }
+
+    #oops-debug .oops-SessionPanel pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+</style>
+
+<h1>Session</h1>
+
+<div class="oops-inner oops-SessionPanel">
+    <div class="oops-inner-container">
+        <?php if (!$started) : ?>
+            <p class="oops-empty">No active session</p>
+        <?php else : ?>
+            <table>
+                <tr>
+                    <td>Driver</td>
+                    <td><?php echo Helpers::escapeHtml($d['driver']) ?></td>
+                </tr>
+                <?php if (!empty($d['id'])) : ?>
+                    <tr>
+                        <td>Session ID</td>
+                        <td><?php echo Helpers::escapeHtml($d['id']) ?></td>
+                    </tr>
+                <?php endif ?>
+                <?php if (!empty($d['token'])) : ?>
+                    <tr>
+                        <td>CSRF Token</td>
+                        <td><?php echo Helpers::escapeHtml($d['token']) ?></td>
+                    </tr>
+                <?php endif ?>
+                <?php if (!empty($d['last_activity'])) : ?>
+                    <tr>
+                        <td>Last Activity</td>
+                        <td><?php echo Helpers::escapeHtml(date('Y-m-d H:i:s', (int) $d['last_activity'])) ?></td>
+                    </tr>
+                <?php endif ?>
+            </table>
+
+            <h2>Data (<?php echo count($data) ?>)</h2>
+            <?php if (empty($data)) : ?>
+                <p class="oops-empty">Session is empty</p>
+            <?php else : ?>
+                <?php $renderTable($data) ?>
+            <?php endif ?>
+
+            <?php if (!empty($flashNew)) : ?>
+                <h2>Flash &mdash; new (<?php echo count($flashNew) ?>)</h2>
+                <?php $renderTable($flashNew) ?>
+            <?php endif ?>
+
+            <?php if (!empty($flashOld)) : ?>
+                <h2>Flash &mdash; old (<?php echo count($flashOld) ?>)</h2>
+                <?php $renderTable($flashOld) ?>
+            <?php endif ?>
+        <?php endif ?>
+    </div>
+</div>

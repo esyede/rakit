@@ -7,6 +7,12 @@ defined('DS') or exit('No direct access.');
 use System\Database;
 
 $this->profiler = Database::profile();
+
+// Total waktu seluruh query (kolom 'time' dalam milidetik).
+$totalTime = 0;
+foreach ($this->profiler as $query) {
+    $totalTime += isset($query['time']) ? (float) $query['time'] : 0;
+}
 ?>
 
 <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" enable-background="new 0 0 48 48">
@@ -18,5 +24,10 @@ $this->profiler = Database::profile();
 </svg>
 
 <span class="oops-label" title="DB Queries">
-    <?php echo ($count = count($this->profiler)) . ($count > 1 ? ' queries' : ' query'); ?>
+    <?php echo ($count = count($this->profiler)) . ($count === 1 ? ' query' : ' queries'); ?>
+    <?php if ($totalTime > 0) : ?>
+        <span style="color: #999; font-size: 10px; margin-left: 3px;">
+            (<?php echo number_format($totalTime, 2); ?> ms)
+        </span>
+    <?php endif; ?>
 </span>

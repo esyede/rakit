@@ -87,49 +87,32 @@ $driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
 
     #oops-debug .oops-CachePanel .oops-summary {
         display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 8px;
+        margin-bottom: 10px;
         flex-wrap: wrap;
     }
 
     #oops-debug .oops-CachePanel .oops-summary-item {
         background: #e0f7fa;
-        padding: 10px 15px;
-        border-radius: 5px;
+        padding: 5px 10px;
+        border-radius: 4px;
         flex: 1;
-        min-width: 100px;
+        min-width: 80px;
         text-align: center;
     }
 
     #oops-debug .oops-CachePanel .oops-summary-count {
-        font-size: 24px;
+        font-size: 17px;
         font-weight: bold;
         color: #00BCD4;
+        line-height: 1.2;
     }
 
     #oops-debug .oops-CachePanel .oops-summary-label {
-        font-size: 11px;
+        font-size: 10px;
         color: #666;
         text-transform: uppercase;
-        margin-top: 5px;
-    }
-
-    #oops-debug .oops-CachePanel .oops-hitrate {
-        font-size: 48px;
-        font-weight: bold;
-        margin: 20px 0;
-    }
-
-    #oops-debug .oops-CachePanel .oops-hitrate-good {
-        color: #4CAF50;
-    }
-
-    #oops-debug .oops-CachePanel .oops-hitrate-medium {
-        color: #FF9800;
-    }
-
-    #oops-debug .oops-CachePanel .oops-hitrate-poor {
-        color: #F44336;
+        margin-top: 1px;
     }
 
     #oops-debug .oops-CachePanel .oops-cache-time {
@@ -144,36 +127,6 @@ $driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
         padding: 40px;
     }
 
-    #oops-debug .oops-CachePanel .oops-chart-container {
-        text-align: center;
-        padding: 20px;
-        background: #f9f9f9;
-        border-radius: 5px;
-        margin-bottom: 20px;
-    }
-
-    #oops-debug .oops-CachePanel .oops-chart-bar {
-        display: inline-block;
-        width: 100%;
-        max-width: 400px;
-        height: 30px;
-        background: #e0e0e0;
-        border-radius: 15px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    #oops-debug .oops-CachePanel .oops-chart-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #4CAF50, #8BC34A);
-        transition: width 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 14px;
-    }
 </style>
 
 <h1>Cache</h1>
@@ -198,27 +151,6 @@ $driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
         </table>
 
         <?php if ($totalOps > 0) : ?>
-            <!-- Hit Rate Chart -->
-            <?php if (($hitCount + $missCount) > 0) : ?>
-                <div class="oops-chart-container">
-                    <h3 style="margin-top: 0;">Cache Hit Rate</h3>
-                    <div class="oops-hitrate <?php echo $hitRate >= 80 ? 'oops-hitrate-good' : ($hitRate >= 50 ? 'oops-hitrate-medium' : 'oops-hitrate-poor'); ?>">
-                        <?php echo $hitRate; ?>%
-                    </div>
-                    <div class="oops-chart-bar">
-                        <div class="oops-chart-fill" style="width: <?php echo $hitRate; ?>%;">
-                            <?php if ($hitRate > 15) : ?>
-                                <?php echo $hitCount; ?> / <?php echo ($hitCount + $missCount); ?>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <p style="color: #666; font-size: 12px; margin-top: 10px;">
-                        <?php echo $hitCount; ?> hit<?php echo $hitCount !== 1 ? 's' : ''; ?> ·
-                        <?php echo $missCount; ?> miss<?php echo $missCount !== 1 ? 'es' : ''; ?>
-                    </p>
-                </div>
-            <?php endif; ?>
-
             <!-- Summary -->
             <div class="oops-summary">
                 <div class="oops-summary-item" style="background: #e8f5e9;">

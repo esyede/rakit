@@ -1,0 +1,50 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+use System\Auth;
+
+// Ambil status login secara LIVE saat render (shutdown). Dibungkus try/catch
+// agar bar tetap aman bila auth belum dikonfigurasi di aplikasi.
+$check = false;
+$label = 'Guest';
+
+try {
+    $check = Auth::check();
+
+    if ($check) {
+        $user = Auth::user();
+        $label = 'User';
+        $fields = is_object($user) ? get_object_vars($user) : (is_array($user) ? $user : array());
+
+        foreach (array('username', 'name', 'email', 'id') as $f) {
+            if (isset($fields[$f]) && '' !== (string) $fields[$f]) {
+                $label = (string) $fields[$f];
+                break;
+            }
+        }
+    }
+} catch (\Throwable $e) {
+    $label = 'n/a';
+} catch (\Exception $e) {
+    $label = 'n/a';
+}
+
+// Potong label yang terlalu panjang agar rapi di bar.
+if (strlen($label) > 22) {
+    $label = substr($label, 0, 21) . '…';
+}
+?>
+<span title="Authentication">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" enable-background="new 0 0 48 48">
+        <g fill="<?php echo $check ? '#4CAF50' : '#9E9E9E'; ?>">
+            <circle cx="24" cy="15" r="9" />
+            <path d="M24,26c-9.4,0-17,5.1-17,11.3V42h34v-4.7C41,31.1,33.4,26,24,26z" />
+        </g>
+    </svg>
+    <span class="oops-label">
+        <?php echo Helpers::escapeHtml($label); ?>
+    </span>
+</span>

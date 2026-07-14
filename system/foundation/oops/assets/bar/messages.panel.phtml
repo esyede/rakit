@@ -1,0 +1,66 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$logs = isset($this->data['logs']) ? $this->data['logs'] : array();
+
+$levelColors = array(
+    'emergency' => '#b71c1c', 'alert' => '#c62828', 'critical' => '#d32f2f',
+    'error' => '#e53935', 'warning' => '#f9a825', 'notice' => '#1e88e5',
+    'info' => '#43a047', 'debug' => '#757575',
+);
+?>
+<style class="oops-debug">
+    #oops-debug .oops-MessagesPanel .oops-msg {
+        padding: 6px 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-level {
+        display: inline-block;
+        min-width: 70px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 10px;
+        color: #fff;
+        padding: 1px 6px;
+        border-radius: 3px;
+        margin-right: 8px;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-text {
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+        word-break: break-word;
+    }
+
+    #oops-debug .oops-MessagesPanel pre {
+        margin: 5px 0 0;
+        white-space: pre-wrap;
+    }
+</style>
+
+<h1>Messages</h1>
+
+<div class="oops-inner oops-MessagesPanel">
+    <div class="oops-inner-container">
+        <?php if (empty($logs)) : ?>
+            <p class="oops-empty">No messages logged</p>
+        <?php else : ?>
+            <?php foreach ($logs as $log) :
+                $level = strtolower(isset($log['level']) ? $log['level'] : 'debug');
+                $color = isset($levelColors[$level]) ? $levelColors[$level] : '#757575';
+            ?>
+                <div class="oops-msg">
+                    <span class="oops-msg-level" style="background: <?php echo $color ?>;"><?php echo Helpers::escapeHtml($level) ?></span>
+                    <span class="oops-msg-text"><?php echo Helpers::escapeHtml(isset($log['message']) ? $log['message'] : '') ?></span>
+                    <?php if (!empty($log['context'])) : ?>
+                        <pre><?php echo Helpers::escapeHtml(print_r($log['context'], true)) ?></pre>
+                    <?php endif ?>
+                </div>
+            <?php endforeach ?>
+        <?php endif ?>
+    </div>
+</div>

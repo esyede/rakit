@@ -89,6 +89,61 @@ class Collectors
     }
 
     /**
+     * Collect current session data.
+     *
+     * @return array
+     */
+    public static function collectSession()
+    {
+        $result = [
+            'started' => false,
+            'driver' => config('session.driver', 'file'),
+            'id' => null,
+            'token' => null,
+            'last_activity' => null,
+            'data' => [],
+            'flash_new' => [],
+            'flash_old' => [],
+        ];
+
+        if (!class_exists('System\\Session') || !\System\Session::started()) {
+            return $result;
+        }
+
+        $result['started'] = true;
+
+        try {
+            $payload = \System\Session::instance();
+            $session = (isset($payload->session) && is_array($payload->session)) ? $payload->session : [];
+
+            $result['id'] = isset($session['id']) ? $session['id'] : null;
+            $result['last_activity'] = isset($session['last_activity']) ? $session['last_activity'] : null;
+            $result['token'] = method_exists($payload, 'token') ? $payload->token() : null;
+
+            $all = $payload->all();
+            $all = is_array($all) ? $all : [];
+
+            if (isset($all[':new:'])) {
+                $result['flash_new'] = (array) $all[':new:'];
+                unset($all[':new:']);
+            }
+
+            if (isset($all[':old:'])) {
+                $result['flash_old'] = (array) $all[':old:'];
+                unset($all[':old:']);
+            }
+
+            $result['data'] = $all;
+        } catch (\Throwable $e) {
+            // skip errors.
+        } catch (\Exception $e) {
+            // skip errors.
+        }
+
+        return $result;
+    }
+
+    /**
      * Collect current route information.
      *
      * @return array
@@ -269,16 +324,17 @@ class Collectors
     }
 
     /**
-     * Add a timer record.
+     * Add a timer record (untuk panel Timeline).
      *
      * @param string $name
-     * @param float  $duration
+     * @param float  $duration Durasi dalam milidetik
+     * @param float  $start    Offset mulai dari awal request (ms)
      *
      * @return void
      */
-    public static function addTimer($name, $duration)
+    public static function addTimer($name, $duration, $start = 0)
     {
-        static::$data['timers'][$name] = ['duration' => $duration];
+        static::$data['timers'][$name] = ['duration' => $duration, 'start' => $start];
     }
 
     /**
@@ -290,42 +346,33 @@ class Collectors
      */
     public static function getData($panel)
     {
-        if (!isset(static::$data[$panel])) {
-            return [];
-        }
-
-        // Special handling for certain panels
         switch ($panel) {
-            case 'events':
+            case 'messages':
                 return [
-                    'events' => static::$data['events'],
                     'logs' => static::$data['logs'],
-                    'timers' => static::$data['timers'],
                     'error_count' => count(array_filter(static::$data['logs'], function ($log) {
-                        return in_array(strtolower($log['level']), ['error', 'critical']);
+                        return in_array(strtolower($log['level']), ['error', 'critical', 'emergency', 'alert']);
                     })),
                 ];
 
             case 'cache':
-                // Add cache driver config
                 if (class_exists('System\Cache')) {
                     try {
                         $driver = config('cache.driver', 'file');
                         static::$data['cache']['driver'] = $driver;
                         static::$data['cache']['config'] = static::getCacheConfig($driver);
                     } catch (\Throwable $e) {
-                        // Ignore errors
+                        // skip errors.
                     } catch (\Exception $e) {
-                        // Ignore errors
+                        // skip errors.
                     }
                 }
                 return ['cache' => static::$data['cache']];
 
-            case 'views':
-                return ['views' => static::$data['views']];
-
-            default:
-                return static::$data[$panel];
+            case 'views':    return ['views' => static::$data['views']];
+            case 'timeline': return ['timers' => static::$data['timers']];
+            case 'events':   return ['events' => static::$data['events']];
+            default:         return isset(static::$data[$panel]) ? static::$data[$panel] : [];
         }
     }
 

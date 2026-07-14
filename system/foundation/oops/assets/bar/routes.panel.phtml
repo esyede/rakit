@@ -4,18 +4,56 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
+use System\Request;
 use System\Routing\Route;
 
-// Get current route info
-$currentRoute = isset($this->data['current_route']) ? $this->data['current_route'] : null;
-$currentUri = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : null;
+// Buang prefix "domain||" pada key rute komposit (lihat Router::routes()).
+$stripDomain = function ($key) {
+    $pos = strpos($key, '||');
+    return (false !== $pos) ? substr($key, $pos + 2) : $key;
+};
+
 $currentMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+$currentUri = isset($_SERVER['REQUEST_URI']) ? parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : null;
+
+// Sumber current route yang andal: rute yang benar-benar cocok pada request ini
+// (diset di boot.php via Request::$route). Berlaku untuk request biasa maupun AJAX,
+// karena tiap request punya Request::$route sendiri dan panel dirender saat shutdown.
+$currentRoute = null;
+$matched = Request::route();
+
+if ($matched instanceof Route) {
+    $action = $matched->action;
+    $name = (is_array($action) && isset($action['as'])) ? $action['as'] : null;
+
+    if (is_array($action) && isset($action['uses'])) {
+        $uses = $action['uses'];
+    } elseif ($matched->controller) {
+        $uses = $matched->controller . '@' . $matched->controller_action;
+    } else {
+        $uses = 'Closure';
+    }
+
+    $currentRoute = array(
+        'uri' => $stripDomain($matched->uri),
+        'method' => $matched->method ? $matched->method : $currentMethod,
+        'name' => $name,
+        'action' => $uses,
+        'controller' => $matched->controller ? $matched->controller : null,
+        'parameters' => is_array($matched->parameters) ? array_filter($matched->parameters, 'strlen') : array(),
+        'filters' => (is_array($action) && isset($action['filters'])) ? $action['filters'] : array(),
+    );
+} elseif (isset($this->data['current_route'])) {
+    // Cadangan: data yang dikumpulkan collector (jika Request::$route belum tersedia).
+    $currentRoute = $this->data['current_route'];
+}
 
 // Get all registered routes
 $allRoutes = [];
 $registeredRoutes = Route::lists();
 foreach ($registeredRoutes as $method => $routes) {
     foreach ($routes as $uri => $route) {
+        $uri = $stripDomain($uri);
         if ($uri !== '(:all)') {
             $allRoutes[] = [
                 'method' => $method,
@@ -54,9 +92,25 @@ $totalRoutes = count($allRoutes);
         vertical-align: top;
     }
 
-    #oops-debug .oops-RoutesPanel .oops-route-current {
-        background: #fff3e0 !important;
-        border-left: 3px solid #FF9800;
+    #oops-debug .oops-RoutesPanel .oops-route-current td {
+        background: #e8f5e9 !important;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-route-current td:first-child {
+        box-shadow: inset 3px 0 0 #43a047;
+    }
+
+    #oops-debug .oops-RoutesPanel .oops-current-marker {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 1px 7px;
+        border-radius: 10px;
+        background: #43a047;
+        color: #fff;
+        font-size: 10px;
+        font-weight: bold;
+        font-family: -apple-system, Segoe UI, sans-serif;
+        vertical-align: middle;
     }
 
     #oops-debug .oops-RoutesPanel .oops-badge {
@@ -185,7 +239,7 @@ $totalRoutes = count($allRoutes);
                     <?php if (isset($currentRoute['action'])) : ?>
                         <tr>
                             <td width="20%"><strong>Action</strong></td>
-                            <td><code><?php echo htmlspecialchars(is_callable($currentRoute['action']) ? 'Closure' : (is_array($currentRoute['action']) ? implode('@', $currentRoute['action']) : $currentRoute['action'])); ?></code></td>
+                            <td><code><?php echo htmlspecialchars(is_array($currentRoute['action']) ? implode('@', $currentRoute['action']) : $currentRoute['action']); ?></code></td>
                         </tr>
                     <?php endif; ?>
                     <?php if (!empty($currentRoute['parameters'])) : ?>
@@ -211,12 +265,8 @@ $totalRoutes = count($allRoutes);
         <?php endif; ?>
 
         <!-- All Routes -->
-        <h2>
-            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-all-routes">
-                All Registered Routes (<?php echo $totalRoutes; ?>)
-            </a>
-        </h2>
-        <div class="oops-all-routes oops-collapsed">
+        <h2>All Registered Routes (<?php echo $totalRoutes; ?>)</h2>
+        <div class="oops-all-routes">
             <?php if ($totalRoutes > 0) : ?>
                 <table>
                     <thead>
@@ -246,6 +296,9 @@ $totalRoutes = count($allRoutes);
                                     <span class="oops-route-uri"><?php echo htmlspecialchars($route['uri']); ?></span>
                                     <?php if ($route['https']) : ?>
                                         <span class="oops-https-badge">HTTPS</span>
+                                    <?php endif; ?>
+                                    <?php if ($isCurrent) : ?>
+                                        <span class="oops-current-marker">● current</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>

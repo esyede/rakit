@@ -56,10 +56,28 @@ class Defaults
             // ..
         });
 
+        $this->refreshData();
         $data = $this->data;
         require __DIR__ . '/assets/bar/' . $this->id . '.tab.phtml';
 
         return ob_get_clean();
+    }
+
+    /**
+     * Get live data from collector during render (shutdown).
+     *
+     * @return void
+     */
+    private function refreshData()
+    {
+        switch ($this->id) {
+            case 'messages': $this->data = Collectors::getData('messages'); break;
+            case 'timeline': $this->data = Collectors::getData('timeline'); break;
+            case 'events':   $this->data = Collectors::getData('events');   break;
+            case 'view':     $this->data = Collectors::getData('views');    break;
+            case 'cache':    $this->data = Collectors::getData('cache');    break;
+            case 'session':  $this->data = Collectors::collectSession();    break;
+        }
     }
 
     /**
@@ -74,6 +92,7 @@ class Defaults
         });
 
         if (is_file(__DIR__ . '/assets/bar/' . $this->id . '.panel.phtml')) {
+            $this->refreshData();
             $data = $this->data;
             require __DIR__ . '/assets/bar/' . $this->id . '.panel.phtml';
         }
@@ -321,6 +340,7 @@ class Defaults
                 'sql' => $sql,
                 'bindings' => isset($query['bindings']) ? $query['bindings'] : [],
                 'time' => isset($query['time']) ? $query['time'] : 0,
+                'source' => isset($query['source']) ? $query['source'] : null,
             ];
         }
 

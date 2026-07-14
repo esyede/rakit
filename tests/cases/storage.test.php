@@ -22,7 +22,7 @@ class StorageTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        is_dir(self::$temp) && Storage::rmdir(self::$temp);
+        is_dir(self::$temp) && Storage::rmdir(self::$temp, false);
         self::$temp = null;
     }
 

@@ -14,7 +14,11 @@ $queries = Database::profile();
     }
 
     #oops-debug .oops-db-panel-source {
-        color: #BBB !important
+        display: inline-block;
+        margin-top: 4px;
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        color: #999 !important;
     }
 
     #oops-debug .oops-db-panel-hint code {
@@ -88,6 +92,9 @@ $queries = Database::profile();
                                             <div style="font-size: 11px; padding: 4px; border-bottom: 1px solid #ddd;">
                                                 #<?php echo ($q['index'] + 1); ?>: <?php echo htmlspecialchars(substr($q['sql'], 0, 100)); ?>...
                                                 <span style="color: #999;">(<?php echo $q['time']; ?>ms)</span>
+                                                <?php if (!empty($q['source'])) : ?>
+                                                    <span class="oops-db-panel-source" style="margin-left: 6px;"><?php echo htmlspecialchars($q['source']); ?></span>
+                                                <?php endif; ?>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>
@@ -129,6 +136,11 @@ $queries = Database::profile();
                         </td>
                         <td>
                             <code><?php echo Defaults::sqlHighlight($query['sql'], $query['bindings']) ?></code>
+                            <?php if (!empty($query['source'])) : ?>
+                                <div class="oops-db-panel-source" title="Lokasi kode yang menjalankan query ini">
+                                    <?php echo Helpers::escapeHtml($query['source']) ?>
+                                </div>
+                            <?php endif; ?>
                         </td>
                         <td><?php echo $query['time'] ?>ms</td>
                         <td colspan="2">

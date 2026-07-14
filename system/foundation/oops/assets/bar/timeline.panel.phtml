@@ -1,0 +1,135 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$timers = isset($this->data['timers']) ? $this->data['timers'] : array();
+
+$total = (microtime(true) - Debugger::$time) * 1000; // ms
+if ($total <= 0) {
+    $total = 1;
+}
+
+// Urutkan baris secara kronologis berdasarkan offset mulai (bukan urutan
+// penyisipan) agar timeline terbaca dari atas ke bawah.
+uasort($timers, function ($a, $b) {
+    $sa = isset($a['start']) ? (float) $a['start'] : 0;
+    $sb = isset($b['start']) ? (float) $b['start'] : 0;
+    if ($sa == $sb) {
+        return 0;
+    }
+    return ($sa < $sb) ? -1 : 1;
+});
+
+// Warna khas per fase inti; blok ukur milik developer memakai warna default.
+$phaseColors = array(
+    'Booting' => '#7E57C2',
+    'Routing' => '#42A5F5',
+    'Controller' => '#26A69A',
+    'Render' => '#FFA726',
+);
+
+// Ringkasan DB (jumlah query + total waktu) untuk konteks tambahan.
+$dbCount = 0;
+$dbTime = 0;
+if (class_exists('\System\Database')) {
+    $queries = \System\Database::profile();
+    if (is_array($queries)) {
+        $dbCount = count($queries);
+        foreach ($queries as $q) {
+            $dbTime += isset($q['time']) ? (float) $q['time'] : 0;
+        }
+    }
+}
+
+$peakMem = memory_get_peak_usage(true) / 1048576; // MB
+?>
+<style class="oops-debug">
+    #oops-debug .oops-TimelinePanel td {
+        vertical-align: middle;
+        padding: 4px 8px;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-track {
+        position: relative;
+        height: 14px;
+        background: #f0f0f0;
+        border-radius: 2px;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-bar {
+        position: absolute;
+        top: 0;
+        height: 14px;
+        min-width: 2px;
+        background: #26A69A;
+        border-radius: 2px;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-name {
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-time {
+        text-align: right;
+        white-space: nowrap;
+        font-family: Menlo, Monaco, Consolas, monospace;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-summary {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-chip {
+        padding: 3px 10px;
+        border-radius: 3px;
+        background: #f1f5f8;
+        font-size: 11px;
+        color: #555;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-chip strong {
+        color: #2c6a8f;
+    }
+</style>
+
+<h1>Timeline</h1>
+
+<div class="oops-inner oops-TimelinePanel">
+    <div class="oops-inner-container">
+        <?php if (empty($timers)) : ?>
+            <p class="oops-empty">No measures recorded</p>
+        <?php else : ?>
+            <table>
+                <?php foreach ($timers as $name => $timer) :
+                    $duration = isset($timer['duration']) ? (float) $timer['duration'] : 0;
+                    $start = isset($timer['start']) ? (float) $timer['start'] : 0;
+                    $left = max(0, min(100, ($start / $total) * 100));
+                    $width = max(0.5, min(100 - $left, ($duration / $total) * 100));
+                    $color = isset($phaseColors[$name]) ? $phaseColors[$name] : '#66BB6A';
+                ?>
+                    <tr>
+                        <td class="oops-tl-name" style="width: 22%;"><?php echo Helpers::escapeHtml($name) ?></td>
+                        <td style="width: 58%;">
+                            <div class="oops-tl-track" title="mulai @<?php echo number_format($start, 2) ?> ms">
+                                <div class="oops-tl-bar" style="left: <?php echo $left ?>%; width: <?php echo $width ?>%; background: <?php echo $color ?>;"></div>
+                            </div>
+                        </td>
+                        <td class="oops-tl-time" style="width: 20%;"><?php echo number_format($duration, 2) ?> ms</td>
+                    </tr>
+                <?php endforeach ?>
+            </table>
+
+            <div class="oops-tl-summary">
+                <span class="oops-tl-chip">Total <strong><?php echo number_format($total, 2) ?> ms</strong></span>
+                <span class="oops-tl-chip">Database <strong><?php echo $dbCount ?></strong> query<?php echo $dbCount !== 1 ? 'es' : '' ?> &middot; <strong><?php echo number_format($dbTime, 2) ?> ms</strong></span>
+                <span class="oops-tl-chip">Peak memory <strong><?php echo number_format($peakMem, 2) ?> MB</strong></span>
+            </div>
+        <?php endif ?>
+    </div>
+</div>

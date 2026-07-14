@@ -1,30 +1,26 @@
+/*
+| Halaman error debugger (blue screen) — bergaya Laravel Ignition:
+| latar slate gelap, header exception yang menonjol, kartu-kartu rapi,
+| dan blok kode dengan baris error di-highlight. Semua nama kelas dijaga
+| tetap agar panic.js (toggle) berfungsi.
+*/
+
 #oops-panic {
-    font:
-        9pt/1.5 BlinkMacSystemFont,
-        -apple-system,
-        "Segoe UI",
-        Roboto,
-        Oxygen,
-        Ubuntu,
-        Cantarell,
-        "Fira Sans",
-        "Droid Sans",
-        "Helvetica Neue",
-        Helvetica,
-        Arial,
-        sans-serif;
-    background: #1a1a1a;
-    color: #e0e0e0;
+    font: 14px/1.6 BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: #0e0f13;
+    color: #c9ced8;
     position: absolute;
     z-index: 20000;
     left: 0;
     top: 0;
     width: 100%;
+    min-height: 100vh;
     text-align: left;
+    -webkit-font-smoothing: antialiased;
 }
 
 .oops-js {
-    background: #0f0f0f;
+    background: #0e0f13;
 }
 
 #oops-panic * {
@@ -44,7 +40,7 @@
 }
 
 #oops-panic b {
-    font-weight: bold;
+    font-weight: 600;
 }
 
 #oops-panic i {
@@ -53,93 +49,186 @@
 
 #oops-panic a {
     text-decoration: none;
-    color: #e57373;
+    color: #f8918a;
     padding: 2px 4px;
     margin: -2px -4px;
+    border-radius: 4px;
 }
 
 #oops-panic a:hover,
 #oops-panic a:focus {
-    color: #ef9a9a;
+    color: #ffb3ad;
 }
 
+/* Tombol minimize di pojok kanan atas */
 #oops-panic-toggle {
     position: absolute;
-    right: 0.5em;
-    top: 0.5em;
+    right: 16px;
+    top: 16px;
     text-decoration: none;
-    background: #e57373;
-    color: #ffffff !important;
-    padding: 3px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e7ebf2 !important;
+    padding: 4px 8px;
+    border-radius: 6px;
+    z-index: 5;
 }
 
+#oops-panic-toggle:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* ==== Header exception ==== */
 #oops-panic-error {
-    background: #b3403c;
-    color: #ffffff;
-    font-size: 13pt;
+    background: linear-gradient(180deg, #241417 0%, #1b1417 100%);
+    color: #f4f6fa;
+    padding: 34px 44px 30px;
+    border-bottom: 1px solid #3a2226;
 }
 
+/* Baris tipe exception (mis. "Error", "ErrorException #0") */
+#oops-panic-error > p {
+    display: inline-block;
+    margin: 0 0 12px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffc9c5;
+    background: rgba(224, 82, 75, 0.18);
+    border: 1px solid rgba(224, 82, 75, 0.4);
+    border-radius: 20px;
+}
+
+/* Pill aksi di header (search, dll.) + tombol copy: ukuran/padding/border
+   didefinisikan sekali di sini agar seragam & rapi. */
 #oops-panic-error a {
-    color: #ffffff !important;
+    display: inline-block;
+    color: #ffd9d6 !important;
     opacity: 0;
-    font-size: 0.7em;
+    font-size: 0.6em;
+    font-weight: 600;
+    line-height: 1.5;
+    vertical-align: middle;
     border-bottom: none !important;
+    padding: 5px 13px;
+    margin: 0 0 0 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
 }
 
 #oops-panic-error:hover a {
-    opacity: 0.6;
+    opacity: 0.85;
 }
 
 #oops-panic-error a:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.2);
 }
 
 #oops-panic-error i {
-    color: #fafbfc;
+    color: #ffece9;
     font-style: normal;
+    font-weight: 600;
 }
 
 #oops-panic h1 {
-    font-size: 15pt;
-    font-weight: normal;
-    margin: 0.7em 0;
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0;
+    color: #ffffff;
 }
 
 #oops-panic h1 span {
     white-space: pre-wrap;
+    word-break: break-word;
 }
 
+/* Tombol "Copy as Markdown" (feed ke AI) — pill di kiri "search", selalu
+   terlihat. Mewarisi ukuran dari #oops-panic-error a, hanya beda warna. */
+#oops-panic-error a.oops-copy-md {
+    opacity: 1;
+    margin-left: 12px;
+    color: #f4f6fa !important;
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.24);
+    cursor: pointer;
+}
+
+#oops-panic-error a.oops-copy-md:hover,
+#oops-panic-error a.oops-copy-md:focus {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff !important;
+}
+
+#oops-panic-error a.oops-copy-md.oops-copied {
+    background: rgba(126, 231, 135, 0.18);
+    border-color: rgba(126, 231, 135, 0.5);
+    color: #d6f5da !important;
+}
+
+/* Baris "METHOD /url" di bawah pesan (bukan badge tipe) */
+#oops-panic-error > p.oops-req {
+    display: block;
+    margin: 14px 0 0;
+    padding: 0;
+    font: 12.5px/1.5 "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #d99a95;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    word-break: break-all;
+}
+
+/* ==== Judul seksi / panel ==== */
 #oops-panic h2 {
-    font-size: 14pt;
-    margin: 0.6em 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #aeb6c4;
+    margin: 26px 0 10px;
+}
+
+#oops-panic h2 a.oops-toggle {
+    color: #8b93a4;
+}
+
+#oops-panic h2 a.oops-toggle:hover {
+    color: #e7ebf2;
 }
 
 #oops-panic h3 {
-    font-size: 10pt;
-    font-weight: bold;
-    margin: 1em 0;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #8b93a4;
+    margin: 18px 0 8px;
     padding: 0;
 }
 
 #oops-panic p,
 #oops-panic pre {
-    margin: 0.8em 0;
+    margin: 0.7em 0;
 }
 
 #oops-panic pre,
 #oops-panic code,
 #oops-panic table {
-    font:
-        9pt/1.5 Consolas,
-        monospace !important;
-    border-radius: 10px;
+    font: 12.5px/1.55 "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace !important;
+    border-radius: 8px;
 }
 
 #oops-panic pre,
 #oops-panic table {
-    background: #2a2a2a;
-    padding: 0.4em 0.7em;
-    border: 1px solid #3a3a3a;
+    background: #16181f;
+    padding: 12px 14px;
+    border: 1px solid #262a33;
     overflow: auto;
 }
 
@@ -147,23 +236,27 @@
     padding: 0;
     margin: 0;
     border: none;
+    background: transparent;
 }
 
 #oops-panic table {
     border-collapse: collapse;
     width: 100%;
+    padding: 0;
 }
 
 #oops-panic td,
 #oops-panic th {
     vertical-align: top;
     text-align: left;
-    padding: 2px 6px;
-    border: 1px solid #3a3a3a;
+    padding: 5px 10px;
+    border: 1px solid #262a33;
 }
 
 #oops-panic th {
-    font-weight: bold;
+    font-weight: 600;
+    color: #9aa2b1;
+    background: #1b1e26;
 }
 
 #oops-panic tr > :first-child {
@@ -171,17 +264,32 @@
 }
 
 #oops-panic ol {
-    margin: 1em 0;
-    padding-left: 2.5em;
+    margin: 0.8em 0;
+    padding-left: 2.6em;
 }
 
+#oops-panic ol li {
+    margin: 0 0 4px;
+    padding: 4px 0;
+    color: #c9ced8;
+}
+
+#oops-panic ol li::marker {
+    color: #6b7280;
+}
+
+#oops-panic ol li i {
+    color: #7a8290;
+}
+
+/* Footer */
 #oops-panic ul {
-    font-size: 7pt;
-    padding: 2em 3em;
-    margin: 1em 0 0;
-    color: #666666;
-    background: #0f0f0f;
-    border-top: 1px solid #333333;
+    font-size: 11px;
+    padding: 22px 44px;
+    margin: 30px 0 0;
+    color: #5a6270;
+    background: #0b0c10;
+    border-top: 1px solid #1e222b;
     list-style: none;
 }
 
@@ -189,7 +297,7 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    opacity: 0.6;
+    opacity: 0.5;
     padding: 0;
     margin: 0;
 }
@@ -200,21 +308,38 @@
     transition: opacity 0.1s;
 }
 
+/* ==== Kartu panel ==== */
 #oops-panic div.panel {
-    padding: 1px 25px;
+    padding: 0 44px;
 }
 
 #oops-panic div.inner {
-    background: #242424;
-    padding: 0.1em 1em 1em;
-    border-radius: 8px;
+    background: #171921;
+    padding: 16px 20px;
+    border: 1px solid #232733;
+    border-radius: 10px;
 }
 
 #oops-panic .outer {
     overflow: auto;
+    border-radius: 8px;
 }
 
-/* source code */
+#oops-panic div.inner p:first-child {
+    margin-top: 0;
+}
+
+/* File path di panel Source file */
+#oops-panic div.inner > p b {
+    color: #9aa2b1;
+    font-weight: 600;
+}
+
+#oops-panic div.inner > p span {
+    color: #e7ebf2;
+}
+
+/* ==== Source code ==== */
 #oops-panic pre.code > div {
     min-width: 100%;
     float: left;
@@ -222,35 +347,36 @@
 }
 
 #oops-panic .highlight {
-    background: #7a3434;
-    color: #fafbfc;
-    font-weight: bold;
+    background: rgba(224, 82, 75, 0.22);
+    color: #fff2f1;
+    font-weight: 600;
     font-style: normal;
     display: block;
     padding: 0 0.4em;
     margin: 0 -0.4em;
+    box-shadow: inset 3px 0 0 #e0524b;
 }
 
 #oops-panic .line {
-    color: #666666;
+    color: #4d5563;
     font-weight: normal;
     font-style: normal;
 }
 
 #oops-panic pre:hover span[title] {
-    border-bottom: 1px solid #4a4a4a;
+    border-bottom: 1px solid #3a3f4b;
 }
 
 #oops-panic a[href^="editor\:"] {
     color: inherit;
-    border-bottom: 1px dotted #4a4a4a;
+    border-bottom: 1px dotted #3a3f4b;
 }
 
 #oops-panic span[data-oops-href] {
-    border-bottom: 1px dotted #4a4a4a;
+    border-bottom: 1px dotted #3a3f4b;
 }
 
-/* toggle */
+/* ==== Toggle ==== */
 html.oops-js #oops-panic .oops-collapsed {
     display: none;
 }
@@ -263,36 +389,36 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
-    -khtml-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
 
 #oops-panic .oops-toggle:after {
-    content: "\A0\25BC";
-    opacity: 0.4;
+    content: "\A0\25BE";
+    opacity: 0.45;
+    font-size: 0.85em;
 }
 
 #oops-panic .oops-toggle.oops-collapsed:after {
-    content: "\A0\25BA";
+    content: "\A0\25B8";
 }
 
-/* dump */
+/* ==== Dump ==== */
 #oops-panic .oops-dump-array,
 #oops-panic .oops-dump-object {
-    color: #e57373;
+    color: #f8918a;
 }
 
 #oops-panic .oops-dump-string {
-    color: #ffa94d;
+    color: #ffb570;
 }
 
 #oops-panic .oops-dump-number {
-    color: #69db7c;
+    color: #7ee787;
 }
 
 #oops-panic .oops-dump-whitespace {
-    color: #999999;
+    color: #6b7280;
 }
 
 #oops-panic .oops-dump-null,
@@ -303,7 +429,7 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 #oops-panic .oops-dump-visibility,
 #oops-panic .oops-dump-hash {
     font-size: 85%;
-    color: #b3403c;
+    color: #8b93a4;
 }
 
 #oops-panic .oops-dump-indent {
@@ -315,18 +441,55 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 }
 
 #oops-panic pre.oops-dump div div {
-    border-left: 1px solid #4a4a4a;
+    border-left: 1px solid #2c303b;
     margin-left: 0.5ex;
 }
 
+/* ==== "Caused by" ==== */
 #oops-panic .caused {
     float: right;
-    padding: 0.3em 0.6em;
-    background: #b3403c;
-    border-radius: 0 0 0 8px;
+    margin: 20px 44px 0 0;
+    padding: 6px 14px;
+    background: rgba(224, 82, 75, 0.16);
+    border: 1px solid rgba(224, 82, 75, 0.35);
+    border-radius: 20px;
     white-space: nowrap;
 }
 
 #oops-panic .caused a {
-    color: #ffffff;
+    color: #ffc9c5;
+}
+
+/* ==== Scrollbar tipis & gelap (mis. baris Cookie yang panjang) ==== */
+#oops-panic pre,
+#oops-panic table,
+#oops-panic .outer,
+#oops-panic pre.code {
+    scrollbar-width: thin;
+    scrollbar-color: #3a4155 transparent;
+}
+
+#oops-panic ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+#oops-panic ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#oops-panic ::-webkit-scrollbar-thumb {
+    background: #3a4155;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+#oops-panic ::-webkit-scrollbar-thumb:hover {
+    background: #4c5468;
+    background-clip: padding-box;
+}
+
+#oops-panic ::-webkit-scrollbar-corner {
+    background: transparent;
 }
