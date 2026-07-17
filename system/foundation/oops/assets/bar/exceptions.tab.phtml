@@ -1,0 +1,25 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$exceptions = isset($this->data['exceptions']) ? $this->data['exceptions'] : [];
+$count = 0;
+foreach ($exceptions as $ex) {
+    $count += isset($ex['count']) ? $ex['count'] : 1;
+}
+?>
+<span title="Exceptions">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <g fill="#E53935">
+            <path d="M24,4C12.95,4,4,12.95,4,24s8.95,20,20,20s20-8.95,20-20S35.05,4,24,4z" />
+        </g>
+        <g fill="#FFF">
+            <rect x="22" y="14" width="4" height="14" />
+            <rect x="22" y="32" width="4" height="4" />
+        </g>
+    </svg>
+    <span class="oops-label">Exceptions</span>
+    <span class="oops-badge oops-badge-important"><?php echo $count; ?></span>
+</span>

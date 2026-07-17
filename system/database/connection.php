@@ -271,7 +271,10 @@ class Connection
 
         Hook::fire('rakit.query', [$sql, $bindings, $time]);
 
-        static::$queries[] = compact('sql', 'bindings', 'time', 'source');
+        $record = compact('sql', 'bindings', 'time', 'source');
+        $record['start'] = defined('RAKIT_START') ? ($start - RAKIT_START) * 1000 : 0;
+
+        static::$queries[] = $record;
     }
 
     /**

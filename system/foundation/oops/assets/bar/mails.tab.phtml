@@ -1,0 +1,21 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$mails = isset($this->data['mails']) ? $this->data['mails'] : [];
+$count = count($mails);
+?>
+<span title="Mails">
+    <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <g fill="#EC407A">
+            <path d="M40,8H8c-2.2,0-4,1.8-4,4v24c0,2.2,1.8,4,4,4h32c2.2,0,4-1.8,4-4V12C44,9.8,42.2,8,40,8z" />
+        </g>
+        <g fill="#FFF">
+            <path d="M24,26L8,15v-3l16,11l16-11v3L24,26z" />
+        </g>
+    </svg>
+    <span class="oops-label">Mails</span>
+    <span class="oops-badge"><?php echo $count; ?></span>
+</span>

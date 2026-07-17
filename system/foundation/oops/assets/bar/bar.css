@@ -1,7 +1,7 @@
 #oops-debug {
     display: none;
     direction: ltr;
-    line-height: 1.5;
+    line-height: 1.42;
 }
 
 body#oops-debug {
@@ -58,14 +58,14 @@ body#oops-debug {
 }
 
 #oops-debug a {
-    color: #3b8bba;
+    color: #2563eb;
     text-decoration: none;
 }
 
 #oops-debug a:hover,
 #oops-debug a:focus {
-    background-color: rgba(59, 139, 186, 0.1);
-    color: #2c6a8f;
+    background-color: rgba(37, 99, 235, 0.1);
+    color: #1e40af;
 }
 
 #oops-debug h2,
@@ -178,7 +178,7 @@ body#oops-debug {
 #oops-debug-bar .oops-brand svg {
     width: 15px;
     height: 15px;
-    fill: #3b8bba;
+    fill: #3b82f6;
 }
 
 /* Wadah dataset: menampung tiap request; hanya satu tampil sekaligus */
@@ -236,7 +236,7 @@ body#oops-debug {
     align-items: center;
     gap: 6px;
     padding: 0 12px;
-    color: #3b8bba;
+    color: #2563eb;
     font-weight: 600;
     border-left: 1px solid #dddddd;
     border-right: 1px solid #dddddd;
@@ -294,9 +294,92 @@ body#oops-debug {
 }
 
 #oops-debug-bar .oops-switcher-menu a.oops-active {
-    background: #eef4f8;
-    color: #3b8bba;
+    background: #e8f0fe;
+    color: #2563eb;
     font-weight: 600;
+}
+
+/* ============================================================
+ | Dropdown History (openhandler) — daftar request lampau di zona
+ | indikator kanan; menu terbuka ke atas seperti switcher.
+ * ============================================================ */
+#oops-debug-bar .oops-history {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+#oops-debug-bar .oops-history-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    min-width: 340px;
+    max-width: 90vw;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #cfcfcf;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    z-index: 40002;
+}
+
+#oops-debug-bar .oops-history.oops-open .oops-history-menu {
+    display: flex;
+}
+
+#oops-debug-bar .oops-history-head {
+    position: sticky;
+    top: 0;
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #999999;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ececec;
+}
+
+#oops-debug-bar .oops-history-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 12px;
+    color: #555555;
+    line-height: 1.3;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+#oops-debug-bar .oops-history-item:hover {
+    background: #efefef;
+    color: #000000;
+}
+
+#oops-debug-bar .oops-history-method {
+    flex: 0 0 auto;
+    min-width: 34px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+#oops-debug-bar .oops-history-uri {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 11px/1.4 Menlo, Monaco, Consolas, monospace;
+}
+
+#oops-debug-bar .oops-history-meta {
+    flex: 0 0 auto;
+    font-size: 10px;
+    color: #999999;
+    white-space: nowrap;
 }
 
 #oops-debug-bar .oops-tabs li {
@@ -310,7 +393,7 @@ body#oops-debug {
     align-items: center;
     gap: 5px;
     height: 100%;
-    padding: 0 10px;
+    padding: 0 9px;
     color: #888888;
     border-right: 1px solid #ececec;
     cursor: pointer;
@@ -328,18 +411,23 @@ body#oops-debug {
 #oops-debug-bar li > a.oops-active {
     background: #efefef;
     color: #000000;
-    box-shadow: inset 0 2px 0 #3b8bba;
+    box-shadow: inset 0 2px 0 #3b82f6;
 }
 
-/* Tab tanpa data (hitungan diawali "0") diredupkan agar tab berisi data
-   lebih menonjol (gaya Laravel Debugbar). Kembali penuh saat hover/aktif. */
+/* Tab tanpa data (hitungan "0") DISEMBUNYIKAN total — persis laravel-debugbar
+   v4 (bukan diredupkan). Menyembunyikan <a> mengempiskan <li>-nya. */
 #oops-debug-bar .oops-tabs li > a.oops-tab-empty {
-    opacity: 0.4;
+    display: none;
 }
 
-#oops-debug-bar .oops-tabs li > a.oops-tab-empty:hover,
-#oops-debug-bar .oops-tabs li > a.oops-tab-empty.oops-active {
-    opacity: 1;
+/* Tab RESPONSIF (persis laravel-debugbar): normalnya ikon + teks + badge,
+   tetapi bila deretan tab tak muat, bar.js menambah kelas .oops-icononly
+   sehingga teks label & meta disembunyikan (ikon + badge saja). Nama tab
+   tetap terbaca sebagai tooltip (title) yang di-set bar.js. Indikator kanan
+   (mis. hitungan history) tak terpengaruh karena rule khusus di .oops-tabs. */
+#oops-debug-bar.oops-icononly .oops-tabs .oops-label,
+#oops-debug-bar.oops-icononly .oops-tabs .oops-meta {
+    display: none;
 }
 
 /* Redam saturasi ikon tab agar terkesan netral/muted (gaya Laravel
@@ -369,6 +457,33 @@ body#oops-debug {
 
 #oops-debug-bar .oops-label {
     margin-left: 2px;
+}
+
+/* Badge hitungan pada tab (gaya php-debugbar): pil kecil setelah nama tab.
+   Varian .oops-badge-important (merah) untuk error/peringatan. */
+#oops-debug-bar .oops-badge {
+    display: inline-block;
+    min-width: 8px;
+    margin-left: 5px;
+    padding: 0 6px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 16px;
+    text-align: center;
+    color: #ffffff;
+    background: #9aa0a6;
+    border-radius: 9px;
+}
+
+#oops-debug-bar .oops-badge-important {
+    background: #d9534f;
+}
+
+/* Meta tambahan di tab (mis. "12 ms", "80%") — teks redup & kecil. */
+#oops-debug-bar .oops-meta {
+    margin-left: 4px;
+    font-size: 10px;
+    color: #999999;
 }
 
 /* Tombol toggle tema: tampilkan ikon sesuai tema aktif
@@ -441,7 +556,10 @@ body#oops-debug {
     text-align: left;
 }
 
-/* Panel aktif: naik di atas bar, lebar penuh */
+/* Panel aktif: naik di atas bar, lebar penuh. Tingginya mengikuti isi
+   (tidak dipatok) sehingga tab dengan sedikit konten tidak menyisakan ruang
+   kosong di bawah; dibatasi max-height agar konten banyak tetap scroll. Saat
+   pengguna men-drag resizer, bar.js menimpa tinggi + max-height secara inline. */
 #oops-debug .oops-panel.oops-mode-dock {
     display: block;
     position: fixed;
@@ -449,11 +567,10 @@ body#oops-debug {
     right: 0;
     bottom: 36px;
     width: 100%;
-    height: 45vh;
-    max-height: calc(100vh - 36px);
+    max-height: 45vh;
     padding: 12px 16px 16px;
     background: #ffffff;
-    border-top: 2px solid #3b8bba;
+    border-top: 2px solid #3b82f6;
     box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.15);
     overflow: auto;
     z-index: 39999;
@@ -477,7 +594,7 @@ body#oops-debug {
 
 #oops-debug-resizer:hover,
 #oops-debug-resizer.oops-dragging {
-    background: rgba(59, 139, 186, 0.4);
+    background: rgba(37, 99, 235, 0.4);
 }
 
 /* Mode window (popup) tetap butuh panel tampil */
@@ -486,10 +603,10 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug h1 {
-    font: normal normal 16px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-    color: #3b8bba;
-    margin: 0 0 10px;
-    padding: 0 30px 8px 0;
+    font: normal normal 14px/1.35 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #2563eb;
+    margin: 0 0 8px;
+    padding: 0 30px 6px 0;
     border-bottom: 1px solid #eeeeee;
     word-wrap: break-word;
 }
@@ -505,8 +622,8 @@ body#oops-debug .oops-panel {
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin: -12px -16px 12px;
-    padding: 10px 16px;
+    margin: -12px -16px 10px;
+    padding: 7px 16px;
     background: #ffffff;
     border-bottom: 1px solid #e6e6e6;
 }
@@ -546,7 +663,7 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug .oops-icons a:hover {
-    color: #3b8bba;
+    color: #2563eb;
 }
 
 #oops-debug .oops-mode-window {
@@ -584,7 +701,7 @@ body#oops-debug .oops-panel {
 
 /* Syntax Highlighting Updated for light mode */
 #oops-debug .oops-dump-array {
-    color: #0000ff;
+    color: #2563eb;
     font-weight: bold;
 }
 
@@ -637,9 +754,9 @@ body#oops-debug .oops-panel {
     margin: 11px 0 4px !important;
     padding: 3px 8px !important;
     font: 600 12px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    color: #2c6a8f !important;
-    background: #f1f5f8 !important;
-    border-left: 3px solid #3b8bba !important;
+    color: #1e40af !important;
+    background: #eef2fe !important;
+    border-left: 3px solid #3b82f6 !important;
     border-radius: 0 2px 2px 0 !important;
 }
 
@@ -677,7 +794,7 @@ body#oops-debug .oops-panel {
 
 #oops-debug .oops-panel tbody tr:hover td,
 #oops-debug .oops-panel table > tr:hover td {
-    background: #eef6fb;
+    background: #eef4ff;
 }
 
 /* HANYA tabel key-value (tanpa <th>): kolom label menyusut ke isi,
@@ -692,7 +809,7 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug .oops-panel table:not(:has(th)) tr:hover td:first-child {
-    background: #e7eef3;
+    background: #e4ecfb;
 }
 
 /* pre di dalam sel: nempel isi, tanpa kotak berat */
@@ -716,7 +833,64 @@ body#oops-debug .oops-panel {
 #oops-debug .oops-panel .oops-badge {
     padding: 1px 7px !important;
     font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
     border-radius: 3px !important;
+}
+
+/* Normalisasi warna badge SEMUA panel ke satu palet konsisten & sesuai tema
+   (gaya laravel-debugbar: tiap widget seragam). Menembus <style> inline tiap
+   panel yang sebelumnya memakai aksen biru (#2196F3) yang bentrok dgn tema. */
+#oops-debug .oops-panel .oops-badge-info {
+    background: #6c757d !important;
+}
+
+#oops-debug .oops-panel .oops-badge-success {
+    background: #5cb85c !important;
+}
+
+#oops-debug .oops-panel .oops-badge-warning {
+    background: #f0ad4e !important;
+}
+
+#oops-debug .oops-panel .oops-badge-error,
+#oops-debug .oops-panel .oops-badge-danger {
+    background: #d9534f !important;
+}
+
+/* Badge "method" (GET/POST/dsb.) memakai aksen merah tema agar menonjol
+   seragam di seluruh panel (Request, Routes, AJAX). */
+#oops-debug .oops-panel .oops-badge-method {
+    background: #2563eb !important;
+}
+
+/* Kotak "Current Route" (mode terang) — bawaannya biru (#e3f2fd/#2196F3);
+   selaraskan ke aksen merah tema. Mode gelap sudah ditangani di blok dark. */
+#oops-debug .oops-RoutesPanel .oops-current-info {
+    background: #eef2fe !important;
+    border-color: #3b82f6 !important;
+}
+
+#oops-debug .oops-RoutesPanel .oops-current-info h3 {
+    color: #1e40af !important;
+}
+
+#oops-debug.oops-theme-dark .oops-panel .oops-badge-method {
+    background: #4a6fd4 !important;
+}
+
+/* Tautan aksi/collapse di dalam panel: paksa ke aksen merah tema (menembus
+   inline color biru seperti #007bff pada panel DB N+1). */
+#oops-debug .oops-panel a.oops-toggle,
+#oops-debug .oops-panel .oops-inner-container a[style*="007bff"],
+#oops-debug .oops-panel .oops-inner-container a[style*="2196"] {
+    color: #2563eb !important;
+}
+
+#oops-debug.oops-theme-dark .oops-panel a.oops-toggle,
+#oops-debug.oops-theme-dark .oops-panel .oops-inner-container a[style*="007bff"],
+#oops-debug.oops-theme-dark .oops-panel .oops-inner-container a[style*="2196"] {
+    color: #7aa2f7 !important;
 }
 
 /* Baris "empty" lebih halus */
@@ -725,6 +899,93 @@ body#oops-debug .oops-panel {
     padding: 2px 0;
     color: #999999 !important;
     font-style: italic;
+}
+
+/* ============================================================
+ | Toolbar filter (kotak cari + tombol label) — gaya php-debugbar
+ | MessagesWidget / SQLQueriesWidget. Dipakai panel mana pun yang
+ | membungkus isinya dengan .oops-filterable.
+ * ============================================================ */
+#oops-debug .oops-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0 0 10px !important;
+    padding: 0 0 8px;
+    border-bottom: 1px solid #ececec;
+}
+
+#oops-debug .oops-filter-input {
+    flex: 1 1 180px;
+    min-width: 130px;
+    padding: 4px 9px !important;
+    font: 12px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333333;
+    background: #f6f7f8;
+    border: 1px solid #dcdcdc !important;
+    border-radius: 4px;
+}
+
+#oops-debug .oops-filter-input:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #3b82f6 !important;
+}
+
+#oops-debug .oops-filter-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+#oops-debug .oops-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px !important;
+    font: 600 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #888888;
+    background: #f1f1f1;
+    border: 1px solid #dcdcdc !important;
+    border-radius: 12px;
+    cursor: pointer;
+    opacity: 0.5;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+}
+
+#oops-debug .oops-filter-tag.oops-active {
+    opacity: 1;
+    color: #333333;
+}
+
+#oops-debug .oops-filter-tag::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--oops-tag, #999999);
+}
+
+#oops-debug .oops-filter-tag .oops-tag-count {
+    padding: 0 6px;
+    font-size: 10px;
+    line-height: 15px;
+    color: #ffffff;
+    background: var(--oops-tag, #999999);
+    border-radius: 8px;
+}
+
+#oops-debug .oops-filter-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: #999999;
+    white-space: nowrap;
 }
 
 @media print {
@@ -750,7 +1011,7 @@ body#oops-debug .oops-panel {
 }
 
 #oops-debug *::-webkit-scrollbar-thumb:hover {
-    background: #0066cc;
+    background: #2563eb;
 }
 
 /* Dukungan untuk Firefox */
@@ -773,13 +1034,13 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark a {
-    color: #cf7b74;
+    color: #7aa2f7;
 }
 
 #oops-debug.oops-theme-dark a:hover,
 #oops-debug.oops-theme-dark a:focus {
-    background-color: rgba(224, 82, 75, 0.14);
-    color: #e0968f;
+    background-color: rgba(37, 99, 235, 0.14);
+    color: #9bb8fb;
 }
 
 #oops-debug.oops-theme-dark table {
@@ -828,7 +1089,21 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug-bar.oops-theme-dark .oops-brand svg {
-    fill: #b34a44;
+    fill: #4a6fd4;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-badge {
+    background: #3a4155;
+    color: #e7ebf2;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-badge-important {
+    background: #d9534f;
+    color: #ffffff;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-meta {
+    color: #7a8290;
 }
 
 #oops-debug-bar.oops-theme-dark li > a,
@@ -847,7 +1122,7 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug-bar.oops-theme-dark li > a.oops-active {
-    box-shadow: inset 0 2px 0 #b34a44;
+    box-shadow: inset 0 2px 0 #4a6fd4;
 }
 
 #oops-debug-bar.oops-theme-dark .oops-indicator {
@@ -862,7 +1137,7 @@ body#oops-debug.oops-theme-dark {
 
 #oops-debug-bar.oops-theme-dark .oops-switcher-btn {
     border-color: #262a33;
-    color: #cf7b74;
+    color: #7aa2f7;
 }
 
 #oops-debug-bar.oops-theme-dark .oops-switcher-btn:hover,
@@ -886,8 +1161,38 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug-bar.oops-theme-dark .oops-switcher-menu a.oops-active {
-    background: #2a1d20;
-    color: #cf7b74;
+    background: #22304a;
+    color: #7aa2f7;
+}
+
+/* --- Dropdown History (mode gelap) --- */
+#oops-debug-bar.oops-theme-dark .oops-history-menu {
+    background: #16181f;
+    border-color: #262a33;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-history-head {
+    color: #8b93a4;
+    background: #1b1e26;
+    border-bottom-color: #262a33;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-history-item {
+    color: #c9ced8;
+    border-bottom-color: #1b1e26;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-history-item:hover {
+    background: #1b1e26;
+    color: #ffffff;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-history-method {
+    color: #7aa2f7;
+}
+
+#oops-debug-bar.oops-theme-dark .oops-history-meta {
+    color: #8b93a4;
 }
 
 /* --- Panel dok --- */
@@ -898,7 +1203,7 @@ body#oops-debug.oops-theme-dark {
 
 #oops-debug.oops-theme-dark .oops-panel.oops-mode-dock {
     background: #0e0f13;
-    border-top-color: #5e3532;
+    border-top-color: #2f4a7d;
     box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.55);
 }
 
@@ -913,7 +1218,7 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark h1 {
-    color: #cf7b74;
+    color: #7aa2f7;
     border-bottom-color: #232733;
 }
 
@@ -925,9 +1230,9 @@ body#oops-debug.oops-theme-dark {
 
 /* Header seksi panel → latar gelap tipis + aksen biru (senada mode terang). */
 #oops-debug.oops-theme-dark .oops-panel h2 {
-    color: #cf7b74 !important;
+    color: #7aa2f7 !important;
     background: #1b1e26 !important;
-    border-left-color: #b34a44 !important;
+    border-left-color: #4a6fd4 !important;
 }
 
 #oops-debug.oops-theme-dark .oops-panel h3 {
@@ -940,9 +1245,9 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark .oops-DumpPanel .oops-dump-title {
-    color: #cf7b74;
+    color: #7aa2f7;
     background: #1b1e26;
-    border-left-color: #b34a44;
+    border-left-color: #4a6fd4;
 }
 
 /* Timeline (dark): jalur bar & chip ringkasan senada tema gelap. */
@@ -956,7 +1261,7 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-chip strong {
-    color: #cf7b74;
+    color: #7aa2f7;
 }
 
 /* Garis tabel: LEMBUT (samakan spesifisitas dgn rule compact .oops-panel td
@@ -982,7 +1287,7 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark .oops-RoutesPanel .oops-current-info h3 {
-    color: #cf7b74 !important;
+    color: #7aa2f7 !important;
 }
 
 /* Routes: teks URI/Action/Name (bawaan gelap) → terang agar terbaca. */
@@ -1056,7 +1361,7 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark .oops-panel table:not(:has(th)) tr:hover td:first-child {
-    background: #2c2226 !important;
+    background: #26304a !important;
 }
 
 /* Kotak ringkasan/summary bawaan (berlatar putih) → gelap elevated */
@@ -1070,7 +1375,7 @@ body#oops-debug.oops-theme-dark {
 }
 
 #oops-debug.oops-theme-dark .oops-icons a:hover {
-    color: #cf7b74;
+    color: #7aa2f7;
 }
 
 #oops-debug.oops-theme-dark .oops-empty {
@@ -1094,7 +1399,7 @@ body#oops-debug.oops-theme-dark {
 /* --- Warna dump: selaras dengan palet halaman error --- */
 #oops-debug.oops-theme-dark .oops-dump-array,
 #oops-debug.oops-theme-dark .oops-dump-object {
-    color: #cf7b74;
+    color: #7aa2f7;
 }
 
 #oops-debug.oops-theme-dark .oops-dump-number {
@@ -1113,4 +1418,30 @@ body#oops-debug.oops-theme-dark {
 #oops-debug.oops-theme-dark .oops-dump-visibility,
 #oops-debug.oops-theme-dark .oops-dump-hash {
     color: #8b93a4;
+}
+
+/* --- Toolbar filter (mode gelap) --- */
+#oops-debug.oops-theme-dark .oops-toolbar {
+    border-bottom-color: #232733;
+}
+
+#oops-debug.oops-theme-dark .oops-filter-input {
+    color: #c9ced8;
+    background: #16181f;
+    border-color: #262a33 !important;
+}
+
+#oops-debug.oops-theme-dark .oops-filter-input:focus {
+    background: #1b1e26;
+    border-color: #4a6fd4 !important;
+}
+
+#oops-debug.oops-theme-dark .oops-filter-tag {
+    color: #9aa2b1;
+    background: #1b1e26;
+    border-color: #262a33 !important;
+}
+
+#oops-debug.oops-theme-dark .oops-filter-tag.oops-active {
+    color: #e7ebf2;
 }

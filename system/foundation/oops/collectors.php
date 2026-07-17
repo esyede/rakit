@@ -23,7 +23,20 @@ class Collectors
         'cache' => [],
         'logs' => [],
         'timers' => [],
+        'exceptions' => [],
+        'deprecations' => [],
+        'http' => [],
+        'mails' => [],
     ];
+
+    /**
+     * Cached config('debugger.collectors') value and its loaded flag.
+     *
+     * @var array|null
+     */
+    private static $collectorConfig = null;
+    private static $collectorConfigLoaded = false;
+    private static $resolvingConfig = false;
 
     /**
      * Cache operation tracking.
@@ -47,6 +60,44 @@ class Collectors
     private static $trackEvents = false;
 
     /**
+     * Determine whether a collector is enabled via config('debugger.collectors').
+     * Absent config (or an absent key) defaults to enabled, so existing setups
+     * keep every panel unless a collector is explicitly turned off.
+     *
+     * @param string $name
+     *
+     * @return bool
+     */
+    public static function enabled($name)
+    {
+        // Cache the config lookup, but ONLY once it resolves to a real array.
+        // Early collector calls happen during boot before the config system is
+        // ready (config() returns null then) — caching that null would poison
+        // every later check, so we retry until a valid array is available. The
+        // $resolvingConfig guard prevents infinite recursion if resolving
+        // config() emits a notice that re-enters a collector (config() calls on
+        // some PHP versions surface a deprecation the debug bar itself catches).
+        if (!static::$collectorConfigLoaded && !static::$resolvingConfig) {
+            static::$resolvingConfig = true;
+            $cfg = function_exists('config') ? config('debugger.collectors', null) : [];
+            static::$resolvingConfig = false;
+
+            if (is_array($cfg)) {
+                static::$collectorConfig = $cfg;
+                static::$collectorConfigLoaded = true;
+            }
+        }
+
+        $collectors = static::$collectorConfig;
+
+        if (!is_array($collectors)) {
+            return true;
+        }
+
+        return !isset($collectors[$name]) || false !== $collectors[$name];
+    }
+
+    /**
      * Initialize all collectors.
      *
      * @return void
@@ -60,6 +111,10 @@ class Collectors
         static::$data['events'] = [];
         static::$data['logs'] = [];
         static::$data['timers'] = [];
+        static::$data['exceptions'] = [];
+        static::$data['deprecations'] = [];
+        static::$data['http'] = [];
+        static::$data['mails'] = [];
         static::$data['cache'] = [
             'driver' => config('cache.driver', 'file'),
             'config' => [],
@@ -222,7 +277,7 @@ class Collectors
      */
     public static function trackCacheOperation($type, $key, $value = null, $time = 0, array $extra = [])
     {
-        if (!static::$trackCache) {
+        if (!static::$trackCache || !static::enabled('cache')) {
             return;
         }
 
@@ -258,12 +313,13 @@ class Collectors
      * @param array  $data
      * @param float  $time
      * @param int    $size
+     * @param float  $start Offset mulai render dari awal request (ms)
      *
      * @return void
      */
-    public static function trackView($name, $path = null, array $data = [], $time = 0, $size = 0)
+    public static function trackView($name, $path = null, array $data = [], $time = 0, $size = 0, $start = 0)
     {
-        if (!static::$trackViews) {
+        if (!static::$trackViews || !static::enabled('views')) {
             return;
         }
 
@@ -273,6 +329,7 @@ class Collectors
             'data' => $data,
             'time' => $time,
             'size' => $size,
+            'start' => $start,
         ];
     }
 
@@ -287,7 +344,7 @@ class Collectors
      */
     public static function trackEvent($name, array $data = [], $time = null)
     {
-        if (!static::$trackEvents) {
+        if (!static::$trackEvents || !static::enabled('events')) {
             return;
         }
 
@@ -312,6 +369,10 @@ class Collectors
      */
     public static function addLog($level, $message, array $context = [], $file = null, $line = null)
     {
+        if (!static::enabled('messages')) {
+            return;
+        }
+
         static::$data['logs'][] = [
             'id' => uniqid('log_'),
             'level' => $level,
@@ -334,7 +395,146 @@ class Collectors
      */
     public static function addTimer($name, $duration, $start = 0)
     {
+        if (!static::enabled('timeline')) {
+            return;
+        }
+
         static::$data['timers'][$name] = ['duration' => $duration, 'start' => $start];
+    }
+
+    /**
+     * Record a thrown exception (caught-and-logged or fatal) so the debug bar
+     * can list it on a dedicated Exceptions panel. Identical exceptions (same
+     * class/file/line/message) are collapsed with an occurrence counter.
+     *
+     * @param \Exception|\Throwable $e
+     *
+     * @return void
+     */
+    public static function addException($e)
+    {
+        if (!static::enabled('exceptions')) {
+            return;
+        }
+
+        if (!($e instanceof \Exception) && !($e instanceof \Throwable)) {
+            return;
+        }
+
+        $class = get_class($e);
+        $file = $e->getFile();
+        $line = $e->getLine();
+        $message = $e->getMessage();
+        $key = $class . '|' . $file . '|' . $line . '|' . $message;
+
+        if (isset(static::$data['exceptions'][$key])) {
+            static::$data['exceptions'][$key]['count']++;
+            return;
+        }
+
+        $trace = [];
+        foreach ($e->getTrace() as $frame) {
+            $trace[] = [
+                'file' => isset($frame['file']) ? $frame['file'] : null,
+                'line' => isset($frame['line']) ? $frame['line'] : null,
+                'function' => isset($frame['function']) ? $frame['function'] : '',
+                'class' => isset($frame['class']) ? $frame['class'] : '',
+                'type' => isset($frame['type']) ? $frame['type'] : '',
+            ];
+        }
+
+        static::$data['exceptions'][$key] = [
+            'class' => $class,
+            'message' => $message,
+            'code' => $e->getCode(),
+            'file' => $file,
+            'line' => $line,
+            'trace' => $trace,
+            'count' => 1,
+        ];
+    }
+
+    /**
+     * Record a PHP deprecation notice (E_DEPRECATED / E_USER_DEPRECATED) on the
+     * dedicated Deprecations panel. Identical notices (same file/line/message)
+     * are collapsed with an occurrence counter — invaluable when targeting a
+     * wide PHP version range.
+     *
+     * @param string $message
+     * @param string $file
+     * @param int    $line
+     * @param int    $severity
+     *
+     * @return void
+     */
+    public static function addDeprecation($message, $file = null, $line = null, $severity = E_DEPRECATED)
+    {
+        if (!static::enabled('deprecations')) {
+            return;
+        }
+
+        $key = $file . '|' . $line . '|' . $message;
+
+        if (isset(static::$data['deprecations'][$key])) {
+            static::$data['deprecations'][$key]['count']++;
+            return;
+        }
+
+        static::$data['deprecations'][$key] = [
+            'message' => $message,
+            'file' => $file,
+            'line' => $line,
+            'type' => (E_USER_DEPRECATED === $severity) ? 'E_USER_DEPRECATED' : 'E_DEPRECATED',
+            'count' => 1,
+        ];
+    }
+
+    /**
+     * Record an outgoing HTTP request made through System\Curl so the debug bar
+     * can show a HTTP client panel (method, url, status, time, size).
+     *
+     * @param string      $method
+     * @param string      $url
+     * @param int         $status
+     * @param float       $duration Duration in milliseconds
+     * @param int         $size     Response size in bytes
+     * @param string|null $error
+     *
+     * @return void
+     */
+    public static function trackHttp($method, $url, $status, $duration, $size = 0, $error = null, array $headers = [], $body = null)
+    {
+        if (!static::enabled('http')) {
+            return;
+        }
+
+        static::$data['http'][] = [
+            'method' => strtoupper($method),
+            'url' => $url,
+            'status' => (int) $status,
+            'duration' => (float) $duration,
+            'size' => (int) $size,
+            'error' => $error,
+            'headers' => $headers,
+            'body' => is_string($body) ? $body : null,
+        ];
+    }
+
+    /**
+     * Record a sent email so the debug bar can show a Mails panel with the
+     * recipients, subject, and a body preview.
+     *
+     * @param array $mail
+     *
+     * @return void
+     */
+    public static function trackMail(array $mail)
+    {
+        if (!static::enabled('mails')) {
+            return;
+        }
+
+        static::$data['mails'][] = $mail;
     }
 
     /**
@@ -369,9 +569,13 @@ class Collectors
                 }
                 return ['cache' => static::$data['cache']];
 
-            case 'views':    return ['views' => static::$data['views']];
-            case 'timeline': return ['timers' => static::$data['timers']];
-            case 'events':   return ['events' => static::$data['events']];
+            case 'views':      return ['views' => static::$data['views']];
+            case 'timeline':   return ['timers' => static::$data['timers']];
+            case 'events':     return ['events' => static::$data['events']];
+            case 'exceptions':   return ['exceptions' => array_values(static::$data['exceptions'])];
+            case 'deprecations': return ['deprecations' => array_values(static::$data['deprecations'])];
+            case 'httpclient':   return ['http' => static::$data['http']];
+            case 'mails':        return ['mails' => static::$data['mails']];
             default:         return isset(static::$data[$panel]) ? static::$data[$panel] : [];
         }
     }
@@ -440,7 +644,14 @@ class Collectors
             'cache' => [],
             'logs' => [],
             'timers' => [],
+            'exceptions' => [],
+            'deprecations' => [],
+            'http' => [],
+            'mails' => [],
         ];
+
+        static::$collectorConfigLoaded = false;
+        static::$collectorConfig = null;
 
         static::initialize();
     }

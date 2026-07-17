@@ -7,193 +7,357 @@ defined('DS') or exit('No direct access.');
 use System\Database;
 
 $queries = Database::profile();
+
+// Ringkasan: total waktu + deteksi query duplikat (SQL + bindings identik).
+$totalTime = 0;
+$signatures = [];
+foreach ($queries as $idx => $query) {
+    $totalTime += isset($query['time']) ? (float) $query['time'] : 0;
+    $sig = (isset($query['sql']) ? $query['sql'] : '')
+        . '|' . serialize(isset($query['bindings']) ? $query['bindings'] : []);
+    if (!isset($signatures[$sig])) {
+        $signatures[$sig] = [];
+    }
+    $signatures[$sig][] = $idx;
+}
+
+$dupOccurrences = [];
+$dupTotal = 0;
+foreach ($signatures as $idxs) {
+    if (count($idxs) > 1) {
+        foreach ($idxs as $ix) {
+            $dupOccurrences[$ix] = count($idxs);
+        }
+        $dupTotal += count($idxs);
+    }
+}
+$uniqueCount = count($queries) - $dupTotal;
+
+// Nama koneksi default (laravel-debugbar menampilkan koneksi tiap query).
+$connName = 'default';
+try {
+    if (function_exists('config')) {
+        $connName = (string) config('database.default', 'default');
+    }
+} catch (\Throwable $e) {
+    // abaikan
+} catch (\Exception $e) {
+    // abaikan
+}
+
+// Ubah "path/ke/file.php:22" menjadi "file.php#22" (gaya laravel).
+$shortCaller = function ($source) {
+    if (!$source) {
+        return '';
+    }
+    if (preg_match('#([^/\\\\]+):(\d+)$#', $source, $m)) {
+        return $m[1] . '#' . $m[2];
+    }
+    return basename($source);
+};
 ?>
 <style class="oops-debug">
-    #oops-debug td.oops-db-panel-sql {
-        background: white !important
+    /* Panel Queries meniru laravel-debugbar: baris status di atas, lalu daftar
+       query (blok SQL + baris meta: copy, durasi, koneksi, caller). */
+    #oops-debug .oops-DbPanel .oops-sql-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #666;
     }
 
-    #oops-debug .oops-db-panel-source {
-        display: inline-block;
-        margin-top: 4px;
-        font-family: Menlo, Monaco, Consolas, monospace;
+    #oops-debug .oops-DbPanel .oops-sql-status strong {
+        color: #333;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-showdup {
+        margin-left: 8px;
+        color: #2563eb;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-showdup.oops-on {
+        font-weight: bold;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-item {
+        padding: 8px 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-item:nth-child(even) {
+        background: #fbfbfc;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-code {
+        font: 12px/1.5 Menlo, Monaco, Consolas, monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 5px;
         font-size: 11px;
-        color: #999 !important;
+        color: #999;
     }
 
-    #oops-debug .oops-db-panel-hint code {
-        color: #c22 !important
+    #oops-debug .oops-DbPanel .oops-sql-meta .oops-sql-caller {
+        margin-left: auto;
+        font-family: Menlo, Monaco, Consolas, monospace;
     }
 
-    #oops-debug .oops-db-panel-hint {
-        margin-top: 15px
+    #oops-debug .oops-DbPanel .oops-sql-caller a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted currentColor;
     }
 
-    #oops-debug .oops-db-panel-explain {
-        margin-top: 15px
+    #oops-debug .oops-DbPanel .oops-sql-caller a:hover {
+        color: #2563eb;
     }
 
-    #oops-debug .oops-db-panel-time {
-        background-color: green;
-        color: white;
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-caller a:hover {
+        color: #7aa2f7;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-copy {
+        cursor: pointer;
+        color: #999;
+        text-decoration: none;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-copy:hover {
+        color: #2563eb;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-copy.oops-copied {
+        color: #5cb85c;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-dur {
+        font-weight: bold;
+        color: #666;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-tag {
+        padding: 1px 6px;
+        border-radius: 8px;
+        font-weight: bold;
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 10px;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-tag-dup {
+        background: #f0ad4e;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-tag-n1 {
+        background: #d9534f;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-hints {
+        margin-top: 8px;
+        border-left: 3px solid #3b82f6;
+        padding-left: 10px;
+    }
+
+    #oops-debug .oops-DbPanel .oops-sql-hint {
+        padding: 2px 0;
+        font-size: 11px;
+    }
+
+    #oops-debug .oops-DbPanel .oops-hint-badge {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 3px;
+        color: #fff;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 10px;
+        margin-right: 6px;
+    }
+
+    /* Mode gelap */
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-status {
+        color: #9aa2b1;
+    }
+
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-status strong {
+        color: #e7ebf2;
+    }
+
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-item {
+        border-bottom-color: #232733;
+    }
+
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-item:nth-child(even) {
+        background: #14161d;
+    }
+
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-showdup {
+        color: #7aa2f7;
+    }
+
+    #oops-debug.oops-theme-dark .oops-DbPanel .oops-sql-hints {
+        border-left-color: #4a6fd4;
     }
 </style>
 
 <h1>DB Queries</h1>
 
-<div class="oops-inner">
-    <div class="oops-inner-container">
+<div class="oops-inner oops-DbPanel">
+    <div class="oops-inner-container oops-filterable">
         <?php if (count($queries) > 0) : ?>
-            <?php
-            // Detect N+1 queries
-            $n1Problems = Defaults::detectN1Queries($queries);
-            ?>
+            <?php $n1Problems = Defaults::detectN1Queries($queries); ?>
+
+            <div class="oops-sql-status">
+                <span>
+                    <strong><?php echo count($queries); ?></strong> statement<?php echo count($queries) === 1 ? '' : 's'; ?> executed<?php if ($dupTotal > 0) : ?>, <strong><?php echo $dupTotal; ?></strong> of which <?php echo $dupTotal === 1 ? 'was a duplicate' : 'were duplicates'; ?>, <strong><?php echo $uniqueCount; ?></strong> unique<?php endif; ?>.
+                    <?php if ($dupTotal > 0) : ?>
+                        <a class="oops-sql-showdup">Show only duplicated</a>
+                    <?php endif; ?>
+                </span>
+                <span><strong><?php echo number_format($totalTime, 2); ?> ms</strong></span>
+            </div>
+
+            <div class="oops-toolbar">
+                <input type="text" class="oops-filter-input" placeholder="Search queries&hellip;" spellcheck="false" autocomplete="off">
+                <?php if ($dupTotal > 0) : ?>
+                    <span class="oops-filter-tags">
+                        <button type="button" class="oops-filter-tag oops-active" data-oops-tag="duplicate" style="--oops-tag: #f0ad4e;">
+                            duplicate <span class="oops-tag-count"><?php echo $dupTotal; ?></span>
+                        </button>
+                        <button type="button" class="oops-filter-tag oops-active" data-oops-tag="unique" style="--oops-tag: #5cb85c;">
+                            unique <span class="oops-tag-count"><?php echo $uniqueCount; ?></span>
+                        </button>
+                    </span>
+                <?php endif; ?>
+                <span class="oops-filter-count"></span>
+            </div>
 
             <?php if (count($n1Problems) > 0) : ?>
-                <div style="background: #fff3cd; border: 2px solid #f0ad4e; border-radius: 5px; padding: 15px; margin-bottom: 20px;">
-                    <h3 style="margin-top: 0; color: #856404;">
-                        ⚠️ N+1 Query Problem Detected!
-                    </h3>
+                <div style="background: #fff3cd; border: 2px solid #f0ad4e; border-radius: 5px; padding: 15px; margin-bottom: 15px;">
+                    <h3 style="margin-top: 0; color: #856404;">⚠️ N+1 Query Problem Detected!</h3>
                     <p style="margin: 10px 0;">
                         Found <strong><?php echo count($n1Problems); ?></strong> potential N+1 query pattern<?php echo count($n1Problems) > 1 ? 's' : ''; ?>.
-                        These queries could be optimized for better performance.
                     </p>
-
                     <?php foreach ($n1Problems as $idx => $problem) : ?>
                         <div style="background: white; border: 1px solid #ddd; border-radius: 3px; padding: 12px; margin: 10px 0;">
                             <div style="display: flex; align-items: center; margin-bottom: 8px;">
                                 <span style="background: <?php echo $problem['severity'] === 'error' ? '#d9534f' : '#f0ad4e'; ?>; color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-right: 10px;">
                                     <?php echo htmlspecialchars($problem['severity']); ?>
                                 </span>
-                                <strong style="color: #333;">
-                                    Query executed <?php echo $problem['count']; ?> times
-                                </strong>
+                                <strong style="color: #333;">Query executed <?php echo $problem['count']; ?> times</strong>
                                 <span style="margin-left: auto; color: #999;">
-                                    Total: <?php echo $problem['total_time']; ?>ms
-                                    | Potential savings: ~<?php echo $problem['time_saved']; ?>ms (<?php echo $problem['percentage']; ?>%)
+                                    Total: <?php echo $problem['total_time']; ?>ms | Potential savings: ~<?php echo $problem['time_saved']; ?>ms (<?php echo $problem['percentage']; ?>%)
                                 </span>
                             </div>
-
                             <div style="background: #f8f9fa; padding: 8px; border-radius: 3px; font-family: monospace; font-size: 12px; margin: 8px 0;">
                                 <?php echo htmlspecialchars($problem['pattern']); ?>
                             </div>
-
-                            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-n1-details-<?php echo $idx; ?>" style="color: #007bff; cursor: pointer; text-decoration: underline;">
-                                Show solution & details
+                            <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-n1-details-<?php echo $idx; ?>" style="cursor: pointer; text-decoration: underline;">
+                                Show solution &amp; details
                             </a>
-
-                            <div class="oops-collapsed oops-n1-details-<?php echo $idx; ?>" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-left: 3px solid #007bff;">
+                            <div class="oops-collapsed oops-n1-details-<?php echo $idx; ?>" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-left: 3px solid #2563eb;">
                                 <?php echo Defaults::getN1Suggestion($problem['pattern'], $problem['count']); ?>
-
-                                <details style="margin-top: 10px;">
-                                    <summary style="cursor: pointer; color: #666;">Show all <?php echo $problem['count']; ?> queries</summary>
-                                    <div style="margin-top: 8px; max-height: 200px; overflow-y: auto;">
-                                        <?php foreach ($problem['queries'] as $qIdx => $q) : ?>
-                                            <div style="font-size: 11px; padding: 4px; border-bottom: 1px solid #ddd;">
-                                                #<?php echo ($q['index'] + 1); ?>: <?php echo htmlspecialchars(substr($q['sql'], 0, 100)); ?>...
-                                                <span style="color: #999;">(<?php echo $q['time']; ?>ms)</span>
-                                                <?php if (!empty($q['source'])) : ?>
-                                                    <span class="oops-db-panel-source" style="margin-left: 6px;"><?php echo htmlspecialchars($q['source']); ?></span>
-                                                <?php endif; ?>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
-                                </details>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 
-            <table>
-                <tr>
-                    <th>No.</th>
-                    <th>Queries</th>
-                    <th>Time</th>
-                    <th>Hints</th>
-                </tr>
-                <?php
-                $i = 0;
-                // Build index map untuk highlight N+1 queries
-                $n1QueryIndexes = [];
-                foreach ($n1Problems as $problem) {
-                    foreach ($problem['queries'] as $q) {
-                        $n1QueryIndexes[$q['index']] = $problem['severity'];
-                    }
+            <?php
+            $n1QueryIndexes = [];
+            foreach ($n1Problems as $problem) {
+                foreach ($problem['queries'] as $q) {
+                    $n1QueryIndexes[$q['index']] = $problem['severity'];
                 }
+            }
+            ?>
 
-                foreach ($queries as $query) :
-                    $isN1 = isset($n1QueryIndexes[$i]);
-                    $n1Severity = $isN1 ? $n1QueryIndexes[$i] : null;
+            <ul class="oops-sql-list">
+                <?php foreach ($queries as $queryIndex => $query) :
+                    $isN1 = isset($n1QueryIndexes[$queryIndex]);
+                    $isDup = isset($dupOccurrences[$queryIndex]);
+                    $hints = Defaults::sqlHints($query['sql']);
+                    $source = isset($query['source']) ? $query['source'] : '';
+                    $caller = $shortCaller($source);
+                    $callerFile = '';
+                    $callerLine = 1;
+                    if ($source && preg_match('#^(.*):(\d+)$#', $source, $sm)) {
+                        $callerFile = $sm[1];
+                        $callerLine = (int) $sm[2];
+                    }
+                    $editUri = $callerFile ? Helpers::editorUri($callerFile, $callerLine) : null;
+                    $bindStr = '';
+                    if (!empty($query['bindings'])) {
+                        $bindStr = implode(' ', array_map('strval', (array) $query['bindings']));
+                    }
+                    $search = strtolower((isset($query['sql']) ? $query['sql'] : '') . ' ' . $bindStr . ' ' . $source);
                 ?>
-                    <?php $hints = Defaults::sqlHints($query['sql']) ?>
-                    <tr<?php if ($isN1) : ?> style="background: <?php echo $n1Severity === 'error' ? '#ffe6e6' : '#fff3cd'; ?>;"<?php endif; ?>>
-                        <td width="5">
-                            <?php echo ++$i; ?>.
+                    <li class="oops-sql-item oops-filter-item" data-oops-tag="<?php echo $isDup ? 'duplicate' : 'unique'; ?>" data-oops-search="<?php echo Helpers::escapeHtml($search) ?>">
+                        <div class="oops-sql-code"><code><?php echo Defaults::sqlHighlight($query['sql'], $query['bindings']) ?></code></div>
+                        <div class="oops-sql-meta">
+                            <a class="oops-sql-copy" title="Copy query to clipboard">&#8862; copy</a>
+                            <span class="oops-sql-dur"><?php echo $query['time'] ?> ms</span>
+                            <span class="oops-sql-conn" title="Connection">&#128190; <?php echo Helpers::escapeHtml($connName) ?></span>
                             <?php if ($isN1) : ?>
-                                <span style="color: <?php echo $n1Severity === 'error' ? '#d9534f' : '#f0ad4e'; ?>; font-weight: bold;" title="Part of N+1 query problem">⚠️</span>
+                                <span class="oops-sql-tag oops-sql-tag-n1" title="Part of an N+1 query problem">N+1</span>
                             <?php endif; ?>
-                        </td>
-                        <td>
-                            <code><?php echo Defaults::sqlHighlight($query['sql'], $query['bindings']) ?></code>
-                            <?php if (!empty($query['source'])) : ?>
-                                <div class="oops-db-panel-source" title="Lokasi kode yang menjalankan query ini">
-                                    <?php echo Helpers::escapeHtml($query['source']) ?>
-                                </div>
+                            <?php if ($isDup) : ?>
+                                <span class="oops-sql-tag oops-sql-tag-dup" title="SQL &amp; bindings identik dijalankan <?php echo $dupOccurrences[$queryIndex]; ?> kali">&#215;<?php echo $dupOccurrences[$queryIndex]; ?></span>
                             <?php endif; ?>
-                        </td>
-                        <td><?php echo $query['time'] ?>ms</td>
-                        <td colspan="2">
                             <?php if (count($hints) > 0) : ?>
-                                <a class="oops-toggle oops-collapsed" data-oops-ref="^tr .oops-db-panel-hint">
+                                <a class="oops-toggle oops-collapsed" data-oops-ref="^li .oops-sql-hints">
                                     <strong><?php echo count($hints); ?></strong> hint<?php echo count($hints) > 1 ? 's' : ''; ?>
                                 </a>
-                                <?php $j = 0 ?>
-                                <table class="oops-collapsed oops-db-panel-hint" id="">
-                                    <tbody>
-                                        <?php foreach ($hints as $hint) : ?>
-                                            <?php
-                                            // Support both old string format and new array format
-                                            if (is_array($hint)) {
-                                                $severity = isset($hint['severity']) ? $hint['severity'] : 'info';
-                                                $category = isset($hint['category']) ? $hint['category'] : 'general';
-                                                $message = isset($hint['message']) ? $hint['message'] : '';
-
-                                                // Severity badge colors
-                                                $severityColors = [
-                                                    'error' => '#d9534f',
-                                                    'warning' => '#f0ad4e',
-                                                    'info' => '#5bc0de',
-                                                ];
-                                                $badgeColor = isset($severityColors[$severity]) ? $severityColors[$severity] : '#999';
-                                            } else {
-                                                // Backward compatibility with old string format
-                                                $severity = 'info';
-                                                $category = 'general';
-                                                $message = $hint;
-                                                $badgeColor = '#5bc0de';
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td width="5"><?php echo ++$j; ?>.</td>
-                                                <td width="80">
-                                                    <span style="background: <?php echo $badgeColor; ?>; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold; text-transform: uppercase;">
-                                                        <?php echo htmlspecialchars($severity); ?>
-                                                    </span>
-                                                    <small style="color: #999; margin-left: 5px;">[<?php echo htmlspecialchars($category); ?>]</small>
-                                                </td>
-                                                <td><?php echo $message; ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            <?php else : ?>
-                                <span style="color: #5cb85c;">✓ No issues</span>
-                            <?php endif ?>
-                        </td>
-                    </tr>
+                            <?php endif; ?>
+                            <?php if ('' !== $caller) : ?>
+                                <span class="oops-sql-caller" title="<?php echo Helpers::escapeHtml($source) ?>"><?php if ($editUri) : ?><a href="<?php echo Helpers::escapeHtml($editUri) ?>"><?php echo Helpers::escapeHtml($caller) ?></a><?php else : ?><?php echo Helpers::escapeHtml($caller) ?><?php endif; ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (count($hints) > 0) : ?>
+                            <div class="oops-sql-hints oops-collapsed">
+                                <?php foreach ($hints as $hint) :
+                                    if (is_array($hint)) {
+                                        $severity = isset($hint['severity']) ? $hint['severity'] : 'info';
+                                        $category = isset($hint['category']) ? $hint['category'] : 'general';
+                                        $message = isset($hint['message']) ? $hint['message'] : '';
+                                    } else {
+                                        $severity = 'info';
+                                        $category = 'general';
+                                        $message = $hint;
+                                    }
+                                    $severityColors = ['error' => '#d9534f', 'warning' => '#f0ad4e', 'info' => '#6c757d'];
+                                    $badgeColor = isset($severityColors[$severity]) ? $severityColors[$severity] : '#999';
+                                ?>
+                                    <div class="oops-sql-hint">
+                                        <span class="oops-hint-badge" style="background: <?php echo $badgeColor; ?>;"><?php echo htmlspecialchars($severity); ?></span>
+                                        <small style="opacity: .7;">[<?php echo htmlspecialchars($category); ?>]</small>
+                                        <?php echo $message; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </li>
                 <?php endforeach ?>
-            </table>
+                <li class="oops-empty oops-filter-empty" style="display: none; list-style: none;">No queries match your filter.</li>
+            </ul>
         <?php else : ?>
             <b>No query data.</b>
         <?php endif; ?>

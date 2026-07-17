@@ -9,6 +9,8 @@ class Bar
     private $panels = [];
     private $useSession = false;
     private $contentId;
+    private $storage;
+    private $served = false;
 
     /**
      * Add a panel.
@@ -70,6 +72,13 @@ class Bar
      */
     public function render()
     {
+        // Halaman riwayat (open.<id>) sudah mengeluarkan HTML sendiri lalu
+        // dispatch() memanggil exit; cegah shutdown handler menempelkan bar
+        // kedua untuk request ini.
+        if ($this->served) {
+            return;
+        }
+
         $useSession = $this->useSession && session_status() === PHP_SESSION_ACTIVE;
         $redirectQueue = &$_SESSION['_oops']['redirect'];
 
@@ -113,7 +122,10 @@ class Bar
             }
 
             $redirectQueue = null;
-            $content = self::renderHtmlRows($rows);
+            $history = $this->storage()->recent(20);
+            $content = self::renderHtmlRows($rows, $history);
+
+            $this->saveHistory($content, $dumps);
 
             if ($this->contentId) {
                 $_SESSION['_oops']['bar'][$this->contentId] = [
@@ -134,7 +146,7 @@ class Bar
     /**
      * @return string
      */
-    private static function renderHtmlRows(array $rows)
+    private static function renderHtmlRows(array $rows, array $history = [])
     {
         ob_start(function () {
             // ..
@@ -197,6 +209,107 @@ class Bar
     }
 
     /**
+     * File storage untuk riwayat request (openhandler).
+     *
+     * @return Storage
+     */
+    private function storage()
+    {
+        if (null === $this->storage) {
+            require_once __DIR__ . '/storage.php';
+            $this->storage = new Storage(path('storage') . 'debugbar', 25);
+        }
+
+        return $this->storage;
+    }
+
+    /**
+     * Simpan snapshot request saat ini ke riwayat berbasis file agar bisa
+     * dibuka lagi lewat dropdown "History" (gaya php-debugbar openhandler).
+     *
+     * @param string $content
+     * @param array  $dumps
+     *
+     * @return void
+     */
+    private function saveHistory($content, $dumps)
+    {
+        $status = function_exists('http_response_code') ? http_response_code() : 200;
+        $now = microtime(true);
+
+        $meta = [
+            'method' => isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET',
+            'uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
+            'status' => (int) ($status ? $status : 200),
+            'time' => time(),
+            'ts' => $now,
+            'ms' => round(($now - Debugger::$time) * 1000, 1),
+            'memory' => round(memory_get_peak_usage(true) / 1048576, 2),
+        ];
+
+        $id = $this->contentId ? $this->contentId : substr(md5(uniqid('', true)), 0, 10);
+
+        $this->storage()->save($id, [
+            'content' => $content,
+            'dumps' => (array) $dumps,
+            'meta' => $meta,
+        ]);
+    }
+
+    /**
+     * Render halaman mandiri berisi debugbar sebuah request lampau. Dipanggil
+     * dari endpoint `_oops_bar=open.<id>` dan dibuka di tab baru oleh dropdown
+     * History; memuat aset lalu memanggil Oops.Debug.init dengan snapshot.
+     *
+     * @param string $id
+     *
+     * @return void
+     */
+    private function renderHistoryPage($id)
+    {
+        $rec = $this->storage()->get($id);
+
+        header('Content-Type: text/html; charset=UTF-8');
+        header_remove('Set-Cookie');
+
+        if (!$rec || !isset($rec['content'])) {
+            http_response_code(404);
+            echo '<!DOCTYPE html><meta charset="utf-8"><body style="font-family:sans-serif;padding:24px">Debugbar history not found.</body>';
+
+            return;
+        }
+
+        $meta = (isset($rec['meta']) && is_array($rec['meta'])) ? $rec['meta'] : [];
+        $method = isset($meta['method']) ? $meta['method'] : 'GET';
+        $uri = isset($meta['uri']) ? $meta['uri'] : '';
+        $when = isset($meta['time']) ? date('Y-m-d H:i:s', (int) $meta['time']) : '';
+        $label = trim($method . ' ' . $uri);
+        $nonce = Helpers::getNonce();
+        $dumps = isset($rec['dumps']) ? $rec['dumps'] : [];
+
+        $payload = str_replace('<!--', '<\!--', json_encode($rec['content']) . ', ' . json_encode($dumps));
+
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8">',
+            '<meta name="robots" content="noindex">',
+            '<meta name="viewport" content="width=device-width, initial-scale=1">',
+            '<title>', Helpers::escapeHtml($label), ' &mdash; Rakit Debugbar</title>',
+            '<style>html,body{margin:0}body{min-height:100vh;background:#0e0f13;',
+            'font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}',
+            '.oops-hist-banner{padding:14px 20px 72px;color:#c9ced8}',
+            '.oops-hist-banner h1{margin:0 0 4px;font-size:15px;color:#cf7b74;font-weight:600}',
+            '.oops-hist-banner p{margin:0;font-size:12px;color:#8b93a4}',
+            '</style></head><body>',
+            '<div class="oops-hist-banner"><h1>Past request &middot; ', Helpers::escapeHtml($label), '</h1>',
+            '<p>', Helpers::escapeHtml($when),
+            (isset($meta['status']) ? ' &middot; HTTP ' . (int) $meta['status'] : ''),
+            (isset($meta['ms']) ? ' &middot; ' . Helpers::escapeHtml($meta['ms']) . ' ms' : ''),
+            '</p></div>',
+            '<script nonce="', Helpers::escapeHtml($nonce), '" src="?_oops_bar=js&amp;v=', urlencode(RAKIT_VERSION), '&amp;XDEBUG_SESSION_STOP=1"></script>',
+            '<script nonce="', Helpers::escapeHtml($nonce), '">Oops.Debug.init(', $payload, ');</script>',
+            '</body></html>';
+    }
+
+    /**
      * Render or dispatch assets.
      *
      * @return bool
@@ -211,6 +324,13 @@ class Bar
             header_remove('Pragma');
             header_remove('Set-Cookie');
             $this->renderAssets();
+
+            return true;
+        }
+
+        if (is_string($asset) && preg_match('#^open\.([A-Za-z0-9_-]+)$#', $asset, $m)) {
+            $this->served = true;
+            $this->renderHistoryPage($m[1]);
 
             return true;
         }

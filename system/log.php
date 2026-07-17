@@ -174,6 +174,13 @@ class Log
                     isset($trace[1]['file']) ? $trace[1]['file'] : null,
                     isset($trace[1]['line']) ? $trace[1]['line'] : null
                 );
+
+                // Surface any exception passed in the log context on the
+                // dedicated Exceptions panel too.
+                if (isset($context['exception'])
+                    && ($context['exception'] instanceof \Throwable || $context['exception'] instanceof \Exception)) {
+                    \System\Foundation\Oops\Collectors::addException($context['exception']);
+                }
             }
         }
     }

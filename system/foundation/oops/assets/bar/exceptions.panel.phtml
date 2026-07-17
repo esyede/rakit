@@ -1,0 +1,193 @@
+<?php
+
+namespace System\Foundation\Oops;
+
+defined('DS') or exit('No direct access.');
+
+$exceptions = isset($this->data['exceptions']) ? $this->data['exceptions'] : [];
+
+// "path/to/file.php" + line -> "file.php:line" untuk label ringkas.
+$shortLoc = function ($file, $line) {
+    if (!$file) {
+        return '';
+    }
+    return basename($file) . ($line ? ':' . $line : '');
+};
+?>
+<style class="oops-debug">
+    #oops-debug .oops-ExceptionsPanel .oops-exc {
+        border: 1px solid #eee;
+        border-left: 3px solid #2563eb;
+        border-radius: 3px;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-head {
+        padding: 8px 10px;
+        background: #f2f6ff;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-class {
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-weight: bold;
+        color: #2563eb;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-count {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 0 7px;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #fff;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-msg {
+        display: block;
+        margin-top: 4px;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-loc {
+        display: block;
+        margin-top: 6px;
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+        color: #777;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-loc a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted currentColor;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-loc a:hover {
+        color: #2563eb;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-toggle {
+        margin: 0;
+        padding: 6px 10px;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-trace {
+        margin: 0;
+        padding: 8px 10px;
+        border-top: 1px solid #f0f0f0;
+        list-style: none;
+        counter-reset: frame;
+        font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 12px;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-trace li {
+        padding: 2px 0;
+        counter-increment: frame;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-trace li::before {
+        content: '#' counter(frame) ' ';
+        color: #bbb;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-fn {
+        color: #333;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-frameloc {
+        color: #999;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-frameloc a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted currentColor;
+    }
+
+    #oops-debug .oops-ExceptionsPanel .oops-exc-frameloc a:hover {
+        color: #2563eb;
+    }
+
+    /* Mode gelap */
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc {
+        border-color: #232733;
+        border-left-color: #4a6fd4;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc-head {
+        background: #141a2e;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc-class {
+        color: #7aa2f7;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc-trace {
+        border-top-color: #232733;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc-fn {
+        color: #c9ced8;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc-loc a:hover,
+    #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc-frameloc a:hover {
+        color: #7aa2f7;
+    }
+</style>
+
+<h1>Exceptions</h1>
+
+<div class="oops-inner oops-ExceptionsPanel">
+    <div class="oops-inner-container">
+        <?php if (empty($exceptions)) : ?>
+            <p class="oops-empty">No exceptions were thrown</p>
+        <?php else : ?>
+            <?php foreach ($exceptions as $i => $ex) :
+                $file = isset($ex['file']) ? $ex['file'] : '';
+                $line = isset($ex['line']) ? $ex['line'] : 0;
+                $editUri = Helpers::editorUri($file, $line ? $line : 1);
+                $trace = isset($ex['trace']) ? $ex['trace'] : [];
+                $occurred = isset($ex['count']) ? (int) $ex['count'] : 1;
+            ?>
+                <div class="oops-exc">
+                    <div class="oops-exc-head">
+                        <span class="oops-exc-class"><?php echo Helpers::escapeHtml($ex['class']) ?></span><?php if ($occurred > 1) : ?><span class="oops-exc-count" title="Thrown <?php echo $occurred ?> times">&times;<?php echo $occurred ?></span><?php endif ?>
+                        <span class="oops-exc-msg"><?php echo Helpers::escapeHtml($ex['message']) ?></span>
+                        <?php if ($file) : ?>
+                            <span class="oops-exc-loc"><?php if ($editUri) : ?><a href="<?php echo Helpers::escapeHtml($editUri) ?>" title="Open in editor"><?php echo Helpers::escapeHtml($file . ($line ? ':' . $line : '')) ?></a><?php else : ?><?php echo Helpers::escapeHtml($file . ($line ? ':' . $line : '')) ?><?php endif ?></span>
+                        <?php endif ?>
+                    </div>
+                    <?php if (!empty($trace)) : ?>
+                        <?php $panelRef = 'exc-trace-' . $i; ?>
+                        <p class="oops-exc-toggle"><a class="oops-toggle oops-collapsed" data-oops-ref="^div .<?php echo $panelRef ?>">Stack trace (<?php echo count($trace) ?>)</a></p>
+                        <div class="<?php echo $panelRef ?> oops-collapsed">
+                            <ul class="oops-exc-trace">
+                                <?php foreach ($trace as $frame) :
+                                    $fn = (isset($frame['class']) ? $frame['class'] : '') . (isset($frame['type']) ? $frame['type'] : '') . (isset($frame['function']) ? $frame['function'] : '') . '()';
+                                    $ffile = isset($frame['file']) ? $frame['file'] : null;
+                                    $fline = isset($frame['line']) ? $frame['line'] : null;
+                                    $frameUri = $ffile ? Helpers::editorUri($ffile, $fline ? $fline : 1) : null;
+                                ?>
+                                    <li>
+                                        <span class="oops-exc-fn"><?php echo Helpers::escapeHtml($fn) ?></span>
+                                        <?php if ($ffile) : ?>
+                                            <span class="oops-exc-frameloc">&mdash; <?php if ($frameUri) : ?><a href="<?php echo Helpers::escapeHtml($frameUri) ?>" title="Open in editor"><?php echo Helpers::escapeHtml($shortLoc($ffile, $fline)) ?></a><?php else : ?><?php echo Helpers::escapeHtml($shortLoc($ffile, $fline)) ?><?php endif ?></span>
+                                        <?php else : ?>
+                                            <span class="oops-exc-frameloc">&mdash; <i>internal</i></span>
+                                        <?php endif ?>
+                                    </li>
+                                <?php endforeach ?>
+                            </ul>
+                        </div>
+                    <?php endif ?>
+                </div>
+            <?php endforeach ?>
+        <?php endif ?>
+    </div>
+</div>

@@ -11,56 +11,204 @@ $levelColors = [
     'error' => '#e53935', 'warning' => '#f9a825', 'notice' => '#1e88e5',
     'info' => '#43a047', 'debug' => '#757575',
 ];
+
+// Kelompokkan level untuk pewarnaan teks (gaya laravel-debugbar: error merah,
+// warning amber, selebihnya default).
+$groupOf = function ($lvl) {
+    if (in_array($lvl, ['emergency', 'alert', 'critical', 'error'], true)) {
+        return 'error';
+    }
+    if ('warning' === $lvl) {
+        return 'warning';
+    }
+    return 'other';
+};
+
+// Hitung jumlah per level (untuk chip filter) mengikuti urutan $levelColors.
+$counts = [];
+foreach ($logs as $log) {
+    $lvl = strtolower(isset($log['level']) ? $log['level'] : 'debug');
+    $counts[$lvl] = (isset($counts[$lvl]) ? $counts[$lvl] : 0) + 1;
+}
+$ordered = [];
+foreach (array_keys($levelColors) as $lvl) {
+    if (isset($counts[$lvl])) {
+        $ordered[$lvl] = $counts[$lvl];
+    }
+}
+foreach ($counts as $lvl => $c) {
+    if (!isset($ordered[$lvl])) {
+        $ordered[$lvl] = $c;
+    }
+}
 ?>
 <style class="oops-debug">
+    /* Widget Messages meniru laravel-debugbar: tiap baris = teks pesan (kiri)
+       dengan level & caller mengapung ke kanan; toolbar filter menempel di
+       BAWAH panel (sticky). */
+    #oops-debug .oops-MessagesPanel .oops-inner-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1 0 auto;
+    }
+
     #oops-debug .oops-MessagesPanel .oops-msg {
-        padding: 6px 10px;
+        padding: 4px 10px;
         border-bottom: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-caller,
+    #oops-debug .oops-MessagesPanel .oops-msg-level {
+        float: right;
+        margin-left: 12px;
+        font-size: 11px;
+        line-height: 1.6;
+        white-space: nowrap;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-caller {
+        font-family: Menlo, Monaco, Consolas, monospace;
+        color: #999;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-caller a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted currentColor;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-caller a:hover {
+        color: #2563eb;
+    }
+
+    #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg-caller a:hover {
+        color: #7aa2f7;
     }
 
     #oops-debug .oops-MessagesPanel .oops-msg-level {
-        display: inline-block;
-        min-width: 70px;
-        font-weight: bold;
         text-transform: uppercase;
-        font-size: 10px;
-        color: #fff;
-        padding: 1px 6px;
-        border-radius: 3px;
-        margin-right: 8px;
+        letter-spacing: 0.03em;
+        color: #9aa0a6;
     }
 
-    #oops-debug .oops-MessagesPanel .oops-msg-text {
+    #oops-debug .oops-MessagesPanel .oops-msg-value {
+        display: block;
         font-family: Menlo, Monaco, Consolas, monospace;
         font-size: 12px;
+        line-height: 1.6;
+        white-space: pre-wrap;
         word-break: break-word;
+        color: #333;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-g-error .oops-msg-value {
+        color: #e53935;
+    }
+
+    #oops-debug .oops-MessagesPanel .oops-msg-g-warning .oops-msg-value {
+        color: #c77700;
     }
 
     #oops-debug .oops-MessagesPanel pre {
-        margin: 5px 0 0;
+        margin: 4px 0 0;
         white-space: pre-wrap;
+        clear: both;
+    }
+
+    /* Toolbar filter menempel di bawah (menembus style generik yang menaruhnya
+       di atas). */
+    #oops-debug .oops-MessagesPanel .oops-toolbar {
+        order: 2;
+        position: sticky;
+        bottom: -16px;
+        z-index: 3;
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0 0 -16px !important;
+        padding: 8px 12px;
+        border-top: 1px solid #ececec;
+        border-bottom: none;
+        background: #ffffff;
+    }
+
+    /* Mode gelap */
+    #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg {
+        border-bottom-color: #232733;
+    }
+
+    #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg-value {
+        color: #c9ced8;
+    }
+
+    #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg-g-error .oops-msg-value {
+        color: #f8918a;
+    }
+
+    #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg-g-warning .oops-msg-value {
+        color: #ffb570;
+    }
+
+    #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-toolbar {
+        background: #0e0f13;
+        border-top-color: #232733;
     }
 </style>
 
-<h1>Logs</h1>
+<h1>Messages</h1>
 
 <div class="oops-inner oops-MessagesPanel">
-    <div class="oops-inner-container">
+    <div class="oops-inner-container oops-filterable">
         <?php if (empty($logs)) : ?>
-            <p class="oops-empty">Log is empty</p>
+            <p class="oops-empty">Messages are empty</p>
         <?php else : ?>
-            <?php foreach ($logs as $log) :
-                $level = strtolower(isset($log['level']) ? $log['level'] : 'debug');
-                $color = isset($levelColors[$level]) ? $levelColors[$level] : '#757575';
-            ?>
-                <div class="oops-msg">
-                    <span class="oops-msg-level" style="background: <?php echo $color ?>;"><?php echo Helpers::escapeHtml($level) ?></span>
-                    <span class="oops-msg-text"><?php echo Helpers::escapeHtml(isset($log['message']) ? $log['message'] : '') ?></span>
-                    <?php if (!empty($log['context'])) : ?>
-                        <pre><?php echo Helpers::escapeHtml(print_r($log['context'], true)) ?></pre>
-                    <?php endif ?>
-                </div>
-            <?php endforeach ?>
+            <ul class="oops-msg-list">
+                <?php foreach ($logs as $log) :
+                    $level = strtolower(isset($log['level']) ? $log['level'] : 'debug');
+                    $group = $groupOf($level);
+                    $message = isset($log['message']) ? $log['message'] : '';
+                    $context = !empty($log['context']) ? print_r($log['context'], true) : '';
+                    $file = isset($log['file']) ? $log['file'] : null;
+                    $line = isset($log['line']) ? $log['line'] : null;
+                    $caller = $file ? (basename($file) . ($line ? '#' . $line : '')) : '';
+                    $search = strtolower($level . ' ' . $message . ' ' . $context . ' ' . $caller);
+                ?>
+                    <li class="oops-msg oops-filter-item oops-msg-g-<?php echo $group ?>" data-oops-tag="<?php echo Helpers::escapeHtml($level) ?>" data-oops-search="<?php echo Helpers::escapeHtml($search) ?>">
+                        <?php if ('' !== $caller) : ?>
+                            <?php $editUri = Helpers::editorUri($file, $line ? $line : 1); ?>
+                            <span class="oops-msg-caller" title="<?php echo Helpers::escapeHtml($file . ($line ? ':' . $line : '')) ?>"><?php if ($editUri) : ?><a href="<?php echo Helpers::escapeHtml($editUri) ?>"><?php echo Helpers::escapeHtml($caller) ?></a><?php else : ?><?php echo Helpers::escapeHtml($caller) ?><?php endif ?></span>
+                        <?php endif ?>
+                        <span class="oops-msg-level"><?php echo Helpers::escapeHtml($level) ?></span>
+                        <span class="oops-msg-value"><?php echo Helpers::escapeHtml($message) ?></span>
+                        <?php if ('' !== $context) : ?>
+                            <?php echo Dumper::toHtml($log['context']) ?>
+                        <?php endif ?>
+                    </li>
+                <?php endforeach ?>
+                <li class="oops-empty oops-filter-empty" style="display: none; list-style: none;">No messages match your filter.</li>
+            </ul>
+
+            <div class="oops-toolbar">
+                <input type="text" class="oops-filter-input" placeholder="Search messages&hellip;" spellcheck="false" autocomplete="off">
+                <span class="oops-filter-tags">
+                    <?php foreach ($ordered as $lvl => $c) :
+                        $color = isset($levelColors[$lvl]) ? $levelColors[$lvl] : '#757575';
+                    ?>
+                        <button type="button" class="oops-filter-tag oops-active" data-oops-tag="<?php echo Helpers::escapeHtml($lvl) ?>" style="--oops-tag: <?php echo $color ?>;">
+                            <?php echo Helpers::escapeHtml($lvl) ?>
+                            <span class="oops-tag-count"><?php echo $c ?></span>
+                        </button>
+                    <?php endforeach ?>
+                </span>
+                <span class="oops-filter-count"></span>
+            </div>
         <?php endif ?>
     </div>
 </div>

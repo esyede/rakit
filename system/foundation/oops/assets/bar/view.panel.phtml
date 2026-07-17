@@ -16,13 +16,6 @@ foreach ($views as $view) {
 }
 ?>
 <style class="oops-debug">
-    #oops-debug .oops-ViewPanel h2 {
-        margin-top: 20px;
-        padding: 8px 10px;
-        background: #ffffff;
-        border-left: 3px solid #9C27B0;
-    }
-
     #oops-debug .oops-ViewPanel table {
         width: 100%;
         font-size: 13px;
@@ -40,7 +33,7 @@ foreach ($views as $view) {
     #oops-debug .oops-ViewPanel .oops-view-name {
         font-family: monospace;
         font-weight: bold;
-        color: #9C27B0;
+        color: #1e40af;
         font-size: 14px;
     }
 
@@ -76,7 +69,8 @@ foreach ($views as $view) {
     }
 
     #oops-debug .oops-ViewPanel .oops-summary-item {
-        background: #f3e5f5;
+        background: #eef2fe;
+        border: 1px solid #d5e0fb;
         padding: 10px 15px;
         border-radius: 5px;
         flex: 1;
@@ -87,7 +81,7 @@ foreach ($views as $view) {
     #oops-debug .oops-ViewPanel .oops-summary-count {
         font-size: 24px;
         font-weight: bold;
-        color: #9C27B0;
+        color: #1e40af;
     }
 
     #oops-debug .oops-ViewPanel .oops-summary-label {
@@ -97,14 +91,15 @@ foreach ($views as $view) {
         margin-top: 5px;
     }
 
+    /* Teks badge dipaksa putih oleh normalisasi global (.oops-panel
+       .oops-badge), jadi pakai latar merah solid senada tema (bukan ungu). */
     #oops-debug .oops-ViewPanel .oops-badge {
         display: inline-block;
         padding: 2px 6px;
         border-radius: 3px;
         font-size: 11px;
         font-weight: bold;
-        background: #e1bee7;
-        color: #4A148C;
+        background: #2563eb;
     }
 
     #oops-debug .oops-ViewPanel .oops-shared-badge {
@@ -117,6 +112,29 @@ foreach ($views as $view) {
         font-style: italic;
         text-align: center;
         padding: 40px;
+    }
+
+    /* Mode gelap: aksen merah senada tema (bukan ungu). */
+    #oops-debug.oops-theme-dark .oops-ViewPanel .oops-view-name,
+    #oops-debug.oops-theme-dark .oops-ViewPanel .oops-summary-count {
+        color: #7aa2f7;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ViewPanel .oops-view-row {
+        border-bottom-color: #232733;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ViewPanel .oops-summary-item {
+        background: #1b1e26;
+        border-color: #2b2f3a;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ViewPanel .oops-view-data {
+        background: #0e0f13;
+    }
+
+    #oops-debug.oops-theme-dark .oops-ViewPanel .oops-badge {
+        background: #4a6fd4;
     }
 </style>
 
@@ -133,7 +151,7 @@ foreach ($views as $view) {
                     <div class="oops-summary-label">Total Views</div>
                 </div>
                 <div class="oops-summary-item">
-                    <div class="oops-summary-count"><?php echo number_format($totalTime * 1000, 2); ?></div>
+                    <div class="oops-summary-count"><?php echo number_format($totalTime, 2); ?></div>
                     <div class="oops-summary-label">Total Time (ms)</div>
                 </div>
                 <?php if ($totalSize > 0) : ?>
@@ -174,7 +192,7 @@ foreach ($views as $view) {
                             </td>
                             <td class="oops-view-time">
                                 <?php if (isset($view['time'])) : ?>
-                                    <?php echo number_format($view['time'] * 1000, 2); ?> ms
+                                    <?php echo number_format($view['time'], 2); ?> ms
                                 <?php else : ?>
                                     <span style="color: #ccc;">—</span>
                                 <?php endif; ?>
@@ -194,7 +212,7 @@ foreach ($views as $view) {
                                         </span>
                                     </a>
                                     <div class="oops-view-data oops-view-data-<?php echo $i; ?> oops-collapsed">
-                                        <pre><?php echo htmlspecialchars(print_r($view['data'], true)); ?></pre>
+                                        <?php echo Dumper::toHtml($view['data']); ?>
                                     </div>
                                 <?php else : ?>
                                     <span style="color: #ccc;">No data</span>
@@ -224,7 +242,7 @@ foreach ($views as $view) {
                                 <span class="oops-badge oops-shared-badge" style="margin-left: 5px;">Shared</span>
                             </td>
                             <td>
-                                <pre style="background: #ffffff; padding: 10px; border-radius: 3px; font-size: 11px; margin: 0;"><?php echo htmlspecialchars(print_r($value, true)); ?></pre>
+                                <?php echo Dumper::toHtml($value); ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -259,34 +277,6 @@ foreach ($views as $view) {
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-
-        <!-- View Cache Info -->
-        <?php if (!empty(View::$cache)) : ?>
-            <h2>
-                <a class="oops-toggle oops-collapsed" data-oops-ref="^div .oops-view-cache">
-                    Cached Views (<?php echo count(View::$cache); ?>)
-                </a>
-            </h2>
-            <div class="oops-view-cache oops-collapsed">
-                <p style="font-size: 12px; color: #666; margin-bottom: 10px;">
-                    Views that have been loaded and cached in memory during this request.
-                </p>
-                <table>
-                    <?php foreach (View::$cache as $name => $content) : ?>
-                        <tr>
-                            <td width="30%">
-                                <span style="font-family: monospace;">
-                                    <?php echo htmlspecialchars(str_replace(path('base'), '', $name)); ?>
-                                </span>
-                            </td>
-                            <td width="20%">
-                                <?php echo number_format(strlen($content) / 1024, 2); ?> KB
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
                 </table>
             </div>
         <?php endif; ?>

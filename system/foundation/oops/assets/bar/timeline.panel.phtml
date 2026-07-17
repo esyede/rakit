@@ -4,81 +4,156 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-$timers = isset($this->data['timers']) ? $this->data['timers'] : [];
-
-$total = (microtime(true) - Debugger::$time) * 1000; // ms
+$base = Debugger::$time; // == RAKIT_START
+$total = (microtime(true) - $base) * 1000; // ms
 if ($total <= 0) {
     $total = 1;
 }
 
-uasort($timers, function ($a, $b) {
-    $sa = isset($a['start']) ? (float) $a['start'] : 0;
-    $sb = isset($b['start']) ? (float) $b['start'] : 0;
-    if ($sa == $sb) {
-        return 0;
-    }
-    return ($sa < $sb) ? -1 : 1;
-});
+/*
+| Kumpulkan seluruh "measure" dari berbagai collector ke satu timeline
+| (meniru laravel-debugbar yang menggabungkan time, db, view, dan event
+| pada satu track). Tiap measure punya start-offset (ms dari awal request)
+| dan durasi sehingga bisa dipetakan menjadi bar horizontal.
+*/
+$measures = [];
 
+// 1) Time: fase framework (Booting/Routing/Controller/Render) + measure() manual.
 $phaseColors = [
     'Booting' => '#7E57C2',
     'Routing' => '#42A5F5',
     'Controller' => '#26A69A',
     'Render' => '#FFA726',
 ];
+$timers = isset($this->data['timers']) ? $this->data['timers'] : [];
+foreach ($timers as $name => $timer) {
+    $measures[] = [
+        'label' => $name,
+        'start' => isset($timer['start']) ? (float) $timer['start'] : 0,
+        'duration' => isset($timer['duration']) ? (float) $timer['duration'] : 0,
+        'collector' => 'time',
+        'color' => isset($phaseColors[$name]) ? $phaseColors[$name] : '#66BB6A',
+    ];
+}
 
+// 2) Database: tiap query menjadi measure dengan kategori "db".
 $dbCount = 0;
 $dbTime = 0;
 if (class_exists('\System\Database')) {
     $queries = \System\Database::profile();
     if (is_array($queries)) {
-        $dbCount = count($queries);
         foreach ($queries as $q) {
-            $dbTime += isset($q['time']) ? (float) $q['time'] : 0;
+            $dbCount++;
+            $dur = isset($q['time']) ? (float) $q['time'] : 0;
+            $dbTime += $dur;
+            $sql = isset($q['sql']) ? preg_replace('/\s+/', ' ', trim($q['sql'])) : '';
+            if (strlen($sql) > 60) {
+                $sql = substr($sql, 0, 57) . '...';
+            }
+            $measures[] = [
+                'label' => $sql,
+                'start' => isset($q['start']) ? (float) $q['start'] : 0,
+                'duration' => $dur,
+                'collector' => 'db',
+                'color' => '#5C6BC0',
+            ];
         }
     }
 }
 
+// 3) View: tiap view yang dirender.
+$views = Collectors::getData('views');
+$views = isset($views['views']) ? $views['views'] : [];
+foreach ($views as $view) {
+    $measures[] = [
+        'label' => isset($view['name']) ? $view['name'] : 'view',
+        'start' => isset($view['start']) ? (float) $view['start'] : 0,
+        'duration' => isset($view['time']) ? (float) $view['time'] : 0,
+        'collector' => 'view',
+        'color' => '#00897B',
+    ];
+}
+
+// Urutkan berdasarkan waktu mulai (stabil).
+usort($measures, function ($a, $b) {
+    if ($a['start'] == $b['start']) {
+        return 0;
+    }
+    return ($a['start'] < $b['start']) ? -1 : 1;
+});
+
+// Warna per kategori untuk pill kolektor pada tiap baris.
+$collectorColors = ['time' => '#66BB6A', 'db' => '#5C6BC0', 'view' => '#00897B'];
+
 $peakMem = memory_get_peak_usage(true) / 1048576; // MB
 ?>
 <style class="oops-debug">
-    #oops-debug .oops-TimelinePanel td {
-        vertical-align: middle;
-        padding: 4px 8px;
+    #oops-debug .oops-TimelinePanel .oops-tl-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
     }
 
-    #oops-debug .oops-TimelinePanel .oops-tl-track {
+    #oops-debug .oops-TimelinePanel .oops-tl-item {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-measure {
         position: relative;
-        height: 14px;
-        background: #f0f0f0;
-        border-radius: 2px;
+        height: 19px;
+        line-height: 19px;
+        padding: 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
     }
 
     #oops-debug .oops-TimelinePanel .oops-tl-bar {
         position: absolute;
-        top: 0;
-        height: 14px;
+        top: 3px;
+        height: 13px;
         min-width: 2px;
-        background: #26A69A;
         border-radius: 2px;
+        opacity: 0.28;
+        z-index: 0;
     }
 
-    #oops-debug .oops-TimelinePanel .oops-tl-name {
-        font-weight: bold;
-        white-space: nowrap;
-    }
-
-    #oops-debug .oops-TimelinePanel .oops-tl-time {
-        text-align: right;
-        white-space: nowrap;
+    #oops-debug .oops-TimelinePanel .oops-tl-label {
+        position: relative;
+        z-index: 1;
         font-family: Menlo, Monaco, Consolas, monospace;
+        font-size: 11px;
+        color: #333;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-label b {
+        color: #111;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-dur {
+        color: #888;
+        font-weight: normal;
+    }
+
+    #oops-debug .oops-TimelinePanel .oops-tl-collector {
+        position: relative;
+        z-index: 1;
+        float: right;
+        margin-left: 10px;
+        font-size: 10px;
+        text-transform: lowercase;
+        color: #fff;
+        padding: 1px 7px;
+        border-radius: 8px;
+        line-height: 14px;
+        margin-top: 4px;
     }
 
     #oops-debug .oops-TimelinePanel .oops-tl-summary {
-        margin-top: 12px;
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
+        padding: 10px;
+        border-top: 1px solid #ececec;
     }
 
     #oops-debug .oops-TimelinePanel .oops-tl-chip {
@@ -90,7 +165,38 @@ $peakMem = memory_get_peak_usage(true) / 1048576; // MB
     }
 
     #oops-debug .oops-TimelinePanel .oops-tl-chip strong {
-        color: #2c6a8f;
+        color: #1e40af;
+    }
+
+    /* Mode gelap */
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-item {
+        border-bottom-color: #1c1f27;
+    }
+
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-label {
+        color: #c9ced8;
+    }
+
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-label b {
+        color: #f0f2f5;
+    }
+
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-bar {
+        opacity: 0.4;
+    }
+
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-summary {
+        background: #0e0f13;
+        border-top-color: #232733;
+    }
+
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-chip {
+        background: #14171d;
+        color: #aeb4bf;
+    }
+
+    #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-chip strong {
+        color: #7aa2f7;
     }
 </style>
 
@@ -98,32 +204,32 @@ $peakMem = memory_get_peak_usage(true) / 1048576; // MB
 
 <div class="oops-inner oops-TimelinePanel">
     <div class="oops-inner-container">
-        <?php if (empty($timers)) : ?>
+        <?php if (empty($measures)) : ?>
             <p class="oops-empty">No measures recorded</p>
         <?php else : ?>
-            <table>
-                <?php foreach ($timers as $name => $timer) :
-                    $duration = isset($timer['duration']) ? (float) $timer['duration'] : 0;
-                    $start = isset($timer['start']) ? (float) $timer['start'] : 0;
+            <ul class="oops-tl-list">
+                <?php foreach ($measures as $m) :
+                    $start = $m['start'];
+                    $duration = $m['duration'];
                     $left = max(0, min(100, ($start / $total) * 100));
-                    $width = max(0.5, min(100 - $left, ($duration / $total) * 100));
-                    $color = isset($phaseColors[$name]) ? $phaseColors[$name] : '#66BB6A';
+                    $width = max(0.4, min(100 - $left, ($duration / $total) * 100));
+                    $collector = $m['collector'];
+                    $durText = ($duration > 0) ? number_format($duration, 2) . 'ms' : '';
                 ?>
-                    <tr>
-                        <td class="oops-tl-name" style="width: 22%;"><?php echo Helpers::escapeHtml($name) ?></td>
-                        <td style="width: 58%;">
-                            <div class="oops-tl-track" title="start @<?php echo number_format($start, 2) ?> ms">
-                                <div class="oops-tl-bar" style="left: <?php echo $left ?>%; width: <?php echo $width ?>%; background: <?php echo $color ?>;"></div>
-                            </div>
-                        </td>
-                        <td class="oops-tl-time" style="width: 20%;"><?php echo number_format($duration, 2) ?> ms</td>
-                    </tr>
+                    <li class="oops-tl-item">
+                        <div class="oops-tl-measure" title="start @<?php echo number_format($start, 2) ?>ms&#10;<?php echo Helpers::escapeHtml($m['label']) ?>">
+                            <span class="oops-tl-bar" style="left: <?php echo $left ?>%; width: <?php echo $width ?>%; background: <?php echo $m['color'] ?>;"></span>
+                            <span class="oops-tl-collector" style="background: <?php echo isset($collectorColors[$collector]) ? $collectorColors[$collector] : '#888' ?>;"><?php echo Helpers::escapeHtml($collector) ?></span>
+                            <span class="oops-tl-label"><b><?php echo Helpers::escapeHtml($m['label']) ?></b><?php if ('' !== $durText) : ?> <span class="oops-tl-dur">(<?php echo $durText ?>)</span><?php endif ?></span>
+                        </div>
+                    </li>
                 <?php endforeach ?>
-            </table>
+            </ul>
 
             <div class="oops-tl-summary">
                 <span class="oops-tl-chip">Total <strong><?php echo number_format($total, 2) ?> ms</strong></span>
                 <span class="oops-tl-chip">Database <strong><?php echo $dbCount ?></strong> <?php echo ($dbCount !== 1) ? 'queries' : 'query' ?> &middot; <strong><?php echo number_format($dbTime, 2) ?> ms</strong></span>
+                <span class="oops-tl-chip">Views <strong><?php echo count($views) ?></strong></span>
                 <span class="oops-tl-chip">Peak memory <strong><?php echo number_format($peakMem, 2) ?> MB</strong></span>
             </div>
         <?php endif ?>

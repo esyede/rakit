@@ -19,13 +19,13 @@
         :root {
             --background: #fff;
             --foreground: #636b6f;
-            --primary: #636b6f;
+            --primary: #2563eb;
         }
 
         .dark {
-            --background: #282c34;
+            --background: #0e0f13;
             --foreground: #abb2bf;
-            --primary: #61afef;
+            --primary: #7aa2f7;
         }
 
         html,
@@ -85,6 +85,8 @@
 
         .title {
             font-size: 84px;
+            color: var(--primary);
+            font-weight: 600;
         }
 
         @media (max-width: 600px) {

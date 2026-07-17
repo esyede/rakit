@@ -103,6 +103,43 @@ if (!function_exists('measure')) {
     }
 }
 
+if (!function_exists('start_measure')) {
+    /**
+     * Start a named measure on the debug bar Timeline. Pair with stop_measure()
+     * to time a region of code that is not a single callback.
+     *
+     * <code>
+     *      start_measure('import');
+     *      // ... work ...
+     *      stop_measure('import');
+     * </code>
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    function start_measure($name)
+    {
+        \System\Foundation\Oops\Debugger::startMeasure($name);
+    }
+}
+
+if (!function_exists('stop_measure')) {
+    /**
+     * Stop a measure previously started with start_measure() and record it on
+     * the debug bar Timeline.
+     *
+     * @param string      $name
+     * @param string|null $label
+     *
+     * @return void
+     */
+    function stop_measure($name, $label = null)
+    {
+        \System\Foundation\Oops\Debugger::stopMeasure($name, $label);
+    }
+}
+
 if (!function_exists('optional')) {
     /**
      * Allow accessing properties/methods of a given object that could be null.

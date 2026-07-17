@@ -28,12 +28,9 @@ if (isset($this->data['views'])) {
             <rect x="14" y="30" width="18" height="2"/>
         </g>
     </svg>
-    <span class="oops-label">
-        <?php echo $viewCount; ?> view<?php echo $viewCount !== 1 ? 's' : ''; ?>
-        <?php if ($totalTime > 0) : ?>
-            <span style="color: #999; font-size: 10px; margin-left: 3px;">
-                (<?php echo number_format($totalTime * 1000, 2); ?>ms)
-            </span>
-        <?php endif; ?>
-    </span>
+    <span class="oops-label">Views</span>
+    <span class="oops-badge"><?php echo $viewCount; ?></span>
+    <?php if ($totalTime > 0) : ?>
+        <span class="oops-meta">(<?php echo number_format($totalTime, 2); ?>ms)</span>
+    <?php endif; ?>
 </span>

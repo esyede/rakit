@@ -106,6 +106,13 @@ class Debugger
     public static $time;
 
     /**
+     * Open measures started with startMeasure(), keyed by name.
+     *
+     * @var array
+     */
+    public static $measures = [];
+
+    /**
      * Contains path to error template file.
      *
      * @var string
@@ -369,6 +376,10 @@ class Debugger
         Helpers::improveException($e);
         self::removeOutputBuffers(true);
 
+        if (!self::$productionMode) {
+            Collectors::addException($e);
+        }
+
         if (PHP_SAPI !== 'cli' && !headers_sent()) {
             http_response_code(500);
         }
@@ -512,6 +523,22 @@ class Debugger
 
         $context = (array) $context;
 
+        // Deprecation notices are collected quietly on their own panel (so they
+        // never escalate to a blue screen) — invaluable when targeting a wide
+        // PHP version range. Only in debug mode and when not suppressed. The
+        // static guard prevents re-entry if collecting itself emits a notice.
+        static $handlingDeprecation = false;
+
+        if (!self::$productionMode && ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED)) {
+            if (!$handlingDeprecation && ($severity & error_reporting()) === $severity) {
+                $handlingDeprecation = true;
+                Collectors::addDeprecation($message, $file, $line, $severity);
+                $handlingDeprecation = false;
+            }
+
+            return;
+        }
+
         if ($severity === E_RECOVERABLE_ERROR || $severity === E_USER_ERROR) {
             if (Helpers::findTrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS), '*::__toString')) {
                 $previous = (isset($context['e'])
@@ -618,12 +645,19 @@ class Debugger
 
             Collectors::initialize();
 
+            // Semua panel selalu didaftarkan; panel yang dinonaktifkan lewat
+            // config('debugger.collectors') menyembunyikan dirinya saat render
+            // (Defaults::getTab mengembalikan string kosong → tab dilewati).
             self::$bar->addPanel(new Defaults('messages'), 'Oops:messages');
+            self::$bar->addPanel(new Defaults('exceptions'), 'Oops:exceptions');
+            self::$bar->addPanel(new Defaults('deprecations'), 'Oops:deprecations');
             self::$bar->addPanel(new Defaults('timeline'), 'Oops:timeline');
             self::$bar->addPanel(new Defaults('errors'), 'Oops:errors');
             self::$bar->addPanel(new Defaults('view'), 'Oops:view');
             self::$bar->addPanel($routes = new Defaults('routes'), 'Oops:routes');
             self::$bar->addPanel(new Defaults('db'), 'db');
+            self::$bar->addPanel(new Defaults('httpclient'), 'Oops:httpclient');
+            self::$bar->addPanel(new Defaults('mails'), 'Oops:mails');
             self::$bar->addPanel(new Defaults('session'), 'Oops:session');
             self::$bar->addPanel(new Defaults('auth'), 'Oops:auth');
             self::$bar->addPanel(new Defaults('request'), 'Oops:request');
@@ -734,6 +768,53 @@ class Debugger
         }
 
         return $result;
+    }
+
+    /**
+     * Start a named measure on the Timeline panel. Pair with stopMeasure() to
+     * time a region of code that is not a single callback:
+     *
+     *     Debugger::startMeasure('import');
+     *     // ... work ...
+     *     Debugger::stopMeasure('import');
+     *
+     * @param string $name
+     *
+     * @return void
+     */
+    public static function startMeasure($name)
+    {
+        if (self::$productionMode) {
+            return;
+        }
+
+        self::$measures[$name] = microtime(true);
+    }
+
+    /**
+     * Stop a measure previously opened with startMeasure() and record it on the
+     * Timeline. An optional label overrides the display name. Silently ignores
+     * unknown/never-started names.
+     *
+     * @param string      $name
+     * @param string|null $label
+     *
+     * @return void
+     */
+    public static function stopMeasure($name, $label = null)
+    {
+        if (self::$productionMode || !isset(self::$measures[$name])) {
+            return;
+        }
+
+        $start = self::$measures[$name];
+        unset(self::$measures[$name]);
+
+        Collectors::addTimer(
+            (string) (null !== $label ? $label : $name),
+            (microtime(true) - $start) * 1000,
+            ($start - self::$time) * 1000
+        );
     }
 
     /**

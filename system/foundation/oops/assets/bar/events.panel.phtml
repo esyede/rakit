@@ -49,7 +49,7 @@ $events = isset($this->data['events']) ? $this->data['events'] : [];
                             <?php if (empty($payload)) : ?>
                                 <span class="oops-empty">&mdash;</span>
                             <?php else : ?>
-                                <pre><?php echo Helpers::escapeHtml(print_r($payload, true)) ?></pre>
+                                <?php echo Dumper::toHtml($payload) ?>
                             <?php endif ?>
                         </td>
                     </tr>

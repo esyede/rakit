@@ -297,6 +297,7 @@ class View implements \ArrayAccess
 
         Hook::fire('rakit.composing: ' . $this->view, [$this]);
 
+        $rakit_view_start = microtime(true);
         $contents = null;
 
         if (Hook::exists(static::ENGINE)) {
@@ -315,12 +316,14 @@ class View implements \ArrayAccess
         // Track view rendering for debugger
         if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
             if (!\System\Foundation\Oops\Debugger::$productionMode) {
+                $rakit_view_done = microtime(true);
                 \System\Foundation\Oops\Collectors::trackView(
                     $this->view,
                     $this->path,
                     $this->data,
-                    0,
-                    strlen((string) $contents)
+                    ($rakit_view_done - $rakit_view_start) * 1000,
+                    strlen((string) $contents),
+                    defined('RAKIT_START') ? ($rakit_view_start - RAKIT_START) * 1000 : 0
                 );
             }
         }

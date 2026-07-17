@@ -20,6 +20,73 @@ class Helpers
         return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 
+    /**
+     * Build an "open in editor" URL for a file:line reference so the debug bar
+     * and error page can link straight into the developer's IDE. The editor is
+     * configurable via config('debugger.editor') — either a preset name or a
+     * custom template with %file% / %line% placeholders. Returns null when the
+     * feature is disabled or the file is unknown.
+     *
+     * @param string $file
+     * @param int    $line
+     *
+     * @return string|null
+     */
+    public static function editorUri($file, $line = 1)
+    {
+        if (empty($file)) {
+            return null;
+        }
+
+        $editor = function_exists('config') ? config('debugger.editor', 'phpstorm') : 'phpstorm';
+
+        if (empty($editor)) {
+            return null;
+        }
+
+        $presets = [
+            'phpstorm' => 'phpstorm://open?file=%file%&line=%line%',
+            'idea' => 'idea://open?file=%file%&line=%line%',
+            'vscode' => 'vscode://file/%file%:%line%',
+            'vscode-insiders' => 'vscode-insiders://file/%file%:%line%',
+            'sublime' => 'subl://open?url=file://%file%&line=%line%',
+            'textmate' => 'txmt://open?url=file://%file%&line=%line%',
+            'atom' => 'atom://core/open/file?filename=%file%&line=%line%',
+            'macvim' => 'mvim://open/?url=file://%file%&line=%line%',
+            'emacs' => 'emacs://open?url=file://%file%&line=%line%',
+            'netbeans' => 'netbeans://open/?f=%file%:%line%',
+        ];
+
+        $template = isset($presets[$editor]) ? $presets[$editor] : $editor;
+
+        if (false === strpos($template, '%file%')) {
+            return null;
+        }
+
+        $line = (int) $line;
+        if ($line < 1) {
+            $line = 1;
+        }
+
+        // Some collectors record a path relative to the application base (so the
+        // visible label stays short); the IDE needs an absolute path, so resolve
+        // it here.
+        $path = str_replace('\\', '/', $file);
+        $isAbsolute = ('' !== $path && ('/' === $path[0] || preg_match('#^[a-zA-Z]:/#', $path)));
+        if (!$isAbsolute && function_exists('path')) {
+            $base = path('base');
+            if ($base) {
+                $path = rtrim(str_replace('\\', '/', $base), '/') . '/' . ltrim($path, '/');
+            }
+        }
+
+        // Encode the path but keep the directory separators intact so path-style
+        // schemes (e.g. vscode://file/...) still resolve.
+        $encoded = str_replace('%2F', '/', rawurlencode($path));
+
+        return str_replace(['%file%', '%line%'], [$encoded, $line], $template);
+    }
+
     public static function findTrace(array $trace, $method, &$index = null)
     {
         $m = explode('::', $method);

@@ -59,7 +59,7 @@ $driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
     }
 
     #oops-debug .oops-CachePanel .oops-badge-write {
-        background: #2196F3;
+        background: #546e7a;
     }
 
     #oops-debug .oops-CachePanel .oops-badge-delete {
@@ -161,9 +161,9 @@ $driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
                     <div class="oops-summary-count" style="color: #F44336;"><?php echo $missCount; ?></div>
                     <div class="oops-summary-label" style="color: #F44336;">Misses</div>
                 </div>
-                <div class="oops-summary-item" style="background: #e3f2fd;">
-                    <div class="oops-summary-count" style="color: #2196F3;"><?php echo $writeCount; ?></div>
-                    <div class="oops-summary-label" style="color: #2196F3;">Writes</div>
+                <div class="oops-summary-item" style="background: #eceff1;">
+                    <div class="oops-summary-count" style="color: #546e7a;"><?php echo $writeCount; ?></div>
+                    <div class="oops-summary-label" style="color: #546e7a;">Writes</div>
                 </div>
                 <div class="oops-summary-item" style="background: #fff3e0;">
                     <div class="oops-summary-count" style="color: #FF9800;"><?php echo $deleteCount; ?></div>
@@ -217,7 +217,7 @@ $driverConfig = isset($cacheData['config']) ? $cacheData['config'] : [];
                                             Show value
                                         </a>
                                         <div class="oops-cache-value oops-cache-value-<?php echo $i; ?> oops-collapsed">
-                                            <pre><?php echo htmlspecialchars(print_r($op['value'], true)); ?></pre>
+                                            <?php echo Dumper::toHtml($op['value']); ?>
                                         </div>
                                     <?php elseif (isset($op['ttl'])) : ?>
                                         <small style="color: #666;">TTL: <?php echo htmlspecialchars($op['ttl']); ?>s</small>

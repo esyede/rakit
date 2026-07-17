@@ -30,12 +30,9 @@ $hitRate = $totalOps > 0 ? round(($hitCount / $totalOps) * 100) : 0;
             <rect x="28" y="22" width="6" height="4"/>
         </g>
     </svg>
-    <span class="oops-label">
-        <?php echo $totalOps; ?> op<?php echo $totalOps !== 1 ? 's' : ''; ?>
-        <?php if ($totalOps > 0) : ?>
-            <span style="color: <?php echo $hitRate >= 80 ? '#4CAF50' : ($hitRate >= 50 ? '#FF9800' : '#F44336'); ?>; margin-left: 3px;">
-                (<?php echo $hitRate; ?>%)
-            </span>
-        <?php endif; ?>
-    </span>
+    <span class="oops-label">Cache</span>
+    <span class="oops-badge"><?php echo $totalOps; ?></span>
+    <?php if ($totalOps > 0) : ?>
+        <span class="oops-meta" style="color: <?php echo $hitRate >= 80 ? '#4CAF50' : ($hitRate >= 50 ? '#FF9800' : '#F44336'); ?>;">(<?php echo $hitRate; ?>%)</span>
+    <?php endif; ?>
 </span>

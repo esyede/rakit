@@ -204,7 +204,7 @@ if (defined('RAKIT_VERSION')) {
                         <td><?php echo Helpers::escapeHtml($group); ?></td>
                         <td>
                             <?php if (is_array($values)) : ?>
-                                <pre><?php echo Helpers::escapeHtml(print_r($mask($values), true)); ?></pre>
+                                <?php echo Dumper::toHtml($mask($values)); ?>
                             <?php elseif ($isSensitive($group)) : ?>
                                 <span class="oops-mask">•••••••• (masked)</span>
                             <?php else : ?>

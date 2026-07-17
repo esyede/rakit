@@ -49,7 +49,7 @@
 
 #oops-panic a {
     text-decoration: none;
-    color: #f8918a;
+    color: #7aa2f7;
     padding: 2px 4px;
     margin: -2px -4px;
     border-radius: 4px;
@@ -57,7 +57,7 @@
 
 #oops-panic a:hover,
 #oops-panic a:focus {
-    color: #ffb3ad;
+    color: #9bb8fb;
 }
 
 /* Tombol minimize di pojok kanan atas */
@@ -79,10 +79,10 @@
 
 /* ==== Header exception ==== */
 #oops-panic-error {
-    background: linear-gradient(180deg, #241417 0%, #1b1417 100%);
+    background: linear-gradient(180deg, #141a2e 0%, #131829 100%);
     color: #f4f6fa;
     padding: 34px 44px 30px;
-    border-bottom: 1px solid #3a2226;
+    border-bottom: 1px solid #22304a;
 }
 
 /* Baris tipe exception (mis. "Error", "ErrorException #0") */
@@ -94,9 +94,9 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #ffc9c5;
-    background: rgba(224, 82, 75, 0.18);
-    border: 1px solid rgba(224, 82, 75, 0.4);
+    color: #cfe0ff;
+    background: rgba(37, 99, 235, 0.18);
+    border: 1px solid rgba(37, 99, 235, 0.4);
     border-radius: 20px;
 }
 
@@ -104,7 +104,7 @@
    didefinisikan sekali di sini agar seragam & rapi. */
 #oops-panic-error a {
     display: inline-block;
-    color: #ffd9d6 !important;
+    color: #d6e2ff !important;
     opacity: 0;
     font-size: 0.6em;
     font-weight: 600;
@@ -128,7 +128,7 @@
 }
 
 #oops-panic-error i {
-    color: #ffece9;
+    color: #dbe7ff;
     font-style: normal;
     font-weight: 600;
 }
@@ -179,7 +179,7 @@
     font-weight: 400;
     letter-spacing: 0;
     text-transform: none;
-    color: #d99a95;
+    color: #95b3d9;
     background: transparent;
     border: none;
     border-radius: 0;
@@ -347,14 +347,14 @@
 }
 
 #oops-panic .highlight {
-    background: rgba(224, 82, 75, 0.22);
-    color: #fff2f1;
+    background: rgba(37, 99, 235, 0.22);
+    color: #e4edff;
     font-weight: 600;
     font-style: normal;
     display: block;
     padding: 0 0.4em;
     margin: 0 -0.4em;
-    box-shadow: inset 3px 0 0 #e0524b;
+    box-shadow: inset 3px 0 0 #3b82f6;
 }
 
 #oops-panic .line {
@@ -367,7 +367,17 @@
     border-bottom: 1px solid #3a3f4b;
 }
 
-#oops-panic a[href^="editor\:"] {
+#oops-panic a[href^="editor\:"],
+#oops-panic a[href^="phpstorm\:"],
+#oops-panic a[href^="idea\:"],
+#oops-panic a[href^="vscode\:"],
+#oops-panic a[href^="vscode-insiders\:"],
+#oops-panic a[href^="subl\:"],
+#oops-panic a[href^="txmt\:"],
+#oops-panic a[href^="atom\:"],
+#oops-panic a[href^="mvim\:"],
+#oops-panic a[href^="emacs\:"],
+#oops-panic a[href^="netbeans\:"] {
     color: inherit;
     border-bottom: 1px dotted #3a3f4b;
 }
@@ -406,7 +416,7 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
 /* ==== Dump ==== */
 #oops-panic .oops-dump-array,
 #oops-panic .oops-dump-object {
-    color: #f8918a;
+    color: #7aa2f7;
 }
 
 #oops-panic .oops-dump-string {
@@ -450,14 +460,14 @@ html.oops-js #oops-panic .oops-toggle.oops-collapsed {
     float: right;
     margin: 20px 44px 0 0;
     padding: 6px 14px;
-    background: rgba(224, 82, 75, 0.16);
-    border: 1px solid rgba(224, 82, 75, 0.35);
+    background: rgba(37, 99, 235, 0.16);
+    border: 1px solid rgba(37, 99, 235, 0.35);
     border-radius: 20px;
     white-space: nowrap;
 }
 
 #oops-panic .caused a {
-    color: #ffc9c5;
+    color: #cfe0ff;
 }
 
 /* ==== Scrollbar tipis & gelap (mis. baris Cookie yang panjang) ==== */

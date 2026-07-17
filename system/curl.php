@@ -462,9 +462,26 @@ class Curl
             ]);
         }
 
+        $started = microtime(true);
         $response = curl_exec(static::$handler);
         $error = curl_error(static::$handler);
         $info = static::info();
+
+        // Record the request on the debug bar's HTTP client panel.
+        if (class_exists('\System\Foundation\Oops\Collectors')
+            && class_exists('\System\Foundation\Oops\Debugger')
+            && !\System\Foundation\Oops\Debugger::$productionMode) {
+            \System\Foundation\Oops\Collectors::trackHttp(
+                $method,
+                $url,
+                isset($info['http_code']) ? $info['http_code'] : 0,
+                (microtime(true) - $started) * 1000,
+                isset($info['size_download']) ? $info['size_download'] : 0,
+                $error ? $error : null,
+                $headers,
+                $body
+            );
+        }
 
         if (PHP_VERSION_ID < 80000) {
             /** @disregard */

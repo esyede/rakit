@@ -240,7 +240,7 @@ $totalRoutes = count($allRoutes);
                         <tr>
                             <td width="20%"><strong>Parameters</strong></td>
                             <td>
-                                <pre><?php echo htmlspecialchars(print_r($currentRoute['parameters'], true)); ?></pre>
+                                <?php echo Dumper::toHtml($currentRoute['parameters']); ?>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -292,7 +292,7 @@ $totalRoutes = count($allRoutes);
                                         <span class="oops-https-badge">HTTPS</span>
                                     <?php endif; ?>
                                     <?php if ($isCurrent) : ?>
-                                        <span class="oops-current-marker">● current</span>
+                                        <span class="oops-current-marker">current</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -334,8 +334,8 @@ $totalRoutes = count($allRoutes);
                                         <span style="color: #ccc;">—</span>
                                     <?php endif; ?>
                                 </td>
-                            </tr>
-                        <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
                     </tbody>
                 </table>
             <?php else : ?>

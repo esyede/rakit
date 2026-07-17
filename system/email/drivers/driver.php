@@ -607,6 +607,10 @@ abstract class Driver
             $this->set_header('Content-Type', 'text/' . $this->type . '; charset=utf-8');
         }
 
+        // Simpan salinan body yang masih terbaca (sebelum di-encode) untuk
+        // pratinjau pada panel Mails di debug bar.
+        $preview_body = $this->body;
+
         $this->body = static::encode_string($this->body, $encoding, $newline);
         $this->alt_body = static::encode_string($this->alt_body, $encoding, $newline);
 
@@ -620,6 +624,23 @@ abstract class Driver
         }
 
         $this->transmit();
+
+        // Rekam email terkirim untuk panel Mails di debug bar.
+        if (class_exists('\System\Foundation\Oops\Collectors')
+            && class_exists('\System\Foundation\Oops\Debugger')
+            && !\System\Foundation\Oops\Debugger::$productionMode) {
+            \System\Foundation\Oops\Collectors::trackMail([
+                'to' => static::format($this->to),
+                'cc' => (count($this->cc) > 0) ? static::format($this->cc) : '',
+                'bcc' => (count($this->bcc) > 0) ? static::format($this->bcc) : '',
+                'from' => static::format([$this->config['from']]),
+                'subject' => $this->subject,
+                'type' => $this->type,
+                'html' => (false !== stripos($this->type, 'html')),
+                'body' => $preview_body,
+                'headers' => $this->headers,
+            ]);
+        }
 
         return true;
     }

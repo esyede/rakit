@@ -119,4 +119,49 @@ return [
     */
 
     'email' => '',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Editor
+    |--------------------------------------------------------------------------
+    |
+    | The editor that opens when you click a file:line reference in the debug
+    | bar or on the error page. Use a preset name (phpstorm, idea, vscode,
+    | vscode-insiders, sublime, textmate, atom, macvim, emacs, netbeans) or a
+    | custom URL template containing the %file% and %line% placeholders, e.g.
+    | 'vscode://file/%file%:%line%'. Set to null to disable clickable links.
+    |
+    */
+
+    'editor' => 'phpstorm',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Collectors
+    |--------------------------------------------------------------------------
+    |
+    | Toggle individual debug bar panels on or off. Set any entry to false to
+    | stop that collector from gathering data and hide its tab (useful to cut
+    | overhead during heavy operations). Omitted keys default to enabled.
+    |
+    */
+
+    'collectors' => [
+        'messages' => true,
+        'exceptions' => true,
+        'deprecations' => true,
+        'timeline' => true,
+        'queries' => true,
+        'views' => true,
+        'routes' => true,
+        'http' => true,
+        'mails' => true,
+        'session' => true,
+        'auth' => true,
+        'request' => true,
+        'cache' => true,
+        'events' => true,
+        'config' => true,
+        'errors' => true,
+    ],
 ];

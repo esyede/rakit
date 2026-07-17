@@ -208,7 +208,7 @@ if (is_object($user)) {
                                 <?php elseif (is_scalar($value) || is_null($value)) : ?>
                                     <?php echo Helpers::escapeHtml((string) $value); ?>
                                 <?php else : ?>
-                                    <pre><?php echo Helpers::escapeHtml(print_r($value, true)); ?></pre>
+                                    <?php echo Dumper::toHtml($value); ?>
                                 <?php endif; ?>
                             </td>
                         </tr>

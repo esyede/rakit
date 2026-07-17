@@ -140,8 +140,92 @@
             this.initTabs(this.elem);
             this.initResizer();
             this.buildSwitcher();
+            this.initHistory();
             this.refreshDatasets(0);
             this.markEmptyTabs();
+            this.setTabTooltips();
+            this.adjustDensity();
+
+            window.addEventListener('resize', () => {
+                this.adjustDensity();
+            });
+        }
+
+
+        /*
+         * Responsif ala laravel-debugbar: tampilkan teks label bila deretan tab
+         * muat; bila tidak, ciut ke ikon-saja (kelas .oops-icononly). Diukur
+         * dengan mencoba tampil penuh dulu lalu cek apakah tab meluber dari
+         * kontainer scroll-nya.
+         */
+        adjustDensity() {
+            if (!this.datasetsEl) {
+                return;
+            }
+
+            // Ukur dalam mode penuh (label tampil) dulu.
+            this.elem.classList.remove('oops-icononly');
+
+            let tabs = this.datasetsEl.querySelector('.oops-dataset-active')
+                || this.datasetsEl.querySelector('.oops-dataset');
+
+            if (tabs && tabs.scrollWidth > tabs.clientWidth + 1) {
+                this.elem.classList.add('oops-icononly');
+            }
+        }
+
+
+        /*
+         * Tab kini ikon-saja (teks disembunyikan via CSS). Agar nama tab tetap
+         * terbaca, salin teks label / atribut title ke elemen <a> sebagai
+         * tooltip hover — persis laravel-debugbar.
+         */
+        setTabTooltips() {
+            forEach(this.elem.querySelectorAll('.oops-tabs li > a'), (a) => {
+                if (a.getAttribute('title')) {
+                    return;
+                }
+                let name = '';
+                let label = a.querySelector('.oops-label');
+                if (label) {
+                    name = label.textContent.trim().replace(/\s+/g, ' ');
+                }
+                if (!name) {
+                    let titled = a.querySelector('[title]');
+                    if (titled) {
+                        name = titled.getAttribute('title');
+                    }
+                }
+                if (name) {
+                    a.setAttribute('title', name);
+                }
+            });
+        }
+
+
+        /*
+         * Dropdown "History" (openhandler): daftar request lampau yang di-
+         * render server-side sebagai tautan; tiap item membuka snapshot request
+         * itu di tab baru. JS di sini hanya membuka/menutup menunya.
+         */
+        initHistory() {
+            this.historyEl = this.elem.querySelector('.oops-history');
+            if (!this.historyEl) {
+                return;
+            }
+
+            document.addEventListener('click', (e) => {
+                if (this.historyEl && !this.historyEl.contains(e.target)) {
+                    this.historyEl.classList.remove('oops-open');
+                }
+            });
+        }
+
+
+        toggleHistory() {
+            if (this.historyEl) {
+                this.historyEl.classList.toggle('oops-open');
+            }
         }
 
 
@@ -151,13 +235,28 @@
          */
         markEmptyTabs() {
             forEach(this.elem.querySelectorAll('.oops-tabs li > a'), (a) => {
-                let label = a.querySelector('.oops-label');
                 a.classList.remove('oops-tab-empty');
-                if (!label) {
-                    return;
+
+                // Utamakan badge hitungan (gaya baru: nama + pil angka). Kalau
+                // tak ada badge, jatuh ke pola lama (label diawali angka).
+                let n = null;
+                let badge = a.querySelector('.oops-badge');
+                if (badge) {
+                    let bm = badge.textContent.trim().match(/\d+/);
+                    if (bm) {
+                        n = parseInt(bm[0], 10);
+                    }
+                } else {
+                    let label = a.querySelector('.oops-label');
+                    if (label) {
+                        let m = label.textContent.trim().match(/^(\d+)\b/);
+                        if (m) {
+                            n = parseInt(m[1], 10);
+                        }
+                    }
                 }
-                let m = label.textContent.trim().match(/^(\d+)\b/);
-                if (m && parseInt(m[1], 10) === 0) {
+
+                if (n === 0) {
                     a.classList.add('oops-tab-empty');
                 }
             });
@@ -254,6 +353,10 @@
             }
 
             this.renderSwitcherMenu();
+
+            if (this.datasetsEl) {
+                this.adjustDensity();
+            }
         }
 
 
@@ -320,6 +423,8 @@
         initTheme() {
             let stored = store.get('oops-debugbar-theme');
             this.themePinned = (stored === 'light' || stored === 'dark');
+            // Default "auto": ikuti tema OS (persis laravel-debugbar yang memakai
+            // prefers-color-scheme). Tombol toggle menyematkan pilihan manual.
             this.theme = this.themePinned ? stored : this.osTheme();
             this.applyTheme();
 
@@ -419,28 +524,28 @@
         ajaxPanelSkeleton() {
             return '<style class="oops-debug">'
                 + '#oops-debug .oops-AjaxPanel .oops-badge{display:inline-block;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:bold;color:#fff}'
-                + '#oops-debug .oops-AjaxPanel .oops-badge-info{background:#2196F3}'
+                + '#oops-debug .oops-AjaxPanel .oops-badge-info{background:#2563eb}'
                 + '#oops-debug .oops-AjaxPanel .oops-badge-success{background:#4CAF50}'
                 + '#oops-debug .oops-AjaxPanel .oops-badge-error{background:#F44336}'
                 + '#oops-debug .oops-AjaxPanel .oops-badge-warning{background:#FF9800}'
                 + '#oops-debug .oops-AjaxPanel .oops-ajax-url{font-family:Menlo,Monaco,Consolas,monospace;font-size:12px;word-break:break-all}'
                 + '#oops-debug .oops-AjaxPanel .oops-ajax-summary tr.oops-clickable{cursor:pointer}'
-                + '#oops-debug .oops-AjaxPanel .oops-ajax-summary td.oops-caret{width:1%;color:#3b8bba;font-weight:bold;text-align:center}'
+                + '#oops-debug .oops-AjaxPanel .oops-ajax-summary td.oops-caret{width:1%;color:#2563eb;font-weight:bold;text-align:center}'
                 + '#oops-debug .oops-AjaxPanel .oops-ajax-detail{margin-top:14px}'
                 + '#oops-debug .oops-AjaxPanel .oops-ajax-minitabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}'
-                + '#oops-debug .oops-AjaxPanel .oops-ajax-minitab{padding:3px 10px;border-radius:3px;cursor:pointer;font-size:12px;color:#3b8bba;background:#f1f5f8;border:1px solid #dbe7ef}'
-                + '#oops-debug .oops-AjaxPanel .oops-ajax-minitab.oops-active{background:#3b8bba;color:#fff;border-color:#3b8bba}'
+                + '#oops-debug .oops-AjaxPanel .oops-ajax-minitab{padding:3px 10px;border-radius:3px;cursor:pointer;font-size:12px;color:#2563eb;background:#eef2fe;border:1px solid #d5e0fb}'
+                + '#oops-debug .oops-AjaxPanel .oops-ajax-minitab.oops-active{background:#2563eb;color:#fff;border-color:#2563eb}'
                 + '#oops-debug .oops-AjaxPanel .oops-ajax-content h1{display:none}'
-                + '#oops-debug.oops-theme-dark .oops-AjaxPanel .oops-ajax-minitab{background:#1b1e26;border-color:#262a33;color:#cf7b74}'
-                + '#oops-debug.oops-theme-dark .oops-AjaxPanel .oops-ajax-minitab.oops-active{background:#b34a44;border-color:#b34a44;color:#fff}'
-                + '#oops-debug.oops-theme-dark .oops-AjaxPanel .oops-ajax-summary td.oops-caret{color:#cf7b74}'
+                + '#oops-debug.oops-theme-dark .oops-AjaxPanel .oops-ajax-minitab{background:#1b1e26;border-color:#262a33;color:#7aa2f7}'
+                + '#oops-debug.oops-theme-dark .oops-AjaxPanel .oops-ajax-minitab.oops-active{background:#4a6fd4;border-color:#4a6fd4;color:#fff}'
+                + '#oops-debug.oops-theme-dark .oops-AjaxPanel .oops-ajax-summary td.oops-caret{color:#7aa2f7}'
                 + '</style>'
-                + '<div class="oops-icons"><a href="#" rel="close" title="close">&times;</a></div>'
-                + '<div class="oops-inner oops-AjaxPanel"><div class="oops-inner-container">'
                 + '<h1>AJAX Requests</h1>'
+                + '<div class="oops-inner oops-AjaxPanel"><div class="oops-inner-container">'
                 + '<div class="oops-ajax-summary"></div>'
                 + '<div class="oops-ajax-detail"></div>'
-                + '</div></div>';
+                + '</div></div>'
+                + '<div class="oops-icons"><a href="#" rel="window" title="open in window">&curren;</a><a href="#" rel="close" title="close window">&times;</a></div>';
         }
 
         renderAjaxTab() {
@@ -466,11 +571,28 @@
                 panelEl.innerHTML = this.ajaxPanelSkeleton();
                 Debug.layer.appendChild(panelEl);
 
+                // Satukan ikon (window/close) ke dalam <h1> agar title bar-nya
+                // konsisten dengan panel lain (header sticky) — panel AJAX ini
+                // objek biasa, bukan instance Panel, jadi ditiru manual.
+                let head = panelEl.querySelector('h1');
+                let icons = panelEl.querySelector('.oops-icons');
+                if (head && icons && icons.parentNode !== head) {
+                    head.appendChild(icons);
+                }
+
                 let closeA = panelEl.querySelector('.oops-icons a[rel="close"]');
                 if (closeA) {
                     closeA.addEventListener('click', (e) => {
                         e.preventDefault();
                         this.closePanels();
+                    });
+                }
+
+                let windowA = panelEl.querySelector('.oops-icons a[rel="window"]');
+                if (windowA) {
+                    windowA.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        Panel.prototype.toWindow.call({ elem: panelEl, id: rel });
                     });
                 }
 
@@ -601,6 +723,8 @@
                         this.toggleMinimize();
                     } else if (link.rel == 'theme') {
                         this.toggleTheme();
+                    } else if (link.rel == 'history') {
+                        this.toggleHistory();
                     } else if (link.rel) {
                         this.toggleTab(link);
                     }
@@ -638,6 +762,9 @@
             panel.show();
 
             if (this.panelHeight) {
+                // Tinggi pilihan pengguna (hasil drag) menimpa tinggi otomatis
+                // dan batas max-height default (45vh).
+                panel.elem.style.maxHeight = 'none';
                 panel.elem.style.height = this.panelHeight + 'px';
             }
 
@@ -685,6 +812,7 @@
                 let delta = startY - e.clientY;
                 let max = window.innerHeight - 36 - 40;
                 let height = Math.max(120, Math.min(max, startHeight + delta));
+                active.style.maxHeight = 'none';
                 active.style.height = height + 'px';
                 this.panelHeight = height;
                 this.positionResizer();
@@ -750,10 +878,41 @@
 
 
     class Debug {
+        /*
+         * Tema awal (light/dark) SEBELUM initTheme() penuh berjalan. Logikanya
+         * sama: pilihan tersemat di localStorage menang, jika tidak ikut tema OS
+         * (prefers-color-scheme). Dipakai untuk memasang kelas tema pada layer
+         * sebelum masuk DOM → tidak ada kedip light→dark saat reload.
+         */
+        static earlyTheme() {
+            let stored;
+            try {
+                stored = store.get('oops-debugbar-theme');
+            } catch (e) {
+                stored = null;
+            }
+            if (stored === 'light' || stored === 'dark') {
+                return stored;
+            }
+            return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        }
+
         static init(content, dumps) {
             Debug.layer = document.createElement('div');
             Debug.layer.setAttribute('id', 'oops-debug');
             Debug.layer.innerHTML = addNonces(content);
+
+            // Pasang kelas tema SEBELUM layer disisipkan ke DOM agar bar tidak
+            // sempat tampil dalam tema default (terang) lalu berganti gelap saat
+            // reload. initTheme() di restoreState() nanti idempoten + memasang
+            // listener perubahan tema OS.
+            let early = Debug.earlyTheme();
+            Debug.layer.classList.add('oops-theme-' + early);
+            let earlyBar = Debug.layer.querySelector('#oops-debug-bar');
+            if (earlyBar) {
+                earlyBar.classList.add('oops-theme-' + early);
+            }
+
             (document.body || document.documentElement).appendChild(Debug.layer);
             evalScripts(Debug.layer);
             Oops.Dumper.init();
@@ -766,7 +925,72 @@
             });
 
             Debug.bar.restoreState();
+            Debug.bindWidgets();
             Debug.captureAjax();
+        }
+
+
+        /*
+         * Ikat sekali listener terdelegasi untuk widget filter generik. Karena
+         * ditempel di layer, panel yang disuntik lazy (termasuk AJAX) ikut
+         * terlayani tanpa perlu skrip per-panel.
+         */
+        static bindWidgets() {
+            if (Debug.widgetsBound || !Debug.layer) {
+                return;
+            }
+            Debug.widgetsBound = true;
+
+            Debug.layer.addEventListener('input', function (e) {
+                let input = closestClass(e.target, 'oops-filter-input');
+                if (input) {
+                    applyOopsFilter(closestClass(input, 'oops-filterable'));
+                }
+            });
+
+            Debug.layer.addEventListener('click', function (e) {
+                let btn = closestClass(e.target, 'oops-filter-tag');
+                if (btn) {
+                    e.preventDefault();
+                    btn.classList.toggle('oops-active');
+                    applyOopsFilter(closestClass(btn, 'oops-filterable'));
+                    return;
+                }
+
+                // Tombol "copy" query SQL (panel Queries, gaya laravel-debugbar).
+                let copy = closestClass(e.target, 'oops-sql-copy');
+                if (copy) {
+                    e.preventDefault();
+                    let item = closestClass(copy, 'oops-sql-item');
+                    let code = item ? item.querySelector('.oops-sql-code code') : null;
+                    copyText(code ? code.textContent : '', copy);
+                    return;
+                }
+
+                // Tombol copy generik: salin isi atribut data-oops-copy apa adanya
+                // (mis. "Copy as cURL" pada panel HTTP client).
+                let copyAttr = e.target.closest ? e.target.closest('[data-oops-copy]') : null;
+                if (copyAttr) {
+                    e.preventDefault();
+                    copyText(copyAttr.getAttribute('data-oops-copy') || '', copyAttr);
+                    return;
+                }
+
+                // Tautan "Show only duplicated" → matikan/nyalakan filter "unique".
+                let showdup = closestClass(e.target, 'oops-sql-showdup');
+                if (showdup) {
+                    e.preventDefault();
+                    let scope = closestClass(showdup, 'oops-filterable');
+                    let uniqueTag = scope
+                        ? scope.querySelector('.oops-filter-tag[data-oops-tag="unique"]')
+                        : null;
+                    if (uniqueTag) {
+                        uniqueTag.click();
+                        showdup.classList.toggle('oops-on');
+                    }
+                    return;
+                }
+            });
         }
 
 
@@ -784,10 +1008,12 @@
 
             let nameFromRel = function (rel) {
                 let map = {
-                    info: 'Info', messages: 'Messages', timeline: 'Timeline',
+                    info: 'Info', messages: 'Messages', exceptions: 'Exceptions',
+                    deprecations: 'Deprecations', timeline: 'Timeline',
                     view: 'Views', routes: 'Routes', db: 'Queries',
-                    session: 'Session', request: 'Request', cache: 'Cache',
-                    events: 'Hooks', errors: 'Errors'
+                    httpclient: 'HTTP', mails: 'Mails', session: 'Session',
+                    auth: 'Auth', request: 'Request', cache: 'Cache',
+                    events: 'Hooks', config: 'Config', errors: 'Errors'
                 };
                 for (let k in map) {
                     if (rel.indexOf(k) !== -1) {
@@ -797,10 +1023,32 @@
                 return rel;
             };
 
+            // Lewati panel yang kosong (badge "0") sama seperti bar utama, agar
+            // daftar mini-tab AJAX tidak penuh oleh panel tanpa data.
+            let tabIsEmpty = function (a) {
+                let n = null;
+                let badge = a.querySelector('.oops-badge');
+                if (badge) {
+                    let bm = badge.textContent.trim().match(/\d+/);
+                    if (bm) {
+                        n = parseInt(bm[0], 10);
+                    }
+                } else {
+                    let label = a.querySelector('.oops-label');
+                    if (label) {
+                        let lm = label.textContent.trim().match(/^(\d+)\b/);
+                        if (lm) {
+                            n = parseInt(lm[1], 10);
+                        }
+                    }
+                }
+                return n === 0;
+            };
+
             let aspects = [];
             forEach(ajaxBar.querySelectorAll('li > a'), function (a) {
                 let rel = a.getAttribute('rel');
-                if (!rel) {
+                if (!rel || tabIsEmpty(a)) {
                     return;
                 }
                 let p = tmp.querySelector('#' + rel);
@@ -906,6 +1154,106 @@
 
     function forEach(arr, cb) {
         Array.prototype.forEach.call(arr, cb);
+    }
+
+
+    // Salin teks ke clipboard (dgn fallback execCommand) lalu tampilkan umpan
+    // balik "copied" sesaat pada elemen tombol.
+    function copyText(text, btn) {
+        let feedback = function () {
+            if (!btn) {
+                return;
+            }
+            let orig = btn.innerHTML;
+            btn.classList.add('oops-copied');
+            btn.innerHTML = '✓ copied';
+            setTimeout(function () {
+                btn.classList.remove('oops-copied');
+                btn.innerHTML = orig;
+            }, 1200);
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(feedback, function () { });
+            return;
+        }
+
+        let ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        (document.body || document.documentElement).appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            feedback();
+        } catch (e) { }
+        ta.parentNode.removeChild(ta);
+    }
+
+
+    // Naik ke leluhur terdekat yang punya kelas tertentu (pengganti closest()
+    // agar aman tanpa polyfill di lingkungan lama).
+    function closestClass(el, cls) {
+        while (el && el.nodeType === 1) {
+            if (el.classList && el.classList.contains(cls)) {
+                return el;
+            }
+            el = el.parentNode;
+        }
+        return null;
+    }
+
+
+    /*
+     * Filter widget generik (gaya php-debugbar MessagesWidget / SQLQueriesWidget):
+     * sebuah wadah .oops-filterable berisi (opsional) kotak cari .oops-filter-input
+     * dan tombol-tombol label .oops-filter-tag[data-oops-tag]; tiap baris data
+     * memakai kelas .oops-filter-item dengan atribut data-oops-search (teks yang
+     * dicari, huruf kecil) dan data-oops-tag (label). Baris tampil bila cocok
+     * dengan teks cari DAN labelnya sedang aktif. Semua listener didelegasikan
+     * ke layer sehingga panel yang disuntik belakangan tetap berfungsi.
+     */
+    function applyOopsFilter(scope) {
+        if (!scope) {
+            return;
+        }
+
+        let input = scope.querySelector('.oops-filter-input');
+        let term = input ? input.value.toLowerCase().replace(/^\s+|\s+$/g, '') : '';
+        let tagBtns = scope.querySelectorAll('.oops-filter-tag');
+        let hasTags = tagBtns.length > 0;
+        let active = {};
+        forEach(tagBtns, function (b) {
+            if (b.classList.contains('oops-active')) {
+                active[b.getAttribute('data-oops-tag')] = true;
+            }
+        });
+
+        let shown = 0, total = 0;
+        forEach(scope.querySelectorAll('.oops-filter-item'), function (item) {
+            total++;
+            let text = item.getAttribute('data-oops-search');
+            text = (text == null) ? item.textContent.toLowerCase() : text;
+            let tag = item.getAttribute('data-oops-tag');
+            let okText = !term || text.indexOf(term) !== -1;
+            let okTag = !hasTags || !tag || active[tag];
+            if (okText && okTag) {
+                item.style.display = '';
+                shown++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        let counter = scope.querySelector('.oops-filter-count');
+        if (counter) {
+            counter.textContent = (shown === total) ? (total + ' shown') : (shown + ' / ' + total);
+        }
+        let empty = scope.querySelector('.oops-filter-empty');
+        if (empty) {
+            empty.style.display = shown ? 'none' : '';
+        }
     }
 
 

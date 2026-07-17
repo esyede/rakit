@@ -76,7 +76,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
             <tr>
                 <td>Method</td>
                 <td>
-                    <span class="oops-badge oops-badge-info"><?php echo htmlspecialchars($method); ?></span>
+                    <span class="oops-badge oops-badge-method"><?php echo htmlspecialchars($method); ?></span>
                 </td>
             </tr>
             <tr>
@@ -182,7 +182,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
                     <?php foreach ($_GET as $key => $value) : ?>
                         <tr>
                             <td><?php echo htmlspecialchars($key); ?></td>
-                            <td><pre><?php echo htmlspecialchars(print_r($value, true)); ?></pre></td>
+                            <td><?php echo Dumper::toHtml($value); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
@@ -203,7 +203,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
                     <?php foreach ($_POST as $key => $value) : ?>
                         <tr>
                             <td><?php echo htmlspecialchars($key); ?></td>
-                            <td><pre><?php echo htmlspecialchars(print_r($value, true)); ?></pre></td>
+                            <td><?php echo Dumper::toHtml($value); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
@@ -224,7 +224,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
                     <?php foreach ($_FILES as $key => $file) : ?>
                         <tr>
                             <td><?php echo htmlspecialchars($key); ?></td>
-                            <td><pre><?php echo htmlspecialchars(print_r($file, true)); ?></pre></td>
+                            <td><?php echo Dumper::toHtml($file); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
@@ -245,7 +245,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
                     <?php foreach ($_COOKIE as $key => $value) : ?>
                         <tr>
                             <td><?php echo htmlspecialchars($key); ?></td>
-                            <td><?php echo htmlspecialchars(is_array($value) ? print_r($value, true) : $value); ?></td>
+                            <td><?php echo is_array($value) ? Dumper::toHtml($value) : Helpers::escapeHtml($value); ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </table>
@@ -278,7 +278,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
                         <?php if ($key !== '_oops') : // Skip debugger session data ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($key); ?></td>
-                                <td><pre><?php echo htmlspecialchars(print_r($value, true)); ?></pre></td>
+                                <td><?php echo Dumper::toHtml($value); ?></td>
                             </tr>
                         <?php endif; ?>
                     <?php endforeach; ?>
@@ -301,7 +301,7 @@ $protocol = isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : '
                 <?php foreach ($_SERVER as $key => $value) : ?>
                     <tr>
                         <td><?php echo htmlspecialchars($key); ?></td>
-                        <td><?php echo htmlspecialchars(is_array($value) ? print_r($value, true) : $value); ?></td>
+                        <td><?php echo is_array($value) ? Dumper::toHtml($value) : Helpers::escapeHtml($value); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>

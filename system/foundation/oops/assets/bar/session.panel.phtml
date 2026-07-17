@@ -15,7 +15,7 @@ $renderValue = function ($value) {
         return Helpers::escapeHtml((string) $value);
     }
 
-    return '<pre>' . Helpers::escapeHtml(print_r($value, true)) . '</pre>';
+    return Dumper::toHtml($value);
 };
 
 $renderTable = function ($rows) use ($renderValue) {

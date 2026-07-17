@@ -40,9 +40,44 @@ class Defaults
 
     private static $sqlKeywordsCache = null;
 
+    /**
+     * Map panel id to the config('debugger.collectors') key so a disabled
+     * collector can hide its tab/panel at render time.
+     *
+     * @var array
+     */
+    private static $collectorOf = [
+        'messages' => 'messages',
+        'exceptions' => 'exceptions',
+        'deprecations' => 'deprecations',
+        'timeline' => 'timeline',
+        'errors' => 'errors',
+        'view' => 'views',
+        'routes' => 'routes',
+        'db' => 'queries',
+        'httpclient' => 'http',
+        'mails' => 'mails',
+        'session' => 'session',
+        'auth' => 'auth',
+        'request' => 'request',
+        'cache' => 'cache',
+        'events' => 'events',
+        'config' => 'config',
+    ];
+
     public function __construct($id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * Whether this panel's collector is enabled in config.
+     *
+     * @return bool
+     */
+    private function isEnabled()
+    {
+        return !isset(self::$collectorOf[$this->id]) || Collectors::enabled(self::$collectorOf[$this->id]);
     }
 
     /**
@@ -52,6 +87,10 @@ class Defaults
      */
     public function getTab()
     {
+        if (!$this->isEnabled()) {
+            return '';
+        }
+
         ob_start(function () {
             // ..
         });
@@ -74,9 +113,13 @@ class Defaults
             case 'messages': $this->data = Collectors::getData('messages'); break;
             case 'timeline': $this->data = Collectors::getData('timeline'); break;
             case 'events':   $this->data = Collectors::getData('events');   break;
-            case 'view':     $this->data = Collectors::getData('views');    break;
-            case 'cache':    $this->data = Collectors::getData('cache');    break;
-            case 'session':  $this->data = Collectors::collectSession();    break;
+            case 'view':       $this->data = Collectors::getData('views');      break;
+            case 'cache':      $this->data = Collectors::getData('cache');      break;
+            case 'session':    $this->data = Collectors::collectSession();      break;
+            case 'exceptions':   $this->data = Collectors::getData('exceptions');   break;
+            case 'deprecations': $this->data = Collectors::getData('deprecations'); break;
+            case 'httpclient':   $this->data = Collectors::getData('httpclient');   break;
+            case 'mails':        $this->data = Collectors::getData('mails');        break;
         }
     }
 
@@ -87,6 +130,10 @@ class Defaults
      */
     public function getPanel()
     {
+        if (!$this->isEnabled()) {
+            return '';
+        }
+
         ob_start(function () {
             // ..
         });

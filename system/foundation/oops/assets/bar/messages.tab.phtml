@@ -8,7 +8,7 @@ $logs = isset($this->data['logs']) ? $this->data['logs'] : [];
 $count = count($logs);
 $errorCount = isset($this->data['error_count']) ? $this->data['error_count'] : 0;
 ?>
-<span title="Logs">
+<span title="Messages">
     <svg version="1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
         <g fill="#42A5F5">
             <path d="M40,4H8C5.8,4,4,5.8,4,8v24c0,2.2,1.8,4,4,4h6v8l8-8h18c2.2,0,4-1.8,4-4V8C44,5.8,42.2,4,40,4z" />
@@ -19,10 +19,9 @@ $errorCount = isset($this->data['error_count']) ? $this->data['error_count'] : 0
             <rect x="12" y="25" width="14" height="3" />
         </g>
     </svg>
-    <span class="oops-label">
-        <?php echo $count; ?> log<?php echo $count !== 1 ? 's' : ''; ?>
-        <?php if ($errorCount > 0) : ?>
-            <span style="background: #F44336; color: white; padding: 1px 5px; border-radius: 3px; font-size: 10px; margin-left: 5px;"><?php echo $errorCount; ?></span>
-        <?php endif; ?>
-    </span>
+    <span class="oops-label">Messages</span>
+    <span class="oops-badge"><?php echo $count; ?></span>
+    <?php if ($errorCount > 0) : ?>
+        <span class="oops-badge oops-badge-important" title="<?php echo $errorCount; ?> error<?php echo $errorCount !== 1 ? 's' : ''; ?>"><?php echo $errorCount; ?></span>
+    <?php endif; ?>
 </span>

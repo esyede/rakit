@@ -85,7 +85,8 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                         <h2><a data-oops-ref="^+" class="oops-toggle<?php echo ($collapsed = $expanded !== null) ? ' oops-collapsed' : '' ?>">Source file</a></h2>
 
                         <div class="<?php echo $collapsed ? 'oops-collapsed ' : '' ?>inner">
-                            <p><b>File:</b> <span><?php echo $ex->getFile() . ($ex->getLine() ? ':' . $ex->getLine() : '') ?></span></p>
+                            <?php $srcEdit = Helpers::editorUri($ex->getFile(), $ex->getLine() ? $ex->getLine() : 1); ?>
+                            <p><b>File:</b> <span><?php if ($srcEdit) : ?><a href="<?php echo Helpers::escapeHtml($srcEdit) ?>" title="Open in editor"><?php echo Helpers::escapeHtml($ex->getFile() . ($ex->getLine() ? ':' . $ex->getLine() : '')) ?></a><?php else : ?><?php echo Helpers::escapeHtml($ex->getFile() . ($ex->getLine() ? ':' . $ex->getLine() : '')) ?><?php endif ?></span></p>
                             <?php if (is_file($ex->getFile())) : ?>
                                 <?php $ctx = (in_array(get_class($ex), ['ErrorException', '\ErrorException']) || $ex instanceof \ErrorException) ? \System\Foundation\Oops\Context::getContext($ex) : null; ?>
                                 <?php echo self::highlightFile($ex->getFile(), $ex->getLine(), 15, is_array($ctx) ? $ctx : []); ?>
@@ -104,7 +105,8 @@ $code = $e->getCode() ? ' #' . $e->getCode() : '';
                                         <li>
                                             <p>
                                                 <?php if (isset($row['file']) && is_file($row['file'])) : ?>
-                                                    <?php echo $row['file'] . ':' . $row['line'] ?>
+                                                    <?php $stackEdit = Helpers::editorUri($row['file'], isset($row['line']) ? $row['line'] : 1); ?>
+                                                    <?php if ($stackEdit) : ?><a href="<?php echo Helpers::escapeHtml($stackEdit) ?>" title="Open in editor"><?php echo Helpers::escapeHtml($row['file'] . ':' . $row['line']) ?></a><?php else : ?><?php echo Helpers::escapeHtml($row['file'] . ':' . $row['line']) ?><?php endif ?>
                                                 <?php else : ?>
                                                     <i>inner-code</i><?php if (isset($row['line'])) echo ':', $row['line'] ?>
                                                 <?php endif ?>
