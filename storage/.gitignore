@@ -4,6 +4,7 @@
 !cache/
 !console/
 !database/
+!debugbar/
 !jobs/
 !logs/
 !sessions/
