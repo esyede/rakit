@@ -126,4 +126,107 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_int($stats['loaded_files']));
         $this->assertTrue(is_int($stats['mappings']));
     }
+
+    /**
+     * Every class name that resolves to nothing leaves probes behind, so a
+     * process that stays up — the websocket server runs an endless loop — must
+     * not be able to grow the cache without bound. Left unbounded this is not
+     * a slow leak but a way to exhaust the server's memory.
+     *
+     * @group system
+     */
+    public function testProbeCacheStaysBounded()
+    {
+        $limit = Autoloader::$limit;
+        Autoloader::$limit = 40;
+
+        // Each miss leaves one probe per registered directory, so this is
+        // several times over the limit.
+        for ($i = 0; $i < 200; $i++) {
+            class_exists('Bounded\Probe\Ghost' . $i);
+        }
+
+        $stats = Autoloader::stats();
+        Autoloader::$limit = $limit;
+
+        $this->assertLessThanOrEqual(40, $stats['caches']);
+    }
+
+    /**
+     * Setting the limit to zero opts out of the ceiling entirely.
+     *
+     * @group system
+     */
+    public function testProbeCacheCanBeLeftUnbounded()
+    {
+        $limit = Autoloader::$limit;
+        Autoloader::$limit = 0;
+
+        $before = Autoloader::stats();
+
+        for ($i = 0; $i < 50; $i++) {
+            class_exists('Unbounded\Probe\Ghost' . $i);
+        }
+
+        $after = Autoloader::stats();
+        Autoloader::$limit = $limit;
+
+        $this->assertGreaterThan($before['caches'], $after['caches']);
+    }
+
+    /**
+     * A class name that matches no file at all is not an error: the next
+     * autoloader in the SPL stack has to get its turn, and class_exists()
+     * has to keep answering false instead of blowing up.
+     *
+     * @group system
+     */
+    public function testMissingClassesAreNotAnError()
+    {
+        $this->assertFalse(class_exists('This\Class\Does\Not\Exist\Anywhere'));
+        $this->assertNull(Autoloader::load('Another\Missing\Class'));
+    }
+
+    /**
+     * When a class file itself fails while being included, the failure has to
+     * reach the caller. Swallowing it would surface later as PHP's own
+     * "Class not found", which points at the wrong file entirely.
+     *
+     * @group system
+     */
+    public function testFailureInsideAClassFileIsNotSwallowed()
+    {
+        $directory = path('app') . 'libraries' . DS;
+        $parent = $directory . 'autoloadprobeparent.php';
+        $child = $directory . 'autoloadprobechild.php';
+
+        // The parent lives in its own file so the child cannot be early-bound
+        // at compile time; otherwise PHP would declare it despite the throw.
+        file_put_contents($parent, '<?php' . "\n\n" . 'class AutoloadProbeParent {}' . "\n");
+        file_put_contents(
+            $child,
+            '<?php' . "\n\n" . 'throw new \RuntimeException(\'boom from inside the class file\');'
+                . "\n\n" . 'class AutoloadProbeChild extends AutoloadProbeParent {}' . "\n"
+        );
+
+        $caught = null;
+
+        try {
+            class_exists('AutoloadProbeChild');
+        } catch (\Throwable $e) {
+            $caught = $e;
+        } catch (\Exception $e) {
+            $caught = $e;
+        }
+
+        unlink($parent);
+        unlink($child);
+
+        $this->assertNotNull($caught, 'The failure inside the class file was swallowed.');
+        $this->assertEquals('boom from inside the class file', $caught->getMessage());
+
+        // Compared by basename rather than in full: Windows may hand back the
+        // path with a different separator or letter case than the one we built.
+        $this->assertEquals('autoloadprobechild.php', basename($caught->getFile()));
+    }
 }

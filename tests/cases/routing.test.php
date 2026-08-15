@@ -19,7 +19,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         Router::$routes = [];
         Router::$fallback = [];
         Router::$uses = [];
-        Router::$nodes = [];
+        Router::$domains = false;
     }
 
     /**
@@ -33,7 +33,7 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         Router::$routes = [];
         Router::$fallback = [];
         Router::$uses = [];
-        Router::$nodes = [];
+        Router::$domains = false;
     }
 
     /**

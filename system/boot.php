@@ -101,6 +101,27 @@ Debugger::$email = (string) $debugger['email'];
 Debugger::detectDebugMode();
 Debugger::dispatch();
 
+/*
+|--------------------------------------------------------------------------
+| Drop the Redundant Config Revalidation
+|--------------------------------------------------------------------------
+|
+| Config::get() re-stats the owning file on every single read to notice edits.
+| Its caches are plain statics though, so PHP clears them when the request
+| ends and the next request re-reads the file regardless. The check therefore
+| only ever catches a config file changing *during* one request, and pays two
+| filesystem calls per read for it — which hurts on shared hosting, where the
+| document root often lives on network storage.
+|
+| Development keeps the check anyway, since that is where a surprising cache
+| costs the most time. Note that Blade has a similar switch, but it is left
+| alone here: compiled templates live on disk and do outlive the request, so
+| turning its check off silently would stop edited templates from recompiling.
+|
+*/
+
+Config::$reload = !Debugger::$productionMode;
+
 unset($debugger, $template, $debugger);
 
 /*

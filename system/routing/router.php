@@ -85,11 +85,18 @@ class Router
     public static $segments = 5;
 
     /**
-     * Contains node list for trie structure (internal).
+     * Set once any registered route carries a 'domain' attribute.
+     *
+     * @var bool
+     */
+    public static $domains = false;
+
+    /**
+     * Cache of route pattern to its compiled regex, keyed by the raw pattern.
      *
      * @var array
      */
-    public static $nodes = [];
+    protected static $compiled = [];
 
     /**
      * List of supported regex patterns.
@@ -180,9 +187,6 @@ class Router
      */
     public static function register($method, $route, $action)
     {
-        // Initialize trie nodes
-        static::init_nodes();
-
         $route = Str::characterify($route);
         $digits = is_string($route) && '' !== $route && !preg_match('/[^0-9]/', $route);
 
@@ -241,7 +245,9 @@ class Router
                 $routes[$method][$route_key] += static::$group;
             }
 
-            static::insert_node($method, $uri, $routes[$method][$route_key]);
+            if (isset($routes[$method][$route_key]['domain'])) {
+                static::$domains = true;
+            }
         }
     }
 
@@ -393,20 +399,20 @@ class Router
     {
         Package::boot(Package::handles($uri));
 
-        $uri = ltrim($uri, '/');
+        $uri = trim($uri, '/');
         $uri = ('' === $uri) ? '/' : $uri;
 
         $routes = (array) static::method($method);
 
-
-        // Check domain-specific exact match first (composite key: domain||uri)
-        foreach ($routes as $key => $action) {
-            if (!isset($action['domain'])) {
-                continue;
-            }
-            $key_uri = (strpos($key, '||') !== false) ? substr($key, strpos($key, '||') + 2) : $key;
-            if ($key_uri === $uri && static::domain_matches($action['domain'], $domain)) {
-                return new Route($method, $uri, $action);
+        if (static::$domains) {
+            foreach ($routes as $key => $action) {
+                if (!isset($action['domain'])) {
+                    continue;
+                }
+                $key_uri = (strpos($key, '||') !== false) ? substr($key, strpos($key, '||') + 2) : $key;
+                if ($key_uri === $uri && static::domain_matches($action['domain'], $domain)) {
+                    return new Route($method, $uri, $action);
+                }
             }
         }
 
@@ -418,7 +424,7 @@ class Router
             }
         }
 
-        if (!is_null($route = static::match($method, $uri, $domain))) {
+        if (!is_null($route = static::match($method, $uri, $domain, $routes))) {
             return $route;
         }
     }
@@ -429,43 +435,33 @@ class Router
      * @param string $method
      * @param string $uri
      * @param string $domain
+     * @param array  $routes
      *
      * @return Route
      */
-    protected static function match($method, $uri, $domain = null)
+    protected static function match($method, $uri, $domain = null, $routes = null)
     {
-        // Try to match using trie first (domain-aware)
-        $result = static::match_node($method, $uri, $domain);
-
-        if ($result) {
-            $action = $result['action'];
-            if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
-                // Domain does not match, continue to regex matching
-            } else {
-                // Convert associative params to indexed array
-                $params = array_values($result['params']);
-                $pattern = isset($result['pattern_uri']) ? $result['pattern_uri'] : $uri;
-                return new Route($method, $pattern, $action, $params);
-            }
-        }
-
-        // Fallback to regex matching
-        $routes = static::method($method);
+        $routes = is_array($routes) ? $routes : static::method($method);
 
         foreach ($routes as $route_key => $action) {
             if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
                 continue;
             }
+
             // Extract actual URI pattern from composite key (domain||uri)
             $route = (strpos($route_key, '||') !== false)
                 ? substr($route_key, strpos($route_key, '||') + 2)
                 : $route_key;
-            if (Str::contains($route, '(')) {
-                $pattern = '#^' . static::wildcards($route) . '$#u';
 
-                if (preg_match($pattern, $uri, $parameters)) {
-                    return new Route($method, $route, $action, array_slice($parameters, 1));
-                }
+            if (!isset(static::$compiled[$route])) {
+                static::$compiled[$route] = (false !== strpos($route, '('))
+                    ? '#^' . static::wildcards($route) . '$#u'
+                    : false;
+            }
+
+            if (false !== static::$compiled[$route]
+                && preg_match(static::$compiled[$route], $uri, $parameters)) {
+                return new Route($method, $route, $action, array_slice($parameters, 1));
             }
         }
     }
@@ -570,139 +566,5 @@ class Router
     protected static function repeat($pattern, $times)
     {
         return implode('/', array_fill(0, $times, $pattern));
-    }
-
-    /**
-     * Inisialize trie nodes.
-     */
-    private static function init_nodes()
-    {
-        if (empty(static::$nodes)) {
-            $methods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'TRACE', 'CONNECT', 'OPTIONS'];
-
-            foreach ($methods as $method) {
-                static::$nodes[$method] = ['children' => [], 'action' => null, 'actions' => [], 'is_param' => false, 'param_name' => null, 'pattern_uri' => null, 'uri' => null];
-            }
-        }
-    }
-
-    /**
-     * Insert route to internal trie.
-     */
-    private static function insert_node($method, $uri, $action)
-    {
-        static::init_nodes();
-        $node = &static::$nodes[$method];
-        $uri = trim($uri, '/');
-        $uri = ('' === $uri) ? '/' : $uri;
-        $segments = explode('/', $uri);
-
-        if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
-            $node['action'] = $action;
-            $node['actions'][] = $action;
-            $node['pattern_uri'] = $uri;
-            $node['uri'] = $uri;
-            return;
-        }
-
-        foreach ($segments as $segment) {
-            if (empty($segment)) {
-                continue;
-            }
-
-            if (preg_match('/^\(:(\w+)\)$/', $segment, $matches)) {
-                $param_name = $matches[1];
-                $key = ':param';
-
-                if (!isset($node['children'][$key])) {
-                    $node['children'][$key] = ['children' => [], 'action' => null, 'actions' => [], 'is_param' => true, 'param_name' => $param_name, 'pattern_uri' => null, 'uri' => null];
-                }
-
-                $node = &$node['children'][$key];
-            } else {
-                if (!isset($node['children'][$segment])) {
-                    $node['children'][$segment] = ['children' => [], 'action' => null, 'actions' => [], 'is_param' => false, 'param_name' => null, 'pattern_uri' => null, 'uri' => null];
-                }
-
-                $node = &$node['children'][$segment];
-            }
-        }
-
-        $node['action'] = $action;
-        $node['actions'][] = $action;
-        $node['pattern_uri'] = $uri;
-        $node['uri'] = $uri;
-    }
-
-    /**
-     * Match URI from internal trie and extract the parameters.
-     */
-    private static function match_node($method, $uri, $domain = null)
-    {
-        if (!isset(static::$nodes[$method])) {
-            return null;
-        }
-
-        $node = static::$nodes[$method];
-        $uri = trim($uri, '/');
-        $uri = ('' === $uri) ? '/' : $uri;
-        $segments = explode('/', $uri);
-
-        if (empty($segments) || (count($segments) === 1 && empty($segments[0]))) {
-            return ($node['action'] && $node['uri'] === $uri) ? ['action' => $node['action'], 'params' => [], 'pattern_uri' => $node['pattern_uri']] : null;
-        }
-
-        $params = [];
-
-        foreach ($segments as $segment) {
-            if (empty($segment)) {
-                continue;
-            }
-
-            $found = false;
-
-            if (isset($node['children'][$segment])) {
-                $node = $node['children'][$segment];
-                $found = true;
-            } elseif (isset($node['children'][':param'])) {
-                $param_node = $node['children'][':param'];
-                $param_name = $param_node['param_name'];
-                $valid = true;
-
-                if ($param_name === 'num') {
-                    $valid = preg_match('/^[0-9]+$/', $segment);
-                } elseif ($param_name === 'alpha') {
-                    $valid = preg_match('/^[a-zA-Z]+$/', $segment);
-                } elseif ($param_name === 'alnum') {
-                    $valid = preg_match('/^[a-zA-Z0-9]+$/', $segment);
-                }
-
-                if ($valid) {
-                    $node = $param_node;
-                    $params[$param_name] = $segment;
-                    $found = true;
-                }
-            }
-
-            if (!$found) {
-                return null;
-            }
-        }
-
-        if (!empty($node['actions']) && $node['uri'] === $uri) {
-            foreach ($node['actions'] as $action) {
-                if (isset($action['domain']) && static::domain_matches($action['domain'], $domain)) {
-                    return ['action' => $action, 'params' => $params, 'pattern_uri' => $node['pattern_uri']];
-                }
-            }
-
-            foreach ($node['actions'] as $action) {
-                if (!isset($action['domain'])) {
-                    return ['action' => $action, 'params' => $params, 'pattern_uri' => $node['pattern_uri']];
-                }
-            }
-        }
-
-        return null;
     }
 }

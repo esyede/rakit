@@ -4,14 +4,6 @@ namespace System\Foundation\Oops;
 
 defined('DS') or exit('No direct access.');
 
-/**
- * Penyimpanan riwayat debugbar berbasis file (mirip FileStorage php-debugbar).
- * Tiap request disimpan sebagai satu berkas JSON di folder history, lalu
- * berkas terlama otomatis dipangkas agar jumlahnya tak melebihi batas.
- *
- * Kompatibel PHP 5.4 s/d 8.5 (hanya memakai fungsi inti: json_*, glob,
- * filemtime, dan array standar).
- */
 class Storage
 {
     /** @var string */
@@ -31,8 +23,7 @@ class Storage
     }
 
     /**
-     * Simpan payload satu request. $data minimal berisi:
-     *   ['content' => (string), 'dumps' => (array), 'meta' => (array)]
+     * Save request payload.
      *
      * @param string $id
      * @param array  $data
@@ -57,13 +48,23 @@ class Storage
         }
 
         $ok = @file_put_contents($file, $json, LOCK_EX);
+
+        if (false !== $ok) {
+            $meta = (isset($data['meta']) && is_array($data['meta'])) ? $data['meta'] : [];
+            $sidecar = json_encode($meta);
+
+            if (false !== $sidecar) {
+                @file_put_contents($this->meta_path($id), $sidecar, LOCK_EX);
+            }
+        }
+
         $this->cleanup();
 
         return false !== $ok;
     }
 
     /**
-     * Ambil payload satu request berdasarkan ID.
+     * Get request payload by ID.
      *
      * @param string $id
      *
@@ -83,8 +84,7 @@ class Storage
     }
 
     /**
-     * Daftar metadata request terbaru (urut terbaru dulu). Setiap entri
-     * adalah meta yang tersimpan ditambah kunci 'id'.
+     * Get recent metas.
      *
      * @param int $limit
      *
@@ -95,17 +95,15 @@ class Storage
         $files = $this->files();
 
         if (!$files) {
-            return array();
+            return [];
         }
 
-        $metas = array();
+        $metas = [];
 
         foreach ($files as $file) {
-            $data = json_decode((string) file_get_contents($file), true);
-            $meta = (is_array($data) && isset($data['meta']) && is_array($data['meta']))
-                ? $data['meta'] : array();
+            $meta = $this->meta_of($file);
             $meta['id'] = basename($file, '.json');
-            $meta['ts'] = isset($meta['ts']) ? (float) $meta['ts'] : (float) filemtime($file);
+            $meta['ts'] = isset($meta['ts']) ? (float) $meta['ts'] : $this->stamp($file);
             $metas[] = $meta;
         }
 
@@ -120,7 +118,7 @@ class Storage
     }
 
     /**
-     * Buang berkas terlama bila jumlahnya melewati batas.
+     * Cleanup old metas.
      *
      * @return void
      */
@@ -132,11 +130,8 @@ class Storage
             return;
         }
 
-        // Urutkan berdasar timestamp presisi (meta 'ts') — bukan mtime berkas
-        // yang granularitasnya 1 detik, sehingga beberapa request pada detik
-        // yang sama tetap terurut benar saat dipangkas.
-        $times = $this->timestamps();
-        asort($times); // terlama dulu
+        $times = $this->timestamps($files);
+        asort($times); // oldest first
 
         $remove = count($files) - $this->max;
         foreach ($times as $file => $ts) {
@@ -144,26 +139,75 @@ class Storage
                 break;
             }
             @unlink($file);
+            @unlink($this->meta_path(basename($file, '.json')));
         }
     }
 
     /**
-     * Peta [berkas => timestamp] memakai meta 'ts' (fallback mtime berkas).
+     * Get meta timestamps.
+     *
+     * @param array|null $files
      *
      * @return array
      */
-    protected function timestamps()
+    protected function timestamps($files = null)
     {
-        $out = array();
+        $out = [];
+        $files = is_array($files) ? $files : $this->files();
 
-        foreach ($this->files() as $file) {
-            $data = json_decode((string) file_get_contents($file), true);
-            $out[$file] = (is_array($data) && isset($data['meta']['ts']))
-                ? (float) $data['meta']['ts']
-                : (float) filemtime($file);
+        foreach ($files as $file) {
+            $meta = $this->meta_of($file);
+            $out[$file] = isset($meta['ts']) ? (float) $meta['ts'] : $this->stamp($file);
         }
 
         return $out;
+    }
+
+    /**
+     * Modify meta timestamp.
+     *
+     * @param string $file
+     *
+     * @return float
+     */
+    protected function stamp($file)
+    {
+        return is_file($file) ? (float) filemtime($file) : 0.0;
+    }
+
+    /**
+     * Read meta timestamp.
+     *
+     * @param string $file
+     *
+     * @return array
+     */
+    protected function meta_of($file)
+    {
+        $sidecar = $this->meta_path(basename($file, '.json'));
+
+        if (is_file($sidecar)) {
+            $meta = json_decode((string) file_get_contents($sidecar), true);
+
+            if (is_array($meta)) {
+                return $meta;
+            }
+        }
+
+        if (!is_file($file)) {
+            return [];
+        }
+
+        $data = json_decode((string) file_get_contents($file), true);
+        $meta = (is_array($data) && isset($data['meta']) && is_array($data['meta'])) ? $data['meta'] : [];
+
+        $encoded = json_encode($meta);
+
+        if (false !== $encoded) {
+            @file_put_contents($sidecar, $encoded, LOCK_EX);
+        }
+
+        return $meta;
     }
 
     /**
@@ -173,7 +217,7 @@ class Storage
     {
         $files = glob($this->dir . DIRECTORY_SEPARATOR . '*.json');
 
-        return is_array($files) ? $files : array();
+        return is_array($files) ? $files : [];
     }
 
     /**
@@ -183,8 +227,28 @@ class Storage
      */
     protected function path($id)
     {
-        $id = preg_replace('#[^a-zA-Z0-9_-]#', '', (string) $id);
+        return $this->dir . DIRECTORY_SEPARATOR . $this->sanitize($id) . '.json';
+    }
 
-        return $this->dir . DIRECTORY_SEPARATOR . $id . '.json';
+    /**
+     * Get meta path..
+     *
+     * @param string $id
+     *
+     * @return string
+     */
+    protected function meta_path($id)
+    {
+        return $this->dir . DIRECTORY_SEPARATOR . $this->sanitize($id) . '.meta';
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return string
+     */
+    protected function sanitize($id)
+    {
+        return preg_replace('#[^a-zA-Z0-9_-]#', '', (string) $id);
     }
 }

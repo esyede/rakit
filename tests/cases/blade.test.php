@@ -266,4 +266,99 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $translated = Blade::translate($blade);
         $this->assertEquals("\nUnique content\n", $translated);
     }
+
+    /**
+     * Test for Blade::compiled().
+     *
+     * The result is memoized, so repeated calls must keep returning the same
+     * path, and different templates must still map to different files.
+     *
+     * @group system
+     */
+    public function testCompiledPathIsStableAndUnique()
+    {
+        $one = path('app') . 'views' . DS . 'home' . DS . 'index.blade.php';
+        $two = path('app') . 'views' . DS . 'home' . DS . 'other.blade.php';
+
+        $this->assertEquals(Blade::compiled($one), Blade::compiled($one));
+        $this->assertNotEquals(Blade::compiled($one), Blade::compiled($two));
+        $this->assertStringEndsWith('.bc.php', Blade::compiled($one));
+    }
+
+    /**
+     * Compiling a template for the first time must not emit any diagnostic.
+     *
+     * The debugger runs with Debugger::$scream on, which disables the '@'
+     * operator and promotes warnings to exceptions. Anything in the compile
+     * path that pokes a not-yet-existing compiled file without checking first
+     * therefore turns every cold view cache into a 500.
+     *
+     * @group system
+     */
+    public function testCompilingAColdTemplateEmitsNoDiagnostics()
+    {
+        $views = path('app') . 'views' . DS;
+        $template = $views . 'coldprobe.blade.php';
+
+        file_put_contents($template, 'cold {{ $n }}');
+
+        $compiled = Blade::compiled($template);
+        is_file($compiled) && unlink($compiled);
+
+        // Stand in for Debugger::$scream: refuse to let anything pass quietly.
+        set_error_handler(function ($severity, $message, $file, $line) {
+            throw new \ErrorException($message, 0, $severity, $file, $line);
+        });
+
+        $caught = null;
+
+        try {
+            $output = System\View::make('coldprobe', ['n' => 7])->render();
+        } catch (\Throwable $e) {
+            $caught = $e;
+        } catch (\Exception $e) {
+            $caught = $e;
+        }
+
+        restore_error_handler();
+
+        unlink($template);
+        is_file($compiled) && unlink($compiled);
+
+        $this->assertNull($caught, $caught ? 'Compiling a cold template raised: ' . $caught->getMessage() : '');
+        $this->assertEquals('cold 7', trim($output));
+    }
+
+    /**
+     * Test for Blade::expired().
+     *
+     * With the modification-time check disabled (how the framework runs in
+     * production) a compiled template is always considered current, so an
+     * edited template does not trigger a recompile until the cache is cleared.
+     *
+     * @group system
+     */
+    public function testExpiredIsSkippedWhenReloadIsDisabled()
+    {
+        $path = path('storage') . 'expired-probe.blade.php';
+        file_put_contents($path, 'hello');
+
+        $compiled = Blade::compiled($path);
+        file_put_contents($compiled, 'hello');
+
+        // Make the template look newer than its compiled counterpart.
+        touch($compiled, time() - 60);
+        clearstatcache();
+
+        Blade::$reload = true;
+        $this->assertTrue(Blade::expired($path));
+
+        Blade::$reload = false;
+        $this->assertFalse(Blade::expired($path));
+
+        Blade::$reload = true;
+
+        unlink($path);
+        unlink($compiled);
+    }
 }

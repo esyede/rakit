@@ -49,6 +49,34 @@ class Blade
     protected static $translated = [];
 
     /**
+     * Cache of view path to compiled file path.
+     *
+     * @var array
+     */
+    protected static $compiles = [];
+
+    /**
+     * Whether a compiled view is checked against the template's modification
+     * time before being reused.
+     *
+     * This stays on by default, including in production, because turning it
+     * off means an edited template is never recompiled until the cache is
+     * cleared by hand — too sharp an edge to enable behind your back. The
+     * check costs one extra stat per template, and PHP's stat cache absorbs
+     * repeats of the same file within a request.
+     *
+     * Opt out only if you are sure, by adding this to application/boot.php:
+     *
+     *     System\Blade::$reload = false;
+     *
+     * and then running `php rakit clear:views` as part of every deploy, so
+     * stale compiled templates are dropped.
+     *
+     * @var bool
+     */
+    public static $reload = true;
+
+    /**
      * Register blade engine.
      */
     public static function sharpen()
@@ -61,6 +89,12 @@ class Blade
             $compiled = static::compiled($view->path);
 
             try {
+                // is_file() before filemtime() looks like an extra syscall but
+                // is not: PHP caches stat results per path, so the two calls on
+                // $compiled share one. Folding them into a bare filemtime()
+                // would emit a warning when the file is absent, and with
+                // Debugger::$scream on (which disables '@') that warning
+                // becomes an exception on every cold view cache.
                 if (!is_file($compiled) || static::expired($view->path)) {
                     file_put_contents($compiled, static::compile($view), LOCK_EX);
                 }
@@ -102,6 +136,10 @@ class Blade
      */
     public static function expired($path)
     {
+        if (!static::$reload) {
+            return false;
+        }
+
         return filemtime($path) > filemtime(static::compiled($path));
     }
 
@@ -755,6 +793,15 @@ class Blade
      */
     public static function compiled($path)
     {
+        // The CRC below walks the path byte by byte in userland, so it costs
+        // roughly 8 iterations per character. It is called at least twice per
+        // view render (once directly, once through expired()), and a page made
+        // of many partials multiplies that. The result only depends on $path,
+        // so memoize it per request.
+        if (isset(static::$compiles[$path])) {
+            return static::$compiles[$path];
+        }
+
         $name = Str::replace_last('.blade.php', '', basename($path));
         $length = strlen($path);
         $hash = 65535;
@@ -771,6 +818,8 @@ class Blade
             }
         }
 
-        return path('storage') . 'views' . DS . sprintf('%s__%u', $name, $hash) . '.bc.php';
+        static::$compiles[$path] = path('storage') . 'views' . DS . sprintf('%s__%u', $name, $hash) . '.bc.php';
+
+        return static::$compiles[$path];
     }
 }

@@ -56,39 +56,40 @@ class Autoloader
     protected static $caches = [];
 
     /**
+     * How many path probes may be remembered before the cache is dropped.
+     *
+     * @var int
+     */
+    public static $limit = 10000;
+
+    /**
      * Load a file based on the given class.
-     * This method is the default autoloader.
+     * Failures are deliberately left to propagate.
      *
      * @param string $class
      */
     public static function load($class)
     {
-        try {
-            if (isset(static::$aliases[$class])) {
-                return class_alias(static::$aliases[$class], $class);
-            } elseif (isset(static::$mappings[$class])) {
-                require static::$mappings[$class];
-                return;
-            }
-
-            // If directories are not registered, register defaults
-            if (empty(static::$directories)) {
-                $app = path('app');
-                static::directories([$app . 'controllers', $app . 'models', $app . 'libraries', $app . 'commands', $app . 'jobs']);
-            }
-
-            foreach (static::$namespaces as $namespace => $directory) {
-                if ('' !== $namespace && $namespace === substr((string) $class, 0, strlen((string) $namespace))) {
-                    return static::load_namespaced($class, $namespace, $directory);
-                }
-            }
-
-            static::load_psr($class);
-        } catch (\Throwable $e) {
-            return;
-        } catch (\Exception $e) {
+        if (isset(static::$aliases[$class])) {
+            return class_alias(static::$aliases[$class], $class);
+        } elseif (isset(static::$mappings[$class])) {
+            require static::$mappings[$class];
             return;
         }
+
+        // If directories are not registered, register defaults
+        if (empty(static::$directories)) {
+            $app = path('app');
+            static::directories([$app . 'controllers', $app . 'models', $app . 'libraries', $app . 'commands', $app . 'jobs']);
+        }
+
+        foreach (static::$namespaces as $namespace => $directory) {
+            if ('' !== $namespace && $namespace === substr((string) $class, 0, strlen((string) $namespace))) {
+                return static::load_namespaced($class, $namespace, $directory);
+            }
+        }
+
+        static::load_psr($class);
     }
 
     /**
@@ -131,37 +132,41 @@ class Autoloader
             $origpath = $directory . $file . '.php';
 
             if (!isset(static::$caches[$lowerpath])) {
-                static::$caches[$lowerpath] = is_file($lowerpath);
+                static::remember($lowerpath, is_file($lowerpath));
             }
 
             if (static::$caches[$lowerpath]) {
-                try {
-                    require $lowerpath;
-                    static::$loaded[$lowercased] = $lowerpath;
-                    return;
-                } catch (\Throwable $e) {
-                    return;
-                } catch (\Exception $e) {
-                    return;
-                }
+                require $lowerpath;
+                static::$loaded[$lowercased] = $lowerpath;
+                return;
             }
 
             if (!isset(static::$caches[$origpath])) {
-                static::$caches[$origpath] = is_file($origpath);
+                static::remember($origpath, is_file($origpath));
             }
 
             if (static::$caches[$origpath]) {
-                try {
-                    require $origpath;
-                    static::$loaded[$file] = $origpath;
-                    return;
-                } catch (\Throwable $e) {
-                    return;
-                } catch (\Exception $e) {
-                    return;
-                }
+                require $origpath;
+                static::$loaded[$file] = $origpath;
+                return;
             }
         }
+    }
+
+    /**
+     * Record whether a candidate path exists, dropping the whole cache first
+     * if it has outgrown the limit.
+     *
+     * @param string $path
+     * @param bool   $exists
+     */
+    protected static function remember($path, $exists)
+    {
+        if (static::$limit > 0 && count(static::$caches) >= static::$limit) {
+            static::$caches = [];
+        }
+
+        static::$caches[$path] = $exists;
     }
 
     /**
@@ -186,15 +191,7 @@ class Autoloader
     }
 
     /**
-     * Register a batch of class aliases. Detects conflicts with built-in
-     * classes provided by PHP extensions (e.g. the `event` extension exposes
-     * a built-in `Event` class that would shadow our alias). Built-in classes
-     * are loaded before any userland autoloader runs, so silent shadowing
-     * causes confusing "Call to undefined method" errors at runtime.
-     *
-     * Conflicting aliases are skipped (not registered) and reported via an
-     * E_USER_WARNING so the framework still boots for non-conflicting uses,
-     * but the developer is alerted to rename or remove the alias.
+     * Register a batch of class aliases. Detects conflicts with built-in PHP classes.
      *
      * @param array $aliases
      */

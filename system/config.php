@@ -36,6 +36,14 @@ class Config
     public static $gets = [];
 
     /**
+     * Whether cached items are revalidated
+     * against the file's modification time on every read.
+     *
+     * @var bool
+     */
+    public static $reload = true;
+
+    /**
      * Event name for config loader.
      *
      * @var string
@@ -91,6 +99,11 @@ class Config
 
         if (isset(static::$gets[$key])) {
             $cached = static::$gets[$key];
+
+            if (!static::$reload) {
+                return $cached['value'];
+            }
+
             $path = Package::path($package) . 'config' . DS . $file . '.php';
 
             if (is_file($path) && filemtime($path) > $cached['mtime']) {
@@ -231,6 +244,11 @@ class Config
 
         if (isset(static::$files[$key])) {
             $cached = static::$files[$key];
+
+            if (!static::$reload) {
+                return $cached['data'];
+            }
+
             $env = Request::env();
             $paths = [Package::path($package) . 'config' . DS];
 
