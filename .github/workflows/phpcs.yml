@@ -4,9 +4,16 @@ on:
     push:
         paths:
             - '**/*.php'
+            - '.github/workflows/**'
     pull_request:
         paths:
             - '**/*.php'
+            - '.github/workflows/**'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
     build:
         runs-on: ubuntu-latest
