@@ -2,143 +2,253 @@
 <html lang="{{ config('application.language', 'en') }}">
 
 <head>
-    <title>Welcome!</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome!</title>
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
-    <script>
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.documentElement.classList.add('dark');
-        } else if (savedTheme === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        }
-    </script>
     <style>
+        /* Halaman sambutan sengaja berdiri sendiri: seluruh gaya ditulis inline
+           dan tidak ada permintaan ke luar, agar aplikasi baru langsung tampil
+           benar sebelum aset apa pun disiapkan. */
+
         :root {
-            --background: #fff;
-            --foreground: #636b6f;
-            --primary: #2563eb;
+            --bg: #000;
+            --text: #ededf2;
+            --dim: #8b8b99;
+            --faint: #5f5f6d;
+            --primary: #5a45ff;
+            --soft: #c5c0ff;
+            --rule: #1c1b24;
+            --rule-strong: #2e2d3a;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
         }
 
-        .dark {
-            --background: #0e0f13;
-            --foreground: #abb2bf;
-            --primary: #7aa2f7;
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
         }
 
-        html,
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
-            background-color: var(--background);
-            color: var(--foreground);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial,
-                sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            font-weight: 200;
-            height: 100vh;
             margin: 0;
-        }
-
-        .full-height {
-            height: 100vh;
-        }
-
-        .flex-center {
-            align-items: center;
+            min-height: 100vh;
             display: flex;
+            align-items: center;
             justify-content: center;
-        }
-
-        .position-ref {
+            padding: 24px;
             position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .top-right {
+        body::before {
+            content: '';
             position: absolute;
-            right: 10px;
-            top: 18px;
+            inset: 0;
+            z-index: -1;
+            background-image:
+                linear-gradient(to right, var(--rule) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
+            background-size: 64px 64px;
+            background-position: center center;
+            -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 50%, #000 10%, transparent 75%);
+            mask-image: radial-gradient(ellipse 60% 55% at 50% 50%, #000 10%, transparent 75%);
         }
 
-        .donate {
+        body::after {
+            content: '';
             position: absolute;
-            left: 5px;
-            bottom: 5px;
-            z-index: 10;
+            inset: 0;
+            z-index: -2;
+            background: radial-gradient(ellipse 45% 40% at 50% 42%, rgba(90, 69, 255, .13), transparent 70%);
         }
 
-        @media (max-width: 768px) {
-            .donate {
-                left: auto;
-                bottom: auto;
-                right: 5px;
-                top: 5px;
-            }
-
-            .top-right {
-                top: 50px;
-            }
-        }
-
-        .content {
+        .panel {
+            width: 100%;
+            max-width: 620px;
             text-align: center;
         }
 
-        .title {
-            font-size: 84px;
-            color: var(--primary);
+        .eyebrow {
+            display: block;
+            margin-bottom: 24px;
+            font-family: var(--mono);
+            font-size: 11px;
             font-weight: 600;
-        }
-
-        @media (max-width: 600px) {
-            .title { font-size: 50px; }
-        }
-
-        .links>a {
-            color: var(--primary);
-            padding: 0 25px;
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.1rem;
-            text-decoration: none;
+            letter-spacing: .14em;
             text-transform: uppercase;
+            color: var(--faint);
         }
 
-        .m-b-md {
-            margin-bottom: 30px;
+        .wordmark {
+            font-size: clamp(56px, 13vw, 104px);
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -.04em;
+            color: var(--text);
+        }
+
+        .wordmark em {
+            font-style: normal;
+            color: var(--soft);
+        }
+
+        .lead {
+            margin: 20px auto 0;
+            max-width: 440px;
+            font-size: 16.5px;
+            color: var(--dim);
+        }
+
+        .rule {
+            height: 1px;
+            margin: 36px auto;
+            background: var(--rule);
+        }
+
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .links a {
+            padding: 8px 18px;
+            border: 1px solid transparent;
+            color: var(--dim);
+            font-family: var(--mono);
+            font-size: 11.5px;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            transition: color .18s ease, border-color .18s ease;
+        }
+
+        .links a:hover {
+            color: var(--text);
+            border-color: var(--rule-strong);
+        }
+
+        .links a:focus-visible,
+        .session a:focus-visible,
+        .support a:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .session {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .session a {
+            padding: 7px 16px;
+            border: 1px solid var(--rule-strong);
+            color: var(--text);
+            font-size: 13.5px;
+            text-decoration: none;
+            transition: border-color .18s ease, color .18s ease;
+        }
+
+        .session a:hover {
+            border-color: var(--dim);
+            color: #fff;
+        }
+
+        /* Diletakkan dalam alur konten, bukan absolut di pojok bawah, agar
+           tidak tertutup debug bar yang menyala secara bawaan. */
+        .support {
+            margin: 36px 0 0;
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--faint);
+        }
+
+        .support a {
+            color: var(--faint);
+            text-decoration: none;
+            border-bottom: 1px solid var(--rule-strong);
+            transition: color .18s ease, border-color .18s ease;
+        }
+
+        .support a:hover {
+            color: var(--soft);
+            border-color: currentColor;
+        }
+
+        @media (max-width: 640px) {
+            .session {
+                position: static;
+                justify-content: center;
+                margin-bottom: 28px;
+            }
+
+            body {
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition-duration: .01ms !important;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="flex-center position-ref full-height">
+    @if (Route::has('login'))
+        <div class="session">
+            @guest
+                <a href="{{ url('/login') }}">Login</a>
+                <a href="{{ url('/register') }}">Register</a>
+            @else
+                <a href="{{ url('/dashboard') }}">Dashboard</a>
+            @endguest
+        </div>
+    @endif
 
-        @if (Route::has('login'))
-            <div class="top-right links">
-                @guest
-                    <a href="{{ url('/login') }}">Login</a>
-                    <a href="{{ url('/register') }}">Register</a>
-                @else
-                    <a href="{{ url('/dashboard') }}">Dashboard</a>
-                @endguest
-            </div>
-        @endif
+    <div class="panel">
+        <span class="eyebrow">Rakit {{ RAKIT_VERSION }}</span>
+        <div class="wordmark">ra<em>kit</em></div>
+        <p class="lead">
+            Your application is up and running. Start building by editing
+            <code>application/routes.php</code>.
+        </p>
 
-        <div class="content">
-            <div class="title m-b-md">rakit</div>
-            <div class="links">
-                <a href="{{ url('/docs') }}">Docs</a>
-                <a href="https://rakit.esyede.my.id/api/main/index.html">API</a>
-                <a href="https://rakit.esyede.my.id/repositories">Packages</a>
-                <a href="https://github.com/esyede/rakit/discussions">Forum</a>
-                <a href="https://github.com/esyede/rakit">GitHub</a>
-            </div>
+        <div class="rule"></div>
+
+        <div class="links">
+            <a href="{{ url('/docs') }}">Docs</a>
+            <a href="https://rakit.esyede.my.id/api/main/index.html">API</a>
+            <a href="https://rakit.esyede.my.id/repositories">Packages</a>
+            <a href="https://github.com/esyede/rakit/discussions">Forum</a>
+            <a href="https://github.com/esyede/rakit">Github</a>
         </div>
 
-        <div class="donate">
-            <a href='https://ko-fi.com/A0A61UOVND' target='_blank'>
-                <img height='26' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee' />
-            </a>
-        </div>
+        <p class="support">
+            Support the project &mdash;
+            <a href="https://ko-fi.com/A0A61UOVND" target="_blank" rel="noopener">Buy me a coffee</a>
+        </p>
     </div>
 </body>
 
