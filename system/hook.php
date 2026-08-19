@@ -70,6 +70,18 @@ class Hook
     }
 
     /**
+     * Adds an item to the event queue for later processing.
+     *
+     * @param string $queue
+     * @param string $key
+     * @param array  $data
+     */
+    public static function queue($queue, $key, array $data = [])
+    {
+        static::$queued[$queue][$key] = $data;
+    }
+
+    /**
      * Registers a callback queue flusher.
      *
      * @param string   $queue

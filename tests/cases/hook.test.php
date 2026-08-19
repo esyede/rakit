@@ -20,6 +20,8 @@ class HookTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         unset(Hook::$events['test.event']);
+        unset(Hook::$queued['test.queue']);
+        unset(Hook::$flushers['test.queue']);
     }
 
     /**
@@ -54,5 +56,45 @@ class HookTest extends \PHPUnit_Framework_TestCase
 
         $responses = Hook::fire('test.event', ['foo']);
         $this->assertEquals('foo', $responses[0]);
+    }
+
+    /**
+     * Test that queued events are handed to the flusher on flush.
+     *
+     * @group system
+     */
+    public function testQueuedEventsAreFlushed()
+    {
+        $flushed = [];
+
+        Hook::flusher('test.queue', function ($key, $value) use (&$flushed) {
+            $flushed[$key] = $value;
+        });
+
+        Hook::queue('test.queue', 'first', ['foo']);
+        Hook::queue('test.queue', 'second', ['bar']);
+        Hook::flush('test.queue');
+
+        $this->assertEquals(['first' => 'foo', 'second' => 'bar'], $flushed);
+    }
+
+    /**
+     * Test that queuing the same key twice replaces the earlier payload.
+     *
+     * @group system
+     */
+    public function testQueuedEventsAreKeyedAndDeduplicated()
+    {
+        $flushed = [];
+
+        Hook::flusher('test.queue', function ($key, $value) use (&$flushed) {
+            $flushed[] = $key . ':' . $value;
+        });
+
+        Hook::queue('test.queue', 'dupe', ['first']);
+        Hook::queue('test.queue', 'dupe', ['second']);
+        Hook::flush('test.queue');
+
+        $this->assertEquals(['dupe:second'], $flushed);
     }
 }

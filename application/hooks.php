@@ -17,7 +17,3 @@ defined('DS') or exit('No direct access.');
 Hook::listen('404', function () {
     return Response::error(404);
 });
-
-Hook::listen('500', function () {
-    return Response::error(500);
-});

@@ -59,6 +59,9 @@ While the `Hook::until()` method will run all listeners owned by the event, and 
 $response = Hook::until('loaded');
 ```
 
+> The `dispatch()` helper is a shorthand for `Hook::fire()` — see
+> [Helpers](/docs/helpers#dispatch).
+
 <a id="listening-to-an-event"></a>
 
 ## Listening to an Event
@@ -91,6 +94,11 @@ Hook::queue('foo', $user->id, [$user]);
 
 This method accepts 3 parameters. The first is the queue name, the second is a unique name for this item in the queue, and the third is an array of data to pass to the flusher.
 
+> Because the second parameter is used as the array key, queuing the same key
+> twice replaces the earlier payload instead of adding a second one. That makes
+> the queue naturally de-duplicating — handy when you want to collect items
+> during a request and process each one only once at the end.
+
 Next, we will register a flusher for the queue named `foo` above:
 
 #### Registering an event flusher:
@@ -108,6 +116,8 @@ Finally, we can run the flusher and flush all queued events using the `flush()` 
 ```php
 Hook::flush('foo');
 ```
+
+> `flush()` does not empty `Hook::$queued` afterwards. Unset the queue yourself if you need to prevent a second `flush()` from replaying the same payloads.
 
 <a id="framework-events"></a>
 
@@ -144,7 +154,7 @@ Here is the complete list of built-in framework events along with their paramete
 | Command                                         | Parameter                                             |
 | ----------------------------------------------- | ----------------------------------------------------- |
 | `Hook::fire('rakit.done',`                     | `[Response $response]);`                              |
-| `Hook::fire('rakit.log',`                      | `[string $type, string $message]);`                   |
+| `Hook::fire('rakit.log',`                      | `[string $type, string $message, array $context]);`   |
 | `Hook::fire('rakit.query',`                    | `[string $sql, array $bindings, string $time]);`      |
 | `Hook::fire('rakit.resolving',`                | `[string $type, mixed $object]);`                     |
 | `Hook::fire('rakit.composing: [view_name]',`   | `[View $view]);`                                      |
@@ -154,9 +164,9 @@ Here is the complete list of built-in framework events along with their paramete
 | `Hook::first('rakit.language.loader',`         | `[string $package, string $language, string $file]);` |
 | `Hook::until('rakit.view.loader',`             | `[string $package, string $view]);`                   |
 | `Hook::until('rakit.view.engine',`             | `[View $view]);`                                      |
-| `Hook::first('rakit.view.middleware',`         | `[string $content, string $path]);`                   |
-| `Hook::first('rakit.auth: login');`            | `None`                                                |
-| `Hook::first('rakit.auth: logout');`           | `None`                                                |
+| `Hook::first('view.middleware',`               | `[string $content, string $path]);`                   |
+| `Hook::fire('rakit.auth: login');`             | `None`                                                |
+| `Hook::fire('rakit.auth: logout');`            | `None`                                                |
 | `Hook::fire('facile.saving',`                  | `[Facile $model]);`                                   |
 | `Hook::fire('facile.saving: [class_name]',`    | `[Facile $model]);`                                   |
 | `Hook::fire('facile.updated',`                 | `[Facile $model]);`                                   |
@@ -169,8 +179,17 @@ Here is the complete list of built-in framework events along with their paramete
 | `Hook::fire('facile.deleting: [class_name]',`  | `[Facile $model]);`                                   |
 | `Hook::fire('facile.deleted',`                 | `[Facile $model]);`                                   |
 | `Hook::fire('facile.deleted: [class_name]',`   | `[Facile $model]);`                                   |
-| `Hook::fire('rakit.jobs.run: [job_name]',`     | `[string $name, array $payloads]);`                   |
-| `Hook::fire('rakit.jobs.ran: [job_name]',`     | `[string $name, array $payloads]);`                   |
+| `Hook::fire('rakit.jobs.process',`             | `[object\|array $job]);`                              |
+| `Hook::fire('rakit.jobs.run: [job_name]',`     | `$payloads` (spread as the listener's arguments)      |
 | `Hook::fire('rakit.jobs.forget: [job_name]');` | `None`                                                |
-| `Hook::first('500');`                          | `None`                                                |
 | `Hook::first('404');`                          | `None`                                                |
+
+> **Note on job events.** Job drivers fire `rakit.jobs.process` with the raw
+> job record. `System\Job` listens to it and re-fires
+> `rakit.jobs.run: [job_name]`, spreading the job's payloads as the listener's
+> arguments — that is the event your `Jobable` classes are bound to.
+
+> **Note on `404` and `500`.** Only `404` is fired by the framework (from the
+> catch-all route and from the controller resolver). There is no `500` event;
+> uncaught exceptions are handled by the debugger and rendered through
+> `Response::error(500)`.
