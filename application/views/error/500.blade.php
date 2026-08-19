@@ -9,9 +9,6 @@
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <title>500 | Internal Server Error</title>
     <style>
-        /* Halaman error sengaja berdiri sendiri: seluruh gaya ditulis inline
-           agar tetap tampil benar walaupun aset gagal dimuat. */
-
         :root {
             --bg: #000;
             --text: #ededf2;
@@ -52,7 +49,6 @@
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Kisi blueprint, sama seperti hero situs. */
         body::before {
             content: '';
             position: absolute;
@@ -115,12 +111,6 @@
             color: var(--text);
         }
 
-        .hint {
-            margin: 12px 0 0;
-            font-size: 15px;
-            color: var(--dim);
-        }
-
         .back {
             display: inline-flex;
             align-items: center;
@@ -158,7 +148,6 @@
         <div class="code">500</div>
         <div class="rule"></div>
         <div class="message">Internal Server Error</div>
-        <p class="hint">Something went wrong on our end.</p>
         <a class="back" href="{{ url('/') }}">
             <svg width="15" height="15" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

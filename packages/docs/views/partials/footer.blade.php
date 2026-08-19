@@ -1,22 +1,43 @@
-<!-- Footer start -->
 <footer class="footer">
-    <div class="container">
-        <div class="content has-text-centered">
-            <p>Made with
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                    width="11" height="11" viewBox="0 0 16 16">
-                    <path fill="#f14668"
-                        d="M11.8 1c-1.682 0-3.129 1.368-3.799 2.797-0.671-1.429-2.118-2.797-3.8-2.797-2.318 0-4.2 1.882-4.2 4.2 0 4.716 4.758 5.953 8 10.616 3.065-4.634 8-6.050 8-10.616 0-2.319-1.882-4.2-4.2-4.2z">
-                    </path>
-                </svg> by <a href="https://github.com/esyede/rakit/contributors" target="_blank">Contributors</a>.
-                Released under the <a href="https://github.com/esyede/rakit/blob/main/LICENSE" target="_blank">MIT
-                    License</a>.
-            </p>
+    <div class="shell shell--flush">
+        <div class="footer__grid">
+            <div class="footer__col">
+                <a class="footer__brand" href="{{ url('/') }}">Rakit</a>
+                <p class="footer__credit">
+                    Made with
+                    <svg width="11" height="11" viewBox="0 0 16 16" aria-hidden="true">
+                        <path fill="#f14668"
+                            d="M11.8 1c-1.682 0-3.129 1.368-3.799 2.797-0.671-1.429-2.118-2.797-3.8-2.797-2.318 0-4.2 1.882-4.2 4.2 0 4.716 4.758 5.953 8 10.616 3.065-4.634 8-6.050 8-10.616 0-2.319-1.882-4.2-4.2-4.2z" />
+                    </svg>
+                    by awesome
+                    <a href="https://github.com/esyede/rakit/contributors" target="_blank">Contributors</a>.
+                    Released under the
+                    <a href="https://github.com/esyede/rakit/blob/main/LICENSE" target="_blank">MIT License</a>.
+                </p>
+            </div>
+            <div class="footer__col">
+                <h4>Resources</h4>
+                <a href="{{ url('docs') }}">Documentation</a>
+                <a href="{{ url('api/main/index.html') }}" target="_blank">API Reference</a>
+                <a href="{{ url('repositories') }}">Packages</a>
+            </div>
+            <div class="footer__col">
+                <h4>Community</h4>
+                <a href="https://github.com/esyede/rakit/discussions" target="_blank">Forum</a>
+                <a href="https://github.com/esyede/rakit" target="_blank">Github</a>
+                <a href="https://github.com/esyede/rakit/contributors" target="_blank">Contributors</a>
+            </div>
+            <div class="footer__col">
+                <h4>Get started</h4>
+                <a href="{{ url('download') }}">Download {{ RAKIT_VERSION }}</a>
+                <a href="{{ url('docs/install') }}">Installation</a>
+                <a href="{{ url('docs/changelog') }}">Release notes</a>
+            </div>
         </div>
-        <a href="#" class="vanillatop"></a>
     </div>
+    <p class="footer__base">Rakit {{ RAKIT_VERSION }} &mdash; PHP 5.4 to 8.x</p>
+    <a href="#" class="vanillatop" aria-label="Back to top"></a>
 </footer>
-<!-- Footer end -->
 
 <script src="{{ asset('packages/docs/js/docs.min.js?v=' . RAKIT_VERSION) }}"></script>
 <script src="{{ asset('packages/docs/js/es5-shim.min.js?v=' . RAKIT_VERSION) }}"></script>
@@ -154,19 +175,54 @@
             });
         }).catch(error => console.error('Error loading search data:', error.message));
 
-        // Handle dark mode toggle
-        document.documentElement.classList.remove('dark-preload');
-        const toggleButton = document.getElementById('dark-mode-toggle');
-        if (toggleButton) {
-            const preferedTheme = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            toggleButton.textContent = (preferedTheme === 'dark') ? '☀️' : '🌙';
-            toggleButton.addEventListener('click', function() {
-                const html = document.documentElement;
-                html.classList.toggle('dark');
-                const theme = html.classList.contains('dark') ? 'dark' : 'light';
-                localStorage.setItem('theme', theme);
-                toggleButton.textContent = (theme === 'dark') ? '☀️' : '🌙';
-            });
+        // Tandai halaman yang sedang dibuka di sidebar.
+        //
+        // Docs::sidebar() mengganti href induk ber-submenu menjadi "#", jadi
+        // induk tidak bisa dicocokkan lewat href. Karena itu tautan tanpa
+        // anchor dicari lebih dulu; bila yang cocok hanya tautan ber-anchor,
+        // yang ditandai adalah pemicu submenu induknya, bukan sub-itemnya.
+        var here = location.pathname.replace(/\/+$/, '');
+        var links = document.querySelectorAll('#sidebar-toc a[href]');
+        var cocokPolos = null;
+        var cocokAnchor = null;
+
+        for (var n = 0; n < links.length; n++) {
+            var href = links[n].getAttribute('href');
+            if (!href || href.charAt(0) === '#') {
+                continue;
+            }
+            var tanpaHost = href.replace(/^https?:\/\/[^\/]+/, '');
+            var punyaAnchor = tanpaHost.indexOf('#') !== -1;
+            var path = tanpaHost.replace(/[?#].*$/, '').replace(/\/+$/, '');
+            if (path !== here) {
+                continue;
+            }
+            if (!punyaAnchor) {
+                cocokPolos = links[n];
+                break;
+            }
+            if (!cocokAnchor) {
+                cocokAnchor = links[n];
+            }
+        }
+
+        var sasaran = cocokPolos;
+        var submenu = null;
+
+        if (!sasaran && cocokAnchor) {
+            submenu = cocokAnchor.closest('.submenu');
+            sasaran = submenu ? submenu.previousElementSibling : cocokAnchor;
+        } else if (sasaran) {
+            submenu = sasaran.closest('.submenu');
+        }
+
+        if (sasaran) {
+            sasaran.classList.add('is-current');
+        }
+
+        if (submenu) {
+            submenu.style.maxHeight = submenu.scrollHeight + 'px';
+            submenu.style.marginTop = '0.2em';
         }
     });
 </script>

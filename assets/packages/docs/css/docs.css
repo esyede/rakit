@@ -1,0 +1,1964 @@
+/*
+| Tema situs Rakit — hitam dominan.
+|
+| Struktur dibentuk oleh garis 1px di atas kanvas hitam, bukan oleh bidang
+| berwarna. Permukaan kartu hampir hitam sehingga yang memisahkan elemen
+| adalah garisnya, bukan kontras isian.
+|
+| Tanpa dependensi eksternal: seluruh font dari berkas lokal di repositori ini.
+*/
+
+/* ==========================================================================
+   Font
+   ========================================================================== */
+
+/*
+| Monaco tersedia lokal dengan bobot 400, cocok untuk kode dan label.
+| Untuk judul tidak ada font display lokal yang layak (Raleway.ttf hanya
+| bobot 300/Light, sehingga bobot tebal akan disintesis dan terlihat lemah),
+| jadi judul memakai tumpukan font sistem yang punya bobot tebal sungguhan.
+| Taruh berkas font di assets/main/fonts/ dan daftarkan di sini bila ingin
+| memakai font display sendiri.
+*/
+
+@font-face {
+    font-family: 'Rakit Mono';
+    src: url('../../packages/docs/fonts/Monaco.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ==========================================================================
+   Token
+   ========================================================================== */
+
+:root {
+    --black: #000000;
+    --surface: #08080c;
+    --surface-2: #0e0e14;
+    --code-bg: #050507;
+
+    --text: #ededf2;
+    --text-dim: #8b8b99;
+    --text-faint: #5f5f6d;
+
+    --primary: #5a45ff;
+    --primary-hover: #6d5aff;
+    --primary-soft: #c5c0ff;
+    --accent: #ffb597;
+
+    --rule: #1c1b24;
+    --rule-strong: #2e2d3a;
+
+    /* Sudut siku: bentuk kotak tanpa pembulatan. --radius-pill disisakan
+       hanya untuk elemen yang memang lingkaran (titik penanda). */
+    --radius: 0;
+    --radius-lg: 0;
+    --radius-pill: 9999px;
+
+    --gutter: 24px;
+    --container: 1280px;
+    --gap: 112px;
+    --cell-pad: 40px;
+
+    --font-display: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'Rakit Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ==========================================================================
+   Dasar
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    /* Ruang scrollbar dicadangkan agar tata letak tidak melompat saat
+       guliran dikunci ketika modal terbuka. */
+    scrollbar-gutter: stable;
+    scrollbar-color: #26252f var(--black);
+    scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #26252f;
+    border: 3px solid var(--black);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #3a3947;
+}
+
+body {
+    margin: 0;
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+::selection {
+    background: var(--primary);
+    color: #fff;
+}
+
+a {
+    color: var(--primary-soft);
+    text-decoration: none;
+    transition: color .18s ease;
+}
+
+a:hover {
+    color: #fff;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: var(--font-display);
+    color: var(--text);
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    text-wrap: balance;
+}
+
+p {
+    margin: 0;
+}
+
+code,
+pre {
+    font-family: var(--font-mono);
+}
+
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+    outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
+
+/* ==========================================================================
+   Kerangka
+   ========================================================================== */
+
+.shell {
+    width: 100%;
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+}
+
+.shell--flush {
+    padding: 0;
+}
+
+.main {
+    flex: 1 0 auto;
+    position: relative;
+    padding-top: 64px;
+}
+
+/*
+| Garis tegak pembingkai. Satu lapisan setinggi seluruh area konten agar tidak
+| terputus oleh jarak antar-seksi, dengan lebar persis sama dengan .shell.
+*/
+.main::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: min(var(--container), 100%);
+    transform: translateX(-50%);
+    border-left: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    pointer-events: none;
+}
+
+.band {
+    border-top: 1px solid var(--rule);
+}
+
+.band__inner {
+    padding: var(--gap) var(--gutter);
+}
+
+.band__head {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: var(--gap) 0 56px;
+    text-align: center;
+}
+
+.band__head h2 {
+    font-size: 40px;
+    line-height: 1.15;
+    margin-bottom: 12px;
+}
+
+.band__head p {
+    color: var(--text-dim);
+    font-size: 18px;
+}
+
+.eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    display: block;
+    margin-bottom: 16px;
+}
+
+/* ==========================================================================
+   Sel — kisi yang dipisahkan garis, tanpa isian kartu
+   ========================================================================== */
+
+.cells {
+    display: grid;
+    gap: 1px;
+    background: var(--rule);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+}
+
+.cells--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cells--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cells--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.cell {
+    background: var(--black);
+    padding: var(--cell-pad) 32px;
+    transition: background-color .18s ease;
+}
+
+.cell:hover {
+    background: var(--surface);
+}
+
+.cell__icon {
+    color: var(--primary);
+    margin-bottom: 24px;
+    display: block;
+    transition: color .18s ease;
+}
+
+.cell:hover .cell__icon {
+    color: var(--primary-soft);
+}
+
+.cell__icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.cell__title {
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 10px;
+}
+
+.cell__text {
+    color: var(--text-dim);
+    font-size: 15px;
+}
+
+.cell__action {
+    margin-top: 24px;
+}
+
+/* ==========================================================================
+   Navigasi
+   ========================================================================== */
+
+.nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+    background: rgba(0, 0, 0, .82);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--rule);
+}
+
+.nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.nav__left {
+    display: flex;
+    align-items: center;
+}
+
+.nav__brand {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--text);
+}
+
+.nav__brand:hover {
+    color: var(--primary-soft);
+}
+
+.nav__links {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    margin-left: 40px;
+}
+
+.nav__link {
+    color: var(--text-dim);
+    font-size: 15px;
+}
+
+.nav__link:hover {
+    color: var(--text);
+}
+
+.nav__link.is-current {
+    color: var(--text);
+}
+
+.nav__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.navbar-burger {
+    display: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.navbar-burger span {
+    display: block;
+    width: 18px;
+    height: 1.5px;
+    background: var(--text-dim);
+    transition: transform .2s ease, opacity .2s ease;
+}
+
+.navbar-burger.is-active span:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+}
+
+.navbar-burger.is-active span:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-burger.is-active span:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+}
+
+/* ==========================================================================
+   Tombol
+   ========================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 28px;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+
+.btn--sm {
+    padding: 8px 18px;
+    font-size: 14px;
+}
+
+.btn--primary {
+    background: var(--primary);
+    color: #fff;
+}
+
+.btn--primary:hover {
+    background: var(--primary-hover);
+    color: #fff;
+}
+
+.btn--ghost {
+    background: transparent;
+    border-color: var(--rule-strong);
+    color: var(--text);
+}
+
+.btn--ghost:hover {
+    border-color: var(--text-dim);
+    color: #fff;
+}
+
+.btn__icon {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+
+.hero {
+    position: relative;
+    isolation: isolate;
+    /* Disejajarkan dengan .shell agar konten tidak keluar dari bingkai. */
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 112px var(--gutter) 96px;
+    text-align: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        linear-gradient(to right, var(--rule) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
+    background-size: 64px 64px;
+    background-position: center top;
+    -webkit-mask-image: radial-gradient(ellipse 65% 60% at 50% 38%, #000 15%, transparent 78%);
+    mask-image: radial-gradient(ellipse 65% 60% at 50% 38%, #000 15%, transparent 78%);
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background: radial-gradient(ellipse 55% 45% at 50% 26%, rgba(90, 69, 255, .13), transparent 72%);
+}
+
+.hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    margin-bottom: 36px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.hero__badge b {
+    color: var(--primary-soft);
+    font-weight: 600;
+}
+
+.hero__title {
+    font-size: 76px;
+    line-height: 1.05;
+    letter-spacing: -.035em;
+    font-weight: 700;
+    max-width: 960px;
+    margin: 0 auto 28px;
+}
+
+.hero__title em {
+    font-style: normal;
+    color: var(--primary-soft);
+}
+
+.hero__lead {
+    font-size: 19px;
+    color: var(--text-dim);
+    max-width: 620px;
+    margin: 0 auto 40px;
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.hero__cmd {
+    margin-top: 36px;
+    display: flex;
+    justify-content: center;
+}
+
+.hero__cmd code {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 13.5px;
+}
+
+.hero__cmd .prompt {
+    color: var(--primary);
+}
+
+/* Hero halaman dalam */
+.hero--page {
+    padding: 96px var(--gutter) 72px;
+}
+
+.hero--page .hero__title {
+    font-size: 52px;
+}
+
+/* ==========================================================================
+   Statistik ringkas
+   ========================================================================== */
+
+.stat {
+    padding: 32px;
+    background: var(--black);
+    text-align: center;
+}
+
+.stat__num {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    color: var(--text);
+    display: block;
+    line-height: 1.1;
+}
+
+.stat__label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-top: 8px;
+    display: block;
+}
+
+/* ==========================================================================
+   Ajakan penutup
+   ========================================================================== */
+
+.cta {
+    padding: var(--gap) var(--gutter);
+    text-align: center;
+    position: relative;
+    isolation: isolate;
+}
+
+/*
+| Sorot sengaja dinaikkan dan diperkecil agar memudar habis sebelum menyentuh
+| batas bawah blok. Bila ia mencapai tepi, latar di sekitarnya ikut terangkat
+| dan garis pemisah footer kehilangan kontras di bagian tengah sehingga
+| tampak putus, padahal garisnya utuh.
+*/
+.cta::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse 46% 46% at 50% 38%, rgba(90, 69, 255, .11), transparent 66%);
+}
+
+.cta h2 {
+    font-size: 44px;
+    line-height: 1.15;
+    margin-bottom: 14px;
+}
+
+.cta p {
+    color: var(--text-dim);
+    font-size: 18px;
+    margin-bottom: 32px;
+}
+
+/* ==========================================================================
+   Repositori
+   ========================================================================== */
+
+.repo {
+    display: grid;
+    grid-template-columns: 248px minmax(0, 1fr);
+    position: relative;
+}
+
+/*
+| Pemisah kolom dibuat sebagai lapisan setinggi baris, bukan border pada
+| sidebar: sidebar itu sticky dan align-self:start, jadi tingginya hanya
+| setinggi isinya dan garisnya akan berhenti di tengah.
+*/
+.repo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 248px;
+    border-left: 1px solid var(--rule);
+    pointer-events: none;
+}
+
+.repo__side {
+    padding: 40px 24px 40px 0;
+    position: sticky;
+    top: 96px;
+    align-self: start;
+}
+
+.repo__cat {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    color: var(--text-dim);
+    font-size: 15px;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+.repo__cat:hover {
+    background: var(--surface);
+    color: var(--text);
+}
+
+.repo__cat.is-current {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.repo__cat.is-current .repo__count {
+    color: var(--primary-soft);
+}
+
+.repo__count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.repo__list {
+    padding: 40px 0 40px 32px;
+}
+
+.repo__bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--rule);
+}
+
+.pkg {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--rule);
+    transition: background-color .18s ease;
+}
+
+.pkg:hover {
+    background: var(--surface);
+}
+
+.pkg__logo {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color .18s ease, border-color .18s ease;
+}
+
+.pkg:hover .pkg__logo {
+    color: var(--primary-soft);
+    border-color: var(--rule-strong);
+}
+
+.pkg__logo svg {
+    width: 22px;
+    height: 22px;
+}
+
+.pkg__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.pkg__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.pkg__name {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.pkg__name:hover {
+    color: var(--primary-soft);
+}
+
+.pkg__desc {
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 14px;
+}
+
+.pkg__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.dot {
+    width: 5px;
+    height: 5px;
+    border-radius: var(--radius-pill);
+    background: var(--primary);
+    flex: 0 0 auto;
+}
+
+.dot--warn {
+    background: var(--accent);
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.tag:hover {
+    border-color: var(--text-faint);
+    color: var(--text);
+}
+
+/* Paginasi */
+.pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 28px;
+}
+
+.pager__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-size: 14px;
+}
+
+.pager__link:hover {
+    border-color: var(--text-dim);
+    color: #fff;
+}
+
+.pager__link.is-disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+.pager__status {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: .1em;
+}
+
+/* ==========================================================================
+   Modal
+   ========================================================================== */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: var(--gutter);
+}
+
+.modal.is-active {
+    display: flex;
+}
+
+/*
+| Kunci guliran halaman selama modal terbuka. Dibuat lewat CSS karena kelas
+| is-active dikendalikan main.min.js yang sudah ter-minify. Peramban lama yang
+| belum mendukung :has() hanya kehilangan penguncian ini, tidak rusak.
+|
+| Penguncian harus dipasang di html juga: body memakai display:flex dan yang
+| benar-benar menggulir dokumen adalah elemen akar, sehingga overflow:hidden
+| pada body saja tidak berpengaruh.
+*/
+html:has(.modal.is-active),
+body:has(.modal.is-active) {
+    overflow: hidden;
+}
+
+.modal-background {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .82);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    text-align: left;
+    width: 100%;
+    max-width: 620px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+}
+
+.modal__title {
+    font-size: 22px;
+    margin-bottom: 24px;
+}
+
+.modal__lead {
+    color: var(--text-dim);
+    font-size: 15px;
+    margin-bottom: 14px;
+}
+
+.modal__steps {
+    list-style: none;
+    counter-reset: step;
+    margin: 0 0 26px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal__steps li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 34px;
+    color: var(--text-dim);
+    font-size: 15px;
+}
+
+.modal__steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 22px;
+    height: 22px;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--primary-soft);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal__actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.code {
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 26px;
+}
+
+.code__bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--rule);
+}
+
+.code__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: var(--radius-pill);
+    background: var(--rule-strong);
+}
+
+.code__name {
+    margin-left: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.code pre {
+    margin: 0;
+    padding: 18px;
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--text);
+}
+
+.code .prompt {
+    color: var(--primary);
+}
+
+.code .arg {
+    color: var(--accent);
+}
+
+.hl {
+    color: var(--primary-soft);
+    font-family: var(--font-mono);
+    font-size: .92em;
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.footer {
+    background: var(--black);
+    border-top: 1px solid var(--rule);
+}
+
+.footer__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 1px;
+    background: var(--rule);
+}
+
+.footer__col {
+    background: var(--black);
+    padding: 48px 32px;
+}
+
+.footer__brand {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    color: var(--text);
+    display: block;
+    margin-bottom: 14px;
+}
+
+.footer__credit {
+    color: var(--text-dim);
+    font-size: 14px;
+    max-width: 300px;
+}
+
+.footer__credit svg {
+    vertical-align: -1px;
+}
+
+/* Tautan di dalam kalimat kredit harus tetap inline. Selektornya sengaja
+   lebih spesifik daripada `.footer__col a` di bawah, yang memasang
+   display:block untuk daftar tautan kolom. */
+.footer__col .footer__credit a {
+    display: inline;
+    margin: 0;
+}
+
+.footer__col h4 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 18px;
+}
+
+.footer__col a {
+    display: block;
+    color: var(--text-dim);
+    font-size: 14.5px;
+    margin-bottom: 11px;
+}
+
+.footer__col a:hover {
+    color: var(--text);
+}
+
+.footer__base {
+    border-top: 1px solid var(--rule);
+    padding: 20px var(--gutter);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--text-faint);
+    text-align: center;
+}
+
+/* ==========================================================================
+   Toast — markup dari bulma-toast
+   ========================================================================== */
+
+.notification {
+    opacity: 1 !important;
+    display: inline-flex;
+    align-items: center;
+    background: rgba(14, 14, 20, .94);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 11px 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    text-align: left;
+    pointer-events: auto;
+}
+
+.notification a {
+    color: var(--primary-soft);
+}
+
+.notification .delete {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    padding: 0;
+    border: 0;
+    background: rgba(255, 255, 255, .1);
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.notification .delete::before,
+.notification .delete::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 1.5px;
+    background: var(--text-dim);
+}
+
+.notification .delete::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.notification .delete::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.notification .delete:hover {
+    background: rgba(255, 255, 255, .2);
+}
+
+/* ==========================================================================
+   Animasi toast
+
+   bulma-toast memasang kelas `animate__animated`, `animate__<in>` dan
+   `animate__<speed>` saat tampil, lalu `animate__<out>` saat ditutup dan
+   MENUNGGU event `animationend` sebelum menghapus elemennya. Tanpa keyframes
+   yang cocok, event itu tidak pernah terpicu dan toast tidak akan pernah
+   hilang. Jadi definisi di bawah ini wajib ada, bukan sekadar hiasan.
+   ========================================================================== */
+
+.animate__animated {
+    animation-duration: .4s;
+    animation-fill-mode: both;
+}
+
+.animate__faster {
+    animation-duration: .25s;
+}
+
+@keyframes rakit-fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate__fadeInUp {
+    animation-name: rakit-fade-in-up;
+}
+
+@keyframes rakit-fade-out-down {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+}
+
+.animate__fadeOutDown {
+    animation-name: rakit-fade-out-down;
+}
+
+/* ==========================================================================
+   Responsif
+   ========================================================================== */
+
+@media screen and (max-width: 1023px) {
+    :root {
+        --gap: 72px;
+        --cell-pad: 32px;
+    }
+
+    .cells--4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .hero__title {
+        font-size: 56px;
+    }
+
+    .repo {
+        grid-template-columns: 1fr;
+    }
+
+    .repo::before {
+        display: none;
+    }
+
+    .repo__side {
+        position: static;
+        border-bottom: 1px solid var(--rule);
+        padding: 28px 0;
+    }
+
+    .repo__list {
+        padding: 28px 0;
+    }
+
+    .footer__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    :root {
+        --gutter: 16px;
+        --gap: 56px;
+        --cell-pad: 28px;
+    }
+
+    .main::after {
+        display: none;
+    }
+
+    .navbar-burger {
+        display: flex;
+    }
+
+    .nav__links {
+        display: none;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin: 0;
+        padding: 6px 0;
+        background: var(--black);
+        border-bottom: 1px solid var(--rule);
+    }
+
+    .nav__links.is-active {
+        display: flex;
+    }
+
+    .nav__link {
+        padding: 11px var(--gutter);
+    }
+
+    .nav__cta {
+        display: none;
+    }
+
+    .hero {
+        padding: 72px var(--gutter) 64px;
+    }
+
+    .hero__title {
+        font-size: 38px;
+        letter-spacing: -.02em;
+        line-height: 1.15;
+    }
+
+    .hero--page .hero__title {
+        font-size: 32px;
+    }
+
+    .hero__lead {
+        font-size: 16.5px;
+    }
+
+    .band__head h2,
+    .cta h2 {
+        font-size: 28px;
+    }
+
+    .cells--2,
+    .cells--3,
+    .cells--4 {
+        grid-template-columns: 1fr;
+    }
+
+    .footer__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer__col {
+        padding: 32px var(--gutter);
+    }
+
+    .pkg {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .hero__cmd code {
+        font-size: 12px;
+    }
+}
+
+/* ==========================================================================
+   Dokumentasi
+
+   Paket docs memakai tema yang sama dengan situs utama. Beberapa kelas di
+   bawah ini kontraknya dipegang berkas lain dan tidak boleh diganti namanya:
+   `menu-label`, `menu-list`, `has-submenu`, `submenu` dihasilkan oleh
+   Docs::sidebar(); `navbar-burger`, `vanillatop`, `code-toolbar`, `toolbar`,
+   `toolbar-item` dan `token` dihasilkan docs.min.js.
+   ========================================================================== */
+
+:root {
+    --code-key: #c5c0ff;
+    --code-str: #ffb597;
+    --code-fn: #7ee0c8;
+    --code-num: #ff9ec4;
+    --code-com: #5f5f6d;
+    --docs-side: 268px;
+}
+
+.docs {
+    display: grid;
+    grid-template-columns: var(--docs-side) minmax(0, 1fr);
+    position: relative;
+}
+
+.docs::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--docs-side);
+    border-left: 1px solid var(--rule);
+    pointer-events: none;
+}
+
+/* --- Sidebar --- */
+
+.docs__side {
+    padding: 40px 28px 64px 0;
+    position: sticky;
+    top: 64px;
+    align-self: start;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.docs__side .menu-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 28px 0 10px;
+}
+
+.docs__side .menu-label:first-child {
+    margin-top: 0;
+}
+
+.docs__side .menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.docs__side .menu-list a {
+    display: block;
+    padding: 6px 12px;
+    color: var(--text-dim);
+    font-size: 14.5px;
+    line-height: 1.5;
+    border-left: 1px solid transparent;
+}
+
+.docs__side .menu-list a:hover {
+    color: var(--text);
+    background: var(--surface);
+}
+
+.docs__side .menu-list a.is-current {
+    color: var(--primary-soft);
+    border-left-color: var(--primary);
+    background: var(--surface);
+}
+
+/*
+| Submenu dibuka docs.min.js dengan menyetel style.maxHeight inline ke
+| scrollHeight, dan ditutup dengan mengosongkannya kembali. Jadi keadaan
+| tertutup harus datang dari max-height:0 di sini — bukan display:none, yang
+| akan membuat scrollHeight bernilai 0 sehingga submenu tidak pernah terbuka.
+*/
+.docs__side .submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 12px;
+    border-left: 1px solid var(--rule);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .25s ease;
+}
+
+.docs__side .submenu a {
+    font-size: 13.5px;
+    color: var(--text-faint);
+}
+
+.docs__side .has-submenu::after {
+    content: '';
+    float: right;
+    width: 6px;
+    height: 6px;
+    margin-top: 8px;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg);
+    opacity: .6;
+}
+
+/* --- Isi --- */
+
+.docs__main {
+    padding: 40px 0 96px 36px;
+    min-width: 0;
+}
+
+.docs__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--rule);
+}
+
+/* --- Prosa (HTML hasil render markdown) --- */
+
+.prose {
+    color: var(--text-dim);
+    font-size: 15.5px;
+    line-height: 1.75;
+    max-width: 78ch;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+    color: var(--text);
+    line-height: 1.25;
+    scroll-margin-top: 88px;
+}
+
+.prose h1 {
+    font-size: 38px;
+    margin: 0 0 20px;
+}
+
+.prose h2 {
+    font-size: 26px;
+    margin: 56px 0 16px;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+}
+
+.prose h3 {
+    font-size: 19px;
+    margin: 36px 0 12px;
+}
+
+.prose h4 {
+    font-size: 16px;
+    margin: 28px 0 10px;
+}
+
+.prose p {
+    margin: 0 0 18px;
+}
+
+.prose a {
+    color: var(--primary-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(197, 192, 255, .35);
+}
+
+.prose a:hover {
+    color: #fff;
+    text-decoration-color: currentColor;
+}
+
+.prose strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.prose ul,
+.prose ol {
+    margin: 0 0 18px;
+    padding-left: 22px;
+}
+
+.prose li {
+    margin-bottom: 7px;
+}
+
+.prose li::marker {
+    color: var(--text-faint);
+}
+
+.prose blockquote {
+    margin: 0 0 18px;
+    padding: 2px 0 2px 18px;
+    border-left: 2px solid var(--primary);
+    color: var(--text-dim);
+}
+
+.prose blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.prose hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 36px 0;
+}
+
+.prose img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--rule);
+}
+
+/* kode sebaris */
+.prose :not(pre) > code {
+    font-family: var(--font-mono);
+    font-size: .88em;
+    padding: 2px 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--rule);
+    color: var(--primary-soft);
+    white-space: nowrap;
+}
+
+/* blok kode */
+.prose pre {
+    margin: 0 0 22px;
+    padding: 18px 20px;
+    background: var(--code-bg);
+    border: 1px solid var(--rule);
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text);
+}
+
+.prose pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: inherit;
+    color: inherit;
+    white-space: pre;
+}
+
+/* tabel */
+.prose table {
+    width: 100%;
+    margin: 0 0 22px;
+    border-collapse: collapse;
+    font-size: 14.5px;
+    display: block;
+    overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+    padding: 9px 14px;
+    border: 1px solid var(--rule);
+    text-align: left;
+    vertical-align: top;
+}
+
+.prose th {
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* --- Pewarnaan sintaksis (kelas token dari Prism) --- */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+    color: var(--code-com);
+    font-style: italic;
+}
+
+.token.punctuation,
+.token.operator,
+.token.entity {
+    color: var(--text-dim);
+}
+
+.token.keyword,
+.token.atrule,
+.token.important,
+.token.selector {
+    color: var(--code-key);
+}
+
+.token.string,
+.token.attr-value,
+.token.char,
+.token.url {
+    color: var(--code-str);
+}
+
+.token.function,
+.token.class-name,
+.token.builtin {
+    color: var(--code-fn);
+}
+
+.token.number,
+.token.boolean,
+.token.constant,
+.token.symbol {
+    color: var(--code-num);
+}
+
+.token.tag,
+.token.property,
+.token.attr-name,
+.token.variable {
+    color: var(--primary-soft);
+}
+
+.token.deleted {
+    color: var(--error, #ffb4ab);
+}
+
+.token.inserted {
+    color: var(--code-fn);
+}
+
+/* --- Tombol salin bawaan Prism --- */
+
+.code-toolbar {
+    position: relative;
+}
+
+.code-toolbar > .toolbar {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity .18s ease;
+}
+
+.code-toolbar:hover > .toolbar,
+.code-toolbar:focus-within > .toolbar {
+    opacity: 1;
+}
+
+.code-toolbar > .toolbar .toolbar-item > button,
+.code-toolbar > .toolbar .toolbar-item > a,
+.code-toolbar > .toolbar .toolbar-item > span {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--rule-strong);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.code-toolbar > .toolbar .toolbar-item > button:hover {
+    color: var(--text);
+    border-color: var(--text-faint);
+}
+
+/* --- Pencarian --- */
+
+.docs__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.docs__search input {
+    width: 200px;
+    padding: 6px 12px;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color .18s ease, width .18s ease;
+}
+
+.docs__search input::placeholder {
+    color: var(--text-faint);
+}
+
+.docs__search input:focus {
+    border-color: var(--primary);
+    width: 240px;
+}
+
+#searchModalWrapper {
+    position: fixed;
+    top: 14vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 620px;
+    z-index: 1001;
+}
+
+#searchInputModalCustom {
+    width: 100%;
+    height: 52px;
+    padding: 0 18px;
+    box-sizing: border-box;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    outline: none;
+}
+
+#searchInputModalCustom:focus {
+    border-color: var(--primary);
+}
+
+#searchResultsCustom {
+    width: 100%;
+    box-sizing: border-box;
+    max-height: 58vh;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    border-top: 0;
+}
+
+#searchResultsCustom:empty {
+    display: none;
+}
+
+#searchResultsCustom a {
+    display: block;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--text);
+    font-size: 15px;
+}
+
+#searchResultsCustom a:last-child {
+    border-bottom: 0;
+}
+
+#searchResultsCustom a:hover,
+#searchResultsCustom a:focus {
+    background: var(--surface-2);
+    color: var(--primary-soft);
+}
+
+#searchResultsCustom .snippet {
+    margin-top: 4px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+#searchResultsCustom mark {
+    background: rgba(90, 69, 255, .3);
+    color: var(--text);
+    padding: 0 2px;
+}
+
+#closeModalBtn {
+    -webkit-appearance: none;
+    appearance: none;
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1002;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    cursor: pointer;
+}
+
+#closeModalBtn::before,
+#closeModalBtn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 13px;
+    height: 1.5px;
+    background: var(--text-dim);
+}
+
+#closeModalBtn::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+#closeModalBtn::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+#closeModalBtn:hover {
+    border-color: var(--text-faint);
+}
+
+/* --- Kembali ke atas (docs.min.js) --- */
+
+/*
+| docs.min.js hanya memasang handler klik pada .vanillatop; ia tidak pernah
+| menampilkan atau menyembunyikannya. Jadi tombol ini selalu tampak.
+*/
+.vanillatop {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 40;
+    width: 40px;
+    height: 40px;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    transition: border-color .18s ease, background-color .18s ease;
+}
+
+.vanillatop::before {
+    content: '';
+    position: absolute;
+    top: 17px;
+    left: 50%;
+    width: 9px;
+    height: 9px;
+    border-left: 1.5px solid var(--text-dim);
+    border-top: 1.5px solid var(--text-dim);
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.vanillatop:hover {
+    background: var(--surface-2);
+    border-color: var(--text-faint);
+}
+
+@media screen and (max-width: 1023px) {
+    :root {
+        --docs-side: 224px;
+    }
+
+    .docs__main {
+        padding-left: 28px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .docs {
+        grid-template-columns: 1fr;
+    }
+
+    .docs::before {
+        display: none;
+    }
+
+    .docs__side {
+        position: static;
+        max-height: none;
+        overflow: visible;
+        padding: 24px 0;
+        border-bottom: 1px solid var(--rule);
+    }
+
+    .docs__main {
+        padding: 28px 0 64px;
+    }
+
+    .prose h1 {
+        font-size: 28px;
+    }
+
+    .prose h2 {
+        font-size: 21px;
+    }
+
+    .docs__search input,
+    .docs__search input:focus {
+        width: 100%;
+    }
+}

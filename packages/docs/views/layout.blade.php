@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="{{ config('application.language', 'id') }}">
+<html lang="{{ config('application.language', 'en') }}">
+
 @include('docs::partials.header')
 
-<body class="has-background-white">
+<body>
     @include('docs::partials.navbar')
-    <section class="section">
-        <div class="container">
-            <div class="columns">
+
+    <main class="main">
+        <div class="shell">
+            <div class="docs">
                 @yield('sidebar')
                 @yield('content')
             </div>
         </div>
-    </section>
-    <br>
-    <br>
-    <br>
-    <br>
+    </main>
+
     @include('docs::partials.footer')
 </body>
 

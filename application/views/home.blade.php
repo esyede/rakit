@@ -7,10 +7,6 @@
     <title>Welcome!</title>
     <link rel="icon" type="image/png" href="data:;base64,iVBORw0KGgo=">
     <style>
-        /* Halaman sambutan sengaja berdiri sendiri: seluruh gaya ditulis inline
-           dan tidak ada permintaan ke luar, agar aplikasi baru langsung tampil
-           benar sebelum aset apa pun disiapkan. */
-
         :root {
             --bg: #000;
             --text: #ededf2;
@@ -103,13 +99,6 @@
             color: var(--soft);
         }
 
-        .lead {
-            margin: 20px auto 0;
-            max-width: 440px;
-            font-size: 16.5px;
-            color: var(--dim);
-        }
-
         .rule {
             height: 1px;
             margin: 36px auto;
@@ -171,8 +160,6 @@
             color: #fff;
         }
 
-        /* Diletakkan dalam alur konten, bukan absolut di pojok bawah, agar
-           tidak tertutup debug bar yang menyala secara bawaan. */
         .support {
             margin: 36px 0 0;
             font-family: var(--mono);
@@ -230,10 +217,6 @@
     <div class="panel">
         <span class="eyebrow">Rakit {{ RAKIT_VERSION }}</span>
         <div class="wordmark">ra<em>kit</em></div>
-        <p class="lead">
-            Your application is up and running. Start building by editing
-            <code>application/routes.php</code>.
-        </p>
 
         <div class="rule"></div>
 
