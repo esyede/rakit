@@ -23,7 +23,7 @@
 
 @font-face {
     font-family: 'Rakit Mono';
-    src: url('../../packages/docs/fonts/Monaco.ttf') format('truetype');
+    src: url('../fonts/Monaco.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -335,15 +335,18 @@ button:focus:not(:focus-visible) {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
     height: 64px;
 }
 
 .nav__left {
     display: flex;
     align-items: center;
+    flex: 0 0 auto;
 }
 
 .nav__brand {
+    white-space: nowrap;
     font-family: var(--font-display);
     font-size: 20px;
     font-weight: 700;
@@ -380,6 +383,8 @@ button:focus:not(:focus-visible) {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 0 1 auto;
+    min-width: 0;
 }
 
 .navbar-burger {
@@ -817,7 +822,10 @@ button:focus:not(:focus-visible) {
     background: var(--accent);
 }
 
-.tag {
+/* Prism memberi kelas "token tag" pada tag HTML di dalam blok kode, jadi tag
+   tersebut ikut tersapu selektor `.tag`. Token dikecualikan agar tidak
+   berubah menjadi pil kapital. */
+.tag:not(.token) {
     display: inline-flex;
     align-items: center;
     padding: 2px 9px;
@@ -830,7 +838,7 @@ button:focus:not(:focus-visible) {
     color: var(--text-dim);
 }
 
-.tag:hover {
+.tag:not(.token):hover {
     border-color: var(--text-faint);
     color: var(--text);
 }
@@ -1750,6 +1758,7 @@ body:has(.modal.is-active) {
     position: relative;
     display: flex;
     align-items: center;
+    min-width: 0;
 }
 
 .docs__search input {
@@ -1960,5 +1969,15 @@ body:has(.modal.is-active) {
     .docs__search input,
     .docs__search input:focus {
         width: 100%;
+        min-width: 0;
+    }
+
+    /* Di layar sempit, kode sebaris yang panjang (mis. path berkas) boleh
+       dipenggal supaya tidak terpotong di tepi layar. */
+    .prose :not(pre) > code {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
     }
 }
