@@ -2,22 +2,22 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
-- [Pengetahuan Dasar](#pengetahuan-dasar)
-- [Mengambil Record](#mengambil-record)
+- [Basic Knowledge](#basic-knowledge)
+- [Retrieving Records](#retrieving-records)
 - [Select Columns](#select-columns)
-- [Membangun Klausa Where](#membangun-klausa-where)
-  - [where dan or_where](#where-dan-or_where)
-  - [where_id dan or_where_id](#where_id-dan-or_where_id)
-  - [where_in, where_not_in, or_where_in, dan or_where_not_in](#where_in-where_not_in-or_where_in-dan-or_where_not_in)
-  - [where_null, where_not_null, or_where_null, dan or_where_not_null](#where_null-where_not_null-or_where_null-dan-or_where_not_null)
-  - [where_between, where_not_between, or_where_between, dan or_where_not_between](#where_between-where_not_between-or_where_between-dan-or_where_not_between)
+- [Building Where Clauses](#building-where-clauses)
+  - [where and or_where](#where-and-or_where)
+  - [where_id and or_where_id](#where_id-and-or_where_id)
+  - [where_in, where_not_in, or_where_in, and or_where_not_in](#where_in-where_not_in-or_where_in-and-or_where_not_in)
+  - [where_null, where_not_null, or_where_null, and or_where_not_null](#where_null-where_not_null-or_where_null-and-or_where_not_null)
+  - [where_between, where_not_between, or_where_between, and or_where_not_between](#where_between-where_not_between-or_where_between-and-or_where_not_between)
   - [where_date, where_month, where_day, where_year](#where_date-where_month-where_day-where_year)
-  - [where_exists dan where_not_exists](#where_exists-dan-where_not_exists)
-  - [where_in_sub dan where_not_in_sub](#where_in_sub-dan-where_not_in_sub)
+  - [where_exists and where_not_exists](#where_exists-and-where_not_exists)
+  - [where_in_sub and where_not_in_sub](#where_in_sub-and-where_not_in_sub)
 - [Nested Where](#nested-where)
-- [Where Dinamis](#where-dinamis)
+- [Dynamic Where](#dynamic-where)
 - [Raw Where](#raw-where)
-- [Join Tabel](#join-tabel)
+- [Table Join](#table-join)
 - [Left Join](#left-join)
 - [Order By](#order-by)
 - [Group By & Having](#group-by--having)
@@ -25,8 +25,8 @@
 - [For Page](#for-page)
 - [Distinct](#distinct)
 - [Union & Union All](#union--union-all)
-- [Agregasi](#agregasi)
-- [Ekspresi SQL Mentah](#ekspresi-sql-mentah)
+- [Aggregates](#aggregates)
+- [Raw SQL Expressions](#raw-sql-expressions)
 - [Only](#only)
 - [Lists](#lists)
 - [Cursor](#cursor)
@@ -34,64 +34,65 @@
 - [Update Record](#update-record)
 - [Increment & Decrement](#increment--decrement)
 - [Delete Record](#delete-record)
-- [Paginasi](#paginasi)
+- [Pagination](#pagination)
 - [Find Or Fail](#find-or-fail)
 - [Copy Query](#copy-query)
 - [Reset Query](#reset-query)
 - [Debug Query](#debug-query)
 - [Transaction](#transaction)
+- [Other Methods](#other-methods)
 
 <!-- /MarkdownTOC -->
 
-<a id="pengetahuan-dasar"></a>
-## Pengetahuan Dasar
+<a id="basic-knowledge"></a>
+## Basic Knowledge
 
-Magic Query Builder adalah class yang disediakan untuk memudahkan anda membangun query SQL dan bekerja dengan database. Semua query disiapkan menggunakan [prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php) sehingga otomatis terlindung dari serangan [SQL Injection](https://en.wikipedia.org/wiki/SQL_injection).
+The Magic Query Builder is a class that helps you build SQL queries and work with the database. Every query is prepared with a [prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php), so it is automatically protected from [SQL Injection](https://en.wikipedia.org/wiki/SQL_injection).
 
-Untuk memulai, panggil method `DB::table()` dengan nama tabel yang ingin dioperasikan:
+To get started, call the `DB::table()` method with the name of the table you want to work with:
 
 ```php
 $query = DB::table('users');
 ```
 
-Sekarang anda memiliki akses ke Query Builder untuk tabel "users" dan dapat melakukan operasi seperti select, insert, update, atau delete.
+You now have access to the Query Builder for the "users" table and can run operations such as select, insert, update, or delete.
 
-<a id="mengambil-record"></a>
-## Mengambil Record
+<a id="retrieving-records"></a>
+## Retrieving Records
 
-**Mengambil array record dari database:**
+**Retrieve an array of records from the database:**
 
 ```php
 $users = DB::table('users')->get();
 ```
 
-Method `get()` mengembalikan array berisi object dengan property yang sesuai dengan nama kolom tabel.
+The `get()` method returns an array of objects whose properties match the table column names.
 
-**Mengambil record tunggal:**
+**Retrieve a single record:**
 
 ```php
 $user = DB::table('users')->first();
 ```
 
-**Mengambil record berdasarkan primary key:**
+**Retrieve a record by its primary key:**
 
 ```php
 $user = DB::table('users')->find($id);
 ```
 
-**Mengambil record berdasarkan ID dengan exception jika tidak ditemukan:**
+**Retrieve a record by ID, throwing an exception when it is not found:**
 
 ```php
 $user = DB::table('users')->find_or_fail($id);
 // Throw ModelNotFoundException jika tidak ditemukan
 ```
 
-> **Catatan:** Method `first()` dan `find()` mengembalikan `NULL` jika tidak ada hasil. Method `get()` mengembalikan array kosong.
+> **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty array.
 
 <a id="select-columns"></a>
 ## Select Columns
 
-**Memilih kolom tertentu:**
+**Select specific columns:**
 
 ```php
 $users = DB::table('users')->get(['id', 'email', 'name']);
@@ -100,7 +101,7 @@ $users = DB::table('users')->get(['id', 'email', 'name']);
 $users = DB::table('users')->get(['id', 'email as user_email']);
 ```
 
-**Menggunakan method select():**
+**Using the select() method:**
 
 ```php
 $users = DB::table('users')
@@ -113,11 +114,11 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="membangun-klausa-where"></a>
-## Membangun Klausa Where
+<a id="building-where-clauses"></a>
+## Building Where Clauses
 
-<a id="where-dan-or_where"></a>
-### where dan or_where
+<a id="where-and-or_where"></a>
+### where and or_where
 
 **Basic WHERE clause:**
 
@@ -131,7 +132,7 @@ $users = DB::table('users')
     ->get();
 ```
 
-**Multiple WHERE dengan AND:**
+**Multiple WHERE with AND:**
 
 ```php
 $users = DB::table('users')
@@ -140,7 +141,7 @@ $users = DB::table('users')
     ->first();
 ```
 
-**WHERE dengan OR:**
+**WHERE with OR:**
 
 ```php
 $users = DB::table('users')
@@ -149,7 +150,7 @@ $users = DB::table('users')
     ->get();
 ```
 
-**Operator yang didukung:**
+**Supported operators:**
 
 ```php
 '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
@@ -160,7 +161,7 @@ $users = DB::table('users')
 'similar to', 'not similar to', 'not ilike', '~~*', '!~~*'
 ```
 
-**Contoh dengan LIKE:**
+**Example with LIKE:**
 
 ```php
 $users = DB::table('users')
@@ -168,10 +169,10 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="where_id-dan-or_where_id"></a>
-### where_id dan or_where_id
+<a id="where_id-and-or_where_id"></a>
+### where_id and or_where_id
 
-Shortcut untuk WHERE pada kolom `id`:
+Shortcut for a WHERE on the `id` column:
 
 ```php
 // Sama dengan: where('id', '=', 1)
@@ -184,8 +185,8 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="where_in-where_not_in-or_where_in-dan-or_where_not_in"></a>
-### where_in, where_not_in, or_where_in, dan or_where_not_in
+<a id="where_in-where_not_in-or_where_in-and-or_where_not_in"></a>
+### where_in, where_not_in, or_where_in, and or_where_not_in
 
 **WHERE IN:**
 
@@ -221,8 +222,8 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="where_null-where_not_null-or_where_null-dan-or_where_not_null"></a>
-### where_null, where_not_null, or_where_null, dan or_where_not_null
+<a id="where_null-where_not_null-or_where_null-and-or_where_not_null"></a>
+### where_null, where_not_null, or_where_null, and or_where_not_null
 
 **WHERE NULL:**
 
@@ -258,8 +259,8 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="where_between-where_not_between-or_where_between-dan-or_where_not_between"></a>
-### where_between, where_not_between, or_where_between, dan or_where_not_between
+<a id="where_between-where_not_between-or_where_between-and-or_where_not_between"></a>
+### where_between, where_not_between, or_where_between, and or_where_not_between
 
 **WHERE BETWEEN:**
 
@@ -338,10 +339,10 @@ $orders = DB::table('orders')
     ->get();
 ```
 
-<a id="where_exists-dan-where_not_exists"></a>
-### where_exists dan where_not_exists
+<a id="where_exists-and-where_not_exists"></a>
+### where_exists and where_not_exists
 
-**WHERE EXISTS dengan subquery:**
+**WHERE EXISTS with a subquery:**
 
 ```php
 $users = DB::table('users')
@@ -363,10 +364,10 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="where_in_sub-dan-where_not_in_sub"></a>
-### where_in_sub dan where_not_in_sub
+<a id="where_in_sub-and-where_not_in_sub"></a>
+### where_in_sub and where_not_in_sub
 
-**WHERE IN dengan subquery:**
+**WHERE IN with a subquery:**
 
 ```php
 $users = DB::table('users')
@@ -377,7 +378,7 @@ $users = DB::table('users')
     ->get();
 ```
 
-**WHERE NOT IN dengan subquery:**
+**WHERE NOT IN with a subquery:**
 
 ```php
 $users = DB::table('users')
@@ -390,7 +391,7 @@ $users = DB::table('users')
 <a id="nested-where"></a>
 ## Nested Where
 
-Grouping WHERE clause dengan parentheses:
+Group WHERE clauses with parentheses:
 
 ```php
 $users = DB::table('users')
@@ -404,7 +405,7 @@ $users = DB::table('users')
 // SQL: SELECT * FROM users WHERE name = 'John' AND (votes > 100 OR title = 'Admin')
 ```
 
-Contoh lebih kompleks:
+A more complex example:
 
 ```php
 $users = DB::table('users')
@@ -420,10 +421,10 @@ $users = DB::table('users')
     ->get();
 ```
 
-<a id="where-dinamis"></a>
-## Where Dinamis
+<a id="dynamic-where"></a>
+## Dynamic Where
 
-Query Builder mendukung dynamic WHERE methods berdasarkan nama kolom:
+The Query Builder supports dynamic WHERE methods based on the column name:
 
 ```php
 // Sama dengan: where('email', '=', $email)
@@ -448,22 +449,22 @@ $users = DB::table('users')
 <a id="raw-where"></a>
 ## Raw Where
 
-Untuk query WHERE yang kompleks, gunakan raw WHERE:
+For a complex WHERE, use a raw WHERE:
 
 ```php
 $users = DB::table('users')
     ->raw_where('age > ? AND city = ?', [18, 'Jakarta'])
     ->get();
 
-// Dengan OR
+// With OR
 $users = DB::table('users')
     ->where('active', '=', 1)
     ->raw_or_where('(votes > 100 OR role = ?)', ['admin'])
     ->get();
 ```
 
-<a id="join-tabel"></a>
-## Join Tabel
+<a id="table-join"></a>
+## Table Join
 
 **Basic JOIN:**
 
@@ -473,7 +474,7 @@ $users = DB::table('users')
     ->get(['users.*', 'contacts.phone']);
 ```
 
-**JOIN dengan closure:**
+**JOIN with a closure:**
 
 ```php
 $users = DB::table('users')
@@ -501,7 +502,7 @@ $users = DB::table('users')
     ->left_join('orders', 'users.id', '=', 'orders.user_id')
     ->get();
 
-// Dengan closure
+// With a closure
 $users = DB::table('users')
     ->left_join('orders', function ($join) {
         $join->on('users.id', '=', 'orders.user_id')
@@ -543,7 +544,7 @@ $totals = DB::table('orders')
     ->get();
 ```
 
-**GROUP BY dengan HAVING:**
+**GROUP BY with HAVING:**
 
 ```php
 $users = DB::table('orders')
@@ -556,10 +557,10 @@ $users = DB::table('orders')
 <a id="skip--take"></a>
 ## Skip & Take
 
-**LIMIT dan OFFSET:**
+**LIMIT and OFFSET:**
 
 ```php
-// Ambil 10 record
+// Take 10 records
 $users = DB::table('users')
     ->take(10)
     ->get();
@@ -574,15 +575,15 @@ $users = DB::table('users')
 <a id="for-page"></a>
 ## For Page
 
-Shortcut untuk pagination manual:
+Shortcut for manual pagination:
 
 ```php
-// Halaman 1, 15 per halaman
+// Page 1, 15 per page
 $users = DB::table('users')
     ->for_page(1, 15)
     ->get();
 
-// Halaman 3, 20 per halaman  
+// Page 3, 20 per page  
 $users = DB::table('users')
     ->for_page(3, 20)
     ->get();
@@ -619,8 +620,8 @@ $query2 = DB::table('orders')->where('status', '=', 'processing');
 $orders = $query1->union_all($query2)->get();
 ```
 
-<a id="agregasi"></a>
-## Agregasi
+<a id="aggregates"></a>
+## Aggregates
 
 **COUNT:**
 
@@ -656,10 +657,10 @@ $avg_price = DB::table('products')->avg('price');
 $total_sales = DB::table('orders')->sum('amount');
 ```
 
-<a id="ekspresi-sql-mentah"></a>
-## Ekspresi SQL Mentah
+<a id="raw-sql-expressions"></a>
+## Raw SQL Expressions
 
-Untuk query SQL yang kompleks, gunakan `DB::raw()`:
+For a complex SQL query, use `DB::raw()`:
 
 ```php
 $users = DB::table('users')
@@ -681,7 +682,7 @@ $users = DB::table('users')
     ->get();
 ```
 
-**Escape manual:**
+**Manual escaping:**
 
 ```php
 $value = DB::escape($user_input);
@@ -690,7 +691,7 @@ $value = DB::escape($user_input);
 <a id="only"></a>
 ## Only
 
-Mengambil value dari satu kolom saja:
+Retrieve the value of a single column:
 
 ```php
 $email = DB::table('users')
@@ -703,7 +704,7 @@ $email = DB::table('users')
 <a id="lists"></a>
 ## Lists
 
-Mengambil array key-value:
+Retrieve a key-value array:
 
 ```php
 // Array dengan value saja
@@ -718,20 +719,20 @@ $users = DB::table('users')->lists('name', 'id');
 <a id="cursor"></a>
 ## Cursor
 
-Untuk dataset besar, gunakan cursor untuk mengurangi memory usage:
+For a large dataset, use a cursor to keep memory usage low:
 
 ```php
 foreach (DB::table('users')->cursor() as $user) {
     echo $user->name;
 }
 
-// Dengan chunk size custom
+// With a custom chunk size
 foreach (DB::table('orders')->cursor(['*'], 500) as $order) {
     // Process order
 }
 ```
 
-Cursor menggunakan generator PHP dan memproses data secara streaming.
+The cursor uses a PHP generator and streams the data row by row.
 
 <a id="insert-record"></a>
 ## Insert Record
@@ -746,7 +747,7 @@ $id = DB::table('users')->insert([
 ]);
 ```
 
-**Insert dan dapatkan ID:**
+**Insert and get the ID:**
 
 ```php
 $id = DB::table('users')->insert_get_id([
@@ -757,7 +758,7 @@ $id = DB::table('users')->insert_get_id([
 echo $id; // Auto-increment ID
 ```
 
-**Insert dengan custom ID column:**
+**Insert with a custom ID column:**
 
 ```php
 $id = DB::table('users')->insert_get_id([
@@ -843,8 +844,8 @@ DB::table('users')
 DB::table('temp_data')->delete();
 ```
 
-<a id="paginasi"></a>
-## Paginasi
+<a id="pagination"></a>
+## Pagination
 
 ```php
 // 20 per halaman (default)
@@ -853,10 +854,10 @@ $users = DB::table('users')->paginate();
 // Custom per halaman
 $users = DB::table('users')->paginate(15);
 
-// Dengan kolom tertentu
+// With specific columns
 $users = DB::table('users')->paginate(10, ['id', 'name', 'email']);
 
-// Dengan WHERE
+// With WHERE
 $users = DB::table('users')
     ->where('active', '=', 1)
     ->order_by('created_at', 'desc')
@@ -873,7 +874,7 @@ echo $users->links();
 <a id="find-or-fail"></a>
 ## Find Or Fail
 
-Method yang throw exception jika record tidak ditemukan:
+Methods that throw an exception when the record is not found:
 
 ```php
 try {
@@ -895,7 +896,7 @@ try {
 <a id="copy-query"></a>
 ## Copy Query
 
-Membuat salinan query untuk digunakan kembali:
+Make a copy of a query so it can be reused:
 
 ```php
 $base_query = DB::table('users')
@@ -917,7 +918,7 @@ $users = $base_query->copy()
 <a id="reset-query"></a>
 ## Reset Query
 
-**Reset seluruh query:**
+**Reset the whole query:**
 
 ```php
 $query = DB::table('users')
@@ -927,21 +928,21 @@ $query = DB::table('users')
 
 $query->reset(); // Reset semua conditions
 
-$query->get(); // Ambil semua data
+$query->get(); // Get all rows
 ```
 
-**Reset WHERE saja:**
+**Reset only the WHERE clauses:**
 
 ```php
 $query = DB::table('users')
     ->where('role', '=', 'admin')
     ->where('country', '=', 'US');
 
-$query->reset_where(); // Hapus semua WHERE
+$query->reset_where(); // Remove every WHERE
 $query->where('active', '=', 1)->get();
 ```
 
-**Reset LIMIT dan OFFSET:**
+**Reset LIMIT and OFFSET:**
 
 ```php
 $query = DB::table('users')
@@ -949,34 +950,34 @@ $query = DB::table('users')
     ->take(20);
 
 $query->reset_limit_offset();
-$query->get(); // Ambil semua tanpa limit
+$query->get(); // Get everything, without the limit
 ```
 
 <a id="debug-query"></a>
 ## Debug Query
 
-Untuk melihat SQL query yang dihasilkan:
+To inspect the generated SQL query:
 
 ```php
 $query = DB::table('users')
     ->where('active', '=', 1)
     ->where('votes', '>', 100);
 
-// Tanpa bindings
+// Without bindings
 echo $query->to_sql();
 // SELECT * FROM users WHERE active = ? AND votes > ?
 
-// Dengan bindings
+// With bindings
 echo $query->debug();
 // SELECT * FROM users WHERE active = 1 AND votes > 100
 ```
 
-Method ini sangat berguna untuk debugging.
+These methods are very handy while debugging.
 
 <a id="transaction"></a>
 ## Transaction
 
-Gunakan transaction untuk memastikan integritas data:
+Use a transaction to keep the data consistent:
 
 ```php
 DB::connection()->transaction(function () {
@@ -1011,4 +1012,38 @@ try {
 }
 ```
 
-Lihat dokumentasi [Database Transaction](/docs/database/raw#transaction) untuk detail lebih lanjut.
+See the [Database Transaction](/docs/database/raw#other-methods) documentation for more details.
+<a id="other-methods"></a>
+## Other Methods
+
+| Method                                            | Description                                                     |
+| ------------------------------------------------- | --------------------------------------------------------------- |
+| `latest($column)`                                 | Order descending, defaults to the `created_at` column           |
+| `oldest($column)`                                 | Order ascending, defaults to the `created_at` column            |
+| `exists()`                                        | `true` when at least one row matches                            |
+| `doesnt_exist()`                                  | The opposite of `exists()`                                      |
+| `where_column($column1, $operator, $column2)`     | Compare two columns to each other                               |
+| `where_time($column, $operator, $value)`          | WHERE on the time part of a column                              |
+| `aggregate($aggregator, array $columns)`          | Run any aggregate function, for example `MAX`                   |
+| `chunk_by_id($count, $callback, $column, $alias)` | Process rows in chunks, paging by id instead of by offset       |
+| `dd()` / `bd()`                                   | Dump the SQL and its bindings, then stop or continue            |
+
+```php
+// The newest 10 articles
+$articles = DB::table('articles')->latest()->take(10)->get();
+
+// Rows where the two columns are not the same
+$mismatch = DB::table('orders')->where_column('paid_total', '!=', 'total')->get();
+
+// Check without pulling any row
+if (DB::table('users')->where('email', 'budi@site.com')->doesnt_exist()) {
+    // ..
+}
+
+// Safe for a large table, because it does not use OFFSET
+DB::table('users')->chunk_by_id(500, function ($users) {
+    foreach ($users as $user) {
+        // ..
+    }
+});
+```

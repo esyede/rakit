@@ -12,6 +12,7 @@
 -   [MIME-Type](#mime-type)
 -   [Copy Directory](#copy-directory)
 -   [Delete Directory](#delete-directory)
+-   [Other Methods](#other-methods)
 
 <!-- /MarkdownTOC -->
 
@@ -64,6 +65,12 @@ Storage::put('path/to/file', 'file contents');
 
 ```php
 Storage::append('path/to/file', 'appended file contents');
+```
+
+#### Add data to the beginning of a file:
+
+```php
+Storage::prepend('path/to/file', 'prepended file contents');
 ```
 
 <a id="delete-file"></a>
@@ -146,3 +153,35 @@ Storage::cpdir($directory, $destination);
 ```php
 Storage::rmdir($directory);
 ```
+
+#### Empty a directory without deleting the directory itself:
+
+```php
+Storage::cleandir($directory);
+```
+
+<a id="other-methods"></a>
+
+## Other Methods
+
+| Method                              | Description                                                              |
+| ----------------------------------- | ------------------------------------------------------------------------ |
+| `mkdir($path, $chmod)`              | Create a directory recursively, throws if it already exists              |
+| `move($from, $to, $overwrite)`      | Move or rename a file                                                    |
+| `mvdir($from, $to, $overwrite)`     | Move or rename a directory                                               |
+| `copy($path, $target)`              | Copy a file                                                              |
+| `glob($pattern, $flags)`            | Search for paths matching a pattern                                      |
+| `latest($directory, $options)`      | The most recently modified file in a directory, as a `SplFileInfo`       |
+| `size($path)`                       | File size in bytes                                                       |
+| `modified($path)`                   | Last modification time as a UNIX timestamp                               |
+| `type($path)`                       | File type, for example `file` or `dir`                                   |
+| `hash($path)`                       | MD5 hash of the file contents                                            |
+| `chmod($path, $mode)`               | Change the permission, or read it when `$mode` is not given              |
+| `name($path)`                       | File name without extension                                              |
+| `basename($path)`                   | File name with extension                                                 |
+| `dirname($path)`                    | Directory of the given path                                              |
+| `protect($path)`                    | Drop an empty `index.html` into the directory so it cannot be browsed    |
+
+> `move()`, `mvdir()`, `delete()`, `rmdir()`, and `mkdir()` throw an exception
+> when the source does not exist or the target already exists. Check with
+> `exists()` first if you are not sure.

@@ -392,12 +392,17 @@ switch ($reward_type) {
 Random maintenance mode:
 
 ```php
-// Redirect 10% traffic to maintenance page for testing
-Route::filter('before', function () {
+// application/middlewares.php
+Route::middleware('maintenance', function () {
     $in_maintenance = Lottery::odds(1, 10)->choose();
 
-    if ($in_maintenance && !Auth::user()->is_admin) {
-        return Response::error('503');
+    if ($in_maintenance && Auth::guest()) {
+        return Response::error(503);
     }
+});
+
+// application/routes.php
+Route::group(['before' => 'maintenance'], function () {
+    // 10% of the requests to this group get the 503 page
 });
 ```

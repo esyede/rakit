@@ -49,6 +49,7 @@
   - [values()](#values)
   - [where()](#where)
   - [zip()](#zip)
+- [Other Methods](#other-methods)
 
 <!-- /MarkdownTOC -->
 
@@ -68,12 +69,9 @@ Collections can be created in various ways:
 
 ```php
 $collection = new Collection(['item1', 'item2', 'item3']);
-```
 
-#### From range:
-
-```php
-$collection = Collection::range(1, 10); // [1, 2, 3, ..., 10]
+// or, with the static method
+$collection = Collection::make(['item1', 'item2', 'item3']);
 ```
 
 #### From database query results:
@@ -660,4 +658,60 @@ Combines the Collection with another Collection:
 $collection1 = collect(['John', 'Jane']);
 $collection2 = collect([25, 30]);
 $zipped = $collection1->zip($collection2); // [['John', 25], ['Jane', 30]]
+```
+
+<a id="other-methods"></a>
+
+## Other Methods
+
+These methods work the same way as the ones above, so they are listed in short:
+
+| Method                              | Description                                                             |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| `has($key)`                         | Check whether a key exists                                              |
+| `count()`                           | Number of items, also works with `count($collection)`                   |
+| `is_not_empty()`                    | The opposite of `is_empty()`                                            |
+| `mode($key)`                        | The most frequent value                                                 |
+| `only($keys)`                       | Keep only the given keys                                                |
+| `except($keys)`                     | Remove the given keys                                                   |
+| `flip()`                            | Swap keys and values                                                    |
+| `shift()`                           | Remove and return the first item                                        |
+| `splice($offset, $length, $items)`  | Cut a portion out, optionally replacing it                              |
+| `chunk($size)`                      | Split into chunks of `$size` items                                      |
+| `split($groups)`                    | Split into `$groups` chunks of roughly equal size                       |
+| `for_page($page, $perpage)`         | Take the slice belonging to page `$page`                                |
+| `random($amount)`                   | Take `$amount` random items                                             |
+| `every($step, $offset)`             | Take every `$step`-th item, starting from `$offset`                     |
+| `partition($callback)`              | Split into two collections: matching and non-matching                   |
+| `transform($callback)`              | Like `map()`, but modifies the collection in place                      |
+| `map_with_keys($callback)`          | Map, then merge the resulting arrays into one collection                |
+| `flat_map($callback)`               | Map, then flatten the result one level                                  |
+| `pipe($callback)`                   | Pass the whole collection into a closure and return its result          |
+| `combine($values)`                  | Use the current items as keys and `$values` as values                   |
+| `union($items)`                     | Merge, but keep the value of an existing key                            |
+| `intersect($items)`                 | Keep only values that also exist in `$items`                            |
+| `diff_keys($items)`                 | Keep only keys that do not exist in `$items`                            |
+| `where_in($key, $values, $strict)`  | Keep items whose `$key` is one of `$values`                             |
+| `sort_by_desc($callback, $options)` | Like `sort_by()`, in descending order                                   |
+| `to_base()`                         | Return a plain `Collection` from a subclass                             |
+
+Some methods have a `_strict` variant that compares with `===` instead of `==`:
+`contains_strict()`, `where_strict()`, `where_in_strict()`, and `unique_strict()`.
+
+Collection also implements `ArrayAccess`, `Countable`, `IteratorAggregate`, and
+`JsonSerializable`, so a collection can be accessed like an array, counted,
+looped with `foreach`, and passed straight to `json_encode()`:
+
+```php
+$collection = collect(['name' => 'John', 'age' => 25]);
+
+$collection['name'];        // 'John'
+isset($collection['age']);  // true
+count($collection);         // 2
+
+foreach ($collection as $key => $value) {
+    // ..
+}
+
+echo json_encode($collection); // {"name":"John","age":25}
 ```

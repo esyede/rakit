@@ -384,7 +384,7 @@ $url = action('post@show', ['2024', '01', 'my-post']);
 
 ### route
 
-The `route` function generates a URL to a [named route](/docs/routing#named-route):
+The `route` function generates a URL to a [named route](/docs/routing#named-routes):
 
 ```php
 // URL to route named 'profile'
@@ -1254,3 +1254,30 @@ $fileSize = filesize('path/to/file.pdf');
 echo 'File size: ' . human_filesize($fileSize);
 // 'File size: 2.45 MB'
 ```
+
+<a id="measure"></a>
+
+### measure
+
+The `measure` function measures how long a piece of code takes and shows the
+result on the Debug Bar:
+
+```php
+$users = measure('load users', function () {
+    return DB::table('users')->get();
+});
+```
+
+For code that does not fit in one closure, use `start_measure` and
+`stop_measure` with the same name:
+
+```php
+start_measure('report');
+
+// .. heavy process ..
+
+stop_measure('report', 'Monthly report');
+```
+
+> The measurement result only shows up when the Debug Bar is active, so it is
+> safe to leave these calls in place on production.

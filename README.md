@@ -1,15 +1,14 @@
 <h1 align="center">Rakit Web Framework</h1>
 <p align="center">
-    <img src="https://github.com/esyede/rakit/workflows/build/badge.svg" alt="build"/>
-    <img src="https://img.shields.io/github/v/release/esyede/rakit?include_prereleases" alt="release"/>
-    <img src="https://img.shields.io/github/languages/top/esyede/rakit" alt="language"/>
-    <img src="https://img.shields.io/github/license/esyede/rakit" alt="license"/>
-    <img src="https://img.shields.io/github/languages/code-size/esyede/rakit" alt="size"/>
-    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="pulls"/>
-    <br>
-    <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
+  <img src="https://github.com/esyede/rakit/workflows/build/badge.svg" alt="build"/>
+  <img src="https://img.shields.io/github/v/release/esyede/rakit?include_prereleases" alt="release"/>
+  <img src="https://img.shields.io/github/languages/top/esyede/rakit" alt="language"/>
+  <img src="https://img.shields.io/github/license/esyede/rakit" alt="license"/>
+  <img src="https://img.shields.io/github/languages/code-size/esyede/rakit" alt="size"/>
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="pulls"/>
+  <br>
+  <a href="https://rakit.esyede.my.id">https://rakit.esyede.my.id</a>
 </p>
-
 
 ## What is Rakit?
 
@@ -18,10 +17,9 @@ Whether you're a beginner or an experienced developer,
 Rakit offers a smooth development experience similar to other popular PHP frameworks,
 while giving you the flexibility to write clean, modular code.
 
-
 ## Features
 
-- **Compact Size**: Less than 1MB zipped, including offline documentation.
+- **Compact Size**: ~1MB zipped, including offline documentation.
 - **Wide PHP Support**: Compatible with PHP 5.4.0 to PHP 8.x.
 - **Flexible Installation**: Works with or without [Composer](https://getcomposer.org).
 - **Powerful Routing**: Supports closures and controllers (MVC architecture).
@@ -32,27 +30,25 @@ while giving you the flexibility to write clean, modular code.
 - **CLI Tools**: Command-line utilities for efficient development.
 - **And More**: Extensive features to boost your productivity!
 
-
 ## System Requirements
 
 - **PHP**: 5.4.0 to 8.x
 - **Extensions**:
-  - [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
-  - [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
-  - [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
+    - [Mbstring](https://www.php.net/manual/en/book.mbstring.php)
+    - [OpenSSL](https://www.php.net/manual/en/book.openssl.php)
+    - [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
 
 **Recommended Extensions** (for full functionality):
+
 - [PDO](https://www.php.net/manual/en/pdo.installation.php) for database support (SQLite, MySQL, PostgreSQL, SQL Server).
 - [cURL](https://www.php.net/manual/en/book.curl.php) for package installation via console.
 - [GD Image](https://www.php.net/manual/en/book.image.php) for image processing.
 - [Socket](https://www.php.net/manual/en/book.sockets.php) for WebSocket support.
 
-
 ## Documentation
 
 Every release includes offline documentation, so you can learn even without internet access.
 For the latest updates, check out the [official website](https://rakit.esyede.my.id).
-
 
 ## Get Involved
 
@@ -61,7 +57,6 @@ or join discussions in our [forum](https://github.com/esyede/rakit/discussions) 
 You can also donate to support ongoing development and maintenance. Every contribution, big or small, is appreciated!
 
 <a href="https://ko-fi.com/A0A61UOVND" target="_blank"><img height="36" border="0" src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" alt="Buy Me a Coffee at ko-fi.com" /></a>
-
 
 ## License
 

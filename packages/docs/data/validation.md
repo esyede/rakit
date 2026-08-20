@@ -225,6 +225,12 @@ into what rules you can use to validate your data!
 'name' => 'required',
 ```
 
+#### Allow the attribute to be `null`, otherwise it must not be empty:
+
+```php
+'nickname' => 'nullable',
+```
+
 #### Validate that the attribute must exist if another attribute exists:
 
 ```php
@@ -432,7 +438,12 @@ $rules = [
 ];
 ```
 
-<a id="e-mail"></a>
+#### Validate that the attribute is greater than (greater than) another attribute:
+
+```php
+'price' => 'gt:cost',
+```
+
 #### Validate that the attribute is greater than or equal to (greater than or equal) another attribute:
 
 ```php
@@ -539,6 +550,12 @@ validating form checkboxes, such as a site rules approval checkbox.
 
 ```php
 'metadata' => 'json',
+```
+
+#### Validate that the attribute is a valid UUID:
+
+```php
+'token' => 'uuid',
 ```
 
 #### Validate that the attribute is a valid timezone:
@@ -652,6 +669,12 @@ So how to overcome this? Easy:
 
 ```php
 'birthdate' => 'before:1992-11-02',
+```
+
+#### Validate that the attribute is a date before or the same as the given date:
+
+```php
+'start_date' => 'before_or_equals:2024-12-31',
 ```
 
 #### Validate that the date attribute is after a certain date:

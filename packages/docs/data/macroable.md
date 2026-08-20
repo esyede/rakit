@@ -6,39 +6,34 @@
 - [Using Trait](#using-trait)
 - [Adding Macro](#adding-macro)
 - [Calling Macro](#calling-macro)
-  - [Static Call](#static-call)
-  - [Instance Call](#instance-call)
-- [Macro With Parameters](#macro-with-parameters)
+- [Binding Context](#binding-context)
 - [Using Mixin](#using-mixin)
 - [Checking Macro](#checking-macro)
-- [Binding Context](#binding-context)
-- [Usage Examples](#usage-examples)
-  - [Extending String Helper](#extending-string-helper)
-  - [Extending Collection](#extending-collection)
-  - [Custom Helper Methods](#custom-helper-methods)
-  - [Reusable Logic](#reusable-logic)
-- [Best Practices](#best-practices)
+- [Macro on the Str Component](#macro-on-the-str-component)
+- [Where to Register](#where-to-register)
 
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The `Macroable` trait allows you to add new methods to a class dynamically at runtime without modifying the original class. This is very useful for extending the functionality of existing classes or creating custom helper methods.
+The `Macroable` trait lets you add new methods to a class at runtime without
+touching the original class. It is handy for grouping your own helpers into one
+place, or for extending a class you do not want to subclass.
 
-With this trait, you can:
-- Add new methods to existing classes
-- Create reusable custom helpers
-- Extend classes without inheritance
-- Add multiple methods at once with mixins
+> This trait is meant for **your own classes**. No framework component uses it.
+> The `Str` component has its own macro support, which is explained
+> [at the end of this page](#macro-on-the-str-component).
 
 <a id="using-trait"></a>
 ## Using Trait
 
-To make your class macroable, simply use the `Macroable` trait:
+Use the trait in the class you want to make extendable:
 
 ```php
-class MyClass
+use System\Macroable;
+
+class Text
 {
     use Macroable;
 
@@ -49,172 +44,44 @@ class MyClass
 }
 ```
 
-Now the `MyClass` can accept new macros.
-
 <a id="adding-macro"></a>
 ## Adding Macro
 
-Use the static `macro()` method to add a new method:
+Register a macro with `macro()`. The name is the method name, and the handler is
+the closure that runs when it is called:
 
 ```php
-class Str
-{
-    use Macroable;
-}
-
-// Add 'shout' macro
-Str::macro('shout', function ($text) {
+Text::macro('shout', function ($text) {
     return strtoupper($text) . '!!!';
+});
+
+Text::macro('wrap', function ($text, $before = '[', $after = ']') {
+    return $before . $text . $after;
 });
 ```
 
 <a id="calling-macro"></a>
 ## Calling Macro
 
-<a id="static-call"></a>
-### Static Call
-
-After the macro is added, you can call it like a regular static method:
+Macros can be called statically or from an instance:
 
 ```php
-echo Str::shout('hello');
-// Output: HELLO!!!
+echo Text::shout('hello');          // HELLO!!!
+echo Text::wrap('Hello');           // [Hello]
+echo Text::wrap('Hello', '<', '>'); // <Hello>
+
+$text = new Text();
+echo $text->shout('hello world');   // HELLO WORLD!!!
 ```
 
-<a id="instance-call"></a>
-### Instance Call
-
-Macros can also be called from object instances:
-
-```php
-$str = new Str();
-echo $str->shout('hello world');
-// Output: HELLO WORLD!!!
-```
-
-<a id="macro-with-parameters"></a>
-## Macro With Parameters
-
-Macros can accept parameters like regular methods:
-
-```php
-Str::macro('wrap', function ($text, $before = '[', $after = ']') {
-    return $before . $text . $after;
-});
-
-echo Str::wrap('Hello');
-// Output: [Hello]
-
-echo Str::wrap('Hello', '<', '>');
-// Output: <Hello>
-
-echo Str::wrap('Hello', '**', '**');
-// Output: **Hello**
-```
-
-Multiple parameters:
-
-```php
-Str::macro('format_name', function ($first, $last, $middle = '') {
-    $name = $first;
-
-    if ($middle) {
-        $name .= ' ' . $middle;
-    }
-
-    $name .= ' ' . $last;
-
-    return $name;
-});
-
-echo Str::format_name('John', 'Doe');
-// Output: John Doe
-
-echo Str::format_name('John', 'Doe', 'Smith');
-// Output: John Smith Doe
-```
-
-<a id="using-mixin"></a>
-## Using Mixin
-
-Mixin allows you to add multiple macros at once from a class:
-
-```php
-// Class containing methods to be mixed in
-class StringMixin
-{
-    public function reverse()
-    {
-        return function ($text) {
-            return strrev($text);
-        };
-    }
-
-    public function shuffle()
-    {
-        return function ($text) {
-            return str_shuffle($text);
-        };
-    }
-
-    public function truncate()
-    {
-        return function ($text, $length = 100, $suffix = '...') {
-            if (strlen($text) <= $length) {
-                return $text;
-            }
-
-            return substr($text, 0, $length) . $suffix;
-        };
-    }
-}
-
-// Add all methods from mixin
-Str::mixin(new StringMixin());
-
-// Now all methods are available
-echo Str::reverse('hello');
-// Output: olleh
-
-echo Str::shuffle('hello');
-// Output: lohel (random)
-
-echo Str::truncate('Lorem ipsum dolor sit amet', 10);
-// Output: Lorem ipsu...
-```
-
-Mixin with replace flag:
-
-```php
-// Don't replace existing macros
-Str::mixin(new StringMixin(), false);
-
-// Replace existing macros (default: true)
-Str::mixin(new StringMixin(), true);
-```
-
-<a id="checking-macro"></a>
-## Checking Macro
-
-Use the `has_macro()` method to check if a macro is registered:
-
-```php
-if (Str::has_macro('shout')) {
-    echo 'Macro "shout" is available';
-}
-
-if (!Str::has_macro('whisper')) {
-    // Add new macro
-    Str::macro('whisper', function ($text) {
-        return strtolower($text) . '...';
-    });
-}
-```
+> Calling a macro that was never registered throws a `BadMethodCallException`.
 
 <a id="binding-context"></a>
 ## Binding Context
 
-When a macro is called from an instance, `$this` inside the closure will refer to that instance:
+When a macro is called from an instance, `$this` inside the closure refers to
+that instance, so the macro can read and change the object state, including its
+protected properties:
 
 ```php
 class Calculator
@@ -233,14 +100,8 @@ class Calculator
         $this->value += $number;
         return $this;
     }
-
-    public function get_value()
-    {
-        return $this->value;
-    }
 }
 
-// Add macro that accesses $this
 Calculator::macro('multiply', function ($number) {
     $this->value *= $number;
     return $this;
@@ -250,220 +111,98 @@ Calculator::macro('result', function () {
     return $this->value;
 });
 
-// Use from instance
 $calc = new Calculator(5);
-$result = $calc->add(3)->multiply(2)->result();
-
-echo $result;
-// Output: 16
+echo $calc->add(3)->multiply(2)->result(); // 16
 ```
 
-<a id="usage-examples"></a>
-## Usage Examples
+<a id="using-mixin"></a>
+## Using Mixin
 
-<a id="extending-string-helper"></a>
-### Extending String Helper
-
-Add custom string methods:
+A mixin registers several macros at once. Every method of the mixin class must
+**return a closure**, and that closure becomes the macro body:
 
 ```php
-use System\Str;
-
-// Add method to generate slug
-Str::macro('slug', function ($text) {
-    $text = strtolower($text);
-    $text = preg_replace('/[^a-z0-9]+/', '-', $text);
-    $text = trim($text, '-');
-    return $text;
-});
-
-echo Str::slug('Hello World! This is a Test');
-// Output: hello-world-this-is-a-test
-
-// Add method to mask string
-Str::macro('mask', function ($text, $char = '*', $start = 0, $length = null) {
-    if ($length === null) {
-        $length = strlen($text) - $start;
+class Text_Mixin
+{
+    public function reverse()
+    {
+        return function ($text) {
+            return strrev($text);
+        };
     }
 
-    return substr($text, 0, $start)
-        . str_repeat($char, $length)
-        . substr($text, $start + $length);
-});
-
-echo Str::mask('1234567890', '*', 4, 4);
-// Output: 1234****90
-
-echo Str::mask('johndoe@email.com', '*', 0, strpos('johndoe@email.com', '@'));
-// Output: *******@email.com
-```
-
-<a id="extending-collection"></a>
-### Extending Collection
-
-Add custom methods to Collection:
-
-```php
-// Add method to extract values
-Collection::macro('to_select_options', function ($value, $label) {
-    return $this->map(function ($item) use ($value, $label) {
-        return [
-            'value' => is_array($item) ? $item[$value] : $item->$value,
-            'label' => is_array($item) ? $item[$label] : $item->$label,
-        ];
-    });
-});
-
-$users = Collection::make([
-    ['id' => 1, 'name' => 'John'],
-    ['id' => 2, 'name' => 'Jane'],
-    ['id' => 3, 'name' => 'Bob'],
-]);
-
-$options = $users->to_select_options('id', 'name');
-
-/*
-[
-    ['value' => 1, 'label' => 'John'],
-    ['value' => 2, 'label' => 'Jane'],
-    ['value' => 3, 'label' => 'Bob'],
-]
-*/
-```
-
-<a id="custom-helper-methods"></a>
-### Custom Helper Methods
-
-Create utility methods for your application:
-
-```php
-class Helper
-{
-    use Macroable;
+    public function truncate()
+    {
+        return function ($text, $length = 100, $suffix = '...') {
+            return (strlen($text) <= $length) ? $text : substr($text, 0, $length) . $suffix;
+        };
+    }
 }
 
-// Format currency
-Helper::macro('currency', function ($amount, $currency = 'IDR') {
-    return $currency . ' ' . number_format($amount, 0, ',', '.');
-});
+Text::mixin(new Text_Mixin());
 
-// Format date
-Helper::macro('human_date', function ($date) {
-    return date('d F Y', strtotime($date));
-});
-
-// Generate random string
-Helper::macro('random_string', function ($length = 10) {
-    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    $string = '';
-
-    for ($i = 0; $i < $length; $i++) {
-        $string .= $chars[rand(0, strlen($chars) - 1)];
-    }
-
-    return $string;
-});
-
-// Use
-echo Helper::currency(1000000);
-// Output: IDR 1.000.000
-
-echo Helper::human_date('2024-01-15');
-// Output: 15 January 2024
-
-echo Helper::random_string(8);
-// Output: aB3xY9mK (random)
+echo Text::reverse('hello');                      // olleh
+echo Text::truncate('Lorem ipsum dolor sit', 11); // Lorem ipsum...
 ```
 
-<a id="reusable-logic"></a>
-### Reusable Logic
-
-Create logic that can be used in various places:
+The second parameter decides whether existing macros are overwritten. It
+defaults to `true`, so pass `false` to keep the macros you already registered:
 
 ```php
-// In bootstrap file or service provider
-Response::macro('success', function ($data, $message = 'Success') {
-    return Response::json([
-        'success' => true,
-        'message' => $message,
-        'data' => $data,
-    ]);
+Text::mixin(new Text_Mixin(), false);
+```
+
+<a id="checking-macro"></a>
+## Checking Macro
+
+`has_macro()` tells you whether a macro is already registered. It is useful to
+avoid registering the same macro twice:
+
+```php
+if (!Text::has_macro('whisper')) {
+    Text::macro('whisper', function ($text) {
+        return strtolower($text) . '...';
+    });
+}
+```
+
+<a id="macro-on-the-str-component"></a>
+## Macro on the Str Component
+
+The `Str` component does not use this trait, but it accepts macros through its
+own `Str::macro()` method:
+
+```php
+Str::macro('shout', function ($value) {
+    return strtoupper($value) . '!';
 });
 
-Response::macro('error', function ($message, $code = 400) {
-    return Response::json([
-        'success' => false,
-        'message' => $message,
-        'data' => null,
-    ], $code);
-});
+echo Str::shout('rakit'); // RAKIT!
+```
 
-// Use in controller
-Route::get('api/users', function () {
-    $users = User::all();
-    return Response::success($users, 'Users retrieved successfully');
-});
+Three differences from the trait:
 
-Route::post('api/login', function () {
-    if (!Auth::attempt(Input::only('email', 'password'))) {
-        return Response::error('Invalid credentials', 401);
-    }
+- The handler **must** be a `Closure`.
+- The name may not clash with an existing `Str` method. `Str::macro('slug', ..)`
+  throws an exception because [Str::slug()](/docs/strings#strslug) already exists.
+- Only `macro()` is available, there is no `mixin()` or `has_macro()`.
 
-    return Response::success(['token' => Auth::user()->token]);
+<a id="where-to-register"></a>
+## Where to Register
+
+A macro must be registered before it is called, so put it in a file that is
+always loaded, such as `application/boot.php`:
+
+```php
+// application/boot.php
+Str::macro('shout', function ($value) {
+    return strtoupper($value) . '!';
 });
 ```
 
-<a id="best-practices"></a>
-## Best Practices
+For a large number of macros, move them into their own file and require it:
 
-1. **Register macros in the right place**
-   ```php
-   // In boot.php file or service provider
-   require_once path('app') . 'macros.php';
-   ```
-
-2. **Use clear naming**
-   ```php
-   // Good
-   Str::macro('to_slug', function ($text) { ... });
-
-   // Bad
-   Str::macro('ts', function ($text) { ... });
-   ```
-
-3. **Document your macros**
-   ```php
-   /**
-    * Convert text to URL-friendly slug
-    *
-    * @param string $text
-    * @return string
-    */
-   Str::macro('to_slug', function ($text) { ... });
-   ```
-
-4. **Check before re-registering**
-   ```php
-   if (!Str::has_macro('custom_method')) {
-       Str::macro('custom_method', function () { ... });
-   }
-   ```
-
-5. **Use mixins for grouping**
-   ```php
-   // Better to group related methods in mixins
-   Str::mixin(new SlugMixin());
-   Str::mixin(new FormatterMixin());
-   ```
-
-6. **Type hint for IDE support**
-   ```php
-   /**
-    * @method static string to_slug(string $text)
-    * @method static string mask(string $text, string $char = '*')
-    */
-   class Str
-   {
-       use Macroable;
-   }
-   ```
+```php
+// application/boot.php
+require_once path('app') . 'macros.php';
+```

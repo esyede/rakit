@@ -215,7 +215,7 @@ if (Package::routed('admin')) {
 
 ## Routing to Packages
 
-Please refer to the [package routing](/docs/routing#routing-paket) and [package controllers](/docs/controllers#controller-paket) pages for more detailed guidance on the package routing mechanism.
+Please refer to the [package routing](/docs/routing#route-for-package) and [package controllers](/docs/controllers#package-controller) pages for more detailed guidance on the package routing mechanism.
 
 <a id="using-packages"></a>
 

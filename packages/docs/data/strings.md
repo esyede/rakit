@@ -5,10 +5,10 @@
 -   [Basic Knowledge](#basic-knowledge)
 -   [List Helper](#list-helper)
     -   [Str::after\(\)](#strafter)
-    -   [Str::after_last\(\)](#strafter_last)
     -   [Str::before\(\)](#strbefore)
-    -   [Str::before_last\(\)](#strbefore_last)
     -   [Str::camel\(\)](#strcamel)
+    -   [Str::censor\(\)](#strcensor)
+    -   [Str::characterify\(\)](#strcharacterify)
     -   [Str::contains\(\)](#strcontains)
     -   [Str::contains_all\(\)](#strcontains_all)
     -   [Str::ends_with\(\)](#strends_with)
@@ -20,11 +20,13 @@
     -   [Str::ucfirst\(\)](#strucfirst)
     -   [Str::kebab\(\)](#strkebab)
     -   [Str::limit\(\)](#strlimit)
+    -   [Str::lorem\(\)](#strlorem)
     -   [Str::trim\(\)](#strtrim)
     -   [Str::substr\(\)](#strsubstr)
     -   [Str::classify\(\)](#strclassify)
     -   [Str::segments\(\)](#strsegments)
     -   [Str::plural_studly\(\)](#strplural_studly)
+    -   [Str::parse_callback\(\)](#strparse_callback)
     -   [Str::password\(\)](#strpassword)
     -   [Str::bytes\(\)](#strbytes)
     -   [Str::integers\(\)](#strintegers)
@@ -41,10 +43,14 @@
     -   [Str::starts_with\(\)](#strstarts_with)
     -   [Str::studly\(\)](#strstudly)
     -   [Str::title\(\)](#strtitle)
--   [Str::uuid\(\)](#struuid)
--   [Str::words\(\)](#strwords)
+    -   [Str::uuid\(\)](#struuid)
+    -   [Str::ulid\(\)](#strulid)
+    -   [Str::cuid\(\)](#strcuid)
+    -   [Str::nanoid\(\)](#strnanoid)
+    -   [Str::words\(\)](#strwords)
+-   [Macro](#macro)
 
-    <!-- /MarkdownTOC -->
+<!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
 
@@ -67,44 +73,24 @@ Here is the list of helpers available for this component:
 
 ### Str::after()
 
-This method returns everything after the given value in a string.
-The entire string will be returned if the value is not found in the string:
+Returns everything after the first occurrence of the given value.
+If the value is not found, the whole string is returned:
 
 ```php
-$slice = Str::after('Rakit PHP framework', 'Rakit'); // ' PHP framework'
-
-$slice = Str::after('Rakit PHP framework', 'Foo Bar'); // 'Rakit PHP framework'
-```
-
-<a id="strafter_last"></a>
-
-### Str::after_last()
-
-This method returns everything after the given value in a string.
-The entire string will be returned if the value is not found in the string:
-
-```php
-$slice = Str::after_last('Foo\Bar', '\\'); // 'Bar'
+Str::after('Rakit PHP framework', 'Rakit');   // ' PHP framework'
+Str::after('Rakit PHP framework', 'Foo Bar'); // 'Rakit PHP framework'
 ```
 
 <a id="strbefore"></a>
 
 ### Str::before()
 
-This method returns everything before the given value in a string:
+Returns everything before the first occurrence of the given value.
+If the value is not found, the whole string is returned:
 
 ```php
-$slice = Str::before('Rakit PHP framework', 'PHP framework'); // 'Rakit '
-```
-
-<a id="strbefore_last"></a>
-
-### Str::before_last()
-
-This method returns everything before the last occurrence of the given value in a string:
-
-```php
-$slice = Str::before_last('Rakit PHP framework', 'PHP'); // 'Rakit '
+Str::before('Rakit PHP framework', 'PHP framework'); // 'Rakit '
+Str::before('Rakit PHP framework', 'Foo Bar');       // 'Rakit PHP framework'
 ```
 
 <a id="strcamel"></a>
@@ -115,6 +101,31 @@ This method converts the given string to camelCase:
 
 ```php
 $converted = Str::camel('foo_bar'); // fooBar
+```
+
+<a id="strcensor"></a>
+
+### Str::censor()
+
+This method masks the middle part of a string, useful for hiding part of a
+phone number or an email address:
+
+```php
+Str::censor('08123456789');   // '081******89'
+Str::censor('budi@site.com'); // 'bud*******com'
+Str::censor('rakit', '#');    // 'r###t'
+```
+
+<a id="strcharacterify"></a>
+
+### Str::characterify()
+
+This method converts an integer to its character according to the ctype rules.
+Non-integer values are returned as-is:
+
+```php
+Str::characterify(65);    // 'A'
+Str::characterify('foo'); // 'foo'
 ```
 
 <a id="strcontains"></a>
@@ -269,6 +280,21 @@ $truncated = Str::limit('The quick brown fox jumps over the lazy dog', 20, ' (..
 // The quick brown fox (...)
 ```
 
+<a id="strlorem"></a>
+
+### Str::lorem()
+
+This method generates dummy lorem-ipsum text. The first parameter is the number
+of sentences, the second is the maximum number of words per sentence (minimum `4`),
+and the third decides whether the first sentence uses the standard
+`Lorem ipsum dolor sit amet..` opening:
+
+```php
+$dummy = Str::lorem();             // only the standard opening sentence
+$dummy = Str::lorem(5, 15);        // 5 sentences, at most 15 words each
+$dummy = Str::lorem(3, 20, false); // 3 random sentences, without the standard opening
+```
+
 <a id="strtrim"></a>
 
 ### Str::trim()
@@ -341,6 +367,19 @@ $plural = Str::plural_studly('UserProfile'); // UserProfiles
 $plural = Str::plural_studly('ChildCategory'); // ChildCategories
 
 $plural = Str::plural_studly('PersonAddress', 1); // PersonAddress (count = 1)
+```
+
+<a id="strparse_callback"></a>
+
+### Str::parse_callback()
+
+This method splits a `Class@method` string into a `[class, method]` array. If the
+string has no `@`, the second element falls back to the given default value:
+
+```php
+Str::parse_callback('Home_Controller@index');           // ['Home_Controller', 'index']
+Str::parse_callback('Home_Controller', 'index');        // ['Home_Controller', 'index']
+Str::parse_callback('Home_Controller');                 // ['Home_Controller', null]
 ```
 
 <a id="strpassword"></a>
@@ -547,6 +586,45 @@ This method generates a UUID string (version 4):
 return Str::uuid(); // a0a2a2d2-0b87-4a18-83f2-2529882be2de (randomly generated)
 ```
 
+<a id="strulid"></a>
+
+### Str::ulid()
+
+This method generates a 26 character ULID. Unlike a UUID, a ULID starts with a
+timestamp so it is naturally sortable by creation time. Pass `true` to get it in
+lowercase:
+
+```php
+Str::ulid();     // 01J8ZQ3K7WGV8QHRZ2S4T6M1XA
+Str::ulid(true); // 01j8zq3k7wgv8qhrz2s4t6m1xa
+```
+
+<a id="strcuid"></a>
+
+### Str::cuid()
+
+This method generates a CUID, a collision-resistant id that is also sortable by
+creation time:
+
+```php
+Str::cuid(); // cmt1f4uy20001fq9n1b000lx4
+```
+
+<a id="strnanoid"></a>
+
+### Str::nanoid()
+
+This method generates a NanoID, a short URL-friendly random id. The size must be
+between `8` and `21` (default `21`), and you may supply your own character pool:
+
+```php
+Str::nanoid();                    // 'V1StGXR8_Z5jdHi6B-myT'
+Str::nanoid(10);                  // 'IRFa-VaY2b'
+Str::nanoid(12, '0123456789abc'); // only uses the given characters
+```
+
+> Size outside the `8` to `21` range throws an exception.
+
 <a id="strwords"></a>
 
 ### Str::words()
@@ -557,3 +635,22 @@ This method limits the number of words in a string:
 return Str::words('You know, I miss you so much.', 3, ' >>>');
 // 'You know, I >>>'
 ```
+
+<a id="macro"></a>
+
+## Macro
+
+You may add your own method to the `Str` component with `Str::macro()`.
+Register it once (for example in `application/boot.php`), then call it like any
+other method:
+
+```php
+Str::macro('shout', function ($value) {
+    return strtoupper($value) . '!';
+});
+
+Str::shout('rakit'); // 'RAKIT!'
+```
+
+> Macro names may not override existing `Str` methods. Trying to do so throws
+> an exception.

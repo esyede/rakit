@@ -209,7 +209,7 @@ if (Auth::attempt($credentials)) {
 
 ## Protecting Routes
 
-It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` filter. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, they will be redirected to the [named route](/docs/routing#named-route) called `'login'`.
+It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` filter. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, they will be redirected to the [named route](/docs/routing#named-routes) called `'login'`.
 
 **Protecting a single route:**
 

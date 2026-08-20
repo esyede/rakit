@@ -74,24 +74,48 @@ Sometimes you might want to use the `Log` class for debugging, or just to log in
 
 #### Writing messages to logs:
 
-```php
-Log::write('error', 'Failed to send email to Budi!');
-
-Log::write('info', 'Email to Andi sent successfully!');
-```
-
-#### Using magic method to specify log type:
+There is one method per log level: `emergency()`, `alert()`, `critical()`,
+`error()`, `warning()`, `notice()`, `info()`, and `debug()`:
 
 ```php
-Log::info('Email to Intan sent successfully!');
+Log::error('Failed to send email to Budi!');
+
+Log::info('Email to Andi sent successfully!');
 ```
 
 #### Including data in log messages:
 
+The second parameter is a **context array**. Its content is appended to the log
+message:
+
 ```php
 $user = User::find(1);
 
-Log::write('info', 'User data: ', $user);
-// or,
-Log::info('User data: ', $user);
+Log::info('User data:', ['user' => $user->to_array()]);
+```
+
+> The message must be a string. Data that needs logging goes into the context
+> array, not into the message parameter.
+
+If you put an exception under the `exception` key, it will also show up on the
+Debug Bar's exception panel:
+
+```php
+try {
+    $order->pay();
+} catch (\Exception $e) {
+    Log::error('Payment failed.', ['exception' => $e, 'order' => $order->id]);
+}
+```
+
+#### Separating log files by channel:
+
+By default logs go to `storage/logs/<application name>_<date>.log.php`. Use
+`Log::channel()` to move the following logs into their own file, and pass `null`
+to go back to the default file:
+
+```php
+Log::channel('payment');
+Log::info('Invoice #1234 paid.'); // storage/logs/payment_2026-08-20.log.php
+Log::channel(null);
 ```

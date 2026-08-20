@@ -33,6 +33,7 @@
     - [package:unpublish](#packageunpublish)
   - [Routing Commands](#routing-commands)
     - [route:call](#routecall)
+    - [route:list](#routelist)
   - [Session Commands](#session-commands)
     - [session:gc](#sessiongc)
   - [Test Commands](#test-commands)
@@ -396,18 +397,22 @@ php rakit package:unpublish package_name
 <a id="routecall"></a>
 #### route:call
 
-Calls a route through the console (for testing):
+Calls a route through the console (for testing). The request method and the URI
+are passed as two separate arguments:
 
 ```bash
-php rakit route:call "GET /route/path"
+php rakit route:call get /
+php rakit route:call post api/users
+php rakit route:call get user/profile/123
 ```
 
-Example:
+<a id="routelist"></a>
+#### route:list
+
+Shows all registered routes along with their method, URI, action, and name:
 
 ```bash
-php rakit route:call "GET /"
-php rakit route:call "POST /api/users"
-php rakit route:call "GET /user/profile/123"
+php rakit route:list
 ```
 
 <a id="session-commands"></a>
@@ -549,23 +554,24 @@ php rakit serve --port=3000
 <a id="command-structure"></a>
 ### Command Structure
 
-You can create custom commands by creating files in `application/commands/`:
+You can create custom commands by creating files in `application/commands/`.
+Extend the `Command` class to get the output and prompt helpers:
 
 ```php
 <?php
 
-class Syncdata_Command
+class Syncdata_Command extends Command
 {
     /**
      * Main method to be executed
      */
     public function run($arguments = [])
     {
-        Console\Table::write('info', 'Starting data synchronization...');
+        echo $this->info('Starting data synchronization...');
 
         // Your command logic here
 
-        Console\Table::write('success', 'Synchronization completed!');
+        echo $this->info('Synchronization completed!');
     }
 
     /**
@@ -573,12 +579,15 @@ class Syncdata_Command
      */
     public function users($arguments = [])
     {
-        Console\Table::write('info', 'Synchronizing users...');
+        echo $this->info('Synchronizing users...');
 
         // Special logic for syncing users
     }
 }
 ```
+
+> The helper methods return a string, they do not print anything by themselves.
+> Do not forget the `echo`.
 
 <a id="command-registration"></a>
 ### Command Registration
@@ -608,76 +617,96 @@ public function run($arguments = [])
     // $arguments[0] is the first argument after command name
     $name = isset($arguments[0]) ? $arguments[0] : 'default';
 
-    Console\Table::write('info', 'Processing: ' . $name);
+    echo $this->info('Processing: ' . $name);
+}
+```
+
+#### Messages and Prompts
+
+By extending `Command` you get these helpers:
+
+| Method                        | Description                                          |
+| ----------------------------- | ---------------------------------------------------- |
+| `info($text, $newline)`       | Green message                                        |
+| `warning($text, $newline)`    | Yellow message                                       |
+| `error($text, $newline)`      | Red message                                          |
+| `progress($percentage)`       | 10 block progress bar, `0` to `100`                  |
+| `ask($question, $default)`    | Ask a question, returns the answer                   |
+| `confirm($question, $default)`| Ask for `y` / `n`, returns a boolean                 |
+
+```php
+public function run($arguments = [])
+{
+    $name = $this->ask('Table name?', 'users');
+
+    if (!$this->confirm('Truncate table ' . $name . '?')) {
+        echo $this->warning('Cancelled.');
+        return;
+    }
+
+    for ($i = 0; $i <= 100; $i += 10) {
+        echo "\r" . $this->progress($i) . ' ' . $i . '%';
+        usleep(50000);
+    }
+
+    echo PHP_EOL . $this->info('Done!');
 }
 ```
 
 #### Colored Output
 
+Use `Color` if you need a color that the helpers above do not provide. The second
+parameter decides whether a newline is appended (default `true`):
+
 ```php
-use System\Console\Table;
 use System\Console\Color;
 
-// Success message (green)
-Table::write('success', 'Operation completed!');
-
-// Error message (red)
-Table::write('error', 'Something went wrong!');
-
-// Info message (blue)
-Table::write('info', 'Processing...');
-
-// Warning message (yellow)
-Table::write('warning', 'Be careful!');
-
-// Custom colored text
 echo Color::green('This is green text');
 echo Color::red('This is red text');
-echo Color::blue('This is blue text');
-echo Color::yellow('This is yellow text');
+echo Color::blue('This is blue text', false); // without newline
 ```
+
+Available colors: `black()`, `red()`, `green()`, `yellow()`, `blue()`,
+`purple()`, `cyan()`, and `white()`. The color is dropped automatically when the
+terminal does not support it.
 
 #### Creating Tables
 
+`Table` is instantiated, filled row by row, then printed with `display()`:
+
 ```php
 use System\Console\Table;
 
-$data = [
-    ['Name', 'Email', 'Role'],
-    ['John Doe', 'john@example.com', 'Admin'],
-    ['Jane Smith', 'jane@example.com', 'User'],
-];
+$table = new Table();
 
-Table::show($data);
+$table->set_headers(['Name', 'Email', 'Role']);
+$table->add_row(['John Doe', 'john@example.com', 'Admin']);
+$table->add_row(['Jane Smith', 'jane@example.com', 'User']);
+
+$table->display();
 
 /*
-Output:
-+------------+-------------------+-------+
-| Name       | Email             | Role  |
-+------------+-------------------+-------+
-| John Doe   | john@example.com  | Admin |
-| Jane Smith | jane@example.com  | User  |
-+------------+-------------------+-------+
++------------+------------------+-------+
+| Name       | Email            | Role  |
++------------+------------------+-------+
+| John Doe   | john@example.com | Admin |
+| Jane Smith | jane@example.com | User  |
++------------+------------------+-------+
 */
 ```
 
-#### Progress Indicator
+Other methods you can use:
 
-```php
-Console\Table::write('info', 'Processing items...');
-
-$total = 100;
-for ($i = 1; $i <= $total; $i++) {
-    // Process item
-
-    // Show progress
-    echo "\rProgress: " . $i . '/' . $total;
-    usleep(50000); // 50ms delay
-}
-
-echo "\n";
-Console\Table::write('success', 'Done!');
-```
+| Method                              | Description                                    |
+| ----------------------------------- | ---------------------------------------------- |
+| `add_header($content)`              | Add one header column                          |
+| `add_column($content, $col, $row)`  | Fill a single cell                             |
+| `add_border_line()`                 | Insert a horizontal line between rows          |
+| `show_borders()`                    | Draw a border on every row                     |
+| `hide_border()` / `show_border()`   | Hide or show the outer border                  |
+| `set_padding($value)`               | Cell padding (default `1`)                     |
+| `set_indent($value)`                | Indent the whole table                         |
+| `get_table()`                       | Return the table as a string instead of printing |
 
 <a id="running-commands-from-code"></a>
 ## Running Commands From Code

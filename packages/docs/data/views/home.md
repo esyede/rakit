@@ -21,7 +21,7 @@
   - [Use Case](#use-case)
 - [Sharing Data](#sharing-data)
   - [Share to All Views](#share-to-all-views)
-  - [Share in Service Provider](#share-in-service-provider)
+  - [Share From Base Controller](#share-from-base-controller)
 - [View Rendering](#view-rendering)
   - [Render Each](#render-each)
   - [Get Rendered Content](#get-rendered-content)
@@ -378,10 +378,8 @@ View::share('app_url', Config::get('application.url'));
 <link rel="canonical" href="<?php echo $app_url; ?>">
 ```
 
-<a id="share-in-service-provider"></a>
-### Share in Service Provider
-
-**In base controller:**
+<a id="share-from-base-controller"></a>
+### Share From Base Controller
 
 ```php
 class Base_Controller extends Controller
@@ -680,6 +678,27 @@ $response->header('X-Request-ID', uniqid());
 
 return $response;
 ```
+
+**Chained methods:**
+
+Every `with_*` method returns the response, so they can be chained:
+
+```php
+return Response::make('content')
+    ->with_headers(['X-Custom-Header' => 'value', 'X-Request-ID' => uniqid()])
+    ->with_cookie('last_seen', time(), 60)
+    ->with_status_code(201);
+```
+
+| Method                                                          | Description                          |
+| --------------------------------------------------------------- | ------------------------------------ |
+| `header($name, $value)`                                          | Set one header                       |
+| `with_headers(array $headers)`                                   | Set several headers at once          |
+| `with_cookie($name, $value, $minutes, $path, $domain, $secure)`  | Attach a cookie to the response      |
+| `with_status_code($code)`                                        | Change the status code               |
+| `headers()`                                                      | Read all headers                     |
+| `status($status)`                                                | Read the status code, or set it      |
+| `render()`                                                       | Render the content as a string       |
 
 <a id="content-type"></a>
 ### Content Type

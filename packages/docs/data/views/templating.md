@@ -7,6 +7,8 @@
 -   [Blade Template Engine](#blade-template-engine)
 -   [Blade Conditionals & Looping](#blade-conditionals--looping)
 -   [Blade Layout](#blade-layout)
+-   [Stacks](#stacks)
+-   [Other Directives](#other-directives)
 
 <!-- /MarkdownTOC -->
 
@@ -415,3 +417,75 @@ When the `profile` view is rendered, the `navigation` section will contain:
 ```
 
 Without `@parent`, the navigation section would be completely replaced with the new content, not added.
+
+<a id="stacks"></a>
+
+## Stacks
+
+A stack collects content from several views into one place. Push from anywhere,
+render it once in the layout:
+
+```blade
+{{-- application/views/profile.blade.php --}}
+@push('scripts')
+    <script src="profile.js"></script>
+@endpush
+```
+
+```blade
+{{-- application/views/master.blade.php --}}
+<body>
+    @yield('content')
+
+    @stack('scripts')
+</body>
+```
+
+Everything pushed to the same stack is rendered in the order it was pushed.
+
+<a id="other-directives"></a>
+
+## Other Directives
+
+| Directive                        | Description                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------------- |
+| `@csrf`                          | Print a hidden CSRF token field                                                 |
+| `@method('put')`                 | Print a hidden `_method` field to spoof the HTTP method                         |
+| `@json($data)`                   | Print a variable as JSON, handy for passing data to JavaScript                  |
+| `@auth` .. `@endauth`            | Content that is only shown to a logged-in user                                  |
+| `@guest` .. `@endguest`          | Content that is only shown to a guest                                           |
+| `@error('field')` .. `@enderror` | Content that is only shown when the field has a validation error                |
+| `@hassection('name')` .. `@endif`| Content that is only shown when the section exists                              |
+| `@sectionmissing('name')` .. `@endif` | Content that is only shown when the section does not exist                 |
+| `@once` .. `@endonce`            | Content that is rendered only once, even when the view is included many times   |
+| `@set('name', $value)`           | Set a variable inside the view                                                  |
+| `@unset('name')`                 | Remove a variable                                                               |
+| `@inject('name', $content)`      | Fill a section straight from a string, without `@section` .. `@endsection`      |
+| `@show`                          | Close a section and print it right away                                         |
+| `@verbatim` .. `@endverbatim`    | A block that Blade leaves untouched                                             |
+| `@php` .. `@endphp`              | A block of plain PHP                                                            |
+| `@render_each('view', $items, 'item')` | Render one view per item in the array                                     |
+
+```blade
+<form method="post" action="{{ url('user/1') }}">
+    @csrf
+    @method('put')
+
+    <input name="email" value="{{ $user->email }}">
+    @error('email')
+        <span class="error">{{ $errors->first('email') }}</span>
+    @enderror
+</form>
+
+@auth
+    <p>Hello, {{ Auth::user()->name }}.</p>
+@endauth
+
+@guest
+    <a href="{{ url('login') }}">Login</a>
+@endguest
+
+<script>
+    var user = @json($user);
+</script>
+```

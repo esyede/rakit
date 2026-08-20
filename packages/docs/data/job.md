@@ -76,9 +76,11 @@ class Mailing_Job extends Jobable
         $view = $this->get('view', 'emails.notification');
         $data = $this->get('data', []);
 
-        Mail::send('emails.notification', $data, function ($mail) use ($to, $subject) {
-            $mail->to($to)->subject($subject);
-        });
+        Email::from('admin@site.com')
+            ->to($to)
+            ->subject($subject)
+            ->html_body(View::make($view, $data)->render())
+            ->send();
     }
 }
 ```
@@ -224,7 +226,7 @@ class User_Controller extends Controller
         // Process in background
         Upload_Job::dispatch([
             'file' => $path,
-            'user_id' => Auth::id(),
+            'user_id' => Auth::user()->id,
         ]);
 
         return Response::json(['message' => 'Processing...']);
@@ -511,11 +513,13 @@ if (Job::driver()->has_overlapping('send-notification', 'default')) {
 The job system is still compatible with the old event-based approach. However, this method is **not recommended** for new projects.
 
 ```php
-// Register event listener (in bootstrap/start.php or routes.php)
+// Register event listener (in application/boot.php or application/routes.php)
 Hook::listen('rakit.jobs.run: send-notification', function ($payload) {
-    Mail::send('emails.notification', $payload, function ($mail) use ($payload) {
-        $mail->to($payload['to'])->subject($payload['subject']);
-    });
+    Email::from('admin@site.com')
+        ->to($payload['to'])
+        ->subject($payload['subject'])
+        ->html_body(View::make('emails.notification', $payload)->render())
+        ->send();
 });
 
 // Dispatch job with event name
@@ -555,9 +559,11 @@ class Notify_Job extends Jobable
         $to = $this->get('to');
         $subject = $this->get('subject');
 
-        Mail::send('emails.notification', $this->data(), function ($mail) use ($to, $subject) {
-            $mail->to($to)->subject($subject);
-        });
+        Email::from('admin@site.com')
+            ->to($to)
+            ->subject($subject)
+            ->html_body(View::make('emails.notification', $this->data())->render())
+            ->send();
     }
 }
 
@@ -577,7 +583,7 @@ class Mailing_Job extends Jobable
 {
     public function run()
     {
-        Mail::send(...);
+        Email::from('admin@site.com')->to($this->get('to'))->subject('Hello')->send();
     }
 }
 

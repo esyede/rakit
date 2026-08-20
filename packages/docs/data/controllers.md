@@ -1040,7 +1040,7 @@ abstract class Base_Controller extends Controller
         }
 
         // No layout for API requests
-        if (Request::is('api/*')) {
+        if (URI::is('api/*')) {
             return null;
         }
 

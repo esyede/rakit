@@ -145,7 +145,7 @@ After that, you just need to change the driver option in the `application/config
 
 ## Redis Driver
 
-Before using the redis driver, you must first [configure your redis server](/docs/database/redis#config).
+Before using the redis driver, you must first [configure your redis server](/docs/database/redis#configuration).
 
 After that, you just need to change the driver option in the `application/config/session.php` file as follows:
 

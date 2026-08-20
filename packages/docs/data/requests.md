@@ -35,6 +35,7 @@
 - [Server Variables](#server-variables)
 - [User Agent](#user-agent)
 - [Referrer](#referrer)
+- [Other Methods](#other-methods)
 - [Practical Examples](#practical-examples)
 
 <!-- /MarkdownTOC -->
@@ -103,16 +104,16 @@ if (Request::is_method('get')) {
 **Check if request matches path:**
 
 ```php
-if (Request::is('user/*')) {
+if (URI::is('user/*')) {
     // Request path starts with "user/"
 }
 
-if (Request::is('admin/dashboard')) {
+if (URI::is('admin/dashboard')) {
     // Exact match
 }
 
 // Multiple patterns
-if (Request::is(['admin/*', 'user/*'])) {
+if (URI::is(['admin/*', 'user/*'])) {
     // Matches either pattern
 }
 ```
@@ -509,14 +510,21 @@ $segment = URI::segment(4, 'default'); // "default" if not present
 
 **Get all segments:**
 
+All segments are kept in the `URI::$segments` property. Call `URI::current()`
+first so the property is filled in:
+
 ```php
-$segments = URI::segments();
+URI::current(); // 'user/profile/edit'
+
+$segments = URI::$segments;
 // ['user', 'profile', 'edit']
 
 foreach ($segments as $index => $segment) {
-    echo "Segment $index: $segment\n";
+    echo 'Segment ' . ($index + 1) . ': ' . $segment . "\n";
 }
 ```
+
+> The property is zero-based, while `URI::segment()` starts counting from `1`.
 
 <a id="uri-pattern-matching"></a>
 ### URI Pattern Matching
@@ -637,11 +645,11 @@ $userAgent = Request::header('User-Agent');
 // Mozilla/5.0 (Windows NT 10.0; Win64; x64)...
 
 // Check for specific browser
-if (str_contains($userAgent, 'Chrome')) {
+if (Str::contains($userAgent, 'Chrome')) {
     echo 'Chrome browser';
 }
 
-if (str_contains($userAgent, 'Mobile')) {
+if (Str::contains($userAgent, 'Mobile')) {
     echo 'Mobile device';
 }
 ```
@@ -671,6 +679,23 @@ if (Request::referrer()) {
     echo 'Direct access';
 }
 ```
+
+<a id="other-methods"></a>
+## Other Methods
+
+| Method                | Description                                                            |
+| --------------------- | ---------------------------------------------------------------------- |
+| `agent()`             | Shortcut for the `User-Agent` header                                   |
+| `content($resource)`  | Raw request body, pass `true` to get it as a stream resource           |
+| `forged()`            | `true` when the CSRF token is missing or does not match                |
+| `spoofed()`           | `true` when the method was spoofed through the `_method` field         |
+| `pjax()`              | `true` when the request carries the `X-Pjax` header                    |
+| `prefetch()`          | `true` when the browser is only prefetching the page                   |
+| `languages()`         | Languages from the `Accept-Language` header, most preferred first      |
+| `subdomain()`         | The subdomain, or `null` when the host has no subdomain                |
+| `time()`              | UNIX timestamp of when the request started                             |
+| `env()`               | Current environment name                                               |
+| `is_env($env)`        | `true` when the current environment matches `$env`                     |
 
 <a id="practical-examples"></a>
 ## Practical Examples
@@ -714,12 +739,12 @@ class Base_Controller extends Controller
         }
         
         // No layout for API or JSON requests
-        if (Request::is('api/*') || Request::expects_json()) {
+        if (URI::is('api/*') || Request::expects_json()) {
             return null;
         }
         
         // Mobile layout
-        if (str_contains(Request::header('User-Agent'), 'Mobile')) {
+        if (Str::contains(Request::agent(), 'Mobile')) {
             return View::make('layouts.mobile');
         }
         
@@ -836,7 +861,8 @@ public function action_show($id)
 ```php
 public function generate_breadcrumbs()
 {
-    $segments = URI::segments();
+    URI::current();
+    $segments = URI::$segments;
     $breadcrumbs = [['Home', '/']];
     $path = '';
     
@@ -873,7 +899,7 @@ Route::get('debug/request', function () {
         'authorization' => Request::authorization(),
         'bearer' => Request::bearer(),
         'headers' => Request::headers(),
-        'segments' => URI::segments(),
+        'segments' => URI::$segments,
         'route' => [
             'name' => Request::route() ? Request::route()->action : null,
             'params' => Request::route() ? Request::route()->parameters : [],
