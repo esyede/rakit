@@ -159,7 +159,7 @@ Here is the complete list of built-in framework events along with their paramete
 | `Hook::fire('rakit.resolving',`                | `[string $type, mixed $object]);`                     |
 | `Hook::fire('rakit.composing: [view_name]',`   | `[View $view]);`                                      |
 | `Hook::fire('rakit.booted: [package_name]');`  | `None`                                                |
-| `Hook::first('rakit.controller.factory',`      | `[string $className]);`                               |
+| `Hook::first('rakit.controller.factory',`      | `[string $class_name]);`                               |
 | `Hook::first('rakit.config.loader',`           | `[string $package, string $file]);`                   |
 | `Hook::first('rakit.language.loader',`         | `[string $package, string $language, string $file]);` |
 | `Hook::until('rakit.view.loader',`             | `[string $package, string $view]);`                   |

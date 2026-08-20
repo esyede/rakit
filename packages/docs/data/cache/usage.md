@@ -63,9 +63,9 @@ $users = DB::table('users')->get();
 Cache::put('all_users', $users, 60);
 
 // Cache with dynamic key
-$userId = 1;
-$user = User::find($userId);
-Cache::put("user:{$userId}", $user, 30);
+$user_id = 1;
+$user = User::find($user_id);
+Cache::put("user:{$user_id}", $user, 30);
 ```
 
 > There is no need to serialize objects when storing them in cache because Rakit will do it for you.
@@ -232,7 +232,7 @@ Cache::driver('file')->put('name', 'Budi', 10);
 Cache::driver('file')->forever('config', $config);
 
 // Store in Redis for frequently accessed data
-Cache::driver('redis')->put('session:' . $userId, $session, 120);
+Cache::driver('redis')->put('session:' . $user_id, $session, 120);
 
 // Store in Memcached for temporary data
 Cache::driver('memcached')->put('temp_data', $data, 5);

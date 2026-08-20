@@ -310,7 +310,7 @@ $prefix = Package::prefix('admin');
 // Returns: 'admin::'
 
 // Prefix for class name
-$classPrefix = Package::class_prefix('admin');
+$class_prefix = Package::class_prefix('admin');
 // Returns: 'Admin_'
 ```
 

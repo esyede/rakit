@@ -816,7 +816,7 @@ The `session` function retrieves or sets session:
 
 ```php
 // Retrieve session
-$userId = session('user_id');
+$user_id = session('user_id');
 $username = session('username');
 
 // With default value
@@ -992,7 +992,7 @@ $encrypted = encrypt('sensitive data');
 $encrypted = encrypt(['password' => 'secret123']);
 
 // Encrypt for storing in database
-$user->token = encrypt($apiToken);
+$user->token = encrypt($api_token);
 $user->save();
 ```
 
@@ -1008,7 +1008,7 @@ $decrypted = decrypt($encrypted);
 // 'sensitive data'
 
 // Decrypt from database
-$apiToken = decrypt($user->token);
+$api_token = decrypt($user->token);
 
 // Handle decryption error
 try {
@@ -1136,7 +1136,7 @@ $now = now('Asia/Tokyo');
 
 // Date operations
 $tomorrow = now()->addDay();
-$nextWeek = now()->addWeek();
+$next_week = now()->addWeek();
 $yesterday = now()->subDay();
 ```
 
@@ -1190,7 +1190,7 @@ $value = optional($user, function ($user) {
 $city = optional(optional($user)->profile)->city;
 
 // Practical example
-$userName = optional(Auth::user())->name ?: 'Guest';
+$user_name = optional(Auth::user())->name ?: 'Guest';
 ```
 
 <a id="when"></a>
@@ -1250,8 +1250,8 @@ echo human_filesize(1234567890, 3);
 // '1.150 GB'
 
 // Example usage
-$fileSize = filesize('path/to/file.pdf');
-echo 'File size: ' . human_filesize($fileSize);
+$file_size = filesize('path/to/file.pdf');
+echo 'File size: ' . human_filesize($file_size);
 // 'File size: 2.45 MB'
 ```
 

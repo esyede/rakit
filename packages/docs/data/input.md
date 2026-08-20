@@ -95,12 +95,12 @@ $age = Input::get('age');
 
 ```php
 // Input: user[name], user[email]
-$userName = Input::get('user.name');
-$userEmail = Input::get('user.email');
+$user_name = Input::get('user.name');
+$user_email = Input::get('user.email');
 
 // Array input
 $tags = Input::get('tags'); // Array
-$firstTag = Input::get('tags.0');
+$first_tag = Input::get('tags.0');
 ```
 
 <a id="get-with-default-value"></a>
@@ -111,7 +111,7 @@ $firstTag = Input::get('tags.0');
 ```php
 $name = Input::get('name', 'Anonymous');
 $page = Input::get('page', 1);
-$perPage = Input::get('per_page', 20);
+$per_page = Input::get('per_page', 20);
 ```
 
 **Default value with closure:**
@@ -121,7 +121,7 @@ $name = Input::get('name', function () {
     return 'Guest User';
 });
 
-$userId = Input::get('user_id', function () {
+$user_id = Input::get('user_id', function () {
     return Auth::user()->id;
 });
 ```
@@ -356,7 +356,7 @@ $type = $file['type'];
 $size = $file['size'];
 
 // Temporary path
-$tmpPath = $file['tmp_name'];
+$tmp_path = $file['tmp_name'];
 
 // Error code
 $error = $file['error'];
@@ -394,8 +394,8 @@ Route::post('upload', function () {
     }
     
     // Upload files
-    $docPath = Input::upload('document', path('storage') . 'documents');
-    $imgPath = Input::upload('image', path('storage') . 'images');
+    $doc_path = Input::upload('document', path('storage') . 'documents');
+    $img_path = Input::upload('image', path('storage') . 'images');
     
     return Redirect::back()->with('message', 'Files uploaded!');
 });
@@ -733,13 +733,13 @@ Route::post('products', function () {
     }
     
     // Upload image
-    $imagePath = Input::upload('image', path('public') . 'products');
+    $image_path = Input::upload('image', path('public') . 'products');
     
     // Create product
     Product::create([
         'name' => Input::get('name'),
         'price' => Input::get('price'),
-        'image' => $imagePath,
+        'image' => $image_path,
     ]);
     
     return Redirect::to('products')
@@ -816,13 +816,13 @@ Route::get('products', function () {
     }
     
     // Sort
-    $sortBy = Input::get('sort', 'created_at');
-    $sortDir = Input::get('dir', 'desc');
-    $query->order_by($sortBy, $sortDir);
+    $sort_by = Input::get('sort', 'created_at');
+    $sort_dir = Input::get('dir', 'desc');
+    $query->order_by($sort_by, $sort_dir);
     
     // Paginate
-    $perPage = Input::get('per_page', 20);
-    $products = $query->paginate($perPage);
+    $per_page = Input::get('per_page', 20);
+    $products = $query->paginate($per_page);
     
     return View::make('products.index', compact('products'));
 });
@@ -833,23 +833,23 @@ Route::get('products', function () {
 ```php
 Route::post('users/bulk-action', function () {
     $action = Input::get('action');
-    $userIds = Input::get('users', []);
+    $user_ids = Input::get('users', []);
     
-    if (empty($userIds)) {
+    if (empty($user_ids)) {
         return Redirect::back()->with('error', 'No users selected');
     }
     
     switch ($action) {
         case 'activate':
-            User::where_in('id', $userIds)->update(['active' => 1]);
+            User::where_in('id', $user_ids)->update(['active' => 1]);
             break;
             
         case 'deactivate':
-            User::where_in('id', $userIds)->update(['active' => 0]);
+            User::where_in('id', $user_ids)->update(['active' => 0]);
             break;
             
         case 'delete':
-            User::where_in('id', $userIds)->delete();
+            User::where_in('id', $user_ids)->delete();
             break;
     }
     

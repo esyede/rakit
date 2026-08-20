@@ -376,21 +376,21 @@ $day = $carbon->day;
 $hour = $carbon->hour;
 $minute = $carbon->minute;
 $second = $carbon->second;
-$dayOfWeek = $carbon->dayOfWeek;
-$dayOfYear = $carbon->dayOfYear;
-$weekOfYear = $carbon->weekOfYear;
-$daysInMonth = $carbon->daysInMonth;
+$day_of_week = $carbon->dayOfWeek;
+$day_of_year = $carbon->dayOfYear;
+$week_of_year = $carbon->weekOfYear;
+$days_in_month = $carbon->daysInMonth;
 $timestamp = $carbon->timestamp;
 $timezone = $carbon->timezone;
-$tzName = $carbon->tzName;
+$tz_name = $carbon->tzName;
 $offset = $carbon->offset;
-$offsetHours = $carbon->offsetHours;
+$offset_hours = $carbon->offsetHours;
 $dst = $carbon->dst;
 $utc = $carbon->utc;
-$weekOfMonth = $carbon->weekOfMonth;
+$week_of_month = $carbon->weekOfMonth;
 $age = $carbon->age;
 $quarter = $carbon->quarter;
-$yearIso = $carbon->yearIso;
+$year_iso = $carbon->yearIso;
 $micro = $carbon->micro;
 ```
 
@@ -551,7 +551,7 @@ Carbon::setNow(Carbon::create(2023, 1, 1));
 Gets the test now value.
 
 ```php
-$testNow = Carbon::getTestNow();
+$test_now = Carbon::getTestNow();
 ```
 
 <a id="hastestnow"></a>
@@ -573,7 +573,7 @@ if (Carbon::hasTestNow()) {
 Checks if the time string has relative keywords.
 
 ```php
-$hasRelative = Carbon::hasRelativeKeywords('tomorrow');
+$has_relative = Carbon::hasRelativeKeywords('tomorrow');
 ```
 
 <a id="resettostringformat"></a>
@@ -775,7 +775,7 @@ Checks if two Carbon instances are equal.
 ```php
 $carbon1 = Carbon::create(2023, 1, 1);
 $carbon2 = Carbon::create(2023, 1, 1);
-$isEqual = $carbon1->eq($carbon2); // true
+$is_equal = $carbon1->eq($carbon2); // true
 ```
 
 <a id="ne"></a>
@@ -785,7 +785,7 @@ $isEqual = $carbon1->eq($carbon2); // true
 Checks if two Carbon instances are not equal.
 
 ```php
-$isNotEqual = $carbon1->ne($carbon2); // false
+$is_not_equal = $carbon1->ne($carbon2); // false
 ```
 
 <a id="gt"></a>
@@ -797,7 +797,7 @@ Checks if the instance is greater than another.
 ```php
 $carbon1 = Carbon::create(2023, 1, 2);
 $carbon2 = Carbon::create(2023, 1, 1);
-$isGreater = $carbon1->gt($carbon2); // true
+$is_greater = $carbon1->gt($carbon2); // true
 ```
 
 <a id="gte"></a>
@@ -807,7 +807,7 @@ $isGreater = $carbon1->gt($carbon2); // true
 Checks if the instance is greater than or equal to another.
 
 ```php
-$isGreaterOrEqual = $carbon1->gte($carbon2); // true
+$is_greater_or_equal = $carbon1->gte($carbon2); // true
 ```
 
 <a id="lt"></a>
@@ -817,7 +817,7 @@ $isGreaterOrEqual = $carbon1->gte($carbon2); // true
 Checks if the instance is less than another.
 
 ```php
-$isLess = $carbon1->lt($carbon2); // false
+$is_less = $carbon1->lt($carbon2); // false
 ```
 
 <a id="lte"></a>
@@ -827,7 +827,7 @@ $isLess = $carbon1->lt($carbon2); // false
 Checks if the instance is less than or equal to another.
 
 ```php
-$isLessOrEqual = $carbon1->lte($carbon2); // false
+$is_less_or_equal = $carbon1->lte($carbon2); // false
 ```
 
 <a id="between"></a>
@@ -839,7 +839,7 @@ Checks if the instance is between two dates.
 ```php
 $start = Carbon::create(2023, 1, 1);
 $end = Carbon::create(2023, 1, 31);
-$isBetween = $carbon->between($start, $end); // true if within range
+$is_between = $carbon->between($start, $end); // true if within range
 ```
 
 <a id="min"></a>
@@ -849,7 +849,7 @@ $isBetween = $carbon->between($start, $end); // true if within range
 Returns the minimum of two dates.
 
 ```php
-$minDate = $carbon1->min($carbon2);
+$min_date = $carbon1->min($carbon2);
 ```
 
 <a id="max"></a>
@@ -859,7 +859,7 @@ $minDate = $carbon1->min($carbon2);
 Returns the maximum of two dates.
 
 ```php
-$maxDate = $carbon1->max($carbon2);
+$max_date = $carbon1->max($carbon2);
 ```
 
 <a id="isweekday"></a>
@@ -869,7 +869,7 @@ $maxDate = $carbon1->max($carbon2);
 Checks if the date is a weekday.
 
 ```php
-$isWeekday = $carbon->isWeekday(); // true if Monday to Friday
+$is_weekday = $carbon->isWeekday(); // true if Monday to Friday
 ```
 
 <a id="isweekend"></a>
@@ -879,7 +879,7 @@ $isWeekday = $carbon->isWeekday(); // true if Monday to Friday
 Checks if the date is a weekend.
 
 ```php
-$isWeekend = $carbon->isWeekend(); // true if Saturday or Sunday
+$is_weekend = $carbon->isWeekend(); // true if Saturday or Sunday
 ```
 
 <a id="isyesterday"></a>
@@ -889,7 +889,7 @@ $isWeekend = $carbon->isWeekend(); // true if Saturday or Sunday
 Checks if the date is yesterday.
 
 ```php
-$isYesterday = $carbon->isYesterday();
+$is_yesterday = $carbon->isYesterday();
 ```
 
 <a id="istoday"></a>
@@ -899,7 +899,7 @@ $isYesterday = $carbon->isYesterday();
 Checks if the date is today.
 
 ```php
-$isToday = $carbon->isToday();
+$is_today = $carbon->isToday();
 ```
 
 <a id="istomorrow"></a>
@@ -909,7 +909,7 @@ $isToday = $carbon->isToday();
 Checks if the date is tomorrow.
 
 ```php
-$isTomorrow = $carbon->isTomorrow();
+$is_tomorrow = $carbon->isTomorrow();
 ```
 
 <a id="isfuture"></a>
@@ -919,7 +919,7 @@ $isTomorrow = $carbon->isTomorrow();
 Checks if the date is in the future.
 
 ```php
-$isFuture = $carbon->isFuture();
+$is_future = $carbon->isFuture();
 ```
 
 <a id="ispast"></a>
@@ -929,7 +929,7 @@ $isFuture = $carbon->isFuture();
 Checks if the date is in the past.
 
 ```php
-$isPast = $carbon->isPast();
+$is_past = $carbon->isPast();
 ```
 
 <a id="isleapyear"></a>
@@ -939,7 +939,7 @@ $isPast = $carbon->isPast();
 Checks if the year is a leap year.
 
 ```php
-$isLeap = $carbon->isLeapYear();
+$is_leap = $carbon->isLeapYear();
 ```
 
 <a id="issameday"></a>
@@ -949,7 +949,7 @@ $isLeap = $carbon->isLeapYear();
 Checks if two dates are the same day.
 
 ```php
-$isSame = $carbon1->isSameDay($carbon2);
+$is_same = $carbon1->isSameDay($carbon2);
 ```
 
 <a id="addyears"></a>
@@ -1691,5 +1691,5 @@ $average = $carbon1->average($carbon2);
 Checks if the date is the same day and month as another.
 
 ```php
-$isBirthday = $carbon1->isBirthday($carbon2);
+$is_birthday = $carbon1->isBirthday($carbon2);
 ```

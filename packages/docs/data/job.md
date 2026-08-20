@@ -95,7 +95,7 @@ class Upload_Job extends Jobable
     public function run()
     {
         $file = $this->get('file');
-        $userId = $this->get('user_id');
+        $user_id = $this->get('user_id');
 
         // Process file (resize, optimize, etc)
         $this->process_image($file);
@@ -155,11 +155,11 @@ class Sample_Job extends Jobable
     public function run()
     {
         // Retrieve data from payload
-        $userId = $this->get('user_id');
+        $user_id = $this->get('user_id');
         $email = $this->get('email', 'default@example.com');
 
         // Retrieve all data
-        $allData = $this->data();
+        $all_data = $this->data();
 
         // Job logic here
     }
@@ -604,10 +604,10 @@ class Doall_Job extends Jobable
 
 ```php
 // GOOD - Send ID only
-Ordering_Job::dispatch(['order_id' => $orderId]);
+Ordering_Job::dispatch(['order_id' => $order_id]);
 
 // BAD - Send large object
-Ordering_Job::dispatch(['order' => $orderObject]);
+Ordering_Job::dispatch(['order' => $order_object]);
 ```
 
 **Reason:**
@@ -688,7 +688,7 @@ LogEvent::dispatch($data)->via('memcached')->on_queue('low');
 ```php
 public function run()
 {
-    $startTime = microtime(true);
+    $start_time = microtime(true);
 
     try {
         Log::info('Job started: ' . static::name(), $this->data());
@@ -696,7 +696,7 @@ public function run()
         // Process job
         $this->processData();
 
-        $duration = microtime(true) - $startTime;
+        $duration = microtime(true) - $start_time;
         Log::info('Job completed: ' . static::name() . ' in ' . $duration . 's');
     } catch (\Exception $e) {
         Log::error('Job failed: ' . static::name() . ' - ' . $e->getMessage());

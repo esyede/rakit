@@ -129,7 +129,7 @@ if (URI::is(['admin/*', 'user/*'])) {
 ```php
 $accept = Request::header('Accept');
 $authorization = Request::header('Authorization');
-$userAgent = Request::header('User-Agent');
+$user_agent = Request::header('User-Agent');
 
 // With default value
 $token = Request::header('X-API-Token', 'default-token');
@@ -165,17 +165,17 @@ $accept = Request::header('Accept');
 $auth = Request::header('Authorization');
 
 // Content-Type
-$contentType = Request::header('Content-Type');
+$content_type = Request::header('Content-Type');
 
 // User-Agent
-$userAgent = Request::header('User-Agent');
+$user_agent = Request::header('User-Agent');
 
 // X-Requested-With (for AJAX detection)
-$requestedWith = Request::header('X-Requested-With');
+$requested_with = Request::header('X-Requested-With');
 
 // Custom headers
-$apiKey = Request::header('X-API-Key');
-$apiVersion = Request::header('X-API-Version');
+$api_key = Request::header('X-API-Key');
+$api_version = Request::header('X-API-Version');
 ```
 
 <a id="request-ip-address"></a>
@@ -403,11 +403,11 @@ if (Request::matches_type('application/json', '*/*')) {
 **Get request content type:**
 
 ```php
-$contentType = Request::header('Content-Type');
+$content_type = Request::header('Content-Type');
 
-if ($contentType === 'application/json') {
+if ($content_type === 'application/json') {
     $data = Input::json();
-} elseif ($contentType === 'application/x-www-form-urlencoded') {
+} elseif ($content_type === 'application/x-www-form-urlencoded') {
     $data = Input::all();
 }
 ```
@@ -489,7 +489,7 @@ $uri = Request::uri();
 ### Full URI
 
 ```php
-$fullUri = URI::full();
+$full_uri = URI::full();
 // "http://example.com/user/profile?page=2&sort=name"
 ```
 
@@ -617,7 +617,7 @@ $action = $route->action;
 // Get specific server variable
 $host = Request::server('HTTP_HOST');
 $referer = Request::server('HTTP_REFERER');
-$userAgent = Request::server('HTTP_USER_AGENT');
+$user_agent = Request::server('HTTP_USER_AGENT');
 
 // Get all server variables
 $server = Request::servers();
@@ -626,7 +626,7 @@ $server = Request::servers();
 $method = Request::server('REQUEST_METHOD');
 $protocol = Request::server('SERVER_PROTOCOL');
 $port = Request::server('SERVER_PORT');
-$remoteAddr = Request::server('REMOTE_ADDR');
+$remote_addr = Request::server('REMOTE_ADDR');
 ```
 
 **With default value:**
@@ -641,15 +641,15 @@ $referer = Request::server('HTTP_REFERER', '/');
 **Get user agent:**
 
 ```php
-$userAgent = Request::header('User-Agent');
+$user_agent = Request::header('User-Agent');
 // Mozilla/5.0 (Windows NT 10.0; Win64; x64)...
 
 // Check for specific browser
-if (Str::contains($userAgent, 'Chrome')) {
+if (Str::contains($user_agent, 'Chrome')) {
     echo 'Chrome browser';
 }
 
-if (Str::contains($userAgent, 'Mobile')) {
+if (Str::contains($user_agent, 'Mobile')) {
     echo 'Mobile device';
 }
 ```
