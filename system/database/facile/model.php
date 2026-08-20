@@ -261,7 +261,11 @@ abstract class Model
     }
 
     /**
-     * Get a model's attribute value.
+     * Get a model's raw attribute value.
+     *
+     * The lookup order is: loaded relationship, table attribute, then
+     * relationship that has not been loaded yet. The accessor method is not
+     * applied here, so an accessor may call this method safely.
      *
      * @param string $key
      *
@@ -269,7 +273,60 @@ abstract class Model
      */
     public function get_attribute($key)
     {
-        return isset($this->attributes[$key]) ? $this->attributes[$key] : null;
+        if (array_key_exists($key, $this->relationships)) {
+            return $this->relationships[$key];
+        }
+
+        if (array_key_exists($key, $this->attributes)) {
+            return $this->attributes[$key];
+        }
+
+        return $this->load_relationship($key);
+    }
+
+    /**
+     * Load a relationship of the model on demand.
+     * NULL is returned when the given name is not a relationship.
+     *
+     * @param string $key
+     *
+     * @return mixed
+     */
+    protected function load_relationship($key)
+    {
+        if (!$this->has_own_method($key)) {
+            return null;
+        }
+
+        $method = new \ReflectionMethod($this, $key);
+
+        if (0 !== $method->getNumberOfRequiredParameters()) {
+            return null;
+        }
+
+        $relationship = $this->{$key}();
+
+        if (!($relationship instanceof Relationships\Relationship)) {
+            return null;
+        }
+
+        $this->relationships[$key] = $relationship->results();
+
+        return $this->relationships[$key];
+    }
+
+    /**
+     * Check if a method is defined by the model itself instead of by this
+     * base class. It keeps framework methods such as key() and get_table()
+     * from being treated as a relationship or an accessor.
+     *
+     * @param string $method
+     *
+     * @return bool
+     */
+    protected function has_own_method($method)
+    {
+        return method_exists($this, $method) && !method_exists(__CLASS__, $method);
     }
 
     /**
@@ -628,6 +685,31 @@ abstract class Model
     }
 
     /**
+     * Start a query with the given relationships eager loaded.
+     *
+     * <code>
+     *
+     *      // Eager load one relationship
+     *      $posts = Post::with('author')->get();
+     *
+     *      // Eager load several relationships, including a nested one
+     *      $posts = Post::with(['author', 'comments', 'comments.user'])->get();
+     *
+     * </code>
+     *
+     * @param array|string $with
+     *
+     * @return Query
+     */
+    public static function with($with)
+    {
+        $model = new static();
+        $model->with = is_array($with) ? $with : func_get_args();
+
+        return $model->query();
+    }
+
+    /**
      * Get the query for a one-to-one relationship.
      *
      * @param string $model
@@ -694,7 +776,12 @@ abstract class Model
      */
     public function belongs_to($model, $foreign = null)
     {
-        $foreign = is_null($foreign) ? 'belongs_to_id' : $foreign;
+        if (is_null($foreign)) {
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+            $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : null;
+            $foreign = is_null($caller) ? Str::lower(class_basename($model)) . '_id' : $caller . '_id';
+        }
+
         return new Relationships\BelongsTo($this, $model, $foreign);
     }
 
@@ -1073,6 +1160,7 @@ abstract class Model
 
     /**
      * Handle dynamic property access for getting attributes.
+     * The accessor method (get_<name>) is used when the model defines one.
      *
      * @param string $key
      *
@@ -1080,11 +1168,18 @@ abstract class Model
      */
     public function __get($key)
     {
+        $accessor = 'get_' . $key;
+
+        if ($this->has_own_method($accessor)) {
+            return $this->{$accessor}($this->get_attribute($key));
+        }
+
         return $this->get_attribute($key);
     }
 
     /**
      * Handle dynamic property access for setting attributes.
+     * The mutator method (set_<name>) is used when the model defines one.
      *
      * @param string $key
      * @param mixed  $value
@@ -1093,6 +1188,45 @@ abstract class Model
      */
     public function __set($key, $value)
     {
+        $mutator = 'set_' . $key;
+
+        if ($this->has_own_method($mutator)) {
+            $this->{$mutator}($value);
+            return;
+        }
+
         $this->set_attribute($key, $value);
+    }
+
+    /**
+     * Handle isset() and empty() on attributes and relationships.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function __isset($key)
+    {
+        if (array_key_exists($key, $this->attributes) || array_key_exists($key, $this->relationships)) {
+            return !is_null($this->get_attribute($key));
+        }
+
+        if ($this->has_own_method('get_' . $key) || $this->has_own_method($key)) {
+            return !is_null($this->get_attribute($key));
+        }
+
+        return false;
+    }
+
+    /**
+     * Handle unset() on attributes and relationships.
+     *
+     * @param string $key
+     *
+     * @return void
+     */
+    public function __unset($key)
+    {
+        unset($this->attributes[$key], $this->relationships[$key]);
     }
 }
