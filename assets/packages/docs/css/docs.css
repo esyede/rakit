@@ -1,37 +1,10 @@
-/*
-| Tema situs Rakit — hitam dominan.
-|
-| Struktur dibentuk oleh garis 1px di atas kanvas hitam, bukan oleh bidang
-| berwarna. Permukaan kartu hampir hitam sehingga yang memisahkan elemen
-| adalah garisnya, bukan kontras isian.
-|
-| Tanpa dependensi eksternal: seluruh font dari berkas lokal di repositori ini.
-*/
-
-/* ==========================================================================
-   Font
-   ========================================================================== */
-
-/*
-| Monaco tersedia lokal dengan bobot 400, cocok untuk kode dan label.
-| Untuk judul tidak ada font display lokal yang layak (Raleway.ttf hanya
-| bobot 300/Light, sehingga bobot tebal akan disintesis dan terlihat lemah),
-| jadi judul memakai tumpukan font sistem yang punya bobot tebal sungguhan.
-| Taruh berkas font di assets/main/fonts/ dan daftarkan di sini bila ingin
-| memakai font display sendiri.
-*/
-
 @font-face {
-    font-family: 'Rakit Mono';
-    src: url('../fonts/Monaco.ttf') format('truetype');
+    font-family: "Rakit Mono";
+    src: url("../fonts/Monaco.ttf") format("truetype");
     font-weight: 400;
     font-style: normal;
     font-display: swap;
 }
-
-/* ==========================================================================
-   Token
-   ========================================================================== */
 
 :root {
     --black: #000000;
@@ -51,8 +24,6 @@
     --rule: #1c1b24;
     --rule-strong: #2e2d3a;
 
-    /* Sudut siku: bentuk kotak tanpa pembulatan. --radius-pill disisakan
-       hanya untuk elemen yang memang lingkaran (titik penanda). */
     --radius: 0;
     --radius-lg: 0;
     --radius-pill: 9999px;
@@ -62,14 +33,15 @@
     --gap: 112px;
     --cell-pad: 40px;
 
-    --font-display: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-mono: 'Rakit Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-display:
+        "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+    --font-body:
+        system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+        sans-serif;
+    --font-mono:
+        "Rakit Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
-
-/* ==========================================================================
-   Dasar
-   ========================================================================== */
 
 *,
 *::before,
@@ -79,8 +51,6 @@
 
 html {
     -webkit-text-size-adjust: 100%;
-    /* Ruang scrollbar dicadangkan agar tata letak tidak melompat saat
-       guliran dikunci ketika modal terbuka. */
     scrollbar-gutter: stable;
     scrollbar-color: #26252f var(--black);
     scrollbar-width: thin;
@@ -126,7 +96,7 @@ body {
 a {
     color: var(--primary-soft);
     text-decoration: none;
-    transition: color .18s ease;
+    transition: color 0.18s ease;
 }
 
 a:hover {
@@ -141,7 +111,7 @@ h4 {
     color: var(--text);
     margin: 0;
     font-weight: 600;
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
     text-wrap: balance;
 }
 
@@ -166,18 +136,13 @@ button:focus:not(:focus-visible) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
     *,
     *::before,
     *::after {
-        transition-duration: .01ms !important;
-        animation-duration: .01ms !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
-
-/* ==========================================================================
-   Kerangka
-   ========================================================================== */
 
 .shell {
     width: 100%;
@@ -196,12 +161,8 @@ button:focus:not(:focus-visible) {
     padding-top: 64px;
 }
 
-/*
-| Garis tegak pembingkai. Satu lapisan setinggi seluruh area konten agar tidak
-| terputus oleh jarak antar-seksi, dengan lebar persis sama dengan .shell.
-*/
 .main::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     bottom: 0;
@@ -243,7 +204,7 @@ button:focus:not(:focus-visible) {
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: .14em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--text-faint);
     display: block;
@@ -277,7 +238,7 @@ button:focus:not(:focus-visible) {
 .cell {
     background: var(--black);
     padding: var(--cell-pad) 32px;
-    transition: background-color .18s ease;
+    transition: background-color 0.18s ease;
 }
 
 .cell:hover {
@@ -288,7 +249,7 @@ button:focus:not(:focus-visible) {
     color: var(--primary);
     margin-bottom: 24px;
     display: block;
-    transition: color .18s ease;
+    transition: color 0.18s ease;
 }
 
 .cell:hover .cell__icon {
@@ -315,17 +276,13 @@ button:focus:not(:focus-visible) {
     margin-top: 24px;
 }
 
-/* ==========================================================================
-   Navigasi
-   ========================================================================== */
-
 .nav {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 50;
-    background: rgba(0, 0, 0, .82);
+    background: rgba(0, 0, 0, 0.82);
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--rule);
@@ -350,7 +307,7 @@ button:focus:not(:focus-visible) {
     font-family: var(--font-display);
     font-size: 20px;
     font-weight: 700;
-    letter-spacing: .02em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--text);
 }
@@ -406,7 +363,9 @@ button:focus:not(:focus-visible) {
     width: 18px;
     height: 1.5px;
     background: var(--text-dim);
-    transition: transform .2s ease, opacity .2s ease;
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
 }
 
 .navbar-burger.is-active span:nth-child(1) {
@@ -421,10 +380,6 @@ button:focus:not(:focus-visible) {
     transform: translateY(-6.5px) rotate(-45deg);
 }
 
-/* ==========================================================================
-   Tombol
-   ========================================================================== */
-
 .btn {
     display: inline-flex;
     align-items: center;
@@ -438,7 +393,10 @@ button:focus:not(:focus-visible) {
     line-height: 1.2;
     cursor: pointer;
     white-space: nowrap;
-    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease;
 }
 
 .btn--sm {
@@ -473,14 +431,9 @@ button:focus:not(:focus-visible) {
     flex: 0 0 auto;
 }
 
-/* ==========================================================================
-   Hero
-   ========================================================================== */
-
 .hero {
     position: relative;
     isolation: isolate;
-    /* Disejajarkan dengan .shell agar konten tidak keluar dari bingkai. */
     max-width: var(--container);
     margin: 0 auto;
     padding: 112px var(--gutter) 96px;
@@ -488,7 +441,7 @@ button:focus:not(:focus-visible) {
 }
 
 .hero::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
@@ -498,17 +451,29 @@ button:focus:not(:focus-visible) {
         linear-gradient(to bottom, var(--rule) 1px, transparent 1px);
     background-size: 64px 64px;
     background-position: center top;
-    -webkit-mask-image: radial-gradient(ellipse 65% 60% at 50% 38%, #000 15%, transparent 78%);
-    mask-image: radial-gradient(ellipse 65% 60% at 50% 38%, #000 15%, transparent 78%);
+    -webkit-mask-image: radial-gradient(
+        ellipse 65% 60% at 50% 38%,
+        #000 15%,
+        transparent 78%
+    );
+    mask-image: radial-gradient(
+        ellipse 65% 60% at 50% 38%,
+        #000 15%,
+        transparent 78%
+    );
 }
 
 .hero::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     z-index: -2;
     pointer-events: none;
-    background: radial-gradient(ellipse 55% 45% at 50% 26%, rgba(90, 69, 255, .13), transparent 72%);
+    background: radial-gradient(
+        ellipse 55% 45% at 50% 26%,
+        rgba(90, 69, 255, 0.13),
+        transparent 72%
+    );
 }
 
 .hero__badge {
@@ -523,7 +488,7 @@ button:focus:not(:focus-visible) {
     color: var(--text-dim);
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: .12em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
 }
 
@@ -535,7 +500,7 @@ button:focus:not(:focus-visible) {
 .hero__title {
     font-size: 76px;
     line-height: 1.05;
-    letter-spacing: -.035em;
+    letter-spacing: -0.035em;
     font-weight: 700;
     max-width: 960px;
     margin: 0 auto 28px;
@@ -592,10 +557,6 @@ button:focus:not(:focus-visible) {
     font-size: 52px;
 }
 
-/* ==========================================================================
-   Statistik ringkas
-   ========================================================================== */
-
 .stat {
     padding: 32px;
     background: var(--black);
@@ -606,7 +567,7 @@ button:focus:not(:focus-visible) {
     font-family: var(--font-display);
     font-size: 34px;
     font-weight: 700;
-    letter-spacing: -.02em;
+    letter-spacing: -0.02em;
     color: var(--text);
     display: block;
     line-height: 1.1;
@@ -615,16 +576,12 @@ button:focus:not(:focus-visible) {
 .stat__label {
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: .12em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--text-faint);
     margin-top: 8px;
     display: block;
 }
-
-/* ==========================================================================
-   Ajakan penutup
-   ========================================================================== */
 
 .cta {
     padding: var(--gap) var(--gutter);
@@ -633,18 +590,16 @@ button:focus:not(:focus-visible) {
     isolation: isolate;
 }
 
-/*
-| Sorot sengaja dinaikkan dan diperkecil agar memudar habis sebelum menyentuh
-| batas bawah blok. Bila ia mencapai tepi, latar di sekitarnya ikut terangkat
-| dan garis pemisah footer kehilangan kontras di bagian tengah sehingga
-| tampak putus, padahal garisnya utuh.
-*/
 .cta::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: radial-gradient(ellipse 46% 46% at 50% 38%, rgba(90, 69, 255, .11), transparent 66%);
+    background: radial-gradient(
+        ellipse 46% 46% at 50% 38%,
+        rgba(90, 69, 255, 0.11),
+        transparent 66%
+    );
 }
 
 .cta h2 {
@@ -659,23 +614,14 @@ button:focus:not(:focus-visible) {
     margin-bottom: 32px;
 }
 
-/* ==========================================================================
-   Repositori
-   ========================================================================== */
-
 .repo {
     display: grid;
     grid-template-columns: 248px minmax(0, 1fr);
     position: relative;
 }
 
-/*
-| Pemisah kolom dibuat sebagai lapisan setinggi baris, bukan border pada
-| sidebar: sidebar itu sticky dan align-self:start, jadi tingginya hanya
-| setinggi isinya dan garisnya akan berhenti di tengah.
-*/
 .repo::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     bottom: 0;
@@ -700,7 +646,9 @@ button:focus:not(:focus-visible) {
     border-radius: var(--radius);
     color: var(--text-dim);
     font-size: 15px;
-    transition: background-color .18s ease, color .18s ease;
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease;
 }
 
 .repo__cat:hover {
@@ -741,7 +689,7 @@ button:focus:not(:focus-visible) {
     gap: 20px;
     padding: 24px 0;
     border-bottom: 1px solid var(--rule);
-    transition: background-color .18s ease;
+    transition: background-color 0.18s ease;
 }
 
 .pkg:hover {
@@ -758,7 +706,9 @@ button:focus:not(:focus-visible) {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color .18s ease, border-color .18s ease;
+    transition:
+        color 0.18s ease,
+        border-color 0.18s ease;
 }
 
 .pkg:hover .pkg__logo {
@@ -822,9 +772,6 @@ button:focus:not(:focus-visible) {
     background: var(--accent);
 }
 
-/* Prism memberi kelas "token tag" pada tag HTML di dalam blok kode, jadi tag
-   tersebut ikut tersapu selektor `.tag`. Token dikecualikan agar tidak
-   berubah menjadi pil kapital. */
 .tag:not(.token) {
     display: inline-flex;
     align-items: center;
@@ -833,7 +780,7 @@ button:focus:not(:focus-visible) {
     border-radius: var(--radius);
     font-family: var(--font-mono);
     font-size: 10.5px;
-    letter-spacing: .08em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-dim);
 }
@@ -843,7 +790,6 @@ button:focus:not(:focus-visible) {
     color: var(--text);
 }
 
-/* Paginasi */
 .pager {
     display: flex;
     align-items: center;
@@ -869,7 +815,7 @@ button:focus:not(:focus-visible) {
 }
 
 .pager__link.is-disabled {
-    opacity: .35;
+    opacity: 0.35;
     pointer-events: none;
 }
 
@@ -877,12 +823,8 @@ button:focus:not(:focus-visible) {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--text-faint);
-    letter-spacing: .1em;
+    letter-spacing: 0.1em;
 }
-
-/* ==========================================================================
-   Modal
-   ========================================================================== */
 
 .modal {
     display: none;
@@ -898,15 +840,6 @@ button:focus:not(:focus-visible) {
     display: flex;
 }
 
-/*
-| Kunci guliran halaman selama modal terbuka. Dibuat lewat CSS karena kelas
-| is-active dikendalikan main.min.js yang sudah ter-minify. Peramban lama yang
-| belum mendukung :has() hanya kehilangan penguncian ini, tidak rusak.
-|
-| Penguncian harus dipasang di html juga: body memakai display:flex dan yang
-| benar-benar menggulir dokumen adalah elemen akar, sehingga overflow:hidden
-| pada body saja tidak berpengaruh.
-*/
 html:has(.modal.is-active),
 body:has(.modal.is-active) {
     overflow: hidden;
@@ -915,7 +848,7 @@ body:has(.modal.is-active) {
 .modal-background {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, .82);
+    background: rgba(0, 0, 0, 0.82);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
 }
@@ -1034,12 +967,8 @@ body:has(.modal.is-active) {
 .hl {
     color: var(--primary-soft);
     font-family: var(--font-mono);
-    font-size: .92em;
+    font-size: 0.92em;
 }
-
-/* ==========================================================================
-   Footer
-   ========================================================================== */
 
 .footer {
     background: var(--black);
@@ -1062,7 +991,7 @@ body:has(.modal.is-active) {
     font-family: var(--font-display);
     font-size: 20px;
     font-weight: 700;
-    letter-spacing: .02em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--text);
     display: block;
@@ -1079,9 +1008,6 @@ body:has(.modal.is-active) {
     vertical-align: -1px;
 }
 
-/* Tautan di dalam kalimat kredit harus tetap inline. Selektornya sengaja
-   lebih spesifik daripada `.footer__col a` di bawah, yang memasang
-   display:block untuk daftar tautan kolom. */
 .footer__col .footer__credit a {
     display: inline;
     margin: 0;
@@ -1091,7 +1017,7 @@ body:has(.modal.is-active) {
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: .14em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--text-faint);
     margin-bottom: 18px;
@@ -1113,20 +1039,16 @@ body:has(.modal.is-active) {
     padding: 20px var(--gutter);
     font-family: var(--font-mono);
     font-size: 11px;
-    letter-spacing: .06em;
+    letter-spacing: 0.06em;
     color: var(--text-faint);
     text-align: center;
 }
-
-/* ==========================================================================
-   Toast — markup dari bulma-toast
-   ========================================================================== */
 
 .notification {
     opacity: 1 !important;
     display: inline-flex;
     align-items: center;
-    background: rgba(14, 14, 20, .94);
+    background: rgba(14, 14, 20, 0.94);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border: 1px solid var(--rule-strong);
@@ -1152,14 +1074,14 @@ body:has(.modal.is-active) {
     margin-right: 10px;
     padding: 0;
     border: 0;
-    background: rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, 0.1);
     cursor: pointer;
     flex: 0 0 auto;
 }
 
 .notification .delete::before,
 .notification .delete::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1177,26 +1099,16 @@ body:has(.modal.is-active) {
 }
 
 .notification .delete:hover {
-    background: rgba(255, 255, 255, .2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
-/* ==========================================================================
-   Animasi toast
-
-   bulma-toast memasang kelas `animate__animated`, `animate__<in>` dan
-   `animate__<speed>` saat tampil, lalu `animate__<out>` saat ditutup dan
-   MENUNGGU event `animationend` sebelum menghapus elemennya. Tanpa keyframes
-   yang cocok, event itu tidak pernah terpicu dan toast tidak akan pernah
-   hilang. Jadi definisi di bawah ini wajib ada, bukan sekadar hiasan.
-   ========================================================================== */
-
 .animate__animated {
-    animation-duration: .4s;
+    animation-duration: 0.4s;
     animation-fill-mode: both;
 }
 
 .animate__faster {
-    animation-duration: .25s;
+    animation-duration: 0.25s;
 }
 
 @keyframes rakit-fade-in-up {
@@ -1230,10 +1142,6 @@ body:has(.modal.is-active) {
 .animate__fadeOutDown {
     animation-name: rakit-fade-out-down;
 }
-
-/* ==========================================================================
-   Responsif
-   ========================================================================== */
 
 @media screen and (max-width: 1023px) {
     :root {
@@ -1320,7 +1228,7 @@ body:has(.modal.is-active) {
 
     .hero__title {
         font-size: 38px;
-        letter-spacing: -.02em;
+        letter-spacing: -0.02em;
         line-height: 1.15;
     }
 
@@ -1361,16 +1269,6 @@ body:has(.modal.is-active) {
     }
 }
 
-/* ==========================================================================
-   Dokumentasi
-
-   Paket docs memakai tema yang sama dengan situs utama. Beberapa kelas di
-   bawah ini kontraknya dipegang berkas lain dan tidak boleh diganti namanya:
-   `menu-label`, `menu-list`, `has-submenu`, `submenu` dihasilkan oleh
-   Docs::sidebar(); `navbar-burger`, `vanillatop`, `code-toolbar`, `toolbar`,
-   `toolbar-item` dan `token` dihasilkan docs.min.js.
-   ========================================================================== */
-
 :root {
     --code-key: #c5c0ff;
     --code-str: #ffb597;
@@ -1387,7 +1285,7 @@ body:has(.modal.is-active) {
 }
 
 .docs::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     bottom: 0;
@@ -1395,8 +1293,6 @@ body:has(.modal.is-active) {
     border-left: 1px solid var(--rule);
     pointer-events: none;
 }
-
-/* --- Sidebar --- */
 
 .docs__side {
     padding: 40px 28px 64px 0;
@@ -1412,7 +1308,7 @@ body:has(.modal.is-active) {
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 600;
-    letter-spacing: .14em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--text-faint);
     margin: 28px 0 10px;
@@ -1448,12 +1344,6 @@ body:has(.modal.is-active) {
     background: var(--surface);
 }
 
-/*
-| Submenu dibuka docs.min.js dengan menyetel style.maxHeight inline ke
-| scrollHeight, dan ditutup dengan mengosongkannya kembali. Jadi keadaan
-| tertutup harus datang dari max-height:0 di sini — bukan display:none, yang
-| akan membuat scrollHeight bernilai 0 sehingga submenu tidak pernah terbuka.
-*/
 .docs__side .submenu {
     list-style: none;
     margin: 0;
@@ -1461,7 +1351,7 @@ body:has(.modal.is-active) {
     border-left: 1px solid var(--rule);
     max-height: 0;
     overflow: hidden;
-    transition: max-height .25s ease;
+    transition: max-height 0.25s ease;
 }
 
 .docs__side .submenu a {
@@ -1470,7 +1360,7 @@ body:has(.modal.is-active) {
 }
 
 .docs__side .has-submenu::after {
-    content: '';
+    content: "";
     float: right;
     width: 6px;
     height: 6px;
@@ -1478,10 +1368,8 @@ body:has(.modal.is-active) {
     border-right: 1px solid currentColor;
     border-bottom: 1px solid currentColor;
     transform: rotate(45deg);
-    opacity: .6;
+    opacity: 0.6;
 }
-
-/* --- Isi --- */
 
 .docs__main {
     padding: 40px 0 96px 36px;
@@ -1498,13 +1386,12 @@ body:has(.modal.is-active) {
     border-bottom: 1px solid var(--rule);
 }
 
-/* --- Prosa (HTML hasil render markdown) --- */
-
 .prose {
     color: var(--text-dim);
     font-size: 15.5px;
     line-height: 1.75;
     max-width: 78ch;
+    overflow-wrap: break-word;
 }
 
 .prose h1,
@@ -1546,7 +1433,7 @@ body:has(.modal.is-active) {
     color: var(--primary-soft);
     text-decoration: underline;
     text-underline-offset: 3px;
-    text-decoration-color: rgba(197, 192, 255, .35);
+    text-decoration-color: rgba(197, 192, 255, 0.35);
 }
 
 .prose a:hover {
@@ -1599,7 +1486,7 @@ body:has(.modal.is-active) {
 /* kode sebaris */
 .prose :not(pre) > code {
     font-family: var(--font-mono);
-    font-size: .88em;
+    font-size: 0.88em;
     padding: 2px 6px;
     background: var(--surface-2);
     border: 1px solid var(--rule);
@@ -1607,7 +1494,6 @@ body:has(.modal.is-active) {
     white-space: nowrap;
 }
 
-/* blok kode */
 .prose pre {
     margin: 0 0 22px;
     padding: 18px 20px;
@@ -1628,7 +1514,6 @@ body:has(.modal.is-active) {
     white-space: pre;
 }
 
-/* tabel */
 .prose table {
     width: 100%;
     margin: 0 0 22px;
@@ -1652,12 +1537,10 @@ body:has(.modal.is-active) {
     font-family: var(--font-mono);
     font-size: 11.5px;
     font-weight: 600;
-    letter-spacing: .08em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
 }
-
-/* --- Pewarnaan sintaksis (kelas token dari Prism) --- */
 
 .token.comment,
 .token.prolog,
@@ -1715,8 +1598,6 @@ body:has(.modal.is-active) {
     color: var(--code-fn);
 }
 
-/* --- Tombol salin bawaan Prism --- */
-
 .code-toolbar {
     position: relative;
 }
@@ -1726,7 +1607,7 @@ body:has(.modal.is-active) {
     top: 8px;
     right: 8px;
     opacity: 0;
-    transition: opacity .18s ease;
+    transition: opacity 0.18s ease;
 }
 
 .code-toolbar:hover > .toolbar,
@@ -1752,8 +1633,6 @@ body:has(.modal.is-active) {
     border-color: var(--text-faint);
 }
 
-/* --- Pencarian --- */
-
 .docs__search {
     position: relative;
     display: flex;
@@ -1770,7 +1649,9 @@ body:has(.modal.is-active) {
     font-family: var(--font-body);
     font-size: 14px;
     outline: none;
-    transition: border-color .18s ease, width .18s ease;
+    transition:
+        border-color 0.18s ease,
+        width 0.18s ease;
 }
 
 .docs__search input::placeholder {
@@ -1849,7 +1730,7 @@ body:has(.modal.is-active) {
 }
 
 #searchResultsCustom mark {
-    background: rgba(90, 69, 255, .3);
+    background: rgba(90, 69, 255, 0.3);
     color: var(--text);
     padding: 0 2px;
 }
@@ -1871,7 +1752,7 @@ body:has(.modal.is-active) {
 
 #closeModalBtn::before,
 #closeModalBtn::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1892,12 +1773,6 @@ body:has(.modal.is-active) {
     border-color: var(--text-faint);
 }
 
-/* --- Kembali ke atas (docs.min.js) --- */
-
-/*
-| docs.min.js hanya memasang handler klik pada .vanillatop; ia tidak pernah
-| menampilkan atau menyembunyikannya. Jadi tombol ini selalu tampak.
-*/
 .vanillatop {
     position: fixed;
     right: 24px;
@@ -1907,11 +1782,13 @@ body:has(.modal.is-active) {
     height: 40px;
     background: var(--surface);
     border: 1px solid var(--rule-strong);
-    transition: border-color .18s ease, background-color .18s ease;
+    transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease;
 }
 
 .vanillatop::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 17px;
     left: 50%;
@@ -1934,6 +1811,13 @@ body:has(.modal.is-active) {
 
     .docs__main {
         padding-left: 28px;
+    }
+
+    .prose :not(pre) > code {
+        white-space: normal;
+        overflow-wrap: break-word;
+        -webkit-box-decoration-break: clone;
+        box-decoration-break: clone;
     }
 }
 
@@ -1970,14 +1854,5 @@ body:has(.modal.is-active) {
     .docs__search input:focus {
         width: 100%;
         min-width: 0;
-    }
-
-    /* Di layar sempit, kode sebaris yang panjang (mis. path berkas) boleh
-       dipenggal supaya tidak terpotong di tepi layar. */
-    .prose :not(pre) > code {
-        white-space: normal;
-        overflow-wrap: anywhere;
-        -webkit-box-decoration-break: clone;
-        box-decoration-break: clone;
     }
 }
