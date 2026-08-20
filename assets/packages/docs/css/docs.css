@@ -88,6 +88,11 @@ body {
     min-height: 100vh;
 }
 
+html.is-locked,
+html.is-locked body {
+    overflow: hidden;
+}
+
 ::selection {
     background: var(--primary);
     color: #fff;
@@ -1304,6 +1309,11 @@ body:has(.modal.is-active) {
     overscroll-behavior: contain;
 }
 
+.docs__toggle,
+.docs__scrim {
+    display: none;
+}
+
 .docs__side .menu-label {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -1831,11 +1841,99 @@ body:has(.modal.is-active) {
     }
 
     .docs__side {
-        position: static;
+        position: fixed;
+        top: 64px;
+        bottom: 0;
+        left: 0;
+        z-index: 60;
+        align-self: stretch;
+        width: min(300px, 82vw);
         max-height: none;
-        overflow: visible;
-        padding: 24px 0;
-        border-bottom: 1px solid var(--rule);
+        padding: 24px 20px 80px;
+        background: var(--surface);
+        border-right: 1px solid var(--rule);
+        transform: translateX(-100%);
+        visibility: hidden;
+        transition:
+            transform 0.25s ease,
+            visibility 0s linear 0.25s;
+    }
+
+    .docs__side.is-active {
+        transform: none;
+        visibility: visible;
+        transition:
+            transform 0.25s ease,
+            visibility 0s;
+    }
+
+    .docs__toggle {
+        position: fixed;
+        left: 24px;
+        bottom: 24px;
+        z-index: 70;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        color: var(--text-dim);
+        background: var(--surface);
+        border: 1px solid var(--rule-strong);
+        cursor: pointer;
+        transition:
+            border-color 0.18s ease,
+            background-color 0.18s ease,
+            color 0.18s ease;
+    }
+
+    .docs__toggle:hover,
+    .docs__toggle.is-active {
+        color: var(--text);
+        background: var(--surface-2);
+        border-color: var(--text-faint);
+    }
+
+    .docs__toggle svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+    }
+
+    .docs__toggle .docs__toggle-close,
+    .docs__toggle.is-active .docs__toggle-menu {
+        display: none;
+    }
+
+    .docs__toggle.is-active .docs__toggle-close {
+        display: block;
+    }
+
+    .docs__scrim {
+        position: fixed;
+        top: 64px;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 55;
+        display: block;
+        background: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        visibility: hidden;
+        transition:
+            opacity 0.25s ease,
+            visibility 0s linear 0.25s;
+    }
+
+    .docs__scrim.is-active {
+        opacity: 1;
+        visibility: visible;
+        transition:
+            opacity 0.25s ease,
+            visibility 0s;
     }
 
     .docs__main {

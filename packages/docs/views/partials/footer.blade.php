@@ -175,6 +175,67 @@
             });
         }).catch(error => console.error('Error loading search data:', error.message));
 
+        // Di layar sempit sidebar berubah jadi laci yang dibuka lewat tombol
+        // mengambang di kiri bawah.
+        var sidebar = document.getElementById('sidebar-toc');
+        var sidebarToggle = document.getElementById('sidebarToggle');
+        var sidebarScrim = document.getElementById('sidebarScrim');
+        var sidebarOpen = false;
+
+        function setSidebar(open) {
+            if (!sidebar || !sidebarToggle) {
+                return;
+            }
+            sidebarOpen = open;
+            var method = open ? 'add' : 'remove';
+            sidebar.classList[method]('is-active');
+            sidebarToggle.classList[method]('is-active');
+            document.documentElement.classList[method]('is-locked');
+            if (sidebarScrim) {
+                sidebarScrim.classList[method]('is-active');
+            }
+            sidebarToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        if (sidebar && sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                // Menu navbar dan laci tidak boleh terbuka bersamaan.
+                var burger = document.querySelector('.navbar-burger');
+                var menu = document.getElementById('navMenuMore');
+                if (!sidebarOpen && burger && menu) {
+                    burger.classList.remove('is-active');
+                    menu.classList.remove('is-active');
+                }
+                setSidebar(!sidebarOpen);
+            });
+
+            if (sidebarScrim) {
+                sidebarScrim.addEventListener('click', function() {
+                    setSidebar(false);
+                });
+            }
+
+            // Tautan submenu hanya membuka akordion, jadi laci dibiarkan terbuka.
+            sidebar.addEventListener('click', function(e) {
+                var link = e.target.closest ? e.target.closest('a') : null;
+                if (link && !link.classList.contains('has-submenu')) {
+                    setSidebar(false);
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebarOpen) {
+                    setSidebar(false);
+                }
+            });
+
+            window.addEventListener('resize', function() {
+                if (sidebarOpen && window.innerWidth > 767) {
+                    setSidebar(false);
+                }
+            });
+        }
+
         // Tandai halaman yang sedang dibuka di sidebar.
         //
         // Docs::sidebar() mengganti href induk ber-submenu menjadi "#", jadi

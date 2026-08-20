@@ -4,6 +4,16 @@
     <aside class="docs__side" id="sidebar-toc">
         {!! $sidebar !!}
     </aside>
+    <div class="docs__scrim" id="sidebarScrim"></div>
+    <button type="button" class="docs__toggle" id="sidebarToggle" aria-controls="sidebar-toc" aria-expanded="false"
+        aria-label="Table of contents">
+        <svg class="docs__toggle-menu" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M1 3h14M1 8h14M1 13h14" />
+        </svg>
+        <svg class="docs__toggle-close" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M3 3l10 10M13 3L3 13" />
+        </svg>
+    </button>
 @endsection
 
 @section('content')
