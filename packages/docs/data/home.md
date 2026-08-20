@@ -65,7 +65,7 @@ going.
 ## License
 
 Rakit is open-source software released under the
-[MIT License](http://www.opensource.org/licenses/mit-license.php).
+[MIT License](https://opensource.org/license/mit).
 
 This means you may modify, redistribute, and use it for
 personal or commercial needs, provided that you include the original creator information,

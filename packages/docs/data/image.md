@@ -30,7 +30,7 @@ such as user-uploaded images that are too large.
 Of course, you don't want to store these large images directly in storage as they consume a lot of space.
 No worries, this component is ready to help!
 
-> This component requires the [PHP GD](https://php.net/manual/en/book.image.php) extension.
+> This component requires the [PHP GD](https://www.php.net/manual/en/book.image.php) extension.
 > Make sure this extension is active on your server.
 
 <a id="loading-images"></a>

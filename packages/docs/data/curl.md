@@ -33,9 +33,9 @@ this term is an abbreviation of "Client URL".
 
 Its uses include checking connectivity to a URL and transferring data.
 Additionally, this type of command can be used in various protocols. Curl is also equipped with
-[libcurl](https://curl.haxx.se/libcurl), a client-side URL transfer library.
+[libcurl](https://curl.se/libcurl/), a client-side URL transfer library.
 
-> Don't forget to install the [PHP Curl](https://php.net/manual/en/book.curl.php)
+> Don't forget to install the [PHP Curl](https://www.php.net/manual/en/book.curl.php)
 > extension on your server if it's not already there.
 
 <a id="making-requests"></a>
@@ -67,7 +67,7 @@ Where:
 -   `$parameters` - is the query parameters in array format (for GET, HEAD, OPTIONS, CONNECT)
 
 In addition, you can also send requests following
-[standard methods](https://iana.org/assignments/http-methods/http-methods.xhtml)
+[standard methods](https://www.iana.org/assignments/http-methods)
 or custom methods as needed:
 
 ```php
@@ -83,7 +83,7 @@ Available standard HTTP methods as constants:
 - `Curl::GET`, `Curl::POST`, `Curl::PUT`, `Curl::PATCH`, `Curl::DELETE`
 - `Curl::HEAD`, `Curl::OPTIONS`, `Curl::CONNECT`, `Curl::TRACE`
 - `Curl::LINK`, `Curl::UNLINK`, `Curl::MERGE`
-- And many more (see [IANA HTTP Methods](https://iana.org/assignments/http-methods/http-methods.xhtml))
+- And many more (see [IANA HTTP Methods](https://www.iana.org/assignments/http-methods))
 
 Now, let's try making a simple request using this component:
 
@@ -115,7 +115,7 @@ $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
 With this method, the `'Content-Type'` header will be automatically set to `'application/json'`
-and the request body will also be converted to JSON format via [json_encode](https://php.net/json_encode).
+and the request body will also be converted to JSON format via [json_encode](https://www.php.net/json_encode).
 
 <a id="form-request"></a>
 
@@ -132,7 +132,7 @@ $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
 With this method, the `'Content-Type'` header will be automatically set to `'application/x-www-form-urlencoded'`
-and the request body will also be converted to query string format via [http_build_query](https://php.net/http_build_query).
+and the request body will also be converted to query string format via [http_build_query](https://www.php.net/http_build_query).
 
 <a id="multipart-request"></a>
 
@@ -191,7 +191,7 @@ $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ### Custom Body
 
 You can also send a custom request body without using the `body_xxx` methods above,
-for example, you can use the [serialize](https://php.net/serialize) function for the request body
+for example, you can use the [serialize](https://www.php.net/serialize) function for the request body
 and also with a custom `Content-Type` like this:
 
 ```php
@@ -222,14 +222,14 @@ Here is a list of supported authentication methods:
 | Method               | Description                                                                        |
 | -------------------- | ---------------------------------------------------------------------------------- |
 | `CURLAUTH_BASIC`     | HTTP Basic auth (default)                                                          |
-| `CURLAUTH_DIGEST`    | HTTP Digest auth ([RFC 2617](https://www.ietf.org/rfc/rfc2617.txt))                |
+| `CURLAUTH_DIGEST`    | HTTP Digest auth ([RFC 2617](https://www.rfc-editor.org/rfc/rfc2617.txt))                |
 | `CURLAUTH_DIGEST_IE` | HTTP Digest auth IE (Internet Explorer)                                            |
-| `CURLAUTH_NEGOTIATE` | HTTP Negotiate (SPNEGO) auth ([RFC 4559](https://www.ietf.org/rfc/rfc4559.txt))    |
+| `CURLAUTH_NEGOTIATE` | HTTP Negotiate (SPNEGO) auth ([RFC 4559](https://www.rfc-editor.org/rfc/rfc4559.txt))    |
 | `CURLAUTH_NTLM`      | HTTP NTLM auth (Microsoft)                                                         |
-| `CURLAUTH_NTLM_WB`   | NTLM WinBind ([documentation](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)) |
-| `CURLAUTH_ANY`       | See: [documentation](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
-| `CURLAUTH_ANYSAFE`   | See: [documentation](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
-| `CURLAUTH_ONLY`      | See: [documentation](https://curl.haxx.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
+| `CURLAUTH_NTLM_WB`   | NTLM WinBind ([documentation](https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html)) |
+| `CURLAUTH_ANY`       | See: [documentation](https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
+| `CURLAUTH_ANYSAFE`   | See: [documentation](https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
+| `CURLAUTH_ONLY`      | See: [documentation](https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
 
 > If you pass more than one authentication method (using bitmask operator for example),
 > then by default, this component will first make a request to the destination URL
@@ -310,7 +310,7 @@ You can also set a proxy for the request. The proxy types that can be used inclu
 `CURLPROXY_SOCKS5`, `CURLPROXY_SOCKS4A`, and `CURLPROXY_SOCKS5_HOSTNAME`.
 
 > Complete guide on proxy types can be seen on the
-> [cURL documentation page](https://curl.haxx.se/libcurl/c/CURLOPT_PROXYTYPE.html)
+> [cURL documentation page](https://curl.se/libcurl/c/CURLOPT_PROXYTYPE.html)
 
 ```php
 // Set proxy with default port 1080
@@ -368,7 +368,7 @@ Curl::clear_default_headers();
 
 ### Default cURL Options
 
-You can also declare default [cURL options](https://php.net/curl_setopt)
+You can also declare default [cURL options](https://www.php.net/curl_setopt)
 that will be used on every request:
 
 ```php

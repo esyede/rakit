@@ -60,7 +60,7 @@ $response = Hook::until('loaded');
 ```
 
 > The `dispatch()` helper is a shorthand for `Hook::fire()` — see
-> [Helpers](/docs/helpers#dispatch).
+> [dispatch()](/docs/helpers#dispatch).
 
 <a id="listening-to-an-event"></a>
 

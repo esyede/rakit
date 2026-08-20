@@ -684,7 +684,7 @@ So how to overcome this? Easy:
 ```
 
 > The `before` and `after` rules use the
-> [strtotime()](https://php.net/manual/en/function.strtotime.php) function to
+> [strtotime()](https://www.php.net/manual/en/function.strtotime.php) function to
 > convert the given string date.
 
 #### Validate that the date attribute format matches a certain format:
@@ -697,7 +697,7 @@ So how to overcome this? Easy:
 > considered a parameter separator by PHP.
 
 Date formatting options can be read in
-[PHP Date](https://php.net/manual/en/datetime.createfromformat.php#refsect1-datetime.createfromformat-parameters).
+[PHP Date](https://www.php.net/manual/en/datetime.createfromformat.php#refsect1-datetime.createfromformat-parameters).
 
 <a id="e-mail"></a>
 
@@ -709,7 +709,7 @@ Date formatting options can be read in
 'address' => 'email',
 ```
 
-> This rule uses the [filter_var()](https://php.net/manual/en/function.filter-var.php)
+> This rule uses the [filter_var()](https://www.php.net/manual/en/function.filter-var.php)
 > function for checking.
 
 <a id="url"></a>
@@ -728,7 +728,7 @@ Date formatting options can be read in
 'link' => 'active_url',
 ```
 
-> This rule uses the [checkdnsrr()](https://php.net/manual/en/function.checkdnsrr.php)
+> This rule uses the [checkdnsrr()](https://www.php.net/manual/en/function.checkdnsrr.php)
 > function for checking.
 
 <a id="ip-address"></a>
@@ -783,7 +783,7 @@ $validation = Validator::make($input, $rules);
 ### File Upload
 
 The `mimes` rule validates that the uploaded file has a certain MIME type.
-This rule uses the [PHP Fileinfo](http://php.net/manual/en/book.fileinfo.php) extension to
+This rule uses the [PHP Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extension to
 read the file content and determine the actual MIME type.
 
 #### Validate that the file is one of the given mime-types:

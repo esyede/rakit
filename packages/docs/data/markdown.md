@@ -13,13 +13,13 @@
 
 ## Basic Knowledge
 
-[Markdown](http://daringfireball.net/projects/markdown/) is a syntax for styling text on the web.
+[Markdown](https://daringfireball.net/projects/markdown/) is a syntax for styling text on the web.
 With markdown, you can control the display of documents, such as formatting words to be bold
 or italic, adding images, creating lists, and more.
 
 Generally, markdown is just plain text with the addition of some non-alphabetic characters, such as `#` or `*`.
 The syntax and writing method of markdown can be learned through
-[this guide](daringfireball.net/projects/markdown/syntax).
+[this guide](https://daringfireball.net/projects/markdown/syntax).
 
 <a id="render-markdown-file-to-html"></a>
 

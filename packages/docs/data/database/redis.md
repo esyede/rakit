@@ -13,10 +13,10 @@
 ## Basic Knowledge
 
 Redis is an open-source, advanced key-value storage software.
-It is often referred to as a data structure server because its keys can contain [strings](https://redis.io/topics/data-types#strings),
-[hashes](https://redis.io/topics/data-types#hashes),
-[lists](https://redis.io/topics/data-types#lists),
-[sets](https://redis.io/topics/data-types#sets), and [sorted sets](https://redis.io/topics/data-types#sorted-sets).
+It is often referred to as a data structure server because its keys can contain [strings](https://redis.io/docs/latest/develop/data-types/strings/),
+[hashes](https://redis.io/docs/latest/develop/data-types/hashes/),
+[lists](https://redis.io/docs/latest/develop/data-types/lists/),
+[sets](https://redis.io/docs/latest/develop/data-types/sets/), and [sorted sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/).
 
 <a id="configuration"></a>
 
@@ -63,7 +63,7 @@ You can also pass the name of another server to the `db()` method to get an inst
 $redis = Redis::db('redis_2');
 ```
 
-Great! Now you have a Redis instance, which means you can run any [Redis commands](https://redis.io/commands) you want.
+Great! Now you have a Redis instance, which means you can run any [Redis commands](https://redis.io/docs/latest/commands/) you want.
 Rakit uses magic methods to pass these commands to the Redis server:
 
 ```php

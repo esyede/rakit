@@ -563,8 +563,8 @@ return array_values(Arr::sort($array, function ($value) {
 ### Arr::recsort()
 
 This method sorts an array recursively using
-the [sort](https://php.net/manual/en/function.sort.php) function
-for numeric sub-arrays, and [ksort](https://php.net/manual/en/function.ksort.php)
+the [sort](https://www.php.net/manual/en/function.sort.php) function
+for numeric sub-arrays, and [ksort](https://www.php.net/manual/en/function.ksort.php)
 for associative sub-arrays:
 
 ```php

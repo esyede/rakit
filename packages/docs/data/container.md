@@ -22,7 +22,7 @@ This is mostly useful for two things:
     SDK in one place — every caller gets the same recipe.
 2.  **Swapping implementations in tests.** Register a fake implementation under
     the same name to isolate the code under test from real services. See
-    [stubs and mocks](http://martinfowler.com/articles/mocksArentStubs.html)
+    [stubs and mocks](https://martinfowler.com/articles/mocksArentStubs.html)
     for the broader pattern.
 
 <a id="registering-objects"></a>

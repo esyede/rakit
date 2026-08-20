@@ -1012,7 +1012,6 @@ try {
 }
 ```
 
-See the [Database Transaction](/docs/database/raw#other-methods) documentation for more details.
 <a id="other-methods"></a>
 ## Other Methods
 

@@ -100,4 +100,4 @@ Example configuration for a MySQL system by adding default PDO attributes:
 ],
 ```
 
-More information about PDO connection attributes can be found in the [official documentation](http://php.net/manual/en/pdo.setattribute.php).
+More information about PDO connection attributes can be found in the [official documentation](https://www.php.net/manual/en/pdo.setattribute.php).

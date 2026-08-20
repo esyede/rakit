@@ -209,7 +209,7 @@ if (Auth::attempt($credentials)) {
 
 ## Protecting Routes
 
-It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` filter. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, they will be redirected to the [named route](/docs/routing#named-routes) called `'login'`.
+It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` middleware. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, the default implementation returns a `401` response.
 
 **Protecting a single route:**
 
@@ -244,7 +244,7 @@ class Dashboard_Controller extends Controller
 {
     public function __construct()
     {
-        $this->filter('before', 'auth');
+        $this->middleware('before', 'auth');
     }
 
     public function action_index()
@@ -254,14 +254,14 @@ class Dashboard_Controller extends Controller
 }
 ```
 
-> You are free to modify the `'auth'` filter as needed. The default implementation can be found in the `application/filters.php` file.
+> You are free to modify the `'auth'` middleware as needed. The default implementation can be found in the `application/middlewares.php` file.
 
 **Custom redirect for guests:**
 
-If you want to redirect to a different page instead of the named route `'login'`, you can modify the filter in `application/filters.php`:
+If you would rather redirect the guest to a login page than return a `401`, change the middleware in `application/middlewares.php`:
 
 ```php
-Filter::register('auth', function () {
+Route::middleware('auth', function () {
     if (Auth::guest()) {
         return Redirect::to('auth/login')->with('error', 'Please log in first.');
     }
@@ -547,7 +547,7 @@ class Dashboard_Controller extends Base_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->filter('before', 'auth');
+        $this->middleware('before', 'auth');
     }
 
     public function action_index()

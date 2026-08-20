@@ -14,7 +14,7 @@
 
 ## Basic Knowledge
 
-As the name suggests, the `JWT` component provides a simple way to handle encoding and decoding of [JSON Web Token](https://jwt.io/). This component is compatible with the [RFC 7519](https://tools.ietf.org/html/rfc7519) standard that is widely used.
+As the name suggests, the `JWT` component provides a simple way to handle encoding and decoding of [JSON Web Token](https://jwt.io/). This component is compatible with the [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) standard that is widely used.
 
 > This component only supports 3 standard algorithms, namely `HS256`, `HS384`, and `HS512`.
 

@@ -38,7 +38,7 @@ Below is a list of built-in helpers available:
 
 ### e
 
-The `e` function performs HTML entity escaping using [htmlentities](https://php.net/htmlentities) with UTF-8 encoding:
+The `e` function performs HTML entity escaping using [htmlentities](https://www.php.net/htmlentities) with UTF-8 encoding:
 
 ```php
 echo e('<html>foo</html>');

@@ -54,7 +54,7 @@ Great! After your config and table are configured, you are ready to start cachin
 
 ## Memcached Driver
 
-[Memcached](http://memcached.org) is a very fast, open-source distributed memory object caching system. Before using this Memcached driver, you need to install and configure Memcached and the Memcache PHP extension on your server.
+[Memcached](https://memcached.org) is a very fast, open-source distributed memory object caching system. Before using this Memcached driver, you need to install and configure Memcached and the Memcache PHP extension on your server.
 
 After Memcache is installed on the server, you must set the 'driver' in the `application/config/cache.php` file:
 
@@ -76,7 +76,7 @@ Then, add your Memcached servers to the `'servers'` array:
 
 ## Redis Driver
 
-Redis is an advanced open-source key-value storage software. It is often called a data structure server because its keys can contain [strings](http://redis.io/topics/data-types#strings), [hashes](http://redis.io/topics/data-types#hashes), [lists](http://redis.io/topics/data-types#lists), [sets](http://redis.io/topics/data-types#sets), and [sorted sets](http://redis.io/topics/data-types#sorted-sets).
+Redis is an advanced open-source key-value storage software. It is often called a data structure server because its keys can contain [strings](https://redis.io/docs/latest/develop/data-types/strings/), [hashes](https://redis.io/docs/latest/develop/data-types/hashes/), [lists](https://redis.io/docs/latest/develop/data-types/lists/), [sets](https://redis.io/docs/latest/develop/data-types/sets/), and [sorted sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/).
 
 Before using this Redis driver, you must [configure your Redis server](/docs/database/redis#configuration). After that, you just need to change the `'driver'` in the `application/config/cache.php` file to redis like this:
 
