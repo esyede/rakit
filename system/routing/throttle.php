@@ -27,20 +27,40 @@ class Throttle
     {
         $max_attempts = max(1, (int) $max_attempts);
         $decay_minutes = max(1, (int) $decay_minutes);
+
         $key = static::key();
-        $meta = $key . ':meta';
+        $meta_key = $key . ':meta';
+        $meta = Cache::get($meta_key);
 
-        $hits = Cache::increment($key, $decay_minutes);
+        // Note: the generic cache driver refreshes an item's lifetime on every
+        // increment, so a client that keeps hitting the endpoint would never let
+        // the counter expire and would stay blocked forever. The 'reset' stamp is
+        // therefore what decides when a new window opens, which also keeps the
+        // behaviour identical across cache drivers.
+        if (!is_array($meta) || !isset($meta['reset']) || $meta['reset'] <= time()) {
+            $hits = 1;
 
-        if ($hits === 1) {
-            Cache::put($meta, [
+            Cache::put($key, $hits, $decay_minutes);
+            Cache::put($meta_key, [
                 'limit' => $max_attempts,
                 'reset' => time() + ($decay_minutes * 60),
-                'ip' => Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip(),
+                'ip' => static::client(),
             ], $decay_minutes);
+        } else {
+            $hits = Cache::increment($key, $decay_minutes);
         }
 
         return $hits <= $max_attempts;
+    }
+
+    /**
+     * Get the IP address of the current client.
+     *
+     * @return string
+     */
+    protected static function client()
+    {
+        return Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip();
     }
 
     /**
@@ -64,8 +84,11 @@ class Throttle
     public static function key()
     {
         $path = trim(Request::foundation()->getPathInfo(), '/');
-        $ip = Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip();
-        return static::PREFIX . '.' . RAKIT_KEY . '.' . md5($path . '|' . $ip);
+
+        // Note: the application key is only used as a salt here. Putting it in the
+        // key verbatim would hand the secret to whatever backs the cache (and to
+        // anyone able to list its keys) on every request.
+        return static::PREFIX . '.' . md5(RAKIT_KEY . '|' . $path . '|' . static::client());
     }
 
     /**

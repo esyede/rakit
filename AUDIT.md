@@ -92,6 +92,13 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 56 | `facile/model.php` `_query()` | Kode mati, dan bila dipanggil akan rekursi tak berujung lewat `Facile\Query` | **fixed** |
 | 57 | `facile/model.php` `$global_scopes` | Properti statik dibagi seluruh subclass — scope satu model bocor ke model lain | **fixed** |
 | 58 | `facile/model.php` `restore()`/`force_delete()` | Memakai query yang memfilter baris terhapus, sehingga tidak pernah menemukan barisnya | **fixed** |
+| 59 | `routing/router.php` `register()` | Variabel `$method` ditimpa di loop `'*'`, URI berikutnya tidak lagi dianggap wildcard | **fixed** |
+| 60 | `routing/throttle.php` `key()` | `RAKIT_KEY` masuk apa adanya ke kunci cache — rahasia aplikasi bocor ke backend cache | **fixed** |
+| 61 | `routing/throttle.php` `check()` | Driver cache umum me-refresh TTL tiap increment, jendela rate-limit tidak pernah habis | **fixed** |
+| 62 | `validator.php` `validate_array()` | Tanpa parameter, aturan `array` menolak semua array yang tidak kosong | **fixed** |
+| 63 | `validator.php` `validate_count()` dan `count*` | Ikut rusak karena `validate_array()`; `count` juga membandingkan `'3' === 3` | **fixed** |
+| 64 | `validator.php` `validate_regex()`/`validate_not_regex()` | Pola yang mengandung koma terpotong oleh pemisah parameter | **fixed** |
+| 65 | `validator.php` `size()` | `$this->attributes[$attribute]` meleset untuk atribut ber-notasi titik; `$value['size']` tanpa penjagaan | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 
