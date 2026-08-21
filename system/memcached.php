@@ -9,9 +9,13 @@ class Memcached
     /**
      * Contains the Memcached connection instance.
      *
+     * Note: public, like every other driver registry in the framework
+     * (Cache::$drivers, Redis::$databases, ...), so the cached connection can be
+     * dropped in a long running process.
+     *
      * @var \Memcached
      */
-    protected static $connection;
+    public static $connection;
 
     /**
      * Get the Memcached connection instance.
@@ -49,8 +53,13 @@ class Memcached
         $memcached = new \Memcached();
 
         foreach ($servers as $server) {
+            // Note: 'weight' is optional in the configuration file.
             /** @disregard */
-            $memcached->addServer($server['host'], $server['port'], $server['weight']);
+            $memcached->addServer(
+                $server['host'],
+                $server['port'],
+                isset($server['weight']) ? $server['weight'] : 0
+            );
         }
 
         /** @disregard */

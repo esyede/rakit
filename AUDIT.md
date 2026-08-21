@@ -137,6 +137,11 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 101 | `session/drivers/cookie.php` | Payload dienkripsi dua kali (`Cookie::put()` sudah mengenkripsi) dan payload rusak melempar exception | **fixed** |
 | 102 | `cookie.php` | Cache nilai terdekripsi tidak bisa direset — nilai basi tetap dilayani setelah `$jar` dikosongkan (ditambahkan `Cookie::flush()`) | **fixed** |
 | 103 | `console/fiddle/parser.php` `scan_use()` | Klausa `use (...)` milik closure dikira import dan diubah jadi `class_alias()` — pernyataannya rusak | **fixed** |
+| 104 | `redis.php` `command()` | Argumen berupa array di-stringify jadi `'Array'` — `HMSET`/`MSET` selalu gagal | **fixed** |
+| 105 | `job/drivers/redis.php` | Bergantung pada `hmset()` yang rusak, dan membaca balasan `HGETALL` (daftar datar) seolah asosiatif — driver job Redis tidak pernah berfungsi | **fixed** |
+| 106 | `memcached.php` `connect()` | `$server['weight']` wajib padahal opsional di berkas config | **fixed** |
+| 107 | `cache/drivers/memcached.php` `retrieve()` | Nilai `false` yang tersimpan tidak bisa dibedakan dari cache miss | **fixed** |
+| 108 | `memcached.php` `$connection` | `protected static`, tidak konsisten dengan registry driver lain | **fixed** |
 
 ## Temuan (isolasi test)
 

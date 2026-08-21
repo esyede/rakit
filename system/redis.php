@@ -186,10 +186,35 @@ class Redis
     protected function command($method, array $parameters)
     {
         $method = (string) $method;
-        $command = '*' . (count($parameters) + 1) . CRLF . '$' . mb_strlen($method, '8bit') . CRLF . strtoupper($method) . CRLF;
+        $method = strtoupper($method);
+
+        // Note: an array argument is spread into individual arguments, an
+        // associative one as alternating field and value. Commands such as HMSET
+        // and MSET are written that way ($redis->hmset($key, $pairs)), and
+        // stringifying the array instead produced the literal 'Array' plus a
+        // "wrong number of arguments" error from the server.
+        $arguments = [];
 
         foreach ($parameters as $parameter) {
-            $command .= '$' . mb_strlen((string) $parameter, '8bit') . CRLF . $parameter . CRLF;
+            if (!is_array($parameter)) {
+                $arguments[] = (string) $parameter;
+                continue;
+            }
+
+            foreach ($parameter as $key => $value) {
+                if (!is_int($key)) {
+                    $arguments[] = (string) $key;
+                }
+
+                $arguments[] = (string) $value;
+            }
+        }
+
+        $command = '*' . (count($arguments) + 1) . CRLF
+            . '$' . mb_strlen($method, '8bit') . CRLF . $method . CRLF;
+
+        foreach ($arguments as $argument) {
+            $command .= '$' . mb_strlen($argument, '8bit') . CRLF . $argument . CRLF;
         }
 
         return $command;

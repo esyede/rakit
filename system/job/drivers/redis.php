@@ -38,6 +38,40 @@ class Redis extends Driver
     }
 
     /**
+     * Read a hash back as an associative array.
+     *
+     * Note: HGETALL answers with a flat list of alternating fields and values,
+     * so the reply has to be paired up before it can be read by field name.
+     *
+     * @param string $key
+     *
+     * @return array
+     */
+    protected function hash($key)
+    {
+        /** @disregard */
+        $reply = $this->redis->hgetall($key);
+
+        if (!is_array($reply) || 0 === count($reply)) {
+            return [];
+        }
+
+        // Already keyed by field (a client that pairs them for us).
+        if (array_keys($reply) !== range(0, count($reply) - 1)) {
+            return $reply;
+        }
+
+        $result = [];
+        $count = count($reply);
+
+        for ($i = 0; $i + 1 < $count; $i += 2) {
+            $result[$reply[$i]] = $reply[$i + 1];
+        }
+
+        return $result;
+    }
+
+    /**
      * Add a new job to the redis queue.
      *
      * @param string      $name
@@ -97,8 +131,7 @@ class Redis extends Driver
 
         if (!empty($ids)) {
             foreach ($ids as $id) {
-                /** @disregard */
-                $data = $this->redis->hgetall($this->key . 'job_' . $name . '_' . $id);
+                $data = $this->hash($this->key . 'job_' . $name . '_' . $id);
 
                 if (!empty($data) && isset($data['without_overlapping']) && $data['without_overlapping'] === '1') {
                     if (isset($data['queue']) && $data['queue'] === $queue) {
@@ -202,8 +235,7 @@ class Redis extends Driver
             if (!empty($ready)) {
                 foreach ($ready as $jid) {
                     $key = $this->key . 'job_' . $name . '_' . $jid;
-                    /** @disregard */
-                    $data = $this->redis->hgetall($key);
+                    $data = $this->hash($key);
 
                     if (!empty($data)) {
                         $attempts = 0;
@@ -314,8 +346,7 @@ class Redis extends Driver
             if (!empty($ready)) {
                 foreach ($ready as $jid) {
                     $key = $this->key . 'job_' . $name . '_' . $jid;
-                    /** @disregard */
-                    $data = $this->redis->hgetall($key);
+                    $data = $this->hash($key);
 
                     if (!empty($data)) {
                         $attempts = 0;
