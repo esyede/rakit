@@ -413,6 +413,46 @@ class FacileTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * A global scope registered on one model must not apply to another.
+     *
+     * @group system
+     */
+    public function testGlobalScopesAreNotSharedBetweenModels()
+    {
+        TestModel::add_global_scope('isolated', function ($query) {
+            // dummy
+        });
+
+        $this->assertArrayHasKey('isolated', TestModel::get_global_scopes());
+        $this->assertArrayNotHasKey('isolated', OtherScopedModel::get_global_scopes());
+
+        TestModel::remove_global_scope('isolated');
+        $this->assertArrayNotHasKey('isolated', TestModel::get_global_scopes());
+    }
+
+    /**
+     * Global scopes must reach the query builder that the model actually uses,
+     * not just the internal _query() helper.
+     *
+     * @group system
+     */
+    public function testGlobalScopesAreAppliedToTheModelQuery()
+    {
+        $applied = 0;
+
+        TestModel::add_global_scope('counted', function ($query) use (&$applied) {
+            $applied++;
+        });
+
+        $model = new TestModel();
+        $model->query();
+
+        $this->assertEquals(1, $applied);
+
+        TestModel::remove_global_scope('counted');
+    }
+
+    /**
      * Test for local scope method.
      *
      * @group system
@@ -480,4 +520,12 @@ class TestModel extends \System\Database\Facile\Model
     {
         return $query->where('active', '=', 1);
     }
+}
+
+/**
+ * A second model, used to prove that global scopes stay per-model.
+ */
+class OtherScopedModel extends \System\Database\Facile\Model
+{
+    public static $table = 'other_scoped_models';
 }

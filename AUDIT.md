@@ -62,6 +62,20 @@ jalan di PHP 8.4+ karena `php-token-stream`).
 | 42 | `collection.php` `map()`/`combine()` | `array_combine([], [])` warning + `false` di PHP < 8.0 | **fixed** |
 | 43 | `collection.php` `sort_by()` | Koleksi kosong memicu warning "Undefined array key"; `$options` eksplisit diabaikan | **fixed** |
 | 44 | `collection.php` `split()`/`every()` | Pembagian/modulo dengan nol | **fixed** |
+| 45 | `database/connection.php` `transaction()` | `catch (\Throwable)` membungkus ulang jadi `\Exception` — `QueryException` dll. hilang tipenya | **fixed** |
+| 46 | `database.php` `extend()` + `connection.php` `grammar()` | Grammar default berupa string dipanggil sebagai fungsi → fatal | **fixed** |
+| 47 | `database/query.php` `to_sql(true)` | Klausa `SELECT` hilang bila `select()` belum dipanggil | **fixed** |
+| 48 | `database/query.php` `to_sql(true)` | Kutip penutup hilang untuk binding `DateTime`; binding `NULL`/`Expression` melempar | **fixed** |
+| 49 | `database/query.php` `debug()` | Memanggil `to_sql(true)` lalu `vsprintf()` — `ValueError` untuk SQL yang mengandung `%` | **fixed** |
+| 50 | `database/query.php` `increment()`/`decrement()` | `$amount` dan `$column` disisipkan mentah ke SQL | **fixed** |
+| 51 | `database/query.php` `insert()` | Baris dengan urutan key berbeda ditulis ke kolom yang salah | **fixed** |
+| 52 | `database/grammar.php` `wrap()` | `explode(' ')` salah segmen untuk `col  as  alias` | **fixed** |
+| 53 | `database/grammar.php` `wrap_value()` | Karakter identifier tidak di-escape | **fixed** |
+| 54 | `query/grammars/*` `limit()`/`offset()`/`TOP` | Nilai disisipkan mentah ke SQL | **fixed** |
+| 55 | `facile/query.php` `table()` | Tidak lewat `Model::_query()` — filter soft delete **dan** global scope tidak pernah diterapkan | **fixed** |
+| 56 | `facile/model.php` `_query()` | Kode mati, dan bila dipanggil akan rekursi tak berujung lewat `Facile\Query` | **fixed** |
+| 57 | `facile/model.php` `$global_scopes` | Properti statik dibagi seluruh subclass — scope satu model bocor ke model lain | **fixed** |
+| 58 | `facile/model.php` `restore()`/`force_delete()` | Memakai query yang memfilter baris terhapus, sehingga tidak pernah menemukan barisnya | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

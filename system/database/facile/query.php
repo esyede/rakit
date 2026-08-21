@@ -32,6 +32,13 @@ class Query
     public $with = [];
 
     /**
+     * Whether soft-deleted rows should be included in the query.
+     *
+     * @var bool
+     */
+    public $with_trashed = false;
+
+    /**
      * List of query builder methods that should be passed thru directly.
      * It means the result of these methods will be returned directly instead of
      * being wrapped in the model's query builder.
@@ -50,9 +57,10 @@ class Query
      *
      * @param Model $model
      */
-    public function __construct($model)
+    public function __construct($model, $with_trashed = false)
     {
         $this->model = ($model instanceof Model) ? $model : new $model();
+        $this->with_trashed = (bool) $with_trashed;
         $this->table = $this->table();
     }
 
@@ -276,7 +284,10 @@ class Query
      */
     protected function table()
     {
-        return $this->connection()->table($this->model->table());
+        // Note: this goes through Model::_query() so the soft delete filter and
+        // the model's global scopes are applied. Building the builder straight
+        // from the connection would silently skip both.
+        return $this->model->_query($this->with_trashed);
     }
 
     /**

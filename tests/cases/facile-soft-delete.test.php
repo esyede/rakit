@@ -2,6 +2,9 @@
 
 defined('DS') or exit('No direct access.');
 
+use System\Database;
+use System\Database\Schema;
+
 class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -9,7 +12,20 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-        // ..
+        Database::$connections = [];
+
+        Schema::create('soft_delete_models', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamp('deleted_at')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('normal_models', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -17,7 +33,9 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // ..
+        Schema::drop_if_exists('soft_delete_models');
+        Schema::drop_if_exists('normal_models');
+        Database::$connections = [];
     }
 
     /**
@@ -56,7 +74,7 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test model without soft delete.
+     * Test for model without soft delete.
      *
      * @group system
      */
@@ -66,57 +84,126 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($model::$soft_delete);
     }
 
+    // -------------------------------------------------------------------------
+    // The soft delete filter must reach the query builder
+    // -------------------------------------------------------------------------
+
     /**
-     * Test for restore() method.
+     * A soft deleted record must disappear from the default query.
      *
      * @group system
      */
-    public function testRestoreMethod()
+    public function testDeletedRecordIsExcludedFromDefaultQuery()
     {
-        $model = new SoftDeleteModel(['name' => 'Test'], true);
-        $model->id = 1;
-        $model->deleted_at = \System\Carbon::now();
-        $model->exists = false;
+        SoftDeleteModel::create(['name' => 'alive']);
+        $gone = SoftDeleteModel::create(['name' => 'gone']);
+        $gone->delete();
 
-        $this->assertTrue(method_exists($model, 'restore'));
+        $names = [];
+
+        foreach (SoftDeleteModel::all() as $row) {
+            $names[] = $row->name;
+        }
+
+        $this->assertEquals(['alive'], $names);
+        $this->assertNull(SoftDeleteModel::find($gone->id));
     }
 
     /**
-     * Test for force_delete() method.
+     * delete() must only stamp deleted_at, never remove the row.
      *
      * @group system
      */
-    public function testForceDeleteMethod()
+    public function testDeleteOnlyStampsDeletedAt()
     {
-        $model = new SoftDeleteModel(['name' => 'Test'], true);
-        $model->id = 1;
-        $model->exists = true;
+        $model = SoftDeleteModel::create(['name' => 'gone']);
+        $model->delete();
 
-        // Model has force_delete method
-        $this->assertTrue(method_exists($model, 'force_delete'));
+        $row = Database::table('soft_delete_models')->where('id', '=', $model->id)->first();
+
+        $this->assertNotNull($row);
+        $this->assertNotNull($row->deleted_at);
     }
 
     /**
-     * Test for with_trashed static method.
+     * with_trashed() must bring the deleted rows back.
      *
      * @group system
      */
-    public function testWithTrashedStaticMethod()
+    public function testWithTrashedIncludesDeletedRecords()
     {
+        SoftDeleteModel::create(['name' => 'alive']);
+        $gone = SoftDeleteModel::create(['name' => 'gone']);
+        $gone->delete();
+
         $query = SoftDeleteModel::with_trashed();
+
         $this->assertInstanceOf('\System\Database\Facile\Query', $query);
+        $this->assertEquals(2, count($query->get()));
     }
 
     /**
-     * Test for only_trashed static method.
+     * only_trashed() must return the deleted rows and nothing else.
      *
      * @group system
      */
-    public function testOnlyTrashedStaticMethod()
+    public function testOnlyTrashedReturnsDeletedRecordsOnly()
     {
-        $query = SoftDeleteModel::only_trashed();
-        // This should return a query builder instance
-        $this->assertNotNull($query);
+        SoftDeleteModel::create(['name' => 'alive']);
+        $gone = SoftDeleteModel::create(['name' => 'gone']);
+        $gone->delete();
+
+        $results = SoftDeleteModel::only_trashed()->get();
+
+        $this->assertEquals(1, count($results));
+        $this->assertEquals('gone', $results[0]->name);
+    }
+
+    /**
+     * restore() must clear deleted_at even though the row is filtered out.
+     *
+     * @group system
+     */
+    public function testRestoreBringsRecordBack()
+    {
+        $model = SoftDeleteModel::create(['name' => 'gone']);
+        $model->delete();
+
+        $this->assertEquals(0, count(SoftDeleteModel::all()));
+        $this->assertTrue($model->restore());
+        $this->assertEquals(1, count(SoftDeleteModel::all()));
+
+        $row = Database::table('soft_delete_models')->where('id', '=', $model->id)->first();
+        $this->assertNull($row->deleted_at);
+    }
+
+    /**
+     * force_delete() must remove the row for good.
+     *
+     * @group system
+     */
+    public function testForceDeleteRemovesTheRow()
+    {
+        $model = SoftDeleteModel::create(['name' => 'gone']);
+        $model->delete();
+        $model->force_delete();
+
+        $row = Database::table('soft_delete_models')->where('id', '=', $model->id)->first();
+        $this->assertNull($row);
+    }
+
+    /**
+     * A model that does not use soft deletes must not gain a filter.
+     *
+     * @group system
+     */
+    public function testNormalModelIsDeletedForGood()
+    {
+        $model = NormalModel::create(['name' => 'gone']);
+        $model->delete();
+
+        $this->assertEquals(0, count(NormalModel::all()));
+        $this->assertNull(Database::table('normal_models')->where('id', '=', $model->id)->first());
     }
 }
 

@@ -513,20 +513,10 @@ class Query
      */
     public function debug()
     {
-        $sql = $this->to_sql(true);
-        $bindings = $this->bindings;
-
-        foreach ($bindings as $key => $value) {
-            if (is_array($value)) {
-                $value = implode(', ', $value);
-            } elseif (is_object($value)) {
-                $value = ($value instanceof \DateTime || $value instanceof Carbon) ? $value->format('Y-m-d H:i:s') : get_class($value);
-            }
-
-            $bindings[$key] = $value;
-        }
-
-        return vsprintf(str_replace('?', '%s', $sql), $bindings);
+        // Note: to_sql(true) already substitutes every binding, so there is no
+        // placeholder left to feed to vsprintf() - and any literal '%' coming
+        // from a substituted value (e.g. a LIKE pattern) would blow it up.
+        return $this->to_sql(true);
     }
 
     /**
@@ -599,8 +589,16 @@ class Query
         $values = is_array(reset($values)) ? $values : [$values];
         $bindings = [];
 
+        // Note: the column list is taken from the first row, so every other row
+        // has to be bound in that same order. Relying on each row's own order
+        // would silently write values into the wrong columns whenever the rows
+        // were built with their keys in a different sequence.
+        $columns = array_keys(reset($values));
+
         foreach ($values as $value) {
-            $bindings = array_merge($bindings, array_values($value));
+            foreach ($columns as $column) {
+                $bindings[] = array_key_exists($column, $value) ? $value[$column] : null;
+            }
         }
 
         $sql = $this->grammar->insert($this, $values);
@@ -660,7 +658,7 @@ class Query
      */
     public function increment($column, $amount = 1)
     {
-        return $this->update([$column => $this->raw($column . ' + ' . $amount)]);
+        return $this->update([$column => $this->raw($this->grammar->wrap($column) . ' + ' . $this->amount($amount))]);
     }
 
     /**
@@ -673,7 +671,28 @@ class Query
      */
     public function decrement($column, $amount = 1)
     {
-        return $this->update([$column => $this->raw($column . ' - ' . $amount)]);
+        return $this->update([$column => $this->raw($this->grammar->wrap($column) . ' - ' . $this->amount($amount))]);
+    }
+
+    /**
+     * Validate an increment / decrement amount.
+     * The value is inlined into raw SQL, so anything non numeric is rejected
+     * instead of being interpolated.
+     *
+     * @param mixed $amount
+     *
+     * @return int|float
+     */
+    protected function amount($amount)
+    {
+        if (!is_numeric($amount)) {
+            throw new \InvalidArgumentException(sprintf(
+                'Increment / decrement amount must be numeric, %s given.',
+                gettype($amount)
+            ));
+        }
+
+        return $amount + 0;
     }
 
     /**
@@ -768,7 +787,17 @@ class Query
      */
     public function to_sql($with_bindings = false)
     {
+        // Note: the grammar skips any component that is still NULL, so without
+        // this the compiled statement would come out without a SELECT clause
+        // whenever select() or get() has not been called yet.
+        $selects = $this->selects;
+
+        if (is_null($this->selects) && is_null($this->aggregate)) {
+            $this->selects = ['*'];
+        }
+
         $sql = $this->grammar->select($this);
+        $this->selects = $selects;
 
         if (!$with_bindings) {
             return $sql;
@@ -778,6 +807,10 @@ class Query
             $type = gettype($binding);
 
             switch ($type) {
+                case 'NULL':
+                    $str = 'NULL';
+                    break;
+
                 case 'boolean':
                     $str = (int) $binding;
                     $str = "$str";
@@ -789,15 +822,20 @@ class Query
                     break;
 
                 case 'string':
-                    $str = "'$binding'";
+                    $str = "'" . str_replace("'", "''", $binding) . "'";
                     break;
 
                 case 'object':
+                    if ($binding instanceof Expression) {
+                        $str = (string) $binding;
+                        break;
+                    }
+
                     if (!($binding instanceof \DateTime) && !($binding instanceof Carbon)) {
                         throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
                     }
 
-                    $str = "'" . $binding->format('Y-m-d H:i:s');
+                    $str = "'" . $binding->format('Y-m-d H:i:s') . "'";
                     break;
 
                 default:

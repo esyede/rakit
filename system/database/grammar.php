@@ -65,9 +65,10 @@ abstract class Grammar
             return $value->get();
         }
 
-        if (false !== stripos((string) $value, ' as ')) {
-            $segments = explode(' ', $value);
-            return sprintf('%s AS %s', $this->wrap($segments[0]), $this->wrap($segments[2]));
+        // Note: split on the alias keyword itself rather than on single spaces,
+        // otherwise 'col  as  alias' would pick the wrong segment.
+        if (preg_match('/^(.+?)\s+as\s+(.+)$/i', (string) $value, $matches)) {
+            return sprintf('%s AS %s', $this->wrap(trim($matches[1])), $this->wrap(trim($matches[2])));
         }
 
         $segments = explode('.', $value);
@@ -89,7 +90,16 @@ abstract class Grammar
      */
     protected function wrap_value($value)
     {
-        return ('*' === $value) ? '*' : sprintf($this->wrapper, $value);
+        if ('*' === $value) {
+            return '*';
+        }
+
+        // Escape the closing identifier character by doubling it. That is the
+        // escape form for every wrapper in use here: '"' -> '""' (ANSI/sqlite/
+        // postgres), '`' -> '``' (mysql) and ']' -> ']]' (sqlserver).
+        $quote = substr($this->wrapper, -1);
+
+        return sprintf($this->wrapper, str_replace($quote, $quote . $quote, (string) $value));
     }
 
     /**

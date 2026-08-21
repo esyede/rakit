@@ -56,7 +56,8 @@ class SQLServer extends Grammar
         $select = $query->distinct ? 'SELECT DISTINCT ' : 'SELECT ';
 
         if ($query->limit > 0 && $query->offset <= 0) {
-            $select .= 'TOP ' . $query->limit . ' ';
+            // Note: inlined into the statement, so force it to an integer.
+            $select .= 'TOP ' . (int) $query->limit . ' ';
         }
 
         return $select . $this->columnize($query->selects);
@@ -81,10 +82,10 @@ class SQLServer extends Grammar
 
         unset($components['orderings']);
 
-        $start = $query->offset + 1;
+        $start = (int) $query->offset + 1;
 
         if ($query->limit > 0) {
-            $finish = $query->offset + $query->limit;
+            $finish = (int) $query->offset + (int) $query->limit;
             $constraint = 'BETWEEN ' . $start . ' AND ' . $finish;
         } else {
             $constraint = '>= ' . $start;
