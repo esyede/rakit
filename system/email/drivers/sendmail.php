@@ -16,7 +16,14 @@ class Sendmail extends Driver
         try {
             $message = $this->build();
             $retpath = (false !== $this->config['return_path']) ? $this->config['return_path'] : $this->config['from']['email'];
-            $handle = popen($this->config['sendmail_binary'] . ' -oi -f ' . $retpath . ' -t', 'w');
+            // Note: this builds a shell command, so the return path has to be
+            // escaped - it ends up straight on the command line otherwise.
+            $command = $this->config['sendmail_binary'] . ' -oi -f ' . escapeshellarg($retpath) . ' -t';
+            $handle = popen($command, 'w');
+
+            if (!is_resource($handle)) {
+                throw new \Exception('Failed sending email through sendmail: unable to start the process');
+            }
 
             fputs($handle, $message['header']);
             fputs($handle, $message['body']);

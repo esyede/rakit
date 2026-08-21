@@ -37,7 +37,12 @@ class Resolver
      */
     public function outstanding(array $arguments = [])
     {
-        $arguments = empty($arguments) ? array_merge(Package::names(), ['application']) : $arguments;
+        // Note: array_unique() keeps a package that is registered under the
+        // default name from being walked twice, which would queue every one of
+        // its migrations twice in a single pass.
+        $arguments = empty($arguments)
+            ? array_values(array_unique(array_merge(Package::names(), [DEFAULT_PACKAGE])))
+            : $arguments;
         $migrations = [];
 
         foreach ($arguments as $package) {
@@ -114,6 +119,7 @@ class Resolver
             $file = Str::replace_last('.php', '', basename((string) $file));
         }
 
+        unset($file);
         sort($files);
 
         return $files;

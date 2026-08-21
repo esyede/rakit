@@ -115,6 +115,14 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 79 | `schema/grammars/sqlite.php` `type_decimal()` | Dipetakan ke `FLOAT` sehingga kolom dapat afinitas REAL — nilai eksak (uang) dibulatkan | **fixed** |
 | 80 | `schema/grammars/*` `type_enum()`/`type_set()` | Nilai enum tidak di-escape, kutip tunggal di nilainya merusak SQL | **fixed** |
 | 81 | `database/connectors/sqlserver.php` | `dblib` dipilih walau `sqlsrv` tersedia, dan port dieja dengan format `sqlsrv` (`,port`) padahal `dblib` memakai `:port` | **fixed** |
+| 82 | `console/commands/command.php` `progress()` | Bagian terisi dan kosong memakai karakter yang sama — bar progres selalu terlihat sama | **fixed** |
+| 83 | `console/color.php` `supported()` | Menyentuh konstanta `STDOUT` yang tidak ada di luar CLI (fatal di PHP 8) | **fixed** |
+| 84 | `console/table.php` `calculate_column_width()` | Lebar diukur `strlen()` (byte) tapi di-pad `mb_strlen()` — kolom non-ASCII melenceng | **fixed** |
+| 85 | `console/commands/migrate/resolver.php` `outstanding()` | Paket default bisa terdaftar dua kali → migrasinya dijalankan dua kali | **fixed** |
+| 86 | `email/drivers/smtp.php` `deliver()` | Dot-stuffing dilakukan dua kali — baris yang diawali `.` terkirim sebagai `..` | **fixed** |
+| 87 | `email/drivers/sendmail.php` | `return_path` masuk mentah ke perintah shell; hasil `popen()` tidak dicek | **fixed** |
+| 88 | `email/drivers/mail.php` | Selalu mengembalikan `true`, mengabaikan hasil `mail()` | **fixed** |
+| 89 | `email.php` `factory()` | Driver `'log'` yang didokumentasikan di config ditolak (hanya `'dummy'` yang diterima) | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

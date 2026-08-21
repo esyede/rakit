@@ -16,8 +16,15 @@ class Mail extends Driver
         try {
             $message = $this->build();
             $retpath = (false !== $this->config['return_path']) ? $this->config['return_path'] : $this->config['from']['email'];
-            mail(static::format($this->to), $this->subject, $message['body'], $message['header'], '-oi -f ' . $retpath);
-            return true;
+            // Note: the result matters. Returning TRUE unconditionally reported a
+            // successful send even when the local MTA refused the message.
+            return (bool) mail(
+                static::format($this->to),
+                $this->subject,
+                $message['body'],
+                $message['header'],
+                '-oi -f ' . $retpath
+            );
         } catch (\Throwable $e) {
             throw new \Exception('Failed sending email through mail: ' . $e->getMessage());
         } catch (\Exception $e) {

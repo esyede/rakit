@@ -48,6 +48,12 @@ class Color
 
     public static function supported()
     {
+        // Note: STDOUT only exists under the CLI SAPI, and referring to an
+        // undefined constant is a fatal error since PHP 8.
+        if (!defined('STDOUT')) {
+            return false;
+        }
+
         if (DS === '\\') {
             return (function_exists('sapi_windows_vt100_support') && @sapi_windows_vt100_support(STDOUT))
                 || (getenv('ANSICON') !== false || getenv('ConEmuANSI') === 'ON');

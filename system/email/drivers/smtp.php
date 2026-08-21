@@ -93,7 +93,10 @@ class Smtp extends Driver
 
         $this->command('DATA', 354);
 
-        $lines = explode($this->config['newline'], $message['header'] . preg_replace('/^\./m', '..$1', $message['body']));
+        // Note: dot-stuffing happens once, in the loop below. Doing it here too
+        // turned a line starting with '.' into '...' on the wire, so the server
+        // stripped one dot and delivered '..'.
+        $lines = explode($this->config['newline'], $message['header'] . $message['body']);
 
         foreach ($lines as $line) {
             $line = (('.' === substr((string) $line, 0, 1)) ? '.' : '') . $line;
@@ -128,15 +131,16 @@ class Smtp extends Driver
 
         $context = stream_context_create();
 
-        if (
-            is_array($this->config['smtp']['options'])
-            && !empty($this->config['smtp']['options'])
-        ) {
-            stream_context_set_option($context, $this->config['smtp']['options']);
+        $options = Arr::get($this->config, 'smtp.options');
+
+        if (is_array($options) && !empty($options)) {
+            stream_context_set_option($context, $options);
         }
 
-        $retry_count = Arr::get($this->config, 'smtp.retry', 3);
+        $retry_count = max(1, (int) Arr::get($this->config, 'smtp.retry', 3));
         $retry_delay = Arr::get($this->config, 'smtp.retry_delay', 1); // detik
+        $errno = 0;
+        $errstr = '';
 
         for ($attempt = 0; $attempt < $retry_count; $attempt++) {
             $this->connection = stream_socket_client(

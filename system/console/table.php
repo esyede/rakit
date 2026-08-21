@@ -231,8 +231,8 @@ class Table
      */
     private function get_cell_output($index, array $row = [])
     {
-        $cell = $row ? (string) $row[$index] : '-';
-        $width = $this->column_widths[$index];
+        $cell = ($row && isset($row[$index])) ? (string) $row[$index] : ($row ? '' : '-');
+        $width = isset($this->column_widths[$index]) ? $this->column_widths[$index] : 0;
         $padding = str_repeat($row ? ' ' : '-', $this->padding);
 
         $output = (0 === $index) ? str_repeat(' ', $this->indent) : '';
@@ -260,7 +260,10 @@ class Table
         foreach ($this->data as $y => $row) {
             if (is_array($row)) {
                 foreach ($row as $x => $col) {
-                    $width = strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col));
+                    // Note: get_cell_output() pads with mb_strlen(), so the width
+                    // has to be measured the same way. strlen() counts bytes, which
+                    // makes every column holding non-ASCII text come out too wide.
+                    $width = mb_strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
 
                     if (!isset($this->column_widths[$x])) {
                         $this->column_widths[$x] = $width;
