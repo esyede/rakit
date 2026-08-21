@@ -293,8 +293,8 @@ class SQLServer extends Grammar
         // actual name is looked up first.
         $name = str_replace("'", "''", $table->name);
 
-        return "DECLARE @rakit_pk SYSNAME;"
-            . " SELECT @rakit_pk = [name] FROM sys.key_constraints"
+        return 'DECLARE @rakit_pk SYSNAME;'
+            . ' SELECT @rakit_pk = [name] FROM sys.key_constraints'
             . " WHERE [type] = 'PK' AND [parent_object_id] = OBJECT_ID('" . $name . "');"
             . " EXEC('ALTER TABLE " . $this->wrap($table) . " DROP CONSTRAINT [' + @rakit_pk + ']')";
     }

@@ -48,7 +48,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testFirstWithDefaultAndWithoutCallback()
     {
-        $data = new Collection;
+        $data = new Collection();
         $result = $data->first(null, 'default');
         $this->assertEquals('default', $result);
     }
@@ -83,7 +83,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testLastWithDefaultAndWithoutCallback()
     {
-        $data = new Collection;
+        $data = new Collection();
         $result = $data->last(null, 'default');
         $this->assertEquals('default', $result);
     }
@@ -129,20 +129,20 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $collection = new Collection(null);
         $this->assertSame([], $collection->all());
 
-        $collection = new Collection;
+        $collection = new Collection();
         $this->assertSame([], $collection->all());
     }
 
     public function testGetArrayableItems()
     {
-        $collection = new Collection;
+        $collection = new Collection();
 
         $class = new \ReflectionClass($collection);
         $method = $class->getMethod('get_arrayable_items');
         /** @disregard */
         PHP_VERSION_ID < 80100 && $method->setAccessible(true);
 
-        $items = new TestJsonSerializeObject;
+        $items = new TestJsonSerializeObject();
         $array = $method->invokeArgs($collection, [$items]);
         $this->assertSame(['foo' => 'bar'], $array);
 
@@ -478,7 +478,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testCollapse()
     {
-        $data = new Collection([[$object1 = new StdClass], [$object2 = new StdClass]]);
+        $data = new Collection([[$object1 = new StdClass()], [$object2 = new StdClass()]]);
         $this->assertEquals([$object1, $object2], $data->collapse()->all());
     }
 
@@ -664,7 +664,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
      */
     public function testRandomThrowsAnErrorWhenRequestingMoreItemsThanAreAvailable()
     {
-        (new Collection)->random();
+        (new Collection())->random();
     }
 
     public function testTakeLast()
@@ -937,7 +937,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
             ['firstname' => 'Lucas', 'lastname' => 'Michot', 'locale' => 'FR'],
         ]);
         $result = $data->key_by(function ($item, $key) {
-            return strtolower($key.'-'.$item['firstname'].$item['lastname']);
+            return strtolower($key . '-' . $item['firstname'] . $item['lastname']);
         });
         $this->assertEquals([
             '0-budipurnomo' => ['firstname' => 'Budi', 'lastname' => 'Purnomo', 'locale' => 'US'],
@@ -1087,7 +1087,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
             return $value > 4;
         }));
         $this->assertEquals('foo', $c->search(function ($value) {
-            return ! is_numeric($value);
+            return !is_numeric($value);
         }));
     }
 

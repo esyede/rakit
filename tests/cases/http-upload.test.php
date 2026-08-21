@@ -87,7 +87,7 @@ class HttpUploadTest extends \PHPUnit_Framework_TestCase
 
     public function testGetClientOriginalNameSanitizeFilename()
     {
-        $file = new Upload($this->getFilePath('test.png'), '../../original.png', 'image/png',  filesize($this->getFilePath('test.png')), null);
+        $file = new Upload($this->getFilePath('test.png'), '../../original.png', 'image/png', filesize($this->getFilePath('test.png')), null);
         $this->assertEquals('original.png', $file->getClientOriginalName());
     }
 

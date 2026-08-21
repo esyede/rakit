@@ -8,6 +8,6 @@ class Exporter
 {
     public function inspect($variable)
     {
-        return sprintf(" → %s", var_export($variable, true));
+        return sprintf(' → %s', var_export($variable, true));
     }
 }

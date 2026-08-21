@@ -70,6 +70,6 @@ class FakerEnPaymentTest extends \PHPUnit_Framework_TestCase
     {
         $cardDetails = $this->faker->creditCardDetails;
         $this->assertEquals(count($cardDetails), 4);
-        $this->assertEquals(array('type', 'number', 'name', 'expirationDate'), array_keys($cardDetails));
+        $this->assertEquals(['type', 'number', 'name', 'expirationDate'], array_keys($cardDetails));
     }
 }

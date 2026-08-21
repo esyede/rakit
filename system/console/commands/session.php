@@ -6,7 +6,6 @@ defined('DS') or exit('No direct access.');
 
 use System\Config;
 use System\Database as DB;
-use System\Session as BaseSession;
 
 class Session extends Command
 {

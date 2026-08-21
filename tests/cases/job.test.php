@@ -10,7 +10,7 @@ use System\Carbon;
 class JobTest extends \PHPUnit_Framework_TestCase
 {
     private static $old_events = [];
-    private static $old_db = null;
+    private static $old_db;
 
     /**
      * Setup.
@@ -141,7 +141,6 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $files = glob($path . 'test-job__*.job.php');
 
         $this->assertNotEmpty($files);
-
     }
 
     /**
@@ -406,7 +405,6 @@ class JobTest extends \PHPUnit_Framework_TestCase
         } catch (Exception $e) {
             $this->markTestSkipped('Database not configured');
         }
-
 
         Config::set('job.driver', 'database');
         Config::set('job.table', 'rakit_jobs');

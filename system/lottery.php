@@ -239,8 +239,9 @@ class Lottery
     /**
      * Set the sequence to be used for determining the result.
      *
-     * @param  array  $sequence
-     * @param  callable|null  $when_missing
+     * @param array         $sequence
+     * @param callable|null $when_missing
+     *
      * @return void
      */
     public static function sequence($sequence, $when_missing = null)

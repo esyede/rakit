@@ -89,7 +89,7 @@ class Evaluator
 
         /* Note the naming of the local variables due to shared scope with the user here */
         for (;;) {
-            declare (ticks = 1);
+            declare(ticks = 1);
             /** @disregard */
             pcntl_signal(SIGINT, SIG_IGN, true); // Do not exit on Ctrl+C
             $this->aborted = false;
@@ -103,7 +103,7 @@ class Evaluator
             /** @disregard */
             $this->prev_pid = posix_getpid();
             /** @disregard */
-            $this->pid  = pcntl_fork();
+            $this->pid = pcntl_fork();
 
             if ($this->pid < 0) {
                 throw new \RuntimeException('Failed to fork child labourer');
@@ -223,8 +223,8 @@ class Evaluator
         if ($this->select($read, $except) > 0) {
             if ($read) {
                 return stream_get_contents($read[0]);
-            } else if ($except) {
-                throw new \Exception("Socket error: closed");
+            } elseif ($except) {
+                throw new \Exception('Socket error: closed');
             }
         }
     }

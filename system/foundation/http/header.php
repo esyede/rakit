@@ -305,7 +305,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Standarisasi nama header
+     * Standarisasi nama header.
      *
      * @param string $key
      *

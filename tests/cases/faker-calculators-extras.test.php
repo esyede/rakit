@@ -241,7 +241,7 @@ class FakerCalculatorsExtrasTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('id', \System\Config::get('application.language'));
 
         $english = ['black', 'maroon', 'green', 'navy', 'olive', 'purple', 'teal',
-            'lime', 'blue', 'silver', 'gray', 'yellow', 'fuchsia', 'aqua', 'white'];
+            'lime', 'blue', 'silver', 'gray', 'yellow', 'fuchsia', 'aqua', 'white', ];
 
         $faker = Factory::create('en');
 

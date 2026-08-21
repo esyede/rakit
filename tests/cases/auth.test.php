@@ -12,7 +12,6 @@ use System\Request;
 use System\Crypter;
 use System\Session\Payload;
 
-
 class AuthTest extends \PHPUnit_Framework_TestCase
 {
     /**

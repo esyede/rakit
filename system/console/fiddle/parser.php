@@ -43,7 +43,7 @@ class Parser
             $rules = ['scan_use', 'scan_esc_char', 'scan_region', 'scan_state_entrant', 'scan_wsp', 'scan_char'];
 
             foreach ($rules as $method) {
-                if ($this->$method($result)) {
+                if ($this->{$method}($result)) {
                     break;
                 }
             }
@@ -166,7 +166,7 @@ class Parser
     {
         if (preg_match($this->initials, $result->buffer, $match)) {
             $result->stmt .= $match[0];
-            $result->buffer   = substr($result->buffer, strlen($match[0]));
+            $result->buffer = substr($result->buffer, strlen($match[0]));
             $result->states[] = $match[0];
             return true;
         }
@@ -187,7 +187,7 @@ class Parser
         if (empty($result->states) && ($chr == ';' || $chr == '}')) {
             if (!$this->is_lambda($result->stmt) || $chr == ';') {
                 $result->statements[] = $result->stmt;
-                $result->stmt         = '';
+                $result->stmt = '';
             }
         }
 

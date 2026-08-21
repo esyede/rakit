@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Redis
 {
     /**
-     * Contains the Redis host
+     * Contains the Redis host.
      *
      * @var string
      */
@@ -167,7 +167,7 @@ class Redis
 
     /**
      * Prepare a Redis command based on the method and parameters provided.
-     * Redis commands must follow the following format:
+     * Redis commands must follow the following format:.
      *
      *     *<arguments count> CR LF
      *     $<length of argument 1> CR LF

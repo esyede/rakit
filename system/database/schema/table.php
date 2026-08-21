@@ -914,7 +914,7 @@ class Table
      */
     public function drop_column_if_exists($columns)
     {
-        $columns = is_array($columns) ? $columns : array($columns);
+        $columns = is_array($columns) ? $columns : [$columns];
         return $this->command('drop_column_if_exists', compact('columns'));
     }
 

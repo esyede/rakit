@@ -116,7 +116,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the start event
+     * Handle the start event.
      *
      * @param Server $server
      *
@@ -129,7 +129,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the crash event
+     * Handle the crash event.
      *
      * @param Server $server
      *
@@ -149,7 +149,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the stop event
+     * Handle the stop event.
      *
      * @param Server $server
      *
@@ -173,7 +173,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the disconnect event
+     * Handle the disconnect event.
      *
      * @param Client $client
      *
@@ -186,7 +186,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the idle event
+     * Handle the idle event.
      *
      * @param Client $client
      *
@@ -198,7 +198,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the receive event
+     * Handle the receive event.
      *
      * @param Client $client
      * @param int    $opcode
@@ -265,7 +265,7 @@ class Websocket extends Command
                     $this->presence($client->server());
 
                     if ($this->logging()) {
-                        $this->log("Command presence executed");
+                        $this->log('Command presence executed');
                     }
 
                     return;
@@ -312,7 +312,7 @@ class Websocket extends Command
     }
 
     /**
-     * Handle the send event
+     * Handle the send event.
      *
      * @param Client $client
      * @param int    $opcode

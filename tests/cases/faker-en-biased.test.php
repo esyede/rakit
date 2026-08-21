@@ -31,7 +31,7 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
         // ..
     }
 
-     public function performFake($function)
+    public function performFake($function)
     {
         for ($i = 0; $i < self::NUMBERS; $i++) {
             $this->results[$this->generator->biasedNumberBetween(1, self::MAX, $function)]++;
@@ -45,8 +45,8 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
         foreach ($this->results as $number => $amount) {
             $assumed = (1 / self::MAX * $number) - (1 / self::MAX * ($number - 1));
             $assumed /= 1;
-            $this->assertGreaterThan(self::NUMBERS * $assumed * .95, $amount, "Value was more than 5 percent under the expected value");
-            $this->assertLessThan(self::NUMBERS * $assumed * 1.05, $amount, "Value was more than 5 percent over the expected value");
+            $this->assertGreaterThan(self::NUMBERS * $assumed * .95, $amount, 'Value was more than 5 percent under the expected value');
+            $this->assertLessThan(self::NUMBERS * $assumed * 1.05, $amount, 'Value was more than 5 percent over the expected value');
         }
     }
 
@@ -57,8 +57,8 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
         foreach ($this->results as $number => $amount) {
             $assumed = 0.5 * pow(1 / self::MAX * $number, 2) - 0.5 * pow(1 / self::MAX * ($number - 1), 2);
             $assumed /= pow(1, 2) * .5;
-            $this->assertGreaterThan(self::NUMBERS * $assumed * .9, $amount, "Value was more than 10 percent under the expected value");
-            $this->assertLessThan(self::NUMBERS * $assumed * 1.1, $amount, "Value was more than 10 percent over the expected value");
+            $this->assertGreaterThan(self::NUMBERS * $assumed * .9, $amount, 'Value was more than 10 percent under the expected value');
+            $this->assertLessThan(self::NUMBERS * $assumed * 1.1, $amount, 'Value was more than 10 percent over the expected value');
         }
     }
 
@@ -70,8 +70,8 @@ class FakerEnBiasedTest extends \PHPUnit_Framework_TestCase
             $assumed = -0.5 * pow(1 / self::MAX * $number, 2) - -0.5 * pow(1 / self::MAX * ($number - 1), 2);
             $assumed += 1 / self::MAX;
             $assumed /= pow(1, 2) * .5;
-            $this->assertGreaterThan(self::NUMBERS * $assumed * .9, $amount, "Value was more than 10 percent under the expected value");
-            $this->assertLessThan(self::NUMBERS * $assumed * 1.1, $amount, "Value was more than 10 percent over the expected value");
+            $this->assertGreaterThan(self::NUMBERS * $assumed * .9, $amount, 'Value was more than 10 percent under the expected value');
+            $this->assertLessThan(self::NUMBERS * $assumed * 1.1, $amount, 'Value was more than 10 percent over the expected value');
         }
     }
 }

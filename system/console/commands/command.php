@@ -102,7 +102,7 @@ abstract class Command
      */
     protected function confirm($question, $default = false)
     {
-        $answers = ['y'=> true, 'n' => false];
+        $answers = ['y' => true, 'n' => false];
         $result = null;
         $suffix = null;
 
@@ -114,9 +114,8 @@ abstract class Command
             if (!isset($answers[$answer])) {
                 echo Color::red('Please answer with: y or n.');
                 return false;
-            } else {
-                $result = $answers[$answer];
             }
+            $result = $answers[$answer];
         } while (is_null($result));
 
         return $answers[$answer];

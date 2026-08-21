@@ -65,9 +65,9 @@ abstract class Driver
     /**
      * Run all available jobs in the database.
      *
-     * @param int         $retries
-     * @param int         $sleep_ms
-     * @param array|null  $queues
+     * @param int        $retries
+     * @param int        $sleep_ms
+     * @param array|null $queues
      *
      * @return bool
      */

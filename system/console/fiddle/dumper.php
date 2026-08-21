@@ -10,6 +10,6 @@ class Dumper
     {
         ob_start();
         var_dump($variable);
-        return sprintf(" → %s", trim(ob_get_clean()));
+        return sprintf(' → %s', trim(ob_get_clean()));
     }
 }

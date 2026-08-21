@@ -32,7 +32,7 @@ class Request
      *
      * @var \System\Foundation\Http\Request|null
      */
-    private static $cached_foundation = null;
+    private static $cached_foundation;
 
     /**
      * List format request.

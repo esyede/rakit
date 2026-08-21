@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 class Context
 {
     /** @var \WeakMap|\SplObjectStorage|null */
-    private static $map = null;
+    private static $map;
 
     private static function map()
     {

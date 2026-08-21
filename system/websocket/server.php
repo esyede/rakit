@@ -132,10 +132,9 @@ class Server
                     if ($client === false) {
                         $this->stderr('Failed: stream_socket_accept()');
                         continue;
-                    } else {
-                        $this->connect($client);
-                        $this->stdout('Client connected. ' . (int) $client);
                     }
+                    $this->connect($client);
+                    $this->stdout('Client connected. ' . (int) $client);
                 } else {
                     $this->stdout('Reading from socket ' . (int) $socket);
                     $buffer = @fread($socket, $this->config['max_buffer_size']);

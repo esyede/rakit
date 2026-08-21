@@ -99,7 +99,7 @@ class File extends Driver
      */
     public function forget($key)
     {
-        $key =  $this->path . $this->naming($key);
+        $key = $this->path . $this->naming($key);
         is_file($key) && Storage::delete($key);
     }
 

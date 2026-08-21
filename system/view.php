@@ -472,7 +472,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * ArrayAccess implementation
+     * ArrayAccess implementation.
      */
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
@@ -481,7 +481,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * ArrayAccess implementation
+     * ArrayAccess implementation.
      */
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
@@ -490,7 +490,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * ArrayAccess implementation
+     * ArrayAccess implementation.
      */
     #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
@@ -499,7 +499,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * ArrayAccess implementation
+     * ArrayAccess implementation.
      */
     #[\ReturnTypeWillChange]
     public function offsetUnset($offset)

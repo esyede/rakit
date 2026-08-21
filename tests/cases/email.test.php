@@ -125,7 +125,7 @@ class EmailTest extends \PHPUnit_Framework_TestCase
      */
     public function testExtendRegistersCustomDriver()
     {
-        Email::extend('custom', function() {
+        Email::extend('custom', function () {
             $config = Config::get('email');
             return new \System\Email\Drivers\Log($config);
         });

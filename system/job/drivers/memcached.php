@@ -198,7 +198,7 @@ class Memcached extends Driver
 
         if ($queue) {
             /** @disregard */
-            $jobs = $this->memcached->get( $this->key . 'queue:' . $queue . ':' . $name);
+            $jobs = $this->memcached->get($this->key . 'queue:' . $queue . ':' . $name);
             $jobs = $jobs ?: [];
 
             if (!empty($jobs)) {

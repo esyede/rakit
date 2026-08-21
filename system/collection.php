@@ -805,7 +805,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function partition($callback)
     {
-        $partitions = [new static, new static];
+        $partitions = [new static(), new static()];
         $callback = $this->value_retriever($callback);
 
         foreach ($this->items as $key => $item) {
@@ -1048,7 +1048,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function chunk($size)
     {
         if ($size <= 0) {
-            return new static;
+            return new static();
         }
 
         $chunks = [];

@@ -99,7 +99,7 @@ abstract class Driver
     protected $headers = [];
 
     /**
-     * Contains extra headers
+     * Contains extra headers.
      *
      * @var array
      */

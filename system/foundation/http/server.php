@@ -31,7 +31,7 @@ class Server extends Parameter
         } else {
             /**
              * By default, php-cgi under apache eill not pass Basic Auth's user and password
-             * To resolve this, add this rules to your .htaccess file:
+             * To resolve this, add this rules to your .htaccess file:.
              *
              * RewriteCond %{HTTP:Authorization} ^(.+)$
              *

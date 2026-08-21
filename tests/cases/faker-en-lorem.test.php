@@ -101,7 +101,6 @@ class FakerEnLoremTest extends \PHPUnit_Framework_TestCase
 
 class TestableLorem extends Lorem
 {
-
     public static function word()
     {
         return 'word';

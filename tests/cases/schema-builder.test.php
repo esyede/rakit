@@ -405,12 +405,12 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
 
         $table = new Table('orders');
         $command = new Magic([
-            'name'       => 'fk_orders_user_id',
-            'columns'    => ['user_id'],
-            'on'         => 'users',
+            'name' => 'fk_orders_user_id',
+            'columns' => ['user_id'],
+            'on' => 'users',
             'references' => 'id',
-            'on_delete'  => null,
-            'on_update'  => null,
+            'on_delete' => null,
+            'on_update' => null,
         ]);
 
         $sql = $grammar->foreign($table, $command);
@@ -433,12 +433,12 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
 
         $table = new Table('posts');
         $command = new Magic([
-            'name'       => 'fk_posts_user',
-            'columns'    => ['user_id'],
-            'on'         => 'users',
+            'name' => 'fk_posts_user',
+            'columns' => ['user_id'],
+            'on' => 'users',
             'references' => 'id',
-            'on_delete'  => 'CASCADE',
-            'on_update'  => null,
+            'on_delete' => 'CASCADE',
+            'on_update' => null,
         ]);
 
         $sql = $grammar->foreign($table, $command);
@@ -457,12 +457,12 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
 
         $table = new Table('comments');
         $command = new Magic([
-            'name'       => 'fk_comments',
-            'columns'    => ['post_id'],
-            'on'         => 'posts',
+            'name' => 'fk_comments',
+            'columns' => ['post_id'],
+            'on' => 'posts',
             'references' => 'id',
-            'on_delete'  => null,
-            'on_update'  => 'SET NULL',
+            'on_delete' => null,
+            'on_update' => 'SET NULL',
         ]);
 
         $sql = $grammar->foreign($table, $command);

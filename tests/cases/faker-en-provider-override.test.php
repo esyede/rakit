@@ -27,6 +27,7 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testAddress($locale = null)
@@ -38,9 +39,9 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->country);
     }
 
-
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testCompany($locale = null)
@@ -49,9 +50,9 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->company);
     }
 
-
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testDateTime($locale = null)
@@ -61,9 +62,9 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->timezone);
     }
 
-
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testInternet($locale = null)
@@ -76,9 +77,9 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp(static::TEST_EMAIL_REGEX, $faker->companyEmail);
     }
 
-
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testPerson($locale = null)
@@ -90,9 +91,9 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->lastName);
     }
 
-
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testPhoneNumber($locale = null)
@@ -101,9 +102,9 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->phoneNumber);
     }
 
-
     /**
      * @dataProvider localeDataProvider
+     *
      * @param string $locale
      */
     public function testUserAgent($locale = null)
@@ -111,7 +112,6 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $faker = Factory::create($locale);
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->userAgent);
     }
-
 
     /**
      * @dataProvider localeDataProvider
@@ -124,7 +124,6 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         $faker = Factory::create($locale);
         $this->assertRegExp(static::TEST_STRING_REGEX, $faker->uuid);
     }
-
 
     /**
      * @return array
@@ -141,9 +140,8 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
         return $data;
     }
 
-
     /**
-     * Returns all locales as array values
+     * Returns all locales as array values.
      *
      * @return array
      */
@@ -159,11 +157,11 @@ class FakerEnProviderOverrideTest extends \PHPUnit_Framework_TestCase
 
         foreach ($glob as $file) {
             $localisation = basename(dirname($file));
-            if (isset($locales[ $localisation ])) {
+            if (isset($locales[$localisation])) {
                 continue;
             }
 
-            $locales[ $localisation ] = $localisation;
+            $locales[$localisation] = $localisation;
         }
 
         return $locales;

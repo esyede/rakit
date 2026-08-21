@@ -24,7 +24,7 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
 
     public function invalidNames()
     {
-        return [[''], [",MyName"], [";MyName"], [" MyName"], ["\tMyName"], ["\rMyName"], ["\nMyName"], ["\013MyName"], ["\014MyName"]];
+        return [[''], [',MyName'], [';MyName'], [' MyName'], ["\tMyName"], ["\rMyName"], ["\nMyName"], ["\013MyName"], ["\014MyName"]];
     }
 
     /**
@@ -41,7 +41,7 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidExpiration()
     {
-        $cookie = new Cookie('MyCookie', 'foo','bar');
+        $cookie = new Cookie('MyCookie', 'foo', 'bar');
     }
 
     public function testGetValue()
@@ -94,7 +94,7 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
 
         $cookie = new Cookie('foo', null, 1, '/admin/', '.myfoodomain.com');
         $this->assertEquals(
-            'foo=deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time()  -31536001) . '; path=/admin/; samesite=lax; domain=.myfoodomain.com; httponly',
+            'foo=deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001) . '; path=/admin/; samesite=lax; domain=.myfoodomain.com; httponly',
             $cookie->__toString()
         );
     }

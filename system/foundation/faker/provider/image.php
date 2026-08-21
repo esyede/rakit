@@ -25,7 +25,7 @@ class Image extends Base
             throw new \InvalidArgumentException(sprintf('Cannot write to directory "%s"', $dir));
         }
 
-        $filename = md5(\System\Str::random()) .'.jpg';
+        $filename = md5(\System\Str::random()) . '.jpg';
         $filepath = $dir . DS . $filename;
         $url = static::imageUrl($width, $height, $hexBackgroundColor, $hexForegroundColor, $word);
 

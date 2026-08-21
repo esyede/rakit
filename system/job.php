@@ -4,9 +4,6 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
-use System\Hook;
-use System\Memcached;
-
 class Job
 {
     /**
@@ -51,9 +48,9 @@ class Job
      *
      * </code>
      *
-     * @param string                                    $name
-     * @param array                                     $payload
-     * @param string|\System\Carbon|\DateTime|int|null  $dispatch_at
+     * @param string                                   $name
+     * @param array                                    $payload
+     * @param string|\System\Carbon|\DateTime|int|null $dispatch_at
      *
      * @return \System\Job\Pending
      */

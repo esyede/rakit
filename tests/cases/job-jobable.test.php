@@ -111,7 +111,7 @@ class JobJobableTest extends \PHPUnit_Framework_TestCase
     {
         $payload = [
             'class' => 'TestJobableHandler',
-            'data'  => ['key' => 'executed_value'],
+            'data' => ['key' => 'executed_value'],
         ];
 
         TestJobableHandler::execute($payload);
@@ -213,7 +213,7 @@ class JobJobableTest extends \PHPUnit_Framework_TestCase
 
 class TestJobableHandler extends \System\Job\Jobable
 {
-    public static $lastRun = null;
+    public static $lastRun;
 
     public function run()
     {

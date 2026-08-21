@@ -465,7 +465,7 @@ class FacileTest extends \PHPUnit_Framework_TestCase
 }
 
 /**
- * Test model
+ * Test model.
  */
 class TestModel extends \System\Database\Facile\Model
 {

@@ -68,7 +68,7 @@ class Fiddle
     }
 
     /**
-     * Sets the Repl prompt text
+     * Sets the Repl prompt text.
      *
      * @param string $prompt
      */
@@ -94,7 +94,7 @@ class Fiddle
      */
     public function start()
     {
-        declare (ticks = 1);
+        declare(ticks = 1);
         /** @disregard */
         pcntl_signal(SIGINT, SIG_IGN, true);
 

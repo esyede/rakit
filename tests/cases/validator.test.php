@@ -467,8 +467,6 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Validator::make($input, $rules)->valid());
     }
 
-
-
     /**
      * Test for 'image' rule.
      *

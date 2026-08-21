@@ -32,6 +32,7 @@ class FacileCursorTest extends \PHPUnit_Framework_TestCase
         $query = (new CursorTestModel())->query();
         $this->assertTrue(method_exists($query, 'cursor'));
     }
+
     /**
      * Test that cursor() can be called statically on the model.
      *

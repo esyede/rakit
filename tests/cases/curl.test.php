@@ -16,12 +16,12 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     /**
      * @var bool|null
      */
-    private static $skipNetworkTests = null;
+    private static $skipNetworkTests;
 
     /**
      * @var resource|null
      */
-    private static $process = null;
+    private static $process;
 
     /**
      * Bring up the mock endpoint. These tests used to fire ~30 live requests

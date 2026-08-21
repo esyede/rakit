@@ -747,7 +747,7 @@ class Debugger
     /**
      * Measure how long a block of code takes and record it on the Timeline
      * panel. Returns whatever the callback returns, so it can wrap an
-     * expression transparently:
+     * expression transparently:.
      *
      *     $users = Debugger::measure('Load users', function () {
      *         return User::all();
@@ -772,7 +772,7 @@ class Debugger
 
     /**
      * Start a named measure on the Timeline panel. Pair with stopMeasure() to
-     * time a region of code that is not a single callback:
+     * time a region of code that is not a single callback:.
      *
      *     Debugger::startMeasure('import');
      *     // ... work ...
@@ -842,7 +842,7 @@ class Debugger
                     Dumper::DEPTH => self::$maxDepth,
                     Dumper::TRUNCATE => self::$maxLength,
                     Dumper::LOCATION => self::$showLocation ?: (Dumper::LOCATION_CLASS | Dumper::LOCATION_SOURCE),
-                ])
+                ]),
             ];
         }
 

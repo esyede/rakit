@@ -305,8 +305,6 @@ class Autoloader
         }, $directories);
     }
 
-
-
     /**
      * Get statistics for debugging.
      *

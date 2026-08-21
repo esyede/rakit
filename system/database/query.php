@@ -133,7 +133,6 @@ class Query
      * @param Connection   $connection
      * @param QueryGrammar $grammar
      * @param string       $table
-     *
      */
     public function __construct(Connection $connection, QueryGrammar $grammar, $table)
     {
@@ -564,6 +563,7 @@ class Query
         // PHP < 5.5.0 does not support yield, directly return the results of get()
         return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
     }
+
     /**
      * Find a record by primary key.
      *
@@ -608,7 +608,7 @@ class Query
     /**
      * Execute the INSERT query and get the inserted ID.
      *
-     * @param array $values
+     * @param array  $values
      * @param string $column
      *
      * @return int
@@ -1070,14 +1070,14 @@ class Query
 
         if (is_null($key)) {
             return array_map(function ($result) use ($column) {
-                return $result->$column;
+                return $result->{$column};
             }, $results);
         }
 
         $list = [];
 
         foreach ($results as $result) {
-            $list[$result->$key] = $result->$column;
+            $list[$result->{$key}] = $result->{$column};
         }
 
         return $list;
@@ -1313,7 +1313,7 @@ class Query
                 return false;
             }
 
-            $last_id = $results[$counts - 1]->$alias;
+            $last_id = $results[$counts - 1]->{$alias};
         } while ($counts === $count);
 
         return true;

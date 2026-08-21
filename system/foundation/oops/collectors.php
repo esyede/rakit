@@ -34,7 +34,7 @@ class Collectors
      *
      * @var array|null
      */
-    private static $collectorConfig = null;
+    private static $collectorConfig;
     private static $collectorConfigLoaded = false;
     private static $resolvingConfig = false;
 

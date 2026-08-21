@@ -112,7 +112,7 @@ class HasManyThrough extends Relationship
 
         $this->table->select([
             $this->model->table() . '.*',
-            $through_table . '.' . $this->first_key . ' as rakit_through_key'
+            $through_table . '.' . $this->first_key . ' as rakit_through_key',
         ]);
     }
 

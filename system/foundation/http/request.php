@@ -500,7 +500,7 @@ class Request
     }
 
     /**
-     * Get the path info for the current request. Sample:
+     * Get the path info for the current request. Sample:.
      *
      * <code>
      *
@@ -524,7 +524,7 @@ class Request
     }
 
     /**
-     * Get base path. Sample:
+     * Get base path. Sample:.
      *
      * <code>
      *
@@ -547,7 +547,7 @@ class Request
     }
 
     /**
-     * Get the base URL (without trailng slash suffix)
+     * Get the base URL (without trailng slash suffix).
      *
      * @return string
      */
@@ -967,7 +967,7 @@ class Request
     }
 
     /**
-     * Get the prefered language
+     * Get the prefered language.
      *
      * @param array $locales
      *

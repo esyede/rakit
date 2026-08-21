@@ -72,12 +72,12 @@ class HttpHelperTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new Helper([]);
         $bag->setCookie(new Cookie('foo', 'bar'));
-        $this->assertContains("Set-Cookie: foo=bar; samesite=lax; httponly", explode("\r\n", $bag->__toString()));
+        $this->assertContains('Set-Cookie: foo=bar; samesite=lax; httponly', explode("\r\n", $bag->__toString()));
 
         $bag->clearCookie('foo');
 
         $this->assertContains(
-            "Set-Cookie: foo=deleted; expires=" . gmdate("D, d-M-Y H:i:s T", time() - 31536001) . "; samesite=lax; httponly",
+            'Set-Cookie: foo=deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001) . '; samesite=lax; httponly',
             explode("\r\n", $bag->__toString())
         );
     }
@@ -116,10 +116,10 @@ class HttpHelperTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(4, $bag->getCookies());
 
         $headers = explode("\r\n", $bag->__toString());
-        $this->assertContains("Set-Cookie: foo=bar; path=/path/foo; samesite=lax; domain=foo.bar; httponly", $headers);
-        $this->assertContains("Set-Cookie: foo=bar; path=/path/foo; samesite=lax; domain=foo.bar; httponly", $headers);
-        $this->assertContains("Set-Cookie: foo=bar; path=/path/bar; samesite=lax; domain=bar.foo; httponly", $headers);
-        $this->assertContains("Set-Cookie: foo=bar; samesite=lax; httponly", $headers);
+        $this->assertContains('Set-Cookie: foo=bar; path=/path/foo; samesite=lax; domain=foo.bar; httponly', $headers);
+        $this->assertContains('Set-Cookie: foo=bar; path=/path/foo; samesite=lax; domain=foo.bar; httponly', $headers);
+        $this->assertContains('Set-Cookie: foo=bar; path=/path/bar; samesite=lax; domain=bar.foo; httponly', $headers);
+        $this->assertContains('Set-Cookie: foo=bar; samesite=lax; httponly', $headers);
 
         $cookies = $bag->getCookies(Helper::COOKIES_ARRAY);
         $this->assertTrue(isset($cookies['foo.bar']['/path/foo']['foo']));

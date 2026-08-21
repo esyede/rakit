@@ -127,7 +127,7 @@ class Logger
     }
 
     /**
-     * @param mixed $message
+     * @param mixed  $message
      * @param string $excfile
      * @param string $priority
      *

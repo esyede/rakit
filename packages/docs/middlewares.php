@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Routing\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Middleware

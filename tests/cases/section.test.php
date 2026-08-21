@@ -96,8 +96,6 @@ class SectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('<script>alert(1);</script><script>alert(2);</script>', Section::stack('scripts'));
     }
 
-
-
     /**
      * Test for yield_content with empty value.
      *

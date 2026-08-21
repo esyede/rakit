@@ -27,7 +27,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testGeneratorReturnsNullByDefault()
     {
-        $generator = new Common;
+        $generator = new Common();
         $this->assertSame(null, $generator->value);
     }
 
@@ -46,7 +46,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testAddProviderGivesPriorityToNewlyAddedProvider()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $generator->addProvider(new FooProvider());
         $generator->addProvider(new BarProvider());
         $this->assertEquals('barfoo', $generator->format('fooFormatter'));
@@ -54,7 +54,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetFormatterReturnsCallable()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
         $this->assertTrue(is_callable($generator->getFormatter('fooFormatter')));
@@ -62,10 +62,10 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetFormatterReturnsCorrectFormatter()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
-        $expected = array($provider, 'fooFormatter');
+        $expected = [$provider, 'fooFormatter'];
         $this->assertEquals($expected, $generator->getFormatter('fooFormatter'));
     }
 
@@ -74,7 +74,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFormatterThrowsExceptionOnIncorrectProvider()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $generator->getFormatter('fooFormatter');
     }
 
@@ -83,7 +83,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetFormatterThrowsExceptionOnIncorrectFormatter()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
         $generator->getFormatter('barFormatter');
@@ -91,7 +91,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testFormatCallsFormatterOnProvider()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
         $this->assertEquals('foobar', $generator->format('fooFormatter'));
@@ -99,10 +99,10 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testFormatTransfersArgumentsToFormatter()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
-        $this->assertEquals('bazfoo', $generator->format('fooFormatterWithArguments', array('foo')));
+        $this->assertEquals('bazfoo', $generator->format('fooFormatterWithArguments', ['foo']));
     }
 
     public function testParseReturnsSameStringWhenItContainsNoCurlyBraces()
@@ -121,7 +121,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testMagicGetCallsFormat()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
         $this->assertEquals('foobar', $generator->fooFormatter);
@@ -129,7 +129,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testMagicCallCallsFormat()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
         $this->assertEquals('foobar', $generator->fooFormatter());
@@ -137,7 +137,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testMagicCallCallsFormatWithArguments()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $provider = new FooProvider();
         $generator->addProvider($provider);
         $this->assertEquals('bazfoo', $generator->fooFormatterWithArguments('foo'));
@@ -145,7 +145,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
 
     public function testSeed()
     {
-        $generator = new FakerGenerator;
+        $generator = new FakerGenerator();
         $generator->seed(0);
         $mtRandWithSeedZero = mt_rand();
         $generator->seed(0);
@@ -198,7 +198,7 @@ class FakerTest extends \PHPUnit_Framework_TestCase
             [37144963539843, '1'],
             [561059108101825, '0'],
             [601100099013942, '4'],
-            [510510510510510, '0']
+            [510510510510510, '0'],
         ];
     }
 

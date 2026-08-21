@@ -29,7 +29,7 @@ class Readline
     {
         readline_read_history($history);
 
-        declare (ticks = 1);
+        declare(ticks = 1);
         /** @disregard */
         pcntl_signal(SIGCHLD, SIG_IGN);
         /** @disregard */

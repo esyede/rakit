@@ -143,7 +143,7 @@ class Section
      */
     public static function yield_section($section = null)
     {
-        return static::yield_content((null === $section) ?  static::stop() : $section);
+        return static::yield_content((null === $section) ? static::stop() : $section);
     }
 
     /**

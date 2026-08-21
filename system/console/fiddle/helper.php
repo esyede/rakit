@@ -35,7 +35,7 @@ class Helper
                 case 'h':
                 case 'help':
 
-                    echo <<<USAGE
+                    echo <<<'USAGE'
 Usage: repl [options]
 repl is a tiny REPL for PHP
 

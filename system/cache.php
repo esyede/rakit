@@ -25,7 +25,7 @@ class Cache
      *
      * @var string|null
      */
-    private static $processed_key = null;
+    private static $processed_key;
 
     /**
      * Get processed cache key prefix.

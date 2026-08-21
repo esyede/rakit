@@ -436,12 +436,12 @@ class Image
 
         imagecopy($this->image, $watermark, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
 
-         if (PHP_VERSION_ID < 80000) {
-             /** @disregard */
-             imagedestroy($watermark);
-         } else {
-             $watermark = null;
-         }
+        if (PHP_VERSION_ID < 80000) {
+            /** @disregard */
+            imagedestroy($watermark);
+        } else {
+            $watermark = null;
+        }
 
         return $this;
     }

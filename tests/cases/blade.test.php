@@ -120,7 +120,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $out12 = "<?php if (\System\Auth::guest()): ?>\nfoo\n<?php endif; ?>";
         $out13 = "<?php if (\System\Auth::check()): ?>\nfoo\n<?php endif; ?>";
         $out14 = "<?php if (\$errors->has('foo')): ?>\nfoo\n<?php endif; ?>";
-        $out15 = "<input type=\"hidden\" name=\"_method\" value=\"PUT\" />";
+        $out15 = '<input type="hidden" name="_method" value="PUT" />';
         $out16 = "<?php \System\Section::push('scripts') ?>\n<script></script>\n<?php \System\Section::endpush() ?>";
         $out17 = "<?php echo \System\Section::stack('scripts') ?>";
         $out18 = "<?php if (\System\Section::has('content')): ?>\nContent\n<?php endif; ?>";

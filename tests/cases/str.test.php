@@ -325,28 +325,28 @@ class StrTest extends \PHPUnit_Framework_TestCase
 
     public function testNanoid()
     {
-       $this->assertTrue(8 === strlen(Str::nanoid(8)));
-       $this->assertTrue(21 === strlen(Str::nanoid(21)));
+        $this->assertTrue(8 === strlen(Str::nanoid(8)));
+        $this->assertTrue(21 === strlen(Str::nanoid(21)));
 
-       try {
-           Str::nanoid(7);
-       } catch (\Throwable $e) {
-           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
-       } catch (\Exception $e) {
-           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
-       }
+        try {
+            Str::nanoid(7);
+        } catch (\Throwable $e) {
+            $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+        } catch (\Exception $e) {
+            $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+        }
 
-       try {
-           Str::nanoid(22);
-       } catch (\Throwable $e) {
-           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
-       } catch (\Exception $e) {
-           $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
-       }
+        try {
+            Str::nanoid(22);
+        } catch (\Throwable $e) {
+            $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+        } catch (\Exception $e) {
+            $this->assertTrue($e->getMessage() === 'The size parameter should be between 8 to 21.');
+        }
 
-       $this->assertTrue(false !== preg_match('/^[a-c1-3]+$/', Str::nanoid(10, 'abc123')));
-       $this->assertTrue(10 === strlen(Str::nanoid(10, 'abc123')));
-       $this->assertTrue(10 === strlen(Str::nanoid(10, '')));
+        $this->assertTrue(false !== preg_match('/^[a-c1-3]+$/', Str::nanoid(10, 'abc123')));
+        $this->assertTrue(10 === strlen(Str::nanoid(10, 'abc123')));
+        $this->assertTrue(10 === strlen(Str::nanoid(10, '')));
     }
 
     public function testCuid()

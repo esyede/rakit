@@ -351,7 +351,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
 
         $request = new Request();
 
-        $request->initialize([], [], [], [], [],$server);
+        $request->initialize([], [], [], [], [], $server);
         $this->assertEquals('http://hostname:8080/index.php/some/path', $request->getUriForPath('/some/path'));
 
         $server['HTTP_HOST'] = 'hostname';
@@ -558,17 +558,17 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetContentWorksTwiceInDefaultMode()
     {
-        $req = new Request;
+        $req = new Request();
         $this->assertEquals('', $req->getContent());
         $this->assertEquals('', $req->getContent());
     }
 
     public function testGetContentReturnsResource()
     {
-        $req = new Request;
+        $req = new Request();
         $retval = $req->getContent(true);
         $this->assertInternalType('resource', $retval);
-        $this->assertEquals("", fread($retval, 1));
+        $this->assertEquals('', fread($retval, 1));
         $this->assertTrue(feof($retval));
     }
 
@@ -578,7 +578,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetContentCantBeCalledTwiceWithResources($first, $second)
     {
-        $req = new Request;
+        $req = new Request();
         $req->getContent($first);
         $req->getContent($second);
     }
@@ -943,7 +943,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testUrlencodedStringPrefix($string, $prefix, $expect)
     {
-        $request = new Request;
+        $request = new Request();
         $me = new \ReflectionMethod($request, 'getUrlencodedPrefix');
         /** @disregard */
         PHP_VERSION_ID < 80100 && $me->setAccessible(true);

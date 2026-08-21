@@ -286,11 +286,11 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         $payloads = ['foo' => 'bar', 'sub' => 'user123'];
         $encoded = JWT::encode($payloads, 'secret');
         $decoded = JWT::decode($encoded, 'secret', [
-            'validator' => function($payloads, $headers) {
+            'validator' => function ($payloads, $headers) {
                 if (!isset($payloads->sub)) {
                     throw new \Exception('Missing subject');
                 }
-            }
+            },
         ]);
         $this->assertEquals('bar', $decoded->foo);
     }
@@ -300,7 +300,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         try {
             $payloads = ['foo' => 'bar'];
             $encoded = JWT::encode($payloads, 'secret');
-            $decoded = JWT::decode($encoded, 'secret', ['validator' => function($payloads, $headers) {
+            $decoded = JWT::decode($encoded, 'secret', ['validator' => function ($payloads, $headers) {
                 if (!isset($payloads->sub)) {
                     throw new \Exception('Missing subject');
                 }

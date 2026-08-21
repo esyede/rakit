@@ -70,15 +70,15 @@ class HttpHeaderTest extends \PHPUnit_Framework_TestCase
     {
         $bag = new Header(['foo' => 'bar', 'fuzz' => 'bizz']);
 
-        $this->assertTrue(  $bag->contains('foo', 'bar'));
-        $this->assertTrue(  $bag->contains('fuzz', 'bizz'));
-        $this->assertFalse(  $bag->contains('nope', 'nope'));
-        $this->assertFalse(  $bag->contains('foo', 'nope'));
+        $this->assertTrue($bag->contains('foo', 'bar'));
+        $this->assertTrue($bag->contains('fuzz', 'bizz'));
+        $this->assertFalse($bag->contains('nope', 'nope'));
+        $this->assertFalse($bag->contains('foo', 'nope'));
 
         $bag->set('foo', 'bor', false);
-        $this->assertTrue(  $bag->contains('foo', 'bar'));
-        $this->assertTrue(  $bag->contains('foo', 'bor'));
-        $this->assertFalse(  $bag->contains('foo', 'nope'));
+        $this->assertTrue($bag->contains('foo', 'bar'));
+        $this->assertTrue($bag->contains('foo', 'bor'));
+        $this->assertFalse($bag->contains('foo', 'nope'));
     }
 
     public function testCacheControlDirectiveAccessors()
@@ -132,7 +132,7 @@ class HttpHeaderTest extends \PHPUnit_Framework_TestCase
 
     public function testGetIterator()
     {
-        $headers   = ['foo' => 'bar', 'hello' => 'world', 'third' => 'charm'];
+        $headers = ['foo' => 'bar', 'hello' => 'world', 'third' => 'charm'];
         $header = new Header($headers);
 
         $i = 0;
@@ -146,7 +146,7 @@ class HttpHeaderTest extends \PHPUnit_Framework_TestCase
 
     public function testCount()
     {
-        $headers   = ['foo' => 'bar', 'HELLO' => 'WORLD'];
+        $headers = ['foo' => 'bar', 'HELLO' => 'WORLD'];
         $header = new Header($headers);
 
         $this->assertEquals(count($headers), count($header));

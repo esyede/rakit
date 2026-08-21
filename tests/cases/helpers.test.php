@@ -4,7 +4,6 @@ defined('DS') or exit('No direct access.');
 
 use System\Cache;
 use System\Config;
-use System\Str;
 
 class HelpersTest extends \PHPUnit_Framework_TestCase
 {

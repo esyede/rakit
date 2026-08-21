@@ -336,7 +336,7 @@ class Paginator
     {
         return TAB . TAB . '<li ' . trim(static::attributes(['class' => $class . ' page-item'])) . '>' .
             '<a class="page-link" href="' . URI::current() . '?page=' . $page . $this->appendage($this->appends) .
-            '">' .  e($text) . '</a></li>' . LF;
+            '">' . e($text) . '</a></li>' . LF;
     }
 
     /**

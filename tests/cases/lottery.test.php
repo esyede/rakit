@@ -133,14 +133,14 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
             throw new \RuntimeException('Missing key in sequence.');
         });
 
-        $result = Lottery::odds(1, 10000)->winner(function() {
+        $result = Lottery::odds(1, 10000)->winner(function () {
             return 'winner';
         })->loser(function () {
             return 'loser';
         })->choose();
         $this->assertSame('winner', $result);
 
-        $result = Lottery::odds(1, 10000)->winner(function() {
+        $result = Lottery::odds(1, 10000)->winner(function () {
             return 'winner';
         })->loser(function () {
             return 'loser';
@@ -149,7 +149,7 @@ class LotteryTest extends \PHPUnit_Framework_TestCase
 
         $message = null;
         try {
-            Lottery::odds(1, 10000)->winner(function() {
+            Lottery::odds(1, 10000)->winner(function () {
                 return 'winner';
             })->loser(function () {
                 return 'loser';

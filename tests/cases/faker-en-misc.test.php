@@ -24,7 +24,7 @@ class FakerEnMiscTest extends \PHPUnit_Framework_TestCase
 
     public function testBoolean()
     {
-        $this->assertContains(Miscellaneous::boolean(), array(true, false));
+        $this->assertContains(Miscellaneous::boolean(), [true, false]);
     }
 
     public function testMd5()

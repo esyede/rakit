@@ -633,7 +633,7 @@ if (!function_exists('session')) {
     }
 }
 
-if (! function_exists('collect')) {
+if (!function_exists('collect')) {
     /**
      * Create collection from given value.
      *
@@ -890,7 +890,7 @@ if (!function_exists('value')) {
     }
 }
 
-if (! function_exists('when')) {
+if (!function_exists('when')) {
     /**
      * Return a value if the condition is true.
      *
@@ -1007,6 +1007,7 @@ if (!function_exists('section_stop')) {
 if (!function_exists('section_inject')) {
     /**
      * Inject content into a section.
+     *
      * @param string $section
      * @param string $content
      *

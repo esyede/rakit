@@ -138,7 +138,7 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
         $statements = $parser->statements("// komentar\n\$a = 1;");
         $this->assertContains('$a = 1;', implode('', $statements));
 
-        $statements = $parser->statements("/* komentar */ \$a = 1;");
+        $statements = $parser->statements('/* komentar */ $a = 1;');
         $this->assertContains('$a = 1;', implode('', $statements));
     }
 

@@ -2,7 +2,6 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Foundation\Faker\Generator as FakerGenerator;
 use System\Foundation\Faker\Provider\Dates;
 
 class FakerEnDatesTest extends \PHPUnit_Framework_TestCase
@@ -69,7 +68,6 @@ class FakerEnDatesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     *
      * @dataProvider providerDateTimeBetween
      */
     public function testDateTimeBetween($start, $end)

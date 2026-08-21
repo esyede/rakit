@@ -142,7 +142,7 @@ class DatabaseExtrasTest extends \PHPUnit_Framework_TestCase
     {
         $join = new Join('LEFT', 'tags');
         $join->on('posts.id', '=', 'tags.post_id')
-             ->or_on('posts.id', '=', 'tags.other_id');
+            ->or_on('posts.id', '=', 'tags.other_id');
 
         $this->assertCount(2, $join->clauses);
         $this->assertEquals('AND', $join->clauses[0]['connector']);

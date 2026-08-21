@@ -5,7 +5,6 @@ namespace System\Database\Connectors;
 defined('DS') or exit('No direct access.');
 
 use PDO;
-use System\Str;
 
 class SQLite extends Connector
 {

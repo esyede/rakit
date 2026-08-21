@@ -66,16 +66,16 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-	 * Test for environment-specific configuration overrides.
-	 *
-	 * @group system
-	 */
-	public function testEnvironmentConfigsOverrideNormalConfigurations()
-	{
-		$_SERVER['RAKIT_ENV'] = 'local';
-		$this->assertEquals('sqlite', Config::get('database.default'));
-		unset($_SERVER['RAKIT_ENV']);
-	}
+     * Test for environment-specific configuration overrides.
+     *
+     * @group system
+     */
+    public function testEnvironmentConfigsOverrideNormalConfigurations()
+    {
+        $_SERVER['RAKIT_ENV'] = 'local';
+        $this->assertEquals('sqlite', Config::get('database.default'));
+        unset($_SERVER['RAKIT_ENV']);
+    }
 
     /**
      * Test for setting items after entire file is loaded.

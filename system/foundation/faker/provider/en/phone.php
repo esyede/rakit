@@ -37,7 +37,7 @@ class Phone extends BasePhone
     }
 
     public static function areaCode()
-    {;
+    {
         return static::numberBetween(2, 9) . static::randomDigit() . static::randomDigitNotNull(static::randomDigit());
     }
 

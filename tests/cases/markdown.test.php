@@ -83,8 +83,8 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseEmphasis()
     {
-        $input = "*italic* **bold**";
-        $expected = "<p><em>italic</em> <strong>bold</strong></p>";
+        $input = '*italic* **bold**';
+        $expected = '<p><em>italic</em> <strong>bold</strong></p>';
         $output = \System\Markdown::parse($input);
         $this->assertEquals($expected, $output);
     }
@@ -105,8 +105,8 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseLinks()
     {
-        $input = "[Link](http://example.com)";
-        $expected = "<p><a href=\"http://example.com\">Link</a></p>";
+        $input = '[Link](http://example.com)';
+        $expected = '<p><a href="http://example.com">Link</a></p>';
         $output = \System\Markdown::parse($input);
         $this->assertEquals($expected, $output);
     }
@@ -116,8 +116,8 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseCode()
     {
-        $input = "`inline code`";
-        $expected = "<p><code>inline code</code></p>";
+        $input = '`inline code`';
+        $expected = '<p><code>inline code</code></p>';
         $output = \System\Markdown::parse($input);
         $this->assertEquals($expected, $output);
     }
@@ -128,7 +128,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
     public function testParseFencedCode()
     {
         $input = "```\ncode block\n```";
-        $expected = "<pre><code>code block</code></pre>";
+        $expected = '<pre><code>code block</code></pre>';
         $output = \System\Markdown::parse($input);
         $this->assertEquals($expected, $output);
     }
@@ -138,7 +138,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseBlockquote()
     {
-        $input = "> Quote";
+        $input = '> Quote';
         $expected = "<blockquote>\n<p>Quote</p>\n</blockquote>";
         $output = \System\Markdown::parse($input);
         $this->assertEquals($expected, $output);
@@ -249,7 +249,7 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $markdown = new \System\Markdown();
         $markdown->linkify(true);
 
-        $input = "Visit http://example.com";
+        $input = 'Visit http://example.com';
         $output = $markdown->translate($input);
         $this->assertContains('<a href="http://example.com">http://example.com</a>', $output);
     }

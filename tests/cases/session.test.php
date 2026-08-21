@@ -276,8 +276,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($session['data'][':new:'], $payload->session['data'][':old:']);
     }
 
-
-
     /**
      * Test for Payload::save() - 4.
      *

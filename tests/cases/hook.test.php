@@ -19,9 +19,7 @@ class HookTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        unset(Hook::$events['test.event']);
-        unset(Hook::$queued['test.queue']);
-        unset(Hook::$flushers['test.queue']);
+        unset(Hook::$events['test.event'], Hook::$queued['test.queue'], Hook::$flushers['test.queue']);
     }
 
     /**

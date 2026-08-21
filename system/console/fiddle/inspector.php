@@ -140,7 +140,7 @@ class Inspector
                 }
 
                 return $self->dump($v);
-            }, array_values($vars)))
+            }, array_values($vars))),
         ];
     }
 
@@ -154,11 +154,10 @@ class Inspector
             implode(",\n", array_map(function ($k) use ($self, $children, $indent) {
                 if (is_array($children[$k])) {
                     return sprintf('%s%s => %s', str_repeat(' ', ($indent + 1) * 2), $k, $self->stringify($children[$k], $indent + 1));
-                } else {
-                    return sprintf('%s%s => %s', str_repeat(' ', ($indent + 1) * 2), $k, $children[$k]);
                 }
+                return sprintf('%s%s => %s', str_repeat(' ', ($indent + 1) * 2), $k, $children[$k]);
             }, array_keys($children))),
-            sprintf('%s)', str_repeat(' ', $indent * 2))
+            sprintf('%s)', str_repeat(' ', $indent * 2)),
         ]);
     }
 

@@ -23,7 +23,7 @@ class Defaults
             'JOIN', 'LEFT\s+JOIN', 'RIGHT\s+JOIN', 'INNER\s+JOIN', 'OUTER\s+JOIN',
             'FULL\s+JOIN', 'CROSS\s+JOIN', 'NATURAL\s+JOIN',
             'CREATE', 'ALTER', 'DROP', 'SHOW', 'DESCRIBE', 'DESC', 'EXPLAIN',
-            'GRANT', 'REVOKE', 'CALL', 'EXECUTE', 'BEGIN', 'COMMIT', 'ROLLBACK'
+            'GRANT', 'REVOKE', 'CALL', 'EXECUTE', 'BEGIN', 'COMMIT', 'ROLLBACK',
         ],
         'keywords2' => [
             // Secondary SQL keywords (clauses, functions, operators)
@@ -34,11 +34,11 @@ class Defaults
             'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'IF', 'IFNULL', 'COALESCE',
             'COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'GROUP_CONCAT',
             'CAST', 'CONVERT', 'CONCAT', 'LENGTH', 'SUBSTRING',
-            'NOW', 'CURRENT_DATE', 'CURRENT_TIME', 'CURRENT_TIMESTAMP'
+            'NOW', 'CURRENT_DATE', 'CURRENT_TIME', 'CURRENT_TIMESTAMP',
         ],
     ];
 
-    private static $sqlKeywordsCache = null;
+    private static $sqlKeywordsCache;
 
     /**
      * Map panel id to the config('debugger.collectors') key so a disabled
@@ -180,7 +180,7 @@ class Defaults
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'performance',
-                'message' => 'Use <code>SELECT *</code> only if you need all columns. Specify only needed columns for better performance.'
+                'message' => 'Use <code>SELECT *</code> only if you need all columns. Specify only needed columns for better performance.',
             ];
         }
 
@@ -200,12 +200,12 @@ class Defaults
                 'severity' => 'warning',
                 'category' => 'performance',
                 'message' => 'Leading wildcard in <code>LIKE</code> pattern: <code>' . htmlspecialchars($matches[1]) . '</code>.
-                This prevents index usage and causes full table scan. Consider full-text search for better performance.'
+                This prevents index usage and causes full table scan. Consider full-text search for better performance.',
             ];
         }
 
         // OFFSET with large values
-        if (preg_match('/OFFSET\\s+(\\d+)/i', $sql, $matches) && (int)$matches[1] > 1000) {
+        if (preg_match('/OFFSET\\s+(\\d+)/i', $sql, $matches) && (int) $matches[1] > 1000) {
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'performance',
@@ -481,12 +481,12 @@ class Defaults
         // Detect query type
         if (preg_match('/select\s+.*\s+from\s+(\w+)\s+where/i', $pattern, $matches)) {
             $table = $matches[1];
-            $suggestions[] = "<strong>Solutions:</strong>";
-            $suggestions[] = "1. <strong>Eager Loading (ORM):</strong> If using Facile ORM, use <code>with()</code> method:"; // Eager Loading suggestion
+            $suggestions[] = '<strong>Solutions:</strong>';
+            $suggestions[] = '1. <strong>Eager Loading (ORM):</strong> If using Facile ORM, use <code>with()</code> method:'; // Eager Loading suggestion
             $suggestions[] = "<code>Model::with('relation')->get();</code>";
             $suggestions[] = "2. <strong>Use JOIN:</strong> Combine queries using JOIN instead of {$count} separate queries:"; // JOIN suggestion
             $suggestions[] = "<code>SELECT ... FROM main_table JOIN {$table} ON ...</code>";
-            $suggestions[] = "3. <strong>Use IN clause:</strong> Fetch all at once:"; // IN clause suggestion
+            $suggestions[] = '3. <strong>Use IN clause:</strong> Fetch all at once:'; // IN clause suggestion
             $suggestions[] = "<code>SELECT * FROM {$table} WHERE id IN (?, ?, ...)</code>";
         }
 

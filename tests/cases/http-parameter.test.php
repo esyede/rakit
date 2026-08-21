@@ -147,7 +147,6 @@ class HttpParameterTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($bag->filter('dec', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]]));
         $this->assertFalse($bag->filter('hex', '', false, FILTER_VALIDATE_INT, ['flags' => FILTER_FLAG_ALLOW_HEX, 'options' => ['min_range' => 1, 'max_range' => 0xff]]));
         $this->assertEquals(['bang'], $bag->filter('array', '', false));
-
     }
 
     public function testGetIterator()

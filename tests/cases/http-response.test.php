@@ -581,7 +581,7 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
             'setCharset' => 'UTF-8',
             'setPublic' => null,
             'setPrivate' => null,
-            'setDate' => new \DateTime,
+            'setDate' => new \DateTime(),
             'expire' => null,
             'setMaxAge' => 1,
             'setSharedMaxAge' => 1,
@@ -596,12 +596,12 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
 
     public function validContentProvider()
     {
-        return ['obj' => [new StringableObjectMock], 'string' => ['Foo'], 'int' => [2]];
+        return ['obj' => [new StringableObjectMock()], 'string' => ['Foo'], 'int' => [2]];
     }
 
     public function invalidContentProvider()
     {
-        return ['obj' => [new \stdClass], 'array' => [[]], 'bool' => [true, '1']];
+        return ['obj' => [new \stdClass()], 'array' => [[]], 'bool' => [true, '1']];
     }
 
     protected function createDateTimeOneHourAgo()
