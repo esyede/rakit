@@ -708,6 +708,33 @@ abstract class Driver
     }
 
     /**
+     * Get the envelope sender for the '-f' option, or NULL when there is none
+     * fit to use.
+     *
+     * Note: this value ends up on the sendmail command line - mail() hands the
+     * additional parameters to the MTA after escapeshellcmd(), which leaves
+     * spaces alone, so an address carrying them can smuggle in extra sendmail
+     * options (the CVE-2016-10033 shape). Only a plain, valid address goes
+     * through; anything else means no '-f' at all.
+     *
+     * @return string|null
+     */
+    protected function envelope_sender()
+    {
+        $sender = (false !== $this->config['return_path'])
+            ? $this->config['return_path']
+            : $this->config['from']['email'];
+
+        $sender = static::sanitize_header($sender);
+
+        if ('' === $sender || preg_match('/\s/', $sender)) {
+            return null;
+        }
+
+        return filter_var($sender, FILTER_VALIDATE_EMAIL) ? $sender : null;
+    }
+
+    /**
      * Get the email header(s).
      *
      * @param string $header

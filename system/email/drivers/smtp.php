@@ -77,7 +77,12 @@ class Smtp extends Driver
             $this->authenticate();
         }
 
+        // Note: these two go on the wire as SMTP commands, which are line based.
+        // Recipients are already stripped of CR/LF when they are appended, but
+        // the return path can also come straight out of the config file, so it
+        // gets the same treatment here.
         $retpath = empty($this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
+        $retpath = static::sanitize_header($retpath);
         $this->command('MAIL FROM: <' . $retpath . '>', 250);
 
         $lists = ['to', 'cc', 'bcc'];
@@ -87,7 +92,7 @@ class Smtp extends Driver
                 throw new \Exception('Invalid recipient list for ' . $list . ': must be an array.');
             }
             foreach ($this->{$list} as $recipient) {
-                $this->command('RCPT TO: <' . $recipient['email'] . '>', [250, 251]);
+                $this->command('RCPT TO: <' . static::sanitize_header($recipient['email']) . '>', [250, 251]);
             }
         }
 

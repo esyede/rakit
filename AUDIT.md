@@ -8,8 +8,8 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 | --- | ---: | ---: |
 | Test | 1668 | 1905 |
 | Assertion | 5266 | 6346 |
-| Bug ditemukan & diperbaiki | — | 152 |
-| Berkas `system/` yang tidak pernah ter-load saat test | 72 | 44 |
+| Bug ditemukan & diperbaiki | — | 157 |
+| Berkas `system/` yang tidak pernah ter-load saat test | 72 | 43 |
 | Coverage baris — hanya berkas yang ter-load | 64.20% | **70.65%** |
 | Coverage baris — **seluruh `system/`** | ~46% | **58.60%** |
 
@@ -216,6 +216,12 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 151 | `console/commands/session.php` `gc()` | Pesan "session table has been swept!" dicetak untuk semua driver, termasuk yang tidak menyentuh tabel apa pun | **fixed** |
 | 152 | `system/init.php` | Penyalinan `_ide_helper.php` dicoba setiap request; pada deployment read-only jadi peringatan berulang | **fixed** |
 
+| 153 | `email/drivers/{mail,sendmail}.php` | Return-path masuk ke opsi `-f` sendmail tanpa divalidasi; `mail()` hanya melewatkannya lewat `escapeshellcmd()` yang tidak menyentuh spasi, jadi alamat berisi spasi bisa menyelipkan opsi sendmail lain (bentuk CVE-2016-10033) | **fixed** |
+| 154 | `email/drivers/sendmail.php` | Hanya `-1` yang dianggap gagal; sendmail yang menolak pesan lalu keluar dengan status 67 tetap dilaporkan berhasil | **fixed** |
+| 155 | `email/drivers/smtp.php` `deliver()` | `return_path` dari berkas config langsung masuk ke perintah `MAIL FROM:` tanpa dibersihkan CR/LF-nya | **fixed** |
+| 156 | `console/commands/migrate/resolver.php` `resolve()` | Berkas migrasi yang hilang atau nama kelas yang tidak cocok berakhir sebagai fatal PHP telanjang, bukan pesan yang menyebut migrasi mana | **fixed** |
+| 157 | `memcached.php` `connection()` | Ekstensi yang tidak terpasang muncul sebagai 'Class Memcached not found', dan config yang kosong sebagai `TypeError` | **fixed** |
+
 ## Temuan (isolasi test)
 
 | # | Berkas | Ringkasan | Status |
@@ -258,9 +264,12 @@ Tiga putaran:
    bug dibuktikan dulu lewat skrip probe sebelum diperbaiki.
 2. **Putaran 2** (#124–#132) — telaah keamanan pada jalur unduh/pasang paket,
    migrator, dan driver cache APC.
-3. **Putaran 3** (#133–#152) — telaah statis berkas yang **belum punya test sama
-   sekali**: `foundation/oops/*`, seluruh `console/**`, `system/{boot,init}.php`,
-   dan `job/drivers/memcached.php`.
+3. **Putaran 3** (#133–#157) — telaah statis **seluruh 43 berkas yang tidak
+   pernah ter-load saat test berjalan**: `foundation/oops/*`, seluruh
+   `console/**`, driver email, keluarga memcached/APC, `system/{boot,init}.php`,
+   dan `job/drivers/memcached.php`. Daftarnya dihasilkan ulang dengan mencatat
+   `get_included_files()` di akhir proses phpunit, jadi cakupannya terverifikasi,
+   bukan dari ingatan.
 
 Karena putaran 3 mengaudit kode yang tidak dijalankan test mana pun, tiap temuan
 di sana dibuktikan dengan menjalankan potongan kodenya sendiri (mis. `vsprintf()`

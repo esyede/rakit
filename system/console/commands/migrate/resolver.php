@@ -86,9 +86,30 @@ class Resolver
             $name = (string) $migration['name'];
             $path = Package::path($package) . 'migrations' . DS;
 
-            require_once $path . $name . '.php';
+            // Note: a migration recorded in the table whose file has since been
+            // deleted, or one whose class does not match its file name, used to
+            // end the process with a bare PHP fatal instead of saying which
+            // migration was the problem.
+            if (!is_file($file = $path . $name . '.php')) {
+                throw new \Exception(sprintf(
+                    'Migration file is missing: %s (package: %s)',
+                    $name,
+                    $package
+                ));
+            }
+
+            require_once $file;
 
             $class = Package::class_prefix($package) . Str::classify(substr($name, 18));
+
+            if (!class_exists($class)) {
+                throw new \Exception(sprintf(
+                    'Migration class was not found: %s (expected in %s)',
+                    $class,
+                    $file
+                ));
+            }
+
             $migration = new $class();
             $instances[] = compact('package', 'name', 'migration');
         }

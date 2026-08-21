@@ -35,7 +35,20 @@ class Memcached
     public static function connection()
     {
         if (!static::$connection) {
-            static::$connection = static::connect(Config::get('cache.memcached'));
+            // Note: a missing extension used to surface as 'Class Memcached not
+            // found' from inside connect(), and a missing config section as a
+            // TypeError on its array parameter.
+            if (!class_exists('\Memcached')) {
+                throw new \Exception('The memcached extension is not installed or not enabled.');
+            }
+
+            $servers = Config::get('cache.memcached');
+
+            if (!is_array($servers) || empty($servers)) {
+                throw new \Exception('No memcached server configured in cache.memcached.');
+            }
+
+            static::$connection = static::connect($servers);
         }
 
         return static::$connection;
