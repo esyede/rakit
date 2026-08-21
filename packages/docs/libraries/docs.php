@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Arr;
 use System\Cache;
 use System\Markdown;
+use System\Str;
 
 class Docs
 {
@@ -110,6 +111,126 @@ class Docs
         ];
 
         return str_replace(array_keys($replacers), array_values($replacers), $sidebar);
+    }
+
+    /**
+     * Get the canonical URL of a page.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public static function canonical($name)
+    {
+        $name = trim(str_replace('\\', '/', $name), '/');
+        $name = ('home' === $name) ? '' : preg_replace('/\/home$/', '', $name);
+
+        return rtrim(url('docs/' . $name), '/');
+    }
+
+    /**
+     * Get the last modification time of a page.
+     *
+     * @param string $name
+     *
+     * @return int
+     */
+    public static function modified($name)
+    {
+        $path = static::path($name);
+        return is_file($path) ? filemtime($path) : time();
+    }
+
+    /**
+     * Build a meta description from rendered content.
+     *
+     * @param string $content
+     *
+     * @return string
+     */
+    public static function description($content)
+    {
+        preg_match_all('/<p\b[^>]*>(.*?)<\/p>/is', (string) $content, $matches);
+
+        foreach ($matches[1] as $paragraph) {
+            $text = strip_tags(str_replace('<', ' <', $paragraph));
+            $text = html_entity_decode($text, ENT_QUOTES, 'UTF-8');
+            $text = Str::trim(preg_replace('/\s+/u', ' ', $text));
+
+            if (Str::length($text) >= 40) {
+                return Str::limit($text, 157);
+            }
+        }
+
+        return 'Rakit framework documentation.';
+    }
+
+    /**
+     * Build breadcrumb trail for a page.
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public static function breadcrumbs($name)
+    {
+        $crumbs = [['name' => 'Home', 'url' => rtrim(url('/'), '/')]];
+        $name = trim(str_replace('\\', '/', $name), '/');
+        $name = ('home' === $name) ? '' : preg_replace('/\/home$/', '', $name);
+
+        if ('' === $name) {
+            $crumbs[] = ['name' => 'Documentation', 'url' => static::canonical('home')];
+            return $crumbs;
+        }
+
+        $crumbs[] = ['name' => 'Documentation', 'url' => static::canonical('home')];
+        $segments = explode('/', $name);
+        $last = array_pop($segments);
+        $walked = [];
+
+        foreach ($segments as $segment) {
+            $walked[] = $segment;
+            $path = implode('/', $walked);
+
+            if (static::exists($path . '/home')) {
+                $crumbs[] = ['name' => static::title($segment), 'url' => static::canonical($path)];
+            }
+        }
+
+        $crumbs[] = ['name' => static::title($last), 'url' => static::canonical($name)];
+
+        return $crumbs;
+    }
+
+    /**
+     * List every indexable page as `url => mtime`.
+     *
+     * @return array
+     */
+    public static function pages()
+    {
+        $srcdir = dirname(__DIR__) . DS . 'data';
+        $pages = [];
+
+        foreach (static::get_markdown_files($srcdir) as $file) {
+            $name = str_replace($srcdir . DS, '', $file);
+            $name = str_replace(DS, '/', substr($name, 0, -3));
+
+            if (false !== strpos($name, '000-sidebar')) {
+                continue;
+            }
+
+            $url = static::canonical($name);
+            $mtime = filemtime($file);
+
+            if (!isset($pages[$url]) || $pages[$url] < $mtime) {
+                $pages[$url] = $mtime;
+            }
+        }
+
+        ksort($pages);
+
+        return $pages;
     }
 
     /**

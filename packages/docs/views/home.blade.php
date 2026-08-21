@@ -19,7 +19,7 @@
 @section('content')
     <div class="docs__main">
         <div class="docs__bar">
-            <span class="eyebrow">Documentation &mdash; {{ RAKIT_VERSION }}</span>
+            <span class="eyebrow">Docs &mdash; {{ RAKIT_VERSION }}</span>
             <a class="btn btn--ghost btn--sm"
                 href="https://github.com/esyede/rakit/edit/main/packages/docs/data/{{ $file }}.md" target="_blank">
                 <svg class="btn__icon" viewBox="0 0 64 64" aria-hidden="true">
@@ -34,4 +34,48 @@
             {!! $content !!}
         </div>
     </div>
+
+    <script type="application/ld+json">{!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'TechArticle',
+        'headline' => 'Rakit :: Documentation ~ ' . $title,
+        'name' => $title,
+        'description' => $description,
+        'url' => $canonical,
+        'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $canonical],
+        'dateModified' => date(DATE_W3C, $modified),
+        'inLanguage' => 'en',
+        'isPartOf' => [
+            '@type' => 'WebSite',
+            'name' => 'Rakit :: Documentation',
+            'url' => rtrim(url('/'), '/'),
+        ],
+        'author' => [
+            '@type' => 'Organization',
+            'name' => 'Rakit Contributors',
+            'url' => 'https://github.com/esyede/rakit/contributors',
+        ],
+        'about' => [
+            '@type' => 'SoftwareApplication',
+            'name' => 'Rakit',
+            'applicationCategory' => 'DeveloperApplication',
+            'softwareVersion' => RAKIT_VERSION,
+            'operatingSystem' => 'PHP 5.4 to 8.x',
+            'url' => 'https://github.com/esyede/rakit',
+        ],
+        'license' => 'https://github.com/esyede/rakit/blob/main/LICENSE',
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+
+    <script type="application/ld+json">{!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => array_map(function ($crumb, $position) {
+            return [
+                '@type' => 'ListItem',
+                'position' => $position + 1,
+                'name' => $crumb['name'],
+                'item' => $crumb['url'],
+            ];
+        }, $breadcrumbs, array_keys($breadcrumbs)),
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endsection

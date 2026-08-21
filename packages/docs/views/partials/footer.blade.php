@@ -107,17 +107,20 @@
                     q.term(value, {
                         fields: ['title'],
                         boost: 10,
-                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
+                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard
+                            .TRAILING
                     });
                     q.term(value, {
                         fields: ['content'],
                         boost: 5,
-                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
+                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard
+                            .TRAILING
                     });
                     q.term(value, {
                         fields: ['url'],
                         boost: 2,
-                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard.TRAILING
+                        wildcard: lunr.Query.wildcard.LEADING | lunr.Query.wildcard
+                            .TRAILING
                     });
                 });
                 var len = results.length;
@@ -175,8 +178,6 @@
             });
         }).catch(error => console.error('Error loading search data:', error.message));
 
-        // Di layar sempit sidebar berubah jadi laci yang dibuka lewat tombol
-        // mengambang di kiri bawah.
         var sidebar = document.getElementById('sidebar-toc');
         var sidebarToggle = document.getElementById('sidebarToggle');
         var sidebarScrim = document.getElementById('sidebarScrim');
@@ -199,7 +200,6 @@
 
         if (sidebar && sidebarToggle) {
             sidebarToggle.addEventListener('click', function() {
-                // Menu navbar dan laci tidak boleh terbuka bersamaan.
                 var burger = document.querySelector('.navbar-burger');
                 var menu = document.getElementById('navMenuMore');
                 if (!sidebarOpen && burger && menu) {
@@ -215,7 +215,6 @@
                 });
             }
 
-            // Tautan submenu hanya membuka akordion, jadi laci dibiarkan terbuka.
             sidebar.addEventListener('click', function(e) {
                 var link = e.target.closest ? e.target.closest('a') : null;
                 if (link && !link.classList.contains('has-submenu')) {
@@ -236,12 +235,6 @@
             });
         }
 
-        // Tandai halaman yang sedang dibuka di sidebar.
-        //
-        // Docs::sidebar() mengganti href induk ber-submenu menjadi "#", jadi
-        // induk tidak bisa dicocokkan lewat href. Karena itu tautan tanpa
-        // anchor dicari lebih dulu; bila yang cocok hanya tautan ber-anchor,
-        // yang ditandai adalah pemicu submenu induknya, bukan sub-itemnya.
         var here = location.pathname.replace(/\/+$/, '');
         var links = document.querySelectorAll('#sidebar-toc a[href]');
         var cocokPolos = null;

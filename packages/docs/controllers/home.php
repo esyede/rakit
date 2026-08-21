@@ -30,11 +30,7 @@ class Docs_Home_Controller extends Controller
      */
     public function get_index()
     {
-        return view('docs::home')
-            ->with_title(Docs::title('home'))
-            ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
-            ->with_content(Docs::content(Docs::render('home')))
-            ->with_file('home');
+        return $this->page_view('home');
     }
 
     /**
@@ -53,10 +49,28 @@ class Docs_Home_Controller extends Controller
 
         abort_if(!Docs::exists($file), 404);
 
+        return $this->page_view($file);
+    }
+
+    /**
+     * Build the view for a documentation page.
+     *
+     * @param string $file
+     *
+     * @return View
+     */
+    protected function page_view($file)
+    {
+        $content = Docs::render($file);
+
         return view('docs::home')
             ->with_title(Docs::title($file))
+            ->with_description(Docs::description($content))
+            ->with_canonical(Docs::canonical($file))
+            ->with_modified(Docs::modified($file))
+            ->with_breadcrumbs(Docs::breadcrumbs($file))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
-            ->with_content(Docs::content(Docs::render($file)))
+            ->with_content(Docs::content($content))
             ->with_file($file);
     }
 
