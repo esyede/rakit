@@ -59,19 +59,6 @@ class Blade
      * Whether a compiled view is checked against the template's modification
      * time before being reused.
      *
-     * This stays on by default, including in production, because turning it
-     * off means an edited template is never recompiled until the cache is
-     * cleared by hand — too sharp an edge to enable behind your back. The
-     * check costs one extra stat per template, and PHP's stat cache absorbs
-     * repeats of the same file within a request.
-     *
-     * Opt out only if you are sure, by adding this to application/boot.php:
-     *
-     *     System\Blade::$reload = false;
-     *
-     * and then running `php rakit clear:views` as part of every deploy, so
-     * stale compiled templates are dropped.
-     *
      * @var bool
      */
     public static $reload = true;
@@ -89,12 +76,6 @@ class Blade
             $compiled = static::compiled($view->path);
 
             try {
-                // is_file() before filemtime() looks like an extra syscall but
-                // is not: PHP caches stat results per path, so the two calls on
-                // $compiled share one. Folding them into a bare filemtime()
-                // would emit a warning when the file is absent, and with
-                // Debugger::$scream on (which disables '@') that warning
-                // becomes an exception on every cold view cache.
                 if (!is_file($compiled) || static::expired($view->path)) {
                     file_put_contents($compiled, static::compile($view), LOCK_EX);
                 }
@@ -657,10 +638,6 @@ class Blade
     protected static function compile_once($value)
     {
         return preg_replace_callback('/@once(.*?)@endonce/s', function ($matches) {
-            // Note: this has to be decided at render time, not at compile time.
-            // Compiled templates are cached on disk, so stripping the block while
-            // compiling would bake the decision into the cache file and the block
-            // would stay missing on every later request.
             $key = md5($matches[1]);
 
             return '<?php if (\System\Blade::once(' . var_export($key, true) . ')): ?>'
@@ -820,11 +797,6 @@ class Blade
      */
     public static function compiled($path)
     {
-        // The CRC below walks the path byte by byte in userland, so it costs
-        // roughly 8 iterations per character. It is called at least twice per
-        // view render (once directly, once through expired()), and a page made
-        // of many partials multiplies that. The result only depends on $path,
-        // so memoize it per request.
         if (isset(static::$compiles[$path])) {
             return static::$compiles[$path];
         }

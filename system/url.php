@@ -227,8 +227,6 @@ class URL
     {
         foreach ($parameters as $parameter) {
             if (!is_null($parameter)) {
-                // Note: a plain preg_replace() would treat '$1', '\\0' etc. inside the
-                // parameter as backreferences, so the value is injected via a callback.
                 $parameter = (string) $parameter;
                 $uri = preg_replace_callback('/\(.+?\)/', function () use ($parameter) {
                     return $parameter;

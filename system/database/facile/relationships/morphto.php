@@ -53,9 +53,6 @@ class MorphTo extends Relationship
      */
     public function results(array $results = [])
     {
-        // Note: lazy loading calls this without arguments, so the owning model is
-        // where the type and the id come from. Returning NULL in that case (as it
-        // used to) made every lazily loaded morph_to come back empty.
         $owner = (count($results) > 0) ? head($results) : $this->base;
 
         if (is_null($owner)) {
@@ -74,10 +71,6 @@ class MorphTo extends Relationship
 
     /**
      * Eager load the relationship for a whole result set.
-     *
-     * Note: a morph_to cannot be resolved with one query, its children live in a
-     * different table per type. Facile\Query::load() therefore hands the whole
-     * set over instead of going through initialize()/eagerly_constrain()/match().
      *
      * @param array  $results
      * @param string $relationship

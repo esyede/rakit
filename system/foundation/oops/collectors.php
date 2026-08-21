@@ -60,9 +60,7 @@ class Collectors
     private static $trackEvents = false;
 
     /**
-     * Determine whether a collector is enabled via config('debugger.collectors').
-     * Absent config (or an absent key) defaults to enabled, so existing setups
-     * keep every panel unless a collector is explicitly turned off.
+     * Determine whether a collector is enabled.
      *
      * @param string $name
      *
@@ -70,13 +68,6 @@ class Collectors
      */
     public static function enabled($name)
     {
-        // Cache the config lookup, but ONLY once it resolves to a real array.
-        // Early collector calls happen during boot before the config system is
-        // ready (config() returns null then) — caching that null would poison
-        // every later check, so we retry until a valid array is available. The
-        // $resolvingConfig guard prevents infinite recursion if resolving
-        // config() emits a notice that re-enters a collector (config() calls on
-        // some PHP versions surface a deprecation the debug bar itself catches).
         if (!static::$collectorConfigLoaded && !static::$resolvingConfig) {
             static::$resolvingConfig = true;
             $cfg = function_exists('config') ? config('debugger.collectors', null) : [];

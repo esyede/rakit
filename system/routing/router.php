@@ -205,9 +205,6 @@ class Router
 
         foreach ($route as $uri) {
             if ('*' === $method) {
-                // Note: a distinct variable is needed here. Reusing $method would
-                // leave it holding the last HTTP verb, so the next URI in $route
-                // would no longer be seen as a wildcard registration.
                 foreach (static::$methods as $verb) {
                     static::register($verb, $route, $action);
                 }

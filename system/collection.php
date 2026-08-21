@@ -620,8 +620,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
 
         foreach ($reversed as $key => $value) {
             if ($callback($value, $key)) {
-                // Note: the match is returned as-is. Running it through value()
-                // would invoke it whenever the item itself happens to be callable.
                 return $value;
             }
         }
@@ -658,8 +656,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $keys = array_keys($this->items);
         $items = array_map($callback, $this->items, $keys);
 
-        // Note: array_combine() only accepts two empty arrays since PHP 8.0,
-        // before that it warns and returns FALSE - hence the guard above.
         return new static(array_combine($keys, $items));
     }
 
@@ -1096,8 +1092,6 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             return new static([]);
         }
 
-        // Note: string values are sorted naturally unless the caller asked for a
-        // specific sort flag, in which case that flag wins.
         if (SORT_REGULAR === $options && is_string($results[key($results)])) {
             $options = SORT_NATURAL | SORT_FLAG_CASE;
         }

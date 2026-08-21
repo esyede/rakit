@@ -354,9 +354,6 @@ class Paginator
 
         $appends = empty($appends) ? [] : $appends;
 
-        // Note: the query string is appended only when there is something to
-        // append. The inverse leaves a bare '&' on every link and, worse, drops
-        // the values that were actually given to appends().
         return $this->appendage = (count($appends) > 0) ? '&' . http_build_query($appends) : '';
     }
 

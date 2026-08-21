@@ -18,8 +18,6 @@ class Mail extends Driver
             $sender = $this->envelope_sender();
             $parameters = (null === $sender) ? '-oi' : '-oi -f ' . $sender;
 
-            // Note: the result matters. Returning TRUE unconditionally reported a
-            // successful send even when the local MTA refused the message.
             return (bool) mail(
                 static::format($this->to),
                 $this->subject,

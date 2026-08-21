@@ -246,8 +246,6 @@ class Storage
             }
 
             if (!$preserve) {
-                // Note: rmdir() reports failure by returning FALSE (plus a warning),
-                // it does not throw, so the return value has to be checked too.
                 try {
                     $removed = @rmdir($path);
                 } catch (\Throwable $e) {
@@ -369,8 +367,6 @@ class Storage
      */
     public static function mime($path)
     {
-        // Note: finfo warns (and finfo_open may fail) instead of returning
-        // something useful when the path is not a readable file.
         if (!static::isfile($path) || false === ($finfo = @finfo_open(FILEINFO_MIME_TYPE))) {
             return false;
         }

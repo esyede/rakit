@@ -133,9 +133,6 @@ class Log
         $formatted = static::format($type, $message, $context);
         $written = false;
 
-        // Note: file_put_contents() reports failure by returning FALSE, it does
-        // not throw. Relying only on the catch below meant the fallback log was
-        // never reached when the channel file could not be written.
         try {
             $channel = static::$channel;
             $date = Carbon::now()->format('Y-m-d');

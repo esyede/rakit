@@ -236,9 +236,6 @@ class Response
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        // Note: the body is streamed below with fread(), so the file must not be
-        // slurped into the response object as well - that would double the peak
-        // memory and blow up on any download bigger than memory_limit.
         $response = new static('', 200, array_merge($headers, [
             'Content-Description' => 'File Transfer',
             'Content-Type' => Storage::mime($path),
@@ -329,9 +326,6 @@ class Response
      */
     protected function cookies()
     {
-        // Note: the jar holds 7 values while the foundation cookie takes 8
-        // ($httpOnly sits before $sameSite), so spreading array_values() would
-        // hand 'samesite' to $httpOnly and silently drop the SameSite setting.
         foreach (Cookie::$jar as $name => $data) {
             $this->foundation()->headers->setCookie(new Foundation\Http\Cookie(
                 $data['name'],

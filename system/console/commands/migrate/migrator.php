@@ -51,10 +51,6 @@ class Migrator extends Command
             $this->install();
         }
 
-        // Note: $arguments is already the list of package names the console
-        // handed over. Taking $arguments[0] out of it passed a string into
-        // migrate(), which only accepts an array - so 'rakit migrate <package>'
-        // always died with a TypeError.
         $this->migrate($arguments);
     }
 
@@ -150,8 +146,6 @@ class Migrator extends Command
      */
     public function refresh(array $arguments = [])
     {
-        // Note: the package list has to be forwarded, otherwise asking to
-        // refresh one package quietly reset and re-ran every package instead.
         $this->reset($arguments);
         echo PHP_EOL;
         $this->migrate($arguments);

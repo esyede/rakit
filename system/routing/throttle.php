@@ -32,11 +32,6 @@ class Throttle
         $meta_key = $key . ':meta';
         $meta = Cache::get($meta_key);
 
-        // Note: the generic cache driver refreshes an item's lifetime on every
-        // increment, so a client that keeps hitting the endpoint would never let
-        // the counter expire and would stay blocked forever. The 'reset' stamp is
-        // therefore what decides when a new window opens, which also keeps the
-        // behaviour identical across cache drivers.
         if (!is_array($meta) || !isset($meta['reset']) || $meta['reset'] <= time()) {
             $hits = 1;
 
@@ -85,9 +80,6 @@ class Throttle
     {
         $path = trim(Request::foundation()->getPathInfo(), '/');
 
-        // Note: the application key is only used as a salt here. Putting it in the
-        // key verbatim would hand the secret to whatever backs the cache (and to
-        // anyone able to list its keys) on every request.
         return static::PREFIX . '.' . md5(RAKIT_KEY . '|' . $path . '|' . static::client());
     }
 

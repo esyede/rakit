@@ -106,7 +106,6 @@ class Package
         Router::$package = static::option($package, 'handles');
 
         if (is_file($directory . 'routes.php')) {
-            // Note: routed() compares lowercased names, so store it lowercased too.
             static::$routed[] = strtolower((string) $package);
             require $directory . 'routes.php';
 

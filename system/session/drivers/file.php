@@ -78,9 +78,6 @@ class File extends Driver
      */
     protected function naming($id)
     {
-        // Note: crc32() is only 32 bits, so distinct session ids would start
-        // colliding (and therefore share one file) after a few tens of thousands
-        // of live sessions. sha1() also keeps the name free of path separators.
         return sha1((string) $id) . '.session.php';
     }
 

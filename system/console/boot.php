@@ -29,10 +29,6 @@ if (DS === '\\') {
 }
 
 // Wrap error in try-catch for easier reading.
-// Note: the exit status matters. A command that threw used to print its error
-// and still leave the process at 0, so a broken run - a missing dependency, a
-// command that does not exist, a failure before the test runner even started -
-// showed up as a passing build on CI.
 $failed = false;
 
 try {

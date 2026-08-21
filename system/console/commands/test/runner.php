@@ -58,8 +58,6 @@ class Runner extends Command
         $this->base = path('system') . 'console' . DS . 'commands' . DS . 'test' . DS;
         $status = 0;
 
-        // Note: start() ends the process, so running it inside the loop meant
-        // only the first package with a tests/ directory was ever reached.
         foreach ($packages as $package) {
             if (is_dir($base = Package::path($package) . 'tests')) {
                 $this->stub($base);

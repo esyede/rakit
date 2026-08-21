@@ -121,10 +121,6 @@ abstract class Model
      * Contains global scopes that are applied to all queries for the model,
      * keyed by model class name.
      *
-     * Note: a static property declared here is shared by every subclass, so the
-     * class name has to be part of the key. Without it a scope registered on one
-     * model would silently apply to every other model as well.
-     *
      * @var array
      */
     protected static $global_scopes = [];
@@ -871,10 +867,6 @@ abstract class Model
      */
     public function morph_to_many($model, $name, $table = null, $foreign = null, $other = null)
     {
-        // Note: the morph columns have to be derived from $name here, the same way
-        // morph_one() and morph_many() do it. Passing $name straight through left
-        // the relationship with 'taggable' as its type column and the pivot table
-        // name sitting in its id column.
         $type = $name . '_type';
         $id = $foreign ?: ($name . '_id');
 
@@ -982,8 +974,6 @@ abstract class Model
     public function restore()
     {
         if (static::$soft_delete && !$this->exists && !is_null($this->deleted_at)) {
-            // Note: the row is trashed, so the default query (which filters
-            // trashed rows out) would never match it.
             $result = $this->query(true)->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
 
             if ($result) {
@@ -1150,8 +1140,6 @@ abstract class Model
      */
     public function _query($with_trashed = false)
     {
-        // Note: this must not go through Facile\Query - its constructor calls
-        // back into this method, which would recurse forever.
         $query = \System\Database::connection($this->connection())->table($this->table());
 
         if (!$with_trashed && static::$soft_delete) {

@@ -66,9 +66,6 @@ class Payload
             $this->session = $this->driver->load($id);
         }
 
-        // Note: a driver may hand back something that is not a payload at all
-        // (unserialize() returns FALSE for a truncated or corrupted store), so
-        // anything that is not a well-formed array is treated as "no session".
         if (!is_array($this->session) || !isset($this->session['id'])) {
             $this->session = null;
         }

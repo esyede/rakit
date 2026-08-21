@@ -52,11 +52,6 @@ class MorphOne extends HasOne
     /**
      * Set the constraints for an eager load of the relationship.
      *
-     * Note: the inherited version constrains on foreign_key(), which for a
-     * polymorphic relationship resolves to a column that does not exist. It also
-     * has to re-apply the type constraint, because the caller resets the where
-     * clauses before calling this.
-     *
      * @param array $results
      */
     public function eagerly_constrain(array $results)

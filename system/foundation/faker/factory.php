@@ -44,10 +44,6 @@ class Factory
             return $class;
         }
 
-        // Note: the fallback is the locale-neutral provider, never the
-        // application's own language. Falling back to that made fake('en') hand
-        // out Indonesian data for every provider without an 'en' variant, which
-        // is the opposite of what asking for a locale means.
         if ($class = static::findProviderClassname($provider)) {
             return $class;
         }

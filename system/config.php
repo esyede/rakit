@@ -125,9 +125,6 @@ class Config
 
         $items = static::$items[$package][$file];
 
-        // Note: the default is deliberately kept out of the cache. Caching it would
-        // make a later read of the same missing key return the *previous* caller's
-        // default instead of its own.
         if (is_null($item)) {
             $found = true;
             $result = $items;

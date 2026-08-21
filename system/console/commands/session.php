@@ -20,9 +20,6 @@ class Session extends Command
     {
         $driver = Config::get('session.driver');
 
-        // Note: the success line used to print for every driver, so 'session:gc'
-        // on a file or cookie driver claimed to have swept a table it never
-        // touched.
         if ('database' !== $driver) {
             echo $this->warning(sprintf(
                 'Nothing to sweep: the session driver is \'%s\', not \'database\'.',

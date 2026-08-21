@@ -28,12 +28,6 @@ class Memcached extends Driver
     /**
      * Constructor.
      *
-     * Note: this takes the PECL \Memcached connection, the way the cache driver
-     * does. It used to ask for \System\Memcached - the static facade, which has
-     * no instance methods at all - while Job::factory() hands over what
-     * Memcached::connection() returns, so building this driver was a TypeError
-     * and it could never run.
-     *
      * @param \Memcached  $memcached
      * @param string|null $key
      */

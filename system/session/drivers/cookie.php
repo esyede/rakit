@@ -25,11 +25,6 @@ class Cookie extends Driver
      */
     public function load($id)
     {
-        // Note: Cookie::get() already decrypts, and Cookie::put() already
-        // encrypts. Wrapping the payload in a second Crypter layer here was pure
-        // overhead, and any value that does not survive it (a stale cookie, a
-        // rotated application key) has to read back as "no session" rather than
-        // taking the whole request down.
         try {
             if (!BaseCookie::has(Cookie::PAYLOAD)) {
                 return null;

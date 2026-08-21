@@ -56,7 +56,6 @@ class SQLServer extends Grammar
         $select = $query->distinct ? 'SELECT DISTINCT ' : 'SELECT ';
 
         if ($query->limit > 0 && $query->offset <= 0) {
-            // Note: inlined into the statement, so force it to an integer.
             $select .= 'TOP ' . (int) $query->limit . ' ';
         }
 

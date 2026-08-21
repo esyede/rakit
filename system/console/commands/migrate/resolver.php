@@ -37,9 +37,6 @@ class Resolver
      */
     public function outstanding(array $arguments = [])
     {
-        // Note: array_unique() keeps a package that is registered under the
-        // default name from being walked twice, which would queue every one of
-        // its migrations twice in a single pass.
         $arguments = empty($arguments)
             ? array_values(array_unique(array_merge(Package::names(), [DEFAULT_PACKAGE])))
             : $arguments;
@@ -86,10 +83,6 @@ class Resolver
             $name = (string) $migration['name'];
             $path = Package::path($package) . 'migrations' . DS;
 
-            // Note: a migration recorded in the table whose file has since been
-            // deleted, or one whose class does not match its file name, used to
-            // end the process with a bare PHP fatal instead of saying which
-            // migration was the problem.
             if (!is_file($file = $path . $name . '.php')) {
                 throw new \Exception(sprintf(
                     'Migration file is missing: %s (package: %s)',

@@ -139,11 +139,6 @@ class JWT
             ));
         }
 
-        // Note: the algorithm is taken from the token itself, which is exactly what
-        // makes the classic 'alg confusion' attack possible - a token minted with
-        // 'HS256' would be verified with an RSA public key as if it were an HMAC
-        // secret. Pass $options['algorithm'] (a name or a list of names) to pin the
-        // algorithm the token is allowed to use.
         if (isset($options['algorithm'])) {
             $allowed = array_map('strtoupper', array_map('strval', (array) $options['algorithm']));
 
@@ -176,8 +171,6 @@ class JWT
             throw new \Exception('Expired token');
         }
 
-        // Note: a missing claim counts as invalid too. Skipping the check when the
-        // token simply leaves the claim out would let anyone bypass it.
         if (isset($options['aud']) && (!isset($payloads->aud) || $payloads->aud !== $options['aud'])) {
             throw new \Exception('Invalid audience');
         }

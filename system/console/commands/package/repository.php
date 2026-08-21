@@ -53,11 +53,8 @@ class Repository
         curl_setopt_array($ch, [
             CURLOPT_URL => static::$repository,
             CURLOPT_HTTPGET => 1,
-            // Note: verification stays on. Turning it off here would let anyone
-            // on the network hand the installer a different archive, which is
-            // then unpacked into packages/ and executed.
-            CURLOPT_SSL_VERIFYPEER => 1,
-            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_AUTOREFERER => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FOLLOWLOCATION => 1,

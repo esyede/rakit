@@ -985,10 +985,6 @@ class Str
         $needles = (array) $needles;
 
         foreach ($needles as $needle) {
-            // Note: the encoding has to be spelled out. Before PHP 5.6 the mb_*
-            // functions fall back to mbstring.internal_encoding (ISO-8859-1 by
-            // default) rather than to UTF-8, so leaving it off made this behave
-            // differently depending on which PHP was running.
             if ('' !== $needle && false !== mb_strpos($haystack, $needle, 0, 'UTF-8')) {
                 return true;
             }

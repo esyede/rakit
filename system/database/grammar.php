@@ -65,8 +65,6 @@ abstract class Grammar
             return $value->get();
         }
 
-        // Note: split on the alias keyword itself rather than on single spaces,
-        // otherwise 'col  as  alias' would pick the wrong segment.
         if (preg_match('/^(.+?)\s+as\s+(.+)$/i', (string) $value, $matches)) {
             return sprintf('%s AS %s', $this->wrap(trim($matches[1])), $this->wrap(trim($matches[2])));
         }

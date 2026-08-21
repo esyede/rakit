@@ -903,8 +903,6 @@ class Upload extends \SplFileInfo
     protected function getTargetFile($directory, $name = null)
     {
         if (!is_dir($directory)) {
-            // Note: mkdir() reports failure by returning FALSE, it does not throw,
-            // so the return value has to be checked as well.
             try {
                 $created = @mkdir($directory, 0755, true);
             } catch (\Throwable $e) {
@@ -1038,10 +1036,6 @@ class Upload extends \SplFileInfo
         }
 
         $metric = strtolower(substr($max, -1));
-
-        // Note: the suffix has to be dropped before doing arithmetic. Multiplying
-        // the raw '2M' works by accident but raises "A non-numeric value
-        // encountered" on every call.
         $max = (float) $max;
 
         switch ($metric) {

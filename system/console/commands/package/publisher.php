@@ -56,9 +56,6 @@ class Publisher
      */
     public function unpublish($package)
     {
-        // Note: the name arrives straight from the console and lands in an
-        // rmdir() path. Without this check 'package:unpublish ../../foo' walked
-        // out of assets/packages and deleted whatever it landed on.
         if (!static::named($package)) {
             echo Color::red('Invalid package name: ' . $package);
             return;

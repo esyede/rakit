@@ -114,22 +114,12 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($parameters);
 
-        // Note: getClass() insists on loading the class, which is not there
-        // without the extension - so read the declared type instead.
         if (method_exists($parameters[0], 'getType')) {
             $type = $parameters[0]->getType();
-
             $this->assertNotNull($type, 'The first parameter should be type hinted.');
-
             $name = method_exists($type, 'getName') ? $type->getName() : (string) $type;
         } else {
-            // PHP 5.x has no getType(), and getClass() insists on loading the
-            // class, so read the hint out of the parameter's own description:
-            // 'Parameter #0 [ <required> Memcached $memcached ]'. The captured
-            // token must not start with '$', which is what an untyped parameter
-            // would leave there.
             preg_match('/<\w+>\s+([^\s$]\S*)\s/', (string) $parameters[0], $matches);
-
             $name = isset($matches[1]) ? $matches[1] : '';
         }
 

@@ -37,10 +37,6 @@ class Redis
     /**
      * Contains the list of active Redis database instances.
      *
-     * Note: public, like every other driver registry in the framework
-     * (Cache::$drivers, Job::$drivers, Database::$connections, ...), so the
-     * cached connections can be dropped in a long running process.
-     *
      * @var array
      */
     public static $databases = [];
@@ -188,11 +184,6 @@ class Redis
         $method = (string) $method;
         $method = strtoupper($method);
 
-        // Note: an array argument is spread into individual arguments, an
-        // associative one as alternating field and value. Commands such as HMSET
-        // and MSET are written that way ($redis->hmset($key, $pairs)), and
-        // stringifying the array instead produced the literal 'Array' plus a
-        // "wrong number of arguments" error from the server.
         $arguments = [];
 
         foreach ($parameters as $parameter) {

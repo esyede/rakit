@@ -66,8 +66,6 @@ abstract class Command
             throw new \Exception('Current progress percentage should not be less than 0');
         }
 
-        // Note: the filled and the empty part need different characters. Drawing
-        // both with '▓' made the bar look exactly the same at every percentage.
         $done = (int) floor($current_percentage / 10);
 
         return $this->info(sprintf('%s%s', str_repeat('▓', $done), str_repeat('░', 10 - $done)), false);

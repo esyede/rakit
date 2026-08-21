@@ -9,10 +9,6 @@ class Memcached
     /**
      * Contains the Memcached connection instance.
      *
-     * Note: public, like every other driver registry in the framework
-     * (Cache::$drivers, Redis::$databases, ...), so the cached connection can be
-     * dropped in a long running process.
-     *
      * @var \Memcached
      */
     public static $connection;
@@ -35,9 +31,6 @@ class Memcached
     public static function connection()
     {
         if (!static::$connection) {
-            // Note: a missing extension used to surface as 'Class Memcached not
-            // found' from inside connect(), and a missing config section as a
-            // TypeError on its array parameter.
             if (!class_exists('\Memcached')) {
                 throw new \Exception('The memcached extension is not installed or not enabled.');
             }
@@ -66,7 +59,6 @@ class Memcached
         $memcached = new \Memcached();
 
         foreach ($servers as $server) {
-            // Note: 'weight' is optional in the configuration file.
             /** @disregard */
             $memcached->addServer(
                 $server['host'],

@@ -406,8 +406,6 @@ class Defaults
                 $totalTime = array_sum($times);
                 $avgTime = $totalTime / $count;
 
-                // Note: the recorded times may all be zero (or missing), and
-                // dividing by that total below would be a DivisionByZeroError.
                 if ($totalTime <= 0) {
                     $results[] = [
                         'severity' => $count >= 10 ? 'error' : 'warning',
@@ -556,11 +554,6 @@ class Defaults
             return call_user_func([__CLASS__, 'formatBinding'], $binding);
         }, $bindings);
         $formatted = str_replace(['%', '?'], ['%%', '%s'], $sql);
-
-        // Note: vsprintf() is fatal on PHP 8 when the placeholder count and the
-        // binding count disagree - which happens for any query holding a literal
-        // '?' or rendered without its bindings. Fall back to the plain SQL then,
-        // rather than taking the whole debugbar down with it.
         $bindings = array_values($bindings);
 
         if (substr_count($formatted, '%s') === count($bindings)) {
@@ -611,10 +604,6 @@ class Defaults
                 . '>&lt;' . htmlspecialchars($type, ENT_NOQUOTES, 'UTF-8') . ' resource&gt;</i>';
         }
 
-        // Note: DateTimeImmutable does not extend DateTime, so matching on the
-        // concrete class alone let it fall through to htmlspecialchars() below
-        // and raise a TypeError. DateTimeInterface simply does not exist on
-        // PHP 5.4, where instanceof answers FALSE without complaining.
         if ($binding instanceof \DateTimeInterface || $binding instanceof \DateTime) {
             return '<span style="color:#d14">' . htmlspecialchars('\'' . $binding->format('Y-m-d H:i:s') . '\'', ENT_NOQUOTES, 'UTF-8') . '</span>';
         }

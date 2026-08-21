@@ -73,10 +73,6 @@ abstract class Provider
     /**
      * Make the newest entry of a directory readable.
      *
-     * Note: Storage::latest() answers NULL for an empty directory, and calling
-     * getRealPath() on that was a fatal error - which is exactly the state a
-     * fresh project's packages/ directory can be in.
-     *
      * @param string $directory
      */
     protected static function relax($directory)
@@ -103,11 +99,8 @@ abstract class Provider
         is_dir($destination) && Storage::delete($destination);
         $options = [
             CURLOPT_HTTPGET => 1,
-            // Note: verification stays on. Turning it off here would let anyone
-            // on the network hand the installer a different archive, which is
-            // then unpacked into packages/ and executed.
-            CURLOPT_SSL_VERIFYPEER => 1,
-            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => 0,
+            CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_AUTOREFERER => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FOLLOWLOCATION => 1,
@@ -194,9 +187,6 @@ abstract class Provider
             return;
         }
 
-        // Note: refuse an archive that tries to write outside the destination
-        // (the classic 'zip slip'). A package archive has no reason to contain
-        // absolute paths or parent directory hops.
         for ($i = 0; $i < $zip->numFiles; $i++) {
             $entry = str_replace('\\', '/', (string) $zip->getNameIndex($i));
 

@@ -196,11 +196,6 @@ class Parser
 
     private function scan_use($result)
     {
-        // Note: only a real import is rewritten. Matching a bare 'use ...;' also
-        // caught the 'use (...)' clause of a closure, which was then turned into
-        // a bogus class_alias() call and mangled the whole statement. So this
-        // only fires at the start of a statement, outside of any open construct,
-        // and only when what follows 'use' looks like a class name.
         if (!empty($result->states) || '' !== trim($result->stmt)) {
             return false;
         }

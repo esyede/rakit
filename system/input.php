@@ -59,8 +59,6 @@ class Input
             return false;
         }
 
-        // Note: arrays and booleans must not be stringified here, casting an
-        // array to string raises "Array to string conversion".
         if (is_array($value)) {
             return count($value) > 0;
         }

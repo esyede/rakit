@@ -48,8 +48,6 @@ class Color
 
     public static function supported()
     {
-        // Note: STDOUT only exists under the CLI SAPI, and referring to an
-        // undefined constant is a fatal error since PHP 8.
         if (!defined('STDOUT')) {
             return false;
         }

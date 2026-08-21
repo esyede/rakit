@@ -433,8 +433,6 @@ class Grammar extends BaseGrammar
      */
     protected function limit(Query $query)
     {
-        // Note: this value is inlined into the statement rather than bound, so
-        // it is forced to an integer instead of being trusted as-is.
         return 'LIMIT ' . (int) $query->limit;
     }
 
@@ -447,7 +445,6 @@ class Grammar extends BaseGrammar
      */
     protected function offset(Query $query)
     {
-        // Note: inlined, not bound - see limit().
         return 'OFFSET ' . (int) $query->offset;
     }
 

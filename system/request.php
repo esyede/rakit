@@ -229,9 +229,6 @@ class Request
             }
 
             foreach ($types as $ctype) {
-                // Note: $formats maps a short name to a *list* of mime types, so
-                // the first entry is taken. Handing the array itself to
-                // matches_type()/strtok() would be a TypeError on PHP 8.
                 $type = $ctype;
 
                 if (isset(static::$formats[$ctype])) {
@@ -286,9 +283,6 @@ class Request
 
         $split = explode('/', $actual);
 
-        // Note: preg_match() returns 0 when it simply does not match, so the
-        // result has to be compared against 1. Testing for 'not false' only
-        // detects a broken pattern and reports every type as a match.
         return isset($split[1])
             && 1 === preg_match('#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#', $type);
     }
@@ -455,8 +449,6 @@ class Request
      */
     public static function prefetch()
     {
-        // Note: both headers are usually absent, and PHP 8.1 deprecates passing
-        // NULL to strcasecmp(), so cast before comparing.
         return 0 === strcasecmp((string) static::server('HTTP_X_MOZ'), 'prefetch')
             || 0 === strcasecmp((string) static::header('Purpose'), 'prefetch');
     }

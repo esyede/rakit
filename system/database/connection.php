@@ -87,9 +87,6 @@ class Connection
 
         if (isset(Database::$registrar[$this->driver()]['query'])) {
             $resolver = Database::$registrar[$this->driver()]['query'];
-
-            // Note: the resolver may be a class name (the default registered by
-            // Database::extend()) or a closure. A bare string cannot be called.
             return $this->grammar = is_string($resolver) ? new $resolver($this) : $resolver($this);
         }
 
@@ -116,10 +113,6 @@ class Connection
         try {
             call_user_func($callback, $this);
         } catch (\Throwable $e) {
-            // Note: \Throwable does not exist on PHP 5, so the \Exception branch
-            // below is the one that runs there. Either way the original exception
-            // is rethrown unchanged so callers can still catch QueryException and
-            // friends by their own type.
             $this->pdo()->rollBack();
             throw $e;
         } catch (\Exception $e) {

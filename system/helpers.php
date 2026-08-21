@@ -368,10 +368,6 @@ if (!function_exists('retry')) {
         try {
             return $callback($attempts);
         } catch (\Throwable $e) {
-            // Note: \Throwable does not exist on PHP 5, so the \Exception branch
-            // below is what actually runs there. On PHP 7+ this branch handles
-            // both, and the original exception is rethrown as-is so callers can
-            // still catch it by its own type.
             if (!$times || ($when && !$when($e))) {
                 throw $e;
             }

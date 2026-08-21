@@ -139,10 +139,6 @@ class Websocket extends Command
     {
         $this->log('WebSocket server crashed!', true);
 
-        // Note: the server runs on stream_socket_server(), so the ext-sockets
-        // error functions that used to be called here reported nothing at best,
-        // and were a fatal 'undefined function' whenever ext-sockets was not
-        // installed - on every crash and every disconnect.
         if ($error = error_get_last()) {
             $this->log('PHP error: ' . $error['message'], true);
         }
@@ -210,10 +206,6 @@ class Websocket extends Command
     {
         if (intval($opcode) !== Server::TEXT) {
             if (intval($opcode) === Server::PING) {
-                // Note: deframe() already answers a ping before this event ever
-                // fires, so this is only a safety net - but it used to reach for
-                // socket_write(), which cannot write to the stream resource the
-                // client actually holds.
                 $client->send(Server::PONG);
             } else {
                 $this->log(sprintf('Client #%s sent a message with ignored opcode %s.', $client->id(), $opcode));
@@ -241,9 +233,6 @@ class Websocket extends Command
                 } elseif ($parsed['command'] === 'disconnect' && isset($parsed['client_id'])) {
                     $clients = $client->server()->clients();
 
-                    // Note: this loop used to reuse the $client parameter as its
-                    // own variable, leaving the caller's client pointing at
-                    // whatever the loop stopped on.
                     foreach ($clients as $target) {
                         if ($target->id() == $parsed['client_id']) {
                             $target->close();
@@ -344,9 +333,6 @@ class Websocket extends Command
 
     /**
      * Whether logging is switched on.
-     *
-     * Note: the handlers are wired as callbacks and may fire before run() has
-     * filled $config, so reaching straight into the array was an undefined index.
      *
      * @return bool
      */
