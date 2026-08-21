@@ -11,8 +11,24 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 | Coverage baris (file yang ter-load) | 64.20% | 64.20% |
 | File `system/` tidak pernah ter-load saat test | 72 | 72 |
 
-Coverage diukur dengan ekstensi `pcov` (php-code-coverage bawaan PHPUnit 4.8 tidak
-jalan di PHP 8.4+ karena `php-token-stream`).
+Coverage diukur dengan ekstensi `pcov`.
+
+## Patch PHPUnit
+
+Dua kerusakan PHPUnit 4.8.34 di PHP 8.4+ ikut diperbaiki lewat mekanisme
+`cweagans/composer-patches` yang sudah dipakai proyek ini. Berkasnya ada di
+folder `patches/` dan sudah didaftarkan di `composer.json`:
+
+| Berkas | Paket | Isi |
+| --- | --- | --- |
+| `patches/phpunit_php84.patch` | `phpunit/phpunit` | Konstanta `E_STRICT` yang usang + parameter *implicitly nullable* pada `PHPUnit_Framework_Error` / `PHPUnit_Framework_Exception`. Keduanya dikompilasi sebelum bootstrap sempat mematikan `E_DEPRECATED`, jadi peringatannya tercetak di setiap kali test dijalankan. |
+| `patches/phpunit_php_token_stream.patch` | `phpunit/php-token-stream` | Token baru PHP 8 (`T_NAME_FULLY_QUALIFIED`, `T_ATTRIBUTE`, `T_MATCH`, `T_READONLY`, ...) tidak punya kelas `PHP_Token_*` sehingga `--coverage` selalu mati dengan `Class PHP_Token_... not found`. |
+
+Catatan: kedua patch ini belum bisa dikirim ke
+<https://github.com/esyede/phpunit-patches> (kredensial yang tersimpan di mesin
+ini milik akun `trijayadigital` dan ditolak dengan 403), jadi untuk sekarang
+di-host lokal di dalam repo. Kalau nanti sudah dipublikasikan ke sana, tinggal
+ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 
 ## Temuan (bug)
 

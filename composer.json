@@ -43,10 +43,14 @@
             "phpunit/php-file-iterator": {
                 "Fix PHP 8.1 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_path_file_iterator.patch"
             },
+            "phpunit/php-token-stream": {
+                "Fix PHP 8 compatibility": "patches/phpunit_php_token_stream.patch"
+            },
             "phpunit/phpunit": {
                 "Fix PHP 7 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php7.patch",
                 "Fix PHP 8 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php8.patch",
-                "Fix PHP 8.1 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php81.patch"
+                "Fix PHP 8.1 compatibility": "https://cdn.jsdelivr.net/gh/esyede/phpunit-patches/phpunit_php81.patch",
+                "Fix PHP 8.4 compatibility": "patches/phpunit_php84.patch"
             }
         }
     },

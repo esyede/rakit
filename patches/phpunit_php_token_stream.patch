@@ -1,0 +1,67 @@
+--- a/src/Token.php
++++ b/src/Token.php
+@@ -819,6 +819,29 @@
+ class PHP_Token_SPACESHIP extends PHP_Token {}
+ class PHP_Token_YIELD_FROM extends PHP_Token {}
+ 
++// Tokens introduced in PHP 8.0 - 8.4
++//
++// New PHP versions keep adding tokens, and this library maps every token to a
++// class named after it. Any token without a class here is resolved to
++// PHP_Token_UNKNOWN by PHP_Token_Stream::scan(), so scanning modern sources no
++// longer aborts with "Class ... not found". The known ones are still declared
++// explicitly so they keep their own identity.
++class PHP_Token_UNKNOWN extends PHP_Token {}
++class PHP_Token_NAME_QUALIFIED extends PHP_Token {}
++class PHP_Token_NAME_FULLY_QUALIFIED extends PHP_Token {}
++class PHP_Token_NAME_RELATIVE extends PHP_Token {}
++class PHP_Token_ATTRIBUTE extends PHP_Token {}
++class PHP_Token_MATCH extends PHP_Token {}
++class PHP_Token_FN extends PHP_Token {}
++class PHP_Token_COALESCE_EQUAL extends PHP_Token {}
++class PHP_Token_READONLY extends PHP_Token {}
++class PHP_Token_AMPERSAND_FOLLOWED_BY_VAR_OR_VARARG extends PHP_Token {}
++class PHP_Token_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG extends PHP_Token {}
++class PHP_Token_PUBLIC_SET extends PHP_Token {}
++class PHP_Token_PROTECTED_SET extends PHP_Token {}
++class PHP_Token_PRIVATE_SET extends PHP_Token {}
++class PHP_Token_PROPERTY_C extends PHP_Token {}
++
+ // Tokens introduced in HackLang / HHVM
+ class PHP_Token_ASYNC extends PHP_Token {}
+ class PHP_Token_AWAIT extends PHP_Token {}
+--- a/src/Token/Stream.php
++++ b/src/Token/Stream.php
+@@ -22,6 +22,13 @@
+     /**
+      * @var array
+      */
++    /**
++     * Cache of 'PHP_Token_*' class names that are known to exist.
++     *
++     * @var array
++     */
++    protected static $knownTokenClasses = array();
++
+     protected static $customTokens = array(
+         '(' => 'PHP_Token_OPEN_BRACKET',
+         ')' => 'PHP_Token_CLOSE_BRACKET',
+@@ -181,9 +188,17 @@
+                 }
+ 
+                 $tokenClass = 'PHP_Token_' . $name;
++
++                if (!isset(self::$knownTokenClasses[$tokenClass])) {
++                    self::$knownTokenClasses[$tokenClass] = class_exists($tokenClass, false);
++                }
++
++                if (!self::$knownTokenClasses[$tokenClass]) {
++                    $tokenClass = 'PHP_Token_UNKNOWN';
++                }
+             } else {
+                 $text       = $token;
+-                $tokenClass = self::$customTokens[$token];
++                $tokenClass = isset(self::$customTokens[$token]) ? self::$customTokens[$token] : 'PHP_Token_UNKNOWN';
+             }
+ 
+             $this->tokens[] = new $tokenClass($text, $line, $this, $id++);
