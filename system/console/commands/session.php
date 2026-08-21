@@ -21,9 +21,21 @@ class Session extends Command
     {
         $driver = Config::get('session.driver');
 
-        if ('database' === $driver) {
-            DB::table(Config::get('session.table'))->where('last_activity', '<', time() - (Config::get('session.lifetime') * 60))->delete();
+        // Note: the success line used to print for every driver, so 'session:gc'
+        // on a file or cookie driver claimed to have swept a table it never
+        // touched.
+        if ('database' !== $driver) {
+            echo $this->warning(sprintf(
+                'Nothing to sweep: the session driver is \'%s\', not \'database\'.',
+                (string) $driver
+            ));
+
+            return;
         }
+
+        DB::table(Config::get('session.table'))
+            ->where('last_activity', '<', time() - (Config::get('session.lifetime') * 60))
+            ->delete();
 
         echo $this->info('The session table has been swept!');
     }

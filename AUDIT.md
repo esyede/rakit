@@ -6,9 +6,9 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 
 | Metrik | Awal | Sekarang |
 | --- | ---: | ---: |
-| Test | 1668 | 1896 |
-| Assertion | 5266 | 6343 |
-| Bug ditemukan & diperbaiki | — | 132 |
+| Test | 1668 | 1905 |
+| Assertion | 5266 | 6346 |
+| Bug ditemukan & diperbaiki | — | 152 |
 | Berkas `system/` yang tidak pernah ter-load saat test | 72 | 44 |
 | Coverage baris — hanya berkas yang ter-load | 64.20% | **70.65%** |
 | Coverage baris — **seluruh `system/`** | ~46% | **58.60%** |
@@ -195,6 +195,27 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 131 | `cache/drivers/apc.php` `flush()` | `apcu_clear_cache()` tidak menerima argumen; memanggilnya dengan `'user'`/`'opcode'` adalah `TypeError` | **fixed** |
 | 132 | `cache/drivers/apc.php` `retrieve()` | Nilai `false` yang tersimpan tidak bisa dibedakan dari cache miss | **fixed** |
 
+| 133 | `foundation/oops/outputs.php` `start()` | `fread(fopen($file, 'r'), 3)` — handle tidak pernah ditutup (satu bocor per berkas ter-include) dan `fopen()` yang gagal jadi `TypeError` di PHP 8 | **fixed** |
+| 134 | `foundation/oops/outputs.php` | Entri BOM hanya berisi 3 elemen padahal `handler()` dan `renderHtml()` membaca indeks ke-4 (stack) | **fixed** |
+| 135 | `foundation/oops/panic.php` `isCollapsed()` | Tanda kurung salah tempat: `strncmp($file, $path, 0 === mb_strlen(...))` → panjang selalu 0, fungsi **selalu** mengembalikan `false` | **fixed** |
+| 136 | `foundation/oops/panic.php` `renderToFile()` | Nama berkas tanpa direktori menghasilkan `$dir` kosong lalu `DIRECTORY_SEPARATOR . $base` — dump diarahkan ke root filesystem | **fixed** |
+| 137 | `foundation/oops/defaults.php` `sqlHighlight()` | `vsprintf()` fatal (`ValueError`) di PHP 8 bila jumlah `?` dan binding berbeda — satu kueri saja menjatuhkan seluruh debug bar | **fixed** |
+| 138 | `foundation/oops/defaults.php` `formatBinding()` | `DateTimeImmutable` tidak turunan `DateTime`, jatuh ke `htmlspecialchars()` → `TypeError`; objek lain juga | **fixed** |
+| 139 | `foundation/oops/bar.php` `render()` | `$_SESSION` ditulisi tanpa syarat, termasuk saat sesi mati / di CLI | **fixed** |
+| 140 | `console/commands/route.php` | `public function list()` — `list` kata kunci; **parse error di PHP 5.4–5.6**, seluruh berkas gagal dimuat. Diganti `lists()` + `__call()` agar `route:list` tetap jalan | **fixed** |
+| 141 | `console/commands/package/packager.php` `upgrade()` | `meta.json` tanpa kunci `version` membuat seluruh array masuk ke `version_compare()` — `TypeError` di PHP 8 | **fixed** |
+| 142 | `console/commands/package/packager.php` `upgrade()` | Kunci kompatibilitas diakses langsung tanpa cek — `null` masuk ke `version_compare()` alih-alih pesan yang jelas | **fixed** |
+| 143 | `console/commands/package/packager.php` `install()` | Konfirmasi "paket tidak dirawat" bersarang di dalam cabang `is_dir()` — tidak pernah muncul pada instalasi baru | **fixed** |
+| 144 | `console/commands/package/publisher.php` `unpublish()` | Nama paket dari konsol langsung masuk ke `Storage::rmdir()` — `package:unpublish ../../foo` menghapus di luar `assets/packages` | **fixed** |
+| 145 | `console/commands/test/runner.php` `package()` | `start()` memanggil `exit()` di dalam loop — hanya paket pertama yang pernah dites | **fixed** |
+| 146 | `job/drivers/memcached.php` | Type hint `\System\Memcached` (facade statis tanpa metode instance) padahal `Job::factory()` mengirim `\Memcached` — driver **selalu** `TypeError` saat dibangun | **fixed** |
+| 147 | `console/commands/websocket.php` `crash()`, `disconnect()` | Memanggil `socket_last_error()`/`socket_strerror()`/`socket_clear_error()` (ext-sockets) padahal server memakai `stream_socket_server()` — fatal di setiap disconnect bila ext-sockets tidak terpasang | **fixed** |
+| 148 | `console/commands/websocket.php` `receive()` | `socket_write()` dipanggil atas resource stream — `TypeError` di PHP 8 (lagipula ping sudah dijawab di `deframe()`) | **fixed** |
+| 149 | `console/commands/websocket.php` `receive()` | `foreach ($clients as $client)` menimpa parameter `$client` milik pemanggil | **fixed** |
+| 150 | `console/commands/websocket.php` `log()` | `$this->config['logging_enabled']` dibaca langsung padahal handler bisa jalan sebelum `run()` mengisi `$config` | **fixed** |
+| 151 | `console/commands/session.php` `gc()` | Pesan "session table has been swept!" dicetak untuk semua driver, termasuk yang tidak menyentuh tabel apa pun | **fixed** |
+| 152 | `system/init.php` | Penyalinan `_ide_helper.php` dicoba setiap request; pada deployment read-only jadi peringatan berulang | **fixed** |
+
 ## Temuan (isolasi test)
 
 | # | Berkas | Ringkasan | Status |
@@ -223,10 +244,28 @@ hanya sebagai satu suite.
 | `tests/cases/storage-drivers.test.php` | Driver cache database, driver session database dan cookie |
 | `tests/cases/email-message.test.php` | Pembentuk pesan email dan penolakan header injection |
 | `tests/cases/facile-eager-loading.test.php` | Seluruh jenis relasi Facile terhadap baris sungguhan |
+| `tests/cases/job-memcached.test.php` | Driver job memcached; bagian fungsionalnya dilewati bila ekstensi/server tidak ada, tapi pemeriksaan type hint konstruktornya jalan di mana saja |
 
 Selain itu, `facile-soft-delete.test.php`, `facile.test.php`, `validator.test.php`,
 `jwt.test.php`, `blade.test.php`, `cache.test.php`, dan `websocket-server.test.php`
 diperluas.
+
+## Cara audit ini dikerjakan
+
+Tiga putaran:
+
+1. **Putaran 1** (#1–#123) — telaah berkas yang sudah punya test, tiap dugaan
+   bug dibuktikan dulu lewat skrip probe sebelum diperbaiki.
+2. **Putaran 2** (#124–#132) — telaah keamanan pada jalur unduh/pasang paket,
+   migrator, dan driver cache APC.
+3. **Putaran 3** (#133–#152) — telaah statis berkas yang **belum punya test sama
+   sekali**: `foundation/oops/*`, seluruh `console/**`, `system/{boot,init}.php`,
+   dan `job/drivers/memcached.php`.
+
+Karena putaran 3 mengaudit kode yang tidak dijalankan test mana pun, tiap temuan
+di sana dibuktikan dengan menjalankan potongan kodenya sendiri (mis. `vsprintf()`
+dengan jumlah binding yang tidak cocok, `version_compare()` atas array,
+`strncmp()` dengan panjang 0), bukan dari membaca saja.
 
 ## Sisa pekerjaan
 
@@ -265,6 +304,9 @@ orkestrasi berkas dan proses (`make`, `migrate`, `package`, `serve`, `websocket`
 `bar.php`, `panic.php`, `defaults.php`, `storage.php`, `context.php`, dan
 `outputs.php` menghasilkan HTML untuk debug bar. Pengujiannya paling masuk akal
 lewat *snapshot* keluaran HTML-nya.
+
+Seluruh berkas ini sudah **ditelaah manual baris per baris** (temuan #133–#139);
+yang belum ada tetap test otomatisnya.
 
 ### 4. Bootstrap
 

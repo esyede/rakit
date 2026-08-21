@@ -430,6 +430,18 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheActiveUrlRule()
     {
+        // This rule performs a real request, so the test can only run when the
+        // machine actually has a way out. Without this it fails on an offline
+        // machine (and intermittently on a flaky connection) for reasons that
+        // have nothing to do with the framework.
+        $probe = @fsockopen('google.com', 443, $errno, $errstr, 2);
+
+        if (!$probe) {
+            $this->markTestSkipped('No outbound network connection available.');
+        }
+
+        fclose($probe);
+
         $input = [];
         $rules = ['url' => 'active_url'];
 

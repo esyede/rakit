@@ -555,9 +555,19 @@ class Defaults
         $bindings = array_map(function ($binding) {
             return call_user_func([__CLASS__, 'formatBinding'], $binding);
         }, $bindings);
-        $sql = str_replace(['%', '?'], ['%%', '%s'], $sql);
+        $formatted = str_replace(['%', '?'], ['%%', '%s'], $sql);
 
-        return '<div><code>' . nl2br(trim(vsprintf($sql, $bindings))) . '</code></div>';
+        // Note: vsprintf() is fatal on PHP 8 when the placeholder count and the
+        // binding count disagree - which happens for any query holding a literal
+        // '?' or rendered without its bindings. Fall back to the plain SQL then,
+        // rather than taking the whole debugbar down with it.
+        $bindings = array_values($bindings);
+
+        if (substr_count($formatted, '%s') === count($bindings)) {
+            $sql = vsprintf($formatted, $bindings);
+        }
+
+        return '<div><code>' . nl2br(trim($sql)) . '</code></div>';
     }
 
     /**
@@ -601,7 +611,11 @@ class Defaults
                 . '>&lt;' . htmlspecialchars($type, ENT_NOQUOTES, 'UTF-8') . ' resource&gt;</i>';
         }
 
-        if ($binding instanceof \DateTime) {
+        // Note: DateTimeImmutable does not extend DateTime, so matching on the
+        // concrete class alone let it fall through to htmlspecialchars() below
+        // and raise a TypeError. DateTimeInterface simply does not exist on
+        // PHP 5.4, where instanceof answers FALSE without complaining.
+        if ($binding instanceof \DateTimeInterface || $binding instanceof \DateTime) {
             return '<span style="color:#d14">' . htmlspecialchars('\'' . $binding->format('Y-m-d H:i:s') . '\'', ENT_NOQUOTES, 'UTF-8') . '</span>';
         }
 
@@ -613,6 +627,10 @@ class Defaults
             return '<strong style="color:green">' . ($binding ? 'TRUE' : 'FALSE') . '</strong>';
         }
 
-        return '<span style="color:#099">' . htmlspecialchars($binding, ENT_NOQUOTES, 'UTF-8') . '</span>';
+        if (is_object($binding) && !method_exists($binding, '__toString')) {
+            return '<i>&lt;' . htmlspecialchars(get_class($binding), ENT_NOQUOTES, 'UTF-8') . '&gt;</i>';
+        }
+
+        return '<span style="color:#099">' . htmlspecialchars((string) $binding, ENT_NOQUOTES, 'UTF-8') . '</span>';
     }
 }

@@ -8,14 +8,13 @@ use System\Config;
 use System\Carbon;
 use System\Hook;
 use System\Str;
-use System\Memcached as BaseMemcached;
 
 class Memcached extends Driver
 {
     /**
      * Contains the Memcached instance.
      *
-     * @var \System\Memcached
+     * @var \Memcached
      */
     protected $memcached;
 
@@ -29,10 +28,16 @@ class Memcached extends Driver
     /**
      * Constructor.
      *
-     * @param \System\Memcached |null $memcached
-     * @param string|null             $key
+     * Note: this takes the PECL \Memcached connection, the way the cache driver
+     * does. It used to ask for \System\Memcached - the static facade, which has
+     * no instance methods at all - while Job::factory() hands over what
+     * Memcached::connection() returns, so building this driver was a TypeError
+     * and it could never run.
+     *
+     * @param \Memcached  $memcached
+     * @param string|null $key
      */
-    public function __construct(BaseMemcached $memcached, $key = null)
+    public function __construct(\Memcached $memcached, $key = null)
     {
         $this->memcached = $memcached;
         $this->key = $key ?: Config::get('job.key', 'rakit.job') . ':';

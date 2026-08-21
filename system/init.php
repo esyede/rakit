@@ -77,6 +77,9 @@ if (is_file($path = path('rakit_key'))) {
     ));
 }
 
-if (!is_file($file = dirname(__DIR__) . DS . '_ide_helper.php')) {
-    copy(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub', $file);
+// Note: this runs on every request. On a read-only deployment the copy can
+// never succeed, and without the writability check it emitted a warning each
+// time round instead of quietly skipping.
+if (!is_file($file = dirname(__DIR__) . DS . '_ide_helper.php') && is_writable(dirname($file))) {
+    @copy(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub', $file);
 }

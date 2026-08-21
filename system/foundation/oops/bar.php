@@ -80,14 +80,22 @@ class Bar
         }
 
         $useSession = $this->useSession && session_status() === PHP_SESSION_ACTIVE;
-        $redirectQueue = &$_SESSION['_oops']['redirect'];
+        $redirectQueue = null;
 
-        foreach (['bar', 'redirect', 'panic'] as $key) {
-            $queue = &$_SESSION['_oops'][$key];
-            $queue = array_slice((array) $queue, -10, null, true);
-            $queue = array_filter($queue, function ($item) {
-                return isset($item['time']) && ($item['time'] > (time() - 60));
-            });
+        // Note: touching $_SESSION unconditionally created the superglobal even
+        // with sessions switched off (CLI included), so only reach for it once
+        // there really is a session to read from.
+        if ($useSession) {
+            $redirectQueue = &$_SESSION['_oops']['redirect'];
+
+            foreach (['bar', 'redirect', 'panic'] as $key) {
+                $queue = &$_SESSION['_oops'][$key];
+                $queue = array_slice((array) $queue, -10, null, true);
+                $queue = array_filter($queue, function ($item) {
+                    return isset($item['time']) && ($item['time'] > (time() - 60));
+                });
+                unset($queue);
+            }
         }
 
         $rows = [];

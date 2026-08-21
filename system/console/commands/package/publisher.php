@@ -19,6 +19,11 @@ class Publisher
      */
     public function publish($package)
     {
+        if (!static::named($package)) {
+            echo Color::red('Invalid package name: ' . $package);
+            return;
+        }
+
         if (!Package::exists($package)) {
             echo Color::red('Package is not registered: ' . $package);
             return;
@@ -51,8 +56,29 @@ class Publisher
      */
     public function unpublish($package)
     {
+        // Note: the name arrives straight from the console and lands in an
+        // rmdir() path. Without this check 'package:unpublish ../../foo' walked
+        // out of assets/packages and deleted whatever it landed on.
+        if (!static::named($package)) {
+            echo Color::red('Invalid package name: ' . $package);
+            return;
+        }
+
         $destination = path('assets') . 'packages' . DS . $package;
         is_dir($destination) && Storage::rmdir($destination);
         echo Color::green('Assets deleted for package: ' . $package);
+    }
+
+    /**
+     * Check whether the given string is a usable package directory name.
+     *
+     * @param string $package
+     *
+     * @return bool
+     */
+    protected static function named($package)
+    {
+        return is_string($package) && '' !== $package && preg_match('/^[A-Za-z0-9_.-]+$/', $package)
+            && '.' !== $package && '..' !== $package;
     }
 }

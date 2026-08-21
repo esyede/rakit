@@ -56,21 +56,29 @@ class Runner extends Command
         $packages = is_array($packages) ? $packages : [$packages];
         $packages = (0 === count($packages)) ? Package::names() : $packages;
         $this->base = path('system') . 'console' . DS . 'commands' . DS . 'test' . DS;
+        $status = 0;
 
+        // Note: start() ends the process, so running it inside the loop meant
+        // only the first package with a tests/ directory was ever reached.
         foreach ($packages as $package) {
             if (is_dir($base = Package::path($package) . 'tests')) {
                 $this->stub($base);
-                $this->start();
+                $result = $this->start(false);
+                $status = $result ? $result : $status;
             }
         }
+
+        exit($status);
     }
 
     /**
      * Run phpunit using the temporary configuration file.
      *
-     * @return void
+     * @param bool $exit
+     *
+     * @return int
      */
-    protected function start()
+    protected function start($exit = true)
     {
         $phpunit = 'vendor' . DS . 'bin' . DS . 'phpunit';
         $config = path('base') . 'phpunit.xml';
@@ -87,7 +95,12 @@ class Runner extends Command
         $phpunit .= $args ? ' ' . $args : '';
         passthru('.' . DS . $phpunit . ' --configuration ' . escapeshellarg($config), $status);
         is_file($config) && Storage::delete($config);
-        exit($status);
+
+        if ($exit) {
+            exit($status);
+        }
+
+        return $status;
     }
 
     /**

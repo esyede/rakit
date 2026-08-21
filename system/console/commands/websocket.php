@@ -139,11 +139,10 @@ class Websocket extends Command
     {
         $this->log('WebSocket server crashed!', true);
 
-        if ($error = socket_last_error()) {
-            $this->log('Socket error: ' . socket_strerror($error), true);
-            socket_clear_error();
-        }
-
+        // Note: the server runs on stream_socket_server(), so the ext-sockets
+        // error functions that used to be called here reported nothing at best,
+        // and were a fatal 'undefined function' whenever ext-sockets was not
+        // installed - on every crash and every disconnect.
         if ($error = error_get_last()) {
             $this->log('PHP error: ' . $error['message'], true);
         }
@@ -182,11 +181,6 @@ class Websocket extends Command
      */
     public function disconnect(Client $client)
     {
-        if ($error = socket_last_error()) {
-            $this->log(socket_strerror($error), true);
-            socket_clear_error();
-        }
-
         $this->broadcast($client->server(), sprintf('Client #%s disconnected', $client->id()));
         $this->presence($client->server());
     }
@@ -216,8 +210,11 @@ class Websocket extends Command
     {
         if (intval($opcode) !== Server::TEXT) {
             if (intval($opcode) === Server::PING) {
-                $pong = $client->server()->frame('', $client, 'pong');
-                @socket_write($client->socket, $pong, strlen($pong));
+                // Note: deframe() already answers a ping before this event ever
+                // fires, so this is only a safety net - but it used to reach for
+                // socket_write(), which cannot write to the stream resource the
+                // client actually holds.
+                $client->send(Server::PONG);
             } else {
                 $this->log(sprintf('Client #%s sent a message with ignored opcode %s.', $client->id(), $opcode));
             }
@@ -236,7 +233,7 @@ class Websocket extends Command
                 if ($parsed['command'] === 'broadcast' && isset($parsed['message'])) {
                     $this->broadcast($client->server(), $parsed['message']);
 
-                    if ($this->config['logging_enabled']) {
+                    if ($this->logging()) {
                         $this->log("Command broadcast executed: {$parsed['message']}");
                     }
 
@@ -244,11 +241,14 @@ class Websocket extends Command
                 } elseif ($parsed['command'] === 'disconnect' && isset($parsed['client_id'])) {
                     $clients = $client->server()->clients();
 
-                    foreach ($clients as $client) {
-                        if ($client->id() == $parsed['client_id']) {
-                            $client->close();
+                    // Note: this loop used to reuse the $client parameter as its
+                    // own variable, leaving the caller's client pointing at
+                    // whatever the loop stopped on.
+                    foreach ($clients as $target) {
+                        if ($target->id() == $parsed['client_id']) {
+                            $target->close();
 
-                            if ($this->config['logging_enabled']) {
+                            if ($this->logging()) {
                                 $this->log("Command disconnect executed for client {$parsed['client_id']}");
                             }
 
@@ -256,7 +256,7 @@ class Websocket extends Command
                         }
                     }
 
-                    if ($this->config['logging_enabled']) {
+                    if ($this->logging()) {
                         $this->log("Command disconnect failed: client {$parsed['client_id']} not found");
                     }
 
@@ -264,7 +264,7 @@ class Websocket extends Command
                 } elseif ($parsed['command'] == 'presence') {
                     $this->presence($client->server());
 
-                    if ($this->config['logging_enabled']) {
+                    if ($this->logging()) {
                         $this->log("Command presence executed");
                     }
 
@@ -272,7 +272,7 @@ class Websocket extends Command
                 } elseif ($parsed['command'] == 'broadcast_to_channel' && isset($parsed['channel']) && isset($parsed['message'])) {
                     $this->broadcast_to_channel($client->server(), $parsed['channel'], $parsed['message']);
 
-                    if ($this->config['logging_enabled']) {
+                    if ($this->logging()) {
                         $this->log("Command broadcast_to_channel executed to {$parsed['channel']}: {$parsed['message']}");
                     }
 
@@ -280,7 +280,7 @@ class Websocket extends Command
                 } elseif ($parsed['command'] == 'private_message' && isset($parsed['to']) && isset($parsed['message'])) {
                     $this->private_message($client->server(), $parsed['to'], $parsed['message']);
 
-                    if ($this->config['logging_enabled']) {
+                    if ($this->logging()) {
                         $this->log("Command private_message executed to {$parsed['to']}: {$parsed['message']}");
                     }
 
@@ -335,10 +335,25 @@ class Websocket extends Command
      */
     private function log($message, $is_error = false)
     {
-        if ($this->config['logging_enabled']) {
+        if ($this->logging()) {
             echo $is_error ? $this->error('[' . Carbon::now() . '] ' . $message) : $this->info('[' . Carbon::now() . '] ' . $message);
             flush();
             ob_get_contents() && ob_flush();
         }
+    }
+
+    /**
+     * Whether logging is switched on.
+     *
+     * Note: the handlers are wired as callbacks and may fire before run() has
+     * filled $config, so reaching straight into the array was an undefined index.
+     *
+     * @return bool
+     */
+    private function logging()
+    {
+        return is_array($this->config)
+            && isset($this->config['logging_enabled'])
+            && $this->config['logging_enabled'];
     }
 }

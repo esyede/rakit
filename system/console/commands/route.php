@@ -31,7 +31,36 @@ class Route extends Command
         dd($route . PHP_EOL);
     }
 
-    public function list()
+    /**
+     * Dispatch 'route:list' to lists() below.
+     *
+     * Note: 'list' is a reserved word, and a method may only be named after one
+     * from PHP 7 onwards - declaring it outright is a parse error on PHP 5.4,
+     * which takes the whole file down. Routing the call through __call() keeps
+     * the 'route:list' command working on every supported version.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
+     */
+    public function __call($method, $parameters)
+    {
+        if ('list' === strtolower($method)) {
+            return call_user_func_array([$this, 'lists'], $parameters);
+        }
+
+        throw new \Exception(sprintf('Command method is not callable: %s', $method));
+    }
+
+    /**
+     * List every registered route.
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function lists(array $arguments = [])
     {
         $grouped = Router::routes();
 
