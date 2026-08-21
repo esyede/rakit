@@ -196,7 +196,20 @@ class Parser
 
     private function scan_use($result)
     {
-        if (preg_match("/^use (.+?);/", $result->buffer, $use)) {
+        // Note: only a real import is rewritten. Matching a bare 'use ...;' also
+        // caught the 'use (...)' clause of a closure, which was then turned into
+        // a bogus class_alias() call and mangled the whole statement. So this
+        // only fires at the start of a statement, outside of any open construct,
+        // and only when what follows 'use' looks like a class name.
+        if (!empty($result->states) || '' !== trim($result->stmt)) {
+            return false;
+        }
+
+        $pattern = '/^use\s+(\\\\?[A-Za-z_][A-Za-z0-9_]*'
+            . '(?:\\\\[A-Za-z_][A-Za-z0-9_]*)*'
+            . '(?:\s+as\s+[A-Za-z_][A-Za-z0-9_]*)?)\s*;/';
+
+        if (preg_match($pattern, $result->buffer, $use)) {
             $result->buffer = substr($result->buffer, strlen($use[0]));
 
             if (strpos($use[0], ' as ') !== false) {

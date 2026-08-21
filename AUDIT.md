@@ -136,6 +136,7 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 100 | `redis.php` `$databases` | `protected static`, tidak konsisten dengan registry driver lain dan tidak bisa direset | **fixed** |
 | 101 | `session/drivers/cookie.php` | Payload dienkripsi dua kali (`Cookie::put()` sudah mengenkripsi) dan payload rusak melempar exception | **fixed** |
 | 102 | `cookie.php` | Cache nilai terdekripsi tidak bisa direset — nilai basi tetap dilayani setelah `$jar` dikosongkan (ditambahkan `Cookie::flush()`) | **fixed** |
+| 103 | `console/fiddle/parser.php` `scan_use()` | Klausa `use (...)` milik closure dikira import dan diubah jadi `class_alias()` — pernyataannya rusak | **fixed** |
 
 ## Temuan (isolasi test)
 
