@@ -251,6 +251,12 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function every($step, $offset = 0)
     {
+        $step = (int) $step;
+
+        if ($step < 1) {
+            return new static([]);
+        }
+
         $new = [];
         $position = 0;
 
@@ -610,17 +616,17 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             return empty($this->items) ? value($default) : end($this->items);
         }
 
-        $result = $default;
         $reversed = array_reverse($this->items, true);
 
         foreach ($reversed as $key => $value) {
             if ($callback($value, $key)) {
-                $result = $value;
-                break;
+                // Note: the match is returned as-is. Running it through value()
+                // would invoke it whenever the item itself happens to be callable.
+                return $value;
             }
         }
 
-        return value($result);
+        return value($default);
     }
 
     /**
@@ -645,8 +651,15 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function map(callable $callback)
     {
+        if (0 === count($this->items)) {
+            return new static([]);
+        }
+
         $keys = array_keys($this->items);
         $items = array_map($callback, $this->items, $keys);
+
+        // Note: array_combine() only accepts two empty arrays since PHP 8.0,
+        // before that it warns and returns FALSE - hence the guard above.
         return new static(array_combine($keys, $items));
     }
 
@@ -713,7 +726,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function combine($values)
     {
-        return new static(array_combine($this->all(), $this->get_arrayable_items($values)));
+        $keys = $this->all();
+        $values = $this->get_arrayable_items($values);
+
+        if (0 === count($keys) && 0 === count($values)) {
+            return new static([]);
+        }
+
+        return new static(array_combine($keys, $values));
     }
 
     /**
@@ -1009,7 +1029,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function split($number_of_groups)
     {
-        return $this->is_empty() ? new static() : $this->chunk((int) ceil($this->count() / $number_of_groups));
+        $number_of_groups = (int) $number_of_groups;
+
+        if ($this->is_empty() || $number_of_groups < 1) {
+            return new static();
+        }
+
+        return $this->chunk((int) ceil($this->count() / $number_of_groups));
     }
 
     /**
@@ -1066,7 +1092,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $results[$key] = $callback($value, $key);
         }
 
-        if (is_string($results[key($results)])) {
+        if (0 === count($results)) {
+            return new static([]);
+        }
+
+        // Note: string values are sorted naturally unless the caller asked for a
+        // specific sort flag, in which case that flag wins.
+        if (SORT_REGULAR === $options && is_string($results[key($results)])) {
             $options = SORT_NATURAL | SORT_FLAG_CASE;
         }
 

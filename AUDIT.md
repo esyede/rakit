@@ -49,6 +49,19 @@ jalan di PHP 8.4+ karena `php-token-stream`).
 | 29 | `cache/drivers/file.php` `flush()` | Selalu menyapu `storage/cache`, mengabaikan `$this->path` | **fixed** |
 | 30 | `cache/drivers/file.php` `naming()` | `crc32()` 32-bit — dua key cache berbeda bisa saling menimpa | **fixed** |
 | 31 | `cache/drivers/sectionable.php` `remember_in_section()` | `$default` dan `$minutes` tertukar saat memanggil `Driver::remember()` | **fixed** |
+| 32 | `storage.php` `move()` | Pesan galat terbalik ("does not exists" padahal sudah ada) | **fixed** |
+| 33 | `storage.php` `rmdir()` | `rmdir()` gagal secara diam-diam (mengembalikan `false`, bukan melempar) | **fixed** |
+| 34 | `paginator.php` `appendage()` | Kondisi terbalik — `appends()` dibuang, tautan tanpa append dapat `&` menggantung | **fixed** |
+| 35 | `paginator.php` `make()`/`page()` | Pembagian dengan nol saat `$perpage <= 0` | **fixed** |
+| 36 | `response.php` `cookies()` | `array_values()` menggeser `samesite` ke parameter `$httpOnly` — SameSite selalu jatuh ke default | **fixed** |
+| 37 | `response.php` `download()` | Seluruh berkas dimuat ke memori padahal isinya di-stream ulang | **fixed** |
+| 38 | `request.php` `matches_type()` | `false !== preg_match()` → selalu `true` (0 juga bukan `false`) | **fixed** |
+| 39 | `request.php` `prefers()` | Nilai `$formats` berupa array diteruskan ke `explode()`/`strtok()` → `TypeError` di PHP 8 | **fixed** |
+| 40 | `request.php` `prefetch()` | `strcasecmp(null, ...)` — deprecated di PHP 8.1 | **fixed** |
+| 41 | `collection.php` `last()` | Item hasil pencarian dijalankan lewat `value()` bila kebetulan callable | **fixed** |
+| 42 | `collection.php` `map()`/`combine()` | `array_combine([], [])` warning + `false` di PHP < 8.0 | **fixed** |
+| 43 | `collection.php` `sort_by()` | Koleksi kosong memicu warning "Undefined array key"; `$options` eksplisit diabaikan | **fixed** |
+| 44 | `collection.php` `split()`/`every()` | Pembagian/modulo dengan nol | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

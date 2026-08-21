@@ -140,7 +140,7 @@ class Storage
         }
 
         if (static::isfile($to) && !$overwrite) {
-            throw new \Exception(sprintf('Destination file does not exists: %s', $to));
+            throw new \Exception(sprintf('Destination file already exists: %s', $to));
         }
 
         rename($from, $to);
@@ -246,11 +246,17 @@ class Storage
             }
 
             if (!$preserve) {
+                // Note: rmdir() reports failure by returning FALSE (plus a warning),
+                // it does not throw, so the return value has to be checked too.
                 try {
-                    rmdir($path);
+                    $removed = @rmdir($path);
                 } catch (\Throwable $e) {
-                    throw new \Exception(sprintf('Unable to remove path: %s', $path));
+                    $removed = false;
                 } catch (\Exception $e) {
+                    $removed = false;
+                }
+
+                if (!$removed) {
                     throw new \Exception(sprintf('Unable to remove path: %s', $path));
                 }
             }

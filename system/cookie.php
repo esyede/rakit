@@ -154,7 +154,8 @@ class Cookie
         }
 
         $expiration = (0 === (int) $expiration) ? 0 : (time() + ($expiration * 60));
-        $samesite = strtolower((string) is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite);
+        $samesite = is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite;
+        $samesite = strtolower((string) $samesite);
 
         if (!in_array($samesite, ['lax', 'strict', 'none'])) {
             throw new \Exception(sprintf('The "samesite" parameter value is not valid: %s (%s)', $samesite, gettype($samesite)));
