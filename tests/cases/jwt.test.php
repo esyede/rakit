@@ -322,4 +322,52 @@ class JWTTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $decoded->foo);
         $this->assertEquals($new_exp, $decoded->exp);
     }
+
+    /**
+     * The algorithm must be pinnable so a token cannot pick its own.
+     *
+     * @group system
+     */
+    public function testAlgorithmCanBePinned()
+    {
+        $encoded = JWT::encode(['foo' => 'bar'], 'secret', [], 'HS256');
+
+        $decoded = JWT::decode($encoded, 'secret', ['algorithm' => 'HS256']);
+        $this->assertEquals('bar', $decoded->foo);
+
+        $decoded = JWT::decode($encoded, 'secret', ['algorithm' => ['HS256', 'HS512']]);
+        $this->assertEquals('bar', $decoded->foo);
+
+        try {
+            JWT::decode($encoded, 'secret', ['algorithm' => 'HS512']);
+            $this->fail('Expected the pinned algorithm to be enforced.');
+        } catch (\Exception $e) {
+            $this->assertContains('Algorithm not allowed', $e->getMessage());
+        }
+    }
+
+    /**
+     * A required audience or issuer must not be bypassable by leaving the claim
+     * out of the token.
+     *
+     * @group system
+     */
+    public function testMissingAudienceOrIssuerIsRejected()
+    {
+        $encoded = JWT::encode(['foo' => 'bar'], 'secret');
+
+        try {
+            JWT::decode($encoded, 'secret', ['aud' => 'expected_aud']);
+            $this->fail('Expected a missing audience to be rejected.');
+        } catch (\Exception $e) {
+            $this->assertEquals('Invalid audience', $e->getMessage());
+        }
+
+        try {
+            JWT::decode($encoded, 'secret', ['iss' => 'expected_iss']);
+            $this->fail('Expected a missing issuer to be rejected.');
+        } catch (\Exception $e) {
+            $this->assertEquals('Invalid issuer', $e->getMessage());
+        }
+    }
 }

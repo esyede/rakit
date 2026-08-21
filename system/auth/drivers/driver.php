@@ -157,8 +157,28 @@ abstract class Driver
      */
     protected function recall()
     {
-        $cookie = Cookie::get($this->recaller());
-        return is_null($cookie) ? null : head(explode('|', Crypter::decrypt($cookie)));
+        // Note: a stale or tampered cookie makes Cookie::get()/Crypter::decrypt()
+        // throw. That must not take the whole request down - it only means the
+        // visitor cannot be recalled, e.g. after the application key was rotated.
+        try {
+            $cookie = Cookie::get($this->recaller());
+        } catch (\Throwable $e) {
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        if (is_null($cookie) || '' === $cookie) {
+            return null;
+        }
+
+        try {
+            return head(explode('|', Crypter::decrypt($cookie)));
+        } catch (\Throwable $e) {
+            return null;
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**
@@ -171,7 +191,16 @@ abstract class Driver
     protected function cookie($name, $value, $minutes)
     {
         $config = Config::get('session');
-        Cookie::put($name, $value, $minutes, $config['path'], $config['domain'], $config['secure']);
+
+        Cookie::put(
+            $name,
+            $value,
+            $minutes,
+            $config['path'],
+            $config['domain'],
+            $config['secure'],
+            isset($config['samesite']) ? $config['samesite'] : 'lax'
+        );
     }
 
     /**

@@ -1093,4 +1093,107 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $input['type'] = 'user';
         $this->assertTrue(Validator::make($input, $rules)->valid());
     }
+
+    /**
+     * Test for 'array' rule.
+     *
+     * @group system
+     */
+    public function testTheArrayRule()
+    {
+        $rules = ['tags' => 'array'];
+
+        $this->assertTrue(Validator::make(['tags' => ['a', 'b']], $rules)->valid());
+        $this->assertTrue(Validator::make(['tags' => []], $rules)->valid());
+        $this->assertTrue(Validator::make(['tags' => ['x' => 1]], $rules)->valid());
+        $this->assertFalse(Validator::make(['tags' => 'a,b'], $rules)->valid());
+        $this->assertFalse(Validator::make(['tags' => 5], $rules)->valid());
+    }
+
+    /**
+     * Test for 'array' rule with a list of allowed keys.
+     *
+     * @group system
+     */
+    public function testTheArrayRuleWithAllowedKeys()
+    {
+        $rules = ['options' => 'array:width,height'];
+
+        $this->assertTrue(Validator::make(['options' => ['width' => 1]], $rules)->valid());
+        $this->assertTrue(Validator::make(['options' => ['width' => 1, 'height' => 2]], $rules)->valid());
+        $this->assertFalse(Validator::make(['options' => ['width' => 1, 'depth' => 3]], $rules)->valid());
+    }
+
+    /**
+     * Test for 'count' rule.
+     *
+     * @group system
+     */
+    public function testTheCountRule()
+    {
+        $rules = ['tags' => 'count:2'];
+
+        $this->assertTrue(Validator::make(['tags' => ['a', 'b']], $rules)->valid());
+        $this->assertFalse(Validator::make(['tags' => ['a']], $rules)->valid());
+        $this->assertFalse(Validator::make(['tags' => ['a', 'b', 'c']], $rules)->valid());
+    }
+
+    /**
+     * Test for 'countmin', 'countmax' and 'countbetween' rules.
+     *
+     * @group system
+     */
+    public function testTheCountRangeRules()
+    {
+        $this->assertTrue(Validator::make(['tags' => ['a', 'b']], ['tags' => 'countmin:1'])->valid());
+        $this->assertFalse(Validator::make(['tags' => ['a']], ['tags' => 'countmin:2'])->valid());
+
+        $this->assertTrue(Validator::make(['tags' => ['a', 'b']], ['tags' => 'countmax:3'])->valid());
+        $this->assertFalse(Validator::make(['tags' => ['a', 'b', 'c']], ['tags' => 'countmax:2'])->valid());
+
+        $this->assertTrue(Validator::make(['tags' => ['a', 'b']], ['tags' => 'countbetween:1,3'])->valid());
+        $this->assertFalse(Validator::make(['tags' => ['a', 'b', 'c', 'd']], ['tags' => 'countbetween:1,3'])->valid());
+    }
+
+    /**
+     * A regex pattern that carries a comma must survive the parameter split.
+     *
+     * @group system
+     */
+    public function testTheRegexRuleWithCommaInThePattern()
+    {
+        $rules = ['field' => 'regex:/^[a-z]{2,4}$/'];
+
+        $this->assertTrue(Validator::make(['field' => 'abc'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => 'a'], $rules)->valid());
+        $this->assertFalse(Validator::make(['field' => 'abcdef'], $rules)->valid());
+    }
+
+    /**
+     * Same for the negated variant.
+     *
+     * @group system
+     */
+    public function testTheNotRegexRuleWithCommaInThePattern()
+    {
+        $rules = ['field' => 'not_regex:/^[a-z]{2,4}$/'];
+
+        $this->assertFalse(Validator::make(['field' => 'abc'], $rules)->valid());
+        $this->assertTrue(Validator::make(['field' => 'abcdef'], $rules)->valid());
+    }
+
+    /**
+     * The size of a numeric attribute is its value, also when the attribute is
+     * addressed with dot notation.
+     *
+     * @group system
+     */
+    public function testSizeRulesOnNestedNumericAttribute()
+    {
+        $input = ['meta' => ['age' => 30]];
+
+        $this->assertTrue(Validator::make($input, ['meta.age' => 'integer|min:18'])->valid());
+        $this->assertFalse(Validator::make($input, ['meta.age' => 'integer|min:40'])->valid());
+        $this->assertTrue(Validator::make($input, ['meta.age' => 'numeric|between:20,40'])->valid());
+    }
 }

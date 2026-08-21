@@ -6,9 +6,9 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 
 | Metrik | Awal | Sekarang |
 | --- | ---: | ---: |
-| Test | 1668 | 1668 |
-| Assertion | 5266 | 5266 |
-| Coverage baris (file yang ter-load) | 64.20% | 64.20% |
+| Test | 1668 | 1683 |
+| Assertion | 5266 | 5321 |
+| Coverage baris (file yang ter-load) | 64.20% | 64.49% |
 | File `system/` tidak pernah ter-load saat test | 72 | 72 |
 
 Coverage diukur dengan ekstensi `pcov`.
@@ -99,6 +99,12 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 63 | `validator.php` `validate_count()` dan `count*` | Ikut rusak karena `validate_array()`; `count` juga membandingkan `'3' === 3` | **fixed** |
 | 64 | `validator.php` `validate_regex()`/`validate_not_regex()` | Pola yang mengandung koma terpotong oleh pemisah parameter | **fixed** |
 | 65 | `validator.php` `size()` | `$this->attributes[$attribute]` meleset untuk atribut ber-notasi titik; `$value['size']` tanpa penjagaan | **fixed** |
+| 66 | `auth/drivers/driver.php` `recall()` | Cookie "remember me" basi/rusak melempar exception saat konstruksi driver — seluruh request mati | **fixed** |
+| 67 | `auth/drivers/driver.php` `cookie()` | `session.samesite` tidak diteruskan | **fixed** |
+| 68 | `jwt.php` `decode()` | Algoritma diambil dari token itu sendiri (celah *alg confusion*); kini bisa dipatok lewat `$options['algorithm']` | **fixed** |
+| 69 | `jwt.php` `decode()` | Cek `aud`/`iss` dilewati bila klaimnya tidak ada di token — bisa di-bypass | **fixed** |
+| 70 | `job.php` `factory()` | `Job::extend()` mengisi `$registrar` tapi `factory()` tidak pernah membacanya | **fixed** |
+| 71 | `image.php` `rgb()` | Warna heksa 6 digit bernilai < 0x1000 (mis. `0000ff`) dibaca sebagai singkatan 3 digit | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 
