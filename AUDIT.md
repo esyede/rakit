@@ -6,12 +6,22 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 
 | Metrik | Awal | Sekarang |
 | --- | ---: | ---: |
-| Test | 1668 | 1760 |
-| Assertion | 5266 | 5833 |
-| Coverage baris (file yang ter-load) | 64.20% | lihat di bawah |
-| File `system/` tidak pernah ter-load saat test | 72 | lihat di bawah |
+| Test | 1668 | 1896 |
+| Assertion | 5266 | 6343 |
+| Bug ditemukan & diperbaiki | — | 123 |
+| Coverage baris | 64.20% | **70.68%** |
+| Berkas `system/` yang tidak pernah ter-load saat test | 72 | 44 |
 
-Coverage diukur dengan ekstensi `pcov`.
+Coverage diukur dengan ekstensi `pcov` (php-code-coverage bawaan PHPUnit 4.8
+tidak jalan di PHP 8 sebelum patch di bawah diterapkan):
+
+```
+php -d pcov.enabled=1 -d pcov.directory=system vendor/bin/phpunit -c phpunit.xml --coverage-text
+```
+
+Seluruh berkas test hijau, baik dijalankan sebagai satu suite maupun **satu per
+satu**. Tidak ada lagi peringatan atau *deprecation* yang berasal dari
+`system/` pada PHP 8.4.
 
 ## Patch PHPUnit
 
@@ -170,20 +180,81 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 Seluruh berkas test kini juga hijau saat dijalankan **satu per satu**, bukan
 hanya sebagai satu suite.
 
-## Berkas tanpa test sama sekali (never loaded)
+## Berkas test yang ditambahkan
 
-- `system/boot.php`, `system/init.php`
-- `system/console/**` (seluruh folder: console, table, color, dependencies, boot,
-  commands/*, fiddle/*)
-- `system/foundation/oops/**` (bar, context, defaults, dumper, helpers, outputs,
-  panic, storage)
-- `system/redis.php`, `system/memcached.php`
-- `system/cache/drivers/{apc,database,redis,memcached}.php`
-- `system/session/drivers/{apc,cookie,database,redis,memcached}.php`
-- `system/job/drivers/{redis,memcached}.php`
-- `system/email/drivers/{mail,sendmail,smtp}.php`
-- `system/database/connectors/{mysql,postgres,sqlserver}.php`
-- `system/database/query/grammars/{mysql,postgres,sqlserver}.php`
-- `system/database/schema/grammars/{mysql,postgres,sqlserver}.php`
-- `system/routing/resource.php`
-- `system/foundation/faker/calculator/{ean,inn}.php`, `foundation/faker/valid.php`
+| Berkas | Cakupan |
+| --- | --- |
+| `tests/cases/schema-grammars.test.php` | Grammar skema MySQL, Postgres, SQL Server |
+| `tests/cases/database-drivers.test.php` | Grammar kueri dan connector keempat driver |
+| `tests/cases/console.test.php` | `Console::options()`/`parse()`, `Color`, `Table`, helper `Command` |
+| `tests/cases/routing-resource.test.php` | `Routing\Resource` |
+| `tests/cases/faker-calculators-extras.test.php` | Kalkulator `Ean`, `Inn`, `Valid`, resolusi locale |
+| `tests/cases/fiddle.test.php` | Parser dan inspector konsol interaktif |
+| `tests/cases/oops-helpers.test.php` | `Oops\Helpers` dan `Oops\Dumper` |
+| `tests/cases/redis.test.php` | `System\Redis` + driver cache/session Redis |
+| `tests/cases/job-redis.test.php` | Driver job Redis, ujung ke ujung |
+| `tests/cases/storage-drivers.test.php` | Driver cache database, driver session database dan cookie |
+| `tests/cases/email-message.test.php` | Pembentuk pesan email dan penolakan header injection |
+| `tests/cases/facile-eager-loading.test.php` | Seluruh jenis relasi Facile terhadap baris sungguhan |
+
+Selain itu, `facile-soft-delete.test.php`, `facile.test.php`, `validator.test.php`,
+`jwt.test.php`, `blade.test.php`, `cache.test.php`, dan `websocket-server.test.php`
+diperluas.
+
+## Sisa pekerjaan
+
+Target 100% coverage belum tercapai. Berikut yang masih tersisa, diurutkan dari
+yang paling mudah dikerjakan.
+
+### 1. Butuh layanan eksternal (44 berkas "never loaded" sebagian besar di sini)
+
+Driver-driver ini hanya bisa diuji kalau layanannya tersedia. Pola yang sudah
+dipakai `redis.test.php` (lewati test bila server tidak dapat dihubungi, dan
+sediakan service-nya di CI) bisa ditiru:
+
+- `memcached.php`, `cache/drivers/memcached.php`, `session/drivers/memcached.php`,
+  `job/drivers/memcached.php` — butuh server memcached + ekstensi `memcached`.
+- `cache/drivers/apc.php`, `session/drivers/apc.php` — butuh ekstensi `apcu`.
+- `email/drivers/{smtp,mail,sendmail}.php` — butuh server SMTP palsu (mis.
+  MailHog) atau *stub* pada level socket.
+
+### 2. Perintah konsol (~1.800 baris)
+
+`console/commands/**` seluruhnya belum tersentuh. Sebagian besar berupa
+orkestrasi berkas dan proses (`make`, `migrate`, `package`, `serve`, `websocket`,
+`clear`, `session`, `job`, `route`, `help`). Yang paling layak diuji lebih dulu:
+
+- `migrate/{database,migrator,resolver}.php` — bisa diuji dengan sqlite.
+- `make.php` — hanya menulis berkas dari stub, bisa diarahkan ke direktori
+  sementara.
+- `package/{repository,publisher,packager}.php` — perlu *stub* HTTP.
+
+### 3. Debug bar dan halaman error (`foundation/oops`, ~2.400 baris tersisa)
+
+`bar.php`, `panic.php`, `defaults.php`, `storage.php`, `context.php`, dan
+`outputs.php` menghasilkan HTML untuk debug bar. Pengujiannya paling masuk akal
+lewat *snapshot* keluaran HTML-nya.
+
+### 4. Bootstrap
+
+`system/boot.php`, `system/init.php`, dan `system/console/boot.php` bersifat
+prosedural dan sudah berjalan sebagai bagian dari bootstrap test, tapi tidak
+terhitung karena dimuat sebelum pengukuran dimulai.
+
+### 5. Catatan lain (bukan bug, tapi perlu diperhatikan)
+
+- `tests/fixtures/storage/database/application.sqlite` ikut terlacak Git dan
+  berubah setiap kali test dijalankan, jadi `git status` selalu kotor setelah
+  test. Sebaiknya berkas ini dibuat ulang saat bootstrap test dan dimasukkan ke
+  `.gitignore`.
+- `Package::exists()` dan `Package::names()` membandingkan nama paket dengan
+  kepekaan huruf yang berbeda. Untuk sekarang tidak masalah karena nama paket
+  konvensinya huruf kecil semua.
+- `Auth\Drivers\Driver::login()` tidak me-regenerasi id sesi. Menambahkan
+  `Session::regenerate()` di sana akan menutup celah *session fixation*, tapi itu
+  perubahan perilaku autentikasi, jadi diserahkan ke pemilik proyek.
+- `job/drivers/memcached.php` membaca-lalu-menulis kunci `all_jobs` tanpa CAS,
+  sehingga bisa kehilangan job saat ada dua worker bersamaan.
+- Kedua patch PHPUnit di folder `patches/` sebaiknya dipindahkan ke
+  <https://github.com/esyede/phpunit-patches> supaya sejalan dengan patch yang
+  lain (lihat catatan di bagian Patch PHPUnit).
