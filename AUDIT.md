@@ -142,6 +142,9 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 106 | `memcached.php` `connect()` | `$server['weight']` wajib padahal opsional di berkas config | **fixed** |
 | 107 | `cache/drivers/memcached.php` `retrieve()` | Nilai `false` yang tersimpan tidak bisa dibedakan dari cache miss | **fixed** |
 | 108 | `memcached.php` `$connection` | `protected static`, tidak konsisten dengan registry driver lain | **fixed** |
+| 109 | `foundation/http/upload.php` `getMaxFilesize()` | Aritmetika pada `'2M'` memicu warning "A non-numeric value encountered" tiap panggilan | **fixed** |
+| 110 | `foundation/http/upload.php` `getTargetFile()` | Kegagalan `mkdir()` tidak terdeteksi (mengembalikan `false`, bukan melempar) | **fixed** |
+| 111 | `log.php` `write()` | Kegagalan `file_put_contents()` tidak terdeteksi, jadi berkas log cadangan tidak pernah dipakai | **fixed** |
 
 ## Temuan (isolasi test)
 

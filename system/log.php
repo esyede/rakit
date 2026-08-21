@@ -130,36 +130,35 @@ class Log
             Hook::fire('rakit.log', [$type, $message, $context]);
         }
 
+        $formatted = static::format($type, $message, $context);
+        $written = false;
+
+        // Note: file_put_contents() reports failure by returning FALSE, it does
+        // not throw. Relying only on the catch below meant the fallback log was
+        // never reached when the channel file could not be written.
         try {
             $channel = static::$channel;
             $date = Carbon::now()->format('Y-m-d');
             $appname = Config::get('application.name');
             $file = ((is_string($channel) && strlen($channel)) ? $channel : ($appname ? Str::slug($appname) : 'rakit')) . '_' . $date . '.log.php';
             $path = path('storage') . 'logs' . DS . $file;
-            $formatted = static::format($type, $message, $context);
 
-            file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+            $written = (false !== @file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0)));
         } catch (\Throwable $e) {
-            $path = path('storage') . 'logs' . DS . 'rakit.log.php';
-            $formatted = static::format($type, $message, $context);
-
-            try {
-                file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
-            } catch (\Throwable $ex) {
-                // Silent fail when fallback also fails
-            } catch (\Exception $ex) {
-                // Silent fail when fallback also fails
-            }
+            $written = false;
         } catch (\Exception $e) {
+            $written = false;
+        }
+
+        if (!$written) {
             $path = path('storage') . 'logs' . DS . 'rakit.log.php';
-            $formatted = static::format($type, $message, $context);
 
             try {
-                file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+                @file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
             } catch (\Throwable $ex) {
-                // Silent fail when fallback also fails
+                // Silent fail when the fallback also fails
             } catch (\Exception $ex) {
-                // Silent fail when fallback also fails
+                // Silent fail when the fallback also fails
             }
         }
 
