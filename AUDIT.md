@@ -125,6 +125,8 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 89 | `email.php` `factory()` | Driver `'log'` yang didokumentasikan di config ditolak (hanya `'dummy'` yang diterima) | **fixed** |
 | 90 | `foundation/oops/defaults.php` | Pembagian dengan nol saat semua waktu kueri 0 — panel N+1 di debug bar fatal | **fixed** |
 | 91 | `foundation/faker/provider/barcode.php` `eanChecksum()` | Urutan bobot salah untuk EAN-8 — **semua** EAN-8 yang dihasilkan check digit-nya salah | **fixed** |
+| 92 | `foundation/faker/factory.php` `getProviderClassname()` | Fallback provider memakai bahasa aplikasi, bukan provider netral — `fake('en')` mengembalikan data berbahasa Indonesia | **fixed** |
+| 93 | `foundation/faker/provider/phone.php` `phoneNumber()` | Placeholder `{{areaCode}}` tidak pernah di-parse — nomor telepon `en` keluar mentah | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

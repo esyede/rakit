@@ -8,8 +8,11 @@ class Phone extends Base
 {
     protected static $formats = ['###-###-###'];
 
-    public static function phoneNumber()
+    public function phoneNumber()
     {
-        return static::numerify(static::randomElement(static::$formats));
+        // Note: the formats of some locales carry '{{areaCode}}' style
+        // placeholders, so they have to go through the generator first. Without
+        // that they ended up in the result verbatim.
+        return static::numerify($this->generator->parse(static::randomElement(static::$formats)));
     }
 }

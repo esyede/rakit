@@ -223,4 +223,88 @@ class FakerCalculatorsExtrasTest extends \PHPUnit_Framework_TestCase
     {
         new Valid(Factory::create('en'), 'not a callable at all');
     }
+
+    // -------------------------------------------------------------------------
+    // Factory locale resolution
+    // -------------------------------------------------------------------------
+
+    /**
+     * Asking for a locale must not hand back another locale's data.
+     *
+     * The provider fallback used to be the application's own language, so on an
+     * Indonesian application fake('en') returned Indonesian colours.
+     *
+     * @group system
+     */
+    public function testFactoryDoesNotFallBackToTheApplicationLanguage()
+    {
+        $this->assertEquals('id', \System\Config::get('application.language'));
+
+        $english = ['black', 'maroon', 'green', 'navy', 'olive', 'purple', 'teal',
+            'lime', 'blue', 'silver', 'gray', 'yellow', 'fuchsia', 'aqua', 'white'];
+
+        $faker = Factory::create('en');
+
+        for ($i = 0; $i < 20; $i++) {
+            $this->assertContains($faker->safeColorName, $english);
+        }
+
+        // The Indonesian locale keeps its own provider.
+        $faker = Factory::create('id');
+        $this->assertNotContains($faker->safeColorName, $english);
+    }
+
+    /**
+     * An unknown locale is refused.
+     *
+     * @group system
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testFactoryRejectsUnknownLocale()
+    {
+        Factory::create('xx_YY');
+    }
+
+    // -------------------------------------------------------------------------
+    // Phone numbers
+    // -------------------------------------------------------------------------
+
+    /**
+     * A phone format may carry '{{...}}' placeholders, which have to be
+     * resolved before the number is handed back.
+     *
+     * @group system
+     */
+    public function testPhoneNumberResolvesPlaceholders()
+    {
+        foreach (['en', 'id'] as $locale) {
+            $faker = Factory::create($locale);
+
+            for ($i = 0; $i < 20; $i++) {
+                $number = $faker->phoneNumber;
+
+                $this->assertNotContains('{{', $number, $locale);
+                $this->assertNotContains('#', $number, $locale);
+                $this->assertRegExp('/[0-9]/', $number, $locale);
+            }
+        }
+    }
+
+    /**
+     * The toll free variant of the same thing.
+     *
+     * @group system
+     */
+    public function testTollFreePhoneNumberResolvesPlaceholders()
+    {
+        $faker = Factory::create('en');
+
+        for ($i = 0; $i < 20; $i++) {
+            $number = $faker->tollFreePhoneNumber;
+
+            $this->assertNotContains('{{', $number);
+            $this->assertNotContains('#', $number);
+        }
+    }
 }
