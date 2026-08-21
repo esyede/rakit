@@ -127,6 +127,11 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 91 | `foundation/faker/provider/barcode.php` `eanChecksum()` | Urutan bobot salah untuk EAN-8 — **semua** EAN-8 yang dihasilkan check digit-nya salah | **fixed** |
 | 92 | `foundation/faker/factory.php` `getProviderClassname()` | Fallback provider memakai bahasa aplikasi, bukan provider netral — `fake('en')` mengembalikan data berbahasa Indonesia | **fixed** |
 | 93 | `foundation/faker/provider/phone.php` `phoneNumber()` | Placeholder `{{areaCode}}` tidak pernah di-parse — nomor telepon `en` keluar mentah | **fixed** |
+| 94 | `websocket/server.php` `deframe()` | `case 9` tanpa `break` — server **tidak pernah** membalas ping, klien time out | **fixed** |
+| 95 | `websocket/server.php` `deframe()` | Frame pong (opcode 10) diperlakukan sebagai data aplikasi | **fixed** |
+| 96 | `websocket/server.php` `apply_mask()` | Kunci mask dibangun byte demi byte lalu dipotong satu-satu — kuadratik terhadap ukuran payload | **fixed** |
+| 97 | `websocket/server.php` `frame()` | Tipe frame tak dikenal menghasilkan `$b1` tak terdefinisi (opcode 0 diam-diam) | **fixed** |
+| 98 | `websocket/server.php` `handshake()` | `$reqResource[1]` dibaca tanpa memeriksa hasil `preg_match()` | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

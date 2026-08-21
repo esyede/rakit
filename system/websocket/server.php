@@ -232,8 +232,11 @@ class Server
                 $header = explode(':', $line, 2);
                 $headers[strtolower(trim($header[0]))] = trim($header[1]);
             } elseif (stripos($line, 'get ') !== false) {
-                preg_match('/GET (.*) HTTP/i', $buffer, $reqResource);
-                $headers['get'] = trim($reqResource[1]);
+                // Note: the line only *looks* like a request line, the pattern may
+                // still not match - so the capture has to be checked before use.
+                if (preg_match('/GET (.*) HTTP/i', $buffer, $reqResource)) {
+                    $headers['get'] = trim($reqResource[1]);
+                }
             }
         }
 
@@ -421,6 +424,8 @@ class Server
             case 'close':      $b1 = 8; break;
             case 'ping':       $b1 = 9; break;
             case 'pong':       $b1 = 10; break;
+            default:
+                throw new \InvalidArgumentException(sprintf('Unsupported frame type: %s', $type));
         }
 
         if ($continue) {
@@ -537,12 +542,22 @@ class Server
         $close = false;
 
         switch ($headers['opcode']) {
+            // continuation, text and binary frames carry application data
             case 0:
             case 1:
-            case 2:
-            case 10: break;
+            case 2:  break;
+
+            // close
             case 8:  $user->disconnecting = true; return '';
-            case 9:  $pong = true;
+
+            // ping: must be answered with a pong. Note the break - without it
+            // this fell through to 'default', which set $close and returned
+            // before the pong was ever sent, so the server never answered a ping.
+            case 9:  $pong = true; break;
+
+            // pong: a control frame, never application data
+            case 10: return false;
+
             default: $close = true; break;
         }
 
@@ -643,13 +658,16 @@ class Server
             return $payload;
         }
 
-        while (strlen($effective) < strlen($payload)) {
-            $effective .= $mask;
+        $length = strlen($payload);
+
+        if (0 === $length || '' === $mask) {
+            return $payload;
         }
 
-        while (strlen($effective) > strlen($payload)) {
-            $effective = substr($effective, 0, -1);
-        }
+        // Note: built in one pass. Growing the key byte by byte and then
+        // trimming it the same way was quadratic in the payload size.
+        $effective = str_repeat($mask, (int) ceil($length / strlen($mask)));
+        $effective = substr($effective, 0, $length);
 
         return $effective ^ $payload;
     }
