@@ -4,10 +4,14 @@ on:
     push:
         paths:
             - '**/*.php'
+            - 'composer.json'
+            - 'composer.lock'
             - '.github/workflows/**'
     pull_request:
         paths:
             - '**/*.php'
+            - 'composer.json'
+            - 'composer.lock'
             - '.github/workflows/**'
 
 concurrency:
@@ -49,6 +53,13 @@ jobs:
                     --health-interval 10s
                     --health-timeout 5s
                     --health-retries 5
+            # Note: same idea for the memcached-backed job driver tests. They
+            # need both a server and the extension, and skip themselves when
+            # either is missing.
+            memcached:
+                image: memcached:1-alpine
+                ports:
+                    - 11211:11211
         steps:
             - name: checkout
               uses: actions/checkout@v4
@@ -56,7 +67,7 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
-                  extensions: mbstring, simplexml, dom, fileinfo, openssl, curl, gd, pdo_sqlite, pdo_mysql, pdo_pgsql
+                  extensions: mbstring, simplexml, dom, fileinfo, openssl, curl, gd, pdo_sqlite, pdo_mysql, pdo_pgsql, memcached
             - name: get composer cache directory
               id: composer-cache
               run: echo "directory=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"

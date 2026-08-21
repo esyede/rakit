@@ -29,10 +29,17 @@ if (DS === '\\') {
 }
 
 // Wrap error in try-catch for easier reading.
+// Note: the exit status matters. A command that threw used to print its error
+// and still leave the process at 0, so a broken run - a missing dependency, a
+// command that does not exist, a failure before the test runner even started -
+// showed up as a passing build on CI.
+$failed = false;
+
 try {
     Console::run(array_slice($arguments, 1));
     Config::set('database.default', $default);
 } catch (\Throwable $e) {
+    $failed = true;
 
     Config::set('database.default', $default);
     $err = sprintf('Error: %s', $e->getMessage());
@@ -48,6 +55,8 @@ try {
     }
     echo $color ? "\033[31m{$err}\033[m" : $err;
 } catch (\Exception $e) {
+    $failed = true;
+
     Config::set('database.default', $default);
     $err = sprintf('Error: %s', $e->getMessage());
 
@@ -65,3 +74,7 @@ try {
 }
 
 echo PHP_EOL;
+
+if ($failed) {
+    exit(1);
+}
