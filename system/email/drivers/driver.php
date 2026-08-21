@@ -10,6 +10,7 @@ use System\Email;
 use System\Carbon;
 use System\Config;
 use System\Storage;
+use System\Foundation\Http\Upload;
 
 abstract class Driver
 {
@@ -256,9 +257,10 @@ abstract class Driver
      */
     public function subject($subject)
     {
+        $subject = static::sanitize_header($subject);
         $this->subject = isset($this->config['encode_headers']) && $this->config['encode_headers']
-            ? $this->encode((string) $subject)
-            : (string) $subject;
+            ? $this->encode($subject)
+            : $subject;
 
         return $this;
     }
@@ -273,8 +275,8 @@ abstract class Driver
      */
     public function from($email, $name = false)
     {
-        $this->config['from']['email'] = (string) $email;
-        $this->config['from']['name'] = is_string($name) ? $name : false;
+        $this->config['from']['email'] = static::sanitize_header($email);
+        $this->config['from']['name'] = is_string($name) ? static::sanitize_header($name) : false;
 
         if ($this->config['encode_headers'] && $this->config['from']['name']) {
             $this->config['from']['name'] = $this->encode((string) $this->config['from']['name']);
@@ -348,6 +350,8 @@ abstract class Driver
      */
     public function return_path($email)
     {
+        $email = static::sanitize_header($email);
+
         $this->config['return_path'] = (string) $email;
         return $this;
     }
@@ -371,6 +375,8 @@ abstract class Driver
                 $name = false;
             }
 
+            $address = static::sanitize_header($address);
+            $name = static::sanitize_header($name);
             $name = ($this->config['encode_headers'] && $name) ? $this->encode($name) : $name;
             $this->{$list}[$address] = ['name' => $name, 'email' => $address];
         }
@@ -405,12 +411,12 @@ abstract class Driver
         if (is_array($headers)) {
             foreach ($headers as $key => $val) {
                 if (!empty($val)) {
-                    $this->extras[$key] = $val;
+                    $this->extras[static::sanitize_header($key)] = static::sanitize_header($val);
                 }
             }
         } else {
             if (!empty($value)) {
-                $this->extras[$headers] = $value;
+                $this->extras[static::sanitize_header($headers)] = static::sanitize_header($value);
             }
         }
 
@@ -489,7 +495,24 @@ abstract class Driver
     protected static function mime($file)
     {
         $mime = Storage::mime($file);
-        return $mime ?: 'application/octet-stream';
+
+        if ($mime) {
+            return $mime;
+        }
+
+        // Note: string_attach() names a file that never exists on disk, so the
+        // type is guessed from the extension rather than by reading the file.
+        $extension = strtolower((string) pathinfo((string) $file, PATHINFO_EXTENSION));
+
+        if ('' !== $extension) {
+            foreach (Upload::$extensions as $type => $extensions) {
+                if (in_array($extension, (array) $extensions, true)) {
+                    return $type;
+                }
+            }
+        }
+
+        return 'application/octet-stream';
     }
 
     /**
@@ -664,8 +687,24 @@ abstract class Driver
     protected function set_header($header, $value)
     {
         if (!empty($header)) {
-            $this->headers[$header] = $value;
+            $this->headers[static::sanitize_header($header)] = static::sanitize_header($value);
         }
+    }
+
+    /**
+     * Strip everything that could start a new header line.
+     *
+     * Note: a CR or LF reaching a header value lets the caller append headers of
+     * its own (the classic mail header injection), so they are removed from every
+     * name and value that ends up in the message head.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function sanitize_header($value)
+    {
+        return str_replace(["\r", "\n", "\0"], '', (string) $value);
     }
 
     /**
@@ -926,7 +965,10 @@ abstract class Driver
 
         foreach ($addresses as $address) {
             if (isset($address['name']) && $address['name']) {
-                $address['email'] = '"' . $address['name'] . '" <' . $address['email'] . '>';
+                // Note: the display name is quoted, so an embedded quote or
+                // backslash has to be escaped or it would end the quoted string.
+                $name = addcslashes(static::sanitize_header($address['name']), '"\\');
+                $address['email'] = '"' . $name . '" <' . static::sanitize_header($address['email']) . '>';
             }
 
             $result[] = $address['email'];

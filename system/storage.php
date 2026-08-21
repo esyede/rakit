@@ -369,7 +369,16 @@ class Storage
      */
     public static function mime($path)
     {
-        return finfo_file(finfo_open(FILEINFO_MIME_TYPE), $path);
+        // Note: finfo warns (and finfo_open may fail) instead of returning
+        // something useful when the path is not a readable file.
+        if (!static::isfile($path) || false === ($finfo = @finfo_open(FILEINFO_MIME_TYPE))) {
+            return false;
+        }
+
+        $mime = @finfo_file($finfo, $path);
+        finfo_close($finfo);
+
+        return $mime;
     }
 
     /**

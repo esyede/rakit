@@ -145,6 +145,10 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 109 | `foundation/http/upload.php` `getMaxFilesize()` | Aritmetika pada `'2M'` memicu warning "A non-numeric value encountered" tiap panggilan | **fixed** |
 | 110 | `foundation/http/upload.php` `getTargetFile()` | Kegagalan `mkdir()` tidak terdeteksi (mengembalikan `false`, bukan melempar) | **fixed** |
 | 111 | `log.php` `write()` | Kegagalan `file_put_contents()` tidak terdeteksi, jadi berkas log cadangan tidak pernah dipakai | **fixed** |
+| 112 | `email/drivers/driver.php` | **Header injection**: CR/LF pada subject, alamat, nama tampilan, `return_path`, dan header kustom bisa menyisipkan header baru (mis. `Bcc:`) | **fixed** |
+| 113 | `email/drivers/driver.php` `format()` | Kutip di dalam nama tampilan tidak di-escape sehingga menutup string berkutip | **fixed** |
+| 114 | `email/drivers/driver.php` `mime()` | `string_attach()` menebak mime dengan membaca berkas yang memang tidak ada → warning tiap panggilan | **fixed** |
+| 115 | `storage.php` `mime()` | `finfo_file()` pada berkas yang tidak ada memicu warning, dan handle `finfo` tidak pernah ditutup | **fixed** |
 
 ## Temuan (isolasi test)
 
