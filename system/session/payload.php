@@ -66,9 +66,26 @@ class Payload
             $this->session = $this->driver->load($id);
         }
 
+        // Note: a driver may hand back something that is not a payload at all
+        // (unserialize() returns FALSE for a truncated or corrupted store), so
+        // anything that is not a well-formed array is treated as "no session".
+        if (!is_array($this->session) || !isset($this->session['id'])) {
+            $this->session = null;
+        }
+
         if (is_null($this->session) || static::expired($this->session)) {
             $this->exists = false;
             $this->session = $this->driver->fresh();
+        }
+
+        if (!isset($this->session['data']) || !is_array($this->session['data'])) {
+            $this->session['data'] = [];
+        }
+
+        foreach ([':new:', ':old:'] as $bag) {
+            if (!isset($this->session['data'][$bag]) || !is_array($this->session['data'][$bag])) {
+                $this->session['data'][$bag] = [];
+            }
         }
     }
 
@@ -125,10 +142,16 @@ class Payload
 
         if (!is_null($value = Arr::get($this->session['data'], $key))) {
             return $value;
-        } elseif (!is_null($value = Arr::get($this->session['data'][':new:'], $key))) {
-            return $value;
-        } elseif (!is_null($value = Arr::get($this->session['data'][':old:'], $key))) {
-            return $value;
+        }
+
+        foreach ([':new:', ':old:'] as $bag) {
+            if (!isset($this->session['data'][$bag]) || !is_array($this->session['data'][$bag])) {
+                continue;
+            }
+
+            if (!is_null($value = Arr::get($this->session['data'][$bag], $key))) {
+                return $value;
+            }
         }
 
         return value($default);
@@ -269,7 +292,7 @@ class Payload
      */
     public function activity()
     {
-        return $this->session['last_activity'];
+        return isset($this->session['last_activity']) ? $this->session['last_activity'] : 0;
     }
 
     /**
@@ -308,7 +331,8 @@ class Payload
             $config['expire_on_close'] ? 0 : (int) $config['lifetime'],
             $config['path'],
             $config['domain'],
-            $config['secure']
+            $config['secure'],
+            isset($config['samesite']) ? $config['samesite'] : 'lax'
         );
     }
 }

@@ -10,7 +10,7 @@ class Iban
     {
         $iban = (string) $iban;
         $iban = substr($iban, 4) . substr($iban, 0, 2) . '00';
-        $iban = preg_replace_callback('/[A-Z]/', ['self', 'alphaToNumberCallback'], $iban);
+        $iban = preg_replace_callback('/[A-Z]/', [__CLASS__, 'alphaToNumberCallback'], $iban);
         return str_pad(98 - static::mod97($iban), 2, '0', STR_PAD_LEFT);
     }
 

@@ -440,10 +440,23 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     public function testSectionableRememberInSection()
     {
         $driver = new Memory();
-        // $default=30 maps to $minutes in Driver::remember; $minutes='Alice' maps to $default (value stored)
-        $result = $driver->remember_in_section('users', 'alice', 30, 'Alice');
+
+        // Signature is ($section, $key, $default, $minutes): the value comes
+        // third, the lifetime fourth.
+        $result = $driver->remember_in_section('users', 'alice', 'Alice', 30);
         $this->assertEquals('Alice', $result);
         $this->assertEquals('Alice', $driver->get_from_section('users', 'alice'));
+
+        // An already cached section item must be returned as-is.
+        $again = $driver->remember_in_section('users', 'alice', 'Bob', 30);
+        $this->assertEquals('Alice', $again);
+
+        // Closures are resolved before being stored.
+        $lazy = $driver->remember_in_section('users', 'carol', function () {
+            return 'Carol';
+        }, 30);
+        $this->assertEquals('Carol', $lazy);
+        $this->assertEquals('Carol', $driver->get_from_section('users', 'carol'));
     }
 
     /**

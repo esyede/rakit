@@ -311,6 +311,7 @@ class View implements \ArrayAccess
         if (0 === static::$rendered) {
             Section::$sections = [];
             Section::$stacks = [];
+            Blade::forget_onces();
         }
 
         // Track view rendering for debugger

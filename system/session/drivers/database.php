@@ -38,13 +38,17 @@ class Database extends Driver
     {
         $session = $this->table()->find($id);
 
-        if (!is_null($session)) {
-            return [
-                'id' => $session->id,
-                'last_activity' => $session->last_activity,
-                'data' => unserialize($session->data),
-            ];
+        if (is_null($session)) {
+            return null;
         }
+
+        $data = @unserialize($session->data);
+
+        return [
+            'id' => $session->id,
+            'last_activity' => $session->last_activity,
+            'data' => is_array($data) ? $data : [],
+        ];
     }
 
     /**

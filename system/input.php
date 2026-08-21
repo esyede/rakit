@@ -43,7 +43,33 @@ class Input
      */
     public static function has($key)
     {
-        return '' !== trim((string) static::get($key));
+        return static::present(static::get($key));
+    }
+
+    /**
+     * Check if the given input value counts as present.
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    protected static function present($value)
+    {
+        if (is_null($value)) {
+            return false;
+        }
+
+        // Note: arrays and booleans must not be stringified here, casting an
+        // array to string raises "Array to string conversion".
+        if (is_array($value)) {
+            return count($value) > 0;
+        }
+
+        if (is_bool($value) || is_object($value)) {
+            return true;
+        }
+
+        return '' !== trim((string) $value);
     }
 
     /**
@@ -165,7 +191,7 @@ class Input
      */
     public static function had($key)
     {
-        return '' !== trim((string) static::old($key));
+        return static::present(static::old($key));
     }
 
     /**
@@ -203,9 +229,7 @@ class Input
         $key = is_array($key) ? $key : func_get_args();
 
         foreach ($key as $value) {
-            $value = static::get($value, null);
-
-            if (!is_bool($value) && !is_array($value) && trim((string) $value) === '') {
+            if (!static::present(static::get($value, null))) {
                 return false;
             }
         }

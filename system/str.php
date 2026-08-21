@@ -173,8 +173,13 @@ class Str
     public static function words($value, $words = 100, $end = '...')
     {
         $value = (string) $value;
+        $words = (int) $words;
 
-        preg_match('/^\s*+(?:\S++\s*+){1,' . ((int) $words) . '}/u', $value, $matches);
+        if ($words < 1) {
+            return ('' === $value) ? $value : $end;
+        }
+
+        preg_match('/^\s*+(?:\S++\s*+){1,' . $words . '}/u', $value, $matches);
 
         if (!isset($matches[0]) || static::length($value) === static::length($matches[0])) {
             return $value;
@@ -223,12 +228,17 @@ class Str
      * Transform a string to plural form (english only).
      *
      * @param string $string
+     * @param int    $count
      *
      * @return string
      */
-    public static function plural($string)
+    public static function plural($string, $count = 2)
     {
         $string = (string) $string;
+
+        if (1 === (int) abs($count)) {
+            return $string;
+        }
 
         if (empty(static::$strings)) {
             static::$strings = Config::get('strings');
@@ -266,7 +276,9 @@ class Str
     public static function plural_studly($value, $count = 2)
     {
         $parts = preg_split('/(.)(?=[A-Z])/u', (string) $value, -1, PREG_SPLIT_DELIM_CAPTURE);
-        return implode('', $parts) . static::plural(array_pop($parts), $count);
+        $last = array_pop($parts);
+
+        return implode('', $parts) . static::plural($last, $count);
     }
 
     /**
@@ -342,7 +354,7 @@ class Str
      */
     public static function segments($value)
     {
-        return array_diff(explode('/', trim((string) $value, '/')), ['']);
+        return array_values(array_diff(explode('/', trim((string) $value, '/')), ['']));
     }
 
     /**
@@ -402,12 +414,12 @@ class Str
         $max = count($chars) - 1;
         $result = '';
 
-        if ($max < 1 || $length < 1) {
+        if ($max < 0 || $length < 1) {
             return $result;
         }
 
         for ($i = 0; $i < $length; $i++) {
-            $result .= $chars[static::integers(0, $max - 1)];
+            $result .= $chars[static::integers(0, $max)];
         }
 
         return $result;
@@ -620,7 +632,15 @@ class Str
                 static::$ulids['chars'][$i] = 0;
             }
 
-            static::$ulids['chars'][$i]++;
+            // Every character was already at its maximum value, so the randomness
+            // part has wrapped around. Re-seed it instead of writing to index -1.
+            if ($i < 0) {
+                for ($i = 0; $i < 16; $i++) {
+                    static::$ulids['chars'][$i] = static::integers(0, 31);
+                }
+            } else {
+                static::$ulids['chars'][$i]++;
+            }
         }
 
         for ($i = 0; $i < 16; $i++) {
@@ -816,12 +836,19 @@ class Str
      */
     public static function replace_array($search, array $replace, $subject)
     {
+        $search = (string) $search;
+        $subject = (string) $subject;
+
+        if ('' === $search) {
+            return $subject;
+        }
+
         $segments = explode($search, $subject);
         $result = array_shift($segments);
 
         foreach ($segments as $segment) {
-            $replacer = array_shift($replace);
-            $result .= ($replacer ?: $search) . $segment;
+            $replacer = (count($replace) > 0) ? array_shift($replace) : null;
+            $result .= ((null === $replacer) ? $search : $replacer) . $segment;
         }
 
         return $result;

@@ -53,7 +53,9 @@ class Arr
             }
         }
 
-        return call_user_func_array('array_merge', $results);
+        // Note: array_merge() only accepts zero arguments since PHP 7.4, so the
+        // empty case has to be short-circuited to keep PHP 5.4 - 7.3 working.
+        return (0 === count($results)) ? [] : call_user_func_array('array_merge', $results);
     }
 
     /**
@@ -259,13 +261,17 @@ class Arr
         }
 
         foreach ($keys as $key) {
+            // Reset the working reference before every pass, otherwise a nested key
+            // would leave it pointing inside the array and the next key would be
+            // looked up (and removed) from the wrong level.
+            $array = &$original;
+
             if (static::exists($array, $key)) {
                 unset($array[$key]);
                 continue;
             }
 
             $parts = explode('.', $key);
-            $array = &$original;
 
             while (count($parts) > 1) {
                 $part = array_shift($parts);
@@ -606,8 +612,13 @@ class Arr
         $results = [];
 
         if (is_string($callback)) {
-            $callback = function ($item) use ($callback) {
-                return data_get($item, $callback);
+            $path = $callback;
+            $callback = function ($item) use ($path) {
+                return data_get($item, $path);
+            };
+        } elseif (is_null($callback)) {
+            $callback = function ($item) {
+                return $item;
             };
         }
 
@@ -640,6 +651,8 @@ class Arr
                 $value = static::recsort($value);
             }
         }
+
+        unset($value);
 
         if (static::associative($array)) {
             ksort($array);

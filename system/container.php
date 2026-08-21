@@ -158,19 +158,58 @@ class Container
         $dependencies = [];
 
         foreach ($parameters as $parameter) {
-            $dependency = (PHP_VERSION_ID >= 80000) ? $parameter->getType() : $parameter->getClass();
-            $dependencies[] = (count($arguments) > 0)
-                ? array_shift($arguments)
-                : (is_null($dependency) ? static::resolve_non_class($parameter) : static::resolve($dependency->getName()));
+            if (count($arguments) > 0) {
+                $dependencies[] = array_shift($arguments);
+                continue;
+            }
+
+            $dependency = static::class_name($parameter);
+            $dependencies[] = is_null($dependency)
+                ? static::resolve_non_class($parameter)
+                : static::resolve($dependency);
         }
 
         return $dependencies;
     }
 
     /**
+     * Get the class name a parameter is type-hinted with, if any.
+     * Built-in types (int, string, array, ...), union types and intersection
+     * types have no class to resolve, so they yield NULL.
+     *
+     * @param \ReflectionParameter $parameter
+     *
+     * @return string|null
+     */
+    protected static function class_name(\ReflectionParameter $parameter)
+    {
+        // Note: ReflectionNamedType only exists since PHP 7.1, so older runtimes
+        // keep using getClass() (which in turn is deprecated since PHP 8.0).
+        if (PHP_VERSION_ID < 70100) {
+            $class = $parameter->getClass();
+            return is_null($class) ? null : $class->getName();
+        }
+
+        $type = $parameter->getType();
+
+        if (!($type instanceof \ReflectionNamedType) || $type->isBuiltin()) {
+            return null;
+        }
+
+        $name = $type->getName();
+
+        if ('self' === $name || 'static' === $name) {
+            $class = $parameter->getDeclaringClass();
+            return is_null($class) ? null : $class->getName();
+        }
+
+        return $name;
+    }
+
+    /**
      * Resolve optional parameter for dependency injection.
      *
-     * @param \ReflectionParameter $paameter
+     * @param \ReflectionParameter $parameter
      *
      * @return mixed
      */

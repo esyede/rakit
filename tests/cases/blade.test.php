@@ -117,20 +117,14 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $out9 = "<?php if (count(Foo::all()) > 0): ?><?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; array_pop(\$__loop_stack); ?>";
         $out10 = "<?php while (true): ?>\nfoo\n<?php endwhile; ?>";
         $out11 = "<?php while (Foo::bar()): ?>\nfoo\n<?php endwhile; ?>";
-        $out12 = "<?php if (System\Auth::guest()): ?>\nfoo\n<?php endif; ?>";
-        $out13 = "<?php if (System\Auth::check()): ?>\nfoo\n<?php endif; ?>";
+        $out12 = "<?php if (\System\Auth::guest()): ?>\nfoo\n<?php endif; ?>";
+        $out13 = "<?php if (\System\Auth::check()): ?>\nfoo\n<?php endif; ?>";
         $out14 = "<?php if (\$errors->has('foo')): ?>\nfoo\n<?php endif; ?>";
         $out15 = "<input type=\"hidden\" name=\"_method\" value=\"PUT\" />";
-        $out16 = "<?php Section::push('scripts') ?>\n<script></script>\n<?php Section::endpush() ?>";
-        $out17 = "<?php echo Section::stack('scripts') ?>";
-        $out18 = "<?php if (Section::has('content')): ?>\nContent\n<?php endif; ?>";
-        $out19 = "<?php if (!Section::has('content')): ?>\nNo content\n<?php endif; ?>";
-        $out20 = "\n{{ \$var }}\n";
-        $out15 = "<input type=\"hidden\" name=\"_method\" value=\"PUT\" />";
-        $out16 = "<?php Section::push('scripts') ?>\n<script></script>\n<?php Section::endpush() ?>";
-        $out17 = "<?php echo Section::stack('scripts') ?>";
-        $out18 = "<?php if (Section::has('content')): ?>\nContent\n<?php endif; ?>";
-        $out19 = "<?php if (!Section::has('content')): ?>\nNo content\n<?php endif; ?>";
+        $out16 = "<?php \System\Section::push('scripts') ?>\n<script></script>\n<?php \System\Section::endpush() ?>";
+        $out17 = "<?php echo \System\Section::stack('scripts') ?>";
+        $out18 = "<?php if (\System\Section::has('content')): ?>\nContent\n<?php endif; ?>";
+        $out19 = "<?php if (!\System\Section::has('content')): ?>\nNo content\n<?php endif; ?>";
         $out20 = "\n{{ \$var }}\n";
 
         $this->assertEquals($out1, Blade::translate($blade1));
@@ -264,7 +258,32 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     {
         $blade = '@once' . "\n" . 'Unique content' . "\n" . '@endonce';
         $translated = Blade::translate($blade);
-        $this->assertEquals("\nUnique content\n", $translated);
+
+        // The decision is made at render time (see Blade::once()), never while
+        // compiling, so the compiled file must keep the block and guard it.
+        $this->assertContains('\\System\\Blade::once(', $translated);
+        $this->assertContains("\nUnique content\n", $translated);
+        $this->assertStringEndsWith('<?php endif; ?>', $translated);
+
+        // Compiling the very same block twice must produce the very same output.
+        $this->assertEquals($translated, Blade::translate($blade));
+    }
+
+    /**
+     * Test for Blade::once() - only the first call for a key returns true.
+     *
+     * @group system
+     */
+    public function testOnceIsDecidedAtRuntime()
+    {
+        Blade::forget_onces();
+
+        $this->assertTrue(Blade::once('a-key'));
+        $this->assertFalse(Blade::once('a-key'));
+        $this->assertTrue(Blade::once('another-key'));
+
+        Blade::forget_onces();
+        $this->assertTrue(Blade::once('a-key'));
     }
 
     /**

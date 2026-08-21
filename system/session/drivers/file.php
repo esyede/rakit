@@ -33,9 +33,13 @@ class File extends Driver
      */
     public function load($id)
     {
-        if (is_file($path = $this->path . $this->naming($id))) {
-            return unserialize($this->unguard(file_get_contents($path)));
+        if (!is_file($path = $this->path . $this->naming($id))) {
+            return null;
         }
+
+        $session = @unserialize($this->unguard(file_get_contents($path)));
+
+        return is_array($session) ? $session : null;
     }
 
     /**
@@ -74,7 +78,10 @@ class File extends Driver
      */
     protected function naming($id)
     {
-        return sprintf('%u', crc32($id)) . '.session.php';
+        // Note: crc32() is only 32 bits, so distinct session ids would start
+        // colliding (and therefore share one file) after a few tens of thousands
+        // of live sessions. sha1() also keeps the name free of path separators.
+        return sha1((string) $id) . '.session.php';
     }
 
     /**

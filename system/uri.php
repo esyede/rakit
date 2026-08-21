@@ -102,6 +102,8 @@ class URI
      */
     protected static function segments($uri)
     {
-        static::$segments = array_diff(explode('/', trim($uri, '/')), ['']);
+        // Note: array_diff() keeps the original keys, so re-index or a URI with an
+        // empty segment (e.g. 'foo//bar') would leave holes and shift segment().
+        static::$segments = array_values(array_diff(explode('/', trim($uri, '/')), ['']));
     }
 }

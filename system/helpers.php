@@ -167,7 +167,7 @@ if (!function_exists('trans')) {
      */
     function trans($key, array $replacements = [], $language = null)
     {
-        return Lang::line($key, $replacements, $language);
+        return \System\Lang::line($key, $replacements, $language);
     }
 }
 
@@ -368,8 +368,12 @@ if (!function_exists('retry')) {
         try {
             return $callback($attempts);
         } catch (\Throwable $e) {
+            // Note: \Throwable does not exist on PHP 5, so the \Exception branch
+            // below is what actually runs there. On PHP 7+ this branch handles
+            // both, and the original exception is rethrown as-is so callers can
+            // still catch it by its own type.
             if (!$times || ($when && !$when($e))) {
-                throw new \Exception($e->getMessage(), $e->getCode(), $e);
+                throw $e;
             }
 
             --$times;
@@ -453,9 +457,6 @@ if (!function_exists('url')) {
      *
      *      // Create URL to location within application environment
      *      $url = url('user/profile');
-     *
-     *      // Create URL to location within application environment (https)
-     *      $url = url('user/profile', true);
      *
      * </code>
      *
@@ -881,7 +882,11 @@ if (!function_exists('value')) {
      */
     function value($value)
     {
-        return (is_callable($value) && !is_string($value)) ? call_user_func($value) : $value;
+        $parameters = array_slice(func_get_args(), 1);
+
+        return (is_callable($value) && !is_string($value))
+            ? call_user_func_array($value, $parameters)
+            : $value;
     }
 }
 
@@ -1166,11 +1171,25 @@ if (!function_exists('has_cli_flag')) {
     function has_cli_flag($flag)
     {
         $arguments = (array) \System\Request::foundation()->server->get('argv');
+        $flag = (string) $flag;
+
+        if ('' === $flag) {
+            return false;
+        }
 
         foreach ($arguments as $argument) {
             $argument = (string) $argument;
 
-            if (false !== strpos($argument, '-' . $flag)) {
+            if ('-' . $flag === $argument || '--' . $flag === $argument) {
+                return true;
+            }
+
+            // Single letter flags may also be given as a bundle (e.g. '-abc').
+            if (1 === strlen($flag)
+                && '-' === substr($argument, 0, 1)
+                && '--' !== substr($argument, 0, 2)
+                && false !== strpos(substr($argument, 1), $flag)
+            ) {
                 return true;
             }
         }
@@ -1218,8 +1237,13 @@ if (!function_exists('human_filesize')) {
     {
         $precision = (int) $precision;
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-        $power = (int) min(floor(($bytes ? log($bytes) : 0) / log(1024)), count($units) - 1);
+        $bytes = is_numeric($bytes) ? (float) $bytes : 0.0;
+        $negative = ($bytes < 0);
+        $bytes = abs($bytes);
+        $power = (int) min(floor(($bytes > 0 ? log($bytes) : 0) / log(1024)), count($units) - 1);
+        $power = ($power < 0) ? 0 : $power;
         $bytes = round($bytes / pow(1024, $power), $precision);
+        $bytes = $negative ? -$bytes : $bytes;
 
         return sprintf('%.' . $precision . 'f %s', $bytes, $units[$power]);
     }

@@ -28,7 +28,7 @@ class Blade
     ];
 
     /**
-     * Contains the names of sections that should only be rendered once.
+     * Contains the keys of @once blocks that have already been rendered.
      *
      * @var array
      */
@@ -501,7 +501,7 @@ class Blade
      */
     protected static function compile_guest($value)
     {
-        return str_replace('@guest', '<?php if (System\Auth::guest()): ?>', $value);
+        return str_replace('@guest', '<?php if (\System\Auth::guest()): ?>', $value);
     }
 
     /**
@@ -525,7 +525,7 @@ class Blade
      */
     protected static function compile_auth($value)
     {
-        return str_replace('@auth', '<?php if (System\Auth::check()): ?>', $value);
+        return str_replace('@auth', '<?php if (\System\Auth::check()): ?>', $value);
     }
 
     /**
@@ -657,15 +657,42 @@ class Blade
     protected static function compile_once($value)
     {
         return preg_replace_callback('/@once(.*?)@endonce/s', function ($matches) {
+            // Note: this has to be decided at render time, not at compile time.
+            // Compiled templates are cached on disk, so stripping the block while
+            // compiling would bake the decision into the cache file and the block
+            // would stay missing on every later request.
             $key = md5($matches[1]);
 
-            if (!isset(static::$onces[$key])) {
-                static::$onces[$key] = true;
-                return $matches[1];
-            }
-
-            return '';
+            return '<?php if (\System\Blade::once(' . var_export($key, true) . ')): ?>'
+                . $matches[1]
+                . '<?php endif; ?>';
         }, $value);
+    }
+
+    /**
+     * Check (and mark) whether an @once block still needs to be rendered.
+     * Returns true only the first time it is called with a given key.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public static function once($key)
+    {
+        if (isset(static::$onces[$key])) {
+            return false;
+        }
+
+        static::$onces[$key] = true;
+        return true;
+    }
+
+    /**
+     * Forget every @once block that has been rendered so far.
+     */
+    public static function forget_onces()
+    {
+        static::$onces = [];
     }
 
     /**
@@ -703,7 +730,7 @@ class Blade
      */
     protected static function compile_push($value)
     {
-        return preg_replace(static::matcher('push'), '$1<?php Section::push$2 ?>', $value);
+        return preg_replace(static::matcher('push'), '$1<?php \System\Section::push$2 ?>', $value);
     }
 
     /**
@@ -715,7 +742,7 @@ class Blade
      */
     protected static function compile_endpush($value)
     {
-        return str_replace('@endpush', '<?php Section::endpush() ?>', $value);
+        return str_replace('@endpush', '<?php \System\Section::endpush() ?>', $value);
     }
 
     /**
@@ -727,7 +754,7 @@ class Blade
      */
     protected static function compile_stack($value)
     {
-        return preg_replace(static::matcher('stack'), '$1<?php echo Section::stack$2 ?>', $value);
+        return preg_replace(static::matcher('stack'), '$1<?php echo \System\Section::stack$2 ?>', $value);
     }
 
     /**
@@ -739,7 +766,7 @@ class Blade
      */
     protected static function compile_hassection($value)
     {
-        return preg_replace(static::matcher('hassection'), '$1<?php if (Section::has$2): ?>', $value);
+        return preg_replace(static::matcher('hassection'), '$1<?php if (\System\Section::has$2): ?>', $value);
     }
 
     /**
@@ -751,7 +778,7 @@ class Blade
      */
     protected static function compile_sectionmissing($value)
     {
-        return preg_replace(static::matcher('sectionmissing'), '$1<?php if (!Section::has$2): ?>', $value);
+        return preg_replace(static::matcher('sectionmissing'), '$1<?php if (!\System\Section::has$2): ?>', $value);
     }
 
     /**

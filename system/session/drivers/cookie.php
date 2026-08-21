@@ -26,9 +26,13 @@ class Cookie extends Driver
      */
     public function load($id)
     {
-        if (BaseCookie::has(Cookie::PAYLOAD)) {
-            return unserialize(Crypter::decrypt(BaseCookie::get(Cookie::PAYLOAD)));
+        if (!BaseCookie::has(Cookie::PAYLOAD)) {
+            return null;
         }
+
+        $session = @unserialize(Crypter::decrypt(BaseCookie::get(Cookie::PAYLOAD)));
+
+        return is_array($session) ? $session : null;
     }
 
     /**
