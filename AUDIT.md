@@ -134,6 +134,20 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 98 | `websocket/server.php` `handshake()` | `$reqResource[1]` dibaca tanpa memeriksa hasil `preg_match()` | **fixed** |
 | 99 | `cache/drivers/redis.php` `flush()` | `FLUSHALL` menghapus **seluruh** database di server Redis, termasuk milik aplikasi lain | **fixed** |
 | 100 | `redis.php` `$databases` | `protected static`, tidak konsisten dengan registry driver lain dan tidak bisa direset | **fixed** |
+| 101 | `session/drivers/cookie.php` | Payload dienkripsi dua kali (`Cookie::put()` sudah mengenkripsi) dan payload rusak melempar exception | **fixed** |
+| 102 | `cookie.php` | Cache nilai terdekripsi tidak bisa direset — nilai basi tetap dilayani setelah `$jar` dikosongkan (ditambahkan `Cookie::flush()`) | **fixed** |
+
+## Temuan (isolasi test)
+
+| # | Berkas | Ringkasan | Status |
+| --- | --- | --- | --- |
+| T1 | `tests/cases/carbon.test.php` | `testOther()` membekukan `Carbon::now()` lewat `Carbon::setNow()` dan tidak pernah meresetnya — jam ikut beku untuk semua test setelahnya | **fixed** |
+| T2 | `tests/cases/validator.test.php` | Bergantung pada bahasa aplikasi yang disetel test lain; gagal bila dijalankan sendiri | **fixed** |
+| T3 | `tests/cases/package.test.php` | Hook listener bocor antar-test dan penghitung `$_SERVER` tidak diinisialisasi | **fixed** |
+| T4 | `tests/cases/cache.test.php` | `testSectionableRememberInSection` menulis ulang bug urutan argumen alih-alih memperbaikinya | **fixed** |
+
+Seluruh berkas test kini juga hijau saat dijalankan **satu per satu**, bukan
+hanya sebagai satu suite.
 
 ## Berkas tanpa test sama sekali (never loaded)
 

@@ -37,6 +37,18 @@ jobs:
                     - "8.4"
                     - "8.5"
         runs-on: ${{ matrix.operating-system }}
+        services:
+            # Note: the Redis-backed tests skip themselves when no server answers,
+            # so this service is what actually makes them run.
+            redis:
+                image: redis:7-alpine
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
         steps:
             - name: checkout
               uses: actions/checkout@v4

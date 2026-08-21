@@ -4,7 +4,6 @@ namespace System\Session\Drivers;
 
 defined('DS') or exit('No direct access.');
 
-use System\Crypter;
 use System\Cookie as BaseCookie;
 
 class Cookie extends Driver
@@ -26,11 +25,22 @@ class Cookie extends Driver
      */
     public function load($id)
     {
-        if (!BaseCookie::has(Cookie::PAYLOAD)) {
+        // Note: Cookie::get() already decrypts, and Cookie::put() already
+        // encrypts. Wrapping the payload in a second Crypter layer here was pure
+        // overhead, and any value that does not survive it (a stale cookie, a
+        // rotated application key) has to read back as "no session" rather than
+        // taking the whole request down.
+        try {
+            if (!BaseCookie::has(Cookie::PAYLOAD)) {
+                return null;
+            }
+
+            $session = @unserialize(BaseCookie::get(Cookie::PAYLOAD));
+        } catch (\Throwable $e) {
+            return null;
+        } catch (\Exception $e) {
             return null;
         }
-
-        $session = @unserialize(Crypter::decrypt(BaseCookie::get(Cookie::PAYLOAD)));
 
         return is_array($session) ? $session : null;
     }
@@ -46,7 +56,7 @@ class Cookie extends Driver
     {
         BaseCookie::put(
             Cookie::PAYLOAD,
-            Crypter::encrypt(serialize($session)),
+            serialize($session),
             $config['lifetime'],
             $config['path'],
             $config['domain'],

@@ -200,6 +200,19 @@ class Cookie
     }
 
     /**
+     * Forget every cookie queued for this request, including the decrypted
+     * values remembered for them.
+     *
+     * Note: resetting the jar on its own is not enough, the decrypted values are
+     * cached separately and would keep being served afterwards.
+     */
+    public static function flush()
+    {
+        static::$jar = [];
+        static::$cache = [];
+    }
+
+    /**
      * Delete a cookie.
      *
      * @param string $name

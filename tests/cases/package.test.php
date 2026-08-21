@@ -15,7 +15,12 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     {
         Package::$booted = [];
         Package::$elements = [];
+        Package::$routed = [];
         unset(Package::$packages['foo']);
+
+        $_SERVER['package.dummy.boot'] = 0;
+        $_SERVER['package.dummy.routes'] = 0;
+        $_SERVER['booted.dummy'] = false;
     }
 
     /**
@@ -25,7 +30,12 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     {
         Package::$booted = [];
         Package::$elements = [];
+        Package::$routed = [];
         unset(Package::$packages['foo']);
+
+        // Hook listeners are global, so one registered by a test would keep
+        // firing for every test that runs after it.
+        Hook::clear('rakit.booted: dummy');
     }
 
     /**
@@ -55,10 +65,6 @@ class PackageTest extends \PHPUnit_Framework_TestCase
      */
     public function testBootMethodBootsPackage()
     {
-        $_SERVER['package.dummy.boot'] = 0;
-        $_SERVER['package.dummy.routes'] = 0;
-        $_SERVER['booted.dummy'] = false;
-
         Hook::listen('rakit.booted: dummy', function () {
             $_SERVER['booted.dummy'] = true;
             // Indicates that the dummy package has been booted: it's routes.php file is in get_included_files()

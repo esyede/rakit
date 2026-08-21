@@ -16,6 +16,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     {
         $this->lang = Config::get('application.language');
         Config::set('application.language', 'en');
+        Carbon::setNow();
     }
 
     /**
@@ -24,6 +25,11 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         Config::set('application.language', $this->lang);
+
+        // Carbon::setNow() freezes "now" process-wide. Leaving it set (as
+        // testOther() does) would silently pin the clock for every test that
+        // runs afterwards.
+        Carbon::setNow();
     }
 
     /**

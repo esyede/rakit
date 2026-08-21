@@ -9,11 +9,23 @@ use System\Validator;
 class ValidatorTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * The application language in place before the test ran.
+     *
+     * @var string
+     */
+    private $language;
+
+    /**
      * Setup.
      */
     public function setUp()
     {
         Config::set('database.default', 'sqlite');
+
+        // The messages asserted below are the English ones, so the language has
+        // to be pinned instead of inherited from whatever ran before.
+        $this->language = Config::get('application.language');
+        Config::set('application.language', 'en');
     }
 
     /**
@@ -22,6 +34,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         $_FILES = [];
+        Config::set('application.language', $this->language);
     }
 
     /**
