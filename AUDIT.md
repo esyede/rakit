@@ -9,8 +9,18 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 | Test | 1668 | 1896 |
 | Assertion | 5266 | 6343 |
 | Bug ditemukan & diperbaiki | — | 123 |
-| Coverage baris | 64.20% | **70.68%** |
 | Berkas `system/` yang tidak pernah ter-load saat test | 72 | 44 |
+| Coverage baris — hanya berkas yang ter-load | 64.20% | **70.65%** |
+| Coverage baris — **seluruh `system/`** | ~46% | **58.60%** |
+
+Dua angka coverage di atas perlu dibedakan. `pcov` hanya melaporkan berkas yang
+benar-benar dikompilasi selama test berjalan, jadi 44 berkas yang tidak pernah
+tersentuh sama sekali **tidak masuk penyebutnya**. Angka yang jujur untuk
+mengukur target "100% ter-unit-test" adalah yang kedua:
+
+- 8.708 dari 12.326 baris pada berkas yang ter-load — **70,65%**
+- 2.535 baris lagi ada di 44 berkas yang tidak pernah ter-load sama sekali
+- jadi 8.708 dari 14.861 baris seluruh `system/` — **58,60%**
 
 Coverage diukur dengan ekstensi `pcov` (php-code-coverage bawaan PHPUnit 4.8
 tidak jalan di PHP 8 sebelum patch di bawah diterapkan):
@@ -18,6 +28,9 @@ tidak jalan di PHP 8 sebelum patch di bawah diterapkan):
 ```
 php -d pcov.enabled=1 -d pcov.directory=system vendor/bin/phpunit -c phpunit.xml --coverage-text
 ```
+
+Jumlah baris pada berkas yang tidak pernah ter-load diukur terpisah, dengan
+me-`require` tiap berkas di proses tersendiri sambil `pcov` aktif.
 
 Seluruh berkas test hijau, baik dijalankan sebagai satu suite maupun **satu per
 satu**. Tidak ada lagi peringatan atau *deprecation* yang berasal dari
@@ -205,6 +218,10 @@ diperluas.
 
 Target 100% coverage belum tercapai. Berikut yang masih tersisa, diurutkan dari
 yang paling mudah dikerjakan.
+
+Sisa 2.535 baris yang belum tersentuh sama sekali terbagi kira-kira begini:
+perintah konsol ~1.150 baris, debug bar dan halaman error ~900 baris, driver
+yang butuh layanan eksternal ~350 baris, sisanya bootstrap.
 
 ### 1. Butuh layanan eksternal (44 berkas "never loaded" sebagian besar di sini)
 
