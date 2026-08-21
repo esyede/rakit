@@ -29,11 +29,7 @@ class Postgres extends Connector
      */
     public function connect(array $config)
     {
-        $host = isset($config['host']) ? 'host=' . $config['host'] . ';' : '';
-        $dsn = 'pgsql:' . $host . 'dbname=' . $config['database'];
-        $dsn .= isset($config['port']) ? ';port=' . $config['port'] : '';
-
-        $pdo = new PDO($dsn, $config['username'], $config['password'], $this->options($config));
+        $pdo = new PDO($this->dsn($config), $config['username'], $config['password'], $this->options($config));
 
         if (isset($config['charset'])) {
             $pdo->prepare("SET NAMES '" . $config['charset'] . "'")->execute();
@@ -44,5 +40,21 @@ class Postgres extends Connector
         }
 
         return $pdo;
+    }
+
+    /**
+     * Build the DSN string for the connection.
+     *
+     * @param array $config
+     *
+     * @return string
+     */
+    protected function dsn(array $config)
+    {
+        $host = isset($config['host']) ? 'host=' . $config['host'] . ';' : '';
+        $dsn = 'pgsql:' . $host . 'dbname=' . $config['database'];
+        $dsn .= isset($config['port']) ? ';port=' . $config['port'] : '';
+
+        return $dsn;
     }
 }

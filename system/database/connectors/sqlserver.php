@@ -29,13 +29,32 @@ class SQLServer extends Connector
      */
     public function connect(array $config)
     {
-        $port = isset($config['port']) ? ',' . $config['port'] : '';
-        $dsn = 'sqlsrv:Server=' . $config['host'] . $port . ';Database=' . $config['database'];
+        return new PDO($this->dsn($config), $config['username'], $config['password'], $this->options($config));
+    }
 
-        if (in_array('dblib', PDO::getAvailableDrivers())) {
-            $dsn = 'dblib:host=' . $config['host'] . $port . ';dbname=' . $config['database'];
+    /**
+     * Build the DSN string for the connection.
+     *
+     * @param array      $config
+     * @param array|null $drivers
+     *
+     * @return string
+     */
+    protected function dsn(array $config, $drivers = null)
+    {
+        $drivers = is_null($drivers) ? PDO::getAvailableDrivers() : $drivers;
+
+        // Note: sqlsrv is preferred whenever it is present. The previous check
+        // picked dblib as soon as it was available, even alongside sqlsrv. The
+        // two also spell the port differently: sqlsrv uses 'Server=host,port'
+        // while dblib uses 'host=host:port'.
+        if (in_array('sqlsrv', $drivers)) {
+            $port = isset($config['port']) ? ',' . $config['port'] : '';
+            return 'sqlsrv:Server=' . $config['host'] . $port . ';Database=' . $config['database'];
         }
 
-        return new PDO($dsn, $config['username'], $config['password'], $this->options($config));
+        $port = isset($config['port']) ? ':' . $config['port'] : '';
+
+        return 'dblib:host=' . $config['host'] . $port . ';dbname=' . $config['database'];
     }
 }

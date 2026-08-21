@@ -18,13 +18,22 @@ class SQLite extends Connector
      */
     public function connect(array $config)
     {
-        $options = $this->options($config);
+        return new PDO($this->dsn($config), null, null, $this->options($config));
+    }
 
+    /**
+     * Build the DSN string for the connection.
+     *
+     * @param array $config
+     *
+     * @return string
+     */
+    protected function dsn(array $config)
+    {
         if (':memory:' === $config['database']) {
-            return new PDO('sqlite::memory:', null, null, $options);
+            return 'sqlite::memory:';
         }
 
-        $path = path('storage') . 'database' . DS . $config['database'] . '.sqlite';
-        return new PDO('sqlite:' . $path, null, null, $options);
+        return 'sqlite:' . path('storage') . 'database' . DS . $config['database'] . '.sqlite';
     }
 }

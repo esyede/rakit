@@ -114,6 +114,7 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 78 | `schema/grammars/sqlite.php` `defaults()` | Nilai default dibungkus kutip ganda (sintaks *identifier* di SQLite), bukan literal | **fixed** |
 | 79 | `schema/grammars/sqlite.php` `type_decimal()` | Dipetakan ke `FLOAT` sehingga kolom dapat afinitas REAL — nilai eksak (uang) dibulatkan | **fixed** |
 | 80 | `schema/grammars/*` `type_enum()`/`type_set()` | Nilai enum tidak di-escape, kutip tunggal di nilainya merusak SQL | **fixed** |
+| 81 | `database/connectors/sqlserver.php` | `dblib` dipilih walau `sqlsrv` tersedia, dan port dieja dengan format `sqlsrv` (`,port`) padahal `dblib` memakai `:port` | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 
