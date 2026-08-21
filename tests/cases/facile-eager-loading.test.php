@@ -63,6 +63,14 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
             $table->string('imageable_type');
             $table->string('url');
         });
+
+        Schema::create('el_taggables', function ($table) {
+            $table->increments('id');
+            $table->integer('eltag_id');
+            $table->integer('taggable_id');
+            $table->string('taggable_type');
+            $table->timestamps();
+        });
     }
 
     /**
@@ -80,7 +88,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     protected function drop()
     {
         $tables = [
-            'el_images', 'el_post_el_tag', 'el_tags',
+            'el_taggables', 'el_images', 'el_post_el_tag', 'el_tags',
             'el_comments', 'el_posts', 'el_profiles', 'el_authors',
         ];
 
@@ -400,6 +408,120 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test lazy loading a morph_to relationship.
+     *
+     * @group system
+     */
+    public function testMorphToLazy()
+    {
+        $seeded = $this->seed();
+
+        $image = ElImage::first();
+        $this->assertNotNull($image->imageable);
+        $this->assertEquals($seeded['satu']->id, $image->imageable->id);
+        $this->assertEquals('Satu', $image->imageable->title);
+    }
+
+    /**
+     * Test eager loading a morph_to relationship.
+     *
+     * @group system
+     */
+    public function testMorphToEager()
+    {
+        $seeded = $this->seed();
+
+        ElImage::create([
+            'imageable_id' => $seeded['budi']->id,
+            'imageable_type' => 'ElAuthor',
+            'url' => '/budi.png',
+        ]);
+
+        $classes = [];
+
+        foreach (ElImage::with('imageable')->get() as $image) {
+            $this->assertArrayHasKey('imageable', $image->relationships);
+            $classes[$image->url] = get_class($image->relationships['imageable']);
+        }
+
+        $this->assertEquals(['/satu.png' => 'ElPost', '/budi.png' => 'ElAuthor'], $classes);
+    }
+
+    /**
+     * An unknown or missing type reads back as NULL rather than blowing up.
+     *
+     * @group system
+     */
+    public function testMorphToWithUnknownType()
+    {
+        $this->seed();
+
+        ElImage::create([
+            'imageable_id' => 99,
+            'imageable_type' => 'KelasYangTidakAda',
+            'url' => '/entah.png',
+        ]);
+
+        foreach (ElImage::with('imageable')->get() as $image) {
+            if ('/entah.png' === $image->url) {
+                $this->assertNull($image->relationships['imageable']);
+            }
+        }
+    }
+
+    /**
+     * Test lazy loading a morph_to_many relationship.
+     *
+     * @group system
+     */
+    public function testMorphToManyLazy()
+    {
+        $seeded = $this->seed();
+        $tag = ElTag::where('name', '=', 'merah')->first();
+        $now = \System\Carbon::now()->format('Y-m-d H:i:s');
+
+        Database::table('el_taggables')->insert([
+            'eltag_id' => $tag->id,
+            'taggable_id' => $seeded['satu']->id,
+            'taggable_type' => 'ElPost',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $post = ElPost::where('title', '=', 'Satu')->first();
+        $this->assertCount(1, $post->labels);
+        $this->assertEquals('merah', $post->labels[0]->name);
+    }
+
+    /**
+     * Test eager loading a morph_to_many relationship.
+     *
+     * @group system
+     */
+    public function testMorphToManyEager()
+    {
+        $seeded = $this->seed();
+        $tag = ElTag::where('name', '=', 'merah')->first();
+        $now = \System\Carbon::now()->format('Y-m-d H:i:s');
+
+        Database::table('el_taggables')->insert([
+            'eltag_id' => $tag->id,
+            'taggable_id' => $seeded['satu']->id,
+            'taggable_type' => 'ElPost',
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $counts = [];
+
+        foreach (ElPost::with('labels')->get() as $post) {
+            $counts[$post->title] = count($post->relationships['labels']);
+        }
+
+        $this->assertEquals(['Satu' => 1, 'Dua' => 0, 'Tiga' => 0], $counts);
+    }
+
+    /**
      * The type column keeps the relationship scoped to its own model.
      *
      * @group system
@@ -468,6 +590,11 @@ class ElPost extends \System\Database\Facile\Model
     {
         return $this->morph_one('ElImage', 'imageable');
     }
+
+    public function labels()
+    {
+        return $this->morph_to_many('ElTag', 'taggable', 'el_taggables');
+    }
 }
 
 class ElComment extends \System\Database\Facile\Model
@@ -486,4 +613,9 @@ class ElImage extends \System\Database\Facile\Model
 {
     public static $table = 'el_images';
     public static $timestamps = false;
+
+    public function imageable()
+    {
+        return $this->morph_to('imageable');
+    }
 }
