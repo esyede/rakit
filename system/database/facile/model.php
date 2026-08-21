@@ -871,7 +871,14 @@ abstract class Model
      */
     public function morph_to_many($model, $name, $table = null, $foreign = null, $other = null)
     {
-        return new Relationships\MorphToMany($this, $model, $name, $table, $foreign, $other);
+        // Note: the morph columns have to be derived from $name here, the same way
+        // morph_one() and morph_many() do it. Passing $name straight through left
+        // the relationship with 'taggable' as its type column and the pivot table
+        // name sitting in its id column.
+        $type = $name . '_type';
+        $id = $foreign ?: ($name . '_id');
+
+        return new Relationships\MorphToMany($this, $model, $type, $id, $table, $other);
     }
 
     /**

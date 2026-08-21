@@ -50,15 +50,14 @@ class MorphToMany extends Relationship
     {
         $this->type = $type;
         $this->id = $id;
-        $this->other = $other ?: static::foreign($associated);
-
-        if (is_null($table)) {
-            $table = $this->get_default_table_name();
-        }
-
-        $this->pivot_table = $table;
 
         parent::__construct($model, $associated, null);
+
+        // Note: both of these read $this->base and $this->model, which only exist
+        // once the parent constructor has run. Deriving them before that produced
+        // a pivot table literally named '_'.
+        $this->other = $other ?: static::foreign($this->model);
+        $this->pivot_table = $table ?: $this->get_default_table_name();
     }
 
     /**
@@ -91,7 +90,10 @@ class MorphToMany extends Relationship
      */
     public function results(array $results = [])
     {
-        return (count($results) === 0) ? [] : $this->get();
+        // Note: lazy loading calls this without arguments. Returning an empty
+        // array in that case (as it used to) made the relationship always look
+        // empty when read as a property.
+        return $this->get();
     }
 
     /**
@@ -121,13 +123,17 @@ class MorphToMany extends Relationship
     }
 
     /**
-     * Get the results of the eager load of the relationship.
+     * Eager load the relationship for a whole result set.
      *
-     * @param array $results
+     * Note: the pivot carries the type as well, so this is resolved here rather
+     * than through initialize()/eagerly_constrain()/match().
+     *
+     * @param array  $results
+     * @param string $relationship
      *
      * @return array
      */
-    public function eager_load(array $results)
+    public function eager_load(array &$results, $relationship)
     {
         $keys = $this->keys($results);
         $pivot_records = $this->base->query()
@@ -172,19 +178,9 @@ class MorphToMany extends Relationship
                 }
             }
 
-            $result->relationships[$this->relationship_name()] = $related;
+            $result->relationships[$relationship] = $related;
         }
 
         return $results;
-    }
-
-    /**
-     * Get the name of the relationship.
-     *
-     * @return string
-     */
-    protected function relationship_name()
-    {
-        return $this->type;
     }
 }

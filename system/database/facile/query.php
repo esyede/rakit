@@ -43,13 +43,17 @@ class Query
      * It means the result of these methods will be returned directly instead of
      * being wrapped in the model's query builder.
      *
+     * Note: only methods that *end* a query belong here. A chaining method such
+     * as order_by() or where_in() would otherwise hand back the raw query
+     * builder, and everything after it (get(), first(), ...) would return plain
+     * rows instead of models.
+     *
      * @var array
      */
     public $passthru = [
         'lists', 'only', 'get', 'first', 'find', 'find_or_fail', 'first_or_fail', 'paginate',
         'count', 'insert', 'insert_get_id', 'update', 'increment', 'delete', 'decrement',
-        'min', 'max', 'avg', 'sum', 'order_by', 'where_in', 'where_not_in', 'or_where_in',
-        'or_where_not_in', 'to_sql', 'debug', 'exists', 'doesnt_exist',
+        'min', 'max', 'avg', 'sum', 'to_sql', 'debug', 'exists', 'doesnt_exist',
     ];
 
     /**
@@ -223,6 +227,15 @@ class Query
     protected function load(array &$results, $relationship, $constraints)
     {
         $query = $this->model->{$relationship}();
+
+        // Note: a polymorphic 'morph to' style relationship cannot be resolved
+        // with a single query, its children live in a different table per type.
+        // Those relationships resolve the whole set themselves.
+        if (method_exists($query, 'eager_load')) {
+            $query->eager_load($results, $relationship);
+            return;
+        }
+
         $query->model->with = $this->nested_with($relationship);
         $query->table->reset_where();
         $query->eagerly_constrain($results);

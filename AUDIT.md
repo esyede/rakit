@@ -149,6 +149,14 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 113 | `email/drivers/driver.php` `format()` | Kutip di dalam nama tampilan tidak di-escape sehingga menutup string berkutip | **fixed** |
 | 114 | `email/drivers/driver.php` `mime()` | `string_attach()` menebak mime dengan membaca berkas yang memang tidak ada → warning tiap panggilan | **fixed** |
 | 115 | `storage.php` `mime()` | `finfo_file()` pada berkas yang tidak ada memicu warning, dan handle `finfo` tidak pernah ditutup | **fixed** |
+| 116 | `facile/query.php` `$passthru` | `order_by`, `where_in`, `where_not_in`, `or_where_in`, `or_where_not_in` diperlakukan sebagai operasi akhir — rantai setelahnya mengembalikan baris mentah, bukan model | **fixed** |
+| 117 | `facile/relationships/morphone.php` dan `morphmany.php` | Eager loading memfilter `foreign_key()` (kolom yang tidak ada), bukan kolom id/type polimorfik — hasilnya selalu kosong | **fixed** |
+| 118 | `facile/relationships/morphto.php` `results()` | Lazy loading selalu `null` karena `$results` kosong saat dipanggil tanpa argumen | **fixed** |
+| 119 | `facile/relationships/morphtomany.php` `results()` | Lazy loading selalu array kosong karena alasan yang sama | **fixed** |
+| 120 | `facile/query.php` `load()` | `eager_load()` milik `MorphTo`/`MorphToMany` tidak pernah dipanggil — eager loading keduanya melempar exception | **fixed** |
+| 121 | `facile/relationships/morphto.php` dan `morphtomany.php` | `relationship_name()` memakai nama kolom type sebagai kunci relasi, bukan nama relasinya | **fixed** |
+| 122 | `facile/model.php` `morph_to_many()` | Argumen tidak dipetakan ke konstruktor `MorphToMany` — kolom type/id salah dan nama tabel pivot jadi `'_'` | **fixed** |
+| 123 | `facile/relationships/morphtomany.php` `__construct()` | Nama tabel pivot dihitung sebelum `parent::__construct()`, saat `$base`/`$model` masih null | **fixed** |
 
 ## Temuan (isolasi test)
 

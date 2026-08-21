@@ -37,7 +37,7 @@ class HasOne extends HasOneOrMany
      */
     public function match($relationship, array &$parents, array $childrens)
     {
-        $foreign = $this->foreign_key();
+        $foreign = $this->eager_key();
         $dictionary = [];
 
         foreach ($childrens as $children) {
