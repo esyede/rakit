@@ -405,6 +405,24 @@ class Defaults
                 }
                 $totalTime = array_sum($times);
                 $avgTime = $totalTime / $count;
+
+                // Note: the recorded times may all be zero (or missing), and
+                // dividing by that total below would be a DivisionByZeroError.
+                if ($totalTime <= 0) {
+                    $results[] = [
+                        'severity' => $count >= 10 ? 'error' : 'warning',
+                        'pattern' => $normalizedSql,
+                        'count' => $count,
+                        'queries' => $group,
+                        'total_time' => 0,
+                        'avg_time' => 0,
+                        'time_saved' => 0,
+                        'percentage' => 0,
+                    ];
+
+                    continue;
+                }
+
                 // Estimate time saved if optimized (using JOIN/eager load)
                 $estimatedOptimizedTime = $avgTime * 1.5; // Assume JOIN takes 1.5x single query
                 $timeSaved = $totalTime - $estimatedOptimizedTime;

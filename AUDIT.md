@@ -6,10 +6,10 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 
 | Metrik | Awal | Sekarang |
 | --- | ---: | ---: |
-| Test | 1668 | 1683 |
-| Assertion | 5266 | 5321 |
-| Coverage baris (file yang ter-load) | 64.20% | 64.49% |
-| File `system/` tidak pernah ter-load saat test | 72 | 72 |
+| Test | 1668 | 1760 |
+| Assertion | 5266 | 5833 |
+| Coverage baris (file yang ter-load) | 64.20% | lihat di bawah |
+| File `system/` tidak pernah ter-load saat test | 72 | lihat di bawah |
 
 Coverage diukur dengan ekstensi `pcov`.
 
@@ -123,6 +123,8 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 87 | `email/drivers/sendmail.php` | `return_path` masuk mentah ke perintah shell; hasil `popen()` tidak dicek | **fixed** |
 | 88 | `email/drivers/mail.php` | Selalu mengembalikan `true`, mengabaikan hasil `mail()` | **fixed** |
 | 89 | `email.php` `factory()` | Driver `'log'` yang didokumentasikan di config ditolak (hanya `'dummy'` yang diterima) | **fixed** |
+| 90 | `foundation/oops/defaults.php` | Pembagian dengan nol saat semua waktu kueri 0 — panel N+1 di debug bar fatal | **fixed** |
+| 91 | `foundation/faker/provider/barcode.php` `eanChecksum()` | Urutan bobot salah untuk EAN-8 — **semua** EAN-8 yang dihasilkan check digit-nya salah | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

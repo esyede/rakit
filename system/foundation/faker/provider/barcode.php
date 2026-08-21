@@ -15,7 +15,13 @@ class Barcode extends Base
     protected static function eanChecksum($input)
     {
         $input = (string) $input;
-        $sequence = (8 === (mb_strlen($input, '8bit') - 1)) ? [3, 1] : [1, 3];
+
+        // Note: $input is the code *without* its check digit, so the weights are
+        // decided by its own length: the digit right before the check digit always
+        // weighs 3, which means an odd length starts at 3 and an even length at 1.
+        // The old test ('8 === strlen($input) - 1') was never true for EAN-8
+        // (7 digits) and produced an invalid check digit for every one of them.
+        $sequence = (0 === mb_strlen($input, '8bit') % 2) ? [1, 3] : [3, 1];
         $inputs = str_split($input);
         $sums = 0;
 
