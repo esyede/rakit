@@ -144,7 +144,10 @@ class Redis extends Driver
      */
     public function flush()
     {
+        // Note: FLUSHALL wipes every database on the server, including the ones
+        // belonging to other applications. Only the database this connection is
+        // actually using is cleared.
         /** @disregard */
-        $this->redis->flushall();
+        $this->redis->flushdb();
     }
 }

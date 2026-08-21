@@ -132,6 +132,8 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 96 | `websocket/server.php` `apply_mask()` | Kunci mask dibangun byte demi byte lalu dipotong satu-satu — kuadratik terhadap ukuran payload | **fixed** |
 | 97 | `websocket/server.php` `frame()` | Tipe frame tak dikenal menghasilkan `$b1` tak terdefinisi (opcode 0 diam-diam) | **fixed** |
 | 98 | `websocket/server.php` `handshake()` | `$reqResource[1]` dibaca tanpa memeriksa hasil `preg_match()` | **fixed** |
+| 99 | `cache/drivers/redis.php` `flush()` | `FLUSHALL` menghapus **seluruh** database di server Redis, termasuk milik aplikasi lain | **fixed** |
+| 100 | `redis.php` `$databases` | `protected static`, tidak konsisten dengan registry driver lain dan tidak bisa direset | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

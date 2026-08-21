@@ -37,9 +37,13 @@ class Redis
     /**
      * Contains the list of active Redis database instances.
      *
+     * Note: public, like every other driver registry in the framework
+     * (Cache::$drivers, Job::$drivers, Database::$connections, ...), so the
+     * cached connections can be dropped in a long running process.
+     *
      * @var array
      */
-    protected static $databases = [];
+    public static $databases = [];
 
     /**
      * Constructor.
