@@ -105,6 +105,15 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 69 | `jwt.php` `decode()` | Cek `aud`/`iss` dilewati bila klaimnya tidak ada di token — bisa di-bypass | **fixed** |
 | 70 | `job.php` `factory()` | `Job::extend()` mengisi `$registrar` tapi `factory()` tidak pernah membacanya | **fixed** |
 | 71 | `image.php` `rgb()` | Warna heksa 6 digit bernilai < 0x1000 (mis. `0000ff`) dibaca sebagai singkatan 3 digit | **fixed** |
+| 72 | `schema/grammars/sqlserver.php` `comment()` | Melempar tanpa syarat — **setiap** `Schema::create()` di SQL Server gagal | **fixed** |
+| 73 | `schema/grammars/sqlserver.php` `type_timestamp()` | `TIMESTAMP` di T-SQL adalah ROWVERSION (biner, tidak bisa ditulis), bukan tipe waktu | **fixed** |
+| 74 | `schema/grammars/sqlserver.php` `rename()` | `ALTER TABLE ... RENAME TO` tidak ada di T-SQL | **fixed** |
+| 75 | `schema/grammars/sqlserver.php` `drop_column()` | Sintaks `DROP a, DROP b` tidak sah di T-SQL | **fixed** |
+| 76 | `schema/grammars/sqlserver.php` `drop_primary()` | Tanpa nama constraint menghasilkan `DROP CONSTRAINT ` (kosong) | **fixed** |
+| 77 | `schema/grammars/sqlserver.php` `type_enum()` | Memakai kutip ganda untuk identifier, padahal SQL Server memakai kurung siku | **fixed** |
+| 78 | `schema/grammars/sqlite.php` `defaults()` | Nilai default dibungkus kutip ganda (sintaks *identifier* di SQLite), bukan literal | **fixed** |
+| 79 | `schema/grammars/sqlite.php` `type_decimal()` | Dipetakan ke `FLOAT` sehingga kolom dapat afinitas REAL — nilai eksak (uang) dibulatkan | **fixed** |
+| 80 | `schema/grammars/*` `type_enum()`/`type_set()` | Nilai enum tidak di-escape, kutip tunggal di nilainya merusak SQL | **fixed** |
 
 ## Berkas tanpa test sama sekali (never loaded)
 

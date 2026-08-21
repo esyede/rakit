@@ -105,7 +105,10 @@ class SQLite extends Grammar
     protected function defaults(Table $table, Magic $column)
     {
         if (isset($column->defaults) && null !== $column->defaults) {
-            return ' DEFAULT ' . $this->wrap($this->default_value($column->defaults));
+            // Note: wrap() emits double quotes, which is SQLite's *identifier*
+            // syntax - a default of 'name' would then read the 'name' column
+            // instead of the literal string.
+            return " DEFAULT '" . str_replace("'", "''", $this->default_value($column->defaults)) . "'";
         }
     }
 
@@ -428,7 +431,10 @@ class SQLite extends Grammar
      */
     protected function type_decimal(Magic $column)
     {
-        return 'FLOAT';
+        // Note: FLOAT gives the column REAL affinity, so exact values (money and
+        // the like) would be rounded through a float. DECIMAL keeps NUMERIC
+        // affinity, which stores them as given.
+        return 'DECIMAL(' . $column->precision . ', ' . $column->scale . ')';
     }
 
     /**
@@ -441,7 +447,7 @@ class SQLite extends Grammar
     protected function type_enum(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
         return sprintf('VARCHAR CHECK ("%s" IN (%s))', $column->name, $allowed);
@@ -733,7 +739,7 @@ class SQLite extends Grammar
     protected function type_set(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
         return sprintf('TEXT CHECK ("%s" IN (%s))', $column->name, $allowed);

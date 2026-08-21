@@ -141,7 +141,14 @@ class SQLServer extends Grammar
      */
     protected function comment(Table $table, Magic $column)
     {
-        throw new \Exception('Column comments are not supported in SQL Server.');
+        // Note: columns() runs every modifier for every column, so throwing
+        // unconditionally here made *any* create()/add() fail on SQL Server. Only
+        // a column that actually asks for a comment is rejected.
+        if (isset($column->comment) && $column->comment) {
+            throw new \Exception('Column comments are not supported in SQL Server.');
+        }
+
+        return '';
     }
 
     /**
@@ -244,7 +251,10 @@ class SQLServer extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME TO ' . $this->wrap($command->name);
+        // Note: T-SQL has no 'ALTER TABLE ... RENAME TO'. Renaming goes through
+        // the sp_rename stored procedure.
+        return "EXEC sp_rename '" . str_replace("'", "''", $table->name)
+            . "', '" . str_replace("'", "''", $command->name) . "'";
     }
 
     /**
@@ -257,11 +267,10 @@ class SQLServer extends Grammar
      */
     public function drop_column(Table $table, Magic $command)
     {
-        $columns = implode(', ', array_map(function ($column) {
-            return 'DROP ' . $column;
-        }, array_map([$this, 'wrap'], $command->columns)));
+        // Note: T-SQL spells it 'DROP COLUMN a, b', not 'DROP a, DROP b'.
+        $columns = implode(', ', array_map([$this, 'wrap'], $command->columns));
 
-        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
+        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP COLUMN ' . $columns;
     }
 
     /**
@@ -274,7 +283,20 @@ class SQLServer extends Grammar
      */
     public function drop_primary(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT ' . $command->name;
+        if (isset($command->name) && '' !== (string) $command->name) {
+            return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT ' . $this->wrap($command->name);
+        }
+
+        // Note: drop_primary() may be called without a name, and unlike MySQL
+        // ('DROP PRIMARY KEY') T-SQL always wants the constraint name. Without
+        // one the statement used to come out as 'DROP CONSTRAINT ' - so the
+        // actual name is looked up first.
+        $name = str_replace("'", "''", $table->name);
+
+        return "DECLARE @rakit_pk SYSNAME;"
+            . " SELECT @rakit_pk = [name] FROM sys.key_constraints"
+            . " WHERE [type] = 'PK' AND [parent_object_id] = OBJECT_ID('" . $name . "');"
+            . " EXEC('ALTER TABLE " . $this->wrap($table) . " DROP CONSTRAINT [' + @rakit_pk + ']')";
     }
 
     /**
@@ -514,10 +536,12 @@ class SQLServer extends Grammar
     protected function type_enum(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
-        return sprintf('VARCHAR(255) CHECK ("%s" IN (%s))', $column->name, $allowed);
+        // Note: SQL Server quotes identifiers with brackets. Double quotes only
+        // work while QUOTED_IDENTIFIER is on.
+        return sprintf('VARCHAR(255) CHECK (%s IN (%s))', $this->wrap($column->name), $allowed);
     }
 
     /**
@@ -553,7 +577,10 @@ class SQLServer extends Grammar
      */
     protected function type_timestamp(Magic $column)
     {
-        return 'TIMESTAMP';
+        // Note: in T-SQL 'TIMESTAMP' is a synonym for ROWVERSION - an
+        // auto-generated binary(8) that cannot be written to - so a column
+        // declared with it would reject every insert.
+        return 'DATETIME';
     }
 
     /**
@@ -806,7 +833,7 @@ class SQLServer extends Grammar
     protected function type_set(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
         return sprintf('NVARCHAR(255) CHECK ("%s" IN (%s))', $column->name, $allowed);

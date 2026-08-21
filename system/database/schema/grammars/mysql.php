@@ -719,7 +719,7 @@ class MySQL extends Grammar
     protected function type_set(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
         return sprintf('SET(%s)', $allowed);
@@ -783,7 +783,7 @@ class MySQL extends Grammar
     protected function type_enum(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
         return sprintf('ENUM(%s)', $allowed);

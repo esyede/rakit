@@ -507,7 +507,7 @@ class Postgres extends Grammar
     protected function type_enum(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
          return sprintf('VARCHAR(255) CHECK ("%s" IN (%s))', $column->name, $allowed);
@@ -799,7 +799,7 @@ class Postgres extends Grammar
     protected function type_set(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . $item . "'";
+            return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
         return sprintf('VARCHAR(255) CHECK ("%s" IN (%s))', $column->name, $allowed);
