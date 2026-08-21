@@ -249,9 +249,39 @@ class FakerCalculatorsExtrasTest extends \PHPUnit_Framework_TestCase
             $this->assertContains($faker->safeColorName, $english);
         }
 
-        // The Indonesian locale keeps its own provider.
-        $faker = Factory::create('id');
-        $this->assertNotContains($faker->safeColorName, $english);
+        // The Indonesian locale keeps its own provider. This is checked against
+        // the provider that was actually loaded rather than against a colour it
+        // happened to draw: 'teal' is a loanword and sits in both lists, so
+        // sampling one value failed roughly once every twenty-five runs.
+        $this->assertEquals(
+            'System\Foundation\Faker\Provider\Color',
+            $this->colorProviderOf(Factory::create('en'))
+        );
+
+        $this->assertEquals(
+            'System\Foundation\Faker\Provider\id\Color',
+            $this->colorProviderOf(Factory::create('id'))
+        );
+    }
+
+    /**
+     * Get the class name of the colour provider a generator ended up with.
+     *
+     * @param \System\Foundation\Faker\Generator $faker
+     *
+     * @return string|null
+     */
+    protected function colorProviderOf($faker)
+    {
+        foreach ($faker->getProviders() as $provider) {
+            $class = get_class($provider);
+
+            if ('Color' === substr($class, -5)) {
+                return $class;
+            }
+        }
+
+        return null;
     }
 
     /**

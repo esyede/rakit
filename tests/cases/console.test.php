@@ -205,7 +205,13 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
         $table->add_row(['Budi']);
 
         $lines = array_values(array_filter(explode(PHP_EOL, $table->get_table())));
-        $widths = array_map('mb_strlen', $lines);
+        // Note: mb_strlen() has to be told the encoding. Before PHP 5.6 it falls
+        // back to mbstring.internal_encoding (ISO-8859-1), which counts the
+        // bytes of a multibyte cell rather than its characters - so this
+        // measured the table wrongly rather than the table being misaligned.
+        $widths = array_map(function ($line) {
+            return mb_strlen($line, 'UTF-8');
+        }, $lines);
 
         $this->assertGreaterThan(1, count($lines));
         $this->assertEquals(1, count(array_unique($widths)), 'every rendered line must be the same width');

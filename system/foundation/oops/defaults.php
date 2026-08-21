@@ -346,11 +346,11 @@ class Defaults
         $hints = [];
 
         // Very long query (>500 chars)
-        if (mb_strlen($sql) > 500) {
+        if (mb_strlen($sql, 'UTF-8') > 500) {
             $hints[] = [
                 'severity' => 'info',
                 'category' => 'readability',
-                'message' => 'Query is quite long (' . mb_strlen($sql) . ' characters). Consider breaking it into smaller parts or using views for better maintainability.',
+                'message' => 'Query is quite long (' . mb_strlen($sql, 'UTF-8') . ' characters). Consider breaking it into smaller parts or using views for better maintainability.',
             ];
         }
 
