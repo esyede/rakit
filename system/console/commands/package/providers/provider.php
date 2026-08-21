@@ -38,7 +38,7 @@ abstract class Provider
             return;
         }
 
-        chmod(Storage::latest(path('package'))->getRealPath(), 0755);
+        static::relax(path('package'));
         echo PHP_EOL . Color::green('Downloading zipball...', false);
         $this->download($url, $zipball);
         echo ' done!';
@@ -53,7 +53,7 @@ abstract class Provider
             rename($packages[0], path('package') . $package['name']);
         }
 
-        chmod(Storage::latest(path('package'))->getRealPath(), 0755);
+        static::relax(path('package'));
         Storage::delete($zipball);
 
         if (is_dir($assets = path('package') . $package['name'] . DS . 'assets')) {
@@ -71,6 +71,28 @@ abstract class Provider
     }
 
     /**
+     * Make the newest entry of a directory readable.
+     *
+     * Note: Storage::latest() answers NULL for an empty directory, and calling
+     * getRealPath() on that was a fatal error - which is exactly the state a
+     * fresh project's packages/ directory can be in.
+     *
+     * @param string $directory
+     */
+    protected static function relax($directory)
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $latest = Storage::latest($directory);
+
+        if (!is_null($latest) && false !== ($path = $latest->getRealPath())) {
+            @chmod($path, 0755);
+        }
+    }
+
+    /**
      * Download the zipball archive of the given package.
      *
      * @param string $url
@@ -81,8 +103,11 @@ abstract class Provider
         is_dir($destination) && Storage::delete($destination);
         $options = [
             CURLOPT_HTTPGET => 1,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_SSL_VERIFYHOST => 0,
+            // Note: verification stays on. Turning it off here would let anyone
+            // on the network hand the installer a different archive, which is
+            // then unpacked into packages/ and executed.
+            CURLOPT_SSL_VERIFYPEER => 1,
+            CURLOPT_SSL_VERIFYHOST => 2,
             CURLOPT_AUTOREFERER => 1,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_FOLLOWLOCATION => 1,
@@ -167,6 +192,19 @@ abstract class Provider
         if (!$zip->open($file)) {
             echo PHP_EOL . Color::red(sprintf('Error: Could not open zip file: %s', $file));
             return;
+        }
+
+        // Note: refuse an archive that tries to write outside the destination
+        // (the classic 'zip slip'). A package archive has no reason to contain
+        // absolute paths or parent directory hops.
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $entry = str_replace('\\', '/', (string) $zip->getNameIndex($i));
+
+            if (0 === strpos($entry, '/') || preg_match('#(^|/)\.\.(/|$)#', $entry)) {
+                $zip->close();
+                echo PHP_EOL . Color::red(sprintf('Error: Refusing unsafe path in archive: %s', $entry));
+                return;
+            }
         }
 
         $zip->extractTo($destination);

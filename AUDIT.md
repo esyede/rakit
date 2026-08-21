@@ -8,7 +8,7 @@ Tujuan: **0 bug** dan **100% ter-unit-test**, tetap jalan di **PHP 5.4.0 – 8.5
 | --- | ---: | ---: |
 | Test | 1668 | 1896 |
 | Assertion | 5266 | 6343 |
-| Bug ditemukan & diperbaiki | — | 123 |
+| Bug ditemukan & diperbaiki | — | 132 |
 | Berkas `system/` yang tidak pernah ter-load saat test | 72 | 44 |
 | Coverage baris — hanya berkas yang ter-load | 64.20% | **70.65%** |
 | Coverage baris — **seluruh `system/`** | ~46% | **58.60%** |
@@ -180,6 +180,20 @@ ganti jalur lokal di `composer.json` dengan URL CDN-nya.
 | 121 | `facile/relationships/morphto.php` dan `morphtomany.php` | `relationship_name()` memakai nama kolom type sebagai kunci relasi, bukan nama relasinya | **fixed** |
 | 122 | `facile/model.php` `morph_to_many()` | Argumen tidak dipetakan ke konstruktor `MorphToMany` — kolom type/id salah dan nama tabel pivot jadi `'_'` | **fixed** |
 | 123 | `facile/relationships/morphtomany.php` `__construct()` | Nama tabel pivot dihitung sebelum `parent::__construct()`, saat `$base`/`$model` masih null | **fixed** |
+
+### Ronde kedua — telaah kode berkas yang belum ada testnya
+
+| # | Berkas | Ringkasan | Status |
+| --- | --- | --- | --- |
+| 124 | `curl.php` | **Verifikasi TLS mati secara default** (`$verify_peer = 0`, `$verify_host = 0`) — setiap permintaan HTTPS lewat framework menerima sertifikat apa pun | **fixed** |
+| 125 | `console/commands/package/{repository,providers/provider}.php` | Verifikasi TLS dimatikan paksa saat mengunduh indeks repositori dan arsip paket — arsip bisa ditukar di jaringan lalu diekstrak dan dieksekusi | **fixed** |
+| 126 | `console/commands/package/providers/provider.php` `unzip()` | Tidak ada penjagaan *zip slip* — entri `../` bisa menulis ke luar folder tujuan | **fixed** |
+| 127 | `console/commands/package/providers/provider.php` `zipball()` | `Storage::latest()` mengembalikan `null` untuk folder kosong lalu dipanggil `->getRealPath()` — fatal pada proyek baru | **fixed** |
+| 128 | `console/commands/migrate/migrator.php` `run()` | `$arguments[0]` (string) diteruskan ke `migrate(array ...)` — `php rakit migrate <paket>` selalu `TypeError` | **fixed** |
+| 129 | `console/commands/migrate/migrator.php` `refresh()` | Daftar paket tidak diteruskan — `migrate:refresh <paket>` me-reset seluruh paket | **fixed** |
+| 130 | `cache/drivers/apc.php` | Memakai fungsi `apc_*` yang sudah tidak ada sejak PHP 7 (diganti `apcu_*`) — driver APC tidak bisa dipakai sama sekali | **fixed** |
+| 131 | `cache/drivers/apc.php` `flush()` | `apcu_clear_cache()` tidak menerima argumen; memanggilnya dengan `'user'`/`'opcode'` adalah `TypeError` | **fixed** |
+| 132 | `cache/drivers/apc.php` `retrieve()` | Nilai `false` yang tersimpan tidak bisa dibedakan dari cache miss | **fixed** |
 
 ## Temuan (isolasi test)
 
