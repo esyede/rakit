@@ -204,8 +204,9 @@ class Response
         $view = View::exists('error.' . $code) ? 'error.' . $code : (View::exists('error.unknown') ? 'error.unknown' : false);
 
         if (!$view) {
-            $view = Storage::get(path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . '500.phtml');
-            return static::make($view, 500, $headers);
+            ob_start();
+            require path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . '500.phtml';
+            return static::make(ob_get_clean(), 500, $headers);
         }
 
         return static::view($view, compact('code', 'message'), $code, $headers);

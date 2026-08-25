@@ -98,4 +98,34 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
             $cookie->__toString()
         );
     }
+
+    public function testSessionCookieIsNotReportedAsCleared()
+    {
+        // An expiration of 0 marks a session cookie (dropped when the browser
+        // closes), not a cookie that expired at the epoch.
+        $this->assertFalse((new Cookie('foo', 'bar'))->isCleared());
+        $this->assertFalse((new Cookie('foo', 'bar', 0))->isCleared());
+        $this->assertFalse((new Cookie('foo', 'bar', '0'))->isCleared());
+    }
+
+    public function testExpirationTimeIsNormalizedToInteger()
+    {
+        $this->assertSame(0, (new Cookie('foo', 'bar'))->getExpiresTime());
+        $this->assertSame(3600, (new Cookie('foo', 'bar', 3600))->getExpiresTime());
+        $this->assertSame(3600, (new Cookie('foo', 'bar', '3600'))->getExpiresTime());
+        $this->assertSame(3600, (new Cookie('foo', 'bar', new \DateTime('@3600')))->getExpiresTime());
+    }
+
+    public function testAcceptsDateTimeImmutableAsExpiration()
+    {
+        if (!class_exists('DateTimeImmutable')) {
+            $this->markTestSkipped('DateTimeImmutable is available on PHP 5.5.0+ only');
+        }
+
+        // DateTimeImmutable is not a subclass of DateTime, so it used to reach
+        // the strtotime() branch and die on the object-to-string cast.
+        $cookie = new Cookie('foo', 'bar', new \DateTimeImmutable('@3600'));
+
+        $this->assertSame(3600, $cookie->getExpiresTime());
+    }
 }

@@ -419,11 +419,11 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
 
         $server['PHP_AUTH_USER'] = 'budi';
         $request->initialize([], [], [], [], [], $server);
-        $this->assertEquals('budi:', $request->getUserInfo());
+        $this->assertEquals('budi', $request->getUserInfo());
 
         $server['PHP_AUTH_USER'] = '0';
         $request->initialize([], [], [], [], [], $server);
-        $this->assertEquals('0:', $request->getUserInfo());
+        $this->assertEquals('0', $request->getUserInfo());
 
         $server['PHP_AUTH_PW'] = '0';
         $request->initialize([], [], [], [], [], $server);
@@ -963,6 +963,22 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
             ['fo+o/bar', 'fo+o', 'fo+o'],
             ['fo%2Bo/bar', 'fo+o', 'fo%2Bo'],
         ];
+    }
+
+    public function testGetBaseUrlKeepsLookingWhenTheDirectoryPrefixDoesNotMatch()
+    {
+        // getUrlencodedPrefix() answers FALSE for a prefix that does not match.
+        // That FALSE used to be cast to '' before the 'false !== $prefix' check,
+        // so the check could never fail and the fallback below it was dead code.
+        $request = new Request([], [], [], [], [], [
+            'SCRIPT_FILENAME' => '/var/www/web/index.php',
+            'SCRIPT_NAME' => '/web/index.php',
+            'PHP_SELF' => '/web/index.php',
+            'REQUEST_URI' => '/foo/index.php/bar',
+            'HTTP_HOST' => 'localhost',
+        ]);
+
+        $this->assertSame('/web/index.php', $request->getBaseUrl());
     }
 }
 

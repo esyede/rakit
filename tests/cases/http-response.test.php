@@ -507,13 +507,16 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testIsEmpty()
     {
-        $codes = [201, 204, 304];
+        $codes = [204, 304];
 
         foreach ($codes as $code) {
             $this->assertTrue((new Response('', $code))->isEmpty());
         }
 
         $this->assertFalse((new Response('', 200))->isEmpty());
+
+        // 201 Created normally carries a representation of the new resource
+        $this->assertFalse((new Response('', 201))->isEmpty());
     }
 
     public function testIsForbidden()
@@ -617,6 +620,16 @@ class HttpResponseTest extends \PHPUnit_Framework_TestCase
     protected function createDateTimeNow()
     {
         return new \DateTime();
+    }
+
+    public function testMustRevalidateReadsTheCacheControlDirective()
+    {
+        // Directive names are stored lowercased, and 'proxy-revalidate' is a
+        // Cache-Control directive rather than a header of its own.
+        $this->assertTrue((new Response('', 200, ['Cache-Control' => 'must-revalidate']))->mustRevalidate());
+        $this->assertTrue((new Response('', 200, ['Cache-Control' => 'proxy-revalidate']))->mustRevalidate());
+        $this->assertTrue((new Response('', 200, ['Cache-Control' => 'public, must-revalidate']))->mustRevalidate());
+        $this->assertFalse((new Response('', 200, ['Cache-Control' => 'max-age=60']))->mustRevalidate());
     }
 }
 

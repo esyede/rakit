@@ -295,15 +295,17 @@ class Input
      * @param string $directory
      * @param string $name
      *
-     * @return Foundation\Http\File
+     * @return string|false Path of the moved file, or FALSE when nothing was uploaded
      */
     public static function upload($key, $directory, $name = null)
     {
-        if (is_null(static::file($key))) {
+        $file = Request::foundation()->files->get($key);
+
+        if (!($file instanceof Foundation\Http\Upload)) {
             return false;
         }
 
-        return Request::foundation()->files->get($key)->move($directory, $name);
+        return $file->move($directory, $name);
     }
 
     /**

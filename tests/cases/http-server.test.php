@@ -92,4 +92,18 @@ class HttpHServerTest extends \PHPUnit_Framework_TestCase
         $bag = new Server(['HTTP_AUTHORIZATION' => $bearer]);
         $this->assertEquals(['AUTHORIZATION' => $bearer], $bag->getHeaders());
     }
+
+    public function testHttpBasicAuthWithPasswordContainingColon()
+    {
+        // RFC 7617 forbids ':' in the user-id but allows it in the password, so
+        // only the first one separates the two.
+        $header = 'Basic ' . base64_encode('bob:pa:ss');
+        $bag = new Server(['HTTP_AUTHORIZATION' => $header]);
+        $headers = $bag->getHeaders();
+
+        $this->assertArrayHasKey('PHP_AUTH_USER', $headers);
+        $this->assertArrayHasKey('PHP_AUTH_PW', $headers);
+        $this->assertEquals('bob', $headers['PHP_AUTH_USER']);
+        $this->assertEquals('pa:ss', $headers['PHP_AUTH_PW']);
+    }
 }

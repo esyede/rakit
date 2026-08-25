@@ -288,6 +288,25 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
         unset($_SERVER['HTTP_X_OOPS_AJAX']);
     }
 
+    /**
+     * Test for Helpers::guessClassFile() - the namespace separator is '\\', not
+     * the platform directory separator. Splitting on the latter produced a single
+     * segment on every non-Windows host, so no declared class ever matched.
+     *
+     * @group system
+     */
+    public function testGuessClassFileResolvesANamespacedClass()
+    {
+        $guess = Helpers::guessClassFile('System\\Foundation\\Oops\\Helpers');
+
+        $this->assertNotNull($guess);
+        $this->assertStringEndsWith('.php', $guess);
+
+        $normalized = str_replace('\\', '/', $guess);
+
+        $this->assertContains('/foundation/oops/', $normalized);
+    }
+
     // -------------------------------------------------------------------------
     // Dumper
     // -------------------------------------------------------------------------

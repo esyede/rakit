@@ -523,6 +523,41 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->setServerVar('HTTP_HOST', 'sub.example.com');
         $this->assertEquals('sub', Request::subdomain());
     }
+
+    /**
+     * Test for Request::header() — header names are case-insensitive (RFC 7230).
+     *
+     * @group system
+     */
+    public function testHeaderLookupIsCaseInsensitive()
+    {
+        $this->setServerVar('HTTP_CONTENT_TYPE', 'application/json');
+        $this->setServerVar('HTTP_X_CUSTOM_THING', 'yes');
+
+        $spellings = ['Content-Type', 'content-type', 'CONTENT-TYPE', 'cOnTeNt-TyPe', 'content_type', 'CONTENT_TYPE'];
+
+        foreach ($spellings as $spelling) {
+            $this->assertEquals('application/json', Request::header($spelling), $spelling);
+        }
+
+        $spellings = ['X-Custom-Thing', 'x-custom-thing', 'X_CUSTOM_THING', 'x_custom_thing'];
+
+        foreach ($spellings as $spelling) {
+            $this->assertEquals('yes', Request::header($spelling), $spelling);
+        }
+    }
+
+    /**
+     * Test for Request::header() — the default is returned for an absent header.
+     *
+     * @group system
+     */
+    public function testHeaderReturnsDefaultWhenHeaderIsAbsent()
+    {
+        $this->assertNull(Request::header('X-Does-Not-Exist'));
+        $this->assertEquals('fallback', Request::header('X-Does-Not-Exist', 'fallback'));
+        $this->assertEquals('fallback', Request::header('x-does-not-exist', 'fallback'));
+    }
 }
 
 class SessionPayloadTokenStub

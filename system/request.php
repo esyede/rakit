@@ -93,6 +93,11 @@ class Request
      *      // Get current request handler
      *      $accept = Request::header('Accept');
      *
+     *      // Header names are case-insensitive, all of these are the same header
+     *      $type = Request::header('Content-Type');
+     *      $type = Request::header('content-type');
+     *      $type = Request::header('CONTENT_TYPE');
+     *
      * </code>
      *
      * @param string $key
@@ -102,7 +107,7 @@ class Request
      */
     public static function header($key, $default = null)
     {
-        return Arr::get(static::headers(), $key, $default);
+        return static::foundation()->headers->get($key, $default);
     }
 
     /**
@@ -239,7 +244,8 @@ class Request
                     $type = (count($formats) > 0) ? reset($formats) : $ctype;
                 }
 
-                if (static::matches_type($type, $accept)
+                if (
+                    static::matches_type($type, $accept)
                     || $accept === $type
                     || $accept === strtok($type, '/') . '/*'
                 ) {
@@ -327,8 +333,6 @@ class Request
     /**
      * Get the authorization header.
      *
-     * @param mixed $default
-     *
      * @return string|null
      */
     public static function authorization()
@@ -338,8 +342,6 @@ class Request
 
     /**
      * Get the bearer token header.
-     *
-     * @param mixed $default
      *
      * @return string|null
      */
@@ -547,7 +549,7 @@ class Request
     /**
      * Get the route handler of the request.
      *
-     * @return Route
+     * @return object|null
      */
     public static function route()
     {

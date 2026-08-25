@@ -56,7 +56,7 @@ class Server extends Parameter
             }
 
             if (null !== $authHeader && 0 === stripos((string) $authHeader, 'basic')) {
-                $exploded = explode(':', base64_decode(substr((string) $authHeader, 6)));
+                $exploded = explode(':', base64_decode(substr((string) $authHeader, 6)), 2);
 
                 if (2 === count($exploded)) {
                     list($headers['PHP_AUTH_USER'], $headers['PHP_AUTH_PW']) = $exploded;

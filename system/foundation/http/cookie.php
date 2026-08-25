@@ -6,13 +6,28 @@ defined('DS') or exit('No direct access.');
 
 class Cookie
 {
+    /** @var string */
     protected $name;
+
+    /** @var string */
     protected $value;
+
+    /** @var string */
     protected $domain;
+
+    /** @var int */
     protected $expire;
+
+    /** @var string */
     protected $path;
+
+    /** @var bool */
     protected $secure;
+
+    /** @var bool */
     protected $httpOnly;
+
+    /** @var string */
     protected $sameSite;
 
     /**
@@ -37,7 +52,7 @@ class Cookie
             throw new \InvalidArgumentException('The cookie name cannot be empty.');
         }
 
-        if ($expire instanceof \DateTime) {
+        if ($expire instanceof \DateTime || $expire instanceof \DateTimeInterface) {
             $expire = $expire->format('U');
         } elseif (!is_numeric($expire)) {
             $expire = strtotime((string) $expire);
@@ -50,7 +65,7 @@ class Cookie
         $this->name = $name;
         $this->value = $value;
         $this->domain = $domain;
-        $this->expire = $expire;
+        $this->expire = (int) $expire;
         $this->path = empty($path) ? '/' : $path;
         $this->secure = (bool) $secure;
         $this->httpOnly = (bool) $httpOnly;
@@ -161,7 +176,7 @@ class Cookie
      */
     public function isCleared()
     {
-        return $this->expire < time();
+        return 0 !== $this->expire && $this->expire < time();
     }
 
     /**

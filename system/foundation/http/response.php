@@ -6,8 +6,10 @@ defined('DS') or exit('No direct access.');
 
 class Response
 {
+    /** @var Helper */
     public $headers;
 
+    /** @var array */
     public static $statusTexts = [
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -74,10 +76,19 @@ class Response
         511 => 'Network Authentication Required',
     ];
 
+    /** @var string */
     protected $content;
+
+    /** @var string */
     protected $version;
+
+    /** @var int */
     protected $statusCode;
+
+    /** @var string */
     protected $statusText;
+
+    /** @var string */
     protected $charset;
 
     /**
@@ -454,7 +465,8 @@ class Response
      */
     public function mustRevalidate()
     {
-        return $this->headers->hasCacheControlDirective('Must-Revalidate') || $this->headers->has('Proxy-Revalidate');
+        return $this->headers->hasCacheControlDirective('must-revalidate')
+            || $this->headers->hasCacheControlDirective('proxy-revalidate');
     }
 
     /**
@@ -925,7 +937,7 @@ class Response
      */
     public function isEmpty()
     {
-        return in_array($this->statusCode, [201, 204, 304]);
+        return in_array($this->statusCode, [204, 304]);
     }
 
     /**

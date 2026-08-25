@@ -256,12 +256,14 @@ class Collectors
         }
 
         // Simple pattern matching for dynamic routes
-        $pattern = preg_replace('/\(:num\)/', '([0-9]+)', $pattern);
-        $pattern = preg_replace('/\(:any\)/', '([^/]+)', $pattern);
-        $pattern = preg_replace('/\(:alpha\)/', '([a-zA-Z]+)', $pattern);
-        $pattern = preg_replace('/\(:alnum\)/', '([a-zA-Z0-9]+)', $pattern);
+        $pattern = preg_quote((string) $pattern, '#');
+        $pattern = str_replace(
+            [preg_quote('(:num)', '#'), preg_quote('(:any)', '#'), preg_quote('(:alpha)', '#'), preg_quote('(:alnum)', '#')],
+            ['([0-9]+)', '([^/]+)', '([a-zA-Z]+)', '([a-zA-Z0-9]+)'],
+            $pattern
+        );
 
-        return preg_match('#^' . $pattern . '$#', $uri);
+        return 1 === preg_match('#^' . $pattern . '$#', (string) $uri);
     }
 
     /**

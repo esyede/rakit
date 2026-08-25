@@ -205,4 +205,37 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = Response::make('test');
         $this->assertInstanceOf('\System\Foundation\Http\Response', $response->foundation());
     }
+
+    /**
+     * Test for Response::error() when the application has no error view at all.
+     *
+     * @group system
+     */
+    public function testErrorFallbackRendersThePageInsteadOfItsSource()
+    {
+        $previous = path('app');
+        $empty = path('storage') . 'work' . DS . 'noviews' . DS;
+
+        is_dir($empty . 'views') || mkdir($empty . 'views', 0755, true);
+        set_path('app', $empty);
+        \System\View::$last = [];
+
+        try {
+            $this->assertFalse(\System\View::exists('error.599'));
+            $this->assertFalse(\System\View::exists('error.unknown'));
+
+            $body = Response::error(599)->render();
+
+            // The fallback is a PHP template - it has to be executed, not read.
+            $this->assertNotContains('namespace System', $body);
+            $this->assertStringStartsWith('<!DOCTYPE html>', $body);
+        } catch (\Exception $e) {
+            set_path('app', $previous);
+            \System\View::$last = [];
+            throw $e;
+        }
+
+        set_path('app', $previous);
+        \System\View::$last = [];
+    }
 }

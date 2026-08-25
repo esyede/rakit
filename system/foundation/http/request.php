@@ -614,7 +614,7 @@ class Request
     public function getUserInfo()
     {
         $pass = $this->getPassword();
-        return $this->getUser() . (('' === $pass) ? '' : ':' . $pass);
+        return $this->getUser() . ((null === $pass || '' === $pass) ? '' : ':' . $pass);
     }
 
     /**
@@ -1184,7 +1184,7 @@ class Request
             return $prefix;
         }
 
-        $prefix = (string) $this->getUrlencodedPrefix($requestUri, dirname($baseUrl));
+        $prefix = $this->getUrlencodedPrefix($requestUri, dirname($baseUrl));
 
         if ($baseUrl && false !== $prefix) {
             return rtrim($prefix, '/');

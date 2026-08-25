@@ -273,12 +273,12 @@ class Helpers
     /** @internal */
     public static function guessClassFile($class)
     {
-        $segments = explode(DIRECTORY_SEPARATOR, $class);
+        $segments = explode('\\', $class);
         $res = null;
         $max = 0;
 
         foreach (get_declared_classes() as $class) {
-            $parts = explode(DIRECTORY_SEPARATOR, $class);
+            $parts = explode('\\', $class);
 
             foreach ($parts as $i => $part) {
                 if (!isset($segments[$i]) || $part !== $segments[$i]) {

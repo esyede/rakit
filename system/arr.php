@@ -61,8 +61,6 @@ class Arr
     /**
      * Cross join multiple arrays.
      *
-     * @param array ...$arrays
-     *
      * @return array
      */
     public static function cross_join(/* ...$arrays */)
@@ -327,7 +325,7 @@ class Arr
      * Check if one or more items exist in array using "dot" notation.
      *
      * @param \ArrayAccess|array $array
-     * @param string|array       $keys
+     * @param string|array       $key
      *
      * @return bool
      */

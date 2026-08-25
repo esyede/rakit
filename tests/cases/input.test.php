@@ -200,4 +200,37 @@ class InputTest extends \PHPUnit_Framework_TestCase
         $driver = $this->getMock('\System\Session\Drivers\Driver');
         Session::$instance = new \System\Session\Payload($driver);
     }
+
+    /**
+     * Test for Input::upload() when the file field was submitted empty.
+     *
+     * @group system
+     */
+    public function testUploadReturnsFalseWhenNoFileWasSubmitted()
+    {
+        $previous = $_FILES;
+
+        // A file field submitted without choosing a file still leaves an entry in
+        // $_FILES (with UPLOAD_ERR_NO_FILE), so a guard reading $_FILES lets the
+        // call through - while the file bag stores NULL for that same entry.
+        $_FILES = [
+            'avatar' => [
+                'name' => '',
+                'type' => '',
+                'tmp_name' => '',
+                'error' => UPLOAD_ERR_NO_FILE,
+                'size' => 0,
+            ],
+        ];
+
+        Request::foundation()->files->replace($_FILES);
+
+        $this->assertNotNull(Input::file('avatar'));
+        $this->assertNull(Request::foundation()->files->get('avatar'));
+        $this->assertFalse(Input::upload('avatar', path('storage') . 'work'));
+        $this->assertFalse(Input::upload('not-submitted-at-all', path('storage') . 'work'));
+
+        Request::foundation()->files->replace([]);
+        $_FILES = $previous;
+    }
 }
