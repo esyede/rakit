@@ -512,9 +512,6 @@ class Query
      */
     public function debug()
     {
-        // Note: to_sql(true) already substitutes every binding, so there is no
-        // placeholder left to feed to vsprintf() - and any literal '%' coming
-        // from a substituted value (e.g. a LIKE pattern) would blow it up.
         return $this->to_sql(true);
     }
 
@@ -589,10 +586,6 @@ class Query
         $values = is_array(reset($values)) ? $values : [$values];
         $bindings = [];
 
-        // Note: the column list is taken from the first row, so every other row
-        // has to be bound in that same order. Relying on each row's own order
-        // would silently write values into the wrong columns whenever the rows
-        // were built with their keys in a different sequence.
         $columns = array_keys(reset($values));
 
         foreach ($values as $value) {
@@ -787,9 +780,6 @@ class Query
      */
     public function to_sql($with_bindings = false)
     {
-        // Note: the grammar skips any component that is still NULL, so without
-        // this the compiled statement would come out without a SELECT clause
-        // whenever select() or get() has not been called yet.
         $selects = $this->selects;
 
         if (is_null($this->selects) && is_null($this->aggregate)) {

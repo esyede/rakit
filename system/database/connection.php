@@ -55,16 +55,6 @@ class Connection
     /**
      * Start a new query builder against a table.
      *
-     * <code>
-     *
-     *      // Start a new query builder against the 'users' table
-     *      $query = DB::connection()->table('users');
-     *
-     *      // Start a new query builder against the 'users' table and get all data
-     *      $users = DB::connection()->table('users')->get();
-     *
-     * </code>
-     *
      * @param string $table
      *
      * @return Query
@@ -88,8 +78,6 @@ class Connection
         if (isset(Database::$registrar[$this->driver()]['query'])) {
             $resolver = Database::$registrar[$this->driver()]['query'];
 
-            // Note: the resolver may be a class name (the default registered by
-            // Database::extend()) or a closure. A bare string cannot be called.
             return $this->grammar = is_string($resolver) ? new $resolver($this) : $resolver($this);
         }
 
@@ -116,10 +104,6 @@ class Connection
         try {
             call_user_func($callback, $this);
         } catch (\Throwable $e) {
-            // Note: \Throwable does not exist on PHP 5, so the \Exception branch
-            // below is the one that runs there. Either way the original exception
-            // is rethrown unchanged so callers can still catch QueryException and
-            // friends by their own type.
             $this->pdo()->rollBack();
             throw $e;
         } catch (\Exception $e) {
@@ -132,16 +116,6 @@ class Connection
 
     /**
      * Run the query and return a single value from the first column of the first row.
-     *
-     * <code>
-     *
-     *      // Get the number of users from the users table.
-     *      $count = DB::connection()->only('SELECT COUNT(*) FROM users');
-     *
-     *      // Get the sum of prices from the foods table.
-     *      $sum = DB::connection()->only('SELECT SUM(price) FROM foods');
-     *
-     * </code>
      *
      * @param string $sql
      * @param array  $bindings
@@ -156,16 +130,6 @@ class Connection
 
     /**
      * Run the query and return the first row of the result.
-     *
-     * <code>
-     *
-     *      // Run a query against the connection
-     *      $user = DB::connection()->first('SELECT * FROM users');
-     *
-     *      // Run a query against the connection with additional binding data
-     *      $user = DB::connection()->first('SELECT * FROM users WHERE id = ?', [$id]);
-     *
-     * </code>
      *
      * @param string $sql
      * @param array  $bindings

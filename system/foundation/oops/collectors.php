@@ -387,7 +387,7 @@ class Collectors
     }
 
     /**
-     * Add a timer record (untuk panel Timeline).
+     * Add a timer record for the Timeline panel.
      *
      * @param string $name
      * @param float  $duration Durasi dalam milidetik

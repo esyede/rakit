@@ -81,7 +81,7 @@ class Table
     }
 
     /**
-     * Create primary key pada tabel.
+     * Create a primary key on the table.
      *
      * @param string|array $columns
      * @param string       $name
@@ -140,7 +140,7 @@ class Table
     }
 
     /**
-     * Create a standard index pada tabel.
+     * Create a standard index on the table.
      *
      * @param string|array $columns
      * @param string       $name

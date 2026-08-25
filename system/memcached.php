@@ -9,10 +9,6 @@ class Memcached
     /**
      * Contains the Memcached connection instance.
      *
-     * Note: public, like every other driver registry in the framework
-     * (Cache::$drivers, Redis::$databases, ...), so the cached connection can be
-     * dropped in a long running process.
-     *
      * @var \Memcached
      */
     public static $connection;
@@ -20,24 +16,11 @@ class Memcached
     /**
      * Get the Memcached connection instance.
      *
-     * <code>
-     *
-     *      // Get the Memcached connection instance and retrieve an item from cache.
-     *      $name = Memcached::connection()->get('name');
-     *
-     *      // Get the Memcached connection instance and store an item in cache.
-     *      Memcached::connection()->set('name', 'Budi');
-     *
-     * </code>
-     *
      * @return \Memcached
      */
     public static function connection()
     {
         if (!static::$connection) {
-            // Note: a missing extension used to surface as 'Class Memcached not
-            // found' from inside connect(), and a missing config section as a
-            // TypeError on its array parameter.
             if (!class_exists('\Memcached')) {
                 throw new \Exception('The memcached extension is not installed or not enabled.');
             }
@@ -66,7 +49,6 @@ class Memcached
         $memcached = new \Memcached();
 
         foreach ($servers as $server) {
-            // Note: 'weight' is optional in the configuration file.
             /** @disregard */
             $memcached->addServer(
                 $server['host'],
@@ -85,16 +67,6 @@ class Memcached
 
     /**
      * Magic method to handle static calls to the Memcached instance.
-     *
-     * <code>
-     *
-     *      // Get an item from the Memcached instance.
-     *      $name = Memcached::get('name');
-     *
-     *      // Store an item in the Memcached instance.
-     *      Memcached::set('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters

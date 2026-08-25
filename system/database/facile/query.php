@@ -43,11 +43,6 @@ class Query
      * It means the result of these methods will be returned directly instead of
      * being wrapped in the model's query builder.
      *
-     * Note: only methods that *end* a query belong here. A chaining method such
-     * as order_by() or where_in() would otherwise hand back the raw query
-     * builder, and everything after it (get(), first(), ...) would return plain
-     * rows instead of models.
-     *
      * @var array
      */
     public $passthru = [
@@ -229,9 +224,6 @@ class Query
     {
         $query = $this->model->{$relationship}();
 
-        // Note: a polymorphic 'morph to' style relationship cannot be resolved
-        // with a single query, its children live in a different table per type.
-        // Those relationships resolve the whole set themselves.
         if (method_exists($query, 'eager_load')) {
             $query->eager_load($results, $relationship);
             return;
@@ -298,9 +290,6 @@ class Query
      */
     protected function table()
     {
-        // Note: this goes through Model::_query() so the soft delete filter and
-        // the model's global scopes are applied. Building the builder straight
-        // from the connection would silently skip both.
         return $this->model->_query($this->with_trashed);
     }
 

@@ -44,10 +44,6 @@ class SQLServer extends Connector
     {
         $drivers = is_null($drivers) ? PDO::getAvailableDrivers() : $drivers;
 
-        // Note: sqlsrv is preferred whenever it is present. The previous check
-        // picked dblib as soon as it was available, even alongside sqlsrv. The
-        // two also spell the port differently: sqlsrv uses 'Server=host,port'
-        // while dblib uses 'host=host:port'.
         if (in_array('sqlsrv', $drivers)) {
             $port = isset($config['port']) ? ',' . $config['port'] : '';
             return 'sqlsrv:Server=' . $config['host'] . $port . ';Database=' . $config['database'];

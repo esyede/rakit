@@ -123,16 +123,6 @@ class Middlewares
      * Set the controller method names to be excluded.
      * These method names will not be attached with middleware.
      *
-     * <code>
-     *
-     *      // Attach middleware to all methods except 'index'
-     *      $this->middleware('before', 'auth')->except('index');
-     *
-     *      // Attach middleware to all methods except 'index' and 'home'
-     *      $this->middleware('before', 'auth')->except(['index', 'home']);
-     *
-     * </code>
-     *
      * @param array $methods
      *
      * @return Middlewares
@@ -144,20 +134,8 @@ class Middlewares
     }
 
     /**
-     * Kebalikan dari method except().
-     * Hanya nama - nama method ini yang akan dilampiri middleware.
-     *
-     * <code>
-     *
-     *      // Set middleware hanya untuk method "index" saja
-     *      $this->middleware('before', 'auth')->only('index');
-     *
-     *      // Set middleware hanya untuk method "index" dan "home" saja
-     *      $this->middleware('before', 'auth')->only(['index', 'home']);
-     *
-     *      $this->middleware('before', 'auth')->only('index', 'home');
-     *
-     * </code>
+     * The inverse of except().
+     * Only the listed methods get the middleware attached.
      *
      * @param array $methods
      *
@@ -171,16 +149,6 @@ class Middlewares
 
     /**
      * Set the HTTP methods for which the middleware will run.
-     *
-     * <code>
-     *
-     *      // Set middleware to run only on POST requests
-     *      $this->middleware('before', 'csrf')->on('post');
-     *
-     *      // Set middleware to run only on POST and PUT requests
-     *      $this->middleware('before', 'csrf')->on(['post', 'put']);
-     *
-     * </code>
      *
      * @param array $methods
      *

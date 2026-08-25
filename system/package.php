@@ -106,7 +106,6 @@ class Package
         Router::$package = static::option($package, 'handles');
 
         if (is_file($directory . 'routes.php')) {
-            // Note: routed() compares lowercased names, so store it lowercased too.
             static::$routed[] = strtolower((string) $package);
             require $directory . 'routes.php';
 
@@ -228,16 +227,6 @@ class Package
     /**
      * Return the path to the given package.
      *
-     * <code>
-     *
-     *      // Return path to the 'admin' package
-     *      $path = Package::path('admin');
-     *
-     *      // Return path to the 'application' package
-     *      $path = Package::path('application');
-     *
-     * </code>
-     *
      * @param string $package
      *
      * @return string
@@ -266,13 +255,6 @@ class Package
     /**
      * Get the name of the package based on the given identifier.
      *
-     * <code>
-     *
-     *      // Returns 'admin' as the package name for the identifier
-     *      $package = Package::name('admin::home.index');
-     *
-     * </code>
-     *
      * @param string $identifier
      *
      * @return string
@@ -286,13 +268,6 @@ class Package
     /**
      * Get the name of the element from the given identifier.
      *
-     * <code>
-     *
-     *      // Returns "home.index" as the element name for the identifier
-     *      $package = Package::element('admin::home.index');
-     *
-     * </code>
-     *
      * @param string $identifier
      *
      * @return string
@@ -305,16 +280,6 @@ class Package
 
     /**
      * Return the identifier of the package and element.
-     *
-     * <code>
-     *
-     *      // Retuns 'admin::home.index'
-     *      $identifier = Package::identifier('admin', 'home.index');
-     *
-     *      // Retuns 'home.index'
-     *      $identifier = Package::identifier('application', 'home.index');
-     *
-     * </code>
      *
      * @param string $package
      * @param string $element
@@ -340,16 +305,6 @@ class Package
 
     /**
      * Parse identifier element and return package name and element.
-     *
-     * <code>
-     *
-     *      // Returns array [null, 'admin.user']
-     *      $element = Package::parse('admin.user');
-     *
-     *      // Returns an array ['admin', 'user']
-     *      $element = Package::parse('admin::user');
-     *
-     * </code>
      *
      * @param string $identifier
      *

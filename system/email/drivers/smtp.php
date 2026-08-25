@@ -77,10 +77,6 @@ class Smtp extends Driver
             $this->authenticate();
         }
 
-        // Note: these two go on the wire as SMTP commands, which are line based.
-        // Recipients are already stripped of CR/LF when they are appended, but
-        // the return path can also come straight out of the config file, so it
-        // gets the same treatment here.
         $retpath = empty($this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
         $retpath = static::sanitize_header($retpath);
         $this->command('MAIL FROM: <' . $retpath . '>', 250);
@@ -98,9 +94,6 @@ class Smtp extends Driver
 
         $this->command('DATA', 354);
 
-        // Note: dot-stuffing happens once, in the loop below. Doing it here too
-        // turned a line starting with '.' into '...' on the wire, so the server
-        // stripped one dot and delivered '..'.
         $lines = explode($this->config['newline'], $message['header'] . $message['body']);
 
         foreach ($lines as $line) {

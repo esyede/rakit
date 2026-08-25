@@ -136,13 +136,6 @@ class Router
     /**
      * Register a shared action for multiple routes.
      *
-     * <code>
-     *
-     *      // Register a shared action for multiple URIs.
-     *      Router::share([['GET', '/'], ['POST', '/']], 'home@index');
-     *
-     * </code>
-     *
      * @param array $routes
      * @param mixed $action
      */
@@ -171,16 +164,6 @@ class Router
     /**
      * Register a new route.
      *
-     * <code>
-     *
-     *      // Register a GET route.
-     *      Router::register('GET', '/', function() { return 'Home!'; } );
-     *
-     *      // Register a shared action for multiple routes.
-     *      Router::register(['GET', '/', 'GET /home'], function() { return 'Home!'; } );
-     *
-     * </code>
-     *
      * @param string|array $method
      * @param string       $route
      * @param mixed        $action
@@ -205,9 +188,6 @@ class Router
 
         foreach ($route as $uri) {
             if ('*' === $method) {
-                // Note: a distinct variable is needed here. Reusing $method would
-                // leave it holding the last HTTP verb, so the next URI in $route
-                // would no longer be seen as a wildcard registration.
                 foreach (static::$methods as $verb) {
                     static::register($verb, $route, $action);
                 }

@@ -16,7 +16,7 @@ class MorphMany extends HasMany
     protected $type;
 
     /**
-     * Berisi morph id.
+     * The morph id.
      *
      * @var string
      */
@@ -50,11 +50,6 @@ class MorphMany extends HasMany
 
     /**
      * Set the constraints for an eager load of the relationship.
-     *
-     * Note: the inherited version constrains on foreign_key(), which for a
-     * polymorphic relationship resolves to a column that does not exist. It also
-     * has to re-apply the type constraint, because the caller resets the where
-     * clauses before calling this.
      *
      * @param array $results
      */

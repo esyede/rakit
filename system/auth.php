@@ -78,16 +78,6 @@ class Auth
     /**
      * Magic method for calling methods on the default auth driver.
      *
-     * <code>
-     *
-     *      // Call user() method on the default auth driver.
-     *      $user = Auth::user();
-     *
-     *      // Call check() method on the default auth driver.
-     *      Auth::check();
-     *
-     * </code>
-     *
      * @param string $method
      * @param array  $parameters
      *

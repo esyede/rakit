@@ -92,20 +92,10 @@ class Blade
 
     /**
      * Whether a compiled view is checked against the template's modification
-     * time before being reused.
+     * time before being reused. Costs one stat per template.
      *
-     * This stays on by default, including in production, because turning it
-     * off means an edited template is never recompiled until the cache is
-     * cleared by hand — too sharp an edge to enable behind your back. The
-     * check costs one extra stat per template, and PHP's stat cache absorbs
-     * repeats of the same file within a request.
-     *
-     * Opt out only if you are sure, by adding this to application/boot.php:
-     *
-     *     System\Blade::$reload = false;
-     *
-     * and then running `php rakit clear:views` as part of every deploy, so
-     * stale compiled templates are dropped.
+     * Turning it off leaves edited templates never recompiled, so run
+     * 'php rakit clear:views' on every deploy if you do.
      *
      * @var bool
      */
@@ -140,14 +130,6 @@ class Blade
 
     /**
      * Add custom compiler.
-     *
-     * <code>
-     *
-     *      Blade::extend(function ($view) {
-     *          return str_replace('foo', 'bar', $view);
-     *      });
-     *
-     * </code>
      *
      * @param \Closure $compiler
      */
@@ -695,10 +677,6 @@ class Blade
     protected static function compile_once($value)
     {
         return preg_replace_callback('/@once(.*?)@endonce/s', function ($matches) {
-            // Note: this has to be decided at render time, not at compile time.
-            // Compiled templates are cached on disk, so stripping the block while
-            // compiling would bake the decision into the cache file and the block
-            // would stay missing on every later request.
             $key = md5($matches[1]);
 
             return '<?php if (\System\Blade::once(' . var_export($key, true) . ')): ?>'

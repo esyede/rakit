@@ -53,8 +53,6 @@ class Arr
             }
         }
 
-        // Note: array_merge() only accepts zero arguments since PHP 7.4, so the
-        // empty case has to be short-circuited to keep PHP 5.4 - 7.3 working.
         return (0 === count($results)) ? [] : call_user_func_array('array_merge', $results);
     }
 

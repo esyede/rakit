@@ -337,15 +337,6 @@ class Request
      * Only headers defined below can be set,
      * Passing empty value will disable the trusted header.
      *
-     * <code>
-     *
-     *    Request::HEADER_CLIENT_IP:    (default: X-Forwarded-For,   see getClientIp())
-     *    Request::HEADER_CLIENT_HOST:  (default: X-Forwarded-Host,  see getClientHost())
-     *    Request::HEADER_CLIENT_PORT:  (default: X-Forwarded-Port,  see getClientPort())
-     *    Request::HEADER_CLIENT_PROTO: (default: X-Forwarded-Proto, see getScheme() and isSecure())
-     *
-     * </code>
-     *
      * @param string $key
      * @param string $value
      */
@@ -500,16 +491,9 @@ class Request
     }
 
     /**
-     * Get the path info for the current request. Sample:.
-     *
-     * <code>
-     *
-     *      http://localhost/mysite              returns  string kosong
-     *      http://localhost/mysite/about        returns  '/about'
-     *      http://localhost/mysite/enco%20ded   returns  '/enco%20ded'
-     *      http://localhost/mysite/about?var=1  returns  '/about'
-     *
-     * <code>
+     * Get the path info for the current request: the part of the URI after the
+     * base URL, with the query string dropped and the encoding left untouched.
+     * Answers '/' when there is nothing after the base URL.
      *
      * @return string
      */
@@ -524,16 +508,9 @@ class Request
     }
 
     /**
-     * Get base path. Sample:.
-     *
-     * <code>
-     *
-     *      http://localhost/index.php         returns  string kosong
-     *      http://localhost/index.php/page    returns  string kosong
-     *      http://localhost/web/index.php     returns  '/web'
-     *      http://localhost/we%20b/index.php  returns  '/we%20b'
-     *
-     * <code>
+     * Get the base path: the directory the front controller lives in, without a
+     * trailing slash and with the encoding left untouched. Answers an empty
+     * string when the front controller sits at the document root.
      *
      * @return string
      */

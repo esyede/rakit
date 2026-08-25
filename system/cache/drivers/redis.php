@@ -78,13 +78,6 @@ class Redis extends Driver
     /**
      * Store an item in the cache for a given number of minutes.
      *
-     * <code>
-     *
-     *      // Store an item in the cache for 15 minutes
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $value
      * @param int    $minutes
@@ -145,9 +138,6 @@ class Redis extends Driver
      */
     public function flush()
     {
-        // Note: FLUSHALL wipes every database on the server, including the ones
-        // belonging to other applications. Only the database this connection is
-        // actually using is cleared.
         /** @disregard */
         $this->redis->flushdb();
     }

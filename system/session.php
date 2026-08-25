@@ -108,16 +108,6 @@ class Session
     /**
      * Get the current session instance.
      *
-     * <code>
-     *
-     *      // Get the current session instance and retrieve an item
-     *      Session::instance()->get('name');
-     *
-     *      // Get the current session instance and put an item into session
-     *      Session::instance()->put('name', 'Budi');
-     *
-     * </code>
-     *
      * @return Session\Payload
      */
     public static function instance()
@@ -152,17 +142,6 @@ class Session
 
     /**
      * Magic method for calling methods on the current session instance statically.
-     *
-     * <code>
-     *
-     *      // Get an item from session
-     *      $value = Session::get('name');
-     *
-     *      // Put an item into session
-     *      Session::put('name', 'Budi');
-     *      Session::instance()->put('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters

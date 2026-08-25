@@ -60,13 +60,6 @@ class Database extends Driver
     /**
      * Store an item in the cache for a given number of minutes.
      *
-     * <code>
-     *
-     *      // Store an item in the cache for 15 minutes
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $value
      * @param int    $minutes

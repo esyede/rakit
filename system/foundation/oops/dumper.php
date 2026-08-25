@@ -24,7 +24,7 @@ class Dumper
     const HIDDEN_VALUE = '*****';
 
     /**
-     * List warna ascii untuk console.
+     * ANSI colors for console output.
      *
      * @var array
      */
@@ -53,7 +53,7 @@ class Dumper
     ];
 
     /**
-     * List kelas object exporter.
+     * Object exporters, keyed by class.
      *
      * @var array
      */
@@ -65,21 +65,21 @@ class Dumper
     ];
 
     /**
-     * Prefix untuk live data.
+     * Prefix for live data.
      *
      * @var string
      */
     public static $livePrefix;
 
     /**
-     * Storage untuk live data.
+     * Storage for live data.
      *
      * @var array
      */
     private static $liveStorage = [];
 
     /**
-     * Dump isi variable sebagai string.
+     * Dump a variable as a string.
      *
      * @param mixed      $var
      * @param array|null $options
@@ -100,7 +100,7 @@ class Dumper
     }
 
     /**
-     * Dump isi variabel sebagai HTML.
+     * Dump a variable as HTML.
      *
      * @param mixed      $var
      * @param array|null $options
@@ -137,7 +137,7 @@ class Dumper
     }
 
     /**
-     * Dump isi variabel sebagai teks biasa.
+     * Dump a variable as plain text.
      *
      * @param mixed      $var
      * @param array|null $options
@@ -150,7 +150,7 @@ class Dumper
     }
 
     /**
-     * Dump isi variabel ke terminal.
+     * Dump a variable to the terminal.
      *
      * @param mixed      $var
      * @param array|null $options
@@ -166,7 +166,7 @@ class Dumper
     }
 
     /**
-     * Implementasi internal untuk toHtml().
+     * Internal implementation of toHtml().
      *
      * @param mixed $var
      * @param array $options
@@ -455,7 +455,7 @@ class Dumper
     }
 
     /**
-     * Encode string ke UTF-8.
+     * Encode a string to UTF-8.
      *
      * @param string   $s
      * @param int|null $maxLength
@@ -581,7 +581,7 @@ class Dumper
     }
 
     /**
-     * Temukan lokasi tempat dumper dipanggil.
+     * Find the location the dumper was called from.
      *
      * @return array|null
      */

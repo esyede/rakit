@@ -30,24 +30,6 @@ class Job
     /**
      * Dispatch job to queue.
      *
-     * <code>
-     *
-     *      // Dispatch now
-     *      Job::dispatch('notify', ['to' => 'user@example.com']);
-     *
-     *      // Dispatch with schedule (delay)
-     *      Job::dispatch('notify', ['to' => 'user@example.com'], '2024-12-31 10:00:00');
-     *      Job::dispatch('notify', ['to' => 'user@example.com'], Carbon::now()->addMinutes(5));
-     *      Job::dispatch('notify', ['to' => 'user@example.com'], new DateTime('2025-01-20 10:00:00'));
-     *      Job::dispatch('notify', ['to' => 'user@example.com'], time() + 600);
-     *
-     *      // With method chaining
-     *      Job::dispatch('notify', ['to' => 'user@example.com'])
-     *          ->on_queue('high')
-     *          ->without_overlapping();
-     *
-     * </code>
-     *
      * @param string                                   $name
      * @param array                                    $payload
      * @param string|\System\Carbon|\DateTime|int|null $dispatch_at
@@ -136,16 +118,6 @@ class Job
     /**
      * Get the job driver instance.
      *
-     * <code>
-     *
-     *      // Get the default job driver instance
-     *      $driver = Job::driver();
-     *
-     *      // Get the job driver instance for a specific driver
-     *      $driver = Job::driver('database');
-     *
-     * </code>
-     *
      * @param string $driver
      *
      * @return \System\Job\Drivers\Driver
@@ -170,8 +142,6 @@ class Job
      */
     protected static function factory($driver)
     {
-        // Note: without this, a driver registered through Job::extend() would be
-        // ignored and the switch below would report it as unsupported.
         if (isset(static::$registrar[$driver])) {
             $resolver = static::$registrar[$driver];
             return $resolver();
@@ -199,16 +169,6 @@ class Job
 
     /**
      * Magic method for calling methods on the default job driver.
-     *
-     * <code>
-     *
-     *      // Call the push() method on the default job driver.
-     *      Job::push('send-email', ['to' => 'user@example.com']);
-     *
-     *      // Call the process() method on the default job driver.
-     *      Job::process('send-email');
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters

@@ -34,11 +34,6 @@ class Route extends Command
     /**
      * Dispatch 'route:list' to lists() below.
      *
-     * Note: 'list' is a reserved word, and a method may only be named after one
-     * from PHP 7 onwards - declaring it outright is a parse error on PHP 5.4,
-     * which takes the whole file down. Routing the call through __call() keeps
-     * the 'route:list' command working on every supported version.
-     *
      * @param string $method
      * @param array  $parameters
      *

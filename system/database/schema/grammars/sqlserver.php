@@ -141,9 +141,6 @@ class SQLServer extends Grammar
      */
     protected function comment(Table $table, Magic $column)
     {
-        // Note: columns() runs every modifier for every column, so throwing
-        // unconditionally here made *any* create()/add() fail on SQL Server. Only
-        // a column that actually asks for a comment is rejected.
         if (isset($column->comment) && $column->comment) {
             throw new \Exception('Column comments are not supported in SQL Server.');
         }
@@ -251,8 +248,6 @@ class SQLServer extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        // Note: T-SQL has no 'ALTER TABLE ... RENAME TO'. Renaming goes through
-        // the sp_rename stored procedure.
         return "EXEC sp_rename '" . str_replace("'", "''", $table->name)
             . "', '" . str_replace("'", "''", $command->name) . "'";
     }
@@ -267,7 +262,6 @@ class SQLServer extends Grammar
      */
     public function drop_column(Table $table, Magic $command)
     {
-        // Note: T-SQL spells it 'DROP COLUMN a, b', not 'DROP a, DROP b'.
         $columns = implode(', ', array_map([$this, 'wrap'], $command->columns));
 
         return 'ALTER TABLE ' . $this->wrap($table) . ' DROP COLUMN ' . $columns;
@@ -287,10 +281,6 @@ class SQLServer extends Grammar
             return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT ' . $this->wrap($command->name);
         }
 
-        // Note: drop_primary() may be called without a name, and unlike MySQL
-        // ('DROP PRIMARY KEY') T-SQL always wants the constraint name. Without
-        // one the statement used to come out as 'DROP CONSTRAINT ' - so the
-        // actual name is looked up first.
         $name = str_replace("'", "''", $table->name);
 
         return 'DECLARE @rakit_pk SYSNAME;'
@@ -539,8 +529,6 @@ class SQLServer extends Grammar
             return "'" . str_replace("'", "''", (string) $item) . "'";
         }, $column->allowed));
 
-        // Note: SQL Server quotes identifiers with brackets. Double quotes only
-        // work while QUOTED_IDENTIFIER is on.
         return sprintf('VARCHAR(255) CHECK (%s IN (%s))', $this->wrap($column->name), $allowed);
     }
 
@@ -577,9 +565,6 @@ class SQLServer extends Grammar
      */
     protected function type_timestamp(Magic $column)
     {
-        // Note: in T-SQL 'TIMESTAMP' is a synonym for ROWVERSION - an
-        // auto-generated binary(8) that cannot be written to - so a column
-        // declared with it would reject every insert.
         return 'DATETIME';
     }
 

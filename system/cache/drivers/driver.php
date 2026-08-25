@@ -18,16 +18,6 @@ abstract class Driver
     /**
      * Retrieve an item from the cache. If the item does not exist, return the default value.
      *
-     * <code>
-     *
-     *      // Retrieve an item from the cache driver
-     *      $name = Cache::driver('name');
-     *
-     *      // Return default value if the item does not exist
-     *      $name = Cache::get('name', 'Budi');
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $default
      *
@@ -50,16 +40,6 @@ abstract class Driver
 
     /**
      * Retrieve an item from the cache and delete it. If the item does not exist, return the default value.
-     *
-     * <code>
-     *
-     *      // Ambil dan hapus sebuah item dari cache
-     *      $value = Cache::pull('key');
-     *
-     *      // Return default value jika item tidak ditemukan
-     *      $value = Cache::pull('key', 'default');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $default
@@ -85,13 +65,6 @@ abstract class Driver
     /**
      * Store an item in the cache for a given number of minutes.
      *
-     * <code>
-     *
-     *      // Store an item in the cache for 15 minutes
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $value
      * @param int    $minutes
@@ -100,13 +73,6 @@ abstract class Driver
 
     /**
      * Store an item in the cache indefinitely (or for 5 years).
-     *
-     * <code>
-     *
-     *      // Store an item in the cache indefinitely (or for 5 years)
-     *      Cache::forever('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $value
@@ -118,16 +84,6 @@ abstract class Driver
 
     /**
      * Retrieve an item from the cache, or store the default value in the cache for a given number of minutes.
-     *
-     * <code>
-     *
-     *      // Retrieve an item from the cache, or store the default value in the cache for 15 minutes
-     *      $name = Cache::remember('name', 15, 'Budi');
-     *
-     *      // Retrieve an item from the cache, or store the default value in the cache for 15 minutes using a Closure
-     *      $count = Cache::remember('count', 15, function() { return User::count(); });
-     *
-     * </code>
      *
      * @param string $key
      * @param int    $minutes

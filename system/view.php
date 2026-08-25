@@ -79,19 +79,6 @@ class View implements \ArrayAccess
     /**
      * Constructor.
      *
-     * <code>
-     *
-     *      // Create a new view instance
-     *      $view = new View('home.index');
-     *
-     *      // Create a new view instance (package)
-     *      $view = new View('admin::home.index');
-     *
-     *      // Create a new view instance with view data
-     *      $view = new View('home.index', ['name' => 'Budi']);
-     *
-     * </code>
-     *
      * @param string $view
      * @param array  $data
      */
@@ -170,19 +157,6 @@ class View implements \ArrayAccess
     /**
      * Create a new instance view.
      *
-     * <code>
-     *
-     *      // Create a new view instance
-     *      $view = View::make('home.index');
-     *
-     *      // Create a new view instance (belonging to a package)
-     *      $view = View::make('admin::home.index');
-     *
-     *      // Create a new view instance with view data
-     *      $view = View::make('home.index', ['name' => 'Budi']);
-     *
-     * </code>
-     *
      * @param string $view
      * @param array  $data
      *
@@ -195,16 +169,6 @@ class View implements \ArrayAccess
 
     /**
      * Create a new instance view from a named view.
-     *
-     * <code>
-     *
-     *      // Create a new view instance from a named view
-     *      $view = View::of('profile');
-     *
-     *      // Create a new view instance from a named view with view data
-     *      $view = View::of('profile', ['name' => 'Budi']);
-     *
-     * </code>
      *
      * @param string $name
      * @param array  $data
@@ -219,16 +183,6 @@ class View implements \ArrayAccess
     /**
      * Give a name to a view.
      *
-     * <code>
-     *
-     *      // Give a name to a view
-     *      View::name('partials.profile', 'profile');
-     *
-     *      // Resolve instance to a named view
-     *      $view = View::of('profile');
-     *
-     * </code>
-     *
      * @param string $view
      * @param string $name
      */
@@ -239,15 +193,6 @@ class View implements \ArrayAccess
 
     /**
      * Register view composer using the Event class.
-     *
-     * <code>
-     *
-     *      // Register view composer for 'home.index'
-     *      View::composer('home.index', function ($view) {
-     *          $view['title'] = 'Homepage';
-     *      });
-     *
-     * </code>
      *
      * @param string|array $views
      * @param \Closure     $composer
@@ -389,16 +334,6 @@ class View implements \ArrayAccess
 
     /**
      * Add a view instance to the view data.
-     *
-     * <code>
-     *
-     *      // Add a view instance to the view data (method 1)
-     *      $view = View::make('foo')->nest('footer', 'partials.footer');
-     *
-     *      // Add a view instance to the view data (method 2)
-     *      $view = View::make('foo')->with('footer', View::make('partials.footer'));
-     *
-     * </code>
      *
      * @param string $key
      * @param string $view

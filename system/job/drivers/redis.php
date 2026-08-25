@@ -40,9 +40,6 @@ class Redis extends Driver
     /**
      * Read a hash back as an associative array.
      *
-     * Note: HGETALL answers with a flat list of alternating fields and values,
-     * so the reply has to be paired up before it can be read by field name.
-     *
      * @param string $key
      *
      * @return array

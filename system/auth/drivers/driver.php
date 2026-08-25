@@ -157,9 +157,6 @@ abstract class Driver
      */
     protected function recall()
     {
-        // Note: a stale or tampered cookie makes Cookie::get()/Crypter::decrypt()
-        // throw. That must not take the whole request down - it only means the
-        // visitor cannot be recalled, e.g. after the application key was rotated.
         try {
             $cookie = Cookie::get($this->recaller());
         } catch (\Throwable $e) {

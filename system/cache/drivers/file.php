@@ -54,9 +54,6 @@ class File extends Driver
 
         $cache = (string) $this->unguard(Storage::get($path));
 
-        // Note: $key must stay unmangled here. Passing the already-hashed file
-        // name to forget() would hash it a second time and leave the expired
-        // file on disk forever.
         if (time() >= (int) substr($cache, 0, 10)) {
             $this->forget($key);
             return null;
@@ -69,13 +66,6 @@ class File extends Driver
 
     /**
      * Store an item in the cache for a given number of minutes.
-     *
-     * <code>
-     *
-     *      // Store an item in the cache for 15 minutes
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $value
@@ -108,9 +98,6 @@ class File extends Driver
      */
     public function flush()
     {
-        // Note: this has to use the configured path, not the default one, or a
-        // driver pointed somewhere else would wipe the wrong directory (and
-        // leave its own entries behind).
         $files = glob($this->path . '*.cache.php');
 
         if (is_array($files) && count($files) > 0) {
@@ -129,8 +116,6 @@ class File extends Driver
      */
     protected function naming($key)
     {
-        // Note: crc32() is only 32 bits, so two different cache keys would
-        // eventually map to the same file and read each other's value.
         return sha1((string) $key) . '.cache.php';
     }
 

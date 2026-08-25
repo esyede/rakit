@@ -115,7 +115,7 @@ class Helpers
     }
 
     /**
-     * Perbaiki stack exception.
+     * Repair the exception stack trace.
      *
      * @param object $e
      *
@@ -333,7 +333,7 @@ class Helpers
     }
 
     /**
-     * Temukan saran bantuan untuk pesan error.
+     * Find a suggestion to attach to an error message.
      *
      * @param array  $items
      * @param string $value

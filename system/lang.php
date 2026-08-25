@@ -66,22 +66,6 @@ class Lang
     /**
      * Create a new language line instance.
      *
-     * <code>
-     *
-     *      // Create a new language line instance for the given line
-     *      $line = Lang::line('validation.required');
-     *
-     *      // Create a new language line instance for the given line (package)
-     *      $line = Lang::line('admin::messages.welcome');
-     *
-     *      // Create a new language line instance for the given line (package, language)
-     *      $line = Lang::line('admin::messages.welcome', [], 'en');
-     *
-     *      // Create a new language line instance for the given line (package, language, replacements)
-     *      $line = Lang::line('admin::messages.welcome', ['name' => 'John'], 'en');
-     *
-     * </code>
-     *
      * @param string $key
      * @param array  $replacements
      * @param string $language
@@ -108,19 +92,6 @@ class Lang
 
     /**
      * Get language line as string.
-     *
-     * <code>
-     *
-     *      // Get a language line
-     *      $line = Lang::line('validation.required')->get();
-     *
-     *      // Get a language line in a specific language
-     *      $line = Lang::line('validation.required')->get('en'); // en = english
-     *
-     *      // Fallback to default value if language line not found
-     *      $line = Lang::line('validation.required')->get(null, 'Default');
-     *
-     * </code>
      *
      * @param string $language
      * @param string $default

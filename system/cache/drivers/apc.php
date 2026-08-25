@@ -33,11 +33,6 @@ class APC extends Driver
     /**
      * Check whether this runtime speaks APCu rather than the original APC.
      *
-     * Note: PHP 7 dropped APC in favour of APCu, which renamed every function
-     * from 'apc_*' to 'apcu_*'. Calling the old names there is a fatal error
-     * unless the apcu_bc shim happens to be installed, so the name in use is
-     * resolved once and reused.
-     *
      * @return bool
      */
     protected static function apcu()
@@ -82,8 +77,6 @@ class APC extends Driver
     {
         $success = false;
 
-        // Note: the by-reference flag is what tells a stored FALSE apart from a
-        // cache miss - comparing the value alone cannot.
         /** @disregard */
         $cache = static::apcu()
             ? apcu_fetch($this->key . $key, $success)
@@ -94,13 +87,6 @@ class APC extends Driver
 
     /**
      * Store an item in the cache for a given number of minutes.
-     *
-     * <code>
-     *
-     *      // Store an item in the cache for 15 minutes
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $value
@@ -152,9 +138,6 @@ class APC extends Driver
      */
     public function flush()
     {
-        // Note: apcu_clear_cache() takes no argument at all, passing one is a
-        // TypeError. Only the original APC has the cache-type parameter, and
-        // only its user cache is the one holding these entries.
         if (static::apcu()) {
             /** @disregard */
             apcu_clear_cache();

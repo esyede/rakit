@@ -90,9 +90,6 @@ abstract class Relationship extends Query
     /**
      * Get the column the eager loaded children are matched on.
      *
-     * Note: this is the foreign key for an ordinary relationship, but a
-     * polymorphic one keys its children on its own id column instead.
-     *
      * @return string
      */
     protected function eager_key()

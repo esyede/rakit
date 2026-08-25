@@ -35,16 +35,6 @@ class Cookie
     /**
      * Get the value of a cookie.
      *
-     * <code>
-     *
-     *      // Get value of a cookie
-     *      $food = Cookie::get('food');
-     *
-     *      // Return default value if cookie not found
-     *      $food = Cookie::get('food', 'Pizza');
-     *
-     * </code>
-     *
      * @param string $name
      * @param mixed  $default
      *
@@ -85,16 +75,6 @@ class Cookie
 
     /**
      * Set a cookie.
-     *
-     * <code>
-     *
-     *      // Set a cookie
-     *      Cookie::put('food', 'Pizza');
-     *
-     *      // Set a cookie with expiration time of 20 minutes
-     *      Cookie::put('food', 'Pizza', 20);
-     *
-     * </code>
      *
      * @param string $name
      * @param string $value
@@ -178,13 +158,6 @@ class Cookie
     /**
      * Set a permanent cookie (Active for 5 years).
      *
-     * <code>
-     *
-     *      // Set cookie 'food' permanently
-     *      Cookie::forever('food', 'Pizza');
-     *
-     * </code>
-     *
      * @param string $name
      * @param string $value
      * @param string $path
@@ -202,9 +175,6 @@ class Cookie
     /**
      * Forget every cookie queued for this request, including the decrypted
      * values remembered for them.
-     *
-     * Note: resetting the jar on its own is not enough, the decrypted values are
-     * cached separately and would keep being served afterwards.
      */
     public static function flush()
     {

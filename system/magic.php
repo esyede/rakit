@@ -16,13 +16,6 @@ class Magic
     /**
      * Create a new magic container instance.
      *
-     * <code>
-     *
-     *      // Create a new magic container instance with additional attributes.
-     *      $magic = new Magic(['name' => 'Budi']);
-     *
-     * </code>
-     *
      * @param array $attributes
      */
     public function __construct(array $attributes = [])
@@ -47,16 +40,6 @@ class Magic
 
     /**
      * Handle dynamic attribute setting.
-     *
-     * <code>
-     *
-     *      // Set value beberapa atribut sekaligus
-     *      $magic->name('Budi')->age(25);
-     *
-     *      // Set value sebuah atribut ke true (boolean)
-     *      $magic->nullable()->name('Budi');
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters

@@ -100,7 +100,7 @@ class Helper extends Header
     }
 
     /**
-     * Sets sebuah cookie.
+     * Set a cookie.
      *
      * @param Cookie $cookie
      */

@@ -61,13 +61,6 @@ class URL
     /**
      * Create an URL to a location within application scope.
      *
-     * <code>
-     *
-     *      // Create URL to user profile
-     *      $url = URL::to('user/profile');
-     *
-     * </code>
-     *
      * @param string $url
      * @param bool   $asset
      * @param bool   $locale
@@ -98,16 +91,6 @@ class URL
 
     /**
      * Create URL to the controller action.
-     *
-     * <code>
-     *
-     *      // Create URL to action 'index' in 'user' controller
-     *      $url = URL::to_action('user@index');
-     *
-     *      // Create URL to action 'profile' in 'user' controller with parameters
-     *      $url = URL::to_action('user@profile', ['budi']);
-     *
-     * </code>
      *
      * @param string $action
      * @param array  $parameters
@@ -175,16 +158,6 @@ class URL
     /**
      * Create URL from named route.
      *
-     * <code>
-     *
-     *      // Create URL from named route named 'profile'
-     *      $url = URL::to_route('profile');
-     *
-     *      // Create URL from named route named 'profile' with parameters
-     *      $url = URL::to_route('profile', [$name]);
-     *
-     * </code>
-     *
      * @param string $name
      * @param array  $parameters
      *
@@ -227,8 +200,6 @@ class URL
     {
         foreach ($parameters as $parameter) {
             if (!is_null($parameter)) {
-                // Note: a plain preg_replace() would treat '$1', '\\0' etc. inside the
-                // parameter as backreferences, so the value is injected via a callback.
                 $parameter = (string) $parameter;
                 $uri = preg_replace_callback('/\(.+?\)/', function () use ($parameter) {
                     return $parameter;

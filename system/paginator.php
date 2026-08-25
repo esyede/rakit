@@ -144,16 +144,6 @@ class Paginator
     /**
      * Create pagination links.
      *
-     * <code>
-     *
-     *      // Create pagination links
-     *      echo $paginator->links();
-     *
-     *      // Create pagination links using a specific range.
-     *      echo $paginator->links(5);
-     *
-     * </code>
-     *
      * @param int $adjacent
      *
      * @return string
@@ -181,16 +171,6 @@ class Paginator
      * This method is similar to links(), the difference is that
      * this one does not display the first and last page.
      *
-     * <code>
-     *
-     *      // Make a pagination slider
-     *      echo $paginator->slider();
-     *
-     *      // Make a pagination slider based on a specific range
-     *      echo $paginator->slider(5);
-     *
-     * </code>
-     *
      * @param int $adjacent
      *
      * @return string
@@ -213,16 +193,6 @@ class Paginator
     /**
      * Make a 'Previous' link.
      *
-     * <code>
-     *
-     *      // Make a 'Previous' link
-     *      echo $paginator->previous();
-     *
-     *      // Make a 'Previous' link with custom text
-     *      echo $paginator->previous('Back');
-     *
-     * </code>
-     *
      * @param string $text
      *
      * @return string
@@ -236,16 +206,6 @@ class Paginator
 
     /**
      * Make a 'Next' link.
-     *
-     * <code>
-     *
-     *      // Make a 'Next' link
-     *      echo $paginator->next();
-     *
-     *      // Make a 'Next' link with custom text
-     *      echo $paginator->next('Forward');
-     *
-     * </code>
      *
      * @param string $text
      *
@@ -354,9 +314,6 @@ class Paginator
 
         $appends = empty($appends) ? [] : $appends;
 
-        // Note: the query string is appended only when there is something to
-        // append. The inverse leaves a bare '&' on every link and, worse, drops
-        // the values that were actually given to appends().
         return $this->appendage = (count($appends) > 0) ? '&' . http_build_query($appends) : '';
     }
 

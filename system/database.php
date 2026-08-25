@@ -24,16 +24,6 @@ class Database
      * Gets the database connection.
      * If no name is specified, will return the default connection.
      *
-     * <code>
-     *
-     *      // Get the default connection
-     *      $connection = DB::connection();
-     *
-     *      // Get the connection based on name
-     *      $connection = DB::connection('mysql');
-     *
-     * </code>
-     *
      * @param string $connection
      *
      * @return \System\Database\Connection|null
@@ -167,16 +157,6 @@ class Database
 
     /**
      * Magic method for calling methods of the default database connection.
-     *
-     * <code>
-     *
-     *      // Get the driver name of the default database connection
-     *      $driver = DB::driver();
-     *
-     *      // Execute magic query via the default database connection
-     *      $users = DB::table('users')->get();
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters

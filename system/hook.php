@@ -42,13 +42,6 @@ class Hook
     /**
      * Registers a callback for the given event.
      *
-     * <code>
-     *
-     *      // Register callback for event 'boot'
-     *      Hook::listen('boot', function() { return 'Oke, Booted!'; } );
-     *
-     * </code>
-     *
      * @param string   $event
      * @param \Closure $handler
      */
@@ -105,16 +98,6 @@ class Hook
     /**
      * Runs the event and returns the first response.
      *
-     * <code>
-     *
-     *      // Run the 'boot' event
-     *      $response = Hook::first('boot');
-     *
-     *      // Run the 'boot' event with custom parameters
-     *      $response = Hook::first('boot', ['rakit', 'framework']);
-     *
-     * </code>
-     *
      * @param string $event
      * @param array  $parameters
      *
@@ -167,19 +150,6 @@ class Hook
 
     /**
      * Runs an event so that all listeners are called.
-     *
-     * <code>
-     *
-     *      // Run the 'boot' event
-     *      $responses = Hook::fire('boot');
-     *
-     *      // Run the 'boot' event with additional parameters
-     *      $responses = Hook::fire('boot', ['rakit', 'framework']);
-     *
-     *      // Run multiple events with the same parameters
-     *      $responses = Hook::fire(['boot', 'loading'], $parameters);
-     *
-     * </code>
      *
      * @param string|array $events
      * @param array        $parameters

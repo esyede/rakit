@@ -50,19 +50,6 @@ class Response
     /**
      * Create a new Response instance.
      *
-     * <code>
-     *
-     *      // Create a response instance with content as string
-     *      return Response::make(json_encode($user));
-     *
-     *      // Create a response instance with custom status code
-     *      return Response::make('Not Found', 404);
-     *
-     *      // Create a response instance with custom status code and headers
-     *      return Response::make(json_encode($user), 200, ['header' => 'value']);
-     *
-     * </code>
-     *
      * @param mixed $content
      * @param int   $status
      * @param array $headers
@@ -76,16 +63,6 @@ class Response
 
     /**
      * Create a new Response instance with a view.
-     *
-     * <code>
-     *
-     *      // Create a response instance with a view
-     *      return Response::view('home.index');
-     *
-     *      // Create a response instance with a view and data
-     *      return Response::view('home.index', ['name' => 'Budi']);
-     *
-     * </code>
      *
      * @param string $view
      * @param array  $data
@@ -102,13 +79,6 @@ class Response
     /**
      * Create a new Response instance with JSON content.
      *
-     * <code>
-     *
-     *      // Create a response instance with JSON content.
-     *      return Response::json($data, 200, ['header' => 'value']);
-     *
-     * </code>
-     *
      * @param mixed $data
      * @param int   $status
      * @param array $headers
@@ -124,13 +94,6 @@ class Response
 
     /**
      * Create a new Response instance with JSONP content.
-     *
-     * <code>
-     *
-     *      // Create a response instance with JSONP content.
-     *      return Response::jsonp('myFunctionCall', $data, 200, ['header' => 'value']);
-     *
-     * </code>
      *
      * @param string $callback
      * @param mixed  $data
@@ -152,13 +115,6 @@ class Response
     /**
      * Create a new Response instance with Facile Model content.
      *
-     * <code>
-     *
-     *      // Create a response instance with Facile Model content.
-     *      return Response::facile($data, 200, ['header' => 'value']);
-     *
-     * </code>
-     *
      * @param Facile|array $data
      * @param int          $status
      * @param array        $headers
@@ -176,16 +132,6 @@ class Response
      * Status code of the error response must use HTTP status codes.
      * The error code must match the name of the view file in the application/views/error/ folder.
      * If the view file does not exist, you can add a new one there.
-     *
-     * <code>
-     *
-     *      // Create a 404 response
-     *      return Response::error(404);
-     *
-     *      // Create a response error with custom header
-     *      return Response::error(429, ['Retry-After' => 1234567]);
-     *
-     * </code>
      *
      * @param int $code
      *
@@ -216,16 +162,6 @@ class Response
     /**
      * Create a new Response instance with download content.
      *
-     * <code>
-     *
-     *      // Create a response download to a file
-     *      return Response::download('path/to/file.jpg');
-     *
-     *      // Create a response download to a file with a custom name
-     *      return Response::download('path/to/file.jpg', 'kittens.jpg');
-     *
-     * </code>
-     *
      * @param string $path
      * @param string $name
      * @param array  $headers
@@ -238,9 +174,6 @@ class Response
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        // Note: the body is streamed below with fread(), so the file must not be
-        // slurped into the response object as well - that would double the peak
-        // memory and blow up on any download bigger than memory_limit.
         $response = new static('', 200, array_merge($headers, [
             'Content-Description' => 'File Transfer',
             'Content-Type' => Storage::mime($path),
@@ -331,9 +264,6 @@ class Response
      */
     protected function cookies()
     {
-        // Note: the jar holds 7 values while the foundation cookie takes 8
-        // ($httpOnly sits before $sameSite), so spreading array_values() would
-        // hand 'samesite' to $httpOnly and silently drop the SameSite setting.
         foreach (Cookie::$jar as $name => $data) {
             $this->foundation()->headers->setCookie(new Foundation\Http\Cookie(
                 $data['name'],

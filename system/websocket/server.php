@@ -231,8 +231,6 @@ class Server
                 $header = explode(':', $line, 2);
                 $headers[strtolower(trim($header[0]))] = trim($header[1]);
             } elseif (stripos($line, 'get ') !== false) {
-                // Note: the line only *looks* like a request line, the pattern may
-                // still not match - so the capture has to be checked before use.
                 if (preg_match('/GET (.*) HTTP/i', $buffer, $reqResource)) {
                     $headers['get'] = trim($reqResource[1]);
                 }
@@ -663,8 +661,6 @@ class Server
             return $payload;
         }
 
-        // Note: built in one pass. Growing the key byte by byte and then
-        // trimming it the same way was quadratic in the payload size.
         $effective = str_repeat($mask, (int) ceil($length / strlen($mask)));
         $effective = substr($effective, 0, $length);
 

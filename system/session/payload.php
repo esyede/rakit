@@ -66,9 +66,6 @@ class Payload
             $this->session = $this->driver->load($id);
         }
 
-        // Note: a driver may hand back something that is not a payload at all
-        // (unserialize() returns FALSE for a truncated or corrupted store), so
-        // anything that is not a well-formed array is treated as "no session".
         if (!is_array($this->session) || !isset($this->session['id'])) {
             $this->session = null;
         }
@@ -119,16 +116,6 @@ class Payload
      * Get an item from the session.
      * The search will also be performed in flash data, not just in the session.
      *
-     * <code>
-     *
-     *      // Get an item from the session
-     *      $name = Session::get('name');
-     *
-     *      // Return default value if the item is not found
-     *      $name = Session::get('name', 'Budi');
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $default
      *
@@ -160,13 +147,6 @@ class Payload
     /**
      * Put an item into the session.
      *
-     * <code>
-     *
-     *      // Put an item into the session
-     *      Session::put('name', 'Budi');
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $value
      */
@@ -178,13 +158,6 @@ class Payload
     /**
      * Put an item into the flash data.
      * Flash data will only last for the next request.
-     *
-     * <code>
-     *
-     *      // Put an item into the flash data
-     *      Session::flash('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $value
@@ -205,18 +178,6 @@ class Payload
 
     /**
      * Keep a flash data items from expiring at the end of the request.
-     *
-     * <code>
-     *
-     *      // Keep the 'name' item from expiring
-     *      Session::keep('name');
-     *
-     *      // Keep the 'name' and 'email' items from expiring
-     *      Session::keep(['name', 'email']);
-     *
-     *      Session::keep('name', 'email');
-     *
-     * </code>
      *
      * @param string|array $keys
      */

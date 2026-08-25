@@ -13,16 +13,6 @@ class Console
     /**
      * Run the console command.
      *
-     * <code>
-     *
-     *      // Run the migrate command
-     *      Console::run('migrate');
-     *
-     *      // Run the migrate command with additional arguments
-     *      Console::run(['migrate:rollback', 'package-name'])
-     *
-     * </code>
-     *
      * @param string|array $arguments
      *
      * @return void
@@ -75,14 +65,6 @@ class Console
 
     /**
      * Resolve instance from a given command.
-     *
-     * <code>
-     *
-     *      // Resolve instance from a given command
-     *      $command = Console::resolve('application', 'migrate');
-     *      $command = Console::resolve('nama_paket', 'foo');
-     *
-     * </code>
      *
      * @param string $package
      * @param string $command

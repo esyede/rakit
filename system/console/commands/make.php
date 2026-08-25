@@ -14,19 +14,6 @@ class Make extends Command
     /**
      * Make a new controller.
      *
-     * <code>
-     *
-     *      // Make a new controller.
-     *      php rakit make:controller dashboard
-     *
-     *      // Make a new controller in a subdirectory.
-     *      php rakit make:controller admin.home
-     *
-     *      // Make a new controller in a package.
-     *      php rakit make:controller admin::dashboard
-     *
-     * </code>
-     *
      * @param array $arguments
      *
      * @return void
@@ -75,19 +62,6 @@ class Make extends Command
 
     /**
      * Make a new resource controller.
-     *
-     * <code>
-     *
-     *      // Make a new resource controller.
-     *      php rakit make:resource dashboard
-     *
-     *      // Make a new resource controller in a subdirectory.
-     *      php rakit make:resource admin.home
-     *
-     *      // Make a new resource controller in a package.
-     *      php rakit make:resource admin::dashboard
-     *
-     * </code>
      *
      * @param array $arguments
      *
@@ -141,16 +115,6 @@ class Make extends Command
 
     /**
      * Make a new model.
-     *
-     * <code>
-     *
-     *      // Make a new model.
-     *      php rakit make:model user
-     *
-     *      // Make a new model in a package.
-     *      php rakit make:model admin::user
-     *
-     * </code>
      *
      * @param array $arguments
      *
@@ -241,16 +205,6 @@ class Make extends Command
     /**
      * Make a new command.
      *
-     * <code>
-     *
-     *      // Make a new command.
-     *      php rakit make:command dashboard
-     *
-     *      // Make a new command in a package.
-     *      php rakit make:command admin::dashboard
-     *
-     * </code>
-     *
      * @param array $arguments
      *
      * @return void
@@ -303,16 +257,6 @@ class Make extends Command
     /**
      * Make a new job.
      *
-     * <code>
-     *
-     *      // Make a new job.
-     *      php rakit make:job dashboard
-     *
-     *      // Make a new job in a package.
-     *      php rakit make:job admin::dashboard
-     *
-     * </code>
-     *
      * @param array $arguments
      *
      * @return void
@@ -364,17 +308,6 @@ class Make extends Command
 
     /**
      * Generate auth scaffolding (login, register, forgot password).
-     * (NOTE: this must be run on a fresh project).
-     *
-     * <code>
-     *
-     *      // Generate auth scaffolding.
-     *      php rakit make:auth
-     *
-     *      // Next, run the database migration.
-     *      php rakit migrate
-     *
-     * </code>
      *
      * @param array $arguments
      *
@@ -435,16 +368,6 @@ class Make extends Command
 
     /**
      * Make a new test.
-     *
-     * <code>
-     *
-     *      // Make a new test.
-     *      php rakit make:test foobar
-     *
-     *      // Make a new test in the 'admin' package.
-     *      php rakit make:test admin::foobar
-     *
-     * </code>
      *
      * @param array $arguments
      *

@@ -95,16 +95,6 @@ abstract class Controller
     /**
      * Call a controller action statically.
      *
-     * <code>
-     *
-     *      // Call User_Controller::show()
-     *      $response = Controller::call('user@show');
-     *
-     *      // Call User_Admin_Controller::profile() and pass parameters
-     *      $response = Controller::call('user.admin@profile', [$name]);
-     *
-     * </code>
-     *
      * @param string $destination
      * @param array  $parameters
      *
@@ -265,16 +255,6 @@ abstract class Controller
     /**
      * Attach middleware to the controller.
      *
-     * <code>
-     *
-     *      // Set a middleware after 'foo' for all methods in the controller
-     *      $this->middleware('before', 'foo');
-     *
-     *      // Set middleware after 'foo' and 'bar' for only some methods
-     *      $this->middleware('after', 'foo|bar')->only(['user', 'profile']);
-     *
-     * </code>
-     *
      * @param string       $event
      * @param string|array $middlewares
      * @param mixed        $parameters
@@ -380,14 +360,6 @@ abstract class Controller
      * @param string $key
      *
      * @return mixed
-     *
-     * <code>
-     *
-     *      // Resolve registered object 'mailer' from container
-     *      $mailer = $this->mailer; // equivalent to:
-     *      $mailer = Container::resolve('mailer');
-     *
-     * </code>
      */
     public function __get($key)
     {

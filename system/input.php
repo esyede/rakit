@@ -59,8 +59,6 @@ class Input
             return false;
         }
 
-        // Note: arrays and booleans must not be stringified here, casting an
-        // array to string raises "Array to string conversion".
         if (is_array($value)) {
             return count($value) > 0;
         }
@@ -75,16 +73,6 @@ class Input
     /**
      * Get an item from the input data.
      * This method is used for all request methods (GET, POST, PUT, and DELETE).
-     *
-     * <code>
-     *
-     *      // Get item 'email' from input data
-     *      $email = Input::get('email');
-     *
-     *      // Fallback to default value if item is not found
-     *      $email = Input::get('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $default
@@ -105,16 +93,6 @@ class Input
 
     /**
      * Get one or all query parameters.
-     *
-     * <code>
-     *
-     *      // Get the 'email' query parameter
-     *      $email = Input::query('email');
-     *
-     *      // Return default value if item is not found
-     *      $email = Input::query('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $default
@@ -144,14 +122,6 @@ class Input
     /**
      * Get only specified items from the input data.
      *
-     * <code>
-     *
-     *      // Get only email and password from input data
-     *      $input = Input::only(['name', 'email']);
-     *      $input = Input::only('email', 'password');
-     *
-     * </code>
-     *
      * @param array $keys
      *
      * @return array
@@ -163,15 +133,6 @@ class Input
 
     /**
      * Get all items except specified items.
-     *
-     * <code>.
-     *
-     *      // Get all input data except name
-     *      $inputs = Input::except('name');.
-     *      $inputs = Input::except(['name', 'email']);
-     *      $inputs = Input::except('name', 'email');
-     *
-     * </code>
      *
      * @param array $keys
      *
@@ -196,16 +157,6 @@ class Input
 
     /**
      * Get input data from the previous request.
-     *
-     * <code>
-     *
-     *      // Get item 'email' from old input
-     *      $email = Input::old('email');
-     *
-     *      // Fallback to default value if item is not found
-     *      $email = Input::old('name', 'Budi');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $default
@@ -252,13 +203,6 @@ class Input
     /**
      * Get item from uploaded file data.
      *
-     * <code>
-     *
-     *      // Get array information from form upload named 'avatar'
-     *      $avatar = Input::file('avatar');
-     *
-     * </code>
-     *
      * @param string $key
      * @param mixed  $default
      *
@@ -284,13 +228,6 @@ class Input
     /**
      * Move uploaded file to internal storage.
      *
-     * <code>
-     *
-     *      // Move file 'avatar' to a new location in internal storage
-     *      Input::upload('avatar', 'path/to/folder', 'avatar.jpg');
-     *
-     * </code>
-     *
      * @param string $key
      * @param string $directory
      * @param string $name
@@ -310,19 +247,6 @@ class Input
 
     /**
      * Flash the current input data to session.
-     *
-     * <code>
-     *
-     *      // Flash all input data to session
-     *      Input::flash();
-     *
-     *      // Flash only specific input data to session
-     *      Input::flash('only', ['name', 'email']);
-     *
-     *      // Flash all input data to session except for specific keys
-     *      Input::flash('except', ['password', 'email']);
-     *
-     * </code>
      *
      * @param string $filter
      * @param array  $keys

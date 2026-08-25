@@ -16,7 +16,6 @@ class Join
     /**
      * Contains the table to join.
      *
-     *
      * @var string
      */
     public $table;

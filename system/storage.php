@@ -47,16 +47,6 @@ class Storage
     /**
      * Get the contents of a file.
      *
-     * <code>
-     *
-     *      // Get the contents of a file
-     *      $contents = Storage::get(path('app').'routes.php');
-     *
-     *      // Get the contents of a file or return default value if file not found
-     *      $contents = Storage::get(path('app').'routes.php', 'File not found!');
-     *
-     * </code>
-     *
      * @param string $path
      * @param mixed  $default
      *
@@ -246,8 +236,6 @@ class Storage
             }
 
             if (!$preserve) {
-                // Note: rmdir() reports failure by returning FALSE (plus a warning),
-                // it does not throw, so the return value has to be checked too.
                 try {
                     $removed = @rmdir($path);
                 } catch (\Throwable $e) {
@@ -369,8 +357,6 @@ class Storage
      */
     public static function mime($path)
     {
-        // Note: finfo warns (and finfo_open may fail) instead of returning
-        // something useful when the path is not a readable file.
         if (!static::isfile($path) || false === ($finfo = @finfo_open(FILEINFO_MIME_TYPE))) {
             return false;
         }
@@ -384,16 +370,6 @@ class Storage
     /**
      * Check if file is valid based on its mime type.
      * Use this method to validate uploaded files.
-     *
-     * <code>
-     *
-     *      // Check if file is a JPG image
-     *      $jpg = Storage::is('jpg', 'path/to/file.jpg');
-     *
-     *      // Check if file is a JPG or PNG image
-     *      $image = Storage::is(['jpg', 'png'], 'path/to/file');
-     *
-     * </code>
      *
      * @param array|string $extensions
      * @param string       $path

@@ -627,7 +627,6 @@ class Validator
     protected function validate_not_regex($attribute, $value, array $parameters)
     {
         try {
-            // Note: see validate_regex() - the pattern may hold a comma.
             return 1 !== preg_match(implode(',', $parameters), (string) $value);
         } catch (\Throwable $e) {
             return false;
@@ -977,8 +976,6 @@ class Validator
     protected function size($attribute, $value)
     {
         if (is_numeric($value) && $this->has_rule($attribute, $this->numerics)) {
-            // Note: $value is used directly. $this->attributes[$attribute] would
-            // miss (and warn on) attributes addressed with dot notation.
             return $value;
         }
 
@@ -1262,9 +1259,6 @@ class Validator
     protected function validate_regex($attribute, $value, array $parameters)
     {
         try {
-            // Note: rule parameters are split on ',', so a pattern containing a
-            // comma (e.g. '/^[a-z]{2,4}$/') arrives in pieces and has to be joined
-            // back together - same as validate_match() does.
             return 1 === preg_match(implode(',', $parameters), (string) $value);
         } catch (\Throwable $e) {
             return false;
@@ -1311,9 +1305,6 @@ class Validator
             return false;
         }
 
-        // Note: without parameters the rule only asks for an array. Falling through
-        // to the key check below would reject every non-empty array - including
-        // every call coming from the count* rules.
         if (0 === count($parameters)) {
             return true;
         }
@@ -1333,8 +1324,6 @@ class Validator
      */
     protected function validate_count($attribute, $value, array $parameters)
     {
-        // Note: parameters always arrive as strings, so the comparison has to be
-        // made on integers - '3' === 3 is never true.
         return $this->validate_array($attribute, $value) && (int) $parameters[0] === count($value);
     }
 

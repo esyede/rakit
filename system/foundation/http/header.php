@@ -192,7 +192,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Tambahkan header Cache-Control.
+     * Add a Cache-Control directive.
      *
      * @param string $key
      * @param mixed  $value
@@ -204,7 +204,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Periksa ada tidaknya suatu header Cache-Control.
+     * Check if the given Cache-Control directive is set.
      *
      * @param string $key
      *
@@ -216,7 +216,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil penunjuk Cache-Control berdasarkan key-nya.
+     * Get a Cache-Control directive by its key.
      *
      * @param string $key
      *
@@ -228,7 +228,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Hapus penunjuk Cache-Control berdasarkan key-nya.
+     * Remove a Cache-Control directive by its key.
      *
      * @param string $key
      */
@@ -239,7 +239,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Mereturn array iterator untuk data header.
+     * Get an array iterator for the headers.
      *
      * @return \ArrayIterator
      */
@@ -250,7 +250,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Hitung jumlah seluruh header.
+     * Count all headers.
      *
      * @return int
      */
@@ -261,7 +261,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Ambil seluruh data Cache-Control.
+     * Get the full Cache-Control header value.
      *
      * @return string
      */
@@ -305,7 +305,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Standarisasi nama header.
+     * Standardize a header name.
      *
      * @param string $key
      *

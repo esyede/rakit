@@ -32,16 +32,6 @@ class Middleware
     /**
      * Register a middleware.
      *
-     * <code>
-     *
-     *      // Register a middleware via closure
-     *      Middleware::register('before', function() { });
-     *
-     *      // Register a middleware via callback
-     *      Middleware::register('before', ['ClassName', 'method']);
-     *
-     * </code>
-     *
      * @param string $name
      * @param mixed  $handler
      */
@@ -63,7 +53,6 @@ class Middleware
     /**
      * Make an alias for a middleware.
      * This makes it easier to shorten the call to a package's built-in middleware.
-     *
      *
      * @param string $middleware
      * @param string $alias

@@ -21,22 +21,22 @@ class Panic
     public $collapsePaths = [];
 
     /**
-     * Berapa dalam array/object yang harus ditampilkan oleh dump()?
+     * How deep into an array/object dump() should descend.
      *
      * @var int
      */
     public $maxDepth = 10;
 
     /**
-     * Berapa banyak karakter harus ditampilkan oleh dump()?
+     * How many characters dump() should show.
      *
      * @var int
      */
     public $maxLength = 300;
 
     /**
-     * List key array yang ingin disembunyikan dari tampilan error debugger.
-     * Ini berguna untuk menyembunyikan data - data sensitif.
+     * Array keys to hide from the debugger error page, so sensitive data
+     * never reaches the output.
      *
      * @var array
      */
@@ -122,14 +122,14 @@ class Panic
     ];
 
     /**
-     * Berisi list panel terdaftar.
+     * The registered panels.
      *
      * @var array|callable
      */
     private $panels = [];
 
     /**
-     * Berisi list fungsi yang mereturn action untuk exception.
+     * Callbacks that answer an action for an exception.
      *
      * @var array|callable
      */
@@ -141,7 +141,7 @@ class Panic
     }
 
     /**
-     * Tambahkan panel baru.
+     * Add a new panel.
      *
      * @param callable $panel
      *
@@ -157,7 +157,7 @@ class Panic
     }
 
     /**
-     * Tambahkan action baru.
+     * Add a new action.
      *
      * @param callable $action
      *
@@ -171,7 +171,7 @@ class Panic
     }
 
     /**
-     * Tampilkan halaman blue screen.
+     * Render the blue screen page.
      *
      * @param \Throwable|\Exception $e
      *
@@ -197,7 +197,7 @@ class Panic
     }
 
     /**
-     * Simpan tampilan blue screen ke file.
+     * Write the blue screen page to a file.
      *
      * @param \Throwable|\Exception $e
      * @param string                $file
@@ -209,8 +209,6 @@ class Panic
         $base = basename($file);
         $dir = substr_replace($file, '', strrpos($file, $base), strlen($base));
 
-        // Note: a bare file name leaves $dir empty, and gluing a separator in
-        // front of it used to point the dump at the filesystem root.
         $dir = ('' === $dir) ? '.' . DIRECTORY_SEPARATOR : $dir;
         $file = $dir . $base;
 
@@ -451,7 +449,7 @@ class Panic
     }
 
     /**
-     * Terapkan syntax highlighter ke isi file.
+     * Apply the syntax highlighter to the contents of a file.
      *
      * @param string $file
      * @param int    $line
@@ -467,7 +465,7 @@ class Panic
     }
 
     /**
-     * Terapkan syntax highlighter pada string kode PHP.
+     * Apply the syntax highlighter to a string of PHP code.
      *
      * @param string $source
      * @param int    $line
@@ -516,7 +514,7 @@ class Panic
     }
 
     /**
-     * Highlight sebuah baris kode.
+     * Highlight a single line of code.
      *
      * @param string $html
      * @param int    $line
@@ -563,7 +561,7 @@ class Panic
     }
 
     /**
-     * Haruskah file stack trace di-collapse?
+     * Should the stack trace for this file be collapsed?
      *
      * @param string $file
      *
@@ -576,9 +574,6 @@ class Panic
         foreach ($this->collapsePaths as $path) {
             $path = strtr($path, '\\', '/') . '/';
 
-            // Note: the parenthesis used to sit around the whole comparison, so
-            // strncmp() got a length of 0 (FALSE) and answered 0 for every path -
-            // which made this method report FALSE for everything.
             if (0 === strncmp($file, $path, mb_strlen($path, '8bit'))) {
                 return true;
             }

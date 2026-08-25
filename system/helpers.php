@@ -86,12 +86,6 @@ if (!function_exists('measure')) {
     /**
      * Measure a code block and record it on the debug bar Timeline panel.
      *
-     * <code>
-     *      $users = measure('Load users', function () {
-     *          return DB::table('users')->get();
-     *      });
-     * </code>
-     *
      * @param string   $name
      * @param callable $callback
      *
@@ -107,12 +101,6 @@ if (!function_exists('start_measure')) {
     /**
      * Start a named measure on the debug bar Timeline. Pair with stop_measure()
      * to time a region of code that is not a single callback.
-     *
-     * <code>
-     *      start_measure('import');
-     *      // ... work ...
-     *      stop_measure('import');
-     * </code>
      *
      * @param string $name
      *
@@ -368,10 +356,6 @@ if (!function_exists('retry')) {
         try {
             return $callback($attempts);
         } catch (\Throwable $e) {
-            // Note: \Throwable does not exist on PHP 5, so the \Exception branch
-            // below is what actually runs there. On PHP 7+ this branch handles
-            // both, and the original exception is rethrown as-is so callers can
-            // still catch it by its own type.
             if (!$times || ($when && !$when($e))) {
                 throw $e;
             }
@@ -454,13 +438,6 @@ if (!function_exists('url')) {
     /**
      * Create a URL.
      *
-     * <code>
-     *
-     *      // Create URL to location within application environment
-     *      $url = url('user/profile');
-     *
-     * </code>
-     *
      * @param string $url
      *
      * @return string
@@ -489,16 +466,6 @@ if (!function_exists('action')) {
     /**
      * Create a URL to a controller action.
      *
-     * <code>
-     *
-     *      // Create URL to the 'index' method of the 'user' controller.
-     *      $url = action('user@index');
-     *
-     *      // Create URL to the 'profile' method of the 'user' controller with parameter.
-     *      $url = action('user@profile', ['john']);
-     *
-     * </code>
-     *
      * @param string $action
      * @param array  $parameters
      *
@@ -514,16 +481,6 @@ if (!function_exists('route')) {
     /**
      * Create a URL to a named route.
      *
-     * <code>
-     *
-     *      // Create URL to the route named 'profile'.
-     *      $url = route('profile');
-     *
-     *      // Create URL to the route named 'profile' with parameter.
-     *      $url = route('profile', ['john']);
-     *
-     * </code>
-     *
      * @param string $name
      * @param array  $parameters
      *
@@ -538,16 +495,6 @@ if (!function_exists('route')) {
 if (!function_exists('config')) {
     /**
      * Get or set config.
-     *
-     * <code>
-     *
-     *      // Get config
-     *      $language = config('application.language');
-     *
-     *      // Set config
-     *      config(['application.language' => 'jp']);
-     *
-     * </code>
      *
      * @param string|array $key
      * @param mixed        $default
@@ -572,16 +519,6 @@ if (!function_exists('cache')) {
     /**
      * Get or set cache.
      *
-     * <code>
-     *
-     *      // Get cache
-     *      $language = cache('error');
-     *
-     *      // Set cache
-     *      cache(['error' => 'Akun tidak ditemukan']);
-     *
-     * </code>
-     *
      * @param string|array $key
      * @param mixed        $default
      *
@@ -604,16 +541,6 @@ if (!function_exists('cache')) {
 if (!function_exists('session')) {
     /**
      * Get or set session.
-     *
-     * <code>
-     *
-     *      // Get session
-     *      $language = session('error');
-     *
-     *      // Set session
-     *      session(['error' => 'Akun tidak ditemukan']);
-     *
-     * </code>
      *
      * @param string|array $key
      * @param mixed        $default
@@ -652,16 +579,6 @@ if (!function_exists('fake')) {
     /**
      * Create a faker instance.
      *
-     * <code>
-     *
-     *      // Buat data faker menggunakan default locale.
-     *      $name = fake()->name;
-     *
-     *      // Buat data faker menggunakan custom locale.
-     *      $name = fake('en')->name;
-     *
-     * </code>
-     *
      * @param string|null $locale
      *
      * @return mixed
@@ -691,13 +608,6 @@ if (!function_exists('validate')) {
 if (!function_exists('redirect')) {
     /**
      * Create a redirect.
-     *
-     * <code>
-     *
-     *      // Buat redireksi
-     *      return redirect('user/profile');
-     *
-     * </code>
      *
      * @param string $url
      * @param int    $status

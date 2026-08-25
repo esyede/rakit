@@ -500,8 +500,6 @@ abstract class Driver
             return $mime;
         }
 
-        // Note: string_attach() names a file that never exists on disk, so the
-        // type is guessed from the extension rather than by reading the file.
         $extension = strtolower((string) pathinfo((string) $file, PATHINFO_EXTENSION));
 
         if ('' !== $extension) {
@@ -694,10 +692,6 @@ abstract class Driver
     /**
      * Strip everything that could start a new header line.
      *
-     * Note: a CR or LF reaching a header value lets the caller append headers of
-     * its own (the classic mail header injection), so they are removed from every
-     * name and value that ends up in the message head.
-     *
      * @param string $value
      *
      * @return string
@@ -710,12 +704,6 @@ abstract class Driver
     /**
      * Get the envelope sender for the '-f' option, or NULL when there is none
      * fit to use.
-     *
-     * Note: this value ends up on the sendmail command line - mail() hands the
-     * additional parameters to the MTA after escapeshellcmd(), which leaves
-     * spaces alone, so an address carrying them can smuggle in extra sendmail
-     * options (the CVE-2016-10033 shape). Only a plain, valid address goes
-     * through; anything else means no '-f' at all.
      *
      * @return string|null
      */
@@ -997,8 +985,6 @@ abstract class Driver
 
         foreach ($addresses as $address) {
             if (isset($address['name']) && $address['name']) {
-                // Note: the display name is quoted, so an embedded quote or
-                // backslash has to be escaped or it would end the quoted string.
                 $name = addcslashes(static::sanitize_header($address['name']), '"\\');
                 $address['email'] = '"' . $name . '" <' . static::sanitize_header($address['email']) . '>';
             }

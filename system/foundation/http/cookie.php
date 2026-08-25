@@ -148,7 +148,7 @@ class Cookie
     }
 
     /**
-     * Check if cookie hanya boleh dikirim via koneksi aman HTTPS.
+     * Check if the cookie may only be sent over a secure HTTPS connection.
      *
      * @return bool
      */

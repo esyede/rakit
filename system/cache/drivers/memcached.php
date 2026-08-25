@@ -63,8 +63,6 @@ class Memcached extends Sectionable
         /** @disregard */
         $cache = $this->memcached->get($this->key . $key);
 
-        // Note: FALSE is a value an application may legitimately have stored, so
-        // a miss is told apart by the result code rather than by the value.
         if (false === $cache && defined('Memcached::RES_NOTFOUND')) {
             /** @disregard */
             return (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) ? null : $cache;
@@ -77,13 +75,6 @@ class Memcached extends Sectionable
 
     /**
      * Store an item in the cache for a given number of minutes.
-     *
-     * <code>
-     *
-     *      // Store an item in the cache for 15 minutes
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $value

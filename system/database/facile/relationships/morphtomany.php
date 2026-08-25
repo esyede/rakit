@@ -53,9 +53,6 @@ class MorphToMany extends Relationship
 
         parent::__construct($model, $associated, null);
 
-        // Note: both of these read $this->base and $this->model, which only exist
-        // once the parent constructor has run. Deriving them before that produced
-        // a pivot table literally named '_'.
         $this->other = $other ?: static::foreign($this->model);
         $this->pivot_table = $table ?: $this->get_default_table_name();
     }
@@ -90,9 +87,6 @@ class MorphToMany extends Relationship
      */
     public function results(array $results = [])
     {
-        // Note: lazy loading calls this without arguments. Returning an empty
-        // array in that case (as it used to) made the relationship always look
-        // empty when read as a property.
         return $this->get();
     }
 
@@ -124,9 +118,6 @@ class MorphToMany extends Relationship
 
     /**
      * Eager load the relationship for a whole result set.
-     *
-     * Note: the pivot carries the type as well, so this is resolved here rather
-     * than through initialize()/eagerly_constrain()/match().
      *
      * @param array  $results
      * @param string $relationship

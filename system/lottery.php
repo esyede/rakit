@@ -107,8 +107,6 @@ class Lottery
      */
     public function __invoke(/** ...$args */)
     {
-        // Note: the arguments have to be spread back out, otherwise the whole
-        // list would arrive at the winner/loser callback as a single array.
         return call_user_func_array([$this, 'run_callback'], func_get_args());
     }
 

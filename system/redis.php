@@ -37,10 +37,6 @@ class Redis
     /**
      * Contains the list of active Redis database instances.
      *
-     * Note: public, like every other driver registry in the framework
-     * (Cache::$drivers, Job::$drivers, Database::$connections, ...), so the
-     * cached connections can be dropped in a long running process.
-     *
      * @var array
      */
     public static $databases = [];
@@ -63,16 +59,6 @@ class Redis
      * Get the Redis database instance.
      * The name given must match the data in the database configuration file.
      *
-     * <code>
-     *
-     *      // Get the default Redis database instance.
-     *      $redis = Redis::db();
-     *
-     *      // Get a specific Redis database instance.
-     *      $redis = Redis::db('redis_2');
-     *
-     * </code>
-     *
      * @param string $name
      *
      * @return Redis
@@ -94,16 +80,6 @@ class Redis
 
     /**
      * Execute a Redis command.
-     *
-     * <code>
-     *
-     *      // Execute the GET command for key 'name'
-     *      $name = Redis::db()->run('get', ['name']);
-     *
-     *      // Execute the LRANGE command for key 'list'
-     *      $list = Redis::db()->run('lrange', ['list', 0, 5]);
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters
@@ -188,11 +164,6 @@ class Redis
         $method = (string) $method;
         $method = strtoupper($method);
 
-        // Note: an array argument is spread into individual arguments, an
-        // associative one as alternating field and value. Commands such as HMSET
-        // and MSET are written that way ($redis->hmset($key, $pairs)), and
-        // stringifying the array instead produced the literal 'Array' plus a
-        // "wrong number of arguments" error from the server.
         $arguments = [];
 
         foreach ($parameters as $parameter) {

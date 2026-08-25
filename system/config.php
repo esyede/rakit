@@ -53,16 +53,6 @@ class Config
     /**
      * Check if configuration item exists.
      *
-     * <code>
-     *
-     *      // Check if config file named 'session.php' exists
-     *      $exists = Config::has('session');
-     *
-     *      // Check if 'timezone' option exists in config file 'application.php'
-     *      $exists = Config::has('application.timezone');
-     *
-     * </code>
-     *
      * @param string $key
      *
      * @return bool
@@ -74,19 +64,6 @@ class Config
 
     /**
      * Get configuration item.
-     *
-     * <code>
-     *
-     *      // Get the 'session' config item
-     *      $session = Config::get('session');
-     *
-     *      // Get the 'first' config item from 'names.php' file in the 'admin' package
-     *      $name = Config::get('admin::names.first');
-     *
-     *      // Get the 'timezone' config item from 'application.php' file in the 'application' package
-     *      $timezone = Config::get('application::application.timezone');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $default
@@ -125,9 +102,6 @@ class Config
 
         $items = static::$items[$package][$file];
 
-        // Note: the default is deliberately kept out of the cache. Caching it would
-        // make a later read of the same missing key return the *previous* caller's
-        // default instead of its own.
         if (is_null($item)) {
             $found = true;
             $result = $items;
@@ -159,19 +133,6 @@ class Config
 
     /**
      * Set a configuration item.
-     *
-     * <code>
-     *
-     *      // Set array to 'session' configuration file
-     *      Config::set('session', $new_value);
-     *
-     *      // Set configuration item of 'admin' package
-     *      Config::set('admin::names.first', 'Budi');
-     *
-     *      // Set 'timezone' configuration item of 'application' package
-     *      Config::set('application.timezone', 'UTC');
-     *
-     * </code>
      *
      * @param string $key
      * @param mixed  $value

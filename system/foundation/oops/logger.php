@@ -14,42 +14,42 @@ class Logger
     const CRITICAL = 'critical';
 
     /**
-     * Path ke di direktori penyimpanan file log.
+     * Path to the directory log files are written to.
      *
      * @var string|null
      */
     public $directory;
 
     /**
-     * Email yang akan menerima notifikasi error.
+     * Email address that receives error notifications.
      *
      * @var string|array
      */
     public $email;
 
     /**
-     * Email pengirim notifikasi error.
+     * Sender address for error notifications.
      *
      * @var string
      */
     public $fromEmail;
 
     /**
-     * Interval pengiriman email notifikasi (default 2 hari).
+     * How often a notification email may be sent (default: 2 days).
      *
      * @var mixed
      */
     public $emailSnooze = '2 days';
 
     /**
-     * Handler pengiriman email.
+     * Mail sending handler.
      *
      * @var callable
      */
     public $mailer;
 
     /**
-     * Berisi object kelas Panic.
+     * The Panic instance.
      *
      * @var Panic
      */
@@ -69,7 +69,7 @@ class Logger
     }
 
     /**
-     * Log pesan atau exception ke file dan kirim ke email.
+     * Log a message or exception to file and send it by email.
      *
      * @param mixed  $message
      * @param string $priority
@@ -178,7 +178,7 @@ class Logger
     }
 
     /**
-     * Log exception ke file.
+     * Log an exception to file.
      *
      * @param \Throwable|\Exception $exception
      * @param string                $file
@@ -244,7 +244,7 @@ class Logger
     }
 
     /**
-     * Format nilai untuk logging dengan aman.
+     * Safely format a value for logging.
      *
      * @param mixed $value
      * @param array $objects
@@ -300,7 +300,7 @@ class Logger
     }
 
     /**
-     * Format exception untuk logging.
+     * Format an exception for logging.
      *
      * @param \Exception|object $e
      *

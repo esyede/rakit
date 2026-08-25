@@ -260,9 +260,6 @@ class Table
         foreach ($this->data as $y => $row) {
             if (is_array($row)) {
                 foreach ($row as $x => $col) {
-                    // Note: get_cell_output() pads with mb_strlen(), so the width
-                    // has to be measured the same way. strlen() counts bytes, which
-                    // makes every column holding non-ASCII text come out too wide.
                     $width = mb_strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
 
                     if (!isset($this->column_widths[$x])) {

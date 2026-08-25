@@ -60,13 +60,6 @@ class Container
     /**
      * Register an instance as a singleton.
      *
-     * <code>
-     *
-     *      // Register instance mailer as a singleton.
-     *      Container::instance('mailer', new Mailer());
-     *
-     * </code>
-     *
      * @param string $name
      * @param mixed  $instance
      */
@@ -77,16 +70,6 @@ class Container
 
     /**
      * Resolve a name into an object instance.
-     *
-     * <code>
-     *
-     *      // Get the 'mailer' instance
-     *      $mailer = Container::resolve('mailer');
-     *
-     *      // Get the 'mailer' instance and pass a parameter
-     *      $mailer = Container::resolve('mailer', ['test']);
-     *
-     * </code>
      *
      * @param string $type
      * @param array  $parameters
@@ -183,8 +166,6 @@ class Container
      */
     protected static function class_name(\ReflectionParameter $parameter)
     {
-        // Note: ReflectionNamedType only exists since PHP 7.1, so older runtimes
-        // keep using getClass() (which in turn is deprecated since PHP 8.0).
         if (PHP_VERSION_ID < 70100) {
             $class = $parameter->getClass();
             return is_null($class) ? null : $class->getName();

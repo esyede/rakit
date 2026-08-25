@@ -206,15 +206,6 @@ class Route
     /**
      * Check if the current route matches the given name (used for named routes).
      *
-     * <code>
-     *
-     *      // Check if the current route is named 'login'
-     *      if (Request::route()->is('login')) {
-     *          // The current route is named 'login'
-     *      }
-     *
-     * </code>
-     *
      * @param string $name
      *
      * @return bool

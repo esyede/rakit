@@ -114,8 +114,6 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEmpty($parameters);
 
-        // Note: getClass() insists on loading the class, which is not there
-        // without the extension - so read the declared type instead.
         if (method_exists($parameters[0], 'getType')) {
             $type = $parameters[0]->getType();
 

@@ -65,8 +65,6 @@ class Packager extends Command
             }
         }
 
-        // Note: this confirmation used to sit inside the branch above, so a
-        // first-time install - the common case - never got to see it.
         if (true !== (bool) (isset($remotes['maintained']) ? $remotes['maintained'] : false)) {
             echo  PHP_EOL . $this->warning('This package is currently not maintained.');
             echo  $this->warning('Dou you wish to install anyway? [y/N] ', false);
@@ -160,9 +158,6 @@ class Packager extends Command
         $remotes = $this->repository->search($arguments[0]);
         $local = path('package') . $arguments[0] . DS . 'meta.json';
 
-        // Note: the providers refuse an incompatible package with a clear
-        // message; reaching straight into the array here handed version_compare()
-        // a NULL instead.
         if (!isset($remotes['compatibilities']['v' . RAKIT_VERSION])) {
             throw new \Exception(PHP_EOL . sprintf(
                 'Error: No compatible package for your rakit version (v%s)',
@@ -175,9 +170,6 @@ class Packager extends Command
 
         if (is_file($local)) {
             $meta = json_decode(Storage::get($local), true);
-            // Note: falling back to the decoded meta.json itself gave
-            // version_compare() an array - a TypeError on PHP 8 - whenever the
-            // file carried no 'version' key.
             $current = (is_array($meta) && isset($meta['version'])) ? (string) $meta['version'] : '0';
         }
 

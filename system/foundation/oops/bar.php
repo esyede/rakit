@@ -82,9 +82,6 @@ class Bar
         $useSession = $this->useSession && session_status() === PHP_SESSION_ACTIVE;
         $redirectQueue = null;
 
-        // Note: touching $_SESSION unconditionally created the superglobal even
-        // with sessions switched off (CLI included), so only reach for it once
-        // there really is a session to read from.
         if ($useSession) {
             $redirectQueue = &$_SESSION['_oops']['redirect'];
 
@@ -219,7 +216,7 @@ class Bar
     }
 
     /**
-     * File storage untuk riwayat request (openhandler).
+     * File storage for the request history (openhandler).
      *
      * @return Storage
      */
@@ -234,8 +231,8 @@ class Bar
     }
 
     /**
-     * Simpan snapshot request saat ini ke riwayat berbasis file agar bisa
-     * dibuka lagi lewat dropdown "History" (gaya php-debugbar openhandler).
+     * Save a snapshot of the current request to the file-based history so it can
+     * be reopened from the "History" dropdown (php-debugbar openhandler style).
      *
      * @param string $content
      * @param array  $dumps
@@ -267,9 +264,10 @@ class Bar
     }
 
     /**
-     * Render halaman mandiri berisi debugbar sebuah request lampau. Dipanggil
-     * dari endpoint `_oops_bar=open.<id>` dan dibuka di tab baru oleh dropdown
-     * History; memuat aset lalu memanggil Oops.Debug.init dengan snapshot.
+     * Render a standalone page holding the debug bar of a past request. Served
+     * from the `_oops_bar=open.<id>` endpoint and opened in a new tab by the
+     * History dropdown; loads the assets, then calls Oops.Debug.init with the
+     * snapshot.
      *
      * @param string $id
      *

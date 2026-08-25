@@ -33,13 +33,6 @@ class Messages
     /**
      * Add a message to the collector.
      *
-     * <code>
-     *
-     *      // Add message for 'email' attribute
-     *      $messages->add('email', 'Email yang Anda masukkan tidak sah.');
-     *
-     * </code>
-     *
      * @param string $key
      * @param string $message
      */
@@ -66,13 +59,6 @@ class Messages
     /**
      * Check if a key has any messages.
      *
-     * <code>
-     *
-     *      // Is there any message for 'email' attribute?
-     *      return $messages->has('email');
-     *
-     * </code>
-     *
      * @param string $key
      *
      * @return bool
@@ -86,13 +72,6 @@ class Messages
     /**
      * Check if message is empty.
      *
-     * <code>
-     *
-     *      // Is the message empty?
-     *      return $messages->any();
-     *
-     * </code>
-     *
      * @return bool
      */
     public function any()
@@ -103,13 +82,6 @@ class Messages
     /**
      * Set the default output format.
      *
-     * <code>
-     *
-     *      // Set new default format
-     *      $messages->format('email', '<p>:message is used bro</p>');
-     *
-     * </code>
-     *
      * @param string $format
      */
     public function format($format = ':message')
@@ -119,19 +91,6 @@ class Messages
 
     /**
      * Get the first message from the given key.
-     *
-     * <code>
-     *
-     *      // Show the first message
-     *      echo $messages->first();
-     *
-     *      // Show the first message from the 'email' key
-     *      echo $messages->first('email');
-     *
-     *      // Re-format the first message from the 'email' key
-     *      echo $messages->first('email', '<p>:message</p>');
-     *
-     * </code>
      *
      * @param string $key
      * @param string $format
@@ -148,16 +107,6 @@ class Messages
     /**
      * Get all messages from the given key.
      *
-     * <code>
-     *
-     *      // Show all messages from the 'email' key
-     *      echo $messages->get('email');
-     *
-     *      // Format all messages from the 'email' key
-     *      echo $messages->get('email', '<p>:message</p>');
-     *
-     * </code>
-     *
      * @param string $key
      * @param string $format
      *
@@ -171,16 +120,6 @@ class Messages
 
     /**
      * Get all messages from all keys.
-     *
-     * <code>
-     *
-     *      // Get all messages from all keys
-     *      $all = $messages->all();
-     *
-     *      // Format all messages from all keys
-     *      $all = $messages->all('<p>:message</p>');
-     *
-     * </code>
      *
      * @param string $format
      *

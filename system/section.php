@@ -30,16 +30,6 @@ class Section
     /**
      * Start injecting content into a section.
      *
-     * <code>
-     *
-     *      // Start injecting content into section named 'header'
-     *      Section::start('header');
-     *
-     *      // Start injecting raw string into section named 'header' without buffering
-     *      Section::start('header', '<title>rakit</title>');
-     *
-     * </code>
-     *
      * @param string         $section
      * @param string|Closure $content
      */
@@ -68,13 +58,6 @@ class Section
     /**
      * Inject content into a section.
      * This will replace the existing content of the section.
-     *
-     * <code>
-     *
-     *      // Inject inline content into section named 'header'
-     *      Section::inject('header', '<title>rakit</title>');
-     *
-     * </code>
      *
      * @param string $section
      * @param string $content

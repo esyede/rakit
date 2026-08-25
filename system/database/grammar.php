@@ -65,8 +65,6 @@ abstract class Grammar
             return $value->get();
         }
 
-        // Note: split on the alias keyword itself rather than on single spaces,
-        // otherwise 'col  as  alias' would pick the wrong segment.
         if (preg_match('/^(.+?)\s+as\s+(.+)$/i', (string) $value, $matches)) {
             return sprintf('%s AS %s', $this->wrap(trim($matches[1])), $this->wrap(trim($matches[2])));
         }
@@ -105,16 +103,6 @@ abstract class Grammar
     /**
      * Create a comma-separated list of parameter place-holders.
      *
-     * <code>
-     *
-     *      // Returning '?, ?, ?', which can be used as place-holders
-     *      $parameters = $grammar->parameterize([1, 2, 3]);
-     *
-     *      // Returning '?, "Budi"' because a raw query is used
-     *      $parameters = $grammar->parameterize([1, DB::raw('Budi')]);
-     *
-     * </code>
-     *
      * @param array $values
      *
      * @return string
@@ -127,16 +115,6 @@ abstract class Grammar
     /**
      * Get the parameter place-holder for a value.
      *
-     * <code>
-     *
-     *      // Returning a '?' as a place-holder
-     *      $value = $grammar->parameter('Budi Purnomo');
-     *
-     *      // Returning 'Budi Purnomo' because a raw query is used
-     *      $value = $grammar->parameter(DB::raw('Budi Purnomo'));
-     *
-     * </code>
-     *
      * @param mixed $value
      *
      * @return string
@@ -148,13 +126,6 @@ abstract class Grammar
 
     /**
      * Create a comma-separated list of wrapped column names.
-     *
-     * <code>
-     *
-     *      // Returning '"Budi", "Purnomo"' when the wrapper is '"%s"'
-     *      $columns = $grammar->columnize(['Budi', 'Purnomo']);
-     *
-     * </code>
      *
      * @param array $columns
      *

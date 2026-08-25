@@ -46,16 +46,6 @@ class Cache
      * Get the cache driver instance.
      * Or return default driver if no driver is selected.
      *
-     * <code>
-     *
-     *      // Get the default cache driver instance
-     *      $driver = Cache::driver();
-     *
-     *      // Get the memcached cache driver instance
-     *      $driver = Cache::driver('memcached');
-     *
-     * </code>
-     *
      * @param string $driver
      *
      * @return \System\Cache\Drivers\Driver
@@ -119,16 +109,6 @@ class Cache
 
     /**
      * Call methods on the default cache driver.
-     *
-     * <code>
-     *
-     *      // Call the get method on the default cache driver.
-     *      $name = Cache::get('name');
-     *
-     *      // Call the put() method on the default cache driver.
-     *      Cache::put('name', 'Budi', 15);
-     *
-     * </code>
      *
      * @param string $method
      * @param array  $parameters
