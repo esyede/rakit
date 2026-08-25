@@ -174,8 +174,6 @@ $users = User::find([1, 2, 3]);
 Method that throws exception if not found:
 
 ```php
-use System\Exceptions\ModelNotFoundException;
-
 try {
     $user = User::find_or_fail($id);
     echo $user->name;
@@ -188,8 +186,6 @@ try {
 ### First Or Fail
 
 ```php
-use System\Exceptions\ModelNotFoundException;
-
 try {
     $user = User::where('email', '=', $email)->first_or_fail();
 } catch (ModelNotFoundException $e) {

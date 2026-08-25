@@ -1812,6 +1812,10 @@ a.docs__nav-link:hover {
     background: var(--surface);
 }
 
+.docs__nav:has(> :only-child) {
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .docs__nav-link--next {
     text-align: right;
     align-items: flex-end;
