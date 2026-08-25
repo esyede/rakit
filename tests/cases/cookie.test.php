@@ -114,6 +114,48 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that a cookie this application cannot read counts as missing.
+     *
+     * Rethrowing here used to take the whole site down: Session::load()
+     * reads the session cookie while the application is still booting, so
+     * a cookie left behind by another application on the same host, or a
+     * rotated key, turned every single request into a fatal error.
+     *
+     * @group system
+     */
+    public function testUnreadableCookieInJarIsTreatedAsMissing()
+    {
+        $payload = base64_encode(json_encode([
+            'iv' => base64_encode(str_repeat('a', 16)),
+            'value' => 'ciphertext',
+            'mac' => str_repeat('0', 64),
+        ]));
+
+        Cookie::$jar['foreign'] = ['value' => $payload];
+
+        $this->assertNull(Cookie::get('foreign'));
+        $this->assertEquals('fallback', Cookie::get('foreign', 'fallback'));
+        $this->assertFalse(Cookie::has('foreign'));
+    }
+
+    /**
+     * Test that an unreadable cookie sent by the browser counts as missing.
+     *
+     * @group system
+     */
+    public function testUnreadableRequestCookieIsTreatedAsMissing()
+    {
+        $_COOKIE['stale'] = 'not-an-encrypted-payload';
+        $this->restartRequest();
+
+        $this->assertNull(Cookie::get('stale'));
+        $this->assertEquals('fallback', Cookie::get('stale', 'fallback'));
+
+        unset($_COOKIE['stale']);
+        $this->restartRequest();
+    }
+
+    /**
      * Test for Cookie::forget().
      *
      * @group system

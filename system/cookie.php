@@ -4,6 +4,8 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
+use System\Exceptions\DecryptException;
+
 class Cookie
 {
     /**
@@ -54,8 +56,8 @@ class Cookie
             try {
                 static::$cache[$name] = Crypter::decrypt(static::$jar[$name]['value']);
                 return static::$cache[$name];
-            } catch (\Exception $e) {
-                throw new \Exception('Failed to decrypt cookie value: ' . $e->getMessage());
+            } catch (DecryptException $e) {
+                return value($default);
             }
         }
 
@@ -68,8 +70,8 @@ class Cookie
         try {
             static::$cache[$name] = Crypter::decrypt($value);
             return static::$cache[$name];
-        } catch (\Exception $e) {
-            throw new \Exception('Failed to decrypt cookie value: ' . $e->getMessage());
+        } catch (DecryptException $e) {
+            return value($default);
         }
     }
 

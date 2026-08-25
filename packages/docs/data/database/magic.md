@@ -84,7 +84,7 @@ $user = DB::table('users')->find($id);
 
 ```php
 $user = DB::table('users')->find_or_fail($id);
-// Throw ModelNotFoundException jika tidak ditemukan
+// Throw System\Exceptions\ModelNotFoundException jika tidak ditemukan
 ```
 
 > **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty array.
@@ -877,6 +877,8 @@ echo $users->links();
 Methods that throw an exception when the record is not found:
 
 ```php
+use System\Exceptions\ModelNotFoundException;
+
 try {
     $user = DB::table('users')->find_or_fail($id);
 } catch (ModelNotFoundException $e) {

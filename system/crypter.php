@@ -4,6 +4,8 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
+use System\Exceptions\DecryptException;
+
 class Crypter
 {
     /**
@@ -46,7 +48,7 @@ class Crypter
         $value = openssl_decrypt($value['value'], 'aes-256-cbc', RAKIT_KEY, 0, base64_decode($value['iv']));
 
         if (false === $value) {
-            throw new \Exception('Could not decrypt the data.');
+            throw new DecryptException('Could not decrypt the data.');
         }
 
         return $value;
@@ -94,13 +96,13 @@ class Crypter
         $value = json_decode(base64_decode($value), true);
 
         if (!static::valid($value)) {
-            throw new \Exception('The payload is invalid.');
+            throw new DecryptException('The payload is invalid.');
         }
 
         $mac = hash_hmac('sha256', $value['iv'] . $value['value'], RAKIT_KEY);
 
         if (!static::equals($mac, $value['mac'])) {
-            throw new \Exception('The MAC is invalid.');
+            throw new DecryptException('The MAC is invalid.');
         }
 
         return $value;

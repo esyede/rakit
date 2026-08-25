@@ -6,7 +6,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Str;
 use System\Database;
-use System\Database\Exceptions\ModelNotFoundException;
+use System\Exceptions\ModelNotFoundException;
 
 class Query
 {

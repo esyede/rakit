@@ -8,7 +8,7 @@ use System\Str;
 use System\Hook;
 use System\Carbon;
 use System\Validator;
-use System\Database\Exceptions\ModelNotFoundException;
+use System\Exceptions\ModelNotFoundException;
 
 abstract class Model
 {

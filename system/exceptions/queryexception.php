@@ -1,6 +1,6 @@
 <?php
 
-namespace System\Database\Exceptions;
+namespace System\Exceptions;
 
 defined('DS') or exit('No direct access.');
 

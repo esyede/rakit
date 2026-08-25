@@ -4,10 +4,10 @@ defined('DS') or exit('No direct access.');
 
 use System\Database\Expression;
 use System\Database\Query\Join;
-use System\Database\Exceptions\DatabaseException;
-use System\Database\Exceptions\QueryException;
-use System\Database\Exceptions\ModelNotFoundException;
-use System\Database\Exceptions\MassAssignmentException;
+use System\Exceptions\DatabaseException;
+use System\Exceptions\QueryException;
+use System\Exceptions\ModelNotFoundException;
+use System\Exceptions\MassAssignmentException;
 use System\Session\Drivers\Memory as SessionMemory;
 use System\Session\Drivers\File as SessionFile;
 
@@ -335,7 +335,7 @@ class DatabaseExtrasTest extends \PHPUnit_Framework_TestCase
     public function testModelNotFoundExceptionExtendsDatabaseException()
     {
         $e = new ModelNotFoundException('User');
-        $this->assertInstanceOf('System\Database\Exceptions\DatabaseException', $e);
+        $this->assertInstanceOf('System\Exceptions\DatabaseException', $e);
     }
 
     // -------------------------------------------------------------------------
@@ -376,7 +376,7 @@ class DatabaseExtrasTest extends \PHPUnit_Framework_TestCase
     public function testMassAssignmentExceptionExtendsDatabaseException()
     {
         $e = new MassAssignmentException('User', ['password']);
-        $this->assertInstanceOf('System\Database\Exceptions\DatabaseException', $e);
+        $this->assertInstanceOf('System\Exceptions\DatabaseException', $e);
     }
 
     // -------------------------------------------------------------------------

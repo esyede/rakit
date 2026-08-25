@@ -8,7 +8,7 @@ use PDO;
 use System\Hook;
 use System\Config;
 use System\Database;
-use System\Database\Exceptions\QueryException;
+use System\Exceptions\QueryException;
 
 class Connection
 {
