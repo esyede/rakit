@@ -19,7 +19,7 @@ while giving you the flexibility to write clean, modular code.
 
 ## Features
 
-- **Compact Size**: ~1MB zipped, including offline documentation.
+- **Compact Size**: <1MB Gzipped, including offline documentation.
 - **Wide PHP Support**: Compatible with PHP 5.4.0 to PHP 8.x.
 - **Flexible Installation**: Works with or without [Composer](https://getcomposer.org).
 - **Powerful Routing**: Supports closures and controllers (MVC architecture).
