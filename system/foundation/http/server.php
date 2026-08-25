@@ -30,8 +30,8 @@ class Server extends Parameter
             $headers['PHP_AUTH_PW'] = isset($this->parameters['PHP_AUTH_PW']) ? $this->parameters['PHP_AUTH_PW'] : '';
         } else {
             /**
-             * php-cgi under Apache does not pass the Basic Auth user and password
-             * along. To get them through, add this line to your .htaccess:
+             * php-cgi under Apache does not pass the Basic Auth user and
+             * password along. Adding this line to .htaccess gets them through.
              *
              *      RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
              */

@@ -2,8 +2,6 @@
 
 defined('DS') or exit('No direct access.');
 
-use System\Foundation\Oops\Collectors;
-
 /**
  * Covers the route matcher the debug bar uses to figure out which registered
  * route served the current request.
