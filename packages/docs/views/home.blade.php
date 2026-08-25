@@ -17,9 +17,30 @@
 @endsection
 
 @section('content')
+    @if ($outline)
+        <aside class="docs__rail" aria-label="On this page">
+            <p class="docs__rail-title">On this page</p>
+            {!! $outline !!}
+        </aside>
+    @endif
+
     <div class="docs__main">
         <div class="docs__bar">
-            <span class="eyebrow">Docs &mdash; {{ RAKIT_VERSION }}</span>
+            <nav class="crumbs" aria-label="Breadcrumb">
+                @foreach ($breadcrumbs as $index => $crumb)
+                    @if ($index > 0)
+                        <span class="crumbs__sep" aria-hidden="true">/</span>
+                    @endif
+
+                    @if ($index === count($breadcrumbs) - 1)
+                        <span aria-current="page">{{ $crumb['name'] }}</span>
+                    @elseif ($crumb['url'])
+                        <a href="{{ $crumb['url'] }}">{{ $crumb['name'] }}</a>
+                    @else
+                        <span>{{ $crumb['name'] }}</span>
+                    @endif
+                @endforeach
+            </nav>
             <a class="btn btn--ghost btn--sm"
                 href="https://github.com/esyede/rakit/edit/main/packages/docs/data/{{ $file }}.md" target="_blank">
                 <svg class="btn__icon" viewBox="0 0 64 64" aria-hidden="true">
@@ -33,6 +54,38 @@
         <div class="prose">
             {!! $content !!}
         </div>
+
+        @if ($neighbours['previous'] || $neighbours['next'])
+            <nav class="docs__nav" aria-label="Page navigation">
+                @if ($neighbours['previous'])
+                    <a class="docs__nav-link" href="{{ $neighbours['previous']['url'] }}" rel="prev">
+                        <span class="docs__nav-dir">&larr; Previous</span>
+                        <span class="docs__nav-name">
+                            @if ($neighbours['previous']['section'])
+                                <span class="docs__nav-section">{{ $neighbours['previous']['section'] }} &middot;</span>
+                            @endif
+                            {{ $neighbours['previous']['name'] }}
+                        </span>
+                    </a>
+                @endif
+
+                @if ($neighbours['next'])
+                    <a class="docs__nav-link docs__nav-link--next" href="{{ $neighbours['next']['url'] }}" rel="next">
+                        <span class="docs__nav-dir">Next &rarr;</span>
+                        <span class="docs__nav-name">
+                            @if ($neighbours['next']['section'])
+                                <span class="docs__nav-section">{{ $neighbours['next']['section'] }} &middot;</span>
+                            @endif
+                            {{ $neighbours['next']['name'] }}
+                        </span>
+                    </a>
+                @endif
+            </nav>
+        @endif
+
+        <p class="docs__updated">
+            Rakit {{ RAKIT_VERSION }} &middot; last updated {{ date('j M Y', $modified) }}
+        </p>
     </div>
 
     <script type="application/ld+json">{!! json_encode([
@@ -70,12 +123,13 @@
         '@context' => 'https://schema.org',
         '@type' => 'BreadcrumbList',
         'itemListElement' => array_map(function ($crumb, $position) {
-            return [
-                '@type' => 'ListItem',
-                'position' => $position + 1,
-                'name' => $crumb['name'],
-                'item' => $crumb['url'],
-            ];
+            $item = ['@type' => 'ListItem', 'position' => $position + 1, 'name' => $crumb['name']];
+
+            if ($crumb['url']) {
+                $item['item'] = $crumb['url'];
+            }
+
+            return $item;
         }, $breadcrumbs, array_keys($breadcrumbs)),
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endsection

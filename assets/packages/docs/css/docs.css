@@ -29,7 +29,7 @@
     --radius-pill: 9999px;
 
     --gutter: 24px;
-    --container: 1280px;
+    --container: 1400px;
     --gap: 112px;
     --cell-pad: 40px;
 
@@ -1281,25 +1281,46 @@ body:has(.modal.is-active) {
     --code-num: #ff9ec4;
     --code-com: #5f5f6d;
     --docs-side: 268px;
+    --docs-rail: 232px;
 }
 
 .docs {
     display: grid;
-    grid-template-columns: var(--docs-side) minmax(0, 1fr);
+    grid-template-columns: var(--docs-side) minmax(0, 1fr) var(--docs-rail);
     position: relative;
 }
 
-.docs::before {
+.docs::before,
+.docs::after {
     content: "";
     position: absolute;
     top: 0;
     bottom: 0;
-    left: var(--docs-side);
     border-left: 1px solid var(--rule);
     pointer-events: none;
 }
 
+.docs::before {
+    left: var(--docs-side);
+}
+
+.docs::after {
+    right: var(--docs-rail);
+}
+
+/* Beberapa halaman pendek tidak punya daftar isi. Tanpa rail, isi halaman
+   memakai sisa lebarnya. */
+.docs:not(:has(.docs__rail)) {
+    grid-template-columns: var(--docs-side) minmax(0, 1fr);
+}
+
+.docs:not(:has(.docs__rail))::after {
+    display: none;
+}
+
 .docs__side {
+    grid-column: 1;
+    grid-row: 1;
     padding: 40px 28px 64px 0;
     position: sticky;
     top: 64px;
@@ -1382,7 +1403,9 @@ body:has(.modal.is-active) {
 }
 
 .docs__main {
-    padding: 40px 0 96px 36px;
+    grid-column: 2;
+    grid-row: 1;
+    padding: 40px 36px 96px 36px;
     min-width: 0;
 }
 
@@ -1396,6 +1419,9 @@ body:has(.modal.is-active) {
     border-bottom: 1px solid var(--rule);
 }
 
+/* `.eyebrow` dipakai bertumpuk di atas judul, jadi ia bawa margin bawah.
+   Di sini ia jadi item flex, dan `align-items: center` memusatkan margin
+   box-nya, sehingga teksnya terangkat setengah margin dari tombol. */
 .docs__bar .eyebrow {
     margin-bottom: 0;
 }
@@ -1404,8 +1430,15 @@ body:has(.modal.is-active) {
     color: var(--text-dim);
     font-size: 15.5px;
     line-height: 1.75;
-    max-width: 78ch;
     overflow-wrap: break-word;
+}
+
+.prose > p,
+.prose > ul,
+.prose > ol,
+.prose > blockquote,
+.prose > .message {
+    max-width: 72ch;
 }
 
 .prose h1,
@@ -1482,6 +1515,26 @@ body:has(.modal.is-active) {
 }
 
 .prose blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.prose > .message {
+    margin: 0 0 18px;
+    padding: 2px 0 2px 18px;
+    border-left: 2px solid var(--primary);
+}
+
+.prose > .message .message-header {
+    margin-bottom: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--primary-soft);
+}
+
+.prose > .message .message-body > :last-child {
     margin-bottom: 0;
 }
 
@@ -1645,6 +1698,183 @@ body:has(.modal.is-active) {
 .code-toolbar > .toolbar .toolbar-item > button:hover {
     color: var(--text);
     border-color: var(--text-faint);
+}
+
+/* --- Halaman: sidebar | isi | outline --- */
+
+.docs__rail {
+    grid-column: 3;
+    grid-row: 1;
+    padding: 40px 0 64px 28px;
+    position: sticky;
+    top: 64px;
+    align-self: start;
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.docs__rail-title {
+    margin: 0 0 14px 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.docs__rail ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.docs__rail ul ul {
+    padding-left: 12px;
+}
+
+.docs__rail a {
+    display: block;
+    padding: 5px 0 5px 12px;
+    border-left: 1px solid var(--rule);
+    color: var(--text-faint);
+    font-size: 13px;
+    line-height: 1.45;
+    transition:
+        color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.docs__rail a:hover {
+    color: var(--text);
+    border-left-color: var(--rule-strong);
+}
+
+.docs__rail a.is-current {
+    color: var(--primary-soft);
+    border-left-color: var(--primary);
+}
+
+.docs__rail ul ul a {
+    font-size: 12.5px;
+}
+
+/* --- Remah roti --- */
+
+.crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.crumbs a {
+    color: var(--text-faint);
+}
+
+.crumbs a:hover {
+    color: var(--text);
+}
+
+.crumbs__sep {
+    color: var(--rule-strong);
+}
+
+/* --- Halaman sebelum & sesudah --- */
+
+.docs__nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 56px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+}
+
+.docs__nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 18px 20px;
+    background: var(--black);
+    transition: background-color 0.18s ease;
+}
+
+a.docs__nav-link:hover {
+    background: var(--surface);
+}
+
+.docs__nav-link--next {
+    text-align: right;
+    align-items: flex-end;
+}
+
+.docs__nav-dir {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+}
+
+.docs__nav-name {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.docs__nav-section {
+    color: var(--text-faint);
+    font-weight: 400;
+}
+
+a.docs__nav-link:hover .docs__nav-name {
+    color: var(--primary-soft);
+}
+
+.docs__updated {
+    margin-top: 24px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text-faint);
+}
+
+@media screen and (max-width: 1359px) {
+    .docs {
+        grid-template-columns: var(--docs-side) minmax(0, 1fr);
+    }
+
+    .docs::after {
+        display: none;
+    }
+
+    .docs__side {
+        grid-row: 1 / span 2;
+    }
+
+    .docs__rail {
+        grid-column: 2;
+        grid-row: 1;
+        position: static;
+        max-height: 288px;
+        padding: 40px 0 24px 36px;
+        border-bottom: 1px solid var(--rule);
+    }
+
+    .docs__main {
+        grid-row: 2;
+        padding-top: 28px;
+    }
 }
 
 .docs__search {
@@ -1825,6 +2055,7 @@ body:has(.modal.is-active) {
 
     .docs__main {
         padding-left: 28px;
+        padding-right: 28px;
     }
 
     .prose :not(pre) > code {
@@ -1837,11 +2068,24 @@ body:has(.modal.is-active) {
 
 @media screen and (max-width: 767px) {
     .docs {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .docs::before {
         display: none;
+    }
+
+    .docs__rail {
+        grid-column: 1;
+        padding: 32px 0 20px;
+    }
+
+    .docs__main {
+        grid-column: 1;
+    }
+
+    .docs__nav {
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .docs__side {

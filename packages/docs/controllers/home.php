@@ -69,7 +69,9 @@ class Docs_Home_Controller extends Controller
             ->with_canonical(Docs::canonical($file))
             ->with_modified(Docs::modified($file))
             ->with_breadcrumbs(Docs::breadcrumbs($file))
+            ->with_neighbours(Docs::neighbours($file))
             ->with_sidebar(Docs::sidebar(Docs::render('000-sidebar')))
+            ->with_outline(Docs::outline($content))
             ->with_content(Docs::content($content))
             ->with_file($file);
     }
