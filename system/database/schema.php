@@ -360,7 +360,6 @@ class Schema
 
         if (isset(DB::$registrar[$driver]['schema'])) {
             $resolver = DB::$registrar[$driver]['schema'];
-
             return is_string($resolver) ? new $resolver($connection) : $resolver($connection);
         }
 

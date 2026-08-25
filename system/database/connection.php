@@ -77,7 +77,6 @@ class Connection
 
         if (isset(Database::$registrar[$this->driver()]['query'])) {
             $resolver = Database::$registrar[$this->driver()]['query'];
-
             return $this->grammar = is_string($resolver) ? new $resolver($this) : $resolver($this);
         }
 

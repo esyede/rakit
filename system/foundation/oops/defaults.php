@@ -554,7 +554,6 @@ class Defaults
             return call_user_func([__CLASS__, 'formatBinding'], $binding);
         }, $bindings);
         $formatted = str_replace(['%', '?'], ['%%', '%s'], $sql);
-
         $bindings = array_values($bindings);
 
         if (substr_count($formatted, '%s') === count($bindings)) {

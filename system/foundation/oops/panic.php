@@ -208,7 +208,6 @@ class Panic
     {
         $base = basename($file);
         $dir = substr_replace($file, '', strrpos($file, $base), strlen($base));
-
         $dir = ('' === $dir) ? '.' . DIRECTORY_SEPARATOR : $dir;
         $file = $dir . $base;
 

@@ -431,10 +431,6 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     /**
      * Test Sectionable: remember_in_section().
      *
-     * Note: parameter order in remember_in_section($section, $key, $default, $minutes)
-     * maps to Driver::remember($key, $minutes, $default) with $default and $minutes swapped,
-     * so the value stored is the $minutes argument, not $default.
-     *
      * @group system
      */
     public function testSectionableRememberInSection()

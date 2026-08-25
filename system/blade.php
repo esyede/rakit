@@ -836,11 +836,6 @@ class Blade
      */
     public static function compiled($path)
     {
-        // The CRC below walks the path byte by byte in userland, so it costs
-        // roughly 8 iterations per character. It is called at least twice per
-        // view render (once directly, once through expired()), and a page made
-        // of many partials multiplies that. The result only depends on $path,
-        // so memoize it per request.
         if (isset(static::$compiles[$path])) {
             return static::$compiles[$path];
         }

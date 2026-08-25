@@ -15,7 +15,6 @@ class Barcode extends Base
     protected static function eanChecksum($input)
     {
         $input = (string) $input;
-
         $sequence = (0 === mb_strlen($input, '8bit') % 2) ? [1, 3] : [3, 1];
         $inputs = str_split($input);
         $sums = 0;

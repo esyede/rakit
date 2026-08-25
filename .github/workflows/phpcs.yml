@@ -42,11 +42,6 @@ jobs:
               run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v2.phar
             - name: make phpcs executable
               run: chmod +x phpcs.phar
-            # Note: 'fix' rewrites the files in the runner's checkout and then
-            # throws them away, so it reported success no matter what the code
-            # looked like. '--dry-run' makes it report instead of rewrite, and
-            # php-cs-fixer exits 8 when a file would have changed - which is what
-            # turns this job into an actual check.
             - name: "style: check coding style"
               run: php phpcs.phar fix --dry-run --diff --format=txt
             - name: remove phpcs

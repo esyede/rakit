@@ -32,7 +32,7 @@ class Route extends Command
     }
 
     /**
-     * Dispatch 'route:list' to lists() below.
+     * Dispatch 'route:list' to lists() below (for php 5.4 compat).
      *
      * @param string $method
      * @param array  $parameters

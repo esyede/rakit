@@ -77,7 +77,6 @@ class Autoloader
             return;
         }
 
-        // If directories are not registered, register defaults
         if (empty(static::$directories)) {
             $app = path('app');
             static::directories([$app . 'controllers', $app . 'models', $app . 'libraries', $app . 'commands', $app . 'jobs']);
@@ -226,8 +225,6 @@ class Autoloader
                 . 'in application/config/aliases.php. The fully-qualified target class remains '
                 . 'available (e.g. via "use Vendor\\Namespace\\Target;").';
 
-            // Write to STDERR directly to avoid triggering PHPUnit's error handler
-            // (which would convert the warning into spurious test failures).
             if (defined('STDERR')) {
                 fwrite(STDERR, $message . PHP_EOL);
             } else {

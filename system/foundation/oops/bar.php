@@ -72,9 +72,6 @@ class Bar
      */
     public function render()
     {
-        // Halaman riwayat (open.<id>) sudah mengeluarkan HTML sendiri lalu
-        // dispatch() memanggil exit; cegah shutdown handler menempelkan bar
-        // kedua untuk request ini.
         if ($this->served) {
             return;
         }

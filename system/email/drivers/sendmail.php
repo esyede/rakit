@@ -16,9 +16,7 @@ class Sendmail extends Driver
         try {
             $message = $this->build();
             $sender = $this->envelope_sender();
-
-            $command = $this->config['sendmail_binary'] . ' -oi'
-                . ((null === $sender) ? '' : ' -f ' . escapeshellarg($sender)) . ' -t';
+            $command = $this->config['sendmail_binary'] . ' -oi' . ((null === $sender) ? '' : ' -f ' . escapeshellarg($sender)) . ' -t';
             $handle = popen($command, 'w');
 
             if (!is_resource($handle)) {

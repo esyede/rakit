@@ -257,9 +257,6 @@ class Arr
         }
 
         foreach ($keys as $key) {
-            // Reset the working reference before every pass, otherwise a nested key
-            // would leave it pointing inside the array and the next key would be
-            // looked up (and removed) from the wrong level.
             $array = &$original;
 
             if (static::exists($array, $key)) {

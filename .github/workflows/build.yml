@@ -42,8 +42,6 @@ jobs:
                     - "8.5"
         runs-on: ${{ matrix.operating-system }}
         services:
-            # Note: the Redis-backed tests skip themselves when no server answers,
-            # so this service is what actually makes them run.
             redis:
                 image: redis:7-alpine
                 ports:
@@ -53,9 +51,6 @@ jobs:
                     --health-interval 10s
                     --health-timeout 5s
                     --health-retries 5
-            # Note: same idea for the memcached-backed job driver tests. They
-            # need both a server and the extension, and skip themselves when
-            # either is missing.
             memcached:
                 image: memcached:1-alpine
                 ports:

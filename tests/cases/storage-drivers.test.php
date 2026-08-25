@@ -7,18 +7,10 @@ use System\Cookie;
 use System\Database;
 use System\Database\Schema;
 
-/**
- * Covers the database-backed cache driver and the cookie/database session
- * drivers, none of which the rest of the suite ever reaches.
- */
 class StorageDriversTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * Table names used by these tests.
-     *
-     * Note: deliberately not 'caches'/'sessions'. Those belong to the fixture
-     * database that ships with the repository, and dropping them would leave the
-     * checked-in file modified after every run.
      */
     const CACHE_TABLE = 'probe_caches';
     const SESSION_TABLE = 'probe_sessions';

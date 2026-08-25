@@ -1036,7 +1036,6 @@ class Upload extends \SplFileInfo
         }
 
         $metric = strtolower(substr($max, -1));
-
         $max = (float) $max;
 
         switch ($metric) {
