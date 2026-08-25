@@ -1,21 +1,21 @@
-### Description
+### Deskripsi
 
 
 
-### How to Test
+### Cara mencoba
   1. ...
   2. ...
   3. ...
 
 
-### Checklist:
-Add `x` to the appropriate boxes.
+### Ceklis:
+Tambahkan `x` pada kotak - kotak yang sesuai.
 
-**Type of Change:**
-  - [ ] Bug fix/feature addition without breaking compatibility
-  - [ ] BC-break (changes that break compatibility with previous versions)
+**Jenis perubahan:**
+  - [ ] Perbaikan/penambahan fitur tanpa memutus kompatibilitas
+  - [ ] BC-break (perubahan yang memutus kompatibilitas dengan versi terdahulu)
 
-**Other:**
-  - [ ] My code style follows Rakit's standards.
-  - [ ] This change also requires documentation changes.
-  - [ ] Documentation has been updated.
+**Lainnya:**
+  - [ ] Gaya penulisan kode saya sudah mengikuti standar rakit.
+  - [ ] Perubahan ini juga memerlukan perubahan pada dokumentasi.
+  - [ ] Dokumentasi sudah saya perbarui.

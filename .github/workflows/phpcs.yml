@@ -1,14 +1,8 @@
 ---
 name: phpcs
 on:
-    push:
-        paths:
-            - '**/*.php'
-            - '.github/workflows/**'
-    pull_request:
-        paths:
-            - '**/*.php'
-            - '.github/workflows/**'
+    - push
+    - pull_request
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
@@ -39,11 +33,22 @@ jobs:
             - name: check php version
               run: php -v
             - name: download phpcs
-              run: wget -O phpcs.phar https://cs.symfony.com/download/php-cs-fixer-v2.phar
+              run: wget -O phpcs.phar https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/latest/download/php-cs-fixer.phar
             - name: make phpcs executable
               run: chmod +x phpcs.phar
-            - name: "style: check coding style"
-              run: php phpcs.phar fix --dry-run --diff --format=txt
+            - name: "style: apply coding style"
+              run: php phpcs.phar fix
+            - name: check for changes
+              id: changes
+              run: |
+                git diff --quiet || echo "changed=true" >> "$GITHUB_OUTPUT"
+            - name: commit and push fixes
+              if: steps.changes.outputs.changed == 'true'
+              run: |
+                git config user.name "github-actions[bot]"
+                git config user.email "github-actions[bot]@users.noreply.github.com"
+                git add -A
+                git commit -m "style: fix coding style [skip ci]"
+                git push
             - name: remove phpcs
-              if: always()
               run: rm -f phpcs.phar
