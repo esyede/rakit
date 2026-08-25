@@ -343,6 +343,11 @@ class Connection
 
     /**
      * Handle dynamic method calls to the connection instance.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return \System\Database\Query
      */
     public function __call($method, array $parameters)
     {

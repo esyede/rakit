@@ -155,6 +155,8 @@ class Memcached extends Sectionable
     /**
      * Remove an entire section from the cache.
      *
+     * @param string $section
+     *
      * @return int|bool
      */
     public function forget_section($section)

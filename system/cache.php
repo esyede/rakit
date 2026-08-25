@@ -129,6 +129,11 @@ class Cache
      *      Cache::put('name', 'Budi', 15);
      *
      * </code>
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public static function __callStatic($method, array $parameters)
     {

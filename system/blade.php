@@ -19,12 +19,47 @@ class Blade
      * @var array
      */
     protected static $compilers = [
-        'extensions', 'layout', 'comment', 'verbatim', 'once', 'endonce', 'echo', 'csrf',
-        'forelse', 'empty', 'endforelse', 'structure_start', 'foreach', 'structure_end',
-        'else', 'unless', 'endunless', 'error', 'enderror', 'guest', 'endguest',
-        'auth', 'endauth', 'include', 'render_each', 'render', 'yield', 'set', 'unset',
-        'json', 'show', 'section_start', 'section_end', 'inject', 'method', 'push',
-        'endpush', 'stack', 'hassection', 'sectionmissing', 'php_block',
+        'extensions',
+        'layout',
+        'comment',
+        'verbatim',
+        'once',
+        'endonce',
+        'echo',
+        'csrf',
+        'forelse',
+        'empty',
+        'endforelse',
+        'structure_start',
+        'foreach',
+        'structure_end',
+        'else',
+        'unless',
+        'endunless',
+        'error',
+        'enderror',
+        'guest',
+        'endguest',
+        'auth',
+        'endauth',
+        'include',
+        'render_each',
+        'render',
+        'yield',
+        'set',
+        'unset',
+        'json',
+        'show',
+        'section_start',
+        'section_end',
+        'inject',
+        'method',
+        'push',
+        'endpush',
+        'stack',
+        'hassection',
+        'sectionmissing',
+        'php_block',
     ];
 
     /**
@@ -89,12 +124,6 @@ class Blade
             $compiled = static::compiled($view->path);
 
             try {
-                // is_file() before filemtime() looks like an extra syscall but
-                // is not: PHP caches stat results per path, so the two calls on
-                // $compiled share one. Folding them into a bare filemtime()
-                // would emit a warning when the file is absent, and with
-                // Debugger::$scream on (which disables '@') that warning
-                // becomes an exception on every cold view cache.
                 if (!is_file($compiled) || static::expired($view->path)) {
                     file_put_contents($compiled, static::compile($view), LOCK_EX);
                 }
@@ -146,7 +175,7 @@ class Blade
     /**
      * Compile the given view.
      *
-     * @param string $path
+     * @param \System\View $view
      *
      * @return string
      */
@@ -421,6 +450,13 @@ class Blade
         }, $value);
     }
 
+    /**
+     * Translate @foreach.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     protected static function compile_foreach($value)
     {
         return preg_replace_callback('/@foreach(\s*\(.*\))/', function ($matches) {
@@ -591,6 +627,8 @@ class Blade
 
     /**
      * Translate @show.
+     *
+     * @param string $value
      *
      * @return string
      */
@@ -814,7 +852,7 @@ class Blade
     /**
      * Get full path to compiled file.
      *
-     * @param string $view
+     * @param string $path
      *
      * @return string
      */

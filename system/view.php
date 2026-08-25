@@ -509,6 +509,10 @@ class View implements \ArrayAccess
 
     /**
      * Magic method implementation.
+     *
+     * @param string $key
+     *
+     * @return mixed
      */
     public function __get($key)
     {
@@ -517,6 +521,9 @@ class View implements \ArrayAccess
 
     /**
      * Magic method implementation.
+     *
+     * @param string $key
+     * @param mixed  $value
      */
     public function __set($key, $value)
     {
@@ -525,6 +532,10 @@ class View implements \ArrayAccess
 
     /**
      * Magic method implementation.
+     *
+     * @param string $key
+     *
+     * @return bool
      */
     public function __isset($key)
     {
@@ -543,6 +554,9 @@ class View implements \ArrayAccess
 
     /**
      * Handle dynamic method calls.
+     *
+     * @param string $method
+     * @param array  $parameters
      *
      * @return $this
      */

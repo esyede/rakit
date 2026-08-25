@@ -60,6 +60,7 @@ class Query
      * Constructor.
      *
      * @param Model $model
+     * @param bool  $with_trashed
      */
     public function __construct($model, $with_trashed = false)
     {

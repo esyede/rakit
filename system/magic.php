@@ -57,6 +57,11 @@ class Magic
      *      $magic->nullable()->name('Budi');
      *
      * </code>
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return $this
      */
     public function __call($method, array $parameters)
     {
@@ -66,6 +71,10 @@ class Magic
 
     /**
      * Get value attribute dynamically.
+     *
+     * @param string $key
+     *
+     * @return mixed
      */
     public function __get($key)
     {
@@ -76,6 +85,9 @@ class Magic
 
     /**
      * Set value attribute dynamically.
+     *
+     * @param string $key
+     * @param mixed  $value
      */
     public function __set($key, $value)
     {
@@ -84,6 +96,10 @@ class Magic
 
     /**
      * Check dynamically if attribute value is set.
+     *
+     * @param string $key
+     *
+     * @return bool
      */
     public function __isset($key)
     {
@@ -92,6 +108,8 @@ class Magic
 
     /**
      * Unset value attribute dynamically.
+     *
+     * @param string $key
      */
     public function __unset($key)
     {

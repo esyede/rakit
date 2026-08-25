@@ -770,6 +770,11 @@ abstract class Driver
 
     /**
      * Get the attachment headers.
+     *
+     * @param string $type
+     * @param string $boundary
+     *
+     * @return string
      */
     protected function get_attachment_headers($type, $boundary)
     {

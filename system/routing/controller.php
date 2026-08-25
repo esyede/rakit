@@ -377,7 +377,7 @@ abstract class Controller
     /**
      * Resolve objects from the container dynamically.
      *
-     * @param string $method
+     * @param string $key
      *
      * @return mixed
      *

@@ -1426,7 +1426,6 @@ class Validator
      *
      * @param string $attribute
      * @param mixed  $value
-     * @param array  $parameters
      *
      * @return bool
      */
@@ -2160,6 +2159,11 @@ class Validator
 
     /**
      * Handle custom validator calls.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public function __call($method, $parameters)
     {

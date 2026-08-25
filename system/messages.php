@@ -93,8 +93,6 @@ class Messages
      *
      * </code>
      *
-     * @param string $key
-     *
      * @return bool
      */
     public function any()

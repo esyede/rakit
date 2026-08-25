@@ -57,6 +57,9 @@ class BelongsToMany extends Relationship
      * Set the joining table name.
      * By default, the naming follows the snake_case pattern.
      *
+     * @param Model  $model
+     * @param string $associated
+     *
      * @return string
      */
     protected function joining($model, $associated)
@@ -286,8 +289,9 @@ class BelongsToMany extends Relationship
     /**
      * Match the eagerly loaded results to their parents.
      *
-     * @param array $parents
-     * @param array $childrens
+     * @param string $relationship
+     * @param array  $parents
+     * @param array  $childrens
      */
     public function match($relationship, array &$parents, array $childrens)
     {
@@ -331,7 +335,7 @@ class BelongsToMany extends Relationship
     /**
      * Set the pivot columns to retrieve.
      *
-     * @param array $column
+     * @param array|string $columns
      *
      * @return Relationship
      */

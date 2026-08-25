@@ -174,6 +174,8 @@ class Evaluator
 
     /**
      * Call the user-defined exception handler, then exit correctly.
+     *
+     * @param \Throwable|\Exception $ex
      */
     public function exception_handler($ex)
     {

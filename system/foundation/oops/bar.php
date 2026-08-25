@@ -167,6 +167,8 @@ class Bar
     }
 
     /**
+     * @param string $suffix
+     *
      * @return array
      */
     private function renderPanels($suffix = null)

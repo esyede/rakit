@@ -49,7 +49,14 @@ class Outputs
         ob_start([$this, 'handler'], 1);
     }
 
-    /** @internal */
+    /**
+     * @param string $s
+     * @param int    $phase
+     *
+     * @return string|null
+     *
+     * @internal
+     */
     public function handler($s, $phase)
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);

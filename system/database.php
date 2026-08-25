@@ -177,6 +177,11 @@ class Database
      *      $users = DB::table('users')->get();
      *
      * </code>
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public static function __callStatic($method, array $parameters)
     {

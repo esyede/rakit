@@ -949,6 +949,7 @@ class Str
      * Transform string into snake-case.
      *
      * @param string $value
+     * @param string $delimiter
      *
      * @return string
      */

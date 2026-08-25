@@ -17,7 +17,6 @@ class Fiddle
      * Create a new REPL, which consists of an evaluation worker and a readline client.
      *
      * @param string $prompt
-     * @param string $historyFile
      */
     public function __construct($prompt = 'FIDDLE> ')
     {

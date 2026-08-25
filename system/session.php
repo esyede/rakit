@@ -163,6 +163,11 @@ class Session
      *      Session::instance()->put('name', 'Budi');
      *
      * </code>
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public static function __callStatic($method, array $parameters)
     {

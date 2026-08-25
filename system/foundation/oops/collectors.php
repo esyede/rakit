@@ -501,6 +501,8 @@ class Collectors
      * @param float       $duration Duration in milliseconds
      * @param int         $size     Response size in bytes
      * @param string|null $error
+     * @param array       $headers
+     * @param string|null $body
      *
      * @return void
      */

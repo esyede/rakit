@@ -77,8 +77,9 @@ class BelongsTo extends Relationship
     /**
      * Match the eagerly loaded results to their parents.
      *
-     * @param array $children
-     * @param array $parents
+     * @param string $relationship
+     * @param array  $children
+     * @param array  $parents
      */
     public function match($relationship, &$children, array $parents)
     {
@@ -108,6 +109,8 @@ class BelongsTo extends Relationship
 
     /**
      * Bind object to the parent by updating the foreign key.
+     *
+     * @param mixed $id
      *
      * @return Facile
      */

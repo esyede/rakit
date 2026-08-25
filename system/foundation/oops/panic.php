@@ -278,6 +278,8 @@ class Panic
     }
 
     /**
+     * @param \Throwable|\Exception $ex
+     *
      * @return \stdClass|array
      */
     private function renderPanels($ex)
@@ -314,6 +316,8 @@ class Panic
     }
 
     /**
+     * @param \Throwable|\Exception $ex
+     *
      * @return array
      */
     private function renderActions($ex)
@@ -513,6 +517,10 @@ class Panic
 
     /**
      * Highlight sebuah baris kode.
+     *
+     * @param string $html
+     * @param int    $line
+     * @param int    $lines
      *
      * @return string
      */

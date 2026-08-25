@@ -81,6 +81,9 @@ class Dumper
     /**
      * Dump isi variable sebagai string.
      *
+     * @param mixed      $var
+     * @param array|null $options
+     *
      * @return mixed
      */
     public static function dump($var, $options = null)
@@ -98,6 +101,9 @@ class Dumper
 
     /**
      * Dump isi variabel sebagai HTML.
+     *
+     * @param mixed      $var
+     * @param array|null $options
      *
      * @return string
      */
@@ -133,6 +139,9 @@ class Dumper
     /**
      * Dump isi variabel sebagai teks biasa.
      *
+     * @param mixed      $var
+     * @param array|null $options
+     *
      * @return string
      */
     public static function toText($var, $options = null)
@@ -142,6 +151,9 @@ class Dumper
 
     /**
      * Dump isi variabel ke terminal.
+     *
+     * @param mixed      $var
+     * @param array|null $options
      *
      * @return string
      */
@@ -323,6 +335,10 @@ class Dumper
     }
 
     /**
+     * @param mixed $var
+     * @param array $options
+     * @param int   $level
+     *
      * @return mixed
      */
     private static function toJson(&$var, $options, $level = 0)
@@ -441,6 +457,9 @@ class Dumper
     /**
      * Encode string ke UTF-8.
      *
+     * @param string   $s
+     * @param int|null $maxLength
+     *
      * @return string
      */
     public static function encodeString($s, $maxLength = null)
@@ -476,6 +495,10 @@ class Dumper
     }
 
     /**
+     * @param object $obj
+     * @param array  $exporters
+     * @param bool   $useDebugInfo
+     *
      * @return array
      */
     private static function exportObject($obj, array $exporters, $useDebugInfo)

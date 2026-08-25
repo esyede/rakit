@@ -1065,6 +1065,8 @@ abstract class Model
     /**
      * Get a new query builder for the model.
      *
+     * @param bool $with_trashed
+     *
      * @return \System\Database\Facile\Query
      */
     public function query($with_trashed = false)

@@ -62,7 +62,7 @@ class Resource
      * Constructor.
      *
      * @param string $name
-     * @param array  $template
+     * @param array  $options
      */
     public function __construct($name, array $options = [])
     {

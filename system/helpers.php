@@ -404,6 +404,7 @@ if (!function_exists('facile_to_json')) {
      * Transform Facile object to JSON string.
      *
      * @param Facile|array $models
+     * @param int          $json_options
      *
      * @return string
      */
@@ -799,9 +800,6 @@ if (!function_exists('csrf_name')) {
     /**
      * Get the CSRF token name.
      *
-     * @param string $name
-     * @param array  $parameters
-     *
      * @return string
      */
     function csrf_name()
@@ -972,6 +970,8 @@ if (!function_exists('yield_section')) {
     /**
      * Stop injecting content into a section and return its content.
      *
+     * @param string $section
+     *
      * @return string
      */
     function yield_section($section)
@@ -984,7 +984,10 @@ if (!function_exists('section_start')) {
     /**
      * Start injecting content into a section.
      *
-     * @return string
+     * @param string $section
+     * @param string $content
+     *
+     * @return void
      */
     function section_start($section, $content = '')
     {
@@ -1165,9 +1168,8 @@ if (!function_exists('has_cli_flag')) {
      * Check if the given flag is passed to rakit console.
      *
      * @param string $flag
-     * @param mixed  $default
      *
-     * @return string
+     * @return bool
      */
     function has_cli_flag($flag)
     {

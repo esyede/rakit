@@ -352,6 +352,7 @@ class Debugger
      * Exception handler.
      *
      * @param \Throwable|\Exception $e
+     * @param bool                  $exit
      *
      * @return void
      */
@@ -510,6 +511,12 @@ class Debugger
 
     /**
      * Error handler.
+     *
+     * @param int    $severity
+     * @param string $message
+     * @param string $file
+     * @param int    $line
+     * @param array  $context
      *
      * @throws \ErrorException
      *
@@ -852,7 +859,8 @@ class Debugger
     /**
      * Log a message into log file.
      *
-     * @param mixed $message
+     * @param mixed  $message
+     * @param string $priority
      *
      * @return mixed
      */

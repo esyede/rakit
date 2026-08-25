@@ -1341,6 +1341,11 @@ class Query
 
     /**
      * Handle dynamic method calls.
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public function __call($method, array $parameters)
     {

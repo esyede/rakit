@@ -559,11 +559,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
-     * Get the items in the collection whose keys are present in the given items.
+     * Check if the collection has no items.
      *
-     * @param mixed $items
-     *
-     * @return static
+     * @return bool
      */
     public function is_empty()
     {

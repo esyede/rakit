@@ -132,9 +132,10 @@ class Response
      *
      * </code>
      *
-     * @param mixed $data
-     * @param int   $status
-     * @param array $headers
+     * @param string $callback
+     * @param mixed  $data
+     * @param int    $status
+     * @param array  $headers
      *
      * @return Response
      */

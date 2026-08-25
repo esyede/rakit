@@ -209,6 +209,11 @@ class Job
      *      Job::process('send-email');
      *
      * </code>
+     *
+     * @param string $method
+     * @param array  $parameters
+     *
+     * @return mixed
      */
     public static function __callStatic($method, array $parameters)
     {

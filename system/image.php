@@ -88,6 +88,7 @@ class Image
      * Open image for processing (jpg, png, gif).
      *
      * @param string $path
+     * @param int    $quality
      *
      * @return $this
      */

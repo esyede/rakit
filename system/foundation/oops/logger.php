@@ -181,6 +181,7 @@ class Logger
      * Log exception ke file.
      *
      * @param \Throwable|\Exception $exception
+     * @param string                $file
      *
      * @return string
      */

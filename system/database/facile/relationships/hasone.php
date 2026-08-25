@@ -32,8 +32,9 @@ class HasOne extends HasOneOrMany
     /**
      * Match the eagerly loaded results to their parents.
      *
-     * @param array $parents
-     * @param array $childrens
+     * @param string $relationship
+     * @param array  $parents
+     * @param array  $childrens
      */
     public function match($relationship, array &$parents, array $childrens)
     {
