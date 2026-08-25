@@ -28,7 +28,7 @@ class Route extends Command
         $route = Router::route(Request::method(), $_SERVER['REQUEST_URI']);
         $route = is_null($route) ? '404: Not Found' : $route->response();
 
-        dd($route . PHP_EOL);
+        dd($route.PHP_EOL);
     }
 
     /**
@@ -75,8 +75,8 @@ class Route extends Command
 
         // Display header
         echo PHP_EOL;
-        echo $this->info(str_pad('Method', 8) . ' | ' . str_pad('URI', 40) . ' | ' . str_pad('Action', 30) . ' | ' . 'Name');
-        echo $this->info(str_repeat('-', 8) . '-+-' . str_repeat('-', 40) . '-+-' . str_repeat('-', 30) . '-+-' . str_repeat('-', 20));
+        echo $this->info(str_pad('Method', 8).' | '.str_pad('URI', 40).' | '.str_pad('Action', 30).' | '.'Name');
+        echo $this->info(str_repeat('-', 8).'-+-'.str_repeat('-', 40).'-+-'.str_repeat('-', 30).'-+-'.str_repeat('-', 20));
         $lists = '';
 
         // Display routes
@@ -86,7 +86,7 @@ class Route extends Command
             $action = is_array($route['action']) && isset($route['action']['uses']) ? $route['action']['uses'] : (is_string($route['action']) ? $route['action'] : 'Closure');
             $action = str_pad($action, 30);
             $name = $route['name'];
-            $lists .= $method . ' | ' . $uri . ' | ' . $action . ' | ' . ($name ?: 'N/A') . PHP_EOL;
+            $lists .= $method.' | '.$uri.' | '.$action.' | '.($name ?: 'N/A').PHP_EOL;
         }
 
         echo $this->info($lists);

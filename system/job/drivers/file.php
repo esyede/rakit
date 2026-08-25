@@ -26,9 +26,9 @@ class File extends Driver
      */
     public function __construct($path)
     {
-        $this->path = rtrim($path, DS) . DS;
+        $this->path = rtrim($path, DS).DS;
 
-        if (!is_dir($this->path)) {
+        if (! is_dir($this->path)) {
             Storage::mkdir($this->path, 0755);
         }
     }
@@ -60,7 +60,7 @@ class File extends Driver
             'updated_at' => $now,
         ];
 
-        $file = $this->path . $name . '__' . $id . '.job.php';
+        $file = $this->path.$name.'__'.$id.'.job.php';
         Storage::put($file, static::guard(serialize($data)), LOCK_EX);
 
         $this->log(sprintf('Job added: %s - #%s (queue: %s)', $name, $id, $queue));
@@ -78,7 +78,7 @@ class File extends Driver
     public function has_overlapping($name, $queue = 'default')
     {
         $name = Str::slug($name);
-        $files = glob($this->path . $name . '__*.job.php');
+        $files = glob($this->path.$name.'__*.job.php');
 
         if (empty($files)) {
             return false;
@@ -106,7 +106,7 @@ class File extends Driver
     public function forget($name, $queue = null)
     {
         $name = Str::slug($name);
-        $pattern = $this->path . $name . '__*' . '.job.php';
+        $pattern = $this->path.$name.'__*'.'.job.php';
         $files = glob($pattern);
 
         foreach ($files as $file) {
@@ -139,7 +139,7 @@ class File extends Driver
     {
         $config = Config::get('job');
         $name = Str::slug($name);
-        $files = glob($this->path . $name . '__*' . '.job.php');
+        $files = glob($this->path.$name.'__*'.'.job.php');
 
         if (empty($files)) {
             $this->log('No job files found');
@@ -168,7 +168,7 @@ class File extends Driver
                 $attempts = 0;
                 $success = false;
 
-                while ($attempts < $retries && !$success) {
+                while ($attempts < $retries && ! $success) {
                     $attempts++;
 
                     try {
@@ -203,13 +203,13 @@ class File extends Driver
             }
         }
 
-        if (!empty($successful)) {
+        if (! empty($successful)) {
             foreach ($successful as $file) {
                 Storage::delete($file);
             }
         }
 
-        if (!empty($failed)) {
+        if (! empty($failed)) {
             foreach ($failed as $job) {
                 $this->move_to_failed($job['data'], $job['exception']);
                 Storage::delete($job['file']);
@@ -231,7 +231,7 @@ class File extends Driver
     public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
         $config = Config::get('job');
-        $files = glob($this->path . '*.job.php');
+        $files = glob($this->path.'*.job.php');
 
         // Exclude failed jobs
         $files = array_filter($files, function ($file) {
@@ -256,8 +256,8 @@ class File extends Driver
 
             $data = unserialize(static::unguard(Storage::get($file)));
 
-            if ($queues && is_array($queues) && !empty($queues)) {
-                if (!isset($data['queue']) || !in_array($data['queue'], $queues)) {
+            if ($queues && is_array($queues) && ! empty($queues)) {
+                if (! isset($data['queue']) || ! in_array($data['queue'], $queues)) {
                     continue;
                 }
             }
@@ -267,7 +267,7 @@ class File extends Driver
                 $attempts = 0;
                 $success = false;
 
-                while ($attempts < $retries && !$success) {
+                while ($attempts < $retries && ! $success) {
                     $attempts++;
 
                     try {
@@ -302,13 +302,13 @@ class File extends Driver
             }
         }
 
-        if (!empty($successful)) {
+        if (! empty($successful)) {
             foreach ($successful as $file) {
                 Storage::delete($file);
             }
         }
 
-        if (!empty($failed)) {
+        if (! empty($failed)) {
             foreach ($failed as $job) {
                 $this->move_to_failed($job['data'], $job['exception']);
                 Storage::delete($job['file']);
@@ -328,7 +328,7 @@ class File extends Driver
     protected static function guard($value)
     {
         $guard = "<?php defined('DS') or exit('No direct access.');?>";
-        return $guard . $value;
+        return $guard.$value;
     }
 
     /**
@@ -353,14 +353,14 @@ class File extends Driver
     protected function move_to_failed($data, $exception)
     {
         $error = get_class($exception)
-            . (('' === $exception->getMessage()) ? '' : ': ' . $exception->getMessage())
-            . ' in ' . $exception->getFile() . ':' . $exception->getLine();
+            .(('' === $exception->getMessage()) ? '' : ': '.$exception->getMessage())
+            .' in '.$exception->getFile().':'.$exception->getLine();
         $data = array_merge($data, [
             'exception' => $error,
             'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
 
-        $file = $this->path . 'failed__' . $data['id'] . '.job.php';
+        $file = $this->path.'failed__'.$data['id'].'.job.php';
         Storage::put($file, static::guard(serialize($data)), LOCK_EX);
     }
 }

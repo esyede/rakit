@@ -47,7 +47,7 @@ class Resolver
             $files = $this->migrations($package);
 
             foreach ($files as $key => $name) {
-                if (!in_array($name, $ran)) {
+                if (! in_array($name, $ran)) {
                     $migrations[] = compact('package', 'name');
                 }
             }
@@ -81,9 +81,9 @@ class Resolver
             $migration = (array) $migration;
             $package = (string) $migration['package'];
             $name = (string) $migration['name'];
-            $path = Package::path($package) . 'migrations' . DS;
+            $path = Package::path($package).'migrations'.DS;
 
-            if (!is_file($file = $path . $name . '.php')) {
+            if (! is_file($file = $path.$name.'.php')) {
                 throw new \Exception(sprintf(
                     'Migration file is missing: %s (package: %s)',
                     $name,
@@ -93,9 +93,9 @@ class Resolver
 
             require_once $file;
 
-            $class = Package::class_prefix($package) . Str::classify(substr($name, 18));
+            $class = Package::class_prefix($package).Str::classify(substr($name, 18));
 
-            if (!class_exists($class)) {
+            if (! class_exists($class)) {
                 throw new \Exception(sprintf(
                     'Migration class was not found: %s (expected in %s)',
                     $class,
@@ -123,7 +123,7 @@ class Resolver
      */
     protected function migrations($package)
     {
-        $files = glob(Package::path($package) . 'migrations' . DS . '*_*.php');
+        $files = glob(Package::path($package).'migrations'.DS.'*_*.php');
 
         if (false === $files) {
             return [];

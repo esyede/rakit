@@ -7,10 +7,15 @@ defined('DS') or exit('No direct access.');
 class Fiddle
 {
     private $prompt;
+
     private $history;
+
     private $exports = [];
+
     private $starting = [];
+
     private $failing = [];
+
     private $inspector;
 
     /**
@@ -21,7 +26,7 @@ class Fiddle
     public function __construct($prompt = 'FIDDLE> ')
     {
         $this->prompt($prompt);
-        $this->history = path('storage') . 'console' . DS . '.fiddle_history';
+        $this->history = path('storage').'console'.DS.'.fiddle_history';
         $this->inspector = new Inspector();
     }
 
@@ -94,10 +99,10 @@ class Fiddle
     public function start()
     {
         declare(ticks = 1);
-        /** @disregard */
+        /* @disregard */
         pcntl_signal(SIGINT, SIG_IGN, true);
 
-        if (!$pipes = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP)) {
+        if (! $pipes = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP)) {
             throw new \Exception('Failed to create socket pair');
         }
 
@@ -106,7 +111,7 @@ class Fiddle
 
         if ($pid > 0) {
             if (function_exists('setproctitle')) {
-                /** @disregard */
+                /* @disregard */
                 setproctitle('Repl (master)');
             }
 
@@ -117,7 +122,7 @@ class Fiddle
             throw new \Exception('Failed to fork child process');
         } else {
             if (function_exists('setproctitle')) {
-                /** @disregard */
+                /* @disregard */
                 setproctitle('Repl (worker)');
             }
 

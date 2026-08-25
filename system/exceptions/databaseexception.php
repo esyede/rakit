@@ -45,10 +45,10 @@ class DatabaseException extends \Exception
 
         if (PHP_VERSION_ID >= 70000) {
             if ($this->inner instanceof \Exception || $this->inner instanceof \Throwable) {
-                $message = $this->inner->getMessage() . ' (SQL: ' . $this->getFormattedQuery() . ')';
+                $message = $this->inner->getMessage().' (SQL: '.$this->getFormattedQuery().')';
             }
         } elseif ($this->inner instanceof \Exception) {
-            $message = $this->inner->getMessage() . ' (SQL: ' . $this->getFormattedQuery() . ')';
+            $message = $this->inner->getMessage().' (SQL: '.$this->getFormattedQuery().')';
         }
 
         parent::__construct($message, $code, $previous);

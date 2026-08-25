@@ -149,7 +149,7 @@ class Panic
      */
     public function addPanel($panel)
     {
-        if (!in_array($panel, $this->panels, true)) {
+        if (! in_array($panel, $this->panels, true)) {
             $this->panels[] = $panel;
         }
 
@@ -184,7 +184,7 @@ class Panic
                 // ..
             });
 
-            $this->renderTemplate($e, __DIR__ . '/assets/panic/content.phtml');
+            $this->renderTemplate($e, __DIR__.'/assets/panic/content.phtml');
             $contentId = $_SERVER['HTTP_X_OOPS_AJAX'];
             $_SESSION['_oops']['panic'][$contentId] = [
                 'content' => ob_get_clean(),
@@ -192,7 +192,7 @@ class Panic
                 'time' => time(),
             ];
         } else {
-            $this->renderTemplate($e, __DIR__ . '/assets/panic/page.phtml');
+            $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml');
         }
     }
 
@@ -208,22 +208,22 @@ class Panic
     {
         $base = basename($file);
         $dir = substr_replace($file, '', strrpos($file, $base), strlen($base));
-        $dir = ('' === $dir) ? '.' . DIRECTORY_SEPARATOR : $dir;
-        $file = $dir . $base;
+        $dir = ('' === $dir) ? '.'.DIRECTORY_SEPARATOR : $dir;
+        $file = $dir.$base;
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
-            file_put_contents($dir . 'index.html', 'No direct access.');
+            file_put_contents($dir.'index.html', 'No direct access.');
         }
 
-        if (!is_file($file)) {
+        if (! is_file($file)) {
             if ($handle = @fopen($file, 'x')) {
                 // Buffer ganda terkadang mencegah pengiriman HTTP header
                 ob_start();
                 ob_start(function ($buffer) use ($handle) {
                     fwrite($handle, $buffer);
                 }, 4096);
-                $this->renderTemplate($e, __DIR__ . '/assets/panic/page.phtml', false);
+                $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml', false);
                 ob_end_flush();
                 ob_end_clean();
                 fclose($handle);
@@ -263,7 +263,7 @@ class Panic
         };
 
         $css = array_map('file_get_contents', [
-            __DIR__ . DS . 'assets' . DS . 'panic' . DS . 'panic.css',
+            __DIR__.DS.'assets'.DS.'panic'.DS.'panic.css',
         ]);
 
         $css = preg_replace('#\s+#u', ' ', implode('', $css));
@@ -324,14 +324,14 @@ class Panic
         foreach ($this->actions as $callback) {
             $action = call_user_func($callback, $ex);
 
-            if (!empty($action['link']) && !empty($action['label'])) {
+            if (! empty($action['link']) && ! empty($action['label'])) {
                 $actions[] = $action;
             }
         }
 
         $oopsAction = \System\Foundation\Oops\Context::getOopsAction($ex);
 
-        if (!empty($oopsAction['link']) && !empty($oopsAction['label'])) {
+        if (! empty($oopsAction['link']) && ! empty($oopsAction['label'])) {
             $actions[] = $oopsAction;
         }
 
@@ -339,11 +339,11 @@ class Panic
             $class = $m[2];
         }
 
-        $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex) . ' ')
-            . preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
+        $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex).' ')
+            .preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
 
         $actions[] = [
-            'link' => 'https://www.google.com/search?sourceid=rakit_framework&q=' . urlencode($query),
+            'link' => 'https://www.google.com/search?sourceid=rakit_framework&q='.urlencode($query),
             'label' => 'search',
             'external' => true,
         ];
@@ -353,7 +353,7 @@ class Panic
             && preg_match('#^https?://#', $source = Helpers::getSource())
         ) {
             $actions[] = [
-                'link' => $source . (strpos($source, '?') ? '&' : '?') . '_oops_skip_error',
+                'link' => $source.(strpos($source, '?') ? '&' : '?').'_oops_skip_error',
                 'label' => 'skip error',
             ];
         }
@@ -371,29 +371,29 @@ class Panic
     public static function toMarkdown($e)
     {
         $nl = "\n";
-        $out = '# ' . Helpers::getClass($e) . ($e->getCode() ? ' #' . $e->getCode() : '') . $nl . $nl;
-        $out .= '**Message:** ' . trim((string) $e->getMessage()) . $nl;
+        $out = '# '.Helpers::getClass($e).($e->getCode() ? ' #'.$e->getCode() : '').$nl.$nl;
+        $out .= '**Message:** '.trim((string) $e->getMessage()).$nl;
 
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        $req = trim($method . ' ' . $uri);
+        $req = trim($method.' '.$uri);
 
         if ('' !== $req) {
-            $out .= '**Request:** ' . $req . $nl;
+            $out .= '**Request:** '.$req.$nl;
         }
 
-        $out .= '**Location:** ' . $e->getFile() . ':' . $e->getLine() . $nl;
-        $out .= '**PHP:** ' . PHP_VERSION . $nl . $nl;
+        $out .= '**Location:** '.$e->getFile().':'.$e->getLine().$nl;
+        $out .= '**PHP:** '.PHP_VERSION.$nl.$nl;
 
         $snippet = static::plainSnippet($e->getFile(), (int) $e->getLine(), 12);
 
         if (null !== $snippet) {
-            $out .= '## Source (' . basename($e->getFile()) . ':' . $e->getLine() . ')' . $nl;
-            $out .= '```php' . $nl . $snippet . $nl . '```' . $nl . $nl;
+            $out .= '## Source ('.basename($e->getFile()).':'.$e->getLine().')'.$nl;
+            $out .= '```php'.$nl.$snippet.$nl.'```'.$nl.$nl;
         }
 
-        $out .= '## Stack trace' . $nl;
-        $out .= '```' . $nl . $e->getTraceAsString() . $nl . '```' . $nl;
+        $out .= '## Stack trace'.$nl;
+        $out .= '```'.$nl.$e->getTraceAsString().$nl.'```'.$nl;
 
         // Chained (previous) exceptions
         $prev = $e->getPrevious();
@@ -401,9 +401,9 @@ class Panic
         $maxDepth = 5;
 
         while ($prev && $guard++ < $maxDepth) {
-            $out .= $nl . '## Caused by: ' . Helpers::getClass($prev) . $nl;
-            $out .= '**Message:** ' . trim((string) $prev->getMessage()) . $nl;
-            $out .= '**Location:** ' . $prev->getFile() . ':' . $prev->getLine() . $nl;
+            $out .= $nl.'## Caused by: '.Helpers::getClass($prev).$nl;
+            $out .= '**Message:** '.trim((string) $prev->getMessage()).$nl;
+            $out .= '**Location:** '.$prev->getFile().':'.$prev->getLine().$nl;
             $prev = $prev->getPrevious();
         }
 
@@ -422,14 +422,14 @@ class Panic
      */
     private static function plainSnippet($file, $line, $around = 12)
     {
-        if (!is_file($file)) {
-            return null;
+        if (! is_file($file)) {
+            return;
         }
 
         $lines = @file($file, FILE_IGNORE_NEW_LINES);
 
-        if (!is_array($lines) || empty($lines)) {
-            return null;
+        if (! is_array($lines) || empty($lines)) {
+            return;
         }
 
         $total = count($lines);
@@ -441,7 +441,7 @@ class Panic
 
         for ($i = $start; $i <= $end; $i++) {
             $prefix = ($i === $line) ? '> ' : '  ';
-            $out[] = $prefix . $i . ': ' . $lines[$i - 1];
+            $out[] = $prefix.$i.': '.$lines[$i - 1];
         }
 
         return implode("\n", $out);
@@ -500,10 +500,10 @@ class Panic
             $out .= static::highlightLine($source, $line, $lines);
         }
 
-        if (!empty($vars)) {
+        if (! empty($vars)) {
             $out = preg_replace_callback('#">\$(\w+)(&nbsp;)?</span>#', function ($m) use ($vars) {
                 return array_key_exists($m[1], $vars)
-                    ? '" title="' . str_replace('"', '&quot;', trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))) . $m[0]
+                    ? '" title="'.str_replace('"', '&quot;', trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))).$m[0]
                     : $m[0];
             }, $out);
         }
@@ -523,7 +523,7 @@ class Panic
      */
     public static function highlightLine($html, $line, $lines = 15)
     {
-        $source = explode("\n", "\n" . str_replace("\r\n", "\n", $html));
+        $source = explode("\n", "\n".str_replace("\r\n", "\n", $html));
         $out = '';
         $spans = 1;
         $start = $i = max(1, min($line, count($source) - 1) - (int) floor($lines * 2 / 3));
@@ -555,7 +555,7 @@ class Panic
             }
         }
 
-        $out .= str_repeat('</span>', $spans) . '</code>';
+        $out .= str_repeat('</span>', $spans).'</code>';
         return $out;
     }
 
@@ -568,10 +568,10 @@ class Panic
      */
     public function isCollapsed($file)
     {
-        $file = strtr($file, '\\', '/') . '/';
+        $file = strtr($file, '\\', '/').'/';
 
         foreach ($this->collapsePaths as $path) {
-            $path = strtr($path, '\\', '/') . '/';
+            $path = strtr($path, '\\', '/').'/';
 
             if (0 === strncmp($file, $path, mb_strlen($path, '8bit'))) {
                 return true;

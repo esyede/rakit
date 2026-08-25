@@ -34,7 +34,7 @@ class Redis extends Driver
     public function __construct($redis, $key = null)
     {
         $this->redis = $redis;
-        $this->key = $key ?: Config::get('job.key', 'rakit.job') . ':';
+        $this->key = $key ?: Config::get('job.key', 'rakit.job').':';
     }
 
     /**
@@ -49,7 +49,7 @@ class Redis extends Driver
         /** @disregard */
         $reply = $this->redis->hgetall($key);
 
-        if (!is_array($reply) || 0 === count($reply)) {
+        if (! is_array($reply) || 0 === count($reply)) {
             return [];
         }
 
@@ -95,11 +95,11 @@ class Redis extends Driver
             'updated_at' => $now,
         ];
 
-        /** @disregard */
-        $this->redis->hmset($this->key . 'job_' . $name . '_' . $id, $data);
+        /* @disregard */
+        $this->redis->hmset($this->key.'job_'.$name.'_'.$id, $data);
         $timestamp = Carbon::parse($scheduled_at)->timestamp;
-        /** @disregard */
-        $this->redis->zadd($this->key . 'queue_' . $queue . ':' . $name, $timestamp, $id);
+        /* @disregard */
+        $this->redis->zadd($this->key.'queue_'.$queue.':'.$name, $timestamp, $id);
         $this->log(sprintf('Job added: %s - #%s (queue: %s)', $name, $id, $queue));
 
         return true;
@@ -116,21 +116,21 @@ class Redis extends Driver
     public function has_overlapping($name, $queue = 'default')
     {
         $name = Str::slug($name);
-        $list = $this->key . 'queue_' . $queue . ':' . $name;
+        $list = $this->key.'queue_'.$queue.':'.$name;
 
-        /** @disregard */
-        if (!$this->redis->exists($list)) {
+        /* @disregard */
+        if (! $this->redis->exists($list)) {
             return false;
         }
 
         /** @disregard */
         $ids = $this->redis->zrange($list, 0, -1);
 
-        if (!empty($ids)) {
+        if (! empty($ids)) {
             foreach ($ids as $id) {
-                $data = $this->hash($this->key . 'job_' . $name . '_' . $id);
+                $data = $this->hash($this->key.'job_'.$name.'_'.$id);
 
-                if (!empty($data) && isset($data['without_overlapping']) && $data['without_overlapping'] === '1') {
+                if (! empty($data) && isset($data['without_overlapping']) && $data['without_overlapping'] === '1') {
                     if (isset($data['queue']) && $data['queue'] === $queue) {
                         return true;
                     }
@@ -155,34 +155,34 @@ class Redis extends Driver
 
         if ($queue) {
             /** @disregard */
-            $ids = $this->redis->zrange($this->key . 'queue_' . $queue . ':' . $name, 0, -1);
+            $ids = $this->redis->zrange($this->key.'queue_'.$queue.':'.$name, 0, -1);
 
-            if (!empty($ids)) {
+            if (! empty($ids)) {
                 foreach ($ids as $id) {
-                    /** @disregard */
-                    $this->redis->del($this->key . 'job_' . $name . '_' . $id);
+                    /* @disregard */
+                    $this->redis->del($this->key.'job_'.$name.'_'.$id);
                 }
             }
 
-            /** @disregard */
-            $this->redis->del($this->key . 'queue_' . $queue . ':' . $name);
+            /* @disregard */
+            $this->redis->del($this->key.'queue_'.$queue.':'.$name);
         } else {
             /** @disregard */
-            $queues = $this->redis->keys($this->key . 'queue_*:' . $name);
+            $queues = $this->redis->keys($this->key.'queue_*:'.$name);
 
-            if (!empty($queues)) {
+            if (! empty($queues)) {
                 foreach ($queues as $queue) {
                     /** @disregard */
                     $ids = $this->redis->zrange($queue, 0, -1);
 
-                    if (!empty($ids)) {
+                    if (! empty($ids)) {
                         foreach ($ids as $id) {
-                            /** @disregard */
-                            $this->redis->del($this->key . 'job_' . $name . '_' . $id);
+                            /* @disregard */
+                            $this->redis->del($this->key.'job_'.$name.'_'.$id);
                         }
                     }
 
-                    /** @disregard */
+                    /* @disregard */
                     $this->redis->del($queue);
                 }
             }
@@ -212,8 +212,8 @@ class Redis extends Driver
         $successful = [];
         $failed = [];
         $lists = $queue
-            ? [$this->key . 'queue_' . $queue . ':' . $name]
-            : $this->redis->keys($this->key . 'queue_*:' . $name);
+            ? [$this->key.'queue_'.$queue.':'.$name]
+            : $this->redis->keys($this->key.'queue_*:'.$name);
 
         if (empty($lists)) {
             $this->log('Job queue does not exist');
@@ -221,24 +221,24 @@ class Redis extends Driver
         }
 
         foreach ($lists as $list) {
-            /** @disregard */
-            if (!$this->redis->exists($list)) {
+            /* @disregard */
+            if (! $this->redis->exists($list)) {
                 continue;
             }
 
             /** @disregard */
             $ready = $this->redis->zrangebyscore($list, '-inf', $now);
 
-            if (!empty($ready)) {
+            if (! empty($ready)) {
                 foreach ($ready as $jid) {
-                    $key = $this->key . 'job_' . $name . '_' . $jid;
+                    $key = $this->key.'job_'.$name.'_'.$jid;
                     $data = $this->hash($key);
 
-                    if (!empty($data)) {
+                    if (! empty($data)) {
                         $attempts = 0;
                         $success = false;
 
-                        while ($attempts < $retries && !$success) {
+                        while ($attempts < $retries && ! $success) {
                             $attempts++;
 
                             try {
@@ -275,21 +275,21 @@ class Redis extends Driver
             }
         }
 
-        if (!empty($successful)) {
+        if (! empty($successful)) {
             foreach ($successful as $job) {
-                /** @disregard */
+                /* @disregard */
                 $this->redis->zrem($job['list'], $job['jid']);
-                /** @disregard */
+                /* @disregard */
                 $this->redis->del($job['key']);
             }
         }
 
-        if (!empty($failed)) {
+        if (! empty($failed)) {
             foreach ($failed as $job) {
                 $this->move_to_failed($job['data'], $job['exception']);
-                /** @disregard */
+                /* @disregard */
                 $this->redis->zrem($job['list'], $job['jid']);
-                /** @disregard */
+                /* @disregard */
                 $this->redis->del($job['key']);
             }
         }
@@ -316,15 +316,15 @@ class Redis extends Driver
         $failed = [];
         $all = [];
 
-        if ($queues && is_array($queues) && !empty($queues)) {
+        if ($queues && is_array($queues) && ! empty($queues)) {
             foreach ($queues as $queue) {
                 /** @disregard */
-                $lists = $this->redis->keys($this->key . 'queue_' . $queue . ':*');
+                $lists = $this->redis->keys($this->key.'queue_'.$queue.':*');
                 $all = array_merge($all, $lists);
             }
         } else {
             /** @disregard */
-            $all = $this->redis->keys($this->key . 'queue_*');
+            $all = $this->redis->keys($this->key.'queue_*');
         }
 
         if (empty($all)) {
@@ -333,23 +333,23 @@ class Redis extends Driver
         }
 
         foreach ($all as $queue) {
-            $parts = explode(':', str_replace($this->key . 'queue_', '', $queue));
+            $parts = explode(':', str_replace($this->key.'queue_', '', $queue));
             $default = isset($parts[0]) ? $parts[0] : 'default';
             $name = isset($parts[1]) ? $parts[1] : $default;
 
             /** @disregard */
             $ready = $this->redis->zrangebyscore($queue, '-inf', $now);
 
-            if (!empty($ready)) {
+            if (! empty($ready)) {
                 foreach ($ready as $jid) {
-                    $key = $this->key . 'job_' . $name . '_' . $jid;
+                    $key = $this->key.'job_'.$name.'_'.$jid;
                     $data = $this->hash($key);
 
-                    if (!empty($data)) {
+                    if (! empty($data)) {
                         $attempts = 0;
                         $success = false;
 
-                        while ($attempts < $retries && !$success) {
+                        while ($attempts < $retries && ! $success) {
                             $attempts++;
 
                             try {
@@ -375,21 +375,21 @@ class Redis extends Driver
             }
         }
 
-        if (!empty($successful)) {
+        if (! empty($successful)) {
             foreach ($successful as $job) {
-                /** @disregard */
+                /* @disregard */
                 $this->redis->zrem($job['queue'], $job['jid']);
-                /** @disregard */
+                /* @disregard */
                 $this->redis->del($job['key']);
             }
         }
 
-        if (!empty($failed)) {
+        if (! empty($failed)) {
             foreach ($failed as $job) {
                 $this->move_to_failed($job['data'], $job['exception']);
-                /** @disregard */
+                /* @disregard */
                 $this->redis->zrem($job['queue'], $job['jid']);
-                /** @disregard */
+                /* @disregard */
                 $this->redis->del($job['key']);
             }
         }
@@ -406,15 +406,15 @@ class Redis extends Driver
     protected function move_to_failed($data, $exception)
     {
         $error = get_class($exception)
-            . (('' === $exception->getMessage()) ? '' : ': ' . $exception->getMessage())
-            . ' in ' . $exception->getFile() . ':' . $exception->getLine();
+            .(('' === $exception->getMessage()) ? '' : ': '.$exception->getMessage())
+            .' in '.$exception->getFile().':'.$exception->getLine();
         $data = array_merge($data, [
             'exception' => $error,
             'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
-        /** @disregard */
-        $this->redis->hmset($this->key . 'failed:' . $data['id'], $data);
-        /** @disregard */
-        $this->redis->lpush($this->key . 'failed_jobs', $data['id']);
+        /* @disregard */
+        $this->redis->hmset($this->key.'failed:'.$data['id'], $data);
+        /* @disregard */
+        $this->redis->lpush($this->key.'failed_jobs', $data['id']);
     }
 }

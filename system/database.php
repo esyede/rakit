@@ -34,8 +34,8 @@ class Database
             $connection = Config::get('database.default');
         }
 
-        if (!isset(static::$connections[$connection])) {
-            $config = Config::get('database.connections.' . $connection);
+        if (! isset(static::$connections[$connection])) {
+            $config = Config::get('database.connections.'.$connection);
 
             if (is_null($config)) {
                 throw new \Exception(sprintf('Database connection is not defined for: %s', $connection));

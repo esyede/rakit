@@ -37,7 +37,7 @@ class Session
         // Skip session for stateless routes (e.g. API endpoints, webhooks).
         $stateless = isset($config['stateless']) ? (array) $config['stateless'] : [];
 
-        if (!empty($stateless)) {
+        if (! empty($stateless)) {
             $path = trim(Request::foundation()->getPathInfo(), '/');
 
             foreach ($stateless as $pattern) {
@@ -48,7 +48,7 @@ class Session
                 }
 
                 if (strpos($pattern, '*') !== false) {
-                    $regex = '#^' . str_replace('\*', '.*', preg_quote($pattern, '#')) . '\z#u';
+                    $regex = '#^'.str_replace('\*', '.*', preg_quote($pattern, '#')).'\z#u';
 
                     if (preg_match($regex, $path)) {
                         return;
@@ -68,7 +68,7 @@ class Session
      */
     public static function start($driver)
     {
-        if (!is_string($driver) || empty($driver)) {
+        if (! is_string($driver) || empty($driver)) {
             throw new \Exception('Session driver must be a non-empty string');
         }
 
@@ -84,7 +84,7 @@ class Session
      */
     public static function factory($driver)
     {
-        if (!is_string($driver) || empty($driver)) {
+        if (! is_string($driver) || empty($driver)) {
             throw new \Exception('Session driver must be a non-empty string');
         }
 
@@ -97,7 +97,7 @@ class Session
             case 'apc':       return new Session\Drivers\APC(Cache::driver('apc'));
             case 'cookie':    return new Session\Drivers\Cookie();
             case 'database':  return new Session\Drivers\Database(Database::connection());
-            case 'file':      return new Session\Drivers\File(path('storage') . 'sessions' . DS);
+            case 'file':      return new Session\Drivers\File(path('storage').'sessions'.DS);
             case 'memcached': return new Session\Drivers\Memcached(Cache::driver('memcached'));
             case 'memory':    return new Session\Drivers\Memory();
             case 'redis':     return new Session\Drivers\Redis(Cache::driver('redis'));
@@ -126,7 +126,7 @@ class Session
      */
     public static function started()
     {
-        return !is_null(static::$instance);
+        return ! is_null(static::$instance);
     }
 
     /**

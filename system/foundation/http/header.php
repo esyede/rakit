@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 class Header implements \IteratorAggregate, \Countable
 {
     protected $headers;
+
     protected $cacheControl;
 
     /**
@@ -31,7 +32,7 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function __toString()
     {
-        if (!$this->headers) {
+        if (! $this->headers) {
             return '';
         }
 
@@ -45,7 +46,7 @@ class Header implements \IteratorAggregate, \Countable
             $name = $this->standardizeKey($name);
 
             foreach ($values as $value) {
-                $content .= sprintf("%-{$max}s %s\r\n", $name . ':', $value);
+                $content .= sprintf("%-{$max}s %s\r\n", $name.':', $value);
             }
         }
 
@@ -123,7 +124,7 @@ class Header implements \IteratorAggregate, \Countable
     {
         $key = $this->standardizeKey($key);
         $values = array_values((array) $values);
-        $this->headers[$key] = (true === $replace || !isset($this->headers[$key])) ? $values : array_merge($this->headers[$key], $values);
+        $this->headers[$key] = (true === $replace || ! isset($this->headers[$key])) ? $values : array_merge($this->headers[$key], $values);
 
         if ('Cache-Control' === $key) {
             $this->cacheControl = $this->parseCacheControl($values[0]);
@@ -275,10 +276,10 @@ class Header implements \IteratorAggregate, \Countable
                 $parts[] = $key;
             } else {
                 if (preg_match('/[^a-zA-Z0-9._-]/', (string) $value)) {
-                    $value = '"' . $value . '"';
+                    $value = '"'.$value.'"';
                 }
 
-                $parts[] = $key . '=' . $value;
+                $parts[] = $key.'='.$value;
             }
         }
 

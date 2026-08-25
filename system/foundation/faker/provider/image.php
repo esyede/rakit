@@ -13,20 +13,20 @@ class Image extends Base
 
     public static function imageUrl($width = 640, $height = 480, $hexBackgroundColor = null, $hexForegroundColor = null, $word = null)
     {
-        return 'https://placehold.co/' . $width . '/' . $height . ($hexBackgroundColor ? '/' . ltrim($hexBackgroundColor, '#') : '')
-            . ($hexForegroundColor ? '/' . ltrim($hexForegroundColor, '#') : '') . '/jpg' . ($word ? '?text=' . urlencode($word) : '');
+        return 'https://placehold.co/'.$width.'/'.$height.($hexBackgroundColor ? '/'.ltrim($hexBackgroundColor, '#') : '')
+            .($hexForegroundColor ? '/'.ltrim($hexForegroundColor, '#') : '').'/jpg'.($word ? '?text='.urlencode($word) : '');
     }
 
     public static function image($dir = null, $width = 640, $height = 480, $hexBackgroundColor = null, $hexForegroundColor = null, $word = null, $fullPath = true)
     {
         $dir = is_null($dir) ? sys_get_temp_dir() : $dir;
 
-        if (!is_dir($dir) || !is_writable($dir)) {
+        if (! is_dir($dir) || ! is_writable($dir)) {
             throw new \InvalidArgumentException(sprintf('Cannot write to directory "%s"', $dir));
         }
 
-        $filename = md5(\System\Str::random()) . '.jpg';
-        $filepath = $dir . DS . $filename;
+        $filename = md5(\System\Str::random()).'.jpg';
+        $filepath = $dir.DS.$filename;
         $url = static::imageUrl($width, $height, $hexBackgroundColor, $hexForegroundColor, $word);
 
         $fp = fopen($filepath, 'w');
@@ -35,7 +35,7 @@ class Image extends Base
         $success = curl_exec($ch);
 
         if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
+            /* @disregard */
             curl_close($ch);
         }
 

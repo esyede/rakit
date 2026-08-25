@@ -49,7 +49,7 @@ abstract class Driver
      */
     public function guest()
     {
-        return !$this->check();
+        return ! $this->check();
     }
 
     /**
@@ -59,7 +59,7 @@ abstract class Driver
      */
     public function check()
     {
-        return !is_null($this->user());
+        return ! is_null($this->user());
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class Driver
      */
     public function user()
     {
-        if (!$this->user) {
+        if (! $this->user) {
             $this->user = $this->retrieve($this->token);
         }
 
@@ -147,7 +147,7 @@ abstract class Driver
      */
     protected function remember($token)
     {
-        $this->cookie($this->recaller(), Crypter::encrypt($token . '|' . Str::random(40)), 2628000);
+        $this->cookie($this->recaller(), Crypter::encrypt($token.'|'.Str::random(40)), 2628000);
     }
 
     /**
@@ -160,21 +160,21 @@ abstract class Driver
         try {
             $cookie = Cookie::get($this->recaller());
         } catch (\Throwable $e) {
-            return null;
+            return;
         } catch (\Exception $e) {
-            return null;
+            return;
         }
 
         if (is_null($cookie) || '' === $cookie) {
-            return null;
+            return;
         }
 
         try {
             return head(explode('|', Crypter::decrypt($cookie)));
         } catch (\Throwable $e) {
-            return null;
+            return;
         } catch (\Exception $e) {
-            return null;
+            return;
         }
     }
 
@@ -207,7 +207,7 @@ abstract class Driver
      */
     protected function token()
     {
-        return $this->name() . '_login';
+        return $this->name().'_login';
     }
 
     /**
@@ -217,7 +217,7 @@ abstract class Driver
      */
     protected function recaller()
     {
-        return $this->name() . '_remember';
+        return $this->name().'_remember';
     }
 
     /**

@@ -30,7 +30,7 @@ class Response
     public function __construct($content, $status = 200, array $headers = [])
     {
         if ($status < 100 || $status > 599) {
-            throw new \Exception('Invalid HTTP status code: ' . $status);
+            throw new \Exception('Invalid HTTP status code: '.$status);
         }
 
         $this->content = $content;
@@ -104,12 +104,12 @@ class Response
      */
     public static function jsonp($callback, $data, $status = 200, array $headers = [])
     {
-        if (!is_string($callback) || !preg_match('/^[a-zA-Z_$][a-zA-Z0-9_$]*$/', $callback)) {
-            throw new \Exception('Invalid JSONP callback name: ' . $callback);
+        if (! is_string($callback) || ! preg_match('/^[a-zA-Z_$][a-zA-Z0-9_$]*$/', $callback)) {
+            throw new \Exception('Invalid JSONP callback name: '.$callback);
         }
 
         $headers['Content-Type'] = 'application/javascript; charset=utf-8';
-        return new static($callback . '(' . json_encode($data) . ');', $status, $headers);
+        return new static($callback.'('.json_encode($data).');', $status, $headers);
     }
 
     /**
@@ -148,11 +148,11 @@ class Response
             return static::json(compact('status', 'message'), $code, $headers);
         }
 
-        $view = View::exists('error.' . $code) ? 'error.' . $code : (View::exists('error.unknown') ? 'error.unknown' : false);
+        $view = View::exists('error.'.$code) ? 'error.'.$code : (View::exists('error.unknown') ? 'error.unknown' : false);
 
-        if (!$view) {
+        if (! $view) {
             ob_start();
-            require path('system') . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger' . DS . '500.phtml';
+            require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'500.phtml';
             return static::make(ob_get_clean(), 500, $headers);
         }
 
@@ -170,7 +170,7 @@ class Response
      */
     public static function download($path, $name = null, array $headers = [])
     {
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
@@ -201,7 +201,7 @@ class Response
         $chunksize = (int) Config::get('application.chunk_size', 4) * 1024;
 
         if ($file = fopen($path, 'rb')) {
-            while (!feof($file) && 0 === connection_status() && !connection_aborted()) {
+            while (! feof($file) && 0 === connection_status() && ! connection_aborted()) {
                 echo fread($file, $chunksize);
                 flush();
             }

@@ -50,7 +50,7 @@ class URL
      */
     public static function base()
     {
-        if (!static::$base) {
+        if (! static::$base) {
             $base = Config::get('application.url');
             static::$base = ('' === $base) ? Request::foundation()->getRootUrl() : $base;
         }
@@ -74,11 +74,11 @@ class URL
         }
 
         $config = Config::get('application');
-        $base = static::base() . ($asset ? '' : '/' . $config['index']);
+        $base = static::base().($asset ? '' : '/'.$config['index']);
 
-        if (!$asset && $locale && count($config['languages']) > 0) {
+        if (! $asset && $locale && count($config['languages']) > 0) {
             if (in_array($config['language'], $config['languages'])) {
-                $base = rtrim($base, '/') . '/' . $config['language'];
+                $base = rtrim($base, '/').'/'.$config['language'];
             }
         }
 
@@ -86,7 +86,7 @@ class URL
             ? Str::replace_first('http://', 'https://', $base)
             : Str::replace_first('https://', 'http://', $base);
 
-        return rtrim($base, '/') . '/' . ltrim($url, '/');
+        return rtrim($base, '/').'/'.ltrim($url, '/');
     }
 
     /**
@@ -135,8 +135,8 @@ class URL
         $root = isset($package['handles']) ? $package['handles'] : '';
         $parameters = implode('/', $parameters);
 
-        $uri = $root . '/' . str_replace(['.', '@'], '/', $action);
-        $uri = static::to(Str::finish($uri, '/') . $parameters);
+        $uri = $root.'/'.str_replace(['.', '@'], '/', $action);
+        $uri = static::to(Str::finish($uri, '/').$parameters);
 
         return trim($uri, '/');
     }
@@ -150,9 +150,9 @@ class URL
      */
     public static function to_asset($url)
     {
-        return (static::valid($url) || static::valid('http:' . $url))
+        return (static::valid($url) || static::valid('http:'.$url))
             ? $url
-            : static::to('assets/' . ltrim($url, '/'), true);
+            : static::to('assets/'.ltrim($url, '/'), true);
     }
 
     /**
@@ -184,7 +184,7 @@ class URL
     {
         $url = $reset ? URL::home() : URL::to(URI::current());
         return in_array($language, Config::get('application.languages'))
-            ? str_replace('/' . Config::get('application.language') . '/', '/' . $language . '/', $url)
+            ? str_replace('/'.Config::get('application.language').'/', '/'.$language.'/', $url)
             : $url;
     }
 
@@ -199,7 +199,7 @@ class URL
     public static function transpose($uri, array $parameters)
     {
         foreach ($parameters as $parameter) {
-            if (!is_null($parameter)) {
+            if (! is_null($parameter)) {
                 $parameter = (string) $parameter;
                 $uri = preg_replace_callback('/\(.+?\)/', function () use ($parameter) {
                     return $parameter;

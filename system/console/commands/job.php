@@ -66,7 +66,7 @@ class Job extends Command
         }
 
         if ($queues) {
-            $this->info('Running jobs from queues: ' . implode(', ', $queues));
+            $this->info('Running jobs from queues: '.implode(', ', $queues));
         } else {
             $this->info('Running all jobs from all queues');
         }

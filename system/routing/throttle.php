@@ -29,10 +29,10 @@ class Throttle
         $decay_minutes = max(1, (int) $decay_minutes);
 
         $key = static::key();
-        $meta_key = $key . ':meta';
+        $meta_key = $key.':meta';
         $meta = Cache::get($meta_key);
 
-        if (!is_array($meta) || !isset($meta['reset']) || $meta['reset'] <= time()) {
+        if (! is_array($meta) || ! isset($meta['reset']) || $meta['reset'] <= time()) {
             $hits = 1;
 
             Cache::put($key, $hits, $decay_minutes);
@@ -68,7 +68,7 @@ class Throttle
      */
     public static function exceeded($max_attempts, $decay_minutes)
     {
-        return !static::check($max_attempts, $decay_minutes);
+        return ! static::check($max_attempts, $decay_minutes);
     }
 
     /**
@@ -80,7 +80,7 @@ class Throttle
     {
         $path = trim(Request::foundation()->getPathInfo(), '/');
 
-        return static::PREFIX . '.' . md5(RAKIT_KEY . '|' . $path . '|' . static::client());
+        return static::PREFIX.'.'.md5(RAKIT_KEY.'|'.$path.'|'.static::client());
     }
 
     /**
@@ -90,7 +90,7 @@ class Throttle
      */
     public static function error()
     {
-        $meta = Cache::get(static::key() . ':meta') ?: [];
+        $meta = Cache::get(static::key().':meta') ?: [];
         $limit = isset($meta['limit']) ? (int) $meta['limit'] : 0;
         $reset = isset($meta['reset']) ? (int) $meta['reset'] : time();
 

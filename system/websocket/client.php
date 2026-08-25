@@ -9,19 +9,31 @@ use System\Carbon;
 class Client
 {
     public $id;
+
     public $user;
+
     public $socket;
+
     public $uri = '';
+
     public $buffer = '';
+
     public $message = '';
+
     public $busy = false;
+
     public $handshake = false;
+
     public $continuous = false;
+
     public $disconnecting = false;
+
     public $channels = [];
+
     public $headers = [];
 
     protected $server;
+
     protected $last_activity;
 
     public function __construct($id, $socket)
@@ -77,11 +89,16 @@ class Client
         $type = 'text';
 
         switch ($opcode) {
-            case Server::TEXT:   $type = 'text';   break;
-            case Server::BINARY: $type = 'binary'; break;
-            case Server::CLOSE:  $type = 'close';  break;
-            case Server::PING:   $type = 'ping';   break;
-            case Server::PONG:   $type = 'pong';   break;
+            case Server::TEXT:   $type = 'text';
+                break;
+            case Server::BINARY: $type = 'binary';
+                break;
+            case Server::CLOSE:  $type = 'close';
+                break;
+            case Server::PING:   $type = 'ping';
+                break;
+            case Server::PONG:   $type = 'pong';
+                break;
         }
 
         $message = $this->server()->frame($data, $this, $type);

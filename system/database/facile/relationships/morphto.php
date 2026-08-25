@@ -56,14 +56,14 @@ class MorphTo extends Relationship
         $owner = (count($results) > 0) ? head($results) : $this->base;
 
         if (is_null($owner)) {
-            return null;
+            return;
         }
 
         $type = $owner->{$this->type};
         $id = $owner->{$this->id};
 
-        if (is_null($type) || is_null($id) || !class_exists($type)) {
-            return null;
+        if (is_null($type) || is_null($id) || ! class_exists($type)) {
+            return;
         }
 
         return (new $type())->find($id);
@@ -85,7 +85,7 @@ class MorphTo extends Relationship
             $type = $result->{$this->type};
             $id = $result->{$this->id};
 
-            if (!is_null($type) && !is_null($id)) {
+            if (! is_null($type) && ! is_null($id)) {
                 $types[$type][] = $id;
             }
         }
@@ -93,7 +93,7 @@ class MorphTo extends Relationship
         $loaded = [];
 
         foreach ($types as $type => $ids) {
-            if (!class_exists($type)) {
+            if (! class_exists($type)) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ class MorphTo extends Relationship
             $models = $instance->query()->where_in($instance->key(), array_unique($ids))->get();
 
             foreach ($models as $model) {
-                $loaded[$type . '_' . $model->get_key()] = $model;
+                $loaded[$type.'_'.$model->get_key()] = $model;
             }
         }
 
@@ -110,8 +110,8 @@ class MorphTo extends Relationship
             $type = $result->{$this->type};
             $id = $result->{$this->id};
 
-            if (!is_null($type) && !is_null($id)) {
-                $key = $type . '_' . $id;
+            if (! is_null($type) && ! is_null($id)) {
+                $key = $type.'_'.$id;
                 $result->relationships[$relationship] = isset($loaded[$key]) ? $loaded[$key] : null;
             } else {
                 $result->relationships[$relationship] = null;

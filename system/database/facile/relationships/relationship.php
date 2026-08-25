@@ -33,7 +33,7 @@ abstract class Relationship extends Query
     public function __construct($model, $associated, $foreign)
     {
         $this->foreign = $foreign;
-        $this->model = (!is_null($associated) && !empty($associated))
+        $this->model = (! is_null($associated) && ! empty($associated))
             ? (($associated instanceof Model) ? $associated : new $associated())
             : null;
 
@@ -56,12 +56,12 @@ abstract class Relationship extends Query
      */
     public static function foreign($model, $foreign = null)
     {
-        if (!is_null($foreign)) {
+        if (! is_null($foreign)) {
             return $foreign;
         }
 
         $model = is_object($model) ? class_basename($model) : $model;
-        return strtolower(basename((string) $model) . '_id');
+        return strtolower(basename((string) $model).'_id');
     }
 
     /**

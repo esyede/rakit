@@ -36,7 +36,7 @@ class Cache
     {
         if (static::$processed_key === null) {
             $key = (string) Config::get('cache.key');
-            static::$processed_key = ((strlen($key) > 0 && Str::ends_with($key, '.')) ? rtrim($key, '.') : $key) . '.';
+            static::$processed_key = ((strlen($key) > 0 && Str::ends_with($key, '.')) ? rtrim($key, '.') : $key).'.';
         }
 
         return static::$processed_key;
@@ -52,13 +52,13 @@ class Cache
      */
     public static function driver($driver = null)
     {
-        if (!is_null($driver) && (!is_string($driver) || empty($driver))) {
+        if (! is_null($driver) && (! is_string($driver) || empty($driver))) {
             throw new \Exception('Cache driver must be a non-empty string');
         }
 
         $driver = is_null($driver) ? Config::get('cache.driver') : $driver;
 
-        if (!isset(static::$drivers[$driver])) {
+        if (! isset(static::$drivers[$driver])) {
             static::$drivers[$driver] = static::factory($driver);
         }
 
@@ -74,7 +74,7 @@ class Cache
      */
     protected static function factory($driver)
     {
-        if (!is_string($driver) || empty($driver)) {
+        if (! is_string($driver) || empty($driver)) {
             throw new \Exception('Cache driver must be a non-empty string');
         }
 
@@ -87,7 +87,7 @@ class Cache
 
         switch ($driver) {
             case 'apc':       return new Cache\Drivers\APC($key);
-            case 'file':      return new Cache\Drivers\File(path('storage') . 'cache' . DS);
+            case 'file':      return new Cache\Drivers\File(path('storage').'cache'.DS);
             case 'memcached': return new Cache\Drivers\Memcached(Memcached::connection(), $key);
             case 'memory':    return new Cache\Drivers\Memory();
             case 'redis':     return new Cache\Drivers\Redis(Redis::db());

@@ -38,7 +38,7 @@ class Magic extends Driver
         $table = Config::get('auth.table', 'users');
         $identifier = Config::get('auth.identifier', 'email');
 
-        if (!isset($arguments[$identifier]) || !isset($arguments['password'])) {
+        if (! isset($arguments[$identifier]) || ! isset($arguments['password'])) {
             return false;
         }
 
@@ -51,7 +51,7 @@ class Magic extends Driver
             }
         })->first();
 
-        if (!is_null($user) && Hash::check($arguments['password'], $user->password)) {
+        if (! is_null($user) && Hash::check($arguments['password'], $user->password)) {
             return $this->login($user->id, Arr::get($arguments, 'remember'));
         }
 

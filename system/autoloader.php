@@ -79,7 +79,7 @@ class Autoloader
 
         if (empty(static::$directories)) {
             $app = path('app');
-            static::directories([$app . 'controllers', $app . 'models', $app . 'libraries', $app . 'commands', $app . 'jobs']);
+            static::directories([$app.'controllers', $app.'models', $app.'libraries', $app.'commands', $app.'jobs']);
         }
 
         foreach (static::$namespaces as $namespace => $directory) {
@@ -127,10 +127,10 @@ class Autoloader
         }, (array) $directory) : static::$directories;
 
         foreach ($directories as $directory) {
-            $lowerpath = $directory . $lowercased . '.php';
-            $origpath = $directory . $file . '.php';
+            $lowerpath = $directory.$lowercased.'.php';
+            $origpath = $directory.$file.'.php';
 
-            if (!isset(static::$caches[$lowerpath])) {
+            if (! isset(static::$caches[$lowerpath])) {
                 static::remember($lowerpath, is_file($lowerpath));
             }
 
@@ -140,7 +140,7 @@ class Autoloader
                 return;
             }
 
-            if (!isset(static::$caches[$origpath])) {
+            if (! isset(static::$caches[$origpath])) {
                 static::remember($origpath, is_file($origpath));
             }
 
@@ -211,7 +211,7 @@ class Autoloader
 
         static::$aliases = array_merge(static::$aliases, $aliases);
 
-        if (!empty($conflicts)) {
+        if (! empty($conflicts)) {
             $lines = [];
 
             foreach ($conflicts as $alias => $extension) {
@@ -219,14 +219,14 @@ class Autoloader
             }
 
             $message = '[Rakit] Class alias(es) skipped because they collide with built-in PHP classes: '
-                . implode(', ', $lines)
-                . '. PHP loads built-in classes before any userland autoloader runs, so these '
-                . 'names cannot be aliased. Disable the conflicting extension or rename the alias '
-                . 'in application/config/aliases.php. The fully-qualified target class remains '
-                . 'available (e.g. via "use Vendor\\Namespace\\Target;").';
+                .implode(', ', $lines)
+                .'. PHP loads built-in classes before any userland autoloader runs, so these '
+                .'names cannot be aliased. Disable the conflicting extension or rename the alias '
+                .'in application/config/aliases.php. The fully-qualified target class remains '
+                .'available (e.g. via "use Vendor\\Namespace\\Target;").';
 
             if (defined('STDERR')) {
-                fwrite(STDERR, $message . PHP_EOL);
+                fwrite(STDERR, $message.PHP_EOL);
             } else {
                 error_log($message);
             }
@@ -279,7 +279,7 @@ class Autoloader
         $namespaces = [];
 
         foreach ($mappings as $namespace => $directory) {
-            $namespace = trim($namespace, $append) . $append;
+            $namespace = trim($namespace, $append).$append;
             unset(static::$namespaces[$namespace]);
             $namespaces[$namespace] = head(static::format((array) $directory));
         }
@@ -298,7 +298,7 @@ class Autoloader
     protected static function format(array $directories)
     {
         return array_map(function ($directory) {
-            return rtrim($directory, DS) . DS;
+            return rtrim($directory, DS).DS;
         }, $directories);
     }
 

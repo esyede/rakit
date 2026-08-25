@@ -51,7 +51,7 @@ class Package
             $config = ['location' => $package];
         }
 
-        if (!isset($config['location'])) {
+        if (! isset($config['location'])) {
             $config['location'] = $package;
         }
 
@@ -73,19 +73,19 @@ class Package
             return;
         }
 
-        if (!static::exists($package)) {
+        if (! static::exists($package)) {
             throw new \Exception(sprintf('Package has not been installed: %s', $package));
         }
 
         if (($boot = static::option($package, 'boot')) instanceof \Closure) {
             call_user_func($boot);
-        } elseif (is_file($path = static::path($package) . 'boot.php')) {
+        } elseif (is_file($path = static::path($package).'boot.php')) {
             require $path;
         }
 
         static::routes($package);
 
-        Hook::fire('rakit.booted: ' . $package);
+        Hook::fire('rakit.booted: '.$package);
 
         static::$booted[] = strtolower($package);
     }
@@ -105,14 +105,14 @@ class Package
 
         Router::$package = static::option($package, 'handles');
 
-        if (is_file($directory . 'routes.php')) {
+        if (is_file($directory.'routes.php')) {
             static::$routed[] = strtolower((string) $package);
-            require $directory . 'routes.php';
+            require $directory.'routes.php';
 
             // Load hook, middleware and view composer files.
             array_map(function ($file) use ($directory) {
-                if (is_file($directory . $file)) {
-                    require $directory . $file;
+                if (is_file($directory.$file)) {
+                    require $directory.$file;
                 }
             }, ['hooks.php', 'middlewares.php', 'composers.php']);
         }
@@ -157,10 +157,10 @@ class Package
      */
     public static function handles($uri)
     {
-        $uri = rtrim($uri, '/') . '/';
+        $uri = rtrim($uri, '/').'/';
 
         foreach (static::$packages as $key => $value) {
-            if (isset($value['handles']) && (0 === strpos($uri, $value['handles'] . '/') || '/' === $value['handles'])) {
+            if (isset($value['handles']) && (0 === strpos($uri, $value['handles'].'/') || '/' === $value['handles'])) {
                 return $key;
             }
         }
@@ -209,7 +209,7 @@ class Package
      */
     public static function prefix($package)
     {
-        return (DEFAULT_PACKAGE === $package) ? '' : $package . '::';
+        return (DEFAULT_PACKAGE === $package) ? '' : $package.'::';
     }
 
     /**
@@ -221,7 +221,7 @@ class Package
      */
     public static function class_prefix($package)
     {
-        return (DEFAULT_PACKAGE === $package) ? '' : Str::classify($package) . '_';
+        return (DEFAULT_PACKAGE === $package) ? '' : Str::classify($package).'_';
     }
 
     /**
@@ -235,8 +235,8 @@ class Package
     {
         if (is_null($package) || DEFAULT_PACKAGE === $package) {
             return path('app');
-        } elseif ($location = (string) Arr::get(static::$packages, $package . '.location')) {
-            return Str::finish((0 === strpos($location, 'path: ')) ? substr($location, 6) : path('package') . $location, DS);
+        } elseif ($location = (string) Arr::get(static::$packages, $package.'.location')) {
+            return Str::finish((0 === strpos($location, 'path: ')) ? substr($location, 6) : path('package').$location, DS);
         }
     }
 
@@ -249,7 +249,7 @@ class Package
      */
     public static function assets($package)
     {
-        return (is_null($package) || DEFAULT_PACKAGE === $package) ? '/' : '/packages/' . $package . '/';
+        return (is_null($package) || DEFAULT_PACKAGE === $package) ? '/' : '/packages/'.$package.'/';
     }
 
     /**
@@ -288,7 +288,7 @@ class Package
      */
     public static function identifier($package, $element)
     {
-        return (is_null($package) || DEFAULT_PACKAGE === $package) ? $element : $package . '::' . $element;
+        return (is_null($package) || DEFAULT_PACKAGE === $package) ? $element : $package.'::'.$element;
     }
 
     /**
@@ -314,7 +314,7 @@ class Package
     {
         $identifier = (string) $identifier;
 
-        if (!isset(static::$elements[$identifier])) {
+        if (! isset(static::$elements[$identifier])) {
             static::$elements[$identifier] = (false !== strpos($identifier, '::'))
                 ? explode('::', strtolower($identifier))
                 : [DEFAULT_PACKAGE, strtolower($identifier)];
@@ -380,6 +380,6 @@ class Package
     public static function expand($path)
     {
         list($package, $element) = static::parse($path);
-        return static::path($package) . $element;
+        return static::path($package).$element;
     }
 }

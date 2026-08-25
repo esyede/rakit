@@ -177,7 +177,7 @@ class Connection
     protected function execute($sql, array $bindings = [])
     {
         $bindings = array_filter($bindings, function ($binding) {
-            return !($binding instanceof Expression);
+            return ! ($binding instanceof Expression);
         });
 
         $bindings = array_values($bindings);
@@ -190,7 +190,7 @@ class Connection
             if ($bindings[$i] instanceof \DateTime) {
                 $bindings[$i] = $bindings[$i]->format($datetime);
             } elseif (is_bool($bindings[$i])) {
-                $bindings[$i] = intval($bindings[$i]);
+                $bindings[$i] = (int) ($bindings[$i]);
             }
         }
 
@@ -257,12 +257,12 @@ class Connection
      */
     protected function source()
     {
-        $system = dirname(__DIR__) . DIRECTORY_SEPARATOR;
+        $system = dirname(__DIR__).DIRECTORY_SEPARATOR;
         $base = dirname($system);
         $frames = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         foreach ($frames as $frame) {
-            if (!isset($frame['file'])) {
+            if (! isset($frame['file'])) {
                 continue;
             }
 
@@ -274,14 +274,13 @@ class Connection
 
             $line = isset($frame['line']) ? $frame['line'] : 0;
 
-            if (0 === strpos($file, $base . DIRECTORY_SEPARATOR)) {
+            if (0 === strpos($file, $base.DIRECTORY_SEPARATOR)) {
                 $file = substr($file, strlen($base) + 1);
             }
 
-            return $file . ':' . $line;
+            return $file.':'.$line;
         }
 
-        return null;
     }
 
     /**

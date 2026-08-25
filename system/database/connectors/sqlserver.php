@@ -45,12 +45,12 @@ class SQLServer extends Connector
         $drivers = is_null($drivers) ? PDO::getAvailableDrivers() : $drivers;
 
         if (in_array('sqlsrv', $drivers)) {
-            $port = isset($config['port']) ? ',' . $config['port'] : '';
-            return 'sqlsrv:Server=' . $config['host'] . $port . ';Database=' . $config['database'];
+            $port = isset($config['port']) ? ','.$config['port'] : '';
+            return 'sqlsrv:Server='.$config['host'].$port.';Database='.$config['database'];
         }
 
-        $port = isset($config['port']) ? ':' . $config['port'] : '';
+        $port = isset($config['port']) ? ':'.$config['port'] : '';
 
-        return 'dblib:host=' . $config['host'] . $port . ';dbname=' . $config['database'];
+        return 'dblib:host='.$config['host'].$port.';dbname='.$config['database'];
     }
 }

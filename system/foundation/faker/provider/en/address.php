@@ -9,9 +9,13 @@ use System\Foundation\Faker\Provider\Address as BaseAddress;
 class Address extends BaseAddress
 {
     protected static $cityPrefix = ['North', 'East', 'West', 'South', 'New', 'Lake', 'Port'];
+
     protected static $buildingNumber = ['%####', '%###', '%##'];
+
     protected static $postcode = ['#####', '#####-####'];
+
     protected static $secondaryAddressFormats = ['Apt. ###', 'Suite ###'];
+
     protected static $citySuffix = [
         'town', 'ton', 'land', 'ville', 'berg', 'burgh', 'borough', 'bury', 'view',
         'port', 'mouth', 'stad', 'furt', 'chester', 'mouth', 'fort', 'haven', 'side', 'shire',
@@ -105,8 +109,11 @@ class Address extends BaseAddress
     ];
 
     protected static $cityFormats = ['{{cityPrefix}} {{firstName}}{{citySuffix}}', '{{cityPrefix}} {{firstName}}', '{{firstName}}{{citySuffix}}', '{{lastName}}{{citySuffix}}'];
+
     protected static $streetNameFormats = ['{{firstName}} {{streetSuffix}}', '{{lastName}} {{streetSuffix}}'];
+
     protected static $streetAddressFormats = ['{{buildingNumber}} {{streetName}}', '{{buildingNumber}} {{streetName}} {{secondaryAddress}}'];
+
     protected static $addressFormats = ["{{streetAddress}}\n{{city}}, {{stateAbbr}} {{postcode}}"];
 
     public static function cityPrefix()

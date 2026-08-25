@@ -20,14 +20,14 @@ class Memcached
      */
     public static function connection()
     {
-        if (!static::$connection) {
-            if (!class_exists('\Memcached')) {
+        if (! static::$connection) {
+            if (! class_exists('\Memcached')) {
                 throw new \Exception('The memcached extension is not installed or not enabled.');
             }
 
             $servers = Config::get('cache.memcached');
 
-            if (!is_array($servers) || empty($servers)) {
+            if (! is_array($servers) || empty($servers)) {
                 throw new \Exception('No memcached server configured in cache.memcached.');
             }
 
@@ -49,7 +49,7 @@ class Memcached
         $memcached = new \Memcached();
 
         foreach ($servers as $server) {
-            /** @disregard */
+            /* @disregard */
             $memcached->addServer(
                 $server['host'],
                 $server['port'],
@@ -57,7 +57,7 @@ class Memcached
             );
         }
 
-        /** @disregard */
+        /* @disregard */
         if (false === $memcached->getVersion()) {
             throw new \Exception('Could not establish memcached connection.');
         }

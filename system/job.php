@@ -73,7 +73,7 @@ class Job
 
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
-                Hook::fire('rakit.jobs.run: ' . $job->name, $payloads);
+                Hook::fire('rakit.jobs.run: '.$job->name, $payloads);
             }
         });
     }
@@ -85,28 +85,28 @@ class Job
     {
         $directories = [];
 
-        if (is_dir($default = path('app') . 'jobs' . DS)) {
+        if (is_dir($default = path('app').'jobs'.DS)) {
             $directories[DEFAULT_PACKAGE] = $default;
         }
 
         $packages = Package::names();
 
         foreach ($packages as $package) {
-            if (is_dir($directory = Package::path($package) . 'jobs' . DS)) {
+            if (is_dir($directory = Package::path($package).'jobs'.DS)) {
                 $directories[$package] = $directory;
             }
         }
 
         foreach ($directories as $package => $path) {
-            $files = glob($path . '*.php');
+            $files = glob($path.'*.php');
 
             foreach ($files as $file) {
                 $prefix = Package::class_prefix($package);
-                $class = $prefix . Str::classify(basename($file, '.php')) . '_Job';
+                $class = $prefix.Str::classify(basename($file, '.php')).'_Job';
 
                 if (class_exists($class, true)) {
                     if ((new \ReflectionClass($class))->isSubclassOf('\System\Job\Jobable')) {
-                        Hook::listen('rakit.jobs.run: ' . $class::name(), function ($payload) use ($class) {
+                        Hook::listen('rakit.jobs.run: '.$class::name(), function ($payload) use ($class) {
                             $class::execute($payload);
                         });
                     }
@@ -126,7 +126,7 @@ class Job
     {
         $driver = is_null($driver) ? Config::get('job.driver') : $driver;
 
-        if (!isset(static::$drivers[$driver])) {
+        if (! isset(static::$drivers[$driver])) {
             static::$drivers[$driver] = static::factory($driver);
         }
 
@@ -148,7 +148,7 @@ class Job
         }
 
         switch ($driver) {
-            case 'file':      return new Job\Drivers\File(path('storage') . 'jobs' . DS);
+            case 'file':      return new Job\Drivers\File(path('storage').'jobs'.DS);
             case 'database':  return new Job\Drivers\Database();
             case 'redis':     return new Job\Drivers\Redis(Redis::db());
             case 'memcached': return new Job\Drivers\Memcached(Memcached::connection());

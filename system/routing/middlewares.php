@@ -65,7 +65,7 @@ class Middlewares
      */
     public function get($middleware)
     {
-        if (!is_null($this->parameters)) {
+        if (! is_null($this->parameters)) {
             return [$middleware, $this->parameters()];
         }
 
@@ -75,7 +75,7 @@ class Middlewares
             $parameters = explode(',', substr($element, $colon + 1));
 
             if (DEFAULT_PACKAGE !== ($package = Package::name($middleware))) {
-                $colon = mb_strlen($package . '::', '8bit') + $colon;
+                $colon = mb_strlen($package.'::', '8bit') + $colon;
             }
 
             return [substr((string) $middleware, 0, $colon), $parameters];
@@ -107,7 +107,7 @@ class Middlewares
      */
     public function applies($method)
     {
-        if (count($this->only) > 0 && !in_array($method, $this->only)) {
+        if (count($this->only) > 0 && ! in_array($method, $this->only)) {
             return false;
         }
 

@@ -7,13 +7,21 @@ defined('DS') or exit('No direct access.');
 class Address extends Base
 {
     protected static $citySuffix = ['Ville'];
+
     protected static $streetSuffix = ['Street'];
+
     protected static $cityFormats = ['{{firstName}}{{citySuffix}}'];
+
     protected static $streetNameFormats = ['{{lastName}} {{streetSuffix}}'];
+
     protected static $streetAddressFormats = ['{{buildingNumber}} {{streetName}}'];
+
     protected static $addressFormats = ['{{streetAddress}} {{postcode}} {{city}}'];
+
     protected static $buildingNumber = ['##'];
+
     protected static $postcode = ['#####'];
+
     protected static $country = [];
 
     public static function citySuffix()

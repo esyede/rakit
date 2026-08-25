@@ -56,7 +56,7 @@ abstract class Command
      */
     protected function progress($current_percentage)
     {
-        $current_percentage = intval($current_percentage);
+        $current_percentage = (int) $current_percentage;
 
         if ($current_percentage > 100) {
             throw new \Exception('Current progress percentage should not be greater than 100');
@@ -81,7 +81,7 @@ abstract class Command
      */
     protected function ask($question, $default = null)
     {
-        echo Color::yellow($question . ($default ? ' ' . $default : ''), true);
+        echo Color::yellow($question.($default ? ' '.$default : ''), true);
         echo Color::yellow('> ', false);
         $handle = fopen('php://stdin', 'r');
         $answer = trim(fgets($handle));
@@ -106,10 +106,10 @@ abstract class Command
 
         do {
             $suffix = $default ? '[Y/n]' : '[y/N]';
-            $answer = $this->ask($question . ' ' . $suffix, false) ?: ($default ? 'y' : 'n');
-            $answer = strtolower(strval($answer));
+            $answer = $this->ask($question.' '.$suffix, false) ?: ($default ? 'y' : 'n');
+            $answer = strtolower((string) $answer);
 
-            if (!isset($answers[$answer])) {
+            if (! isset($answers[$answer])) {
                 echo Color::red('Please answer with: y or n.');
                 return false;
             }

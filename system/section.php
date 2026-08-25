@@ -101,7 +101,7 @@ class Section
     public static function append($section, $content)
     {
         static::$sections[$section] = isset(static::$sections[$section])
-            ? static::$sections[$section] . $content
+            ? static::$sections[$section].$content
             : $content;
     }
 
@@ -148,7 +148,7 @@ class Section
         $last = array_pop(static::$last);
         $content = ob_get_clean();
 
-        if (!isset(static::$stacks[$last])) {
+        if (! isset(static::$stacks[$last])) {
             static::$stacks[$last] = [];
         }
 

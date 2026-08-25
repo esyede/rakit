@@ -88,7 +88,7 @@ class View implements \ArrayAccess
         $this->data = $data;
         $this->path = (0 === strpos($view, 'path: ')) ? substr($view, 6) : $this->path($view);
 
-        if (!isset($this->data['errors'])) {
+        if (! isset($this->data['errors'])) {
             $this->data['errors'] = (Session::started() && Session::has('errors'))
                 ? Session::get('errors')
                 : new Messages();
@@ -143,15 +143,14 @@ class View implements \ArrayAccess
     {
         $directory = Str::finish($directory, DS);
 
-        if (is_file($path = $directory . $view . '.php')) {
+        if (is_file($path = $directory.$view.'.php')) {
             return $path;
         }
 
-        if (is_file($path = $directory . $view . '.blade.php')) {
+        if (is_file($path = $directory.$view.'.blade.php')) {
             return $path;
         }
 
-        return null;
     }
 
     /**
@@ -202,7 +201,7 @@ class View implements \ArrayAccess
         $views = (array) $views;
 
         foreach ($views as $view) {
-            Hook::listen('rakit.composing: ' . $view, $composer);
+            Hook::listen('rakit.composing: '.$view, $composer);
         }
     }
 
@@ -240,7 +239,7 @@ class View implements \ArrayAccess
     {
         ++static::$rendered;
 
-        Hook::fire('rakit.composing: ' . $this->view, [$this]);
+        Hook::fire('rakit.composing: '.$this->view, [$this]);
 
         $rakit_view_start = microtime(true);
         $contents = null;
@@ -261,7 +260,7 @@ class View implements \ArrayAccess
 
         // Track view rendering for debugger
         if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
-            if (!\System\Foundation\Oops\Debugger::$productionMode) {
+            if (! \System\Foundation\Oops\Debugger::$productionMode) {
                 $rakit_view_done = microtime(true);
                 \System\Foundation\Oops\Collectors::trackView(
                     $this->view,
@@ -291,7 +290,7 @@ class View implements \ArrayAccess
             $data = $this->data();
             extract($data);
 
-            if (!isset(static::$cache[$this->path])) {
+            if (! isset(static::$cache[$this->path])) {
                 static::$cache[$this->path] = $this->path;
             }
 
@@ -397,7 +396,7 @@ class View implements \ArrayAccess
      */
     public static function flush()
     {
-        $files = glob(path('storage') . 'views' . DS . '*.php');
+        $files = glob(path('storage').'views'.DS.'*.php');
 
         if (is_array($files) && count($files) > 0) {
             foreach ($files as $file) {

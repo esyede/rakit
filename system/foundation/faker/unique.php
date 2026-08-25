@@ -7,7 +7,9 @@ defined('DS') or exit('No direct access.');
 class Unique
 {
     protected $generator;
+
     protected $max_retries;
+
     protected $uniques = [];
 
     public function __construct($generator, $max_retries = 10000)
@@ -43,7 +45,7 @@ class Unique
 
     public function __call($name, array $arguments)
     {
-        if (!isset($this->uniques[$name])) {
+        if (! isset($this->uniques[$name])) {
             $this->uniques[$name] = [];
         }
 
@@ -74,7 +76,7 @@ class Unique
         }
 
         if (is_scalar($value)) {
-            return gettype($value) . ':' . (string) $value;
+            return gettype($value).':'.(string) $value;
         }
 
         if (is_object($value)) {
@@ -85,11 +87,11 @@ class Unique
             $json = json_encode($this->canonicalizeArray($value));
 
             if (false !== $json) {
-                return 'json:' . $json;
+                return 'json:'.$json;
             }
         }
 
-        return 'ser:' . serialize($value);
+        return 'ser:'.serialize($value);
     }
 
     protected function canonicalizeArray(array $arr)

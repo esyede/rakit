@@ -7,14 +7,21 @@ defined('DS') or exit('No direct access.');
 class Debugger
 {
     const DEVELOPMENT = false;
+
     const PRODUCTION = true;
+
     const DETECT = null;
 
     const DEBUG = Logger::DEBUG;
+
     const INFO = Logger::INFO;
+
     const WARNING = Logger::WARNING;
+
     const ERROR = Logger::ERROR;
+
     const EXCEPTION = Logger::EXCEPTION;
+
     const CRITICAL = Logger::CRITICAL;
 
     const COOKIE_SECRET = 'oops-debug';
@@ -188,7 +195,7 @@ class Debugger
     public static function enable($mode = null, $logDirectory = null, $email = null)
     {
         if (null !== $mode || null === self::$productionMode) {
-            self::$productionMode = is_bool($mode) ? $mode : !self::detectDebugMode($mode);
+            self::$productionMode = is_bool($mode) ? $mode : ! self::detectDebugMode($mode);
         }
 
         self::$reserved = str_repeat('t', 30000);
@@ -197,7 +204,7 @@ class Debugger
             : microtime(true);
 
         self::$obLevel = ob_get_level();
-        self::$cpuUsage = (!self::$productionMode && function_exists('getrusage'))
+        self::$cpuUsage = (! self::$productionMode && function_exists('getrusage'))
             ? getrusage()
             : null;
 
@@ -210,10 +217,10 @@ class Debugger
         }
 
         if (self::$logDirectory) {
-            if (!preg_match('#([a-z]+:)?[/\\\\]#Ai', self::$logDirectory)) {
+            if (! preg_match('#([a-z]+:)?[/\\\\]#Ai', self::$logDirectory)) {
                 self::exceptionHandler(new \RuntimeException('Log directory must be absolute path.'));
                 self::$logDirectory = null;
-            } elseif (!is_dir(self::$logDirectory)) {
+            } elseif (! is_dir(self::$logDirectory)) {
                 self::exceptionHandler(new \RuntimeException(
                     sprintf('Logging directory cannot not be found: %s', self::$logDirectory)
                 ));
@@ -227,7 +234,7 @@ class Debugger
             ini_set('html_errors', '0');
             ini_set('log_errors', '0');
         } elseif (
-            ini_get('display_errors') != (!self::$productionMode) // != is intentional to cover '1' and '0'
+            ini_get('display_errors') != (! self::$productionMode) // != is intentional to cover '1' and '0'
             && ini_get('display_errors') !== (self::$productionMode ? 'stderr' : 'stdout')
         ) {
             self::exceptionHandler(new \RuntimeException("Unable to set 'display_errors' because function ini_set() is disabled."));
@@ -269,7 +276,7 @@ class Debugger
         } elseif (headers_sent($file, $line)) {
             throw new \LogicException(
                 'Debugger::dispatch() called after some output has been sent. '
-                    . ($file
+                    .($file
                         ? "Output started at $file:$line."
                         : 'Try System\Foundation\Oops\Outputs to find where output started.'
                     )
@@ -297,7 +304,7 @@ class Debugger
         }
 
         // Restore buffered output
-        if (!empty($bufferedOutput)) {
+        if (! empty($bufferedOutput)) {
             echo $bufferedOutput;
         }
     }
@@ -309,7 +316,7 @@ class Debugger
      */
     public static function renderLoader()
     {
-        if (!self::$productionMode) {
+        if (! self::$productionMode) {
             self::getBar()->renderLoader();
         }
     }
@@ -329,7 +336,7 @@ class Debugger
      */
     public static function shutdownHandler()
     {
-        if (!self::$reserved) {
+        if (! self::$reserved) {
             return;
         }
         self::$reserved = null;
@@ -342,7 +349,7 @@ class Debugger
                 Helpers::fixStack(new \ErrorException($error['message'], 0, $error['type'], $error['file'], $error['line'])),
                 false
             );
-        } elseif (self::$showBar && !self::$productionMode) {
+        } elseif (self::$showBar && ! self::$productionMode) {
             self::removeOutputBuffers(false);
             self::getBar()->render();
         }
@@ -358,12 +365,12 @@ class Debugger
      */
     public static function exceptionHandler($e, $exit = true)
     {
-        if (!self::$reserved && $exit) {
+        if (! self::$reserved && $exit) {
             return;
         }
         self::$reserved = null;
 
-        if (!headers_sent()) {
+        if (! headers_sent()) {
             $code = (isset($_SERVER['HTTP_USER_AGENT'])
                 && false !== strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE ')
             ) ? 503 : 500;
@@ -377,11 +384,11 @@ class Debugger
         Helpers::improveException($e);
         self::removeOutputBuffers(true);
 
-        if (!self::$productionMode) {
+        if (! self::$productionMode) {
             Collectors::addException($e);
         }
 
-        if (PHP_SAPI !== 'cli' && !headers_sent()) {
+        if (PHP_SAPI !== 'cli' && ! headers_sent()) {
             http_response_code(500);
         }
 
@@ -400,22 +407,22 @@ class Debugger
                         try {
                             echo \System\View::make('error.500')->render();
                         } catch (\Throwable $e) {
-                            require __DIR__ . '/assets/debugger/500.phtml';
+                            require __DIR__.'/assets/debugger/500.phtml';
                         } catch (\Exception $e) {
-                            require __DIR__ . '/assets/debugger/500.phtml';
+                            require __DIR__.'/assets/debugger/500.phtml';
                         }
                     } else {
                         require static::$errorTemplate;
                     }
                 } else {
-                    require __DIR__ . '/assets/debugger/500.phtml';
+                    require __DIR__.'/assets/debugger/500.phtml';
                 }
             } elseif ('cli' === PHP_SAPI) {
                 // FIXME: BC-break di PHP 7.4+: @ mentrigger E_NOTICE ketika stderr tidak bisa diakses
                 @fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '
-                    . (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
+                    .(isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
             }
-        } elseif (!connection_aborted() && (Helpers::isHtmlMode() || Helpers::isAjax())) {
+        } elseif (! connection_aborted() && (Helpers::isHtmlMode() || Helpers::isAjax())) {
             $isJsonRequest = isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
             if (Helpers::isAjax() && $isJsonRequest) {
                 \System\Log::error($e->getMessage(), [
@@ -427,10 +434,10 @@ class Debugger
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
                 if (function_exists('fastcgi_finish_request')) {
-                    /** @disregard */
+                    /* @disregard */
                     fastcgi_finish_request();
                 } elseif (function_exists('litespeed_finish_request')) {
-                    /** @disregard */
+                    /* @disregard */
                     litespeed_finish_request();
                 }
                 exit(255);
@@ -441,9 +448,9 @@ class Debugger
                 self::getBar()->render();
             }
         } else {
-            $s = get_class($e) . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                . ' in ' . $e->getFile() . ':' . $e->getLine()
-                . "\nStack trace:\n" . $e->getTraceAsString();
+            $s = get_class($e).(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                .' in '.$e->getFile().':'.$e->getLine()
+                ."\nStack trace:\n".$e->getTraceAsString();
 
             try {
                 $file = null;
@@ -455,13 +462,13 @@ class Debugger
                         'trace' => $e->getTraceAsString(),
                     ]);
                     $file = self::log($e, self::EXCEPTION);
-                    if ($file && !headers_sent()) {
-                        header('X-Oops-Error-Log: ' . $file);
+                    if ($file && ! headers_sent()) {
+                        header('X-Oops-Error-Log: '.$file);
                     }
                 }
 
                 if ($file) {
-                    echo "$s\n" . ("(stored in $file)\n");
+                    echo "$s\n".("(stored in $file)\n");
                 } elseif ($exit) {
                     echo "$s\n";
                 }
@@ -499,10 +506,10 @@ class Debugger
 
         if ($exit) {
             if (function_exists('fastcgi_finish_request')) {
-                /** @disregard */
+                /* @disregard */
                 fastcgi_finish_request();
             } elseif (function_exists('litespeed_finish_request')) {
-                /** @disregard */
+                /* @disregard */
                 litespeed_finish_request();
             }
             exit(255);
@@ -536,8 +543,8 @@ class Debugger
         // static guard prevents re-entry if collecting itself emits a notice.
         static $handlingDeprecation = false;
 
-        if (!self::$productionMode && ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED)) {
-            if (!$handlingDeprecation && ($severity & error_reporting()) === $severity) {
+        if (! self::$productionMode && ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED)) {
+            if (! $handlingDeprecation && ($severity & error_reporting()) === $severity) {
                 $handlingDeprecation = true;
                 Collectors::addDeprecation($message, $file, $line, $severity);
                 $handlingDeprecation = false;
@@ -576,8 +583,8 @@ class Debugger
 
             return;
         } elseif (
-            !self::$productionMode
-            && !isset($_GET['_oops_skip_error'])
+            ! self::$productionMode
+            && ! isset($_GET['_oops_skip_error'])
             && (is_bool(self::$strictMode) ? self::$strictMode : ((self::$strictMode & $severity) === $severity))
         ) {
             $e = new \ErrorException($message, 0, $severity, $file, $line);
@@ -586,8 +593,8 @@ class Debugger
             self::exceptionHandler($e);
         }
 
-        $message = 'PHP ' . Helpers::errorTypeToString($severity)
-            . ': ' . Helpers::improveError($message, $context);
+        $message = 'PHP '.Helpers::errorTypeToString($severity)
+            .': '.Helpers::improveError($message, $context);
         $count = &self::getBar()->getPanel('Oops:info')->data["$file|$line|$message"];
 
         if ($count++) {
@@ -616,9 +623,9 @@ class Debugger
                 break;
             }
 
-            $fnc = $status['chunk_size'] || !$errorOccurred ? 'ob_end_flush' : 'ob_end_clean';
+            $fnc = $status['chunk_size'] || ! $errorOccurred ? 'ob_end_flush' : 'ob_end_clean';
 
-            if (!@$fnc()) { // @ to suppress potential warnings
+            if (! @$fnc()) { // @ to suppress potential warnings
                 break;
             }
         }
@@ -629,10 +636,10 @@ class Debugger
      */
     public static function getPanic()
     {
-        if (!self::$panic) {
+        if (! self::$panic) {
             self::$panic = new Panic();
             self::$panic->info = [
-                'PHP ' . PHP_VERSION,
+                'PHP '.PHP_VERSION,
                 isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : null,
             ];
         }
@@ -645,7 +652,7 @@ class Debugger
      */
     public static function getBar()
     {
-        if (!self::$bar) {
+        if (! self::$bar) {
             self::$bar = new Bar();
             self::$bar->addPanel($info = new Defaults('info'), 'Oops:info');
             $info->cpuUsage = self::$cpuUsage;
@@ -691,7 +698,7 @@ class Debugger
      */
     public static function getLogger()
     {
-        if (!self::$logger) {
+        if (! self::$logger) {
             self::$logger = new Logger(self::$logDirectory, self::$email, self::getPanic());
             self::$logger->directory = &self::$logDirectory; // back compatiblity
             self::$logger->email = &self::$email;
@@ -722,7 +729,7 @@ class Debugger
             ]);
 
             return ob_get_clean();
-        } elseif (!self::$productionMode) {
+        } elseif (! self::$productionMode) {
             Dumper::dump($var, [
                 Dumper::DEPTH => self::$maxDepth,
                 Dumper::TRUNCATE => self::$maxLength,
@@ -770,7 +777,7 @@ class Debugger
         $start = microtime(true);
         $result = call_user_func($callback);
 
-        if (!self::$productionMode) {
+        if (! self::$productionMode) {
             Collectors::addTimer((string) $name, (microtime(true) - $start) * 1000, ($start - self::$time) * 1000);
         }
 
@@ -810,7 +817,7 @@ class Debugger
      */
     public static function stopMeasure($name, $label = null)
     {
-        if (self::$productionMode || !isset(self::$measures[$name])) {
+        if (self::$productionMode || ! isset(self::$measures[$name])) {
             return;
         }
 
@@ -836,10 +843,10 @@ class Debugger
      */
     public static function barDump($var, $title = null, array $options = [])
     {
-        if (!self::$productionMode) {
+        if (! self::$productionMode) {
             static $panel;
 
-            if (!$panel) {
+            if (! $panel) {
                 self::getBar()->addPanel($panel = new Defaults('dumps'), 'Oops:dumps');
             }
 
@@ -882,7 +889,7 @@ class Debugger
         $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])) ? $_COOKIE[self::COOKIE_SECRET] : null;
         $list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
 
-        if (!isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !isset($_SERVER['HTTP_FORWARDED'])) {
+        if (! isset($_SERVER['HTTP_X_FORWARDED_FOR']) && ! isset($_SERVER['HTTP_FORWARDED'])) {
             $list[] = '127.0.0.1';
             $list[] = '::1';
         }

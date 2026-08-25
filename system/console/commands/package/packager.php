@@ -45,7 +45,7 @@ class Packager extends Command
         $remotes = $this->repository->search($arguments[0]);
 
         if (Package::exists($arguments[0])) {
-            echo $this->error('Package is already registered: ' . $arguments[0]);
+            echo $this->error('Package is already registered: '.$arguments[0]);
             exit;
         }
 
@@ -53,27 +53,27 @@ class Packager extends Command
         $stdin = null;
 
         if (is_dir($destination)) {
-            echo  PHP_EOL . $this->warning('Destination directory for this package is already exists:');
-            echo  PHP_EOL . $this->warning('  ' . $destination);
-            echo  PHP_EOL . $this->warning('Dou you wish to continue and overwrite it? [y/N] ', false);
+            echo  PHP_EOL.$this->warning('Destination directory for this package is already exists:');
+            echo  PHP_EOL.$this->warning('  '.$destination);
+            echo  PHP_EOL.$this->warning('Dou you wish to continue and overwrite it? [y/N] ', false);
 
             $stdin = fopen('php://stdin', 'rb');
 
-            if (!in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
+            if (! in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
                 fclose($stdin);
-                throw new \Exception(PHP_EOL . 'Operation aborted by user.');
+                throw new \Exception(PHP_EOL.'Operation aborted by user.');
             }
         }
 
         if (true !== (bool) (isset($remotes['maintained']) ? $remotes['maintained'] : false)) {
-            echo  PHP_EOL . $this->warning('This package is currently not maintained.');
+            echo  PHP_EOL.$this->warning('This package is currently not maintained.');
             echo  $this->warning('Dou you wish to install anyway? [y/N] ', false);
 
             $stdin = $stdin ? $stdin : fopen('php://stdin', 'rb');
 
-            if (!in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
+            if (! in_array(strtolower(trim((string) fgets($stdin))), ['y', 'yes'])) {
                 fclose($stdin);
-                throw new \Exception(PHP_EOL . 'Operation aborted by user.');
+                throw new \Exception(PHP_EOL.'Operation aborted by user.');
             }
         }
 
@@ -81,18 +81,18 @@ class Packager extends Command
             fclose($stdin);
         }
 
-        echo $this->info('Downloading package: ') . $arguments[0];
+        echo $this->info('Downloading package: ').$arguments[0];
 
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
 
-        if (is_dir($destination = path('package') . DS . $arguments[0] . DS . 'assets')) {
-            echo PHP_EOL . $this->info('Publishing assets...', false);
-            Storage::cpdir($destination, path('assets') . 'packages' . DS . $arguments[0]);
+        if (is_dir($destination = path('package').DS.$arguments[0].DS.'assets')) {
+            echo PHP_EOL.$this->info('Publishing assets...', false);
+            Storage::cpdir($destination, path('assets').'packages'.DS.$arguments[0]);
             echo $this->info(' done!');
         }
 
-        echo PHP_EOL . $this->info('Package installed successfuly!');
+        echo PHP_EOL.$this->info('Package installed successfuly!');
 
         echo PHP_EOL;
         echo $this->warning('Now, you can register it to your application/packages.php');
@@ -109,27 +109,27 @@ class Packager extends Command
     {
         $this->parameter($arguments);
 
-        if (!Package::exists($arguments[0])) {
-            throw new \Exception(PHP_EOL . sprintf(
-                'Error: Package is not registered: %s' . PHP_EOL .
-                    'Currently registered packages are: ' . PHP_EOL .
-                    '  ' . implode(', ', Package::names()) . '.',
+        if (! Package::exists($arguments[0])) {
+            throw new \Exception(PHP_EOL.sprintf(
+                'Error: Package is not registered: %s'.PHP_EOL.
+                    'Currently registered packages are: '.PHP_EOL.
+                    '  '.implode(', ', Package::names()).'.',
                 $arguments[0]
-            ) . PHP_EOL);
+            ).PHP_EOL);
         }
 
-        echo $this->info('Uninstalling package: ' . $arguments[0]);
+        echo $this->info('Uninstalling package: '.$arguments[0]);
 
         // TODO: We need to check if the package has migrations or not before running migrate:reset to avoid errors.
         // $migrator = Container::resolve('command: migrate');
         // $migrator->reset($arguments[0]);
 
-        $destination = path('package') . DS . $arguments[0];
+        $destination = path('package').DS.$arguments[0];
         is_dir($destination) && Storage::rmdir($destination);
-        $destination = path('assets') . 'packages' . DS . $arguments[0];
+        $destination = path('assets').'packages'.DS.$arguments[0];
         is_dir($destination) && Storage::rmdir($destination);
 
-        echo $this->info('Package uninstalled successfully: ' . $arguments[0]);
+        echo $this->info('Package uninstalled successfully: '.$arguments[0]);
 
         echo PHP_EOL;
         echo $this->warning('Now, you have to remove those package entry from your application/packages.php');
@@ -146,26 +146,26 @@ class Packager extends Command
     {
         $this->parameter($arguments);
 
-        if (!Package::exists($arguments[0])) {
-            throw new \Exception(PHP_EOL . sprintf(
-                'Error: Package is not registered: %s' . PHP_EOL .
-                    'Currently registered packages are: ' . PHP_EOL .
-                    '  ' . implode(', ', Package::names()) . '.',
+        if (! Package::exists($arguments[0])) {
+            throw new \Exception(PHP_EOL.sprintf(
+                'Error: Package is not registered: %s'.PHP_EOL.
+                    'Currently registered packages are: '.PHP_EOL.
+                    '  '.implode(', ', Package::names()).'.',
                 $arguments[0]
-            ) . PHP_EOL);
+            ).PHP_EOL);
         }
 
         $remotes = $this->repository->search($arguments[0]);
-        $local = path('package') . $arguments[0] . DS . 'meta.json';
+        $local = path('package').$arguments[0].DS.'meta.json';
 
-        if (!isset($remotes['compatibilities']['v' . RAKIT_VERSION])) {
-            throw new \Exception(PHP_EOL . sprintf(
+        if (! isset($remotes['compatibilities']['v'.RAKIT_VERSION])) {
+            throw new \Exception(PHP_EOL.sprintf(
                 'Error: No compatible package for your rakit version (v%s)',
                 RAKIT_VERSION
-            ) . PHP_EOL);
+            ).PHP_EOL);
         }
 
-        $latest = $remotes['compatibilities']['v' . RAKIT_VERSION];
+        $latest = $remotes['compatibilities']['v'.RAKIT_VERSION];
         $current = '0';
 
         if (is_file($local)) {
@@ -174,14 +174,14 @@ class Packager extends Command
         }
 
         if (true !== (bool) $remotes['maintained']) {
-            echo PHP_EOL . $this->warning('This package is currently not maintained.');
+            echo PHP_EOL.$this->warning('This package is currently not maintained.');
             echo $this->warning('Dou you wish to upgrade anyway? [y/N] ', false);
 
             $answer = fgets(STDIN);
             $answer = strtolower((string) trim($answer));
 
-            if (!in_array($answer, ['y', 'yes'])) {
-                throw new \Exception(PHP_EOL . 'Operation aborted by user.');
+            if (! in_array($answer, ['y', 'yes'])) {
+                throw new \Exception(PHP_EOL.'Operation aborted by user.');
             }
         }
 
@@ -200,7 +200,7 @@ class Packager extends Command
         $this->download($remotes, $destination);
         $this->metadata($remotes, $destination);
 
-        echo PHP_EOL . $this->info('Package upgraded successfuly!');
+        echo PHP_EOL.$this->info('Package upgraded successfuly!');
     }
 
     /**
@@ -243,7 +243,7 @@ class Packager extends Command
     protected function download(array $remotes, $path)
     {
         $provider = $this->hostname($remotes);
-        Container::resolve('package.provider: ' . $provider)->install($remotes, $path);
+        Container::resolve('package.provider: '.$provider)->install($remotes, $path);
     }
 
     /**
@@ -257,12 +257,12 @@ class Packager extends Command
         $data = [
             'name' => $remotes['name'],
             'description' => $remotes['description'],
-            'version' => $remotes['compatibilities']['v' . RAKIT_VERSION],
+            'version' => $remotes['compatibilities']['v'.RAKIT_VERSION],
         ];
 
         $data = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 
-        if (!is_file($destination = $destination . DS . 'meta.json')) {
+        if (! is_file($destination = $destination.DS.'meta.json')) {
             Storage::put($destination, $data);
         }
     }
@@ -300,7 +300,7 @@ class Packager extends Command
     protected function parameter(array $parameters)
     {
         if (0 === count($parameters)) {
-            throw new \Exception(PHP_EOL . 'Error: Please specify a package name.' . PHP_EOL);
+            throw new \Exception(PHP_EOL.'Error: Please specify a package name.'.PHP_EOL);
         }
     }
 
@@ -316,9 +316,9 @@ class Packager extends Command
         $host = parse_url(trim($remotes['repository']));
         $host = explode('.', isset($host['host']) ? $host['host'] : 'Unknown');
         $host = isset($host[0]) ? $host[0] : 'Unknown';
-        $provider = '\\System\\Console\\Commands\\Package\\Providers\\' . Str::classify($host);
+        $provider = '\\System\\Console\\Commands\\Package\\Providers\\'.Str::classify($host);
 
-        if (!class_exists($provider)) {
+        if (! class_exists($provider)) {
             throw new \Exception(sprintf('Unsupported package provider: %s', $host));
         }
 

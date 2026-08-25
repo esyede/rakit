@@ -108,7 +108,7 @@ class Query
         $result = $this->find($id, $columns);
 
         if (is_null($result)) {
-            throw new ModelNotFoundException(get_class($this->model) . ' with id ' . $id . ' not found.');
+            throw new ModelNotFoundException(get_class($this->model).' with id '.$id.' not found.');
         }
 
         return $result;
@@ -126,7 +126,7 @@ class Query
         $result = $this->first($columns);
 
         if (is_null($result)) {
-            throw new ModelNotFoundException(get_class($this->model) . ' not found.');
+            throw new ModelNotFoundException(get_class($this->model).' not found.');
         }
 
         return $result;
@@ -157,7 +157,7 @@ class Query
     {
         $columns = is_array($columns) ? $columns : [$columns];
         // PHP < 5.5.0 does not support yield, directly return the results of get()
-        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
+        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__.DS.'cursor.php';
     }
 
     /**
@@ -200,7 +200,7 @@ class Query
             $with = $this->model_with();
 
             foreach ($with as $relationship => $constraints) {
-                if (!Str::contains($relationship, '.')) {
+                if (! Str::contains($relationship, '.')) {
                     $this->load($models, $relationship, $constraints);
                 }
             }
@@ -233,7 +233,7 @@ class Query
         $query->table->reset_where();
         $query->eagerly_constrain($results);
 
-        if (!is_null($constraints)) {
+        if (! is_null($constraints)) {
             $query->table->where_nested($constraints);
         }
 
@@ -254,8 +254,8 @@ class Query
         $with = $this->model_with();
 
         foreach ($with as $eagerload => $constraints) {
-            if (Str::starts_with($eagerload, $relationship . '.')) {
-                $key = substr((string) $eagerload, strlen((string) $relationship . '.'));
+            if (Str::starts_with($eagerload, $relationship.'.')) {
+                $key = substr((string) $eagerload, strlen((string) $relationship.'.'));
                 $nested[$key] = $constraints;
             }
         }

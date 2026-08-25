@@ -32,11 +32,11 @@ class Storage
      */
     public function save($id, array $data)
     {
-        if (!is_dir($this->dir)) {
+        if (! is_dir($this->dir)) {
             @mkdir($this->dir, 0755, true);
         }
 
-        if (!is_dir($this->dir) || !is_writable($this->dir)) {
+        if (! is_dir($this->dir) || ! is_writable($this->dir)) {
             return false;
         }
 
@@ -74,8 +74,8 @@ class Storage
     {
         $file = $this->path($id);
 
-        if (!is_file($file)) {
-            return null;
+        if (! is_file($file)) {
+            return;
         }
 
         $data = json_decode((string) file_get_contents($file), true);
@@ -94,7 +94,7 @@ class Storage
     {
         $files = $this->files();
 
-        if (!$files) {
+        if (! $files) {
             return [];
         }
 
@@ -126,7 +126,7 @@ class Storage
     {
         $files = $this->files();
 
-        if (!$files || count($files) <= $this->max) {
+        if (! $files || count($files) <= $this->max) {
             return;
         }
 
@@ -194,7 +194,7 @@ class Storage
             }
         }
 
-        if (!is_file($file)) {
+        if (! is_file($file)) {
             return [];
         }
 
@@ -215,7 +215,7 @@ class Storage
      */
     protected function files()
     {
-        $files = glob($this->dir . DIRECTORY_SEPARATOR . '*.json');
+        $files = glob($this->dir.DIRECTORY_SEPARATOR.'*.json');
 
         return is_array($files) ? $files : [];
     }
@@ -227,7 +227,7 @@ class Storage
      */
     protected function path($id)
     {
-        return $this->dir . DIRECTORY_SEPARATOR . $this->sanitize($id) . '.json';
+        return $this->dir.DIRECTORY_SEPARATOR.$this->sanitize($id).'.json';
     }
 
     /**
@@ -239,7 +239,7 @@ class Storage
      */
     protected function meta_path($id)
     {
-        return $this->dir . DIRECTORY_SEPARATOR . $this->sanitize($id) . '.meta';
+        return $this->dir.DIRECTORY_SEPARATOR.$this->sanitize($id).'.meta';
     }
 
     /**

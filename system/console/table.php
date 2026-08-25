@@ -7,15 +7,21 @@ defined('DS') or exit('No direct access.');
 class Table
 {
     const HEADER_INDEX = -1;
+
     const HORIZONTAL_ROW = 'HR';
 
     protected $data = [];
+
     protected $border = true;
+
     protected $all_borders = false;
+
     protected $padding = 1;
+
     protected $indent = 0;
 
     private $row_index = -1;
+
     private $column_widths = [];
 
     /**
@@ -59,7 +65,7 @@ class Table
     {
         $this->row_index++;
 
-        if (is_array($data) && !empty($data)) {
+        if (is_array($data) && ! empty($data)) {
             foreach ($data as $col => $content) {
                 $this->data[$this->row_index][$col] = $content;
             }
@@ -167,7 +173,7 @@ class Table
 
         foreach ($this->data as $y => $row) {
             if (self::HORIZONTAL_ROW === $row) {
-                if (!$this->all_borders) {
+                if (! $this->all_borders) {
                     $output .= $this->get_border_line();
                     unset($this->data[$y]);
                 }
@@ -190,11 +196,11 @@ class Table
             }
         }
 
-        if (!$this->all_borders) {
+        if (! $this->all_borders) {
             $output .= $this->border ? $this->get_border_line() : '';
         }
 
-        return is_cli() ? $output : '<pre>' . $output . '</pre>';
+        return is_cli() ? $output : '<pre>'.$output.'</pre>';
     }
 
     /**
@@ -218,7 +224,7 @@ class Table
             $output .= $this->get_cell_output($column);
         }
 
-        return $output . ($this->border ? '+' : '') . PHP_EOL;
+        return $output.($this->border ? '+' : '').PHP_EOL;
     }
 
     /**
@@ -262,7 +268,7 @@ class Table
                 foreach ($row as $x => $col) {
                     $width = mb_strlen((string) preg_replace('/\x1b[[][^A-Za-z]*[A-Za-z]/', '', $col), 'UTF-8');
 
-                    if (!isset($this->column_widths[$x])) {
+                    if (! isset($this->column_widths[$x])) {
                         $this->column_widths[$x] = $width;
                     } else {
                         if ($width > $this->column_widths[$x]) {
@@ -291,11 +297,11 @@ class Table
         $len = mb_strlen((string) $str, 'UTF-8');
         $padlen = mb_strlen((string) $content, 'UTF-8');
 
-        if (!$len && (STR_PAD_RIGHT === $direction || STR_PAD_LEFT === $direction)) {
+        if (! $len && (STR_PAD_RIGHT === $direction || STR_PAD_LEFT === $direction)) {
             $len = 1;
         }
 
-        if (!$amount || !$padlen || $amount <= $len) {
+        if (! $amount || ! $padlen || $amount <= $len) {
             return $str;
         }
 
@@ -303,13 +309,13 @@ class Table
         $repeat = (int) ceil($len - $padlen + $amount);
 
         if (STR_PAD_RIGHT === $direction) {
-            $result = mb_substr($str . str_repeat($content, $repeat), 0, $amount, 'UTF-8');
+            $result = mb_substr($str.str_repeat($content, $repeat), 0, $amount, 'UTF-8');
         } elseif (STR_PAD_LEFT === $direction) {
-            $result = mb_substr(str_repeat($content, $repeat) . $str, -$amount, null, 'UTF-8');
+            $result = mb_substr(str_repeat($content, $repeat).$str, -$amount, null, 'UTF-8');
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
             $repeat = str_repeat((string) $content, (int) ceil($length / $padlen));
-            $result = mb_substr($repeat, 0, (int) floor($length), 'UTF-8') . $str . mb_substr($repeat, 0, (int) ceil($length), 'UTF-8');
+            $result = mb_substr($repeat, 0, (int) floor($length), 'UTF-8').$str.mb_substr($repeat, 0, (int) ceil($length), 'UTF-8');
         }
 
         return $result;

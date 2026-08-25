@@ -9,7 +9,7 @@ $files = ['*.blade.php', '*.bc.php', '_ide_helper.php', '*.phar'];
 $rules = [
     '@PSR2' => true,
     'array_syntax' => ['syntax' => 'short'],
-    'binary_operator_spaces' => ['align_equals' => false, 'align_double_arrow' => false],
+    'binary_operator_spaces' => ['default' => 'single_space'],
     // 'class_keyword_remove' => true, // REMOVED in v3
     'cast_spaces' => true,
     'combine_consecutive_unsets' => true,
@@ -18,15 +18,15 @@ $rules = [
     'elseif' => true,
     'explicit_indirect_variable' => true,
     'full_opening_tag' => true,
-    'hash_to_slash_comment' => true,
+    'single_line_comment_style' => ['comment_types' => ['hash']],
     'heredoc_to_nowdoc' => true,
     'include' => true,
     'linebreak_after_opening_tag' => true,
     'list_syntax' => ['syntax' => 'long'],
     'lowercase_cast' => true,
-    'lowercase_constants' => true,
+    'constant_case' => ['case' => 'lower'],
     'lowercase_keywords' => true,
-    'method_argument_space' => ['ensure_fully_multiline' => false],
+    'method_argument_space' => ['on_multiline' => 'ignore'],
     'method_chaining_indentation' => true,
     'class_attributes_separation' => true, // was method_separation in v2
     'modernize_types_casting' => true,
@@ -43,7 +43,7 @@ $rules = [
     'no_leading_import_slash' => true,
     'no_mixed_echo_print' => ['use' => 'echo'],
     'no_null_property_initialization' => true,
-    'no_short_echo_tag' => true,
+    'echo_tag_syntax' => ['format' => 'long'],
     'no_spaces_around_offset' => true,
     'no_spaces_inside_parenthesis' => true,
     'no_trailing_comma_in_singleline' => true, // was no_trailing_comma_in_singleline_array in v2

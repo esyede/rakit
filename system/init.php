@@ -11,12 +11,12 @@ defined('DS') or exit('No direct access.');
 | Ensure the key.php file exists in the base path, create it if it doesn't.
 */
 
-$dir = __DIR__ . DS . 'foundation' . DS . 'oops' . DS . 'assets' . DS . 'debugger';
+$dir = __DIR__.DS.'foundation'.DS.'oops'.DS.'assets'.DS.'debugger';
 
 if (is_file($path = path('rakit_key'))) {
     $error = null;
 
-    if (!is_readable(dirname($path))) {
+    if (! is_readable(dirname($path))) {
         $error = 'unreadable.phtml';
     } elseif (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
         $error = 'invalid.phtml';
@@ -24,13 +24,13 @@ if (is_file($path = path('rakit_key'))) {
 
     if ($error) {
         http_response_code(500);
-        require $dir . DS . $error;
+        require $dir.DS.$error;
 
         if (function_exists('fastcgi_finish_request')) {
-            /** @disregard */
+            /* @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
-            /** @disregard */
+            /* @disregard */
             litespeed_finish_request();
         }
 
@@ -39,15 +39,15 @@ if (is_file($path = path('rakit_key'))) {
 } else {
     $path = path('rakit_key');
 
-    if (!is_writable(dirname((string) $path))) {
+    if (! is_writable(dirname((string) $path))) {
         http_response_code(500);
-        require $dir . DS . 'unwritable.phtml';
+        require $dir.DS.'unwritable.phtml';
 
         if (function_exists('fastcgi_finish_request')) {
-            /** @disregard */
+            /* @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
-            /** @disregard */
+            /* @disregard */
             litespeed_finish_request();
         }
 
@@ -73,10 +73,10 @@ if (is_file($path = path('rakit_key'))) {
     file_put_contents(path('rakit_key'), str_replace(
         '00000000-0000-0000-0000-000000000000',
         vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4)),
-        file_get_contents(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . 'key.stub')
+        file_get_contents(__DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system'.DS.'key.stub')
     ));
 }
 
-if (!is_file($file = dirname(__DIR__) . DS . '_ide_helper.php') && is_writable(dirname($file))) {
-    @copy(__DIR__ . DS . 'console' . DS . 'commands' . DS . 'stubs' . DS . 'system' . DS . '_ide_helper.stub', $file);
+if (! is_file($file = dirname(__DIR__).DS.'_ide_helper.php') && is_writable(dirname($file))) {
+    @copy(__DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system'.DS.'_ide_helper.stub', $file);
 }

@@ -87,7 +87,7 @@ abstract class Driver
             Log::channel(null);
 
             if (Request::cli()) {
-                echo '[' . Carbon::now()->format('Y-m-d H:i:s') . '] [' . strtoupper((string) $type) . '] ' . $message . PHP_EOL;
+                echo '['.Carbon::now()->format('Y-m-d H:i:s').'] ['.strtoupper((string) $type).'] '.$message.PHP_EOL;
             }
         }
     }

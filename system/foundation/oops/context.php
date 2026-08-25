@@ -40,7 +40,7 @@ class Context
     public static function getContext($e)
     {
         $entry = self::entryFor($e);
-        return (isset($entry['context']) && !empty($entry['context'])) ? $entry['context'] : null;
+        return (isset($entry['context']) && ! empty($entry['context'])) ? $entry['context'] : null;
     }
 
     public static function hasContext($e)
@@ -72,12 +72,12 @@ class Context
     public static function getOopsAction($e)
     {
         $entry = self::entryFor($e);
-        return (isset($entry['oopsAction']) && !empty($entry['oopsAction'])) ? $entry['oopsAction'] : null;
+        return (isset($entry['oopsAction']) && ! empty($entry['oopsAction'])) ? $entry['oopsAction'] : null;
     }
 
     public static function hasOopsAction($e)
     {
         $entry = self::entryFor($e);
-        return array_key_exists('oopsAction', $entry) && !empty($entry['oopsAction']);
+        return array_key_exists('oopsAction', $entry) && ! empty($entry['oopsAction']);
     }
 }

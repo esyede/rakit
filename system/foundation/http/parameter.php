@@ -76,13 +76,13 @@ class Parameter implements \IteratorAggregate, \Countable
     {
         $path = (string) $path;
 
-        if (!$deep || false === ($pos = strpos($path, '['))) {
+        if (! $deep || false === ($pos = strpos($path, '['))) {
             return array_key_exists($path, $this->parameters) ? $this->parameters[$path] : $default;
         }
 
         $root = substr($path, 0, $pos);
 
-        if (!array_key_exists($root, $this->parameters)) {
+        if (! array_key_exists($root, $this->parameters)) {
             return $default;
         }
 
@@ -103,7 +103,7 @@ class Parameter implements \IteratorAggregate, \Countable
                     throw new \Exception(sprintf("Malformed path. Unexpected ']' at position %s", $i));
                 }
 
-                if (!is_array($value) || !array_key_exists($currentKey, $value)) {
+                if (! is_array($value) || ! array_key_exists($currentKey, $value)) {
                     return $default;
                 }
 
@@ -230,11 +230,11 @@ class Parameter implements \IteratorAggregate, \Countable
     {
         $value = $this->get($key, $default, $deep);
 
-        if (!is_array($options) && $options) {
+        if (! is_array($options) && $options) {
             $options = ['flags' => $options];
         }
 
-        if (is_array($value) && !isset($options['flags'])) {
+        if (is_array($value) && ! isset($options['flags'])) {
             $options['flags'] = FILTER_REQUIRE_ARRAY;
         }
 

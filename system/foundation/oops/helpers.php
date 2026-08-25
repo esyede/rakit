@@ -35,13 +35,13 @@ class Helpers
     public static function editorUri($file, $line = 1)
     {
         if (empty($file)) {
-            return null;
+            return;
         }
 
         $editor = function_exists('config') ? config('debugger.editor', 'phpstorm') : 'phpstorm';
 
         if (empty($editor)) {
-            return null;
+            return;
         }
 
         $presets = [
@@ -60,7 +60,7 @@ class Helpers
         $template = isset($presets[$editor]) ? $presets[$editor] : $editor;
 
         if (false === strpos($template, '%file%')) {
-            return null;
+            return;
         }
 
         $line = (int) $line;
@@ -73,10 +73,10 @@ class Helpers
         // it here.
         $path = str_replace('\\', '/', $file);
         $isAbsolute = ('' !== $path && ('/' === $path[0] || preg_match('#^[a-zA-Z]:/#', $path)));
-        if (!$isAbsolute && function_exists('path')) {
+        if (! $isAbsolute && function_exists('path')) {
             $base = path('base');
             if ($base) {
-                $path = rtrim(str_replace('\\', '/', $base), '/') . '/' . ltrim($path, '/');
+                $path = rtrim(str_replace('\\', '/', $base), '/').'/'.ltrim($path, '/');
             }
         }
 
@@ -96,7 +96,7 @@ class Helpers
                 isset($item['function'])
                 && $item['function'] === end($m)
                 && isset($item['class']) === isset($m[1])
-                && (!isset($item['class']) || '*' === $m[0] || is_a($item['class'], $m[0], true))
+                && (! isset($item['class']) || '*' === $m[0] || is_a($item['class'], $m[0], true))
             ) {
                 $index = $i;
                 return $item;
@@ -136,7 +136,7 @@ class Helpers
                     'args' => [],
                 ];
 
-                if (!empty($row['class'])) {
+                if (! empty($row['class'])) {
                     $frame['type'] = (isset($row['type']) && 'dynamic' === $row['type']) ? '->' : '::';
                     $frame['class'] = $row['class'];
                 }
@@ -146,7 +146,7 @@ class Helpers
 
             $ref = new \ReflectionProperty('Exception', 'trace');
             if (PHP_VERSION_ID < 80100) {
-                /** @disregard */
+                /* @disregard */
                 $ref->setAccessible(true);
             }
             $ref->setValue($e, $stack);
@@ -201,11 +201,11 @@ class Helpers
     public static function getSource()
     {
         if (isset($_SERVER['REQUEST_URI'])) {
-            return (!empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
-                . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '') . $_SERVER['REQUEST_URI'];
+            return (! empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
+                .(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '').$_SERVER['REQUEST_URI'];
         }
 
-        return 'CLI (PID: ' . getmypid() . ')' . (empty($_SERVER['argv']) ? '' : ': ' . implode(' ', $_SERVER['argv']));
+        return 'CLI (PID: '.getmypid().')'.(empty($_SERVER['argv']) ? '' : ': '.implode(' ', $_SERVER['argv']));
     }
 
     /**
@@ -220,11 +220,11 @@ class Helpers
         $message = $e->getMessage();
         $replalce = [];
 
-        if (!($e instanceof \Error) && !($e instanceof \ErrorException)) {
+        if (! ($e instanceof \Error) && ! ($e instanceof \ErrorException)) {
             // ..
         } elseif (preg_match('#^Call to undefined function (\S+\\\\)?(\w+)\(#', $message, $m)) {
             $funcs = array_merge(get_defined_functions()['internal'], get_defined_functions()['user']);
-            $hint = self::getSuggestion($funcs, $m[1] . $m[2]);
+            $hint = self::getSuggestion($funcs, $m[1].$m[2]);
             $hint = $hint ?: self::getSuggestion($funcs, $m[2]);
             $message = "Call to undefined function $m[2](), did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
@@ -263,7 +263,7 @@ class Helpers
         if (isset($hint)) {
             $ref = new \ReflectionProperty($e, 'message');
             if (PHP_VERSION_ID < 80100) {
-                /** @disregard */
+                /* @disregard */
                 $ref->setAccessible(true);
             }
             $ref->setValue($e, $message);
@@ -291,7 +291,7 @@ class Helpers
             );
 
             $hint = self::getSuggestion($items, $m[2]);
-            return $hint ? $message . ", did you mean $$hint?" : $message;
+            return $hint ? $message.", did you mean $$hint?" : $message;
         }
 
         return $message;
@@ -314,7 +314,7 @@ class Helpers
             $parts = explode('\\', $class);
 
             foreach ($parts as $i => $part) {
-                if (!isset($segments[$i]) || $part !== $segments[$i]) {
+                if (! isset($segments[$i]) || $part !== $segments[$i]) {
                     break;
                 }
             }
@@ -325,7 +325,7 @@ class Helpers
                     array_slice(explode(DIRECTORY_SEPARATOR, $file), 0, $i - count($parts)),
                     array_slice($segments, $i)
                 );
-                $res = implode(DIRECTORY_SEPARATOR, $res) . '.php';
+                $res = implode(DIRECTORY_SEPARATOR, $res).'.php';
             }
         }
 
@@ -364,7 +364,7 @@ class Helpers
     {
         return empty($_SERVER['HTTP_X_REQUESTED_WITH']) && empty($_SERVER['HTTP_X_OOPS_AJAX'])
             && PHP_SAPI !== 'cli'
-            && !preg_match('#^Content-Type: (?!text/html)#im', implode("\n", headers_list()));
+            && ! preg_match('#^Content-Type: (?!text/html)#im', implode("\n", headers_list()));
     }
 
     /** @internal */
@@ -379,6 +379,6 @@ class Helpers
         return preg_match(
             '#^Content-Security-Policy(?:-Report-Only)?:.*\sscript-src\s+(?:[^;]+\s)?\'nonce-([\w+/]+=*)\'#mi',
             implode("\n", headers_list()),
-        $matches) ? $matches[1] : null;
+            $matches) ? $matches[1] : null;
     }
 }

@@ -39,7 +39,7 @@ class Repository
             }
         }
 
-        throw new \Exception(PHP_EOL . sprintf('Error: Package cannot be found on the repository: %s', $name) . PHP_EOL);
+        throw new \Exception(PHP_EOL.sprintf('Error: Package cannot be found on the repository: %s', $name).PHP_EOL);
     }
 
     /**
@@ -65,14 +65,14 @@ class Repository
         $packages = curl_exec($ch);
 
         if (PHP_VERSION_ID <= 80000) {
-            /** @disregard */
+            /* @disregard */
             curl_close($ch);
         }
 
         $packages = json_decode($packages, true);
 
-        if (!is_array($packages) || count($packages) < 1) {
-            throw new \Exception('Broken repository data. Please contact rakit team.' . PHP_EOL);
+        if (! is_array($packages) || count($packages) < 1) {
+            throw new \Exception('Broken repository data. Please contact rakit team.'.PHP_EOL);
         }
 
         return $packages;

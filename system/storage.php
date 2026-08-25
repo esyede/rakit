@@ -78,7 +78,7 @@ class Storage
      */
     public static function prepend($path, $data)
     {
-        static::put($path, $data . static::get($path));
+        static::put($path, $data.static::get($path));
     }
 
     /**
@@ -99,7 +99,7 @@ class Storage
      */
     public static function delete($path)
     {
-        if (!static::isfile($path) && !is_link($path)) {
+        if (! static::isfile($path) && ! is_link($path)) {
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
@@ -125,11 +125,11 @@ class Storage
      */
     public static function move($from, $to, $overwrite = false)
     {
-        if (!static::isfile($from)) {
+        if (! static::isfile($from)) {
             throw new \Exception(sprintf('Source file does not exists: %s', $from));
         }
 
-        if (static::isfile($to) && !$overwrite) {
+        if (static::isfile($to) && ! $overwrite) {
             throw new \Exception(sprintf('Destination file already exists: %s', $to));
         }
 
@@ -146,12 +146,12 @@ class Storage
      */
     public static function mvdir($from, $to, $overwrite = false)
     {
-        if (!static::isdir($from)) {
+        if (! static::isdir($from)) {
             throw new \Exception(sprintf('Source folder does not exists: %s', $from));
         }
 
         if (static::isdir($to)) {
-            if (!$overwrite) {
+            if (! $overwrite) {
                 throw new \Exception(sprintf('Destination folder already exists: %s', $to));
             }
 
@@ -191,18 +191,18 @@ class Storage
      */
     public static function cpdir($directory, $destination, $options = \FilesystemIterator::SKIP_DOTS)
     {
-        if (!static::isdir($directory)) {
+        if (! static::isdir($directory)) {
             throw new \Exception(sprintf('Source folder does not exists: %s', $directory));
         }
 
-        if (!static::isdir($destination)) {
+        if (! static::isdir($destination)) {
             static::mkdir($destination, 0755);
         }
 
         $items = new \FilesystemIterator($directory, $options);
 
         foreach ($items as $item) {
-            $target = $destination . DS . $item->getBasename();
+            $target = $destination.DS.$item->getBasename();
 
             if ($item->isDir()) {
                 static::cpdir($item->getPathname(), $target, $options);
@@ -220,7 +220,7 @@ class Storage
      */
     public static function rmdir($path, $preserve = false)
     {
-        if (!static::isdir($path)) {
+        if (! static::isdir($path)) {
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
@@ -228,14 +228,14 @@ class Storage
             $items = new \FilesystemIterator($path);
 
             foreach ($items as $item) {
-                if ($item->isDir() && !$item->isLink()) {
+                if ($item->isDir() && ! $item->isLink()) {
                     static::rmdir($item->getPathname());
                 } else {
                     static::delete($item->getPathname());
                 }
             }
 
-            if (!$preserve) {
+            if (! $preserve) {
                 try {
                     $removed = @rmdir($path);
                 } catch (\Throwable $e) {
@@ -244,7 +244,7 @@ class Storage
                     $removed = false;
                 }
 
-                if (!$removed) {
+                if (! $removed) {
                     throw new \Exception(sprintf('Unable to remove path: %s', $path));
                 }
             }
@@ -357,7 +357,7 @@ class Storage
      */
     public static function mime($path)
     {
-        if (!static::isfile($path) || false === ($finfo = @finfo_open(FILEINFO_MIME_TYPE))) {
+        if (! static::isfile($path) || false === ($finfo = @finfo_open(FILEINFO_MIME_TYPE))) {
             return false;
         }
 
@@ -466,14 +466,14 @@ class Storage
      */
     public static function protect($path)
     {
-        if (!is_file($path) && !is_dir($path)) {
+        if (! is_file($path) && ! is_dir($path)) {
             return;
         }
 
         $path = is_file($path) ? rtrim(dirname($path), DS) : $path;
 
-        if (!is_file($file = $path . DS . 'index.html')) {
-            static::put($file, 'No direct access.' . PHP_EOL);
+        if (! is_file($file = $path.DS.'index.html')) {
+            static::put($file, 'No direct access.'.PHP_EOL);
         }
     }
 }

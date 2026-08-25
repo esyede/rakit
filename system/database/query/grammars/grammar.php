@@ -47,7 +47,7 @@ class Grammar extends BaseGrammar
         $sql = [];
 
         foreach ($this->components as $component) {
-            if (!is_null($query->{$component})) {
+            if (! is_null($query->{$component})) {
                 $sql[$component] = call_user_func([$this, $component], $query);
             }
         }
@@ -78,11 +78,11 @@ class Grammar extends BaseGrammar
      */
     protected function selects(Query $query)
     {
-        if (!is_null($query->aggregate)) {
+        if (! is_null($query->aggregate)) {
             return;
         }
 
-        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ') . $this->columnize($query->selects);
+        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ').$this->columnize($query->selects);
     }
 
     /**
@@ -97,10 +97,10 @@ class Grammar extends BaseGrammar
         $column = $this->columnize($query->aggregate['columns']);
 
         if ($query->distinct && '*' !== $column) {
-            $column = 'DISTINCT ' . $column;
+            $column = 'DISTINCT '.$column;
         }
 
-        return 'SELECT ' . $query->aggregate['aggregator'] . '(' . $column . ') AS ' . $this->wrap('aggregate');
+        return 'SELECT '.$query->aggregate['aggregator'].'('.$column.') AS '.$this->wrap('aggregate');
     }
 
     /**
@@ -112,7 +112,7 @@ class Grammar extends BaseGrammar
      */
     protected function from(Query $query)
     {
-        return 'FROM ' . $this->wrap_table($query->from);
+        return 'FROM '.$this->wrap_table($query->from);
     }
 
     /**\
@@ -142,7 +142,7 @@ class Grammar extends BaseGrammar
 
             $clauses[0] = str_replace(['AND ', 'OR '], '', $clauses[0]);
             $clauses = implode(' ', $clauses);
-            $sql[] = $join->type . ' JOIN ' . $table . ' ON ' . $clauses;
+            $sql[] = $join->type.' JOIN '.$table.' ON '.$clauses;
         }
 
         return implode(' ', $sql);
@@ -164,11 +164,11 @@ class Grammar extends BaseGrammar
         $sql = [];
 
         foreach ($query->wheres as $where) {
-            $sql[] = $where['connector'] . ' ' . $this->{$where['type']}($where);
+            $sql[] = $where['connector'].' '.$this->{$where['type']}($where);
         }
 
         if (isset($sql)) {
-            return 'WHERE ' . preg_replace('/AND |OR /i', '', implode(' ', $sql), 1);
+            return 'WHERE '.preg_replace('/AND |OR /i', '', implode(' ', $sql), 1);
         }
     }
 
@@ -181,7 +181,7 @@ class Grammar extends BaseGrammar
      */
     protected function where_nested($where)
     {
-        return '(' . substr((string) $this->wheres($where['query']), 6) . ')';
+        return '('.substr((string) $this->wheres($where['query']), 6).')';
     }
 
     /**
@@ -194,7 +194,7 @@ class Grammar extends BaseGrammar
     protected function where($where)
     {
         $parameter = $this->parameter($where['value']);
-        return $this->wrap($where['column']) . ' ' . $where['operator'] . ' ' . $parameter;
+        return $this->wrap($where['column']).' '.$where['operator'].' '.$parameter;
     }
 
     /**
@@ -207,7 +207,7 @@ class Grammar extends BaseGrammar
     protected function where_in($where)
     {
         $parameters = $this->parameterize($where['values']);
-        return $this->wrap($where['column']) . ' IN (' . $parameters . ')';
+        return $this->wrap($where['column']).' IN ('.$parameters.')';
     }
 
     /**
@@ -220,7 +220,7 @@ class Grammar extends BaseGrammar
     protected function where_not_in($where)
     {
         $parameters = $this->parameterize($where['values']);
-        return $this->wrap($where['column']) . ' NOT IN (' . $parameters . ')';
+        return $this->wrap($where['column']).' NOT IN ('.$parameters.')';
     }
 
     /**
@@ -232,8 +232,8 @@ class Grammar extends BaseGrammar
      */
     protected function where_in_sub($where)
     {
-        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
-        return $this->wrap($where['column']) . ' IN ' . $query;
+        $query = '('.$where['query']->grammar->select($where['query']).')';
+        return $this->wrap($where['column']).' IN '.$query;
     }
 
     /**
@@ -245,8 +245,8 @@ class Grammar extends BaseGrammar
      */
     protected function where_not_in_sub($where)
     {
-        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
-        return $this->wrap($where['column']) . ' NOT IN ' . $query;
+        $query = '('.$where['query']->grammar->select($where['query']).')';
+        return $this->wrap($where['column']).' NOT IN '.$query;
     }
 
     /**
@@ -258,8 +258,8 @@ class Grammar extends BaseGrammar
      */
     protected function where_exists($where)
     {
-        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
-        return 'EXISTS ' . $query;
+        $query = '('.$where['query']->grammar->select($where['query']).')';
+        return 'EXISTS '.$query;
     }
 
     /**
@@ -271,8 +271,8 @@ class Grammar extends BaseGrammar
      */
     protected function where_not_exists($where)
     {
-        $query = '(' . $where['query']->grammar->select($where['query']) . ')';
-        return 'NOT EXISTS ' . $query;
+        $query = '('.$where['query']->grammar->select($where['query']).')';
+        return 'NOT EXISTS '.$query;
     }
 
     /**
@@ -286,7 +286,7 @@ class Grammar extends BaseGrammar
     {
         $min = $this->parameter($where['min']);
         $max = $this->parameter($where['max']);
-        return $this->wrap($where['column']) . ' BETWEEN ' . $min . ' AND ' . $max;
+        return $this->wrap($where['column']).' BETWEEN '.$min.' AND '.$max;
     }
 
     /**
@@ -300,7 +300,7 @@ class Grammar extends BaseGrammar
     {
         $min = $this->parameter($where['min']);
         $max = $this->parameter($where['max']);
-        return $this->wrap($where['column']) . ' NOT BETWEEN ' . $min . ' AND ' . $max;
+        return $this->wrap($where['column']).' NOT BETWEEN '.$min.' AND '.$max;
     }
 
     /**
@@ -312,7 +312,7 @@ class Grammar extends BaseGrammar
      */
     protected function where_null($where)
     {
-        return $this->wrap($where['column']) . ' IS NULL';
+        return $this->wrap($where['column']).' IS NULL';
     }
 
     /**
@@ -324,7 +324,7 @@ class Grammar extends BaseGrammar
      */
     protected function where_not_null($where)
     {
-        return $this->wrap($where['column']) . ' IS NOT NULL';
+        return $this->wrap($where['column']).' IS NOT NULL';
     }
 
     /**
@@ -336,7 +336,7 @@ class Grammar extends BaseGrammar
      */
     protected function where_column($where)
     {
-        return $this->wrap($where['column1']) . ' ' . $where['operator'] . ' ' . $this->wrap($where['column2']);
+        return $this->wrap($where['column1']).' '.$where['operator'].' '.$this->wrap($where['column2']);
     }
 
     /**
@@ -360,7 +360,7 @@ class Grammar extends BaseGrammar
      */
     protected function groupings(Query $query)
     {
-        return 'GROUP BY ' . $this->columnize($query->groupings);
+        return 'GROUP BY '.$this->columnize($query->groupings);
     }
 
     /**
@@ -380,10 +380,10 @@ class Grammar extends BaseGrammar
 
         foreach ($query->havings as $having) {
             $parameter = $this->parameter($having['value']);
-            $sql[] = 'AND ' . $this->wrap($having['column']) . ' ' . $having['operator'] . ' ' . $parameter;
+            $sql[] = 'AND '.$this->wrap($having['column']).' '.$having['operator'].' '.$parameter;
         }
 
-        return 'HAVING ' . preg_replace('/AND /', '', implode(' ', $sql), 1);
+        return 'HAVING '.preg_replace('/AND /', '', implode(' ', $sql), 1);
     }
 
     /**
@@ -399,10 +399,10 @@ class Grammar extends BaseGrammar
 
         foreach ($query->orderings as $ordering) {
             $ordering['direction'] = strtoupper((string) $ordering['direction']);
-            $sql[] = $this->wrap($ordering['column']) . ' ' . $ordering['direction'];
+            $sql[] = $this->wrap($ordering['column']).' '.$ordering['direction'];
         }
 
-        return 'ORDER BY ' . implode(', ', $sql);
+        return 'ORDER BY '.implode(', ', $sql);
     }
 
     /**
@@ -418,7 +418,7 @@ class Grammar extends BaseGrammar
 
         foreach ($query->unions as $union) {
             $union_sql = $union['query']->grammar->select($union['query']);
-            $sql[] = ($union['all'] ? 'UNION ALL ' : 'UNION ') . $union_sql;
+            $sql[] = ($union['all'] ? 'UNION ALL ' : 'UNION ').$union_sql;
         }
 
         return implode(' ', $sql);
@@ -433,7 +433,7 @@ class Grammar extends BaseGrammar
      */
     protected function limit(Query $query)
     {
-        return 'LIMIT ' . (int) $query->limit;
+        return 'LIMIT '.(int) $query->limit;
     }
 
     /**
@@ -445,7 +445,7 @@ class Grammar extends BaseGrammar
      */
     protected function offset(Query $query)
     {
-        return 'OFFSET ' . (int) $query->offset;
+        return 'OFFSET '.(int) $query->offset;
     }
 
     /**
@@ -463,9 +463,9 @@ class Grammar extends BaseGrammar
         $values = is_array(reset($values)) ? $values : [$values];
         $columns = $this->columnize(array_keys(reset($values)));
         $parameters = $this->parameterize(reset($values));
-        $parameters = implode(', ', array_fill(0, count($values), '(' . $parameters . ')'));
+        $parameters = implode(', ', array_fill(0, count($values), '('.$parameters.')'));
 
-        return 'INSERT INTO ' . $table . ' (' . $columns . ') VALUES ' . $parameters;
+        return 'INSERT INTO '.$table.' ('.$columns.') VALUES '.$parameters;
     }
 
     /**
@@ -496,10 +496,10 @@ class Grammar extends BaseGrammar
         $columns = [];
 
         foreach ($values as $column => $value) {
-            $columns[] = $this->wrap($column) . ' = ' . $this->parameter($value);
+            $columns[] = $this->wrap($column).' = '.$this->parameter($value);
         }
 
-        return 'UPDATE ' . $table . ' SET ' . implode(', ', $columns) . ' ' . trim($this->wheres($query));
+        return 'UPDATE '.$table.' SET '.implode(', ', $columns).' '.trim($this->wheres($query));
     }
 
     /**
@@ -511,7 +511,7 @@ class Grammar extends BaseGrammar
      */
     public function delete(Query $query)
     {
-        return 'DELETE FROM ' . $this->wrap_table($query->from) . ' ' . trim($this->wheres($query));
+        return 'DELETE FROM '.$this->wrap_table($query->from).' '.trim($this->wheres($query));
     }
 
     /**
@@ -529,7 +529,7 @@ class Grammar extends BaseGrammar
                 if (is_array($bindings[$i])) {
                     $parameters = $this->parameterize($bindings[$i]);
                     array_splice($bindings, $i, 1, $bindings[$i]);
-                    $sql = preg_replace('/\(\.\.\.\)/', '(' . $parameters . ')', $sql, 1);
+                    $sql = preg_replace('/\(\.\.\.\)/', '('.$parameters.')', $sql, 1);
                 }
             }
         }

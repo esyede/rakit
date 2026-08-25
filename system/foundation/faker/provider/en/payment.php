@@ -22,7 +22,7 @@ class Payment extends BasePayment
             static::randomDigit(),
             static::randomNumber(4, true)
         );
-        return $result . static::calculateRoutingNumberChecksum($result);
+        return $result.static::calculateRoutingNumberChecksum($result);
     }
 
     public static function calculateRoutingNumberChecksum($routing)

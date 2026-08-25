@@ -10,9 +10,13 @@ class Email
      * Email priorities.
      */
     const LOWEST = '5 (Lowest)';
+
     const LOW = '4 (Low)';
+
     const NORMAL = '3 (Normal)';
+
     const HIGH = '2 (High)';
+
     const HIGHEST = '1 (Highest)';
 
     /**
@@ -40,7 +44,7 @@ class Email
     {
         $driver = is_null($driver) ? Config::get('email.driver') : $driver;
 
-        if (!isset(static::$drivers[$driver])) {
+        if (! isset(static::$drivers[$driver])) {
             static::$drivers[$driver] = static::factory($driver);
         }
 

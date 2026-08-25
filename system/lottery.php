@@ -105,7 +105,7 @@ class Lottery
      *
      * @return mixed
      */
-    public function __invoke(/** ...$args */)
+    public function __invoke(/* ...$args */)
     {
         return call_user_func_array([$this, 'run_callback'], func_get_args());
     }
@@ -139,7 +139,7 @@ class Lottery
      *
      * @return callable
      */
-    protected function run_callback(/** ...$args */)
+    protected function run_callback(/* ...$args */)
     {
         $args = func_get_args();
 

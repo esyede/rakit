@@ -56,7 +56,7 @@ class QueryException extends \PDOException
     protected function formatMessage($connection, $sql, array $bindings, $previous)
     {
         $query = $this->substituteBindings($sql, $bindings);
-        return $previous->getMessage() . ' (Connection: ' . $connection . ', SQL: ' . $query . ')';
+        return $previous->getMessage().' (Connection: '.$connection.', SQL: '.$query.')';
     }
 
     /**

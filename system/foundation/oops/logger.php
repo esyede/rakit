@@ -7,10 +7,15 @@ defined('DS') or exit('No direct access.');
 class Logger
 {
     const DEBUG = 'debug';
+
     const INFO = 'info';
+
     const WARNING = 'warning';
+
     const ERROR = 'error';
+
     const EXCEPTION = 'exception';
+
     const CRITICAL = 'critical';
 
     /**
@@ -78,9 +83,9 @@ class Logger
      */
     public function log($message, $priority = self::INFO)
     {
-        if (!$this->directory) {
+        if (! $this->directory) {
             throw new \LogicException('Logging directory is not specified.');
-        } elseif (!is_dir($this->directory)) {
+        } elseif (! is_dir($this->directory)) {
             throw new \RuntimeException(
                 sprintf('Logging directory cannot be found or is not directory: %s', $this->directory)
             );
@@ -90,11 +95,11 @@ class Logger
             ? $this->getExceptionFile($message)
             : null;
         $line = static::formatLogLine($message, $excfile, $priority);
-        $prefix = \System\Config::get('application.name') ? \System\Str::slug(\System\Config::get('application.name')) . '_' : '';
-        $file = $this->directory . DIRECTORY_SEPARATOR . $prefix . date('Y-m-d') . '.log.php';
+        $prefix = \System\Config::get('application.name') ? \System\Str::slug(\System\Config::get('application.name')).'_' : '';
+        $file = $this->directory.DIRECTORY_SEPARATOR.$prefix.date('Y-m-d').'.log.php';
 
         try {
-            file_put_contents($file, $line . PHP_EOL, is_file($file) ? FILE_APPEND | LOCK_EX : LOCK_EX);
+            file_put_contents($file, $line.PHP_EOL, is_file($file) ? FILE_APPEND | LOCK_EX : LOCK_EX);
         } catch (\Exception $e) {
             throw new \RuntimeException(sprintf("Unable to write to log file '%s'. Is that directory writable?", $file));
         }
@@ -119,7 +124,7 @@ class Logger
     {
         if (($message instanceof \Exception) || (class_exists('\Throwable') && ($message instanceof \Throwable))) {
             return static::formatExceptionForRakitLog($message);
-        } elseif (!is_string($message)) {
+        } elseif (! is_string($message)) {
             return static::formatValueForRakitLog($message);
         }
 
@@ -140,7 +145,7 @@ class Logger
         $level = strtoupper((string) $priority);
         $output = sprintf('[%s] %s.%s: %s', $date, $env, $level, static::formatMessage($message));
 
-        return $output . PHP_EOL;
+        return $output.PHP_EOL;
     }
 
     /**
@@ -166,15 +171,15 @@ class Logger
         }
 
         $hash = substr(md5(serialize($data)), 0, 10);
-        $dir = strtr($this->directory . '/', '\\/', DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR);
+        $dir = strtr($this->directory.'/', '\\/', DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR);
 
         foreach (new \DirectoryIterator($this->directory) as $file) {
             if (strpos($file->getBasename(), $hash)) {
-                return $dir . $file;
+                return $dir.$file;
             }
         }
 
-        return $dir . 'html' . DIRECTORY_SEPARATOR . 'exception--' . @date('Y-m-d--H-i') . '--' . $hash . '.html';
+        return $dir.'html'.DIRECTORY_SEPARATOR.'exception--'.@date('Y-m-d--H-i').'--'.$hash.'.html';
     }
 
     /**
@@ -206,8 +211,8 @@ class Logger
         if (
             $this->email
             && $this->mailer
-            && @filemtime($this->directory . '/email-sent') + $snooze < time()
-            && @file_put_contents($this->directory . '/email-sent', 'sent')
+            && @filemtime($this->directory.'/email-sent') + $snooze < time()
+            && @file_put_contents($this->directory.'/email-sent', 'sent')
         ) {
             call_user_func($this->mailer, $message, implode(', ', (array) $this->email));
         }
@@ -230,13 +235,13 @@ class Logger
             ["\n", PHP_EOL],
             [
                 'headers' => implode("\n", [
-                    'From: ' . ($this->fromEmail ?: "noreply@$host"),
+                    'From: '.($this->fromEmail ?: "noreply@$host"),
                     'X-Mailer: Rakit debugger',
                     'Content-Type: text/plain; charset=UTF-8',
                     'Content-Transfer-Encoding: 8bit',
-                ]) . "\n",
+                ])."\n",
                 'subject' => "PHP: An error occurred on the server $host",
-                'body' => static::formatMessage($message) . "\n\nsource: " . Helpers::getSource(),
+                'body' => static::formatMessage($message)."\n\nsource: ".Helpers::getSource(),
             ]
         );
 
@@ -309,6 +314,6 @@ class Logger
     protected static function formatExceptionForRakitLog($e)
     {
         $output = sprintf('[object] (%s(code: %s): %s at %s:%s)', get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
-        return $e->getTraceAsString() ? $output . PHP_EOL . $e->getTraceAsString() : $output;
+        return $e->getTraceAsString() ? $output.PHP_EOL.$e->getTraceAsString() : $output;
     }
 }

@@ -33,6 +33,6 @@ class SQLite extends Connector
             return 'sqlite::memory:';
         }
 
-        return 'sqlite:' . path('storage') . 'database' . DS . $config['database'] . '.sqlite';
+        return 'sqlite:'.path('storage').'database'.DS.$config['database'].'.sqlite';
     }
 }

@@ -13,12 +13,12 @@ Package::boot(DEFAULT_PACKAGE);
 $default = Config::get('database.default');
 
 // Set the default database if the user provides '--database'.
-if (!is_null($database = get_cli_option('database'))) {
+if (! is_null($database = get_cli_option('database'))) {
     Config::set('database.default', $database);
 }
 
 // Also register command dependencies in the Container.
-require path('system') . 'console' . DS . 'dependencies.php';
+require path('system').'console'.DS.'dependencies.php';
 
 // Check if console supports color
 $color = function_exists('posix_isatty') && @posix_isatty(STDOUT);

@@ -108,10 +108,10 @@ class Arr
         $results = [];
 
         foreach ($array as $key => $value) {
-            if (is_array($value) && !empty($value)) {
-                $results = array_merge($results, static::dot($value, $prepend . $key . '.'));
+            if (is_array($value) && ! empty($value)) {
+                $results = array_merge($results, static::dot($value, $prepend.$key.'.'));
             } else {
-                $results[$prepend . $key] = $value;
+                $results[$prepend.$key] = $value;
             }
         }
 
@@ -291,7 +291,7 @@ class Arr
      */
     public static function get($array, $key, $default = null)
     {
-        if (!static::accessible($array)) {
+        if (! static::accessible($array)) {
             return value($default);
         }
 
@@ -306,7 +306,7 @@ class Arr
         $segments = explode('.', $key);
 
         foreach ($segments as $segment) {
-            if (!static::accessible($array) || !static::exists($array, $segment)) {
+            if (! static::accessible($array) || ! static::exists($array, $segment)) {
                 return value($default);
             }
 
@@ -326,7 +326,7 @@ class Arr
      */
     public static function has($array, $key)
     {
-        if (!$array || is_null($key)) {
+        if (! $array || is_null($key)) {
             return false;
         }
 
@@ -337,7 +337,7 @@ class Arr
         $segments = explode('.', $key);
 
         foreach ($segments as $segment) {
-            if (!static::accessible($array) || !static::exists($array, $segment)) {
+            if (! static::accessible($array) || ! static::exists($array, $segment)) {
                 return false;
             }
 
@@ -363,7 +363,7 @@ class Arr
 
         $keys = (array) $keys;
 
-        if (!$array || $keys === []) {
+        if (! $array || $keys === []) {
             return false;
         }
 
@@ -386,7 +386,7 @@ class Arr
      */
     public static function associative($array)
     {
-        if (!is_array($array)) {
+        if (! is_array($array)) {
             return false;
         }
 
@@ -404,7 +404,7 @@ class Arr
      */
     public static function sequential($array)
     {
-        if (!is_array($array)) {
+        if (! is_array($array)) {
             return false;
         }
 
@@ -559,7 +559,7 @@ class Arr
         while (count($keys) > 1) {
             $key = array_shift($keys);
 
-            if (!isset($array[$key]) || !is_array($array[$key])) {
+            if (! isset($array[$key]) || ! is_array($array[$key])) {
                 $array[$key] = [];
             }
 

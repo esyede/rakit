@@ -11,55 +11,103 @@ class Curl
      * See: https://www.iana.org/assignments/http-methods/http-methods.xhtml.
      */
     const GET = 'GET';
+
     const HEAD = 'HEAD';
+
     const POST = 'POST';
+
     const PUT = 'PUT';
+
     const DELETE = 'DELETE';
+
     const CONNECT = 'CONNECT';
+
     const OPTIONS = 'OPTIONS';
+
     const TRACE = 'TRACE';
+
     const BASELINE = 'BASELINE';
+
     const LINK = 'LINK';
+
     const UNLINK = 'UNLINK';
+
     const MERGE = 'MERGE';
+
     const BASELINECONTROL = 'BASELINE-CONTROL';
+
     const MKACTIVITY = 'MKACTIVITY';
+
     const VERSIONCONTROL = 'VERSION-CONTROL';
+
     const REPORT = 'REPORT';
+
     const CHECKOUT = 'CHECKOUT';
+
     const CHECKIN = 'CHECKIN';
+
     const UNCHECKOUT = 'UNCHECKOUT';
+
     const MKWORKSPACE = 'MKWORKSPACE';
+
     const UPDATE = 'UPDATE';
+
     const LABEL = 'LABEL';
+
     const ORDERPATCH = 'ORDERPATCH';
+
     const ACL = 'ACL';
+
     const MKREDIRECTREF = 'MKREDIRECTREF';
+
     const UPDATEREDIRECTREF = 'UPDATEREDIRECTREF';
+
     const MKCALENDAR = 'MKCALENDAR';
+
     const PROPFIND = 'PROPFIND';
+
     const LOCK = 'LOCK';
+
     const UNLOCK = 'UNLOCK';
+
     const PROPPATCH = 'PROPPATCH';
+
     const MKCOL = 'MKCOL';
+
     const COPY = 'COPY';
+
     const MOVE = 'MOVE';
+
     const SEARCH = 'SEARCH';
+
     const PATCH = 'PATCH';
+
     const BIND = 'BIND';
+
     const UNBIND = 'UNBIND';
+
     const REBIND = 'REBIND';
 
     private static $handler;
+
     private static $cookie;
+
     private static $cookie_file;
+
     private static $curl_options = [];
+
     private static $default_headers = [];
+
     private static $json_options = [];
+
     private static $socket_timeout;
+
     private static $verify_peer = 1;
+
     private static $verify_host = 2;
+
     private static $auth = ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC];
+
     private static $proxy = [
         'port' => false,
         'tunnel' => false,
@@ -444,10 +492,10 @@ class Curl
             curl_setopt(static::$handler, CURLOPT_COOKIEJAR, static::$cookie_file);
         }
 
-        if (!empty(static::$auth['user'])) {
+        if (! empty(static::$auth['user'])) {
             curl_setopt_array(static::$handler, [
                 CURLOPT_HTTPAUTH => static::$auth['method'],
-                CURLOPT_USERPWD => static::$auth['user'] . ':' . static::$auth['pass'],
+                CURLOPT_USERPWD => static::$auth['user'].':'.static::$auth['pass'],
             ]);
         }
 
@@ -458,7 +506,7 @@ class Curl
                 CURLOPT_PROXYPORT => static::$proxy['port'],
                 CURLOPT_HTTPPROXYTUNNEL => static::$proxy['tunnel'],
                 CURLOPT_PROXYAUTH => static::$proxy['auth']['method'],
-                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'] . ':' . static::$proxy['auth']['pass'],
+                CURLOPT_PROXYUSERPWD => static::$proxy['auth']['user'].':'.static::$proxy['auth']['pass'],
             ]);
         }
 
@@ -470,7 +518,7 @@ class Curl
         // Record the request on the debug bar's HTTP client panel.
         if (class_exists('\System\Foundation\Oops\Collectors')
             && class_exists('\System\Foundation\Oops\Debugger')
-            && !\System\Foundation\Oops\Debugger::$productionMode) {
+            && ! \System\Foundation\Oops\Debugger::$productionMode) {
             \System\Foundation\Oops\Collectors::trackHttp(
                 $method,
                 $url,
@@ -484,7 +532,7 @@ class Curl
         }
 
         if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
+            /* @disregard */
             curl_close(static::$handler);
         }
 
@@ -516,7 +564,7 @@ class Curl
             $item = explode(':', $item, 2);
 
             if (isset($item[1])) {
-                if (!isset($headers[$item[0]])) {
+                if (! isset($headers[$item[0]])) {
                     $headers[$item[0]] = trim($item[1]);
                 } elseif (is_array($headers[$item[0]])) {
                     $headers[$item[0]] = array_merge($headers[$item[0]], [trim($item[1])]);
@@ -527,8 +575,8 @@ class Curl
                 $key = $item[0];
             } else {
                 if (substr((string) $item[0], 0, 1) === "\t") {
-                    $headers[$key] .= "\r\n\t" . trim($item[0]);
-                } elseif (!$key) {
+                    $headers[$key] .= "\r\n\t".trim($item[0]);
+                } elseif (! $key) {
                     $headers[0] = trim($item[0]);
                 }
             }
@@ -549,7 +597,7 @@ class Curl
      */
     public static function body_file($path, $alias = '')
     {
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             throw new \Exception(sprintf('Target file not found: %s', $path));
         }
 
@@ -640,7 +688,7 @@ class Curl
             $name = $parent ? sprintf('%s[%s]', $parent, $key) : $key;
 
             if (class_exists('\CURLFile')) {
-                if (!($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
+                if (! ($value instanceof \CURLFile) && (is_array($value) || is_object($value))) {
                     $result = array_merge($result, static::build_curl_query($value, $name));
                 } else {
                     $result[$name] = $value;
@@ -691,14 +739,14 @@ class Curl
         $formatted = [];
 
         foreach ($headers as $key => $value) {
-            $formatted[] = trim(strtolower((string) $key)) . ': ' . $value;
+            $formatted[] = trim(strtolower((string) $key)).': '.$value;
         }
 
-        if (!array_key_exists('user-agent', $headers)) {
-            $formatted[] = 'user-agent: ' . static::fake_user_agent();
+        if (! array_key_exists('user-agent', $headers)) {
+            $formatted[] = 'user-agent: '.static::fake_user_agent();
         }
 
-        if (!array_key_exists('expect', $headers)) {
+        if (! array_key_exists('expect', $headers)) {
             $formatted[] = 'expect:';
         }
 
@@ -732,14 +780,14 @@ class Curl
     private static function encode_url($url)
     {
         $url = parse_url($url);
-        $scheme = $url['scheme'] . '://';
+        $scheme = $url['scheme'].'://';
         $host = (string) $url['host'];
-        $port = isset($url['port']) ? ':' . ltrim((string) $url['port'], ':') : '';
+        $port = isset($url['port']) ? ':'.ltrim((string) $url['port'], ':') : '';
         $path = isset($url['path']) ? (string) $url['path'] : '';
         $query = isset($url['query']) ? (string) $url['query'] : '';
-        $query = $query ? '?' . http_build_query(static::format_query($query)) : '';
+        $query = $query ? '?'.http_build_query(static::format_query($query)) : '';
 
-        return $scheme . $host . $port . $path . $query;
+        return $scheme.$host.$port.$path.$query;
     }
 
     /**
@@ -776,6 +824,6 @@ class Curl
         $version = 103 + (((($year < 2020) ? 2020 : $year) - 2020) * 2);
         $minor = rand(0, 3);
 
-        return 'Mozilla/5.0 ' . str_replace(['[v]', '[y]', '[m]'], [$version, $year, $minor], $agents[$platform]);
+        return 'Mozilla/5.0 '.str_replace(['[v]', '[y]', '[m]'], [$version, $year, $minor], $agents[$platform]);
     }
 }

@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 class Inspector
 {
     private $fallback;
+
     private $colorizers = [];
 
     private static $colors = [

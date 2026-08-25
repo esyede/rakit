@@ -30,39 +30,39 @@ abstract class Provider
      */
     protected function zipball($url, array $package, $path)
     {
-        $zipball = path('storage') . 'console' . DS . 'zipball.zip';
+        $zipball = path('storage').'console'.DS.'zipball.zip';
         is_file($zipball) && Storage::delete($zipball);
 
-        if (is_dir(path('package') . $package['name'])) {
-            echo PHP_EOL . Color::red(sprintf('Package already downloaded: %s', $package['name']));
+        if (is_dir(path('package').$package['name'])) {
+            echo PHP_EOL.Color::red(sprintf('Package already downloaded: %s', $package['name']));
             return;
         }
 
         static::relax(path('package'));
-        echo PHP_EOL . Color::green('Downloading zipball...', false);
+        echo PHP_EOL.Color::green('Downloading zipball...', false);
         $this->download($url, $zipball);
         echo ' done!';
 
-        echo PHP_EOL . Color::green('Extracting zipball...', false);
+        echo PHP_EOL.Color::green('Extracting zipball...', false);
 
         static::unzip($zipball, path('package'));
 
-        $packages = glob(path('package') . $package['name'] . '*', GLOB_ONLYDIR);
+        $packages = glob(path('package').$package['name'].'*', GLOB_ONLYDIR);
 
         if (isset($packages[0]) && basename((string) $packages[0]) !== $package['name']) {
-            rename($packages[0], path('package') . $package['name']);
+            rename($packages[0], path('package').$package['name']);
         }
 
         static::relax(path('package'));
         Storage::delete($zipball);
 
-        if (is_dir($assets = path('package') . $package['name'] . DS . 'assets')) {
-            $destination = path('assets') . 'packages' . DS . $package['name'];
+        if (is_dir($assets = path('package').$package['name'].DS.'assets')) {
+            $destination = path('assets').'packages'.DS.$package['name'];
 
-            if (!is_dir($destination)) {
+            if (! is_dir($destination)) {
                 Storage::cpdir($assets, $destination);
             } else {
-                echo PHP_EOL . Color::red(sprintf('Assets already exists: %s', $destination));
+                echo PHP_EOL.Color::red(sprintf('Assets already exists: %s', $destination));
                 return;
             }
         }
@@ -77,13 +77,13 @@ abstract class Provider
      */
     protected static function relax($directory)
     {
-        if (!is_dir($directory)) {
+        if (! is_dir($directory)) {
             return;
         }
 
         $latest = Storage::latest($directory);
 
-        if (!is_null($latest) && false !== ($path = $latest->getRealPath())) {
+        if (! is_null($latest) && false !== ($path = $latest->getRealPath())) {
             @chmod($path, 0755);
         }
     }
@@ -117,14 +117,14 @@ abstract class Provider
         $type = curl_getinfo($ch);
 
         if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
+            /* @disregard */
             curl_close($ch);
         }
 
         $type = (is_array($type) && isset($type['content_type'])) ? $type['content_type'] : '';
 
-        if (!is_string($type) || false === strpos($type, 'application/zip')) {
-            echo PHP_EOL . Color::red(sprintf(
+        if (! is_string($type) || false === strpos($type, 'application/zip')) {
+            echo PHP_EOL.Color::red(sprintf(
                 "Error: Remote sever sending an invalid content type: '%s (%s)', expecting '%s'",
                 $type,
                 gettype($type),
@@ -140,21 +140,21 @@ abstract class Provider
             curl_setopt_array($ch, [CURLOPT_URL => $url, CURLOPT_FILE => $fopen, 19914 => 1]);
 
             if (false === curl_exec($ch)) {
-                echo PHP_EOL . Color::red('Error: ' . curl_error($ch));
+                echo PHP_EOL.Color::red('Error: '.curl_error($ch));
                 return;
             }
 
             if (PHP_VERSION_ID < 80000) {
-                /** @disregard */
+                /* @disregard */
                 curl_close($ch);
             }
 
             fclose($fopen);
         } catch (\Throwable $e) {
-            echo PHP_EOL . Color::red('Error: ' . $e->getMessage());
+            echo PHP_EOL.Color::red('Error: '.$e->getMessage());
             return;
         } catch (\Exception $e) {
-            echo PHP_EOL . Color::red('Error: ' . $e->getMessage());
+            echo PHP_EOL.Color::red('Error: '.$e->getMessage());
             return;
         }
     }
@@ -171,19 +171,19 @@ abstract class Provider
     {
         @ini_set('memory_limit', '256M');
 
-        if (!is_dir($destination)) {
+        if (! is_dir($destination)) {
             Storage::mkdir($destination, 0755);
         }
 
-        if (!extension_loaded('zip') || !class_exists('\ZipArchive')) {
-            echo PHP_EOL . Color::red('Please enable php-zip extension on this server');
+        if (! extension_loaded('zip') || ! class_exists('\ZipArchive')) {
+            echo PHP_EOL.Color::red('Please enable php-zip extension on this server');
             return;
         }
 
         $zip = new \ZipArchive();
 
-        if (!$zip->open($file)) {
-            echo PHP_EOL . Color::red(sprintf('Error: Could not open zip file: %s', $file));
+        if (! $zip->open($file)) {
+            echo PHP_EOL.Color::red(sprintf('Error: Could not open zip file: %s', $file));
             return;
         }
 
@@ -192,7 +192,7 @@ abstract class Provider
 
             if (0 === strpos($entry, '/') || preg_match('#(^|/)\.\.(/|$)#', $entry)) {
                 $zip->close();
-                echo PHP_EOL . Color::red(sprintf('Error: Refusing unsafe path in archive: %s', $entry));
+                echo PHP_EOL.Color::red(sprintf('Error: Refusing unsafe path in archive: %s', $entry));
                 return;
             }
         }

@@ -7,11 +7,15 @@ defined('DS') or exit('No direct access.');
 class Helper extends Header
 {
     const COOKIES_FLAT = 'flat';
+
     const COOKIES_ARRAY = 'array';
+
     const DISPOSITION_ATTACHMENT = 'attachment';
+
     const DISPOSITION_INLINE = 'inline';
 
     protected $computedCacheControl = [];
+
     protected $cookies = [];
 
     /**
@@ -23,7 +27,7 @@ class Helper extends Header
     {
         parent::__construct($headers);
 
-        if (!isset($this->headers['Cache-Control'])) {
+        if (! isset($this->headers['Cache-Control'])) {
             $this->set('Cache-Control', '');
         }
     }
@@ -37,10 +41,10 @@ class Helper extends Header
         $string = '';
 
         foreach ($cookies as $cookie) {
-            $string .= 'Set-Cookie: ' . $cookie . "\r\n";
+            $string .= 'Set-Cookie: '.$cookie."\r\n";
         }
 
-        return parent::__toString() . $string;
+        return parent::__toString().$string;
     }
 
     /**
@@ -50,7 +54,7 @@ class Helper extends Header
     {
         parent::replace($headers);
 
-        if (!isset($this->headers['Cache-Control'])) {
+        if (! isset($this->headers['Cache-Control'])) {
             $this->set('Cache-Control', '');
         }
     }
@@ -148,7 +152,7 @@ class Helper extends Header
      */
     public function getCookies($format = self::COOKIES_FLAT)
     {
-        if (!in_array($format, [self::COOKIES_FLAT, self::COOKIES_ARRAY])) {
+        if (! in_array($format, [self::COOKIES_FLAT, self::COOKIES_ARRAY])) {
             throw new \InvalidArgumentException(sprintf('Format "%s" invalid (%s).', $format, implode(', ', [self::COOKIES_FLAT, self::COOKIES_ARRAY])));
         }
 
@@ -195,7 +199,7 @@ class Helper extends Header
         $filename = (string) $filename;
         $filenameFallback = (string) $filenameFallback;
 
-        if (!in_array($disposition, [self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE])) {
+        if (! in_array($disposition, [self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE])) {
             throw new \Exception(sprintf("The disposition must be either '%s' or '%s'.", self::DISPOSITION_ATTACHMENT, self::DISPOSITION_INLINE));
         }
 
@@ -216,7 +220,7 @@ class Helper extends Header
         }
 
         $filenameFallback = str_replace('"', '\\"', $filenameFallback);
-        $output = $disposition . '; filename="' . $filenameFallback . '"';
+        $output = $disposition.'; filename="'.$filenameFallback.'"';
 
         if ($filename !== $filenameFallback) {
             $output .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
@@ -232,17 +236,17 @@ class Helper extends Header
      */
     protected function computeCacheControlValue()
     {
-        if (!$this->cacheControl && !$this->has('ETag') && !$this->has('Last-Modified') && !$this->has('Expires')) {
+        if (! $this->cacheControl && ! $this->has('ETag') && ! $this->has('Last-Modified') && ! $this->has('Expires')) {
             return 'no-cache';
         }
 
-        if (!$this->cacheControl) {
+        if (! $this->cacheControl) {
             return 'private, must-revalidate';
         }
 
         $header = $this->getCacheControlHeader();
         return (isset($this->cacheControl['public']) || isset($this->cacheControl['private']))
             ? $header
-            : (isset($this->cacheControl['s-maxage']) ? $header : $header . ', private');
+            : (isset($this->cacheControl['s-maxage']) ? $header : $header.', private');
     }
 }

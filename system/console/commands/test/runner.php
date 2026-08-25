@@ -39,8 +39,8 @@ class Runner extends Command
      */
     public function core()
     {
-        $this->base = path('base') . 'tests' . DS;
-        $this->stub($this->base . 'cases');
+        $this->base = path('base').'tests'.DS;
+        $this->stub($this->base.'cases');
         $this->start();
     }
 
@@ -55,11 +55,11 @@ class Runner extends Command
     {
         $packages = is_array($packages) ? $packages : [$packages];
         $packages = (0 === count($packages)) ? Package::names() : $packages;
-        $this->base = path('system') . 'console' . DS . 'commands' . DS . 'test' . DS;
+        $this->base = path('system').'console'.DS.'commands'.DS.'test'.DS;
         $status = 0;
 
         foreach ($packages as $package) {
-            if (is_dir($base = Package::path($package) . 'tests')) {
+            if (is_dir($base = Package::path($package).'tests')) {
                 $this->stub($base);
                 $result = $this->start(false);
                 $status = $result ? $result : $status;
@@ -78,10 +78,10 @@ class Runner extends Command
      */
     protected function start($exit = true)
     {
-        $phpunit = 'vendor' . DS . 'bin' . DS . 'phpunit';
-        $config = path('base') . 'phpunit.xml';
+        $phpunit = 'vendor'.DS.'bin'.DS.'phpunit';
+        $config = path('base').'phpunit.xml';
 
-        if (!is_file(path('base') . $phpunit)) {
+        if (! is_file(path('base').$phpunit)) {
             throw new \Exception("Error: test dependencies is not present. Please run 'composer install' first.");
         }
 
@@ -90,8 +90,8 @@ class Runner extends Command
 
         // Forward all phpunit arguments
         $args = $this->arguments();
-        $phpunit .= $args ? ' ' . $args : '';
-        passthru('.' . DS . $phpunit . ' --configuration ' . escapeshellarg($config), $status);
+        $phpunit .= $args ? ' '.$args : '';
+        passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
         is_file($config) && Storage::delete($config);
 
         if ($exit) {
@@ -110,9 +110,9 @@ class Runner extends Command
      */
     protected function stub($directory)
     {
-        $stub = Storage::get(__DIR__ . DS . 'stub.xml');
-        $stub = $this->tokens($stub, ['[boot]' => $this->base . 'phpunit.php', '[dir]' => $directory]);
-        file_put_contents(path('base') . 'phpunit.xml', $stub, LOCK_EX);
+        $stub = Storage::get(__DIR__.DS.'stub.xml');
+        $stub = $this->tokens($stub, ['[boot]' => $this->base.'phpunit.php', '[dir]' => $directory]);
+        file_put_contents(path('base').'phpunit.xml', $stub, LOCK_EX);
     }
 
     /**

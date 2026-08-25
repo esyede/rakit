@@ -21,14 +21,14 @@ class SQLite extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-        $sql = 'CREATE TABLE ' . $this->wrap($table) . ' (' . $columns;
+        $sql = 'CREATE TABLE '.$this->wrap($table).' ('.$columns;
         $primary = Arr::first($table->commands, function ($key, $value) {
             return 'primary' === $value->type;
         });
 
-        if (!is_null($primary)) {
+        if (! is_null($primary)) {
             $columns = $this->columnize($primary->columns);
-            $sql .= ', PRIMARY KEY (' . $columns . ')';
+            $sql .= ', PRIMARY KEY ('.$columns.')';
         }
 
         return $sql .= ')';
@@ -45,13 +45,13 @@ class SQLite extends Grammar
     public function add(Table $table, Magic $command)
     {
         $columns = array_map(function ($column) {
-            return 'ADD COLUMN ' . $column;
+            return 'ADD COLUMN '.$column;
         }, $this->columns($table));
 
         $sql = [];
 
         foreach ($columns as $column) {
-            $sql[] = 'ALTER TABLE ' . $this->wrap($table) . ' ' . $column;
+            $sql[] = 'ALTER TABLE '.$this->wrap($table).' '.$column;
         }
 
         return $sql;
@@ -69,7 +69,7 @@ class SQLite extends Grammar
         $columns = [];
 
         foreach ($table->columns as $column) {
-            $sql = $this->wrap($column) . ' ' . $this->type($column);
+            $sql = $this->wrap($column).' '.$this->type($column);
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->collate($table, $column);
             $sql .= $this->nullable($table, $column);
@@ -105,7 +105,7 @@ class SQLite extends Grammar
     protected function defaults(Table $table, Magic $column)
     {
         if (isset($column->defaults) && null !== $column->defaults) {
-            return " DEFAULT '" . str_replace("'", "''", $this->default_value($column->defaults)) . "'";
+            return " DEFAULT '".str_replace("'", "''", $this->default_value($column->defaults))."'";
         }
     }
 
@@ -167,7 +167,7 @@ class SQLite extends Grammar
         $strings = ['string', 'text', 'json', 'jsonb', 'enum', 'set'];
 
         if (in_array($column->type, $strings) && isset($column->collate) && $column->collate) {
-            return ' COLLATE ' . $column->collate;
+            return ' COLLATE '.$column->collate;
         }
     }
 
@@ -195,7 +195,7 @@ class SQLite extends Grammar
     public function fulltext(Table $table, Magic $command)
     {
         $columns = $this->columnize($command->columns);
-        return 'CREATE VIRTUAL TABLE ' . $this->wrap($table) . ' USING fts4(' . $columns . ')';
+        return 'CREATE VIRTUAL TABLE '.$this->wrap($table).' USING fts4('.$columns.')';
     }
 
     /**
@@ -222,8 +222,8 @@ class SQLite extends Grammar
      */
     protected function key(Table $table, Magic $command, $unique = false)
     {
-        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name
-            . ' ON ' . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
+        return ($unique ? 'CREATE UNIQUE' : 'CREATE').' INDEX '.$command->name
+            .' ON '.$this->wrap($table).' ('.$this->columnize($command->columns).')';
     }
 
     /**
@@ -236,7 +236,7 @@ class SQLite extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' RENAME TO ' . $this->wrap($command->name);
+        return 'ALTER TABLE '.$this->wrap($table).' RENAME TO '.$this->wrap($command->name);
     }
 
     /**
@@ -275,7 +275,7 @@ class SQLite extends Grammar
      */
     protected function drop_key(Table $table, Magic $command)
     {
-        return 'DROP INDEX ' . $this->wrap($command->name);
+        return 'DROP INDEX '.$this->wrap($command->name);
     }
 
     /**
@@ -289,8 +289,8 @@ class SQLite extends Grammar
     public function spatial(Table $table, Magic $command)
     {
         // SQLite spatial index will be using R-Tree module
-        return 'CREATE VIRTUAL TABLE ' . $this->wrap($table)
-            . ' USING rtree(' . $this->columnize($command->columns) . ')';
+        return 'CREATE VIRTUAL TABLE '.$this->wrap($table)
+            .' USING rtree('.$this->columnize($command->columns).')';
     }
 
     /**
@@ -329,7 +329,7 @@ class SQLite extends Grammar
      */
     public function drop_index_if_exists(Table $table, Magic $command)
     {
-        return 'DROP INDEX IF EXISTS ' . $this->wrap($command->name);
+        return 'DROP INDEX IF EXISTS '.$this->wrap($command->name);
     }
 
     /**
@@ -342,7 +342,7 @@ class SQLite extends Grammar
      */
     public function drop_unique_if_exists(Table $table, Magic $command)
     {
-        return 'DROP INDEX IF EXISTS ' . $this->wrap($command->name);
+        return 'DROP INDEX IF EXISTS '.$this->wrap($command->name);
     }
 
     /**
@@ -355,7 +355,7 @@ class SQLite extends Grammar
      */
     public function drop_fulltext_if_exists(Table $table, Magic $command)
     {
-        return 'DROP TABLE IF EXISTS ' . $this->wrap($command->name);
+        return 'DROP TABLE IF EXISTS '.$this->wrap($command->name);
     }
 
     /**
@@ -428,7 +428,7 @@ class SQLite extends Grammar
      */
     protected function type_decimal(Magic $column)
     {
-        return 'DECIMAL(' . $column->precision . ', ' . $column->scale . ')';
+        return 'DECIMAL('.$column->precision.', '.$column->scale.')';
     }
 
     /**
@@ -441,7 +441,7 @@ class SQLite extends Grammar
     protected function type_enum(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . str_replace("'", "''", (string) $item) . "'";
+            return "'".str_replace("'", "''", (string) $item)."'";
         }, $column->allowed));
 
         return sprintf('VARCHAR CHECK ("%s" IN (%s))', $column->name, $allowed);
@@ -733,7 +733,7 @@ class SQLite extends Grammar
     protected function type_set(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . str_replace("'", "''", (string) $item) . "'";
+            return "'".str_replace("'", "''", (string) $item)."'";
         }, $column->allowed));
 
         return sprintf('TEXT CHECK ("%s" IN (%s))', $column->name, $allowed);

@@ -36,7 +36,7 @@ class Database extends Driver
      */
     public function has($key)
     {
-        return !is_null($this->get($key));
+        return ! is_null($this->get($key));
     }
 
     /**
@@ -48,9 +48,9 @@ class Database extends Driver
      */
     protected function retrieve($key)
     {
-        $cache = $this->table()->where('key', '=', $this->key . $key)->first();
+        $cache = $this->table()->where('key', '=', $this->key.$key)->first();
 
-        if (!is_null($cache)) {
+        if (! is_null($cache)) {
             return Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now())
                 ? $this->forget($key)
                 : unserialize($cache->value);
@@ -66,7 +66,7 @@ class Database extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        $key = $this->key . $key;
+        $key = $this->key.$key;
         $value = serialize($value);
         $expiration = $this->expiration($minutes);
         $record = $this->table()->where('key', $key);
@@ -89,16 +89,16 @@ class Database extends Driver
     public function increment($key, $minutes = 1)
     {
         $db = Config::get('cache.database');
-        $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
+        $db['connection'] = (isset($db['connection']) && ! empty($db['connection'])) ? $db['connection'] : null;
         $connection = DB::connection($db['connection']);
         $table = $db['table'];
-        $prefixed = $this->key . $key;
+        $prefixed = $this->key.$key;
         $expiration = $this->expiration($minutes);
         $new = 1;
 
         $connection->transaction(function () use ($connection, $table, $prefixed, $expiration, &$new) {
             $cache = $connection->table($table)->where('key', '=', $prefixed)->first();
-            $expired = !is_null($cache) && Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now());
+            $expired = ! is_null($cache) && Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now());
 
             if (is_null($cache) || $expired) {
                 $connection->table($table)->where('key', '=', $prefixed)->delete();
@@ -121,7 +121,7 @@ class Database extends Driver
      */
     public function forget($key)
     {
-        $this->table()->where('key', '=', $this->key . $key)->delete();
+        $this->table()->where('key', '=', $this->key.$key)->delete();
     }
 
     /**
@@ -130,9 +130,9 @@ class Database extends Driver
     public function flush()
     {
         $db = Config::get('cache.database');
-        $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
+        $db['connection'] = (isset($db['connection']) && ! empty($db['connection'])) ? $db['connection'] : null;
         $connection = DB::connection($db['connection']);
-        $connection->query((('sqlite' === $connection->driver()) ? 'DELETE FROM ' : 'TRUNCATE TABLE ') . $db['table']);
+        $connection->query((('sqlite' === $connection->driver()) ? 'DELETE FROM ' : 'TRUNCATE TABLE ').$db['table']);
     }
 
     /**
@@ -143,7 +143,7 @@ class Database extends Driver
     protected function table()
     {
         $db = Config::get('cache.database');
-        $db['connection'] = (isset($db['connection']) && !empty($db['connection'])) ? $db['connection'] : null;
+        $db['connection'] = (isset($db['connection']) && ! empty($db['connection'])) ? $db['connection'] : null;
         return DB::connection($db['connection'])->table($db['table']);
     }
 }

@@ -63,7 +63,7 @@ class APC extends Driver
      */
     public function has($key)
     {
-        return !is_null($this->get($key));
+        return ! is_null($this->get($key));
     }
 
     /**
@@ -79,8 +79,8 @@ class APC extends Driver
 
         /** @disregard */
         $cache = static::apcu()
-            ? apcu_fetch($this->key . $key, $success)
-            : apc_fetch($this->key . $key, $success);
+            ? apcu_fetch($this->key.$key, $success)
+            : apc_fetch($this->key.$key, $success);
 
         return $success ? $cache : null;
     }
@@ -94,10 +94,10 @@ class APC extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        /** @disregard */
+        /* @disregard */
         static::apcu()
-            ? apcu_store($this->key . $key, $value, $minutes * 60)
-            : apc_store($this->key . $key, $value, $minutes * 60);
+            ? apcu_store($this->key.$key, $value, $minutes * 60)
+            : apc_store($this->key.$key, $value, $minutes * 60);
     }
 
     /**
@@ -111,7 +111,7 @@ class APC extends Driver
     public function increment($key, $minutes = 1)
     {
         /** @disregard */
-        $current = static::apcu() ? apcu_inc($this->key . $key) : apc_inc($this->key . $key);
+        $current = static::apcu() ? apcu_inc($this->key.$key) : apc_inc($this->key.$key);
 
         if ($current !== false) {
             return (int) $current;
@@ -129,8 +129,8 @@ class APC extends Driver
      */
     public function forget($key)
     {
-        /** @disregard */
-        static::apcu() ? apcu_delete($this->key . $key) : apc_delete($this->key . $key);
+        /* @disregard */
+        static::apcu() ? apcu_delete($this->key.$key) : apc_delete($this->key.$key);
     }
 
     /**
@@ -139,12 +139,12 @@ class APC extends Driver
     public function flush()
     {
         if (static::apcu()) {
-            /** @disregard */
+            /* @disregard */
             apcu_clear_cache();
             return;
         }
 
-        /** @disregard */
+        /* @disregard */
         apc_clear_cache('user');
     }
 }

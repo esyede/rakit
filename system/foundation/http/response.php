@@ -105,7 +105,7 @@ class Response
         $this->setStatusCode($status);
         $this->setProtocolVersion('1.0');
 
-        if (!$this->headers->has('Date')) {
+        if (! $this->headers->has('Date')) {
             $this->setDate(new \DateTime('now', new \DateTimeZone('UTC')));
         }
     }
@@ -131,7 +131,7 @@ class Response
      */
     public function __toString()
     {
-        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
+        return sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText)."\r\n".$this->headers."\r\n".$this->getContent();
     }
 
     /**
@@ -157,7 +157,7 @@ class Response
             $this->setContent(null);
         }
 
-        if (!$headers->has('Content-Type')) {
+        if (! $headers->has('Content-Type')) {
             $format = $request->getRequestFormat();
 
             if (null !== $format && $mimeType = $request->getMimeType($format)) {
@@ -167,13 +167,13 @@ class Response
 
         $charset = $this->charset ?: 'UTF-8';
 
-        if (!$headers->has('Content-Type')) {
-            $headers->set('Content-Type', 'text/html; charset=' . $charset);
+        if (! $headers->has('Content-Type')) {
+            $headers->set('Content-Type', 'text/html; charset='.$charset);
         } elseif (
             0 === strpos((string) $headers->get('Content-Type'), 'text/')
             && false === strpos((string) $headers->get('Content-Type'), 'charset')
         ) {
-            $headers->set('Content-Type', $headers->get('Content-Type') . '; charset=' . $charset);
+            $headers->set('Content-Type', $headers->get('Content-Type').'; charset='.$charset);
         }
 
         if ($headers->has('Transfer-Encoding')) {
@@ -217,7 +217,7 @@ class Response
 
         foreach ($headers as $name => $values) {
             foreach ($values as $value) {
-                header($name . ': ' . $value, false);
+                header($name.': '.$value, false);
             }
         }
 
@@ -229,7 +229,7 @@ class Response
                     $cookie->getName(),
                     $cookie->getValue(),
                     $cookie->getExpiresTime(),
-                    $cookie->getPath() . '; samesite=' . $cookie->getSameSite(),
+                    $cookie->getPath().'; samesite='.$cookie->getSameSite(),
                     $cookie->getDomain(),
                     $cookie->isSecure(),
                     $cookie->isHttpOnly()
@@ -289,7 +289,7 @@ class Response
      */
     public function setContent($content)
     {
-        if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([$content, '__toString'])) {
+        if (null !== $content && ! is_string($content) && ! is_numeric($content) && ! is_callable([$content, '__toString'])) {
             throw new \UnexpectedValueException(sprintf('Response content must be a string or object implementing __toString(), %s given.', gettype($content)));
         }
 
@@ -400,7 +400,7 @@ class Response
      */
     public function isCacheable()
     {
-        if (!in_array($this->statusCode, [200, 203, 300, 301, 302, 404, 410])) {
+        if (! in_array($this->statusCode, [200, 203, 300, 301, 302, 404, 410])) {
             return false;
         }
 
@@ -489,7 +489,7 @@ class Response
     public function setDate(\DateTime $date)
     {
         $date->setTimezone(new \DateTimeZone('UTC'));
-        $this->headers->set('Date', $date->format('D, d M Y H:i:s') . ' GMT');
+        $this->headers->set('Date', $date->format('D, d M Y H:i:s').' GMT');
         return $this;
     }
 
@@ -543,7 +543,7 @@ class Response
         } else {
             $date = clone $date;
             $date->setTimezone(new \DateTimeZone('UTC'));
-            $this->headers->set('Expires', $date->format('D, d M Y H:i:s') . ' GMT');
+            $this->headers->set('Expires', $date->format('D, d M Y H:i:s').' GMT');
         }
 
         return $this;
@@ -658,7 +658,7 @@ class Response
         } else {
             $date = clone $date;
             $date->setTimezone(new \DateTimeZone('UTC'));
-            $this->headers->set('Last-Modified', $date->format('D, d M Y H:i:s') . ' GMT');
+            $this->headers->set('Last-Modified', $date->format('D, d M Y H:i:s').' GMT');
         }
 
         return $this;
@@ -687,8 +687,8 @@ class Response
         if (null === $etag) {
             $this->headers->remove('ETag');
         } else {
-            $etag = (0 !== strpos((string) $etag, '"')) ? '"' . $etag . '"' : $etag;
-            $this->headers->set('ETag', ($weak ? 'W/' : '') . $etag);
+            $etag = (0 !== strpos((string) $etag, '"')) ? '"'.$etag.'"' : $etag;
+            $this->headers->set('ETag', ($weak ? 'W/' : '').$etag);
         }
 
         return $this;
@@ -807,7 +807,7 @@ class Response
      */
     public function isNotModified(Request $request)
     {
-        if (!$request->isMethodSafe()) {
+        if (! $request->isMethodSafe()) {
             return false;
         }
 
@@ -816,7 +816,7 @@ class Response
         $notModified = false;
 
         if ($etags) {
-            $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags)) && (!$lastModified || $this->headers->get('Last-Modified') === $lastModified);
+            $notModified = (in_array($this->getEtag(), $etags) || in_array('*', $etags)) && (! $lastModified || $this->headers->get('Last-Modified') === $lastModified);
         } elseif ($lastModified) {
             $notModified = ($lastModified === $this->headers->get('Last-Modified'));
         }
@@ -950,12 +950,12 @@ class Response
         $cliRequest = defined('STDIN') || 'cli' === php_sapi_name() || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
 
         if (function_exists('fastcgi_finish_request')) {
-            /** @disregard */
+            /* @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
-            /** @disregard */
+            /* @disregard */
             litespeed_finish_request();
-        } elseif (!$cliRequest) {
+        } elseif (! $cliRequest) {
             $previous = null;
             $ob = ob_get_status(true);
 

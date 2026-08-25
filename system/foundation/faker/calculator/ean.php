@@ -29,7 +29,7 @@ class Ean
     {
         $ean = (string) $ean;
 
-        if (!preg_match('/^(?:\d{8}|\d{13})$/', $ean)) {
+        if (! preg_match('/^(?:\d{8}|\d{13})$/', $ean)) {
             return false;
         }
 

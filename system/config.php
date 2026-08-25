@@ -59,7 +59,7 @@ class Config
      */
     public static function has($key)
     {
-        return !is_null(static::get($key));
+        return ! is_null(static::get($key));
     }
 
     /**
@@ -77,11 +77,11 @@ class Config
         if (isset(static::$gets[$key])) {
             $cached = static::$gets[$key];
 
-            if (!static::$reload) {
+            if (! static::$reload) {
                 return $cached['found'] ? $cached['value'] : value($default);
             }
 
-            $path = Package::path($package) . 'config' . DS . $file . '.php';
+            $path = Package::path($package).'config'.DS.$file.'.php';
 
             if (is_file($path) && filemtime($path) > $cached['mtime']) {
                 foreach (static::$gets as $k => $v) {
@@ -96,7 +96,7 @@ class Config
             }
         }
 
-        if (!static::load($package, $file)) {
+        if (! static::load($package, $file)) {
             return value($default);
         }
 
@@ -110,7 +110,7 @@ class Config
             $result = $found ? Arr::get($items, $item) : null;
         }
 
-        $path = Package::path($package) . 'config' . DS . $file . '.php';
+        $path = Package::path($package).'config'.DS.$file.'.php';
 
         static::$gets[$key] = [
             'value' => $result,
@@ -169,7 +169,7 @@ class Config
      */
     protected static function parse($key)
     {
-        if (!array_key_exists($key, static::$cache)) {
+        if (! array_key_exists($key, static::$cache)) {
             $package = Package::name($key);
             $items = explode('.', Package::element($key));
             $data = (is_array($items) && count($items) >= 2) ? implode('.', array_slice($items, 1)) : null;
@@ -189,7 +189,7 @@ class Config
      */
     public static function load($package, $file)
     {
-        if (!isset(static::$items[$package][$file])) {
+        if (! isset(static::$items[$package][$file])) {
             $config = Hook::first(static::LOADER, [$package, $file]);
 
             if (is_array($config) && count($config) > 0) {
@@ -217,26 +217,26 @@ class Config
             return [];
         }
 
-        $key = $package . '::' . $file;
+        $key = $package.'::'.$file;
 
         if (isset(static::$files[$key])) {
             $cached = static::$files[$key];
 
-            if (!static::$reload) {
+            if (! static::$reload) {
                 return $cached['data'];
             }
 
             $env = Request::env();
-            $paths = [Package::path($package) . 'config' . DS];
+            $paths = [Package::path($package).'config'.DS];
 
-            if (!empty($env)) {
-                $paths[] = $paths[count($paths) - 1] . $env . DS;
+            if (! empty($env)) {
+                $paths[] = $paths[count($paths) - 1].$env.DS;
             }
 
             $latest = 0;
 
             foreach ($paths as $path) {
-                if (!empty($path) && is_file($filePath = $path . $file . '.php')) {
+                if (! empty($path) && is_file($filePath = $path.$file.'.php')) {
                     $mtime = filemtime($filePath);
                     $latest = ($mtime > $latest) ? $mtime : $latest;
                 }
@@ -249,16 +249,16 @@ class Config
 
         $config = [];
         $env = Request::env();
-        $paths = [Package::path($package) . 'config' . DS];
+        $paths = [Package::path($package).'config'.DS];
 
-        if (!empty($env)) {
-            $paths[] = $paths[count($paths) - 1] . $env . DS;
+        if (! empty($env)) {
+            $paths[] = $paths[count($paths) - 1].$env.DS;
         }
 
         $latest = 0;
 
         foreach ($paths as $path) {
-            if (!empty($path) && is_file($path = $path . $file . '.php')) {
+            if (! empty($path) && is_file($path = $path.$file.'.php')) {
                 try {
                     $loaded = require $path;
                     $config = array_merge($config, (array) $loaded);

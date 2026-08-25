@@ -43,7 +43,7 @@ class Memcached extends Sectionable
      */
     public function has($key)
     {
-        return !is_null($this->get($key));
+        return ! is_null($this->get($key));
     }
 
     /**
@@ -61,10 +61,10 @@ class Memcached extends Sectionable
         }
 
         /** @disregard */
-        $cache = $this->memcached->get($this->key . $key);
+        $cache = $this->memcached->get($this->key.$key);
 
         if (false === $cache && defined('Memcached::RES_NOTFOUND')) {
-            /** @disregard */
+            /* @disregard */
             return (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) ? null : $cache;
         }
 
@@ -87,8 +87,8 @@ class Memcached extends Sectionable
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
-        /** @disregard */
-        $this->memcached->set($this->key . $key, $value, $minutes * 60);
+        /* @disregard */
+        $this->memcached->set($this->key.$key, $value, $minutes * 60);
     }
 
     /**
@@ -107,8 +107,8 @@ class Memcached extends Sectionable
                 $this->forget_in_section($section, $key);
             }
         } else {
-            /** @disregard */
-            $this->memcached->delete($this->key . $key);
+            /* @disregard */
+            $this->memcached->delete($this->key.$key);
         }
     }
 
@@ -117,7 +117,7 @@ class Memcached extends Sectionable
      */
     public function flush()
     {
-        /** @disregard */
+        /* @disregard */
         return $this->memcached->flush();
     }
 
@@ -131,9 +131,9 @@ class Memcached extends Sectionable
      */
     public function increment($key, $minutes = 1)
     {
-        $prefixed = $this->key . $key;
+        $prefixed = $this->key.$key;
 
-        /** @disregard */
+        /* @disregard */
         if ($this->memcached->add($prefixed, 1, $minutes * 60)) {
             return 1;
         }
@@ -152,8 +152,8 @@ class Memcached extends Sectionable
      */
     public function forget_section($section)
     {
-        /** @disregard */
-        return $this->memcached->increment($this->key . $this->section_key($section));
+        /* @disregard */
+        return $this->memcached->increment($this->key.$this->section_key($section));
     }
 
     /**
@@ -179,7 +179,7 @@ class Memcached extends Sectionable
      */
     protected function section_key($section)
     {
-        return $section . '_section_key';
+        return $section.'_section_key';
     }
 
     /**
@@ -192,6 +192,6 @@ class Memcached extends Sectionable
      */
     protected function section_item_key($section, $key)
     {
-        return $section . '#' . $this->section_id($section) . '#' . $key;
+        return $section.'#'.$this->section_id($section).'#'.$key;
     }
 }

@@ -33,8 +33,8 @@ class File extends Driver
      */
     public function load($id)
     {
-        if (!is_file($path = $this->path . $this->naming($id))) {
-            return null;
+        if (! is_file($path = $this->path.$this->naming($id))) {
+            return;
         }
 
         $session = @unserialize($this->unguard(file_get_contents($path)));
@@ -51,7 +51,7 @@ class File extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
-        $path = $this->path . $this->naming($session['id']);
+        $path = $this->path.$this->naming($session['id']);
         $session = $this->guard(serialize($session));
 
         file_put_contents($path, $session, LOCK_EX);
@@ -64,7 +64,7 @@ class File extends Driver
      */
     public function delete($id)
     {
-        if (is_file($path = $this->path . $this->naming($id))) {
+        if (is_file($path = $this->path.$this->naming($id))) {
             @unlink($path);
         }
     }
@@ -78,7 +78,7 @@ class File extends Driver
      */
     protected function naming($id)
     {
-        return sha1((string) $id) . '.session.php';
+        return sha1((string) $id).'.session.php';
     }
 
     /**
@@ -90,7 +90,7 @@ class File extends Driver
      */
     protected static function guard($value)
     {
-        return "<?php defined('DS') or exit('No direct access.');?>" . $value;
+        return "<?php defined('DS') or exit('No direct access.');?>".$value;
     }
 
     /**

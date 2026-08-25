@@ -161,9 +161,9 @@ class Paginator
         // If there are not enough pages to create a slider based on adjacent pages,
         // all pages will be displayed. Otherwise, we create a 'truncated' slider.
         $links = ($this->last < (7 + ($adjacent * 2))) ? $this->range(1, $this->last) : $this->slider($adjacent);
-        $content = $this->previous() . $links . $this->next();
-        $content = TAB . '<ul class="pagination">' . LF . $content . LF . TAB . '</ul>';
-        return '<nav class="pagination-nav">' . LF . $content . LF . '</nav>';
+        $content = $this->previous().$links.$this->next();
+        $content = TAB.'<ul class="pagination">'.LF.$content.LF.TAB.'</ul>';
+        return '<nav class="pagination-nav">'.LF.$content.LF.'</nav>';
     }
 
     /**
@@ -180,14 +180,14 @@ class Paginator
         $window = $adjacent * 2;
 
         if ($this->page <= $window) { // 1 [2] 3 4 5 6 ... 23 24
-            return $this->range(1, $window + 2) . ' ' . $this->ending();
+            return $this->range(1, $window + 2).' '.$this->ending();
         } elseif ($this->page >= $this->last - $window) { // 1 2 ... 32 33 34 35 [36] 37
-            return $this->beginning() . ' ' . $this->range($this->last - $window - 2, $this->last);
+            return $this->beginning().' '.$this->range($this->last - $window - 2, $this->last);
         }
 
         // 1 2 ... 23 24 25 [26] 27 28 29 ... 51 52
         $content = $this->range($this->page - $adjacent, $this->page + $adjacent);
-        return $this->beginning() . ' ' . $content . ' ' . $this->ending();
+        return $this->beginning().' '.$content.' '.$this->ending();
     }
 
     /**
@@ -230,12 +230,12 @@ class Paginator
      */
     protected function element($element, $page, $text, \Closure $disabled)
     {
-        $class = $element . '_page';
-        $text = is_null($text) ? Lang::line('pagination.' . $element)->get($this->language) : $text;
+        $class = $element.'_page';
+        $text = is_null($text) ? Lang::line('pagination.'.$element)->get($this->language) : $text;
 
         if ($disabled($this->page, $this->last)) {
-            $attributes = trim(static::attributes(['class' => $class . ' page-item disabled']));
-            return TAB . TAB . '<li ' . $attributes . '><a class="page-link" href="#">' . $text . '</a></li>' . LF;
+            $attributes = trim(static::attributes(['class' => $class.' page-item disabled']));
+            return TAB.TAB.'<li '.$attributes.'><a class="page-link" href="#">'.$text.'</a></li>'.LF;
         }
 
         return $this->link($page, $text, $class);
@@ -248,7 +248,7 @@ class Paginator
      */
     protected function beginning()
     {
-        return $this->range(1, 2) . TAB . TAB . $this->dots . LF;
+        return $this->range(1, 2).TAB.TAB.$this->dots.LF;
     }
 
     /**
@@ -258,7 +258,7 @@ class Paginator
      */
     protected function ending()
     {
-        return TAB . TAB . $this->dots . LF . $this->range($this->last - 1, $this->last);
+        return TAB.TAB.$this->dots.LF.$this->range($this->last - 1, $this->last);
     }
 
     /**
@@ -276,7 +276,7 @@ class Paginator
 
         for ($page = $start; $page <= $end; ++$page) {
             $pages[] = ($this->page === $page)
-                ? TAB . TAB . '<li class="page-item active"><a class="page-link" href="#">' . $page . '</a></li>' . LF
+                ? TAB.TAB.'<li class="page-item active"><a class="page-link" href="#">'.$page.'</a></li>'.LF
                 : $this->link($page, $page, null);
         }
 
@@ -294,9 +294,9 @@ class Paginator
      */
     protected function link($page, $text, $class)
     {
-        return TAB . TAB . '<li ' . trim(static::attributes(['class' => $class . ' page-item'])) . '>' .
-            '<a class="page-link" href="' . URI::current() . '?page=' . $page . $this->appendage($this->appends) .
-            '">' . e($text) . '</a></li>' . LF;
+        return TAB.TAB.'<li '.trim(static::attributes(['class' => $class.' page-item'])).'>'.
+            '<a class="page-link" href="'.URI::current().'?page='.$page.$this->appendage($this->appends).
+            '">'.e($text).'</a></li>'.LF;
     }
 
     /**
@@ -308,13 +308,13 @@ class Paginator
      */
     protected function appendage(array $appends = [])
     {
-        if (!is_null($this->appendage)) {
+        if (! is_null($this->appendage)) {
             return $this->appendage;
         }
 
         $appends = empty($appends) ? [] : $appends;
 
-        return $this->appendage = (count($appends) > 0) ? '&' . http_build_query($appends) : '';
+        return $this->appendage = (count($appends) > 0) ? '&'.http_build_query($appends) : '';
     }
 
     /**
@@ -348,12 +348,12 @@ class Paginator
                 $key = $value;
             }
 
-            if (!is_null($value)) {
-                $html[] = $key . '="' . e($value) . '"';
+            if (! is_null($value)) {
+                $html[] = $key.'="'.e($value).'"';
             }
         }
 
-        return (count($html) > 0) ? ' ' . implode(' ', $html) : '';
+        return (count($html) > 0) ? ' '.implode(' ', $html) : '';
     }
 
     /**

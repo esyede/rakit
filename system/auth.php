@@ -31,7 +31,7 @@ class Auth
     {
         $driver = is_null($driver) ? Config::get('auth.driver') : $driver;
 
-        if (!isset(static::$drivers[$driver])) {
+        if (! isset(static::$drivers[$driver])) {
             static::$drivers[$driver] = static::factory($driver);
         }
 

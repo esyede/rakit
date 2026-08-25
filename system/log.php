@@ -122,7 +122,7 @@ class Log
      */
     protected static function write($type, $message, array $context = [])
     {
-        if (!is_string($message)) {
+        if (! is_string($message)) {
             throw new \Exception(sprintf('The error message should be a string. %s given.', gettype($message)));
         }
 
@@ -137,8 +137,8 @@ class Log
             $channel = static::$channel;
             $date = Carbon::now()->format('Y-m-d');
             $appname = Config::get('application.name');
-            $file = ((is_string($channel) && strlen($channel)) ? $channel : ($appname ? Str::slug($appname) : 'rakit')) . '_' . $date . '.log.php';
-            $path = path('storage') . 'logs' . DS . $file;
+            $file = ((is_string($channel) && strlen($channel)) ? $channel : ($appname ? Str::slug($appname) : 'rakit')).'_'.$date.'.log.php';
+            $path = path('storage').'logs'.DS.$file;
 
             $written = (false !== @file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0)));
         } catch (\Throwable $e) {
@@ -147,8 +147,8 @@ class Log
             $written = false;
         }
 
-        if (!$written) {
-            $path = path('storage') . 'logs' . DS . 'rakit.log.php';
+        if (! $written) {
+            $path = path('storage').'logs'.DS.'rakit.log.php';
 
             try {
                 @file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
@@ -161,7 +161,7 @@ class Log
 
         // Track log for debugger
         if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
-            if (!\System\Foundation\Oops\Debugger::$productionMode) {
+            if (! \System\Foundation\Oops\Debugger::$productionMode) {
                 $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
                 \System\Foundation\Oops\Collectors::addLog(
                     $type,
@@ -199,12 +199,12 @@ class Log
         $level = strtoupper((string) $type);
         $output = sprintf('[%s] %s.%s: %s', $date, $env, $level, $message);
 
-        if (!empty($context)) {
+        if (! empty($context)) {
             $formatted = static::format_context($context);
-            $output .= $formatted ? ' ' . $formatted : '';
+            $output .= $formatted ? ' '.$formatted : '';
         }
 
-        return $output . PHP_EOL;
+        return $output.PHP_EOL;
     }
 
     /**
@@ -297,6 +297,6 @@ class Log
         return vsprintf(
             '[object] (%s(code: %s): %s at %s:%s)',
             [get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine()]
-        ) . ($e->getTraceAsString() ? PHP_EOL . $e->getTraceAsString() : '');
+        ).($e->getTraceAsString() ? PHP_EOL.$e->getTraceAsString() : '');
     }
 }

@@ -180,7 +180,7 @@ class Input
         $key = is_array($key) ? $key : func_get_args();
 
         foreach ($key as $value) {
-            if (!static::present(static::get($value, null))) {
+            if (! static::present(static::get($value, null))) {
                 return false;
             }
         }
@@ -197,7 +197,7 @@ class Input
      */
     public static function unfilled($key)
     {
-        return !static::filled(is_array($key) ? $key : func_get_args());
+        return ! static::filled(is_array($key) ? $key : func_get_args());
     }
 
     /**
@@ -222,7 +222,7 @@ class Input
      */
     public static function has_file($key)
     {
-        return mb_strlen((string) static::file($key . '.tmp_name', ''), '8bit') > 0;
+        return mb_strlen((string) static::file($key.'.tmp_name', ''), '8bit') > 0;
     }
 
     /**
@@ -238,7 +238,7 @@ class Input
     {
         $file = Request::foundation()->files->get($key);
 
-        if (!($file instanceof Foundation\Http\Upload)) {
+        if (! ($file instanceof Foundation\Http\Upload)) {
             return false;
         }
 

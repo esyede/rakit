@@ -74,7 +74,7 @@ class Database extends Driver
         $config = Config::get('job');
         $name = Str::slug($name);
 
-        Hook::fire('rakit.jobs.forget: ' . $name);
+        Hook::fire('rakit.jobs.forget: '.$name);
 
         $query = DB::table($config['table'])->where('name', $name);
 
@@ -84,7 +84,7 @@ class Database extends Driver
 
         $jobs = $query->get();
 
-        if (!empty($jobs)) {
+        if (! empty($jobs)) {
             $ids = [];
 
             foreach ($jobs as $job) {
@@ -102,7 +102,7 @@ class Database extends Driver
 
         $jobs = $fails->get();
 
-        if (!empty($jobs)) {
+        if (! empty($jobs)) {
             $ids = [];
 
             foreach ($jobs as $job) {
@@ -160,7 +160,7 @@ class Database extends Driver
                 $attempts = 0;
                 $success = false;
 
-                while ($attempts < $retries && !$success) {
+                while ($attempts < $retries && ! $success) {
                     $attempts++;
 
                     try {
@@ -171,9 +171,9 @@ class Database extends Driver
                     } catch (\Throwable $e) {
                         if ($attempts >= $retries) {
                             $error = get_class($e)
-                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
-                                . $e->getTraceAsString();
+                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
+                                .$e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
@@ -193,9 +193,9 @@ class Database extends Driver
                     } catch (\Exception $e) {
                         if ($attempts >= $retries) {
                             $error = get_class($e)
-                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
-                                . $e->getTraceAsString();
+                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
+                                .$e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
@@ -216,7 +216,7 @@ class Database extends Driver
                 }
             }
 
-            if (!empty($successful)) {
+            if (! empty($successful)) {
                 DB::table($config['table'])->where_in('id', $successful)->delete();
             }
         }
@@ -237,7 +237,7 @@ class Database extends Driver
         $query = DB::table($config['table'])
             ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'));
 
-        if (is_array($queues) && !empty($queues)) {
+        if (is_array($queues) && ! empty($queues)) {
             $query->where_in('queue', $queues);
         }
 
@@ -256,7 +256,7 @@ class Database extends Driver
                 $attempts = 0;
                 $success = false;
 
-                while ($attempts < $retries && !$success) {
+                while ($attempts < $retries && ! $success) {
                     $attempts++;
 
                     try {
@@ -267,9 +267,9 @@ class Database extends Driver
                     } catch (\Throwable $e) {
                         if ($attempts >= $retries) {
                             $error = get_class($e)
-                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
-                                . $e->getTraceAsString();
+                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
+                                .$e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
@@ -289,9 +289,9 @@ class Database extends Driver
                     } catch (\Exception $e) {
                         if ($attempts >= $retries) {
                             $error = get_class($e)
-                                . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
-                                . ' in ' . $e->getFile() . ':' . $e->getLine() . LF . 'Stack trace:' . LF
-                                . $e->getTraceAsString();
+                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
+                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
+                                .$e->getTraceAsString();
                             DB::table($config['failed_table'])->insert([
                                 'job_id' => $job->id,
                                 'name' => $job->name,
@@ -312,7 +312,7 @@ class Database extends Driver
                 }
             }
 
-            if (!empty($successful)) {
+            if (! empty($successful)) {
                 DB::table($config['table'])->where_in('id', $successful)->delete();
             }
         }

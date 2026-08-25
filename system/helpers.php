@@ -2,7 +2,7 @@
 
 defined('DS') or exit('No direct access.');
 
-if (!function_exists('e')) {
+if (! function_exists('e')) {
     /**
      * Escape HTML characters.
      *
@@ -16,7 +16,7 @@ if (!function_exists('e')) {
     }
 }
 
-if (!function_exists('dd')) {
+if (! function_exists('dd')) {
     /**
      * Dump variable then stop script execution.
      *
@@ -38,13 +38,13 @@ if (!function_exists('dd')) {
             array_map('\System\Foundation\Oops\Debugger::dump', $variables);
         }
 
-        if (!\System\Foundation\Oops\Debugger::$productionMode) {
+        if (! \System\Foundation\Oops\Debugger::$productionMode) {
             die;
         }
     }
 }
 
-if (!function_exists('bd')) {
+if (! function_exists('bd')) {
     /**
      * Dump variable to the debug bar without stopping script execution.
      *
@@ -59,7 +59,7 @@ if (!function_exists('bd')) {
     }
 }
 
-if (!function_exists('dump')) {
+if (! function_exists('dump')) {
     /**
      * Dump variable without stopping script execution.
      *
@@ -71,8 +71,8 @@ if (!function_exists('dump')) {
     {
         $variables = func_get_args();
         $toBar = \System\Foundation\Oops\Debugger::$showBar
-            && !\System\Foundation\Oops\Debugger::$productionMode
-            && !is_cli();
+            && ! \System\Foundation\Oops\Debugger::$productionMode
+            && ! is_cli();
 
         $handler = $toBar
             ? '\System\Foundation\Oops\Debugger::barDump'
@@ -82,7 +82,7 @@ if (!function_exists('dump')) {
     }
 }
 
-if (!function_exists('measure')) {
+if (! function_exists('measure')) {
     /**
      * Measure a code block and record it on the debug bar Timeline panel.
      *
@@ -97,7 +97,7 @@ if (!function_exists('measure')) {
     }
 }
 
-if (!function_exists('start_measure')) {
+if (! function_exists('start_measure')) {
     /**
      * Start a named measure on the debug bar Timeline. Pair with stop_measure()
      * to time a region of code that is not a single callback.
@@ -112,7 +112,7 @@ if (!function_exists('start_measure')) {
     }
 }
 
-if (!function_exists('stop_measure')) {
+if (! function_exists('stop_measure')) {
     /**
      * Stop a measure previously started with start_measure() and record it on
      * the debug bar Timeline.
@@ -128,7 +128,7 @@ if (!function_exists('stop_measure')) {
     }
 }
 
-if (!function_exists('optional')) {
+if (! function_exists('optional')) {
     /**
      * Allow accessing properties/methods of a given object that could be null.
      *
@@ -143,7 +143,7 @@ if (!function_exists('optional')) {
     }
 }
 
-if (!function_exists('trans')) {
+if (! function_exists('trans')) {
     /**
      * Alias for trans().
      *
@@ -159,7 +159,7 @@ if (!function_exists('trans')) {
     }
 }
 
-if (!function_exists('__')) {
+if (! function_exists('__')) {
     /**
      * Alias for trans().
      *
@@ -175,7 +175,7 @@ if (!function_exists('__')) {
     }
 }
 
-if (!function_exists('is_cli')) {
+if (! function_exists('is_cli')) {
     /**
      * Check if the current request is coming from CLI.
      *
@@ -189,7 +189,7 @@ if (!function_exists('is_cli')) {
     }
 }
 
-if (!function_exists('data_fill')) {
+if (! function_exists('data_fill')) {
     /**
      * Fill with data if it is still empty.
      *
@@ -205,7 +205,7 @@ if (!function_exists('data_fill')) {
     }
 }
 
-if (!function_exists('data_get')) {
+if (! function_exists('data_get')) {
     /**
      * Get an item from array using 'dot' notation.
      *
@@ -223,9 +223,9 @@ if (!function_exists('data_get')) {
 
         $key = is_array($key) ? $key : explode('.', $key);
 
-        while (!is_null($segment = array_shift($key))) {
+        while (! is_null($segment = array_shift($key))) {
             if ('*' === $segment) {
-                if (!is_array($target)) {
+                if (! is_array($target)) {
                     return value($default);
                 }
 
@@ -251,7 +251,7 @@ if (!function_exists('data_get')) {
     }
 }
 
-if (!function_exists('data_set')) {
+if (! function_exists('data_set')) {
     /**
      * Set an item array using 'dot' notation.
      *
@@ -267,7 +267,7 @@ if (!function_exists('data_set')) {
         $segments = is_array($key) ? $key : explode('.', $key);
 
         if ('*' === ($segment = array_shift($segments))) {
-            if (!\System\Arr::accessible($target)) {
+            if (! \System\Arr::accessible($target)) {
                 $target = [];
             }
 
@@ -282,22 +282,22 @@ if (!function_exists('data_set')) {
             }
         } elseif (\System\Arr::accessible($target)) {
             if ($segments) {
-                if (!\System\Arr::exists($target, $segment)) {
+                if (! \System\Arr::exists($target, $segment)) {
                     $target[$segment] = [];
                 }
 
                 data_set($target[$segment], $segments, $value, $overwrite);
-            } elseif ($overwrite || !\System\Arr::exists($target, $segment)) {
+            } elseif ($overwrite || ! \System\Arr::exists($target, $segment)) {
                 $target[$segment] = $value;
             }
         } elseif (is_object($target)) {
             if ($segments) {
-                if (!isset($target->{$segment})) {
+                if (! isset($target->{$segment})) {
                     $target->{$segment} = [];
                 }
 
                 data_set($target->{$segment}, $segments, $value, $overwrite);
-            } elseif ($overwrite || !isset($target->{$segment})) {
+            } elseif ($overwrite || ! isset($target->{$segment})) {
                 $target->{$segment} = $value;
             }
         } else {
@@ -314,7 +314,7 @@ if (!function_exists('data_set')) {
     }
 }
 
-if (!function_exists('tap')) {
+if (! function_exists('tap')) {
     /**
      * Call the given closure with the given value and return the value.
      *
@@ -325,7 +325,7 @@ if (!function_exists('tap')) {
      */
     function tap($value, \Closure $callback)
     {
-        if (is_null($callback) || !($callback instanceof \Closure)) {
+        if (is_null($callback) || ! ($callback instanceof \Closure)) {
             return $value;
         }
 
@@ -334,7 +334,7 @@ if (!function_exists('tap')) {
     }
 }
 
-if (!function_exists('retry')) {
+if (! function_exists('retry')) {
     /**
      * Retry execution for the given number of times.
      *
@@ -356,7 +356,7 @@ if (!function_exists('retry')) {
         try {
             return $callback($attempts);
         } catch (\Throwable $e) {
-            if (!$times || ($when && !$when($e))) {
+            if (! $times || ($when && ! $when($e))) {
                 throw $e;
             }
 
@@ -368,7 +368,7 @@ if (!function_exists('retry')) {
 
             goto beginning;
         } catch (\Exception $e) {
-            if (!$times || ($when && !$when($e))) {
+            if (! $times || ($when && ! $when($e))) {
                 throw $e;
             }
 
@@ -383,7 +383,7 @@ if (!function_exists('retry')) {
     }
 }
 
-if (!function_exists('facile_to_json')) {
+if (! function_exists('facile_to_json')) {
     /**
      * Transform Facile object to JSON string.
      *
@@ -406,7 +406,7 @@ if (!function_exists('facile_to_json')) {
     }
 }
 
-if (!function_exists('head')) {
+if (! function_exists('head')) {
     /**
      * Return the first element of an array.
      *
@@ -420,7 +420,7 @@ if (!function_exists('head')) {
     }
 }
 
-if (!function_exists('last')) {
+if (! function_exists('last')) {
     /**
      * Return the last element of an array.
      *
@@ -434,7 +434,7 @@ if (!function_exists('last')) {
     }
 }
 
-if (!function_exists('url')) {
+if (! function_exists('url')) {
     /**
      * Create a URL.
      *
@@ -448,7 +448,7 @@ if (!function_exists('url')) {
     }
 }
 
-if (!function_exists('asset')) {
+if (! function_exists('asset')) {
     /**
      * Create a URL to an asset.
      *
@@ -462,7 +462,7 @@ if (!function_exists('asset')) {
     }
 }
 
-if (!function_exists('action')) {
+if (! function_exists('action')) {
     /**
      * Create a URL to a controller action.
      *
@@ -477,7 +477,7 @@ if (!function_exists('action')) {
     }
 }
 
-if (!function_exists('route')) {
+if (! function_exists('route')) {
     /**
      * Create a URL to a named route.
      *
@@ -492,7 +492,7 @@ if (!function_exists('route')) {
     }
 }
 
-if (!function_exists('config')) {
+if (! function_exists('config')) {
     /**
      * Get or set config.
      *
@@ -515,7 +515,7 @@ if (!function_exists('config')) {
     }
 }
 
-if (!function_exists('cache')) {
+if (! function_exists('cache')) {
     /**
      * Get or set cache.
      *
@@ -538,7 +538,7 @@ if (!function_exists('cache')) {
     }
 }
 
-if (!function_exists('session')) {
+if (! function_exists('session')) {
     /**
      * Get or set session.
      *
@@ -561,7 +561,7 @@ if (!function_exists('session')) {
     }
 }
 
-if (!function_exists('collect')) {
+if (! function_exists('collect')) {
     /**
      * Create collection from given value.
      *
@@ -575,7 +575,7 @@ if (!function_exists('collect')) {
     }
 }
 
-if (!function_exists('fake')) {
+if (! function_exists('fake')) {
     /**
      * Create a faker instance.
      *
@@ -589,7 +589,7 @@ if (!function_exists('fake')) {
     }
 }
 
-if (!function_exists('validate')) {
+if (! function_exists('validate')) {
     /**
      * Create a validator instance.
      *
@@ -605,7 +605,7 @@ if (!function_exists('validate')) {
     }
 }
 
-if (!function_exists('redirect')) {
+if (! function_exists('redirect')) {
     /**
      * Create a redirect.
      *
@@ -620,7 +620,7 @@ if (!function_exists('redirect')) {
     }
 }
 
-if (!function_exists('back')) {
+if (! function_exists('back')) {
     /**
      * Create a redirect back.
      *
@@ -634,7 +634,7 @@ if (!function_exists('back')) {
     }
 }
 
-if (!function_exists('old')) {
+if (! function_exists('old')) {
     /**
      * Get or set old input from session.
      *
@@ -649,7 +649,7 @@ if (!function_exists('old')) {
     }
 }
 
-if (!function_exists('abort')) {
+if (! function_exists('abort')) {
     /**
      * Create a response error.
      *
@@ -669,7 +669,7 @@ if (!function_exists('abort')) {
             $message = json_encode(compact('status', 'message'));
             $headers = array_merge($headers, ['Content-Type' => 'application/json']);
         } else {
-            $view = \System\View::exists('error.' . $code) ? 'error.' . $code : 'error.unknown';
+            $view = \System\View::exists('error.'.$code) ? 'error.'.$code : 'error.unknown';
             $message = \System\View::make($view)->render();
         }
 
@@ -688,7 +688,7 @@ if (!function_exists('abort')) {
     }
 }
 
-if (!function_exists('abort_if')) {
+if (! function_exists('abort_if')) {
     /**
      * Create a response error if condition is true.
      *
@@ -706,7 +706,7 @@ if (!function_exists('abort_if')) {
     }
 }
 
-if (!function_exists('csrf_name')) {
+if (! function_exists('csrf_name')) {
     /**
      * Get the CSRF token name.
      *
@@ -718,7 +718,7 @@ if (!function_exists('csrf_name')) {
     }
 }
 
-if (!function_exists('csrf_token')) {
+if (! function_exists('csrf_token')) {
     /**
      * Get the CSRF token value.
      *
@@ -737,7 +737,7 @@ if (!function_exists('csrf_token')) {
     }
 }
 
-if (!function_exists('csrf_field')) {
+if (! function_exists('csrf_field')) {
     /**
      * Add a hidden field for CSRF token.
      *
@@ -745,11 +745,11 @@ if (!function_exists('csrf_field')) {
      */
     function csrf_field()
     {
-        return sprintf('<input type="hidden" name="%s" value="%s">' . PHP_EOL, csrf_name(), csrf_token());
+        return sprintf('<input type="hidden" name="%s" value="%s">'.PHP_EOL, csrf_name(), csrf_token());
     }
 }
 
-if (!function_exists('root_namespace')) {
+if (! function_exists('root_namespace')) {
     /**
      * Get the root namespace of a class.
      *
@@ -764,7 +764,7 @@ if (!function_exists('root_namespace')) {
     }
 }
 
-if (!function_exists('class_basename')) {
+if (! function_exists('class_basename')) {
     /**
      * Get the class basename of a class or object.
      * Class basename is the class name without namespace.
@@ -779,7 +779,7 @@ if (!function_exists('class_basename')) {
     }
 }
 
-if (!function_exists('value')) {
+if (! function_exists('value')) {
     /**
      * Return the value of an item.
      * If the item is a Closure, the result of its execution will be returned.
@@ -792,13 +792,13 @@ if (!function_exists('value')) {
     {
         $parameters = array_slice(func_get_args(), 1);
 
-        return (is_callable($value) && !is_string($value))
+        return (is_callable($value) && ! is_string($value))
             ? call_user_func_array($value, $parameters)
             : $value;
     }
 }
 
-if (!function_exists('when')) {
+if (! function_exists('when')) {
     /**
      * Return a value if the condition is true.
      *
@@ -815,7 +815,7 @@ if (!function_exists('when')) {
     }
 }
 
-if (!function_exists('view')) {
+if (! function_exists('view')) {
     /**
      * Create an instance of the View class.
      *
@@ -830,7 +830,7 @@ if (!function_exists('view')) {
     }
 }
 
-if (!function_exists('render')) {
+if (! function_exists('render')) {
     /**
      * Render a view.
      *
@@ -845,7 +845,7 @@ if (!function_exists('render')) {
     }
 }
 
-if (!function_exists('render_each')) {
+if (! function_exists('render_each')) {
     /**
      * Get the content of a rendered partial view.
      *
@@ -862,7 +862,7 @@ if (!function_exists('render_each')) {
     }
 }
 
-if (!function_exists('yield_content')) {
+if (! function_exists('yield_content')) {
     /**
      * Get the content of a section.
      *
@@ -876,7 +876,7 @@ if (!function_exists('yield_content')) {
     }
 }
 
-if (!function_exists('yield_section')) {
+if (! function_exists('yield_section')) {
     /**
      * Stop injecting content into a section and return its content.
      *
@@ -890,7 +890,7 @@ if (!function_exists('yield_section')) {
     }
 }
 
-if (!function_exists('section_start')) {
+if (! function_exists('section_start')) {
     /**
      * Start injecting content into a section.
      *
@@ -905,7 +905,7 @@ if (!function_exists('section_start')) {
     }
 }
 
-if (!function_exists('section_stop')) {
+if (! function_exists('section_stop')) {
     /**
      * Stop injecting content into a section.
      *
@@ -917,7 +917,7 @@ if (!function_exists('section_stop')) {
     }
 }
 
-if (!function_exists('section_inject')) {
+if (! function_exists('section_inject')) {
     /**
      * Inject content into a section.
      *
@@ -932,7 +932,7 @@ if (!function_exists('section_inject')) {
     }
 }
 
-if (!function_exists('encrypt')) {
+if (! function_exists('encrypt')) {
     /**
      * Encrypt a string.
      *
@@ -946,7 +946,7 @@ if (!function_exists('encrypt')) {
     }
 }
 
-if (!function_exists('decrypt')) {
+if (! function_exists('decrypt')) {
     /**
      * Decrypt a string.
      *
@@ -960,7 +960,7 @@ if (!function_exists('decrypt')) {
     }
 }
 
-if (!function_exists('bcrypt')) {
+if (! function_exists('bcrypt')) {
     /**
      * Create a hash password.
      *
@@ -974,7 +974,7 @@ if (!function_exists('bcrypt')) {
     }
 }
 
-if (!function_exists('dispatch')) {
+if (! function_exists('dispatch')) {
     /**
      * Run a job.
      *
@@ -990,7 +990,7 @@ if (!function_exists('dispatch')) {
     }
 }
 
-if (!function_exists('blank')) {
+if (! function_exists('blank')) {
     /**
      * Determine if the given value is "blank".
      *
@@ -1020,7 +1020,7 @@ if (!function_exists('blank')) {
     }
 }
 
-if (!function_exists('filled')) {
+if (! function_exists('filled')) {
     /**
      * Determine if the given value is "filled".
      *
@@ -1030,11 +1030,11 @@ if (!function_exists('filled')) {
      */
     function filled($value)
     {
-        return !blank($value);
+        return ! blank($value);
     }
 }
 
-if (!function_exists('now')) {
+if (! function_exists('now')) {
     /**
      * Get the current date and time.
      *
@@ -1048,7 +1048,7 @@ if (!function_exists('now')) {
     }
 }
 
-if (!function_exists('get_cli_option')) {
+if (! function_exists('get_cli_option')) {
     /**
      * Get the parameter passed to rakit console.
      *
@@ -1064,7 +1064,7 @@ if (!function_exists('get_cli_option')) {
         foreach ($arguments as $argument) {
             $argument = (string) $argument;
 
-            if (0 === strpos($argument, '--' . $option . '=')) {
+            if (0 === strpos($argument, '--'.$option.'=')) {
                 return substr($argument, mb_strlen($option, '8bit') + 3);
             }
         }
@@ -1073,7 +1073,7 @@ if (!function_exists('get_cli_option')) {
     }
 }
 
-if (!function_exists('has_cli_flag')) {
+if (! function_exists('has_cli_flag')) {
     /**
      * Check if the given flag is passed to rakit console.
      *
@@ -1093,7 +1093,7 @@ if (!function_exists('has_cli_flag')) {
         foreach ($arguments as $argument) {
             $argument = (string) $argument;
 
-            if ('-' . $flag === $argument || '--' . $flag === $argument) {
+            if ('-'.$flag === $argument || '--'.$flag === $argument) {
                 return true;
             }
 
@@ -1111,7 +1111,7 @@ if (!function_exists('has_cli_flag')) {
     }
 }
 
-if (!function_exists('system_os')) {
+if (! function_exists('system_os')) {
     /**
      * Get the server's operating system.
      *
@@ -1137,7 +1137,7 @@ if (!function_exists('system_os')) {
     }
 }
 
-if (!function_exists('human_filesize')) {
+if (! function_exists('human_filesize')) {
     /**
      * Format file size (human-friendly).
      *
@@ -1158,6 +1158,6 @@ if (!function_exists('human_filesize')) {
         $bytes = round($bytes / pow(1024, $power), $precision);
         $bytes = $negative ? -$bytes : $bytes;
 
-        return sprintf('%.' . $precision . 'f %s', $bytes, $units[$power]);
+        return sprintf('%.'.$precision.'f %s', $bytes, $units[$power]);
     }
 }

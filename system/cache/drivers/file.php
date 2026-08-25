@@ -34,7 +34,7 @@ class File extends Driver
      */
     public function has($key)
     {
-        return !is_null($this->get($key));
+        return ! is_null($this->get($key));
     }
 
     /**
@@ -46,17 +46,17 @@ class File extends Driver
      */
     protected function retrieve($key)
     {
-        $path = $this->path . $this->naming($key);
+        $path = $this->path.$this->naming($key);
 
-        if (!is_file($path)) {
-            return null;
+        if (! is_file($path)) {
+            return;
         }
 
         $cache = (string) $this->unguard(Storage::get($path));
 
         if (time() >= (int) substr($cache, 0, 10)) {
             $this->forget($key);
-            return null;
+            return;
         }
 
         $value = @unserialize(substr($cache, 10));
@@ -78,8 +78,8 @@ class File extends Driver
         }
 
         $key = $this->naming($key);
-        $value = $this->guard($this->expiration($minutes) . serialize($value));
-        Storage::put($this->path . $key, $value, LOCK_EX);
+        $value = $this->guard($this->expiration($minutes).serialize($value));
+        Storage::put($this->path.$key, $value, LOCK_EX);
     }
 
     /**
@@ -89,7 +89,7 @@ class File extends Driver
      */
     public function forget($key)
     {
-        $key = $this->path . $this->naming($key);
+        $key = $this->path.$this->naming($key);
         is_file($key) && Storage::delete($key);
     }
 
@@ -98,7 +98,7 @@ class File extends Driver
      */
     public function flush()
     {
-        $files = glob($this->path . '*.cache.php');
+        $files = glob($this->path.'*.cache.php');
 
         if (is_array($files) && count($files) > 0) {
             foreach ($files as $file) {
@@ -116,7 +116,7 @@ class File extends Driver
      */
     protected function naming($key)
     {
-        return sha1((string) $key) . '.cache.php';
+        return sha1((string) $key).'.cache.php';
     }
 
     /**
@@ -128,7 +128,7 @@ class File extends Driver
      */
     protected static function guard($value)
     {
-        return "<?php defined('DS') or exit('No direct access.');?>" . $value;
+        return "<?php defined('DS') or exit('No direct access.');?>".$value;
     }
 
     /**

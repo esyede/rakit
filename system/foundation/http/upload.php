@@ -7,9 +7,13 @@ defined('DS') or exit('No direct access.');
 class Upload extends \SplFileInfo
 {
     private $size;
+
     private $error;
+
     private $mimeType;
+
     private $originalName;
+
     private $test = false;
 
     public static $extensions = [
@@ -811,7 +815,7 @@ class Upload extends \SplFileInfo
      */
     public function __construct($path, $origName, $mimeType = null, $size = null, $error = null, $test = false)
     {
-        if (!ini_get('file_uploads')) {
+        if (! ini_get('file_uploads')) {
             throw new \Exception(sprintf(
                 "Unable to create Upload because 'file_uploads' directive is disabled in your php.ini file (%s)",
                 get_cfg_var('cfg_file_path')
@@ -824,7 +828,7 @@ class Upload extends \SplFileInfo
         $this->error = $error ?: UPLOAD_ERR_OK;
         $this->test = (bool) $test;
 
-        if (UPLOAD_ERR_OK === $this->error && !is_file($path)) {
+        if (UPLOAD_ERR_OK === $this->error && ! is_file($path)) {
             throw new \Exception(sprintf('File does not exists: %s', $path));
         }
 
@@ -854,11 +858,11 @@ class Upload extends \SplFileInfo
     {
         $path = $this->getPathname();
 
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             throw new \Exception(sprintf('File does not exists: %s', $path));
         }
 
-        if (!is_readable($path)) {
+        if (! is_readable($path)) {
             throw new \Exception(sprintf('File is not readable: %s', $path));
         }
 
@@ -902,7 +906,7 @@ class Upload extends \SplFileInfo
      */
     protected function getTargetFile($directory, $name = null)
     {
-        if (!is_dir($directory)) {
+        if (! is_dir($directory)) {
             try {
                 $created = @mkdir($directory, 0755, true);
             } catch (\Throwable $e) {
@@ -911,14 +915,14 @@ class Upload extends \SplFileInfo
                 $created = false;
             }
 
-            if (!$created && !is_dir($directory)) {
+            if (! $created && ! is_dir($directory)) {
                 throw new \Exception(sprintf('Unable to create the directory: %s', $directory));
             }
-        } elseif (!is_writable($directory)) {
+        } elseif (! is_writable($directory)) {
             throw new \Exception(sprintf('Directory is not writable: %s', $directory));
         }
 
-        return $directory . DS . (is_null($name) ? $this->getBasename() : $this->getName($name));
+        return $directory.DS.(is_null($name) ? $this->getBasename() : $this->getName($name));
     }
 
     /**
@@ -1001,7 +1005,7 @@ class Upload extends \SplFileInfo
             $target = $this->getTargetFile($directory, $name);
 
             if ($this->test) {
-                if (!@rename($this->getPathname(), $target)) {
+                if (! @rename($this->getPathname(), $target)) {
                     $error = error_get_last();
                     throw new \Exception(sprintf("Could not move the file '%s' to '%s' (%s).", $this->getPathname(), $target, $error['message']));
                 }

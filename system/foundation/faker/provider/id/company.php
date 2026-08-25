@@ -16,6 +16,7 @@ class Company extends BaseCompany
     ];
 
     protected static $companyPrefix = ['PT', 'CV', 'UD', 'PD', 'Perum'];
+
     protected static $companySuffix = ['(Persero) Tbk', 'Tbk'];
 
     public static function companyPrefix()

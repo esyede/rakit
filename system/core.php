@@ -37,15 +37,15 @@ define('RAKIT_KEY', require path('rakit_key'));
 |
 */
 
-require path('system') . 'container.php';
-require path('system') . 'hook.php';
-require path('system') . 'package.php';
-require path('system') . 'config.php';
-require path('system') . 'helpers.php';
-require_once path('system') . 'autoloader.php';
-require path('system') . 'request.php';
-require path('system') . 'response.php';
-require path('system') . 'blade.php';
+require path('system').'container.php';
+require path('system').'hook.php';
+require path('system').'package.php';
+require path('system').'config.php';
+require path('system').'helpers.php';
+require_once path('system').'autoloader.php';
+require path('system').'request.php';
+require path('system').'response.php';
+require path('system').'blade.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -115,7 +115,7 @@ if (Request::cli()) {
 |
 */
 
-if (isset($environment) && !empty($environment)) {
+if (isset($environment) && ! empty($environment)) {
     Request::set_env($environment);
 }
 
@@ -148,7 +148,7 @@ if (Request::cli()) {
 |
 */
 
-$packages = require path('app') . 'packages.php';
+$packages = require path('app').'packages.php';
 
 foreach ($packages as $package => $config) {
     Package::register($package, $config);

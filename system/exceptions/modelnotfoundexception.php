@@ -32,7 +32,7 @@ class ModelNotFoundException extends DatabaseException
         $this->ids = $ids;
 
         parent::__construct(vsprintf(
-            'No query results for model [%s]' . (empty($ids) ? '%s' : ' with IDs: %s'),
+            'No query results for model [%s]'.(empty($ids) ? '%s' : ' with IDs: %s'),
             [$model, empty($ids) ? '' : implode(', ', $ids)]
         ));
     }

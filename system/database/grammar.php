@@ -49,7 +49,7 @@ abstract class Grammar
             $prefix = $this->connection->config['prefix'];
         }
 
-        return $this->wrap($prefix . $table);
+        return $this->wrap($prefix.$table);
     }
 
     /**
@@ -97,7 +97,7 @@ abstract class Grammar
         // postgres), '`' -> '``' (mysql) and ']' -> ']]' (sqlserver).
         $quote = substr($this->wrapper, -1);
 
-        return sprintf($this->wrapper, str_replace($quote, $quote . $quote, (string) $value));
+        return sprintf($this->wrapper, str_replace($quote, $quote.$quote, (string) $value));
     }
 
     /**

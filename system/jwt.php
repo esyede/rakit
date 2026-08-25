@@ -46,17 +46,17 @@ class JWT
      */
     public static function encode(array $payloads, $key, array $headers = [], $algorithm = 'HS256')
     {
-        if (!is_string($key) || strlen($key) < 1) {
+        if (! is_string($key) || strlen($key) < 1) {
             throw new \Exception('Key cannot be empty or non-string value');
         }
 
-        if (!is_string($algorithm) || strlen($algorithm) < 1) {
+        if (! is_string($algorithm) || strlen($algorithm) < 1) {
             throw new \Exception('Empty or non-string algorithm');
         }
 
         $algorithm = strtoupper($algorithm);
 
-        if (!isset(static::$algorithms[$algorithm])) {
+        if (! isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 "Only these algorithms are supported: %s. Got '%s' (%s)",
                 implode(', ', array_keys(static::$algorithms)),
@@ -68,8 +68,8 @@ class JWT
         $headers = array_merge($headers, ['typ' => 'JWT', 'alg' => $algorithm]);
         $headers = static::encode_url(static::encode_json($headers));
         $payloads = static::encode_url(static::encode_json($payloads));
-        $signature = static::encode_url(static::signature($headers . '.' . $payloads, $key, $algorithm));
-        return $headers . '.' . $payloads . '.' . $signature;
+        $signature = static::encode_url(static::signature($headers.'.'.$payloads, $key, $algorithm));
+        return $headers.'.'.$payloads.'.'.$signature;
     }
 
     /**
@@ -92,14 +92,14 @@ class JWT
      */
     public static function decode($token, $key, array $options = [])
     {
-        if (!is_string($key) || strlen($key) < 1) {
+        if (! is_string($key) || strlen($key) < 1) {
             throw new \Exception('Key cannot be empty or non-string value');
         }
 
         $jwt = explode('.', $token);
         $timestamp = static::$timestamp ?: time();
 
-        if (!is_array($jwt) || count($jwt) !== 3) {
+        if (! is_array($jwt) || count($jwt) !== 3) {
             throw new \Exception('Wrong number of segments');
         }
 
@@ -126,11 +126,11 @@ class JWT
             throw new \Exception('Invalid signature encoding');
         }
 
-        if (!isset($headers->alg) || !is_string($headers->alg) || strlen($headers->alg) < 1) {
+        if (! isset($headers->alg) || ! is_string($headers->alg) || strlen($headers->alg) < 1) {
             throw new \Exception('Empty or non-string algorithm');
         }
 
-        if (!isset(static::$algorithms[$headers->alg])) {
+        if (! isset(static::$algorithms[$headers->alg])) {
             throw new \Exception(sprintf(
                 "Only these algorithms are supported: %s. Got '%s' (%s)",
                 implode(', ', array_keys(static::$algorithms)),
@@ -142,7 +142,7 @@ class JWT
         if (isset($options['algorithm'])) {
             $allowed = array_map('strtoupper', array_map('strval', (array) $options['algorithm']));
 
-            if (!in_array(strtoupper($headers->alg), $allowed, true)) {
+            if (! in_array(strtoupper($headers->alg), $allowed, true)) {
                 throw new \Exception(sprintf(
                     "Algorithm not allowed: '%s' (allowed: %s)",
                     $headers->alg,
@@ -151,11 +151,11 @@ class JWT
             }
         }
 
-        if (!isset($headers->typ) || $headers->typ !== 'JWT') {
+        if (! isset($headers->typ) || $headers->typ !== 'JWT') {
             throw new \Exception('Invalid token type');
         }
 
-        if (!static::verify($headers64 . '.' . $payloads64, $signature, $key, $headers->alg)) {
+        if (! static::verify($headers64.'.'.$payloads64, $signature, $key, $headers->alg)) {
             throw new \Exception('Signature verification failed');
         }
 
@@ -171,11 +171,11 @@ class JWT
             throw new \Exception('Expired token');
         }
 
-        if (isset($options['aud']) && (!isset($payloads->aud) || $payloads->aud !== $options['aud'])) {
+        if (isset($options['aud']) && (! isset($payloads->aud) || $payloads->aud !== $options['aud'])) {
             throw new \Exception('Invalid audience');
         }
 
-        if (isset($options['iss']) && (!isset($payloads->iss) || $payloads->iss !== $options['iss'])) {
+        if (isset($options['iss']) && (! isset($payloads->iss) || $payloads->iss !== $options['iss'])) {
             throw new \Exception('Invalid issuer');
         }
 
@@ -199,7 +199,7 @@ class JWT
     {
         $algorithm = strtoupper((string) $algorithm);
 
-        if (!isset(static::$algorithms[$algorithm])) {
+        if (! isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 "Only these algorithms are supported: %s. Got '%s' (%s)",
                 implode(', ', array_keys(static::$algorithms)),
@@ -233,7 +233,7 @@ class JWT
     {
         $algorithm = strtoupper((string) $algorithm);
 
-        if (!isset(static::$algorithms[$algorithm])) {
+        if (! isset(static::$algorithms[$algorithm])) {
             throw new \Exception(sprintf(
                 'Only these algorithms are supported: %s, got: %s (%s)',
                 implode(', ', array_keys(static::$algorithms)),
@@ -264,11 +264,11 @@ class JWT
      */
     private static function rsa_sign($payload, $private_key, $algorithm)
     {
-        if (!function_exists('openssl_sign')) {
+        if (! function_exists('openssl_sign')) {
             throw new \Exception('OpenSSL extension is not available');
         }
 
-        if (!openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash'])) {
+        if (! openssl_sign($payload, $signature, $private_key, static::$algorithms[$algorithm]['hash'])) {
             throw new \Exception('OpenSSL unable to sign data');
         }
 
@@ -287,14 +287,14 @@ class JWT
      */
     private static function rsa_verify($payload, $signature, $public_key, $algorithm)
     {
-        if (!function_exists('openssl_verify')) {
+        if (! function_exists('openssl_verify')) {
             throw new \Exception('OpenSSL extension is not available');
         }
 
         $result = openssl_verify($payload, $signature, $public_key, static::$algorithms[$algorithm]['hash']);
 
         if ($result === -1) {
-            throw new \Exception('OpenSSL error: ' . openssl_error_string());
+            throw new \Exception('OpenSSL error: '.openssl_error_string());
         }
 
         return $result === 1;

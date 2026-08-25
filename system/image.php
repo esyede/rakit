@@ -73,7 +73,7 @@ class Image
         $this->reset();
         $this->path = $this->path($path);
 
-        if (!is_file($this->path)) {
+        if (! is_file($this->path)) {
             throw new \Exception(sprintf('Source image does not exists: %s', $this->path));
         }
 
@@ -94,7 +94,7 @@ class Image
      */
     public static function open($path, $quality = 75)
     {
-        if (!is_null(self::$singleton)) {
+        if (! is_null(self::$singleton)) {
             static::$singleton->reset();
             return static::$singleton;
         }
@@ -111,11 +111,11 @@ class Image
      */
     protected function load($path)
     {
-        if (!static::available()) {
+        if (! static::available()) {
             throw new \Exception('The PHP GD extension is not available.');
         }
 
-        if (!$this->acceptable($path)) {
+        if (! $this->acceptable($path)) {
             throw new \Exception('Only JPG, PNG or GIF file type is supported.');
         }
 
@@ -124,13 +124,16 @@ class Image
 
         if ($this->type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
             $exif = exif_read_data($path, 'IFD0');
-            $this->exif = (is_array($exif) && !empty($exif)) ? $exif : [];
+            $this->exif = (is_array($exif) && ! empty($exif)) ? $exif : [];
         }
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG: $this->image = imagecreatefromjpeg($path); break;
-            case IMAGETYPE_PNG:  $this->image = imagecreatefrompng($path);  break;
-            case IMAGETYPE_GIF:  $this->image = imagecreatefromgif($path); break;
+            case IMAGETYPE_JPEG: $this->image = imagecreatefromjpeg($path);
+                break;
+            case IMAGETYPE_PNG:  $this->image = imagecreatefrompng($path);
+                break;
+            case IMAGETYPE_GIF:  $this->image = imagecreatefromgif($path);
+                break;
             default:             throw new \Exception('Attempting to load unsupported image type.');
         }
 
@@ -414,7 +417,7 @@ class Image
     {
         $watermark = $this->path($watermark);
 
-        if (!is_file($watermark)) {
+        if (! is_file($watermark)) {
             throw new \Exception(sprintf('Watermark file does not exists: %s', $watermark));
         }
 
@@ -422,9 +425,12 @@ class Image
 
         switch ($extension) {
             case 'jpg':
-            case 'jpeg': $watermark = imagecreatefromjpeg($watermark); break;
-            case 'png':  $watermark = imagecreatefrompng($watermark); break;
-            case 'gif':  $watermark = imagecreatefromgif($watermark); break;
+            case 'jpeg': $watermark = imagecreatefromjpeg($watermark);
+                break;
+            case 'png':  $watermark = imagecreatefrompng($watermark);
+                break;
+            case 'gif':  $watermark = imagecreatefromgif($watermark);
+                break;
             default:     throw new \Exception('Only png, jpg and gif images are supported');
         }
 
@@ -438,7 +444,7 @@ class Image
         imagecopy($this->image, $watermark, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
 
         if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
+            /* @disregard */
             imagedestroy($watermark);
         } else {
             $watermark = null;
@@ -460,7 +466,7 @@ class Image
         $this->maintain();
         $this->path = $this->path($path);
 
-        if (is_file($path) && !$overwrite) {
+        if (is_file($path) && ! $overwrite) {
             throw new \Exception(sprintf('Destination file already exists: %s', $this->path));
         }
 
@@ -468,7 +474,7 @@ class Image
 
         switch ($extension) {
             case 'jpg':
-                if (!imagejpeg($this->image, $this->path, $this->quality)) {
+                if (! imagejpeg($this->image, $this->path, $this->quality)) {
                     throw new \Exception('The JPG file could not be saved!');
                 }
                 break;
@@ -477,13 +483,13 @@ class Image
                 imagealphablending($this->image, false);
                 imagesavealpha($this->image, true);
 
-                if (!imagepng($this->image, $this->path)) {
+                if (! imagepng($this->image, $this->path)) {
                     throw new \Exception('The PNG file could not be saved.');
                 }
                 break;
 
             case 'gif':
-                if (!imagegif($this->image, $this->path, $this->quality)) {
+                if (! imagegif($this->image, $this->path, $this->quality)) {
                     throw new \Exception('The GIF file could not be saved.');
                 }
                 break;
@@ -515,9 +521,12 @@ class Image
         $type = null;
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG: $type = 'image/jpeg'; break;
-            case IMAGETYPE_PNG:  $type = 'image/png'; break;
-            case IMAGETYPE_GIF:  $type = 'image/gif'; break;
+            case IMAGETYPE_JPEG: $type = 'image/jpeg';
+                break;
+            case IMAGETYPE_PNG:  $type = 'image/png';
+                break;
+            case IMAGETYPE_GIF:  $type = 'image/gif';
+                break;
             default:             throw new \Exception('Only jpg, png and gif image are supported');
         }
 
@@ -543,7 +552,7 @@ class Image
             && 'gd' === strtolower(get_resource_type($this->image))
         ) {
             if (PHP_VERSION_ID < 80000) {
-                /** @disregard */
+                /* @disregard */
                 imagedestroy($this->image);
             } else {
                 $this->image = null;
@@ -569,7 +578,7 @@ class Image
      */
     public static function identicon($seed, $size = 64, $display = false)
     {
-        if (!static::available()) {
+        if (! static::available()) {
             throw new \Exception('The PHP GD extension is not available');
         }
 
@@ -616,7 +625,7 @@ class Image
                 if (PHP_VERSION_ID >= 80100) {
                     imagefilledpolygon($sprite, $block, $color);
                 } else {
-                    /** @disregard */
+                    /* @disregard */
                     imagefilledpolygon($sprite, $block, $points / 2, $color);
                 }
 
@@ -628,7 +637,7 @@ class Image
                 }
 
                 if (PHP_VERSION_ID < 80000) {
-                    /** @disregard */
+                    /* @disregard */
                     imagedestroy($sprite);
                 } else {
                     $sprite = null;
@@ -640,7 +649,7 @@ class Image
         $result = imagepng($image);
 
         if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
+            /* @disregard */
             imagedestroy($image);
         } else {
             $image = null;
@@ -669,7 +678,7 @@ class Image
 
         $length = mb_strlen($hex, '8bit');
 
-        if ($length > 6 || (3 !== $length && 6 !== $length) || !ctype_xdigit($hex)) {
+        if ($length > 6 || (3 !== $length && 6 !== $length) || ! ctype_xdigit($hex)) {
             throw new \Exception(sprintf('Invalid color specified: 0x%s', $hex));
         }
 
@@ -701,7 +710,7 @@ class Image
      */
     public function path($path)
     {
-        return path('base') . str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
+        return path('base').str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
     }
 
     /**
@@ -738,7 +747,7 @@ class Image
      */
     private function level($value, $low, $high, $method)
     {
-        if (!in_array($value, range($low, $high))) {
+        if (! in_array($value, range($low, $high))) {
             throw new \Exception(sprintf('The %s level should be between %s to %s', $method, $low, $high));
         }
 

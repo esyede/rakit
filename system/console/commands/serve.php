@@ -19,7 +19,7 @@ class Serve extends Command
         $port = trim(get_cli_option('port', 8000));
         $port = (int) ((is_numeric($port) && $port >= 20 && $port <= 65535) ? $port : 8000);
 
-        echo $this->info('Development server started at: http://' . $host . ':' . $port);
+        echo $this->info('Development server started at: http://'.$host.':'.$port);
         echo $this->info('Press Ctrl-C to quit.');
         echo PHP_EOL;
 
@@ -27,6 +27,6 @@ class Serve extends Command
             ob_end_flush();
         }
 
-        passthru(escapeshellcmd('php -S ' . $host . ':' . $port . ' -t .'));
+        passthru(escapeshellcmd('php -S '.$host.':'.$port.' -t .'));
     }
 }

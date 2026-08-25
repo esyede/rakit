@@ -115,7 +115,7 @@ class Pending
      */
     protected function execute()
     {
-        if (!$this->name) {
+        if (! $this->name) {
             return false;
         }
 

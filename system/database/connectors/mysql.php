@@ -20,7 +20,7 @@ class MySQL extends Connector
         $pdo = new PDO($this->dsn($config), $config['username'], $config['password'], $this->options($config));
 
         if (isset($config['charset'])) {
-            $pdo->prepare("SET NAMES '" . $config['charset'] . "'")->execute();
+            $pdo->prepare("SET NAMES '".$config['charset']."'")->execute();
         }
 
         return $pdo;
@@ -35,9 +35,9 @@ class MySQL extends Connector
      */
     protected function dsn(array $config)
     {
-        $dsn = 'mysql:host=' . $config['host'] . ';dbname=' . $config['database'];
-        $dsn .= isset($config['port']) ? ';port=' . $config['port'] : '';
-        $dsn .= isset($config['unix_socket']) ? ';unix_socket=' . $config['unix_socket'] : '';
+        $dsn = 'mysql:host='.$config['host'].';dbname='.$config['database'];
+        $dsn .= isset($config['port']) ? ';port='.$config['port'] : '';
+        $dsn .= isset($config['unix_socket']) ? ';unix_socket='.$config['unix_socket'] : '';
 
         return $dsn;
     }

@@ -109,7 +109,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $count = $this->count();
 
         if ($count === 0) {
-            return null;
+            return;
         }
 
         $collection = isset($key) ? $this->pluck($key) : $this;
@@ -170,7 +170,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
 
         if ($this->use_as_callable($key)) {
-            return !is_null($this->first($key));
+            return ! is_null($this->first($key));
         }
 
         return in_array($key, $this->items, false);
@@ -193,7 +193,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         }
 
         if ($this->use_as_callable($key)) {
-            return !is_null($this->first($key));
+            return ! is_null($this->first($key));
         }
 
         return in_array($key, $this->items, true);
@@ -419,7 +419,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         foreach ($items as $item) {
             $item = ($item instanceof \System\Collection) ? $item->all() : $item;
 
-            if (!is_array($item)) {
+            if (! is_array($item)) {
                 $result[] = $item;
             } elseif ($depth === 1) {
                 $result = array_merge($result, array_values($item));
@@ -490,7 +490,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
             $gkeys = is_array($gkeys) ? $gkeys : [$gkeys];
 
             foreach ($gkeys as $gkey) {
-                if (!array_key_exists($gkey, $results)) {
+                if (! array_key_exists($gkey, $results)) {
                     $results[$gkey] = [];
                 }
 
@@ -575,7 +575,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function is_not_empty()
     {
-        return !$this->is_empty();
+        return ! $this->is_empty();
     }
 
     /**
@@ -587,7 +587,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     protected function use_as_callable($value)
     {
-        return !is_string($value) && is_callable($value);
+        return ! is_string($value) && is_callable($value);
     }
 
     /**
@@ -692,7 +692,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         $callback = $this->value_retriever($callback);
         return $this->filter(function ($value) {
-            return !is_null($value);
+            return ! is_null($value);
         })->reduce(function ($result, $item) use ($callback) {
             $value = $callback($item);
             return is_null($result) || $value > $result ? $value : $result;
@@ -753,7 +753,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         $callback = $this->value_retriever($callback);
         return $this->filter(function ($value) {
-            return !is_null($value);
+            return ! is_null($value);
         })->reduce(function ($result, $item) use ($callback) {
             $value = $callback($item);
             return (is_null($result) || $value < $result) ? $value : $result;
@@ -803,7 +803,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         $callback = $this->value_retriever($callback);
 
         foreach ($this->items as $key => $item) {
-            $partitions[(int) !$callback($item)][$key] = $item;
+            $partitions[(int) ! $callback($item)][$key] = $item;
         }
 
         return new static($partitions);
@@ -893,11 +893,11 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function random($amount = 1)
     {
         if ($amount > ($count = $this->count())) {
-            throw new \InvalidArgumentException('You requested ' . $amount . ' items, but there are only ' . $count . ' items in the collection.');
+            throw new \InvalidArgumentException('You requested '.$amount.' items, but there are only '.$count.' items in the collection.');
         }
 
         $keys = array_rand($this->items, $amount);
-        return (intval($amount) === 1)
+        return ((int) $amount === 1)
             ? $this->items[$keys]
             : new static(array_intersect_key($this->items, array_flip($keys)));
     }
@@ -926,7 +926,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     {
         if ($this->use_as_callable($callback)) {
             return $this->filter(function ($value, $key) use ($callback) {
-                return !$callback($value, $key);
+                return ! $callback($value, $key);
             });
         }
 
@@ -955,7 +955,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function search($value, $strict = false)
     {
-        if (!$this->use_as_callable($value)) {
+        if (! $this->use_as_callable($value)) {
             return array_search($value, $this->items, $strict);
         }
 

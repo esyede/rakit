@@ -7,13 +7,17 @@ defined('DS') or exit('No direct access.');
 class Metadata
 {
     const CREATED = 'c';
+
     const UPDATED = 'u';
+
     const LIFETIME = 'l';
 
     protected $meta = [];
 
     private $name = '__metadata';
+
     private $storageKey;
+
     private $lastUsed;
 
     /**

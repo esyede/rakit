@@ -13,30 +13,40 @@ use System\Carbon;
 class Server
 {
     const TEXT = 1;
+
     const BINARY = 2;
+
     const CLOSE = 8;
+
     const PING = 9;
+
     const PONG = 10;
+
     const MAGIC = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
     protected $config = [];
+
     protected $master;
+
     protected $sockets = [];
+
     protected $users = [];
+
     protected $pendings = [];
+
     protected $events = [];
 
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
         $dsn = str_replace('tcp://', '', $address);
-        $dsn = (strpos($dsn, '://') === false) ? 'tcp://' . $dsn : $dsn;
+        $dsn = (strpos($dsn, '://') === false) ? 'tcp://'.$dsn : $dsn;
         $context = stream_context_create(['socket' => ['so_reuseaddr' => true]]);
         $this->master = @stream_socket_server($dsn, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $context);
 
-        if (!$this->master) {
-            $this->stderr('Failed: stream_socket_server() - ' . $errstr . ' (' . $errno . ')');
-            die('Failed: stream_socket_server() - ' . $errstr);
+        if (! $this->master) {
+            $this->stderr('Failed: stream_socket_server() - '.$errstr.' ('.$errno.')');
+            die('Failed: stream_socket_server() - '.$errstr);
         }
 
         $this->sockets['master'] = $this->master;
@@ -90,7 +100,7 @@ class Server
                 }
             }
 
-            if (!$found) {
+            if (! $found) {
                 unset($this->pendings[$key]);
             }
         }
@@ -134,28 +144,28 @@ class Server
                         continue;
                     }
                     $this->connect($client);
-                    $this->stdout('Client connected. ' . (int) $client);
+                    $this->stdout('Client connected. '.(int) $client);
                 } else {
-                    $this->stdout('Reading from socket ' . (int) $socket);
+                    $this->stdout('Reading from socket '.(int) $socket);
                     $buffer = @fread($socket, $this->config['max_buffer_size']);
 
                     if ($buffer === false || $buffer === '') {
                         if (feof($socket)) {
                             $this->disconnect($socket);
-                            $this->stderr('Client disconnected. TCP connection lost: ' . (int) $socket);
+                            $this->stderr('Client disconnected. TCP connection lost: '.(int) $socket);
                         } else {
                             $error = error_get_last();
-                            $this->stderr('Socket error: ' . (isset($error['message']) ? $error['message'] : 'Unknown error'));
+                            $this->stderr('Socket error: '.(isset($error['message']) ? $error['message'] : 'Unknown error'));
                             $this->disconnect($socket, true);
                         }
                     } else {
                         $bytes = strlen($buffer);
-                        $this->stdout('Received ' . $bytes . ' bytes from socket ' . (int) $socket);
+                        $this->stdout('Received '.$bytes.' bytes from socket '.(int) $socket);
                         $user = $this->find($socket);
 
-                        if (!$user->handshake) {
-                            if (strpos(str_replace(CR, '', $buffer), LF . LF) === false) {
-                                $this->stdout('Handshake buffer incomplete for socket ' . (int) $socket);
+                        if (! $user->handshake) {
+                            if (strpos(str_replace(CR, '', $buffer), LF.LF) === false) {
+                                $this->stdout('Handshake buffer incomplete for socket '.(int) $socket);
                                 continue;
                             }
 
@@ -167,7 +177,7 @@ class Server
                 }
             }
 
-            if (!$count) {
+            if (! $count) {
                 foreach ($this->sockets as $id => $socket) {
                     if (
                         $socket !== $this->master
@@ -210,7 +220,7 @@ class Server
             }
 
             if ($close) {
-                $this->stdout('Client disconnected. ' . (int) $disconnected->socket);
+                $this->stdout('Client disconnected. '.(int) $disconnected->socket);
                 $this->closed($disconnected);
                 @fclose($disconnected->socket);
             } else {
@@ -222,7 +232,7 @@ class Server
 
     protected function handshake($user, $buffer)
     {
-        $this->stdout('Handshake started for client ' . $user->id());
+        $this->stdout('Handshake started for client '.$user->id());
         $lines = explode(LF, $buffer);
         $headers = [];
 
@@ -240,46 +250,46 @@ class Server
         if (isset($headers['get'])) {
             $user->uri = $headers['get'];
         } else {
-            $response = 'HTTP/1.1 405 Method Not Allowed' . CRLF . CRLF;
+            $response = 'HTTP/1.1 405 Method Not Allowed'.CRLF.CRLF;
         }
 
-        if (!isset($headers['host']) || !$this->check_host($headers['host'])) {
+        if (! isset($headers['host']) || ! $this->check_host($headers['host'])) {
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
-        if (!isset($headers['upgrade']) || strtolower($headers['upgrade']) != 'websocket') {
+        if (! isset($headers['upgrade']) || strtolower($headers['upgrade']) != 'websocket') {
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
-        if (!isset($headers['connection']) || strpos(strtolower($headers['connection']), 'upgrade') === false) {
+        if (! isset($headers['connection']) || strpos(strtolower($headers['connection']), 'upgrade') === false) {
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
-        if (!isset($headers['sec-websocket-key'])) {
+        if (! isset($headers['sec-websocket-key'])) {
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
-        if (!isset($headers['sec-websocket-version']) || intval(strtolower($headers['sec-websocket-version'])) !== 13) {
-            $response = 'HTTP/1.1 426 Upgrade Required' . CRLF . 'Sec-WebSocketVersion: 13';
+        if (! isset($headers['sec-websocket-version']) || (int) (strtolower($headers['sec-websocket-version'])) !== 13) {
+            $response = 'HTTP/1.1 426 Upgrade Required'.CRLF.'Sec-WebSocketVersion: 13';
         }
 
         if (
-            ($this->config['origin_required'] && !isset($headers['origin']))
-            || ($this->config['origin_required'] && !$this->check_origin($headers['origin']))
+            ($this->config['origin_required'] && ! isset($headers['origin']))
+            || ($this->config['origin_required'] && ! $this->check_origin($headers['origin']))
         ) {
             $response = 'HTTP/1.1 403 Forbidden';
         }
 
         if (
-            ($this->config['protocol_required'] && !isset($headers['sec-websocket-protocol']))
-            || ($this->config['protocol_required'] && !$this->check_protocol($headers['sec-websocket-protocol']))
+            ($this->config['protocol_required'] && ! isset($headers['sec-websocket-protocol']))
+            || ($this->config['protocol_required'] && ! $this->check_protocol($headers['sec-websocket-protocol']))
         ) {
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
         if (
-            ($this->config['extensions_required'] && !isset($headers['sec-websocket-extensions']))
-            || ($this->config['extensions_required'] && !$this->check_extensions($headers['sec-websocket-extensions']))
+            ($this->config['extensions_required'] && ! isset($headers['sec-websocket-extensions']))
+            || ($this->config['extensions_required'] && ! $this->check_extensions($headers['sec-websocket-extensions']))
         ) {
             $response = 'HTTP/1.1 400 Bad Request';
         }
@@ -293,21 +303,21 @@ class Server
         $user->headers = $headers;
         $user->handshake = $buffer;
 
-        $hash = sha1($headers['sec-websocket-key'] . static::MAGIC);
+        $hash = sha1($headers['sec-websocket-key'].static::MAGIC);
         $token = '';
 
         for ($i = 0; $i < 20; $i++) {
             $token .= chr(hexdec(substr($hash, $i * 2, 2)));
         }
 
-        $token = base64_encode($token) . CRLF;
+        $token = base64_encode($token).CRLF;
         $protocol = (isset($headers['sec-websocket-protocol'])) ? $this->protocol($headers['sec-websocket-protocol']) : '';
         $extensions = (isset($headers['sec-websocket-extensions'])) ? $this->extensions($headers['sec-websocket-extensions']) : '';
-        $response = 'HTTP/1.1 101 Switching Protocols' . CRLF . 'Upgrade: websocket' . CRLF . 'Connection: Upgrade' . CRLF .
-            'Sec-WebSocket-Accept: ' . $token . $protocol . $extensions . CRLF;
+        $response = 'HTTP/1.1 101 Switching Protocols'.CRLF.'Upgrade: websocket'.CRLF.'Connection: Upgrade'.CRLF.
+            'Sec-WebSocket-Accept: '.$token.$protocol.$extensions.CRLF;
 
         $this->communicate($user->socket, $response);
-        $this->stdout('Handshake completed for client ' . $user->id());
+        $this->stdout('Handshake completed for client '.$user->id());
         $this->connected($user);
     }
 
@@ -326,7 +336,7 @@ class Server
         $protocol = explode(',', $protocol);
         $protocols = array_map('trim', $protocol);
         $intersect = array_intersect($protocols, $this->config['supported_protocols']);
-        return empty($this->config['supported_protocols']) ? true : !empty($intersect);
+        return empty($this->config['supported_protocols']) ? true : ! empty($intersect);
     }
 
     protected function check_extensions($extensions)
@@ -334,7 +344,7 @@ class Server
         $extensions = explode(',', $extensions);
         $extensions = array_map('trim', $extensions);
         $intersect = array_intersect($extensions, $this->config['supported_extensions']);
-        return empty($this->config['supported_extensions']) ? true : !empty($intersect);
+        return empty($this->config['supported_extensions']) ? true : ! empty($intersect);
     }
 
     protected function protocol($protocol)
@@ -344,7 +354,7 @@ class Server
 
         foreach ($protocols as $protocol) {
             if (in_array($protocol, $this->config['supported_protocols'])) {
-                return 'Sec-WebSocket-Protocol: ' . $protocol . CRLF;
+                return 'Sec-WebSocket-Protocol: '.$protocol.CRLF;
             }
         }
 
@@ -358,7 +368,7 @@ class Server
 
         foreach ($extensions as $extension) {
             if (in_array($extension, $this->config['supported_extensions'])) {
-                return 'Sec-WebSocket-Extensions: ' . $extension . CRLF;
+                return 'Sec-WebSocket-Extensions: '.$extension.CRLF;
             }
         }
 
@@ -373,7 +383,6 @@ class Server
             }
         }
 
-        return null;
     }
 
     public function stdout($message)
@@ -382,7 +391,7 @@ class Server
             if ($this->config['logging_output'] === 'file') {
                 Log::info($message);
             } else {
-                echo Color::green('[' . Carbon::now() . '] ' . $message);
+                echo Color::green('['.Carbon::now().'] '.$message);
             }
         }
     }
@@ -393,7 +402,7 @@ class Server
             if ($this->config['logging_output'] === 'file') {
                 Log::error($message);
             } else {
-                echo Color::red('[' . Carbon::now() . '] ' . $message);
+                echo Color::red('['.Carbon::now().'] '.$message);
             }
         }
     }
@@ -415,12 +424,18 @@ class Server
     public function frame($message, $user, $type = 'text', $continue = false)
     {
         switch ($type) {
-            case 'continuous': $b1 = 0; break;
-            case 'text':       $b1 = $user->continuous ? 0 : 1; break;
-            case 'binary':     $b1 = $user->continuous ? 0 : 2; break;
-            case 'close':      $b1 = 8; break;
-            case 'ping':       $b1 = 9; break;
-            case 'pong':       $b1 = 10; break;
+            case 'continuous': $b1 = 0;
+                break;
+            case 'text':       $b1 = $user->continuous ? 0 : 1;
+                break;
+            case 'binary':     $b1 = $user->continuous ? 0 : 2;
+                break;
+            case 'close':      $b1 = 8;
+                break;
+            case 'ping':       $b1 = 9;
+                break;
+            case 'pong':       $b1 = 10;
+                break;
             default:
                 throw new \InvalidArgumentException(sprintf('Unsupported frame type: %s', $type));
         }
@@ -442,44 +457,44 @@ class Server
             $hex = dechex($length);
 
             if (strlen($hex) % 2 == 1) {
-                $hex = '0' . $hex;
+                $hex = '0'.$hex;
             }
 
             $n = strlen($hex) - 2;
 
             for ($i = $n; $i >= 0; $i = $i - 2) {
-                $field = chr(hexdec(substr($hex, $i, 2))) . $field;
+                $field = chr(hexdec(substr($hex, $i, 2))).$field;
             }
 
             while (strlen($field) < 2) {
-                $field = chr(0) . $field;
+                $field = chr(0).$field;
             }
         } else {
             $b2 = 127;
             $hex = dechex($length);
 
             if (strlen($hex) % 2 == 1) {
-                $hex = '0' . $hex;
+                $hex = '0'.$hex;
             }
 
             $n = strlen($hex) - 2;
 
             for ($i = $n; $i >= 0; $i = $i - 2) {
-                $field = chr(hexdec(substr($hex, $i, 2))) . $field;
+                $field = chr(hexdec(substr($hex, $i, 2))).$field;
             }
 
             while (strlen($field) < 8) {
-                $field = chr(0) . $field;
+                $field = chr(0).$field;
             }
         }
 
-        return chr($b1) . chr($b2) . $field . $message;
+        return chr($b1).chr($b2).$field.$message;
     }
 
     protected function split_packet($length, $packet, $user)
     {
         if ($user->busy) {
-            $packet = $user->buffer . $packet;
+            $packet = $user->buffer.$packet;
             $user->busy = false;
             $length = strlen($packet);
         }
@@ -504,7 +519,7 @@ class Server
                             $function($user, $headers['opcode'], $message);
                         }
                     } else {
-                        $this->stderr('Not UTF-8' . PHP_EOL);
+                        $this->stderr('Not UTF-8'.PHP_EOL);
                     }
                 }
             }
@@ -544,18 +559,21 @@ class Server
             case 1:
             case 2:  break;
 
-            // close
-            case 8:  $user->disconnecting = true; return '';
+                // close
+            case 8:  $user->disconnecting = true;
+                return '';
 
-            // ping: must be answered with a pong. Note the break - without it
-            // this fell through to 'default', which set $close and returned
-            // before the pong was ever sent, so the server never answered a ping.
-            case 9:  $pong = true; break;
+                // ping: must be answered with a pong. Note the break - without it
+                // this fell through to 'default', which set $close and returned
+                // before the pong was ever sent, so the server never answered a ping.
+            case 9:  $pong = true;
+                break;
 
-            // pong: a control frame, never application data
+                // pong: a control frame, never application data
             case 10: return false;
 
-            default: $close = true; break;
+            default: $close = true;
+                break;
         }
 
         if ($this->check_rsv_bits($headers, $user)) {
@@ -566,7 +584,7 @@ class Server
             return false;
         }
 
-        $payload = $user->message . $this->extract_payload($message, $headers);
+        $payload = $user->message.$this->extract_payload($message, $headers);
 
         if ($pong) {
             $reply = $this->frame($payload, $user, 'pong');
@@ -604,13 +622,13 @@ class Server
 
         if ($header['length'] === 126) {
             if ($header['hasmask']) {
-                $header['mask'] = $message[4] . $message[5] . $message[6] . $message[7];
+                $header['mask'] = $message[4].$message[5].$message[6].$message[7];
             }
 
             $header['length'] = ord($message[2]) * 256 + ord($message[3]);
         } elseif ($header['length'] === 127) {
             if ($header['hasmask']) {
-                $header['mask'] = $message[10] . $message[11] . $message[12] . $message[13];
+                $header['mask'] = $message[10].$message[11].$message[12].$message[13];
             }
 
             $header['length'] = ord($message[2]) * 65536 * 65536 * 65536 * 256
@@ -622,7 +640,7 @@ class Server
                 + ord($message[8]) * 256
                 + ord($message[9]);
         } elseif ($header['hasmask']) {
-            $header['mask'] = $message[2] . $message[3] . $message[4] . $message[5];
+            $header['mask'] = $message[2].$message[3].$message[4].$message[5];
         }
 
         return $header;
@@ -694,7 +712,7 @@ class Server
     {
         foreach ($this->sockets as $socket) {
             if ($socket !== $this->master && is_resource($socket)) {
-                /** @disregard */
+                /* @disregard */
                 @fclose($socket);
             } else {
                 $socket = null;
@@ -702,7 +720,7 @@ class Server
         }
 
         if (is_resource($this->master)) {
-            /** @disregard */
+            /* @disregard */
             @fclose($this->master);
         } else {
             $this->master = null;

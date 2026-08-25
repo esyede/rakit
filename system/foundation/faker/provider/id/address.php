@@ -67,6 +67,7 @@ class Address extends BaseAddress
     ];
 
     protected static $streetPrefix = ['Ds.', 'Dk.', 'Gg.', 'Jr.', 'Jln.', 'Kpg.', 'Ki.', 'Psr.'];
+
     protected static $state = [
         'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Jambi', 'Bangka Belitung', 'Riau',
         'Kepulauan Riau', 'Bengkulu', 'Sumatera Selatan', 'Lampung', 'Banten',
@@ -141,9 +142,13 @@ class Address extends BaseAddress
     ];
 
     protected static $cityFormats = ['{{cityName}}'];
+
     protected static $streetNameFormats = ['{{street}}'];
+
     protected static $streetAddressFormats = ['{{streetPrefix}} {{street}} No. {{buildingNumber}}'];
+
     protected static $addressFormats = ['{{streetAddress}}, {{city}} {{postcode}}, {{stateAbbr}}'];
+
     protected static $postcode = ['%####'];
 
     public static function state()

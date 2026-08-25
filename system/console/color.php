@@ -48,7 +48,7 @@ class Color
 
     public static function supported()
     {
-        if (!defined('STDOUT')) {
+        if (! defined('STDOUT')) {
             return false;
         }
 
@@ -62,6 +62,6 @@ class Color
 
     private static function colorize($text, $color, $newline = true)
     {
-        return (static::supported() ? "\033[{$color}m{$text}\033[m" : $text) . ($newline ? PHP_EOL : '');
+        return (static::supported() ? "\033[{$color}m{$text}\033[m" : $text).($newline ? PHP_EOL : '');
     }
 }

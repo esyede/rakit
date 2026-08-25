@@ -7,9 +7,13 @@ defined('DS') or exit('No direct access.');
 class Internet extends Base
 {
     protected static $freeEmailDomain = ['gmail.com', 'yahoo.com', 'hotmail.com', 'qqmail.com', 'baidu.com', 'mail.ru'];
+
     protected static $tld = ['com', 'com', 'com', 'com', 'com', 'com', 'biz', 'info', 'net', 'org'];
+
     protected static $userNameFormats = ['{{lastName}}.{{firstName}}', '{{firstName}}.{{lastName}}', '{{firstName}}##', '?{{lastName}}'];
+
     protected static $emailFormats = ['{{userName}}@{{domainName}}', '{{userName}}@{{freeEmailDomain}}'];
+
     protected static $urlFormats = [
         'http://www.{{domainName}}/', 'http://{{domainName}}/','http://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}',
         'https://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}.html', 'http://{{domainName}}/{{slug}}',
@@ -150,17 +154,17 @@ class Internet extends Base
 
     final public function safeEmail()
     {
-        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName() . '@' . static::safeEmailDomain()), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName().'@'.static::safeEmailDomain()), 'UTF-8');
     }
 
     public function freeEmail()
     {
-        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName() . '@' . static::freeEmailDomain()), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName().'@'.static::freeEmailDomain()), 'UTF-8');
     }
 
     public function companyEmail()
     {
-        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName() . '@' . $this->domainName()), 'UTF-8');
+        return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName().'@'.$this->domainName()), 'UTF-8');
     }
 
     public static function freeEmailDomain()
@@ -185,7 +189,7 @@ class Internet extends Base
 
     public function domainName()
     {
-        return $this->domainWord() . '.' . $this->tld();
+        return $this->domainWord().'.'.$this->tld();
     }
 
     public function domainWord()

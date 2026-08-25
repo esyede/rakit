@@ -483,11 +483,11 @@ class File extends Base
 
     public static function file($sourceDir = '/tmp', $targetDir = '/tmp', $fullPath = true)
     {
-        if (!is_dir($sourceDir)) {
+        if (! is_dir($sourceDir)) {
             throw new \InvalidArgumentException(sprintf('Source directory does not exist or is not a directory: %s', $sourceDir));
         }
 
-        if (!is_dir($targetDir)) {
+        if (! is_dir($targetDir)) {
             throw new \InvalidArgumentException(sprintf('Target directory does not exist or is not a directory: %s', $targetDir));
         }
 
@@ -496,16 +496,16 @@ class File extends Base
         }
 
         $files = array_filter(array_values(array_diff(scandir($sourceDir), ['.', '..'])), function ($file) use ($sourceDir) {
-            return is_file($sourceDir . DS . $file) && is_readable($sourceDir . DS . $file);
+            return is_file($sourceDir.DS.$file) && is_readable($sourceDir.DS.$file);
         });
 
         if (empty($files)) {
             throw new \InvalidArgumentException(sprintf('Source directory is empty: %s', $sourceDir));
         }
 
-        $from = $sourceDir . DS . static::randomElement($files);
-        $basename = Uuid::uuid() . '.' . pathinfo($from, PATHINFO_EXTENSION);
-        $to = $targetDir . DS . $basename;
+        $from = $sourceDir.DS.static::randomElement($files);
+        $basename = Uuid::uuid().'.'.pathinfo($from, PATHINFO_EXTENSION);
+        $to = $targetDir.DS.$basename;
         return (false === copy($from, $to)) ? false : ($fullPath ? $to : $basename);
     }
 }

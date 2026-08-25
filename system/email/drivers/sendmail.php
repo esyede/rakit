@@ -16,10 +16,10 @@ class Sendmail extends Driver
         try {
             $message = $this->build();
             $sender = $this->envelope_sender();
-            $command = $this->config['sendmail_binary'] . ' -oi' . ((null === $sender) ? '' : ' -f ' . escapeshellarg($sender)) . ' -t';
+            $command = $this->config['sendmail_binary'].' -oi'.((null === $sender) ? '' : ' -f '.escapeshellarg($sender)).' -t';
             $handle = popen($command, 'w');
 
-            if (!is_resource($handle)) {
+            if (! is_resource($handle)) {
                 throw new \Exception('Failed sending email through sendmail: unable to start the process');
             }
 
@@ -37,9 +37,9 @@ class Sendmail extends Driver
 
             return true;
         } catch (\Throwable $e) {
-            throw new \Exception('Failed sending email through sendmail: ' . $e->getMessage());
+            throw new \Exception('Failed sending email through sendmail: '.$e->getMessage());
         } catch (\Exception $e) {
-            throw new \Exception('Failed sending email through sendmail: ' . $e->getMessage());
+            throw new \Exception('Failed sending email through sendmail: '.$e->getMessage());
         }
     }
 }

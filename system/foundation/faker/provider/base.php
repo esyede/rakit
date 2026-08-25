@@ -11,6 +11,7 @@ use System\Foundation\Faker\Unique;
 class Base
 {
     protected $generator;
+
     protected $unique;
 
     public function __construct(Generator $generator)
@@ -30,7 +31,7 @@ class Base
 
     public static function randomNumber($nbDigits = null, $strict = false)
     {
-        if (!is_bool($strict)) {
+        if (! is_bool($strict)) {
             throw new \InvalidArgumentException('randomNumber() generates numbers of fixed width. To generate numbers between two boundaries, use numberBetween() instead.');
         }
 
@@ -110,8 +111,8 @@ class Base
 
     public static function randomElement($array = ['a', 'b', 'c'])
     {
-        if (!$array) {
-            return null;
+        if (! $array) {
+            return;
         }
 
         $elements = static::randomElements($array, 1);
@@ -230,8 +231,8 @@ class Base
         $regex = preg_replace('/\$?\/?$/', '', $regex);
         $regex = preg_replace('/\{(\d+)\}/', '{\1,\1}', $regex);
         $regex = preg_replace('/(?<!\\\)\?/', '{0,1}', $regex);
-        $regex = preg_replace('/(?<!\\\)\*/', '{0,' . static::randomDigitNotNull() . '}', $regex);
-        $regex = preg_replace('/(?<!\\\)\+/', '{1,' . static::randomDigitNotNull() . '}', $regex);
+        $regex = preg_replace('/(?<!\\\)\*/', '{0,'.static::randomDigitNotNull().'}', $regex);
+        $regex = preg_replace('/(?<!\\\)\+/', '{1,'.static::randomDigitNotNull().'}', $regex);
         $regex = preg_replace_callback('/(\[[^\]]+\])\{(\d+),(\d+)\}/', function ($matches) {
             return str_repeat($matches[1], Base::randomElement(range($matches[2], $matches[3])));
         }, $regex);
@@ -245,9 +246,9 @@ class Base
             return Base::randomElement(explode('|', str_replace(['(', ')'], '', $matches[1])));
         }, $regex);
         $regex = preg_replace_callback('/\[([^\]]+)\]/', function ($matches) {
-            return '[' . preg_replace_callback('/(\w|\d)\-(\w|\d)/', function ($range) {
+            return '['.preg_replace_callback('/(\w|\d)\-(\w|\d)/', function ($range) {
                 return implode('', range($range[1], $range[2]));
-            }, $matches[1]) . ']';
+            }, $matches[1]).']';
         }, $regex);
         $regex = preg_replace_callback('/\[([^\]]+)\]/', function ($matches) {
             return Base::randomElement(str_split($matches[1]));
@@ -276,7 +277,7 @@ class Base
 
     public function unique($reset = false, $max_retries = 10000)
     {
-        if (!$this->unique) {
+        if (! $this->unique) {
             $this->unique = new Unique($this->generator, $max_retries);
             return $this->unique;
         }

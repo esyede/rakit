@@ -150,7 +150,7 @@ class Validator
      */
     public function invalid()
     {
-        return !$this->valid();
+        return ! $this->valid();
     }
 
     /**
@@ -184,7 +184,7 @@ class Validator
         $value = Arr::get($this->attributes, $attribute);
         $validatable = $this->validatable($rule, $attribute, $value);
 
-        if ($validatable && !$this->{'validate_' . $rule}($attribute, $value, $parameters, $this)) {
+        if ($validatable && ! $this->{'validate_'.$rule}($attribute, $value, $parameters, $this)) {
             $this->error($attribute, $rule, $parameters);
         }
     }
@@ -261,7 +261,7 @@ class Validator
             return false;
         }
 
-        if (!is_null(Input::file($attribute)) && is_array($value) && '' === trim((string) $value['tmp_name'])) {
+        if (! is_null(Input::file($attribute)) && is_array($value) && '' === trim((string) $value['tmp_name'])) {
             return false;
         }
 
@@ -295,7 +295,7 @@ class Validator
      */
     protected function validate_confirmed($attribute, $value)
     {
-        return $this->validate_same($attribute, $value, [$attribute . '_confirmation']);
+        return $this->validate_same($attribute, $value, [$attribute.'_confirmation']);
     }
 
     /**
@@ -392,7 +392,7 @@ class Validator
      */
     protected function validate_size($attribute, $value, array $parameters)
     {
-        if (!is_numeric($parameters[0])) {
+        if (! is_numeric($parameters[0])) {
             return false;
         }
 
@@ -454,7 +454,7 @@ class Validator
      */
     protected function validate_gt($attribute, $value, array $parameters)
     {
-        if (!array_key_exists($parameters[0], $this->attributes)) {
+        if (! array_key_exists($parameters[0], $this->attributes)) {
             return false;
         }
 
@@ -472,7 +472,7 @@ class Validator
      */
     protected function validate_gte($attribute, $value, array $parameters)
     {
-        if (!array_key_exists($parameters[0], $this->attributes)) {
+        if (! array_key_exists($parameters[0], $this->attributes)) {
             return false;
         }
 
@@ -490,7 +490,7 @@ class Validator
      */
     protected function validate_lt($attribute, $value, array $parameters)
     {
-        if (!array_key_exists($parameters[0], $this->attributes)) {
+        if (! array_key_exists($parameters[0], $this->attributes)) {
             return false;
         }
 
@@ -508,7 +508,7 @@ class Validator
      */
     protected function validate_lte($attribute, $value, array $parameters)
     {
-        if (!array_key_exists($parameters[0], $this->attributes)) {
+        if (! array_key_exists($parameters[0], $this->attributes)) {
             return false;
         }
 
@@ -567,7 +567,7 @@ class Validator
      */
     protected function validate_json($attribute, $value)
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return false;
         }
 
@@ -658,7 +658,7 @@ class Validator
      */
     protected function validate_filled($attribute, $value)
     {
-        return !empty($value);
+        return ! empty($value);
     }
 
     /**
@@ -685,7 +685,7 @@ class Validator
      */
     protected function validate_mimetypes($attribute, $value, array $parameters)
     {
-        if (!is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
+        if (! is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
             return true;
         }
 
@@ -704,13 +704,13 @@ class Validator
      */
     protected function validate_dimensions($attribute, $value, array $parameters)
     {
-        if (!is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
+        if (! is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
             return true;
         }
 
         $image = getimagesize($value['tmp_name']);
 
-        if (!$image) {
+        if (! $image) {
             return false;
         }
 
@@ -758,7 +758,7 @@ class Validator
      */
     protected function validate_distinct($attribute, $value)
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return true;
         }
 
@@ -776,7 +776,7 @@ class Validator
      */
     protected function validate_ends_with($attribute, $value, array $parameters)
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return false;
         }
 
@@ -800,7 +800,7 @@ class Validator
      */
     protected function validate_starts_with($attribute, $value, array $parameters)
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return false;
         }
 
@@ -824,7 +824,7 @@ class Validator
      */
     protected function validate_in_array($attribute, $value, array $parameters)
     {
-        if (!array_key_exists($parameters[0], $this->attributes)) {
+        if (! array_key_exists($parameters[0], $this->attributes)) {
             return false;
         }
 
@@ -885,7 +885,7 @@ class Validator
     {
         $other = Arr::get($this->attributes, $parameters[0]);
 
-        if (!in_array($other, array_slice($parameters, 1))) {
+        if (! in_array($other, array_slice($parameters, 1))) {
             return $this->validate_required($attribute, $value);
         }
 
@@ -904,7 +904,7 @@ class Validator
     protected function validate_required_with_all($attribute, $value, array $parameters)
     {
         foreach ($parameters as $param) {
-            if (!$this->validate_required($param, Arr::get($this->attributes, $param))) {
+            if (! $this->validate_required($param, Arr::get($this->attributes, $param))) {
                 return true;
             }
         }
@@ -944,7 +944,7 @@ class Validator
     protected function validate_required_without_all($attribute, $value, array $parameters)
     {
         foreach ($parameters as $param) {
-            if (!$this->validate_required($param, Arr::get($this->attributes, $param))) {
+            if (! $this->validate_required($param, Arr::get($this->attributes, $param))) {
                 return true;
             }
         }
@@ -1011,7 +1011,7 @@ class Validator
      */
     protected function validate_not_in($attribute, $value, array $parameters)
     {
-        return !in_array($value, $parameters);
+        return ! in_array($value, $parameters);
     }
 
     /**
@@ -1131,13 +1131,13 @@ class Validator
      */
     protected function validate_active_url($attribute, $value)
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             return false;
         }
 
         $url = trim($value);
 
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        if (! filter_var($url, FILTER_VALIDATE_URL)) {
             return false;
         }
 
@@ -1149,7 +1149,7 @@ class Validator
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
+            /* @disregard */
             curl_close($ch);
         }
 
@@ -1278,7 +1278,7 @@ class Validator
      */
     protected function validate_mimes($attribute, $value, array $parameters)
     {
-        if (!is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
+        if (! is_array($value) || '' === Arr::get($value, 'tmp_name', '')) {
             return true;
         }
 
@@ -1301,7 +1301,7 @@ class Validator
      */
     protected function validate_array($attribute, $value, array $parameters = [])
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return false;
         }
 
@@ -1425,7 +1425,7 @@ class Validator
         }
 
         try {
-            if ((!is_string($value) && !is_numeric($value)) || strtotime($value) === false) {
+            if ((! is_string($value) && ! is_numeric($value)) || strtotime($value) === false) {
                 return false;
             }
         } catch (\Throwable $e) {
@@ -1484,13 +1484,13 @@ class Validator
     protected function message($attribute, $rule)
     {
         $package = Package::prefix($this->package);
-        $custom = $attribute . '_' . $rule;
+        $custom = $attribute.'_'.$rule;
 
         if (array_key_exists($custom, $this->messages)) {
             return $this->messages[$custom];
         }
 
-        if (Lang::has($custom = $package . 'validation.custom.' . $custom, $this->language)) {
+        if (Lang::has($custom = $package.'validation.custom.'.$custom, $this->language)) {
             return Lang::line($custom)->get($this->language);
         }
 
@@ -1502,7 +1502,7 @@ class Validator
             return $this->size_message($package, $attribute, $rule);
         }
 
-        return Lang::line($package . 'validation.' . $rule)->get($this->language);
+        return Lang::line($package.'validation.'.$rule)->get($this->language);
     }
 
     /**
@@ -1520,7 +1520,7 @@ class Validator
             ? 'numeric'
             : (array_key_exists($attribute, Input::file()) ? 'file' : 'string');
 
-        return Lang::line($package . 'validation.' . $rule . '.' . $line)->get($this->language);
+        return Lang::line($package.'validation.'.$rule.'.'.$line)->get($this->language);
     }
 
     /**
@@ -1536,8 +1536,8 @@ class Validator
     protected function replace($message, $attribute, $rule, array $parameters)
     {
         $message = str_replace(':attribute', $this->attribute($attribute), $message);
-        return method_exists($this, 'replace_' . $rule)
-            ? $this->{'replace_' . $rule}($message, $attribute, $rule, $parameters)
+        return method_exists($this, 'replace_'.$rule)
+            ? $this->{'replace_'.$rule}($message, $attribute, $rule, $parameters)
             : $message;
     }
 
@@ -2050,7 +2050,7 @@ class Validator
     protected function attribute($attribute)
     {
         $package = Package::prefix($this->package);
-        $line = $package . 'validation.attributes.' . $attribute;
+        $line = $package.'validation.attributes.'.$attribute;
 
         return Lang::has($line, $this->language)
             ? Lang::line($line)->get($this->language)
@@ -2067,7 +2067,7 @@ class Validator
      */
     protected function has_rule($attribute, $rules)
     {
-        if (!isset($this->rules[$attribute])) {
+        if (! isset($this->rules[$attribute])) {
             return false;
         }
 

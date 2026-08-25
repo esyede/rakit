@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 class Parser
 {
     private $initials;
+
     private $pairs = [
         '(' => ')', '{' => '}', '[' => ']',
         '"' => '"', "'" => "'",
@@ -16,7 +17,7 @@ class Parser
 
     public function __construct()
     {
-        $this->initials = '/^(' . implode('|', array_map([$this, 'quote'], array_keys($this->pairs))) . ')/';
+        $this->initials = '/^('.implode('|', array_map([$this, 'quote'], array_keys($this->pairs))).')/';
     }
 
     /**
@@ -35,7 +36,7 @@ class Parser
             $this->reset_result($result);
 
             if ($result->state == '<<<') {
-                if (!$this->heredoc_start($result)) {
+                if (! $this->heredoc_start($result)) {
                     continue;
                 }
             }
@@ -53,7 +54,7 @@ class Parser
             }
         }
 
-        if (!empty($result->statements) && trim($result->stmt) === '' && strlen($result->buffer) == 0) {
+        if (! empty($result->statements) && trim($result->stmt) === '' && strlen($result->buffer) == 0) {
             $this->combine_statements($result);
             $this->debug($result);
 
@@ -82,7 +83,7 @@ class Parser
     {
         $result->stop = false;
         $result->state = end($result->states);
-        $result->terminator = $result->state ? '/^(.*?' . preg_quote($this->pairs[$result->state], '/') . ')/s' : null;
+        $result->terminator = $result->state ? '/^(.*?'.preg_quote($this->pairs[$result->state], '/').')/s' : null;
     }
 
     private function combine_statements($result)
@@ -91,7 +92,7 @@ class Parser
 
         foreach ($result->statements as $scope) {
             if (trim($scope) === ';' || substr(trim($scope), -1) !== ';') {
-                $combined[] = ((string) array_pop($combined)) . $scope;
+                $combined[] = ((string) array_pop($combined)).$scope;
             } else {
                 $combined[] = $scope;
             }
@@ -111,7 +112,7 @@ class Parser
             $docId = $match[2];
             $result->stmt .= $match[0];
             $result->buffer = substr($result->buffer, strlen($match[0]));
-            $result->terminator = '/^(.*?\n' . $docId . ');?\n/s';
+            $result->terminator = '/^(.*?\n'.$docId.');?\n/s';
             return true;
         }
 
@@ -121,8 +122,8 @@ class Parser
     private function scan_wsp($result)
     {
         if (preg_match('/^\s+/', $result->buffer, $match)) {
-            if (!empty($result->statements) && $result->stmt === '') {
-                $result->statements[] = array_pop($result->statements) . $match[0];
+            if (! empty($result->statements) && $result->stmt === '') {
+                $result->statements[] = array_pop($result->statements).$match[0];
             } else {
                 $result->stmt .= $match[0];
             }
@@ -136,7 +137,7 @@ class Parser
 
     private function scan_esc_char($result)
     {
-        if (($result->state === '"' || $result->state === "'") && preg_match('/^[^' . $result->state . ']*?\\\\./s', $result->buffer, $match)) {
+        if (($result->state === '"' || $result->state === "'") && preg_match('/^[^'.$result->state.']*?\\\\./s', $result->buffer, $match)) {
             $result->stmt .= $match[0];
             $result->buffer = substr($result->buffer, strlen($match[0]));
             return true;
@@ -185,7 +186,7 @@ class Parser
         }
 
         if (empty($result->states) && ($chr == ';' || $chr == '}')) {
-            if (!$this->is_lambda($result->stmt) || $chr == ';') {
+            if (! $this->is_lambda($result->stmt) || $chr == ';') {
                 $result->statements[] = $result->stmt;
                 $result->stmt = '';
             }
@@ -196,13 +197,13 @@ class Parser
 
     private function scan_use($result)
     {
-        if (!empty($result->states) || '' !== trim($result->stmt)) {
+        if (! empty($result->states) || '' !== trim($result->stmt)) {
             return false;
         }
 
         $pattern = '/^use\s+(\\\\?[A-Za-z_][A-Za-z0-9_]*'
-            . '(?:\\\\[A-Za-z_][A-Za-z0-9_]*)*'
-            . '(?:\s+as\s+[A-Za-z_][A-Za-z0-9_]*)?)\s*;/';
+            .'(?:\\\\[A-Za-z_][A-Za-z0-9_]*)*'
+            .'(?:\s+as\s+[A-Za-z_][A-Za-z0-9_]*)?)\s*;/';
 
         if (preg_match($pattern, $result->buffer, $use)) {
             $result->buffer = substr($result->buffer, strlen($use[0]));
@@ -236,7 +237,7 @@ class Parser
                 'require_once', 'list', 'return', 'do', 'for', 'foreach', 'while', 'if', 'function',
                 'namespace', 'class', 'interface', 'abstract', 'switch', 'declare', 'throw', 'try', 'unset',
             ];
-            return $this->is_lambda($input) || !preg_match('/^(' . implode('|', $returnables) . ')\b/i', $input);
+            return $this->is_lambda($input) || ! preg_match('/^('.implode('|', $returnables).')\b/i', $input);
         }
 
         return false;
@@ -244,7 +245,7 @@ class Parser
 
     private function prepare_debug($input)
     {
-        if ($this->is_returnable($input) && !preg_match('/^\s*return/i', $input)) {
+        if ($this->is_returnable($input) && ! preg_match('/^\s*return/i', $input)) {
             $input = sprintf('return %s', $input);
         }
 

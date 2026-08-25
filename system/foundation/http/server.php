@@ -53,7 +53,7 @@ class Server extends Parameter
         }
 
         if (isset($headers['PHP_AUTH_USER'])) {
-            $basic = 'Basic ' . base64_encode($headers['PHP_AUTH_USER'] . ':' . $headers['PHP_AUTH_PW']);
+            $basic = 'Basic '.base64_encode($headers['PHP_AUTH_USER'].':'.$headers['PHP_AUTH_PW']);
             $headers['AUTHORIZATION'] = $basic;
         }
 

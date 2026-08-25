@@ -7,7 +7,9 @@ defined('DS') or exit('No direct access.');
 class Valid
 {
     protected $generator;
+
     protected $validator;
+
     protected $max_retries;
 
     public function __construct(Generator $generator, $validator = null, $max_retries = 10000)
@@ -16,7 +18,7 @@ class Valid
             $validator = function () {
                 return true;
             };
-        } elseif (!is_callable($validator)) {
+        } elseif (! is_callable($validator)) {
             throw new \InvalidArgumentException('valid() only accepts callables as first argument');
         }
 
@@ -41,7 +43,7 @@ class Valid
             if ($retry > $this->max_retries) {
                 throw new \OverflowException(sprintf('Maximum retries of %s reached without finding a unique value.', $this->max_retries));
             }
-        } while (!call_user_func($this->validator, $result));
+        } while (! call_user_func($this->validator, $result));
         return $result;
     }
 }

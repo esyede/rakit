@@ -147,7 +147,7 @@ class Request
      */
     public static function spoofed()
     {
-        return !is_null(static::foundation()->get(static::SPOOFER));
+        return ! is_null(static::foundation()->get(static::SPOOFER));
     }
 
     /**
@@ -160,7 +160,7 @@ class Request
     public static function ip($default = '0.0.0.0')
     {
         $address = static::foundation()->getClientIp();
-        return (is_null($address) || !filter_var($address, FILTER_VALIDATE_IP)) ? $default : $address;
+        return (is_null($address) || ! filter_var($address, FILTER_VALIDATE_IP)) ? $default : $address;
     }
 
     /**
@@ -195,7 +195,7 @@ class Request
             }
 
             foreach ($types as $type) {
-                if (static::matches_type($accept, $type) || $accept === strtok($type, '/') . '/*') {
+                if (static::matches_type($accept, $type) || $accept === strtok($type, '/').'/*') {
                     return true;
                 }
             }
@@ -232,7 +232,7 @@ class Request
                 if (
                     static::matches_type($type, $accept)
                     || $accept === $type
-                    || $accept === strtok($type, '/') . '/*'
+                    || $accept === strtok($type, '/').'/*'
                 ) {
                     return $ctype;
                 }
@@ -278,7 +278,7 @@ class Request
         $split = explode('/', $actual);
 
         return isset($split[1])
-            && 1 === preg_match('#' . preg_quote($split[0], '#') . '/.+\+' . preg_quote($split[1], '#') . '#', $type);
+            && 1 === preg_match('#'.preg_quote($split[0], '#').'/.+\+'.preg_quote($split[1], '#').'#', $type);
     }
 
     /**
@@ -298,7 +298,7 @@ class Request
      */
     public static function expects_json()
     {
-        return (static::ajax() && !static::pjax()) || static::wants_json();
+        return (static::ajax() && ! static::pjax()) || static::wants_json();
     }
 
     /**
@@ -335,12 +335,11 @@ class Request
             $token = mb_substr($auth, 7, null, '8bit');
 
             // Validate token: filled and only safe characters
-            if (!empty($token) && preg_match('/^[A-Za-z0-9\-_\.\+\/=]+$/', $token)) {
+            if (! empty($token) && preg_match('/^[A-Za-z0-9\-_\.\+\/=]+$/', $token)) {
                 return $token;
             }
         }
 
-        return null;
     }
 
     /**
@@ -406,10 +405,10 @@ class Request
         }
 
         if ($header) {
-            return false !== stripos((string) $header, 'nocheck') || !Crypter::equals($token, $header);
+            return false !== stripos((string) $header, 'nocheck') || ! Crypter::equals($token, $header);
         }
 
-        return !Crypter::equals(Input::get(Session::TOKEN), $token);
+        return ! Crypter::equals(Input::get(Session::TOKEN), $token);
     }
 
     /**

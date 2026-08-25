@@ -115,7 +115,7 @@ class Container
 
         $reflector = new \ReflectionClass($type);
 
-        if (!$reflector->isInstantiable()) {
+        if (! $reflector->isInstantiable()) {
             throw new \Exception(sprintf('Resolution target is not instantiable: %s', $type));
         }
 
@@ -173,8 +173,8 @@ class Container
 
         $type = $parameter->getType();
 
-        if (!($type instanceof \ReflectionNamedType) || $type->isBuiltin()) {
-            return null;
+        if (! ($type instanceof \ReflectionNamedType) || $type->isBuiltin()) {
+            return;
         }
 
         $name = $type->getName();

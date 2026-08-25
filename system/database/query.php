@@ -286,7 +286,7 @@ class Query
             return $this->where_nested($column, $connector);
         }
 
-        if (!in_array(strtolower((string) $operator), $this->operators) && null === $value) {
+        if (! in_array(strtolower((string) $operator), $this->operators) && null === $value) {
             $value = $operator;
             $operator = '=';
         }
@@ -558,7 +558,7 @@ class Query
     {
         $columns = is_array($columns) ? $columns : [$columns];
         // PHP < 5.5.0 does not support yield, directly return the results of get()
-        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
+        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__.DS.'cursor.php';
     }
 
     /**
@@ -613,7 +613,7 @@ class Query
         $this->connection->query($sql, $bindings);
         $id = $this->connection->pdo()->lastInsertId();
 
-        return $id ? intval($id) : null;
+        return $id ? (int) $id : null;
     }
 
     /**
@@ -651,7 +651,7 @@ class Query
      */
     public function increment($column, $amount = 1)
     {
-        return $this->update([$column => $this->raw($this->grammar->wrap($column) . ' + ' . $this->amount($amount))]);
+        return $this->update([$column => $this->raw($this->grammar->wrap($column).' + '.$this->amount($amount))]);
     }
 
     /**
@@ -664,7 +664,7 @@ class Query
      */
     public function decrement($column, $amount = 1)
     {
-        return $this->update([$column => $this->raw($this->grammar->wrap($column) . ' - ' . $this->amount($amount))]);
+        return $this->update([$column => $this->raw($this->grammar->wrap($column).' - '.$this->amount($amount))]);
     }
 
     /**
@@ -678,7 +678,7 @@ class Query
      */
     protected function amount($amount)
     {
-        if (!is_numeric($amount)) {
+        if (! is_numeric($amount)) {
             throw new \InvalidArgumentException(sprintf(
                 'Increment / decrement amount must be numeric, %s given.',
                 gettype($amount)
@@ -762,7 +762,7 @@ class Query
 
         call_user_func($callback, $query);
 
-        if (!is_null($query->wheres)) {
+        if (! is_null($query->wheres)) {
             $type = 'where_nested';
             $this->wheres[] = compact('type', 'query', 'connector');
         }
@@ -789,7 +789,7 @@ class Query
         $sql = $this->grammar->select($this);
         $this->selects = $selects;
 
-        if (!$with_bindings) {
+        if (! $with_bindings) {
             return $sql;
         }
 
@@ -812,7 +812,7 @@ class Query
                     break;
 
                 case 'string':
-                    $str = "'" . str_replace("'", "''", $binding) . "'";
+                    $str = "'".str_replace("'", "''", $binding)."'";
                     break;
 
                 case 'object':
@@ -821,11 +821,11 @@ class Query
                         break;
                     }
 
-                    if (!($binding instanceof \DateTime) && !($binding instanceof Carbon)) {
+                    if (! ($binding instanceof \DateTime) && ! ($binding instanceof Carbon)) {
                         throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
                     }
 
-                    $str = "'" . $binding->format('Y-m-d H:i:s') . "'";
+                    $str = "'".$binding->format('Y-m-d H:i:s')."'";
                     break;
 
                 default:
@@ -838,7 +838,7 @@ class Query
                 throw new \Exception(sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i));
             }
 
-            $sql = substr($sql, 0, $pos) . $str . substr($sql, $pos + 1);
+            $sql = substr($sql, 0, $pos).$str.substr($sql, $pos + 1);
         }
 
         return $sql;
@@ -1133,7 +1133,7 @@ class Query
      */
     public function where_date($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('DATE(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->raw('DATE('.$column.')'), $operator, $value, $connector);
     }
 
     /**
@@ -1148,7 +1148,7 @@ class Query
      */
     public function where_month($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('MONTH(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->raw('MONTH('.$column.')'), $operator, $value, $connector);
     }
 
     /**
@@ -1163,7 +1163,7 @@ class Query
      */
     public function where_day($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('DAY(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->raw('DAY('.$column.')'), $operator, $value, $connector);
     }
 
     /**
@@ -1178,7 +1178,7 @@ class Query
      */
     public function where_year($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('YEAR(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->raw('YEAR('.$column.')'), $operator, $value, $connector);
     }
 
     /**
@@ -1193,7 +1193,7 @@ class Query
      */
     public function where_time($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('TIME(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->raw('TIME('.$column.')'), $operator, $value, $connector);
     }
 
     /**
@@ -1265,7 +1265,7 @@ class Query
      */
     public function doesnt_exist()
     {
-        return !$this->exists();
+        return ! $this->exists();
     }
 
     /**
@@ -1287,7 +1287,7 @@ class Query
         do {
             $clone = $this->copy();
 
-            if (!is_null($last_id)) {
+            if (! is_null($last_id)) {
                 $clone->where($column, '>', $last_id);
             }
 

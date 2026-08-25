@@ -171,9 +171,9 @@ class Router
     public static function register($method, $route, $action)
     {
         $route = Str::characterify($route);
-        $digits = is_string($route) && '' !== $route && !preg_match('/[^0-9]/', $route);
+        $digits = is_string($route) && '' !== $route && ! preg_match('/[^0-9]/', $route);
 
-        $route = $digits ? '(' . $route . ')' : $route;
+        $route = $digits ? '('.$route.')' : $route;
         $route = is_string($route) ? explode(', ', $route) : $route;
 
         if (is_array($method)) {
@@ -199,10 +199,10 @@ class Router
             $uri = ('' === $uri) ? '/' : $uri;
 
             // Handle prefix from group
-            if (!is_null(static::$group) && isset(static::$group['prefix'])) {
+            if (! is_null(static::$group) && isset(static::$group['prefix'])) {
                 $prefix = trim(static::$group['prefix'], '/');
-                if (!empty($prefix)) {
-                    $uri = $prefix . '/' . ltrim($uri, '/');
+                if (! empty($prefix)) {
+                    $uri = $prefix.'/'.ltrim($uri, '/');
                 }
             }
 
@@ -217,14 +217,14 @@ class Router
 
             // Use composite key (domain||uri) for domain-scoped routes to prevent
             // key collision when multiple routes share the same URI path.
-            $group_domain = (!is_null(static::$group) && isset(static::$group['domain']))
+            $group_domain = (! is_null(static::$group) && isset(static::$group['domain']))
                 ? static::$group['domain']
                 : null;
-            $route_key = $group_domain ? ($group_domain . '||' . $uri) : $uri;
+            $route_key = $group_domain ? ($group_domain.'||'.$uri) : $uri;
 
             $routes[$method][$route_key] = is_array($action) ? $action : static::action($action);
 
-            if (!is_null(static::$group)) {
+            if (! is_null(static::$group)) {
                 $routes[$method][$route_key] += static::$group;
             }
 
@@ -242,7 +242,7 @@ class Router
     protected static function merge_groups()
     {
         if (empty(static::$groups)) {
-            return null;
+            return;
         }
 
         $groups = [];
@@ -289,8 +289,8 @@ class Router
             }
 
             $wildcards = static::repeat('(:any?)', static::$segments);
-            $pattern = trim($root . '/' . $controller . '/' . $wildcards, '/');
-            $uses = $identifier . '@(:1)';
+            $pattern = trim($root.'/'.$controller.'/'.$wildcards, '/');
+            $uses = $identifier.'@(:1)';
 
             static::register('*', $pattern, compact('uses', 'defaults'));
         }
@@ -306,9 +306,9 @@ class Router
     protected static function root($identifier, $controller, $root)
     {
         $home = ('home' === $controller) ? '' : dirname((string) $controller);
-        $pattern = trim($root . '/' . $home, '/');
+        $pattern = trim($root.'/'.$home, '/');
 
-        static::register('*', $pattern ?: '/', ['uses' => $identifier . '@index']);
+        static::register('*', $pattern ?: '/', ['uses' => $identifier.'@index']);
     }
 
     /**
@@ -389,7 +389,7 @@ class Router
 
         if (static::$domains) {
             foreach ($routes as $key => $action) {
-                if (!isset($action['domain'])) {
+                if (! isset($action['domain'])) {
                     continue;
                 }
                 $key_uri = (strpos($key, '||') !== false) ? substr($key, strpos($key, '||') + 2) : $key;
@@ -402,12 +402,12 @@ class Router
         // Fall back to non-domain exact match
         if (array_key_exists($uri, $routes)) {
             $action = $routes[$uri];
-            if (!isset($action['domain'])) {
+            if (! isset($action['domain'])) {
                 return new Route($method, $uri, $action);
             }
         }
 
-        if (!is_null($route = static::match($method, $uri, $domain, $routes))) {
+        if (! is_null($route = static::match($method, $uri, $domain, $routes))) {
             return $route;
         }
     }
@@ -427,7 +427,7 @@ class Router
         $routes = is_array($routes) ? $routes : static::method($method);
 
         foreach ($routes as $route_key => $action) {
-            if (isset($action['domain']) && !static::domain_matches($action['domain'], $domain)) {
+            if (isset($action['domain']) && ! static::domain_matches($action['domain'], $domain)) {
                 continue;
             }
 
@@ -436,9 +436,9 @@ class Router
                 ? substr($route_key, strpos($route_key, '||') + 2)
                 : $route_key;
 
-            if (!isset(static::$compiled[$route])) {
+            if (! isset(static::$compiled[$route])) {
                 static::$compiled[$route] = (false !== strpos($route, '('))
-                    ? '#^' . static::wildcards($route) . '$#u'
+                    ? '#^'.static::wildcards($route).'$#u'
                     : false;
             }
 
@@ -467,7 +467,7 @@ class Router
         if (Str::contains($pattern, '{')) {
             $pattern = preg_quote($pattern, '#');
             $pattern = preg_replace('/\\\{([^}]+)\\\}/', '(?P<$1>[a-zA-Z0-9\.\-_]+)', $pattern);
-            $pattern = '#^' . $pattern . '$#';
+            $pattern = '#^'.$pattern.'$#';
             return (bool) preg_match($pattern, $domain);
         }
 
@@ -504,7 +504,7 @@ class Router
         $routes = static::$routes;
 
         foreach (static::$methods as $method) {
-            if (!isset($routes[$method])) {
+            if (! isset($routes[$method])) {
                 $routes[$method] = [];
             }
 

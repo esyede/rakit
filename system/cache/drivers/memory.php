@@ -24,7 +24,7 @@ class Memory extends Sectionable
      */
     public function has($key)
     {
-        return !is_null($this->get($key));
+        return ! is_null($this->get($key));
     }
 
     /**
@@ -98,7 +98,7 @@ class Memory extends Sectionable
      */
     public function forget_section($section)
     {
-        Arr::forget($this->storage, 'section#' . $section);
+        Arr::forget($this->storage, 'section#'.$section);
     }
 
     /**
@@ -111,6 +111,6 @@ class Memory extends Sectionable
      */
     protected function section_item_key($section, $key)
     {
-        return 'section#' . $section . '.' . $key;
+        return 'section#'.$section.'.'.$key;
     }
 }

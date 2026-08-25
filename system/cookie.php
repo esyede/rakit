@@ -31,7 +31,7 @@ class Cookie
      */
     public static function has($name)
     {
-        return !is_null(static::get($name));
+        return ! is_null(static::get($name));
     }
 
     /**
@@ -44,7 +44,7 @@ class Cookie
      */
     public static function get($name, $default = null)
     {
-        if (!is_string($name) || empty($name) || !preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
+        if (! is_string($name) || empty($name) || ! preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
             throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, and hyphens.');
         }
 
@@ -88,21 +88,21 @@ class Cookie
      */
     public static function put($name, $value, $expiration = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
     {
-        if (!is_string($name) || empty($name) || !preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
+        if (! is_string($name) || empty($name) || ! preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
             throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, and hyphens.');
         }
 
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             throw new \Exception('Cookie value must be a string.');
         }
 
-        $path = (!is_string($path) || empty($path)) ? '/' : $path;
+        $path = (! is_string($path) || empty($path)) ? '/' : $path;
 
-        if (!is_null($domain)) {
+        if (! is_null($domain)) {
             if (PHP_VERSION_ID >= 70000) {
                 $check = (strpos($domain, '.') === 0) ? substr($domain, 1) : $domain;
 
-                if (!filter_var($check, FILTER_VALIDATE_DOMAIN)) {
+                if (! filter_var($check, FILTER_VALIDATE_DOMAIN)) {
                     throw new \Exception('Cookie domain must be a valid domain.');
                 }
             } else {
@@ -124,14 +124,14 @@ class Cookie
                         throw new \Exception('Cookie domain must be a valid domain.');
                     }
 
-                    if (!preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i', $label)) {
+                    if (! preg_match('/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/i', $label)) {
                         throw new \Exception('Cookie domain must be a valid domain.');
                     }
                 }
             }
         }
 
-        if ($secure && !Request::secure() && !defined('RAKIT_PHPUNIT_RUNNING')) {
+        if ($secure && ! Request::secure() && ! defined('RAKIT_PHPUNIT_RUNNING')) {
             throw new \Exception('Attempting to set secure cookie over HTTP.');
         }
 
@@ -139,16 +139,16 @@ class Cookie
         $samesite = is_null($samesite) ? Config::get('session.samesite', 'lax') : $samesite;
         $samesite = strtolower((string) $samesite);
 
-        if (!in_array($samesite, ['lax', 'strict', 'none'])) {
+        if (! in_array($samesite, ['lax', 'strict', 'none'])) {
             throw new \Exception(sprintf('The "samesite" parameter value is not valid: %s (%s)', $samesite, gettype($samesite)));
         }
 
         try {
             $encrypted = Crypter::encrypt($value);
         } catch (\Throwable $e) {
-            throw new \Exception('Failed to encrypt cookie value: ' . $e->getMessage());
+            throw new \Exception('Failed to encrypt cookie value: '.$e->getMessage());
         } catch (\Exception $e) {
-            throw new \Exception('Failed to encrypt cookie value: ' . $e->getMessage());
+            throw new \Exception('Failed to encrypt cookie value: '.$e->getMessage());
         }
 
         static::$jar[$name] = compact('name', 'value', 'expiration', 'path', 'domain', 'secure', 'samesite');

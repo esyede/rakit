@@ -19,20 +19,20 @@ class Publisher
      */
     public function publish($package)
     {
-        if (!static::named($package)) {
-            echo Color::red('Invalid package name: ' . $package);
+        if (! static::named($package)) {
+            echo Color::red('Invalid package name: '.$package);
             return;
         }
 
-        if (!Package::exists($package)) {
-            echo Color::red('Package is not registered: ' . $package);
+        if (! Package::exists($package)) {
+            echo Color::red('Package is not registered: '.$package);
             return;
         }
 
-        $source = path('package') . $package . DS . 'assets';
-        $destination = path('assets') . 'packages' . DS . $package;
+        $source = path('package').$package.DS.'assets';
+        $destination = path('assets').'packages'.DS.$package;
 
-        if (!is_dir($source)) {
+        if (! is_dir($source)) {
             echo Color::red('Package does not contain any assets!');
             return;
         }
@@ -44,7 +44,7 @@ class Publisher
 
         Storage::cpdir($source, $destination);
 
-        echo Color::green('Assets published for package: ' . $package);
+        echo Color::green('Assets published for package: '.$package);
     }
 
     /**
@@ -56,14 +56,14 @@ class Publisher
      */
     public function unpublish($package)
     {
-        if (!static::named($package)) {
-            echo Color::red('Invalid package name: ' . $package);
+        if (! static::named($package)) {
+            echo Color::red('Invalid package name: '.$package);
             return;
         }
 
-        $destination = path('assets') . 'packages' . DS . $package;
+        $destination = path('assets').'packages'.DS.$package;
         is_dir($destination) && Storage::rmdir($destination);
-        echo Color::green('Assets deleted for package: ' . $package);
+        echo Color::green('Assets deleted for package: '.$package);
     }
 
     /**

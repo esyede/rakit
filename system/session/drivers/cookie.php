@@ -26,15 +26,15 @@ class Cookie extends Driver
     public function load($id)
     {
         try {
-            if (!BaseCookie::has(Cookie::PAYLOAD)) {
-                return null;
+            if (! BaseCookie::has(Cookie::PAYLOAD)) {
+                return;
             }
 
             $session = @unserialize(BaseCookie::get(Cookie::PAYLOAD));
         } catch (\Throwable $e) {
-            return null;
+            return;
         } catch (\Exception $e) {
-            return null;
+            return;
         }
 
         return is_array($session) ? $session : null;

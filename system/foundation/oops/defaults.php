@@ -7,8 +7,11 @@ defined('DS') or exit('No direct access.');
 class Defaults
 {
     public $data;
+
     public $time;
+
     public $profiler;
+
     public $cpuUsage;
 
     private $id;
@@ -77,7 +80,7 @@ class Defaults
      */
     private function isEnabled()
     {
-        return !isset(self::$collectorOf[$this->id]) || Collectors::enabled(self::$collectorOf[$this->id]);
+        return ! isset(self::$collectorOf[$this->id]) || Collectors::enabled(self::$collectorOf[$this->id]);
     }
 
     /**
@@ -87,7 +90,7 @@ class Defaults
      */
     public function getTab()
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return '';
         }
 
@@ -97,7 +100,7 @@ class Defaults
 
         $this->refreshData();
         $data = $this->data;
-        require __DIR__ . '/assets/bar/' . $this->id . '.tab.phtml';
+        require __DIR__.'/assets/bar/'.$this->id.'.tab.phtml';
 
         return ob_get_clean();
     }
@@ -110,16 +113,26 @@ class Defaults
     private function refreshData()
     {
         switch ($this->id) {
-            case 'messages': $this->data = Collectors::getData('messages'); break;
-            case 'timeline': $this->data = Collectors::getData('timeline'); break;
-            case 'events':   $this->data = Collectors::getData('events');   break;
-            case 'view':       $this->data = Collectors::getData('views');      break;
-            case 'cache':      $this->data = Collectors::getData('cache');      break;
-            case 'session':    $this->data = Collectors::collectSession();      break;
-            case 'exceptions':   $this->data = Collectors::getData('exceptions');   break;
-            case 'deprecations': $this->data = Collectors::getData('deprecations'); break;
-            case 'httpclient':   $this->data = Collectors::getData('httpclient');   break;
-            case 'mails':        $this->data = Collectors::getData('mails');        break;
+            case 'messages': $this->data = Collectors::getData('messages');
+                break;
+            case 'timeline': $this->data = Collectors::getData('timeline');
+                break;
+            case 'events':   $this->data = Collectors::getData('events');
+                break;
+            case 'view':       $this->data = Collectors::getData('views');
+                break;
+            case 'cache':      $this->data = Collectors::getData('cache');
+                break;
+            case 'session':    $this->data = Collectors::collectSession();
+                break;
+            case 'exceptions':   $this->data = Collectors::getData('exceptions');
+                break;
+            case 'deprecations': $this->data = Collectors::getData('deprecations');
+                break;
+            case 'httpclient':   $this->data = Collectors::getData('httpclient');
+                break;
+            case 'mails':        $this->data = Collectors::getData('mails');
+                break;
         }
     }
 
@@ -130,7 +143,7 @@ class Defaults
      */
     public function getPanel()
     {
-        if (!$this->isEnabled()) {
+        if (! $this->isEnabled()) {
             return '';
         }
 
@@ -138,10 +151,10 @@ class Defaults
             // ..
         });
 
-        if (is_file(__DIR__ . '/assets/bar/' . $this->id . '.panel.phtml')) {
+        if (is_file(__DIR__.'/assets/bar/'.$this->id.'.panel.phtml')) {
             $this->refreshData();
             $data = $this->data;
-            require __DIR__ . '/assets/bar/' . $this->id . '.panel.phtml';
+            require __DIR__.'/assets/bar/'.$this->id.'.panel.phtml';
         }
 
         return ob_get_clean();
@@ -176,7 +189,7 @@ class Defaults
         $hints = [];
 
         // SELECT * usage (except COUNT(*))
-        if (preg_match('/^\\s*SELECT\\s+\\*\\s+FROM/i', $sql) && !preg_match('/COUNT\\s*\\(\\s*\\*\\s*\\)/i', $sql)) {
+        if (preg_match('/^\\s*SELECT\\s+\\*\\s+FROM/i', $sql) && ! preg_match('/COUNT\\s*\\(\\s*\\*\\s*\\)/i', $sql)) {
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'performance',
@@ -189,7 +202,7 @@ class Defaults
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'performance',
-                'message' => '<code>ORDER BY RAND()</code> is very slow on large tables. Consider using alternative approaches like ' .
+                'message' => '<code>ORDER BY RAND()</code> is very slow on large tables. Consider using alternative approaches like '.
                     '<a href="https://stackoverflow.com/questions/1244555/how-can-i-optimize-mysqls-order-by-rand-function" target="_blank">this solution</a>.',
             ];
         }
@@ -199,7 +212,7 @@ class Defaults
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'performance',
-                'message' => 'Leading wildcard in <code>LIKE</code> pattern: <code>' . htmlspecialchars($matches[1]) . '</code>.
+                'message' => 'Leading wildcard in <code>LIKE</code> pattern: <code>'.htmlspecialchars($matches[1]).'</code>.
                 This prevents index usage and causes full table scan. Consider full-text search for better performance.',
             ];
         }
@@ -209,7 +222,7 @@ class Defaults
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'performance',
-                'message' => 'Large <code>OFFSET</code> value (' . $matches[1] . ') can be slow. Consider using keyset pagination instead.',
+                'message' => 'Large <code>OFFSET</code> value ('.$matches[1].') can be slow. Consider using keyset pagination instead.',
             ];
         }
 
@@ -227,12 +240,12 @@ class Defaults
             $hints[] = [
                 'severity' => 'info',
                 'category' => 'performance',
-                'message' => 'Multiple <code>OR</code> conditions detected (' . count($matches[0]) . '). Consider using <code>IN</code> clause for better performance and readability.',
+                'message' => 'Multiple <code>OR</code> conditions detected ('.count($matches[0]).'). Consider using <code>IN</code> clause for better performance and readability.',
             ];
         }
 
         // DISTINCT without need
-        if (preg_match('/SELECT\\s+DISTINCT\\s+/i', $sql) && !preg_match('/JOIN/i', $sql)) {
+        if (preg_match('/SELECT\\s+DISTINCT\\s+/i', $sql) && ! preg_match('/JOIN/i', $sql)) {
             $hints[] = [
                 'severity' => 'info',
                 'category' => 'performance',
@@ -264,7 +277,7 @@ class Defaults
         $hints = [];
 
         // SELECT without WHERE
-        if (preg_match('/^\\s*SELECT\\s+/i', $sql) && !preg_match('/WHERE|LIMIT/i', $sql)) {
+        if (preg_match('/^\\s*SELECT\\s+/i', $sql) && ! preg_match('/WHERE|LIMIT/i', $sql)) {
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'best-practice',
@@ -273,7 +286,7 @@ class Defaults
         }
 
         // LIMIT without ORDER BY
-        if (preg_match('/LIMIT\\s+\\d+/i', $sql) && !preg_match('/ORDER\\s+BY/i', $sql)) {
+        if (preg_match('/LIMIT\\s+\\d+/i', $sql) && ! preg_match('/ORDER\\s+BY/i', $sql)) {
             $hints[] = [
                 'severity' => 'warning',
                 'category' => 'best-practice',
@@ -350,7 +363,7 @@ class Defaults
             $hints[] = [
                 'severity' => 'info',
                 'category' => 'readability',
-                'message' => 'Query is quite long (' . mb_strlen($sql, 'UTF-8') . ' characters). Consider breaking it into smaller parts or using views for better maintainability.',
+                'message' => 'Query is quite long ('.mb_strlen($sql, 'UTF-8').' characters). Consider breaking it into smaller parts or using views for better maintainability.',
             ];
         }
 
@@ -378,7 +391,7 @@ class Defaults
             $sql = $query['sql'];
             $normalizedSql = static::normalizeQuery($sql);
 
-            if (!isset($groups[$normalizedSql])) {
+            if (! isset($groups[$normalizedSql])) {
                 $groups[$normalizedSql] = [];
             }
 
@@ -518,32 +531,32 @@ class Defaults
 
         // Format SQL untuk readability
         $sql = " $sql ";
-        $sql = preg_replace('#(?<=[\\s,(])(' . $keywords1 . ')(?=[\\s,)])#i', "\n\$1", $sql);
+        $sql = preg_replace('#(?<=[\\s,(])('.$keywords1.')(?=[\\s,)])#i', "\n\$1", $sql);
         $sql = preg_replace('#[ \t]{2,}#', ' ', $sql);
         $sql = htmlspecialchars($sql, ENT_IGNORE, 'UTF-8');
 
         // Highlight SQL syntax
         $sql = preg_replace_callback(
-            '#(/\\*.+?\\*/)|(\\-\\-.+?$)|(\\#.+?$)|(\\*\\*.+?\\*\\*)|' .
-            '(?<=[\\s,(])(' . $keywords1 . ')(?=[\\s,)])|' .
-            '(?<=[\\s,(=])(' . $keywords2 . ')(?=[\\s,)=])|' .
-            '(\'[^\']*\')|' .  // String literals
+            '#(/\\*.+?\\*/)|(\\-\\-.+?$)|(\\#.+?$)|(\\*\\*.+?\\*\\*)|'.
+            '(?<=[\\s,(])('.$keywords1.')(?=[\\s,)])|'.
+            '(?<=[\\s,(=])('.$keywords2.')(?=[\\s,)=])|'.
+            '(\'[^\']*\')|'.  // String literals
             '(\\b\\d+\\b)#ims',  // Numbers
             function ($matches) {
-                if (!empty($matches[1])) {
-                    return '<em style="color:gray">' . $matches[1] . '</em>'; // Block comments /* */
-                } elseif (!empty($matches[2]) || !empty($matches[3])) {
-                    return '<em style="color:gray">' . ($matches[2] ?: $matches[3]) . '</em>'; // Line comments -- or #
-                } elseif (!empty($matches[4])) {
-                    return '<strong style="color:red">' . $matches[4] . '</strong>'; // Errors **text**
-                } elseif (!empty($matches[5])) {
-                    return '<strong style="color:blue; text-transform: uppercase;">' . $matches[5] . '</strong>'; // Primary keywords
-                } elseif (!empty($matches[6])) {
-                    return '<strong style="color:green">' . $matches[6] . '</strong>'; // Secondary keywords
-                } elseif (!empty($matches[7])) {
-                    return '<span style="color:#d14">' . $matches[7] . '</span>'; // String literals
-                } elseif (!empty($matches[8])) {
-                    return '<span style="color:#099">' . $matches[8] . '</span>'; // Numbers
+                if (! empty($matches[1])) {
+                    return '<em style="color:gray">'.$matches[1].'</em>'; // Block comments /* */
+                } elseif (! empty($matches[2]) || ! empty($matches[3])) {
+                    return '<em style="color:gray">'.($matches[2] ?: $matches[3]).'</em>'; // Line comments -- or #
+                } elseif (! empty($matches[4])) {
+                    return '<strong style="color:red">'.$matches[4].'</strong>'; // Errors **text**
+                } elseif (! empty($matches[5])) {
+                    return '<strong style="color:blue; text-transform: uppercase;">'.$matches[5].'</strong>'; // Primary keywords
+                } elseif (! empty($matches[6])) {
+                    return '<strong style="color:green">'.$matches[6].'</strong>'; // Secondary keywords
+                } elseif (! empty($matches[7])) {
+                    return '<span style="color:#d14">'.$matches[7].'</span>'; // String literals
+                } elseif (! empty($matches[8])) {
+                    return '<span style="color:#099">'.$matches[8].'</span>'; // Numbers
                 }
             },
             $sql
@@ -560,7 +573,7 @@ class Defaults
             $sql = vsprintf($formatted, $bindings);
         }
 
-        return '<div><code>' . nl2br(trim($sql)) . '</code></div>';
+        return '<div><code>'.nl2br(trim($sql)).'</code></div>';
     }
 
     /**
@@ -574,23 +587,23 @@ class Defaults
     {
         if (is_array($binding)) {
             $binding = implode(', ', array_map(function ($value) {
-                return is_string($value) ? htmlspecialchars('\'' . $value . '\'', ENT_NOQUOTES, 'UTF-8') : $value;
+                return is_string($value) ? htmlspecialchars('\''.$value.'\'', ENT_NOQUOTES, 'UTF-8') : $value;
             }, $binding));
 
-            return htmlspecialchars('(' . $binding . ')', ENT_NOQUOTES, 'UTF-8');
+            return htmlspecialchars('('.$binding.')', ENT_NOQUOTES, 'UTF-8');
         }
 
         if (
             is_string($binding)
             && (preg_match('#[^\x09\x0A\x0D\x20-\x7E\xA0-\x{10FFFF}]#u', $binding) || preg_last_error())
         ) {
-            return '<i title="Length ' . mb_strlen($binding, '8bit') . ' bytes">&lt;binary&gt;</i>';
+            return '<i title="Length '.mb_strlen($binding, '8bit').' bytes">&lt;binary&gt;</i>';
         }
 
         if (is_string($binding)) {
-            $text = htmlspecialchars('\'' . $binding . '\'', ENT_NOQUOTES, 'UTF-8');
+            $text = htmlspecialchars('\''.$binding.'\'', ENT_NOQUOTES, 'UTF-8');
             $length = mb_strlen($binding, '8bit');
-            return '<span style="color:#d14" title="Length ' . $length . ' characters">' . $text . '</span>';
+            return '<span style="color:#d14" title="Length '.$length.' characters">'.$text.'</span>';
         }
 
         if (is_resource($binding)) {
@@ -600,12 +613,12 @@ class Defaults
                 $info = stream_get_meta_data($binding);
             }
 
-            return '<i' . (isset($info['uri']) ? ' title="' . htmlspecialchars($info['uri'], ENT_NOQUOTES, 'UTF-8') . '"' : null)
-                . '>&lt;' . htmlspecialchars($type, ENT_NOQUOTES, 'UTF-8') . ' resource&gt;</i>';
+            return '<i'.(isset($info['uri']) ? ' title="'.htmlspecialchars($info['uri'], ENT_NOQUOTES, 'UTF-8').'"' : null)
+                .'>&lt;'.htmlspecialchars($type, ENT_NOQUOTES, 'UTF-8').' resource&gt;</i>';
         }
 
         if ($binding instanceof \DateTimeInterface || $binding instanceof \DateTime) {
-            return '<span style="color:#d14">' . htmlspecialchars('\'' . $binding->format('Y-m-d H:i:s') . '\'', ENT_NOQUOTES, 'UTF-8') . '</span>';
+            return '<span style="color:#d14">'.htmlspecialchars('\''.$binding->format('Y-m-d H:i:s').'\'', ENT_NOQUOTES, 'UTF-8').'</span>';
         }
 
         if (is_null($binding)) {
@@ -613,13 +626,13 @@ class Defaults
         }
 
         if (is_bool($binding)) {
-            return '<strong style="color:green">' . ($binding ? 'TRUE' : 'FALSE') . '</strong>';
+            return '<strong style="color:green">'.($binding ? 'TRUE' : 'FALSE').'</strong>';
         }
 
-        if (is_object($binding) && !method_exists($binding, '__toString')) {
-            return '<i>&lt;' . htmlspecialchars(get_class($binding), ENT_NOQUOTES, 'UTF-8') . '&gt;</i>';
+        if (is_object($binding) && ! method_exists($binding, '__toString')) {
+            return '<i>&lt;'.htmlspecialchars(get_class($binding), ENT_NOQUOTES, 'UTF-8').'&gt;</i>';
         }
 
-        return '<span style="color:#099">' . htmlspecialchars((string) $binding, ENT_NOQUOTES, 'UTF-8') . '</span>';
+        return '<span style="color:#099">'.htmlspecialchars((string) $binding, ENT_NOQUOTES, 'UTF-8').'</span>';
     }
 }

@@ -90,7 +90,7 @@ class Str
      */
     public static function ucfirst($string)
     {
-        return static::upper(static::substr($string, 0, 1)) . static::substr($string, 1);
+        return static::upper(static::substr($string, 0, 1)).static::substr($string, 1);
     }
 
     /**
@@ -146,7 +146,7 @@ class Str
             return $value;
         }
 
-        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')) . $end;
+        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')).$end;
     }
 
     /**
@@ -179,13 +179,13 @@ class Str
             return ('' === $value) ? $value : $end;
         }
 
-        preg_match('/^\s*+(?:\S++\s*+){1,' . $words . '}/u', $value, $matches);
+        preg_match('/^\s*+(?:\S++\s*+){1,'.$words.'}/u', $value, $matches);
 
-        if (!isset($matches[0]) || static::length($value) === static::length($matches[0])) {
+        if (! isset($matches[0]) || static::length($value) === static::length($matches[0])) {
             return $value;
         }
 
-        return rtrim($matches[0]) . $end;
+        return rtrim($matches[0]).$end;
     }
 
     /**
@@ -208,7 +208,7 @@ class Str
         }
 
         foreach (static::$strings['irregular'] as $result => $pattern) {
-            $pattern = '/' . $pattern . '$/i';
+            $pattern = '/'.$pattern.'$/i';
 
             if (preg_match($pattern, $string)) {
                 return preg_replace($pattern, $result, $string);
@@ -249,7 +249,7 @@ class Str
         }
 
         foreach (static::$strings['irregular'] as $pattern => $result) {
-            $pattern = '/' . $pattern . '$/i';
+            $pattern = '/'.$pattern.'$/i';
 
             if (preg_match($pattern, $string)) {
                 return preg_replace($pattern, $result, $string);
@@ -278,7 +278,7 @@ class Str
         $parts = preg_split('/(.)(?=[A-Z])/u', (string) $value, -1, PREG_SPLIT_DELIM_CAPTURE);
         $last = array_pop($parts);
 
-        return implode('', $parts) . static::plural($last, $count);
+        return implode('', $parts).static::plural($last, $count);
     }
 
     /**
@@ -293,10 +293,10 @@ class Str
     {
         $value = (string) $value;
         $flip = ('-' === $separator) ? '_' : '-';
-        $value = preg_replace('![' . preg_quote($flip) . ']+!u', $separator, $value);
-        $value = str_replace('@', $separator . 'at' . $separator, $value);
-        $value = preg_replace('![^' . preg_quote($separator) . '\pL\pN\s]+!u', '', static::lower($value));
-        $value = preg_replace('![' . preg_quote($separator) . '\s]+!u', $separator, $value);
+        $value = preg_replace('!['.preg_quote($flip).']+!u', $separator, $value);
+        $value = str_replace('@', $separator.'at'.$separator, $value);
+        $value = preg_replace('![^'.preg_quote($separator).'\pL\pN\s]+!u', '', static::lower($value));
+        $value = preg_replace('!['.preg_quote($separator).'\s]+!u', $separator, $value);
 
         return trim($value, $separator);
     }
@@ -435,7 +435,7 @@ class Str
      */
     public static function bytes($length)
     {
-        if (!is_int($length)) {
+        if (! is_int($length)) {
             throw new \InvalidArgumentException('Bytes length must be a positive integer');
         }
 
@@ -465,7 +465,7 @@ class Str
             $urandom = true;
             $basedir = ini_get('open_basedir');
 
-            if (!empty($basedir)) {
+            if (! empty($basedir)) {
                 $paths = explode(PATH_SEPARATOR, strtolower((string) $basedir));
                 $urandom = ([] !== array_intersect(['/dev', '/dev/', '/dev/urandom'], $paths));
                 unset($paths);
@@ -551,7 +551,7 @@ class Str
         $attempts = $bits = $bytes = $mask = $shift = 0;
         $range = $max - $min;
 
-        if (!is_int($range)) {
+        if (! is_int($range)) {
             $bytes = PHP_INT_SIZE;
             $mask = ~0;
         } else {
@@ -585,7 +585,7 @@ class Str
             $val &= $mask;
             $val += $shift;
             ++$attempts;
-        } while (!is_int($val) || $val > $max || $val < $min);
+        } while (! is_int($val) || $val > $max || $val < $min);
 
         return (int) $val;
     }
@@ -619,11 +619,11 @@ class Str
 
         for ($i = 9; $i >= 0; $i--) {
             $mod = $milliseconds % 32;
-            $time = $characters[$mod] . $time;
+            $time = $characters[$mod].$time;
             $milliseconds = ($milliseconds - $mod) / 32;
         }
 
-        if (!$duplicate) {
+        if (! $duplicate) {
             for ($i = 0; $i < 16; $i++) {
                 static::$ulids['chars'][$i] = static::integers(0, 31);
             }
@@ -647,19 +647,19 @@ class Str
             $random .= $characters[static::$ulids['chars'][$i]];
         }
 
-        return $lowercase ? strtolower($time . $random) : $time . $random;
+        return $lowercase ? strtolower($time.$random) : $time.$random;
     }
 
     public static function cuid()
     {
-        $result = 'c' . str_pad(base_convert((string) floor(microtime(true) * 1000), 10, 36), 8, '0', STR_PAD_LEFT);
+        $result = 'c'.str_pad(base_convert((string) floor(microtime(true) * 1000), 10, 36), 8, '0', STR_PAD_LEFT);
         static::$cuids['counter']++;
         static::$cuids['counter'] = (static::$cuids['counter'] > 1679615) ? 0 : static::$cuids['counter'];
         $result .= str_pad(base_convert(static::$cuids['counter'], 10, 36), 4, '0', STR_PAD_LEFT);
 
         if (static::$cuids['fingerprint'] === null) {
             $pid = function_exists('getmypid') ? getmypid() : static::integers(1, 32768);
-            $dec = hexdec(substr(md5((gethostname() ?: 'unknown') . $pid . bin2hex(static::bytes(2))), 0, 8));
+            $dec = hexdec(substr(md5((gethostname() ?: 'unknown').$pid.bin2hex(static::bytes(2))), 0, 8));
             static::$cuids['fingerprint'] = str_pad(substr(base_convert($dec, 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
         }
 
@@ -680,14 +680,14 @@ class Str
      */
     public static function nanoid($size = 21, $characters = null)
     {
-        $size = intval($size);
+        $size = (int) $size;
 
         if ($size > 21 || $size < 8) {
             throw new \Exception('The size parameter should be between 8 to 21.');
         }
 
         $default = 'useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict';
-        $characters = (!is_string($characters) || empty($characters)) ? $default : $characters;
+        $characters = (! is_string($characters) || empty($characters)) ? $default : $characters;
         $mask = (2 << (int) (log(strlen($characters) - 1) / M_LN2)) - 1;
         $step = (int) ceil(1.6 * $mask * $size / strlen($characters));
         $result = '';
@@ -724,13 +724,13 @@ class Str
         $pool = explode(
             ' ',
             'a ab ad accusamus adipisci alias aliquam amet animi aperiam architecto asperiores aspernatur assumenda at atque aut beatae '
-                . 'blanditiis cillum commodi consequatur corporis corrupti culpa cum cupiditate debitis delectus deleniti deserunt dicta '
-                . 'dignissimos distinctio dolor ducimus duis ea eaque earum eius eligendi enim eos error esse est eum eveniet ex excepteur '
-                . 'exercitationem expedita explicabo facere facilis fugiat harum hic id illum impedit in incidunt ipsa iste itaque iure iusto '
-                . 'laborum laudantium libero magnam maiores maxime minim minus modi molestiae mollitia nam natus necessitatibus nemo neque '
-                . 'nesciunt nihil nisi nobis non nostrum nulla numquam occaecati odio officia omnis optio pariatur perferendis perspiciatis '
-                . 'placeat porro possimus praesentium proident quae quia quibus quo ratione recusandae reiciendis rem repellat reprehenderit '
-                . 'repudiandae rerum saepe sapiente sequi similique sint soluta suscipit tempora tenetur totam ut ullam unde vel veniam vero vitae voluptas'
+                .'blanditiis cillum commodi consequatur corporis corrupti culpa cum cupiditate debitis delectus deleniti deserunt dicta '
+                .'dignissimos distinctio dolor ducimus duis ea eaque earum eius eligendi enim eos error esse est eum eveniet ex excepteur '
+                .'exercitationem expedita explicabo facere facilis fugiat harum hic id illum impedit in incidunt ipsa iste itaque iure iusto '
+                .'laborum laudantium libero magnam maiores maxime minim minus modi molestiae mollitia nam natus necessitatibus nemo neque '
+                .'nesciunt nihil nisi nobis non nostrum nulla numquam occaecati odio officia omnis optio pariatur perferendis perspiciatis '
+                .'placeat porro possimus praesentium proident quae quia quibus quo ratione recusandae reiciendis rem repellat reprehenderit '
+                .'repudiandae rerum saepe sapiente sequi similique sint soluta suscipit tempora tenetur totam ut ullam unde vel veniam vero vitae voluptas'
         );
 
         $max = ($max <= 3) ? 4 : $max;
@@ -739,7 +739,7 @@ class Str
         for ($i = 0, $add = ($count - (int) $standard); $i < $add; $i++) {
             shuffle($pool);
             $words = array_slice($pool, 0, mt_rand(3, $max));
-            $result .= ((!$standard && $i === 0) ? '' : ' ') . ucfirst(implode(' ', $words)) . '.';
+            $result .= ((! $standard && $i === 0) ? '' : ' ').ucfirst(implode(' ', $words)).'.';
         }
 
         return $result;
@@ -768,7 +768,7 @@ class Str
 
             $pattern = str_replace('\*', '.*', preg_quote($pattern, '/'));
 
-            if (1 === preg_match('/^' . $pattern . '\z/u', $value)) {
+            if (1 === preg_match('/^'.$pattern.'\z/u', $value)) {
                 return true;
             }
         }
@@ -847,7 +847,7 @@ class Str
 
         foreach ($segments as $segment) {
             $replacer = (count($replace) > 0) ? array_shift($replace) : null;
-            $result .= ((null === $replacer) ? $search : $replacer) . $segment;
+            $result .= ((null === $replacer) ? $search : $replacer).$segment;
         }
 
         return $result;
@@ -908,7 +908,7 @@ class Str
      */
     public static function camel($value)
     {
-        if (!isset(static::$camel[$value])) {
+        if (! isset(static::$camel[$value])) {
             static::$camel[$value] = lcfirst(static::studly($value));
         }
 
@@ -926,7 +926,7 @@ class Str
     {
         $key = $value;
 
-        if (!isset(static::$studly[$key])) {
+        if (! isset(static::$studly[$key])) {
             static::$studly[$key] = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $value)));
         }
 
@@ -962,11 +962,11 @@ class Str
         }
 
         $chars = static::characterify($value);
-        $lowercased = is_string($chars) && '' !== $chars && !preg_match('/[^a-z]/', $chars);
+        $lowercased = is_string($chars) && '' !== $chars && ! preg_match('/[^a-z]/', $chars);
 
-        if (!$lowercased) {
+        if (! $lowercased) {
             $value = preg_replace('/\s+/u', '', ucwords($value));
-            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1' . $delimiter, $value));
+            $value = static::lower(preg_replace('/(.)(?=[A-Z])/u', '$1'.$delimiter, $value));
         }
 
         return static::$snake[$key][$delimiter] = $value;
@@ -1005,7 +1005,7 @@ class Str
     public static function contains_all($haystack, array $needles)
     {
         foreach ($needles as $needle) {
-            if (!static::contains($haystack, $needle)) {
+            if (! static::contains($haystack, $needle)) {
                 return false;
             }
         }
@@ -1023,7 +1023,7 @@ class Str
      */
     public static function start($value, $prefix)
     {
-        return $prefix . preg_replace('/^(?:' . preg_quote((string) $prefix, '/') . ')+/u', '', (string) $value);
+        return $prefix.preg_replace('/^(?:'.preg_quote((string) $prefix, '/').')+/u', '', (string) $value);
     }
 
     /**
@@ -1065,7 +1065,7 @@ class Str
      */
     public static function finish($value, $cap)
     {
-        return preg_replace('/(?:' . preg_quote($cap, '/') . ')+$/u', '', $value) . $cap;
+        return preg_replace('/(?:'.preg_quote($cap, '/').')+$/u', '', $value).$cap;
     }
 
     /**
@@ -1090,7 +1090,7 @@ class Str
      */
     public static function characterify($value)
     {
-        if (!is_int($value)) {
+        if (! is_int($value)) {
             return $value;
         }
 

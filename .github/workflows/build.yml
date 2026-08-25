@@ -1,0 +1,78 @@
+---
+name: build
+on:
+    push:
+        paths:
+            - '**/*.php'
+            - 'composer.json'
+            - 'composer.lock'
+            - '.github/workflows/**'
+    pull_request:
+        paths:
+            - '**/*.php'
+            - 'composer.json'
+            - 'composer.lock'
+            - '.github/workflows/**'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+    build:
+        strategy:
+            fail-fast: false
+            matrix:
+                operating-system:
+                    - ubuntu-latest
+                php-versions:
+                    - "5.4"
+                    - "5.5"
+                    - "5.6"
+                    - "7.0"
+                    - "7.1"
+                    - "7.2"
+                    - "7.3"
+                    - "7.4"
+                    - "8.0"
+                    - "8.1"
+                    - "8.2"
+                    - "8.3"
+                    - "8.4"
+                    - "8.5"
+        runs-on: ${{ matrix.operating-system }}
+        services:
+            redis:
+                image: redis:7-alpine
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+            memcached:
+                image: memcached:1-alpine
+                ports:
+                    - 11211:11211
+        steps:
+            - name: checkout
+              uses: actions/checkout@v4
+            - name: setup php
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: mbstring, simplexml, dom, fileinfo, openssl, curl, gd, pdo_sqlite, pdo_mysql, pdo_pgsql, memcached
+            - name: get composer cache directory
+              id: composer-cache
+              run: echo "directory=$(composer config cache-dir)" >> "$GITHUB_OUTPUT"
+            - name: cache composer dependencies
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.composer-cache.outputs.directory }}
+                  key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                  restore-keys: ${{ runner.os }}-composer-
+            - name: install dependencies
+              run: composer install --no-progress --prefer-dist --optimize-autoloader
+            - name: test with phpunit 4.8.34 (patched)
+              run: php ./rakit test:core

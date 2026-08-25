@@ -23,7 +23,7 @@ class Facile extends Driver
         if (false !== filter_var($token, FILTER_VALIDATE_INT)) {
             $model = Config::get('auth.model');
 
-            if (!$model) {
+            if (! $model) {
                 throw new \Exception('Please set the auth model in your config file.');
             }
 
@@ -45,7 +45,7 @@ class Facile extends Driver
         $model = Config::get('auth.model', 'User');
         $identifier = Config::get('auth.identifier', 'email');
 
-        if (!isset($arguments[$identifier]) || !isset($arguments['password'])) {
+        if (! isset($arguments[$identifier]) || ! isset($arguments['password'])) {
             return false;
         }
 
@@ -58,7 +58,7 @@ class Facile extends Driver
             }
         })->first();
 
-        if (!is_null($user) && Hash::check($arguments['password'], $user->password)) {
+        if (! is_null($user) && Hash::check($arguments['password'], $user->password)) {
             return $this->login($user->get_key(), Arr::get($arguments, 'remember'));
         }
 

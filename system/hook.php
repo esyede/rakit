@@ -137,7 +137,7 @@ class Hook
         foreach ($flushers as $flusher) {
             $queues = isset(static::$queued[$queue]) ? static::$queued[$queue] : null;
 
-            if (!isset($queues)) {
+            if (! isset($queues)) {
                 continue;
             }
 
@@ -165,12 +165,12 @@ class Hook
         foreach ($events as $event) {
             // Track event for debugger
             if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
-                if (!\System\Foundation\Oops\Debugger::$productionMode) {
+                if (! \System\Foundation\Oops\Debugger::$productionMode) {
                     \System\Foundation\Oops\Collectors::trackEvent($event, $parameters);
                 }
             }
 
-            if (!static::exists($event)) {
+            if (! static::exists($event)) {
                 continue;
             }
 
@@ -183,7 +183,7 @@ class Hook
             foreach ($handlers as $handler) {
                 $response = call_user_func_array($handler, $parameters);
 
-                if ($halt && !is_null($response)) {
+                if ($halt && ! is_null($response)) {
                     return $response;
                 }
 

@@ -105,7 +105,7 @@ class Lang
 
         list($package, $file, $line) = $this->parse($this->key);
 
-        if (!static::load($package, $language, $file)) {
+        if (! static::load($package, $language, $file)) {
             return value($default);
         }
 
@@ -113,7 +113,7 @@ class Lang
 
         if (is_string($line)) {
             foreach ($this->replacements as $key => $value) {
-                $line = str_replace(':' . $key, $value, $line);
+                $line = str_replace(':'.$key, $value, $line);
             }
         }
 
@@ -174,14 +174,14 @@ class Lang
             return [];
         }
 
-        $key = $package . '::' . $language . '::' . $file;
+        $key = $package.'::'.$language.'::'.$file;
         $path = static::path($package, $language, $file);
 
         if (isset(static::$files[$key]) && is_file($path) && static::$files[$key]['mtime'] === filemtime($path)) {
             return static::$files[$key]['data'];
         }
 
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             static::$files[$key] = ['data' => [], 'mtime' => 0];
             return [];
         }
@@ -210,7 +210,7 @@ class Lang
      */
     protected static function path($package, $language, $file)
     {
-        return Package::path($package) . 'language' . DS . $language . DS . $file . '.php';
+        return Package::path($package).'language'.DS.$language.DS.$file.'.php';
     }
 
     /**

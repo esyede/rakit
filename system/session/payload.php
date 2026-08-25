@@ -62,11 +62,11 @@ class Payload
      */
     public function load($id)
     {
-        if (!is_null($id)) {
+        if (! is_null($id)) {
             $this->session = $this->driver->load($id);
         }
 
-        if (!is_array($this->session) || !isset($this->session['id'])) {
+        if (! is_array($this->session) || ! isset($this->session['id'])) {
             $this->session = null;
         }
 
@@ -75,12 +75,12 @@ class Payload
             $this->session = $this->driver->fresh();
         }
 
-        if (!isset($this->session['data']) || !is_array($this->session['data'])) {
+        if (! isset($this->session['data']) || ! is_array($this->session['data'])) {
             $this->session['data'] = [];
         }
 
         foreach ([':new:', ':old:'] as $bag) {
-            if (!isset($this->session['data'][$bag]) || !is_array($this->session['data'][$bag])) {
+            if (! isset($this->session['data'][$bag]) || ! is_array($this->session['data'][$bag])) {
                 $this->session['data'][$bag] = [];
             }
         }
@@ -109,7 +109,7 @@ class Payload
      */
     public function has($key)
     {
-        return !is_null($this->get($key));
+        return ! is_null($this->get($key));
     }
 
     /**
@@ -123,20 +123,20 @@ class Payload
      */
     public function get($key, $default = null)
     {
-        if (!isset($this->session['data'])) {
+        if (! isset($this->session['data'])) {
             return value($default);
         }
 
-        if (!is_null($value = Arr::get($this->session['data'], $key))) {
+        if (! is_null($value = Arr::get($this->session['data'], $key))) {
             return $value;
         }
 
         foreach ([':new:', ':old:'] as $bag) {
-            if (!isset($this->session['data'][$bag]) || !is_array($this->session['data'][$bag])) {
+            if (! isset($this->session['data'][$bag]) || ! is_array($this->session['data'][$bag])) {
                 continue;
             }
 
-            if (!is_null($value = Arr::get($this->session['data'][$bag], $key))) {
+            if (! is_null($value = Arr::get($this->session['data'][$bag], $key))) {
                 return $value;
             }
         }

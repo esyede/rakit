@@ -7,16 +7,25 @@ defined('DS') or exit('No direct access.');
 class Person extends Base
 {
     const GENDER_MALE = 'male';
+
     const GENDER_FEMALE = 'female';
 
     protected static $titleFormat = ['{{titleMale}}', '{{titleFemale}}'];
+
     protected static $firstNameFormat = ['{{firstNameMale}}', '{{firstNameFemale}}'];
+
     protected static $maleNameFormats = ['{{firstNameMale}} {{lastName}}'];
+
     protected static $femaleNameFormats = ['{{firstNameFemale}} {{lastName}}'];
+
     protected static $firstNameMale = ['John'];
+
     protected static $firstNameFemale = ['Jane'];
+
     protected static $lastName = ['Doe'];
+
     protected static $titleMale = ['Mr.', 'Dr.', 'Prof.'];
+
     protected static $titleFemale = ['Mrs.', 'Ms.', 'Miss', 'Dr.', 'Prof.'];
 
     public function name($gender = null)

@@ -25,7 +25,7 @@ class Crypter
         }
 
         $iv = base64_encode($iv);
-        $mac = hash_hmac('sha256', $iv . $value, RAKIT_KEY);
+        $mac = hash_hmac('sha256', $iv.$value, RAKIT_KEY);
         $value = json_encode(compact('iv', 'value', 'mac'), JSON_UNESCAPED_SLASHES);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -64,7 +64,7 @@ class Crypter
      */
     public static function equals($known, $compared)
     {
-        if (!is_string($known) || !is_string($compared)) {
+        if (! is_string($known) || ! is_string($compared)) {
             return false;
         }
 
@@ -95,13 +95,13 @@ class Crypter
     {
         $value = json_decode(base64_decode($value), true);
 
-        if (!static::valid($value)) {
+        if (! static::valid($value)) {
             throw new DecryptException('The payload is invalid.');
         }
 
-        $mac = hash_hmac('sha256', $value['iv'] . $value['value'], RAKIT_KEY);
+        $mac = hash_hmac('sha256', $value['iv'].$value['value'], RAKIT_KEY);
 
-        if (!static::equals($mac, $value['mac'])) {
+        if (! static::equals($mac, $value['mac'])) {
             throw new DecryptException('The MAC is invalid.');
         }
 
@@ -117,14 +117,14 @@ class Crypter
      */
     protected static function valid($value)
     {
-        if (!is_array($value)) {
+        if (! is_array($value)) {
             return false;
         }
 
         $keys = ['iv', 'value', 'mac'];
 
         foreach ($keys as $key) {
-            if (!isset($value[$key]) || !is_string($value[$key])) {
+            if (! isset($value[$key]) || ! is_string($value[$key])) {
                 return false;
             }
         }

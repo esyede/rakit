@@ -67,7 +67,7 @@ class MorphToMany extends Relationship
         $models = [class_basename($this->base), class_basename($this->model)];
         sort($models);
 
-        return strtolower($models[0] . '_' . $models[1]);
+        return strtolower($models[0].'_'.$models[1]);
     }
 
     /**
@@ -149,7 +149,7 @@ class MorphToMany extends Relationship
         $related_ids = array_unique($related_ids);
         $related_models = [];
 
-        if (!empty($related_ids)) {
+        if (! empty($related_ids)) {
             $models = $this->model->query()->where_in($this->model->key(), $related_ids)->get();
 
             foreach ($models as $model) {

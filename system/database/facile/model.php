@@ -269,20 +269,20 @@ abstract class Model
      */
     protected function load_relationship($key)
     {
-        if (!$this->has_own_method($key)) {
-            return null;
+        if (! $this->has_own_method($key)) {
+            return;
         }
 
         $method = new \ReflectionMethod($this, $key);
 
         if (0 !== $method->getNumberOfRequiredParameters()) {
-            return null;
+            return;
         }
 
         $relationship = $this->{$key}();
 
-        if (!($relationship instanceof Relationships\Relationship)) {
-            return null;
+        if (! ($relationship instanceof Relationships\Relationship)) {
+            return;
         }
 
         $this->relationships[$key] = $relationship->results();
@@ -301,7 +301,7 @@ abstract class Model
      */
     protected function has_own_method($method)
     {
-        return method_exists($this, $method) && !method_exists(__CLASS__, $method);
+        return method_exists($this, $method) && ! method_exists(__CLASS__, $method);
     }
 
     /**
@@ -384,7 +384,7 @@ abstract class Model
         $dirty = [];
 
         foreach ($this->attributes as $key => $value) {
-            if (!array_key_exists($key, $this->original) || $this->original[$key] !== $value) {
+            if (! array_key_exists($key, $this->original) || $this->original[$key] !== $value) {
                 $dirty[$key] = $value;
             }
         }
@@ -422,11 +422,11 @@ abstract class Model
      */
     public function changed($attribute)
     {
-        if (!array_key_exists($attribute, $this->attributes)) {
+        if (! array_key_exists($attribute, $this->attributes)) {
             return false;
         }
 
-        if (!array_key_exists($attribute, $this->original)) {
+        if (! array_key_exists($attribute, $this->original)) {
             return false;
         }
 
@@ -595,7 +595,7 @@ abstract class Model
         $result = static::find($id, $columns);
 
         if (is_null($result)) {
-            throw new ModelNotFoundException(get_called_class() . ' with id ' . $id . ' not found.');
+            throw new ModelNotFoundException(get_called_class().' with id '.$id.' not found.');
         }
 
         return $result;
@@ -625,7 +625,7 @@ abstract class Model
         $result = static::first($columns);
 
         if (is_null($result)) {
-            throw new ModelNotFoundException(get_called_class() . ' not found.');
+            throw new ModelNotFoundException(get_called_class().' not found.');
         }
 
         return $result;
@@ -744,7 +744,7 @@ abstract class Model
         if (is_null($foreign)) {
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
             $caller = isset($backtrace[1]['function']) ? $backtrace[1]['function'] : null;
-            $foreign = is_null($caller) ? Str::lower(class_basename($model)) . '_id' : $caller . '_id';
+            $foreign = is_null($caller) ? Str::lower(class_basename($model)).'_id' : $caller.'_id';
         }
 
         return new Relationships\BelongsTo($this, $model, $foreign);
@@ -778,8 +778,8 @@ abstract class Model
      */
     public function morph_one($model, $name, $type = null, $id = null, $foreign = null)
     {
-        $type = is_null($type) ? $name . '_type' : $type;
-        $id = is_null($id) ? $name . '_id' : $id;
+        $type = is_null($type) ? $name.'_type' : $type;
+        $id = is_null($id) ? $name.'_id' : $id;
         return new Relationships\MorphOne($this, $model, $type, $id, $foreign);
     }
 
@@ -796,8 +796,8 @@ abstract class Model
      */
     public function morph_many($model, $name, $type = null, $id = null, $foreign = null)
     {
-        $type = is_null($type) ? $name . '_type' : $type;
-        $id = is_null($id) ? $name . '_id' : $id;
+        $type = is_null($type) ? $name.'_type' : $type;
+        $id = is_null($id) ? $name.'_id' : $id;
         return new Relationships\MorphMany($this, $model, $type, $id, $foreign);
     }
 
@@ -812,8 +812,8 @@ abstract class Model
      */
     public function morph_to($name, $type = null, $id = null)
     {
-        $type = is_null($type) ? $name . '_type' : $type;
-        $id = is_null($id) ? $name . '_id' : $id;
+        $type = is_null($type) ? $name.'_type' : $type;
+        $id = is_null($id) ? $name.'_id' : $id;
         $model = $this->get_attribute($type);
         return new Relationships\MorphTo($this, $model, $type, $id);
     }
@@ -831,8 +831,8 @@ abstract class Model
      */
     public function morph_to_many($model, $name, $table = null, $foreign = null, $other = null)
     {
-        $type = $name . '_type';
-        $id = $foreign ?: ($name . '_id');
+        $type = $name.'_type';
+        $id = $foreign ?: ($name.'_id');
 
         return new Relationships\MorphToMany($this, $model, $type, $id, $table, $other);
     }
@@ -862,43 +862,43 @@ abstract class Model
      */
     public function save()
     {
-        if (!$this->dirty()) {
+        if (! $this->dirty()) {
             return true;
         }
 
         if (static::$timestamps) {
-            if (!$this->exists) {
+            if (! $this->exists) {
                 $this->created_at = Carbon::now()->format('Y-m-d H:i:s');
             }
 
             $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
         }
 
-        Hook::fire(['facile.saving', 'facile.saving: ' . get_class($this)], [$this]);
+        Hook::fire(['facile.saving', 'facile.saving: '.get_class($this)], [$this]);
 
         if ($this->exists) {
             $query = $this->query()->where(static::$key, '=', $this->get_key());
             $result = (1 === $query->update($this->get_dirty()));
 
             if ($result) {
-                Hook::fire(['facile.updated', 'facile.updated: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.updated', 'facile.updated: '.get_class($this)], [$this]);
             }
         } else {
             $id = $this->query()->insert_get_id($this->attributes, $this->key());
             $this->set_key($id);
             $key = $this->get_key();
-            $result = !is_null($key) && !empty($key);
+            $result = ! is_null($key) && ! empty($key);
             $this->exists = $result;
 
             if ($result) {
-                Hook::fire(['facile.created', 'facile.created: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.created', 'facile.created: '.get_class($this)], [$this]);
             }
         }
 
         $this->original = $this->attributes;
 
         if ($result) {
-            Hook::fire(['facile.saved', 'facile.saved: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.saved', 'facile.saved: '.get_class($this)], [$this]);
         }
 
         return $result;
@@ -912,7 +912,7 @@ abstract class Model
     public function delete()
     {
         if ($this->exists) {
-            Hook::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.deleting', 'facile.deleting: '.get_class($this)], [$this]);
 
             if (static::$soft_delete) { // Soft delete
                 $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
@@ -920,10 +920,10 @@ abstract class Model
                     ->where(static::$key, '=', $this->get_key())
                     ->update(['deleted_at' => $this->deleted_at]);
                 $this->exists = false;
-                Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.deleted', 'facile.deleted: '.get_class($this)], [$this]);
             } else { // Hard delete
                 $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
-                Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+                Hook::fire(['facile.deleted', 'facile.deleted: '.get_class($this)], [$this]);
             }
 
             return $result;
@@ -937,7 +937,7 @@ abstract class Model
      */
     public function restore()
     {
-        if (static::$soft_delete && !$this->exists && !is_null($this->deleted_at)) {
+        if (static::$soft_delete && ! $this->exists && ! is_null($this->deleted_at)) {
             $result = $this->query(true)->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
 
             if ($result) {
@@ -957,10 +957,10 @@ abstract class Model
      */
     public function force_delete()
     {
-        if ($this->exists || !is_null($this->deleted_at)) {
-            Hook::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+        if ($this->exists || ! is_null($this->deleted_at)) {
+            Hook::fire(['facile.deleting', 'facile.deleting: '.get_class($this)], [$this]);
             $result = $this->query(true)->where(static::$key, '=', $this->get_key())->delete();
-            Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+            Hook::fire(['facile.deleted', 'facile.deleted: '.get_class($this)], [$this]);
 
             return $result;
         }
@@ -973,7 +973,7 @@ abstract class Model
      */
     public function trashed()
     {
-        return static::$soft_delete && !is_null($this->deleted_at);
+        return static::$soft_delete && ! is_null($this->deleted_at);
     }
 
     /**
@@ -1060,11 +1060,11 @@ abstract class Model
     {
         $owner = get_called_class();
 
-        if (!isset(static::$global_scopes[$owner])) {
+        if (! isset(static::$global_scopes[$owner])) {
             static::$global_scopes[$owner] = [];
         }
 
-        if (is_string($scope) && !is_null($implementation)) {
+        if (is_string($scope) && ! is_null($implementation)) {
             static::$global_scopes[$owner][$scope] = $implementation;
         } elseif ($scope instanceof \Closure) {
             static::$global_scopes[$owner][spl_object_hash($scope)] = $scope;
@@ -1108,7 +1108,7 @@ abstract class Model
     {
         $query = \System\Database::connection($this->connection())->table($this->table());
 
-        if (!$with_trashed && static::$soft_delete) {
+        if (! $with_trashed && static::$soft_delete) {
             $query->where_null('deleted_at');
         }
 
@@ -1127,7 +1127,7 @@ abstract class Model
     {
         $instance = new static();
         $query = $instance->query();
-        $scope = 'scope_' . $method;
+        $scope = 'scope_'.$method;
 
         if (method_exists($instance, $scope)) {
             return call_user_func_array([$instance, $scope], array_merge([$query], $parameters));
@@ -1146,7 +1146,7 @@ abstract class Model
      */
     public function __get($key)
     {
-        $accessor = 'get_' . $key;
+        $accessor = 'get_'.$key;
 
         if ($this->has_own_method($accessor)) {
             return $this->{$accessor}($this->get_attribute($key));
@@ -1166,7 +1166,7 @@ abstract class Model
      */
     public function __set($key, $value)
     {
-        $mutator = 'set_' . $key;
+        $mutator = 'set_'.$key;
 
         if ($this->has_own_method($mutator)) {
             $this->{$mutator}($value);
@@ -1186,11 +1186,11 @@ abstract class Model
     public function __isset($key)
     {
         if (array_key_exists($key, $this->attributes) || array_key_exists($key, $this->relationships)) {
-            return !is_null($this->get_attribute($key));
+            return ! is_null($this->get_attribute($key));
         }
 
-        if ($this->has_own_method('get_' . $key) || $this->has_own_method($key)) {
-            return !is_null($this->get_attribute($key));
+        if ($this->has_own_method('get_'.$key) || $this->has_own_method($key)) {
+            return ! is_null($this->get_attribute($key));
         }
 
         return false;

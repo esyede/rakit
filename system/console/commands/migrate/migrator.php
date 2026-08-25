@@ -47,7 +47,7 @@ class Migrator extends Command
     public function run(array $arguments = [])
     {
         // Create the migrations table automatically if it doesn't exist.
-        if (!Schema::has_table('rakit_migrations')) {
+        if (! Schema::has_table('rakit_migrations')) {
             $this->install();
         }
 
@@ -73,14 +73,14 @@ class Migrator extends Command
 
         $batch = $this->database->batch() + 1;
 
-        echo $this->warning('Processing ' . $total . ' migrations...');
+        echo $this->warning('Processing '.$total.' migrations...');
 
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
-            echo 'Migrating : ' . $file . PHP_EOL;
+            echo 'Migrating : '.$file.PHP_EOL;
             $migration['migration']->up();
-            echo $this->info('Migrated  : ' . $file);
+            echo $this->info('Migrated  : '.$file);
 
             $this->database->log($migration['package'], $migration['name'], $batch);
         }
@@ -113,9 +113,9 @@ class Migrator extends Command
         foreach ($migrations as $migration) {
             $file = $this->display($migration);
 
-            echo 'Rolling back : ' . $file . PHP_EOL;
+            echo 'Rolling back : '.$file.PHP_EOL;
             $migration['migration']->down();
-            echo $this->info('Rolled back  : ' . $file);
+            echo $this->info('Rolled back  : '.$file);
 
             $this->database->delete($migration['package'], $migration['name']);
         }
@@ -180,6 +180,6 @@ class Migrator extends Command
      */
     protected function display($migration)
     {
-        return $migration['package'] . '/' . $migration['name'];
+        return $migration['package'].'/'.$migration['name'];
     }
 }

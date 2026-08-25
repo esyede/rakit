@@ -13,7 +13,7 @@ class Fiddle extends Command
      */
     public function run(array $arguments = [])
     {
-        if (!function_exists('pcntl_signal')) {
+        if (! function_exists('pcntl_signal')) {
             echo $this->error("The PCNTL support seems to be missing or disabled.\n");
             exit(1);
         }

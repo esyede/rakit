@@ -39,7 +39,7 @@ class Database extends Driver
         $session = $this->table()->find($id);
 
         if (is_null($session)) {
-            return null;
+            return;
         }
 
         $data = @unserialize($session->data);

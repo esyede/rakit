@@ -17,7 +17,7 @@ jobs:
             - name: setup php
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: "7.2"
+                  php-version: "7.4"
                   extensions: mbstring, simplexml, dom, openssl, curl, gd
             - name: get composer cache directory
               id: composer-cache
@@ -37,7 +37,7 @@ jobs:
             - name: make phpcs executable
               run: chmod +x phpcs.phar
             - name: "style: apply coding style"
-              run: php phpcs.phar fix
+              run: php phpcs.phar fix --sequential
             - name: check for changes
               id: changes
               run: |

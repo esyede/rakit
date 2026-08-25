@@ -36,7 +36,7 @@ class Schema
     {
         $connection = DB::connection($connection);
         $driver = $connection->driver();
-        $database = Config::get('database.connections.' . $driver . '.database');
+        $database = Config::get('database.connections.'.$driver.'.database');
         $database = DB::escape($database);
 
         $query = '';
@@ -44,26 +44,26 @@ class Schema
         switch ($driver) {
             case 'mysql':
                 $query = 'SELECT table_name FROM information_schema.tables'
-                    . " WHERE table_type='BASE TABLE' AND table_schema=" . $database
-                    . " AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
+                    ." WHERE table_type='BASE TABLE' AND table_schema=".$database
+                    ." AND table_schema NOT IN ('information_schema', 'mysql', 'performance_schema', 'sys')";
                 break;
 
             case 'pgsql':
                 $query = 'SELECT table_name FROM information_schema.tables'
-                    . " WHERE table_schema='public' AND table_type='BASE TABLE'";
+                    ." WHERE table_schema='public' AND table_type='BASE TABLE'";
                 break;
 
             case 'sqlite':
                 $query = 'SELECT name FROM sqlite_master '
-                    . "WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' "
-                    . 'UNION ALL SELECT name FROM sqlite_temp_master '
-                    . "WHERE type IN ('table','view') ORDER BY 1";
+                    ."WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' "
+                    .'UNION ALL SELECT name FROM sqlite_temp_master '
+                    ."WHERE type IN ('table','view') ORDER BY 1";
                 break;
 
             case 'sqlsrv':
                 $query = 'SELECT table_name FROM information_schema.tables'
-                    . " WHERE table_type='BASE TABLE' AND table_catalog=" . $database
-                    . " AND table_name <> 'sysdiagrams'";
+                    ." WHERE table_type='BASE TABLE' AND table_catalog=".$database
+                    ." AND table_name <> 'sysdiagrams'";
                 break;
 
             default:
@@ -89,7 +89,7 @@ class Schema
     {
         $connection = DB::connection($connection);
         $driver = $connection->driver();
-        $database = Config::get('database.connections.' . $driver . '.database');
+        $database = Config::get('database.connections.'.$driver.'.database');
         $database = DB::escape($database);
         $table = DB::escape($table);
 
@@ -98,21 +98,21 @@ class Schema
         switch ($driver) {
             case 'mysql':
                 $query = 'SELECT column_name FROM information_schema.columns '
-                    . 'WHERE table_schema=' . $database . ' AND table_name=' . $table;
+                    .'WHERE table_schema='.$database.' AND table_name='.$table;
                 break;
 
             case 'pgsql':
                 $query = 'SELECT column_name FROM information_schema.columns '
-                    . 'WHERE table_schema=' . $database . ' AND table_name=' . $table;
+                    .'WHERE table_schema='.$database.' AND table_name='.$table;
                 break;
 
             case 'sqlite':
-                $query = 'PRAGMA table_info(' . str_replace('.', '__', $table) . ')';
+                $query = 'PRAGMA table_info('.str_replace('.', '__', $table).')';
                 break;
 
             case 'sqlsrv':
                 $query = 'SELECT column_name FROM information_schema.columns '
-                    . 'WHERE table_schema=N' . $database . ' AND table_name=N' . $table;
+                    .'WHERE table_schema=N'.$database.' AND table_name=N'.$table;
                 break;
 
             default:
@@ -181,8 +181,8 @@ class Schema
                 break;
 
             case 'sqlsrv':
-                $query = 'EXEC sp_msforeachtable @command1="print \'' . $table . '\'",'
-                    . ' @command2="ALTER TABLE ' . $table . ' WITH CHECK CHECK CONSTRAINT all";';
+                $query = 'EXEC sp_msforeachtable @command1="print \''.$table.'\'",'
+                    .' @command2="ALTER TABLE '.$table.' WITH CHECK CHECK CONSTRAINT all";';
                 break;
 
             default:
@@ -212,10 +212,14 @@ class Schema
         $driver = $connection->driver();
 
         switch ($driver) {
-            case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=0;'; break;
-            case 'pgsql':  $query = 'SET CONSTRAINTS ALL DEFERRED;'; break;
-            case 'sqlite': $query = 'PRAGMA foreign_keys = OFF;'; break;
-            case 'sqlsrv': $query = 'EXEC sp_msforeachtable "ALTER TABLE ' . $table . ' NOCHECK CONSTRAINT all";'; break;
+            case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=0;';
+                break;
+            case 'pgsql':  $query = 'SET CONSTRAINTS ALL DEFERRED;';
+                break;
+            case 'sqlite': $query = 'PRAGMA foreign_keys = OFF;';
+                break;
+            case 'sqlsrv': $query = 'EXEC sp_msforeachtable "ALTER TABLE '.$table.' NOCHECK CONSTRAINT all";';
+                break;
             default:       throw new \Exception(sprintf('Unsupported schema operations for selected driver: %s', $driver));
         }
 
@@ -250,7 +254,7 @@ class Schema
      */
     public static function create_if_not_exists($table, \Closure $builder)
     {
-        if (!static::has_table($table)) {
+        if (! static::has_table($table)) {
             static::create($table, $builder);
         }
     }
@@ -327,7 +331,7 @@ class Schema
      */
     protected static function implications($table)
     {
-        if (count($table->columns) > 0 && !$table->creating()) {
+        if (count($table->columns) > 0 && ! $table->creating()) {
             $command = new Magic(['type' => 'add']);
             array_unshift($table->commands, $command);
         }

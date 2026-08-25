@@ -9,6 +9,7 @@ use System\Foundation\Faker\Provider\Phone as BasePhone;
 class Phone extends BasePhone
 {
     protected static $tollFreeAreaCodes = [800, 844, 855, 866, 877, 888];
+
     protected static $formats = [
         '+1-{{areaCode}}-{{exchangeCode}}-####', '+1 ({{areaCode}}) {{exchangeCode}}-####', '+1-{{areaCode}}-{{exchangeCode}}-####',
         '+1.{{areaCode}}.{{exchangeCode}}.####', '+1{{areaCode}}{{exchangeCode}}####', '{{areaCode}}-{{exchangeCode}}-####',
@@ -38,7 +39,7 @@ class Phone extends BasePhone
 
     public static function areaCode()
     {
-        return static::numberBetween(2, 9) . static::randomDigit() . static::randomDigitNotNull(static::randomDigit());
+        return static::numberBetween(2, 9).static::randomDigit().static::randomDigitNotNull(static::randomDigit());
     }
 
     public static function exchangeCode()

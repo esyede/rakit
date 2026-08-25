@@ -65,8 +65,8 @@ class Redis
      */
     public static function db($name = 'default')
     {
-        if (!isset(static::$databases[$name])) {
-            $config = Config::get('database.redis.' . $name, []);
+        if (! isset(static::$databases[$name])) {
+            $config = Config::get('database.redis.'.$name, []);
 
             if (empty($config)) {
                 throw new \Exception(sprintf('Redis database config is not configured: %s', $name));
@@ -127,7 +127,7 @@ class Redis
      */
     protected function connect()
     {
-        if (!is_null($this->connection)) {
+        if (! is_null($this->connection)) {
             return $this->connection;
         }
 
@@ -167,13 +167,13 @@ class Redis
         $arguments = [];
 
         foreach ($parameters as $parameter) {
-            if (!is_array($parameter)) {
+            if (! is_array($parameter)) {
                 $arguments[] = (string) $parameter;
                 continue;
             }
 
             foreach ($parameter as $key => $value) {
-                if (!is_int($key)) {
+                if (! is_int($key)) {
                     $arguments[] = (string) $key;
                 }
 
@@ -181,11 +181,11 @@ class Redis
             }
         }
 
-        $command = '*' . (count($arguments) + 1) . CRLF
-            . '$' . mb_strlen($method, '8bit') . CRLF . $method . CRLF;
+        $command = '*'.(count($arguments) + 1).CRLF
+            .'$'.mb_strlen($method, '8bit').CRLF.$method.CRLF;
 
         foreach ($arguments as $argument) {
-            $command .= '$' . mb_strlen($argument, '8bit') . CRLF . $argument . CRLF;
+            $command .= '$'.mb_strlen($argument, '8bit').CRLF.$argument.CRLF;
         }
 
         return $command;

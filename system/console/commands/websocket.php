@@ -15,6 +15,7 @@ use System\Websocket\Client;
 class Websocket extends Command
 {
     private $dsn;
+
     private $config;
 
     /**
@@ -27,7 +28,7 @@ class Websocket extends Command
     public function run(array $arguments = [])
     {
         $this->config = Config::get('websocket');
-        $this->dsn = 'tcp://' . get_cli_option('host', '127.0.0.1') . ':' . get_cli_option('port', 6001);
+        $this->dsn = 'tcp://'.get_cli_option('host', '127.0.0.1').':'.get_cli_option('port', 6001);
         $server = new Server($this->dsn);
         $server->on('start', [$this, 'start'])
             ->on('stop', [$this, 'stop'])
@@ -124,7 +125,7 @@ class Websocket extends Command
      */
     public function start(Server $server)
     {
-        $this->log('WebSocket server started at: ' . $this->dsn);
+        $this->log('WebSocket server started at: '.$this->dsn);
         $this->log('Press Ctrl-C to quit.');
     }
 
@@ -140,7 +141,7 @@ class Websocket extends Command
         $this->log('WebSocket server crashed!', true);
 
         if ($error = error_get_last()) {
-            $this->log('PHP error: ' . $error['message'], true);
+            $this->log('PHP error: '.$error['message'], true);
         }
     }
 
@@ -204,8 +205,8 @@ class Websocket extends Command
      */
     public function receive(Client $client, $opcode, $data)
     {
-        if (intval($opcode) !== Server::TEXT) {
-            if (intval($opcode) === Server::PING) {
+        if ((int) $opcode !== Server::TEXT) {
+            if ((int) $opcode === Server::PING) {
                 $client->send(Server::PONG);
             } else {
                 $this->log(sprintf('Client #%s sent a message with ignored opcode %s.', $client->id(), $opcode));
@@ -325,7 +326,7 @@ class Websocket extends Command
     private function log($message, $is_error = false)
     {
         if ($this->logging()) {
-            echo $is_error ? $this->error('[' . Carbon::now() . '] ' . $message) : $this->info('[' . Carbon::now() . '] ' . $message);
+            echo $is_error ? $this->error('['.Carbon::now().'] '.$message) : $this->info('['.Carbon::now().'] '.$message);
             flush();
             ob_get_contents() && ob_flush();
         }

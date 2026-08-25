@@ -11,7 +11,7 @@ defined('DS') or exit('No direct access.');
 | Call init script before first boot.
 */
 
-require __DIR__ . DS . 'init.php';
+require __DIR__.DS.'init.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -22,8 +22,8 @@ require __DIR__ . DS . 'init.php';
 |
 */
 
-require path('system') . 'helpers.php';
-require_once path('system') . 'autoloader.php';
+require path('system').'helpers.php';
+require_once path('system').'autoloader.php';
 spl_autoload_register(['\System\Autoloader', 'load']);
 \System\Autoloader::namespaces(['System' => path('system')]);
 
@@ -39,7 +39,7 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 |
 */
 
-require __DIR__ . DS . 'core.php';
+require __DIR__.DS.'core.php';
 
 /*
 |--------------------------------------------------------------------------
@@ -53,9 +53,9 @@ require __DIR__ . DS . 'core.php';
 
 use System\Foundation\Oops\Debugger;
 
-$debugger = require path('app') . 'config' . DS . 'debugger.php';
+$debugger = require path('app').'config'.DS.'debugger.php';
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
-Debugger::enable(null, path('storage') . 'logs');
+Debugger::enable(null, path('storage').'logs');
 
 /*
 |--------------------------------------------------------------------------
@@ -83,7 +83,7 @@ Package::boot(DEFAULT_PACKAGE);
 */
 
 $debugger = Config::get('debugger');
-$template = path('app') . 'views' . DS . 'error' . DS . '500.blade.php';
+$template = path('app').'views'.DS.'error'.DS.'500.blade.php';
 
 Debugger::$productionMode = (false === (bool) $debugger['activate']);
 Debugger::$strictMode = (bool) $debugger['strict'];
@@ -120,7 +120,7 @@ Debugger::dispatch();
 |
 */
 
-Config::$reload = !Debugger::$productionMode;
+Config::$reload = ! Debugger::$productionMode;
 
 unset($debugger, $template, $debugger);
 
@@ -138,7 +138,7 @@ unset($debugger, $template, $debugger);
 
 $rakit_boot_done = microtime(true);
 
-if (class_exists('\System\Foundation\Oops\Debugger') && !\System\Foundation\Oops\Debugger::$productionMode) {
+if (class_exists('\System\Foundation\Oops\Debugger') && ! \System\Foundation\Oops\Debugger::$productionMode) {
     Foundation\Oops\Collectors::addTimer('Booting', ($rakit_boot_done - RAKIT_START) * 1000, 0);
 }
 
@@ -206,10 +206,10 @@ usort($languages, function ($a, $b) {
 */
 
 $uri = URI::current();
-$uri = (!is_string($uri) || empty($uri)) ? '/' : $uri;
+$uri = (! is_string($uri) || empty($uri)) ? '/' : $uri;
 
 foreach ($languages as $language) {
-    if (preg_match('#^' . $language . '(?:$|/)#i', $uri)) {
+    if (preg_match('#^'.$language.'(?:$|/)#i', $uri)) {
         Config::set('application.language', $language);
         $uri = trim(substr((string) $uri, strlen($language)), '/');
         break;
@@ -264,7 +264,7 @@ $rakit_timeline_render_done = microtime(true);
 |
 */
 
-if (class_exists('\System\Foundation\Oops\Debugger') && !\System\Foundation\Oops\Debugger::$productionMode) {
+if (class_exists('\System\Foundation\Oops\Debugger') && ! \System\Foundation\Oops\Debugger::$productionMode) {
     Foundation\Oops\Collectors::addTimer(
         'Routing',
         ($rakit_timeline_controller_start - $rakit_timeline_route_start) * 1000,

@@ -9,6 +9,7 @@ defined('DS') or exit('No direct access.');
 class Payment extends Base
 {
     public static $expirationDateFormat = 'm/y';
+
     protected static $cardVendors = [
         'Visa', 'Visa', 'Visa', 'Visa', 'Visa', 'MasterCard', 'MasterCard', 'MasterCard',
         'MasterCard', 'MasterCard', 'American Express', 'Discover Card',
@@ -101,7 +102,7 @@ class Payment extends Base
         $number .= Luhn::computeCheckDigit($number);
 
         if ($formatted) {
-            $number = substr($number, 0, 4) . $separator . substr($number, 4, 4) . $separator . substr($number, 8, 4) . $separator . substr($number, 12);
+            $number = substr($number, 0, 4).$separator.substr($number, 4, 4).$separator.substr($number, 8, 4).$separator.substr($number, 12);
         }
 
         return $number;
@@ -166,15 +167,18 @@ class Payment extends Base
             }
             switch ($class) {
                 default:
-                case 'c': $result .= (mt_rand(0, 100) <= 50) ? static::randomDigit() : strtoupper((string) static::randomLetter()); break;
-                case 'a': $result .= strtoupper((string) static::randomLetter()); break;
-                case 'n': $result .= static::randomDigit(); break;
+                case 'c': $result .= (mt_rand(0, 100) <= 50) ? static::randomDigit() : strtoupper((string) static::randomLetter());
+                    break;
+                case 'a': $result .= strtoupper((string) static::randomLetter());
+                    break;
+                case 'n': $result .= static::randomDigit();
+                    break;
             }
         }
 
         $result = static::addBankCodeChecksum($result, $countryCode);
         $countryNumber = 100 * (ord($countryCode[0]) - 55) + (ord($countryCode[1]) - 55);
-        $tempResult = $result . $countryNumber . '00';
+        $tempResult = $result.$countryNumber.'00';
         $checksum = (int) $tempResult[0];
 
         for ($i = 1, $size = mb_strlen($tempResult, '8bit'); $i < $size; ++$i) {
@@ -182,7 +186,7 @@ class Payment extends Base
         }
 
         $checksum = 98 - $checksum;
-        return $countryCode . (($checksum < 10) ? '0' . $checksum : $checksum) . $result;
+        return $countryCode.(($checksum < 10) ? '0'.$checksum : $checksum).$result;
     }
 
     protected static function addBankCodeChecksum($iban, $countryCode = '')

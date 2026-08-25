@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 class Generator
 {
     protected $providers = [];
+
     protected $formatters = [];
 
     public function addProvider($provider)

@@ -7,35 +7,59 @@ defined('DS') or exit('No direct access.');
 class Request
 {
     const HEADER_CLIENT_IP = 'client_ip';
+
     const HEADER_CLIENT_HOST = 'client_host';
+
     const HEADER_CLIENT_PROTO = 'client_proto';
+
     const HEADER_CLIENT_PORT = 'client_port';
 
     public $attributes;
+
     public $request;
+
     public $query;
+
     public $server;
+
     public $files;
+
     public $cookies;
+
     public $headers;
 
     protected $content;
+
     protected $languages;
+
     protected $charsets;
+
     protected $acceptableContentTypes;
+
     protected $pathInfo;
+
     protected $requestUri;
+
     protected $baseUrl;
+
     protected $basePath;
+
     protected $method;
+
     protected $format;
+
     protected $session;
+
     protected $locale;
+
     protected $defaultLocale = 'id';
 
     protected static $formats;
+
     protected static $trustProxy = false;
+
     protected static $trustedProxies = [];
+
     protected static $trustedHeaders = [
         self::HEADER_CLIENT_IP => 'X_FORWARDED_FOR',
         self::HEADER_CLIENT_HOST => 'X_FORWARDED_HOST',
@@ -134,7 +158,7 @@ class Request
             'SERVER_NAME' => 'localhost',
             'SERVER_PORT' => 80,
             'HTTP_HOST' => 'localhost',
-            'HTTP_USER_AGENT' => 'rakit/' . RAKIT_VERSION,
+            'HTTP_USER_AGENT' => 'rakit/'.RAKIT_VERSION,
             'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'HTTP_ACCEPT_LANGUAGE' => 'en-us,en;q=0.5',
             'HTTP_ACCEPT_CHARSET' => 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
@@ -159,7 +183,7 @@ class Request
 
         if (isset($components['port'])) {
             $defaults['SERVER_PORT'] = $components['port'];
-            $defaults['HTTP_HOST'] = $defaults['HTTP_HOST'] . ':' . $components['port'];
+            $defaults['HTTP_HOST'] = $defaults['HTTP_HOST'].':'.$components['port'];
         }
 
         if (isset($components['user'])) {
@@ -170,7 +194,7 @@ class Request
             $defaults['PHP_AUTH_PW'] = $components['pass'];
         }
 
-        if (!isset($components['path'])) {
+        if (! isset($components['path'])) {
             $components['path'] = '/';
         }
 
@@ -200,7 +224,7 @@ class Request
         }
 
         $qs = http_build_query($query, '', '&');
-        $uri = $components['path'] . ('' !== $qs ? '?' . $qs : '');
+        $uri = $components['path'].('' !== $qs ? '?'.$qs : '');
         $server = array_replace($defaults, $server, ['REQUEST_METHOD' => $method, 'PATH_INFO' => '', 'REQUEST_URI' => $uri, 'QUERY_STRING' => $qs]);
         return new static($query, $request, [], $cookies, $files, $server, $content);
     }
@@ -280,7 +304,7 @@ class Request
      */
     public function __toString()
     {
-        return sprintf('%s %s %s', $this->getMethod(), $this->getRequestUri(), $this->server->get('SERVER_PROTOCOL')) . "\r\n" . $this->headers . "\r\n" . $this->getContent();
+        return sprintf('%s %s %s', $this->getMethod(), $this->getRequestUri(), $this->server->get('SERVER_PROTOCOL'))."\r\n".$this->headers."\r\n".$this->getContent();
     }
 
     /**
@@ -302,7 +326,7 @@ class Request
             if (in_array($key, ['CONTENT_TYPE', 'CONTENT_LENGTH'])) {
                 $_SERVER[$key] = implode(', ', $value);
             } else {
-                $_SERVER['HTTP_' . $key] = implode(', ', $value);
+                $_SERVER['HTTP_'.$key] = implode(', ', $value);
             }
         }
 
@@ -342,7 +366,7 @@ class Request
      */
     public static function setTrustedHeaderName($key, $value)
     {
-        if (!array_key_exists($key, self::$trustedHeaders)) {
+        if (! array_key_exists($key, self::$trustedHeaders)) {
             throw new \Exception(sprintf("Unable to set the trusted header name for key '.%s'", $key));
         }
 
@@ -386,7 +410,7 @@ class Request
 
             $keyValuePair = explode('=', $param, 2);
             $parts[] = isset($keyValuePair[1])
-                ? rawurlencode(urldecode($keyValuePair[0])) . '=' . rawurlencode(urldecode($keyValuePair[1]))
+                ? rawurlencode(urldecode($keyValuePair[0])).'='.rawurlencode(urldecode($keyValuePair[1]))
                 : rawurlencode(urldecode($keyValuePair[0]));
             $order[] = urldecode($keyValuePair[0]);
         }
@@ -464,18 +488,18 @@ class Request
     {
         $ip = $this->server->get('REMOTE_ADDR');
 
-        if (!self::$trustProxy) {
+        if (! self::$trustProxy) {
             return $ip;
         }
 
-        if (!self::$trustedHeaders[self::HEADER_CLIENT_IP] || !$this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])) {
+        if (! self::$trustedHeaders[self::HEADER_CLIENT_IP] || ! $this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])) {
             return $ip;
         }
 
         $clientIps = $this->headers->get(self::$trustedHeaders[self::HEADER_CLIENT_IP]);
         $clientIps = array_map('trim', explode(',', $clientIps));
         $clientIps[] = $ip;
-        $trustedProxies = (self::$trustProxy && !self::$trustedProxies) ? [$ip] : self::$trustedProxies;
+        $trustedProxies = (self::$trustProxy && ! self::$trustedProxies) ? [$ip] : self::$trustedProxies;
         $clientIps = array_diff($clientIps, $trustedProxies);
         return array_pop($clientIps);
     }
@@ -591,7 +615,7 @@ class Request
     public function getUserInfo()
     {
         $pass = $this->getPassword();
-        return $this->getUser() . ((null === $pass || '' === $pass) ? '' : ':' . $pass);
+        return $this->getUser().((null === $pass || '' === $pass) ? '' : ':'.$pass);
     }
 
     /**
@@ -603,7 +627,7 @@ class Request
     {
         $scheme = $this->getScheme();
         $port = $this->getPort();
-        return $this->getHost() . ((('http' === $scheme && 80 === (int) $port) || ('https' === $scheme && 443 === (int) $port)) ? '' : ':' . $port);
+        return $this->getHost().((('http' === $scheme && 80 === (int) $port) || ('https' === $scheme && 443 === (int) $port)) ? '' : ':'.$port);
     }
 
     /**
@@ -627,7 +651,7 @@ class Request
      */
     public function getSchemeAndHttpHost()
     {
-        return $this->getScheme() . '://' . $this->getHttpHost();
+        return $this->getScheme().'://'.$this->getHttpHost();
     }
 
     /**
@@ -638,7 +662,7 @@ class Request
     public function getUri()
     {
         $query = $this->getQueryString();
-        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $this->getPathInfo() . ((null !== $query) ? '?' . $query : '');
+        return $this->getSchemeAndHttpHost().$this->getBaseUrl().$this->getPathInfo().((null !== $query) ? '?'.$query : '');
     }
 
     /**
@@ -650,7 +674,7 @@ class Request
      */
     public function getUriForPath($path)
     {
-        return $this->getSchemeAndHttpHost() . $this->getBaseUrl() . $path;
+        return $this->getSchemeAndHttpHost().$this->getBaseUrl().$path;
     }
 
     /**
@@ -693,15 +717,15 @@ class Request
         if (self::$trustProxy && $clientHost && $host = $this->headers->get($clientHost)) {
             $elements = explode(',', $host);
             $host = $elements[count($elements) - 1];
-        } elseif (!$host = $this->headers->get('Host')) {
-            if (!$host = $this->server->get('SERVER_NAME')) {
+        } elseif (! $host = $this->headers->get('Host')) {
+            if (! $host = $this->server->get('SERVER_NAME')) {
                 $host = $this->server->get('SERVER_ADDR', '');
             }
         }
 
         $host = strtolower(preg_replace('/:\d+$/', '', trim((string) $host)));
 
-        if ($host && !preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host)) {
+        if ($host && ! preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host)) {
             throw new \UnexpectedValueException(sprintf('Invalid host: %s', $host));
         }
 
@@ -895,7 +919,7 @@ class Request
      */
     public function getRootUrl()
     {
-        return $this->getScheme() . '://' . $this->getHttpHost() . $this->getBasePath();
+        return $this->getScheme().'://'.$this->getHttpHost().$this->getBasePath();
     }
 
     /**
@@ -958,7 +982,7 @@ class Request
             return isset($preferred[0]) ? $preferred[0] : null;
         }
 
-        if (!$preferred) {
+        if (! $preferred) {
             return $locales[0];
         }
 
@@ -996,7 +1020,7 @@ class Request
                         if (0 === $i) {
                             $lang = strtolower((string) $codes[0]);
                         } else {
-                            $lang .= '_' . strtoupper((string) $codes[$i]);
+                            $lang .= '_'.strtoupper((string) $codes[$i]);
                         }
                     }
                 }
@@ -1059,7 +1083,7 @@ class Request
      */
     public function splitHttpAcceptHeader($header)
     {
-        if (!$header) {
+        if (! $header) {
             return [];
         }
 
@@ -1115,7 +1139,7 @@ class Request
             $requestUri = $this->server->get('ORIG_PATH_INFO');
 
             if ('' !== $this->server->get('QUERY_STRING')) {
-                $requestUri .= '?' . $this->server->get('QUERY_STRING');
+                $requestUri .= '?'.$this->server->get('QUERY_STRING');
             }
         }
 
@@ -1149,7 +1173,7 @@ class Request
 
             do {
                 $segment = $segments[$index];
-                $baseUrl = '/' . $segment . $baseUrl;
+                $baseUrl = '/'.$segment.$baseUrl;
                 ++$index;
             } while ($last > $index && (false !== ($pos = strpos($path, $baseUrl))) && 0 !== $pos);
         }
@@ -1175,7 +1199,7 @@ class Request
 
         $basename = basename($baseUrl);
 
-        if (empty($basename) || !strpos(rawurldecode($truncatedUri), $basename)) {
+        if (empty($basename) || ! strpos(rawurldecode($truncatedUri), $basename)) {
             return '';
         }
 
@@ -1280,8 +1304,8 @@ class Request
     private function getUrlencodedPrefix($string, $prefix)
     {
         $prefix = (string) $prefix;
-        return (!$prefix || 0 !== strpos((string) rawurldecode($string), $prefix))
+        return (! $prefix || 0 !== strpos((string) rawurldecode($string), $prefix))
             ? false
-            : (preg_match('#^(%[[:xdigit:]]{2}|.){' . mb_strlen($prefix, '8bit') . '}#', $string, $match) ? $match[0] : false);
+            : (preg_match('#^(%[[:xdigit:]]{2}|.){'.mb_strlen($prefix, '8bit').'}#', $string, $match) ? $match[0] : false);
     }
 }

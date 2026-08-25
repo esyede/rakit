@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 class Miscellaneous extends Base
 {
     protected static $languageCode = ['cn', 'de', 'en', 'es', 'fr', 'it', 'pt', 'ru'];
+
     protected static $countryCode = [
         'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR',
         'AS', 'AT', 'AU', 'AW', 'AX', 'AZ', 'BA', 'BB', 'BD', 'BE',

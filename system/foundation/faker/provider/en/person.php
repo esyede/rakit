@@ -9,6 +9,7 @@ use System\Foundation\Faker\Provider\Person as BasePerson;
 class Person extends BasePerson
 {
     protected static $suffix = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'MD', 'DDS', 'PhD', 'DVM'];
+
     protected static $maleNameFormats = [
         '{{firstNameMale}} {{lastName}}',
         '{{firstNameMale}} {{lastName}}',

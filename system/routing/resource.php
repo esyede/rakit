@@ -9,10 +9,15 @@ use System\Str;
 class Resource
 {
     protected $name;
+
     protected $parent;
+
     protected $methods = ['get', 'post', 'put', 'delete'];
+
     protected $only = [];
+
     protected $except = [];
+
     protected $options = [
         [
             'method' => 'get',
@@ -69,30 +74,30 @@ class Resource
         $this->parent = '';
         $prefix = '';
 
-        if (!empty($options)) {
+        if (! empty($options)) {
             $this->options = $options;
         }
 
         $clauses = explode('.', $name);
 
-        if (isset($clauses[1]) && !empty($clauses[1])) {
+        if (isset($clauses[1]) && ! empty($clauses[1])) {
             $this->parent = $clauses[0];
-            $prefix = $this->parent . '/(:any?)/';
+            $prefix = $this->parent.'/(:any?)/';
         }
 
-        $this->name = (isset($clauses[1]) && !empty($clauses[1])) ? $clauses[1] : $name;
+        $this->name = (isset($clauses[1]) && ! empty($clauses[1])) ? $clauses[1] : $name;
 
         foreach ($this->options as $option) {
             $method = Str::lower($option['method']);
 
-            if (!in_array($method, $this->methods)) {
+            if (! in_array($method, $this->methods)) {
                 throw new \Exception(sprintf('Invalid request method specified: %s', $method));
             }
 
             $this->name = str_replace('::', '/', $this->name);
             $options = $this->options($option);
 
-            Route::{$method}($prefix . $this->name . $option['route'], $options);
+            Route::{$method}($prefix.$this->name.$option['route'], $options);
         }
     }
 
@@ -120,14 +125,14 @@ class Resource
     {
         $results = [];
 
-        if (isset($options['as']) && !empty($options['as'])) {
-            $prefix = $this->parent ? $this->parent . '.' : '';
-            $results['as'] = $prefix . $this->placeholder($options['as']);
+        if (isset($options['as']) && ! empty($options['as'])) {
+            $prefix = $this->parent ? $this->parent.'.' : '';
+            $results['as'] = $prefix.$this->placeholder($options['as']);
         }
 
-        if (isset($options['uses']) && !empty($options['uses'])) {
-            $prefix = $this->parent ? $this->parent . '.' : '';
-            $results['uses'] = $prefix . $this->placeholder($options['uses']);
+        if (isset($options['uses']) && ! empty($options['uses'])) {
+            $prefix = $this->parent ? $this->parent.'.' : '';
+            $results['uses'] = $prefix.$this->placeholder($options['uses']);
         }
 
         return $results;

@@ -16,7 +16,7 @@ class Mail extends Driver
         try {
             $message = $this->build();
             $sender = $this->envelope_sender();
-            $parameters = (null === $sender) ? '-oi' : '-oi -f ' . $sender;
+            $parameters = (null === $sender) ? '-oi' : '-oi -f '.$sender;
 
             return (bool) mail(
                 static::format($this->to),
@@ -26,9 +26,9 @@ class Mail extends Driver
                 $parameters
             );
         } catch (\Throwable $e) {
-            throw new \Exception('Failed sending email through mail: ' . $e->getMessage());
+            throw new \Exception('Failed sending email through mail: '.$e->getMessage());
         } catch (\Exception $e) {
-            throw new \Exception('Failed sending email through mail: ' . $e->getMessage());
+            throw new \Exception('Failed sending email through mail: '.$e->getMessage());
         }
     }
 }

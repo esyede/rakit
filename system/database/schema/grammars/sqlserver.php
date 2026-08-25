@@ -27,7 +27,7 @@ class SQLServer extends Grammar
     public function create(Table $table, Magic $command)
     {
         $columns = implode(', ', $this->columns($table));
-        return 'CREATE TABLE ' . $this->wrap($table) . ' (' . $columns . ')';
+        return 'CREATE TABLE '.$this->wrap($table).' ('.$columns.')';
     }
 
     /**
@@ -41,10 +41,10 @@ class SQLServer extends Grammar
     public function add(Table $table, Magic $command)
     {
         $columns = implode(', ', array_map(function ($column) {
-            return 'ADD ' . $column;
+            return 'ADD '.$column;
         }, $this->columns($table)));
 
-        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
+        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
     }
 
     /**
@@ -59,7 +59,7 @@ class SQLServer extends Grammar
         $columns = [];
 
         foreach ($table->columns as $column) {
-            $sql = $this->wrap($column) . ' ' . $this->type($column);
+            $sql = $this->wrap($column).' '.$this->type($column);
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->collate($table, $column);
             $sql .= $this->incrementer($table, $column);
@@ -96,7 +96,7 @@ class SQLServer extends Grammar
     protected function defaults(Table $table, Magic $column)
     {
         if (isset($column->defaults) && null !== $column->defaults) {
-            return " DEFAULT '" . $this->default_value($column->defaults) . "'";
+            return " DEFAULT '".$this->default_value($column->defaults)."'";
         }
     }
 
@@ -161,7 +161,7 @@ class SQLServer extends Grammar
         $strings = ['string', 'text', 'json', 'jsonb', 'enum', 'set'];
 
         if (in_array($column->type, $strings) && isset($column->collate) && $column->collate) {
-            return ' COLLATE ' . $column->collate;
+            return ' COLLATE '.$column->collate;
         }
     }
 
@@ -175,8 +175,8 @@ class SQLServer extends Grammar
      */
     public function primary(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' ADD CONSTRAINT ' . $command->name
-            . ' PRIMARY KEY (' . $this->columnize($command->columns) . ')';
+        return 'ALTER TABLE '.$this->wrap($table).' ADD CONSTRAINT '.$command->name
+            .' PRIMARY KEY ('.$this->columnize($command->columns).')';
     }
 
     /**
@@ -203,10 +203,10 @@ class SQLServer extends Grammar
     public function fulltext(Table $table, Magic $command)
     {
         return [
-            'CREATE FULLTEXT CATALOG ' . $command->catalog,
-            'CREATE FULLTEXT INDEX ON ' . $this->wrap($table)
-                . ' (' . $this->columnize($command->columns) . ') KEY INDEX ' . $command->key
-                . ' ON ' . $command->catalog,
+            'CREATE FULLTEXT CATALOG '.$command->catalog,
+            'CREATE FULLTEXT INDEX ON '.$this->wrap($table)
+                .' ('.$this->columnize($command->columns).') KEY INDEX '.$command->key
+                .' ON '.$command->catalog,
         ];
     }
 
@@ -234,8 +234,8 @@ class SQLServer extends Grammar
      */
     protected function key(Table $table, Magic $command, $unique = false)
     {
-        return ($unique ? 'CREATE UNIQUE' : 'CREATE') . ' INDEX ' . $command->name . ' ON '
-            . $this->wrap($table) . ' (' . $this->columnize($command->columns) . ')';
+        return ($unique ? 'CREATE UNIQUE' : 'CREATE').' INDEX '.$command->name.' ON '
+            .$this->wrap($table).' ('.$this->columnize($command->columns).')';
     }
 
     /**
@@ -248,8 +248,8 @@ class SQLServer extends Grammar
      */
     public function rename(Table $table, Magic $command)
     {
-        return "EXEC sp_rename '" . str_replace("'", "''", $table->name)
-            . "', '" . str_replace("'", "''", $command->name) . "'";
+        return "EXEC sp_rename '".str_replace("'", "''", $table->name)
+            ."', '".str_replace("'", "''", $command->name)."'";
     }
 
     /**
@@ -264,7 +264,7 @@ class SQLServer extends Grammar
     {
         $columns = implode(', ', array_map([$this, 'wrap'], $command->columns));
 
-        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP COLUMN ' . $columns;
+        return 'ALTER TABLE '.$this->wrap($table).' DROP COLUMN '.$columns;
     }
 
     /**
@@ -278,15 +278,15 @@ class SQLServer extends Grammar
     public function drop_primary(Table $table, Magic $command)
     {
         if (isset($command->name) && '' !== (string) $command->name) {
-            return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT ' . $this->wrap($command->name);
+            return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT '.$this->wrap($command->name);
         }
 
         $name = str_replace("'", "''", $table->name);
 
         return 'DECLARE @rakit_pk SYSNAME;'
-            . ' SELECT @rakit_pk = [name] FROM sys.key_constraints'
-            . " WHERE [type] = 'PK' AND [parent_object_id] = OBJECT_ID('" . $name . "');"
-            . " EXEC('ALTER TABLE " . $this->wrap($table) . " DROP CONSTRAINT [' + @rakit_pk + ']')";
+            .' SELECT @rakit_pk = [name] FROM sys.key_constraints'
+            ." WHERE [type] = 'PK' AND [parent_object_id] = OBJECT_ID('".$name."');"
+            ." EXEC('ALTER TABLE ".$this->wrap($table)." DROP CONSTRAINT [' + @rakit_pk + ']')";
     }
 
     /**
@@ -313,8 +313,8 @@ class SQLServer extends Grammar
     public function drop_fulltext(Table $table, Magic $command)
     {
         return [
-            'DROP FULLTEXT INDEX ' . $command->name,
-            'DROP FULLTEXT CATALOG ' . $command->catalog,
+            'DROP FULLTEXT INDEX '.$command->name,
+            'DROP FULLTEXT CATALOG '.$command->catalog,
         ];
     }
 
@@ -341,7 +341,7 @@ class SQLServer extends Grammar
      */
     protected function drop_key(Table $table, Magic $command)
     {
-        return 'DROP INDEX ' . $command->name . ' ON ' . $this->wrap($table);
+        return 'DROP INDEX '.$command->name.' ON '.$this->wrap($table);
     }
 
     /**
@@ -367,8 +367,8 @@ class SQLServer extends Grammar
      */
     public function spatial(Table $table, Magic $command)
     {
-        return 'CREATE SPATIAL INDEX ' . $command->name . ' ON ' . $this->wrap($table)
-            . ' (' . $this->columnize($command->columns) . ')';
+        return 'CREATE SPATIAL INDEX '.$command->name.' ON '.$this->wrap($table)
+            .' ('.$this->columnize($command->columns).')';
     }
 
     /**
@@ -381,7 +381,7 @@ class SQLServer extends Grammar
      */
     public function rename_column(Table $table, Magic $command)
     {
-        return 'EXEC sp_rename \'' . $this->wrap($table) . '.' . $this->wrap($command->from) . '\', \'' . $command->to . '\', \'COLUMN\'';
+        return 'EXEC sp_rename \''.$this->wrap($table).'.'.$this->wrap($command->from).'\', \''.$command->to.'\', \'COLUMN\'';
     }
 
     /**
@@ -395,10 +395,10 @@ class SQLServer extends Grammar
     public function drop_column_if_exists(Table $table, Magic $command)
     {
         $columns = implode(', ', array_map(function ($column) {
-            return 'DROP COLUMN ' . $column;
+            return 'DROP COLUMN '.$column;
         }, array_map([$this, 'wrap'], $command->columns)));
 
-        return 'ALTER TABLE ' . $this->wrap($table) . ' ' . $columns;
+        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
     }
 
     /**
@@ -411,7 +411,7 @@ class SQLServer extends Grammar
      */
     public function drop_index_if_exists(Table $table, Magic $command)
     {
-        return 'DROP INDEX IF EXISTS ' . $command->name . ' ON ' . $this->wrap($table);
+        return 'DROP INDEX IF EXISTS '.$command->name.' ON '.$this->wrap($table);
     }
 
     /**
@@ -424,7 +424,7 @@ class SQLServer extends Grammar
      */
     public function drop_unique_if_exists(Table $table, Magic $command)
     {
-        return 'DROP INDEX IF EXISTS ' . $command->name . ' ON ' . $this->wrap($table);
+        return 'DROP INDEX IF EXISTS '.$command->name.' ON '.$this->wrap($table);
     }
 
     /**
@@ -438,8 +438,8 @@ class SQLServer extends Grammar
     public function drop_fulltext_if_exists(Table $table, Magic $command)
     {
         return [
-            'DROP FULLTEXT INDEX ON ' . $this->wrap($table),
-            'DROP FULLTEXT CATALOG ' . $command->catalog,
+            'DROP FULLTEXT INDEX ON '.$this->wrap($table),
+            'DROP FULLTEXT CATALOG '.$command->catalog,
         ];
     }
 
@@ -453,7 +453,7 @@ class SQLServer extends Grammar
      */
     public function drop_foreign_if_exists(Table $table, Magic $command)
     {
-        return 'ALTER TABLE ' . $this->wrap($table) . ' DROP CONSTRAINT IF EXISTS ' . $command->name;
+        return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT IF EXISTS '.$command->name;
     }
 
     /**
@@ -465,7 +465,7 @@ class SQLServer extends Grammar
      */
     protected function type_string(Magic $column)
     {
-        return 'NVARCHAR(' . $column->length . ')';
+        return 'NVARCHAR('.$column->length.')';
     }
 
     /**
@@ -513,7 +513,7 @@ class SQLServer extends Grammar
      */
     protected function type_decimal(Magic $column)
     {
-        return 'DECIMAL(' . $column->precision . ', ' . $column->scale . ')';
+        return 'DECIMAL('.$column->precision.', '.$column->scale.')';
     }
 
     /**
@@ -526,7 +526,7 @@ class SQLServer extends Grammar
     protected function type_enum(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . str_replace("'", "''", (string) $item) . "'";
+            return "'".str_replace("'", "''", (string) $item)."'";
         }, $column->allowed));
 
         return sprintf('VARCHAR(255) CHECK (%s IN (%s))', $this->wrap($column->name), $allowed);
@@ -818,7 +818,7 @@ class SQLServer extends Grammar
     protected function type_set(Magic $column)
     {
         $allowed = implode(', ', array_map(function ($item) {
-            return "'" . str_replace("'", "''", (string) $item) . "'";
+            return "'".str_replace("'", "''", (string) $item)."'";
         }, $column->allowed));
 
         return sprintf('NVARCHAR(255) CHECK ("%s" IN (%s))', $column->name, $allowed);

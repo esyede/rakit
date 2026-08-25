@@ -7,19 +7,31 @@ defined('DS') or exit('No direct access.');
 class Evaluator
 {
     const FATAL = 255;
+
     const DONE = "\0";
+
     const EXITED = "\1";
+
     const FAILED = "\2";
+
     const READY = "\3";
 
     private $socket;
+
     private $exports = [];
+
     private $starting = [];
+
     private $failing = [];
+
     private $prev_pid;
+
     private $pid;
+
     private $aborted;
+
     private $inspector;
+
     private $exceptor;
 
     /**
@@ -90,7 +102,7 @@ class Evaluator
         /* Note the naming of the local variables due to shared scope with the user here */
         for (;;) {
             declare(ticks = 1);
-            /** @disregard */
+            /* @disregard */
             pcntl_signal(SIGINT, SIG_IGN, true); // Do not exit on Ctrl+C
             $this->aborted = false;
             $input = $this->transform($this->read($this->socket));
@@ -100,20 +112,20 @@ class Evaluator
             }
 
             $response = self::DONE;
-            /** @disregard */
+            /* @disregard */
             $this->prev_pid = posix_getpid();
-            /** @disregard */
+            /* @disregard */
             $this->pid = pcntl_fork();
 
             if ($this->pid < 0) {
                 throw new \RuntimeException('Failed to fork child labourer');
             } elseif ($this->pid > 0) {
-                /** @disregard */
+                /* @disregard */
                 pcntl_signal(SIGINT, [$this, 'abort'], true); // Kill child on Ctrl+C
-                /** @disregard */
+                /* @disregard */
                 pcntl_waitpid($this->pid, $status);
 
-                if (!$this->aborted && $status != (self::FATAL << 8)) {
+                if (! $this->aborted && $status != (self::FATAL << 8)) {
                     $response = self::EXITED;
                 } else {
                     $this->run_hook($this->failing);
@@ -122,19 +134,19 @@ class Evaluator
             } else {
                 $oldexh = set_exception_handler([$this, 'exception_handler']);
 
-                if ($oldexh && !$this->exceptor) {
+                if ($oldexh && ! $this->exceptor) {
                     $this->exceptor = $oldexh; // Save the old handler (once)
                 } else {
                     restore_exception_handler();
                 }
 
-                /** @disregard */
+                /* @disregard */
                 pcntl_signal(SIGINT, SIG_DFL, true); // Allow user code to handle ctrl-c if it wants to
                 /** @disregard */
                 $pid = posix_getpid();
                 $result = eval($input);
 
-                /** @disregard */
+                /* @disregard */
                 if (posix_getpid() != $pid) {
                     exit(0);
                 }
@@ -161,9 +173,9 @@ class Evaluator
     {
         printf("Aborting...\n");
         $this->aborted = true;
-        /** @disregard */
+        /* @disregard */
         posix_kill($this->pid, SIGKILL);
-        /** @disregard */
+        /* @disregard */
         pcntl_signal_dispatch();
     }
 
@@ -199,15 +211,15 @@ class Evaluator
 
     private function kill_previous()
     {
-        /** @disregard */
+        /* @disregard */
         posix_kill($this->prev_pid, SIGTERM);
-        /** @disregard */
+        /* @disregard */
         pcntl_signal_dispatch();
     }
 
     private function write($socket, $data)
     {
-        if (!fwrite($socket, $data)) {
+        if (! fwrite($socket, $data)) {
             throw new \Exception('Socket error: failed to write data');
         }
     }
@@ -240,13 +252,13 @@ class Evaluator
     private function transform($input)
     {
         if ($input === null) {
-            return null;
+            return;
         }
 
         $transforms = ['exit' => 'exit(0)'];
 
         foreach ($transforms as $from => $to) {
-            $input = preg_replace('/^\s*' . preg_quote($from, '/') . '\s*;?\s*$/', $to . ';', $input);
+            $input = preg_replace('/^\s*'.preg_quote($from, '/').'\s*;?\s*$/', $to.';', $input);
         }
 
         return $input;

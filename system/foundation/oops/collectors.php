@@ -35,7 +35,9 @@ class Collectors
      * @var array|null
      */
     private static $collectorConfig;
+
     private static $collectorConfigLoaded = false;
+
     private static $resolvingConfig = false;
 
     /**
@@ -68,7 +70,7 @@ class Collectors
      */
     public static function enabled($name)
     {
-        if (!static::$collectorConfigLoaded && !static::$resolvingConfig) {
+        if (! static::$collectorConfigLoaded && ! static::$resolvingConfig) {
             static::$resolvingConfig = true;
             $cfg = function_exists('config') ? config('debugger.collectors', null) : [];
             static::$resolvingConfig = false;
@@ -81,11 +83,11 @@ class Collectors
 
         $collectors = static::$collectorConfig;
 
-        if (!is_array($collectors)) {
+        if (! is_array($collectors)) {
             return true;
         }
 
-        return !isset($collectors[$name]) || false !== $collectors[$name];
+        return ! isset($collectors[$name]) || false !== $collectors[$name];
     }
 
     /**
@@ -152,7 +154,7 @@ class Collectors
             'flash_old' => [],
         ];
 
-        if (!class_exists('System\\Session') || !\System\Session::started()) {
+        if (! class_exists('System\\Session') || ! \System\Session::started()) {
             return $result;
         }
 
@@ -254,7 +256,7 @@ class Collectors
             $pattern
         );
 
-        return 1 === preg_match('#^' . $pattern . '$#', (string) $uri);
+        return 1 === preg_match('#^'.$pattern.'$#', (string) $uri);
     }
 
     /**
@@ -270,7 +272,7 @@ class Collectors
      */
     public static function trackCacheOperation($type, $key, $value = null, $time = 0, array $extra = [])
     {
-        if (!static::$trackCache || !static::enabled('cache')) {
+        if (! static::$trackCache || ! static::enabled('cache')) {
             return;
         }
 
@@ -289,12 +291,16 @@ class Collectors
 
         // Update counters
         switch (strtolower($type)) {
-            case 'hit': static::$data['cache']['hits']++; break;
-            case 'miss': static::$data['cache']['misses']++; break;
+            case 'hit': static::$data['cache']['hits']++;
+                break;
+            case 'miss': static::$data['cache']['misses']++;
+                break;
             case 'write':
-            case 'put': static::$data['cache']['writes']++; break;
+            case 'put': static::$data['cache']['writes']++;
+                break;
             case 'delete':
-            case 'forget': static::$data['cache']['deletes']++; break;
+            case 'forget': static::$data['cache']['deletes']++;
+                break;
         }
     }
 
@@ -312,7 +318,7 @@ class Collectors
      */
     public static function trackView($name, $path = null, array $data = [], $time = 0, $size = 0, $start = 0)
     {
-        if (!static::$trackViews || !static::enabled('views')) {
+        if (! static::$trackViews || ! static::enabled('views')) {
             return;
         }
 
@@ -337,7 +343,7 @@ class Collectors
      */
     public static function trackEvent($name, array $data = [], $time = null)
     {
-        if (!static::$trackEvents || !static::enabled('events')) {
+        if (! static::$trackEvents || ! static::enabled('events')) {
             return;
         }
 
@@ -362,7 +368,7 @@ class Collectors
      */
     public static function addLog($level, $message, array $context = [], $file = null, $line = null)
     {
-        if (!static::enabled('messages')) {
+        if (! static::enabled('messages')) {
             return;
         }
 
@@ -388,7 +394,7 @@ class Collectors
      */
     public static function addTimer($name, $duration, $start = 0)
     {
-        if (!static::enabled('timeline')) {
+        if (! static::enabled('timeline')) {
             return;
         }
 
@@ -406,11 +412,11 @@ class Collectors
      */
     public static function addException($e)
     {
-        if (!static::enabled('exceptions')) {
+        if (! static::enabled('exceptions')) {
             return;
         }
 
-        if (!($e instanceof \Exception) && !($e instanceof \Throwable)) {
+        if (! ($e instanceof \Exception) && ! ($e instanceof \Throwable)) {
             return;
         }
 
@@ -418,7 +424,7 @@ class Collectors
         $file = $e->getFile();
         $line = $e->getLine();
         $message = $e->getMessage();
-        $key = $class . '|' . $file . '|' . $line . '|' . $message;
+        $key = $class.'|'.$file.'|'.$line.'|'.$message;
 
         if (isset(static::$data['exceptions'][$key])) {
             static::$data['exceptions'][$key]['count']++;
@@ -462,11 +468,11 @@ class Collectors
      */
     public static function addDeprecation($message, $file = null, $line = null, $severity = E_DEPRECATED)
     {
-        if (!static::enabled('deprecations')) {
+        if (! static::enabled('deprecations')) {
             return;
         }
 
-        $key = $file . '|' . $line . '|' . $message;
+        $key = $file.'|'.$line.'|'.$message;
 
         if (isset(static::$data['deprecations'][$key])) {
             static::$data['deprecations'][$key]['count']++;
@@ -499,7 +505,7 @@ class Collectors
      */
     public static function trackHttp($method, $url, $status, $duration, $size = 0, $error = null, array $headers = [], $body = null)
     {
-        if (!static::enabled('http')) {
+        if (! static::enabled('http')) {
             return;
         }
 
@@ -525,7 +531,7 @@ class Collectors
      */
     public static function trackMail(array $mail)
     {
-        if (!static::enabled('mails')) {
+        if (! static::enabled('mails')) {
             return;
         }
 
@@ -588,7 +594,7 @@ class Collectors
 
         switch ($driver) {
             case 'file':
-                $config['path'] = config('cache.path', path('storage') . 'caches' . DS);
+                $config['path'] = config('cache.path', path('storage').'caches'.DS);
                 break;
 
             case 'memcached':

@@ -54,7 +54,7 @@ class Cookie
 
         if ($expire instanceof \DateTime || $expire instanceof \DateTimeInterface) {
             $expire = $expire->format('U');
-        } elseif (!is_numeric($expire)) {
+        } elseif (! is_numeric($expire)) {
             $expire = strtotime((string) $expire);
 
             if (false === $expire || -1 === $expire) {
@@ -70,7 +70,7 @@ class Cookie
         $this->secure = (bool) $secure;
         $this->httpOnly = (bool) $httpOnly;
 
-        if (!in_array(strtolower((string) $sameSite), ['lax', 'strict', 'none'])) {
+        if (! in_array(strtolower((string) $sameSite), ['lax', 'strict', 'none'])) {
             throw new \InvalidArgumentException('The "sameSite" parameter value is not valid.');
         }
 
@@ -84,13 +84,13 @@ class Cookie
      */
     public function __toString()
     {
-        $str = urlencode($this->getName()) . '=';
+        $str = urlencode($this->getName()).'=';
         $str .= ('' === (string) $this->getValue())
-            ? 'deleted; expires=' . gmdate('D, d-M-Y H:i:s T', time() - 31536001)
-            : urlencode($this->getValue()) . ((0 !== $this->getExpiresTime()) ? '; expires=' . gmdate('D, d-M-Y H:i:s T', (int) $this->getExpiresTime()) : '');
-        $str .= ('/' !== $this->path) ? '; path=' . $this->path : '';
-        $str .= (null !== $this->getSameSite()) ? '; samesite=' . $this->getSameSite() : '';
-        $str .= (null !== $this->getDomain()) ? '; domain=' . $this->getDomain() : '';
+            ? 'deleted; expires='.gmdate('D, d-M-Y H:i:s T', time() - 31536001)
+            : urlencode($this->getValue()).((0 !== $this->getExpiresTime()) ? '; expires='.gmdate('D, d-M-Y H:i:s T', (int) $this->getExpiresTime()) : '');
+        $str .= ('/' !== $this->path) ? '; path='.$this->path : '';
+        $str .= (null !== $this->getSameSite()) ? '; samesite='.$this->getSameSite() : '';
+        $str .= (null !== $this->getDomain()) ? '; domain='.$this->getDomain() : '';
         $str .= (true === $this->isSecure()) ? '; secure' : '';
         $str .= (true === $this->isHttpOnly()) ? '; httponly' : '';
 

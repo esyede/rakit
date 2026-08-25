@@ -16,11 +16,11 @@ class Hash
      */
     public static function make($password, $cost = 10)
     {
-        if (!is_int($cost) || $cost < 4 || $cost > 31) {
+        if (! is_int($cost) || $cost < 4 || $cost > 31) {
             throw new \Exception('Cost parameter must be an integer between 4 to 31.');
         }
 
-        if (!function_exists('crypt')) {
+        if (! function_exists('crypt')) {
             throw new \Exception('Crypt must be loaded to use the hashing library.');
         }
 
@@ -28,7 +28,7 @@ class Hash
             $password = (string) $password;
         }
 
-        if (!is_string($password)) {
+        if (! is_string($password)) {
             throw new \Exception('Password must be a string.');
         }
 
@@ -39,9 +39,9 @@ class Hash
             './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
         );
 
-        $hash = crypt($password, sprintf('$2y$%02d$', $cost) . mb_substr($salt, 0, 22, '8bit'));
+        $hash = crypt($password, sprintf('$2y$%02d$', $cost).mb_substr($salt, 0, 22, '8bit'));
 
-        if (!is_string($hash) || 60 !== mb_strlen((string) $hash, '8bit')) {
+        if (! is_string($hash) || 60 !== mb_strlen((string) $hash, '8bit')) {
             throw new \Exception('Malformatted password hash result.');
         }
 
@@ -58,14 +58,14 @@ class Hash
      */
     public static function check($password, $hash)
     {
-        if (!function_exists('crypt')) {
+        if (! function_exists('crypt')) {
             throw new \Exception('Crypt must be loaded to use the hashing library.');
         }
 
         $crypt = crypt($password, $hash);
 
         if (
-            !is_string($crypt)
+            ! is_string($crypt)
             || mb_strlen($crypt, '8bit') !== mb_strlen($hash, '8bit')
             || mb_strlen($crypt, '8bit') <= 13
         ) {
@@ -94,7 +94,7 @@ class Hash
     {
         $hash = (string) $hash;
 
-        if (!is_int($cost) || $cost < 4 || $cost > 31) {
+        if (! is_int($cost) || $cost < 4 || $cost > 31) {
             throw new \Exception('Cost parameter must be an integer between 4 to 31.');
         }
 

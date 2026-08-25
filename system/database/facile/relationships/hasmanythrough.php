@@ -85,14 +85,14 @@ class HasManyThrough extends Relationship
     protected function constrain()
     {
         $through_table = $this->through->table();
-        $through_key = $through_table . '.' . $this->second_local_key;
-        $foreign_key = $through_table . '.' . $this->first_key;
+        $through_key = $through_table.'.'.$this->second_local_key;
+        $foreign_key = $through_table.'.'.$this->first_key;
 
         $this->table
-            ->join($through_table, $through_key, '=', $this->model->table() . '.' . $this->second_key)
+            ->join($through_table, $through_key, '=', $this->model->table().'.'.$this->second_key)
             ->where($foreign_key, '=', $this->base->{$this->local_key});
 
-        $this->table->select([$this->model->table() . '.*']);
+        $this->table->select([$this->model->table().'.*']);
     }
 
     /**
@@ -103,16 +103,16 @@ class HasManyThrough extends Relationship
     public function eagerly_constrain(array $results)
     {
         $through_table = $this->through->table();
-        $through_key = $through_table . '.' . $this->second_local_key;
-        $foreign_key = $through_table . '.' . $this->first_key;
+        $through_key = $through_table.'.'.$this->second_local_key;
+        $foreign_key = $through_table.'.'.$this->first_key;
 
         $this->table
-            ->join($through_table, $through_key, '=', $this->model->table() . '.' . $this->second_key)
+            ->join($through_table, $through_key, '=', $this->model->table().'.'.$this->second_key)
             ->where_in($foreign_key, $this->keys($results));
 
         $this->table->select([
-            $this->model->table() . '.*',
-            $through_table . '.' . $this->first_key . ' as rakit_through_key',
+            $this->model->table().'.*',
+            $through_table.'.'.$this->first_key.' as rakit_through_key',
         ]);
     }
 
@@ -144,7 +144,7 @@ class HasManyThrough extends Relationship
             $key = $child->get_attribute('rakit_through_key')
                 ?: $child->get_attribute($this->first_key);
 
-            if (!isset($dictionary[$key])) {
+            if (! isset($dictionary[$key])) {
                 $dictionary[$key] = [];
             }
 
@@ -198,6 +198,6 @@ class HasManyThrough extends Relationship
      */
     protected function get_through_key()
     {
-        return Str::singular($this->through->table()) . '_id';
+        return Str::singular($this->through->table()).'_id';
     }
 }
