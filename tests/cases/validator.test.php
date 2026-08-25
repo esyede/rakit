@@ -430,25 +430,28 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheActiveUrlRule()
     {
-        // This rule performs a real request, so the test can only run when the
-        // machine actually has a way out. Without this it fails on an offline
-        // machine (and intermittently on a flaky connection) for reasons that
-        // have nothing to do with the framework.
-        $probe = @fsockopen('google.com', 443, $errno, $errstr, 2);
+        // The rule fires a real request, so it runs against the local mock
+        // endpoint: a public host would make the test depend on the network and
+        // on the provider not hijacking unresolvable names with a 200 page.
+        $base = MockServer::url();
 
-        if (!$probe) {
-            $this->markTestSkipped('No outbound network connection available.');
+        if (null === $base) {
+            $this->markTestSkipped('Mock server is not available.');
         }
-
-        fclose($probe);
 
         $input = [];
         $rules = ['url' => 'active_url'];
 
-        $input['url'] = 'https://google.com';
+        // 200 from the mock endpoint
+        $input['url'] = $base;
         $this->assertTrue(Validator::make($input, $rules)->valid());
 
-        $input['url'] = 'https://hj2ks-kgs142tfsfhv0bvs8vvgjgs-afsvsbgtfs';
+        // 404 from the same server, which is outside the 200-399 range
+        $input['url'] = $base . '/no-such-path';
+        $this->assertFalse(Validator::make($input, $rules)->valid());
+
+        // Not a URL at all
+        $input['url'] = 'not a url';
         $this->assertFalse(Validator::make($input, $rules)->valid());
     }
 

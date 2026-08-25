@@ -19,21 +19,11 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     private static $skipNetworkTests;
 
     /**
-     * @var resource|null
-     */
-    private static $process;
-
-    /**
-     * Bring up the mock endpoint. These tests used to fire ~30 live requests
-     * at https://rakit.esyede.my.id/mock on every run, including one that asks
-     * the remote to stall for 1000 seconds — enough to keep a worker pinned
-     * long after the client gave up, which is a good way to take a small
-     * shared host offline. They now run against a local PHP built-in server
-     * serving tests/mock/server.php, so the suite is offline-capable, fast,
-     * and harmless to the production host.
+     * Point the suite at the local mock endpoint served by
+     * tests/mock/server.php, so it is offline-capable, fast, and never
+     * reaches a production host.
      *
-     * Set RAKIT_CURL_MOCK_URL to point the suite at a different endpoint (for
-     * example the real one) when you specifically want to test against it.
+     * Set RAKIT_CURL_MOCK_URL to test against a different endpoint.
      *
      * @return void
      */
@@ -43,131 +33,13 @@ class CurlTest extends \PHPUnit_Framework_TestCase
 
         if (is_string($override) && '' !== $override) {
             self::$base = rtrim($override, '/');
-            self::$skipNetworkTests = !self::reachable(self::$base);
+            self::$skipNetworkTests = !MockServer::reachable(self::$base);
 
             return;
         }
 
-        $port = self::freePort();
-        self::$base = 'http://127.0.0.1:' . $port . '/mock';
-
-        $command = escapeshellarg(PHP_BINARY) . ' -S 127.0.0.1:' . $port . ' '
-            . escapeshellarg(dirname(__DIR__) . DS . 'mock' . DS . 'server.php');
-
-        $pipes = [];
-        $options = null;
-
-        if (DIRECTORY_SEPARATOR === '\\') {
-            // NUL is Windows' /dev/null. Pipes are not an option: nothing here
-            // reads them, and `php -S` logs a line per request to stderr, so
-            // the buffer would fill and the server would block mid-run.
-            $descriptors = [
-                0 => ['file', 'NUL', 'r'],
-                1 => ['file', 'NUL', 'w'],
-                2 => ['file', 'NUL', 'w'],
-            ];
-
-            // Without this, proc_open wraps the command in `cmd.exe /c`, so the
-            // pid we hold belongs to cmd; terminating it would leave the server
-            // running, and Windows has no posix_kill to fall back on.
-            $options = ['bypass_shell' => true];
-        } else {
-            $descriptors = [
-                0 => ['file', '/dev/null', 'r'],
-                1 => ['file', '/dev/null', 'w'],
-                2 => ['file', '/dev/null', 'w'],
-            ];
-
-            // Same problem, different shell: proc_open runs the command through
-            // `sh -c`, so proc_get_status() would report the shell's pid. `exec`
-            // makes the shell replace itself with PHP, so the pid is the
-            // server's.
-            $command = 'exec ' . $command;
-        }
-
-        $process = @proc_open($command, $descriptors, $pipes, null, null, $options);
-        self::$process = is_resource($process) ? $process : null;
-
-        // The server needs a moment before it accepts connections.
-        for ($i = 0; $i < 50; $i++) {
-            if (self::reachable(self::$base)) {
-                self::$skipNetworkTests = false;
-
-                return;
-            }
-
-            usleep(100000);
-        }
-
-        self::$skipNetworkTests = true;
-    }
-
-    /**
-     * @return void
-     */
-    public static function tearDownAfterClass()
-    {
-        if (is_resource(self::$process)) {
-            @proc_terminate(self::$process);
-
-            $status = proc_get_status(self::$process);
-
-            // proc_terminate does not wait, and on some platforms it does not
-            // land at all; follow up with a signal before giving up the handle
-            // so the server never outlives the test run.
-            if (!empty($status['running']) && function_exists('posix_kill')) {
-                @posix_kill($status['pid'], defined('SIGKILL') ? SIGKILL : 9);
-            }
-
-            @proc_close(self::$process);
-            self::$process = null;
-        }
-    }
-
-    /**
-     * @param string $url
-     *
-     * @return bool
-     */
-    private static function reachable($url)
-    {
-        $ch = curl_init($url);
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-        @curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if (PHP_VERSION_ID < 80000) {
-            /** @disregard */
-            curl_close($ch);
-        }
-
-        return 200 === (int) $code;
-    }
-
-    /**
-     * Ask the OS for an unused port by binding to port 0 and reading back
-     * what it handed out, so parallel runs do not collide on a fixed port.
-     *
-     * @return int
-     */
-    private static function freePort()
-    {
-        $socket = @stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
-
-        if (!$socket) {
-            return 8910;
-        }
-
-        $name = stream_socket_get_name($socket, false);
-        fclose($socket);
-
-        $port = (int) substr($name, strrpos($name, ':') + 1);
-
-        return $port > 0 ? $port : 8910;
+        self::$base = MockServer::url();
+        self::$skipNetworkTests = (null === self::$base);
     }
 
     public function setUp()

@@ -59,3 +59,8 @@ require path('system') . 'core.php';
 // Boot default package (which will boot the framework as well)
 // --------------------------------------------------------------
 System\Package::boot(DEFAULT_PACKAGE);
+
+// --------------------------------------------------------------
+// Local mock endpoint, so the suite never reaches the network
+// --------------------------------------------------------------
+require __DIR__ . DS . 'mock' . DS . 'process.php';
