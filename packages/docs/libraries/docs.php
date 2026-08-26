@@ -307,11 +307,11 @@ class Docs
         $name = ('home' === $name) ? '' : preg_replace('/\/home$/', '', $name);
 
         if ('' === $name) {
-            $crumbs[] = ['name' => 'Documentation', 'url' => static::canonical('home')];
+            $crumbs[] = ['name' => 'Docs', 'url' => static::canonical('home')];
             return $crumbs;
         }
 
-        $crumbs[] = ['name' => 'Documentation', 'url' => static::canonical('home')];
+        $crumbs[] = ['name' => 'Docs', 'url' => static::canonical('home')];
         $segments = explode('/', $name);
         $last = array_pop($segments);
         $walked = [];
