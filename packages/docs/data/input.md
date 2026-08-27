@@ -12,6 +12,7 @@
   - [Check Input Exists](#check-input-exists)
   - [Check Input Filled](#check-input-filled)
   - [Check Input Empty](#check-input-empty)
+- [Typed Input](#typed-input)
 - [Query String](#query-string)
 - [JSON Input](#json-input)
 - [File Upload](#file-upload)
@@ -217,6 +218,49 @@ if (Input::unfilled('optional_field')) {
 if (Input::unfilled('field1', 'field2')) {
     echo 'All fields are empty';
 }
+```
+
+<a id="typed-input"></a>
+## Typed Input
+
+Form values always arrive as strings. These helpers hand them back already converted, with
+a default for when the key is absent or does not fit:
+
+```php
+Input::string('name');            // '' when absent
+Input::string('name', 'Anon');
+
+Input::integer('age');            // 0 when absent or not numeric
+Input::integer('age', 17);
+
+Input::float('price');            // 0.0 when absent or not numeric
+
+Input::boolean('agree');          // '1', 'true', 'on' and 'yes' are TRUE,
+                                  // everything else is FALSE
+Input::boolean('agree', true);    // default used only when the key is absent
+
+Input::date('born');              // a Carbon instance, or NULL
+Input::date('born', 'd/m/Y');     // parse with an explicit format
+
+Input::arr('tags');               // always an array
+Input::collect();                 // every input as a Collection
+Input::collect('tags');           // a single key as a Collection
+```
+
+`Input::boolean()` is the one to reach for with checkboxes, since an unchecked box sends
+nothing at all while a checked one sends `on` or `1`:
+
+```php
+$user->subscribed = Input::boolean('newsletter');
+```
+
+**Other presence helpers:**
+
+```php
+Input::keys();                       // every input key
+Input::missing('coupon');            // TRUE when the key is absent
+Input::missing(['coupon', 'note']);  // TRUE only when all of them are absent
+Input::any_filled(['phone', 'email']); // TRUE when at least one is filled
 ```
 
 <a id="query-string"></a>

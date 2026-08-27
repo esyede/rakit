@@ -118,4 +118,16 @@ class SQLServer extends Grammar
     {
         return '';
     }
+
+    /**
+     * Get the sql used to order the results randomly.
+     *
+     * @param string $seed
+     *
+     * @return string
+     */
+    public function random($seed = '')
+    {
+        return 'NEWID()';
+    }
 }

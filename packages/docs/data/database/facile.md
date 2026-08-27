@@ -33,6 +33,9 @@
   - [Accessor](#accessor)
   - [Mutator](#mutator)
 - [Hidden Attributes](#hidden-attributes)
+- [Attribute Casting](#attribute-casting)
+- [Model Helpers](#model-helpers)
+- [Relationship Queries](#relationship-queries)
 - [Relationships](#relationships)
   - [One To One](#one-to-one)
   - [One To Many](#one-to-many)
@@ -122,6 +125,23 @@ class User extends Facile
     // Attributes hidden when to_array() or to_json() (default: [])
     public static $hidden = ['password', 'remember_token'];
 
+    // Whitelist of attributes, wins over $hidden when it is not empty (default: [])
+    public static $visible = [];
+
+    // Accessors appended to to_array() and to_json() (default: [])
+    public static $appends = ['full_name'];
+
+    // Attributes cast to a native type (default: [])
+    public static $casts = [
+        'active' => 'boolean',
+        'options' => 'array',
+        'price' => 'decimal:2',
+        'published_at' => 'datetime',
+    ];
+
+    // Format used when a date-ish attribute is serialized (default: 'Y-m-d H:i:s')
+    public static $date_format = 'Y-m-d H:i:s';
+
     // Relations to eager load (default: [])
     public $with = ['posts', 'profile'];
 
@@ -152,6 +172,20 @@ foreach ($users as $user) {
     echo $user->name;
 }
 ```
+
+`all()`, `get()` and the results of `paginate()` all hand back a `Collection` of models, so
+the whole collection API is available right away:
+
+```php
+$names = User::all()->pluck('name');
+$grouped = User::all()->group_by('role');
+$active = User::where('active', '=', 1)->get()->filter(function ($user) {
+    return $user->is_admin();
+});
+```
+
+It stays countable, iterable and array accessible, so `count($users)`,
+`foreach ($users as $user)` and `$users[0]` keep working the way they always did.
 
 <a id="retrieving-by-primary-key"></a>
 ### Retrieving by Primary Key
@@ -348,6 +382,10 @@ if ($user->delete()) {
     echo 'User deleted';
 }
 ```
+
+> **Note:** `delete()` returns a boolean, `true` when the record was deleted and `false` when
+> the model does not exist in the database yet.
+
 
 <a id="delete-via-static-method"></a>
 ### Delete Via Static Method
@@ -622,6 +660,169 @@ $json = $user->to_json();
 
 echo json_encode($user); // Same as to_json()
 ```
+
+Instead of listing what to hide, you can list what to keep with `$visible`. When it is not
+empty it wins over `$hidden`:
+
+```php
+class User extends Facile
+{
+    public static $visible = ['id', 'name'];
+}
+```
+
+Both lists can be overridden for a single instance:
+
+```php
+$user->make_visible('password')->to_array();   // show it just this once
+$user->make_hidden('email')->to_array();       // hide it just this once
+$user->append('full_name')->to_array();        // append an accessor just this once
+```
+
+<a id="attribute-casting"></a>
+## Attribute Casting
+
+`$casts` turns raw database values into native PHP types when you read them, and serializes
+them back when you write them. It also smooths over the differences between drivers, since
+MySQL hands every column back as a string while SQLite does not.
+
+```php
+class Post extends Facile
+{
+    public static $casts = [
+        'active' => 'boolean',
+        'views' => 'integer',
+        'rating' => 'float',
+        'price' => 'decimal:2',
+        'options' => 'array',
+        'payload' => 'object',
+        'tags' => 'collection',
+        'published_at' => 'datetime',
+        'expires_at' => 'date',
+        'synced_at' => 'timestamp',
+    ];
+}
+
+$post = Post::find(1);
+
+$post->active;        // true, not 1 or '1'
+$post->options;       // ['a' => 1], not '{"a":1}'
+$post->published_at;  // a Carbon instance
+$post->price;         // '10.50'
+
+// Assigning an array is encoded back into JSON on its own
+$post->options = ['a' => 2];
+$post->save();
+```
+
+Supported types: `int`, `integer`, `real`, `float`, `double`, `decimal:<digits>`, `string`,
+`bool`, `boolean`, `object`, `array`, `json`, `collection`, `date`, `datetime` and `timestamp`.
+
+In `to_array()` and `to_json()`, a `datetime` cast is written back out using `$date_format`,
+which defaults to `Y-m-d H:i:s`.
+
+<a id="model-helpers"></a>
+## Model Helpers
+
+```php
+// Find it or make an unsaved instance
+$user = User::first_or_new(['email' => 'budi@site.com']);
+
+// Find it or create it
+$user = User::first_or_create(['email' => 'budi@site.com'], ['name' => 'Budi']);
+
+// Update it or create it
+$user = User::update_or_create(['email' => 'budi@site.com'], ['name' => 'Budi']);
+
+// Several records at once
+$users = User::find_many([1, 2, 3]);
+
+// Delete by primary key, returns how many were deleted
+User::destroy([1, 2]);
+
+// Where on the primary key
+User::where_key(1)->first();
+User::where_key_not(1)->get();
+
+// Reload this very instance from the database (fresh() returns a new one instead)
+$user->refresh();
+
+// An unsaved copy, without the primary key and the timestamps
+$copy = $user->replicate();
+
+// Is it the very same record?
+$user->is($other);
+$user->is_not($other);
+
+// Touch the timestamps without changing anything else
+$user->touch();
+
+// Move a column of this very record
+$post->increment('views');
+$post->decrement('stock', 2);
+
+// What changed on the last save()?
+$user->was_changed();
+$user->was_changed('email');
+$user->get_original('email');
+
+// One chunk at a time, models included
+User::chunk(100, function ($users) {
+    foreach ($users as $user) {
+        // ..
+    }
+});
+
+User::each(function ($user) {
+    // ..
+});
+
+// Exactly one, complains when there is none or more than one
+$user = User::where('email', '=', 'budi@site.com')->sole();
+
+// Only apply the filter when it was actually asked for
+$users = User::when($role, function ($query, $role) {
+    return $query->where('role', '=', $role);
+})->get();
+```
+
+<a id="relationship-queries"></a>
+## Relationship Queries
+
+Filter the parent models by what their relationship holds, without loading anything:
+
+```php
+// Users that own at least one post
+$users = User::has('posts')->get();
+
+// Users that own no post at all
+$users = User::doesnt_have('posts')->get();
+
+// Users that own at least three posts
+$users = User::has('posts', '>=', 3)->get();
+
+// Users that own at least one published post
+$users = User::where_has('posts', function ($query) {
+    $query->where('published', '=', 1);
+})->get();
+
+// Select the number of posts as a 'posts_count' column
+foreach (User::with_count('posts')->get() as $user) {
+    echo $user->name . ': ' . $user->posts_count;
+}
+```
+
+All of them compile into a correlated subquery, so no extra round trip is made:
+
+```sql
+SELECT * FROM "users" WHERE EXISTS (
+    SELECT 1 FROM "posts" WHERE "posts"."user_id" = "users"."id"
+)
+```
+
+Supported for `has_one`, `has_many`, `belongs_to`, `belongs_to_many`, `morph_one`,
+`morph_many` and `has_many_through`. The polymorphic `morph_to` and `morph_to_many` raise a
+clear exception instead, because they cannot be correlated with a single table.
 
 <a id="relationships"></a>
 ## Relationships

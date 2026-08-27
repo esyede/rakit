@@ -378,4 +378,23 @@ class BelongsToMany extends Relationship
     {
         return $this->model->table().'.'.$this->model->key();
     }
+
+    /**
+     * Correlate the relational query with the parent table.
+     *
+     * @param string $parent_table
+     *
+     * @return \System\Database\Query
+     */
+    public function correlate($parent_table)
+    {
+        $this->table->reset_where();
+        $this->table->where_column(
+            $this->joining . '.' . $this->foreign_key(),
+            '=',
+            $parent_table . '.' . $this->base->key()
+        );
+
+        return $this->table;
+    }
 }

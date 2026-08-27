@@ -5,6 +5,7 @@ namespace System\Database\Query\Grammars;
 defined('DS') or exit('No direct access.');
 
 use System\Database\Query;
+use System\Database\Expression;
 
 class SQLite extends Grammar
 {
@@ -21,7 +22,15 @@ class SQLite extends Grammar
 
         foreach ($query->orderings as $ordering) {
             $direction = strtoupper((string) $ordering['direction']);
-            $sql[] = $this->wrap($ordering['column']).' COLLATE NOCASE '.$direction;
+
+            // A raw ordering is used as is. Appending a collation to it would
+            // break the sql, since COLLATE has to come before ASC / DESC.
+            if ($ordering['column'] instanceof Expression) {
+                $sql[] = rtrim($this->wrap($ordering['column']) . ' ' . $direction);
+                continue;
+            }
+
+            $sql[] = rtrim($this->wrap($ordering['column']) . ' COLLATE NOCASE ' . $direction);
         }
 
         return 'ORDER BY '.implode(', ', $sql);
@@ -54,5 +63,18 @@ class SQLite extends Grammar
 
         $columns = array_fill(0, count($values), implode(', ', $columns));
         return 'INSERT INTO '.$table.' ('.$names.') SELECT '.implode(' UNION SELECT ', $columns);
+    }
+
+    /**
+     * Compile an INSERT statement that silently skips clashing records.
+     *
+     * @param Query $query
+     * @param array $values
+     *
+     * @return string
+     */
+    public function insert_ignore(Query $query, array $values)
+    {
+        return preg_replace('/^INSERT INTO /', 'INSERT OR IGNORE INTO ', $this->insert($query, $values), 1);
     }
 }

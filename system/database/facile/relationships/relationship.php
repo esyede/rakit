@@ -127,4 +127,21 @@ abstract class Relationship extends Query
         $this->model->with = is_array($with) ? $with : func_get_args();
         return $this;
     }
+
+    /**
+     * Rewrite the constraint of the relational query so that it correlates
+     * with the parent table instead of with a single parent key. It is what
+     * makes has() and where_has() able to build a correlated subquery.
+     *
+     * @param string $parent_table
+     *
+     * @return \System\Database\Query
+     */
+    public function correlate($parent_table)
+    {
+        throw new \Exception(sprintf(
+            'has() and where_has() do not support this relationship yet: %s',
+            get_class($this)
+        ));
+    }
 }

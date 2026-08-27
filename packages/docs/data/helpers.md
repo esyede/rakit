@@ -440,8 +440,46 @@ return back();
 // With status code
 return back(301);
 
+// With a fallback for when the request carries no Referer header
+return back(302, '/dashboard');
+
 // With flash data
 return back()->with('error', 'Data is invalid!');
+```
+
+> **Note:** without a fallback, `back()` lands on `/` when the browser sends no `Referer`
+> header, which is common right after a form post from an external page or a bookmarked url.
+
+**Other redirects:**
+
+```php
+// Straight to an external url, without passing it through URL::to()
+Redirect::away('https://contoh.test/halaman');
+
+// Force https
+Redirect::secure('/checkout');
+
+// Reload the very same url
+Redirect::refresh();
+
+// Remember where the visitor was heading, then send them to the login page
+Redirect::guest('/login');
+
+// After they log in, send them back to where they were heading
+Redirect::intended('/dashboard');
+```
+
+`guest()` and `intended()` need a session driver, and raise a clear exception when there is
+none configured.
+
+**Empty and inline file responses:**
+
+```php
+// 204 No Content
+return Response::no_content();
+
+// Display the file in the browser instead of downloading it
+return Response::file(path('storage') . 'invoice.pdf');
 ```
 
 <a id="old"></a>

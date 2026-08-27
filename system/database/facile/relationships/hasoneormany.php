@@ -61,4 +61,23 @@ class HasOneOrMany extends Relationship
     {
         $this->table->where_in($this->foreign_key(), $this->keys($results));
     }
+
+    /**
+     * Correlate the relational query with the parent table.
+     *
+     * @param string $parent_table
+     *
+     * @return \System\Database\Query
+     */
+    public function correlate($parent_table)
+    {
+        $this->table->reset_where();
+        $this->table->where_column(
+            $this->model->table() . '.' . $this->foreign_key(),
+            '=',
+            $parent_table . '.' . $this->base->key()
+        );
+
+        return $this->table;
+    }
 }

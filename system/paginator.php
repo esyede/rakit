@@ -763,7 +763,9 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     #[\ReturnTypeWillChange]
     public function offsetExists($key)
     {
-        return array_key_exists($key, (array) $this->results);
+        return ($this->results instanceof \ArrayAccess)
+            ? $this->results->offsetExists($key)
+            : array_key_exists($key, (array) $this->results);
     }
 
     /**
@@ -776,7 +778,12 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
+        if ($this->results instanceof \ArrayAccess) {
+            return $this->results->offsetExists($key) ? $this->results->offsetGet($key) : null;
+        }
+
         $results = (array) $this->results;
+
         return isset($results[$key]) ? $results[$key] : null;
     }
 

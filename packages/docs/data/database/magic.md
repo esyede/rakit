@@ -60,13 +60,24 @@ You now have access to the Query Builder for the "users" table and can run opera
 <a id="retrieving-records"></a>
 ## Retrieving Records
 
-**Retrieve an array of records from the database:**
+**Retrieve the records from the database:**
 
 ```php
 $users = DB::table('users')->get();
 ```
 
-The `get()` method returns an array of objects whose properties match the table column names.
+The `get()` method returns a `Collection` of objects whose properties match the table column
+names. Because it is a collection, you can keep chaining on the result:
+
+```php
+$names = DB::table('users')->get()->pluck('name');
+$adults = DB::table('users')->get()->filter(function ($user) {
+    return $user->age >= 17;
+});
+```
+
+It is countable, iterable and array accessible, so `count($users)`, `foreach ($users as $user)`
+and `$users[0]` all keep working as they did before.
 
 **Retrieve a single record:**
 
@@ -87,7 +98,7 @@ $user = DB::table('users')->find_or_fail($id);
 // Throw ModelNotFoundException jika tidak ditemukan
 ```
 
-> **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty array.
+> **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty collection.
 
 <a id="select-columns"></a>
 ## Select Columns
@@ -1024,7 +1035,24 @@ try {
 | `where_column($column1, $operator, $column2)`     | Compare two columns to each other                               |
 | `where_time($column, $operator, $value)`          | WHERE on the time part of a column                              |
 | `aggregate($aggregator, array $columns)`          | Run any aggregate function, for example `MAX`                   |
+| `chunk($count, $callback)`                        | Process rows in chunks, returning `false` stops the iteration   |
 | `chunk_by_id($count, $callback, $column, $alias)` | Process rows in chunks, paging by id instead of by offset       |
+| `each($callback, $count)`                         | Run the callback over every single row                          |
+| `value($column)`                                  | A single column value of the first row                          |
+| `pluck($column, $key)`                            | A collection holding the values of a single column              |
+| `sole($columns)`                                  | Exactly one row, complains when there is none or more than one  |
+| `when($value, $callback, $default)`               | Apply the callback only when the value is truthy                |
+| `unless($value, $callback, $default)`             | Apply the callback only when the value is falsy                 |
+| `tap($callback)`                                  | Hand the query to the callback and keep on chaining             |
+| `where_like($column, $value)`                     | WHERE LIKE, also `or_where_like` and `where_not_like`           |
+| `select_raw($sql, $bindings)` / `add_select()`    | Raw or extra columns in the SELECT clause                       |
+| `order_by_raw()` / `group_by_raw()`               | Raw ORDER BY and GROUP BY clauses                               |
+| `having_raw($sql, $bindings)` / `or_having()`     | Raw and OR variants of the HAVING clause                        |
+| `in_random_order($seed)`                          | Order the rows randomly                                         |
+| `re_order($column, $direction)`                   | Drop every ORDER BY added so far                                |
+| `right_join()` / `cross_join()`                   | RIGHT and CROSS joins                                           |
+| `update_or_insert($attributes, $values)`          | Update the matching row, or insert it when there is none        |
+| `insert_or_ignore($values)`                       | Insert while silently skipping the rows that clash              |
 | `dd()` / `bd()`                                   | Dump the SQL and its bindings, then stop or continue            |
 
 ```php
@@ -1045,4 +1073,21 @@ DB::table('users')->chunk_by_id(500, function ($users) {
         // ..
     }
 });
+
+// Only apply the filter when it was actually asked for
+$users = DB::table('users')
+    ->when($request_role, function ($query, $role) {
+        return $query->where('role', '=', $role);
+    })
+    ->get();
+
+// A single value instead of a whole row
+$email = DB::table('users')->where('id', '=', 1)->value('email');
+
+// Update when it exists, insert when it does not
+DB::table('settings')->update_or_insert(['key' => 'theme'], ['value' => 'dark']);
 ```
+
+> **Note:** methods that Laravel provides but Rakit does not support yet, such as
+> `where_has()` or `where_json_contains()`, now raise a clear exception instead of being
+> silently compiled into a column of that name.

@@ -21,4 +21,17 @@ class Postgres extends Grammar
     {
         return $this->insert($query, $values).' RETURNING '.$column;
     }
+
+    /**
+     * Compile an INSERT statement that silently skips clashing records.
+     *
+     * @param Query $query
+     * @param array $values
+     *
+     * @return string
+     */
+    public function insert_ignore(Query $query, array $values)
+    {
+        return $this->insert($query, $values) . ' ON CONFLICT DO NOTHING';
+    }
 }

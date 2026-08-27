@@ -160,6 +160,43 @@ class Response
     }
 
     /**
+     * Create an empty response.
+     *
+     * @param int   $status
+     * @param array $headers
+     *
+     * @return Response
+     */
+    public static function no_content($status = 204, array $headers = [])
+    {
+        return new static('', $status, $headers);
+    }
+
+    /**
+     * Create a response that displays the given file inline in the browser
+     * instead of downloading it.
+     *
+     * @param string $path
+     * @param array  $headers
+     *
+     * @return Response
+     */
+    public static function file($path, array $headers = [])
+    {
+        if (! is_file($path)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        $headers = array_merge([
+            'Content-Type' => Storage::mime($path),
+            'Content-Length' => Storage::size($path),
+            'Content-Disposition' => sprintf('inline; filename="%s"', basename($path)),
+        ], $headers);
+
+        return new static(file_get_contents($path), 200, $headers);
+    }
+
+    /**
      * Create a new Response instance with download content.
      *
      * @param string $path

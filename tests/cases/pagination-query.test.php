@@ -159,7 +159,7 @@ class PaginationQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $paginator->total);
         $this->assertEquals(1, $paginator->last);
         $this->assertEquals(1, $paginator->page);
-        $this->assertEquals([], $paginator->results);
+        $this->assertEquals(0, count($paginator->results));
     }
 
     /**

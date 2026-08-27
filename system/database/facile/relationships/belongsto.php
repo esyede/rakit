@@ -119,4 +119,23 @@ class BelongsTo extends Relationship
         $this->base->fill([$this->foreign => $id])->save();
         return $this->base;
     }
+
+    /**
+     * Correlate the relational query with the parent table.
+     *
+     * @param string $parent_table
+     *
+     * @return \System\Database\Query
+     */
+    public function correlate($parent_table)
+    {
+        $this->table->reset_where();
+        $this->table->where_column(
+            $this->model->table() . '.' . $this->model->key(),
+            '=',
+            $parent_table . '.' . $this->foreign
+        );
+
+        return $this->table;
+    }
 }

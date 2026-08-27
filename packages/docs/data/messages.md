@@ -11,6 +11,7 @@
   - [All Messages From Key](#all-messages-from-key)
   - [All Messages](#all-messages)
 - [Format Output](#format-output)
+- [Bag Helpers](#bag-helpers)
 - [Usage With Validation](#usage-with-validation)
 
 <!-- /MarkdownTOC -->
@@ -153,6 +154,39 @@ echo $messages->first('email');
 ```
 
 The `:message` placeholder will be replaced with the actual message.
+
+<a id="bag-helpers"></a>
+## Bag Helpers
+
+The bag behaves like a collection, so it can be counted, iterated, accessed as an array and
+encoded straight into JSON:
+
+```php
+count($messages);            // number of keys holding a message
+$messages['email'];          // every message of that key
+isset($messages['email']);
+$messages['email'] = 'wajib diisi';   // same as add()
+unset($messages['email']);            // same as forget()
+
+foreach ($messages as $key => $items) {
+    // ..
+}
+
+json_encode($messages);      // {"email":["wajib diisi"]}
+```
+
+And a few helpers for working with the bag itself:
+
+```php
+$messages->keys();                       // every key holding a message
+$messages->has_any(['email', 'name']);   // TRUE when at least one has a message
+$messages->is_empty();                   // TRUE when the bag holds nothing
+$messages->is_not_empty();               // the opposite of is_empty()
+$messages->merge($other);                // merge another bag or a plain array
+$messages->forget('email');              // drop every message of a key
+$messages->to_array();                   // the raw messages, keyed by field
+$messages->to_json();                    // the same thing as JSON
+```
 
 <a id="usage-with-validation"></a>
 ## Usage With Validation

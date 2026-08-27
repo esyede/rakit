@@ -628,9 +628,9 @@ if (! function_exists('back')) {
      *
      * @return \System\Redirect|mixed
      */
-    function back($status = 302)
+    function back($status = 302, $fallback = false)
     {
-        return \System\Redirect::back($status);
+        return \System\Redirect::back($status, $fallback);
     }
 }
 

@@ -79,4 +79,24 @@ class MorphMany extends HasMany
         $model->set_attribute($this->type, get_class($this->base));
         $model->set_attribute($this->id, $this->base->get_key());
     }
+
+    /**
+     * Correlate the relational query with the parent table.
+     *
+     * @param string $parent_table
+     *
+     * @return \System\Database\Query
+     */
+    public function correlate($parent_table)
+    {
+        $this->table->reset_where();
+        $this->table->where($this->type, '=', get_class($this->base));
+        $this->table->where_column(
+            $this->model->table() . '.' . $this->id,
+            '=',
+            $parent_table . '.' . $this->base->key()
+        );
+
+        return $this->table;
+    }
 }

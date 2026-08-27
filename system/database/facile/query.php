@@ -6,6 +6,8 @@ defined('DS') or exit('No direct access.');
 
 use System\Str;
 use System\Database;
+use System\Collection;
+use System\Database\Expression;
 use System\Exceptions\ModelNotFoundException;
 
 class Query
@@ -69,6 +71,13 @@ class Query
         'debug',
         'exists',
         'doesnt_exist',
+        'value',
+        'pluck',
+        'sole',
+        'chunk',
+        'each',
+        'update_or_insert',
+        'insert_or_ignore',
     ];
 
     /**
@@ -112,7 +121,7 @@ class Query
         $columns = is_array($columns) ? $columns : func_get_args();
         $results = $this->hydrate($this->model, $this->table->take(1)->get($columns));
 
-        return (count($results) > 0) ? head($results) : null;
+        return (count($results) > 0) ? $results->first() : null;
     }
 
     /**
@@ -181,6 +190,347 @@ class Query
     }
 
     /**
+     * Add a WHERE clause on the primary key of the model.
+     *
+     * @param mixed $id
+     *
+     * @return Query
+     */
+    public function where_key($id)
+    {
+        $key = $this->model->table() . '.' . $this->model->key();
+
+        if (is_array($id)) {
+            $this->table->where_in($key, $id);
+        } else {
+            $this->table->where($key, '=', $id);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add a WHERE NOT clause on the primary key of the model.
+     *
+     * @param mixed $id
+     *
+     * @return Query
+     */
+    public function where_key_not($id)
+    {
+        $key = $this->model->table() . '.' . $this->model->key();
+
+        if (is_array($id)) {
+            $this->table->where_not_in($key, $id);
+        } else {
+            $this->table->where($key, '!=', $id);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Constrain the query to models that own the given relationship.
+     *
+     * @param string   $relationship
+     * @param string   $operator
+     * @param int      $count
+     * @param \Closure $callback
+     * @param string   $connector
+     *
+     * @return Query
+     */
+    public function has($relationship, $operator = '>=', $count = 1, $callback = null, $connector = 'AND')
+    {
+        $sub = $this->relationship_subquery($relationship, $callback);
+        $operator = trim((string) $operator);
+        $count = (int) $count;
+
+        // EXISTS is cheaper than counting, so use it whenever the wanted
+        // condition boils down to "owns at least one" or "owns none at all".
+        if ('>=' === $operator && 1 === $count) {
+            $this->table->where_exists($sub, $connector);
+            return $this;
+        }
+
+        if (('<' === $operator && 1 === $count) || ('=' === $operator && 0 === $count) || ('<=' === $operator && 0 === $count)) {
+            $this->table->where_exists($sub, $connector, true);
+            return $this;
+        }
+
+        $sub->select([new Expression('COUNT(*)')]);
+        $sql = '(' . $sub->grammar->select($sub) . ') ' . $operator . ' ' . $count;
+        $this->table->raw_where($sql, $sub->bindings, $connector);
+
+        return $this;
+    }
+
+    /**
+     * Constrain the query to models that own the given relationship,
+     * with extra constraints on the relationship itself.
+     *
+     * @param string   $relationship
+     * @param \Closure $callback
+     * @param string   $operator
+     * @param int      $count
+     *
+     * @return Query
+     */
+    public function where_has($relationship, $callback = null, $operator = '>=', $count = 1)
+    {
+        return $this->has($relationship, $operator, $count, $callback);
+    }
+
+    /**
+     * Constrain the query to models that own the given relationship (OR).
+     *
+     * @param string   $relationship
+     * @param string   $operator
+     * @param int      $count
+     * @param \Closure $callback
+     *
+     * @return Query
+     */
+    public function or_has($relationship, $operator = '>=', $count = 1, $callback = null)
+    {
+        return $this->has($relationship, $operator, $count, $callback, 'OR');
+    }
+
+    /**
+     * Constrain the query to models that do not own the given relationship.
+     *
+     * @param string   $relationship
+     * @param \Closure $callback
+     *
+     * @return Query
+     */
+    public function doesnt_have($relationship, $callback = null)
+    {
+        return $this->has($relationship, '<', 1, $callback);
+    }
+
+    /**
+     * Constrain the query to models that do not own the given relationship,
+     * with extra constraints on the relationship itself.
+     *
+     * @param string   $relationship
+     * @param \Closure $callback
+     *
+     * @return Query
+     */
+    public function where_doesnt_have($relationship, $callback = null)
+    {
+        return $this->doesnt_have($relationship, $callback);
+    }
+
+    /**
+     * Select the number of related records as a '<relationship>_count' column.
+     *
+     * @param array|string $relationships
+     *
+     * @return Query
+     */
+    public function with_count($relationships)
+    {
+        $relationships = is_array($relationships) ? $relationships : func_get_args();
+
+        if (is_null($this->table->selects)) {
+            $this->table->select([$this->model->table() . '.*']);
+        }
+
+        foreach ($relationships as $key => $value) {
+            $callback = null;
+            $relationship = $value;
+
+            if (is_string($key) && ($value instanceof \Closure)) {
+                $relationship = $key;
+                $callback = $value;
+            }
+
+            $sub = $this->relationship_subquery($relationship, $callback);
+            $sub->select([new Expression('COUNT(*)')]);
+
+            $column = Str::snake($relationship) . '_count';
+            $sql = '(' . $sub->grammar->select($sub) . ') AS ' . $this->table->grammar->wrap($column);
+
+            $this->table->selects[] = new Expression($sql);
+            $this->table->bindings = array_merge($this->table->bindings, $sub->bindings);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Build the correlated subquery of the given relationship.
+     *
+     * @param string   $relationship
+     * @param \Closure $callback
+     *
+     * @return \System\Database\Query
+     */
+    protected function relationship_subquery($relationship, $callback = null)
+    {
+        if (! method_exists($this->model, $relationship)) {
+            throw new \Exception(sprintf(
+                'Undefined relationship on %s: %s',
+                get_class($this->model),
+                $relationship
+            ));
+        }
+
+        $relation = $this->model->{$relationship}();
+
+        if (! ($relation instanceof Relationships\Relationship)) {
+            throw new \Exception(sprintf(
+                'Method %s::%s() is not a relationship.',
+                get_class($this->model),
+                $relationship
+            ));
+        }
+
+        $sub = $relation->correlate($this->model->table());
+        $sub->select([new Expression('1')]);
+
+        if (! is_null($callback)) {
+            call_user_func($callback, $relation);
+        }
+
+        return $sub;
+    }
+
+    /**
+     * Get exactly one model, and complain when there is none or more than one.
+     *
+     * @param array $columns
+     *
+     * @return Model
+     */
+    public function sole($columns = ['*'])
+    {
+        $columns = is_array($columns) ? $columns : func_get_args();
+        $results = $this->hydrate($this->model, $this->table->take(2)->get($columns));
+
+        if (0 === count($results)) {
+            throw new ModelNotFoundException(get_class($this->model) . ' not found.');
+        }
+
+        if (count($results) > 1) {
+            throw new \Exception(sprintf('More than one %s found.', get_class($this->model)));
+        }
+
+        return $results->first();
+    }
+
+    /**
+     * Run the given callback over the models, one chunk at a time.
+     * Returning FALSE from the callback stops the iteration.
+     *
+     * @param int      $count
+     * @param callable $callback
+     *
+     * @return bool
+     */
+    public function chunk($count, $callback)
+    {
+        $count = (int) $count;
+        $count = ($count < 1) ? 1 : $count;
+        $page = 1;
+
+        do {
+            $results = $this->hydrate(
+                $this->model,
+                $this->table->copy()->for_page($page, $count)->get()
+            );
+
+            $total = count($results);
+
+            if (0 === $total) {
+                break;
+            }
+
+            if (false === call_user_func($callback, $results, $page)) {
+                return false;
+            }
+
+            ++$page;
+        } while ($total === $count);
+
+        return true;
+    }
+
+    /**
+     * Run the given callback over every single model.
+     * Returning FALSE from the callback stops the iteration.
+     *
+     * @param callable $callback
+     * @param int      $count
+     *
+     * @return bool
+     */
+    public function each($callback, $count = 1000)
+    {
+        return $this->chunk($count, function ($models) use ($callback) {
+            foreach ($models as $key => $model) {
+                if (false === call_user_func($callback, $model, $key)) {
+                    return false;
+                }
+            }
+        });
+    }
+
+    /**
+     * Apply the callback only when the given value is truthy.
+     *
+     * @param mixed    $value
+     * @param callable $callback
+     * @param callable $default
+     *
+     * @return Query
+     */
+    public function when($value, $callback, $default = null)
+    {
+        if ($value) {
+            $result = call_user_func($callback, $this, $value);
+            return is_null($result) ? $this : $result;
+        }
+
+        if (! is_null($default)) {
+            $result = call_user_func($default, $this, $value);
+            return is_null($result) ? $this : $result;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Apply the callback only when the given value is falsy.
+     *
+     * @param mixed    $value
+     * @param callable $callback
+     * @param callable $default
+     *
+     * @return Query
+     */
+    public function unless($value, $callback, $default = null)
+    {
+        return $this->when(! $value, $callback, $default);
+    }
+
+    /**
+     * Hand the query to the callback and keep on chaining.
+     *
+     * @param callable $callback
+     *
+     * @return Query
+     */
+    public function tap($callback)
+    {
+        call_user_func($callback, $this);
+
+        return $this;
+    }
+
+    /**
      * Get the paginated results of the query.
      *
      * @param int    $perpage
@@ -202,12 +552,12 @@ class Query
     /**
      * Do a mass-assignment of the given results to model instances.
      *
-     * @param Model $model
-     * @param array $results
+     * @param Model            $model
+     * @param array|\Traversable $results
      *
-     * @return array
+     * @return \System\Collection
      */
-    public function hydrate($model, array $results)
+    public function hydrate($model, $results)
     {
         $model = get_class($model);
         $models = [];
@@ -215,6 +565,7 @@ class Query
         foreach ($results as $result) {
             $model = new $model([], true);
             $model->fill_raw((array) $result);
+            $model->sync();
             $models[] = $model;
         }
 
@@ -232,7 +583,7 @@ class Query
             $this->hydrate_pivot($models);
         }
 
-        return $models;
+        return new Collection($models);
     }
 
     /**
@@ -260,7 +611,7 @@ class Query
         }
 
         $query->initialize($results, $relationship);
-        $query->match($relationship, $results, $query->get());
+        $query->match($relationship, $results, $query->get()->all());
     }
 
     /**

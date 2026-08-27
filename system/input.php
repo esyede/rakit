@@ -120,6 +120,175 @@ class Input
     }
 
     /**
+     * Get every input key.
+     *
+     * @return array
+     */
+    public static function keys()
+    {
+        return array_keys(static::all());
+    }
+
+    /**
+     * Check whether the given key is absent from the input data.
+     *
+     * @param array|string $key
+     *
+     * @return bool
+     */
+    public static function missing($key)
+    {
+        $keys = is_array($key) ? $key : func_get_args();
+
+        foreach ($keys as $item) {
+            if (static::has($item)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check whether at least one of the given keys is filled.
+     *
+     * @param array|string $keys
+     *
+     * @return bool
+     */
+    public static function any_filled($keys)
+    {
+        $keys = is_array($keys) ? $keys : func_get_args();
+
+        foreach ($keys as $key) {
+            if (static::filled($key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get an input item as a string.
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string
+     */
+    public static function string($key, $default = '')
+    {
+        $value = static::get($key, $default);
+
+        return is_scalar($value) ? (string) $value : $default;
+    }
+
+    /**
+     * Get an input item as an integer.
+     *
+     * @param string $key
+     * @param int    $default
+     *
+     * @return int
+     */
+    public static function integer($key, $default = 0)
+    {
+        $value = static::get($key, $default);
+
+        return is_numeric($value) ? (int) $value : (int) $default;
+    }
+
+    /**
+     * Get an input item as a float.
+     *
+     * @param string $key
+     * @param float  $default
+     *
+     * @return float
+     */
+    public static function float($key, $default = 0.0)
+    {
+        $value = static::get($key, $default);
+
+        return is_numeric($value) ? (float) $value : (float) $default;
+    }
+
+    /**
+     * Get an input item as a boolean.
+     * The strings '1', 'true', 'on' and 'yes' all count as TRUE,
+     * everything else counts as FALSE.
+     *
+     * @param string $key
+     * @param bool   $default
+     *
+     * @return bool
+     */
+    public static function boolean($key = null, $default = false)
+    {
+        if (is_null($key)) {
+            return (bool) $default;
+        }
+
+        $value = static::get($key);
+
+        if (is_null($value)) {
+            return (bool) $default;
+        }
+
+        return in_array(strtolower(trim((string) $value)), ['1', 'true', 'on', 'yes'], true);
+    }
+
+    /**
+     * Get an input item as a Carbon instance.
+     *
+     * @param string $key
+     * @param string $format
+     *
+     * @return \System\Carbon|null
+     */
+    public static function date($key, $format = null)
+    {
+        if (! static::filled($key)) {
+            return null;
+        }
+
+        $value = static::get($key);
+
+        try {
+            return is_null($format) ? Carbon::parse($value) : Carbon::createFromFormat($format, $value);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get an input item as an array.
+     *
+     * @param string $key
+     *
+     * @return array
+     */
+    public static function arr($key = null)
+    {
+        $value = is_null($key) ? static::all() : static::get($key, []);
+
+        return is_array($value) ? $value : (array) $value;
+    }
+
+    /**
+     * Get the input data as a collection.
+     *
+     * @param string $key
+     *
+     * @return \System\Collection
+     */
+    public static function collect($key = null)
+    {
+        return new Collection(static::arr($key));
+    }
+
+    /**
      * Get only specified items from the input data.
      *
      * @param array $keys

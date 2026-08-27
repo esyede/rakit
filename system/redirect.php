@@ -7,6 +7,13 @@ defined('DS') or exit('No direct access.');
 class Redirect extends Response
 {
     /**
+     * Key used to remember the url a guest was heading to.
+     *
+     * @var string
+     */
+    const INTENDED = 'rakit_intended_url';
+
+    /**
      * Create a redirect response to the home page.
      *
      * @param int $status
@@ -25,9 +32,15 @@ class Redirect extends Response
      *
      * @return Redirect|mixed
      */
-    public static function back($status = 302)
+    public static function back($status = 302, $fallback = false)
     {
-        return static::to(Request::referrer(), $status);
+        $referrer = Request::referrer();
+
+        if (! is_string($referrer) || '' === trim($referrer)) {
+            $referrer = $fallback ? $fallback : '/';
+        }
+
+        return static::to($referrer, $status);
     }
 
     /**
@@ -69,6 +82,90 @@ class Redirect extends Response
     public static function to_route($route, array $parameters = [], $status = 302)
     {
         return static::to(URL::to_route($route, $parameters), $status);
+    }
+
+    /**
+     * Create a redirect response to an external url, without passing it through URL::to().
+     *
+     * @param string $url
+     * @param int    $status
+     *
+     * @return Redirect|mixed
+     */
+    public static function away($url, $status = 302)
+    {
+        return static::make('', $status)->header('Location', $url);
+    }
+
+    /**
+     * Create a redirect response to a https url.
+     *
+     * @param string $url
+     * @param int    $status
+     *
+     * @return Redirect|mixed
+     */
+    public static function secure($url, $status = 302)
+    {
+        return static::away(Str::replace_first('http://', 'https://', URL::to($url)), $status);
+    }
+
+    /**
+     * Create a redirect response to the very same url.
+     *
+     * @param int $status
+     *
+     * @return Redirect|mixed
+     */
+    public static function refresh($status = 302)
+    {
+        return static::to(URI::current(), $status);
+    }
+
+    /**
+     * Remember the current url, then redirect to the given one.
+     * Use intended() afterwards to go back to where the visitor came from.
+     *
+     * @param string $url
+     * @param int    $status
+     *
+     * @return Redirect|mixed
+     */
+    public static function guest($url, $status = 302)
+    {
+        static::guard_session('guest');
+        Session::put(static::INTENDED, URL::current());
+
+        return static::to($url, $status);
+    }
+
+    /**
+     * Redirect to the url that was remembered by guest(), or to the default one.
+     *
+     * @param string $default
+     * @param int    $status
+     *
+     * @return Redirect|mixed
+     */
+    public static function intended($default = '/', $status = 302)
+    {
+        static::guard_session('intended');
+        $url = Session::get(static::INTENDED, $default);
+        Session::forget(static::INTENDED);
+
+        return static::to($url, $status);
+    }
+
+    /**
+     * Make sure a session driver is configured.
+     *
+     * @param string $method
+     */
+    protected static function guard_session($method)
+    {
+        if ('' === Config::get('session.driver', '')) {
+            throw new \Exception(sprintf('A session driver must be set before using Redirect::%s().', $method));
+        }
     }
 
     /**

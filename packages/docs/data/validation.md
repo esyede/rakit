@@ -22,6 +22,7 @@
     -   [IP Address](#ip-address)
     -   [File Upload](#file-upload)
     -   [Array](#array)
+    -   [Other Rules](#other-rules)
 -   [Retrieving Error Messages](#retrieving-error-messages)
 -   [Validation Guide](#validation-guide)
 -   [Custom Error Messages](#custom-error-messages)
@@ -209,6 +210,7 @@ into what rules you can use to validate your data!
 -   [Regular Expression](#regular-expression)
 -   [Uniqueness & Existence](#uniqueness--existence)
 -   [Date](#date)
+-   [Other Rules](#other-rules)
 -   [E-Mail](#e-mail)
 -   [URL](#url)
 -   [IP Address](#ip-address)
@@ -520,6 +522,13 @@ validating form checkboxes, such as a site rules approval checkbox.
 'terms' => 'accepted',
 ```
 
+The `'declined'` rule is its mirror image, and passes for `'no'`, `'off'`, `'0'`, `0`,
+`false` or `'false'`:
+
+```php
+'marketing' => 'declined',
+```
+
 <a id="same--different"></a>
 
 ### Same & Different
@@ -682,6 +691,15 @@ So how to overcome this? Easy:
 ```php
 'birthdate' => 'after:1992-11-02',
 ```
+
+#### Validate that the attribute is a date after or the same as the given date:
+
+```php
+'end_date' => 'after_or_equal:2024-12-31',
+```
+
+> `before_or_equal` and `after_or_equal` also answer to the plural spelling
+> (`before_or_equals`, `after_or_equals`), so both work.
 
 > The `before` and `after` rules use the
 > [strtotime()](https://www.php.net/manual/en/function.strtotime.php) function to
@@ -920,6 +938,57 @@ Example:
 
 ```php
 'categories' => 'array|countmax:2',
+```
+
+<a id="other-rules"></a>
+
+### Other Rules
+
+#### Letter case:
+
+```php
+'slug' => 'lowercase',       // must be entirely lowercase
+'code' => 'uppercase',       // must be entirely uppercase
+'note' => 'ascii',           // only single-byte characters and symbols
+```
+
+#### Numbers:
+
+```php
+'price' => 'decimal:2',      // exactly 2 decimal places
+'price' => 'decimal:2,4',    // between 2 and 4 decimal places
+'qty' => 'multiple_of:5',    // must be a multiple of 5
+'pin' => 'max_digits:6',     // at most 6 digits
+'pin' => 'min_digits:4',     // at least 4 digits
+```
+
+#### Prefix and suffix:
+
+```php
+'name' => 'doesnt_start_with:admin,root',
+'file' => 'doesnt_end_with:.exe,.bat',
+```
+
+#### Arrays:
+
+```php
+'roles' => 'list',           // must be a sequential array
+'roles' => 'contains:admin', // must hold every one of the given values
+```
+
+#### Presence:
+
+```php
+'internal_note' => 'missing',      // the key must not be in the input at all
+'internal_note' => 'prohibited',   // the key may be there, but must be empty
+```
+
+#### Formats:
+
+```php
+'device' => 'mac_address',   // a valid MAC address
+'ref' => 'ulid',             // a valid ULID
+'color' => 'hex_color',      // #fff, #ffffff or #ffffffff
 ```
 
 <a id="retrieving-error-messages"></a>

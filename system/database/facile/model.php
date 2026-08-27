@@ -34,6 +34,34 @@ abstract class Model implements \JsonSerializable
     public $relationships = [];
 
     /**
+     * Attributes hidden for this instance only.
+     *
+     * @var array
+     */
+    public $instance_hidden = [];
+
+    /**
+     * Attributes made visible for this instance only.
+     *
+     * @var array
+     */
+    public $instance_visible = [];
+
+    /**
+     * Accessors appended for this instance only.
+     *
+     * @var array
+     */
+    public $instance_appends = [];
+
+    /**
+     * Attributes that were changed by the last save().
+     *
+     * @var array
+     */
+    public $changes = [];
+
+    /**
      * Determine whether the model exists in the database.
      *
      * @var bool
@@ -81,6 +109,38 @@ abstract class Model implements \JsonSerializable
      * @var array
      */
     public static $hidden = [];
+
+    /**
+     * Whitelist of attributes that should be included in the array form of the model.
+     * When it is not empty, it takes precedence over the $hidden list.
+     *
+     * @var array
+     */
+    public static $visible = [];
+
+    /**
+     * List of accessor backed attributes that should be appended
+     * to the array form of the model.
+     *
+     * @var array
+     */
+    public static $appends = [];
+
+    /**
+     * List of attributes that should be cast to a native type.
+     * Supported: int, integer, real, float, double, decimal:<digits>, string,
+     * bool, boolean, object, array, json, collection, date, datetime, timestamp.
+     *
+     * @var array
+     */
+    public static $casts = [];
+
+    /**
+     * Format used when a date-ish attribute is converted into a string.
+     *
+     * @var string
+     */
+    public static $date_format = 'Y-m-d H:i:s';
 
     /**
      * Determine whether the model uses timestamps for created_at and updated_at columns.
@@ -232,7 +292,106 @@ abstract class Model implements \JsonSerializable
      */
     public function set_attribute($key, $value)
     {
+        $cast = $this->cast_type($key);
+
+        if (in_array($cast, ['array', 'json', 'object', 'collection']) && ! is_string($value) && ! is_null($value)) {
+            $value = json_encode(($value instanceof \System\Collection) ? $value->to_array() : $value);
+        } elseif (in_array($cast, ['date', 'datetime']) && $value instanceof Carbon) {
+            $value = $value->format(('date' === $cast) ? 'Y-m-d' : static::$date_format);
+        } elseif ('timestamp' === $cast && $value instanceof Carbon) {
+            $value = $value->getTimestamp();
+        }
+
         $this->attributes[$key] = $value;
+    }
+
+    /**
+     * Get the cast type declared for the given attribute.
+     *
+     * @param string $key
+     *
+     * @return string|null
+     */
+    public function cast_type($key)
+    {
+        if (! is_array(static::$casts) || ! array_key_exists($key, static::$casts)) {
+            return null;
+        }
+
+        $cast = trim(strtolower((string) static::$casts[$key]));
+
+        return (false === strpos($cast, ':')) ? $cast : substr($cast, 0, strpos($cast, ':'));
+    }
+
+    /**
+     * Check whether the given attribute has a cast declared.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function has_cast($key)
+    {
+        return ! is_null($this->cast_type($key));
+    }
+
+    /**
+     * Cast the given attribute value into its declared native type.
+     *
+     * @param string $key
+     * @param mixed  $value
+     *
+     * @return mixed
+     */
+    public function cast_attribute($key, $value)
+    {
+        $cast = $this->cast_type($key);
+
+        if (is_null($cast) || is_null($value)) {
+            return $value;
+        }
+
+        switch ($cast) {
+            case 'int':
+            case 'integer':
+                return (int) $value;
+
+            case 'real':
+            case 'float':
+            case 'double':
+                return (float) $value;
+
+            case 'decimal':
+                $digits = explode(':', (string) static::$casts[$key]);
+                return number_format((float) $value, isset($digits[1]) ? (int) $digits[1] : 2, '.', '');
+
+            case 'string':
+                return (string) $value;
+
+            case 'bool':
+            case 'boolean':
+                return (bool) $value;
+
+            case 'object':
+                return is_string($value) ? json_decode($value) : $value;
+
+            case 'array':
+            case 'json':
+                return is_string($value) ? json_decode($value, true) : $value;
+
+            case 'collection':
+                $items = is_string($value) ? json_decode($value, true) : $value;
+                return new \System\Collection(is_array($items) ? $items : []);
+
+            case 'date':
+            case 'datetime':
+                return ($value instanceof Carbon) ? $value : Carbon::parse($value);
+
+            case 'timestamp':
+                return ($value instanceof Carbon) ? $value->getTimestamp() : (int) $value;
+        }
+
+        return $value;
     }
 
     /**
@@ -253,7 +412,7 @@ abstract class Model implements \JsonSerializable
         }
 
         if (array_key_exists($key, $this->attributes)) {
-            return $this->attributes[$key];
+            return $this->cast_attribute($key, $this->attributes[$key]);
         }
 
         return $this->load_relationship($key);
@@ -453,32 +612,472 @@ abstract class Model implements \JsonSerializable
     public function to_array()
     {
         $attributes = [];
+        $visible = array_merge((array) static::$visible, $this->instance_visible);
+        $hidden = array_merge(array_diff((array) static::$hidden, $this->instance_visible), $this->instance_hidden);
 
-        foreach ($this->attributes as $key => $value) {
-            if (is_array(static::$hidden) && in_array($key, static::$hidden)) {
+        foreach (array_keys($this->attributes) as $key) {
+            if (! $this->is_serializable($key, $visible, $hidden)) {
                 continue;
             }
 
-            $attributes[$key] = $value;
+            $attributes[$key] = $this->serialize_value($this->{$key});
+        }
+
+        foreach (array_merge((array) static::$appends, $this->instance_appends) as $key) {
+            if (! $this->is_serializable($key, $visible, $hidden)) {
+                continue;
+            }
+
+            $attributes[$key] = $this->serialize_value($this->{$key});
         }
 
         foreach ($this->relationships as $key => $value) {
-            if (is_array(static::$hidden) && in_array($key, static::$hidden)) {
+            if (! $this->is_serializable($key, $visible, $hidden)) {
                 continue;
             }
 
-            if (is_array($value)) {
-                $attributes[$key] = array_map(function ($item) {
-                    return ($item instanceof Model) ? $item->to_array() : $item;
-                }, $value);
-            } elseif ($value instanceof Model) {
-                $attributes[$key] = $value->to_array();
-            } else {
+            $attributes[$key] = $this->serialize_value($value);
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Check whether the given key should end up in the array form of the model.
+     *
+     * @param string $key
+     * @param array  $visible
+     * @param array  $hidden
+     *
+     * @return bool
+     */
+    protected function is_serializable($key, array $visible, array $hidden)
+    {
+        if (count($visible) > 0) {
+            return in_array($key, $visible);
+        }
+
+        return ! in_array($key, $hidden);
+    }
+
+    /**
+     * Convert a single value into something that can be serialized.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    protected function serialize_value($value)
+    {
+        if ($value instanceof Carbon) {
+            return $value->format(static::$date_format);
+        }
+
+        if ($value instanceof Model) {
+            return $value->to_array();
+        }
+
+        if ($value instanceof \System\Collection) {
+            return $value->to_array();
+        }
+
+        if (is_array($value)) {
+            $items = [];
+
+            foreach ($value as $index => $item) {
+                $items[$index] = $this->serialize_value($item);
+            }
+
+            return $items;
+        }
+
+        return $value;
+    }
+
+    /**
+     * Hide the given attributes for this instance only.
+     *
+     * @param array|string $attributes
+     *
+     * @return $this
+     */
+    public function make_hidden($attributes)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+        $this->instance_hidden = array_merge($this->instance_hidden, $attributes);
+        $this->instance_visible = array_diff($this->instance_visible, $attributes);
+
+        return $this;
+    }
+
+    /**
+     * Make the given attributes visible for this instance only.
+     *
+     * @param array|string $attributes
+     *
+     * @return $this
+     */
+    public function make_visible($attributes)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+        $this->instance_visible = array_merge($this->instance_visible, $attributes);
+        $this->instance_hidden = array_diff($this->instance_hidden, $attributes);
+
+        return $this;
+    }
+
+    /**
+     * Append the given accessors to the array form of this instance only.
+     *
+     * @param array|string $attributes
+     *
+     * @return $this
+     */
+    public function append($attributes)
+    {
+        $attributes = is_array($attributes) ? $attributes : func_get_args();
+        $this->instance_appends = array_merge($this->instance_appends, $attributes);
+
+        return $this;
+    }
+
+    /**
+     * Get a new query builder for the model.
+     *
+     * @return \System\Database\Facile\Query
+     */
+    public function new_query()
+    {
+        return $this->query();
+    }
+
+    /**
+     * Get the name of the primary key column.
+     *
+     * @return string
+     */
+    public function get_key_name()
+    {
+        return static::$key;
+    }
+
+    /**
+     * Get a model matching the attributes, or instantiate a new one.
+     *
+     * @param array $attributes
+     * @param array $values
+     *
+     * @return static
+     */
+    public static function first_or_new(array $attributes = [], array $values = [])
+    {
+        $model = static::match_attributes($attributes);
+
+        return is_null($model) ? new static(array_merge($attributes, $values)) : $model;
+    }
+
+    /**
+     * Get a model matching the attributes, or create it.
+     *
+     * @param array $attributes
+     * @param array $values
+     *
+     * @return static
+     */
+    public static function first_or_create(array $attributes = [], array $values = [])
+    {
+        $model = static::match_attributes($attributes);
+
+        if (! is_null($model)) {
+            return $model;
+        }
+
+        return static::create(array_merge($attributes, $values));
+    }
+
+    /**
+     * Update a model matching the attributes, or create it.
+     *
+     * @param array $attributes
+     * @param array $values
+     *
+     * @return static
+     */
+    public static function update_or_create(array $attributes, array $values = [])
+    {
+        $model = static::match_attributes($attributes);
+
+        if (is_null($model)) {
+            return static::create(array_merge($attributes, $values));
+        }
+
+        $model->fill($values)->save();
+
+        return $model;
+    }
+
+    /**
+     * Get the first model matching every given attribute.
+     *
+     * @param array $attributes
+     *
+     * @return static|null
+     */
+    protected static function match_attributes(array $attributes)
+    {
+        $query = (new static())->query();
+
+        foreach ($attributes as $column => $value) {
+            $query->where($column, '=', $value);
+        }
+
+        return $query->first();
+    }
+
+    /**
+     * Get every model whose primary key is in the given list.
+     *
+     * @param array $ids
+     * @param array $columns
+     *
+     * @return \System\Collection
+     */
+    public static function find_many($ids, array $columns = ['*'])
+    {
+        $ids = is_array($ids) ? $ids : [$ids];
+        $ids = (isset($ids[0]) && is_array($ids[0])) ? $ids[0] : $ids;
+
+        if (0 === count($ids)) {
+            return new \System\Collection();
+        }
+
+        return (new static())->query()->where_in(static::$key, $ids)->get($columns);
+    }
+
+    /**
+     * Delete the models matching the given primary keys.
+     *
+     * @param array|mixed $ids
+     *
+     * @return int
+     */
+    public static function destroy($ids)
+    {
+        $ids = is_array($ids) ? $ids : [$ids];
+        $ids = (isset($ids[0]) && is_array($ids[0])) ? $ids[0] : $ids;
+        $deleted = 0;
+
+        foreach (static::find_many($ids) as $model) {
+            if ($model->delete()) {
+                ++$deleted;
+            }
+        }
+
+        return $deleted;
+    }
+
+    /**
+     * Add a WHERE clause on the primary key.
+     *
+     * @param mixed $id
+     *
+     * @return \System\Database\Facile\Query
+     */
+    public static function where_key($id)
+    {
+        $query = (new static())->query();
+
+        return is_array($id)
+            ? $query->where_in(static::$key, $id)
+            : $query->where(static::$key, '=', $id);
+    }
+
+    /**
+     * Update the timestamps of the model without changing anything else.
+     *
+     * @return bool
+     */
+    public function touch()
+    {
+        if (! $this->exists || ! static::$timestamps) {
+            return false;
+        }
+
+        $this->updated_at = Carbon::now()->format(static::$date_format);
+
+        return $this->save();
+    }
+
+    /**
+     * Reload the attributes and relationships of this very instance from the database.
+     *
+     * @return $this|null
+     */
+    public function refresh()
+    {
+        if (! $this->exists) {
+            return $this;
+        }
+
+        $fresh = $this->fresh();
+
+        if (is_null($fresh)) {
+            return null;
+        }
+
+        $this->attributes = $fresh->attributes;
+        $this->relationships = [];
+        $this->changes = [];
+        $this->sync();
+
+        return $this;
+    }
+
+    /**
+     * Make an unsaved copy of the model, without its primary key and timestamps.
+     *
+     * @param array $except
+     *
+     * @return static
+     */
+    public function replicate(array $except = [])
+    {
+        $except = array_merge($except, [static::$key, 'created_at', 'updated_at', 'deleted_at']);
+        $attributes = [];
+
+        foreach ($this->attributes as $key => $value) {
+            if (! in_array($key, $except)) {
                 $attributes[$key] = $value;
             }
         }
 
-        return $attributes;
+        $clone = new static();
+        $clone->fill_raw($attributes);
+
+        return $clone;
+    }
+
+    /**
+     * Check whether the given model is the very same record as this one.
+     *
+     * @param mixed $model
+     *
+     * @return bool
+     */
+    public function is($model)
+    {
+        return ($model instanceof Model)
+            && get_class($model) === get_class($this)
+            && $model->table() === $this->table()
+            && ! is_null($model->get_key())
+            && $model->get_key() === $this->get_key();
+    }
+
+    /**
+     * Check whether the given model is a different record than this one.
+     *
+     * @param mixed $model
+     *
+     * @return bool
+     */
+    public function is_not($model)
+    {
+        return ! $this->is($model);
+    }
+
+    /**
+     * Check what the last save() actually changed.
+     *
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function was_changed($attribute = null)
+    {
+        if (is_null($attribute)) {
+            return count($this->changes) > 0;
+        }
+
+        return array_key_exists($attribute, $this->changes);
+    }
+
+    /**
+     * Get the attribute values as they were when the model was last synced.
+     *
+     * @param string $attribute
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function get_original($attribute = null, $default = null)
+    {
+        if (is_null($attribute)) {
+            return $this->original;
+        }
+
+        return array_key_exists($attribute, $this->original) ? $this->original[$attribute] : $default;
+    }
+
+    /**
+     * Increment a column of this very record.
+     *
+     * @param string $column
+     * @param int    $amount
+     * @param array  $extra
+     *
+     * @return bool
+     */
+    public function increment($column, $amount = 1, array $extra = [])
+    {
+        return $this->step($column, abs($amount), $extra);
+    }
+
+    /**
+     * Decrement a column of this very record.
+     *
+     * @param string $column
+     * @param int    $amount
+     * @param array  $extra
+     *
+     * @return bool
+     */
+    public function decrement($column, $amount = 1, array $extra = [])
+    {
+        return $this->step($column, -abs($amount), $extra);
+    }
+
+    /**
+     * Move a column of this very record by the given amount.
+     *
+     * @param string $column
+     * @param int    $amount
+     * @param array  $extra
+     *
+     * @return bool
+     */
+    protected function step($column, $amount, array $extra = [])
+    {
+        if (! $this->exists) {
+            return false;
+        }
+
+        $query = $this->query()->where(static::$key, '=', $this->get_key());
+
+        if ($amount < 0) {
+            $query->decrement($column, abs($amount), $extra);
+        } else {
+            $query->increment($column, $amount, $extra);
+        }
+
+        $this->attributes[$column] = $this->attributes[$column] + $amount;
+
+        foreach ($extra as $key => $value) {
+            $this->attributes[$key] = $value;
+        }
+
+        $this->sync();
+
+        return true;
     }
 
     /**
@@ -900,8 +1499,14 @@ abstract class Model implements \JsonSerializable
         Hook::fire(['facile.saving', 'facile.saving: ' . get_class($this)], [$this]);
 
         if ($this->exists) {
+            $dirty = $this->get_dirty();
             $query = $this->query()->where(static::$key, '=', $this->get_key());
-            $result = (1 === $query->update($this->get_dirty()));
+
+            // The number of affected rows is not a reliable indicator of success. MySQL
+            // reports zero affected row when the new values are identical to the old
+            // ones, even though nothing actually went wrong.
+            $query->update($dirty);
+            $result = true;
 
             if ($result) {
                 Hook::fire(['facile.updated', 'facile.updated: ' . get_class($this)], [$this]);
@@ -918,6 +1523,7 @@ abstract class Model implements \JsonSerializable
             }
         }
 
+        $this->changes = $this->get_dirty();
         $this->original = $this->attributes;
 
         if ($result) {
@@ -939,18 +1545,21 @@ abstract class Model implements \JsonSerializable
 
             if (static::$soft_delete) { // Soft delete
                 $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
-                $result = $this->query()
+                $this->query()
                     ->where(static::$key, '=', $this->get_key())
                     ->update(['deleted_at' => $this->deleted_at]);
                 $this->exists = false;
                 Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
             } else { // Hard delete
-                $result = $this->query()->where(static::$key, '=', $this->get_key())->delete();
+                $this->query()->where(static::$key, '=', $this->get_key())->delete();
+                $this->exists = false;
                 Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
             }
 
-            return $result;
+            return true;
         }
+
+        return false;
     }
 
     /**

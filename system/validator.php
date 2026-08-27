@@ -1399,6 +1399,434 @@ class Validator
      *
      * @return bool
      */
+    /**
+     * Validate that the value is a date after or equal to the given date.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_after_or_equals($attribute, $value, array $parameters)
+    {
+        try {
+            return (new \DateTime($value)) >= (new \DateTime($parameters[0]));
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Validate that the value is a date after or equal to the given date (alias).
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_after_or_equal($attribute, $value, array $parameters)
+    {
+        return $this->validate_after_or_equals($attribute, $value, $parameters);
+    }
+
+    /**
+     * Validate that the value is a date before or equal to the given date (alias).
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_before_or_equal($attribute, $value, array $parameters)
+    {
+        return $this->validate_before_or_equals($attribute, $value, $parameters);
+    }
+
+    /**
+     * Validate that the value is entirely lowercase.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_lowercase($attribute, $value)
+    {
+        return is_string($value) && $value === Str::lower($value);
+    }
+
+    /**
+     * Validate that the value is entirely uppercase.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_uppercase($attribute, $value)
+    {
+        return is_string($value) && $value === Str::upper($value);
+    }
+
+    /**
+     * Validate that the value only holds 7-bit ascii characters.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_ascii($attribute, $value)
+    {
+        return (is_string($value) || is_numeric($value)) && 1 === preg_match('/^[\x00-\x7F]*$/', (string) $value);
+    }
+
+    /**
+     * Validate that the value is a decimal with the given number of decimal places.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_decimal($attribute, $value, array $parameters)
+    {
+        if (! is_numeric($value)) {
+            return false;
+        }
+
+        $value = (string) $value;
+        $decimals = (false === strpos($value, '.')) ? 0 : strlen(substr($value, strpos($value, '.') + 1));
+
+        $min = (int) $parameters[0];
+        $max = isset($parameters[1]) ? (int) $parameters[1] : $min;
+
+        return $decimals >= $min && $decimals <= $max;
+    }
+
+    /**
+     * Validate that the value is a multiple of the given number.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_multiple_of($attribute, $value, array $parameters)
+    {
+        if (! is_numeric($value) || ! isset($parameters[0]) || ! is_numeric($parameters[0])) {
+            return false;
+        }
+
+        if (0.0 === (float) $parameters[0]) {
+            return false;
+        }
+
+        $result = (float) $value / (float) $parameters[0];
+
+        return $result === floor($result);
+    }
+
+    /**
+     * Validate that the value holds at most the given number of digits.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_max_digits($attribute, $value, array $parameters)
+    {
+        return is_numeric($value) && strlen((string) preg_replace('/\D/', '', (string) $value)) <= (int) $parameters[0];
+    }
+
+    /**
+     * Validate that the value holds at least the given number of digits.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_min_digits($attribute, $value, array $parameters)
+    {
+        return is_numeric($value) && strlen((string) preg_replace('/\D/', '', (string) $value)) >= (int) $parameters[0];
+    }
+
+    /**
+     * Validate that the value does not start with any of the given values.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_doesnt_start_with($attribute, $value, array $parameters)
+    {
+        return ! $this->validate_starts_with($attribute, $value, $parameters);
+    }
+
+    /**
+     * Validate that the value does not end with any of the given values.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_doesnt_end_with($attribute, $value, array $parameters)
+    {
+        return ! $this->validate_ends_with($attribute, $value, $parameters);
+    }
+
+    /**
+     * Validate that the value contains every one of the given values.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function validate_contains($attribute, $value, array $parameters)
+    {
+        if (! is_array($value)) {
+            return false;
+        }
+
+        foreach ($parameters as $parameter) {
+            if (! in_array($parameter, $value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Validate that the value is a sequential array.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_list($attribute, $value)
+    {
+        return is_array($value) && array_keys($value) === range(0, count($value) - 1);
+    }
+
+    /**
+     * Validate that the attribute is absent from the input.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_missing($attribute, $value)
+    {
+        return ! array_key_exists($attribute, $this->attributes);
+    }
+
+    /**
+     * Validate that the attribute is absent or empty.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_prohibited($attribute, $value)
+    {
+        return is_null($value) || '' === $value || (is_array($value) && 0 === count($value));
+    }
+
+    /**
+     * Validate that the value counts as declined.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_declined($attribute, $value)
+    {
+        return in_array($value, ['no', 'off', '0', 'false'], true)
+            || false === $value
+            || 0 === $value;
+    }
+
+    /**
+     * Validate that the value is a mac address.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_mac_address($attribute, $value)
+    {
+        return is_string($value) && false !== filter_var($value, FILTER_VALIDATE_MAC);
+    }
+
+    /**
+     * Validate that the value is a valid ULID.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_ulid($attribute, $value)
+    {
+        return is_string($value) && 1 === preg_match('/^[0-7][0-9A-HJKMNP-TV-Z]{25}$/i', $value);
+    }
+
+    /**
+     * Validate that the value is a hexadecimal color.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     *
+     * @return bool
+     */
+    protected function validate_hex_color($attribute, $value)
+    {
+        return is_string($value) && 1 === preg_match('/^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $value);
+    }
+
+    /**
+     * Replace the :date placeholder of the after_or_equals message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_after_or_equals($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':date', $parameters[0], $message);
+    }
+
+    /**
+     * Replace the :values placeholder of the doesnt_start_with message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_doesnt_start_with($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
+    /**
+     * Replace the :values placeholder of the doesnt_end_with message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_doesnt_end_with($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
+    /**
+     * Replace the :value placeholder of the multiple_of message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_multiple_of($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':value', $parameters[0], $message);
+    }
+
+    /**
+     * Replace the :max placeholder of the max_digits message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_max_digits($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':max', $parameters[0], $message);
+    }
+
+    /**
+     * Replace the :min placeholder of the min_digits message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_min_digits($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':min', $parameters[0], $message);
+    }
+
+    /**
+     * Replace the :decimal placeholder of the decimal message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_decimal($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':decimal', implode('-', $parameters), $message);
+    }
+
+    /**
+     * Replace the :values placeholder of the contains message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_contains($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':values', implode(', ', $parameters), $message);
+    }
+
     protected function validate_before_or_equals($attribute, $value, array $parameters)
     {
         try {
