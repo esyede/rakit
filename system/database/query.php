@@ -110,6 +110,15 @@ class Query
     public $offset;
 
     /**
+     * Contains the row locking to apply to the SELECT statement.
+     * NULL means no lock, TRUE means an exclusive one, FALSE a shared one,
+     * and a string is used as the raw lock clause.
+     *
+     * @var bool|string|null
+     */
+    public $lock;
+
+    /**
      * Contains the query bindings.
      *
      * @var array
@@ -503,6 +512,7 @@ class Query
         $this->havings = null;
         $this->unions = null;
         $this->distinct = false;
+        $this->lock = null;
         $this->bindings = [];
 
         return $this;
@@ -528,6 +538,7 @@ class Query
         $query->orderings = $this->orderings;
         $query->limit = $this->limit;
         $query->offset = $this->offset;
+        $query->lock = $this->lock;
         $query->bindings = $this->bindings;
 
         return $query;
@@ -1382,6 +1393,45 @@ class Query
         $this->orderings = null;
 
         return is_null($column) ? $this : $this->order_by($column, $direction);
+    }
+
+    /**
+     * Lock the rows the query selects.
+     * A lock only holds for the duration of a transaction, so it is only
+     * meaningful between a begin_transaction() and its commit().
+     *
+     * @param bool|string $value
+     *
+     * @return Query
+     */
+    public function lock($value = true)
+    {
+        $this->lock = $value;
+
+        return $this;
+    }
+
+    /**
+     * Lock the selected rows exclusively, so that no other transaction may
+     * read them with a lock, update them or delete them until this one ends.
+     * It is what makes a read-check-write sequence safe.
+     *
+     * @return Query
+     */
+    public function lock_for_update()
+    {
+        return $this->lock(true);
+    }
+
+    /**
+     * Lock the selected rows for sharing, so that other transactions may still
+     * read them but none may change them until this one ends.
+     *
+     * @return Query
+     */
+    public function shared_lock()
+    {
+        return $this->lock(false);
     }
 
     /**

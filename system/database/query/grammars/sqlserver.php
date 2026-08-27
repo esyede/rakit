@@ -130,4 +130,81 @@ class SQLServer extends Grammar
     {
         return 'NEWID()';
     }
+
+    /**
+     * Compile the FROM clause.
+     * SQL Server asks for a lock through a table hint instead of a trailing
+     * clause, so it is attached to the table itself.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function from(Query $query)
+    {
+        $from = parent::from($query);
+
+        if (is_null($query->lock)) {
+            return $from;
+        }
+
+        if (is_string($query->lock)) {
+            return $from . ' ' . $query->lock;
+        }
+
+        return $from . ($query->lock
+            ? ' WITH (ROWLOCK, UPDLOCK, HOLDLOCK)'
+            : ' WITH (ROWLOCK, HOLDLOCK)');
+    }
+
+    /**
+     * Compile the row locking clause.
+     * Nothing is appended, since the lock is already part of the FROM clause.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function lock(Query $query)
+    {
+        return '';
+    }
+
+    /**
+     * Compile the statement that opens a savepoint.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function savepoint($name)
+    {
+        return 'SAVE TRANSACTION ' . $name;
+    }
+
+    /**
+     * Compile the statement that releases a savepoint.
+     * SQL Server has no such statement, a savepoint simply goes away when the
+     * transaction that owns it ends.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function release_savepoint($name)
+    {
+        return '';
+    }
+
+    /**
+     * Compile the statement that rolls back to a savepoint.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function rollback_savepoint($name)
+    {
+        return 'ROLLBACK TRANSACTION ' . $name;
+    }
 }

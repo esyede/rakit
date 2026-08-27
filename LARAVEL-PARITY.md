@@ -19,9 +19,11 @@ Status penyelarasan perilaku dan keluaran (*response*) Rakit terhadap Laravel.
 | Hasil query berupa `Collection` | Selesai |
 | Query relasi (`has` / `where_has` / `with_count`) | Selesai |
 | `Input`, `Messages`, `Redirect`, `Response`, rule validasi | Selesai |
+| Row locking (`lock_for_update` / `shared_lock`) | Selesai |
+| Lapisan transaksi (audit + perbaikan) | Selesai |
 | Blade component, API Resource, Stringable, observer | Sengaja tidak dikerjakan |
 
-Cakupan test naik dari 1921 menjadi **2010 test**, semuanya lolos, dan seluruh berkas yang
+Cakupan test naik dari 1921 menjadi **2027 test**, semuanya lolos, dan seluruh berkas yang
 disentuh lolos `php -l` pada PHP 5.6.
 
 ## Yang tidak dihitung sebagai ketidakcocokan
@@ -210,8 +212,10 @@ Grammar ikut diperluas: `random()` dan `insert_ignore()` dengan override untuk M
 Postgres dan SQL Server; `HAVING` mendukung konektor `OR` dan bentuk mentah; `CROSS JOIN`
 tanpa klausa `ON`; dan ordering mentah tidak lagi kena `COLLATE NOCASE` di SQLite.
 
-**Masih belum ada**: `upsert` · `lock_for_update` · `shared_lock` · `from_sub` · `join_sub` ·
-`where_json_contains` · `where_json_length` · `where_full_text`
+`lock_for_update` · `shared_lock` · `lock($raw)` untuk mengunci baris
+
+**Masih belum ada**: `upsert` · `from_sub` · `join_sub` · `where_json_contains` ·
+`where_json_length` · `where_full_text`
 
 ### 4.2 `System\Database\Facile\Model`
 
@@ -279,6 +283,58 @@ Tambahkan satu per satu saat benar-benar dibutuhkan.
 
 ---
 
+## 4b. Lapisan transaksi
+
+Diaudit setelah bagian data selesai, dan menemukan empat masalah. Semuanya sudah
+diperbaiki di `System\Database\Connection`.
+
+### 4b.1 API transaksi manual tidak pernah ada — **selesai**
+
+**Ini temuan paling parah dari seluruh audit.** `Connection` tidak punya
+`begin_transaction()`, `commit()`, maupun `rollback()`, sementara `Connection::__call()`
+mengubah method apa pun yang tidak dikenal menjadi query builder untuk tabel bernama
+sama. Jadi kode ini:
+
+```php
+$connection->begin_transaction();
+// ..
+$connection->commit();
+```
+
+diam-diam menjadi `table('begin_transaction')` dan `table('commit')` — tidak ada
+transaksi yang pernah dibuka, `inTransaction()` tetap `false`, dan tidak ada satu pun
+error. Contoh persis seperti itu ada di `packages/docs/data/database/magic.md`, jadi
+siapa pun yang mengikuti dokumentasi menulis kode yang tampak transaksional padahal
+bukan. Ketiga method itu sekarang benar-benar ada.
+
+### 4b.2 Transaksi bersarang melempar exception — **selesai**
+
+`transaction()` di dalam `transaction()` menghasilkan
+`PDOException: There is already an active transaction`. Sekarang tingkat kedua dan
+seterusnya memakai savepoint, jadi method yang membungkus pekerjaannya sendiri dalam
+transaksi aman dipanggil dari dalam transaksi lain. Hanya `commit()` terluar yang
+benar-benar commit.
+
+SQL savepoint dikompilasi per driver: `SAVEPOINT` / `RELEASE SAVEPOINT` /
+`ROLLBACK TO SAVEPOINT` untuk MySQL, PostgreSQL dan SQLite; `SAVE TRANSACTION` /
+`ROLLBACK TRANSACTION` untuk SQL Server, yang tidak punya padanan `RELEASE`.
+
+### 4b.3 `transaction()` membuang nilai kembalian callback — **selesai**
+
+Dulu mengembalikan hasil `commit()` yang selalu `true`. Sekarang mengembalikan apa
+pun yang dikembalikan callback, seperti Laravel.
+
+### 4b.4 `rollback()` dari error handler — **selesai**
+
+`commit()` dan `rollback()` kini mengembalikan `false` alih-alih melempar ketika
+tidak ada transaksi yang terbuka, sehingga aman dipanggil dari blok `catch` yang
+tidak tahu pasti apakah transaksi sempat dibuka.
+
+Ditambah `transaction_level()` untuk menanyakan kedalaman saat ini.
+
+**Masih belum ada**: percobaan ulang otomatis saat deadlock (`transaction($callback, $attempts)`
+di Laravel).
+
 ## 5. Dokumentasi yang ikut diperbarui
 
 | Berkas | Perubahan |
@@ -306,4 +362,4 @@ sudah dihapus saat markup dipindah ke Blade.
 - Mail, notifikasi, dan event broadcasting
 - `Carbon` bawaan Rakit dibandingkan `nesbot/carbon`
 - Testing helper (`assertDatabaseHas`, HTTP test, dan sejenisnya)
-- Perilaku transaksi dan connection pooling
+- Connection pooling

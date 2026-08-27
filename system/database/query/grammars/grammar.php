@@ -21,7 +21,7 @@ class Grammar extends BaseGrammar
      *
      * @var array
      */
-    protected $components = ['aggregate', 'selects', 'from', 'joins', 'wheres', 'groupings', 'havings', 'unions', 'orderings', 'limit', 'offset'];
+    protected $components = ['aggregate', 'selects', 'from', 'joins', 'wheres', 'groupings', 'havings', 'unions', 'orderings', 'limit', 'offset', 'lock'];
 
     /**
      * Compile the SELECT statement.
@@ -458,6 +458,59 @@ class Grammar extends BaseGrammar
     protected function offset(Query $query)
     {
         return 'OFFSET '.(int) $query->offset;
+    }
+
+    /**
+     * Compile the statement that opens a savepoint.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function savepoint($name)
+    {
+        return 'SAVEPOINT ' . $name;
+    }
+
+    /**
+     * Compile the statement that releases a savepoint.
+     * An empty string means the driver has nothing to release.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function release_savepoint($name)
+    {
+        return 'RELEASE SAVEPOINT ' . $name;
+    }
+
+    /**
+     * Compile the statement that rolls back to a savepoint.
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    public function rollback_savepoint($name)
+    {
+        return 'ROLLBACK TO SAVEPOINT ' . $name;
+    }
+
+    /**
+     * Compile the row locking clause.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function lock(Query $query)
+    {
+        if (is_string($query->lock)) {
+            return $query->lock;
+        }
+
+        return $query->lock ? 'FOR UPDATE' : 'FOR SHARE';
     }
 
     /**

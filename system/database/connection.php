@@ -34,6 +34,14 @@ class Connection
     protected $grammar;
 
     /**
+     * Number of transactions that are currently open. Anything beyond the
+     * first one is handled with a savepoint instead of a real transaction.
+     *
+     * @var int
+     */
+    protected $transactions = 0;
+
+    /**
      * Contans logged queries.
      *
      * @var array
@@ -98,19 +106,131 @@ class Connection
      */
     public function transaction(\Closure $callback)
     {
-        $this->pdo()->beginTransaction();
+        $this->begin_transaction();
 
         try {
-            call_user_func($callback, $this);
+            $result = call_user_func($callback, $this);
         } catch (\Throwable $e) {
-            $this->pdo()->rollBack();
+            $this->rollback();
             throw $e;
         } catch (\Exception $e) {
-            $this->pdo()->rollBack();
+            $this->rollback();
             throw $e;
         }
 
-        return $this->pdo()->commit();
+        $this->commit();
+
+        return $result;
+    }
+
+    /**
+     * Open a transaction. Calling it again while one is already open opens a
+     * savepoint instead, so a method that wraps its work in a transaction may
+     * safely be called from inside another one.
+     *
+     * @return bool
+     */
+    public function begin_transaction()
+    {
+        if (0 === $this->transactions) {
+            $this->pdo()->beginTransaction();
+        } else {
+            $this->savepoint($this->grammar()->savepoint($this->savepoint_name($this->transactions + 1)));
+        }
+
+        ++$this->transactions;
+
+        return true;
+    }
+
+    /**
+     * Commit the transaction. When it is a nested one, only its savepoint is
+     * released and the outermost transaction stays open.
+     *
+     * @return bool
+     */
+    public function commit()
+    {
+        if (0 === $this->transactions) {
+            return false;
+        }
+
+        if (1 === $this->transactions) {
+            $this->pdo()->commit();
+        } else {
+            $this->savepoint($this->grammar()->release_savepoint($this->savepoint_name($this->transactions)));
+        }
+
+        --$this->transactions;
+
+        return true;
+    }
+
+    /**
+     * Roll the transaction back. When it is a nested one, only the work done
+     * since its savepoint is undone and the outermost transaction stays open.
+     * Rolling back without an open transaction is not an error, it simply does
+     * nothing, so that it is safe to call from an error handler.
+     *
+     * @return bool
+     */
+    public function rollback()
+    {
+        if (0 === $this->transactions) {
+            return false;
+        }
+
+        try {
+            if (1 === $this->transactions) {
+                $this->pdo()->rollBack();
+            } else {
+                $this->savepoint($this->grammar()->rollback_savepoint($this->savepoint_name($this->transactions)));
+            }
+        } catch (\Throwable $e) {
+            $this->transactions = 0;
+            throw $e;
+        } catch (\Exception $e) {
+            $this->transactions = 0;
+            throw $e;
+        }
+
+        --$this->transactions;
+
+        return true;
+    }
+
+    /**
+     * Get how many transactions are currently open.
+     *
+     * @return int
+     */
+    public function transaction_level()
+    {
+        return $this->transactions;
+    }
+
+    /**
+     * Run a savepoint statement, unless the driver has nothing to run.
+     *
+     * @param string $sql
+     */
+    protected function savepoint($sql)
+    {
+        if ('' !== trim((string) $sql)) {
+            $this->pdo()->exec($sql);
+        }
+    }
+
+    /**
+     * Get the name of the savepoint of the given nesting level.
+     *
+     * @param int $level
+     *
+     * @return string
+     */
+    protected function savepoint_name($level)
+    {
+        return 'rakit_savepoint_' . (int) $level;
     }
 
     /**

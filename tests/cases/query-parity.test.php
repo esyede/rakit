@@ -322,6 +322,93 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test the row locking clauses on every grammar.
+     *
+     * @group system
+     */
+    public function testRowLocking()
+    {
+        $connection = Database::connection('qparity');
+        $grammars = [
+            'Grammar' => ['FOR UPDATE', 'FOR SHARE'],
+            'MySQL' => ['FOR UPDATE', 'LOCK IN SHARE MODE'],
+            'Postgres' => ['FOR UPDATE', 'FOR SHARE'],
+        ];
+
+        foreach ($grammars as $name => $clauses) {
+            $class = '\\System\\Database\\Query\\Grammars\\' . $name;
+            $exclusive = new \System\Database\Query($connection, new $class($connection), 'qparity');
+            $shared = new \System\Database\Query($connection, new $class($connection), 'qparity');
+            $plain = new \System\Database\Query($connection, new $class($connection), 'qparity');
+
+            $this->assertContains($clauses[0], $exclusive->lock_for_update()->to_sql(), $name);
+            $this->assertContains($clauses[1], $shared->shared_lock()->to_sql(), $name);
+            $this->assertNotContains('FOR UPDATE', $plain->to_sql(), $name);
+        }
+    }
+
+    /**
+     * Test that sql server asks for a lock through a table hint.
+     *
+     * @group system
+     */
+    public function testRowLockingOnSqlServerUsesATableHint()
+    {
+        $connection = Database::connection('qparity');
+        $grammar = new \System\Database\Query\Grammars\SQLServer($connection);
+        $query = new \System\Database\Query($connection, $grammar, 'qparity');
+
+        $sql = $query->where('id', '=', 1)->lock_for_update()->to_sql();
+
+        $this->assertContains('[qparity] WITH (ROWLOCK, UPDLOCK, HOLDLOCK)', $sql);
+        $this->assertNotContains('FOR UPDATE', $sql);
+    }
+
+    /**
+     * Test that sqlite compiles no lock at all.
+     *
+     * @group system
+     */
+    public function testRowLockingIsIgnoredOnSqlite()
+    {
+        $sql = $this->query()->where('id', '=', 1)->lock_for_update()->to_sql();
+
+        $this->assertNotContains('FOR UPDATE', $sql);
+        $this->assertNotContains('LOCK', $sql);
+        $this->assertEquals(1, count($this->query()->where('id', '=', 1)->lock_for_update()->get()));
+    }
+
+    /**
+     * Test a raw lock clause.
+     *
+     * @group system
+     */
+    public function testRawLockClause()
+    {
+        $connection = Database::connection('qparity');
+        $grammar = new \System\Database\Query\Grammars\MySQL($connection);
+        $query = new \System\Database\Query($connection, $grammar, 'qparity');
+
+        $this->assertContains('FOR UPDATE NOWAIT', $query->lock('FOR UPDATE NOWAIT')->to_sql());
+    }
+
+    /**
+     * Test that copy() carries the lock and reset() drops it.
+     *
+     * @group system
+     */
+    public function testLockSurvivesCopyAndIsDroppedByReset()
+    {
+        $connection = Database::connection('qparity');
+        $grammar = new \System\Database\Query\Grammars\MySQL($connection);
+        $query = new \System\Database\Query($connection, $grammar, 'qparity');
+        $query->where('id', '=', 1)->lock_for_update();
+
+        $this->assertContains('FOR UPDATE', $query->copy()->to_sql());
+        $this->assertNotContains('FOR UPDATE', $query->copy()->reset()->to_sql());
+    }
+
+    /**
      * Test increment() and decrement() with extra values.
      *
      * @group system

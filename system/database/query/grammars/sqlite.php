@@ -77,4 +77,18 @@ class SQLite extends Grammar
     {
         return preg_replace('/^INSERT INTO /', 'INSERT OR IGNORE INTO ', $this->insert($query, $values), 1);
     }
+
+    /**
+     * Compile the row locking clause.
+     * SQLite locks the whole database file for the duration of a transaction,
+     * so there is no row level lock to ask for and nothing to compile.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function lock(Query $query)
+    {
+        return '';
+    }
 }

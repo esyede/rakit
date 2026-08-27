@@ -40,6 +40,7 @@
 - [Reset Query](#reset-query)
 - [Debug Query](#debug-query)
 - [Transaction](#transaction)
+- [Row Locking](#row-locking)
 - [Other Methods](#other-methods)
 
 <!-- /MarkdownTOC -->
@@ -988,40 +989,129 @@ These methods are very handy while debugging.
 <a id="transaction"></a>
 ## Transaction
 
-Use a transaction to keep the data consistent:
+Use a transaction to keep the data consistent. The closure receives the
+connection, and whatever it returns becomes the return value of `transaction()`:
 
 ```php
-DB::connection()->transaction(function () {
-    DB::table('accounts')
-        ->where('id', '=', 1)
-        ->update(['balance' => DB::raw('balance - 100')]);
-    
-    DB::table('accounts')
-        ->where('id', '=', 2)
-        ->update(['balance' => DB::raw('balance + 100')]);
+$user = DB::connection()->transaction(function ($connection) {
+    $connection->table('users')->update(['balance' => DB::raw('balance - 100')]);
+    $connection->table('logs')->insert(['note' => 'debited']);
+
+    return $connection->table('users')->find(1);
 });
 ```
 
-Manual transaction control:
+Anything the closure throws rolls the whole thing back and is rethrown, so there
+is nothing to catch unless you want to handle it.
+
+**Manual control:**
 
 ```php
 $connection = DB::connection();
 
 try {
     $connection->begin_transaction();
-    
-    // Query 1
+
     DB::table('users')->insert(['name' => 'John']);
-    
-    // Query 2
     DB::table('profiles')->insert(['user_id' => 1]);
-    
+
     $connection->commit();
 } catch (Exception $e) {
     $connection->rollback();
     throw $e;
 }
 ```
+
+`rollback()` and `commit()` are harmless when no transaction is open, they simply
+return `FALSE`. That makes `rollback()` safe to call from an error handler that
+is not sure whether a transaction was ever started.
+
+> **Beware:** a `return` inside the `try` block skips the `commit()` and leaves
+> the transaction open for the rest of the request. Either commit before you
+> return, or use the closure form, which cannot get this wrong.
+
+**Nested transactions:**
+
+Opening a transaction while one is already open uses a savepoint instead of a
+second real transaction, so a method that wraps its own work may safely be
+called from inside another transaction:
+
+```php
+DB::connection()->transaction(function ($connection) {
+    $connection->table('orders')->insert(['total' => 1000]);
+
+    try {
+        // Its own transaction, which becomes a savepoint here
+        Billing::charge($order);
+    } catch (Exception $e) {
+        // Only the work of the inner one is undone, the outer one carries on
+    }
+
+    $connection->table('logs')->insert(['note' => 'order placed']);
+});
+```
+
+Only the outermost `commit()` really commits. Use `transaction_level()` to ask
+how deep you are.
+
+<a id="row-locking"></a>
+## Row Locking
+
+A transaction on its own does not stop two requests from reading the same row at
+the same time. This is the pattern that breaks:
+
+```php
+// UNSAFE: both requests may read balance = 100 and both pass the check
+$user = User::find($id);
+
+if ($user->balance < $price) {
+    return 'balance is not enough';
+}
+
+User::where_key($id)->decrement('balance', $price);
+```
+
+`decrement()` is atomic, but the check before it is not, so two purchases of 100
+against a balance of 100 can both go through. `lock_for_update()` closes that
+window by holding the row until the transaction ends:
+
+```php
+DB::connection()->transaction(function () use ($id, $price) {
+    $user = User::where_key($id)->lock_for_update()->first();
+
+    if ($user->balance < $price) {
+        throw new Exception('balance is not enough');
+    }
+
+    User::where_key($id)->decrement('balance', $price);
+});
+```
+
+`shared_lock()` is the softer one, other transactions may still read the rows
+but none may change them until yours ends:
+
+```php
+$rates = DB::table('rates')->where('active', 1)->shared_lock()->get();
+```
+
+Both only hold inside a transaction, outside of one they do nothing useful.
+`lock()` takes a raw clause when a driver specific one is needed:
+
+```php
+DB::table('jobs')->lock('FOR UPDATE SKIP LOCKED')->get();
+```
+
+What each driver compiles:
+
+| Driver | `lock_for_update()` | `shared_lock()` |
+|---|---|---|
+| MySQL | `FOR UPDATE` | `LOCK IN SHARE MODE` |
+| PostgreSQL | `FOR UPDATE` | `FOR SHARE` |
+| SQL Server | `WITH (ROWLOCK, UPDLOCK, HOLDLOCK)` | `WITH (ROWLOCK, HOLDLOCK)` |
+| SQLite | *(nothing)* | *(nothing)* |
+
+SQLite locks the whole database file for the duration of a transaction, so it
+has no row level lock to ask for and the clause is left out entirely.
 
 <a id="other-methods"></a>
 ## Other Methods

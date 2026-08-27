@@ -39,4 +39,22 @@ class MySQL extends Grammar
     {
         return preg_replace('/^INSERT INTO /', 'INSERT IGNORE INTO ', $this->insert($query, $values), 1);
     }
+
+    /**
+     * Compile the row locking clause.
+     * MySQL only learned FOR SHARE in 8.0, so the older spelling is used to
+     * stay compatible with the versions this framework still supports.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function lock(Query $query)
+    {
+        if (is_string($query->lock)) {
+            return $query->lock;
+        }
+
+        return $query->lock ? 'FOR UPDATE' : 'LOCK IN SHARE MODE';
+    }
 }
