@@ -1624,7 +1624,13 @@ class Validator
      */
     protected function validate_list($attribute, $value)
     {
-        return is_array($value) && array_keys($value) === range(0, count($value) - 1);
+        if (! is_array($value)) {
+            return false;
+        }
+
+        // An empty array counts as a list. range(0, -1) would give [0, -1]
+        // instead of an empty range, so it has to be handled separately.
+        return (0 === count($value)) || (array_keys($value) === range(0, count($value) - 1));
     }
 
     /**
@@ -1678,7 +1684,18 @@ class Validator
      */
     protected function validate_mac_address($attribute, $value)
     {
-        return is_string($value) && false !== filter_var($value, FILTER_VALIDATE_MAC);
+        if (! is_string($value)) {
+            return false;
+        }
+
+        // FILTER_VALIDATE_MAC only exists since PHP 5.5.0, so the three notations
+        // it accepts are matched by hand on the versions that do not have it.
+        if (defined('FILTER_VALIDATE_MAC')) {
+            return false !== filter_var($value, FILTER_VALIDATE_MAC);
+        }
+
+        return 1 === preg_match('/^[0-9a-f]{2}([:-])(?:[0-9a-f]{2}\\1){4}[0-9a-f]{2}$/i', $value)
+            || 1 === preg_match('/^(?:[0-9a-f]{4}\\.){2}[0-9a-f]{4}$/i', $value);
     }
 
     /**

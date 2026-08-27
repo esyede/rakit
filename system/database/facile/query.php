@@ -185,8 +185,13 @@ class Query
     public function cursor($columns = ['*'], $chunk_size = 1000)
     {
         $columns = is_array($columns) ? $columns : [$columns];
-        // PHP < 5.5.0 does not support yield, directly return the results of get()
-        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
+        // PHP < 5.5.0 does not support yield, so the whole result set is returned
+        // at once. It is handed back as a plain array, the way it always was.
+        if (PHP_VERSION_ID < 50500) {
+            return $this->get($columns)->all();
+        }
+
+        return include __DIR__ . DS . 'cursor.php';
     }
 
     /**
