@@ -46,9 +46,29 @@ class Query
      * @var array
      */
     public $passthru = [
-        'lists', 'only', 'get', 'first', 'find', 'find_or_fail', 'first_or_fail', 'paginate',
-        'count', 'insert', 'insert_get_id', 'update', 'increment', 'delete', 'decrement',
-        'min', 'max', 'avg', 'sum', 'to_sql', 'debug', 'exists', 'doesnt_exist',
+        'lists',
+        'only',
+        'get',
+        'first',
+        'find',
+        'find_or_fail',
+        'first_or_fail',
+        'paginate',
+        'count',
+        'insert',
+        'insert_get_id',
+        'update',
+        'increment',
+        'delete',
+        'decrement',
+        'min',
+        'max',
+        'avg',
+        'sum',
+        'to_sql',
+        'debug',
+        'exists',
+        'doesnt_exist',
     ];
 
     /**
@@ -108,7 +128,7 @@ class Query
         $result = $this->find($id, $columns);
 
         if (is_null($result)) {
-            throw new ModelNotFoundException(get_class($this->model).' with id '.$id.' not found.');
+            throw new ModelNotFoundException(get_class($this->model) . ' with id ' . $id . ' not found.');
         }
 
         return $result;
@@ -126,7 +146,7 @@ class Query
         $result = $this->first($columns);
 
         if (is_null($result)) {
-            throw new ModelNotFoundException(get_class($this->model).' not found.');
+            throw new ModelNotFoundException(get_class($this->model) . ' not found.');
         }
 
         return $result;
@@ -157,21 +177,23 @@ class Query
     {
         $columns = is_array($columns) ? $columns : [$columns];
         // PHP < 5.5.0 does not support yield, directly return the results of get()
-        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__.DS.'cursor.php';
+        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
     }
 
     /**
      * Get the paginated results of the query.
      *
-     * @param int   $perpage
-     * @param array $columns
+     * @param int    $perpage
+     * @param array  $columns
+     * @param string $page_name
+     * @param int    $page
      *
-     * @return Paginator
+     * @return \System\Paginator
      */
-    public function paginate($perpage = null, array $columns = ['*'])
+    public function paginate($perpage = null, array $columns = ['*'], $page_name = 'page', $page = null)
     {
         $perpage = $perpage ?: $this->model->perpage();
-        $paginator = $this->table->paginate($perpage, $columns);
+        $paginator = $this->table->paginate($perpage, $columns, $page_name, $page);
         $paginator->results = $this->hydrate($this->model, $paginator->results);
 
         return $paginator;
@@ -254,8 +276,8 @@ class Query
         $with = $this->model_with();
 
         foreach ($with as $eagerload => $constraints) {
-            if (Str::starts_with($eagerload, $relationship.'.')) {
-                $key = substr((string) $eagerload, strlen((string) $relationship.'.'));
+            if (Str::starts_with($eagerload, $relationship . '.')) {
+                $key = substr((string) $eagerload, strlen((string) $relationship . '.'));
                 $nested[$key] = $constraints;
             }
         }

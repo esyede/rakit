@@ -12,7 +12,7 @@ $rules = [
     'class_keyword_remove' => true,
     'cast_spaces' => true,
     'combine_consecutive_unsets' => true,
-    'concat_space' => ['spacing' => 'none'],
+    'concat_space' => ['spacing' => 'one'],
     'dir_constant' => true,
     'elseif' => true,
     'explicit_indirect_variable' => true,

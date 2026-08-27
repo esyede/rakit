@@ -121,10 +121,37 @@ class Query
      * @var array
      */
     public $operators = [
-        '=', '<', '>', '<=', '>=', '<>', '!=', '<=>', '&', '|', '^', '<<', '>>', '&~',
-        'like', 'like binary', 'not like', 'ilike', 'rlike', 'not rlike',
-        'similar to', 'not similar to', 'not ilike', '~~*', '!~~*', '~', '~*', '!~', '!~*',
-        'regexp', 'not regexp',
+        '=',
+        '<',
+        '>',
+        '<=',
+        '>=',
+        '<>',
+        '!=',
+        '<=>',
+        '&',
+        '|',
+        '^',
+        '<<',
+        '>>',
+        '&~',
+        'like',
+        'like binary',
+        'not like',
+        'ilike',
+        'rlike',
+        'not rlike',
+        'similar to',
+        'not similar to',
+        'not ilike',
+        '~~*',
+        '!~~*',
+        '~',
+        '~*',
+        '!~',
+        '!~*',
+        'regexp',
+        'not regexp',
     ];
 
     /**
@@ -558,7 +585,7 @@ class Query
     {
         $columns = is_array($columns) ? $columns : [$columns];
         // PHP < 5.5.0 does not support yield, directly return the results of get()
-        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__.DS.'cursor.php';
+        return (PHP_VERSION_ID < 50500) ? $this->get($columns) : include __DIR__ . DS . 'cursor.php';
     }
 
     /**
@@ -651,7 +678,7 @@ class Query
      */
     public function increment($column, $amount = 1)
     {
-        return $this->update([$column => $this->raw($this->grammar->wrap($column).' + '.$this->amount($amount))]);
+        return $this->update([$column => $this->raw($this->grammar->wrap($column) . ' + ' . $this->amount($amount))]);
     }
 
     /**
@@ -664,7 +691,7 @@ class Query
      */
     public function decrement($column, $amount = 1)
     {
-        return $this->update([$column => $this->raw($this->grammar->wrap($column).' - '.$this->amount($amount))]);
+        return $this->update([$column => $this->raw($this->grammar->wrap($column) . ' - ' . $this->amount($amount))]);
     }
 
     /**
@@ -812,7 +839,7 @@ class Query
                     break;
 
                 case 'string':
-                    $str = "'".str_replace("'", "''", $binding)."'";
+                    $str = "'" . str_replace("'", "''", $binding) . "'";
                     break;
 
                 case 'object':
@@ -825,7 +852,7 @@ class Query
                         throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
                     }
 
-                    $str = "'".$binding->format('Y-m-d H:i:s')."'";
+                    $str = "'" . $binding->format('Y-m-d H:i:s') . "'";
                     break;
 
                 default:
@@ -838,7 +865,7 @@ class Query
                 throw new \Exception(sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i));
             }
 
-            $sql = substr($sql, 0, $pos).$str.substr($sql, $pos + 1);
+            $sql = substr($sql, 0, $pos) . $str . substr($sql, $pos + 1);
         }
 
         return $sql;
@@ -1076,23 +1103,87 @@ class Query
     /**
      * Paginate the query results.
      *
-     * @param int   $perpage
-     * @param array $columns
+     * @param int    $perpage
+     * @param array  $columns
+     * @param string $page_name
+     * @param int    $page
      *
      * @return Paginator
      */
-    public function paginate($perpage = 20, array $columns = ['*'])
+    public function paginate($perpage = 20, array $columns = ['*'], $page_name = 'page', $page = null)
+    {
+        $total = $this->count_for_pagination($columns);
+        $page = is_null($page) ? Paginator::page($total, $perpage, $page_name) : (int) $page;
+        $results = ($total > 0) ? $this->for_page($page, $perpage)->get($columns) : [];
+
+        return Paginator::make($results, $total, $perpage, $page_name, $page);
+    }
+
+    /**
+     * Count the total number of records for pagination purposes.
+     *
+     * @param array $columns
+     *
+     * @return int
+     */
+    protected function count_for_pagination(array $columns)
     {
         $orderings = $this->orderings;
-        $this->orderings = null;
+        $limit = $this->limit;
+        $offset = $this->offset;
 
-        $total = $this->count(reset($columns));
-        $page = Paginator::page($total, $perpage);
+        $this->orderings = null;
+        $this->limit = null;
+        $this->offset = null;
+
+        $columns = $this->without_select_aliases($columns);
+        $grouped = (! empty($this->groupings) || ! empty($this->havings));
+        $total = $grouped ? $this->count_grouped($columns) : $this->aggregate('COUNT', $columns);
 
         $this->orderings = $orderings;
+        $this->limit = $limit;
+        $this->offset = $offset;
 
-        $results = $this->for_page($page, $perpage)->get($columns);
-        return Paginator::make($results, $total, $perpage);
+        return (int) $total;
+    }
+
+    /**
+     * Count the number of records of a query containing GROUP BY or HAVING clause.
+     *
+     * @param array $columns
+     *
+     * @return int
+     */
+    protected function count_grouped(array $columns)
+    {
+        $selects = $this->selects;
+
+        if (is_null($this->selects)) {
+            $this->select($columns);
+        }
+
+        $sql = $this->grammar->select($this);
+        $this->selects = $selects;
+
+        $sql = 'SELECT COUNT(*) AS ' . $this->grammar->wrap('aggregate')
+            . ' FROM (' . $sql . ') AS ' . $this->grammar->wrap('aggregate_table');
+
+        return $this->connection->only($sql, $this->bindings);
+    }
+
+    /**
+     * Strip the aliases off the given columns.
+     * Aliases are not valid inside an aggregate function call.
+     *
+     * @param array $columns
+     *
+     * @return array
+     */
+    protected function without_select_aliases(array $columns)
+    {
+        return array_map(function ($column) {
+            return is_string($column) ? preg_replace('/\s+as\s+.+$/i', '', $column) : $column;
+        }, $columns);
     }
 
     /**
@@ -1133,7 +1224,7 @@ class Query
      */
     public function where_date($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('DATE('.$column.')'), $operator, $value, $connector);
+        return $this->where($this->raw('DATE(' . $column . ')'), $operator, $value, $connector);
     }
 
     /**
@@ -1148,7 +1239,7 @@ class Query
      */
     public function where_month($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('MONTH('.$column.')'), $operator, $value, $connector);
+        return $this->where($this->raw('MONTH(' . $column . ')'), $operator, $value, $connector);
     }
 
     /**
@@ -1163,7 +1254,7 @@ class Query
      */
     public function where_day($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('DAY('.$column.')'), $operator, $value, $connector);
+        return $this->where($this->raw('DAY(' . $column . ')'), $operator, $value, $connector);
     }
 
     /**
@@ -1178,7 +1269,7 @@ class Query
      */
     public function where_year($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('YEAR('.$column.')'), $operator, $value, $connector);
+        return $this->where($this->raw('YEAR(' . $column . ')'), $operator, $value, $connector);
     }
 
     /**
@@ -1193,7 +1284,7 @@ class Query
      */
     public function where_time($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('TIME('.$column.')'), $operator, $value, $connector);
+        return $this->where($this->raw('TIME(' . $column . ')'), $operator, $value, $connector);
     }
 
     /**
