@@ -73,7 +73,7 @@ class BelongsToMany extends Relationship
     /**
      * Get the results of mass-assignment against the relationship.
      *
-     * @return array
+     * @return \System\Collection
      */
     public function results()
     {

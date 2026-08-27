@@ -4,6 +4,7 @@ namespace System\Database\Facile\Relationships;
 
 defined('DS') or exit('No direct access.');
 
+use System\Collection;
 use System\Database\Facile\Model;
 
 class MorphToMany extends Relationship
@@ -83,7 +84,7 @@ class MorphToMany extends Relationship
      *
      * @param array $results
      *
-     * @return mixed
+     * @return \System\Collection
      */
     public function results(array $results = [])
     {
@@ -95,7 +96,7 @@ class MorphToMany extends Relationship
      *
      * @param array $columns
      *
-     * @return array
+     * @return \System\Collection
      */
     public function get($columns = ['*'])
     {
@@ -108,7 +109,7 @@ class MorphToMany extends Relationship
             ->lists($this->other);
 
         if (empty($pivot_query)) {
-            return [];
+            return new Collection();
         }
 
         $query = $this->model->query()->where_in($this->model->key(), $pivot_query);

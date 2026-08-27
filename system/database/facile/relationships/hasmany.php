@@ -9,7 +9,7 @@ class HasMany extends HasOneOrMany
     /**
      * Get all results of the relationship.
      *
-     * @return array
+     * @return \System\Collection
      */
     public function results()
     {

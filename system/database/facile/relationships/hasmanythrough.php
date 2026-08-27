@@ -163,7 +163,7 @@ class HasManyThrough extends Relationship
     /**
      * Get the results of the relationship.
      *
-     * @return array
+     * @return \System\Collection
      */
     public function results()
     {

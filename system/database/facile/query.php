@@ -166,7 +166,7 @@ class Query
      *
      * @param array $columns
      *
-     * @return array
+     * @return \System\Collection
      */
     public function get($columns = ['*'])
     {

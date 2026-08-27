@@ -1184,7 +1184,7 @@ abstract class Model implements \JsonSerializable
     /**
      * Get all models from the database.
      *
-     * @return array
+     * @return \System\Collection
      */
     public static function all()
     {
@@ -1536,7 +1536,7 @@ abstract class Model implements \JsonSerializable
     /**
      * Delete the model from the database.
      *
-     * @return int
+     * @return bool
      */
     public function delete()
     {
@@ -1611,7 +1611,7 @@ abstract class Model implements \JsonSerializable
     /**
      * Reload model from database.
      *
-     * @return Model
+     * @return Model|null
      */
     public function fresh()
     {
@@ -1621,7 +1621,7 @@ abstract class Model implements \JsonSerializable
     /**
      * Reload model from database (alias for fresh()).
      *
-     * @return Model
+     * @return Model|null
      */
     public function reload()
     {
