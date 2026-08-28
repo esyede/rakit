@@ -89,7 +89,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         Router::$group = null;
         Router::$domains = false;
 
-        $this->cleanup(path('storage').'work'.DS.'autoload'.DS);
+        $this->cleanup($this->work().'autoload'.DS);
     }
 
     // -------------------------------------------------------------------------
@@ -524,7 +524,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testR2ImageRuleExcludesSvgByDefault()
     {
-        $svg = path('storage').'work'.DS.'probe.svg';
+        $svg = $this->work().'probe.svg';
         file_put_contents($svg, '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
 
         $file = ['tmp_name' => $svg, 'name' => 'probe.svg', 'size' => filesize($svg), 'error' => 0];
@@ -1137,6 +1137,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('The GD extension is not available.');
         }
 
+        $this->work();
+
         $relative = 'tests/fixtures/storage/work/regression_src.png';
         $absolute = path('base').str_replace('/', DS, $relative);
 
@@ -1174,6 +1176,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped('The GD extension is not available.');
         }
 
+        $this->work();
+
         $first = 'tests/fixtures/storage/work/regression_a.png';
         $second = 'tests/fixtures/storage/work/regression_b.png';
 
@@ -1203,6 +1207,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         if (! Image::available()) {
             $this->markTestSkipped('The GD extension is not available.');
         }
+
+        $this->work();
 
         $source = 'tests/fixtures/storage/work/regression_src.png';
         $target = 'tests/fixtures/storage/work/regression_out.png';
@@ -1288,6 +1294,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         if (! Image::available()) {
             $this->markTestSkipped('The GD extension is not available.');
         }
+
+        $this->work();
 
         $relative = 'tests/fixtures/storage/work/regression_size.png';
         $absolute = path('base').str_replace('/', DS, $relative);
@@ -1464,6 +1472,23 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Get the scratch directory, making it when a fresh checkout has none.
+     * Git does not carry empty directories, so it cannot be assumed to exist.
+     *
+     * @return string
+     */
+    private function work()
+    {
+        $path = path('storage').'work'.DS;
+
+        if (! is_dir($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        return $path;
+    }
+
+    /**
      * Delete a directory of class files the autoloader tests wrote.
      *
      * @param string $path
@@ -1492,7 +1517,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     private function fixtures()
     {
-        $base = path('storage').'work'.DS.'autoload'.DS;
+        $base = $this->work().'autoload'.DS;
 
         $files = [
             'satu'.DS.'Kotak.php' => 'namespace RegresiSatu; class Kotak { public static function asal() { return "satu"; } }',
