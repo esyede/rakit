@@ -14,6 +14,7 @@ use System\Redis;
 use System\Request;
 use System\Session;
 use System\Autoloader;
+use System\Blade;
 use System\Curl;
 use System\Image;
 use System\JWT;
@@ -1411,8 +1412,135 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // K9: the Host header decides generated URLs
+    // -------------------------------------------------------------------------
+
+    /**
+     * A request naming a host the application does not answer to is refused.
+     *
+     * @group system
+     */
+    public function testK9UntrustedHostIsRefused()
+    {
+        Foundation::setTrustedHosts(['situs-asli.test', '*.situs-asli.test']);
+
+        $accepted = [];
+        $refused = [];
+
+        foreach (['situs-asli.test', 'app.situs-asli.test', 'situs-asli.test:8080',
+            'jahat.test', 'situs-asli.test.jahat.test', ] as $host) {
+            $request = Foundation::create('http://x/', 'GET', [], [], [], ['HTTP_HOST' => $host]);
+
+            try {
+                $accepted[] = $request->getHost();
+            } catch (\UnexpectedValueException $e) {
+                $refused[] = $host;
+            }
+        }
+
+        Foundation::setTrustedHosts([]);
+
+        $this->assertEquals(['situs-asli.test', 'app.situs-asli.test', 'situs-asli.test'], $accepted);
+        $this->assertEquals(['jahat.test', 'situs-asli.test.jahat.test'], $refused);
+    }
+
+    /**
+     * An empty list accepts whatever arrives, which is what development wants.
+     *
+     * @group system
+     */
+    public function testK9EmptyTrustedHostListAcceptsAnything()
+    {
+        Foundation::setTrustedHosts([]);
+
+        $request = Foundation::create('http://x/', 'GET', [], [], [], ['HTTP_HOST' => 'apa-saja.test']);
+
+        $this->assertEquals('apa-saja.test', $request->getHost());
+    }
+
+    // -------------------------------------------------------------------------
+    // T17, T18, S16: blade
+    // -------------------------------------------------------------------------
+
+    /**
+     * forelse falls through to its empty half instead of dying there.
+     *
+     * @group system
+     */
+    public function testT17ForelseHandlesAnEmptyCollection()
+    {
+        $this->assertEquals('tidak ada', $this->blade(
+            '@forelse ($items as $i){{ $i }}@empty tidak ada @endforelse',
+            ['items' => []]
+        ));
+
+        $this->assertEquals('12', $this->blade(
+            '@forelse ($items as $i){{ $i }}@empty tidak ada @endforelse',
+            ['items' => [1, 2]]
+        ));
+    }
+
+    /**
+     * A standalone @empty is its own directive, not the half of a forelse.
+     *
+     * @group system
+     */
+    public function testT18StandaloneEmptyDirectiveCompiles()
+    {
+        $this->assertEquals('kosong', $this->blade('@empty($x)kosong@endempty', ['x' => []]));
+        $this->assertEquals('', $this->blade('@empty($x)kosong@endempty', ['x' => ['a']]));
+    }
+
+    /**
+     * Directives nested on one line are read one at a time.
+     *
+     * @group system
+     */
+    public function testS16NestedDirectivesOnOneLine()
+    {
+        $this->assertEquals('luar dalam', $this->blade(
+            '@if ($a) luar @if ($b) dalam @endif @endif',
+            ['a' => true, 'b' => true]
+        ));
+
+        $this->assertEquals('luar', $this->blade(
+            '@if ($a) luar @if ($b) dalam @endif @endif',
+            ['a' => true, 'b' => false]
+        ));
+    }
+
+    /**
+     * A condition of its own may hold parentheses.
+     *
+     * @group system
+     */
+    public function testS16ConditionsMayHoldParentheses()
+    {
+        $this->assertEquals('ya', $this->blade('@if (count($a) > 0)ya@endif', ['a' => [1]]));
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Compile and run a blade snippet, answering what it printed.
+     *
+     * @param string $source
+     * @param array  $data
+     *
+     * @return string
+     */
+    private function blade($source, array $data = [])
+    {
+        $compiled = Blade::translate($source);
+
+        extract($data, EXTR_SKIP);
+        ob_start();
+        eval('?>'.$compiled);
+
+        return trim(preg_replace('/\s+/', ' ', (string) ob_get_clean()));
+    }
 
     /**
      * Build the tables and rows the Facile tests read.

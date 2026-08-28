@@ -142,7 +142,13 @@ if (is_array($proxies) && count($proxies) > 0) {
     Foundation\Http\Request::setTrustedProxies($proxies);
 }
 
-unset($proxies);
+$hosts = Config::get('application.trusted_hosts', []);
+
+if (is_array($hosts) && count($hosts) > 0) {
+    Foundation\Http\Request::setTrustedHosts($hosts);
+}
+
+unset($proxies, $hosts);
 
 /*
 |--------------------------------------------------------------------------

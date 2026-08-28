@@ -105,6 +105,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Trusted Hosts
+    |--------------------------------------------------------------------------
+    |
+    | Host names this application answers to. The Host header comes from the
+    | client, and when 'url' above is left empty it is what generated URLs are
+    | built from — so a request carrying someone else's host would put that host
+    | into, say, a password reset link. Filling this in refuses those requests.
+    |
+    | A name may start with '*.' to cover its subdomains as well as itself.
+    | Leave it empty to accept any host, which is fine in development.
+    |
+    */
+
+    'trusted_hosts' => [
+        // 'contoh.test',
+        // '*.contoh.test',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Trusted Proxies
     |--------------------------------------------------------------------------
     |

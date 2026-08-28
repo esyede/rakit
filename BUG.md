@@ -9,6 +9,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran ketiga** (RSA dan Autoloader): 2026-08-28.
 - **Putaran keempat** (Facile, Carbon, Image, memcached, console): 2026-08-28.
 - **Putaran kelima** (Image, Curl, WebSocket — menutup daftar): 2026-08-28.
+- **Putaran keenam** (Blade, Foundation HTTP, Debugger — menyisir yang paling dangkal): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -18,13 +19,13 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
-| [Kritis — keamanan](#kritis--keamanan) | 8 | 8 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 16 | 16 | 0 |
-| [Sedang](#sedang) | 14 | 14 | 0 |
+| [Kritis — keamanan](#kritis--keamanan) | 9 | 9 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 18 | 18 | 0 |
+| [Sedang](#sedang) | 15 | 15 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
-| **Total** | **49** | **49** | **0** |
+| **Total** | **53** | **53** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2135 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2141 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -257,6 +258,33 @@ daftar algoritma sebagai argumen wajib justru karena ini.
 dari bahan kuncinya lewat `JWT::suitable()`: kunci yang bisa dibaca OpenSSL sebagai kunci PEM
 hanya menerima `RS*`, kunci lain hanya menerima `HS*`. Menyebut `algorithm` secara eksplisit
 tetap didahulukan, dan tidak ada pemanggil lama yang perlu diubah.
+
+### K9. URL dibangun dari header `Host` kiriman klien
+
+- [x] Selesai
+
+Ditemukan di putaran keenam. `application.url` bawaannya kosong, dan waktu kosong `URL::base()`
+jatuh ke `Request::foundation()->getRootUrl()` — yang menyusun host dari header `Host`.
+`getHost()` hanya memeriksa bentuk karakternya, tidak pernah membandingkannya dengan host yang
+memang dilayani aplikasi.
+
+**Reproduksi**:
+
+```
+GET /reset HTTP/1.1
+Host: jahat.test
+
+URL::to('reset/token123')  =>  http://jahat.test/index.php/reset/token123
+```
+
+Tautan reset kata sandi yang dikirim lewat surel akan menunjuk ke host penyerang, dan tokennya
+ikut terbawa begitu korban mengeklik.
+
+**Yang dikerjakan**: opsi baru `application.trusted_hosts`, dipasang di `boot.php` sebelum
+request diproses. Selama daftarnya kosong host apa pun diterima (yang memang cocok untuk
+pengembangan); begitu diisi, request yang menyebut host lain ditolak. Nama boleh diawali `*.`
+untuk mencakup subdomainnya sekaligus dirinya sendiri, dan pengecekannya tahan terhadap
+kebingungan akhiran — `situs-asli.test.jahat.test` tetap ditolak.
 
 ---
 
@@ -667,6 +695,52 @@ padanannya untuk kredensial, cookie, atau proxy.
 **Yang dikerjakan**: `clear_auth()`, `clear_cookie()`, `clear_proxy()` dan `reset()`
 ditambahkan, dan dokumentasinya menyebut bahwa kredensial bertahan sampai dibersihkan.
 
+### T17. `@forelse` mati justru saat koleksinya kosong
+
+- [x] Selesai
+
+Bingkai `$loop` didorong **di dalam** cabang "ada isinya", sementara `@endforelse` selalu
+mem-`pop`-nya:
+
+```php
+<?php if (count($a) > 0): ?><?php $__loop_stack = ..; $__loop_stack[] = ..; foreach ..
+..
+<?php endif; array_pop($__loop_stack); ?>
+```
+
+Koleksi kosong berarti cabang `else` yang jalan, `$__loop_stack` tidak pernah ada, dan
+`array_pop()` menerima `null`:
+
+```
+TypeError: array_pop(): Argument #1 ($array) must be of type array, null given
+```
+
+Jadi `@forelse` gagal persis pada satu-satunya kasus yang jadi alasan keberadaannya.
+
+**Yang dikerjakan**: bingkainya didorong sebelum `if`, sehingga kedua cabang punya sesuatu
+untuk di-`pop` dan tumpukannya tetap seimbang — termasuk saat `@forelse` bersarang di dalam
+loop lain.
+
+### T18. `@empty($x)` dirusak oleh pemisah `@forelse`
+
+- [x] Selesai
+
+`compile_empty()` mengganti **setiap** `@empty` dengan `<?php endforeach; ?><?php else: ?>`,
+tanpa memedulikan apakah itu pemisah `@forelse` atau direktif tersendiri. Jadi:
+
+```blade
+@empty($x)
+    kosong
+@endempty
+```
+
+dikompilasi menjadi `<?php endforeach; ?><?php else: ?>($x) kosong @endempty` — dan itu
+**parse error**, bukan sekadar hasil yang salah.
+
+**Yang dikerjakan**: `@empty` yang diikuti kurung diperlakukan sebagai direktif tersendiri dan
+dikompilasi menjadi `if (empty(..))`, sementara `@empty` telanjang tetap jadi pemisah
+`@forelse`. `@endempty` ditambahkan sebagai penutupnya.
+
 ---
 
 ## Sedang
@@ -886,6 +960,24 @@ Frame-nya juga jadi salah tafsir, karena bagian yang belum sampai dibaca sebagai
 lengkap di setiap titik yang butuh byte tambahan, dan `split_packet()` menyimpannya ke buffer
 untuk digabung dengan potongan berikutnya alih-alih menebak.
 
+### S16. Direktif bersarang dalam satu baris jadi parse error
+
+- [x] Selesai
+
+`compile_structure_start()` mencocokkan `@(if|elseif|for|while)(\s*\(.*\))`. `.*` itu rakus,
+jadi untuk satu baris yang memuat dua direktif ia menelan keduanya:
+
+```blade
+@if ($a) luar @if ($b) dalam @endif @endif
+```
+
+menjadi `<?php if($a) @if($b): ?>` — `ParseError: syntax error, unexpected token "@"`. Ditulis
+di beberapa baris hasilnya benar, jadi bug ini hanya muncul saat template ditulis rapat.
+
+**Yang dikerjakan**: pola kurungnya diganti pencocokan berpasangan
+(`\((?:[^()]++|(?N))*\)`), yang dipakai juga oleh `@foreach` dan `@forelse`. Kondisi yang
+memuat kurung sendiri seperti `@if (count($a) > 0)` tetap bekerja.
+
 ---
 
 ## Rendah / pengerasan
@@ -1064,6 +1156,7 @@ kosong.
 | `packages/docs/data/curl.md` | Kredensial bertahan sampai dibersihkan, `reset()` |
 | `packages/docs/data/image.md` | `dump()` mengembalikan Response |
 | `application/config/websocket.php` | Opsi baru: `max_payload_size` |
+| `application/config/application.php` | Opsi baru: `trusted_hosts` |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -1121,16 +1214,21 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
 - **WebSocket** selain dua poin di atas — jabat tangan RFC 6455 benar, pemeriksaan origin ada
   meski `origin_required` bawaannya `false` sebagaimana didokumentasikan, dan pesan biasa
   melewati jalur frame dengan utuh.
+- **Blade** selain tiga poin di atas — `@foreach`, `@for`, `@while`, `@unless`, `@section`,
+  `@yield`, `@push`, `@stack`, `@once`, `@php`, `@csrf`, `@method`, `@include`, `@json` dan
+  komentar semuanya dikompilasi benar; `@json` memakai flag `JSON_HEX_*` sehingga aman
+  disematkan. Direktif Laravel yang memang belum ada (`@isset`, `@switch`, `@class`,
+  `@checked`, `@selected`, `@disabled`, `@lang`) lewat begitu saja sebagai teks biasa — itu
+  fitur yang belum dibuat, bukan bug, dan sudah tercatat di LARAVEL-PARITY.md.
+- **Debugger/Oops** — dengan `debugger.activate = false`, halaman 500 tidak membocorkan pesan
+  exception maupun path berkas; diuji lewat HTTP sungguhan. Satu catatan kecil:
+  `Debugger::detectDebugMode()` dipanggil di `boot.php` tapi nilainya dibuang, jadi mode debug
+  murni ditentukan konfigurasi. Perilakunya benar, hanya pemanggilannya yang sia-sia dan bisa
+  membuat pembaca mengira ada deteksi otomatis berbasis IP.
 
 ## Belum diaudit
 
-Kosong. Seluruh daftar sudah disisir.
+Kosong.
 
-Yang tidak berarti framework ini bebas bug — hanya berarti setiap bagian sudah pernah dilihat
-sekali, dengan kedalaman yang berbeda-beda. Yang paling dangkal, dan paling layak disisir ulang
-kalau nanti ada waktu:
-
-- **Blade** di luar escaping dan beberapa direktif.
-- **Foundation HTTP** (`Request`, `Response`, `Upload`, `Header`) — punya test tebal, tapi belum
-  pernah jadi sasaran audit tersendiri.
-- **Debugger/Oops** — tidak disentuh sama sekali; jalurnya hanya aktif di mode pengembangan.
+Yang tidak berarti framework ini bebas bug — hanya berarti setiap bagian sudah pernah dilihat,
+dan setiap temuan yang muncul sudah ditutup berikut testnya. Enam putaran, 53 temuan.

@@ -29,6 +29,7 @@ class Blade
         'csrf',
         'forelse',
         'empty',
+        'endempty',
         'endforelse',
         'structure_start',
         'foreach',
@@ -371,12 +372,16 @@ class Blade
      */
     protected static function compile_forelse($value)
     {
-        preg_match_all('/(\s*)@forelse(\s*\(.*\))(\s*)/', $value, $matches);
+        preg_match_all('/(\s*)@forelse(\s*(\((?:[^()]++|(?3))*\)))(\s*)/', $value, $matches);
 
         foreach ($matches[0] as $forelse) {
             preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variables);
-            $replace = '$1<?php if (count('.$variables[1].') > 0): ?><?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count('.$variables[1].'), "count" => count('.$variables[1].'), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; foreach$2: $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
-            $value = str_replace($forelse, preg_replace('/(\s*)@forelse(\s*\(.*\))/', $replace, $forelse), $value);
+            $replace = '$1<?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count('.$variables[1].'), "count" => count('.$variables[1].'), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; if (count('.$variables[1].') > 0): ?><?php foreach$2: $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
+            $value = str_replace(
+                $forelse,
+                preg_replace('/(\s*)@forelse(\s*(\((?:[^()]++|(?3))*\)))/', $replace, $forelse),
+                $value
+            );
         }
 
         return $value;
@@ -391,7 +396,25 @@ class Blade
      */
     protected static function compile_empty($value)
     {
+        $value = preg_replace(
+            '/(\s*)@empty(\s*(\((?:[^()]++|(?3))*\)))/',
+            '$1<?php if (empty$2): ?>',
+            $value
+        );
+
         return str_replace('@empty', '<?php endforeach; ?><?php else: ?>', $value);
+    }
+
+    /**
+     * Translate blade @endempty.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_endempty($value)
+    {
+        return str_replace('@endempty', '<?php endif; ?>', $value);
     }
 
     /**
@@ -415,7 +438,11 @@ class Blade
      */
     protected static function compile_structure_start($value)
     {
-        return preg_replace('/(\s*)@(if|elseif|for|while)(\s*\(.*\))/', '$1<?php $2$3: ?>', $value);
+        return preg_replace(
+            '/(\s*)@(if|elseif|for|while)(\s*(\((?:[^()]++|(?4))*\)))/',
+            '$1<?php $2$3: ?>',
+            $value
+        );
     }
 
     /**
@@ -441,7 +468,7 @@ class Blade
      */
     protected static function compile_foreach($value)
     {
-        return preg_replace_callback('/@foreach(\s*\(.*\))/', function ($matches) {
+        return preg_replace_callback('/@foreach(\s*(\((?:[^()]++|(?2))*\)))/', function ($matches) {
             if (preg_match('/\(\s*([^=]+?)\s+as\s+/', $matches[1], $arrays)) {
                 return '<?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count('.trim($arrays[1]).'), "count" => count('.trim($arrays[1]).'), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; foreach'.$matches[1].': $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
             }
