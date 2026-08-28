@@ -744,6 +744,17 @@ class Request
     }
 
     /**
+     * Get the request method as the server reported it, ignoring any spoofing
+     * done through '_method' or the 'X-Http-Method-Override' header.
+     *
+     * @return string
+     */
+    public function getRealMethod()
+    {
+        return strtoupper((string) $this->server->get('REQUEST_METHOD', 'GET'));
+    }
+
+    /**
      * Get the request method (uppercased).
      *
      * @return string

@@ -28,6 +28,13 @@ class Join
     public $clauses = [];
 
     /**
+     * Contains the list of valid SQL operators for a join clause.
+     *
+     * @var array
+     */
+    public $operators = ['=', '<', '>', '<=', '>=', '<>', '!=', '<=>'];
+
+    /**
      * Constructor.
      *
      * @param string $type
@@ -51,6 +58,10 @@ class Join
      */
     public function on($column1, $operator, $column2, $connector = 'AND')
     {
+        if (! in_array(strtolower((string) $operator), $this->operators)) {
+            throw new \InvalidArgumentException(sprintf('Unsupported SQL operator: %s', $operator));
+        }
+
         $this->clauses[] = compact('column1', 'operator', 'column2', 'connector');
         return $this;
     }

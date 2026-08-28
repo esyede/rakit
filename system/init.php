@@ -18,7 +18,7 @@ if (is_file($path = path('rakit_key'))) {
 
     if (! is_readable(dirname($path))) {
         $error = 'unreadable.phtml';
-    } elseif (1 !== preg_match('/^[a-f\d]{8}(-[a-f\d]{4}){4}[a-f\d]{8}$/i', require $path)) {
+    } elseif (1 !== preg_match('/^(?:[a-f\d]{64}|[a-f\d]{8}(?:-[a-f\d]{4}){4}[a-f\d]{8})$/i', require $path)) {
         $error = 'invalid.phtml';
     }
 
@@ -72,7 +72,7 @@ if (is_file($path = path('rakit_key'))) {
 
     file_put_contents(path('rakit_key'), str_replace(
         '00000000-0000-0000-0000-000000000000',
-        vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(openssl_random_pseudo_bytes(16)), 4)),
+        bin2hex(openssl_random_pseudo_bytes(32)),
         file_get_contents(__DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system'.DS.'key.stub')
     ));
 }

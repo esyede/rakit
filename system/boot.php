@@ -126,6 +126,26 @@ unset($debugger, $template, $debugger);
 
 /*
 |--------------------------------------------------------------------------
+| Trust the Configured Reverse Proxies
+|--------------------------------------------------------------------------
+|
+| Headers such as X-Forwarded-For and CF-Connecting-IP are sent by the client,
+| so they are only worth reading when the request actually arrives through a
+| proxy we put in front of the application. Until that list is configured they
+| are ignored and the peer address is used as-is.
+|
+*/
+
+$proxies = Config::get('application.trusted_proxies', []);
+
+if (is_array($proxies) && count($proxies) > 0) {
+    Foundation\Http\Request::setTrustedProxies($proxies);
+}
+
+unset($proxies);
+
+/*
+|--------------------------------------------------------------------------
 | Timeline: Log Boot Phase
 |--------------------------------------------------------------------------
 |

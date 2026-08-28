@@ -112,7 +112,13 @@ class Lang
         $line = Arr::get(static::$lines[$package][$language][$file], $line, $default);
 
         if (is_string($line)) {
-            foreach ($this->replacements as $key => $value) {
+            $replacements = $this->replacements;
+
+            uksort($replacements, function ($left, $right) {
+                return mb_strlen((string) $right, '8bit') - mb_strlen((string) $left, '8bit');
+            });
+
+            foreach ($replacements as $key => $value) {
                 $line = str_replace(':'.$key, $value, $line);
             }
         }

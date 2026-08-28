@@ -116,7 +116,7 @@ class URL
      */
     protected static function explicit($route, $action, array $parameters)
     {
-        return static::to(static::transpose(key($route), $parameters));
+        return static::to(static::transpose(Routing\Router::uri(key($route)), $parameters));
     }
 
     /**
@@ -169,7 +169,7 @@ class URL
             throw new \Exception(sprintf('Error creating URL for undefined route: %s', $name));
         }
 
-        return static::to(trim(static::transpose(key($route), $parameters), '/'));
+        return static::to(trim(static::transpose(Routing\Router::uri(key($route)), $parameters), '/'));
     }
 
     /**

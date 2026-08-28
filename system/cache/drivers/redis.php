@@ -11,18 +11,27 @@ class Redis extends Driver
     /**
      * Contains the Redis instance.
      *
-     * @var System\Redis
+     * @var \System\Redis
      */
     protected $redis;
 
     /**
+     * Contains the prefix every key of this cache is stored under.
+     *
+     * @var string
+     */
+    protected $key;
+
+    /**
      * Make a new Redis cache driver instance.
      *
-     * @param System\Redis $redis
+     * @param \System\Redis $redis
+     * @param string        $key
      */
-    public function __construct(BaseRedis $redis)
+    public function __construct(BaseRedis $redis, $key = '')
     {
         $this->redis = $redis;
+        $this->key = (string) $key;
     }
 
     /**
@@ -35,7 +44,7 @@ class Redis extends Driver
     public function has($key)
     {
         /* @disregard */
-        return ! is_null($this->redis->get($key));
+        return ! is_null($this->redis->get($this->key.$key));
     }
 
     /**
@@ -48,21 +57,25 @@ class Redis extends Driver
     protected function retrieve($key)
     {
         /** @disregard */
-        $cache = $this->redis->get($key);
+        $cache = $this->redis->get($this->key.$key);
 
         if (null === $cache) {
             return;
         }
 
-        set_error_handler(function () {
-        });
+        // Counters are stored as plain integers so INCR can work on them.
+        if (preg_match('/^-?\d+$/', $cache)) {
+            return (int) $cache;
+        }
+
+        set_error_handler(function () {});
         $value = @unserialize($cache);
         restore_error_handler();
 
         if ($value === false && $cache !== serialize(false)) {
             try {
                 /* @disregard */
-                $this->redis->del($key);
+                $this->redis->del($this->key.$key);
             } catch (\Throwable $e) {
                 // ignore error
             } catch (\Exception $e) {
@@ -85,9 +98,9 @@ class Redis extends Driver
     public function put($key, $value, $minutes)
     {
         /* @disregard */
-        $this->redis->set($key, serialize($value));
+        $this->redis->set($this->key.$key, is_int($value) ? (string) $value : serialize($value));
         /* @disregard */
-        $this->redis->expire($key, $minutes * 60);
+        $this->redis->expire($this->key.$key, $minutes * 60);
     }
 
     /**
@@ -100,13 +113,36 @@ class Redis extends Driver
      */
     public function increment($key, $minutes = 1)
     {
-        /** @disregard */
-        $current = (int) $this->redis->incr($key);
+        try {
+            /** @disregard */
+            $current = (int) $this->redis->incr($this->key.$key);
+        } catch (\Throwable $e) {
+            $current = $this->recount($key, $minutes);
+        } catch (\Exception $e) {
+            $current = $this->recount($key, $minutes);
+        }
 
         if ($current === 1) {
             /* @disregard */
-            $this->redis->expire($key, $minutes * 60);
+            $this->redis->expire($this->key.$key, $minutes * 60);
         }
+
+        return $current;
+    }
+
+    /**
+     * Rewrite a key that holds a serialized value into the plain integer INCR
+     * needs. Only reached for data written before counters were stored raw.
+     *
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    protected function recount($key, $minutes)
+    {
+        $current = ((int) $this->retrieve($key)) + 1;
+        $this->put($key, $current, $minutes);
 
         return $current;
     }
@@ -130,7 +166,7 @@ class Redis extends Driver
     public function forget($key)
     {
         /* @disregard */
-        $this->redis->del($key);
+        $this->redis->del($this->key.$key);
     }
 
     /**
@@ -138,7 +174,18 @@ class Redis extends Driver
      */
     public function flush()
     {
-        /* @disregard */
-        $this->redis->flushdb();
+        if ('' === $this->key) {
+            /* @disregard */
+            $this->redis->flushdb();
+            return;
+        }
+
+        /** @disregard */
+        $keys = (array) $this->redis->keys($this->key.'*');
+
+        foreach ($keys as $key) {
+            /* @disregard */
+            $this->redis->del($key);
+        }
     }
 }

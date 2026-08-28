@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Cache;
 use System\Request;
 use System\Response;
+use System\Foundation\Http\Request as Foundation;
 
 class Throttle
 {
@@ -50,12 +51,22 @@ class Throttle
 
     /**
      * Get the IP address of the current client.
+     * Proxy headers are readable by anyone, so they only count once the
+     * application has been told which proxies sit in front of it.
      *
      * @return string
      */
     protected static function client()
     {
-        return Request::server('HTTP_CF_CONNECTING_IP') ?: Request::ip();
+        if (Foundation::isProxyTrusted()) {
+            $forwarded = Request::server('HTTP_CF_CONNECTING_IP');
+
+            if ($forwarded && filter_var($forwarded, FILTER_VALIDATE_IP)) {
+                return $forwarded;
+            }
+        }
+
+        return Request::ip();
     }
 
     /**

@@ -105,6 +105,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Trusted Proxies
+    |--------------------------------------------------------------------------
+    |
+    | IP addresses of the reverse proxies that sit in front of the application,
+    | for example a load balancer or Cloudflare. Only when this list is filled
+    | in are the headers those proxies add (X-Forwarded-For, CF-Connecting-IP,
+    | and friends) read; until then the peer address is used as-is, because a
+    | client can send those headers itself.
+    |
+    | Leave it empty when the application is reached directly.
+    |
+    */
+
+    'trusted_proxies' => [
+        // '192.0.2.1',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Composer Autoload
     |--------------------------------------------------------------------------
     |

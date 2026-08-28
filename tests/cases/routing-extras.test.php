@@ -185,22 +185,59 @@ class RoutingExtrasTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test for Middleware::run() - skips unregistered middleware.
+     * Test for Middleware::run() - refuses to skip an unregistered middleware.
      *
      * @group system
      */
-    public function testMiddlewareRunSkipsUnregisteredMiddleware()
+    public function testMiddlewareRunThrowsForUnregisteredMiddleware()
     {
         $called = false;
         Middleware::register('exists', function () use (&$called) {
             $called = true;
         });
 
-        $coll1 = new Middlewares('nonexistent-mw');
-        $coll2 = new Middlewares('exists');
+        $this->setExpectedException('Exception', 'Undefined middleware: nonexistent-mw');
 
-        Middleware::run([$coll1, $coll2]);
+        Middleware::run([new Middlewares('nonexistent-mw'), new Middlewares('exists')]);
+    }
+
+    /**
+     * Test for Middleware::run() - an optional collection may be missing.
+     *
+     * @group system
+     */
+    public function testMiddlewareRunSkipsMissingOptionalMiddleware()
+    {
+        $called = false;
+        Middleware::register('exists', function () use (&$called) {
+            $called = true;
+        });
+
+        $optional = new Middlewares('nonexistent-mw');
+        $optional->optional = true;
+
+        Middleware::run([$optional, new Middlewares('exists')]);
         $this->assertTrue($called);
+    }
+
+    /**
+     * Test for Route::call() - a route naming a middleware that was never
+     * registered must not run unprotected.
+     *
+     * @group system
+     */
+    public function testRouteWithUnknownMiddlewareThrows()
+    {
+        $route = new \System\Routing\Route('GET', 'rahasia', [
+            'before' => 'tidak-pernah-didaftarkan',
+            function () {
+                return 'BOCOR';
+            },
+        ]);
+
+        $this->setExpectedException('Exception', 'Undefined middleware: tidak-pernah-didaftarkan');
+
+        $route->call();
     }
 
     /**

@@ -5,17 +5,23 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 
 - **Cara verifikasi**: SQLite in-memory, MariaDB 10.11 lokal, dan Redis 7 lokal.
 - **Mulai diaudit**: 2026-08-28.
+- **Selesai diperbaiki**: 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
+- **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
+  jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
+  muat di sana ada di berkas subjeknya masing-masing (`routing-extras`, `redirect`).
 
 ## Ringkasan
 
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
-| [Kritis — keamanan](#kritis--keamanan) | 7 | 0 | 7 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 4 | 0 | 4 |
-| [Sedang](#sedang) | 7 | 0 | 7 |
-| [Rendah / pengerasan](#rendah--pengerasan) | 10 | 0 | 10 |
-| **Total** | **28** | **0** | **28** |
+| [Kritis — keamanan](#kritis--keamanan) | 7 | 7 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 5 | 5 | 0 |
+| [Sedang](#sedang) | 7 | 7 | 0 |
+| [Rendah / pengerasan](#rendah--pengerasan) | 10 | 10 | 0 |
+| **Total** | **29** | **29** | **0** |
+
+Cakupan test naik dari 2064 menjadi **2104 test**, semuanya lolos.
 
 Area yang belum disisir dicatat di [Belum diaudit](#belum-diaudit).
 
@@ -25,7 +31,7 @@ Area yang belum disisir dicatat di [Belum diaudit](#belum-diaudit).
 
 ### K1. CSRF bisa dilewati lewat spoofing method
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Foundation\Http\Request::getMethod()` (`system/foundation/http/request.php:751`) menghormati
 `_method` dari body/query dan header `X-Http-Method-Override` **tanpa syarat**. Symfony
@@ -58,12 +64,15 @@ hasil `Route::controller()` (didaftarkan untuk `*`) — karena controller non-re
 `action_<nama>` yang sama tanpa peduli method HTTP-nya, sementara body POST tetap terbaca
 `Input::get()`.
 
-**Saran**: matikan override secara default dengan opsi konfigurasi untuk menyalakannya, dan
-bagaimanapun juga jadikan `Request::forged()` memakai `REQUEST_METHOD` mentah.
+**Yang dikerjakan**: `Foundation\Http\Request::getRealMethod()` dan `Request::real_method()`
+mengembalikan method yang dilaporkan server, tanpa peduli spoofing, dan `forged()` memakainya
+untuk memutuskan. Spoofing tetap bekerja untuk routing, jadi `@method('PUT')` pada form resource
+tidak berubah; yang berubah hanya POST yang menyamar sebagai method aman, yang kini tetap
+diminta token.
 
 ### K2. Middleware yang tidak terdaftar dilewati diam-diam (fail open)
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Middleware::run()` (`system/routing/middleware.php:94`):
 
@@ -83,11 +92,14 @@ Route::get('rahasia', ['before' => 'atuh', function () { return 'RAHASIA BOCOR';
 // -> 'RAHASIA BOCOR', bukan 401
 ```
 
-**Saran**: lempar exception untuk middleware yang tidak dikenal, seperti Laravel.
+**Yang dikerjakan**: `Middleware::run()` melempar `Undefined middleware: <nama>`. Middleware
+global (`before`, `after`, dan pasangan berprefix package) memang konvensi dan boleh tidak ada,
+jadi keduanya dipisah ke koleksi tersendiri yang ditandai `Middlewares::$optional`. Semua yang
+diminta route atau controller diperlakukan ketat.
 
 ### K3. Middleware grup luar hilang di grup bersarang
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Router::merge_groups()` (`system/routing/router.php:251`) memakai `array_merge()` di seluruh
 tumpukan grup, jadi grup dalam **mengganti** atribut grup luar alih-alih menggabungkannya.
@@ -114,12 +126,13 @@ Dua masalah sekaligus: URI-nya salah **dan** middleware grup luar hilang, jadi r
 kehilangan proteksi yang dikira sudah terpasang. Ini pola yang sangat umum
 (`group(['before' => 'auth'])` membungkus `group(['prefix' => ..])`).
 
-**Saran**: sambung `prefix` dan `domain` secara berjenjang, gabungkan `before`/`after` alih-alih
-menimpanya.
+**Yang dikerjakan**: `Router::merge_groups()` menyambung `prefix` berjenjang lewat
+`join_prefix()` dan menggabungkan `before`/`after` lewat `join_middlewares()` (duplikat dibuang).
+Atribut lain tetap ditimpa grup terdalam, karena itu yang diharapkan untuk `domain` dan `as`.
 
 ### K4. `Input::all()` dan `Input::get()` memilih sumber yang berbeda
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Input::all()` (`system/input.php:30`) memakai `array_merge($post, $query, $files)` sehingga
 **query string menang**, sementara `Input::get($key)` membaca body lebih dulu dan baru jatuh ke
@@ -140,12 +153,13 @@ Input::only(['peran'])['peran']                                                =
 Input::get('peran')                                                            => 'admin'
 ```
 
-**Saran**: satu urutan prioritas untuk semua pembaca input. Laravel memakai `body + query`
-(body menang); ikuti itu di `all()`, `only()`, `get()` dan `has()`.
+**Yang dikerjakan**: `Input::get()` tanpa kunci mengembalikan `array_merge($query, $body)`
+sehingga body yang menang, dan `all()` dibangun dari situ. Karena `only()`, `except()`, `has()`
+dan `flash()` semuanya lewat `get()`, tidak ada lagi yang bisa berbeda pendapat.
 
 ### K5. SQL injection lewat operator `where()`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Query\Grammars\Grammar::where_basic()` (`system/database/query/grammars/grammar.php:202`)
 menyambung `$where['operator']` mentah-mentah ke SQL. Nilainya memang di-bind, operatornya
@@ -160,12 +174,14 @@ DB::table('users')->where('id', $op, 999999)->get();
 // mengembalikan SELURUH baris, bukan nol
 ```
 
-**Saran**: validasi operator terhadap daftar putih dan lempar exception untuk yang tidak
-dikenal, seperti `Builder::invalidOperator()` di Laravel.
+**Yang dikerjakan**: `Query::validate_operator()` mencocokkan operator dengan daftar
+`Query::$operators` yang sudah ada dan melempar `InvalidArgumentException` untuk selain itu.
+Dipakai `where()` dan `having()`. `Query\Join::on()` punya daftarnya sendiri, karena klausa
+join hanya masuk akal dengan operator pembanding.
 
 ### K6. SQL injection lewat arah `order_by()`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Query\Grammars\Grammar::orderings()` (`system/database/query/grammars/grammar.php:421`) hanya
 meng-`strtoupper()` arah pengurutan lalu menyambungnya ke SQL.
@@ -181,11 +197,13 @@ DB::table('users')->order_by('id', 'ASC, (SELECT password FROM users LIMIT 1)')-
 Arah pengurutan hampir selalu datang dari query string (`?sort=nama&dir=asc`), jadi ini lebih
 mudah dijangkau penyerang daripada K5. Nama kolomnya sendiri aman karena lewat `wrap()`.
 
-**Saran**: terima hanya `asc`/`desc` (case-insensitive), lempar exception untuk selain itu.
+**Yang dikerjakan**: `Query::order_by()` menormalkan arah ke huruf kecil dan melempar
+`InvalidArgumentException` untuk selain `asc`/`desc`. `order_by_raw()` tetap apa adanya, karena
+memang itu gunanya.
 
 ### K7. Rate limit bisa dilewati lewat header `CF-Connecting-IP`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Throttle::client()` (`system/routing/throttle.php:58`):
 
@@ -198,8 +216,10 @@ Cloudflare (dan memverifikasinya), penyerang cukup mengirim header itu dengan ni
 request untuk mendapat ember hitungan baru, sehingga throttle tidak pernah kena.
 `Request::ip()` sendiri aman karena lewat mekanisme trusted proxy Symfony.
 
-**Saran**: hanya percaya header proxy kalau IP asal ada di daftar proxy tepercaya, dan jadikan
-itu konfigurasi, bukan hardcode satu vendor.
+**Yang dikerjakan**: `Throttle::client()` hanya membaca `CF-Connecting-IP` kalau
+`Foundation\Http\Request::isProxyTrusted()` benar dan nilainya IP yang sah. Daftar proxy-nya
+diisi lewat opsi baru `application.trusted_proxies`, yang dipasang di `boot.php` sebelum request
+diproses. Selama daftar itu kosong, alamat peer yang dipakai.
 
 ---
 
@@ -207,7 +227,7 @@ itu konfigurasi, bukan hardcode satu vendor.
 
 ### T1. Throttle melempar exception di driver cache redis
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Throttle::check()` menyimpan hitungan awal dengan `Cache::put($key, 1, ..)`, dan driver redis
 menyimpannya sebagai `serialize(1)` = `"i:1;"`. Request berikutnya memanggil `Cache::increment()`
@@ -223,9 +243,13 @@ put(1) lalu increment:
 Route mana pun yang memakai `throttle:60,1` **melempar 500 pada request kedua di dalam jendela
 yang sama**, bukan membatasi. Bergantung pada T2.
 
+**Yang dikerjakan**: ikut selesai lewat T2. Ada juga jaring pengaman: kalau `INCR` menolak
+sebuah kunci (data yang ditulis versi sebelumnya), kuncinya ditulis ulang sebagai integer biasa
+lalu hitungannya dilanjutkan, alih-alih melempar.
+
 ### T2. `Cache::get()` merusak nilai hasil `Cache::increment()` di redis
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Cache\Drivers\Redis::put()` menyimpan `serialize($value)` sementara `increment()`
 (`system/cache/drivers/redis.php:104`) memakai `INCR` yang menulis integer mentah. Saat dibaca
@@ -244,9 +268,14 @@ Semua penghitung berbasis cache (view counter, rate limit, kuota) rusak dan data
 driver redis. Driver apc dan memcached tidak kena karena keduanya menyimpan nilai mentah;
 driver file dan database aman karena `increment()`-nya lewat `put()` yang sama.
 
+**Yang dikerjakan**: `put()` menyimpan integer sebagai angka biasa (nilai lain tetap
+ter-serialize), dan `retrieve()` mengenali bentuk itu. Dengan begitu `INCR` bekerja di atas data
+yang sama dengan yang dibaca `get()`, dan tipenya tetap terjaga: `put($k, 7)` kembali sebagai
+`int`, `put($k, '7')` kembali sebagai `string`.
+
 ### T3. `URL::to_route()` membocorkan kunci internal untuk route ber-domain
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 Route yang didaftarkan di dalam `Route::domain()` / `Route::group(['domain' => ..])` disimpan
 dengan kunci gabungan `domain||uri`. `URL::explicit()` dan `URL::to_route()`
@@ -265,9 +294,13 @@ URL::to_route('panel');   // http://situs/index.php/admin.contoh.test||panel
 Seluruh URL bernama untuk route ber-domain rusak, termasuk lewat `Redirect::to_route()`,
 `URL::to_action()` dan `@route` di view.
 
+**Yang dikerjakan**: `Router::uri()` mengupas bagian domain dari kunci route, dan dipakai
+`URL::explicit()`, `URL::to_route()` serta dua tempat di `Router` yang selama ini menyalin
+logika yang sama.
+
 ### T4. Aturan `size`/`min`/`max`/`between` salah menghitung array
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Validator::size()` (`system/validator.php:976`) hanya menangani numerik dan berkas upload;
 selain itu jatuh ke `Str::length(trim((string) $value))`. Untuk array, itu berarti PHP warning
@@ -284,7 +317,37 @@ selain itu jatuh ke `Str::length(trim((string) $value))`. Untuk array, itu berar
 
 Semua disertai `PHP Warning: Array to string conversion in system/validator.php on line 986`.
 
-**Saran**: kembalikan `count($value)` untuk array dan `Countable`, seperti Laravel.
+**Yang dikerjakan**: `Validator::size()` mengembalikan `count($value)` untuk array dan
+`Countable`, setelah cabang berkas upload supaya ukuran berkas tetap dihitung dalam kilobyte.
+
+### T5. Middleware berbasis pattern sama sekali tidak jalan
+
+- [x] Selesai
+
+Ditemukan saat memverifikasi perbaikan K2. Ketiga bentuk yang didokumentasikan di
+`packages/docs/data/routing.md` gagal:
+
+```php
+Route::middleware('pattern: admin/*', 'auth');
+// TypeError: Argument #2 ($handler) must be of type callable, string given
+
+Route::middleware('pattern: api/*', ['name' => 'api_auth', function () { .. }]);
+// TypeError: Argument #2 ($handler) must be of type callable, array given
+
+Route::middleware('pattern: admin/*', function () { .. });
+// Error: Object of class Closure could not be converted to string
+```
+
+Type hint `callable` menolak nama middleware maupun bentuk array, sementara closure telanjang
+lolos type hint lalu mati di `Middlewares::get()` yang memperlakukannya sebagai string. Cabang
+`is_array($middleware)` di `Route::patterns()` pun tidak pernah tercapai. Jadi cara memasang
+middleware ke sekumpulan URI sekaligus — misalnya `auth` untuk seluruh `admin/*` — tidak pernah
+bisa dipakai.
+
+**Yang dikerjakan**: type hint `callable` dilepas dari `Route::middleware()` dan
+`Middleware::register()`, dan `Route::patterns()` menangani ketiga bentuk: string diurai sebagai
+daftar nama, array `[nama, callback]` didaftarkan dengan namanya, dan callable telanjang
+didaftarkan dengan nama turunan dari pattern-nya.
 
 ---
 
@@ -292,39 +355,53 @@ Semua disertai `PHP Warning: Array to string conversion in system/validator.php 
 
 ### S1. Driver cache redis mengabaikan prefix `cache.key`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 Driver apc, memcached, database dan file semuanya memakai `$this->key.$key`. Driver redis
 memakai `$key` mentah di `has()`, `retrieve()`, `put()`, `increment()` dan `forget()`. Dua
 aplikasi yang berbagi satu database Redis akan saling menimpa cache.
 
+**Yang dikerjakan**: konstruktornya menerima prefix seperti driver lain, dan semua method
+memakainya. Kunci yang ditulis versi sebelumnya jadi tidak terbaca lagi — isinya cache, jadi
+akan terisi ulang sendiri.
+
 ### S2. `Cache\Drivers\Redis::flush()` menjalankan `flushdb()`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `system/cache/drivers/redis.php:139`. `flushdb()` menghapus **seluruh** database Redis, bukan
 hanya kunci milik cache. Kalau session atau antrian job memakai database Redis yang sama,
 semuanya ikut hilang. Driver lain hanya menghapus kunci yang berprefix.
 
+**Yang dikerjakan**: `flush()` mencari kunci berprefix lalu menghapusnya satu per satu.
+`flushdb()` hanya dipakai kalau prefixnya memang kosong, karena saat itu tidak ada cara
+membedakan kunci milik cache dari kunci lain.
+
 ### S3. `Cache\Drivers\Database::increment()` tanpa kunci baris
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `system/cache/drivers/database.php:89` membungkus baca-ubah-tulis dalam transaksi tapi
 `SELECT`-nya tidak mengunci baris. Di MySQL dengan REPEATABLE READ, dua transaksi paralel
 membaca nilai yang sama dan sama-sama menulis N+1 (*lost update*). Framework sudah punya
 `lock_for_update()`, tinggal dipakai.
 
+**Yang dikerjakan**: `SELECT`-nya memakai `lock_for_update()`.
+
 ### S4. `Cache\Drivers\File::increment()` tidak atomik
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 Driver file memakai `Driver::increment()` bawaan yang baca-tambah-tulis tanpa penguncian.
 Karena `file` adalah driver cache **default**, rate limiter bawaan pun tidak atomik.
 
+**Yang dikerjakan**: driver file punya `increment()` sendiri yang membaca, menambah dan menulis
+di bawah satu `flock(LOCK_EX)`, dan jatuh ke implementasi bawaan kalau berkasnya tidak bisa
+dibuka atau dikunci.
+
 ### S5. `required` meloloskan array kosong
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Validator::validate_required()` (`system/validator.php:254`) hanya menolak `null`, string
 kosong, dan berkas upload kosong. Laravel juga menolak array/`Countable` yang kosong.
@@ -333,20 +410,24 @@ kosong, dan berkas upload kosong. Laravel juga menolak array/`Countable` yang ko
 
 Form dengan sekumpulan checkbox yang wajib diisi akan lolos meski tidak ada yang dicentang.
 
+**Yang dikerjakan**: array dan `Countable` yang kosong ditolak, setelah cabang berkas upload
+supaya unggahan kosong tetap ditangani sebagaimana mestinya.
+
 ### S6. `date_format` tidak ketat
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Validator::validate_date_format()` (`system/validator.php:1915`) hanya memeriksa
 `date_create_from_format()` tidak mengembalikan `false`, padahal parser PHP itu longgar.
 
 **Reproduksi**: `date_format:Y-m-d` meloloskan `2026-1-1`.
 
-**Saran**: bandingkan `$date->format($format) === $value` seperti Laravel.
+**Yang dikerjakan**: `validate_date_format()` membandingkan `$date->format($format)` dengan
+nilai aslinya, jadi hanya yang benar-benar cocok yang lolos.
 
 ### S7. `Container::instance()` tidak terlihat oleh `Container::registered()`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `instance()` menulis ke `static::$singletons`, sedangkan `registered()`
 (`system/container.php:43`) hanya memeriksa `static::$registry`.
@@ -362,55 +443,85 @@ Container::resolve('layanan');      // jalan, mengembalikan objeknya
 Semua kode yang bergerbang pada `registered()` melewatkan instance semacam ini, termasuk
 `Controller::__get()` yang jadi mengembalikan `null` untuk layanan yang sebenarnya terdaftar.
 
+**Yang dikerjakan**: `registered()` ikut memeriksa `static::$singletons`.
+
 ---
 
 ## Rendah / pengerasan
 
 ### R1. Kunci aplikasi efektif hanya 112 bit
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `system/init.php` menghasilkan kunci berbentuk UUID (36 karakter). `openssl_encrypt()` dengan
 `aes-256-cbc` memotongnya ke 32 byte pertama, yang berisi 28 digit heksa dan 4 tanda hubung —
 jadi 112 bit, bukan 256. Masih di atas ambang yang bisa dibobol, tapi tidak perlu.
 
-**Saran**: simpan 32 byte acak ter-base64 dan dekode sebelum dipakai, seperti Laravel.
+**Yang dikerjakan**: kunci baru dihasilkan sebagai `bin2hex(openssl_random_pseudo_bytes(32))`,
+64 karakter heksa tanpa tanda hubung, jadi 32 byte pertama yang dipakai OpenSSL seluruhnya
+heksa: 128 bit. Pola validasi di `system/init.php` menerima format baru maupun UUID lama, jadi
+aplikasi yang sudah jalan tidak perlu berbuat apa-apa. Yang ingin naik ke 128 bit tinggal
+menghapus `key.php` dan membiarkannya dibuat ulang — perlu diingat itu membatalkan seluruh
+cookie dan session yang sudah beredar.
+
+Tidak ada test otomatis untuk poin ini: pembuatan kunci berjalan di `init.php`, sebelum harness
+test ada. Diverifikasi manual dengan menjalankan alur yang sama di direktori sementara.
 
 ### R2. Aturan validasi `image` menerima SVG
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Validator::validate_image()` (`system/validator.php:1168`) memasukkan `svg` ke daftar yang
 diizinkan. SVG bisa memuat JavaScript, jadi menyajikannya dari origin yang sama adalah XSS
 tersimpan. Laravel versi baru mengeluarkan SVG dari default.
 
+**Yang dikerjakan**: `svg` dikeluarkan dari daftar default. Yang memang membutuhkannya menulis
+`image:allow_svg`.
+
 ### R3. Facile tidak menjaga mass-assignment secara default
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Model::$guarded = []` dan `Model::$fillable = null` (`system/database/facile/model.php:90`
 dan `:97`), jadi **semua kolom bisa diisi massal** kecuali model menyatakan sebaliknya. Laravel
 memakai `$guarded = ['*']` supaya aman secara default. `Model::create(Input::all())` di Rakit
 membiarkan penyerang mengisi `id`, `is_admin`, dan kolom apa pun yang ada.
 
+Lebih buruk lagi, `$guarded = ['*']` — idiom yang orang bawa dari Laravel untuk menutup semuanya
+— **diam-diam tidak melakukan apa-apa**, karena `fill()` mencocokkan nama kolom dengan
+`in_array()` sehingga `'*'` tidak pernah cocok dengan kolom mana pun.
+
+**Yang dikerjakan**: `'*'` di `$guarded` kini benar-benar menjaga seluruh kolom.
+
+Defaultnya sengaja **tidak** diubah menjadi `['*']`: itu akan mematikan setiap `fill()` dan
+`create()` pada aplikasi yang sudah jalan, dan itu keputusan rilis, bukan perbaikan bug.
+Sekarang menutupnya cukup satu baris di modelnya, atau `Model::$guarded = ['*']` global di
+`application/boot.php` kalau memang mau aman secara default.
+
 ### R4. `Redirect::back()` mengikuti header `Referer`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Request::referrer()` dikendalikan penyerang, dan `URL::to()` mengembalikan URL absolut apa
 adanya, jadi `Redirect::back()` bisa diarahkan ke situs luar. Laravel berperilaku sama, jadi
 ini pengerasan, bukan penyimpangan.
 
+**Yang dikerjakan**: `back()` hanya mengikuti referrer yang tidak menyebut host lain. Selain itu
+ia jatuh ke `$fallback`, atau ke `/` kalau tidak ada.
+
 ### R5. `Route::forward()` fatal kalau route tidak ada
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `system/routing/route.php:414`. `Router::route()` bisa mengembalikan `null`, dan `forward()`
 langsung memanggil `->call()` di atasnya.
 
+**Yang dikerjakan**: `forward()` mengembalikan `Response::error(404)` kalau tidak ada route yang
+cocok.
+
 ### R6. Penggantian placeholder `Lang` saling menimpa
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `Lang::get()` (`system/lang.php:116`) mengganti placeholder sesuai urutan array, jadi
 placeholder yang namanya awalan dari placeholder lain merusaknya.
@@ -423,38 +534,71 @@ Lang::line('probe.halo', ['nama' => 'Budi', 'nama_lengkap' => 'Budi Purnomo'])->
 // => 'Halo Budi, selamat datang Budi_lengkap'
 ```
 
-**Saran**: urutkan penggantian dari nama terpanjang ke terpendek, seperti Laravel.
+**Yang dikerjakan**: `Lang::get()` mengurutkan penggantian dari nama terpanjang ke terpendek
+sebelum menjalankannya.
 
 ### R7. `Input::json(true)` mengubah list menjadi objek berkunci angka
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `system/input.php:118` memakai `JSON_FORCE_OBJECT`, jadi `{"tags":[1,2,3]}` terbaca sebagai
-`tags => {"0":1,"1":2,"2":3}` alih-alih array biasa.
+`tags => {"0":1,"1":2,"2":3}` alih-alih array biasa. Ia juga menimpa `Input::$json` dengan hasil
+konversinya, sehingga pemanggilan berikutnya bekerja di atas data yang sudah berubah bentuk.
+
+**Yang dikerjakan**: `Input::$json` menyimpan body mentahnya, dan tiap pemanggilan mendekode
+ulang dengan flag yang diminta. Tidak ada lagi `JSON_FORCE_OBJECT`.
 
 ### R8. `Cookie::get()` melempar untuk nama cookie yang sah
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 Pemeriksaan namanya `/^[a-zA-Z0-9_-]+$/`, padahal titik sah di nama cookie HTTP. `Cookie::has()`
 memanggil `get()`, jadi memeriksa cookie milik aplikasi lain di domain yang sama melempar
 exception alih-alih mengembalikan `false`.
 
+**Yang dikerjakan**: pemeriksaannya pindah ke `Cookie::guard_name()` dan kini menerima titik.
+
 ### R9. `e()` memakai `double_encode = false`
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 `htmlentities($value, ENT_QUOTES, 'UTF-8', false)` membiarkan entitas yang sudah ada. Bukan
 lubang XSS (karakter `<`, `>`, `"` tetap di-escape), tapi berbeda dari default Laravel dan
 membuat keluaran sulit ditalar saat data sudah mengandung entitas.
 
+**Yang dikerjakan**: parameternya jadi `true`, sama seperti Laravel. Nilai yang sudah berisi
+entitas kini di-escape sekali lagi, jadi `&lt;` tampil apa adanya sebagai teks.
+
 ### R10. `Container::resolve()` bisa rekursi tanpa henti
 
-- [ ] Belum diperbaiki
+- [x] Selesai
 
 Alias yang saling menunjuk (`register('a', 'b')` dan `register('b', 'a')`) atau dua kelas yang
 konstruktornya saling membutuhkan membuat `resolve()` memanggil dirinya terus sampai stack
 habis. Laravel mendeteksi ini lewat `buildStack` dan melempar `CircularDependencyException`.
+
+**Yang dikerjakan**: `Container::resolve()` mencatat apa yang sedang dibangun dan melempar
+`Circular dependency while resolving: ..` berikut rantainya begitu satu nama muncul dua kali.
+
+---
+
+## Dokumentasi yang ikut diperbarui
+
+| Berkas | Perubahan |
+|---|---|
+| `application/config/application.php` | Opsi baru: `trusted_proxies` |
+| `packages/docs/data/routing.md` | Middleware yang tidak dikenal kini melempar |
+| `packages/docs/data/database/magic.md` | Batasan operator `where()` dan arah `order_by()` |
+| `packages/docs/data/database/facile.md` | `$guarded = ['*']`, catatan mass-assignment |
+| `packages/docs/data/validation.md` | `required` dengan array, arti "size", `date_format` ketat, `image:allow_svg` |
+| `packages/docs/data/input.md` | Body menang atas query string |
+
+Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
+middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
+contohnya tidak perlu diubah.
+
+Bagian "Middleware Pattern" di halaman routing juga sudah benar sejak awal; ketiga bentuk yang
+dicontohkan di sana baru sekarang benar-benar bisa dijalankan (lihat T5).
 
 ---
 

@@ -51,6 +51,10 @@ exposes flash ("old") input for redirect-after-validation flows.
 > them. Always escape on output (Blade does this by default with `{{ ... }}`)
 > and bind values via prepared statements when querying the database.
 
+> When the same name appears in both the body and the query string, the body
+> wins. Every method here reads it the same way, so what you validate with
+> `Input::all()` is what you read back with `Input::get()`.
+
 <a id="retrieving-input"></a>
 ## Retrieving Input
 

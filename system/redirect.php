@@ -36,11 +36,30 @@ class Redirect extends Response
     {
         $referrer = Request::referrer();
 
-        if (! is_string($referrer) || '' === trim($referrer)) {
+        if (! static::local($referrer)) {
             $referrer = $fallback ? $fallback : '/';
         }
 
         return static::to($referrer, $status);
+    }
+
+    /**
+     * Check whether a URL points back at this application. Anything naming
+     * another host does not, and the referrer header is written by the client.
+     *
+     * @param string $url
+     *
+     * @return bool
+     */
+    protected static function local($url)
+    {
+        if (! is_string($url) || '' === trim($url)) {
+            return false;
+        }
+
+        $host = parse_url(trim($url), PHP_URL_HOST);
+
+        return is_null($host) || $host === Request::foundation()->getHost();
     }
 
     /**

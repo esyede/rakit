@@ -27,7 +27,7 @@ class Input
      */
     public static function all()
     {
-        $input = array_merge(static::get(), static::query(), static::file());
+        $input = array_merge(static::get(), static::file());
         unset($input[Request::SPOOFER]);
 
         return $input;
@@ -83,8 +83,10 @@ class Input
     {
         $input = Request::foundation()->request->all();
 
+        // The body wins over the query string, and every reader here goes
+        // through this method so they cannot disagree about which one it is.
         if (is_null($key)) {
-            return array_merge($input, static::query());
+            return array_merge(static::query(), $input);
         }
 
         $value = Arr::get($input, $key);
@@ -113,10 +115,11 @@ class Input
      */
     public static function json($as_object = false)
     {
-        static::$json = static::$json ?: json_decode(Request::foundation()->getContent());
-        return static::$json = $as_object
-            ? json_decode(json_encode(static::$json, JSON_FORCE_OBJECT), false)
-            : json_decode(json_encode(static::$json), true);
+        if (is_null(static::$json)) {
+            static::$json = (string) Request::foundation()->getContent();
+        }
+
+        return json_decode(is_string(static::$json) ? static::$json : json_encode(static::$json), ! $as_object);
     }
 
     /**

@@ -31,11 +31,13 @@ class Middleware
 
     /**
      * Register a middleware.
+     * The handler is a callable, except for a pattern, which may also name the
+     * middlewares to attach, either as 'a|b' or as an array of names.
      *
      * @param string $name
      * @param mixed  $handler
      */
-    public static function register($name, callable $handler)
+    public static function register($name, $handler)
     {
         $name = (string) (isset(static::$aliases[$name]) ? static::$aliases[$name] : $name);
 
@@ -92,7 +94,11 @@ class Middleware
                 Package::boot(Package::name($middleware));
 
                 if (! isset(static::$middlewares[$middleware])) {
-                    continue;
+                    if ($collection->optional) {
+                        continue;
+                    }
+
+                    throw new \Exception(sprintf('Undefined middleware: %s', $middleware));
                 }
 
                 $callback = static::$middlewares[$middleware];

@@ -97,7 +97,7 @@ class Database extends Driver
         $new = 1;
 
         $connection->transaction(function () use ($connection, $table, $prefixed, $expiration, &$new) {
-            $cache = $connection->table($table)->where('key', '=', $prefixed)->first();
+            $cache = $connection->table($table)->where('key', '=', $prefixed)->lock_for_update()->first();
             $expired = ! is_null($cache) && Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now());
 
             if (is_null($cache) || $expired) {
@@ -138,7 +138,7 @@ class Database extends Driver
     /**
      * Get a query builder for the cache table.
      *
-     * @return System\Database\Query
+     * @return \System\Database\Query
      */
     protected function table()
     {

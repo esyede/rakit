@@ -227,6 +227,9 @@ into what rules you can use to validate your data!
 'name' => 'required',
 ```
 
+> An empty array counts as empty too, so a group of checkboxes that nobody
+> ticked does not satisfy `required`.
+
 #### Allow the attribute to be `null`, otherwise it must not be empty:
 
 ```php
@@ -390,6 +393,10 @@ $rules = [
 ```php
 'payment' => 'max:50',
 ```
+
+> What "size" means follows the value: the length of a string, the value of a
+> number, the number of elements of an array, and the size in kilobytes of an
+> uploaded file. So `'tags' => 'array|max:3'` allows at most three tags.
 
 <a id="numbers"></a>
 
@@ -714,6 +721,10 @@ So how to overcome this? Easy:
 > In the example above, `\\` (double backslash) is used to escape `:` (colon) so that the character is not
 > considered a parameter separator by PHP.
 
+> The match has to be exact. PHP's own parser is happy to read `2026-1-1` as
+> `Y-m-d`, but this rule is not: the date has to read back the same way it came
+> in, so a form asking for `Y-m-d` gets `2026-01-01` or nothing.
+
 Date formatting options can be read in
 [PHP Date](https://www.php.net/manual/en/datetime.createfromformat.php#refsect1-datetime.createfromformat-parameters).
 
@@ -836,6 +847,13 @@ read the file content and determine the actual MIME type.
 
 ```php
 'picture' => 'image',
+```
+
+An SVG can carry script, so serving one back from your own domain is a stored
+XSS. It is therefore not an image unless you say so:
+
+```php
+'picture' => 'image:allow_svg',
 ```
 
 #### Validate image dimensions:

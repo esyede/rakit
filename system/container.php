@@ -21,6 +21,14 @@ class Container
     public static $singletons = [];
 
     /**
+     * Names currently being resolved, used to notice a cycle before it turns
+     * into an exhausted stack.
+     *
+     * @var array
+     */
+    protected static $building = [];
+
+    /**
      * Register an object with its resolver.
      *
      * @param string $name
@@ -42,7 +50,7 @@ class Container
      */
     public static function registered($name)
     {
-        return array_key_exists($name, static::$registry);
+        return array_key_exists($name, static::$registry) || array_key_exists($name, static::$singletons);
     }
 
     /**
@@ -82,13 +90,38 @@ class Container
             return static::$singletons[$type];
         }
 
-        $resolver = isset(static::$registry[$type])
-            ? Arr::get(static::$registry[$type], 'resolver', $type)
-            : $type;
+        $tracked = is_string($type);
 
-        $object = ($resolver === $type || ($resolver instanceof \Closure))
-            ? static::build($resolver, $parameters)
-            : static::resolve($resolver);
+        if ($tracked && isset(static::$building[$type])) {
+            $chain = implode(' -> ', array_keys(static::$building));
+            static::$building = [];
+
+            throw new \Exception(sprintf('Circular dependency while resolving: %s (%s)', $type, $chain));
+        }
+
+        if ($tracked) {
+            static::$building[$type] = true;
+        }
+
+        try {
+            $object = static::make($type, $parameters);
+        } catch (\Throwable $e) {
+            if ($tracked) {
+                unset(static::$building[$type]);
+            }
+
+            throw $e;
+        } catch (\Exception $e) {
+            if ($tracked) {
+                unset(static::$building[$type]);
+            }
+
+            throw $e;
+        }
+
+        if ($tracked) {
+            unset(static::$building[$type]);
+        }
 
         if (isset(static::$registry[$type]['singleton']) && static::$registry[$type]['singleton']) {
             static::$singletons[$type] = $object;
@@ -97,6 +130,25 @@ class Container
         Hook::fire('rakit.resolving', [$type, $object]);
 
         return $object;
+    }
+
+    /**
+     * Turn a name into an object, following an alias when one is registered.
+     *
+     * @param string $type
+     * @param array  $parameters
+     *
+     * @return mixed
+     */
+    protected static function make($type, array $parameters)
+    {
+        $resolver = isset(static::$registry[$type])
+            ? Arr::get(static::$registry[$type], 'resolver', $type)
+            : $type;
+
+        return ($resolver === $type || ($resolver instanceof \Closure))
+            ? static::build($resolver, $parameters)
+            : static::resolve($resolver);
     }
 
     /**

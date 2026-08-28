@@ -24,6 +24,15 @@ class Middlewares
     public $parameters;
 
     /**
+     * Whether a middleware in this collection is allowed to be missing.
+     * Only the global middlewares are, because they are a convention rather
+     * than something the route asked for.
+     *
+     * @var bool
+     */
+    public $optional = false;
+
+    /**
      * Contains the list of controller method names for middleware only().
      *
      * @var array

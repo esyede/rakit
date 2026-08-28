@@ -245,13 +245,67 @@ class Router
             return;
         }
 
-        $groups = [];
+        $merged = [];
 
         foreach (static::$groups as $group) {
-            $groups = array_merge($groups, $group);
+            foreach ($group as $key => $value) {
+                if ('prefix' === $key) {
+                    $merged[$key] = static::join_prefix(Arr::get($merged, $key, ''), $value);
+                } elseif ('before' === $key || 'after' === $key) {
+                    $merged[$key] = static::join_middlewares(Arr::get($merged, $key), $value);
+                } else {
+                    $merged[$key] = $value;
+                }
+            }
         }
 
-        return $groups;
+        return $merged;
+    }
+
+    /**
+     * Chain the prefix of a nested group behind the one it sits in.
+     *
+     * @param string $outer
+     * @param string $inner
+     *
+     * @return string
+     */
+    protected static function join_prefix($outer, $inner)
+    {
+        return trim(trim((string) $outer, '/').'/'.trim((string) $inner, '/'), '/');
+    }
+
+    /**
+     * Keep the middlewares of the outer group when a nested group adds its own.
+     *
+     * @param string|array|null $outer
+     * @param string|array      $inner
+     *
+     * @return string
+     */
+    protected static function join_middlewares($outer, $inner)
+    {
+        $middlewares = array_merge(
+            is_null($outer) ? [] : (is_array($outer) ? $outer : explode('|', $outer)),
+            is_array($inner) ? $inner : explode('|', $inner)
+        );
+
+        return implode('|', array_unique(array_filter($middlewares, 'strlen')));
+    }
+
+    /**
+     * Get the URI part of a route key. Routes registered inside a domain group
+     * are stored as 'domain||uri' so two domains can share one path.
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function uri($key)
+    {
+        $position = strpos((string) $key, '||');
+
+        return (false === $position) ? $key : substr((string) $key, $position + 2);
     }
 
     /**
@@ -392,8 +446,7 @@ class Router
                 if (! isset($action['domain'])) {
                     continue;
                 }
-                $key_uri = (strpos($key, '||') !== false) ? substr($key, strpos($key, '||') + 2) : $key;
-                if ($key_uri === $uri && static::domain_matches($action['domain'], $domain)) {
+                if (static::uri($key) === $uri && static::domain_matches($action['domain'], $domain)) {
                     return new Route($method, $uri, $action);
                 }
             }
@@ -431,10 +484,7 @@ class Router
                 continue;
             }
 
-            // Extract actual URI pattern from composite key (domain||uri)
-            $route = (strpos($route_key, '||') !== false)
-                ? substr($route_key, strpos($route_key, '||') + 2)
-                : $route_key;
+            $route = static::uri($route_key);
 
             if (! isset(static::$compiled[$route])) {
                 static::$compiled[$route] = (false !== strpos($route, '('))

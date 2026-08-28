@@ -142,18 +142,26 @@ class Route
      */
     protected function middlewares($event)
     {
-        $global = Package::prefix($this->package).$event;
-        $middlewares = array_unique([$event, $global]);
+        $global = new Middlewares(array_unique([$event, Package::prefix($this->package).$event]));
+        $global->optional = true;
+
+        $declared = [];
 
         if (isset($this->action[$event])) {
-            $middlewares = array_merge($middlewares, Middleware::parse($this->action[$event]));
+            $declared = array_merge($declared, Middleware::parse($this->action[$event]));
         }
 
         if ('before' === $event) {
-            $middlewares = array_merge($middlewares, $this->patterns());
+            $declared = array_merge($declared, $this->patterns());
         }
 
-        return [new Middlewares($middlewares)];
+        $collections = [$global];
+
+        if (count($declared) > 0) {
+            $collections[] = new Middlewares($declared);
+        }
+
+        return $collections;
     }
 
     /**
@@ -163,18 +171,31 @@ class Route
      */
     protected function patterns()
     {
-        $patterns = Middleware::$patterns;
         $middlewares = [];
 
-        foreach ($patterns as $pattern => $middleware) {
-            if (Str::is($pattern, $this->uri)) {
-                if (is_array($middleware)) {
-                    list($middleware, $callback) = array_values($middleware);
-                    Middleware::register($middleware, $callback);
-                }
-
-                $middlewares[] = $middleware;
+        foreach (Middleware::$patterns as $pattern => $middleware) {
+            if (! Str::is($pattern, $this->uri)) {
+                continue;
             }
+
+            // ['name' => .., $callback]: register the callback under that name.
+            if (is_array($middleware)) {
+                list($name, $callback) = array_values($middleware);
+                Middleware::register($name, $callback);
+                $middlewares[] = $name;
+                continue;
+            }
+
+            // A bare callable gets a name of its own, derived from the pattern.
+            if (! is_string($middleware)) {
+                $name = 'pattern#'.$pattern;
+                Middleware::register($name, $middleware);
+                $middlewares[] = $name;
+                continue;
+            }
+
+            // Otherwise it names the middlewares to attach, 'auth|admin' style.
+            $middlewares = array_merge($middlewares, Middleware::parse($middleware));
         }
 
         return $middlewares;
@@ -395,10 +416,10 @@ class Route
     /**
      * Register a middleware handler.
      *
-     * @param string   $name
-     * @param callable $handler
+     * @param string $name
+     * @param mixed  $handler
      */
-    public static function middleware($name, callable $handler)
+    public static function middleware($name, $handler)
     {
         Middleware::register($name, $handler);
     }
@@ -413,7 +434,9 @@ class Route
      */
     public static function forward($method, $uri)
     {
-        return Router::route(strtoupper((string) $method), $uri)->call();
+        $route = Router::route(strtoupper((string) $method), $uri);
+
+        return is_null($route) ? Response::error(404) : $route->call();
     }
 
     /**
@@ -435,9 +458,9 @@ class Route
     /**
      * Register a redirect route.
      *
-     * @param strng $route
-     * @param strng $to
-     * @param int   $status
+     * @param string $route
+     * @param string $to
+     * @param int    $status
      *
      * @return \System\Redirect
      */

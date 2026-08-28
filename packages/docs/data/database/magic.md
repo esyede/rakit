@@ -544,6 +544,12 @@ $users = DB::table('users')
     ->get();
 ```
 
+> The direction is only ever `asc` or `desc`; anything else throws. The same
+> goes for the operator of `where()` and `having()`, which has to be one the
+> grammar knows. Both end up in the SQL as written, so neither is a place to
+> pass something that came from a request. Use `order_by_raw()` when you really
+> do mean raw SQL.
+
 <a id="group-by--having"></a>
 ## Group By & Having
 

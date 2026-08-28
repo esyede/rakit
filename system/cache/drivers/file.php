@@ -83,6 +83,49 @@ class File extends Driver
     }
 
     /**
+     * Increment a numeric value in the cache.
+     * The whole read, add and write happens under one exclusive lock, so two
+     * requests arriving together cannot both write the same number.
+     *
+     * @param string $key
+     * @param int    $minutes
+     *
+     * @return int
+     */
+    public function increment($key, $minutes = 1)
+    {
+        $path = $this->path.$this->naming($key);
+        $handle = @fopen($path, 'c+');
+
+        if (false === $handle) {
+            return parent::increment($key, $minutes);
+        }
+
+        if (! flock($handle, LOCK_EX)) {
+            fclose($handle);
+            return parent::increment($key, $minutes);
+        }
+
+        $cache = (string) $this->unguard((string) stream_get_contents($handle));
+        $current = 0;
+
+        if ('' !== $cache && time() < (int) substr($cache, 0, 10)) {
+            $current = (int) @unserialize(substr($cache, 10));
+        }
+
+        $new = $current + 1;
+
+        ftruncate($handle, 0);
+        rewind($handle);
+        fwrite($handle, $this->guard($this->expiration($minutes).serialize($new)));
+        fflush($handle);
+        flock($handle, LOCK_UN);
+        fclose($handle);
+
+        return $new;
+    }
+
+    /**
      * Remove an item from the cache.
      *
      * @param string $key

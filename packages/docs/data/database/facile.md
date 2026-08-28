@@ -508,7 +508,20 @@ class User extends Facile
 $user = User::create(Input::all());
 ```
 
+Use `'*'` to close everything and open the model up through `$fillable` alone:
+
+```php
+class User extends Facile
+{
+    public static $guarded = ['*'];
+    public static $fillable = ['name', 'email'];
+}
+```
+
 > **Note:** If `$fillable` is not set, all attributes can be mass-assigned (except those in `$guarded`).
+> That default is permissive on purpose, but it does mean `Model::create(Input::all())` will
+> happily write any column the request names. Declare `$fillable`, or guard with `'*'`, on any
+> model that holds something a visitor should not be able to set.
 
 <a id="model-validation"></a>
 ## Model Validation

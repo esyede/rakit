@@ -180,17 +180,42 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
      */
     public function testBackRedirect()
     {
-        $this->setServerVar('HTTP_REFERER', 'http://example.com');
+        $this->setServerVar('HTTP_REFERER', 'http://localhost/daftar');
 
         $redirect = Redirect::back();
 
         $this->assertEquals(302, $redirect->status());
-        $this->assertEquals('http://example.com', $redirect->headers()->get('location'));
+        $this->assertEquals('http://localhost/daftar', $redirect->headers()->get('location'));
 
         $redirect301 = Redirect::back(301);
 
         $this->assertEquals(301, $redirect301->status());
-        $this->assertEquals('http://example.com', $redirect301->headers()->get('location'));
+        $this->assertEquals('http://localhost/daftar', $redirect301->headers()->get('location'));
+    }
+
+    /**
+     * Test for Redirect::back() - a referrer naming another host is refused.
+     *
+     * @group system
+     */
+    public function testBackRefusesForeignReferrer()
+    {
+        $this->setServerVar('HTTP_REFERER', 'http://example.com/jebakan');
+
+        $this->assertEquals(URL::to('/'), Redirect::back()->headers()->get('location'));
+        $this->assertEquals(URL::to('masuk'), Redirect::back(302, 'masuk')->headers()->get('location'));
+    }
+
+    /**
+     * Test for Redirect::back() - a relative referrer is fine.
+     *
+     * @group system
+     */
+    public function testBackAcceptsRelativeReferrer()
+    {
+        $this->setServerVar('HTTP_REFERER', '/daftar');
+
+        $this->assertEquals(URL::to('/daftar'), Redirect::back()->headers()->get('location'));
     }
 
     /**

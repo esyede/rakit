@@ -328,6 +328,8 @@ class Query
             $operator = '=';
         }
 
+        $this->validate_operator($operator);
+
         $type = 'where';
         $this->wheres[] = compact('type', 'column', 'operator', 'value', 'connector');
         $this->bindings[] = $value;
@@ -1138,6 +1140,8 @@ class Query
      */
     public function having($column, $operator, $value, $connector = 'AND')
     {
+        $this->validate_operator($operator);
+
         $type = 'having';
         $this->havings[] = compact('type', 'column', 'operator', 'value', 'connector');
         $this->bindings[] = $value;
@@ -1757,8 +1761,30 @@ class Query
      */
     public function order_by($column, $direction = 'asc')
     {
+        $direction = strtolower(trim((string) $direction));
+
+        if ('asc' !== $direction && 'desc' !== $direction) {
+            throw new \InvalidArgumentException(sprintf(
+                'Order direction must be "asc" or "desc", %s given.',
+                $direction
+            ));
+        }
+
         $this->orderings[] = compact('column', 'direction');
         return $this;
+    }
+
+    /**
+     * Make sure an operator is one the grammar knows, so it never reaches the
+     * SQL as something the caller wrote.
+     *
+     * @param string $operator
+     */
+    protected function validate_operator($operator)
+    {
+        if (! in_array(strtolower((string) $operator), $this->operators)) {
+            throw new \InvalidArgumentException(sprintf('Unsupported SQL operator: %s', $operator));
+        }
     }
 
     /**

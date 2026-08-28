@@ -44,9 +44,7 @@ class Cookie
      */
     public static function get($name, $default = null)
     {
-        if (! is_string($name) || empty($name) || ! preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
-            throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, and hyphens.');
-        }
+        static::guard_name($name);
 
         if (isset(static::$cache[$name])) {
             return static::$cache[$name];
@@ -88,9 +86,7 @@ class Cookie
      */
     public static function put($name, $value, $expiration = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
     {
-        if (! is_string($name) || empty($name) || ! preg_match('/^[a-zA-Z0-9_-]+$/', $name)) {
-            throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, and hyphens.');
-        }
+        static::guard_name($name);
 
         if (! is_string($value)) {
             throw new \Exception('Cookie value must be a string.');
@@ -155,6 +151,18 @@ class Cookie
         static::$jar[$name]['value'] = $encrypted;
 
         unset(static::$cache[$name]);
+    }
+
+    /**
+     * Make sure a cookie name is one HTTP allows.
+     *
+     * @param string $name
+     */
+    protected static function guard_name($name)
+    {
+        if (! is_string($name) || '' === $name || ! preg_match('/^[a-zA-Z0-9_.-]+$/', $name)) {
+            throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, dots, and hyphens.');
+        }
     }
 
     /**

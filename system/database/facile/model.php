@@ -253,7 +253,8 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
-            if (is_array(static::$guarded) && in_array($key, static::$guarded)) {
+            if (is_array(static::$guarded)
+                && (in_array('*', static::$guarded) || in_array($key, static::$guarded))) {
                 continue;
             }
 

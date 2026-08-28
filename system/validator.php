@@ -265,6 +265,10 @@ class Validator
             return false;
         }
 
+        if ((is_array($value) || $value instanceof \Countable) && count($value) < 1) {
+            return false;
+        }
+
         return true;
     }
 
@@ -983,6 +987,10 @@ class Validator
             return $value['size'] / 1024;
         }
 
+        if (is_array($value) || $value instanceof \Countable) {
+            return count($value);
+        }
+
         return Str::length(trim((string) $value));
     }
 
@@ -1165,9 +1173,16 @@ class Validator
      *
      * @return bool
      */
-    protected function validate_image($attribute, $value)
+    protected function validate_image($attribute, $value, array $parameters = [])
     {
-        return $this->validate_mimes($attribute, $value, ['jpeg', 'png', 'gif', 'bmp', 'svg', 'webp']);
+        $types = ['jpeg', 'png', 'gif', 'bmp', 'webp'];
+
+        // SVG can carry script, so it is only allowed when asked for by name.
+        if (in_array('allow_svg', $parameters)) {
+            $types[] = 'svg';
+        }
+
+        return $this->validate_mimes($attribute, $value, $types);
     }
 
     /**
@@ -1914,8 +1929,19 @@ class Validator
      */
     protected function validate_date_format($attribute, $value, array $parameters)
     {
-        return (is_string($parameters[0]) || is_numeric($parameters[0]))
-            && false !== date_create_from_format($parameters[0], $value);
+        if (! is_string($parameters[0]) && ! is_numeric($parameters[0])) {
+            return false;
+        }
+
+        if (! is_string($value) && ! is_numeric($value)) {
+            return false;
+        }
+
+        $date = date_create_from_format($parameters[0], (string) $value);
+
+        // A loose parser accepts '2026-1-1' for 'Y-m-d', so the formatted date
+        // has to read back the same as what came in.
+        return false !== $date && $date->format($parameters[0]) === (string) $value;
     }
 
     /**

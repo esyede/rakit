@@ -74,6 +74,18 @@ class Request
     }
 
     /**
+     * Get the request method as the server reported it. Spoofing through the
+     * '_method' field or the 'X-Http-Method-Override' header is ignored, so
+     * this is the method to check when the answer decides on security.
+     *
+     * @return string
+     */
+    public static function real_method()
+    {
+        return strtoupper((string) static::foundation()->getRealMethod());
+    }
+
+    /**
      * Check request method type.
      *
      * @param string $method
@@ -400,7 +412,9 @@ class Request
 
         $header = static::header('X-Csrf-Token') ?: static::header('X-Xsrf-Token');
 
-        if (in_array(static::method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])) {
+        // The real method decides here. A POST that spoofs itself as GET is
+        // still a POST, and skipping the check for it would defeat the token.
+        if (in_array(static::real_method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])) {
             return false;
         }
 
