@@ -28,6 +28,7 @@ return [
         'numeric' => 'Bilah :attribute harus antara :min - :max.',
         'file' => 'Bilah :attribute harus antara :min - :max kilobytes.',
         'string' => 'Bilah :attribute harus antara  :min - :max karakter.',
+        'array' => 'Bilah :attribute harus berisi antara :min - :max item.',
     ],
     'boolean' => 'Bilah :attribute harus diisi dengan nilai boolean.',
     'confirmed' => 'Konfirmasi :attribute tidak cocok.',
@@ -50,12 +51,14 @@ return [
         'numeric' => 'Bilah :attribute harus kurang dari :max.',
         'file' => 'Bilah :attribute harus kurang dari :max kilobytes.',
         'string' => 'Bilah :attribute harus kurang dari :max karakter.',
+        'array' => 'Bilah :attribute tidak boleh berisi lebih dari :max item.',
     ],
     'mimes' => 'Bilah :attribute harus dokumen berjenis : :values.',
     'min' => [
         'numeric' => 'Bilah :attribute harus minimal :min.',
         'file' => 'Bilah :attribute harus minimal :min kilobytes.',
         'string' => 'Bilah :attribute harus minimal :min karakter.',
+        'array' => 'Bilah :attribute harus berisi minimal :min item.',
     ],
     'not_in' => 'Bilah :attribute yang dipilih tidak valid.',
     'numeric' => 'Bilah :attribute harus berupa angka.',
@@ -66,6 +69,7 @@ return [
         'numeric' => 'Bilah :attribute harus berukuran :size.',
         'file' => 'Bilah :attribute harus berukuran :size kilobyte.',
         'string' => 'Bilah :attribute harus berukuran :size karakter.',
+        'array' => 'Bilah :attribute harus berisi :size item.',
     ],
     'unique' => 'Bilah :attribute sudah ada sebelumnya.',
     'url' => 'Format bilah :attribute tidak valid.',
@@ -115,6 +119,7 @@ return [
     'declined' => 'Bilah :attribute harus ditolak.',
     'mac_address' => 'Bilah :attribute harus berupa alamat MAC yang sah.',
     'ulid' => 'Bilah :attribute harus berupa ULID yang sah.',
+    'uuid' => 'Bilah :attribute harus berupa UUID yang sah.',
     'hex_color' => 'Bilah :attribute harus berupa warna heksadesimal yang sah.',
 
     /*

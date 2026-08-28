@@ -11,6 +11,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran kelima** (Image, Curl, WebSocket — menutup daftar): 2026-08-28.
 - **Putaran keenam** (Blade, Foundation HTTP, Debugger — menyisir yang paling dangkal): 2026-08-28.
 - **Putaran ketujuh** (menyapu dokumentasi terhadap kode secara sistematis): 2026-08-28.
+- **Putaran kedelapan** (menyapu simbol yang dirujuk dan baris bahasa): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -22,11 +23,11 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 9 | 9 | 0 |
 | [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 19 | 19 | 0 |
-| [Sedang](#sedang) | 18 | 18 | 0 |
+| [Sedang](#sedang) | 20 | 20 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 12 | 12 | 0 |
-| **Total** | **58** | **58** | **0** |
+| **Total** | **60** | **60** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2147 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2150 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -1080,6 +1081,38 @@ diperluas. Kalau tidak ada yang diwarisi, `@parent` tetap tinggal di dalam isiny
 **Yang dikerjakan**: `Section::yield_content()` membuang `@parent` yang masih tersisa saat
 sectionnya dicetak.
 
+### S20. Aturan `uuid` menampilkan kunci mentah ke pengguna
+
+- [x] Selesai
+
+Ditemukan di putaran kedelapan, dengan mencocokkan setiap `validate_*` terhadap berkas bahasa.
+`validate_uuid()` ada, baris bahasanya tidak. Saat aturan itu gagal, yang tampil di formulir
+adalah kuncinya sendiri:
+
+```
+validation.uuid
+```
+
+**Yang dikerjakan**: baris `uuid` ditambahkan untuk `en` dan `id`. Sapuan yang sama kini jadi
+test permanen, jadi aturan baru tanpa pesan langsung ketahuan.
+
+### S21. Pesan ukuran untuk array berbicara soal karakter
+
+- [x] Selesai
+
+Akibat lanjutan dari T4 di putaran pertama: setelah `size()` menghitung elemen array,
+pembuat pesannya tetap memilih varian `string`, karena hanya mengenal `numeric`, `file` dan
+`string`.
+
+```
+['a' => [1,2,3]] dengan 'array|max:2'
+=> "Bilah a harus kurang dari 2 karakter."   (yang dihitung elemen, bukan karakter)
+```
+
+**Yang dikerjakan**: `size_message()` mengenali nilai array dan `Countable`, dan varian
+`array` ditambahkan untuk `size`, `min`, `max` dan `between` di kedua bahasa. Sekarang
+pesannya: *"Bilah a tidak boleh berisi lebih dari 2 item."*
+
 ---
 
 ## Rendah / pengerasan
@@ -1366,3 +1399,7 @@ sini supaya tidak diulang tanpa alasan:
 | Kunci `Config::get()` vs berkas konfigurasi bawaan | 40 kunci | bersih |
 | Penerusan facade `__callStatic` ke objek tujuan | seluruh facade | bersih |
 | Helper penerus vs tanda tangan method tujuannya | 24 helper | 2 temuan |
+| Kelas exception yang di-`throw`/`catch` vs kelas yang ada | seluruh `system/` | bersih |
+| `$this->x()`, `static::x()`, `self::x()` vs method yang ada | 179 kelas | bersih |
+| Aturan validasi vs baris bahasa `en` dan `id` | 87 aturan × 2 bahasa | 2 temuan |
+| Kesamaan kunci dan placeholder antar berkas bahasa | `en` vs `id` | bersih |

@@ -2070,9 +2070,17 @@ class Validator
      */
     protected function size_message($package, $attribute, $rule)
     {
-        $line = $this->has_rule($attribute, $this->numerics)
-            ? 'numeric'
-            : (array_key_exists($attribute, Input::file()) ? 'file' : 'string');
+        $value = Arr::get($this->attributes, $attribute);
+
+        if ($this->has_rule($attribute, $this->numerics)) {
+            $line = 'numeric';
+        } elseif (array_key_exists($attribute, Input::file())) {
+            $line = 'file';
+        } elseif (is_array($value) || $value instanceof \Countable) {
+            $line = 'array';
+        } else {
+            $line = 'string';
+        }
 
         return Lang::line($package.'validation.'.$rule.'.'.$line)->get($this->language);
     }

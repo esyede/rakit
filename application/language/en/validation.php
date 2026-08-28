@@ -28,6 +28,7 @@ return [
         'numeric' => 'The :attribute must be between :min - :max.',
         'file' => 'The :attribute must be between :min - :max kilobytes.',
         'string' => 'The :attribute must be between :min - :max characters.',
+        'array' => 'The :attribute must contain between :min - :max items.',
     ],
     'boolean' => 'The :attribute is not a valid boolean value.',
     'confirmed' => 'The :attribute confirmation does not match.',
@@ -50,12 +51,14 @@ return [
         'numeric' => 'The :attribute must be less than :max.',
         'file' => 'The :attribute must be less than :max kilobytes.',
         'string' => 'The :attribute must be less than :max characters.',
+        'array' => 'The :attribute must not contain more than :max items.',
     ],
     'mimes' => 'The :attribute must be a file of type: :values.',
     'min' => [
         'numeric' => 'The :attribute must be at least :min.',
         'file' => 'The :attribute must be at least :min kilobytes.',
         'string' => 'The :attribute must be at least :min characters.',
+        'array' => 'The :attribute must contain at least :min items.',
     ],
     'not_in' => 'The selected :attribute is invalid.',
     'numeric' => 'The :attribute must be a number.',
@@ -66,6 +69,7 @@ return [
         'numeric' => 'The :attribute must be :size.',
         'file' => 'The :attribute must be :size kilobyte.',
         'string' => 'The :attribute must be :size characters.',
+        'array' => 'The :attribute must contain :size items.',
     ],
     'unique' => 'The :attribute has already been taken.',
     'url' => 'The :attribute format is invalid.',
@@ -115,6 +119,7 @@ return [
     'declined' => 'The :attribute must be declined.',
     'mac_address' => 'The :attribute must be a valid MAC address.',
     'ulid' => 'The :attribute must be a valid ULID.',
+    'uuid' => 'The :attribute must be a valid UUID.',
     'hex_color' => 'The :attribute must be a valid hexadecimal color.',
 
     /*

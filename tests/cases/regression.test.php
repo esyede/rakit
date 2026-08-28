@@ -1457,6 +1457,87 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // S20: validation messages
+    // -------------------------------------------------------------------------
+
+    /**
+     * Every rule that can fail has a message to fail with.
+     *
+     * @group system
+     */
+    public function testS20EveryRuleHasAMessage()
+    {
+        $sizes = new \ReflectionProperty('System\Validator', 'sizes');
+        PHP_VERSION_ID < 80100 && $sizes->setAccessible(true);
+        $sized = $sizes->getValue((new \ReflectionClass('System\Validator'))->newInstanceWithoutConstructor());
+
+        $missing = [];
+
+        foreach (['en', 'id'] as $language) {
+            $lines = require path('app').'language'.DS.$language.DS.'validation.php';
+
+            foreach ((new \ReflectionClass('System\Validator'))->getMethods() as $method) {
+                if (0 !== strpos($method->name, 'validate_')) {
+                    continue;
+                }
+
+                $rule = substr($method->name, 9);
+
+                // 'nullable' only marks an attribute, it never fails.
+                if ('nullable' === $rule) {
+                    continue;
+                }
+
+                if (in_array($rule, $sized, true)) {
+                    foreach (['numeric', 'file', 'string', 'array'] as $kind) {
+                        if (! isset($lines[$rule][$kind])) {
+                            $missing[] = $language.':'.$rule.'.'.$kind;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (! isset($lines[$rule])) {
+                    $missing[] = $language.':'.$rule;
+                }
+            }
+        }
+
+        $this->assertEquals([], $missing);
+    }
+
+    /**
+     * A size rule failing on an array counts items, and says so.
+     *
+     * @group system
+     */
+    public function testS20ArraySizeMessagesCountItems()
+    {
+        $validation = Validator::make(['a' => [1, 2, 3]], ['a' => 'array|max:2']);
+        $validation->passes();
+
+        $message = $validation->errors->first('a');
+
+        $this->assertNotContains('validation.', $message);
+        $this->assertNotContains('karakter', $message);
+        $this->assertNotContains('characters', $message);
+    }
+
+    /**
+     * A rule with a message of its own does not show the raw key.
+     *
+     * @group system
+     */
+    public function testS20UuidHasItsOwnMessage()
+    {
+        $validation = Validator::make(['a' => 'bukan-uuid'], ['a' => 'uuid']);
+        $validation->passes();
+
+        $this->assertNotContains('validation.uuid', $validation->errors->first('a'));
+    }
+
+    // -------------------------------------------------------------------------
     // T19, S18: blade sections
     // -------------------------------------------------------------------------
 
