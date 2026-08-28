@@ -5,7 +5,7 @@ Status penyelarasan perilaku dan keluaran (*response*) Rakit terhadap Laravel.
 - **Pembanding**: API Laravel 11/12.
 - **Cara verifikasi**: setiap poin dicek dengan menjalankan kode di atas SQLite in-memory dan
   membaca sumbernya, bukan dari ingatan.
-- **Terakhir diperbarui**: 2026-08-27.
+- **Terakhir diperbarui**: 2026-08-28.
 
 ## Ringkasan
 
@@ -21,9 +21,11 @@ Status penyelarasan perilaku dan keluaran (*response*) Rakit terhadap Laravel.
 | `Input`, `Messages`, `Redirect`, `Response`, rule validasi | Selesai |
 | Row locking (`lock_for_update` / `shared_lock`) | Selesai |
 | Lapisan transaksi (audit + perbaikan) | Selesai |
+| Schema builder + migrasi (audit + perbaikan) | Selesai |
+| Session dan auth driver (audit + perbaikan) | Selesai |
 | Blade component, API Resource, Stringable, observer | Sengaja tidak dikerjakan |
 
-Cakupan test naik dari 1921 menjadi **2027 test**, semuanya lolos, dan seluruh berkas yang
+Cakupan test naik dari 1921 menjadi **2064 test**, semuanya lolos, dan seluruh berkas yang
 disentuh lolos `php -l` pada PHP 5.6.
 
 ## Yang tidak dihitung sebagai ketidakcocokan
@@ -335,6 +337,170 @@ Ditambah `transaction_level()` untuk menanyakan kedalaman saat ini.
 **Masih belum ada**: percobaan ulang otomatis saat deadlock (`transaction($callback, $attempts)`
 di Laravel).
 
+## 4c. Schema builder, migrasi, session dan auth
+
+Empat area dari daftar "belum diaudit" dikerjakan berikutnya, dengan cara yang sama:
+menjalankan kode di atas SQLite in-memory, bukan membaca sekilas.
+
+### 4c.1 `Schema::drop()` mengabaikan argumen koneksi — **selesai**
+
+**Temuan paling berbahaya di ronde ini.** `Schema::drop($table, $connection)` memanggil
+`$table->on($connection)`, padahal `Table::on()` itu klausa `ON` untuk foreign key, bukan
+pemilih koneksi (`Table::connection()`). Saat dipanggil, `$table->commands` masih kosong,
+jadi method itu tidak melakukan apa pun dan argumennya hilang begitu saja:
+
+```php
+Schema::drop('users', 'replika');   // tabel di koneksi default yang hilang
+```
+
+Tabel dihapus dari koneksi **default**, bukan dari koneksi yang diminta, tanpa satu pun
+error. `Schema::drop_if_exists()` lebih parah lagi: pengecekannya benar-benar melihat
+koneksi yang diminta, lalu penghapusannya jatuh ke koneksi default.
+
+Sekalian, `table()`, `create()`, `create_if_not_exists()` dan `rename()` kini menerima
+argumen `$connection` di posisi terakhir, seperti `drop()`. Sebelumnya satu-satunya cara
+mengarahkan koneksi adalah `$table->connection()` dari dalam closure, sementara dokumentasi
+justru mencontohkan `$table->on('mysql')` yang tidak pernah bekerja.
+
+### 4c.2 Perintah schema yang tidak didukung hilang diam-diam — **selesai**
+
+`Schema::execute()` membungkus pemanggilan grammar dengan `if (method_exists(...))`. Kalau
+grammar tidak punya method untuk suatu perintah, perintahnya dilewati tanpa jejak. Di SQLite
+itu berarti `drop_column()`, `drop_primary()`, `drop_foreign()`, `drop_fulltext()` dan
+`primary()` semuanya **tidak melakukan apa-apa dan tetap melaporkan sukses**:
+
+```php
+Schema::table('users', function ($table) {
+    $table->drop_column('umur');    // kolomnya masih ada setelah ini
+});
+```
+
+Sekarang melempar exception yang menyebut nama driver dan nama perintahnya.
+
+### 4c.3 Grammar SQLite — **selesai**
+
+- `drop_column()` benar-benar dikerjakan lewat `ALTER TABLE .. DROP COLUMN` (SQLite 3.35+).
+- `rename_column()` dikerjakan lewat `ALTER TABLE .. RENAME COLUMN` (SQLite 3.25+).
+  Sebelumnya selalu melempar "not supported", padahal SQLite mendukungnya sejak 2018.
+- `drop_column_if_exists()` menyaring kolom lewat `PRAGMA table_info` lebih dulu, jadi
+  kolom yang tidak ada dilewati alih-alih menggagalkan migrasi.
+- Versi SQLite dicek saat runtime, jadi library lama dapat pesan yang jelas, bukan error SQL.
+- `foreign()` sebelumnya menghasilkan `ALTER TABLE .. ADD CONSTRAINT` yang **bukan sintaks
+  SQLite** — setiap `Schema::create()` dengan foreign key gagal dengan *syntax error*.
+  Sekarang foreign key ditulis inline ke dalam `CREATE TABLE`, sama seperti primary key, dan
+  benar-benar ditegakkan. Menambah atau menghapus foreign key di tabel yang sudah ada melempar
+  exception yang jelas, karena SQLite memang tidak bisa.
+
+### 4c.4 Grammar MySQL, Postgres dan SQL Server — **selesai**
+
+- MySQL tidak punya `IF EXISTS` untuk kolom maupun indeks di dalam `ALTER TABLE`, jadi
+  seluruh method `*_if_exists` di sana **mengompilasi perintah biasa** dan tetap gagal
+  ketika objeknya tidak ada — persis kebalikan dari yang dijanjikan namanya. Sekarang nama
+  kolom, indeks dan foreign key dicari lebih dulu di `information_schema`, dan perintahnya
+  dilewati kalau tidak ketemu. Diverifikasi terhadap MariaDB 10.11 yang berjalan lokal.
+- Postgres `drop_primary()` menyusun nama constraint dari `$table->name` tanpa prefix tabel,
+  dan mengabaikan nama yang dioper pemanggil. Keduanya diperbaiki.
+- SQL Server `drop_column_if_exists()` mengompilasi `DROP COLUMN` biasa tanpa `IF EXISTS`.
+
+### 4c.5 `Schema::tables()` dan `columns()` melihat database yang salah — **selesai**
+
+Keduanya mencari nama database lewat `Config::get('database.connections.'.$driver.'.database')`
+— **berdasarkan nama driver, bukan nama koneksi**. Untuk koneksi bernama `replika` dengan
+driver `mysql`, yang dibaca adalah konfigurasi koneksi `mysql`, yang bisa saja menunjuk
+database lain atau tidak ada sama sekali. Hasilnya `columns()` mengembalikan array kosong dan
+`has_column()` selalu `false`, tanpa error.
+
+Prefix tabel juga tidak pernah diterapkan, padahal `create()` dan `drop()` menerapkannya lewat
+grammar. Jadi `Schema::has_table('users')` mengembalikan `false` untuk tabel yang barusan
+dibuat sendiri oleh `Schema::create('users')` kalau koneksinya memakai prefix — yang membuat
+`create_if_not_exists()` membuat ulang tabel yang sudah ada, dan `drop_if_exists()` tidak
+menghapus apa pun.
+
+Sekarang keduanya membaca `database` dan `prefix` dari konfigurasi koneksi yang benar-benar
+dipakai, dan `DB::escape()` yang mengutip memakai PDO koneksi default diganti dengan quoting
+lewat koneksi tujuan.
+
+### 4c.6 `migrate:rollback` mati total — **selesai**
+
+Regresi dari bagian 2.4. `Migrate\Database::last()` mengembalikan hasil `Query::get()`, yang
+sejak `get()` diubah menjadi `Collection` bukan lagi array, sementara `Resolver::resolve()`
+menuliskan type hint `array`:
+
+```
+TypeError: Resolver::resolve(): Argument #1 ($migrations) must be of type array,
+System\Collection given
+```
+
+Artinya `migrate:rollback`, `migrate:reset` dan `migrate:refresh` **fatal error sejak
+perubahan itu**, dan tidak ada satu pun test yang menutupi jalur tersebut. `last()` kini
+mengembalikan array lagi, dan ada berkas test baru `tests/cases/migrate.test.php` yang
+menjalankan migrasi sungguhan lalu me-rollback-nya.
+
+### 4c.7 `empty()` di atas hasil query — **selesai**
+
+Regresi lain dari bagian 2.4 dengan pola yang sama: `empty($object)` selalu `false` untuk
+objek apa pun, termasuk `Collection` kosong. Di `Job\Drivers\Database` itu membuat cabang
+"Job is empty" tidak pernah tercapai dan `where_in('id', [])->delete()` tetap dijalankan.
+Diganti dengan `count()`, yang memang dipahami `Collection`.
+
+### 4c.8 `where_in()` dengan array kosong — **selesai**
+
+`where_in($column, [])` menghasilkan `IN ()`, yang syntax error di MySQL, Postgres dan SQL
+Server (SQLite kebetulan memaafkannya). Sekarang mengompilasi `0 = 1`, dan `where_not_in()`
+mengompilasi `1 = 1`, sama seperti Laravel.
+
+### 4c.9 Session tidak pernah dibersihkan — **selesai**
+
+Tidak ada mekanisme *garbage collection* sama sekali. Driver `file` menulis berkas ke
+`storage/sessions/` dan driver `database` menulis baris ke tabel `sessions`, dan keduanya
+tidak pernah dihapus. Driver lain aman karena penyimpanannya sendiri yang mengatur
+kedaluwarsa: cookie ada di perangkat pengunjung, sedangkan memcached, redis dan apc menerima
+`lifetime` sebagai TTL.
+
+Ditambahkan interface `Session\Drivers\Sweeper`, diimplementasi oleh driver `file` dan
+`database`, dan `Payload::save()` menjalankannya lewat undian. Peluangnya diatur opsi
+`'sweep' => [2, 100]` di `application/config/session.php`, dan `false` untuk mematikannya.
+
+Sekalian, `Payload::regenerate()` dan `invalidate()` tidak lagi mengasumsikan `load()` sudah
+pernah dipanggil.
+
+### 4c.10 Session fixation saat login — **selesai**
+
+`Auth::login()` menyimpan token ke session yang sedang berjalan tanpa mengganti id-nya. Jadi
+id session yang ditanam penyerang sebelum korban login akan ikut terautentikasi setelahnya.
+Laravel memanggil `session()->migrate(true)` di titik ini; Rakit tidak memanggil apa pun, dan
+controller stub bawaannya juga tidak.
+
+`login()` dan `logout()` kini memanggil `Session::regenerate()`, yang mengganti id sambil
+mempertahankan data session, jadi token login tetap ada di tempatnya.
+
+### 4c.11 Cookie "remember me" tidak bisa dicabut — **selesai**
+
+Isi cookie-nya `Crypter::encrypt($id.'|'.Str::random(40))`, dan bagian acaknya tidak pernah
+dicocokkan dengan apa pun. Jadi cookie itu sebenarnya hanya "id user terenkripsi": tidak bisa
+dicabut, tidak batal saat logout, dan tetap berlaku setelah password diganti. Siapa pun yang
+memegang salinannya tetap bisa masuk selamanya.
+
+Sekarang mengikuti Laravel. Cookie berisi tiga bagian, `id|token|hash password`, tokennya
+disimpan di kolom `remember_token` pada user, dan `recall()` mencocokkan token serta hash
+password memakai pembanding waktu-tetap `Crypter::equals()`. Efeknya:
+
+- `logout()` mengganti token yang tersimpan, jadi seluruh cookie lama langsung mati.
+- Mengganti password ikut mematikan seluruh cookie lama.
+- Cookie format lama yang hanya dua bagian ditolak.
+
+Kolom `remember_token` ditambahkan ke migrasi `create_users_table` bawaan. Aplikasi yang sudah
+jalan perlu menambahkannya sendiri; tanpa kolom itu login tetap bekerja, hanya fitur "remember
+me" yang mati alih-alih membagikan cookie yang tidak bisa dicabut. Driver pihak ketiga yang
+tidak mengimplementasi `save_remember_token()` juga berperilaku begitu.
+
+### 4c.12 Primary key string dan UUID tidak bisa login — **selesai**
+
+`retrieve()` di driver `magic` maupun `facile` menyaring tokennya dengan
+`FILTER_VALIDATE_INT`, jadi user dengan primary key berupa string atau UUID **tidak pernah
+sampai ke query** dan selalu dianggap tamu. Penyaringnya diganti dengan pengecekan
+string/integer yang tidak kosong, yang tetap menahan token null tanpa menyentuh database.
+
 ## 5. Dokumentasi yang ikut diperbarui
 
 | Berkas | Perubahan |
@@ -346,19 +512,25 @@ di Laravel).
 | `packages/docs/data/messages.md` | Bagian baru: Bag Helpers |
 | `packages/docs/data/validation.md` | `after_or_equal`, `declined`, bagian baru: Other Rules |
 | `packages/docs/data/helpers.md` | `back()` dengan fallback, redirect dan response baru |
+| `packages/docs/data/database/schema.md` | `$table->on('mysql')` diganti `connection()`, argumen koneksi baru, batasan SQLite |
+| `packages/docs/data/session/config.md` | Bagian baru: Sweeping |
+| `packages/docs/data/auth/usage.md` | Catatan id session diganti saat login dan logout, kolom `remember_token` |
+| `packages/docs/data/auth/config.md` | Kolom `remember_token`, primary key boleh string/UUID |
 
 Halaman pagination sebelumnya mendokumentasikan `$orders->per_page`, `$orders->from` dan
 `$orders->to` sebagai properti — ketiganya tidak pernah ada — serta `previous()`/`next()` yang
 sudah dihapus saat markup dipindah ke Blade.
+
+Halaman schema mencontohkan `$table->on('mysql')` untuk memilih koneksi, yang tidak pernah
+bekerja karena `on()` adalah klausa foreign key (lihat bagian 4c.1).
 
 ---
 
 ## 6. Yang belum diaudit
 
 - Routing, middleware, dan model binding
-- Antrian (`Job`), penjadwalan, dan console command
-- Session, Auth, dan Cache pada tingkat driver
-- Migrasi dan Schema builder
+- Antrian (`Job`) di luar driver database, penjadwalan, dan console command selain migrasi
+- Cache pada tingkat driver
 - Mail, notifikasi, dan event broadcasting
 - `Carbon` bawaan Rakit dibandingkan `nesbot/carbon`
 - Testing helper (`assertDatabaseHas`, HTTP test, dan sejenisnya)

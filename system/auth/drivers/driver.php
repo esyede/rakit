@@ -121,10 +121,17 @@ abstract class Driver
      */
     public function logout()
     {
+        $user = $this->user();
+
+        if (! is_null($user)) {
+            $this->save_remember_token($user, Str::random(60));
+        }
+
         $this->user = null;
 
         $this->cookie($this->recaller(), '', -2628000);
         Session::forget($this->token());
+        Session::regenerate();
         Hook::fire('rakit.auth: logout');
 
         $this->token = null;
@@ -138,16 +145,33 @@ abstract class Driver
     protected function store($token)
     {
         Session::put($this->token(), $token);
+
+        // Rotate the session id so an id planted earlier never ends up authenticated.
+        Session::regenerate();
     }
 
     /**
      * Save the user token to the cookie forever (5 years).
+     * The cookie carries a token that is also stored on the user, so it can be
+     * revoked, and the password hash, so changing the password revokes it too.
      *
      * @param string $token
      */
     protected function remember($token)
     {
-        $this->cookie($this->recaller(), Crypter::encrypt($token.'|'.Str::random(40)), 2628000);
+        if (is_null($this->user)) {
+            return;
+        }
+
+        $value = Str::random(60);
+
+        if (! $this->save_remember_token($this->user, $value)) {
+            return;
+        }
+
+        $payload = $token.'|'.$value.'|'.$this->password($this->user);
+
+        $this->cookie($this->recaller(), Crypter::encrypt($payload), 2628000);
     }
 
     /**
@@ -170,12 +194,83 @@ abstract class Driver
         }
 
         try {
-            return head(explode('|', Crypter::decrypt($cookie)));
+            $segments = explode('|', Crypter::decrypt($cookie), 3);
         } catch (\Throwable $e) {
             return;
         } catch (\Exception $e) {
             return;
         }
+
+        if (3 !== count($segments)) {
+            return;
+        }
+
+        list($token, $value, $password) = $segments;
+
+        try {
+            $user = $this->retrieve($token);
+        } catch (\Throwable $e) {
+            return;
+        } catch (\Exception $e) {
+            return;
+        }
+
+        if (is_null($user)) {
+            return;
+        }
+
+        $stored = (string) $this->remember_token($user);
+
+        if ('' === $stored || ! Crypter::equals($stored, $value)) {
+            return;
+        }
+
+        if (! Crypter::equals($this->password($user), $password)) {
+            return;
+        }
+
+        $this->user = $user;
+
+        return $token;
+    }
+
+    /**
+     * Get the "remember me" token stored on a user.
+     *
+     * @param mixed $user
+     *
+     * @return string|null
+     */
+    protected function remember_token($user)
+    {
+        return isset($user->remember_token) ? $user->remember_token : null;
+    }
+
+    /**
+     * Store a new "remember me" token on a user.
+     * Drivers that cannot store one return FALSE, which turns the feature off
+     * instead of handing out a cookie that can never be revoked.
+     *
+     * @param mixed  $user
+     * @param string $value
+     *
+     * @return bool
+     */
+    protected function save_remember_token($user, $value)
+    {
+        return false;
+    }
+
+    /**
+     * Get the password hash of a user.
+     *
+     * @param mixed $user
+     *
+     * @return string
+     */
+    protected function password($user)
+    {
+        return isset($user->password) ? (string) $user->password : '';
     }
 
     /**

@@ -315,4 +315,75 @@ class StorageDriversTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNull($driver->load('apa saja'));
     }
+
+    // -------------------------------------------------------------------------
+    // Session\Drivers\Sweeper
+    // -------------------------------------------------------------------------
+
+    /**
+     * Sweeping drops the rows that are past their expiration and keeps the rest.
+     *
+     * @group system
+     */
+    public function testDatabaseSessionSweepsExpiredRows()
+    {
+        $driver = new \System\Session\Drivers\Database(Database::connection());
+
+        $driver->save(['id' => 'kadaluwarsa', 'last_activity' => time() - 7200, 'data' => []], [], false);
+        $driver->save(['id' => 'aktif', 'last_activity' => time(), 'data' => []], [], false);
+
+        $this->assertEquals(2, Database::table(self::SESSION_TABLE)->count());
+
+        $driver->sweep(time() - 3600);
+
+        $this->assertEquals(['aktif'], Database::table(self::SESSION_TABLE)->lists('id'));
+    }
+
+    /**
+     * Sweeping deletes the session files that are past their expiration.
+     *
+     * @group system
+     */
+    public function testFileSessionSweepsExpiredFiles()
+    {
+        $path = path('storage').'sessions'.DS.'sweep'.DS;
+
+        $this->cleanup($path);
+        mkdir($path, 0777, true);
+
+        $driver = new \System\Session\Drivers\File($path);
+
+        $driver->save(['id' => 'kadaluwarsa', 'data' => []], [], false);
+        $driver->save(['id' => 'aktif', 'data' => []], [], false);
+
+        touch($path.sha1('kadaluwarsa').'.session.php', time() - 7200);
+
+        $this->assertCount(2, glob($path.'*.session.php'));
+
+        $driver->sweep(time() - 3600);
+
+        $this->assertCount(1, glob($path.'*.session.php'));
+        $this->assertNull($driver->load('kadaluwarsa'));
+        $this->assertTrue(is_array($driver->load('aktif')));
+
+        $this->cleanup($path);
+    }
+
+    /**
+     * Delete a directory of session files.
+     *
+     * @param string $path
+     */
+    private function cleanup($path)
+    {
+        if (! is_dir($path)) {
+            return;
+        }
+
+        foreach ((array) glob($path.'*.session.php') as $file) {
+            @unlink($file);
+        }
+
+        @rmdir($path);
+    }
 }

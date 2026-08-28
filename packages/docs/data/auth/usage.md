@@ -151,11 +151,29 @@ Auth::login(15);
 Auth::login($user->id, true);
 ```
 
+> Logging in and out both give the visitor a new session ID while keeping the
+> session data, so an ID an attacker planted before the login never ends up
+> authenticated. You do not have to call `Session::regenerate()` yourself.
+
 <a id="remember-me"></a>
 
 ## Remember Me
 
 The "Remember Me" feature allows users to stay logged in even after closing the browser. The cookie will be stored for 5 years.
+
+The cookie carries a token that is also stored in the user's `remember_token`
+column, so the user table needs one:
+
+```php
+Schema::table('users', function ($table) {
+    $table->string('remember_token', 100)->nullable();
+});
+```
+
+Without that column the login still works, the visitor just is not remembered.
+Storing the token is what makes the cookie revocable: logging out replaces it,
+which turns every cookie handed out earlier into a dead one. The cookie also
+carries the password hash, so changing a password has the same effect.
 
 **Login with remember me:**
 

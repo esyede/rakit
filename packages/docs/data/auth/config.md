@@ -126,9 +126,10 @@ When using the `'magic'` driver, the `table` option specifies which table to use
 ```
 
 This table must have at least the following columns:
-- Primary key column (usually `id`)
+- Primary key column (usually `id`), which may hold an integer, a string or a UUID
 - Identifier column (matching the `identifier` configuration, e.g., `email` or `username`)
 - `password` column for storing hashed passwords
+- `remember_token` column, needed only if you use ["Remember Me"](/docs/auth/usage#remember-me)
 
 **Example table structure:**
 
@@ -138,6 +139,7 @@ CREATE TABLE users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    remember_token VARCHAR(100) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

@@ -369,4 +369,33 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         // dd calls die, so we can't test directly, but ensure method exists
         $this->assertTrue(method_exists($query, 'dd'));
     }
+
+    /**
+     * Test for Database::where_in() - empty list never matches.
+     *
+     * @group system
+     */
+    public function testWhereInWithEmptyListIsAlwaysFalse()
+    {
+        $query = Database::table('query_test')->where_in('id', []);
+
+        $this->assertContains('0 = 1', $query->to_sql());
+        $this->assertNotContains('IN ()', $query->to_sql());
+        $this->assertEquals(0, $query->count());
+    }
+
+    /**
+     * Test for Database::where_not_in() - empty list always matches.
+     *
+     * @group system
+     */
+    public function testWhereNotInWithEmptyListIsAlwaysTrue()
+    {
+        $total = Database::table('query_test')->count();
+        $query = Database::table('query_test')->where_not_in('id', []);
+
+        $this->assertContains('1 = 1', $query->to_sql());
+        $this->assertNotContains('NOT IN ()', $query->to_sql());
+        $this->assertEquals($total, $query->count());
+    }
 }

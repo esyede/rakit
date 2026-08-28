@@ -16,6 +16,7 @@ class Create_Users_Table
             $table->string('name', 191);
             $table->string('email', 191)->unique();
             $table->string('password', 60);
+            $table->string('remember_token', 100)->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });

@@ -396,6 +396,37 @@ class SchemaGrammarsTest extends \PHPUnit_Framework_TestCase
 
         $sql = $this->compile('SQLServer', $table);
         $this->assertEquals('ALTER TABLE [users] DROP CONSTRAINT [pk_users]', $sql[0]);
+
+        $table = new Table('users');
+        $table->drop_primary('pk_users');
+
+        $sql = $this->compile('Postgres', $table);
+        $this->assertEquals('ALTER TABLE "users" DROP CONSTRAINT pk_users', $sql[0]);
+    }
+
+    /**
+     * Dropping columns that may or may not be there.
+     *
+     * @group system
+     */
+    public function testDropColumnIfExists()
+    {
+        $build = function () {
+            $table = new Table('users');
+            $table->drop_column_if_exists(['age', 'nickname']);
+
+            return $table;
+        };
+
+        $sql = $this->compile('Postgres', $build());
+        $this->assertEquals(
+            'ALTER TABLE "users" DROP COLUMN IF EXISTS "age", DROP COLUMN IF EXISTS "nickname"',
+            $sql[0]
+        );
+
+        // T-SQL spells it once, then lists the columns.
+        $sql = $this->compile('SQLServer', $build());
+        $this->assertEquals('ALTER TABLE [users] DROP COLUMN IF EXISTS [age], [nickname]', $sql[0]);
     }
 
     /**

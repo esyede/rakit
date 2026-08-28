@@ -375,6 +375,20 @@ Schema::table('users', function ($table) {
 });
 ```
 
+**Deleting only when the column is there:**
+
+```php
+Schema::table('users', function ($table) {
+    $table->drop_column_if_exists('phone');
+});
+```
+
+> On SQLite, deleting a column needs SQLite 3.35.0 or newer, and renaming one
+> needs SQLite 3.25.0 or newer. Older libraries throw instead of doing nothing.
+> MySQL has no `IF EXISTS` for columns and indexes, so the `_if_exists` methods
+> look the name up in `information_schema` first and skip the statement when it
+> is not there.
+
 <a id="indexes"></a>
 ## Indexes
 
@@ -578,6 +592,12 @@ Schema::table('posts', function ($table) {
 });
 ```
 
+> SQLite cannot add or drop a foreign key on a table that already exists. A
+> foreign key declared inside `Schema::create()` is written into the CREATE
+> TABLE statement, but `foreign()` and `drop_foreign()` on an existing table
+> throw. Recreate the table instead. The same goes for `primary()` and
+> `drop_primary()`.
+
 <a id="enabledisable-foreign-key-checks"></a>
 ### Enable/Disable Foreign Key Checks
 
@@ -651,16 +671,25 @@ Schema::create('users', function ($table) {
 
 ```php
 Schema::create('users', function ($table) {
-    $table->on('mysql');
+    $table->connection('mysql');
 
     $table->increments('id');
     $table->string('name');
 });
 ```
 
-**Or in drop method:**
+**Or as the last argument:**
 
 ```php
+Schema::create('users', function ($table) {
+    $table->increments('id');
+}, 'mysql');
+
+Schema::table('users', function ($table) {
+    $table->string('phone')->nullable();
+}, 'mysql');
+
+Schema::rename('users', 'members', 'mysql');
 Schema::drop('users', 'mysql');
 ```
 
@@ -670,6 +699,11 @@ Schema::drop('users', 'mysql');
 $tables = Schema::tables('pgsql');
 $columns = Schema::columns('users', 'sqlite');
 ```
+
+> Pass the table name without its prefix. `has_table()`, `has_column()` and
+> `columns()` prepend the `prefix` of the connection themselves, the same way
+> `create()` and `drop()` do. `tables()` is the exception: it lists the names as
+> the server stores them, prefix included.
 
 <a id="complete-examples"></a>
 ## Complete Examples

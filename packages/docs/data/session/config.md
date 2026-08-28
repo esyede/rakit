@@ -12,6 +12,7 @@
 -   [Memcached Driver](#memcached-driver)
 -   [Redis Driver](#redis-driver)
 -   [Memory Driver](#memory-driver)
+-   [Sweeping](#sweeping)
 
 <!-- /MarkdownTOC -->
 
@@ -161,3 +162,30 @@ The `'memory'` driver only uses a simple array to store your session data for th
 This driver is good for unit-testing your application as no data is written to disk.
 
 > This driver should not be used for purposes other than testing!
+
+<a id="sweeping"></a>
+
+## Sweeping
+
+The `file` and `database` drivers keep writing session data until something
+deletes it. Rakit takes care of that itself: on a small share of requests it
+deletes every session whose last activity is older than `'lifetime'`.
+
+How often that happens is set by the `'sweep'` option in the
+`application/config/session.php` file, written as `[chances, out_of]`:
+
+```php
+'sweep' => [2, 100],
+```
+
+The default runs the cleanup on roughly 2 out of every 100 requests. Set it to
+`false` to turn it off, for example when you would rather clean the table with a
+scheduled job:
+
+```php
+'sweep' => false,
+```
+
+The other drivers are never swept, because their own storage already expires the
+data: cookie sessions live on the visitor's device, while memcached, redis and
+apc are given the session lifetime as their expiration.

@@ -316,6 +316,70 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Payload::save() - sweeps expired sessions when the odds hit.
+     *
+     * @group system
+     */
+    public function testSaveSweepsExpiredSessionsWhenTheOddsHit()
+    {
+        Config::set('session.sweep', [100, 100]);
+
+        $payload = new \System\Session\Payload($this->getMockSweeper());
+        $payload->session = $this->getSession();
+
+        $payload->driver->expects($this->once())->method('sweep');
+        $payload->save();
+    }
+
+    /**
+     * Test for Payload::save() - never sweeps when sweeping is turned off.
+     *
+     * @group system
+     */
+    public function testSaveDoesNotSweepWhenSweepingIsDisabled()
+    {
+        Config::set('session.sweep', false);
+
+        $payload = new \System\Session\Payload($this->getMockSweeper());
+        $payload->session = $this->getSession();
+
+        $payload->driver->expects($this->never())->method('sweep');
+        $payload->save();
+    }
+
+    /**
+     * Test for Payload::save() - drivers that expire on their own are never swept.
+     *
+     * @group system
+     */
+    public function testSaveDoesNotSweepPlainDrivers()
+    {
+        Config::set('session.sweep', [100, 100]);
+
+        $payload = $this->getPayload();
+        $payload->session = $this->getSession();
+        $payload->save();
+
+        $this->assertFalse($payload->driver instanceof \System\Session\Drivers\Sweeper);
+    }
+
+    /**
+     * Test for Payload::regenerate() - safe before the payload is loaded.
+     *
+     * @group system
+     */
+    public function testRegenerateWorksOnAnUnloadedPayload()
+    {
+        $payload = $this->getPayload();
+        $payload->driver->expects($this->never())->method('delete');
+
+        $payload->regenerate();
+
+        $this->assertFalse($payload->exists);
+        $this->assertTrue(40 === mb_strlen($payload->session['id'], '8bit'));
+    }
+
+    /**
      * Get instance of Payload with mock driver.
      *
      * @return Payload
@@ -333,6 +397,18 @@ class SessionTest extends \PHPUnit_Framework_TestCase
     protected function getMockDriver()
     {
         $mock = $this->getMock('\System\Session\Drivers\Driver', ['id', 'load', 'save', 'delete']);
+        $mock->expects($this->any())->method('id')->will($this->returnValue(Str::random(40)));
+        return $mock;
+    }
+
+    /**
+     * Get mock driver that supports sweeping.
+     *
+     * @return Driver
+     */
+    protected function getMockSweeper()
+    {
+        $mock = $this->getMock('\System\Session\Drivers\File', ['id', 'load', 'save', 'delete', 'sweep'], [''], '', false);
         $mock->expects($this->any())->method('id')->will($this->returnValue(Str::random(40)));
         return $mock;
     }

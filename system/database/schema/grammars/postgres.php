@@ -271,7 +271,13 @@ class Postgres extends Grammar
      */
     public function drop_primary(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT '.$table->name.'_pkey';
+        if (isset($command->name) && '' !== (string) $command->name) {
+            return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT '.$command->name;
+        }
+
+        $prefix = isset($this->connection->config['prefix']) ? $this->connection->config['prefix'] : '';
+
+        return 'ALTER TABLE '.$this->wrap($table).' DROP CONSTRAINT '.$prefix.$table->name.'_pkey';
     }
 
     /**

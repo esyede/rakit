@@ -7,7 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Config;
 use System\Database\Connection;
 
-class Database extends Driver
+class Database extends Driver implements Sweeper
 {
     /**
      * Contains the database connection instance.
@@ -82,6 +82,16 @@ class Database extends Driver
     public function delete($id)
     {
         $this->table()->where('id', '=', $id)->delete();
+    }
+
+    /**
+     * Delete all sessions that have expired from storage.
+     *
+     * @param int $expiration
+     */
+    public function sweep($expiration)
+    {
+        $this->table()->where('last_activity', '<', $expiration)->delete();
     }
 
     /**

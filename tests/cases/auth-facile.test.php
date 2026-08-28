@@ -32,6 +32,8 @@ class AuthFacileTest extends \PHPUnit_Framework_TestCase
         Config::set('auth.driver', 'magic');
         Config::set('auth.model', null);
         Config::set('auth.identifier', 'email');
+
+        Database::table('users')->update(['remember_token' => null]);
     }
 
     // -------------------------------------------------------------------------
@@ -171,6 +173,73 @@ class AuthFacileTest extends \PHPUnit_Framework_TestCase
             $this->assertContains('auth model', $e->getMessage());
         }
         $this->assertTrue($caught);
+    }
+
+    // -------------------------------------------------------------------------
+    // Auth\Drivers\Facile "remember me"
+    // -------------------------------------------------------------------------
+
+    /**
+     * Test for Facile::remember() - the token is written on the model and the
+     * cookie carries it back.
+     *
+     * @group system
+     */
+    public function testFacileLoginStoresRememberTokenOnTheModel()
+    {
+        Session::$instance = new \System\Session\Payload(
+            $this->getMock('\System\Session\Drivers\Driver')
+        );
+
+        $driver = new \System\Auth\Drivers\Facile();
+        $driver->login(1, true);
+
+        $stored = FacileAuthTestUser::find(1)->remember_token;
+
+        $this->assertNotNull($stored);
+
+        $cookie = Cookie::get('system_auth_drivers_facile_remember');
+        $segments = explode('|', \System\Crypter::decrypt($cookie), 3);
+
+        $this->assertCount(3, $segments);
+        $this->assertEquals('1', $segments[0]);
+        $this->assertEquals($stored, $segments[1]);
+    }
+
+    /**
+     * Test for Facile::recall() - the user comes back from a valid cookie.
+     *
+     * @group system
+     */
+    public function testFacileUserIsRecalledFromCookie()
+    {
+        Session::$instance = new \System\Session\Payload(
+            $this->getMock('\System\Session\Drivers\Driver')
+        );
+
+        $user = FacileAuthTestUser::find(1);
+        $user->remember_token = \System\Str::random(60);
+        $user->save();
+
+        Cookie::forever('system_auth_drivers_facile_remember', \System\Crypter::encrypt(
+            '1|'.$user->remember_token.'|'.$user->password
+        ));
+
+        $driver = new \System\Auth\Drivers\Facile();
+
+        $this->assertNotNull($driver->user());
+        $this->assertEquals('budi@gmail.com', $driver->user()->email);
+    }
+
+    /**
+     * Test for Facile::retrieve() - an unrelated object is not a user.
+     *
+     * @group system
+     */
+    public function testFacileRetrieveReturnsNullForForeignObject()
+    {
+        $driver = new \System\Auth\Drivers\Facile();
+        $this->assertNull($driver->retrieve(new \stdClass()));
     }
 
     // -------------------------------------------------------------------------

@@ -434,11 +434,91 @@ class MySQL extends Grammar
      */
     public function drop_column_if_exists(Table $table, Magic $command)
     {
-        $columns = implode(', ', array_map(function ($column) {
-            return 'DROP COLUMN '.$column;
-        }, array_map([$this, 'wrap'], $command->columns)));
+        $columns = array_values(array_intersect($command->columns, $this->existing($table)));
 
-        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+        if (empty($columns)) {
+            return [];
+        }
+
+        return $this->drop_column($table, new Magic(compact('columns')));
+    }
+
+    /**
+     * Get the list of existing columns of a table.
+     *
+     * @param Table $table
+     *
+     * @return array
+     */
+    protected function existing(Table $table)
+    {
+        $sql = 'SELECT column_name FROM information_schema.columns'
+            .' WHERE table_schema = DATABASE() AND table_name = ?';
+
+        return $this->lookup($sql, [$this->qualified($table)]);
+    }
+
+    /**
+     * Check if a table has an index with the given name.
+     *
+     * @param Table  $table
+     * @param string $name
+     *
+     * @return bool
+     */
+    protected function has_index(Table $table, $name)
+    {
+        $sql = 'SELECT index_name FROM information_schema.statistics'
+            .' WHERE table_schema = DATABASE() AND table_name = ? AND index_name = ?';
+
+        return count($this->lookup($sql, [$this->qualified($table), $name])) > 0;
+    }
+
+    /**
+     * Check if a table has a foreign key constraint with the given name.
+     *
+     * @param Table  $table
+     * @param string $name
+     *
+     * @return bool
+     */
+    protected function has_foreign(Table $table, $name)
+    {
+        $sql = 'SELECT constraint_name FROM information_schema.table_constraints'
+            .' WHERE constraint_schema = DATABASE() AND table_name = ? AND constraint_name = ?'
+            ." AND constraint_type = 'FOREIGN KEY'";
+
+        return count($this->lookup($sql, [$this->qualified($table), $name])) > 0;
+    }
+
+    /**
+     * Get the table name as the server knows it, prefix included.
+     *
+     * @param Table $table
+     *
+     * @return string
+     */
+    protected function qualified(Table $table)
+    {
+        $prefix = isset($this->connection->config['prefix']) ? $this->connection->config['prefix'] : '';
+
+        return $prefix.$table->name;
+    }
+
+    /**
+     * Read a single column out of the information schema.
+     *
+     * @param string $sql
+     * @param array  $bindings
+     *
+     * @return array
+     */
+    protected function lookup($sql, array $bindings)
+    {
+        $statement = $this->connection->pdo()->prepare($sql);
+        $statement->execute($bindings);
+
+        return $statement->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     /**
@@ -451,7 +531,7 @@ class MySQL extends Grammar
      */
     public function drop_index_if_exists(Table $table, Magic $command)
     {
-        return $this->drop_key($table, $command);
+        return $this->has_index($table, $command->name) ? $this->drop_key($table, $command) : [];
     }
 
     /**
@@ -464,7 +544,7 @@ class MySQL extends Grammar
      */
     public function drop_unique_if_exists(Table $table, Magic $command)
     {
-        return $this->drop_key($table, $command);
+        return $this->drop_index_if_exists($table, $command);
     }
 
     /**
@@ -477,7 +557,7 @@ class MySQL extends Grammar
      */
     public function drop_fulltext_if_exists(Table $table, Magic $command)
     {
-        return $this->drop_key($table, $command);
+        return $this->drop_index_if_exists($table, $command);
     }
 
     /**
@@ -490,7 +570,7 @@ class MySQL extends Grammar
      */
     public function drop_foreign_if_exists(Table $table, Magic $command)
     {
-        return 'ALTER TABLE '.$this->wrap($table).' DROP FOREIGN KEY '.$command->name;
+        return $this->has_foreign($table, $command->name) ? $this->drop_foreign($table, $command) : [];
     }
 
     /**

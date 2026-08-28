@@ -4,7 +4,7 @@ namespace System\Session\Drivers;
 
 defined('DS') or exit('No direct access.');
 
-class File extends Driver
+class File extends Driver implements Sweeper
 {
     /**
      * Contains the path to the session files.
@@ -66,6 +66,26 @@ class File extends Driver
     {
         if (is_file($path = $this->path.$this->naming($id))) {
             @unlink($path);
+        }
+    }
+
+    /**
+     * Delete all sessions that have expired from storage.
+     *
+     * @param int $expiration
+     */
+    public function sweep($expiration)
+    {
+        $files = glob($this->path.'*.session.php');
+
+        if (false === $files) {
+            return;
+        }
+
+        foreach ($files as $file) {
+            if (is_file($file) && filemtime($file) < $expiration) {
+                @unlink($file);
+            }
         }
     }
 

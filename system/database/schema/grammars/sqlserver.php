@@ -394,11 +394,9 @@ class SQLServer extends Grammar
      */
     public function drop_column_if_exists(Table $table, Magic $command)
     {
-        $columns = implode(', ', array_map(function ($column) {
-            return 'DROP COLUMN '.$column;
-        }, array_map([$this, 'wrap'], $command->columns)));
+        $columns = implode(', ', array_map([$this, 'wrap'], $command->columns));
 
-        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+        return 'ALTER TABLE '.$this->wrap($table).' DROP COLUMN IF EXISTS '.$columns;
     }
 
     /**

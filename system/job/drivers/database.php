@@ -84,7 +84,7 @@ class Database extends Driver
 
         $jobs = $query->get();
 
-        if (! empty($jobs)) {
+        if (count($jobs) > 0) {
             $ids = [];
 
             foreach ($jobs as $job) {
@@ -102,7 +102,7 @@ class Database extends Driver
 
         $jobs = $fails->get();
 
-        if (! empty($jobs)) {
+        if (count($jobs) > 0) {
             $ids = [];
 
             foreach ($jobs as $job) {
@@ -149,7 +149,7 @@ class Database extends Driver
             ->take($config['max_job'])
             ->get();
 
-        if (empty($jobs)) {
+        if (count($jobs) < 1) {
             $this->log('Job is empty');
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
@@ -245,7 +245,7 @@ class Database extends Driver
             ->take($config['max_job'])
             ->get();
 
-        if (empty($jobs)) {
+        if (count($jobs) < 1) {
             $this->log('Job is empty');
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);

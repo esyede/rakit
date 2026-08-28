@@ -21,9 +21,40 @@ class Magic extends Driver
      */
     public function retrieve($id)
     {
-        if (false !== filter_var($id, FILTER_VALIDATE_INT)) {
-            return Database::table(Config::get('auth.table'))->find($id);
+        if ((! is_string($id) && ! is_int($id)) || '' === (string) $id) {
+            return;
         }
+
+        return Database::table(Config::get('auth.table', 'users'))->find($id);
+    }
+
+    /**
+     * Store a new "remember me" token on a user.
+     *
+     * @param mixed  $user
+     * @param string $value
+     *
+     * @return bool
+     */
+    protected function save_remember_token($user, $value)
+    {
+        if (! isset($user->id)) {
+            return false;
+        }
+
+        try {
+            Database::table(Config::get('auth.table', 'users'))
+                ->where('id', '=', $user->id)
+                ->update(['remember_token' => $value]);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        $user->remember_token = $value;
+
+        return true;
     }
 
     /**

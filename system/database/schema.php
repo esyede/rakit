@@ -4,7 +4,6 @@ namespace System\Database;
 
 defined('DS') or exit('No direct access.');
 
-use System\Config;
 use System\Magic;
 use System\Database as DB;
 
@@ -13,12 +12,14 @@ class Schema
     /**
      * Start the schema builder for a table.
      *
-     * @param string   $table
-     * @param \Closure $builder
+     * @param string      $table
+     * @param \Closure    $builder
+     * @param string|null $connection
      */
-    public static function table($table, \Closure $builder)
+    public static function table($table, \Closure $builder, $connection = null)
     {
         $table = new Schema\Table($table);
+        $table->connection($connection);
 
         call_user_func($builder, $table);
 
@@ -36,8 +37,7 @@ class Schema
     {
         $connection = DB::connection($connection);
         $driver = $connection->driver();
-        $database = Config::get('database.connections.'.$driver.'.database');
-        $database = DB::escape($database);
+        $database = static::quote($connection, static::option($connection, 'database'));
 
         $query = '';
 
@@ -89,9 +89,8 @@ class Schema
     {
         $connection = DB::connection($connection);
         $driver = $connection->driver();
-        $database = Config::get('database.connections.'.$driver.'.database');
-        $database = DB::escape($database);
-        $table = DB::escape($table);
+        $database = static::quote($connection, static::option($connection, 'database'));
+        $table = static::quote($connection, static::prefixed($connection, $table));
 
         $query = '';
 
@@ -136,6 +135,8 @@ class Schema
      */
     public static function has_table($table, $connection = null)
     {
+        $table = static::prefixed(DB::connection($connection), $table);
+
         return in_array($table, static::tables($connection));
     }
 
@@ -163,9 +164,9 @@ class Schema
      */
     public static function enable_fk_checks($table, $connection = null)
     {
-        $table = DB::escape($table);
         $connection = DB::connection($connection);
         $driver = $connection->driver();
+        $table = static::quote($connection, static::prefixed($connection, $table));
 
         switch ($driver) {
             case 'mysql':
@@ -207,9 +208,9 @@ class Schema
      */
     public static function disable_fk_checks($table, $connection = null)
     {
-        $table = DB::escape($table);
         $connection = DB::connection($connection);
         $driver = $connection->driver();
+        $table = static::quote($connection, static::prefixed($connection, $table));
 
         switch ($driver) {
             case 'mysql':  $query = 'SET FOREIGN_KEY_CHECKS=0;';
@@ -233,12 +234,14 @@ class Schema
     /**
      * Create a new table schema.
      *
-     * @param string   $table
-     * @param \Closure $builder
+     * @param string      $table
+     * @param \Closure    $builder
+     * @param string|null $connection
      */
-    public static function create($table, \Closure $builder)
+    public static function create($table, \Closure $builder, $connection = null)
     {
         $table = new Schema\Table($table);
+        $table->connection($connection);
         $table->create();
 
         call_user_func($builder, $table);
@@ -249,25 +252,28 @@ class Schema
     /**
      * Create a new table schema if it does not exist.
      *
-     * @param string   $table
-     * @param \Closure $builder
+     * @param string      $table
+     * @param \Closure    $builder
+     * @param string|null $connection
      */
-    public static function create_if_not_exists($table, \Closure $builder)
+    public static function create_if_not_exists($table, \Closure $builder, $connection = null)
     {
-        if (! static::has_table($table)) {
-            static::create($table, $builder);
+        if (! static::has_table($table, $connection)) {
+            static::create($table, $builder, $connection);
         }
     }
 
     /**
      * Rename a table in the schema.
      *
-     * @param string $table
-     * @param string $new_name
+     * @param string      $table
+     * @param string      $new_name
+     * @param string|null $connection
      */
-    public static function rename($table, $new_name)
+    public static function rename($table, $new_name, $connection = null)
     {
         $table = new Schema\Table($table);
+        $table->connection($connection);
         $table->rename($new_name);
 
         return static::execute($table);
@@ -276,13 +282,13 @@ class Schema
     /**
      * Delete a table from the schema.
      *
-     * @param string $table
-     * @param string $connection
+     * @param string      $table
+     * @param string|null $connection
      */
     public static function drop($table, $connection = null)
     {
         $table = new Schema\Table($table);
-        $table->on($connection);
+        $table->connection($connection);
         $table->drop();
 
         return static::execute($table);
@@ -314,12 +320,18 @@ class Schema
             $connection = DB::connection($table->connection);
             $grammar = static::grammar($connection);
 
-            if (method_exists($grammar, $command->type)) {
-                $statements = (array) $grammar->{$command->type}($table, $command);
+            if (! method_exists($grammar, $command->type)) {
+                throw new \Exception(sprintf(
+                    'Unsupported schema command for the %s driver: %s',
+                    $connection->driver(),
+                    $command->type
+                ));
+            }
 
-                foreach ($statements as $statement) {
-                    $connection->query($statement);
-                }
+            $statements = (array) $grammar->{$command->type}($table, $command);
+
+            foreach ($statements as $statement) {
+                $connection->query($statement);
             }
         }
     }
@@ -349,6 +361,45 @@ class Schema
                 }
             }
         }
+    }
+
+    /**
+     * Prepend the table prefix of a connection to a table name.
+     *
+     * @param Connection $connection
+     * @param string     $table
+     *
+     * @return string
+     */
+    protected static function prefixed(Connection $connection, $table)
+    {
+        return static::option($connection, 'prefix').$table;
+    }
+
+    /**
+     * Read an option from the configuration of a connection.
+     *
+     * @param Connection $connection
+     * @param string     $key
+     *
+     * @return string
+     */
+    protected static function option(Connection $connection, $key)
+    {
+        return isset($connection->config[$key]) ? (string) $connection->config[$key] : '';
+    }
+
+    /**
+     * Quote a value using the connection it is meant for.
+     *
+     * @param Connection $connection
+     * @param string     $value
+     *
+     * @return string
+     */
+    protected static function quote(Connection $connection, $value)
+    {
+        return $connection->pdo()->quote($value);
     }
 
     /**

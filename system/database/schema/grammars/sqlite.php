@@ -31,7 +31,66 @@ class SQLite extends Grammar
             $sql .= ', PRIMARY KEY ('.$columns.')';
         }
 
+        foreach ($table->commands as $item) {
+            if ('foreign' === $item->type) {
+                $sql .= ', '.$this->foreign_key($item);
+            }
+        }
+
         return $sql .= ')';
+    }
+
+    /**
+     * Create the sql syntax for inline primary key.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return array
+     */
+    public function primary(Table $table, Magic $command)
+    {
+        if ($table->creating()) {
+            return [];
+        }
+
+        throw new \Exception('Adding a primary key to an existing table is not supported in SQLite.');
+    }
+
+    /**
+     * Create the sql syntax for inline foreign key constraint.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return array
+     */
+    public function foreign(Table $table, Magic $command)
+    {
+        if ($table->creating()) {
+            return [];
+        }
+
+        throw new \Exception('Adding a foreign key to an existing table is not supported in SQLite.');
+    }
+
+    /**
+     * Create the sql syntax for a foreign key clause.
+     *
+     * @param Magic $command
+     *
+     * @return string
+     */
+    protected function foreign_key(Magic $command)
+    {
+        $references = is_array($command->references) ? $command->references : [$command->references];
+
+        $sql = 'FOREIGN KEY ('.$this->columnize($command->columns).')'
+            .' REFERENCES '.$this->wrap_table($command->on).' ('.$this->columnize($references).')';
+        $sql .= is_null($command->on_delete) ? '' : ' ON DELETE '.$command->on_delete;
+        $sql .= is_null($command->on_update) ? '' : ' ON UPDATE '.$command->on_update;
+
+        return $sql;
     }
 
     /**
@@ -279,6 +338,102 @@ class SQLite extends Grammar
     }
 
     /**
+     * Create the sql syntax for drop primary key.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_primary(Table $table, Magic $command)
+    {
+        throw new \Exception('Dropping a primary key is not supported in SQLite. Recreate the table instead.');
+    }
+
+    /**
+     * Create the sql syntax for drop foreign key.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_foreign(Table $table, Magic $command)
+    {
+        throw new \Exception('Dropping a foreign key is not supported in SQLite. Recreate the table instead.');
+    }
+
+    /**
+     * Create the sql syntax for drop fulltext index.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function drop_fulltext(Table $table, Magic $command)
+    {
+        return 'DROP TABLE '.$this->wrap($command->name);
+    }
+
+    /**
+     * Create the sql syntax for drop column.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return array
+     */
+    public function drop_column(Table $table, Magic $command)
+    {
+        $this->supported('3.35.0', 'Drop column');
+
+        $sql = [];
+
+        foreach ($command->columns as $column) {
+            $sql[] = 'ALTER TABLE '.$this->wrap($table).' DROP COLUMN '.$this->wrap($column);
+        }
+
+        return $sql;
+    }
+
+    /**
+     * Make sure the SQLite library is new enough for an operation.
+     *
+     * @param string $minimum
+     * @param string $operation
+     */
+    protected function supported($minimum, $operation)
+    {
+        $version = (string) $this->connection->pdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
+
+        if (version_compare($version, $minimum, '<')) {
+            throw new \Exception(sprintf(
+                '%s requires SQLite %s or newer, %s given.',
+                $operation,
+                $minimum,
+                $version
+            ));
+        }
+    }
+
+    /**
+     * Get the list of existing columns of a table.
+     *
+     * @param Table $table
+     *
+     * @return array
+     */
+    protected function existing(Table $table)
+    {
+        $prefix = isset($this->connection->config['prefix']) ? $this->connection->config['prefix'] : '';
+        $name = str_replace(["'", '.'], ["''", '__'], $prefix.$table->name);
+        $statement = $this->connection->pdo()->query("PRAGMA table_info('".$name."')");
+
+        return $statement ? $statement->fetchAll(\PDO::FETCH_COLUMN, 1) : [];
+    }
+
+    /**
      * Create the sql syntax for creating spatial index.
      *
      * @param Table $table
@@ -303,7 +458,10 @@ class SQLite extends Grammar
      */
     public function rename_column(Table $table, Magic $command)
     {
-        throw new \Exception('Rename column is not supported in SQLite. Recreate the table instead.');
+        $this->supported('3.25.0', 'Rename column');
+
+        return 'ALTER TABLE '.$this->wrap($table).' RENAME COLUMN '
+            .$this->wrap($command->from).' TO '.$this->wrap($command->to);
     }
 
     /**
@@ -312,11 +470,17 @@ class SQLite extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return string
+     * @return array
      */
     public function drop_column_if_exists(Table $table, Magic $command)
     {
-        throw new \Exception('Drop column IF EXISTS is not supported in SQLite.');
+        $columns = array_values(array_intersect($command->columns, $this->existing($table)));
+
+        if (empty($columns)) {
+            return [];
+        }
+
+        return $this->drop_column($table, new Magic(compact('columns')));
     }
 
     /**
@@ -368,7 +532,7 @@ class SQLite extends Grammar
      */
     public function drop_foreign_if_exists(Table $table, Magic $command)
     {
-        throw new \Exception('Drop foreign key IF EXISTS is not supported in SQLite.');
+        return [];
     }
 
     /**

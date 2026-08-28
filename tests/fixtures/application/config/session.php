@@ -114,6 +114,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Session Sweeping
+    |--------------------------------------------------------------------------
+    |
+    | Odds that expired sessions get deleted from storage on a given request,
+    | written as [chances, out_of]. The default [2, 100] means it runs on
+    | roughly 2 out of every 100 requests. Set to false to turn it off.
+    | Only applies to the 'file' and 'database' drivers, the others let
+    | their own storage expire the data.
+    |
+    */
+
+    'sweep' => [2, 100],
+
+    /*
+    |--------------------------------------------------------------------------
     | Session ID Length
     |--------------------------------------------------------------------------
     |

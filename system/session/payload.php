@@ -217,7 +217,10 @@ class Payload
      */
     public function regenerate()
     {
-        $this->driver->delete($this->session['id']);
+        if (isset($this->session['id'])) {
+            $this->driver->delete($this->session['id']);
+        }
+
         $this->session['id'] = $this->driver->id();
         $this->exists = false;
     }
@@ -230,7 +233,10 @@ class Payload
      */
     public function invalidate()
     {
-        $this->driver->delete($this->session['id']);
+        if (isset($this->session['id'])) {
+            $this->driver->delete($this->session['id']);
+        }
+
         $this->session['id'] = $this->driver->id();
         $this->session['data'] = [Session::TOKEN => Str::random(40), ':new:' => [], ':old:' => []];
         $this->exists = false;
@@ -268,6 +274,38 @@ class Payload
         $config = Config::get('session');
         $this->driver->save($this->session, $config, $this->exists);
         $this->cookie($config);
+
+        if ($this->driver instanceof Drivers\Sweeper) {
+            $this->sweep($config);
+        }
+    }
+
+    /**
+     * Delete expired sessions from storage based on the configured odds.
+     * Only applies to drivers that do not expire their own data.
+     *
+     * @param array $config
+     */
+    protected function sweep(array $config)
+    {
+        $sweep = isset($config['sweep']) ? $config['sweep'] : [2, 100];
+
+        if (! is_array($sweep) || count($sweep) < 2) {
+            return;
+        }
+
+        list($chances, $out_of) = array_values($sweep);
+        $chances = (int) $chances;
+        $out_of = (int) $out_of;
+
+        if ($chances < 1 || $out_of < 1) {
+            return;
+        }
+
+        if (mt_rand(1, $out_of) <= $chances) {
+            $lifetime = isset($config['lifetime']) ? (int) $config['lifetime'] : 0;
+            $this->driver->sweep(time() - ($lifetime * 60));
+        }
     }
 
     /**

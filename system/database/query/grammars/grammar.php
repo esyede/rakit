@@ -211,6 +211,10 @@ class Grammar extends BaseGrammar
      */
     protected function where_in($where)
     {
+        if (empty($where['values'])) {
+            return '0 = 1';
+        }
+
         $parameters = $this->parameterize($where['values']);
         return $this->wrap($where['column']).' IN ('.$parameters.')';
     }
@@ -224,6 +228,10 @@ class Grammar extends BaseGrammar
      */
     protected function where_not_in($where)
     {
+        if (empty($where['values'])) {
+            return '1 = 1';
+        }
+
         $parameters = $this->parameterize($where['values']);
         return $this->wrap($where['column']).' NOT IN ('.$parameters.')';
     }

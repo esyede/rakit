@@ -20,17 +20,43 @@ class Facile extends Driver
      */
     public function retrieve($token)
     {
-        if (false !== filter_var($token, FILTER_VALIDATE_INT)) {
-            $model = Config::get('auth.model');
+        $model = Config::get('auth.model');
 
-            if (! $model) {
-                throw new \Exception('Please set the auth model in your config file.');
-            }
-
-            return (new $model())->find($token);
-        } elseif (is_object($token) && get_class($token) === Config::get('auth.model')) {
-            return $token;
+        if (is_object($token)) {
+            return ($model && get_class($token) === $model) ? $token : null;
         }
+
+        if ((! is_string($token) && ! is_int($token)) || '' === (string) $token) {
+            return;
+        }
+
+        if (! $model) {
+            throw new \Exception('Please set the auth model in your config file.');
+        }
+
+        return (new $model())->find($token);
+    }
+
+    /**
+     * Store a new "remember me" token on a user.
+     *
+     * @param mixed  $user
+     * @param string $value
+     *
+     * @return bool
+     */
+    protected function save_remember_token($user, $value)
+    {
+        try {
+            $user->remember_token = $value;
+            $user->save();
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

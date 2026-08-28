@@ -2,10 +2,13 @@
 
 defined('DS') or exit('No direct access.');
 
+use System\Config;
 use System\Database;
 use System\Database\Schema;
 use System\Database\Schema\Table;
 use System\Database\Schema\Grammars\SQLite as SQLiteGrammar;
+use System\Database\Schema\Grammars\MySQL as MySQLGrammar;
+use System\Database\Schema\Grammars\Postgres as PostgresGrammar;
 use System\Database\Expression;
 use System\Magic;
 
@@ -401,7 +404,7 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSchemaGrammarForeignGeneratesSql()
     {
         $connection = Database::connection();
-        $grammar = new SQLiteGrammar($connection);
+        $grammar = new MySQLGrammar($connection);
 
         $table = new Table('orders');
         $command = new Magic([
@@ -429,7 +432,7 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSchemaGrammarForeignIncludesOnDelete()
     {
         $connection = Database::connection();
-        $grammar = new SQLiteGrammar($connection);
+        $grammar = new MySQLGrammar($connection);
 
         $table = new Table('posts');
         $command = new Magic([
@@ -453,7 +456,7 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
     public function testSchemaGrammarForeignIncludesOnUpdate()
     {
         $connection = Database::connection();
-        $grammar = new SQLiteGrammar($connection);
+        $grammar = new MySQLGrammar($connection);
 
         $table = new Table('comments');
         $command = new Magic([
@@ -467,6 +470,28 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
 
         $sql = $grammar->foreign($table, $command);
         $this->assertContains('ON UPDATE SET NULL', $sql);
+    }
+
+    /**
+     * Test for Schema Grammar drop_primary() - the table prefix is part of the
+     * constraint name Postgres generates.
+     *
+     * @group system
+     */
+    public function testSchemaGrammarDropPrimaryIncludesThePrefix()
+    {
+        $connection = Database::connection();
+        $connection->config['prefix'] = 'app_';
+        $grammar = new PostgresGrammar($connection);
+
+        $table = new Table('users');
+        $command = new Magic(['type' => 'drop_primary', 'name' => null]);
+
+        $sql = $grammar->drop_primary($table, $command);
+
+        $this->assertContains('app_users_pkey', $sql);
+
+        unset($connection->config['prefix']);
     }
 
     /**
@@ -592,5 +617,288 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
 
         $result = $grammar->wrap_table(new Expression('raw_table'));
         $this->assertEquals('raw_table', $result);
+    }
+
+    // -------------------------------------------------------------------------
+    // Connection routing
+    // -------------------------------------------------------------------------
+
+    /**
+     * Test for Schema::drop() - drops from the given connection, not the default one.
+     *
+     * @group system
+     */
+    public function testSchemaDropUsesTheGivenConnection()
+    {
+        $name = $this->table('routed');
+
+        Config::set('database.connections.schema_other', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+        });
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+        }, 'schema_other');
+
+        Schema::drop($name, 'schema_other');
+
+        $this->assertTrue(Schema::has_table($name));
+        $this->assertFalse(Schema::has_table($name, 'schema_other'));
+    }
+
+    /**
+     * Test for Schema::table() - applies changes on the given connection.
+     *
+     * @group system
+     */
+    public function testSchemaTableUsesTheGivenConnection()
+    {
+        $name = $this->table('routed_alter');
+
+        Config::set('database.connections.schema_other', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+        }, 'schema_other');
+
+        Schema::table($name, function ($table) {
+            $table->string('email');
+        }, 'schema_other');
+
+        $this->assertTrue(Schema::has_column($name, 'email', 'schema_other'));
+        $this->assertFalse(Schema::has_table($name));
+    }
+
+    // -------------------------------------------------------------------------
+    // SQLite specific commands
+    // -------------------------------------------------------------------------
+
+    /**
+     * Test for Table::drop_column() - actually drops the column on SQLite.
+     *
+     * @group system
+     */
+    public function testDropColumnRemovesColumnOnSQLite()
+    {
+        $name = $this->table('droppable');
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->integer('age');
+        });
+
+        Schema::table($name, function ($table) {
+            $table->drop_column('age');
+        });
+
+        $this->assertTrue(Schema::has_column($name, 'name'));
+        $this->assertFalse(Schema::has_column($name, 'age'));
+    }
+
+    /**
+     * Test for Table::rename_column() - renames the column on SQLite.
+     *
+     * @group system
+     */
+    public function testRenameColumnRenamesColumnOnSQLite()
+    {
+        $name = $this->table('renamable');
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+            $table->string('kode');
+        });
+
+        Schema::table($name, function ($table) {
+            $table->rename_column('kode', 'code');
+        });
+
+        $this->assertTrue(Schema::has_column($name, 'code'));
+        $this->assertFalse(Schema::has_column($name, 'kode'));
+    }
+
+    /**
+     * Test for Table::drop_column_if_exists() - no-op for a missing column.
+     *
+     * @group system
+     */
+    public function testDropColumnIfExistsIgnoresMissingColumnOnSQLite()
+    {
+        $name = $this->table('optional_drop');
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+            $table->string('name');
+        });
+
+        Schema::table($name, function ($table) {
+            $table->drop_column_if_exists('nothing_here');
+        });
+
+        $this->assertTrue(Schema::has_column($name, 'name'));
+    }
+
+    /**
+     * Test for Table::foreign() - written inline by SQLite and enforced.
+     *
+     * @group system
+     */
+    public function testForeignKeyIsInlinedOnSQLite()
+    {
+        $parent = $this->table('fk_parent');
+        $child = $this->table('fk_child');
+
+        Schema::create($parent, function ($table) {
+            $table->increments('id');
+        });
+
+        Schema::create($child, function ($table) use ($parent) {
+            $table->increments('id');
+            $table->integer('parent_id');
+            $table->foreign('parent_id')->references('id')->on($parent);
+        });
+
+        $connection = Database::connection();
+        $sql = $connection->pdo()->query(
+            "SELECT sql FROM sqlite_master WHERE name='".$child."'"
+        )->fetchColumn();
+
+        $this->assertContains('FOREIGN KEY', $sql);
+        $this->assertNotContains('ALTER TABLE', $sql);
+    }
+
+    /**
+     * Test for Table::foreign() - rejected on an existing SQLite table.
+     *
+     * @group system
+     */
+    public function testForeignKeyOnExistingTableThrowsOnSQLite()
+    {
+        $name = $this->table('fk_late');
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+            $table->integer('parent_id');
+        });
+
+        $this->setExpectedException('Exception', 'Adding a foreign key to an existing table');
+
+        Schema::table($name, function ($table) {
+            $table->foreign('parent_id')->references('id')->on('whatever');
+        });
+    }
+
+    /**
+     * Test for Table::drop_primary() - rejected instead of silently ignored.
+     *
+     * @group system
+     */
+    public function testDropPrimaryThrowsOnSQLite()
+    {
+        $name = $this->table('pk_drop');
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+        });
+
+        $this->setExpectedException('Exception', 'Dropping a primary key is not supported in SQLite');
+
+        Schema::table($name, function ($table) {
+            $table->drop_primary('whatever');
+        });
+    }
+
+    /**
+     * Test for Table::drop_foreign() - rejected instead of silently ignored.
+     *
+     * @group system
+     */
+    public function testDropForeignThrowsOnSQLite()
+    {
+        $name = $this->table('fk_drop');
+
+        Schema::create($name, function ($table) {
+            $table->increments('id');
+        });
+
+        $this->setExpectedException('Exception', 'Dropping a foreign key is not supported in SQLite');
+
+        Schema::table($name, function ($table) {
+            $table->drop_foreign('whatever');
+        });
+    }
+
+    /**
+     * Test for Schema::has_table() - the table prefix is taken into account.
+     *
+     * @group system
+     */
+    public function testHasTableAndColumnsRespectThePrefix()
+    {
+        Config::set('database.connections.schema_prefixed', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => 'pfx_',
+        ]);
+
+        Schema::create('kotak', function ($table) {
+            $table->increments('id');
+            $table->string('nama');
+        }, 'schema_prefixed');
+
+        $tables = Schema::tables('schema_prefixed');
+
+        $this->assertContains('pfx_kotak', $tables);
+        $this->assertTrue(Schema::has_table('kotak', 'schema_prefixed'));
+        $this->assertTrue(Schema::has_column('kotak', 'nama', 'schema_prefixed'));
+        $this->assertEquals(['id', 'nama'], Schema::columns('kotak', 'schema_prefixed'));
+    }
+
+    /**
+     * Test for Schema::drop_if_exists() - lines up with the prefixed name.
+     *
+     * @group system
+     */
+    public function testDropIfExistsRespectThePrefix()
+    {
+        Config::set('database.connections.schema_prefixed', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => 'pfx_',
+        ]);
+
+        Schema::create('kotak', function ($table) {
+            $table->increments('id');
+        }, 'schema_prefixed');
+
+        Schema::drop_if_exists('kotak', 'schema_prefixed');
+
+        $this->assertFalse(Schema::has_table('kotak', 'schema_prefixed'));
+    }
+
+    /**
+     * Test for Schema::execute() - rejects commands the grammar cannot compile.
+     *
+     * @group system
+     */
+    public function testExecuteThrowsForUnsupportedCommand()
+    {
+        $this->setExpectedException('Exception', 'Unsupported schema command');
+
+        $table = new Table($this->table('unsupported'));
+        $table->commands[] = new Magic(['type' => 'command_that_does_not_exist']);
+
+        Schema::execute($table);
     }
 }
