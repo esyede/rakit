@@ -483,9 +483,12 @@ class Image
             throw new \Exception(sprintf('Destination file already exists: %s', $this->path));
         }
 
-        $extension = Storage::extension($this->path);
+        // Lower cased, because 'photo.JPG' names a JPEG just as much as
+        // 'photo.jpg' does, and 'jpeg' is the spelling most tools write.
+        $extension = strtolower(Storage::extension($this->path));
 
         switch ($extension) {
+            case 'jpeg':
             case 'jpg':
                 if (! imagejpeg($this->image, $this->path, $this->quality)) {
                     throw new \Exception('The JPG file could not be saved!');
@@ -502,7 +505,8 @@ class Image
                 break;
 
             case 'gif':
-                if (! imagegif($this->image, $this->path, $this->quality)) {
+                // imagegif() takes no quality, GIF has no such knob.
+                if (! imagegif($this->image, $this->path)) {
                     throw new \Exception('The GIF file could not be saved.');
                 }
                 break;

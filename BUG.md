@@ -21,11 +21,11 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 9 | 9 | 0 |
 | [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 18 | 18 | 0 |
-| [Sedang](#sedang) | 15 | 15 | 0 |
+| [Sedang](#sedang) | 16 | 16 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
-| **Total** | **53** | **53** | **0** |
+| **Total** | **54** | **54** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2141 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2142 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -977,6 +977,40 @@ di beberapa baris hasilnya benar, jadi bug ini hanya muncul saat template dituli
 **Yang dikerjakan**: pola kurungnya diganti pencocokan berpasangan
 (`\((?:[^()]++|(?N))*\)`), yang dipakai juga oleh `@foreach` dan `@forelse`. Kondisi yang
 memuat kurung sendiri seperti `@if (count($a) > 0)` tetap bekerja.
+
+### S17. `Image::export()` hanya bisa menulis PNG dan `.jpg` huruf kecil
+
+- [x] Selesai
+
+Tiga masalah menumpuk di satu `switch`:
+
+```php
+$extension = Storage::extension($this->path);   // tidak di-lowercase
+switch ($extension) {
+    case 'jpg': ..                              // 'jpeg' tidak ada
+    case 'gif':
+        imagegif($this->image, $this->path, $this->quality)   // imagegif hanya 2 argumen
+```
+
+Hasilnya:
+
+```
+export .gif   => ArgumentCountError: imagegif() expects at most 2 arguments, 3 given
+export .jpeg  => Bad filetype given, must be JPG, PNG or GIF.
+export .JPG   => Bad filetype given, must be JPG, PNG or GIF.
+export .PNG   => Bad filetype given, must be JPG, PNG or GIF.
+```
+
+Jadi GIF — format yang disebut sendiri oleh pesan errornya dan diterima `Image::open()` —
+tidak pernah bisa disimpan, `.jpeg` ditolak padahal itu ejaan yang paling umum ditulis
+peralatan lain, dan huruf besar apa pun di ekstensi menggagalkannya. Test bawaannya hanya
+mengekspor PNG huruf kecil, jadi tidak satu pun tertangkap.
+
+**Yang dikerjakan**: ekstensinya di-`strtolower()`, `jpeg` menempel ke cabang `jpg`, dan
+argumen kualitas dilepas dari `imagegif()` yang memang tidak punya parameter itu.
+
+Sekalian seluruh panggilan fungsi bawaan PHP di `system/` diperiksa jumlah argumennya terhadap
+tanda tangan aslinya. `imagegif()` satu-satunya yang salah.
 
 ---
 

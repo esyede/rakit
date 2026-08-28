@@ -1324,6 +1324,51 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $caught);
     }
 
+    /**
+     * export() writes every format it claims to support, whatever case the
+     * extension was written in.
+     *
+     * @group system
+     */
+    public function testS17ImageExportsEveryFormatItClaims()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        $this->work();
+
+        $relative = 'tests/fixtures/storage/work/regression_fmt.png';
+        $absolute = path('base').str_replace('/', DS, $relative);
+
+        $canvas = imagecreatetruecolor(4, 4);
+        imagepng($canvas, $absolute);
+        imagedestroy($canvas);
+
+        $written = [];
+        $refused = [];
+
+        foreach (['out.gif', 'out.jpg', 'out.jpeg', 'out.png', 'out.JPG', 'out.Gif'] as $name) {
+            $target = 'tests/fixtures/storage/work/regression_'.$name;
+            $path = path('base').str_replace('/', DS, $target);
+            @unlink($path);
+
+            try {
+                Image::open($relative)->export($target);
+                $written[] = (is_file($path) && filesize($path) > 0) ? $name : $name.' (kosong)';
+            } catch (\Exception $e) {
+                $refused[] = $name;
+            }
+
+            @unlink($path);
+        }
+
+        unlink($absolute);
+
+        $this->assertEquals([], $refused);
+        $this->assertEquals(['out.gif', 'out.jpg', 'out.jpeg', 'out.png', 'out.JPG', 'out.Gif'], $written);
+    }
+
     // -------------------------------------------------------------------------
     // S14: curl state
     // -------------------------------------------------------------------------
