@@ -1457,6 +1457,108 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // T20, S22: what the documentation promises, run for real
+    // -------------------------------------------------------------------------
+
+    /**
+     * resource() honours only, except and controller.
+     *
+     * @group system
+     */
+    public function testT20ResourceRoutesHonourTheirOptions()
+    {
+        Route::resource('posts', ['only' => ['index', 'show']]);
+        $only = array_keys(Router::$routes['GET']);
+
+        Router::$routes = array_fill_keys(Router::$methods, []);
+        Route::resource('posts', ['except' => ['delete']]);
+        $except = Router::$routes['DELETE'];
+
+        Router::$routes = array_fill_keys(Router::$methods, []);
+        Route::resource('posts', ['controller' => 'blog.post', 'only' => ['index']]);
+        $custom = Router::$routes['GET']['posts']['uses'];
+
+        $this->assertEquals(['posts', 'posts/(:any)'], $only);
+        $this->assertEquals([], $except);
+        $this->assertEquals('blog.post@index', $custom);
+    }
+
+    /**
+     * A resource route without a method says so, instead of warning.
+     *
+     * @group system
+     */
+    public function testT20ResourceRejectsARouteWithoutAMethod()
+    {
+        $this->setExpectedException('Exception', 'needs a "method"');
+
+        Route::resource('posts', [['route' => '', 'uses' => ':name@index']]);
+    }
+
+    /**
+     * session() writes as well as reads.
+     *
+     * @group system
+     */
+    public function testT20SessionHelperWrites()
+    {
+        Session::$instance = new Payload(new Memory());
+        Session::instance()->load(null);
+
+        $this->assertTrue(session(['peran' => 'admin']));
+        $this->assertEquals('admin', session('peran'));
+        $this->assertEquals('tamu', session('tidak_ada', 'tamu'));
+    }
+
+    /**
+     * where_exists() takes the closure the documentation shows.
+     *
+     * @group system
+     */
+    public function testT20WhereExistsAcceptsAClosure()
+    {
+        $sql = Database::table('users')->where_exists(function ($query) {
+            $query->from('orders')->where_raw('orders.user_id = users.id');
+        })->to_sql();
+
+        $this->assertContains('EXISTS (SELECT * FROM "orders"', $sql);
+        $this->assertContains('orders.user_id = users.id', $sql);
+    }
+
+    /**
+     * The raw clause builders are named the same way as each other.
+     *
+     * @group system
+     */
+    public function testS22RawClauseNamesAreConsistent()
+    {
+        foreach (['where_raw', 'or_where_raw', 'having_raw', 'select_raw',
+            'order_by_raw', 'group_by_raw', 'from', ] as $method) {
+            $this->assertTrue(
+                method_exists('System\Database\Query', $method),
+                'Query::'.$method.'() is missing'
+            );
+        }
+
+        $sql = Database::table('users')->where_raw('id = ?', [1])->to_sql();
+
+        $this->assertContains('id = ?', $sql);
+    }
+
+    /**
+     * A class the documentation writes bare is reachable bare.
+     *
+     * @group system
+     */
+    public function testS22DocumentedClassesAreAliased()
+    {
+        $aliases = require path('app').'config'.DS.'aliases.php';
+
+        $this->assertArrayHasKey('Collection', $aliases);
+        $this->assertEquals('System\Collection', $aliases['Collection']);
+    }
+
+    // -------------------------------------------------------------------------
     // S20: validation messages
     // -------------------------------------------------------------------------
 

@@ -551,7 +551,7 @@ if (! function_exists('session')) {
     {
         if (is_array($key)) {
             foreach ($key as $name => $value) {
-                \System\Session::set($name, $value);
+                \System\Session::put($name, $value);
             }
 
             return true;

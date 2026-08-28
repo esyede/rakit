@@ -84,11 +84,18 @@ $values = $redis->run('lrange', [5, 10]);
 Just want to run commands on the default Redis server? Just use the magic methods:
 
 ```php
+use System\Redis;
+
 Redis::set('name', 'Budi');
 
 $name = Redis::get('name');
 
 $values = Redis::lrange('names', 5, 10);
 ```
+
+> The `use` line matters here. `Redis` is not registered as a class alias,
+> because the phpredis extension already owns that name globally: aliasing it
+> would be refused on every machine that has the extension installed, which is
+> most machines running Redis. Import `System\Redis`, or write it out in full.
 
 > Rakit also provides a Redis driver for [cache](/docs/cache/config#redis-driver) and [session](/docs/session/config#redis-driver).

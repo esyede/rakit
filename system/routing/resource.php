@@ -18,6 +18,14 @@ class Resource
 
     protected $except = [];
 
+    /**
+     * Contains the controller handling the resource, when it is not the
+     * resource name itself.
+     *
+     * @var string|null
+     */
+    protected $controller;
+
     protected $options = [
         [
             'method' => 'get',
@@ -74,8 +82,15 @@ class Resource
         $this->parent = '';
         $prefix = '';
 
-        if (! empty($options)) {
-            $this->options = $options;
+        $this->only = isset($options['only']) ? (array) $options['only'] : [];
+        $this->except = isset($options['except']) ? (array) $options['except'] : [];
+        $this->controller = isset($options['controller']) ? (string) $options['controller'] : null;
+
+        // Anything left is a route table of its own, replacing the default one.
+        $custom = array_diff_key($options, ['only' => 0, 'except' => 0, 'controller' => 0]);
+
+        if (! empty($custom)) {
+            $this->options = $custom;
         }
 
         $clauses = explode('.', $name);
@@ -88,10 +103,18 @@ class Resource
         $this->name = (isset($clauses[1]) && ! empty($clauses[1])) ? $clauses[1] : $name;
 
         foreach ($this->options as $option) {
+            if (! isset($option['method'])) {
+                throw new \Exception('Each resource route needs a "method".');
+            }
+
             $method = Str::lower($option['method']);
 
             if (! in_array($method, $this->methods)) {
                 throw new \Exception(sprintf('Invalid request method specified: %s', $method));
+            }
+
+            if (! $this->wanted($option)) {
+                continue;
             }
 
             $this->name = str_replace('::', '/', $this->name);
@@ -121,6 +144,49 @@ class Resource
      *
      * @return array
      */
+    /**
+     * Check whether a route survives the 'only' and 'except' options.
+     *
+     * @param array $option
+     *
+     * @return bool
+     */
+    protected function wanted(array $option)
+    {
+        $action = $this->action($option);
+
+        if (is_null($action)) {
+            return true;
+        }
+
+        if (count($this->only) > 0 && ! in_array($action, $this->only)) {
+            return false;
+        }
+
+        return ! (count($this->except) > 0 && in_array($action, $this->except));
+    }
+
+    /**
+     * Get the controller action a route points at, ':name@index' -> 'index'.
+     *
+     * @param array $option
+     *
+     * @return string|null
+     */
+    protected function action(array $option)
+    {
+        if (! isset($option['uses']) || false === strpos((string) $option['uses'], '@')) {
+            return null;
+        }
+
+        return substr((string) $option['uses'], strpos((string) $option['uses'], '@') + 1);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return array
+     */
     protected function options(array $options)
     {
         $results = [];
@@ -132,7 +198,16 @@ class Resource
 
         if (isset($options['uses']) && ! empty($options['uses'])) {
             $prefix = $this->parent ? $this->parent.'.' : '';
-            $results['uses'] = $prefix.$this->placeholder($options['uses']);
+            $uses = $this->placeholder($options['uses']);
+
+            // A 'controller' option points the routes somewhere other than the
+            // controller the resource is named after.
+            if (! is_null($this->controller)) {
+                $uses = $this->controller.substr($uses, strpos($uses, '@'));
+                $prefix = '';
+            }
+
+            $results['uses'] = $prefix.$uses;
         }
 
         return $results;

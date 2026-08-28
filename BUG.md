@@ -13,6 +13,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran ketujuh** (menyapu dokumentasi terhadap kode secara sistematis): 2026-08-28.
 - **Putaran kedelapan** (menyapu simbol yang dirujuk dan baris bahasa): 2026-08-28.
 - **Putaran kesembilan** (konstanta, properti, konfigurasi, perintah konsol, scaffold): 2026-08-28.
+- **Putaran kesepuluh** (menjalankan 1.273 blok kode dokumentasi betulan): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -23,12 +24,12 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 9 | 9 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 19 | 19 | 0 |
-| [Sedang](#sedang) | 20 | 20 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 22 | 22 | 0 |
+| [Sedang](#sedang) | 22 | 22 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 12 | 12 | 0 |
-| **Total** | **60** | **60** | **0** |
+| **Total** | **65** | **65** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2150 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2156 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -772,6 +773,71 @@ punya apa-apa untuk diwarisi — jadi ini mematahkan pewarisan layout secara kes
 Seluruh helper penerus di `system/helpers.php` juga diperiksa dengan pola yang sama;
 `old()` satu-satunya yang lain, dan ikut diselaraskan.
 
+### T20. Opsi `only`, `except` dan `controller` pada `Route::resource()` tidak pernah ada
+
+- [x] Selesai
+
+Ditemukan di putaran kesepuluh, dengan menjalankan blok dokumentasi. `Resource` menyimpan
+properti `$only` dan `$except` — dan **tidak pernah membacanya**. Argumen `$options` malah
+dipakai sebagai tabel rute pengganti seluruhnya:
+
+```php
+if (! empty($options)) {
+    $this->options = $options;
+}
+```
+
+Jadi ketiga bentuk yang dicontohkan dokumentasi rusak, dan rusaknya berupa error internal
+framework, bukan pesan yang menjelaskan:
+
+```
+Route::resource('posts', ['only' => ['index', 'show']]);
+=> PHP Warning: Undefined array key "method" in system/routing/resource.php
+
+Route::resource('posts', ['except' => ['destroy']]);
+=> TypeError: Cannot access offset of type string on string
+```
+
+**Yang dikerjakan**: `only`, `except` dan `controller` diimplementasi. Opsi lain tetap
+diperlakukan sebagai tabel rute pengganti seperti sebelumnya, dan entri tanpa kunci `method`
+kini melempar pesan yang menjelaskan. Dokumentasinya juga diperbaiki: contohnya menulis
+`destroy`, padahal aksinya bernama `delete` menurut tabel di halaman yang sama.
+
+### T21. `session(['kunci' => 'nilai'])` tidak pernah menulis apa pun
+
+- [x] Selesai
+
+Helper `session()` meneruskan penulisan ke `Session::set()`, sementara `Payload` punya
+`put()`. Yang terjadi:
+
+```
+TypeError: call_user_func_array(): Argument #1 ($callback) must be a valid callback
+```
+
+Bentuk baca berfungsi, jadi separuh helper yang didokumentasikan itu mati tanpa ketahuan.
+
+### T22. `where_exists()` menolak closure yang dicontohkan dokumentasi
+
+- [x] Selesai
+
+`where_exists($query)` langsung membaca `$query->bindings`, jadi hanya menerima objek `Query`.
+Dokumentasi mencontohkan closure:
+
+```php
+DB::table('users')->where_exists(function ($query) {
+    $query->from('orders')->where_raw('orders.user_id = users.id');
+});
+=> PHP Warning: Undefined property: Closure::$bindings
+=> TypeError: array_merge(): Argument #2 must be of type array, null given
+```
+
+Dua method yang dipakai contoh itu juga tidak ada: `Query::from()` sama sekali, dan
+`where_raw()` yang di framework bernama `raw_where()`.
+
+**Yang dikerjakan**: `where_exists()` menerima closure dan memberinya query sendiri, seperti
+`where_nested()`. Subquery yang closure-nya tidak menyebut `SELECT` diberi `SELECT *`, supaya
+yang masuk ke `EXISTS ( .. )` tetap pernyataan yang utuh. `Query::from()` ditambahkan.
+
 ---
 
 ## Sedang
@@ -1114,6 +1180,36 @@ pembuat pesannya tetap memilih varian `string`, karena hanya mengenal `numeric`,
 `array` ditambahkan untuk `size`, `min`, `max` dan `between` di kedua bahasa. Sekarang
 pesannya: *"Bilah a tidak boleh berisi lebih dari 2 item."*
 
+### S22. Penamaan klausa mentah tidak konsisten
+
+- [x] Selesai
+
+Empat dari lima memakai `<klausa>_raw` — `having_raw()`, `select_raw()`, `order_by_raw()`,
+`group_by_raw()` — sementara yang kelima bernama `raw_where()`. Dokumentasi menulis bentuk
+yang konsisten, `where_raw()`, dan framework menjawabnya dengan penolakan.
+
+**Yang dikerjakan**: `where_raw()` dan `or_where_raw()` ditambahkan sebagai method sungguhan
+yang meneruskan ke `raw_where()`, jadi kedua ejaan bekerja dan nama yang konsisten kini yang
+utama.
+
+### S23. Kelas yang ditulis polos di dokumentasi tidak semuanya bisa dijangkau
+
+- [x] Selesai
+
+Dokumentasi menulis `Collection::make(..)` dan `new Collection(..)` tanpa `use`, tapi
+`Collection` tidak ada di `aliases.php` — jadi contohnya menghasilkan *Class "Collection" not
+found*. `Redis::set(..)` lebih halus lagi: namanya sudah dipegang ekstensi phpredis, sehingga
+di mesin mana pun yang punya ekstensi itu — yaitu hampir semua yang benar-benar memakai
+Redis — yang muncul adalah:
+
+```
+Error: Non-static method Redis::set() cannot be called statically
+```
+
+**Yang dikerjakan**: `Collection` ditambahkan ke `aliases.php`. `Redis` tidak bisa, jadi
+dokumentasinya yang diperbaiki: contohnya kini mengimpor `System\Redis` dan menjelaskan
+kenapa alias tidak mungkin. Sapuan yang memeriksa hal ini kini jadi test.
+
 ---
 
 ## Rendah / pengerasan
@@ -1310,6 +1406,9 @@ terlihat sebagai `@forelse` yang tidak terkompilasi — sama seperti perlakuan `
 | `application/config/websocket.php` | Opsi baru: `max_payload_size` |
 | `application/config/application.php` | Opsi baru: `trusted_hosts` |
 | `packages/docs/data/views/templating.md` | Layout memakai `@show`, penjelasan `@parent` |
+| `packages/docs/data/routing.md` | Opsi `resource`: `delete` bukan `destroy`, perilaku opsi lain |
+| `packages/docs/data/database/redis.md` | `use System\Redis` dan alasannya |
+| `application/config/aliases.php` | Alias baru: `Collection` |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -1410,6 +1509,7 @@ sini supaya tidak diulang tanpa alasan:
 | Perintah di `commands.json` vs yang benar-benar bisa dijalankan | 28 perintah | bersih |
 | Hasil `make:auth` — berkas, lint, dan kompilasi Blade-nya | 12 berkas | bersih |
 | Docblock `@param` vs tanda tangan sungguhan | 2.344 method | 4 dokumentasi melenceng |
+| **Menjalankan blok kode dokumentasi betulan** | 1.273 blok | **6 temuan** |
 
 Setiap pemeriksa di atas divalidasi lebih dulu dengan menanam kesalahan buatan, lalu memastikan
 sapuannya menangkapnya. Hasil "bersih" yang tidak diuji begitu tidak berarti apa-apa: pemeriksa
