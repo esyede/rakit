@@ -842,14 +842,14 @@ class Curl
     /**
      * Merge curl options.
      *
-     * @param array &$existsing
+     * @param array &$existing
      * @param array $new
      *
      * @return array
      */
-    private static function merge_options(array &$existsing, array $new)
+    private static function merge_options(array &$existing, array $new)
     {
-        return $new + $existsing;
+        return $new + $existing;
     }
 
     /**

@@ -12,6 +12,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran keenam** (Blade, Foundation HTTP, Debugger — menyisir yang paling dangkal): 2026-08-28.
 - **Putaran ketujuh** (menyapu dokumentasi terhadap kode secara sistematis): 2026-08-28.
 - **Putaran kedelapan** (menyapu simbol yang dirujuk dan baris bahasa): 2026-08-28.
+- **Putaran kesembilan** (konstanta, properti, konfigurasi, perintah konsol, scaffold): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -1403,3 +1404,13 @@ sini supaya tidak diulang tanpa alasan:
 | `$this->x()`, `static::x()`, `self::x()` vs method yang ada | 179 kelas | bersih |
 | Aturan validasi vs baris bahasa `en` dan `id` | 87 aturan × 2 bahasa | 2 temuan |
 | Kesamaan kunci dan placeholder antar berkas bahasa | `en` vs `id` | bersih |
+| Konstanta `self::FOO` / `static::FOO` vs yang dideklarasikan | 215 kelas | bersih |
+| Properti `$this->x`, `self::$x` vs yang dideklarasikan | 215 kelas | bersih |
+| `$this->config['x']` vs berkas konfigurasi bawaan | seluruh `system/` | bersih |
+| Perintah di `commands.json` vs yang benar-benar bisa dijalankan | 28 perintah | bersih |
+| Hasil `make:auth` — berkas, lint, dan kompilasi Blade-nya | 12 berkas | bersih |
+| Docblock `@param` vs tanda tangan sungguhan | 2.344 method | 4 dokumentasi melenceng |
+
+Setiap pemeriksa di atas divalidasi lebih dulu dengan menanam kesalahan buatan, lalu memastikan
+sapuannya menangkapnya. Hasil "bersih" yang tidak diuji begitu tidak berarti apa-apa: pemeriksa
+yang rusak juga tidak menemukan apa-apa.

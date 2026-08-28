@@ -698,6 +698,7 @@ class Query
      *
      * @param string $column
      * @param int    $amount
+     * @param array  $extra
      *
      * @return int
      */
@@ -713,6 +714,7 @@ class Query
      *
      * @param string $column
      * @param int    $amount
+     * @param array  $extra
      *
      * @return int
      */
@@ -1135,6 +1137,7 @@ class Query
      * @param string $column
      * @param string $operator
      * @param mixed  $value
+     * @param string $connector
      *
      * @return Query
      */
