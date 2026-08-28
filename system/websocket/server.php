@@ -39,6 +39,12 @@ class Server
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
+
+        // Older config files predate the limit, so fall back to a sane one
+        // rather than letting a client buffer without bound.
+        if (! isset($this->config['max_payload_size'])) {
+            $this->config['max_payload_size'] = 10485760;
+        }
         $dsn = str_replace('tcp://', '', $address);
         $dsn = (strpos($dsn, '://') === false) ? 'tcp://'.$dsn : $dsn;
         $context = stream_context_create(['socket' => ['so_reuseaddr' => true]]);
@@ -505,6 +511,26 @@ class Server
 
         while ($pos < $length) {
             $headers = $this->extract_headers($packet);
+
+            if ($headers['partial']) {
+                $user->busy = true;
+                $user->buffer = substr($full, $pos);
+
+                return;
+            }
+
+            if ($headers['length'] > $this->config['max_payload_size']) {
+                $this->stderr(sprintf(
+                    'Frame of %d bytes refused, over the %d byte limit.'.PHP_EOL,
+                    $headers['length'],
+                    $this->config['max_payload_size']
+                ));
+
+                $this->disconnect($user->socket);
+
+                return;
+            }
+
             $size = $headers['length'] + $this->calc_offset($headers);
             $frame = substr($full, $pos, $size);
 
@@ -611,6 +637,13 @@ class Server
 
     protected function extract_headers($message)
     {
+        // A frame shorter than its own header means the rest has not arrived
+        // yet, or the client sent nonsense. Either way there is nothing to read.
+        if (strlen($message) < 2) {
+            return ['fin' => 0, 'rsv1' => 0, 'rsv2' => 0, 'rsv3' => 0,
+                'opcode' => 0, 'hasmask' => 0, 'length' => 0, 'mask' => '', 'partial' => true];
+        }
+
         $header = [
             'fin' => ord($message[0]) & 128, 'rsv1' => ord($message[0]) & 64,
             'rsv2' => ord($message[0]) & 32,  'rsv3' => ord($message[0]) & 16,
@@ -619,14 +652,29 @@ class Server
         ];
 
         $header['length'] = (ord($message[1]) >= 128) ? ord($message[1]) - 128 : ord($message[1]);
+        $header['partial'] = false;
 
         if ($header['length'] === 126) {
+            if (strlen($message) < ($header['hasmask'] ? 8 : 4)) {
+                $header['length'] = 0;
+                $header['partial'] = true;
+
+                return $header;
+            }
+
             if ($header['hasmask']) {
                 $header['mask'] = $message[4].$message[5].$message[6].$message[7];
             }
 
             $header['length'] = ord($message[2]) * 256 + ord($message[3]);
         } elseif ($header['length'] === 127) {
+            if (strlen($message) < ($header['hasmask'] ? 14 : 10)) {
+                $header['length'] = 0;
+                $header['partial'] = true;
+
+                return $header;
+            }
+
             if ($header['hasmask']) {
                 $header['mask'] = $message[10].$message[11].$message[12].$message[13];
             }
@@ -640,6 +688,13 @@ class Server
                 + ord($message[8]) * 256
                 + ord($message[9]);
         } elseif ($header['hasmask']) {
+            if (strlen($message) < 6) {
+                $header['length'] = 0;
+                $header['partial'] = true;
+
+                return $header;
+            }
+
             $header['mask'] = $message[2].$message[3].$message[4].$message[5];
         }
 

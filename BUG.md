@@ -8,6 +8,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran kedua** (area yang semula ditandai belum diaudit): 2026-08-28.
 - **Putaran ketiga** (RSA dan Autoloader): 2026-08-28.
 - **Putaran keempat** (Facile, Carbon, Image, memcached, console): 2026-08-28.
+- **Putaran kelima** (Image, Curl, WebSocket — menutup daftar): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -18,12 +19,14 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 8 | 8 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 13 | 13 | 0 |
-| [Sedang](#sedang) | 11 | 11 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 16 | 16 | 0 |
+| [Sedang](#sedang) | 14 | 14 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
-| **Total** | **43** | **43** | **0** |
+| **Total** | **49** | **49** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2128 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2135 test**, semuanya lolos.
+
+Tidak ada lagi bagian yang menunggu giliran.
 
 Suite juga dijalankan di PHP 7.1, 7.4, 8.0, 8.2, 8.3, 8.4 dan 8.5. PHP 5.4–7.0 hanya
 diperiksa sampai tingkat sintaks (`php -l` atas seluruh berkas yang berubah), karena `vendor/`
@@ -589,6 +592,81 @@ defaultnya cocok dengan skema yang didokumentasikan. Kolom pivot tambahan dimint
 `->with(['catatan'])` seperti `withPivot()` di Laravel, dan timestamps dinyalakan dengan
 `Pivot::$timestamps = true`.
 
+### T14. `identicon()` mencetak gambar ke keluaran, bukan mengembalikannya
+
+- [x] Selesai
+
+`imagepng($image)` tanpa argumen kedua menulis PNG-nya **langsung ke buffer keluaran** dan
+mengembalikan `bool`. Nilai bool itulah yang dikembalikan:
+
+```php
+$result = imagepng($image);
+return $display ? Response::make($result, ..) : $result;
+```
+
+Jadi keduanya rusak. Cara yang dicontohkan dokumentasi menulis berkas berisi `"1"`:
+
+```php
+$identicon = Image::identicon('budi');                    // true, dan PNG-nya tercetak
+Storage::put(path('storage').'avatars/budi.png', $identicon);   // isinya "1"
+```
+
+Sementara `Image::identicon('budi', 64, true)` mencetak gambarnya lalu membuat Response yang
+badannya juga `"1"`. `Image::dump()` punya masalah yang sama persis, dan dokumentasinya
+mengklaim ia mengirim header yang sesuai — padahal tidak mengirim header apa pun.
+
+Test bawaannya membungkus pemanggilan dengan `ob_start()`/`ob_end_clean()` lalu menegaskan
+`assertTrue($result)` — jadi keluaran nyasarnya memang disembunyikan, bukan diperbaiki.
+
+**Yang dikerjakan**: `Image::render()` menangkap byte PNG-nya lewat buffer keluaran.
+`identicon()` mengembalikan byte itu, atau Response ber-`Content-Type: image/png` yang berisi
+byte itu. `dump()` mengembalikan Response yang sama.
+
+### T15. Satu klien WebSocket bisa menghabiskan memori server
+
+- [x] Selesai
+
+Panjang payload yang diumumkan klien dipercaya apa adanya, tanpa batas atas apa pun. Server
+menyangga potongan yang masuk ke `$user->buffer` sampai frame-nya lengkap — dan frame yang
+mengumumkan 2^40 byte tidak akan pernah lengkap.
+
+**Reproduksi** (harness dua proses):
+
+```
+RSS server sebelum : 16.9 MB
+kirim 13 MB di bawah satu frame yang mengumumkan panjang 1 TB
+RSS server sesudah : 41.2 MB
+```
+
+Terus saja begitu sampai server mati, dan matinya server berlaku untuk semua klien.
+
+**Yang dikerjakan**: opsi baru `websocket.max_payload_size` (bawaan 10 MB). Frame yang
+mengumumkan lebih dari itu ditolak dan koneksinya diputus. Konfigurasi lama yang belum punya
+opsi itu memakai nilai bawaan yang sama, bukan tanpa batas. Sesudah perbaikan, uji yang sama
+menaikkan RSS dari 28.4 ke 28.8 MB, dan pesan biasa tetap sampai.
+
+### T16. Kredensial Curl ikut terkirim ke host berikutnya
+
+- [x] Selesai
+
+`Curl::auth()`, `cookie()` dan `proxy()` menyimpan nilainya di properti statis yang tidak
+pernah dibersihkan. Jadi setelah mengautentikasi ke satu API, **setiap** permintaan berikutnya
+membawa kredensial yang sama — termasuk ke host yang sama sekali berbeda.
+
+**Reproduksi**:
+
+```php
+Curl::auth('pengguna', 'sandi');
+Curl::get('https://api-saya.test/data');
+Curl::get('https://pihak-ketiga.test/apa-saja');   // header Authorization ikut terkirim
+```
+
+Dokumentasinya menyediakan `clear_default_headers()` dan `clear_curl_options()`, tapi tidak ada
+padanannya untuk kredensial, cookie, atau proxy.
+
+**Yang dikerjakan**: `clear_auth()`, `clear_cookie()`, `clear_proxy()` dan `reset()`
+ditambahkan, dan dokumentasinya menyebut bahwa kredensial bertahan sampai dibersihkan.
+
 ---
 
 ## Sedang
@@ -761,6 +839,52 @@ memeriksa path mentah sementara tulisannya ke path hasil resolusi, jadi berkas y
 bisa tertimpa diam-diam.
 
 **Yang dikerjakan**: keduanya memakai path hasil resolusi.
+
+### S13. Ukuran gambar nol diserahkan mentah-mentah ke GD
+
+- [x] Selesai
+
+`width(0)`, `width(-5)` dan `crop(0, 0, 0, 0)` melempar `ValueError: imagecreatetruecolor():
+Argument #1 ($width) must be greater than 0` dari GD, sementara `crop()` yang melebihi batas
+dan `rotate()` yang bukan kelipatan 90 sudah punya pesan sendiri.
+
+**Yang dikerjakan**: `Image::dimension()` memeriksa hasil ukurannya lebih dulu dan melempar
+pesan yang menyebutkan ukuran yang diminta.
+
+### S14. `CURLOPT_ENCODING` diisi encoding karakter aplikasi
+
+- [x] Selesai
+
+```php
+CURLOPT_ENCODING => Config::get('application.encoding', 'UTF-8'),
+```
+
+`CURLOPT_ENCODING` menyetel header **`Accept-Encoding`**, bukan set karakter. Jadi setiap
+permintaan mengirim `Accept-Encoding: UTF-8` — nilai yang tidak berarti apa-apa. Kompresi
+transparan jadi tidak pernah aktif, dan sebagian server menjawab 406 untuk encoding yang tidak
+dikenalnya.
+
+**Yang dikerjakan**: diisi string kosong, yang artinya "terima semua encoding yang bisa
+didekode libcurl ini". Diverifikasi: yang terkirim sekarang `deflate, gzip, br, zstd`.
+
+### S15. `extract_headers()` membaca melewati ujung frame pendek
+
+- [x] Selesai
+
+Frame yang lebih pendek dari headernya sendiri tetap dibaca sampai indeks 13:
+
+```
+$ kirim satu byte "\x81" ke server
+PHP Warning: Uninitialized string offset 1 in system/websocket/server.php on line 617
+PHP Warning: Uninitialized string offset 1 in system/websocket/server.php on line 621
+..
+```
+
+Frame-nya juga jadi salah tafsir, karena bagian yang belum sampai dibaca sebagai nol.
+
+**Yang dikerjakan**: `extract_headers()` mengembalikan penanda `partial` untuk frame yang belum
+lengkap di setiap titik yang butuh byte tambahan, dan `split_packet()` menyimpannya ke buffer
+untuk digabung dengan potongan berikutnya alih-alih menebak.
 
 ---
 
@@ -937,6 +1061,9 @@ kosong.
 | `packages/docs/data/validation.md` | Aturan ber-wildcard, `filled` dengan nol, bentuk `in_array` |
 | `packages/docs/data/jwt.md` | Algoritma yang diperbolehkan mengikuti bahan kunci |
 | `packages/docs/data/database/facile.md` | Kolom pivot bersifat opt-in |
+| `packages/docs/data/curl.md` | Kredensial bertahan sampai dibersihkan, `reset()` |
+| `packages/docs/data/image.md` | `dump()` mengembalikan Response |
+| `application/config/websocket.php` | Opsi baru: `max_payload_size` |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -985,11 +1112,25 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
 - **Facile** selain empat poin di atas — `attach`, `detach`, `sync`, relasi bersarang
   (`with('penulis.profil')`), `to_array` beserta relasinya, dan hidrasi `has_one` kosong
   semuanya benar.
+- **Image** selain tiga poin di atas — `rotate` menolak sudut yang bukan kelipatan 90, `crop`
+  menolak seleksi di luar batas, `ratio` menjaga perbandingan, dan seluruh filter (`grayscale`,
+  `sepia`, `invert`, `edge`, `emboss`, `sketch`, `blur`, `brightness`, `contrast`, `pixelate`)
+  berjalan.
+- **Curl** selain dua poin di atas — verifikasi TLS menyala secara bawaan
+  (`verify_peer = 1`, `verify_host = 2`), yang penting untuk pustaka HTTP.
+- **WebSocket** selain dua poin di atas — jabat tangan RFC 6455 benar, pemeriksaan origin ada
+  meski `origin_required` bawaannya `false` sebagaimana didokumentasikan, dan pesan biasa
+  melewati jalur frame dengan utuh.
 
 ## Belum diaudit
 
-Yang masih menunggu giliran:
+Kosong. Seluruh daftar sudah disisir.
 
-- **WebSocket** — butuh harness dua proses untuk diuji sungguhan.
-- **Curl** — sudah punya test terhadap endpoint tiruan, tapi belum disisir sebagai bagian audit.
-- **Image** di luar penanganan path dan singleton: filter, crop, identicon.
+Yang tidak berarti framework ini bebas bug — hanya berarti setiap bagian sudah pernah dilihat
+sekali, dengan kedalaman yang berbeda-beda. Yang paling dangkal, dan paling layak disisir ulang
+kalau nanti ada waktu:
+
+- **Blade** di luar escaping dan beberapa direktif.
+- **Foundation HTTP** (`Request`, `Response`, `Upload`, `Header`) — punya test tebal, tapi belum
+  pernah jadi sasaran audit tersendiri.
+- **Debugger/Oops** — tidak disentuh sama sekali; jalurnya hanya aktif di mode pengembangan.

@@ -347,8 +347,9 @@ You can directly display the image to the browser without saving it to a file:
 return $image->dump();
 ```
 
-The `dump()` method will send the appropriate headers and display the image directly to the browser.
-Useful for preview or testing.
+The `dump()` method answers a `Response` carrying the PNG and a
+`Content-Type: image/png` header, so returning it from a controller shows the
+image in the browser. Useful for preview or testing.
 
 <a id="creating-identicon"></a>
 

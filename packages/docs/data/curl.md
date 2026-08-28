@@ -216,6 +216,10 @@ Curl::auth('username', 'password');
 Curl::auth('username', 'password', CURLAUTH_DIGEST);
 ```
 
+> Credentials stay set until you clear them, so every later request carries
+> them — including one to a different host. Call `Curl::clear_auth()`, or
+> `Curl::reset()`, before talking to somewhere else.
+
 In the 3rd parameter, you can specify what authentication method you need.
 Here is a list of supported authentication methods:
 
@@ -387,6 +391,14 @@ Of course, you can also clear all the default options you declared earlier:
 
 ```php
 Curl::clear_curl_options();
+
+// Credentials, cookies and proxy settings stick around too
+Curl::clear_auth();
+Curl::clear_cookie();
+Curl::clear_proxy();
+
+// Or drop everything at once
+Curl::reset();
 ```
 
 <a id="ssl-validation"></a>

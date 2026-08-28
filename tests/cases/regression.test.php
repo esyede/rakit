@@ -14,6 +14,7 @@ use System\Redis;
 use System\Request;
 use System\Session;
 use System\Autoloader;
+use System\Curl;
 use System\Image;
 use System\JWT;
 use System\RSA;
@@ -1229,6 +1230,176 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         @unlink($paths[1]);
 
         $this->assertTrue($refused);
+    }
+
+    // -------------------------------------------------------------------------
+    // T14, S13: image output
+    // -------------------------------------------------------------------------
+
+    /**
+     * identicon() hands back the PNG instead of printing it.
+     *
+     * @group system
+     */
+    public function testT14IdenticonReturnsTheImage()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        ob_start();
+        $png = Image::identicon('budi', 32);
+        $leaked = ob_get_clean();
+
+        $this->assertStringStartsWith("\x89PNG", $png);
+        $this->assertEquals('', $leaked);
+        $this->assertEquals($png, Image::identicon('budi', 32));
+        $this->assertNotEquals($png, Image::identicon('ani', 32));
+    }
+
+    /**
+     * Asking for a response gives one carrying the image, not a boolean.
+     *
+     * @group system
+     */
+    public function testT14IdenticonResponseCarriesTheImage()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        ob_start();
+        $response = Image::identicon('budi', 32, true);
+        $leaked = ob_get_clean();
+
+        $this->assertInstanceOf('System\Response', $response);
+        $this->assertEquals('image/png', $response->foundation()->headers->get('Content-Type'));
+        $this->assertStringStartsWith("\x89PNG", $response->content);
+        $this->assertEquals('', $leaked);
+    }
+
+    /**
+     * A size GD cannot work with is reported before it gets there.
+     *
+     * @group system
+     */
+    public function testS13ImageRefusesAnEmptySize()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        $relative = 'tests/fixtures/storage/work/regression_size.png';
+        $absolute = path('base').str_replace('/', DS, $relative);
+
+        $canvas = imagecreatetruecolor(8, 8);
+        imagepng($canvas, $absolute);
+        imagedestroy($canvas);
+
+        $caught = 0;
+
+        foreach ([function ($image) {
+            $image->width(0);
+        }, function ($image) {
+            $image->crop(0, 0, 0, 0);
+        }] as $call) {
+            try {
+                $call(Image::open($relative));
+            } catch (\Exception $e) {
+                $caught += (false === strpos($e->getMessage(), 'at least 1x1')) ? 0 : 1;
+            }
+        }
+
+        unlink($absolute);
+
+        $this->assertEquals(2, $caught);
+    }
+
+    // -------------------------------------------------------------------------
+    // S14: curl state
+    // -------------------------------------------------------------------------
+
+    /**
+     * reset() puts back everything a previous call set, credentials included.
+     *
+     * @group system
+     */
+    public function testS14CurlResetClearsCredentials()
+    {
+        Curl::auth('pengguna', 'sandi');
+        Curl::cookie('a=b');
+
+        $auth = new \ReflectionProperty('System\Curl', 'auth');
+        PHP_VERSION_ID < 80100 && $auth->setAccessible(true);
+        $cookie = new \ReflectionProperty('System\Curl', 'cookie');
+        PHP_VERSION_ID < 80100 && $cookie->setAccessible(true);
+
+        $before = $auth->getValue();
+
+        Curl::reset();
+
+        $this->assertEquals('pengguna', $before['user']);
+        $this->assertEquals('', $auth->getValue() === null ? '' : $auth->getValue()['user']);
+        $this->assertFalse($cookie->getValue());
+    }
+
+    // -------------------------------------------------------------------------
+    // T15, S15: websocket frames
+    // -------------------------------------------------------------------------
+
+    /**
+     * A frame shorter than its own header is reported as partial instead of
+     * being read past the end.
+     *
+     * @group system
+     */
+    public function testS15ShortWebsocketFrameIsPartial()
+    {
+        $server = new \System\Websocket\Server('tcp://127.0.0.1:0');
+        $method = new \ReflectionMethod('System\Websocket\Server', 'extract_headers');
+        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
+
+        foreach (["\x81", '', "\x81\xFE", "\x81\xFF"] as $frame) {
+            $headers = $method->invokeArgs($server, [$frame]);
+
+            $this->assertTrue($headers['partial'], 'frame of '.strlen($frame).' bytes');
+            $this->assertEquals(0, $headers['length']);
+        }
+    }
+
+    /**
+     * A complete frame is still read the way it was.
+     *
+     * @group system
+     */
+    public function testS15CompleteWebsocketFrameIsRead()
+    {
+        $server = new \System\Websocket\Server('tcp://127.0.0.1:0');
+        $method = new \ReflectionMethod('System\Websocket\Server', 'extract_headers');
+        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
+
+        $headers = $method->invokeArgs($server, ["\x81\x84abcd"]);
+
+        $this->assertFalse($headers['partial']);
+        $this->assertEquals(4, $headers['length']);
+        $this->assertEquals(1, $headers['opcode']);
+        $this->assertEquals('abcd', $headers['mask']);
+    }
+
+    /**
+     * The server knows how big a message it is willing to buffer.
+     *
+     * @group system
+     */
+    public function testT15WebsocketHasAPayloadLimit()
+    {
+        $server = new \System\Websocket\Server('tcp://127.0.0.1:0');
+        $config = new \ReflectionProperty('System\Websocket\Server', 'config');
+        PHP_VERSION_ID < 80100 && $config->setAccessible(true);
+
+        $value = $config->getValue($server);
+        $this->assertArrayHasKey('max_payload_size', $value);
+        $this->assertGreaterThan(0, $value['max_payload_size']);
     }
 
     // -------------------------------------------------------------------------

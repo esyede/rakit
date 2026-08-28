@@ -237,6 +237,53 @@ class Curl
     }
 
     /**
+     * Drop the credentials sent with every request.
+     */
+    public static function clear_auth()
+    {
+        static::$auth = ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC];
+    }
+
+    /**
+     * Drop the cookie sent with every request.
+     */
+    public static function clear_cookie()
+    {
+        static::$cookie = false;
+        static::$cookie_file = false;
+    }
+
+    /**
+     * Stop routing requests through a proxy.
+     */
+    public static function clear_proxy()
+    {
+        static::$proxy = [
+            'address' => false,
+            'port' => 1080,
+            'type' => CURLPROXY_HTTP,
+            'tunnel' => false,
+            'auth' => ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC],
+        ];
+    }
+
+    /**
+     * Drop every setting made so far, back to how the class starts out.
+     * Worth calling before talking to a different host, so credentials meant
+     * for one endpoint are not sent along to another.
+     */
+    public static function reset()
+    {
+        static::clear_auth();
+        static::clear_cookie();
+        static::clear_proxy();
+        static::clear_default_headers();
+        static::clear_curl_options();
+
+        static::$socket_timeout = null;
+    }
+
+    /**
      * Set cookie (string).
      *
      * @param string $cookie
@@ -476,7 +523,9 @@ class Curl
             CURLOPT_HEADER => true,
             CURLOPT_SSL_VERIFYPEER => (bool) static::$verify_peer,
             CURLOPT_SSL_VERIFYHOST => ((int) static::$verify_host > 0) ? 2 : 0,
-            CURLOPT_ENCODING => Config::get('application.encoding', 'UTF-8'),
+            // Accept-Encoding, not a character set: an empty string asks for
+            // every content encoding this build of libcurl can decode.
+            CURLOPT_ENCODING => '',
         ];
 
         $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : PHP_INT_MAX;

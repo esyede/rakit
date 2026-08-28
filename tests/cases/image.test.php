@@ -378,11 +378,15 @@ class ImageTest extends \PHPUnit_Framework_TestCase
     public function testDump()
     {
         $image = Image::open($this->imagePath);
+
         ob_start();
         $result = $image->dump();
-        ob_end_clean();
+        $leaked = ob_get_clean();
 
-        $this->assertTrue($result);
+        $this->assertInstanceOf('\System\Response', $result);
+        $this->assertEquals('image/png', $result->foundation()->headers->get('Content-Type'));
+        $this->assertStringStartsWith("\x89PNG", $result->content);
+        $this->assertEquals('', $leaked);
     }
 
     /**
@@ -408,8 +412,12 @@ class ImageTest extends \PHPUnit_Framework_TestCase
     {
         ob_start();
         $result = Image::identicon('test', 64, false);
-        ob_end_clean();
-        $this->assertTrue($result);
+        $leaked = ob_get_clean();
+
+        $this->assertStringStartsWith("\x89PNG", $result);
+        $this->assertEquals('', $leaked);
+        $this->assertEquals($result, Image::identicon('test', 64, false));
+        $this->assertNotEquals($result, Image::identicon('other', 64, false));
     }
 
     /**
@@ -419,7 +427,10 @@ class ImageTest extends \PHPUnit_Framework_TestCase
     {
         ob_start();
         $result = Image::identicon('test', 64, true);
-        ob_end_clean();
+        $leaked = ob_get_clean();
+
         $this->assertInstanceOf('\System\Response', $result);
+        $this->assertStringStartsWith("\x89PNG", $result->content);
+        $this->assertEquals('', $leaked);
     }
 }

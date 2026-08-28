@@ -19,6 +19,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Maximum Payload Size
+    |--------------------------------------------------------------------------
+    |
+    | Largest message, in bytes, a client may send. A frame announcing more than
+    | this is refused and the connection closed, so one client cannot make the
+    | server buffer until it runs out of memory. Raise it if your application
+    | legitimately sends larger messages.
+    |
+    */
+
+    'max_payload_size' => 10485760,
+
+    /*
+    |--------------------------------------------------------------------------
     | Require Origin
     |--------------------------------------------------------------------------
     |

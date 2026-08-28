@@ -156,6 +156,9 @@ class Image
     {
         $value = (int) $value;
         $height = (int) (($value / $this->width) * $this->height);
+
+        $this->dimension($value, $height);
+
         $canvas = imagecreatetruecolor($value, $height);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $value, $height, $this->width, $this->height);
@@ -177,6 +180,9 @@ class Image
     {
         $value = (int) $value;
         $width = (int) (($value / $this->height) * $this->width);
+
+        $this->dimension($width, $value);
+
         $canvas = imagecreatetruecolor($width, $value);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $width, $value, $this->width, $this->height);
@@ -223,6 +229,8 @@ class Image
         if (($left + $width) > $this->width || ($top + $height) > $this->height) {
             throw new \Exception('The cropping selection is out of bounds.');
         }
+
+        $this->dimension($width, $height);
 
         $canvas = imagecreatetruecolor($width, $height);
         imagecopy($canvas, $this->image, 0, 0, $left, $top, $width, $height);
@@ -511,9 +519,26 @@ class Image
      */
     public function dump()
     {
-        $result = imagepng($this->image);
+        $result = static::render($this->image);
         $this->reset();
-        return $result;
+
+        return Response::make($result, 200, ['Content-Type' => 'image/png']);
+    }
+
+    /**
+     * Get the PNG bytes of an image resource. Without a path imagepng() writes
+     * straight to the output buffer and answers a bool, so it has to be caught.
+     *
+     * @param resource|\GdImage $image
+     *
+     * @return string
+     */
+    protected static function render($image)
+    {
+        ob_start();
+        imagepng($image);
+
+        return (string) ob_get_clean();
     }
 
     /**
@@ -651,7 +676,7 @@ class Image
         }
 
         imagesavealpha($image, true);
-        $result = imagepng($image);
+        $result = static::render($image);
 
         if (PHP_VERSION_ID < 80000) {
             /* @disregard */
@@ -695,6 +720,23 @@ class Image
         }
 
         return $result;
+    }
+
+    /**
+     * Make sure a size GD is about to be handed is one it can work with.
+     *
+     * @param int $width
+     * @param int $height
+     */
+    protected function dimension($width, $height)
+    {
+        if ((int) $width < 1 || (int) $height < 1) {
+            throw new \Exception(sprintf(
+                'The resulting image size must be at least 1x1, %dx%d given.',
+                $width,
+                $height
+            ));
+        }
     }
 
     /**
