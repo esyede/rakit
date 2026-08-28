@@ -25,7 +25,7 @@ class Pivot extends Model
      *
      * @var bool
      */
-    public static $timestamps = true;
+    public static $timestamps = false;
 
     /**
      * Constructor.

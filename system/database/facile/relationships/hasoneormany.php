@@ -71,7 +71,7 @@ class HasOneOrMany extends Relationship
      */
     public function correlate($parent_table)
     {
-        $this->table->reset_where();
+        $this->reset_constraints();
         $this->table->where_column(
             $this->model->table() . '.' . $this->foreign_key(),
             '=',

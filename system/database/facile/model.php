@@ -1570,14 +1570,20 @@ abstract class Model implements \JsonSerializable
      */
     public function restore()
     {
-        if (static::$soft_delete && ! $this->exists && ! is_null($this->deleted_at)) {
-            $result = $this->query(true)->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
+        // Whether the instance came back from with_trashed() or is the one
+        // delete() was just called on decides nothing here: what matters is
+        // that the model soft deletes and this row is marked as deleted.
+        if (! static::$soft_delete || is_null($this->deleted_at)) {
+            return false;
+        }
 
-            if ($result) {
-                $this->deleted_at = null;
-                $this->exists = true;
-                return true;
-            }
+        $result = $this->query(true)->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
+
+        if ($result) {
+            $this->deleted_at = null;
+            $this->exists = true;
+
+            return true;
         }
 
         return false;
@@ -1597,6 +1603,16 @@ abstract class Model implements \JsonSerializable
 
             return $result;
         }
+    }
+
+    /**
+     * Check whether the model keeps deleted rows around instead of removing them.
+     *
+     * @return bool
+     */
+    public function soft_deleting()
+    {
+        return (bool) static::$soft_delete;
     }
 
     /**

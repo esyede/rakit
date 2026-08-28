@@ -54,6 +54,26 @@ abstract class Relationship extends Query
      *
      * @return string
      */
+    /**
+     * Drop the constraint that tied this relation to one parent, while keeping
+     * the one the related model puts on every query of its own. A plain
+     * reset_where() would throw the soft delete scope away with it.
+     */
+    public function reset_constraints()
+    {
+        $this->table->reset_where();
+
+        if ($this->model && $this->model->soft_deleting()) {
+            $this->table->where_null($this->model->table().'.deleted_at');
+        }
+    }
+
+    /**
+     * @param mixed  $model
+     * @param string $foreign
+     *
+     * @return string
+     */
     public static function foreign($model, $foreign = null)
     {
         if (! is_null($foreign)) {

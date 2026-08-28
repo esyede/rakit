@@ -90,7 +90,7 @@ class MorphOne extends HasOne
      */
     public function correlate($parent_table)
     {
-        $this->table->reset_where();
+        $this->reset_constraints();
         $this->table->where($this->type, '=', get_class($this->base));
         $this->table->where_column(
             $this->model->table() . '.' . $this->id,

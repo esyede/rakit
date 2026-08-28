@@ -608,7 +608,7 @@ class Query
         }
 
         $query->model->with = $this->nested_with($relationship);
-        $query->table->reset_where();
+        $query->reset_constraints();
         $query->eagerly_constrain($results);
 
         if (! is_null($constraints)) {

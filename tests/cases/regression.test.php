@@ -14,6 +14,7 @@ use System\Redis;
 use System\Request;
 use System\Session;
 use System\Autoloader;
+use System\Image;
 use System\JWT;
 use System\RSA;
 use System\Response;
@@ -1030,8 +1031,266 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // T10, T11, S11: Facile
+    // -------------------------------------------------------------------------
+
+    /**
+     * A model fetched with with_trashed() can be restored.
+     *
+     * @group system
+     */
+    public function testT10RestoreWorksOnAFetchedModel()
+    {
+        $this->facile();
+
+        RegressionArtikel::find(1)->delete();
+        $this->assertEquals(2, RegressionArtikel::all()->count());
+
+        $trashed = RegressionArtikel::with_trashed()->where('id', '=', 1)->first();
+
+        $this->assertTrue($trashed->restore());
+        $this->assertEquals(3, RegressionArtikel::all()->count());
+    }
+
+    /**
+     * Eager loading leaves soft deleted rows out, the way lazy loading does.
+     *
+     * @group system
+     */
+    public function testT11EagerLoadingHonoursSoftDeletes()
+    {
+        $this->facile();
+
+        RegressionArtikel::find(2)->delete();
+
+        $lazy = count(RegressionPenulis::find(1)->artikel);
+        $eager = RegressionPenulis::with('artikel')->get()->all();
+
+        $this->assertEquals(1, $lazy);
+        $this->assertEquals(1, count($eager[0]->artikel));
+    }
+
+    /**
+     * has(), where_has() and with_count() leave them out too.
+     *
+     * @group system
+     */
+    public function testT11RelationQueriesHonourSoftDeletes()
+    {
+        $this->facile();
+
+        // Penulis 3 keeps one article, and it is deleted.
+        RegressionArtikel::find(3)->delete();
+
+        $counted = RegressionPenulis::with_count('artikel')->get()->all();
+
+        $this->assertEquals(1, RegressionPenulis::has('artikel')->get()->count());
+        $this->assertEquals(1, RegressionPenulis::where_has('artikel', function ($query) {
+        })->get()->count());
+        $this->assertEquals(2, $counted[0]->artikel_count);
+        $this->assertEquals(0, $counted[1]->artikel_count);
+    }
+
+    /**
+     * A pivot table holding nothing but the two keys is enough.
+     *
+     * @group system
+     */
+    public function testS11BelongsToManyNeedsNoExtraPivotColumns()
+    {
+        $this->facile();
+
+        $tags = RegressionArtikel::find(1)->tag;
+
+        $this->assertEquals(2, count($tags));
+        $this->assertNull($tags[0]->pivot->catatan);
+    }
+
+    /**
+     * A pivot column is readable once it is asked for.
+     *
+     * @group system
+     */
+    public function testS11PivotColumnsAreOptIn()
+    {
+        $this->facile();
+
+        $tags = RegressionArtikel::find(1)->tag()->with(['catatan'])->get();
+
+        $this->assertEquals('x', $tags[0]->pivot->catatan);
+    }
+
+    // -------------------------------------------------------------------------
+    // S12: image paths
+    // -------------------------------------------------------------------------
+
+    /**
+     * A source path is read where path() puts it, not where the process
+     * happens to be standing.
+     *
+     * @group system
+     */
+    public function testS12ImageReadsTheResolvedPath()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        $relative = 'tests/fixtures/storage/work/regression_src.png';
+        $absolute = path('base').str_replace('/', DS, $relative);
+
+        $canvas = imagecreatetruecolor(4, 4);
+        imagepng($canvas, $absolute);
+        imagedestroy($canvas);
+
+        $cwd = getcwd();
+        chdir(sys_get_temp_dir());
+
+        try {
+            $info = Image::open($relative)->info();
+            $width = $info['width'];
+        } catch (\Exception $e) {
+            chdir($cwd);
+            unlink($absolute);
+
+            throw $e;
+        }
+
+        chdir($cwd);
+        unlink($absolute);
+
+        $this->assertEquals(4, $width);
+    }
+
+    /**
+     * A second open() loads the file it was given.
+     *
+     * @group system
+     */
+    public function testS12ImageOpenLoadsEveryFileItIsGiven()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        $first = 'tests/fixtures/storage/work/regression_a.png';
+        $second = 'tests/fixtures/storage/work/regression_b.png';
+
+        foreach ([[$first, 4], [$second, 9]] as $pair) {
+            $canvas = imagecreatetruecolor($pair[1], $pair[1]);
+            imagepng($canvas, path('base').str_replace('/', DS, $pair[0]));
+            imagedestroy($canvas);
+        }
+
+        $a = Image::open($first)->info();
+        $b = Image::open($second)->info();
+
+        @unlink(path('base').str_replace('/', DS, $first));
+        @unlink(path('base').str_replace('/', DS, $second));
+
+        $this->assertEquals(4, $a['width']);
+        $this->assertEquals(9, $b['width']);
+    }
+
+    /**
+     * The overwrite guard looks at the file export would actually write.
+     *
+     * @group system
+     */
+    public function testS12ImageOverwriteGuardChecksTheResolvedPath()
+    {
+        if (! Image::available()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
+        $source = 'tests/fixtures/storage/work/regression_src.png';
+        $target = 'tests/fixtures/storage/work/regression_out.png';
+        $paths = [path('base').str_replace('/', DS, $source), path('base').str_replace('/', DS, $target)];
+
+        $canvas = imagecreatetruecolor(4, 4);
+        imagepng($canvas, $paths[0]);
+        imagedestroy($canvas);
+        @unlink($paths[1]);
+
+        $cwd = getcwd();
+        chdir(sys_get_temp_dir());
+
+        Image::open($source)->export($target);
+        $refused = false;
+
+        try {
+            Image::open($source)->export($target);
+        } catch (\Exception $e) {
+            $refused = true;
+        }
+
+        chdir($cwd);
+        @unlink($paths[0]);
+        @unlink($paths[1]);
+
+        $this->assertTrue($refused);
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Build the tables and rows the Facile tests read.
+     */
+    private function facile()
+    {
+        \System\Database\Schema::drop_if_exists('regression_artikel_tag');
+        \System\Database\Schema::drop_if_exists('regression_artikel');
+        \System\Database\Schema::drop_if_exists('regression_penulis');
+        \System\Database\Schema::drop_if_exists('regression_tag');
+
+        \System\Database\Schema::create('regression_penulis', function ($table) {
+            $table->increments('id');
+            $table->string('nama');
+        });
+
+        \System\Database\Schema::create('regression_artikel', function ($table) {
+            $table->increments('id');
+            $table->integer('penulis_id');
+            $table->string('judul');
+            $table->timestamp('deleted_at')->nullable();
+        });
+
+        \System\Database\Schema::create('regression_tag', function ($table) {
+            $table->increments('id');
+            $table->string('nama');
+        });
+
+        // Nothing but the two keys and one extra column, the way the docs
+        // describe a pivot table.
+        \System\Database\Schema::create('regression_artikel_tag', function ($table) {
+            $table->integer('artikel_id');
+            $table->integer('tag_id');
+            $table->string('catatan')->nullable();
+        });
+
+        Database::table('regression_penulis')->insert([
+            ['id' => 1, 'nama' => 'Budi'],
+            ['id' => 2, 'nama' => 'Ani'],
+        ]);
+
+        Database::table('regression_artikel')->insert([
+            ['id' => 1, 'penulis_id' => 1, 'judul' => 'A', 'deleted_at' => null],
+            ['id' => 2, 'penulis_id' => 1, 'judul' => 'B', 'deleted_at' => null],
+            ['id' => 3, 'penulis_id' => 2, 'judul' => 'C', 'deleted_at' => null],
+        ]);
+
+        Database::table('regression_tag')->insert([
+            ['id' => 1, 'nama' => 'php'],
+            ['id' => 2, 'nama' => 'web'],
+        ]);
+
+        Database::table('regression_artikel_tag')->insert([
+            ['artikel_id' => 1, 'tag_id' => 1, 'catatan' => 'x'],
+            ['artikel_id' => 1, 'tag_id' => 2, 'catatan' => 'y'],
+        ]);
+    }
 
     /**
      * Delete a directory of class files the autoloader tests wrote.
@@ -1176,4 +1435,33 @@ class RegressionGuardedModel extends \System\Database\Facile\Model
 {
     public static $table = 'regression_guarded';
     public static $guarded = ['*'];
+}
+
+class RegressionPenulis extends \System\Database\Facile\Model
+{
+    public static $table = 'regression_penulis';
+    public static $timestamps = false;
+
+    public function artikel()
+    {
+        return $this->has_many('RegressionArtikel', 'penulis_id');
+    }
+}
+
+class RegressionArtikel extends \System\Database\Facile\Model
+{
+    public static $table = 'regression_artikel';
+    public static $timestamps = false;
+    public static $soft_delete = true;
+
+    public function tag()
+    {
+        return $this->belongs_to_many('RegressionTag', 'regression_artikel_tag', 'artikel_id', 'tag_id');
+    }
+}
+
+class RegressionTag extends \System\Database\Facile\Model
+{
+    public static $table = 'regression_tag';
+    public static $timestamps = false;
 }

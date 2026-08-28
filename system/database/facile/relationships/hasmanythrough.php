@@ -210,7 +210,7 @@ class HasManyThrough extends Relationship
      */
     public function correlate($parent_table)
     {
-        $this->table->reset_where();
+        $this->reset_constraints();
         $this->table->where_column(
             $this->through->table() . '.' . $this->first_key,
             '=',

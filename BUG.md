@@ -7,6 +7,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Mulai diaudit**: 2026-08-28.
 - **Putaran kedua** (area yang semula ditandai belum diaudit): 2026-08-28.
 - **Putaran ketiga** (RSA dan Autoloader): 2026-08-28.
+- **Putaran keempat** (Facile, Carbon, Image, memcached, console): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -17,12 +18,12 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 8 | 8 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 9 | 9 | 0 |
-| [Sedang](#sedang) | 10 | 10 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 13 | 13 | 0 |
+| [Sedang](#sedang) | 11 | 11 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
-| **Total** | **38** | **38** | **0** |
+| **Total** | **43** | **43** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2120 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2128 test**, semuanya lolos.
 
 Suite juga dijalankan di PHP 7.1, 7.4, 8.0, 8.2, 8.3, 8.4 dan 8.5. PHP 5.4–7.0 hanya
 diperiksa sampai tingkat sintaks (`php -l` atas seluruh berkas yang berubah), karena `vendor/`
@@ -485,6 +486,109 @@ Punya `Model`, `Kernel` atau `Bar` di dua namespace itu hal yang sangat biasa.
 tetap menjaga satu berkas tidak di-`require` dua kali tanpa memblokir kelas lain yang namanya
 kebetulan sama.
 
+### T10. `restore()` tidak bekerja pada model yang diambil dari database
+
+- [x] Selesai
+
+Ditemukan di putaran keempat. Syaratnya menuntut `! $this->exists`:
+
+```php
+if (static::$soft_delete && ! $this->exists && ! is_null($this->deleted_at)) {
+```
+
+Model yang dihidrasi dari database selalu punya `exists = true`, jadi satu-satunya instance
+yang bisa dipulihkan adalah yang barusan dipanggil `delete()`-nya. Cara yang **dicontohkan
+dokumentasi** justru diam-diam tidak melakukan apa-apa dan mengembalikan `false`:
+
+```php
+$user = User::with_trashed()->find(1);
+$user->restore();      // false, baris di database tidak berubah
+```
+
+**Yang dikerjakan**: syarat `! $this->exists` dilepas. Yang menentukan adalah modelnya memakai
+soft delete dan barisnya memang bertanda terhapus.
+
+### T11. Soft delete bocor lewat eager loading dan query relasi
+
+- [x] Selesai
+
+`Facile\Query::load()` dan seluruh `correlate()` memanggil `$this->table->reset_where()` untuk
+melepas ikatan ke satu induk — dan ikut membuang `WHERE deleted_at IS NULL` yang baru saja
+dipasang `_query()`, berikut global scope model.
+
+Hasilnya baris yang sudah dihapus muncul di mana-mana kecuali di lazy loading:
+
+```
+lazy    Penulis::find(1)->artikel     = 1   (benar)
+eager   Penulis::with('artikel')      = 2   <== termasuk yang terhapus
+where_has('artikel')                  = 3   <== termasuk penulis yang semua artikelnya terhapus
+has('artikel')                        = 3
+with_count                            = Budi=2, Ani=1, Cici=1
+```
+
+Jadi `with()` menampilkan data yang sudah dihapus kepada pengguna, tanpa tanda apa pun.
+
+**Yang dikerjakan**: `Relationship::reset_constraints()` menggantikan `reset_where()` telanjang
+di tujuh tempat. Ia tetap melepas ikatan ke induk, tapi memasang kembali `deleted_at IS NULL`
+milik model terkait. `Model::soft_deleting()` ditambahkan supaya relasi bisa menanyakannya.
+
+### T12. `Image::open()` hanya bisa dipakai sekali per request
+
+- [x] Selesai
+
+`open()` menyimpan satu instance singleton, dan pemanggilan kedua **membuang argumen
+`$path`-nya**:
+
+```php
+if (! is_null(self::$singleton)) {
+    static::$singleton->reset();
+    return static::$singleton;   // di-reset, tapi tidak pernah memuat $path
+}
+```
+
+`reset()` mengosongkan `$this->image`, jadi yang dikembalikan adalah objek kosong dan operasi
+apa pun setelahnya melempar `imagesx(): Argument #1 ($image) must be of type GdImage, null
+given`.
+
+**Reproduksi**:
+
+```php
+Image::open('a.png')->export('a2.png');   // jalan
+Image::open('b.png')->export('b2.png');   // TypeError, dan 'b.png' tidak pernah dibuka
+```
+
+Membuat thumbnail untuk galeri, atau memproses dua gambar dalam satu request, tidak mungkin.
+Test bawaannya lolos hanya karena `tearDown`-nya mengosongkan properti singleton lewat
+Reflection — sesuatu yang tidak bisa dilakukan kode aplikasi, karena propertinya `private`.
+
+**Yang dikerjakan**: instance sebelumnya tetap di-`reset()` (itu gunanya memegang singleton:
+melepas memori gambar lama), tapi yang dikembalikan selalu instance baru yang benar-benar
+memuat berkas yang diminta.
+
+### T13. `belongs_to_many` menuntut kolom yang tidak ada di skema yang didokumentasikan
+
+- [x] Selesai
+
+`BelongsToMany::$with` diawali `['id']`, dan konstruktornya menambahkan `created_at` serta
+`updated_at` karena `Pivot::$timestamps` bernilai `true`. Ketiganya lalu dipilih dari tabel
+pivot:
+
+```
+SQLSTATE[HY000]: General error: 1 no such column: role_user.id
+```
+
+Sementara dokumentasinya menyebut tabel pivot berisi **`user_id, role_id`** saja. Jadi relasi
+many-to-many yang dibangun persis seperti di dokumentasi gagal di setiap query, dan `attach()`
+ikut gagal karena menulis kolom timestamp yang tidak ada.
+
+Test bawaannya tidak menangkap ini karena hanya memeriksa tipe objek relasinya, tidak pernah
+menjalankan querynya.
+
+**Yang dikerjakan**: `$with` dikosongkan dan `Pivot::$timestamps` menjadi `false`, jadi
+defaultnya cocok dengan skema yang didokumentasikan. Kolom pivot tambahan diminta lewat
+`->with(['catatan'])` seperti `withPivot()` di Laravel, dan timestamps dinyalakan dengan
+`Pivot::$timestamps = true`.
+
 ---
 
 ## Sedang
@@ -633,6 +737,30 @@ Dibalik urutannya, jalan. Composer menyelesaikan ini dengan prefix terpanjang, b
 
 **Yang dikerjakan**: `namespaces()` mengurutkan petanya dari prefix terpanjang ke terpendek
 setiap kali ada pendaftaran baru, jadi urutan pendaftaran tidak lagi menentukan hasil.
+
+### S11. `Image` mencampur path mentah dengan path yang sudah diresolusi
+
+- [x] Selesai
+
+`Image::path()` menambatkan setiap path ke `path('base')`. Konstruktornya memeriksa hasil
+resolusi itu, lalu meneruskan path **mentah** ke `load()`:
+
+```php
+$this->path = $this->path($path);
+if (! is_file($this->path)) { throw .. }    // memeriksa yang sudah diresolusi
+$this->load($path);                          // membaca yang mentah
+```
+
+`load()` lalu membaca relatif terhadap direktori kerja proses. Selama direktori kerjanya
+kebetulan akar proyek keduanya sama; begitu tidak — layout dengan `public/`, job runner, atau
+perintah konsol yang dijalankan dari tempat lain — berkasnya lolos pemeriksaan lalu gagal
+dibaca dengan pesan yang menyesatkan: *Only JPG, PNG or GIF file type is supported*.
+
+Pengaman `$overwrite` di `export()` punya masalah yang sama terbalik: `is_file($path)`
+memeriksa path mentah sementara tulisannya ke path hasil resolusi, jadi berkas yang sudah ada
+bisa tertimpa diam-diam.
+
+**Yang dikerjakan**: keduanya memakai path hasil resolusi.
 
 ---
 
@@ -808,6 +936,7 @@ kosong.
 | `packages/docs/data/input.md` | Body menang atas query string |
 | `packages/docs/data/validation.md` | Aturan ber-wildcard, `filled` dengan nol, bentuk `in_array` |
 | `packages/docs/data/jwt.md` | Algoritma yang diperbolehkan mengikuti bahan kunci |
+| `packages/docs/data/database/facile.md` | Kolom pivot bersifat opt-in |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -844,14 +973,23 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
   dokumentasinya sudah menyebutkan itu berikut `load_keys()`, jadi bukan bug.
 - **Autoloader** selain dua poin di atas — nama kelas dengan `..` atau berawalan pemisah
   ditolak sebelum menyentuh berkas.
+- **Carbon** — luapan akhir bulan (`addMonth` vs `addMonthNoOverflow`), tahun kabisat,
+  timestamp negatif, `addDays` nol dan negatif, `diffInDays`, `diffForHumans`, dan konversi
+  zona waktu semuanya cocok dengan `nesbot/carbon`.
+- **Driver job memcached** — diuji terhadap memcached 1.x sungguhan (server dan ekstensinya
+  dijalankan di container): antrean, queue terpisah, job gagal dan `runall` semuanya benar.
+- **Console command** — `help`, `route:list`, `clear:*` dan `session:gc` dijalankan langsung.
+  `session:gc` sekalian dirapikan: dulu hanya mau menyapu driver `database`, sekarang ia
+  bekerja untuk driver apa pun yang mengimplementasi `Session\Drivers\Sweeper`, jadi driver
+  `file` ikut tersapu.
+- **Facile** selain empat poin di atas — `attach`, `detach`, `sync`, relasi bersarang
+  (`with('penulis.profil')`), `to_array` beserta relasinya, dan hidrasi `has_one` kosong
+  semuanya benar.
 
 ## Belum diaudit
 
 Yang masih menunggu giliran:
 
-- **Facile**: relasi, eager loading, soft delete. Ditunda karena test-nya sudah paling tebal
-  di repo ini (tujuh berkas), jadi imbal hasilnya paling kecil.
-- **Carbon** dibanding `nesbot/carbon`, di luar beberapa kasus batas.
-- **WebSocket**, `Curl`, `Image` — ketiganya butuh harness sendiri untuk diuji sungguhan.
-- **Driver job memcached** — tidak ada server memcached di mesin ini.
-- **Console command** selain `make` dan migrasi.
+- **WebSocket** — butuh harness dua proses untuk diuji sungguhan.
+- **Curl** — sudah punya test terhadap endpoint tiruan, tapi belum disisir sebagai bagian audit.
+- **Image** di luar penanganan path dan singleton: filter, crop, identicon.

@@ -81,7 +81,10 @@ class Image
         $this->height = 0;
         $this->quality = $this->level($quality, 0, 100, 'quality');
 
-        $this->load($path);
+        // The resolved path, not the one that came in: path() anchors it to the
+        // project base, and reading it back relative to the working directory
+        // would look somewhere else entirely.
+        $this->load($this->path);
     }
 
     /**
@@ -94,9 +97,11 @@ class Image
      */
     public static function open($path, $quality = 75)
     {
-        if (! is_null(self::$singleton)) {
+        // Releasing the previous image is the point of holding on to it, but
+        // the one being asked for still has to be loaded: returning the reset
+        // instance handed back a blank object that no operation could work on.
+        if (! is_null(static::$singleton)) {
             static::$singleton->reset();
-            return static::$singleton;
         }
 
         return static::$singleton = new static($path, $quality);
@@ -466,7 +471,7 @@ class Image
         $this->maintain();
         $this->path = $this->path($path);
 
-        if (is_file($path) && ! $overwrite) {
+        if (is_file($this->path) && ! $overwrite) {
             throw new \Exception(sprintf('Destination file already exists: %s', $this->path));
         }
 

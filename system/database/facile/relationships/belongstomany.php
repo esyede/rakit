@@ -29,7 +29,7 @@ class BelongsToMany extends Relationship
      *
      * @var array
      */
-    public $with = ['id'];
+    public $with = [];
 
     /**
      * Constructor.
@@ -388,7 +388,7 @@ class BelongsToMany extends Relationship
      */
     public function correlate($parent_table)
     {
-        $this->table->reset_where();
+        $this->reset_constraints();
         $this->table->where_column(
             $this->joining . '.' . $this->foreign_key(),
             '=',

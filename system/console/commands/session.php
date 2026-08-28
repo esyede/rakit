@@ -5,12 +5,13 @@ namespace System\Console\Commands;
 defined('DS') or exit('No direct access.');
 
 use System\Config;
-use System\Database as DB;
+use System\Session as Store;
+use System\Session\Drivers\Sweeper;
 
 class Session extends Command
 {
     /**
-     * Clear expired session data from the database.
+     * Delete expired sessions from storage.
      *
      * @param array $arguments
      *
@@ -18,21 +19,20 @@ class Session extends Command
      */
     public function gc(array $arguments = [])
     {
-        $driver = Config::get('session.driver');
+        $name = Config::get('session.driver');
+        $driver = Store::factory($name);
 
-        if ('database' !== $driver) {
+        if (! ($driver instanceof Sweeper)) {
             echo $this->warning(sprintf(
-                'Nothing to sweep: the session driver is \'%s\', not \'database\'.',
-                (string) $driver
+                'Nothing to sweep: the \'%s\' driver expires its own data.',
+                (string) $name
             ));
 
             return;
         }
 
-        DB::table(Config::get('session.table'))
-            ->where('last_activity', '<', time() - (Config::get('session.lifetime') * 60))
-            ->delete();
+        $driver->sweep(time() - (Config::get('session.lifetime') * 60));
 
-        echo $this->info('The session table has been swept!');
+        echo $this->info(sprintf('Expired sessions swept from the \'%s\' driver.', (string) $name));
     }
 }
