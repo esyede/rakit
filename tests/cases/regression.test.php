@@ -13,7 +13,9 @@ use System\Lang;
 use System\Redis;
 use System\Request;
 use System\Session;
+use System\Autoloader;
 use System\JWT;
+use System\RSA;
 use System\Response;
 use System\Str;
 use System\URL;
@@ -84,6 +86,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         Router::$groups = [];
         Router::$group = null;
         Router::$domains = false;
+
+        $this->cleanup(path('storage').'work'.DS.'autoload'.DS);
     }
 
     // -------------------------------------------------------------------------
@@ -946,8 +950,141 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // T8: RSA chunking
+    // -------------------------------------------------------------------------
+
+    /**
+     * A chunk that reads as falsy is still a chunk.
+     *
+     * @group system
+     */
+    public function testT8RsaEncryptsAZero()
+    {
+        $cipher = RSA::encrypt('0');
+
+        $this->assertNotEquals('', $cipher);
+        $this->assertEquals('0', RSA::decrypt($cipher));
+    }
+
+    /**
+     * Data whose last chunk is a zero keeps that chunk.
+     *
+     * @group system
+     */
+    public function testT8RsaKeepsATrailingZeroChunk()
+    {
+        $data = str_repeat('a', 245).'0';
+        $cipher = RSA::encrypt($data);
+
+        $this->assertEquals(512, mb_strlen($cipher, '8bit'));
+        $this->assertEquals($data, RSA::decrypt($cipher));
+    }
+
+    /**
+     * Ordinary data still round trips, over more than one chunk.
+     *
+     * @group system
+     */
+    public function testT8RsaRoundTripsLongData()
+    {
+        $data = str_repeat('rakit ', 200);
+
+        $this->assertEquals($data, RSA::decrypt(RSA::encrypt($data)));
+    }
+
+    // -------------------------------------------------------------------------
+    // T9, S10: the autoloader
+    // -------------------------------------------------------------------------
+
+    /**
+     * Two namespaces may each hold a class of the same short name.
+     *
+     * @group system
+     */
+    public function testT9NamespacesMayShareAClassName()
+    {
+        $base = $this->fixtures();
+
+        Autoloader::namespaces([
+            'RegresiSatu' => $base.'satu',
+            'RegresiDua' => $base.'dua',
+        ]);
+
+        $this->assertEquals('satu', \RegresiSatu\Kotak::asal());
+        $this->assertEquals('dua', \RegresiDua\Kotak::asal());
+    }
+
+    /**
+     * The longest matching namespace wins, whatever order they were added in.
+     *
+     * @group system
+     */
+    public function testS10LongestNamespacePrefixWins()
+    {
+        $base = $this->fixtures();
+
+        Autoloader::namespaces(['RegresiLuar\Dalam' => $base.'dalam']);
+        Autoloader::namespaces(['RegresiLuar' => $base.'tidak-ada']);
+
+        $this->assertEquals('spesifik', \RegresiLuar\Dalam\Kotak::asal());
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Delete a directory of class files the autoloader tests wrote.
+     *
+     * @param string $path
+     */
+    private function cleanup($path)
+    {
+        if (! is_dir($path)) {
+            return;
+        }
+
+        foreach ((array) glob($path.'*', GLOB_ONLYDIR) as $directory) {
+            foreach ((array) glob($directory.DS.'*.php') as $file) {
+                @unlink($file);
+            }
+
+            @rmdir($directory);
+        }
+
+        @rmdir($path);
+    }
+
+    /**
+     * Write the class files the autoloader tests look for.
+     *
+     * @return string
+     */
+    private function fixtures()
+    {
+        $base = path('storage').'work'.DS.'autoload'.DS;
+
+        $files = [
+            'satu'.DS.'Kotak.php' => 'namespace RegresiSatu; class Kotak { public static function asal() { return "satu"; } }',
+            'dua'.DS.'Kotak.php' => 'namespace RegresiDua; class Kotak { public static function asal() { return "dua"; } }',
+            'dalam'.DS.'Kotak.php' => 'namespace RegresiLuar\\Dalam; class Kotak { public static function asal() { return "spesifik"; } }',
+        ];
+
+        foreach ($files as $path => $source) {
+            $file = $base.$path;
+            $directory = dirname($file);
+
+            if (! is_dir($directory)) {
+                mkdir($directory, 0777, true);
+            }
+
+            if (! is_file($file)) {
+                file_put_contents($file, '<?php'.LF.LF.$source.LF);
+            }
+        }
+
+        return $base;
+    }
 
     /**
      * Generate an RSA key pair for the JWT tests.

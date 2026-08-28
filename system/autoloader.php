@@ -118,35 +118,28 @@ class Autoloader
             return;
         }
 
-        if (isset(static::$loaded[$file]) || isset(static::$loaded[$lowercased])) {
-            return;
-        }
-
         $directories = $directory ? array_map(function ($item) {
             return str_replace(['\\', '/'], DS, (string) $item);
         }, (array) $directory) : static::$directories;
 
         foreach ($directories as $directory) {
-            $lowerpath = $directory.$lowercased.'.php';
-            $origpath = $directory.$file.'.php';
+            foreach ([$directory.$lowercased.'.php', $directory.$file.'.php'] as $path) {
+                if (! isset(static::$caches[$path])) {
+                    static::remember($path, is_file($path));
+                }
 
-            if (! isset(static::$caches[$lowerpath])) {
-                static::remember($lowerpath, is_file($lowerpath));
-            }
+                if (! static::$caches[$path]) {
+                    continue;
+                }
 
-            if (static::$caches[$lowerpath]) {
-                require $lowerpath;
-                static::$loaded[$lowercased] = $lowerpath;
-                return;
-            }
+                // Keyed by the resolved file, not by the class fragment: two
+                // namespaces holding a class of the same short name resolve to
+                // the same fragment, and one of them would never be loaded.
+                if (! isset(static::$loaded[$path])) {
+                    static::$loaded[$path] = true;
+                    require $path;
+                }
 
-            if (! isset(static::$caches[$origpath])) {
-                static::remember($origpath, is_file($origpath));
-            }
-
-            if (static::$caches[$origpath]) {
-                require $origpath;
-                static::$loaded[$file] = $origpath;
                 return;
             }
         }
@@ -254,6 +247,12 @@ class Autoloader
     {
         $mappings = static::format_mappings($mappings, $append);
         static::$namespaces = array_merge($mappings, static::$namespaces);
+
+        // Longest prefix first, so registering 'Foo\' after 'Foo\Bar\' cannot
+        // make 'Foo\Bar\Baz' resolve under the wrong root.
+        uksort(static::$namespaces, function ($left, $right) {
+            return mb_strlen((string) $right, '8bit') - mb_strlen((string) $left, '8bit');
+        });
     }
 
     /**

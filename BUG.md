@@ -6,6 +6,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Cara verifikasi**: SQLite in-memory, MariaDB 10.11 lokal, dan Redis 7 lokal.
 - **Mulai diaudit**: 2026-08-28.
 - **Putaran kedua** (area yang semula ditandai belum diaudit): 2026-08-28.
+- **Putaran ketiga** (RSA dan Autoloader): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -16,12 +17,17 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 8 | 8 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 7 | 7 | 0 |
-| [Sedang](#sedang) | 9 | 9 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 9 | 9 | 0 |
+| [Sedang](#sedang) | 10 | 10 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
-| **Total** | **35** | **35** | **0** |
+| **Total** | **38** | **38** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2115 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2120 test**, semuanya lolos.
+
+Suite juga dijalankan di PHP 7.1, 7.4, 8.0, 8.2, 8.3, 8.4 dan 8.5. PHP 5.4–7.0 hanya
+diperiksa sampai tingkat sintaks (`php -l` atas seluruh berkas yang berubah), karena `vendor/`
+di mesin ini terpasang untuk PHP 8 dan tidak bisa dimuat di sana; matriks penuhnya dijalankan
+CI.
 
 Area yang belum disisir dicatat di [Belum diaudit](#belum-diaudit).
 
@@ -422,6 +428,63 @@ perluasannya menulis ke `$this->rules`, `has_rule()`, `nullable`, dan pesan erro
 seperti biasa — pesan error menyebut elemennya (`a.1`), dan pesan kustom yang ditulis untuk
 `a.*` diwariskan ke tiap elemen lewat `inherit_messages()`.
 
+### T8. RSA memotong data yang blok terakhirnya `"0"`
+
+- [x] Selesai
+
+Ditemukan di putaran ketiga. `RSA::encrypt()` dan `decrypt()` memotong data dengan
+`while ($data)`, sambil memangkas `$data` tiap putaran. Begitu sisanya kebetulan berupa string
+`"0"`, kondisinya jadi falsy dan **perulangannya berhenti** — blok terakhirnya hilang tanpa
+error.
+
+**Reproduksi**:
+
+```php
+RSA::encrypt('0');                        // '' (cipher kosong)
+
+$data = str_repeat('a', 245) . '0';       // 246 byte, harusnya 2 blok
+strlen(RSA::encrypt($data));              // 256, bukan 512
+RSA::decrypt(RSA::encrypt($data));        // karakter terakhirnya hilang
+```
+
+Ini kerusakan data yang diam: yang dienkripsi tidak sama dengan yang dikembalikan, dan tidak
+ada satu pun tanda bahwa ada yang salah.
+
+**Yang dikerjakan**: keduanya berjalan dengan offset (`for ($offset = 0; $offset < $total;
+$offset += $length)`) alih-alih menguji sisa stringnya, jadi isi blok tidak lagi menentukan
+kapan perulangan berhenti.
+
+### T9. Dua namespace tidak boleh punya kelas bernama sama
+
+- [x] Selesai
+
+`Autoloader::load_psr()` menyimpan catatan berkas yang sudah dimuat dengan kunci **potongan
+nama kelas**, bukan berkas hasilnya:
+
+```php
+if (isset(static::$loaded[$file]) || isset(static::$loaded[$lowercased])) {
+    return;
+}
+```
+
+Setelah namespace dilepas, `Satu\Bar` dan `Dua\Bar` sama-sama menjadi `Bar`. Yang pertama
+dimuat mencatat `Bar`, dan yang kedua langsung keluar tanpa memuat apa pun.
+
+**Reproduksi**:
+
+```php
+Autoloader::namespaces(['Satu' => $a, 'Dua' => $b]);
+
+Satu\Bar::asal();   // 'satu'
+Dua\Bar::asal();    // Error: Class "Dua\Bar" not found
+```
+
+Punya `Model`, `Kernel` atau `Bar` di dua namespace itu hal yang sangat biasa.
+
+**Yang dikerjakan**: catatannya dikunci dengan path berkas yang benar-benar dimuat, sehingga
+tetap menjaga satu berkas tidak di-`require` dua kali tanpa memblokir kelas lain yang namanya
+kebetulan sama.
+
 ---
 
 ## Sedang
@@ -547,6 +610,29 @@ dengan nilai nol yang sah — jumlah `0`, pilihan `'0'` — ditolak.
 
 **Yang dikerjakan**: `filled` memakai definisi kosong yang sama dengan `required`, jadi `'0'`
 dan `0` lolos sementara string kosong dan array kosong tidak.
+
+### S10. Namespace dicocokkan menurut urutan pendaftaran, bukan yang paling spesifik
+
+- [x] Selesai
+
+`Autoloader::load()` mengambil namespace pertama yang cocok dari `static::$namespaces`, dan
+urutannya ditentukan kapan namespace itu didaftarkan. Jadi mendaftarkan `Luar\Dalam\` lebih
+dulu lalu `Luar\` membuat yang kedua berada di depan, dan `Luar\Dalam\Bar\Baz` dicari di
+bawah akar yang salah.
+
+**Reproduksi**:
+
+```php
+Autoloader::namespaces(['Luar\Dalam' => $dalam]);
+Autoloader::namespaces(['Luar' => $lain]);
+
+Luar\Dalam\Bar\Baz::asal();   // Error: class not found
+```
+
+Dibalik urutannya, jalan. Composer menyelesaikan ini dengan prefix terpanjang, bukan urutan.
+
+**Yang dikerjakan**: `namespaces()` mengurutkan petanya dari prefix terpanjang ke terpendek
+setiap kali ada pendaftaran baru, jadi urutan pendaftaran tidak lagi menentukan hasil.
 
 ---
 
@@ -754,6 +840,10 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
   dan `same`/`different`.
 - **Collection, Arr** — kasus batas (koleksi kosong, `slice` negatif, `chunk(0)`, `flatten`
   berkedalaman, `pluck` bersarang) berperilaku wajar.
+- **RSA** selain pemotongan blok — kunci memang sengaja dibuat ulang tiap proses dan
+  dokumentasinya sudah menyebutkan itu berikut `load_keys()`, jadi bukan bug.
+- **Autoloader** selain dua poin di atas — nama kelas dengan `..` atau berawalan pemisah
+  ditolak sebelum menyentuh berkas.
 
 ## Belum diaudit
 
@@ -763,7 +853,5 @@ Yang masih menunggu giliran:
   di repo ini (tujuh berkas), jadi imbal hasilnya paling kecil.
 - **Carbon** dibanding `nesbot/carbon`, di luar beberapa kasus batas.
 - **WebSocket**, `Curl`, `Image` — ketiganya butuh harness sendiri untuk diuji sungguhan.
-- **Autoloader** dan pemetaan PSR-4/kelas.
 - **Driver job memcached** — tidak ada server memcached di mesin ini.
-- **RSA** — hanya permukaan API-nya yang dibaca, belum diuji jalan.
 - **Console command** selain `make` dan migrasi.

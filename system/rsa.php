@@ -34,11 +34,13 @@ class RSA
         $key_details = openssl_pkey_get_details($pubkey);
         $length = (int) ceil($key_details['bits'] / 8) - ($padding === OPENSSL_PKCS1_OAEP_PADDING ? 42 : 11);
         $data = (string) $data;
+        $total = mb_strlen($data, '8bit');
         $result = '';
 
-        while ($data) {
-            $chunk = mb_substr($data, 0, $length, '8bit');
-            $data = mb_substr($data, $length, null, '8bit');
+        // Walking with an offset rather than shrinking the string: a remainder
+        // of '0' is falsy, and testing it would drop the last chunk.
+        for ($offset = 0; $offset < $total; $offset += $length) {
+            $chunk = mb_substr($data, $offset, $length, '8bit');
             $temp = '';
 
             if (! openssl_public_encrypt($chunk, $temp, $pubkey, $padding)) {
@@ -74,12 +76,12 @@ class RSA
 
         $key = openssl_pkey_get_details($privkey);
         $length = (int) ceil($key['bits'] / 8);
+        $encrypted = (string) $encrypted;
+        $total = mb_strlen($encrypted, '8bit');
         $result = '';
 
-        while ($encrypted) {
-            $encrypted = (string) $encrypted;
-            $chunk = mb_substr($encrypted, 0, $length, '8bit');
-            $encrypted = mb_substr($encrypted, $length, null, '8bit');
+        for ($offset = 0; $offset < $total; $offset += $length) {
+            $chunk = mb_substr($encrypted, $offset, $length, '8bit');
             $temp = '';
 
             if (! openssl_private_decrypt($chunk, $temp, $privkey, $padding)) {

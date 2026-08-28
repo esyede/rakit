@@ -686,7 +686,9 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
         }, 'schema_other');
 
         Schema::table($name, function ($table) {
-            $table->string('email');
+            // Nullable on purpose: SQLite below 3.32 refuses a NOT NULL column
+            // added after the fact, and this test is about the connection.
+            $table->string('email')->nullable();
         }, 'schema_other');
 
         $this->assertTrue(Schema::has_column($name, 'email', 'schema_other'));
