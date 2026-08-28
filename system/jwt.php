@@ -78,8 +78,10 @@ class JWT
      * Supported options:
      *
      *   - 'algorithm': name (or list of names) the token is allowed to be signed
-     *                  with. Strongly recommended: without it the algorithm is
-     *                  read from the token itself.
+     *                  with. Left out, only the algorithms that suit the key are
+     *                  allowed: a PEM key accepts RS* and nothing else, any other
+     *                  key accepts HS* and nothing else. Naming it is still worth
+     *                  doing when the token should carry one specific algorithm.
      *   - 'aud':       expected audience, the token must carry a matching claim.
      *   - 'iss':       expected issuer, the token must carry a matching claim.
      *   - 'validator': callable receiving ($payloads, $headers) for extra checks.
@@ -139,16 +141,16 @@ class JWT
             ));
         }
 
-        if (isset($options['algorithm'])) {
-            $allowed = array_map('strtoupper', array_map('strval', (array) $options['algorithm']));
+        $allowed = isset($options['algorithm'])
+            ? array_map('strtoupper', array_map('strval', (array) $options['algorithm']))
+            : static::suitable($key);
 
-            if (! in_array(strtoupper($headers->alg), $allowed, true)) {
-                throw new \Exception(sprintf(
-                    "Algorithm not allowed: '%s' (allowed: %s)",
-                    $headers->alg,
-                    implode(', ', $allowed)
-                ));
-            }
+        if (! in_array(strtoupper($headers->alg), $allowed, true)) {
+            throw new \Exception(sprintf(
+                "Algorithm not allowed: '%s' (allowed: %s)",
+                $headers->alg,
+                implode(', ', $allowed)
+            ));
         }
 
         if (! isset($headers->typ) || $headers->typ !== 'JWT') {
@@ -184,6 +186,35 @@ class JWT
         }
 
         return $payloads;
+    }
+
+    /**
+     * Get the algorithms a key can legitimately verify.
+     *
+     * A public key is public, so letting a token pick HS256 and be verified with
+     * that key as the HMAC secret hands anyone holding it the ability to sign
+     * tokens. Keying the choice off the material closes that without asking the
+     * caller to remember an option.
+     *
+     * @param string $key
+     *
+     * @return array
+     */
+    private static function suitable($key)
+    {
+        $asymmetric = function_exists('openssl_pkey_get_public')
+            && (false !== @openssl_pkey_get_public($key) || false !== @openssl_pkey_get_private($key));
+
+        $type = $asymmetric ? 'asymmetric' : 'symmetric';
+        $names = [];
+
+        foreach (static::$algorithms as $name => $info) {
+            if ($info['type'] === $type) {
+                $names[] = $name;
+            }
+        }
+
+        return $names;
     }
 
     /**

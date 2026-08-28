@@ -5,7 +5,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 
 - **Cara verifikasi**: SQLite in-memory, MariaDB 10.11 lokal, dan Redis 7 lokal.
 - **Mulai diaudit**: 2026-08-28.
-- **Selesai diperbaiki**: 2026-08-28.
+- **Putaran kedua** (area yang semula ditandai belum diaudit): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -15,13 +15,13 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
-| [Kritis — keamanan](#kritis--keamanan) | 7 | 7 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 5 | 5 | 0 |
-| [Sedang](#sedang) | 7 | 7 | 0 |
-| [Rendah / pengerasan](#rendah--pengerasan) | 10 | 10 | 0 |
-| **Total** | **29** | **29** | **0** |
+| [Kritis — keamanan](#kritis--keamanan) | 8 | 8 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 7 | 7 | 0 |
+| [Sedang](#sedang) | 9 | 9 | 0 |
+| [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
+| **Total** | **35** | **35** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2104 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2115 test**, semuanya lolos.
 
 Area yang belum disisir dicatat di [Belum diaudit](#belum-diaudit).
 
@@ -221,6 +221,33 @@ request untuk mendapat ember hitungan baru, sehingga throttle tidak pernah kena.
 diisi lewat opsi baru `application.trusted_proxies`, yang dipasang di `boot.php` sebelum request
 diproses. Selama daftar itu kosong, alamat peer yang dipakai.
 
+### K8. Token JWT bisa dipalsukan lewat pertukaran algoritma
+
+- [x] Selesai
+
+Ditemukan di putaran kedua. `JWT::decode($token, $key)` membaca nama algoritma **dari
+tokennya sendiri** kalau opsi `algorithm` tidak diberikan. Untuk kunci RSA, itu berarti
+penyerang tinggal menandatangani token dengan HS256 memakai **kunci publik** sebagai secret
+HMAC — dan kunci publik memang untuk dibagikan.
+
+**Reproduksi**:
+
+```php
+$asli  = JWT::encode(['sub' => 'budi'],  $private, [], 'RS256');
+$palsu = JWT::encode(['sub' => 'admin'], $public,  [], 'HS256');
+
+JWT::decode($asli,  $public);   // sub=budi
+JWT::decode($palsu, $public);   // sub=admin   <== diterima
+```
+
+Siapa pun yang tahu kunci publik bisa menerbitkan token apa pun. `firebase/php-jwt` menjadikan
+daftar algoritma sebagai argumen wajib justru karena ini.
+
+**Yang dikerjakan**: kalau opsi `algorithm` tidak ada, algoritma yang diperbolehkan diturunkan
+dari bahan kuncinya lewat `JWT::suitable()`: kunci yang bisa dibaca OpenSSL sebagai kunci PEM
+hanya menerima `RS*`, kunci lain hanya menerima `HS*`. Menyebut `algorithm` secara eksplisit
+tetap didahulukan, dan tidak ada pemanggil lama yang perlu diubah.
+
 ---
 
 ## Tinggi — fungsi rusak
@@ -349,6 +376,52 @@ bisa dipakai.
 daftar nama, array `[nama, callback]` didaftarkan dengan namanya, dan callable telanjang
 didaftarkan dengan nama turunan dari pattern-nya.
 
+### T6. Memanggil method `Str` yang tidak ada membuat proses segfault
+
+- [x] Selesai
+
+`Str::__callStatic()` mengembalikan pemanggilan ke `['\System\Str', $method]` untuk nama yang
+bukan macro. Karena methodnya memang tidak ada, pemanggilan itu masuk kembali ke
+`__callStatic`, dan seterusnya sampai stack habis.
+
+**Reproduksi**:
+
+```
+$ php -r "require 'system/core.php'; System\Str::metode_yang_tidak_ada('x');"
+$ echo $?
+139        # SIGSEGV
+```
+
+Bukan exception, bukan fatal error — proses PHP-nya mati. Di produksi itu berarti 500 kosong
+tanpa satu baris pun di log, dan di FPM worker-nya ikut mati. Salah ketik satu nama method
+sudah cukup.
+
+**Yang dikerjakan**: nama yang bukan macro melempar `BadMethodCallException`, seperti trait
+`Macroable` yang sudah dipakai kelas lain di framework ini.
+
+### T7. Aturan validasi ber-wildcard diam-diam tidak memvalidasi apa pun
+
+- [x] Selesai
+
+`Validator` tidak mengenal `*` di nama atribut. Aturan seperti `'items.*' => 'integer'`
+mencari atribut yang namanya harfiah `items.*`, tidak menemukannya, lalu **lolos** karena
+`integer` bukan aturan yang implisit wajib.
+
+**Reproduksi**:
+
+```php
+Validator::make(['a' => [1, 'x']], ['a.*' => 'integer'])->passes();   // true
+```
+
+Ini idiom yang dibawa orang dari Laravel, dan hasilnya rasa aman yang palsu: form yang
+mengirim array dianggap tervalidasi padahal tidak ada satu elemen pun yang diperiksa.
+
+**Yang dikerjakan**: `Validator::expand_rules()` memperluas atribut ber-`*` menjadi atribut
+sebenarnya sebelum validasi berjalan, termasuk yang bersarang (`orang.*.nama`). Karena
+perluasannya menulis ke `$this->rules`, `has_rule()`, `nullable`, dan pesan error ikut bekerja
+seperti biasa — pesan error menyebut elemennya (`a.1`), dan pesan kustom yang ditulis untuk
+`a.*` diwariskan ke tiap elemen lewat `inherit_messages()`.
+
 ---
 
 ## Sedang
@@ -444,6 +517,36 @@ Semua kode yang bergerbang pada `registered()` melewatkan instance semacam ini, 
 `Controller::__get()` yang jadi mengembalikan `null` untuk layanan yang sebenarnya terdaftar.
 
 **Yang dikerjakan**: `registered()` ikut memeriksa `static::$singletons`.
+
+### S8. `in_array` dengan bentuk yang didokumentasikan selalu gagal
+
+- [x] Selesai
+
+Dokumentasi mencontohkan `'color' => 'in_array:colors.*'`, tapi implementasinya mencari kunci
+yang namanya harfiah `colors.*` di dalam data:
+
+```php
+if (! array_key_exists($parameters[0], $this->attributes)) {
+    return false;
+}
+```
+
+Kunci itu tidak pernah ada, jadi aturan yang ditulis persis seperti di dokumentasi **tidak
+pernah lolos**.
+
+**Yang dikerjakan**: akhiran `.*` dilepas dan parameternya dibaca lewat `Arr::get()`, jadi
+`in_array:colors.*` dan `in_array:colors` sama-sama menunjuk ke array `colors`, dan jalur
+bersarang seperti `in_array:form.colors` ikut bekerja.
+
+### S9. `filled` menolak `'0'`
+
+- [x] Selesai
+
+`validate_filled()` memakai `! empty($value)`, dan `'0'` itu kosong menurut PHP. Jadi form
+dengan nilai nol yang sah — jumlah `0`, pilihan `'0'` — ditolak.
+
+**Yang dikerjakan**: `filled` memakai definisi kosong yang sama dengan `required`, jadi `'0'`
+dan `0` lolos sementara string kosong dan array kosong tidak.
 
 ---
 
@@ -580,6 +683,31 @@ habis. Laravel mendeteksi ini lewat `buildStack` dan melempar `CircularDependenc
 **Yang dikerjakan**: `Container::resolve()` mencatat apa yang sedang dibangun dan melempar
 `Circular dependency while resolving: ..` berikut rantainya begitu satu nama muncul dua kali.
 
+### R11. Nama berkas unduhan tidak dibersihkan
+
+- [x] Selesai
+
+`Response::download($path, $name)` menyisipkan `$name` ke `Content-Disposition` apa adanya:
+
+```php
+sprintf('attachment; filename="%s"', $name ?: basename($path))
+```
+
+Nama itu sering datang dari request. Tanda kutip di dalamnya mengakhiri string berkutip lebih
+awal sehingga penyerang bisa menambahkan parameter sendiri:
+
+```
+$name = 'laporan.txt"; filename*=UTF-8\'\'evil.exe'
+=> attachment; filename="laporan.txt"; filename*=UTF-8''evil.exe"
+```
+
+CR/LF tersimpan mentah di header bag juga, meski `header()` bawaan PHP menolaknya saat dikirim
+sehingga tidak sampai jadi response splitting.
+
+**Yang dikerjakan**: `Response::disposition()` membuang CR, LF, NUL, kutip ganda dan garis
+miring terbalik, lalu mengambil `basename()`-nya, dan memakai `download` kalau yang tersisa
+kosong.
+
 ---
 
 ## Dokumentasi yang ikut diperbarui
@@ -592,6 +720,8 @@ habis. Laravel mendeteksi ini lewat `buildStack` dan melempar `CircularDependenc
 | `packages/docs/data/database/facile.md` | `$guarded = ['*']`, catatan mass-assignment |
 | `packages/docs/data/validation.md` | `required` dengan array, arti "size", `date_format` ketat, `image:allow_svg` |
 | `packages/docs/data/input.md` | Body menang atas query string |
+| `packages/docs/data/validation.md` | Aturan ber-wildcard, `filled` dengan nol, bentuk `in_array` |
+| `packages/docs/data/jwt.md` | Algoritma yang diperbolehkan mengikuti bahan kunci |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -602,17 +732,38 @@ dicontohkan di sana baru sekarang benar-benar bisa dijalankan (lihat T5).
 
 ---
 
+## Sudah disisir tanpa temuan
+
+Bagian yang diperiksa di putaran kedua dan ternyata bersih:
+
+- **Paginator** — nilai `?page=` yang aneh (huruf, negatif, array, angka raksasa) dijepit
+  dengan benar, dan query string yang dipertahankan di tautan halaman ter-escape.
+- **Blade** — `{{ }}` selalu lewat `e()`, `{!! !!}` memang mentah, `@json` memakai flag
+  `JSON_HEX_*` sehingga aman disematkan di HTML, `@{{ }}` benar-benar meloloskan literal.
+- **View** — nama view dengan `../` ditolak, bukan dibaca dari luar direktori view.
+- **Package, Config** — nama dengan `..`, `/` dan `\` tidak menembus direktori.
+- **Email** — CR, LF dan NUL dibuang dari seluruh header, termasuk `to`, `cc`, `bcc` dan
+  `subject`, jadi tidak ada penyisipan header.
+- **Markdown** — HTML mentah memang diteruskan, tapi `safety()` ada dan dokumentasinya sudah
+  menyuruh menyalakannya untuk masukan dari pengguna.
+- **Console `make`** — `slashes()` mengubah titik menjadi garis miring, jadi `..` runtuh
+  menjadi `//` dan tidak bisa menembus direktori.
+- **Driver job redis** — alur `add`, `run`, `forget` berjalan benar.
+- **Validator** — 32 aturan lain diuji satu per satu terhadap perilaku Laravel dan cocok
+  semua, termasuk `unique`, `exists`, `distinct`, keluarga `required_*`, `regex`, `digits`
+  dan `same`/`different`.
+- **Collection, Arr** — kasus batas (koleksi kosong, `slice` negatif, `chunk(0)`, `flatten`
+  berkedalaman, `pluck` bersarang) berperilaku wajar.
+
 ## Belum diaudit
 
-Bagian framework yang belum disisir pada putaran ini:
+Yang masih menunggu giliran:
 
-- Blade dan View di luar pemeriksaan escaping
-- Paginator di luar pemeriksaan batas dasar
-- Facile: relasi, eager loading, soft delete (test-nya sudah tebal)
-- Validator di luar aturan yang disebut di atas
-- `Collection`, `Str`, `Arr`, `Carbon`
-- Console command selain migrasi
-- `Email`, WebSocket, `Curl`, `Image`, `Markdown`, `Log`
-- `Package`, `Autoloader`, `Config`
-- Driver job redis dan memcached
-- `JWT`, `RSA`, `Storage`
+- **Facile**: relasi, eager loading, soft delete. Ditunda karena test-nya sudah paling tebal
+  di repo ini (tujuh berkas), jadi imbal hasilnya paling kecil.
+- **Carbon** dibanding `nesbot/carbon`, di luar beberapa kasus batas.
+- **WebSocket**, `Curl`, `Image` — ketiganya butuh harness sendiri untuk diuji sungguhan.
+- **Autoloader** dan pemetaan PSR-4/kelas.
+- **Driver job memcached** — tidak ada server memcached di mesin ini.
+- **RSA** — hanya permukaan API-nya yang dibaca, belum diuji jalan.
+- **Console command** selain `make` dan migrasi.

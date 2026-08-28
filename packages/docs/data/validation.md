@@ -228,7 +228,21 @@ into what rules you can use to validate your data!
 ```
 
 > An empty array counts as empty too, so a group of checkboxes that nobody
-> ticked does not satisfy `required`.
+> ticked does not satisfy `required`. `filled` reads emptiness the same way, so
+> a value of `0` or `'0'` passes it.
+
+#### Validate every element of an array:
+
+Put `*` where the index goes:
+
+```php
+'tags'          => 'required|array',
+'tags.*'        => 'integer',
+'people.*.name' => 'required|max:50',
+```
+
+Errors are recorded against the element that failed (`tags.1`), and a custom
+message written for `tags.*` answers for every element of it.
 
 #### Allow the attribute to be `null`, otherwise it must not be empty:
 
@@ -601,6 +615,8 @@ Valid timezone examples: `Asia/Jakarta`, `America/New_York`, `UTC`.
 ```
 
 Example: if `colors` is `['red', 'green', 'blue']`, then `color` must be one of those values.
+The `.*` is optional — `in_array:colors` names the same array — and a nested path such as
+`in_array:form.colors` works too.
 
 <a id="regular-expression"></a>
 

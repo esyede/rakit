@@ -1132,7 +1132,12 @@ class Str
      */
     public static function __callStatic($method, $parameters)
     {
-        $method = array_key_exists($method, static::$macros) ? static::$macros[$method] : ['\System\Str', $method];
-        return call_user_func_array($method, $parameters);
+        // Falling back to ['\System\Str', $method] would land right back here
+        // for a name that does not exist, and recurse until the stack gives out.
+        if (! array_key_exists($method, static::$macros)) {
+            throw new \BadMethodCallException(sprintf('Method does not exist: %s', $method));
+        }
+
+        return call_user_func_array(static::$macros[$method], $parameters);
     }
 }

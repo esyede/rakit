@@ -162,6 +162,8 @@ class Validator
     {
         $this->errors = new Messages();
 
+        $this->rules = $this->expand_rules($this->rules);
+
         foreach ($this->rules as $attribute => $rules) {
             foreach ($rules as $rule) {
                 $this->check($attribute, $rule);
@@ -169,6 +171,89 @@ class Validator
         }
 
         return 0 === count($this->errors->messages);
+    }
+
+    /**
+     * Replace every attribute holding '*' with the concrete attributes it
+     * stands for, so the rest of the class only ever sees real attributes.
+     *
+     * @param array $rules
+     *
+     * @return array
+     */
+    protected function expand_rules(array $rules)
+    {
+        $expanded = [];
+
+        foreach ($rules as $attribute => $set) {
+            if (false === strpos((string) $attribute, '*')) {
+                $expanded[$attribute] = $set;
+                continue;
+            }
+
+            foreach ($this->expand($attribute) as $target) {
+                $expanded[$target] = isset($expanded[$target])
+                    ? array_merge($expanded[$target], $set)
+                    : $set;
+
+                $this->inherit_messages($attribute, $target);
+            }
+        }
+
+        return $expanded;
+    }
+
+    /**
+     * Let a message written for 'items.*' answer for 'items.0' as well.
+     *
+     * @param string $wildcard
+     * @param string $target
+     */
+    protected function inherit_messages($wildcard, $target)
+    {
+        foreach ($this->messages as $key => $message) {
+            if (0 === strpos((string) $key, $wildcard.'_')) {
+                $inherited = $target.substr((string) $key, mb_strlen($wildcard, '8bit'));
+
+                if (! array_key_exists($inherited, $this->messages)) {
+                    $this->messages[$inherited] = $message;
+                }
+            }
+        }
+    }
+
+    /**
+     * Turn an attribute holding '*' into the concrete attributes it stands for.
+     * An attribute without one is its own only target.
+     *
+     * @param string $attribute
+     *
+     * @return array
+     */
+    protected function expand($attribute)
+    {
+        if (false === strpos($attribute, '*')) {
+            return [$attribute];
+        }
+
+        list($before, $after) = explode('*', $attribute, 2);
+
+        $before = rtrim($before, '.');
+        $after = ltrim($after, '.');
+        $values = ('' === $before) ? $this->attributes : Arr::get($this->attributes, $before);
+
+        if (! is_array($values)) {
+            return [];
+        }
+
+        $targets = [];
+
+        foreach (array_keys($values) as $key) {
+            $target = ('' === $before) ? (string) $key : $before.'.'.$key;
+            $targets = array_merge($targets, $this->expand(('' === $after) ? $target : $target.'.'.$after));
+        }
+
+        return $targets;
     }
 
     /**
@@ -662,7 +747,7 @@ class Validator
      */
     protected function validate_filled($attribute, $value)
     {
-        return ! empty($value);
+        return $this->validate_required($attribute, $value);
     }
 
     /**
@@ -828,11 +913,9 @@ class Validator
      */
     protected function validate_in_array($attribute, $value, array $parameters)
     {
-        if (! array_key_exists($parameters[0], $this->attributes)) {
-            return false;
-        }
+        // 'colors.*' names the values of 'colors', which is the array to look in.
+        $other = Arr::get($this->attributes, rtrim(rtrim($parameters[0], '*'), '.'));
 
-        $other = $this->attributes[$parameters[0]];
         return is_array($other) && in_array($value, $other);
     }
 

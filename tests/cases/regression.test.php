@@ -13,6 +13,9 @@ use System\Lang;
 use System\Redis;
 use System\Request;
 use System\Session;
+use System\JWT;
+use System\Response;
+use System\Str;
 use System\URL;
 use System\Validator;
 use System\Routing\Middleware;
@@ -757,8 +760,211 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // K8: a public key cannot be turned into an HMAC secret
+    // -------------------------------------------------------------------------
+
+    /**
+     * A token that swaps RS256 for HS256 is refused even without naming the
+     * algorithm, because the key material already says which ones fit.
+     *
+     * @group system
+     */
+    public function testK8JwtRefusesAlgorithmConfusion()
+    {
+        list($private, $public) = $this->keypair();
+
+        $genuine = JWT::encode(['sub' => 'budi'], $private, [], 'RS256');
+        $this->assertEquals('budi', JWT::decode($genuine, $public)->sub);
+
+        $forged = JWT::encode(['sub' => 'admin'], $public, [], 'HS256');
+
+        $this->setExpectedException('Exception', 'Algorithm not allowed');
+
+        JWT::decode($forged, $public);
+    }
+
+    /**
+     * A shared secret still signs and verifies with HS256.
+     *
+     * @group system
+     */
+    public function testK8JwtStillAcceptsSymmetricKeys()
+    {
+        $token = JWT::encode(['sub' => 'budi'], 'rahasia-bersama');
+
+        $this->assertEquals('budi', JWT::decode($token, 'rahasia-bersama')->sub);
+    }
+
+    /**
+     * A shared secret cannot be used to claim an RSA signature.
+     *
+     * @group system
+     */
+    public function testK8JwtRefusesAsymmetricAlgorithmForASharedSecret()
+    {
+        list($private) = $this->keypair();
+        $token = JWT::encode(['sub' => 'admin'], $private, [], 'RS256');
+
+        $this->setExpectedException('Exception', 'Algorithm not allowed');
+
+        JWT::decode($token, 'rahasia-bersama');
+    }
+
+    // -------------------------------------------------------------------------
+    // T6: an unknown Str method
+    // -------------------------------------------------------------------------
+
+    /**
+     * It reports the name instead of recursing until the stack gives out.
+     *
+     * @group system
+     */
+    public function testT6UnknownStrMethodThrows()
+    {
+        $this->setExpectedException('BadMethodCallException', 'Method does not exist: metode_yang_tidak_ada');
+
+        Str::metode_yang_tidak_ada('x');
+    }
+
+    /**
+     * A macro is still reachable.
+     *
+     * @group system
+     */
+    public function testT6StrMacroStillWorks()
+    {
+        Str::macro('regression_balik', function ($value) {
+            return strrev($value);
+        });
+
+        $this->assertEquals('cba', Str::regression_balik('abc'));
+    }
+
+    // -------------------------------------------------------------------------
+    // T7, S8, S9: validation rules
+    // -------------------------------------------------------------------------
+
+    /**
+     * A rule written with '*' runs against every element.
+     *
+     * @group system
+     */
+    public function testT7WildcardRulesReachEveryElement()
+    {
+        $this->assertTrue(Validator::make(['a' => [1, 2]], ['a.*' => 'integer'])->passes());
+        $this->assertFalse(Validator::make(['a' => [1, 'x']], ['a.*' => 'integer'])->passes());
+    }
+
+    /**
+     * It reaches into nested structures too.
+     *
+     * @group system
+     */
+    public function testT7WildcardRulesReachNestedKeys()
+    {
+        $data = ['orang' => [['nama' => 'Budi'], ['nama' => '']]];
+
+        $this->assertFalse(Validator::make($data, ['orang.*.nama' => 'required'])->passes());
+
+        $data = ['orang' => [['nama' => 'Budi'], ['nama' => 'Ani']]];
+
+        $this->assertTrue(Validator::make($data, ['orang.*.nama' => 'required'])->passes());
+    }
+
+    /**
+     * An error names the element it came from.
+     *
+     * @group system
+     */
+    public function testT7WildcardErrorsNameTheElement()
+    {
+        $validation = Validator::make(['a' => [1, 'x']], ['a.*' => 'integer']);
+        $validation->passes();
+
+        $this->assertTrue($validation->errors->has('a.1'));
+        $this->assertFalse($validation->errors->has('a.0'));
+    }
+
+    /**
+     * in_array reads the array the parameter names, '*' and all.
+     *
+     * @group system
+     */
+    public function testS8InArrayAcceptsTheDocumentedForm()
+    {
+        $data = ['colors' => ['merah', 'hijau'], 'color' => 'merah'];
+
+        $this->assertTrue(Validator::make($data, ['color' => 'in_array:colors.*'])->passes());
+        $this->assertTrue(Validator::make($data, ['color' => 'in_array:colors'])->passes());
+
+        $data['color'] = 'ungu';
+
+        $this->assertFalse(Validator::make($data, ['color' => 'in_array:colors.*'])->passes());
+    }
+
+    /**
+     * A zero is a value like any other.
+     *
+     * @group system
+     */
+    public function testS9FilledAcceptsZero()
+    {
+        $this->assertTrue(Validator::make(['a' => '0'], ['a' => 'filled'])->passes());
+        $this->assertTrue(Validator::make(['a' => 0], ['a' => 'filled'])->passes());
+        $this->assertFalse(Validator::make(['a' => ''], ['a' => 'filled'])->passes());
+        $this->assertFalse(Validator::make(['a' => []], ['a' => 'filled'])->passes());
+    }
+
+    // -------------------------------------------------------------------------
+    // R11: the download filename
+    // -------------------------------------------------------------------------
+
+    /**
+     * A name from the request cannot end the quoted string or start a header.
+     *
+     * @group system
+     */
+    public function testR11DownloadFilenameIsSanitized()
+    {
+        $method = new \ReflectionMethod('System\Response', 'disposition');
+        $method->setAccessible(true);
+
+        $nasty = $method->invoke(null, 'attachment', 'laporan.txt"; filename*=UTF-8\'\'evil.exe');
+        $crlf = $method->invoke(null, 'attachment', "a.txt\r\nX-Injected: ya");
+        $walk = $method->invoke(null, 'attachment', '../../etc/passwd');
+
+        $this->assertNotContains('"; filename*', $nasty);
+        $this->assertNotContains("\r", $crlf);
+        $this->assertNotContains("\n", $crlf);
+        $this->assertEquals('attachment; filename="passwd"', $walk);
+        $this->assertEquals('attachment; filename="download"', $method->invoke(null, 'attachment', ''));
+    }
+
+    // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * Generate an RSA key pair for the JWT tests.
+     *
+     * @return array
+     */
+    private function keypair()
+    {
+        $resource = openssl_pkey_new([
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+        ]);
+
+        if (false === $resource) {
+            $this->markTestSkipped('OpenSSL cannot generate a key pair here.');
+        }
+
+        openssl_pkey_export($resource, $private);
+        $details = openssl_pkey_get_details($resource);
+
+        return [$private, $details['key']];
+    }
 
     /**
      * Put a request in place of the current one.

@@ -16,7 +16,15 @@
 
 As the name suggests, the `JWT` component provides a simple way to handle encoding and decoding of [JSON Web Token](https://jwt.io/). This component is compatible with the [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) standard that is widely used.
 
-> This component only supports 3 standard algorithms, namely `HS256`, `HS384`, and `HS512`.
+> This component supports `HS256`, `HS384`, `HS512` for a shared secret, and
+> `RS256`, `RS384`, `RS512` for an RSA key pair.
+
+> Which of them a token is allowed to use follows the key you decode with: a PEM
+> key accepts the `RS*` family and nothing else, any other key accepts the `HS*`
+> family and nothing else. That is what stops someone who knows your public key
+> from signing a token with `HS256` using that key as the secret. Pass
+> `['algorithm' => 'RS256']` to `decode()` when a token should carry one
+> specific algorithm.
 
 <a id="encode-data"></a>
 

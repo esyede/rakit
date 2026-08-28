@@ -190,7 +190,7 @@ class Response
         $headers = array_merge([
             'Content-Type' => Storage::mime($path),
             'Content-Length' => Storage::size($path),
-            'Content-Disposition' => sprintf('inline; filename="%s"', basename($path)),
+            'Content-Disposition' => static::disposition('inline', basename($path)),
         ], $headers);
 
         return new static(file_get_contents($path), 200, $headers);
@@ -219,7 +219,7 @@ class Response
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
             'Content-Length' => Storage::size($path),
-            'Content-Disposition' => sprintf('attachment; filename="%s"', $name ?: basename($path)),
+            'Content-Disposition' => static::disposition('attachment', $name ?: basename($path)),
         ]));
 
         if (Config::get('session.driver')) {
@@ -313,6 +313,24 @@ class Response
                 isset($data['samesite']) ? $data['samesite'] : 'lax'
             ));
         }
+    }
+
+    /**
+     * Build a Content-Disposition header. The name often comes from the request,
+     * so anything that could end the quoted string or start a new header line is
+     * taken out of it first.
+     *
+     * @param string $type
+     * @param string $name
+     *
+     * @return string
+     */
+    protected static function disposition($type, $name)
+    {
+        $name = str_replace(["\r", "\n", "\0", '"', '\\'], '', (string) $name);
+        $name = basename($name);
+
+        return sprintf('%s; filename="%s"', $type, ('' === $name) ? 'download' : $name);
     }
 
     /**
