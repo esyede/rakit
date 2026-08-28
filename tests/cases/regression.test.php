@@ -523,10 +523,15 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         $file = ['tmp_name' => $svg, 'name' => 'probe.svg', 'size' => filesize($svg), 'error' => 0];
 
+        $recognised = \System\Storage::is('svg', $svg);
         $strict = Validator::make(['berkas' => $file], ['berkas' => 'image'])->passes();
         $lenient = Validator::make(['berkas' => $file], ['berkas' => 'image:allow_svg'])->passes();
 
         unlink($svg);
+
+        if (! $recognised) {
+            $this->markTestSkipped('This system does not identify the file as an SVG.');
+        }
 
         $this->assertFalse($strict);
         $this->assertTrue($lenient);

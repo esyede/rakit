@@ -670,6 +670,7 @@ class Upload extends \SplFileInfo
         'image/png' => ['png'],
         'image/prs.btif' => ['btif'],
         'image/sgi' => ['sgi'],
+        'image/svg' => ['svg', 'svgz'],
         'image/svg+xml' => ['svg', 'svgz'],
         'image/tiff' => ['tiff', 'tif'],
         'image/vnd.adobe.photoshop' => ['psd'],

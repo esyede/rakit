@@ -42,6 +42,20 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
         return self::$table_prefix . $name;
     }
 
+    /**
+     * Skip the test when the SQLite library is older than an operation needs.
+     *
+     * @param string $minimum
+     */
+    private function needsSQLite($minimum)
+    {
+        $version = Database::connection()->pdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
+
+        if (version_compare($version, $minimum, '<')) {
+            $this->markTestSkipped(sprintf('Needs SQLite %s or newer, %s given.', $minimum, $version));
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Schema::create() and Schema::tables()
     // -------------------------------------------------------------------------
@@ -690,6 +704,8 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testDropColumnRemovesColumnOnSQLite()
     {
+        $this->needsSQLite('3.35.0');
+
         $name = $this->table('droppable');
 
         Schema::create($name, function ($table) {
@@ -713,6 +729,8 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
      */
     public function testRenameColumnRenamesColumnOnSQLite()
     {
+        $this->needsSQLite('3.25.0');
+
         $name = $this->table('renamable');
 
         Schema::create($name, function ($table) {
