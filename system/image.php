@@ -133,13 +133,17 @@ class Image
         }
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG: $this->image = imagecreatefromjpeg($path);
+            case IMAGETYPE_JPEG:
+                $this->image = imagecreatefromjpeg($path);
                 break;
-            case IMAGETYPE_PNG:  $this->image = imagecreatefrompng($path);
+            case IMAGETYPE_PNG:
+                $this->image = imagecreatefrompng($path);
                 break;
-            case IMAGETYPE_GIF:  $this->image = imagecreatefromgif($path);
+            case IMAGETYPE_GIF:
+                $this->image = imagecreatefromgif($path);
                 break;
-            default:             throw new \Exception('Attempting to load unsupported image type.');
+            default:
+                throw new \Exception('Attempting to load unsupported image type.');
         }
 
         return $this;
@@ -438,13 +442,17 @@ class Image
 
         switch ($extension) {
             case 'jpg':
-            case 'jpeg': $watermark = imagecreatefromjpeg($watermark);
+            case 'jpeg':
+                $watermark = imagecreatefromjpeg($watermark);
                 break;
-            case 'png':  $watermark = imagecreatefrompng($watermark);
+            case 'png':
+                $watermark = imagecreatefrompng($watermark);
                 break;
-            case 'gif':  $watermark = imagecreatefromgif($watermark);
+            case 'gif':
+                $watermark = imagecreatefromgif($watermark);
                 break;
-            default:     throw new \Exception('Only png, jpg and gif images are supported');
+            default:
+                throw new \Exception('Only png, jpg and gif images are supported');
         }
 
         imagealphablending($this->image, true);
@@ -505,7 +513,6 @@ class Image
                 break;
 
             case 'gif':
-                // imagegif() takes no quality, GIF has no such knob.
                 if (! imagegif($this->image, $this->path)) {
                     throw new \Exception('The GIF file could not be saved.');
                 }
@@ -555,13 +562,17 @@ class Image
         $type = null;
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG: $type = 'image/jpeg';
+            case IMAGETYPE_JPEG:
+                $type = 'image/jpeg';
                 break;
-            case IMAGETYPE_PNG:  $type = 'image/png';
+            case IMAGETYPE_PNG:
+                $type = 'image/png';
                 break;
-            case IMAGETYPE_GIF:  $type = 'image/gif';
+            case IMAGETYPE_GIF:
+                $type = 'image/gif';
                 break;
-            default:             throw new \Exception('Only jpg, png and gif image are supported');
+            default:
+                throw new \Exception('Only jpg, png and gif image are supported');
         }
 
         return [
@@ -761,7 +772,7 @@ class Image
      */
     public function path($path)
     {
-        return path('base').str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
+        return path('base') . str_replace(['/', '\\'], DS, ltrim(ltrim($path, '/'), '\\'));
     }
 
     /**

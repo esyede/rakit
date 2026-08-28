@@ -643,7 +643,7 @@ if (! function_exists('old')) {
      *
      * @return mixed
      */
-    function old($key, $default = null)
+    function old($key = null, $default = null)
     {
         return \System\Input::old($key, $default);
     }
@@ -884,7 +884,7 @@ if (! function_exists('yield_section')) {
      *
      * @return string
      */
-    function yield_section($section)
+    function yield_section($section = null)
     {
         return \System\Section::yield_section($section);
     }

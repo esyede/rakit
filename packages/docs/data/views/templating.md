@@ -337,7 +337,7 @@ For example, if your application uses the `'master'` view to provide a consisten
 		@section('navigation')
 			<li><a href="home">Home</a></li>
 			<li><a href="profile">Profile</a></li>
-		@endsection
+		@show
 	</ul>
 
 	<div class="content">
@@ -345,6 +345,9 @@ For example, if your application uses the `'master'` view to provide a consisten
 	</div>
 </html>
 ```
+
+`@show` closes the section and prints it in place, which is what a layout wants:
+`@endsection` only defines a section, it does not print one.
 
 Notice the `'content'` section that is yielded. We need to fill this section with some text, so let's create another view that uses this one:
 
@@ -388,7 +391,8 @@ class User_Controller extends Controller
 Sometimes you may only want to add something to a layout section rather than overriding it.
 For example, consider the navigation list in the `master` layout [above](#blade-layout).
 
-Suppose we just want to add a `Contact` link to that navigation list. Here's how:
+Suppose we just want to add a `Contact` link to that navigation list. `@parent` stands for
+whatever the layout put in that section, so this keeps the two existing links and adds one:
 
 ```blade
 @layout('master')

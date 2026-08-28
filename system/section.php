@@ -114,7 +114,13 @@ class Section
      */
     public static function yield_content($section)
     {
-        return isset(static::$sections[$section]) ? static::$sections[$section] : '';
+        if (! isset(static::$sections[$section])) {
+            return '';
+        }
+
+        // Any '@parent' still standing had no parent content to take, so it
+        // drops out rather than being printed to the page as text.
+        return str_replace('@parent', '', static::$sections[$section]);
     }
 
     /**

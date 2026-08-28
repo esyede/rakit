@@ -1457,6 +1457,89 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     }
 
     // -------------------------------------------------------------------------
+    // T19, S18: blade sections
+    // -------------------------------------------------------------------------
+
+    /**
+     * @show ends the section and prints it, instead of raising.
+     *
+     * @group system
+     */
+    public function testT19ShowEndsAndPrintsTheSection()
+    {
+        $this->assertEquals('Home', $this->blade("@section('nav')Home@show"));
+    }
+
+    /**
+     * A child section inherits what the layout put there.
+     *
+     * @group system
+     */
+    public function testT19ParentInheritsTheLayoutSection()
+    {
+        \System\Section::$sections = [];
+
+        // The child runs first, then the layout, which is the order @layout
+        // compiles to.
+        $this->blade("@section('nav')@parent<li>Kontak</li>@endsection");
+        $out = $this->blade("@section('nav')<li>Home</li>@show");
+
+        \System\Section::$sections = [];
+
+        $this->assertEquals('<li>Home</li><li>Kontak</li>', $out);
+    }
+
+    /**
+     * A @parent with nothing to inherit drops out of the page.
+     *
+     * @group system
+     */
+    public function testS18StrayParentDoesNotReachThePage()
+    {
+        \System\Section::$sections = [];
+
+        $this->blade("@section('nav')@parent<li>Kontak</li>@endsection");
+        $out = \System\Section::yield_content('nav');
+
+        \System\Section::$sections = [];
+
+        $this->assertEquals('<li>Kontak</li>', trim($out));
+        $this->assertNotContains('@parent', $out);
+    }
+
+    /**
+     * Two directives on one line are compiled one at a time.
+     *
+     * @group system
+     */
+    public function testS18DirectivesShareALineCleanly()
+    {
+        $this->assertEquals(
+            '<?php echo yield_content("a") ?><?php echo yield_content("b") ?>',
+            Blade::translate('@yield("a")@yield("b")')
+        );
+
+        $this->assertEquals(
+            '<?php section_start("nav") ?>Home<?php echo yield_section() ?>',
+            Blade::translate('@section("nav")Home@show')
+        );
+    }
+
+    /**
+     * A malformed forelse is left alone instead of raising a warning and
+     * emitting count() with nothing in it.
+     *
+     * @group system
+     */
+    public function testS18MalformedForelseIsLeftAlone()
+    {
+        $compiled = Blade::translate('@forelse($a)x@endforelse');
+
+        $this->assertContains('@forelse($a)', $compiled);
+        $this->assertNotContains('count()', $compiled);
+    }
+
+    // -------------------------------------------------------------------------
     // K9: the Host header decides generated URLs
     // -------------------------------------------------------------------------
 

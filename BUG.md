@@ -10,6 +10,7 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran keempat** (Facile, Carbon, Image, memcached, console): 2026-08-28.
 - **Putaran kelima** (Image, Curl, WebSocket — menutup daftar): 2026-08-28.
 - **Putaran keenam** (Blade, Foundation HTTP, Debugger — menyisir yang paling dangkal): 2026-08-28.
+- **Putaran ketujuh** (menyapu dokumentasi terhadap kode secara sistematis): 2026-08-28.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
@@ -20,12 +21,12 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 9 | 9 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 18 | 18 | 0 |
-| [Sedang](#sedang) | 16 | 16 | 0 |
-| [Rendah / pengerasan](#rendah--pengerasan) | 11 | 11 | 0 |
-| **Total** | **54** | **54** | **0** |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 19 | 19 | 0 |
+| [Sedang](#sedang) | 18 | 18 | 0 |
+| [Rendah / pengerasan](#rendah--pengerasan) | 12 | 12 | 0 |
+| **Total** | **58** | **58** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2142 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2147 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -741,6 +742,34 @@ dikompilasi menjadi `<?php endforeach; ?><?php else: ?>($x) kosong @endempty` �
 dikompilasi menjadi `if (empty(..))`, sementara `@empty` telanjang tetap jadi pemisah
 `@forelse`. `@endempty` ditambahkan sebagai penutupnya.
 
+### T19. `@show` fatal setiap kali dipakai
+
+- [x] Selesai
+
+Ditemukan di putaran ketujuh, lewat penyapuan dokumentasi. `@show` dikompilasi menjadi
+`<?php echo yield_section() ?>` — tanpa argumen. `Section::yield_section($section = null)`
+memang menerima nol argumen, tapi **helper global** pembungkusnya tidak:
+
+```php
+function yield_section($section)          // wajib satu argumen
+{
+    return \System\Section::yield_section($section);
+}
+```
+
+Jadi layout mana pun yang memakai `@show`:
+
+```
+ArgumentCountError: Too few arguments to function yield_section(), 0 passed
+```
+
+`@show` adalah cara sebuah layout mencetak sectionnya sendiri, dan tanpa itu `@parent` tidak
+punya apa-apa untuk diwarisi — jadi ini mematahkan pewarisan layout secara keseluruhan.
+
+**Yang dikerjakan**: tanda tangan helper-nya diselaraskan dengan method yang dibungkusnya.
+Seluruh helper penerus di `system/helpers.php` juga diperiksa dengan pola yang sama;
+`old()` satu-satunya yang lain, dan ikut diselaraskan.
+
 ---
 
 ## Sedang
@@ -1012,6 +1041,45 @@ argumen kualitas dilepas dari `imagegif()` yang memang tidak punya parameter itu
 Sekalian seluruh panggilan fungsi bawaan PHP di `system/` diperiksa jumlah argumennya terhadap
 tanda tangan aslinya. `imagegif()` satu-satunya yang salah.
 
+### S18. Dua direktif Blade dalam satu baris saling menelan
+
+- [x] Selesai
+
+`Blade::matcher()` — pola bersama untuk **13 direktif** (`@section`, `@yield`, `@include`,
+`@push`, `@stack`, `@inject`, `@error`, dan seterusnya) — memakai `(\s*\(.*\))`. `.*` yang
+rakus menelan sampai kurung tutup terakhir di baris itu, termasuk PHP yang baru saja
+dihasilkan direktif sebelumnya:
+
+```
+@section("nav")Home@show
+=> <?php section_start("nav")Home<?php echo yield_section() ?> ?>     (parse error)
+
+@yield("a")@yield("b")
+=> hanya satu yang terkompilasi, sisanya tertelan
+```
+
+Ini penyebab sebenarnya kenapa `@section(..)@show` — bentuk yang dipakai layout — tidak bisa
+dipakai dalam satu baris.
+
+**Yang dikerjakan**: `matcher()` dan `@unless` memakai pencocokan kurung berpasangan yang sama
+dengan yang sudah dipakai `@if`, `@foreach` dan `@forelse`. Ketiga belas direktif itu ikut
+terperbaiki sekaligus.
+
+### S19. `@parent` tercetak apa adanya ke halaman
+
+- [x] Selesai
+
+`Section::extend()` mengganti `@parent` dengan isi induknya hanya kalau sectionnya memang
+diperluas. Kalau tidak ada yang diwarisi, `@parent` tetap tinggal di dalam isinya dan
+**tercetak sebagai teks** di halaman:
+
+```
+<ul class="navigation">@parent <li>Kontak</li></ul>
+```
+
+**Yang dikerjakan**: `Section::yield_content()` membuang `@parent` yang masih tersisa saat
+sectionnya dicetak.
+
 ---
 
 ## Rendah / pengerasan
@@ -1172,6 +1240,22 @@ sehingga tidak sampai jadi response splitting.
 miring terbalik, lalu mengambil `basename()`-nya, dan memakai `download` kalau yang tersisa
 kosong.
 
+### R12. `@forelse` yang salah bentuk melempar warning dan menghasilkan `count()` kosong
+
+- [x] Selesai
+
+`compile_forelse()` membaca `$variables[1]` tanpa memeriksa apakah regexnya cocok. Untuk
+`@forelse($a)` — tanpa `as` — regexnya gagal, lalu:
+
+```
+PHP Warning: Undefined array key 1 in system/blade.php on line 379
+```
+
+dan kode yang dihasilkan memuat `count()` tanpa isi, yang jadi syntax error saat dirender.
+
+**Yang dikerjakan**: direktif yang tidak bisa dibaca dilewati begitu saja, sehingga tetap
+terlihat sebagai `@forelse` yang tidak terkompilasi — sama seperti perlakuan `@foreach`.
+
 ---
 
 ## Dokumentasi yang ikut diperbarui
@@ -1191,6 +1275,7 @@ kosong.
 | `packages/docs/data/image.md` | `dump()` mengembalikan Response |
 | `application/config/websocket.php` | Opsi baru: `max_payload_size` |
 | `application/config/application.php` | Opsi baru: `trusted_hosts` |
+| `packages/docs/data/views/templating.md` | Layout memakai `@show`, penjelasan `@parent` |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -1265,4 +1350,19 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
 Kosong.
 
 Yang tidak berarti framework ini bebas bug — hanya berarti setiap bagian sudah pernah dilihat,
-dan setiap temuan yang muncul sudah ditutup berikut testnya. Enam putaran, 53 temuan.
+dan setiap temuan yang muncul sudah ditutup berikut testnya. Tujuh putaran, 58 temuan.
+
+## Penyapuan otomatis yang sudah dijalankan
+
+Selain membaca kode, beberapa kelas bug disapu menyeluruh dengan skrip. Yang bersih dicatat di
+sini supaya tidak diulang tanpa alasan:
+
+| Sapuan | Cakupan | Hasil |
+|---|---|---|
+| Jumlah argumen ke fungsi bawaan PHP | 8.279 panggilan di `system/` | 1 temuan (`imagegif`) |
+| `Kelas::metode()` di dokumentasi vs kode | 506 referensi unik | bersih |
+| Nama aturan validasi di dokumentasi vs `validate_*` | 56 halaman | bersih |
+| Direktif `@` di dokumentasi vs kompiler Blade | 56 halaman | 4 temuan |
+| Kunci `Config::get()` vs berkas konfigurasi bawaan | 40 kunci | bersih |
+| Penerusan facade `__callStatic` ke objek tujuan | seluruh facade | bersih |
+| Helper penerus vs tanda tangan method tujuannya | 24 helper | 2 temuan |
