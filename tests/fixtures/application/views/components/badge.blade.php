@@ -1,0 +1,1 @@
+<span class="badge-{{ $colour }}" {{ $attributes }}>{{ $label }}{{ $slot }}</span>

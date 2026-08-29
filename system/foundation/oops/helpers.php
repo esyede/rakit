@@ -6,6 +6,13 @@ defined('DS') or exit('No direct access.');
 
 class Helpers
 {
+    /**
+     * Format a string with HTML-escaped arguments.
+     *
+     * @param string $mask
+     *
+     * @return string
+     */
     public static function formatHtml($mask)
     {
         $args = func_get_args();
@@ -15,6 +22,13 @@ class Helpers
         }, $mask);
     }
 
+    /**
+     * Escape a string for HTML output.
+     *
+     * @param string $s
+     *
+     * @return string
+     */
     public static function escapeHtml($s)
     {
         return htmlspecialchars((string) $s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -76,7 +90,7 @@ class Helpers
         if (! $isAbsolute && function_exists('path')) {
             $base = path('base');
             if ($base) {
-                $path = rtrim(str_replace('\\', '/', $base), '/').'/'.ltrim($path, '/');
+                $path = rtrim(str_replace('\\', '/', $base), '/') . '/' . ltrim($path, '/');
             }
         }
 
@@ -87,6 +101,15 @@ class Helpers
         return str_replace(['%file%', '%line%'], [$encoded, $line], $template);
     }
 
+    /**
+     * Find a stack trace item by method name.
+     *
+     * @param array  $trace
+     * @param string $method
+     * @param int    $index
+     *
+     * @return array|null
+     */
     public static function findTrace(array $trace, $method, &$index = null)
     {
         $m = explode('::', $method);
@@ -202,10 +225,10 @@ class Helpers
     {
         if (isset($_SERVER['REQUEST_URI'])) {
             return (! empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'off') ? 'https://' : 'http://')
-                .(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '').$_SERVER['REQUEST_URI'];
+                . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '') . $_SERVER['REQUEST_URI'];
         }
 
-        return 'CLI (PID: '.getmypid().')'.(empty($_SERVER['argv']) ? '' : ': '.implode(' ', $_SERVER['argv']));
+        return 'CLI (PID: ' . getmypid() . ')' . (empty($_SERVER['argv']) ? '' : ': ' . implode(' ', $_SERVER['argv']));
     }
 
     /**
@@ -224,7 +247,7 @@ class Helpers
             // ..
         } elseif (preg_match('#^Call to undefined function (\S+\\\\)?(\w+)\(#', $message, $m)) {
             $funcs = array_merge(get_defined_functions()['internal'], get_defined_functions()['user']);
-            $hint = self::getSuggestion($funcs, $m[1].$m[2]);
+            $hint = self::getSuggestion($funcs, $m[1] . $m[2]);
             $hint = $hint ?: self::getSuggestion($funcs, $m[2]);
             $message = "Call to undefined function $m[2](), did you mean $hint()?";
             $replace = ["$m[2](", "$hint("];
@@ -291,7 +314,7 @@ class Helpers
             );
 
             $hint = self::getSuggestion($items, $m[2]);
-            return $hint ? $message.", did you mean $$hint?" : $message;
+            return $hint ? $message . ", did you mean $$hint?" : $message;
         }
 
         return $message;
@@ -309,9 +332,10 @@ class Helpers
         $segments = explode('\\', $class);
         $res = null;
         $max = 0;
+        $i = 0;
 
-        foreach (get_declared_classes() as $class) {
-            $parts = explode('\\', $class);
+        foreach (get_declared_classes() as $declared_class) {
+            $parts = explode('\\', $declared_class);
 
             foreach ($parts as $i => $part) {
                 if (! isset($segments[$i]) || $part !== $segments[$i]) {
@@ -319,13 +343,13 @@ class Helpers
                 }
             }
 
-            if ($i > $max && ($file = (new \ReflectionClass($class))->getFileName())) {
+            if ($i > $max && ($file = (new \ReflectionClass($declared_class))->getFileName())) {
                 $max = $i;
                 $res = array_merge(
                     array_slice(explode(DIRECTORY_SEPARATOR, $file), 0, $i - count($parts)),
                     array_slice($segments, $i)
                 );
-                $res = implode(DIRECTORY_SEPARATOR, $res).'.php';
+                $res = implode(DIRECTORY_SEPARATOR, $res) . '.php';
             }
         }
 
@@ -379,6 +403,7 @@ class Helpers
         return preg_match(
             '#^Content-Security-Policy(?:-Report-Only)?:.*\sscript-src\s+(?:[^;]+\s)?\'nonce-([\w+/]+=*)\'#mi',
             implode("\n", headers_list()),
-            $matches) ? $matches[1] : null;
+            $matches
+        ) ? $matches[1] : null;
     }
 }

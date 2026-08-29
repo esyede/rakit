@@ -27,6 +27,33 @@ abstract class Model implements \JsonSerializable
     public $original = [];
 
     /**
+     * Contains the models whose boot() has already run.
+     *
+     * @var array
+     */
+    protected static $booted = [];
+
+    /**
+     * The events a model fires as it goes through its life.
+     *
+     * @var array
+     */
+    protected static $events = [
+        'retrieved',
+        'creating',
+        'created',
+        'updating',
+        'updated',
+        'saving',
+        'saved',
+        'deleting',
+        'deleted',
+        'restoring',
+        'restored',
+        'replicating',
+    ];
+
+    /**
      * Contains loaded relationships of the model.
      *
      * @var array
@@ -214,12 +241,99 @@ abstract class Model implements \JsonSerializable
      */
     public function __construct(array $attributes = [], $exists = false)
     {
+        $this->boot_if_not_booted();
+
         $this->exists = $exists;
         $this->fill($attributes);
 
         if ($exists) {
             $this->original = $this->attributes;
         }
+    }
+
+    /**
+     * Run boot() the first time a model of this class is made.
+     *
+     * @return void
+     */
+    protected function boot_if_not_booted()
+    {
+        $class = get_class($this);
+
+        if (! isset(static::$booted[$class])) {
+            static::$booted[$class] = true;
+            static::boot();
+        }
+    }
+
+    /**
+     * Register whatever the model needs registering once. Override it to
+     * listen for the events of the model itself.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        // ..
+    }
+
+    /**
+     * Register an observer. Every method of it named after an event is
+     * listened for, and the rest are left alone.
+     *
+     * @param object|string $observer
+     *
+     * @return void
+     */
+    public static function observe($observer)
+    {
+        $instance = is_string($observer) ? new $observer() : $observer;
+        $model = get_called_class();
+
+        foreach (static::$events as $event) {
+            if (! method_exists($instance, $event)) {
+                continue;
+            }
+
+            Hook::listen('facile.' . $event . ': ' . $model, function ($subject) use ($instance, $event) {
+                return call_user_func([$instance, $event], $subject);
+            });
+        }
+    }
+
+    /**
+     * Fire one of the events of the model. An event that may be called off is
+     * called off when any of its listeners answers with FALSE.
+     *
+     * @param string $event
+     * @param bool   $cancellable
+     *
+     * @return bool
+     */
+    protected function fire_model_event($event, $cancellable = false)
+    {
+        $events = ['facile.' . $event, 'facile.' . $event . ': ' . get_class($this)];
+
+        // Firing an event nobody listens for still costs a walk through the
+        // hook, and a line in the debug bar, for every row of every result.
+        if (! Hook::exists($events[0]) && ! Hook::exists($events[1])) {
+            return true;
+        }
+
+        $responses = (array) Hook::fire($events, [$this]);
+
+        return $cancellable ? ! in_array(false, $responses, true) : true;
+    }
+
+    /**
+     * Announce that the model has just come back from the database. The query
+     * that hydrated it is the only caller that can know.
+     *
+     * @return void
+     */
+    public function fire_retrieved()
+    {
+        $this->fire_model_event('retrieved');
     }
 
     /**
@@ -954,6 +1068,7 @@ abstract class Model implements \JsonSerializable
 
         $clone = new static();
         $clone->fill_raw($attributes);
+        $clone->fire_model_event('replicating');
 
         return $clone;
     }
@@ -1489,6 +1604,10 @@ abstract class Model implements \JsonSerializable
             return true;
         }
 
+        if (! $this->fire_model_event('saving', true)) {
+            return false;
+        }
+
         if (static::$timestamps) {
             if (! $this->exists) {
                 $this->created_at = Carbon::now()->format('Y-m-d H:i:s');
@@ -1497,9 +1616,11 @@ abstract class Model implements \JsonSerializable
             $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
         }
 
-        Hook::fire(['facile.saving', 'facile.saving: ' . get_class($this)], [$this]);
-
         if ($this->exists) {
+            if (! $this->fire_model_event('updating', true)) {
+                return false;
+            }
+
             $dirty = $this->get_dirty();
             $query = $this->query()->where(static::$key, '=', $this->get_key());
 
@@ -1510,9 +1631,13 @@ abstract class Model implements \JsonSerializable
             $result = true;
 
             if ($result) {
-                Hook::fire(['facile.updated', 'facile.updated: ' . get_class($this)], [$this]);
+                $this->fire_model_event('updated');
             }
         } else {
+            if (! $this->fire_model_event('creating', true)) {
+                return false;
+            }
+
             $id = $this->query()->insert_get_id($this->attributes, $this->key());
             $this->set_key($id);
             $key = $this->get_key();
@@ -1520,7 +1645,7 @@ abstract class Model implements \JsonSerializable
             $this->exists = $result;
 
             if ($result) {
-                Hook::fire(['facile.created', 'facile.created: ' . get_class($this)], [$this]);
+                $this->fire_model_event('created');
             }
         }
 
@@ -1528,7 +1653,7 @@ abstract class Model implements \JsonSerializable
         $this->original = $this->attributes;
 
         if ($result) {
-            Hook::fire(['facile.saved', 'facile.saved: ' . get_class($this)], [$this]);
+            $this->fire_model_event('saved');
         }
 
         return $result;
@@ -1542,7 +1667,9 @@ abstract class Model implements \JsonSerializable
     public function delete()
     {
         if ($this->exists) {
-            Hook::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+            if (! $this->fire_model_event('deleting', true)) {
+                return false;
+            }
 
             if (static::$soft_delete) { // Soft delete
                 $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
@@ -1550,11 +1677,11 @@ abstract class Model implements \JsonSerializable
                     ->where(static::$key, '=', $this->get_key())
                     ->update(['deleted_at' => $this->deleted_at]);
                 $this->exists = false;
-                Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+                $this->fire_model_event('deleted');
             } else { // Hard delete
                 $this->query()->where(static::$key, '=', $this->get_key())->delete();
                 $this->exists = false;
-                Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+                $this->fire_model_event('deleted');
             }
 
             return true;
@@ -1577,11 +1704,16 @@ abstract class Model implements \JsonSerializable
             return false;
         }
 
+        if (! $this->fire_model_event('restoring', true)) {
+            return false;
+        }
+
         $result = $this->query(true)->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
 
         if ($result) {
             $this->deleted_at = null;
             $this->exists = true;
+            $this->fire_model_event('restored');
 
             return true;
         }
@@ -1597,9 +1729,12 @@ abstract class Model implements \JsonSerializable
     public function force_delete()
     {
         if ($this->exists || ! is_null($this->deleted_at)) {
-            Hook::fire(['facile.deleting', 'facile.deleting: ' . get_class($this)], [$this]);
+            if (! $this->fire_model_event('deleting', true)) {
+                return false;
+            }
+
             $result = $this->query(true)->where(static::$key, '=', $this->get_key())->delete();
-            Hook::fire(['facile.deleted', 'facile.deleted: ' . get_class($this)], [$this]);
+            $this->fire_model_event('deleted');
 
             return $result;
         }
@@ -1775,6 +1910,18 @@ abstract class Model implements \JsonSerializable
     public static function __callStatic($method, array $parameters)
     {
         $instance = new static();
+
+        // An event name handed a closure is a listener being registered, which
+        // is not something the query builder could make sense of anyway.
+        if (1 === count($parameters)
+            && isset($parameters[0])
+            && $parameters[0] instanceof \Closure
+            && in_array($method, static::$events, true)) {
+            Hook::listen('facile.' . $method . ': ' . get_class($instance), $parameters[0]);
+
+            return;
+        }
+
         $query = $instance->query();
         $scope = 'scope_' . $method;
 

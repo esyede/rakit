@@ -41,84 +41,84 @@ class Panic
      * @var array
      */
     public $keysToHide = [
-      '2fa',
-      '2fa_code',
-      '2fa_pin',
-      '2fa_token',
-      '_csrf',
-      'acc_number',
-      'access_token',
-      'account_bank_number',
-      'account_number',
-      'account_routing_number',
-      'api_key',
-      'api_token',
-      'auth_token',
-      'bank_acc',
-      'bank_acc_num',
-      'bank_acc_number',
-      'bank_account',
-      'bank_account_num',
-      'bank_account_number',
-      'card_cvv',
-      'card_num',
-      'card_number',
-      'cc_num',
-      'cc_number',
-      'cert',
-      'certificate',
-      'confirm_passwd',
-      'confirm_password',
-      'credentials',
-      'credit_card',
-      'credit_card_num',
-      'credit_card_number',
-      'creds',
-      'csrf',
-      'cvv',
-      'dsn',
-      'issuer_certificate',
-      'key',
-      'mysql_pwd',
-      'new_password',
-      'old_password',
-      'otp',
-      'otp_code',
-      'otp_pin',
-      'otp_token',
-      'passwd',
-      'passwd_confirm',
-      'password',
-      'password1',
-      'password2',
-      'password_confirm',
-      'pin',
-      'private_key',
-      'pwd',
-      'raw',
-      'repeat_password',
-      'routing_acc',
-      'routing_acc_num',
-      'routing_acc_number',
-      'routing_account_number',
-      'routing_number',
-      'salt',
-      'secret',
-      'security_code',
-      'security_pin',
-      'security_token',
-      'social_security_num',
-      'social_security_number',
-      'ssn',
-      'stripe_token',
-      'token',
-      'totp',
-      'totp_code',
-      'totp_pin',
-      'totp_token',
-      'two_factor_code',
-      'two_factor_pin',
-      'two_factor_token',
+        '2fa',
+        '2fa_code',
+        '2fa_pin',
+        '2fa_token',
+        '_csrf',
+        'acc_number',
+        'access_token',
+        'account_bank_number',
+        'account_number',
+        'account_routing_number',
+        'api_key',
+        'api_token',
+        'auth_token',
+        'bank_acc',
+        'bank_acc_num',
+        'bank_acc_number',
+        'bank_account',
+        'bank_account_num',
+        'bank_account_number',
+        'card_cvv',
+        'card_num',
+        'card_number',
+        'cc_num',
+        'cc_number',
+        'cert',
+        'certificate',
+        'confirm_passwd',
+        'confirm_password',
+        'credentials',
+        'credit_card',
+        'credit_card_num',
+        'credit_card_number',
+        'creds',
+        'csrf',
+        'cvv',
+        'dsn',
+        'issuer_certificate',
+        'key',
+        'mysql_pwd',
+        'new_password',
+        'old_password',
+        'otp',
+        'otp_code',
+        'otp_pin',
+        'otp_token',
+        'passwd',
+        'passwd_confirm',
+        'password',
+        'password1',
+        'password2',
+        'password_confirm',
+        'pin',
+        'private_key',
+        'pwd',
+        'raw',
+        'repeat_password',
+        'routing_acc',
+        'routing_acc_num',
+        'routing_acc_number',
+        'routing_account_number',
+        'routing_number',
+        'salt',
+        'secret',
+        'security_code',
+        'security_pin',
+        'security_token',
+        'social_security_num',
+        'social_security_number',
+        'ssn',
+        'stripe_token',
+        'token',
+        'totp',
+        'totp_code',
+        'totp_pin',
+        'totp_token',
+        'two_factor_code',
+        'two_factor_pin',
+        'two_factor_token',
     ];
 
     /**
@@ -184,7 +184,7 @@ class Panic
                 // ..
             });
 
-            $this->renderTemplate($e, __DIR__.'/assets/panic/content.phtml');
+            $this->renderTemplate($e, __DIR__ . '/assets/panic/content.phtml');
             $contentId = $_SERVER['HTTP_X_OOPS_AJAX'];
             $_SESSION['_oops']['panic'][$contentId] = [
                 'content' => ob_get_clean(),
@@ -192,7 +192,7 @@ class Panic
                 'time' => time(),
             ];
         } else {
-            $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml');
+            $this->renderTemplate($e, __DIR__ . '/assets/panic/page.phtml');
         }
     }
 
@@ -208,12 +208,12 @@ class Panic
     {
         $base = basename($file);
         $dir = substr_replace($file, '', strrpos($file, $base), strlen($base));
-        $dir = ('' === $dir) ? '.'.DIRECTORY_SEPARATOR : $dir;
-        $file = $dir.$base;
+        $dir = ('' === $dir) ? '.' . DIRECTORY_SEPARATOR : $dir;
+        $file = $dir . $base;
 
         if (! is_dir($dir)) {
             mkdir($dir, 0755, true);
-            file_put_contents($dir.'index.html', 'No direct access.');
+            file_put_contents($dir . 'index.html', 'No direct access.');
         }
 
         if (! is_file($file)) {
@@ -223,7 +223,7 @@ class Panic
                 ob_start(function ($buffer) use ($handle) {
                     fwrite($handle, $buffer);
                 }, 4096);
-                $this->renderTemplate($e, __DIR__.'/assets/panic/page.phtml', false);
+                $this->renderTemplate($e, __DIR__ . '/assets/panic/page.phtml', false);
                 ob_end_flush();
                 ob_end_clean();
                 fclose($handle);
@@ -231,6 +231,15 @@ class Panic
         }
     }
 
+    /**
+     * Render the template for the panic page.
+     *
+     * @param \Throwable|\Exception $e
+     * @param string                $template
+     * @param bool                  $toScreen
+     *
+     * @return void
+     */
     private function renderTemplate($e, $template, $toScreen = true)
     {
         $messageHtml = preg_replace(
@@ -263,7 +272,7 @@ class Panic
         };
 
         $css = array_map('file_get_contents', [
-            __DIR__.DS.'assets'.DS.'panic'.DS.'panic.css',
+            __DIR__ . DS . 'assets' . DS . 'panic' . DS . 'panic.css',
         ]);
 
         $css = preg_replace('#\s+#u', ' ', implode('', $css));
@@ -339,11 +348,11 @@ class Panic
             $class = $m[2];
         }
 
-        $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex).' ')
-            .preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
+        $query = (($ex instanceof \ErrorException) ? '' : Helpers::getClass($ex) . ' ')
+            . preg_replace('#\'.*\'|".*"#Us', '', $ex->getMessage());
 
         $actions[] = [
-            'link' => 'https://www.google.com/search?sourceid=rakit_framework&q='.urlencode($query),
+            'link' => 'https://www.google.com/search?sourceid=rakit_framework&q=' . urlencode($query),
             'label' => 'search',
             'external' => true,
         ];
@@ -353,7 +362,7 @@ class Panic
             && preg_match('#^https?://#', $source = Helpers::getSource())
         ) {
             $actions[] = [
-                'link' => $source.(strpos($source, '?') ? '&' : '?').'_oops_skip_error',
+                'link' => $source . (strpos($source, '?') ? '&' : '?') . '_oops_skip_error',
                 'label' => 'skip error',
             ];
         }
@@ -371,29 +380,29 @@ class Panic
     public static function toMarkdown($e)
     {
         $nl = "\n";
-        $out = '# '.Helpers::getClass($e).($e->getCode() ? ' #'.$e->getCode() : '').$nl.$nl;
-        $out .= '**Message:** '.trim((string) $e->getMessage()).$nl;
+        $out = '# ' . Helpers::getClass($e) . ($e->getCode() ? ' #' . $e->getCode() : '') . $nl . $nl;
+        $out .= '**Message:** ' . trim((string) $e->getMessage()) . $nl;
 
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : '';
         $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        $req = trim($method.' '.$uri);
+        $req = trim($method . ' ' . $uri);
 
         if ('' !== $req) {
-            $out .= '**Request:** '.$req.$nl;
+            $out .= '**Request:** ' . $req . $nl;
         }
 
-        $out .= '**Location:** '.$e->getFile().':'.$e->getLine().$nl;
-        $out .= '**PHP:** '.PHP_VERSION.$nl.$nl;
+        $out .= '**Location:** ' . $e->getFile() . ':' . $e->getLine() . $nl;
+        $out .= '**PHP:** ' . PHP_VERSION . $nl . $nl;
 
         $snippet = static::plainSnippet($e->getFile(), (int) $e->getLine(), 12);
 
         if (null !== $snippet) {
-            $out .= '## Source ('.basename($e->getFile()).':'.$e->getLine().')'.$nl;
-            $out .= '```php'.$nl.$snippet.$nl.'```'.$nl.$nl;
+            $out .= '## Source (' . basename($e->getFile()) . ':' . $e->getLine() . ')' . $nl;
+            $out .= '```php' . $nl . $snippet . $nl . '```' . $nl . $nl;
         }
 
-        $out .= '## Stack trace'.$nl;
-        $out .= '```'.$nl.$e->getTraceAsString().$nl.'```'.$nl;
+        $out .= '## Stack trace' . $nl;
+        $out .= '```' . $nl . $e->getTraceAsString() . $nl . '```' . $nl;
 
         // Chained (previous) exceptions
         $prev = $e->getPrevious();
@@ -401,9 +410,9 @@ class Panic
         $maxDepth = 5;
 
         while ($prev && $guard++ < $maxDepth) {
-            $out .= $nl.'## Caused by: '.Helpers::getClass($prev).$nl;
-            $out .= '**Message:** '.trim((string) $prev->getMessage()).$nl;
-            $out .= '**Location:** '.$prev->getFile().':'.$prev->getLine().$nl;
+            $out .= $nl . '## Caused by: ' . Helpers::getClass($prev) . $nl;
+            $out .= '**Message:** ' . trim((string) $prev->getMessage()) . $nl;
+            $out .= '**Location:** ' . $prev->getFile() . ':' . $prev->getLine() . $nl;
             $prev = $prev->getPrevious();
         }
 
@@ -441,7 +450,7 @@ class Panic
 
         for ($i = $start; $i <= $end; $i++) {
             $prefix = ($i === $line) ? '> ' : '  ';
-            $out[] = $prefix.$i.': '.$lines[$i - 1];
+            $out[] = $prefix . $i . ': ' . $lines[$i - 1];
         }
 
         return implode("\n", $out);
@@ -453,6 +462,7 @@ class Panic
      * @param string $file
      * @param int    $line
      * @param int    $lines
+     * @param array  $vars
      *
      * @return string|null
      */
@@ -469,6 +479,7 @@ class Panic
      * @param string $source
      * @param int    $line
      * @param int    $lines
+     * @param array  $vars
      *
      * @return string
      */
@@ -503,7 +514,7 @@ class Panic
         if (! empty($vars)) {
             $out = preg_replace_callback('#">\$(\w+)(&nbsp;)?</span>#', function ($m) use ($vars) {
                 return array_key_exists($m[1], $vars)
-                    ? '" title="'.str_replace('"', '&quot;', trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))).$m[0]
+                    ? '" title="' . str_replace('"', '&quot;', trim(strip_tags(Dumper::toHtml($vars[$m[1]], [Dumper::DEPTH => 1])))) . $m[0]
                     : $m[0];
             }, $out);
         }
@@ -523,7 +534,7 @@ class Panic
      */
     public static function highlightLine($html, $line, $lines = 15)
     {
-        $source = explode("\n", "\n".str_replace("\r\n", "\n", $html));
+        $source = explode("\n", "\n" . str_replace("\r\n", "\n", $html));
         $out = '';
         $spans = 1;
         $start = $i = max(1, min($line, count($source) - 1) - (int) floor($lines * 2 / 3));
@@ -555,7 +566,7 @@ class Panic
             }
         }
 
-        $out .= str_repeat('</span>', $spans).'</code>';
+        $out .= str_repeat('</span>', $spans) . '</code>';
         return $out;
     }
 
@@ -568,10 +579,10 @@ class Panic
      */
     public function isCollapsed($file)
     {
-        $file = strtr($file, '\\', '/').'/';
+        $file = strtr($file, '\\', '/') . '/';
 
         foreach ($this->collapsePaths as $path) {
-            $path = strtr($path, '\\', '/').'/';
+            $path = strtr($path, '\\', '/') . '/';
 
             if (0 === strncmp($file, $path, mb_strlen($path, '8bit'))) {
                 return true;

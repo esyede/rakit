@@ -48,6 +48,8 @@
 - [Working with Pivot Tables](#working-with-pivot-tables)
 - [Converting to Array & JSON](#converting-to-array--json)
 - [Global Scopes](#global-scopes)
+- [Model Events](#model-events)
+- [Observers](#observers)
 
 <!-- /MarkdownTOC -->
 
@@ -1322,3 +1324,134 @@ $all = User::with_trashed()->get(); // Including deleted
 
 $deleted = User::only_trashed()->get(); // Only deleted
 ```
+
+<a id="model-events"></a>
+
+## Model Events
+
+A model announces every step of its life, so work that belongs beside a save can
+live away from the code doing the saving:
+
+| Event | When |
+| --- | --- |
+| `retrieved` | A row has just been read into a model |
+| `saving` | Before a save of any kind |
+| `creating` | Before the insert |
+| `created` | After the insert |
+| `updating` | Before the update |
+| `updated` | After the update |
+| `saved` | After a save of any kind |
+| `deleting` | Before the delete |
+| `deleted` | After the delete |
+| `restoring` | Before a soft deleted row is brought back |
+| `restored` | After it is back |
+| `replicating` | On the copy made by `replicate()` |
+
+Listen for one by handing its name a closure. The model is handed to it:
+
+```php
+User::creating(function ($user) {
+    $user->uuid = Str::uuid();
+});
+
+User::deleted(function ($user) {
+    Log::info('Pengguna dihapus: ' . $user->id);
+});
+```
+
+The same listeners can be registered through `Hook`, which is what the model
+does underneath. Name the model to watch one of them, or leave it out to watch
+every model:
+
+```php
+Hook::listen('facile.creating: User', function ($user) {
+    // ..
+});
+
+Hook::listen('facile.creating', function ($model) {
+    // every model
+});
+```
+
+### Calling an Operation Off
+
+A listener of `saving`, `creating`, `updating`, `deleting` or `restoring` that
+answers with `FALSE` calls the operation off. Nothing is written, and `save()`
+or `delete()` answers `FALSE`:
+
+```php
+User::deleting(function ($user) {
+    if ($user->is_admin) {
+        return false;
+    }
+});
+
+$admin->delete(); // FALSE, and the row is still there
+```
+
+Only an answer of exactly `FALSE` does it, so a listener that happens to return
+something else changes nothing. Every listener of the event runs, and the
+operation is called off if any of them said so.
+
+### Booting
+
+`boot()` is the place for a model to register its own listeners. It runs once,
+the first time a model of that class is made:
+
+```php
+class User extends Facile
+{
+    protected static function boot()
+    {
+        static::creating(function ($user) {
+            $user->uuid = Str::uuid();
+        });
+    }
+}
+```
+
+> `retrieved` is fired for every row a query brings back, so a listener for it
+> runs as many times as there are rows. An event nobody listens for costs
+> nothing, so the ones you do not use are free.
+
+<a id="observers"></a>
+
+## Observers
+
+A model with several listeners is easier to read when they live together in one
+class. Name a method after an event and it is listened for; name it anything
+else and it is left alone:
+
+```php
+// application/observers/user.php
+
+class UserObserver
+{
+    public function creating($user)
+    {
+        $user->uuid = Str::uuid();
+    }
+
+    public function deleted($user)
+    {
+        Log::info('Pengguna dihapus: ' . $user->id);
+    }
+}
+```
+
+Register it while the application boots:
+
+```php
+// application/boot.php
+
+User::observe('UserObserver');
+```
+
+An instance works as well as a class name:
+
+```php
+User::observe(new UserObserver());
+```
+
+An observer method calls the operation off the same way a closure does, by
+answering with `FALSE`.

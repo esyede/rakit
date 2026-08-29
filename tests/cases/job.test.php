@@ -68,6 +68,19 @@ class JobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * A job file in the jobs directory is discovered, and the listener that
+     * runs it is registered under the name of its class.
+     *
+     * @group system
+     */
+    public function testJobFilesAreDiscovered()
+    {
+        Job::dispatch('anything');
+
+        $this->assertTrue(Hook::exists('rakit.jobs.run: example-job'));
+    }
+
+    /**
      * Test dispatch job with string schedule.
      *
      * @group system

@@ -48,6 +48,10 @@
             "description": "Create a job.",
             "command": "php rakit make:job notify"
         },
+        "make:component": {
+            "description": "Create a blade component.",
+            "command": "php rakit make:component alert"
+        },
         "make:test": {
             "description": "Create a unit test.",
             "command": "php rakit make:test login"

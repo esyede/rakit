@@ -19,6 +19,7 @@
     - [make:migration](#makemigration)
     - [make:command](#makecommand)
     - [make:job](#makejob)
+    - [make:component](#makecomponent)
     - [make:test](#maketest)
   - [Migration Commands](#migration-commands)
     - [migrate](#migrate)
@@ -256,6 +257,35 @@ Example:
 ```bash
 php rakit make:job SendWelcomeEmail
 # Creates file: application/jobs/sendwelcomeemail.php
+```
+
+<a id="makecomponent"></a>
+#### make:component
+
+Creates a new blade component, both the class and the view it renders:
+
+```bash
+php rakit make:component ComponentName
+```
+
+Example:
+
+```bash
+php rakit make:component Alert
+# Creates file: application/components/alert.php
+# Creates file: application/views/components/alert.blade.php
+```
+
+The class is named after the file with `_Component` behind it, the same way a
+controller is named `Home_Controller`, since there are no namespaces to keep the
+names apart. The tag that reaches it is `<x-alert />`.
+
+For a package, name it the way you would name one of its views:
+
+```bash
+php rakit make:component blog::alert
+# Creates file: packages/blog/components/alert.php     (class Blog_Alert_Component)
+# Creates file: packages/blog/views/components/alert.blade.php
 ```
 
 <a id="maketest"></a>

@@ -179,6 +179,21 @@ class BladeTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
+    /**
+     * @stop closes a section the same way @endsection does, which is what the
+     * helpers page says it does.
+     *
+     * @group system
+     */
+    public function testStopClosesASection()
+    {
+        $compiled = Blade::translate("@section('x')isi@stop");
+
+        $this->assertContains('section_stop()', $compiled);
+        $this->assertNotContains('@stop', $compiled);
+        $this->assertEquals(Blade::translate("@section('x')isi@endsection"), $compiled);
+    }
+
     public function testSectionsAreCompiledCorrectly()
     {
         $blade = "@section('something')\nfoo\n@endsection";

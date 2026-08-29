@@ -138,11 +138,11 @@ class Dumper
         });
 
         $live = ! empty($options[self::LIVE]) && $var && (is_array($var) || is_object($var) || is_resource($var));
-        return '<pre class="oops-dump'.(($live && true === $options[self::COLLAPSE]) ? ' oops-collapsed' : '').'"'
-            .($live ? " data-oops-dump='".json_encode(self::toJson($var, $options), JSON_HEX_APOS | JSON_HEX_AMP)."'>" : '>')
-            .($live ? '' : self::dumpVar($var, $options))
+        return '<pre class="oops-dump' . (($live && true === $options[self::COLLAPSE]) ? ' oops-collapsed' : '') . '"'
+            . ($live ? " data-oops-dump='" . json_encode(self::toJson($var, $options), JSON_HEX_APOS | JSON_HEX_AMP) . "'>" : '>')
+            . ($live ? '' : self::dumpVar($var, $options))
 
-            ."</pre>\n";
+            . "</pre>\n";
     }
 
     /**
@@ -170,7 +170,7 @@ class Dumper
     {
         $regex = '#<span class="oops-dump-(\w+)">|</span>#';
         return htmlspecialchars_decode(strip_tags(preg_replace_callback($regex, function ($m) {
-            return "\033[".(isset($m[1], self::$terminalColors[$m[1]]) ? self::$terminalColors[$m[1]] : '0').'m';
+            return "\033[" . (isset($m[1], self::$terminalColors[$m[1]]) ? self::$terminalColors[$m[1]] : '0') . 'm';
         }, self::toHtml($var, $options))), ENT_QUOTES);
     }
 
@@ -186,16 +186,26 @@ class Dumper
     private static function dumpVar(&$var, array $options, $level = 0)
     {
         switch (gettype($var)) {
-            case 'NULL':              return self::dumpNull();
-            case 'boolean':           return self::dumpBoolean($var);
-            case 'integer':           return self::dumpInteger($var);
-            case 'double':            return self::dumpDouble($var);
-            case 'string':            return self::dumpString($var, $options);
-            case 'array':             return self::dumpArray($var, $options, $level);
-            case 'object':            return self::dumpObject($var, $options, $level);
-            case 'resource':          return self::dumpResource($var, $options, $level);
-            case 'resource (closed)': return self::dumpResource($var, $options, $level);
-            default:                  return "<span>unknown type</span>\n";
+            case 'NULL':
+                return self::dumpNull();
+            case 'boolean':
+                return self::dumpBoolean($var);
+            case 'integer':
+                return self::dumpInteger($var);
+            case 'double':
+                return self::dumpDouble($var);
+            case 'string':
+                return self::dumpString($var, $options);
+            case 'array':
+                return self::dumpArray($var, $options, $level);
+            case 'object':
+                return self::dumpObject($var, $options, $level);
+            case 'resource':
+                return self::dumpResource($var, $options, $level);
+            case 'resource (closed)':
+                return self::dumpResource($var, $options, $level);
+            default:
+                return "<span>unknown type</span>\n";
         }
     }
 
@@ -204,32 +214,60 @@ class Dumper
         return "<span class=\"oops-dump-null\">null</span>\n";
     }
 
+    /**
+     * @param mixed $var
+     *
+     * @return string
+     */
     private static function dumpBoolean(&$var)
     {
-        return '<span class="oops-dump-bool">'.($var ? 'true' : 'false')."</span>\n";
+        return '<span class="oops-dump-bool">' . ($var ? 'true' : 'false') . "</span>\n";
     }
 
+    /**
+     * @param mixed $var
+     *
+     * @return string
+     */
     private static function dumpInteger(&$var)
     {
         return "<span class=\"oops-dump-number\">$var</span>\n";
     }
 
+    /**
+     * @param mixed $var
+     *
+     * @return string
+     */
     private static function dumpDouble(&$var)
     {
         $var = is_finite($var)
-            ? ($tmp = json_encode($var)).((false === strpos($tmp, '.')) ? '.0' : '')
+            ? ($tmp = json_encode($var)) . ((false === strpos($tmp, '.')) ? '.0' : '')
             : str_replace('.0', '', var_export($var, true)); // Kompatibilitas untuk PHP 7.0.2+
 
         return "<span class=\"oops-dump-number\">$var</span>\n";
     }
 
+    /**
+     * @param mixed $var
+     * @param array $options
+     *
+     * @return string
+     */
     private static function dumpString(&$var, $options)
     {
         return '<span class="oops-dump-string">"'
-            .Helpers::escapeHtml(self::encodeString($var, $options[self::TRUNCATE]))
-            .'"</span>'.((mb_strlen($var, '8bit') > 1) ? ' ('.mb_strlen($var, '8bit').')' : '')."\n";
+            . Helpers::escapeHtml(self::encodeString($var, $options[self::TRUNCATE]))
+            . '"</span>' . ((mb_strlen($var, '8bit') > 1) ? ' (' . mb_strlen($var, '8bit') . ')' : '') . "\n";
     }
 
+    /**
+     * @param mixed $var
+     * @param array $options
+     * @param int   $level
+     *
+     * @return string
+     */
     private static function dumpArray(&$var, $options, $level)
     {
         static $marker;
@@ -241,9 +279,9 @@ class Dumper
         $out = '<span class="oops-dump-array">array</span> (';
 
         if (empty($var)) {
-            return $out.")\n";
+            return $out . ")\n";
         } elseif (isset($var[$marker])) {
-            return $out.(count($var) - 1).") [ <i>RECURSION</i> ]\n";
+            return $out . (count($var) - 1) . ") [ <i>RECURSION</i> ]\n";
         } elseif (! $options[self::DEPTH] || $level < $options[self::DEPTH]) {
             $collapsed = $level ? (count($var) >= $options[self::COLLAPSE_COUNT])
                 : (is_int($options[self::COLLAPSE])
@@ -251,8 +289,8 @@ class Dumper
                     : $options[self::COLLAPSE]
                 );
 
-            $out = '<span class="oops-toggle'.($collapsed ? ' oops-collapsed' : '').'">'
-                .$out.count($var).")</span>\n<div".($collapsed ? ' class="oops-collapsed"' : '').'>';
+            $out = '<span class="oops-toggle' . ($collapsed ? ' oops-collapsed' : '') . '">'
+                . $out . count($var) . ")</span>\n<div" . ($collapsed ? ' class="oops-collapsed"' : '') . '>';
 
             $var[$marker] = true;
 
@@ -260,42 +298,49 @@ class Dumper
                 if ($k !== $marker) {
                     $hide = (is_string($k) && isset($options[self::KEYS_TO_HIDE][strtolower($k)]))
                         ? self::HIDDEN_VALUE : null;
-                    $k = (is_int($k) || preg_match('#^\w{1,50}\z#', $k)) ? $k : '"'.Helpers::escapeHtml(self::encodeString($k, $options[self::TRUNCATE])).'"';
-                    $out .= '<span class="oops-dump-indent">   '.str_repeat('|  ', $level).'</span>'
-                        .'<span class="oops-dump-key">'.$k.'</span> => '
-                        .($hide ? self::dumpString($hide, $options) : self::dumpVar($v, $options, $level + 1));
+                    $k = (is_int($k) || preg_match('#^\w{1,50}\z#', $k)) ? $k : '"' . Helpers::escapeHtml(self::encodeString($k, $options[self::TRUNCATE])) . '"';
+                    $out .= '<span class="oops-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
+                        . '<span class="oops-dump-key">' . $k . '</span> => '
+                        . ($hide ? self::dumpString($hide, $options) : self::dumpVar($v, $options, $level + 1));
                 }
             }
 
             unset($var[$marker]);
 
-            return $out.'</div>';
+            return $out . '</div>';
         }
-        return $out.count($var).") [ ... ]\n";
+        return $out . count($var) . ") [ ... ]\n";
     }
 
+    /**
+     * @param mixed $var
+     * @param array $options
+     * @param int   $level
+     *
+     * @return string
+     */
     private static function dumpObject(&$var, $options, $level)
     {
         $fields = self::exportObject($var, $options[self::OBJECT_EXPORTERS], $options[self::DEBUGINFO]);
 
         $out = '<span class="oops-dump-object">'
-            .Helpers::escapeHtml(Helpers::getClass($var))
-            .'</span> <span class="oops-dump-hash">#'.substr(md5(spl_object_hash($var)), 0, 4).'</span>';
+            . Helpers::escapeHtml(Helpers::getClass($var))
+            . '</span> <span class="oops-dump-hash">#' . substr(md5(spl_object_hash($var)), 0, 4) . '</span>';
 
         static $list = [];
 
         if (empty($fields)) {
-            return $out."\n";
+            return $out . "\n";
         } elseif (in_array($var, $list, true)) {
-            return $out." { <i>RECURSION</i> }\n";
+            return $out . " { <i>RECURSION</i> }\n";
         } elseif (! $options[self::DEPTH] || $level < $options[self::DEPTH] || ($var instanceof \Closure)) {
             $collapsed = $level ? (count($fields) >= $options[self::COLLAPSE_COUNT]) : (is_int($options[self::COLLAPSE])
                 ? (count($fields) >= $options[self::COLLAPSE])
                 : $options[self::COLLAPSE]
             );
 
-            $out = '<span class="oops-toggle'.($collapsed ? ' oops-collapsed' : '').'">'
-                .$out."</span>\n<div".($collapsed ? ' class="oops-collapsed"' : '').'>';
+            $out = '<span class="oops-toggle' . ($collapsed ? ' oops-collapsed' : '') . '">'
+                . $out . "</span>\n<div" . ($collapsed ? ' class="oops-collapsed"' : '') . '>';
 
             $list[] = $var;
 
@@ -303,41 +348,48 @@ class Dumper
                 $vis = '';
 
                 if (isset($k[0]) && "\x00" === $k[0]) {
-                    $vis = ' <span class="oops-dump-visibility">'.(('*' === $k[1]) ? 'protected' : 'private').'</span>';
+                    $vis = ' <span class="oops-dump-visibility">' . (('*' === $k[1]) ? 'protected' : 'private') . '</span>';
                     $k = substr($k, strrpos($k, "\x00") + 1);
                 }
 
                 $hide = (is_string($k) && isset($options[self::KEYS_TO_HIDE][strtolower($k)]))
                     ? self::HIDDEN_VALUE : null;
-                $k = (is_int($k) || preg_match('#^\w{1,50}\z#', $k)) ? $k : '"'.Helpers::escapeHtml(self::encodeString($k, $options[self::TRUNCATE])).'"';
-                $out .= '<span class="oops-dump-indent">   '.str_repeat('|  ', $level).'</span>'
-                    .'<span class="oops-dump-key">'.$k."</span>$vis => "
-                    .($hide ? self::dumpString($hide, $options) : self::dumpVar($v, $options, $level + 1));
+                $k = (is_int($k) || preg_match('#^\w{1,50}\z#', $k)) ? $k : '"' . Helpers::escapeHtml(self::encodeString($k, $options[self::TRUNCATE])) . '"';
+                $out .= '<span class="oops-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
+                    . '<span class="oops-dump-key">' . $k . "</span>$vis => "
+                    . ($hide ? self::dumpString($hide, $options) : self::dumpVar($v, $options, $level + 1));
             }
 
             array_pop($list);
 
-            return $out.'</div>';
+            return $out . '</div>';
         }
 
-        return $out." { ... }\n";
+        return $out . " { ... }\n";
     }
 
+    /**
+     * @param mixed $var
+     * @param array $options
+     * @param int   $level
+     *
+     * @return string
+     */
     private static function dumpResource(&$var, $options, $level)
     {
         $type = get_resource_type($var);
-        $out = '<span class="oops-dump-resource">'.Helpers::escapeHtml($type).' resource</span> '
-            .'<span class="oops-dump-hash">#'.((int) $var).'</span>';
+        $out = '<span class="oops-dump-resource">' . Helpers::escapeHtml($type) . ' resource</span> '
+            . '<span class="oops-dump-hash">#' . ((int) $var) . '</span>';
 
         if (isset(self::$resources[$type])) {
             $out = "<span class=\"oops-toggle oops-collapsed\">$out</span>\n<div class=\"oops-collapsed\">";
 
             foreach (call_user_func(self::$resources[$type], $var) as $k => $v) {
-                $out .= '<span class="oops-dump-indent">   '.str_repeat('|  ', $level).'</span>'
-                    .'<span class="oops-dump-key">'.Helpers::escapeHtml($k).'</span> => '.self::dumpVar($v, $options, $level + 1);
+                $out .= '<span class="oops-dump-indent">   ' . str_repeat('|  ', $level) . '</span>'
+                    . '<span class="oops-dump-key">' . Helpers::escapeHtml($k) . '</span> => ' . self::dumpVar($v, $options, $level + 1);
             }
 
-            return $out.'</div>';
+            return $out . '</div>';
         }
 
         return "$out\n";
@@ -378,7 +430,7 @@ class Dumper
                 if ($k !== $marker) {
                     $hide = is_string($k) && isset($options[self::KEYS_TO_HIDE][strtolower($k)]);
                     $k = (is_int($k) || preg_match('#^\w{1,50}\z#', $k))
-                        ? $k : '"'.self::encodeString($k, $options[self::TRUNCATE]).'"';
+                        ? $k : '"' . self::encodeString($k, $options[self::TRUNCATE]) . '"';
                     $res[] = [$k, $hide ? self::HIDDEN_VALUE : self::toJson($v, $options, $level + 1)];
                 }
             }
@@ -396,7 +448,7 @@ class Dumper
             static $counter = 1;
 
             $obj = $obj ?: [
-                'id' => self::$livePrefix.'0'.$counter++,
+                'id' => self::$livePrefix . '0' . $counter++,
                 'name' => Helpers::getClass($var),
                 'level' => $level,
                 'object' => $var,
@@ -418,7 +470,7 @@ class Dumper
 
                     $hide = is_string($k) && isset($options[self::KEYS_TO_HIDE][strtolower($k)]);
                     $k = (is_int($k) || preg_match('#^\w{1,50}\z#', $k))
-                        ? $k : '"'.self::encodeString($k, $options[self::TRUNCATE]).'"';
+                        ? $k : '"' . self::encodeString($k, $options[self::TRUNCATE]) . '"';
                     $obj['items'][] = [$k, $hide ? self::HIDDEN_VALUE : self::toJson($v, $options, $level + 1), $vis];
                 }
             }
@@ -428,7 +480,7 @@ class Dumper
             $obj = &self::$liveStorage[(string) $var];
             if (! $obj) {
                 $type = get_resource_type($var);
-                $obj = ['id' => self::$livePrefix.(int) $var, 'name' => $type.' resource'];
+                $obj = ['id' => self::$livePrefix . (int) $var, 'name' => $type . ' resource'];
 
                 if (isset(self::$resources[$type])) {
                     foreach (call_user_func(self::$resources[$type], $var) as $k => $v) {
@@ -477,7 +529,7 @@ class Dumper
 
         if (null === $table) {
             foreach (array_merge(range("\x00", "\x1F"), range("\x7F", "\xFF")) as $ch) {
-                $table[$ch] = '\x'.str_pad(dechex(ord($ch)), 2, '0', STR_PAD_LEFT);
+                $table[$ch] = '\x' . str_pad(dechex(ord($ch)), 2, '0', STR_PAD_LEFT);
             }
 
             $table['\\'] = '\\\\';
@@ -500,7 +552,7 @@ class Dumper
             $s = strtr($s, $table);
         }
 
-        return $s.(empty($shortened) ? '' : ' ... ');
+        return $s . (empty($shortened) ? '' : ' ... ');
     }
 
     /**
@@ -534,7 +586,7 @@ class Dumper
         $res = [];
 
         foreach ($rc->getParameters() as $param) {
-            $res[] = '$'.$param->getName();
+            $res[] = '$' . $param->getName();
         }
 
         return [
@@ -580,7 +632,7 @@ class Dumper
             } elseif (preg_match('#^\x0\*\x0(.+)\z#', $name, $m)) {
                 $info['protected'][$m[1]] = $value;
             } elseif (preg_match('#^\x0(.+)\x0(.+)\z#', $name, $m)) {
-                $info['private'][$m[1].'::$'.$m[2]] = $value;
+                $info['private'][$m[1] . '::$' . $m[2]] = $value;
             } else {
                 $info['public'][$name] = $value;
             }

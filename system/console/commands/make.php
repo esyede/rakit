@@ -255,6 +255,75 @@ class Make extends Command
     }
 
     /**
+     * Make a new blade component.
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function component(array $arguments = [])
+    {
+        if (0 === count($arguments)) {
+            throw new \Exception('I need to know what to name the file to be make.');
+        }
+
+        $arguments[0] = $this->slashes($arguments[0]);
+
+        if (false !== strpos($arguments[0], '/')) {
+            throw new \Exception('Cannot create component inside subdirectory.');
+        }
+
+        if (false !== strstr($arguments[0], '::')) {
+            list($package, $class) = Package::parse($arguments[0]);
+        } else {
+            list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
+        }
+
+        if (! Package::exists($package)) {
+            throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
+        }
+
+        if ('_component' === Str::lower($class)) {
+            throw new \Exception('Please choose another name for component.');
+        }
+
+        $class = Str::replace_last('_component', '', Str::lower($class));
+        $directory = Package::path($package).'components'.DS;
+        $file = $directory.$class.'.php';
+        $display = Str::replace_first(path('base'), '', $file);
+
+        if (Storage::isfile($file)) {
+            echo $this->warning('Component already exists: '.$display.'   (skipped)');
+        } else {
+            $this->makedir($directory);
+
+            $replace = [
+                'stub_class' => Package::class_prefix($package).Str::classify($class).'_Component',
+                'stub_view' => ((DEFAULT_PACKAGE === $package) ? '' : $package.'::').'components.'.$class,
+            ];
+
+            Storage::put($file, $this->stub_general($class, 'component', $replace));
+
+            echo $this->info('Created component: '.$display);
+        }
+
+        $views = Package::path($package).'views'.DS.'components'.DS;
+        $view = $views.$class.'.blade.php';
+        $display = Str::replace_first(path('base'), '', $view);
+
+        if (Storage::isfile($view)) {
+            echo $this->warning('Component view already exists: '.$display.'   (skipped)');
+        } else {
+            $this->makedir($views);
+            Storage::put($view, '<span {{ $attributes }}>{{ $label }}{{ $slot }}</span>' . PHP_EOL);
+
+            echo $this->info('Created component view: '.$display);
+        }
+
+        return $file;
+    }
+
+    /**
      * Make a new job.
      *
      * @param array $arguments

@@ -283,6 +283,12 @@ class View implements \ArrayAccess
      */
     public function get()
     {
+        // A template may open buffers of its own, through a section, a
+        // component or an ob_start() of its own. When it throws they are all
+        // still open, so the level is taken down to where it started rather
+        // than by one.
+        $level = ob_get_level();
+
         ob_start();
 
         try {
@@ -304,10 +310,16 @@ class View implements \ArrayAccess
 
             return $content;
         } catch (\Throwable $e) {
-            ob_get_clean();
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+
             throw $e;
         } catch (\Exception $e) {
-            ob_get_clean();
+            while (ob_get_level() > $level) {
+                ob_end_clean();
+            }
+
             throw $e;
         }
     }

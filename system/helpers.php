@@ -12,6 +12,12 @@ if (! function_exists('e')) {
      */
     function e($value)
     {
+        // A value that says it is already html is printed as it is, which is
+        // what lets {{ $slot }} and {{ $attributes }} carry markup.
+        if ($value instanceof \System\Htmlable) {
+            return $value->to_html();
+        }
+
         return htmlentities((string) $value, ENT_QUOTES, 'UTF-8', true);
     }
 }

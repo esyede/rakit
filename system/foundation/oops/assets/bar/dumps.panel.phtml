@@ -33,14 +33,18 @@ defined('DS') or exit('No direct access.');
 
 <div class="oops-inner oops-DumpPanel">
     <div class="oops-inner-container">
-        <?php foreach ($data as $item) : ?>
-            <div class="oops-dump-item">
-                <?php if ($item['title']) : ?>
-                    <div class="oops-dump-title"><?php echo Helpers::escapeHtml($item['title']) ?></div>
-                <?php endif ?>
+        <?php if (!isset($data) || empty($data)) : ?>
+            <div class="oops-center">No dumps</div>
+        <?php else : ?>
+            <?php foreach ($data as $item) : ?>
+                <div class="oops-dump-item">
+                    <?php if ($item['title']) : ?>
+                        <div class="oops-dump-title"><?php echo Helpers::escapeHtml($item['title']) ?></div>
+                    <?php endif ?>
 
-                <?php echo $item['dump'] ?>
-            </div>
-        <?php endforeach ?>
+                    <?php echo $item['dump'] ?>
+                </div>
+            <?php endforeach ?>
+        <?php endif; ?>
     </div>
 </div>

@@ -23,6 +23,8 @@ class Blade
         'layout',
         'comment',
         'verbatim',
+        'component',
+        'props',
         'once',
         'endonce',
         'echo',
@@ -114,17 +116,29 @@ class Blade
 
             $compiled = static::compiled($view->path);
 
+            // Only the compiling is guarded. A template that throws while it
+            // runs must not be run a second time, or whatever it did before
+            // throwing would happen twice.
             try {
                 if (! is_file($compiled) || static::expired($view->path)) {
                     file_put_contents($compiled, static::compile($view), LOCK_EX);
                 }
-
-                $view->path = $compiled;
-                return ltrim($view->get());
             } catch (\Throwable $e) {
                 return ltrim($view->get());
             } catch (\Exception $e) {
                 return ltrim($view->get());
+            }
+
+            $view->path = $compiled;
+
+            try {
+                return ltrim($view->get());
+            } catch (\Throwable $e) {
+                Blade\Component::unwind();
+                throw $e;
+            } catch (\Exception $e) {
+                Blade\Component::unwind();
+                throw $e;
             }
         });
     }
@@ -199,6 +213,126 @@ class Blade
         }
 
         return $value;
+    }
+
+    /**
+     * Translate the <x-name> tags into the calls that render them.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_component($value)
+    {
+        if (false === strpos($value, '<x-')) {
+            return $value;
+        }
+
+        // A package names its components the way it names its views, with the
+        // double colon. A single one is left alone, since that is a slot.
+        $name = '[A-Za-z0-9_\\-\\.]+(?:::[A-Za-z0-9_\\-\\.]+)?';
+        $attributes = '((?:\\s+[:@]?' . $name . '(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'|[^\\s>"\\\']+))?)*)';
+
+        // A slot names the piece of the component it fills, so it is read as a
+        // part of the component around it and not as one of its own.
+        $value = preg_replace_callback(
+            '/<x-slot\s+name\s*=\s*(?:"([^"]*)"|\'([^\']*)\')\s*>/',
+            function ($matches) {
+                $slot = ('' === $matches[1]) ? $matches[2] : $matches[1];
+                return '<?php \System\Blade\Component::slot(' . var_export($slot, true) . '); ?>';
+            },
+            $value
+        );
+
+        $value = preg_replace_callback(
+            '/<x-slot:(' . $name . ')\s*>/',
+            function ($matches) {
+                return '<?php \System\Blade\Component::slot(' . var_export($matches[1], true) . '); ?>';
+            },
+            $value
+        );
+
+        $value = preg_replace('/<\/x-slot\s*>/', '<?php \System\Blade\Component::end_slot(); ?>', $value);
+
+        $value = preg_replace_callback(
+            '/<x-(' . $name . ')' . $attributes . '\s*\/>/',
+            function ($matches) {
+                return '<?php \System\Blade\Component::open('
+                    . var_export($matches[1], true) . ', '
+                    . static::component_attributes($matches[2])
+                    . '); echo \System\Blade\Component::close(); ?>';
+            },
+            $value
+        );
+
+        // The innermost component is compiled first, so that a component built
+        // out of other components is read from the inside out.
+        $pattern = '/<x-(?!slot\b)(' . $name . ')' . $attributes
+            . '\s*>((?:(?!<x-(?!slot\b))[\s\S])*?)<\/x-\1\s*>/';
+        $guard = 0;
+
+        while (preg_match($pattern, $value) && $guard++ < 64) {
+            $value = preg_replace_callback($pattern, function ($matches) {
+                return '<?php \System\Blade\Component::open('
+                    . var_export($matches[1], true) . ', '
+                    . static::component_attributes($matches[2])
+                    . '); ?>' . $matches[3]
+                    . '<?php echo \System\Blade\Component::close(); ?>';
+            }, $value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Build the array of the attributes a component tag was given.
+     *
+     * @param string $attributes
+     *
+     * @return string
+     */
+    protected static function component_attributes($attributes)
+    {
+        $pattern = '/([:@]?[A-Za-z0-9_\-\.]+)(\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>"\']+))?/';
+        preg_match_all($pattern, (string) $attributes, $matches, PREG_SET_ORDER);
+
+        $pairs = [];
+
+        foreach ($matches as $match) {
+            $name = $match[1];
+            $bound = (':' === substr($name, 0, 1));
+            $name = ltrim($name, ':@');
+
+            if (! isset($match[2]) || '' === trim($match[2])) {
+                $pairs[] = var_export($name, true) . ' => true';
+                continue;
+            }
+
+            $raw = trim(substr(ltrim($match[2]), 1));
+            $quote = substr($raw, 0, 1);
+
+            if ('"' === $quote || "'" === $quote) {
+                $raw = substr($raw, 1, -1);
+            }
+
+            $pairs[] = var_export($name, true) . ' => ' . ($bound ? $raw : var_export($raw, true));
+        }
+
+        return '[' . implode(', ', $pairs) . ']';
+    }
+
+    /**
+     * Translate @props.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    protected static function compile_props($value)
+    {
+        return preg_replace_callback('/@props(\s*(\((?:[^()]++|(?2))*\)))/', function ($matches) {
+            return '<?php extract(\System\Blade\Component::props' . trim($matches[1]) . ', EXTR_OVERWRITE); ?>';
+        }, $value);
     }
 
     /**
@@ -676,7 +810,7 @@ class Blade
      */
     protected static function compile_section_end($value)
     {
-        return preg_replace('/@endsection/', '<?php section_stop() ?>', $value);
+        return preg_replace('/@(endsection|stop)\b/', '<?php section_stop() ?>', $value);
     }
 
     /**

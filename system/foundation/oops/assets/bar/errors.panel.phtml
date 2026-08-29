@@ -8,13 +8,19 @@ defined('DS') or exit('No direct access.');
 
 <div class="oops-inner">
     <table>
-        <?php foreach ($data as $item => $count) : list($file, $line, $message) = explode('|', $item, 3) ?>
+        <?php if (!isset($data) || empty($data)) : ?>
             <tr>
-                <td class="oops-right"><?php echo $count ? "$count\xC3\x97" : '' ?></td>
-                <td>
-                    <pre><?php echo Helpers::escapeHtml($message), ' in ', '<span>', $file . ($line ? ":$line" : ''), '</span>' ?></pre>
-                </td>
+                <td colspan="2">No errors.</td>
             </tr>
-        <?php endforeach ?>
+        <?php else : ?>
+            <?php foreach ($data as $item => $count) : list($file, $line, $message) = explode('|', $item, 3) ?>
+                <tr>
+                    <td class="oops-right"><?php echo $count ? "$count\xC3\x97" : '' ?></td>
+                    <td>
+                        <pre><?php echo Helpers::escapeHtml($message), ' in ', '<span>', $file . ($line ? ":$line" : ''), '</span>' ?></pre>
+                    </td>
+                </tr>
+            <?php endforeach ?>
+        <?php endif; ?>
     </table>
 </div>

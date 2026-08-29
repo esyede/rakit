@@ -58,6 +58,10 @@ class Collection extends System\Collection
 {
 }
 
+class Component extends System\Blade\Component
+{
+}
+
 class Command extends System\Console\Commands\Command
 {
 }
@@ -220,6 +224,10 @@ class Str extends System\Str
 }
 
 class Throttle extends System\Routing\Throttle
+{
+}
+
+class Transformer extends System\Transformer
 {
 }
 

@@ -48,6 +48,7 @@
     -   [Str::cuid\(\)](#strcuid)
     -   [Str::nanoid\(\)](#strnanoid)
     -   [Str::words\(\)](#strwords)
+-   [Fluent Strings](#fluent-strings)
 -   [Macro](#macro)
 
 <!-- /MarkdownTOC -->
@@ -636,6 +637,86 @@ return Str::words('You know, I miss you so much.', 3, ' >>>');
 // 'You know, I >>>'
 ```
 
+<a id="fluent-strings"></a>
+
+## Fluent Strings
+
+`Str::of()` wraps a string so the methods above can be chained instead of nested:
+
+```php
+$slug = Str::of('  Belajar Rakit Bersama  ')->trim()->lower()->slug();
+// 'belajar-rakit-bersama'
+```
+
+The wrapper never changes the string it was given; every method hands back a new
+one. Echo it, or ask for `value()`, to get the plain string back:
+
+```php
+$title = Str::of('halo dunia');
+
+echo $title->upper();     // 'HALO DUNIA'
+echo $title;              // 'halo dunia', the original is untouched
+
+$plain = $title->value(); // a plain string
+```
+
+Methods that answer with something other than a string — `length()`, `is()`,
+`contains()`, `contains_all()`, `starts_with()`, `ends_with()`, `segments()`,
+`parse_callback()` and `explode()` — end the chain and give you that answer:
+
+```php
+Str::of('halo dunia')->length();          // 10
+Str::of('halo dunia')->contains('dunia'); // TRUE
+Str::of('a,b,c')->explode(',');           // ['a', 'b', 'c']
+```
+
+### Methods of Its Own
+
+A few methods exist only on the fluent string:
+
+| Method | What it does |
+| --- | --- |
+| `append($a, $b, ..)` | Add the values to the end |
+| `prepend($a, $b, ..)` | Add the values to the front |
+| `replace($search, $replace)` | Replace every occurrence |
+| `explode($delimiter, $limit)` | Split into an array |
+| `is_empty()` / `is_not_empty()` | Whether the string is empty |
+| `when($condition, $callback, $default)` | Run the callback when the condition holds |
+| `unless($condition, $callback, $default)` | Run it when the condition does not |
+| `pipe($callback)` | Keep whatever the callback answers |
+| `tap($callback)` | Hand the string over, carry on with the string |
+| `value()` | The plain string |
+
+`when()` and `unless()` are how a chain makes up its mind without breaking apart:
+
+```php
+$name = Str::of($input)
+    ->trim()
+    ->when($formal, function ($string) {
+        return $string->title();
+    })
+    ->finish('.');
+```
+
+The callback is handed the fluent string and the condition. Whatever it answers
+takes the place of the string, and answering nothing leaves the string alone. The
+condition may be a closure, which is handed the string as well.
+
+> `pipe()` wraps what the callback answers, so the chain carries on. `when()`
+> hands it back as it is, so a callback that answers with a plain string ends the
+> chain there.
+
+### Do Not Test It for Truth
+
+A fluent string is an object, so it is always true, even when the string inside
+it is empty. Ask it instead:
+
+```php
+if (Str::of($value)->is_not_empty()) {
+    // ..
+}
+```
+
 <a id="macro"></a>
 
 ## Macro
@@ -652,5 +733,15 @@ Str::macro('shout', function ($value) {
 Str::shout('rakit'); // 'RAKIT!'
 ```
 
-> Macro names may not override existing `Str` methods. Trying to do so throws
-> an exception.
+A macro is reachable from the fluent string as well, with the string handed to it
+as the first argument. One that answers with a string keeps the chain going:
+
+```php
+Str::of('rakit')->shout();          // 'RAKIT!'
+Str::of('rakit')->shout()->limit(4); // 'RAKI...'
+```
+
+> Macro names may not override existing `Str` methods, nor the methods of the
+> fluent string, since the same name would otherwise mean one thing for
+> `Str::foo()` and another for `Str::of()->foo()`. Trying to do so throws an
+> exception.

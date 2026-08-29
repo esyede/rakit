@@ -30,6 +30,49 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
     // -------------------------------------------------------------------------
 
     /**
+     * make:component writes a class named the way a controller is named, plus
+     * the view it renders, and both of them work.
+     *
+     * @group system
+     */
+    public function testMakeComponentWritesAWorkingComponent()
+    {
+        $class = path('app') . 'components' . DS . 'probe_widget.php';
+        $view = path('app') . 'views' . DS . 'components' . DS . 'probe_widget.blade.php';
+
+        @unlink($class);
+        @unlink($view);
+
+        $make = new \System\Console\Commands\Make();
+
+        ob_start();
+        $make->component(['probe_widget']);
+        ob_end_clean();
+
+        try {
+            $this->assertTrue(is_file($class));
+            $this->assertTrue(is_file($view));
+
+            $written = file_get_contents($class);
+
+            $this->assertContains('class Probe_Widget_Component extends Component', $written);
+            $this->assertContains("return 'components.probe_widget';", $written);
+
+            $rendered = \System\Blade::translate(file_get_contents($view));
+
+            $this->assertNotContains('<x-', $rendered);
+        } catch (\Exception $e) {
+            @unlink($class);
+            @unlink($view);
+
+            throw $e;
+        }
+
+        @unlink($class);
+        @unlink($view);
+    }
+
+    /**
      * Test for Console::options() - splits arguments from options.
      *
      * @group system

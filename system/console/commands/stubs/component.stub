@@ -1,0 +1,23 @@
+<?php
+
+defined('DS') or exit('No direct access.');
+
+class stub_class extends Component
+{
+    /**
+     * The values the tag may be given.
+     *
+     * @var string
+     */
+    public $label = '';
+
+    /**
+     * Get the view of the component, or the markup itself.
+     *
+     * @return string
+     */
+    public function render()
+    {
+        return 'stub_view';
+    }
+}

@@ -1106,6 +1106,18 @@ class Str
     }
 
     /**
+     * Get a fluent instance of the given string.
+     *
+     * @param string $value
+     *
+     * @return Stringable
+     */
+    public static function of($value)
+    {
+        return new Stringable($value);
+    }
+
+    /**
      * Registers a new method.
      *
      * @param string   $name
@@ -1117,6 +1129,12 @@ class Str
     {
         if (method_exists('\System\Str', $name)) {
             throw new \Exception(sprintf('Overriding framework method with macro is unsupported: Str::%s()', $name));
+        }
+
+        // A macro named after one of these would run for Str::foo() and be
+        // ignored for Str::of()->foo(), which is one name with two meanings.
+        if (method_exists('\System\Stringable', $name)) {
+            throw new \Exception(sprintf('Overriding framework method with macro is unsupported: Stringable::%s()', $name));
         }
 
         static::$macros[$name] = $handler;

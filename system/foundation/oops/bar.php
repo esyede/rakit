@@ -10,8 +10,10 @@ class Bar
 
     private $useSession = false;
 
+    /** @var string|null */
     private $contentId;
 
+    /** @var string|null */
     private $storage;
 
     private $served = false;
@@ -29,7 +31,7 @@ class Bar
         if (null === $id) {
             $counter = 0;
             do {
-                $id = get_class($panel).($counter++ ? "-$counter" : '');
+                $id = get_class($panel) . ($counter++ ? "-$counter" : '');
             } while (isset($this->panels[$id]));
         }
 
@@ -66,7 +68,7 @@ class Bar
         $nonce = Helpers::getNonce();
         $async = true;
 
-        require __DIR__.'/assets/bar/loader.phtml';
+        require __DIR__ . '/assets/bar/loader.phtml';
     }
 
     /**
@@ -101,7 +103,7 @@ class Bar
         if (Helpers::isAjax()) {
             if ($useSession) {
                 $rows[] = (object) ['type' => 'ajax', 'panels' => $this->renderPanels('-ajax')];
-                $contentId = $_SERVER['HTTP_X_OOPS_AJAX'].'-ajax';
+                $contentId = $_SERVER['HTTP_X_OOPS_AJAX'] . '-ajax';
                 $_SESSION['_oops']['bar'][$contentId] = [
                     'content' => self::renderHtmlRows($rows),
                     'dumps' => Dumper::fetchLiveData(),
@@ -111,9 +113,9 @@ class Bar
         } elseif (preg_match('#^Location:#im', implode("\n", headers_list()))) { // redireksi
             if ($useSession) {
                 Dumper::fetchLiveData();
-                Dumper::$livePrefix = count($redirectQueue).'p';
+                Dumper::$livePrefix = count($redirectQueue) . 'p';
                 $redirectQueue[] = [
-                    'panels' => $this->renderPanels('-r'.count($redirectQueue)),
+                    'panels' => $this->renderPanels('-r' . count($redirectQueue)),
                     'dumps' => Dumper::fetchLiveData(),
                     'time' => time(),
                 ];
@@ -144,7 +146,7 @@ class Bar
                 $nonce = Helpers::getNonce();
                 $async = false;
 
-                require __DIR__.'/assets/bar/loader.phtml';
+                require __DIR__ . '/assets/bar/loader.phtml';
             }
         }
     }
@@ -158,8 +160,8 @@ class Bar
             // ..
         });
 
-        require __DIR__.'/assets/bar/panels.phtml';
-        require __DIR__.'/assets/bar/bar.phtml';
+        require __DIR__ . '/assets/bar/panels.phtml';
+        require __DIR__ . '/assets/bar/bar.phtml';
 
         return Helpers::fixEncoding(ob_get_clean());
     }
@@ -181,7 +183,7 @@ class Bar
         $panels = [];
 
         foreach ($this->panels as $id => $panel) {
-            $idHtml = preg_replace('#[^a-z0-9]+#i', '-', $id).$suffix;
+            $idHtml = preg_replace('#[^a-z0-9]+#i', '-', $id) . $suffix;
 
             $tab = null;
             $panelHtml = null;
@@ -203,7 +205,7 @@ class Bar
                 $idHtml = "error-$idHtml";
                 $tab = "Error in $id";
                 $panelHtml = "<h1>Error: $id</h1><div class='oops-inner'>"
-                    .nl2br(Helpers::escapeHtml($e)).'</div>';
+                    . nl2br(Helpers::escapeHtml($e)) . '</div>';
 
                 unset($e);
             }
@@ -224,8 +226,8 @@ class Bar
     private function storage()
     {
         if (null === $this->storage) {
-            require_once __DIR__.'/storage.php';
-            $this->storage = new Storage(path('storage').'debugbar', 25);
+            require_once __DIR__ . '/storage.php';
+            $this->storage = new Storage(path('storage') . 'debugbar', 25);
         }
 
         return $this->storage;
@@ -292,11 +294,11 @@ class Bar
         $method = isset($meta['method']) ? $meta['method'] : 'GET';
         $uri = isset($meta['uri']) ? $meta['uri'] : '';
         $when = isset($meta['time']) ? date('Y-m-d H:i:s', (int) $meta['time']) : '';
-        $label = trim($method.' '.$uri);
+        $label = trim($method . ' ' . $uri);
         $nonce = Helpers::getNonce();
         $dumps = isset($rec['dumps']) ? $rec['dumps'] : [];
 
-        $payload = str_replace('<!--', '<\!--', json_encode($rec['content']).', '.json_encode($dumps));
+        $payload = str_replace('<!--', '<\!--', json_encode($rec['content']) . ', ' . json_encode($dumps));
 
         echo '<!DOCTYPE html><html><head><meta charset="utf-8">',
         '<meta name="robots" content="noindex">',
@@ -309,9 +311,7 @@ class Bar
         '.oops-hist-banner p{margin:0;font-size:12px;color:#8b93a4}',
         '</style></head><body>',
         '<div class="oops-hist-banner"><h1>Past request &middot; ', Helpers::escapeHtml($label), '</h1>',
-        '<p>', Helpers::escapeHtml($when),
-        (isset($meta['status']) ? ' &middot; HTTP '.(int) $meta['status'] : ''),
-        (isset($meta['ms']) ? ' &middot; '.Helpers::escapeHtml($meta['ms']).' ms' : ''),
+        '<p>', Helpers::escapeHtml($when), (isset($meta['status']) ? ' &middot; HTTP ' . (int) $meta['status'] : ''), (isset($meta['ms']) ? ' &middot; ' . Helpers::escapeHtml($meta['ms']) . ' ms' : ''),
         '</p></div>',
         '<script nonce="', Helpers::escapeHtml($nonce), '" src="?_oops_bar=js&amp;v=', urlencode(RAKIT_VERSION), '&amp;XDEBUG_SESSION_STOP=1"></script>',
         '<script nonce="', Helpers::escapeHtml($nonce), '">Oops.Debug.init(', $payload, ');</script>',
@@ -351,7 +351,7 @@ class Bar
         }
 
         if ($this->useSession && $asset && preg_match('#^content(-ajax)?\.(\w+)$#', $asset, $m)) {
-            $session = &$_SESSION['_oops']['bar'][$m[2].$m[1]];
+            $session = &$_SESSION['_oops']['bar'][$m[2] . $m[1]];
 
             header('Content-Type: application/javascript');
             header('Cache-Control: max-age=60');
@@ -363,16 +363,16 @@ class Bar
 
             if ($session) {
                 $method = $m[1] ? 'loadAjax' : 'init';
-                echo "Oops.Debug.$method(".json_encode($session['content'])
-                    .', '.json_encode($session['dumps']).');';
+                echo "Oops.Debug.$method(" . json_encode($session['content'])
+                    . ', ' . json_encode($session['dumps']) . ');';
                 $session = null;
             }
 
             $session = &$_SESSION['_oops']['panic'][$m[2]];
 
             if ($session) {
-                echo 'Oops.Panic.loadAjax('.json_encode($session['content'])
-                    .', '.json_encode($session['dumps']).');';
+                echo 'Oops.Panic.loadAjax(' . json_encode($session['content'])
+                    . ', ' . json_encode($session['dumps']) . ');';
                 $session = null;
             }
 
@@ -385,24 +385,24 @@ class Bar
     private function renderAssets()
     {
         $css = array_map('file_get_contents', [
-            __DIR__.'/assets/bar/bar.css',
-            __DIR__.'/assets/toggle/toggle.css',
-            __DIR__.'/assets/dumper/dumper.css',
-            __DIR__.'/assets/panic/panic.css',
+            __DIR__ . '/assets/bar/bar.css',
+            __DIR__ . '/assets/toggle/toggle.css',
+            __DIR__ . '/assets/dumper/dumper.css',
+            __DIR__ . '/assets/panic/panic.css',
         ]);
 
         echo "(function(){
 	       var el = document.createElement('style');
 	       el.setAttribute('nonce', document.currentScript.getAttribute('nonce') || document.currentScript.nonce);
 	       el.className='oops-debug';
-	       el.textContent=".json_encode(preg_replace('#\s+#u', ' ', implode('', $css))).";
+	       el.textContent=" . json_encode(preg_replace('#\s+#u', ' ', implode('', $css))) . ";
 	       document.head.appendChild(el);})();\n";
 
         array_map('readfile', [
-            __DIR__.'/assets/bar/bar.js',
-            __DIR__.'/assets/toggle/toggle.js',
-            __DIR__.'/assets/dumper/dumper.js',
-            __DIR__.'/assets/panic/panic.js',
+            __DIR__ . '/assets/bar/bar.js',
+            __DIR__ . '/assets/toggle/toggle.js',
+            __DIR__ . '/assets/dumper/dumper.js',
+            __DIR__ . '/assets/panic/panic.js',
         ]);
     }
 }

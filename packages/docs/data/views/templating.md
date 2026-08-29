@@ -8,6 +8,7 @@
 -   [Blade Conditionals & Looping](#blade-conditionals--looping)
 -   [Blade Layout](#blade-layout)
 -   [Stacks](#stacks)
+-   [Components](#components)
 -   [Other Directives](#other-directives)
 
 <!-- /MarkdownTOC -->
@@ -446,6 +447,202 @@ render it once in the layout:
 ```
 
 Everything pushed to the same stack is rendered in the order it was pushed.
+
+<a id="components"></a>
+
+## Components
+
+A component is a piece of markup with a name, kept in one place and used with a
+tag of its own. Put its view in `application/views/components/`:
+
+```html
+<!-- application/views/components/alert.blade.php -->
+
+@props(['type' => 'info'])
+
+<div class="alert alert-{{ $type }}" {{ $attributes }}>
+    {{ $slot }}
+</div>
+```
+
+Then use it anywhere:
+
+```html
+<x-alert type="error">
+    Data gagal disimpan.
+</x-alert>
+```
+
+```html
+<div class="alert alert-error">
+    Data gagal disimpan.
+</div>
+```
+
+A component with nothing inside it closes itself:
+
+```html
+<x-alert type="ok" />
+```
+
+A component in a subdirectory is named with a dot, so
+`application/views/components/forms/input.blade.php` is:
+
+```html
+<x-forms.input name="email" />
+```
+
+### Attributes
+
+Every attribute of the tag reaches the view. `@props` says which of them the
+component expects, and what to use when the tag leaves one out:
+
+```html
+@props(['type' => 'info', 'dismissible' => false])
+```
+
+Write an attribute with a colon in front of its name to hand it an expression
+instead of a piece of text:
+
+```html
+<x-alert :type="$status" :dismissible="$user->admin">
+    {{ $message }}
+</x-alert>
+```
+
+An attribute with no value at all is `TRUE`:
+
+```html
+<x-forms.input name="email" required />
+```
+
+### The Attribute Bag
+
+Whatever `@props` did not name stays in `$attributes`, so a component can be
+given the odd `id` or `data-` attribute without knowing about it in advance:
+
+```html
+<x-alert type="error" id="pesan-1" data-auto-close="3">Gagal</x-alert>
+```
+
+```html
+<div class="alert alert-error" id="pesan-1" data-auto-close="3">Gagal</div>
+```
+
+`merge()` puts your own values underneath the ones the tag gave. A `class` is
+joined rather than replaced, since a class list is meant to grow:
+
+```html
+<input {{ $attributes->merge(['class' => 'form-control', 'type' => 'text']) }}>
+```
+
+The bag also answers `get()`, `has()`, `only()`, `except()`, `starting_with()`
+and `class_names()`:
+
+```html
+<div {{ $attributes->class_names(['card', 'card-active' => $active]) }}>
+```
+
+### Slots
+
+What sits between the tags arrives as `$slot`. A component may take more than
+one piece by naming them:
+
+```html
+<!-- application/views/components/card.blade.php -->
+
+<div class="card">
+    <div class="card-title">{{ $title }}</div>
+    <div class="card-body">{{ $slot }}</div>
+</div>
+```
+
+```html
+<x-card>
+    <x-slot name="title">Laporan Bulanan</x-slot>
+
+    Isi laporan ada di sini.
+</x-card>
+```
+
+`<x-slot:title>` is the shorter way to write the same thing.
+
+A slot knows whether it was given anything:
+
+```html
+@if ($slot->is_empty())
+    <p>Belum ada isi.</p>
+@else
+    {{ $slot }}
+@endif
+```
+
+> A slot carries markup, so `{{ $slot }}` prints it as it is. That is safe:
+> whatever the slot holds was already escaped on its way in, so `{{ $name }}`
+> written inside a slot is still escaped exactly once.
+
+### Components with a Class
+
+A component that needs to work something out first gets a class of its own in
+`application/components/`. There are no namespaces to keep class names apart, so
+the name carries `_Component` behind it, the same way a controller carries
+`_Controller`. `Component` is the alias of the class it extends, and it is
+registered in `application/config/aliases.php` like every other one:
+
+```php
+// application/components/badge.php
+
+class Badge_Component extends Component
+{
+    public $label = '';
+
+    public $colour = 'grey';
+
+    public function render()
+    {
+        return 'components.badge';
+    }
+}
+```
+
+Every public property is handed to the view, and an attribute of the same name
+takes its place. `render()` answers with the name of a view, or with the markup
+itself:
+
+```php
+public function render()
+{
+    return '<span class="badge">' . e($this->label) . '</span>';
+}
+```
+
+A class that does not follow the naming can be registered by hand:
+
+```php
+// application/boot.php
+
+Component::register('badge', 'My_Own_BadgeComponent');
+```
+
+`make:component` writes both the class and its view for you:
+
+```bash
+php rakit make:component alert
+```
+
+### Components of a Package
+
+A package names its components the way it names its views, with the double
+colon:
+
+```html
+<x-blog::alert type="error">Gagal</x-blog::alert>
+```
+
+The view is read from `packages/blog/views/components/alert.blade.php`, and the
+class behind it, if there is one, is `Blog_Alert_Component` in
+`packages/blog/components/alert.php` — the package prefix in front, the same
+prefix a package puts on its controllers.
 
 <a id="other-directives"></a>
 

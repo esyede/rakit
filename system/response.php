@@ -133,7 +133,8 @@ class Response
      * The error code must match the name of the view file in the application/views/error/ folder.
      * If the view file does not exist, you can add a new one there.
      *
-     * @param int $code
+     * @param int   $code
+     * @param array $headers
      *
      * @return Response
      */

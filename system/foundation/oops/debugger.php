@@ -276,7 +276,7 @@ class Debugger
         } elseif (headers_sent($file, $line)) {
             throw new \LogicException(
                 'Debugger::dispatch() called after some output has been sent. '
-                    .($file
+                    . ($file
                         ? "Output started at $file:$line."
                         : 'Try System\Foundation\Oops\Outputs to find where output started.'
                     )
@@ -407,20 +407,20 @@ class Debugger
                         try {
                             echo \System\View::make('error.500')->render();
                         } catch (\Throwable $e) {
-                            require __DIR__.'/assets/debugger/500.phtml';
+                            require __DIR__ . '/assets/debugger/500.phtml';
                         } catch (\Exception $e) {
-                            require __DIR__.'/assets/debugger/500.phtml';
+                            require __DIR__ . '/assets/debugger/500.phtml';
                         }
                     } else {
                         require static::$errorTemplate;
                     }
                 } else {
-                    require __DIR__.'/assets/debugger/500.phtml';
+                    require __DIR__ . '/assets/debugger/500.phtml';
                 }
             } elseif ('cli' === PHP_SAPI) {
                 // FIXME: BC-break di PHP 7.4+: @ mentrigger E_NOTICE ketika stderr tidak bisa diakses
                 @fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '
-                    .(isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
+                    . (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
             }
         } elseif (! connection_aborted() && (Helpers::isHtmlMode() || Helpers::isAjax())) {
             $isJsonRequest = isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
@@ -448,9 +448,9 @@ class Debugger
                 self::getBar()->render();
             }
         } else {
-            $s = get_class($e).(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                .' in '.$e->getFile().':'.$e->getLine()
-                ."\nStack trace:\n".$e->getTraceAsString();
+            $s = get_class($e) . (('' === $e->getMessage()) ? '' : ': ' . $e->getMessage())
+                . ' in ' . $e->getFile() . ':' . $e->getLine()
+                . "\nStack trace:\n" . $e->getTraceAsString();
 
             try {
                 $file = null;
@@ -463,12 +463,12 @@ class Debugger
                     ]);
                     $file = self::log($e, self::EXCEPTION);
                     if ($file && ! headers_sent()) {
-                        header('X-Oops-Error-Log: '.$file);
+                        header('X-Oops-Error-Log: ' . $file);
                     }
                 }
 
                 if ($file) {
-                    echo "$s\n".("(stored in $file)\n");
+                    echo "$s\n" . ("(stored in $file)\n");
                 } elseif ($exit) {
                     echo "$s\n";
                 }
@@ -593,8 +593,8 @@ class Debugger
             self::exceptionHandler($e);
         }
 
-        $message = 'PHP '.Helpers::errorTypeToString($severity)
-            .': '.Helpers::improveError($message, $context);
+        $message = 'PHP ' . Helpers::errorTypeToString($severity)
+            . ': ' . Helpers::improveError($message, $context);
         $count = &self::getBar()->getPanel('Oops:info')->data["$file|$line|$message"];
 
         if ($count++) {
@@ -614,6 +614,13 @@ class Debugger
         }
     }
 
+    /**
+     * Remove all output buffers down to the level self::$obLevel.
+     *
+     * @param bool $errorOccurred
+     *
+     * @return void
+     */
     private static function removeOutputBuffers($errorOccurred)
     {
         while (ob_get_level() > self::$obLevel) {
@@ -639,7 +646,7 @@ class Debugger
         if (! self::$panic) {
             self::$panic = new Panic();
             self::$panic->info = [
-                'PHP '.PHP_VERSION,
+                'PHP ' . PHP_VERSION,
                 isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : null,
             ];
         }

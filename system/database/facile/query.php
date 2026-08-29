@@ -571,6 +571,7 @@ class Query
             $model = new $model([], true);
             $model->fill_raw((array) $result);
             $model->sync();
+            $model->fire_retrieved();
             $models[] = $model;
         }
 

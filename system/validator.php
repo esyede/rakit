@@ -1253,6 +1253,7 @@ class Validator
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param array  $parameters
      *
      * @return bool
      */
@@ -1394,6 +1395,7 @@ class Validator
      *
      * @param string $attribute
      * @param mixed  $value
+     * @param array  $parameters
      *
      * @return bool
      */

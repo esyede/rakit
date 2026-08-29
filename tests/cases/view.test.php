@@ -27,6 +27,64 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * A template that throws is run once, not twice. Whatever it did before
+     * throwing must not happen a second time.
+     *
+     * @group system
+     */
+    public function testATemplateThatThrowsIsRunOnce()
+    {
+        $file = path('app') . 'views' . DS . 'throwing_probe.blade.php';
+        file_put_contents($file, '<?php ViewThrowCounter::$times++; ?>a<?php throw new \Exception("boom"); ?>', LOCK_EX);
+
+        $reload = \System\Blade::$reload;
+        \System\Blade::$reload = true;
+        ViewThrowCounter::$times = 0;
+
+        try {
+            View::make('throwing_probe')->render();
+        } catch (\Exception $e) {
+            // sesuai harapan
+        } catch (\Throwable $e) {
+            // sesuai harapan
+        }
+
+        \System\Blade::$reload = $reload;
+        @unlink($file);
+
+        $this->assertEquals(1, ViewThrowCounter::$times);
+    }
+
+    /**
+     * A template that throws with buffers of its own open leaves none of them
+     * behind, or the output after it would be swallowed.
+     *
+     * @group system
+     */
+    public function testATemplateThatThrowsLeavesNoBufferBehind()
+    {
+        $file = path('app') . 'views' . DS . 'buffering_probe.blade.php';
+        file_put_contents($file, '@section("x")isi<?php throw new \Exception("boom"); ?>@endsection', LOCK_EX);
+
+        $reload = \System\Blade::$reload;
+        \System\Blade::$reload = true;
+        $level = ob_get_level();
+
+        try {
+            View::make('buffering_probe')->render();
+        } catch (\Exception $e) {
+            // sesuai harapan
+        } catch (\Throwable $e) {
+            // sesuai harapan
+        }
+
+        \System\Blade::$reload = $reload;
+        @unlink($file);
+
+        $this->assertEquals($level, ob_get_level());
+    }
+
+    /**
      * Test for View::make().
      *
      * @group system
@@ -242,4 +300,12 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = trim(str_replace(["\n", "\t", "\r"], '', $view));
         $this->assertEquals('Budi berumur 25<br>', $view);
     }
+}
+
+/**
+ * Counts how many times a template was run.
+ */
+class ViewThrowCounter
+{
+    public static $times = 0;
 }

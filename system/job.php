@@ -104,7 +104,14 @@ class Job
                 $prefix = Package::class_prefix($package);
                 $class = $prefix.Str::classify(basename($file, '.php')).'_Job';
 
-                if (class_exists($class, true)) {
+                // The file is read here rather than left to the autoloader,
+                // whose PSR-0 convention would look for jobs/mailing/job.php
+                // instead of the jobs/mailing.php the name points at.
+                if (! class_exists($class, false)) {
+                    require_once $file;
+                }
+
+                if (class_exists($class, false)) {
                     if ((new \ReflectionClass($class))->isSubclassOf('\System\Job\Jobable')) {
                         Hook::listen('rakit.jobs.run: '.$class::name(), function ($payload) use ($class) {
                             $class::execute($payload);

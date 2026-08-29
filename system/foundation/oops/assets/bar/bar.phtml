@@ -20,13 +20,15 @@ $main = null;
 $redirects = [];
 $ajax = null;
 
-foreach ($rows as $row) {
-    if ('main' === $row->type) {
-        $main = $row;
-    } elseif ('redirect' === $row->type) {
-        $redirects[] = $row;
-    } elseif ('ajax' === $row->type) {
-        $ajax = $row;
+if (isset($rows)) {
+    foreach ($rows as $row) {
+        if ('main' === $row->type) {
+            $main = $row;
+        } elseif ('redirect' === $row->type) {
+            $redirects[] = $row;
+        } elseif ('ajax' === $row->type) {
+            $ajax = $row;
+        }
     }
 }
 
@@ -61,91 +63,105 @@ $versionTip = implode("\n", $verLines);
 ?>
 
 <?php if ($main) : ?>
-<div id="oops-debug-bar">
-    <a href="#" rel="minimize" class="oops-brand" title="Rakit Debugbar (click to minimize)">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z" /></svg>
-        <span class="oops-brand-label">Rakit</span>
-    </a>
-
-    <div class="oops-datasets">
-        <ul class="oops-tabs oops-dataset oops-dataset-active" data-label="Main">
-            <?php
-            $info = null;
-
-            foreach ($main->panels as $panel) {
-                if ('Oops-info' === $panel->id) {
-                    $info = $panel;
-                    continue;
-                }
-
-                $renderTab($panel);
-            }
-            ?>
-        </ul>
-
-        <?php foreach ($redirects as $redirect) : ?>
-            <ul class="oops-tabs oops-dataset" data-label="Redirect">
-                <?php foreach ($redirect->panels as $panel) {
-                    $renderTab($panel);
-                } ?>
-            </ul>
-        <?php endforeach ?>
-    </div>
-
-    <div class="oops-switcher"></div>
-
-    <div class="oops-indicators">
-        <?php if ($info && $info->tab) : ?>
-            <a href="#" rel="oops-debug-panel-<?php echo $info->id ?>" class="oops-indicator oops-indicator-info" title="Execution time (click for details)"><?php echo trim($info->tab) ?></a>
-        <?php else : ?>
-            <span class="oops-indicator" title="Execution time">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5h-2v6l5 3 1-1.7-4-2.3V7z"/></svg>
-                <?php echo number_format($elapsed, 1, '.', ' ') ?> ms
-            </span>
-        <?php endif ?>
-        <span class="oops-indicator" title="Peak memory usage">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 5v6h6V9H9zM8 2h2v2H8V2zm6 0h2v2h-2V2zM8 20h2v2H8v-2zm6 0h2v2h-2v-2zM2 8h2v2H2V8zm0 6h2v2H2v-2zm18-6h2v2h-2V8zm0 6h2v2h-2v-2z"/></svg>
-            <?php echo number_format($memory, 2) ?> MB
-        </span>
-        <span class="oops-indicator" title="PHP Version">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4 1.4-1.4L7.8 12l2.6-2.6L9 8zm6 0l-1.4 1.4L16.2 12l-2.6 2.6L15 16l4-4-4-4z"/></svg>
-            PHP <?php echo PHP_VERSION ?>
-        </span>
-        <?php if (!empty($history)) : ?>
-            <div class="oops-history">
-                <a href="#" rel="history" class="oops-indicator oops-history-btn" title="Riwayat request sebelumnya">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 1 0 8.9 10.5 1 1 0 0 0-2-.3A7 7 0 1 1 13 5v3l4-4-4-4v3zm-1 5v5l4 2 .8-1.6-3.3-1.6V8z"/></svg>
-                    <span class="oops-label"><?php echo count($history) ?></span>
-                </a>
-                <div class="oops-history-menu">
-                    <div class="oops-history-head">Recent requests</div>
-                    <?php foreach ($history as $h) :
-                        $hMethod = isset($h['method']) ? $h['method'] : 'GET';
-                        $hUri = isset($h['uri']) ? $h['uri'] : '';
-                        $hStatus = isset($h['status']) ? (int) $h['status'] : 0;
-                        $hMs = isset($h['ms']) ? $h['ms'] : null;
-                        $hId = isset($h['id']) ? $h['id'] : '';
-                        $sColor = ($hStatus >= 200 && $hStatus < 300) ? '#5cb85c'
-                            : (($hStatus >= 400) ? '#d9534f' : '#f0ad4e');
-                    ?>
-                        <a class="oops-history-item" href="?_oops_bar=open.<?php echo urlencode($hId) ?>" target="_blank" rel="noopener noreferrer">
-                            <span class="oops-history-method"><?php echo Helpers::escapeHtml($hMethod) ?></span>
-                            <span class="oops-history-uri"><?php echo Helpers::escapeHtml($hUri) ?></span>
-                            <span class="oops-history-meta">
-                                <?php if ($hStatus) : ?><b style="color: <?php echo $sColor ?>;"><?php echo $hStatus ?></b><?php endif ?>
-                                <?php if (null !== $hMs) : ?><?php echo Helpers::escapeHtml($hMs) ?> ms<?php endif ?>
-                            </span>
-                        </a>
-                    <?php endforeach ?>
-                </div>
-            </div>
-        <?php endif ?>
-        <a href="#" rel="theme" class="oops-indicator oops-theme-toggle" title="Toggle theme (light/dark)">
-            <svg class="oops-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-5a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1zM4.2 5.6a1 1 0 0 1 1.4 0l1.4 1.4A1 1 0 0 1 5.6 8.4L4.2 7A1 1 0 0 1 4.2 5.6zm12.8 12.8a1 1 0 0 1 1.4 0l1.4 1.4a1 1 0 0 1-1.4 1.4L17 19.8a1 1 0 0 1 0-1.4zM2 12a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm17 0a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1-1-1zM5.6 17l1.4-1.4A1 1 0 0 1 8.4 17L7 18.4A1 1 0 0 1 5.6 17zm12.8-12.8L19.8 5.6A1 1 0 0 1 18.4 7L17 5.6A1 1 0 0 1 18.4 4.2z"/></svg>
-            <svg class="oops-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    <div id="oops-debug-bar">
+        <a href="#" rel="minimize" class="oops-brand" title="Rakit Debugbar (click to minimize)">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z" />
+            </svg>
+            <span class="oops-brand-label">Rakit</span>
         </a>
+
+        <div class="oops-datasets">
+            <ul class="oops-tabs oops-dataset oops-dataset-active" data-label="Main">
+                <?php
+                $info = null;
+
+                foreach ($main->panels as $panel) {
+                    if ('Oops-info' === $panel->id) {
+                        $info = $panel;
+                        continue;
+                    }
+
+                    $renderTab($panel);
+                }
+                ?>
+            </ul>
+
+            <?php foreach ($redirects as $redirect) : ?>
+                <ul class="oops-tabs oops-dataset" data-label="Redirect">
+                    <?php foreach ($redirect->panels as $panel) {
+                        $renderTab($panel);
+                    } ?>
+                </ul>
+            <?php endforeach ?>
+        </div>
+
+        <div class="oops-switcher"></div>
+
+        <div class="oops-indicators">
+            <?php if ($info && $info->tab) : ?>
+                <a href="#" rel="oops-debug-panel-<?php echo $info->id ?>" class="oops-indicator oops-indicator-info" title="Execution time (click for details)"><?php echo trim($info->tab) ?></a>
+            <?php else : ?>
+                <span class="oops-indicator" title="Execution time">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 5h-2v6l5 3 1-1.7-4-2.3V7z" />
+                    </svg>
+                    <?php echo number_format($elapsed, 1, '.', ' ') ?> ms
+                </span>
+            <?php endif ?>
+            <span class="oops-indicator" title="Peak memory usage">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm3 5v6h6V9H9zM8 2h2v2H8V2zm6 0h2v2h-2V2zM8 20h2v2H8v-2zm6 0h2v2h-2v-2zM2 8h2v2H2V8zm0 6h2v2H2v-2zm18-6h2v2h-2V8zm0 6h2v2h-2v-2z" />
+                </svg>
+                <?php echo number_format($memory, 2) ?> MB
+            </span>
+            <span class="oops-indicator" title="PHP Version">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M9 8l-4 4 4 4 1.4-1.4L7.8 12l2.6-2.6L9 8zm6 0l-1.4 1.4L16.2 12l-2.6 2.6L15 16l4-4-4-4z" />
+                </svg>
+                PHP <?php echo PHP_VERSION ?>
+            </span>
+            <?php if (!empty($history)) : ?>
+                <div class="oops-history">
+                    <a href="#" rel="history" class="oops-indicator oops-history-btn" title="Riwayat request sebelumnya">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M13 3a9 9 0 1 0 8.9 10.5 1 1 0 0 0-2-.3A7 7 0 1 1 13 5v3l4-4-4-4v3zm-1 5v5l4 2 .8-1.6-3.3-1.6V8z" />
+                        </svg>
+                        <span class="oops-label"><?php echo count($history) ?></span>
+                    </a>
+                    <div class="oops-history-menu">
+                        <div class="oops-history-head">Recent requests</div>
+                        <?php foreach ($history as $h) :
+                            $hMethod = isset($h['method']) ? $h['method'] : 'GET';
+                            $hUri = isset($h['uri']) ? $h['uri'] : '';
+                            $hStatus = isset($h['status']) ? (int) $h['status'] : 0;
+                            $hMs = isset($h['ms']) ? $h['ms'] : null;
+                            $hId = isset($h['id']) ? $h['id'] : '';
+                            $sColor = ($hStatus >= 200 && $hStatus < 300) ? '#5cb85c'
+                                : (($hStatus >= 400) ? '#d9534f' : '#f0ad4e');
+                        ?>
+                            <a class="oops-history-item" href="?_oops_bar=open.<?php echo urlencode($hId) ?>" target="_blank" rel="noopener noreferrer">
+                                <span class="oops-history-method"><?php echo Helpers::escapeHtml($hMethod) ?></span>
+                                <span class="oops-history-uri"><?php echo Helpers::escapeHtml($hUri) ?></span>
+                                <span class="oops-history-meta">
+                                    <?php if ($hStatus) : ?><b style="color: <?php echo $sColor ?>;"><?php echo $hStatus ?></b><?php endif ?>
+                                    <?php if (null !== $hMs) : ?><?php echo Helpers::escapeHtml($hMs) ?> ms<?php endif ?>
+                                </span>
+                            </a>
+                        <?php endforeach ?>
+                    </div>
+                </div>
+            <?php endif ?>
+            <a href="#" rel="theme" class="oops-indicator oops-theme-toggle" title="Toggle theme (light/dark)">
+                <svg class="oops-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0-5a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 16a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1zM4.2 5.6a1 1 0 0 1 1.4 0l1.4 1.4A1 1 0 0 1 5.6 8.4L4.2 7A1 1 0 0 1 4.2 5.6zm12.8 12.8a1 1 0 0 1 1.4 0l1.4 1.4a1 1 0 0 1-1.4 1.4L17 19.8a1 1 0 0 1 0-1.4zM2 12a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1zm17 0a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1-1-1zM5.6 17l1.4-1.4A1 1 0 0 1 8.4 17L7 18.4A1 1 0 0 1 5.6 17zm12.8-12.8L19.8 5.6A1 1 0 0 1 18.4 7L17 5.6A1 1 0 0 1 18.4 4.2z" />
+                </svg>
+                <svg class="oops-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                </svg>
+            </a>
+        </div>
     </div>
-</div>
 <?php endif ?>
 
 <?php if ($ajax) : ?>
