@@ -89,11 +89,16 @@ class Connection
         }
 
         switch ($this->driver()) {
-            case 'mysql':  return $this->grammar = new Query\Grammars\MySQL($this);
-            case 'sqlite': return $this->grammar = new Query\Grammars\SQLite($this);
-            case 'sqlsrv': return $this->grammar = new Query\Grammars\SQLServer($this);
-            case 'pgsql':  return $this->grammar = new Query\Grammars\Postgres($this);
-            default:       return $this->grammar = new Query\Grammars\Grammar($this);
+            case 'mysql':
+                return $this->grammar = new Query\Grammars\MySQL($this);
+            case 'sqlite':
+                return $this->grammar = new Query\Grammars\SQLite($this);
+            case 'sqlsrv':
+                return $this->grammar = new Query\Grammars\SQLServer($this);
+            case 'pgsql':
+                return $this->grammar = new Query\Grammars\Postgres($this);
+            default:
+                return $this->grammar = new Query\Grammars\Grammar($this);
         }
     }
 
@@ -377,7 +382,7 @@ class Connection
      */
     protected function source()
     {
-        $system = dirname(__DIR__).DIRECTORY_SEPARATOR;
+        $system = dirname(__DIR__) . DS;
         $base = dirname($system);
         $frames = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
@@ -394,13 +399,12 @@ class Connection
 
             $line = isset($frame['line']) ? $frame['line'] : 0;
 
-            if (0 === strpos($file, $base.DIRECTORY_SEPARATOR)) {
+            if (0 === strpos($file, $base . DS)) {
                 $file = substr($file, strlen($base) + 1);
             }
 
-            return $file.':'.$line;
+            return $file . ':' . $line;
         }
-
     }
 
     /**
@@ -420,7 +424,50 @@ class Connection
      */
     public function pdo()
     {
+        if (! $this->pdo instanceof PDO) {
+            throw new \Exception('This database connection has been closed. Reopen it with DB::reconnect(), or ask DB::connection() for it again.');
+        }
+
         return $this->pdo;
+    }
+
+    /**
+     * Determine if the connection is still open.
+     *
+     * @return bool
+     */
+    public function connected()
+    {
+        return $this->pdo instanceof PDO;
+    }
+
+    /**
+     * Close the connection to the database. Whatever an open transaction had
+     * done so far is rolled back by the server when the connection goes. A
+     * persistent connection goes back to the PDO pool instead of closing, and
+     * the next one opened is the same connection again.
+     *
+     * @return void
+     */
+    public function disconnect()
+    {
+        $this->pdo = null;
+        $this->transactions = 0;
+    }
+
+    /**
+     * Replace the PDO instance the queries run on.
+     *
+     * @param PDO $pdo
+     *
+     * @return $this
+     */
+    public function set_pdo(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+        $this->transactions = 0;
+
+        return $this;
     }
 
     /**

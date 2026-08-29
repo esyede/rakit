@@ -23,11 +23,12 @@ Status penyelarasan perilaku dan keluaran (*response*) Rakit terhadap Laravel.
 | Lapisan transaksi (audit + perbaikan) | Selesai |
 | Schema builder + migrasi (audit + perbaikan) | Selesai |
 | Session dan auth driver (audit + perbaikan) | Selesai |
-| Mail, penjadwalan, testing helper, lapisan koneksi (audit) | Selesai |
+| Mail, penjadwalan, testing helper (audit) | Selesai |
+| Lapisan koneksi: `disconnect()`, `reconnect()`, `purge()` | Selesai |
 | Blade component, API Resource, Stringable, observer | Sengaja tidak dikerjakan |
 | Mailable, notifikasi, broadcasting, task scheduler, testing helper | Sengaja tidak dikerjakan |
 
-Cakupan test naik dari 1921 menjadi **2169 test**, semuanya lolos, dan seluruh berkas yang
+Cakupan test naik dari 1921 menjadi **2179 test**, semuanya lolos, dan seluruh berkas yang
 disentuh lolos `php -l` pada PHP 5.6.
 
 ## Yang tidak dihitung sebagai ketidakcocokan
@@ -557,18 +558,41 @@ HTTP test (`$this->get('/')`, `assertStatus()`, `assertSee()`).
 Suite framework sendiri memakai PHPUnit langsung dan tidak memerlukannya, tapi aplikasi yang
 dibangun di atas Rakit harus menyiapkan sendiri.
 
-### 4d.5 Lapisan koneksi — **sebagian sengaja dilewati**
+### 4d.5 Lapisan koneksi — **selesai**
 
 Laravel tidak punya connection pooling; yang ada padanya adalah koneksi persisten PDO dan
-pengelolaan siklus hidup koneksi. Rakit sudah menutup yang pertama: `options` di
+pengelolaan siklus hidup koneksi. Yang pertama sudah ada di Rakit: `options` di
 `application/config/database.php` diteruskan apa adanya ke PDO, jadi
-`PDO::ATTR_PERSISTENT => true` bekerja seperti di Laravel.
+`PDO::ATTR_PERSISTENT => true` bekerja seperti di Laravel. Halaman dokumentasinya justru
+mencontohkan bentuk yang salah dan diam-diam diabaikan — itu jadi temuan S27.
 
-Yang belum ada: `Database::disconnect()`, `reconnect()` dan `purge()`, serta percobaan ulang
-otomatis saat koneksi terputus di tengah query (`MySQL server has gone away`). Satu koneksi
-yang sudah dibuka disimpan di `Database::$connections` sampai proses berakhir dan tidak bisa
-dibuang. Untuk request web biasa itu tidak terasa; yang terkena adalah proses berumur panjang
-seperti server WebSocket dan `job:runall` yang dibiarkan berjalan.
+Yang kedua tadinya tidak ada sama sekali: satu koneksi yang sudah dibuka tersimpan di
+`Database::$connections` sampai proses berakhir, tanpa cara membuangnya. Untuk request web
+biasa itu tidak terasa; yang terkena adalah proses berumur panjang seperti server WebSocket
+dan `job:runall` yang dibiarkan berjalan. Sekarang ada tiganya, mengikuti pembagian yang sama
+dengan Laravel:
+
+| Rakit | Laravel | Arti |
+|---|---|---|
+| `Database::disconnect($nama)` | `DB::disconnect()` | Tutup koneksinya, objeknya tetap terdaftar |
+| `Database::reconnect($nama)` | `DB::reconnect()` | Tutup lalu buka lagi, objeknya tetap yang sama |
+| `Database::purge($nama)` | `DB::purge()` | Tutup dan lupakan, `connection()` berikutnya membacanya ulang dari konfigurasi |
+| `Connection::connected()` | — | Apakah koneksinya masih terbuka |
+| `Connection::set_pdo($pdo)` | `Connection::setPdo()` | Ganti handle PDO-nya |
+
+`Database::connection()` membuka lagi koneksi yang sudah ditutup, jadi jalur biasa
+(`Database::table()`, model Facile, `Database::connection()`) pulih sendiri setelah
+`disconnect()`. Yang menyimpan instance koneksinya di variabel lebih dulu mendapat pesan yang
+jelas, bukan fatal error, dan `reconnect()` menghidupkannya kembali di objek yang sama.
+
+Nesting transaksi ikut dinolkan saat koneksi ditutup, supaya transaksi berikutnya benar-benar
+transaksi baru dan bukan savepoint dari transaksi yang sudah tidak ada.
+
+Yang tetap belum ada dan sengaja: percobaan ulang otomatis saat koneksi terputus di tengah
+query (`MySQL server has gone away`). Laravel mengulang query-nya sendiri selama tidak ada
+transaksi terbuka. Di Rakit, query yang gagal karena koneksi putus melempar `QueryException`
+dan pemanggilnya memutuskan sendiri kapan memanggil `Database::reconnect()` — pilihan yang
+sengaja diambil karena mengulang query diam-diam bisa menyembunyikan kerja yang hilang.
 
 ---
 
@@ -588,6 +612,7 @@ seperti server WebSocket dan `job:runall` yang dibiarkan berjalan.
 | `packages/docs/data/auth/usage.md` | Catatan id session diganti saat login dan logout, kolom `remember_token` |
 | `packages/docs/data/auth/config.md` | Kolom `remember_token`, primary key boleh string/UUID |
 | `packages/docs/data/email.md` | Tabel prioritas, `send()` membuang pesannya setelah terkirim, port SMTP |
+| `packages/docs/data/database/config.md` | Atribut PDO memakai kunci `options`, koneksi persisten, bagian baru: Managing Connections |
 
 Halaman pagination sebelumnya mendokumentasikan `$orders->per_page`, `$orders->from` dan
 `$orders->to` sebagai properti — ketiganya tidak pernah ada — serta `previous()`/`next()` yang

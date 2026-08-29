@@ -28,11 +28,11 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 |---|---|---|---|
 | [Kritis — keamanan](#kritis--keamanan) | 11 | 11 | 0 |
 | [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 26 | 26 | 0 |
-| [Sedang](#sedang) | 25 | 25 | 0 |
+| [Sedang](#sedang) | 26 | 26 | 0 |
 | [Rendah / pengerasan](#rendah--pengerasan) | 13 | 13 | 0 |
-| **Total** | **75** | **75** | **0** |
+| **Total** | **76** | **76** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2169 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2179 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -1354,6 +1354,26 @@ ikut terbaca sebagai lanjutan data base64 gambarnya, dan strukturnya tidak sah.
 
 **Yang dikerjakan**: dua baris tempelan itu dibuang.
 
+### S27. Atribut PDO yang didokumentasikan tidak pernah dipakai
+
+- [x] Selesai
+
+`Connector::options()` membaca `$config['options']`, sementara
+`packages/docs/data/database/config.md` mencontohkan `PDO::ATTR_*` ditulis langsung di larik
+koneksinya. Bentuk yang didokumentasikan diabaikan tanpa keluhan apa pun, jadi setelan yang
+dikira sudah aktif sebenarnya tidak pernah sampai ke PDO.
+
+**Reproduksi**:
+
+```php
+'sqlite' => ['driver' => 'sqlite', 'database' => 'application', PDO::ATTR_CASE => PDO::CASE_UPPER],
+// -> getAttribute(PDO::ATTR_CASE) tetap PDO::CASE_LOWER
+```
+
+**Yang dikerjakan**: halaman konfigurasinya memakai kunci `options` seperti yang dibaca kode,
+menyebutkan bahwa atribut di tingkat atas tidak dibaca, dan menambahkan
+`PDO::ATTR_PERSISTENT` sebagai contoh. Bentuk yang benar dikunci dengan test.
+
 ---
 
 ## Rendah / pengerasan
@@ -1569,6 +1589,7 @@ halaman dokumentasinya menjelaskan bahwa 465 dipakai dengan `starttls` mati dan 
 | `application/config/aliases.php` | Alias baru: `Collection` |
 | `packages/docs/data/email.md` | Tabel prioritas dibalik ke nilai yang sebenarnya, `send()` membuang pesannya, port SMTP |
 | `application/config/email.php` | Port SMTP bawaan `587`, catatan soal 465 dan `ssl://` |
+| `packages/docs/data/database/config.md` | Atribut PDO memakai kunci `options`, koneksi persisten, bagian baru: Managing Connections |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -1645,7 +1666,7 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
 Kosong.
 
 Yang tidak berarti framework ini bebas bug — hanya berarti setiap bagian sudah pernah dilihat,
-dan setiap temuan yang muncul sudah ditutup berikut testnya. Sebelas putaran, 75 temuan.
+dan setiap temuan yang muncul sudah ditutup berikut testnya. Sebelas putaran, 76 temuan.
 
 ## Penyapuan otomatis yang sudah dijalankan
 

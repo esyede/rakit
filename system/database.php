@@ -42,9 +42,68 @@ class Database
             }
 
             static::$connections[$connection] = new Database\Connection(static::connect($config), $config);
+        } elseif (! static::$connections[$connection]->connected()) {
+            $config = static::$connections[$connection]->config;
+            static::$connections[$connection]->set_pdo(static::connect($config));
         }
 
         return static::$connections[$connection];
+    }
+
+    /**
+     * Close the connection to the given database, or to the default one.
+     * The connection stays registered, so asking connection() for it again
+     * opens a new one. Work left inside an open transaction is lost.
+     *
+     * @param string $connection
+     *
+     * @return void
+     */
+    public static function disconnect($connection = null)
+    {
+        if (is_null($connection)) {
+            $connection = Config::get('database.default');
+        }
+
+        if (isset(static::$connections[$connection])) {
+            static::$connections[$connection]->disconnect();
+        }
+    }
+
+    /**
+     * Close the connection to the given database and open it again. The
+     * connection instance is the same one as before, so code holding on to it
+     * keeps working.
+     *
+     * @param string $connection
+     *
+     * @return \System\Database\Connection
+     */
+    public static function reconnect($connection = null)
+    {
+        static::disconnect($connection);
+
+        return static::connection($connection);
+    }
+
+    /**
+     * Close the connection to the given database and forget it. The next call
+     * to connection() builds a new one, so a configuration that changed while
+     * the process was running is picked up.
+     *
+     * @param string $connection
+     *
+     * @return void
+     */
+    public static function purge($connection = null)
+    {
+        if (is_null($connection)) {
+            $connection = Config::get('database.default');
+        }
+
+        static::disconnect($connection);
+
+        unset(static::$connections[$connection]);
     }
 
     /**

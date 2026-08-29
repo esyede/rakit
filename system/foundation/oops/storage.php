@@ -215,7 +215,7 @@ class Storage
      */
     protected function files()
     {
-        $files = glob($this->dir.DIRECTORY_SEPARATOR.'*.json');
+        $files = glob($this->dir . DS . '*.json');
 
         return is_array($files) ? $files : [];
     }
@@ -227,7 +227,7 @@ class Storage
      */
     protected function path($id)
     {
-        return $this->dir.DIRECTORY_SEPARATOR.$this->sanitize($id).'.json';
+        return $this->dir . DS . $this->sanitize($id) . '.json';
     }
 
     /**
@@ -239,7 +239,7 @@ class Storage
      */
     protected function meta_path($id)
     {
-        return $this->dir.DIRECTORY_SEPARATOR.$this->sanitize($id).'.meta';
+        return $this->dir . DS . $this->sanitize($id) . '.meta';
     }
 
     /**
