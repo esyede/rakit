@@ -98,7 +98,6 @@ Debugger::$showLocation = (bool) $debugger['location'];
 Debugger::$maxDepth = (int) $debugger['depth'];
 Debugger::$maxLength = (int) $debugger['length'];
 Debugger::$email = (string) $debugger['email'];
-Debugger::detectDebugMode();
 Debugger::dispatch();
 
 /*

@@ -14,22 +14,25 @@ menjalankan kode**, bukan dari membaca sekilas, dan menyertakan cara mereproduks
 - **Putaran kedelapan** (menyapu simbol yang dirujuk dan baris bahasa): 2026-08-28.
 - **Putaran kesembilan** (konstanta, properti, konfigurasi, perintah konsol, scaffold): 2026-08-28.
 - **Putaran kesepuluh** (menjalankan 1.273 blok kode dokumentasi betulan): 2026-08-28.
+- **Putaran kesebelas** (Email, penjadwalan, testing helper dan lapisan koneksi — area yang
+  belum pernah dibandingkan dengan Laravel): 2026-08-29.
 - **Aturan main**: centang hanya setelah ada perbaikan **dan** test yang menutupinya.
 - **Test regresi**: `tests/cases/regression.test.php`, nama methodnya mengikuti id di bawah,
   jadi kegagalan langsung menunjuk ke poin yang menjelaskan apa yang salah. Test yang tidak
-  muat di sana ada di berkas subjeknya masing-masing (`routing-extras`, `redirect`).
+  muat di sana ada di berkas subjeknya masing-masing (`routing-extras`, `redirect`,
+  `email-message`).
 
 ## Ringkasan
 
 | Tingkat | Total | Selesai | Sisa |
 |---|---|---|---|
-| [Kritis — keamanan](#kritis--keamanan) | 9 | 9 | 0 |
-| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 22 | 22 | 0 |
-| [Sedang](#sedang) | 22 | 22 | 0 |
-| [Rendah / pengerasan](#rendah--pengerasan) | 12 | 12 | 0 |
-| **Total** | **65** | **65** | **0** |
+| [Kritis — keamanan](#kritis--keamanan) | 11 | 11 | 0 |
+| [Tinggi — fungsi rusak](#tinggi--fungsi-rusak) | 26 | 26 | 0 |
+| [Sedang](#sedang) | 25 | 25 | 0 |
+| [Rendah / pengerasan](#rendah--pengerasan) | 13 | 13 | 0 |
+| **Total** | **75** | **75** | **0** |
 
-Cakupan test naik dari 2064 menjadi **2156 test**, semuanya lolos.
+Cakupan test naik dari 2064 menjadi **2169 test**, semuanya lolos.
 
 Tidak ada lagi bagian yang menunggu giliran.
 
@@ -289,6 +292,49 @@ request diproses. Selama daftarnya kosong host apa pun diterima (yang memang coc
 pengembangan); begitu diisi, request yang menyebut host lain ditolak. Nama boleh diawali `*.`
 untuk mencakup subdomainnya sekaligus dirinya sendiri, dan pengecekannya tahan terhadap
 kebingungan akhiran — `situs-asli.test.jahat.test` tetap ditolak.
+
+---
+
+### K10. Penerima email sebelumnya ikut menerima email berikutnya
+
+- [x] Selesai
+
+`Email::driver()` menyimpan satu instance driver untuk seluruh request, dan `send()` tidak
+pernah membersihkan pesannya. Penerima, lampiran dan header kustom menumpuk, jadi email kedua
+di request yang sama terkirim juga ke penerima email pertama — lengkap dengan lampirannya.
+
+**Reproduksi**:
+
+```php
+Email::to('satu@example.com')->subject('Faktur A')->body('..')->send();
+Email::to('dua@example.com')->subject('Faktur B')->body('..')->send();
+// -> email kedua terkirim ke satu@example.com dan dua@example.com
+```
+
+**Yang dikerjakan**: `send()` memanggil `reset()` setelah transport menerima pesannya, dan
+`reset()` sekarang ikut membuang header kustom. Pengirim, subjek dan body tetap ada, jadi
+mengirim satu email ke banyak orang cukup dengan mengganti `to()` tiap putaran. Halaman
+dokumentasinya menjelaskan itu berikut contohnya.
+
+### K11. Nama lampiran dan content-id bisa menyisipkan header MIME
+
+- [x] Selesai
+
+Header email disaring dengan `sanitize_header()`, tapi nama lampiran dan content-id masuk
+mentah-mentah ke header bagian MIME-nya (`Content-Type: ...; name="..."`). Nama berkas yang
+datang dari pengguna — misalnya nama berkas unggahan yang diteruskan ke `string_attach()` —
+bisa memuat CRLF dan membuka header, bahkan bagian, karangannya sendiri.
+
+**Reproduksi**:
+
+```php
+$email->string_attach($isi, "catatan.txt\"\r\nContent-Type: text/html\r\n\r\n<script>..");
+// -> header bagian MIME-nya pecah jadi beberapa baris
+```
+
+**Yang dikerjakan**: `sanitize_parameter()` — saudara `sanitize_header()` untuk parameter
+berkutip — membuang CR, LF, NUL, tanda kutip dan kurung sudut. Dipakai di nama lampiran saat
+header bagian ditulis, dan di content-id saat lampiran didaftarkan.
 
 ---
 
@@ -840,6 +886,71 @@ yang masuk ke `EXISTS ( .. )` tetap pernyataan yang utuh. `Query::from()` ditamb
 
 ---
 
+### T23. Email HTML dengan gambar sebaris dan lampiran ditolak sendiri
+
+- [x] Selesai
+
+`send()` menyusun nama tipe dari bahan yang ada (`html`, `_alt`, `_inline`, `_attach`) lalu
+memilih Content-Type lewat `switch`. Kombinasi `html_inline_attach` tidak ada di sana dan
+jatuh ke `default`, yang melempar `Invalid content-type` — padahal `build()` justru sudah
+punya cabang untuk kombinasi itu. Terjadi setiap kali email HTML memuat gambar lokal, tidak
+punya alt body, dan membawa lampiran biasa.
+
+**Reproduksi**:
+
+```php
+$email->html_body('<img src="'.$logo.'" />', false)->attach($berkas)->send();
+// -> Exception: Invalid content-type: html_inline_attach
+```
+
+**Yang dikerjakan**: `html_inline_attach` disatukan dengan `html_alt_attach` sebagai
+`multipart/mixed`, sesuai susunan yang memang sudah dibangun `build()`.
+
+### T24. `Content-Transfer-Encoding` tidak pernah dikirim untuk pesan satu bagian
+
+- [x] Selesai
+
+`send()` memasang header `Content-Transfer-Encoding` untuk email `plain` dan `html`, tapi
+daftar header yang benar-benar ditulis `build()` tidak memuatnya. Body tetap di-encode, hanya
+tidak ada yang memberi tahu klien email. Dua dari tiga pilihan `encoding` yang didokumentasikan
+karena itu sampai dalam keadaan tidak terbaca: `base64` tampil sebagai deretan base64, dan
+`quoted-printable` tampil dengan `=C3=A9` dan `=3D` apa adanya.
+
+**Yang dikerjakan**: `Content-Transfer-Encoding` dimasukkan ke daftar header yang ditulis.
+Pesan multipart tidak terpengaruh — tiap bagiannya memang sudah menulis header itu sendiri.
+
+### T25. `strip_comments` ikut memakan isi di antara dua komentar
+
+- [x] Selesai
+
+`preg_replace('/<!--(.*)-->/', '', $html)` serakah, jadi ia menyapu dari `<!--` pertama sampai
+`-->` terakhir. Body yang diapit dua komentar hilang seluruhnya, dan email terkirim kosong
+tanpa keluhan apa pun.
+
+**Reproduksi**:
+
+```php
+$email->html_body('<!--awal--><p>Teks penting</p><!--akhir-->');
+// -> body menjadi string kosong
+```
+
+**Yang dikerjakan**: polanya diubah jadi malas dan diberi modifier `s`, jadi tiap komentar
+dibuang sendiri-sendiri, termasuk yang melintasi baris.
+
+### T26. `send()` melaporkan berhasil padahal transport menolak
+
+- [x] Selesai
+
+Nilai kembalian `transmit()` dibuang, lalu `send()` mengembalikan `true` tanpa syarat. Driver
+`mail` sudah meneruskan hasil `mail()`, tapi aplikasi tidak pernah melihatnya — antrean yang
+penuh atau `sendmail` yang gagal tetap terbaca sebagai sukses.
+
+**Yang dikerjakan**: `send()` mengembalikan `false` kalau `transmit()` mengembalikan `false`.
+Driver pihak ketiga yang tidak mengembalikan apa-apa tetap terbaca sukses seperti sebelumnya,
+karena yang diperiksa hanya `false` yang eksplisit.
+
+---
+
 ## Sedang
 
 ### S1. Driver cache redis mengabaikan prefix `cache.key`
@@ -1212,6 +1323,39 @@ kenapa alias tidak mungkin. Sapuan yang memeriksa hal ini kini jadi test.
 
 ---
 
+### S24. `send()` merusak body-nya sendiri
+
+- [x] Selesai
+
+`send()` menulis hasil encoding balik ke `$this->body` dan `$this->alt_body`. Memanggilnya dua
+kali meng-encode body yang sudah ter-encode: dengan `base64`, penerima kedua menerima base64
+dari base64.
+
+**Yang dikerjakan**: hasil encoding disimpan di `$prepared_body` dan `$prepared_alt_body`, dan
+itulah yang dibaca `build()`. Body yang ditulis pengguna tidak pernah disentuh.
+
+### S25. `protocol_replacement` menulis `1` sebagai skema
+
+- [x] Selesai
+
+`$scheme = Arr::get(..) && 0 === strpos($url, '//')` — `&&` mengikat lebih erat daripada `=`,
+jadi `$scheme` berisi boolean, bukan skemanya. URL `//cdn.site.com/logo.png` menjadi
+`1cdn.site.com/logo.png`.
+
+**Yang dikerjakan**: penugasannya dikurung.
+
+### S26. Alt body diulang di belakang lampiran sebaris
+
+- [x] Selesai
+
+Di cabang `html_alt_inline_attach` dan `html_inline_attach`, `build()` menempelkan `alt_body`
+sekali lagi setelah bagian lampiran sebaris terakhir — tanpa header, tanpa boundary. Teksnya
+ikut terbaca sebagai lanjutan data base64 gambarnya, dan strukturnya tidak sah.
+
+**Yang dikerjakan**: dua baris tempelan itu dibuang.
+
+---
+
 ## Rendah / pengerasan
 
 ### R1. Kunci aplikasi efektif hanya 112 bit
@@ -1388,6 +1532,20 @@ terlihat sebagai `@forelse` yang tidak terkompilasi — sama seperti perlakuan `
 
 ---
 
+### R13. Bawaan SMTP tidak bisa menyambung ke port yang disebutnya sendiri
+
+- [x] Selesai
+
+`application/config/email.php` bawaannya `port => 465` dengan `starttls => true`. Blok STARTTLS
+hanya berjalan untuk host `tcp://`, sementara server di 465 menunggu TLS lebih dulu dan tidak
+pernah mengirim sapaan `220`. Kombinasi bawaannya karena itu berhenti di timeout.
+
+**Yang dikerjakan**: portnya menjadi `587`, yang memang port STARTTLS. Komentar konfigurasi dan
+halaman dokumentasinya menjelaskan bahwa 465 dipakai dengan `starttls` mati dan host berawalan
+`ssl://`.
+
+---
+
 ## Dokumentasi yang ikut diperbarui
 
 | Berkas | Perubahan |
@@ -1409,6 +1567,8 @@ terlihat sebagai `@forelse` yang tidak terkompilasi — sama seperti perlakuan `
 | `packages/docs/data/routing.md` | Opsi `resource`: `delete` bukan `destroy`, perilaku opsi lain |
 | `packages/docs/data/database/redis.md` | `use System\Redis` dan alasannya |
 | `application/config/aliases.php` | Alias baru: `Collection` |
+| `packages/docs/data/email.md` | Tabel prioritas dibalik ke nilai yang sebenarnya, `send()` membuang pesannya, port SMTP |
+| `application/config/email.php` | Port SMTP bawaan `587`, catatan soal 465 dan `ssl://` |
 
 Halaman routing sudah menggambarkan grup bersarang yang menyambung prefix dan menggabungkan
 middleware — yang selama ini tidak dilakukan kodenya. Sekarang kodenya menyusul, jadi
@@ -1430,7 +1590,9 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
 - **View** — nama view dengan `../` ditolak, bukan dibaca dari luar direktori view.
 - **Package, Config** — nama dengan `..`, `/` dan `\` tidak menembus direktori.
 - **Email** — CR, LF dan NUL dibuang dari seluruh header, termasuk `to`, `cc`, `bcc` dan
-  `subject`, jadi tidak ada penyisipan header.
+  `subject`, jadi tidak ada penyisipan header. Yang tidak diperiksa waktu itu adalah header
+  bagian MIME dan alur `send()` sendiri; putaran kesebelas menyisirnya dan menemukan sepuluh
+  poin (K10, K11, T23–T26, S24–S26, R13).
 - **Markdown** — HTML mentah memang diteruskan, tapi `safety()` ada dan dokumentasinya sudah
   menyuruh menyalakannya untuk masukan dari pengguna.
 - **Console `make`** — `slashes()` mengubah titik menjadi garis miring, jadi `..` runtuh
@@ -1476,14 +1638,14 @@ Bagian yang diperiksa di putaran kedua dan ternyata bersih:
   exception maupun path berkas; diuji lewat HTTP sungguhan. Satu catatan kecil:
   `Debugger::detectDebugMode()` dipanggil di `boot.php` tapi nilainya dibuang, jadi mode debug
   murni ditentukan konfigurasi. Perilakunya benar, hanya pemanggilannya yang sia-sia dan bisa
-  membuat pembaca mengira ada deteksi otomatis berbasis IP.
+  membuat pembaca mengira ada deteksi otomatis berbasis IP, jadi panggilannya dihapus.
 
 ## Belum diaudit
 
 Kosong.
 
 Yang tidak berarti framework ini bebas bug — hanya berarti setiap bagian sudah pernah dilihat,
-dan setiap temuan yang muncul sudah ditutup berikut testnya. Tujuh putaran, 58 temuan.
+dan setiap temuan yang muncul sudah ditutup berikut testnya. Sebelas putaran, 75 temuan.
 
 ## Penyapuan otomatis yang sudah dijalankan
 

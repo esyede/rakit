@@ -56,7 +56,22 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     {
         $send = new \ReflectionMethod('\System\Email\Drivers\Driver', 'send');
         PHP_VERSION_ID < 80100 && $send->setAccessible(true);
+
+        // send() drops the message once it is on the wire, so the parts it was
+        // built from are put back to let the message be rebuilt for inspection.
+        $message = [];
+
+        foreach (['to', 'cc', 'bcc', 'replyto', 'attachments', 'extras'] as $part) {
+            $property = new \ReflectionProperty('\System\Email\Drivers\Driver', $part);
+            PHP_VERSION_ID < 80100 && $property->setAccessible(true);
+            $message[$part] = [$property, $property->getValue($driver)];
+        }
+
         $send->invoke($driver, false);
+
+        foreach ($message as $part) {
+            $part[0]->setValue($driver, $part[1]);
+        }
 
         $build = new \ReflectionMethod('\System\Email\Drivers\Driver', 'build');
         PHP_VERSION_ID < 80100 && $build->setAccessible(true);
@@ -91,6 +106,23 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
             ->to('budi@example.com', 'Budi')
             ->subject('Halo')
             ->body('Isi pesan');
+    }
+
+    /**
+     * A driver that keeps the message it was asked to transmit.
+     *
+     * @return \System\Email\Drivers\Driver
+     */
+    protected function probe()
+    {
+        EmailProbeDriver::$sent = ['header' => '', 'body' => ''];
+        Email::reset();
+
+        Email::extend('probe', function () {
+            return new EmailProbeDriver(Config::get('email'));
+        });
+
+        return Email::driver('probe')->from('noreply@example.com');
     }
 
     // -------------------------------------------------------------------------
@@ -506,5 +538,343 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testLogDriverSends()
     {
         $this->assertTrue($this->driver()->send(false));
+    }
+
+    // -------------------------------------------------------------------------
+    // Regression
+    // -------------------------------------------------------------------------
+
+    /**
+     * The recipients of one email do not become recipients of the next.
+     *
+     * @group system
+     */
+    public function testK10RecipientsDoNotSurviveTheSend()
+    {
+        $driver = $this->probe();
+        $driver->to('satu@example.com')->subject('Pertama')->body('Isi pertama')->send();
+        $driver->to('dua@example.com')->subject('Kedua')->body('Isi kedua')->send();
+
+        $this->assertContains('To: dua@example.com', EmailProbeDriver::$sent['header']);
+        $this->assertNotContains('satu@example.com', EmailProbeDriver::$sent['header']);
+    }
+
+    /**
+     * The custom headers of one email do not survive into the next.
+     *
+     * @group system
+     */
+    public function testK10CustomHeadersDoNotSurviveTheSend()
+    {
+        $driver = $this->probe();
+        $driver->to('satu@example.com')->header('X-Kampanye', 'promo')->subject('Pertama')->body('Isi')->send();
+        $driver->to('dua@example.com')->subject('Kedua')->body('Isi')->send();
+
+        $this->assertNotContains('X-Kampanye', EmailProbeDriver::$sent['header']);
+    }
+
+    /**
+     * The attachments of one email do not survive into the next.
+     *
+     * @group system
+     */
+    public function testK10AttachmentsDoNotSurviveTheSend()
+    {
+        $driver = $this->probe();
+        $driver->to('satu@example.com')->subject('Pertama')->body('Isi')
+            ->string_attach('isi rahasia', 'rahasia.txt')
+            ->send();
+        $driver->to('dua@example.com')->subject('Kedua')->body('Isi')->send();
+
+        $this->assertNotContains('rahasia.txt', EmailProbeDriver::$sent['body']);
+    }
+
+    /**
+     * A newline in the attachment name cannot open a header of its own.
+     *
+     * @group system
+     */
+    public function testK11AttachmentNameCannotInjectHeaders()
+    {
+        $path = path('storage') . 'lampiran-jahat.txt';
+        file_put_contents($path, 'isi');
+
+        try {
+            $driver = $this->probe();
+            $driver->to('budi@example.com')->subject('Halo')->body('Isi')
+                ->attach($path, false, null, null, "catatan.txt\"\r\nContent-Type: text/html")
+                ->send();
+
+            $body = EmailProbeDriver::$sent['body'];
+
+            preg_match('/name="([^"]*)"/', $body, $matches);
+
+            $this->assertNotRegExp('/[\r\n"<>]/', $matches[1]);
+            $this->assertNotContains("\nContent-Type: text/html", $body);
+        } catch (\Exception $e) {
+            @unlink($path);
+            throw $e;
+        }
+
+        @unlink($path);
+    }
+
+    /**
+     * A newline in the content id cannot open a header of its own.
+     *
+     * @group system
+     */
+    public function testK11ContentIdCannotInjectHeaders()
+    {
+        $driver = $this->probe();
+        $driver->to('budi@example.com')->subject('Halo')->html_body('<p>Isi</p>', false, false)
+            ->string_attach('gambar', 'logo.png', "abc\r\nX-Sisipan: iya", true)
+            ->send();
+
+        $body = EmailProbeDriver::$sent['body'];
+
+        $this->assertContains('Content-ID: <abcX-Sisipan: iya>', $body);
+        $this->assertNotContains("\nX-Sisipan", $body);
+    }
+
+    /**
+     * An html email with an inline image and an attachment, but no alternative
+     * body, has a content type of its own.
+     *
+     * @group system
+     */
+    public function testT23HtmlWithInlineAndAttachmentIsSent()
+    {
+        $logo = path('storage') . 'lampiran-sebaris.txt';
+        $berkas = path('storage') . 'lampiran-biasa.txt';
+
+        file_put_contents($logo, 'gambar');
+        file_put_contents($berkas, 'lampiran');
+
+        try {
+            $driver = $this->probe();
+            $sent = $driver->to('budi@example.com')->subject('Halo')
+                ->html_body('<img src="' . $logo . '" />', false)
+                ->attach($berkas)
+                ->send();
+
+            $this->assertTrue($sent);
+            $this->assertContains('multipart/mixed', EmailProbeDriver::$sent['header']);
+            $this->assertContains('lampiran-biasa.txt', EmailProbeDriver::$sent['body']);
+            $this->assertContains('Content-Disposition: inline', EmailProbeDriver::$sent['body']);
+        } catch (\Exception $e) {
+            @unlink($logo);
+            @unlink($berkas);
+            throw $e;
+        }
+
+        @unlink($logo);
+        @unlink($berkas);
+    }
+
+    /**
+     * A single part message says how its body was encoded.
+     *
+     * @group system
+     */
+    public function testT24EncodingIsAnnounced()
+    {
+        Config::set('email.encoding', 'base64');
+
+        $driver = $this->probe();
+        $driver->to('budi@example.com')->subject('Halo')->body('Isi laporan')->send();
+
+        $this->assertContains('Content-Transfer-Encoding: base64', EmailProbeDriver::$sent['header']);
+        $this->assertContains(
+            base64_encode('Isi laporan'),
+            preg_replace('/\s+/', '', EmailProbeDriver::$sent['body'])
+        );
+
+        Config::set('email.encoding', 'quoted-printable');
+
+        $driver = $this->probe();
+        $driver->to('budi@example.com')->subject('Halo')->body('Kopi caf=e')->send();
+
+        $this->assertContains(
+            'Content-Transfer-Encoding: quoted-printable',
+            EmailProbeDriver::$sent['header']
+        );
+    }
+
+    /**
+     * Stripping comments leaves the markup between two of them alone.
+     *
+     * @group system
+     */
+    public function testT25CommentsAreStrippedWithoutEatingTheMarkup()
+    {
+        $driver = $this->probe();
+        $driver->to('budi@example.com')->subject('Halo')
+            ->html_body('<!--awal--><p>Teks penting</p><!--akhir-->', false, false)
+            ->send();
+
+        $this->assertContains('<p>Teks penting</p>', EmailProbeDriver::$sent['body']);
+        $this->assertNotContains('awal', EmailProbeDriver::$sent['body']);
+        $this->assertNotContains('akhir', EmailProbeDriver::$sent['body']);
+    }
+
+    /**
+     * A transport that reports a failure is not reported as a success.
+     *
+     * @group system
+     */
+    public function testT26SendReportsATransportFailure()
+    {
+        Email::extend('gagal', function () {
+            return new EmailFailingDriver(Config::get('email'));
+        });
+
+        $driver = Email::driver('gagal')->from('noreply@example.com');
+
+        $this->assertFalse($driver->to('budi@example.com')->subject('Halo')->body('Isi')->send());
+    }
+
+    /**
+     * A driver that returns nothing is still taken as a success.
+     *
+     * @group system
+     */
+    public function testT26SendAcceptsADriverThatReturnsNothing()
+    {
+        Email::extend('diam', function () {
+            return new EmailSilentDriver(Config::get('email'));
+        });
+
+        $driver = Email::driver('diam')->from('noreply@example.com');
+
+        $this->assertTrue($driver->to('budi@example.com')->subject('Halo')->body('Isi')->send());
+    }
+
+    /**
+     * Sending twice does not encode the body twice.
+     *
+     * @group system
+     */
+    public function testS24BodyIsNotEncodedTwice()
+    {
+        Config::set('email.encoding', 'base64');
+
+        $driver = $this->probe();
+        $driver->to('satu@example.com')->subject('Halo')->body('Isi asli')->send();
+        $first = EmailProbeDriver::$sent['body'];
+
+        $driver->to('dua@example.com')->send();
+
+        $this->assertEquals(trim($first), trim(EmailProbeDriver::$sent['body']));
+        $this->assertContains(
+            base64_encode('Isi asli'),
+            preg_replace('/\s+/', '', EmailProbeDriver::$sent['body'])
+        );
+    }
+
+    /**
+     * A protocol relative url is rewritten with the configured scheme.
+     *
+     * @group system
+     */
+    public function testS25ProtocolReplacementUsesTheScheme()
+    {
+        Config::set('email.protocol_replacement', 'https://');
+
+        $driver = $this->probe();
+        $driver->to('budi@example.com')->subject('Halo')
+            ->html_body('<img src="//cdn.example.com/logo.png" />', false)
+            ->send();
+
+        $this->assertContains('https://cdn.example.com/logo.png', EmailProbeDriver::$sent['body']);
+    }
+
+    /**
+     * The alternative body is not repeated behind the inline parts.
+     *
+     * @group system
+     */
+    public function testS26InlinePartsAreNotFollowedByTheAltBody()
+    {
+        $logo = path('storage') . 'lampiran-sebaris.txt';
+        $berkas = path('storage') . 'lampiran-biasa.txt';
+
+        file_put_contents($logo, 'gambar');
+        file_put_contents($berkas, 'lampiran');
+
+        try {
+            $driver = $this->probe();
+            $driver->to('budi@example.com')->subject('Halo')
+                ->html_body('<p>Isi html</p><img src="' . $logo . '" />')
+                ->alt_body('Ringkasan alternatif')
+                ->attach($berkas)
+                ->send();
+
+            $body = EmailProbeDriver::$sent['body'];
+
+            $this->assertContains('multipart/related', $body);
+            $this->assertEquals(1, substr_count($body, 'Ringkasan alternatif'));
+        } catch (\Exception $e) {
+            @unlink($logo);
+            @unlink($berkas);
+            throw $e;
+        }
+
+        @unlink($logo);
+        @unlink($berkas);
+    }
+}
+
+/**
+ * Keeps the message instead of putting it on a wire.
+ */
+class EmailProbeDriver extends \System\Email\Drivers\Driver
+{
+    /**
+     * The message the last send() handed to the transport.
+     *
+     * @var array
+     */
+    public static $sent = ['header' => '', 'body' => ''];
+
+    /**
+     * Starts the email transmission.
+     *
+     * @return bool
+     */
+    protected function transmit()
+    {
+        static::$sent = $this->build();
+        return true;
+    }
+}
+
+/**
+ * Reports that the transport refused the message.
+ */
+class EmailFailingDriver extends \System\Email\Drivers\Driver
+{
+    /**
+     * Starts the email transmission.
+     *
+     * @return bool
+     */
+    protected function transmit()
+    {
+        return false;
+    }
+}
+
+/**
+ * A third party driver that returns nothing at all.
+ */
+class EmailSilentDriver extends \System\Email\Drivers\Driver
+{
+    /**
+     * Starts the email transmission.
+     */
+    protected function transmit()
+    {
+        // ..
     }
 }

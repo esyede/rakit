@@ -27,12 +27,16 @@ return [
     |
     | Available login methods: LOGIN (default), PLAIN, CRAM-MD5
     |
+    | Port 587 is the STARTTLS port and works with 'starttls' turned on. For the
+    | implicit TLS port 465, turn 'starttls' off and prefix the host with
+    | 'ssl://' instead, since the server expects TLS before it says anything.
+    |
     */
 
     'smtp' => [
         'method' => 'LOGIN',
         'host' => '',
-        'port' => 465,
+        'port' => 587,
         'username' => '',
         'password' => '',
         'timeout' => 5,

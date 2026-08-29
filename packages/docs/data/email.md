@@ -40,6 +40,19 @@ its transmission. However, of course you may change it as needed:
 'driver' => 'sendmail',
 ```
 
+For the `'smtp'` driver, the default port `587` is the one that speaks STARTTLS.
+A server on the implicit TLS port `465` expects the encryption to be in place before
+it says anything, so turn `'starttls'` off and name the host with its scheme:
+
+```php
+'smtp' => [
+    'host' => 'ssl://smtp.site.com',
+    'port' => 465,
+    'starttls' => false,
+    // ..
+],
+```
+
 > Open and read the file `application/config/email.php` so that you have an idea
 > about what preferences you can change.
 
@@ -193,13 +206,13 @@ $email->priority(Email::HIGH);
 
 Email priority constants must follow this table:
 
-| Constant        | Value                |
+| Constant         | Value                |
 | ---------------- | -------------------- |
-| `Email::LOWEST`  | 1 (Lowest)           |
-| `Email::LOW`     | 2 (Low)              |
+| `Email::HIGHEST` | 1 (Highest)          |
+| `Email::HIGH`    | 2 (High)             |
 | `Email::NORMAL`  | 3 (Normal) - default |
-| `Email::HIGH`    | 4 (High)             |
-| `Email::HIGHEST` | 5 (Highest)          |
+| `Email::LOW`     | 4 (Low)              |
+| `Email::LOWEST`  | 5 (Lowest)           |
 
 <a id="attachments"></a>
 
@@ -259,6 +272,24 @@ try {
 
 > In the example above we wrapped the execution of the `send()` method in a try-catch block
 > so that when an error occurs while sending the email, your application will continue to run.
+
+`send()` returns `FALSE` when the driver reports that the transport refused the message.
+
+Once the message is on its way, `send()` drops the parts that belong to it: the recipients,
+the attachments and the custom headers set with `header()`. The sender, subject and body are
+kept, so sending the same email to several people is a matter of setting the next recipient:
+
+```php
+$email = Email::from('admin@site.com')
+    ->subject('Monthly Report')
+    ->html_body($view);
+
+foreach ($subscribers as $subscriber) {
+    $email->to($subscriber->email)->send();
+}
+```
+
+Without that, every recipient of the first email would also receive the second one.
 
 <a id="custom-driver"></a>
 

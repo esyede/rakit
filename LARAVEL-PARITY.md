@@ -5,7 +5,7 @@ Status penyelarasan perilaku dan keluaran (*response*) Rakit terhadap Laravel.
 - **Pembanding**: API Laravel 11/12.
 - **Cara verifikasi**: setiap poin dicek dengan menjalankan kode di atas SQLite in-memory dan
   membaca sumbernya, bukan dari ingatan.
-- **Terakhir diperbarui**: 2026-08-28.
+- **Terakhir diperbarui**: 2026-08-29.
 
 ## Ringkasan
 
@@ -23,9 +23,11 @@ Status penyelarasan perilaku dan keluaran (*response*) Rakit terhadap Laravel.
 | Lapisan transaksi (audit + perbaikan) | Selesai |
 | Schema builder + migrasi (audit + perbaikan) | Selesai |
 | Session dan auth driver (audit + perbaikan) | Selesai |
+| Mail, penjadwalan, testing helper, lapisan koneksi (audit) | Selesai |
 | Blade component, API Resource, Stringable, observer | Sengaja tidak dikerjakan |
+| Mailable, notifikasi, broadcasting, task scheduler, testing helper | Sengaja tidak dikerjakan |
 
-Cakupan test naik dari 1921 menjadi **2064 test**, semuanya lolos, dan seluruh berkas yang
+Cakupan test naik dari 1921 menjadi **2169 test**, semuanya lolos, dan seluruh berkas yang
 disentuh lolos `php -l` pada PHP 5.6.
 
 ## Yang tidak dihitung sebagai ketidakcocokan
@@ -501,6 +503,75 @@ tidak mengimplementasi `save_remember_token()` juga berperilaku begitu.
 sampai ke query** dan selalu dianggap tamu. Penyaringnya diganti dengan pengecekan
 string/integer yang tidak kosong, yang tetap menahan token null tanpa menyentuh database.
 
+## 4d. Mail, notifikasi, penjadwalan, testing helper dan lapisan koneksi
+
+Empat area yang sampai putaran sebelumnya tercatat belum pernah dibandingkan dengan Laravel.
+Diaudit 2026-08-29 dengan cara yang sama: menjalankan kodenya, termasuk terhadap server SMTP
+tiruan yang mencatat seluruh percakapannya.
+
+### 4d.1 Mail — bentuknya berbeda, dan sepuluh temuan — **selesai**
+
+Rakit merangkai email lewat drivernya sendiri (`Email::from()->to()->subject()->body()->send()`
+di atas driver `mail`, `smtp`, `sendmail` dan `log`), Laravel lewat kelas Mailable
+(`Mail::to($user)->send(new OrderShipped())`). Bentuknya perbedaan desain, sama seperti
+`Facile` terhadap `Eloquent`, jadi tidak dihitung sebagai ketidakcocokan.
+
+Yang dikejar audit ini perilakunya, dan hasilnya sepuluh bug — semuanya sudah ditutup berikut
+testnya: K10, K11, T23–T26, S24–S26 dan R13 di BUG.md. Dua di antaranya membocorkan data:
+penerima dan lampiran email sebelumnya ikut terbawa ke email berikutnya (K10), dan nama
+lampiran bisa menyisipkan header MIME (K11).
+
+Percakapan SMTP-nya sendiri benar: `bcc` tidak pernah masuk ke header pesan tapi tetap
+dikirim sebagai `RCPT TO`, titik di awal baris digandakan, dan subjek UTF-8 di-encode sesuai
+RFC 2047.
+
+Belum ada dan memang belum dikerjakan: kelas Mailable, markdown mail, `Mail::fake()`,
+`Mail::alwaysTo()` dan pengiriman lewat antrean. Yang terakhir bisa ditiru dengan
+`Job::dispatch()`.
+
+### 4d.2 Notifikasi dan broadcasting — **tidak dikerjakan**
+
+Tidak ada padanan `Notification`, kanal (mail, database, SMS, Slack), `Notifiable`, maupun
+event broadcasting beserta `PrivateChannel` dan `PresenceChannel`. Rakit membawa server
+WebSocket sendiri (`System\WebSocket`), tapi ia server soket biasa, bukan lapisan broadcast
+yang menempel ke event.
+
+Subsistem besar, dan tidak ada bagiannya yang setengah jadi — jadi tidak ada yang perlu
+diperbaiki, hanya dicatat sebagai fitur yang belum dibuat.
+
+### 4d.3 Penjadwalan — hanya penundaan job — **tidak dikerjakan**
+
+`Job::dispatch($nama, $payload, $kapan)` menerima `Carbon`, `DateTime`, timestamp atau string,
+jadi satu job bisa ditunda sampai waktu tertentu. Itu saja.
+
+Belum ada task scheduler seperti `schedule:run` dengan `everyMinute()`, `dailyAt()`,
+`withoutOverlapping()` dan `onOneServer()`. Pekerjaan berkala di Rakit dijalankan dengan
+memanggil perintah konsolnya langsung dari cron.
+
+### 4d.4 Testing helper — **tidak dikerjakan**
+
+`make:test` mencetak kelas PHPUnit polos. Tidak ada `TestCase` bawaan framework, jadi tidak ada
+`assertDatabaseHas()`, `assertDatabaseMissing()`, `actingAs()`, `RefreshDatabase`, maupun klien
+HTTP test (`$this->get('/')`, `assertStatus()`, `assertSee()`).
+
+Suite framework sendiri memakai PHPUnit langsung dan tidak memerlukannya, tapi aplikasi yang
+dibangun di atas Rakit harus menyiapkan sendiri.
+
+### 4d.5 Lapisan koneksi — **sebagian sengaja dilewati**
+
+Laravel tidak punya connection pooling; yang ada padanya adalah koneksi persisten PDO dan
+pengelolaan siklus hidup koneksi. Rakit sudah menutup yang pertama: `options` di
+`application/config/database.php` diteruskan apa adanya ke PDO, jadi
+`PDO::ATTR_PERSISTENT => true` bekerja seperti di Laravel.
+
+Yang belum ada: `Database::disconnect()`, `reconnect()` dan `purge()`, serta percobaan ulang
+otomatis saat koneksi terputus di tengah query (`MySQL server has gone away`). Satu koneksi
+yang sudah dibuka disimpan di `Database::$connections` sampai proses berakhir dan tidak bisa
+dibuang. Untuk request web biasa itu tidak terasa; yang terkena adalah proses berumur panjang
+seperti server WebSocket dan `job:runall` yang dibiarkan berjalan.
+
+---
+
 ## 5. Dokumentasi yang ikut diperbarui
 
 | Berkas | Perubahan |
@@ -516,6 +587,7 @@ string/integer yang tidak kosong, yang tetap menahan token null tanpa menyentuh 
 | `packages/docs/data/session/config.md` | Bagian baru: Sweeping |
 | `packages/docs/data/auth/usage.md` | Catatan id session diganti saat login dan logout, kolom `remember_token` |
 | `packages/docs/data/auth/config.md` | Kolom `remember_token`, primary key boleh string/UUID |
+| `packages/docs/data/email.md` | Tabel prioritas, `send()` membuang pesannya setelah terkirim, port SMTP |
 
 Halaman pagination sebelumnya mendokumentasikan `$orders->per_page`, `$orders->from` dan
 `$orders->to` sebagai properti — ketiganya tidak pernah ada — serta `previous()`/`next()` yang
@@ -528,10 +600,16 @@ bekerja karena `on()` adalah klausa foreign key (lihat bagian 4c.1).
 
 ## 6. Yang belum diaudit
 
-- Routing, middleware, dan model binding
-- Antrian (`Job`) di luar driver database, penjadwalan, dan console command selain migrasi
-- Cache pada tingkat driver
-- Mail, notifikasi, dan event broadcasting
-- `Carbon` bawaan Rakit dibandingkan `nesbot/carbon`
-- Testing helper (`assertDatabaseHas`, HTTP test, dan sejenisnya)
-- Connection pooling
+Daftar ini sudah habis. Yang dulu ada di sini sekarang tersebar di:
+
+- **Mail, penjadwalan, testing helper dan connection pooling** — bagian 4d.
+- **Antrian (`Job`) dan cache pada tingkat driver** — diaudit di BUG.md; driver redis dan
+  memcached dijalankan terhadap server sungguhan, driver cache menyumbang S1–S4 dan T1–T2.
+- **`Carbon` bawaan Rakit dibandingkan `nesbot/carbon`** — diaudit di BUG.md dan cocok, termasuk
+  luapan akhir bulan, tahun kabisat, timestamp negatif dan `diffForHumans`.
+- **Routing dan middleware** — diaudit di BUG.md (K1–K3, T5, T20, R5). Yang belum dibandingkan
+  dengan Laravel adalah bentuk API-nya, bukan perilakunya.
+
+Yang tersisa dan memang belum pernah disentuh keduanya: **model binding otomatis di route**
+(Laravel menyuntik model dari segmen URI; Rakit menyerahkan itu ke controller) dan **console
+command selain migrasi** dibandingkan dengan Artisan.
