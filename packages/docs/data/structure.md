@@ -28,6 +28,7 @@ By default, the rakit folder hierarchy will look like this:
 ```bash
 ├── /application
 │   ├── /commands
+│   ├── /components
 │   ├── /config
 │   ├── /controllers
 │   ├── /jobs

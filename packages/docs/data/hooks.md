@@ -167,22 +167,20 @@ Here is the complete list of built-in framework events along with their paramete
 | `Hook::first('view.middleware',`               | `[string $content, string $path]);`                   |
 | `Hook::fire('rakit.auth: login');`             | `None`                                                |
 | `Hook::fire('rakit.auth: logout');`            | `None`                                                |
-| `Hook::fire('facile.saving',`                  | `[Facile $model]);`                                   |
-| `Hook::fire('facile.saving: [class_name]',`    | `[Facile $model]);`                                   |
-| `Hook::fire('facile.updated',`                 | `[Facile $model]);`                                   |
-| `Hook::fire('facile.updated: [class_name]',`   | `[Facile $model]);`                                   |
-| `Hook::fire('facile.created',`                 | `[Facile $model]);`                                   |
-| `Hook::fire('facile.created: [class_name]',`   | `[Facile $model]);`                                   |
-| `Hook::fire('facile.saved',`                   | `[Facile $model]);`                                   |
-| `Hook::fire('facile.saved: [class_name]',`     | `[Facile $model]);`                                   |
-| `Hook::fire('facile.deleting',`                | `[Facile $model]);`                                   |
-| `Hook::fire('facile.deleting: [class_name]',`  | `[Facile $model]);`                                   |
-| `Hook::fire('facile.deleted',`                 | `[Facile $model]);`                                   |
-| `Hook::fire('facile.deleted: [class_name]',`   | `[Facile $model]);`                                   |
+| `Hook::fire('facile.[event]',`                 | `[Facile $model]);`                                   |
+| `Hook::fire('facile.[event]: [class_name]',`   | `[Facile $model]);`                                   |
 | `Hook::fire('rakit.jobs.process',`             | `[object\|array $job]);`                              |
 | `Hook::fire('rakit.jobs.run: [job_name]',`     | `$payloads` (spread as the listener's arguments)      |
 | `Hook::fire('rakit.jobs.forget: [job_name]');` | `None`                                                |
 | `Hook::first('404');`                          | `None`                                                |
+
+> **Note on model events.** `[event]` is one of `retrieved`, `saving`, `creating`,
+> `created`, `updating`, `updated`, `saved`, `deleting`, `deleted`, `restoring`,
+> `restored` or `replicating`. Each of them is fired twice, once without the
+> model name and once with it, so a listener may watch one model or all of them.
+> A listener of `saving`, `creating`, `updating`, `deleting` or `restoring` that
+> answers with `FALSE` calls the operation off. See
+> [Model Events](/docs/database/facile#model-events).
 
 > **Note on job events.** Job drivers fire `rakit.jobs.process` with the raw
 > job record. `System\Job` listens to it and re-fires

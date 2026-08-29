@@ -185,6 +185,10 @@ Three differences from the trait:
 - The handler **must** be a `Closure`.
 - The name may not clash with an existing `Str` method. `Str::macro('slug', ..)`
   throws an exception because [Str::slug()](/docs/strings#strslug) already exists.
+  Nor may it clash with a method of the fluent string, since the same name would
+  otherwise mean one thing for `Str::foo()` and another for `Str::of()->foo()`.
+  A macro is reachable from [Str::of()](/docs/strings#fluent-strings) as well,
+  with the string handed to it as the first argument.
 - Only `macro()` is available, there is no `mixin()` or `has_macro()`.
 
 <a id="where-to-register"></a>

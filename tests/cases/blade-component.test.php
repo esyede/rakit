@@ -340,11 +340,9 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
         $level = ob_get_level();
 
         try {
-            $this->render('<x-wrap>{{ $nowhere->method() }}</x-wrap>');
+            $this->render('<x-wrap><?php throw new \Exception("boom"); ?></x-wrap>');
             $this->fail('Expected the slot to throw.');
         } catch (\Exception $e) {
-            // sesuai harapan
-        } catch (\Throwable $e) {
             // sesuai harapan
         }
 
