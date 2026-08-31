@@ -196,7 +196,7 @@ class Logger
     {
         $file = $file ?: $this->getExceptionFile($exception);
         $panic = $this->panic ?: new Panic();
-        // FIXME: Apakah log html detail error juga perlu dirender?
+        // FIXME: Should the detailed HTML error log also be rendered?
         // $panic->renderToFile($exception, $file);
         return $file;
     }

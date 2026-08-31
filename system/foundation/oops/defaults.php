@@ -612,7 +612,7 @@ class Defaults
      */
     public static function sqlHighlight($sql, array $bindings = [])
     {
-        // Cache keywords pattern untuk performa
+        // Cache keywords pattern for performance
         if (static::$sqlKeywordsCache === null) {
             static::$sqlKeywordsCache = [
                 'keywords1' => implode('|', static::$sqlKeywords['keywords1']),
@@ -623,7 +623,7 @@ class Defaults
         $keywords1 = static::$sqlKeywordsCache['keywords1'];
         $keywords2 = static::$sqlKeywordsCache['keywords2'];
 
-        // Format SQL untuk readability
+        // Format SQL for readability
         $sql = " $sql ";
         $sql = preg_replace('#(?<=[\\s,(])(' . $keywords1 . ')(?=[\\s,)])#i', "\n\$1", $sql);
         $sql = preg_replace('#[ \t]{2,}#', ' ', $sql);

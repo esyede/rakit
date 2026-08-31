@@ -644,15 +644,15 @@ return Str::words('You know, I miss you so much.', 3, ' >>>');
 `Str::of()` wraps a string so the methods above can be chained instead of nested:
 
 ```php
-$slug = Str::of('  Belajar Rakit Bersama  ')->trim()->lower()->slug();
-// 'belajar-rakit-bersama'
+$slug = Str::of('  Learning Rakit Together  ')->trim()->lower()->slug();
+// 'learning-rakit-together'
 ```
 
 The wrapper never changes the string it was given; every method hands back a new
 one. Echo it, or ask for `value()`, to get the plain string back:
 
 ```php
-$title = Str::of('halo dunia');
+$title = Str::of('hello world');
 
 echo $title->upper();     // 'HALO DUNIA'
 echo $title;              // 'halo dunia', the original is untouched

@@ -243,7 +243,7 @@ class Dumper
     {
         $var = is_finite($var)
             ? ($tmp = json_encode($var)) . ((false === strpos($tmp, '.')) ? '.0' : '')
-            : str_replace('.0', '', var_export($var, true)); // Kompatibilitas untuk PHP 7.0.2+
+            : str_replace('.0', '', var_export($var, true)); // Compatibility for PHP 7.0.2+
 
         return "<span class=\"oops-dump-number\">$var</span>\n";
     }

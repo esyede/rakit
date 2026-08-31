@@ -312,7 +312,7 @@ class Collectors
      * @param array  $data
      * @param float  $time
      * @param int    $size
-     * @param float  $start Offset mulai render dari awal request (ms)
+     * @param float  $start
      *
      * @return void
      */
@@ -387,8 +387,8 @@ class Collectors
      * Add a timer record for the Timeline panel.
      *
      * @param string $name
-     * @param float  $duration Durasi dalam milidetik
-     * @param float  $start    Offset mulai dari awal request (ms)
+     * @param float  $duration
+     * @param float  $start
      *
      * @return void
      */

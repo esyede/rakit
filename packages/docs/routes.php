@@ -9,9 +9,9 @@ use System\Routing\Route;
 | Route
 |--------------------------------------------------------------------------
 |
-| Cukup beri tahu rakit kata kerja HTTP dan URI yang harus ditanggapi.
-| Rakit juga mendukung RESTful routing yang sangat cocok untuk membangun
-| aplikasi berskala besar maupun API sederhana.
+| Simply tell rakit the HTTP verb and URI it should respond to.
+| Rakit also supports RESTful routing which is perfect for building
+| large-scale applications as well as simple APIs.
 |
 */
 

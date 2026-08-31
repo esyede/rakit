@@ -136,7 +136,7 @@ class Smtp extends Driver
         }
 
         $retry_count = max(1, (int) Arr::get($this->config, 'smtp.retry', 3));
-        $retry_delay = Arr::get($this->config, 'smtp.retry_delay', 1); // detik
+        $retry_delay = Arr::get($this->config, 'smtp.retry_delay', 1); // seconds
         $errno = 0;
         $errstr = '';
 

@@ -485,7 +485,7 @@ class Validator
             return false;
         }
 
-        // '==' memang disengaja untuk loosey comparison.
+        // '==' is intentionally used for loose comparison.
         return $this->size($attribute, $value) == $parameters[0];
     }
 

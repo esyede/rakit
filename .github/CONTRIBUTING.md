@@ -1,5 +1,5 @@
-## Berkontribusi ke rakit
+## Contributing to rakit
 
-  - [Laporkan masalah](https://github.com/esyede/rakit/issues)
-  - [Beri saran atau masukan](https://github.com/esyede/rakit/discussions)
-  - [Kirim pull request](https://github.com/esyede/rakit/pulls)
+  - [Report an issue](https://github.com/esyede/rakit/issues)
+  - [Give suggestions or feedback](https://github.com/esyede/rakit/discussions)
+  - [Submit a pull request](https://github.com/esyede/rakit/pulls)

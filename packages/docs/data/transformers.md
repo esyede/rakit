@@ -33,8 +33,8 @@ return Transformer::make($user)->to_response();
 {
     "data": {
         "id": 1,
-        "nama": "Budi",
-        "email": "budi@site.com"
+        "name": "John",
+        "email": "john@site.com"
     }
 }
 ```
@@ -52,21 +52,21 @@ Put the class in `application/transformers/` and give it a `to_array()`:
 ```php
 // application/transformers/user.php
 
-class UserTransformer extends Transformer
+class User_Transformer extends Transformer
 {
     public function to_array()
     {
         return [
             'id' => $this->id,
-            'nama' => $this->nama,
-            'terdaftar' => $this->created_at,
+            'name' => $this->name,
+            'registered' => $this->created_at,
         ];
     }
 }
 ```
 
 The attributes and the methods of the resource are reachable straight from
-`$this`, so `$this->nama` reads the model. A date arrives as the string the
+`$this`, so `$this->name` reads the model. A date arrives as the string the
 database holds unless the model casts it, so ask for the cast when the
 transformer needs to format it:
 
@@ -77,16 +77,16 @@ class User extends Facile
 }
 
 // then, in the transformer:
-'terdaftar' => $this->created_at->format('d/m/Y'),
+'registered' => $this->created_at->format('d/m/Y'),
 ```
 
 Then:
 
 ```php
-return UserTransformer::make($user)->to_response();
+return User_Transformer::make($user)->to_response();
 ```
 
-`make()` and `new UserTransformer($user)` are the same thing. Besides
+`make()` and `new User_Transformer($user)` are the same thing. Besides
 `to_response()`, a transformer answers `to_json()`, `resolve()` for the plain
 array, and turns into JSON on its own when handed to `json_encode()`.
 
@@ -97,14 +97,14 @@ array, and turns into JSON on its own when handed to `json_encode()`.
 `collection()` hands every item to a transformer of its own:
 
 ```php
-return UserTransformer::collection(User::all())->to_response();
+return User_Transformer::collection(User::all())->to_response();
 ```
 
 ```json
 {
     "data": [
-        { "id": 1, "nama": "Budi" },
-        { "id": 2, "nama": "Dewi" }
+        { "id": 1, "name": "John" },
+        { "id": 2, "name": "Jane" }
     ]
 }
 ```
@@ -118,7 +118,7 @@ It takes an array, a `Collection`, a `Paginator`, or anything walkable.
 Hand it a paginator and the links and the counts come along:
 
 ```php
-return UserTransformer::collection(User::paginate(15))->to_response();
+return User_Transformer::collection(User::paginate(15))->to_response();
 ```
 
 ```json
@@ -154,7 +154,7 @@ public function to_array()
 {
     return [
         'id' => $this->id,
-        'nama' => $this->nama,
+        'name' => $this->name,
         'email' => $this->when(Auth::user()->admin, $this->email),
     ];
 }
@@ -164,8 +164,8 @@ Hand it a closure when working out the value costs something. The closure only
 runs when the condition holds:
 
 ```php
-'statistik' => $this->when($detailed, function () {
-    return $this->hitung_statistik();
+'stats' => $this->when($detailed, function () {
+    return $this->calculate_stats();
 }),
 ```
 
@@ -173,7 +173,7 @@ A third argument is the value to use when the condition does not hold, `null`
 included:
 
 ```php
-'email' => $this->when($isAdmin, $this->email, 'disembunyikan'),
+'email' => $this->when($isAdmin, $this->email, 'hidden'),
 ```
 
 `merge_when()` folds a whole set of keys in, or leaves all of them out:
@@ -185,7 +185,7 @@ public function to_array()
         'id' => $this->id,
         $this->merge_when(Auth::user()->admin, [
             'email' => $this->email,
-            'ip_terakhir' => $this->ip_terakhir,
+            'last_ip' => $this->last_ip,
         ]),
     ];
 }
@@ -203,9 +203,9 @@ A transformer inside another one contributes its keys, not a wrapper of its own:
 public function to_array()
 {
     return [
-        'judul' => $this->judul,
-        'penulis' => UserTransformer::make($this->penulis),
-        'komentar' => CommentTransformer::collection($this->komentar),
+        'title' => $this->title,
+        'author' => User_Transformer::make($this->author),
+        'comments' => Comment_Transformer::collection($this->comments),
     ];
 }
 ```
@@ -213,9 +213,9 @@ public function to_array()
 ```json
 {
     "data": {
-        "judul": "Belajar Rakit",
-        "penulis": { "id": 1, "nama": "Budi" },
-        "komentar": [{ "id": 9, "isi": "Mantap" }]
+        "title": "Learning Rakit",
+        "author": { "id": 1, "name": "John" },
+        "comments": [{ "id": 9, "body": "Great!" }]
     }
 }
 ```
@@ -227,15 +227,15 @@ public function to_array()
 `additional()` puts something at the top level, beside the wrapped data:
 
 ```php
-return UserTransformer::make($user)
-    ->additional(['versi' => '1.0'])
+return User_Transformer::make($user)
+    ->additional(['version' => '1.0'])
     ->to_response();
 ```
 
 ```json
 {
-    "data": { "id": 1, "nama": "Budi" },
-    "versi": "1.0"
+    "data": { "id": 1, "name": "John" },
+    "version": "1.0"
 }
 ```
 
@@ -243,11 +243,11 @@ return UserTransformer::make($user)
 that kind should carry:
 
 ```php
-class UserTransformer extends Transformer
+class User_Transformer extends Transformer
 {
     public function with()
     {
-        return ['versi' => '1.0'];
+        return ['version' => '1.0'];
     }
 }
 ```
@@ -260,9 +260,9 @@ The data is wrapped in a `data` key. Give the transformer a `$wrap` of its own t
 change it:
 
 ```php
-class UserTransformer extends Transformer
+class User_Transformer extends Transformer
 {
-    public static $wrap = 'pengguna';
+    public static $wrap = 'user';
 }
 ```
 
@@ -270,7 +270,7 @@ Set it to `NULL` to hand the data over bare. Anything from `with()` or
 `additional()` is then merged into the data itself:
 
 ```php
-class UserTransformer extends Transformer
+class User_Transformer extends Transformer
 {
     public static $wrap = null;
 }

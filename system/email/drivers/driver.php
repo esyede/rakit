@@ -663,7 +663,7 @@ abstract class Driver
 
         $result = $this->transmit();
 
-        // Rekam email terkirim untuk panel Mails di debug bar.
+        // Track sent email for the Mails panel in the debug bar.
         if (class_exists('\System\Foundation\Oops\Collectors')
             && class_exists('\System\Foundation\Oops\Debugger')
             && ! \System\Foundation\Oops\Debugger::$productionMode) {

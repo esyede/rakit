@@ -96,7 +96,7 @@ $user = DB::table('users')->find($id);
 
 ```php
 $user = DB::table('users')->find_or_fail($id);
-// Throw ModelNotFoundException jika tidak ditemukan
+// Throw ModelNotFoundException if not found
 ```
 
 > **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty collection.
@@ -109,7 +109,7 @@ $user = DB::table('users')->find_or_fail($id);
 ```php
 $users = DB::table('users')->get(['id', 'email', 'name']);
 
-// Atau dengan alias
+// Or with alias
 $users = DB::table('users')->get(['id', 'email as user_email']);
 ```
 
@@ -187,7 +187,7 @@ $users = DB::table('users')
 Shortcut for a WHERE on the `id` column:
 
 ```php
-// Sama dengan: where('id', '=', 1)
+// Equivalent to: where('id', '=', 1)
 $user = DB::table('users')->where_id(1)->first();
 
 // OR WHERE id
@@ -318,7 +318,7 @@ $products = DB::table('products')
 **WHERE DATE:**
 
 ```php
-// Mencari berdasarkan tanggal
+// Search by date
 $orders = DB::table('orders')
     ->where_date('created_at', '=', '2024-01-15')
     ->get();
@@ -327,7 +327,7 @@ $orders = DB::table('orders')
 **WHERE MONTH:**
 
 ```php
-// Mencari berdasarkan bulan (1-12)
+// Search by month (1-12)
 $orders = DB::table('orders')
     ->where_month('created_at', '=', 1)
     ->get();
@@ -336,7 +336,7 @@ $orders = DB::table('orders')
 **WHERE DAY:**
 
 ```php
-// Mencari berdasarkan hari (1-31)
+// Search by day (1-31)
 $orders = DB::table('orders')
     ->where_day('created_at', '=', 15)
     ->get();
@@ -345,7 +345,7 @@ $orders = DB::table('orders')
 **WHERE YEAR:**
 
 ```php
-// Mencari berdasarkan tahun
+// Search by year
 $orders = DB::table('orders')
     ->where_year('created_at', '=', 2024)
     ->get();
@@ -439,19 +439,19 @@ $users = DB::table('users')
 The Query Builder supports dynamic WHERE methods based on the column name:
 
 ```php
-// Sama dengan: where('email', '=', $email)
+// Equivalent to: where('email', '=', $email)
 $user = DB::table('users')->where_email($email)->first();
 
-// Sama dengan: where('name', '=', $name)
+// Equivalent to: where('name', '=', $name)
 $users = DB::table('users')->where_name($name)->get();
 
-// Multiple conditions dengan _and_
+// Multiple conditions with _and_
 $user = DB::table('users')
     ->where_email_and_password($email, $password)
     ->first();
 // SQL: WHERE email = ? AND password = ?
 
-// Multiple conditions dengan _or_
+// Multiple conditions with _or_
 $users = DB::table('users')
     ->where_email_or_username($email, $username)
     ->get();
@@ -583,7 +583,7 @@ $users = DB::table('users')
     ->take(10)
     ->get();
 
-// Skip 20, ambil 10
+// Skip 20, take 10
 $users = DB::table('users')
     ->skip(20)
     ->take(10)
@@ -605,7 +605,7 @@ $users = DB::table('users')
 $users = DB::table('users')
     ->for_page(3, 20)
     ->get();
-// Sama dengan: skip(40)->take(20)
+// Equivalent to: skip(40)->take(20)
 ```
 
 <a id="distinct"></a>
@@ -689,12 +689,12 @@ $users = DB::table('users')
     ])
     ->get();
 
-// Dalam WHERE
+// In WHERE
 $users = DB::table('users')
     ->where(DB::raw('YEAR(created_at)'), '=', 2024)
     ->get();
 
-// Dalam ORDER BY
+// In ORDER BY
 $users = DB::table('users')
     ->order_by(DB::raw('votes * 2'), 'desc')
     ->get();
@@ -716,7 +716,7 @@ $email = DB::table('users')
     ->where('id', '=', 1)
     ->only('email');
 
-// Return: "user@example.com" (bukan object atau array)
+// Return: "user@example.com" (not an object or array)
 ```
 
 <a id="lists"></a>
@@ -725,11 +725,11 @@ $email = DB::table('users')
 Retrieve a key-value array:
 
 ```php
-// Array dengan value saja
+// Array with values only
 $emails = DB::table('users')->lists('email');
 // ['email1@test.com', 'email2@test.com', ...]
 
-// Array dengan custom key
+// Array with custom key
 $users = DB::table('users')->lists('name', 'id');
 // [1 => 'John', 2 => 'Jane', ...]
 ```
@@ -798,7 +798,7 @@ DB::table('users')->insert([
 ## Update Record
 
 ```php
-// Update dengan WHERE
+// Update with WHERE
 DB::table('users')
     ->where('id', '=', 1)
     ->update([
@@ -848,7 +848,7 @@ DB::table('products')
 ## Delete Record
 
 ```php
-// Delete dengan WHERE
+// Delete with WHERE
 DB::table('users')
     ->where('id', '=', 1)
     ->delete();
@@ -858,7 +858,7 @@ DB::table('users')
     ->where('active', '=', 0)
     ->delete();
 
-// Delete semua (hati-hati!)
+// Delete all (be careful!)
 DB::table('temp_data')->delete();
 ```
 
@@ -866,10 +866,10 @@ DB::table('temp_data')->delete();
 ## Pagination
 
 ```php
-// 20 per halaman (default)
+// 20 per page (default)
 $users = DB::table('users')->paginate();
 
-// Custom per halaman
+// Custom per page
 $users = DB::table('users')->paginate(15);
 
 // With specific columns
@@ -881,7 +881,7 @@ $users = DB::table('users')
     ->order_by('created_at', 'desc')
     ->paginate(20);
 
-// Di view
+// In view
 foreach ($users->results as $user) {
     echo $user->name;
 }
@@ -901,7 +901,7 @@ try {
     return Response::error('404');
 }
 
-// Atau first_or_fail
+// Or with first_or_fail
 try {
     $user = DB::table('users')
         ->where('email', '=', $email)
@@ -921,7 +921,7 @@ $base_query = DB::table('users')
     ->where('active', '=', 1)
     ->where('country', '=', 'US');
 
-// Copy untuk query berbeda
+// Copy for different query
 $admins = $base_query->copy()
     ->where('role', '=', 'admin')
     ->get();
@@ -930,7 +930,7 @@ $users = $base_query->copy()
     ->where('role', '=', 'user')
     ->get();
 
-// $base_query tidak terpengaruh
+// $base_query is not affected
 ```
 
 <a id="reset-query"></a>
@@ -944,7 +944,7 @@ $query = DB::table('users')
     ->take(10)
     ->skip(5);
 
-$query->reset(); // Reset semua conditions
+$query->reset(); // Reset all conditions
 
 $query->get(); // Get all rows
 ```

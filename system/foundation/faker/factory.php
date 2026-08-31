@@ -17,7 +17,7 @@ class Factory
 
     public static function create($locale = null)
     {
-        $locale = is_null($locale) ? Config::get('application.language', 'id') : $locale;
+        $locale = is_null($locale) ? Config::get('application.language', 'en') : $locale;
         $locales = array_map(function ($item) {
             $item = explode(DS, $item);
             return end($item);

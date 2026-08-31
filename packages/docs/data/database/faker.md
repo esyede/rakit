@@ -24,19 +24,19 @@ After initialization, you just need to call its properties according to the data
 $faker = Faker::create();
 ```
 
-By default, the generated data is already in Indonesian. However, you can also use English of course:
+By default, the generated data is in English. However, you can also use Indonesian of course:
 
 ```php
-$faker = Faker::create('en');
+$faker = Faker::create('id');
 ```
 
-Alright, for the examples below we will use the default, which is Indonesian
+Alright, for the examples below we will use the default, which is English
 
 ```php
-$faker->name; // 'Raihan Nashiruddin';
+$faker->name; // 'John Doe';
 
 $faker->address;
-// 'Jln. Radio No. 29, Dumai 85136, Kalbar'
+// '123 Main St, New York 12345, NY'
 
 $faker->text;
 // Sint velit eveniet. Rerum atque repellat voluptatem quia rerum. Numquam excepturi
@@ -107,33 +107,33 @@ $faker->text($maxNbChars = 200);
 ### Personal Data
 
 ```php
-$faker->title($gender = null|'male'|'female');     // 'Drs.'
-$faker->titleMale;                                 // 'Dr.'
-$faker->titleFemale;                               // 'dr.'
-$faker->suffix;                                    // 'MPd.'
-$faker->name($gender = null|'male'|'female');      // 'Novi Gunawan'
-$faker->firstName($gender = null|'male'|'female'); // 'Eva'
-$faker->firstNameMale;                             // 'Prima'
-$faker->firstNameFemale;                           // 'Novi'
-$faker->lastName;                                  // 'Gunawan'
+$faker->title($gender = null|'male'|'female');     // 'Mr.'
+$faker->titleMale;                                 // 'Mr.'
+$faker->titleFemale;                               // 'Mrs.'
+$faker->suffix;                                    // 'Jr.'
+$faker->name($gender = null|'male'|'female');      // 'John Doe'
+$faker->firstName($gender = null|'male'|'female'); // 'Jane'
+$faker->firstNameMale;                             // 'John'
+$faker->firstNameFemale;                           // 'Jane'
+$faker->lastName;                                  // 'Doe'
 ```
 
 ### Address
 
 ```php
-$faker->cityPrefix;       // null (only available in English)
-$faker->secondaryAddress; // null (only available in English)
-$faker->state;            // 'Sumatera Utara'
-$faker->stateAbbr;        // 'Sulbar'
-$faker->citySuffix;       // 'Ville'
+$faker->cityPrefix;       // 'Lake'
+$faker->secondaryAddress; // 'Apt. 123'
+$faker->state;            // 'California'
+$faker->stateAbbr;        // 'CA'
+$faker->citySuffix;       // 'ton'
 $faker->streetSuffix;     // 'Street'
 $faker->buildingNumber;   // '484'
-$faker->city;             // 'Medan'
-$faker->streetName;       // 'Cemara'
-$faker->streetAddress;    // 'Kpg. Peta No. 14'
-$faker->postcode;         // '37445'
-$faker->address;          // 'Jln. Cemara No. 363, Madiun 26716, Sumut'
-$faker->country;          // 'Kepulauan Virgin Inggris'
+$faker->city;             // 'New York'
+$faker->streetName;       // 'Main Street'
+$faker->streetAddress;    // '123 Main St'
+$faker->postcode;         // '12345'
+$faker->address;          // '123 Main St, New York 12345, NY'
+$faker->country;          // 'United States'
 $faker->latitude;         // 72.671642
 $faker->longitude;        // 82.754482
 ```
@@ -147,11 +147,11 @@ $faker->phoneNumber; // '0248 4157 500'
 ### Company
 
 ```php
-$faker->catchPhrase;   // null
-$faker->bs;            // null
-$faker->company;       // 'PT Zulaika Kuswandari Tbk'
-$faker->companyPrefix; // 'CV'
-$faker->companySuffix; // '(Persero) Tbk'
+$faker->catchPhrase;   // 'Proactive dedicated project'
+$faker->bs;            // 'leverage synergistic e-commerce'
+$faker->company;       // 'Doe Inc.'
+$faker->companyPrefix; // 'LLC'
+$faker->companySuffix; // 'Inc.'
 ```
 
 ### Date and Time
@@ -193,18 +193,18 @@ $faker->timezone;                 // 'Europe/Bratislava'
 ### Internet
 
 ```php
-$faker->email;           // 'citra82@yahoo.com'
-$faker->safeEmail;       // 'rajata.galih@example.com'
-$faker->freeEmail;       // 'tmanullang@gmail.com'
-$faker->companyEmail;    // 'diah69@natsir.org'
-$faker->freeEmailDomain; // 'yahoo.com'
-$faker->safeEmailDomain; // 'example.org'
-$faker->userName;        // 'danang26'
+$faker->email;           // 'john.doe@example.com'
+$faker->safeEmail;       // 'jane.doe@example.com'
+$faker->freeEmail;       // 'john@gmail.com'
+$faker->companyEmail;    // 'jane@doe.com'
+$faker->freeEmailDomain; // 'gmail.com'
+$faker->safeEmailDomain; // 'example.com'
+$faker->userName;        // 'johndoe'
 $faker->password;        // 'ZZ9_sv5#Ayyf9[3G9'
-$faker->domainName;      // 'pradana.web.id'
-$faker->domainWord;      // 'adriansyah'
-$faker->tld;             // 'go.id'
-$faker->url;             // 'https://narpati.net/suscipit-tenetur.html'
+$faker->domainName;      // 'doe.com'
+$faker->domainWord;      // 'doe'
+$faker->tld;             // 'com'
+$faker->url;             // 'https://doe.com/aut-repellat-commodi'
 $faker->slug;            // 'aut-repellat-commodi-vel-itaque-nihil-id'
 $faker->ipv4;            // '29.221.103.82'
 $faker->localIpv4;       // '10.242.58.216'

@@ -119,8 +119,8 @@ return [
     */
 
     'trusted_hosts' => [
-        // 'contoh.test',
-        // '*.contoh.test',
+        // 'example.test',
+        // '*.example.test',
     ],
 
     /*

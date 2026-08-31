@@ -418,7 +418,7 @@ class Debugger
                     require __DIR__ . '/assets/debugger/500.phtml';
                 }
             } elseif ('cli' === PHP_SAPI) {
-                // FIXME: BC-break di PHP 7.4+: @ mentrigger E_NOTICE ketika stderr tidak bisa diakses
+                // FIXME: BC-break in PHP 7.4+: @ triggers E_NOTICE when stderr is not accessible
                 @fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '
                     . (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
             }
@@ -438,7 +438,7 @@ class Debugger
                     fastcgi_finish_request();
                 } elseif (function_exists('litespeed_finish_request')) {
                     /* @disregard */
-                    litespeed_finish_request();
+                    \litespeed_finish_request();
                 }
                 exit(255);
             }
@@ -507,10 +507,10 @@ class Debugger
         if ($exit) {
             if (function_exists('fastcgi_finish_request')) {
                 /* @disregard */
-                fastcgi_finish_request();
+                \fastcgi_finish_request();
             } elseif (function_exists('litespeed_finish_request')) {
                 /* @disregard */
-                litespeed_finish_request();
+                \litespeed_finish_request();
             }
             exit(255);
         }
@@ -666,9 +666,9 @@ class Debugger
 
             Collectors::initialize();
 
-            // Semua panel selalu didaftarkan; panel yang dinonaktifkan lewat
-            // config('debugger.collectors') menyembunyikan dirinya saat render
-            // (Defaults::getTab mengembalikan string kosong → tab dilewati).
+            // All panels are always registered; panels disabled via
+            // config('debugger.collectors') hide themselves during render
+            // (Defaults::getTab returns empty string -> tab is skipped).
             self::$bar->addPanel(new Defaults('messages'), 'Oops:messages');
             self::$bar->addPanel(new Defaults('exceptions'), 'Oops:exceptions');
             self::$bar->addPanel(new Defaults('deprecations'), 'Oops:deprecations');

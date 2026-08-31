@@ -469,13 +469,13 @@ Then use it anywhere:
 
 ```html
 <x-alert type="error">
-    Data gagal disimpan.
+    Data failed to save.
 </x-alert>
 ```
 
 ```html
 <div class="alert alert-error">
-    Data gagal disimpan.
+    Data failed to save.
 </div>
 ```
 

@@ -28,10 +28,10 @@ class Memcached extends Driver
     /**
      * Constructor.
      *
-     * @param \Memcached  $memcached
+     * @param object  $memcached
      * @param string|null $key
      */
-    public function __construct(\Memcached $memcached, $key = null)
+    public function __construct(object $memcached, $key = null)
     {
         $this->memcached = $memcached;
         $this->key = $key ?: Config::get('job.key', 'rakit.job').':';
@@ -66,7 +66,7 @@ class Memcached extends Driver
         ];
 
         /* @disregard */
-        $this->memcached->set($this->key.'data:'.$id, $data, 0); // 0 = tidak pernah expired
+        $this->memcached->set($this->key.'data:'.$id, $data, 0); // 0 = never expires
         /** @disregard */
         $jobs = $this->memcached->get($this->key.'queue:'.$queue.':'.$name);
         $jobs = $jobs ?: [];

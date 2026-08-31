@@ -309,7 +309,7 @@ class Panic
                 // Skip error
             }
 
-            // Restore ob-level jika rusak
+            // Restore ob-level if corrupted
             while (ob_get_level() > $obLevel) {
                 ob_end_clean();
             }

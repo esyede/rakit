@@ -133,7 +133,7 @@ class Migrator extends Command
     public function reset(array $arguments = [])
     {
         while ($this->rollback($arguments)) {
-            // Rollback semuanya..
+            // Rollback everything..
         }
     }
 

@@ -165,14 +165,14 @@ encoded straight into JSON:
 count($messages);            // number of keys holding a message
 $messages['email'];          // every message of that key
 isset($messages['email']);
-$messages['email'] = 'wajib diisi';   // same as add()
+$messages['email'] = 'required';   // same as add()
 unset($messages['email']);            // same as forget()
 
 foreach ($messages as $key => $items) {
     // ..
 }
 
-json_encode($messages);      // {"email":["wajib diisi"]}
+json_encode($messages);      // {"email":["required"]}
 ```
 
 And a few helpers for working with the bag itself:

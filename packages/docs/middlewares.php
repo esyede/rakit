@@ -9,9 +9,9 @@ use System\Routing\Route;
 | Middleware
 |--------------------------------------------------------------------------
 |
-| Middleware menyediakan cara untuk melampirkan fungsionalitas ke rute anda.
-| Middleware bawaan 'before' dan 'after' akan dipanggil sebelum dan sesudah
-| setiap request direspon.
+| Middleware provides a way to attach functionality to your routes.
+| The built-in 'before' and 'after' middleware will be called before and after
+| each request is responded to.
 |
 */
 

@@ -9,9 +9,9 @@ use System\Hook;
 | Hooks
 |--------------------------------------------------------------------------
 |
-| Hook memberikan cara yang bagus untuk memecah keterkaitan resource dalam
-| aplikasi anda, sehingga kelas, library ataupun plugin tidak akan tercampur
-| dan mudah untuk diawasi.
+| Hooks provide a great way to decouple resources within
+| your application, so that classes, libraries, or plugins won't be tangled
+| together and are easy to maintain.
 |
 */
 

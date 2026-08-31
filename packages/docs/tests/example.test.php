@@ -23,7 +23,7 @@ class ExampleTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Contoh test sederhana.
+     * A simple test example.
      *
      * @group docs
      */

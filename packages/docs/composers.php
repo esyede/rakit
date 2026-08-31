@@ -9,23 +9,23 @@ use System\View;
 | View Composer
 |--------------------------------------------------------------------------
 |
-| Setiap kali suatu view dibuat, event `'composer'`-nya akan tereksekusi.
-| Anda dapat me-listen event ini dan menggunakannya untuk binding aset
-| dan data ke view setiap kali ia dimuat.
+| Every time a view is created, its 'composer' event will be executed.
+| You can listen to this event and use it to bind assets
+| and data to the view each time it is loaded.
 |
-| Penggunaan umum fitur ini contohnya adalah view parsial navigasi sidebar
-| yang memperlihatkan daftar posting blog secara acak. Anda dapat membuat
-| nested view parsial dengan memuatnya dalam layout view anda.
-| Kemudian, daftarkan composer untuk view parsial tersebut.
+| A common use of this feature is a partial sidebar navigation view
+| that displays a random list of blog posts. You can create
+| nested partial views by loading them within a layout view.
+| Then, register a composer for that partial view.
 |
 | <code>
 |
-|      // Mendaftarkan sebuah view composer untuk view "home":
+|      // Register a view composer for the "home" view:
 |      View::composer('home', function ($view) {
 |          $view->nest('footer', 'partials.footer');
 |      });
 |
-|      // Mendaftarkan sebuah composer yang menangani beberapa view:
+|      // Register a composer that handles multiple views:
 |      View::composer(['home', 'profile'], function ($view) {
 |          // ..
 |      });

@@ -454,7 +454,7 @@ return back()->with('error', 'Data is invalid!');
 
 ```php
 // Straight to an external url, without passing it through URL::to()
-Redirect::away('https://contoh.test/halaman');
+Redirect::away('https://example.test/page');
 
 // Force https
 Redirect::secure('/checkout');
