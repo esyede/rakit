@@ -28,10 +28,10 @@ class Memcached extends Driver
     /**
      * Constructor.
      *
-     * @param object  $memcached
+     * @param \Memcached  $memcached
      * @param string|null $key
      */
-    public function __construct(object $memcached, $key = null)
+    public function __construct(\Memcached $memcached, $key = null)
     {
         $this->memcached = $memcached;
         $this->key = $key ?: Config::get('job.key', 'rakit.job').':';
