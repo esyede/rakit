@@ -1944,6 +1944,15 @@ class Validator
         return str_replace(':values', implode(', ', $parameters), $message);
     }
 
+    /**
+     * Validate that the attribute is before or equal to a given date.
+     *
+     * @param string $attribute
+     * @param mixed  $value
+     * @param array  $parameters
+     *
+     * @return bool
+     */
     protected function validate_before_or_equals($attribute, $value, array $parameters)
     {
         try {

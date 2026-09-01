@@ -27,21 +27,41 @@ class Phone extends BasePhone
         '1-{{tollFreeAreaCode}}-{{exchangeCode}}-####', '{{tollFreeAreaCode}}.{{exchangeCode}}.####',
     ];
 
+    /**
+     * Get a random toll-free area code.
+     *
+     * @return int
+     */
     public function tollFreeAreaCode()
     {
         return static::randomElement(static::$tollFreeAreaCodes);
     }
 
+    /**
+     * Generate a random toll-free phone number.
+     *
+     * @return string
+     */
     public function tollFreePhoneNumber()
     {
         return static::numerify($this->generator->parse(static::randomElement(static::$tollFreeFormats)));
     }
 
+    /**
+     * Generate a random area code.
+     *
+     * @return string
+     */
     public static function areaCode()
     {
         return static::numberBetween(2, 9).static::randomDigit().static::randomDigitNotNull(static::randomDigit());
     }
 
+    /**
+     * Generate a random exchange code.
+     *
+     * @return string
+     */
     public static function exchangeCode()
     {
         $digits = [static::numberBetween(2, 9), static::randomDigit()];

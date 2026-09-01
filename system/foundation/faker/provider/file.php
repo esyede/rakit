@@ -470,17 +470,36 @@ class File extends Base
         'video/x-sgi-movie' => 'movie',
     ];
 
+    /**
+     * Get a random MIME type.
+     *
+     * @return string
+     */
     public static function mimeType()
     {
         return static::randomElement(array_keys(static::$mimeTypes));
     }
 
+    /**
+     * Get a random file extension.
+     *
+     * @return string
+     */
     public static function fileExtension()
     {
         $random = static::randomElement(array_values(static::$mimeTypes));
         return is_array($random) ? static::randomElement($random) : $random;
     }
 
+    /**
+     * Copy a random file from source to target directory.
+     *
+     * @param string $sourceDir
+     * @param string $targetDir
+     * @param bool $fullPath
+     *
+     * @return string|false
+     */
     public static function file($sourceDir = '/tmp', $targetDir = '/tmp', $fullPath = true)
     {
         if (! is_dir($sourceDir)) {

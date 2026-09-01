@@ -248,6 +248,13 @@ class Person extends BasePerson
         'S.Sos', 'S.Farm', 'M.M.', 'M.Kom.', 'M.TI.', 'M.Pd', 'M.Farm', 'M.Ak',
     ];
 
+    /**
+     * Generate a random last name based on gender.
+     *
+     * @param string|null $gender
+     *
+     * @return string
+     */
     public function lastName($gender = null)
     {
         if ($gender === static::GENDER_MALE) {
@@ -261,21 +268,44 @@ class Person extends BasePerson
         return $this->generator->parse(static::randomElement(static::$lastNameFormat));
     }
 
+    /**
+     * Get a random male last name.
+     *
+     * @return string
+     */
     public static function lastNameMale()
     {
         return static::randomElement(static::$lastNameMale);
     }
 
+    /**
+     * Get a random female last name.
+     *
+     * @return string
+     */
     public static function lastNameFemale()
     {
         return static::randomElement(static::$lastNameFemale);
     }
 
+    /**
+     * Get a random Indonesian name suffix.
+     *
+     * @return string
+     */
     public static function suffix()
     {
         return static::randomElement(static::$suffix);
     }
 
+    /**
+     * Generate a random NIK (Nomor Induk Kependudukan).
+     *
+     * @param string|null $gender
+     * @param \DateTime|null $birthDate
+     *
+     * @return string
+     */
     public function nik($gender = null, $birthDate = null)
     {
         $nik = $this->birthPlaceCode().$this->generator->numerify('##');
@@ -289,6 +319,11 @@ class Person extends BasePerson
         return $nik.$birthDate->format('my').$this->generator->numerify('####');
     }
 
+    /**
+     * Get a random birth place code for NIK generation.
+     *
+     * @return string
+     */
     protected function birthPlaceCode()
     {
         return static::randomElement(static::$birthPlaceCode);

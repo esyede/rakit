@@ -9,6 +9,11 @@ class Context
     /** @var \WeakMap|\SplObjectStorage|null */
     private static $map;
 
+    /**
+     * Get the context map.
+     *
+     * @return \WeakMap|\SplObjectStorage
+     */
     private static function map()
     {
         if (null === self::$map) {

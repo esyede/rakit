@@ -135,6 +135,9 @@ class Panic
      */
     private $actions = [];
 
+    /**
+     * Create a new Panic instance.
+     */
     public function __construct()
     {
         $this->collapsePaths[] = __DIR__;
@@ -592,6 +595,11 @@ class Panic
         return false;
     }
 
+    /**
+     * Render PHP info.
+     *
+     * @return void
+     */
     public function renderPhpInfo()
     {
         ob_start();

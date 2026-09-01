@@ -113,46 +113,93 @@ class Miscellaneous extends Base
         'XDR', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMK', 'ZMW', 'ZWL',
     ];
 
+    /**
+     * Generate a random boolean value.
+     *
+     * @param int $chanceOfGettingTrue
+     *
+     * @return bool
+     */
     public static function boolean($chanceOfGettingTrue = 50)
     {
         return (mt_rand(1, 100) <= (int) $chanceOfGettingTrue);
     }
 
+    /**
+     * Generate a random MD5 hash.
+     *
+     * @return string
+     */
     public static function md5()
     {
         return md5(mt_rand());
     }
 
+    /**
+     * Generate a random SHA-1 hash.
+     *
+     * @return string
+     */
     public static function sha1()
     {
         return sha1(mt_rand());
     }
 
+    /**
+     * Generate a random SHA-256 hash.
+     *
+     * @return string
+     */
     public static function sha256()
     {
         return hash('sha256', mt_rand());
     }
 
+    /**
+     * Get a random locale identifier.
+     *
+     * @return string
+     */
     public static function locale()
     {
         return static::randomElement(static::$localeData);
     }
 
+    /**
+     * Get a random ISO 3166-1 alpha-2 country code.
+     *
+     * @return string
+     */
     public static function countryCode()
     {
         return static::randomElement(static::$countryCode);
     }
 
+    /**
+     * Get a random ISO 3166-1 alpha-3 country code.
+     *
+     * @return string
+     */
     public static function countryISOAlpha3()
     {
         return static::randomElement(static::$countryISOAlpha3);
     }
 
+    /**
+     * Get a random ISO 639-1 language code.
+     *
+     * @return string
+     */
     public static function languageCode()
     {
         return static::randomElement(static::$languageCode);
     }
 
+    /**
+     * Get a random ISO 4217 currency code.
+     *
+     * @return string
+     */
     public static function currencyCode()
     {
         return static::randomElement(static::$currencyCode);

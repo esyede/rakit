@@ -28,6 +28,13 @@ class Person extends Base
 
     protected static $titleFemale = ['Mrs.', 'Ms.', 'Miss', 'Dr.', 'Prof.'];
 
+    /**
+     * Generate a random person name.
+     *
+     * @param string|null $gender
+     *
+     * @return string
+     */
     public function name($gender = null)
     {
         if ($gender === static::GENDER_MALE) {
@@ -41,6 +48,13 @@ class Person extends Base
         return $this->generator->parse($format);
     }
 
+    /**
+     * Generate a random first name.
+     *
+     * @param string|null $gender
+     *
+     * @return string
+     */
     public function firstName($gender = null)
     {
         if ($gender === static::GENDER_MALE) {
@@ -52,21 +66,43 @@ class Person extends Base
         return $this->generator->parse(static::randomElement(static::$firstNameFormat));
     }
 
+    /**
+     * Get a random male first name.
+     *
+     * @return string
+     */
     public static function firstNameMale()
     {
         return static::randomElement(static::$firstNameMale);
     }
 
+    /**
+     * Get a random female first name.
+     *
+     * @return string
+     */
     public static function firstNameFemale()
     {
         return static::randomElement(static::$firstNameFemale);
     }
 
+    /**
+     * Get a random last name.
+     *
+     * @return string
+     */
     public function lastName()
     {
         return static::randomElement(static::$lastName);
     }
 
+    /**
+     * Generate a random title.
+     *
+     * @param string|null $gender
+     *
+     * @return string
+     */
     public function title($gender = null)
     {
         if ($gender === static::GENDER_MALE) {
@@ -78,11 +114,21 @@ class Person extends Base
         return $this->generator->parse(static::randomElement(static::$titleFormat));
     }
 
+    /**
+     * Get a random male title.
+     *
+     * @return string
+     */
     public static function titleMale()
     {
         return static::randomElement(static::$titleMale);
     }
 
+    /**
+     * Get a random female title.
+     *
+     * @return string
+     */
     public static function titleFemale()
     {
         return static::randomElement(static::$titleFemale);

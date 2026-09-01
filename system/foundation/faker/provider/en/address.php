@@ -116,21 +116,41 @@ class Address extends BaseAddress
 
     protected static $addressFormats = ["{{streetAddress}}\n{{city}}, {{stateAbbr}} {{postcode}}"];
 
+    /**
+     * Get a random city prefix.
+     *
+     * @return string
+     */
     public static function cityPrefix()
     {
         return static::randomElement(static::$cityPrefix);
     }
 
+    /**
+     * Get a random secondary address.
+     *
+     * @return string
+     */
     public static function secondaryAddress()
     {
         return static::numerify(static::randomElement(static::$secondaryAddressFormats));
     }
 
+    /**
+     * Get a random US state name.
+     *
+     * @return string
+     */
     public static function state()
     {
         return static::randomElement(static::$state);
     }
 
+    /**
+     * Get a random US state abbreviation.
+     *
+     * @return string
+     */
     public static function stateAbbr()
     {
         return static::randomElement(static::$stateAbbr);

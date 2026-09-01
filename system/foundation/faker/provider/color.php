@@ -30,38 +30,73 @@ class Color extends Base
         'Wheat', 'White', 'WhiteSmoke', 'Yellow', 'YellowGreen',
     ];
 
+    /**
+     * Generate a random hex color code.
+     *
+     * @return string
+     */
     public static function hexColor()
     {
         return '#'.str_pad(dechex(mt_rand(1, 16777215)), 6, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * Generate a random safe hex color code.
+     *
+     * @return string
+     */
     public static function safeHexColor()
     {
         $color = str_pad(dechex(mt_rand(0, 255)), 3, '0', STR_PAD_LEFT);
         return '#'.$color[0].$color[0].$color[1].$color[1].$color[2].$color[2];
     }
 
+    /**
+     * Generate a random RGB color as an array.
+     *
+     * @return array
+     */
     public static function rgbColorAsArray()
     {
         $color = static::hexColor();
         return [hexdec(substr($color, 1, 2)), hexdec(substr($color, 3, 2)), hexdec(substr($color, 5, 2))];
     }
 
+    /**
+     * Generate a random RGB color as a comma-separated string.
+     *
+     * @return string
+     */
     public static function rgbColor()
     {
         return implode(',', static::rgbColorAsArray());
     }
 
+    /**
+     * Generate a random RGB CSS color string.
+     *
+     * @return string
+     */
     public static function rgbCssColor()
     {
         return 'rgb('.static::rgbColor().')';
     }
 
+    /**
+     * Get a random safe color name.
+     *
+     * @return string
+     */
     public static function safeColorName()
     {
         return static::randomElement(static::$safeColorNames);
     }
 
+    /**
+     * Get a random color name.
+     *
+     * @return string
+     */
     public static function colorName()
     {
         return static::randomElement(static::$allColorNames);

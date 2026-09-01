@@ -650,6 +650,11 @@ class Str
         return $lowercase ? strtolower($time.$random) : $time.$random;
     }
 
+    /**
+     * Generate a CUID (Collision-resistant Unique Identifier).
+     *
+     * @return string
+     */
     public static function cuid()
     {
         $result = 'c'.str_pad(base_convert((string) floor(microtime(true) * 1000), 10, 36), 8, '0', STR_PAD_LEFT);

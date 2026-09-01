@@ -481,11 +481,21 @@ class Person extends BasePerson
         'Zemlak', 'Ziemann', 'Zieme', 'Zulauf',
     ];
 
+    /**
+     * Get a random name suffix.
+     *
+     * @return string
+     */
     public static function suffix()
     {
         return static::randomElement(static::$suffix);
     }
 
+    /**
+     * Generate a random SSN (Social Security Number).
+     *
+     * @return string
+     */
     public static function ssn()
     {
         return sprintf(

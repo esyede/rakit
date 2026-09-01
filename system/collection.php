@@ -271,6 +271,13 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return new static($new);
     }
 
+    /**
+     * Return a new collection with the items except for the given keys.
+     *
+     * @param array|string $keys
+     *
+     * @return static
+     */
     public function except($keys)
     {
         $keys = is_array($keys) ? $keys : func_get_args();
@@ -412,6 +419,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return new static($this->flatten_items($this->items, $depth));
     }
 
+    /**
+     * Flatten the items in the collection.
+     *
+     * @param array $items
+     * @param int $depth
+     *
+     * @return array
+     */
     protected function flatten_items(array $items, $depth)
     {
         $result = [];
@@ -538,6 +553,14 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         return $this->offsetExists($key);
     }
 
+    /**
+     * Implode the collection into a string using the given value and glue.
+     *
+     * @param mixed $value
+     * @param string|null $glue
+     *
+     * @return string
+     */
     public function implode($value, $glue = null)
     {
         $first = $this->first();

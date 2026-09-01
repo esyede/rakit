@@ -15,6 +15,13 @@ class Factory
         'Browser', 'Uuid',
     ];
 
+    /**
+     * Create a new Generator with providers for the given locale.
+     *
+     * @param string|null $locale
+     *
+     * @return \System\Foundation\Faker\Generator
+     */
     public static function create($locale = null)
     {
         $locale = is_null($locale) ? Config::get('application.language', 'en') : $locale;
@@ -38,6 +45,14 @@ class Factory
         return $generator;
     }
 
+    /**
+     * Get the provider classname for the given provider and locale.
+     *
+     * @param string $provider
+     * @param string $locale
+     *
+     * @return string
+     */
     protected static function getProviderClassname($provider, $locale = '')
     {
         if ($class = static::findProviderClassname($provider, $locale)) {
@@ -51,6 +66,14 @@ class Factory
         throw new \InvalidArgumentException(sprintf("Unable to find provider '%s' with locale '%s'", $provider, $locale));
     }
 
+    /**
+     * Find the provider classname.
+     *
+     * @param string $provider
+     * @param string $locale
+     *
+     * @return string|null
+     */
     protected static function findProviderClassname($provider, $locale = '')
     {
         $locale = (! is_null($locale) && '' !== trim($locale)) ? $locale.'\\' : '';

@@ -151,36 +151,71 @@ class Address extends BaseAddress
 
     protected static $postcode = ['%####'];
 
+    /**
+     * Get a random Indonesian state/province name.
+     *
+     * @return string
+     */
     public static function state()
     {
         return static::randomElement(static::$state);
     }
 
+    /**
+     * Get a random Indonesian state/province abbreviation.
+     *
+     * @return string
+     */
     public static function stateAbbr()
     {
         return static::randomElement(static::$stateAbbr);
     }
 
+    /**
+     * Get a random Indonesian street prefix.
+     *
+     * @return string
+     */
     public static function streetPrefix()
     {
         return static::randomElement(static::$streetPrefix);
     }
 
+    /**
+     * Get a random Indonesian city name.
+     *
+     * @return string
+     */
     public static function cityName()
     {
         return static::randomElement(static::$cityNames);
     }
 
+    /**
+     * Generate a random Indonesian city name.
+     *
+     * @return string
+     */
     public function city()
     {
         return $this->generator->parse(static::randomElement(static::$cityFormats));
     }
 
+    /**
+     * Get a random Indonesian street name.
+     *
+     * @return string
+     */
     public static function street()
     {
         return static::randomElement(static::$street);
     }
 
+    /**
+     * Get a random building number.
+     *
+     * @return int
+     */
     public static function buildingNumber()
     {
         return static::numberBetween(1, 999);

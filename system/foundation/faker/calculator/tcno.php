@@ -6,6 +6,13 @@ defined('DS') or exit('No direct access.');
 
 class Tcno
 {
+    /**
+     * Calculate the Turkish identity number checksum.
+     *
+     * @param string $identityPrefix
+     *
+     * @return string
+     */
     public static function checksum($identityPrefix)
     {
         $identityPrefix = (string) $identityPrefix;
@@ -29,6 +36,13 @@ class Tcno
         return ((7 * $even - $odd) % 10).(($even + $odd + ((7 * $even - $odd) % 10)) % 10);
     }
 
+    /**
+     * Validate a Turkish identity number.
+     *
+     * @param string $tcNo
+     *
+     * @return bool
+     */
     public static function isValid($tcNo)
     {
         return static::checksum(substr((string) $tcNo, 0, -2)) === substr((string) $tcNo, -2, 2);

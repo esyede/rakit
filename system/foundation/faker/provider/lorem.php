@@ -31,11 +31,24 @@ class Lorem extends Base
         'doloribus', 'asperiores', 'repellat',
     ];
 
+    /**
+     * Generate a random word.
+     *
+     * @return string
+     */
     public static function word()
     {
         return static::randomElement(static::$wordList);
     }
 
+    /**
+     * Generate an array of random words.
+     *
+     * @param int $nb
+     * @param bool $asText
+     *
+     * @return array|string
+     */
     public static function words($nb = 3, $asText = false)
     {
         $words = [];
@@ -47,6 +60,14 @@ class Lorem extends Base
         return $asText ? implode(' ', $words) : $words;
     }
 
+    /**
+     * Generate a random sentence.
+     *
+     * @param int $nbWords
+     * @param bool $variableNbWords
+     *
+     * @return string
+     */
     public static function sentence($nbWords = 6, $variableNbWords = true)
     {
         if ($nbWords <= 0) {
@@ -62,6 +83,14 @@ class Lorem extends Base
         return implode(' ', $words).'.';
     }
 
+    /**
+     * Generate an array of random sentences.
+     *
+     * @param int $nb
+     * @param bool $asText
+     *
+     * @return array|string
+     */
     public static function sentences($nb = 3, $asText = false)
     {
         $sentences = [];
@@ -73,11 +102,27 @@ class Lorem extends Base
         return $asText ? implode(' ', $sentences) : $sentences;
     }
 
+    /**
+     * Generate a random paragraph.
+     *
+     * @param int $nbSentences
+     * @param bool $variableNbSentences
+     *
+     * @return string
+     */
     public static function paragraph($nbSentences = 3, $variableNbSentences = true)
     {
         return ($nbSentences <= 0) ? '' : implode(' ', static::sentences($variableNbSentences ? $nbSentences : self::randomizeNbElements($nbSentences)));
     }
 
+    /**
+     * Generate an array of random paragraphs.
+     *
+     * @param int $nb
+     * @param bool $asText
+     *
+     * @return array|string
+     */
     public static function paragraphs($nb = 3, $asText = false)
     {
         $paragraphs = [];
@@ -89,6 +134,13 @@ class Lorem extends Base
         return $asText ? implode(LF.LF, $paragraphs) : $paragraphs;
     }
 
+    /**
+     * Generate random text of a given maximum length.
+     *
+     * @param int $maxNbChars
+     *
+     * @return string
+     */
     public static function text($maxNbChars = 200)
     {
         $text = [];
@@ -139,6 +191,13 @@ class Lorem extends Base
         return implode('', $text);
     }
 
+    /**
+     * Randomize the number of elements within a range.
+     *
+     * @param int $nbElements
+     *
+     * @return int
+     */
     protected static function randomizeNbElements($nbElements)
     {
         return (int) ($nbElements * mt_rand(60, 140) / 100) + 1;

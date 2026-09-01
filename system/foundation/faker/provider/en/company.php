@@ -503,6 +503,11 @@ class Company extends BaseCompany
         91, 92, 93, 94, 95, 98, 99,
     ];
 
+    /**
+     * Generate a random company catch phrase.
+     *
+     * @return string
+     */
     public function catchPhrase()
     {
         $result = [];
@@ -514,6 +519,11 @@ class Company extends BaseCompany
         return implode(' ', $result);
     }
 
+    /**
+     * Generate a random company BS phrase.
+     *
+     * @return string
+     */
     public function bs()
     {
         $result = [];
@@ -525,6 +535,11 @@ class Company extends BaseCompany
         return implode(' ', $result);
     }
 
+    /**
+     * Generate a random EIN (Employer Identification Number).
+     *
+     * @return string
+     */
     public static function ein()
     {
         return sprintf('%02d-%07d', static::randomElement(static::$einPrefixes), static::numberBetween(0, 9999999));

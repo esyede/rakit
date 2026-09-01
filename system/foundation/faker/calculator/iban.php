@@ -6,6 +6,13 @@ defined('DS') or exit('No direct access.');
 
 class Iban
 {
+    /**
+     * Calculate the IBAN checksum.
+     *
+     * @param string $iban
+     *
+     * @return string
+     */
     public static function checksum($iban)
     {
         $iban = (string) $iban;
@@ -14,16 +21,37 @@ class Iban
         return str_pad(98 - static::mod97($iban), 2, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * Callback to convert alpha characters to numbers.
+     *
+     * @param array $match
+     *
+     * @return string
+     */
     private static function alphaToNumberCallback($match)
     {
         return static::alphaToNumber($match[0]);
     }
 
+    /**
+     * Convert an alpha character to its numeric representation.
+     *
+     * @param string $char
+     *
+     * @return int
+     */
     public static function alphaToNumber($char)
     {
         return ord($char) - 55;
     }
 
+    /**
+     * Calculate mod97 of a number.
+     *
+     * @param string $number
+     *
+     * @return int
+     */
     public static function mod97($number)
     {
         $number = (string) $number;
@@ -36,6 +64,13 @@ class Iban
         return $checksum;
     }
 
+    /**
+     * Validate an IBAN number.
+     *
+     * @param string $iban
+     *
+     * @return bool
+     */
     public static function isValid($iban)
     {
         return static::checksum($iban) === substr((string) $iban, 2, 2);

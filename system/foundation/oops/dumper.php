@@ -209,6 +209,11 @@ class Dumper
         }
     }
 
+    /**
+     * Dump a null value.
+     *
+     * @return string
+     */
     private static function dumpNull()
     {
         return "<span class=\"oops-dump-null\">null</span>\n";

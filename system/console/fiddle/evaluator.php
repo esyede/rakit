@@ -190,6 +190,13 @@ class Evaluator
         exit(self::FATAL);
     }
 
+    /**
+     * Run hooks in the worker scope.
+     *
+     * @param array $hooks
+     *
+     * @return array
+     */
     private function run_hook($hooks)
     {
         extract($this->exports);
@@ -209,6 +216,11 @@ class Evaluator
         return get_defined_vars();
     }
 
+    /**
+     * Kill the previous child process.
+     *
+     * @return void
+     */
     private function kill_previous()
     {
         /* @disregard */
@@ -217,6 +229,14 @@ class Evaluator
         pcntl_signal_dispatch();
     }
 
+    /**
+     * Write data to a socket.
+     *
+     * @param resource $socket
+     * @param string   $data
+     *
+     * @return void
+     */
     private function write($socket, $data)
     {
         if (! fwrite($socket, $data)) {
@@ -224,6 +244,13 @@ class Evaluator
         }
     }
 
+    /**
+     * Read data from a socket.
+     *
+     * @param resource $socket
+     *
+     * @return string|null
+     */
     private function read($socket)
     {
         $read = [$socket];
@@ -238,6 +265,14 @@ class Evaluator
         }
     }
 
+    /**
+     * Select sockets for reading.
+     *
+     * @param array $read
+     * @param array $except
+     *
+     * @return int
+     */
     private function select(&$read, &$except)
     {
         $write = null;
@@ -249,6 +284,13 @@ class Evaluator
         return $result;
     }
 
+    /**
+     * Transform input commands.
+     *
+     * @param string|null $input
+     *
+     * @return string|null
+     */
     private function transform($input)
     {
         if ($input === null) {

@@ -39,6 +39,13 @@ class Inspector
         $this->colorizers = $this->colors();
     }
 
+    /**
+     * Inspect a variable and return a formatted string.
+     *
+     * @param mixed $variable
+     *
+     * @return string
+     */
     public function inspect($variable)
     {
         return preg_replace('/^/m', $this->colorize('comment', '// '), $this->dump($variable));
@@ -57,6 +64,13 @@ class Inspector
         return get_object_vars($value);
     }
 
+    /**
+     * Dump a value and return a formatted string.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
     public function dump($value)
     {
         $tests = [
@@ -78,46 +92,112 @@ class Inspector
         return $this->fallback->inspect($value);
     }
 
+    /**
+     * Format a null value.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
     private function type_null($value)
     {
         return $this->colorize('keyword', 'NULL');
     }
 
+    /**
+     * Format a string value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
     private function type_string($value)
     {
         return $this->colorize('string', var_export($value, true));
     }
 
+    /**
+     * Format a boolean value.
+     *
+     * @param bool $value
+     *
+     * @return string
+     */
     private function type_bool($value)
     {
         return $this->colorize('bool', var_export($value, true));
     }
 
+    /**
+     * Format an integer value.
+     *
+     * @param int $value
+     *
+     * @return string
+     */
     private function type_int($value)
     {
         return $this->colorize('integer', var_export($value, true));
     }
 
+    /**
+     * Format a float value.
+     *
+     * @param float $value
+     *
+     * @return string
+     */
     private function type_float($value)
     {
         return $this->colorize('float', var_export($value, true));
     }
 
+    /**
+     * Format an array value.
+     *
+     * @param array $value
+     *
+     * @return string
+     */
     private function type_array($value)
     {
         return $this->type_structure('array', $value);
     }
 
+    /**
+     * Format an object value.
+     *
+     * @param object $value
+     *
+     * @return string
+     */
     private function type_object($value)
     {
         return $this->type_structure(sprintf('object(%s)', get_class($value)), $this->object_vars($value));
     }
 
+    /**
+     * Format a structured value.
+     *
+     * @param string $type
+     * @param mixed  $value
+     *
+     * @return string
+     */
     private function type_structure($type, $value)
     {
         return $this->stringify($this->ast($type, $value));
     }
 
+    /**
+     * Generate an AST for a value.
+     *
+     * @param string $type
+     * @param mixed  $value
+     * @param array  $seen
+     *
+     * @return array|string
+     */
     public function ast($type, $value, array $seen = [])
     {
         // FIXME: Improve this AST so it doesn't require access to dump() or colorize()
@@ -145,6 +225,14 @@ class Inspector
         ];
     }
 
+    /**
+     * Stringify an AST node.
+     *
+     * @param array $node
+     * @param int   $indent
+     *
+     * @return string
+     */
     public function stringify($node, $indent = 0)
     {
         $children = $node['children'];
@@ -162,6 +250,11 @@ class Inspector
         ]);
     }
 
+    /**
+     * Get the color mappings.
+     *
+     * @return array
+     */
     private function colors()
     {
         return [
@@ -175,12 +268,28 @@ class Inspector
         ];
     }
 
+    /**
+     * Colorize a value.
+     *
+     * @param string $type
+     * @param string $value
+     *
+     * @return string
+     */
     private function colorize($type, $value)
     {
         $name = empty($this->colorizers[$type]) ? $this->colorizers['default'] : $this->colorizers[$type];
         return sprintf("%s%s\033[0m", static::$colors[$name], $value);
     }
 
+    /**
+     * Check if a value has been seen before.
+     *
+     * @param mixed $value
+     * @param array $seen
+     *
+     * @return bool
+     */
     private function seen($value, $seen)
     {
         foreach ($seen as $v) {

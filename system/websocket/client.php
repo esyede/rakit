@@ -36,6 +36,12 @@ class Client
 
     protected $last_activity;
 
+    /**
+     * Create a new WebSocket client instance.
+     *
+     * @param string $id
+     * @param resource $socket
+     */
     public function __construct($id, $socket)
     {
         $this->id = $id;
@@ -43,46 +49,96 @@ class Client
         $this->last_activity = Carbon::now()->timestamp;
     }
 
+    /**
+     * Get the WebSocket server instance.
+     *
+     * @return \System\Websocket\Server
+     */
     public function server()
     {
         return $this->server;
     }
 
+    /**
+     * Set the WebSocket server instance.
+     *
+     * @param \System\Websocket\Server $server
+     *
+     * @return void
+     */
     public function of($server)
     {
         $this->server = $server;
     }
 
+    /**
+     * Get the client ID.
+     *
+     * @return string
+     */
     public function id()
     {
         return $this->id;
     }
 
+    /**
+     * Get the client socket resource.
+     *
+     * @return resource
+     */
     public function socket()
     {
         return $this->socket;
     }
 
+    /**
+     * Get the HTTP method used for the connection.
+     *
+     * @return string
+     */
     public function method()
     {
         return 'GET';
     }
 
+    /**
+     * Get the request URI.
+     *
+     * @return string
+     */
     public function uri()
     {
         return $this->uri;
     }
 
+    /**
+     * Get the request headers.
+     *
+     * @return array
+     */
     public function headers()
     {
         return $this->headers;
     }
 
+    /**
+     * Get the last activity timestamp.
+     *
+     * @return int
+     */
     public function last_activity()
     {
         return $this->last_activity;
     }
 
+    /**
+     * Send a message to the client.
+     *
+     * @param int    $opcode
+     * @param string $data
+     *
+     * @return int|false
+     */
     public function send($opcode, $data = '')
     {
         $this->last_activity = Carbon::now()->timestamp;
@@ -123,6 +179,11 @@ class Client
         return $result;
     }
 
+    /**
+     * Destroy the client instance.
+     *
+     * @return void
+     */
     public function __destruct()
     {
         if (

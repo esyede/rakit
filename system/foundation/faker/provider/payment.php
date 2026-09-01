@@ -91,11 +91,25 @@ class Payment extends Base
         'VG' => ['a', 4], ['n', 16],
     ];
 
+    /**
+     * Get a random credit card type.
+     *
+     * @return string
+     */
     public static function creditCardType()
     {
         return static::randomElement(static::$cardVendors);
     }
 
+    /**
+     * Generate a random credit card number.
+     *
+     * @param string|null $type
+     * @param bool $formatted
+     * @param string $separator
+     *
+     * @return string
+     */
     public static function creditCardNumber($type = null, $formatted = false, $separator = '-')
     {
         $number = static::numerify(static::randomElement(static::$cardParams[is_null($type) ? static::creditCardType() : $type]));
@@ -108,16 +122,38 @@ class Payment extends Base
         return $number;
     }
 
+    /**
+     * Generate a random credit card expiration date.
+     *
+     * @param bool $valid
+     *
+     * @return \DateTime
+     */
     public function creditCardExpirationDate($valid = true)
     {
         return $this->generator->dateTimeBetween($valid ? 'now' : '-36 months', '36 months');
     }
 
+    /**
+     * Generate a random credit card expiration date string.
+     *
+     * @param bool $valid
+     * @param string|null $expirationDateFormat
+     *
+     * @return string
+     */
     public function creditCardExpirationDateString($valid = true, $expirationDateFormat = null)
     {
         return $this->creditCardExpirationDate($valid)->format(is_null($expirationDateFormat) ? static::$expirationDateFormat : $expirationDateFormat);
     }
 
+    /**
+     * Generate random credit card details.
+     *
+     * @param bool $valid
+     *
+     * @return array
+     */
     public function creditCardDetails($valid = true)
     {
         $type = static::creditCardType();
@@ -129,6 +165,15 @@ class Payment extends Base
         ];
     }
 
+    /**
+     * Generate a random IBAN.
+     *
+     * @param string $countryCode
+     * @param string $prefix
+     * @param int|null $length
+     *
+     * @return string
+     */
     protected static function iban($countryCode, $prefix = '', $length = null)
     {
         $countryCode = strtoupper((string) $countryCode);
@@ -189,11 +234,24 @@ class Payment extends Base
         return $countryCode.(($checksum < 10) ? '0'.$checksum : $checksum).$result;
     }
 
+    /**
+     * Add bank code checksum to an IBAN.
+     *
+     * @param string $iban
+     * @param string $countryCode
+     *
+     * @return string
+     */
     protected static function addBankCodeChecksum($iban, $countryCode = '')
     {
         return $iban;
     }
 
+    /**
+     * Generate a random SWIFT/BIC number.
+     *
+     * @return string
+     */
     public static function swiftBicNumber()
     {
         return self::regexify('^([A-Z]){4}([A-Z]){2}([0-9A-Z]){2}([0-9A-Z]{3})?$');

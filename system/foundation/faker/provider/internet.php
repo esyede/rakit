@@ -20,6 +20,13 @@ class Internet extends Base
         'http://{{domainName}}/{{slug}}', 'http://{{domainName}}/{{slug}}.html', 'https://{{domainName}}/{{slug}}.html',
     ];
 
+    /**
+     * Transliterate a string to ASCII.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function toAscii($string)
     {
         $pool = [
@@ -134,6 +141,13 @@ class Internet extends Base
         return str_replace(array_keys($pool), array_values($pool), $string);
     }
 
+    /**
+     * Transliterate a string to a safe ASCII representation.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     private static function transliterate($string)
     {
         $id = 'Any-Latin; Latin-ASCII; NFD; [:Nonspacing Mark:] Remove; NFC; Lower();';
@@ -147,66 +161,137 @@ class Internet extends Base
         return preg_replace('/[^A-Za-z0-9_.]/u', '', $result);
     }
 
+    /**
+     * Generate a random email address.
+     *
+     * @return string
+     */
     public function email()
     {
         return mb_strtolower((string) $this->generator->parse(static::randomElement(static::$emailFormats)), 'UTF-8');
     }
 
+    /**
+     * Generate a random safe email address.
+     *
+     * @return string
+     */
     final public function safeEmail()
     {
         return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName().'@'.static::safeEmailDomain()), 'UTF-8');
     }
 
+    /**
+     * Generate a random free email address.
+     *
+     * @return string
+     */
     public function freeEmail()
     {
         return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName().'@'.static::freeEmailDomain()), 'UTF-8');
     }
 
+    /**
+     * Generate a random company email address.
+     *
+     * @return string
+     */
     public function companyEmail()
     {
         return mb_strtolower((string) preg_replace('/\s/u', '', $this->userName().'@'.$this->domainName()), 'UTF-8');
     }
 
+    /**
+     * Get a random free email domain.
+     *
+     * @return string
+     */
     public static function freeEmailDomain()
     {
         return mb_strtolower((string) static::randomElement(static::$freeEmailDomain), 'UTF-8');
     }
 
+    /**
+     * Get a random safe email domain.
+     *
+     * @return string
+     */
     final public static function safeEmailDomain()
     {
         return mb_strtolower((string) static::randomElement(['example.com', 'example.org', 'example.net']), 'UTF-8');
     }
 
+    /**
+     * Generate a random username.
+     *
+     * @return string
+     */
     public function userName()
     {
         return static::transliterate(static::bothify($this->generator->parse(static::randomElement(static::$userNameFormats))));
     }
 
+    /**
+     * Generate a random password.
+     *
+     * @param int $minLength
+     * @param int $maxLength
+     *
+     * @return string
+     */
     public function password($minLength = 6, $maxLength = 20)
     {
         return $this->asciify(str_repeat('*', $this->numberBetween($minLength, $maxLength)));
     }
 
+    /**
+     * Generate a random domain name.
+     *
+     * @return string
+     */
     public function domainName()
     {
         return $this->domainWord().'.'.$this->tld();
     }
 
+    /**
+     * Generate a random domain word.
+     *
+     * @return string
+     */
     public function domainWord()
     {
         return static::transliterate($this->generator->format('lastName'));
     }
 
+    /**
+     * Get a random top-level domain.
+     *
+     * @return string
+     */
     public function tld()
     {
         return static::randomElement(static::$tld);
     }
 
+    /**
+     * Generate a random URL.
+     *
+     * @return string
+     */
     public function url()
     {
         return $this->generator->parse(static::randomElement(static::$urlFormats));
     }
 
+    /**
+     * Generate a random URL slug.
+     *
+     * @param int $nbWords
+     * @param bool $variableNbWords
+     *
+     * @return string
+     */
     public function slug($nbWords = 6, $variableNbWords = true)
     {
         if ($nbWords <= 0) {
@@ -220,11 +305,21 @@ class Internet extends Base
         return implode('-', $this->generator->words($nbWords));
     }
 
+    /**
+     * Generate a random IPv4 address.
+     *
+     * @return string
+     */
     public function ipv4()
     {
         return long2ip((0 === mt_rand(0, 1)) ? mt_rand(-2147483648, 0) : mt_rand(1, 2147483647));
     }
 
+    /**
+     * Generate a random IPv6 address.
+     *
+     * @return string
+     */
     public function ipv6()
     {
         $result = [];
@@ -236,11 +331,21 @@ class Internet extends Base
         return implode(':', $result);
     }
 
+    /**
+     * Generate a random local IPv4 address.
+     *
+     * @return string
+     */
     public static function localIpv4()
     {
         return (0 === static::numberBetween(0, 1)) ? long2ip(static::numberBetween(167772160, 184549375)) : long2ip(static::numberBetween(3232235520, 3232301055));
     }
 
+    /**
+     * Generate a random MAC address.
+     *
+     * @return string
+     */
     public static function macAddress()
     {
         $mac = [];

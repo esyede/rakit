@@ -11,12 +11,36 @@ class Image extends Base
         'fashion', 'people', 'nature', 'sports', 'technics', 'transport',
     ];
 
+    /**
+     * Generate a random image URL via placehold.co.
+     *
+     * @param int $width
+     * @param int $height
+     * @param string|null $hexBackgroundColor
+     * @param string|null $hexForegroundColor
+     * @param string|null $word
+     *
+     * @return string
+     */
     public static function imageUrl($width = 640, $height = 480, $hexBackgroundColor = null, $hexForegroundColor = null, $word = null)
     {
         return 'https://placehold.co/'.$width.'/'.$height.($hexBackgroundColor ? '/'.ltrim($hexBackgroundColor, '#') : '')
             .($hexForegroundColor ? '/'.ltrim($hexForegroundColor, '#') : '').'/jpg'.($word ? '?text='.urlencode($word) : '');
     }
 
+    /**
+     * Download a random image to the given directory.
+     *
+     * @param string|null $dir
+     * @param int $width
+     * @param int $height
+     * @param string|null $hexBackgroundColor
+     * @param string|null $hexForegroundColor
+     * @param string|null $word
+     * @param bool $fullPath
+     *
+     * @return string|false
+     */
     public static function image($dir = null, $width = 640, $height = 480, $hexBackgroundColor = null, $hexForegroundColor = null, $word = null, $fullPath = true)
     {
         $dir = is_null($dir) ? sys_get_temp_dir() : $dir;

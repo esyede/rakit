@@ -14,21 +14,44 @@ class Base
 
     protected $unique;
 
+    /**
+     * Create a new Base provider instance.
+     *
+     * @param \System\Foundation\Faker\Generator $generator
+     */
     public function __construct(Generator $generator)
     {
         $this->generator = $generator;
     }
 
+    /**
+     * Generate a random digit (0-9).
+     *
+     * @return int
+     */
     public static function randomDigit()
     {
         return mt_rand(0, 9);
     }
 
+    /**
+     * Generate a random non-null digit (1-9).
+     *
+     * @return int
+     */
     public static function randomDigitNotNull()
     {
         return mt_rand(1, 9);
     }
 
+    /**
+     * Generate a random number with a given number of digits.
+     *
+     * @param int|null $nbDigits
+     * @param bool     $strict
+     *
+     * @return int
+     */
     public static function randomNumber($nbDigits = null, $strict = false)
     {
         if (! is_bool($strict)) {
@@ -48,6 +71,15 @@ class Base
         return $strict ? mt_rand(pow(10, $nbDigits - 1), $max) : mt_rand(0, $max);
     }
 
+    /**
+     * Generate a random float number.
+     *
+     * @param int|null $nbMaxDecimals
+     * @param float    $min
+     * @param float    $max
+     *
+     * @return float
+     */
     public static function randomFloat($nbMaxDecimals = null, $min = 0, $max = null)
     {
         if (null === $nbMaxDecimals) {
@@ -67,21 +99,47 @@ class Base
         return round($min + mt_rand() / mt_getrandmax() * ($max - $min), $nbMaxDecimals);
     }
 
+    /**
+     * Generate a random number between min and max.
+     *
+     * @param int $min
+     * @param int $max
+     *
+     * @return int
+     */
     public static function numberBetween($min = 0, $max = 2147483647)
     {
         return mt_rand($min, $max);
     }
 
+    /**
+     * Generate a random lowercase letter.
+     *
+     * @return string
+     */
     public static function randomLetter()
     {
         return chr(mt_rand(97, 122));
     }
 
+    /**
+     * Generate a random ASCII character.
+     *
+     * @return string
+     */
     public static function randomAscii()
     {
         return chr(mt_rand(33, 126));
     }
 
+    /**
+     * Generate random elements from an array.
+     *
+     * @param array $array
+     * @param int   $count
+     *
+     * @return array
+     */
     public static function randomElements(array $array = ['a', 'b', 'c'], $count = 1)
     {
         $allKeys = array_keys($array);
@@ -109,6 +167,13 @@ class Base
         return $elements;
     }
 
+    /**
+     * Generate a random element from an array.
+     *
+     * @param array $array
+     *
+     * @return mixed
+     */
     public static function randomElement($array = ['a', 'b', 'c'])
     {
         if (! $array) {
@@ -119,6 +184,13 @@ class Base
         return $elements[0];
     }
 
+    /**
+     * Generate a random key from an array.
+     *
+     * @param array $array
+     *
+     * @return mixed
+     */
     public static function randomKey(array $array = [])
     {
         if (empty($array)) {
@@ -129,6 +201,13 @@ class Base
         return $keys[mt_rand(0, count($keys) - 1)];
     }
 
+    /**
+     * Shuffle an array or string.
+     *
+     * @param array|string $arg
+     *
+     * @return array|string
+     */
     public static function shuffle($arg = '')
     {
         if (is_array($arg)) {
@@ -142,6 +221,13 @@ class Base
         throw new \InvalidArgumentException('shuffle() only supports strings or arrays');
     }
 
+    /**
+     * Shuffle an array.
+     *
+     * @param array $array
+     *
+     * @return array
+     */
     public static function shuffleArray($array = [])
     {
         $shuffled = [];
@@ -168,6 +254,14 @@ class Base
         return $shuffled;
     }
 
+    /**
+     * Shuffle a string.
+     *
+     * @param string $string
+     * @param string $encoding
+     *
+     * @return string
+     */
     public static function shuffleString($string = '', $encoding = 'UTF-8')
     {
         $array = [];
@@ -180,6 +274,13 @@ class Base
         return implode('', static::shuffleArray($array));
     }
 
+    /**
+     * Replace hash signs with random digits.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function numerify($string = '###')
     {
         $string = (string) $string;
@@ -210,21 +311,49 @@ class Base
         return preg_replace_callback('/\%/u', [get_called_class(), 'randomDigitNotNull'], $string);
     }
 
+    /**
+     * Replace question marks with random letters.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function lexify($string = '????')
     {
         return preg_replace_callback('/\?/u', [get_called_class(), 'randomLetter'], $string);
     }
 
+    /**
+     * Replace hash signs with random digits and question marks with random letters.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function bothify($string = '## ??')
     {
         return static::lexify(static::numerify($string));
     }
 
+    /**
+     * Replace asterisks with random ASCII characters.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function asciify($string = '****')
     {
         return preg_replace_callback('/\*/u', [get_called_class(), 'randomAscii'], $string);
     }
 
+    /**
+     * Generate a string that matches a regular expression.
+     *
+     * @param string $regex
+     *
+     * @return string
+     */
     public static function regexify($regex = '')
     {
         $regex = preg_replace('/^\/?\^?/', '', $regex);
@@ -260,21 +389,51 @@ class Base
         return str_replace('\\', '', $regex);
     }
 
+    /**
+     * Convert a string to lowercase.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function toLower($string = '')
     {
         return mb_strtolower((string) $string, 'UTF-8');
     }
 
+    /**
+     * Convert a string to uppercase.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
     public static function toUpper($string = '')
     {
         return mb_strtoupper((string) $string, 'UTF-8');
     }
 
+    /**
+     * Get an optional proxy generator.
+     *
+     * @param float $weight
+     * @param mixed $default
+     *
+     * @return \System\Foundation\Faker\Generator|\System\Foundation\Faker\Common
+     */
     public function optional($weight = 0.5, $default = null)
     {
         return (mt_rand() / mt_getrandmax() <= $weight) ? $this->generator : new Common($default);
     }
 
+    /**
+     * Get a unique proxy generator.
+     *
+     * @param bool $reset
+     * @param int  $max_retries
+     *
+     * @return \System\Foundation\Faker\Unique
+     */
     public function unique($reset = false, $max_retries = 10000)
     {
         if (! $this->unique) {
@@ -293,6 +452,13 @@ class Base
         return $this->unique;
     }
 
+    /**
+     * Get the next key-value pair from an array.
+     *
+     * @param array $array
+     *
+     * @return array|false
+     */
     protected static function eachEvery($array)
     {
         $key = key($array);

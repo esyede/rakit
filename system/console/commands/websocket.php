@@ -157,6 +157,13 @@ class Websocket extends Command
         $this->log('WebSocket server stopped');
     }
 
+    /**
+     * Handle the connect event.
+     *
+     * @param Client $client
+     *
+     * @return void
+     */
     public function connect(Client $client)
     {
         if ($session = Cookie::get(Config::get('session.cookie'))) {

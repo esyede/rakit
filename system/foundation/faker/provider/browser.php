@@ -19,22 +19,42 @@ class Browser extends Base
         'Windows NT 5.0', 'Windows NT 4.0', 'Windows 98; Win 9x 4.90', 'Windows 98', 'Windows 95', 'Windows CE',
     ];
 
+    /**
+     * Get a random Mac processor type.
+     *
+     * @return string
+     */
     public static function macProcessor()
     {
         return static::randomElement(static::$macProcessor);
     }
 
+    /**
+     * Get a random Linux processor type.
+     *
+     * @return string
+     */
     public static function linuxProcessor()
     {
         return static::randomElement(static::$linuxProcessor);
     }
 
+    /**
+     * Get a random user agent string.
+     *
+     * @return string
+     */
     public static function userAgent()
     {
         $agent = static::randomElement(static::$userAgents);
         return static::{$agent}();
     }
 
+    /**
+     * Generate a random Chrome user agent string.
+     *
+     * @return string
+     */
     public static function chrome()
     {
         $saf = mt_rand(531, 536).mt_rand(0, 2);
@@ -50,6 +70,11 @@ class Browser extends Base
         return 'Mozilla/5.0 '.static::randomElement($platforms);
     }
 
+    /**
+     * Generate a random Firefox user agent string.
+     *
+     * @return string
+     */
     public static function firefox()
     {
         $ver = 'Gecko/'.date('Ymd', mt_rand(strtotime('2010-1-1'), time())).' Firefox/'.mt_rand(35, 37).'.0';
@@ -63,6 +88,11 @@ class Browser extends Base
         return 'Mozilla/5.0 '.static::randomElement($platforms);
     }
 
+    /**
+     * Generate a random Safari user agent string.
+     *
+     * @return string
+     */
     public static function safari()
     {
         $saf = mt_rand(531, 535).'.'.mt_rand(1, 50).'.'.mt_rand(1, 7);
@@ -87,6 +117,11 @@ class Browser extends Base
         return 'Mozilla/5.0 '.static::randomElement($platforms);
     }
 
+    /**
+     * Generate a random Opera user agent string.
+     *
+     * @return string
+     */
     public static function opera()
     {
         $platforms = [
@@ -97,21 +132,41 @@ class Browser extends Base
         return 'Opera/'.mt_rand(8, 9).'.'.mt_rand(10, 99).' '.static::randomElement($platforms);
     }
 
+    /**
+     * Generate a random Internet Explorer user agent string.
+     *
+     * @return string
+     */
     public static function internetExplorer()
     {
         return 'Mozilla/5.0 (compatible; MSIE '.mt_rand(5, 11).'.0; '.static::windowsPlatformToken().'; Trident/'.mt_rand(3, 5).'.'.mt_rand(0, 1).')';
     }
 
+    /**
+     * Get a random Windows platform token.
+     *
+     * @return string
+     */
     public static function windowsPlatformToken()
     {
         return static::randomElement(static::$windowsPlatformTokens);
     }
 
+    /**
+     * Generate a random Mac platform token.
+     *
+     * @return string
+     */
     public static function macPlatformToken()
     {
         return 'Macintosh; '.static::randomElement(static::$macProcessor).' Mac OS X 10_'.mt_rand(5, 8).'_'.mt_rand(0, 9);
     }
 
+    /**
+     * Generate a random Linux platform token.
+     *
+     * @return string
+     */
     public static function linuxPlatformToken()
     {
         return 'X11; Linux '.static::randomElement(static::$linuxProcessor);

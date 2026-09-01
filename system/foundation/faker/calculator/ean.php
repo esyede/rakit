@@ -6,6 +6,13 @@ defined('DS') or exit('No direct access.');
 
 class Ean
 {
+    /**
+     * Calculate the EAN checksum digit.
+     *
+     * @param string $digits
+     *
+     * @return int
+     */
     public static function checksum($digits)
     {
         $digits = (string) $digits;
@@ -25,6 +32,13 @@ class Ean
         return (10 - ((3 * $even + $odd) % 10)) % 10;
     }
 
+    /**
+     * Validate an EAN number.
+     *
+     * @param string $ean
+     *
+     * @return bool
+     */
     public static function isValid($ean)
     {
         $ean = (string) $ean;

@@ -382,6 +382,11 @@ class Bar
         return false;
     }
 
+    /**
+     * Render the bar assets.
+     *
+     * @return void
+     */
     private function renderAssets()
     {
         $css = array_map('file_get_contents', [

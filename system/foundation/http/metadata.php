@@ -31,6 +31,13 @@ class Metadata
         $this->meta = [self::CREATED => 0, self::UPDATED => 0, self::LIFETIME => 0];
     }
 
+    /**
+     * Initialize the metadata from an array.
+     *
+     * @param array $array
+     *
+     * @return void
+     */
     public function initialize(array &$array)
     {
         $this->meta = &$array;
@@ -93,6 +100,11 @@ class Metadata
         return $this->lastUsed;
     }
 
+    /**
+     * Clear the metadata.
+     *
+     * @return void
+     */
     public function clear()
     {
         // ..

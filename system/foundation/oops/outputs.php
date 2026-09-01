@@ -18,12 +18,22 @@ class Outputs
      */
     private $list = [];
 
+    /**
+     * Enable the output handler.
+     *
+     * @return void
+     */
     public static function enable()
     {
         $me = new static();
         $me->start();
     }
 
+    /**
+     * Start the output handler.
+     *
+     * @return void
+     */
     public function start()
     {
         foreach (get_included_files() as $file) {
@@ -76,6 +86,11 @@ class Outputs
         }
     }
 
+    /**
+     * Render the output as HTML.
+     *
+     * @return string
+     */
     private function renderHtml()
     {
         $res = '<style>code, pre {white-space:nowrap} a {text-decoration:none} pre {color:gray;display:inline} big {color:red}</style><code>';

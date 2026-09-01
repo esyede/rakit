@@ -965,6 +965,14 @@ class Query
         return $this;
     }
 
+    /**
+     * Add a nested where clause to the query.
+     *
+     * @param \Closure $callback
+     * @param string   $connector
+     *
+     * @return $this
+     */
     public function where_nested(\Closure $callback, $connector = 'AND')
     {
         $query = new static($this->connection, $this->grammar, $this->from);

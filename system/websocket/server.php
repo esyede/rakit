@@ -36,6 +36,11 @@ class Server
 
     protected $events = [];
 
+    /**
+     * Create a new WebSocket server instance.
+     *
+     * @param string $address
+     */
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
@@ -59,11 +64,26 @@ class Server
         register_shutdown_function([$this, 'shutdown']);
     }
 
+    /**
+     * Process a received message.
+     *
+     * @param \System\Websocket\Client $user
+     * @param string $message
+     *
+     * @return void
+     */
     protected function process($user, $message)
     {
         // Override in the subclass
     }
 
+    /**
+     * Handle a new connection.
+     *
+     * @param \System\Websocket\Client $user
+     *
+     * @return void
+     */
     protected function connected($user)
     {
         if (isset($this->events['connect']) && is_callable($function = $this->events['connect'])) {
@@ -71,6 +91,13 @@ class Server
         }
     }
 
+    /**
+     * Handle a disconnection.
+     *
+     * @param \System\Websocket\Client $user
+     *
+     * @return void
+     */
     protected function closed($user)
     {
         if (isset($this->events['disconnect']) && is_callable($function = $this->events['disconnect'])) {
@@ -78,18 +105,35 @@ class Server
         }
     }
 
+    /**
+     * Handle a connecting client.
+     *
+     * @param \System\Websocket\Client $user
+     *
+     * @return void
+     */
     protected function connecting($user)
     {
         // Override this if needed
         // $this->stdout(sprintf('Client #%s is connecting', $user->id()));
     }
 
+    /**
+     * Handle periodic tasks.
+     *
+     * @return void
+     */
     protected function tick()
     {
         // Override this for periodic tasks
         // $this->stdout('Tick');
     }
 
+    /**
+     * Process pending messages.
+     *
+     * @return void
+     */
     protected function pendings()
     {
         foreach ($this->pendings as $key => $connection) {
@@ -112,6 +156,14 @@ class Server
         }
     }
 
+    /**
+     * Communicate data to a socket.
+     *
+     * @param resource $socket
+     * @param string   $data
+     *
+     * @return int|false
+     */
     protected function communicate($socket, $data)
     {
         $length = strlen($data);
@@ -119,6 +171,11 @@ class Server
         return ($written !== false && $written === $length) ? $written : false;
     }
 
+    /**
+     * Run the WebSocket server.
+     *
+     * @return void
+     */
     public function run()
     {
         if (isset($this->events['start']) && is_callable($function = $this->events['start'])) {
@@ -205,6 +262,13 @@ class Server
         }
     }
 
+    /**
+     * Connect a new client.
+     *
+     * @param resource $socket
+     *
+     * @return void
+     */
     protected function connect($socket)
     {
         $user = new Client(Str::random(8), $socket);
@@ -214,6 +278,15 @@ class Server
         $this->connecting($user);
     }
 
+    /**
+     * Disconnect a client.
+     *
+     * @param resource $socket
+     * @param bool     $close
+     * @param int|null $errno
+     *
+     * @return void
+     */
     protected function disconnect($socket, $close = true, $errno = null)
     {
         $disconnected = $this->find($socket);
@@ -236,6 +309,14 @@ class Server
         }
     }
 
+    /**
+     * Perform WebSocket handshake.
+     *
+     * @param \System\Websocket\Client $user
+     * @param string $buffer
+     *
+     * @return void
+     */
     protected function handshake($user, $buffer)
     {
         $this->stdout('Handshake started for client '.$user->id());
@@ -327,16 +408,37 @@ class Server
         $this->connected($user);
     }
 
+    /**
+     * Check if the origin is allowed.
+     *
+     * @param string $origin
+     *
+     * @return bool
+     */
     protected function check_origin($origin)
     {
         return empty($this->config['allowed_origins']) ? true : in_array($origin, $this->config['allowed_origins']);
     }
 
+    /**
+     * Check if the host is allowed.
+     *
+     * @param string $host
+     *
+     * @return bool
+     */
     protected function check_host($host)
     {
         return empty($this->config['allowed_hosts']) ? true : in_array($host, $this->config['allowed_hosts']);
     }
 
+    /**
+     * Check if the protocol is supported.
+     *
+     * @param string $protocol
+     *
+     * @return bool
+     */
     protected function check_protocol($protocol)
     {
         $protocol = explode(',', $protocol);
@@ -345,6 +447,13 @@ class Server
         return empty($this->config['supported_protocols']) ? true : ! empty($intersect);
     }
 
+    /**
+     * Check if the extensions are supported.
+     *
+     * @param string $extensions
+     *
+     * @return bool
+     */
     protected function check_extensions($extensions)
     {
         $extensions = explode(',', $extensions);
@@ -353,6 +462,13 @@ class Server
         return empty($this->config['supported_extensions']) ? true : ! empty($intersect);
     }
 
+    /**
+     * Get the supported protocol.
+     *
+     * @param string $protocol
+     *
+     * @return string
+     */
     protected function protocol($protocol)
     {
         $protocol = explode(',', $protocol);
@@ -367,6 +483,13 @@ class Server
         return '';
     }
 
+    /**
+     * Get the supported extensions.
+     *
+     * @param string $extensions
+     *
+     * @return string
+     */
     protected function extensions($extensions)
     {
         $extensions = explode(',', $extensions);
@@ -381,6 +504,13 @@ class Server
         return '';
     }
 
+    /**
+     * Find a user by socket.
+     *
+     * @param resource $socket
+     *
+     * @return \System\Websocket\Client|null
+     */
     protected function find($socket)
     {
         foreach ($this->users as $user) {
@@ -391,6 +521,13 @@ class Server
 
     }
 
+    /**
+     * Output a message to stdout.
+     *
+     * @param string $message
+     *
+     * @return void
+     */
     public function stdout($message)
     {
         if ($this->config['logging_enabled']) {
@@ -402,6 +539,13 @@ class Server
         }
     }
 
+    /**
+     * Output an error message to stderr.
+     *
+     * @param string $message
+     *
+     * @return void
+     */
     public function stderr($message)
     {
         if ($this->config['logging_enabled']) {
@@ -413,6 +557,14 @@ class Server
         }
     }
 
+    /**
+     * Send a message to a user.
+     *
+     * @param \System\Websocket\Client $user
+     * @param string $message
+     *
+     * @return void
+     */
     protected function send($user, $message)
     {
         if ($user->handshake) {
@@ -427,6 +579,16 @@ class Server
         }
     }
 
+    /**
+     * Frame a message for sending.
+     *
+     * @param string $message
+     * @param \System\Websocket\Client $user
+     * @param string $type
+     * @param bool   $continue
+     *
+     * @return string
+     */
     public function frame($message, $user, $type = 'text', $continue = false)
     {
         switch ($type) {
@@ -497,6 +659,15 @@ class Server
         return chr($b1).chr($b2).$field.$message;
     }
 
+    /**
+     * Split a packet into frames.
+     *
+     * @param int    $length
+     * @param string $packet
+     * @param \System\Websocket\Client $user
+     *
+     * @return void
+     */
     protected function split_packet($length, $packet, $user)
     {
         if ($user->busy) {
@@ -556,6 +727,13 @@ class Server
         }
     }
 
+    /**
+     * Calculate the offset for a frame.
+     *
+     * @param array $headers
+     *
+     * @return int
+     */
     protected function calc_offset($headers)
     {
         $offset = 2;
@@ -573,6 +751,14 @@ class Server
         return $offset;
     }
 
+    /**
+     * Extract a message from a frame.
+     *
+     * @param string $message
+     * @param \System\Websocket\Client $user
+     *
+     * @return string|false
+     */
     protected function deframe($message, &$user)
     {
         $headers = $this->extract_headers($message);
@@ -635,6 +821,13 @@ class Server
         return false;
     }
 
+    /**
+     * Extract headers from a message.
+     *
+     * @param string $message
+     *
+     * @return array
+     */
     protected function extract_headers($message)
     {
         // A frame shorter than its own header means the rest has not arrived
@@ -701,6 +894,14 @@ class Server
         return $header;
     }
 
+    /**
+     * Extract the payload from a message.
+     *
+     * @param string $message
+     * @param array  $headers
+     *
+     * @return string
+     */
     protected function extract_payload($message, $headers)
     {
         $offset = 2;
@@ -718,6 +919,14 @@ class Server
         return substr($message, $offset);
     }
 
+    /**
+     * Apply a mask to a payload.
+     *
+     * @param array  $headers
+     * @param string $payload
+     *
+     * @return string
+     */
     protected function apply_mask($headers, $payload)
     {
         $effective = '';
@@ -740,11 +949,26 @@ class Server
         return $effective ^ $payload;
     }
 
+    /**
+     * Check RSV bits in headers.
+     *
+     * @param array  $headers
+     * @param \System\Websocket\Client $user
+     *
+     * @return bool
+     */
     protected function check_rsv_bits($headers, $user)
     {
         return (bool) (($headers['rsv1'] + $headers['rsv2'] + $headers['rsv3']) > 0);
     }
 
+    /**
+     * Get connected clients.
+     *
+     * @param string|null $uri
+     *
+     * @return array
+     */
     public function clients($uri = null)
     {
         return array_filter($this->users, function ($val) use ($uri) {
@@ -752,17 +976,35 @@ class Server
         });
     }
 
+    /**
+     * Register an event handler.
+     *
+     * @param string   $event
+     * @param callable $function
+     *
+     * @return $this
+     */
     public function on($event, $function)
     {
         $this->events[$event] = $function;
         return $this;
     }
 
+    /**
+     * Kill the server process.
+     *
+     * @return void
+     */
     public function kill()
     {
         die;
     }
 
+    /**
+     * Shutdown the server.
+     *
+     * @return void
+     */
     public function shutdown()
     {
         foreach ($this->sockets as $socket) {
