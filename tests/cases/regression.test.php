@@ -131,6 +131,36 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Request::forged());
     }
 
+    /**
+     * The 'nocheck' header no longer opts a request out of the token check.
+     *
+     * @group system
+     */
+    public function testK1NoCheckHeaderNoLongerBypassesTheToken()
+    {
+        $this->session();
+
+        $server = ['HTTP_X_CSRF_TOKEN' => 'nocheck'];
+        $this->request(Foundation::create('/kirim', 'POST', [], [], [], $server));
+
+        $this->assertTrue(Request::forged());
+    }
+
+    /**
+     * A matching header token still passes, now that 'nocheck' is gone.
+     *
+     * @group system
+     */
+    public function testK1MatchingHeaderTokenStillPasses()
+    {
+        $this->session();
+
+        $server = ['HTTP_X_CSRF_TOKEN' => 'token-regresi'];
+        $this->request(Foundation::create('/kirim', 'POST', [], [], [], $server));
+
+        $this->assertFalse(Request::forged());
+    }
+
     // -------------------------------------------------------------------------
     // K2: csrf_except routes skip the token check
     // -------------------------------------------------------------------------

@@ -419,7 +419,7 @@ class Request
         }
 
         if ($header) {
-            return false !== stripos((string) $header, 'nocheck') || ! Crypter::equals($token, $header);
+            return ! Crypter::equals($token, $header);
         }
 
         return ! Crypter::equals(Input::get(Session::TOKEN), $token);
