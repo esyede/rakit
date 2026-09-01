@@ -69,6 +69,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         Router::$domains = false;
 
         Middleware::$patterns = [];
+        URI::$uri = null;
+        URI::$segments = [];
     }
 
     /**
@@ -127,6 +129,87 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $this->request(Foundation::create('/lihat', 'GET'));
 
         $this->assertFalse(Request::forged());
+    }
+
+    // -------------------------------------------------------------------------
+    // K2: csrf_except routes skip the token check
+    // -------------------------------------------------------------------------
+
+    /**
+     * A route listed in application.csrf_except passes without a token.
+     *
+     * @group system
+     */
+    public function testK2CsrfExceptSkipsTheTokenCheck()
+    {
+        $this->session();
+
+        Route::post('api/webhook', ['before' => 'csrf', function () {
+            return 'ok';
+        }]);
+
+        $this->request(Foundation::create('http://localhost/api/webhook', 'POST'));
+        URI::$uri = 'api/webhook';
+
+        Config::set('application.csrf_except', ['api/webhook']);
+
+        $response = Router::route('POST', 'api/webhook')->call();
+
+        Config::set('application.csrf_except', []);
+
+        $this->assertEquals(200, $response->status());
+        $this->assertEquals('ok', $response->content);
+    }
+
+    /**
+     * A wildcard pattern exempts every path below it.
+     *
+     * @group system
+     */
+    public function testK2CsrfExceptWildcardCoversEveryPathBelowIt()
+    {
+        $this->session();
+
+        Route::post('api/v1/accounts', ['before' => 'csrf', function () {
+            return 'ok';
+        }]);
+
+        $this->request(Foundation::create('http://localhost/api/v1/accounts', 'POST'));
+        URI::$uri = 'api/v1/accounts';
+
+        Config::set('application.csrf_except', ['api/*']);
+
+        $response = Router::route('POST', 'api/v1/accounts')->call();
+
+        Config::set('application.csrf_except', []);
+
+        $this->assertEquals(200, $response->status());
+        $this->assertEquals('ok', $response->content);
+    }
+
+    /**
+     * An unmatched path still needs the token.
+     *
+     * @group system
+     */
+    public function testK2CsrfExceptLeavesOtherRoutesProtected()
+    {
+        $this->session();
+
+        Route::post('admin/hapus', ['before' => 'csrf', function () {
+            return 'ok';
+        }]);
+
+        $this->request(Foundation::create('http://localhost/admin/hapus', 'POST'));
+        URI::$uri = 'admin/hapus';
+
+        Config::set('application.csrf_except', ['api/*']);
+
+        $response = Router::route('POST', 'admin/hapus')->call();
+
+        Config::set('application.csrf_except', []);
+
+        $this->assertEquals(422, $response->status());
     }
 
     // -------------------------------------------------------------------------

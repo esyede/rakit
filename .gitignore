@@ -18,6 +18,25 @@ nbproject
 .c9
 *.launch
 
+# AI coding agents
+.commandcode
+.opencode
+.mimo
+.mimocode
+.cline
+.roo
+.windsurf
+.codeium
+.continue
+.aider
+.aider.*
+.codex
+.gemini
+.qwen
+.trae
+.cascade
+.pi
+
 # Zend studio eclipse
 .buildpath
 .project

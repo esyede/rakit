@@ -25,6 +25,9 @@
 - [Authorization](#authorization)
   - [Authorization Header](#authorization-header)
   - [Bearer Token](#bearer-token)
+- [CSRF Protection](#csrf-protection)
+  - [Checking Forged Requests](#checking-forged-requests)
+  - [CSRF Exceptions](#csrf-exceptions)
 - [URI Information](#uri-information)
   - [Current URI](#current-uri)
   - [Full URI](#full-uri)
@@ -470,6 +473,62 @@ Route::get('api/profile', ['before' => 'api.auth', function () {
     return Response::json(Request::$user);
 }]);
 ```
+
+<a id="csrf-protection"></a>
+## CSRF Protection
+
+Rakit ships a `csrf` middleware that protects every non-safe request (anything
+but `GET`, `HEAD` and `OPTIONS`) against cross-site request forgery. The token
+lives in the session and is rendered into forms with `@csrf` or `csrf_field()`:
+
+```blade
+<form method="POST" action="/posts">
+    @csrf
+    ...
+</form>
+```
+
+For AJAX calls, send the token in the `X-CSRF-Token` or `X-XSRF-Token` header.
+The framework compares it with the session token using a timing-safe
+comparison, so a wrong token is refused without leaking timing information.
+
+<a id="checking-forged-requests"></a>
+### Checking Forged Requests
+
+Call `Request::forged()` to ask whether the current request carries a valid
+token:
+
+```php
+if (Request::forged()) {
+    return Response::error(422);
+}
+```
+
+This is exactly what the built-in `csrf` middleware does. `forged()` returns
+`true` when the token is missing or does not match, and `false` for safe
+methods (`GET`, `HEAD`, `OPTIONS`) even when no token was sent. A `POST` that
+spoofs itself as `GET` through `_method` or `X-Http-Method-Override` is still
+checked, because the decision is based on the method the server reported.
+
+<a id="csrf-exceptions"></a>
+### CSRF Exceptions
+
+Endpoints that cannot carry a session token — webhooks, callback URLs,
+server-to-server APIs — can be exempted by listing their URI patterns in
+`application/config/application.php`:
+
+```php
+'csrf_except' => [
+    'api/webhook',
+    'api/*',
+],
+```
+
+The `csrf` middleware consults this list before checking the token, so a
+matching route is let through without one. Patterns support `*` as a wildcard
+(`api/*` covers `api/v1/accounts`, `api/v2/orders`, ...). The list is a
+server-side whitelist, mirroring Laravel's `VerifyCsrfToken::$except` — a
+client cannot opt out by sending a special header value.
 
 <a id="uri-information"></a>
 ## URI Information

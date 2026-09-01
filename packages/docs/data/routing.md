@@ -29,6 +29,7 @@
   - [Middleware Before & After](#middleware-before--after)
   - [Middleware With Parameters](#middleware-with-parameters)
   - [Middleware Pattern](#middleware-pattern)
+  - [CSRF Exceptions](#csrf-exceptions)
   - [Global Middleware](#global-middleware)
 - [Controller Routing](#controller-routing)
   - [Basic Controller Route](#basic-controller-route)
@@ -702,6 +703,34 @@ Route::get('user/profile', function () {
 });
 ```
 
+<a id="csrf-exceptions"></a>
+### CSRF Exceptions
+
+The `csrf` middleware checks every non-safe request (anything but `GET`, `HEAD`
+and `OPTIONS`) for a valid token. Some endpoints — webhooks, callback URLs,
+server-to-server APIs — cannot read the session token, so they need to be
+exempt.
+
+List the URI patterns to exempt in `application/config/application.php`:
+
+```php
+'csrf_except' => [
+    'api/webhook',
+    'api/*',
+],
+```
+
+Patterns support `*` as a wildcard:
+
+- `api/webhook` matches only that exact path.
+- `api/*` matches every path below `api/` (`api/v1/accounts`, `api/v2/orders`, ...).
+
+Endpoints listed here skip the token check entirely, so only add routes that
+really cannot carry a token. Everything else stays protected.
+
+> This mirrors Laravel's `$except` property on the `VerifyCsrfToken` middleware:
+> the list is a server-side whitelist, not a value a client can send to opt out.
+
 <a id="global-middleware"></a>
 ### Global Middleware
 
@@ -1134,6 +1163,14 @@ Route::get('blog/(:any)', function ($slug) {
 ```php
 // CSRF Protection
 Route::middleware('csrf', function () {
+    $except = Config::get('application.csrf_except', []);
+
+    foreach ((array) $except as $pattern) {
+        if (Str::is($pattern, URI::current())) {
+            return;
+        }
+    }
+
     if (Request::forged()) {
         return Response::error('403');
     }

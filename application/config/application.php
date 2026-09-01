@@ -144,6 +144,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | CSRF Exceptions
+    |--------------------------------------------------------------------------
+    |
+    | URI patterns that are exempt from the CSRF token check. Use this for
+    | webhooks and other server-to-server endpoints that cannot read the
+    | session token. Patterns support '*' as a wildcard, e.g. 'api/webhook'
+    | matches only that path while 'api/*' matches every path below 'api/'.
+    |
+    | Routes listed here skip the token check entirely, so only add endpoints
+    | that really cannot carry a token.
+    |
+    */
+
+    'csrf_except' => [
+        // 'api/webhook',
+        // 'api/*',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Composer Autoload
     |--------------------------------------------------------------------------
     |

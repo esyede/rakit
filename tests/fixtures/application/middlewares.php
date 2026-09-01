@@ -16,6 +16,14 @@ defined('DS') or exit('No direct access.');
 */
 
 Route::middleware('csrf', function () {
+    $except = Config::get('application.csrf_except', []);
+
+    foreach ((array) $except as $pattern) {
+        if (Str::is($pattern, URI::current())) {
+            return;
+        }
+    }
+
     if (Request::forged()) {
         return Response::error(422);
     }
