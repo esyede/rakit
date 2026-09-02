@@ -865,8 +865,8 @@
                 <nav id="navMenuMore" class="nav__links">
                     <a class="nav__link is-current" href="{{ url('/') }}">Home</a>
                     <a class="nav__link" href="{{ url('docs') }}">Docs</a>
-                    <a class="nav__link" href="https://rakit.esyede.my.id/api/main/index.html" target="_blank">API</a>
                     <a class="nav__link" href="https://rakit.esyede.my.id/repositories" target="_blank">Packages</a>
+                    <a class="nav__link" href="https://rakit.esyede.my.id/api/main/index.html" target="_blank">API</a>
                     <a class="nav__link" href="https://github.com/esyede/rakit/discussions" target="_blank">Forum</a>
                     <a class="nav__link" href="https://github.com/esyede/rakit" target="_blank">Github</a>
                 </nav>
@@ -930,7 +930,7 @@
                         <span class="stat__label">PHP supported</span>
                     </div>
                     <div class="stat">
-                        <span class="stat__num">&lt; 1 MB</span>
+                        <span class="stat__num">~ 1 MB</span>
                         <span class="stat__label">GZipped, docs included</span>
                     </div>
                     <div class="stat">
@@ -1050,8 +1050,8 @@
                 <div class="footer__col">
                     <h4>Resources</h4>
                     <a href="{{ url('docs') }}">Documentation</a>
-                    <a href="https://rakit.esyede.my.id/api/main/index.html" target="_blank">API Reference</a>
                     <a href="https://rakit.esyede.my.id/repositories" target="_blank">Packages</a>
+                    <a href="https://rakit.esyede.my.id/api/main/index.html" target="_blank">API Reference</a>
                 </div>
                 <div class="footer__col">
                     <h4>Community</h4>

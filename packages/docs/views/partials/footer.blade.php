@@ -18,8 +18,8 @@
             <div class="footer__col">
                 <h4>Resources</h4>
                 <a href="{{ url('docs') }}">Documentation</a>
-                <a href="{{ url('api/main/index.html') }}" target="_blank">API Reference</a>
                 <a href="{{ url('repositories') }}">Packages</a>
+                <a href="{{ url('api/main/index.html') }}" target="_blank">API Reference</a>
             </div>
             <div class="footer__col">
                 <h4>Community</h4>
