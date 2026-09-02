@@ -486,7 +486,14 @@ class Storage
     public static function chmod($path, $mode = null)
     {
         static::validate_path($path);
-        return $mode ? chmod($path, $mode) : substr(sprintf('%o', fileperms($path)), -4);
+
+        if (!$mode) {
+            return substr(sprintf('%o', fileperms($path)), -4);
+        }
+
+        $result = chmod($path, $mode);
+        clearstatcache(true, $path);
+        return $result;
     }
 
     /**
