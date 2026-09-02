@@ -1,7 +1,7 @@
 <header class="nav">
     <div class="shell nav__inner">
         <div class="nav__left">
-            <a class="nav__brand" href="{{ url('/') }}">Rakit</a>
+            <a class="nav__brand" href="{{ url('/') }}">RAKIT</a>
             <nav id="navMenuMore" class="nav__links">
                 <a class="nav__link" href="{{ url('/') }}">Home</a>
                 <a class="nav__link is-current" href="{{ url('docs') }}">Docs</a>
