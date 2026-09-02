@@ -37,7 +37,7 @@ class File extends Driver implements Sweeper
             return;
         }
 
-        $session = @unserialize($this->unguard(file_get_contents($path)), ['allowed_classes' => false]);
+        $session = @unserialize($this->unguard(file_get_contents($path)));
 
         return is_array($session) ? $session : null;
     }

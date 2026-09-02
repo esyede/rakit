@@ -30,7 +30,7 @@ class Cookie extends Driver
                 return;
             }
 
-            $session = @unserialize(BaseCookie::get(Cookie::PAYLOAD), ['allowed_classes' => false]);
+            $session = @unserialize(BaseCookie::get(Cookie::PAYLOAD));
         } catch (\Throwable $e) {
             return;
         } catch (\Exception $e) {
