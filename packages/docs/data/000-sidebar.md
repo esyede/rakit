@@ -94,8 +94,6 @@
 -   [Configuration](/docs/auth/config)
 -   [Usage](/docs/auth/usage)
 
--   [Worker Bridges](/docs/worker-bridges)
-
 ### Support
 
 -   [Arrays](/docs/arrays)
@@ -121,3 +119,4 @@
 -   [Storage](/docs/storage)
 -   [Strings](/docs/strings)
 -   [Websocket](/docs/websocket)
+-   [Workers](/docs/workers)

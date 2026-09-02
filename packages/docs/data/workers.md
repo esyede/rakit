@@ -1,4 +1,4 @@
-# Worker Bridges
+# Workers
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
@@ -136,7 +136,7 @@ To add a new adapter, extend `System\Bridges\Bridge` and implement
 ```php
 namespace System\Bridges;
 
-class MyServer extends Bridge
+class Fooserver extends Bridge
 {
     public function init()
     {
