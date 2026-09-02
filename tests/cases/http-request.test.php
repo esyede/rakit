@@ -2,6 +2,7 @@
 
 defined('DS') or exit('No direct access.');
 
+use System\Config;
 use System\Foundation\Http\Request;
 
 class HttpRequestTest extends \PHPUnit_Framework_TestCase
@@ -547,13 +548,16 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('PURGE', $request->getMethod());
 
         $request->setMethod('POST');
+        $request->query->remove('_method');
         $request->headers->set('X-HTTP-METHOD-OVERRIDE', 'delete');
+        Config::set('application.allow_method_override', true);
         $this->assertEquals('DELETE', $request->getMethod());
 
         $request = new Request();
         $request->setMethod('POST');
         $request->headers->set('X-HTTP-METHOD-OVERRIDE', 'delete');
         $this->assertEquals('DELETE', $request->getMethod());
+        Config::set('application.allow_method_override', false);
     }
 
     public function testGetContentWorksTwiceInDefaultMode()

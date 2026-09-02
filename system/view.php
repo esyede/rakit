@@ -86,7 +86,11 @@ class View implements \ArrayAccess
     {
         $this->view = $view;
         $this->data = $data;
-        $this->path = (0 === strpos($view, 'path: ')) ? substr($view, 6) : $this->path($view);
+        if (0 === strpos($view, 'path: ')) {
+            $this->path = static::resolve_path(substr($view, 6), $view);
+        } else {
+            $this->path = $this->path($view);
+        }
 
         if (! isset($this->data['errors'])) {
             $this->data['errors'] = (Session::started() && Session::has('errors'))
@@ -128,6 +132,83 @@ class View implements \ArrayAccess
         }
 
         throw new \Exception(sprintf('View does not exist: %s', $view));
+    }
+
+    /**
+     * Resolve and validate a "path: " view prefix.
+     * Prevents LFI/RFI via traversal, wrappers, and disclosure of arbitrary files.
+     *
+     * @param string $raw
+     * @param string $original
+     * @return string
+     */
+    protected static function resolve_path($raw, $original)
+    {
+        $raw = trim((string) $raw);
+
+        if ('' === $raw || false !== strpos($raw, "\0")) {
+            throw new \Exception(sprintf('View does not exist: %s', $original));
+        }
+
+        // Block stream wrappers (php://, data://, phar://, etc.)
+        if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $raw)) {
+            throw new \Exception(sprintf('View does not exist: %s', $original));
+        }
+
+        // Resolve realpath - must be an existing file
+        $real = realpath($raw);
+
+        if (false === $real || !is_file($real)) {
+            throw new \Exception(sprintf('View does not exist: %s', $original));
+        }
+
+        // Must have .php extension (view files are php/blade.php)
+        if (!preg_match('/\.php$/i', $real)) {
+            throw new \Exception(sprintf('View does not exist: %s', $original));
+        }
+
+        // Confine to allowed roots (base, app, system, storage, package)
+        $allowed_roots = [];
+        foreach (['base', 'app', 'system', 'storage', 'package'] as $key) {
+            try {
+                $p = path($key);
+                $rp = realpath(rtrim($p, DS));
+                if ($rp) {
+                    $allowed_roots[] = $rp;
+                }
+            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
+            }
+        }
+
+        // Also allow package locations that were registered with path:
+        // collected from Package::$packages
+        if (class_exists('\System\Package')) {
+            foreach (\System\Package::$packages as $cfg) {
+                if (isset($cfg['location']) && 0 === strpos($cfg['location'], 'path: ')) {
+                    $loc = realpath(trim(substr($cfg['location'], 6)));
+                    if ($loc) {
+                        $allowed_roots[] = $loc;
+                    }
+                }
+            }
+        }
+
+        $allowed = false;
+        foreach ($allowed_roots as $root) {
+            $root = rtrim($root, DS);
+            // Allow file directly inside root or subdir
+            if ($real === $root || 0 === strpos($real, $root . DS)) {
+                $allowed = true;
+                break;
+            }
+        }
+
+        if (!$allowed) {
+            throw new \Exception(sprintf('View does not exist: %s', $original));
+        }
+
+        return $real;
     }
 
     /**

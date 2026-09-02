@@ -42,7 +42,7 @@ class Database extends Driver implements Sweeper
             return;
         }
 
-        $data = @unserialize($session->data);
+        $data = @unserialize($session->data, ['allowed_classes' => false]);
 
         return [
             'id' => $session->id,

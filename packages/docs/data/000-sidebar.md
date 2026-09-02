@@ -94,6 +94,8 @@
 -   [Configuration](/docs/auth/config)
 -   [Usage](/docs/auth/usage)
 
+-   [Worker Bridges](/docs/worker-bridges)
+
 ### Support
 
 -   [Arrays](/docs/arrays)

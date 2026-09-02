@@ -1864,7 +1864,7 @@ class Query
      */
     public function where_date($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('DATE(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->wrap_date_column($column, 'DATE'), $operator, $value, $connector);
     }
 
     /**
@@ -1879,7 +1879,7 @@ class Query
      */
     public function where_month($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('MONTH(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->wrap_date_column($column, 'MONTH'), $operator, $value, $connector);
     }
 
     /**
@@ -1894,7 +1894,7 @@ class Query
      */
     public function where_day($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('DAY(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->wrap_date_column($column, 'DAY'), $operator, $value, $connector);
     }
 
     /**
@@ -1909,7 +1909,7 @@ class Query
      */
     public function where_year($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('YEAR(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->wrap_date_column($column, 'YEAR'), $operator, $value, $connector);
     }
 
     /**
@@ -1924,7 +1924,44 @@ class Query
      */
     public function where_time($column, $operator, $value, $connector = 'AND')
     {
-        return $this->where($this->raw('TIME(' . $column . ')'), $operator, $value, $connector);
+        return $this->where($this->wrap_date_column($column, 'TIME'), $operator, $value, $connector);
+    }
+
+    /**
+     * Wrap column for DATE/MONTH/etc helpers safely via grammar.
+     *
+     * @param string $column
+     * @param string $function
+     * @return Expression
+     */
+    protected function wrap_date_column($column, $function)
+    {
+        if ($column instanceof Expression) {
+            // Allow explicit Expression, but still wrap function call
+            return $this->raw($function . '(' . $column->get() . ')');
+        }
+
+        $this->validate_column($column);
+
+        return $this->raw($function . '(' . $this->grammar->wrap($column) . ')');
+    }
+
+    /**
+     * Validate that a column identifier is safe (no injection).
+     *
+     * @param string $column
+     */
+    protected function validate_column($column)
+    {
+        if (!is_string($column) || '' === trim($column)) {
+            throw new \InvalidArgumentException('Invalid column identifier.');
+        }
+
+        // Allow letters, digits, underscore, dot for table.column
+        // Disallow anything that could close the function call or inject SQL
+        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/', $column)) {
+            throw new \InvalidArgumentException(sprintf('Invalid column identifier: %s', $column));
+        }
     }
 
     /**
@@ -1939,6 +1976,10 @@ class Query
      */
     public function where_column($column1, $operator, $column2, $connector = 'AND')
     {
+        $this->validate_operator($operator);
+        $this->validate_column($column1);
+        $this->validate_column($column2);
+
         $this->wheres[] = [
             'type' => 'where_column',
             'column1' => $column1,

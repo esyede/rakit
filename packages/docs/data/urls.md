@@ -41,6 +41,8 @@ it will use the URL from that route. If not, it will return the base URL.
 $url = URL::to('user/profile');
 ```
 
+> **Security:** `URL::to()` now blocks protocol-relative `//evil.com` and dangerous schemes (`javascript:`, `data:`). `Redirect::to()` blocks external hosts — use `Redirect::away()` for intentional external redirects to avoid open-redirect.
+
 #### Getting the current URL:
 
 ```php

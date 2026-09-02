@@ -422,7 +422,19 @@ class Request
             return ! Crypter::equals($token, $header);
         }
 
-        return ! Crypter::equals(Input::get(Session::TOKEN), $token);
+        // Only check token from request body (POST), not query string, to avoid leakage via Referer/log
+        $body_token = static::foundation()->request->get(Session::TOKEN);
+        // Also check merged input without query string fallback? For JSON requests, token may be in payload
+        // But never fall back to query string
+        if (is_null($body_token)) {
+            // Check if token was sent as part of JSON body
+            $json = Input::json(true);
+            if (is_array($json) && isset($json[Session::TOKEN])) {
+                $body_token = $json[Session::TOKEN];
+            }
+        }
+
+        return ! Crypter::equals($body_token, $token);
     }
 
     /**

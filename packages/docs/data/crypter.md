@@ -13,10 +13,11 @@
 ## Basic Knowledge
 
 The `Crypter` component provides a simple way to handle secure two-way encryption.
-This class provides strong AES-256 based encryption and decryption through
-the [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension.
+This class provides strong AES-256-CBC via [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) with HMAC-SHA256.
 
 > Don't forget to install the [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension
+
+> **Security (fixed):** Keys are now derived via HKDF-like `HMAC-SHA256(RAKIT_KEY, purpose)` — separate keys for encryption vs MAC (previously one `RAKIT_KEY` for both). Payloads carry `v=1`; legacy payloads without `v` are still decrypted for BC.
 
 <a id="encrypting-a-string"></a>
 

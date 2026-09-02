@@ -881,6 +881,11 @@ class Blade
         static::$onces = [];
     }
 
+    public static function reset_state()
+    {
+        static::forget_onces();
+    }
+
     /**
      * Translate @endonce (placeholder only, handled by static::compile_once()).
      *
@@ -903,7 +908,17 @@ class Blade
     protected static function compile_method($value)
     {
         return preg_replace_callback(static::matcher('method'), function ($matches) {
-            return $matches[1].'<input type="hidden" name="_method" value="'.trim(trim($matches[2], '()'), "'\"").'" />';
+            $inner = trim($matches[2], " \t\n\r\0\x0B()");
+            if ('' === $inner) {
+                return $matches[1].'<input type="hidden" name="_method" value="" />';
+            }
+            // If quoted literal, escape at compile time; otherwise escape at runtime via e()
+            if (preg_match('/^([\'"])(.*)\1$/s', $inner, $m)) {
+                $literal = $m[2];
+                $escaped = htmlspecialchars($literal, ENT_QUOTES, 'UTF-8', false);
+                return $matches[1].'<input type="hidden" name="_method" value="'.$escaped.'" />';
+            }
+            return $matches[1].'<input type="hidden" name="_method" value="<?php echo e('.$inner.') ?>" />';
         }, $value);
     }
 
@@ -1015,22 +1030,15 @@ class Blade
         }
 
         $name = Str::replace_last('.blade.php', '', basename($path));
-        $length = strlen($path);
-        $hash = 65535;
+        // Use HMAC-SHA256 with RAKIT_KEY to make compiled path unpredictable
+        // Fallback to sha256 without key if RAKIT_KEY not defined (e.g., tests)
+        $key = defined('RAKIT_KEY') ? RAKIT_KEY : 'fallback-key';
+        $hash = hash_hmac('sha256', $path, $key);
+        // Use first 16 hex chars (64 bits) - enough to avoid collisions, still short filename
+        // Full sha256 would be safe but longer; 64 bits is vastly better than 16-bit CRC
+        $short = substr($hash, 0, 16);
 
-        for ($i = 0; $i < $length; $i++) {
-            $hash ^= (ord($path[$i]) << 8);
-
-            for ($j = 0; $j < 8; $j++) {
-                if (($hash <<= 1) & 65536) {
-                    $hash ^= 4129;
-                }
-
-                $hash &= 65535;
-            }
-        }
-
-        static::$compiles[$path] = path('storage').'views'.DS.sprintf('%s__%u', $name, $hash).'.bc.php';
+        static::$compiles[$path] = path('storage').'views'.DS.sprintf('%s__%s', $name, $short).'.bc.php';
 
         return static::$compiles[$path];
     }

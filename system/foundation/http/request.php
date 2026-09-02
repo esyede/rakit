@@ -826,7 +826,25 @@ class Request
 
             if ('POST' === $this->method) {
                 $method = $this->request->get('_method', $this->query->get('_method', 'POST'));
-                $method = $this->headers->get('X-Http-Method-Override', $method);
+                // X-Http-Method-Override header is a footgun for access control (use real_method() for security)
+                // Only honor it when explicitly enabled via config
+                $allow_header_override = false;
+
+                try {
+                    // Use Config if available, otherwise default to false (secure)
+                    if (class_exists('\System\Config')) {
+                        $allow_header_override = (bool) \System\Config::get('application.allow_method_override', false);
+                    }
+                } catch (\Throwable $e) {
+                    // ignore
+                } catch (\Exception $e) {
+                    // ignore
+                }
+
+                if ($allow_header_override) {
+                    $method = $this->headers->get('X-Http-Method-Override', $method);
+                }
+
                 $this->method = strtoupper((string) $method);
             }
         }

@@ -164,6 +164,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Allow HTTP Method Override via Header
+    |--------------------------------------------------------------------------
+    |
+    | When true, the X-Http-Method-Override header is honored to spoof the
+    | HTTP method (e.g., POST with X-Http-Method-Override: PUT). This is a
+    | footgun for access control if you check Request::method() instead of
+    | Request::real_method(). Leave false (default) and use the _method
+    | form field for method spoofing, which is sufficient for browsers.
+    |
+    */
+
+    'allow_method_override' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Composer Autoload
     |--------------------------------------------------------------------------
     |

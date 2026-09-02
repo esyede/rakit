@@ -84,7 +84,14 @@ class Facile extends Driver
             }
         })->first();
 
-        if (! is_null($user) && Hash::check($arguments['password'], $user->password)) {
+        if (is_null($user)) {
+            // Mitigate user enumeration via timing: always perform a hash check
+            // even when user does not exist, using a dummy bcrypt hash
+            Hash::check($arguments['password'], '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+            return false;
+        }
+
+        if (Hash::check($arguments['password'], $user->password)) {
             return $this->login($user->get_key(), Arr::get($arguments, 'remember'));
         }
 

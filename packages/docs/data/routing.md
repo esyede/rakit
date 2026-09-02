@@ -221,9 +221,12 @@ Route::get('product/(:any)', function ($slug) {
     return Product::where('slug', $slug)->first();
 });
 
-// Capture all (including /)
+// Capture all (including /) — validate, Storage is now confined
 Route::get('files/(:all)', function ($path) {
-    return Storage::get($path);
+    // $path is user-controlled; Storage::get() now confines to base/storage and blocks traversal
+    // Always validate/allowlist if you expose files
+    $path = basename($path); // or map via allowlist
+    return Storage::get(path('storage').'files/'.$path);
 });
 ```
 

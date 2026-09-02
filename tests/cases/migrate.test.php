@@ -34,7 +34,24 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
             mkdir($path, 0777, true);
         }
 
-        file_put_contents($path.self::MIGRATION.'.php', $this->stub());
+        $file = $path.self::MIGRATION.'.php';
+
+        for ($attempt = 0; $attempt < 3; $attempt++) {
+            $result = @file_put_contents($file, $this->stub());
+
+            if ($result !== false) {
+                break;
+            }
+
+            if ($attempt < 2) {
+                clearstatcache(true, $file);
+                usleep(100000);
+            }
+        }
+
+        if ($result === false) {
+            $this->fail(sprintf('Unable to write migration file: %s', $file));
+        }
     }
 
     /**

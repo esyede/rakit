@@ -896,11 +896,8 @@ class Debugger
         $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])) ? $_COOKIE[self::COOKIE_SECRET] : null;
         $list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
 
-        if (! isset($_SERVER['HTTP_X_FORWARDED_FOR']) && ! isset($_SERVER['HTTP_FORWARDED'])) {
-            $list[] = '127.0.0.1';
-            $list[] = '::1';
-        }
-
+        // Explicit allow list only; do not auto-allow localhost (was a security risk)
+        // If you need localhost debug, configure it explicitly via debugger config or env
         return in_array($addr, $list, true) || in_array("$secret@$addr", $list, true);
     }
 }

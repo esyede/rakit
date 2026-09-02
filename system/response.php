@@ -184,9 +184,7 @@ class Response
      */
     public static function file($path, array $headers = [])
     {
-        if (! is_file($path)) {
-            throw new \Exception(sprintf('Target file does not exists: %s', $path));
-        }
+        $path = static::validate_path($path);
 
         $headers = array_merge([
             'Content-Type' => Storage::mime($path),
@@ -208,9 +206,7 @@ class Response
      */
     public static function download($path, $name = null, array $headers = [])
     {
-        if (! is_file($path)) {
-            throw new \Exception(sprintf('Target file does not exists: %s', $path));
-        }
+        $path = static::validate_path($path);
 
         $response = new static('', 200, array_merge($headers, [
             'Content-Description' => 'File Transfer',
@@ -326,6 +322,81 @@ class Response
      *
      * @return string
      */
+    /**
+     * Validate that a file path is inside an allowed directory and is a real file.
+     * Prevents path traversal disclosure.
+     *
+     * @param string $path
+     * @return string Real path
+     */
+    protected static function validate_path($path)
+    {
+        if (!is_string($path) || '' === trim($path) || false !== strpos($path, "\0")) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        // Block stream wrappers
+        if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $path)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        if (!is_file($path)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        $real = realpath($path);
+        if (false === $real || !is_file($real)) {
+            throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        // Confine to allowed roots: storage, base, app, public
+        $allowed_roots = [];
+        foreach (['base', 'storage', 'app'] as $key) {
+            try {
+                $p = path($key);
+                $rp = realpath(rtrim($p, DS));
+                if ($rp) {
+                    $allowed_roots[] = $rp;
+                }
+            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
+            }
+        }
+
+        // Allow explicitly configured download roots via config
+        $extraRoots = Config::get('application.download_roots', []);
+        if (is_array($extraRoots)) {
+            foreach ($extraRoots as $extra) {
+                $rp = realpath($extra);
+                if ($rp) {
+                    $allowed_roots[] = $rp;
+                }
+            }
+        }
+
+        // If no allowed roots could be determined, at least ensure inside base
+        // For BC, if path is outside all allowed roots but still inside base, allow
+        // Otherwise block traversal like /etc/passwd which is outside base
+        $inside = false;
+        if (count($allowed_roots) === 0) {
+            $inside = true; // fallback allow if not configured
+        } else {
+            foreach ($allowed_roots as $root) {
+                $root = rtrim($root, DS);
+                if ($real === $root || 0 === strpos($real, $root . DS)) {
+                    $inside = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$inside) {
+            throw new \Exception(sprintf('Target file is outside allowed directory: %s', $path));
+        }
+
+        return $real;
+    }
+
     protected static function disposition($type, $name)
     {
         $name = str_replace(["\r", "\n", "\0", '"', '\\'], '', (string) $name);

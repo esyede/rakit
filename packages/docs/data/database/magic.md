@@ -351,6 +351,8 @@ $orders = DB::table('orders')
     ->get();
 ```
 
+> **Security (fixed):** `where_date|month|day|year|time` now wrap the column via the grammar (`DATE("col")`) and validate the identifier. Passing `Input::get('col')` directly without allowlisting is now rejected (`Invalid column identifier`) instead of interpolated as `DATE(created_at)=1 OR ...`.
+
 <a id="where_exists-and-where_not_exists"></a>
 ### where_exists and where_not_exists
 

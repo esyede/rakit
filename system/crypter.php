@@ -9,6 +9,17 @@ use System\Exceptions\DecryptException;
 class Crypter
 {
     /**
+     * Derive a key for a specific purpose via HKDF-like construction.
+     *
+     * @param string $purpose
+     * @return string Binary key
+     */
+    protected static function derive_key($purpose)
+    {
+        return hash_hmac('sha256', $purpose, RAKIT_KEY, true);
+    }
+
+    /**
      * Encrypt a string.
      *
      * @param string $value
@@ -18,15 +29,18 @@ class Crypter
     public static function encrypt($value)
     {
         $iv = Str::bytes(16);
-        $value = openssl_encrypt((string) $value, 'aes-256-cbc', RAKIT_KEY, 0, $iv);
+        $enc_key = static::derive_key('rakit-encryption-v1');
+        $mac_key = static::derive_key('rakit-mac-v1');
+        $value = openssl_encrypt((string) $value, 'aes-256-cbc', $enc_key, 0, $iv);
 
         if (false === $value) {
             throw new \Exception('Could not encrypt the data.');
         }
 
         $iv = base64_encode($iv);
-        $mac = hash_hmac('sha256', $iv.$value, RAKIT_KEY);
-        $value = json_encode(compact('iv', 'value', 'mac'), JSON_UNESCAPED_SLASHES);
+        $mac = hash_hmac('sha256', $iv.$value, $mac_key);
+        $v = 1;
+        $value = json_encode(compact('iv', 'value', 'mac', 'v'), JSON_UNESCAPED_SLASHES);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \Exception('Could not encrypt the data.');
@@ -45,7 +59,9 @@ class Crypter
     public static function decrypt($value)
     {
         $value = static::payload($value);
-        $value = openssl_decrypt($value['value'], 'aes-256-cbc', RAKIT_KEY, 0, base64_decode($value['iv']));
+        $is_v1 = isset($value['v']) && $value['v'] === 1;
+        $enc_key = $is_v1 ? static::derive_key('rakit-encryption-v1') : RAKIT_KEY;
+        $value = openssl_decrypt($value['value'], 'aes-256-cbc', $enc_key, 0, base64_decode($value['iv']));
 
         if (false === $value) {
             throw new DecryptException('Could not decrypt the data.');
@@ -99,7 +115,9 @@ class Crypter
             throw new DecryptException('The payload is invalid.');
         }
 
-        $mac = hash_hmac('sha256', $value['iv'].$value['value'], RAKIT_KEY);
+        $is_v1 = isset($value['v']) && $value['v'] === 1;
+        $mac_key = $is_v1 ? static::derive_key('rakit-mac-v1') : RAKIT_KEY;
+        $mac = hash_hmac('sha256', $value['iv'].$value['value'], $mac_key);
 
         if (! static::equals($mac, $value['mac'])) {
             throw new DecryptException('The MAC is invalid.');
@@ -127,6 +145,10 @@ class Crypter
             if (! isset($value[$key]) || ! is_string($value[$key])) {
                 return false;
             }
+        }
+
+        if (isset($value['v']) && $value['v'] !== 1) {
+            return false;
         }
 
         $value = base64_decode($value['iv'], true);

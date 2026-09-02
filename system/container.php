@@ -77,6 +77,17 @@ class Container
     }
 
     /**
+     * Flush per-request singletons and building tracker (worker bridges).
+     *
+     * @return void
+     */
+    public static function flush()
+    {
+        static::$singletons = [];
+        static::$building = [];
+    }
+
+    /**
      * Resolve a name into an object instance.
      *
      * @param string $type

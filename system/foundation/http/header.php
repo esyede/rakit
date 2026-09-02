@@ -122,8 +122,15 @@ class Header implements \IteratorAggregate, \Countable
      */
     public function set($key, $values, $replace = true)
     {
+        // Defense-in-depth: strip CRLF from header names and values
+        $key = str_replace(["\r", "\n", "\0"], '', (string) $key);
         $key = $this->standardizeKey($key);
         $values = array_values((array) $values);
+
+        foreach ($values as $i => $v) {
+            $values[$i] = str_replace(["\r", "\n", "\0"], '', (string) $v);
+        }
+
         $this->headers[$key] = (true === $replace || ! isset($this->headers[$key])) ? $values : array_merge($this->headers[$key], $values);
 
         if ('Cache-Control' === $key) {

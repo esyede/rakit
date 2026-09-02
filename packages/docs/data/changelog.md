@@ -7,6 +7,7 @@
 -   [v0.9.8 \(pre-release\)](#v098-pre-release)
 -   [v0.9.9 \(pre-release\)](#v099-pre-release)
 -   [v0.9.10 \(pre-release\)](#v0910-pre-release)
+-   [v0.9.11 \(security\)](#v0911-security)
 
 <!-- /MarkdownTOC -->
 
@@ -198,3 +199,29 @@ A pass through the framework has resolved every deprecation, warning, and runtim
 1.  Redownload the framework. Not compatible with previous versions.
 2.  Search your application code for the renamed/removed aliases and apply the migration shown above.
 3.  If you maintain custom packages that ship their own `aliases.php`, prefer `Autoloader::aliases([...])` so collisions are reported.
+
+<a id="v0911-security"></a>
+
+## v0.9.11 (security)
+
+Security audit fixes — all severities from `BUGS.md`:
+
+**High**
+- `View` `path:` LFI/RFI — `View::resolvePath()` now validates realpath, blocks wrappers, confines to `base/storage/app/system`.
+- SQLi via `where_date|month|day|year|time` — column is validated and `grammar->wrap()`-ed (`DATE("col")`), `where_column`/`has` operators validated.
+- Upload `Input::upload()` — blocks PHP extensions (`php`, `phtml`, `phar`...), validates MIME via `finfo`, size, double extensions, confines target dir to `base/storage`.
+- Mass-assignment — `Facile\Model::$guarded` defaults to `['*']` (previously `[]`); use `$fillable` allowlist.
+- `Response::download/file` traversal — `realpath` confinement to allowed roots.
+- Open redirect — `Redirect::to()` blocks external hosts (use `away()`), `URL::to()` blocks `//` and `javascript:`.
+- `Storage` API — every operation (`get/put/delete/move/copy/cpdir/rmdir/...`) validated via `validatePath()` confinement to `base`.
+- CSRF — `csrf` registered globally `pattern: *`; token no longer accepted from query string.
+- Debugger — `activate => false` by default, `detectDebugMode()` no longer auto-allows `127.0.0.1`.
+- Blade compiled path — CRC16 → `HMAC-SHA256(RAKIT_KEY, path)` (16 hex chars, 64-bit).
+- Auth timing — dummy `Hash::check()` on missing user.
+
+**Medium/Low**
+- `@method` now `e()`-escaped, `Header::set` strips CRLF, `unserialize(..., ['allowed_classes'=>false])` for sessions, session/remember cookies force `secure` on HTTPS, remember token stored as `sha256` and rotated, `Crypter` HKDF-derived enc/MAC keys (`v=1` payload), `key.php` blocked via `.htaccess`/`sample.htaccess`, operator validation, etc.
+
+**Docs** — `storage.md`, `views/home.md`, `views/templating.md`, `input.md`, `database/facile.md`, `database/magic.md`, `urls.md`, `routing.md`, `debugging.md`, `crypter.md` updated with security notes and safe examples.
+
+See `BUGS.md` for the original audit matrix.

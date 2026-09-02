@@ -65,6 +65,7 @@ class Redirect extends Response
 
     /**
      * Create a redirect response to a given URL.
+     * Only local URLs are allowed; use away() for external redirects.
      *
      * @param string $url
      * @param int    $status
@@ -73,6 +74,30 @@ class Redirect extends Response
      */
     public static function to($url, $status = 302)
     {
+        // Prevent open redirect: block external URLs
+        if (is_string($url) && '' !== trim($url)) {
+            $trimmed = trim($url);
+            // Detect protocol-relative //evil.com or \\evil.com
+            if (preg_match('#^(//|\\\\)#', $trimmed)) {
+                throw new \Exception('External URL not allowed for Redirect::to(), use Redirect::away() instead.');
+            }
+            // Detect absolute URL with scheme
+            if (filter_var($trimmed, FILTER_VALIDATE_URL)) {
+                if (!static::local($trimmed)) {
+                    throw new \Exception('External URL not allowed for Redirect::to(), use Redirect::away() instead.');
+                }
+            } else {
+                // Also block javascript:, data:, vbscript: etc.
+                if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', $trimmed)) {
+                    throw new \Exception('Invalid redirect URL.');
+                }
+            }
+            // Block CRLF header injection
+            if (preg_match('/[\r\n]/', $trimmed)) {
+                throw new \Exception('Invalid redirect URL.');
+            }
+        }
+
         return static::make('', $status)->header('Location', URL::to($url));
     }
 
@@ -114,6 +139,15 @@ class Redirect extends Response
      */
     public static function away($url, $status = 302)
     {
+        if (is_string($url) && preg_match('/[\r\n]/', $url)) {
+            throw new \Exception('Invalid redirect URL.');
+        }
+        if (is_string($url) && preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', trim($url))) {
+            $scheme = strtolower(parse_url(trim($url), PHP_URL_SCHEME));
+            if (!in_array($scheme, ['http', 'https'], true)) {
+                throw new \Exception('Invalid redirect URL scheme for away().');
+            }
+        }
         return static::make('', $status)->header('Location', $url);
     }
 

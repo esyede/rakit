@@ -575,8 +575,10 @@ Route::get('api/users', function () {
 
 ```php
 Route::get('download/(:any)', function ($file) {
+    // $file comes from URL — never concatenate directly (path traversal)
+    $file = basename($file); // strip directories
     $path = path('storage') . 'downloads/' . $file;
-
+    // Response::download() is now confined to allowed roots and will throw if outside
     return Response::download($path);
 });
 
@@ -774,7 +776,8 @@ return Response::error('500');
 ```php
 return Redirect::to('home');
 return Redirect::to('user/profile');
-return Redirect::to('https://example.com');
+// External URLs must use away() — to() now blocks external hosts (open-redirect fix)
+return Redirect::away('https://example.com');
 ```
 
 **Redirect with status code:**
@@ -896,7 +899,7 @@ class Post_Controller extends Controller
         return View::make('posts.create');
     }
 
-    // Store post
+    // Store post — use allowlist (mass-assignment now defaults to guarded=['*'])
     public function action_store()
     {
         $validation = Validator::make(Input::all(), [
@@ -910,17 +913,17 @@ class Post_Controller extends Controller
                 ->with_errors($validation);
         }
 
-        $post = Post::create(Input::all());
+        $post = Post::create(Input::only('title','content'));
 
         return Redirect::to_route('posts.show', [$post->id])
             ->with('message', 'Post created successfully!');
     }
 
-    // Download attachment
+    // Download attachment — path is already validated, Response::download confines to allowed roots
     public function action_download($id)
     {
         $post = Post::find($id);
-        $path = $post->attachment_path;
+        $path = $post->attachment_path; // should be a path inside storage, never raw user input
 
         return Response::download($path, $post->attachment_name);
     }

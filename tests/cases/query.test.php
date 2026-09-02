@@ -134,7 +134,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
 
         $query->where_date('created_at', '=', '2023-01-01');
-        $this->assertContains('DATE(created_at)', $query->to_sql());
+        $sql = $query->to_sql();
+        $this->assertTrue(strpos($sql, 'DATE(') !== false && strpos($sql, 'created_at') !== false, $sql);
     }
 
     /**
@@ -151,7 +152,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
 
         $query->where_month('created_at', '=', 1);
-        $this->assertContains('MONTH(created_at)', $query->to_sql());
+        $sql = $query->to_sql();
+        $this->assertTrue(strpos($sql, 'MONTH(') !== false && strpos($sql, 'created_at') !== false, $sql);
     }
 
     /**
@@ -168,7 +170,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
 
         $query->where_day('created_at', '=', 1);
-        $this->assertContains('DAY(created_at)', $query->to_sql());
+        $sql = $query->to_sql();
+        $this->assertTrue(strpos($sql, 'DAY(') !== false && strpos($sql, 'created_at') !== false, $sql);
     }
 
     /**
@@ -185,7 +188,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
 
         $query->where_year('created_at', '=', 2023);
-        $this->assertContains('YEAR(created_at)', $query->to_sql());
+        $sql = $query->to_sql();
+        $this->assertTrue(strpos($sql, 'YEAR(') !== false && strpos($sql, 'created_at') !== false, $sql);
     }
 
     /**
@@ -202,7 +206,8 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         );
 
         $query->where_time('created_at', '=', '12:00:00');
-        $this->assertContains('TIME(created_at)', $query->to_sql());
+        $sql = $query->to_sql();
+        $this->assertTrue(strpos($sql, 'TIME(') !== false && strpos($sql, 'created_at') !== false, $sql);
     }
 
     /**

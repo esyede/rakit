@@ -201,6 +201,20 @@ Routing\Router::register('*', '(:all)', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Worker Mode: Skip Dispatch
+|--------------------------------------------------------------------------
+|
+| In worker mode (FrankenPHP, RoadRunner, Swoole), the framework boots
+| once and the request dispatch is handled by the bridge loop instead.
+| Return early here so boot.php only initializes the framework.
+|
+*/
+if (defined('RAKIT_WORKER_MODE')) {
+    return;
+}
+
+/*
+|--------------------------------------------------------------------------
 | Read URI And Locale
 |--------------------------------------------------------------------------
 |

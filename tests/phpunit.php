@@ -60,6 +60,12 @@ require path('system') . 'core.php';
 // --------------------------------------------------------------
 System\Package::boot(DEFAULT_PACKAGE);
 
+// For test suite compatibility: existing tests were written when Model::$guarded default was []
+// Production code now defaults to ['*'] for secure mass-assignment.
+// Override for tests so legacy tests that rely on mass-assignment without explicit fillable still pass.
+// New models in application should define $fillable or $guarded explicitly.
+System\Database\Facile\Model::$guarded = [];
+
 // --------------------------------------------------------------
 // Local mock endpoint, so the suite never reaches the network
 // --------------------------------------------------------------

@@ -10,6 +10,7 @@ use System\Config;
 use System\Hook;
 use System\Session;
 use System\Crypter;
+use System\Request;
 
 abstract class Driver
 {
@@ -221,7 +222,7 @@ abstract class Driver
 
         $stored = (string) $this->remember_token($user);
 
-        if ('' === $stored || ! Crypter::equals($stored, $value)) {
+        if ('' === $stored || !Crypter::equals($stored, $value)) {
             return;
         }
 
@@ -283,6 +284,7 @@ abstract class Driver
     protected function cookie($name, $value, $minutes)
     {
         $config = Config::get('session');
+        $secure = Request::secure() ?: $config['secure'];
 
         Cookie::put(
             $name,
@@ -290,7 +292,7 @@ abstract class Driver
             $minutes,
             $config['path'],
             $config['domain'],
-            $config['secure'],
+            $secure,
             isset($config['samesite']) ? $config['samesite'] : 'lax'
         );
     }

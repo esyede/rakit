@@ -74,11 +74,14 @@ $input = Input::get();
 **Example:**
 
 ```php
-// Form submission
-$data = Input::all();
+// ❌ insecure — mass-assignment with Input::all() when $guarded default was []
+// $data = Input::all(); User::create($data);
+
+// ✅ secure — explicit allowlist (Model now defaults to $guarded = ['*'])
+$data = Input::only('name', 'email', 'password');
 User::create($data);
 
-// Or more specific
+// Or assignment per-attribute
 $user = new User;
 $user->name = Input::get('name');
 $user->email = Input::get('email');
@@ -542,8 +545,8 @@ Route::post('register', function () {
             ->with_errors($validation);
     }
     
-    // Create user
-    $user = User::create(Input::all());
+    // Create user — allowlist (Model defaults to $guarded=['*'])
+    $user = User::create(Input::only('name','email','password'));
     
     return Redirect::to('login')
         ->with('message', 'Registration successful!');
@@ -592,13 +595,12 @@ Input::merge(['role' => 'user', 'active' => 1]);
 
 ```php
 Route::post('users', function () {
-    // Auto-add timestamps and user_id
-    Input::merge([
+    // Auto-add server-controlled fields — never merge client-controlled role/privilege
+    $data = array_merge(Input::only('name','email'), [
         'user_id' => Auth::user()->id,
-        'created_at' => date('Y-m-d H:i:s'),
     ]);
-    
-    User::create(Input::all());
+    // $fillable on User must allow only safe fields; role/admin stays guarded
+    User::create($data);
 });
 ```
 
@@ -852,20 +854,22 @@ View::share('language', $language);
 Route::get('products', function () {
     $query = Product::query();
     
-    // Search
+    // Search — use binding, LIKE is safe via binding (value is parameterized)
     if (Input::has('q')) {
         $keyword = Input::get('q');
         $query->where('name', 'like', "%$keyword%");
     }
     
-    // Filter by category
+    // Filter by category — validate as integer
     if (Input::has('category')) {
-        $query->where('category_id', Input::get('category'));
+        $query->where('category_id', '=', (int) Input::get('category'));
     }
     
-    // Sort
-    $sort_by = Input::get('sort', 'created_at');
-    $sort_dir = Input::get('dir', 'desc');
+    // Sort — allowlist columns/directions (order_by direction is now validated, but column must be allowlisted)
+    $allowedSorts = ['name','price','created_at'];
+    $allowedDirs  = ['asc','desc'];
+    $sort_by = in_array(Input::get('sort','created_at'), $allowedSorts) ? Input::get('sort') : 'created_at';
+    $sort_dir = in_array(strtolower(Input::get('dir','desc')), $allowedDirs) ? Input::get('dir') : 'desc';
     $query->order_by($sort_by, $sort_dir);
     
     // Paginate

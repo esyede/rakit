@@ -469,6 +469,8 @@ class FacileTest extends \PHPUnit_Framework_TestCase
  */
 class TestModel extends \System\Database\Facile\Model
 {
+    public static $guarded = [];
+
     /**
      * Setter for 'setter' attribute.
      *
@@ -528,4 +530,5 @@ class TestModel extends \System\Database\Facile\Model
 class OtherScopedModel extends \System\Database\Facile\Model
 {
     public static $table = 'other_scoped_models';
+    public static $guarded = [];
 }

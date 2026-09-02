@@ -324,13 +324,18 @@ class Payload
      */
     protected function cookie(array $config)
     {
+        $secure = $config['secure'];
+        // Enforce secure cookie when request is over HTTPS, regardless of config
+        if (\System\Request::secure()) {
+            $secure = true;
+        }
         Cookie::put(
             $config['cookie'],
             $this->session['id'],
             $config['expire_on_close'] ? 0 : (int) $config['lifetime'],
             $config['path'],
             $config['domain'],
-            $config['secure'],
+            $secure,
             isset($config['samesite']) ? $config['samesite'] : 'lax'
         );
     }

@@ -20,7 +20,17 @@ class MySQL extends Connector
         $pdo = new PDO($this->dsn($config), $config['username'], $config['password'], $this->options($config));
 
         if (isset($config['charset'])) {
-            $pdo->prepare("SET NAMES '".$config['charset']."'")->execute();
+            $charset = (string) $config['charset'];
+            // Strict allowlist for charset to prevent injection via config
+            // Typical MySQL charsets: utf8, utf8mb4, latin1, ascii, etc.
+            if (!preg_match('/^[A-Za-z0-9_-]+$/', $charset)) {
+                throw new \InvalidArgumentException(sprintf('Invalid charset: %s', $charset));
+            }
+            // Use PDO::quote for extra safety, though charset is validated
+            $quoted = $pdo->quote($charset);
+            // PDO::quote includes surrounding quotes, so we can use it directly
+            // But SET NAMES expects quoted string, e.g., SET NAMES 'utf8mb4'
+            $pdo->exec("SET NAMES $quoted");
         }
 
         return $pdo;

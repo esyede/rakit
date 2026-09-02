@@ -251,6 +251,12 @@ class Query
         $operator = trim((string) $operator);
         $count = (int) $count;
 
+        $allowed = ['=', '<', '>', '<=', '>=', '<>', '!='];
+
+        if (!in_array($operator, $allowed, true)) {
+            throw new \InvalidArgumentException(sprintf('Unsupported SQL operator: %s', $operator));
+        }
+
         // EXISTS is cheaper than counting, so use it whenever the wanted
         // condition boils down to "owns at least one" or "owns none at all".
         if ('>=' === $operator && 1 === $count) {
@@ -339,8 +345,16 @@ class Query
     {
         $relationships = is_array($relationships) ? $relationships : func_get_args();
 
-        if (is_null($this->table->selects)) {
+        if (!isset($this->table) || !$this->table instanceof \System\Database\Query) {
+            $this->table = $this->table();
+        }
+
+        if (is_null($this->table->selects) || !is_array($this->table->selects)) {
             $this->table->select([$this->model->table() . '.*']);
+        }
+
+        if (!is_array($this->table->bindings)) {
+            $this->table->bindings = [];
         }
 
         foreach ($relationships as $key => $value) {
@@ -355,8 +369,24 @@ class Query
             $sub = $this->relationship_subquery($relationship, $callback);
             $sub->select([new Expression('COUNT(*)')]);
 
-            $column = Str::snake($relationship) . '_count';
-            $sql = '(' . $sub->grammar->select($sub) . ') AS ' . $this->table->grammar->wrap($column);
+            if (!is_array($sub->bindings)) {
+                $sub->bindings = [];
+            }
+
+            $column = Str::snake((string) $relationship) . '_count';
+            $grammar = isset($this->table->grammar) ? $this->table->grammar : (isset($sub->grammar) ? $sub->grammar : null);
+
+            if (!$grammar || !method_exists($grammar, 'select') || !method_exists($grammar, 'wrap')) {
+                throw new \Exception('Query grammar not available for with_count().');
+            }
+
+            $sub_sql = $sub->grammar->select($sub);
+            $wrapped = $grammar->wrap($column);
+            $sql = '(' . $sub_sql . ') AS ' . $wrapped;
+
+            if (!is_array($this->table->selects)) {
+                $this->table->selects = [];
+            }
 
             $this->table->selects[] = new Expression($sql);
             $this->table->bindings = array_merge($this->table->bindings, $sub->bindings);

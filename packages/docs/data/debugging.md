@@ -14,11 +14,9 @@
 
 ## Basic Knowledge
 
-Rakit comes with a fairly smart debugger feature, which can determine when it should display errors and exceptions.
+Rakit comes with a debugger. **Since the security fix, debugger is disabled by default** (`application/config/debugger.php` `activate => false`). Enable it only for local development.
 
-It does this by guessing your application's environment based on the IP address. If you are on a local IP, the debugger will display the stack trace of errors occurring in your application.
-
-Conversely, if you are not on a local IP, only the 500 (internal server error) page will be displayed. The error will be logged in the `storage/logs/` folder or sent to your email. You can also configure it as needed.
+Previously it auto-enabled for `127.0.0.1/::1`; that auto-allow was removed to avoid information leakage in production. In production, errors show only the generic `500` page (`application/views/error/500.php`) and are logged to `storage/logs/` or emailed — never a stack trace with source paths.
 
 The 500 error page displayed comes from the file `application/views/error/500.php`. You can change its appearance if it doesn't suit you.
 

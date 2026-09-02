@@ -651,7 +651,7 @@ prefix a package puts on its controllers.
 | Directive                        | Description                                                                     |
 | -------------------------------- | ------------------------------------------------------------------------------- |
 | `@csrf`                          | Print a hidden CSRF token field                                                 |
-| `@method('put')`                 | Print a hidden `_method` field to spoof the HTTP method                         |
+| `@method('put')`                 | Print a hidden `_method` field to spoof the HTTP method (now escaped; dynamic values are `e()`-escaped) |
 | `@json($data)`                   | Print a variable as JSON, handy for passing data to JavaScript                  |
 | `@auth` .. `@endauth`            | Content that is only shown to a logged-in user                                  |
 | `@guest` .. `@endguest`          | Content that is only shown to a guest                                           |

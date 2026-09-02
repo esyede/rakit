@@ -110,11 +110,20 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         foreach ([['_method' => 'GET'], []] as $extra) {
             $server = $extra ? [] : ['HTTP_X_HTTP_METHOD_OVERRIDE' => 'GET'];
+
+            if (! $extra) {
+                Config::set('application.allow_method_override', true);
+            }
+
             $this->request(Foundation::create('/kirim', 'POST', $extra, [], [], $server));
 
             $this->assertEquals('GET', Request::method());
             $this->assertEquals('POST', Request::real_method());
             $this->assertTrue(Request::forged());
+
+            if (! $extra) {
+                Config::set('application.allow_method_override', false);
+            }
         }
     }
 

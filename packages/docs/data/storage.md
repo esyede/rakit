@@ -51,6 +51,18 @@ Storage::isdir('foo/bar.txt'); // false
 $contents = Storage::get('path/to/file');
 ```
 
+> **Security:** All `Storage` paths are now confined to the application base directory (`path('base')` / `path('storage')`). Path traversal (`../`), null bytes and stream wrappers (`php://`, `phar://`) are rejected with an exception. Never pass raw user input like `Storage::get(Input::get('f'))` — validate or map it through an allowlist first.
+
+```php
+// ❌ vulnerable
+Storage::get(Input::get('file')); // ?file=../../../../etc/passwd
+
+// ✅ safe — allowlist or basename
+$allowed = ['report.pdf' => 'exports/report.pdf'];
+$path = $allowed[Input::get('file')] ?? null;
+if ($path) Storage::get(path('storage').$path);
+```
+
 <a id="write-file"></a>
 
 ## Write File
@@ -60,6 +72,8 @@ $contents = Storage::get('path/to/file');
 ```php
 Storage::put('path/to/file', 'file contents');
 ```
+
+> Paths are validated before writing. `Storage::put(Input::get('name'), $data)` with user-controlled filename is blocked — writes outside the allowed roots throw an exception.
 
 #### Append data to the end of a file:
 
@@ -90,10 +104,22 @@ Storage::delete('path/to/file.ext');
 #### Move file from `$_FILES` to disk:
 
 ```php
-Input::upload('picture', 'path/to/pictures', 'filename.ext');
+// Basic — now with built-in hardening (blocks PHP extensions, validates MIME/size)
+Input::upload('picture', path('storage').'pictures', 'filename.ext');
 ```
 
-> You can easily validate file uploads using [Validator](/docs/validation).
+> **Security (fixed):** `Upload::move()` now validates extension, MIME (via `finfo`), size (`upload_max_filesize` / `Upload::$maxSize`), double extensions (`shell.php.jpg`) and directory confinement. Dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess` ...) are rejected. Enforce a whitelist for stronger control:
+
+```php
+Upload::$allowedExtensions = ['jpg','jpeg','png','pdf'];
+Upload::$allowedMimeTypes  = ['image/jpeg','image/png','application/pdf'];
+Upload::$maxSize = 2 * 1024 * 1024; // 2 MB
+
+// Or via Validator before moving
+$rules = ['picture' => 'required|image|max:2048|mimes:jpg,png'];
+if (Validator::make(Input::all(), $rules)->fails()) { /* ... */ }
+Input::upload('picture', path('storage').'pictures');
+```
 
 <a id="file-extension"></a>
 
