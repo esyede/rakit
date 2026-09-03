@@ -54,12 +54,12 @@ $contents = Storage::get('path/to/file');
 > **Security:** All `Storage` paths are now confined to the application base directory (`path('base')` / `path('storage')`). Path traversal (`../`), null bytes and stream wrappers (`php://`, `phar://`) are rejected with an exception. Never pass raw user input like `Storage::get(Input::get('f'))` — validate or map it through an allowlist first.
 
 ```php
-// ❌ vulnerable
+// vulnerable
 Storage::get(Input::get('file')); // ?file=../../../../etc/passwd
 
-// ✅ safe — allowlist or basename
+// safe — allowlist or basename
 $allowed = ['report.pdf' => 'exports/report.pdf'];
-$path = $allowed[Input::get('file')] ?? null;
+$path = isset($allowed[Input::get('file')]) ? $allowed[Input::get('file')] : null;
 if ($path) Storage::get(path('storage').$path);
 ```
 

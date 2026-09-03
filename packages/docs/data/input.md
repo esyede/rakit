@@ -74,10 +74,10 @@ $input = Input::get();
 **Example:**
 
 ```php
-// ❌ insecure — mass-assignment with Input::all() when $guarded default was []
+// insecure — mass-assignment with Input::all() when $guarded default was []
 // $data = Input::all(); User::create($data);
 
-// ✅ secure — explicit allowlist (Model now defaults to $guarded = ['*'])
+// secure — explicit allowlist (Model now defaults to $guarded = ['*'])
 $data = Input::only('name', 'email', 'password');
 User::create($data);
 

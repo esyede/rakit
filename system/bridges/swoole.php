@@ -160,10 +160,10 @@ class Swoole extends Bridge
                     $data['value'],
                     $data['expiration'],
                     $data['path'],
-                    $data['domain'] ?? '',
-                    $data['secure'] ?? false,
+                    isset($data['domain']) ? $data['domain'] : null,
+                    isset($data['secure']) ? $data['secure'] : false,
                     true,
-                    $data['samesite'] ?? 'lax'
+                    isset($data['samesite']) ? $data['samesite'] : 'lax'
                 );
             }
         }
@@ -186,8 +186,8 @@ class Swoole extends Bridge
                 $data['value'],
                 $data['expiration'],
                 $data['path'],
-                $data['domain'] ?? null,
-                $data['secure'] ?? false,
+                isset($data['domain']) ? $data['domain'] : null,
+                isset($data['secure']) ? $data['secure'] : false,
                 true,
                 isset($data['samesite']) ? $data['samesite'] : 'lax'
             ));
@@ -212,11 +212,15 @@ class Swoole extends Bridge
             $header_lc[strtolower($k)] = $v;
         }
 
-        $method = strtoupper($server['request_method'] ?? $header_lc['x-http-method-override'] ?? 'GET');
-        $uri = $server['request_uri'] ?? '/';
+        $method = strtoupper(
+            isset($server['request_method'])
+                ? $server['request_method']
+                : (isset($header_lc['x-http-method-override']) ? $header_lc['x-http-method-override'] : 'GET')
+        );
+        $uri = isset($server['request_uri']) ? $server['request_uri'] : '/';
 
         // Swoole splits query_string already
-        $query_string = $server['query_string'] ?? '';
+        $query_string = isset($server['query_string']) ? $server['query_string'] : '';
 
         if ($query_string === '' && false !== strpos($uri, '?')) {
             $parts = explode('?', $uri, 2);
@@ -226,13 +230,21 @@ class Swoole extends Bridge
 
         $full_uri = $uri . ($query_string !== '' ? '?' . $query_string : '');
 
-        $host = $header_lc['host'] ?? ($server['http_host'] ?? 'localhost');
+        $host = isset($header_lc['host'])
+            ? $header_lc['host']
+            : (isset($server['http_host']) ? $server['http_host'] : 'localhost');
         $server_name = explode(':', $host)[0];
-        $server_port = $server['server_port'] ?? ($header_lc['x-forwarded-port'] ?? 80);
-        $remote_addr = $server['remote_addr'] ?? '127.0.0.1';
-        $server_protocol = $server['server_protocol'] ?? 'HTTP/1.1';
-        $content_type = $header_lc['content-type'] ?? ($server['content_type'] ?? '');
-        $content_length = $header_lc['content-length'] ?? ($server['content_length'] ?? null);
+        $server_port = isset($server['server_port'])
+            ? $server['server_port']
+            : (isset($header_lc['x-forwarded-port']) ? $header_lc['x-forwarded-port'] : 80);
+        $remote_addr = isset($server['remote_addr']) ? $server['remote_addr'] : '127.0.0.1';
+        $server_protocol = isset($server['server_protocol']) ? $server['server_protocol'] : 'HTTP/1.1';
+        $content_type = isset($header_lc['content-type'])
+            ? $header_lc['content-type']
+            : (isset($server['content_type']) ? $server['content_type'] : '');
+        $content_length = isset($header_lc['content-length'])
+            ? $header_lc['content-length']
+            : (isset($server['content_length']) ? $server['content_length'] : null);
 
         $_SERVER = [
             'REQUEST_METHOD' => $method,

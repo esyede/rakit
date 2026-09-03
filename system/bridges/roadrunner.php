@@ -123,8 +123,8 @@ class Roadrunner extends Bridge
                 $data['value'],
                 $data['expiration'],
                 $data['path'],
-                $data['domain'] ?? null,
-                $data['secure'] ?? false,
+                isset($data['domain']) ? $data['domain'] : null,
+                isset($data['secure']) ? $data['secure'] : false,
                 true,
                 isset($data['samesite']) ? $data['samesite'] : 'lax'
             ));
@@ -187,13 +187,13 @@ class Roadrunner extends Bridge
         }
 
         // Ensure required SERVER keys
-        $server['SERVER_NAME'] = $server['SERVER_NAME'] ?? ($uri->getHost() ?: 'localhost');
-        $server['SERVER_PORT'] = $server['SERVER_PORT'] ?? ($uri->getPort() ?: 80);
-        $server['HTTP_HOST'] = $server['HTTP_HOST'] ?? $uri->getHost();
-        $server['SERVER_PROTOCOL'] = $server['SERVER_PROTOCOL'] ?? 'HTTP/1.1';
-        $server['REMOTE_ADDR'] = $server['REMOTE_ADDR'] ?? '127.0.0.1';
-        $server['REQUEST_TIME'] = $server['REQUEST_TIME'] ?? time();
-        $server['REQUEST_TIME_FLOAT'] = $server['REQUEST_TIME_FLOAT'] ?? microtime(true);
+        $server['SERVER_NAME'] = isset($server['SERVER_NAME']) ? $server['SERVER_NAME'] : ($uri->getHost() ?: 'localhost');
+        $server['SERVER_PORT'] = isset($server['SERVER_PORT']) ? $server['SERVER_PORT'] : ($uri->getPort() ?: 80);
+        $server['HTTP_HOST'] = isset($server['HTTP_HOST']) ? $server['HTTP_HOST'] : $uri->getHost();
+        $server['SERVER_PROTOCOL'] = isset($server['SERVER_PROTOCOL']) ? $server['SERVER_PROTOCOL'] : 'HTTP/1.1';
+        $server['REMOTE_ADDR'] = isset($server['REMOTE_ADDR']) ? $server['REMOTE_ADDR'] : '127.0.0.1';
+        $server['REQUEST_TIME'] = isset($server['REQUEST_TIME']) ? $server['REQUEST_TIME'] : time();
+        $server['REQUEST_TIME_FLOAT'] = isset($server['REQUEST_TIME_FLOAT']) ? $server['REQUEST_TIME_FLOAT'] : microtime(true);
 
         $_SERVER = $server;
         $_GET = $request->getQueryParams();
