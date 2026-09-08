@@ -6,7 +6,6 @@ defined('DS') or exit('No direct access.');
 
 $exceptions = isset($this->data['exceptions']) ? $this->data['exceptions'] : [];
 
-// "path/to/file.php" + line -> "file.php:line" untuk label ringkas.
 $shortLoc = function ($file, $line) {
     if (!$file) {
         return '';
@@ -113,7 +112,6 @@ $shortLoc = function ($file, $line) {
         color: #2563eb;
     }
 
-    /* Mode gelap */
     #oops-debug.oops-theme-dark .oops-ExceptionsPanel .oops-exc {
         border-color: #232733;
         border-left-color: #4a6fd4;

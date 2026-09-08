@@ -6,7 +6,6 @@ defined('DS') or exit('No direct access.');
 
 use System\Config;
 
-// Semua config yang termuat, dikelompokkan per file/paket.
 $all = [];
 try {
     $c = Config::all();
@@ -103,7 +102,7 @@ $sensitive = [
 $isSensitive = function ($key) use ($sensitive) {
     $key = strtolower((string) $key);
     if ('key' === $key) {
-        return true; // mis. application 'key'
+        return true; // eg. application 'key'
     }
     foreach ($sensitive as $s) {
         if (false !== strpos($key, $s)) {
@@ -113,7 +112,6 @@ $isSensitive = function ($key) use ($sensitive) {
     return false;
 };
 
-// Samarkan rekursif nilai kredensial sebelum ditampilkan.
 $mask = function ($value) use (&$mask, $isSensitive) {
     if (!is_array($value)) {
         return $value;

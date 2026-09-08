@@ -90,7 +90,7 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that a reserved laravel method is not silently turned into a column.
+     * Test that a reserved framework method is not silently turned into a column.
      *
      * @group system
      */

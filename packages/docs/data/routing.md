@@ -731,9 +731,6 @@ Patterns support `*` as a wildcard:
 Endpoints listed here skip the token check entirely, so only add routes that
 really cannot carry a token. Everything else stays protected.
 
-> This mirrors Laravel's `$except` property on the `VerifyCsrfToken` middleware:
-> the list is a server-side whitelist, not a value a client can send to opt out.
-
 <a id="global-middleware"></a>
 ### Global Middleware
 

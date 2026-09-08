@@ -191,7 +191,7 @@ class PaginationQueryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that facile pagination is converted into a laravel shaped array.
+     * Test that facile pagination is converted into a shaped array.
      *
      * @group system
      */

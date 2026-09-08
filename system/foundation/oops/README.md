@@ -1,2 +1,3 @@
 This library is adapted from [nette/tracy](https://github.com/nette/tracy) v2.5.9.
-Symfony Http Foundation is released under the MIT License. See LICENSE file for details.
+Tracy is released under either the New BSD License or the GNU General Public License (GPL) version 2 or 3.
+See LICENSE file for details.

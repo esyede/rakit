@@ -115,10 +115,9 @@ body#oops-debug {
 }
 
 /* ============================================================
- | Rakit Debug Bar — gaya Laravel Debugbar (bar bawah full-width)
+ | Rakit Debug Bar (full-width bottom bar)
  * ============================================================ */
 
-/* Kontainer bar: strip penuh menempel di dasar layar */
 #oops-debug-bar {
     font: normal normal 13px/36px "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: #888888;
@@ -137,7 +136,6 @@ body#oops-debug {
     z-index: 40000;
 }
 
-/* Diminimalkan: menyusut jadi pil kecil di kiri bawah */
 #oops-debug-bar.oops-minimized {
     right: auto;
     left: 0;
@@ -152,12 +150,10 @@ body#oops-debug {
     display: none !important;
 }
 
-/* Saat minimize, brand kehilangan garis kanan (tak ada elemen setelahnya) */
 #oops-debug-bar.oops-minimized .oops-brand {
     border-right: none;
 }
 
-/* Brand / tombol minimize */
 #oops-debug-bar .oops-brand {
     display: flex;
     align-items: center;
@@ -181,7 +177,6 @@ body#oops-debug {
     fill: #3b82f6;
 }
 
-/* Wadah dataset: menampung tiap request; hanya satu tampil sekaligus */
 #oops-debug-bar .oops-datasets {
     display: flex;
     align-items: stretch;
@@ -191,9 +186,6 @@ body#oops-debug {
     min-width: 0;
 }
 
-/* Daftar tab satu dataset. overflow-x auto + scrollbar disembunyikan:
-   di layar sempit tab paling kanan (hooks/AJAX) tetap terjangkau dgn
-   scroll horizontal, tanpa scrollbar yang memakan tinggi bar. */
 #oops-debug-bar .oops-tabs {
     list-style: none;
     display: flex;
@@ -210,7 +202,6 @@ body#oops-debug {
     width: 0;
 }
 
-/* Dataset disembunyikan kecuali yang aktif */
 #oops-debug-bar .oops-dataset {
     display: none;
 }
@@ -219,7 +210,6 @@ body#oops-debug {
     display: flex;
 }
 
-/* Selector dataset (muncul hanya jika ada >1 request, mis. ada AJAX) */
 #oops-debug-bar .oops-switcher {
     position: relative;
     display: none;
@@ -254,7 +244,6 @@ body#oops-debug {
     flex: 0 0 auto;
 }
 
-/* Label request yang panjang (mis. "GET /docs/input") dipotong rapi */
 #oops-debug-bar .oops-switcher-label {
     max-width: 220px;
     overflow: hidden;
@@ -300,8 +289,7 @@ body#oops-debug {
 }
 
 /* ============================================================
- | Dropdown History (openhandler) — daftar request lampau di zona
- | indikator kanan; menu terbuka ke atas seperti switcher.
+ | History dropdown (openhandler)
  * ============================================================ */
 #oops-debug-bar .oops-history {
     position: relative;
@@ -414,31 +402,21 @@ body#oops-debug {
     box-shadow: inset 0 2px 0 #3b82f6;
 }
 
-/* Tab tanpa data (hitungan "0") DISEMBUNYIKAN total — persis laravel-debugbar
-   v4 (bukan diredupkan). Menyembunyikan <a> mengempiskan <li>-nya. */
 #oops-debug-bar .oops-tabs li > a.oops-tab-empty {
     display: none;
 }
 
-/* Tab RESPONSIF (persis laravel-debugbar): normalnya ikon + teks + badge,
-   tetapi bila deretan tab tak muat, bar.js menambah kelas .oops-icononly
-   sehingga teks label & meta disembunyikan (ikon + badge saja). Nama tab
-   tetap terbaca sebagai tooltip (title) yang di-set bar.js. Indikator kanan
-   (mis. hitungan history) tak terpengaruh karena rule khusus di .oops-tabs. */
 #oops-debug-bar.oops-icononly .oops-tabs .oops-label,
 #oops-debug-bar.oops-icononly .oops-tabs .oops-meta {
     display: none;
 }
 
-/* Redam saturasi ikon tab agar terkesan netral/muted (gaya Laravel
-   Debugbar) tanpa memaksa monokrom penuh — detail putih tetap terlihat. */
 #oops-debug-bar .oops-tabs svg,
 #oops-debug-bar .oops-indicator svg {
     filter: grayscale(0.55);
     opacity: 0.9;
 }
 
-/* Label grup untuk dataset redirect / ajax */
 #oops-debug-bar .oops-group-label > span {
     color: #999999;
     font-size: 11px;
@@ -459,8 +437,6 @@ body#oops-debug {
     margin-left: 2px;
 }
 
-/* Badge hitungan pada tab (gaya php-debugbar): pil kecil setelah nama tab.
-   Varian .oops-badge-important (merah) untuk error/peringatan. */
 #oops-debug-bar .oops-badge {
     display: inline-block;
     min-width: 8px;
@@ -479,15 +455,12 @@ body#oops-debug {
     background: #d9534f;
 }
 
-/* Meta tambahan di tab (mis. "12 ms", "80%") — teks redup & kecil. */
 #oops-debug-bar .oops-meta {
     margin-left: 4px;
     font-size: 10px;
     color: #999999;
 }
 
-/* Tombol toggle tema: tampilkan ikon sesuai tema aktif
-   (terang → matahari, gelap → bulan). */
 #oops-debug-bar .oops-theme-toggle svg {
     width: 15px;
     height: 15px;
@@ -509,9 +482,6 @@ body#oops-debug {
     display: block;
 }
 
-/* Indikator kanan (waktu / memori / php / tema) — zona ke-3 bar.
-   Pemisah tipis + latar halus memisahkannya dari zona tab-data di tengah,
-   sejajar dengan zona brand "Rakit" di kiri (bar terbaca sebagai 3 zona). */
 #oops-debug-bar .oops-indicators {
     display: flex;
     align-items: stretch;
@@ -521,7 +491,6 @@ body#oops-debug {
     background: #fafafa;
 }
 
-/* Hindari garis ganda di batas zona: indikator pertama tak perlu border kiri */
 #oops-debug-bar .oops-indicators > .oops-indicator:first-child {
     border-left: none;
 }
@@ -546,7 +515,7 @@ body#oops-debug {
 }
 
 /* ============================================================
- | Panel — dok di atas bar (gaya Laravel)
+ | Panel (docked)
  * ============================================================ */
 #oops-debug .oops-panel {
     display: none;
@@ -556,10 +525,6 @@ body#oops-debug {
     text-align: left;
 }
 
-/* Panel aktif: naik di atas bar, lebar penuh. Tingginya mengikuti isi
-   (tidak dipatok) sehingga tab dengan sedikit konten tidak menyisakan ruang
-   kosong di bawah; dibatasi max-height agar konten banyak tetap scroll. Saat
-   pengguna men-drag resizer, bar.js menimpa tinggi + max-height secara inline. */
 #oops-debug .oops-panel.oops-mode-dock {
     display: block;
     position: fixed;
@@ -576,7 +541,6 @@ body#oops-debug {
     z-index: 39999;
 }
 
-/* Pegangan resize di tepi atas panel dok */
 #oops-debug-resizer {
     position: fixed;
     left: 0;
@@ -597,7 +561,6 @@ body#oops-debug {
     background: rgba(37, 99, 235, 0.4);
 }
 
-/* Mode window (popup) tetap butuh panel tampil */
 body#oops-debug .oops-panel {
     display: block;
 }
@@ -611,9 +574,6 @@ body#oops-debug .oops-panel {
     word-wrap: break-word;
 }
 
-/* Header panel dok = "title bar" konsisten yang tetap terlihat saat konten
-   di-scroll (sticky). Ikon tutup/window disatukan ke dalamnya lewat bar.js
-   sehingga judul + kontrol selalu ada di satu baris di atas. */
 #oops-debug .oops-panel.oops-mode-dock > h1 {
     position: sticky;
     top: -12px;
@@ -628,7 +588,6 @@ body#oops-debug .oops-panel {
     border-bottom: 1px solid #e6e6e6;
 }
 
-/* Ikon di dalam header sticky: statik & sejajar (bukan absolute lagi). */
 #oops-debug .oops-panel.oops-mode-dock > h1 .oops-icons {
     display: flex;
     position: static;
@@ -644,7 +603,6 @@ body#oops-debug .oops-panel {
     flex: 1;
 }
 
-/* Ikon panel (tutup / buka di window) */
 #oops-debug .oops-panel .oops-icons {
     display: none;
 }
@@ -699,7 +657,7 @@ body#oops-debug .oops-panel {
     border: none;
 }
 
-/* Syntax Highlighting Updated for light mode */
+/* Syntax highlighting for light mode */
 #oops-debug .oops-dump-array {
     color: #2563eb;
     font-weight: bold;
@@ -744,12 +702,9 @@ body#oops-debug .oops-panel {
 }
 
 /* ============================================================
- | Isi panel — tampilan RINGKAS & MUDAH DIBACA (berlaku semua panel).
- | Disatukan di sini agar seragam; !important menembus <style> inline
- | bawaan tiap panel (yang urutannya lebih akhir di DOM).
+ | Panel content
  * ============================================================ */
 
-/* Header seksi antar-tabel: padat, aksen biru palet, latar tipis */
 #oops-debug .oops-panel h2 {
     margin: 11px 0 4px !important;
     padding: 3px 8px !important;
@@ -771,7 +726,6 @@ body#oops-debug .oops-panel {
     color: #666666 !important;
 }
 
-/* Tabel: sel padat tapi lega, garis lembut, angka/teks 12px */
 #oops-debug .oops-panel td,
 #oops-debug .oops-panel th {
     padding: 3px 9px !important;
@@ -780,13 +734,11 @@ body#oops-debug .oops-panel {
     border-color: #e8e8e8 !important;
 }
 
-/* Header kolom data-grid: teks rata, ringkas */
 #oops-debug .oops-panel th {
     font-size: 11px;
     letter-spacing: 0.02em;
 }
 
-/* Baris zebra + hover → mudah dipindai */
 #oops-debug .oops-panel tbody tr:nth-child(even) td,
 #oops-debug .oops-panel table > tr:nth-child(even) td {
     background: #fbfbfc;
@@ -797,8 +749,6 @@ body#oops-debug .oops-panel {
     background: #eef4ff;
 }
 
-/* HANYA tabel key-value (tanpa <th>): kolom label menyusut ke isi,
-   diberi latar & tebal, sehingga kolom nilai jadi lebih lebar & terbaca. */
 #oops-debug .oops-panel table:not(:has(th)) td:first-child {
     width: 1% !important;
     white-space: nowrap;
@@ -812,7 +762,6 @@ body#oops-debug .oops-panel {
     background: #e4ecfb;
 }
 
-/* pre di dalam sel: nempel isi, tanpa kotak berat */
 #oops-debug .oops-panel td pre {
     margin: 0 !important;
     padding: 0 !important;
@@ -823,13 +772,11 @@ body#oops-debug .oops-panel {
     word-break: break-word;
 }
 
-/* pre mandiri (blok kode/dump): kotak lebih ringkas */
 #oops-debug .oops-panel pre:not(.oops-dump) {
     padding: 6px 9px !important;
     margin: 4px 0 !important;
 }
 
-/* Badge lebih kecil & rapi (Method/Status/dsb.) */
 #oops-debug .oops-panel .oops-badge {
     padding: 1px 7px !important;
     font-size: 11px !important;
@@ -838,9 +785,6 @@ body#oops-debug .oops-panel {
     border-radius: 3px !important;
 }
 
-/* Normalisasi warna badge SEMUA panel ke satu palet konsisten & sesuai tema
-   (gaya laravel-debugbar: tiap widget seragam). Menembus <style> inline tiap
-   panel yang sebelumnya memakai aksen biru (#2196F3) yang bentrok dgn tema. */
 #oops-debug .oops-panel .oops-badge-info {
     background: #6c757d !important;
 }
@@ -858,14 +802,10 @@ body#oops-debug .oops-panel {
     background: #d9534f !important;
 }
 
-/* Badge "method" (GET/POST/dsb.) memakai aksen merah tema agar menonjol
-   seragam di seluruh panel (Request, Routes, AJAX). */
 #oops-debug .oops-panel .oops-badge-method {
     background: #2563eb !important;
 }
 
-/* Kotak "Current Route" (mode terang) — bawaannya biru (#e3f2fd/#2196F3);
-   selaraskan ke aksen merah tema. Mode gelap sudah ditangani di blok dark. */
 #oops-debug .oops-RoutesPanel .oops-current-info {
     background: #eef2fe !important;
     border-color: #3b82f6 !important;
@@ -879,8 +819,6 @@ body#oops-debug .oops-panel {
     background: #4a6fd4 !important;
 }
 
-/* Tautan aksi/collapse di dalam panel: paksa ke aksen merah tema (menembus
-   inline color biru seperti #007bff pada panel DB N+1). */
 #oops-debug .oops-panel a.oops-toggle,
 #oops-debug .oops-panel .oops-inner-container a[style*="007bff"],
 #oops-debug .oops-panel .oops-inner-container a[style*="2196"] {
@@ -893,7 +831,6 @@ body#oops-debug .oops-panel {
     color: #7aa2f7 !important;
 }
 
-/* Baris "empty" lebih halus */
 #oops-debug .oops-panel .oops-empty {
     display: inline-block;
     padding: 2px 0;
@@ -902,9 +839,7 @@ body#oops-debug .oops-panel {
 }
 
 /* ============================================================
- | Toolbar filter (kotak cari + tombol label) — gaya php-debugbar
- | MessagesWidget / SQLQueriesWidget. Dipakai panel mana pun yang
- | membungkus isinya dengan .oops-filterable.
+ | Filter toolbar
  * ============================================================ */
 #oops-debug .oops-toolbar {
     display: flex;
@@ -994,7 +929,6 @@ body#oops-debug .oops-panel {
     }
 }
 
-/* Styling Scrollbar untuk Panel Debug */
 #oops-debug *::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -1014,20 +948,14 @@ body#oops-debug .oops-panel {
     background: #2563eb;
 }
 
-/* Dukungan untuk Firefox */
 #oops-debug * {
     scrollbar-width: thin;
     scrollbar-color: #cccccc #ffffff;
 }
 
 /* ============================================================
- | Mode gelap — di-set via class .oops-theme-dark oleh bar.js.
- | Default "auto" mengikuti tema OS (bar.js membaca
- | prefers-color-scheme saat load); tombol toggle di bar
- | menyematkan pilihan light/dark ke localStorage.
- | !important dipakai agar menembus <style> inline tiap panel.
+ | Dark mode
  * ============================================================ */
-/* --- Layer & tipografi umum --- */
 #oops-debug.oops-theme-dark,
 body#oops-debug.oops-theme-dark {
     color: #c9ced8;
@@ -1129,7 +1057,6 @@ body#oops-debug.oops-theme-dark {
     border-left-color: #262a33;
 }
 
-/* Zona indikator (dark): latar & pemisah senada dengan brand. */
 #oops-debug-bar.oops-theme-dark .oops-indicators {
     background: #14161d;
     border-left-color: #262a33;
@@ -1165,7 +1092,6 @@ body#oops-debug.oops-theme-dark {
     color: #7aa2f7;
 }
 
-/* --- Dropdown History (mode gelap) --- */
 #oops-debug-bar.oops-theme-dark .oops-history-menu {
     background: #16181f;
     border-color: #262a33;
@@ -1195,7 +1121,6 @@ body#oops-debug.oops-theme-dark {
     color: #8b93a4;
 }
 
-/* --- Panel dok --- */
 #oops-debug.oops-theme-dark .oops-panel {
     background: #0e0f13;
     color: #c9ced8;
@@ -1222,13 +1147,11 @@ body#oops-debug.oops-theme-dark {
     border-bottom-color: #232733;
 }
 
-/* Header sticky panel (dark): latar opak agar konten scroll rapi di bawahnya. */
 #oops-debug.oops-theme-dark .oops-panel.oops-mode-dock > h1 {
     background: #0e0f13;
     border-bottom-color: #232733;
 }
 
-/* Header seksi panel → latar gelap tipis + aksen biru (senada mode terang). */
 #oops-debug.oops-theme-dark .oops-panel h2 {
     color: #7aa2f7 !important;
     background: #1b1e26 !important;
@@ -1239,7 +1162,6 @@ body#oops-debug.oops-theme-dark {
     color: #9aa2b1 !important;
 }
 
-/* Panel Dumps (dark): judul & pemisah entri senada tema gelap. */
 #oops-debug.oops-theme-dark .oops-DumpPanel .oops-dump-item {
     border-bottom-color: #232733;
 }
@@ -1250,7 +1172,6 @@ body#oops-debug.oops-theme-dark {
     border-left-color: #4a6fd4;
 }
 
-/* Timeline (dark): jalur bar & chip ringkasan senada tema gelap. */
 #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-track {
     background: #1b1e26;
 }
@@ -1264,8 +1185,6 @@ body#oops-debug.oops-theme-dark {
     color: #7aa2f7;
 }
 
-/* Garis tabel: LEMBUT (samakan spesifisitas dgn rule compact .oops-panel td
-   agar tidak kalah & memakai warna terang). Ini memperbaiki border "tajam". */
 #oops-debug.oops-theme-dark .oops-panel td,
 #oops-debug.oops-theme-dark .oops-panel th {
     border-color: #232733 !important;
@@ -1276,8 +1195,6 @@ body#oops-debug.oops-theme-dark {
     color: #d5dae3 !important;
 }
 
-/* Kotak data putih bawaan panel (mis. Views "Data", Routes "Current Route")
-   → gelap agar tidak "belang". */
 #oops-debug.oops-theme-dark .oops-view-data,
 #oops-debug.oops-theme-dark .oops-RoutesPanel .oops-current-info,
 #oops-debug.oops-theme-dark .oops-panel pre:not(.oops-dump) {
@@ -1290,7 +1207,6 @@ body#oops-debug.oops-theme-dark {
     color: #7aa2f7 !important;
 }
 
-/* Routes: teks URI/Action/Name (bawaan gelap) → terang agar terbaca. */
 #oops-debug.oops-theme-dark .oops-RoutesPanel .oops-route-uri {
     color: #e7ebf2 !important;
 }
@@ -1303,7 +1219,6 @@ body#oops-debug.oops-theme-dark {
     color: #8b93a4 !important;
 }
 
-/* Routes: baris rute aktif → highlight hijau redup agar jelas di gelap. */
 #oops-debug.oops-theme-dark .oops-RoutesPanel .oops-route-current td {
     background: #16321c !important;
     color: #d6f5da !important;
@@ -1317,7 +1232,6 @@ body#oops-debug.oops-theme-dark {
     color: #eafbec !important;
 }
 
-/* Cache: key & value (bawaan gelap/putih) → terbaca di gelap. */
 #oops-debug.oops-theme-dark .oops-CachePanel .oops-cache-key {
     color: #d5dae3 !important;
 }
@@ -1327,8 +1241,6 @@ body#oops-debug.oops-theme-dark {
     color: #c9ced8 !important;
 }
 
-/* Messages: garis pemisah antar-pesan (bawaan #eee) → gelap; kotak context
-   diberi border agar rapi & tidak "belang". */
 #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg {
     border-bottom-color: #232733 !important;
 }
@@ -1342,7 +1254,6 @@ body#oops-debug.oops-theme-dark {
     color: #6b7280 !important;
 }
 
-/* Zebra + hover baris (mode gelap) */
 #oops-debug.oops-theme-dark .oops-panel tbody tr:nth-child(even) td,
 #oops-debug.oops-theme-dark .oops-panel table > tr:nth-child(even) td {
     background: #14161d !important;
@@ -1353,7 +1264,6 @@ body#oops-debug.oops-theme-dark {
     background: #232733 !important;
 }
 
-/* Kolom label key-value (mode gelap) */
 #oops-debug.oops-theme-dark .oops-panel table:not(:has(th)) td:first-child {
     color: #c9ced8 !important;
     background: #1b1e26 !important;
@@ -1364,7 +1274,6 @@ body#oops-debug.oops-theme-dark {
     background: #26304a !important;
 }
 
-/* Kotak ringkasan/summary bawaan (berlatar putih) → gelap elevated */
 #oops-debug.oops-theme-dark .oops-summary,
 #oops-debug.oops-theme-dark .oops-summary-item {
     background: #1b1e26 !important;
@@ -1382,7 +1291,6 @@ body#oops-debug.oops-theme-dark {
     color: #6b7280 !important;
 }
 
-/* --- Scrollbar (selaras halaman error: tipis & gelap) --- */
 #oops-debug.oops-theme-dark *::-webkit-scrollbar-track {
     background: transparent;
 }
@@ -1396,7 +1304,6 @@ body#oops-debug.oops-theme-dark {
     scrollbar-color: #3a4155 transparent;
 }
 
-/* --- Warna dump: selaras dengan palet halaman error --- */
 #oops-debug.oops-theme-dark .oops-dump-array,
 #oops-debug.oops-theme-dark .oops-dump-object {
     color: #7aa2f7;
@@ -1420,7 +1327,6 @@ body#oops-debug.oops-theme-dark {
     color: #8b93a4;
 }
 
-/* --- Toolbar filter (mode gelap) --- */
 #oops-debug.oops-theme-dark .oops-toolbar {
     border-bottom-color: #232733;
 }

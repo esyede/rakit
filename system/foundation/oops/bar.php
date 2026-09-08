@@ -6,8 +6,10 @@ defined('DS') or exit('No direct access.');
 
 class Bar
 {
+    /** @var array */
     private $panels = [];
 
+    /** @var bool */
     private $useSession = false;
 
     /** @var string|null */

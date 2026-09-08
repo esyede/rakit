@@ -6,8 +6,6 @@ defined('DS') or exit('No direct access.');
 
 use System\Auth;
 
-// Ambil status login secara LIVE saat render (shutdown). Dibungkus try/catch
-// agar bar tetap aman bila auth belum dikonfigurasi di aplikasi.
 $check = false;
 $label = 'Guest';
 
@@ -32,7 +30,6 @@ try {
     $label = 'n/a';
 }
 
-// Potong label yang terlalu panjang agar rapi di bar.
 if (strlen($label) > 22) {
     $label = substr($label, 0, 21) . '…';
 }

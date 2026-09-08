@@ -1,9 +1,8 @@
 (function () {
     let nonce, contentId;
     let baseUrl = location.href.split('#')[0];
-    baseUrl += (baseUrl.indexOf('?') < 0 ? '?' : '&');
 
-    // Pembungkus localStorage yang aman (mode privasi bisa melempar error).
+    baseUrl += (baseUrl.indexOf('?') < 0 ? '?' : '&');
     let store = {
         get: function (key) {
             try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -16,11 +15,7 @@
         }
     };
 
-    /*
-     * Panel: satu tampilan yang "dok" naik di atas bar saat tab-nya diklik
-     * (gaya Laravel Debugbar). Isi panel disuntik sekali (lazy) dari
-     * atribut data-oops-content pada elemen kontainer.
-     */
+
     class Panel {
         constructor(id) {
             this.id = id;
@@ -39,16 +34,12 @@
             delete this.dumps;
             evalScripts(elem);
 
-            // Satukan ikon (window/close) ke dalam <h1> agar tiap panel punya
-            // header konsisten yang tetap terlihat (sticky) saat konten panjang
-            // di-scroll — lihat aturan .oops-mode-dock > h1 di bar.css.
             let head = elem.querySelector('h1');
             let icons = elem.querySelector('.oops-icons');
             if (head && icons && icons.parentNode !== head) {
                 head.appendChild(icons);
             }
 
-            // Ikon di pojok kanan-atas panel: tutup & buka di window.
             forEach(elem.querySelectorAll('.oops-icons a'), (link) => {
                 link.addEventListener('click', (e) => {
                     if (link.rel == 'close') {
@@ -93,11 +84,7 @@
                 return false;
             }
 
-            // Wariskan tema aktif (light/dark) ke jendela popup agar tampilannya
-            // konsisten dengan bar. bar.css disuntik saat _oops_bar=js dimuat,
-            // jadi kelas tema pada <body> cukup untuk mengaktifkan aturan gelap.
             let theme = (Debug.bar && Debug.bar.theme === 'dark') ? 'dark' : 'light';
-
             let doc = win.document;
             doc.write('<!DOCTYPE html><meta charset="utf-8">'
                 + '<script src="' + (baseUrl.replace('&', '&amp;').replace('"', '&quot;')) + '_oops_bar=js&amp;XDEBUG_SESSION_STOP=1" onload="Oops.Dumper.init()" async></script>'
@@ -123,10 +110,6 @@
     Panel.WINDOW = 'oops-mode-window';
 
 
-    /*
-     * Bar: strip bawah dengan deretan tab. Klik tab -> toggle panel dok.
-     * Hanya satu panel aktif dalam satu waktu.
-     */
     class Bar {
         init() {
             this.id = 'oops-debug-bar';
@@ -151,19 +134,11 @@
             });
         }
 
-
-        /*
-         * Responsif ala laravel-debugbar: tampilkan teks label bila deretan tab
-         * muat; bila tidak, ciut ke ikon-saja (kelas .oops-icononly). Diukur
-         * dengan mencoba tampil penuh dulu lalu cek apakah tab meluber dari
-         * kontainer scroll-nya.
-         */
         adjustDensity() {
             if (!this.datasetsEl) {
                 return;
             }
 
-            // Ukur dalam mode penuh (label tampil) dulu.
             this.elem.classList.remove('oops-icononly');
 
             let tabs = this.datasetsEl.querySelector('.oops-dataset-active')
@@ -174,12 +149,6 @@
             }
         }
 
-
-        /*
-         * Tab kini ikon-saja (teks disembunyikan via CSS). Agar nama tab tetap
-         * terbaca, salin teks label / atribut title ke elemen <a> sebagai
-         * tooltip hover — persis laravel-debugbar.
-         */
         setTabTooltips() {
             forEach(this.elem.querySelectorAll('.oops-tabs li > a'), (a) => {
                 if (a.getAttribute('title')) {
@@ -202,12 +171,6 @@
             });
         }
 
-
-        /*
-         * Dropdown "History" (openhandler): daftar request lampau yang di-
-         * render server-side sebagai tautan; tiap item membuka snapshot request
-         * itu di tab baru. JS di sini hanya membuka/menutup menunya.
-         */
         initHistory() {
             this.historyEl = this.elem.querySelector('.oops-history');
             if (!this.historyEl) {
@@ -228,17 +191,9 @@
             }
         }
 
-
-        /*
-         * Redupkan tab yang tidak punya data (hitungan diawali "0", mis.
-         * "0 messages", "0 queries") agar tab berisi data lebih menonjol.
-         */
         markEmptyTabs() {
             forEach(this.elem.querySelectorAll('.oops-tabs li > a'), (a) => {
                 a.classList.remove('oops-tab-empty');
-
-                // Utamakan badge hitungan (gaya baru: nama + pil angka). Kalau
-                // tak ada badge, jatuh ke pola lama (label diawali angka).
                 let n = null;
                 let badge = a.querySelector('.oops-badge');
                 if (badge) {
@@ -262,10 +217,6 @@
             });
         }
 
-
-        /*
-         * Selector request (ala Laravel): hanya satu dataset tampil sekaligus.
-         */
         buildSwitcher() {
             if (!this.switcherEl) {
                 return;
@@ -388,11 +339,6 @@
             });
         }
 
-
-        /*
-         * Pulihkan state terakhir (minimize / tab aktif) dari localStorage.
-         * Dipanggil setelah semua panel dibuat.
-         */
         restoreState() {
             this.initTheme();
 
@@ -410,12 +356,6 @@
             }
         }
 
-
-        /*
-         * Tema light/dark. Default "auto" mengikuti tema OS
-         * (prefers-color-scheme). Klik tombol toggle menyematkan pilihan
-         * light/dark ke localStorage (berhenti mengikuti OS).
-         */
         osTheme() {
             return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
         }
@@ -423,12 +363,9 @@
         initTheme() {
             let stored = store.get('oops-debugbar-theme');
             this.themePinned = (stored === 'light' || stored === 'dark');
-            // Default "auto": ikuti tema OS (persis laravel-debugbar yang memakai
-            // prefers-color-scheme). Tombol toggle menyematkan pilihan manual.
             this.theme = this.themePinned ? stored : this.osTheme();
             this.applyTheme();
 
-            // Selama belum disematkan, ikuti perubahan tema OS secara live.
             if (window.matchMedia) {
                 let mq = window.matchMedia('(prefers-color-scheme: dark)');
                 let handler = () => {
@@ -472,12 +409,6 @@
             }
         }
 
-
-        /*
-         * AJAX ditampilkan sebagai SATU tab "AJAX" di bar utama (bukan dataset
-         * dengan selector/toggle). Setiap request AJAX diringkas menjadi satu
-         * baris (method, url, status, waktu, queries, messages).
-         */
         parseAjaxSummary(ajaxBar) {
             let label = ajaxBar.getAttribute('data-label') || 'AJAX';
             let links = Array.prototype.slice.call(ajaxBar.querySelectorAll('a'));
@@ -571,9 +502,6 @@
                 panelEl.innerHTML = this.ajaxPanelSkeleton();
                 Debug.layer.appendChild(panelEl);
 
-                // Satukan ikon (window/close) ke dalam <h1> agar title bar-nya
-                // konsisten dengan panel lain (header sticky) — panel AJAX ini
-                // objek biasa, bukan instance Panel, jadi ditiru manual.
                 let head = panelEl.querySelector('h1');
                 let icons = panelEl.querySelector('.oops-icons');
                 if (head && icons && icons.parentNode !== head) {
@@ -740,13 +668,10 @@
             if (!wasActive) {
                 this.activateTab(link);
             } else {
-                // Pengguna menutup panel yang aktif -> lupakan dari localStorage.
                 store.remove('oops-debugbar-active');
             }
         }
 
-
-        // Ditutup oleh pengguna (ikon close di panel): sembunyikan + lupakan.
         closePanels() {
             this.hidePanels();
             store.remove('oops-debugbar-active');
@@ -762,8 +687,6 @@
             panel.show();
 
             if (this.panelHeight) {
-                // Tinggi pilihan pengguna (hasil drag) menimpa tinggi otomatis
-                // dan batas max-height default (45vh).
                 panel.elem.style.maxHeight = 'none';
                 panel.elem.style.height = this.panelHeight + 'px';
             }
@@ -797,10 +720,6 @@
             store.set('oops-debugbar-minimized', minimized ? '1' : '0');
         }
 
-
-        /*
-         * Pegangan resize di tepi atas panel dok (drag vertikal).
-         */
         initResizer() {
             this.resizer = document.createElement('div');
             this.resizer.id = 'oops-debug-resizer';
@@ -878,12 +797,6 @@
 
 
     class Debug {
-        /*
-         * Tema awal (light/dark) SEBELUM initTheme() penuh berjalan. Logikanya
-         * sama: pilihan tersemat di localStorage menang, jika tidak ikut tema OS
-         * (prefers-color-scheme). Dipakai untuk memasang kelas tema pada layer
-         * sebelum masuk DOM → tidak ada kedip light→dark saat reload.
-         */
         static earlyTheme() {
             let stored;
             try {
@@ -902,10 +815,6 @@
             Debug.layer.setAttribute('id', 'oops-debug');
             Debug.layer.innerHTML = addNonces(content);
 
-            // Pasang kelas tema SEBELUM layer disisipkan ke DOM agar bar tidak
-            // sempat tampil dalam tema default (terang) lalu berganti gelap saat
-            // reload. initTheme() di restoreState() nanti idempoten + memasang
-            // listener perubahan tema OS.
             let early = Debug.earlyTheme();
             Debug.layer.classList.add('oops-theme-' + early);
             let earlyBar = Debug.layer.querySelector('#oops-debug-bar');
@@ -929,12 +838,6 @@
             Debug.captureAjax();
         }
 
-
-        /*
-         * Ikat sekali listener terdelegasi untuk widget filter generik. Karena
-         * ditempel di layer, panel yang disuntik lazy (termasuk AJAX) ikut
-         * terlayani tanpa perlu skrip per-panel.
-         */
         static bindWidgets() {
             if (Debug.widgetsBound || !Debug.layer) {
                 return;
@@ -957,7 +860,6 @@
                     return;
                 }
 
-                // Tombol "copy" query SQL (panel Queries, gaya laravel-debugbar).
                 let copy = closestClass(e.target, 'oops-sql-copy');
                 if (copy) {
                     e.preventDefault();
@@ -967,8 +869,6 @@
                     return;
                 }
 
-                // Tombol copy generik: salin isi atribut data-oops-copy apa adanya
-                // (mis. "Copy as cURL" pada panel HTTP client).
                 let copyAttr = e.target.closest ? e.target.closest('[data-oops-copy]') : null;
                 if (copyAttr) {
                     e.preventDefault();
@@ -976,7 +876,6 @@
                     return;
                 }
 
-                // Tautan "Show only duplicated" → matikan/nyalakan filter "unique".
                 let showdup = closestClass(e.target, 'oops-sql-showdup');
                 if (showdup) {
                     e.preventDefault();
@@ -995,9 +894,6 @@
 
 
         static loadAjax(content, dumps) {
-            // AJAX tidak dibuat sebagai dataset terpisah (yang butuh selector).
-            // Kita baca RINGKASAN + KONTEN PENUH tiap panel dari respons server,
-            // lalu tampilkan di satu tab "AJAX" (halaman utama tetap default).
             let tmp = document.createElement('div');
             tmp.innerHTML = content;
 
@@ -1023,8 +919,6 @@
                 return rel;
             };
 
-            // Lewati panel yang kosong (badge "0") sama seperti bar utama, agar
-            // daftar mini-tab AJAX tidak penuh oleh panel tanpa data.
             let tabIsEmpty = function (a) {
                 let n = null;
                 let badge = a.querySelector('.oops-badge');
@@ -1157,8 +1051,6 @@
     }
 
 
-    // Salin teks ke clipboard (dgn fallback execCommand) lalu tampilkan umpan
-    // balik "copied" sesaat pada elemen tombol.
     function copyText(text, btn) {
         let feedback = function () {
             if (!btn) {
@@ -1192,8 +1084,6 @@
     }
 
 
-    // Naik ke leluhur terdekat yang punya kelas tertentu (pengganti closest()
-    // agar aman tanpa polyfill di lingkungan lama).
     function closestClass(el, cls) {
         while (el && el.nodeType === 1) {
             if (el.classList && el.classList.contains(cls)) {
@@ -1205,15 +1095,6 @@
     }
 
 
-    /*
-     * Filter widget generik (gaya php-debugbar MessagesWidget / SQLQueriesWidget):
-     * sebuah wadah .oops-filterable berisi (opsional) kotak cari .oops-filter-input
-     * dan tombol-tombol label .oops-filter-tag[data-oops-tag]; tiap baris data
-     * memakai kelas .oops-filter-item dengan atribut data-oops-search (teks yang
-     * dicari, huruf kecil) dan data-oops-tag (label). Baris tampil bila cocok
-     * dengan teks cari DAN labelnya sedang aktif. Semua listener didelegasikan
-     * ke layer sehingga panel yang disuntik belakangan tetap berfungsi.
-     */
     function applyOopsFilter(scope) {
         if (!scope) {
             return;

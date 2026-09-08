@@ -527,8 +527,7 @@ server-to-server APIs — can be exempted by listing their URI patterns in
 The `csrf` middleware consults this list before checking the token, so a
 matching route is let through without one. Patterns support `*` as a wildcard
 (`api/*` covers `api/v1/accounts`, `api/v2/orders`, ...). The list is a
-server-side whitelist, mirroring Laravel's `VerifyCsrfToken::$except` — a
-client cannot opt out by sending a special header value.
+server-side whitelist, client cannot opt out by sending a special header value.
 
 <a id="uri-information"></a>
 ## URI Information

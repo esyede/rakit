@@ -32,10 +32,17 @@ $worker = null;
 if (function_exists('frankenphp_handle_request')) {
     define('RAKIT_WORKER_MODE', 'frankenphp');
     $worker = 'frankenphp';
-} elseif (getenv('RR_MODE') !== false) {
+} elseif (
+    function_exists('getenv')
+    && getenv('RR_MODE') !== false
+) {
     define('RAKIT_WORKER_MODE', 'roadrunner');
     $worker = 'roadrunner';
-} elseif (extension_loaded('swoole') && isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'swoole') !== false) {
+} elseif (
+    extension_loaded('swoole')
+    && isset($_SERVER['SERVER_SOFTWARE'])
+    && strpos($_SERVER['SERVER_SOFTWARE'], 'swoole') !== false
+) {
     define('RAKIT_WORKER_MODE', 'swoole');
     $worker = 'swoole';
 }
@@ -50,5 +57,6 @@ require path('system') . 'boot.php';
 // --------------------------------------------------------------
 if ($worker !== null) {
     $runner = \System\Bridges\Worker::create($worker);
+    unset($worker);
     $runner->run();
 }

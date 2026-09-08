@@ -801,9 +801,8 @@ class Query
 
     /**
      * List of method names that must never be handled as a dynamic WHERE clause.
-     * They all exist in Laravel and start with 'where_', so without this guard
-     * they would silently be compiled into a column of that name instead of
-     * raising an error.
+     * They all exist in the framework and start with 'where_', so without this guard
+     * they would silently be compiled into a column of that name instead of raising an error.
      *
      * @var array
      */

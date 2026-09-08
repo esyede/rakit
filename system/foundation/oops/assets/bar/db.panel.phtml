@@ -8,7 +8,6 @@ use System\Database;
 
 $queries = Database::profile();
 
-// Ringkasan: total waktu + deteksi query duplikat (SQL + bindings identik).
 $totalTime = 0;
 $signatures = [];
 foreach ($queries as $idx => $query) {
@@ -33,19 +32,17 @@ foreach ($signatures as $idxs) {
 }
 $uniqueCount = count($queries) - $dupTotal;
 
-// Nama koneksi default (laravel-debugbar menampilkan koneksi tiap query).
 $connName = 'default';
 try {
     if (function_exists('config')) {
         $connName = (string) config('database.default', 'default');
     }
 } catch (\Throwable $e) {
-    // abaikan
+    // ignore
 } catch (\Exception $e) {
-    // abaikan
+    // ignore
 }
 
-// Ubah "path/ke/file.php:22" menjadi "file.php#22" (gaya laravel).
 $shortCaller = function ($source) {
     if (!$source) {
         return '';
@@ -57,8 +54,6 @@ $shortCaller = function ($source) {
 };
 ?>
 <style class="oops-debug">
-    /* Panel Queries meniru laravel-debugbar: baris status di atas, lalu daftar
-       query (blok SQL + baris meta: copy, durasi, koneksi, caller). */
     #oops-debug .oops-DbPanel .oops-sql-status {
         display: flex;
         justify-content: space-between;

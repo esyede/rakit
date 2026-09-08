@@ -21,8 +21,6 @@ A transformer stands between a model and the JSON that goes out. It says exactly
 which keys the response carries, and in what shape, so a column renamed in the
 database does not silently change the API your clients depend on.
 
-Rakit's is `Transformer`. It is what Laravel calls an API Resource.
-
 The quickest use needs no class at all:
 
 ```php

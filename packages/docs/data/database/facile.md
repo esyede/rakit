@@ -1227,8 +1227,7 @@ $user->roles()->sync([1, 2, 3]);
 
 **Access pivot data:**
 
-A pivot column other than the two keys is read only when you ask for it, the way
-`withPivot()` works in Laravel:
+A pivot column other than the two keys is read only when you ask for it:
 
 ```php
 $user = User::find(1);

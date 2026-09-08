@@ -238,7 +238,7 @@ This method converts the string to lowercase:
 ```php
 $lowercased = Str::lower('HELLO WORLD'); // hello world
 
-$lowercased = Str::lower('Laravel'); // laravel
+$lowercased = Str::lower('Rakit'); // rakit
 ```
 
 <a id="strupper"></a>
@@ -250,7 +250,7 @@ This method converts the string to uppercase:
 ```php
 $uppercased = Str::upper('hello world'); // HELLO WORLD
 
-$uppercased = Str::upper('Laravel'); // LARAVEL
+$uppercased = Str::upper('Rakit'); // RAKIT
 ```
 
 <a id="strkebab"></a>

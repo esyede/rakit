@@ -1186,6 +1186,4 @@ $email = DB::table('users')->where('id', '=', 1)->value('email');
 DB::table('settings')->update_or_insert(['key' => 'theme'], ['value' => 'dark']);
 ```
 
-> **Note:** methods that Laravel provides but Rakit does not support yet, such as
-> `where_has()` or `where_json_contains()`, now raise a clear exception instead of being
-> silently compiled into a column of that name.
+> **Note:** Rakit currentnly does not support `where_has()` or `where_json_contains()`.

@@ -35,7 +35,6 @@ foreach ($requests as $r) {
     $totalTime += isset($r['duration']) ? $r['duration'] : 0;
 }
 
-// Bangun perintah cURL yang bisa disalin untuk mereproduksi request.
 $buildCurl = function ($r) {
     $method = isset($r['method']) ? $r['method'] : 'GET';
     $url = isset($r['url']) ? $r['url'] : '';
@@ -48,7 +47,7 @@ $buildCurl = function ($r) {
     if (!empty($r['headers']) && is_array($r['headers'])) {
         foreach ($r['headers'] as $name => $value) {
             if (is_int($name)) {
-                $header = (string) $value; // sudah berformat "Name: value"
+                $header = (string) $value;
             } else {
                 $header = $name . ': ' . $value;
             }
@@ -188,7 +187,6 @@ $buildCurl = function ($r) {
         background: #ffffff;
     }
 
-    /* Mode gelap */
     #oops-debug.oops-theme-dark .oops-HttpPanel .oops-http-status {
         border-bottom-color: #232733;
     }

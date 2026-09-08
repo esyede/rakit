@@ -42,9 +42,6 @@
             });
         }
 
-
-        // Tombol "Copy as Markdown": salin ringkasan error (dari <textarea>
-        // tersembunyi) ke clipboard agar mudah di-feed ke asisten AI.
         static bindCopyMarkdown(panic) {
             if (!panic) {
                 return;

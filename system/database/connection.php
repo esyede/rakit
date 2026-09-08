@@ -89,16 +89,11 @@ class Connection
         }
 
         switch ($this->driver()) {
-            case 'mysql':
-                return $this->grammar = new Query\Grammars\MySQL($this);
-            case 'sqlite':
-                return $this->grammar = new Query\Grammars\SQLite($this);
-            case 'sqlsrv':
-                return $this->grammar = new Query\Grammars\SQLServer($this);
-            case 'pgsql':
-                return $this->grammar = new Query\Grammars\Postgres($this);
-            default:
-                return $this->grammar = new Query\Grammars\Grammar($this);
+            case 'mysql':  return $this->grammar = new Query\Grammars\MySQL($this);
+            case 'sqlite': return $this->grammar = new Query\Grammars\SQLite($this);
+            case 'sqlsrv': return $this->grammar = new Query\Grammars\SQLServer($this);
+            case 'pgsql':  return $this->grammar = new Query\Grammars\Postgres($this);
+            default:       return $this->grammar = new Query\Grammars\Grammar($this);
         }
     }
 

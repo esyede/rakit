@@ -8,10 +8,6 @@ $baseUrl = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 $baseUrl .= (false === strpos($baseUrl, '?')) ? '?' : '&';
 $nonceAttr = $nonce ? ' nonce="' . Helpers::escapeHtml($nonce) . '"' : '';
 $asyncAttr = $async ? ' async' : '';
-
-// Cache-buster: bundel JS/CSS bar (lihat Bar::renderAssets) di-cache lama oleh
-// browser (max-age panjang). Sertakan mtime SEMUA aset yang dibundel — termasuk
-// panic.css/panic.js — agar setiap perubahan langsung terambil tanpa hard-refresh.
 $assetsDir = dirname(__DIR__); // .../assets
 $assetFiles = array(
     __DIR__ . DS . 'bar.css',

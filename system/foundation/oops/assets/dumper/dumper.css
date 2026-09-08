@@ -1,7 +1,7 @@
 pre.oops-dump {
     text-align: left;
-    color: #d4d4d4; /* Soft white/grey */
-    background: #1e1e1e; /* Deep Charcoal */
+    color: #d4d4d4;
+    background: #1e1e1e;
     padding: 0.7rem;
     border-radius: 8px;
     font-family: Consolas, monospace;
@@ -11,12 +11,10 @@ pre.oops-dump {
     border: 1px solid #333;
 }
 
-/* Container untuk nesting */
 pre.oops-dump div {
     padding-left: 2ch;
 }
 
-/* Garis Indentasi yang lebih subtle */
 pre.oops-dump div div {
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     margin-left: 0.5ch;
@@ -27,7 +25,6 @@ pre.oops-dump div div:hover {
     border-left: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Link & Toggles */
 pre.oops-dump a {
     color: #4fc1ff;
     text-decoration: none;
@@ -42,28 +39,27 @@ pre.oops-dump a:focus {
     color: #9cdcfe;
 }
 
-/* Syntax Highlighting yang lebih modern */
 .oops-dump-array {
-    color: #9cdcfe; /* Light Blue */
+    color: #9cdcfe;
     font-weight: bold;
 }
 
 .oops-dump-object {
-    color: #4ec9b0; /* Teal/Greenish */
+    color: #4ec9b0;
     font-weight: bold;
 }
 
 .oops-dump-string {
-    color: #ce9178; /* Soft Orange/Coral */
+    color: #ce9178;
 }
 
 .oops-dump-number {
-    color: #b5cea8; /* Pale Green */
+    color: #b5cea8;
 }
 
 .oops-dump-null,
 .oops-dump-bool {
-    color: #569cd6; /* Bright Blue */
+    color: #569cd6;
     font-style: italic;
 }
 
@@ -73,12 +69,10 @@ pre.oops-dump a:focus {
     opacity: 0.7;
 }
 
-/* Hidden elements */
 .oops-dump-indent {
     display: none;
 }
 
-/* Reference styling */
 span[data-oops-href] {
     border-bottom: 1px dashed #569cd6;
     cursor: help;

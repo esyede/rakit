@@ -8,7 +8,6 @@ use System\Database;
 
 $this->profiler = Database::profile();
 
-// Total waktu seluruh query (kolom 'time' dalam milidetik).
 $totalTime = 0;
 foreach ($this->profiler as $query) {
     $totalTime += isset($query['time']) ? (float) $query['time'] : 0;

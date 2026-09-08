@@ -229,8 +229,7 @@ $orders = DB::table('orders')->paginate(10, ['*'], 'page', 3);
 
 ## Pagination as JSON
 
-The paginator serializes itself into the same shape Laravel uses, which makes it a drop-in
-response for a javascript front end:
+The paginator serializes itself into a drop-in response for a javascript front end:
 
 ```php
 return Response::json(DB::table('orders')->paginate(10));

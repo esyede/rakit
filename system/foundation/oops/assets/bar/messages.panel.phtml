@@ -12,8 +12,6 @@ $levelColors = [
     'info' => '#43a047', 'debug' => '#757575',
 ];
 
-// Kelompokkan level untuk pewarnaan teks (gaya laravel-debugbar: error merah,
-// warning amber, selebihnya default).
 $groupOf = function ($lvl) {
     if (in_array($lvl, ['emergency', 'alert', 'critical', 'error'], true)) {
         return 'error';
@@ -24,7 +22,6 @@ $groupOf = function ($lvl) {
     return 'other';
 };
 
-// Hitung jumlah per level (untuk chip filter) mengikuti urutan $levelColors.
 $counts = [];
 foreach ($logs as $log) {
     $lvl = strtolower(isset($log['level']) ? $log['level'] : 'debug');
@@ -43,9 +40,6 @@ foreach ($counts as $lvl => $c) {
 }
 ?>
 <style class="oops-debug">
-    /* Widget Messages meniru laravel-debugbar: tiap baris = teks pesan (kiri)
-       dengan level & caller mengapung ke kanan; toolbar filter menempel di
-       BAWAH panel (sticky). */
     #oops-debug .oops-MessagesPanel .oops-inner-container {
         display: flex;
         flex-direction: column;
@@ -123,8 +117,6 @@ foreach ($counts as $lvl => $c) {
         clear: both;
     }
 
-    /* Toolbar filter menempel di bawah (menembus style generik yang menaruhnya
-       di atas). */
     #oops-debug .oops-MessagesPanel .oops-toolbar {
         order: 2;
         position: sticky;
@@ -139,7 +131,6 @@ foreach ($counts as $lvl => $c) {
         background: #ffffff;
     }
 
-    /* Mode gelap */
     #oops-debug.oops-theme-dark .oops-MessagesPanel .oops-msg {
         border-bottom-color: #232733;
     }

@@ -10,15 +10,7 @@ if ($total <= 0) {
     $total = 1;
 }
 
-/*
-| Kumpulkan seluruh "measure" dari berbagai collector ke satu timeline
-| (meniru laravel-debugbar yang menggabungkan time, db, view, dan event
-| pada satu track). Tiap measure punya start-offset (ms dari awal request)
-| dan durasi sehingga bisa dipetakan menjadi bar horizontal.
-*/
 $measures = [];
-
-// 1) Time: fase framework (Booting/Routing/Controller/Render) + measure() manual.
 $phaseColors = [
     'Booting' => '#7E57C2',
     'Routing' => '#42A5F5',
@@ -36,7 +28,6 @@ foreach ($timers as $name => $timer) {
     ];
 }
 
-// 2) Database: tiap query menjadi measure dengan kategori "db".
 $dbCount = 0;
 $dbTime = 0;
 if (class_exists('\System\Database')) {
@@ -61,7 +52,6 @@ if (class_exists('\System\Database')) {
     }
 }
 
-// 3) View: tiap view yang dirender.
 $views = Collectors::getData('views');
 $views = isset($views['views']) ? $views['views'] : [];
 foreach ($views as $view) {
@@ -74,7 +64,6 @@ foreach ($views as $view) {
     ];
 }
 
-// Urutkan berdasarkan waktu mulai (stabil).
 usort($measures, function ($a, $b) {
     if ($a['start'] == $b['start']) {
         return 0;
@@ -82,7 +71,6 @@ usort($measures, function ($a, $b) {
     return ($a['start'] < $b['start']) ? -1 : 1;
 });
 
-// Warna per kategori untuk pill kolektor pada tiap baris.
 $collectorColors = ['time' => '#66BB6A', 'db' => '#5C6BC0', 'view' => '#00897B'];
 
 $peakMem = memory_get_peak_usage(true) / 1048576; // MB
@@ -168,7 +156,6 @@ $peakMem = memory_get_peak_usage(true) / 1048576; // MB
         color: #1e40af;
     }
 
-    /* Mode gelap */
     #oops-debug.oops-theme-dark .oops-TimelinePanel .oops-tl-item {
         border-bottom-color: #1c1f27;
     }

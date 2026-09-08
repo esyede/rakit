@@ -218,7 +218,8 @@ class Autoloader
                 $lines[] = sprintf('"%s" (conflicts with extension "%s")', $alias, $extension);
             }
 
-            $message = '[Rakit] Class alias(es) skipped because they collide with built-in PHP classes: '
+            $message = '[' . date('Y-m-d H:i:s') . '] unknown.EMERGENCY: '
+                . '[Rakit] Class alias(es) skipped because they collide with built-in PHP classes: '
                 . implode(', ', $lines)
                 . '. PHP loads built-in classes before any userland autoloader runs, so these '
                 . 'names cannot be aliased. Disable the conflicting extension or rename the alias '
@@ -228,7 +229,14 @@ class Autoloader
             if (defined('STDERR')) {
                 fwrite(STDERR, $message . PHP_EOL);
             } else {
-                error_log($message);
+                try {
+                    $path = path('storage') . 'logs' . DS . 'rakit.log.php';
+                    @file_put_contents($path, $message, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+                } catch (\Throwable $ex) {
+                    error_log($message);
+                } catch (\Exception $ex) {
+                    error_log($message);
+                }
             }
         }
     }
