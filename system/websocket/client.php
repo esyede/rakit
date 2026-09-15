@@ -169,28 +169,10 @@ class Client
             $result = strlen($message);
         }
 
-        if (
-            isset($this->server()->events['send'])
-            && is_callable($function = $this->server()->events['send'])
-        ) {
-            $function($this, $opcode, $data);
-        }
+        // The handlers are protected on the server, so they are called through fire().
+        // Reading them from here never saw a handler, and is a fatal error on PHP 5.4.0.
+        $this->server()->fire('send', [$this, $opcode, $data]);
 
         return $result;
-    }
-
-    /**
-     * Destroy the client instance.
-     *
-     * @return void
-     */
-    public function __destruct()
-    {
-        if (
-            isset($this->server()->events['disconnect'])
-            && is_callable($function = $this->server()->events['disconnect'])
-        ) {
-            $function($this);
-        }
     }
 }

@@ -108,32 +108,32 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
         ElProfile::create(['el_author_id' => $budi->id, 'bio' => 'Bio Budi']);
         ElProfile::create(['el_author_id' => $ani->id, 'bio' => 'Bio Ani']);
 
-        $satu = ElPost::create(['el_author_id' => $budi->id, 'title' => 'Satu']);
-        $dua = ElPost::create(['el_author_id' => $budi->id, 'title' => 'Dua']);
-        $tiga = ElPost::create(['el_author_id' => $ani->id, 'title' => 'Tiga']);
+        $one = ElPost::create(['el_author_id' => $budi->id, 'title' => 'One']);
+        $two = ElPost::create(['el_author_id' => $budi->id, 'title' => 'Two']);
+        $three = ElPost::create(['el_author_id' => $ani->id, 'title' => 'Three']);
 
-        ElComment::create(['el_post_id' => $satu->id, 'body' => 'Komentar A']);
-        ElComment::create(['el_post_id' => $satu->id, 'body' => 'Komentar B']);
-        ElComment::create(['el_post_id' => $tiga->id, 'body' => 'Komentar C']);
+        ElComment::create(['el_post_id' => $one->id, 'body' => 'Comment A']);
+        ElComment::create(['el_post_id' => $one->id, 'body' => 'Comment B']);
+        ElComment::create(['el_post_id' => $three->id, 'body' => 'Comment C']);
 
-        $merah = ElTag::create(['name' => 'merah']);
-        $biru = ElTag::create(['name' => 'biru']);
+        $red = ElTag::create(['name' => 'red']);
+        $blue = ElTag::create(['name' => 'blue']);
 
         $now = \System\Carbon::now()->format('Y-m-d H:i:s');
 
         Database::table('el_post_el_tag')->insert([
-            ['el_post_id' => $satu->id, 'el_tag_id' => $merah->id, 'created_at' => $now, 'updated_at' => $now],
-            ['el_post_id' => $satu->id, 'el_tag_id' => $biru->id, 'created_at' => $now, 'updated_at' => $now],
-            ['el_post_id' => $dua->id, 'el_tag_id' => $biru->id, 'created_at' => $now, 'updated_at' => $now],
+            ['el_post_id' => $one->id, 'el_tag_id' => $red->id, 'created_at' => $now, 'updated_at' => $now],
+            ['el_post_id' => $one->id, 'el_tag_id' => $blue->id, 'created_at' => $now, 'updated_at' => $now],
+            ['el_post_id' => $two->id, 'el_tag_id' => $blue->id, 'created_at' => $now, 'updated_at' => $now],
         ]);
 
         ElImage::create([
-            'imageable_id' => $satu->id,
+            'imageable_id' => $one->id,
             'imageable_type' => 'ElPost',
-            'url' => '/satu.png',
+            'url' => '/one.png',
         ]);
 
-        return compact('budi', 'ani', 'satu', 'dua', 'tiga');
+        return compact('budi', 'ani', 'one', 'two', 'three');
     }
 
     // -------------------------------------------------------------------------
@@ -258,7 +258,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     {
         $this->seed();
 
-        $post = ElPost::where('title', '=', 'Tiga')->first();
+        $post = ElPost::where('title', '=', 'Three')->first();
         $this->assertEquals('Ani', $post->author->name);
     }
 
@@ -277,7 +277,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
             $names[$post->title] = $post->relationships['author']->name;
         }
 
-        $this->assertEquals(['Satu' => 'Budi', 'Dua' => 'Budi', 'Tiga' => 'Ani'], $names);
+        $this->assertEquals(['One' => 'Budi', 'Two' => 'Budi', 'Three' => 'Ani'], $names);
     }
 
     // -------------------------------------------------------------------------
@@ -319,7 +319,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     {
         $this->seed();
 
-        $post = ElPost::where('title', '=', 'Satu')->first();
+        $post = ElPost::where('title', '=', 'One')->first();
         $names = [];
 
         foreach ($post->tags as $tag) {
@@ -327,7 +327,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
         }
 
         sort($names);
-        $this->assertEquals(['biru', 'merah'], $names);
+        $this->assertEquals(['blue', 'red'], $names);
     }
 
     /**
@@ -345,7 +345,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
             $counts[$post->title] = count($post->relationships['tags']);
         }
 
-        $this->assertEquals(['Satu' => 2, 'Dua' => 1, 'Tiga' => 0], $counts);
+        $this->assertEquals(['One' => 2, 'Two' => 1, 'Three' => 0], $counts);
     }
 
     /**
@@ -357,7 +357,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     {
         $this->seed();
 
-        $post = ElPost::where('title', '=', 'Satu')->first();
+        $post = ElPost::where('title', '=', 'One')->first();
 
         foreach ($post->tags as $tag) {
             $this->assertArrayHasKey('pivot', $tag->relationships);
@@ -378,10 +378,10 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     {
         $this->seed();
 
-        $post = ElPost::where('title', '=', 'Satu')->first();
-        $this->assertEquals('/satu.png', $post->image->url);
+        $post = ElPost::where('title', '=', 'One')->first();
+        $this->assertEquals('/one.png', $post->image->url);
 
-        $other = ElPost::where('title', '=', 'Dua')->first();
+        $other = ElPost::where('title', '=', 'Two')->first();
         $this->assertNull($other->image);
     }
 
@@ -418,8 +418,8 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
 
         $image = ElImage::first();
         $this->assertNotNull($image->imageable);
-        $this->assertEquals($seeded['satu']->id, $image->imageable->id);
-        $this->assertEquals('Satu', $image->imageable->title);
+        $this->assertEquals($seeded['one']->id, $image->imageable->id);
+        $this->assertEquals('One', $image->imageable->title);
     }
 
     /**
@@ -444,7 +444,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
             $classes[$image->url] = get_class($image->relationships['imageable']);
         }
 
-        $this->assertEquals(['/satu.png' => 'ElPost', '/budi.png' => 'ElAuthor'], $classes);
+        $this->assertEquals(['/one.png' => 'ElPost', '/budi.png' => 'ElAuthor'], $classes);
     }
 
     /**
@@ -458,12 +458,12 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
 
         ElImage::create([
             'imageable_id' => 99,
-            'imageable_type' => 'KelasYangTidakAda',
-            'url' => '/entah.png',
+            'imageable_type' => 'ClassThatDoesNotExist',
+            'url' => '/unknown.png',
         ]);
 
         foreach (ElImage::with('imageable')->get() as $image) {
-            if ('/entah.png' === $image->url) {
+            if ('/unknown.png' === $image->url) {
                 $this->assertNull($image->relationships['imageable']);
             }
         }
@@ -477,20 +477,20 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     public function testMorphToManyLazy()
     {
         $seeded = $this->seed();
-        $tag = ElTag::where('name', '=', 'merah')->first();
+        $tag = ElTag::where('name', '=', 'red')->first();
         $now = \System\Carbon::now()->format('Y-m-d H:i:s');
 
         Database::table('el_taggables')->insert([
             'eltag_id' => $tag->id,
-            'taggable_id' => $seeded['satu']->id,
+            'taggable_id' => $seeded['one']->id,
             'taggable_type' => 'ElPost',
             'created_at' => $now,
             'updated_at' => $now,
         ]);
 
-        $post = ElPost::where('title', '=', 'Satu')->first();
+        $post = ElPost::where('title', '=', 'One')->first();
         $this->assertCount(1, $post->labels);
-        $this->assertEquals('merah', $post->labels[0]->name);
+        $this->assertEquals('red', $post->labels[0]->name);
     }
 
     /**
@@ -501,12 +501,12 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
     public function testMorphToManyEager()
     {
         $seeded = $this->seed();
-        $tag = ElTag::where('name', '=', 'merah')->first();
+        $tag = ElTag::where('name', '=', 'red')->first();
         $now = \System\Carbon::now()->format('Y-m-d H:i:s');
 
         Database::table('el_taggables')->insert([
             'eltag_id' => $tag->id,
-            'taggable_id' => $seeded['satu']->id,
+            'taggable_id' => $seeded['one']->id,
             'taggable_type' => 'ElPost',
             'created_at' => $now,
             'updated_at' => $now,
@@ -518,7 +518,7 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
             $counts[$post->title] = count($post->relationships['labels']);
         }
 
-        $this->assertEquals(['Satu' => 1, 'Dua' => 0, 'Tiga' => 0], $counts);
+        $this->assertEquals(['One' => 1, 'Two' => 0, 'Three' => 0], $counts);
     }
 
     /**
@@ -536,8 +536,8 @@ class FacileEagerLoadingTest extends \PHPUnit_Framework_TestCase
             'url' => '/budi.png',
         ]);
 
-        $post = ElPost::where('title', '=', 'Satu')->first();
-        $this->assertEquals('/satu.png', $post->image->url);
+        $post = ElPost::where('title', '=', 'One')->first();
+        $this->assertEquals('/one.png', $post->image->url);
     }
 }
 

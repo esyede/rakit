@@ -335,6 +335,128 @@ class Query
     }
 
     /**
+     * Constrain the query to models that own a related model matching the condition.
+     * It is a shorthand for where_has() with a callback holding a single where().
+     *
+     * @param string          $relationship
+     * @param string|\Closure $column
+     * @param string          $operator
+     * @param mixed           $value
+     *
+     * @return Query
+     */
+    public function where_relation($relationship, $column, $operator = null, $value = null)
+    {
+        return $this->has($relationship, '>=', 1, $this->relation_condition($column, $operator, $value));
+    }
+
+    /**
+     * Constrain the query to models that own a related model matching the condition (OR).
+     *
+     * @param string          $relationship
+     * @param string|\Closure $column
+     * @param string          $operator
+     * @param mixed           $value
+     *
+     * @return Query
+     */
+    public function or_where_relation($relationship, $column, $operator = null, $value = null)
+    {
+        return $this->has($relationship, '>=', 1, $this->relation_condition($column, $operator, $value), 'OR');
+    }
+
+    /**
+     * Make the callback that puts a single where() on a relationship query.
+     *
+     * @param string|\Closure $column
+     * @param string          $operator
+     * @param mixed           $value
+     *
+     * @return \Closure
+     */
+    protected function relation_condition($column, $operator, $value)
+    {
+        return function ($query) use ($column, $operator, $value) {
+            $query->where($column, $operator, $value);
+        };
+    }
+
+    /**
+     * Constrain the query to models that belong to the given parent model(s).
+     * Without a relationship name, it is guessed from the class of the parent,
+     * so a BlogAuthor instance is looked up through the blog_author() relationship.
+     *
+     * @param Model|Collection|array $related
+     * @param string                 $relationship
+     * @param string                 $connector
+     *
+     * @return Query
+     */
+    public function where_belongs_to($related, $relationship = null, $connector = 'AND')
+    {
+        $models = ($related instanceof Model) ? [$related] : $related;
+        $models = ($models instanceof Collection) ? $models->all() : $models;
+
+        if (! is_array($models) || empty($models) || ! (reset($models) instanceof Model)) {
+            throw new \InvalidArgumentException('where_belongs_to() expects a model, or a non-empty collection or array of models.');
+        }
+
+        $relationship = is_null($relationship) ? Str::snake(class_basename(reset($models))) : $relationship;
+        $relation = $this->resolve_relationship($relationship);
+
+        if (! ($relation instanceof Relationships\BelongsTo)) {
+            throw new \Exception(sprintf(
+                'Method %s::%s() is not a belongs_to relationship.',
+                get_class($this->model),
+                $relationship
+            ));
+        }
+
+        $class = get_class($relation->model);
+        $keys = [];
+
+        foreach ($models as $model) {
+            if (! ($model instanceof $class)) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Relationship %s::%s() expects %s models, %s given.',
+                    get_class($this->model),
+                    $relationship,
+                    $class,
+                    is_object($model) ? get_class($model) : gettype($model)
+                ));
+            }
+
+            if (! is_null($key = $model->get_key())) {
+                $keys[] = $key;
+            }
+        }
+
+        $column = $this->model->table() . '.' . $relation->foreign_key();
+        $keys = array_values(array_unique($keys));
+
+        if (1 === count($keys)) {
+            $this->table->where($column, '=', $keys[0], $connector);
+        } else {
+            $this->table->where_in($column, $keys, $connector);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Constrain the query to models that belong to the given parent model(s) (OR).
+     *
+     * @param Model|Collection|array $related
+     * @param string                 $relationship
+     *
+     * @return Query
+     */
+    public function or_where_belongs_to($related, $relationship = null)
+    {
+        return $this->where_belongs_to($related, $relationship, 'OR');
+    }
+
+    /**
      * Select the number of related records as a '<relationship>_count' column.
      *
      * @param array|string $relationships
@@ -405,6 +527,26 @@ class Query
      */
     protected function relationship_subquery($relationship, $callback = null)
     {
+        $relation = $this->resolve_relationship($relationship);
+        $sub = $relation->correlate($this->model->table());
+        $sub->select([new Expression('1')]);
+
+        if (! is_null($callback)) {
+            call_user_func($callback, $relation);
+        }
+
+        return $sub;
+    }
+
+    /**
+     * Get the relationship instance defined by the given method of the model.
+     *
+     * @param string $relationship
+     *
+     * @return Relationships\Relationship
+     */
+    protected function resolve_relationship($relationship)
+    {
         if (! method_exists($this->model, $relationship)) {
             throw new \Exception(sprintf(
                 'Undefined relationship on %s: %s',
@@ -423,14 +565,7 @@ class Query
             ));
         }
 
-        $sub = $relation->correlate($this->model->table());
-        $sub->select([new Expression('1')]);
-
-        if (! is_null($callback)) {
-            call_user_func($callback, $relation);
-        }
-
-        return $sub;
+        return $relation;
     }
 
     /**

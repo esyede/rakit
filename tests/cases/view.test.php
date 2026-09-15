@@ -44,9 +44,9 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         try {
             View::make('throwing_probe')->render();
         } catch (\Exception $e) {
-            // sesuai harapan
+            // as expected
         } catch (\Throwable $e) {
-            // sesuai harapan
+            // as expected
         }
 
         \System\Blade::$reload = $reload;
@@ -64,7 +64,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     public function testATemplateThatThrowsLeavesNoBufferBehind()
     {
         $file = path('app') . 'views' . DS . 'buffering_probe.blade.php';
-        file_put_contents($file, '@section("x")isi<?php throw new \Exception("boom"); ?>@endsection', LOCK_EX);
+        file_put_contents($file, '@section("x")content<?php throw new \Exception("boom"); ?>@endsection', LOCK_EX);
 
         $reload = \System\Blade::$reload;
         \System\Blade::$reload = true;
@@ -73,9 +73,9 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         try {
             View::make('buffering_probe')->render();
         } catch (\Exception $e) {
-            // sesuai harapan
+            // as expected
         } catch (\Throwable $e) {
-            // sesuai harapan
+            // as expected
         }
 
         \System\Blade::$reload = $reload;
@@ -257,7 +257,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     {
         View::share('name', 'Budi');
         $view = View::make('tests.basic')->with('age', 25)->render();
-        $this->assertEquals('Budi berumur 25<br>', trim($view));
+        $this->assertEquals('Budi is 25<br>', trim($view));
     }
 
     /**
@@ -269,7 +269,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     {
         $view = View::make('tests.basic')->with('age', 25)->nest('name', 'tests.nested');
         $view = trim(str_replace(["\n", "\t", "\r"], '', $view->render()));
-        $this->assertEquals('Budi berumur 25<br>', $view);
+        $this->assertEquals('Budi is 25<br>', $view);
     }
 
     /**
@@ -281,7 +281,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
     {
         $view = View::make('tests.basic')->with('age', 25)->with('name', Response::view('tests.nested'));
         $view = trim(str_replace(["\n", "\t", "\r"], '', $view->render()));
-        $this->assertEquals('Budi berumur 25<br>', $view);
+        $this->assertEquals('Budi is 25<br>', $view);
     }
 
     /**
@@ -298,7 +298,7 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = View::make('tests.basic')->render();
 
         $view = trim(str_replace(["\n", "\t", "\r"], '', $view));
-        $this->assertEquals('Budi berumur 25<br>', $view);
+        $this->assertEquals('Budi is 25<br>', $view);
     }
 }
 

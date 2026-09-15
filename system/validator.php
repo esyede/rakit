@@ -1491,15 +1491,6 @@ class Validator
     }
 
     /**
-     * Validate that the attribute's date is before or equal to the given date.
-     *
-     * @param string $attribute
-     * @param mixed  $value
-     * @param array  $parameters
-     *
-     * @return bool
-     */
-    /**
      * Validate that the value is a date after or equal to the given date.
      *
      * @param string $attribute

@@ -282,7 +282,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
         $before = Database::table('users')->find(1)->password;
         $cookie = $this->makeRecaller(1);
 
-        Database::table('users')->where('id', '=', 1)->update(['password' => Hash::make('kata sandi baru')]);
+        Database::table('users')->where('id', '=', 1)->update(['password' => Hash::make('new password')]);
         Cookie::forever('system_auth_drivers_magic_remember', $cookie);
 
         $driver = new \System\Auth\Drivers\Magic();
@@ -337,13 +337,13 @@ class AuthTest extends \PHPUnit_Framework_TestCase
             'id' => '0197f4d2-uuid-key',
             'name' => 'Sari Melati',
             'email' => 'sari@example.com',
-            'password' => Hash::make('rahasia'),
+            'password' => Hash::make('secret'),
         ]);
 
         $driver = new \System\Auth\Drivers\Magic();
 
         $user = $driver->retrieve('0197f4d2-uuid-key');
-        $attempt = $driver->attempt(['email' => 'sari@example.com', 'password' => 'rahasia']);
+        $attempt = $driver->attempt(['email' => 'sari@example.com', 'password' => 'secret']);
 
         $pdo->exec('DROP TABLE IF EXISTS uuid_users');
         Config::set('auth.table', 'users');
@@ -392,7 +392,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
         $auth = new AuthLoginStub();
 
-        // Correct password di database: budi = budi123, agung = agung123
+        // Correct passwords in the database: budi = budi123, agung = agung123
         $credentials = ['email' => 'budi@gmail.com', 'password' => 'budi123'];
 
         $this->assertTrue($auth->attempt($credentials));
@@ -446,7 +446,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
 
         $this->setServerVar('HTTPS', 'on');
 
-        // Set variabel session supaya dipakai oleh remember cookie.
+        // Set the session variable, so the remember cookie uses it.
         Config::set('session.path', 'foo');
         Config::set('session.domain', 'bar');
         Config::set('session.secure', true);
@@ -522,7 +522,7 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test 'rakit.auth: login' dan 'rakit.auth: logout' can be called.
+     * Test 'rakit.auth: login' and 'rakit.auth: logout' can be called.
      *
      * @group system
      */

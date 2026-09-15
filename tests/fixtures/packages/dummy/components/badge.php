@@ -2,9 +2,9 @@
 
 defined('DS') or exit('No direct access.');
 
-class Dummy_Lencana_Component extends Component
+class Dummy_Badge_Component extends Component
 {
-    public $label = 'kosong';
+    public $label = 'empty';
 
     /**
      * Get the view of the component.
@@ -13,6 +13,6 @@ class Dummy_Lencana_Component extends Component
      */
     public function render()
     {
-        return 'dummy::components.lencana';
+        return 'dummy::components.badge';
     }
 }

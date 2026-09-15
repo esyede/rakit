@@ -121,8 +121,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that ketika kelas TestChildClassForContainer diresolve,
-     * Dependencies of TestParentClassForContainer should be resolved otomatically.
+     * Test that when TestChildClassForContainer is resolved,
+     * Dependencies of TestParentClassForContainer should be resolved automatically.
      */
     public function testClassTwoResolvesClassOneDependency()
     {

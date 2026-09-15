@@ -31,7 +31,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     public function testResourceIsAskedForItsOwnArray()
     {
         $this->assertEquals(
-            ['data' => ['id' => 1, 'nama' => 'Budi']],
+            ['data' => ['id' => 1, 'name' => 'Budi']],
             Transformer::make(new TransformerProbe())->resolve()
         );
 
@@ -61,11 +61,11 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     {
         $transformer = Transformer::make(new TransformerProbe());
 
-        $this->assertEquals('Budi', $transformer->nama);
-        $this->assertEquals('halo Budi', $transformer->sapa());
-        $this->assertTrue(isset($transformer->nama));
-        $this->assertFalse(isset($transformer->entah));
-        $this->assertNull($transformer->entah);
+        $this->assertEquals('Budi', $transformer->name);
+        $this->assertEquals('hello Budi', $transformer->greet());
+        $this->assertTrue(isset($transformer->name));
+        $this->assertFalse(isset($transformer->unknown));
+        $this->assertNull($transformer->unknown);
     }
 
     /**
@@ -75,11 +75,11 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
      */
     public function testResourceIsReachableAsAnArray()
     {
-        $transformer = Transformer::make(['nama' => 'Budi']);
+        $transformer = Transformer::make(['name' => 'Budi']);
 
-        $this->assertTrue(isset($transformer['nama']));
-        $this->assertEquals('Budi', $transformer['nama']);
-        $this->assertNull($transformer['entah']);
+        $this->assertTrue(isset($transformer['name']));
+        $this->assertEquals('Budi', $transformer['name']);
+        $this->assertNull($transformer['unknown']);
     }
 
     /**
@@ -91,7 +91,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnknownMethodThrows()
     {
-        Transformer::make(new TransformerProbe())->tidak_ada();
+        Transformer::make(new TransformerProbe())->missing_method();
     }
 
     // -------------------------------------------------------------------------
@@ -140,9 +140,9 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     {
         $transformer = Transformer::make([]);
 
-        $this->assertEquals('cadangan', $transformer->when(false, 'nilai', 'cadangan'));
-        $this->assertNull($transformer->when(false, 'nilai', null));
-        $this->assertInstanceOf('System\Transformer\Missing', $transformer->when(false, 'nilai'));
+        $this->assertEquals('fallback', $transformer->when(false, 'value', 'fallback'));
+        $this->assertNull($transformer->when(false, 'value', null));
+        $this->assertInstanceOf('System\Transformer\Missing', $transformer->when(false, 'value'));
     }
 
     /**
@@ -158,13 +158,13 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $callback = function () use (&$run) {
             $run = true;
 
-            return 'dihitung';
+            return 'computed';
         };
 
         $this->assertInstanceOf('System\Transformer\Missing', $transformer->when(false, $callback));
         $this->assertFalse($run);
 
-        $this->assertEquals('dihitung', $transformer->when(true, $callback));
+        $this->assertEquals('computed', $transformer->when(true, $callback));
         $this->assertTrue($run);
     }
 
@@ -178,7 +178,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
         $data = TransformerMerging::make([])->resolve();
 
         $this->assertEquals(
-            ['id' => 1, 'x' => 10, 'y' => 20, 'nested' => ['l' => 'ada']],
+            ['id' => 1, 'x' => 10, 'y' => 20, 'nested' => ['l' => 'present']],
             $data['data']
         );
     }
@@ -197,9 +197,9 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     {
         $data = TransformerNesting::make([])->resolve();
 
-        $this->assertEquals(['id' => 7, 'nama' => 'Dewi'], $data['data']['penulis']);
-        $this->assertEquals([['a' => 1], ['a' => 2]], $data['data']['komentar']);
-        $this->assertEquals(['x' => 1], $data['data']['dalam']['lagi']);
+        $this->assertEquals(['id' => 7, 'name' => 'Dewi'], $data['data']['author']);
+        $this->assertEquals([['a' => 1], ['a' => 2]], $data['data']['comments']);
+        $this->assertEquals(['x' => 1], $data['data']['inner']['deeper']);
     }
 
     // -------------------------------------------------------------------------
@@ -214,7 +214,7 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     public function testWrapping()
     {
         $this->assertEquals(['data' => ['a' => 1]], Transformer::make(['a' => 1])->resolve());
-        $this->assertEquals(['hasil' => ['a' => 1]], TransformerWrapped::make(['a' => 1])->resolve());
+        $this->assertEquals(['result' => ['a' => 1]], TransformerWrapped::make(['a' => 1])->resolve());
         $this->assertEquals(['a' => 1], TransformerUnwrapped::make(['a' => 1])->resolve());
     }
 
@@ -251,12 +251,12 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     public function testDataBesideTheWrappedData()
     {
         $this->assertEquals(
-            ['data' => ['a' => 1], 'versi' => '1.0'],
-            Transformer::make(['a' => 1])->additional(['versi' => '1.0'])->resolve()
+            ['data' => ['a' => 1], 'version' => '1.0'],
+            Transformer::make(['a' => 1])->additional(['version' => '1.0'])->resolve()
         );
 
         $this->assertEquals(
-            ['data' => ['a' => 1], 'penulis' => 'rakit'],
+            ['data' => ['a' => 1], 'author' => 'rakit'],
             TransformerWithMeta::make(['a' => 1])->resolve()
         );
     }
@@ -269,8 +269,8 @@ class TransformerTest extends \PHPUnit_Framework_TestCase
     public function testExtraDataWithoutAWrapper()
     {
         $this->assertEquals(
-            ['a' => 1, 'versi' => '1.0'],
-            TransformerUnwrapped::make(['a' => 1])->additional(['versi' => '1.0'])->resolve()
+            ['a' => 1, 'version' => '1.0'],
+            TransformerUnwrapped::make(['a' => 1])->additional(['version' => '1.0'])->resolve()
         );
     }
 
@@ -419,7 +419,7 @@ class TransformerProbe
 {
     public $id = 1;
 
-    public $nama = 'Budi';
+    public $name = 'Budi';
 
     /**
      * Get the array of the resource.
@@ -428,7 +428,7 @@ class TransformerProbe
      */
     public function to_array()
     {
-        return ['id' => $this->id, 'nama' => $this->nama];
+        return ['id' => $this->id, 'name' => $this->name];
     }
 
     /**
@@ -436,9 +436,9 @@ class TransformerProbe
      *
      * @return string
      */
-    public function sapa()
+    public function greet()
     {
-        return 'halo ' . $this->nama;
+        return 'hello ' . $this->name;
     }
 }
 
@@ -495,7 +495,7 @@ class TransformerMerging extends Transformer
             'id' => 1,
             'a' => $this->merge_when(true, ['x' => 10, 'y' => 20]),
             'b' => $this->merge_when(false, ['z' => 30]),
-            'nested' => ['k' => $this->when(false, 'hilang'), 'l' => 'ada'],
+            'nested' => ['k' => $this->when(false, 'missing'), 'l' => 'present'],
         ];
     }
 }
@@ -513,9 +513,9 @@ class TransformerNesting extends Transformer
     public function to_array()
     {
         return [
-            'penulis' => TransformerSimple::make(['id' => 7, 'nama' => 'Dewi']),
-            'komentar' => TransformerSimple::collection([['a' => 1], ['a' => 2]]),
-            'dalam' => ['lagi' => TransformerSimple::make(['x' => 1])],
+            'author' => TransformerSimple::make(['id' => 7, 'name' => 'Dewi']),
+            'comments' => TransformerSimple::collection([['a' => 1], ['a' => 2]]),
+            'inner' => ['deeper' => TransformerSimple::make(['x' => 1])],
         ];
     }
 }
@@ -525,7 +525,7 @@ class TransformerNesting extends Transformer
  */
 class TransformerWrapped extends Transformer
 {
-    public static $wrap = 'hasil';
+    public static $wrap = 'result';
 }
 
 /**
@@ -548,6 +548,6 @@ class TransformerWithMeta extends Transformer
      */
     public function with()
     {
-        return ['penulis' => 'rakit'];
+        return ['author' => 'rakit'];
     }
 }

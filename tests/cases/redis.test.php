@@ -176,7 +176,7 @@ class RedisTest extends \PHPUnit_Framework_TestCase
     public function testBinarySafeValues()
     {
         $key = $this->key('binary');
-        $value = "baris satu\r\nbaris dua\0\x01\x02 selesai";
+        $value = "line one\r\nline two\0\x01\x02 done";
 
         Redis::db()->run('set', [$key, $value]);
         $this->assertEquals($value, Redis::db()->run('get', [$key]));
@@ -209,11 +209,11 @@ class RedisTest extends \PHPUnit_Framework_TestCase
         $redis = Redis::db();
 
         $redis->run('del', [$key]);
-        $redis->run('rpush', [$key, 'satu']);
-        $redis->run('rpush', [$key, 'dua']);
-        $redis->run('rpush', [$key, 'tiga']);
+        $redis->run('rpush', [$key, 'one']);
+        $redis->run('rpush', [$key, 'two']);
+        $redis->run('rpush', [$key, 'three']);
 
-        $this->assertEquals(['satu', 'dua', 'tiga'], $redis->run('lrange', [$key, 0, -1]));
+        $this->assertEquals(['one', 'two', 'three'], $redis->run('lrange', [$key, 0, -1]));
     }
 
     /**
@@ -252,8 +252,8 @@ class RedisTest extends \PHPUnit_Framework_TestCase
         $key = $this->key('dynamic');
         $redis = Redis::db();
 
-        $redis->set($key, 'halo');
-        $this->assertEquals('halo', $redis->get($key));
+        $redis->set($key, 'hello');
+        $this->assertEquals('hello', $redis->get($key));
     }
 
     // -------------------------------------------------------------------------

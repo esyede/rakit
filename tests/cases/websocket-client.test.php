@@ -160,4 +160,22 @@ class WebsocketClientTest extends \PHPUnit_Framework_TestCase
         $client->of($mock);
         $client->send(Server::PONG, 'pong');
     }
+
+    /**
+     * Test that send() calls the send handler registered on the server.
+     *
+     * @group system
+     */
+    public function testSendFiresTheSendHandlerOfTheServer()
+    {
+        $fired = [];
+
+        $this->server->on('send', function ($client, $opcode, $data) use (&$fired) {
+            $fired[] = [$client->id(), $opcode, $data];
+        });
+
+        $this->client->send(Server::TEXT, 'Hello');
+
+        $this->assertEquals([['test_id', Server::TEXT, 'Hello']], $fired);
+    }
 }

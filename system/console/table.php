@@ -311,7 +311,7 @@ class Table
         if (STR_PAD_RIGHT === $direction) {
             $result = mb_substr($str.str_repeat($content, $repeat), 0, $amount, 'UTF-8');
         } elseif (STR_PAD_LEFT === $direction) {
-            $result = mb_substr(str_repeat($content, $repeat).$str, -$amount, null, 'UTF-8');
+            $result = mb_substr(str_repeat($content, $repeat).$str, -$amount, $amount, 'UTF-8');
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
             $repeat = str_repeat((string) $content, (int) ceil($length / $padlen));

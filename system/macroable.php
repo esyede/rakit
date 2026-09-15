@@ -76,7 +76,11 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-        $macro = ($macro instanceof \Closure) ? \Closure::bind($macro, null, __CLASS__) : $macro;
+        // Running __CLASS__ inside a trait corrupts the constant table of PHP 5.4.0, a later
+        // get_defined_constants(true) then crashes. get_class() names the same class there,
+        // but is deprecated without an argument since PHP 8.3, hence the version check.
+        $scope = (PHP_VERSION_ID < 50500) ? get_class() : __CLASS__;
+        $macro = ($macro instanceof \Closure) ? \Closure::bind($macro, null, $scope) : $macro;
         return call_user_func_array($macro, $parameters);
     }
 
@@ -95,7 +99,9 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-        $macro = ($macro instanceof \Closure) ? $macro->bindTo($this, __CLASS__) : $macro;
+        // See __callStatic() for why __CLASS__ is not used on PHP 5.4.
+        $scope = (PHP_VERSION_ID < 50500) ? get_class() : __CLASS__;
+        $macro = ($macro instanceof \Closure) ? $macro->bindTo($this, $scope) : $macro;
         return call_user_func_array($macro, $parameters);
     }
 }

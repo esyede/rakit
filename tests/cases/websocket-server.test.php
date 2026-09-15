@@ -256,11 +256,11 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     public function testFrameBuildsAShortTextFrame()
     {
         $server = new Server('tcp://127.0.0.1:0');
-        $frame = $this->callProtectedMethod($server, 'frame', ['halo', $this->user()]);
+        $frame = $this->callProtectedMethod($server, 'frame', ['hello', $this->user()]);
 
         $this->assertEquals(129, ord($frame[0]));  // FIN + opcode 1
-        $this->assertEquals(4, ord($frame[1]));    // unmasked, length 4
-        $this->assertEquals('halo', substr($frame, 2));
+        $this->assertEquals(5, ord($frame[1]));    // unmasked, length 5
+        $this->assertEquals('hello', substr($frame, 2));
     }
 
     /**
@@ -328,10 +328,10 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
         $result = $this->callProtectedMethod(
             $server,
             'deframe',
-            [$this->client_frame('halo dunia'), &$user]
+            [$this->client_frame('hello world'), &$user]
         );
 
-        $this->assertEquals('halo dunia', $result);
+        $this->assertEquals('hello world', $result);
     }
 
     /**
@@ -380,7 +380,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
         $server = new Server('tcp://127.0.0.1:0');
         $user = $this->user();
 
-        $result = $this->callProtectedMethod($server, 'deframe', [$this->client_frame('halo', 10), &$user]);
+        $result = $this->callProtectedMethod($server, 'deframe', [$this->client_frame('hello', 10), &$user]);
 
         $this->assertFalse($result);
         $this->assertFalse($user->disconnecting);
@@ -394,12 +394,12 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     public function testExtractHeaders()
     {
         $server = new Server('tcp://127.0.0.1:0');
-        $headers = $this->callProtectedMethod($server, 'extract_headers', [$this->client_frame('halo')]);
+        $headers = $this->callProtectedMethod($server, 'extract_headers', [$this->client_frame('hello')]);
 
         $this->assertEquals(128, $headers['fin']);
         $this->assertEquals(1, $headers['opcode']);
         $this->assertEquals(128, $headers['hasmask']);
-        $this->assertEquals(4, $headers['length']);
+        $this->assertEquals(5, $headers['length']);
         $this->assertEquals('abcd', $headers['mask']);
     }
 
@@ -434,7 +434,7 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     {
         $server = new Server('tcp://127.0.0.1:0');
         $headers = ['hasmask' => 128, 'mask' => 'abcd'];
-        $payload = 'halo dunia yang panjang sekali';
+        $payload = 'a hello world payload that is quite long';
 
         $masked = $this->callProtectedMethod($server, 'apply_mask', [$headers, $payload]);
         $this->assertNotEquals($payload, $masked);
@@ -453,8 +453,8 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
         $server = new Server('tcp://127.0.0.1:0');
 
         $this->assertEquals(
-            'halo',
-            $this->callProtectedMethod($server, 'apply_mask', [['hasmask' => 0, 'mask' => ''], 'halo'])
+            'hello',
+            $this->callProtectedMethod($server, 'apply_mask', [['hasmask' => 0, 'mask' => ''], 'hello'])
         );
     }
 }

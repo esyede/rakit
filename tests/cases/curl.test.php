@@ -55,7 +55,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     private function skipIfNoNetwork()
     {
         if (self::$skipNetworkTests) {
-            $this->markTestSkipped('Mock endpoint tidak tersedia di ' . self::$base);
+            $this->markTestSkipped('Mock endpoint is not available at ' . self::$base);
         }
     }
 
@@ -72,7 +72,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         $response = Curl::get(self::$base);
 
         if (!is_object($response->body) || !isset($response->body->headers)) {
-            $this->markTestSkipped('Response format tidak sesuai');
+            $this->markTestSkipped('Unexpected response format');
         }
 
         $this->assertEquals($response->body->headers->Cookie, 'foo=bar');
@@ -160,7 +160,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         $response = Curl::get(self::$base);
 
         if (!is_object($response->body) || !isset($response->body->headers)) {
-            $this->markTestSkipped('Response format tidak sesuai');
+            $this->markTestSkipped('Unexpected response format');
         }
 
         $this->assertEquals('Basic dXNlcjpwYXNzd29yZA==', $response->body->headers->Authorization);
@@ -313,7 +313,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         $response = Curl::post(self::$base, ['Accept' => 'application/json'], $body);
 
         if (!is_object($response->body) || !isset($response->body->method)) {
-            $this->markTestSkipped('Response format tidak sesuai');
+            $this->markTestSkipped('Unexpected response format');
         }
 
         $this->assertEquals('POST', $response->body->method);
@@ -330,7 +330,7 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         $response = Curl::post(self::$base, ['Accept' => 'application/json'], $body);
 
         if (!is_object($response->body) || !isset($response->body->method)) {
-            $this->markTestSkipped('Response format tidak sesuai');
+            $this->markTestSkipped('Unexpected response format');
         }
 
         $this->assertEquals('POST', $response->body->method);
@@ -426,9 +426,19 @@ class CurlTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipIfNoNetwork();
 
-        $response = Curl::patch(self::$base, [
-            'Accept' => 'application/json',
-        ], ['name' => 'Budi', 'gender' => 'Male']);
+        try {
+            $response = Curl::patch(self::$base, [
+                'Accept' => 'application/json',
+            ], ['name' => 'Budi', 'gender' => 'Male']);
+        } catch (\Exception $e) {
+            // The built-in server of early PHP 5.4 releases, which the mock endpoint runs
+            // on, rejects a PATCH request as malformed. The client itself is not at fault.
+            if (PHP_VERSION_ID < 50500 && false !== strpos($e->getMessage(), 'Empty reply from server')) {
+                $this->markTestSkipped('The PHP built-in server of this version does not accept PATCH requests.');
+            }
+
+            throw $e;
+        }
 
         $this->assertEquals(200, $response->code);
         $this->assertEquals('PATCH', $response->body->method);

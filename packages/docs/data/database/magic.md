@@ -9,9 +9,11 @@
   - [where and or_where](#where-and-or_where)
   - [where_id and or_where_id](#where_id-and-or_where_id)
   - [where_in, where_not_in, or_where_in, and or_where_not_in](#where_in-where_not_in-or_where_in-and-or_where_not_in)
+  - [where_integer_in_raw and where_integer_not_in_raw](#where_integer_in_raw-and-where_integer_not_in_raw)
   - [where_null, where_not_null, or_where_null, and or_where_not_null](#where_null-where_not_null-or_where_null-and-or_where_not_null)
   - [where_between, where_not_between, or_where_between, and or_where_not_between](#where_between-where_not_between-or_where_between-and-or_where_not_between)
-  - [where_date, where_month, where_day, where_year](#where_date-where_month-where_day-where_year)
+  - [where_date, where_month, where_day, where_year, where_time](#where_date-where_month-where_day-where_year-where_time)
+  - [where_any, where_all, and where_none](#where_any-where_all-and-where_none)
   - [where_exists and where_not_exists](#where_exists-and-where_not_exists)
   - [where_in_sub and where_not_in_sub](#where_in_sub-and-where_not_in_sub)
 - [Nested Where](#nested-where)
@@ -234,6 +236,32 @@ $users = DB::table('users')
     ->get();
 ```
 
+<a id="where_integer_in_raw-and-where_integer_not_in_raw"></a>
+### where_integer_in_raw and where_integer_not_in_raw
+
+These work like `where_in()` and `where_not_in()`, but the values are written straight into the SQL
+instead of being bound as parameters. Use them for a very long list of IDs, which would otherwise run
+into the bound parameter limit of the driver (2100 on SQL Server, 999 on SQLite older than 3.32 and
+65535 on MySQL and PostgreSQL):
+
+```php
+$users = DB::table('users')
+    ->where_integer_in_raw('id', $ids)
+    ->get();
+
+// SQL: SELECT * FROM "users" WHERE "id" IN (1, 2, 3)
+
+$users = DB::table('users')
+    ->where_integer_not_in_raw('id', [1, 2, 3])
+    ->get();
+```
+
+`or_where_integer_in_raw()` and `or_where_integer_not_in_raw()` are available as well.
+
+> **Security:** Only integers are accepted, either as an `int` or as a string of digits such as `'42'`.
+> Anything else (`'1 OR 1 = 1'`, `1.5`, `null`, and so on) throws an `InvalidArgumentException` instead
+> of ending up in the SQL.
+
 <a id="where_null-where_not_null-or_where_null-and-or_where_not_null"></a>
 ### where_null, where_not_null, or_where_null, and or_where_not_null
 
@@ -312,8 +340,8 @@ $products = DB::table('products')
     ->get();
 ```
 
-<a id="where_date-where_month-where_day-where_year"></a>
-### where_date, where_month, where_day, where_year
+<a id="where_date-where_month-where_day-where_year-where_time"></a>
+### where_date, where_month, where_day, where_year, where_time
 
 **WHERE DATE:**
 
@@ -351,7 +379,81 @@ $orders = DB::table('orders')
     ->get();
 ```
 
-> **Security (fixed):** `where_date|month|day|year|time` now wrap the column via the grammar (`DATE("col")`) and validate the identifier. Passing `Input::get('col')` directly without allowlisting is now rejected (`Invalid column identifier`) instead of interpolated as `DATE(created_at)=1 OR ...`.
+**WHERE TIME:**
+
+```php
+// Search by time
+$orders = DB::table('orders')
+    ->where_time('created_at', '>=', '17:00:00')
+    ->get();
+```
+
+A `DateTime` or `Carbon` value is reduced to the part being compared, so the whole day is matched here
+instead of only the exact second:
+
+```php
+$orders = DB::table('orders')
+    ->where_date('created_at', '=', Carbon::now())
+    ->get();
+```
+
+Every driver spells these functions differently, so the SQL is compiled by the grammar of the connection:
+
+| Method        | MySQL        | PostgreSQL                | SQLite                                 | SQL Server          |
+| ------------- | ------------ | ------------------------- | -------------------------------------- | ------------------- |
+| `where_date`  | `DATE(col)`  | `CAST(col AS DATE)`       | `strftime('%Y-%m-%d', col)`            | `CAST(col AS DATE)` |
+| `where_time`  | `TIME(col)`  | `CAST(col AS TIME)`       | `strftime('%H:%M:%S', col)`            | `CAST(col AS TIME)` |
+| `where_day`   | `DAY(col)`   | `EXTRACT(DAY FROM col)`   | `CAST(strftime('%d', col) AS INTEGER)` | `DAY(col)`          |
+| `where_month` | `MONTH(col)` | `EXTRACT(MONTH FROM col)` | `CAST(strftime('%m', col) AS INTEGER)` | `MONTH(col)`        |
+| `where_year`  | `YEAR(col)`  | `EXTRACT(YEAR FROM col)`  | `CAST(strftime('%Y', col) AS INTEGER)` | `YEAR(col)`         |
+
+> **Note:** On SQLite the column has to hold text such as `2024-01-15 08:30:00`, which is the format Rakit
+> writes. `strftime()` does not read a unix timestamp stored as an integer.
+
+> **Security (fixed):** `where_date|month|day|year|time` now wrap the column via the grammar (for example `DATE("col")`) and validate the identifier. Passing `Input::get('col')` directly without allowlisting is now rejected (`Invalid column identifier`) instead of interpolated as `DATE(created_at)=1 OR ...`.
+
+<a id="where_any-where_all-and-where_none"></a>
+### where_any, where_all, and where_none
+
+These apply the same condition to several columns at once. The columns are grouped in parentheses, so
+the group does not mix with the rest of the WHERE clause.
+
+**WHERE ANY** (at least one of the columns matches):
+
+```php
+$users = DB::table('users')
+    ->where('active', '=', 1)
+    ->where_any(['name', 'email', 'phone'], 'like', '%budi%')
+    ->get();
+
+// SQL: SELECT * FROM "users" WHERE "active" = ? AND ("name" like ? OR "email" like ? OR "phone" like ?)
+```
+
+**WHERE ALL** (every column matches):
+
+```php
+$posts = DB::table('posts')
+    ->where_all(['title', 'body'], 'like', '%rakit%')
+    ->get();
+
+// SQL: SELECT * FROM "posts" WHERE ("title" like ? AND "body" like ?)
+```
+
+**WHERE NONE** (none of the columns matches):
+
+```php
+$posts = DB::table('posts')
+    ->where_none(['title', 'body'], 'like', '%spam%')
+    ->get();
+
+// SQL: SELECT * FROM "posts" WHERE NOT ("title" like ? OR "body" like ?)
+```
+
+Just like with `where()`, the operator can be left out for an equality check. Each of them also has an
+`or_` variant: `or_where_any()`, `or_where_all()` and `or_where_none()`.
+
+> **Note:** A `NULL` column makes the condition unknown, so `where_none()` does not match such a row
+> either. An empty column list throws an `InvalidArgumentException`.
 
 <a id="where_exists-and-where_not_exists"></a>
 ### where_exists and where_not_exists
@@ -459,6 +561,17 @@ $users = DB::table('users')
     ->get();
 // SQL: WHERE email = ? OR username = ?
 ```
+
+A few names are reserved. They throw an exception instead of being turned into a column, so a mistake
+does not silently build the wrong query:
+
+-   `where_has()`, `where_doesnt_have()`, `where_relation()`, `where_belongs_to()`, `where_key()` and
+    `where_key_not()` only exist on a [Facile model](/docs/database/facile) query.
+-   `where_json_contains()`, `where_json_length()`, `where_full_text()` and `where_morph_relation()`
+    are not supported yet.
+
+Because of that, a column named `key` for example cannot be queried with `where_key($value)`. Use
+`where('key', '=', $value)` instead.
 
 <a id="raw-where"></a>
 ## Raw Where
@@ -1131,7 +1244,6 @@ has no row level lock to ask for and the clause is left out entirely.
 | `exists()`                                        | `true` when at least one row matches                            |
 | `doesnt_exist()`                                  | The opposite of `exists()`                                      |
 | `where_column($column1, $operator, $column2)`     | Compare two columns to each other                               |
-| `where_time($column, $operator, $value)`          | WHERE on the time part of a column                              |
 | `aggregate($aggregator, array $columns)`          | Run any aggregate function, for example `MAX`                   |
 | `chunk($count, $callback)`                        | Process rows in chunks, returning `false` stops the iteration   |
 | `chunk_by_id($count, $callback, $column, $alias)` | Process rows in chunks, paging by id instead of by offset       |
@@ -1186,4 +1298,6 @@ $email = DB::table('users')->where('id', '=', 1)->value('email');
 DB::table('settings')->update_or_insert(['key' => 'theme'], ['value' => 'dark']);
 ```
 
-> **Note:** Rakit currentnly does not support `where_has()` or `where_json_contains()`.
+> **Note:** Relationship filters such as `where_has()` and `where_relation()` are only available on a
+> [Facile model](/docs/database/facile#relationship-queries) query. JSON column queries such as
+> `where_json_contains()` are not supported yet.

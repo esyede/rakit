@@ -190,10 +190,10 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
         $colors = ['black', 'red', 'green', 'yellow', 'blue', 'purple', 'cyan', 'white'];
 
         foreach ($colors as $color) {
-            $with = Color::{$color}('halo');
-            $without = Color::{$color}('halo', false);
+            $with = Color::{$color}('hello');
+            $without = Color::{$color}('hello', false);
 
-            $this->assertContains('halo', $with, $color);
+            $this->assertContains('hello', $with, $color);
             $this->assertStringEndsWith(PHP_EOL, $with, $color);
             $this->assertStringEndsNotWith(PHP_EOL, $without, $color);
         }
@@ -222,13 +222,13 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
     public function testTableRendersHeadersAndRows()
     {
         $table = new Table();
-        $table->set_headers(['Nama', 'Kota']);
+        $table->set_headers(['Name', 'City']);
         $table->add_row(['Budi', 'Yogyakarta']);
         $table->add_row(['Ani', 'Bandung']);
 
         $output = $table->get_table();
 
-        $this->assertContains('| Nama | Kota       |', $output);
+        $this->assertContains('| Name | City       |', $output);
         $this->assertContains('| Budi | Yogyakarta |', $output);
         $this->assertContains('| Ani  | Bandung    |', $output);
         $this->assertContains('+------+------------+', $output);
@@ -243,7 +243,7 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
     public function testTableAlignsMultibyteContent()
     {
         $table = new Table();
-        $table->set_headers(['Nama']);
+        $table->set_headers(['Name']);
         $table->add_row(['Añá Ölçü']);
         $table->add_row(['Budi']);
 
@@ -266,8 +266,8 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
         $table = new Table();
         $this->assertNull($table->get_headers());
 
-        $table->add_header('Satu')->add_header('Dua');
-        $this->assertEquals(['Satu', 'Dua'], $table->get_headers());
+        $table->add_header('One')->add_header('Two');
+        $this->assertEquals(['One', 'Two'], $table->get_headers());
     }
 
     /**
@@ -385,9 +385,9 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
     {
         $command = new ConsoleProbeCommand();
 
-        $this->assertContains('oke', $command->probe_info('oke', false));
-        $this->assertContains('hati-hati', $command->probe_warning('hati-hati', false));
-        $this->assertContains('gagal', $command->probe_error('gagal', false));
+        $this->assertContains('ok', $command->probe_info('ok', false));
+        $this->assertContains('careful', $command->probe_warning('careful', false));
+        $this->assertContains('failed', $command->probe_error('failed', false));
     }
 }
 

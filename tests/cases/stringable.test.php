@@ -29,11 +29,11 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testOfReturnsAStringable()
     {
-        $string = Str::of('halo');
+        $string = Str::of('hello');
 
         $this->assertInstanceOf('System\Stringable', $string);
-        $this->assertEquals('halo', (string) $string);
-        $this->assertEquals('halo', $string->value());
+        $this->assertEquals('hello', (string) $string);
+        $this->assertEquals('hello', $string->value());
     }
 
     /**
@@ -46,8 +46,8 @@ class StringableTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', (string) Str::of(null));
         $this->assertEquals('123', (string) Str::of(123));
         $this->assertEquals('1.5', (string) Str::of(1.5));
-        $this->assertEquals('halo', (string) Str::of(Str::of('halo')));
-        $this->assertEquals('dari objek', (string) Str::of(new StringableProbe()));
+        $this->assertEquals('hello', (string) Str::of(Str::of('hello')));
+        $this->assertEquals('from an object', (string) Str::of(new StringableProbe()));
     }
 
     /**
@@ -83,36 +83,36 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testMethodsAgreeWithStr()
     {
-        $this->assertEquals(Str::length('halo dunia'), Str::of('halo dunia')->length());
-        $this->assertEquals(Str::substr('halo dunia', 0, 4), (string) Str::of('halo dunia')->substr(0, 4));
-        $this->assertEquals(Str::substr('halo dunia', 5), (string) Str::of('halo dunia')->substr(5));
-        $this->assertEquals(Str::ucfirst('halo'), (string) Str::of('halo')->ucfirst());
-        $this->assertEquals(Str::lower('HALO'), (string) Str::of('HALO')->lower());
-        $this->assertEquals(Str::upper('halo'), (string) Str::of('halo')->upper());
-        $this->assertEquals(Str::title('halo dunia'), (string) Str::of('halo dunia')->title());
-        $this->assertEquals(Str::limit('halo dunia panjang', 8), (string) Str::of('halo dunia panjang')->limit(8));
-        $this->assertEquals(Str::trim('  halo  '), (string) Str::of('  halo  ')->trim());
-        $this->assertEquals(Str::words('satu dua tiga', 2), (string) Str::of('satu dua tiga')->words(2));
+        $this->assertEquals(Str::length('hello world'), Str::of('hello world')->length());
+        $this->assertEquals(Str::substr('hello world', 0, 4), (string) Str::of('hello world')->substr(0, 4));
+        $this->assertEquals(Str::substr('hello world', 5), (string) Str::of('hello world')->substr(5));
+        $this->assertEquals(Str::ucfirst('hello'), (string) Str::of('hello')->ucfirst());
+        $this->assertEquals(Str::lower('HELLO'), (string) Str::of('HELLO')->lower());
+        $this->assertEquals(Str::upper('hello'), (string) Str::of('hello')->upper());
+        $this->assertEquals(Str::title('hello world'), (string) Str::of('hello world')->title());
+        $this->assertEquals(Str::limit('hello world long', 8), (string) Str::of('hello world long')->limit(8));
+        $this->assertEquals(Str::trim('  hello  '), (string) Str::of('  hello  ')->trim());
+        $this->assertEquals(Str::words('one two three', 2), (string) Str::of('one two three')->words(2));
         $this->assertEquals(Str::singular('books'), (string) Str::of('books')->singular());
         $this->assertEquals(Str::plural('book'), (string) Str::of('book')->plural());
         $this->assertEquals(Str::plural('book', 1), (string) Str::of('book')->plural(1));
         $this->assertEquals(Str::plural_studly('UserBook'), (string) Str::of('UserBook')->plural_studly());
-        $this->assertEquals(Str::slug('Halo Dunia'), (string) Str::of('Halo Dunia')->slug());
-        $this->assertEquals(Str::slug('Halo Dunia', '_'), (string) Str::of('Halo Dunia')->slug('_'));
+        $this->assertEquals(Str::slug('Hello World'), (string) Str::of('Hello World')->slug());
+        $this->assertEquals(Str::slug('Hello World', '_'), (string) Str::of('Hello World')->slug('_'));
         $this->assertEquals(Str::classify('user_profile'), (string) Str::of('user_profile')->classify());
         $this->assertEquals(Str::accentless('café'), (string) Str::of('café')->accentless());
         $this->assertEquals(Str::segments('/a/b/c/'), Str::of('/a/b/c/')->segments());
-        $this->assertEquals(Str::censor('rahasia'), (string) Str::of('rahasia')->censor());
-        $this->assertEquals(Str::before('halo@dunia', '@'), (string) Str::of('halo@dunia')->before('@'));
-        $this->assertEquals(Str::after('halo@dunia', '@'), (string) Str::of('halo@dunia')->after('@'));
+        $this->assertEquals(Str::censor('secret'), (string) Str::of('secret')->censor());
+        $this->assertEquals(Str::before('hello@world', '@'), (string) Str::of('hello@world')->before('@'));
+        $this->assertEquals(Str::after('hello@world', '@'), (string) Str::of('hello@world')->after('@'));
         $this->assertEquals(Str::camel('user_profile'), (string) Str::of('user_profile')->camel());
         $this->assertEquals(Str::studly('user_profile'), (string) Str::of('user_profile')->studly());
         $this->assertEquals(Str::kebab('userProfile'), (string) Str::of('userProfile')->kebab());
         $this->assertEquals(Str::snake('userProfile'), (string) Str::of('userProfile')->snake());
         $this->assertEquals(Str::snake('userProfile', '-'), (string) Str::of('userProfile')->snake('-'));
-        $this->assertEquals(Str::start('halo', '/'), (string) Str::of('halo')->start('/'));
-        $this->assertEquals(Str::finish('halo', '/'), (string) Str::of('halo')->finish('/'));
-        $this->assertEquals(Str::parse_callback('Kelas@metode', null), Str::of('Kelas@metode')->parse_callback());
+        $this->assertEquals(Str::start('hello', '/'), (string) Str::of('hello')->start('/'));
+        $this->assertEquals(Str::finish('hello', '/'), (string) Str::of('hello')->finish('/'));
+        $this->assertEquals(Str::parse_callback('Controller@action', null), Str::of('Controller@action')->parse_callback());
     }
 
     /**
@@ -123,8 +123,8 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testArgumentOrderIsKept()
     {
-        $this->assertTrue(Str::of('halo-dunia')->is('halo-*'));
-        $this->assertFalse(Str::of('lain')->is('halo-*'));
+        $this->assertTrue(Str::of('hello-world')->is('hello-*'));
+        $this->assertFalse(Str::of('other')->is('hello-*'));
 
         $this->assertEquals(
             Str::replace_first('a', 'z', 'a b a'),
@@ -135,8 +135,8 @@ class StringableTest extends \PHPUnit_Framework_TestCase
             (string) Str::of('a b a')->replace_last('a', 'z')
         );
         $this->assertEquals(
-            Str::replace_array('?', ['x', 'y'], '? dan ?'),
-            (string) Str::of('? dan ?')->replace_array('?', ['x', 'y'])
+            Str::replace_array('?', ['x', 'y'], '? and ?'),
+            (string) Str::of('? and ?')->replace_array('?', ['x', 'y'])
         );
     }
 
@@ -147,12 +147,12 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testAnswersThatAreNotStringsAreNotWrapped()
     {
-        $this->assertInternalType('int', Str::of('halo')->length());
-        $this->assertInternalType('bool', Str::of('halo')->is('h*'));
-        $this->assertInternalType('bool', Str::of('halo')->contains('al'));
-        $this->assertInternalType('bool', Str::of('halo')->contains_all(['ha', 'lo']));
-        $this->assertInternalType('bool', Str::of('halo')->starts_with('ha'));
-        $this->assertInternalType('bool', Str::of('halo')->ends_with('lo'));
+        $this->assertInternalType('int', Str::of('hello')->length());
+        $this->assertInternalType('bool', Str::of('hello')->is('h*'));
+        $this->assertInternalType('bool', Str::of('hello')->contains('el'));
+        $this->assertInternalType('bool', Str::of('hello')->contains_all(['he', 'lo']));
+        $this->assertInternalType('bool', Str::of('hello')->starts_with('he'));
+        $this->assertInternalType('bool', Str::of('hello')->ends_with('lo'));
         $this->assertInternalType('array', Str::of('/a/b')->segments());
         $this->assertInternalType('array', Str::of('a,b')->explode(','));
     }
@@ -168,11 +168,11 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheStringIsImmutable()
     {
-        $string = Str::of('halo');
+        $string = Str::of('hello');
         $upper = $string->upper();
 
-        $this->assertEquals('halo', (string) $string);
-        $this->assertEquals('HALO', (string) $upper);
+        $this->assertEquals('hello', (string) $string);
+        $this->assertEquals('HELLO', (string) $upper);
         $this->assertNotSame($string, $upper);
     }
 
@@ -184,12 +184,12 @@ class StringableTest extends \PHPUnit_Framework_TestCase
     public function testMethodsChain()
     {
         $this->assertEquals(
-            'HALO-DUNIA-INI',
-            (string) Str::of('  Halo Dunia Ini  ')->trim()->slug()->upper()
+            'HELLO-WORLD-THIS',
+            (string) Str::of('  Hello World This  ')->trim()->slug()->upper()
         );
         $this->assertEquals(
-            '/halo_dunia/',
-            (string) Str::of(' Halo Dunia ')->trim()->lower()->snake()->start('/')->finish('/')
+            '/hello_world/',
+            (string) Str::of(' Hello World ')->trim()->lower()->snake()->start('/')->finish('/')
         );
     }
 
@@ -200,9 +200,9 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testAppendAndPrepend()
     {
-        $this->assertEquals('halo dunia', (string) Str::of('halo')->append(' ', 'dunia'));
-        $this->assertEquals('halo dunia', (string) Str::of('dunia')->prepend('halo', ' '));
-        $this->assertEquals('halo', (string) Str::of('halo')->append());
+        $this->assertEquals('hello world', (string) Str::of('hello')->append(' ', 'world'));
+        $this->assertEquals('hello world', (string) Str::of('world')->prepend('hello', ' '));
+        $this->assertEquals('hello', (string) Str::of('hello')->append());
     }
 
     /**
@@ -257,18 +257,18 @@ class StringableTest extends \PHPUnit_Framework_TestCase
             return $string->upper();
         };
 
-        $this->assertEquals('HALO', (string) Str::of('halo')->when(true, $upper));
-        $this->assertEquals('halo', (string) Str::of('halo')->when(false, $upper));
+        $this->assertEquals('HELLO', (string) Str::of('hello')->when(true, $upper));
+        $this->assertEquals('hello', (string) Str::of('hello')->when(false, $upper));
 
-        $this->assertEquals('Halo', (string) Str::of('halo')->when(false, $upper, function ($string) {
+        $this->assertEquals('Hello', (string) Str::of('hello')->when(false, $upper, function ($string) {
             return $string->title();
         }));
 
-        $this->assertEquals('HALO', (string) Str::of('halo')->when(function ($string) {
-            return 4 === $string->length();
+        $this->assertEquals('HELLO', (string) Str::of('hello')->when(function ($string) {
+            return 5 === $string->length();
         }, $upper));
 
-        $this->assertEquals('halo', (string) Str::of('halo')->when(true, function () {
+        $this->assertEquals('hello', (string) Str::of('hello')->when(true, function () {
             return null;
         }));
     }
@@ -284,8 +284,8 @@ class StringableTest extends \PHPUnit_Framework_TestCase
             return $string->upper();
         };
 
-        $this->assertEquals('HALO', (string) Str::of('halo')->unless(false, $upper));
-        $this->assertEquals('halo', (string) Str::of('halo')->unless(true, $upper));
+        $this->assertEquals('HELLO', (string) Str::of('hello')->unless(false, $upper));
+        $this->assertEquals('hello', (string) Str::of('hello')->unless(true, $upper));
     }
 
     /**
@@ -295,16 +295,16 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testPipeAndTap()
     {
-        $this->assertEquals('HALO', (string) Str::of('halo')->pipe('strtoupper'));
-        $this->assertInstanceOf('System\Stringable', Str::of('halo')->pipe('strtoupper'));
+        $this->assertEquals('HELLO', (string) Str::of('hello')->pipe('strtoupper'));
+        $this->assertInstanceOf('System\Stringable', Str::of('hello')->pipe('strtoupper'));
 
         $seen = null;
-        $result = Str::of('halo')->tap(function ($string) use (&$seen) {
+        $result = Str::of('hello')->tap(function ($string) use (&$seen) {
             $seen = (string) $string;
         })->upper();
 
-        $this->assertEquals('halo', $seen);
-        $this->assertEquals('HALO', (string) $result);
+        $this->assertEquals('hello', $seen);
+        $this->assertEquals('HELLO', (string) $result);
     }
 
     // -------------------------------------------------------------------------
@@ -319,13 +319,13 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testMacrosAreReachable()
     {
-        Str::macro('bungkus', function ($value, $mark) {
+        Str::macro('surround', function ($value, $mark) {
             return $mark . $value . $mark;
         });
 
-        $this->assertEquals('*halo*', (string) Str::of('halo')->bungkus('*'));
-        $this->assertEquals('*HALO*', (string) Str::of('halo')->bungkus('*')->upper());
-        $this->assertInstanceOf('System\Stringable', Str::of('halo')->bungkus('*'));
+        $this->assertEquals('*hello*', (string) Str::of('hello')->surround('*'));
+        $this->assertEquals('*HELLO*', (string) Str::of('hello')->surround('*')->upper());
+        $this->assertInstanceOf('System\Stringable', Str::of('hello')->surround('*'));
     }
 
     /**
@@ -335,11 +335,11 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testMacroAnswerThatIsNotAStringIsNotWrapped()
     {
-        Str::macro('panjangnya', function ($value) {
+        Str::macro('char_count', function ($value) {
             return strlen($value);
         });
 
-        $this->assertSame(4, Str::of('halo')->panjangnya());
+        $this->assertSame(5, Str::of('hello')->char_count());
     }
 
     /**
@@ -351,7 +351,7 @@ class StringableTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnknownMethodThrows()
     {
-        Str::of('halo')->tidak_ada();
+        Str::of('hello')->missing_method();
     }
 
     /**
@@ -392,6 +392,6 @@ class StringableProbe
      */
     public function __toString()
     {
-        return 'dari objek';
+        return 'from an object';
     }
 }

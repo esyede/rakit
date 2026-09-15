@@ -36,9 +36,9 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
 
         // ani owns 2 posts (1 published), budi owns 1 post (unpublished), cici owns none.
         $pdo->exec("INSERT INTO parity_posts (user_id, title, active, meta, price, published, created_at, updated_at)
-            VALUES (1, 'satu', 1, '{\"x\":1}', '10.5', 1, '2026-01-02 03:04:05', '2026-01-02 03:04:05')");
-        $pdo->exec("INSERT INTO parity_posts (user_id, title, active, meta, price) VALUES (1, 'dua', 0, '{\"x\":2}', '7.25')");
-        $pdo->exec("INSERT INTO parity_posts (user_id, title, active, meta, price) VALUES (2, 'tiga', 1, '{\"x\":3}', '3')");
+            VALUES (1, 'one', 1, '{\"x\":1}', '10.5', 1, '2026-01-02 03:04:05', '2026-01-02 03:04:05')");
+        $pdo->exec("INSERT INTO parity_posts (user_id, title, active, meta, price) VALUES (1, 'two', 0, '{\"x\":2}', '7.25')");
+        $pdo->exec("INSERT INTO parity_posts (user_id, title, active, meta, price) VALUES (2, 'three', 1, '{\"x\":3}', '3')");
     }
 
     /**
@@ -77,10 +77,10 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
     public function testOnlyTheChangedAttributeIsDirty()
     {
         $post = ParityPost::find(1);
-        $post->title = 'diubah';
+        $post->title = 'changed';
 
         $this->assertTrue($post->dirty());
-        $this->assertEquals(['title' => 'diubah'], $post->get_dirty());
+        $this->assertEquals(['title' => 'changed'], $post->get_dirty());
         $this->assertTrue($post->changed('title'));
         $this->assertFalse($post->changed('user_id'));
     }
@@ -96,14 +96,14 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($post->was_changed());
 
-        $post->title = 'diubah';
+        $post->title = 'changed';
         $post->save();
 
         $this->assertTrue($post->was_changed());
         $this->assertTrue($post->was_changed('title'));
         $this->assertFalse($post->was_changed('user_id'));
-        $this->assertEquals('diubah', $post->get_original('title'));
-        $this->assertNull($post->get_original('tidak_ada'));
+        $this->assertEquals('changed', $post->get_original('title'));
+        $this->assertNull($post->get_original('missing'));
     }
 
     /**
@@ -168,7 +168,7 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse(array_key_exists('meta', $array));
         $this->assertTrue($array['active']);
-        $this->assertEquals('SATU', $array['label']);
+        $this->assertEquals('ONE', $array['label']);
         $this->assertEquals('2026-01-02 03:04:05', $array['created_at']);
     }
 
@@ -212,17 +212,17 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testFirstOrCreateFamily()
     {
-        $new = ParityPost::first_or_new(['title' => 'belum-ada']);
+        $new = ParityPost::first_or_new(['title' => 'not-yet']);
 
         $this->assertFalse($new->exists);
-        $this->assertEquals('belum-ada', $new->title);
+        $this->assertEquals('not-yet', $new->title);
 
-        $created = ParityPost::first_or_create(['title' => 'baru'], ['user_id' => 3]);
+        $created = ParityPost::first_or_create(['title' => 'fresh'], ['user_id' => 3]);
 
         $this->assertTrue($created->exists);
-        $this->assertEquals($created->id, ParityPost::first_or_create(['title' => 'baru'])->id);
+        $this->assertEquals($created->id, ParityPost::first_or_create(['title' => 'fresh'])->id);
 
-        $updated = ParityPost::update_or_create(['title' => 'baru'], ['views' => 9]);
+        $updated = ParityPost::update_or_create(['title' => 'fresh'], ['views' => 9]);
 
         $this->assertEquals($created->id, $updated->id);
         $this->assertEquals(9, ParityPost::find($created->id)->views);
@@ -262,12 +262,12 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
     public function testRefreshMutatesTheInstance()
     {
         $post = ParityPost::find(1);
-        Database::connection('parity')->pdo()->exec("UPDATE parity_posts SET title = 'dari-luar' WHERE id = 1");
+        Database::connection('parity')->pdo()->exec("UPDATE parity_posts SET title = 'from-outside' WHERE id = 1");
 
         $same = $post->refresh();
 
         $this->assertSame($post, $same);
-        $this->assertEquals('dari-luar', $post->title);
+        $this->assertEquals('from-outside', $post->title);
         $this->assertFalse($post->dirty());
     }
 
@@ -282,7 +282,7 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($copy->exists);
         $this->assertNull($copy->id);
-        $this->assertEquals('satu', $copy->title);
+        $this->assertEquals('one', $copy->title);
     }
 
     /**
@@ -335,7 +335,7 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
 
         $titles = ParityPost::all()->pluck('title')->all();
 
-        $this->assertEquals(['satu', 'dua', 'tiga'], $titles);
+        $this->assertEquals(['one', 'two', 'three'], $titles);
     }
 
     // -------------------------------------------------------------------------
@@ -402,8 +402,8 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testUnknownRelationshipThrows()
     {
-        $this->setExpectedException('\Exception', 'Undefined relationship on ParityUser: tidak_ada');
-        ParityUser::has('tidak_ada')->get();
+        $this->setExpectedException('\Exception', 'Undefined relationship on ParityUser: missing');
+        ParityUser::has('missing')->get();
     }
 
     // -------------------------------------------------------------------------
@@ -463,7 +463,7 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testSole()
     {
-        $this->assertEquals('satu', ParityPost::where('id', '=', 1)->sole()->title);
+        $this->assertEquals('one', ParityPost::where('id', '=', 1)->sole()->title);
 
         $this->setExpectedException('\Exception', 'More than one ParityPost found.');
         ParityPost::sole();
@@ -476,9 +476,128 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testWhereKey()
     {
-        $this->assertEquals('satu', ParityPost::where_key(1)->first()->title);
+        $this->assertEquals('one', ParityPost::where_key(1)->first()->title);
         $this->assertEquals(2, count(ParityPost::where_key([1, 2])->get()));
         $this->assertEquals(2, count(ParityPost::where('id', '>', 0)->where_key_not(1)->get()));
+    }
+
+    /**
+     * Test where_relation() and or_where_relation().
+     *
+     * @group system
+     */
+    public function testWhereRelation()
+    {
+        $this->assertEquals(['ani'], ParityUser::where_relation('posts', 'published', '=', 1)->get()->pluck('name')->all());
+        $this->assertEquals(['budi'], ParityUser::where_relation('posts', 'title', 'three')->get()->pluck('name')->all());
+        $this->assertEquals(['three'], ParityPost::where_relation('user', 'name', '=', 'budi')->get()->pluck('title')->all());
+
+        $users = ParityUser::where('name', '=', 'cici')->or_where_relation('posts', 'title', '=', 'three')->get();
+
+        $this->assertEquals(['budi', 'cici'], $users->pluck('name')->all());
+    }
+
+    /**
+     * Test where_belongs_to() and or_where_belongs_to().
+     *
+     * @group system
+     */
+    public function testWhereBelongsTo()
+    {
+        $ani = ParityUser::find(1);
+        $budi = ParityUser::find(2);
+
+        $this->assertEquals(['one', 'two'], ParityPost::where_belongs_to($ani, 'user')->get()->pluck('title')->all());
+        $this->assertContains('"parity_posts"."user_id" = ?', ParityPost::where_belongs_to($ani, 'user')->to_sql());
+
+        // The relationship name is guessed from the class of the parent.
+        $this->assertEquals(['three'], ParityPost::where_belongs_to($budi)->get()->pluck('title')->all());
+
+        $many = ParityPost::where_belongs_to(ParityUser::where_in('id', [1, 2])->get(), 'user');
+
+        $this->assertContains('"parity_posts"."user_id" IN (?, ?)', $many->to_sql());
+        $this->assertEquals(3, count($many->get()));
+        $this->assertEquals(3, count(ParityPost::where_belongs_to([$ani, $budi, $ani], 'user')->get()));
+
+        $either = ParityPost::where('title', '=', 'one')->or_where_belongs_to($budi, 'user')->get();
+
+        $this->assertEquals(['one', 'three'], $either->pluck('title')->all());
+
+        // Nothing can belong to a parent that was never saved.
+        $this->assertEquals(0, count(ParityPost::where_belongs_to(new ParityUser(), 'user')->get()));
+    }
+
+    /**
+     * Test that where_belongs_to() complains about a wrong model or relationship.
+     *
+     * @group system
+     */
+    public function testWhereBelongsToRejectsWrongInput()
+    {
+        $cases = [
+            'expects ParityUser models' => function () {
+                ParityPost::where_belongs_to(ParityPost::find(1), 'user');
+            },
+            'is not a belongs_to relationship' => function () {
+                ParityUser::where_belongs_to(ParityPost::find(1), 'posts');
+            },
+            'Undefined relationship on ParityPost: parity_post' => function () {
+                ParityPost::where_belongs_to(ParityPost::find(1));
+            },
+            'non-empty collection or array of models' => function () {
+                ParityPost::where_belongs_to([], 'user');
+            },
+        ];
+
+        foreach ($cases as $message => $callback) {
+            try {
+                $callback();
+                $this->fail('No exception for: ' . $message);
+            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                throw $e;
+            } catch (\Exception $e) {
+                $this->assertContains($message, $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Test that eager loading inlines native integer keys instead of binding them.
+     *
+     * @group system
+     */
+    public function testEagerLoadingInlinesIntegerKeys()
+    {
+        $debug = Config::get('debugger.database');
+        Config::set('debugger.database', true);
+        \System\Database\Connection::$queries = [];
+
+        $users = ParityUser::with('posts')->get();
+        $posts = ParityPost::with('user')->get();
+
+        $queries = \System\Database\Connection::$queries;
+        \System\Database\Connection::$queries = [];
+        Config::set('debugger.database', $debug);
+
+        $sql = implode("\n", array_map(function ($query) {
+            return $query['sql'];
+        }, $queries));
+
+        // Drivers that return integer columns as strings (e.g. pdo_sqlite before PHP 8.1)
+        // keep binding the keys, since it can not be told they are integers.
+        if (is_int($users[0]->get_key())) {
+            $this->assertContains('"user_id" IN (1, 2, 3)', $sql);
+            $this->assertContains('"id" IN (1, 2)', $sql);
+        } else {
+            $this->assertContains('"user_id" IN (?, ?, ?)', $sql);
+            $this->assertContains('"id" IN (?, ?)', $sql);
+        }
+
+        $this->assertEquals(2, count($users[0]->posts));
+        $this->assertEquals(1, count($users[1]->posts));
+        $this->assertEquals(0, count($users[2]->posts));
+        $this->assertEquals('ani', $posts[0]->user->name);
+        $this->assertEquals('budi', $posts[2]->user->name);
     }
 }
 
@@ -505,6 +624,11 @@ class ParityPost extends \System\Database\Facile\Model
     }
 
     public function user()
+    {
+        return $this->belongs_to('ParityUser', 'user_id');
+    }
+
+    public function parity_user()
     {
         return $this->belongs_to('ParityUser', 'user_id');
     }

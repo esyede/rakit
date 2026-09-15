@@ -228,14 +228,14 @@ class RoutingExtrasTest extends \PHPUnit_Framework_TestCase
      */
     public function testRouteWithUnknownMiddlewareThrows()
     {
-        $route = new \System\Routing\Route('GET', 'rahasia', [
-            'before' => 'tidak-pernah-didaftarkan',
+        $route = new \System\Routing\Route('GET', 'secret', [
+            'before' => 'never-registered',
             function () {
-                return 'BOCOR';
+                return 'LEAKED';
             },
         ]);
 
-        $this->setExpectedException('Exception', 'Undefined middleware: tidak-pernah-didaftarkan');
+        $this->setExpectedException('Exception', 'Undefined middleware: never-registered');
 
         $route->call();
     }

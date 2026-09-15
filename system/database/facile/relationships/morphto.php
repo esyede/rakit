@@ -99,7 +99,7 @@ class MorphTo extends Relationship
 
             $class = $type;
             $instance = new $class();
-            $models = $instance->query()->where_in($instance->key(), array_unique($ids))->get();
+            $models = static::constrain_keys($instance->query(), $instance->key(), array_unique($ids))->get();
 
             foreach ($models as $model) {
                 $loaded[$type.'_'.$model->get_key()] = $model;

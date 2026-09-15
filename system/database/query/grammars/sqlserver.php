@@ -132,6 +132,24 @@ class SQLServer extends Grammar
     }
 
     /**
+     * Compile a date based function call on an already wrapped column.
+     * SQL Server has DAY(), MONTH() and YEAR(), but no DATE() or TIME() function.
+     *
+     * @param string $type
+     * @param string $column
+     *
+     * @return string
+     */
+    public function date_function($type, $column)
+    {
+        if ('DATE' === $type || 'TIME' === $type) {
+            return 'CAST('.$column.' AS '.$type.')';
+        }
+
+        return parent::date_function($type, $column);
+    }
+
+    /**
      * Compile the FROM clause.
      * SQL Server asks for a lock through a table hint instead of a trailing
      * clause, so it is attached to the table itself.

@@ -62,7 +62,9 @@ class SQLite extends Grammar
         }
 
         $columns = array_fill(0, count($values), implode(', ', $columns));
-        return 'INSERT INTO '.$table.' ('.$names.') SELECT '.implode(' UNION SELECT ', $columns);
+
+        // UNION ALL, since a plain UNION sorts the rows and drops the identical ones.
+        return 'INSERT INTO '.$table.' ('.$names.') SELECT '.implode(' UNION ALL SELECT ', $columns);
     }
 
     /**
@@ -76,6 +78,24 @@ class SQLite extends Grammar
     public function insert_ignore(Query $query, array $values)
     {
         return preg_replace('/^INSERT INTO /', 'INSERT OR IGNORE INTO ', $this->insert($query, $values), 1);
+    }
+
+    /**
+     * Compile a date based function call on an already wrapped column.
+     * SQLite only knows strftime(). The day, month and year parts are cast to an
+     * integer, otherwise the zero padded text it returns would never equal 1.
+     *
+     * @param string $type
+     * @param string $column
+     *
+     * @return string
+     */
+    public function date_function($type, $column)
+    {
+        $formats = ['DATE' => '%Y-%m-%d', 'TIME' => '%H:%M:%S', 'DAY' => '%d', 'MONTH' => '%m', 'YEAR' => '%Y'];
+        $sql = "strftime('".$formats[$type]."', ".$column.')';
+
+        return ('DATE' === $type || 'TIME' === $type) ? $sql : 'CAST('.$sql.' AS INTEGER)';
     }
 
     /**

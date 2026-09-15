@@ -112,7 +112,7 @@ class MorphToMany extends Relationship
             return new Collection();
         }
 
-        $query = $this->model->query()->where_in($this->model->key(), $pivot_query);
+        $query = static::constrain_keys($this->model->query(), $this->model->key(), $pivot_query);
 
         return $query->get($columns);
     }
@@ -151,7 +151,7 @@ class MorphToMany extends Relationship
         $related_models = [];
 
         if (! empty($related_ids)) {
-            $models = $this->model->query()->where_in($this->model->key(), $related_ids)->get();
+            $models = static::constrain_keys($this->model->query(), $this->model->key(), $related_ids)->get();
 
             foreach ($models as $model) {
                 $related_models[$model->get_key()] = $model;

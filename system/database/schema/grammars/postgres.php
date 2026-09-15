@@ -190,6 +190,9 @@ class Postgres extends Grammar
 
     /**
      * Create the sql syntax for creating a full-text index.
+     * A text column has no GIN operator class, so the index is built on its tsvector.
+     * The text search config defaults to english, e.g. ->language('simple') changes it.
+     * Each column is coalesced, otherwise a single NULL column would empty the whole vector.
      *
      * @param Table $table
      * @param Magic $command
@@ -198,9 +201,15 @@ class Postgres extends Grammar
      */
     public function fulltext(Table $table, Magic $command)
     {
-        $columns = $this->columnize($command->columns);
+        $language = str_replace("'", "''", $command->language ? $command->language : 'english');
+        $vectors = [];
+
+        foreach ($command->columns as $column) {
+            $vectors[] = "to_tsvector('".$language."', coalesce(".$this->wrap($column).", ''))";
+        }
+
         return 'CREATE INDEX '.$command->name.' ON '.$this->wrap($table)
-            .' USING gin('.$columns.')';
+            .' USING gin(('.implode(' || ', $vectors).'))';
     }
 
     /**
@@ -431,7 +440,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Create the sql syntax for drop fulltext if exists.
+     * Create the sql syntax for drop foreign if exists.
      *
      * @param Table $table
      * @param Magic $command

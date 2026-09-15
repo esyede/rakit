@@ -77,7 +77,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test loading model dan library menggunakan PSR-0.
+     * Test loading models and libraries using PSR-0.
      *
      * @group system
      */
@@ -88,7 +88,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test loading kelas yang di hard-code.
+     * Test loading a hard-coded class.
      *
      * @group system
      */
@@ -99,7 +99,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk loading kelas berdasarkan namespace.
+     * Test loading a class by its namespace.
      *
      * @group system
      */

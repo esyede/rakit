@@ -47,14 +47,6 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Get foreign key name for the relationship.
-     *
-     * @param string $model
-     * @param string $foreign
-     *
-     * @return string
-     */
-    /**
      * Drop the constraint that tied this relation to one parent, while keeping
      * the one the related model puts on every query of its own. A plain
      * reset_where() would throw the soft delete scope away with it.
@@ -69,6 +61,8 @@ abstract class Relationship extends Query
     }
 
     /**
+     * Get foreign key name for the relationship.
+     *
      * @param mixed  $model
      * @param string $foreign
      *
@@ -133,6 +127,32 @@ abstract class Relationship extends Query
         }
 
         return array_unique($keys);
+    }
+
+    /**
+     * Constrain the query to the given keys.
+     * When every key is a native integer they are inlined into the sql, so eager loading
+     * a large result set does not run into the bound parameter limit of the driver.
+     * Only use it on a column of the same type as the keys. A polymorphic id column is
+     * often a string one, so the morph relationships keep using where_in() for it.
+     *
+     * @param \System\Database\Query|Query $query
+     * @param string                       $column
+     * @param array                        $keys
+     *
+     * @return \System\Database\Query|Query
+     */
+    protected static function constrain_keys($query, $column, array $keys)
+    {
+        $keys = array_values($keys);
+
+        foreach ($keys as $key) {
+            if (! is_int($key)) {
+                return $query->where_in($column, $keys);
+            }
+        }
+
+        return $query->where_integer_in_raw($column, $keys);
     }
 
     /**

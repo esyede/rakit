@@ -208,7 +208,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             DatabaseConnectStub::connection('mysql');
 
             $changed = $original;
-            $changed['database'] = 'yang-lain';
+            $changed['database'] = 'another-one';
             Config::set('database.connections.mysql', $changed);
 
             DatabaseConnectStub::disconnect('mysql');
@@ -219,7 +219,7 @@ class DatabaseTest extends \PHPUnit_Framework_TestCase
             DatabaseConnectStub::purge('mysql');
             $rebuilt = DatabaseConnectStub::connection('mysql');
 
-            $this->assertEquals('yang-lain', $rebuilt->pdo()->testConfigs['database']);
+            $this->assertEquals('another-one', $rebuilt->pdo()->testConfigs['database']);
         } catch (\Exception $e) {
             Config::set('database.connections.mysql', $original);
             throw $e;

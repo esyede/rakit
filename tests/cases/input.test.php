@@ -21,7 +21,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        // TODO: bersihkan data request di http foundation.
+        // TODO: clean the request data up in the http foundation.
         Session::$instance = null;
     }
 
@@ -193,7 +193,7 @@ class InputTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Instansiasi payload session.
+     * Instantiate the session payload.
      */
     protected function instantiateSession()
     {

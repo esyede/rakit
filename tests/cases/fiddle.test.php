@@ -50,7 +50,7 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     {
         $parser = new Parser();
 
-        $this->assertEquals(['echo "halo";'], $parser->statements('echo "halo";'));
+        $this->assertEquals(['echo "hello";'], $parser->statements('echo "hello";'));
         $this->assertEquals(['return 1;'], $parser->statements('return 1;'));
     }
 
@@ -80,8 +80,8 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEmpty($parser->statements('$a = [1,'));
         $this->assertEmpty($parser->statements('if (true) {'));
-        $this->assertEmpty($parser->statements('$a = "belum ditutup'));
-        $this->assertEmpty($parser->statements('/* komentar belum ditutup'));
+        $this->assertEmpty($parser->statements('$a = "not closed'));
+        $this->assertEmpty($parser->statements('/* comment not closed'));
     }
 
     /**
@@ -92,10 +92,10 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     public function testSemicolonInsideStringIsNotABoundary()
     {
         $parser = new Parser();
-        $statements = $parser->statements('$a = "satu; dua";');
+        $statements = $parser->statements('$a = "one; two";');
 
         $this->assertCount(1, $statements);
-        $this->assertContains('satu; dua', $statements[0]);
+        $this->assertContains('one; two', $statements[0]);
     }
 
     /**
@@ -106,7 +106,7 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     public function testEscapedQuoteInsideString()
     {
         $parser = new Parser();
-        $statements = $parser->statements('$a = "dia bilang \\"halo\\";";');
+        $statements = $parser->statements('$a = "he said \\"hello\\";";');
 
         $this->assertCount(1, $statements);
     }
@@ -135,10 +135,10 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     {
         $parser = new Parser();
 
-        $statements = $parser->statements("// komentar\n\$a = 1;");
+        $statements = $parser->statements("// comment\n\$a = 1;");
         $this->assertContains('$a = 1;', implode('', $statements));
 
-        $statements = $parser->statements('/* komentar */ $a = 1;');
+        $statements = $parser->statements('/* comment */ $a = 1;');
         $this->assertContains('$a = 1;', implode('', $statements));
     }
 
@@ -150,10 +150,10 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     public function testHeredoc()
     {
         $parser = new Parser();
-        $statements = $parser->statements("\$a = <<<EOT\nhalo; dunia\nEOT;\n");
+        $statements = $parser->statements("\$a = <<<EOT\nhello; world\nEOT;\n");
 
         $this->assertCount(1, $statements);
-        $this->assertContains('halo; dunia', $statements[0]);
+        $this->assertContains('hello; world', $statements[0]);
     }
 
     /**
@@ -225,7 +225,7 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     {
         $inspector = new Inspector();
 
-        $this->assertContains('halo', $this->plain($inspector->dump('halo')));
+        $this->assertContains('hello', $this->plain($inspector->dump('hello')));
         $this->assertContains('123', $this->plain($inspector->dump(123)));
         $this->assertContains('1.5', $this->plain($inspector->dump(1.5)));
         $this->assertContains('true', strtolower($this->plain($inspector->dump(true))));
@@ -240,11 +240,11 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
     public function testInspectorDumpsArray()
     {
         $inspector = new Inspector();
-        $out = $this->plain($inspector->dump(['a' => 1, 'b' => 'dua']));
+        $out = $this->plain($inspector->dump(['a' => 1, 'b' => 'two']));
 
         $this->assertContains('a', $out);
         $this->assertContains('1', $out);
-        $this->assertContains('dua', $out);
+        $this->assertContains('two', $out);
     }
 
     /**

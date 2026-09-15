@@ -106,9 +106,8 @@ class HasManyThrough extends Relationship
         $through_key = $through_table.'.'.$this->second_local_key;
         $foreign_key = $through_table.'.'.$this->first_key;
 
-        $this->table
-            ->join($through_table, $through_key, '=', $this->model->table().'.'.$this->second_key)
-            ->where_in($foreign_key, $this->keys($results));
+        $this->table->join($through_table, $through_key, '=', $this->model->table().'.'.$this->second_key);
+        static::constrain_keys($this->table, $foreign_key, $this->keys($results));
 
         $this->table->select([
             $this->model->table().'.*',

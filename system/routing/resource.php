@@ -138,13 +138,6 @@ class Resource
     }
 
     /**
-     * Parse route options.
-     *
-     * @param array $options
-     *
-     * @return array
-     */
-    /**
      * Check whether a route survives the 'only' and 'except' options.
      *
      * @param array $option
@@ -183,6 +176,8 @@ class Resource
     }
 
     /**
+     * Parse route options.
+     *
      * @param array $options
      *
      * @return array

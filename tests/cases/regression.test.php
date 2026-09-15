@@ -115,7 +115,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
                 Config::set('application.allow_method_override', true);
             }
 
-            $this->request(Foundation::create('/kirim', 'POST', $extra, [], [], $server));
+            $this->request(Foundation::create('/send', 'POST', $extra, [], [], $server));
 
             $this->assertEquals('GET', Request::method());
             $this->assertEquals('POST', Request::real_method());
@@ -135,7 +135,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     public function testK1RealReadRequestIsStillExempt()
     {
         $this->session();
-        $this->request(Foundation::create('/lihat', 'GET'));
+        $this->request(Foundation::create('/view', 'GET'));
 
         $this->assertFalse(Request::forged());
     }
@@ -150,7 +150,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $this->session();
 
         $server = ['HTTP_X_CSRF_TOKEN' => 'nocheck'];
-        $this->request(Foundation::create('/kirim', 'POST', [], [], [], $server));
+        $this->request(Foundation::create('/send', 'POST', [], [], [], $server));
 
         $this->assertTrue(Request::forged());
     }
@@ -164,8 +164,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->session();
 
-        $server = ['HTTP_X_CSRF_TOKEN' => 'token-regresi'];
-        $this->request(Foundation::create('/kirim', 'POST', [], [], [], $server));
+        $server = ['HTTP_X_CSRF_TOKEN' => 'regression-token'];
+        $this->request(Foundation::create('/send', 'POST', [], [], [], $server));
 
         $this->assertFalse(Request::forged());
     }
@@ -235,16 +235,16 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->session();
 
-        Route::post('admin/hapus', ['before' => 'csrf', function () {
+        Route::post('admin/delete', ['before' => 'csrf', function () {
             return 'ok';
         }]);
 
-        $this->request(Foundation::create('http://localhost/admin/hapus', 'POST'));
-        URI::$uri = 'admin/hapus';
+        $this->request(Foundation::create('http://localhost/admin/delete', 'POST'));
+        URI::$uri = 'admin/delete';
 
         Config::set('application.csrf_except', ['api/*']);
 
-        $response = Router::route('POST', 'admin/hapus')->call();
+        $response = Router::route('POST', 'admin/delete')->call();
 
         Config::set('application.csrf_except', []);
 
@@ -303,14 +303,14 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testK4InputReadersAgreeOnTheSameValue()
     {
-        $this->request(Foundation::create('/simpan?peran=user', 'POST', ['peran' => 'admin']));
+        $this->request(Foundation::create('/save?role=user', 'POST', ['role' => 'admin']));
 
         $all = Input::all();
-        $only = Input::only(['peran']);
+        $only = Input::only(['role']);
 
-        $this->assertEquals('admin', Input::get('peran'));
-        $this->assertEquals('admin', $all['peran']);
-        $this->assertEquals('admin', $only['peran']);
+        $this->assertEquals('admin', Input::get('role'));
+        $this->assertEquals('admin', $all['role']);
+        $this->assertEquals('admin', $only['role']);
     }
 
     /**
@@ -320,9 +320,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testK4ValidationSeesTheValueTheControllerUses()
     {
-        $this->request(Foundation::create('/simpan?peran=user', 'POST', ['peran' => 'admin']));
+        $this->request(Foundation::create('/save?role=user', 'POST', ['role' => 'admin']));
 
-        $validation = Validator::make(Input::all(), ['peran' => 'required|in:user,tamu']);
+        $validation = Validator::make(Input::all(), ['role' => 'required|in:user,guest']);
 
         $this->assertFalse($validation->passes());
     }
@@ -334,7 +334,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testK4QueryStringIsStillRead()
     {
-        $this->request(Foundation::create('/cari?q=rakit', 'GET'));
+        $this->request(Foundation::create('/search?q=rakit', 'GET'));
 
         $all = Input::all();
 
@@ -427,12 +427,12 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         Route::middleware('pattern: admin/*', 'regression_auth|regression_admin');
         Route::get('admin/panel', function () {
-            return 'isi';
+            return 'content';
         });
 
         $content = Router::route('GET', 'admin/panel')->call()->content;
 
-        $this->assertEquals('isi', $content);
+        $this->assertEquals('content', $content);
         $this->assertEquals(['auth', 'admin'], $seen);
     }
 
@@ -446,23 +446,23 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $seen = [];
 
         Route::middleware('pattern: api/*', ['name' => 'regression_api', function () use (&$seen) {
-            $seen[] = 'bernama';
+            $seen[] = 'named';
         }]);
 
-        Route::middleware('pattern: sisi/*', function () use (&$seen) {
-            $seen[] = 'telanjang';
+        Route::middleware('pattern: web/*', function () use (&$seen) {
+            $seen[] = 'bare';
         });
 
         Route::get('api/data', function () {
-            return 'satu';
+            return 'one';
         });
-        Route::get('sisi/data', function () {
-            return 'dua';
+        Route::get('web/data', function () {
+            return 'two';
         });
 
-        $this->assertEquals('satu', Router::route('GET', 'api/data')->call()->content);
-        $this->assertEquals('dua', Router::route('GET', 'sisi/data')->call()->content);
-        $this->assertEquals(['bernama', 'telanjang'], $seen);
+        $this->assertEquals('one', Router::route('GET', 'api/data')->call()->content);
+        $this->assertEquals('two', Router::route('GET', 'web/data')->call()->content);
+        $this->assertEquals(['named', 'bare'], $seen);
     }
 
     /**
@@ -478,11 +478,11 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
             $seen = true;
         });
 
-        Route::get('publik', function () {
-            return 'isi';
+        Route::get('public', function () {
+            return 'content';
         });
 
-        Router::route('GET', 'publik')->call();
+        Router::route('GET', 'public')->call();
 
         $this->assertFalse($seen);
     }
@@ -535,7 +535,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testR5ForwardAnswersNotFoundWithoutARoute()
     {
-        $response = Route::forward('GET', 'tidak/ada/sama/sekali');
+        $response = Route::forward('GET', 'nowhere/at/all');
 
         $this->assertEquals(404, $response->status());
     }
@@ -586,7 +586,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testT3NamedUrlOfDomainRouteHasNoCompositeKey()
     {
-        Route::group(['domain' => 'admin.contoh.test'], function () {
+        Route::group(['domain' => 'admin.example.test'], function () {
             Route::get('panel', ['as' => 'panel', function () {
                 return 'ok';
             }]);
@@ -595,7 +595,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $url = URL::to_route('panel');
 
         $this->assertNotContains('||', $url);
-        $this->assertNotContains('admin.contoh.test', $url);
+        $this->assertNotContains('admin.example.test', $url);
         $this->assertEquals(URL::to('panel'), $url);
     }
 
@@ -653,8 +653,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $file = ['tmp_name' => $svg, 'name' => 'probe.svg', 'size' => filesize($svg), 'error' => 0];
 
         $recognised = \System\Storage::is('svg', $svg);
-        $strict = Validator::make(['berkas' => $file], ['berkas' => 'image'])->passes();
-        $lenient = Validator::make(['berkas' => $file], ['berkas' => 'image:allow_svg'])->passes();
+        $strict = Validator::make(['file' => $file], ['file' => 'image'])->passes();
+        $lenient = Validator::make(['file' => $file], ['file' => 'image:allow_svg'])->passes();
 
         unlink($svg);
 
@@ -742,7 +742,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $driver = $this->redis();
         $key = 'regression_redis_types';
 
-        foreach ([['teks', 'teks'], ['7', '7'], [['a' => 1], ['a' => 1]], [7, 7]] as $pair) {
+        foreach ([['text', 'text'], ['7', '7'], [['a' => 1], ['a' => 1]], [7, 7]] as $pair) {
             $driver->forget($key);
             $driver->put($key, $pair[0], 5);
             $this->assertSame($pair[1], $driver->get($key));
@@ -763,7 +763,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $prefix = rtrim((string) Config::get('cache.key'), '.').'.';
 
         $driver->forget($key);
-        $driver->put($key, 'nilai', 5);
+        $driver->put($key, 'value', 5);
 
         $raw = Redis::db()->get($prefix.$key);
         $value = $driver->get($key);
@@ -771,7 +771,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         Redis::db()->del($prefix.$key);
 
         $this->assertNotNull($raw);
-        $this->assertEquals('nilai', $value);
+        $this->assertEquals('value', $value);
     }
 
     // -------------------------------------------------------------------------
@@ -785,9 +785,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testS7InstanceCountsAsRegistered()
     {
-        Container::instance('regression_layanan', new \stdClass());
+        Container::instance('regression_service', new \stdClass());
 
-        $this->assertTrue(Container::registered('regression_layanan'));
+        $this->assertTrue(Container::registered('regression_service'));
     }
 
     /**
@@ -840,17 +840,17 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $before = $reflection->getValue();
 
         $reflection->setValue(null, ['application' => ['en' => ['regression' => [
-            'halo' => 'Halo :nama, selamat datang :nama_lengkap',
+            'hello' => 'Hello :name, welcome :name_full',
         ]]]]);
 
-        $line = Lang::line('regression.halo', [
-            'nama' => 'Budi',
-            'nama_lengkap' => 'Budi Purnomo',
+        $line = Lang::line('regression.hello', [
+            'name' => 'Budi',
+            'name_full' => 'Budi Purnomo',
         ])->get('en');
 
         $reflection->setValue(null, $before);
 
-        $this->assertEquals('Halo Budi, selamat datang Budi Purnomo', $line);
+        $this->assertEquals('Hello Budi, welcome Budi Purnomo', $line);
     }
 
     /**
@@ -879,7 +879,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         Cookie::put('utm.source', 'newsletter');
 
         $this->assertEquals('newsletter', Cookie::get('utm.source'));
-        $this->assertFalse(Cookie::has('utm.tidak.ada'));
+        $this->assertFalse(Cookie::has('utm.not.set'));
     }
 
     /**
@@ -924,9 +924,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testK8JwtStillAcceptsSymmetricKeys()
     {
-        $token = JWT::encode(['sub' => 'budi'], 'rahasia-bersama');
+        $token = JWT::encode(['sub' => 'budi'], 'shared-secret');
 
-        $this->assertEquals('budi', JWT::decode($token, 'rahasia-bersama')->sub);
+        $this->assertEquals('budi', JWT::decode($token, 'shared-secret')->sub);
     }
 
     /**
@@ -941,7 +941,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException('Exception', 'Algorithm not allowed');
 
-        JWT::decode($token, 'rahasia-bersama');
+        JWT::decode($token, 'shared-secret');
     }
 
     // -------------------------------------------------------------------------
@@ -955,9 +955,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testT6UnknownStrMethodThrows()
     {
-        $this->setExpectedException('BadMethodCallException', 'Method does not exist: metode_yang_tidak_ada');
+        $this->setExpectedException('BadMethodCallException', 'Method does not exist: method_that_does_not_exist');
 
-        Str::metode_yang_tidak_ada('x');
+        Str::method_that_does_not_exist('x');
     }
 
     /**
@@ -967,11 +967,11 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testT6StrMacroStillWorks()
     {
-        Str::macro('regression_balik', function ($value) {
+        Str::macro('regression_reverse', function ($value) {
             return strrev($value);
         });
 
-        $this->assertEquals('cba', Str::regression_balik('abc'));
+        $this->assertEquals('cba', Str::regression_reverse('abc'));
     }
 
     // -------------------------------------------------------------------------
@@ -996,13 +996,13 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testT7WildcardRulesReachNestedKeys()
     {
-        $data = ['orang' => [['nama' => 'Budi'], ['nama' => '']]];
+        $data = ['people' => [['name' => 'Budi'], ['name' => '']]];
 
-        $this->assertFalse(Validator::make($data, ['orang.*.nama' => 'required'])->passes());
+        $this->assertFalse(Validator::make($data, ['people.*.name' => 'required'])->passes());
 
-        $data = ['orang' => [['nama' => 'Budi'], ['nama' => 'Ani']]];
+        $data = ['people' => [['name' => 'Budi'], ['name' => 'Ani']]];
 
-        $this->assertTrue(Validator::make($data, ['orang.*.nama' => 'required'])->passes());
+        $this->assertTrue(Validator::make($data, ['people.*.name' => 'required'])->passes());
     }
 
     /**
@@ -1026,12 +1026,12 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testS8InArrayAcceptsTheDocumentedForm()
     {
-        $data = ['colors' => ['merah', 'hijau'], 'color' => 'merah'];
+        $data = ['colors' => ['red', 'green'], 'color' => 'red'];
 
         $this->assertTrue(Validator::make($data, ['color' => 'in_array:colors.*'])->passes());
         $this->assertTrue(Validator::make($data, ['color' => 'in_array:colors'])->passes());
 
-        $data['color'] = 'ungu';
+        $data['color'] = 'purple';
 
         $this->assertFalse(Validator::make($data, ['color' => 'in_array:colors.*'])->passes());
     }
@@ -1063,8 +1063,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $method = new \ReflectionMethod('System\Response', 'disposition');
         $method->setAccessible(true);
 
-        $nasty = $method->invoke(null, 'attachment', 'laporan.txt"; filename*=UTF-8\'\'evil.exe');
-        $crlf = $method->invoke(null, 'attachment', "a.txt\r\nX-Injected: ya");
+        $nasty = $method->invoke(null, 'attachment', 'report.txt"; filename*=UTF-8\'\'evil.exe');
+        $crlf = $method->invoke(null, 'attachment', "a.txt\r\nX-Injected: yes");
         $walk = $method->invoke(null, 'attachment', '../../etc/passwd');
 
         $this->assertNotContains('"; filename*', $nasty);
@@ -1131,12 +1131,12 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $base = $this->fixtures();
 
         Autoloader::namespaces([
-            'RegresiSatu' => $base.'satu',
-            'RegresiDua' => $base.'dua',
+            'RegressionOne' => $base.'one',
+            'RegressionTwo' => $base.'two',
         ]);
 
-        $this->assertEquals('satu', \RegresiSatu\Kotak::asal());
-        $this->assertEquals('dua', \RegresiDua\Kotak::asal());
+        $this->assertEquals('one', \RegressionOne\Box::origin());
+        $this->assertEquals('two', \RegressionTwo\Box::origin());
     }
 
     /**
@@ -1148,10 +1148,10 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $base = $this->fixtures();
 
-        Autoloader::namespaces(['RegresiLuar\Dalam' => $base.'dalam']);
-        Autoloader::namespaces(['RegresiLuar' => $base.'tidak-ada']);
+        Autoloader::namespaces(['RegressionOuter\Inner' => $base.'inner']);
+        Autoloader::namespaces(['RegressionOuter' => $base.'missing']);
 
-        $this->assertEquals('spesifik', \RegresiLuar\Dalam\Kotak::asal());
+        $this->assertEquals('specific', \RegressionOuter\Inner\Box::origin());
     }
 
     // -------------------------------------------------------------------------
@@ -1167,13 +1167,13 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->facile();
 
-        RegressionArtikel::find(1)->delete();
-        $this->assertEquals(2, RegressionArtikel::all()->count());
+        RegressionArticle::find(1)->delete();
+        $this->assertEquals(2, RegressionArticle::all()->count());
 
-        $trashed = RegressionArtikel::with_trashed()->where('id', '=', 1)->first();
+        $trashed = RegressionArticle::with_trashed()->where('id', '=', 1)->first();
 
         $this->assertTrue($trashed->restore());
-        $this->assertEquals(3, RegressionArtikel::all()->count());
+        $this->assertEquals(3, RegressionArticle::all()->count());
     }
 
     /**
@@ -1185,13 +1185,13 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->facile();
 
-        RegressionArtikel::find(2)->delete();
+        RegressionArticle::find(2)->delete();
 
-        $lazy = count(RegressionPenulis::find(1)->artikel);
-        $eager = RegressionPenulis::with('artikel')->get()->all();
+        $lazy = count(RegressionAuthor::find(1)->articles);
+        $eager = RegressionAuthor::with('articles')->get()->all();
 
         $this->assertEquals(1, $lazy);
-        $this->assertEquals(1, count($eager[0]->artikel));
+        $this->assertEquals(1, count($eager[0]->articles));
     }
 
     /**
@@ -1203,16 +1203,16 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->facile();
 
-        // Penulis 3 keeps one article, and it is deleted.
-        RegressionArtikel::find(3)->delete();
+        // Author 2 keeps one article, and it is deleted.
+        RegressionArticle::find(3)->delete();
 
-        $counted = RegressionPenulis::with_count('artikel')->get()->all();
+        $counted = RegressionAuthor::with_count('articles')->get()->all();
 
-        $this->assertEquals(1, RegressionPenulis::has('artikel')->get()->count());
-        $this->assertEquals(1, RegressionPenulis::where_has('artikel', function ($query) {
+        $this->assertEquals(1, RegressionAuthor::has('articles')->get()->count());
+        $this->assertEquals(1, RegressionAuthor::where_has('articles', function ($query) {
         })->get()->count());
-        $this->assertEquals(2, $counted[0]->artikel_count);
-        $this->assertEquals(0, $counted[1]->artikel_count);
+        $this->assertEquals(2, $counted[0]->articles_count);
+        $this->assertEquals(0, $counted[1]->articles_count);
     }
 
     /**
@@ -1224,10 +1224,10 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->facile();
 
-        $tags = RegressionArtikel::find(1)->tag;
+        $tags = RegressionArticle::find(1)->tag;
 
         $this->assertEquals(2, count($tags));
-        $this->assertNull($tags[0]->pivot->catatan);
+        $this->assertNull($tags[0]->pivot->note);
     }
 
     /**
@@ -1239,9 +1239,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         $this->facile();
 
-        $tags = RegressionArtikel::find(1)->tag()->with(['catatan'])->get();
+        $tags = RegressionArticle::find(1)->tag()->with(['note'])->get();
 
-        $this->assertEquals('x', $tags[0]->pivot->catatan);
+        $this->assertEquals('x', $tags[0]->pivot->note);
     }
 
     // -------------------------------------------------------------------------
@@ -1477,7 +1477,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
             try {
                 Image::open($relative)->export($target);
-                $written[] = (is_file($path) && filesize($path) > 0) ? $name : $name.' (kosong)';
+                $written[] = (is_file($path) && filesize($path) > 0) ? $name : $name.' (none)';
             } catch (\Exception $e) {
                 $refused[] = $name;
             }
@@ -1502,7 +1502,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testS14CurlResetClearsCredentials()
     {
-        Curl::auth('pengguna', 'sandi');
+        Curl::auth('user', 'password');
         Curl::cookie('a=b');
 
         $auth = new \ReflectionProperty('System\Curl', 'auth');
@@ -1514,7 +1514,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         Curl::reset();
 
-        $this->assertEquals('pengguna', $before['user']);
+        $this->assertEquals('user', $before['user']);
         $this->assertEquals('', $auth->getValue() === null ? '' : $auth->getValue()['user']);
         $this->assertFalse($cookie->getValue());
     }
@@ -1627,9 +1627,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         Session::$instance = new Payload(new Memory());
         Session::instance()->load(null);
 
-        $this->assertTrue(session(['peran' => 'admin']));
-        $this->assertEquals('admin', session('peran'));
-        $this->assertEquals('tamu', session('tidak_ada', 'tamu'));
+        $this->assertTrue(session(['role' => 'admin']));
+        $this->assertEquals('admin', session('role'));
+        $this->assertEquals('guest', session('missing', 'guest'));
     }
 
     /**
@@ -1755,7 +1755,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testS20UuidHasItsOwnMessage()
     {
-        $validation = Validator::make(['a' => 'bukan-uuid'], ['a' => 'uuid']);
+        $validation = Validator::make(['a' => 'not-a-uuid'], ['a' => 'uuid']);
         $validation->passes();
 
         $this->assertNotContains('validation.uuid', $validation->errors->first('a'));
@@ -1786,12 +1786,12 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         // The child runs first, then the layout, which is the order @layout
         // compiles to.
-        $this->blade("@section('nav')@parent<li>Kontak</li>@endsection");
+        $this->blade("@section('nav')@parent<li>Contact</li>@endsection");
         $out = $this->blade("@section('nav')<li>Home</li>@show");
 
         \System\Section::$sections = [];
 
-        $this->assertEquals('<li>Home</li><li>Kontak</li>', $out);
+        $this->assertEquals('<li>Home</li><li>Contact</li>', $out);
     }
 
     /**
@@ -1803,12 +1803,12 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         \System\Section::$sections = [];
 
-        $this->blade("@section('nav')@parent<li>Kontak</li>@endsection");
+        $this->blade("@section('nav')@parent<li>Contact</li>@endsection");
         $out = \System\Section::yield_content('nav');
 
         \System\Section::$sections = [];
 
-        $this->assertEquals('<li>Kontak</li>', trim($out));
+        $this->assertEquals('<li>Contact</li>', trim($out));
         $this->assertNotContains('@parent', $out);
     }
 
@@ -1855,13 +1855,13 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testK9UntrustedHostIsRefused()
     {
-        Foundation::setTrustedHosts(['situs-asli.test', '*.situs-asli.test']);
+        Foundation::setTrustedHosts(['real-site.test', '*.real-site.test']);
 
         $accepted = [];
         $refused = [];
 
-        foreach (['situs-asli.test', 'app.situs-asli.test', 'situs-asli.test:8080',
-            'jahat.test', 'situs-asli.test.jahat.test', ] as $host) {
+        foreach (['real-site.test', 'app.real-site.test', 'real-site.test:8080',
+            'evil.test', 'real-site.test.evil.test', ] as $host) {
             $request = Foundation::create('http://x/', 'GET', [], [], [], ['HTTP_HOST' => $host]);
 
             try {
@@ -1873,8 +1873,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
 
         Foundation::setTrustedHosts([]);
 
-        $this->assertEquals(['situs-asli.test', 'app.situs-asli.test', 'situs-asli.test'], $accepted);
-        $this->assertEquals(['jahat.test', 'situs-asli.test.jahat.test'], $refused);
+        $this->assertEquals(['real-site.test', 'app.real-site.test', 'real-site.test'], $accepted);
+        $this->assertEquals(['evil.test', 'real-site.test.evil.test'], $refused);
     }
 
     /**
@@ -1886,9 +1886,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         Foundation::setTrustedHosts([]);
 
-        $request = Foundation::create('http://x/', 'GET', [], [], [], ['HTTP_HOST' => 'apa-saja.test']);
+        $request = Foundation::create('http://x/', 'GET', [], [], [], ['HTTP_HOST' => 'anything.test']);
 
-        $this->assertEquals('apa-saja.test', $request->getHost());
+        $this->assertEquals('anything.test', $request->getHost());
     }
 
     // -------------------------------------------------------------------------
@@ -1902,13 +1902,13 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testT17ForelseHandlesAnEmptyCollection()
     {
-        $this->assertEquals('tidak ada', $this->blade(
-            '@forelse ($items as $i){{ $i }}@empty tidak ada @endforelse',
+        $this->assertEquals('nothing', $this->blade(
+            '@forelse ($items as $i){{ $i }}@empty nothing @endforelse',
             ['items' => []]
         ));
 
         $this->assertEquals('12', $this->blade(
-            '@forelse ($items as $i){{ $i }}@empty tidak ada @endforelse',
+            '@forelse ($items as $i){{ $i }}@empty nothing @endforelse',
             ['items' => [1, 2]]
         ));
     }
@@ -1920,8 +1920,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testT18StandaloneEmptyDirectiveCompiles()
     {
-        $this->assertEquals('kosong', $this->blade('@empty($x)kosong@endempty', ['x' => []]));
-        $this->assertEquals('', $this->blade('@empty($x)kosong@endempty', ['x' => ['a']]));
+        $this->assertEquals('none', $this->blade('@empty($x)none@endempty', ['x' => []]));
+        $this->assertEquals('', $this->blade('@empty($x)none@endempty', ['x' => ['a']]));
     }
 
     /**
@@ -1931,13 +1931,13 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testS16NestedDirectivesOnOneLine()
     {
-        $this->assertEquals('luar dalam', $this->blade(
-            '@if ($a) luar @if ($b) dalam @endif @endif',
+        $this->assertEquals('outer inner', $this->blade(
+            '@if ($a) outer @if ($b) inner @endif @endif',
             ['a' => true, 'b' => true]
         ));
 
-        $this->assertEquals('luar', $this->blade(
-            '@if ($a) luar @if ($b) dalam @endif @endif',
+        $this->assertEquals('outer', $this->blade(
+            '@if ($a) outer @if ($b) inner @endif @endif',
             ['a' => true, 'b' => false]
         ));
     }
@@ -1949,7 +1949,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     public function testS16ConditionsMayHoldParentheses()
     {
-        $this->assertEquals('ya', $this->blade('@if (count($a) > 0)ya@endif', ['a' => [1]]));
+        $this->assertEquals('yes', $this->blade('@if (count($a) > 0)yes@endif', ['a' => [1]]));
     }
 
     // -------------------------------------------------------------------------
@@ -1980,55 +1980,55 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
      */
     private function facile()
     {
-        \System\Database\Schema::drop_if_exists('regression_artikel_tag');
-        \System\Database\Schema::drop_if_exists('regression_artikel');
-        \System\Database\Schema::drop_if_exists('regression_penulis');
+        \System\Database\Schema::drop_if_exists('regression_article_tag');
+        \System\Database\Schema::drop_if_exists('regression_article');
+        \System\Database\Schema::drop_if_exists('regression_author');
         \System\Database\Schema::drop_if_exists('regression_tag');
 
-        \System\Database\Schema::create('regression_penulis', function ($table) {
+        \System\Database\Schema::create('regression_author', function ($table) {
             $table->increments('id');
-            $table->string('nama');
+            $table->string('name');
         });
 
-        \System\Database\Schema::create('regression_artikel', function ($table) {
+        \System\Database\Schema::create('regression_article', function ($table) {
             $table->increments('id');
-            $table->integer('penulis_id');
-            $table->string('judul');
+            $table->integer('author_id');
+            $table->string('title');
             $table->timestamp('deleted_at')->nullable();
         });
 
         \System\Database\Schema::create('regression_tag', function ($table) {
             $table->increments('id');
-            $table->string('nama');
+            $table->string('name');
         });
 
         // Nothing but the two keys and one extra column, the way the docs
         // describe a pivot table.
-        \System\Database\Schema::create('regression_artikel_tag', function ($table) {
-            $table->integer('artikel_id');
+        \System\Database\Schema::create('regression_article_tag', function ($table) {
+            $table->integer('article_id');
             $table->integer('tag_id');
-            $table->string('catatan')->nullable();
+            $table->string('note')->nullable();
         });
 
-        Database::table('regression_penulis')->insert([
-            ['id' => 1, 'nama' => 'Budi'],
-            ['id' => 2, 'nama' => 'Ani'],
+        Database::table('regression_author')->insert([
+            ['id' => 1, 'name' => 'Budi'],
+            ['id' => 2, 'name' => 'Ani'],
         ]);
 
-        Database::table('regression_artikel')->insert([
-            ['id' => 1, 'penulis_id' => 1, 'judul' => 'A', 'deleted_at' => null],
-            ['id' => 2, 'penulis_id' => 1, 'judul' => 'B', 'deleted_at' => null],
-            ['id' => 3, 'penulis_id' => 2, 'judul' => 'C', 'deleted_at' => null],
+        Database::table('regression_article')->insert([
+            ['id' => 1, 'author_id' => 1, 'title' => 'A', 'deleted_at' => null],
+            ['id' => 2, 'author_id' => 1, 'title' => 'B', 'deleted_at' => null],
+            ['id' => 3, 'author_id' => 2, 'title' => 'C', 'deleted_at' => null],
         ]);
 
         Database::table('regression_tag')->insert([
-            ['id' => 1, 'nama' => 'php'],
-            ['id' => 2, 'nama' => 'web'],
+            ['id' => 1, 'name' => 'php'],
+            ['id' => 2, 'name' => 'web'],
         ]);
 
-        Database::table('regression_artikel_tag')->insert([
-            ['artikel_id' => 1, 'tag_id' => 1, 'catatan' => 'x'],
-            ['artikel_id' => 1, 'tag_id' => 2, 'catatan' => 'y'],
+        Database::table('regression_article_tag')->insert([
+            ['article_id' => 1, 'tag_id' => 1, 'note' => 'x'],
+            ['article_id' => 1, 'tag_id' => 2, 'note' => 'y'],
         ]);
     }
 
@@ -2081,9 +2081,9 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $base = $this->work().'autoload'.DS;
 
         $files = [
-            'satu'.DS.'Kotak.php' => 'namespace RegresiSatu; class Kotak { public static function asal() { return "satu"; } }',
-            'dua'.DS.'Kotak.php' => 'namespace RegresiDua; class Kotak { public static function asal() { return "dua"; } }',
-            'dalam'.DS.'Kotak.php' => 'namespace RegresiLuar\\Dalam; class Kotak { public static function asal() { return "spesifik"; } }',
+            'one'.DS.'Box.php' => 'namespace RegressionOne; class Box { public static function origin() { return "one"; } }',
+            'two'.DS.'Box.php' => 'namespace RegressionTwo; class Box { public static function origin() { return "two"; } }',
+            'inner'.DS.'Box.php' => 'namespace RegressionOuter\\Inner; class Box { public static function origin() { return "specific"; } }',
         ];
 
         foreach ($files as $path => $source) {
@@ -2165,7 +2165,7 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
     {
         Session::$instance = new Payload(new Memory());
         Session::instance()->load(null);
-        Session::put(Session::TOKEN, 'token-regresi');
+        Session::put(Session::TOKEN, 'regression-token');
     }
 
     /**
@@ -2194,26 +2194,26 @@ class RegressionGuardedModel extends \System\Database\Facile\Model
     public static $guarded = ['*'];
 }
 
-class RegressionPenulis extends \System\Database\Facile\Model
+class RegressionAuthor extends \System\Database\Facile\Model
 {
-    public static $table = 'regression_penulis';
+    public static $table = 'regression_author';
     public static $timestamps = false;
 
-    public function artikel()
+    public function articles()
     {
-        return $this->has_many('RegressionArtikel', 'penulis_id');
+        return $this->has_many('RegressionArticle', 'author_id');
     }
 }
 
-class RegressionArtikel extends \System\Database\Facile\Model
+class RegressionArticle extends \System\Database\Facile\Model
 {
-    public static $table = 'regression_artikel';
+    public static $table = 'regression_article';
     public static $timestamps = false;
     public static $soft_delete = true;
 
     public function tag()
     {
-        return $this->belongs_to_many('RegressionTag', 'regression_artikel_tag', 'artikel_id', 'tag_id');
+        return $this->belongs_to_many('RegressionTag', 'regression_article_tag', 'article_id', 'tag_id');
     }
 }
 

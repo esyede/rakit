@@ -991,6 +991,21 @@ class Server
     }
 
     /**
+     * Call the handler registered for the given event, if there is one.
+     *
+     * @param string $event
+     * @param array  $arguments
+     *
+     * @return mixed
+     */
+    public function fire($event, array $arguments = [])
+    {
+        if (isset($this->events[$event]) && is_callable($this->events[$event])) {
+            return call_user_func_array($this->events[$event], $arguments);
+        }
+    }
+
+    /**
      * Kill the server process.
      *
      * @return void

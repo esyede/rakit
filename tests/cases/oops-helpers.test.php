@@ -46,7 +46,7 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
      */
     public function testEscapeHtml()
     {
-        $this->assertEquals('&lt;b&gt;halo&lt;/b&gt;', Helpers::escapeHtml('<b>halo</b>'));
+        $this->assertEquals('&lt;b&gt;hello&lt;/b&gt;', Helpers::escapeHtml('<b>hello</b>'));
         $this->assertEquals('&quot;a&quot; &amp; &#039;b&#039;', Helpers::escapeHtml('"a" & \'b\''));
         $this->assertEquals('', Helpers::escapeHtml(null));
         $this->assertEquals('123', Helpers::escapeHtml(123));
@@ -69,7 +69,7 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
             Helpers::formatHtml('a=%, b=%', 1, '&')
         );
 
-        $this->assertEquals('tanpa argumen', Helpers::formatHtml('tanpa argumen'));
+        $this->assertEquals('without arguments', Helpers::formatHtml('without arguments'));
     }
 
     /**
@@ -79,12 +79,12 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
      */
     public function testFixEncoding()
     {
-        $this->assertEquals('halo', Helpers::fixEncoding('halo'));
+        $this->assertEquals('hello', Helpers::fixEncoding('hello'));
         $this->assertEquals('café', Helpers::fixEncoding('café'));
 
         // The lone lead byte is dropped, the rest of the string survives.
         $this->assertEquals('ha(lo', Helpers::fixEncoding("ha\xC3\x28lo"));
-        $this->assertEquals('halo', Helpers::fixEncoding("halo\xFF"));
+        $this->assertEquals('hello', Helpers::fixEncoding("hello\xFF"));
     }
 
     // -------------------------------------------------------------------------
@@ -255,12 +255,12 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
 
         $this->assertStringStartsWith('CLI (PID:', Helpers::getSource());
 
-        $_SERVER['REQUEST_URI'] = '/halo?a=1';
+        $_SERVER['REQUEST_URI'] = '/hello?a=1';
         $_SERVER['HTTP_HOST'] = 'rakit.test';
-        $this->assertEquals('http://rakit.test/halo?a=1', Helpers::getSource());
+        $this->assertEquals('http://rakit.test/hello?a=1', Helpers::getSource());
 
         $_SERVER['HTTPS'] = 'on';
-        $this->assertEquals('https://rakit.test/halo?a=1', Helpers::getSource());
+        $this->assertEquals('https://rakit.test/hello?a=1', Helpers::getSource());
 
         unset($_SERVER['REQUEST_URI'], $_SERVER['HTTP_HOST'], $_SERVER['HTTPS']);
 
@@ -318,7 +318,7 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
      */
     public function testDumperToTextScalars()
     {
-        $this->assertContains('halo', Dumper::toText('halo'));
+        $this->assertContains('hello', Dumper::toText('hello'));
         $this->assertContains('123', Dumper::toText(123));
         $this->assertContains('TRUE', strtoupper(Dumper::toText(true)));
         $this->assertContains('NULL', strtoupper(Dumper::toText(null)));
@@ -391,13 +391,13 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
      */
     public function testDumperRespectsDepth()
     {
-        $deep = ['l1' => ['l2' => ['l3' => ['l4' => 'terlalu dalam']]]];
+        $deep = ['l1' => ['l2' => ['l3' => ['l4' => 'too deep']]]];
 
         $shallow = Dumper::toText($deep, [Dumper::DEPTH => 1]);
-        $this->assertNotContains('terlalu dalam', $shallow);
+        $this->assertNotContains('too deep', $shallow);
 
         $full = Dumper::toText($deep, [Dumper::DEPTH => 10]);
-        $this->assertContains('terlalu dalam', $full);
+        $this->assertContains('too deep', $full);
     }
 
     /**
@@ -436,8 +436,8 @@ class OopsHelpersTest extends \PHPUnit_Framework_TestCase
     public function testDumperEncodeString()
     {
         // Printable text is returned untouched.
-        $this->assertEquals('halo', Dumper::encodeString('halo'));
-        $this->assertEquals("baris\nbaru", Dumper::encodeString("baris\nbaru"));
+        $this->assertEquals('hello', Dumper::encodeString('hello'));
+        $this->assertEquals("first\nsecond", Dumper::encodeString("first\nsecond"));
 
         // Control and binary bytes are escaped.
         $this->assertEquals('a\x00b', Dumper::encodeString("a\x00b"));

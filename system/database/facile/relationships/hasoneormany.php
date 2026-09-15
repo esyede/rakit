@@ -59,7 +59,7 @@ class HasOneOrMany extends Relationship
      */
     public function eagerly_constrain(array $results)
     {
-        $this->table->where_in($this->foreign_key(), $this->keys($results));
+        static::constrain_keys($this->table, $this->foreign_key(), $this->keys($results));
     }
 
     /**

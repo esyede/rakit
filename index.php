@@ -25,26 +25,22 @@ define('LF', "\n");
 require __DIR__ . DS . 'paths.php';
 
 // --------------------------------------------------------------
-// Detect Worker Mode (FrankenPHP / RoadRunner / Swoole)
+// Detect Worker Mode (FrankenPHP / RoadRunner)
 // --------------------------------------------------------------
-$worker = null;
-
-if (function_exists('frankenphp_handle_request')) {
-    define('RAKIT_WORKER_MODE', 'frankenphp');
-    $worker = 'frankenphp';
-} elseif (
-    function_exists('getenv')
-    && getenv('RR_MODE') !== false
-) {
-    define('RAKIT_WORKER_MODE', 'roadrunner');
-    $worker = 'roadrunner';
-} elseif (
-    extension_loaded('swoole')
-    && isset($_SERVER['SERVER_SOFTWARE'])
-    && strpos($_SERVER['SERVER_SOFTWARE'], 'swoole') !== false
-) {
-    define('RAKIT_WORKER_MODE', 'swoole');
-    $worker = 'swoole';
+// Swoole leaves no trace to detect, so its server script defines
+// RAKIT_WORKER_MODE as 'swoole' before requiring this file.
+if (! defined('RAKIT_WORKER_MODE')) {
+    if (
+        function_exists('frankenphp_handle_request')
+        && ! empty($_SERVER['FRANKENPHP_WORKER'])
+    ) {
+        define('RAKIT_WORKER_MODE', 'frankenphp');
+    } elseif (
+        function_exists('getenv') 
+        && 'http' === getenv('RR_MODE')
+    ) {
+        define('RAKIT_WORKER_MODE', 'roadrunner');
+    }
 }
 
 // --------------------------------------------------------------
@@ -55,8 +51,10 @@ require path('system') . 'boot.php';
 // --------------------------------------------------------------
 // Worker Loop
 // --------------------------------------------------------------
-if ($worker !== null) {
-    $runner = \System\Bridges\Worker::create($worker);
-    unset($worker);
-    $runner->run();
+// Swoole runs its own event loop, started by the server script.
+if (
+    defined('RAKIT_WORKER_MODE') 
+    && 'swoole' !== RAKIT_WORKER_MODE
+) {
+    \System\Worker\Worker::create(RAKIT_WORKER_MODE)->run();
 }

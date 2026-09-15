@@ -156,7 +156,7 @@ class CountryModel extends \System\Database\Facile\Model
     public static $timestamps = true;
 
     /**
-     * The relasi has many through relationship to User (intermediary model).
+     * The has many through relationship to User (intermediary model).
      */
     public function users()
     {
@@ -164,7 +164,7 @@ class CountryModel extends \System\Database\Facile\Model
     }
 
     /**
-     * The relasi has many through relationship to Post (final model)
+     * The has many through relationship to Post (final model)
      * through User (intermediary model).
      */
     public function posts()
@@ -173,7 +173,7 @@ class CountryModel extends \System\Database\Facile\Model
     }
 
     /**
-     * The relasi has many through relationship to Post (final model)
+     * The has many through relationship to Post (final model)
      * through User (intermediary model) with custom keys.
      */
     public function postsWithCustomKeys()

@@ -71,7 +71,7 @@ class BelongsTo extends Relationship
             $keys = [0];
         }
 
-        $this->table->where_in($this->model->key(), array_unique($keys));
+        static::constrain_keys($this->table, $this->model->key(), array_unique($keys));
     }
 
     /**

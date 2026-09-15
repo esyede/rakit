@@ -821,6 +821,14 @@ $users = User::where_has('posts', function ($query) {
     $query->where('published', '=', 1);
 })->get();
 
+// The same thing, for a single condition
+$users = User::where_relation('posts', 'published', '=', 1)->get();
+
+// The operator can be left out for an equality check, or_where_relation() joins it with OR
+$users = User::where('role', '=', 'admin')
+    ->or_where_relation('posts', 'title', 'Hello World')
+    ->get();
+
 // Select the number of posts as a 'posts_count' column
 foreach (User::with_count('posts')->get() as $user) {
     echo $user->name . ': ' . $user->posts_count;
@@ -838,6 +846,42 @@ SELECT * FROM "users" WHERE EXISTS (
 Supported for `has_one`, `has_many`, `belongs_to`, `belongs_to_many`, `morph_one`,
 `morph_many` and `has_many_through`. The polymorphic `morph_to` and `morph_to_many` raise a
 clear exception instead, because they cannot be correlated with a single table.
+
+To filter by the parent a model belongs to, hand the parent model itself to `where_belongs_to()`.
+It reads the foreign key from the `belongs_to` relationship, so it does not have to be repeated:
+
+```php
+// Posts written by this user, through the user() relationship
+$posts = Post::where_belongs_to($user)->get();
+
+// SQL: SELECT * FROM "posts" WHERE "posts"."user_id" = ?
+
+// Posts written by any of these users
+$posts = Post::where_belongs_to(User::where('active', '=', 1)->get())->get();
+
+// SQL: SELECT * FROM "posts" WHERE "posts"."user_id" IN (?, ?, ?)
+```
+
+The relationship name is guessed from the class of the parent, so a `BlogAuthor` model is looked up
+through a `blog_author()` relationship. Pass the name as the second argument when it is different:
+
+```php
+class Post extends Facile
+{
+    public function author()
+    {
+        return $this->belongs_to('User', 'author_id');
+    }
+}
+
+$posts = Post::where_belongs_to($user, 'author')->get();
+
+// Joined with OR
+$posts = Post::where('featured', '=', 1)->or_where_belongs_to($user, 'author')->get();
+```
+
+An exception is thrown when the relationship does not exist, is not a `belongs_to` one, or points to
+a different model than the one given.
 
 <a id="relationships"></a>
 ## Relationships
@@ -1147,6 +1191,13 @@ class Post extends Facile
 // Automatically eager load user and category
 $posts = Post::all();
 ```
+
+When every key of the parent models is an integer, the eager load query writes them straight into the
+SQL (`WHERE "user_id" IN (1, 2, 3)`) instead of binding one parameter per key. A large result set then
+does not run into the bound parameter limit of the driver. Whether the keys come back as integers
+depends on the PDO driver and the PHP version, for example SQLite only does so on PHP 8.1 and newer,
+and SQL Server returns them as strings by default. String keys, and the id column of the polymorphic
+relationships, keep using bound parameters.
 
 <a id="constraining-eager-loading"></a>
 ## Constraining Eager Loading

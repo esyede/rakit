@@ -199,14 +199,9 @@ class Debugger
         }
 
         self::$reserved = str_repeat('t', 30000);
-        self::$time = isset($_SERVER['REQUEST_TIME_FLOAT'])
-            ? $_SERVER['REQUEST_TIME_FLOAT']
-            : microtime(true);
-
+        self::$time = isset($_SERVER['REQUEST_TIME_FLOAT']) ? $_SERVER['REQUEST_TIME_FLOAT'] : microtime(true);
         self::$obLevel = ob_get_level();
-        self::$cpuUsage = (! self::$productionMode && function_exists('getrusage'))
-            ? getrusage()
-            : null;
+        self::$cpuUsage = (! self::$productionMode && function_exists('getrusage')) ? getrusage() : null;
 
         if ($email !== null) {
             self::$email = $email;
@@ -276,10 +271,7 @@ class Debugger
         } elseif (headers_sent($file, $line)) {
             throw new \LogicException(
                 'Debugger::dispatch() called after some output has been sent. '
-                    . ($file
-                        ? "Output started at $file:$line."
-                        : 'Try System\Foundation\Oops\Outputs to find where output started.'
-                    )
+                    . ($file ? "Output started at $file:$line." : 'Try System\Foundation\Oops\Outputs to find where output started.')
             );
         }
 
@@ -590,6 +582,13 @@ class Debugger
             $e = new \ErrorException($message, 0, $severity, $file, $line);
             Context::setContext($e, $context);
             Context::setSkippable($e, true);
+
+            // The handler exits, which in a worker ends the whole process instead
+            // of one request. Throw, the worker renders it like any other exception.
+            if (defined('RAKIT_WORKER_MODE')) {
+                throw $e;
+            }
+
             self::exceptionHandler($e);
         }
 

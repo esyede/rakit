@@ -737,15 +737,15 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
 
         Schema::create($name, function ($table) {
             $table->increments('id');
-            $table->string('kode');
+            $table->string('old_code');
         });
 
         Schema::table($name, function ($table) {
-            $table->rename_column('kode', 'code');
+            $table->rename_column('old_code', 'code');
         });
 
         $this->assertTrue(Schema::has_column($name, 'code'));
-        $this->assertFalse(Schema::has_column($name, 'kode'));
+        $this->assertFalse(Schema::has_column($name, 'old_code'));
     }
 
     /**
@@ -872,17 +872,17 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
             'prefix' => 'pfx_',
         ]);
 
-        Schema::create('kotak', function ($table) {
+        Schema::create('boxes', function ($table) {
             $table->increments('id');
-            $table->string('nama');
+            $table->string('name');
         }, 'schema_prefixed');
 
         $tables = Schema::tables('schema_prefixed');
 
-        $this->assertContains('pfx_kotak', $tables);
-        $this->assertTrue(Schema::has_table('kotak', 'schema_prefixed'));
-        $this->assertTrue(Schema::has_column('kotak', 'nama', 'schema_prefixed'));
-        $this->assertEquals(['id', 'nama'], Schema::columns('kotak', 'schema_prefixed'));
+        $this->assertContains('pfx_boxes', $tables);
+        $this->assertTrue(Schema::has_table('boxes', 'schema_prefixed'));
+        $this->assertTrue(Schema::has_column('boxes', 'name', 'schema_prefixed'));
+        $this->assertEquals(['id', 'name'], Schema::columns('boxes', 'schema_prefixed'));
     }
 
     /**
@@ -898,13 +898,13 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
             'prefix' => 'pfx_',
         ]);
 
-        Schema::create('kotak', function ($table) {
+        Schema::create('boxes', function ($table) {
             $table->increments('id');
         }, 'schema_prefixed');
 
-        Schema::drop_if_exists('kotak', 'schema_prefixed');
+        Schema::drop_if_exists('boxes', 'schema_prefixed');
 
-        $this->assertFalse(Schema::has_table('kotak', 'schema_prefixed'));
+        $this->assertFalse(Schema::has_table('boxes', 'schema_prefixed'));
     }
 
     /**
@@ -920,5 +920,68 @@ class SchemaBuilderTest extends \PHPUnit_Framework_TestCase
         $table->commands[] = new Magic(['type' => 'command_that_does_not_exist']);
 
         Schema::execute($table);
+    }
+
+    /**
+     * Test for Table::fulltext() on SQLite - the FTS table is named after the index,
+     * so it neither clashes with the table itself nor escapes drop_fulltext().
+     *
+     * @group system
+     */
+    public function testFulltextCanBeCreatedAndDroppedOnSQLite()
+    {
+        Config::set('database.connections.schema_fulltext', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        $pdo = Database::connection('schema_fulltext')->pdo();
+        $names = function () use ($pdo) {
+            return $pdo->query("SELECT name FROM sqlite_master WHERE type = 'table' AND name <> 'sqlite_sequence' ORDER BY name")->fetchAll(\PDO::FETCH_COLUMN);
+        };
+
+        Schema::create('posts', function ($table) {
+            $table->increments('id');
+            $table->string('title');
+            $table->text('body');
+            $table->fulltext(['title', 'body']);
+        }, 'schema_fulltext');
+
+        $this->assertContains('posts', $names());
+        $this->assertContains('posts_title_body_fulltext', $names());
+
+        $pdo->exec("INSERT INTO posts_title_body_fulltext (title, body) VALUES ('rakit', 'framework php')");
+        $found = $pdo->query("SELECT title FROM posts_title_body_fulltext WHERE posts_title_body_fulltext MATCH 'php'")->fetchAll(\PDO::FETCH_COLUMN);
+
+        $this->assertEquals(['rakit'], $found);
+
+        Schema::table('posts', function ($table) {
+            $table->drop_fulltext('posts_title_body_fulltext');
+        }, 'schema_fulltext');
+
+        $this->assertEquals(['posts'], $names());
+    }
+
+    /**
+     * Test for Table::spatial_index() on SQLite - rejected with a clear message.
+     *
+     * @group system
+     */
+    public function testSpatialIndexThrowsOnSQLite()
+    {
+        Config::set('database.connections.schema_spatial', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        $this->setExpectedException('Exception', 'Spatial indexes are not supported in SQLite');
+
+        Schema::create('places', function ($table) {
+            $table->increments('id');
+            $table->string('location');
+            $table->spatial_index('location');
+        }, 'schema_spatial');
     }
 }

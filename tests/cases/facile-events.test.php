@@ -84,7 +84,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
         $order = [];
         $this->record($order);
 
-        EventModel::create(['name' => 'satu']);
+        EventModel::create(['name' => 'one']);
 
         $this->assertEquals(['saving', 'creating', 'created', 'saved'], $order);
     }
@@ -96,12 +96,12 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testEventsOfAnUpdate()
     {
-        $model = EventModel::create(['name' => 'satu']);
+        $model = EventModel::create(['name' => 'one']);
 
         $order = [];
         $this->record($order);
 
-        $model->name = 'dua';
+        $model->name = 'two';
         $model->save();
 
         $this->assertEquals(['saving', 'updating', 'updated', 'saved'], $order);
@@ -114,7 +114,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testRetrievedFiresOnHydration()
     {
-        $model = EventModel::create(['name' => 'satu']);
+        $model = EventModel::create(['name' => 'one']);
 
         $order = [];
         $this->record($order);
@@ -131,7 +131,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testEventsOfTheRestOfTheLife()
     {
-        $model = EventModel::create(['name' => 'satu']);
+        $model = EventModel::create(['name' => 'one']);
 
         $order = [];
         $this->record($order);
@@ -168,7 +168,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             $seen++;
         });
 
-        EventModel::create(['name' => 'satu']);
+        EventModel::create(['name' => 'one']);
 
         $this->assertEquals(1, $seen);
     }
@@ -189,7 +189,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             return false;
         });
 
-        $model = new EventModel(['name' => 'satu']);
+        $model = new EventModel(['name' => 'one']);
 
         $this->assertFalse($model->save());
         $this->assertFalse($model->exists);
@@ -207,7 +207,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             return false;
         });
 
-        $model = new EventModel(['name' => 'satu']);
+        $model = new EventModel(['name' => 'one']);
 
         $this->assertFalse($model->save());
         $this->assertNull($model->created_at);
@@ -221,16 +221,16 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testUpdatingCanBeCalledOff()
     {
-        $model = EventModel::create(['name' => 'satu']);
+        $model = EventModel::create(['name' => 'one']);
 
         Hook::listen('facile.updating: EventModel', function ($model) {
             return false;
         });
 
-        $model->name = 'dua';
+        $model->name = 'two';
 
         $this->assertFalse($model->save());
-        $this->assertEquals('satu', EventModel::find($model->get_key())->name);
+        $this->assertEquals('one', EventModel::find($model->get_key())->name);
     }
 
     /**
@@ -240,7 +240,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testDeletingCanBeCalledOff()
     {
-        $model = EventModel::create(['name' => 'satu']);
+        $model = EventModel::create(['name' => 'one']);
 
         Hook::listen('facile.deleting: EventModel', function ($model) {
             return false;
@@ -257,7 +257,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testRestoringCanBeCalledOff()
     {
-        $model = EventModel::create(['name' => 'satu']);
+        $model = EventModel::create(['name' => 'one']);
         $model->delete();
 
         Hook::listen('facile.restoring: EventModel', function ($model) {
@@ -279,10 +279,10 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
     public function testOnlyFalseCallsTheOperationOff()
     {
         Hook::listen('facile.saving: EventModel', function ($model) {
-            return 'sesuatu';
+            return 'something';
         });
 
-        $this->assertTrue(EventModel::create(['name' => 'satu'])->exists);
+        $this->assertTrue(EventModel::create(['name' => 'one'])->exists);
 
         Hook::listen('facile.saving: EventModel', function ($model) {
             return false;
@@ -291,7 +291,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             return null;
         });
 
-        $model = new EventModel(['name' => 'dua']);
+        $model = new EventModel(['name' => 'two']);
 
         $this->assertFalse($model->save());
     }
@@ -310,7 +310,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
     {
         EventModel::observe('EventObserver');
 
-        EventModel::create(['name' => 'satu']);
+        EventModel::create(['name' => 'one']);
 
         $this->assertEquals(['creating', 'created'], EventObserver::$seen);
     }
@@ -324,7 +324,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
     {
         EventModel::observe(new EventObserver());
 
-        EventModel::create(['name' => 'satu']);
+        EventModel::create(['name' => 'one']);
 
         $this->assertEquals(['creating', 'created'], EventObserver::$seen);
     }
@@ -351,7 +351,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testBootRegistersItsListeners()
     {
-        BootedModel::create(['name' => 'satu']);
+        BootedModel::create(['name' => 'one']);
 
         $this->assertEquals(['boot.creating'], BootedModel::$seen);
     }
@@ -369,7 +369,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             $seen = true;
         });
 
-        EventModel::create(['name' => 'satu']);
+        EventModel::create(['name' => 'one']);
 
         $this->assertTrue($seen);
     }
@@ -381,12 +381,12 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testTheQueryBuilderIsStillReachable()
     {
-        EventModel::create(['name' => 'satu']);
-        EventModel::create(['name' => 'dua']);
+        EventModel::create(['name' => 'one']);
+        EventModel::create(['name' => 'two']);
 
         $this->assertEquals(2, EventModel::count());
-        $this->assertEquals(1, EventModel::where('name', '=', 'satu')->count());
-        $this->assertEquals(1, EventModel::named('dua')->count());
+        $this->assertEquals(1, EventModel::where('name', '=', 'one')->count());
+        $this->assertEquals(1, EventModel::named('two')->count());
     }
 
     /**
@@ -402,7 +402,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             $seen++;
         });
 
-        BootedModel::create(['name' => 'satu']);
+        BootedModel::create(['name' => 'one']);
 
         $this->assertEquals(0, $seen);
     }
@@ -416,7 +416,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
     public function testAnEventNobodyListensForIsNotFired()
     {
         for ($i = 0; $i < 20; $i++) {
-            EventModel::create(['name' => 'baris ' . $i]);
+            EventModel::create(['name' => 'row ' . $i]);
         }
 
         $tracking = new \ReflectionProperty('\System\Foundation\Oops\Collectors', 'trackEvents');
@@ -558,6 +558,6 @@ class EventObserver
      */
     public function something_else($model)
     {
-        static::$seen[] = 'TIDAK BOLEH';
+        static::$seen[] = 'MUST NOT HAPPEN';
     }
 }

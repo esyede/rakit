@@ -25,6 +25,11 @@ class ImageTest extends \PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
+        // Only the file type check works without GD, every other test needs the extension.
+        if (! Image::available() && 'testAcceptable' !== $this->getName()) {
+            $this->markTestSkipped('The GD extension is not available.');
+        }
+
         $this->imagePath = 'tests/fixtures/storage/test.png';
         $this->tempPath = 'tests/fixtures/storage/temp_test_' . time() . '.png';
 

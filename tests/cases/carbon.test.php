@@ -33,7 +33,7 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test tambah.
+     * Test add.
      *
      * @group system
      */
@@ -1562,9 +1562,10 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         /** @disregard */
         $this->assertSame('1975-12-25T14:15:16+00:00', $d->toAtomString());
         $d = Carbon::create(1975, 12, 25, 14, 15, 16);
-        $cookie = (\DateTime::COOKIE === 'l, d-M-y H:i:s T') ? 'Thursday, 25-Dec-75 14:15:16 UTC' : 'Thursday, 25-Dec-1975 14:15:16 UTC';
+        // A fixed four digit year, whatever the format of \DateTime::COOKIE is on this PHP
+        // version (PHP 5.4.0 still spells it with a two digit year).
         /** @disregard */
-        $this->assertSame($cookie, $d->toCOOKIEString());
+        $this->assertSame('Thursday, 25-Dec-1975 14:15:16 UTC', $d->toCOOKIEString());
         $d = Carbon::create(1975, 12, 25, 14, 15, 16);
         /** @disregard */
         $this->assertSame('1975-12-25T14:15:16+00:00', $d->toIso8601String());

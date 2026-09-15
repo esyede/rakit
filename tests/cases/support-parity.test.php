@@ -50,19 +50,19 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
     {
         $this->input([
             'a' => '1', 'b' => 'true', 'c' => 'on', 'd' => 'yes',
-            'e' => '0', 'f' => 'false', 'g' => 'off', 'h' => 'sembarang',
+            'e' => '0', 'f' => 'false', 'g' => 'off', 'h' => 'whatever',
         ]);
 
         foreach (['a', 'b', 'c', 'd'] as $key) {
-            $this->assertTrue(Input::boolean($key), 'gagal untuk ' . $key);
+            $this->assertTrue(Input::boolean($key), 'failed for ' . $key);
         }
 
         foreach (['e', 'f', 'g', 'h'] as $key) {
-            $this->assertFalse(Input::boolean($key), 'gagal untuk ' . $key);
+            $this->assertFalse(Input::boolean($key), 'failed for ' . $key);
         }
 
-        $this->assertFalse(Input::boolean('tidak_ada'));
-        $this->assertTrue(Input::boolean('tidak_ada', true));
+        $this->assertFalse(Input::boolean('missing'));
+        $this->assertTrue(Input::boolean('missing', true));
     }
 
     /**
@@ -72,14 +72,14 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testInputTypedAccessors()
     {
-        $this->input(['n' => '42', 'f' => '3.5', 's' => 'halo', 'a' => ['x', 'y']]);
+        $this->input(['n' => '42', 'f' => '3.5', 's' => 'hello', 'a' => ['x', 'y']]);
 
         $this->assertSame(42, Input::integer('n'));
         $this->assertSame(0, Input::integer('s'));
         $this->assertSame(7, Input::integer('s', 7));
         $this->assertSame(3.5, Input::float('f'));
-        $this->assertSame('halo', Input::string('s'));
-        $this->assertSame('', Input::string('tidak_ada'));
+        $this->assertSame('hello', Input::string('s'));
+        $this->assertSame('', Input::string('missing'));
         $this->assertEquals(['x', 'y'], Input::arr('a'));
         $this->assertInstanceOf('\System\Collection', Input::collect());
     }
@@ -91,12 +91,12 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testInputDate()
     {
-        $this->input(['d' => '2026-05-05', 'kosong' => '']);
+        $this->input(['d' => '2026-05-05', 'blank' => '']);
 
         $this->assertInstanceOf('\System\Carbon', Input::date('d'));
         $this->assertEquals('2026-05-05', Input::date('d')->format('Y-m-d'));
-        $this->assertNull(Input::date('kosong'));
-        $this->assertNull(Input::date('tidak_ada'));
+        $this->assertNull(Input::date('blank'));
+        $this->assertNull(Input::date('missing'));
     }
 
     /**
@@ -126,7 +126,7 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMessagesImplementsCollectionInterfaces()
     {
-        $messages = new Messages(['nama' => ['wajib diisi']]);
+        $messages = new Messages(['name' => ['is required']]);
 
         $this->assertInstanceOf('\Countable', $messages);
         $this->assertInstanceOf('\ArrayAccess', $messages);
@@ -134,17 +134,17 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\JsonSerializable', $messages);
 
         $this->assertEquals(1, count($messages));
-        $this->assertEquals(['wajib diisi'], $messages['nama']);
-        $this->assertTrue(isset($messages['nama']));
-        $this->assertFalse(isset($messages['umur']));
+        $this->assertEquals(['is required'], $messages['name']);
+        $this->assertTrue(isset($messages['name']));
+        $this->assertFalse(isset($messages['age']));
 
-        $messages['umur'] = 'harus angka';
+        $messages['age'] = 'must be a number';
 
-        $this->assertEquals(['harus angka'], $messages->get('umur'));
+        $this->assertEquals(['must be a number'], $messages->get('age'));
 
-        unset($messages['umur']);
+        unset($messages['age']);
 
-        $this->assertFalse($messages->has('umur'));
+        $this->assertFalse($messages->has('age'));
     }
 
     /**
@@ -154,19 +154,19 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMessagesBagHelpers()
     {
-        $messages = new Messages(['nama' => ['wajib diisi']]);
-        $messages->merge(['umur' => ['harus angka'], 'nama' => ['terlalu pendek']]);
+        $messages = new Messages(['name' => ['is required']]);
+        $messages->merge(['age' => ['must be a number'], 'name' => ['is too short']]);
 
-        $this->assertEquals(['nama', 'umur'], $messages->keys());
-        $this->assertEquals(2, count($messages->get('nama')));
-        $this->assertTrue($messages->has_any(['umur', 'tidak_ada']));
-        $this->assertFalse($messages->has_any(['tidak_ada']));
+        $this->assertEquals(['name', 'age'], $messages->keys());
+        $this->assertEquals(2, count($messages->get('name')));
+        $this->assertTrue($messages->has_any(['age', 'missing']));
+        $this->assertFalse($messages->has_any(['missing']));
         $this->assertFalse($messages->is_empty());
         $this->assertTrue($messages->is_not_empty());
 
-        $messages->forget('umur');
+        $messages->forget('age');
 
-        $this->assertEquals(['nama'], $messages->keys());
+        $this->assertEquals(['name'], $messages->keys());
         $this->assertTrue((new Messages())->is_empty());
     }
 
@@ -177,12 +177,12 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testMessagesSerialization()
     {
-        $messages = new Messages(['nama' => ['wajib diisi']]);
+        $messages = new Messages(['name' => ['is required']]);
 
-        $this->assertEquals(['nama' => ['wajib diisi']], $messages->to_array());
+        $this->assertEquals(['name' => ['is required']], $messages->to_array());
         $this->assertEquals($messages->to_array(), $messages->jsonSerialize());
-        $this->assertJsonStringEqualsJsonString('{"nama":["wajib diisi"]}', $messages->to_json());
-        $this->assertJsonStringEqualsJsonString('{"nama":["wajib diisi"]}', json_encode($messages));
+        $this->assertJsonStringEqualsJsonString('{"name":["is required"]}', $messages->to_json());
+        $this->assertJsonStringEqualsJsonString('{"name":["is required"]}', json_encode($messages));
     }
 
     // -------------------------------------------------------------------------
@@ -210,14 +210,14 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
     public function testResponseFile()
     {
         $path = path('storage') . 'parity-file.txt';
-        file_put_contents($path, 'isi berkas');
+        file_put_contents($path, 'file content');
 
         $response = Response::file($path);
         $disposition = $response->foundation()->headers->get('Content-Disposition');
 
         unlink($path);
 
-        $this->assertEquals('isi berkas', $response->content);
+        $this->assertEquals('file content', $response->content);
         $this->assertContains('inline', $disposition);
         $this->assertContains('parity-file.txt', $disposition);
     }
@@ -229,9 +229,9 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testRedirectBackUsesTheFallback()
     {
-        $location = Redirect::back(302, '/dasbor')->foundation()->headers->get('Location');
+        $location = Redirect::back(302, '/dashboard')->foundation()->headers->get('Location');
 
-        $this->assertContains('/dasbor', $location);
+        $this->assertContains('/dashboard', $location);
     }
 
     /**
@@ -241,9 +241,9 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
      */
     public function testRedirectAwayKeepsTheUrlUntouched()
     {
-        $location = Redirect::away('https://contoh.test/halaman')->foundation()->headers->get('Location');
+        $location = Redirect::away('https://example.test/page')->foundation()->headers->get('Location');
 
-        $this->assertEquals('https://contoh.test/halaman', $location);
+        $this->assertEquals('https://example.test/page', $location);
     }
 
     /**
@@ -257,7 +257,7 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
         \System\Config::set('session.driver', '');
 
         try {
-            Redirect::guest('/masuk');
+            Redirect::guest('/login');
             $this->fail('Redirect::guest() should complain without a session driver.');
         } catch (\Exception $e) {
             $this->assertContains('session driver', $e->getMessage());
@@ -281,9 +281,9 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
             [['d' => '2026-05-05'], ['d' => 'after_or_equal:2026-05-05'], true],
             [['d' => '2026-05-04'], ['d' => 'after_or_equal:2026-05-05'], false],
             [['d' => '2026-05-05'], ['d' => 'before_or_equal:2026-05-05'], true],
-            [['s' => 'halo'], ['s' => 'lowercase'], true],
-            [['s' => 'Halo'], ['s' => 'lowercase'], false],
-            [['s' => 'HALO'], ['s' => 'uppercase'], true],
+            [['s' => 'hello'], ['s' => 'lowercase'], true],
+            [['s' => 'Hello'], ['s' => 'lowercase'], false],
+            [['s' => 'HELLO'], ['s' => 'uppercase'], true],
             [['s' => 'abc-123'], ['s' => 'ascii'], true],
             [['s' => 'hallö'], ['s' => 'ascii'], false],
             [['n' => '10.55'], ['n' => 'decimal:2'], true],
@@ -307,7 +307,7 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
             [['p' => ''], ['p' => 'prohibited'], true],
             [['d' => 'no'], ['d' => 'declined'], true],
             [['m' => '00:1B:44:11:3A:B7'], ['m' => 'mac_address'], true],
-            [['m' => 'bukan-mac'], ['m' => 'mac_address'], false],
+            [['m' => 'not-a-mac'], ['m' => 'mac_address'], false],
             [['u' => '01ARZ3NDEKTSV4RRFFQ69G5FAV'], ['u' => 'ulid'], true],
             [['c' => '#ff8800'], ['c' => 'hex_color'], true],
             [['c' => 'ff8800'], ['c' => 'hex_color'], false],
@@ -320,7 +320,7 @@ class SupportParityTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals(
                 $expected,
                 $validator->passes(),
-                'kasus ke-' . $index . ': ' . json_encode($rules)
+                'case ' . $index . ': ' . json_encode($rules)
             );
         }
     }

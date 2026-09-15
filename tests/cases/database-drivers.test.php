@@ -273,9 +273,9 @@ class DatabaseDriversTest extends \PHPUnit_Framework_TestCase
             $this->grammar('MySQL')->insert($this->query('MySQL'), $values)
         );
 
-        // SQLite builds it with UNION SELECT instead.
+        // SQLite builds it with UNION ALL SELECT instead.
         $this->assertEquals(
-            'INSERT INTO "users" ("name") SELECT ? AS "name" UNION SELECT ? AS "name"',
+            'INSERT INTO "users" ("name") SELECT ? AS "name" UNION ALL SELECT ? AS "name"',
             $this->grammar('SQLite')->insert($this->query('SQLite'), $values)
         );
     }

@@ -180,17 +180,17 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
      */
     public function testBackRedirect()
     {
-        $this->setServerVar('HTTP_REFERER', 'http://localhost/daftar');
+        $this->setServerVar('HTTP_REFERER', 'http://localhost/register');
 
         $redirect = Redirect::back();
 
         $this->assertEquals(302, $redirect->status());
-        $this->assertEquals('http://localhost/daftar', $redirect->headers()->get('location'));
+        $this->assertEquals('http://localhost/register', $redirect->headers()->get('location'));
 
         $redirect301 = Redirect::back(301);
 
         $this->assertEquals(301, $redirect301->status());
-        $this->assertEquals('http://localhost/daftar', $redirect301->headers()->get('location'));
+        $this->assertEquals('http://localhost/register', $redirect301->headers()->get('location'));
     }
 
     /**
@@ -200,10 +200,10 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
      */
     public function testBackRefusesForeignReferrer()
     {
-        $this->setServerVar('HTTP_REFERER', 'http://example.com/jebakan');
+        $this->setServerVar('HTTP_REFERER', 'http://example.com/trap');
 
         $this->assertEquals(URL::to('/'), Redirect::back()->headers()->get('location'));
-        $this->assertEquals(URL::to('masuk'), Redirect::back(302, 'masuk')->headers()->get('location'));
+        $this->assertEquals(URL::to('login'), Redirect::back(302, 'login')->headers()->get('location'));
     }
 
     /**
@@ -213,9 +213,9 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
      */
     public function testBackAcceptsRelativeReferrer()
     {
-        $this->setServerVar('HTTP_REFERER', '/daftar');
+        $this->setServerVar('HTTP_REFERER', '/register');
 
-        $this->assertEquals(URL::to('/daftar'), Redirect::back()->headers()->get('location'));
+        $this->assertEquals(URL::to('/register'), Redirect::back()->headers()->get('location'));
     }
 
     /**
@@ -240,7 +240,7 @@ class RedirectTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Inisialisasi ulang global request.
+     * Reinitialize the global request.
      *
      * @return void
      */

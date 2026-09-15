@@ -6,78 +6,42 @@
     font-display: swap;
 }
 
-/* ==========================================================================
-   Design tokens.
-
-   dsgn.html's system: a single blue accent, no shadows doing the work of a
-   border, 1px rules drawing every edge, monospace reserved for metadata.
-   Both themes live here; `html.dark` is the default and the navbar toggle
-   flips it.
-
-   It is black and white. The neutral is zinc in both themes, exactly as in
-   the reference: what used to look muddy about these greys was the blue
-   sitting beside them, not the greys themselves — with no chroma left to
-   compare against, the same ramp reads clean.
-   ========================================================================== */
-
 :root {
     color-scheme: light;
-
-    /* Surfaces, from the page ground up to a floating panel. */
     --background: #ffffff;
     --card: #ffffff;
     --muted: #f4f4f5;
     --accent: #e8e8ea;
     --code-bg: #f7f7f8;
-
-    /* Text, from full contrast down to the quietest label. */
     --foreground: #09090b;
     --muted-foreground: #71717a;
     --faint: #7e7e87;
-
     --border: #e4e4e7;
     --border-strong: #d4d4d8;
-
-    /* There is no accent hue. A filled control inverts the ink; everything
-       else separates by tone and weight. dsgn.html spends its one colour on
-       the keyboard focus ring, and nowhere else — so does this. */
     --solid: #09090b;
     --solid-hover: #27272a;
     --solid-fg: #fafafa;
     --focus: #2563eb;
-
-    /* Decoration: the hairline lattice, the striped separator, the blurred
-       nav plate and the modal scrim. */
     --hairline: rgba(9, 9, 11, 0.05);
     --stripe: rgba(228, 228, 231, 0.56);
     --nav-bg: rgba(255, 255, 255, 0.72);
     --overlay: rgba(9, 9, 11, 0.45);
     --scrollbar: #d4d4d8;
     --scrollbar-hover: #a1a1aa;
-    --shadow-pop:
-        0 10px 30px -10px rgba(9, 9, 11, 0.18),
-        0 2px 8px -2px rgba(9, 9, 11, 0.1);
-
-    /* The one place colour is kept. A highlighted snippet is information,
-       not decoration — greyscale costs real legibility there — so <pre> and
-       <code> keep their palette while the interface around them stays ink
-       and paper. */
+    --shadow-pop: 0 10px 30px -10px rgba(9, 9, 11, 0.18), 0 2px 8px -2px rgba(9, 9, 11, 0.1);
     --code-key: #1d4ed8;
     --code-fn: #6d28d9;
     --code-num: #b45309;
     --code-str: #0f766e;
     --code-com: #7e7e87;
     --code-del: #b91c1c;
-
     --radius: 7px;
     --radius-lg: 10px;
     --radius-pill: 999px;
-
     --gutter: 24px;
     --container: 1400px;
     --gap: 112px;
     --cell-pad: 40px;
-
     --font-display:
         "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
         "Helvetica Neue", Arial, sans-serif;
@@ -91,35 +55,27 @@
 
 html.dark {
     color-scheme: dark;
-
     --background: #09090b;
     --card: #18181b;
     --muted: #18181b;
     --accent: #27272a;
     --code-bg: #141417;
-
     --foreground: #fafafa;
     --muted-foreground: #a1a1aa;
     --faint: #78787f;
-
     --border: #27272a;
     --border-strong: #3f3f46;
-
     --solid: #fafafa;
     --solid-hover: #e4e4e7;
     --solid-fg: #09090b;
     --focus: #3b82f6;
-
     --hairline: rgba(250, 250, 250, 0.045);
     --stripe: rgba(39, 39, 42, 0.56);
     --nav-bg: rgba(9, 9, 11, 0.72);
     --overlay: rgba(0, 0, 0, 0.66);
     --scrollbar: #3f3f46;
     --scrollbar-hover: #52525b;
-    --shadow-pop:
-        0 10px 30px -10px rgba(0, 0, 0, 0.55),
-        0 2px 8px -2px rgba(0, 0, 0, 0.35);
-
+    --shadow-pop: 0 10px 30px -10px rgba(0, 0, 0, 0.55), 0 2px 8px -2px rgba(0, 0, 0, 0.35);
     --code-key: #93c5fd;
     --code-fn: #c4b5fd;
     --code-num: #f5b98e;
@@ -269,8 +225,6 @@ button:focus:not(:focus-visible) {
     border-top: 1px solid var(--border);
 }
 
-/* A full-bleed hairline, and the hatched band dsgn.html sets between
-   sections. Both escape the shell and run to the screen edges. */
 .rule {
     height: 1px;
     background: var(--border);
@@ -287,8 +241,6 @@ button:focus:not(:focus-visible) {
     );
 }
 
-/* The band below already draws a top rule, so the separator hands its own
-   over rather than stacking two hairlines. */
 .sep + .band {
     border-top: 0;
 }
@@ -327,10 +279,6 @@ button:focus:not(:focus-visible) {
     margin-bottom: 16px;
 }
 
-/* ==========================================================================
-   Sel — kisi yang dipisahkan garis, tanpa isian kartu
-   ========================================================================== */
-
 .cells {
     display: grid;
     gap: 1px;
@@ -361,8 +309,6 @@ button:focus:not(:focus-visible) {
     background: var(--muted);
 }
 
-/* The bordered icon tile is the same object dsgn.html uses beside every
-   contact row, resized for a card. */
 .cell__icon {
     width: 40px;
     height: 40px;
@@ -440,8 +386,6 @@ button:focus:not(:focus-visible) {
     color: var(--muted-foreground);
 }
 
-/* A bordered initial stands in for a logo, which lets the wordmark stay as
-   quiet as the rest of the mono metadata. */
 .nav__brand::before,
 .footer__brand::before {
     color: var(--foreground);
@@ -526,8 +470,6 @@ button:focus:not(:focus-visible) {
     transform: translateY(-6.5px) rotate(-45deg);
 }
 
-/* Theme toggle — the 32px bordered square dsgn.html uses for its icon
-   buttons, sized to sit next to the download button. */
 .theme-toggle {
     width: 36px;
     height: 36px;
@@ -563,8 +505,6 @@ button:focus:not(:focus-visible) {
     stroke-linejoin: round;
 }
 
-/* Each icon names the theme you would switch *to*, so the sun only shows
-   while the dark theme is on. */
 .theme-toggle__sun {
     display: none;
 }
@@ -733,7 +673,6 @@ html.dark .theme-toggle__moon {
     color: var(--code-key);
 }
 
-/* Hero halaman dalam */
 .hero--page {
     padding: 96px var(--gutter) 72px;
 }
@@ -1489,8 +1428,6 @@ body:has(.modal.is-active) {
     right: var(--docs-rail);
 }
 
-/* Beberapa halaman pendek tidak punya daftar isi. Tanpa rail, isi halaman
-   memakai sisa lebarnya. */
 .docs:not(:has(.docs__rail)) {
     grid-template-columns: var(--docs-side) minmax(0, 1fr);
 }
@@ -1600,9 +1537,6 @@ body:has(.modal.is-active) {
     border-bottom: 1px solid var(--border);
 }
 
-/* `.eyebrow` dipakai bertumpuk di atas judul, jadi ia bawa margin bawah.
-   Di sini ia jadi item flex, dan `align-items: center` memusatkan margin
-   box-nya, sehingga teksnya terangkat setengah margin dari tombol. */
 .docs__bar .eyebrow {
     margin-bottom: 0;
 }
@@ -1732,7 +1666,6 @@ body:has(.modal.is-active) {
     border-radius: var(--radius);
 }
 
-/* kode sebaris */
 .prose :not(pre) > code {
     font-family: var(--font-mono);
     font-size: 0.88em;
@@ -1886,8 +1819,6 @@ body:has(.modal.is-active) {
     border-color: var(--border-strong);
 }
 
-/* --- Halaman: sidebar | isi | outline --- */
-
 .docs__rail {
     grid-column: 3;
     grid-row: 1;
@@ -1946,8 +1877,6 @@ body:has(.modal.is-active) {
     font-size: 12.5px;
 }
 
-/* --- Remah roti --- */
-
 .crumbs {
     display: flex;
     flex-wrap: wrap;
@@ -1974,8 +1903,6 @@ body:has(.modal.is-active) {
     color: var(--border-strong);
 }
 
-/* --- Halaman sebelum & sesudah --- */
-
 .docs__nav {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2000,8 +1927,6 @@ a.docs__nav-link:hover {
     background: var(--muted);
 }
 
-/* Halaman pertama dan terakhir cuma punya satu tetangga; satu-satunya
-   tautan itu memakai lebar penuh, bukan menyisakan kotak kosong. */
 .docs__nav:has(> :only-child) {
     grid-template-columns: minmax(0, 1fr);
 }

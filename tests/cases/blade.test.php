@@ -187,11 +187,11 @@ class BladeTest extends \PHPUnit_Framework_TestCase
      */
     public function testStopClosesASection()
     {
-        $compiled = Blade::translate("@section('x')isi@stop");
+        $compiled = Blade::translate("@section('x')content@stop");
 
         $this->assertContains('section_stop()', $compiled);
         $this->assertNotContains('@stop', $compiled);
-        $this->assertEquals(Blade::translate("@section('x')isi@endsection"), $compiled);
+        $this->assertEquals(Blade::translate("@section('x')content@endsection"), $compiled);
     }
 
     public function testSectionsAreCompiledCorrectly()
@@ -237,7 +237,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk $loop in @foreach.
+     * Test for $loop in @foreach.
      *
      * @group system
      */
@@ -251,7 +251,7 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk $loop in @forelse.
+     * Test for $loop in @forelse.
      *
      * @group system
      */

@@ -78,7 +78,11 @@ class Str
      */
     public static function substr($string, $start, $length = null)
     {
-        return mb_substr((string) $string, $start, $length, 'UTF-8');
+        $string = (string) $string;
+        // PHP before 5.4.8 treats a NULL length as 0 instead of "up to the end".
+        $length = is_null($length) ? mb_strlen($string, 'UTF-8') : $length;
+
+        return mb_substr($string, $start, $length, 'UTF-8');
     }
 
     /**

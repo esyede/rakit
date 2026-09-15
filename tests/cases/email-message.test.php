@@ -104,8 +104,8 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         return Email::driver('log')
             ->from('noreply@example.com', 'Administrator')
             ->to('budi@example.com', 'Budi')
-            ->subject('Halo')
-            ->body('Isi pesan');
+            ->subject('Hello')
+            ->body('Message body');
     }
 
     /**
@@ -142,7 +142,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $headers = $this->headers($driver);
 
         $this->assertEquals('"Budi" <budi@example.com>', $headers['To']);
-        $this->assertEquals('Halo', $headers['Subject']);
+        $this->assertEquals('Hello', $headers['Subject']);
         $this->assertEquals('"Administrator" <noreply@example.com>', $headers['From']);
         $this->assertEquals('1.0', $headers['MIME-Version']);
         $this->assertEquals('Rakit', $headers['X-Mailer']);
@@ -202,7 +202,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testSubjectCannotInjectHeaders()
     {
-        $driver = $this->driver()->subject("Halo\r\nBcc: korban@example.com");
+        $driver = $this->driver()->subject("Hello\r\nBcc: victim@example.com");
         $message = $this->build($driver);
 
         $headers = $this->headers($driver);
@@ -222,13 +222,13 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     {
         $driver = Email::driver('log')
             ->from('noreply@example.com')
-            ->to("budi@example.com\r\nBcc: korban@example.com", "Budi\r\nX-Evil: 1")
-            ->subject('Halo')
-            ->body('Isi');
+            ->to("budi@example.com\r\nBcc: victim@example.com", "Budi\r\nX-Evil: 1")
+            ->subject('Hello')
+            ->body('Body');
 
         $message = $this->build($driver);
 
-        $this->assertNotContains("\nBcc: korban@example.com", $message['header']);
+        $this->assertNotContains("\nBcc: victim@example.com", $message['header']);
         $this->assertNotContains("\nX-Evil: 1", $message['header']);
     }
 
@@ -239,10 +239,10 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testCustomHeaderCannotInject()
     {
-        $driver = $this->driver()->header('X-Campaign', "promo\r\nBcc: korban@example.com");
+        $driver = $this->driver()->header('X-Campaign', "promo\r\nBcc: victim@example.com");
         $message = $this->build($driver);
 
-        $this->assertNotContains("\nBcc: korban@example.com", $message['header']);
+        $this->assertNotContains("\nBcc: victim@example.com", $message['header']);
     }
 
     /**
@@ -253,14 +253,14 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testFromCannotInjectHeaders()
     {
         $driver = Email::driver('log')
-            ->from("noreply@example.com\r\nBcc: korban@example.com", 'App')
+            ->from("noreply@example.com\r\nBcc: victim@example.com", 'App')
             ->to('budi@example.com')
-            ->subject('Halo')
-            ->body('Isi');
+            ->subject('Hello')
+            ->body('Body');
 
         $message = $this->build($driver);
 
-        $this->assertNotContains("\nBcc: korban@example.com", $message['header']);
+        $this->assertNotContains("\nBcc: victim@example.com", $message['header']);
     }
 
     /**
@@ -273,8 +273,8 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $driver = Email::driver('log')
             ->from('noreply@example.com')
             ->to('budi@example.com', 'Budi "The Boss"')
-            ->subject('Halo')
-            ->body('Isi');
+            ->subject('Hello')
+            ->body('Body');
 
         $this->build($driver);
         $headers = $this->headers($driver);
@@ -296,8 +296,8 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $driver = Email::driver('log')
             ->from('noreply@example.com')
             ->to(['a@example.com' => 'A', 'b@example.com' => 'B'])
-            ->subject('Halo')
-            ->body('Isi');
+            ->subject('Hello')
+            ->body('Body');
 
         $this->build($driver);
         $headers = $this->headers($driver);
@@ -344,7 +344,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testSendWithoutRecipientThrows()
     {
-        Email::driver('log')->from('noreply@example.com')->subject('Halo')->body('Isi')->send();
+        Email::driver('log')->from('noreply@example.com')->subject('Hello')->body('Body')->send();
     }
 
     /**
@@ -356,9 +356,9 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     {
         $driver = Email::driver('log')
             ->from('noreply@example.com')
-            ->to('bukan-email')
-            ->subject('Halo')
-            ->body('Isi');
+            ->to('not-an-email')
+            ->subject('Hello')
+            ->body('Body');
 
         try {
             $driver->send(true);
@@ -386,7 +386,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $message = $this->build($driver);
 
         $this->assertContains('text/plain', $message['header']);
-        $this->assertContains('Isi pesan', $message['body']);
+        $this->assertContains('Message body', $message['body']);
     }
 
     /**
@@ -399,15 +399,15 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $driver = Email::driver('log')
             ->from('noreply@example.com')
             ->to('budi@example.com')
-            ->subject('Halo')
-            ->html_body('<h1>Judul</h1><p>Isi <b>tebal</b></p>');
+            ->subject('Hello')
+            ->html_body('<h1>Title</h1><p>Body <b>bold</b></p>');
 
         $message = $this->build($driver);
 
         $this->assertContains('multipart/alternative', $message['header']);
-        $this->assertContains('<h1>Judul</h1>', $message['body']);
+        $this->assertContains('<h1>Title</h1>', $message['body']);
         $this->assertContains('text/plain', $message['body']);
-        $this->assertContains('Judul', $message['body']);
+        $this->assertContains('Title', $message['body']);
     }
 
     /**
@@ -420,13 +420,13 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $driver = Email::driver('log')
             ->from('noreply@example.com')
             ->to('budi@example.com')
-            ->subject('Halo')
-            ->html_body('<p>Versi HTML</p>')
-            ->alt_body('Versi teks biasa');
+            ->subject('Hello')
+            ->html_body('<p>HTML version</p>')
+            ->alt_body('Plain text version');
 
         $message = $this->build($driver);
 
-        $this->assertContains('Versi teks biasa', $message['body']);
+        $this->assertContains('Plain text version', $message['body']);
     }
 
     // -------------------------------------------------------------------------
@@ -440,16 +440,16 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testStringAttachment()
     {
-        $driver = $this->driver()->string_attach('isi berkas', 'catatan.txt');
+        $driver = $this->driver()->string_attach('file content', 'notes.txt');
         $message = $this->build($driver);
 
         // 'plain_attach' is carried as multipart/related unless force_mixed is on.
         $this->assertContains('multipart/related', $message['header']);
-        $this->assertContains('catatan.txt', $message['body']);
+        $this->assertContains('notes.txt', $message['body']);
         $this->assertContains('Content-Disposition: attachment', $message['body']);
         $this->assertContains('text/plain', $message['body']);
         $this->assertContains(
-            base64_encode('isi berkas'),
+            base64_encode('file content'),
             preg_replace('/\s+/', '', $message['body'])
         );
     }
@@ -463,7 +463,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     {
         Config::set('email.force_mixed', true);
 
-        $driver = $this->driver()->string_attach('isi berkas', 'catatan.txt');
+        $driver = $this->driver()->string_attach('file content', 'notes.txt');
         $message = $this->build($driver);
 
         $this->assertContains('multipart/mixed', $message['header']);
@@ -476,16 +476,16 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testFileAttachment()
     {
-        $path = path('storage') . 'lampiran-probe.txt';
-        file_put_contents($path, 'isi lampiran');
+        $path = path('storage') . 'attachment-probe.txt';
+        file_put_contents($path, 'attachment content');
 
         try {
             $driver = $this->driver()->attach($path);
             $message = $this->build($driver);
 
-            $this->assertContains('lampiran-probe.txt', $message['body']);
+            $this->assertContains('attachment-probe.txt', $message['body']);
             $this->assertContains(
-                base64_encode('isi lampiran'),
+                base64_encode('attachment content'),
                 preg_replace('/\s+/', '', $message['body'])
             );
         } catch (\Exception $e) {
@@ -505,7 +505,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testAttachingMissingFileThrows()
     {
-        $this->driver()->attach(path('storage') . 'berkas-yang-tidak-ada.txt');
+        $this->driver()->attach(path('storage') . 'missing-file.txt');
     }
 
     // -------------------------------------------------------------------------
@@ -522,11 +522,11 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $driver = $this->driver()->cc('cc@example.com')->string_attach('x', 'x.txt');
         $driver->reset();
 
-        $driver->to('lain@example.com');
+        $driver->to('other@example.com');
         $this->build($driver);
 
         $headers = $this->headers($driver);
-        $this->assertEquals('lain@example.com', $headers['To']);
+        $this->assertEquals('other@example.com', $headers['To']);
         $this->assertArrayNotHasKey('Cc', $headers);
     }
 
@@ -552,11 +552,11 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testK10RecipientsDoNotSurviveTheSend()
     {
         $driver = $this->probe();
-        $driver->to('satu@example.com')->subject('Pertama')->body('Isi pertama')->send();
-        $driver->to('dua@example.com')->subject('Kedua')->body('Isi kedua')->send();
+        $driver->to('first@example.com')->subject('First')->body('First body')->send();
+        $driver->to('second@example.com')->subject('Second')->body('Second body')->send();
 
-        $this->assertContains('To: dua@example.com', EmailProbeDriver::$sent['header']);
-        $this->assertNotContains('satu@example.com', EmailProbeDriver::$sent['header']);
+        $this->assertContains('To: second@example.com', EmailProbeDriver::$sent['header']);
+        $this->assertNotContains('first@example.com', EmailProbeDriver::$sent['header']);
     }
 
     /**
@@ -567,10 +567,10 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testK10CustomHeadersDoNotSurviveTheSend()
     {
         $driver = $this->probe();
-        $driver->to('satu@example.com')->header('X-Kampanye', 'promo')->subject('Pertama')->body('Isi')->send();
-        $driver->to('dua@example.com')->subject('Kedua')->body('Isi')->send();
+        $driver->to('first@example.com')->header('X-Campaign', 'promo')->subject('First')->body('Body')->send();
+        $driver->to('second@example.com')->subject('Second')->body('Body')->send();
 
-        $this->assertNotContains('X-Kampanye', EmailProbeDriver::$sent['header']);
+        $this->assertNotContains('X-Campaign', EmailProbeDriver::$sent['header']);
     }
 
     /**
@@ -581,12 +581,12 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testK10AttachmentsDoNotSurviveTheSend()
     {
         $driver = $this->probe();
-        $driver->to('satu@example.com')->subject('Pertama')->body('Isi')
-            ->string_attach('isi rahasia', 'rahasia.txt')
+        $driver->to('first@example.com')->subject('First')->body('Body')
+            ->string_attach('secret content', 'secret.txt')
             ->send();
-        $driver->to('dua@example.com')->subject('Kedua')->body('Isi')->send();
+        $driver->to('second@example.com')->subject('Second')->body('Body')->send();
 
-        $this->assertNotContains('rahasia.txt', EmailProbeDriver::$sent['body']);
+        $this->assertNotContains('secret.txt', EmailProbeDriver::$sent['body']);
     }
 
     /**
@@ -596,13 +596,13 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testK11AttachmentNameCannotInjectHeaders()
     {
-        $path = path('storage') . 'lampiran-jahat.txt';
-        file_put_contents($path, 'isi');
+        $path = path('storage') . 'attachment-evil.txt';
+        file_put_contents($path, 'content');
 
         try {
             $driver = $this->probe();
-            $driver->to('budi@example.com')->subject('Halo')->body('Isi')
-                ->attach($path, false, null, null, "catatan.txt\"\r\nContent-Type: text/html")
+            $driver->to('budi@example.com')->subject('Hello')->body('Body')
+                ->attach($path, false, null, null, "notes.txt\"\r\nContent-Type: text/html")
                 ->send();
 
             $body = EmailProbeDriver::$sent['body'];
@@ -627,14 +627,14 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testK11ContentIdCannotInjectHeaders()
     {
         $driver = $this->probe();
-        $driver->to('budi@example.com')->subject('Halo')->html_body('<p>Isi</p>', false, false)
-            ->string_attach('gambar', 'logo.png', "abc\r\nX-Sisipan: iya", true)
+        $driver->to('budi@example.com')->subject('Hello')->html_body('<p>Body</p>', false, false)
+            ->string_attach('image', 'logo.png', "abc\r\nX-Injected: yes", true)
             ->send();
 
         $body = EmailProbeDriver::$sent['body'];
 
-        $this->assertContains('Content-ID: <abcX-Sisipan: iya>', $body);
-        $this->assertNotContains("\nX-Sisipan", $body);
+        $this->assertContains('Content-ID: <abcX-Injected: yes>', $body);
+        $this->assertNotContains("\nX-Injected", $body);
     }
 
     /**
@@ -645,31 +645,31 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testT23HtmlWithInlineAndAttachmentIsSent()
     {
-        $logo = path('storage') . 'lampiran-sebaris.txt';
-        $berkas = path('storage') . 'lampiran-biasa.txt';
+        $logo = path('storage') . 'attachment-inline.txt';
+        $file = path('storage') . 'attachment-plain.txt';
 
-        file_put_contents($logo, 'gambar');
-        file_put_contents($berkas, 'lampiran');
+        file_put_contents($logo, 'image');
+        file_put_contents($file, 'attachment');
 
         try {
             $driver = $this->probe();
-            $sent = $driver->to('budi@example.com')->subject('Halo')
+            $sent = $driver->to('budi@example.com')->subject('Hello')
                 ->html_body('<img src="' . $logo . '" />', false)
-                ->attach($berkas)
+                ->attach($file)
                 ->send();
 
             $this->assertTrue($sent);
             $this->assertContains('multipart/mixed', EmailProbeDriver::$sent['header']);
-            $this->assertContains('lampiran-biasa.txt', EmailProbeDriver::$sent['body']);
+            $this->assertContains('attachment-plain.txt', EmailProbeDriver::$sent['body']);
             $this->assertContains('Content-Disposition: inline', EmailProbeDriver::$sent['body']);
         } catch (\Exception $e) {
             @unlink($logo);
-            @unlink($berkas);
+            @unlink($file);
             throw $e;
         }
 
         @unlink($logo);
-        @unlink($berkas);
+        @unlink($file);
     }
 
     /**
@@ -682,18 +682,18 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         Config::set('email.encoding', 'base64');
 
         $driver = $this->probe();
-        $driver->to('budi@example.com')->subject('Halo')->body('Isi laporan')->send();
+        $driver->to('budi@example.com')->subject('Hello')->body('Report body')->send();
 
         $this->assertContains('Content-Transfer-Encoding: base64', EmailProbeDriver::$sent['header']);
         $this->assertContains(
-            base64_encode('Isi laporan'),
+            base64_encode('Report body'),
             preg_replace('/\s+/', '', EmailProbeDriver::$sent['body'])
         );
 
         Config::set('email.encoding', 'quoted-printable');
 
         $driver = $this->probe();
-        $driver->to('budi@example.com')->subject('Halo')->body('Kopi caf=e')->send();
+        $driver->to('budi@example.com')->subject('Hello')->body('Coffee caf=e')->send();
 
         $this->assertContains(
             'Content-Transfer-Encoding: quoted-printable',
@@ -709,13 +709,13 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
     public function testT25CommentsAreStrippedWithoutEatingTheMarkup()
     {
         $driver = $this->probe();
-        $driver->to('budi@example.com')->subject('Halo')
-            ->html_body('<!--awal--><p>Teks penting</p><!--akhir-->', false, false)
+        $driver->to('budi@example.com')->subject('Hello')
+            ->html_body('<!--opening-note--><p>Important text</p><!--closing-note-->', false, false)
             ->send();
 
-        $this->assertContains('<p>Teks penting</p>', EmailProbeDriver::$sent['body']);
-        $this->assertNotContains('awal', EmailProbeDriver::$sent['body']);
-        $this->assertNotContains('akhir', EmailProbeDriver::$sent['body']);
+        $this->assertContains('<p>Important text</p>', EmailProbeDriver::$sent['body']);
+        $this->assertNotContains('opening-note', EmailProbeDriver::$sent['body']);
+        $this->assertNotContains('closing-note', EmailProbeDriver::$sent['body']);
     }
 
     /**
@@ -725,13 +725,13 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testT26SendReportsATransportFailure()
     {
-        Email::extend('gagal', function () {
+        Email::extend('failing', function () {
             return new EmailFailingDriver(Config::get('email'));
         });
 
-        $driver = Email::driver('gagal')->from('noreply@example.com');
+        $driver = Email::driver('failing')->from('noreply@example.com');
 
-        $this->assertFalse($driver->to('budi@example.com')->subject('Halo')->body('Isi')->send());
+        $this->assertFalse($driver->to('budi@example.com')->subject('Hello')->body('Body')->send());
     }
 
     /**
@@ -741,13 +741,13 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testT26SendAcceptsADriverThatReturnsNothing()
     {
-        Email::extend('diam', function () {
+        Email::extend('silent', function () {
             return new EmailSilentDriver(Config::get('email'));
         });
 
-        $driver = Email::driver('diam')->from('noreply@example.com');
+        $driver = Email::driver('silent')->from('noreply@example.com');
 
-        $this->assertTrue($driver->to('budi@example.com')->subject('Halo')->body('Isi')->send());
+        $this->assertTrue($driver->to('budi@example.com')->subject('Hello')->body('Body')->send());
     }
 
     /**
@@ -760,14 +760,14 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         Config::set('email.encoding', 'base64');
 
         $driver = $this->probe();
-        $driver->to('satu@example.com')->subject('Halo')->body('Isi asli')->send();
+        $driver->to('first@example.com')->subject('Hello')->body('Original body')->send();
         $first = EmailProbeDriver::$sent['body'];
 
-        $driver->to('dua@example.com')->send();
+        $driver->to('second@example.com')->send();
 
         $this->assertEquals(trim($first), trim(EmailProbeDriver::$sent['body']));
         $this->assertContains(
-            base64_encode('Isi asli'),
+            base64_encode('Original body'),
             preg_replace('/\s+/', '', EmailProbeDriver::$sent['body'])
         );
     }
@@ -782,7 +782,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         Config::set('email.protocol_replacement', 'https://');
 
         $driver = $this->probe();
-        $driver->to('budi@example.com')->subject('Halo')
+        $driver->to('budi@example.com')->subject('Hello')
             ->html_body('<img src="//cdn.example.com/logo.png" />', false)
             ->send();
 
@@ -796,32 +796,32 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testS26InlinePartsAreNotFollowedByTheAltBody()
     {
-        $logo = path('storage') . 'lampiran-sebaris.txt';
-        $berkas = path('storage') . 'lampiran-biasa.txt';
+        $logo = path('storage') . 'attachment-inline.txt';
+        $file = path('storage') . 'attachment-plain.txt';
 
-        file_put_contents($logo, 'gambar');
-        file_put_contents($berkas, 'lampiran');
+        file_put_contents($logo, 'image');
+        file_put_contents($file, 'attachment');
 
         try {
             $driver = $this->probe();
-            $driver->to('budi@example.com')->subject('Halo')
-                ->html_body('<p>Isi html</p><img src="' . $logo . '" />')
-                ->alt_body('Ringkasan alternatif')
-                ->attach($berkas)
+            $driver->to('budi@example.com')->subject('Hello')
+                ->html_body('<p>HTML body</p><img src="' . $logo . '" />')
+                ->alt_body('Alternative summary')
+                ->attach($file)
                 ->send();
 
             $body = EmailProbeDriver::$sent['body'];
 
             $this->assertContains('multipart/related', $body);
-            $this->assertEquals(1, substr_count($body, 'Ringkasan alternatif'));
+            $this->assertEquals(1, substr_count($body, 'Alternative summary'));
         } catch (\Exception $e) {
             @unlink($logo);
-            @unlink($berkas);
+            @unlink($file);
             throw $e;
         }
 
         @unlink($logo);
-        @unlink($berkas);
+        @unlink($file);
     }
 }
 

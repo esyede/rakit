@@ -190,6 +190,18 @@ class Grammar extends BaseGrammar
     }
 
     /**
+     * Compile the negated nested WHERE clause.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_not_nested($where)
+    {
+        return 'NOT '.$this->where_nested($where);
+    }
+
+    /**
      * Compile the basic WHERE clause.
      *
      * @param array $where
@@ -234,6 +246,38 @@ class Grammar extends BaseGrammar
 
         $parameters = $this->parameterize($where['values']);
         return $this->wrap($where['column']).' NOT IN ('.$parameters.')';
+    }
+
+    /**
+     * Compile the WHERE IN clause with inlined integer values.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_integer_in_raw($where)
+    {
+        if (empty($where['values'])) {
+            return '0 = 1';
+        }
+
+        return $this->wrap($where['column']).' IN ('.implode(', ', $where['values']).')';
+    }
+
+    /**
+     * Compile the WHERE NOT IN clause with inlined integer values.
+     *
+     * @param array $where
+     *
+     * @return string
+     */
+    protected function where_integer_not_in_raw($where)
+    {
+        if (empty($where['values'])) {
+            return '1 = 1';
+        }
+
+        return $this->wrap($where['column']).' NOT IN ('.implode(', ', $where['values']).')';
     }
 
     /**
@@ -362,6 +406,20 @@ class Grammar extends BaseGrammar
     protected function where_raw($where)
     {
         return $where['sql'];
+    }
+
+    /**
+     * Compile a date based function call on an already wrapped column.
+     * The MySQL spelling is used here, drivers that spell it differently override it.
+     *
+     * @param string $type
+     * @param string $column
+     *
+     * @return string
+     */
+    public function date_function($type, $column)
+    {
+        return $type.'('.$column.')';
     }
 
     /**

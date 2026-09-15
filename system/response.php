@@ -219,6 +219,13 @@ class Response
             'Content-Disposition' => static::disposition('attachment', $name ?: basename($path)),
         ]));
 
+        // RoadRunner and Swoole send the body of the returned response. Echoing it
+        // bypasses them, and under RoadRunner it corrupts the worker's relay.
+        if (defined('RAKIT_WORKER_MODE') && 'frankenphp' !== RAKIT_WORKER_MODE) {
+            $response->content = file_get_contents($path);
+            return $response;
+        }
+
         if (Config::get('session.driver')) {
             Session::save();
         }
@@ -313,16 +320,6 @@ class Response
     }
 
     /**
-     * Build a Content-Disposition header. The name often comes from the request,
-     * so anything that could end the quoted string or start a new header line is
-     * taken out of it first.
-     *
-     * @param string $type
-     * @param string $name
-     *
-     * @return string
-     */
-    /**
      * Validate that a file path is inside an allowed directory and is a real file.
      * Prevents path traversal disclosure.
      *
@@ -397,6 +394,16 @@ class Response
         return $real;
     }
 
+    /**
+     * Build a Content-Disposition header. The name often comes from the request,
+     * so anything that could end the quoted string or start a new header line is
+     * taken out of it first.
+     *
+     * @param string $type
+     * @param string $name
+     *
+     * @return string
+     */
     protected static function disposition($type, $name)
     {
         $name = str_replace(["\r", "\n", "\0", '"', '\\'], '', (string) $name);

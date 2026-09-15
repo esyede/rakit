@@ -104,7 +104,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection();
         $connection->begin_transaction();
-        $this->insert('disimpan');
+        $this->insert('kept');
         $connection->commit();
 
         $this->assertEquals(1, $this->rows());
@@ -120,7 +120,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
     {
         $connection = $this->connection();
         $connection->begin_transaction();
-        $this->insert('dibuang');
+        $this->insert('discarded');
         $connection->rollback();
 
         $this->assertEquals(0, $this->rows());
@@ -153,11 +153,11 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
     public function testTransactionReturnsTheCallbackResult()
     {
         $result = $this->connection()->transaction(function ($connection) {
-            $connection->table('trx')->insert(['note' => 'sesuatu']);
-            return 'nilai-callback';
+            $connection->table('trx')->insert(['note' => 'something']);
+            return 'callback-value';
         });
 
-        $this->assertEquals('nilai-callback', $result);
+        $this->assertEquals('callback-value', $result);
         $this->assertEquals(1, $this->rows());
     }
 
@@ -172,15 +172,15 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
 
         try {
             $this->connection()->transaction(function ($connection) {
-                $connection->table('trx')->insert(['note' => 'dibuang']);
-                throw new \Exception('batal');
+                $connection->table('trx')->insert(['note' => 'discarded']);
+                throw new \Exception('cancelled');
             });
         } catch (\Exception $e) {
             $thrown = $e;
         }
 
         $this->assertNotNull($thrown);
-        $this->assertEquals('batal', $thrown->getMessage());
+        $this->assertEquals('cancelled', $thrown->getMessage());
         $this->assertEquals(0, $this->rows());
         $this->assertEquals(0, $this->connection()->transaction_level());
     }
@@ -199,10 +199,10 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $connection = $this->connection();
 
         $connection->transaction(function ($outer) use ($connection) {
-            $outer->table('trx')->insert(['note' => 'luar']);
+            $outer->table('trx')->insert(['note' => 'outer']);
 
             $connection->transaction(function ($inner) {
-                $inner->table('trx')->insert(['note' => 'dalam']);
+                $inner->table('trx')->insert(['note' => 'inner']);
             });
         });
 
@@ -220,23 +220,23 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $connection = $this->connection();
 
         $connection->transaction(function ($outer) use ($connection) {
-            $outer->table('trx')->insert(['note' => 'luar']);
+            $outer->table('trx')->insert(['note' => 'outer']);
 
             try {
                 $connection->transaction(function ($inner) {
-                    $inner->table('trx')->insert(['note' => 'dalam']);
-                    throw new \Exception('batal-dalam');
+                    $inner->table('trx')->insert(['note' => 'inner']);
+                    throw new \Exception('cancel-inner');
                 });
             } catch (\Exception $e) {
                 // The inner one is undone, the outer one carries on.
             }
 
-            $outer->table('trx')->insert(['note' => 'luar-2']);
+            $outer->table('trx')->insert(['note' => 'outer-2']);
         });
 
         $notes = $connection->table('trx')->lists('note');
 
-        $this->assertEquals(['luar', 'luar-2'], $notes);
+        $this->assertEquals(['outer', 'outer-2'], $notes);
         $this->assertEquals(0, $connection->transaction_level());
     }
 
@@ -252,10 +252,10 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         try {
             $connection->transaction(function ($outer) use ($connection) {
                 $connection->transaction(function ($inner) {
-                    $inner->table('trx')->insert(['note' => 'dalam']);
+                    $inner->table('trx')->insert(['note' => 'inner']);
                 });
 
-                throw new \Exception('batal-luar');
+                throw new \Exception('cancel-outer');
             });
         } catch (\Exception $e) {
             // ..
@@ -346,7 +346,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         });
 
         Database::begin_transaction();
-        Database::table('trx')->insert(['note' => 'dibuang']);
+        Database::table('trx')->insert(['note' => 'discarded']);
         Database::rollback();
 
         Config::set('database.default', $previous);

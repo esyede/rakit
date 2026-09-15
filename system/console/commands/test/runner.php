@@ -85,13 +85,21 @@ class Runner extends Command
             throw new \Exception("Error: test dependencies is not present. Please run 'composer install' first.");
         }
 
+        // Run phpunit on the very PHP binary that runs this command, with its memory limit.
+        // Executing the script directly would let its shebang pick whichever `php` comes
+        // first in PATH, which is not necessarily the version being tested.
+        $script = 'vendor'.DS.'phpunit'.DS.'phpunit'.DS.'phpunit';
+        $command = (defined('PHP_BINARY') && '' !== (string) PHP_BINARY && is_file(path('base').$script))
+            ? escapeshellarg(PHP_BINARY).' -d memory_limit='.escapeshellarg(ini_get('memory_limit')).' '.escapeshellarg($script)
+            : '.'.DS.$phpunit;
+
         $verbose = has_cli_flag('v') || has_cli_flag('vv') || has_cli_flag('vvv') || has_cli_flag('verbose');
-        $phpunit .= $verbose ? ' --debug' : '';
+        $command .= $verbose ? ' --debug' : '';
 
         // Forward all phpunit arguments
         $args = $this->arguments();
-        $phpunit .= $args ? ' '.$args : '';
-        passthru('.'.DS.$phpunit.' --configuration '.escapeshellarg($config), $status);
+        $command .= $args ? ' '.$args : '';
+        passthru($command.' --configuration '.escapeshellarg($config), $status);
         is_file($config) && Storage::delete($config);
 
         if ($exit) {

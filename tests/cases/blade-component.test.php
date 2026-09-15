@@ -76,7 +76,7 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testComponentRendersItsView()
     {
-        $this->assertEquals('[halo]', $this->render('<x-wrap>halo</x-wrap>'));
+        $this->assertEquals('[hello]', $this->render('<x-wrap>hello</x-wrap>'));
     }
 
     /**
@@ -96,8 +96,8 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testATagThatIsNotAComponentIsLeftAlone()
     {
-        $this->assertEquals('<xa-wrap>halo</xa-wrap>', $this->render('<xa-wrap>halo</xa-wrap>'));
-        $this->assertEquals('<div>halo</div>', $this->render('<div>halo</div>'));
+        $this->assertEquals('<xa-wrap>hello</xa-wrap>', $this->render('<xa-wrap>hello</xa-wrap>'));
+        $this->assertEquals('<div>hello</div>', $this->render('<div>hello</div>'));
     }
 
     /**
@@ -180,8 +180,8 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
     public function testNamedSlot()
     {
         $this->assertEquals(
-            '<div class="card"><h3>Judul</h3><div>Isi</div></div>',
-            $this->render('<x-card><x-slot name="title">Judul</x-slot>Isi</x-card>')
+            '<div class="card"><h3>Title</h3><div>Body</div></div>',
+            $this->render('<x-card><x-slot name="title">Title</x-slot>Body</x-card>')
         );
     }
 
@@ -193,8 +193,8 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
     public function testNamedSlotWithAColon()
     {
         $this->assertEquals(
-            '<div class="card"><h3>Judul</h3><div>Isi</div></div>',
-            $this->render('<x-card><x-slot:title>Judul</x-slot>Isi</x-card>')
+            '<div class="card"><h3>Title</h3><div>Body</div></div>',
+            $this->render('<x-card><x-slot:title>Title</x-slot>Body</x-card>')
         );
     }
 
@@ -205,8 +205,8 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testAnEmptySlotSaysSo()
     {
-        $this->assertEquals('<div>KOSONG</div>', $this->render('<x-empty-check />'));
-        $this->assertEquals('<div>ada</div>', $this->render('<x-empty-check>ada</x-empty-check>'));
+        $this->assertEquals('<div>EMPTY</div>', $this->render('<x-empty-check />'));
+        $this->assertEquals('<div>filled</div>', $this->render('<x-empty-check>filled</x-empty-check>'));
     }
 
     /**
@@ -216,7 +216,7 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testBladeInsideASlot()
     {
-        $this->assertEquals('[ya]', $this->render('<x-wrap>@if($a)ya@else tidak @endif</x-wrap>', ['a' => true]));
+        $this->assertEquals('[yes]', $this->render('<x-wrap>@if($a)yes@else no @endif</x-wrap>', ['a' => true]));
         $this->assertEquals('[ab]', $this->render('<x-wrap>@foreach($xs as $x){{ $x }}@endforeach</x-wrap>', ['xs' => ['a', 'b']]));
     }
 
@@ -260,7 +260,7 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testComponentInsideASection()
     {
-        $this->assertEquals('[isi]', $this->render('@section("x")<x-wrap>isi</x-wrap>@endsection@yield("x")'));
+        $this->assertEquals('[content]', $this->render('@section("x")<x-wrap>content</x-wrap>@endsection@yield("x")'));
     }
 
     /**
@@ -298,7 +298,7 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testRawOutputInsideASlotIsStillRaw()
     {
-        $this->assertEquals('[<b>tebal</b>]', $this->render('<x-wrap>{!! $raw !!}</x-wrap>', ['raw' => '<b>tebal</b>']));
+        $this->assertEquals('[<b>bold</b>]', $this->render('<x-wrap>{!! $raw !!}</x-wrap>', ['raw' => '<b>bold</b>']));
     }
 
     /**
@@ -343,7 +343,7 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
             $this->render('<x-wrap><?php throw new \Exception("boom"); ?></x-wrap>');
             $this->fail('Expected the slot to throw.');
         } catch (\Exception $e) {
-            // sesuai harapan
+            // as expected
         }
 
         $this->assertEquals($level, ob_get_level());
@@ -361,13 +361,13 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
      */
     public function testComponentClass()
     {
-        $output = $this->render('<x-badge label="Baru" colour="green" id="b1" />');
+        $output = $this->render('<x-badge label="New" colour="green" id="b1" />');
 
         $this->assertContains('badge-green', $output);
-        $this->assertContains('Baru', $output);
+        $this->assertContains('New', $output);
         $this->assertContains('id="b1"', $output);
 
-        $output = $this->render('<x-badge label="Lama" />');
+        $output = $this->render('<x-badge label="Old" />');
 
         $this->assertContains('badge-grey', $output);
     }
@@ -391,13 +391,13 @@ class BladeComponentTest extends \PHPUnit_Framework_TestCase
     public function testComponentOfAPackage()
     {
         $this->assertEquals(
-            '<div class="kotak-dummy">isi</div>',
-            $this->render('<x-dummy::kotak>isi</x-dummy::kotak>')
+            '<div class="box-dummy">content</div>',
+            $this->render('<x-dummy::box>content</x-dummy::box>')
         );
 
         $this->assertEquals(
-            '<b>Baru</b>',
-            $this->render('<x-dummy::lencana label="Baru" />')
+            '<b>New</b>',
+            $this->render('<x-dummy::badge label="New" />')
         );
     }
 

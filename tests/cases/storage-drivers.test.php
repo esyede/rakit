@@ -299,9 +299,9 @@ class StorageDriversTest extends \PHPUnit_Framework_TestCase
     {
         $driver = new \System\Session\Drivers\Cookie();
 
-        Cookie::put(\System\Session\Drivers\Cookie::PAYLOAD, 'bukan data terserialisasi');
+        Cookie::put(\System\Session\Drivers\Cookie::PAYLOAD, 'not serialized data');
 
-        $this->assertNull($driver->load('apa saja'));
+        $this->assertNull($driver->load('anything'));
     }
 
     /**
@@ -313,7 +313,7 @@ class StorageDriversTest extends \PHPUnit_Framework_TestCase
     {
         $driver = new \System\Session\Drivers\Cookie();
 
-        $this->assertNull($driver->load('apa saja'));
+        $this->assertNull($driver->load('anything'));
     }
 
     // -------------------------------------------------------------------------
@@ -329,14 +329,14 @@ class StorageDriversTest extends \PHPUnit_Framework_TestCase
     {
         $driver = new \System\Session\Drivers\Database(Database::connection());
 
-        $driver->save(['id' => 'kadaluwarsa', 'last_activity' => time() - 7200, 'data' => []], [], false);
-        $driver->save(['id' => 'aktif', 'last_activity' => time(), 'data' => []], [], false);
+        $driver->save(['id' => 'expired', 'last_activity' => time() - 7200, 'data' => []], [], false);
+        $driver->save(['id' => 'active', 'last_activity' => time(), 'data' => []], [], false);
 
         $this->assertEquals(2, Database::table(self::SESSION_TABLE)->count());
 
         $driver->sweep(time() - 3600);
 
-        $this->assertEquals(['aktif'], Database::table(self::SESSION_TABLE)->lists('id'));
+        $this->assertEquals(['active'], Database::table(self::SESSION_TABLE)->lists('id'));
     }
 
     /**
@@ -353,18 +353,18 @@ class StorageDriversTest extends \PHPUnit_Framework_TestCase
 
         $driver = new \System\Session\Drivers\File($path);
 
-        $driver->save(['id' => 'kadaluwarsa', 'data' => []], [], false);
-        $driver->save(['id' => 'aktif', 'data' => []], [], false);
+        $driver->save(['id' => 'expired', 'data' => []], [], false);
+        $driver->save(['id' => 'active', 'data' => []], [], false);
 
-        touch($path.sha1('kadaluwarsa').'.session.php', time() - 7200);
+        touch($path.sha1('expired').'.session.php', time() - 7200);
 
         $this->assertCount(2, glob($path.'*.session.php'));
 
         $driver->sweep(time() - 3600);
 
         $this->assertCount(1, glob($path.'*.session.php'));
-        $this->assertNull($driver->load('kadaluwarsa'));
-        $this->assertTrue(is_array($driver->load('aktif')));
+        $this->assertNull($driver->load('expired'));
+        $this->assertTrue(is_array($driver->load('active')));
 
         $this->cleanup($path);
     }

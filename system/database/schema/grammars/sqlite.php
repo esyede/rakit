@@ -253,8 +253,11 @@ class SQLite extends Grammar
      */
     public function fulltext(Table $table, Magic $command)
     {
+        // SQLite has no fulltext index on a regular table, so a separate FTS4 table named
+        // after the index is made, the one drop_fulltext() removes. Naming it after the
+        // table instead would clash with the table itself. It is not kept in sync.
         $columns = $this->columnize($command->columns);
-        return 'CREATE VIRTUAL TABLE '.$this->wrap($table).' USING fts4('.$columns.')';
+        return 'CREATE VIRTUAL TABLE '.$this->wrap($command->name).' USING fts4('.$columns.')';
     }
 
     /**
@@ -443,9 +446,9 @@ class SQLite extends Grammar
      */
     public function spatial(Table $table, Magic $command)
     {
-        // SQLite spatial index will be using R-Tree module
-        return 'CREATE VIRTUAL TABLE '.$this->wrap($table)
-            .' USING rtree('.$this->columnize($command->columns).')';
+        // An R*Tree is a virtual table of its own (an id plus min / max pairs), not an
+        // index on a column, so there is nothing a spatial index could be turned into.
+        throw new \Exception('Spatial indexes are not supported in SQLite. Use an R*Tree virtual table instead.');
     }
 
     /**

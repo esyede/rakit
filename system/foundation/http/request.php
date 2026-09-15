@@ -52,6 +52,7 @@ class Request
 
     protected $locale;
 
+
     protected $defaultLocale = 'id';
 
     protected static $formats;
@@ -122,12 +123,15 @@ class Request
 
     /**
      * Make an request object from PHP global variables.
+     * The body is read from php://input unless it is given.
+     *
+     * @param string|null $content
      *
      * @return Request
      */
-    public static function createFromGlobals()
+    public static function createFromGlobals($content = null)
     {
-        $request = new static($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
+        $request = new static($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER, $content);
 
         $type = (string) $request->server->get('CONTENT_TYPE');
         $httpType = (string) $request->server->get('HTTP_CONTENT_TYPE');

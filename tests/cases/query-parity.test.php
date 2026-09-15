@@ -33,6 +33,7 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         Database::connection('qparity')->pdo()->exec('DROP TABLE IF EXISTS qparity');
+        Database::connection('qparity')->pdo()->exec('DROP TABLE IF EXISTS qparity_dates');
     }
 
     /**
@@ -421,5 +422,285 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(10, $row->qty);
         $this->assertEquals(7, $row->grp);
+    }
+
+    /**
+     * Test that the date helpers are compiled with the functions of each driver.
+     *
+     * @group system
+     */
+    public function testDateHelpersAreCompiledPerDriver()
+    {
+        $connection = Database::connection('qparity');
+        $methods = ['where_date', 'where_time', 'where_day', 'where_month', 'where_year'];
+        $expected = [
+            'Grammar' => ['DATE("c")', 'TIME("c")', 'DAY("c")', 'MONTH("c")', 'YEAR("c")'],
+            'MySQL' => ['DATE(`c`)', 'TIME(`c`)', 'DAY(`c`)', 'MONTH(`c`)', 'YEAR(`c`)'],
+            'Postgres' => [
+                'CAST("c" AS DATE)',
+                'CAST("c" AS TIME)',
+                'EXTRACT(DAY FROM "c")',
+                'EXTRACT(MONTH FROM "c")',
+                'EXTRACT(YEAR FROM "c")',
+            ],
+            'SQLite' => [
+                "strftime('%Y-%m-%d', \"c\")",
+                "strftime('%H:%M:%S', \"c\")",
+                "CAST(strftime('%d', \"c\") AS INTEGER)",
+                "CAST(strftime('%m', \"c\") AS INTEGER)",
+                "CAST(strftime('%Y', \"c\") AS INTEGER)",
+            ],
+            'SQLServer' => ['CAST([c] AS DATE)', 'CAST([c] AS TIME)', 'DAY([c])', 'MONTH([c])', 'YEAR([c])'],
+        ];
+
+        foreach ($expected as $name => $clauses) {
+            $class = '\\System\\Database\\Query\\Grammars\\' . $name;
+
+            foreach ($methods as $index => $method) {
+                $query = new \System\Database\Query($connection, new $class($connection), 'qparity');
+                $sql = $query->{$method}('c', '=', 1)->to_sql();
+
+                $this->assertContains('WHERE ' . $clauses[$index] . ' = ?', $sql, $name . ' ' . $method);
+            }
+        }
+    }
+
+    /**
+     * Test that the date helpers really match rows on sqlite.
+     *
+     * @group system
+     */
+    public function testDateHelpersMatchRowsOnSqlite()
+    {
+        $pdo = Database::connection('qparity')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS qparity_dates (id INTEGER PRIMARY KEY, stamp TEXT)');
+        $pdo->exec('DELETE FROM qparity_dates');
+
+        foreach (['2026-01-05 08:30:00', '2026-03-15 17:45:10', '2025-12-31 23:59:59'] as $stamp) {
+            $pdo->exec("INSERT INTO qparity_dates (stamp) VALUES ('$stamp')");
+        }
+
+        $ids = function ($query) {
+            return array_map('intval', $query->order_by('id')->lists('id'));
+        };
+
+        $table = Database::connection('qparity')->table('qparity_dates');
+
+        $this->assertEquals([1], $ids($table->copy()->where_month('stamp', '=', 1)));
+        $this->assertEquals([1], $ids($table->copy()->where_month('stamp', '=', '01')));
+        $this->assertEquals([2, 3], $ids($table->copy()->where_month('stamp', '>=', 3)));
+        $this->assertEquals([2], $ids($table->copy()->where_day('stamp', '=', 15)));
+        $this->assertEquals([3], $ids($table->copy()->where_year('stamp', '<', 2026)));
+        $this->assertEquals([2], $ids($table->copy()->where_date('stamp', '=', '2026-03-15')));
+        $this->assertEquals([2, 3], $ids($table->copy()->where_time('stamp', '>', '12:00:00')));
+    }
+
+    /**
+     * Test that the date helpers only compare the relevant part of a DateTime value.
+     *
+     * @group system
+     */
+    public function testDateHelpersFormatDateTimeValues()
+    {
+        $pdo = Database::connection('qparity')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS qparity_dates (id INTEGER PRIMARY KEY, stamp TEXT)');
+        $pdo->exec('DELETE FROM qparity_dates');
+        $pdo->exec("INSERT INTO qparity_dates (stamp) VALUES ('2026-03-15 17:45:10')");
+
+        $table = Database::connection('qparity')->table('qparity_dates');
+        $moment = new \DateTime('2026-03-15 08:00:00');
+
+        $this->assertEquals(1, $table->copy()->where_date('stamp', '=', $moment)->count());
+        $this->assertEquals(1, $table->copy()->where_day('stamp', '=', $moment)->count());
+        $this->assertEquals(1, $table->copy()->where_month('stamp', '=', $moment)->count());
+        $this->assertEquals(1, $table->copy()->where_year('stamp', '=', $moment)->count());
+        $this->assertEquals(1, $table->copy()->where_time('stamp', '>', $moment)->count());
+        $this->assertEquals(['2026-03-15'], $table->copy()->where_date('stamp', '=', $moment)->bindings);
+    }
+
+    /**
+     * Test where_any(), where_all() and where_none().
+     *
+     * @group system
+     */
+    public function testWhereAnyAllAndNone()
+    {
+        $names = function ($query) {
+            return $query->order_by('id')->lists('name');
+        };
+
+        $this->assertEquals(['beta', 'gamma'], $names($this->query()->where_any(['grp', 'qty'], '=', 2)));
+        $this->assertEquals(['gamma'], $names($this->query()->where_all(['grp', 'qty'], '>', 1)));
+        $this->assertEquals(['alpha'], $names($this->query()->where_none(['grp', 'qty'], '=', 2)));
+        $this->assertEquals(['beta'], $names($this->query()->where_any(['name', 'qty'], 'beta')));
+
+        $this->assertEquals(
+            ['alpha', 'gamma'],
+            $names($this->query()->where('name', '=', 'alpha')->or_where_any(['grp', 'qty'], '=', 9))
+        );
+        $this->assertEquals(
+            ['alpha', 'gamma'],
+            $names($this->query()->where('name', '=', 'alpha')->or_where_all(['grp', 'qty'], '>', 1))
+        );
+        $this->assertEquals(
+            ['alpha', 'gamma'],
+            $names($this->query()->where('name', '=', 'gamma')->or_where_none(['grp', 'qty'], '=', 2))
+        );
+
+        // The bindings of the group must stay in order with the clauses around it.
+        $this->assertEquals(
+            ['beta'],
+            $names($this->query()->where('id', '>', 0)->where_any(['grp', 'qty'], '=', 2)->where('name', '!=', 'gamma'))
+        );
+    }
+
+    /**
+     * Test the sql of where_any(), where_all() and where_none().
+     *
+     * @group system
+     */
+    public function testWhereAnyAllAndNoneSql()
+    {
+        $this->assertContains(
+            'WHERE "grp" = ? AND ("name" LIKE ? OR "qty" LIKE ?)',
+            $this->query()->where('grp', '=', 1)->where_any(['name', 'qty'], 'LIKE', '%a%')->to_sql()
+        );
+        $this->assertContains(
+            'WHERE ("name" LIKE ? AND "qty" LIKE ?)',
+            $this->query()->where_all(['name', 'qty'], 'LIKE', '%a%')->to_sql()
+        );
+        $this->assertContains(
+            'WHERE NOT ("name" LIKE ? OR "qty" LIKE ?)',
+            $this->query()->where_none(['name', 'qty'], 'LIKE', '%a%')->to_sql()
+        );
+        $this->assertContains(
+            'WHERE "grp" = ? OR NOT ("name" = ? OR "qty" = ?)',
+            $this->query()->where('grp', '=', 1)->or_where_none(['name', 'qty'], '=', 'x')->to_sql()
+        );
+    }
+
+    /**
+     * Test that a multi row insert keeps every row, in the given order, on sqlite.
+     *
+     * @group system
+     */
+    public function testMultiRowInsertKeepsOrderAndDuplicates()
+    {
+        $this->query()->delete();
+        $this->query()->insert([
+            ['name' => 'zeta', 'grp' => 1, 'qty' => 1],
+            ['name' => 'alpha', 'grp' => 2, 'qty' => 1],
+            ['name' => 'mid', 'grp' => 3, 'qty' => 1],
+        ]);
+
+        $this->assertEquals(['zeta', 'alpha', 'mid'], $this->query()->order_by('id')->lists('name'));
+
+        Database::connection('qparity')->pdo()->exec('CREATE TABLE IF NOT EXISTS qparity_dates (id INTEGER PRIMARY KEY, stamp TEXT)');
+        Database::connection('qparity')->table('qparity_dates')->insert([['stamp' => 'same'], ['stamp' => 'same']]);
+
+        $this->assertEquals(2, Database::connection('qparity')->table('qparity_dates')->where('stamp', '=', 'same')->count());
+    }
+
+    /**
+     * Test or_where_nested().
+     *
+     * @group system
+     */
+    public function testOrWhereNested()
+    {
+        $query = $this->query()
+            ->where('name', '=', 'alpha')
+            ->or_where_nested(function ($query) {
+                $query->where('grp', '=', 2)->where('qty', '>', 5);
+            });
+
+        $this->assertContains('WHERE "name" = ? OR ("grp" = ? AND "qty" > ?)', $query->to_sql());
+        $this->assertEquals(['alpha', 'gamma'], $query->order_by('id')->lists('name'));
+
+        // An empty group adds nothing.
+        $this->assertEquals(1, $this->query()->where('name', '=', 'beta')->or_where_nested(function ($query) {
+            // ..
+        })->count());
+    }
+
+    /**
+     * Test that a grouped where needs at least one column.
+     *
+     * @group system
+     */
+    public function testWhereAnyWithoutColumnsThrows()
+    {
+        $this->setExpectedException('\InvalidArgumentException');
+        $this->query()->where_any([], '=', 1);
+    }
+
+    /**
+     * Test where_integer_in_raw() and its variants.
+     *
+     * @group system
+     */
+    public function testWhereIntegerInRaw()
+    {
+        $query = $this->query()->where_integer_in_raw('id', [1, '3', '007']);
+
+        $this->assertContains('WHERE "id" IN (1, 3, 7)', $query->to_sql());
+        $this->assertEquals([], $query->bindings);
+        $this->assertEquals(['alpha', 'gamma'], $query->order_by('id')->lists('name'));
+
+        $this->assertEquals(['beta', 'gamma'], $this->query()->where_integer_not_in_raw('id', [1])->order_by('id')->lists('name'));
+        $this->assertEquals(
+            ['alpha', 'beta'],
+            $this->query()->where('name', '=', 'alpha')->or_where_integer_in_raw('id', [2])->order_by('id')->lists('name')
+        );
+        $this->assertEquals(
+            ['alpha', 'gamma'],
+            $this->query()->where('name', '=', 'gamma')->or_where_integer_not_in_raw('id', [2, 3])->order_by('id')->lists('name')
+        );
+
+        // No binding is added, so the ones around it must not shift.
+        $this->assertEquals(
+            ['beta'],
+            $this->query()->where('grp', '=', 1)->where_integer_in_raw('id', [2, 3])->where('qty', '>', 1)->lists('name')
+        );
+
+        $this->assertContains('0 = 1', $this->query()->where_integer_in_raw('id', [])->to_sql());
+        $this->assertContains('1 = 1', $this->query()->where_integer_not_in_raw('id', [])->to_sql());
+        $this->assertEquals(3, $this->query()->where_integer_not_in_raw('id', [])->count());
+    }
+
+    /**
+     * Test that where_integer_in_raw() refuses anything that is not an integer.
+     *
+     * @group system
+     */
+    public function testWhereIntegerInRawRejectsNonIntegers()
+    {
+        foreach (['1 OR 1 = 1', "5\n", '1.5', 1.5, null, true, [1]] as $value) {
+            try {
+                $this->query()->where_integer_in_raw('id', [1, $value]);
+                $this->fail('No exception for ' . var_export($value, true));
+            } catch (\InvalidArgumentException $e) {
+                $this->assertContains('Only integer values', $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Test the names that are still reserved from the dynamic where handling.
+     *
+     * @group system
+     */
+    public function testReservedDynamicWhereMessages()
+    {
+        foreach (['where_relation' => 'only exists on a facile model query', 'where_json_contains' => 'is not supported yet'] as $method => $message) {
+            try {
+                $this->query()->{$method}('x');
+                $this->fail('No exception for ' . $method);
+            } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+                throw $e;
+            } catch (\Exception $e) {
+                $this->assertContains('Query::' . $method . '() ' . $message, $e->getMessage());
+            }
+        }
     }
 }

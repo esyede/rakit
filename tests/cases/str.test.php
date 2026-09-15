@@ -119,51 +119,51 @@ class StrTest extends \PHPUnit_Framework_TestCase
 
     public function testStrBefore()
     {
-        $this->assertSame('maw', Str::before('mawar', 'ar'));
-        $this->assertSame('ma', Str::before('mawar', 'w'));
+        $this->assertSame('flow', Str::before('flower', 'er'));
+        $this->assertSame('flo', Str::before('flower', 'w'));
 
-        $this->assertSame('ééé ', Str::before('ééé mawar', 'maw'));
+        $this->assertSame('ééé ', Str::before('ééé flower', 'flo'));
 
-        $this->assertSame('mawar', Str::before('mawar', 'xxxx'));
-        $this->assertSame('mawar', Str::before('mawar', ''));
+        $this->assertSame('flower', Str::before('flower', 'xxxx'));
+        $this->assertSame('flower', Str::before('flower', ''));
 
-        $this->assertSame('maw', Str::before('maw0ar', '0'));
-        $this->assertSame('maw', Str::before('maw0ar', 0));
-        $this->assertSame('maw', Str::before('maw2ar', 2));
+        $this->assertSame('flow', Str::before('flow0er', '0'));
+        $this->assertSame('flow', Str::before('flow0er', 0));
+        $this->assertSame('flow', Str::before('flow2er', 2));
     }
 
     public function testStrAfter()
     {
-        $this->assertSame('war', Str::after('mawar', 'ma'));
-        $this->assertSame('ar', Str::after('mawar', 'w'));
+        $this->assertSame('ower', Str::after('flower', 'fl'));
+        $this->assertSame('er', Str::after('flower', 'w'));
 
-        $this->assertSame('war', Str::after('ééé mawar', 'ma'));
+        $this->assertSame('ower', Str::after('ééé flower', 'fl'));
 
-        $this->assertSame('mawar', Str::after('mawar', 'xxxx'));
-        $this->assertSame('mawar', Str::after('mawar', ''));
+        $this->assertSame('flower', Str::after('flower', 'xxxx'));
+        $this->assertSame('flower', Str::after('flower', ''));
 
-        $this->assertSame('war', Str::after('ma0war', '0'));
-        $this->assertSame('war', Str::after('ma0war', 0));
-        $this->assertSame('war', Str::after('ma2war', 2));
+        $this->assertSame('ower', Str::after('fl0ower', '0'));
+        $this->assertSame('ower', Str::after('fl0ower', 0));
+        $this->assertSame('ower', Str::after('fl2ower', 2));
     }
 
     public function testStrContains()
     {
-        $this->assertTrue(Str::contains('mawar', 'aw'));
-        $this->assertTrue(Str::contains('mawar', 'mawar'));
-        $this->assertTrue(Str::contains('mawar', ['awa']));
-        $this->assertTrue(Str::contains('mawar', ['xxx', 'awa']));
-        $this->assertFalse(Str::contains('mawar', 'xxx'));
-        $this->assertFalse(Str::contains('mawar', ['xxx']));
-        $this->assertFalse(Str::contains('mawar', ''));
+        $this->assertTrue(Str::contains('flower', 'ow'));
+        $this->assertTrue(Str::contains('flower', 'flower'));
+        $this->assertTrue(Str::contains('flower', ['owe']));
+        $this->assertTrue(Str::contains('flower', ['xxx', 'owe']));
+        $this->assertFalse(Str::contains('flower', 'xxx'));
+        $this->assertFalse(Str::contains('flower', ['xxx']));
+        $this->assertFalse(Str::contains('flower', ''));
         $this->assertFalse(Str::contains('', ''));
     }
 
     public function testStrContainsAll()
     {
-        $this->assertTrue(Str::contains_all('mawar melati', ['mawar', 'melati']));
-        $this->assertTrue(Str::contains_all('mawar melati', ['mawar']));
-        $this->assertFalse(Str::contains_all('mawar melati', ['mawar', 'xxx']));
+        $this->assertTrue(Str::contains_all('rose jasmine', ['rose', 'jasmine']));
+        $this->assertTrue(Str::contains_all('rose jasmine', ['rose']));
+        $this->assertFalse(Str::contains_all('rose jasmine', ['rose', 'xxx']));
     }
 
     public function testParseCallback()

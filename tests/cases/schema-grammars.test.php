@@ -252,6 +252,72 @@ class SchemaGrammarsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test fulltext index creation per driver.
+     *
+     * @group system
+     */
+    public function testFulltextIndexes()
+    {
+        $table = new Table('posts');
+        $table->fulltext(['title', 'body']);
+
+        $sql = $this->compile('MySQL', $table);
+        $this->assertEquals('ALTER TABLE `posts` ADD FULLTEXT posts_title_body_fulltext(`title`, `body`)', $sql[0]);
+
+        $sql = $this->compile('Postgres', $table);
+        $this->assertEquals(
+            'CREATE INDEX posts_title_body_fulltext ON "posts" USING gin(('
+            . "to_tsvector('english', coalesce(\"title\", '')) || to_tsvector('english', coalesce(\"body\", ''))))",
+            $sql[0]
+        );
+
+        $sql = $this->compile('SQLite', $table);
+        $this->assertEquals('CREATE VIRTUAL TABLE "posts_title_body_fulltext" USING fts4("title", "body")', $sql[0]);
+
+        // SQL Server looks the primary key up, and makes a catalog named after the index.
+        $sql = $this->compile('SQLServer', $table);
+        $this->assertCount(2, $sql);
+        $this->assertEquals(
+            "IF NOT EXISTS (SELECT 1 FROM sys.fulltext_catalogs WHERE name = N'posts_title_body_fulltext') "
+            . 'CREATE FULLTEXT CATALOG posts_title_body_fulltext',
+            $sql[0]
+        );
+        $this->assertContains("OBJECT_ID(N'[posts]') AND is_primary_key = 1", $sql[1]);
+        $this->assertContains(
+            "DECLARE @sql nvarchar(max) = N'CREATE FULLTEXT INDEX ON [posts] ([title], [body]) KEY INDEX ' + QUOTENAME(@key) + N' ON posts_title_body_fulltext';",
+            $sql[1]
+        );
+        $this->assertContains('ELSE EXEC(@sql)', $sql[1]);
+
+        $table = new Table('posts');
+        $table->fulltext('title')->catalog('shared')->key('PK_posts');
+        $sql = $this->compile('SQLServer', $table);
+        $this->assertEquals('CREATE FULLTEXT INDEX ON [posts] ([title]) KEY INDEX PK_posts ON shared', $sql[1]);
+
+        $table = new Table('posts');
+        $table->drop_fulltext('posts_title_body_fulltext');
+        $table->drop_fulltext_if_exists('posts_title_body_fulltext');
+        $sql = $this->compile('SQLServer', $table);
+        $this->assertEquals('DROP FULLTEXT INDEX ON [posts]', $sql[0]);
+        $this->assertContains('AND NOT EXISTS (SELECT 1 FROM sys.fulltext_indexes i', $sql[1]);
+        $this->assertContains('DROP FULLTEXT CATALOG posts_title_body_fulltext', $sql[1]);
+        $this->assertEquals(
+            "IF EXISTS (SELECT 1 FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID(N'[posts]')) DROP FULLTEXT INDEX ON [posts]",
+            $sql[2]
+        );
+
+        // The text search config of postgres can be changed, and is escaped.
+        $table = new Table('posts');
+        $table->fulltext('title')->language("it's");
+
+        $sql = $this->compile('Postgres', $table);
+        $this->assertEquals(
+            "CREATE INDEX posts_title_fulltext ON \"posts\" USING gin((to_tsvector('it''s', coalesce(\"title\", ''))))",
+            $sql[0]
+        );
+    }
+
+    /**
      * Test foreign key creation per driver.
      *
      * @group system

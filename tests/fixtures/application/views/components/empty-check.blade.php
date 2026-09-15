@@ -1,1 +1,1 @@
-<div>@if($slot->is_empty())KOSONG@else{{ $slot }}@endif</div>
+<div>@if($slot->is_empty())EMPTY@else{{ $slot }}@endif</div>

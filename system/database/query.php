@@ -165,6 +165,30 @@ class Query
     ];
 
     /**
+     * List of method names that must never be handled as a dynamic WHERE clause.
+     * Each one either exists only on a Facile query, or is a well-known builder method
+     * that is not implemented yet. Without this guard they would silently be compiled
+     * into a WHERE clause on a column of that name instead of raising an error.
+     *
+     * Note that a column whose name matches one of these (e.g. 'key') can no longer be
+     * queried through a dynamic where, use where() for it instead.
+     *
+     * @var array
+     */
+    protected static $reserved_wheres = [
+        'where_has' => 'only exists on a facile model query',
+        'where_doesnt_have' => 'only exists on a facile model query',
+        'where_relation' => 'only exists on a facile model query',
+        'where_belongs_to' => 'only exists on a facile model query',
+        'where_key' => 'only exists on a facile model query',
+        'where_key_not' => 'only exists on a facile model query',
+        'where_json_contains' => 'is not supported yet',
+        'where_json_length' => 'is not supported yet',
+        'where_full_text' => 'is not supported yet',
+        'where_morph_relation' => 'is not supported yet',
+    ];
+
+    /**
      * Constructor.
      *
      * @param Connection   $connection
@@ -446,6 +470,78 @@ class Query
     public function or_where_not_in($column, array $values)
     {
         return $this->where_not_in($column, $values, 'OR');
+    }
+
+    /**
+     * Add a WHERE IN clause with the values inlined into the sql instead of bound.
+     * A long list then does not run into the bound parameter limit of the driver.
+     * Only integers are accepted, since the values end up in the sql as they are.
+     *
+     * @param string $column
+     * @param array  $values
+     * @param string $connector
+     * @param bool   $not
+     *
+     * @return Query
+     */
+    public function where_integer_in_raw($column, array $values, $connector = 'AND', $not = false)
+    {
+        foreach ($values as $key => $value) {
+            if (is_int($value)) {
+                $values[$key] = (string) $value;
+            } elseif (is_string($value) && preg_match('/\A-?[0-9]+\z/', $value)) {
+                $values[$key] = preg_replace('/\A(-?)0+(?=[0-9])/', '$1', $value);
+            } else {
+                $given = is_object($value) ? get_class($value) : (is_scalar($value) ? var_export($value, true) : gettype($value));
+                throw new \InvalidArgumentException(sprintf('Only integer values can be inlined into the sql, %s given.', $given));
+            }
+        }
+
+        $type = $not ? 'where_integer_not_in_raw' : 'where_integer_in_raw';
+        $values = array_values($values);
+        $this->wheres[] = compact('type', 'column', 'values', 'connector');
+
+        return $this;
+    }
+
+    /**
+     * Add an OR WHERE IN clause with the integer values inlined into the sql.
+     *
+     * @param string $column
+     * @param array  $values
+     *
+     * @return Query
+     */
+    public function or_where_integer_in_raw($column, array $values)
+    {
+        return $this->where_integer_in_raw($column, $values, 'OR');
+    }
+
+    /**
+     * Add a WHERE NOT IN clause with the integer values inlined into the sql.
+     *
+     * @param string $column
+     * @param array  $values
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_integer_not_in_raw($column, array $values, $connector = 'AND')
+    {
+        return $this->where_integer_in_raw($column, $values, $connector, true);
+    }
+
+    /**
+     * Add an OR WHERE NOT IN clause with the integer values inlined into the sql.
+     *
+     * @param string $column
+     * @param array  $values
+     *
+     * @return Query
+     */
+    public function or_where_integer_not_in_raw($column, array $values)
+    {
+        return $this->where_integer_in_raw($column, $values, 'OR', true);
     }
 
     /**
@@ -800,30 +896,6 @@ class Query
     }
 
     /**
-     * List of method names that must never be handled as a dynamic WHERE clause.
-     * They all exist in the framework and start with 'where_', so without this guard
-     * they would silently be compiled into a column of that name instead of raising an error.
-     *
-     * @var array
-     */
-    protected static $reserved_wheres = [
-        'where_has' => 'only exists on a facile model query',
-        'where_doesnt_have' => 'only exists on a facile model query',
-        'where_json_contains' => 'is not supported yet',
-        'where_json_length' => 'is not supported yet',
-        'where_full_text' => 'is not supported yet',
-        'where_relation' => 'is not supported yet',
-        'where_belongs_to' => 'is not supported yet',
-        'where_morph_relation' => 'is not supported yet',
-        'where_integer_in_raw' => 'is not supported yet, use where_in() instead',
-        'where_all' => 'is not supported yet',
-        'where_any' => 'is not supported yet',
-        'where_none' => 'is not supported yet',
-        'where_key' => 'only exists on a facile model query',
-        'where_key_not' => 'only exists on a facile model query',
-    ];
-
-    /**
      * Make sure the given method is not one of the reserved names.
      *
      * @param string $method
@@ -943,14 +1015,6 @@ class Query
     }
 
     /**
-     * Add a nested WHERE clause to the query.
-     *
-     * @param \Closure $callback
-     * @param string   $connector
-     *
-     * @return Query
-     */
-    /**
      * Set the table the query runs against.
      *
      * @param string $table
@@ -984,6 +1048,139 @@ class Query
         }
 
         $this->bindings = array_merge($this->bindings, $query->bindings);
+        return $this;
+    }
+
+    /**
+     * Add a nested OR WHERE clause to the query.
+     *
+     * @param \Closure $callback
+     *
+     * @return Query
+     */
+    public function or_where_nested(\Closure $callback)
+    {
+        return $this->where_nested($callback, 'OR');
+    }
+
+    /**
+     * Add a WHERE clause that matches when any of the columns meets the condition.
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_any(array $columns, $operator = null, $value = null, $connector = 'AND')
+    {
+        return $this->grouped_where($columns, $operator, $value, $connector, 'OR');
+    }
+
+    /**
+     * Add an OR WHERE clause that matches when any of the columns meets the condition.
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     *
+     * @return Query
+     */
+    public function or_where_any(array $columns, $operator = null, $value = null)
+    {
+        return $this->grouped_where($columns, $operator, $value, 'OR', 'OR');
+    }
+
+    /**
+     * Add a WHERE clause that matches when all of the columns meet the condition.
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_all(array $columns, $operator = null, $value = null, $connector = 'AND')
+    {
+        return $this->grouped_where($columns, $operator, $value, $connector, 'AND');
+    }
+
+    /**
+     * Add an OR WHERE clause that matches when all of the columns meet the condition.
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     *
+     * @return Query
+     */
+    public function or_where_all(array $columns, $operator = null, $value = null)
+    {
+        return $this->grouped_where($columns, $operator, $value, 'OR', 'AND');
+    }
+
+    /**
+     * Add a WHERE clause that matches when none of the columns meets the condition.
+     * A NULL column makes the condition unknown, so such a row is not matched either.
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     *
+     * @return Query
+     */
+    public function where_none(array $columns, $operator = null, $value = null, $connector = 'AND')
+    {
+        return $this->grouped_where($columns, $operator, $value, $connector, 'OR', true);
+    }
+
+    /**
+     * Add an OR WHERE clause that matches when none of the columns meets the condition.
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     *
+     * @return Query
+     */
+    public function or_where_none(array $columns, $operator = null, $value = null)
+    {
+        return $this->grouped_where($columns, $operator, $value, 'OR', 'OR', true);
+    }
+
+    /**
+     * Add the same condition for every given column as a single nested group.
+     * The name must not start with 'where_', or calling it from outside would
+     * end up in the dynamic where handling of __call().
+     *
+     * @param array  $columns
+     * @param string $operator
+     * @param mixed  $value
+     * @param string $connector
+     * @param string $joiner
+     * @param bool   $not
+     *
+     * @return Query
+     */
+    protected function grouped_where(array $columns, $operator, $value, $connector, $joiner, $not = false)
+    {
+        if (empty($columns)) {
+            throw new \InvalidArgumentException('At least one column is required to build the grouped where clause.');
+        }
+
+        $query = new static($this->connection, $this->grammar, $this->from);
+
+        foreach ($columns as $column) {
+            $query->where($column, $operator, $value, $joiner);
+        }
+
+        $type = $not ? 'where_not_nested' : 'where_nested';
+        $this->wheres[] = compact('type', 'query', 'connector');
+        $this->bindings = array_merge($this->bindings, $query->bindings);
+
         return $this;
     }
 
@@ -1863,6 +2060,7 @@ class Query
      */
     public function where_date($column, $operator, $value, $connector = 'AND')
     {
+        $value = ($value instanceof \DateTime) ? $value->format('Y-m-d') : $value;
         return $this->where($this->wrap_date_column($column, 'DATE'), $operator, $value, $connector);
     }
 
@@ -1878,6 +2076,7 @@ class Query
      */
     public function where_month($column, $operator, $value, $connector = 'AND')
     {
+        $value = ($value instanceof \DateTime) ? (int) $value->format('n') : $value;
         return $this->where($this->wrap_date_column($column, 'MONTH'), $operator, $value, $connector);
     }
 
@@ -1893,6 +2092,7 @@ class Query
      */
     public function where_day($column, $operator, $value, $connector = 'AND')
     {
+        $value = ($value instanceof \DateTime) ? (int) $value->format('j') : $value;
         return $this->where($this->wrap_date_column($column, 'DAY'), $operator, $value, $connector);
     }
 
@@ -1908,6 +2108,7 @@ class Query
      */
     public function where_year($column, $operator, $value, $connector = 'AND')
     {
+        $value = ($value instanceof \DateTime) ? (int) $value->format('Y') : $value;
         return $this->where($this->wrap_date_column($column, 'YEAR'), $operator, $value, $connector);
     }
 
@@ -1923,11 +2124,13 @@ class Query
      */
     public function where_time($column, $operator, $value, $connector = 'AND')
     {
+        $value = ($value instanceof \DateTime) ? $value->format('H:i:s') : $value;
         return $this->where($this->wrap_date_column($column, 'TIME'), $operator, $value, $connector);
     }
 
     /**
      * Wrap column for DATE/MONTH/etc helpers safely via grammar.
+     * The function itself is compiled by the grammar, since every driver spells it differently.
      *
      * @param string $column
      * @param string $function
@@ -1937,12 +2140,12 @@ class Query
     {
         if ($column instanceof Expression) {
             // Allow explicit Expression, but still wrap function call
-            return $this->raw($function . '(' . $column->get() . ')');
+            return $this->raw($this->grammar->date_function($function, $column->get()));
         }
 
         $this->validate_column($column);
 
-        return $this->raw($function . '(' . $this->grammar->wrap($column) . ')');
+        return $this->raw($this->grammar->date_function($function, $this->grammar->wrap($column)));
     }
 
     /**

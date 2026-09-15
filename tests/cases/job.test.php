@@ -628,7 +628,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test database driver runall dengan queue filter.
+     * Test database driver runall with a queue filter.
      *
      * @group system
      */
@@ -677,7 +677,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test database driver failed jobs dengan queue column.
+     * Test database driver failed jobs with a queue column.
      *
      * @group system
      */
@@ -696,7 +696,7 @@ class JobTest extends \PHPUnit_Framework_TestCase
         Config::set('job.failed_table', 'rakit_failed_jobs');
         $driver = Job::driver('database');
 
-        // Register event listener yang throw exception
+        // Register an event listener that throws an exception
         Hook::listen('rakit.jobs.process', function ($data) {
             throw new \Exception('Test job failure');
         });

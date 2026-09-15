@@ -164,7 +164,7 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
     {
         $driver = $this->driver();
 
-        $this->assertTrue($driver->add('kirim-email', ['to' => 'budi@example.com']));
+        $this->assertTrue($driver->add('send-email', ['to' => 'budi@example.com']));
 
         $all = $this->connection()->get(self::PREFIX . 'all_jobs');
 
@@ -173,7 +173,7 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
         $entry = reset($all);
         $stored = $this->connection()->get(self::PREFIX . 'data:' . $entry['id']);
 
-        $this->assertEquals('kirim-email', $stored['name']);
+        $this->assertEquals('send-email', $stored['name']);
         $this->assertEquals('default', $stored['queue']);
         $this->assertEquals(['to' => 'budi@example.com'], unserialize($stored['payloads']));
     }
@@ -187,13 +187,13 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
     {
         $driver = $this->driver();
 
-        $this->assertFalse($driver->has_overlapping('kirim-email'));
+        $this->assertFalse($driver->has_overlapping('send-email'));
 
-        $driver->add('kirim-email', [], null, 'default', false);
-        $this->assertFalse($driver->has_overlapping('kirim-email'));
+        $driver->add('send-email', [], null, 'default', false);
+        $this->assertFalse($driver->has_overlapping('send-email'));
 
-        $driver->add('kirim-email', [], null, 'default', true);
-        $this->assertTrue($driver->has_overlapping('kirim-email'));
+        $driver->add('send-email', [], null, 'default', true);
+        $this->assertTrue($driver->has_overlapping('send-email'));
     }
 
     /**
@@ -210,11 +210,11 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
             $seen[] = $data;
         });
 
-        $driver->add('kirim-email', ['to' => 'budi@example.com']);
+        $driver->add('send-email', ['to' => 'budi@example.com']);
 
-        $this->assertTrue($driver->run('kirim-email'));
+        $this->assertTrue($driver->run('send-email'));
         $this->assertCount(1, $seen);
-        $this->assertEquals('kirim-email', $seen[0]['name']);
+        $this->assertEquals('send-email', $seen[0]['name']);
 
         $this->assertCount(0, (array) $this->connection()->get(self::PREFIX . 'all_jobs'));
     }
@@ -233,8 +233,8 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
             $ran++;
         });
 
-        $driver->add('nanti', [], \System\Carbon::now()->addHours(2)->format('Y-m-d H:i:s'));
-        $driver->run('nanti');
+        $driver->add('later', [], \System\Carbon::now()->addHours(2)->format('Y-m-d H:i:s'));
+        $driver->run('later');
 
         $this->assertEquals(0, $ran);
         $this->assertCount(1, (array) $this->connection()->get(self::PREFIX . 'all_jobs'));
@@ -248,9 +248,9 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
     public function testForget()
     {
         $driver = $this->driver();
-        $driver->add('kirim-email', [], null, 'default');
+        $driver->add('send-email', [], null, 'default');
 
-        $this->assertTrue($driver->forget('kirim-email'));
+        $this->assertTrue($driver->forget('send-email'));
         $this->assertCount(0, (array) $this->connection()->get(self::PREFIX . 'all_jobs'));
     }
 
@@ -268,13 +268,13 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
             $ran[] = $data['name'];
         });
 
-        $driver->add('satu', [], null, 'default');
-        $driver->add('dua', [], null, 'high');
+        $driver->add('one', [], null, 'default');
+        $driver->add('two', [], null, 'high');
 
         $this->assertTrue($driver->runall());
 
         sort($ran);
-        $this->assertEquals(['dua', 'satu'], $ran);
+        $this->assertEquals(['one', 'two'], $ran);
     }
 
     /**
@@ -287,11 +287,11 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
         $driver = $this->driver();
 
         Hook::listen('rakit.jobs.process', function () {
-            throw new \Exception('gagal');
+            throw new \Exception('failed');
         });
 
-        $driver->add('rusak', []);
-        $driver->run('rusak');
+        $driver->add('broken', []);
+        $driver->run('broken');
 
         $this->assertCount(1, (array) $this->connection()->get(self::PREFIX . 'failed_jobs'));
         $this->assertCount(0, (array) $this->connection()->get(self::PREFIX . 'all_jobs'));

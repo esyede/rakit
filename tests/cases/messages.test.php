@@ -90,7 +90,7 @@ class MessagesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test untuk Messages::get().
+     * Test for Messages::get().
      *
      * @group system
      */

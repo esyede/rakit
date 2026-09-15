@@ -1,1 +1,0 @@
-<div class="kotak-dummy">{{ $slot }}</div>

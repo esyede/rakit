@@ -445,6 +445,47 @@ Schema::table('posts', function ($table) {
 });
 ```
 
+Every driver handles a fulltext index in its own way:
+
+-   **MySQL** creates a regular `FULLTEXT` index.
+-   **PostgreSQL** creates a GIN index on the `tsvector` of the columns, using the `english` text search
+    config unless another one is given. A query only uses the index when it repeats the same expression:
+
+    ```php
+    Schema::table('posts', function ($table) {
+        $table->fulltext(['title', 'content'])->language('simple');
+    });
+
+    // CREATE INDEX posts_title_content_fulltext ON "posts" USING gin((
+    //     to_tsvector('simple', coalesce("title", '')) || to_tsvector('simple', coalesce("content", ''))
+    // ))
+
+    $posts = DB::table('posts')
+        ->raw_where(
+            "(to_tsvector('simple', coalesce(\"title\", '')) || to_tsvector('simple', coalesce(\"content\", ''))) @@ plainto_tsquery('simple', ?)",
+            ['rakit framework']
+        )
+        ->get();
+    ```
+
+-   **SQLite** has no fulltext index on a regular table, so a separate FTS4 table named after the index
+    (for example `posts_title_content_fulltext`) is created. It is not kept in sync with the `posts`
+    table, your application has to fill it.
+-   **SQL Server** allows a single fulltext index per table. It is stored in a fulltext catalog named
+    after the index, and keyed on the primary key of the table. Both can be given explicitly, which is
+    needed for a table without a primary key:
+
+    ```php
+    $table->fulltext(['title', 'content'])->catalog('site_catalog')->key('posts_slug_unique');
+    ```
+
+    Dropping the index also drops its catalog, unless the catalog is still used by another table. A
+    catalog given explicitly has to be given on the drop as well:
+
+    ```php
+    $table->drop_fulltext('posts_title_content_fulltext')->catalog('site_catalog');
+    ```
+
 **Index when creating columns:**
 
 ```php

@@ -283,7 +283,7 @@ class BelongsToMany extends Relationship
      */
     public function eagerly_constrain(array $results)
     {
-        $this->table->where_in($this->joining.'.'.$this->foreign_key(), $this->keys($results));
+        static::constrain_keys($this->table, $this->joining.'.'.$this->foreign_key(), $this->keys($results));
     }
 
     /**

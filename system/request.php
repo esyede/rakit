@@ -344,7 +344,8 @@ class Request
         $auth = (string) static::authorization();
 
         if (0 === stripos($auth, 'Bearer ')) {
-            $token = mb_substr($auth, 7, null, '8bit');
+            // An explicit length, PHP before 5.4.8 treats a NULL one as 0.
+            $token = mb_substr($auth, 7, mb_strlen($auth, '8bit'), '8bit');
 
             // Validate token: filled and only safe characters
             if (! empty($token) && preg_match('/^[A-Za-z0-9\-_\.\+\/=]+$/', $token)) {
@@ -485,7 +486,8 @@ class Request
      */
     public static function time()
     {
-        return (int) RAKIT_START;
+        // RAKIT_START marks when the process booted, which in a worker was many requests ago.
+        return (int) static::foundation()->server->get('REQUEST_TIME', RAKIT_START);
     }
 
     /**

@@ -34,4 +34,22 @@ class Postgres extends Grammar
     {
         return $this->insert($query, $values) . ' ON CONFLICT DO NOTHING';
     }
+
+    /**
+     * Compile a date based function call on an already wrapped column.
+     * PostgreSQL has no DAY(), MONTH() or YEAR() function, EXTRACT() is used instead.
+     *
+     * @param string $type
+     * @param string $column
+     *
+     * @return string
+     */
+    public function date_function($type, $column)
+    {
+        if ('DATE' === $type || 'TIME' === $type) {
+            return 'CAST('.$column.' AS '.$type.')';
+        }
+
+        return 'EXTRACT('.$type.' FROM '.$column.')';
+    }
 }
