@@ -74,7 +74,7 @@ class Logger
     }
 
     /**
-     * Log a message or exception to file and send it by email.
+     * Log a message or exception through the configured log channel and send it by email.
      *
      * @param mixed  $message
      * @param string $priority
@@ -94,14 +94,23 @@ class Logger
         $excfile = (($message instanceof \Exception) || (class_exists('\Throwable') && ($message instanceof \Throwable)))
             ? $this->getExceptionFile($message)
             : null;
-        $line = static::formatLogLine($message, $excfile, $priority);
-        $prefix = \System\Config::get('application.name') ? \System\Str::slug(\System\Config::get('application.name')) . '_' : '';
-        $file = $this->directory . DIRECTORY_SEPARATOR . $prefix . date('Y-m-d') . '.log.php';
 
-        try {
-            file_put_contents($file, $line . PHP_EOL, is_file($file) ? FILE_APPEND | LOCK_EX : LOCK_EX);
-        } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf("Unable to write to log file '%s'. Is that directory writable?", $file));
+        // Written through the Log class, so the configured log channel applies here too.
+        $levels = [
+            self::DEBUG => 'debug',
+            self::INFO => 'info',
+            self::WARNING => 'warning',
+            self::ERROR => 'error',
+            self::EXCEPTION => 'error',
+            self::CRITICAL => 'critical',
+        ];
+        $level = isset($levels[$priority]) ? $levels[$priority] : 'error';
+
+        if ($excfile) {
+            // Passed as context, so the JSON format keeps the trace structured.
+            \System\Log::log($level, ('' === (string) $message->getMessage()) ? get_class($message) : $message->getMessage(), ['exception' => $message]);
+        } else {
+            \System\Log::log($level, static::formatText($message));
         }
 
         if ($excfile) {
@@ -129,6 +138,19 @@ class Logger
         }
 
         return trim($message);
+    }
+
+    /**
+     * Format a message, or any other value, as text.
+     *
+     * @param mixed $message
+     *
+     * @return string
+     */
+    protected static function formatText($message)
+    {
+        $text = static::formatMessage($message);
+        return is_string($text) ? $text : (string) json_encode($text, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -202,52 +224,123 @@ class Logger
     }
 
     /**
+     * Send the error email for a message or exception logged elsewhere.
+     * Never throws, a failure is logged as a warning instead.
+     *
      * @param mixed $message
      *
-     * @return void
+     * @return bool
+     */
+    public function notify($message)
+    {
+        return $this->sendEmail($message);
+    }
+
+    /**
+     * Send the error email, unless one was already sent within the snooze period.
+     *
+     * @param mixed $message
+     *
+     * @return bool
      */
     protected function sendEmail($message)
     {
-        $snooze = is_numeric($this->emailSnooze) ? $this->emailSnooze : (@strtotime($this->emailSnooze) - time());
+        if (! $this->email || ! $this->mailer) {
+            return false;
+        }
 
-        if (
-            $this->email
-            && $this->mailer
-            && @filemtime($this->directory . '/email-sent') + $snooze < time()
-            && @file_put_contents($this->directory . '/email-sent', 'sent')
-        ) {
-            call_user_func($this->mailer, $message, implode(', ', (array) $this->email));
+        try {
+            if (! $this->directory || ! is_dir($this->directory)) {
+                throw new \RuntimeException('The log directory is needed to remember when the last error email was sent.');
+            }
+
+            $snooze = is_numeric($this->emailSnooze) ? (int) $this->emailSnooze : (strtotime($this->emailSnooze) - time());
+            $marker = rtrim($this->directory, '\\/') . DIRECTORY_SEPARATOR . 'email-sent';
+
+            // Long-running workers would otherwise see a stale modification time.
+            clearstatcache();
+
+            if (is_file($marker) && filemtime($marker) + $snooze >= time()) {
+                return false;
+            }
+
+            // Marked before sending, so a failing mailer is not retried on every error either.
+            if (! (is_file($marker) ? is_writable($marker) : is_writable($this->directory))
+                || false === @file_put_contents($marker, 'sent')
+            ) {
+                throw new \RuntimeException(sprintf('Unable to write the error email marker: %s', $marker));
+            }
+
+            if (false === call_user_func($this->mailer, $message, implode(', ', (array) $this->email))) {
+                throw new \RuntimeException('The mailer reported a failure.');
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            $this->reportEmailFailure($e);
+        } catch (\Exception $e) {
+            $this->reportEmailFailure($e);
+        }
+
+        return false;
+    }
+
+    /**
+     * Log why the error email could not be sent.
+     *
+     * @param \Throwable|\Exception $e
+     *
+     * @return void
+     */
+    protected function reportEmailFailure($e)
+    {
+        try {
+            \System\Log::warning('Unable to send the error email: ' . $e->getMessage());
+        } catch (\Throwable $ex) {
+            // Nowhere left to report to
+        } catch (\Exception $ex) {
+            // Nowhere left to report to
         }
     }
 
     /**
-     * Mailer default.
+     * Mailer default, sends through the Email component (see config/email.php).
      *
      * @param mixed  $message
      * @param string $email
      *
-     * @return void
+     * @return bool
      */
     public function defaultMailer($message, $email)
     {
         $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : php_uname('n');
         $host = preg_replace('#[^\w.-]+#', '', $host);
-        $parts = str_replace(
-            ["\r\n", "\n"],
-            ["\n", PHP_EOL],
-            [
-                'headers' => implode("\n", [
-                    'From: ' . ($this->fromEmail ?: "noreply@$host"),
-                    'X-Mailer: Rakit debugger',
-                    'Content-Type: text/plain; charset=UTF-8',
-                    'Content-Transfer-Encoding: 8bit',
-                ]) . "\n",
-                'subject' => "PHP: An error occurred on the server $host",
-                'body' => static::formatMessage($message) . "\n\nsource: " . Helpers::getSource(),
-            ]
-        );
+        $recipients = array_values(array_filter(array_map('trim', explode(',', (string) $email)), 'strlen'));
 
-        mail($email, $parts['subject'], $parts['body'], $parts['headers']);
+        // A new driver instance, since the shared one may hold an email the application was composing.
+        $drivers = \System\Email::$drivers;
+        \System\Email::$drivers = [];
+
+        try {
+            $mailer = \System\Email::driver();
+        } catch (\Throwable $e) {
+            \System\Email::$drivers = $drivers;
+            throw $e;
+        } catch (\Exception $e) {
+            \System\Email::$drivers = $drivers;
+            throw $e;
+        }
+
+        \System\Email::$drivers = $drivers;
+
+        if ($this->fromEmail) {
+            $mailer->from($this->fromEmail);
+        }
+
+        return $mailer->to($recipients)
+            ->subject("PHP: An error occurred on the server $host")
+            ->body(static::formatText($message) . "\n\nsource: " . Helpers::getSource())
+            ->send();
     }
 
     /**

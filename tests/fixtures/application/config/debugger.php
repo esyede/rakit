@@ -114,7 +114,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Fill in your email address if you want to receive error notifications
-    | for your application.
+    | for your application. Separate multiple addresses with commas.
+    |
+    | The email is sent through the Email component (see config/email.php),
+    | at most once every two days, so an error storm can not flood your inbox.
+    | A file named "email-sent" in storage/logs/ remembers the last one.
     |
     */
 

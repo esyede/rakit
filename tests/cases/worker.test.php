@@ -47,6 +47,9 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
             'driver' => Config::get('session.driver'),
             'production' => Debugger::$productionMode,
             'depth' => Debugger::getPanic()->maxDepth,
+            'logger' => Debugger::getLogger(),
+            'email' => Debugger::$email,
+            'log' => Config::get('log'),
             'server' => $_SERVER,
             'get' => $_GET,
             'post' => $_POST,
@@ -138,6 +141,10 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
         Input::$json = null;
         Debugger::$productionMode = $this->backup['production'];
         Debugger::getPanic()->maxDepth = $this->backup['depth'];
+        Debugger::setLogger($this->backup['logger']);
+        Debugger::$email = $this->backup['email'];
+        Config::set('log', $this->backup['log']);
+        \System\Log::$drivers = [];
 
         $_SERVER = $this->backup['server'];
         $_GET = $this->backup['get'];
@@ -228,6 +235,45 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(500, $bridge->sent[1]['status']);
         $this->assertSame('{"status":500,"message":"worker-boom"}', $bridge->sent[1]['body']);
         $this->assertSame('stray-body:-', $bridge->sent[2]['body']);
+    }
+
+    /**
+     * Test that an exception in production sends the error email.
+     *
+     * @group system
+     */
+    public function testProductionExceptionSendsErrorEmail()
+    {
+        $dir = sys_get_temp_dir().DS.'rakit-worker-email-'.md5(uniqid('', true));
+        mkdir($dir, 0777, true);
+
+        $sent = [];
+        $logger = new \System\Foundation\Oops\Logger($dir, 'dev@example.com');
+        $logger->mailer = function ($message, $email) use (&$sent) {
+            $sent[] = [$message, $email];
+        };
+
+        Debugger::setLogger($logger);
+        Debugger::$email = 'dev@example.com';
+        Debugger::$productionMode = true;
+        Config::set('log', ['default' => 'null', 'channels' => ['null' => ['driver' => 'null']]]);
+        \System\Log::$drivers = [];
+
+        $bridge = $this->serve([
+            ['uri' => '/worker-test/boom'],
+            ['uri' => '/worker-test/boom'],
+        ]);
+
+        @unlink($dir.DS.'email-sent');
+        @rmdir($dir);
+
+        $this->assertSame(500, $bridge->sent[0]['status']);
+        $this->assertSame(500, $bridge->sent[1]['status']);
+
+        // The second one falls within the snooze period.
+        $this->assertCount(1, $sent);
+        $this->assertSame('worker-boom', $sent[0][0]->getMessage());
+        $this->assertSame('dev@example.com', $sent[0][1]);
     }
 
     /**

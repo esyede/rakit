@@ -5,6 +5,7 @@ defined('DS') or exit('No direct access.');
 use System\Log;
 use System\Hook;
 use System\Config;
+use System\Log\Formatter;
 
 class LogTest extends \PHPUnit_Framework_TestCase
 {
@@ -302,6 +303,7 @@ class LogTest extends \PHPUnit_Framework_TestCase
         $content = file_get_contents($logFile);
         $this->assertContains('Test log write', $content);
         $this->assertContains('INFO', $content);
+        $this->assertStringEndsWith(PHP_EOL, $content);
 
         Log::channel(null);
     }
@@ -330,136 +332,120 @@ class LogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test for Log::format() - output contains level and message.
+     * Build a log record for the formatter.
+     *
+     * @param string $level
+     * @param string $message
+     * @param array  $context
+     *
+     * @return array
+     */
+    private function record($level, $message, array $context = [])
+    {
+        return [
+            'level' => $level,
+            'message' => $message,
+            'context' => $context,
+            'channel' => 'rakit',
+            'env' => 'local',
+            'datetime' => \System\Carbon::now(),
+        ];
+    }
+
+    /**
+     * Test for Formatter::line() - output contains level and message.
      *
      * @group system
      */
     public function testFormatOutputContainsLevelAndMessage()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $result = $method->invoke(null, 'info', 'Test message', []);
+        $result = Formatter::line($this->record('info', 'Test message'));
 
         $this->assertContains('INFO', $result);
         $this->assertContains('Test message', $result);
     }
 
     /**
-     * Test for Log::format() - context is included when not empty.
+     * Test for Formatter::line() - context is included when not empty.
      *
      * @group system
      */
     public function testFormatIncludesContextWhenNotEmpty()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $result = $method->invoke(null, 'debug', 'Msg', ['foo' => 'bar']);
+        $result = Formatter::line($this->record('debug', 'Msg', ['foo' => 'bar']));
 
         $this->assertContains('foo', $result);
         $this->assertContains('bar', $result);
     }
 
     /**
-     * Test for Log::format() - ends with newline.
+     * Test for Formatter::line() - timestamp can be omitted.
      *
      * @group system
      */
-    public function testFormatEndsWithNewline()
+    public function testFormatLineTimestampIsOptional()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
+        $record = $this->record('info', 'Test');
 
-        $result = $method->invoke(null, 'info', 'Test', []);
-
-        $this->assertStringEndsWith(PHP_EOL, $result);
+        $this->assertRegExp('/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] local\.INFO: Test$/', Formatter::line($record));
+        $this->assertEquals('local.INFO: Test', Formatter::line($record, false));
     }
 
     /**
-     * Test for Log::format_context() - returns empty string for empty context.
+     * Test for Formatter::context() - returns empty string for empty context.
      *
      * @group system
      */
     public function testFormatContextReturnsEmptyStringForEmptyContext()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_context');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $result = $method->invoke(null, []);
-        $this->assertEquals('', $result);
+        $this->assertEquals('', Formatter::context([]));
     }
 
     /**
-     * Test for Log::format_context() - returns JSON for non-empty context.
+     * Test for Formatter::context() - returns JSON for non-empty context.
      *
      * @group system
      */
     public function testFormatContextReturnsJsonForNonEmptyContext()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_context');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $result = $method->invoke(null, ['key' => 'value']);
-        $decoded = json_decode($result, true);
-
+        $decoded = json_decode(Formatter::context(['key' => 'value']), true);
         $this->assertEquals('value', $decoded['key']);
     }
 
     /**
-     * Test for Log::format_value() - returns string, int, bool as-is.
+     * Test for Formatter::value() - returns string, int, bool as-is.
      *
      * @group system
      */
     public function testFormatValueReturnsPrimitivesAsIs()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $this->assertEquals('hello', $method->invoke(null, 'hello'));
-        $this->assertEquals(42, $method->invoke(null, 42));
-        $this->assertTrue($method->invoke(null, true));
-        $this->assertFalse($method->invoke(null, false));
+        $this->assertEquals('hello', Formatter::value('hello'));
+        $this->assertEquals(42, Formatter::value(42));
+        $this->assertTrue(Formatter::value(true));
+        $this->assertFalse(Formatter::value(false));
     }
 
     /**
-     * Test for Log::format_value() - formats objects.
+     * Test for Formatter::value() - formats objects.
      *
      * @group system
      */
     public function testFormatValueFormatsObject()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
         $obj = new \stdClass();
         $obj->name = 'test';
-        $result = $method->invoke(null, $obj);
 
-        $this->assertContains('test', (string) json_encode($result));
+        $this->assertContains('test', (string) json_encode(Formatter::value($obj)));
     }
 
     /**
-     * Test for Log::format_value() - formats arrays.
+     * Test for Formatter::value() - formats arrays.
      *
      * @group system
      */
     public function testFormatValueFormatsArrays()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $objects = [];
-        $arrays = [];
-        $result = $method->invokeArgs(null, [['a' => 1, 'b' => 2], &$objects, &$arrays]);
+        $result = Formatter::value(['a' => 1, 'b' => 2]);
 
         $this->assertInternalType('array', $result);
         $this->assertEquals(1, $result['a']);
@@ -467,36 +453,27 @@ class LogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test for Log::format_value() - formats resources.
+     * Test for Formatter::value() - formats resources.
      *
      * @group system
      */
     public function testFormatValueFormatsResources()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
         $resource = fopen('php://temp', 'r');
-        $result = $method->invoke(null, $resource);
+        $result = Formatter::value($resource);
         fclose($resource);
 
         $this->assertContains('[resource]', $result);
     }
 
     /**
-     * Test for Log::format_value() - formats exceptions.
+     * Test for Formatter::value() - formats exceptions.
      *
      * @group system
      */
     public function testFormatValueFormatsException()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $e = new \RuntimeException('Something went wrong', 42);
-        $result = $method->invoke(null, $e);
+        $result = Formatter::value(new \RuntimeException('Something went wrong', 42));
 
         $this->assertInternalType('string', $result);
         $this->assertContains('RuntimeException', $result);
@@ -504,61 +481,43 @@ class LogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test for Log::format_value() - handles circular object references.
+     * Test for Formatter::value() - handles circular object references.
      *
      * @group system
      */
     public function testFormatValueHandlesCircularObjectReference()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
         $obj = new \stdClass();
 
         $id = function_exists('spl_object_id') ? spl_object_id($obj) : spl_object_hash($obj);
         $objects = [$id => true];
         $arrays = [];
 
-        $result = $method->invokeArgs(null, [$obj, &$objects, &$arrays]);
-
-        $this->assertContains('[circular]', $result);
+        $this->assertContains('[circular]', Formatter::value($obj, $objects, $arrays));
     }
 
     /**
-     * Test for Log::format_value() - handles circular array references.
+     * Test for Formatter::value() - handles circular array references.
      *
      * @group system
      */
     public function testFormatValueHandlesCircularArrayReference()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_value');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
         $arr = ['a' => 1];
-        $hash = md5(serialize($arr));
         $objects = [];
-        $arrays = [$hash => true];
+        $arrays = [md5(serialize($arr)) => true];
 
-        $result = $method->invokeArgs(null, [$arr, &$objects, &$arrays]);
-
-        $this->assertEquals('[array] [circular]', $result);
+        $this->assertEquals('[array] [circular]', Formatter::value($arr, $objects, $arrays));
     }
 
     /**
-     * Test for Log::format_exception() - formats exception details.
+     * Test for Formatter::exception() - formats exception details.
      *
      * @group system
      */
     public function testFormatExceptionFormatsDetails()
     {
-        $ref = new \ReflectionClass('System\Log');
-        $method = $ref->getMethod('format_exception');
-        PHP_VERSION_ID < 80100 && $method->setAccessible(true);
-
-        $e = new \InvalidArgumentException('Bad argument', 5);
-        $result = $method->invoke(null, $e);
+        $result = Formatter::exception(new \InvalidArgumentException('Bad argument', 5));
 
         $this->assertInternalType('string', $result);
         $this->assertContains('InvalidArgumentException', $result);

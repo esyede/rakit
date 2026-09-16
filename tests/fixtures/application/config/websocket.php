@@ -151,8 +151,8 @@ return [
     | Logging Output
     |--------------------------------------------------------------------------
     |
-    | Specify the output location for logging: 'file' to save to a log file
-    | using the Log class, or 'stdout' to output to the console.
+    | Specify the output location for logging: 'file' to write through the
+    | Log class (see config/log.php), or 'stdout' to output to the console.
     |
     | Available options: 'file', 'stdout'
     |

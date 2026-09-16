@@ -39,7 +39,7 @@ By default, we have included two drivers:
 You are also free to create and register your own custom drivers if needed:
 
 ```php
-// In application/start.php
+// In application/boot.php
 Auth::extend('custom', function() {
     return new CustomAuthDriver();
 });

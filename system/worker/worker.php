@@ -170,7 +170,7 @@ class Worker
     }
 
     /**
-     * Write the exception to the log.
+     * Write the exception to the log, and send the error email.
      *
      * @param \Throwable|\Exception $e
      *
@@ -185,6 +185,8 @@ class Worker
         } catch (\Exception $ignored) {
             // skip errors
         }
+
+        Debugger::notify($e);
     }
 
     /**

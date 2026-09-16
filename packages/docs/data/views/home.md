@@ -295,12 +295,12 @@ return View::of('profile', compact('user'));
 <a id="view-composers"></a>
 ## View Composers
 
-View composers are callbacks or class methods called when a view is rendered. Useful for injecting data into views automatically.
+View composers are closures called every time a view is rendered. Useful for injecting data into views automatically.
 
 <a id="defining-composer"></a>
 ### Defining Composer
 
-**In `application/start.php` or `application/routes.php`:**
+**In `application/composers.php`:**
 
 ```php
 // Composer for single view
@@ -315,7 +315,9 @@ View::composer('layouts.master', function ($view) {
 });
 ```
 
-> View composers are defined in `application/start.php` or at the beginning of `application/routes.php`, not in a separate `composers.php` file.
+> Rakit loads `composers.php` automatically right after `routes.php`, together with `hooks.php`
+> and `middlewares.php`. A [package](/docs/packages) can have its own `composers.php` as well,
+> as long as it also has a `routes.php`.
 
 <a id="multiple-views"></a>
 ### Multiple Views
@@ -326,13 +328,10 @@ View::composer('layouts.master', function ($view) {
 View::composer(['user.profile', 'user.settings'], function ($view) {
     $view->with('user', Auth::user());
 });
-
-// Composer for all views in folder
-View::composer('admin.*', function ($view) {
-    $view->with('admin_user', Auth::user());
-    $view->with('menu', Menu::admin());
-});
 ```
+
+> The view name must match exactly, wildcards such as `admin.*` are not supported.
+> List every view the composer applies to instead.
 
 <a id="use-case"></a>
 ### Use Case
@@ -366,7 +365,7 @@ View::composer('partials.navigation', function ($view) {
 **Share data available in all views:**
 
 ```php
-// In application/start.php
+// In application/composers.php
 View::share('app_name', Config::get('application.name'));
 View::share('app_url', Config::get('application.url'));
 ```

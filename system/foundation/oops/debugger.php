@@ -385,13 +385,18 @@ class Debugger
         }
 
         if (self::$productionMode) {
+            $logged = false;
+
             try {
                 \System\Log::error('Exception occurred', ['exception' => $e]);
-            } catch (\Throwable $e) {
+                $logged = true;
+            } catch (\Throwable $ex) {
                 // Skip error
-            } catch (\Exception $e) {
+            } catch (\Exception $ex) {
                 // Skip error
             }
+
+            self::notify($e);
 
             if (Helpers::isHtmlMode()) {
                 if (is_file(static::$errorTemplate)) {
@@ -412,17 +417,13 @@ class Debugger
             } elseif ('cli' === PHP_SAPI) {
                 // FIXME: BC-break in PHP 7.4+: @ triggers E_NOTICE when stderr is not accessible
                 @fwrite(STDERR, 'ERROR: application encountered an error and can not continue. '
-                    . (isset($e) ? "Unable to log error.\n" : "Error was logged.\n"));
+                    . ($logged ? "Error was logged.\n" : "Unable to log error.\n"));
             }
         } elseif (! connection_aborted() && (Helpers::isHtmlMode() || Helpers::isAjax())) {
             $isJsonRequest = isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false;
             if (Helpers::isAjax() && $isJsonRequest) {
-                \System\Log::error($e->getMessage(), [
-                    'exception' => $e,
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
+                // The exception already carries its file, line and trace.
+                \System\Log::error($e->getMessage(), ['exception' => $e]);
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
                 if (function_exists('fastcgi_finish_request')) {
@@ -446,21 +447,19 @@ class Debugger
 
             try {
                 $file = null;
+
                 if (self::$logDirectory) {
-                    \System\Log::error($e->getMessage(), [
-                        'exception' => $e,
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => $e->getTraceAsString(),
-                    ]);
+                    // Writes the log entry once, and sends the error email.
                     $file = self::log($e, self::EXCEPTION);
-                    if ($file && ! headers_sent()) {
+
+                    // The HTML error page is not rendered into that file yet, see Logger::logException().
+                    if ($file && is_file($file) && ! headers_sent()) {
                         header('X-Oops-Error-Log: ' . $file);
                     }
                 }
 
                 if ($file) {
-                    echo "$s\n" . ("(stored in $file)\n");
+                    echo "$s\n" . (is_file($file) ? "(stored in $file)\n" : '');
                 } elseif ($exit) {
                     echo "$s\n";
                 }
@@ -572,6 +571,8 @@ class Debugger
             } catch (\Exception $foo) {
                 // Skip error
             }
+
+            self::notify($e);
 
             return;
         } elseif (
@@ -870,7 +871,7 @@ class Debugger
     }
 
     /**
-     * Log a message into log file.
+     * Log a message through the configured log channel.
      *
      * @param mixed  $message
      * @param string $priority
@@ -880,6 +881,29 @@ class Debugger
     public static function log($message, $priority = Logger::INFO)
     {
         return self::getLogger()->log($message, $priority);
+    }
+
+    /**
+     * Send the error email for an error that was logged elsewhere,
+     * when an address is configured. Never throws.
+     *
+     * @param mixed $message
+     *
+     * @return bool
+     */
+    public static function notify($message)
+    {
+        if (! self::$email) {
+            return false;
+        }
+
+        try {
+            return self::getLogger()->notify($message);
+        } catch (\Throwable $e) {
+            return false;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**

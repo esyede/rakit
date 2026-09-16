@@ -4,17 +4,38 @@ namespace System;
 
 defined('DS') or exit('No direct access.');
 
+use System\Log\Formatter;
+
 class Log
 {
     /**
      * Contains the name of the log channel.
      *
-     * @var string
+     * @var string|null
      */
     protected static $channel;
 
     /**
+     * Contains all resolved log drivers, keyed by channel name.
+     *
+     * @var array
+     */
+    public static $drivers = [];
+
+    /**
+     * Contains all third-party log driver registrars.
+     *
+     * @var array
+     */
+    public static $registrar = [];
+
+    /**
      * Set the name of the log channel.
+     *
+     * When the name matches a channel in the "log.channels" config, the next
+     * entries are written through that channel. Otherwise they are written
+     * through the default channel, using the name as the log name (e.g. the
+     * file name prefix of the "daily" driver). Pass null to reset.
      *
      * @param string|null $name
      *
@@ -22,7 +43,83 @@ class Log
      */
     public static function channel($name = null)
     {
-        static::$channel = (is_string($name) && strlen($name)) ? Str::slug($name) : null;
+        static::$channel = (is_string($name) && '' !== trim($name)) ? trim($name) : null;
+    }
+
+    /**
+     * Get the log driver of a channel.
+     * Or return the default channel's driver if no channel is given.
+     *
+     * @param string|null $channel
+     *
+     * @return \System\Log\Drivers\Driver
+     */
+    public static function driver($channel = null)
+    {
+        $channel = is_null($channel) ? static::target() : $channel;
+
+        if (! is_string($channel) || '' === $channel) {
+            throw new \Exception('Log channel must be a non-empty string');
+        }
+
+        if (! isset(static::$drivers[$channel])) {
+            static::$drivers[$channel] = static::factory($channel);
+        }
+
+        return static::$drivers[$channel];
+    }
+
+    /**
+     * Register a third-party log driver.
+     * The resolver receives the channel config and name, and must return
+     * an instance of \System\Log\Drivers\Driver.
+     *
+     * @param string   $driver
+     * @param \Closure $resolver
+     *
+     * @return void
+     */
+    public static function extend($driver, \Closure $resolver)
+    {
+        static::$registrar[$driver] = $resolver;
+        static::$drivers = [];
+    }
+
+    /**
+     * Get all log levels, keyed by name, ordered by severity.
+     *
+     * @return array
+     */
+    public static function levels()
+    {
+        return [
+            'debug' => 100,
+            'info' => 200,
+            'notice' => 250,
+            'warning' => 300,
+            'error' => 400,
+            'critical' => 500,
+            'alert' => 550,
+            'emergency' => 600,
+        ];
+    }
+
+    /**
+     * Write a log with an arbitrary level.
+     *
+     * @param string $level
+     * @param string $message
+     * @param array  $context
+     */
+    public static function log($level, $message, array $context = [])
+    {
+        $levels = static::levels();
+
+        if (! is_string($level) || ! isset($levels[strtolower($level)])) {
+            throw new \InvalidArgumentException(sprintf('Unsupported log level: %s', is_string($level) ? $level : gettype($level)));
+        }
+
+        static::write(strtolower($level), $message, $context);
     }
 
     /**
@@ -114,7 +211,7 @@ class Log
     }
 
     /**
-     * Write log into file.
+     * Write the log through the active channel.
      *
      * @param string $type
      * @param string $message
@@ -130,33 +227,27 @@ class Log
             Hook::fire('rakit.log', [$type, $message, $context]);
         }
 
-        $formatted = static::format($type, $message, $context);
-        $written = false;
+        $record = [
+            'level' => $type,
+            'message' => $message,
+            'context' => $context,
+            'channel' => is_string(static::$channel) ? static::$channel : static::name(),
+            'env' => static::environment(),
+            'datetime' => Carbon::now(),
+        ];
+
+        $channel = null;
 
         try {
-            $channel = static::$channel;
-            $date = Carbon::now()->format('Y-m-d');
-            $appname = Config::get('application.name');
-            $file = ((is_string($channel) && strlen($channel)) ? $channel : ($appname ? Str::slug($appname) : 'rakit')).'_'.$date.'.log.php';
-            $path = path('storage').'logs'.DS.$file;
+            $channel = static::target();
 
-            $written = (false !== @file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0)));
-        } catch (\Throwable $e) {
-            $written = false;
-        } catch (\Exception $e) {
-            $written = false;
-        }
-
-        if (! $written) {
-            $path = path('storage').'logs'.DS.'rakit.log.php';
-
-            try {
-                @file_put_contents($path, $formatted, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
-            } catch (\Throwable $ex) {
-                // Silent fail when the fallback also fails
-            } catch (\Exception $ex) {
-                // Silent fail when the fallback also fails
+            if (false === static::driver($channel)->handle($record)) {
+                throw new \RuntimeException('The driver was unable to write the log entry.');
             }
+        } catch (\Throwable $e) {
+            static::fallback($record, $channel, $e);
+        } catch (\Exception $e) {
+            static::fallback($record, $channel, $e);
         }
 
         // Track log for debugger
@@ -182,121 +273,170 @@ class Log
     }
 
     /**
-     * Format the log message.
+     * Make a new log driver instance for the channel.
      *
-     * @param string $type
-     * @param string $message
-     * @param array  $context
+     * @param string $channel
      *
-     * @return string
+     * @return \System\Log\Drivers\Driver
      */
-    protected static function format($type, $message, array $context = [])
+    protected static function factory($channel)
     {
-        $env = (class_exists('\System\Foundation\Oops\Debugger') && isset(\System\Foundation\Oops\Debugger::$productionMode))
-            ? (\System\Foundation\Oops\Debugger::$productionMode ? 'production' : 'local')
-            : 'unknown';
-        $date = Carbon::now()->format('Y-m-d H:i:s');
-        $level = strtoupper((string) $type);
-        $output = sprintf('[%s] %s.%s: %s', $date, $env, $level, $message);
+        $config = static::config($channel);
+        $driver = isset($config['driver']) ? $config['driver'] : null;
 
-        if (! empty($context)) {
-            $formatted = static::format_context($context);
-            $output .= $formatted ? ' '.$formatted : '';
+        if (! is_string($driver) || '' === $driver) {
+            throw new \Exception(sprintf('Log channel has no driver: %s', $channel));
         }
 
-        return $output.PHP_EOL;
+        if (isset(static::$registrar[$driver])) {
+            $instance = call_user_func(static::$registrar[$driver], $config, $channel);
+        } elseif ('custom' === $driver) {
+            $instance = static::custom($config, $channel);
+        } else {
+            switch ($driver) {
+                case 'daily':    return new Log\Drivers\Daily($config, $channel);
+                case 'single':   return new Log\Drivers\Single($config, $channel);
+                case 'stream':   return new Log\Drivers\Stream($config, $channel);
+                case 'syslog':   return new Log\Drivers\Syslog($config, $channel);
+                case 'errorlog': return new Log\Drivers\Errorlog($config, $channel);
+                case 'stack':    return new Log\Drivers\Stack($config, $channel);
+                case 'null':     return new Log\Drivers\Discard($config, $channel);
+                default:         throw new \Exception(sprintf('Unsupported log driver: %s', $driver));
+            }
+        }
+
+        if (! ($instance instanceof Log\Drivers\Driver)) {
+            throw new \Exception(sprintf('Log driver must be an instance of System\Log\Drivers\Driver: %s', $driver));
+        }
+
+        return $instance;
     }
 
     /**
-     * Format the context data into JSON.
+     * Make a driver instance for the "custom" driver, using its "via" option.
      *
-     * @param array $context
-     *
-     * @return string
-     */
-    protected static function format_context(array $context)
-    {
-        if (empty($context)) {
-            return '';
-        }
-
-        $formatted = [];
-
-        foreach ($context as $key => $value) {
-            $formatted[$key] = static::format_value($value);
-        }
-
-        return json_encode($formatted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    }
-
-    /**
-     * Format the log value.
-     *
-     * @param mixed $value
-     * @param array $objects
-     * @param array $arrays
+     * @param array  $config
+     * @param string $channel
      *
      * @return mixed
      */
-    protected static function format_value($value, array &$objects = [], array &$arrays = [])
+    protected static function custom(array $config, $channel)
     {
-        $exception = (PHP_VERSION_ID < 70000) ? ($value instanceof \Exception) : ($value instanceof \Throwable || $value instanceof \Exception);
+        $via = isset($config['via']) ? $config['via'] : null;
 
-        if ($exception) {
-            return static::format_exception($value);
+        if ($via instanceof \Closure) {
+            return $via($config, $channel);
         }
 
-        if (is_object($value)) {
-            $id = function_exists('spl_object_id') ? spl_object_id($value) : spl_object_hash($value);
-
-            if (isset($objects[$id])) {
-                return sprintf('[object] (%s) [circular]', get_class($value));
-            }
-
-            $objects[$id] = true;
-            $json = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-
-            unset($objects[$id]);
-            return (json_last_error() === JSON_ERROR_NONE) ? $json : sprintf('[object] (%s)', get_class($value));
+        if (! is_string($via) || ! class_exists($via)) {
+            throw new \Exception(sprintf('Log channel needs a valid "via" class or closure: %s', $channel));
         }
 
-        if (is_resource($value)) {
-            return sprintf('[resource] (%s)', get_resource_type($value));
-        }
-
-        if (is_array($value)) {
-            $hash = md5(serialize($value));
-
-            if (isset($arrays[$hash])) {
-                return '[array] [circular]';
-            }
-
-            $arrays[$hash] = true;
-            $formatted = [];
-
-            foreach ($value as $k => $v) {
-                $formatted[$k] = static::format_value($v, $objects, $arrays);
-            }
-
-            unset($arrays[$hash]);
-            return $formatted;
-        }
-
-        return $value;
+        return new $via($config, $channel);
     }
 
     /**
-     * Format the exception message.
+     * Get the configuration of a channel.
      *
-     * @param \Exception|object $e
+     * @param string $channel
+     *
+     * @return array
+     */
+    protected static function config($channel)
+    {
+        $channels = Config::get('log.channels');
+
+        // Applications without a log config keep writing daily files, as they always did.
+        if (! is_array($channels) && 'daily' === $channel) {
+            return ['driver' => 'daily'];
+        }
+
+        if (! is_array($channels) || ! isset($channels[$channel]) || ! is_array($channels[$channel])) {
+            throw new \Exception(sprintf('Log channel is not defined: %s', $channel));
+        }
+
+        return $channels[$channel];
+    }
+
+    /**
+     * Get the name of the channel the next entry is written to.
      *
      * @return string
      */
-    protected static function format_exception($e)
+    protected static function target()
     {
-        return vsprintf(
-            '[object] (%s(code: %s): %s at %s:%s)',
-            [get_class($e), $e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine()]
-        ).($e->getTraceAsString() ? PHP_EOL.$e->getTraceAsString() : '');
+        if (is_string(static::$channel)) {
+            $channels = Config::get('log.channels');
+
+            if (is_array($channels) && isset($channels[static::$channel])) {
+                return static::$channel;
+            }
+        }
+
+        $default = Config::get('log.default');
+        return (is_string($default) && '' !== $default) ? $default : 'daily';
+    }
+
+    /**
+     * Get the default log name.
+     *
+     * @return string
+     */
+    protected static function name()
+    {
+        $name = Config::get('application.name');
+        return (is_string($name) && '' !== $name) ? $name : 'rakit';
+    }
+
+    /**
+     * Get the environment label written into log entries.
+     *
+     * @return string
+     */
+    protected static function environment()
+    {
+        return (class_exists('\System\Foundation\Oops\Debugger') && isset(\System\Foundation\Oops\Debugger::$productionMode))
+            ? (\System\Foundation\Oops\Debugger::$productionMode ? 'production' : 'local')
+            : 'unknown';
+    }
+
+    /**
+     * Write the log entry, along with the reason the channel failed,
+     * into the emergency log file. Or into PHP's error log if even that fails.
+     *
+     * @param array                 $record
+     * @param string|null           $channel
+     * @param \Throwable|\Exception $e
+     *
+     * @return void
+     */
+    protected static function fallback(array $record, $channel, $e)
+    {
+        try {
+            $reason = sprintf('Unable to write log to the "%s" channel: %s', (string) $channel, $e->getMessage());
+            $lines = [Formatter::line(['level' => 'error', 'message' => $reason, 'context' => []] + $record)];
+
+            try {
+                $lines[] = Formatter::line($record);
+            } catch (\Throwable $ex) {
+                $lines[] = Formatter::line(['context' => []] + $record);
+            } catch (\Exception $ex) {
+                $lines[] = Formatter::line(['context' => []] + $record);
+            }
+
+            $file = path('storage').'logs'.DS.'rakit.log.php';
+            $directory = dirname($file);
+            $writable = is_file($file) ? is_writable($file) : (is_dir($directory) && is_writable($directory));
+
+            if (! $writable || false === @file_put_contents($file, implode(PHP_EOL, $lines).PHP_EOL, FILE_APPEND | LOCK_EX)) {
+                foreach ($lines as $line) {
+                    @error_log($line);
+                }
+            }
+        } catch (\Throwable $ex) {
+            // Nowhere left to report to
+        } catch (\Exception $ex) {
+            // Nowhere left to report to
+        }
     }
 }
