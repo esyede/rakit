@@ -75,10 +75,12 @@ error. Separate multiple addresses with commas:
 
 An email is sent for uncaught exceptions and fatal errors in production, in
 [workers](/docs/workers) as well. While the debugger is active, errors that are
-not shown as an error page, such as those of console commands, send one too. It goes through the [Email](/docs/email) component, so
-the driver in `application/config/email.php` applies. The default `mail` driver
-needs a working `sendmail` on the server, which a container rarely has. Use the
-`smtp` driver there.
+not shown as an error page, such as those of console commands, send one too.
+
+The email goes through the [Email](/docs/email) component, so the driver in
+`application/config/email.php` applies. The default `mail` driver needs a
+working `sendmail` on the server, which a container rarely has. Use the `smtp`
+driver there.
 
 To keep an error storm from flooding your inbox, at most one email is sent every
 two days. The file `storage/logs/email-sent` remembers when the last one went
@@ -193,8 +195,9 @@ Use the `stderr` channel, the entries then show up in `docker logs`:
 {"datetime":"2026-09-16T10:43:35.869704+00:00","env":"production","channel":"Rakit","level":"ERROR","message":"Exception occurred","context":{"exception":{"class":"RuntimeException","message":"Something broke","code":0,"file":"/app/application/routes.php:27","trace":["#0 ...","#1 ..."]}}}
 ```
 
-The channel uses the `json` format, so a stack trace does not get split into one
-log entry per line by the container runtime.
+The channel uses the `json` format, so log collectors can read every field of an
+entry, including the stack trace as an array. A message containing line breaks
+also stays a single entry, instead of one per line.
 
 > Under PHP-FPM, never log to `php://stdout`: there it is the HTTP response body.
 > PHP-FPM only forwards `php://stderr` to the container when its pool sets

@@ -31,8 +31,9 @@ return [
     |   - level:  The minimum level written: 'debug', 'info', 'notice',
     |             'warning', 'error', 'critical', 'alert' or 'emergency'.
     |   - format: 'line' for human-readable lines, or 'json' for one JSON
-    |             object per line. Prefer 'json' for log collectors, since
-    |             stack traces then no longer span multiple lines.
+    |             object per line. Prefer 'json' for log collectors: they
+    |             can read every field, and a message containing line
+    |             breaks still stays a single entry.
     |
     | Calling Log::channel('name') writes the next entries to that channel.
     | When no such channel is defined, the default channel is used and the
