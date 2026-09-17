@@ -14,11 +14,12 @@ defined('DS') or exit('No direct access.');
 $dir = __DIR__.DS.'foundation'.DS.'oops'.DS.'assets'.DS.'debugger';
 
 if (is_file($path = path('rakit_key'))) {
+    $ptrn = '/^(?:[a-f\d]{64}|[a-f\d]{8}(?:-[a-f\d]{4}){4}[a-f\d]{8})$/i';
     $error = null;
 
     if (! is_readable(dirname($path))) {
         $error = 'unreadable.phtml';
-    } elseif (1 !== preg_match('/^(?:[a-f\d]{64}|[a-f\d]{8}(?:-[a-f\d]{4}){4}[a-f\d]{8})$/i', require $path)) {
+    } elseif (1 !== preg_match($ptrn, require $path)) {
         $error = 'invalid.phtml';
     }
 
@@ -59,24 +60,37 @@ if (is_file($path = path('rakit_key'))) {
 
         foreach ($cookies as $cookie) {
             $parts = explode('=', $cookie);
+            $name = trim($parts[0]);
+            $ttl = time() - 2628000;
 
             if (PHP_VERSION_ID < 70300) {
-                setcookie(trim($parts[0]), '', time() - 2628000, '/; samesite=Lax');
-                setcookie(trim($parts[0]), '', time() - 2628000);
+                setcookie($name, '', $ttl, '/; samesite=Lax');
+                setcookie($name, '', $ttl);
             } else {
-                setcookie(trim($parts[0]), '', ['expires' => time() - 2628000, 'path' => '/', 'samesite' => 'Lax']);
-                setcookie(trim($parts[0]), '', ['expires' => time() - 2628000, 'samesite' => 'Lax']);
+                setcookie($name, '', [
+                    'expires' => $ttl,
+                    'path' => '/',
+                    'samesite' => 'Lax',
+                ]);
+                setcookie($name, '', [
+                    'expires' => $ttl,
+                    'samesite' => 'Lax',
+                ]);
             }
         }
     }
 
+    $stub = __DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system';
     file_put_contents(path('rakit_key'), str_replace(
         '00000000-0000-0000-0000-000000000000',
         bin2hex(openssl_random_pseudo_bytes(32)),
-        file_get_contents(__DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system'.DS.'key.stub')
+        file_get_contents($stub.DS.'key.stub')
     ));
 }
 
-if (! is_file($file = dirname(__DIR__).DS.'_ide_helper.php') && is_writable(dirname($file))) {
-    @copy(__DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system'.DS.'_ide_helper.stub', $file);
+if (
+    ! is_file($file = dirname(__DIR__).DS.'_ide_helper.php')
+    && is_writable(dirname($file))
+) {
+    @copy($stub.DS.'_ide_helper.stub', $file);
 }

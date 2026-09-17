@@ -163,8 +163,15 @@ unset($proxies, $hosts);
 
 $rakit_boot_done = microtime(true);
 
-if (class_exists('\System\Foundation\Oops\Debugger') && ! \System\Foundation\Oops\Debugger::$productionMode) {
-    Foundation\Oops\Collectors::addTimer('Booting', ($rakit_boot_done - RAKIT_START) * 1000, 0);
+if (
+    class_exists('\System\Foundation\Oops\Debugger')
+    && ! \System\Foundation\Oops\Debugger::$productionMode
+) {
+    Foundation\Oops\Collectors::addTimer(
+        'Booting',
+        ($rakit_boot_done - RAKIT_START) * 1000,
+        0
+    );
 }
 
 /*
@@ -271,13 +278,13 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 $domain = Request::foundation()->getHost();
 
 // Mark the boundaries of each phase (routing -> controller -> render).
-$rakit_timeline_route_start = microtime(true);
+$rakit_tl_route_start = microtime(true);
 Request::$route = Routing\Router::route(Request::method(), $uri, $domain);
 
-$rakit_timeline_controller_start = microtime(true);
+$rakit_tl_controller_start = microtime(true);
 $response = Request::$route->call();
 
-$rakit_timeline_render_start = microtime(true);
+$rakit_tl_render_start = microtime(true);
 
 /*
 |--------------------------------------------------------------------------
@@ -289,7 +296,7 @@ $rakit_timeline_render_start = microtime(true);
 */
 
 $response->render();
-$rakit_timeline_render_done = microtime(true);
+$rakit_tl_render_done = microtime(true);
 
 /*
 |--------------------------------------------------------------------------
@@ -303,21 +310,24 @@ $rakit_timeline_render_done = microtime(true);
 |
 */
 
-if (class_exists('\System\Foundation\Oops\Debugger') && ! \System\Foundation\Oops\Debugger::$productionMode) {
+if (
+    class_exists('\System\Foundation\Oops\Debugger')
+    && ! \System\Foundation\Oops\Debugger::$productionMode
+) {
     Foundation\Oops\Collectors::addTimer(
         'Routing',
-        ($rakit_timeline_controller_start - $rakit_timeline_route_start) * 1000,
-        ($rakit_timeline_route_start - RAKIT_START) * 1000
+        ($rakit_tl_controller_start - $rakit_tl_route_start) * 1000,
+        ($rakit_tl_route_start - RAKIT_START) * 1000
     );
     Foundation\Oops\Collectors::addTimer(
         'Controller',
-        ($rakit_timeline_render_start - $rakit_timeline_controller_start) * 1000,
-        ($rakit_timeline_controller_start - RAKIT_START) * 1000
+        ($rakit_tl_render_start - $rakit_tl_controller_start) * 1000,
+        ($rakit_tl_controller_start - RAKIT_START) * 1000
     );
     Foundation\Oops\Collectors::addTimer(
         'Render',
-        ($rakit_timeline_render_done - $rakit_timeline_render_start) * 1000,
-        ($rakit_timeline_render_start - RAKIT_START) * 1000
+        ($rakit_tl_render_done - $rakit_tl_render_start) * 1000,
+        ($rakit_tl_render_start - RAKIT_START) * 1000
     );
 }
 
