@@ -36,7 +36,7 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
             $table->timestamps();
         });
 
-        EventObserver::$seen = [];
+        Event_Observer::$seen = [];
         BootedModel::$seen = [];
     }
 
@@ -308,11 +308,32 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testObserver()
     {
-        EventModel::observe('EventObserver');
+        EventModel::observe('Event_Observer');
 
         EventModel::create(['name' => 'one']);
 
-        $this->assertEquals(['creating', 'created'], EventObserver::$seen);
+        $this->assertEquals(['creating', 'created'], Event_Observer::$seen);
+    }
+
+    /**
+     * An observer named the way a controller is named is read from the
+     * observers directory of the application, or of the package its name
+     * starts with.
+     *
+     * @group system
+     */
+    public function testObserverIsLoadedFromItsDirectory()
+    {
+        $this->assertFalse(class_exists('Probe_Observer', false));
+        $this->assertFalse(class_exists('Dummy_Probe_Observer', false));
+
+        EventModel::observe('Probe_Observer');
+        EventModel::observe('Dummy_Probe_Observer');
+
+        EventModel::create(['name' => 'one']);
+
+        $this->assertEquals(['creating'], Probe_Observer::$seen);
+        $this->assertEquals(['creating'], Dummy_Probe_Observer::$seen);
     }
 
     /**
@@ -322,11 +343,11 @@ class FacileEventsTest extends \PHPUnit_Framework_TestCase
      */
     public function testObserverAsAnInstance()
     {
-        EventModel::observe(new EventObserver());
+        EventModel::observe(new Event_Observer());
 
         EventModel::create(['name' => 'one']);
 
-        $this->assertEquals(['creating', 'created'], EventObserver::$seen);
+        $this->assertEquals(['creating', 'created'], Event_Observer::$seen);
     }
 
     /**
@@ -521,7 +542,7 @@ class BootedModel extends \System\Database\Facile\Model
 /**
  * An observer with two methods named after events, and one that is not.
  */
-class EventObserver
+class Event_Observer
 {
     public static $seen = [];
 

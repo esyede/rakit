@@ -376,6 +376,110 @@ class Make extends Command
     }
 
     /**
+     * Make a new observer.
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function observer(array $arguments = [])
+    {
+        if (0 === count($arguments)) {
+            throw new \Exception('I need to know what to name the file to be make.');
+        }
+
+        $arguments[0] = $this->slashes($arguments[0]);
+
+        if (false !== strpos($arguments[0], '/')) {
+            throw new \Exception('Cannot create observer inside subdirectory.');
+        }
+
+        if (false !== strstr($arguments[0], '::')) {
+            list($package, $class) = Package::parse($arguments[0]);
+        } else {
+            list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
+        }
+
+        if (! Package::exists($package)) {
+            throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
+        }
+
+        if ('_observer' === Str::lower($class)) {
+            throw new \Exception('Please choose another name for observer.');
+        }
+
+        $class = Str::replace_last('_observer', '', Str::lower($class));
+        $directory = Package::path($package).'observers'.DS;
+        $file = $directory.$class.'.php';
+        $display = Str::replace_first(path('base'), '', $file);
+
+        if (Storage::isfile($file)) {
+            echo $this->warning('Observer already exists: '.$display.'   (skipped)');
+        } else {
+            $this->makedir($directory);
+
+            $replace = ['stub_class' => Package::class_prefix($package).Str::classify($class).'_Observer'];
+            Storage::put($file, $this->stub_general($class, 'observer', $replace));
+
+            echo $this->info('Created observer: '.$display);
+        }
+
+        return $file;
+    }
+
+    /**
+     * Make a new transformer.
+     *
+     * @param array $arguments
+     *
+     * @return void
+     */
+    public function transformer(array $arguments = [])
+    {
+        if (0 === count($arguments)) {
+            throw new \Exception('I need to know what to name the file to be make.');
+        }
+
+        $arguments[0] = $this->slashes($arguments[0]);
+
+        if (false !== strpos($arguments[0], '/')) {
+            throw new \Exception('Cannot create transformer inside subdirectory.');
+        }
+
+        if (false !== strstr($arguments[0], '::')) {
+            list($package, $class) = Package::parse($arguments[0]);
+        } else {
+            list($package, $class) = [DEFAULT_PACKAGE, $arguments[0]];
+        }
+
+        if (! Package::exists($package)) {
+            throw new \Exception(sprintf('Targetted package is not installed: %s', $package));
+        }
+
+        if ('_transformer' === Str::lower($class)) {
+            throw new \Exception('Please choose another name for transformer.');
+        }
+
+        $class = Str::replace_last('_transformer', '', Str::lower($class));
+        $directory = Package::path($package).'transformers'.DS;
+        $file = $directory.$class.'.php';
+        $display = Str::replace_first(path('base'), '', $file);
+
+        if (Storage::isfile($file)) {
+            echo $this->warning('Transformer already exists: '.$display.'   (skipped)');
+        } else {
+            $this->makedir($directory);
+
+            $replace = ['stub_class' => Package::class_prefix($package).Str::classify($class).'_Transformer'];
+            Storage::put($file, $this->stub_general($class, 'transformer', $replace));
+
+            echo $this->info('Created transformer: '.$display);
+        }
+
+        return $file;
+    }
+
+    /**
      * Generate auth scaffolding (login, register, forgot password).
      *
      * @param array $arguments

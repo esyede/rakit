@@ -1,0 +1,19 @@
+<?php
+
+defined('DS') or exit('No direct access.');
+
+class stub_class
+{
+    /**
+     * Handle the model before it is inserted.
+     * Answer with FALSE to call the insert off.
+     *
+     * @param \System\Database\Facile\Model $model
+     *
+     * @return void
+     */
+    public function creating($model)
+    {
+        // ..
+    }
+}

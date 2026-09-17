@@ -248,25 +248,24 @@ class User_Controller extends Controller
         return Redirect::to('user');
     }
 
-    // GET /user/123
+    // GET /user/show/123
     public function get_show($id)
     {
         $user = User::find($id);
         return View::make('user.show', compact('user'));
     }
 
-    // PUT /user/123
+    // PUT /user/update/123
     public function put_update($id)
     {
-        $user = User::find($id);
-        $user->update(Input::all());
-        return Redirect::to('user/' . $id);
+        User::update($id, Input::all());
+        return Redirect::to('user/show/' . $id);
     }
 
-    // DELETE /user/123
+    // DELETE /user/destroy/123
     public function delete_destroy($id)
     {
-        User::delete($id);
+        User::find($id)->delete();
         return Redirect::to('user');
     }
 }
@@ -293,14 +292,15 @@ Prefix methods with HTTP verbs:
 Route::controller('user');
 ```
 
-Request routing automatically:
+Request routing automatically (same `/{controller}/{action}/{params}` URL convention
+as auto routing, the HTTP verb only picks the method prefix):
 - `GET /user` → `get_index()`
 - `GET /user/create` → `get_create()`
 - `POST /user` → `post_index()`
-- `GET /user/123` → `get_show(123)`
-- `GET /user/123/edit` → `get_edit(123)`
-- `PUT /user/123` → `put_update(123)`
-- `DELETE /user/123` → `delete_destroy(123)`
+- `GET /user/show/123` → `get_show(123)`
+- `GET /user/edit/123` → `get_edit(123)`
+- `PUT /user/update/123` → `put_update(123)`
+- `DELETE /user/destroy/123` → `delete_destroy(123)`
 
 <a id="resource-controller"></a>
 ## Resource Controller
@@ -350,15 +350,14 @@ class Post_Controller extends Controller
     // PUT /posts/123
     public function action_update($id)
     {
-        $post = Post::find($id);
-        $post->update(Input::all());
+        Post::update($id, Input::all());
         return Redirect::to('posts/' . $id);
     }
 
     // DELETE /posts/123
     public function action_delete($id)
     {
-        Post::delete($id);
+        Post::find($id)->delete();
         return Redirect::to('posts');
     }
 }
@@ -377,6 +376,17 @@ Register all resource routes at once with `Route::resource()`:
 ```php
 Route::resource('posts');
 ```
+
+By default the routes point to a controller named after the resource
+(`posts@index`, i.e. `Posts_Controller` in `application/controllers/posts.php`).
+To use the `Post_Controller` above instead, pass the `controller` option:
+
+```php
+Route::resource('posts', ['controller' => 'post']);
+```
+
+You can also limit the generated routes with the `only` or `except` options, e.g.
+`Route::resource('posts', ['only' => ['index', 'show']])`.
 
 Generated routes:
 
@@ -449,7 +459,7 @@ class Api_Controller extends Controller
 
     public function action_index()
     {
-        return ['status' => 'success'];
+        return Response::json(['status' => 'success']);
     }
 }
 ```
@@ -478,7 +488,7 @@ class Post_Controller extends Controller
 
     public function action_create()
     {
-        // Middleware: auth
+        // Middleware: auth, admin
         return View::make('post.create');
     }
 
@@ -501,7 +511,7 @@ class Form_Controller extends Controller
         $this->middleware('before', 'csrf')->on('post');
 
         // Only for GET requests on 'show' action
-        $this->middleware('before', 'cache')->on('get', ['show']);
+        $this->middleware('before', 'cache')->on('get')->only(['show']);
     }
 
     public function action_create()
@@ -813,6 +823,9 @@ class Post_Controller extends Controller
 
     public function __construct()
     {
+        // Required when a $layout is set: the parent constructor builds it
+        parent::__construct();
+
         // Middleware for all actions
         $this->middleware('before', 'auth')->except(['index', 'show']);
 
@@ -1015,7 +1028,10 @@ class Post_Controller extends Controller
 }
 ```
 
-**File: `application/controllers/base.php`**
+**File: `application/libraries/base/controller.php`**
+
+> The autoloader maps `Base_Controller` to `base/controller.php`, so it will not be
+> found if you save it as `application/controllers/base.php`.
 
 ```php
 abstract class Base_Controller extends Controller
@@ -1024,6 +1040,8 @@ abstract class Base_Controller extends Controller
 
     public function __construct()
     {
+        parent::__construct();
+
         // Set global view data
         View::share('app_name', Config::get('application.name'));
         View::share('current_user', Auth::user());
@@ -1060,11 +1078,11 @@ abstract class Base_Controller extends Controller
 
 ```php
 // Resource routes for posts (uses Post_Controller).
-Route::resource('posts');
+Route::resource('posts', ['controller' => 'post']);
 
 // Additional routes for the same controller.
-// Place these BEFORE the resource registration if you want them to win on
-// overlapping URIs (e.g. /posts/search vs /posts/(:any)).
+// Static URIs (e.g. /posts/search) always win over wildcard URIs
+// (e.g. /posts/(:any)), wildcard URIs are matched in registration order.
 Route::get('posts/search', 'post@search');
 Route::get('posts/category/(:any)', 'post@category');
 Route::post('posts/(:num)/comment', 'post@add_comment');

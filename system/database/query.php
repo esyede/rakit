@@ -792,15 +792,16 @@ class Query
      *
      * @param array  $values
      * @param string $column
+     * @param string $sequence
      *
      * @return int
      */
-    public function insert_get_id(array $values, $column = 'id')
+    public function insert_get_id(array $values, $column = 'id', $sequence = null)
     {
         $sql = $this->grammar->insert_get_id($this, $values, $column);
         $bindings = array_merge(array_values($values), $this->bindings);
         $this->connection->query($sql, $bindings);
-        $id = $this->connection->pdo()->lastInsertId();
+        $id = $this->connection->pdo()->lastInsertId($sequence);
 
         return $id ? (int) $id : null;
     }

@@ -135,7 +135,7 @@ Hello, @{{ $name }}.
 ```
 
 In the above example, the `@` symbol will be removed by Blade; however,
-the `{{ name }}` syntax will remain untouched by the Blade engine, so this syntax can be rendered by your JavaScript framework.
+the `{{ $name }}` syntax will remain untouched by the Blade engine, so this syntax can be rendered by your JavaScript framework.
 
 #### Displaying data with default value
 

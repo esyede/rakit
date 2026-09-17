@@ -73,12 +73,13 @@ This method uses constant-time comparison to prevent timing attacks.
 <a id="checking-hash-strength"></a>
 ## Checking Hash Strength
 
-The `weak()` method checks if a hash uses a cost factor lower than desired:
+The `weak()` method checks if a bcrypt hash uses a cost factor different from the desired one (default 10).
+It returns `false` for anything that is not a 60 character `$2y$` hash:
 
 ```php
 $hash = '$2y$08$...'; // Hash with cost factor 8
 
-// Check if hash is weak (cost < 10)
+// Check if hash is weak (cost !== 10)
 if (Hash::weak($hash)) {
     echo 'This hash is weak, needs rehashing';
 }

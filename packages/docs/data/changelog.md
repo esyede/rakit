@@ -204,24 +204,22 @@ A pass through the framework has resolved every deprecation, warning, and runtim
 
 ## v0.9.11 (security)
 
-Security audit fixes — all severities from `BUGS.md`:
+Security audit fixes — all severities:
 
 **High**
-- `View` `path:` LFI/RFI — `View::resolvePath()` now validates realpath, blocks wrappers, confines to `base/storage/app/system`.
+- `View` `path:` LFI/RFI — `View::resolve_path()` now validates realpath, blocks wrappers, confines to `base/storage/app/system/package`.
 - SQLi via `where_date|month|day|year|time` — column is validated and `grammar->wrap()`-ed (`DATE("col")`), `where_column`/`has` operators validated.
-- Upload `Input::upload()` — blocks PHP extensions (`php`, `phtml`, `phar`...), validates MIME via `finfo`, size, double extensions, confines target dir to `base/storage`.
-- Mass-assignment — `Facile\Model::$guarded` defaults to `['*']` (previously `[]`); use `$fillable` allowlist.
+- Upload `Input::upload()` — blocks PHP extensions (`php`, `phtml`, `phar`...), validates MIME via `finfo`, size, double extensions.
+- Mass-assignment — `Facile\Model::$guarded` accepts `['*']` to guard every attribute; use `$fillable` allowlist.
 - `Response::download/file` traversal — `realpath` confinement to allowed roots.
 - Open redirect — `Redirect::to()` blocks external hosts (use `away()`), `URL::to()` blocks `//` and `javascript:`.
-- `Storage` API — every operation (`get/put/delete/move/copy/cpdir/rmdir/...`) validated via `validatePath()` confinement to `base`.
-- CSRF — `csrf` registered globally `pattern: *`; token no longer accepted from query string.
-- Debugger — `activate => false` by default, `detectDebugMode()` no longer auto-allows `127.0.0.1`.
+- `Storage` API — every operation (`get/put/delete/move/copy/cpdir/rmdir/...`) validated via `validate_path()` confinement to `base`.
+- CSRF — token no longer accepted from query string (attach the `csrf` middleware to the routes you want to protect).
+- Debugger — `detectDebugMode()` no longer auto-allows `127.0.0.1`.
 - Blade compiled path — CRC16 → `HMAC-SHA256(RAKIT_KEY, path)` (16 hex chars, 64-bit).
 - Auth timing — dummy `Hash::check()` on missing user.
 
 **Medium/Low**
-- `@method` now `e()`-escaped, `Header::set` strips CRLF, `unserialize(..., ['allowed_classes'=>false])` for sessions, session/remember cookies force `secure` on HTTPS, remember token stored as `sha256` and rotated, `Crypter` HKDF-derived enc/MAC keys (`v=1` payload), `key.php` blocked via `.htaccess`/`sample.htaccess`, operator validation, etc.
+- `@method` now `e()`-escaped, `Header::set` strips CRLF, session/remember cookies force `secure` on HTTPS, remember token rotated, `Crypter` HMAC-SHA256-derived enc/MAC keys (`v=1` payload), `key.php` blocked via `.htaccess`/`sample.htaccess`, operator validation, etc.
 
 **Docs** — `storage.md`, `views/home.md`, `views/templating.md`, `input.md`, `database/facile.md`, `database/magic.md`, `urls.md`, `routing.md`, `debugging.md`, `crypter.md` updated with security notes and safe examples.
-
-See `BUGS.md` for the original audit matrix.

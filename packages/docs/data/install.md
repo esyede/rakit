@@ -21,7 +21,7 @@
 **Required**
 
 -   PHP 5.4 — 8.5
--   [mbstring](https://www.php.net/manual/en/book.mbstring.php), [OpenSSL](https://www.php.net/manual/en/book.openssl.php), and [fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extensions
+-   [JSON](https://www.php.net/manual/en/book.json.php), [mbstring](https://www.php.net/manual/en/book.mbstring.php), [OpenSSL](https://www.php.net/manual/en/book.openssl.php), and [fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extensions
 
 **Optional** (enable as needed)
 
@@ -55,7 +55,8 @@ starts the built-in PHP web server so you can browse your app right away.
 
 1.  [Download](https://rakit.esyede.my.id/download) the Rakit archive and extract it
     into your web server's document root.
-2.  Make `storage/` and `assets/` writable by PHP.
+2.  Make `storage/` and `assets/` writable by PHP. The root folder must also be writable
+    on the first run, so Rakit can generate its `key.php` file.
 3.  Open the site in a browser. You should see the Rakit splash page.
 
 That's it — you're ready to start building.
@@ -79,8 +80,9 @@ available — most defaults are sensible and you only need to change a few value
 to get started.
 
 The most important file is `application/config/application.php`. It controls
-the application URL, key, default timezone, and the URL `index` option used
-for pretty URLs.
+the application URL, default timezone, and the URL `index` option used
+for pretty URLs. The application key lives in its own `key.php` file in the
+root folder, generated automatically on the first run.
 
 <a id="pretty-urls"></a>
 
@@ -109,7 +111,7 @@ RewriteCond %{REQUEST_URI} (.+)/$
 RewriteRule ^ %1 [L,R=301]
 
 RewriteRule ^(application|cgi-bin|packages|storage|system|vendor)/(.*)?$ / [F,L]
-RewriteRule ^composer\.(lock|json)$ / [F,L]
+RewriteRule ^(key\.php|composer\.(lock|json))$ / [F,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
@@ -132,7 +134,7 @@ modules are loaded:
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
     RewriteRule ^(application|cgi-bin|packages|storage|system|vendor)/(.*)?$ / [F,L]
-    RewriteRule ^composer\.(lock|json)$ / [F,L]
+    RewriteRule ^(key\.php|composer\.(lock|json))$ / [F,L]
 
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
@@ -169,11 +171,11 @@ server {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
-    location /(application|cgi-bin|packages|storage|system|vendor) {
+    location ~ ^/(application|cgi-bin|packages|storage|system|vendor)/ {
         return 403;
     }
 
-    location /composer\.(lock|json) {
+    location ~ ^/(key\.php|composer\.(lock|json))$ {
         return 403;
     }
 

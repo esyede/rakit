@@ -34,7 +34,7 @@
 - [Controller Routing](#controller-routing)
   - [Basic Controller Route](#basic-controller-route)
   - [Route to Specific Action](#route-to-specific-action)
-  - [RESTful Controller](#restful-controller)
+  - [Auto-Routed Controller](#restful-controller)
   - [Resource Controller](#resource-controller)
 - [Route for Package](#route-for-package)
 - [Route Helpers](#route-helpers)
@@ -216,14 +216,14 @@ Route::get('category/(:alpha)', function ($name) {
     return Category::where('name', $name)->first();
 });
 
-// Alphanumeric
+// Letters, digits, ., -, _, %, =
 Route::get('product/(:any)', function ($slug) {
     return Product::where('slug', $slug)->first();
 });
 
-// Capture all (including /) — validate, Storage is now confined
+// Capture all (including /) — validate, Storage is confined
 Route::get('files/(:all)', function ($path) {
-    // $path is user-controlled; Storage::get() now confines to base/storage and blocks traversal
+    // $path is user-controlled; Storage::get() confines paths to the project base directory and blocks traversal
     // Always validate/allowlist if you expose files
     $path = basename($path); // or map via allowlist
     return Storage::get(path('storage').'files/'.$path);
@@ -244,9 +244,6 @@ Route::redirect('old-page', 'new-page');
 
 // Redirect with custom status
 Route::redirect('old-page', 'new-page', 301);
-
-// Redirect to named route
-Route::redirect('legacy', 'home');
 ```
 
 <a id="route-view"></a>
@@ -472,14 +469,14 @@ Route::domain('admin.example.com', function () {
 
 **Domain with wildcard parameter:**
 
+The `{account}` wildcard only decides whether the domain matches, its value is not passed to the
+route handler. Read it from the host name when you need it:
+
 ```php
 Route::domain('{account}.example.com', function () {
-    Route::get('/', function ($account) {
+    Route::get('/', function () {
+        $account = explode('.', Request::foundation()->getHost())[0];
         return 'Welcome to ' . $account;
-    });
-
-    Route::get('dashboard', function ($account) {
-        return 'Dashboard for ' . $account;
     });
 });
 ```
@@ -535,7 +532,8 @@ Route::domain('blog.example.com', function () {
 });
 
 // Generate URL for named route in domain
-$url = URL::to_route('blog.home'); // http://blog.example.com/
+// Note: the domain is not applied, the URL is built on the application URL
+$url = URL::to_route('blog.home'); // http://example.com/
 ```
 
 <a id="middleware"></a>
@@ -659,10 +657,13 @@ Route::get('api/data', ['before' => 'throttle:100', function () {
     return ['data' => 'value'];
 }]);
 
-Route::get('moderator', ['before' => 'role:moderator|admin', function () {
+Route::get('moderator', ['before' => 'auth|role:moderator', function () {
     return 'Moderator Panel';
 }]);
 ```
+
+The `|` separates middlewares, several parameters for one middleware are separated with a comma,
+for example `throttle:60,1`.
 
 <a id="middleware-pattern"></a>
 ### Middleware Pattern
@@ -673,8 +674,11 @@ Apply middleware to all routes that match pattern:
 // All routes starting with 'admin/*'
 Route::middleware('pattern: admin/*', 'auth');
 
-// Multiple patterns
+// Multiple middlewares
 Route::middleware('pattern: admin/*', 'auth|admin');
+
+// Multiple patterns
+Route::middleware('pattern: admin/*, user/*', 'auth');
 
 // With closure
 Route::middleware('pattern: api/*', ['name' => 'api_auth', function () {
@@ -709,8 +713,8 @@ Route::get('user/profile', function () {
 <a id="csrf-exceptions"></a>
 ### CSRF Exceptions
 
-The `csrf` middleware checks every non-safe request (anything but `GET`, `HEAD`
-and `OPTIONS`) for a valid token. Some endpoints — webhooks, callback URLs,
+The `csrf` middleware checks every non-safe request (anything but `GET`, `HEAD`,
+`OPTIONS`, `TRACE` and `CONNECT`) for a valid token. Some endpoints — webhooks, callback URLs,
 server-to-server APIs — cannot read the session token, so they need to be
 exempt.
 
@@ -906,7 +910,7 @@ Route::get('(:package)/users', function () {
 });
 
 // URL: /admin/settings
-Route::get('(:package)/settings', 'admin.settings@index');
+Route::get('(:package)/settings', 'admin::settings@index');
 ```
 
 The `(:package)` placeholder is automatically replaced with the value from `handles`.
@@ -1055,10 +1059,10 @@ Hook::listen('404', function () {
 ```php
 $routes = Route::lists();
 
-foreach ($routes as $method => $routes) {
+foreach ($routes as $method => $uris) {
     echo "$method:\n";
-    foreach ($routes as $route) {
-        echo "  " . $route['uri'] . "\n";
+    foreach ($uris as $uri => $action) {
+        echo "  " . $uri . "\n";
     }
 }
 ```

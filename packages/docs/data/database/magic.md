@@ -94,11 +94,11 @@ $user = DB::table('users')->first();
 $user = DB::table('users')->find($id);
 ```
 
-**Retrieve a record by ID, throwing an exception when it is not found:**
+**Retrieve a record by ID, aborting with a 404 response when it is not found:**
 
 ```php
 $user = DB::table('users')->find_or_fail($id);
-// Throw ModelNotFoundException if not found
+// Calls abort(404) if not found
 ```
 
 > **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty collection.
@@ -122,7 +122,7 @@ $users = DB::table('users')
     ->select(['id', 'name', 'email'])
     ->get();
 
-// Atau multiple arguments
+// Or multiple arguments
 $users = DB::table('users')
     ->select('id', 'name', 'email')
     ->get();
@@ -169,7 +169,7 @@ $users = DB::table('users')
 ```php
 '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
 'like', 'like binary', 'not like', 'ilike',
-'&', '|', '^', '<<', '>>',
+'&', '|', '^', '<<', '>>', '&~',
 'rlike', 'not rlike', 'regexp', 'not regexp',
 '~', '~*', '!~', '!~*',
 'similar to', 'not similar to', 'not ilike', '~~*', '!~~*'
@@ -873,7 +873,7 @@ The cursor uses a PHP generator and streams the data row by row.
 **Insert single record:**
 
 ```php
-$id = DB::table('users')->insert([
+DB::table('users')->insert([
     'name' => 'John Doe',
     'email' => 'john@example.com',
     'password' => Hash::make('secret')
@@ -1007,24 +1007,19 @@ echo $users->links();
 <a id="find-or-fail"></a>
 ## Find Or Fail
 
-Methods that throw an exception when the record is not found:
+Methods that stop the request with a 404 response (via `abort(404)`) when the record is not found:
 
 ```php
-try {
-    $user = DB::table('users')->find_or_fail($id);
-} catch (ModelNotFoundException $e) {
-    return Response::error('404');
-}
+$user = DB::table('users')->find_or_fail($id);
 
 // Or with first_or_fail
-try {
-    $user = DB::table('users')
-        ->where('email', '=', $email)
-        ->first_or_fail();
-} catch (ModelNotFoundException $e) {
-    return Redirect::back()->with('error', 'User not found');
-}
+$user = DB::table('users')
+    ->where('email', '=', $email)
+    ->first_or_fail();
 ```
+
+> **Note:** On the query builder these do not throw an exception you can catch. Only a
+> [Facile model](/docs/database/facile) query throws `ModelNotFoundException`.
 
 <a id="copy-query"></a>
 ## Copy Query

@@ -74,10 +74,10 @@ $input = Input::get();
 **Example:**
 
 ```php
-// insecure — mass-assignment with Input::all() when $guarded default was []
+// insecure — mass-assignment with Input::all() (Model defaults to $guarded = [])
 // $data = Input::all(); User::create($data);
 
-// secure — explicit allowlist (Model now defaults to $guarded = ['*'])
+// secure — explicit allowlist
 $data = Input::only('name', 'email', 'password');
 User::create($data);
 
@@ -170,7 +170,7 @@ if (Auth::attempt($credentials)) {
 
 // Update profile (exclude protected fields)
 $data = Input::except('id', 'password', 'remember_token');
-Auth::user()->update($data);
+User::update(Auth::user()->id, $data);
 ```
 
 <a id="input-presence"></a>
@@ -223,7 +223,7 @@ if (Input::unfilled('optional_field')) {
 
 // Multiple check
 if (Input::unfilled('field1', 'field2')) {
-    echo 'All fields are empty';
+    echo 'At least one field is empty';
 }
 ```
 
@@ -265,8 +265,8 @@ $user->subscribed = Input::boolean('newsletter');
 
 ```php
 Input::keys();                       // every input key
-Input::missing('coupon');            // TRUE when the key is absent
-Input::missing(['coupon', 'note']);  // TRUE only when all of them are absent
+Input::missing('coupon');            // TRUE when the key is absent or empty
+Input::missing(['coupon', 'note']);  // TRUE only when all of them are absent or empty
 Input::any_filled(['phone', 'email']); // TRUE when at least one is filled
 ```
 
@@ -282,11 +282,11 @@ $query = Input::query('q');
 // "keyword"
 
 $page = Input::query('page', 1);
-// 2
+// "2" (query values are strings)
 
 // Get all query parameters
 $params = Input::query();
-// ['q' => 'keyword', 'page' => 2]
+// ['q' => 'keyword', 'page' => '2']
 ```
 
 <a id="json-input"></a>
@@ -298,14 +298,14 @@ $params = Input::query();
 // Request Content-Type: application/json
 // Body: {"name": "John", "email": "john@example.com"}
 
-// As object
+// As array (default)
 $data = Input::json();
+echo $data['name']; // "John"
+
+// As object
+$data = Input::json(true);
 echo $data->name; // "John"
 echo $data->email; // "john@example.com"
-
-// As array
-$data = Input::json(false);
-echo $data['name']; // "John"
 ```
 
 **Example API endpoint:**
@@ -355,7 +355,8 @@ if (Input::has_file('avatar')) {
 **Upload file to directory:**
 
 ```php
-// Upload with auto-generated name
+// Upload with the temporary file name
+// (returns the full path of the moved file, or FALSE when nothing was uploaded)
 $filename = Input::upload('avatar', path('storage') . 'uploads');
 
 // Upload with custom name
@@ -545,7 +546,7 @@ Route::post('register', function () {
             ->with_errors($validation);
     }
     
-    // Create user — allowlist (Model defaults to $guarded=['*'])
+    // Create user — allowlist (Model defaults to $guarded = [])
     $user = User::create(Input::only('name','email','password'));
     
     return Redirect::to('login')
@@ -663,9 +664,11 @@ Cookie::put('name', 'value', 60, '/', '.example.com');
 // Set secure cookie (HTTPS only)
 Cookie::put('name', 'value', 60, '/', null, true);
 
-// Set httponly cookie
-Cookie::put('name', 'value', 60, '/', null, false, true);
+// Set samesite attribute ('lax' (default), 'strict' or 'none')
+Cookie::put('name', 'value', 60, '/', null, false, 'strict');
 ```
+
+> Cookies set through `Cookie` are always sent with the `HttpOnly` flag.
 
 <a id="delete-cookie"></a>
 ### Delete Cookie
@@ -674,9 +677,6 @@ Cookie::put('name', 'value', 60, '/', null, false, true);
 
 ```php
 Cookie::forget('name');
-
-// Or set with expiration 0
-Cookie::put('name', '', 0);
 ```
 
 <a id="forever-cookie"></a>
@@ -718,7 +718,7 @@ Route::post('contact', function () {
 
     Email::to('admin@example.com')
         ->subject('New Contact Message')
-        ->body($body)
+        ->html_body($body)
         ->send();
     
     return Redirect::back()
@@ -778,7 +778,7 @@ Route::post('products', function () {
     
     if ($validation->fails()) {
         return Redirect::back()
-            ->with_input(Input::except('image'))
+            ->with_input('except', ['image'])
             ->with_errors($validation);
     }
     
@@ -852,7 +852,7 @@ View::share('language', $language);
 
 ```php
 Route::get('products', function () {
-    $query = Product::query();
+    $query = (new Product())->query();
     
     // Search — use binding, LIKE is safe via binding (value is parameterized)
     if (Input::has('q')) {
@@ -868,8 +868,10 @@ Route::get('products', function () {
     // Sort — allowlist columns/directions (order_by direction is now validated, but column must be allowlisted)
     $allowedSorts = ['name','price','created_at'];
     $allowedDirs  = ['asc','desc'];
-    $sort_by = in_array(Input::get('sort','created_at'), $allowedSorts) ? Input::get('sort') : 'created_at';
-    $sort_dir = in_array(strtolower(Input::get('dir','desc')), $allowedDirs) ? Input::get('dir') : 'desc';
+    $sort_by = Input::get('sort', 'created_at');
+    $sort_by = in_array($sort_by, $allowedSorts) ? $sort_by : 'created_at';
+    $sort_dir = strtolower(Input::get('dir', 'desc'));
+    $sort_dir = in_array($sort_dir, $allowedDirs) ? $sort_dir : 'desc';
     $query->order_by($sort_by, $sort_dir);
     
     // Paginate

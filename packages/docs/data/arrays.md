@@ -221,7 +221,7 @@ This method returns the first element of an array that passes the given truth te
 ```php
 $array = [100, 200, 300];
 
-return Arr::first($array, function ($value, $key) {
+return Arr::first($array, function ($key, $value) {
     return $value >= 150;
 });
 
@@ -289,7 +289,7 @@ This method checks whether a given item exists in the array using "dot" notation
 $array = ['product' => ['name' => 'Desk', 'price' => 100]];
 
 return Arr::has($array, 'product.name'); // true
-return Arr::has($array, ['product.price', 'product.discount']); // false
+return Arr::has($array, 'product.discount'); // false
 ```
 
 <a id="arrhas_any"></a>
@@ -386,7 +386,7 @@ This method returns the last element of an array that passes the given truth tes
 ```php
 $array = [100, 200, 300, 110];
 
-return Arr::last($array, function ($value, $key) {
+return Arr::last($array, function ($key, $value) {
     return $value >= 150;
 });
 
@@ -491,7 +491,7 @@ $array = [1, 2, 3, 4, 5];
 return Arr::random($array); // 4 - (obtained randomly)
 ```
 
-You can also specify how many items should be returned through the third parameter.
+You can also specify how many items should be returned through the second parameter.
 Note that if this option is used, the return value will always be an array.
 
 ```php
@@ -533,7 +533,7 @@ This method sorts an array by its values:
 $array = ['Desk', 'Table', 'Chair'];
 
 return Arr::sort($array);
-// ['Chair', 'Desk', 'Table']
+// [2 => 'Chair', 0 => 'Desk', 1 => 'Table']
 ```
 
 You can also sort an array using a Closure:
@@ -578,9 +578,9 @@ return Arr::recsort($array);
 
 /**
     [
-        ['JavaScript', 'PHP', 'Ruby'],
         ['one' => 1, 'three' => 3, 'two' => 2],
-        ['Li', 'Roman', 'Budi'],
+        ['Budi', 'Li', 'Roman'],
+        ['JavaScript', 'PHP', 'Ruby'],
     ]
 */
 ```
@@ -594,7 +594,7 @@ This method is used to filter an array using a Closure:
 ```php
 $array = [100, '200', 300, '400', 500];
 
-return Arr::where($array, function ($value, $key) {
+return Arr::where($array, function ($key, $value) {
     return is_string($value);
 });
 

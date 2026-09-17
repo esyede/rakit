@@ -24,13 +24,14 @@ After initialization, you just need to call its properties according to the data
 $faker = Faker::create();
 ```
 
-By default, the generated data is in English. However, you can also use Indonesian of course:
+By default, the locale follows the `language` option in `application/config/application.php` (`'id'` by default).
+You can also pass the locale explicitly, either `'en'` (English) or `'id'` (Indonesian):
 
 ```php
-$faker = Faker::create('id');
+$faker = Faker::create('en');
 ```
 
-Alright, for the examples below we will use the default, which is English
+Alright, for the examples below we will use English
 
 ```php
 $faker->name; // 'John Doe';
@@ -62,11 +63,11 @@ Each generator property (such as `name`, `address`, and `lorem`) is called a "fo
 $faker->randomDigit; // 7
 $faker->randomDigitNotNull; // 5
 $faker->randomNumber($nbDigits = null); // 79907610
-$faker->randomFloat($maxRounds = null, $min = 0, $max = null); // 2.497
+$faker->randomFloat($nbMaxDecimals = null, $min = 0, $max = null); // 2.497
 $faker->numberBetween($min = 1000, $max = 9000); // 8567
 $faker->randomLetter; // 'b'
 $faker->randomElements($array = ['a','b','c'], $count = 1); // ['c']
-$faker->randomElement($array = ['a','b','c'])); // 'b'
+$faker->randomElement($array = ['a','b','c']); // 'b'
 $faker->shuffle('hello, world'); // 'rlo,h eoldlw'
 $faker->shuffle([1, 2, 3]); // [2, 1, 3]
 $faker->numerify('Hello ###'); // 'Hello 609'
@@ -269,7 +270,7 @@ $faker->rgbcolor;        // '0,255,122'
 $faker->rgbColorAsArray; // [0, 255, 122]
 $faker->rgbCssColor;     // 'rgb(0, 255, 122)'
 $faker->safeColorName;   // 'fuchsia'
-$faker->colorName;       // 'Gainsbor'
+$faker->colorName;       // 'Gainsboro'
 ```
 
 ### File
@@ -297,17 +298,17 @@ $faker->imageUrl($width = 640, $height = 480);
 $faker->imageUrl($width, $height, 'cdcdcd');
 // 'https://placehold.co/800/400/cdcdcd/jpg'
 
-$faker->imageUrl($width, $height, 'cdcdcd', 'ffffff, 'Hello World');
+$faker->imageUrl($width, $height, 'cdcdcd', 'ffffff', 'Hello World');
 // 'https://placehold.co/800/400/cdcdcd/ffffff/jpg?text=Hello+World'
 
 $faker->image($dir = '/tmp', $width = 640, $height = 480);
 // '/tmp/13b73edae8443990be1aa8f1a483bc27.jpg'
 
 $faker->image($dir, $width, $height, 'cdcdcd');
-// 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' image with #cdcdcd background color
+// '/tmp/13b73edae8443990be1aa8f1a483bc27.jpg' image with #cdcdcd background color
 
-$faker->image($dir, $width, $height, 'cdcdcd', 'ffffff, 'Hello World');
-// 'tmp/13b73edae8443990be1aa8f1a483bc27.jpg' image with #cdcdcd background color, #ffffff foreground color, and 'Hello World' text
+$faker->image($dir, $width, $height, 'cdcdcd', 'ffffff', 'Hello World');
+// '/tmp/13b73edae8443990be1aa8f1a483bc27.jpg' image with #cdcdcd background color, #ffffff foreground color, and 'Hello World' text
 ```
 
 ### UUID (version 4)
@@ -335,8 +336,8 @@ $faker->sha1; // 'f08e7f04ca1a413807ebc47551a40a20a0b4de5c'
 $faker->sha256;
 // '0061e4c60dac5c1d82db0135a42e00c89ae3a333e7c26485321f24348c7e98a5'
 
-$faker->locale;       // en
-$faker->countryCode;  // UK
+$faker->locale;       // 'en_US'
+$faker->countryCode;  // 'GB'
 $faker->languageCode; // en
 $faker->currencyCode; // EUR
 ```

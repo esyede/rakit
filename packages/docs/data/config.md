@@ -49,6 +49,10 @@ $options = Config::get('database');
 $options = Config::all();
 ```
 
+`all()` only returns the configuration files that have already been loaded
+during the current request, grouped by package name (e.g. `$options['application']['database']`).
+Files that have not been read yet via `get()` or `set()` are not included.
+
 <a id="setting-configuration-items"></a>
 
 ## Setting Configuration Items

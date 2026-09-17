@@ -28,14 +28,14 @@ In this file, you will see a `'redis'` array that contains the Redis servers use
 ```php
 'redis' => [
 
-	'default' => ['host' => '127.0.0.1', 'port' => 6379],
+	'default' => ['host' => '127.0.0.1', 'port' => 6379, 'database' => 0],
 
 ],
 ```
 
 The `'default'` configuration above is usually sufficient for development.
 However, you are free to modify this array according to your environment.
-Just give each server configuration a name, and specify the host and port used by the server.
+Just give each server configuration a name, and specify the host, port and database index used by the server.
 
 <a id="usage"></a>
 
@@ -74,11 +74,11 @@ $name = $redis->get('name');
 $values = $redis->lrange('names', 5, 10);
 ```
 
-Note that the arguments of Redis commands are called as method names. Of course, you are not required to use these magic methods;
+Note that the Redis commands are called as method names, with the command arguments passed as the method arguments. Of course, you are not required to use these magic methods;
 you can also send commands to the server using the `run()` method like this:
 
 ```php
-$values = $redis->run('lrange', [5, 10]);
+$values = $redis->run('lrange', ['names', 5, 10]);
 ```
 
 Just want to run commands on the default Redis server? Just use the magic methods:

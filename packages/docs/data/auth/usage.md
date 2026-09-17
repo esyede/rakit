@@ -450,7 +450,7 @@ class Auth_Controller extends Controller
             }
 
             return Redirect::back()
-                ->with_input(Input::only('email'))
+                ->with_input('only', ['email'])
                 ->with('error', 'Email or password is incorrect.');
         }
 

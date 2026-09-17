@@ -120,79 +120,6 @@ class User_Controller extends Controller
 Now you are familiar with the basic usage of the `Validator` class. It's time to delve deeper
 into what rules you can use to validate your data!
 
-#### Define validation rules for each data:
-
-```php
-$rules = [
-    'name'  => 'required|max:50',
-    'email' => 'required|email|unique:users',
-];
-```
-
-In addition to using the `|` (pipe) character as a separator, you can also write it
-in array syntax:
-
-```php
-$rules = [
-    'name'  => ['required', 'max:50'],
-    'email' => ['required', 'email', 'unique:users'],
-];
-```
-
-#### Create a `Validator` instance and validate the data:
-
-```php
-$validation = Validator::make($input, $rules);
-
-if ($validation->fails()) {
-    return Redirect::back()->with_input()->with_errors($validation);
-}
-
-// Validation successful, proceed
-```
-
-Of course, default error messages have been included for all validation rules.
-These default error messages are stored in the file `application/language/en/validation.php`.
-
-**Complete example in controller:**
-
-```php
-class User_Controller extends Controller
-{
-    public function action_register()
-    {
-        $input = Input::all();
-
-        $rules = [
-            'name'     => 'required|max:50',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ];
-
-        $validation = Validator::make($input, $rules);
-
-        if ($validation->fails()) {
-            return Redirect::back()
-                ->with_input()
-                ->with_errors($validation);
-        }
-
-        // Save new user
-        $user = new User();
-        $user->name = Input::get('name');
-        $user->email = Input::get('email');
-        $user->password = Hash::make(Input::get('password'));
-        $user->save();
-
-        return Redirect::to('login')
-            ->with('message', 'Registration successful!');
-    }
-}
-```
-
-Now you are familiar with the basic usage of the `Validator` class. It's time to delve deeper
-into what rules you can use to validate your data!
-
 <a id="validation-rules"></a>
 
 ## Validation Rules
@@ -210,12 +137,12 @@ into what rules you can use to validate your data!
 -   [Regular Expression](#regular-expression)
 -   [Uniqueness & Existence](#uniqueness--existence)
 -   [Date](#date)
--   [Other Rules](#other-rules)
 -   [E-Mail](#e-mail)
 -   [URL](#url)
 -   [IP Address](#ip-address)
 -   [File Upload](#file-upload)
 -   [Array](#array)
+-   [Other Rules](#other-rules)
 
 <a id="required"></a>
 
@@ -311,7 +238,8 @@ The `present` rule ensures that the key exists in the input data, even if its va
 'bio' => 'filled',
 ```
 
-The `filled` rule ensures that if the field exists, it must have a value (cannot be empty).
+The `filled` rule ensures that the field has a value (cannot be empty). In the current implementation
+it is checked even when the field is missing, so a missing field fails it too, just like `required`.
 
 **Difference between `required`, `present`, and `filled`:**
 
@@ -322,7 +250,7 @@ The `filled` rule ensures that if the field exists, it must have a value (cannot
 // present: Field MUST exist, can be empty
 'middle_name' => 'present',
 
-// filled: Field can not exist, but if it exists MUST contain a value
+// filled: currently behaves the same as required
 'nickname' => 'filled',
 ```
 
@@ -331,7 +259,7 @@ The `filled` rule ensures that if the field exists, it must have a value (cannot
 $rules = [
     'name' => 'required|string',           // Must exist and contain value
     'middle_name' => 'present|string',     // Must exist, can be empty
-    'nickname' => 'filled|string',         // Optional, but if exists must contain value
+    'nickname' => 'filled|string',         // Must exist and contain value
 ];
 
 // Valid data:
@@ -344,14 +272,14 @@ $rules = [
 [
     'name' => 'Jane Smith',
     'middle_name' => null,      // OK because present
-    // 'nickname' not present       // OK because filled is optional
+    'nickname' => 'Jane',       // OK because filled and contains value
 ]
 
 // Invalid data:
 [
     'name' => 'Bob',
     // 'middle_name' not present    // NOT OK because present
-    'nickname' => '',           // NOT OK because filled, must contain value if present
+    'nickname' => '',           // NOT OK because filled, must contain value
 ]
 ```
 
@@ -381,7 +309,7 @@ $rules = [
 
 ### Size
 
-#### Validate that the attribute has a certain length, or, if the attribute is a number, it is a certain value:
+#### Validate that the attribute has a certain length, or, if the attribute is a number (with the `numeric` or `integer` rule), it is a certain value:
 
 ```php
 'name' => 'size:10',
@@ -409,7 +337,7 @@ $rules = [
 ```
 
 > What "size" means follows the value: the length of a string, the value of a
-> number, the number of elements of an array, and the size in kilobytes of an
+> number (only when the attribute also has the `numeric` or `integer` rule), the number of elements of an array, and the size in kilobytes of an
 > uploaded file. So `'tags' => 'array|max:3'` allows at most three tags.
 
 <a id="numbers"></a>
@@ -440,26 +368,14 @@ This rule will accept: `true`, `false`, `1`, `0`, `"1"`, `"0"`.
 
 ### Comparison
 
-#### Validate that the attribute is greater than (greater than) another attribute:
-
-```php
-'end_date' => 'after:start_date',
-```
-
-#### Validate that the date is equal to another date:
+#### Validate that the date is equal to a given date:
 
 ```php
 'scheduled_date' => 'date_equals:2024-12-31',
-'delivery_date' => 'date_equals:order_date',
 ```
 
-**Example:**
-```php
-$rules = [
-    'event_date' => 'date_equals:2024-01-15',
-    'confirm_date' => 'date_equals:event_date',
-];
-```
+> The date rules (`date_equals`, `before`, `after` and their `_or_equal` variants)
+> compare against the given date string, not against another attribute.
 
 #### Validate that the attribute is greater than (greater than) another attribute:
 
@@ -724,8 +640,8 @@ So how to overcome this? Easy:
 > `before_or_equal` and `after_or_equal` also answer to the plural spelling
 > (`before_or_equals`, `after_or_equals`), so both work.
 
-> The `before` and `after` rules use the
-> [strtotime()](https://www.php.net/manual/en/function.strtotime.php) function to
+> The `before` and `after` rules use PHP's
+> [DateTime](https://www.php.net/manual/en/datetime.construct.php) constructor to
 > convert the given string date.
 
 #### Validate that the date attribute format matches a certain format:
@@ -734,8 +650,8 @@ So how to overcome this? Easy:
 'start_date' => 'date_format:H\\:i',
 ```
 
-> In the example above, `\\` (double backslash) is used to escape `:` (colon) so that the character is not
-> considered a parameter separator by PHP.
+> In the example above, `\\` (double backslash) puts a literal `\:` in the format, which the date parser
+> reads as an escaped `:`. It is optional: only the first `:` separates the rule name from its parameters.
 
 > The match has to be exact. PHP's own parser is happy to read `2026-1-1` as
 > `Y-m-d`, but this rule is not: the date has to read back the same way it came
@@ -773,8 +689,8 @@ Date formatting options can be read in
 'link' => 'active_url',
 ```
 
-> This rule uses the [checkdnsrr()](https://www.php.net/manual/en/function.checkdnsrr.php)
-> function for checking.
+> This rule sends a `HEAD` request with [cURL](https://www.php.net/manual/en/book.curl.php)
+> (5 second timeout) and passes when the response status is 2xx or 3xx.
 
 <a id="ip-address"></a>
 
@@ -827,9 +743,9 @@ $validation = Validator::make($input, $rules);
 
 ### File Upload
 
-The `mimes` rule validates that the uploaded file has a certain MIME type.
+The `mimes` rule validates that the uploaded file matches one of the given extensions.
 This rule uses the [PHP Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extension to
-read the file content and determine the actual MIME type.
+read the file content, determine the actual MIME type, and match it against the given extensions.
 
 #### Validate that the file is one of the given mime-types:
 
@@ -840,15 +756,15 @@ read the file content and determine the actual MIME type.
 > When validating files, make sure to use `Input::file()` or `Input::all()`
 > to retrieve input data from the user.
 
-#### Validate MIME type based on file extension:
+#### Validate the actual MIME type of the file:
 
 ```php
 'document' => 'mimetypes:application/pdf,application/msword',
 ```
 
 **Difference between `mimes` and `mimetypes`:**
-- `mimes`: Validates based on file extension (jpg, png, pdf)
-- `mimetypes`: Validates based on actual MIME type (image/jpeg, application/pdf)
+- `mimes`: Takes file extensions (jpg, png, pdf), matched against the MIME type detected from the file content
+- `mimetypes`: Takes MIME types directly (image/jpeg, application/pdf)
 
 **Example:**
 ```php
@@ -878,7 +794,6 @@ XSS. It is therefore not an image unless you say so:
 'avatar' => 'dimensions:min_width=100,min_height=100',
 'banner' => 'dimensions:width=1200,height=300',
 'photo' => 'dimensions:max_width=2000,max_height=2000',
-'thumbnail' => 'dimensions:ratio=16/9',
 ```
 
 **Available constraints for dimensions:**
@@ -888,7 +803,6 @@ XSS. It is therefore not an image unless you say so:
 - `max_height`: Maximum height
 - `width`: Exact width
 - `height`: Exact height
-- `ratio`: Aspect ratio (example: 16/9, 4/3, 1/1)
 
 **Combination example:**
 ```php
@@ -909,7 +823,7 @@ $input = Input::all();
 $rules = [
     'avatar' => 'required|file|image|mimes:jpg,png|max:2048|dimensions:min_width=100,min_height=100',
     'document' => 'required|file|mimetypes:application/pdf|max:5120',
-    'photo' => 'image|dimensions:ratio=16/9',
+    'photo' => 'image|dimensions:max_width=2000',
 ];
 
 $validation = Validator::make($input, $rules);
@@ -921,8 +835,7 @@ if ($validation->fails()) {
 }
 
 // Upload file
-$avatar = Input::file('avatar');
-$avatar->move(path('storage') . 'uploads');
+Input::upload('avatar', path('storage') . 'uploads');
 ```
 
 <a id="array"></a>
@@ -1119,15 +1032,15 @@ so they can be accessed globally, thus we can display the error messages in the 
 
 **Note that we do not explicitly bind the error messages to the view in our GET route**.
 
-However, the `$error` variable will still be available in the view. Rakit cleverly determines if
+However, the `$errors` variable will still be available in the view. Rakit cleverly determines if
 there are errors in the session, and if there are, it automatically binds them to the view for you.
 
 If there are no errors in the session, an empty message container will still be bound to the view.
 
 In your view, this allows you to always assume you have a message container
-available through the `$error` variable. This will definitely make your life easier.
+available through the `$errors` variable. This will definitely make your life easier.
 
-For example, if email validation fails, we can look for `'email'` in the `$error` session.
+For example, if email validation fails, we can look for `'email'` in the `$errors` variable.
 
 ```php
 $errors->has('email')
@@ -1191,11 +1104,11 @@ public function action_store()
     ];
 
     $messages = [
-        'name.required'  => 'Name is required.',
-        'name.max'       => 'Name maximum 50 characters.',
-        'email.required' => 'Email is required.',
-        'email.email'    => 'Invalid email format.',
-        'email.unique'   => 'Email is already registered.',
+        'name_required'  => 'Name is required.',
+        'name_max'       => 'Name maximum 50 characters.',
+        'email_required' => 'Email is required.',
+        'email_email'    => 'Invalid email format.',
+        'email_unique'   => 'Email is already registered.',
     ];
 
     $validation = Validator::make(Input::all(), $rules, $messages);
@@ -1337,7 +1250,7 @@ $messages = [
 $validator = Validator::make(Input::get(), $rules, $messages);
 ```
 
-Or by adding it to the `language/en/validation.php` file:
+Or by adding it to the `application/language/en/validation.php` file:
 
 ```php
 'humble' => 'You must always be humble!',
@@ -1348,7 +1261,7 @@ As mentioned above, you can specify and receive an array of parameters in your c
 ```php
 // Register custom rule
 Validator::register('humble', function ($attribute, $value, $params) {
-    return ($value === 'yes');
+    return ($value === $params[0]);
 });
 
 // Usage
@@ -1378,17 +1291,17 @@ class Validator extends \System\Validator
 }
 ```
 
-Next, remove `Validator` from the aliases array in the `config/aliases.php` file. This is
+Next, remove `Validator` from the aliases array in the `application/config/aliases.php` file. This is
 necessary because there would be two classes named Validator otherwise, which would conflict:
 
 ```php
-'aliases' => [
+return [
     // ..
 
     'Validator' => 'System\Validator', // Remove this part
 
     // ..
-],
+];
 ```
 
 Next, just move our `'humble'` rule into that class:

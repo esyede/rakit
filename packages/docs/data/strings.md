@@ -169,14 +169,8 @@ This method checks if a string ends with the given value:
 
 ```php
 $result = Str::ends_with('Rakit PHP framework', 'framework'); // true
-```
 
-You can also pass an array to check if a string ends with any of its values:
-
-```php
-$result = Str::ends_with('Rakit PHP framework', ['framework', 'foo']); // true
-
-$result = Str::ends_with('Rakit PHP framework', ['php', 'foo']); // false
+$result = Str::ends_with('Rakit PHP framework', 'php'); // false
 ```
 
 <a id="strfinish"></a>
@@ -581,7 +575,7 @@ $converted = Str::title('selamat pagi indonesia');
 
 ### Str::uuid()
 
-This method generates a UUID string (version 4):
+This method generates a random UUID-formatted string (32 random hex characters, without the version bits set):
 
 ```php
 return Str::uuid(); // a0a2a2d2-0b87-4a18-83f2-2529882be2de (randomly generated)
@@ -654,8 +648,8 @@ one. Echo it, or ask for `value()`, to get the plain string back:
 ```php
 $title = Str::of('hello world');
 
-echo $title->upper();     // 'HALO DUNIA'
-echo $title;              // 'halo dunia', the original is untouched
+echo $title->upper();     // 'HELLO WORLD'
+echo $title;              // 'hello world', the original is untouched
 
 $plain = $title->value(); // a plain string
 ```

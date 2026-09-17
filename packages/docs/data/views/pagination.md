@@ -97,7 +97,7 @@ works just as well:
 #### Also display the pagination links:
 
 ```php
-{{ $orders->links() }}
+{!! $orders->links() !!}
 ```
 
 The `links()` method above will create a list of page links that look like this:
@@ -174,7 +174,7 @@ the column you are sorting.
 #### Adding query string to pagination links:
 
 ```php
-{{ $orders->appends(['sort' => 'votes'])->links() }}
+{!! $orders->appends(['sort' => 'votes'])->links() !!}
 ```
 
 `appends()` also accepts a single key and value, and it merges instead of replacing, so it
@@ -194,7 +194,7 @@ mysite.com/orders?sort=votes&order=desc&page=3
 **Preserve all query strings from request:**
 
 ```php
-{{ $orders->with_query_string()->links() }}
+{!! $orders->with_query_string()->links() !!}
 ```
 
 This will preserve all query parameters from the current request, except the page number.
@@ -202,7 +202,7 @@ This will preserve all query parameters from the current request, except the pag
 **Adding a fragment (hash):**
 
 ```php
-{{ $orders->fragment('daftar')->links() }}   // mysite.com/orders?page=2#daftar
+{!! $orders->fragment('daftar')->links() !!}   // mysite.com/orders?page=2#daftar
 ```
 
 <a id="custom-page-name"></a>
@@ -247,6 +247,8 @@ return Response::json(DB::table('orders')->paginate(10));
         { "url": "https://mysite.com/orders?page=1", "label": "Previous", "active": false },
         { "url": "https://mysite.com/orders?page=1", "label": "1", "active": false },
         { "url": "https://mysite.com/orders?page=2", "label": "2", "active": true },
+        { "url": "https://mysite.com/orders?page=3", "label": "3", "active": false },
+        { "url": "https://mysite.com/orders?page=4", "label": "4", "active": false },
         { "url": "https://mysite.com/orders?page=3", "label": "Next", "active": false }
     ],
     "next_page_url": "https://mysite.com/orders?page=3",
@@ -331,8 +333,10 @@ The view receives two variables:
         <li class="{{ $element['type'] }}_page page-item disabled"><a class="page-link" href="#">{{ $element['label'] }}</a></li>
 @elseif ($element['active'])
         <li class="page-item active"><a class="page-link" href="#">{{ $element['label'] }}</a></li>
-@else
+@elseif ('page' === $element['type'])
         <li class="page-item"><a class="page-link" href="{{ $element['url'] }}">{{ $element['label'] }}</a></li>
+@else
+        <li class="{{ $element['type'] }}_page page-item"><a class="page-link" href="{{ $element['url'] }}">{{ $element['label'] }}</a></li>
 @endif
 @endforeach
     </ul>
@@ -343,7 +347,7 @@ The view receives two variables:
 **Using a different view for one call:**
 
 ```php
-{{ $orders->links(3, 'pagination.compact') }}
+{!! $orders->links(3, 'pagination.compact') !!}
 ```
 
 **Using a different view everywhere:**
@@ -459,7 +463,7 @@ The class names match Bootstrap, so a Bootstrap based project needs no extra CSS
         of {{ $users->total() }} results
     </div>
 
-    {{ $users->links() }}
+    {!! $users->links() !!}
 </div>
 ```
 

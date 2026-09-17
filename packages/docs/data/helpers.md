@@ -32,7 +32,7 @@ Below is a list of built-in helpers available:
 | [system_os](#system_os)         | [config](#config)                 | [cache](#cache)                   | [session](#session)               | [collect](#collect)               | [fake](#fake)                     |
 | [validate](#validate)           | [abort](#abort)                   | [abort_if](#abort_if)             | [encrypt](#encrypt)               | [decrypt](#decrypt)               | [bcrypt](#bcrypt)                 |
 | [dispatch](#dispatch)           | [blank](#blank)                   | [filled](#filled)                 | [now](#now)                       | [tap](#tap)                       | [optional](#optional)             |
-| [when](#when)                   | [human_filesize](#human_filesize) |
+| [when](#when)                   | [human_filesize](#human_filesize) | [measure](#measure)               |
 
 <a id="e"></a>
 
@@ -66,7 +66,8 @@ dd($value1, $value2, $value3, ...);
 
 ### dump
 
-The `dump` function will dump the contents of a variable but script execution will continue:
+The `dump` function will dump the contents of a variable but script execution will continue.
+On a web request with the debug bar enabled (and not in production mode), the dump is sent to the debug bar instead:
 
 ```php
 dump($value);
@@ -278,12 +279,12 @@ The `facile_to_json` function converts a Facile model object to a JSON string:
 $json = facile_to_json(User::find(1));
 // {"id":1,"name":"Budi","email":"budi@example.com"}
 
-// Multiple models
-$json = facile_to_json(User::all());
+// Multiple models (pass a plain array, User::all() returns a Collection)
+$json = facile_to_json(User::all()->all());
 // [{"id":1,"name":"Budi"}, {"id":2,"name":"Ani"}]
 
 // With JSON options
-$json = facile_to_json(User::all(), JSON_PRETTY_PRINT);
+$json = facile_to_json(User::all()->all(), JSON_PRETTY_PRINT);
 ```
 
 <a id="head"></a>
@@ -331,10 +332,10 @@ $url = url('user/profile');
 // https://example.com/index.php/user/profile
 
 $url = url('/');
-// https://example.com/
+// https://example.com/index.php/
 
 $url = url();
-// https://example.com/index.php
+// https://example.com/index.php/
 ```
 
 <a id="asset"></a>
@@ -413,8 +414,9 @@ return redirect('/home');
 // Redirect with status code
 return redirect('/home', 301);
 
-// Redirect to external URL
-return redirect('https://google.com');
+// External URLs are rejected by redirect() (it throws an exception),
+// use Redirect::away() instead
+return Redirect::away('https://google.com');
 
 // Redirect with flash data
 return redirect('/edit')
@@ -642,7 +644,7 @@ The `render_each` function renders a partial view for each item in an array:
 // File: views/partials/user_item.blade.php
 // <li>{{ $user->name }} - {{ $user->email }}</li>
 
-$users = User::all();
+$users = User::all()->all(); // render_each() expects a plain array
 $html = render_each('partials.user_item', $users, 'user');
 
 // Output:
@@ -658,7 +660,7 @@ Parameters:
 - `$partial` - Name of the partial view
 - `$data` - Array of data to loop through
 - `$iterator` - Name of the variable for each item
-- `$empty` - View to display if data is empty (optional)
+- `$empty` - View to display if data is empty (optional). Prefix with `raw|` to output a plain string instead, e.g. `'raw|No users'`
 
 <a id="yield_content"></a>
 
@@ -818,14 +820,14 @@ $language = config('application.language');
 // 'id'
 
 $timezone = config('application.timezone');
-// 'Asia/Jakarta'
+// 'UTC'
 
 // With default value
-$value = config('app.debug', false);
+$value = config('debugger.activate', false);
 
 // Set config
 config(['application.language' => 'en']);
-config(['app.debug' => true]);
+config(['debugger.activate' => true]);
 ```
 
 <a id="cache"></a>
@@ -841,7 +843,7 @@ $users = cache('users');
 // With default value
 $value = cache('settings', []);
 
-// Set cache
+// Set cache (stored forever, via Cache::forever())
 cache(['users' => $users]);
 cache(['settings' => $settings]);
 ```
@@ -901,7 +903,7 @@ $names = $users->pluck('name');
 The `fake` function creates a Faker instance for generating fake data:
 
 ```php
-// Using default locale
+// Using default locale (the 'application.language' config)
 $name = fake()->name;
 // 'Budi Santoso'
 
@@ -915,8 +917,11 @@ $address = fake()->address;
 $name = fake('en')->name;
 // 'John Doe'
 
-$name = fake('ja')->name;
-// 'Tanaka Taro'
+$name = fake('id')->name;
+// 'Budi Santoso'
+
+// Only locales that have a folder in system/foundation/faker/provider/ ('en' and 'id')
+// are supported, any other locale throws an InvalidArgumentException
 
 // Generate data for testing
 $user = [
@@ -949,8 +954,8 @@ if ($validator->fails()) {
 $validator = validate($_POST, [
     'email' => 'required|email',
 ], [
-    'email.required' => 'Email is required!',
-    'email.email' => 'Email format is invalid!',
+    'email_required' => 'Email is required!',
+    'email_email' => 'Email format is invalid!',
 ]);
 
 // Direct validation
@@ -1026,8 +1031,8 @@ The `encrypt` function encrypts a string:
 $encrypted = encrypt('sensitive data');
 // 'eyJpdiI6IjdqY...'
 
-// Encrypt array or object
-$encrypted = encrypt(['password' => 'secret123']);
+// Only strings are supported, encode arrays/objects first
+$encrypted = encrypt(json_encode(['password' => 'secret123']));
 
 // Encrypt for storing in database
 $user->token = encrypt($api_token);
@@ -1051,7 +1056,7 @@ $api_token = decrypt($user->token);
 // Handle decryption error
 try {
     $data = decrypt($encrypted);
-} catch (Exception $e) {
+} catch (\System\Exceptions\DecryptException $e) {
     // Decryption failed
 }
 ```
@@ -1091,7 +1096,7 @@ dispatch('user.login', [$user]);
 // Dispatch multiple events
 dispatch(['user.login', 'log.activity'], [$user]);
 
-// Dispatch with halt (stop after first listener)
+// Dispatch with halt (return the first non-null listener response)
 $result = dispatch('user.verify', [$user], true);
 
 // Example with listener
@@ -1317,5 +1322,5 @@ start_measure('report');
 stop_measure('report', 'Monthly report');
 ```
 
-> The measurement result only shows up when the Debug Bar is active, so it is
-> safe to leave these calls in place on production.
+> The measurement is only recorded outside production mode and shows up on the
+> Debug Bar, so it is safe to leave these calls in place on production.

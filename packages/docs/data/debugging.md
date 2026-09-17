@@ -14,11 +14,11 @@
 
 ## Basic Knowledge
 
-Rakit comes with a debugger. **Since the security fix, debugger is disabled by default** (`application/config/debugger.php` `activate => false`). Enable it only for local development.
+Rakit comes with a debugger. It is switched on and off by the `activate` option in `application/config/debugger.php`, which is `true` in the default config file. **Set it to `false` on production servers**, enable it only for local development.
 
-Previously it auto-enabled for `127.0.0.1/::1`; that auto-allow was removed to avoid information leakage in production. In production, errors show only the generic `500` page (`application/views/error/500.php`) and are written to the configured [log channel](#logging) (`storage/logs/` by default) or emailed — never a stack trace with source paths.
+Previously it auto-enabled for `127.0.0.1/::1`; that auto-allow was removed to avoid information leakage in production. In production (`activate => false`), errors show only the generic `500` page (`application/views/error/500.blade.php`) and are written to the configured [log channel](#logging) (`storage/logs/` by default) or emailed — never a stack trace with source paths.
 
-The 500 error page displayed comes from the file `application/views/error/500.php`. You can change its appearance if it doesn't suit you.
+The 500 error page displayed comes from the file `application/views/error/500.blade.php`. You can change its appearance if it doesn't suit you.
 
 <a id="debug-bar"></a>
 

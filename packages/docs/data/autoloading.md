@@ -22,8 +22,15 @@ without explicitly calling `require()` or `include()`.
 So, only the classes you actually need will be loaded in your application, and you
 can directly use the classes you want without having to manually load them.
 
-By default, the `application/models/` and `application/libraries/` folders are autoloaded via
+By default, the `application/controllers/`, `application/models/`, `application/libraries/`,
+`application/commands/` and `application/jobs/` folders are autoloaded via
 the `application/boot.php` file so you don't need to register them manually.
+
+Two more folders need no registering either: a class named with `_Observer`
+behind it is read from `application/observers/`, and one named with
+`_Transformer` behind it from `application/transformers/`. So `User_Observer`
+lives in `observers/user.php`, and `Blog_Post_Transformer` of the `blog` package
+in `packages/blog/transformers/post.php`.
 
 The autoloader in Rakit follows the `class name same as file name` convention, where the file name
 is written in all lowercase letters.
@@ -39,7 +46,7 @@ the `entities/user.php` file inside the `models/` folder.
 
 ## Registering Folders
 
-As explained above, the `models/` and `libraries/` folders are by default
+As explained above, the `models/` and `libraries/` folders (among others) are by default
 registered to autoload; but, you can also register any folder you
 like using the same convention:
 
@@ -85,7 +92,7 @@ and its folder location to the autoloader. Rakit will handle the rest.
 
 ```php
 Autoloader::namespaces([
-	'Doctrine' => path('libraries').'Doctrine',
+	'Doctrine' => path('app').'libraries/Doctrine',
 ]);
 ```
 
@@ -105,7 +112,7 @@ is their root namespace.
 
 ```php
 Autoloader::underscored([
-	'Swift' => path('libraries').'Swift_Mailer',
+	'Swift' => path('app').'libraries/Swift_Mailer',
 ]);
 ```
 
@@ -145,7 +152,8 @@ extensions **before** any userland autoloader runs, so silently shadowed
 aliases produce confusing `Call to undefined method` errors at runtime.
 
 If a conflict is detected, the offending alias is **skipped** (not registered)
-and a warning is written to STDERR / the PHP error log so you can rename the
+and a warning is written to STDERR (on the CLI) or to `storage/logs/rakit.log.php`
+(falling back to the PHP error log) so you can rename the
 alias or disable the conflicting extension.
 
 The default alias map intentionally does **not** include the following names

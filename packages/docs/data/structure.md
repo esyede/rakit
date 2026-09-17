@@ -36,8 +36,12 @@ By default, the rakit folder hierarchy will look like this:
 │   ├── /libraries
 │   ├── /migrations
 │   ├── /models
+│   ├── /observers
 │   ├── /tests
+│   ├── /transformers
 │   ├── /views
+│   │   ├── /components
+│   │   └── /error
 │   ├── boot.php
 │   ├── composers.php
 │   ├── hooks.php
@@ -52,6 +56,7 @@ By default, the rakit folder hierarchy will look like this:
 │   ├── /cache
 │   ├── /console
 │   ├── /database
+│   ├── /debugbar
 │   ├── /jobs
 │   ├── /logs
 │   ├── /sessions
@@ -72,7 +77,6 @@ By default, the rakit folder hierarchy will look like this:
 ├── paths.php
 ├── rakit
 ├── README.md
-├── robots.txt
 └── sample.htaccess
 ```
 

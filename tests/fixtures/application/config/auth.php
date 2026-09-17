@@ -9,7 +9,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Rakit uses a flexible driver-based authentication system.
-    | You can register your own driver via Auth::extended().
+    | You can register your own driver via Auth::extend().
     |
     | Of course, some built-in drivers are also provided to make basic
     | authentication easy and straightforward.

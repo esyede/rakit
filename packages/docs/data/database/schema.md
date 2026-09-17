@@ -169,7 +169,7 @@ if (Schema::has_column('users', 'email', 'mysql')) {
 
 | Method | Description |
 |--------|-------------|
-| `$table->increments('id')` | Auto-incrementing UNSIGNED INTEGER (primary key) |
+| `$table->increments('id')` | Auto-incrementing INTEGER (primary key) |
 | `$table->biginteger('votes')` | BIGINT equivalent |
 | `$table->integer('votes')` | INTEGER equivalent |
 | `$table->mediuminteger('votes')` | MEDIUMINT equivalent |
@@ -220,9 +220,9 @@ Schema::create('posts', function ($table) {
 
 | Method | Description |
 |--------|-------------|
-| `$table->date('created_at')` | DATE equivalent |
+| `$table->date('created_at')` | DATETIME equivalent (date and time) |
 | `$table->timestamp('created_at')` | TIMESTAMP equivalent |
-| `$table->timestamps()` | Adds `created_at` and `updated_at` TIMESTAMP |
+| `$table->timestamps()` | Adds nullable `created_at` and `updated_at` TIMESTAMP |
 
 **Example:**
 
@@ -259,8 +259,8 @@ Schema::create('files', function ($table) {
 
 | Method | Description |
 |--------|-------------|
-| `$table->json('options')` | JSON equivalent (TEXT in MySQL < 5.7) |
-| `$table->jsonb('options')` | JSONB equivalent (PostgreSQL only) |
+| `$table->json('options')` | JSON equivalent (TEXT in SQLite, NVARCHAR(MAX) in SQL Server) |
+| `$table->jsonb('options')` | JSONB in PostgreSQL, same as `json()` on the other drivers |
 
 **Example:**
 
@@ -278,8 +278,8 @@ Schema::create('settings', function ($table) {
 | Method | Description |
 |--------|-------------|
 | `$table->enum('role', ['admin', 'user'])` | ENUM with allowed values |
-| `$table->uuid('id')` | UUID equivalent (CHAR(36)) |
-| `$table->ipaddress('ip')` | IP Address (VARCHAR(45) for IPv4/IPv6) |
+| `$table->uuid('id')` | UUID equivalent (CHAR(36) in MySQL) |
+| `$table->ipaddress('ip')` | IP Address (VARCHAR(45) in MySQL, for IPv4/IPv6) |
 
 **Example:**
 

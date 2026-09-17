@@ -23,6 +23,20 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * A class named after a registered suffix is read from its directory in
+     * the application, or in the package its name starts with.
+     *
+     * @group system
+     */
+    public function testSuffixedClassesAreLoadedFromTheirDirectory()
+    {
+        $this->assertTrue(class_exists('Probe_Transformer'));
+        $this->assertTrue(class_exists('Dummy_Probe_Transformer'));
+        $this->assertFalse(class_exists('Missing_Transformer'));
+        $this->assertFalse(class_exists('_Transformer'));
+    }
+
+    /**
      * Test for Autoloader::map().
      *
      * @group system

@@ -671,7 +671,7 @@ These methods work the same way as the ones above, so they are listed in short:
 | `has($key)`                         | Check whether a key exists                                              |
 | `count()`                           | Number of items, also works with `count($collection)`                   |
 | `is_not_empty()`                    | The opposite of `is_empty()`                                            |
-| `mode($key)`                        | The most frequent value                                                 |
+| `mode($key)`                        | The most frequent value(s), as a collection                             |
 | `only($keys)`                       | Keep only the given keys                                                |
 | `except($keys)`                     | Remove the given keys                                                   |
 | `flip()`                            | Swap keys and values                                                    |

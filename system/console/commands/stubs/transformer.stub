@@ -1,0 +1,18 @@
+<?php
+
+defined('DS') or exit('No direct access.');
+
+class stub_class extends Transformer
+{
+    /**
+     * Turn the resource into an array.
+     *
+     * @return array
+     */
+    public function to_array()
+    {
+        return [
+            'id' => $this->id,
+        ];
+    }
+}

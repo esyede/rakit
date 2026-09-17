@@ -25,13 +25,14 @@ However, sessions allow you to store data statically for each visitor to your ap
 Session data for each visitor is stored on your web server, while a cookie containing the "Session ID" is stored on the visitor's device.
 This cookie allows your application to "remember" the session for that user and retrieve their session data on subsequent requests to your application.
 
-By default, six drivers have been provided for sessions, namely:
+By default, seven drivers have been provided for sessions, namely:
 
 -   Cookie
 -   File
 -   Database
 -   Memcached
 -   Redis
+-   APC
 -   Memory (Array)
 
 <a id="cookie-driver"></a>
@@ -76,14 +77,25 @@ To use the database driver, you must first [configure the database connection](/
 
 Next, you need to create a session table. Here are some SQL queries to help you get started.
 
-However, you can also use the [console](/docs/console) to create this table automatically!
+However, you can also use the [console](/docs/console) to create this table through a migration!
 
 <a id="console"></a>
 
 ### Console
 
 ```bash
-php rakit session:table
+php rakit make:migration create_sessions_table
+```
+
+Fill the `up()` method of the generated migration with the table definition:
+
+```php
+Schema::create('sessions', function ($table) {
+    $table->string('id', 40);
+    $table->integer('last_activity');
+    $table->text('data');
+    $table->primary('id');
+});
 ```
 
 Then:

@@ -17,7 +17,7 @@
 
 ## Basic Knowledge
 
-Rakit ships with built-in worker Worker that let the framework run inside
+Rakit ships with built-in worker bridges that let the framework run inside
 long-lived worker processes such as FrankenPHP, RoadRunner, and Swoole.
 
 Normally, PHP boots the framework from scratch on every request. In worker
@@ -210,4 +210,4 @@ class Fooserver extends Bridge
 ```
 
 Then register it in `Worker::create()` by adding your adapter name to the
-`$map` array inside `system/Worker/worker.php`.
+`$map` array inside `system/worker/worker.php`.

@@ -250,7 +250,10 @@ class Server
                     ) {
                         $client = $this->users[$id];
 
-                        if (time() - $client->last_activity() > $this->config['ping_timeout']) {
+                        // A timeout of 0 disables it, as the config promises.
+                        $timeout = (int) $this->config['ping_timeout'];
+
+                        if ($timeout > 0 && time() - $client->last_activity() > $timeout) {
                             $this->disconnect($socket);
                             continue;
                         }

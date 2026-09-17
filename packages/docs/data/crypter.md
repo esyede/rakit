@@ -31,7 +31,7 @@ To encrypt data, use the `encrypt()` method as follows:
 $data = 'secret';
 
 $encrypted = Crypter::encrypt($data);
-// 'sGcqP0xG5qHyAJvnNa11pBOGk3c3iBUyDnFoyl81vKKPGNd4iMKVD/0NycbYBUMbwesSYi5xcKLFWD3nP6UYJA=='
+// 'eyJpdiI6Ij...' (base64-encoded JSON containing iv, value, mac and v)
 ```
 
 <a id="decrypting-a-string"></a>

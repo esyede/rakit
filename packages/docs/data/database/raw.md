@@ -30,8 +30,11 @@ $users = DB::query('select * from users where name = ?', ['test']);
 #### Inserting a record into the database:
 
 ```php
-$success = DB::query('insert into users values (?, ?)', $bindings);
+DB::query('insert into users values (?, ?)', $bindings);
 ```
+
+> An `INSERT` returns the fetched rows of the statement (an empty array unless it has a `RETURNING`
+> clause), not a boolean. A failing query throws a `QueryException`.
 
 #### Updating records and returning the number of affected rows:
 
@@ -77,4 +80,4 @@ $pdo = DB::connection('sqlite')->pdo();
 // dd($pdo); // will contain an object from the \PDO class
 ```
 
-> If no connection name is provided, it will return the object for the `'default'` connection.
+> If no connection name is provided, it will return the object for the default connection (the `default` option in `application/config/database.php`).

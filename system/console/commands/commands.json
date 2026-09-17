@@ -48,6 +48,14 @@
             "description": "Create a job.",
             "command": "php rakit make:job notify"
         },
+        "make:observer": {
+            "description": "Create a model observer.",
+            "command": "php rakit make:observer user"
+        },
+        "make:transformer": {
+            "description": "Create a transformer.",
+            "command": "php rakit make:transformer user"
+        },
         "make:component": {
             "description": "Create a blade component.",
             "command": "php rakit make:component alert"

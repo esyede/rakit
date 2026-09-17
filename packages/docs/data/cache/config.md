@@ -17,7 +17,7 @@
 
 Imagine your application displays the ten most popular songs selected by users. Do you really need to search for these ten songs every time someone visits your site? What if you could store them for 10 minutes, or even an hour, allowing you to dramatically speed up your application? This caching library can do that.
 
-By default, 5 cache drivers have been provided:
+By default, 6 cache drivers have been provided:
 
 -   File
 -   Database
@@ -54,18 +54,18 @@ Great! After your config and table are configured, you are ready to start cachin
 
 ## Memcached Driver
 
-[Memcached](https://memcached.org) is a very fast, open-source distributed memory object caching system. Before using this Memcached driver, you need to install and configure Memcached and the Memcache PHP extension on your server.
+[Memcached](https://memcached.org) is a very fast, open-source distributed memory object caching system. Before using this Memcached driver, you need to install and configure Memcached and the [Memcached PHP extension](https://www.php.net/manual/en/book.memcached.php) on your server.
 
-After Memcache is installed on the server, you must set the 'driver' in the `application/config/cache.php` file:
+After Memcached is installed on the server, you must set the 'driver' in the `application/config/cache.php` file:
 
 ```php
 'driver' => 'memcached'
 ```
 
-Then, add your Memcached servers to the `'servers'` array:
+Then, add your Memcached servers to the `'memcached'` array:
 
 ```php
-'servers' => [
+'memcached' => [
 
     ['host' => '127.0.0.1', 'port' => 11211, 'weight' => 100],
 
@@ -94,7 +94,7 @@ The `'memory'` cache driver doesn't actually store anything to disk. It only mai
 
 ## Cache Key
 
-To avoid naming collisions with other applications using APC, Redis, or Memcached, Rakit appends a _'key'_ suffix to every item stored in the cache using these drivers. Feel free to change this:
+To avoid naming collisions with other applications using APC, Redis, Memcached, or the same database table, Rakit prefixes every item stored in the cache using these drivers with the _'key'_ option followed by a dot (for example `rakit.`). Feel free to change this:
 
 ```php
 'key' => 'rakit'

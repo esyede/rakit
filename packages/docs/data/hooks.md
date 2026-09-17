@@ -51,7 +51,7 @@ $response = Hook::first('loaded');
 
 > The `first()` method will still run all listeners owned by the event, but only the first response will be returned.
 
-While the `Hook::until()` method will run all listeners owned by the event, and will return the first response that is not `NULL`.
+While the `Hook::until()` method will run the listeners owned by the event one by one, and stops as soon as one of them returns a response that is not `NULL`, returning that response.
 
 #### Firing an event and getting the first non-NULL response:
 
@@ -137,7 +137,7 @@ Hook::listen('rakit.booted: package', function () { });
 Hook::listen('rakit.query', function ($sql, $bindings, $time) { });
 ```
 
-#### Event fired just before a response is sent to the browser:
+#### Event fired right after a response has been sent to the browser:
 
 ```php
 Hook::listen('rakit.done', function ($response) { });

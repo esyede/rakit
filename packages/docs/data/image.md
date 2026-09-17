@@ -56,7 +56,7 @@ The value range is between `0 - 100`, the default is `75`.
 $image = Image::open('assets/images/test.jpg', 90); // High quality
 ```
 
-Supported image formats: **JPG**, **PNG**, **GIF**, **WEBP**, **BMP**
+Supported image formats: **JPG**, **PNG**, **GIF**
 
 <a id="image-manipulation"></a>
 
@@ -84,6 +84,8 @@ $image->width(100); // 100 pixels
 ```php
 $image->height(100); // 100 pixels
 ```
+
+> Both methods keep the aspect ratio: `width()` recalculates the height proportionally, and `height()` recalculates the width.
 
 <a id="rotation-and-cropping"></a>
 
@@ -139,13 +141,13 @@ Common ratio examples:
 ### Watermark
 
 In addition to cutting and rotating images, you can also add a watermark to the image.
-The watermark will be placed in the bottom right corner by default:
+The watermark will be placed in the bottom right corner (10 pixels from the edges):
 
 ```php
 $image->watermark('assets/images/watermark.png');
 ```
 
-> This method supports watermark images with transparency (PNG with alpha channel).
+> Watermark images can be JPG, PNG or GIF. PNG images with transparency (alpha channel) are supported.
 
 <a id="image-effects"></a>
 
@@ -164,7 +166,7 @@ and smoothness (softness) of the image.
 #### Setting brightness:
 
 ```php
-$image->brightness(40);  // Value: -255 to 255 (0 = normal)
+$image->brightness(40);  // Value: -100 to 100 (0 = normal)
 ```
 
 Positive values will make the image brighter, negative values darker.
@@ -180,7 +182,7 @@ Positive values will increase contrast, negative values decrease contrast.
 #### Setting smoothness:
 
 ```php
-$image->smoothness(5);   // Value: smoothing level (higher means smoother)
+$image->smoothness(5);   // Value: -100 to 100
 ```
 
 Higher values will make the image smoother (useful for reducing noise).
@@ -257,7 +259,7 @@ Reverses the image colors (negative).
 #### Pixelate effect:
 
 ```php
-$image->pixelate(10);  // Parameter: pixel block size (default: 3)
+$image->pixelate(10);  // Parameter: pixel block size (-100 to 100)
 ```
 
 Provides a pixelated/mosaic effect on the image. Larger values make larger pixels.
@@ -297,9 +299,8 @@ The second parameter (`$overwrite`) is used to determine whether existing files 
 // Open image
 $image = Image::open('uploads/photo.jpg', 85);
 
-// Resize
+// Resize (the height follows proportionally)
 $image->width(800);
-$image->height(600);
 
 // Add watermark
 $image->watermark('assets/watermark.png');
@@ -309,7 +310,7 @@ $image->brightness(10);
 $image->contrast(5);
 
 // Save result
-$image->export('public/photos/photo-processed.jpg');
+$image->export('assets/photos/photo-processed.jpg');
 ```
 
 <a id="additional-features"></a>
@@ -328,12 +329,12 @@ To view detailed image information, use the `info()` method:
 $info = $image->info();
 
 // Available information:
+// - path: Absolute path of the image file
+// - type: MIME type (image/jpeg, image/png or image/gif)
 // - width: Image width (pixels)
 // - height: Image height (pixels)
-// - type: Image type (jpg, png, gif, etc)
-// - mime: MIME type (image/jpeg, image/png, etc)
-// - size: File size (bytes)
-// - exif: EXIF data (if available, for photos from cameras)
+// - quality: Export quality (0 - 100)
+// - exif: EXIF data (JPG only, if available, for photos from cameras)
 ```
 
 <a id="preview-to-browser"></a>

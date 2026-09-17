@@ -24,7 +24,7 @@ class Job extends Command
 
         if (empty($arguments)) {
             if (Request::cli()) {
-                $this->error('Please give at least one job name to execute!');
+                echo $this->error('Please give at least one job name to execute!');
                 exit;
             }
 
@@ -49,26 +49,17 @@ class Job extends Command
      */
     public function runall(array $arguments = [])
     {
-        $retries = 1;
-        $sleep = 0;
-        $queues = null;
-
-        // Parse arguments
-        foreach ($arguments as $arg) {
-            if (strpos($arg, '--retries=') === 0) {
-                $retries = (int) substr($arg, 10);
-            } elseif (strpos($arg, '--sleep=') === 0) {
-                $sleep = (int) substr($arg, 8);
-            } elseif (strpos($arg, '--queue=') === 0) {
-                $str = explode(',', substr($arg, 8));
-                $queues = array_map('trim', $str);
-            }
-        }
+        // Options never reach $arguments: the console takes every --option
+        // out of the command line before the command is called.
+        $retries = (int) get_cli_option('retries', 1);
+        $sleep = (int) get_cli_option('sleep', 0);
+        $queues = get_cli_option('queue');
+        $queues = $queues ? array_map('trim', explode(',', $queues)) : null;
 
         if ($queues) {
-            $this->info('Running jobs from queues: '.implode(', ', $queues));
+            echo $this->info('Running jobs from queues: '.implode(', ', $queues));
         } else {
-            $this->info('Running all jobs from all queues');
+            echo $this->info('Running all jobs from all queues');
         }
 
         \System\Job::runall($retries, $sleep, $queues);

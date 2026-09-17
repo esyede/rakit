@@ -79,7 +79,7 @@ By convention this model talks to the `users` table — see
 
 Facile follows several conventions:
 
-- **Table name**: Plural form (plural) of the model name in lowercase with underscores. Example: `User` model → `users` table, `OrderItem` model → `order_items` table
+- **Table name**: Plural form (plural) of the model name in lowercase. Example: `User` model → `users` table, `Order_Item` model → `order_items` table (an `OrderItem` model would map to `orderitems`)
 - **Primary key**: Column named `id` with auto-increment
 - **Timestamps**: `created_at` and `updated_at` columns (optional)
 - **Soft deletes**: `deleted_at` column (optional)
@@ -201,7 +201,7 @@ if ($user) {
 }
 
 // Find users with ids in array
-$users = User::find([1, 2, 3]);
+$users = User::find_many([1, 2, 3]);
 ```
 
 <a id="find-or-fail"></a>
@@ -213,7 +213,7 @@ Method that throws exception if not found:
 try {
     $user = User::find_or_fail($id);
     echo $user->name;
-} catch (ModelNotFoundException $e) {
+} catch (\System\Exceptions\ModelNotFoundException $e) {
     return Response::error('404');
 }
 ```
@@ -224,7 +224,7 @@ try {
 ```php
 try {
     $user = User::where('email', '=', $email)->first_or_fail();
-} catch (ModelNotFoundException $e) {
+} catch (\System\Exceptions\ModelNotFoundException $e) {
     return Redirect::back()->with('error', 'User not found');
 }
 ```
@@ -394,7 +394,7 @@ if ($user->delete()) {
 
 ```php
 // Delete by ID
-User::delete(1);
+User::destroy(1);
 
 // Delete multiple
 User::where('active', '=', 0)->delete();
@@ -1231,7 +1231,7 @@ $users = User::with([
 $user = User::find(1);
 
 // Create and attach
-$post = $user->posts()->create([
+$post = $user->posts()->insert([
     'title' => 'New Post',
     'content' => 'Post content...',
 ]);
@@ -1254,13 +1254,15 @@ $role = Role::find(2);
 $user->roles()->attach($role->id);
 
 // Attach multiple
-$user->roles()->attach([1, 2, 3]);
+foreach ([1, 2, 3] as $role_id) {
+    $user->roles()->attach($role_id);
+}
 
 // Detach
 $user->roles()->detach($role->id);
 
 // Detach all
-$user->roles()->detach();
+$user->roles()->delete();
 
 // Sync (replace all with new ones)
 $user->roles()->sync([1, 2, 3]);
@@ -1359,8 +1361,9 @@ class User extends Facile
 $users = User::all();
 $user = User::find(1);
 
-// Remove global scope
-$all_users = User::without_global_scope('active')->get();
+// Remove global scope (for every query that follows)
+User::remove_global_scope('active');
+$all_users = User::all();
 ```
 
 **Built-in soft delete scope:**
@@ -1475,7 +1478,7 @@ else and it is left alone:
 ```php
 // application/observers/user.php
 
-class UserObserver
+class User_Observer
 {
     public function creating($user)
     {
@@ -1489,18 +1492,24 @@ class UserObserver
 }
 ```
 
+`php rakit make:observer user` writes that file for you. The class is named
+after the file with `_Observer` behind it, the same way a controller is named
+`User_Controller`, and the autoloader finds it in the `observers` directory on
+its own. An observer of a package carries the package name in front, so
+`Blog_Post_Observer` is read from `packages/blog/observers/post.php`.
+
 Register it while the application boots:
 
 ```php
 // application/boot.php
 
-User::observe('UserObserver');
+User::observe('User_Observer');
 ```
 
 An instance works as well as a class name:
 
 ```php
-User::observe(new UserObserver());
+User::observe(new User_Observer());
 ```
 
 An observer method calls the operation off the same way a closure does, by

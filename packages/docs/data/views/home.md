@@ -402,7 +402,7 @@ class Base_Controller extends Controller
 **Render view for each item in array:**
 
 ```php
-$users = User::all();
+$users = User::all()->all(); // render_each() needs a plain array
 
 $html = View::render_each('user.item', $users, 'user');
 ```
@@ -440,7 +440,7 @@ $html = $view->render();
 // Send via email (see /docs/email for the full API)
 Email::to($user->email)
     ->subject('Welcome!')
-    ->body($html)
+    ->html_body($html)
     ->send();
 ```
 
@@ -533,7 +533,7 @@ Route::get('api/users', function () {
     return Response::jsonp($callback, $users);
 });
 
-// Output: callback([{"id":1,"name":"Budi"},...])
+// Output: callback([{"id":1,"name":"Budi"},...]);
 ```
 
 **With status code and headers:**
@@ -898,7 +898,7 @@ class Post_Controller extends Controller
         return View::make('posts.create');
     }
 
-    // Store post — use allowlist (mass-assignment now defaults to guarded=['*'])
+    // Store post — use an allowlist (Model defaults to $guarded = [], so everything is mass-assignable)
     public function action_store()
     {
         $validation = Validator::make(Input::all(), [

@@ -73,6 +73,54 @@ class ConsoleTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * make:observer writes a class named the way a controller is named, into
+     * the directory observe() reads it from.
+     *
+     * @group system
+     */
+    public function testMakeObserverWritesAWorkingObserver()
+    {
+        $file = path('app') . 'observers' . DS . 'probe_made.php';
+
+        @unlink($file);
+
+        $make = new \System\Console\Commands\Make();
+
+        ob_start();
+        $make->observer(['probe_made']);
+        ob_end_clean();
+
+        $written = is_file($file) ? file_get_contents($file) : '';
+        @unlink($file);
+
+        $this->assertContains('class Probe_Made_Observer', $written);
+    }
+
+    /**
+     * make:transformer writes a class named the way a controller is named,
+     * into the directory the autoloader reads it from.
+     *
+     * @group system
+     */
+    public function testMakeTransformerWritesAWorkingTransformer()
+    {
+        $file = path('app') . 'transformers' . DS . 'probe_made.php';
+
+        @unlink($file);
+
+        $make = new \System\Console\Commands\Make();
+
+        ob_start();
+        $make->transformer(['probe_made']);
+        ob_end_clean();
+
+        $written = is_file($file) ? file_get_contents($file) : '';
+        @unlink($file);
+
+        $this->assertContains('class Probe_Made_Transformer extends Transformer', $written);
+    }
+
+    /**
      * Test for Console::options() - splits arguments from options.
      *
      * @group system

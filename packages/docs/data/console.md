@@ -19,6 +19,8 @@
     - [make:migration](#makemigration)
     - [make:command](#makecommand)
     - [make:job](#makejob)
+    - [make:observer](#makeobserver)
+    - [make:transformer](#maketransformer)
     - [make:component](#makecomponent)
     - [make:test](#maketest)
   - [Migration Commands](#migration-commands)
@@ -78,12 +80,6 @@ php rakit help
 php rakit
 ```
 
-To see help for a specific command:
-
-```bash
-php rakit help:command command:name
-```
-
 <a id="available-commands"></a>
 ## Available Commands
 
@@ -93,7 +89,7 @@ php rakit help:command command:name
 <a id="clearcache"></a>
 #### clear:cache
 
-Clears all cached data stored in storage/cache:
+Clears all data stored by the default cache driver:
 
 ```bash
 php rakit clear:cache
@@ -123,7 +119,7 @@ php rakit clear:logs
 <a id="jobrun"></a>
 #### job:run
 
-Runs a specific job:
+Runs the due queued jobs with the given name (more than one name can be given):
 
 ```bash
 php rakit job:run job_name
@@ -138,7 +134,7 @@ php rakit job:run send_email
 <a id="jobrunall"></a>
 #### job:runall
 
-Runs all registered jobs:
+Runs all due queued jobs from every queue:
 
 ```bash
 php rakit job:runall
@@ -180,7 +176,7 @@ Creates a RESTful resource controller:
 php rakit make:resource ResourceName
 ```
 
-This controller will have methods: index, create, store, show, edit, update, destroy.
+This controller will have methods: `get_index`, `get_create`, `post_store`, `get_show`, `get_edit`, `put_update`, `delete_destroy`.
 
 Example:
 
@@ -259,6 +255,52 @@ php rakit make:job SendWelcomeEmail
 # Creates file: application/jobs/sendwelcomeemail.php
 ```
 
+<a id="makeobserver"></a>
+#### make:observer
+
+Creates a new model observer:
+
+```bash
+php rakit make:observer ObserverName
+```
+
+Example:
+
+```bash
+php rakit make:observer User
+# Creates file: application/observers/user.php     (class User_Observer)
+```
+
+For a package:
+
+```bash
+php rakit make:observer blog::post
+# Creates file: packages/blog/observers/post.php   (class Blog_Post_Observer)
+```
+
+<a id="maketransformer"></a>
+#### make:transformer
+
+Creates a new transformer:
+
+```bash
+php rakit make:transformer TransformerName
+```
+
+Example:
+
+```bash
+php rakit make:transformer User
+# Creates file: application/transformers/user.php     (class User_Transformer)
+```
+
+For a package:
+
+```bash
+php rakit make:transformer blog::post
+# Creates file: packages/blog/transformers/post.php   (class Blog_Post_Transformer)
+```
+
 <a id="makecomponent"></a>
 #### make:component
 
@@ -300,8 +342,8 @@ php rakit make:test TestName
 Example:
 
 ```bash
-php rakit make:test UserTest
-# Creates file: application/tests/usertest.php
+php rakit make:test user
+# Creates file: application/tests/user.test.php     (class UserTest)
 ```
 
 <a id="migration-commands"></a>
@@ -325,7 +367,7 @@ php rakit migrate package_name
 <a id="migraterollback"></a>
 #### migrate:rollback
 
-Rolls back the last migration:
+Rolls back the last batch of migrations:
 
 ```bash
 php rakit migrate:rollback
@@ -451,7 +493,7 @@ php rakit route:list
 <a id="sessiongc"></a>
 #### session:gc
 
-Clears expired sessions from the database:
+Clears expired sessions (for the `file` and `database` session drivers):
 
 ```bash
 php rakit session:gc
@@ -469,10 +511,10 @@ Runs tests in the application folder:
 php rakit test:run
 ```
 
-Runs a specific test:
+Arguments are treated as package names, the same as `test:package`:
 
 ```bash
-php rakit test:run TestName
+php rakit test:run package_name
 ```
 
 <a id="testcore"></a>
@@ -768,7 +810,7 @@ Route::get('admin/clear-cache', function () {
 Or in a job:
 
 ```php
-class Cleanup_Job
+class Cleanup_Job extends Jobable
 {
     public function run()
     {

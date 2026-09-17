@@ -37,6 +37,8 @@ php rakit migrate:install
 
 > Here we assume that you already have global access to PHP CLI.
 
+> This step is optional: `php rakit migrate` creates the `rakit_migrations` table automatically when it does not exist yet.
+
 <a id="creating-migration-files"></a>
 
 ## Creating Migration Files
@@ -93,7 +95,7 @@ php rakit migrate nama_package
 When you perform a roll back, all your migration operations will be reverted.
 So, if the last migration command ran 122 migration operations, then those 122 operations will be reverted.
 
-**Roll back to the last migration:**
+**Roll back the last migration batch:**
 
 ```bash
 php rakit migrate:rollback
@@ -108,5 +110,5 @@ php rakit migrate:reset
 **Reset and rerun all migrations:**
 
 ```bash
-php rakit migrate:rebuild
+php rakit migrate:refresh
 ```

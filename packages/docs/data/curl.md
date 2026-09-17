@@ -94,8 +94,8 @@ $query = ['foo' => 'hello', 'bar' => 'world'];
 $response = Curl::post('https://mockbin.com/request', $headers, $query);
 
 $response->code;        // contains http status code
-$response->headers;     // contains object request headers
-$response->body;        // contains object request body
+$response->headers;     // contains response headers (array)
+$response->body;        // contains response body (JSON-decoded if possible)
 $response->raw_body;    // contains raw body string
 ```
 
@@ -106,7 +106,7 @@ $response->raw_body;    // contains raw body string
 To make a JSON request, please use the `body_json()` method like this:
 
 ```php
-$headers = ['Accept' => 'application/json'];
+$headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
 $data = ['name' => 'budi', 'age' => 28];
 
 $body = Curl::body_json($data);
@@ -114,8 +114,8 @@ $body = Curl::body_json($data);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-With this method, the `'Content-Type'` header will be automatically set to `'application/json'`
-and the request body will also be converted to JSON format via [json_encode](https://www.php.net/json_encode).
+With this method, the request body will be converted to JSON format via [json_encode](https://www.php.net/json_encode).
+The `'Content-Type'` header is **not** set for you, so pass `'application/json'` in your headers as shown above.
 
 <a id="form-request"></a>
 
@@ -131,8 +131,8 @@ $body = Curl::body_form($data);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-With this method, the `'Content-Type'` header will be automatically set to `'application/x-www-form-urlencoded'`
-and the request body will also be converted to query string format via [http_build_query](https://www.php.net/http_build_query).
+With this method, the request body will be converted to query string format via [http_build_query](https://www.php.net/http_build_query),
+which cURL sends with the `'application/x-www-form-urlencoded'` `'Content-Type'` by default.
 
 <a id="multipart-request"></a>
 
@@ -149,8 +149,8 @@ $body = Curl::body_multipart($data);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-With this method, the `'Content-Type'` header will be automatically set to `'multipart/form-data'`
-and also a `--boundary` will be added automatically.
+With this method, the body is kept as an array, so cURL sends it with the `'multipart/form-data'`
+`'Content-Type'` header and adds the `--boundary` automatically.
 
 <a id="multipart-file"></a>
 
@@ -250,7 +250,7 @@ written separated by semicolon and space like this:
 ```php
 $cookie = 'session=foo; logged=true';
 
-Curl::cookie($cookie)
+Curl::cookie($cookie);
 ```
 
 In addition to using string notation, you can also add cookie headers via file like this:
@@ -258,10 +258,10 @@ In addition to using string notation, you can also add cookie headers via file l
 ```php
 $path = path('storage').'cookies.txt';
 
-Curl::cookie_file($path)
+Curl::cookie_file($path);
 ```
 
-Where the `cookies.txt` file content is the cookie string declaration as explained above.
+The file is used as both cURL's cookie file and cookie jar ([CURLOPT_COOKIEFILE](https://curl.se/libcurl/c/CURLOPT_COOKIEFILE.html) and [CURLOPT_COOKIEJAR](https://curl.se/libcurl/c/CURLOPT_COOKIEJAR.html)), so it must use the Netscape cookie file format (or plain HTTP header style), and cookies received from the server will be written back into it.
 
 <a id="response"></a>
 
@@ -270,7 +270,7 @@ Where the `cookies.txt` file content is the cookie string declaration as explain
 After the request is executed, this component will always return an `\stdClass` object with properties:
 
 -   `code` - which will contain the http status code (e.g. `200`)
--   `headers` - which will contain the http response headers
+-   `headers` - which will contain the http response headers (as an array)
 -   `body` - which will contain the response body formatted into an object or array (if possible).
 -   `raw_body` - which will contain the raw response body
 
@@ -290,7 +290,7 @@ the `json_options()` method like this:
 ```php
 $associative = true; // Return as associative array
 $depth = 512; // Set maximum nesting depth
-$flags = JSON_NUMERIC_CHECK & JSON_FORCE_OBJECT & JSON_UNESCAPED_SLASHES; // Set decode flags
+$flags = JSON_BIGINT_AS_STRING; // Set decode flags (combine several with |)
 
 Curl::json_options($associative, $depth, $flags);
 ```
@@ -405,8 +405,8 @@ Curl::reset();
 
 ### SSL Validation
 
-By default, this component disables SSL validation for compatibility
-with older PHP versions. To change this, please use the following method:
+By default, this component enables SSL validation (peer and host verification).
+To change this, please use the following method:
 
 ```php
 // Enable SSL validation
@@ -423,6 +423,9 @@ Curl::verify_host(false);
 ## Additional Functions
 
 This component also provides some additional functions for advanced needs:
+
+> On PHP versions below 8.0 the handler is closed right after each request,
+> so `info()` and `handler()` are only usable on PHP 8.0 or newer.
 
 #### Get information about the last transfer:
 
@@ -450,7 +453,7 @@ $info = Curl::info();
 $handler = Curl::handler();
 
 // You can use this handler with standard PHP curl_* functions
-curl_setopt($handler, CURLOPT_VERBOSE, true);
+$error = curl_errno($handler);
 ```
 
 #### Format headers manually:

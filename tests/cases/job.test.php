@@ -200,6 +200,30 @@ class JobTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * A worker never dispatches, yet a class-based job it runs reaches the
+     * class, with its data intact.
+     *
+     * @group system
+     */
+    public function testWorkerRunsClassBasedJob()
+    {
+        Probe_Job::$seen = [];
+
+        $driver = Job::driver('file');
+        $driver->add(
+            'probe-job',
+            ['class' => 'Probe_Job', 'data' => ['message' => 'hello']],
+            Carbon::now()->subMinutes(1)->format('Y-m-d H:i:s'),
+            'default',
+            false
+        );
+
+        $driver->run('probe-job', 1, 0);
+
+        $this->assertEquals(['hello'], Probe_Job::$seen);
+    }
+
+    /**
      * Test file driver' run.
      *
      * @group system

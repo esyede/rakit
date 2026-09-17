@@ -51,7 +51,7 @@ Storage::isdir('foo/bar.txt'); // false
 $contents = Storage::get('path/to/file');
 ```
 
-> **Security:** All `Storage` paths are now confined to the application base directory (`path('base')` / `path('storage')`). Path traversal (`../`), null bytes and stream wrappers (`php://`, `phar://`) are rejected with an exception. Never pass raw user input like `Storage::get(Input::get('f'))` — validate or map it through an allowlist first.
+> **Security:** All `Storage` paths are now confined to the application base directory (`path('base')` / `path('storage')`, plus any directory listed in `Storage::$allowed_roots`). Paths that resolve outside those roots (e.g. via `../`), null bytes and stream wrappers (`php://`, `phar://`) are rejected with an exception. Never pass raw user input like `Storage::get(Input::get('f'))` — validate or map it through an allowlist first.
 
 ```php
 // vulnerable
@@ -108,12 +108,14 @@ Storage::delete('path/to/file.ext');
 Input::upload('picture', path('storage').'pictures', 'filename.ext');
 ```
 
-> **Security (fixed):** `Upload::move()` now validates extension, MIME (via `finfo`), size (`upload_max_filesize` / `Upload::$maxSize`), double extensions (`shell.php.jpg`) and directory confinement. Dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess` ...) are rejected. Enforce a whitelist for stronger control:
+> **Security (fixed):** `Upload::move()` now validates extension, MIME (via `finfo`), size (`upload_max_filesize` / `Upload::$max_size`) and double extensions (`shell.php.jpg`). Dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess` ...) are rejected. Enforce a whitelist for stronger control:
 
 ```php
-Upload::$allowedExtensions = ['jpg','jpeg','png','pdf'];
-Upload::$allowedMimeTypes  = ['image/jpeg','image/png','application/pdf'];
-Upload::$maxSize = 2 * 1024 * 1024; // 2 MB
+use System\Foundation\Http\Upload;
+
+Upload::$allowed_extensions = ['jpg','jpeg','png','pdf'];
+Upload::$allowed_mime_types = ['image/jpeg','image/png','application/pdf'];
+Upload::$max_size = 2 * 1024 * 1024; // 2 MB
 
 // Or via Validator before moving
 $rules = ['picture' => 'required|image|max:2048|mimes:jpg,png'];
@@ -151,11 +153,13 @@ determine the actual MIME-Type.
 
 ## MIME-Type
 
-#### Retrieve the MIME-Type associated with an extension:
+#### Retrieve the MIME-Type of a file (based on its content):
 
 ```php
-echo Storage::mime('lolcat.gif'); // output: 'image/gif'
+echo Storage::mime('path/to/lolcat.gif'); // output: 'image/gif'
 ```
+
+It returns `FALSE` when the file does not exist.
 
 > You must enable the [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
 > extension before using this `mime()` method.
@@ -206,8 +210,9 @@ Storage::cleandir($directory);
 | `name($path)`                       | File name without extension                                              |
 | `basename($path)`                   | File name with extension                                                 |
 | `dirname($path)`                    | Directory of the given path                                              |
-| `protect($path)`                    | Drop an empty `index.html` into the directory so it cannot be browsed    |
+| `protect($path)`                    | Drop an `index.html` into the directory so it cannot be browsed          |
 
 > `move()`, `mvdir()`, `delete()`, `rmdir()`, and `mkdir()` throw an exception
-> when the source does not exist or the target already exists. Check with
+> when the source does not exist or the target already exists (`move()` and
+> `mvdir()` overwrite it when `$overwrite` is `TRUE`). Check with
 > `exists()` first if you are not sure.

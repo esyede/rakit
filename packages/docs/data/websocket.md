@@ -23,7 +23,11 @@ Run the WebSocket server using the console command:
 php rakit websocket:run
 ```
 
-The server will run on the configured host and port (default: 127.0.0.1:6001).
+The server listens on `127.0.0.1:6001` by default. Use the `--host` and `--port` options to change it:
+
+```bash
+php rakit websocket:run --host=0.0.0.0 --port=8080
+```
 
 ## Client Connection
 
@@ -37,6 +41,9 @@ ws.onmessage = (event) => {
 ```
 
 Authenticated users can connect with session cookies for user data in presence.
+
+> Not every message is JSON: the connect/disconnect notices (`Client #id connected`) and
+> the `broadcast` command's message are sent as plain text.
 
 ## Message Format
 
@@ -83,6 +90,7 @@ Control the server via WebSocket messages:
 ## Presence
 
 Presence shows online users. Triggered on connect/disconnect.
+The `name` is `Guest` for clients without an authenticated session.
 
 Response format:
 
@@ -93,7 +101,6 @@ Response format:
         {
             "id": "client_id",
             "name": "User Name",
-            "email": "user@example.com",
             "connected_at": 1234567890
         }
     ]
@@ -105,8 +112,10 @@ Response format:
 The server triggers events:
 
 - `start`: Server started.
+- `stop`: Server stopped.
 - `connect`: Client connected.
 - `disconnect`: Client disconnected.
+- `idle`: Client is idle (no socket activity on the server).
 - `receive`: Message received.
 - `send`: Message sent.
 - `crash`: Server crashed.

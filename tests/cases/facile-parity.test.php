@@ -184,6 +184,11 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(array_key_exists('meta', $post->make_visible('meta')->to_array()));
         $this->assertFalse(array_key_exists('title', ParityPost::find(1)->make_hidden('title')->to_array()));
 
+        // Without a $visible whitelist, making one attribute visible keeps
+        // the others.
+        $shown = ParityPost::find(1)->make_visible('meta')->to_array();
+        $this->assertTrue(array_key_exists('title', $shown));
+
         $user = ParityUser::find(1)->append('shout');
 
         $this->assertEquals('ANI', $user->to_array()['shout']);

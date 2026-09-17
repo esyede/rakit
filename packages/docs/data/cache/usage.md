@@ -16,7 +16,7 @@
 
 Cache provides a mechanism to store frequently accessed data in faster storage, thereby reducing database load and improving application performance.
 
-Rakit supports various cache drivers such as File, Database, Memcached, Redis, and APC. Cache configuration can be set in `application/config/cache.php`.
+Rakit supports various cache drivers such as File, Database, Memcached, Redis, APC, and Memory. Cache configuration can be set in `application/config/cache.php`.
 
 **Checking if an item exists in cache:**
 
@@ -40,7 +40,7 @@ The first parameter is the key of the cache item. You will use this key to retri
 
 **Storing an item forever:**
 
-The `forever()` method stores an item without an expiration time limit:
+The `forever()` method stores an item without a practical expiration time limit (it is stored for 5 years):
 
 ```php
 Cache::forever('settings', $settings);
@@ -186,7 +186,8 @@ You can delete all items from the cache using the `flush()` method:
 Cache::flush();
 ```
 
-> Be careful with `flush()` as it will delete **all** items in the cache, not just those belonging to your application.
+> Be careful with `flush()` as it will delete **all** items in the cache. With some drivers (such as `memcached`, `apc`,
+> or `redis` with an empty cache key) that includes items not belonging to your application.
 
 **Example deleting cache after updating data:**
 
@@ -244,6 +245,7 @@ Cache::driver('memcached')->put('temp_data', $data, 5);
 - `database` - Stores cache in database
 - `memcached` - Memcached cache driver
 - `redis` - Redis cache driver
+- `memory` - Stores cache in memory for the current request only
 - `apc` - APC cache driver (PHP extension)
 
 ```php

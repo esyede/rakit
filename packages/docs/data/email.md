@@ -134,7 +134,7 @@ There are 2 options for setting your email body, namely HTML and plain-text:
 
 #### 1. Plain Text
 
-Use this option if you know your user's email client is too old to render emails containing only text:
+Use this option if you know your user's email client is too old to render HTML, so the email contains only text:
 
 ```php
 $email->body('PDF document regarding the monthly financial report');
@@ -244,14 +244,15 @@ $contents = Storage::get(path('storage').'monthly_report.pdf');
 $email->string_attach($contents, 'monthly_report.pdf');
 ```
 
-By default, images in HTML will be loaded automatically, but only if the file is
-located in local storage. Look at this example to understand the difference:
+By default (the `'attachify'` option), images in the HTML body passed to `html_body()` will be
+attached inline automatically, but only if the `src` is a local file path rather than a URL.
+Look at this example to understand the difference:
 
 ```php
-// This will be loaded automatically
-<img src="<?php echo asset('images/kitty.png'); ?>" />
+// This will be attached automatically
+<img src="<?php echo path('assets').'images/kitty.png'; ?>" />
 
-// This will not be loaded
+// This will not be attached (URLs, including asset() URLs, are left as they are)
 <img src="https://other-site.com/images/kitty.jpg" />
 ```
 
@@ -295,8 +296,8 @@ Without that, every recipient of the first email would also receive the second o
 
 ## Custom Driver
 
-You can also register other email drivers if the 3 built-in rakit drivers do not
-suit your needs.
+You can also register other email drivers if the built-in rakit drivers
+(`mail`, `smtp`, `sendmail` and `log`) do not suit your needs.
 
 Create a new driver class:
 

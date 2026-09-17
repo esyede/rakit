@@ -140,6 +140,8 @@ $token = Request::header('X-API-Token', 'default-token');
 
 **Get all headers:**
 
+Header names in the returned array are lowercased (e.g. `user-agent`):
+
 ```php
 $headers = Request::headers();
 
@@ -152,7 +154,7 @@ foreach ($headers as $name => $value) {
 ### Check Header Exists
 
 ```php
-if (isset(Request::headers()['Authorization'])) {
+if (Request::foundation()->headers->has('Authorization')) {
     $auth = Request::header('Authorization');
 }
 ```
@@ -445,7 +447,7 @@ $token = Request::bearer();
 
 if ($token) {
     // Verify token
-    $user = JWT::decode($token);
+    $user = JWT::decode($token, 's3cr3t');
 } else {
     return Response::json(['error' => 'Token required'], 401);
 }
@@ -462,15 +464,15 @@ Route::middleware('api.auth', function () {
     }
     
     try {
-        $payload = JWT::decode($token);
-        Request::$user = User::find($payload->user_id);
+        JWT::decode($token, 's3cr3t');
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token'], 401);
     }
 });
 
 Route::get('api/profile', ['before' => 'api.auth', function () {
-    return Response::json(Request::$user);
+    $payload = JWT::decode(Request::bearer(), 's3cr3t');
+    return Response::json(User::find($payload->user_id));
 }]);
 ```
 
@@ -478,7 +480,7 @@ Route::get('api/profile', ['before' => 'api.auth', function () {
 ## CSRF Protection
 
 Rakit ships a `csrf` middleware that protects every non-safe request (anything
-but `GET`, `HEAD` and `OPTIONS`) against cross-site request forgery. The token
+but `GET`, `HEAD`, `OPTIONS`, `TRACE` and `CONNECT`) against cross-site request forgery. The token
 lives in the session and is rendered into forms with `@csrf` or `csrf_field()`:
 
 ```blade
@@ -506,7 +508,7 @@ if (Request::forged()) {
 
 This is exactly what the built-in `csrf` middleware does. `forged()` returns
 `true` when the token is missing or does not match, and `false` for safe
-methods (`GET`, `HEAD`, `OPTIONS`) even when no token was sent. A `POST` that
+methods (`GET`, `HEAD`, `OPTIONS`, `TRACE`, `CONNECT`) even when no token was sent. A `POST` that
 spoofs itself as `GET` through `_method` or `X-Http-Method-Override` is still
 checked, because the decision is based on the method the server reported.
 
@@ -775,7 +777,7 @@ Route::get('api/users', function () {
     if ($format === 'application/json') {
         return Response::json($users);
     } elseif ($format === 'text/xml') {
-        return Response::make($users->to_xml(), 200, [
+        return Response::make(View::make('users.xml', compact('users')), 200, [
             'Content-Type' => 'application/xml'
         ]);
     }
@@ -853,7 +855,7 @@ Route::middleware('throttle', function ($limit = 60) {
 Route::post('admin/action', function () {
     // Check HTTPS
     if (!Request::secure()) {
-        return Response::error('403', 'HTTPS required');
+        return Response::error(403);
     }
     
     // Check bearer token
@@ -864,7 +866,7 @@ Route::post('admin/action', function () {
     
     // Verify token
     try {
-        $user = JWT::decode($token);
+        $user = JWT::decode($token, 's3cr3t');
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token'], 401);
     }
@@ -904,7 +906,7 @@ public function action_show($id)
             return Response::json($post);
             
         case 'application/xml':
-            return Response::make($post->to_xml(), 200, [
+            return Response::make(View::make('posts.xml', compact('post')), 200, [
                 'Content-Type' => 'application/xml'
             ]);
             
@@ -941,7 +943,7 @@ Route::get('debug/request', function () {
         return Response::error('404');
     }
     
-    return [
+    return Response::json([
         'uri' => Request::uri(),
         'method' => Request::method(),
         'ip' => Request::ip(),
@@ -962,6 +964,6 @@ Route::get('debug/request', function () {
             'name' => Request::route() ? Request::route()->action : null,
             'params' => Request::route() ? Request::route()->parameters : [],
         ],
-    ];
+    ]);
 });
 ```

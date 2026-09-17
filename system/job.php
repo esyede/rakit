@@ -73,7 +73,10 @@ class Job
 
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
-                Hook::fire('rakit.jobs.run: '.$job->name, $payloads);
+                // Passed as one argument: Hook::fire() spreads the array it is
+                // given, which would hand every key of the payload to the
+                // listener as a parameter of its own.
+                Hook::fire('rakit.jobs.run: '.$job->name, [$payloads]);
             }
         });
     }
@@ -131,6 +134,10 @@ class Job
      */
     public static function driver($driver = null)
     {
+        // A worker (job:run, job:runall) never dispatches, so the listeners
+        // have to be registered on the way to the driver that runs the jobs.
+        static::auto_discover();
+
         $driver = is_null($driver) ? Config::get('job.driver') : $driver;
 
         if (! isset(static::$drivers[$driver])) {

@@ -45,7 +45,12 @@ resource it was given, so a Facile model still honours its `$hidden`, `$visible`
 
 ## Writing a Transformer
 
-Put the class in `application/transformers/` and give it a `to_array()`:
+Put the class in `application/transformers/` and give it a `to_array()`;
+`php rakit make:transformer user` writes that file for you. The
+class is named after the file with `_Transformer` behind it, the same way a
+controller is named `User_Controller`, and the autoloader finds it there on its
+own. A transformer of a package carries the package name in front, so
+`Blog_Post_Transformer` is read from `packages/blog/transformers/post.php`:
 
 ```php
 // application/transformers/user.php
@@ -85,8 +90,8 @@ return User_Transformer::make($user)->to_response();
 ```
 
 `make()` and `new User_Transformer($user)` are the same thing. Besides
-`to_response()`, a transformer answers `to_json()`, `resolve()` for the plain
-array, and turns into JSON on its own when handed to `json_encode()`.
+`to_response()`, a transformer answers `to_json()`, `resolve()` for the array
+(wrapper and all), and turns into JSON on its own when handed to `json_encode()`.
 
 <a id="lists-of-resources"></a>
 

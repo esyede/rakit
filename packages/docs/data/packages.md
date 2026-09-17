@@ -146,8 +146,8 @@ Package::boot('admin');
 
 This method will execute the `boot.php` file of the admin package, which registers the classes in the admin package to the autoloader.
 
-Calling the `boot()` method also automatically loads the following files (if they exist):
-- `routes.php` - Package routes
+Calling the `boot()` method also automatically loads the package's `routes.php` file (if it exists).
+When `routes.php` exists, the following files are loaded right after it (if they exist):
 - `hooks.php` - Hook (event) listeners
 - `middlewares.php` - Middleware definitions
 - `composers.php` - View composers
@@ -168,7 +168,7 @@ return [
 
 You don't always have to define `autoboot` explicitly. Rakit has a **lazy loading** mechanism - the package will boot automatically when first accessed.
 
-For example, if you call a view, config, language, route, or middleware belonging to a package, that package will boot itself automatically.
+For example, when a request is routed to a package, or you call a controller or middleware belonging to a package, that package will boot itself automatically.
 
 Every time a package boots, an event is fired. You can use this event when you need to do something after the package finishes booting:
 
@@ -190,7 +190,7 @@ You can also _"freeze"_ a package so that it cannot boot:
 Package::freeze('admin');
 ```
 
-After being frozen, the package cannot be booted even if it is registered. Useful for temporarily disabling a package without removing its registration.
+Freezing removes the package from the list of registered packages for the current request, so it can no longer be booted (`Package::boot()` will throw an exception). Useful for temporarily disabling a package without removing its entry from `application/packages.php`.
 
 #### Checking package status:
 
@@ -318,8 +318,8 @@ $class_prefix = Package::class_prefix('admin');
 
 ```php
 // Determine which package handles a certain URI
-$package = Package::handles('/admin/users');
-// Returns: 'admin' (if the admin package handles '/admin')
+$package = Package::handles('admin/users');
+// Returns: 'admin' (if the admin package handles 'admin')
 ```
 
 #### Expand package path:
@@ -410,7 +410,7 @@ When you upgrade a package, Rakit will:
 1. Check the latest compatible version with your Rakit
 2. Delete the old version package files
 3. Download and install the latest version
-4. Republish the package assets
+4. Delete the published package assets (run `package:publish` to publish them again)
 
 #### Upgrading a package via console:
 
@@ -499,7 +499,7 @@ To remove a package manually, follow these steps:
 
 4. **Clear cache** (optional)
    ```bash
-   php rakit cache:clear
+   php rakit clear:cache
    ```
 
 > **Tip:** Always backup the database before removing a package that has migrations.

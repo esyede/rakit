@@ -26,9 +26,8 @@ All database configuration options are located in the `application/config/databa
 [SQLite](https://sqlite.org) is a great database system, and its configuration is straightforward.
 By default, Rakit is configured to use SQLite. Yes, the purpose is so you can try Rakit without having to bother setting up a database.
 
-Rakit will automatically store all SQLite files in the `application/storage/database/` folder
-with the name `'xxxxxx-application'` where `xxxxxx` is a 32-character random string automatically added
-to the front of your original database name for security reasons.
+Rakit will automatically store all SQLite files in the `storage/database/` folder
+with the `.sqlite` extension, so the default database lives in `storage/database/application.sqlite`.
 
 Of course, you can name it something other than `'application'`, to do so,
 just change the configuration option in the `application/config/database.php` file like this:
@@ -64,7 +63,7 @@ By default, there are four connections defined: `sqlite`, `mysql`, `sqlsrv`, and
 You can freely change these connection names. The default connection can be set through the `'default'` option like this:
 
 ```php
-'default' => 'sqlite';
+'default' => 'sqlite',
 ```
 
 This default connection is what will always be used by the [Query Builder](/docs/database/magic).
@@ -74,7 +73,7 @@ If you need to change the default connection during request execution, use `Conf
 
 ## Overriding Default PDO Options
 
-The database connector component (`System\Database\Connector`) has a set of default PDO attribute definitions
+The database connector component (`System\Database\Connectors\Connector`) has a set of default PDO attribute definitions
 that can be overridden via the configuration file.
 
 As an example, one of the default attributes forces column names to be lowercase (`PDO::CASE_LOWER`) even if they are defined in UPPERCASE or camelCase in the table.

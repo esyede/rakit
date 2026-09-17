@@ -727,7 +727,9 @@ abstract class Model implements \JsonSerializable
     public function to_array()
     {
         $attributes = [];
-        $visible = array_merge((array) static::$visible, $this->instance_visible);
+        // make_visible() only widens a whitelist the model already has: with
+        // none, it would turn into one and hide every other attribute.
+        $visible = static::$visible ? array_merge((array) static::$visible, $this->instance_visible) : [];
         $hidden = array_merge(array_diff((array) static::$hidden, $this->instance_visible), $this->instance_hidden);
 
         foreach (array_keys($this->attributes) as $key) {
@@ -1638,7 +1640,7 @@ abstract class Model implements \JsonSerializable
                 return false;
             }
 
-            $id = $this->query()->insert_get_id($this->attributes, $this->key());
+            $id = $this->query()->insert_get_id($this->attributes, $this->key(), static::$sequence);
             $this->set_key($id);
             $key = $this->get_key();
             $result = ! is_null($key) && ! empty($key);

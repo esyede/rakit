@@ -35,6 +35,18 @@ class Autoloader
     public static $underscored = [];
 
     /**
+     * Contains class name suffixes and the directory holding their classes:
+     * User_Observer lives in observers/user.php, the way User_Controller
+     * lives in controllers/user.php.
+     *
+     * @var array
+     */
+    public static $suffixes = [
+        '_Observer' => 'observers',
+        '_Transformer' => 'transformers',
+    ];
+
+    /**
      * Contains class aliases.
      *
      * @var array
@@ -77,6 +89,10 @@ class Autoloader
             return;
         }
 
+        if (static::load_suffixed($class)) {
+            return;
+        }
+
         if (empty(static::$directories)) {
             $app = path('app');
             static::directories([
@@ -96,6 +112,53 @@ class Autoloader
         }
 
         static::load_psr($class);
+    }
+
+    /**
+     * Load a class named after one of the registered suffixes from the
+     * directory of the application, or of the package its name starts with.
+     * PSR-0 cannot do it: it would look for observers/user/observer.php
+     * instead of the observers/user.php the name of User_Observer points at.
+     *
+     * @param string $class
+     *
+     * @return bool
+     */
+    protected static function load_suffixed($class)
+    {
+        $class = strtolower((string) $class);
+
+        if (strpbrk($class, '\\/.') !== false) {
+            return false;
+        }
+
+        foreach (static::$suffixes as $suffix => $directory) {
+            $suffix = strtolower($suffix);
+            $length = strlen($suffix);
+
+            if (strlen($class) <= $length || substr($class, -$length) !== $suffix) {
+                continue;
+            }
+
+            $name = substr($class, 0, -$length);
+
+            foreach (array_merge([DEFAULT_PACKAGE], Package::names()) as $package) {
+                $prefix = strtolower(Package::class_prefix($package));
+
+                if ('' !== $prefix && (0 !== strpos($name, $prefix) || strlen($name) <= strlen($prefix))) {
+                    continue;
+                }
+
+                $file = Package::path($package) . $directory . DS . substr($name, strlen($prefix)) . '.php';
+
+                if (is_file($file)) {
+                    require_once $file;
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**

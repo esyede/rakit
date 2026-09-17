@@ -53,7 +53,6 @@ In addition to specifying the desired algorithm type, you can also pass addition
 
 ```php
 $headers = [
-    'exp' => 3900, // expires in 65 minutes
     'type' => 'bearer',
     'foo' => 'bar',
 ];
@@ -72,7 +71,8 @@ $jwt = JWT::encode($data, $secret, $headers, 'HS384');
 // dd($jwt);
 ```
 
-> Only the following algorithms are supported: `HS256` `HS384` and `HS512`.
+> Only the following algorithms are supported: `HS256` `HS384` `HS512` `RS256` `RS384` and `RS512`.
+> For the `RS*` algorithms, encode with the PEM private key and decode with the PEM public key.
 
 <a id="decode-data"></a>
 
@@ -91,13 +91,20 @@ You can also add additional options when decoding:
 
 ```php
 $options = [
-    'verify_exp' => true,  // Verify expiration time
-    'verify_iat' => true,  // Verify issued at time
-    'verify_nbf' => true,  // Verify not before time
+    'algorithm' => 'HS256',              // Only accept this algorithm (string or array)
+    'aud' => 'http://example.com',       // Expected audience (aud claim)
+    'iss' => 'http://example.org',       // Expected issuer (iss claim)
+    'validator' => function ($payloads, $headers) {
+        // Extra checks, throw an exception to reject the token
+    },
 ];
 
 $decoded = JWT::decode($jwt, 's3cr3t', $options);
 ```
+
+> The `exp`, `nbf` and `iat` claims are always verified when present in the payload
+> (tolerance can be set via `JWT::$leeway` in seconds). An exception is thrown when
+> any check fails.
 
 <a id="refresh-token"></a>
 
@@ -225,14 +232,14 @@ Route::middleware('jwt.auth', function () {
     
     try {
         $decoded = JWT::decode($token, Config::get('jwt.secret'));
-        Request::$user_id = $decoded->user_id;
+        Request::foundation()->attributes->set('user_id', $decoded->user_id);
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token'], 401);
     }
 });
 
 Route::get('api/profile', ['before' => 'jwt.auth', function () {
-    $user = User::find(Request::$user_id);
+    $user = User::find(Request::foundation()->attributes->get('user_id'));
     
     return Response::json([
         'id' => $user->id,
@@ -284,8 +291,8 @@ Route::middleware('jwt.auth', function () {
         }
         
         // Store user info in request
-        Request::$user_id = $decoded->user_id;
-        Request::$token_data = $decoded;
+        Request::foundation()->attributes->set('user_id', $decoded->user_id);
+        Request::foundation()->attributes->set('token_data', $decoded);
         
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token: ' . $e->getMessage()], 401);
@@ -358,7 +365,7 @@ async function refreshToken() {
 
 ```php
 // Generate secret key
-$secret = bin2hex(random_bytes(32)); // 64 hex characters
+$secret = bin2hex(Str::bytes(32)); // 64 hex characters
 ```
 
 **2. Store secret key securely:**
@@ -380,10 +387,12 @@ $secret = getenv('JWT_SECRET') ?: Config::get('jwt.secret');
 **4. Validate all important claims:**
 
 ```php
+// exp, nbf and iat are always verified when present,
+// audience and issuer are verified when you pass them
 $options = [
-    'verify_exp' => true,  // Always verify expiration
-    'verify_iat' => true,  // Verify issued at
-    'verify_nbf' => true,  // Verify not before
+    'algorithm' => 'HS256',
+    'aud' => 'http://example.com',
+    'iss' => 'http://example.org',
 ];
 
 $decoded = JWT::decode($token, $secret, $options);

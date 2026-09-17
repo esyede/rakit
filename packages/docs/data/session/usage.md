@@ -18,7 +18,7 @@
 
 Session provides a way to store user data between HTTP requests. Rakit provides a clean and consistent API for accessing various session backend drivers.
 
-Sessions in Rakit will automatically start when the application is first run, so you don't need to worry about starting sessions manually.
+Sessions in Rakit will automatically start on every web request when a session driver is configured (except for routes listed in the `'stateless'` session option), so you don't need to worry about starting sessions manually.
 
 **Check if session has started:**
 
@@ -90,7 +90,7 @@ Session::forget('name');
 
 **Deleting all items:**
 
-You can delete all items from the session using the `flush()` method:
+You can delete all items from the session (except the CSRF token) using the `flush()` method:
 
 ```php
 Session::flush();
@@ -215,17 +215,23 @@ $token = Session::token();
 
 **Validating CSRF token:**
 
-Rakit automatically validates CSRF tokens for POST, PUT, PATCH, and DELETE requests. If the token is invalid, the application will throw an exception.
-
-**Excluding routes from CSRF protection:**
-
-If you need to exclude certain routes from CSRF protection (e.g., for API webhooks), you can do so in the filter:
+Attach the `csrf` middleware (defined in `application/middlewares.php`) to the routes you want to protect. It validates the token for every request method other than GET, HEAD, OPTIONS, TRACE and CONNECT, and responds with a `422` error if the token is invalid:
 
 ```php
-// In application/routes.php
-Route::post('webhook/stripe', ['before' => 'no_csrf', function() {
-    // Handle webhook
+Route::post('users', ['before' => 'csrf', function () {
+    // ..
 }]);
 ```
 
-> CSRF tokens are automatically regenerated every time the session is regenerated with `Session::regenerate()`.
+**Excluding routes from CSRF protection:**
+
+If you need to exclude certain URIs from CSRF protection (e.g., for API webhooks), list them in the `'csrf_except'` option of `application/config/application.php`:
+
+```php
+'csrf_except' => [
+    'webhook/stripe',
+],
+```
+
+> `Session::regenerate()` keeps the current CSRF token. To also get a fresh CSRF token (e.g. on logout),
+> use `Session::invalidate()`, which discards all session data as well.

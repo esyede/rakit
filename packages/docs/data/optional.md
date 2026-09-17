@@ -29,7 +29,7 @@ You can create an `Optional` instance in several ways:
 
 ```php
 // Directly with constructor
-$optional = new Optional($value);
+$optional = new \System\Optional($value);
 
 // Using helper function optional()
 $optional = optional($value);
@@ -145,7 +145,7 @@ $address = null;
 $city = null;
 
 if ($user) {
-    $profile = $user->profile();
+    $profile = $user->profile;
     if ($profile) {
         $address = $profile->address;
         if ($address) {
@@ -155,11 +155,11 @@ if ($user) {
 }
 
 // With Optional: cleaner
-$city = optional(optional(optional(User::find($id))->profile())->address)->city;
+$city = optional(optional(optional(User::find($id))->profile)->address)->city;
 
 // Or more readable:
 $user = optional(User::find($id));
-$profile = optional($user->profile());
+$profile = optional($user->profile);
 $address = optional($profile->address);
 $city = $address->city;
 ```
@@ -170,13 +170,13 @@ $city = $address->city;
 Handling API responses that may have incomplete structures:
 
 ```php
-$response = json_decode($api_response);
+$response = json_decode($api_response, true);
 $optional = optional($response);
 
-// Safely access nested properties
-$user_name = $optional->data['user']['name'];
-$user_email = $optional->data['user']['email'];
-$user_avatar = $optional->data['user']['profile']['avatar'];
+// Safely access nested keys (array access accepts "dot" notation)
+$user_name = $optional['data.user.name'];
+$user_email = $optional['data.user.email'];
+$user_avatar = $optional['data.user.profile.avatar'];
 
 // All will return null if not present, not error
 ```
@@ -189,11 +189,11 @@ Handling query results that may be empty:
 ```php
 // Retrieve user and access relation
 $user = optional(User::find($id));
-$latest_post = $user->posts()->first();
+$latest_post = optional($user->posts())->first();
 $post_title = optional($latest_post)->title;
 
 // Or in one line
-$post_title = optional(optional(User::find($id))->posts()->first())->title;
+$post_title = optional(optional(optional(User::find($id))->posts())->first())->title;
 ```
 
 With method chaining:
@@ -205,8 +205,8 @@ $comments_count = $user->posts()->first()->comments()->count();
 
 // With Optional - safe
 $user = optional(User::find($id));
-$post = optional($user->posts()->first());
-$comments_count = $post->comments()->count() ?: 0;
+$post = optional(optional($user->posts())->first());
+$comments_count = optional($post->comments())->count() ?: 0;
 ```
 
 <a id="helper-function"></a>
@@ -218,12 +218,13 @@ Rakit provides the `optional()` helper function for convenience:
 // Create Optional instance
 $optional = optional($value);
 
-// With callback (if value is not null, execute callback)
+// With callback (the callback receives the value and its result is returned)
 $result = optional($value, function ($value) {
-    return $value->some_method();
+    return $value ? $value->some_method() : null;
 });
 
-// If $value is null, callback is not executed and returns null
+// The callback is always executed, even when $value is null,
+// so check for null inside the callback yourself
 ```
 
 Example with callback:
@@ -231,9 +232,9 @@ Example with callback:
 ```php
 $user = User::find($id);
 
-// Execute callback only if user is found
+// The callback runs either way, so guard against a missing user
 $name = optional($user, function ($user) {
-    return strtoupper($user->name);
+    return $user ? strtoupper($user->name) : null;
 });
 
 // $name will contain name in uppercase if user is found,

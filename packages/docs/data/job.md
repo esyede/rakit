@@ -33,8 +33,10 @@ The job system supports several drivers: **file**, **database**, **redis**, and 
 
 ### 1. Create Jobs Table
 
+Only needed for the **database** driver. The migration for the jobs and failed jobs tables
+already ships in `application/migrations/`, so just run:
+
 ```bash
-php rakit job:table
 php rakit migrate
 ```
 
@@ -44,17 +46,19 @@ Edit `application/config/job.php`:
 
 ```php
 return [
-    'driver' => 'database',        // Default driver: file, database, redis, memcached
-    'table' => 'rakit_jobs',       // Table for storing jobs (database driver)
-    'failed_table' => 'rakit_failed_jobs',  // Table for failed jobs
-    'max_job' => 100,              // Maximum jobs processed per batch
-    'max_retries' => 3,            // Maximum retries for failed jobs
-    'sleep_ms' => 1000,            // Sleep time between polling (milliseconds)
-    'logging' => true,             // Enable/disable logging
+    'driver' => 'file',            // Default driver: file, database, redis, memcached
+    'table' => 'jobs',             // Table for storing jobs (database driver)
+    'failed_table' => 'failed_jobs',  // Table for failed jobs
+    'max_job' => 50,               // Maximum jobs processed per batch
+    'max_retries' => 1,            // Maximum attempts before a job is moved to failed jobs
+    'sleep_ms' => 0,               // Sleep time between retry attempts (milliseconds)
+    'logging' => false,            // Enable/disable logging
+    'key' => 'rakit.job',          // Key prefix (redis and memcached drivers)
 ];
 ```
 
-**Note:** If using **redis** or **memcached** driver, ensure the connection configuration is set in `application/config/cache.php`.
+**Note:** If using **redis** driver, ensure the connection configuration is set in `application/config/database.php` (the `redis` key).
+If using **memcached** driver, set it in `application/config/cache.php` (the `memcached` key).
 
 <a id="creating-job-class"></a>
 
@@ -126,10 +130,10 @@ class Reporting_Job extends Jobable
             ->where('date', $date)
             ->get();
 
-        $this->generate_pdf($data, $type);
+        $this->generate_pdf($data, $type, $date);
     }
 
-    protected function generate_pdf($data, $type)
+    protected function generate_pdf($data, $type, $date)
     {
         // PDF generation logic
         $filename = $type . '_report_' . $date . '.pdf';
@@ -219,7 +223,7 @@ class User_Controller extends Controller
     public function action_upload()
     {
         $file = Input::file('photo');
-        $path = storage_path('uploads/' . time() . '.jpg');
+        $path = path('storage') . 'uploads' . DS . time() . '.jpg';
 
         move_uploaded_file($file['tmp_name'], $path);
 
@@ -244,8 +248,8 @@ class User_Controller extends Controller
 php rakit job:runall
 ```
 
-This command will run all jobs from all queues continuously (infinite loop).
-The worker will continuously monitor and process new incoming jobs.
+This command will run the due jobs from all queues (up to `max_job` per run), then exit.
+It does not loop, so run it periodically (e.g. from cron or a process manager) to keep processing new incoming jobs.
 
 ### Run Specific Queues
 
@@ -264,8 +268,8 @@ php rakit job:runall --queue=high --retries=3 --sleep=1000
 
 Available parameters:
 - `--queue=name1,name2` - Which queues to process (default: all)
-- `--retries=N` - How many times to retry failed jobs (default: 1)
-- `--sleep=N` - Sleep time between polling in milliseconds (default: 0)
+- `--retries=N` - How many attempts per job before it is marked as failed (default: `max_retries` config)
+- `--sleep=N` - Sleep time between retry attempts in milliseconds (default: `sleep_ms` config)
 
 ### Run Specific Job
 
@@ -273,7 +277,7 @@ Available parameters:
 php rakit job:run send-email
 ```
 
-This command will run a specific job based on name. Useful for testing or manual execution.
+This command will run the due jobs in the queue with that name. Useful for testing or manual execution.
 
 ### Return Value
 
@@ -416,7 +420,9 @@ Mailing_Job::dispatch([
 
 ## Supervisor Configuration
 
-For production, use Supervisor to run workers automatically:
+For production, use Supervisor to run workers automatically.
+Since `job:runall` exits after each batch, Supervisor's `autorestart` is what keeps it running
+(`startsecs=0` stops Supervisor from treating the quick exit as a failed start):
 
 File: `/etc/supervisor/conf.d/rakit-worker.conf`
 
@@ -427,6 +433,7 @@ process_name=%(program_name)s_%(process_num)02d
 command=php /var/www/myapp/rakit job:runall --queue=high --retries=3
 autostart=true
 autorestart=true
+startsecs=0
 user=www-data
 numprocs=2
 redirect_stderr=true
@@ -438,6 +445,7 @@ process_name=%(program_name)s_%(process_num)02d
 command=php /var/www/myapp/rakit job:runall --queue=default --retries=3
 autostart=true
 autorestart=true
+startsecs=0
 user=www-data
 numprocs=4
 redirect_stderr=true
@@ -449,6 +457,7 @@ process_name=%(program_name)s_%(process_num)02d
 command=php /var/www/myapp/rakit job:runall --queue=low --retries=2
 autostart=true
 autorestart=true
+startsecs=0
 user=www-data
 numprocs=1
 redirect_stderr=true
@@ -478,14 +487,11 @@ sudo supervisorctl status
 You can remove jobs from the queue using the `forget()` method:
 
 ```php
-// Remove specific job from default queue
+// Remove specific job from all queues
 Job::forget('send-email');
 
 // Remove specific job from specific queue
 Job::forget('send-email', 'high');
-
-// Remove job from all queues
-Job::forget('send-email', null);
 ```
 
 This method is useful when:
@@ -503,7 +509,7 @@ if (Job::driver()->has_overlapping('send-notification', 'default')) {
 }
 ```
 
-> **Note:** The `forget()` method only removes unprocessed jobs.
+> **Note:** The `forget()` method only removes unprocessed jobs (and their failed job records).
 > Jobs that are currently running will not be stopped.
 
 <a id="event-based-old-way"></a>
@@ -654,17 +660,17 @@ Notify_Job::dispatch($data)->on_queue('default');
 
 // Background tasks
 Cleanup_Job::dispatch($data)->on_queue('low');
-UpdateStatistics::dispatch($data)->on_queue('low');
+Statistics_Job::dispatch($data)->on_queue('low');
 ```
 
 ### 5. Prevent Duplicates for Important Jobs
 
 ```php
 // Report generation - only one should run
-GenerateMonthlyReport::dispatch($data)->without_overlapping();
+Reporting_Job::dispatch($data)->without_overlapping();
 
 // Data sync - prevent concurrent sync
-SyncExternalData::dispatch($data)->without_overlapping();
+Sync_Job::dispatch($data)->without_overlapping();
 ```
 
 ### 6. Use the Right Driver
@@ -677,10 +683,10 @@ Pay_Job::dispatch($data)->via('redis')->on_queue('high');
 Mailing_Job::dispatch($data)->via('database');
 
 // Development/testing - use file (simple, no setup)
-TestJob::dispatch($data)->via('file');
+Testing_Job::dispatch($data)->via('file');
 
 // High throughput - use memcached (fast, distributed)
-LogEvent::dispatch($data)->via('memcached')->on_queue('low');
+Logging_Job::dispatch($data)->via('memcached')->on_queue('low');
 ```
 
 ### 7. Monitoring and Logging
