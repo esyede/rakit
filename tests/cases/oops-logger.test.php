@@ -247,4 +247,47 @@ class OopsLoggerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse(Debugger::notify(new \RuntimeException('Nope')));
     }
+
+    /**
+     * A debug bar payload holds the request data, the session contents and every
+     * query the request ran. The file carries its own guard, so a web server that
+     * serves the storage directory hands out none of it.
+     *
+     * @group system
+     */
+    public function testDebugBarPayloadIsGuardedAgainstDirectAccess()
+    {
+        require_once path('system').'foundation'.DS.'oops'.DS.'storage.php';
+
+        $dir = $this->dir.DS.'debugbar-probe';
+        $storage = new \System\Foundation\Oops\Storage($dir, 5);
+        $payload = ['meta' => ['ts' => 1.0, 'url' => '/probe'], 'session' => 'token-abcdef'];
+
+        $this->assertTrue($storage->save('probe', $payload));
+
+        $files = glob($dir.DS.'*');
+        $this->assertNotEmpty($files);
+
+        foreach ($files as $file) {
+            $this->assertStringStartsWith(\System\Foundation\Oops\Storage::GUARD, file_get_contents($file));
+
+            $output = (string) shell_exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($file).' 2>&1');
+
+            $this->assertContains('No direct access.', $output);
+            $this->assertNotContains('token-abcdef', $output);
+        }
+
+        // The guard must stay invisible to the debug bar itself.
+        $this->assertEquals($payload, $storage->get('probe'));
+
+        $recent = $storage->recent(5);
+        $this->assertCount(1, $recent);
+        $this->assertEquals('probe', $recent[0]['id']);
+
+        foreach (glob($dir.DS.'*') as $file) {
+            @unlink($file);
+        }
+
+        @rmdir($dir);
+    }
 }

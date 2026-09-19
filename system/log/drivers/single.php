@@ -25,7 +25,9 @@ class Single extends Driver
             throw new \RuntimeException(sprintf('Log file is not writable: %s', $file));
         }
 
-        if (false === @file_put_contents($file, $this->format($record).PHP_EOL, FILE_APPEND | LOCK_EX)) {
+        $content = static::guard($file).$this->format($record).PHP_EOL;
+
+        if (false === @file_put_contents($file, $content, FILE_APPEND | LOCK_EX)) {
             throw new \RuntimeException(sprintf('Unable to write to log file: %s', $file));
         }
 

@@ -320,6 +320,36 @@ class BladeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * A compiled view is executable PHP living in the storage directory, so the
+     * file carries its own guard instead of relying on the web server to deny it.
+     * Rendering through the framework must not be affected by it.
+     *
+     * @group system
+     */
+    public function testCompiledViewIsGuardedAgainstDirectAccess()
+    {
+        $template = path('app') . 'views' . DS . 'guardprobe.blade.php';
+        file_put_contents($template, 'value is {{ $n }}');
+
+        $compiled = Blade::compiled($template);
+        is_file($compiled) && unlink($compiled);
+
+        $output = System\View::make('guardprobe', ['n' => 42])->render();
+
+        $this->assertStringStartsWith(Blade::GUARD, file_get_contents($compiled));
+        $this->assertEquals('value is 42', trim($output));
+
+        // Reached directly, the file renders nothing of the template.
+        $direct = shell_exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($compiled) . ' 2>&1');
+
+        $this->assertContains('No direct access.', (string) $direct);
+        $this->assertNotContains('value is', (string) $direct);
+
+        unlink($template);
+        is_file($compiled) && unlink($compiled);
+    }
+
+    /**
      * Compiling a template for the first time must not emit any diagnostic.
      *
      * The debugger runs with Debugger::$scream on, which disables the '@'

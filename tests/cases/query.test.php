@@ -403,4 +403,59 @@ class QueryTest extends \PHPUnit_Framework_TestCase
         $this->assertNotContains('NOT IN ()', $query->to_sql());
         $this->assertEquals($total, $query->count());
     }
+
+    /**
+     * An emptied WHERE list must drop the clause instead of emitting a bare 'WHERE'.
+     *
+     * @group system
+     */
+    public function testResetWhereDropsTheWhereClause()
+    {
+        $query = Database::table('query_test')->where('id', '=', 1);
+        $query->reset_where();
+
+        $this->assertNotContains('WHERE', $query->to_sql());
+        $this->assertNotContains('WHERE', $query->grammar->delete($query));
+        $this->assertEquals(Database::table('query_test')->count(), $query->count());
+    }
+
+    /**
+     * A nested WHERE that ends up empty must not compile to '()'.
+     *
+     * @group system
+     */
+    public function testEmptyNestedWhereIsDropped()
+    {
+        $query = Database::table('query_test')->where('id', '=', 1)->where_nested(function ($nested) {
+            // A nested query whose clauses are dropped again leaves an empty list,
+            // not a null one, so the group must still be left out.
+            $nested->where('id', '=', 2);
+            $nested->reset_where();
+        });
+
+        $this->assertNotContains('()', $query->to_sql());
+        $this->assertContains('WHERE', $query->to_sql());
+    }
+
+    /**
+     * Empty component lists must not emit a dangling keyword.
+     *
+     * @group system
+     */
+    public function testEmptyComponentsDoNotEmitDanglingKeywords()
+    {
+        $query = Database::table('query_test');
+        $query->groupings = [];
+        $query->havings = [];
+        $query->orderings = [];
+
+        $sql = $query->grammar->select($query);
+
+        $this->assertNotContains('GROUP BY', $sql);
+        $this->assertNotContains('HAVING', $sql);
+        $this->assertNotContains('ORDER BY', $sql);
+
+        // An empty column list still has to select something.
+        $this->assertContains('SELECT *', Database::table('query_test')->select([])->to_sql());
+    }
 }

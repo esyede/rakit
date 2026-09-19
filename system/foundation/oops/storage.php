@@ -6,6 +6,20 @@ defined('DS') or exit('No direct access.');
 
 class Storage
 {
+    /**
+     * The marker that keeps a stored payload from being served by a web server
+     * whose document root contains the storage directory. A payload holds the
+     * request data, the session contents and every query the request ran, so
+     * the protection travels with the file instead of with the deployment.
+     */
+    const GUARD = "<?php defined('DS') or exit('No direct access.');?>";
+
+    /** Extension of a stored payload. PHP parses it, and the guard stops it. */
+    const EXT = '.json.php';
+
+    /** Extension of the meta sidecar of a payload. */
+    const META_EXT = '.meta.php';
+
     /** @var string */
     protected $dir;
 
@@ -47,14 +61,14 @@ class Storage
             return false;
         }
 
-        $ok = @file_put_contents($file, $json, LOCK_EX);
+        $ok = @file_put_contents($file, self::GUARD.$json, LOCK_EX);
 
         if (false !== $ok) {
             $meta = (isset($data['meta']) && is_array($data['meta'])) ? $data['meta'] : [];
             $sidecar = json_encode($meta);
 
             if (false !== $sidecar) {
-                @file_put_contents($this->meta_path($id), $sidecar, LOCK_EX);
+                @file_put_contents($this->meta_path($id), self::GUARD.$sidecar, LOCK_EX);
             }
         }
 
@@ -78,7 +92,7 @@ class Storage
             return;
         }
 
-        $data = json_decode((string) file_get_contents($file), true);
+        $data = json_decode(self::unguard(file_get_contents($file)), true);
 
         return is_array($data) ? $data : null;
     }
@@ -102,7 +116,7 @@ class Storage
 
         foreach ($files as $file) {
             $meta = $this->meta_of($file);
-            $meta['id'] = basename($file, '.json');
+            $meta['id'] = basename($file, self::EXT);
             $meta['ts'] = isset($meta['ts']) ? (float) $meta['ts'] : $this->stamp($file);
             $metas[] = $meta;
         }
@@ -139,7 +153,7 @@ class Storage
                 break;
             }
             @unlink($file);
-            @unlink($this->meta_path(basename($file, '.json')));
+            @unlink($this->meta_path(basename($file, self::EXT)));
         }
     }
 
@@ -184,10 +198,10 @@ class Storage
      */
     protected function meta_of($file)
     {
-        $sidecar = $this->meta_path(basename($file, '.json'));
+        $sidecar = $this->meta_path(basename($file, self::EXT));
 
         if (is_file($sidecar)) {
-            $meta = json_decode((string) file_get_contents($sidecar), true);
+            $meta = json_decode(self::unguard(file_get_contents($sidecar)), true);
 
             if (is_array($meta)) {
                 return $meta;
@@ -198,13 +212,13 @@ class Storage
             return [];
         }
 
-        $data = json_decode((string) file_get_contents($file), true);
+        $data = json_decode(self::unguard(file_get_contents($file)), true);
         $meta = (is_array($data) && isset($data['meta']) && is_array($data['meta'])) ? $data['meta'] : [];
 
         $encoded = json_encode($meta);
 
         if (false !== $encoded) {
-            @file_put_contents($sidecar, $encoded, LOCK_EX);
+            @file_put_contents($sidecar, self::GUARD.$encoded, LOCK_EX);
         }
 
         return $meta;
@@ -215,7 +229,7 @@ class Storage
      */
     protected function files()
     {
-        $files = glob($this->dir . DS . '*.json');
+        $files = glob($this->dir . DS . '*' . self::EXT);
 
         return is_array($files) ? $files : [];
     }
@@ -227,7 +241,7 @@ class Storage
      */
     protected function path($id)
     {
-        return $this->dir . DS . $this->sanitize($id) . '.json';
+        return $this->dir . DS . $this->sanitize($id) . self::EXT;
     }
 
     /**
@@ -239,7 +253,7 @@ class Storage
      */
     protected function meta_path($id)
     {
-        return $this->dir . DS . $this->sanitize($id) . '.meta';
+        return $this->dir . DS . $this->sanitize($id) . self::META_EXT;
     }
 
     /**
@@ -250,5 +264,17 @@ class Storage
     protected function sanitize($id)
     {
         return preg_replace('#[^a-zA-Z0-9_-]#', '', (string) $id);
+    }
+
+    /**
+     * Strip the guard from a stored payload before it is decoded.
+     *
+     * @param string|false $value
+     *
+     * @return string
+     */
+    protected static function unguard($value)
+    {
+        return str_replace(self::GUARD, '', (string) $value);
     }
 }

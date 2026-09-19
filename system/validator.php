@@ -79,6 +79,20 @@ class Validator
     protected static $validators = [];
 
     /**
+     * Rules that are meaningless without at least one parameter.
+     * Used without one they would read $parameters[0] of an empty array, so the
+     * rule is reported as malformed instead of validating against a missing value.
+     *
+     * @var array
+     */
+    protected static $parameterized = [
+        'after', 'after_or_equal', 'after_or_equals', 'before', 'before_or_equal', 'before_or_equals',
+        'between', 'count', 'countmax', 'countmin', 'date_equals', 'date_format', 'different', 'digits',
+        'exists', 'gt', 'gte', 'in_array', 'lt', 'lte', 'max', 'max_digits', 'min', 'min_digits',
+        'multiple_of', 'required_if', 'required_unless', 'required_with', 'same', 'size', 'unique',
+    ];
+
+    /**
      * Constructor.
      *
      * @param array $attributes
@@ -265,6 +279,14 @@ class Validator
     protected function check($attribute, $rule)
     {
         list($rule, $parameters) = $this->parse($rule);
+
+        if (empty($parameters) && in_array($rule, static::$parameterized, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                "The '%s' validation rule requires at least one parameter, e.g. '%s:value'.",
+                $rule,
+                $rule
+            ));
+        }
 
         $value = Arr::get($this->attributes, $attribute);
         $validatable = $this->validatable($rule, $attribute, $value);
@@ -1831,6 +1853,36 @@ class Validator
     }
 
     /**
+     * Replace the :date placeholder of the after_or_equal message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_after_or_equal($message, $attribute, $rule, array $parameters)
+    {
+        return $this->replace_after_or_equals($message, $attribute, $rule, $parameters);
+    }
+
+    /**
+     * Replace the :format placeholder of the date_format message.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_date_format($message, $attribute, $rule, array $parameters)
+    {
+        return str_replace(':format', $parameters[0], $message);
+    }
+
+    /**
      * Replace the :values placeholder of the doesnt_start_with message.
      *
      * @param string $message
@@ -2283,6 +2335,21 @@ class Validator
     protected function replace_before_or_equals($message, $attribute, $rule, array $parameters)
     {
         return str_replace(':date', $parameters[0], $message);
+    }
+
+    /**
+     * Replace placeholders for the 'before_or_equal' rule.
+     *
+     * @param string $message
+     * @param string $attribute
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return string
+     */
+    protected function replace_before_or_equal($message, $attribute, $rule, array $parameters)
+    {
+        return $this->replace_before_or_equals($message, $attribute, $rule, $parameters);
     }
 
     /**

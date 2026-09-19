@@ -118,10 +118,14 @@ abstract class Model implements \JsonSerializable
 
     /**
      * Contains list of attributes that are not mass-assignable.
+     * Guarding everything is the safe starting point: a model accepts nothing
+     * through fill() until it says what it accepts, so a request body cannot
+     * reach an attribute such as 'id' or 'is_admin' that was never meant for it.
+     * Declare $fillable on the model, or narrow this, to open it up.
      *
      * @var array
      */
-    public static $guarded = [];
+    public static $guarded = ['*'];
 
     /**
      * Determine whether the model uses soft deletes.
@@ -367,18 +371,23 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
+            // A model that lists what it accepts has already answered the
+            // question, so the blanket guard does not get a second say. Without
+            // this the default $guarded of ['*'] would leave $fillable unusable.
+            if (is_array(static::$fillable)) {
+                if (in_array($key, static::$fillable)) {
+                    $this->{$key} = $value;
+                }
+
+                continue;
+            }
+
             if (is_array(static::$guarded)
                 && (in_array('*', static::$guarded) || in_array($key, static::$guarded))) {
                 continue;
             }
 
-            if (is_array(static::$fillable)) {
-                if (in_array($key, static::$fillable)) {
-                    $this->{$key} = $value;
-                }
-            } else {
-                $this->{$key} = $value;
-            }
+            $this->{$key} = $value;
         }
 
         return $this;
@@ -1293,7 +1302,7 @@ abstract class Model implements \JsonSerializable
         $model->fill($attributes);
 
         if (static::$timestamps) {
-            $model->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+            $model->updated_at = Carbon::now()->format(static::$date_format);
         }
 
         return $model->query()->where($model->key(), '=', $id)->update($model->attributes);
@@ -1612,10 +1621,10 @@ abstract class Model implements \JsonSerializable
 
         if (static::$timestamps) {
             if (! $this->exists) {
-                $this->created_at = Carbon::now()->format('Y-m-d H:i:s');
+                $this->created_at = Carbon::now()->format(static::$date_format);
             }
 
-            $this->updated_at = Carbon::now()->format('Y-m-d H:i:s');
+            $this->updated_at = Carbon::now()->format(static::$date_format);
         }
 
         if ($this->exists) {
@@ -1641,7 +1650,13 @@ abstract class Model implements \JsonSerializable
             }
 
             $id = $this->query()->insert_get_id($this->attributes, $this->key(), static::$sequence);
-            $this->set_key($id);
+
+            // Drivers return nothing for non auto-increment keys (UUID, ULID, etc.),
+            // in which case the key assigned by the application must be kept.
+            if (! is_null($id)) {
+                $this->set_key($id);
+            }
+
             $key = $this->get_key();
             $result = ! is_null($key) && ! empty($key);
             $this->exists = $result;
@@ -1674,7 +1689,7 @@ abstract class Model implements \JsonSerializable
             }
 
             if (static::$soft_delete) { // Soft delete
-                $this->deleted_at = Carbon::now()->format('Y-m-d H:i:s');
+                $this->deleted_at = Carbon::now()->format(static::$date_format);
                 $this->query()
                     ->where(static::$key, '=', $this->get_key())
                     ->update(['deleted_at' => $this->deleted_at]);

@@ -532,3 +532,99 @@ class OtherScopedModel extends \System\Database\Facile\Model
     public static $table = 'other_scoped_models';
     public static $guarded = [];
 }
+
+/**
+ * A model that says nothing about mass assignment, so it runs on the framework
+ * default. The test bootstrap relaxes that default globally, so this one pins it
+ * back to what the framework actually ships.
+ */
+class GuardedByDefaultModel extends \System\Database\Facile\Model
+{
+    public static $table = 'guarded_by_default';
+    public static $guarded = ['*'];
+}
+
+/**
+ * The same model, opened up the way an application is meant to open one up.
+ */
+class FillableModel extends \System\Database\Facile\Model
+{
+    public static $table = 'guarded_by_default';
+    public static $guarded = ['*'];
+    public static $fillable = ['name', 'email'];
+}
+
+class FacileMassAssignmentTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * A model that has not said what it accepts accepts nothing, so a request
+     * body cannot reach 'id' or 'is_admin' through fill().
+     *
+     * @group system
+     */
+    public function testGuardedModelAcceptsNothingThroughFill()
+    {
+        $model = new GuardedByDefaultModel();
+        $model->fill(['name' => 'budi', 'id' => 999, 'is_admin' => 1]);
+
+        $this->assertEquals([], $model->attributes);
+    }
+
+    /**
+     * Naming the attributes opens exactly those and nothing else.
+     *
+     * @group system
+     */
+    public function testFillableNamesWhatGetsThrough()
+    {
+        $model = new FillableModel();
+        $model->fill([
+            'name' => 'budi',
+            'email' => 'budi@example.com',
+            'id' => 999,
+            'is_admin' => 1,
+        ]);
+
+        $this->assertEquals(['name' => 'budi', 'email' => 'budi@example.com'], $model->attributes);
+    }
+
+    /**
+     * fill_raw() is the framework's own way in and stays unguarded.
+     *
+     * @group system
+     */
+    public function testFillRawIgnoresTheGuard()
+    {
+        $model = new GuardedByDefaultModel();
+        $model->fill_raw(['id' => 7, 'is_admin' => 1]);
+
+        $this->assertEquals(['id' => 7, 'is_admin' => 1], $model->attributes);
+    }
+
+    /**
+     * The framework relating two models is not mass assignment, so binding a
+     * foreign key must keep working on a fully guarded model.
+     *
+     * @group system
+     */
+    public function testBelongsToBindWorksOnAGuardedModel()
+    {
+        $model = new GuardedByDefaultModel();
+        $relation = new \System\Database\Facile\Relationships\BelongsTo(
+            $model,
+            'GuardedByDefaultModel',
+            'parent_id'
+        );
+
+        // save() would need the table, the attribute is what this asserts.
+        try {
+            $relation->bind(42);
+        } catch (\Throwable $e) {
+            // reaching the database is not what is under test
+        } catch (\Exception $e) {
+            // reaching the database is not what is under test
+        }
+
+        $this->assertEquals(42, $model->get_attribute('parent_id'));
+    }
+}

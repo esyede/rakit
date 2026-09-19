@@ -52,6 +52,18 @@ class Cookie
             throw new \InvalidArgumentException('The cookie name cannot be empty.');
         }
 
+        // Every character PHP's own setcookie() refuses here, refused for the same
+        // reason: a separator or a line break ends the attribute, or the header,
+        // early. Checked at the one point every emitted cookie passes through, so
+        // it also holds for the servers that render the header themselves.
+        if (! is_null($path) && preg_match('/[,; \t\r\n\013\014]/', $path)) {
+            throw new \InvalidArgumentException(sprintf("The cookie path '%s' contains invalid characters.", $path));
+        }
+
+        if (! is_null($domain) && preg_match('/[,; \t\r\n\013\014]/', $domain)) {
+            throw new \InvalidArgumentException(sprintf("The cookie domain '%s' contains invalid characters.", $domain));
+        }
+
         if ($expire instanceof \DateTime || $expire instanceof \DateTimeInterface) {
             $expire = $expire->format('U');
         } elseif (! is_numeric($expire)) {

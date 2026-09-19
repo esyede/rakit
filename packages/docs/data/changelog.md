@@ -8,6 +8,7 @@
 -   [v0.9.9 \(pre-release\)](#v099-pre-release)
 -   [v0.9.10 \(pre-release\)](#v0910-pre-release)
 -   [v0.9.11 \(security\)](#v0911-security)
+-   [Unreleased](#unreleased)
 
 <!-- /MarkdownTOC -->
 
@@ -223,3 +224,87 @@ Security audit fixes — all severities:
 - `@method` now `e()`-escaped, `Header::set` strips CRLF, session/remember cookies force `secure` on HTTPS, remember token rotated, `Crypter` HMAC-SHA256-derived enc/MAC keys (`v=1` payload), `key.php` blocked via `.htaccess`/`sample.htaccess`, operator validation, etc.
 
 **Docs** — `storage.md`, `views/home.md`, `views/templating.md`, `input.md`, `database/facile.md`, `database/magic.md`, `urls.md`, `routing.md`, `debugging.md`, `crypter.md` updated with security notes and safe examples.
+
+<a id="unreleased"></a>
+
+## Unreleased
+
+**Breaking**
+
+-   **Mass assignment is closed by default.** `Facile\Model::$guarded` now defaults
+    to `['*']` instead of `[]`, so a model that declares neither `$fillable` nor
+    `$guarded` accepts nothing through `fill()` and `create()`. Previously every
+    attribute a request named was written, `id` and `is_admin` included.
+
+    `$fillable` now decides on its own: when it is set, `$guarded` is not consulted.
+    A model that already declares `$fillable` therefore needs no change. This also
+    makes the `$guarded = ['*']` plus `$fillable` combination that v0.9.11 announced
+    actually work — until now `$guarded` was checked first and blocked everything,
+    so that pairing silently accepted nothing.
+
+    **Upgrade:** give every model an explicit `$fillable`. `make:model` now
+    scaffolds one. `fill_raw()` bypasses both lists and is unchanged.
+
+-   `Response::with_cookie()` takes a `$samesite` argument and passes it through to
+    `Cookie::put()`, which it previously dropped. Its `$value` now defaults to `''`
+    rather than `null`, which always threw.
+
+-   A validation rule that needs a parameter is rejected when written without one.
+    `'age' => 'min'` raises `InvalidArgumentException` instead of reading past the
+    end of an empty parameter list.
+
+**Security**
+
+-   **HTTP response splitting through a cookie.** The cookie `path` and `domain`
+    went into `Set-Cookie` unchecked, so a line break in either carried a header of
+    its own into the response. `setcookie()` refuses this, but the worker adapters
+    render the header themselves and had no such backstop. Both are now validated
+    where every emitted cookie passes through. `Cookie::put()`'s domain check also
+    accepted a line break, `FILTER_VALIDATE_DOMAIN` on its own permits one.
+
+-   **Log files, compiled views and debug bar payloads are guarded.** Files written
+    under `storage/` that PHP would parse now open with
+    `<?php defined('DS') or exit('No direct access.');?>`. A log holds whatever
+    reached the application, so an unguarded `.log.php` served by a web server was
+    remote code execution. The framework no longer assumes the server was told to
+    deny `storage/`. Debug bar payloads moved from `.json` to guarded `.json.php`;
+    they carry request data, session contents and every query a request ran.
+
+-   **SSRF through a redirect.** `Curl` follows redirects, and libcurl does that
+    itself without going through the URL encoder, so a fetched server could answer
+    with `Location: file:///etc/passwd`. Requests and redirects are now limited to
+    `http` and `https`.
+
+-   **SQL injection in `->defaults()`.** The column default was wrapped in quotes
+    without escaping on MySQL, Postgres and SQL Server; only SQLite escaped it. This
+    also broke a default as ordinary as `O'Brien`. Escaping moved to the shared
+    grammar, with backslash handling for MySQL.
+
+**Fixed**
+
+-   `insert_get_id()` cast every id to `int`, which turned a UUID or a string key
+    into `null`. `Model::save()` then overwrote the key the application had set and
+    reported the save as failed although the row was inserted.
+
+-   An emptied `WHERE` list compiled to a bare `WHERE`, and an empty nested clause to
+    `()`. Empty `GROUP BY`, `HAVING`, `ORDER BY` and `SELECT` lists produced the same
+    kind of dangling keyword.
+
+-   Several optional route segments no longer nest into each other, so
+    `users/(:num?)/posts/(:num?)` matches `users/posts` and `users/5/posts` rather
+    than requiring the first optional before the literal that follows it.
+
+-   `Model::save()`, `Model::update()` and soft `delete()` wrote a hardcoded
+    `'Y-m-d H:i:s'` instead of `static::$date_format`, so they disagreed with
+    `touch()` on any model that changed the format.
+
+-   The `date_format`, `after_or_equal` and `before_or_equal` messages left their
+    `:format` and `:date` placeholders in the text.
+
+-   `system/init.php` referenced `$stub` outside the branch that defined it, so
+    `_ide_helper.php` was never created once `key.php` existed.
+
+**Docs**
+
+-   `database/facile.md`, `input.md`, `views/home.md`, `routing.md`, `validation.md`,
+    `debugging.md` and `curl.md` updated for the changes above.

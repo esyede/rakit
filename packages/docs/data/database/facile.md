@@ -118,10 +118,12 @@ class User extends Facile
     // Enable soft deletes (default: false)
     public static $soft_delete = false;
 
-    // Attributes allowed for mass-assignment (default: null = all)
+    // Attributes allowed for mass-assignment (default: null).
+    // Set it and it decides on its own, $guarded is not consulted.
     public static $fillable = ['name', 'email', 'password'];
 
-    // Attributes not allowed for mass-assignment (default: [])
+    // Attributes not allowed for mass-assignment (default: ['*'], everything).
+    // Only consulted when $fillable is not set.
     public static $guarded = ['id', 'password'];
 
     // Attributes hidden when to_array() or to_json() (default: [])
@@ -477,10 +479,30 @@ class Log extends Facile
 
 Mass assignment allows you to fill multiple attributes at once.
 
+**A model accepts nothing until it says what it accepts.** `$guarded` defaults to
+`['*']`, so `fill()` and `create()` on a model that declares neither `$fillable`
+nor `$guarded` set no attributes at all:
+
+```php
+class User extends Facile
+{
+    // says nothing about mass assignment
+}
+
+$user = new User();
+$user->fill(Input::all());
+
+// $user->attributes is empty, whatever the request sent
+```
+
+That is deliberate: a request body reaches `create()` unchanged, and a column such
+as `id`, `role` or `is_admin` must never be settable just because it was named.
+
 <a id="fillable"></a>
 ### Fillable
 
-Whitelist attributes allowed for mass-assignment:
+Name the attributes a request is allowed to set. This is the usual way to open a
+model up:
 
 ```php
 class User extends Facile
@@ -488,42 +510,40 @@ class User extends Facile
     public static $fillable = ['name', 'email', 'password'];
 }
 
-// Only name, email, password will be filled
+// Only name, email and password are filled
 $user = User::create(Input::all());
 
-// role will not be filled even if in input
-// because not in $fillable
+// role is dropped even when the request sends it,
+// because it is not in $fillable
 ```
+
+**`$fillable` decides on its own.** Once it is set, `$guarded` is not consulted,
+so the default `['*']` does not have to be undone first.
 
 <a id="guarded"></a>
 ### Guarded
 
-Blacklist attributes not allowed for mass-assignment:
+The other way around: leave a model open and name the attributes to keep out.
+Only used when `$fillable` is **not** set:
 
 ```php
 class User extends Facile
 {
+    public static $fillable = null;          // leave it unset
     public static $guarded = ['id', 'is_admin'];
 }
 
-// All attributes can be filled except id and is_admin
+// Everything except id and is_admin can be filled
 $user = User::create(Input::all());
 ```
 
-Use `'*'` to close everything and open the model up through `$fillable` alone:
+This is the weaker of the two: a column added to the table later is mass-assignable
+the moment it exists, because nobody remembered to add it here. Prefer `$fillable`.
 
-```php
-class User extends Facile
-{
-    public static $guarded = ['*'];
-    public static $fillable = ['name', 'email'];
-}
-```
-
-> **Note:** If `$fillable` is not set, all attributes can be mass-assigned (except those in `$guarded`).
-> That default is permissive on purpose, but it does mean `Model::create(Input::all())` will
-> happily write any column the request names. Declare `$fillable`, or guard with `'*'`, on any
-> model that holds something a visitor should not be able to set.
+> **Upgrading:** `$guarded` used to default to `[]`, which left every attribute
+> mass-assignable. A model that already declares `$fillable` is unaffected. A model
+> that declares neither now accepts nothing, and needs a `$fillable` of its own.
+> `fill_raw()` bypasses both lists and is unchanged.
 
 <a id="model-validation"></a>
 ## Model Validation

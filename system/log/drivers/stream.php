@@ -46,18 +46,27 @@ class Stream extends Driver
      */
     protected function open($stream)
     {
+        $guard = '';
+
         if (false === strpos($stream, '://')) {
             $directory = dirname($stream);
 
             if (is_file($stream) ? ! is_writable($stream) : ! (is_dir($directory) && is_writable($directory))) {
                 throw new \RuntimeException(sprintf('Log stream is not writable: %s', $stream));
             }
+
+            // Read before the file is opened, opening it in append mode creates it.
+            $guard = static::guard($stream);
         }
 
         $handle = @fopen($stream, 'a');
 
         if (! is_resource($handle)) {
             throw new \RuntimeException(sprintf('Unable to open log stream: %s', $stream));
+        }
+
+        if ('' !== $guard) {
+            @fwrite($handle, $guard);
         }
 
         return $handle;

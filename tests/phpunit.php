@@ -60,10 +60,11 @@ require path('system') . 'core.php';
 // --------------------------------------------------------------
 System\Package::boot(DEFAULT_PACKAGE);
 
-// For test suite compatibility: existing tests were written when Model::$guarded default was []
-// Production code now defaults to ['*'] for secure mass-assignment.
-// Override for tests so legacy tests that rely on mass-assignment without explicit fillable still pass.
-// New models in application should define $fillable or $guarded explicitly.
+// Model::$guarded defaults to [] in the framework itself, so this assignment only
+// restates that default and changes nothing. It is kept so the suite keeps running
+// the way it does even if that default is ever tightened.
+// A model in an application should declare $fillable or $guarded of its own, since
+// an empty $guarded leaves fill() free to set every attribute it is handed.
 System\Database\Facile\Model::$guarded = [];
 
 // --------------------------------------------------------------

@@ -11,6 +11,16 @@ use System\Log\Formatter;
 abstract class Driver
 {
     /**
+     * The marker that keeps a log file from being served, and executed, by a
+     * web server whose document root happens to contain the storage directory.
+     * The framework cannot assume the server was configured to deny it, so the
+     * protection travels with the file rather than with the deployment.
+     *
+     * @var string
+     */
+    const GUARD = "<?php defined('DS') or exit('No direct access.');?>";
+
+    /**
      * Contains the channel configuration.
      *
      * @var array
@@ -121,6 +131,23 @@ abstract class Driver
     {
         $name = Str::slug((string) $this->option('name', $record['channel']));
         return ('' === $name) ? 'rakit' : $name;
+    }
+
+    /**
+     * Get the guard to write in front of the first entry of a log file.
+     * Only a file PHP would parse needs one, and only while it is being created:
+     * a guard appended to an existing file would sit behind whatever is already
+     * in it, which is exactly what it has to protect.
+     *
+     * @param string $file
+     *
+     * @return string
+     */
+    public static function guard($file)
+    {
+        return ('.php' === strtolower(substr((string) $file, -4)) && ! is_file($file))
+            ? static::GUARD.PHP_EOL
+            : '';
     }
 
     /**

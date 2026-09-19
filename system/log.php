@@ -427,8 +427,9 @@ class Log
             $file = path('storage').'logs'.DS.'rakit.log.php';
             $directory = dirname($file);
             $writable = is_file($file) ? is_writable($file) : (is_dir($directory) && is_writable($directory));
+            $payload = Log\Drivers\Driver::guard($file).implode(PHP_EOL, $lines).PHP_EOL;
 
-            if (! $writable || false === @file_put_contents($file, implode(PHP_EOL, $lines).PHP_EOL, FILE_APPEND | LOCK_EX)) {
+            if (! $writable || false === @file_put_contents($file, $payload, FILE_APPEND | LOCK_EX)) {
                 foreach ($lines as $line) {
                     @error_log($line);
                 }

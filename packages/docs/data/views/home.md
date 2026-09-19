@@ -695,7 +695,7 @@ return Response::make('content')
 | --------------------------------------------------------------- | ------------------------------------ |
 | `header($name, $value)`                                          | Set one header                       |
 | `with_headers(array $headers)`                                   | Set several headers at once          |
-| `with_cookie($name, $value, $minutes, $path, $domain, $secure)`  | Attach a cookie to the response      |
+| `with_cookie($name, $value, $minutes, $path, $domain, $secure, $samesite)` | Attach a cookie to the response |
 | `with_status_code($code)`                                        | Change the status code               |
 | `headers()`                                                      | Read all headers                     |
 | `status($status)`                                                | Read the status code, or set it      |
@@ -898,7 +898,8 @@ class Post_Controller extends Controller
         return View::make('posts.create');
     }
 
-    // Store post — use an allowlist (Model defaults to $guarded = [], so everything is mass-assignable)
+    // Store post — use an allowlist; Model::$guarded defaults to ['*'], so Post
+    // also needs a $fillable of its own before create() sets anything
     public function action_store()
     {
         $validation = Validator::make(Input::all(), [

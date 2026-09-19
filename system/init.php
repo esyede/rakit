@@ -13,6 +13,8 @@ defined('DS') or exit('No direct access.');
 
 $dir = __DIR__.DS.'foundation'.DS.'oops'.DS.'assets'.DS.'debugger';
 
+$stub = __DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system';
+
 if (is_file($path = path('rakit_key'))) {
     $ptrn = '/^(?:[a-f\d]{64}|[a-f\d]{8}(?:-[a-f\d]{4}){4}[a-f\d]{8})$/i';
     $error = null;
@@ -80,7 +82,6 @@ if (is_file($path = path('rakit_key'))) {
         }
     }
 
-    $stub = __DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system';
     file_put_contents(path('rakit_key'), str_replace(
         '00000000-0000-0000-0000-000000000000',
         bin2hex(openssl_random_pseudo_bytes(32)),

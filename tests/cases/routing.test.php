@@ -130,6 +130,30 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that multiple optional wildcards are closed independently
+     * instead of being nested into each other.
+     *
+     * @group system
+     */
+    public function testMultipleOptionalWildcardsAreNotNested()
+    {
+        Route::get('users/(:num?)/posts/(:num?)', function () {
+            return 'foo';
+        });
+
+        $uri = 'users/(:num?)/posts/(:num?)';
+
+        $this->assertEquals($uri, Router::route('GET', 'users/posts')->uri);
+        $this->assertEquals($uri, Router::route('GET', 'users/5/posts')->uri);
+        $this->assertEquals([5], Router::route('GET', 'users/5/posts')->parameters);
+        $this->assertEquals([5, 7], Router::route('GET', 'users/5/posts/7')->parameters);
+
+        // The 'posts' segment is a literal, so it can never be dropped.
+        $this->assertNull(Router::route('GET', 'users'));
+        $this->assertNull(Router::route('GET', 'users/5'));
+    }
+
+    /**
      * Test that basic route to controller can be handled correctly.
      *
      * @group system

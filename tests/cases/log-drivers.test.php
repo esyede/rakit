@@ -744,4 +744,47 @@ class LogDriversTest extends \PHPUnit_Framework_TestCase
             'stderr' => (string) file_get_contents($prefix.'.err'),
         ];
     }
+
+    /**
+     * A log file that PHP would parse must open with the guard, so a web server
+     * that serves the storage directory hands out nothing and runs nothing.
+     * A file that is not parsed as PHP is left alone.
+     *
+     * @group system
+     */
+    public function testPhpLogFilesAreGuardedAgainstDirectAccess()
+    {
+        $guard = \System\Log\Drivers\Driver::GUARD;
+
+        \System\Log::$drivers = [];
+        \System\Config::set('log.channels.guardprobe', [
+            'driver' => 'single',
+            'path' => $executable = $this->dir.DS.'guardprobe.log.php',
+        ]);
+        \System\Config::set('log.default', 'guardprobe');
+
+        // The message is the kind of thing an attacker gets into a log.
+        \System\Log::error('<?php echo "executed"; ?>');
+
+        $content = file_get_contents($executable);
+
+        $this->assertStringStartsWith($guard, $content);
+        $this->assertContains('executed', $content);
+
+        // What the guard is actually for: running the file produces nothing else.
+        $output = shell_exec(escapeshellarg(PHP_BINARY).' '.escapeshellarg($executable).' 2>&1');
+
+        $this->assertContains('No direct access.', (string) $output);
+        $this->assertNotContains('executed', (string) $output);
+
+        // A plain '.log' file is not executable, so it gets no guard noise.
+        \System\Log::$drivers = [];
+        \System\Config::set('log.channels.guardprobe', [
+            'driver' => 'single',
+            'path' => $plain = $this->dir.DS.'guardprobe.log',
+        ]);
+        \System\Log::error('plain');
+
+        $this->assertStringStartsNotWith($guard, file_get_contents($plain));
+    }
 }

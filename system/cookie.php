@@ -94,7 +94,19 @@ class Cookie
 
         $path = (! is_string($path) || empty($path)) ? '/' : $path;
 
+        // Rejected here as well as in the cookie itself, so a bad path fails at
+        // the call that set it rather than halfway through sending the response.
+        if (preg_match('/[,; \t\r\n\013\014]/', $path)) {
+            throw new \Exception('Cookie path must not contain a separator, a space or a line break.');
+        }
+
         if (! is_null($domain)) {
+            // FILTER_VALIDATE_DOMAIN on its own accepts a line break, which would
+            // let the domain carry a header of its own into the response.
+            if (preg_match('/[,; \t\r\n\013\014]/', (string) $domain)) {
+                throw new \Exception('Cookie domain must not contain a separator, a space or a line break.');
+            }
+
             if (PHP_VERSION_ID >= 70000) {
                 $check = (strpos($domain, '.') === 0) ? substr($domain, 1) : $domain;
 

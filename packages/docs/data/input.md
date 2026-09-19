@@ -74,10 +74,12 @@ $input = Input::get();
 **Example:**
 
 ```php
-// insecure — mass-assignment with Input::all() (Model defaults to $guarded = [])
+// Model::$guarded defaults to ['*'], so this sets nothing unless User
+// declares $fillable — and if it does, it hands the whole request body
+// to whatever that list allows.
 // $data = Input::all(); User::create($data);
 
-// secure — explicit allowlist
+// secure — explicit allowlist, whatever the model allows
 $data = Input::only('name', 'email', 'password');
 User::create($data);
 
@@ -546,7 +548,7 @@ Route::post('register', function () {
             ->with_errors($validation);
     }
     
-    // Create user — allowlist (Model defaults to $guarded = [])
+    // Create user — allowlist, independent of what the model allows
     $user = User::create(Input::only('name','email','password'));
     
     return Redirect::to('login')
@@ -600,7 +602,7 @@ Route::post('users', function () {
     $data = array_merge(Input::only('name','email'), [
         'user_id' => Auth::user()->id,
     ]);
-    // $fillable on User must allow only safe fields; role/admin stays guarded
+    // $fillable on User must list only safe fields; role/admin is never named
     User::create($data);
 });
 ```
@@ -669,6 +671,11 @@ Cookie::put('name', 'value', 60, '/', null, false, 'strict');
 ```
 
 > Cookies set through `Cookie` are always sent with the `HttpOnly` flag.
+
+> The name, the path and the domain are rejected when they carry a separator, a
+> space or a line break — the characters that would end the attribute, or the
+> header, early. The value needs no such care, it is encrypted and URL-encoded
+> before it reaches the header.
 
 <a id="delete-cookie"></a>
 ### Delete Cookie

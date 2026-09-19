@@ -201,7 +201,22 @@ Route::get('page/(:num?)', function ($page = 1) {
 | `(:all)`      | anything, including `/`                          | `path/to/file.txt`       |
 
 Append `?` to any of the above (e.g. `(:num?)`, `(:any?)`) to make the
-parameter optional. Optional parameters must be the last segment in the URI.
+parameter optional. Each optional segment stands on its own, so a route may carry
+several of them with literal segments in between:
+
+```php
+// matches users/posts, users/5/posts, users/posts/7 and users/5/posts/7
+Route::get('users/(:num?)/posts/(:num?)', function ($user = null, $post = null) {
+    // ..
+});
+```
+
+A literal segment is still required, so `users/5` does not match the route above.
+
+> **Note:** a default only applies to a parameter nothing follows. In
+> `users/posts/7` the first optional was skipped but the second was not, so the
+> closure receives `$user = ''` rather than `$user = null`. Check with `empty()`
+> when a route has an optional in front of another segment.
 
 **Usage examples:**
 

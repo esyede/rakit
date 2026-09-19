@@ -4,5 +4,13 @@ defined('DS') or exit('No direct access.');
 
 class stub_class extends Facile
 {
-    // ..
+    /**
+     * Attributes that may be mass-assigned through fill() and create().
+     * Facile guards everything by default, so nothing is accepted until it is
+     * named here. Never list a key, a role or any other attribute a request
+     * should not be able to set.
+     *
+     * @var array
+     */
+    public static $fillable = [];
 }

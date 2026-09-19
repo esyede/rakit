@@ -528,6 +528,22 @@ class Curl
             CURLOPT_ENCODING => '',
         ];
 
+        // This is an HTTP client, so keep libcurl on HTTP. Redirects are followed
+        // by libcurl itself and never pass through encode_url(), so without this a
+        // server being fetched could answer with a Location of 'file:///etc/passwd'
+        // and have its contents handed back to the caller.
+        if (defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')) {
+            $protocols = CURLPROTO_HTTP | CURLPROTO_HTTPS;
+
+            if (defined('CURLOPT_PROTOCOLS')) {
+                $defaults[CURLOPT_PROTOCOLS] = $protocols;
+            }
+
+            if (defined('CURLOPT_REDIR_PROTOCOLS')) {
+                $defaults[CURLOPT_REDIR_PROTOCOLS] = $protocols;
+            }
+        }
+
         $timeout = is_int(static::$socket_timeout) ? static::$socket_timeout : PHP_INT_MAX;
         curl_setopt_array(static::$handler, static::merge_options($defaults, static::$curl_options));
         curl_setopt(static::$handler, CURLOPT_TIMEOUT, $timeout);

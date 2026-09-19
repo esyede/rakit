@@ -418,6 +418,11 @@ Curl::verify_peer(false);
 Curl::verify_host(false);
 ```
 
+> Requests and redirects are both limited to `http` and `https`. Redirects are
+> followed by libcurl itself, so without that limit a server being fetched could
+> answer with a `Location` of `file:///etc/passwd` and have the contents handed
+> back to you. Use this component for HTTP only.
+
 <a id="additional-functions"></a>
 
 ## Additional Functions

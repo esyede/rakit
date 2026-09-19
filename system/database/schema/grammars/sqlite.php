@@ -164,7 +164,7 @@ class SQLite extends Grammar
     protected function defaults(Table $table, Magic $column)
     {
         if (isset($column->defaults) && null !== $column->defaults) {
-            return " DEFAULT '".str_replace("'", "''", $this->default_value($column->defaults))."'";
+            return " DEFAULT '".$this->default_value($column->defaults)."'";
         }
     }
 

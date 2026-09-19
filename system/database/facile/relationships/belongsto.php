@@ -116,7 +116,11 @@ class BelongsTo extends Relationship
      */
     public function bind($id)
     {
-        $this->base->fill([$this->foreign => $id])->save();
+        // Setting the foreign key is the framework relating two models it was
+        // handed, not untrusted input being mass-assigned, so it goes around
+        // $guarded. Through fill() it would do nothing on a guarded model.
+        $this->base->{$this->foreign} = $id;
+        $this->base->save();
         return $this->base;
     }
 

@@ -118,12 +118,12 @@ class Router
      * @var array
      */
     public static $optional = [
-        '/(:alpha?)' => '(?:/([a-zA-Z]+)',
-        '/(:num?)' => '(?:/([0-9]+)',
-        '/(:alnum?)' => '(?:/([a-zA-Z0-9]+)',
-        '/(:any?)' => '(?:/([a-zA-Z0-9\.\-_%=]+)',
-        '/(:segment?)' => '(?:/([^/]+)',
-        '/(:all?)' => '(?:/(.*)',
+        '/(:alpha?)' => '(?:/([a-zA-Z]+))?',
+        '/(:num?)' => '(?:/([0-9]+))?',
+        '/(:alnum?)' => '(?:/([a-zA-Z0-9]+))?',
+        '/(:any?)' => '(?:/([a-zA-Z0-9\.\-_%=]+))?',
+        '/(:segment?)' => '(?:/([^/]+))?',
+        '/(:all?)' => '(?:/(.*))?',
     ];
 
     /**
@@ -536,11 +536,12 @@ class Router
     {
         list($search, $replace) = Arr::divide(static::$optional);
 
-        $key = str_replace($search, $replace, $key, $count);
-        $key = strtr($key, static::$patterns);
-        $key .= ($count > 0) ? str_repeat(')?', $count) : '';
+        // Each optional group closes where it opens. Stacking the ')?' at the
+        // tail instead would nest them, making every optional segment depend
+        // on the one before it.
+        $key = str_replace($search, $replace, $key);
 
-        return $key;
+        return strtr($key, static::$patterns);
     }
 
     /**

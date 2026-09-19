@@ -18,6 +18,10 @@ class SQLite extends Grammar
      */
     protected function orderings(Query $query)
     {
+        if (empty($query->orderings)) {
+            return '';
+        }
+
         $sql = [];
 
         foreach ($query->orderings as $ordering) {

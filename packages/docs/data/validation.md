@@ -144,6 +144,10 @@ into what rules you can use to validate your data!
 -   [Array](#array)
 -   [Other Rules](#other-rules)
 
+> A rule that takes a parameter is rejected when it is written without one.
+> `'age' => 'min'` raises an `InvalidArgumentException` naming the rule, rather
+> than validating against a value that was never given. Write `'min:18'`.
+
 <a id="required"></a>
 
 ### Required

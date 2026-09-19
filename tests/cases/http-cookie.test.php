@@ -128,4 +128,39 @@ class HttpCookieTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(3600, $cookie->getExpiresTime());
     }
+
+    /**
+     * A path or domain carrying a separator or a line break would end the
+     * Set-Cookie attribute, or the header itself, early. Servers that render the
+     * header themselves have no setcookie() to fall back on, so the cookie
+     * refuses the characters rather than relying on what emits it.
+     *
+     * @group system
+     */
+    public function testRejectsPathAndDomainThatCouldSplitTheHeader()
+    {
+        $rejected = [
+            ["/\r\nSet-Cookie: admin=1", null],
+            ['/', "evil.com\r\nX-Injected: 1"],
+            ['/a;b', null],
+            ['/', 'evil .com'],
+            ["/a\tb", null],
+        ];
+
+        foreach ($rejected as $case) {
+            try {
+                new Cookie('name', 'value', 0, $case[0], $case[1]);
+                $this->fail('Expected the cookie to reject '.json_encode($case));
+            } catch (\InvalidArgumentException $e) {
+                $this->assertContains('invalid characters', $e->getMessage());
+            }
+        }
+
+        // What a real path and domain look like must still go through, including
+        // the '=' that PHP allows in a cookie path.
+        $cookie = new Cookie('name', 'value', 0, '/app/v1=2', '.example.com');
+
+        $this->assertContains('path=/app/v1=2', (string) $cookie);
+        $this->assertContains('domain=.example.com', (string) $cookie);
+    }
 }

@@ -1222,4 +1222,48 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(Validator::make($input, ['meta.age' => 'integer|min:40'])->valid());
         $this->assertTrue(Validator::make($input, ['meta.age' => 'numeric|between:20,40'])->valid());
     }
+
+    /**
+     * Every date rule, including the singular aliases, fills its :date/:format
+     * placeholder instead of leaving it in the message.
+     *
+     * @group system
+     */
+    public function testDateRuleMessagesHaveNoLeftoverPlaceholders()
+    {
+        $rules = [
+            'after:2020-01-01', 'after_or_equal:2020-01-01', 'after_or_equals:2020-01-01',
+            'before:2020-01-01', 'before_or_equal:2020-01-01', 'before_or_equals:2020-01-01',
+            'date_equals:2020-01-01', 'date_format:Y-m-d',
+        ];
+
+        foreach ($rules as $rule) {
+            $validator = Validator::make(['d' => 'garbage'], ['d' => $rule]);
+            $validator->fails();
+            $message = $validator->errors->first('d');
+
+            $this->assertNotEmpty($message, $rule);
+            $this->assertNotContains(':date', $message, $rule);
+            $this->assertNotContains(':format', $message, $rule);
+        }
+    }
+
+    /**
+     * A rule that needs a parameter is reported as malformed when it has none,
+     * instead of reading past the end of an empty parameter list.
+     *
+     * @group system
+     */
+    public function testParameterizedRuleWithoutParameterIsRejected()
+    {
+        try {
+            Validator::make(['d' => 'x'], ['d' => 'min'])->fails();
+            $this->fail('Expected an InvalidArgumentException for the parameterless rule.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertContains('min', $e->getMessage());
+        }
+
+        // The same rule with its parameter keeps working.
+        $this->assertTrue(Validator::make(['d' => 'abcd'], ['d' => 'min:3'])->valid());
+    }
 }

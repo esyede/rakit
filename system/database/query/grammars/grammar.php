@@ -82,7 +82,10 @@ class Grammar extends BaseGrammar
             return;
         }
 
-        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ').$this->columnize($query->selects);
+        // An empty column list still has to select something.
+        $selects = empty($query->selects) ? ['*'] : $query->selects;
+
+        return ($query->distinct ? 'SELECT DISTINCT ' : 'SELECT ').$this->columnize($selects);
     }
 
     /**
@@ -162,7 +165,7 @@ class Grammar extends BaseGrammar
      */
     final protected function wheres(Query $query)
     {
-        if (is_null($query->wheres)) {
+        if (empty($query->wheres)) {
             return '';
         }
 
@@ -172,9 +175,7 @@ class Grammar extends BaseGrammar
             $sql[] = $where['connector'].' '.$this->{$where['type']}($where);
         }
 
-        if (isset($sql)) {
-            return 'WHERE '.preg_replace('/AND |OR /i', '', implode(' ', $sql), 1);
-        }
+        return 'WHERE '.preg_replace('/AND |OR /i', '', implode(' ', $sql), 1);
     }
 
     /**
@@ -431,7 +432,7 @@ class Grammar extends BaseGrammar
      */
     protected function groupings(Query $query)
     {
-        return 'GROUP BY '.$this->columnize($query->groupings);
+        return empty($query->groupings) ? '' : 'GROUP BY '.$this->columnize($query->groupings);
     }
 
     /**
@@ -445,7 +446,7 @@ class Grammar extends BaseGrammar
     {
         $sql = [];
 
-        if (is_null($query->havings)) {
+        if (empty($query->havings)) {
             return '';
         }
 
@@ -473,6 +474,10 @@ class Grammar extends BaseGrammar
      */
     protected function orderings(Query $query)
     {
+        if (empty($query->orderings)) {
+            return '';
+        }
+
         $sql = [];
 
         foreach ($query->orderings as $ordering) {

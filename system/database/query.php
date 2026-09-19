@@ -794,7 +794,7 @@ class Query
      * @param string $column
      * @param string $sequence
      *
-     * @return int
+     * @return int|string|null
      */
     public function insert_get_id(array $values, $column = 'id', $sequence = null)
     {
@@ -803,7 +803,13 @@ class Query
         $this->connection->query($sql, $bindings);
         $id = $this->connection->pdo()->lastInsertId($sequence);
 
-        return $id ? (int) $id : null;
+        if (! $id) {
+            return null;
+        }
+
+        // Only cast to int when the driver hands back a pure-digit string.
+        // Non-integer keys (UUID, ULID, string keys) must survive as-is.
+        return (is_string($id) && ctype_digit($id)) ? (int) $id : $id;
     }
 
     /**
@@ -1043,7 +1049,8 @@ class Query
 
         call_user_func($callback, $query);
 
-        if (! is_null($query->wheres)) {
+        // An empty nested query would compile to '()', which is not valid sql.
+        if (! empty($query->wheres)) {
             $type = 'where_nested';
             $this->wheres[] = compact('type', 'query', 'connector');
         }

@@ -169,6 +169,18 @@ Every channel also accepts a `level` option, the minimum level it writes, and a
 `format` option: `line` for human-readable lines, or `json` for one JSON object
 per line.
 
+> A log file whose name ends in `.php` is created with a guard on its first line:
+>
+> ```php
+> <?php defined('DS') or exit('No direct access.');?>
+> ```
+>
+> A log holds whatever reached the application, so a file a web server would parse
+> as PHP has to refuse to run on its own. Rakit does not assume the server was
+> configured to deny `storage/`. Point a channel's `path` at a `.log` file and no
+> guard is written, the file is not executable either way. The same guard goes on
+> compiled views and on the debug bar's stored payloads.
+
 ```php
 'channels' => [
     'daily' => [

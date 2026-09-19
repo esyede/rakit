@@ -899,6 +899,14 @@ $id = DB::table('users')->insert_get_id([
 ], 'user_id');
 ```
 
+> The id comes back as an `int` when the driver hands back digits, and as the
+> string it gave otherwise, so a UUID or another non-numeric key survives. When
+> the driver has nothing to hand back, which is what happens for a key the
+> application generated itself, the result is `null`.
+>
+> PostgreSQL reads the id from a sequence, which a third argument names:
+> `insert_get_id($values, 'id', 'users_id_seq')`.
+
 **Batch insert:**
 
 ```php

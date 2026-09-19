@@ -294,7 +294,12 @@ class Autoloader
             } else {
                 try {
                     $path = path('storage') . 'logs' . DS . 'rakit.log.php';
-                    @file_put_contents($path, $message, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+
+                    // The guard is spelled out rather than taken from the log driver,
+                    // this runs while aliases are still being registered.
+                    $guard = is_file($path) ? '' : "<?php defined('DS') or exit('No direct access.');?>" . PHP_EOL;
+
+                    @file_put_contents($path, $guard . $message . PHP_EOL, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
                 } catch (\Throwable $ex) {
                     error_log($message);
                 } catch (\Exception $ex) {

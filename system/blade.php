@@ -7,6 +7,14 @@ defined('DS') or exit('No direct access.');
 class Blade
 {
     /**
+     * The marker that keeps a compiled view from being served directly by a web
+     * server whose document root contains the storage directory.
+     *
+     * @var string
+     */
+    const GUARD = "<?php defined('DS') or exit('No direct access.');?>";
+
+    /**
      * Directory where the cached views are stored.
      *
      * @var string
@@ -121,7 +129,10 @@ class Blade
             // throwing would happen twice.
             try {
                 if (! is_file($compiled) || static::expired($view->path)) {
-                    file_put_contents($compiled, static::compile($view), LOCK_EX);
+                    // A compiled view is executable PHP sitting in the storage
+                    // directory. Guarding the file rather than trusting the web
+                    // server to deny it keeps that true on any server.
+                    file_put_contents($compiled, static::GUARD.static::compile($view), LOCK_EX);
                 }
             } catch (\Throwable $e) {
                 return ltrim($view->get());

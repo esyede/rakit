@@ -59,7 +59,8 @@ class SQLServer extends Grammar
             $select .= 'TOP '.(int) $query->limit.' ';
         }
 
-        return $select.$this->columnize($query->selects);
+        // An empty column list still has to select something.
+        return $select.$this->columnize(empty($query->selects) ? ['*'] : $query->selects);
     }
 
     /**
@@ -72,7 +73,7 @@ class SQLServer extends Grammar
      */
     protected function ansi_offset(Query $query, $components)
     {
-        if (! isset($components['orderings'])) {
+        if (empty($components['orderings'])) {
             $components['orderings'] = 'ORDER BY (SELECT 0)';
         }
 

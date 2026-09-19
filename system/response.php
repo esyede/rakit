@@ -451,12 +451,13 @@ class Response
      * @param string $path
      * @param string $domain
      * @param bool   $secure
+     * @param string $samesite
      *
      * @return Response
      */
-    public function with_cookie($name, $value = null, $minutes = 0, $path = '/', $domain = null, $secure = false)
+    public function with_cookie($name, $value = '', $minutes = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
     {
-        Cookie::put($name, $value, $minutes, $path, $domain, $secure);
+        Cookie::put($name, $value, $minutes, $path, $domain, $secure, $samesite);
         return $this;
     }
 
