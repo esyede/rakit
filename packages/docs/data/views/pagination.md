@@ -28,7 +28,7 @@ ready for rendering.
 
 ## Using Query Builder
 
-Let's explore a complete example of pagination using [Query Builder](/docs/database/magic):
+A complete example with the [Query Builder](/docs/database/magic):
 
 #### Get paginated results from query:
 

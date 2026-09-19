@@ -28,12 +28,8 @@
 
 ## Basic Knowledge
 
-Curl is a common command used in Unix-based systems. Actually,
-this term is an abbreviation of "Client URL".
-
-Its uses include checking connectivity to a URL and transferring data.
-Additionally, this type of command can be used in various protocols. Curl is also equipped with
-[libcurl](https://curl.se/libcurl/), a client-side URL transfer library.
+`Curl` is an HTTP client built on [libcurl](https://curl.se/libcurl/), for talking to
+a URL and transferring data over it.
 
 > Don't forget to install the [PHP Curl](https://www.php.net/manual/en/book.curl.php)
 > extension on your server if it's not already there.
@@ -42,10 +38,7 @@ Additionally, this type of command can be used in various protocols. Curl is als
 
 ## Making Requests
 
-Rakit has provided several functionalities that you can use to work with Curl.
-For example, when you want to fetch data from third-party API providers.
-
-Here are some request types you can use:
+The request types:
 
 ```php
 Curl::get($url, $headers = [], $parameters = null)
@@ -66,9 +59,8 @@ Where:
 -   `$body` - is the request body in array format (for POST, PUT, PATCH, DELETE, TRACE)
 -   `$parameters` - is the query parameters in array format (for GET, HEAD, OPTIONS, CONNECT)
 
-In addition, you can also send requests following
-[standard methods](https://www.iana.org/assignments/http-methods)
-or custom methods as needed:
+Any other [standard method](https://www.iana.org/assignments/http-methods), or a
+custom one, goes through `request()`:
 
 ```php
 // Using available constant methods
@@ -85,7 +77,7 @@ Available standard HTTP methods as constants:
 - `Curl::LINK`, `Curl::UNLINK`, `Curl::MERGE`
 - And many more (see [IANA HTTP Methods](https://www.iana.org/assignments/http-methods))
 
-Now, let's try making a simple request using this component:
+A simple request:
 
 ```php
 $headers = ['Accept' => 'application/json'];
@@ -103,7 +95,7 @@ $response->raw_body;    // contains raw body string
 
 ### JSON Request
 
-To make a JSON request, please use the `body_json()` method like this:
+`body_json()` sends a JSON body:
 
 ```php
 $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/json'];
@@ -114,14 +106,15 @@ $body = Curl::body_json($data);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-With this method, the request body will be converted to JSON format via [json_encode](https://www.php.net/json_encode).
-The `'Content-Type'` header is **not** set for you, so pass `'application/json'` in your headers as shown above.
+The body goes through [json_encode](https://www.php.net/json_encode). The
+`'Content-Type'` header is **not** set for you, so pass `'application/json'` yourself,
+as above.
 
 <a id="form-request"></a>
 
 ### Form Request
 
-To make a form request, please use the `body_form()` method like this:
+`body_form()` sends a form body:
 
 ```php
 $headers = ['Accept' => 'application/json'];
@@ -131,14 +124,14 @@ $body = Curl::body_form($data);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-With this method, the request body will be converted to query string format via [http_build_query](https://www.php.net/http_build_query),
-which cURL sends with the `'application/x-www-form-urlencoded'` `'Content-Type'` by default.
+The body goes through [http_build_query](https://www.php.net/http_build_query), which
+cURL sends as `'application/x-www-form-urlencoded'`.
 
 <a id="multipart-request"></a>
 
 ### Multipart Request
 
-To make a multipart request, please use the `body_multipart()` method like this:
+`body_multipart()` sends a multipart body:
 
 ```php
 $headers = ['Accept' => 'application/json'];
@@ -149,14 +142,14 @@ $body = Curl::body_multipart($data);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-With this method, the body is kept as an array, so cURL sends it with the `'multipart/form-data'`
-`'Content-Type'` header and adds the `--boundary` automatically.
+The body stays an array, so cURL sends it as `'multipart/form-data'` and adds the
+`--boundary` itself.
 
 <a id="multipart-file"></a>
 
 ### Multipart File
 
-To make a file upload request, please use the `body_multipart()` method like this:
+A file upload goes through `body_multipart()` too:
 
 ```php
 $headers = ['Accept' => 'application/json'];
@@ -168,8 +161,7 @@ $body = Curl::body_multipart($data, $files);
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-However, if you want to further customize the properties of the uploaded file,
-you can do so with the `body_file()` method like this:
+`body_file()` gives more control over the uploaded file:
 
 ```php
 $headers = ['Accept' => 'application/json'];
@@ -183,16 +175,14 @@ $body = [
 $response = Curl::post('https://mockbin.com/request', $headers, $body);
 ```
 
-> In the example above, we do not use the `body_multipart()` method,
-> because it's not necessary when you add files manually.
+> No `body_multipart()` here: it is unnecessary once files are added by hand.
 
 <a id="custom-body"></a>
 
 ### Custom Body
 
-You can also send a custom request body without using the `body_xxx` methods above,
-for example, you can use the [serialize](https://www.php.net/serialize) function for the request body
-and also with a custom `Content-Type` like this:
+A body can also be sent as it is, with a `Content-Type` of your own — here through
+[serialize](https://www.php.net/serialize):
 
 ```php
 $headers = ['Accept' => 'application/json', 'Content-Type' => 'application/x-php-serialized'];
@@ -205,8 +195,7 @@ $response = Curl::post('https://mockbin.com/request', $headers, $body);
 
 ## Authentication
 
-By default, this component will use Basic Auth method so you only need to
-pass username and password _(optional)_ for your request authentication:
+Authentication defaults to Basic, so a username and password are enough:
 
 ```php
 // Basic auth (default)
@@ -220,8 +209,7 @@ Curl::auth('username', 'password', CURLAUTH_DIGEST);
 > them — including one to a different host. Call `Curl::clear_auth()`, or
 > `Curl::reset()`, before talking to somewhere else.
 
-In the 3rd parameter, you can specify what authentication method you need.
-Here is a list of supported authentication methods:
+The third parameter picks the method:
 
 | Method               | Description                                                                        |
 | -------------------- | ---------------------------------------------------------------------------------- |
@@ -235,17 +223,14 @@ Here is a list of supported authentication methods:
 | `CURLAUTH_ANYSAFE`   | See: [documentation](https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
 | `CURLAUTH_ONLY`      | See: [documentation](https://curl.se/libcurl/c/CURLOPT_HTTPAUTH.html)         |
 
-> If you pass more than one authentication method (using bitmask operator for example),
-> then by default, this component will first make a request to the destination URL
-> to see what authentication methods it supports, then adjust to the methods you passed.
-> _For some types of methods, this will cause an additional round-trip thus increasing the potential for timeout._
+> Passing more than one method, as a bitmask, makes cURL ask the server which ones it
+> supports before choosing. That is an extra round-trip, and one more chance to time out.
 
 <a id="cookie"></a>
 
 ## Cookie
 
-You can also add one or more cookie headers,
-written separated by semicolon and space like this:
+Cookie headers are written out, separated by a semicolon and a space:
 
 ```php
 $cookie = 'session=foo; logged=true';
@@ -253,7 +238,7 @@ $cookie = 'session=foo; logged=true';
 Curl::cookie($cookie);
 ```
 
-In addition to using string notation, you can also add cookie headers via file like this:
+Or read from a file:
 
 ```php
 $path = path('storage').'cookies.txt';
@@ -267,7 +252,7 @@ The file is used as both cURL's cookie file and cookie jar ([CURLOPT_COOKIEFILE]
 
 ## Response
 
-After the request is executed, this component will always return an `\stdClass` object with properties:
+Every request answers with an `\stdClass` carrying:
 
 -   `code` - which will contain the http status code (e.g. `200`)
 -   `headers` - which will contain the http response headers (as an array)
@@ -278,14 +263,11 @@ After the request is executed, this component will always return an `\stdClass` 
 
 ## Advanced Configuration
 
-Of course, you can further configure this component to suit your needs.
-
 <a id="json-decode"></a>
 
 ### JSON Decode
 
-To change the default JSON decode behavior of this component, please use
-the `json_options()` method like this:
+`json_options()` changes how the response body is decoded:
 
 ```php
 $associative = true; // Return as associative array
@@ -299,7 +281,7 @@ Curl::json_options($associative, $depth, $flags);
 
 ### Timeout
 
-You can also set how long the request should take until it times out:
+How long a request may take before it times out:
 
 ```php
 Curl::timeout(5); // Request times out after 5 seconds
@@ -309,9 +291,8 @@ Curl::timeout(5); // Request times out after 5 seconds
 
 ### Proxy
 
-You can also set a proxy for the request. The proxy types that can be used include:
-`CURLPROXY_HTTP`, `CURLPROXY_HTTP_1_0`, `CURLPROXY_SOCKS4`,
-`CURLPROXY_SOCKS5`, `CURLPROXY_SOCKS4A`, and `CURLPROXY_SOCKS5_HOSTNAME`.
+A proxy, of type `CURLPROXY_HTTP`, `CURLPROXY_HTTP_1_0`, `CURLPROXY_SOCKS4`,
+`CURLPROXY_SOCKS5`, `CURLPROXY_SOCKS4A` or `CURLPROXY_SOCKS5_HOSTNAME`:
 
 > Complete guide on proxy types can be seen on the
 > [cURL documentation page](https://curl.se/libcurl/c/CURLOPT_PROXYTYPE.html)
@@ -345,15 +326,14 @@ Curl::proxy_auth('username', 'password', CURLAUTH_DIGEST);
 
 ### Default Headers
 
-You can also declare default headers that will be used for every request,
-so you don't have to repeat their declaration on every request:
+Default headers are sent with every request, so they need writing only once:
 
 ```php
 Curl::default_header('Header1', 'Value1');
 Curl::default_header('Header2', 'Value2');
 ```
 
-Need to declare several default headers at once? Easy:
+Several at once:
 
 ```php
 Curl::default_headers([
@@ -362,7 +342,7 @@ Curl::default_headers([
 ]);
 ```
 
-In addition, you can also clear all the default headers you declared earlier:
+And to clear them all:
 
 ```php
 Curl::clear_default_headers();
@@ -372,14 +352,13 @@ Curl::clear_default_headers();
 
 ### Default cURL Options
 
-You can also declare default [cURL options](https://www.php.net/curl_setopt)
-that will be used on every request:
+Default [cURL options](https://www.php.net/curl_setopt) apply to every request too:
 
 ```php
 Curl::curl_option(CURLOPT_COOKIE, 'foo=bar');
 ```
 
-Need to declare several default options at once?
+Several at once:
 
 ```php
 Curl::curl_options([
@@ -387,7 +366,7 @@ Curl::curl_options([
 ]);
 ```
 
-Of course, you can also clear all the default options you declared earlier:
+And to clear them all:
 
 ```php
 Curl::clear_curl_options();
@@ -405,8 +384,7 @@ Curl::reset();
 
 ### SSL Validation
 
-By default, this component enables SSL validation (peer and host verification).
-To change this, please use the following method:
+SSL validation, of both peer and host, is on by default:
 
 ```php
 // Enable SSL validation
@@ -427,7 +405,7 @@ Curl::verify_host(false);
 
 ## Additional Functions
 
-This component also provides some additional functions for advanced needs:
+A few more, for advanced needs:
 
 > On PHP versions below 8.0 the handler is closed right after each request,
 > so `info()` and `handler()` are only usable on PHP 8.0 or newer.

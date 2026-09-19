@@ -19,14 +19,12 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The `Messages` class provides an easy way to collect and display messages. This class is very useful for displaying error messages, notifications, or any other type of messages.
-
-This class is automatically used by the validation system to store error messages, but you can also use it manually for other purposes.
+`Messages` collects messages keyed by name and hands them back for display: validation errors, notifications, anything else. The validator fills one for you, but it works on its own too.
 
 <a id="creating-instance"></a>
 ## Creating Instance
 
-You can create a `Messages` instance with or without initial data:
+With or without initial data:
 
 ```php
 use System\Messages;
@@ -64,7 +62,7 @@ $messages->add('password', 'Password must be at least 6 characters.');
 <a id="checking-messages"></a>
 ## Checking Messages
 
-You can check if there are messages for a specific key or if there are any messages at all:
+Per key, or across every key:
 
 ```php
 // Check if there are messages for 'email'
@@ -138,7 +136,7 @@ $all_errors = $messages->all('<p class="alert">:message</p>');
 <a id="format-output"></a>
 ## Format Output
 
-You can set the default format for all messages using the `format()` method:
+`format()` sets the default format for every message:
 
 ```php
 $messages = new Messages();
@@ -191,7 +189,7 @@ $messages->to_json();                    // the same thing as JSON
 <a id="usage-with-validation"></a>
 ## Usage With Validation
 
-The `Messages` class is automatically used by the validation system. When validation fails, you can access error messages through the `$errors` property:
+The validator fills a `Messages` instance, reachable through `$errors` when validation fails:
 
 ```php
 $validation = Validator::make(Input::all(), [

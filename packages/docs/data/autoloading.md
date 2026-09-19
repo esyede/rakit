@@ -16,11 +16,8 @@
 
 ## Basic Knowledge
 
-Autoloading allows you to lazy-load class files (load class files only when needed)
-without explicitly calling `require()` or `include()`.
-
-So, only the classes you actually need will be loaded in your application, and you
-can directly use the classes you want without having to manually load them.
+Autoloading loads a class file the first time the class is used, so nothing needs a
+`require()` of its own and nothing unused is ever read.
 
 By default, the `application/controllers/`, `application/models/`, `application/libraries/`,
 `application/commands/` and `application/jobs/` folders are autoloaded via
@@ -32,23 +29,17 @@ behind it is read from `application/observers/`, and one named with
 lives in `observers/user.php`, and `Blog_Post_Transformer` of the `blog` package
 in `packages/blog/transformers/post.php`.
 
-The autoloader in Rakit follows the `class name same as file name` convention, where the file name
-is written in all lowercase letters.
+The convention is one class per file, the file named after the class in lowercase:
+`User` in `models/` lives in `models/user.php`.
 
-So for example, the `User` class placed in the `models/` folder must be placed in a file
-named `user.php` to be automatically loaded.
-
-You can also place it in subfolders. Just give the class namespace following
-the folder structure you create. So, the `Entities\User` class should be placed in
-the `entities/user.php` file inside the `models/` folder.
+Subfolders follow the namespace, so `Entities\User` lives in
+`models/entities/user.php`.
 
 <a id="registering-folders"></a>
 
 ## Registering Folders
 
-As explained above, the `models/` and `libraries/` folders (among others) are by default
-registered to autoload; but, you can also register any folder you
-like using the same convention:
+Any other folder can be registered under the same convention:
 
 #### Registering several folders to the autoloader:
 
@@ -63,9 +54,8 @@ Autoloader::directories([
 
 ## Registering Mappings
 
-Sometimes you may want to map classes manually to their related files. This is the way
-to load classes most efficiently because the autoloader doesn't have to scan folders
-to find where your class locations are:
+Mapping a class straight to its file is the fastest route, since the autoloader has
+no folders to scan:
 
 #### Registering mapping to the autoloader:
 
@@ -85,8 +75,7 @@ Many third-party libraries use PSR-4 and PSR-0 standards for autoloading their c
 state that class names must match their file names, including case sensitivity
 and folder structure indicated by the namespace.
 
-If you use libraries with such conventions, just register the root namespace
-and its folder location to the autoloader. Rakit will handle the rest.
+Register the root namespace and its folder, and the autoloader takes care of the rest.
 
 #### Registering namespace to the autoloader:
 
@@ -96,17 +85,10 @@ Autoloader::namespaces([
 ]);
 ```
 
-Before namespaces existed in PHP, many libraries used _underscore_ as
-their folder indicators.
-
-If you want to use libraries with such conventions, you can still
-register them to the autoloader.
-
-For example, if you want to use the old version of [SwiftMailer](https://github.com/swiftmailer/swiftmailer),
-you might notice that all their class names start with `Swift_`.
-
-So, what we need to register to the autoloader is the word `Swift`, where that word
-is their root namespace.
+Before PHP had namespaces, libraries used an _underscore_ as the folder separator.
+Those register the same way, under their prefix: every class of the old
+[SwiftMailer](https://github.com/swiftmailer/swiftmailer) starts with `Swift_`, so
+`Swift` is the name to register.
 
 #### Registering underscored classes to the autoloader:
 
@@ -183,15 +165,9 @@ $redis = Redis::db();
 
 ## Composer Autoloader
 
-Of course you've used [Composer](https://getcomposer.org). Composer generally
-comes with its own autoloader, which by default is located at `vendor/autoload.php`.
-
-So, our task here is just to include that file into our application so that libraries installed by it can be recognized by Rakit.
-
-It's quite easy, just edit the `application/config/application.php` file and fill
-the `composer_autoload` option with the <ins>absolute path</ins> where that autoload file is located.
-
-So if your autoload file is located at `<root>/vendor/autoload.php` then fill it like this:
+[Composer](https://getcomposer.org) brings its own autoloader, usually at
+`vendor/autoload.php`. Point the `composer_autoload` option of
+`application/config/application.php` at it, with an <ins>absolute path</ins>:
 
 ```php
 'composer_autoload' => path('base').'vendor/autoload.php',
@@ -204,27 +180,22 @@ So if your autoload file is located at `<root>/vendor/autoload.php` then fill it
 
 ### Notes for vendor folder
 
-It should be noted that by default, **there is no protection** provided if
-the `vendor/` folder is placed in the root folder, which means all files and subfolders inside it
-can be accessed by the public.
-
-This is certainly very dangerous because they will know what libraries you are using.
-For this, we provide several options to handle this:
+A `vendor/` folder in the document root is **not protected** by default: every file
+in it is public, which tells a visitor exactly which libraries you run. Two ways to
+close that:
 
 #### Option 1: URL Rewrite
 
-If you are using Apache or Nginx, follow the guide
-[pretty URLs](/docs/install#pretty-urls) because in that feature, we have
-also provided rules to protect the vendor folder.
+The Apache and Nginx snippets under [pretty URLs](/docs/install#pretty-urls) already
+carry rules that deny the vendor folder.
 
 #### Option 2: Place above document root
 
-If your hosting allows uploading files to folders above the document root, place your
-vendor folder there, then change your `composer_autoload` configuration to something like this:
+If your hosting allows it, move the vendor folder above the document root and point
+`composer_autoload` at its new place:
 
 ```php
 'composer_autoload' => dirname(path('base')).'/vendor/autoload.php',
 ```
 
-With that, your vendor folder will not be accessible by the public and you can still
-use the libraries you install via composer.
+The folder is then out of reach, and the libraries still load.

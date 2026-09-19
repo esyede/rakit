@@ -12,8 +12,7 @@ if (! function_exists('e')) {
      */
     function e($value)
     {
-        // A value that says it is already html is printed as it is, which is
-        // what lets {{ $slot }} and {{ $attributes }} carry markup.
+        // Htmlable prints as-is; that is what lets {{ $slot }} carry markup.
         if ($value instanceof \System\Htmlable) {
             return $value->to_html();
         }
@@ -105,8 +104,7 @@ if (! function_exists('measure')) {
 
 if (! function_exists('start_measure')) {
     /**
-     * Start a named measure on the debug bar Timeline. Pair with stop_measure()
-     * to time a region of code that is not a single callback.
+     * Start a named measure on the debug bar Timeline. Pair with stop_measure().
      *
      * @param string $name
      *
@@ -120,8 +118,7 @@ if (! function_exists('start_measure')) {
 
 if (! function_exists('stop_measure')) {
     /**
-     * Stop a measure previously started with start_measure() and record it on
-     * the debug bar Timeline.
+     * Stop a measure started with start_measure() and record it on the Timeline.
      *
      * @param string      $name
      * @param string|null $label
@@ -772,8 +769,7 @@ if (! function_exists('root_namespace')) {
 
 if (! function_exists('class_basename')) {
     /**
-     * Get the class basename of a class or object.
-     * Class basename is the class name without namespace.
+     * Get the class name without its namespace.
      *
      * @param object|string $class
      *
@@ -787,8 +783,7 @@ if (! function_exists('class_basename')) {
 
 if (! function_exists('value')) {
     /**
-     * Return the value of an item.
-     * If the item is a Closure, the result of its execution will be returned.
+     * Return the value of an item, calling it first if it is a Closure.
      *
      * @param mixed $value
      *

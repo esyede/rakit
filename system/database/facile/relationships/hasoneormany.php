@@ -10,8 +10,7 @@ use System\Database\Facile\Model;
 class HasOneOrMany extends Relationship
 {
     /**
-     * Insert a new record for the relationship.
-     * If a Model instance is passed, it will be saved directly.
+     * Insert a record for the relationship; a Model instance is saved directly.
      *
      * @param Model|array $attributes
      *

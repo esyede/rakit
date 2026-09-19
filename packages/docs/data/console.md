@@ -59,14 +59,14 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Rakit Console is a CLI tool that provides various commands to help with application development. These commands can help you create controllers, models, migrations, run migrations, clear cache, and more.
+The console is a CLI tool for the everyday work of building an application: creating controllers, models and migrations, running migrations, clearing caches and more.
 
 The console can be accessed through the `rakit` file in your project's root directory.
 
 <a id="running-commands"></a>
 ## Running Commands
 
-To run a command, open the terminal and navigate to the project root directory, then run:
+Run a command from the project root:
 
 ```bash
 php rakit command:name [arguments] [options]

@@ -190,8 +190,7 @@ class HasManyThrough extends Relationship
     }
 
     /**
-     * Get the through key name.
-     * It usess the singular form of the through table name.
+     * Get the through key name, from the singular of the through table.
      *
      * @return string
      */

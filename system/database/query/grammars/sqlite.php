@@ -27,8 +27,7 @@ class SQLite extends Grammar
         foreach ($query->orderings as $ordering) {
             $direction = strtoupper((string) $ordering['direction']);
 
-            // A raw ordering is used as is. Appending a collation to it would
-            // break the sql, since COLLATE has to come before ASC / DESC.
+            // Raw ordering is left alone: COLLATE has to come before ASC / DESC.
             if ($ordering['column'] instanceof Expression) {
                 $sql[] = rtrim($this->wrap($ordering['column']) . ' ' . $direction);
                 continue;
@@ -41,8 +40,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Compile the INSERT statement.
-     * This method handles inserting multiple records at once using a single query.
+     * Compile the INSERT statement, several records in one query.
      *
      * @param Query $query
      * @param array $values
@@ -85,9 +83,8 @@ class SQLite extends Grammar
     }
 
     /**
-     * Compile a date based function call on an already wrapped column.
-     * SQLite only knows strftime(). The day, month and year parts are cast to an
-     * integer, otherwise the zero padded text it returns would never equal 1.
+     * Compile a date function on a wrapped column. SQLite only has strftime(), whose
+     * zero padded text is cast to an integer so it can equal 1.
      *
      * @param string $type
      * @param string $column
@@ -103,9 +100,7 @@ class SQLite extends Grammar
     }
 
     /**
-     * Compile the row locking clause.
-     * SQLite locks the whole database file for the duration of a transaction,
-     * so there is no row level lock to ask for and nothing to compile.
+     * Compile the row locking clause. SQLite locks the whole file, so there is none.
      *
      * @param Query $query
      *

@@ -636,8 +636,7 @@ class Str
                 static::$ulids['chars'][$i] = 0;
             }
 
-            // Every character was already at its maximum value, so the randomness
-            // part has wrapped around. Re-seed it instead of writing to index -1.
+            // Randomness wrapped around: re-seed instead of writing to index -1.
             if ($i < 0) {
                 for ($i = 0; $i < 16; $i++) {
                     static::$ulids['chars'][$i] = static::integers(0, 31);
@@ -1140,8 +1139,7 @@ class Str
             throw new \Exception(sprintf('Overriding framework method with macro is unsupported: Str::%s()', $name));
         }
 
-        // A macro named after one of these would run for Str::foo() and be
-        // ignored for Str::of()->foo(), which is one name with two meanings.
+        // A macro with one of these names would mean two things: reject it.
         if (method_exists('\System\Stringable', $name)) {
             throw new \Exception(sprintf('Overriding framework method with macro is unsupported: Stringable::%s()', $name));
         }
@@ -1159,8 +1157,7 @@ class Str
      */
     public static function __callStatic($method, $parameters)
     {
-        // Falling back to ['\System\Str', $method] would land right back here
-        // for a name that does not exist, and recurse until the stack gives out.
+        // Falling back to Str::$method would recurse back here for unknown names.
         if (! array_key_exists($method, static::$macros)) {
             throw new \BadMethodCallException(sprintf('Method does not exist: %s', $method));
         }

@@ -14,20 +14,15 @@
 
 ## Basic Knowledge
 
-Suppose you are working in a team, and each individual in your team has a local database for development.
-
-A team member makes changes to the database, adding a new column. You pull the code with Git and try it locally,
-then your application breaks because you don't have that new column yet. What would you do?
-
-Migrations are the answer. Migrations can be used as version control for your database. Let's dig deeper to find out how to use them!
+Migrations are version control for your database. Without them, a column a teammate
+added lives only in their local database, and your checkout breaks the moment you
+pull their code.
 
 <a id="setting-up-the-database"></a>
 
 ## Setting Up the Database
 
-Before running migrations, we need to do some work on your database.
-Rakit uses a special table to record which migrations have been run.
-To create that table, just run the following console command:
+Rakit records the migrations it has run in a table of its own. Create it with:
 
 **Creating the migration record table:**
 
@@ -43,7 +38,7 @@ php rakit migrate:install
 
 ## Creating Migration Files
 
-You can easily create migrations through the [console](/docs/console) like this:
+Create a migration through the [console](/docs/console):
 
 **Creating a migration file:**
 
@@ -51,8 +46,8 @@ You can easily create migrations through the [console](/docs/console) like this:
 php rakit make:migration create_users_table
 ```
 
-Now, try opening the `application/migrations/` folder. You will see the new migration file you created there!
-Note that the filename is prefixed with a timestamp. This allows Rakit to run your migrations in the correct order.
+The file lands in `application/migrations/`, its name prefixed with a timestamp so
+the migrations run in order.
 
 You can also create migration files for a package.
 
@@ -92,8 +87,8 @@ php rakit migrate nama_package
 
 ## Roll Back
 
-When you perform a roll back, all your migration operations will be reverted.
-So, if the last migration command ran 122 migration operations, then those 122 operations will be reverted.
+A roll back reverts every operation of the last batch: 122 migrations run means 122
+reverted.
 
 **Roll back the last migration batch:**
 

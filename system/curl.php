@@ -268,9 +268,8 @@ class Curl
     }
 
     /**
-     * Drop every setting made so far, back to how the class starts out.
-     * Worth calling before talking to a different host, so credentials meant
-     * for one endpoint are not sent along to another.
+     * Reset every setting. Call it before switching host, so credentials meant for
+     * one endpoint are not sent to another.
      */
     public static function reset()
     {
@@ -523,15 +522,12 @@ class Curl
             CURLOPT_HEADER => true,
             CURLOPT_SSL_VERIFYPEER => (bool) static::$verify_peer,
             CURLOPT_SSL_VERIFYHOST => ((int) static::$verify_host > 0) ? 2 : 0,
-            // Accept-Encoding, not a character set: an empty string asks for
-            // every content encoding this build of libcurl can decode.
+            // Accept-Encoding, not a charset: '' asks for every encoding libcurl knows.
             CURLOPT_ENCODING => '',
         ];
 
-        // This is an HTTP client, so keep libcurl on HTTP. Redirects are followed
-        // by libcurl itself and never pass through encode_url(), so without this a
-        // server being fetched could answer with a Location of 'file:///etc/passwd'
-        // and have its contents handed back to the caller.
+        // Keep libcurl on HTTP: redirects bypass encode_url(), so a Location of
+        // 'file:///etc/passwd' would otherwise be fetched and handed to the caller.
         if (defined('CURLPROTO_HTTP') && defined('CURLPROTO_HTTPS')) {
             $protocols = CURLPROTO_HTTP | CURLPROTO_HTTPS;
 
@@ -652,8 +648,7 @@ class Curl
     }
 
     /**
-     * Prepare file for request body.
-     * For use in request parameter declaration.
+     * Prepare a file for use as a request parameter.
      *
      * @param string $path
      * @param string $alias

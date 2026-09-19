@@ -15,7 +15,7 @@
 
 ## Basic Knowledge
 
-Imagine your application displays the ten most popular songs selected by users. Do you really need to search for these ten songs every time someone visits your site? What if you could store them for 10 minutes, or even an hour, allowing you to dramatically speed up your application? This caching library can do that.
+A list of the ten most popular songs does not need recomputing on every visit. Caching it for ten minutes, or an hour, takes that work off the request.
 
 By default, 6 cache drivers have been provided:
 
@@ -26,7 +26,7 @@ By default, 6 cache drivers have been provided:
 -   Redis
 -   Memory (Array)
 
-By default, Rakit is configured to use the `'file'` cache driver. This makes it ready to use without additional configuration. This driver stores cached items as files in the `storage/cache/` directory. If you are satisfied with this driver, no other configuration is required. You are ready to start using it.
+Rakit uses the `'file'` driver by default, storing items in `storage/cache/`. It needs no further configuration.
 
 > Before using the `'file'` cache driver, make sure your `storage/cache/` directory is writable.
 
@@ -47,8 +47,6 @@ key        - VARCHAR
 value      - TEXT
 expiration - VARCHAR
 ```
-
-Great! After your config and table are configured, you are ready to start caching!
 
 <a id="memcached-driver"></a>
 
@@ -88,13 +86,13 @@ Before using this Redis driver, you must [configure your Redis server](/docs/dat
 
 ## Memory Driver
 
-The `'memory'` cache driver doesn't actually store anything to disk. It only maintains an internal array of cache data for the current request. This makes it useful when you are unit-testing your application in isolation from any storage mechanism. This driver **should not** be used on production servers!
+The `'memory'` driver keeps an array for the current request and writes nothing to disk, which suits unit tests. It **must not** be used in production.
 
 <a id="cache-key"></a>
 
 ## Cache Key
 
-To avoid naming collisions with other applications using APC, Redis, Memcached, or the same database table, Rakit prefixes every item stored in the cache using these drivers with the _'key'_ option followed by a dot (for example `rakit.`). Feel free to change this:
+APC, Redis, Memcached and a shared database table may hold other applications' data, so every item is prefixed with the _'key'_ option and a dot (`rakit.`). Change it as you like:
 
 ```php
 'key' => 'rakit'

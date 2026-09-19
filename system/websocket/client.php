@@ -169,8 +169,7 @@ class Client
             $result = strlen($message);
         }
 
-        // The handlers are protected on the server, so they are called through fire().
-        // Reading them from here never saw a handler, and is a fatal error on PHP 5.4.0.
+        // Server handlers are protected: reach them through fire(), not directly.
         $this->server()->fire('send', [$this, $opcode, $data]);
 
         return $result;

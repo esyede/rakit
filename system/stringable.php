@@ -475,8 +475,7 @@ class Stringable
      */
     public function explode($delimiter, $limit = null)
     {
-        // An empty delimiter throws on PHP 8 and answers FALSE on the versions
-        // before it, so it is refused the same way everywhere.
+        // An empty delimiter throws on PHP 8 and returns false before it: refuse both.
         if ('' === (string) $delimiter) {
             throw new \InvalidArgumentException('The delimiter to explode on must not be empty.');
         }
@@ -507,8 +506,7 @@ class Stringable
     }
 
     /**
-     * Run the callback when the condition holds. Whatever it returns takes the
-     * place of the string, and returning nothing leaves the string alone.
+     * Run the callback when the condition holds; what it returns replaces the string.
      *
      * @param mixed    $condition
      * @param callable $callback
@@ -574,8 +572,7 @@ class Stringable
     }
 
     /**
-     * Handle calls to the macros registered on Str. A macro that gives back a
-     * string keeps the chain going.
+     * Call a macro registered on Str, rewrapping a string result to keep the chain.
      *
      * @param string $method
      * @param array  $parameters

@@ -56,8 +56,7 @@ class Section
     }
 
     /**
-     * Inject content into a section.
-     * This will replace the existing content of the section.
+     * Inject content into a section, replacing whatever it held.
      *
      * @param string $section
      * @param string $content
@@ -118,8 +117,7 @@ class Section
             return '';
         }
 
-        // Any '@parent' still standing had no parent content to take, so it
-        // drops out rather than being printed to the page as text.
+        // A leftover '@parent' had no parent content, so drop it instead of printing it.
         return str_replace('@parent', '', static::$sections[$section]);
     }
 

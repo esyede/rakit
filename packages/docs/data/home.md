@@ -15,47 +15,41 @@
 
 ## Basic Knowledge
 
-This documentation works as both a getting-started guide and a feature reference.
-Each topic is short and self-contained, so you can jump to any section. New users
-should still read the early chapters in order — later chapters build on them.
+This documentation is both a getting-started guide and a feature reference. Topics
+are self-contained, so you can jump anywhere, but the early chapters are worth
+reading in order.
 
 <a id="what-is-rakit"></a>
 
 ## What is Rakit?
 
-Rakit is a small, easy-to-learn PHP framework. It is familiar to anyone who has
-used a popular PHP framework before, and it lets you organize larger applications
-into reusable packages without ceremony.
+Rakit is a small PHP framework. If you have used another one it will look familiar,
+and it organizes larger applications into reusable packages.
 
-The codebase is intentionally compact. The same flexibility you get for small
-prototypes scales up to production apps, and the source is short enough to read
-when you need to understand what is happening under the hood.
+The codebase is deliberately compact: short enough to read when you need to know
+what it is doing, and the same code serves prototypes and production.
 
 <a id="application-structure"></a>
 
 ## Application Structure
 
-The directory layout is similar to other PHP frameworks, so you should feel at
-home. Throughout the docs we show the default location for every component
-discussed.
+The directory layout follows the usual conventions. Every chapter names the
+default location of the component it covers.
 
 <a id="community-support"></a>
 
 ## Community Support
 
-The [Forum](https://github.com/esyede/rakit/discussions) is the place to ask
-questions, share suggestions, or follow along with what other users are doing.
-Both new and experienced users are welcome — answering someone else's question
-is also a great way to learn.
+Ask questions and share suggestions on the
+[Forum](https://github.com/esyede/rakit/discussions). Answering someone else's
+question is a good way to learn too.
 
 
 <a id="donations"></a>
 
 ## Donations
 
-Rakit is an open-source project maintained by volunteers. If it is useful to
-you, please consider donating — every contribution helps keep development
-going.
+Rakit is maintained by volunteers. If it is useful to you, consider donating.
 
 <a href='https://ko-fi.com/A0A61UOVND' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi6.png?v=6' border='0' alt='Buy Me a Coffee' /></a>
 
@@ -67,6 +61,5 @@ going.
 Rakit is open-source software released under the
 [MIT License](https://opensource.org/license/mit).
 
-This means you may modify, redistribute, and use it for
-personal or commercial needs, provided that you include the original creator information,
-and there is no warranty or liability for any damages caused.
+You may modify, redistribute and use it personally or commercially, as long as you
+keep the original attribution. It comes with no warranty.

@@ -280,8 +280,7 @@ class Response
     }
 
     /**
-     * Set response content.
-     * (Can be a string, number, or object implementing the __toString() magic method).
+     * Set the response content: a string, a number, or anything with __toString().
      *
      * @param mixed $content
      *
@@ -412,8 +411,7 @@ class Response
     }
 
     /**
-     * Check if the response is still 'fresh'.
-     * A response is considered fresh when its time-to-live is greater than zero.
+     * Check if the response is still fresh, meaning its time-to-live is above zero.
      *
      * @return bool
      */
@@ -433,8 +431,7 @@ class Response
     }
 
     /**
-     * Mark the response as 'private'.
-     * This will make the response unusable for serving other clients.
+     * Mark the response private, so it may not be served to another client.
      *
      * @return $this
      */
@@ -446,8 +443,7 @@ class Response
     }
 
     /**
-     * Mark the response as 'public'.
-     * This will make the response usable for serving other clients.
+     * Mark the response public, so it may be served to other clients.
      *
      * @return $this
      */
@@ -529,8 +525,7 @@ class Response
     }
 
     /**
-     * Set the Expires header value.
-     * If NULL is passed, the Expires header will be removed.
+     * Set the Expires header, or remove it when given NULL.
      *
      * @param \DateTime|null $date
      *
@@ -644,8 +639,7 @@ class Response
     }
 
     /**
-     * Set the Last-Modified header value.
-     * If NULL is passed, the Last-Modified header will be removed.
+     * Set the Last-Modified header, or remove it when given NULL.
      *
      * @param \DateTime|null $date
      *
@@ -695,8 +689,7 @@ class Response
     }
 
     /**
-     * Set headers for caching.
-     * Available options are: etag, last_modified, max_age, s_maxage, private, and public.
+     * Set the caching headers: etag, last_modified, max_age, s_maxage, private, public.
      *
      * @param array $options
      *

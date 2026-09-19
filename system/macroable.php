@@ -76,9 +76,8 @@ trait Macroable
         }
 
         $macro = static::$macros[$method];
-        // Running __CLASS__ inside a trait corrupts the constant table of PHP 5.4.0, a later
-        // get_defined_constants(true) then crashes. get_class() names the same class there,
-        // but is deprecated without an argument since PHP 8.3, hence the version check.
+        // __CLASS__ in a trait corrupts PHP 5.4.0's constant table; get_class() does the
+        // same job there, but is deprecated without an argument since 8.3.
         $scope = (PHP_VERSION_ID < 50500) ? get_class() : __CLASS__;
         $macro = ($macro instanceof \Closure) ? \Closure::bind($macro, null, $scope) : $macro;
         return call_user_func_array($macro, $parameters);

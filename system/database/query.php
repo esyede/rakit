@@ -110,9 +110,8 @@ class Query
     public $offset;
 
     /**
-     * Contains the row locking to apply to the SELECT statement.
-     * NULL means no lock, TRUE means an exclusive one, FALSE a shared one,
-     * and a string is used as the raw lock clause.
+     * Row locking for the SELECT: NULL none, TRUE exclusive, FALSE shared,
+     * a string is used as the raw lock clause.
      *
      * @var bool|string|null
      */
@@ -165,13 +164,9 @@ class Query
     ];
 
     /**
-     * List of method names that must never be handled as a dynamic WHERE clause.
-     * Each one either exists only on a Facile query, or is a well-known builder method
-     * that is not implemented yet. Without this guard they would silently be compiled
-     * into a WHERE clause on a column of that name instead of raising an error.
-     *
-     * Note that a column whose name matches one of these (e.g. 'key') can no longer be
-     * queried through a dynamic where, use where() for it instead.
+     * Method names that must never become a dynamic WHERE clause: they belong to a
+     * Facile query or are not implemented yet, and would otherwise compile into a
+     * WHERE on a column of that name. Use where() for a column named like one.
      *
      * @var array
      */
@@ -316,8 +311,7 @@ class Query
     }
 
     /**
-     * Add a raw WHERE clause joined with OR.
-     * Named to match having_raw(), select_raw(), order_by_raw() and group_by_raw().
+     * Add a raw WHERE clause joined with OR, named after the other *_raw() methods.
      *
      * @param string $where
      * @param array  $bindings
@@ -473,9 +467,8 @@ class Query
     }
 
     /**
-     * Add a WHERE IN clause with the values inlined into the sql instead of bound.
-     * A long list then does not run into the bound parameter limit of the driver.
-     * Only integers are accepted, since the values end up in the sql as they are.
+     * Add a WHERE IN with the values inlined, so a long list does not hit the driver's
+     * bound parameter limit. Integers only, since they go into the sql as they are.
      *
      * @param string $column
      * @param array  $values
@@ -588,16 +581,14 @@ class Query
      */
     public function where_exists($query, $connector = 'AND', $not = false)
     {
-        // A closure is handed a query of its own to build the subquery with,
-        // the way where_nested() does it.
+        // The closure gets its own query to build the subquery with, like where_nested().
         if ($query instanceof \Closure) {
             $callback = $query;
             $query = new static($this->connection, $this->grammar, $this->from);
 
             call_user_func($callback, $query);
 
-            // A subquery the closure left without a SELECT still has to be a
-            // complete statement once it lands inside EXISTS ( .. ).
+            // EXISTS ( .. ) needs a complete statement, so supply a SELECT.
             if (is_null($query->selects)) {
                 $query->select(['*']);
             }
@@ -735,8 +726,7 @@ class Query
     public function cursor($columns = ['*'], $chunk_size = 1000)
     {
         $columns = is_array($columns) ? $columns : [$columns];
-        // PHP < 5.5.0 does not support yield, so the whole result set is returned
-        // at once. It is handed back as a plain array, the way it always was.
+        // No yield before PHP 5.5.0: return the whole result set as a plain array.
         if (PHP_VERSION_ID < 50500) {
             return $this->get($columns)->all();
         }
@@ -779,9 +769,7 @@ class Query
 
         $sql = $this->grammar->insert($this, $values);
 
-        // A failing insert throws, so reaching this point means it went through.
-        // Returning the (empty) fetch result of the statement would only be
-        // confusing, since it is always falsy.
+        // A failing insert throws, so getting here means it worked.
         $this->connection->query($sql, $bindings);
 
         return true;
@@ -807,8 +795,7 @@ class Query
             return null;
         }
 
-        // Only cast to int when the driver hands back a pure-digit string.
-        // Non-integer keys (UUID, ULID, string keys) must survive as-is.
+        // Cast digits only: UUID, ULID and other string keys must survive as-is.
         return (is_string($id) && ctype_digit($id)) ? (int) $id : $id;
     }
 
@@ -870,9 +857,7 @@ class Query
     }
 
     /**
-     * Validate an increment / decrement amount.
-     * The value is inlined into raw SQL, so anything non numeric is rejected
-     * instead of being interpolated.
+     * Validate an increment / decrement amount: it is inlined into raw SQL.
      *
      * @param mixed $amount
      *
@@ -1130,8 +1115,8 @@ class Query
     }
 
     /**
-     * Add a WHERE clause that matches when none of the columns meets the condition.
-     * A NULL column makes the condition unknown, so such a row is not matched either.
+     * Match when no column meets the condition. A NULL column is unknown, so it
+     * does not match either.
      *
      * @param array  $columns
      * @param string $operator
@@ -1160,9 +1145,8 @@ class Query
     }
 
     /**
-     * Add the same condition for every given column as a single nested group.
-     * The name must not start with 'where_', or calling it from outside would
-     * end up in the dynamic where handling of __call().
+     * Add the same condition for every column as one nested group. The name must not
+     * start with 'where_', or __call() would treat it as a dynamic where.
      *
      * @param array  $columns
      * @param string $operator
@@ -1669,9 +1653,7 @@ class Query
     }
 
     /**
-     * Lock the rows the query selects.
-     * A lock only holds for the duration of a transaction, so it is only
-     * meaningful between a begin_transaction() and its commit().
+     * Lock the selected rows. A lock only holds inside a transaction.
      *
      * @param bool|string $value
      *
@@ -1685,9 +1667,8 @@ class Query
     }
 
     /**
-     * Lock the selected rows exclusively, so that no other transaction may
-     * read them with a lock, update them or delete them until this one ends.
-     * It is what makes a read-check-write sequence safe.
+     * Lock the selected rows exclusively until this transaction ends, which is what
+     * makes a read-check-write sequence safe.
      *
      * @return Query
      */
@@ -1697,8 +1678,7 @@ class Query
     }
 
     /**
-     * Lock the selected rows for sharing, so that other transactions may still
-     * read them but none may change them until this one ends.
+     * Lock the selected rows for sharing: others may read them, none may change them.
      *
      * @return Query
      */
@@ -1756,8 +1736,7 @@ class Query
     }
 
     /**
-     * Run the given callback over the results, one chunk at a time.
-     * Returning FALSE from the callback stops the iteration.
+     * Run the callback over the results a chunk at a time; FALSE stops the iteration.
      *
      * @param int      $count
      * @param callable $callback
@@ -1790,8 +1769,7 @@ class Query
     }
 
     /**
-     * Run the given callback over every single result.
-     * Returning FALSE from the callback stops the iteration.
+     * Run the callback over every result; FALSE stops the iteration.
      *
      * @param callable $callback
      * @param int      $count
@@ -1994,8 +1972,7 @@ class Query
     }
 
     /**
-     * Strip the aliases off the given columns.
-     * Aliases are not valid inside an aggregate function call.
+     * Strip the aliases off the columns: they are invalid inside an aggregate call.
      *
      * @param array $columns
      *
@@ -2044,8 +2021,7 @@ class Query
     }
 
     /**
-     * Make sure an operator is one the grammar knows, so it never reaches the
-     * SQL as something the caller wrote.
+     * Check that an operator is one the grammar knows, so caller text never reaches the SQL.
      *
      * @param string $operator
      */
@@ -2137,8 +2113,8 @@ class Query
     }
 
     /**
-     * Wrap column for DATE/MONTH/etc helpers safely via grammar.
-     * The function itself is compiled by the grammar, since every driver spells it differently.
+     * Wrap a column for the DATE / MONTH / etc helpers; the grammar compiles the
+     * function itself, since every driver spells it differently.
      *
      * @param string $column
      * @param string $function
@@ -2167,8 +2143,7 @@ class Query
             throw new \InvalidArgumentException('Invalid column identifier.');
         }
 
-        // Allow letters, digits, underscore, dot for table.column
-        // Disallow anything that could close the function call or inject SQL
+        // Only table.column identifiers; anything else could inject SQL.
         if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/', $column)) {
             throw new \InvalidArgumentException(sprintf('Invalid column identifier: %s', $column));
         }

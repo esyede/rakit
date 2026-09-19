@@ -50,9 +50,7 @@ class Throttle
     }
 
     /**
-     * Get the IP address of the current client.
-     * Proxy headers are readable by anyone, so they only count once the
-     * application has been told which proxies sit in front of it.
+     * Get the client IP. Proxy headers only count once the trusted proxies are configured.
      *
      * @return string
      */

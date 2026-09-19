@@ -202,8 +202,7 @@ abstract class Driver
     }
 
     /**
-     * Set the (HTML) body email.
-     * This method also automatically creates the alternate body.
+     * Set the HTML body, deriving the alternate plain text body from it.
      *
      * @param string $html
      * @param bool   $alternatify
@@ -733,8 +732,7 @@ abstract class Driver
     }
 
     /**
-     * Get the envelope sender for the '-f' option, or NULL when there is none
-     * fit to use.
+     * Get the envelope sender for the '-f' option, or NULL when none fits.
      *
      * @return string|null
      */

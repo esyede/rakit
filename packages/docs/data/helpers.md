@@ -11,15 +11,14 @@
 
 ## Basic Knowledge
 
-Rakit includes various 'helper' functions that can be accessed globally.
-Many of these functions are also used within the Rakit system;
-and of course, you can also use them in your application if needed.
+Rakit defines a set of global helper functions. The framework uses them itself, and
+so can your application.
 
 <a id="list-of-helpers"></a>
 
 ## List of Helpers
 
-Below is a list of built-in helpers available:
+The built-in helpers:
 
 |                                 |                                   |                                   |                                   |                                   |                                   |
 | ------------------------------- | --------------------------------- | --------------------------------- | --------------------------------- | --------------------------------- | --------------------------------- |
@@ -48,7 +47,7 @@ echo e('<script>alert("XSS")</script>');
 // &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;
 ```
 
-This function is very useful for preventing XSS (Cross-Site Scripting) attacks.
+Use it to keep untrusted text from turning into markup (XSS).
 
 <a id="dd"></a>
 
@@ -237,10 +236,8 @@ data_set($data, 'products.desk.price', 200, $overwrite = false);
 
 ### retry
 
-The `retry` function attempts to execute a callback for the given number of attempts.
-If the callback executes successfully without an exception, the result is returned.
-
-If an exception occurs, the function will automatically retry until the attempts are exhausted:
+The `retry` function runs a callback up to the given number of times, returning its
+result as soon as it does not throw:
 
 ```php
 // Retry 5 times with 100ms delay between attempts

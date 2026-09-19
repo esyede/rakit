@@ -237,8 +237,7 @@ abstract class Controller
     /**
      * Execute a controller action and return it's raw response.
      *
-     * Unlike the execute() method, no middleware will be run
-     * and the response from the controller action will not be modified before it is returned.
+     * Unlike execute(), no middleware runs and the response is returned untouched.
      *
      * @param string $method
      * @param array  $parameters

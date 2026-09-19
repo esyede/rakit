@@ -57,13 +57,13 @@
 
 ## Basic Knowledge
 
-Collection is a wrapper for arrays that provides various methods to work with array data more easily and expressively.
+`Collection` wraps an array and gives it a fluent set of methods to work with.
 
 <a id="creating-collections"></a>
 
 ## Creating Collections
 
-Collections can be created in various ways:
+Several ways to build one:
 
 #### From array:
 

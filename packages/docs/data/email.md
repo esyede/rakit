@@ -21,20 +21,16 @@
 
 ## Basic Knowledge
 
-The `Email` component is provided to help you send emails to clients.
-The email component supports several basic features such as multi-protocol (mail, sendmail, and SMTP);
-TLS and SSL encryption for SMTP; multi-recipients; CC and BCC; HTML or plain-text emails;
-attachments as well as email priority.
+`Email` sends mail over `mail`, `sendmail` or SMTP, with TLS or SSL, several
+recipients, CC and BCC, HTML or plain text, attachments and a priority.
 
 <a id="configuration"></a>
 
 ## Configuration
 
-It is very easy to configure this component as the default configuration has been provided that you can find in the file `application/config/email.php`.
-
-In the default state, rakit is configured using the `'mail'` driver which means it
-will use the [mail()](https://www.php.net/manual/en/function.mail.php) function for
-its transmission. However, of course you may change it as needed:
+The configuration lives in `application/config/email.php`. The default `'mail'`
+driver sends through PHP's [mail()](https://www.php.net/manual/en/function.mail.php);
+change it as needed:
 
 ```php
 'driver' => 'sendmail',
@@ -53,14 +49,11 @@ it says anything, so turn `'starttls'` off and name the host with its scheme:
 ],
 ```
 
-> Open and read the file `application/config/email.php` so that you have an idea
-> about what preferences you can change.
-
 <a id="sending-email"></a>
 
 ## Sending Email
 
-After finishing reading the configuration file, let's look at a simple email sending example:
+A simple example:
 
 ```php
 $email = Email::from('admin@site.com')
@@ -96,7 +89,7 @@ You can also add the email recipient's name:
 $email->to('eka@site.com', 'Eka Ramadhan');
 ```
 
-In addition, you can also add multiple recipients at once:
+Or several at once:
 
 ```php
 $email->to('eka@site.com', 'Eka Ramadhan');
@@ -116,7 +109,7 @@ $email->to([
 
 ### Set CC and BCC
 
-The writing for CC and BCC is exactly the same as setting the recipient above:
+CC and BCC work exactly like `to()`:
 
 ```php
 $email->cc('farida@site.com');
@@ -130,11 +123,11 @@ $email->bcc('rachel@site.com', 'Rachel Putri Toar');
 
 ### Set Body
 
-There are 2 options for setting your email body, namely HTML and plain-text:
+The body is either plain text or HTML:
 
 #### 1. Plain Text
 
-Use this option if you know your user's email client is too old to render HTML, so the email contains only text:
+For clients too old to render HTML:
 
 ```php
 $email->body('PDF document regarding the monthly financial report');
@@ -142,15 +135,13 @@ $email->body('PDF document regarding the monthly financial report');
 
 #### 2. HTML Body
 
-Use this option if you know your user's email client can render emails containing HTML tags.
-This option is preferred because you can make the email appearance beautiful
-with the help of HTML tags and CSS:
+The usual choice, since HTML and CSS give you control over how the mail looks:
 
 ```php
 $email->html_body('<b>PDF document regarding the monthly financial report</b>');
 ```
 
-You can also utilize the `Markdown` component if needed:
+The `Markdown` component works here too:
 
 ```php
 $markdown = Markdown::render(path('base').'README.md');
@@ -158,7 +149,7 @@ $markdown = Markdown::render(path('base').'README.md');
 $email->html_body($markdown);
 ```
 
-In addition to markdown, you can also utilize the `View` component like this:
+As does the `View` component:
 
 ```php
 $data = ['registered_at' => now()];
@@ -167,28 +158,23 @@ $view = View::make('emails.registration_success', $data)->render();
 $email->html_body($view);
 ```
 
-Nice isn't it?
-
 <a id="alt-body"></a>
 
 ### Alt Body
 
-Alt-Body or alternative body contains a short summary of your email body content.
-Although it is optional (not mandatory), you can still add it
-if indeed needed.
+The alt body is the plain-text version of the message. It is optional.
 
 ```php
 $email->alt_body('Monthly report');
 ```
 
-> When using `html_body()`, you don't have to add alt-body
-> because it will be added automatically by rakit.
+> `html_body()` derives one automatically, so this is only for overriding it.
 
 <a id="set-subject"></a>
 
 ### Set Subject
 
-To add the email subject or title, use the `subject()` method like this:
+`subject()` sets the subject:
 
 ```php
 $email->subject('Monthly Report');
@@ -218,7 +204,7 @@ Email priority constants must follow this table:
 
 ### Attachments
 
-There are two ways to add attachments to email, namely:
+Attachments come in two forms:
 
 #### 1. File Attachment:
 
@@ -260,8 +246,7 @@ Look at this example to understand the difference:
 
 ### Ready to Send
 
-After all data is arranged, the last step that needs to be done is
-sending your email:
+With everything in place, send it:
 
 ```php
 try {
@@ -271,8 +256,7 @@ try {
 }
 ```
 
-> In the example above we wrapped the execution of the `send()` method in a try-catch block
-> so that when an error occurs while sending the email, your application will continue to run.
+> The try-catch keeps a failed send from taking the request down with it.
 
 `send()` returns `FALSE` when the driver reports that the transport refused the message.
 
@@ -296,8 +280,8 @@ Without that, every recipient of the first email would also receive the second o
 
 ## Custom Driver
 
-You can also register other email drivers if the built-in rakit drivers
-(`mail`, `smtp`, `sendmail` and `log`) do not suit your needs.
+Beyond the built-in `mail`, `smtp`, `sendmail` and `log` drivers, you can register
+your own.
 
 Create a new driver class:
 
@@ -327,7 +311,7 @@ Email::extend('mydriver', function () use ($config) {
 });
 ```
 
-Then just change the default driver configuration to the driver you just created:
+Then point the configuration at it:
 
 ```php
 Config::set('email.driver', 'mydriver');

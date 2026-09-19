@@ -59,8 +59,6 @@ starts the built-in PHP web server so you can browse your app right away.
     on the first run, so Rakit can generate its `key.php` file.
 3.  Open the site in a browser. You should see the Rakit splash page.
 
-That's it — you're ready to start building.
-
 <a id="having-trouble"></a>
 
 ## Having Trouble?
@@ -75,14 +73,12 @@ That's it — you're ready to start building.
 
 ## Initial Configuration
 
-Configuration files live in `application/config/`. Skim them to see what is
-available — most defaults are sensible and you only need to change a few values
-to get started.
+Configuration files live in `application/config/`. The defaults are sensible, so
+only a few values usually need changing.
 
-The most important file is `application/config/application.php`. It controls
-the application URL, default timezone, and the URL `index` option used
-for pretty URLs. The application key lives in its own `key.php` file in the
-root folder, generated automatically on the first run.
+The main one is `application/config/application.php`: the application URL, the
+timezone, and the `index` option used for pretty URLs. The application key sits in
+`key.php` at the root, generated on the first run.
 
 <a id="pretty-urls"></a>
 
@@ -118,9 +114,8 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . index.php [L]
 ```
 
-If that does not work on your hosting, try the variant below — it wraps the
-rules in `<IfModule>` guards so they are only applied when the relevant Apache
-modules are loaded:
+If that does not work on your hosting, try the variant below, which wraps the rules
+in `<IfModule>` guards so they only apply when the modules are loaded:
 
 ```apacheconf
 <IfModule mod_rewrite.c>

@@ -219,9 +219,8 @@ class Roadrunner extends Bridge
         $_FILES = $this->files($request->uploads);
         $_REQUEST = array_merge($_GET, $_POST);
 
-        // RoadRunner decodes form bodies itself and passes them on as JSON. Rebuild
-        // an url-encoded body so PUT and PATCH forms still parse; a multipart body
-        // has no raw form under PHP-FPM either.
+        // RoadRunner hands decoded form bodies over as JSON, so rebuild an url-encoded
+        // body for PUT and PATCH forms.
         $type = isset($server['CONTENT_TYPE']) ? $server['CONTENT_TYPE'] : '';
 
         if (! $request->parsed) {

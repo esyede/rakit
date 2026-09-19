@@ -120,9 +120,7 @@ class Packager extends Command
 
         echo $this->info('Uninstalling package: '.$arguments[0]);
 
-        // TODO: We need to check if the package has migrations or not before running migrate:reset to avoid errors.
-        // $migrator = Container::resolve('command: migrate');
-        // $migrator->reset($arguments[0]);
+        // TODO: reset the package migrations, once we can tell whether it has any.
 
         $destination = path('package').DS.$arguments[0];
         is_dir($destination) && Storage::rmdir($destination);

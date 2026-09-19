@@ -77,11 +77,8 @@ class JWT
      *
      * Supported options:
      *
-     *   - 'algorithm': name (or list of names) the token is allowed to be signed
-     *                  with. Left out, only the algorithms that suit the key are
-     *                  allowed: a PEM key accepts RS* and nothing else, any other
-     *                  key accepts HS* and nothing else. Naming it is still worth
-     *                  doing when the token should carry one specific algorithm.
+     *   - 'algorithm': algorithm (or list) the token may be signed with. Left out,
+     *                  a PEM key accepts RS* only and any other key HS* only.
      *   - 'aud':       expected audience, the token must carry a matching claim.
      *   - 'iss':       expected issuer, the token must carry a matching claim.
      *   - 'validator': callable receiving ($payloads, $headers) for extra checks.
@@ -191,10 +188,8 @@ class JWT
     /**
      * Get the algorithms a key can legitimately verify.
      *
-     * A public key is public, so letting a token pick HS256 and be verified with
-     * that key as the HMAC secret hands anyone holding it the ability to sign
-     * tokens. Keying the choice off the material closes that without asking the
-     * caller to remember an option.
+     * A public key is public: letting a token pick HS256 and verify against it as
+     * the HMAC secret would let anyone holding it sign tokens.
      *
      * @param string $key
      *

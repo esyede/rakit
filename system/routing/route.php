@@ -113,8 +113,7 @@ class Route
     }
 
     /**
-     * Execute the route and return the raw response.
-     * Unlike the call() method, no middleware will be executed.
+     * Execute the route and return the raw response, without running any middleware.
      *
      * @return mixed
      */
@@ -202,8 +201,7 @@ class Route
     }
 
     /**
-     * Get the controller action that handles the route.
-     * If the action is not found, NULL will be returned.
+     * Get the controller action handling the route, or NULL when there is none.
      *
      * @return string
      */

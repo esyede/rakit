@@ -54,8 +54,7 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Set the joining table name.
-     * By default, the naming follows the snake_case pattern.
+     * Set the joining table name, snake_cased by default.
      *
      * @param Model  $model
      * @param string $associated

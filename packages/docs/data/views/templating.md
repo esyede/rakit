@@ -17,10 +17,8 @@
 
 ## Basic Knowledge
 
-Your application may use a common layout on most of its pages.
-Repeatedly creating this layout manually in every action in the controller would certainly be quite annoying.
-
-Defining a layout for a controller will make your development much more enjoyable. Here's how:
+Most pages of an application share one layout. A controller can name it once,
+instead of every action rebuilding it:
 
 #### Add the `$layout` property to your controller:
 
@@ -33,7 +31,7 @@ class Home_Controller extends Controller
 }
 ```
 
-> After the `$layout` property is filled, Rakit will intelligently convert it into an instance of the `View` class.
+> Rakit turns the `$layout` property into a `View` instance.
 
 #### Access its layout from the action in the controller:
 
@@ -44,7 +42,7 @@ public function action_profile()
 }
 ```
 
-> When your controller uses this layout feature, the action does not need to return anything to display the view.
+> An action using a layout does not have to return anything.
 
 **Complete example:**
 
@@ -71,8 +69,8 @@ class Home_Controller extends Controller
 
 ## Section
 
-View sections (or parts of the view) provide a simple way to insert content into the layout from nested views.
-For example, you might want to insert the JavaScript required by the nested view into your layout header. Here's how:
+Sections let a nested view put content into the layout, such as the JavaScript that
+view needs in the layout header:
 
 #### Creating a section in the view:
 
@@ -106,9 +104,8 @@ For example, you might want to insert the JavaScript required by the nested view
 
 ## Blade Template Engine
 
-Blade makes writing your views even more enjoyable. To create a view using Blade, just use the `.blade.php` extension on your view file.
-
-Blade allows you to use simpler and more elegant syntax for writing and displaying data.
+A view with the `.blade.php` extension is compiled by Blade, which gives it a shorter
+syntax for printing data and for the usual control structures.
 
 #### Displaying variables using Blade:
 
@@ -127,33 +124,28 @@ the [htmlentities()](https://www.php.net/manual/en/function.htmlentities.php) fu
 
 #### Blade & JavaScript Frameworks
 
-Since many JavaScript frameworks also use curly braces to indicate that the given syntax should be displayed in the browser,
-you can use the `@` symbol to tell the Blade rendering engine to ignore this syntax. For example:
+JavaScript frameworks use curly braces too. An `@` in front tells Blade to leave the
+expression alone:
 
 ```blade
 Hello, @{{ $name }}.
 ```
 
-In the above example, the `@` symbol will be removed by Blade; however,
-the `{{ $name }}` syntax will remain untouched by the Blade engine, so this syntax can be rendered by your JavaScript framework.
+Blade drops the `@` and leaves `{{ $name }}` for the front end to render.
 
 #### Displaying data with default value
 
-Sometimes you may want to display a variable, but you are not sure if the variable has been defined or not.
-Indeed, you can write it verbosely like:
+A variable that may not be defined can be written out in full:
 
 ```blade
 {{ isset($name) ? $name : 'Guest' }}
 ```
 
-However, instead of writing using the ternary operator like above, Blade gives you an easier shortcut:
+Or with the Blade shortcut:
 
 ```blade
 {{ $name or 'Guest' }}
 ```
-
-In the above example, if the `$name` variable exists, its value will be displayed.
-However, if not, the word `Guest` will be displayed.
 
 #### Displaying data without escaping
 
@@ -170,8 +162,7 @@ Hello, {!! $name !!}
 
 #### Displaying a view:
 
-Use the `@include()` syntax to import a view into another view.
-The imported view will automatically inherit all data from the current view.
+`@include()` imports a view into another one, handing it all the data of the current view.
 
 ```blade
 <h1>Profile</h1>
@@ -179,8 +170,7 @@ The imported view will automatically inherit all data from the current view.
 @include('user.profile')
 ```
 
-You can also use `@render()`, which behaves almost the same as `@include()` except that the
-rendered view **does not inherit** data from the current view.
+`@render()` does the same, except the rendered view **inherits no data**.
 
 ```blade
 @render('admin.list')
@@ -324,11 +314,8 @@ rendered view **does not inherit** data from the current view.
 
 ## Blade Layout
 
-Blade not only provides clean and elegant syntax for common PHP control structures, but also gives you a beautiful method for using layouts for your views.
-
-**Template inheritance** allows you to create a master layout and extend that layout in other views.
-
-For example, if your application uses the `'master'` view to provide a consistent look for your application. An example like this:
+**Template inheritance** lets one master layout be extended by the views that fill it.
+A `'master'` view giving the application its consistent look:
 
 **File: `application/views/master.blade.php`**
 
@@ -350,7 +337,7 @@ For example, if your application uses the `'master'` view to provide a consisten
 `@show` closes the section and prints it in place, which is what a layout wants:
 `@endsection` only defines a section, it does not print one.
 
-Notice the `'content'` section that is yielded. We need to fill this section with some text, so let's create another view that uses this one:
+The `'content'` section is what another view fills in:
 
 **File: `application/views/profile.blade.php`**
 
@@ -362,7 +349,7 @@ Notice the `'content'` section that is yielded. We need to fill this section wit
 @endsection
 ```
 
-Great! Now, we just need to return the `profile` view from our route:
+Then return the `profile` view from a route:
 
 ```php
 return View::make('profile');
@@ -389,11 +376,9 @@ class User_Controller extends Controller
 
 #### Adding content using `@parent`
 
-Sometimes you may only want to add something to a layout section rather than overriding it.
-For example, consider the navigation list in the `master` layout [above](#blade-layout).
-
-Suppose we just want to add a `Contact` link to that navigation list. `@parent` stands for
-whatever the layout put in that section, so this keeps the two existing links and adds one:
+A section can be added to rather than replaced. `@parent` stands for whatever the
+layout put there, so the navigation list of the `master` layout
+[above](#blade-layout) keeps its two links and gains a `Contact` one:
 
 ```blade
 @layout('master')
@@ -407,9 +392,6 @@ whatever the layout put in that section, so this keeps the two existing links an
 	Welcome to the profile page!
 @endsection
 ```
-
-The `@parent` tag will be replaced with the content of the navigation section of the layout,
-so you are more free to extend and inherit the layout.
 
 **Final result:**
 

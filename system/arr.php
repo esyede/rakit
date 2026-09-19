@@ -83,8 +83,7 @@ class Arr
     }
 
     /**
-     * Divide array into two arrays.
-     * One based on key and one based on value.
+     * Divide an array into one array of keys and one of values.
      *
      * @param array $array
      *
@@ -377,8 +376,7 @@ class Arr
     }
 
     /**
-     * Check if array is associative.
-     * Associative arrays have keys that are not sequential integers.
+     * Check if array is associative (keys are not sequential integers).
      *
      * @param array $array
      *
@@ -395,8 +393,7 @@ class Arr
     }
 
     /**
-     * Check if array is sequential.
-     * Sequential arrays have keys that are sequential integers.
+     * Check if array is sequential (keys are sequential integers).
      *
      * @param array $array
      *
@@ -539,8 +536,7 @@ class Arr
     }
 
     /**
-     * Set array value using dot notation.
-     * If no key is given for this method, the entire array will be replaced.
+     * Set array value using dot notation. Without a key, the whole array is replaced.
      *
      * @param array  $array
      * @param string $key

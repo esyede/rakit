@@ -88,8 +88,7 @@ class Request
     }
 
     /**
-     * Set parameters for the request.
-     * This method will also re-initialize the request.
+     * Set the request parameters, re-initializing the request.
      *
      * @param array  $query
      * @param array  $request
@@ -122,8 +121,7 @@ class Request
     }
 
     /**
-     * Make an request object from PHP global variables.
-     * The body is read from php://input unless it is given.
+     * Build a request from the PHP globals, reading php://input unless a body is given.
      *
      * @param string|null $content
      *
@@ -315,9 +313,8 @@ class Request
     }
 
     /**
-     * Replace PHP global variables with the current request values.
-     * This will replace values of $_GET, $_POST, $_REQUEST, $_SERVER, and $_COOKIE.
-     * The $_FILES variable will not be replaced.
+     * Write the request back into $_GET, $_POST, $_REQUEST, $_SERVER and $_COOKIE.
+     * $_FILES is left alone.
      */
     public function overrideGlobals()
     {
@@ -364,11 +361,9 @@ class Request
     }
 
     /**
-     * Set the host names this application answers to. The Host header is
-     * written by the client, so a request naming anything else is refused once
-     * this list is filled in. An empty list accepts whatever arrives.
-     *
-     * A name may start with '*.' to cover its subdomains as well as itself.
+     * Set the host names this application answers to. The client writes the Host
+     * header, so anything else is refused once this list is filled in; an empty list
+     * accepts anything. A name may start with '*.' to cover its subdomains.
      *
      * @param array $hosts
      */
@@ -417,9 +412,7 @@ class Request
     }
 
     /**
-     * Set a trusted header name.
-     * Only headers defined below can be set,
-     * Passing empty value will disable the trusted header.
+     * Set a trusted header name, from the list below. An empty value disables it.
      *
      * @param string $key
      * @param string $value
@@ -444,10 +437,7 @@ class Request
     }
 
     /**
-     * Normalize query string.
-     * This will sort the query string alphabetically,
-     * remove unnecessary delimiters, and
-     * provide a more consistent escape mechanism.
+     * Normalize a query string: sorted, without stray delimiters, consistently escaped.
      *
      * @param string $queryString
      *
@@ -480,10 +470,8 @@ class Request
     }
 
     /**
-     * Get a parameter from any bag.
-     * This method is intended for flexibility only.
-     * Don't use it on your controller, as it's very slow.
-     * Order of search: GET, PATH, POST.
+     * Get a parameter from any bag, searching GET, then PATH, then POST.
+     * Convenient but slow, so avoid it in a controller.
      *
      * @param string $key
      * @param mixed  $default
@@ -575,9 +563,8 @@ class Request
     }
 
     /**
-     * Get the path info for the current request: the part of the URI after the
-     * base URL, with the query string dropped and the encoding left untouched.
-     * Answers '/' when there is nothing after the base URL.
+     * Get the part of the URI after the base URL, still encoded and without the query
+     * string. Answers '/' when there is nothing after it.
      *
      * @return string
      */
@@ -592,9 +579,8 @@ class Request
     }
 
     /**
-     * Get the base path: the directory the front controller lives in, without a
-     * trailing slash and with the encoding left untouched. Answers an empty
-     * string when the front controller sits at the document root.
+     * Get the directory the front controller lives in, still encoded and without a
+     * trailing slash. Empty when it sits at the document root.
      *
      * @return string
      */
@@ -808,8 +794,7 @@ class Request
     }
 
     /**
-     * Get the request method as the server reported it, ignoring any spoofing
-     * done through '_method' or the 'X-Http-Method-Override' header.
+     * Get the method the server reported, ignoring '_method' and 'X-Http-Method-Override'.
      *
      * @return string
      */
@@ -830,8 +815,8 @@ class Request
 
             if ('POST' === $this->method) {
                 $method = $this->request->get('_method', $this->query->get('_method', 'POST'));
-                // X-Http-Method-Override header is a footgun for access control (use real_method() for security)
-                // Only honor it when explicitly enabled via config
+                // X-Http-Method-Override is opt-in: it spoofs the method, so access
+                // control should use real_method().
                 $allow_header_override = false;
 
                 try {

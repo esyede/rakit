@@ -3,9 +3,7 @@
 defined('DS') or exit('No direct access.');
 
 /*
- * Generator implementation for Query::cursor()
- * This file is only loaded in PHP 5.5.0+ which supports the yield keyword.
- * Returns an anonymous generator function.
+ * Generator for Query::cursor(), loaded only on PHP 5.5.0+ where yield exists.
  */
 
 return call_user_func(function () use ($columns, $chunk_size) {

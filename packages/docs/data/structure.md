@@ -16,8 +16,8 @@
 
 ## Basic Knowledge
 
-The default rakit structure is intended to provide a good starting point for large and small applications.
-This structure is made similar to other existing frameworks so you won't feel unfamiliar.
+The default structure suits both small and large applications, and follows the
+conventions of other PHP frameworks.
 
 <a id="folder-hierarchy"></a>
 
@@ -80,45 +80,38 @@ By default, the rakit folder hierarchy will look like this:
 └── sample.htaccess
 ```
 
-Now, let's discuss what these folders are for.
+What each folder is for:
 
 <a id="application-folder"></a>
 
 ### Application Folder
 
-The `application/` folder contains controllers, views, configuration files and other default files.
-Basically, this folder is a package (i.e. the default package) used to
-bootstrap the rakit system and other packages you install into the `packages/` folder.
-
-Default routing and other settings are also placed in this folder.
+Holds controllers, views and configuration. It is itself a package, the default
+one, which boots the system and the packages installed into `packages/`.
+Routing and the rest of the application settings live here too.
 
 <a id="assets-folder"></a>
 
 ### Assets Folder
 
-The `assets/` folder contains public assets such as CSS files, JavaScript, images
-and other files that must be accessible by the web browser.
-
-Inside this folder there is also a `packages/` subfolder used to place asset files
-of packages you install.
+Public files the browser has to reach: CSS, JavaScript and images. Its `packages/`
+subfolder holds the assets of installed packages.
 
 <a id="packages-folder"></a>
 
 ### Packages Folder
 
-The `packages/` folder contains the package folders you install.
+Holds the packages you install.
 
 <a id="storage-folder"></a>
 
 ### Storage Folder
 
-The `storage/` folder contains built-in rakit subfolders for storing non-public files such as
-cache files, sessions, database files (sqlite) and rendered files
-from the [Blade Template Engine](/docs/views/templating#blade-template-engine).
+Non-public files: cache, sessions, sqlite databases, and the views compiled by the
+[Blade Template Engine](/docs/views/templating#blade-template-engine).
 
 <a id="system-folder"></a>
 
 ### System Folder
 
-The `system/` folder is the core folder, inside it are the main files of rakit.
-When upgrading the rakit framework, usually you just need to overwrite this folder with the new one.
+The framework core. Upgrading usually means replacing this folder.

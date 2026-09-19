@@ -10,8 +10,7 @@ use System\Transformer\Missing;
 class Transformer implements \ArrayAccess, \JsonSerializable
 {
     /**
-     * The key the transformed data is put under. Set it to NULL to hand the
-     * data over without a wrapper.
+     * The key the transformed data is put under. NULL means no wrapper.
      *
      * @var string
      */
@@ -76,8 +75,7 @@ class Transformer implements \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Shape the resource into the array that goes out. Override it to say
-     * exactly which keys the response carries.
+     * Shape the resource into the outgoing array. Override it to pick the keys.
      *
      * @return array
      */
@@ -119,8 +117,7 @@ class Transformer implements \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Keep the value only when the condition holds. A key whose value is left
-     * out does not appear in the response at all.
+     * Keep the value only when the condition holds, else drop the key entirely.
      *
      * @param mixed $condition
      * @param mixed $value
@@ -142,8 +139,7 @@ class Transformer implements \ArrayAccess, \JsonSerializable
     }
 
     /**
-     * Fold the values into the array around them, but only when the condition
-     * holds.
+     * Fold the values into the surrounding array when the condition holds.
      *
      * @param mixed $condition
      * @param array $values
@@ -183,8 +179,7 @@ class Transformer implements \ArrayAccess, \JsonSerializable
                 continue;
             }
 
-            // A transformer nested inside another one contributes its data,
-            // not a wrapper of its own.
+            // A nested transformer contributes its data, not another wrapper.
             if ($value instanceof self) {
                 $result[$key] = $value->filtered();
                 continue;

@@ -8,7 +8,7 @@ defined('DS') or exit('No direct access.');
 |--------------------------------------------------------------------------
 | Define Framework Version
 |--------------------------------------------------------------------------
-| Define the framework version that is currently being used.
+| The framework version currently in use.
 */
 
 define('RAKIT_VERSION', '0.9.9');
@@ -17,10 +17,7 @@ define('RAKIT_VERSION', '0.9.9');
 |--------------------------------------------------------------------------
 | Define Framework Constants
 |--------------------------------------------------------------------------
-|
-| Define additional constants. These constants are created to make access
-| easier because they are available globally.
-|
+| Constants that stay available globally.
 */
 
 define('DEFAULT_PACKAGE', 'application');
@@ -30,11 +27,8 @@ define('RAKIT_KEY', require path('rakit_key'));
 |--------------------------------------------------------------------------
 | Load Core Classes
 |--------------------------------------------------------------------------
-|
-| Here we load the classes that are used in every request, or
-| that are used by the configuration classes.
-| Faster and easier to load manually than using an autoloader.
-|
+| Used by every request, or by the configuration classes themselves, so requiring
+| them is faster than going through the autoloader.
 */
 
 require path('system').'container.php';
@@ -51,10 +45,7 @@ require path('system').'blade.php';
 |--------------------------------------------------------------------------
 | Register the Framework Autoloader
 |--------------------------------------------------------------------------
-|
-| Next we register the Framework Autoloader to the SPL autoloader stack
-| so that classes can be lazyloaded when we need them.
-|
+| Put it on the SPL stack, so classes load lazily.
 */
 
 spl_autoload_register(['\System\Autoloader', 'load']);
@@ -63,10 +54,7 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 |--------------------------------------------------------------------------
 | Register the 'System' Namespace
 |--------------------------------------------------------------------------
-|
-| Register the 'System' namespace and its directory mapping so that it can be
-| loaded by the autoloader using PSR-0 conventions.
-|
+| Map the 'System' namespace to its directory, PSR-0 style.
 */
 
 Autoloader::namespaces(['System' => path('system')]);
@@ -75,11 +63,7 @@ Autoloader::namespaces(['System' => path('system')]);
 |--------------------------------------------------------------------------
 | Build the Foundation Request
 |--------------------------------------------------------------------------
-|
-| Rakit separates the implementation details of handling HTTP requests into
-| the 'foundation/http/' folder to keep the 'system/request.php' file from
-| being too long and still easy to read. Here, we need to call it.
-|
+| The HTTP details live in 'foundation/http/', which keeps 'system/request.php' short.
 */
 
 Request::$foundation = Foundation\Http\Request::createFromGlobals();
@@ -88,12 +72,7 @@ Request::$foundation = Foundation\Http\Request::createFromGlobals();
 |--------------------------------------------------------------------------
 | Determine Application Environment
 |--------------------------------------------------------------------------
-|
-| Next, we are ready to determine the application environment. This can
-| be set via CLI or via mapping URI to the environment defined in the
-| "paths.php" file. When determining the environment via CLI option,
-| the "--env=" option will automatically override the mapping in "paths.php".
-|
+| From the URI mapping in "paths.php", or from the "--env=" option, which wins.
 */
 
 if (Request::cli()) {
@@ -107,12 +86,7 @@ if (Request::cli()) {
 |--------------------------------------------------------------------------
 | Set the Application Environment
 |--------------------------------------------------------------------------
-|
-| After we have determined the application environment, we will set it on
-| the array server global from the request foundation.
-| This will make it available throughout the application, even though it is
-| only used to determine which configuration should be overridden.
-|
+| Kept on the foundation's server bag, where the config override reads it.
 */
 
 if (isset($environment) && ! empty($environment)) {
@@ -123,11 +97,7 @@ if (isset($environment) && ! empty($environment)) {
 |--------------------------------------------------------------------------
 | Set the CLI Options
 |--------------------------------------------------------------------------
-|
-| When the request is coming from the Rakit console, we parse the arguments
-| and options, then set them to the global $_SERVER variable so they can be
-| accessed from anywhere.
-|
+| Parse the console arguments into $_SERVER, so they are reachable from anywhere.
 */
 
 if (Request::cli()) {
@@ -139,13 +109,8 @@ if (Request::cli()) {
 |--------------------------------------------------------------------------
 | Register All Packages (Lazy Loading)
 |--------------------------------------------------------------------------
-|
-| Finally, we will register all packages that have been defined.
-| Registration is done lazily: packages are only booted when they are first
-| accessed, not at the beginning of the application. This reduces startup
-| overhead. Here, we will not perform auto-boot, only set it so that it can
-| be called by the developer when they need it.
-|
+| Registered only, not booted: a package boots the first time it is reached, which
+| keeps the startup cost down.
 */
 
 $packages = require path('app').'packages.php';

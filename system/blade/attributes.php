@@ -107,8 +107,7 @@ class Attributes implements \ArrayAccess, \Countable, \IteratorAggregate, \Syste
     }
 
     /**
-     * Keep the attributes whose name starts with the given string, with that
-     * start taken off their names.
+     * Keep the attributes starting with the given prefix, stripped of it.
      *
      * @param string $prefix
      *
@@ -129,8 +128,7 @@ class Attributes implements \ArrayAccess, \Countable, \IteratorAggregate, \Syste
     }
 
     /**
-     * Put the given attributes underneath the ones the tag was given. The class
-     * attribute is joined instead of replaced, the way a class list should be.
+     * Default the given attributes under the tag's own. Class lists are joined, not replaced.
      *
      * @param array $defaults
      *
@@ -153,8 +151,7 @@ class Attributes implements \ArrayAccess, \Countable, \IteratorAggregate, \Syste
     }
 
     /**
-     * Build the class attribute out of the given list. A key is kept when its
-     * value holds, a plain entry is always kept.
+     * Build the class attribute: a keyed entry is kept when its value holds, a plain one always.
      *
      * @param array|string $classes
      *

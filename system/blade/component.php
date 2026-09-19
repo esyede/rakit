@@ -33,8 +33,7 @@ class Component
     public $attributes = [];
 
     /**
-     * Register the class of a component, for a name that does not follow the
-     * <name>_Component convention.
+     * Register a component class for a name outside the <name>_Component convention.
      *
      * @param string $name
      * @param string $class
@@ -146,9 +145,8 @@ class Component
     }
 
     /**
-     * Close whatever a component left open when the view it was in threw. The
-     * buffers of a component that never reached its closing tag would swallow
-     * the output that comes after it.
+     * Close what a component left open when its view threw, or its buffers would
+     * swallow everything printed after it.
      *
      * @return void
      */
@@ -164,8 +162,7 @@ class Component
     }
 
     /**
-     * Get the props of the component being rendered, and the attributes that
-     * are left once the props are taken out of them.
+     * Get the props of the component being rendered, and the attributes left over.
      *
      * @param array $props
      *
@@ -242,8 +239,7 @@ class Component
         $rendered = $instance->render();
         $data = static::properties($instance);
 
-        // A component class may answer with the name of a view, or with what it
-        // wants printed as it is.
+        // A component class returns either a view name or the output itself.
         if (! is_string($rendered) || ! View::exists($rendered)) {
             return static::interpolate((string) $rendered, $current, $data);
         }
@@ -293,8 +289,7 @@ class Component
     }
 
     /**
-     * Put the content of the slots into the given string, for a component class
-     * that answers with content instead of a view.
+     * Fill the slots into a string, for a component class that returns content.
      *
      * @param string $content
      * @param array  $component
@@ -340,8 +335,7 @@ class Component
     }
 
     /**
-     * Get the class registered for the component, or the one its name points
-     * to by convention.
+     * Get the registered component class, or the one its name implies.
      *
      * @param string $name
      *
@@ -366,9 +360,7 @@ class Component
             return $class;
         }
 
-        // The file is read here rather than left to the autoloader, whose PSR-0
-        // convention would look for components/badge/component.php instead of
-        // the components/badge.php the name points at.
+        // Read here, not via the autoloader: PSR-0 would look for components/badge/component.php.
         $file = Package::path($package) . 'components' . DS . str_replace('.', DS, $component) . '.php';
 
         if (is_file($file)) {
@@ -397,8 +389,7 @@ class Component
     }
 
     /**
-     * Turn the name of an attribute into the name of a variable, so that a
-     * dashed attribute still has somewhere to land.
+     * Turn an attribute name into a variable name, so a dashed one still lands somewhere.
      *
      * @param string $name
      *
@@ -410,8 +401,7 @@ class Component
     }
 
     /**
-     * Get what the component renders to. A component class either answers with
-     * the name of a view, or with the content itself.
+     * Get what the component renders to: a view name, or the content itself.
      *
      * @return string
      */

@@ -385,7 +385,7 @@ To use the `Post_Controller` above instead, pass the `controller` option:
 Route::resource('posts', ['controller' => 'post']);
 ```
 
-You can also limit the generated routes with the `only` or `except` options, e.g.
+The `only` and `except` options limit which routes are generated, e.g.
 `Route::resource('posts', ['only' => ['index', 'show']])`.
 
 Generated routes:

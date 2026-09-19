@@ -7,8 +7,7 @@ defined('DS') or exit('No direct access.');
 class Blade
 {
     /**
-     * The marker that keeps a compiled view from being served directly by a web
-     * server whose document root contains the storage directory.
+     * Marker that keeps a compiled view from being served directly by a web server.
      *
      * @var string
      */
@@ -102,11 +101,9 @@ class Blade
     protected static $compiles = [];
 
     /**
-     * Whether a compiled view is checked against the template's modification
-     * time before being reused. Costs one stat per template.
-     *
-     * Turning it off leaves edited templates never recompiled, so run
-     * 'php rakit clear:views' on every deploy if you do.
+     * Whether a compiled view is checked against the template's mtime before being
+     * reused. Costs one stat per template; turn it off and run 'php rakit clear:views'
+     * on every deploy instead.
      *
      * @var bool
      */
@@ -124,14 +121,10 @@ class Blade
 
             $compiled = static::compiled($view->path);
 
-            // Only the compiling is guarded. A template that throws while it
-            // runs must not be run a second time, or whatever it did before
-            // throwing would happen twice.
+            // Only compiling is guarded; a template that throws must not run twice.
             try {
                 if (! is_file($compiled) || static::expired($view->path)) {
-                    // A compiled view is executable PHP sitting in the storage
-                    // directory. Guarding the file rather than trusting the web
-                    // server to deny it keeps that true on any server.
+                    // Compiled views are executable PHP: guard the file, not the server config.
                     file_put_contents($compiled, static::GUARD.static::compile($view), LOCK_EX);
                 }
             } catch (\Throwable $e) {
@@ -239,13 +232,11 @@ class Blade
             return $value;
         }
 
-        // A package names its components the way it names its views, with the
-        // double colon. A single one is left alone, since that is a slot.
+        // Package components use '::' like views; a single ':' is a slot.
         $name = '[A-Za-z0-9_\\-\\.]+(?:::[A-Za-z0-9_\\-\\.]+)?';
         $attributes = '((?:\\s+[:@]?' . $name . '(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'|[^\\s>"\\\']+))?)*)';
 
-        // A slot names the piece of the component it fills, so it is read as a
-        // part of the component around it and not as one of its own.
+        // A slot belongs to the component around it, not to itself.
         $value = preg_replace_callback(
             '/<x-slot\s+name\s*=\s*(?:"([^"]*)"|\'([^\']*)\')\s*>/',
             function ($matches) {
@@ -276,8 +267,7 @@ class Blade
             $value
         );
 
-        // The innermost component is compiled first, so that a component built
-        // out of other components is read from the inside out.
+        // Innermost first, so nested components compile inside out.
         $pattern = '/<x-(?!slot\b)(' . $name . ')' . $attributes
             . '\s*>((?:(?!<x-(?!slot\b))[\s\S])*?)<\/x-\1\s*>/';
         $guard = 0;
@@ -520,8 +510,7 @@ class Blade
         preg_match_all('/(\s*)@forelse(\s*(\((?:[^()]++|(?3))*\)))(\s*)/', $value, $matches);
 
         foreach ($matches[0] as $forelse) {
-            // No '$items as $item' to read means the directive is malformed;
-            // leaving it alone shows that, where guessing would emit 'count()'.
+            // Malformed directive: leave it visible rather than guess a count().
             if (! preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variables)) {
                 continue;
             }
@@ -867,8 +856,7 @@ class Blade
     }
 
     /**
-     * Check (and mark) whether an @once block still needs to be rendered.
-     * Returns true only the first time it is called with a given key.
+     * Mark an @once block as rendered, returning true only on the first call per key.
      *
      * @param string $key
      *
@@ -1020,10 +1008,8 @@ class Blade
      */
     public static function matcher($function)
     {
-        // Balanced parentheses, so a directive already compiled into PHP on the
-        // same line is not swallowed by the one being compiled next. Group 1 is
-        // the leading whitespace and group 2 the parenthesised part, which is
-        // what every caller replaces with.
+        // Balanced parens, so an already-compiled directive on the same line survives.
+        // Group 1 is the leading whitespace, group 2 the parenthesised part.
         return '/(\s*)@'.$function.'(\s*(\((?:[^()]++|(?3))*\)))/';
     }
 
@@ -1041,12 +1027,10 @@ class Blade
         }
 
         $name = Str::replace_last('.blade.php', '', basename($path));
-        // Use HMAC-SHA256 with RAKIT_KEY to make compiled path unpredictable
-        // Fallback to sha256 without key if RAKIT_KEY not defined (e.g., tests)
+        // Keyed hash so the compiled path is unpredictable.
         $key = defined('RAKIT_KEY') ? RAKIT_KEY : 'fallback-key';
         $hash = hash_hmac('sha256', $path, $key);
-        // Use first 16 hex chars (64 bits) - enough to avoid collisions, still short filename
-        // Full sha256 would be safe but longer; 64 bits is vastly better than 16-bit CRC
+        // 64 bits: collision-safe enough, and keeps the filename short.
         $short = substr($hash, 0, 16);
 
         static::$compiles[$path] = path('storage').'views'.DS.sprintf('%s__%s', $name, $short).'.bc.php';

@@ -34,8 +34,7 @@ class Input
     }
 
     /**
-     * Check if the given item exists in the input data.
-     * If the input item is an empty string, it will return FALSE.
+     * Check if an input item exists. An empty string counts as absent.
      *
      * @param string $key
      *
@@ -71,8 +70,7 @@ class Input
     }
 
     /**
-     * Get an item from the input data.
-     * This method is used for all request methods (GET, POST, PUT, and DELETE).
+     * Get an input item, whatever the request method.
      *
      * @param string $key
      * @param mixed  $default
@@ -83,8 +81,7 @@ class Input
     {
         $input = Request::foundation()->request->all();
 
-        // The body wins over the query string, and every reader here goes
-        // through this method so they cannot disagree about which one it is.
+        // Body wins over query string; every reader goes through here to stay consistent.
         if (is_null($key)) {
             return array_merge(static::query(), $input);
         }
@@ -218,9 +215,7 @@ class Input
     }
 
     /**
-     * Get an input item as a boolean.
-     * The strings '1', 'true', 'on' and 'yes' all count as TRUE,
-     * everything else counts as FALSE.
+     * Get an input item as a boolean. Only '1', 'true', 'on' and 'yes' are TRUE.
      *
      * @param string $key
      * @param bool   $default

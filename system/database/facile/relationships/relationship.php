@@ -47,9 +47,8 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Drop the constraint that tied this relation to one parent, while keeping
-     * the one the related model puts on every query of its own. A plain
-     * reset_where() would throw the soft delete scope away with it.
+     * Drop the constraint tying this relation to one parent, keeping the related
+     * model's own scopes, which a plain reset_where() would discard.
      */
     public function reset_constraints()
     {
@@ -130,11 +129,9 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Constrain the query to the given keys.
-     * When every key is a native integer they are inlined into the sql, so eager loading
-     * a large result set does not run into the bound parameter limit of the driver.
-     * Only use it on a column of the same type as the keys. A polymorphic id column is
-     * often a string one, so the morph relationships keep using where_in() for it.
+     * Constrain the query to the given keys. All-integer keys are inlined, so eager
+     * loading does not hit the driver's bound parameter limit. Only for a column of the
+     * same type: polymorphic id columns are often strings, so morphs use where_in().
      *
      * @param \System\Database\Query|Query $query
      * @param string                       $column
@@ -169,9 +166,8 @@ abstract class Relationship extends Query
     }
 
     /**
-     * Rewrite the constraint of the relational query so that it correlates
-     * with the parent table instead of with a single parent key. It is what
-     * makes has() and where_has() able to build a correlated subquery.
+     * Correlate the relational query with the parent table instead of one parent key,
+     * which is what lets has() and where_has() build a subquery.
      *
      * @param string $parent_table
      *

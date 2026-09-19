@@ -24,9 +24,8 @@ class Middlewares
     public $parameters;
 
     /**
-     * Whether a middleware in this collection is allowed to be missing.
-     * Only the global middlewares are, because they are a convention rather
-     * than something the route asked for.
+     * Whether a middleware here may be missing. Only the global ones may: they are a
+     * convention, not something the route asked for.
      *
      * @var bool
      */
@@ -129,8 +128,7 @@ class Middlewares
     }
 
     /**
-     * Set the controller method names to be excluded.
-     * These method names will not be attached with middleware.
+     * Set the controller methods the middleware is not attached to.
      *
      * @param array $methods
      *
@@ -143,8 +141,7 @@ class Middlewares
     }
 
     /**
-     * The inverse of except().
-     * Only the listed methods get the middleware attached.
+     * The inverse of except(): only the listed methods get the middleware.
      *
      * @param array $methods
      *

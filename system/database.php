@@ -21,8 +21,7 @@ class Database
     public static $registrar = [];
 
     /**
-     * Gets the database connection.
-     * If no name is specified, will return the default connection.
+     * Get a database connection, or the default one.
      *
      * @param string $connection
      *
@@ -51,9 +50,8 @@ class Database
     }
 
     /**
-     * Close the connection to the given database, or to the default one.
-     * The connection stays registered, so asking connection() for it again
-     * opens a new one. Work left inside an open transaction is lost.
+     * Close a connection, or the default one. It stays registered, so connection()
+     * opens a new one; work left in an open transaction is lost.
      *
      * @param string $connection
      *
@@ -71,9 +69,7 @@ class Database
     }
 
     /**
-     * Close the connection to the given database and open it again. The
-     * connection instance is the same one as before, so code holding on to it
-     * keeps working.
+     * Reconnect, reusing the same instance so code holding on to it keeps working.
      *
      * @param string $connection
      *
@@ -87,9 +83,7 @@ class Database
     }
 
     /**
-     * Close the connection to the given database and forget it. The next call
-     * to connection() builds a new one, so a configuration that changed while
-     * the process was running is picked up.
+     * Close a connection and forget it, so the next one picks up a changed config.
      *
      * @param string $connection
      *
@@ -155,8 +149,7 @@ class Database
     }
 
     /**
-     * Create a new database expression instance.
-     * Database expression is used to inject raw SQL into magic query.
+     * Create a database expression, which injects raw SQL into a query.
      *
      * @param string $value
      *
@@ -190,8 +183,7 @@ class Database
     }
 
     /**
-     * Get the last query that was executed.
-     * Returns FALSE if no query has been executed.
+     * Get the last executed query, or FALSE if there is none.
      *
      * @return string
      */

@@ -31,7 +31,7 @@ The dispatcher class is `System\Hook` and is registered as the short alias
 
 ## Firing an Event
 
-To fire an event, just notify what event name you want to run:
+Fire an event by name:
 
 #### Firing an event:
 
@@ -39,9 +39,7 @@ To fire an event, just notify what event name you want to run:
 $responses = Hook::fire('loaded');
 ```
 
-Note that we store the result of the `fire()` method in the `$responses` variable. Because the `fire()` method will return an array containing responses from all listeners of the event.
-
-Sometimes you want to fire an event, but only want to get the first response. Here's how:
+`fire()` returns an array holding the response of every listener. For the first one only:
 
 #### Firing an event and getting only the first response:
 
@@ -49,9 +47,9 @@ Sometimes you want to fire an event, but only want to get the first response. He
 $response = Hook::first('loaded');
 ```
 
-> The `first()` method will still run all listeners owned by the event, but only the first response will be returned.
+> `first()` still runs every listener, it only returns the first response.
 
-While the `Hook::until()` method will run the listeners owned by the event one by one, and stops as soon as one of them returns a response that is not `NULL`, returning that response.
+`Hook::until()` runs the listeners one by one and stops at the first response that is not `NULL`, returning it.
 
 #### Firing an event and getting the first non-NULL response:
 
@@ -66,7 +64,7 @@ $response = Hook::until('loaded');
 
 ## Listening to an Event
 
-But, what's the use of creating an event if it has no listeners? So, let's register an example listener that will be called when an event is fired:
+An event is only useful with listeners. Register one with `listen()`:
 
 #### Registering a listener to the event named `'loaded'`:
 
@@ -76,15 +74,11 @@ Hook::listen('loaded', function () {
 });
 ```
 
-The code you place inside the Closure above will be called when the `'loaded'` event is fired.
-
 <a id="queued-events"></a>
 
 ## Queued Events
 
-Sometimes you might just want to "queue" an event to be run in the future. You can do this via the `queue()` and `flush()` methods.
-
-First, please specify the event name in the first parameter, remember! the name must be unique so as not to overlap:
+`queue()` and `flush()` hold events back to be run later. Queue an item under a queue name and a key of its own:
 
 #### Queuing an event:
 
@@ -92,14 +86,13 @@ First, please specify the event name in the first parameter, remember! the name 
 Hook::queue('foo', $user->id, [$user]);
 ```
 
-This method accepts 3 parameters. The first is the queue name, the second is a unique name for this item in the queue, and the third is an array of data to pass to the flusher.
+The three parameters are the queue name, a key unique within that queue, and the payload for the flusher.
 
-> Because the second parameter is used as the array key, queuing the same key
-> twice replaces the earlier payload instead of adding a second one. That makes
-> the queue naturally de-duplicating — handy when you want to collect items
-> during a request and process each one only once at the end.
+> The key is an array key, so queuing it twice replaces the earlier payload. The
+> queue de-duplicates by itself, which is handy for collecting items during a
+> request and processing each one once at the end.
 
-Next, we will register a flusher for the queue named `foo` above:
+Register a flusher for that queue:
 
 #### Registering an event flusher:
 
@@ -109,9 +102,8 @@ Hook::flusher('foo', function ($key, $user) {
 });
 ```
 
-Note that this flusher accepts 2 parameters. First, the unique name of the queued event, which in this case is the user ID. Then the second parameter (and the rest) will be the payload items for the event queue.
-
-Finally, we can run the flusher and flush all queued events using the `flush()` method:
+The flusher receives the key first, here the user ID, then the payload items.
+`flush()` runs it over everything queued:
 
 ```php
 Hook::flush('foo');
@@ -123,7 +115,7 @@ Hook::flush('foo');
 
 ## Framework Events
 
-Here are some events that are run by default by Rakit:
+Events Rakit fires itself:
 
 #### Event fired when a package is booted:
 
@@ -149,7 +141,7 @@ Hook::listen('rakit.done', function ($response) { });
 Hook::listen('rakit.log', function ($type, $message) { });
 ```
 
-Here is the complete list of built-in framework events along with their parameters. You can listen to the following events if needed:
+The complete list, with the parameters each one carries:
 
 | Command                                         | Parameter                                             |
 | ----------------------------------------------- | ----------------------------------------------------- |

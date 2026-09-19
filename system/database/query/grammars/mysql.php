@@ -41,9 +41,7 @@ class MySQL extends Grammar
     }
 
     /**
-     * Compile the row locking clause.
-     * MySQL only learned FOR SHARE in 8.0, so the older spelling is used to
-     * stay compatible with the versions this framework still supports.
+     * Compile the row locking clause, in the pre-8.0 spelling of FOR SHARE.
      *
      * @param Query $query
      *

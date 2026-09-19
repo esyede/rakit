@@ -52,8 +52,7 @@ class Inspector
     }
 
     /**
-     * Returns an associative array of an object's properties.
-     * This method is public so that subclasses may override it.
+     * Get an object's properties. Public so subclasses may override it.
      *
      * @param object $value
      *

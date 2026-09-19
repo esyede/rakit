@@ -25,12 +25,12 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The `Lottery` class allows you to run callbacks probabilistically based on specified odds. This class is very useful for implementing feature flags, A/B testing, or other random events in your application.
+`Lottery` runs a callback on given odds: feature flags, A/B tests, or any other chance-driven branch.
 
 <a id="creating-instance"></a>
 ## Creating Instance
 
-You can create a `Lottery` instance in several ways:
+Several ways to build one:
 
 ```php
 use System\Lottery;
@@ -95,7 +95,7 @@ $result = $lottery->choose();
 echo $result; // "Win!" or "Lose!" randomly
 ```
 
-If no callbacks are defined, the method will return `true` for win and `false` for lose:
+Without callbacks it returns `true` on a win and `false` on a loss:
 
 ```php
 $lottery = Lottery::odds(1, 10);
@@ -110,7 +110,7 @@ if ($lottery->choose()) {
 <a id="direct-invoke"></a>
 ## Direct Invoke
 
-The `Lottery` class can be invoked directly because it implements the `__invoke()` magic method:
+It implements `__invoke()`, so the instance itself is callable:
 
 ```php
 $lottery = Lottery::odds(1, 5)
@@ -126,7 +126,7 @@ $result = $lottery();
 echo $result;
 ```
 
-You can also pass arguments that will be forwarded to the callbacks:
+Arguments are forwarded to the callbacks:
 
 ```php
 $lottery = Lottery::odds(1, 3)
@@ -144,7 +144,7 @@ echo $result;
 <a id="multiple-execution"></a>
 ## Multiple Execution
 
-Run the lottery multiple times at once by passing the number of executions to the `choose()` method:
+Pass a count to `choose()` to run it several times:
 
 ```php
 $lottery = Lottery::odds(1, 5)
@@ -171,7 +171,7 @@ echo "Won $win_count out of 10 attempts";
 <a id="testing"></a>
 ## Testing
 
-For testing purposes, the `Lottery` class provides several methods to control the results:
+The outcome can be forced, for tests:
 
 <a id="always-win"></a>
 ### Always Win
@@ -238,7 +238,7 @@ Lottery::always_lose(function () {
 <a id="sequence"></a>
 ### Sequence
 
-Specify a sequence of results for more complex testing:
+Fix a sequence of results:
 
 ```php
 // Specify sequence: win, lose, lose, win

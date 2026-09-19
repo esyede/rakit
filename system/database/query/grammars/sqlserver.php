@@ -133,8 +133,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile a date based function call on an already wrapped column.
-     * SQL Server has DAY(), MONTH() and YEAR(), but no DATE() or TIME() function.
+     * Compile a date function on a wrapped column. SQL Server has no DATE() or TIME().
      *
      * @param string $type
      * @param string $column
@@ -151,9 +150,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile the FROM clause.
-     * SQL Server asks for a lock through a table hint instead of a trailing
-     * clause, so it is attached to the table itself.
+     * Compile the FROM clause, with the lock attached as a table hint.
      *
      * @param Query $query
      *
@@ -177,8 +174,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile the row locking clause.
-     * Nothing is appended, since the lock is already part of the FROM clause.
+     * Compile the row locking clause; nothing, the FROM clause already carries it.
      *
      * @param Query $query
      *
@@ -202,9 +198,7 @@ class SQLServer extends Grammar
     }
 
     /**
-     * Compile the statement that releases a savepoint.
-     * SQL Server has no such statement, a savepoint simply goes away when the
-     * transaction that owns it ends.
+     * Compile the release of a savepoint. SQL Server has none: it ends with its transaction.
      *
      * @param string $name
      *

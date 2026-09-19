@@ -295,7 +295,7 @@ return View::of('profile', compact('user'));
 <a id="view-composers"></a>
 ## View Composers
 
-View composers are closures called every time a view is rendered. Useful for injecting data into views automatically.
+A view composer is a closure run every time a view is rendered, for data a view should always carry.
 
 <a id="defining-composer"></a>
 ### Defining Composer
@@ -577,7 +577,7 @@ Route::get('download/(:any)', function ($file) {
     // $file comes from URL — never concatenate directly (path traversal)
     $file = basename($file); // strip directories
     $path = path('storage') . 'downloads/' . $file;
-    // Response::download() is now confined to allowed roots and will throw if outside
+    // Response::download() is confined to the allowed roots and throws outside them
     return Response::download($path);
 });
 
@@ -643,7 +643,7 @@ Create view in `application/views/error/404.php`:
 
 **Response for JSON request:**
 
-If the request expects JSON (with `Accept: application/json` header), Response::error() will automatically return JSON:
+A request that expects JSON (`Accept: application/json`) gets JSON back instead of the error view:
 
 ```php
 // Automatically returns JSON if request wants JSON
@@ -775,7 +775,7 @@ return Response::error('500');
 ```php
 return Redirect::to('home');
 return Redirect::to('user/profile');
-// External URLs must use away() — to() now blocks external hosts (open-redirect fix)
+// External URLs must use away(); to() blocks external hosts
 return Redirect::away('https://example.com');
 ```
 

@@ -94,15 +94,13 @@ class Cookie
 
         $path = (! is_string($path) || empty($path)) ? '/' : $path;
 
-        // Rejected here as well as in the cookie itself, so a bad path fails at
-        // the call that set it rather than halfway through sending the response.
+        // Rejected here too, so a bad path fails at the call, not mid-response.
         if (preg_match('/[,; \t\r\n\013\014]/', $path)) {
             throw new \Exception('Cookie path must not contain a separator, a space or a line break.');
         }
 
         if (! is_null($domain)) {
-            // FILTER_VALIDATE_DOMAIN on its own accepts a line break, which would
-            // let the domain carry a header of its own into the response.
+            // FILTER_VALIDATE_DOMAIN alone accepts line breaks: header injection.
             if (preg_match('/[,; \t\r\n\013\014]/', (string) $domain)) {
                 throw new \Exception('Cookie domain must not contain a separator, a space or a line break.');
             }
@@ -195,8 +193,7 @@ class Cookie
     }
 
     /**
-     * Forget every cookie queued for this request, including the decrypted
-     * values remembered for them.
+     * Forget every queued cookie, and the decrypted values cached for them.
      */
     public static function flush()
     {

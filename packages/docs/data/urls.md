@@ -15,10 +15,7 @@
 
 ## Basic Knowledge
 
-When creating views, you certainly need to direct URLs to the resources you want,
-whether it's images, CSS, JavaScript, or other resources.
-
-In this section, you'll experience the ease of creating those URLs.
+`URL` builds links to routes, controller actions and assets.
 
 #### Getting the application's base URL:
 
@@ -32,8 +29,7 @@ $url = URL::base();
 $url = URL::home();
 ```
 
-This method will return the URL to the application's home page. If you have a named route `'home'`,
-it will use the URL from that route. If not, it will return the base URL.
+It uses the named route `'home'` when there is one, and the base URL otherwise.
 
 #### Creating a URL from the base URL:
 
@@ -41,7 +37,7 @@ it will use the URL from that route. If not, it will return the base URL.
 $url = URL::to('user/profile');
 ```
 
-> **Security:** `URL::to()` now blocks protocol-relative `//evil.com` and dangerous schemes (`javascript:`, `data:`). `Redirect::to()` blocks external hosts — use `Redirect::away()` for intentional external redirects to avoid open-redirect.
+> **Security:** `URL::to()` blocks protocol-relative URLs (`//evil.com`) and dangerous schemes (`javascript:`, `data:`). `Redirect::to()` blocks external hosts; use `Redirect::away()` for a deliberate external redirect.
 
 #### Getting the current URL:
 
@@ -80,10 +76,7 @@ The `valid()` method uses PHP's `filter_var()` to validate the URL format.
 $url = URL::to_route('profile');
 ```
 
-Sometimes, you may need to create a URL to a named route, but also need to specify
-values to replace the route's URI placeholders.
-
-It's easy to replace wildcards with the values you want:
+Pass the values that replace the route's URI placeholders:
 
 #### Creating a URL to a named route with wildcard values:
 
@@ -143,7 +136,7 @@ $url = URL::to_asset('js/jquery.js');
 
 ## Other Helpers
 
-We have also provided global functions (helpers) that can be used to make your URL creation work easier:
+Global helpers cover the same ground:
 
 #### Creating a URL from the base URL:
 

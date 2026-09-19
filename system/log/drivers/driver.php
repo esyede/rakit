@@ -11,10 +11,8 @@ use System\Log\Formatter;
 abstract class Driver
 {
     /**
-     * The marker that keeps a log file from being served, and executed, by a
-     * web server whose document root happens to contain the storage directory.
-     * The framework cannot assume the server was configured to deny it, so the
-     * protection travels with the file rather than with the deployment.
+     * Marker that keeps a log file from being served, or executed, by a web server.
+     * The guard travels with the file, since the deployment cannot be assumed.
      *
      * @var string
      */
@@ -69,9 +67,8 @@ abstract class Driver
     /**
      * Handle the log record.
      *
-     * The record contains 'level', 'message', 'context', 'channel' (the name
-     * given to Log::channel(), or the application name), 'env' and 'datetime'
-     * (a \System\Carbon instance).
+     * The record holds 'level', 'message', 'context', 'channel' (from Log::channel(),
+     * or the application name), 'env' and 'datetime' (a \System\Carbon).
      *
      * @param array $record
      *
@@ -98,8 +95,7 @@ abstract class Driver
     }
 
     /**
-     * Write the log record.
-     * Throw an exception or return false when the record cannot be written.
+     * Write the log record. Throw or return false when it cannot be written.
      *
      * @param array $record
      *
@@ -134,10 +130,9 @@ abstract class Driver
     }
 
     /**
-     * Get the guard to write in front of the first entry of a log file.
-     * Only a file PHP would parse needs one, and only while it is being created:
-     * a guard appended to an existing file would sit behind whatever is already
-     * in it, which is exactly what it has to protect.
+     * Get the guard written in front of a log file's first entry. Only a file PHP would
+     * parse needs one, and only at creation: appended later it would sit behind what it
+     * has to protect.
      *
      * @param string $file
      *

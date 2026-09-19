@@ -42,9 +42,7 @@ class Postgres extends Connector
 
         if (isset($config['schema'])) {
             $schema = (string) $config['schema'];
-            // Allow comma-separated list of schema names, each must be valid identifier
-            // Valid: letters, digits, underscore, quotes for delimited identifiers
-            // Reject injection like schema"; DROP ...
+            // A comma-separated list, each name a plain or double-quoted identifier.
             $schemas = array_map('trim', explode(',', $schema));
             foreach ($schemas as $s) {
                 // Strip optional quoted identifier: "my-schema" or 'schema'
@@ -60,9 +58,7 @@ class Postgres extends Connector
                     }
                 }
             }
-            // Use quoted identifiers via wrapping - reuse grammar wrap if available
-            // For safety, execute with parameterized approach where possible, but search_path is identifier
-            // Validate thoroughly above, then execute
+            // search_path takes identifiers, not parameters, hence the validation above.
             $pdo->exec('SET search_path TO ' . $schema);
         }
 

@@ -35,9 +35,8 @@ class Autoloader
     public static $underscored = [];
 
     /**
-     * Contains class name suffixes and the directory holding their classes:
-     * User_Observer lives in observers/user.php, the way User_Controller
-     * lives in controllers/user.php.
+     * Class name suffixes mapped to their directory: User_Observer lives in
+     * observers/user.php, User_Controller in controllers/user.php.
      *
      * @var array
      */
@@ -75,8 +74,7 @@ class Autoloader
     public static $limit = 10000;
 
     /**
-     * Load a file based on the given class.
-     * Failures are deliberately left to propagate.
+     * Load a file based on the given class. Failures propagate deliberately.
      *
      * @param string $class
      */
@@ -115,10 +113,8 @@ class Autoloader
     }
 
     /**
-     * Load a class named after one of the registered suffixes from the
-     * directory of the application, or of the package its name starts with.
-     * PSR-0 cannot do it: it would look for observers/user/observer.php
-     * instead of the observers/user.php the name of User_Observer points at.
+     * Load a suffixed class from the application or its package directory.
+     * PSR-0 cannot: it would look for observers/user/observer.php, not observers/user.php.
      *
      * @param string $class
      *
@@ -202,9 +198,7 @@ class Autoloader
                     continue;
                 }
 
-                // Keyed by the resolved file, not by the class fragment: two
-                // namespaces holding a class of the same short name resolve to
-                // the same fragment, and one of them would never be loaded.
+                // Keyed by resolved file: two namespaces may share a short class name.
                 if (! isset(static::$loaded[$path])) {
                     static::$loaded[$path] = true;
                     require $path;
@@ -216,8 +210,7 @@ class Autoloader
     }
 
     /**
-     * Record whether a candidate path exists, dropping the whole cache first
-     * if it has outgrown the limit.
+     * Record whether a candidate path exists, clearing the cache once it is full.
      *
      * @param string $path
      * @param bool   $exists
@@ -295,8 +288,7 @@ class Autoloader
                 try {
                     $path = path('storage') . 'logs' . DS . 'rakit.log.php';
 
-                    // The guard is spelled out rather than taken from the log driver,
-                    // this runs while aliases are still being registered.
+                    // Spelled out instead of using the log driver: aliases still registering.
                     $guard = is_file($path) ? '' : "<?php defined('DS') or exit('No direct access.');?>" . PHP_EOL;
 
                     @file_put_contents($path, $guard . $message . PHP_EOL, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
@@ -331,8 +323,7 @@ class Autoloader
         $mappings = static::format_mappings($mappings, $append);
         static::$namespaces = array_merge($mappings, static::$namespaces);
 
-        // Longest prefix first, so registering 'Foo\' after 'Foo\Bar\' cannot
-        // make 'Foo\Bar\Baz' resolve under the wrong root.
+        // Longest prefix first, so 'Foo\' cannot shadow 'Foo\Bar\'.
         uksort(static::$namespaces, function ($left, $right) {
             return mb_strlen((string) $right, '8bit') - mb_strlen((string) $left, '8bit');
         });
@@ -370,8 +361,7 @@ class Autoloader
     }
 
     /**
-     * Format directory-separator to match OS.
-     * (Windows = \, Linux/Mac = /).
+     * Format directory separators to match the OS.
      *
      * @param array $directories
      *

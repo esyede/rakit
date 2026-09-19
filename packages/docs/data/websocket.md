@@ -1,10 +1,10 @@
 # WebSocket
 
-The WebSocket package provides real-time communication capabilities for Rakit applications using the WebSocket protocol.
+Real-time communication over the WebSocket protocol.
 
 ## Installation
 
-The WebSocket package is included in the Rakit core framework. No additional installation is required.
+Included in the core framework; nothing to install.
 
 ## Configuration
 

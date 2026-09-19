@@ -73,9 +73,7 @@ class Job
 
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
-                // Passed as one argument: Hook::fire() spreads the array it is
-                // given, which would hand every key of the payload to the
-                // listener as a parameter of its own.
+                // Wrapped in an array: Hook::fire() spreads what it is given.
                 Hook::fire('rakit.jobs.run: '.$job->name, [$payloads]);
             }
         });
@@ -107,9 +105,7 @@ class Job
                 $prefix = Package::class_prefix($package);
                 $class = $prefix.Str::classify(basename($file, '.php')).'_Job';
 
-                // The file is read here rather than left to the autoloader,
-                // whose PSR-0 convention would look for jobs/mailing/job.php
-                // instead of the jobs/mailing.php the name points at.
+                // Read here, not via the autoloader: PSR-0 would look for jobs/mailing/job.php.
                 if (! class_exists($class, false)) {
                     require_once $file;
                 }
@@ -134,8 +130,7 @@ class Job
      */
     public static function driver($driver = null)
     {
-        // A worker (job:run, job:runall) never dispatches, so the listeners
-        // have to be registered on the way to the driver that runs the jobs.
+        // Workers (job:run, job:runall) never dispatch, so register listeners here.
         static::auto_discover();
 
         $driver = is_null($driver) ? Config::get('job.driver') : $driver;

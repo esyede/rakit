@@ -8,7 +8,7 @@ defined('DS') or exit('No direct access.');
 |--------------------------------------------------------------------------
 | Call Init Script
 |--------------------------------------------------------------------------
-| Call init script before first boot.
+| Run the init script before the first boot.
 */
 
 require __DIR__.DS.'init.php';
@@ -17,9 +17,7 @@ require __DIR__.DS.'init.php';
 |--------------------------------------------------------------------------
 | Load Helpers and Autoloader
 |--------------------------------------------------------------------------
-|
-| Load Helpers and Autoloader before core for early debugger initialization.
-|
+| Before the core, so the debugger can initialize early.
 */
 
 require path('system').'helpers.php';
@@ -31,12 +29,7 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 |--------------------------------------------------------------------------
 | Run the Core Boot
 |--------------------------------------------------------------------------
-|
-| With the inclusion of this file, the core boot of the framework
-| will be executed, which contains the autoloader and package registration.
-| In essence, after including this file, the rakit framework is
-| ready to be used by the developer.
-|
+| Registers the autoloader and the packages. The framework is usable after this.
 */
 
 require __DIR__.DS.'core.php';
@@ -45,10 +38,7 @@ require __DIR__.DS.'core.php';
 |--------------------------------------------------------------------------
 | Early Debugger Initialization
 |--------------------------------------------------------------------------
-|
-| Enable debugger before boot package for early error capture like
-| failed Redis/Database connection during session init.
-|
+| Enabled before the packages boot, to catch errors raised during session init.
 */
 
 use System\Foundation\Oops\Debugger;
@@ -61,12 +51,7 @@ Debugger::enable(null, path('storage').'logs');
 |--------------------------------------------------------------------------
 | Boot the 'application' Package
 |--------------------------------------------------------------------------
-|
-| The 'application' package is the default package in the rakit framework.
-| Yes, the application/ folder is a package, the default package.
-| We need to boot it first, because this package will load all the core
-| configuration of the framework.
-|
+| The default package, which loads the core configuration of the framework.
 */
 
 Package::boot(DEFAULT_PACKAGE);
@@ -75,11 +60,7 @@ Package::boot(DEFAULT_PACKAGE);
 |--------------------------------------------------------------------------
 | Re-configure the Debugger
 |--------------------------------------------------------------------------
-|
-| Re-configure the debugger based on the configuration settings in the
-| application/config/debugger.php file. The config has already been loaded,
-| we need to re-configure it to ensure consistency after the package boot.
-|
+| The config file is loaded by now, so apply it in full.
 */
 
 $debugger = Config::get('debugger');
@@ -104,19 +85,10 @@ Debugger::dispatch();
 |--------------------------------------------------------------------------
 | Drop the Redundant Config Revalidation
 |--------------------------------------------------------------------------
-|
-| Config::get() re-stats the owning file on every single read to notice edits.
-| Its caches are plain statics though, so PHP clears them when the request
-| ends and the next request re-reads the file regardless. The check therefore
-| only ever catches a config file changing *during* one request, and pays two
-| filesystem calls per read for it — which hurts on shared hosting, where the
-| document root often lives on network storage.
-|
-| Development keeps the check anyway, since that is where a surprising cache
-| costs the most time. Note that Blade has a similar switch, but it is left
-| alone here: compiled templates live on disk and do outlive the request, so
-| turning its check off silently would stop edited templates from recompiling.
-|
+| Config::get() re-stats the owning file on every read, but its caches are plain
+| statics that die with the request, so the check only ever catches a config file
+| edited mid request and pays two filesystem calls per read for it. Kept in
+| development, where a surprising cache costs the most time.
 */
 
 Config::$reload = ! Debugger::$productionMode;
@@ -127,12 +99,8 @@ unset($debugger, $template, $debugger);
 |--------------------------------------------------------------------------
 | Trust the Configured Reverse Proxies
 |--------------------------------------------------------------------------
-|
-| Headers such as X-Forwarded-For and CF-Connecting-IP are sent by the client,
-| so they are only worth reading when the request actually arrives through a
-| proxy we put in front of the application. Until that list is configured they
-| are ignored and the peer address is used as-is.
-|
+| X-Forwarded-For and CF-Connecting-IP are written by the client, so they are only
+| read once the proxies sitting in front of the application are named.
 */
 
 $proxies = Config::get('application.trusted_proxies', []);
@@ -153,12 +121,7 @@ unset($proxies, $hosts);
 |--------------------------------------------------------------------------
 | Timeline: Log Boot Phase
 |--------------------------------------------------------------------------
-|
-| After the debugger is dispatched (and the collector initialized),
-| record the boot phase duration for the debug bar's Timeline panel.
-| This is placed *after* the dispatch so that it is not overwritten
-| by `Collectors::initialize()`.
-|
+| Placed after dispatch(), or Collectors::initialize() would overwrite it.
 */
 
 $rakit_boot_done = microtime(true);
@@ -178,11 +141,7 @@ if (
 |--------------------------------------------------------------------------
 | Boot Other Packages
 |--------------------------------------------------------------------------
-|
-| We know, the packages used in your application can be autoboot
-| so they can be used directly without having to be manually booted.
-| Here we do it.
-|
+| Packages marked 'autoboot' are booted here.
 */
 
 foreach (Package::$packages as $package => $config) {
@@ -195,11 +154,7 @@ foreach (Package::$packages as $package => $config) {
 |--------------------------------------------------------------------------
 | Register Catch-All Route
 |--------------------------------------------------------------------------
-|
-| This route handles all routes that cannot be found in your application,
-| and will trigger the 404 event so that developers can easily change
-| how it is handled according to their needs.
-|
+| Handles every URI no route matched, firing the 404 event.
 */
 
 Routing\Router::register('*', '(:all)', function () {
@@ -210,12 +165,9 @@ Routing\Router::register('*', '(:all)', function () {
 |--------------------------------------------------------------------------
 | Worker Mode: Skip Dispatch
 |--------------------------------------------------------------------------
-|
-| In worker mode (FrankenPHP, RoadRunner, Swoole), the framework boots
-| once and the request dispatch is handled by the bridge loop instead.
-| Return early here so boot.php only initializes the framework.
-|
+| A worker boots once; the bridge loop dispatches each request instead.
 */
+
 if (defined('RAKIT_WORKER_MODE')) {
     return;
 }
@@ -224,11 +176,7 @@ if (defined('RAKIT_WORKER_MODE')) {
 |--------------------------------------------------------------------------
 | Read URI And Locale
 |--------------------------------------------------------------------------
-|
-| When a request is routed, we need to read the URI and supported locale
-| of the destination route so that we can redirect the request to the
-| appropriate location and set the appropriate language.
-|
+| Longest first, so 'id-ID' is matched before 'id'.
 */
 
 $languages = Config::get('application.languages', ['en']);
@@ -244,11 +192,7 @@ usort($languages, function ($a, $b) {
 |--------------------------------------------------------------------------
 | Set the Locale Based On Route
 |--------------------------------------------------------------------------
-|
-| When the URI starts with one of the supported 'locale', we will set
-| the default language based on the URI segment, then we set the URI
-| and we tell the Router not to include the 'locale' segment.
-|
+| A leading locale segment sets the language and is taken off the URI.
 */
 
 $uri = URI::current();
@@ -268,11 +212,7 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 |--------------------------------------------------------------------------
 | Direct Incoming Request
 |--------------------------------------------------------------------------
-|
-| Finally, we can direct the request to the correct location and execute it
-| to get a response. This response is an instance of the \System\Response
-| class that we can send to the browser.
-|
+| Route the request and call it, giving a \System\Response.
 */
 
 $domain = Request::foundation()->getHost();
@@ -290,9 +230,7 @@ $rakit_tl_render_start = microtime(true);
 |--------------------------------------------------------------------------
 | Render the Response
 |--------------------------------------------------------------------------
-|
-| This method evaluates the response content and converts it to a string.
-|
+| Evaluate the response content into a string.
 */
 
 $response->render();
@@ -302,12 +240,7 @@ $rakit_tl_render_done = microtime(true);
 |--------------------------------------------------------------------------
 | Timeline: Mark the Routing / Controller / Render Phase
 |--------------------------------------------------------------------------
-|
-| Break down the application's execution duration into phases so that
-| the debug bar's Timeline panel shows where time is spent
-| (routing, controller/action, and view rendering).
-| The bar is positioned relative to RAKIT_START.
-|
+| Split the request into phases for the debug bar's Timeline, relative to RAKIT_START.
 */
 
 if (
@@ -335,11 +268,7 @@ if (
 |--------------------------------------------------------------------------
 | Persist Session
 |--------------------------------------------------------------------------
-|
-| If there is an active session, we will save it so that it can be used in
-| the next request. This will also set the session cookie in the cookie
-| jar to be sent to the user.
-|
+| Save the session and put its cookie in the jar.
 */
 
 if (Config::get('session.driver') && Session::started()) {
@@ -350,10 +279,7 @@ if (Config::get('session.driver') && Session::started()) {
 |--------------------------------------------------------------------------
 | Send Response to Browser
 |--------------------------------------------------------------------------
-|
-| Here we will send the response to the browser. This method will send
-| all headers and content of the response to the browser.
-|
+| Send the headers and the content.
 */
 
 $response->send();
@@ -362,10 +288,7 @@ $response->send();
 |--------------------------------------------------------------------------
 | Okay, Done!
 |--------------------------------------------------------------------------
-|
-| Fire the 'done' event to allow other outputs (such as logging, error handling)
-| to be added to the response.
-|
+| Fire 'rakit.done' so listeners can still add to the response.
 */
 
 Hook::fire('rakit.done', [$response]);
@@ -374,8 +297,7 @@ Hook::fire('rakit.done', [$response]);
 |--------------------------------------------------------------------------
 | Finish the Request
 |--------------------------------------------------------------------------
-|
-| Send the response to the browser and finish the request.
+| Flush the output and close the connection.
 */
 
 $response->foundation()->finish();

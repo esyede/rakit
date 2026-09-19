@@ -35,8 +35,7 @@ class Lang
     protected $language;
 
     /**
-     * Contains all loaded language lines.
-     * The array key follows this pattern: [$package][$language][$file].
+     * All loaded language lines, keyed [$package][$language][$file].
      *
      * @var array
      */
@@ -127,8 +126,7 @@ class Lang
     }
 
     /**
-     * Parse a language key into package, file, and line segments.
-     * Language line calls follow this convention: [package_name]::[file_name].[language_line].
+     * Parse '[package]::[file].[line]' into its package, file and line segments.
      *
      * @param string $key
      *

@@ -212,7 +212,7 @@ $comments_count = optional($post->comments())->count() ?: 0;
 <a id="helper-function"></a>
 ## Helper Function
 
-Rakit provides the `optional()` helper function for convenience:
+The `optional()` helper does the same:
 
 ```php
 // Create Optional instance
@@ -256,4 +256,4 @@ if (optional($user)->is_admin) {
 }
 ```
 
-**Note:** Although `Optional` is very useful, use it wisely. Sometimes, it's better to handle `null` cases explicitly for easier debugging.
+**Note:** handling `null` explicitly is often clearer, and easier to debug.

@@ -21,8 +21,7 @@ class Container
     public static $singletons = [];
 
     /**
-     * Names currently being resolved, used to notice a cycle before it turns
-     * into an exhausted stack.
+     * Names currently being resolved, used to catch a cycle before the stack dies.
      *
      * @var array
      */
@@ -54,8 +53,7 @@ class Container
     }
 
     /**
-     * Register a singleton object.
-     * Singleton will only be instantiated once, when the object is resolved.
+     * Register a singleton, instantiated once when it is first resolved.
      *
      * @param string   $name
      * @param \Closure $resolver
@@ -219,9 +217,8 @@ class Container
     }
 
     /**
-     * Get the class name a parameter is type-hinted with, if any.
-     * Built-in types (int, string, array, ...), union types and intersection
-     * types have no class to resolve, so they yield NULL.
+     * Get the class a parameter is type-hinted with. Built-in, union and
+     * intersection types have none, so they yield NULL.
      *
      * @param \ReflectionParameter $parameter
      *

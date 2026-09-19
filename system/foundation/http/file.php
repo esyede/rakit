@@ -78,9 +78,8 @@ class File extends Parameter
     /**
      * Fix the $_FILES array bug.
      *
-     * PHP has a bug where the format of the $_FILES array is sometimes different,
-     * depending on whether the uploaded file fields have normal names
-     * or names that resemble an array ("normal" vs. "foo[bar]").
+     * PHP shapes $_FILES differently for a plain field name than for one that looks
+     * like an array ("normal" vs. "foo[bar]").
      *
      * @param array $data
      *

@@ -30,9 +30,8 @@ class Middleware
     public static $aliases = [];
 
     /**
-     * Register a middleware.
-     * The handler is a callable, except for a pattern, which may also name the
-     * middlewares to attach, either as 'a|b' or as an array of names.
+     * Register a middleware. The handler is a callable, except for a pattern, which may
+     * instead name the middlewares to attach, as 'a|b' or as an array.
      *
      * @param string $name
      * @param mixed  $handler
@@ -53,8 +52,7 @@ class Middleware
     }
 
     /**
-     * Make an alias for a middleware.
-     * This makes it easier to shorten the call to a package's built-in middleware.
+     * Alias a middleware, to shorten a call to a package's own.
      *
      * @param string $middleware
      * @param string $alias

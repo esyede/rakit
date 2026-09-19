@@ -236,8 +236,7 @@ class Bar
     }
 
     /**
-     * Save a snapshot of the current request to the file-based history so it can
-     * be reopened from the "History" dropdown (php-debugbar openhandler style).
+     * Snapshot the request to the file history, for the "History" dropdown.
      *
      * @param string $content
      * @param array  $dumps
@@ -269,10 +268,8 @@ class Bar
     }
 
     /**
-     * Render a standalone page holding the debug bar of a past request. Served
-     * from the `_oops_bar=open.<id>` endpoint and opened in a new tab by the
-     * History dropdown; loads the assets, then calls Oops.Debug.init with the
-     * snapshot.
+     * Render a standalone page holding the debug bar of a past request, served from
+     * `_oops_bar=open.<id>` and opened in a new tab by the History dropdown.
      *
      * @param string $id
      *

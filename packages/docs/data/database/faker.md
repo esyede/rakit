@@ -9,16 +9,14 @@
 
 ## Basic Knowledge
 
-Faker is a library that generates fake data for you.
-This library is very useful for bootstrapping your database, filling data for testing, or anonymizing data retrieved from production servers.
-This library is adopted from [fzaninotto/faker](https://github.com/fzaninotto/faker) version 1.5.0.
+Faker generates fake data, for seeding a database, filling test fixtures or anonymizing
+production data. Adopted from [fzaninotto/faker](https://github.com/fzaninotto/faker) 1.5.0.
 
 <a id="usage"></a>
 
 ## Usage
 
-Use `Faker::create()` to initialize and start using faker.
-After initialization, you just need to call its properties according to the data you need. Easy enough, right? Let's try.
+`Faker::create()` builds the generator; read the property that names the data you want:
 
 ```php
 $faker = Faker::create();
@@ -31,7 +29,7 @@ You can also pass the locale explicitly, either `'en'` (English) or `'id'` (Indo
 $faker = Faker::create('en');
 ```
 
-Alright, for the examples below we will use English
+The examples below use English.
 
 ```php
 $faker->name; // 'John Doe';

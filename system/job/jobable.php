@@ -27,8 +27,7 @@ abstract class Jobable
     }
 
     /**
-     * Handle the job logic.
-     * This method must be implemented by the child class.
+     * Handle the job. Must be implemented by the child class.
      *
      * @return void
      */

@@ -12,13 +12,14 @@
 
 ## Basic Knowledge
 
-Language translation (localization) is the process of translating your application into various languages. The `Lang` component provides a simple mechanism to help you organize and retrieve multilingual text.
+`Lang` organizes and retrieves the text of an application translated into several
+languages.
 
-All language files for your application are located in the `application/language/` directory. Within that directory, you should create folders for each language your application supports.
+Language files live in `application/language/`, one folder per language. `en/` and
+`id/` ship by default; add the others you need.
 
-For example, if your application supports English and Indonesian, you can create `en/` and `id/` directories within the `language/` directory. By default, these two languages are already provided. You can add other languages as needed.
-
-Each language file is an associative array containing strings in the respective language. Language files have the same structure as configuration files. For example, in the `application/language/en/` directory, you can create a `marketing.php` file that looks like this:
+Each file returns an associative array, the same shape as a configuration file. For
+example, `application/language/en/marketing.php`:
 
 #### Creating a language file:
 
@@ -30,7 +31,7 @@ return [
 ];
 ```
 
-Next, you should create the same `marketing.php` file in the `application/language/id/` directory. That file will look like this:
+The same file in `application/language/id/`:
 
 ```php
 return [
@@ -39,8 +40,6 @@ return [
 
 ];
 ```
-
-Great! Now you know how to create language files. It's very easy, isn't it?
 
 <a id="retrieving-language-lines"></a>
 
@@ -58,7 +57,7 @@ echo Lang::line('marketing.welcome')->get();
 echo trans('marketing.welcome');
 ```
 
-Notice how the dot (period) is used to separate `marketing` and `welcome`? The text before the dot refers to the language file name, while the text after the dot refers to a specific key within that file.
+The part before the dot is the file name, the rest is the key inside it.
 
 #### Retrieving a line with default fallback:
 
@@ -67,7 +66,7 @@ Notice how the dot (period) is used to separate `marketing` and `welcome`? The t
 echo Lang::line('marketing.nonexistent')->get(null, 'Default Text');
 ```
 
-If you want to retrieve a line in a language other than the default, no problem. Just specify the desired language to the `get()` method:
+To read a line in another language, name it in `get()`:
 
 #### Retrieving a line in a specific language:
 
@@ -89,15 +88,13 @@ if (Lang::has('marketing.welcome', 'fr')) {
 }
 ```
 
-The `has()` method is useful for checking the availability of a language line before using it.
-
 <a id="placeholder--replacement"></a>
 
 ## Placeholder & Replacement
 
-Now, let's create a more specific welcome message. _"Welcome to our website!"_ is too general. It would be better if you can mention the person's name.
-
-However, creating language lines for every user in your application would be time-consuming and inefficient. Fortunately, you don't need to do that. You can define _placeholders_ in language lines. Placeholders are prefixed with a colon (`:`)
+A line such as _"Welcome to our website!"_ is often too general, but writing one per
+user is not an option. Instead, a line may carry _placeholders_, written with a
+leading colon (`:`), that are filled in when the line is read.
 
 #### Creating a language line with placeholders:
 

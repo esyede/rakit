@@ -11,8 +11,7 @@ use System\Console\Commands\Command;
 class Runner extends Command
 {
     /**
-     * Contains the base directory where tests will be executed.
-     * The phpunit.xml file must also be saved in this directory.
+     * The directory tests run in, which must also hold phpunit.xml.
      *
      * @var string
      */
@@ -85,9 +84,8 @@ class Runner extends Command
             throw new \Exception("Error: test dependencies is not present. Please run 'composer install' first.");
         }
 
-        // Run phpunit on the very PHP binary that runs this command, with its memory limit.
-        // Executing the script directly would let its shebang pick whichever `php` comes
-        // first in PATH, which is not necessarily the version being tested.
+        // Run phpunit on this very PHP binary: its shebang would pick whichever `php`
+        // comes first in PATH.
         $script = 'vendor'.DS.'phpunit'.DS.'phpunit'.DS.'phpunit';
         $command = (defined('PHP_BINARY') && '' !== (string) PHP_BINARY && is_file(path('base').$script))
             ? escapeshellarg(PHP_BINARY).' -d memory_limit='.escapeshellarg(ini_get('memory_limit')).' '.escapeshellarg($script)

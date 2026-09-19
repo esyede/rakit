@@ -83,7 +83,7 @@ abstract class Driver
     }
 
     /**
-     * Retrieve an item from the cache, or store the default value in the cache for a given number of minutes.
+     * Get an item from the cache, storing the default for the given minutes when it is missing.
      *
      * @param string $key
      * @param int    $minutes
@@ -103,7 +103,7 @@ abstract class Driver
     }
 
     /**
-     * Retrieve an item from the cache, or store the default value in the cache indefinitely (or for 5 years).
+     * Get an item from the cache, storing the default for five years when it is missing.
      *
      * @param string $key
      * @param mixed  $default

@@ -12,20 +12,18 @@
 
 ## Basic Knowledge
 
-The `Crypter` component provides a simple way to handle secure two-way encryption.
-This class provides strong AES-256-CBC via [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) with HMAC-SHA256.
+`Crypter` handles two-way encryption: AES-256-CBC with HMAC-SHA256, through
+[PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php).
 
 > Don't forget to install the [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension
 
-> **Security (fixed):** Keys are now derived via HKDF-like `HMAC-SHA256(RAKIT_KEY, purpose)` — separate keys for encryption vs MAC (previously one `RAKIT_KEY` for both). Payloads carry `v=1`; legacy payloads without `v` are still decrypted for BC.
+> **Security:** encryption and MAC use separate keys, each derived as `HMAC-SHA256(RAKIT_KEY, purpose)`. Payloads carry `v=1`; older ones without it still decrypt.
 
 <a id="encrypting-a-string"></a>
 
 ## Encrypting a String
 
 #### Encrypting a string:
-
-To encrypt data, use the `encrypt()` method as follows:
 
 ```php
 $data = 'secret';
@@ -39,8 +37,6 @@ $encrypted = Crypter::encrypt($data);
 ## Decrypting a String
 
 #### Decrypting a string:
-
-To decrypt data, use the `decrypt()` method as follows:
 
 ```php
 $decrypted = Crypter::decrypt($encrypted); // 'secret'

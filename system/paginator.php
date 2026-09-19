@@ -157,8 +157,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     }
 
     /**
-     * Check if the given number is a valid page number.
-     * A page number is considered valid if it is an integer greater than or equal to 1.
+     * Check if the given number is a valid page number, meaning an integer >= 1.
      *
      * @param int $page
      *
@@ -356,10 +355,8 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     }
 
     /**
-     * Render the pagination links.
-     * When the view given by the $view parameter does not exist, an exception
-     * will be thrown. But when it is the configured view that does not exist,
-     * the default view shipped with the framework will be used instead.
+     * Render the pagination links. A missing $view throws; a missing configured view
+     * falls back to the one shipped with the framework.
      *
      * @param int    $adjacent
      * @param string $view
@@ -375,9 +372,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     }
 
     /**
-     * Get the name of the view that should render the pagination links.
-     * The default view is published from its stub the first time it is needed,
-     * any other missing view is reported as an error instead.
+     * Get the view that renders the links, publishing the default from its stub once.
      *
      * @param string $view
      *
@@ -395,9 +390,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     }
 
     /**
-     * Copy the pagination view stub to the application's view directory.
-     * The view is only published once, it will never be overwritten after that,
-     * so any change made to it is safe.
+     * Copy the pagination view stub into the application. Never overwritten, so edits are safe.
      *
      * @return bool
      */
@@ -504,8 +497,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     }
 
     /**
-     * Get the list of page numbers shown by the slider.
-     * A NULL entry represents a separator (ellipsis).
+     * Get the page numbers shown by the slider; a NULL entry is an ellipsis.
      *
      * @param int $adjacent
      *

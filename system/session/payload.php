@@ -87,8 +87,7 @@ class Payload
     }
 
     /**
-     * Check if the session has expired.
-     * Session considers expired if last activity time + lifetime < current time.
+     * Check if the session has expired, meaning last activity plus lifetime is past.
      *
      * @param array $session
      *
@@ -113,8 +112,7 @@ class Payload
     }
 
     /**
-     * Get an item from the session.
-     * The search will also be performed in flash data, not just in the session.
+     * Get an item from the session, flash data included.
      *
      * @param string $key
      * @param mixed  $default
@@ -156,8 +154,7 @@ class Payload
     }
 
     /**
-     * Put an item into the flash data.
-     * Flash data will only last for the next request.
+     * Flash an item, which lasts for the next request only.
      *
      * @param string $key
      * @param mixed  $value
@@ -211,9 +208,8 @@ class Payload
     }
 
     /**
-     * Set new session id.
-     * Deletes the old session from storage before generating a new ID,
-     * but preserves the current session data (e.g. after impersonate logout).
+     * Generate a new session ID, dropping the old session from storage but keeping
+     * its data (e.g. after an impersonate logout).
      */
     public function regenerate()
     {
@@ -226,10 +222,8 @@ class Payload
     }
 
     /**
-     * Invalidate the current session.
-     * Deletes the old session from storage, generates a new session ID,
-     * and resets all session data with a fresh CSRF token.
-     * Use this on logout instead of regenerate() to avoid orphaned sessions.
+     * Invalidate the session: drop it from storage, generate a new ID and reset the
+     * data with a fresh CSRF token. Use this on logout, not regenerate().
      */
     public function invalidate()
     {
@@ -263,8 +257,7 @@ class Payload
     }
 
     /**
-     * Save the session payload to storage.
-     * This method will be automatically called at the end of each request.
+     * Save the session payload, called automatically at the end of each request.
      */
     public function save()
     {
@@ -281,8 +274,7 @@ class Payload
     }
 
     /**
-     * Delete expired sessions from storage based on the configured odds.
-     * Only applies to drivers that do not expire their own data.
+     * Sweep expired sessions at the configured odds, for drivers that do not expire their own.
      *
      * @param array $config
      */

@@ -128,10 +128,8 @@ class Response
     }
 
     /**
-     * Create a new Response instance with error content.
-     * Status code of the error response must use HTTP status codes.
-     * The error code must match the name of the view file in the application/views/error/ folder.
-     * If the view file does not exist, you can add a new one there.
+     * Create an error response. The HTTP status code names the view file in
+     * application/views/error/.
      *
      * @param int   $code
      * @param array $headers
@@ -174,8 +172,7 @@ class Response
     }
 
     /**
-     * Create a response that displays the given file inline in the browser
-     * instead of downloading it.
+     * Create a response that displays a file inline instead of downloading it.
      *
      * @param string $path
      * @param array  $headers
@@ -219,8 +216,7 @@ class Response
             'Content-Disposition' => static::disposition('attachment', $name ?: basename($path)),
         ]));
 
-        // RoadRunner and Swoole send the body of the returned response. Echoing it
-        // bypasses them, and under RoadRunner it corrupts the worker's relay.
+        // Workers send the returned body themselves; echoing corrupts RoadRunner's relay.
         if (defined('RAKIT_WORKER_MODE') && 'frankenphp' !== RAKIT_WORKER_MODE) {
             $response->content = file_get_contents($path);
             return $response;
@@ -320,8 +316,7 @@ class Response
     }
 
     /**
-     * Validate that a file path is inside an allowed directory and is a real file.
-     * Prevents path traversal disclosure.
+     * Validate that a path is a real file inside an allowed directory.
      *
      * @param string $path
      * @return string Real path
@@ -371,9 +366,8 @@ class Response
             }
         }
 
-        // If no allowed roots could be determined, at least ensure inside base
-        // For BC, if path is outside all allowed roots but still inside base, allow
-        // Otherwise block traversal like /etc/passwd which is outside base
+        // Unconfigured roots fall back to the base directory, which still blocks
+        // traversal to the likes of /etc/passwd.
         $inside = false;
         if (count($allowed_roots) === 0) {
             $inside = true; // fallback allow if not configured
@@ -395,9 +389,8 @@ class Response
     }
 
     /**
-     * Build a Content-Disposition header. The name often comes from the request,
-     * so anything that could end the quoted string or start a new header line is
-     * taken out of it first.
+     * Build a Content-Disposition header, stripping anything in the name that could
+     * end the quoted string or start a new header line.
      *
      * @param string $type
      * @param string $name

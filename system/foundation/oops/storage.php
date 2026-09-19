@@ -7,10 +7,8 @@ defined('DS') or exit('No direct access.');
 class Storage
 {
     /**
-     * The marker that keeps a stored payload from being served by a web server
-     * whose document root contains the storage directory. A payload holds the
-     * request data, the session contents and every query the request ran, so
-     * the protection travels with the file instead of with the deployment.
+     * Marker that keeps a stored payload from being served by a web server. A payload
+     * holds the request, session and queries, so the guard travels with the file.
      */
     const GUARD = "<?php defined('DS') or exit('No direct access.');?>";
 

@@ -12,8 +12,7 @@ use System\Database;
 class Magic extends Driver
 {
     /**
-     * Get the current user.
-     * If the user is not logged in, NULL will be returned.
+     * Get the current user, or NULL when nobody is logged in.
      *
      * @param int $id
      *

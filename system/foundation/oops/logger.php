@@ -218,14 +218,12 @@ class Logger
     {
         $file = $file ?: $this->getExceptionFile($exception);
         $panic = $this->panic ?: new Panic();
-        // FIXME: Should the detailed HTML error log also be rendered?
-        // $panic->renderToFile($exception, $file);
+        // FIXME: render the detailed HTML error log here too?
         return $file;
     }
 
     /**
-     * Send the error email for a message or exception logged elsewhere.
-     * Never throws, a failure is logged as a warning instead.
+     * Email a message or exception logged elsewhere. Never throws: a failure is warned.
      *
      * @param mixed $message
      *

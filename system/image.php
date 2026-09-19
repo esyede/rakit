@@ -81,9 +81,7 @@ class Image
         $this->height = 0;
         $this->quality = $this->level($quality, 0, 100, 'quality');
 
-        // The resolved path, not the one that came in: path() anchors it to the
-        // project base, and reading it back relative to the working directory
-        // would look somewhere else entirely.
+        // Use the resolved path: path() anchors to the project base, not the cwd.
         $this->load($this->path);
     }
 
@@ -97,9 +95,7 @@ class Image
      */
     public static function open($path, $quality = 75)
     {
-        // Releasing the previous image is the point of holding on to it, but
-        // the one being asked for still has to be loaded: returning the reset
-        // instance handed back a blank object that no operation could work on.
+        // Free the previous image, but still load the new one: a reset instance is blank.
         if (! is_null(static::$singleton)) {
             static::$singleton->reset();
         }
@@ -246,9 +242,7 @@ class Image
     }
 
     /**
-     * Resize the image from the center using the given ratio.
-     * e.g. 500x200 ratio 1:1 (square) = 200x200.
-     * e.g: 500x200 ratio 3:4 = 150x200.
+     * Resize from the center to the given ratio: 500x200 at 3:4 becomes 150x200.
      *
      * @param int $width
      * @param int $height
@@ -491,8 +485,7 @@ class Image
             throw new \Exception(sprintf('Destination file already exists: %s', $this->path));
         }
 
-        // Lower cased, because 'photo.JPG' names a JPEG just as much as
-        // 'photo.jpg' does, and 'jpeg' is the spelling most tools write.
+        // Lowercased: 'photo.JPG' is a JPEG too.
         $extension = strtolower(Storage::extension($this->path));
 
         switch ($extension) {
@@ -537,8 +530,7 @@ class Image
     }
 
     /**
-     * Get the PNG bytes of an image resource. Without a path imagepng() writes
-     * straight to the output buffer and answers a bool, so it has to be caught.
+     * Get the PNG bytes of an image resource, catching what pathless imagepng() echoes.
      *
      * @param resource|\GdImage $image
      *

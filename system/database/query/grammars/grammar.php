@@ -410,8 +410,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile a date based function call on an already wrapped column.
-     * The MySQL spelling is used here, drivers that spell it differently override it.
+     * Compile a date function on a wrapped column, in MySQL spelling. Others override it.
      *
      * @param string $type
      * @param string $column
@@ -544,8 +543,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile the statement that releases a savepoint.
-     * An empty string means the driver has nothing to release.
+     * Compile the release of a savepoint; empty means the driver has nothing to release.
      *
      * @param string $name
      *
@@ -613,8 +611,7 @@ class Grammar extends BaseGrammar
     }
 
     /**
-     * Compile the INSERT statement.
-     * This method handles inserting multiple records at once using a single query.
+     * Compile the INSERT statement, several records in one query.
      *
      * @param Query $query
      * @param array $values

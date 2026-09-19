@@ -124,7 +124,7 @@ Route::any('api/webhook', function () {
 
 **Route for specific multiple methods:**
 
-You can register the same route for several HTTP methods:
+The same route can answer several HTTP methods:
 
 ```php
 // Way 1: Separate registration with shared handler
@@ -466,7 +466,7 @@ Route::group([
 <a id="group-with-domain"></a>
 ### Group With Domain
 
-Domain route grouping allows you to apply routes only for specific domains. This feature is useful for multi-tenant applications or subdomain routing.
+A domain group restricts its routes to one domain, which is what multi-tenant and subdomain routing need.
 
 **Basic domain routing:**
 

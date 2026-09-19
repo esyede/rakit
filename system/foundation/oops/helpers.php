@@ -35,11 +35,9 @@ class Helpers
     }
 
     /**
-     * Build an "open in editor" URL for a file:line reference so the debug bar
-     * and error page can link straight into the developer's IDE. The editor is
-     * configurable via config('debugger.editor') — either a preset name or a
-     * custom template with %file% / %line% placeholders. Returns null when the
-     * feature is disabled or the file is unknown.
+     * Build an "open in editor" URL for a file:line reference. The editor comes from
+     * config('debugger.editor'), a preset name or a %file% / %line% template.
+     * NULL when disabled or the file is unknown.
      *
      * @param string $file
      * @param int    $line
@@ -82,9 +80,7 @@ class Helpers
             $line = 1;
         }
 
-        // Some collectors record a path relative to the application base (so the
-        // visible label stays short); the IDE needs an absolute path, so resolve
-        // it here.
+        // Collectors record short, base-relative paths; the IDE needs an absolute one.
         $path = str_replace('\\', '/', $file);
         $isAbsolute = ('' !== $path && ('/' === $path[0] || preg_match('#^[a-zA-Z]:/#', $path)));
         if (! $isAbsolute && function_exists('path')) {
@@ -94,8 +90,7 @@ class Helpers
             }
         }
 
-        // Encode the path but keep the directory separators intact so path-style
-        // schemes (e.g. vscode://file/...) still resolve.
+        // Keep the separators unencoded so vscode://file/... still resolves.
         $encoded = str_replace('%2F', '/', rawurlencode($path));
 
         return str_replace(['%file%', '%line%'], [$encoded, $line], $template);

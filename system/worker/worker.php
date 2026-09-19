@@ -79,8 +79,7 @@ class Worker
     }
 
     /**
-     * Serve the request the bridge has just received.
-     * Nothing may escape from here, an uncaught exception takes the whole worker down.
+     * Serve the request the bridge received. Nothing may escape: it would kill the worker.
      *
      * @return void
      */
@@ -142,9 +141,8 @@ class Worker
     }
 
     /**
-     * Render an exception the way the debugger would, but into a response.
-     * The debugger itself writes straight to the output and may exit,
-     * which would end the worker rather than the request.
+     * Render an exception like the debugger, but into a response: the debugger writes
+     * to the output and may exit, ending the worker instead of the request.
      *
      * @param \Throwable|\Exception $e
      *
@@ -190,15 +188,13 @@ class Worker
     }
 
     /**
-     * Dispatch a single request through the Rakit pipeline.
-     * Mirrors the request part of boot.php so workers can call it per request.
+     * Dispatch one request through the pipeline, mirroring the request part of boot.php.
      *
      * @return \System\Response
      */
     public static function dispatch()
     {
-        // A regular request loads the session in application/boot.php,
-        // which a worker runs only once, before any request arrives.
+        // application/boot.php loads the session, but a worker runs it only once.
         if (filled(Config::get('session.driver'))) {
             Session::load();
         }

@@ -25,8 +25,7 @@ class Router
     public static $uses = [];
 
     /**
-     * Contains list of all registered routes.
-     * Grouped by HTTP request method.
+     * All registered routes, grouped by HTTP method.
      *
      * @var array
      */
@@ -43,8 +42,7 @@ class Router
     ];
 
     /**
-     * Contains list of all registered 'fallback' routes.
-     * Grouped by HTTP request method.
+     * All registered fallback routes, grouped by HTTP method.
      *
      * @var array
      */
@@ -215,8 +213,7 @@ class Router
                 $routes = &static::$routes;
             }
 
-            // Use composite key (domain||uri) for domain-scoped routes to prevent
-            // key collision when multiple routes share the same URI path.
+            // Key domain-scoped routes by 'domain||uri' so the same path can repeat.
             $group_domain = (! is_null(static::$group) && isset(static::$group['domain']))
                 ? static::$group['domain']
                 : null;
@@ -294,8 +291,7 @@ class Router
     }
 
     /**
-     * Get the URI part of a route key. Routes registered inside a domain group
-     * are stored as 'domain||uri' so two domains can share one path.
+     * Get the URI part of a route key: a domain group stores routes as 'domain||uri'.
      *
      * @param string $key
      *
@@ -536,17 +532,15 @@ class Router
     {
         list($search, $replace) = Arr::divide(static::$optional);
 
-        // Each optional group closes where it opens. Stacking the ')?' at the
-        // tail instead would nest them, making every optional segment depend
-        // on the one before it.
+        // Close each optional group where it opens; stacking ')?' at the tail would
+        // nest them, chaining every optional segment to the one before.
         $key = str_replace($search, $replace, $key);
 
         return strtr($key, static::$patterns);
     }
 
     /**
-     * Get all registered routes.
-     * Fallback routes are placed at the bottom.
+     * Get all registered routes, fallbacks last.
      *
      * @return array
      */

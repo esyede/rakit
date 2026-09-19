@@ -135,8 +135,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Resolve and validate a "path: " view prefix.
-     * Prevents LFI/RFI via traversal, wrappers, and disclosure of arbitrary files.
+     * Resolve a "path: " view prefix, blocking traversal, stream wrappers and LFI.
      *
      * @param string $raw
      * @param string $original
@@ -181,8 +180,7 @@ class View implements \ArrayAccess
             }
         }
 
-        // Also allow package locations that were registered with path:
-        // collected from Package::$packages
+        // Also allow package locations registered as 'path: ...'.
         if (class_exists('\System\Package')) {
             foreach (\System\Package::$packages as $cfg) {
                 if (isset($cfg['location']) && 0 === strpos($cfg['location'], 'path: ')) {
@@ -364,10 +362,8 @@ class View implements \ArrayAccess
      */
     public function get()
     {
-        // A template may open buffers of its own, through a section, a
-        // component or an ob_start() of its own. When it throws they are all
-        // still open, so the level is taken down to where it started rather
-        // than by one.
+        // A template that throws may leave several buffers open, so unwind back to
+        // the starting level rather than by one.
         $level = ob_get_level();
 
         ob_start();
@@ -406,8 +402,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Get the view instance data.
-     * Shared view data will be merged.
+     * Get the view data, merged with the shared data.
      *
      * @return array
      */
@@ -439,8 +434,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Bind a key-value data into the view,
-     * This data can be accessed in the view as a variable.
+     * Bind a value into the view, accessible there as a variable.
      *
      * @param string $key
      * @param mixed  $value
@@ -473,8 +467,7 @@ class View implements \ArrayAccess
     }
 
     /**
-     * Add a data into shared view data,
-     * Shared view data can be accessed by all views in the application scope.
+     * Share a value with every view in the application.
      *
      * @param string $key
      * @param mixed  $value

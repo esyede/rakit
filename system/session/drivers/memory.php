@@ -14,8 +14,7 @@ class Memory extends Driver
     public $session;
 
     /**
-     * Load the session based on the given ID.
-     * If the session is not found, NULL will be returned.
+     * Load the session with the given ID, or NULL when there is none.
      *
      * @param string $id
      *

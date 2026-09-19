@@ -7,9 +7,8 @@ defined('DS') or exit('No direct access.');
 class Frankenphp extends Bridge
 {
     /**
-     * Wait for the next FrankenPHP request and handle it.
-     * FrankenPHP fills the superglobals and php://input only while the handler runs,
-     * and turns an exception escaping from it into a fatal error.
+     * Wait for the next FrankenPHP request and handle it. The superglobals and
+     * php://input only exist inside the handler, and an escaping exception is fatal.
      *
      * @param \Closure $handler
      *

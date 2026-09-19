@@ -189,10 +189,9 @@ class Postgres extends Grammar
     }
 
     /**
-     * Create the sql syntax for creating a full-text index.
-     * A text column has no GIN operator class, so the index is built on its tsvector.
-     * The text search config defaults to english, e.g. ->language('simple') changes it.
-     * Each column is coalesced, otherwise a single NULL column would empty the whole vector.
+     * Compile a full-text index. Text columns have no GIN operator class, so the index
+     * is built on their tsvector, config defaulting to english (->language('simple')).
+     * Columns are coalesced, or one NULL would empty the whole vector.
      *
      * @param Table $table
      * @param Magic $command

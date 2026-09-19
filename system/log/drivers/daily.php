@@ -20,8 +20,7 @@ class Daily extends Single
     }
 
     /**
-     * Run after the log file has been created.
-     * A new file means a new day, so this is when the old files get pruned.
+     * Run after a log file is created. A new file means a new day, so prune the old ones.
      *
      * @param string $file
      * @param array  $record

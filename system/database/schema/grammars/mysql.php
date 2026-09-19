@@ -146,17 +146,8 @@ class MySQL extends Grammar
     }
 
     /**
-     * Create the sql for default value attribute.
-     *
-     * @param Table $table
-     * @param Magic $column
-     *
-     * @return string
-     */
-    /**
-     * Format the default value for a column.
-     * MySQL also reads a backslash as an escape inside a string literal, so one
-     * left as is would swallow the quote that closes the value.
+     * Format a column default. MySQL escapes with backslashes too, so one left as is
+     * would swallow the closing quote.
      *
      * @param mixed $value
      *
@@ -167,6 +158,14 @@ class MySQL extends Grammar
         return str_replace('\\', '\\\\', parent::default_value($value));
     }
 
+    /**
+     * Create the sql for default value attribute.
+     *
+     * @param Table $table
+     * @param Magic $column
+     *
+     * @return string
+     */
     protected function defaults(Table $table, Magic $column)
     {
         if (isset($column->defaults) && null !== $column->defaults) {

@@ -73,7 +73,7 @@ public function action_register()
 
 ## Log In
 
-It is very easy to log a user into your application using the `attempt()` method. Simply pass the identifier (email/username) and password to the method. Credentials should be placed in an array, which allows maximum flexibility across drivers, as some drivers may require different numbers of arguments. The `attempt()` method will return `TRUE` if the credentials are valid and `FALSE` otherwise:
+`attempt()` takes the credentials as an array — an array, because a driver may want more or fewer of them — and returns `TRUE` when they check out:
 
 ```php
 $credentials = [
@@ -90,7 +90,7 @@ if (Auth::attempt($credentials)) {
 
 **Login with additional conditions:**
 
-You can add additional conditions for login, for example, only active users can log in:
+Extra conditions can be added, such as letting only active users in:
 
 ```php
 $credentials = [
@@ -132,7 +132,7 @@ public function action_login()
 }
 ```
 
-If the user's credentials are valid, the user ID will be stored in the session and the user will be considered "logged in" on subsequent requests to your application.
+Valid credentials put the user ID in the session, and the visitor counts as logged in from the next request on.
 
 **Login without credential validation:**
 
@@ -159,7 +159,7 @@ Auth::login($user->id, true);
 
 ## Remember Me
 
-The "Remember Me" feature allows users to stay logged in even after closing the browser. The cookie will be stored for 5 years.
+"Remember Me" keeps a visitor logged in after the browser closes, through a cookie that lives five years.
 
 The cookie carries a token that is also stored in the user's `remember_token`
 column, so the user table needs one:
@@ -227,7 +227,7 @@ if (Auth::attempt($credentials)) {
 
 ## Protecting Routes
 
-It is very common to restrict access to certain routes only to logged-in users. In Rakit, this is done using the `'auth'` middleware. If the user is successfully logged in, the request will be processed normally; however, if the user is not logged in, the default implementation returns a `401` response.
+The `'auth'` middleware restricts a route to logged-in users. A guest gets a `401` from the default implementation.
 
 **Protecting a single route:**
 
@@ -290,7 +290,7 @@ Route::middleware('auth', function () {
 
 ## Retrieving User Data
 
-After the user has successfully logged in, you can access user data through the `user()` method:
+`user()` hands back the logged-in user:
 
 ```php
 // Retrieve all user data
@@ -338,7 +338,7 @@ if ($user) {
 
 ## Check Login Status
 
-Rakit provides several methods to check the user's login status.
+Two methods answer it:
 
 **Check if user is logged in:**
 
@@ -387,7 +387,7 @@ public function action_dashboard()
 
 ## Log Out
 
-To log out a user, simply call the `logout()` method:
+`logout()` logs the user out:
 
 ```php
 Auth::logout();
@@ -395,7 +395,7 @@ Auth::logout();
 return Redirect::to('login')->with('message', 'You have been logged out.');
 ```
 
-This method will:
+That will:
 - Remove the user ID from the session
 - Remove the "remember me" cookie if present
 - Trigger the `rakit.auth: logout` event

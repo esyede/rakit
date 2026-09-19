@@ -79,9 +79,7 @@ class Validator
     protected static $validators = [];
 
     /**
-     * Rules that are meaningless without at least one parameter.
-     * Used without one they would read $parameters[0] of an empty array, so the
-     * rule is reported as malformed instead of validating against a missing value.
+     * Rules that need at least one parameter; without one they are reported as malformed.
      *
      * @var array
      */
@@ -188,8 +186,7 @@ class Validator
     }
 
     /**
-     * Replace every attribute holding '*' with the concrete attributes it
-     * stands for, so the rest of the class only ever sees real attributes.
+     * Expand every '*' attribute, so the rest of the class sees only real ones.
      *
      * @param array $rules
      *
@@ -237,8 +234,7 @@ class Validator
     }
 
     /**
-     * Turn an attribute holding '*' into the concrete attributes it stands for.
-     * An attribute without one is its own only target.
+     * Expand a '*' attribute into the concrete attributes it stands for.
      *
      * @param string $attribute
      *
@@ -380,8 +376,7 @@ class Validator
     }
 
     /**
-     * Validate that the required attribute is present only if
-     * any of the other given fields are present.
+     * Validate that the attribute is present if any of the given fields are.
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1270,8 +1265,7 @@ class Validator
     }
 
     /**
-     * Validate that the attribute is an image.
-     * Valid mime types are: jpeg, png, gif, bmp, svg and webp.
+     * Validate that the attribute is an image (jpeg, png, gif, bmp, svg or webp).
      *
      * @param string $attribute
      * @param mixed  $value
@@ -1741,8 +1735,7 @@ class Validator
             return false;
         }
 
-        // An empty array counts as a list. range(0, -1) would give [0, -1]
-        // instead of an empty range, so it has to be handled separately.
+        // An empty array is a list; range(0, -1) would give [0, -1], not [].
         return (0 === count($value)) || (array_keys($value) === range(0, count($value) - 1));
     }
 
@@ -1801,8 +1794,7 @@ class Validator
             return false;
         }
 
-        // FILTER_VALIDATE_MAC only exists since PHP 5.5.0, so the three notations
-        // it accepts are matched by hand on the versions that do not have it.
+        // FILTER_VALIDATE_MAC needs PHP 5.5.0; match its three notations by hand below.
         if (defined('FILTER_VALIDATE_MAC')) {
             return false !== filter_var($value, FILTER_VALIDATE_MAC);
         }
@@ -2076,8 +2068,7 @@ class Validator
 
         $date = date_create_from_format($parameters[0], (string) $value);
 
-        // A loose parser accepts '2026-1-1' for 'Y-m-d', so the formatted date
-        // has to read back the same as what came in.
+        // The parser accepts '2026-1-1' for 'Y-m-d', so re-format and compare.
         return false !== $date && $date->format($parameters[0]) === (string) $value;
     }
 
@@ -2728,8 +2719,7 @@ class Validator
     }
 
     /**
-     * Set the package that should run the validator.
-     * This is to determine which validation language will be used.
+     * Set the package running the validator, which picks the validation language.
      *
      * @param string $package
      *

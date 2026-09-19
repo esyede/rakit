@@ -14,17 +14,21 @@
 
 ## Basic Knowledge
 
-Rakit comes with a debugger. It is switched on and off by the `activate` option in `application/config/debugger.php`, which is `true` in the default config file. **Set it to `false` on production servers**, enable it only for local development.
+The debugger is switched on by the `activate` option in
+`application/config/debugger.php`, which the default config file sets to `true`.
+**Set it to `false` on production servers.** There is no auto-allow for
+`127.0.0.1` or `::1`; the host has to be listed explicitly.
 
-Previously it auto-enabled for `127.0.0.1/::1`; that auto-allow was removed to avoid information leakage in production. In production (`activate => false`), errors show only the generic `500` page (`application/views/error/500.blade.php`) and are written to the configured [log channel](#logging) (`storage/logs/` by default) or emailed — never a stack trace with source paths.
-
-The 500 error page displayed comes from the file `application/views/error/500.blade.php`. You can change its appearance if it doesn't suit you.
+With it off, an error shows the generic `500` page
+(`application/views/error/500.blade.php`, yours to restyle) and goes to the
+configured [log channel](#logging) or an email — never a stack trace carrying
+source paths.
 
 <a id="debug-bar"></a>
 
 ## Debug Bar
 
-The Debug Bar is a floating panel displayed in the bottom right corner of your screen. This panel contains various information about your application such as page load time, server configuration, list of executed SQL queries, and the contents of variables you dump using the [bd()](/docs/helpers#bd) helper.
+The Debug Bar floats in the bottom right corner of the page, carrying the load time, the server configuration, the SQL queries the request ran, and whatever you dumped with the [bd()](/docs/helpers#bd) helper.
 
 
 
@@ -32,7 +36,7 @@ The Debug Bar is a floating panel displayed in the bottom right corner of your s
 
 ## Error & Exception
 
-Of course, you know how PHP reports errors:
+PHP reports an error like this:
 
 ```ini
 Parse error:  syntax error, unexpected '}' in foo.php on line 22
@@ -51,18 +55,17 @@ Stack trace:
 thrown in /bar/baz/qux.php on line 9
 ```
 
-It's certainly not easy to track output like this. With the debugger, errors and exceptions are displayed in a more human-friendly, readable, and detailed format:
+The debugger renders the same error in a form you can actually read:
 
 
-This way, error messages are easier to track and handle. The error lines in your source code are also highlighted for easier handling. A clear message is also displayed in the header for you. Quite helpful, right?
-
-Additionally, Fatal errors are also caught and displayed in the same way.
+The offending source line is highlighted and the message sits in the header. Fatal
+errors are caught and shown the same way.
 
 <a id="configuration"></a>
 
 ## Configuration
 
-Of course, you are allowed to change the debugger configuration according to your needs. To do so, please edit the configuration in the file `application/config/debugger.php`.
+The debugger is configured in `application/config/debugger.php`.
 
 #### Error emails:
 
@@ -104,7 +107,7 @@ try {
 
 ## Logging
 
-Sometimes you might want to use the `Log` class for debugging, or just to log informational messages. Here's how to use it:
+The `Log` class writes entries for debugging, or for anything else worth recording:
 
 #### Writing messages to logs:
 

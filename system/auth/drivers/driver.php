@@ -43,8 +43,7 @@ abstract class Driver
     }
 
     /**
-     * Check if the user is not logged in.
-     * This method is the opposite of the check() method.
+     * Check if the user is not logged in, the opposite of check().
      *
      * @return bool
      */
@@ -64,8 +63,7 @@ abstract class Driver
     }
 
     /**
-     * Get the current user.
-     * If the user is not logged in, NULL will be returned.
+     * Get the current user, or NULL when nobody is logged in.
      *
      * @return mixed|null
      */
@@ -95,8 +93,7 @@ abstract class Driver
     abstract public function attempt(array $arguments = []);
 
     /**
-     * Log in the user based on their token.
-     * The token is a numeric ID of the user.
+     * Log the user in by their token, which is their numeric ID.
      *
      * @param string $token
      * @param bool   $remember
@@ -152,9 +149,8 @@ abstract class Driver
     }
 
     /**
-     * Save the user token to the cookie forever (5 years).
-     * The cookie carries a token that is also stored on the user, so it can be
-     * revoked, and the password hash, so changing the password revokes it too.
+     * Save the token to a five year cookie. It carries a token stored on the user, so it
+     * can be revoked, and the password hash, so a password change revokes it too.
      *
      * @param string $token
      */
@@ -248,9 +244,8 @@ abstract class Driver
     }
 
     /**
-     * Store a new "remember me" token on a user.
-     * Drivers that cannot store one return FALSE, which turns the feature off
-     * instead of handing out a cookie that can never be revoked.
+     * Store a new "remember me" token. A driver that cannot returns FALSE, turning the
+     * feature off rather than handing out an unrevocable cookie.
      *
      * @param mixed  $user
      * @param string $value

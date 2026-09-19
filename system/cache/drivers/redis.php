@@ -131,8 +131,7 @@ class Redis extends Driver
     }
 
     /**
-     * Rewrite a key that holds a serialized value into the plain integer INCR
-     * needs. Only reached for data written before counters were stored raw.
+     * Rewrite a serialized value into the plain integer INCR needs, for older data.
      *
      * @param string $key
      * @param int    $minutes

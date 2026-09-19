@@ -12,8 +12,7 @@
 
 ## Basic Knowledge
 
-Raw queries are lines of queries written directly, which will be sent to the database server and executed immediately.
-The `query()` method is used to execute raw SQL queries against your database connection.
+`query()` sends SQL straight to the database connection and runs it as it is.
 
 #### Retrieving records from the database:
 
@@ -52,7 +51,7 @@ $affected = DB::query('delete from users where id = ?', [1]);
 
 ## Other Methods
 
-Rakit provides several other methods to make database queries simpler. Here are some examples:
+A few shorthands:
 
 #### Running `SELECT` and returning the first result:
 
@@ -70,8 +69,7 @@ $email = DB::only('select email from users where id = 1');
 
 ## PDO Connection
 
-Sometimes you may want to access the raw PDO connection object directly from Rakit's Connection Object.
-For example, if the query you want to run is not supported by Rakit's database classes. Don't worry, you can do it.
+For something the database classes do not cover, reach for the PDO object itself:
 
 #### Accessing the raw PDO connection object:
 

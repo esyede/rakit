@@ -14,9 +14,7 @@
 
 ## Basic Knowledge
 
-Cache provides a mechanism to store frequently accessed data in faster storage, thereby reducing database load and improving application performance.
-
-Rakit supports various cache drivers such as File, Database, Memcached, Redis, APC, and Memory. Cache configuration can be set in `application/config/cache.php`.
+The cache keeps frequently read data in faster storage, taking load off the database. Drivers: File, Database, Memcached, Redis, APC and Memory, configured in `application/config/cache.php`.
 
 **Checking if an item exists in cache:**
 
@@ -30,17 +28,17 @@ if (Cache::has('users')) {
 
 ## Storing Items
 
-Storing items in the cache is very simple. Just call the `put()` method like this:
+`put()` stores an item:
 
 ```php
 Cache::put('name', 'Budi', 10);
 ```
 
-The first parameter is the key of the cache item. You will use this key to retrieve the item from the cache. The second parameter is its value. The third parameter is the number of `minutes` you want the item to be cached.
+The parameters are the key the item is read back by, its value, and how many minutes to keep it.
 
 **Storing an item forever:**
 
-The `forever()` method stores an item without a practical expiration time limit (it is stored for 5 years):
+`forever()` stores an item for five years, which is as good as forever:
 
 ```php
 Cache::forever('settings', $settings);
@@ -74,23 +72,21 @@ Cache::put("user:{$user_id}", $user, 30);
 
 ## Retrieving Items
 
-Retrieving items from the cache is even easier than storing them. Just use the `get()` method and specify which item's key you want to retrieve:
+`get()` reads an item back by its key:
 
 ```php
 $name = Cache::get('name');
 ```
 
-By default, it will return `NULL` if the requested item is not found or has expired. However, you can also provide a different default value as the second parameter if you wish:
+A missing or expired item gives `NULL`, unless a default is passed as the second argument:
 
 ```php
 $name = Cache::get('name', 'Anonymous');
 ```
 
-Now, it will return `'Anonymous'` if the `'name'` cache is not found or has expired.
-
 **Using Closure as default value:**
 
-What if you need a value from the database while the cache item is not found? The solution is simple. You can pass a Closure to the `get()` method as the default value. The Closure will only be executed if the cached item does not exist:
+A Closure as the default only runs when the item is missing, so an expensive lookup costs nothing on a hit:
 
 ```php
 $users = Cache::get('users_count', function () {
@@ -110,10 +106,6 @@ $count = Cache::remember('users_count', 60, function () {
 });
 ```
 
-In the example above, if `'users_count'` is already cached the cached value
-is returned immediately. Otherwise the Closure runs, the result is stored
-for 60 minutes, and the same value is returned to the caller.
-
 **The sear() method:**
 
 The `sear()` method is like `remember()`, but stores the item forever:
@@ -126,7 +118,7 @@ $settings = Cache::sear('app_settings', function () {
 
 **Check if an item exists:**
 
-Rakit gives you a simple way to determine if an item exists in the cache using the `has()` method:
+`has()` answers whether an item is there:
 
 ```php
 if (Cache::has('users')) {
@@ -211,7 +203,7 @@ public function action_update($id)
 
 ## Cache Driver
 
-By default, Rakit uses the driver configured in `application/config/cache.php`. However, you can use a different driver at runtime:
+The driver comes from `application/config/cache.php`, but another one can be picked at runtime:
 
 **Using a specific driver:**
 

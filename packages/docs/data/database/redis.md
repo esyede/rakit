@@ -33,9 +33,8 @@ In this file, you will see a `'redis'` array that contains the Redis servers use
 ],
 ```
 
-The `'default'` configuration above is usually sufficient for development.
-However, you are free to modify this array according to your environment.
-Just give each server configuration a name, and specify the host, port and database index used by the server.
+The `'default'` entry is enough for development. Add your own by name, each with a
+host, a port and a database index.
 
 <a id="usage"></a>
 
@@ -50,21 +49,21 @@ Just give each server configuration a name, and specify the host, port and datab
 >
 > All examples below assume the `use System\Redis;` import is present at the top of your file. Alternatively, replace every `Redis::` with `\System\Redis::`.
 
-You can get a Redis instance by calling the `db()` method like this:
+`db()` gives you an instance:
 
 ```php
 $redis = Redis::db();
 ```
 
-This will give you an instance of the `'default'` server.
-You can also pass the name of another server to the `db()` method to get an instance of that server as specified in your configuration file:
+That is the `'default'` server. Name another one from the configuration file to get
+that instead:
 
 ```php
 $redis = Redis::db('redis_2');
 ```
 
-Great! Now you have a Redis instance, which means you can run any [Redis commands](https://redis.io/docs/latest/commands/) you want.
-Rakit uses magic methods to pass these commands to the Redis server:
+Any [Redis command](https://redis.io/docs/latest/commands/) can be run on the
+instance; magic methods pass it through to the server:
 
 ```php
 $redis->set('name', 'Budi');
@@ -74,14 +73,14 @@ $name = $redis->get('name');
 $values = $redis->lrange('names', 5, 10);
 ```
 
-Note that the Redis commands are called as method names, with the command arguments passed as the method arguments. Of course, you are not required to use these magic methods;
-you can also send commands to the server using the `run()` method like this:
+The command is the method name and its arguments the method arguments. `run()` does
+the same thing explicitly:
 
 ```php
 $values = $redis->run('lrange', ['names', 5, 10]);
 ```
 
-Just want to run commands on the default Redis server? Just use the magic methods:
+Static calls go straight to the default server:
 
 ```php
 use System\Redis;
@@ -92,10 +91,5 @@ $name = Redis::get('name');
 
 $values = Redis::lrange('names', 5, 10);
 ```
-
-> The `use` line matters here. `Redis` is not registered as a class alias,
-> because the phpredis extension already owns that name globally: aliasing it
-> would be refused on every machine that has the extension installed, which is
-> most machines running Redis. Import `System\Redis`, or write it out in full.
 
 > Rakit also provides a Redis driver for [cache](/docs/cache/config#redis-driver) and [session](/docs/session/config#redis-driver).

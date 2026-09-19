@@ -57,18 +57,12 @@
 
 ## Basic Knowledge
 
-In the web development process, you will often manipulate strings.
-For example, when you want to make a string URL-friendly or when
-you want to truncate a string.
-
-This component provides a set of methods to help make string manipulation
-work easier and simpler. Let's see what's available:
+`Str` collects the methods for working with strings: making one URL-friendly,
+truncating another, and much more.
 
 <a id="list-helper"></a>
 
 ## List Helper
-
-Here is the list of helpers available for this component:
 
 <a id="strafter"></a>
 
@@ -98,7 +92,7 @@ Str::before('Rakit PHP framework', 'Foo Bar');       // 'Rakit PHP framework'
 
 ### Str::camel()
 
-This method converts the given string to camelCase:
+Converts the given string to camelCase:
 
 ```php
 $converted = Str::camel('foo_bar'); // fooBar
@@ -108,7 +102,7 @@ $converted = Str::camel('foo_bar'); // fooBar
 
 ### Str::censor()
 
-This method masks the middle part of a string, useful for hiding part of a
+Masks the middle part of a string, useful for hiding part of a
 phone number or an email address:
 
 ```php
@@ -121,7 +115,7 @@ Str::censor('rakit', '#');    // 'r###t'
 
 ### Str::characterify()
 
-This method converts an integer to its character according to the ctype rules.
+Converts an integer to its character according to the ctype rules.
 Non-integer values are returned as-is:
 
 ```php
@@ -133,7 +127,7 @@ Str::characterify('foo'); // 'foo'
 
 ### Str::contains()
 
-This method checks if a string contains the given value (case sensitive):
+Checks if a string contains the given value (case sensitive):
 
 ```php
 $contains = Str::contains('Rakit PHP framework', 'PHP'); // true
@@ -153,7 +147,7 @@ $contains = Str::contains('Rakit PHP framework', ['framework', 'foo']); // true
 
 ### Str::contains_all()
 
-This method checks if the given string contains all of its values:
+Checks if the given string contains all of its values:
 
 ```php
 $contains_all = Str::contains_all('Rakit PHP framework', ['Rakit', 'PHP']); // true
@@ -165,7 +159,7 @@ $contains_all = Str::contains_all('Rakit PHP framework', ['Rakit', 'foo']); // f
 
 ### Str::ends_with()
 
-This method checks if a string ends with the given value:
+Checks if a string ends with the given value:
 
 ```php
 $result = Str::ends_with('Rakit PHP framework', 'framework'); // true
@@ -177,7 +171,7 @@ $result = Str::ends_with('Rakit PHP framework', 'php'); // false
 
 ### Str::finish()
 
-This method adds the value to the end of the string if the string is not already ended with that value:
+Adds the value to the end of the string if the string is not already ended with that value:
 
 ```php
 $adjusted = Str::finish('this/string', '/');  // this/string/
@@ -189,7 +183,7 @@ $adjusted = Str::finish('this/string/', '/'); // this/string/
 
 ### Str::is()
 
-This method checks if a string matches the given pattern. The `*` (asterisk)
+Checks if a string matches the given pattern. The `*` (asterisk)
 can be used for wildcard:
 
 ```php
@@ -202,7 +196,7 @@ $matches = Str::is('baz*', 'foobar'); // false
 
 ### Str::ucfirst()
 
-This method returns the given string with the first character capitalized:
+Returns the given string with the first character capitalized:
 
 ```php
 $string = Str::ucfirst('foo bar'); // Foo bar
@@ -212,7 +206,7 @@ $string = Str::ucfirst('foo bar'); // Foo bar
 
 ### Str::length()
 
-This method counts the length of the string (with UTF-8 support):
+Counts the length of the string (with UTF-8 support):
 
 ```php
 $length = Str::length('Hello'); // 5
@@ -227,7 +221,7 @@ $length = Str::length('こんにちは'); // 5
 
 ### Str::lower()
 
-This method converts the string to lowercase:
+Converts the string to lowercase:
 
 ```php
 $lowercased = Str::lower('HELLO WORLD'); // hello world
@@ -239,7 +233,7 @@ $lowercased = Str::lower('Rakit'); // rakit
 
 ### Str::upper()
 
-This method converts the string to uppercase:
+Converts the string to uppercase:
 
 ```php
 $uppercased = Str::upper('hello world'); // HELLO WORLD
@@ -251,7 +245,7 @@ $uppercased = Str::upper('Rakit'); // RAKIT
 
 ### Str::kebab()
 
-This method converts the given string to kebab-case:
+Converts the given string to kebab-case:
 
 ```php
 $converted = Str::kebab('fooBar'); // foo-bar
@@ -261,7 +255,7 @@ $converted = Str::kebab('fooBar'); // foo-bar
 
 ### Str::limit()
 
-This method truncates the string to the specified length:
+Truncates the string to the specified length:
 
 ```php
 $truncated = Str::limit('The quick brown fox jumps over the lazy dog', 20);
@@ -279,7 +273,7 @@ $truncated = Str::limit('The quick brown fox jumps over the lazy dog', 20, ' (..
 
 ### Str::lorem()
 
-This method generates dummy lorem-ipsum text. The first parameter is the number
+Generates dummy lorem-ipsum text. The first parameter is the number
 of sentences, the second is the maximum number of words per sentence (minimum `4`),
 and the third decides whether the first sentence uses the standard
 `Lorem ipsum dolor sit amet..` opening:
@@ -294,7 +288,7 @@ $dummy = Str::lorem(3, 20, false); // 3 random sentences, without the standard o
 
 ### Str::trim()
 
-This method removes whitespace and control characters from the beginning and end of the string:
+Removes whitespace and control characters from the beginning and end of the string:
 
 ```php
 $trimmed = Str::trim('  hello world  '); // 'hello world'
@@ -306,7 +300,7 @@ $trimmed = Str::trim("\n\t Hello \r\n"); // 'Hello'
 
 ### Str::substr()
 
-This method takes a substring from the string (with UTF-8 support):
+Takes a substring from the string (UTF-8 aware):
 
 ```php
 $substring = Str::substr('Hello World', 0, 5); // 'Hello'
@@ -323,7 +317,7 @@ $substring = Str::substr('こんにちは世界', 0, 5); // 'こんにちは'
 
 ### Str::classify()
 
-This method converts the string to class name format (PascalCase with underscores):
+Converts the string to class name format (PascalCase with underscores):
 
 ```php
 $classified = Str::classify('user_profile'); // User_Profile
@@ -337,7 +331,7 @@ $classified = Str::classify('my.awesome.class'); // My_Awesome_Class
 
 ### Str::segments()
 
-This method splits URI/path into array segments:
+Splits URI/path into array segments:
 
 ```php
 $segments = Str::segments('user/profile/edit');
@@ -354,7 +348,7 @@ $segments = Str::segments('///multiple///slashes///');
 
 ### Str::plural_studly()
 
-This method converts the last word in a StudlyCase string to plural form:
+Converts the last word in a StudlyCase string to plural form:
 
 ```php
 $plural = Str::plural_studly('UserProfile'); // UserProfiles
@@ -368,7 +362,7 @@ $plural = Str::plural_studly('PersonAddress', 1); // PersonAddress (count = 1)
 
 ### Str::parse_callback()
 
-This method splits a `Class@method` string into a `[class, method]` array. If the
+Splits a `Class@method` string into a `[class, method]` array. If the
 string has no `@`, the second element falls back to the given default value:
 
 ```php
@@ -381,7 +375,7 @@ Str::parse_callback('Home_Controller');                 // ['Home_Controller', n
 
 ### Str::password()
 
-This method generates a secure random password:
+Generates a secure random password:
 
 ```php
 // Password 32 characters (default)
@@ -402,7 +396,7 @@ $password = Str::password(24, true, true, true, false);
 
 ### Str::bytes()
 
-This method generates cryptographically secure random bytes:
+Generates cryptographically secure random bytes:
 
 ```php
 $bytes = Str::bytes(16); // 16 bytes random data
@@ -417,7 +411,7 @@ $token = bin2hex(Str::bytes(32)); // 64 character hex string
 
 ### Str::integers()
 
-This method generates cryptographically secure random integers:
+Generates cryptographically secure random integers:
 
 ```php
 $random = Str::integers(1, 100); // Random integer between 1-100
@@ -432,7 +426,7 @@ $otp = Str::integers(100000, 999999); // 6 digit OTP
 
 ### Str::plural()
 
-This method converts a singular word string to its plural form. It only supports English:
+Converts a singular word string to its plural form. It only supports English:
 
 ```php
 $plural = Str::plural('car');   // cars
@@ -444,7 +438,7 @@ $plural = Str::plural('child'); // children
 
 ### Str::random()
 
-This method generates a random string with the specified length:
+Generates a random string with the specified length:
 
 ```php
 $random = Str::random(16); // 'VvhHyKNIp4qUTfmK ' (randomly generated)
@@ -454,7 +448,7 @@ $random = Str::random(16); // 'VvhHyKNIp4qUTfmK ' (randomly generated)
 
 ### Str::replace_array()
 
-This method replaces values in the string sequentially using an array:
+Replaces values in the string sequentially using an array:
 
 ```php
 $string = 'Airs every day at ? and ? WIB';
@@ -467,7 +461,7 @@ $replaced = Str::replace_array('?', ['8:30', '21:00'], $string);
 
 ### Str::replace_first()
 
-This method replaces the first occurrence of the value in the string:
+Replaces the first occurrence of the value in the string:
 
 ```php
 $replaced = Str::replace_first('the', 'a', 'the quick brown fox jumps over the lazy dog');
@@ -478,7 +472,7 @@ $replaced = Str::replace_first('the', 'a', 'the quick brown fox jumps over the l
 
 ### Str::replace_last()
 
-This method replaces the last occurrence of the value in the string:
+Replaces the last occurrence of the value in the string:
 
 ```php
 $replaced = Str::replace_last('the', 'a', 'the quick brown fox jumps over the lazy dog');
@@ -489,7 +483,7 @@ $replaced = Str::replace_last('the', 'a', 'the quick brown fox jumps over the la
 
 ### Str::singular()
 
-This method converts the string to singular form. It only supports English:
+Converts the string to singular form. It only supports English:
 
 ```php
 $singular = Str::singular('cars'); // car
@@ -501,7 +495,7 @@ $singular = Str::singular('children'); // child
 
 ### Str::slug()
 
-This method converts the given string to a URL-friendly string:
+Converts the given string to a URL-friendly string:
 
 ```php
 $slug = Str::slug('Hello World', '-'); // hello-world
@@ -511,7 +505,7 @@ $slug = Str::slug('Hello World', '-'); // hello-world
 
 ### Str::accentless()
 
-This method removes accents from the given string:
+Removes accents from the given string:
 
 ```php
 Str::accentless('ÀÂÄÈÊËÎÏÔŒÙÛÜŸ'); // AAAeEEEIIOOEUUUeY
@@ -522,7 +516,7 @@ Str::accentless('á é í ó ú ñ ü'); // a e i o u n ue
 
 ### Str::snake()
 
-This method converts the given string to snake_case:
+Converts the given string to snake_case:
 
 ```php
 $converted = Str::snake('fooBar'); // foo_bar
@@ -532,7 +526,7 @@ $converted = Str::snake('fooBar'); // foo_bar
 
 ### Str::start()
 
-This method adds the value to the beginning of the string if the string is not already started with that value:
+Adds the value to the beginning of the string if the string is not already started with that value:
 
 ```php
 $adjusted = Str::start('this/string', '/'); // /this/string
@@ -544,7 +538,7 @@ $adjusted = Str::start('/this/string', '/'); // /this/string
 
 ### Str::starts_with()
 
-This method checks if a string starts with the given value:
+Checks if a string starts with the given value:
 
 ```php
 $result = Str::starts_with('Rakit PHP framework', 'Rakit'); // true
@@ -554,7 +548,7 @@ $result = Str::starts_with('Rakit PHP framework', 'Rakit'); // true
 
 ### Str::studly()
 
-This method converts the given string to StudlyCase:
+Converts the given string to StudlyCase:
 
 ```php
 $converted = Str::studly('foo_bar'); // FooBar
@@ -564,7 +558,7 @@ $converted = Str::studly('foo_bar'); // FooBar
 
 ### Str::title()
 
-This method converts the given string to Title Case:
+Converts the given string to Title Case:
 
 ```php
 $converted = Str::title('selamat pagi indonesia');
@@ -575,7 +569,7 @@ $converted = Str::title('selamat pagi indonesia');
 
 ### Str::uuid()
 
-This method generates a random UUID-formatted string (32 random hex characters, without the version bits set):
+Generates a random UUID-formatted string (32 random hex characters, without the version bits set):
 
 ```php
 return Str::uuid(); // a0a2a2d2-0b87-4a18-83f2-2529882be2de (randomly generated)
@@ -585,7 +579,7 @@ return Str::uuid(); // a0a2a2d2-0b87-4a18-83f2-2529882be2de (randomly generated)
 
 ### Str::ulid()
 
-This method generates a 26 character ULID. Unlike a UUID, a ULID starts with a
+Generates a 26 character ULID. Unlike a UUID, a ULID starts with a
 timestamp so it is naturally sortable by creation time. Pass `true` to get it in
 lowercase:
 
@@ -598,7 +592,7 @@ Str::ulid(true); // 01j8zq3k7wgv8qhrz2s4t6m1xa
 
 ### Str::cuid()
 
-This method generates a CUID, a collision-resistant id that is also sortable by
+Generates a CUID, a collision-resistant id that is also sortable by
 creation time:
 
 ```php
@@ -609,7 +603,7 @@ Str::cuid(); // cmt1f4uy20001fq9n1b000lx4
 
 ### Str::nanoid()
 
-This method generates a NanoID, a short URL-friendly random id. The size must be
+Generates a NanoID, a short URL-friendly random id. The size must be
 between `8` and `21` (default `21`), and you may supply your own character pool:
 
 ```php
@@ -624,7 +618,7 @@ Str::nanoid(12, '0123456789abc'); // only uses the given characters
 
 ### Str::words()
 
-This method limits the number of words in a string:
+Limits the number of words in a string:
 
 ```php
 return Str::words('You know, I miss you so much.', 3, ' >>>');

@@ -41,9 +41,7 @@ class Query
     public $with_trashed = false;
 
     /**
-     * List of query builder methods that should be passed thru directly.
-     * It means the result of these methods will be returned directly instead of
-     * being wrapped in the model's query builder.
+     * Query builder methods whose result is returned as is, unwrapped.
      *
      * @var array
      */
@@ -185,8 +183,7 @@ class Query
     public function cursor($columns = ['*'], $chunk_size = 1000)
     {
         $columns = is_array($columns) ? $columns : [$columns];
-        // PHP < 5.5.0 does not support yield, so the whole result set is returned
-        // at once. It is handed back as a plain array, the way it always was.
+        // No yield before PHP 5.5.0: return the whole result set as a plain array.
         if (PHP_VERSION_ID < 50500) {
             return $this->get($columns)->all();
         }
@@ -257,8 +254,7 @@ class Query
             throw new \InvalidArgumentException(sprintf('Unsupported SQL operator: %s', $operator));
         }
 
-        // EXISTS is cheaper than counting, so use it whenever the wanted
-        // condition boils down to "owns at least one" or "owns none at all".
+        // EXISTS beats counting for "owns at least one" / "owns none".
         if ('>=' === $operator && 1 === $count) {
             $this->table->where_exists($sub, $connector);
             return $this;
@@ -277,8 +273,7 @@ class Query
     }
 
     /**
-     * Constrain the query to models that own the given relationship,
-     * with extra constraints on the relationship itself.
+     * Constrain to models owning the relationship, with extra constraints on it.
      *
      * @param string   $relationship
      * @param \Closure $callback
@@ -321,8 +316,7 @@ class Query
     }
 
     /**
-     * Constrain the query to models that do not own the given relationship,
-     * with extra constraints on the relationship itself.
+     * Constrain to models not owning the relationship, with extra constraints on it.
      *
      * @param string   $relationship
      * @param \Closure $callback
@@ -335,8 +329,7 @@ class Query
     }
 
     /**
-     * Constrain the query to models that own a related model matching the condition.
-     * It is a shorthand for where_has() with a callback holding a single where().
+     * Shorthand for where_has() with a callback holding a single where().
      *
      * @param string          $relationship
      * @param string|\Closure $column
@@ -382,9 +375,8 @@ class Query
     }
 
     /**
-     * Constrain the query to models that belong to the given parent model(s).
-     * Without a relationship name, it is guessed from the class of the parent,
-     * so a BlogAuthor instance is looked up through the blog_author() relationship.
+     * Constrain to models belonging to the given parent(s). Without a relationship
+     * name, it is guessed from the parent class: BlogAuthor -> blog_author().
      *
      * @param Model|Collection|array $related
      * @param string                 $relationship
@@ -592,8 +584,7 @@ class Query
     }
 
     /**
-     * Run the given callback over the models, one chunk at a time.
-     * Returning FALSE from the callback stops the iteration.
+     * Run the callback over the models a chunk at a time; FALSE stops the iteration.
      *
      * @param int      $count
      * @param callable $callback
@@ -629,8 +620,7 @@ class Query
     }
 
     /**
-     * Run the given callback over every single model.
-     * Returning FALSE from the callback stops the iteration.
+     * Run the callback over every model; FALSE stops the iteration.
      *
      * @param callable $callback
      * @param int      $count

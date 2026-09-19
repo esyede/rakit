@@ -45,8 +45,7 @@ class Server
     {
         $this->config = Config::get('websocket');
 
-        // Older config files predate the limit, so fall back to a sane one
-        // rather than letting a client buffer without bound.
+        // Older config files predate this limit, so never leave it unbounded.
         if (! isset($this->config['max_payload_size'])) {
             $this->config['max_payload_size'] = 10485760;
         }
@@ -114,8 +113,7 @@ class Server
      */
     protected function connecting($user)
     {
-        // Override this if needed
-        // $this->stdout(sprintf('Client #%s is connecting', $user->id()));
+        // Override to react to a connecting client.
     }
 
     /**
@@ -125,8 +123,7 @@ class Server
      */
     protected function tick()
     {
-        // Override this for periodic tasks
-        // $this->stdout('Tick');
+        // Override to run periodic tasks.
     }
 
     /**
@@ -778,9 +775,8 @@ class Server
             case 8:  $user->disconnecting = true;
                 return '';
 
-                // ping: must be answered with a pong. Note the break - without it
-                // this fell through to 'default', which set $close and returned
-                // before the pong was ever sent, so the server never answered a ping.
+                // A ping is answered with a pong. Keep the break: falling through to
+                // 'default' closes the connection before the pong is sent.
             case 9:  $pong = true;
                 break;
 
@@ -833,8 +829,7 @@ class Server
      */
     protected function extract_headers($message)
     {
-        // A frame shorter than its own header means the rest has not arrived
-        // yet, or the client sent nonsense. Either way there is nothing to read.
+        // Shorter than its own header: incomplete or nonsense, nothing to read.
         if (strlen($message) < 2) {
             return ['fin' => 0, 'rsv1' => 0, 'rsv2' => 0, 'rsv3' => 0,
                 'opcode' => 0, 'hasmask' => 0, 'length' => 0, 'mask' => '', 'partial' => true];

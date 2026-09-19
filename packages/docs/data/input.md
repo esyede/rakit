@@ -872,7 +872,7 @@ Route::get('products', function () {
         $query->where('category_id', '=', (int) Input::get('category'));
     }
     
-    // Sort — allowlist columns/directions (order_by direction is now validated, but column must be allowlisted)
+    // Sort — the direction is validated, but the column still has to be allowlisted
     $allowedSorts = ['name','price','created_at'];
     $allowedDirs  = ['asc','desc'];
     $sort_by = Input::get('sort', 'created_at');

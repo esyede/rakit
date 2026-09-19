@@ -50,7 +50,7 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The Magic Query Builder is a class that helps you build SQL queries and work with the database. Every query is prepared with a [prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php), so it is automatically protected from [SQL Injection](https://en.wikipedia.org/wiki/SQL_injection).
+The Magic Query Builder builds SQL and runs it. Every query goes out as a [prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php), so it is safe from [SQL injection](https://en.wikipedia.org/wiki/SQL_injection).
 
 To get started, call the `DB::table()` method with the name of the table you want to work with:
 
@@ -58,7 +58,7 @@ To get started, call the `DB::table()` method with the name of the table you wan
 $query = DB::table('users');
 ```
 
-You now have access to the Query Builder for the "users" table and can run operations such as select, insert, update, or delete.
+That gives you a builder for the "users" table, ready to select, insert, update or delete.
 
 <a id="retrieving-records"></a>
 ## Retrieving Records
@@ -410,7 +410,7 @@ Every driver spells these functions differently, so the SQL is compiled by the g
 > **Note:** On SQLite the column has to hold text such as `2024-01-15 08:30:00`, which is the format Rakit
 > writes. `strftime()` does not read a unix timestamp stored as an integer.
 
-> **Security (fixed):** `where_date|month|day|year|time` now wrap the column via the grammar (for example `DATE("col")`) and validate the identifier. Passing `Input::get('col')` directly without allowlisting is now rejected (`Invalid column identifier`) instead of interpolated as `DATE(created_at)=1 OR ...`.
+> **Security:** `where_date|month|day|year|time` wrap the column through the grammar (`DATE("col")`) and validate the identifier, so an un-allowlisted `Input::get('col')` is refused with `Invalid column identifier` rather than interpolated into the SQL.
 
 <a id="where_any-where_all-and-where_none"></a>
 ### where_any, where_all, and where_none
@@ -1107,8 +1107,6 @@ echo $query->to_sql();
 echo $query->debug();
 // SELECT * FROM users WHERE active = 1 AND votes > 100
 ```
-
-These methods are very handy while debugging.
 
 <a id="transaction"></a>
 ## Transaction

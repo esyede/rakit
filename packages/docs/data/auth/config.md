@@ -14,15 +14,13 @@
 
 ## Basic Knowledge
 
-Most interactive applications have the ability for users to log in and log out. Rakit provides a simple class to help you validate user credentials and retrieve information about your application's current user.
-
-To get started, let's look at the `application/config/auth.php` file. This configuration file contains several basic options to help you get started with authentication.
+`Auth` validates user credentials and tells you who the current user is. Its options live in `application/config/auth.php`.
 
 <a id="authentication-driver"></a>
 
 ## Authentication Driver
 
-Rakit's authentication mechanism is driver-based, meaning the responsibility for retrieving users during authentication is delegated to various "drivers".
+Authentication is driver-based: the driver is what loads the user.
 
 By default, we have included two drivers:
 
@@ -36,7 +34,7 @@ By default, we have included two drivers:
 'driver' => 'magic',
 ```
 
-You are also free to create and register your own custom drivers if needed:
+Custom drivers can be registered too:
 
 ```php
 // In application/boot.php
@@ -49,13 +47,13 @@ Auth::extend('custom', function() {
 
 ## Default Username
 
-The `identifier` option in the configuration file specifies the column used to identify the user when logging in. This usually matches the database column in the users table, and will typically be `'email'` or `'username'`.
+The `identifier` option names the column a user is looked up by at login, usually `'email'` or `'username'`.
 
 ```php
 'identifier' => 'email',
 ```
 
-> By default, Rakit is configured to use `email` as the identifier, but of course you are free to change it as needed.
+> The default is `email`.
 
 **Example using username:**
 
@@ -64,7 +62,7 @@ The `identifier` option in the configuration file specifies the column used to i
 'identifier' => 'username',
 ```
 
-With this configuration, when logging in, Rakit will search for the user based on the `username` column in the database:
+Logins are then looked up by the `username` column:
 
 ```php
 Auth::attempt([
@@ -108,7 +106,7 @@ class User extends Facile
 
 **Custom model:**
 
-If you are using a model with a different name, change the configuration:
+For a model under another name:
 
 ```php
 // In application/config/auth.php
@@ -147,7 +145,7 @@ CREATE TABLE users (
 
 **Custom table:**
 
-If your user table has a different name, change the configuration:
+For a table under another name:
 
 ```php
 // In application/config/auth.php

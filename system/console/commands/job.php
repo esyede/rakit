@@ -49,8 +49,7 @@ class Job extends Command
      */
     public function runall(array $arguments = [])
     {
-        // Options never reach $arguments: the console takes every --option
-        // out of the command line before the command is called.
+        // The console strips every --option before the command is called.
         $retries = (int) get_cli_option('retries', 1);
         $sleep = (int) get_cli_option('sleep', 0);
         $queues = get_cli_option('queue');

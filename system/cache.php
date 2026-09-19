@@ -43,8 +43,7 @@ class Cache
     }
 
     /**
-     * Get the cache driver instance.
-     * Or return default driver if no driver is selected.
+     * Get a cache driver instance, or the default one.
      *
      * @param string $driver
      *

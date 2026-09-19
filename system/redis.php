@@ -56,8 +56,7 @@ class Redis
     }
 
     /**
-     * Get the Redis database instance.
-     * The name given must match the data in the database configuration file.
+     * Get a Redis database instance by its name in the database config.
      *
      * @param string $name
      *
@@ -142,8 +141,7 @@ class Redis
     }
 
     /**
-     * Prepare a Redis command based on the method and parameters provided.
-     * Redis commands must follow the following format:.
+     * Build a Redis command, which must follow this format:
      *
      *     *<arguments count> CR LF
      *     $<length of argument 1> CR LF

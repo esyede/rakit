@@ -22,8 +22,8 @@
 
 ## Basic Knowledge
 
-Job System is a component for queuing and running tasks asynchronously (background processing).
-This system uses **auto-discovery** so you only need to create a Job class and it can be run directly without manual registration.
+The job system queues work to be run in the background. Jobs are auto-discovered, so
+a class in `application/jobs/` needs no registration.
 
 The job system supports several drivers: **file**, **database**, **redis**, and **memcached**.
 
@@ -144,7 +144,7 @@ class Reporting_Job extends Jobable
 
 ### Available Methods in Jobable
 
-When creating a Job class, you can use the following methods:
+A `Jobable` carries these:
 
 -   `run()` - Abstract method that must be implemented, containing the job logic
 -   `get($key, $default)` - Retrieve data from payload
@@ -195,7 +195,7 @@ Job::dispatch('send-email', [
 ])->on_queue('default');
 ```
 
-> **Note:** This method can still be used, but dispatching via Job class (method 1) is more recommended.
+> Still supported, but dispatching through the job class is preferred.
 
 ### Usage in Controller
 
@@ -248,8 +248,8 @@ class User_Controller extends Controller
 php rakit job:runall
 ```
 
-This command will run the due jobs from all queues (up to `max_job` per run), then exit.
-It does not loop, so run it periodically (e.g. from cron or a process manager) to keep processing new incoming jobs.
+It runs the due jobs of every queue, up to `max_job`, then exits. There is no loop, so
+run it periodically from cron or a process manager.
 
 ### Run Specific Queues
 
@@ -257,8 +257,7 @@ It does not loop, so run it periodically (e.g. from cron or a process manager) t
 php rakit job:runall --queue=default,high
 ```
 
-You can limit the worker to only process specific queues with the `--queue` parameter.
-Separate with commas for multiple queues.
+`--queue` limits the worker to the named queues, separated by commas.
 
 ### With Retry & Sleep
 
@@ -277,7 +276,7 @@ Available parameters:
 php rakit job:run send-email
 ```
 
-This command will run the due jobs in the queue with that name. Useful for testing or manual execution.
+Runs the due jobs of one queue, for testing or a manual run.
 
 ### Return Value
 
@@ -299,7 +298,7 @@ $pending->on_queue('high')->without_overlapping();
 
 ## Queue Priority
 
-Use the `on_queue()` method to specify queue priority (which queue to use):
+`on_queue()` picks the queue a job goes to:
 
 ```php
 // High priority (critical)
@@ -321,7 +320,7 @@ Mailing_Job::dispatch($data)->on_queue('low');
 
 ## Without Overlapping
 
-Use `without_overlapping()` to prevent duplicate jobs from running simultaneously:
+`without_overlapping()` keeps two copies of a job from running at once:
 
 ```php
 // Prevent duplicate report generation
@@ -331,7 +330,7 @@ Reporting_Job::dispatch([
 ])->without_overlapping();
 ```
 
-Useful for jobs that should only run once, such as generating reports or syncing data.
+Useful for a report or a sync that must not run twice.
 
 <a id="scheduled-jobs"></a>
 
@@ -381,8 +380,7 @@ Cleanup_Job::dispatch([
 
 ## Choosing Driver
 
-By default, jobs will use the driver set in the configuration.
-However, you can choose a different driver for a specific job using the `via()` method:
+Jobs use the driver from the configuration. `via()` picks another one for a single job:
 
 ```php
 // Use file driver for this job
@@ -398,10 +396,8 @@ Reporting_Job::dispatch($data)->via('database');
 Cleanup_Job::dispatch($data)->via('memcached');
 ```
 
-The `via()` method is useful when you want to:
--   Use a different driver for specific jobs
--   Test with different drivers
--   Separate jobs based on driver (e.g.: critical jobs in redis, normal jobs in database)
+Useful for testing against another driver, or for splitting jobs by driver: the
+critical ones in redis, the rest in the database.
 
 ### Full Combination
 
@@ -420,9 +416,9 @@ Mailing_Job::dispatch([
 
 ## Supervisor Configuration
 
-For production, use Supervisor to run workers automatically.
-Since `job:runall` exits after each batch, Supervisor's `autorestart` is what keeps it running
-(`startsecs=0` stops Supervisor from treating the quick exit as a failed start):
+In production, Supervisor keeps the worker running. `job:runall` exits after each
+batch, so `autorestart` is what starts it again, and `startsecs=0` stops Supervisor
+from reading that quick exit as a failed start:
 
 File: `/etc/supervisor/conf.d/rakit-worker.conf`
 
@@ -484,7 +480,7 @@ sudo supervisorctl status
 
 ## Removing Job from Queue
 
-You can remove jobs from the queue using the `forget()` method:
+`forget()` removes a job from the queue:
 
 ```php
 // Remove specific job from all queues
@@ -494,10 +490,8 @@ Job::forget('send-email');
 Job::forget('send-email', 'high');
 ```
 
-This method is useful when:
-- Job is no longer needed
-- Job encounters an error and needs manual removal
-- Cleanup stuck jobs
+Useful for a job that is no longer needed, one that errored and has to go by hand,
+or a stuck one.
 
 ### Usage Example
 
@@ -516,7 +510,7 @@ if (Job::driver()->has_overlapping('send-notification', 'default')) {
 
 ## Event-Based (Old Way)
 
-The job system is still compatible with the old event-based approach. However, this method is **not recommended** for new projects.
+The old event-based approach still works, but it is **not recommended** for new projects.
 
 ```php
 // Register event listener (in application/boot.php or application/routes.php)
@@ -544,7 +538,7 @@ Job::dispatch('send-notification', [
 
 ### Migration to Class-Based
 
-If you are still using event-based, here's how to migrate:
+Migrating from event-based:
 
 ```php
 // Old way (event-based)
@@ -616,10 +610,8 @@ Ordering_Job::dispatch(['order_id' => $order_id]);
 Ordering_Job::dispatch(['order' => $order_object]);
 ```
 
-**Reason:**
--   Payload is stored as a serialized string
--   Large objects will increase database/file size
--   Better to fetch data inside the job using ID
+The payload is stored serialized, so a large object bloats the queue. Pass an ID and
+read the data inside the job.
 
 ### 3. Handle Errors
 

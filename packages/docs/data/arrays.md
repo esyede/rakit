@@ -40,20 +40,17 @@
 
 ## Basic Knowledge
 
-This component includes various helpers to make your life easier when working with arrays.
-Here is a list of available helpers:
+`Arr` collects the helpers for working with arrays.
 
 <a id="list-helper"></a>
 
 ## List Helper
 
-Here is the list of helpers available for this component:
-
 <a id="arraccessible"></a>
 
 ### Arr::accessible()
 
-This method checks that the given value is an accessible array:
+Checks that the given value is an accessible array:
 
 ```php
 return Arr::accessible(['a' => 1, 'b' => 2]); // true
@@ -65,7 +62,7 @@ return Arr::accessible(new \stdClass());      // false
 
 ### Arr::add()
 
-This method adds a given key / value pair to an array if the given key
+Adds a given key / value pair to an array if the given key
 doesn't already exist in the array or is set to `NULL`:
 
 ```php
@@ -80,7 +77,7 @@ return Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 
 ### Arr::collapse()
 
-This method collapses a multi-dimensional array into a single array:
+Collapses a multi-dimensional array into a single array:
 
 ```php
 return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
@@ -91,7 +88,7 @@ return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
 
 ### Arr::cross_join()
 
-This method performs a cross join on the given arrays, returning all possible combinations:
+Performs a cross join on the given arrays, returning all possible combinations:
 
 ```php
 $sizes = ['S', 'M', 'L'];
@@ -151,7 +148,7 @@ foreach (Arr::cross_join($sizes, $colors) as $variant) {
 
 ### Arr::divide()
 
-This method returns two arrays, one containing the keys, and the other
+Returns two arrays, one containing the keys, and the other
 containing the values of the given array:
 
 ```php
@@ -164,7 +161,7 @@ list($keys, $values) = Arr::divide(['name' => 'Desk']);
 
 ### Arr::dot()
 
-This method flattens a multi-dimensional array into a single array using "dot"
+Flattens a multi-dimensional array into a single array using "dot"
 notation to indicate depth:
 
 ```php
@@ -177,7 +174,7 @@ return Arr::dot($array); // ['products.desk.price' => 100]
 
 ### Arr::undot()
 
-This method converts a single-dimension array with "dot" notation into a multi-dimensional array:
+Converts a single-dimension array with "dot" notation into a multi-dimensional array:
 
 ```php
 $array = ['user.name' => 'Budi', 'user.age' => 28];
@@ -191,7 +188,7 @@ return Arr::undot($array);
 
 ### Arr::except()
 
-This method removes the given key / value pairs from an array:
+Removes the given key / value pairs from an array:
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100];
@@ -203,7 +200,7 @@ return Arr::except($array, ['price']); // ['name' => 'Desk']
 
 ### Arr::exists()
 
-This method checks that the given key exists in an array:
+Checks that the given key exists in an array:
 
 ```php
 $array = ['name' => 'Agung', 'age' => 17];
@@ -216,7 +213,7 @@ return Arr::exists($array, 'salary'); // false
 
 ### Arr::first()
 
-This method returns the first element of an array that passes the given truth test:
+Returns the first element of an array that passes the given truth test:
 
 ```php
 $array = [100, 200, 300];
@@ -239,7 +236,7 @@ return Arr::first($array, $callback, $default);
 
 ### Arr::flatten()
 
-This method flattens a multi-dimensional array into a single array:
+Flattens a multi-dimensional array into a single array:
 
 ```php
 $array = ['name' => 'Dimas', 'languages' => ['PHP', 'Ruby']];
@@ -251,7 +248,7 @@ return Arr::flatten($array); // ['Dimas', 'PHP', 'Ruby']
 
 ### Arr::forget()
 
-This method removes a given key / value pair from an array using "dot" notation:
+Removes a given key / value pair from an array using "dot" notation:
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
@@ -265,7 +262,7 @@ Arr::forget($array, 'products.desk');
 
 ### Arr::get()
 
-This method retrieves a value from an array using "dot" notation:
+Retrieves a value from an array using "dot" notation:
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
@@ -273,7 +270,7 @@ $array = ['products' => ['desk' => ['price' => 100]]];
 return Arr::get($array, 'products.desk.price'); // 100
 ```
 
-This method also accepts a default value, which will be returned if the requested key is not found:
+Accepts a default value, returned when the key is not found:
 
 ```php
 return Arr::get($array, 'products.desk.discount', 0); // 0
@@ -283,7 +280,7 @@ return Arr::get($array, 'products.desk.discount', 0); // 0
 
 ### Arr::has()
 
-This method checks whether a given item exists in the array using "dot" notation:
+Checks whether a given item exists in the array using "dot" notation:
 
 ```php
 $array = ['product' => ['name' => 'Desk', 'price' => 100]];
@@ -296,7 +293,7 @@ return Arr::has($array, 'product.discount'); // false
 
 ### Arr::has_any()
 
-This method checks whether any of the given keys exist in an array using "dot" notation:
+Checks whether any of the given keys exist in an array using "dot" notation:
 
 ```php
 $array = ['product' => ['name' => 'Desk', 'price' => 100]];
@@ -310,7 +307,7 @@ return Arr::has_any($array, ['category', 'product.discount']); // false
 
 ### Arr::associative()
 
-This method returns `TRUE` if the given array is an associative array. An array
+Returns `TRUE` if the given array is an associative array. An array
 will be considered "associative" if it does not have sequential numeric keys starting from zero:
 
 ```php
@@ -325,7 +322,7 @@ return Arr::associative($array2); // false
 
 ### Arr::sequential()
 
-This method returns `TRUE` if the given array is a sequential (indexed) array.
+Returns `TRUE` if the given array is a sequential (indexed) array.
 An array is considered "sequential" if it has sequential numeric keys starting from zero:
 
 ```php
@@ -381,7 +378,7 @@ process_data(['name' => 'John', 'age' => 30]); // Associative processing
 
 ### Arr::last()
 
-This method returns the last element of an array that passes the given truth test:
+Returns the last element of an array that passes the given truth test:
 
 ```php
 $array = [100, 200, 300, 110];
@@ -404,7 +401,7 @@ return Arr::last($array, $callback, $default);
 
 ### Arr::only()
 
-This method returns only the specified key / value pairs from the given array:
+Returns only the specified key / value pairs from the given array:
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100, 'orders' => 10];
@@ -417,7 +414,7 @@ return Arr::only($array, ['name', 'price']);
 
 ### Arr::pluck()
 
-This method retrieves all values for a given key from an array:
+Retrieves all values for a given key from an array:
 
 ```php
 $array = [
@@ -440,7 +437,7 @@ return Arr::pluck($array, 'developer.name', 'developer.id');
 
 ### Arr::prepend()
 
-This method will add an item to the beginning of an array:
+Adds an item to the beginning of an array:
 
 ```php
 $array = ['one', 'two', 'three', 'four'];
@@ -462,7 +459,7 @@ $array = Arr::prepend($array, 'Desk', 'name');
 
 ### Arr::pull()
 
-This method returns and removes a key / value pair from an array:
+Returns and removes a key / value pair from an array:
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100];
@@ -483,7 +480,7 @@ $value = Arr::pull($array, $key, $default);
 
 ### Arr::random()
 
-This method returns a random value from an array:
+Returns a random value from an array:
 
 ```php
 $array = [1, 2, 3, 4, 5];
@@ -502,7 +499,7 @@ return Arr::random($array, 2); // [2, 5] - (obtained randomly)
 
 ### Arr::set()
 
-This method is used to set a value in an array using "dot" notation:
+Sets a value in an array using "dot" notation:
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
@@ -516,7 +513,7 @@ Arr::set($array, 'products.desk.price', 200);
 
 ### Arr::shuffle()
 
-This method shuffles the items in an array:
+Shuffles the items in an array:
 
 ```php
 return Arr::shuffle([1, 2, 3, 4, 5]);
@@ -527,7 +524,7 @@ return Arr::shuffle([1, 2, 3, 4, 5]);
 
 ### Arr::sort()
 
-This method sorts an array by its values:
+Sorts an array by its values:
 
 ```php
 $array = ['Desk', 'Table', 'Chair'];
@@ -562,7 +559,7 @@ return array_values(Arr::sort($array, function ($value) {
 
 ### Arr::recsort()
 
-This method sorts an array recursively using
+Sorts an array recursively using
 the [sort](https://www.php.net/manual/en/function.sort.php) function
 for numeric sub-arrays, and [ksort](https://www.php.net/manual/en/function.ksort.php)
 for associative sub-arrays:
@@ -589,7 +586,7 @@ return Arr::recsort($array);
 
 ### Arr::where()
 
-This method is used to filter an array using a Closure:
+Filters an array using a Closure:
 
 ```php
 $array = [100, '200', 300, '400', 500];
@@ -605,7 +602,7 @@ return Arr::where($array, function ($key, $value) {
 
 ### Arr::wrap()
 
-This method wraps the given value in an array. If the given value
+Wraps the given value in an array. If the given value
 is already an array, it will not be changed:
 
 ```php

@@ -52,10 +52,8 @@ class Cookie
             throw new \InvalidArgumentException('The cookie name cannot be empty.');
         }
 
-        // Every character PHP's own setcookie() refuses here, refused for the same
-        // reason: a separator or a line break ends the attribute, or the header,
-        // early. Checked at the one point every emitted cookie passes through, so
-        // it also holds for the servers that render the header themselves.
+        // The characters setcookie() refuses, for the same reason: a separator or line
+        // break ends the attribute early. Checked here so it also holds for workers.
         if (! is_null($path) && preg_match('/[,; \t\r\n\013\014]/', $path)) {
             throw new \InvalidArgumentException(sprintf("The cookie path '%s' contains invalid characters.", $path));
         }

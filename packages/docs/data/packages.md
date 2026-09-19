@@ -20,21 +20,17 @@
 
 ## Basic Knowledge
 
-Packages are a simple way to separate code into smaller units so that they are easier to organize and reuse in other applications.
+A package is a unit of code you can organize and reuse across applications, with controllers, views, configs, routes, migrations and commands of its own — anything from a database library to a complete CMS.
 
-A package can have its own controllers, views, configs, routes, migrations, commands, and more. A package can be anything, from a database library, authentication system, to a complete CMS.
-
-In fact, the `application/` folder is also a package, namely the default package. Even this documentation page you're reading is a package.
+The `application/` folder is itself a package, the default one, and so is this documentation.
 
 <a id="creating-packages"></a>
 
 ## Creating Packages
 
-The first step to create a package is to create a new folder inside the `packages/` folder. For this example, let's create a package named `admin`, which contains the application's admin pages.
+Start with a folder inside `packages/`. The example here is `admin`, holding the admin pages.
 
-The `boot.php` file in the `application/` folder provides some basic configurations that help determine how the application will run.
-
-We can also create a `boot.php` file in our package folder for the same purpose. This file will be executed every time the package is booted (loaded).
+A package may carry its own `boot.php`, which runs every time the package boots, the way `application/boot.php` does for the application.
 
 #### Creating the package's `boot.php` file:
 
@@ -46,23 +42,13 @@ Autoloader::namespaces([
 ]);
 ```
 
-The code above tells Rakit that classes with the `Admin` namespace should be loaded from the `libraries/` directory of our package.
-
-You can do whatever you want in the `boot.php` file, but this file is usually only used to register classes to the autoloader.
-
-Actually, you are **not required** to create a `boot.php` file for your package.
-
-Next, we will learn how to register our package to Rakit!
+That tells Rakit to load the `Admin` namespace from the package's `libraries/` folder. `boot.php` may do anything, but registering classes is what it is usually for — and it is **not required** at all.
 
 <a id="registering-packages"></a>
 
 ## Registering Packages
 
-After creating the admin package, we need to register it to Rakit.
-
-Open the `application/packages.php` file. That's where we can register our package.
-
-Let's register the admin package:
+Packages are registered in `application/packages.php`:
 
 #### Registering a simple package:
 
@@ -70,7 +56,7 @@ Let's register the admin package:
 return ['admin'];
 ```
 
-By convention, the above code tells Rakit that the `admin` package is located in the `packages/admin/` folder. However, we can also change its location if needed:
+By convention that puts the package in `packages/admin/`. The location can be changed:
 
 #### Registering a package with a custom location:
 
@@ -82,7 +68,7 @@ return [
 ];
 ```
 
-Now Rakit will look for our package in the `packages/backend/admin` folder.
+Rakit now looks in `packages/backend/admin`.
 
 #### Registering a package with an absolute path:
 
@@ -94,13 +80,13 @@ return [
 ];
 ```
 
-By using the `path:` prefix, you can specify an absolute path for the package.
+The `path:` prefix takes an absolute path.
 
 <a id="packages--autoloading"></a>
 
 ## Packages & Autoloading
 
-Usually, the package's `boot.php` file only contains autoloading registration. So, you can define the mapping of classes belonging to the package via the configuration array in `application/packages.php`. Here's how:
+When `boot.php` would only register classes, the mapping can go straight into `application/packages.php`:
 
 #### Defining autoloader mapping for a package:
 
@@ -126,17 +112,13 @@ return [
 ];
 ```
 
-Notice that each key in the above array corresponds to the names of methods in the [Autoloader](/docs/autoloading) class.
-
-The values of each configuration array above will be automatically passed to the corresponding method in the `Autoloader` class.
-
-You must have also seen the `(:package)` placeholder. For convenience, this placeholder will be automatically replaced with the path to your package.
+Each key names a method of the [Autoloader](/docs/autoloading) class and its value is passed to that method. The `(:package)` placeholder is replaced with the path to the package.
 
 <a id="booting-packages"></a>
 
 ## Booting Packages
 
-So far, our package has been created and registered, but we can't use it yet. We must load it (boot) first:
+A registered package still has to be booted before it can be used:
 
 #### Booting a package:
 
@@ -144,7 +126,7 @@ So far, our package has been created and registered, but we can't use it yet. We
 Package::boot('admin');
 ```
 
-This method will execute the `boot.php` file of the admin package, which registers the classes in the admin package to the autoloader.
+That runs the package's `boot.php`.
 
 Calling the `boot()` method also automatically loads the package's `routes.php` file (if it exists).
 When `routes.php` exists, the following files are loaded right after it (if they exist):
@@ -154,7 +136,7 @@ When `routes.php` exists, the following files are loaded right after it (if they
 
 > **Note:** A package will only boot once. Subsequent calls to the `boot()` method will be ignored.
 
-If you want to use the package throughout the application, you might need to boot the package on every request. This is quite inconvenient. If so, you can command the package to always boot automatically. Do this by adding the `autoboot` configuration to the `application/packages.php` file like this:
+A package needed on every request can boot itself, through the `autoboot` option in `application/packages.php`:
 
 #### Commanding a package to boot automatically:
 
@@ -166,11 +148,9 @@ return [
 ];
 ```
 
-You don't always have to define `autoboot` explicitly. Rakit has a **lazy loading** mechanism - the package will boot automatically when first accessed.
+`autoboot` is rarely needed: a package boots itself the first time it is reached, whether by a route, a controller or a middleware of its own.
 
-For example, when a request is routed to a package, or you call a controller or middleware belonging to a package, that package will boot itself automatically.
-
-Every time a package boots, an event is fired. You can use this event when you need to do something after the package finishes booting:
+Every boot fires an event, for whatever has to happen afterwards:
 
 #### Listen to package booting event:
 
@@ -190,7 +170,7 @@ You can also _"freeze"_ a package so that it cannot boot:
 Package::freeze('admin');
 ```
 
-Freezing removes the package from the list of registered packages for the current request, so it can no longer be booted (`Package::boot()` will throw an exception). Useful for temporarily disabling a package without removing its entry from `application/packages.php`.
+A frozen package leaves the registered list for the current request, so `Package::boot()` throws for it. Handy for disabling one without touching `application/packages.php`.
 
 #### Checking package status:
 
@@ -221,9 +201,7 @@ Please refer to the [package routing](/docs/routing#route-for-package) and [pack
 
 ## Using Packages
 
-As mentioned earlier, a package can have its own controllers, views, configs, routes, migrations, commands, and more, just like the structure in the `application/` folder.
-
-Rakit uses the `::` (double colon) syntax to load these items. Let's see the examples:
+A package holds the same kinds of files as `application/`, and the `::` syntax reaches them:
 
 #### Loading a view belonging to a package:
 
@@ -243,7 +221,7 @@ return Config::get('admin::uploads.max_size');
 return Lang::line('admin::themes.default_theme');
 ```
 
-Sometimes, you want to see more "meta-data" information about a package. Here are the available methods:
+The metadata of a package is reachable too:
 
 #### Get the installation location of a package:
 
@@ -334,11 +312,9 @@ $path = Package::expand('admin::controllers/home.php');
 
 ## Package Assets
 
-If the package you create has views, it probably has assets such as CSS, JavaScript, and images that need to be included.
+A package keeps its CSS, JavaScript and images in an `assets/` folder of its own, so `packages/admin/assets/` for the `admin` package.
 
-Just create an `assets/` folder inside your package and put your asset files in it. So, for example, if your package is named `admin`, put your asset files in the `packages/admin/assets/` folder.
-
-Since the `packages/` folder is not directly accessible via the web, Rakit provides a console command to publish (copy) package assets to the `assets/` directory in the root. Here's how:
+`packages/` is not reachable from the web, so a console command copies them into the root `assets/` folder:
 
 #### Publishing assets of a package:
 
@@ -346,7 +322,7 @@ Since the `packages/` folder is not directly accessible via the web, Rakit provi
 php rakit package:publish <package-name>
 ```
 
-This command will create a subfolder in `assets/packages/` corresponding to the package name. For example, if the package name is `admin`, it will create the `assets/packages/admin` folder, which contains copies of the asset files from the admin package.
+The files land in `assets/packages/<package-name>/`.
 
 #### Unpublish package assets:
 
@@ -358,7 +334,7 @@ This command will delete the `assets/packages/<package-name>` folder.
 
 #### Accessing package assets:
 
-After publishing, you can access package assets using the `URL::to_asset()` method or the `asset()` helper:
+Reach them with `URL::to_asset()` or the `asset()` helper:
 
 ```php
 <link href="<?php echo URL::to_asset('packages/themable/css/app.min.css') ?>" rel="stylesheet"/>
@@ -378,9 +354,7 @@ Or with the `asset()` helper:
 
 ## Installing Packages
 
-Of course, you can install packages manually by downloading their archive and extracting it to the `packages/` folder. However, there is a more practical way to install packages, namely via [Rakit Console](/docs/console).
-
-Rakit uses a simple ZIP extraction mechanism for package installation. Here's how:
+A package can be installed by hand, by extracting its archive into `packages/`, but the [console](/docs/console) does the same in one command:
 
 #### Installing a package via rakit console:
 
@@ -400,7 +374,7 @@ After successful installation, the next step is to [register](#registering-packa
 
 #### Viewing available packages:
 
-Want to know what packages are available? Visit the [official Rakit repository](https://rakit.esyede.my.id/repositories)
+The [official repository](https://rakit.esyede.my.id/repositories) lists what is available.
 
 <a id="upgrading-packages"></a>
 
@@ -422,7 +396,7 @@ php rakit package:upgrade <package-name>
 
 #### Best Practice: Don't Edit Packages Directly
 
-If you need to change package configurations, **don't edit the package files directly**. Do the changes by listening to the `rakit.booted` event in the `application/boot.php` file:
+To change a package's configuration, **do not edit its files**. Listen for the `rakit.booted` event in `application/boot.php` instead:
 
 #### Listen to package booting event:
 
@@ -438,9 +412,7 @@ Hook::listen('rakit.booted: admin', function () {
 
 ## Removing Packages
 
-In addition to installing and upgrading packages, you can also remove packages that are no longer needed.
-
-There are 2 ways to do this: via console (automatic) or manual. Let's try!
+Removing a package goes either through the console or by hand.
 
 ### Method 1: Via Console (Recommended)
 
@@ -482,8 +454,6 @@ return [
 ```
 
 ### Method 2: Manual
-
-To remove a package manually, follow these steps:
 
 1. **Reset database migrations** (if the package has migrations)
    - Run SQL to drop the tables created by the package

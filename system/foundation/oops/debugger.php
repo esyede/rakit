@@ -41,8 +41,7 @@ class Debugger
     public static $showBar = true;
 
     /**
-     * Stop the script on strict errors?
-     * Fill with boolean or error level constants (E_NOTICE, E_WARNING, etc.).
+     * Stop the script on strict errors. A boolean, or error level constants.
      *
      * @var bool|int
      */
@@ -91,8 +90,7 @@ class Debugger
     public static $logDirectory;
 
     /**
-     * Log severity level. This controls which errors are logged.
-     * Fill with 0 (all) or PHP error constants (E_NOTICE, E_WARNING, etc.).
+     * Which errors are logged: 0 for all, or PHP error constants.
      *
      * @var int
      */
@@ -259,8 +257,7 @@ class Debugger
     }
 
     /**
-     * Restart the debugger dispatching.
-     * Use this if a new session is created after Debugger::enable() is called.
+     * Restart dispatching, for a session created after Debugger::enable().
      *
      * @return void
      */
@@ -528,10 +525,8 @@ class Debugger
 
         $context = (array) $context;
 
-        // Deprecation notices are collected quietly on their own panel (so they
-        // never escalate to a blue screen) — invaluable when targeting a wide
-        // PHP version range. Only in debug mode and when not suppressed. The
-        // static guard prevents re-entry if collecting itself emits a notice.
+        // Deprecations go to their own panel instead of a blue screen. The static
+        // guard prevents re-entry if collecting one emits a notice of its own.
         static $handlingDeprecation = false;
 
         if (! self::$productionMode && ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED)) {
@@ -584,8 +579,7 @@ class Debugger
             Context::setContext($e, $context);
             Context::setSkippable($e, true);
 
-            // The handler exits, which in a worker ends the whole process instead
-            // of one request. Throw, the worker renders it like any other exception.
+            // The handler exits, which would kill a worker process: throw instead.
             if (defined('RAKIT_WORKER_MODE')) {
                 throw $e;
             }
@@ -666,9 +660,7 @@ class Debugger
 
             Collectors::initialize();
 
-            // All panels are always registered; panels disabled via
-            // config('debugger.collectors') hide themselves during render
-            // (Defaults::getTab returns empty string -> tab is skipped).
+            // All panels register; disabled ones return an empty tab and are skipped.
             self::$bar->addPanel(new Defaults('messages'), 'Oops:messages');
             self::$bar->addPanel(new Defaults('exceptions'), 'Oops:exceptions');
             self::$bar->addPanel(new Defaults('deprecations'), 'Oops:deprecations');
@@ -715,8 +707,7 @@ class Debugger
     }
 
     /**
-     * Dump variable into a more readable format.
-     * This method can be used in production mode.
+     * Dump a variable readably. Safe in production.
      *
      * @param mixed $var
      * @param bool  $return
@@ -766,9 +757,7 @@ class Debugger
     }
 
     /**
-     * Measure how long a block of code takes and record it on the Timeline
-     * panel. Returns whatever the callback returns, so it can wrap an
-     * expression transparently:.
+     * Time a callback on the Timeline panel, returning whatever it returns:
      *
      *     $users = Debugger::measure('Load users', function () {
      *         return User::all();
@@ -792,8 +781,7 @@ class Debugger
     }
 
     /**
-     * Start a named measure on the Timeline panel. Pair with stopMeasure() to
-     * time a region of code that is not a single callback:.
+     * Start a named measure on the Timeline panel. Pair with stopMeasure():
      *
      *     Debugger::startMeasure('import');
      *     // ... work ...
@@ -813,9 +801,8 @@ class Debugger
     }
 
     /**
-     * Stop a measure previously opened with startMeasure() and record it on the
-     * Timeline. An optional label overrides the display name. Silently ignores
-     * unknown/never-started names.
+     * Stop a measure opened with startMeasure() and record it on the Timeline.
+     * An unknown name is ignored.
      *
      * @param string      $name
      * @param string|null $label
@@ -839,8 +826,7 @@ class Debugger
     }
 
     /**
-     * Dump variable to the debug bar.
-     * This method can be used in production mode.
+     * Dump a variable to the debug bar. Safe in production.
      *
      * @param mixed  $var
      * @param string $title
@@ -884,8 +870,7 @@ class Debugger
     }
 
     /**
-     * Send the error email for an error that was logged elsewhere,
-     * when an address is configured. Never throws.
+     * Email an error logged elsewhere, if an address is configured. Never throws.
      *
      * @param mixed $message
      *
@@ -919,8 +904,7 @@ class Debugger
         $secret = (isset($_COOKIE[self::COOKIE_SECRET]) && is_string($_COOKIE[self::COOKIE_SECRET])) ? $_COOKIE[self::COOKIE_SECRET] : null;
         $list = is_string($list) ? preg_split('#[,\s]+#', $list) : (array) $list;
 
-        // Explicit allow list only; do not auto-allow localhost (was a security risk)
-        // If you need localhost debug, configure it explicitly via debugger config or env
+        // Allow list only: localhost is not implied, it has to be configured.
         return in_array($addr, $list, true) || in_array("$secret@$addr", $list, true);
     }
 }

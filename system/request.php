@@ -74,9 +74,8 @@ class Request
     }
 
     /**
-     * Get the request method as the server reported it. Spoofing through the
-     * '_method' field or the 'X-Http-Method-Override' header is ignored, so
-     * this is the method to check when the answer decides on security.
+     * Get the method the server reported, ignoring '_method' and
+     * 'X-Http-Method-Override'. Use this one for security decisions.
      *
      * @return string
      */
@@ -398,8 +397,7 @@ class Request
     }
 
     /**
-     * Check if the request has been forged.
-     * Forged request is indicated by the absence of a valid CSRF token.
+     * Check if the request is forged, meaning it carries no valid CSRF token.
      *
      * @return bool
      */
@@ -413,8 +411,7 @@ class Request
 
         $header = static::header('X-Csrf-Token') ?: static::header('X-Xsrf-Token');
 
-        // The real method decides here. A POST that spoofs itself as GET is
-        // still a POST, and skipping the check for it would defeat the token.
+        // The real method decides: a POST spoofed as GET still needs the token.
         if (in_array(static::real_method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])) {
             return false;
         }
@@ -425,8 +422,7 @@ class Request
 
         // Only check token from request body (POST), not query string, to avoid leakage via Referer/log
         $body_token = static::foundation()->request->get(Session::TOKEN);
-        // Also check merged input without query string fallback? For JSON requests, token may be in payload
-        // But never fall back to query string
+        // A JSON request may carry the token in its payload. Never in the query string.
         if (is_null($body_token)) {
             // Check if token was sent as part of JSON body
             $json = Input::json(true);

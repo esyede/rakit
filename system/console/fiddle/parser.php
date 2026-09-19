@@ -24,8 +24,7 @@ class Parser
     }
 
     /**
-     * Break the $buffer into chunks, with one for each highest-level construct possible.
-     * If the buffer is incomplete, returns an empty array.
+     * Break the buffer into one chunk per top-level construct, or nothing if incomplete.
      *
      * @param string $buffer
      *

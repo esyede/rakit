@@ -49,8 +49,7 @@ class Storage
         // Normalize separators
         $normalized = str_replace(['\\', '/'], DS, $path);
 
-        // Resolve to absolute for checking
-        // If relative, prepend base
+        // Resolve to absolute before checking.
         $isAbsolute = false;
         if ('' !== $normalized) {
             if ($normalized[0] === DS) {
@@ -151,9 +150,7 @@ class Storage
     }
 
     /**
-     * Check if file or directory exists.
-     * This method is not suitable for checking the existence of a file.
-     * Use Storage::isfile() for that purpose!
+     * Check if a file or directory exists. For files only, use Storage::isfile().
      *
      * @param string $path
      *
@@ -553,8 +550,7 @@ class Storage
     }
 
     /**
-     * Check if file is valid based on its mime type.
-     * Use this method to validate uploaded files.
+     * Check an uploaded file against its mime type.
      *
      * @param array|string $extensions
      * @param string       $path
@@ -579,8 +575,7 @@ class Storage
     }
 
     /**
-     * Create a new directory recursively.
-     * This method also creates an index.html file in each subfolder.
+     * Create a directory recursively, with an index.html at each level.
      *
      * @param string $path
      * @param int    $chmod
@@ -657,8 +652,7 @@ class Storage
             try {
                 static::validate_path($base);
             } catch (\Throwable $e) {
-                // If base not yet exists, allow glob to return empty instead of throwing
-                // Containment will be enforced on actual files returned
+                // Missing base: let glob return empty. Containment is checked per file below.
             } catch (\Exception $e) {
             }
         }

@@ -75,16 +75,14 @@ class URL
         }
 
         if (is_string($url) && preg_match('#^(//|\\\\\\\\)#', trim($url))) {
-            // Protocol-relative URL -> treat as external, block for safety
-            // Return base instead of external host
+            // Protocol-relative: external, so fall back to base.
             $url = '/';
         }
 
         if (is_string($url) && preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', trim($url))) {
             // Only http and https are allowed as absolute URLs via URL::to
             if (!preg_match('#^https?://#i', trim($url))) {
-                // Block javascript:, data:, vbscript:, etc.
-                // If it's a valid URL with other scheme, don't return as-is
+                // Block javascript:, data:, vbscript: and friends.
                 if (static::valid($url)) {
                     $url = '/';
                 }

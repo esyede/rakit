@@ -83,9 +83,7 @@ class File extends Driver
     }
 
     /**
-     * Increment a numeric value in the cache.
-     * The whole read, add and write happens under one exclusive lock, so two
-     * requests arriving together cannot both write the same number.
+     * Increment a numeric value. Read, add and write happen under one exclusive lock.
      *
      * @param string $key
      * @param int    $minutes

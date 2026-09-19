@@ -35,8 +35,7 @@ class Panic
     public $maxLength = 300;
 
     /**
-     * Array keys to hide from the debugger error page, so sensitive data
-     * never reaches the output.
+     * Array keys hidden from the error page, so sensitive data stays out of the output.
      *
      * @var array
      */
@@ -423,8 +422,7 @@ class Panic
     }
 
     /**
-     * Extract a snippet of raw code (without HTML) around a specific line,
-     * with a ">" marker on the line containing the error. Used for Markdown output.
+     * Extract a plain-text code snippet around a line, marking it with ">".
      *
      * @param string $file
      * @param int    $line

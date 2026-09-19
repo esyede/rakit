@@ -39,11 +39,8 @@ Container::register('mailer', function () {
 });
 ```
 
-Great! Now we have registered a resolver for SwiftMailer to our container.
-However, what if we don't want the container to create a new `mailer` instance every time we need it?
-
-Maybe we only want the container to return the same instance after the initial instance is created.
-Easy, just tell the container that the object should be a singleton:
+That resolver runs on every resolve. To get the same instance back each time,
+register it as a singleton:
 
 #### Registering a singleton object to the container:
 
@@ -53,7 +50,7 @@ Container::singleton('mailer', function () {
 });
 ```
 
-You can also register an existing object instance as a singleton to the container.
+An object you already have can be registered as a singleton too.
 
 #### Registering an existing instance to the container:
 
@@ -65,13 +62,13 @@ Container::instance('mailer', $instance);
 
 ## Resolving Objects
 
-After SwiftMailer is registered to the container, we can easily resolve it:
+Once registered, resolve it by name:
 
 ```php
 $mailer = Container::resolve('mailer');
 ```
 
-You can also pass parameters to the resolver when resolving the object:
+The resolver can be given parameters:
 
 #### Resolving object with parameters:
 

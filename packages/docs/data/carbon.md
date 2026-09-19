@@ -157,13 +157,13 @@
 
 ## Basic Knowledge
 
-Carbon is a wrapper for PHP's DateTime class that provides various methods to work with date and time data more easily and expressively. It extends DateTime and adds fluent methods for date manipulation, comparisons, and formatting.
+`Carbon` extends PHP's `DateTime` with fluent methods for manipulating, comparing and formatting dates.
 
 <a id="creating-carbon-instances"></a>
 
 ## Creating Carbon Instances
 
-Carbon instances can be created in various ways:
+Several ways to build one:
 
 #### From current time:
 

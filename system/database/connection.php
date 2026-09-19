@@ -34,8 +34,7 @@ class Connection
     protected $grammar;
 
     /**
-     * Number of transactions that are currently open. Anything beyond the
-     * first one is handled with a savepoint instead of a real transaction.
+     * Number of open transactions. Anything past the first uses a savepoint.
      *
      * @var int
      */
@@ -124,9 +123,8 @@ class Connection
     }
 
     /**
-     * Open a transaction. Calling it again while one is already open opens a
-     * savepoint instead, so a method that wraps its work in a transaction may
-     * safely be called from inside another one.
+     * Open a transaction, or a savepoint if one is already open, so transactional
+     * methods may safely be nested.
      *
      * @return bool
      */
@@ -144,8 +142,7 @@ class Connection
     }
 
     /**
-     * Commit the transaction. When it is a nested one, only its savepoint is
-     * released and the outermost transaction stays open.
+     * Commit the transaction. A nested one only releases its savepoint.
      *
      * @return bool
      */
@@ -167,10 +164,8 @@ class Connection
     }
 
     /**
-     * Roll the transaction back. When it is a nested one, only the work done
-     * since its savepoint is undone and the outermost transaction stays open.
-     * Rolling back without an open transaction is not an error, it simply does
-     * nothing, so that it is safe to call from an error handler.
+     * Roll the transaction back. A nested one only undoes its savepoint, and rolling
+     * back without an open transaction does nothing, so error handlers may call it.
      *
      * @return bool
      */
@@ -286,8 +281,7 @@ class Connection
     }
 
     /**
-     * Run the query against the connection.
-     * Will return an array containing the query and the result of the query (as a boolean).
+     * Run the query, returning the statement and whether it succeeded.
      *
      * @param string $sql
      * @param array  $bindings
@@ -369,9 +363,8 @@ class Connection
     }
 
     /**
-     * Determine the application file:line that issued the current query.
-     * Internal framework frames (folder 'system/') are skipped so the source
-     * points to the developer's controller/model/route, not the query builder.
+     * Determine the application file:line that issued the query, skipping the
+     * framework's own frames.
      *
      * @return string|null
      */
@@ -437,10 +430,8 @@ class Connection
     }
 
     /**
-     * Close the connection to the database. Whatever an open transaction had
-     * done so far is rolled back by the server when the connection goes. A
-     * persistent connection goes back to the PDO pool instead of closing, and
-     * the next one opened is the same connection again.
+     * Close the connection, rolling back any open transaction. A persistent one goes
+     * back to the PDO pool and is handed out again.
      *
      * @return void
      */

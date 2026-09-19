@@ -402,9 +402,8 @@ class Collectors
     }
 
     /**
-     * Record a thrown exception (caught-and-logged or fatal) so the debug bar
-     * can list it on a dedicated Exceptions panel. Identical exceptions (same
-     * class/file/line/message) are collapsed with an occurrence counter.
+     * Record a thrown exception for the Exceptions panel. Identical ones (same class,
+     * file, line and message) collapse into an occurrence counter.
      *
      * @param \Exception|\Throwable $e
      *
@@ -454,10 +453,8 @@ class Collectors
     }
 
     /**
-     * Record a PHP deprecation notice (E_DEPRECATED / E_USER_DEPRECATED) on the
-     * dedicated Deprecations panel. Identical notices (same file/line/message)
-     * are collapsed with an occurrence counter — invaluable when targeting a
-     * wide PHP version range.
+     * Record a deprecation notice for the Deprecations panel. Identical ones (same
+     * file, line and message) collapse into an occurrence counter.
      *
      * @param string $message
      * @param string $file
@@ -489,8 +486,7 @@ class Collectors
     }
 
     /**
-     * Record an outgoing HTTP request made through System\Curl so the debug bar
-     * can show a HTTP client panel (method, url, status, time, size).
+     * Record a System\Curl request for the HTTP client panel.
      *
      * @param string      $method
      * @param string      $url
@@ -522,8 +518,7 @@ class Collectors
     }
 
     /**
-     * Record a sent email so the debug bar can show a Mails panel with the
-     * recipients, subject, and a body preview.
+     * Record a sent email for the Mails panel.
      *
      * @param array $mail
      *

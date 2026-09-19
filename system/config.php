@@ -7,8 +7,7 @@ defined('DS') or die('No direct access.');
 class Config
 {
     /**
-     * Contains all configuration items.
-     * Configuration array is keyed by package and owner file.
+     * All configuration items, keyed by package and owner file.
      *
      * @var array
      */
@@ -36,8 +35,7 @@ class Config
     public static $gets = [];
 
     /**
-     * Whether cached items are revalidated
-     * against the file's modification time on every read.
+     * Whether cached items are revalidated against the file mtime on every read.
      *
      * @var bool
      */
@@ -160,8 +158,7 @@ class Config
     }
 
     /**
-     * Parse a key and return package, file, and key segments.
-     * Configuration items are named using this convention: [package name]::[file name].[item name].
+     * Parse '[package]::[file].[item]' into its package, file and key segments.
      *
      * @param string $key
      *

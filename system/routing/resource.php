@@ -19,8 +19,7 @@ class Resource
     protected $except = [];
 
     /**
-     * Contains the controller handling the resource, when it is not the
-     * resource name itself.
+     * The controller handling the resource, when it is not the resource name.
      *
      * @var string|null
      */
@@ -195,8 +194,7 @@ class Resource
             $prefix = $this->parent ? $this->parent.'.' : '';
             $uses = $this->placeholder($options['uses']);
 
-            // A 'controller' option points the routes somewhere other than the
-            // controller the resource is named after.
+            // A 'controller' option overrides the controller the resource is named after.
             if (! is_null($this->controller)) {
                 $uses = $this->controller.substr($uses, strpos($uses, '@'));
                 $prefix = '';

@@ -117,11 +117,9 @@ abstract class Model implements \JsonSerializable
     public static $fillable;
 
     /**
-     * Contains list of attributes that are not mass-assignable.
-     * Guarding everything is the safe starting point: a model accepts nothing
-     * through fill() until it says what it accepts, so a request body cannot
-     * reach an attribute such as 'id' or 'is_admin' that was never meant for it.
-     * Declare $fillable on the model, or narrow this, to open it up.
+     * Attributes that are not mass-assignable. Guarding everything is the safe
+     * default: fill() accepts nothing until the model declares $fillable or narrows
+     * this, so a request body cannot reach 'id' or 'is_admin'.
      *
      * @var array
      */
@@ -142,25 +140,23 @@ abstract class Model implements \JsonSerializable
     public static $hidden = [];
 
     /**
-     * Whitelist of attributes that should be included in the array form of the model.
-     * When it is not empty, it takes precedence over the $hidden list.
+     * Attributes to include in the array form. Takes precedence over $hidden.
      *
      * @var array
      */
     public static $visible = [];
 
     /**
-     * List of accessor backed attributes that should be appended
-     * to the array form of the model.
+     * Accessor backed attributes to append to the array form.
      *
      * @var array
      */
     public static $appends = [];
 
     /**
-     * List of attributes that should be cast to a native type.
-     * Supported: int, integer, real, float, double, decimal:<digits>, string,
-     * bool, boolean, object, array, json, collection, date, datetime, timestamp.
+     * Attributes to cast to a native type: int, integer, real, float, double,
+     * decimal:<digits>, string, bool, boolean, object, array, json, collection,
+     * date, datetime, timestamp.
      *
      * @var array
      */
@@ -209,8 +205,7 @@ abstract class Model implements \JsonSerializable
     public static $perpage = 20;
 
     /**
-     * Contains global scopes that are applied to all queries for the model,
-     * keyed by model class name.
+     * Global scopes applied to every query, keyed by model class name.
      *
      * @var array
      */
@@ -271,8 +266,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Register whatever the model needs registering once. Override it to
-     * listen for the events of the model itself.
+     * Register whatever the model needs once. Override it to listen for its events.
      *
      * @return void
      */
@@ -282,8 +276,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Register an observer. Every method of it named after an event is
-     * listened for, and the rest are left alone.
+     * Register an observer; its methods named after an event become listeners.
      *
      * @param object|string $observer
      *
@@ -306,8 +299,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Fire one of the events of the model. An event that may be called off is
-     * called off when any of its listeners answers with FALSE.
+     * Fire a model event. A cancellable one is cancelled if any listener returns FALSE.
      *
      * @param string $event
      * @param bool   $cancellable
@@ -318,8 +310,7 @@ abstract class Model implements \JsonSerializable
     {
         $events = ['facile.' . $event, 'facile.' . $event . ': ' . get_class($this)];
 
-        // Firing an event nobody listens for still costs a walk through the
-        // hook, and a line in the debug bar, for every row of every result.
+        // Firing an unheard event still costs a hook walk per row.
         if (! Hook::exists($events[0]) && ! Hook::exists($events[1])) {
             return true;
         }
@@ -330,8 +321,8 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Announce that the model has just come back from the database. The query
-     * that hydrated it is the only caller that can know.
+     * Announce that the model just came back from the database. Called by the query
+     * that hydrated it.
      *
      * @return void
      */
@@ -371,9 +362,8 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
-            // A model that lists what it accepts has already answered the
-            // question, so the blanket guard does not get a second say. Without
-            // this the default $guarded of ['*'] would leave $fillable unusable.
+            // $fillable already answers the question; the default $guarded of ['*']
+            // would otherwise make it unusable.
             if (is_array(static::$fillable)) {
                 if (in_array($key, static::$fillable)) {
                     $this->{$key} = $value;
@@ -394,8 +384,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Do mass-assignment to the current model without applying fillable/guarded rules.
-     * All mutators and accessors will be ignored too.
+     * Mass-assign without the fillable / guarded rules, and without mutators.
      *
      * @param array $attributes
      *
@@ -521,9 +510,8 @@ abstract class Model implements \JsonSerializable
     /**
      * Get a model's raw attribute value.
      *
-     * The lookup order is: loaded relationship, table attribute, then
-     * relationship that has not been loaded yet. The accessor method is not
-     * applied here, so an accessor may call this method safely.
+     * Looks up a loaded relationship, then a table attribute, then an unloaded
+     * relationship. No accessor is applied, so an accessor may call this safely.
      *
      * @param string $key
      *
@@ -543,8 +531,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Load a relationship of the model on demand.
-     * NULL is returned when the given name is not a relationship.
+     * Load a relationship on demand, or NULL if the name is not one.
      *
      * @param string $key
      *
@@ -574,9 +561,8 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Check if a method is defined by the model itself instead of by this
-     * base class. It keeps framework methods such as key() and get_table()
-     * from being treated as a relationship or an accessor.
+     * Check if the model defines the method itself, so framework methods like key()
+     * are not mistaken for a relationship or an accessor.
      *
      * @param string $method
      *
@@ -736,8 +722,7 @@ abstract class Model implements \JsonSerializable
     public function to_array()
     {
         $attributes = [];
-        // make_visible() only widens a whitelist the model already has: with
-        // none, it would turn into one and hide every other attribute.
+        // Only widen an existing whitelist: creating one would hide everything else.
         $visible = static::$visible ? array_merge((array) static::$visible, $this->instance_visible) : [];
         $hidden = array_merge(array_diff((array) static::$hidden, $this->instance_visible), $this->instance_hidden);
 
@@ -1275,8 +1260,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Create a new model and save it to the database.
-     * If the model is successfully saved, the model instance will be returned. FALSE otherwise.
+     * Create and save a new model, returning it, or FALSE if the save failed.
      *
      * @param array $attributes
      *
@@ -1635,9 +1619,7 @@ abstract class Model implements \JsonSerializable
             $dirty = $this->get_dirty();
             $query = $this->query()->where(static::$key, '=', $this->get_key());
 
-            // The number of affected rows is not a reliable indicator of success. MySQL
-            // reports zero affected row when the new values are identical to the old
-            // ones, even though nothing actually went wrong.
+            // Affected rows means nothing here: MySQL reports zero for an unchanged row.
             $query->update($dirty);
             $result = true;
 
@@ -1651,8 +1633,7 @@ abstract class Model implements \JsonSerializable
 
             $id = $this->query()->insert_get_id($this->attributes, $this->key(), static::$sequence);
 
-            // Drivers return nothing for non auto-increment keys (UUID, ULID, etc.),
-            // in which case the key assigned by the application must be kept.
+            // Drivers return nothing for non auto-increment keys, so keep the one we set.
             if (! is_null($id)) {
                 $this->set_key($id);
             }
@@ -1714,9 +1695,7 @@ abstract class Model implements \JsonSerializable
      */
     public function restore()
     {
-        // Whether the instance came back from with_trashed() or is the one
-        // delete() was just called on decides nothing here: what matters is
-        // that the model soft deletes and this row is marked as deleted.
+        // Only two things matter: the model soft deletes and this row is marked deleted.
         if (! static::$soft_delete || is_null($this->deleted_at)) {
             return false;
         }
@@ -1898,8 +1877,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Get the base query builder for the model, with the soft delete filter and
-     * the model's global scopes already applied.
+     * Get the base query builder, with the soft delete filter and global scopes applied.
      *
      * @param bool $with_trashed
      *
@@ -1928,8 +1906,7 @@ abstract class Model implements \JsonSerializable
     {
         $instance = new static();
 
-        // An event name handed a closure is a listener being registered, which
-        // is not something the query builder could make sense of anyway.
+        // A closure means a listener is being registered, not a query builder call.
         if (1 === count($parameters)
             && isset($parameters[0])
             && $parameters[0] instanceof \Closure
@@ -1950,8 +1927,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Handle dynamic property access for getting attributes.
-     * The accessor method (get_<name>) is used when the model defines one.
+     * Read an attribute dynamically, through get_<name>() when the model defines one.
      *
      * @param string $key
      *
@@ -1969,8 +1945,7 @@ abstract class Model implements \JsonSerializable
     }
 
     /**
-     * Handle dynamic property access for setting attributes.
-     * The mutator method (set_<name>) is used when the model defines one.
+     * Write an attribute dynamically, through set_<name>() when the model defines one.
      *
      * @param string $key
      * @param mixed  $value

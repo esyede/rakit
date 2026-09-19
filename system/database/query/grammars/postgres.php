@@ -36,8 +36,7 @@ class Postgres extends Grammar
     }
 
     /**
-     * Compile a date based function call on an already wrapped column.
-     * PostgreSQL has no DAY(), MONTH() or YEAR() function, EXTRACT() is used instead.
+     * Compile a date function on a wrapped column; PostgreSQL only has EXTRACT().
      *
      * @param string $type
      * @param string $column

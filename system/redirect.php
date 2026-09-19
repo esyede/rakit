@@ -45,8 +45,7 @@ class Redirect extends Response
     }
 
     /**
-     * Check whether a URL points back at this application. Anything naming
-     * another host does not, and the referrer header is written by the client.
+     * Check whether a URL points back at this application. Another host never does.
      *
      * @param string $url
      *
@@ -64,8 +63,7 @@ class Redirect extends Response
     }
 
     /**
-     * Create a redirect response to a given URL.
-     * Only local URLs are allowed; use away() for external redirects.
+     * Redirect to a local URL. Use away() for external ones.
      *
      * @param string $url
      * @param int    $status
@@ -177,8 +175,7 @@ class Redirect extends Response
     }
 
     /**
-     * Remember the current url, then redirect to the given one.
-     * Use intended() afterwards to go back to where the visitor came from.
+     * Remember the current URL and redirect. Use intended() to come back.
      *
      * @param string $url
      * @param int    $status
@@ -223,8 +220,7 @@ class Redirect extends Response
     }
 
     /**
-     * Add an item to the flash data (stored in session).
-     * Flash data will be available on the next request.
+     * Flash an item to the session, available on the next request.
      *
      * @param string $key
      * @param mixed  $value
@@ -242,8 +238,7 @@ class Redirect extends Response
     }
 
     /**
-     * Flash old input data to the session and return the Redirect instance.
-     * After old input data is flashed, you can retrieve it using Input::old().
+     * Flash the old input to the session, to be read back with Input::old().
      *
      * @param string $filter
      * @param array  $items

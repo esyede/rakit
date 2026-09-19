@@ -56,8 +56,7 @@ $rules = [
 ];
 ```
 
-In addition to using the `|` (pipe) character as a separator, you can also write it
-in array syntax:
+Rules can be written as an array instead of a pipe-separated string:
 
 ```php
 $rules = [
@@ -78,8 +77,7 @@ if ($validation->fails()) {
 // Validation successful, proceed
 ```
 
-Of course, default error messages have been included for all validation rules.
-These default error messages are stored in the file `application/language/en/validation.php`.
+Every rule has a default error message, kept in `application/language/en/validation.php`.
 
 **Complete example in controller:**
 
@@ -116,9 +114,6 @@ class User_Controller extends Controller
     }
 }
 ```
-
-Now you are familiar with the basic usage of the `Validator` class. It's time to delve deeper
-into what rules you can use to validate your data!
 
 <a id="validation-rules"></a>
 
@@ -437,8 +432,8 @@ This rule will accept: `true`, `false`, `1`, `0`, `"1"`, `"0"`.
 
 ### Confirmation
 
-The `'confirmed'` rule validates that, for a certain attribute, there must be another attribute
-named `'xxx_confirmation'`, where `'xxx'` is the name of the original attribute.
+The `'confirmed'` rule requires a second attribute named `'xxx_confirmation'`, where
+`'xxx'` is the name of the original one.
 
 #### Validate that the attribute has been confirmed:
 
@@ -446,16 +441,14 @@ named `'xxx_confirmation'`, where `'xxx'` is the name of the original attribute.
 'password' => 'confirmed',
 ```
 
-In the example above, the validator will validate that the value of the `'password'`
-attribute matches the value in the `'password_confirmation'` attribute.
+So `'password'` is checked against `'password_confirmation'`.
 
 <a id="approval"></a>
 
 ### Approval
 
-The `'accepted'` rule validates that the value of an attribute is one of:
-`'yes'`, `'on'`, `'1'`, `1`, `true`, or `'true'`. This rule is very useful when
-validating form checkboxes, such as a site rules approval checkbox.
+The `'accepted'` rule passes for `'yes'`, `'on'`, `'1'`, `1`, `true` or `'true'`,
+which is what a ticked checkbox sends.
 
 #### Validate that the attribute has been approved:
 
@@ -542,7 +535,7 @@ The `.*` is optional — `in_array:colors` names the same array — and a nested
 
 ### Regular Expression
 
-The `'match'` rule validates that the value of an attribute matches a certain regular expression pattern.
+The `'match'` rule checks the value against a regular expression.
 
 #### Validate that the value of an attribute matches a certain regular expression pattern:
 
@@ -556,8 +549,8 @@ The `'match'` rule validates that the value of an attribute matches a certain re
 'username' => 'not_regex:/[^a-zA-Z0-9]/',  // Must not contain special characters
 ```
 
-When you use the `'match'` rule in a complex way, it is highly recommended to use
-array syntax to avoid errors in the regex:
+Use the array syntax for anything but the simplest pattern, so a `|` inside the regex
+is not read as a rule separator:
 
 ```php
 $rules = [
@@ -575,10 +568,9 @@ $rules = [
 'email' => 'unique:users',
 ```
 
-In the example above, the `'email'` attribute will be checked for uniqueness in the `'users'` table.
-Unique here means no duplicates, or matching data.
+That checks the `'email'` attribute for duplicates in the `'users'` table.
 
-Need to check uniqueness on a different column name than the attribute name? No problem:
+For a column named differently from the attribute:
 
 #### Specify a custom column name to check uniqueness:
 
@@ -586,14 +578,8 @@ Need to check uniqueness on a different column name than the attribute name? No 
 'email' => 'unique:users,email_address',
 ```
 
-Often, when updating a record in the database, you want to use the `'unique'` rule,
-but exclude the row being updated. For example, when updating a user's profile, you can
-allow them to change their email address.
-
-However, when the `'unique'` rule runs, it would certainly not apply to that specific user
-because the user might not have changed their address, thus causing the unique rule to fail.
-
-So how to overcome this? Easy:
+Updating a record has to leave out the row being updated, or a user who kept their own
+email address would fail the rule. Pass its id as a third parameter:
 
 #### Force the `unique` rule to ignore a certain ID:
 
@@ -946,12 +932,8 @@ Example:
 
 ## Retrieving Error Messages
 
-Handling error messages has become very easy thanks to Rakit's simple error collector class.
-After calling the `passes()` or `fails()` method of the `Validator` class, you can access
-the error messages via the `$errors` property.
-
-The error collector class has several helper methods to make it easier for you to
-retrieve error messages:
+After `passes()` or `fails()`, the failures sit in the `$errors` property, a message
+collector with these helpers:
 
 #### Check if a certain attribute has error messages:
 
@@ -967,10 +949,8 @@ if ($validation->errors->has('email')) {
 echo $validation->errors->first('email');
 ```
 
-Sometimes you may need to format the error message by wrapping it in HTML tags.
-
-No problem. Just pass the format you want along with the `:message` placeholder
-to the second parameter.
+To wrap a message in HTML, pass a format carrying the `:message` placeholder as the
+second parameter.
 
 #### Format an error message:
 
@@ -1006,10 +986,7 @@ $messages = $validation->errors->all('<p>:message</p>');
 
 ## Validation Guide
 
-After performing validation, you need an easy way to return those error messages
-to the view so they can be seen by the user.
-
-Easy. Let's explore the common scenario below. We will define two routes:
+The errors still have to reach the view. The usual shape is two routes:
 
 ```php
 Route::get('register', function () {
@@ -1027,22 +1004,12 @@ Route::post('register', function () {
 });
 ```
 
-Awesome! So, we have two routes for account registration. One to display
-the form view, and one to handle the POST data sent from that form.
+One route shows the form, the other handles the POST. On failure it redirects back
+with the errors flashed to the session.
 
-In the POST route, we run some validation on the user input. If validation fails,
-we redirect back to the form and flash the validation error messages to the session
-so they can be accessed globally, thus we can display the error messages in the view.
-
-**Note that we do not explicitly bind the error messages to the view in our GET route**.
-
-However, the `$errors` variable will still be available in the view. Rakit cleverly determines if
-there are errors in the session, and if there are, it automatically binds them to the view for you.
-
-If there are no errors in the session, an empty message container will still be bound to the view.
-
-In your view, this allows you to always assume you have a message container
-available through the `$errors` variable. This will definitely make your life easier.
+**The GET route never binds those errors to the view.** It does not have to: Rakit
+binds `$errors` itself, from the session when there are errors and as an empty
+collector when there are none, so a view may always assume it is there.
 
 For example, if email validation fails, we can look for `'email'` in the `$errors` variable.
 
@@ -1059,9 +1026,8 @@ the error message to our view conditionally:
 @endif
 ```
 
-This will also work well when we need to add classes conditionally when using
-something like Bootstrap. For example, if email validation fails, we might want
-to add the `"error"` class from Bootstrap to the `<div class="control-group">`.
+The same works for a conditional class, such as Bootstrap's `"error"` on the
+surrounding `<div class="control-group">`.
 
 ```html
 <div class="control-group{{ $errors->has('email') ? ' error' : '' }}"></div>
@@ -1077,8 +1043,7 @@ When validation fails, the view we render will have the `'error'` class added.
 
 ## Custom Error Messages
 
-Want to use error messages other than the defaults? Maybe you even want to use custom error messages
-for specific attributes and rules. Sure!
+Messages can be overridden, per attribute and per rule:
 
 #### Create an array of custom error messages for the Validator:
 
@@ -1151,13 +1116,8 @@ public function action_store()
 </form>
 ```
 
-Now your custom messages will be used whenever the required validation check fails.
-But, what is the `:attribute` placeholder? Why does it suddenly appear there?
-
-To make your life easier, the `Validator` class will replace the `:attribute` placeholder
-with the actual attribute name!
-
-The validator class will also remove underscores from the attribute name so it looks nicer for the user.
+The `:attribute` placeholder is replaced with the name of the attribute that failed,
+underscores stripped so it reads well.
 
 You can also use placeholders `:other`, `:size`, `:min`, `:max`, and `:values` when
 creating custom error messages:

@@ -16,9 +16,7 @@
 
 ## Basic Knowledge
 
-Session provides a way to store user data between HTTP requests. Rakit provides a clean and consistent API for accessing various session backend drivers.
-
-Sessions in Rakit will automatically start on every web request when a session driver is configured (except for routes listed in the `'stateless'` session option), so you don't need to worry about starting sessions manually.
+A session stores data between HTTP requests, behind one API whatever the backend driver. With a driver configured it starts by itself on every web request, apart from the routes listed in the `'stateless'` session option.
 
 **Check if session has started:**
 
@@ -32,13 +30,13 @@ if (Session::started()) {
 
 ## Storing Items
 
-Storing items in the session is very simple. Just call the `put()` method like this:
+`put()` stores an item:
 
 ```php
 Session::put('name', 'Budi');
 ```
 
-The first parameter is the key of the session item. You will use this key to retrieve the item from the session. The second parameter is its value.
+The parameters are the key the item is read back by, and its value.
 
 **Storing multiple items:**
 
@@ -52,13 +50,13 @@ Session::put('city', 'Jakarta');
 
 ## Retrieving Items
 
-You can use the `get()` method to retrieve items from the session, including flash data. Just specify which item's key you want to retrieve:
+`get()` reads an item back by its key, flash data included:
 
 ```php
 $name = Session::get('name');
 ```
 
-By default, it will return `NULL` if the session item does not exist. However, you can provide a default value as the second parameter if needed:
+A missing item gives `NULL`, unless a default is passed as the second argument:
 
 ```php
 $name = Session::get('name', 'Andi');
@@ -66,11 +64,9 @@ $name = Session::get('name', 'Andi');
 $name = Session::get('name', function () { return 'Andi'; });
 ```
 
-Now, it will return `'Andi'` if the `'name'` item does not exist in the session.
-
 **Check if an item exists:**
 
-Rakit gives you a simple way to determine if an item exists in the session using the `has()` method:
+`has()` answers whether an item is there:
 
 ```php
 if (Session::has('name')) {
@@ -90,7 +86,7 @@ Session::forget('name');
 
 **Deleting all items:**
 
-You can delete all items from the session (except the CSRF token) using the `flush()` method:
+`flush()` deletes every item but the CSRF token:
 
 ```php
 Session::flush();
@@ -108,7 +104,7 @@ Session::forget('city');
 
 ## Flash Items
 
-The `flash()` method stores an item in the session that will expire after the next request. This is useful for storing temporary data such as status or validation error messages:
+`flash()` stores an item that expires after the next request, which suits status messages and validation errors:
 
 ```php
 Session::flash('status', 'Welcome Back!');
@@ -141,7 +137,7 @@ public function action_store()
 
 **Retain flash data:**
 
-Flash items that expire in the next request can be retained for another request using the `reflash()` or `keep()` methods:
+`reflash()` and `keep()` hold flash items for one more request:
 
 **Retain all flash items for another request:**
 
@@ -165,7 +161,7 @@ Session::keep(['status', 'other_item']);
 
 ## Regeneration
 
-Sometimes you may want to regenerate the session ID. This means the old session ID will be replaced with a new random session ID. This is useful for security, especially after a user logs in.
+Regenerating replaces the session ID with a fresh random one, which is worth doing after a login.
 
 ```php
 Session::regenerate();
@@ -193,7 +189,7 @@ public function action_login()
 
 ## CSRF Token
 
-Session provides CSRF (Cross-Site Request Forgery) tokens to protect your application from CSRF attacks.
+The session carries a CSRF token to protect against cross-site request forgery.
 
 **Getting CSRF token:**
 

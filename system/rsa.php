@@ -37,8 +37,7 @@ class RSA
         $total = mb_strlen($data, '8bit');
         $result = '';
 
-        // Walking with an offset rather than shrinking the string: a remainder
-        // of '0' is falsy, and testing it would drop the last chunk.
+        // Walk by offset, not by shrinking: a trailing '0' chunk is falsy.
         for ($offset = 0; $offset < $total; $offset += $length) {
             $chunk = mb_substr($data, $offset, $length, '8bit');
             $temp = '';

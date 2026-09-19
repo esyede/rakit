@@ -51,7 +51,7 @@ Storage::isdir('foo/bar.txt'); // false
 $contents = Storage::get('path/to/file');
 ```
 
-> **Security:** All `Storage` paths are now confined to the application base directory (`path('base')` / `path('storage')`, plus any directory listed in `Storage::$allowed_roots`). Paths that resolve outside those roots (e.g. via `../`), null bytes and stream wrappers (`php://`, `phar://`) are rejected with an exception. Never pass raw user input like `Storage::get(Input::get('f'))` — validate or map it through an allowlist first.
+> **Security:** paths are confined to `path('base')`, `path('storage')` and anything listed in `Storage::$allowed_roots`. Traversal (`../`), null bytes and stream wrappers (`php://`, `phar://`) throw. Never pass raw user input like `Storage::get(Input::get('f'))` — map it through an allowlist first.
 
 ```php
 // vulnerable
@@ -73,7 +73,7 @@ if ($path) Storage::get(path('storage').$path);
 Storage::put('path/to/file', 'file contents');
 ```
 
-> Paths are validated before writing. `Storage::put(Input::get('name'), $data)` with user-controlled filename is blocked — writes outside the allowed roots throw an exception.
+> Paths are validated before writing, so `Storage::put(Input::get('name'), $data)` throws once the filename resolves outside the allowed roots.
 
 #### Append data to the end of a file:
 
@@ -104,11 +104,11 @@ Storage::delete('path/to/file.ext');
 #### Move file from `$_FILES` to disk:
 
 ```php
-// Basic — now with built-in hardening (blocks PHP extensions, validates MIME/size)
+// Basic — hardened by default (blocks PHP extensions, validates MIME and size)
 Input::upload('picture', path('storage').'pictures', 'filename.ext');
 ```
 
-> **Security (fixed):** `Upload::move()` now validates extension, MIME (via `finfo`), size (`upload_max_filesize` / `Upload::$max_size`) and double extensions (`shell.php.jpg`). Dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess` ...) are rejected. Enforce a whitelist for stronger control:
+> **Security:** `Upload::move()` validates the extension, the MIME type (via `finfo`), the size (`upload_max_filesize` / `Upload::$max_size`) and double extensions (`shell.php.jpg`). Dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess` ...) are rejected. A whitelist gives tighter control:
 
 ```php
 use System\Foundation\Http\Upload;
@@ -145,9 +145,8 @@ if (Storage::is('jpg', 'path/to/file.jpg')) {
 }
 ```
 
-The `is()` method does not only check the file extension. It will also use the
-[Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extension to read the file content and
-determine the actual MIME-Type.
+`is()` does not stop at the extension: it reads the content through
+[Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) to find the real MIME type.
 
 <a id="mime-type"></a>
 

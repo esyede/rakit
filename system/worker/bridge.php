@@ -28,8 +28,7 @@ use System\Foundation\Http\Request as FoundationRequest;
 abstract class Bridge
 {
     /**
-     * Framework state taken right after the worker booted.
-     * It is restored at the start of every request.
+     * Framework state taken right after boot, restored before every request.
      *
      * @var array|null
      */
@@ -52,8 +51,7 @@ abstract class Bridge
     }
 
     /**
-     * Wait for the next request and run the handler for it.
-     * Return FALSE once the server asks the worker to stop.
+     * Wait for the next request and run the handler. FALSE once the server says stop.
      *
      * @param \Closure $handler
      *
@@ -62,8 +60,7 @@ abstract class Bridge
     abstract public function wait_request(\Closure $handler);
 
     /**
-     * Get the raw body of the current request.
-     * NULL lets the foundation read it from php://input.
+     * Get the raw request body; NULL leaves the foundation to read php://input.
      *
      * @return string|null
      */
@@ -73,8 +70,7 @@ abstract class Bridge
     }
 
     /**
-     * Send the response back to the client.
-     * This implementation suits servers that emit PHP output natively (FrankenPHP).
+     * Send the response back, for servers that emit PHP output natively (FrankenPHP).
      *
      * @param \System\Response $response
      * @param int              $level
@@ -86,8 +82,7 @@ abstract class Bridge
 
         Hook::fire('rakit.done', [$response]);
 
-        // Anything the request echoed is still buffered in front of the body,
-        // just like behind the buffer index.php opens for a regular request.
+        // Whatever the request echoed is still buffered in front of the body.
         while (ob_get_level() > $level && static::removable()) {
             ob_end_flush();
         }
@@ -110,8 +105,7 @@ abstract class Bridge
     }
 
     /**
-     * Reset all per-request static state.
-     * Boot-time state (hook listeners, routes, booted packages) is kept.
+     * Reset the per-request static state, keeping what was set at boot.
      */
     public function reset()
     {
@@ -135,8 +129,7 @@ abstract class Bridge
         Cookie::flush();
         Hook::$queued = [];
 
-        // Singletons resolved while serving a request may hold that request's
-        // data, so only the ones that already existed after booting survive.
+        // Singletons resolved during a request may hold its data: keep only the booted ones.
         Container::flush();
         Container::$singletons = self::$snapshot['singletons'];
 
@@ -185,8 +178,7 @@ abstract class Bridge
             Request::set_env(self::$snapshot['env']);
         }
 
-        // Collectors record every event, view and query of the request. Nothing
-        // renders the debug bar in a worker, so they would only keep growing.
+        // Nothing renders the debug bar in a worker, so the collectors would only grow.
         if (! Debugger::$productionMode && class_exists('System\Foundation\Oops\Collectors', false)) {
             Collectors::reset();
         }
@@ -223,9 +215,8 @@ abstract class Bridge
     }
 
     /**
-     * Check whether the topmost output buffer can be cleaned, flushed and removed.
-     * Failing to do so raises a notice, and the debugger's scream mode reports
-     * even the silenced ones.
+     * Check the topmost output buffer can be cleaned, flushed and removed: failing
+     * raises a notice, which scream mode reports even when silenced.
      *
      * @return bool
      */
@@ -238,8 +229,7 @@ abstract class Bridge
     }
 
     /**
-     * Render the response and prepare its foundation for servers that take
-     * the status, headers and body as values instead of PHP output.
+     * Render the response for servers that take status, headers and body as values.
      *
      * @param \System\Response $response
      *
@@ -284,8 +274,7 @@ abstract class Bridge
     }
 
     /**
-     * Fire the 'rakit.done' event once the client has its response.
-     * Whatever the listeners print has nowhere to go, so it is dropped.
+     * Fire 'rakit.done' once the client has its response. Listener output is dropped.
      *
      * @param \System\Response $response
      * @param int              $level

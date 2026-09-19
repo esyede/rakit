@@ -123,8 +123,8 @@ class Defaults
     private static $sqlKeywordsCache;
 
     /**
-     * Map panel id to the config('debugger.collectors') key so a disabled
-     * collector can hide its tab/panel at render time.
+     * Map a panel id to its config('debugger.collectors') key, so a disabled
+     * collector can hide itself at render time.
      *
      * @var array
      */

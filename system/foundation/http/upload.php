@@ -974,8 +974,7 @@ class Upload extends \SplFileInfo
                     }
                 }
 
-                // For uploads, strictly confine to storage if outside base is suspicious
-                // But allow any inside base for BC; block only if completely outside base
+                // Anywhere inside the base is allowed; only fully outside is blocked.
                 $baseReal = realpath(path('base'));
 
                 if (!$inside && $baseReal && !(0 === strpos($realDir, $baseReal . DS) || $realDir === $baseReal)) {
@@ -1016,9 +1015,7 @@ class Upload extends \SplFileInfo
             $name = 'file';
         }
 
-        // Replace any remaining directory separators or risky chars
-        // Allow only alphanumeric, dash, underscore, dot
-        // Replace spaces and other chars with underscore
+        // Keep only alphanumerics, dash, underscore and dot.
         $name = preg_replace('/[^A-Za-z0-9._-]/', '_', $name);
 
         // Prevent multiple consecutive dots and leading dot
@@ -1052,8 +1049,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Get the uploaded file mime-type
-     * (Do not use this to get the file mime-type, it's insecure).
+     * Get the mime-type the client claimed. Not to be trusted.
      *
      * @return string|null
      */
@@ -1073,8 +1069,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * Get the PHP upload error constant.
-     * If there's no error, UPLOAD_ERR_OK will be returned.
+     * Get the PHP upload error constant, or UPLOAD_ERR_OK when there is none.
      *
      * @return int
      */
@@ -1094,8 +1089,7 @@ class Upload extends \SplFileInfo
     }
 
     /**
-     * List of extensions that are never allowed to be uploaded as-is
-     * because they can be executed as code on the server.
+     * Extensions never allowed as-is: the server could execute them as code.
      *
      * @var array
      */
@@ -1107,8 +1101,7 @@ class Upload extends \SplFileInfo
     ];
 
     /**
-     * Allowed extensions whitelist. Null means allow all except blocked.
-     * Set to array to enforce strict whitelist, e.g. ['jpg','png','pdf'].
+     * Allowed extensions, e.g. ['jpg', 'png', 'pdf']. NULL allows all but the blocked ones.
      *
      * @var array|null
      */
@@ -1209,9 +1202,6 @@ class Upload extends \SplFileInfo
                 }
             }
         }
-
-        // Directory traversal check: ensure target directory is inside allowed roots
-        // Normalize directory
     }
 
     /**

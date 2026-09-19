@@ -23,14 +23,14 @@ All database configuration options are located in the `application/config/databa
 
 ## Quick Start with SQLite
 
-[SQLite](https://sqlite.org) is a great database system, and its configuration is straightforward.
-By default, Rakit is configured to use SQLite. Yes, the purpose is so you can try Rakit without having to bother setting up a database.
+Rakit is configured for [SQLite](https://sqlite.org) out of the box, so you can start
+without setting up a database server.
 
 Rakit will automatically store all SQLite files in the `storage/database/` folder
 with the `.sqlite` extension, so the default database lives in `storage/database/application.sqlite`.
 
-Of course, you can name it something other than `'application'`, to do so,
-just change the configuration option in the `application/config/database.php` file like this:
+To name it something other than `'application'`, change the option in
+`application/config/database.php`:
 
 ```php
 'sqlite' => [
@@ -39,28 +39,23 @@ just change the configuration option in the `application/config/database.php` fi
 ],
 ```
 
-If your application receives less than 100,000 visits per day, SQLite is sufficient to handle it.
-However, if otherwise, please use MySQL or PostgreSQL.
+SQLite handles up to roughly 100,000 visits a day. Past that, move to MySQL or
+PostgreSQL.
 
 <a id="using-other-databases"></a>
 
 ## Using Other Databases
 
-If you are using MySQL, SQL Server, or PostgreSQL, you need to change the configuration options
-in `application/config/database.php`. In that file, you can find sample
-configurations for each database system.
-
-Just change it according to your needs and don't forget to set the default connection.
+`application/config/database.php` ships a sample configuration for MySQL, SQL Server
+and PostgreSQL. Fill in the one you use, then set it as the default connection.
 
 <a id="setting-the-default-connection"></a>
 
 ## Setting the Default Connection
 
-As you may have noticed, each database connection configured in
-the `application/config/database.php` file has a connection name.
-
-By default, there are four connections defined: `sqlite`, `mysql`, `sqlsrv`, and `pgsql`.
-You can freely change these connection names. The default connection can be set through the `'default'` option like this:
+Every connection in `application/config/database.php` has a name, and four are
+defined by default: `sqlite`, `mysql`, `sqlsrv` and `pgsql`. The `'default'` option
+picks the one to use:
 
 ```php
 'default' => 'sqlite',
@@ -73,14 +68,11 @@ If you need to change the default connection during request execution, use `Conf
 
 ## Overriding Default PDO Options
 
-The database connector component (`System\Database\Connectors\Connector`) has a set of default PDO attribute definitions
-that can be overridden via the configuration file.
+`System\Database\Connectors\Connector` sets a few PDO attributes by default, which the
+configuration file can override. One of them, `PDO::CASE_LOWER`, lowercases every
+column name, so query results are read in lowercase whatever the table declares.
 
-As an example, one of the default attributes forces column names to be lowercase (`PDO::CASE_LOWER`) even if they are defined in UPPERCASE or camelCase in the table.
-
-Therefore, by default, model objects from queries can only be accessed using lowercase.
-
-Example configuration for a MySQL system by adding default PDO attributes:
+For MySQL:
 
 The attributes go under the `'options'` key of the connection. Attributes written
 directly on the connection array are not read.

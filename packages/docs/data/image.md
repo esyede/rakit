@@ -24,11 +24,8 @@
 
 ## Basic Knowledge
 
-In web application development, you will often deal with image-related issues,
-such as user-uploaded images that are too large.
-
-Of course, you don't want to store these large images directly in storage as they consume a lot of space.
-No worries, this component is ready to help!
+`Image` resizes, crops and re-encodes images, which is what an oversized upload
+usually needs before it is stored.
 
 > This component requires the [PHP GD](https://www.php.net/manual/en/book.image.php) extension.
 > Make sure this extension is active on your server.
@@ -37,8 +34,7 @@ No worries, this component is ready to help!
 
 ## Loading Images
 
-To start editing an image, you need to first open the image you want to edit.
-Use the `open()` method to open the image.
+`open()` loads the image to work on.
 
 #### Loading a target image:
 
@@ -46,9 +42,7 @@ Use the `open()` method to open the image.
 $image = Image::open('assets/images/test.jpg');
 ```
 
-If you want to set the quality of the exported image result,
-add the quality value to the second parameter.
-The value range is between `0 - 100`, the default is `75`.
+The second parameter is the export quality, `0` to `100`, defaulting to `75`.
 
 #### Loading and setting image quality:
 
@@ -91,10 +85,7 @@ $image->height(100); // 100 pixels
 
 ### Rotation & Cropping
 
-Sometimes, images uploaded by users are not always upright,
-especially photos taken through mobile phone cameras.
-
-No worries, you can rotate their position.
+An upload is not always upright, least of all a photo from a phone camera.
 
 #### Rotating image position:
 
@@ -108,8 +99,7 @@ $image->rotate(180); // rotate 180 degrees
 
 #### Crop image
 
-Image cropping (cutting) is very easy. Rakit provides
-2 ways to do it, namely manual cropping and ratio cropping.
+Cropping comes in two forms, manual and ratio-based.
 
 ```php
 $left = 50;   // Starting X position for crop
@@ -120,8 +110,7 @@ $height = 100; // Crop area height
 $image->crop($left, $top, $width, $height);
 ```
 
-If the above method is too manual, you can use ratio-based cropping.
-This method will automatically calculate the crop position to keep the image proportional:
+Ratio-based cropping works out the position itself, keeping the image proportional:
 
 ```php
 $width = 16;  // Width ratio
@@ -140,8 +129,7 @@ Common ratio examples:
 
 ### Watermark
 
-In addition to cutting and rotating images, you can also add a watermark to the image.
-The watermark will be placed in the bottom right corner (10 pixels from the edges):
+A watermark goes in the bottom right corner, 10 pixels from the edges:
 
 ```php
 $image->watermark('assets/images/watermark.png');
@@ -153,15 +141,13 @@ $image->watermark('assets/images/watermark.png');
 
 ## Image Effects
 
-Sometimes, images uploaded by users look too dim, too bright,
-or perhaps you want to add special effects to the image.
+An upload may come out too dim or too bright, and a few effects are available besides.
 
 <a id="brightness-contrast-and-smoothness"></a>
 
 ### Brightness, Contrast & Smoothness
 
-You can easily adjust the brightness (brightness), contrast (contrast),
-and smoothness (softness) of the image.
+Brightness, contrast and smoothness are each a single call.
 
 #### Setting brightness:
 
@@ -214,7 +200,7 @@ Converts the image to black and white (gray scale).
 
 ### Other Effects
 
-Rakit also provides various other visual effects:
+The remaining effects:
 
 #### Sepia effect:
 
@@ -268,7 +254,7 @@ Provides a pixelated/mosaic effect on the image. Larger values make larger pixel
 
 ## Image Export
 
-After the image has been manipulated, you can save it to a file:
+Save the result to a file:
 
 #### Saving the image result to a file:
 
@@ -276,8 +262,7 @@ After the image has been manipulated, you can save it to a file:
 $image->export('assets/images/result.jpg');
 ```
 
-The `export()` method will automatically detect the format based on the file extension.
-Supported formats: **JPG**, **PNG**, **GIF**
+`export()` picks the format from the file extension. Supported: **JPG**, **PNG**, **GIF**.
 
 #### Overwrite existing file:
 
@@ -317,8 +302,6 @@ $image->export('assets/photos/photo-processed.jpg');
 
 ## Additional Features
 
-In addition to the above features, this component also provides some additional features:
-
 <a id="viewing-image-info"></a>
 
 ### Image Info
@@ -341,7 +324,7 @@ $info = $image->info();
 
 ### Preview to Browser
 
-You can directly display the image to the browser without saving it to a file:
+Send the image to the browser without saving it first:
 
 ```php
 // Preview manipulated image
@@ -356,8 +339,8 @@ image in the browser. Useful for preview or testing.
 
 ### Identicon
 
-You can create an [identicon](https://en.wikipedia.org/wiki/Identicon)
-(unique avatar based on a string) using this component:
+An [identicon](https://en.wikipedia.org/wiki/Identicon) is an avatar derived from a
+string:
 
 ```php
 // Create identicon (default 64 pixel size)
@@ -373,10 +356,5 @@ return Image::identicon('budi', 64, true);
 Storage::put(path('storage').'avatars/budi.png', $identicon);
 ```
 
-Identicons are useful for:
-- Default user avatars
-- Visual identifiers for data
-- Unique image placeholders
-
-> The same identicon will always be generated from the same string,
-> so it's suitable for consistent avatars without needing to store images.
+> The same string always gives the same identicon, so a default avatar needs no
+> storage of its own.

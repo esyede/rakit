@@ -32,10 +32,8 @@ class Log
     /**
      * Set the name of the log channel.
      *
-     * When the name matches a channel in the "log.channels" config, the next
-     * entries are written through that channel. Otherwise they are written
-     * through the default channel, using the name as the log name (e.g. the
-     * file name prefix of the "daily" driver). Pass null to reset.
+     * A name from "log.channels" selects that channel; any other name becomes the
+     * log name on the default channel. Pass null to reset.
      *
      * @param string|null $name
      *
@@ -47,8 +45,7 @@ class Log
     }
 
     /**
-     * Get the log driver of a channel.
-     * Or return the default channel's driver if no channel is given.
+     * Get a channel's log driver, or the default channel's.
      *
      * @param string|null $channel
      *
@@ -70,9 +67,7 @@ class Log
     }
 
     /**
-     * Register a third-party log driver.
-     * The resolver receives the channel config and name, and must return
-     * an instance of \System\Log\Drivers\Driver.
+     * Register a log driver. The resolver takes ($config, $name) and returns a Driver.
      *
      * @param string   $driver
      * @param \Closure $resolver
@@ -262,8 +257,7 @@ class Log
                     isset($trace[1]['line']) ? $trace[1]['line'] : null
                 );
 
-                // Surface any exception passed in the log context on the
-                // dedicated Exceptions panel too.
+                // Also surface a context exception on the Exceptions panel.
                 if (isset($context['exception'])
                     && ($context['exception'] instanceof \Throwable || $context['exception'] instanceof \Exception)) {
                     \System\Foundation\Oops\Collectors::addException($context['exception']);
@@ -401,8 +395,7 @@ class Log
     }
 
     /**
-     * Write the log entry, along with the reason the channel failed,
-     * into the emergency log file. Or into PHP's error log if even that fails.
+     * Write the entry and the channel failure to the emergency log, or PHP's error log.
      *
      * @param array                 $record
      * @param string|null           $channel

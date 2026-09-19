@@ -100,9 +100,8 @@ abstract class Grammar extends BaseGrammar
     {
         $value = is_bool($value) ? (int) $value : $value;
 
-        // Every caller wraps the result in single quotes, so a quote inside the
-        // value has to be doubled or it would close the literal early. Without
-        // this, a default as ordinary as "O'Brien" breaks the statement.
+        // Callers wrap this in single quotes, so double any inside or "O'Brien"
+        // closes the literal early.
         return str_replace("'", "''", (string) $value);
     }
 }

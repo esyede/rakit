@@ -18,9 +18,7 @@
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The `Hash` class provides a secure way to hash and verify passwords using the bcrypt algorithm. Bcrypt is a hashing algorithm designed to be slow, making it very difficult to crack using brute-force attacks.
-
-This class uses PHP's `crypt()` function with the bcrypt (Blowfish) algorithm, which is the industry standard for password hashing.
+`Hash` hashes and verifies passwords with bcrypt, through PHP's `crypt()`. Bcrypt is deliberately slow, which is what makes brute force expensive.
 
 <a id="hashing-password"></a>
 ## Hashing Password
@@ -37,7 +35,7 @@ echo $hash;
 
 ### Setting Cost Factor
 
-The second parameter of the `make()` method is the cost factor that determines how much computation time is required for hashing. The default value is 10, with a range of 4-31:
+The second parameter is the cost factor, which decides how much work the hash takes. It defaults to 10 and ranges from 4 to 31:
 
 ```php
 // Default cost factor (10)
@@ -50,7 +48,7 @@ $hash = Hash::make($password, 12);
 $hash = Hash::make($password, 8);
 ```
 
-> **Note:** Each increase of 1 in the cost factor doubles the hashing time. Use a balanced value between security and performance.
+> **Note:** every step up doubles the hashing time, so balance it against your response times.
 
 <a id="verifying-password"></a>
 ## Verifying Password
@@ -68,7 +66,7 @@ if (Hash::check($password, $hash)) {
 }
 ```
 
-This method uses constant-time comparison to prevent timing attacks.
+The comparison is constant-time, to prevent timing attacks.
 
 <a id="checking-hash-strength"></a>
 ## Checking Hash Strength
@@ -90,7 +88,7 @@ if (Hash::weak($hash, 12)) {
 }
 ```
 
-This is useful for systems that want to upgrade hash strength over time.
+Use it to raise hash strength over time.
 
 <a id="best-practices"></a>
 ## Best Practices

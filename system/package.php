@@ -148,8 +148,7 @@ class Package
     }
 
     /**
-     * Determine which package should handle the given URI.
-     * The default package (application) will be returned if no other package is assigned.
+     * Determine which package handles the given URI, defaulting to the application.
      *
      * @param string $uri
      *

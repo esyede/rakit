@@ -230,7 +230,7 @@ class Helper extends Header
     }
 
     /**
-     * Get the Cache-Control header value that has been accumulated and modified into a more reasonable form.
+     * Get the accumulated Cache-Control header, normalized.
      *
      * @return string
      */
