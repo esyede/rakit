@@ -362,8 +362,6 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
-            // $fillable already answers the question; the default $guarded of ['*']
-            // would otherwise make it unusable.
             if (is_array(static::$fillable)) {
                 if (in_array($key, static::$fillable)) {
                     $this->{$key} = $value;
@@ -432,7 +430,6 @@ abstract class Model implements \JsonSerializable
         }
 
         $cast = trim(strtolower((string) static::$casts[$key]));
-
         return (false === strpos($cast, ':')) ? $cast : substr($cast, 0, strpos($cast, ':'));
     }
 
@@ -595,7 +592,6 @@ abstract class Model implements \JsonSerializable
         }
 
         $class = get_called_class();
-        // Remove the namespace if present
         $class = (false !== strpos($class, '\\')) ? basename(str_replace('\\', '/', $class)) : $class;
 
         return strtolower(Str::plural($class));
@@ -722,7 +718,6 @@ abstract class Model implements \JsonSerializable
     public function to_array()
     {
         $attributes = [];
-        // Only widen an existing whitelist: creating one would hide everything else.
         $visible = static::$visible ? array_merge((array) static::$visible, $this->instance_visible) : [];
         $hidden = array_merge(array_diff((array) static::$hidden, $this->instance_visible), $this->instance_hidden);
 
@@ -883,7 +878,6 @@ abstract class Model implements \JsonSerializable
     public static function first_or_new(array $attributes = [], array $values = [])
     {
         $model = static::match_attributes($attributes);
-
         return is_null($model) ? new static(array_merge($attributes, $values)) : $model;
     }
 
@@ -1015,7 +1009,6 @@ abstract class Model implements \JsonSerializable
         }
 
         $this->updated_at = Carbon::now()->format(static::$date_format);
-
         return $this->save();
     }
 
@@ -1619,7 +1612,6 @@ abstract class Model implements \JsonSerializable
             $dirty = $this->get_dirty();
             $query = $this->query()->where(static::$key, '=', $this->get_key());
 
-            // Affected rows means nothing here: MySQL reports zero for an unchanged row.
             $query->update($dirty);
             $result = true;
 
@@ -1633,7 +1625,6 @@ abstract class Model implements \JsonSerializable
 
             $id = $this->query()->insert_get_id($this->attributes, $this->key(), static::$sequence);
 
-            // Drivers return nothing for non auto-increment keys, so keep the one we set.
             if (! is_null($id)) {
                 $this->set_key($id);
             }
@@ -1695,7 +1686,6 @@ abstract class Model implements \JsonSerializable
      */
     public function restore()
     {
-        // Only two things matter: the model soft deletes and this row is marked deleted.
         if (! static::$soft_delete || is_null($this->deleted_at)) {
             return false;
         }
@@ -1906,13 +1896,11 @@ abstract class Model implements \JsonSerializable
     {
         $instance = new static();
 
-        // A closure means a listener is being registered, not a query builder call.
         if (1 === count($parameters)
             && isset($parameters[0])
             && $parameters[0] instanceof \Closure
             && in_array($method, static::$events, true)) {
             Hook::listen('facile.' . $method . ': ' . get_class($instance), $parameters[0]);
-
             return;
         }
 

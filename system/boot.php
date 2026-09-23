@@ -85,9 +85,10 @@ Debugger::dispatch();
 |--------------------------------------------------------------------------
 | Drop the Redundant Config Revalidation
 |--------------------------------------------------------------------------
-| Config::get() re-stats the owning file on every read, but its caches are plain
-| statics that die with the request, so the check only ever catches a config file
-| edited mid request and pays two filesystem calls per read for it. Kept in
+| Config::get() re-stats the owning file on every read, but its caches
+| are plain statics that die with the request, so the check only
+| ever catches a config file edited mid request and pays
+| two filesystem calls per read for it. Kept in
 | development, where a surprising cache costs the most time.
 */
 
@@ -99,8 +100,9 @@ unset($debugger, $template, $debugger);
 |--------------------------------------------------------------------------
 | Trust the Configured Reverse Proxies
 |--------------------------------------------------------------------------
-| X-Forwarded-For and CF-Connecting-IP are written by the client, so they are only
-| read once the proxies sitting in front of the application are named.
+| X-Forwarded-For and CF-Connecting-IP are written by the client,
+| so they are only read once the proxies sitting in front of t
+| he application are named.
 */
 
 $proxies = Config::get('application.trusted_proxies', []);
@@ -216,14 +218,12 @@ URI::$uri = ('' === $uri) ? '/' : $uri;
 */
 
 $domain = Request::foundation()->getHost();
-
-// Mark the boundaries of each phase (routing -> controller -> render).
 $rakit_tl_route_start = microtime(true);
+
 Request::$route = Routing\Router::route(Request::method(), $uri, $domain);
 
 $rakit_tl_controller_start = microtime(true);
 $response = Request::$route->call();
-
 $rakit_tl_render_start = microtime(true);
 
 /*

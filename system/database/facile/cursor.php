@@ -10,12 +10,10 @@ return call_user_func(function () use ($columns, $chunk_size) {
     $page = 1;
 
     do {
-        // Clone the query to avoid modifying the original instance.
         $clone = clone $this;
         $results = $clone->table->take($chunk_size)->skip(($page - 1) * $chunk_size)->get($columns);
         $count = count($results);
 
-        // Hydrate and yield every result in the current chunk.
         foreach ($this->hydrate($this->model, $results) as $model) {
             yield $model;
         }

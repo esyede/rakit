@@ -916,7 +916,9 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     public function random($amount = 1)
     {
         if ($amount > ($count = $this->count())) {
-            throw new \InvalidArgumentException('You requested '.$amount.' items, but there are only '.$count.' items in the collection.');
+            throw new \InvalidArgumentException(
+                'You requested '.$amount.' items, but there are only '.$count.' items in the collection.'
+            );
         }
 
         $keys = array_rand($this->items, $amount);
@@ -1150,7 +1152,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function splice($offset, $length = null, $replacement = [])
     {
-        if (func_num_args() == 1) {
+        if (func_num_args() === 1) {
             return new static(array_splice($this->items, $offset));
         }
 

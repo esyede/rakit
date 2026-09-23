@@ -14,8 +14,18 @@ use System\Websocket\Client;
 
 class Websocket extends Command
 {
+    /**
+     * Data Source Name (DSN) for the websocket server.
+     *
+     * @var string
+     */
     private $dsn;
 
+    /**
+     * Configuration for the websocket server.
+     *
+     * @var array
+     */
     private $config;
 
     /**
@@ -69,7 +79,11 @@ class Websocket extends Command
     {
         $clients = $server->clients();
         $users = array_map(function ($client) {
-            return ['id' => $client->id(), 'name' => optional($client->user)->name ?: 'Guest', 'connected_at' => Carbon::now()->timestamp];
+            return [
+                'id' => $client->id(),
+                'name' => optional($client->user)->name ?: 'Guest',
+                'connected_at' => Carbon::now()->timestamp,
+            ];
         }, $clients);
         $message = json_encode(['type' => 'presence', 'users' => $users]);
         $this->broadcast($server, $message);
@@ -242,7 +256,7 @@ class Websocket extends Command
                     $clients = $client->server()->clients();
 
                     foreach ($clients as $target) {
-                        if ($target->id() == $parsed['client_id']) {
+                        if ($target->id() === $parsed['client_id']) {
                             $target->close();
 
                             if ($this->logging()) {
@@ -258,7 +272,7 @@ class Websocket extends Command
                     }
 
                     return;
-                } elseif ($parsed['command'] == 'presence') {
+                } elseif ($parsed['command'] === 'presence') {
                     $this->presence($client->server());
 
                     if ($this->logging()) {
@@ -266,15 +280,25 @@ class Websocket extends Command
                     }
 
                     return;
-                } elseif ($parsed['command'] == 'broadcast_to_channel' && isset($parsed['channel']) && isset($parsed['message'])) {
+                } elseif (
+                    $parsed['command'] === 'broadcast_to_channel'
+                    && isset($parsed['channel'])
+                    && isset($parsed['message'])
+                ) {
                     $this->broadcast_to_channel($client->server(), $parsed['channel'], $parsed['message']);
 
                     if ($this->logging()) {
-                        $this->log("Command broadcast_to_channel executed to {$parsed['channel']}: {$parsed['message']}");
+                        $this->log(
+                            "Command broadcast_to_channel executed to {$parsed['channel']}: {$parsed['message']}"
+                        );
                     }
 
                     return;
-                } elseif ($parsed['command'] == 'private_message' && isset($parsed['to']) && isset($parsed['message'])) {
+                } elseif (
+                    $parsed['command'] === 'private_message'
+                    && isset($parsed['to'])
+                    && isset($parsed['message'])
+                ) {
                     $this->private_message($client->server(), $parsed['to'], $parsed['message']);
 
                     if ($this->logging()) {
@@ -286,10 +310,18 @@ class Websocket extends Command
             }
 
             if (isset($parsed['event'])) {
-                if ($parsed['event'] == 'subscribe' && isset($parsed['channel'])) {
+                if ($parsed['event'] === 'subscribe' && isset($parsed['channel'])) {
                     $client->channels[] = $parsed['channel'];
-                } elseif ($parsed['event'] == 'message' && isset($parsed['channel']) && isset($parsed['data'])) {
-                    $message = json_encode(['channel' => $parsed['channel'], 'data' => $parsed['data'], 'client_id' => $client->id()]);
+                } elseif (
+                    $parsed['event'] ==- 'message'
+                    && isset($parsed['channel'])
+                    && isset($parsed['data'])
+                ) {
+                    $message = json_encode([
+                        'channel' => $parsed['channel'],
+                        'data' => $parsed['data'],
+                        'client_id' => $client->id(),
+                    ]);
                     $this->broadcast_to_channel($client->server(), $parsed['channel'], $message);
                 }
             } elseif (isset($parsed['to']) && isset($parsed['message'])) {
@@ -333,7 +365,9 @@ class Websocket extends Command
     private function log($message, $is_error = false)
     {
         if ($this->logging()) {
-            echo $is_error ? $this->error('['.Carbon::now().'] '.$message) : $this->info('['.Carbon::now().'] '.$message);
+            echo $is_error
+                ? $this->error('['.Carbon::now().'] '.$message)
+                : $this->info('['.Carbon::now().'] '.$message);
             flush();
             ob_get_contents() && ob_flush();
         }

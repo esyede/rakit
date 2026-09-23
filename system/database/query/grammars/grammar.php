@@ -21,7 +21,20 @@ class Grammar extends BaseGrammar
      *
      * @var array
      */
-    protected $components = ['aggregate', 'selects', 'from', 'joins', 'wheres', 'groupings', 'havings', 'unions', 'orderings', 'limit', 'offset', 'lock'];
+    protected $components = [
+        'aggregate',
+        'selects',
+        'from',
+        'joins',
+        'wheres',
+        'groupings',
+        'havings',
+        'unions',
+        'orderings',
+        'limit',
+        'offset',
+        'lock',
+    ];
 
     /**
      * Compile the SELECT statement.

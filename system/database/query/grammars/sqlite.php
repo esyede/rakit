@@ -27,7 +27,6 @@ class SQLite extends Grammar
         foreach ($query->orderings as $ordering) {
             $direction = strtoupper((string) $ordering['direction']);
 
-            // Raw ordering is left alone: COLLATE has to come before ASC / DESC.
             if ($ordering['column'] instanceof Expression) {
                 $sql[] = rtrim($this->wrap($ordering['column']) . ' ' . $direction);
                 continue;
@@ -65,7 +64,6 @@ class SQLite extends Grammar
 
         $columns = array_fill(0, count($values), implode(', ', $columns));
 
-        // UNION ALL, since a plain UNION sorts the rows and drops the identical ones.
         return 'INSERT INTO '.$table.' ('.$names.') SELECT '.implode(' UNION ALL SELECT ', $columns);
     }
 

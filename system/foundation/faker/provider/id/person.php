@@ -8,8 +8,18 @@ use System\Foundation\Faker\Provider\Person as BasePerson;
 
 class Person extends BasePerson
 {
+    /**
+     * The list of last name formats.
+     *
+     * @var array
+     */
     protected static $lastNameFormat = ['{{lastNameMale}}', '{{lastNameFemale}}'];
 
+    /**
+     * The list of male name formats.
+     *
+     * @var array
+     */
     protected static $maleNameFormats = [
         '{{firstNameMale}} {{lastNameMale}}',
         '{{firstNameMale}} {{lastNameMale}}',
@@ -19,6 +29,11 @@ class Person extends BasePerson
         '{{firstNameMale}} {{firstNameMale}} {{lastNameMale}} {{suffix}}',
     ];
 
+    /**
+     * The list of female name formats.
+     *
+     * @var array
+     */
     protected static $femaleNameFormats = [
         '{{firstNameFemale}} {{lastNameFemale}}',
         '{{firstNameFemale}} {{lastNameFemale}}',
@@ -28,6 +43,11 @@ class Person extends BasePerson
         '{{firstNameFemale}} {{firstNameFemale}} {{lastNameFemale}} {{suffix}}',
     ];
 
+    /**
+     * The list of male first names.
+     *
+     * @var array
+     */
     protected static $firstNameMale = [
         'Abyasa', 'Ade', 'Adhiarja', 'Adiarja', 'Adika', 'Adikara', 'Adinata',
         'Aditya', 'Agus', 'Ajiman', 'Ajimat', 'Ajimin', 'Ajiono', 'Akarsana',
@@ -102,6 +122,11 @@ class Person extends BasePerson
         'Xanana', 'Yahya', 'Yusuf', 'Yosef', 'Yono', 'Yoga',
     ];
 
+    /**
+     * The list of female first names.
+     *
+     * @var array
+     */
     protected static $firstNameFemale = [
         'Ade', 'Agnes', 'Ajeng', 'Amalia', 'Anita', 'Ayu', 'Aisyah', 'Ana',
         'Ami', 'Ani', 'Azalea', 'Aurora', 'Alika', 'Anastasia', 'Amelia',
@@ -135,6 +160,11 @@ class Person extends BasePerson
         'Zaenab', 'Zulfa', 'Zizi', 'Zulaikha', 'Zamira', 'Zelda', 'Zelaya',
     ];
 
+    /**
+     * The list of male last names.
+     *
+     * @var array
+     */
     protected static $lastNameMale = [
         'Adriansyah', 'Ardianto', 'Anggriawan', 'Budiman', 'Budiyanto',
         'Damanik', 'Dongoran', 'Dabukke', 'Firmansyah', 'Firgantoro',
@@ -156,6 +186,11 @@ class Person extends BasePerson
         'Wijaya', 'Widodo', 'Wacana', 'Waskita', 'Wasita', 'Zulkarnain',
     ];
 
+    /**
+     * The list of female last names.
+     *
+     * @var array
+     */
     protected static $lastNameFemale = [
         'Agustina', 'Andriani', 'Anggraini', 'Aryani', 'Astuti',
         'Fujiati', 'Farida', 'Handayani', 'Hassanah', 'Hartati', 'Hasanah',
@@ -171,10 +206,25 @@ class Person extends BasePerson
         'Wijayanti', 'Widiastuti', 'Winarsih', 'Wulandari', 'Wastuti', 'Zulaika',
     ];
 
+    /**
+     * The list of male titles.
+     *
+     * @var array
+     */
     protected static $titleMale = ['dr.', 'drg.', 'Dr.', 'Drs.', 'Ir.', 'H.'];
 
+    /**
+     * The list of female titles.
+     *
+     * @var array
+     */
     protected static $titleFemale = ['dr.', 'drg.', 'Dr.', 'Hj.'];
 
+    /**
+     * The list of birth place codes.
+     *
+     * @var array
+     */
     protected static $birthPlaceCode = [
         '1101', '1102', '1103', '1104', '1105', '1106', '1107', '1108',
         '1109', '1110', '1111', '1112', '1113', '1114', '1115', '1116',
@@ -242,6 +292,11 @@ class Person extends BasePerson
         '9208', '9209', '9210', '9211', '9212', '9271',
     ];
 
+    /**
+     * The list of suffixes.
+     *
+     * @var array
+     */
     private static $suffix = [
         'S.Ked', 'S.Gz', 'S.Pt', 'S.IP', 'S.E.I',
         'S.E.', 'S.Kom', 'S.H.', 'S.T.', 'S.Pd', 'S.Psi', 'S.I.Kom',

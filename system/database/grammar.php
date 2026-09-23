@@ -66,14 +66,20 @@ abstract class Grammar
         }
 
         if (preg_match('/^(.+?)\s+as\s+(.+)$/i', (string) $value, $matches)) {
-            return sprintf('%s AS %s', $this->wrap(trim($matches[1])), $this->wrap(trim($matches[2])));
+            return sprintf(
+                '%s AS %s',
+                $this->wrap(trim($matches[1])),
+                $this->wrap(trim($matches[2]))
+            );
         }
 
         $segments = explode('.', $value);
         $wrapped = [];
 
         foreach ($segments as $key => $value) {
-            $wrapped[] = (0 === $key && count($segments) > 1) ? $this->wrap_table($value) : $this->wrap_value($value);
+            $wrapped[] = (0 === $key && count($segments) > 1)
+                ? $this->wrap_table($value)
+                : $this->wrap_value($value);
         }
 
         return implode('.', $wrapped);

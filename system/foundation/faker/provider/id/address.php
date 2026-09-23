@@ -8,6 +8,11 @@ use System\Foundation\Faker\Provider\Address as BaseAddress;
 
 class Address extends BaseAddress
 {
+    /**
+     * The list of street names.
+     *
+     * @var array
+     */
     protected static $street = [
         'Abang', 'Abdul', 'Abdul Muis', 'Abdul Rahmat', 'Abdul. Muis', 'Abdullah',
         'Aceh', 'Achmad', 'Achmad Yani', 'Acordion', 'Adisucipto',
@@ -66,8 +71,18 @@ class Address extends BaseAddress
         'Yos Sudarso', 'Yosodipuro', 'Zamrud',
     ];
 
+    /**
+     * The list of street prefixes.
+     *
+     * @var array
+     */
     protected static $streetPrefix = ['Ds.', 'Dk.', 'Gg.', 'Jr.', 'Jln.', 'Kpg.', 'Ki.', 'Psr.'];
 
+    /**
+     * The list of states.
+     *
+     * @var array
+     */
     protected static $state = [
         'Aceh', 'Sumatera Utara', 'Sumatera Barat', 'Jambi', 'Bangka Belitung', 'Riau',
         'Kepulauan Riau', 'Bengkulu', 'Sumatera Selatan', 'Lampung', 'Banten',
@@ -79,6 +94,11 @@ class Address extends BaseAddress
         'Maluku Utara', 'Papua Barat', 'Papua',
     ];
 
+    /**
+     * The list of state abbreviations.
+     *
+     * @var array
+     */
     protected static $stateAbbr = [
         'Aceh', 'Sumut', 'Sumbar', 'Jambi', 'Babel', 'Riau', 'Kepri', 'Bengkulu', 'Sumsel',
         'Lampung', 'Banten', 'DKI', 'Jabar', 'Jateng', 'Jatim', 'NTT', 'DIY', 'Bali', 'NTB',
@@ -86,6 +106,11 @@ class Address extends BaseAddress
         'Sulteng', 'Sulbar', 'Sultra', 'Maluku', 'Malut', 'Papbar', 'Papua',
     ];
 
+    /**
+     * The list of countries.
+     *
+     * @var array
+     */
     protected static $country = [
         'Afganistan', 'Afrika Selatan', 'Albania', 'Aljazair', 'Amerika Serikat', 'Andorra', 'Angola', 'Anguilla',
         'Antarktika', 'Antigua and Barbuda', 'Antillen Belanda', 'Arab Saudi', 'Argentina', 'Armenia', 'Aruba',
@@ -124,6 +149,11 @@ class Address extends BaseAddress
         'Wilayah Selatan Perancis', 'Yaman', 'Yunani', 'Zambia', 'Zimbabwe',
     ];
 
+    /**
+     * The list of city names.
+     *
+     * @var array
+     */
     protected static $cityNames = [
         'Administrasi Jakarta Barat', 'Administrasi Jakarta Pusat', 'Administrasi Jakarta Selatan',
         'Administrasi Jakarta Timur', 'Administrasi Jakarta Utara', 'Ambon', 'Balikpapan', 'Banda Aceh',
@@ -141,14 +171,39 @@ class Address extends BaseAddress
         'Tegal', 'Ternate', 'Tidore Kepulauan', 'Tomohon', 'Tual', 'Yogyakarta',
     ];
 
+    /**
+     * The list of city formats.
+     *
+     * @var array
+     */
     protected static $cityFormats = ['{{cityName}}'];
 
+    /**
+     * The list of street name formats.
+     *
+     * @var array
+     */
     protected static $streetNameFormats = ['{{street}}'];
 
+    /**
+     * The list of street address formats.
+     *
+     * @var array
+     */
     protected static $streetAddressFormats = ['{{streetPrefix}} {{street}} No. {{buildingNumber}}'];
 
+    /**
+     * The list of address formats.
+     *
+     * @var array
+     */
     protected static $addressFormats = ['{{streetAddress}}, {{city}} {{postcode}}, {{stateAbbr}}'];
 
+    /**
+     * The list of postcodes.
+     *
+     * @var array
+     */
     protected static $postcode = ['%####'];
 
     /**

@@ -171,9 +171,15 @@ class Lang
     public static function file($package, $language, $file)
     {
         if (
-            strpos($package, '..') !== false || strpos($package, '/') !== false || strpos($package, '\\') !== false ||
-            strpos($language, '..') !== false || strpos($language, '/') !== false || strpos($language, '\\') !== false ||
-            strpos($file, '..') !== false || strpos($file, '/') !== false || strpos($file, '\\') !== false
+            strpos($package, '..') !== false
+            || strpos($package, '/') !== false
+            || strpos($package, '\\') !== false
+            || strpos($language, '..') !== false
+            || strpos($language, '/') !== false
+            || strpos($language, '\\') !== false
+            || strpos($file, '..') !== false
+            || strpos($file, '/') !== false
+            || strpos($file, '\\') !== false
         ) {
             return [];
         }

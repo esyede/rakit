@@ -111,7 +111,9 @@ class Log
         $levels = static::levels();
 
         if (! is_string($level) || ! isset($levels[strtolower($level)])) {
-            throw new \InvalidArgumentException(sprintf('Unsupported log level: %s', is_string($level) ? $level : gettype($level)));
+            throw new \InvalidArgumentException(
+                sprintf('Unsupported log level: %s', is_string($level) ? $level : gettype($level))
+            );
         }
 
         static::write(strtolower($level), $message, $context);
@@ -389,7 +391,10 @@ class Log
      */
     protected static function environment()
     {
-        return (class_exists('\System\Foundation\Oops\Debugger') && isset(\System\Foundation\Oops\Debugger::$productionMode))
+        return (
+            class_exists('\System\Foundation\Oops\Debugger')
+            && isset(\System\Foundation\Oops\Debugger::$productionMode)
+        )
             ? (\System\Foundation\Oops\Debugger::$productionMode ? 'production' : 'local')
             : 'unknown';
     }

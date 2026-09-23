@@ -6,64 +6,191 @@ defined('DS') or exit('No direct access.');
 
 class Request
 {
+    /** @var string */
     const HEADER_CLIENT_IP = 'client_ip';
 
+    /** @var string */
     const HEADER_CLIENT_HOST = 'client_host';
 
+    /** @var string */
     const HEADER_CLIENT_PROTO = 'client_proto';
 
+    /** @var string */
     const HEADER_CLIENT_PORT = 'client_port';
 
+    /**
+     * Request attributes.
+     *
+     * @var array
+     */
     public $attributes;
 
+    /**
+     * Request input.
+     *
+     * @var array
+     */
     public $request;
 
+    /**
+     * Request query parameters.
+     *
+     * @var array
+     */
     public $query;
 
+    /**
+     * Request server parameters.
+     *
+     * @var array
+     */
     public $server;
 
+    /**
+     * Request files.
+     *
+     * @var array
+     */
     public $files;
 
+    /**
+     * Request cookies.
+     *
+     * @var array
+     */
     public $cookies;
 
+    /**
+     * Request headers.
+     *
+     * @var array
+     */
     public $headers;
 
+    /**
+     * Request content.
+     *
+     * @var string
+     */
     protected $content;
 
+    /**
+     * Request languages.
+     *
+     * @var array
+     */
     protected $languages;
 
+    /**
+     * Request charsets.
+     *
+     * @var array
+     */
     protected $charsets;
 
+    /**
+     * Request acceptable content types.
+     *
+     * @var array
+     */
     protected $acceptableContentTypes;
 
+    /**
+     * Request path info.
+     *
+     * @var string
+     */
     protected $pathInfo;
 
+    /**
+     * Request URI.
+     *
+     * @var string
+     */
     protected $requestUri;
 
+    /**
+     * Request base URL.
+     *
+     * @var string
+     */
     protected $baseUrl;
 
+    /**
+     * Request base path.
+     *
+     * @var string
+     */
     protected $basePath;
 
+    /**
+     * Request method.
+     *
+     * @var string
+     */
     protected $method;
 
+    /**
+     * Request format.
+     *
+     * @var string
+     */
     protected $format;
 
+    /**
+     * Request session.
+     *
+     * @var \Rakit\System\Foundation\Http\Session
+     */
     protected $session;
 
+    /**
+     * Request locale.
+     *
+     * @var string
+     */
     protected $locale;
 
-
+    /**
+     * Request default locale.
+     *
+     * @var string
+     */
     protected $defaultLocale = 'id';
 
+    /**
+     * Request formats.
+     *
+     * @var array
+     */
     protected static $formats;
 
+    /**
+     * Trusted proxy.
+     *
+     * @var bool
+     */
     protected static $trustProxy = false;
 
+    /**
+     * Trusted proxies.
+     *
+     * @var array
+     */
     protected static $trustedProxies = [];
 
-    /** @var array */
+    /**
+     * Trusted hosts.
+     *
+     * @var array
+     */
     protected static $trustedHosts = [];
 
+    /**
+     * Trusted headers.
+     *
+     * @var array
+     */
     protected static $trustedHeaders = [
         self::HEADER_CLIENT_IP => 'X_FORWARDED_FOR',
         self::HEADER_CLIENT_HOST => 'X_FORWARDED_HOST',

@@ -8,13 +8,28 @@ defined('DS') or exit('No direct access.');
 
 class Payment extends Base
 {
+    /**
+     * The expiration date format.
+     *
+     * @var string
+     */
     public static $expirationDateFormat = 'm/y';
 
+    /**
+     * The list of card vendors.
+     *
+     * @var array
+     */
     protected static $cardVendors = [
         'Visa', 'Visa', 'Visa', 'Visa', 'Visa', 'MasterCard', 'MasterCard', 'MasterCard',
         'MasterCard', 'MasterCard', 'American Express', 'Discover Card',
     ];
 
+    /**
+     * The list of card parameters.
+     *
+     * @var array
+     */
     protected static $cardParams = [
         'Visa' => [
             '4539########', '4539###########', '4556########', '4556###########', '4916########',
@@ -27,6 +42,11 @@ class Payment extends Base
         'Discover Card' => ['6011###########'],
     ];
 
+    /**
+     * The list of IBAN formats.
+     *
+     * @var array
+     */
     protected static $ibanFormats = [
         'AD' => ['n', 4], ['n', 4], ['c', 12],
         'AE' => ['n', 3], ['n', 16],

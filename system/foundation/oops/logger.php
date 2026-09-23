@@ -6,16 +6,22 @@ defined('DS') or exit('No direct access.');
 
 class Logger
 {
+    /** @var string */
     const DEBUG = 'debug';
 
+    /** @var string */
     const INFO = 'info';
 
+    /** @var string */
     const WARNING = 'warning';
 
+    /** @var string */
     const ERROR = 'error';
 
+    /** @var string */
     const EXCEPTION = 'exception';
 
+    /** @var string */
     const CRITICAL = 'critical';
 
     /**

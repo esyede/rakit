@@ -260,7 +260,11 @@ class Query
             return $this;
         }
 
-        if (('<' === $operator && 1 === $count) || ('=' === $operator && 0 === $count) || ('<=' === $operator && 0 === $count)) {
+        if (
+            ('<' === $operator && 1 === $count)
+            || ('=' === $operator && 0 === $count)
+            || ('<=' === $operator && 0 === $count)
+        ) {
             $this->table->where_exists($sub, $connector, true);
             return $this;
         }
@@ -390,7 +394,9 @@ class Query
         $models = ($models instanceof Collection) ? $models->all() : $models;
 
         if (! is_array($models) || empty($models) || ! (reset($models) instanceof Model)) {
-            throw new \InvalidArgumentException('where_belongs_to() expects a model, or a non-empty collection or array of models.');
+            throw new \InvalidArgumentException(
+                'where_belongs_to() expects a model, or a non-empty collection or array of models.'
+            );
         }
 
         $relationship = is_null($relationship) ? Str::snake(class_basename(reset($models))) : $relationship;
@@ -488,7 +494,9 @@ class Query
             }
 
             $column = Str::snake((string) $relationship) . '_count';
-            $grammar = isset($this->table->grammar) ? $this->table->grammar : (isset($sub->grammar) ? $sub->grammar : null);
+            $grammar = isset($this->table->grammar)
+                ? $this->table->grammar
+                : (isset($sub->grammar) ? $sub->grammar : null);
 
             if (!$grammar || !method_exists($grammar, 'select') || !method_exists($grammar, 'wrap')) {
                 throw new \Exception('Query grammar not available for with_count().');

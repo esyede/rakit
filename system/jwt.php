@@ -159,11 +159,11 @@ class JWT
         }
 
         if (isset($payloads->nbf) && $payloads->nbf > ($timestamp + static::$leeway)) {
-            throw new \Exception(sprintf('Cannot handle token prior to %s', date(\DateTime::ATOM, (int) $payloads->nbf)));
+            throw new \Exception('Cannot handle token prior to ' . date(\DateTime::ATOM, (int) $payloads->nbf));
         }
 
         if (isset($payloads->iat) && $payloads->iat > ($timestamp + static::$leeway)) {
-            throw new \Exception(sprintf('Cannot handle token prior to %s', date(\DateTime::ATOM, (int) $payloads->iat)));
+            throw new \Exception('Cannot handle token prior to ' . date(\DateTime::ATOM, (int) $payloads->iat));
         }
 
         if (isset($payloads->exp) && ($timestamp - static::$leeway) >= $payloads->exp) {

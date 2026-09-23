@@ -10,8 +10,18 @@ use System\Foundation\Faker\Unique;
 
 class Base
 {
+    /**
+     * The Faker generator instance.
+     *
+     * @var \System\Foundation\Faker\Generator
+     */
     protected $generator;
 
+    /**
+     * The unique generator instance.
+     *
+     * @var \System\Foundation\Faker\Unique
+     */
     protected $unique;
 
     /**

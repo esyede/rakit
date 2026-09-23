@@ -159,9 +159,7 @@ class Arr
      */
     public static function exists($array, $key)
     {
-        return ($array instanceof \ArrayAccess)
-            ? $array->offsetExists($key)
-            : array_key_exists($key, $array);
+        return ($array instanceof \ArrayAccess) ? $array->offsetExists($key) : array_key_exists($key, $array);
     }
 
     /**
@@ -514,7 +512,11 @@ class Arr
         $available = count($array);
 
         if ($requested > $available) {
-            throw new \InvalidArgumentException(sprintf('You requested %s items, but there are only %s items available.', $requested, $available));
+            throw new \InvalidArgumentException(sprintf(
+                'You requested %s items, but there are only %s items available.',
+                $requested,
+                $available
+            ));
         }
 
         if (is_null($number)) {

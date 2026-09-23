@@ -15,7 +15,9 @@ class Payment extends BasePayment
      */
     public function bankAccountNumber()
     {
-        return static::numerify(str_repeat('#', static::numberBetween(0, 3) + static::numberBetween(0, 3) + static::numberBetween(0, 3) + static::numberBetween(0, 3) + 5));
+        return static::numerify(str_repeat(
+            '#', static::numberBetween(0, 3) + static::numberBetween(0, 3) + static::numberBetween(0, 3) + static::numberBetween(0, 3) + 5
+        ));
     }
 
     /**

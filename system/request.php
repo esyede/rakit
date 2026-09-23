@@ -411,7 +411,6 @@ class Request
 
         $header = static::header('X-Csrf-Token') ?: static::header('X-Xsrf-Token');
 
-        // The real method decides: a POST spoofed as GET still needs the token.
         if (in_array(static::real_method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'])) {
             return false;
         }
@@ -420,12 +419,11 @@ class Request
             return ! Crypter::equals($token, $header);
         }
 
-        // Only check token from request body (POST), not query string, to avoid leakage via Referer/log
         $body_token = static::foundation()->request->get(Session::TOKEN);
-        // A JSON request may carry the token in its payload. Never in the query string.
+
         if (is_null($body_token)) {
-            // Check if token was sent as part of JSON body
             $json = Input::json(true);
+
             if (is_array($json) && isset($json[Session::TOKEN])) {
                 $body_token = $json[Session::TOKEN];
             }
@@ -493,7 +491,9 @@ class Request
      */
     public static function cli()
     {
-        return defined('STDIN') || 'cli' === php_sapi_name() || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
+        return defined('STDIN')
+            || 'cli' === php_sapi_name()
+            || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
     }
 
     /**

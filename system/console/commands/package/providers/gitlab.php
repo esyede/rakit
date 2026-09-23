@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Gitlab extends Provider
 {
+    /**
+     * URL template for the zipball of a specific version.
+     *
+     * @var string
+     */
     protected $zipball = '<repository>/repository/archive.zip?ref=<version>';
 
     /**
@@ -19,12 +24,20 @@ class Gitlab extends Provider
     public function install(array $package, $path)
     {
         $repository = $package['repository'];
-        $compatible = isset($package['compatibilities']['v'.RAKIT_VERSION]) ? $package['compatibilities']['v'.RAKIT_VERSION] : null;
+        $compatible = isset($package['compatibilities']['v'.RAKIT_VERSION])
+            ? $package['compatibilities']['v'.RAKIT_VERSION]
+            : null;
 
         if (! $compatible) {
-            throw new \Exception(PHP_EOL.sprintf('Error: No compatible package for your rakit version (v%s)', RAKIT_VERSION).PHP_EOL);
+            throw new \Exception(
+                PHP_EOL.sprintf('Error: No compatible package for your rakit version (v%s)', RAKIT_VERSION).PHP_EOL
+            );
         }
 
-        parent::zipball(str_replace(['<repository>', '<version>'], [$repository, $compatible], $this->zipball), $package, $path);
+        parent::zipball(str_replace(
+            ['<repository>', '<version>'],
+            [$repository, $compatible],
+            $this->zipball
+        ), $package, $path);
     }
 }

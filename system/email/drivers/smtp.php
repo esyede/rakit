@@ -69,7 +69,11 @@ class Smtp extends Driver
 
         // Set the keep alive config option
         $this->keep_alive = Arr::get($this->config, 'smtp.keep_alive', false);
-        $authenticate = (empty($this->connection) && ! empty($this->config['smtp']['username']) && ! empty($this->config['smtp']['password']));
+        $authenticate = (
+            empty($this->connection)
+            && ! empty($this->config['smtp']['username'])
+            && ! empty($this->config['smtp']['password'])
+        );
 
         $this->connect();
 
@@ -77,7 +81,9 @@ class Smtp extends Driver
             $this->authenticate();
         }
 
-        $retpath = empty($this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
+        $retpath = empty($this->config['return_path'])
+            ? $this->config['from']['email']
+            : $this->config['return_path'];
         $retpath = static::sanitize_header($retpath);
         $this->command('MAIL FROM: <'.$retpath.'>', 250);
 
@@ -160,7 +166,9 @@ class Smtp extends Driver
         }
 
         if (empty($this->connection)) {
-            throw new \Exception(sprintf('Could not connect to SMTP after %d attempts: (%s) %s.', $retry_count, $errno, $errstr));
+            throw new \Exception(
+                sprintf('Could not connect to SMTP after %d attempts: (%s) %s.', $retry_count, $errno, $errstr)
+            );
         }
 
         $this->response();
@@ -251,7 +259,9 @@ class Smtp extends Driver
         try {
             switch ($method) {
                 case 'PLAIN':
-                    $auth = base64_encode("\0".$this->config['smtp']['username']."\0".$this->config['smtp']['password']);
+                    $auth = base64_encode(
+                        "\0" . $this->config['smtp']['username'] . "\0" . $this->config['smtp']['password']
+                    );
                     $this->command('AUTH PLAIN '.$auth, 235);
                     break;
 

@@ -7,10 +7,17 @@ defined('DS') or exit('No direct access.');
 class Generator
 {
     /**
-     * @var array */
+     * The list of providers.
+     *
+     * @var array
+     */
     protected $providers = [];
 
-    /** @var array */
+    /**
+     * The list of formatters.
+     *
+     * @var array
+     */
     protected $formatters = [];
 
     /**

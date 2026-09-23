@@ -37,8 +37,14 @@ class DatabaseException extends \Exception
      * @param \Throwable|\Exception|null $previous
      * @param \Throwable|\Exception|null $inner
      */
-    public function __construct($message = '', $query = '', array $bindings = [], $code = 0, $previous = null, $inner = null)
-    {
+    public function __construct(
+        $message = '',
+        $query = '',
+        array $bindings = [],
+        $code = 0,
+        $previous = null,
+        $inner = null
+    ) {
         $this->query = $query;
         $this->bindings = $bindings;
         $this->inner = $inner ?: $previous;

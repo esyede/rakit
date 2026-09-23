@@ -8,8 +8,18 @@ use System\Foundation\Faker\Provider\Phone as BasePhone;
 
 class Phone extends BasePhone
 {
+    /**
+     * The list of toll-free area codes.
+     *
+     * @var array
+     */
     protected static $tollFreeAreaCodes = [800, 844, 855, 866, 877, 888];
 
+    /**
+     * The list of phone number formats.
+     *
+     * @var array
+     */
     protected static $formats = [
         '+1-{{areaCode}}-{{exchangeCode}}-####', '+1 ({{areaCode}}) {{exchangeCode}}-####', '+1-{{areaCode}}-{{exchangeCode}}-####',
         '+1.{{areaCode}}.{{exchangeCode}}.####', '+1{{areaCode}}{{exchangeCode}}####', '{{areaCode}}-{{exchangeCode}}-####',
@@ -22,6 +32,11 @@ class Phone extends BasePhone
         '{{areaCode}}.{{exchangeCode}}.#### x#####',
     ];
 
+    /**
+     * The list of toll-free formats.
+     *
+     * @var array
+     */
     protected static $tollFreeFormats = [
         '{{tollFreeAreaCode}}-{{exchangeCode}}-####', '({{tollFreeAreaCode}}) {{exchangeCode}}-####',
         '1-{{tollFreeAreaCode}}-{{exchangeCode}}-####', '{{tollFreeAreaCode}}.{{exchangeCode}}.####',

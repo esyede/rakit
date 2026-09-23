@@ -6,21 +6,46 @@ defined('DS') or exit('No direct access.');
 
 class Defaults
 {
-    /** @var array|string|object|null */
+    /**
+     * Default data.
+     *
+     * @var array|string|object|null
+     */
     public $data;
 
-    /** @var string */
+    /**
+     * Default time.
+     *
+     * @var string
+     */
     public $time;
 
-    /** @var string */
+    /**
+     * Default profiler.
+     *
+     * @var string
+     */
     public $profiler;
 
-    /** @var int|null */
+    /**
+     * Default CPU usage.
+     *
+     * @var int|null
+     */
     public $cpuUsage;
 
-    /** @var int|null */
+    /**
+     * Default ID.
+     *
+     * @var int|null
+     */
     private $id;
 
+    /**
+     * Default SQL keywords.
+     *
+     * @var array
+     */
     private static $sqlKeywords = [
         'keywords1' => [
             // Primary SQL keywords (DML, DDL, DCL)
@@ -119,7 +144,11 @@ class Defaults
         ],
     ];
 
-    /** @var array|null */
+    /**
+     * SQL keywords cache.
+     *
+     * @var array|null
+     */
     private static $sqlKeywordsCache;
 
     /**
@@ -149,7 +178,7 @@ class Defaults
 
     /**
      * Constructor.
-     * 
+     *
      * @param int|null $id
      */
     public function __construct($id)

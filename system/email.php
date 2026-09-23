@@ -6,17 +6,19 @@ defined('DS') or exit('No direct access.');
 
 class Email
 {
-    /**
-     * Email priorities.
-     */
+    /** @var string */
     const LOWEST = '5 (Lowest)';
 
+    /** @var string */
     const LOW = '4 (Low)';
 
+    /** @var string */
     const NORMAL = '3 (Normal)';
 
+    /** @var string */
     const HIGH = '2 (High)';
 
+    /** @var string */
     const HIGHEST = '1 (Highest)';
 
     /**

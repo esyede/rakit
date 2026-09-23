@@ -6,9 +6,7 @@ defined('DS') or exit('No direct access.');
 
 class Outputs
 {
-    /**
-     * Karakter byte order mark (BOM).
-     */
+    /** @var string */
     const BOM = "\xEF\xBB\xBF";
 
     /**

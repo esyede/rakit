@@ -6,16 +6,30 @@ defined('DS') or exit('No direct access.');
 
 class Helper extends Header
 {
+    /** @var string */
     const COOKIES_FLAT = 'flat';
 
+    /** @var string */
     const COOKIES_ARRAY = 'array';
 
+    /** @var string */
     const DISPOSITION_ATTACHMENT = 'attachment';
 
+    /** @var string */
     const DISPOSITION_INLINE = 'inline';
 
+    /**
+     * The computed cache control value.
+     *
+     * @var array
+     */
     protected $computedCacheControl = [];
 
+    /**
+     * The cookies.
+     *
+     * @var array
+     */
     protected $cookies = [];
 
     /**

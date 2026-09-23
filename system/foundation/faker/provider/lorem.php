@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Lorem extends Base
 {
+    /**
+     * The list of words.
+     *
+     * @var array
+     */
     protected static $wordList = [
         'alias', 'consequatur', 'aut', 'perferendis', 'sit', 'voluptatem', 'accusantium', 'doloremque',
         'aperiam', 'eaque', 'ipsa', 'quae', 'ab', 'illo', 'inventore', 'veritatis', 'et', 'quasi', 'architecto',

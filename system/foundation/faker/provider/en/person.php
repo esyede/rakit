@@ -8,8 +8,18 @@ use System\Foundation\Faker\Provider\Person as BasePerson;
 
 class Person extends BasePerson
 {
+    /**
+     * The list of suffixes.
+     *
+     * @var array
+     */
     protected static $suffix = ['Jr.', 'Sr.', 'I', 'II', 'III', 'IV', 'V', 'MD', 'DDS', 'PhD', 'DVM'];
 
+    /**
+     * The list of male name formats.
+     *
+     * @var array
+     */
     protected static $maleNameFormats = [
         '{{firstNameMale}} {{lastName}}',
         '{{firstNameMale}} {{lastName}}',
@@ -20,6 +30,11 @@ class Person extends BasePerson
         '{{titleMale}} {{firstNameMale}} {{lastName}} {{suffix}}',
     ];
 
+    /**
+     * The list of female name formats.
+     *
+     * @var array
+     */
     protected static $femaleNameFormats = [
         '{{firstNameFemale}} {{lastName}}',
         '{{firstNameFemale}} {{lastName}}',
@@ -30,6 +45,11 @@ class Person extends BasePerson
         '{{titleFemale}} {{firstNameFemale}} {{lastName}} {{suffix}}',
     ];
 
+    /**
+     * The list of male name formats.
+     *
+     * @var array
+     */
     protected static $firstNameMale = [
         'Aaron', 'Abdiel', 'Abdul', 'Abdullah', 'Abe', 'Abel', 'Abelardo', 'Abner',
         'Abraham', 'Adalberto', 'Adam', 'Adan', 'Adelbert', 'Adolf', 'Adolfo', 'Adolph',
@@ -231,6 +251,11 @@ class Person extends BasePerson
         'Zane', 'Zechariah', 'Zion',
     ];
 
+    /**
+     * The list of female name formats.
+     *
+     * @var array
+     */
     protected static $firstNameFemale = [
         'Aaliyah', 'Abagail', 'Abbey', 'Abbie', 'Abbigail', 'Abby', 'Abigail', 'Abigale',
         'Abigayle', 'Ada', 'Adah', 'Adaline', 'Addie', 'Addison', 'Adela', 'Adele',
@@ -415,6 +440,11 @@ class Person extends BasePerson
         'Zoie', 'Zoila', 'Zola', 'Zora', 'Zula',
     ];
 
+    /**
+     * The list of last names.
+     *
+     * @var array
+     */
     protected static $lastName = [
         'Abbott', 'Abernathy', 'Abshire', 'Adams', 'Altenwerth', 'Anderson', 'Ankunding',
         'Armstrong', 'Auer', 'Aufderhar', 'Bahringer', 'Bailey', 'Balistreri', 'Barrows',

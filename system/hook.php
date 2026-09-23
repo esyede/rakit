@@ -164,7 +164,10 @@ class Hook
 
         foreach ($events as $event) {
             // Track event for debugger
-            if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
+            if (
+                class_exists('\System\Foundation\Oops\Debugger')
+                && class_exists('\System\Foundation\Oops\Collectors')
+            ) {
                 if (! \System\Foundation\Oops\Debugger::$productionMode) {
                     \System\Foundation\Oops\Collectors::trackEvent($event, $parameters);
                 }

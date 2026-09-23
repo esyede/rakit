@@ -210,17 +210,23 @@ class Inspector
 
         return [
             'name' => $this->colorize('keyword', $type),
-            'children' => empty($vars) ? [] : array_combine(array_map([$self, 'dump'], array_keys($vars)), array_map(function ($v) use ($self, $next) {
-                if (is_object($v)) {
-                    return $self->ast(sprintf('object(%s)', get_class($v)), $v, $next);
-                }
+            'children' => empty($vars)
+                ? []
+                : array_combine(
+                    array_map([$self, 'dump'], array_keys($vars)),
+                    array_map(function ($v) use ($self, $next) {
+                        if (is_object($v)) {
+                            return $self->ast(sprintf('object(%s)', get_class($v)), $v, $next);
+                        }
 
-                if (is_array($v)) {
-                    return $self->ast('array', $v, $next);
-                }
+                        if (is_array($v)) {
+                            return $self->ast('array', $v, $next);
+                        }
 
-                return $self->dump($v);
-            }, array_values($vars))),
+                        return $self->dump($v);
+                },
+                array_values($vars))
+            ),
         ];
     }
 
@@ -241,7 +247,12 @@ class Inspector
             sprintf('%s(', $node['name']),
             implode(",\n", array_map(function ($k) use ($self, $children, $indent) {
                 if (is_array($children[$k])) {
-                    return sprintf('%s%s => %s', str_repeat(' ', ($indent + 1) * 2), $k, $self->stringify($children[$k], $indent + 1));
+                    return sprintf(
+                        '%s%s => %s',
+                        str_repeat(' ', ($indent + 1) * 2),
+                        $k,
+                        $self->stringify($children[$k], $indent + 1)
+                    );
                 }
                 return sprintf('%s%s => %s', str_repeat(' ', ($indent + 1) * 2), $k, $children[$k]);
             }, array_keys($children))),

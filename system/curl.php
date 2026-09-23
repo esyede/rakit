@@ -6,108 +6,198 @@ defined('DS') or exit('No direct access.');
 
 class Curl
 {
-    /**
-     * HTTP method registry.
-     * See: https://www.iana.org/assignments/http-methods/http-methods.xhtml.
-     */
+    /** @var string */
     const GET = 'GET';
 
+    /** @var string */
     const HEAD = 'HEAD';
 
+    /** @var string */
     const POST = 'POST';
 
+    /** @var string */
     const PUT = 'PUT';
 
+    /** @var string */
     const DELETE = 'DELETE';
 
+    /** @var string */
     const CONNECT = 'CONNECT';
 
+    /** @var string */
     const OPTIONS = 'OPTIONS';
 
+    /** @var string */
     const TRACE = 'TRACE';
 
+    /** @var string */
     const BASELINE = 'BASELINE';
 
+    /** @var string */
     const LINK = 'LINK';
 
+    /** @var string */
     const UNLINK = 'UNLINK';
 
+    /** @var string */
     const MERGE = 'MERGE';
 
+    /** @var string */
     const BASELINECONTROL = 'BASELINE-CONTROL';
 
+    /** @var string */
     const MKACTIVITY = 'MKACTIVITY';
 
+    /** @var string */
     const VERSIONCONTROL = 'VERSION-CONTROL';
 
+    /** @var string */
     const REPORT = 'REPORT';
 
+    /** @var string */
     const CHECKOUT = 'CHECKOUT';
 
+    /** @var string */
     const CHECKIN = 'CHECKIN';
 
+    /** @var string */
     const UNCHECKOUT = 'UNCHECKOUT';
 
+    /** @var string */
     const MKWORKSPACE = 'MKWORKSPACE';
 
+    /** @var string */
     const UPDATE = 'UPDATE';
 
+    /** @var string */
     const LABEL = 'LABEL';
 
+    /** @var string */
     const ORDERPATCH = 'ORDERPATCH';
 
+    /** @var string */
     const ACL = 'ACL';
 
+    /** @var string */
     const MKREDIRECTREF = 'MKREDIRECTREF';
 
+    /** @var string */
     const UPDATEREDIRECTREF = 'UPDATEREDIRECTREF';
 
+    /** @var string */
     const MKCALENDAR = 'MKCALENDAR';
 
+    /** @var string */
     const PROPFIND = 'PROPFIND';
 
+    /** @var string */
     const LOCK = 'LOCK';
 
+    /** @var string */
     const UNLOCK = 'UNLOCK';
 
+    /** @var string */
     const PROPPATCH = 'PROPPATCH';
 
+    /** @var string */
     const MKCOL = 'MKCOL';
 
+    /** @var string */
     const COPY = 'COPY';
 
+    /** @var string */
     const MOVE = 'MOVE';
 
+    /** @var string */
     const SEARCH = 'SEARCH';
 
+    /** @var string */
     const PATCH = 'PATCH';
 
+    /** @var string */
     const BIND = 'BIND';
 
+    /** @var string */
     const UNBIND = 'UNBIND';
 
+    /** @var string */
     const REBIND = 'REBIND';
 
+    /**
+     * Curl handler.
+     *
+     * @param resource $handler
+     */
     private static $handler;
 
+    /**
+     * Cookie.
+     *
+     * @param string $cookie
+     */
     private static $cookie;
 
+    /**
+     * Cookie file.
+     *
+     * @param string $cookie_file
+     */
     private static $cookie_file;
 
+    /**
+     * Curl options.
+     *
+     * @param array $curl_options
+     */
     private static $curl_options = [];
 
+    /**
+     * Default headers.
+     *
+     * @param array $default_headers
+     */
     private static $default_headers = [];
 
+    /**
+     * Json options.
+     *
+     * @param array $json_options
+     */
     private static $json_options = [];
 
+    /**
+     * Socket timeout.
+     *
+     * @param int $socket_timeout
+     */
     private static $socket_timeout;
 
+    /**
+     * Verify peer.
+     *
+     * @param int $verify_peer
+     */
     private static $verify_peer = 1;
 
+    /**
+     * Verify host.
+     *
+     * @param int $verify_host
+     */
     private static $verify_host = 2;
 
+    /**
+     * Auth.
+     *
+     * @param array $auth
+     */
     private static $auth = ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC];
 
+    /**
+     * Proxy.
+     *
+     * @param array $proxy
+     */
     private static $proxy = [
         'port' => false,
         'tunnel' => false,

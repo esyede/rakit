@@ -6,8 +6,18 @@ defined('DS') or exit('No direct access.');
 
 class Company extends Base
 {
+    /**
+     * The list of company formats.
+     *
+     * @var array
+     */
     protected static $formats = ['{{lastName}} {{companySuffix}}'];
 
+    /**
+     * The list of company suffixes.
+     *
+     * @var array
+     */
     protected static $companySuffix = ['Ltd', 'Pvt. Ltd', 'Co.'];
 
     /**

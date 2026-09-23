@@ -8,19 +8,49 @@ use System\Foundation\Faker\Provider\Address as BaseAddress;
 
 class Address extends BaseAddress
 {
+    /**
+     * The list of city prefixes.
+     *
+     * @var array
+     */
     protected static $cityPrefix = ['North', 'East', 'West', 'South', 'New', 'Lake', 'Port'];
 
+    /**
+     * The list of building numbers.
+     *
+     * @var array
+     */
     protected static $buildingNumber = ['%####', '%###', '%##'];
 
+    /**
+     * The list of postcodes.
+     *
+     * @var array
+     */
     protected static $postcode = ['#####', '#####-####'];
 
+    /**
+     * The list of secondary address formats.
+     *
+     * @var array
+     */
     protected static $secondaryAddressFormats = ['Apt. ###', 'Suite ###'];
 
+    /**
+     * The list of city suffixes.
+     *
+     * @var array
+     */
     protected static $citySuffix = [
         'town', 'ton', 'land', 'ville', 'berg', 'burgh', 'borough', 'bury', 'view',
         'port', 'mouth', 'stad', 'furt', 'chester', 'mouth', 'fort', 'haven', 'side', 'shire',
     ];
 
+    /**
+     * The list of street suffixes.
+     *
+     * @var array
+     */
     protected static $streetSuffix = [
         'Alley', 'Avenue', 'Branch', 'Bridge', 'Brook', 'Brooks', 'Burg', 'Burgs', 'Bypass',
         'Camp', 'Canyon', 'Cape', 'Causeway', 'Center', 'Centers', 'Circle', 'Circles', 'Cliff',
@@ -51,6 +81,11 @@ class Address extends BaseAddress
         'Walk', 'Walks', 'Wall', 'Way', 'Ways', 'Well', 'Wells',
     ];
 
+    /**
+     * The list of states.
+     *
+     * @var array
+     */
     protected static $state = [
         'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
         'Delaware', 'District of Columbia', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois',
@@ -61,12 +96,22 @@ class Address extends BaseAddress
         'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming',
     ];
 
+    /**
+     * The list of state abbreviations.
+     *
+     * @var array
+     */
     protected static $stateAbbr = [
         'AK', 'AL', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS',
         'KY', 'LA', 'MA', 'MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV',
         'NY', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA',  'WI', 'WV', 'WY',
     ];
 
+    /**
+     * The list of countries.
+     *
+     * @var array
+     */
     protected static $country = [
         'Afghanistan', 'Albania', 'Algeria', 'American Samoa', 'Andorra', 'Angola', 'Anguilla',
         'Antarctica (the territory South of 60 deg S)', 'Antigua and Barbuda', 'Argentina',
@@ -108,13 +153,46 @@ class Address extends BaseAddress
         'Yemen', 'Zambia', 'Zimbabwe',
     ];
 
-    protected static $cityFormats = ['{{cityPrefix}} {{firstName}}{{citySuffix}}', '{{cityPrefix}} {{firstName}}', '{{firstName}}{{citySuffix}}', '{{lastName}}{{citySuffix}}'];
+    /**
+     * The list of city formats.
+     *
+     * @var array
+     */
+    protected static $cityFormats = [
+        '{{cityPrefix}} {{firstName}}{{citySuffix}}',
+        '{{cityPrefix}} {{firstName}}',
+        '{{firstName}}{{citySuffix}}',
+        '{{lastName}}{{citySuffix}}',
+    ];
 
-    protected static $streetNameFormats = ['{{firstName}} {{streetSuffix}}', '{{lastName}} {{streetSuffix}}'];
+    /**
+     * The list of street name formats.
+     *
+     * @var array
+     */
+    protected static $streetNameFormats = [
+        '{{firstName}} {{streetSuffix}}',
+        '{{lastName}} {{streetSuffix}}',
+    ];
 
-    protected static $streetAddressFormats = ['{{buildingNumber}} {{streetName}}', '{{buildingNumber}} {{streetName}} {{secondaryAddress}}'];
+    /**
+     * The list of street address formats.
+     *
+     * @var array
+     */
+    protected static $streetAddressFormats = [
+        '{{buildingNumber}} {{streetName}}',
+        '{{buildingNumber}} {{streetName}} {{secondaryAddress}}',
+    ];
 
-    protected static $addressFormats = ["{{streetAddress}}\n{{city}}, {{stateAbbr}} {{postcode}}"];
+    /**
+     * The list of address formats.
+     *
+     * @var array
+     */
+    protected static $addressFormats = [
+        "{{streetAddress}}\n{{city}}, {{stateAbbr}} {{postcode}}",
+    ];
 
     /**
      * Get a random city prefix.

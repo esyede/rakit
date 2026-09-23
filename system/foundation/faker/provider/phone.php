@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Phone extends Base
 {
+    /**
+     * The list of phone number formats.
+     *
+     * @var array
+     */
     protected static $formats = ['###-###-###'];
 
     /**

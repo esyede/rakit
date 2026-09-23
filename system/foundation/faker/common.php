@@ -6,7 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Common
 {
-    /** @var mixed */
+    /**
+     * The default value.
+     *
+     * @var mixed
+     */
     protected $default;
 
     /**

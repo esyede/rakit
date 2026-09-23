@@ -37,13 +37,20 @@ class Parser
         while (strlen($result->buffer) > 0) {
             $this->reset_result($result);
 
-            if ($result->state == '<<<') {
+            if ($result->state === '<<<') {
                 if (! $this->heredoc_start($result)) {
                     continue;
                 }
             }
 
-            $rules = ['scan_use', 'scan_esc_char', 'scan_region', 'scan_state_entrant', 'scan_wsp', 'scan_char'];
+            $rules = [
+                'scan_use',
+                'scan_esc_char',
+                'scan_region',
+                'scan_state_entrant',
+                'scan_wsp',
+                'scan_char',
+            ];
 
             foreach ($rules as $method) {
                 if ($this->{$method}($result)) {
@@ -195,7 +202,10 @@ class Parser
      */
     private function scan_esc_char($result)
     {
-        if (($result->state === '"' || $result->state === "'") && preg_match('/^[^'.$result->state.']*?\\\\./s', $result->buffer, $match)) {
+        if (
+            ($result->state === '"' || $result->state === "'")
+            && preg_match('/^[^'.$result->state.']*?\\\\./s', $result->buffer, $match)
+        ) {
             $result->stmt .= $match[0];
             $result->buffer = substr($result->buffer, strlen($match[0]));
             return true;
@@ -260,12 +270,12 @@ class Parser
         $result->stmt .= $chr;
         $result->buffer = substr($result->buffer, 1);
 
-        if ($result->state && $chr == $this->pairs[$result->state]) {
+        if ($result->state && $chr === $this->pairs[$result->state]) {
             array_pop($result->states);
         }
 
-        if (empty($result->states) && ($chr == ';' || $chr == '}')) {
-            if (! $this->is_lambda($result->stmt) || $chr == ';') {
+        if (empty($result->states) && ($chr === ';' || $chr === '}')) {
+            if (! $this->is_lambda($result->stmt) || $chr === ';') {
                 $result->statements[] = $result->stmt;
                 $result->stmt = '';
             }
@@ -317,7 +327,10 @@ class Parser
      */
     private function is_lambda($input)
     {
-        return preg_match('/^([^=]*?=\s*)?function\s*\([^\)]*\)\s*(use\s*\([^\)]*\)\s*)?\s*\{.*\}\s*;?$/is', trim($input));
+        return preg_match(
+            '/^([^=]*?=\s*)?function\s*\([^\)]*\)\s*(use\s*\([^\)]*\)\s*)?\s*\{.*\}\s*;?$/is',
+            trim($input)
+        );
     }
 
     /**
@@ -331,7 +344,7 @@ class Parser
     {
         $input = trim($input);
 
-        if (substr($input, -1) == ';' && substr($input, 0, 1) != '{') {
+        if (substr($input, -1) === ';' && substr($input, 0, 1) != '{') {
             $returnables = [
                 'echo', 'print', 'exit', 'die', 'goto', 'global', 'include', 'include_once', 'require',
                 'require_once', 'list', 'return', 'do', 'for', 'foreach', 'while', 'if', 'function',

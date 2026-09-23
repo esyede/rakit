@@ -6,22 +6,67 @@ defined('DS') or exit('No direct access.');
 
 class Address extends Base
 {
+    /**
+     * The list of city suffixes.
+     *
+     * @var array
+     */
     protected static $citySuffix = ['Ville'];
 
+    /**
+     * The list of street suffixes.
+     *
+     * @var array
+     */
     protected static $streetSuffix = ['Street'];
 
+    /**
+     * The list of city formats.
+     *
+     * @var array
+     */
     protected static $cityFormats = ['{{firstName}}{{citySuffix}}'];
 
+    /**
+     * The list of street name formats.
+     *
+     * @var array
+     */
     protected static $streetNameFormats = ['{{lastName}} {{streetSuffix}}'];
 
+    /**
+     * The list of street address formats.
+     *
+     * @var array
+     */
     protected static $streetAddressFormats = ['{{buildingNumber}} {{streetName}}'];
 
+    /**
+     * The list of address formats.
+     *
+     * @var array
+     */
     protected static $addressFormats = ['{{streetAddress}} {{postcode}} {{city}}'];
 
+    /**
+     * The list of building numbers.
+     *
+     * @var array
+     */
     protected static $buildingNumber = ['##'];
 
+    /**
+     * The list of postcodes.
+     *
+     * @var array
+     */
     protected static $postcode = ['#####'];
 
+    /**
+     * The list of countries.
+     *
+     * @var array
+     */
     protected static $country = [];
 
     /**

@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Image extends Base
 {
+    /**
+     * The list of image categories.
+     *
+     * @var array
+     */
     protected static $categories = [
         'abstract', 'animals', 'business', 'cats', 'city', 'food', 'nightlife',
         'fashion', 'people', 'nature', 'sports', 'technics', 'transport',

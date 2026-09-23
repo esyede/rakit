@@ -6,14 +6,39 @@ defined('DS') or exit('No direct access.');
 
 class Internet extends Base
 {
+    /**
+     * The list of free email domains.
+     *
+     * @var array
+     */
     protected static $freeEmailDomain = ['gmail.com', 'yahoo.com', 'hotmail.com', 'qqmail.com', 'baidu.com', 'mail.ru'];
 
+    /**
+     * The list of top-level domains.
+     *
+     * @var array
+     */
     protected static $tld = ['com', 'com', 'com', 'com', 'com', 'com', 'biz', 'info', 'net', 'org'];
 
+    /**
+     * The list of user name formats.
+     *
+     * @var array
+     */
     protected static $userNameFormats = ['{{lastName}}.{{firstName}}', '{{firstName}}.{{lastName}}', '{{firstName}}##', '?{{lastName}}'];
 
+    /**
+     * The list of email formats.
+     *
+     * @var array
+     */
     protected static $emailFormats = ['{{userName}}@{{domainName}}', '{{userName}}@{{freeEmailDomain}}'];
 
+    /**
+     * The list of URL formats.
+     *
+     * @var array
+     */
     protected static $urlFormats = [
         'http://www.{{domainName}}/', 'http://{{domainName}}/','http://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}',
         'https://www.{{domainName}}/{{slug}}', 'http://www.{{domainName}}/{{slug}}.html', 'http://{{domainName}}/{{slug}}',

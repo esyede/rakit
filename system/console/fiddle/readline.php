@@ -47,7 +47,11 @@ class Readline
 
         for (;;) {
             $this->clear = false;
-            $line = readline(sprintf('[%d] %s', $lineno, ($buf == '' ? $prompt : str_pad('*> ', strlen($prompt), ' ', STR_PAD_LEFT))));
+            $line = readline(sprintf(
+                '[%d] %s',
+                $lineno,
+                (($buf === '') ? $prompt : str_pad('*> ', strlen($prompt), ' ', STR_PAD_LEFT))
+            ));
 
             if ($this->clear) {
                 $buf = '';
@@ -77,12 +81,12 @@ class Readline
                     if ($written > 0) {
                         $status = fread($this->socket, 1);
 
-                        if ($status == Evaluator::EXITED) {
+                        if ($status === Evaluator::EXITED) {
                             /* @disregard */
                             readline_write_history($history);
                             echo "\n";
                             exit(0);
-                        } elseif ($status == Evaluator::FAILED) {
+                        } elseif ($status === Evaluator::FAILED) {
                             break;
                         }
                     }

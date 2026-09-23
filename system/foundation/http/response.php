@@ -6,10 +6,18 @@ defined('DS') or exit('No direct access.');
 
 class Response
 {
-    /** @var Helper */
+    /**
+     * Response headers.
+     *
+     * @var array
+     */
     public $headers;
 
-    /** @var array */
+    /**
+     * Response status texts.
+     *
+     * @var array
+     */
     public static $statusTexts = [
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -76,19 +84,39 @@ class Response
         511 => 'Network Authentication Required',
     ];
 
-    /** @var string */
+    /**
+     * Response content.
+     *
+     * @var string
+     */
     protected $content;
 
-    /** @var string */
+    /**
+     * Response version.
+     *
+     * @var string
+     */
     protected $version;
 
-    /** @var int */
+    /**
+     * Response status code.
+     *
+     * @var int
+     */
     protected $statusCode;
 
-    /** @var string */
+    /**
+     * Response status text.
+     *
+     * @var string
+     */
     protected $statusText;
 
-    /** @var string */
+    /**
+     * Response charset.
+     *
+     * @var string
+     */
     protected $charset;
 
     /**

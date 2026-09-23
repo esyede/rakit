@@ -400,7 +400,8 @@ class SQLServer extends Grammar
      */
     public function rename_column(Table $table, Magic $command)
     {
-        return 'EXEC sp_rename \''.$this->wrap($table).'.'.$this->wrap($command->from).'\', \''.$command->to.'\', \'COLUMN\'';
+        return 'EXEC sp_rename \''.$this->wrap($table).'.'
+            . $this->wrap($command->from).'\', \''.$command->to.'\', \'COLUMN\'';
     }
 
     /**
@@ -455,8 +456,9 @@ class SQLServer extends Grammar
     public function drop_fulltext_if_exists(Table $table, Magic $command)
     {
         return [
-            "IF EXISTS (SELECT 1 FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID(N'".$this->quote($this->wrap($table))."')) "
-                .'DROP FULLTEXT INDEX ON '.$this->wrap($table),
+            "IF EXISTS (SELECT 1 FROM sys.fulltext_indexes WHERE object_id = OBJECT_ID(N'"
+                . $this->quote($this->wrap($table))."')) "
+                .'DROP FULLTEXT INDEX ON ' . $this->wrap($table),
             $this->drop_fulltext_catalog($command),
         ];
     }

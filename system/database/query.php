@@ -485,8 +485,15 @@ class Query
             } elseif (is_string($value) && preg_match('/\A-?[0-9]+\z/', $value)) {
                 $values[$key] = preg_replace('/\A(-?)0+(?=[0-9])/', '$1', $value);
             } else {
-                $given = is_object($value) ? get_class($value) : (is_scalar($value) ? var_export($value, true) : gettype($value));
-                throw new \InvalidArgumentException(sprintf('Only integer values can be inlined into the sql, %s given.', $given));
+                $given = is_object($value)
+                    ? get_class($value)
+                    : (is_scalar($value)
+                        ? var_export($value, true)
+                        : gettype($value)
+                    );
+                throw new \InvalidArgumentException(
+                    sprintf('Only integer values can be inlined into the sql, %s given.', $given)
+                );
             }
         }
 
@@ -1160,7 +1167,9 @@ class Query
     protected function grouped_where(array $columns, $operator, $value, $connector, $joiner, $not = false)
     {
         if (empty($columns)) {
-            throw new \InvalidArgumentException('At least one column is required to build the grouped where clause.');
+            throw new \InvalidArgumentException(
+                'At least one column is required to build the grouped where clause.'
+            );
         }
 
         $query = new static($this->connection, $this->grammar, $this->from);
@@ -1227,7 +1236,9 @@ class Query
                     }
 
                     if (! ($binding instanceof \DateTime) && ! ($binding instanceof Carbon)) {
-                        throw new \Exception(sprintf('Unexpected binding argument class: %s', get_class($binding)));
+                        throw new \Exception(
+                            sprintf('Unexpected binding argument class: %s', get_class($binding))
+                        );
                     }
 
                     $str = "'" . $binding->format('Y-m-d H:i:s') . "'";
@@ -1240,7 +1251,9 @@ class Query
             $pos = strpos($sql, '?');
 
             if (false === $pos) {
-                throw new \Exception(sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i));
+                throw new \Exception(
+                    sprintf('Cannot find binding location in sql for parameter: %s (%s)', $binding, $i)
+                );
             }
 
             $sql = substr($sql, 0, $pos) . $str . substr($sql, $pos + 1);

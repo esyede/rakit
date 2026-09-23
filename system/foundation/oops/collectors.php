@@ -36,8 +36,18 @@ class Collectors
      */
     private static $collectorConfig;
 
+    /**
+     * Collector config loaded flag.
+     *
+     * @var bool
+     */
     private static $collectorConfigLoaded = false;
 
+    /**
+     * Resolving config flag.
+     *
+     * @var bool
+     */
     private static $resolvingConfig = false;
 
     /**

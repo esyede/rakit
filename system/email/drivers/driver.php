@@ -583,7 +583,9 @@ abstract class Driver
         $this->boundaries = ['B1_'.$boundary, 'B2_'.$boundary, 'B3_'.$boundary];
         $this->set_header('Date', Carbon::now()->format('r'));
 
-        $path = (false === $this->config['return_path']) ? $this->config['from']['email'] : $this->config['return_path'];
+        $path = (false === $this->config['return_path'])
+            ? $this->config['from']['email']
+            : $this->config['return_path'];
         $this->set_header('Return-Path', $path);
 
         if (! ($this instanceof Mail)) {
@@ -624,22 +626,17 @@ abstract class Driver
             $relate = $this->config['force_mixed'] ? 'multipart/mixed; ' : 'multipart/related; ';
 
             switch ($this->type) {
-                case 'plain':                  $type = 'text/plain';
-                    break;
+                case 'plain': $type = 'text/plain'; break;
                 case 'plain_attach':
-                case 'html_attach':            $type = $relate.$bond;
-                    break;
-                case 'html':                   $type = 'text/html';
-                    break;
+                case 'html_attach': $type = $relate.$bond; break;
+                case 'html': $type = 'text/html'; break;
                 case 'html_alt_attach':
                 case 'html_inline_attach':
-                case 'html_alt_inline_attach': $type = 'multipart/mixed; '.$bond;
-                    break;
+                case 'html_alt_inline_attach': $type = 'multipart/mixed; '.$bond; break;
                 case 'html_alt_inline':
                 case 'html_alt':
-                case 'html_inline':            $type = 'multipart/alternative; '.$bond;
-                    break;
-                default:                       throw new \Exception(sprintf('Invalid content-type: %s', $this->type));
+                case 'html_inline': $type = 'multipart/alternative; '.$bond; break;
+                default: throw new \Exception(sprintf('Invalid content-type: %s', $this->type));
             }
 
             $this->set_header('Content-Type', $type);
@@ -766,7 +763,8 @@ abstract class Driver
         }
 
         if (array_key_exists($header, $this->headers)) {
-            return ($formatted ? $header.': ' : '').$this->headers[$header].($formatted ? $this->config['newline'] : '');
+            return ($formatted ? $header . ': ' : '')
+                . $this->headers[$header] . ($formatted ? $this->config['newline'] : '');
         }
 
         return '';
@@ -822,7 +820,22 @@ abstract class Driver
     {
         $eol = $this->config['newline'];
         $encoding = $this->config['encoding'];
-        $parts = ['Date', 'Return-Path', 'From', 'To', 'Cc', 'Bcc', 'Reply-To', 'Subject', 'Message-ID', 'X-Priority', 'X-Mailer', 'MIME-Version', 'Content-Type', 'Content-Transfer-Encoding'];
+        $parts = [
+            'Date',
+            'Return-Path',
+            'From',
+            'To',
+            'Cc',
+            'Bcc',
+            'Reply-To',
+            'Subject',
+            'Message-ID',
+            'X-Priority',
+            'X-Mailer',
+            'MIME-Version',
+            'Content-Type',
+            'Content-Transfer-Encoding',
+        ];
 
         if ($without_bcc) {
             array_splice($parts, 5, 1);
@@ -876,7 +889,8 @@ abstract class Driver
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->prepared_alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[0].$eol;
-                    $body .= 'Content-Type: multipart/related;'.$eol."\tboundary=\"".$this->boundaries[1].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/related;' . $eol
+                        . "\tboundary=\"".$this->boundaries[1] . '"' . $eol . $eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
@@ -915,13 +929,15 @@ abstract class Driver
 
                 case 'html_alt_inline_attach':
                     $body .= '--'.$this->boundaries[0].$eol;
-                    $body .= 'Content-Type: multipart/alternative;'.$eol."\t boundary=\"".$this->boundaries[1].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/alternative;' . $eol
+                        . "\t boundary=\"" . $this->boundaries[1].'"' . $eol . $eol;
                     $body .= '--'.$this->boundaries[1].$eol;
                     $body .= 'Content-Type: text/plain; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;
                     $body .= $this->prepared_alt_body.$eol.$eol;
                     $body .= '--'.$this->boundaries[1].$eol;
-                    $body .= 'Content-Type: multipart/related;'.$eol."\t boundary=\"".$this->boundaries[2].'"'.$eol.$eol;
+                    $body .= 'Content-Type: multipart/related;' . $eol
+                        . "\t boundary=\"" . $this->boundaries[2] . '"' . $eol . $eol;
                     $body .= '--'.$this->boundaries[2].$eol;
                     $body .= 'Content-Type: text/html; charset=utf-8'.$eol;
                     $body .= 'Content-Transfer-Encoding: '.$encoding.$eol.$eol;

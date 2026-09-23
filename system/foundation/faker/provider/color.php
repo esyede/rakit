@@ -6,11 +6,21 @@ defined('DS') or exit('No direct access.');
 
 class Color extends Base
 {
+    /**
+     * The list of safe color names.
+     *
+     * @var array
+     */
     protected static $safeColorNames = [
         'black', 'maroon', 'green', 'navy', 'olive', 'purple', 'teal',
         'lime', 'blue', 'silver', 'gray', 'yellow', 'fuchsia', 'aqua', 'white',
     ];
 
+    /**
+     * The list of all color names.
+     *
+     * @var array
+     */
     protected static $allColorNames = [
         'AliceBlue', 'AntiqueWhite', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque', 'Black', 'BlanchedAlmond',
         'Blue', 'BlueViolet', 'Brown', 'BurlyWood', 'CadetBlue', 'Chartreuse', 'Chocolate', 'Coral', 'CornflowerBlue',

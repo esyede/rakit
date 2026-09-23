@@ -12,28 +12,64 @@ use System\Carbon;
 
 class Server
 {
+    /** @var int */
     const TEXT = 1;
 
+    /** @var int */
     const BINARY = 2;
 
+    /** @var int */
     const CLOSE = 8;
 
+    /** @var int */
     const PING = 9;
 
+    /** @var int */
     const PONG = 10;
 
+    /** @var string */
     const MAGIC = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
+    /**
+     * Contains the "websocket" configuration.
+     *
+     * @var array
+     */
     protected $config = [];
 
+    /**
+     * Contains the master listening socket.
+     *
+     * @var resource
+     */
     protected $master;
 
+    /**
+     * Contains every tracked socket, keyed by client ID with "master" for the listener.
+     *
+     * @var array
+     */
     protected $sockets = [];
 
+    /**
+     * Contains every connected client, keyed by client ID.
+     *
+     * @var \System\Websocket\Client[]
+     */
     protected $users = [];
 
+    /**
+     * Contains messages queued until their client finishes the handshake.
+     *
+     * @var array
+     */
     protected $pendings = [];
 
+    /**
+     * Contains registered event handlers, keyed by event name.
+     *
+     * @var array
+     */
     protected $events = [];
 
     /**
@@ -52,7 +88,13 @@ class Server
         $dsn = str_replace('tcp://', '', $address);
         $dsn = (strpos($dsn, '://') === false) ? 'tcp://'.$dsn : $dsn;
         $context = stream_context_create(['socket' => ['so_reuseaddr' => true]]);
-        $this->master = @stream_socket_server($dsn, $errno, $errstr, STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, $context);
+        $this->master = @stream_socket_server(
+            $dsn,
+            $errno,
+            $errstr,
+            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+            $context)
+        ;
 
         if (! $this->master) {
             $this->stderr('Failed: stream_socket_server() - '.$errstr.' ('.$errno.')');
@@ -85,7 +127,10 @@ class Server
      */
     protected function connected($user)
     {
-        if (isset($this->events['connect']) && is_callable($function = $this->events['connect'])) {
+        if (
+            isset($this->events['connect'])
+            && is_callable($function = $this->events['connect'])
+        ) {
             $function($user);
         }
     }
@@ -99,7 +144,10 @@ class Server
      */
     protected function closed($user)
     {
-        if (isset($this->events['disconnect']) && is_callable($function = $this->events['disconnect'])) {
+        if (
+            isset($this->events['disconnect'])
+            && is_callable($function = $this->events['disconnect'])
+        ) {
             $function($user);
         }
     }
@@ -137,7 +185,7 @@ class Server
             $found = false;
 
             foreach ($this->users as $user) {
-                if ($connection['user']->socket == $user->socket) {
+                if ($connection['user']->socket === $user->socket) {
                     $found = true;
 
                     if ($user->handshake) {
@@ -175,7 +223,10 @@ class Server
      */
     public function run()
     {
-        if (isset($this->events['start']) && is_callable($function = $this->events['start'])) {
+        if (
+            isset($this->events['start'])
+            && is_callable($function = $this->events['start'])
+        ) {
             $function($this);
         }
 
@@ -215,7 +266,8 @@ class Server
                             $this->stderr('Client disconnected. TCP connection lost: '.(int) $socket);
                         } else {
                             $error = error_get_last();
-                            $this->stderr('Socket error: '.(isset($error['message']) ? $error['message'] : 'Unknown error'));
+                            $error = isset($error['message']) ? $error['message'] : 'Unknown error';
+                            $this->stderr('Socket error: '.$error);
                             $this->disconnect($socket, true);
                         }
                     } else {
@@ -348,7 +400,10 @@ class Server
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
-        if (! isset($headers['connection']) || strpos(strtolower($headers['connection']), 'upgrade') === false) {
+        if (
+            ! isset($headers['connection'])
+            || strpos(strtolower($headers['connection']), 'upgrade') === false
+        ) {
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
@@ -356,7 +411,10 @@ class Server
             $response = 'HTTP/1.1 400 Bad Request';
         }
 
-        if (! isset($headers['sec-websocket-version']) || (int) (strtolower($headers['sec-websocket-version'])) !== 13) {
+        if (
+            ! isset($headers['sec-websocket-version'])
+            || (int) (strtolower($headers['sec-websocket-version'])) !== 13
+        ) {
             $response = 'HTTP/1.1 426 Upgrade Required'.CRLF.'Sec-WebSocketVersion: 13';
         }
 
@@ -398,10 +456,16 @@ class Server
         }
 
         $token = base64_encode($token).CRLF;
-        $protocol = (isset($headers['sec-websocket-protocol'])) ? $this->protocol($headers['sec-websocket-protocol']) : '';
-        $extensions = (isset($headers['sec-websocket-extensions'])) ? $this->extensions($headers['sec-websocket-extensions']) : '';
-        $response = 'HTTP/1.1 101 Switching Protocols'.CRLF.'Upgrade: websocket'.CRLF.'Connection: Upgrade'.CRLF.
-            'Sec-WebSocket-Accept: '.$token.$protocol.$extensions.CRLF;
+        $protocol = (isset($headers['sec-websocket-protocol']))
+            ? $this->protocol($headers['sec-websocket-protocol'])
+            : '';
+        $extensions = (isset($headers['sec-websocket-extensions']))
+            ? $this->extensions($headers['sec-websocket-extensions'])
+            : '';
+        $response = 'HTTP/1.1 101 Switching Protocols' . CRLF
+            . 'Upgrade: websocket' . CRLF
+            . 'Connection: Upgrade' . CRLF
+            . 'Sec-WebSocket-Accept: ' . $token . $protocol . $extensions . CRLF;
 
         $this->communicate($user->socket, $response);
         $this->stdout('Handshake completed for client '.$user->id());
@@ -417,7 +481,9 @@ class Server
      */
     protected function check_origin($origin)
     {
-        return empty($this->config['allowed_origins']) ? true : in_array($origin, $this->config['allowed_origins']);
+        return empty($this->config['allowed_origins'])
+            ? true
+            : in_array($origin, $this->config['allowed_origins']);
     }
 
     /**
@@ -429,7 +495,9 @@ class Server
      */
     protected function check_host($host)
     {
-        return empty($this->config['allowed_hosts']) ? true : in_array($host, $this->config['allowed_hosts']);
+        return empty($this->config['allowed_hosts'])
+            ? true
+            : in_array($host, $this->config['allowed_hosts']);
     }
 
     /**
@@ -514,7 +582,7 @@ class Server
     protected function find($socket)
     {
         foreach ($this->users as $user) {
-            if ($user->socket == $socket) {
+            if ($user->socket === $socket) {
                 return $user;
             }
         }
@@ -592,20 +660,13 @@ class Server
     public function frame($message, $user, $type = 'text', $continue = false)
     {
         switch ($type) {
-            case 'continuous': $b1 = 0;
-                break;
-            case 'text':       $b1 = $user->continuous ? 0 : 1;
-                break;
-            case 'binary':     $b1 = $user->continuous ? 0 : 2;
-                break;
-            case 'close':      $b1 = 8;
-                break;
-            case 'ping':       $b1 = 9;
-                break;
-            case 'pong':       $b1 = 10;
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf('Unsupported frame type: %s', $type));
+            case 'continuous': $b1 = 0; break;
+            case 'text':       $b1 = $user->continuous ? 0 : 1; break;
+            case 'binary':     $b1 = $user->continuous ? 0 : 2; break;
+            case 'close':      $b1 = 8; break;
+            case 'ping':       $b1 = 9; break;
+            case 'pong':       $b1 = 10; break;
+            default:           throw new \InvalidArgumentException(sprintf('Unsupported frame type: %s', $type));
         }
 
         if ($continue) {
@@ -624,7 +685,7 @@ class Server
             $b2 = 126;
             $hex = dechex($length);
 
-            if (strlen($hex) % 2 == 1) {
+            if (strlen($hex) % 2 === 1) {
                 $hex = '0'.$hex;
             }
 
@@ -641,7 +702,7 @@ class Server
             $b2 = 127;
             $hex = dechex($length);
 
-            if (strlen($hex) % 2 == 1) {
+            if (strlen($hex) % 2 === 1) {
                 $hex = '0'.$hex;
             }
 
@@ -709,10 +770,13 @@ class Server
                 if ($user->disconnecting) {
                     $this->disconnect($user->socket);
                 } else {
-                    if ((preg_match('//u', $message)) || ($headers['opcode'] == 2)) {
+                    if ((preg_match('//u', $message)) || ($headers['opcode'] === 2)) {
                         $this->process($user, $message);
 
-                        if (isset($this->events['receive']) && is_callable($function = $this->events['receive'])) {
+                        if (
+                            isset($this->events['receive'])
+                            && is_callable($function = $this->events['receive'])
+                        ) {
                             $function($user, $headers['opcode'], $message);
                         }
                     } else {

@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class File extends Base
 {
+    /**
+     * The list of MIME types.
+     *
+     * @var array
+     */
     protected static $mimeTypes = [
         'application/atom+xml' => 'atom',
         'application/ecmascript' => 'ecma',

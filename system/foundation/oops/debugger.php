@@ -6,24 +6,34 @@ defined('DS') or exit('No direct access.');
 
 class Debugger
 {
+    /** @var bool */
     const DEVELOPMENT = false;
 
+    /** @var bool */
     const PRODUCTION = true;
 
+    /** @var null */
     const DETECT = null;
 
+    /** @var int */
     const DEBUG = Logger::DEBUG;
 
+    /** @var int */
     const INFO = Logger::INFO;
 
+    /** @var int */
     const WARNING = Logger::WARNING;
 
+    /** @var int */
     const ERROR = Logger::ERROR;
 
+    /** @var int */
     const EXCEPTION = Logger::EXCEPTION;
 
+    /** @var int */
     const CRITICAL = Logger::CRITICAL;
 
+    /** @var string */
     const COOKIE_SECRET = 'oops-debug';
 
     /**

@@ -160,7 +160,7 @@ class Evaluator
 
             $this->write($this->socket, $response);
 
-            if ($response == self::EXITED) {
+            if ($response === self::EXITED) {
                 exit(0);
             }
         }
@@ -207,7 +207,9 @@ class Evaluator
             } elseif (is_callable($hook)) {
                 call_user_func($hook, $this, get_defined_vars());
             } else {
-                throw new \Exception(sprintf('Hooks must be closures or strings of PHP code. Got [%s].', gettype($hook)));
+                throw new \Exception(
+                    sprintf('Hooks must be closures or strings of PHP code. Got [%s].', gettype($hook))
+                );
             }
 
             extract($this->exports);

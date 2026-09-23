@@ -6,7 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Context
 {
-    /** @var \WeakMap|\SplObjectStorage|null */
+    /**
+     * Context map.
+     *
+     * @var \WeakMap|\SplObjectStorage|null
+     */
     private static $map;
 
     /**

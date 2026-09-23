@@ -53,7 +53,8 @@ class Swoole extends Bridge
     public function wait_request(\Closure $handler)
     {
         throw new \LogicException(
-            'Swoole dispatches requests through events: call handle_request() from the "request" callback of your Swoole\Http\Server.'
+            'Swoole dispatches requests through events: '
+            . 'call handle_request() from the "request" callback of your Swoole\Http\Server.'
         );
     }
 

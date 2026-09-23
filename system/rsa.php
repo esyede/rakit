@@ -108,8 +108,16 @@ class RSA
         if (! static::$details['private_key'] || ! static::$details['public_key']) {
             $config = path('storage') . 'openssl.conf';
             $rnd = path('storage') . '.rnd';
-            static::$details['options'] = ['private_key_bits' => 2048, 'private_key_type' => OPENSSL_KEYTYPE_RSA, 'config' => $config];
-            static::$details['config'] = 'HOME=' . path('storage') . LF . 'RANDFILE=' . $rnd . LF . '[req]' . LF . 'default_bits=2048' . LF . '[v3_ca]' . LF;
+            static::$details['options'] = [
+                'private_key_bits' => 2048,
+                'private_key_type' => OPENSSL_KEYTYPE_RSA,
+                'config' => $config,
+            ];
+            static::$details['config'] = 'HOME=' . path('storage') . LF
+                . 'RANDFILE=' . $rnd . LF
+                . '[req]' . LF . 'default_bits=2048' . LF
+                . '[v3_ca]' . LF;
+
             is_file($config) && unlink($config);
             file_put_contents($config, static::$details['config'], LOCK_EX);
 

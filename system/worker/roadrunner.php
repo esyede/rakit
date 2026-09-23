@@ -57,7 +57,10 @@ class Roadrunner extends Bridge
         }
 
         if (! class_exists('Spiral\RoadRunner\Http\HttpWorker')) {
-            throw new \Exception('RoadRunner support requires the spiral/roadrunner-http package: composer require spiral/roadrunner-http');
+            throw new \Exception(
+                'RoadRunner support requires the spiral/roadrunner-http package: '
+                . 'composer require spiral/roadrunner-http'
+            );
         }
 
         $this->server = $_SERVER;
@@ -182,7 +185,9 @@ class Roadrunner extends Bridge
         $server['SERVER_PROTOCOL'] = $request->protocol;
         $server['SERVER_NAME'] = isset($url['host']) ? $url['host'] : 'localhost';
         $server['SERVER_PORT'] = isset($url['port']) ? $url['port'] : ($https ? 443 : 80);
-        $server['REMOTE_ADDR'] = isset($request->attributes['ipAddress']) ? $request->attributes['ipAddress'] : $request->remoteAddr;
+        $server['REMOTE_ADDR'] = isset($request->attributes['ipAddress'])
+            ? $request->attributes['ipAddress']
+            : $request->remoteAddr;
         $server['REQUEST_TIME'] = time();
         $server['REQUEST_TIME_FLOAT'] = microtime(true);
         $server['DOCUMENT_ROOT'] = rtrim(path('base'), DS);

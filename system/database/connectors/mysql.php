@@ -21,13 +21,12 @@ class MySQL extends Connector
 
         if (isset($config['charset'])) {
             $charset = (string) $config['charset'];
-            // Allowlist the charset: it comes from config and lands in raw SQL.
+
             if (!preg_match('/^[A-Za-z0-9_-]+$/', $charset)) {
                 throw new \InvalidArgumentException(sprintf('Invalid charset: %s', $charset));
             }
-            // Use PDO::quote for extra safety, though charset is validated
+
             $quoted = $pdo->quote($charset);
-            // PDO::quote() already adds the quotes SET NAMES expects.
             $pdo->exec("SET NAMES $quoted");
         }
 

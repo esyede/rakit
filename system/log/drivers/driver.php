@@ -10,12 +10,7 @@ use System\Log\Formatter;
 
 abstract class Driver
 {
-    /**
-     * Marker that keeps a log file from being served, or executed, by a web server.
-     * The guard travels with the file, since the deployment cannot be assumed.
-     *
-     * @var string
-     */
+    /** @var string */
     const GUARD = "<?php defined('DS') or exit('No direct access.');?>";
 
     /**
@@ -113,7 +108,9 @@ abstract class Driver
      */
     protected function format(array $record, $timestamp = true)
     {
-        return ('json' === $this->option('format', 'line')) ? Formatter::json($record) : Formatter::line($record, $timestamp);
+        return ('json' === $this->option('format', 'line'))
+            ? Formatter::json($record)
+            : Formatter::line($record, $timestamp);
     }
 
     /**

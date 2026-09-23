@@ -8,12 +8,22 @@ use System\Foundation\Faker\Provider\Color as BaseColor;
 
 class Color extends BaseColor
 {
+    /**
+     * The list of safe color names.
+     *
+     * @var array
+     */
     protected static $safeColorNames = [
         'abu-abu', 'biru', 'biru dongker', 'biru laut', 'cokelat', 'emas', 'hijau', 'hitam',
         'jingga', 'krem', 'kuning', 'magenta', 'mawar', 'merah', 'merah jambu', 'merah marun',
         'nila', 'perak', 'putih', 'sepia', 'teal', 'toska', 'ungu', 'violet', 'zaitun',
     ];
 
+    /**
+     * The list of all color names.
+     *
+     * @var array
+     */
     protected static $allColorNames = [
         'Abu-Abu', 'Abu-Abu Tua', 'Abu-Abu Muda', 'Abu-Abu Kecokelatan', 'Almond',
         'Biru', 'Biru Baja', 'Biru Dongker', 'Biru Keabu-abuan', 'Biru Kehijauan',

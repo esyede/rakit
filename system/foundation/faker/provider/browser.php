@@ -6,14 +6,39 @@ defined('DS') or exit('No direct access.');
 
 class Browser extends Base
 {
+    /**
+     * The list of user agents.
+     *
+     * @var array
+     */
     protected static $userAgents = ['firefox', 'chrome', 'internetExplorer', 'opera', 'safari'];
 
+    /**
+     * The list of Linux processor types.
+     *
+     * @var array
+     */
     protected static $linuxProcessor = ['i686', 'x86_64'];
 
+    /**
+     * The list of Mac processor types.
+     *
+     * @var array
+     */
     protected static $macProcessor = ['Intel', 'PPC', 'U; Intel', 'U; PPC'];
 
+    /**
+     * The list of languages.
+     *
+     * @var array
+     */
     protected static $lang = ['en-US', 'sl-SI'];
 
+    /**
+     * The list of Windows platform tokens.
+     *
+     * @var array
+     */
     protected static $windowsPlatformTokens = [
         'Windows NT 6.2', 'Windows NT 6.1', 'Windows NT 6.0', 'Windows NT 5.2', 'Windows NT 5.1', 'Windows NT 5.01',
         'Windows NT 5.0', 'Windows NT 4.0', 'Windows 98; Win 9x 4.90', 'Windows 98', 'Windows 95', 'Windows CE',

@@ -6,22 +6,27 @@ defined('DS') or exit('No direct access.');
 
 class Storage
 {
-    /**
-     * Marker that keeps a stored payload from being served by a web server. A payload
-     * holds the request, session and queries, so the guard travels with the file.
-     */
+    /** @var string */
     const GUARD = "<?php defined('DS') or exit('No direct access.');?>";
 
-    /** Extension of a stored payload. PHP parses it, and the guard stops it. */
+    /** @var string */
     const EXT = '.json.php';
 
-    /** Extension of the meta sidecar of a payload. */
+    /** @var string */
     const META_EXT = '.meta.php';
 
-    /** @var string */
+    /**
+     * The storage directory.
+     *
+     * @var string
+     */
     protected $dir;
 
-    /** @var int */
+    /**
+     * The maximum number of items to store.
+     *
+     * @var int
+     */
     protected $max;
 
     /**
@@ -120,7 +125,7 @@ class Storage
         }
 
         usort($metas, function ($a, $b) {
-            if ($a['ts'] == $b['ts']) {
+            if ($a['ts'] === $b['ts']) {
                 return 0;
             }
             return ($a['ts'] < $b['ts']) ? 1 : -1;

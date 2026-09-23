@@ -6,28 +6,60 @@ defined('DS') or exit('No direct access.');
 
 class Cookie
 {
-    /** @var string */
+    /**
+     * The cookie name.
+     *
+     * @var string
+     */
     protected $name;
 
-    /** @var string */
+    /**
+     * The cookie value.
+     *
+     * @var string
+     */
     protected $value;
 
-    /** @var string */
+    /**
+     * The cookie domain.
+     *
+     * @var string
+     */
     protected $domain;
 
-    /** @var int */
+    /**
+     * The cookie expiration time.
+     *
+     * @var int
+     */
     protected $expire;
 
-    /** @var string */
+    /**
+     * The cookie path.
+     *
+     * @var string
+     */
     protected $path;
 
-    /** @var bool */
+    /**
+     * Whether the cookie is secure.
+     *
+     * @var bool
+     */
     protected $secure;
 
-    /** @var bool */
+    /**
+     * Whether the cookie is HTTP only.
+     *
+     * @var bool
+     */
     protected $httpOnly;
 
-    /** @var string */
+    /**
+     * The cookie SameSite attribute.
+     *
+     * @var string
+     */
     protected $sameSite;
 
     /**

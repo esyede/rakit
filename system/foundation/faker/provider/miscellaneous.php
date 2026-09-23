@@ -6,8 +6,18 @@ defined('DS') or exit('No direct access.');
 
 class Miscellaneous extends Base
 {
+    /**
+     * The list of language codes.
+     *
+     * @var array
+     */
     protected static $languageCode = ['cn', 'de', 'en', 'es', 'fr', 'it', 'pt', 'ru'];
 
+    /**
+     * The list of country codes.
+     *
+     * @var array
+     */
     protected static $countryCode = [
         'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR',
         'AS', 'AT', 'AU', 'AW', 'AX', 'AZ', 'BA', 'BB', 'BD', 'BE',
@@ -36,6 +46,11 @@ class Miscellaneous extends Base
         'VN', 'VU', 'WF', 'WS', 'YE', 'YT', 'ZA', 'ZM', 'ZW',
     ];
 
+    /**
+     * The list of country ISO alpha-3 codes.
+     *
+     * @var array
+     */
     protected static $countryISOAlpha3 = [
         'ABW', 'AFG', 'AGO', 'AIA', 'ALA', 'ALB', 'AND', 'ARE', 'ARG', 'ARM',
         'ASM', 'ATA', 'ATF', 'ATG', 'AUS', 'AUT', 'AZE', 'BDI', 'BEL', 'BEN',
@@ -64,6 +79,11 @@ class Miscellaneous extends Base
         'VIR', 'VNM', 'VUT', 'WLF', 'WSM', 'YEM', 'ZAF', 'ZMB', 'ZWE',
     ];
 
+    /**
+     * The list of locale data.
+     *
+     * @var array
+     */
     protected static $localeData = [
         'aa_DJ', 'aa_ER', 'aa_ET', 'af_NA', 'af_ZA', 'ak_GH', 'am_ET', 'ar_AE', 'ar_BH', 'ar_DZ',
         'ar_EG', 'ar_IQ', 'ar_JO', 'ar_KW', 'ar_LB', 'ar_LY', 'ar_MA', 'ar_OM', 'ar_QA', 'ar_SA',
@@ -93,6 +113,11 @@ class Miscellaneous extends Base
         'zh_CN', 'zh_HK', 'zh_MO', 'zh_SG', 'zh_TW', 'zu_ZA',
     ];
 
+    /**
+     * The list of currency codes.
+     *
+     * @var array
+     */
     protected static $currencyCode = [
         'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN',
         'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL',

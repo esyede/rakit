@@ -198,7 +198,6 @@ class Autoloader
                     continue;
                 }
 
-                // Keyed by resolved file: two namespaces may share a short class name.
                 if (! isset(static::$loaded[$path])) {
                     static::$loaded[$path] = true;
                     require $path;
@@ -287,11 +286,8 @@ class Autoloader
             } else {
                 try {
                     $path = path('storage') . 'logs' . DS . 'rakit.log.php';
-
-                    // Spelled out instead of using the log driver: aliases still registering.
                     $guard = is_file($path) ? '' : "<?php defined('DS') or exit('No direct access.');?>" . PHP_EOL;
-
-                    @file_put_contents($path, $guard . $message . PHP_EOL, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
+                    @file_put_contents($path, $guard.$message.PHP_EOL, LOCK_EX | (is_file($path) ? FILE_APPEND : 0));
                 } catch (\Throwable $ex) {
                     error_log($message);
                 } catch (\Exception $ex) {

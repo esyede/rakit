@@ -12,7 +12,6 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css"> -->
 
     <!-- Scripts -->
     <script>
@@ -26,7 +25,12 @@
                 <div class="navbar-header">
 
                     <!-- Collapsed Hamburger -->
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#app-navbar-collapse">
+                    <button
+                     type="button"
+                     class="navbar-toggle collapsed"
+                     data-toggle="collapse"
+                     data-target="#app-navbar-collapse"
+                    >
                         <span class="sr-only">Toggle Navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -53,7 +57,13 @@
                             <li><a href="{{ url('/register') }}">Register</a></li>
                         @else
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                                <a
+                                 href="#"
+                                 class="dropdown-toggle"
+                                 data-toggle="dropdown"
+                                 role="button"
+                                 aria-expanded="false"
+                                >
                                     {{ System\Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
@@ -65,7 +75,12 @@
                                             Logout
                                         </a>
 
-                                        <form id="logout-form" action="{{ url('/logout') }}" method="POST" style="display: none;">
+                                        <form
+                                         id="logout-form"
+                                         action="{{ url('/logout') }}"
+                                         method="POST"
+                                         style="display: none;"
+                                        >
                                             @csrf
                                         </form>
                                     </li>

@@ -6,26 +6,73 @@ defined('DS') or exit('No direct access.');
 
 class Person extends Base
 {
+    /** @var string */
     const GENDER_MALE = 'male';
 
+    /** @var string */
     const GENDER_FEMALE = 'female';
 
+    /**
+     * The list of title formats.
+     *
+     * @var array
+     */
     protected static $titleFormat = ['{{titleMale}}', '{{titleFemale}}'];
 
+    /**
+     * The list of first name formats.
+     *
+     * @var array
+     */
     protected static $firstNameFormat = ['{{firstNameMale}}', '{{firstNameFemale}}'];
 
+    /**
+     * The list of male name formats.
+     *
+     * @var array
+     */
     protected static $maleNameFormats = ['{{firstNameMale}} {{lastName}}'];
 
+    /**
+     * The list of female name formats.
+     *
+     * @var array
+     */
     protected static $femaleNameFormats = ['{{firstNameFemale}} {{lastName}}'];
 
+    /**
+     * The list of first name male.
+     *
+     * @var array
+     */
     protected static $firstNameMale = ['John'];
 
+    /**
+     * The list of first name female.
+     *
+     * @var array
+     */
     protected static $firstNameFemale = ['Jane'];
 
+    /**
+     * The list of last name.
+     *
+     * @var array
+     */
     protected static $lastName = ['Doe'];
 
+    /**
+     * The list of title male.
+     *
+     * @var array
+     */
     protected static $titleMale = ['Mr.', 'Dr.', 'Prof.'];
 
+    /**
+     * The list of title female.
+     *
+     * @var array
+     */
     protected static $titleFemale = ['Mrs.', 'Ms.', 'Miss', 'Dr.', 'Prof.'];
 
     /**

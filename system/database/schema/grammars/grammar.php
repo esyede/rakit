@@ -99,9 +99,7 @@ abstract class Grammar extends BaseGrammar
     protected function default_value($value)
     {
         $value = is_bool($value) ? (int) $value : $value;
-
-        // Callers wrap this in single quotes, so double any inside or "O'Brien"
-        // closes the literal early.
+        // Callers wrap this in single quotes, so double any inside or "O'Brien" closes the literal early.
         return str_replace("'", "''", (string) $value);
     }
 }

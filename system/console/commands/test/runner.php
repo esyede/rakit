@@ -87,7 +87,8 @@ class Runner extends Command
         // Run phpunit on this very PHP binary: its shebang would pick whichever `php`
         // comes first in PATH.
         $script = 'vendor'.DS.'phpunit'.DS.'phpunit'.DS.'phpunit';
-        $command = (defined('PHP_BINARY') && '' !== (string) PHP_BINARY && is_file(path('base').$script))
+        $command = (
+            defined('PHP_BINARY') && '' !== (string) PHP_BINARY && is_file(path('base').$script))
             ? escapeshellarg(PHP_BINARY).' -d memory_limit='.escapeshellarg(ini_get('memory_limit')).' '.escapeshellarg($script)
             : '.'.DS.$phpunit;
 

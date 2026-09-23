@@ -75,7 +75,10 @@ class Publisher
      */
     protected static function named($package)
     {
-        return is_string($package) && '' !== $package && preg_match('/^[A-Za-z0-9_.-]+$/', $package)
-            && '.' !== $package && '..' !== $package;
+        return is_string($package)
+            && '' !== $package
+            && preg_match('/^[A-Za-z0-9_.-]+$/', $package)
+            && '.' !== $package
+            && '..' !== $package;
     }
 }

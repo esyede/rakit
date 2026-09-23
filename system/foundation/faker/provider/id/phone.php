@@ -8,6 +8,11 @@ use System\Foundation\Faker\Provider\Phone as BasePhone;
 
 class Phone extends BasePhone
 {
+    /**
+     * The list of phone formats.
+     *
+     * @var array
+     */
     protected static $formats = [
         '02# #### ###', '02## #### ###', '03## #### ###', '04## #### ###', '05## #### ###', '06## #### ###', '07## #### ###', '09## #### ###',
         '02# #### ####', '02## #### ####', '03## #### ####', '04## #### ####', '05## #### ####', '06## #### ####', '07## #### ####', '09## #### ####',

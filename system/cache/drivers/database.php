@@ -102,7 +102,11 @@ class Database extends Driver
 
             if (is_null($cache) || $expired) {
                 $connection->table($table)->where('key', '=', $prefixed)->delete();
-                $connection->table($table)->insert(['key' => $prefixed, 'value' => serialize(1), 'expiration' => $expiration]);
+                $connection->table($table)->insert([
+                    'key' => $prefixed,
+                    'value' => serialize(1),
+                    'expiration' => $expiration,
+                ]);
                 $new = 1;
             } else {
                 $current = (int) unserialize($cache->value);

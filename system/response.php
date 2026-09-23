@@ -147,7 +147,9 @@ class Response
             return static::json(compact('status', 'message'), $code, $headers);
         }
 
-        $view = View::exists('error.'.$code) ? 'error.'.$code : (View::exists('error.unknown') ? 'error.unknown' : false);
+        $view = View::exists('error.'.$code)
+            ? 'error.'.$code
+            : (View::exists('error.unknown') ? 'error.unknown' : false);
 
         if (! $view) {
             ob_start();
@@ -343,23 +345,29 @@ class Response
 
         // Confine to allowed roots: storage, base, app, public
         $allowed_roots = [];
+
         foreach (['base', 'storage', 'app'] as $key) {
             try {
                 $p = path($key);
                 $rp = realpath(rtrim($p, DS));
+
                 if ($rp) {
                     $allowed_roots[] = $rp;
                 }
             } catch (\Throwable $e) {
+                // ignore errors
             } catch (\Exception $e) {
+                // ignore errors
             }
         }
 
         // Allow explicitly configured download roots via config
-        $extraRoots = Config::get('application.download_roots', []);
-        if (is_array($extraRoots)) {
-            foreach ($extraRoots as $extra) {
+        $extra_roots = Config::get('application.download_roots', []);
+
+        if (is_array($extra_roots)) {
+            foreach ($extra_roots as $extra) {
                 $rp = realpath($extra);
+
                 if ($rp) {
                     $allowed_roots[] = $rp;
                 }
@@ -369,11 +377,13 @@ class Response
         // Unconfigured roots fall back to the base directory, which still blocks
         // traversal to the likes of /etc/passwd.
         $inside = false;
+
         if (count($allowed_roots) === 0) {
             $inside = true; // fallback allow if not configured
         } else {
             foreach ($allowed_roots as $root) {
                 $root = rtrim($root, DS);
+
                 if ($real === $root || 0 === strpos($real, $root . DS)) {
                     $inside = true;
                     break;
@@ -448,8 +458,15 @@ class Response
      *
      * @return Response
      */
-    public function with_cookie($name, $value = '', $minutes = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
-    {
+    public function with_cookie(
+        $name,
+        $value = '',
+        $minutes = 0,
+        $path = '/',
+        $domain = null,
+        $secure = false,
+        $samesite = 'lax'
+    ) {
         Cookie::put($name, $value, $minutes, $path, $domain, $secure, $samesite);
         return $this;
     }

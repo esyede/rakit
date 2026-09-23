@@ -6,8 +6,18 @@ defined('DS') or exit('No direct access.');
 
 class Header implements \IteratorAggregate, \Countable
 {
+    /**
+     * The list of headers.
+     *
+     * @var array
+     */
     protected $headers;
 
+    /**
+     * The cache control directives.
+     *
+     * @var array
+     */
     protected $cacheControl;
 
     /**

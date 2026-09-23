@@ -8,8 +8,22 @@ use System\Foundation\Faker\Provider\Company as BaseCompany;
 
 class Company extends BaseCompany
 {
-    protected static $formats = ['{{lastName}} {{companySuffix}}', '{{lastName}}-{{lastName}}', '{{lastName}}, {{lastName}} and {{lastName}}'];
+    /**
+     * The list of company formats.
+     *
+     * @var array
+     */
+    protected static $formats = [
+        '{{lastName}} {{companySuffix}}',
+        '{{lastName}}-{{lastName}}',
+        '{{lastName}}, {{lastName}} and {{lastName}}',
+    ];
 
+    /**
+     * The list of catch phrase words.
+     *
+     * @var array
+     */
     protected static $catchPhraseWords = [
         [
             'Adaptive', 'Advanced', 'Ameliorated', 'Assimilated', 'Automated', 'Balanced', 'Business-focused',
@@ -71,6 +85,11 @@ class Company extends BaseCompany
         ],
     ];
 
+    /**
+     * The list of business service words.
+     *
+     * @var array
+     */
     protected static $bsWords = [
         [
             'implement', 'utilize', 'integrate', 'streamline', 'optimize', 'evolve', 'transform',
@@ -107,6 +126,11 @@ class Company extends BaseCompany
         ],
     ];
 
+    /**
+     * The list of job title formats.
+     *
+     * @var array
+     */
     protected static $jobTitleFormat = [
         'Able Seamen', 'Account Manager', 'Accountant', 'Actor', 'Actuary', 'Adjustment Clerk',
         'Admin', 'Administrative Law Judge', 'Administrative Services Manager',
@@ -493,8 +517,18 @@ class Company extends BaseCompany
         'Zoologists OR Wildlife Biologist',
     ];
 
+    /**
+     * The list of company suffixes.
+     *
+     * @var array
+     */
     protected static $companySuffix = ['Inc', 'and Sons', 'LLC', 'Group', 'PLC', 'Ltd'];
 
+    /**
+     * The list of EIN prefixes.
+     *
+     * @var array
+     */
     protected static $einPrefixes = [
         01, 02, 03, 04, 05, 06, 10, 11, 12, 13, 14, 15, 16, 20, 21, 22, 23, 24, 25,
         26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46,

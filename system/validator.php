@@ -1652,7 +1652,8 @@ class Validator
      */
     protected function validate_max_digits($attribute, $value, array $parameters)
     {
-        return is_numeric($value) && strlen((string) preg_replace('/\D/', '', (string) $value)) <= (int) $parameters[0];
+        return is_numeric($value)
+            && strlen((string) preg_replace('/\D/', '', (string) $value)) <= (int) $parameters[0];
     }
 
     /**
@@ -1666,7 +1667,8 @@ class Validator
      */
     protected function validate_min_digits($attribute, $value, array $parameters)
     {
-        return is_numeric($value) && strlen((string) preg_replace('/\D/', '', (string) $value)) >= (int) $parameters[0];
+        return is_numeric($value)
+            && strlen((string) preg_replace('/\D/', '', (string) $value)) >= (int) $parameters[0];
     }
 
     /**
@@ -1826,7 +1828,8 @@ class Validator
      */
     protected function validate_hex_color($attribute, $value)
     {
-        return is_string($value) && 1 === preg_match('/^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $value);
+        return is_string($value)
+            && 1 === preg_match('/^#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i', $value);
     }
 
     /**
@@ -2714,7 +2717,10 @@ class Validator
     protected function parse($rule)
     {
         $rule = (string) $rule;
-        $parameters = (false !== ($colon = strpos($rule, ':'))) ? str_getcsv(substr($rule, $colon + 1), ',', '"', '\\') : [];
+        $parameters = (false !== ($colon = strpos($rule, ':')))
+            ? str_getcsv(substr($rule, $colon + 1), ',', '"', '\\')
+            : [];
+
         return [is_numeric($colon) ? substr($rule, 0, $colon) : $rule, $parameters];
     }
 

@@ -6,18 +6,39 @@ defined('DS') or exit('No direct access.');
 
 class Bar
 {
-    /** @var array */
+    /**
+     * Panels.
+     *
+     * @var array
+     */
     private $panels = [];
 
-    /** @var bool */
+    /**
+     * Use session.
+     *
+     * @var bool
+     */
     private $useSession = false;
 
-    /** @var string|null */
+    /**
+     * Content ID.
+     *
+     * @var string|null
+     */
     private $contentId;
 
-    /** @var string|null */
+    /**
+     * Storage.
+     *
+     * @var string|null
+     */
     private $storage;
 
+    /**
+     * Served.
+     *
+     * @var bool
+     */
     private $served = false;
 
     /**

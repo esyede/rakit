@@ -8,6 +8,11 @@ use System\Config;
 
 class Factory
 {
+    /**
+     * The list of available providers.
+     *
+     * @var array
+     */
     protected static $providers = [
         'Address', 'Barcode', 'Biased', 'Color', 'Company',
         'Dates', 'File', 'Image', 'Internet', 'Lorem',

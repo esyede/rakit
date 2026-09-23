@@ -12,7 +12,6 @@ defined('DS') or exit('No direct access.');
 */
 
 $dir = __DIR__.DS.'foundation'.DS.'oops'.DS.'assets'.DS.'debugger';
-
 $stub = __DIR__.DS.'console'.DS.'commands'.DS.'stubs'.DS.'system';
 
 if (is_file($path = path('rakit_key'))) {
@@ -69,15 +68,8 @@ if (is_file($path = path('rakit_key'))) {
                 setcookie($name, '', $ttl, '/; samesite=Lax');
                 setcookie($name, '', $ttl);
             } else {
-                setcookie($name, '', [
-                    'expires' => $ttl,
-                    'path' => '/',
-                    'samesite' => 'Lax',
-                ]);
-                setcookie($name, '', [
-                    'expires' => $ttl,
-                    'samesite' => 'Lax',
-                ]);
+                setcookie($name, '', ['expires' => $ttl, 'path' => '/', 'samesite' => 'Lax']);
+                setcookie($name, '', ['expires' => $ttl, 'samesite' => 'Lax']);
             }
         }
     }

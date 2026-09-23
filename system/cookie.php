@@ -84,8 +84,15 @@ class Cookie
      * @param bool   $secure
      * @param string $samesite
      */
-    public static function put($name, $value, $expiration = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax')
-    {
+    public static function put(
+        $name,
+        $value,
+        $expiration = 0,
+        $path = '/',
+        $domain = null,
+        $secure = false,
+        $samesite = 'lax'
+    ) {
         static::guard_name($name);
 
         if (! is_string($value)) {
@@ -171,7 +178,10 @@ class Cookie
     protected static function guard_name($name)
     {
         if (! is_string($name) || '' === $name || ! preg_match('/^[a-zA-Z0-9_.-]+$/', $name)) {
-            throw new \Exception('Cookie name must be a non-empty string containing only alphanumeric characters, underscores, dots, and hyphens.');
+            throw new \Exception(
+                'Cookie name must be a non-empty string containing '
+                . 'only alphanumeric characters, underscores, dots, and hyphens.'
+            );
         }
     }
 

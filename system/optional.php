@@ -48,7 +48,10 @@ class Optional implements \ArrayAccess
     {
         return is_object($this->value)
             ? isset($this->value->{$name})
-            : ((is_array($this->value) || ($this->value instanceof \ArrayObject)) ? isset($this->value[$name]) : false);
+            : ((is_array($this->value) || ($this->value instanceof \ArrayObject))
+                ? isset($this->value[$name])
+                : false
+            );
     }
 
     /**

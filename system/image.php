@@ -436,17 +436,10 @@ class Image
 
         switch ($extension) {
             case 'jpg':
-            case 'jpeg':
-                $watermark = imagecreatefromjpeg($watermark);
-                break;
-            case 'png':
-                $watermark = imagecreatefrompng($watermark);
-                break;
-            case 'gif':
-                $watermark = imagecreatefromgif($watermark);
-                break;
-            default:
-                throw new \Exception('Only png, jpg and gif images are supported');
+            case 'jpeg': $watermark = imagecreatefromjpeg($watermark); break;
+            case 'png':  $watermark = imagecreatefrompng($watermark); break;
+            case 'gif':  $watermark = imagecreatefromgif($watermark); break;
+            default:     throw new \Exception('Only png, jpg and gif images are supported');
         }
 
         imagealphablending($this->image, true);

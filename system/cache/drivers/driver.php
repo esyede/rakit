@@ -29,9 +29,17 @@ abstract class Driver
         $item = $this->retrieve($key);
         $time = (microtime(true) - $start) * 1000;
 
-        if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
+        if (
+            class_exists('\System\Foundation\Oops\Debugger')
+            && class_exists('\System\Foundation\Oops\Collectors')
+        ) {
             if (! \System\Foundation\Oops\Debugger::$productionMode) {
-                \System\Foundation\Oops\Collectors::trackCacheOperation(is_null($item) ? 'miss' : 'hit', $key, null, $time);
+                \System\Foundation\Oops\Collectors::trackCacheOperation(
+                    is_null($item) ? 'miss' : 'hit',
+                    $key,
+                    null,
+                    $time
+                );
             }
         }
 

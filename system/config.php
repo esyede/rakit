@@ -208,8 +208,12 @@ class Config
     public static function file($package, $file)
     {
         if (
-            strpos($package, '..') !== false || strpos($package, '/') !== false || strpos($package, '\\') !== false
-            || strpos($file, '..') !== false || strpos($file, '/') !== false || strpos($file, '\\') !== false
+            strpos($package, '..') !== false
+            || strpos($package, '/') !== false
+            || strpos($package, '\\') !== false
+            || strpos($file, '..') !== false
+            || strpos($file, '/') !== false
+            || strpos($file, '\\') !== false
         ) {
             return [];
         }

@@ -48,8 +48,13 @@ class Memcached extends Driver
      *
      * @return bool
      */
-    public function add($name, array $payloads = [], $scheduled_at = null, $queue = 'default', $without_overlapping = false)
-    {
+    public function add(
+        $name,
+        array $payloads = [],
+        $scheduled_at = null,
+        $queue = 'default',
+        $without_overlapping = false
+    ) {
         $name = Str::slug($name);
         $scheduled_at = $scheduled_at ?: Carbon::now();
         $timestamp = Carbon::parse($scheduled_at)->timestamp;
@@ -250,14 +255,30 @@ class Memcached extends Driver
 
                 try {
                     Hook::fire('rakit.jobs.process', [$data]);
-                    $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
+                    $successful[] = [
+                        'key' => $key,
+                        'id' => $id,
+                        'queue' => $data['queue'],
+                        'name' => $data['name'],
+                    ];
                     $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
                     $success = true;
                 } catch (\Throwable $e) {
                     if ($attempts >= $retries) {
                         $this->move_to_failed($data, $e);
-                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
-                        $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
+                        $successful[] = [
+                            'key' => $key,
+                            'id' => $id,
+                            'queue' => $data['queue'],
+                            'name' => $data['name'],
+                        ];
+                        $this->log(sprintf(
+                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
+                            $data['name'],
+                            $id,
+                            $e->getMessage(),
+                            $attempts
+                        ), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 
@@ -268,8 +289,19 @@ class Memcached extends Driver
                 } catch (\Exception $e) {
                     if ($attempts >= $retries) {
                         $this->move_to_failed($data, $e);
-                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
-                        $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
+                        $successful[] = [
+                            'key' => $key,
+                            'id' => $id,
+                            'queue' => $data['queue'],
+                            'name' => $data['name'],
+                        ];
+                        $this->log(sprintf(
+                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
+                            $data['name'],
+                            $id,
+                            $e->getMessage(),
+                            $attempts
+                        ), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 
@@ -347,14 +379,30 @@ class Memcached extends Driver
 
                 try {
                     Hook::fire('rakit.jobs.process', [$data]);
-                    $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
+                    $successful[] = [
+                        'key' => $key,
+                        'id' => $id,
+                        'queue' => $data['queue'],
+                        'name' => $data['name'],
+                    ];
                     $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
                     $success = true;
                 } catch (\Throwable $e) {
                     if ($attempts >= $retries) {
                         $this->move_to_failed($data, $e);
-                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
-                        $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
+                        $successful[] = [
+                            'key' => $key,
+                            'id' => $id,
+                            'queue' => $data['queue'],
+                            'name' => $data['name'],
+                        ];
+                        $this->log(sprintf(
+                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
+                            $data['name'],
+                            $id,
+                            $e->getMessage(),
+                            $attempts
+                        ), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 
@@ -365,8 +413,19 @@ class Memcached extends Driver
                 } catch (\Exception $e) {
                     if ($attempts >= $retries) {
                         $this->move_to_failed($data, $e);
-                        $successful[] = ['key' => $key, 'id' => $id, 'queue' => $data['queue'], 'name' => $data['name']];
-                        $this->log(sprintf('Job failed permanently: %s - %s ::: %s (after %d attempts)', $data['name'], $id, $e->getMessage(), $attempts), 'error');
+                        $successful[] = [
+                            'key' => $key,
+                            'id' => $id,
+                            'queue' => $data['queue'],
+                            'name' => $data['name'],
+                        ];
+                        $this->log(sprintf(
+                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
+                            $data['name'],
+                            $id,
+                            $e->getMessage(),
+                            $attempts
+                        ), 'error');
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 

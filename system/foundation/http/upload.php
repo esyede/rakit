@@ -6,16 +6,46 @@ defined('DS') or exit('No direct access.');
 
 class Upload extends \SplFileInfo
 {
+    /**
+     * Upload size.
+     *
+     * @var int
+     */
     private $size;
 
+    /**
+     * Upload error.
+     *
+     * @var int
+     */
     private $error;
 
+    /**
+     * Upload MIME type.
+     *
+     * @var string
+     */
     private $mimeType;
 
+    /**
+     * Original file name.
+     *
+     * @var string
+     */
     private $originalName;
 
+    /**
+     * Test mode.
+     *
+     * @var bool
+     */
     private $test = false;
 
+    /**
+     * Allowed file extensions.
+     *
+     * @var array
+     */
     public static $extensions = [
         'application/font-woff' => ['wof'],
         'application/php' => ['php'],

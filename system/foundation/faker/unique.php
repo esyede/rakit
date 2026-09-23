@@ -6,13 +6,25 @@ defined('DS') or exit('No direct access.');
 
 class Unique
 {
-    /** @var \System\Foundation\Faker\Generator */
+    /**
+     * The Faker generator instance.
+     *
+     * @var \System\Foundation\Faker\Generator
+     */
     protected $generator;
 
-    /** @var int */
+    /**
+     * The maximum number of retries.
+     *
+     * @var int
+     */
     protected $max_retries;
 
-    /** @var array */
+    /**
+     * The list of unique values.
+     *
+     * @var array
+     */
     protected $uniques = [];
 
     /**

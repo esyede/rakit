@@ -59,7 +59,6 @@ class SQLServer extends Grammar
             $select .= 'TOP '.(int) $query->limit.' ';
         }
 
-        // An empty column list still has to select something.
         return $select.$this->columnize(empty($query->selects) ? ['*'] : $query->selects);
     }
 

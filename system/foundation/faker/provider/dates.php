@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class Dates extends Base
 {
+    /**
+     * The list of centuries.
+     *
+     * @var array
+     */
     protected static $century = [
         'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
         'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX', 'XXI',

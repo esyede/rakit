@@ -42,23 +42,25 @@ class Postgres extends Connector
 
         if (isset($config['schema'])) {
             $schema = (string) $config['schema'];
-            // A comma-separated list, each name a plain or double-quoted identifier.
             $schemas = array_map('trim', explode(',', $schema));
+
             foreach ($schemas as $s) {
-                // Strip optional quoted identifier: "my-schema" or 'schema'
                 $unquoted = trim($s, '"\'');
-                if ('' === $unquoted || !preg_match('/^[A-Za-z_][A-Za-z0-9_\$]*$/', $unquoted) && !preg_match('/^"[A-Za-z_][A-Za-z0-9_\$]*"$/', $s)) {
-                    // Allow quoted with double quotes and simple names; otherwise reject
+                if (
+                    '' === $unquoted
+                    || !preg_match('/^[A-Za-z_][A-Za-z0-9_\$]*$/', $unquoted)
+                    && !preg_match('/^"[A-Za-z_][A-Za-z0-9_\$]*"$/', $s)
+                ) {
                     if (!preg_match('/^[A-Za-z0-9_,\s"\']+$/', $s)) {
                         throw new \InvalidArgumentException(sprintf('Invalid schema: %s', $s));
                     }
-                    // Additional check: no semicolon, no comment, no parens
+
                     if (preg_match('/[;\(\)\-]{2,}|--|\/\*/', $s)) {
                         throw new \InvalidArgumentException(sprintf('Invalid schema: %s', $s));
                     }
                 }
             }
-            // search_path takes identifiers, not parameters, hence the validation above.
+
             $pdo->exec('SET search_path TO ' . $schema);
         }
 

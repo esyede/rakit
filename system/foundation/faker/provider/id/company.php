@@ -8,6 +8,11 @@ use System\Foundation\Faker\Provider\Company as BaseCompany;
 
 class Company extends BaseCompany
 {
+    /**
+     * The list of company formats.
+     *
+     * @var array
+     */
     protected static $formats = [
         '{{companyPrefix}} {{lastName}}',
         '{{companyPrefix}} {{lastName}} {{lastName}}',
@@ -15,8 +20,18 @@ class Company extends BaseCompany
         '{{companyPrefix}} {{lastName}} {{lastName}} {{companySuffix}}',
     ];
 
+    /**
+     * The list of company prefixes.
+     *
+     * @var array
+     */
     protected static $companyPrefix = ['PT', 'CV', 'UD', 'PD', 'Perum'];
 
+    /**
+     * The list of company suffixes.
+     *
+     * @var array
+     */
     protected static $companySuffix = ['(Persero) Tbk', 'Tbk'];
 
     /**

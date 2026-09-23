@@ -413,7 +413,10 @@ class Connection
     public function pdo()
     {
         if (! $this->pdo instanceof PDO) {
-            throw new \Exception('This database connection has been closed. Reopen it with DB::reconnect(), or ask DB::connection() for it again.');
+            throw new \Exception(
+                'This database connection has been closed. '
+                . 'Reopen it with DB::reconnect(), or ask DB::connection() for it again.'
+            );
         }
 
         return $this->pdo;

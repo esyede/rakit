@@ -6,22 +6,59 @@ defined('DS') or exit('No direct access.');
 
 class Table
 {
+    /** @var int */
     const HEADER_INDEX = -1;
 
+    /** @var string */
     const HORIZONTAL_ROW = 'HR';
 
+    /**
+     * Table data.
+     *
+     * @var array
+     */
     protected $data = [];
 
+    /**
+     * Whether to display table borders.
+     *
+     * @var bool
+     */
     protected $border = true;
 
+    /**
+     * Whether to display all borders.
+     *
+     * @var bool
+     */
     protected $all_borders = false;
 
+    /**
+     * Padding size.
+     *
+     * @var int
+     */
     protected $padding = 1;
 
+    /**
+     * Indent size.
+     *
+     * @var int
+     */
     protected $indent = 0;
 
+    /**
+     * Current row index.
+     *
+     * @var int
+     */
     private $row_index = -1;
 
+    /**
+     * Column widths.
+     *
+     * @var array
+     */
     private $column_widths = [];
 
     /**
@@ -315,7 +352,9 @@ class Table
         } elseif (STR_PAD_BOTH === $direction) {
             $length = ($amount - $len) / 2;
             $repeat = str_repeat((string) $content, (int) ceil($length / $padlen));
-            $result = mb_substr($repeat, 0, (int) floor($length), 'UTF-8').$str.mb_substr($repeat, 0, (int) ceil($length), 'UTF-8');
+            $result = mb_substr($repeat, 0, (int) floor($length), 'UTF-8')
+                . $str
+                . mb_substr($repeat, 0, (int) ceil($length), 'UTF-8');
         }
 
         return $result;

@@ -6,13 +6,25 @@ defined('DS') or exit('No direct access.');
 
 class Valid
 {
-    /** @var \System\Foundation\Faker\Generator */
+    /**
+     * The Faker generator instance.
+     *
+     * @var \System\Foundation\Faker\Generator
+     */
     protected $generator;
 
-    /** @var callable */
+    /**
+     * The validator callable.
+     *
+     * @var callable
+     */
     protected $validator;
 
-    /** @var int */
+    /**
+     * The maximum number of retries.
+     *
+     * @var int
+     */
     protected $max_retries;
 
     /**

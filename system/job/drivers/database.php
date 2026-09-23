@@ -23,8 +23,13 @@ class Database extends Driver
      *
      * @return bool
      */
-    public function add($name, array $payloads = [], $scheduled_at = null, $queue = 'default', $without_overlapping = false)
-    {
+    public function add(
+        $name,
+        array $payloads = [],
+        $scheduled_at = null,
+        $queue = 'default',
+        $without_overlapping = false
+    ) {
         $config = Config::get('job');
         $name = Str::slug($name);
         $id = DB::table($config['table'])->insert_get_id([
@@ -182,7 +187,13 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $job->name, $job->id, $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $job->name,
+                                $job->id,
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -204,7 +215,13 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $job->name, $job->id, $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $job->name,
+                                $job->id,
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -278,7 +295,13 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $job->name, $job->id, $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $job->name,
+                                $job->id,
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -300,7 +323,13 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $job->name, $job->id, $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $job->name,
+                                $job->id,
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 

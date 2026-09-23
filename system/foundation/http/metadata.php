@@ -6,18 +6,41 @@ defined('DS') or exit('No direct access.');
 
 class Metadata
 {
+    /** @var string */
     const CREATED = 'c';
 
+    /** @var string */
     const UPDATED = 'u';
 
+    /** @var string */
     const LIFETIME = 'l';
 
+    /**
+     * Metadata values.
+     *
+     * @var array
+     */
     protected $meta = [];
 
+    /**
+     * Name of the metadata variable.
+     *
+     * @var string
+     */
     private $name = '__metadata';
 
+    /**
+     * Storage key for the metadata.
+     *
+     * @var string
+     */
     private $storageKey;
 
+    /**
+     * Last used timestamp.
+     *
+     * @var int
+     */
     private $lastUsed;
 
     /**

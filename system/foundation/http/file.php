@@ -6,6 +6,11 @@ defined('DS') or exit('No direct access.');
 
 class File extends Parameter
 {
+    /**
+     * The list of file keys.
+     *
+     * @var array
+     */
     private static $fileKeys = ['error', 'name', 'size', 'tmp_name', 'type'];
 
     /**

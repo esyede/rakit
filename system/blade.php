@@ -121,10 +121,8 @@ class Blade
 
             $compiled = static::compiled($view->path);
 
-            // Only compiling is guarded; a template that throws must not run twice.
             try {
                 if (! is_file($compiled) || static::expired($view->path)) {
-                    // Compiled views are executable PHP: guard the file, not the server config.
                     file_put_contents($compiled, static::GUARD.static::compile($view), LOCK_EX);
                 }
             } catch (\Throwable $e) {
@@ -237,47 +235,30 @@ class Blade
         $attributes = '((?:\\s+[:@]?' . $name . '(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'|[^\\s>"\\\']+))?)*)';
 
         // A slot belongs to the component around it, not to itself.
-        $value = preg_replace_callback(
-            '/<x-slot\s+name\s*=\s*(?:"([^"]*)"|\'([^\']*)\')\s*>/',
-            function ($matches) {
-                $slot = ('' === $matches[1]) ? $matches[2] : $matches[1];
-                return '<?php \System\Blade\Component::slot(' . var_export($slot, true) . '); ?>';
-            },
-            $value
-        );
+        $value = preg_replace_callback('/<x-slot\s+name\s*=\s*(?:"([^"]*)"|\'([^\']*)\')\s*>/', function ($matches) {
+            $slot = ('' === $matches[1]) ? $matches[2] : $matches[1];
+            return '<?php \System\Blade\Component::slot(' . var_export($slot, true) . '); ?>';
+        }, $value);
 
-        $value = preg_replace_callback(
-            '/<x-slot:(' . $name . ')\s*>/',
-            function ($matches) {
-                return '<?php \System\Blade\Component::slot(' . var_export($matches[1], true) . '); ?>';
-            },
-            $value
-        );
+        $value = preg_replace_callback('/<x-slot:(' . $name . ')\s*>/', function ($matches) {
+            return '<?php \System\Blade\Component::slot(' . var_export($matches[1], true) . '); ?>';
+        }, $value);
 
         $value = preg_replace('/<\/x-slot\s*>/', '<?php \System\Blade\Component::end_slot(); ?>', $value);
-
-        $value = preg_replace_callback(
-            '/<x-(' . $name . ')' . $attributes . '\s*\/>/',
-            function ($matches) {
-                return '<?php \System\Blade\Component::open('
-                    . var_export($matches[1], true) . ', '
-                    . static::component_attributes($matches[2])
-                    . '); echo \System\Blade\Component::close(); ?>';
-            },
-            $value
-        );
+        $value = preg_replace_callback('/<x-(' . $name . ')' . $attributes . '\s*\/>/', function ($matches) {
+            return '<?php \System\Blade\Component::open('
+                . var_export($matches[1], true) . ', ' . static::component_attributes($matches[2])
+                . '); echo \System\Blade\Component::close(); ?>';
+        }, $value);
 
         // Innermost first, so nested components compile inside out.
-        $pattern = '/<x-(?!slot\b)(' . $name . ')' . $attributes
-            . '\s*>((?:(?!<x-(?!slot\b))[\s\S])*?)<\/x-\1\s*>/';
+        $pattern = '/<x-(?!slot\b)(' . $name . ')' . $attributes . '\s*>((?:(?!<x-(?!slot\b))[\s\S])*?)<\/x-\1\s*>/';
         $guard = 0;
 
         while (preg_match($pattern, $value) && $guard++ < 64) {
             $value = preg_replace_callback($pattern, function ($matches) {
-                return '<?php \System\Blade\Component::open('
-                    . var_export($matches[1], true) . ', '
-                    . static::component_attributes($matches[2])
-                    . '); ?>' . $matches[3]
+                return '<?php \System\Blade\Component::open(' . var_export($matches[1], true) . ', '
+                    . static::component_attributes($matches[2]) . '); ?>' . $matches[3]
                     . '<?php echo \System\Blade\Component::close(); ?>';
             }, $value);
         }
@@ -535,12 +516,7 @@ class Blade
      */
     protected static function compile_empty($value)
     {
-        $value = preg_replace(
-            '/(\s*)@empty(\s*(\((?:[^()]++|(?3))*\)))/',
-            '$1<?php if (empty$2): ?>',
-            $value
-        );
-
+        $value = preg_replace('/(\s*)@empty(\s*(\((?:[^()]++|(?3))*\)))/', '$1<?php if (empty$2): ?>', $value);
         return str_replace('@empty', '<?php endforeach; ?><?php else: ?>', $value);
     }
 
@@ -577,11 +553,7 @@ class Blade
      */
     protected static function compile_structure_start($value)
     {
-        return preg_replace(
-            '/(\s*)@(if|elseif|for|while)(\s*(\((?:[^()]++|(?4))*\)))/',
-            '$1<?php $2$3: ?>',
-            $value
-        );
+        return preg_replace('/(\s*)@(if|elseif|for|while)(\s*(\((?:[^()]++|(?4))*\)))/', '$1<?php $2$3: ?>', $value);
     }
 
     /**
@@ -594,7 +566,8 @@ class Blade
     protected static function compile_structure_end($value)
     {
         return preg_replace_callback('/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/', function ($matches) {
-            return $matches[1].'<?php '.$matches[2].'; ?>'.(('endforeach' === $matches[2]) ? '<?php array_pop($__loop_stack); ?>' : '').$matches[3];
+            return $matches[1].'<?php '.$matches[2].'; ?>'
+                . (('endforeach' === $matches[2]) ? '<?php array_pop($__loop_stack); ?>' : '').$matches[3];
         }, $value);
     }
 
@@ -637,10 +610,7 @@ class Blade
      */
     protected static function compile_unless($value)
     {
-        return preg_replace(
-            '/(\s*)@unless(\s*(\((?:[^()]++|(?3))*\)))/',
-            '$1<?php if (! ($2)): ?>',
-            $value
+        return preg_replace('/(\s*)@unless(\s*(\((?:[^()]++|(?3))*\)))/', '$1<?php if (! ($2)): ?>', $value
         );
     }
 
@@ -848,10 +818,7 @@ class Blade
     {
         return preg_replace_callback('/@once(.*?)@endonce/s', function ($matches) {
             $key = md5($matches[1]);
-
-            return '<?php if (\System\Blade::once('.var_export($key, true).')): ?>'
-                .$matches[1]
-                .'<?php endif; ?>';
+            return '<?php if (\System\Blade::once('.var_export($key, true).')): ?>'.$matches[1].'<?php endif; ?>';
         }, $value);
     }
 
@@ -908,9 +875,11 @@ class Blade
     {
         return preg_replace_callback(static::matcher('method'), function ($matches) {
             $inner = trim($matches[2], " \t\n\r\0\x0B()");
+
             if ('' === $inner) {
                 return $matches[1].'<input type="hidden" name="_method" value="" />';
             }
+
             // If quoted literal, escape at compile time; otherwise escape at runtime via e()
             if (preg_match('/^([\'"])(.*)\1$/s', $inner, $m)) {
                 $literal = $m[2];
@@ -1008,8 +977,6 @@ class Blade
      */
     public static function matcher($function)
     {
-        // Balanced parens, so an already-compiled directive on the same line survives.
-        // Group 1 is the leading whitespace, group 2 the parenthesised part.
         return '/(\s*)@'.$function.'(\s*(\((?:[^()]++|(?3))*\)))/';
     }
 
@@ -1027,13 +994,10 @@ class Blade
         }
 
         $name = Str::replace_last('.blade.php', '', basename($path));
-        // Keyed hash so the compiled path is unpredictable.
-        $key = defined('RAKIT_KEY') ? RAKIT_KEY : 'fallback-key';
-        $hash = hash_hmac('sha256', $path, $key);
-        // 64 bits: collision-safe enough, and keeps the filename short.
-        $short = substr($hash, 0, 16);
+        $key = defined('RAKIT_KEY') ? RAKIT_KEY : '00000000-0000-0000-0000-000000000000';
+        $hash = substr(hash_hmac('sha256', $path, $key), 0, 16);
 
-        static::$compiles[$path] = path('storage').'views'.DS.sprintf('%s__%s', $name, $short).'.bc.php';
+        static::$compiles[$path] = path('storage').'views'.DS.sprintf('%s__%s', $name, $hash).'.bc.php';
 
         return static::$compiles[$path];
     }

@@ -99,7 +99,9 @@ class Formatter
      */
     public static function value($value, array &$objects = [], array &$arrays = [])
     {
-        $exception = (PHP_VERSION_ID < 70000) ? ($value instanceof \Exception) : ($value instanceof \Throwable || $value instanceof \Exception);
+        $exception = (PHP_VERSION_ID < 70000)
+            ? ($value instanceof \Exception)
+            : ($value instanceof \Throwable || $value instanceof \Exception);
 
         if ($exception) {
             return static::exception($value);
@@ -257,6 +259,8 @@ class Formatter
      */
     protected static function utf8($value)
     {
-        return ('' === $value || preg_match('//u', $value)) ? $value : mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+        return ('' === $value || preg_match('//u', $value))
+            ? $value
+            : mb_convert_encoding($value, 'UTF-8', 'UTF-8');
     }
 }

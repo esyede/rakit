@@ -44,8 +44,13 @@ class File extends Driver
      *
      * @return bool
      */
-    public function add($name, array $payloads = [], $scheduled_at = null, $queue = 'default', $without_overlapping = false)
-    {
+    public function add(
+        $name,
+        array $payloads = [],
+        $scheduled_at = null,
+        $queue = 'default',
+        $without_overlapping = false
+    ) {
         $name = Str::slug($name);
         $id = Str::ulid();
         $now = Carbon::now()->format('Y-m-d H:i:s');
@@ -174,14 +179,30 @@ class File extends Driver
                     try {
                         Hook::fire('rakit.jobs.process', [$data]);
                         $successful[] = $file;
-                        $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+                        $this->log(sprintf(
+                            'Job executed: %s - #%s (attempt %d)',
+                            $data['name'],
+                            $data['id'],
+                            $attempts
+                        ));
                         $success = true;
                     } catch (\Throwable $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $data['name'], $data['id'], $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $data['name'],
+                                $data['id'],
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+                            $this->log(sprintf(
+                                'Job retry: %s - #%s (attempt %d)',
+                                $data['name'],
+                                $data['id'],
+                                $attempts
+                            ));
 
                             if ($sleep_ms > 0) {
                                 usleep($sleep_ms * 1000);
@@ -190,9 +211,20 @@ class File extends Driver
                     } catch (\Exception $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $data['name'], $data['id'], $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $data['name'],
+                                $data['id'],
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+                            $this->log(sprintf(
+                                'Job retry: %s - #%s (attempt %d)',
+                                $data['name'],
+                                $data['id'],
+                                $attempts
+                            ));
 
                             if ($sleep_ms > 0) {
                                 usleep($sleep_ms * 1000);
@@ -273,14 +305,30 @@ class File extends Driver
                     try {
                         Hook::fire('rakit.jobs.process', [$data]);
                         $successful[] = $file;
-                        $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+                        $this->log(sprintf(
+                            'Job executed: %s - #%s (attempt %d)',
+                            $data['name'],
+                            $data['id'],
+                            $attempts
+                        ));
                         $success = true;
                     } catch (\Throwable $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $data['name'], $data['id'], $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $data['name'],
+                                $data['id'],
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+                            $this->log(sprintf(
+                                'Job retry: %s - #%s (attempt %d)',
+                                $data['name'],
+                                $data['id'],
+                                $attempts
+                            ));
 
                             if ($sleep_ms > 0) {
                                 usleep($sleep_ms * 1000);
@@ -289,9 +337,20 @@ class File extends Driver
                     } catch (\Exception $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf('Job failed: %s - #%s ::: %s (after %d attempts)', $data['name'], $data['id'], $e->getMessage(), $attempts), 'error');
+                            $this->log(sprintf(
+                                'Job failed: %s - #%s ::: %s (after %d attempts)',
+                                $data['name'],
+                                $data['id'],
+                                $e->getMessage(),
+                                $attempts
+                            ), 'error');
                         } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $data['name'], $data['id'], $attempts));
+                            $this->log(sprintf(
+                                'Job retry: %s - #%s (attempt %d)',
+                                $data['name'],
+                                $data['id'],
+                                $attempts
+                            ));
 
                             if ($sleep_ms > 0) {
                                 usleep($sleep_ms * 1000);

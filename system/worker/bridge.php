@@ -266,7 +266,11 @@ abstract class Bridge
      */
     protected function body($foundation, $output)
     {
-        if ($foundation->isInformational() || $foundation->isEmpty() || 'HEAD' === Request::foundation()->getMethod()) {
+        if (
+            $foundation->isInformational()
+            || $foundation->isEmpty()
+            || 'HEAD' === Request::foundation()->getMethod()
+        ) {
             return '';
         }
 

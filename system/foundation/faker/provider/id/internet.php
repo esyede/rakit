@@ -8,8 +8,18 @@ use System\Foundation\Faker\Provider\Internet as BaseInternet;
 
 class Internet extends BaseInternet
 {
+    /**
+     * The list of free email domains.
+     *
+     * @var array
+     */
     protected static $freeEmailDomain = ['gmail.com', 'yahoo.com', 'hotmail.com', 'mail.ru'];
 
+    /**
+     * The list of top-level domains.
+     *
+     * @var array
+     */
     protected static $tld = [
         'com', 'net', 'org', 'asia', 'tv', 'biz', 'info', 'in', 'name', 'co',
         'ac.id', 'sch.id', 'go.id', 'mil.id', 'co.id', 'or.id', 'web.id',

@@ -8,32 +8,102 @@ use System\Carbon;
 
 class Client
 {
+    /**
+     * Contains the unique client ID.
+     *
+     * @var string
+     */
     public $id;
 
+    /**
+     * Contains the application user bound to this client, if any.
+     *
+     * @var mixed
+     */
     public $user;
 
+    /**
+     * Contains the client socket resource.
+     *
+     * @var resource
+     */
     public $socket;
 
+    /**
+     * Contains the request URI.
+     *
+     * @var string
+     */
     public $uri = '';
 
+    /**
+     * Contains the buffered bytes of an incomplete frame.
+     *
+     * @var string
+     */
     public $buffer = '';
 
+    /**
+     * Contains the accumulated payload of a fragmented message.
+     *
+     * @var string
+     */
     public $message = '';
 
+    /**
+     * Whether a partial frame is buffered and awaiting the rest.
+     *
+     * @var bool
+     */
     public $busy = false;
 
+    /**
+     * Whether the WebSocket handshake has completed.
+     *
+     * @var bool
+     */
     public $handshake = false;
 
+    /**
+     * Whether a fragmented message is currently being sent.
+     *
+     * @var bool
+     */
     public $continuous = false;
 
+    /**
+     * Whether a close frame has been received.
+     *
+     * @var bool
+     */
     public $disconnecting = false;
 
+    /**
+     * Contains the names of the channels this client is subscribed to.
+     *
+     * @var array
+     */
     public $channels = [];
 
+    /**
+     * Contains the handshake request headers.
+     *
+     * @var array
+     */
     public $headers = [];
 
+    /**
+     * Contains the server instance this client belongs to.
+     *
+     * @var \System\Websocket\Server
+     */
     protected $server;
 
+    /**
+     * Contains the Unix timestamp of the last read or write.
+     *
+     * @var int
+     */
     protected $last_activity;
 
     /**
