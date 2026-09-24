@@ -1158,7 +1158,6 @@ class Str
             );
         }
 
-        // A macro with one of these names would mean two things: reject it.
         if (method_exists('\System\Stringable', $name)) {
             throw new \Exception(
                 sprintf('Overriding framework method with macro is unsupported: Stringable::%s()', $name)

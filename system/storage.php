@@ -24,105 +24,109 @@ class Storage
      * Validate path is inside allowed roots and free of traversal/wrappers.
      *
      * @param string $path
-     * @param bool   $mustExist
-     * @return string Normalized path
+     *
+     * @return string
      */
-    protected static function validate_path($path, $mustExist = false)
+    protected static function validate_path($path)
     {
         if (!static::$enforce_containment) {
             return $path;
         }
 
         if (!is_string($path) || '' === trim($path)) {
-            throw new \Exception(sprintf('Invalid path: %s', $path));
+            throw new \Exception(sprintf('Invalid path: %s', is_string($path) ? $path : gettype($path)));
         }
 
         if (false !== strpos($path, "\0")) {
             throw new \Exception('Invalid path with null bytes.');
         }
 
-        // Block stream wrappers
-        if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $path)) {
+        if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]+://#', $path)) {
             throw new \Exception(sprintf('Stream wrapper not allowed: %s', $path));
         }
 
-        // Normalize separators
-        $normalized = str_replace(['\\', '/'], DS, $path);
+        $segments = preg_split('#[\\\\/]#', $path);
 
-        // Resolve to absolute before checking.
-        $isAbsolute = false;
-        if ('' !== $normalized) {
-            if ($normalized[0] === DS) {
-                $isAbsolute = true;
-            } elseif (preg_match('#^[A-Za-z]:\\\\#', $normalized) || preg_match('#^[A-Za-z]:/#', $path)) {
-                $isAbsolute = true;
-            } elseif (0 === strpos($path, path('base')) || 0 === strpos($normalized, path('base'))) {
-                $isAbsolute = true;
+        foreach ($segments as $segment) {
+            if ('..' === $segment) {
+                throw new \Exception(sprintf('Path traversal not allowed: %s', $path));
             }
         }
 
-        $checkPath = $normalized;
-        if (!$isAbsolute) {
-            // Relative path -> resolve against base
-            $checkPath = rtrim(path('base'), DS) . DS . ltrim($normalized, DS);
+        $normalized = str_replace(['\\', '/'], DS, $path);
+        $absolute = false;
+
+        if ('' !== $normalized) {
+            if ($normalized[0] === DS) {
+                $absolute = true;
+            } elseif (preg_match('#^[A-Za-z]:\\\\#', $normalized) || preg_match('#^[A-Za-z]:/#', $path)) {
+                $absolute = true;
+            } elseif (0 === strpos($path, path('base')) || 0 === strpos($normalized, path('base'))) {
+                $absolute = true;
+            }
         }
 
-        // For existence checks, use realpath if file exists, else parent dir
-        $real = null;
-        $parentReal = null;
+        $check = $normalized;
 
-        if (is_file($checkPath) || is_dir($checkPath) || is_link($checkPath)) {
-            $real = realpath($checkPath);
+        if (!$absolute) {
+            $check = rtrim(path('base'), DS) . DS . ltrim($normalized, DS);
+        }
+
+        $real = null;
+
+        if (is_file($check) || is_dir($check) || is_link($check)) {
+            $real = realpath($check);
         } else {
-            // File does not exist yet (put, mkdir etc.) - check parent
-            $parent = dirname($checkPath);
-            $realParent = realpath($parent);
-            if ($realParent !== false) {
-                $parentReal = $realParent;
-                // Reconstruct intended real path for containment check
-                $real = $realParent . DS . basename($checkPath);
+            $parent = dirname($check);
+            $real_parent = realpath($parent);
+
+            if ($real_parent !== false) {
+                $real = $real_parent . DS . basename($check);
             } else {
-                // Parent does not exist yet, walk up until found
                 $current = $parent;
-                $suffix = basename($checkPath);
+                $suffix = basename($check);
+
                 while ($current !== '' && $current !== DS && $current !== '.' && !is_dir($current)) {
                     $suffix = basename($current) . DS . $suffix;
                     $current = dirname($current);
+
                     if ($current === $parent) {
-                        break; // prevent infinite loop
+                        break;
                     }
                 }
-                $realParent = realpath($current);
-                if ($realParent !== false) {
-                    $real = rtrim($realParent, DS) . DS . ltrim($suffix, DS);
+
+                $real_parent = realpath($current);
+
+                if ($real_parent !== false) {
+                    $real = rtrim($real_parent, DS) . DS . ltrim($suffix, DS);
                 } else {
-                    // Fallback: use base as root for relative paths
-                    $real = $checkPath;
+                    $real = $check;
                 }
             }
         }
 
         if (null === $real) {
-            $real = $checkPath;
+            $real = $check;
         }
 
-        // Normalize real path
         $real = str_replace(['\\', '/'], DS, $real);
-
-        // Build allowed roots list
         $roots = [];
-        $baseReal = realpath(rtrim(path('base'), DS));
-        if ($baseReal) {
-            $roots[] = rtrim($baseReal, DS);
+        $base_real = realpath(rtrim(path('base'), DS));
+
+        if ($base_real) {
+            $roots[] = rtrim($base_real, DS);
         }
-        // Storage is primary containment, but base already covers it
+
         try {
-            $storageReal = realpath(rtrim(path('storage'), DS));
-            if ($storageReal && !in_array($storageReal, $roots, true)) {
-                $roots[] = $storageReal;
+            $storage_real = realpath(rtrim(path('storage'), DS));
+
+            if ($storage_real && !in_array($storage_real, $roots, true)) {
+                $roots[] = $storage_real;
             }
         } catch (\Throwable $e) {
+            // Storage path may not exist yet, ignore
         } catch (\Exception $e) {
+            // Storage path may not exist yet, ignore
         }
 
         foreach (static::$allowed_roots as $extra) {
@@ -132,10 +136,11 @@ class Storage
             }
         }
 
-        // Check containment: real must be inside one of the roots
         $inside = false;
+
         foreach ($roots as $root) {
             $root = rtrim($root, DS);
+
             if ($real === $root || 0 === strpos($real, $root . DS)) {
                 $inside = true;
                 break;
@@ -146,7 +151,7 @@ class Storage
             throw new \Exception(sprintf('Path outside allowed directory: %s', $path));
         }
 
-        return $path;
+        return $check;
     }
 
     /**
@@ -158,7 +163,7 @@ class Storage
      */
     public static function exists($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return file_exists($path);
     }
 
@@ -171,7 +176,7 @@ class Storage
      */
     public static function isfile($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return is_file($path);
     }
 
@@ -184,7 +189,7 @@ class Storage
      */
     public static function isdir($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return is_dir($path);
     }
 
@@ -198,7 +203,7 @@ class Storage
      */
     public static function get($path, $default = null)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return is_file($path) ? file_get_contents($path) : value($default);
     }
 
@@ -211,7 +216,7 @@ class Storage
      */
     public static function put($path, $data, $options = LOCK_EX)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         file_put_contents($path, $data, $options);
         static::protect($path);
     }
@@ -224,7 +229,7 @@ class Storage
      */
     public static function prepend($path, $data)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         static::put($path, $data.@file_get_contents($path));
     }
 
@@ -236,7 +241,7 @@ class Storage
      */
     public static function append($path, $data)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         static::put($path, $data, LOCK_EX | FILE_APPEND);
     }
 
@@ -247,7 +252,8 @@ class Storage
      */
     public static function delete($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
+
         if (! is_file($path) && ! is_link($path)) {
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
@@ -274,8 +280,9 @@ class Storage
      */
     public static function move($from, $to, $overwrite = false)
     {
-        static::validate_path($from);
-        static::validate_path($to);
+        $from = static::validate_path($from);
+        $to = static::validate_path($to);
+
         if (! is_file($from)) {
             throw new \Exception(sprintf('Source file does not exists: %s', $from));
         }
@@ -297,8 +304,9 @@ class Storage
      */
     public static function mvdir($from, $to, $overwrite = false)
     {
-        static::validate_path($from);
-        static::validate_path($to);
+        $from = static::validate_path($from);
+        $to = static::validate_path($to);
+
         if (! is_dir($from)) {
             throw new \Exception(sprintf('Source folder does not exists: %s', $from));
         }
@@ -324,8 +332,9 @@ class Storage
      */
     public static function copy($path, $target)
     {
-        static::validate_path($path);
-        static::validate_path($target);
+        $path = static::validate_path($path);
+        $target = static::validate_path($target);
+
         if (function_exists('copy')) {
             copy($path, $target);
         } else {
@@ -346,8 +355,9 @@ class Storage
      */
     public static function cpdir($directory, $destination, $options = \FilesystemIterator::SKIP_DOTS)
     {
-        static::validate_path($directory);
-        static::validate_path($destination);
+        $directory = static::validate_path($directory);
+        $destination = static::validate_path($destination);
+
         if (! is_dir($directory)) {
             throw new \Exception(sprintf('Source folder does not exists: %s', $directory));
         }
@@ -377,9 +387,20 @@ class Storage
      */
     public static function rmdir($path, $preserve = false)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
+
         if (! is_dir($path)) {
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        $real = realpath($path);
+
+        foreach (array_merge([path('base'), path('storage')], (array) static::$allowed_roots) as $guard) {
+            $guard = realpath($guard);
+
+            if ($guard && $real === rtrim($guard, DS)) {
+                throw new \Exception(sprintf('Refusing to remove root: %s', $path));
+            }
         }
 
         if (static::isdir($path)) {
@@ -443,6 +464,7 @@ class Storage
      */
     public static function type($path)
     {
+        $path = static::validate_path($path);
         return filetype($path);
     }
 
@@ -455,7 +477,7 @@ class Storage
      */
     public static function size($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return filesize($path);
     }
 
@@ -468,7 +490,7 @@ class Storage
      */
     public static function modified($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return filemtime($path);
     }
 
@@ -482,7 +504,7 @@ class Storage
      */
     public static function chmod($path, $mode = null)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
 
         if (!$mode) {
             return substr(sprintf('%o', fileperms($path)), -4);
@@ -538,13 +560,15 @@ class Storage
      */
     public static function mime($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
+
         if (! is_file($path) || false === ($finfo = @finfo_open(FILEINFO_MIME_TYPE))) {
             return false;
         }
 
         $mime = @finfo_file($finfo, $path);
-        finfo_close($finfo);
+        /** @disregard */
+        @finfo_close($finfo);
 
         return $mime;
     }
@@ -582,7 +606,8 @@ class Storage
      */
     public static function mkdir($path, $chmod = 0755)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
+
         if (is_dir($path)) {
             throw new \Exception(sprintf('Target folder already exists: %s', $path));
         }
@@ -601,7 +626,7 @@ class Storage
      */
     public static function latest($directory, $options = null)
     {
-        static::validate_path($directory);
+        $directory = static::validate_path($directory);
         $time = 0;
         $latest = null;
         $items = new \FilesystemIterator($directory, is_null($options) ? \FilesystemIterator::SKIP_DOTS : $options);
@@ -625,7 +650,7 @@ class Storage
      */
     public static function hash($path)
     {
-        static::validate_path($path);
+        $path = static::validate_path($path);
         return md5_file($path);
     }
 
@@ -654,12 +679,25 @@ class Storage
             try {
                 static::validate_path($base);
             } catch (\Throwable $e) {
-                // Missing base: let glob return empty. Containment is checked per file below.
+                // Missing base: skip matches without a valid directory.
             } catch (\Exception $e) {
-                // Missing base: let glob return empty. Containment is checked per file below.
+                // Missing base: skip matches without a valid directory.
             }
         }
-        return glob($pattern, $flags);
+
+        $files = [];
+
+        foreach ((array) glob($pattern, $flags) as $file) {
+            try {
+                $files[] = static::validate_path($file);
+            } catch (\Throwable $e) {
+                // Match outside allowed roots: drop it.
+            } catch (\Exception $e) {
+                // Match outside allowed roots: drop it.
+            }
+        }
+
+        return $files;
     }
 
     /**
@@ -669,6 +707,8 @@ class Storage
      */
     public static function protect($path)
     {
+        $path = static::validate_path($path);
+
         if (! is_file($path) && ! is_dir($path)) {
             return;
         }

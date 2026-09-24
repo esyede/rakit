@@ -129,17 +129,10 @@ class Image
         }
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG:
-                $this->image = imagecreatefromjpeg($path);
-                break;
-            case IMAGETYPE_PNG:
-                $this->image = imagecreatefrompng($path);
-                break;
-            case IMAGETYPE_GIF:
-                $this->image = imagecreatefromgif($path);
-                break;
-            default:
-                throw new \Exception('Attempting to load unsupported image type.');
+            case IMAGETYPE_JPEG: $this->image = imagecreatefromjpeg($path); break;
+            case IMAGETYPE_PNG: $this->image = imagecreatefrompng($path); break;
+            case IMAGETYPE_GIF: $this->image = imagecreatefromgif($path); break;
+            default: throw new \Exception('Attempting to load unsupported image type.');
         }
 
         return $this;
@@ -156,9 +149,7 @@ class Image
     {
         $value = (int) $value;
         $height = (int) (($value / $this->width) * $this->height);
-
         $this->dimension($value, $height);
-
         $canvas = imagecreatetruecolor($value, $height);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $value, $height, $this->width, $this->height);
@@ -180,9 +171,7 @@ class Image
     {
         $value = (int) $value;
         $width = (int) (($value / $this->height) * $this->width);
-
         $this->dimension($width, $value);
-
         $canvas = imagecreatetruecolor($width, $value);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $width, $value, $this->width, $this->height);
@@ -231,7 +220,6 @@ class Image
         }
 
         $this->dimension($width, $height);
-
         $canvas = imagecreatetruecolor($width, $height);
         imagecopy($canvas, $this->image, 0, 0, $left, $top, $width, $height);
 
@@ -547,17 +535,10 @@ class Image
         $type = null;
 
         switch ($this->type) {
-            case IMAGETYPE_JPEG:
-                $type = 'image/jpeg';
-                break;
-            case IMAGETYPE_PNG:
-                $type = 'image/png';
-                break;
-            case IMAGETYPE_GIF:
-                $type = 'image/gif';
-                break;
-            default:
-                throw new \Exception('Only jpg, png and gif image are supported');
+            case IMAGETYPE_JPEG: $type = 'image/jpeg'; break;
+            case IMAGETYPE_PNG: $type = 'image/png'; break;
+            case IMAGETYPE_GIF: $type = 'image/gif'; break;
+            default: throw new \Exception('Only jpg, png and gif image are supported');
         }
 
         return [

@@ -149,38 +149,37 @@ class View implements \ArrayAccess
             throw new \Exception(sprintf('View does not exist: %s', $original));
         }
 
-        // Block stream wrappers (php://, data://, phar://, etc.)
         if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $raw)) {
             throw new \Exception(sprintf('View does not exist: %s', $original));
         }
 
-        // Resolve realpath - must be an existing file
         $real = realpath($raw);
 
         if (false === $real || !is_file($real)) {
             throw new \Exception(sprintf('View does not exist: %s', $original));
         }
 
-        // Must have .php extension (view files are php/blade.php)
         if (!preg_match('/\.php$/i', $real)) {
             throw new \Exception(sprintf('View does not exist: %s', $original));
         }
 
-        // Confine to allowed roots (base, app, system, storage, package)
         $allowed_roots = [];
+
         foreach (['base', 'app', 'system', 'storage', 'package'] as $key) {
             try {
                 $p = path($key);
                 $rp = realpath(rtrim($p, DS));
+
                 if ($rp) {
                     $allowed_roots[] = $rp;
                 }
             } catch (\Throwable $e) {
+                // Ignore
             } catch (\Exception $e) {
+                // Ignore
             }
         }
 
-        // Also allow package locations registered as 'path: ...'.
         if (class_exists('\System\Package')) {
             foreach (\System\Package::$packages as $cfg) {
                 if (isset($cfg['location']) && 0 === strpos($cfg['location'], 'path: ')) {
@@ -195,7 +194,7 @@ class View implements \ArrayAccess
         $allowed = false;
         foreach ($allowed_roots as $root) {
             $root = rtrim($root, DS);
-            // Allow file directly inside root or subdir
+
             if ($real === $root || 0 === strpos($real, $root . DS)) {
                 $allowed = true;
                 break;
@@ -365,8 +364,6 @@ class View implements \ArrayAccess
      */
     public function get()
     {
-        // A template that throws may leave several buffers open, so unwind back to
-        // the starting level rather than by one.
         $level = ob_get_level();
 
         ob_start();

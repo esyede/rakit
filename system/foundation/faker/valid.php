@@ -31,8 +31,8 @@ class Valid
      * Create a new Valid instance.
      *
      * @param \System\Foundation\Faker\Generator $generator
-     * @param callable|null $validator
-     * @param int $max_retries
+     * @param callable|null                      $validator
+     * @param int                                $max_retries
      */
     public function __construct(Generator $generator, $validator = null, $max_retries = 10000)
     {

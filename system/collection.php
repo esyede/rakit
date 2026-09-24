@@ -422,7 +422,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Flatten the items in the collection.
      *
-     * @param array $items
+     * @param array     $items
      * @param float|int $depth
      *
      * @return array
@@ -556,7 +556,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Implode the collection into a string using the given value and glue.
      *
-     * @param mixed $value
+     * @param mixed       $value
      * @param string|null $glue
      *
      * @return string
@@ -1346,7 +1346,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Get a CachingIterator for the items.
      *
-     * @param \CachingIterator::* $flags
+     * @param int $flags
      *
      * @return \CachingIterator
      */

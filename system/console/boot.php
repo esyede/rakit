@@ -32,6 +32,7 @@ if (DS === '\\') {
 $failed = false;
 
 try {
+    $arguments = isset($arguments) ? (array) $arguments : [];
     Console::run(array_slice($arguments, 1));
     Config::set('database.default', $default);
 } catch (\Throwable $e) {

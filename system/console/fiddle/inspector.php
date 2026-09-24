@@ -6,10 +6,25 @@ defined('DS') or exit('No direct access.');
 
 class Inspector
 {
+    /**
+     * The fallback dumper to use when no colorizer is available.
+     *
+     * @var Dumper
+     */
     private $fallback;
 
+    /**
+     * The colorizers to use for inspecting variables.
+     *
+     * @var array
+     */
     private $colorizers = [];
 
+    /**
+     * The colors to use for inspecting variables.
+     *
+     * @var array
+     */
     private static $colors = [
         'black' => "\033[0;30m",
         'white' => "\033[1;37m",

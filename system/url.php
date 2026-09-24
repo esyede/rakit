@@ -69,20 +69,16 @@ class URL
      */
     public static function to($url = '', $asset = false, $locale = true)
     {
-        // Defense: block CRLF injection and dangerous schemes
         if (is_string($url) && preg_match('/[\r\n]/', $url)) {
             $url = '/';
         }
 
         if (is_string($url) && preg_match('#^(//|\\\\\\\\)#', trim($url))) {
-            // Protocol-relative: external, so fall back to base.
             $url = '/';
         }
 
         if (is_string($url) && preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*:#', trim($url))) {
-            // Only http and https are allowed as absolute URLs via URL::to
             if (!preg_match('#^https?://#i', trim($url))) {
-                // Block javascript:, data:, vbscript: and friends.
                 if (static::valid($url)) {
                     $url = '/';
                 }

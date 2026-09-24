@@ -108,11 +108,11 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     /**
      * Creates a new Paginator instance.
      *
-     * @param array|\System\Collection  $results
-     * @param int    $total
-     * @param int    $perpage
-     * @param string $page_name
-     * @param int    $page
+     * @param array|\System\Collection $results
+     * @param int                      $total
+     * @param int                      $perpage
+     * @param string                   $page_name
+     * @param int                      $page
      *
      * @return Paginator
      */
@@ -311,7 +311,9 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
         $query = array_merge($this->appends, [$this->page_name => $page]);
         $path = $this->path();
 
-        return $path . (Str::contains($path, '?') ? '&' : '?') . http_build_query($query) . $this->build_fragment();
+        return $path . (Str::contains($path, '?') ? '&' : '?')
+            . http_build_query($query)
+            . $this->build_fragment();
     }
 
     /**
@@ -477,10 +479,10 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     /**
      * Make a single pagination element.
      *
-     * @param string $type
+     * @param string          $type
      * @param int|string|null $page
-     * @param string $label
-     * @param bool   $disabled
+     * @param string          $label
+     * @param bool            $disabled
      *
      * @return array
      */

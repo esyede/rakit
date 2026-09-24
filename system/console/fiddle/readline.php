@@ -6,8 +6,18 @@ defined('DS') or exit('No direct access.');
 
 class Readline
 {
+    /**
+     * The socket to use for communication.
+     *
+     * @var resource
+     */
     private $socket;
 
+    /**
+     * Whether to clear the buffer on exit.
+     *
+     * @var bool
+     */
     private $clear = false;
 
     /**

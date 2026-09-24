@@ -116,8 +116,8 @@ class Response
      * Create a new Response instance with Facile Model content.
      *
      * @param \System\Database\Facile\Model|array $data
-     * @param int                                  $status
-     * @param array                                $headers
+     * @param int                                 $status
+     * @param array                               $headers
      *
      * @return Response
      */
@@ -321,7 +321,8 @@ class Response
      * Validate that a path is a real file inside an allowed directory.
      *
      * @param string $path
-     * @return string Real path
+     *
+     * @return string
      */
     protected static function validate_path($path)
     {

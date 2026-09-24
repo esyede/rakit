@@ -6,16 +6,45 @@ defined('DS') or exit('No direct access.');
 
 class Fiddle
 {
+    /**
+     * The prompt string to display to the user.
+     * @var string
+     */
     private $prompt;
 
+    /**
+     * The history file to store REPL command history.
+     *
+     * @var string
+     */
     private $history;
 
+    /**
+     * The exported variables from the REPL.
+     *
+     * @var array
+     */
     private $exports = [];
 
+    /**
+     * The hooks to run in the context of the REPL when it starts.
+     *
+     * @var array
+     */
     private $starting = [];
 
+    /**
+     * The hooks to run in the context of the REPL when it fails.
+     *
+     * @var array
+     */
     private $failing = [];
 
+    /**
+     * The inspector to use for inspecting variables in the REPL.
+     *
+     * @var Inspector
+     */
     private $inspector;
 
     /**

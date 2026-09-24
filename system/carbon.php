@@ -27,13 +27,25 @@ class Carbon extends \DateTime
     /** @var int */
     const SATURDAY = 6;
 
-    /** @var \DateTime|null */
+    /**
+     * The current test now, if set.
+     *
+     * @var \DateTime|null
+     */
     protected static $now;
 
-    /** @var string */
+    /**
+     * The default string format for Carbon instances.
+     *
+     * @var string
+     */
     protected static $format = 'Y-m-d H:i:s';
 
-    /** @var string[] */
+    /**
+     * The relative keywords for modifying Carbon instances.
+     *
+     * @var array
+     */
     protected static $relatives = [
         'this',
         'next',
@@ -47,7 +59,11 @@ class Carbon extends \DateTime
         'ago',
     ];
 
-    /** @var string[] */
+    /**
+     * The days of the week for Carbon instances.
+     *
+     * @var array
+     */
     protected static $days = [
         self::SUNDAY => 'Sunday',
         self::MONDAY => 'Monday',
@@ -213,12 +229,12 @@ class Carbon extends \DateTime
     /**
      * Create a Carbon instance from the given date and time components.
      *
-     * @param int|null $year
-     * @param int|null $month
-     * @param int|null $day
-     * @param int|null $hour
-     * @param int|null $minute
-     * @param int|null $second
+     * @param int|null    $year
+     * @param int|null    $month
+     * @param int|null    $day
+     * @param int|null    $hour
+     * @param int|null    $minute
+     * @param int|null    $second
      * @param string|null $tz
      *
      * @return static
@@ -253,9 +269,9 @@ class Carbon extends \DateTime
     /**
      * Create a Carbon instance from a date.
      *
-     * @param int|null $year
-     * @param int|null $month
-     * @param int|null $day
+     * @param int|null    $year
+     * @param int|null    $month
+     * @param int|null    $day
      * @param string|null $tz
      *
      * @return static
@@ -268,9 +284,9 @@ class Carbon extends \DateTime
     /**
      * Create a Carbon instance from a time.
      *
-     * @param int|null $hour
-     * @param int|null $minute
-     * @param int|null $second
+     * @param int|null    $hour
+     * @param int|null    $minute
+     * @param int|null    $second
      * @param string|null $tz
      *
      * @return static
@@ -283,8 +299,8 @@ class Carbon extends \DateTime
     /**
      * Create a Carbon instance from a format string and time.
      *
-     * @param string $format
-     * @param string $time
+     * @param string      $format
+     * @param string      $time
      * @param string|null $tz
      *
      * @return static
@@ -307,7 +323,7 @@ class Carbon extends \DateTime
     /**
      * Create a Carbon instance from a timestamp.
      *
-     * @param int $timestamp
+     * @param int         $timestamp
      * @param string|null $tz
      *
      * @return static
@@ -395,7 +411,7 @@ class Carbon extends \DateTime
      * Set the value of a property.
      *
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
      */
     public function __set($name, $value)
     {
@@ -468,7 +484,7 @@ class Carbon extends \DateTime
     /**
      * Get the value of a property.
      *
-     * @param string $name
+     * @param string $value
      *
      * @return mixed
      */
@@ -481,7 +497,7 @@ class Carbon extends \DateTime
     /**
      * Get the value of a property.
      *
-     * @param string $name
+     * @param string $value
      *
      * @return mixed
      */
@@ -1424,7 +1440,7 @@ class Carbon extends \DateTime
      * Get the difference in years between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1438,7 +1454,7 @@ class Carbon extends \DateTime
      * Get the difference in months between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1452,7 +1468,7 @@ class Carbon extends \DateTime
      * Get the difference in weeks between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1465,7 +1481,7 @@ class Carbon extends \DateTime
      * Get the difference in days between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1478,9 +1494,9 @@ class Carbon extends \DateTime
     /**
      * Get the difference in days between two instances, filtered by a callback.
      *
-     * @param \Closure $callback
+     * @param \Closure    $callback
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1509,7 +1525,7 @@ class Carbon extends \DateTime
      * Get the difference in weekdays between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1524,7 +1540,7 @@ class Carbon extends \DateTime
      * Get the difference in weekend days between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1539,7 +1555,7 @@ class Carbon extends \DateTime
      * Get the difference in hours between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1552,7 +1568,7 @@ class Carbon extends \DateTime
      * Get the difference in minutes between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1565,7 +1581,7 @@ class Carbon extends \DateTime
      * Get the difference in seconds between two instances.
      *
      * @param Carbon|null $dt
-     * @param bool       $abs
+     * @param bool        $abs
      *
      * @return int
      */
@@ -1600,7 +1616,7 @@ class Carbon extends \DateTime
      * Get a human-readable representation of the difference between two instances.
      *
      * @param Carbon|null $other
-     * @param bool       $absolute
+     * @param bool        $absolute
      *
      * @return string
      */

@@ -239,7 +239,6 @@ class Component
         $rendered = $instance->render();
         $data = static::properties($instance);
 
-        // A component class returns either a view name or the output itself.
         if (! is_string($rendered) || ! View::exists($rendered)) {
             return static::interpolate((string) $rendered, $current, $data);
         }
@@ -360,7 +359,6 @@ class Component
             return $class;
         }
 
-        // Read here, not via the autoloader: PSR-0 would look for components/badge/component.php.
         $file = Package::path($package) . 'components' . DS . str_replace('.', DS, $component) . '.php';
 
         if (is_file($file)) {

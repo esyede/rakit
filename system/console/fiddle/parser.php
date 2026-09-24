@@ -6,8 +6,18 @@ defined('DS') or exit('No direct access.');
 
 class Parser
 {
+    /**
+     * The initials to use for parsing.
+     *
+     * @var string
+     */
     private $initials;
 
+    /**
+     * The pairs of delimiters to use for parsing.
+     *
+     * @var array
+     */
     private $pairs = [
         '(' => ')', '{' => '}', '[' => ']',
         '"' => '"', "'" => "'",

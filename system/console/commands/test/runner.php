@@ -84,20 +84,16 @@ class Runner extends Command
             throw new \Exception("Error: test dependencies is not present. Please run 'composer install' first.");
         }
 
-        // Run phpunit on this very PHP binary: its shebang would pick whichever `php`
-        // comes first in PATH.
         $script = 'vendor'.DS.'phpunit'.DS.'phpunit'.DS.'phpunit';
-        $command = (
-            defined('PHP_BINARY') && '' !== (string) PHP_BINARY && is_file(path('base').$script))
+        $command = (defined('PHP_BINARY') && '' !== (string) PHP_BINARY && is_file(path('base').$script))
             ? escapeshellarg(PHP_BINARY).' -d memory_limit='.escapeshellarg(ini_get('memory_limit')).' '.escapeshellarg($script)
             : '.'.DS.$phpunit;
 
         $verbose = has_cli_flag('v') || has_cli_flag('vv') || has_cli_flag('vvv') || has_cli_flag('verbose');
         $command .= $verbose ? ' --debug' : '';
-
-        // Forward all phpunit arguments
         $args = $this->arguments();
         $command .= $args ? ' '.$args : '';
+
         passthru($command.' --configuration '.escapeshellarg($config), $status);
         is_file($config) && Storage::delete($config);
 
@@ -154,16 +150,13 @@ class Runner extends Command
             }
         }
 
-        // Skip the argument after command and package name (if test:package)
         $istart = $cmdpos + 1;
 
-        // If it's a test:package command, skip the package name also
         if (isset($argv[$cmdpos]) && strpos($argv[$cmdpos], 'test:package') !== false) {
             $istart++;
         }
 
         foreach (array_slice($argv, $istart) as $argument) {
-            // Skip the verbos and configuration arguments because they are already handled
             if (in_array($argument, ['-v', '-vv', '-vvv', '--verbose', '-c', '--configuration'])) {
                 continue;
             }

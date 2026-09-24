@@ -143,8 +143,6 @@ abstract class Driver
     protected function store($token)
     {
         Session::put($this->token(), $token);
-
-        // Rotate the session id so an id planted earlier never ends up authenticated.
         Session::regenerate();
     }
 
@@ -167,7 +165,6 @@ abstract class Driver
         }
 
         $payload = $token.'|'.$value.'|'.$this->password($this->user);
-
         $this->cookie($this->recaller(), Crypter::encrypt($payload), 2628000);
     }
 
@@ -280,16 +277,8 @@ abstract class Driver
     {
         $config = Config::get('session');
         $secure = Request::secure() ?: $config['secure'];
-
-        Cookie::put(
-            $name,
-            $value,
-            $minutes,
-            $config['path'],
-            $config['domain'],
-            $secure,
-            isset($config['samesite']) ? $config['samesite'] : 'lax'
-        );
+        $config['samesite'] = isset($config['samesite']) ? $config['samesite'] : 'lax';
+        Cookie::put($name, $value, $minutes, $config['path'], $config['domain'], $secure, $config['samesite']);
     }
 
     /**

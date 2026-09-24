@@ -46,6 +46,7 @@ trait Macroable
                     /** @disregard */
                     $method->setAccessible(true);
                 }
+
                 static::macro($method->name, $method->invoke($mixin));
             }
         }

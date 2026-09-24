@@ -36,7 +36,11 @@ class Cache
     {
         if (static::$processed_key === null) {
             $key = (string) Config::get('cache.key');
-            static::$processed_key = ((strlen($key) > 0 && Str::ends_with($key, '.')) ? rtrim($key, '.') : $key).'.';
+            static::$processed_key = (
+                (strlen($key) > 0 && Str::ends_with($key, '.'))
+                    ? rtrim($key, '.')
+                    : $key
+            ).'.';
         }
 
         return static::$processed_key;

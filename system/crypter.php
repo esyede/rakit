@@ -12,7 +12,8 @@ class Crypter
      * Derive a key for a specific purpose via HKDF-like construction.
      *
      * @param string $purpose
-     * @return string Binary key
+     *
+     * @return string
      */
     protected static function derive_key($purpose)
     {

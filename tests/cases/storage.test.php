@@ -460,4 +460,43 @@ class StorageTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_file($dir . 'index.html'));
         Storage::rmdir($dir);
     }
+
+    /**
+     * Test for Storage path containment.
+     *
+     * @group system
+     */
+    public function testPathContainment()
+    {
+        $base = self::$temp . DS . 'vp';
+        mkdir($base, 0755, true);
+
+        try {
+            Storage::put($base . DS . 'missing' . DS . '..' . DS . '..' . DS . 'escaped.txt', 'x');
+            $this->assertTrue(false, 'Traversal must throw.');
+        } catch (\Exception $e) {
+            $this->assertTrue(false !== strpos($e->getMessage(), 'Path traversal not allowed'));
+        }
+
+        $mark = sys_get_temp_dir() . DS . 'rakit-vp-glob-escape.txt';
+        file_put_contents($mark, '');
+        $this->assertSame([], Storage::glob(sys_get_temp_dir() . DS . 'rakit-vp-glob-*'));
+        unlink($mark);
+
+        $cwd = getcwd();
+        chdir(sys_get_temp_dir());
+        Storage::put('vp-cwd.txt', 'x');
+        chdir($cwd);
+
+        $this->assertTrue(is_file(path('base') . 'vp-cwd.txt'));
+        $this->assertFalse(is_file(sys_get_temp_dir() . DS . 'vp-cwd.txt'));
+        Storage::delete(path('base') . 'vp-cwd.txt');
+
+        try {
+            Storage::rmdir(rtrim(path('storage'), DS));
+            $this->assertTrue(false, 'Removing root must throw.');
+        } catch (\Exception $e) {
+            $this->assertTrue(false !== strpos($e->getMessage(), 'Refusing to remove root'));
+        }
+    }
 }

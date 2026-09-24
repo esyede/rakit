@@ -81,7 +81,6 @@ class Input
     {
         $input = Request::foundation()->request->all();
 
-        // Body wins over query string; every reader goes through here to stay consistent.
         if (is_null($key)) {
             return array_merge(static::query(), $input);
         }
@@ -270,7 +269,6 @@ class Input
     public static function arr($key = null)
     {
         $value = is_null($key) ? static::all() : static::get($key, []);
-
         return is_array($value) ? $value : (array) $value;
     }
 

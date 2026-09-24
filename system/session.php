@@ -6,11 +6,7 @@ defined('DS') or exit('No direct access.');
 
 class Session
 {
-    /**
-     * The CSRF token name stored in session.
-     *
-     * @var string
-     */
+    /** @var string */
     const TOKEN = 'csrf_token';
 
     /**

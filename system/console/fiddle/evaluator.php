@@ -6,32 +6,82 @@ defined('DS') or exit('No direct access.');
 
 class Evaluator
 {
+    /** @var int */
     const FATAL = 255;
 
+    /** @var string */
     const DONE = "\0";
 
+    /** @var string */
     const EXITED = "\1";
 
+    /** @var string */
     const FAILED = "\2";
 
+    /** @var string */
     const READY = "\3";
 
+    /**
+     * The socket used for communication with the REPL.
+     *
+     * @var resource
+     */
     private $socket;
 
+    /**
+     * The exported variables from the REPL.
+     *
+     * @var array
+     */
     private $exports = [];
 
+    /**
+     * The hooks to run in the context of the REPL when it starts.
+     *
+     * @var array
+     */
     private $starting = [];
 
+    /**
+     * The hooks to run in the context of the REPL when it fails.
+     *
+     * @var array
+     */
     private $failing = [];
 
+    /**
+     * The previous process ID of the REPL.
+     *
+     * @var int
+     */
     private $prev_pid;
 
+    /**
+     * The process ID of the REPL.
+     *
+     * @var int
+     */
     private $pid;
 
+    /**
+     * Whether the REPL has been aborted.
+     *
+     * @var bool
+     */
     private $aborted;
 
+    /**
+     * The inspector to use for inspecting variables in the REPL.
+     *
+     * @var Inspector
+     */
     private $inspector;
 
+    /**
+     * The exception handler to use for handling exceptions in the REPL.
+     *
+     * @var callable
+     */
     private $exceptor;
 
     /**
@@ -99,7 +149,7 @@ class Evaluator
 
         $this->write($this->socket, self::READY);
 
-        /* Note the naming of the local variables due to shared scope with the user here */
+        // Note the naming of the local variables due to shared scope with the user here
         for (;;) {
             declare(ticks = 1);
             /** @disregard */

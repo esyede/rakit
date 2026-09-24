@@ -6,24 +6,74 @@ defined('DS') or exit('No direct access.');
 
 class Markdown
 {
+    /**
+     * The Parsedown instance used for parsing.
+     *
+     * @var \System\Markdown
+     */
     private static $factory;
 
+    /**
+     * The parsed definitions for the Markdown document.
+     *
+     * @var array
+     */
     protected $definitions;
 
+    /**
+     * Whether line breaks should be preserved.
+     *
+     * @var bool
+     */
     protected $breaks;
 
+    /**
+     * Whether escaping should be enabled.
+     *
+     * @var bool
+     */
     protected $escaping;
 
+    /**
+     * Whether linking should be enabled.
+     *
+     * @var bool
+     */
     protected $linking = true;
 
+    /**
+     * Whether safety should be enabled.
+     *
+     * @var bool
+     */
     protected $safety;
 
+    /**
+     * The unmarking rules for the Markdown document.
+     *
+     * @var array
+     */
     protected $unmarking = ['code'];
 
+    /**
+     * The markers for the Markdown document.
+     *
+     * @var string
+     */
     protected $markers = '!"*_&[:<>`~\\';
 
+    /**
+     * The attributes for the Markdown document.
+     *
+     * @var string
+     */
     protected $attrs = '[a-zA-Z_:][\w:.-]*(?:\s*=\s*(?:[^"\'=<>`\s]+|"[^"]*"|\'[^\']*\'))?';
 
+    /**
+     * The inlines for the Markdown document.
+     *
+     * @var array
+     */
     protected $inlines = [
         '"' => ['specials'],
         '!' => ['image'],
@@ -39,6 +89,11 @@ class Markdown
         '\\' => ['escaper'],
     ];
 
+    /**
+     * The schemas for the Markdown document.
+     *
+     * @var array
+     */
     protected $schemas = [
         'http://', 'https://', 'ftp://', 'ftps://', 'mailto:',
         'data:image/png;base64,', 'data:image/gif;base64,',
@@ -46,6 +101,11 @@ class Markdown
         'ssh:', 'news:', 'steam:',
     ];
 
+    /**
+     * The types for the Markdown document.
+     *
+     * @var array
+     */
     protected $types = [
         '#' => ['header'],
         '*' => ['rule', 'listing'],
@@ -72,26 +132,51 @@ class Markdown
         '~' => ['fenced'],
     ];
 
+    /**
+     * The specials for the Markdown document.
+     *
+     * @var array
+     */
     protected $specials = [
         '\\', '`', '*', '_', '{', '}', '[', ']',
         '(', ')', '>', '#', '+', '-', '.', '!', '|',
     ];
 
+    /**
+     * The strongs for the Markdown document.
+     *
+     * @var array
+     */
     protected $strongs = [
         '*' => '/^[*]{2}((?:\\\\\*|[^*]|[*][^*]*[*])+?)[*]{2}(?![*])/s',
         '_' => '/^__((?:\\\\_|[^_]|_[^_]*_)+?)__(?!_)/us',
     ];
 
+    /**
+     * The emphasis for the Markdown document.
+     *
+     * @var array
+     */
     protected $emphasis = [
         '*' => '/^[*]((?:\\\\\*|[^*]|[*][*][^*]+?[*][*])+?)[*](?![*])/s',
         '_' => '/^_((?:\\\\_|[^_]|__[^_]*__)+?)_(?!_)\b/us',
     ];
 
+    /**
+     * The voids for the Markdown document.
+     *
+     * @var array
+     */
     protected $voids = [
         'area', 'base', 'br', 'col', 'command', 'embed', 'hr',
         'img', 'input', 'link', 'meta', 'param', 'source',
     ];
 
+    /**
+     * The formattings for the Markdown document.
+     *
+     * @var array
+     */
     protected $formattings = [
         'a', 'br', 'bdo', 'abbr', 'blink', 'nextid', 'acronym', 'basefont',
         'b', 'em', 'big', 'cite', 'small', 'spacer', 'listing',
@@ -401,7 +486,7 @@ class Markdown
     /**
      * Parse a code block.
      *
-     * @param array     $tag
+     * @param array      $tag
      * @param array|null $attrib
      *
      * @return array|null
@@ -774,7 +859,7 @@ class Markdown
     /**
      * Parse a setext header block.
      *
-     * @param array     $tag
+     * @param array      $tag
      * @param array|null $attrib
      *
      * @return array|null
@@ -898,7 +983,7 @@ class Markdown
     /**
      * Parse a table block.
      *
-     * @param array     $tag
+     * @param array      $tag
      * @param array|null $attr
      *
      * @return array|null

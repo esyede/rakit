@@ -33,9 +33,11 @@ class Postgres extends Connector
 
         if (isset($config['charset'])) {
             $charset = (string) $config['charset'];
+
             if (!preg_match('/^[A-Za-z0-9_-]+$/', $charset)) {
                 throw new \InvalidArgumentException(sprintf('Invalid charset: %s', $charset));
             }
+
             $quoted = $pdo->quote($charset);
             $pdo->exec("SET NAMES $quoted");
         }
@@ -46,6 +48,7 @@ class Postgres extends Connector
 
             foreach ($schemas as $s) {
                 $unquoted = trim($s, '"\'');
+
                 if (
                     '' === $unquoted
                     || !preg_match('/^[A-Za-z_][A-Za-z0-9_\$]*$/', $unquoted)

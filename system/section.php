@@ -30,8 +30,8 @@ class Section
     /**
      * Start injecting content into a section.
      *
-     * @param string         $section
-     * @param string|Closure $content
+     * @param string          $section
+     * @param string|\Closure $content
      */
     public static function start($section, $content = '')
     {

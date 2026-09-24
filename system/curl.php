@@ -126,77 +126,77 @@ class Curl
     /**
      * Curl handler.
      *
-     * @param resource $handler
+     * @var \CURLHandle|resource
      */
     private static $handler;
 
     /**
      * Cookie.
      *
-     * @param string $cookie
+     * @var string
      */
     private static $cookie;
 
     /**
      * Cookie file.
      *
-     * @param string $cookie_file
+     * @var string
      */
     private static $cookie_file;
 
     /**
      * Curl options.
      *
-     * @param array $curl_options
+     * @var array
      */
     private static $curl_options = [];
 
     /**
      * Default headers.
      *
-     * @param array $default_headers
+     * @var array
      */
     private static $default_headers = [];
 
     /**
      * Json options.
      *
-     * @param array $json_options
+     * @var array
      */
     private static $json_options = [];
 
     /**
      * Socket timeout.
      *
-     * @param int $socket_timeout
+     * @var int
      */
     private static $socket_timeout;
 
     /**
      * Verify peer.
      *
-     * @param int $verify_peer
+     * @var int
      */
     private static $verify_peer = 1;
 
     /**
      * Verify host.
      *
-     * @param int $verify_host
+     * @var int
      */
     private static $verify_host = 2;
 
     /**
      * Auth.
      *
-     * @param array $auth
+     * @var array
      */
     private static $auth = ['user' => '', 'pass' => '', 'method' => CURLAUTH_BASIC];
 
     /**
      * Proxy.
      *
-     * @param array $proxy
+     * @var array
      */
     private static $proxy = [
         'port' => false,
