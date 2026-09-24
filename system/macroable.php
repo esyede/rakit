@@ -43,7 +43,7 @@ trait Macroable
         foreach ($methods as $method) {
             if ($replace || ! static::has_macro($method->name)) {
                 if (PHP_VERSION_ID < 80100) {
-                    /* @disregard */
+                    /** @disregard */
                     $method->setAccessible(true);
                 }
                 static::macro($method->name, $method->invoke($mixin));

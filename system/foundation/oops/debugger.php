@@ -15,22 +15,22 @@ class Debugger
     /** @var null */
     const DETECT = null;
 
-    /** @var int */
+    /** @var string */
     const DEBUG = Logger::DEBUG;
 
-    /** @var int */
+    /** @var string */
     const INFO = Logger::INFO;
 
-    /** @var int */
+    /** @var string */
     const WARNING = Logger::WARNING;
 
-    /** @var int */
+    /** @var string */
     const ERROR = Logger::ERROR;
 
-    /** @var int */
+    /** @var string */
     const EXCEPTION = Logger::EXCEPTION;
 
-    /** @var int */
+    /** @var string */
     const CRITICAL = Logger::CRITICAL;
 
     /** @var string */
@@ -39,7 +39,7 @@ class Debugger
     /**
      * Switch to production mode?
      *
-     * @var bool
+     * @var bool|null
      */
     public static $productionMode = self::DETECT;
 
@@ -74,14 +74,14 @@ class Debugger
     /**
      * How deep the dump() should go into nested structure? 0 means no limit.
      *
-     * @var int
+     * @var int|array|false|null
      */
     public static $maxDepth = 0;
 
     /**
      * How many characters should dump() output at most? 0 means no limit.
      *
-     * @var int
+     * @var int|array|false|null
      */
     public static $maxLength = 0;
 
@@ -102,7 +102,7 @@ class Debugger
     /**
      * Which errors are logged: 0 for all, or PHP error constants.
      *
-     * @var int
+     * @var int|array|false|null
      */
     public static $logSeverity = 0;
 
@@ -116,7 +116,7 @@ class Debugger
     /**
      * Initial request time.
      *
-     * @var int
+     * @var int|array|false|null
      */
     public static $time;
 
@@ -151,14 +151,14 @@ class Debugger
     /**
      * Contains output buffering level at the time of enabling debugger.
      *
-     * @var int
+     * @var int|array|false|null
      */
     private static $obLevel;
 
     /**
      * Contains CPU usage data at the time of enabling debugger.
      *
-     * @var int
+     * @var int|array|false|null
      */
     private static $cpuUsage;
 
@@ -434,10 +434,10 @@ class Debugger
                 header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode(['status' => 500, 'message' => $e->getMessage()]);
                 if (function_exists('fastcgi_finish_request')) {
-                    /* @disregard */
+                    /** @disregard */
                     fastcgi_finish_request();
                 } elseif (function_exists('litespeed_finish_request')) {
-                    /* @disregard */
+                    /** @disregard */
                     \litespeed_finish_request();
                 }
                 exit(255);
@@ -504,10 +504,10 @@ class Debugger
 
         if ($exit) {
             if (function_exists('fastcgi_finish_request')) {
-                /* @disregard */
+                /** @disregard */
                 \fastcgi_finish_request();
             } elseif (function_exists('litespeed_finish_request')) {
-                /* @disregard */
+                /** @disregard */
                 \litespeed_finish_request();
             }
             exit(255);

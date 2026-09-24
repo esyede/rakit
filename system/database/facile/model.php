@@ -887,7 +887,7 @@ abstract class Model implements \JsonSerializable
      * @param array $attributes
      * @param array $values
      *
-     * @return static
+     * @return static|false
      */
     public static function first_or_create(array $attributes = [], array $values = [])
     {
@@ -906,7 +906,7 @@ abstract class Model implements \JsonSerializable
      * @param array $attributes
      * @param array $values
      *
-     * @return static
+     * @return static|false
      */
     public static function update_or_create(array $attributes, array $values = [])
     {
@@ -1541,7 +1541,7 @@ abstract class Model implements \JsonSerializable
         $type = is_null($type) ? $name . '_type' : $type;
         $id = is_null($id) ? $name . '_id' : $id;
         $model = $this->get_attribute($type);
-        return new Relationships\MorphTo($this, $model, $type, $id);
+        return new Relationships\MorphTo($this, (string) $model, $type, $id);
     }
 
     /**
@@ -1710,7 +1710,7 @@ abstract class Model implements \JsonSerializable
     /**
      * Force delete a model from the database (bypass soft delete).
      *
-     * @return int
+     * @return int|false
      */
     public function force_delete()
     {
@@ -1871,7 +1871,7 @@ abstract class Model implements \JsonSerializable
      *
      * @param bool $with_trashed
      *
-     * @return \System\Database\Query
+     * @return \System\Database\Facile\Query
      */
     public function _query($with_trashed = false)
     {

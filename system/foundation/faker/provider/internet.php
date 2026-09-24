@@ -350,7 +350,7 @@ class Internet extends Base
         $result = [];
 
         for ($i = 0; $i < 8; ++$i) {
-            $result[] = dechex(mt_rand(0, '65535'));
+            $result[] = dechex(mt_rand(0, 65535));
         }
 
         return implode(':', $result);

@@ -100,10 +100,10 @@ class Redis extends Driver
             'updated_at' => $now,
         ];
 
-        /* @disregard */
+        /** @disregard */
         $this->redis->hmset($this->key.'job_'.$name.'_'.$id, $data);
         $timestamp = Carbon::parse($scheduled_at)->timestamp;
-        /* @disregard */
+        /** @disregard */
         $this->redis->zadd($this->key.'queue_'.$queue.':'.$name, $timestamp, $id);
         $this->log(sprintf('Job added: %s - #%s (queue: %s)', $name, $id, $queue));
 
@@ -123,7 +123,7 @@ class Redis extends Driver
         $name = Str::slug($name);
         $list = $this->key.'queue_'.$queue.':'.$name;
 
-        /* @disregard */
+        /** @disregard */
         if (! $this->redis->exists($list)) {
             return false;
         }
@@ -168,12 +168,12 @@ class Redis extends Driver
 
             if (! empty($ids)) {
                 foreach ($ids as $id) {
-                    /* @disregard */
+                    /** @disregard */
                     $this->redis->del($this->key.'job_'.$name.'_'.$id);
                 }
             }
 
-            /* @disregard */
+            /** @disregard */
             $this->redis->del($this->key.'queue_'.$queue.':'.$name);
         } else {
             /** @disregard */
@@ -186,12 +186,12 @@ class Redis extends Driver
 
                     if (! empty($ids)) {
                         foreach ($ids as $id) {
-                            /* @disregard */
+                            /** @disregard */
                             $this->redis->del($this->key.'job_'.$name.'_'.$id);
                         }
                     }
 
-                    /* @disregard */
+                    /** @disregard */
                     $this->redis->del($queue);
                 }
             }
@@ -230,7 +230,7 @@ class Redis extends Driver
         }
 
         foreach ($lists as $list) {
-            /* @disregard */
+            /** @disregard */
             if (! $this->redis->exists($list)) {
                 continue;
             }
@@ -325,9 +325,9 @@ class Redis extends Driver
 
         if (! empty($successful)) {
             foreach ($successful as $job) {
-                /* @disregard */
+                /** @disregard */
                 $this->redis->zrem($job['list'], $job['jid']);
-                /* @disregard */
+                /** @disregard */
                 $this->redis->del($job['key']);
             }
         }
@@ -335,9 +335,9 @@ class Redis extends Driver
         if (! empty($failed)) {
             foreach ($failed as $job) {
                 $this->move_to_failed($job['data'], $job['exception']);
-                /* @disregard */
+                /** @disregard */
                 $this->redis->zrem($job['list'], $job['jid']);
-                /* @disregard */
+                /** @disregard */
                 $this->redis->del($job['key']);
             }
         }
@@ -447,9 +447,9 @@ class Redis extends Driver
 
         if (! empty($successful)) {
             foreach ($successful as $job) {
-                /* @disregard */
+                /** @disregard */
                 $this->redis->zrem($job['queue'], $job['jid']);
-                /* @disregard */
+                /** @disregard */
                 $this->redis->del($job['key']);
             }
         }
@@ -457,9 +457,9 @@ class Redis extends Driver
         if (! empty($failed)) {
             foreach ($failed as $job) {
                 $this->move_to_failed($job['data'], $job['exception']);
-                /* @disregard */
+                /** @disregard */
                 $this->redis->zrem($job['queue'], $job['jid']);
-                /* @disregard */
+                /** @disregard */
                 $this->redis->del($job['key']);
             }
         }
@@ -471,7 +471,7 @@ class Redis extends Driver
      * Move failed job to failed jobs list.
      *
      * @param array      $data
-     * @param \Exception $exception
+     * @param \Throwable $exception
      */
     protected function move_to_failed($data, $exception)
     {
@@ -482,9 +482,9 @@ class Redis extends Driver
             'exception' => $error,
             'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
         ]);
-        /* @disregard */
+        /** @disregard */
         $this->redis->hmset($this->key.'failed:'.$data['id'], $data);
-        /* @disregard */
+        /** @disregard */
         $this->redis->lpush($this->key.'failed_jobs', $data['id']);
     }
 }

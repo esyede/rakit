@@ -504,7 +504,7 @@ abstract class Driver
      *
      * @param string $file
      *
-     * @return $this
+     * @return string
      */
     protected static function mime($file)
     {

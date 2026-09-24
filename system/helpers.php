@@ -823,7 +823,7 @@ if (! function_exists('view')) {
      * @param string $view
      * @param array  $data
      *
-     * @return View
+     * @return \System\View|string
      */
     function view($view, array $data = [])
     {

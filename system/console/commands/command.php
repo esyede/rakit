@@ -77,7 +77,7 @@ abstract class Command
      * @param string $question
      * @param string $default
      *
-     * @return string
+     * @return string|false
      */
     protected function ask($question, $default = null)
     {
@@ -106,7 +106,7 @@ abstract class Command
 
         do {
             $suffix = $default ? '[Y/n]' : '[y/N]';
-            $answer = $this->ask($question.' '.$suffix, false) ?: ($default ? 'y' : 'n');
+            $answer = $this->ask($question.' '.$suffix, (string) ($default ? 'y' : 'n')) ?: ($default ? 'y' : 'n');
             $answer = strtolower((string) $answer);
 
             if (! isset($answers[$answer])) {

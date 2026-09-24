@@ -16,7 +16,7 @@ class SQLite extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function create(Table $table, Magic $command)
     {
@@ -529,7 +529,7 @@ class SQLite extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return string
+     * @return array
      */
     public function drop_foreign_if_exists(Table $table, Magic $command)
     {

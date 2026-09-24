@@ -9,7 +9,7 @@ class URI
     /**
      * Contains the current request URI.
      *
-     * @var string
+     * @var string|null
      */
     public static $uri;
 

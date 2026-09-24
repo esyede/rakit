@@ -23,14 +23,14 @@ class Bar
     /**
      * Content ID.
      *
-     * @var string|null
+     * @var \System\Foundation\Oops\Storage|null
      */
     private $contentId;
 
     /**
      * Storage.
      *
-     * @var string|null
+     * @var \System\Foundation\Oops\Storage|null
      */
     private $storage;
 

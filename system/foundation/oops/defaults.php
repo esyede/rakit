@@ -30,14 +30,14 @@ class Defaults
     /**
      * Default CPU usage.
      *
-     * @var int|null
+     * @var int|string|null
      */
     public $cpuUsage;
 
     /**
      * Default ID.
      *
-     * @var int|null
+     * @var int|string|null
      */
     private $id;
 
@@ -179,7 +179,7 @@ class Defaults
     /**
      * Constructor.
      *
-     * @param int|null $id
+     * @param int|string|null $id
      */
     public function __construct($id)
     {

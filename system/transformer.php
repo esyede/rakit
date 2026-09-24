@@ -12,7 +12,7 @@ class Transformer implements \ArrayAccess, \JsonSerializable
     /**
      * The key the transformed data is put under. NULL means no wrapper.
      *
-     * @var string
+     * @var string|null
      */
     public static $wrap = 'data';
 

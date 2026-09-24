@@ -70,19 +70,19 @@ class Memcached extends Driver
             'attempts' => 0,
         ];
 
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.'data:'.$id, $data, 0); // 0 = never expires
         /** @disregard */
         $jobs = $this->memcached->get($this->key.'queue:'.$queue.':'.$name);
         $jobs = $jobs ?: [];
         $jobs[$timestamp.':'.$id] = $id;
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.'queue:'.$queue.':'.$name, $jobs, 0);
         /** @disregard */
         $all = $this->memcached->get($this->key.'all_jobs');
         $all = $all ?: [];
         $all[$timestamp.':'.$id] = ['id' => $id, 'queue' => $queue, 'name' => $name];
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.'all_jobs', $all, 0);
         $this->log(sprintf('Job added: %s - %s (queue: %s)', $name, $id, $queue));
 
@@ -137,12 +137,12 @@ class Memcached extends Driver
             $jobs = $jobs ?: [];
 
             foreach ($jobs as $id) {
-                /* @disregard */
+                /** @disregard */
                 $this->memcached->delete($this->key.'data:'.$id);
                 $deleted++;
             }
 
-            /* @disregard */
+            /** @disregard */
             $this->memcached->delete($this->key.'queue:'.$queue.':'.$name);
         } else {
             /** @disregard */
@@ -152,7 +152,7 @@ class Memcached extends Driver
 
             foreach ($all as $key => $job) {
                 if ($job['name'] === $name) {
-                    /* @disregard */
+                    /** @disregard */
                     $this->memcached->delete($this->key.'data:'.$job['id']);
                     /** @disregard */
                     $jobs = $this->memcached->get($this->key.'queue:'.$job['queue'].':'.$name);
@@ -162,7 +162,7 @@ class Memcached extends Driver
                         unset($jobs[$key]);
                     }
 
-                    /* @disregard */
+                    /** @disregard */
                     $this->memcached->set($this->key.'queue:'.$job['queue'].':'.$name, $jobs, 0);
                     $deleted++;
                 } else {
@@ -170,7 +170,7 @@ class Memcached extends Driver
                 }
             }
 
-            /* @disregard */
+            /** @disregard */
             $this->memcached->set($this->key.'all_jobs', $items, 0);
         }
 
@@ -453,7 +453,7 @@ class Memcached extends Driver
         $all = $all ?: [];
 
         foreach ($successful as $job) {
-            /* @disregard */
+            /** @disregard */
             $this->memcached->delete($this->key.'data:'.$job['id']);
 
             if (isset($all[$job['key']])) {
@@ -468,11 +468,11 @@ class Memcached extends Driver
                 unset($jobs[$job['key']]);
             }
 
-            /* @disregard */
+            /** @disregard */
             $this->memcached->set($this->key.'queue:'.$job['queue'].':'.$job['name'], $jobs, 0);
         }
 
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.'all_jobs', $all, 0);
     }
 
@@ -480,19 +480,19 @@ class Memcached extends Driver
      * Move the failed job to the failed jobs storage.
      *
      * @param array      $data
-     * @param \Exception $exception
+     * @param \Throwable $exception
      */
     protected function move_to_failed($data, $exception)
     {
         $data['failed_at'] = Carbon::now()->timestamp;
         $data['exception'] = $exception->getMessage();
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.'failed:'.$data['id'], $data, 0);
         /** @disregard */
         $fails = $this->memcached->get($this->key.'failed_jobs');
         $fails = $fails ?: [];
         $fails[] = $data['id'];
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.'failed_jobs', $fails, 0);
     }
 }

@@ -96,7 +96,7 @@ class Table
     /**
      * Add a table row.
      *
-     * @param array|null $data
+     * @param array $data
      */
     public function add_row(array $data = [])
     {
@@ -296,7 +296,7 @@ class Table
     /**
      * Calculate column width.
      *
-     * @return int
+     * @return int|array
      */
     private function calculate_column_width()
     {

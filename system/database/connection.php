@@ -22,7 +22,7 @@ class Connection
     /**
      * Contans PDO connection instance.
      *
-     * @var \PDO
+     * @var \PDO|null
      */
     protected $pdo;
 
@@ -345,9 +345,9 @@ class Connection
     /**
      * Log the executed query.
      *
-     * @param string $sql
-     * @param array  $bindings
-     * @param int    $start
+     * @param string    $sql
+     * @param array     $bindings
+     * @param int|float $start
      */
     protected function log($sql, array $bindings, $start)
     {

@@ -40,7 +40,7 @@ class Database
      */
     public function last()
     {
-        return $this->table()->where('batch', $this->batch())->order_by('name', 'desc')->get()->all();
+        return $this->table()->where('batch', '=', $this->batch())->order_by('name', 'desc')->get()->all();
     }
 
     /**

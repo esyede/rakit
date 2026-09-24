@@ -6,31 +6,31 @@ defined('DS') or exit('No direct access.');
 
 class Dumper
 {
-    /** @var int */
+    /** @var string */
     const DEPTH = 'depth';
 
-    /** @var int */
+    /** @var string */
     const TRUNCATE = 'truncate';
 
-    /** @var int */
+    /** @var string */
     const COLLAPSE = 'collapse';
 
-    /** @var int */
+    /** @var string */
     const COLLAPSE_COUNT = 'collapsecount';
 
-    /** @var int */
+    /** @var string */
     const LOCATION = 'location';
 
-    /** @var int */
+    /** @var string */
     const OBJECT_EXPORTERS = 'exporters';
 
-    /** @var int */
+    /** @var string */
     const LIVE = 'live';
 
-    /** @var int */
+    /** @var string */
     const DEBUGINFO = 'debuginfo';
 
-    /** @var int */
+    /** @var string */
     const KEYS_TO_HIDE = 'keystohide';
 
     /** @var int */

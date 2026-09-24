@@ -94,7 +94,7 @@ class APC extends Driver
      */
     public function put($key, $value, $minutes)
     {
-        /* @disregard */
+        /** @disregard */
         static::apcu()
             ? apcu_store($this->key.$key, $value, $minutes * 60)
             : apc_store($this->key.$key, $value, $minutes * 60);
@@ -129,7 +129,7 @@ class APC extends Driver
      */
     public function forget($key)
     {
-        /* @disregard */
+        /** @disregard */
         static::apcu() ? apcu_delete($this->key.$key) : apc_delete($this->key.$key);
     }
 
@@ -139,12 +139,12 @@ class APC extends Driver
     public function flush()
     {
         if (static::apcu()) {
-            /* @disregard */
+            /** @disregard */
             apcu_clear_cache();
             return;
         }
 
-        /* @disregard */
+        /** @disregard */
         apc_clear_cache('user');
     }
 }

@@ -478,7 +478,7 @@ class Storage
      * @param string   $path
      * @param int|null $mode
      *
-     * @return bool|int
+     * @return bool|int|string
      */
     public static function chmod($path, $mode = null)
     {
@@ -534,7 +534,7 @@ class Storage
      *
      * @param string $path
      *
-     * @return string
+     * @return string|false
      */
     public static function mime($path)
     {
@@ -642,18 +642,21 @@ class Storage
         // Validate glob pattern base directory (strip wildcards)
         $base = $pattern;
         $wildPos = strcspn($pattern, '*?[');
+
         if ($wildPos < strlen($pattern)) {
             $base = substr($pattern, 0, $wildPos);
             $base = dirname($base);
         } else {
             $base = dirname($pattern);
         }
+
         if ('' !== $base && '.' !== $base && false === strpos($base, '*') && false === strpos($base, '?')) {
             try {
                 static::validate_path($base);
             } catch (\Throwable $e) {
                 // Missing base: let glob return empty. Containment is checked per file below.
             } catch (\Exception $e) {
+                // Missing base: let glob return empty. Containment is checked per file below.
             }
         }
         return glob($pattern, $flags);

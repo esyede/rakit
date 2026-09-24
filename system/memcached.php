@@ -49,7 +49,7 @@ class Memcached
         $memcached = new \Memcached();
 
         foreach ($servers as $server) {
-            /* @disregard */
+            /** @disregard */
             $memcached->addServer(
                 $server['host'],
                 $server['port'],
@@ -57,7 +57,7 @@ class Memcached
             );
         }
 
-        /* @disregard */
+        /** @disregard */
         if (false === $memcached->getVersion()) {
             throw new \Exception('Could not establish memcached connection.');
         }

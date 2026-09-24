@@ -121,7 +121,7 @@ abstract class Provider
         $type = curl_getinfo($ch);
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             curl_close($ch);
         }
 
@@ -149,7 +149,7 @@ abstract class Provider
             }
 
             if (PHP_VERSION_ID < 80000) {
-                /* @disregard */
+                /** @disregard */
                 curl_close($ch);
             }
 

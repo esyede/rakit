@@ -28,8 +28,8 @@ class Redirect extends Response
     /**
      * Create a redirect response to the previous page.
      *
-     * @param int    $status
-     * @param string $fallback
+     * @param int          $status
+     * @param string|false $fallback
      *
      * @return Redirect|mixed
      */

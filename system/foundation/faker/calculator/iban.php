@@ -11,14 +11,14 @@ class Iban
      *
      * @param string $iban
      *
-     * @return string
+     * @return int|string
      */
     public static function checksum($iban)
     {
         $iban = (string) $iban;
         $iban = substr($iban, 4).substr($iban, 0, 2).'00';
         $iban = preg_replace_callback('/[A-Z]/', [__CLASS__, 'alphaToNumberCallback'], $iban);
-        return str_pad(98 - static::mod97($iban), 2, '0', STR_PAD_LEFT);
+        return (string) str_pad(98 - static::mod97($iban), 2, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -26,7 +26,7 @@ class Iban
      *
      * @param array $match
      *
-     * @return string
+     * @return int|string
      */
     private static function alphaToNumberCallback($match)
     {
@@ -38,7 +38,7 @@ class Iban
      *
      * @param string $char
      *
-     * @return int
+     * @return int|string
      */
     public static function alphaToNumber($char)
     {
@@ -50,7 +50,7 @@ class Iban
      *
      * @param string $number
      *
-     * @return int
+     * @return int|string
      */
     public static function mod97($number)
     {

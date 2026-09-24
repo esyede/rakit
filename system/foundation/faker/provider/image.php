@@ -64,7 +64,7 @@ class Image extends Base
         $success = curl_exec($ch);
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             curl_close($ch);
         }
 

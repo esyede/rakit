@@ -28,14 +28,14 @@ class Query
     /**
      * Contains the selected columns for the SELECT clause.
      *
-     * @var array
+     * @var array|null
      */
     public $selects;
 
     /**
      * Contains aggregate function information.
      *
-     * @var array
+     * @var array|null
      */
     public $aggregate;
 
@@ -49,7 +49,7 @@ class Query
     /**
      * BContains the UNION clauses.
      *
-     * @var array
+     * @var array|null
      */
     public $unions = [];
 
@@ -77,35 +77,35 @@ class Query
     /**
      * Contains the GROUP BY clauses.
      *
-     * @var array
+     * @var array|null
      */
     public $groupings;
 
     /**
      * Contains the HAVING clauses.
      *
-     * @var array
+     * @var array|null
      */
     public $havings;
 
     /**
      * Contains the ORDER BY clauses.
      *
-     * @var array
+     * @var array|null
      */
     public $orderings;
 
     /**
      * Contains the LIMIT value.
      *
-     * @var int
+     * @var int|null
      */
     public $limit;
 
     /**
      * Contains the OFFSET value.
      *
-     * @var int
+     * @var int|null
      */
     public $offset;
 
@@ -811,7 +811,7 @@ class Query
      *
      * @param array $values
      *
-     * @return int
+     * @return mixed
      */
     public function update(array $values)
     {
@@ -823,7 +823,7 @@ class Query
     /**
      * Execute the DELETE query.
      *
-     * @return int
+     * @return mixed
      */
     public function delete()
     {
@@ -838,7 +838,7 @@ class Query
      * @param int    $amount
      * @param array  $extra
      *
-     * @return int
+     * @return mixed
      */
     public function increment($column, $amount = 1, array $extra = [])
     {
@@ -854,7 +854,7 @@ class Query
      * @param int    $amount
      * @param array  $extra
      *
-     * @return int
+     * @return mixed
      */
     public function decrement($column, $amount = 1, array $extra = [])
     {
@@ -1484,7 +1484,7 @@ class Query
     public function find_or_fail($id, array $columns = ['*'])
     {
         $result = $this->find($id, $columns);
-        return (null === $result) ? abort(404) : $result;
+        return (null === $result) ? abort('404') : $result;
     }
 
     /**
@@ -1510,7 +1510,7 @@ class Query
     public function first_or_fail($columns = ['*'])
     {
         $result = $this->first($columns);
-        return (null === $result) ? abort(404) : $result;
+        return (null === $result) ? abort('404') : $result;
     }
 
     /**
@@ -1937,7 +1937,7 @@ class Query
      *
      * @param array $columns
      *
-     * @return int
+     * @return mixed
      */
     protected function count_for_pagination(array $columns)
     {
@@ -1965,7 +1965,7 @@ class Query
      *
      * @param array $columns
      *
-     * @return int
+     * @return mixed
      */
     protected function count_grouped(array $columns)
     {
@@ -2003,7 +2003,7 @@ class Query
      *
      * @param string $column
      *
-     * @return int
+     * @return mixed
      */
     public function count($column = '*')
     {

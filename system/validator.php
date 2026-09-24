@@ -1257,7 +1257,7 @@ class Validator
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             curl_close($ch);
         }
 

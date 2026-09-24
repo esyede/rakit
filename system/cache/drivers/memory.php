@@ -11,7 +11,7 @@ class Memory extends Sectionable
     /**
      * Contains the cached items.
      *
-     * @var string
+     * @var array
      */
     public $storage = [];
 

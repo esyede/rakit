@@ -11,14 +11,14 @@ class APC extends Driver
     /**
      * Contains the APC cache driver instance.
      *
-     * @var System\Cache\Drivers\APC
+     * @var \System\Cache\Drivers\APC
      */
     private $apc;
 
     /**
      * Constructor.
      *
-     * @param System\Cache\Drivers\APC $apc
+     * @param \System\Cache\Drivers\APC $apc
      */
     public function __construct(CacheAPC $apc)
     {
@@ -34,7 +34,7 @@ class APC extends Driver
      */
     public function load($id)
     {
-        /* @disregard */
+        /** @disregard */
         return $this->apc->get($id);
     }
 
@@ -47,7 +47,7 @@ class APC extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
-        /* @disregard */
+        /** @disregard */
         $this->apc->put($session['id'], $session, $config['lifetime']);
     }
 
@@ -58,7 +58,7 @@ class APC extends Driver
      */
     public function delete($id)
     {
-        /* @disregard */
+        /** @disregard */
         $this->apc->forget($id);
     }
 }

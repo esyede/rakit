@@ -157,7 +157,7 @@ class Miscellaneous extends Base
      */
     public static function md5()
     {
-        return md5(mt_rand());
+        return md5((string) mt_rand());
     }
 
     /**
@@ -167,7 +167,7 @@ class Miscellaneous extends Base
      */
     public static function sha1()
     {
-        return sha1(mt_rand());
+        return sha1((string) mt_rand());
     }
 
     /**
@@ -177,7 +177,7 @@ class Miscellaneous extends Base
      */
     public static function sha256()
     {
-        return hash('sha256', mt_rand());
+        return hash('sha256', (string) mt_rand());
     }
 
     /**

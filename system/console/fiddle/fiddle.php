@@ -99,7 +99,7 @@ class Fiddle
     public function start()
     {
         declare(ticks = 1);
-        /* @disregard */
+        /** @disregard */
         pcntl_signal(SIGINT, SIG_IGN, true);
 
         if (! $pipes = stream_socket_pair(STREAM_PF_UNIX, STREAM_SOCK_STREAM, STREAM_IPPROTO_IP)) {
@@ -111,7 +111,7 @@ class Fiddle
 
         if ($pid > 0) {
             if (function_exists('setproctitle')) {
-                /* @disregard */
+                /** @disregard */
                 setproctitle('Repl (master)');
             }
 
@@ -122,7 +122,7 @@ class Fiddle
             throw new \Exception('Failed to fork child process');
         } else {
             if (function_exists('setproctitle')) {
-                /* @disregard */
+                /** @disregard */
                 setproctitle('Repl (worker)');
             }
 

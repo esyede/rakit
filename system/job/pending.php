@@ -12,7 +12,7 @@ class Pending
     /**
      * Contains the job name.
      *
-     * @var string
+     * @var string|null
      */
     protected $name;
 

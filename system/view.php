@@ -23,7 +23,7 @@ class View implements \ArrayAccess
     /**
      * Contains the view name.
      *
-     * @var string
+     * @var string|array|null
      */
     public $view;
 
@@ -37,7 +37,7 @@ class View implements \ArrayAccess
     /**
      * Contains the (absolute) view path on disk.
      *
-     * @var string
+     * @var string|array|null
      */
     public $path;
 
@@ -65,7 +65,7 @@ class View implements \ArrayAccess
     /**
      * Contains the view that will be rendered last.
      *
-     * @var string
+     * @var string|array|null
      */
     public static $last;
 
@@ -581,7 +581,7 @@ class View implements \ArrayAccess
      * @param string $method
      * @param array  $parameters
      *
-     * @return $this
+     * @return $this|View
      */
     public function __call($method, array $parameters)
     {

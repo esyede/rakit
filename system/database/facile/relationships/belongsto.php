@@ -11,7 +11,7 @@ class BelongsTo extends Relationship
     /**
      * Get the results of the relationship.
      *
-     * @return Model
+     * @return \System\Database\Facile\Model
      */
     public function results()
     {
@@ -112,7 +112,7 @@ class BelongsTo extends Relationship
      *
      * @param mixed $id
      *
-     * @return Facile
+     * @return \System\Database\Facile\Model
      */
     public function bind($id)
     {
@@ -128,7 +128,7 @@ class BelongsTo extends Relationship
      *
      * @param string $parent_table
      *
-     * @return \System\Database\Query
+     * @return \System\Database\Facile\Query
      */
     public function correlate($parent_table)
     {

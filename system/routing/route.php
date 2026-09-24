@@ -83,8 +83,8 @@ class Route
     /**
      * Set the route parameters, merging with default values if necessary.
      *
-     * @param array $action
-     * @param array $parameters
+     * @param string|array $action
+     * @param array        $parameters
      */
     protected function parameters($action, array $parameters)
     {

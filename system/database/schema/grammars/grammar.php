@@ -16,7 +16,7 @@ abstract class Grammar extends BaseGrammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return string
+     * @return string|array
      */
     public function foreign(Table $table, Magic $command)
     {

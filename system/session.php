@@ -16,7 +16,7 @@ class Session
     /**
      * Contains the instance session (singleton).
      *
-     * @var Session\Payload
+     * @var Session\Payload|null
      */
     public static $instance;
 

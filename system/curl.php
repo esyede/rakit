@@ -225,7 +225,7 @@ class Curl
      *
      * @param bool $enabled
      *
-     * @return bool
+     * @return int
      */
     public static function verify_peer($enabled = true)
     {
@@ -237,7 +237,7 @@ class Curl
      *
      * @param bool $enabled
      *
-     * @return bool
+     * @return int
      */
     public static function verify_host($enabled = true)
     {
@@ -683,7 +683,7 @@ class Curl
         }
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             curl_close(static::$handler);
         }
 
@@ -743,7 +743,7 @@ class Curl
      * @param string $path
      * @param string $alias
      *
-     * @return string
+     * @return \CURLFile|string
      */
     public static function body_file($path, $alias = '')
     {
@@ -974,6 +974,6 @@ class Curl
         $version = 103 + (((($year < 2020) ? 2020 : $year) - 2020) * 2);
         $minor = rand(0, 3);
 
-        return 'Mozilla/5.0 '.str_replace(['[v]', '[y]', '[m]'], [$version, $year, $minor], $agents[$platform]);
+        return 'Mozilla/5.0 '.str_replace(['[v]', '[y]', '[m]'], [(string) $version, (string) $year, (string) $minor], $agents[$platform]);
     }
 }

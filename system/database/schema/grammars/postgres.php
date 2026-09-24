@@ -15,7 +15,7 @@ class Postgres extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function create(Table $table, Magic $command)
     {
@@ -29,7 +29,7 @@ class Postgres extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function add(Table $table, Magic $command)
     {

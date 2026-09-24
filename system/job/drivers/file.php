@@ -407,7 +407,7 @@ class File extends Driver
      * Move the failed job to a separate file.
      *
      * @param array      $data
-     * @param \Exception $exception
+     * @param \Throwable $exception
      */
     protected function move_to_failed($data, $exception)
     {

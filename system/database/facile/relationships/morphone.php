@@ -86,7 +86,7 @@ class MorphOne extends HasOne
      *
      * @param string $parent_table
      *
-     * @return \System\Database\Query
+     * @return \System\Database\Facile\Query
      */
     public function correlate($parent_table)
     {

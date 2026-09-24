@@ -115,9 +115,9 @@ class Response
     /**
      * Create a new Response instance with Facile Model content.
      *
-     * @param Facile|array $data
-     * @param int          $status
-     * @param array        $headers
+     * @param \System\Database\Facile\Model|array $data
+     * @param int                                  $status
+     * @param array                                $headers
      *
      * @return Response
      */
@@ -487,7 +487,7 @@ class Response
     /**
      * Get response headers.
      *
-     * @return \System\Foundation\Http\Parameter
+     * @return \System\Foundation\Http\Helper
      */
     public function headers()
     {

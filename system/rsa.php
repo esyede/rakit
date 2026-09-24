@@ -50,7 +50,7 @@ class RSA
         }
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             openssl_free_key($pubkey);
         }
 
@@ -91,7 +91,7 @@ class RSA
         }
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             openssl_free_key($privkey);
         }
 
@@ -153,7 +153,7 @@ class RSA
 
             if ((static::$details['private_key'] || static::$details['public_key']) && PHP_VERSION_ID < 80000) {
                 if (! is_null($privkey)) {
-                    /* @disregard */
+                    /** @disregard */
                     openssl_free_key($privkey);
                 }
             }
@@ -188,7 +188,7 @@ class RSA
             static::$details['public_key'] = $details['key'];
 
             if (PHP_VERSION_ID < 80000) {
-                /* @disregard */
+                /** @disregard */
                 openssl_free_key($privkey);
             }
         }

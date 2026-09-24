@@ -15,7 +15,7 @@ class Payload
     /**
      * Contains the session data.
      *
-     * @var array
+     * @var array|null
      */
     public $session;
 
@@ -295,8 +295,10 @@ class Payload
         }
 
         if (mt_rand(1, $out_of) <= $chances) {
-            $lifetime = isset($config['lifetime']) ? (int) $config['lifetime'] : 0;
-            $this->driver->sweep(time() - ($lifetime * 60));
+            if (method_exists($this->driver, 'sweep')) {
+                /** @disregard */
+                $this->driver->sweep(time() - ((isset($config['lifetime']) ? (int) $config['lifetime'] : 0) * 60));
+            }
         }
     }
 

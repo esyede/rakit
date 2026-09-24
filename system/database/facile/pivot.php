@@ -16,7 +16,7 @@ class Pivot extends Model
     /**
      * Contains the database connection used by the pivot model.
      *
-     * @var System\Database\Connection
+     * @var string|null
      */
     protected $pivot_connection;
 
@@ -31,7 +31,7 @@ class Pivot extends Model
      * Constructor.
      *
      * @param string $table
-     * @param string $connection
+     * @param string|null $connection
      */
     public function __construct($table, $connection = null)
     {
@@ -54,7 +54,7 @@ class Pivot extends Model
     /**
      * Get the database connection used by the pivot model.
      *
-     * @return string
+     * @return string|null
      */
     public function connection()
     {

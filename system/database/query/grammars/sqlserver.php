@@ -68,7 +68,7 @@ class SQLServer extends Grammar
      * @param Query $query
      * @param array $components
      *
-     * @return array
+     * @return string
      */
     protected function ansi_offset(Query $query, $components)
     {

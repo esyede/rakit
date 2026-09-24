@@ -96,7 +96,7 @@ class Database extends Driver implements Sweeper
     /**
      * Get a new query builder for the session table.
      *
-     * @return Query
+     * @return \System\Database\Query
      */
     private function table()
     {

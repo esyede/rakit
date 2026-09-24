@@ -676,17 +676,17 @@ class Str
         $result = 'c'.str_pad(base_convert((string) floor(microtime(true) * 1000), 10, 36), 8, '0', STR_PAD_LEFT);
         static::$cuids['counter']++;
         static::$cuids['counter'] = (static::$cuids['counter'] > 1679615) ? 0 : static::$cuids['counter'];
-        $result .= str_pad(base_convert(static::$cuids['counter'], 10, 36), 4, '0', STR_PAD_LEFT);
+        $result .= str_pad(base_convert((string) static::$cuids['counter'], 10, 36), 4, '0', STR_PAD_LEFT);
 
         if (static::$cuids['fingerprint'] === null) {
             $pid = function_exists('getmypid') ? getmypid() : static::integers(1, 32768);
             $dec = hexdec(substr(md5((gethostname() ?: 'unknown').$pid.bin2hex(static::bytes(2))), 0, 8));
-            static::$cuids['fingerprint'] = str_pad(substr(base_convert($dec, 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
+            static::$cuids['fingerprint'] = str_pad(substr(base_convert((string) $dec, 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
         }
 
         $result .= static::$cuids['fingerprint'];
-        $result .= str_pad(substr(base_convert(hexdec(bin2hex(static::bytes(2))), 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
-        $result .= str_pad(substr(base_convert(hexdec(bin2hex(static::bytes(2))), 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
+        $result .= str_pad(substr(base_convert((string) hexdec(bin2hex(static::bytes(2))), 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
+        $result .= str_pad(substr(base_convert((string) hexdec(bin2hex(static::bytes(2))), 10, 36), 0, 4), 4, '0', STR_PAD_LEFT);
 
         return $result;
     }

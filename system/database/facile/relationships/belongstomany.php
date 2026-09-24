@@ -202,7 +202,7 @@ class BelongsToMany extends Relationship
     /**
      * Get the query builder for the joining table.
      *
-     * @return Query
+     * @return \System\Database\Query
      */
     protected function joining_table()
     {
@@ -355,7 +355,7 @@ class BelongsToMany extends Relationship
     public function pivot()
     {
         $pivot = new Pivot($this->joining, $this->model->connection());
-        return new HasMany($this->base, $pivot, $this->foreign_key());
+        return new HasMany($this->base, (string) $pivot, $this->foreign_key());
     }
 
     /**
@@ -383,7 +383,7 @@ class BelongsToMany extends Relationship
      *
      * @param string $parent_table
      *
-     * @return \System\Database\Query
+     * @return \System\Database\Facile\Query
      */
     public function correlate($parent_table)
     {

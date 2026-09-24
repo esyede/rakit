@@ -21,126 +21,126 @@ class Request
     /**
      * Request attributes.
      *
-     * @var array
+     * @var Parameter
      */
     public $attributes;
 
     /**
      * Request input.
      *
-     * @var array
+     * @var Parameter
      */
     public $request;
 
     /**
      * Request query parameters.
      *
-     * @var array
+     * @var Parameter
      */
     public $query;
 
     /**
      * Request server parameters.
      *
-     * @var array
+     * @var Server
      */
     public $server;
 
     /**
      * Request files.
      *
-     * @var array
+     * @var File
      */
     public $files;
 
     /**
      * Request cookies.
      *
-     * @var array
+     * @var object|array
      */
     public $cookies;
 
     /**
      * Request headers.
      *
-     * @var array
+     * @var Header
      */
     public $headers;
 
     /**
      * Request content.
      *
-     * @var string
+     * @var string|false
      */
     protected $content;
 
     /**
      * Request languages.
      *
-     * @var array
+     * @var array|null
      */
     protected $languages;
 
     /**
      * Request charsets.
      *
-     * @var array
+     * @var array|null
      */
     protected $charsets;
 
     /**
      * Request acceptable content types.
      *
-     * @var array
+     * @var array|null
      */
     protected $acceptableContentTypes;
 
     /**
      * Request path info.
      *
-     * @var string
+     * @var string|null
      */
     protected $pathInfo;
 
     /**
      * Request URI.
      *
-     * @var string
+     * @var string|null
      */
     protected $requestUri;
 
     /**
      * Request base URL.
      *
-     * @var string
+     * @var string|null
      */
     protected $baseUrl;
 
     /**
      * Request base path.
      *
-     * @var string
+     * @var string|null
      */
     protected $basePath;
 
     /**
      * Request method.
      *
-     * @var string
+     * @var string|null
      */
     protected $method;
 
     /**
      * Request format.
      *
-     * @var string
+     * @var string|null
      */
     protected $format;
 
     /**
      * Request session.
      *
-     * @var \Rakit\System\Foundation\Http\Session
+     * @var object
      */
     protected $session;
 
@@ -209,8 +209,15 @@ class Request
      * @param array  $server
      * @param string $content
      */
-    public function __construct(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {
+    public function __construct(
+        array $query = [],
+        array $request = [],
+        array $attributes = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
+        $content = null
+    ) {
         $this->initialize($query, $request, $attributes, $cookies, $files, $server, $content);
     }
 
@@ -225,8 +232,15 @@ class Request
      * @param array  $server
      * @param string $content
      */
-    public function initialize(array $query = [], array $request = [], array $attributes = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {
+    public function initialize(
+        array $query = [],
+        array $request = [],
+        array $attributes = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
+        $content = null
+    ) {
         $this->request = new Parameter($request);
         $this->query = new Parameter($query);
         $this->attributes = new Parameter($attributes);
@@ -262,8 +276,10 @@ class Request
         $httpType = (string) $request->server->get('HTTP_CONTENT_TYPE');
         $method = (string) $request->server->get('REQUEST_METHOD', 'GET');
 
-        if ((0 === strpos($type, 'application/x-www-form-urlencoded') || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
-        && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])) {
+        if (
+            (0 === strpos($type, 'application/x-www-form-urlencoded') || (0 === strpos($httpType, 'application/x-www-form-urlencoded')))
+            && in_array(strtoupper($method), ['PUT', 'DELETE', 'PATCH'])
+        ) {
             parse_str($request->getContent(), $data);
             $request->request = new Parameter($data);
         }
@@ -284,8 +300,15 @@ class Request
      *
      * @return static
      */
-    public static function create($uri, $method = 'GET', array $parameters = [], array $cookies = [], array $files = [], array $server = [], $content = null)
-    {
+    public static function create(
+        $uri,
+        $method = 'GET',
+        array $parameters = [],
+        array $cookies = [],
+        array $files = [],
+        array $server = [],
+        $content = null
+    ) {
         $defaults = [
             'SERVER_NAME' => 'localhost',
             'SERVER_PORT' => 80,
@@ -357,7 +380,12 @@ class Request
 
         $qs = http_build_query($query, '', '&');
         $uri = $components['path'].('' !== $qs ? '?'.$qs : '');
-        $server = array_replace($defaults, $server, ['REQUEST_METHOD' => $method, 'PATH_INFO' => '', 'REQUEST_URI' => $uri, 'QUERY_STRING' => $qs]);
+        $server = array_replace($defaults, $server, [
+            'REQUEST_METHOD' => $method,
+            'PATH_INFO' => '',
+            'REQUEST_URI' => $uri,
+            'QUERY_STRING' => $qs,
+        ]);
         return new static($query, $request, [], $cookies, $files, $server, $content);
     }
 
@@ -373,8 +401,14 @@ class Request
      *
      * @return static
      */
-    public function duplicate($query = null, $request = null, $attributes = null, $cookies = null, $files = null, $server = null)
-    {
+    public function duplicate(
+        $query = null,
+        $request = null,
+        $attributes = null,
+        $cookies = null,
+        $files = null,
+        $server = null
+    ) {
         $clone = clone $this;
 
         if (null !== $query) {
@@ -436,7 +470,12 @@ class Request
      */
     public function __toString()
     {
-        return sprintf('%s %s %s', $this->getMethod(), $this->getRequestUri(), $this->server->get('SERVER_PROTOCOL'))."\r\n".$this->headers."\r\n".$this->getContent();
+        return sprintf(
+            '%s %s %s',
+            $this->getMethod(),
+            $this->getRequestUri(),
+            $this->server->get('SERVER_PROTOCOL')
+        )."\r\n".$this->headers."\r\n".$this->getContent();
     }
 
     /**
@@ -667,7 +706,10 @@ class Request
             return $ip;
         }
 
-        if (! self::$trustedHeaders[self::HEADER_CLIENT_IP] || ! $this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])) {
+        if (
+            ! self::$trustedHeaders[self::HEADER_CLIENT_IP]
+            || ! $this->headers->has(self::$trustedHeaders[self::HEADER_CLIENT_IP])
+        ) {
             return $ip;
         }
 
@@ -800,7 +842,11 @@ class Request
     {
         $scheme = $this->getScheme();
         $port = $this->getPort();
-        return $this->getHost().((('http' === $scheme && 80 === (int) $port) || ('https' === $scheme && 443 === (int) $port)) ? '' : ':'.$port);
+        return $this->getHost()
+            . ((
+                ('http' === $scheme && 80 === (int) $port)
+                || ('https' === $scheme && 443 === (int) $port)
+            ) ? '' : ':'.$port);
     }
 
     /**
@@ -835,7 +881,10 @@ class Request
     public function getUri()
     {
         $query = $this->getQueryString();
-        return $this->getSchemeAndHttpHost().$this->getBaseUrl().$this->getPathInfo().((null !== $query) ? '?'.$query : '');
+        return $this->getSchemeAndHttpHost()
+            . $this->getBaseUrl()
+            . $this->getPathInfo()
+            . ((null !== $query) ? '?'.$query : '');
     }
 
     /**

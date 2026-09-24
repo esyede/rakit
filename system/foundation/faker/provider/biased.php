@@ -13,7 +13,7 @@ class Biased extends Base
      * @param int $max
      * @param callable|null $callback
      *
-     * @return int
+     * @return int|float
      */
     public function biasedNumberBetween($min = 0, $max = 100, $callback = null)
     {
@@ -31,7 +31,7 @@ class Biased extends Base
      *
      * @param float $x
      *
-     * @return int
+     * @return int|float
      */
     protected static function unbiased($x)
     {

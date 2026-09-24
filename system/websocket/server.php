@@ -40,7 +40,7 @@ class Server
     /**
      * Contains the master listening socket.
      *
-     * @var resource
+     * @var resource|null
      */
     protected $master;
 
@@ -446,7 +446,7 @@ class Server
         }
 
         $user->headers = $headers;
-        $user->handshake = $buffer;
+        $user->handshake = (string) $buffer;
 
         $hash = sha1($headers['sec-websocket-key'].static::MAGIC);
         $token = '';
@@ -1086,7 +1086,7 @@ class Server
     {
         foreach ($this->sockets as $socket) {
             if ($socket !== $this->master && is_resource($socket)) {
-                /* @disregard */
+                /** @disregard */
                 @fclose($socket);
             } else {
                 $socket = null;
@@ -1094,7 +1094,7 @@ class Server
         }
 
         if (is_resource($this->master)) {
-            /* @disregard */
+            /** @disregard */
             @fclose($this->master);
         } else {
             $this->master = null;

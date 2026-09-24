@@ -410,7 +410,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Flatten a multi-dimensional collection into a single dimension.
      *
-     * @param int $depth
+     * @param float|int $depth
      *
      * @return static
      */
@@ -423,7 +423,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      * Flatten the items in the collection.
      *
      * @param array $items
-     * @param int $depth
+     * @param float|int $depth
      *
      * @return array
      */
@@ -1346,7 +1346,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Get a CachingIterator for the items.
      *
-     * @param int $flags
+     * @param \CachingIterator::* $flags
      *
      * @return \CachingIterator
      */
@@ -1369,7 +1369,7 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     /**
      * Create a base collection instance if applicable.
      *
-     * @return static
+     * @return self
      */
     public function to_base()
     {

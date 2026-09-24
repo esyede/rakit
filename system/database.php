@@ -153,7 +153,7 @@ class Database
      *
      * @param string $value
      *
-     * @return Expression
+     * @return Database\Expression
      */
     public static function raw($value)
     {

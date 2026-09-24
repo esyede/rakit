@@ -16,7 +16,7 @@ class Redis
     /**
      * Contains the Redis port.
      *
-     * @var int
+     * @var int|string
      */
     protected $port;
 
@@ -30,7 +30,7 @@ class Redis
     /**
      * Contains the Redis connection.
      *
-     * @var resource
+     * @var resource|null
      */
     protected $connection;
 

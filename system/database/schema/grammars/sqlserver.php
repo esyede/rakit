@@ -22,7 +22,7 @@ class SQLServer extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function create(Table $table, Magic $command)
     {
@@ -36,7 +36,7 @@ class SQLServer extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function add(Table $table, Magic $command)
     {
@@ -326,7 +326,7 @@ class SQLServer extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return string
+     * @return array
      */
     public function drop_fulltext(Table $table, Magic $command)
     {
@@ -451,7 +451,7 @@ class SQLServer extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return string
+     * @return array
      */
     public function drop_fulltext_if_exists(Table $table, Magic $command)
     {

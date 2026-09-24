@@ -27,8 +27,8 @@ define('RAKIT_KEY', require path('rakit_key'));
 |--------------------------------------------------------------------------
 | Load Core Classes
 |--------------------------------------------------------------------------
-| Used by every request, or by the configuration classes themselves, so requiring
-| them is faster than going through the autoloader.
+| Used by every request, or by the configuration classes themselves,
+| so requiring them is faster than going through the autoloader.
 */
 
 require path('system').'container.php';
@@ -63,7 +63,7 @@ Autoloader::namespaces(['System' => path('system')]);
 |--------------------------------------------------------------------------
 | Build the Foundation Request
 |--------------------------------------------------------------------------
-| The HTTP details live in 'foundation/http/', which keeps 'system/request.php' short.
+| Buid the Rakit HTTP wrapper from the HTTP foundation.
 */
 
 Request::$foundation = Foundation\Http\Request::createFromGlobals();
@@ -72,14 +72,21 @@ Request::$foundation = Foundation\Http\Request::createFromGlobals();
 |--------------------------------------------------------------------------
 | Determine Application Environment
 |--------------------------------------------------------------------------
-| From the URI mapping in "paths.php", or from the "--env=" option, which wins.
+| From "paths.php" URI mapping, or from the "--env=" option, which wins.
 */
+
+$environments = isset($environments) ? $environments : [];
 
 if (Request::cli()) {
     $environment = get_cli_option('env', getenv('RAKIT_ENV'));
-    $environment = empty($environment) ? Request::detect_env($environments, gethostname()) : $environment;
+    $environment = empty($environment)
+        ? Request::detect_env($environments, gethostname())
+        : $environment;
 } else {
-    $environment = Request::detect_env($environments, Request::foundation()->getRootUrl());
+    $environment = Request::detect_env(
+        $environments,
+        Request::foundation()->getRootUrl()
+    );
 }
 
 /*
@@ -97,7 +104,7 @@ if (isset($environment) && ! empty($environment)) {
 |--------------------------------------------------------------------------
 | Set the CLI Options
 |--------------------------------------------------------------------------
-| Parse the console arguments into $_SERVER, so they are reachable from anywhere.
+| Parse the console arguments into $_SERVER, so they are reachable anywhere.
 */
 
 if (Request::cli()) {
@@ -109,8 +116,8 @@ if (Request::cli()) {
 |--------------------------------------------------------------------------
 | Register All Packages (Lazy Loading)
 |--------------------------------------------------------------------------
-| Registered only, not booted: a package boots the first time it is reached, which
-| keeps the startup cost down.
+| Registered only, not booted: a package boots the first time it is reached,
+| which keeps the startup cost down.
 */
 
 $packages = require path('app').'packages.php';

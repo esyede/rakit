@@ -71,7 +71,7 @@ class Router
     /**
      * Contains package name for the current route.
      *
-     * @var string
+     * @var string|null
      */
     public static $package;
 
@@ -187,7 +187,7 @@ class Router
         foreach ($route as $uri) {
             if ('*' === $method) {
                 foreach (static::$methods as $verb) {
-                    static::register($verb, $route, $action);
+                    static::register($verb, $uri, $action);
                 }
 
                 continue;

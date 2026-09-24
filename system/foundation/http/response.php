@@ -9,7 +9,7 @@ class Response
     /**
      * Response headers.
      *
-     * @var array
+     * @var Helper
      */
     public $headers;
 
@@ -223,7 +223,7 @@ class Response
 
         if ('1.0' === $this->getProtocolVersion() && 'no-cache' === $this->headers->get('Cache-Control')) {
             $this->headers->set('Pragma', 'no-cache');
-            $this->headers->set('Expires', -1);
+            $this->headers->set('Expires', '-1');
         }
 
         return $this;
@@ -390,7 +390,7 @@ class Response
     /**
      * Get the current status code.
      *
-     * @return string
+     * @return int
      */
     public function getStatusCode()
     {
@@ -536,7 +536,7 @@ class Response
     public function expire()
     {
         if ($this->isFresh()) {
-            $this->headers->set('Age', $this->getMaxAge());
+            $this->headers->set('Age', (string) $this->getMaxAge());
         }
 
         return $this;
@@ -575,7 +575,7 @@ class Response
     /**
      * Get the Max-Age header value.
      *
-     * @return int|null
+     * @return int|string|null
      */
     public function getMaxAge()
     {
@@ -622,7 +622,7 @@ class Response
     /**
      * Get the response time-to-live (TTL) in seconds.
      *
-     * @return int|null
+     * @return int|string|null
      */
     public function getTtl()
     {
@@ -971,10 +971,10 @@ class Response
         $cliRequest = defined('STDIN') || 'cli' === php_sapi_name() || ('cgi' === substr((string) PHP_SAPI, 0, 3) && is_callable('getenv') && getenv('TERM'));
 
         if (function_exists('fastcgi_finish_request')) {
-            /* @disregard */
+            /** @disregard */
             fastcgi_finish_request();
         } elseif (function_exists('litespeed_finish_request')) {
-            /* @disregard */
+            /** @disregard */
             litespeed_finish_request();
         } elseif (! $cliRequest) {
             $previous = null;

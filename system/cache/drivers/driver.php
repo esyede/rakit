@@ -73,9 +73,9 @@ abstract class Driver
     /**
      * Store an item in the cache for a given number of minutes.
      *
-     * @param string $key
-     * @param mixed  $value
-     * @param int    $minutes
+     * @param string   $key
+     * @param mixed    $value
+     * @param int|null $minutes
      */
     abstract public function put($key, $value, $minutes);
 
@@ -93,10 +93,10 @@ abstract class Driver
     /**
      * Get an item from the cache, storing the default for the given minutes when it is missing.
      *
-     * @param string $key
-     * @param int    $minutes
-     * @param mixed  $default
-     * @param string $function
+     * @param string   $key
+     * @param int|null $minutes
+     * @param mixed    $default
+     * @param string   $function
      *
      * @return mixed
      */
@@ -150,8 +150,8 @@ abstract class Driver
     /**
      * Increment a numeric value in the cache.
      *
-     * @param string $key
-     * @param int    $minutes
+     * @param string   $key
+     * @param int|null $minutes
      *
      * @return int
      */

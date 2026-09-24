@@ -79,7 +79,7 @@ abstract class Driver
     /**
      * Get the user by ID.
      *
-     * @param int $id
+     * @param int|string|null $id
      *
      * @return mixed
      */

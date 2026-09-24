@@ -9,7 +9,7 @@ class URL
     /**
      * Contains Base URL (from cache).
      *
-     * @var string
+     * @var string|null
      */
     public static $base;
 

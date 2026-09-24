@@ -11,14 +11,14 @@ class Redis extends Driver
     /**
      * Contains the Redis cache driver instance.
      *
-     * @var System\Cache\Drivers\Redis
+     * @var \System\Cache\Drivers\Redis
      */
     protected $redis;
 
     /**
      * Constructor.
      *
-     * @param System\Cache\Drivers\Redis $redis
+     * @param \System\Cache\Drivers\Redis $redis
      */
     public function __construct(CacheRedis $redis)
     {
@@ -34,7 +34,7 @@ class Redis extends Driver
      */
     public function load($id)
     {
-        /* @disregard */
+        /** @disregard */
         return $this->redis->get($id);
     }
 
@@ -47,7 +47,7 @@ class Redis extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
-        /* @disregard */
+        /** @disregard */
         $this->redis->put($session['id'], $session, $config['lifetime']);
     }
 
@@ -58,7 +58,7 @@ class Redis extends Driver
      */
     public function delete($id)
     {
-        /* @disregard */
+        /** @disregard */
         $this->redis->forget($id);
     }
 }

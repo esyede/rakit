@@ -93,7 +93,7 @@ class Helpers
         // Keep the separators unencoded so vscode://file/... still resolves.
         $encoded = str_replace('%2F', '/', rawurlencode($path));
 
-        return str_replace(['%file%', '%line%'], [$encoded, $line], $template);
+        return str_replace(['%file%', '%line%'], [(string) $encoded, (string) $line], $template);
     }
 
     /**
@@ -101,7 +101,7 @@ class Helpers
      *
      * @param array  $trace
      * @param string $method
-     * @param int    $index
+     * @param int|string|null $index
      *
      * @return array|null
      */
@@ -164,7 +164,7 @@ class Helpers
 
             $ref = new \ReflectionProperty('Exception', 'trace');
             if (PHP_VERSION_ID < 80100) {
-                /* @disregard */
+                /** @disregard */
                 $ref->setAccessible(true);
             }
             $ref->setValue($e, $stack);
@@ -281,7 +281,7 @@ class Helpers
         if (isset($hint)) {
             $ref = new \ReflectionProperty($e, 'message');
             if (PHP_VERSION_ID < 80100) {
-                /* @disregard */
+                /** @disregard */
                 $ref->setAccessible(true);
             }
             $ref->setValue($e, $message);

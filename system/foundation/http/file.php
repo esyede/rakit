@@ -59,7 +59,7 @@ class File extends Parameter
      *
      * @param array|Upload $file
      *
-     * @return array
+     * @return Upload
      */
     protected function convertFileInformation($file)
     {

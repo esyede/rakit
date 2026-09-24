@@ -65,7 +65,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     /**
      * Language that should be used when creating pagination links.
      *
-     * @var string
+     * @var string|null
      */
     protected $language;
 
@@ -86,12 +86,12 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     /**
      * Constructor.
      *
-     * @param array  $results
-     * @param int    $page
-     * @param int    $total
-     * @param int    $perpage
-     * @param int    $last
-     * @param string $page_name
+     * @param array|\System\Collection $results
+     * @param int                      $page
+     * @param int                      $total
+     * @param int                      $perpage
+     * @param int                      $last
+     * @param string                   $page_name
      */
     protected function __construct($results, $page, $total, $perpage, $last, $page_name = 'page')
     {
@@ -108,7 +108,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     /**
      * Creates a new Paginator instance.
      *
-     * @param array  $results
+     * @param array|\System\Collection  $results
      * @param int    $total
      * @param int    $perpage
      * @param string $page_name
@@ -461,7 +461,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
     {
         $previous = Lang::line('pagination.previous')->get($this->language);
         $next = Lang::line('pagination.next')->get($this->language);
-        $elements = [$this->element('previous', $this->page - 1, $previous, ($this->page <= 1))];
+        $elements = [$this->element('previous', (string) ($this->page - 1), $previous, ($this->page <= 1))];
 
         foreach ($this->page_numbers($adjacent) as $page) {
             $elements[] = is_null($page)
@@ -469,7 +469,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
                 : $this->element('page', $page, (string) $page, false);
         }
 
-        $elements[] = $this->element('next', $this->page + 1, $next, ($this->page >= $this->last));
+        $elements[] = $this->element('next', (string) ($this->page + 1), $next, ($this->page >= $this->last));
 
         return $elements;
     }
@@ -478,7 +478,7 @@ class Paginator implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSe
      * Make a single pagination element.
      *
      * @param string $type
-     * @param int    $page
+     * @param int|string|null $page
      * @param string $label
      * @param bool   $disabled
      *

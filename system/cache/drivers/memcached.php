@@ -64,7 +64,7 @@ class Memcached extends Sectionable
         $cache = $this->memcached->get($this->key.$key);
 
         if (false === $cache && defined('Memcached::RES_NOTFOUND')) {
-            /* @disregard */
+            /** @disregard */
             return (\Memcached::RES_NOTFOUND === $this->memcached->getResultCode()) ? null : $cache;
         }
 
@@ -87,7 +87,7 @@ class Memcached extends Sectionable
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
-        /* @disregard */
+        /** @disregard */
         $this->memcached->set($this->key.$key, $value, $minutes * 60);
     }
 
@@ -107,7 +107,7 @@ class Memcached extends Sectionable
                 $this->forget_in_section($section, $key);
             }
         } else {
-            /* @disregard */
+            /** @disregard */
             $this->memcached->delete($this->key.$key);
         }
     }
@@ -117,7 +117,7 @@ class Memcached extends Sectionable
      */
     public function flush()
     {
-        /* @disregard */
+        /** @disregard */
         return $this->memcached->flush();
     }
 
@@ -133,7 +133,7 @@ class Memcached extends Sectionable
     {
         $prefixed = $this->key.$key;
 
-        /* @disregard */
+        /** @disregard */
         if ($this->memcached->add($prefixed, 1, $minutes * 60)) {
             return 1;
         }
@@ -152,7 +152,7 @@ class Memcached extends Sectionable
      */
     public function forget_section($section)
     {
-        /* @disregard */
+        /** @disregard */
         return $this->memcached->increment($this->key.$this->section_key($section));
     }
 

@@ -11,14 +11,14 @@ class Memcached extends Driver
     /**
      * Contains the Memcached cache driver instance.
      *
-     * @var System\Cache\Drivers\Memcached
+     * @var \System\Cache\Drivers\Memcached
      */
     private $memcached;
 
     /**
      * Constructor.
      *
-     * @param System\Cache\Drivers\Memcached $memcached
+     * @param \System\Cache\Drivers\Memcached $memcached
      */
     public function __construct(CacheMemcached $memcached)
     {
@@ -34,7 +34,7 @@ class Memcached extends Driver
      */
     public function load($id)
     {
-        /* @disregard */
+        /** @disregard */
         return $this->memcached->get($id);
     }
 
@@ -47,7 +47,7 @@ class Memcached extends Driver
      */
     public function save(array $session, array $config, $exists)
     {
-        /* @disregard */
+        /** @disregard */
         $this->memcached->put($session['id'], $session, $config['lifetime']);
     }
 
@@ -58,7 +58,7 @@ class Memcached extends Driver
      */
     public function delete($id)
     {
-        /* @disregard */
+        /** @disregard */
         $this->memcached->forget($id);
     }
 }

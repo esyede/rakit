@@ -22,7 +22,7 @@ class MySQL extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function create(Table $table, Magic $command)
     {
@@ -42,7 +42,7 @@ class MySQL extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return array
+     * @return string
      */
     public function add(Table $table, Magic $command)
     {
@@ -452,7 +452,7 @@ class MySQL extends Grammar
      * @param Table $table
      * @param Magic $command
      *
-     * @return string
+     * @return string|array
      */
     public function drop_column_if_exists(Table $table, Magic $command)
     {

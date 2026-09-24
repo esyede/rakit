@@ -26,9 +26,9 @@ abstract class Relationship extends Query
     /**
      * Constructor.
      *
-     * @param Model  $model
-     * @param string $associated
-     * @param string $foreign
+     * @param Model       $model
+     * @param string      $associated
+     * @param string|null $foreign
      */
     public function __construct($model, $associated, $foreign)
     {
@@ -113,7 +113,7 @@ abstract class Relationship extends Query
     /**
      * Get all unique keys from the results.
      *
-     * @param Model|array $results
+     * @param array $results
      *
      * @return array
      */
@@ -171,7 +171,7 @@ abstract class Relationship extends Query
      *
      * @param string $parent_table
      *
-     * @return \System\Database\Query
+     * @return \System\Database\Facile\Query
      */
     public function correlate($parent_table)
     {

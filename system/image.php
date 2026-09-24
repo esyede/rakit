@@ -16,21 +16,21 @@ class Image
     /**
      * Contains the resource of the image.
      *
-     * @var \GdImage|resource
+     * @var \GdImage|resource|null
      */
     protected $image;
 
     /**
      * Contains the file path (absolute).
      *
-     * @var string
+     * @var string|null
      */
     protected $path;
 
     /**
      * Contains the type of the image.
      *
-     * @var string
+     * @var string|int
      */
     protected $type;
 
@@ -91,7 +91,7 @@ class Image
      * @param string $path
      * @param int    $quality
      *
-     * @return $this
+     * @return static
      */
     public static function open($path, $quality = 75)
     {
@@ -108,7 +108,7 @@ class Image
      *
      * @param string $path
      *
-     * @return $this
+     * @return static
      */
     protected function load($path)
     {
@@ -150,7 +150,7 @@ class Image
      *
      * @param int $value
      *
-     * @return $this
+     * @return static
      */
     public function width($value)
     {
@@ -174,7 +174,7 @@ class Image
      *
      * @param int $value
      *
-     * @return $this
+     * @return static
      */
     public function height($value)
     {
@@ -198,7 +198,7 @@ class Image
      *
      * @param int $angle
      *
-     * @return $this
+     * @return static
      */
     public function rotate($angle = 90)
     {
@@ -222,7 +222,7 @@ class Image
      * @param int $width
      * @param int $height
      *
-     * @return $this
+     * @return static
      */
     public function crop($left, $top, $width, $height)
     {
@@ -247,7 +247,7 @@ class Image
      * @param int $width
      * @param int $height
      *
-     * @return $this
+     * @return static
      */
     public function ratio($width = 1, $height = 1)
     {
@@ -290,7 +290,7 @@ class Image
      *
      * @param int $level
      *
-     * @return $this
+     * @return static
      */
     public function contrast($level)
     {
@@ -303,7 +303,7 @@ class Image
      *
      * @param int $level
      *
-     * @return $this
+     * @return static
      */
     public function brightness($level)
     {
@@ -316,7 +316,7 @@ class Image
      *
      * @param int $level
      *
-     * @return $this
+     * @return static
      */
     public function smoothness($level)
     {
@@ -329,7 +329,7 @@ class Image
      *
      * @param bool $selective
      *
-     * @return $this
+     * @return static
      */
     public function blur($selective = false)
     {
@@ -340,7 +340,7 @@ class Image
     /**
      * Apply grayscale effect.
      *
-     * @return $this
+     * @return static
      */
     public function grayscale()
     {
@@ -351,7 +351,7 @@ class Image
     /**
      * Apply sepia effect.
      *
-     * @return $this
+     * @return static
      */
     public function sepia()
     {
@@ -363,7 +363,7 @@ class Image
     /**
      * Apply edge-highlight effect.
      *
-     * @return $this
+     * @return static
      */
     public function edge()
     {
@@ -374,7 +374,7 @@ class Image
     /**
      * Apply emboss effect.
      *
-     * @return $this
+     * @return static
      */
     public function emboss()
     {
@@ -385,7 +385,7 @@ class Image
     /**
      * Apply sketch effect.
      *
-     * @return $this
+     * @return static
      */
     public function sketch()
     {
@@ -396,7 +396,7 @@ class Image
     /**
      * Apply invert effect.
      *
-     * @return $this
+     * @return static
      */
     public function invert()
     {
@@ -409,7 +409,7 @@ class Image
      *
      * @param int $value
      *
-     * @return $this
+     * @return static
      */
     public function pixelate($value)
     {
@@ -422,7 +422,7 @@ class Image
      *
      * @param string $watermark
      *
-     * @return $this
+     * @return static
      */
     public function watermark($watermark)
     {
@@ -452,7 +452,7 @@ class Image
         imagecopy($this->image, $watermark, $dst_x, $dst_y, 0, 0, $src_w, $src_h);
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             imagedestroy($watermark);
         } else {
             $watermark = null;
@@ -512,7 +512,7 @@ class Image
     /**
      * Return the image resource.
      *
-     * @return resource
+     * @return Response
      */
     public function dump()
     {
@@ -582,7 +582,7 @@ class Image
             && 'gd' === strtolower(get_resource_type($this->image))
         ) {
             if (PHP_VERSION_ID < 80000) {
-                /* @disregard */
+                /** @disregard */
                 imagedestroy($this->image);
             } else {
                 $this->image = null;
@@ -655,7 +655,7 @@ class Image
                 if (PHP_VERSION_ID >= 80100) {
                     imagefilledpolygon($sprite, $block, $color);
                 } else {
-                    /* @disregard */
+                    /** @disregard */
                     imagefilledpolygon($sprite, $block, $points / 2, $color);
                 }
 
@@ -667,7 +667,7 @@ class Image
                 }
 
                 if (PHP_VERSION_ID < 80000) {
-                    /* @disregard */
+                    /** @disregard */
                     imagedestroy($sprite);
                 } else {
                     $sprite = null;
@@ -679,7 +679,7 @@ class Image
         $result = static::render($image);
 
         if (PHP_VERSION_ID < 80000) {
-            /* @disregard */
+            /** @disregard */
             imagedestroy($image);
         } else {
             $image = null;

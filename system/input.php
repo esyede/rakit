@@ -16,7 +16,7 @@ class Input
     /**
      * Contains the JSON payload of the request.
      *
-     * @var object
+     * @var object|string|null
      */
     public static $json;
 

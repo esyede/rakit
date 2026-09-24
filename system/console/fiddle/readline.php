@@ -31,9 +31,9 @@ class Readline
         readline_read_history($history);
 
         declare(ticks = 1);
-        /* @disregard */
+        /** @disregard */
         pcntl_signal(SIGCHLD, SIG_IGN);
-        /* @disregard */
+        /** @disregard */
         pcntl_signal(SIGINT, [$this, 'clear'], true);
 
         // Wait for the worker to finish executing hooks
@@ -63,7 +63,7 @@ class Readline
             }
 
             if (strlen($line) > 0) {
-                /* @disregard */
+                /** @disregard */
                 readline_add_history($line);
             }
 
@@ -82,7 +82,7 @@ class Readline
                         $status = fread($this->socket, 1);
 
                         if ($status === Evaluator::EXITED) {
-                            /* @disregard */
+                            /** @disregard */
                             readline_write_history($history);
                             echo "\n";
                             exit(0);

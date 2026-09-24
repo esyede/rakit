@@ -102,7 +102,7 @@ class Evaluator
         /* Note the naming of the local variables due to shared scope with the user here */
         for (;;) {
             declare(ticks = 1);
-            /* @disregard */
+            /** @disregard */
             pcntl_signal(SIGINT, SIG_IGN, true); // Do not exit on Ctrl+C
             $this->aborted = false;
             $input = $this->transform($this->read($this->socket));
@@ -112,17 +112,17 @@ class Evaluator
             }
 
             $response = self::DONE;
-            /* @disregard */
+            /** @disregard */
             $this->prev_pid = posix_getpid();
-            /* @disregard */
+            /** @disregard */
             $this->pid = pcntl_fork();
 
             if ($this->pid < 0) {
                 throw new \RuntimeException('Failed to fork child labourer');
             } elseif ($this->pid > 0) {
-                /* @disregard */
+                /** @disregard */
                 pcntl_signal(SIGINT, [$this, 'abort'], true); // Kill child on Ctrl+C
-                /* @disregard */
+                /** @disregard */
                 pcntl_waitpid($this->pid, $status);
 
                 if (! $this->aborted && $status != (self::FATAL << 8)) {
@@ -140,13 +140,13 @@ class Evaluator
                     restore_exception_handler();
                 }
 
-                /* @disregard */
+                /** @disregard */
                 pcntl_signal(SIGINT, SIG_DFL, true); // Allow user code to handle ctrl-c if it wants to
                 /** @disregard */
                 $pid = posix_getpid();
                 $result = eval($input);
 
-                /* @disregard */
+                /** @disregard */
                 if (posix_getpid() != $pid) {
                     exit(0);
                 }
@@ -173,9 +173,9 @@ class Evaluator
     {
         printf("Aborting...\n");
         $this->aborted = true;
-        /* @disregard */
+        /** @disregard */
         posix_kill($this->pid, SIGKILL);
-        /* @disregard */
+        /** @disregard */
         pcntl_signal_dispatch();
     }
 
@@ -225,9 +225,9 @@ class Evaluator
      */
     private function kill_previous()
     {
-        /* @disregard */
+        /** @disregard */
         posix_kill($this->prev_pid, SIGTERM);
-        /* @disregard */
+        /** @disregard */
         pcntl_signal_dispatch();
     }
 

@@ -501,7 +501,7 @@ class Carbon extends \DateTime
      * @param int $minute
      * @param int $second
      *
-     * @return $this
+     * @return static
      */
     public function setDateTime($year, $month, $day, $hour, $minute, $second = 0)
     {
@@ -513,7 +513,7 @@ class Carbon extends \DateTime
      *
      * @param int $value
      *
-     * @return $this
+     * @return static
      */
     public function timestamp($value)
     {
@@ -526,7 +526,7 @@ class Carbon extends \DateTime
      *
      * @param string $value
      *
-     * @return $this
+     * @return static
      */
     public function timezone($value)
     {
@@ -538,7 +538,7 @@ class Carbon extends \DateTime
      *
      * @param string $value
      *
-     * @return $this
+     * @return static
      */
     public function tz($value)
     {
@@ -550,7 +550,7 @@ class Carbon extends \DateTime
      *
      * @param string $value
      *
-     * @return $this
+     * @return static
      */
     #[\ReturnTypeWillChange]
     public function setTimezone($value)
@@ -572,7 +572,7 @@ class Carbon extends \DateTime
     /**
      * Get the current test now timestamp.
      *
-     * @return int|null
+     * @return object|int|null
      */
     public static function getTestNow()
     {
@@ -949,7 +949,7 @@ class Carbon extends \DateTime
      */
     public function isYesterday()
     {
-        /* @disregard */
+        /** @disregard */
         return $this->toDateString() === static::yesterday($this->tz)->toDateString();
     }
 
@@ -970,7 +970,7 @@ class Carbon extends \DateTime
      */
     public function isTomorrow()
     {
-        /* @disregard */
+        /** @disregard */
         return $this->toDateString() === static::tomorrow($this->tz)->toDateString();
     }
 
@@ -1115,9 +1115,9 @@ class Carbon extends \DateTime
     {
         $date = $this->copy()->addMonths($value);
 
-        /* @disregard */
+        /** @disregard */
         if ($date->day !== $this->day) {
-            /* @disregard */
+            /** @disregard */
             $date->day(1)->subMonth()->day($date->daysInMonth);
         }
 
@@ -1918,7 +1918,7 @@ class Carbon extends \DateTime
     public function nthOfYear($nth, $dayOfWeek)
     {
         $dt = $this->copy()->firstOfYear()->modify('+'.$nth.' '.static::$days[$dayOfWeek]);
-        /* @disregard */
+        /** @disregard */
         return ($this->year === $dt->year) ? $this->modify($dt->format('Y-m-d H:i:s')) : false;
     }
 

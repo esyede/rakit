@@ -58,9 +58,9 @@ class Database extends Driver
     public function has_overlapping($name, $queue = 'default')
     {
         $count = DB::table(Config::get('job.table'))
-            ->where('name', Str::slug($name))
-            ->where('queue', $queue)
-            ->where('without_overlapping', 1)
+            ->where('name', '=', Str::slug($name))
+            ->where('queue', '=', $queue)
+            ->where('without_overlapping', '=', 1)
             ->count();
 
         return $count > 0;

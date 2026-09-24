@@ -720,8 +720,7 @@ class Query
     /**
      * Do a mass-assignment of the given results to model instances.
      *
-     * @param Model            $model
-     * @param array|\Traversable $results
+     * @param Model|array|\Traversable $results
      *
      * @return \System\Collection
      */

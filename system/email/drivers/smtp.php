@@ -12,7 +12,7 @@ class Smtp extends Driver
     /**
      * Contains the SMTP connection resource.
      *
-     * @var resource
+     * @var resource|null
      */
     protected $connection;
 
@@ -292,9 +292,9 @@ class Smtp extends Driver
     /**
      * Send a command to the SMTP server and check the response code.
      *
-     * @param string      $command
-     * @param string|bool $expecting
-     * @param bool        $return_number
+     * @param string                $command
+     * @param string|bool|int|array $expecting
+     * @param bool                  $return_number
      *
      * @return mixed
      */

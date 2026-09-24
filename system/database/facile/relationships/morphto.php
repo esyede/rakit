@@ -23,10 +23,10 @@ class MorphTo extends Relationship
     /**
      * Constructor.
      *
-     * @param Model  $model
-     * @param string $associated
-     * @param string $type
-     * @param string $id
+     * @param \System\Database\Facile\Model $model
+     * @param string|null                   $associated
+     * @param string                        $type
+     * @param string|null                   $id
      */
     public function __construct($model, $associated, $type, $id)
     {

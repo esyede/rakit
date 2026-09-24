@@ -309,7 +309,7 @@ class Base
 
             while ($i < $total) {
                 $size = min($total - $i, $step);
-                $numbers .= str_pad(static::randomNumber($size), $size, '0', STR_PAD_LEFT);
+                $numbers .= str_pad((string) static::randomNumber($size), $size, '0', STR_PAD_LEFT);
                 $i += $size;
             }
 

@@ -23,7 +23,7 @@ class DatabaseException extends \Exception
     /**
      * Contains the raw exception data.
      *
-     * @var \Exception
+     * @var \Exception|\Throwable|null
      */
     protected $inner;
 
