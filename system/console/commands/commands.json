@@ -13,6 +13,12 @@
             "command": "php rakit clear:logs"
         }
     },
+    "fiddle": {
+        "fiddle": {
+            "description": "Run the fiddle REPL.",
+            "command": "php rakit fiddle"
+        }
+    },
     "job": {
         "job:run": {
             "description": "Run a job.",
