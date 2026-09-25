@@ -9,6 +9,8 @@
     - [clear:cache](#clearcache)
     - [clear:views](#clearviews)
     - [clear:logs](#clearlogs)
+  - [Fiddle Commands](#fiddle-commands)
+    - [fiddle](#fiddle)
   - [Job Commands](#job-commands)
     - [job:run](#jobrun)
     - [job:runall](#jobrunall)
@@ -23,6 +25,7 @@
     - [make:transformer](#maketransformer)
     - [make:component](#makecomponent)
     - [make:test](#maketest)
+    - [make:auth](#makeauth)
   - [Migration Commands](#migration-commands)
     - [migrate](#migrate)
     - [migrate:rollback](#migraterollback)
@@ -112,6 +115,49 @@ Clears all log files in storage/logs:
 ```bash
 php rakit clear:logs
 ```
+
+<a id="fiddle-commands"></a>
+### Fiddle Commands
+
+<a id="fiddle"></a>
+#### fiddle
+
+Starts Fiddle, an interactive REPL (Read-Eval-Print Loop) console where you
+can type PHP statements and see the result right away:
+
+```bash
+php rakit fiddle
+```
+
+The prompt looks like this, the bracketed number is the input line:
+
+```text
+[1] FIDDLE> echo 1 + 1;
+2
+[2] FIDDLE>
+```
+
+Notes:
+
+- Requires PHP with PCNTL support (`pcntl_fork`), otherwise the command
+  aborts with an error.
+- Typed lines are remembered in `storage/console/.fiddle_history`, use the
+  arrow keys to walk back through them.
+- `Ctrl+C` clears the buffer of an unfinished statement, `Ctrl+D` leaves
+  the console.
+- Multi-line statements (a `function`, a `class`, an `if` block) continue
+  on a `*>` prompt until the statement is complete.
+- Leave the console with `exit;`, `quit;` or `Ctrl+D`.
+- `Tab` completes class names, models, helper functions, and `Class::method`.
+- `help()` lists the built-in shortcuts (`models()`, `db()`, `table()`,
+  `dump()`); `help`, `exit`, and `quit` also work without a semicolon.
+- Every executed query is printed above the result, as `-- SQL (ms)`.
+- An error in a statement is reported and the console stays open; the
+  variables of the previous statements are kept.
+- Runs in `fork` mode where PCNTL/POSIX are available, and falls back to
+  `inline` mode (single process) elsewhere, e.g. on Windows. In inline mode
+  a fatal error still ends the session and `Ctrl+C` cannot abort a running
+  statement.
 
 <a id="job-commands"></a>
 ### Job Commands
@@ -345,6 +391,57 @@ Example:
 php rakit make:test user
 # Creates file: application/tests/user.test.php     (class UserTest)
 ```
+
+<a id="makeauth"></a>
+#### make:auth
+
+Generates the authentication scaffolding: login, registration and password
+reset screens, the controllers behind them, a layout, a dashboard, and the
+routes that wire it all together:
+
+```bash
+php rakit make:auth
+```
+
+Example:
+
+```bash
+php rakit make:auth
+# Creates file: application/views/auth/login.blade.php
+# Creates file: application/views/auth/register.blade.php
+# Creates file: application/views/auth/passwords/email.blade.php
+# Creates file: application/views/auth/passwords/reset.blade.php
+# Creates file: application/views/auth/email/reset.blade.php
+# Creates file: application/views/layouts/app.blade.php
+# Creates file: application/views/dashboard.blade.php
+# Creates file: application/controllers/auth/login.php
+# Creates file: application/controllers/auth/register.php
+# Creates file: application/controllers/auth/password.php
+# Creates file: application/controllers/dashboard.php
+# Appends routes to application/routes.php
+```
+
+The routes that get appended to `application/routes.php`:
+
+```php
+Route::get('login', 'auth.login@show');
+Route::post('login', ['as' => 'login', 'uses' => 'auth.login@login']);
+Route::post('logout', 'auth.login@logout');
+
+Route::get('register', 'auth.register@show');
+Route::post('register', ['as' => 'register', 'uses' => 'auth.register@register']);
+
+Route::get('password/email', 'auth.password@show_resend');
+Route::post('password/email', 'auth.password@resend');
+Route::get('password/reset/(:any?)', 'auth.password@show_reset');
+Route::post('password/reset', 'auth.password@reset');
+
+Route::get('/dashboard', 'dashboard@index');
+```
+
+> The routes are appended, running the command a second time will add them
+> again. Delete the `Auto-generated auth routes` block from
+> `application/routes.php` first if you want a clean run.
 
 <a id="migration-commands"></a>
 ### Migration Commands

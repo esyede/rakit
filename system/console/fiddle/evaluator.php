@@ -4,6 +4,8 @@ namespace System\Console\Fiddle;
 
 defined('DS') or exit('No direct access.');
 
+use System\Console\Color;
+
 class Evaluator
 {
     /** @var int */
@@ -104,7 +106,10 @@ class Evaluator
      */
     public function set($name, $value = null)
     {
-        $this->exports = array_merge($this->exports, is_array($name) ? $name : [$name => $value]);
+        $this->exports = array_merge(
+            $this->exports,
+            is_array($name) ? $name : [$name => $value]
+        );
     }
 
     /**
@@ -194,14 +199,23 @@ class Evaluator
                 pcntl_signal(SIGINT, SIG_DFL, true); // Allow user code to handle ctrl-c if it wants to
                 /** @disregard */
                 $pid = posix_getpid();
-                $result = eval($input);
+
+                try {
+                    $result = eval($input);
+                } catch (\Throwable $ex) {
+                    $this->report($ex);
+                    $response = self::FAILED;
+                } catch (\Exception $ex) {
+                    $this->report($ex);
+                    $response = self::FAILED;
+                }
 
                 /** @disregard */
                 if (posix_getpid() != $pid) {
                     exit(0);
                 }
 
-                if (preg_match('/\s*return\b/i', $input)) {
+                if ($response !== self::FAILED && preg_match('/\s*return\b/i', $input) && isset($result)) {
                     fwrite(STDOUT, sprintf("%s\n", $this->inspector->inspect($result)));
                 }
 
@@ -227,6 +241,22 @@ class Evaluator
         posix_kill($this->pid, SIGKILL);
         /** @disregard */
         pcntl_signal_dispatch();
+    }
+
+    /**
+     * Report a failed statement without leaving the REPL.
+     *
+     * @param \Throwable|\Exception $ex
+     */
+    private function report($ex)
+    {
+        $message = sprintf('%s: %s', get_class($ex), $ex->getMessage());
+
+        if (strpos($ex->getFile(), "eval()'d code") === false) {
+            $message .= sprintf(' in %s:%s', $ex->getFile(), $ex->getLine());
+        }
+
+        fwrite(STDOUT, Color::red($message, true));
     }
 
     /**
@@ -349,7 +379,7 @@ class Evaluator
             return;
         }
 
-        $transforms = ['exit' => 'exit(0)'];
+        $transforms = ['exit' => 'exit(0)', 'quit' => 'exit(0)'];
 
         foreach ($transforms as $from => $to) {
             $input = preg_replace('/^\s*'.preg_quote($from, '/').'\s*;?\s*$/', $to.';', $input);

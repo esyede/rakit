@@ -82,7 +82,10 @@ class Carbon extends \DateTime
      */
     public function __construct($time = null, $tz = null)
     {
-        if (static::hasTestNow() && (empty($time) || $time === 'now' || static::hasRelativeKeywords($time))) {
+        if (
+            static::hasTestNow() && (empty($time) || $time === 'now'
+            || static::hasRelativeKeywords($time))
+        ) {
             $test = clone static::getTestNow();
 
             if (static::hasRelativeKeywords($time)) {
@@ -825,7 +828,8 @@ class Carbon extends \DateTime
     public function eq(Carbon $dt)
     {
         $this->checkComparator($dt);
-        return $this == $dt; // '==' intended for value comparison, not object identity
+        // '==' intended for value comparison, not object identity
+        return $this == $dt;
     }
 
     /**
@@ -909,7 +913,9 @@ class Carbon extends \DateTime
             $dt2 = $temp;
         }
 
-        return $equal ? ($this->gte($dt1) && $this->lte($dt2)) : ($this->gt($dt1) && $this->lt($dt2));
+        return $equal
+            ? ($this->gte($dt1) && $this->lte($dt2))
+            : ($this->gt($dt1) && $this->lt($dt2));
     }
 
     /**
@@ -945,7 +951,10 @@ class Carbon extends \DateTime
      */
     public function isWeekday()
     {
-        return ($this->dayOfWeek !== static::SUNDAY && $this->dayOfWeek !== static::SATURDAY);
+        return (
+            $this->dayOfWeek !== static::SUNDAY
+            && $this->dayOfWeek !== static::SATURDAY
+        );
     }
 
     /**

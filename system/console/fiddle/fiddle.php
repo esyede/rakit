@@ -97,7 +97,10 @@ class Fiddle
      */
     public function set($local, $value = null)
     {
-        $this->exports = array_merge($this->exports, is_array($local) ? $local : [$local => $value]);
+        $this->exports = array_merge(
+            $this->exports,
+            is_array($local) ? $local : [$local => $value]
+        );
     }
 
     /**
@@ -127,6 +130,10 @@ class Fiddle
      */
     public function start()
     {
+        if (! function_exists('pcntl_fork') || ! function_exists('posix_kill')) {
+            return $this->start_inline();
+        }
+
         declare(ticks = 1);
         /** @disregard */
         pcntl_signal(SIGINT, SIG_IGN, true);
@@ -164,5 +171,16 @@ class Fiddle
             $worker->inspector($this->inspector);
             $worker->start();
         }
+    }
+
+    /**
+     * Start the REPL in a single process, for platforms without pcntl/posix.
+     */
+    private function start_inline()
+    {
+        $inline = new Inline($this->prompt, $this->inspector);
+        $inline->set($this->exports);
+        $inline->starting($this->starting);
+        $inline->start();
     }
 }

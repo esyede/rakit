@@ -356,10 +356,11 @@ class Parser
 
         if (substr($input, -1) === ';' && substr($input, 0, 1) != '{') {
             $returnables = [
-                'echo', 'print', 'exit', 'die', 'goto', 'global', 'include', 'include_once', 'require',
-                'require_once', 'list', 'return', 'do', 'for', 'foreach', 'while', 'if', 'function',
-                'namespace', 'class', 'interface', 'abstract', 'switch', 'declare', 'throw', 'try', 'unset',
+                'echo', 'print', 'exit', 'quit', 'die', 'goto', 'global', 'include', 'include_once', 'require',
+                'require_once', 'list', 'return', 'do', 'for', 'foreach', 'while', 'if', 'function', 'namespace',
+                'class', 'interface', 'abstract', 'switch', 'declare', 'throw', 'try', 'unset', 'class_alias',
             ];
+
             return $this->is_lambda($input) || ! preg_match('/^('.implode('|', $returnables).')\b/i', $input);
         }
 

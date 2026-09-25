@@ -75,7 +75,41 @@ class Inspector
      * */
     public function object_vars($value)
     {
-        return get_object_vars($value);
+        if ($value instanceof \System\Database\Facile\Model) {
+            return $value->to_array();
+        }
+
+        if ($value instanceof \System\Collection) {
+            return $value->all();
+        }
+
+        return get_object_vars($value) ?: $this->hidden_vars($value);
+    }
+
+    /**
+     * Get an object's non-public properties via reflection.
+     *
+     * @param object $value
+     *
+     * @return array
+     * */
+    private function hidden_vars($value)
+    {
+        $vars = [];
+        $class = new \ReflectionObject($value);
+
+        do {
+            foreach ($class->getProperties() as $property) {
+                if ($property->isStatic() || isset($vars[$property->getName()])) {
+                    continue;
+                }
+
+                $property->setAccessible(true);
+                $vars[$property->getName()] = $property->getValue($value);
+            }
+        } while ($class = $class->getParentClass());
+
+        return $vars;
     }
 
     /**
@@ -187,7 +221,41 @@ class Inspector
      */
     private function type_object($value)
     {
-        return $this->type_structure(sprintf('object(%s)', get_class($value)), $this->object_vars($value));
+        return $this->type_structure($this->label($value), $this->object_vars($value));
+    }
+
+    /**
+     * Get the display label for an object.
+     *
+     * @param object $value
+     *
+     * @return string
+     */
+    private function label($value)
+    {
+        if ($value instanceof \System\Collection) {
+            return sprintf('%s(%d)', get_class($value), count($value));
+        }
+
+        return sprintf('object(%s)', get_class($value));
+    }
+
+    /**
+     * Format a caught exception as a single line.
+     *
+     * @param \Throwable|\Exception $ex
+     *
+     * @return string
+     */
+    public function inspect_error($ex)
+    {
+        $message = sprintf('%s: %s', get_class($ex), $ex->getMessage());
+
+        if (strpos($ex->getFile(), "eval()'d code") === false) {
+            $message .= sprintf(' in %s:%s', $ex->getFile(), $ex->getLine());
+        }
+
+        return $this->colorize('error', $message);
     }
 
     /**
@@ -228,10 +296,12 @@ class Inspector
             'children' => empty($vars)
                 ? []
                 : array_combine(
-                    array_map([$self, 'dump'], array_keys($vars)),
+                    array_map(function ($key) use ($self) {
+                        return is_int($key) ? (string) $key : $self->dump($key);
+                    }, array_keys($vars)),
                     array_map(function ($v) use ($self, $next) {
                         if (is_object($v)) {
-                            return $self->ast(sprintf('object(%s)', get_class($v)), $v, $next);
+                            return $self->ast($self->label($v), $v, $next);
                         }
 
                         if (is_array($v)) {
@@ -289,6 +359,7 @@ class Inspector
             'bool' => 'light_purple',
             'keyword' => 'light_cyan',
             'comment' => 'dark_grey',
+            'error' => 'light_red',
             'default' => 'none',
         ];
     }
@@ -303,7 +374,10 @@ class Inspector
      */
     private function colorize($type, $value)
     {
-        $name = empty($this->colorizers[$type]) ? $this->colorizers['default'] : $this->colorizers[$type];
+        $name = empty($this->colorizers[$type])
+            ? $this->colorizers['default']
+            : $this->colorizers[$type];
+
         return sprintf("%s%s\033[0m", static::$colors[$name], $value);
     }
 

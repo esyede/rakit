@@ -29,7 +29,8 @@ spl_autoload_register(['\System\Autoloader', 'load']);
 |--------------------------------------------------------------------------
 | Run the Core Boot
 |--------------------------------------------------------------------------
-| Registers the autoloader and the packages. The framework is usable after this.
+| Registers the autoloader and the packages. The framework is usable
+| after this initialization.
 */
 
 require __DIR__.DS.'core.php';
@@ -38,7 +39,7 @@ require __DIR__.DS.'core.php';
 |--------------------------------------------------------------------------
 | Early Debugger Initialization
 |--------------------------------------------------------------------------
-| Enabled before the packages boot, to catch errors raised during session init.
+| Enabled before the packages boot, to catch errors during session init.
 */
 
 use System\Foundation\Oops\Debugger;
@@ -240,7 +241,8 @@ $rakit_tl_render_done = microtime(true);
 |--------------------------------------------------------------------------
 | Timeline: Mark the Routing / Controller / Render Phase
 |--------------------------------------------------------------------------
-| Split the request into phases for the debug bar's Timeline, relative to RAKIT_START.
+| Split the request into phases for the debug bar's Timeline,
+| relative to RAKIT_START.
 */
 
 if (

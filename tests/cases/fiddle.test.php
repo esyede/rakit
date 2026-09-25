@@ -4,6 +4,8 @@ defined('DS') or exit('No direct access.');
 
 use System\Console\Fiddle\Parser;
 use System\Console\Fiddle\Inspector;
+use System\Console\Fiddle\Readline;
+use System\Console\Fiddle\Inline;
 
 /**
  * Covers the statement parser and the value inspector of the interactive
@@ -167,17 +169,17 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
         $parser = new Parser();
 
         $this->assertEquals(
-            ["return class_alias('System\\Str', 'Str');"],
+            ["class_alias('System\\Str', 'Str');"],
             $parser->statements('use System\Str;')
         );
 
         $this->assertEquals(
-            ["return class_alias('System\\Str', 'S');"],
+            ["class_alias('System\\Str', 'S');"],
             $parser->statements('use System\Str as S;')
         );
 
         $this->assertEquals(
-            ["return class_alias('\\System\\Arr', 'Arr');"],
+            ["class_alias('\\System\\Arr', 'Arr');"],
             $parser->statements('use \System\Arr;')
         );
     }
@@ -314,4 +316,147 @@ class FiddleTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(['a' => 1, 'b' => 2], $inspector->object_vars($object));
     }
+
+    /**
+     * A collection shows its items, never an empty object.
+     *
+     * @group system
+     */
+    public function testInspectorDumpsCollectionItems()
+    {
+        $inspector = new Inspector();
+        $out = $this->plain($inspector->dump(new \System\Collection([['id' => 1], ['id' => 2]])));
+
+        $this->assertContains('Collection(2)', $out);
+        $this->assertContains('id', $out);
+    }
+
+    /**
+     * A model shows its serialized attributes, not its internals.
+     *
+     * @group system
+     */
+    public function testInspectorDumpsModelAttributes()
+    {
+        $inspector = new Inspector();
+        $model = new FiddleModelProbe(['name' => 'Budi', 'password' => 'x']);
+        $out = $this->plain($inspector->dump($model));
+
+        $this->assertContains('Budi', $out);
+        $this->assertNotContains('password', $out);
+        $this->assertNotContains('original', $out);
+    }
+
+    /**
+     * An object without public properties is dumped via reflection.
+     *
+     * @group system
+     */
+    public function testInspectorFallsBackToReflection()
+    {
+        $inspector = new Inspector();
+        $vars = $inspector->object_vars(new FiddleProtectedProbe());
+
+        $this->assertEquals(['secret' => 'hidden-value'], $vars);
+    }
+
+    /**
+     * Tab-completion offers class and function names.
+     *
+     * @group system
+     */
+    public function testReadlineCompletesNames()
+    {
+        if (! function_exists('readline_completion_function')) {
+            $this->markTestSkipped('readline extension is not available');
+        }
+
+        $readline = new Readline(fopen('php://memory', 'r+'));
+
+        $this->assertContains('config', $readline->complete('confi', 0));
+    }
+
+    /**
+     * The inline REPL evaluates statements and prints their value.
+     *
+     * @group system
+     */
+    public function testInlineEvaluatesStatement()
+    {
+        $out = $this->plain($this->run_inline("1 + 1;\nquit;\n"));
+
+        $this->assertContains('// 2', $out);
+    }
+
+    /**
+     * A failed statement does not end the inline session.
+     *
+     * @group system
+     */
+    public function testInlineKeepsSessionOnException()
+    {
+        $out = $this->plain($this->run_inline("throw new Exception('boom');\n1 + 1;\nquit;\n"));
+
+        $this->assertContains('Exception: boom', $out);
+        $this->assertContains('// 2', $out);
+    }
+
+    /**
+     * Starting hooks export variables into the inline scope.
+     *
+     * @group system
+     */
+    public function testInlineRunsStartingHooks()
+    {
+        $out = $this->plain($this->run_inline("\$probe;\nquit;\n", function ($worker, $vars) {
+            $worker->set('probe', 42);
+        }));
+
+        $this->assertContains('// 42', $out);
+    }
+
+    /**
+     * Run the inline REPL against the given input and capture its output.
+     *
+     * @param string $input
+     * @param mixed  $starting
+     *
+     * @return string
+     */
+    protected function run_inline($input, $starting = null)
+    {
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $input);
+        rewind($stream);
+
+        $inline = new Inline('> ');
+        $inline->input($stream);
+
+        if (! is_null($starting)) {
+            $inline->starting($starting);
+        }
+
+        ob_start();
+        $inline->start();
+        $output = ob_get_clean();
+        fclose($stream);
+
+        return $output;
+    }
+}
+
+class FiddleModelProbe extends \System\Database\Facile\Model
+{
+    public static $table = 'fiddle_model_probe';
+
+    public static $timestamps = false;
+
+    public static $guarded = [];
+
+    public static $hidden = ['password'];
+}
+
+class FiddleProtectedProbe
+{
+    protected $secret = 'hidden-value';
 }
