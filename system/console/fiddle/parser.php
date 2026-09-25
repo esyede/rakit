@@ -30,7 +30,10 @@ class Parser
      */
     public function __construct()
     {
-        $this->initials = '/^('.implode('|', array_map([$this, 'quote'], array_keys($this->pairs))).')/';
+        $this->initials = '/^('.implode(
+            '|',
+            array_map([$this, 'quote'], array_keys($this->pairs))
+        ).')/';
     }
 
     /**
@@ -73,7 +76,11 @@ class Parser
             }
         }
 
-        if (! empty($result->statements) && trim($result->stmt) === '' && strlen($result->buffer) == 0) {
+        if (
+            ! empty($result->statements)
+            && trim($result->stmt) === ''
+            && strlen($result->buffer) === 0
+        ) {
             $this->combine_statements($result);
             $this->debug($result);
 
@@ -123,7 +130,9 @@ class Parser
     {
         $result->stop = false;
         $result->state = end($result->states);
-        $result->terminator = $result->state ? '/^(.*?'.preg_quote($this->pairs[$result->state], '/').')/s' : null;
+        $result->terminator = $result->state
+            ? '/^(.*?'.preg_quote($this->pairs[$result->state], '/').')/s'
+            : null;
     }
 
     /**
@@ -170,10 +179,10 @@ class Parser
     private function heredoc_start($result)
     {
         if (preg_match('/^([\'"]?)([a-z_][a-z0-9_]*)\\1/i', $result->buffer, $match)) {
-            $docId = $match[2];
+            $doc_id = $match[2];
             $result->stmt .= $match[0];
             $result->buffer = substr($result->buffer, strlen($match[0]));
-            $result->terminator = '/^(.*?\n'.$docId.');?\n/s';
+            $result->terminator = '/^(.*?\n'.$doc_id.');?\n/s';
             return true;
         }
 
@@ -337,10 +346,8 @@ class Parser
      */
     private function is_lambda($input)
     {
-        return preg_match(
-            '/^([^=]*?=\s*)?function\s*\([^\)]*\)\s*(use\s*\([^\)]*\)\s*)?\s*\{.*\}\s*;?$/is',
-            trim($input)
-        );
+        $pattern = '/^([^=]*?=\s*)?function\s*\([^\)]*\)\s*(use\s*\([^\)]*\)\s*)?\s*\{.*\}\s*;?$/is';
+        return preg_match($pattern, trim($input));
     }
 
     /**

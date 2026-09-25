@@ -339,6 +339,7 @@ class Inspector
                         $self->stringify($children[$k], $indent + 1)
                     );
                 }
+
                 return sprintf('%s%s => %s', str_repeat(' ', ($indent + 1) * 2), $k, $children[$k]);
             }, array_keys($children))),
             sprintf('%s)', str_repeat(' ', $indent * 2)),

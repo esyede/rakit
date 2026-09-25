@@ -102,7 +102,10 @@ class Inline
      */
     public function set($local, $value = null)
     {
-        $this->exports = array_merge($this->exports, is_array($local) ? $local : [$local => $value]);
+        $this->exports = array_merge(
+            $this->exports,
+            is_array($local) ? $local : [$local => $value]
+        );
     }
 
     /**
@@ -202,11 +205,9 @@ class Inline
      */
     private function write_prompt()
     {
-        $prompt = ($this->buffer === '')
+        echo sprintf('[%d] %s', $this->lineno, ($this->buffer === '')
             ? $this->prompt
-            : str_pad('*> ', strlen($this->prompt), ' ', STR_PAD_LEFT);
-
-        echo sprintf('[%d] %s', $this->lineno, $prompt);
+            : str_pad('*> ', strlen($this->prompt), ' ', STR_PAD_LEFT));
     }
 
     /**

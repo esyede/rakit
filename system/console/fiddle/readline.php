@@ -100,7 +100,7 @@ class Readline
                 $buf = '';
 
                 foreach ($statements as $stmt) {
-                    if (false === $written = fwrite($this->socket, $stmt)) {
+                    if (false === ($written = fwrite($this->socket, $stmt))) {
                         throw new \Exception('Socket error: failed to write data');
                     }
 

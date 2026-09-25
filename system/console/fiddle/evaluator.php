@@ -215,7 +215,11 @@ class Evaluator
                     exit(0);
                 }
 
-                if ($response !== self::FAILED && preg_match('/\s*return\b/i', $input) && isset($result)) {
+                if (
+                    $response !== self::FAILED
+                    && preg_match('/\s*return\b/i', $input)
+                    && isset($result)
+                ) {
                     fwrite(STDOUT, sprintf("%s\n", $this->inspector->inspect($result)));
                 }
 
