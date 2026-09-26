@@ -37,6 +37,7 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
     public function tearDown()
     {
         Hook::clear('rakit.jobs.process');
+        Hook::clear('rakit.jobs.failed');
 
         if (static::reachable()) {
             $this->connection()->flush();
@@ -295,5 +296,33 @@ class JobMemcachedTest extends \PHPUnit_Framework_TestCase
 
         $this->assertCount(1, (array) $this->connection()->get(self::PREFIX . 'failed_jobs'));
         $this->assertCount(0, (array) $this->connection()->get(self::PREFIX . 'all_jobs'));
+    }
+
+    /**
+     * The terminal failure announces 'rakit.jobs.failed' with the job payloads.
+     *
+     * @group system
+     */
+    public function testFailedJobFiresTheFailedHook()
+    {
+        $driver = $this->driver();
+        $failed = [];
+
+        Hook::listen('rakit.jobs.failed', function ($name, $payloads, $exception, $attempts) use (&$failed) {
+            $failed[] = compact('name', 'payloads', 'exception', 'attempts');
+        });
+
+        Hook::listen('rakit.jobs.process', function () {
+            throw new \Exception('failed');
+        });
+
+        $driver->add('broken', ['to' => 'budi@example.com']);
+        $driver->run('broken');
+
+        $this->assertCount(1, $failed);
+        $this->assertEquals('broken', $failed[0]['name']);
+        $this->assertEquals(['to' => 'budi@example.com'], $failed[0]['payloads']);
+        $this->assertInstanceOf('Exception', $failed[0]['exception']);
+        $this->assertEquals(1, $failed[0]['attempts']);
     }
 }

@@ -40,7 +40,7 @@ class Database
                 throw new \Exception(sprintf('Database connection is not defined for: %s', $connection));
             }
 
-            static::$connections[$connection] = new Database\Connection(static::connect($config), $config);
+            static::$connections[$connection] = new Database\Connection(static::connect($config), $config, $connection);
         } elseif (! static::$connections[$connection]->connected()) {
             $config = static::$connections[$connection]->config;
             static::$connections[$connection]->set_pdo(static::connect($config));

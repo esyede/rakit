@@ -233,4 +233,71 @@ class InputTest extends \PHPUnit_Framework_TestCase
         Request::foundation()->files->replace([]);
         $_FILES = $previous;
     }
+
+    /**
+     * Test that a JSON body counts as input data, and that clear() takes it away.
+     *
+     * @group system
+     */
+    public function testJsonBodyIsInputAndClearTakesItAway()
+    {
+        $previous = Request::$foundation;
+        $this->jsonRequest('{"name":"Budi","age":25}');
+
+        $this->assertEquals('Budi', Input::get('name'));
+        $this->assertTrue(Input::has('name'));
+
+        Input::clear();
+
+        $this->assertNull(Input::get('name'));
+        $this->assertFalse(Input::has('name'));
+        $this->assertEquals([], Input::json());
+
+        $this->restoreRequest($previous);
+    }
+
+    /**
+     * Test that replace() replaces a JSON body as well.
+     *
+     * @group system
+     */
+    public function testReplaceTakesOverAJsonBody()
+    {
+        $previous = Request::$foundation;
+        $this->jsonRequest('{"name":"Budi"}');
+
+        Input::replace(['name' => 'Eka']);
+
+        $this->assertEquals('Eka', Input::get('name'));
+        $this->assertFalse(Input::has('age'));
+        $this->assertEquals(['name' => 'Eka'], Input::json());
+
+        $this->restoreRequest($previous);
+    }
+
+    /**
+     * Build a request that carries a JSON body.
+     *
+     * @param string $body
+     */
+    protected function jsonRequest($body)
+    {
+        $server = ['CONTENT_TYPE' => 'application/json', 'HTTP_HOST' => 'localhost', 'SCRIPT_NAME' => '/index.php'];
+
+        Request::$foundation = \System\Foundation\Http\Request::create('/x', 'POST', [], [], [], $server, $body);
+        Request::reset_foundation();
+        Input::$json = null;
+    }
+
+    /**
+     * Put the request back the way the test found it.
+     *
+     * @param \System\Foundation\Http\Request $foundation
+     */
+    protected function restoreRequest($foundation)
+    {
+        Input::$json = null;
+        Request::$foundation = $foundation;
+        Request::reset_foundation();
+    }
 }

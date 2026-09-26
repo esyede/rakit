@@ -69,6 +69,7 @@ class Magic extends Driver
         $identifier = Config::get('auth.identifier', 'email');
 
         if (! isset($arguments[$identifier]) || ! isset($arguments['password'])) {
+            $this->failed($arguments);
             return false;
         }
 
@@ -85,6 +86,7 @@ class Magic extends Driver
             return $this->login($user->id, Arr::get($arguments, 'remember'));
         }
 
+        $this->failed($arguments);
         return false;
     }
 }

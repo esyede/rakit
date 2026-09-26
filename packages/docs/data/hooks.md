@@ -135,10 +135,79 @@ Hook::listen('rakit.query', function ($sql, $bindings, $time) { });
 Hook::listen('rakit.done', function ($response) { });
 ```
 
+#### Event fired at the start of every worker request, after the framework reset its own state:
+
+```php
+Hook::listen('rakit.reset', function () { });
+```
+
 #### Event fired when a message is logged using the `Log` class:
 
 ```php
 Hook::listen('rakit.log', function ($type, $message) { });
+```
+
+#### Event fired when a job has run out of attempts:
+
+```php
+Hook::listen('rakit.jobs.failed', function ($name, $payloads, $exception, $attempts) { });
+```
+
+#### Event fired when the outermost transaction of a connection ends:
+
+```php
+Hook::listen('rakit.db.commit', function ($connection) { });
+Hook::listen('rakit.db.rollback', function ($connection) { });
+```
+
+#### Event fired on every cache lookup, whether the item was there or not:
+
+```php
+Hook::listen('rakit.cache.hit', function ($key, $time) { });
+Hook::listen('rakit.cache.missed', function ($key, $time) { });
+```
+
+#### Event fired when a route has been matched to the request:
+
+```php
+Hook::listen('rakit.route.matched', function ($route, $uri) { });
+```
+
+#### Event fired once per request, after the registered packages have booted:
+
+```php
+Hook::listen('rakit.booted', function () { });
+```
+
+> This is not `rakit.booted: [package_name]`, which each package fires for
+> itself. The global one is fired once, after the packages marked `autoboot`
+> are in; a package booted on demand later in the request does not fire it
+> again.
+
+#### Event fired when the URI started with a locale segment:
+
+```php
+Hook::listen('rakit.locale', function ($locale) { });
+```
+
+#### Event fired when a login attempt fails, and when the rate limiter locks a client out:
+
+```php
+Hook::listen('rakit.auth: failed', function ($credentials) { });
+
+Hook::listen('rakit.auth: lockout', function ($key, $limit, $reset) { });
+```
+
+> The credentials of `rakit.auth: failed` never carry the `password` key.
+
+#### Event fired around the sending of a message, where the first one may call it off:
+
+```php
+Hook::listen('rakit.mail.sending', function ($message) {
+    return false; // Calls the sending off
+});
+
+Hook::listen('rakit.mail.sent', function ($message) { });
 ```
 
 The complete list, with the parameters each one carries:
@@ -146,11 +215,19 @@ The complete list, with the parameters each one carries:
 | Command                                         | Parameter                                             |
 | ----------------------------------------------- | ----------------------------------------------------- |
 | `Hook::fire('rakit.done',`                     | `[Response $response]);`                              |
+| `Hook::fire('rakit.reset');`                   | `None`                                                |
 | `Hook::fire('rakit.log',`                      | `[string $type, string $message, array $context]);`   |
 | `Hook::fire('rakit.query',`                    | `[string $sql, array $bindings, string $time]);`      |
+| `Hook::fire('rakit.db.commit',`                | `[string $connection]);`                              |
+| `Hook::fire('rakit.db.rollback',`              | `[string $connection]);`                              |
+| `Hook::fire('rakit.cache.hit',`                | `[string $key, float $time]);`                        |
+| `Hook::fire('rakit.cache.missed',`             | `[string $key, float $time]);`                        |
 | `Hook::fire('rakit.resolving',`                | `[string $type, mixed $object]);`                     |
+| `Hook::fire('rakit.route.matched',`            | `[Route $route, string $uri]);`                       |
+| `Hook::fire('rakit.locale',`                   | `[string $locale]);`                                  |
 | `Hook::fire('rakit.composing: [view_name]',`   | `[View $view]);`                                      |
 | `Hook::fire('rakit.booted: [package_name]');`  | `None`                                                |
+| `Hook::fire('rakit.booted');`                  | `None`                                                |
 | `Hook::first('rakit.controller.factory',`      | `[string $class_name]);`                               |
 | `Hook::first('rakit.config.loader',`           | `[string $package, string $file]);`                   |
 | `Hook::first('rakit.language.loader',`         | `[string $package, string $language, string $file]);` |
@@ -159,11 +236,16 @@ The complete list, with the parameters each one carries:
 | `Hook::first('view.middleware',`               | `[string $content, string $path]);`                   |
 | `Hook::fire('rakit.auth: login');`             | `None`                                                |
 | `Hook::fire('rakit.auth: logout');`            | `None`                                                |
+| `Hook::fire('rakit.auth: failed',`             | `[array $credentials]);`                              |
+| `Hook::fire('rakit.auth: lockout',`            | `[string $key, int $limit, int $reset]);`             |
 | `Hook::fire('facile.[event]',`                 | `[Facile $model]);`                                   |
 | `Hook::fire('facile.[event]: [class_name]',`   | `[Facile $model]);`                                   |
 | `Hook::fire('rakit.jobs.process',`             | `[object\|array $job]);`                              |
 | `Hook::fire('rakit.jobs.run: [job_name]',`     | `$payloads` (spread as the listener's arguments)      |
 | `Hook::fire('rakit.jobs.forget: [job_name]');` | `None`                                                |
+| `Hook::fire('rakit.jobs.failed',`              | `[string $name, array\|object $payloads, \Throwable $exception, int $attempts]);` |
+| `Hook::first('rakit.mail.sending',`            | `[Message $message]);`                              |
+| `Hook::fire('rakit.mail.sent',`                | `[Message $message]);`                              |
 | `Hook::first('404');`                          | `None`                                                |
 
 > **Note on model events.** `[event]` is one of `retrieved`, `saving`, `creating`,

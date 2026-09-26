@@ -269,13 +269,7 @@ class Redis extends Driver
                                         'jid' => $jid,
                                         'key' => $key,
                                     ];
-                                    $this->log(sprintf(
-                                        'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $e->getMessage(),
-                                        $attempts
-                                    ), 'error');
+                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                                 } else {
                                     $this->log(sprintf(
                                         'Job retry: %s - #%s (attempt %d)',
@@ -297,13 +291,7 @@ class Redis extends Driver
                                         'jid' => $jid,
                                         'key' => $key,
                                     ];
-                                    $this->log(sprintf(
-                                        'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $e->getMessage(),
-                                        $attempts
-                                    ), 'error');
+                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                                 } else {
                                     $this->log(sprintf(
                                         'Job retry: %s - #%s (attempt %d)',
@@ -410,6 +398,28 @@ class Redis extends Driver
                                     $attempts
                                 ));
                                 $success = true;
+                            } catch (\Throwable $e) {
+                                if ($attempts >= $retries) {
+                                    $failed[] = [
+                                        'data' => $data,
+                                        'exception' => $e,
+                                        'queue' => $queue,
+                                        'jid' => $jid,
+                                        'key' => $key,
+                                    ];
+                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
+                                } else {
+                                    $this->log(sprintf(
+                                        'Job retry: %s - #%s (attempt %d)',
+                                        $data['name'],
+                                        $data['id'],
+                                        $attempts
+                                    ));
+
+                                    if ($sleep_ms > 0) {
+                                        usleep($sleep_ms * 1000);
+                                    }
+                                }
                             } catch (\Exception $e) {
                                 if ($attempts >= $retries) {
                                     $failed[] = [
@@ -419,13 +429,7 @@ class Redis extends Driver
                                         'jid' => $jid,
                                         'key' => $key,
                                     ];
-                                    $this->log(sprintf(
-                                        'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $e->getMessage(),
-                                        $attempts
-                                    ), 'error');
+                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                                 } else {
                                     $this->log(sprintf(
                                         'Job retry: %s - #%s (attempt %d)',

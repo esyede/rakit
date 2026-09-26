@@ -419,17 +419,17 @@ class Request
             return ! Crypter::equals($token, $header);
         }
 
-        $body_token = static::foundation()->request->get(Session::TOKEN);
+        $csrf = static::foundation()->request->get(Session::TOKEN);
 
-        if (is_null($body_token)) {
-            $json = Input::json(true);
+        if (is_null($csrf)) {
+            $json = Input::json();
 
             if (is_array($json) && isset($json[Session::TOKEN])) {
-                $body_token = $json[Session::TOKEN];
+                $csrf = $json[Session::TOKEN];
             }
         }
 
-        return ! Crypter::equals($body_token, $token);
+        return ! Crypter::equals($csrf, $token);
     }
 
     /**

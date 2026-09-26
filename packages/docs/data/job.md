@@ -13,6 +13,7 @@
 -   [Choosing Driver](#choosing-driver)
 -   [Supervisor Configuration](#supervisor-configuration)
 -   [Removing Job from Queue](#removing-job-from-queue)
+-   [Failed Jobs](#failed-jobs)
 -   [Event-Based (Old Way)](#event-based-old-way)
 -   [Best Practices](#best-practices)
 
@@ -505,6 +506,33 @@ if (Job::driver()->has_overlapping('send-notification', 'default')) {
 
 > **Note:** The `forget()` method only removes unprocessed jobs (and their failed job records).
 > Jobs that are currently running will not be stopped.
+
+<a id="failed-jobs"></a>
+
+## Failed Jobs
+
+A job that throws is retried until `max_retries` runs out. When the last attempt
+fails too, the job is taken out of the queue and recorded as failed: the
+**database** driver writes it to `failed_table`, the **file** driver moves it to
+a `failed__*.job.php` file, and the **redis** and **memcached** drivers keep it
+under their `failed` keys.
+
+A retry announces nothing. Only the terminal failure fires `rakit.jobs.failed`,
+once per job, on every driver:
+
+```php
+// In application/hooks.php
+Hook::listen('rakit.jobs.failed', function ($name, $payloads, $exception, $attempts) {
+    Log::error('Job ' . $name . ' failed after ' . $attempts . ' attempts: ' . $exception->getMessage());
+});
+```
+
+The listener receives the job name, its payloads as an array, the thrown
+exception and the number of attempts made.
+
+> **Note:** The event name carries no job name, so one listener hears the
+> failure of every job. Bind to `rakit.jobs.run: [job_name]` when you care
+> about a single job.
 
 <a id="event-based-old-way"></a>
 

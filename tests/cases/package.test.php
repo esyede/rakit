@@ -88,6 +88,28 @@ class PackageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that a package booted on demand stays quiet: the global
+     * 'rakit.booted' event is fired once, after the registered packages boot.
+     *
+     * @group system
+     */
+    public function testOnDemandPackagesDoNotFireTheGlobalBootedEvent()
+    {
+        $count = 0;
+
+        Hook::listen('rakit.booted', function () use (&$count) {
+            $count++;
+        });
+
+        Package::register('dummy');
+        Package::boot('dummy');
+
+        $this->assertEquals(0, $count);
+
+        Hook::clear('rakit.booted');
+    }
+
+    /**
      * Test for Package::handles().
      *
      * @group system

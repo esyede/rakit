@@ -81,7 +81,6 @@ class Roadrunner extends Bridge
         try {
             $request = $this->http->waitRequest();
         } catch (\Throwable $e) {
-            // Only this payload is broken, the relay can still take the next one.
             $this->http->respond(400, 'Bad Request');
             return true;
         } catch (\Exception $e) {
@@ -128,13 +127,11 @@ class Roadrunner extends Bridge
      */
     public function send_response(Response $response, $level)
     {
-        // Anything echoed would otherwise reach STDOUT, which is RoadRunner's relay.
         $output = static::output($level);
         $foundation = $this->prepare($response);
         $headers = [];
 
         foreach ($foundation->headers->all() as $name => $values) {
-            // RoadRunner derives it from the body it actually sends.
             if ('Content-Length' !== $name) {
                 $headers[$name] = array_map('strval', $values);
             }
@@ -170,7 +167,6 @@ class Roadrunner extends Bridge
      */
     protected function populate($request)
     {
-        // The URI is absolute: scheme and host come along with the path.
         $url = parse_url($request->uri);
         $path = isset($url['path']) ? $url['path'] : '/';
         $query = isset($url['query']) ? $url['query'] : '';
@@ -199,7 +195,7 @@ class Roadrunner extends Bridge
             $server['HTTPS'] = 'on';
         }
 
-        // Go keeps the Host header out of the header list.
+        // Golang keeps the Host header out of the header list.
         if (isset($url['host'])) {
             $server['HTTP_HOST'] = $url['host'].(isset($url['port']) ? ':'.$url['port'] : '');
         }
@@ -224,8 +220,7 @@ class Roadrunner extends Bridge
         $_FILES = $this->files($request->uploads);
         $_REQUEST = array_merge($_GET, $_POST);
 
-        // RoadRunner hands decoded form bodies over as JSON, so rebuild an url-encoded
-        // body for PUT and PATCH forms.
+        // RoadRunner hands decoded form bodies over as JSON, so rebuild an url-encoded body for PUT and PATCH forms.
         $type = isset($server['CONTENT_TYPE']) ? $server['CONTENT_TYPE'] : '';
 
         if (! $request->parsed) {

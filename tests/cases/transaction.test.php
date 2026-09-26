@@ -4,6 +4,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Config;
 use System\Database;
+use System\Hook;
 
 class TransactionTest extends \PHPUnit_Framework_TestCase
 {
@@ -28,6 +29,9 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
+        Hook::clear('rakit.db.commit');
+        Hook::clear('rakit.db.rollback');
+
         $connection = $this->connection();
 
         while ($connection->transaction_level() > 0) {
@@ -354,5 +358,108 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ok', $result);
         $this->assertEquals(1, $this->rows());
         $this->assertEquals(['facade'], $this->connection()->table('trx')->lists('note'));
+    }
+
+    // -------------------------------------------------------------------------
+    // Hooks
+    // -------------------------------------------------------------------------
+
+    /**
+     * Test that a single transaction announces its commit and its rollback.
+     *
+     * @group system
+     */
+    public function testCommitAndRollbackAreAnnouncedOncePerTransaction()
+    {
+        $events = [];
+        $this->listen($events);
+
+        $connection = $this->connection();
+
+        $connection->begin_transaction();
+        $this->insert('kept');
+        $connection->commit();
+
+        $connection->begin_transaction();
+        $this->insert('discarded');
+        $connection->rollback();
+
+        $this->assertEquals([['commit', 'trx'], ['rollback', 'trx']], $events);
+    }
+
+    /**
+     * Test that savepoints of a nested transaction stay silent, and only the
+     * outermost commit and rollback are announced.
+     *
+     * @group system
+     */
+    public function testNestedTransactionsOnlyAnnounceTheOuterOne()
+    {
+        $events = [];
+        $this->listen($events);
+
+        $connection = $this->connection();
+
+        $connection->begin_transaction();
+        $connection->begin_transaction();
+        $connection->commit();
+        $connection->commit();
+
+        $connection->begin_transaction();
+        $connection->begin_transaction();
+        $connection->rollback();
+        $connection->rollback();
+
+        $this->assertEquals([['commit', 'trx'], ['rollback', 'trx']], $events);
+    }
+
+    /**
+     * Test that a listener that throws cannot leave the transaction counter out
+     * of step with what the connection really did.
+     *
+     * @group system
+     */
+    public function testAThrowingListenerLeavesTheTransactionCounterAlone()
+    {
+        Hook::listen('rakit.db.commit', function () {
+            throw new \Exception('listener boom');
+        });
+
+        $connection = $this->connection();
+        $thrown = null;
+
+        try {
+            $connection->begin_transaction();
+            $connection->commit();
+        } catch (\Exception $e) {
+            $thrown = $e;
+        }
+
+        $this->assertNotNull($thrown);
+        $this->assertEquals('listener boom', $thrown->getMessage());
+        $this->assertEquals(0, $connection->transaction_level());
+        $this->assertFalse($connection->pdo()->inTransaction());
+
+        // The connection still opens a real transaction afterwards.
+        $connection->begin_transaction();
+        $this->assertEquals(1, $connection->transaction_level());
+        $this->assertTrue($connection->pdo()->inTransaction());
+        $connection->rollback();
+    }
+
+    /**
+     * Record the transactions the connection announces.
+     *
+     * @param array $events
+     */
+    protected function listen(array &$events)
+    {
+        Hook::listen('rakit.db.commit', function ($connection) use (&$events) {
+            $events[] = ['commit', $connection];
+        });
+
+        Hook::listen('rakit.db.rollback', function ($connection) use (&$events) {
+            $events[] = ['rollback', $connection];
+        });
     }
 }

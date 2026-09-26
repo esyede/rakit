@@ -382,6 +382,29 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that a failed attempt announces 'rakit.auth: failed' with the
+     * credentials, and never carries the password along.
+     *
+     * @group system
+     */
+    public function testFailedAttemptAnnouncesTheCredentialsWithoutThePassword()
+    {
+        $failed = [];
+
+        Hook::listen('rakit.auth: failed', function ($credentials) use (&$failed) {
+            $failed[] = $credentials;
+        });
+
+        Auth::attempt(['email' => 'nobody@example.com', 'password' => 'wrong-password']);
+
+        $this->assertCount(1, $failed);
+        $this->assertEquals(['email' => 'nobody@example.com'], $failed[0]);
+        $this->assertArrayNotHasKey('password', $failed[0]);
+
+        Hook::clear('rakit.auth: failed');
+    }
+
+    /**
      * Test for Auth::attempt() - 2.
      *
      * @group system

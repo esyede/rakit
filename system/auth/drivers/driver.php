@@ -115,6 +115,18 @@ abstract class Driver
     }
 
     /**
+     * Announce a login attempt that did not go through.
+     *
+     * @param array $arguments
+     */
+    protected function failed(array $arguments)
+    {
+        unset($arguments['password']);
+
+        Hook::fire('rakit.auth: failed', [$arguments]);
+    }
+
+    /**
      * Logout the user from the application.
      */
     public function logout()

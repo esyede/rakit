@@ -2,9 +2,13 @@
 
 defined('DS') or exit('No direct access.');
 
+use System\Cache;
+use System\Config;
+use System\Hook;
 use System\Package;
 use System\Routing\Route;
 use System\Routing\Router;
+use System\Routing\Throttle;
 
 class RoutingTest extends \PHPUnit_Framework_TestCase
 {
@@ -425,5 +429,39 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
     public function testFindReturnsNullForNonExistentRoute()
     {
         $this->assertNull(Router::find('nonexistent'));
+    }
+
+    /**
+     * Test that the rate limiter announces 'rakit.auth: lockout' with its key,
+     * its limit and its reset time.
+     *
+     * @group system
+     */
+    public function testThrottleErrorAnnouncesTheLockout()
+    {
+        Cache::forget(Throttle::key());
+        Cache::forget(Throttle::key().':meta');
+
+        $events = [];
+
+        Hook::listen('rakit.auth: lockout', function ($key, $limit, $reset) use (&$events) {
+            $events[] = [$key, $limit, $reset];
+        });
+
+        $this->assertFalse(Throttle::exceeded(2, 1));
+        $this->assertFalse(Throttle::exceeded(2, 1));
+        $this->assertTrue(Throttle::exceeded(2, 1));
+
+        $response = Throttle::error();
+
+        $this->assertInstanceOf('System\Response', $response);
+        $this->assertCount(1, $events);
+        $this->assertEquals(Throttle::key(), $events[0][0]);
+        $this->assertEquals(2, $events[0][1]);
+        $this->assertTrue(is_int($events[0][2]));
+
+        Cache::forget(Throttle::key());
+        Cache::forget(Throttle::key().':meta');
+        Hook::clear('rakit.auth: lockout');
     }
 }

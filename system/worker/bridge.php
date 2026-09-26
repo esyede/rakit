@@ -82,7 +82,6 @@ abstract class Bridge
 
         Hook::fire('rakit.done', [$response]);
 
-        // Whatever the request echoed is still buffered in front of the body.
         while (ob_get_level() > $level && static::removable()) {
             ob_end_flush();
         }
@@ -119,7 +118,6 @@ abstract class Bridge
         URI::$segments = [];
         URL::$base = null;
 
-        // Routes stay registered, only the registration context is dropped.
         Router::$package = null;
         Router::$groups = [];
         Router::$group = null;
@@ -129,7 +127,6 @@ abstract class Bridge
         Cookie::flush();
         Hook::$queued = [];
 
-        // Singletons resolved during a request may hold its data: keep only the booted ones.
         Container::flush();
         Container::$singletons = self::$snapshot['singletons'];
 
@@ -143,7 +140,6 @@ abstract class Bridge
 
         Blade::reset_state();
 
-        // A view that threw leaves its sections, components and counters behind.
         if (class_exists('System\Section', false)) {
             Section::$sections = [];
             Section::$last = [];
@@ -159,10 +155,12 @@ abstract class Bridge
             View::$rendered = 0;
         }
 
-        // Worker::dispatch() switches the language when the URI carries a locale.
         if (Config::get('application.language') !== self::$snapshot['language']) {
             Config::set('application.language', self::$snapshot['language']);
         }
+
+        // Everything above is framework state; packages clean their own here.
+        Hook::fire('rakit.reset');
     }
 
     /**
@@ -173,12 +171,10 @@ abstract class Bridge
         Request::$foundation = FoundationRequest::createFromGlobals($this->content());
         Request::reset_foundation();
 
-        // The environment was stamped on the request that booted the worker.
         if (! is_null(self::$snapshot['env']) && ! Request::$foundation->server->has('RAKIT_ENV')) {
             Request::set_env(self::$snapshot['env']);
         }
 
-        // Nothing renders the debug bar in a worker, so the collectors would only grow.
         if (! Debugger::$productionMode && class_exists('System\Foundation\Oops\Collectors', false)) {
             Collectors::reset();
         }
@@ -239,7 +235,6 @@ abstract class Bridge
     {
         $response->render();
 
-        // Same as Response::cookies(), which only runs inside Response::send().
         foreach (Cookie::$jar as $data) {
             $response->foundation()->headers->setCookie(new FoundationCookie(
                 $data['name'],

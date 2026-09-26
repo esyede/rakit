@@ -9,6 +9,7 @@ use System\Str;
 use System\Email;
 use System\Carbon;
 use System\Config;
+use System\Hook;
 use System\Storage;
 use System\Foundation\Http\Upload;
 
@@ -657,7 +658,16 @@ abstract class Driver
             $this->prepared_alt_body = static::wrap($this->prepared_alt_body, $wrapping, $newline, false);
         }
 
+        $sending = Hook::exists('rakit.mail.sending') ? Hook::first('rakit.mail.sending', [$this]) : null;
+
+        if (false === $sending) {
+            $this->reset();
+            return false;
+        }
+
         $result = $this->transmit();
+
+        Hook::fire('rakit.mail.sent', [$this]);
 
         // Track sent email for the Mails panel in the debug bar.
         if (class_exists('\System\Foundation\Oops\Collectors')

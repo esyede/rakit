@@ -4,6 +4,8 @@ namespace System\Cache\Drivers;
 
 defined('DS') or exit('No direct access.');
 
+use System\Hook;
+
 abstract class Driver
 {
     /**
@@ -42,6 +44,8 @@ abstract class Driver
                 );
             }
         }
+
+        Hook::fire(is_null($item) ? 'rakit.cache.missed' : 'rakit.cache.hit', [$key, $time]);
 
         return is_null($item) ? value($default) : $item;
     }

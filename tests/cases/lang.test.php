@@ -2,7 +2,12 @@
 
 defined('DS') or exit('No direct access.');
 
+use System\Config;
+use System\Hook;
 use System\Lang;
+use System\URI;
+use System\Worker\Worker;
+use System\Routing\Router;
 
 class LangTest extends \PHPUnit_Framework_TestCase
 {
@@ -74,5 +79,47 @@ class LangTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(Lang::has('validation'));
         $this->assertTrue(Lang::has('validation.required'));
         $this->assertFalse(Lang::has('validation.foo'));
+    }
+
+    /**
+     * Test that a leading locale segment announces 'rakit.locale' with the
+     * locale it set, before the request is routed.
+     *
+     * @group system
+     */
+    public function testLocaleSegmentFiresTheLocaleEvent()
+    {
+        $language = Config::get('application.language');
+        $languages = Config::get('application.languages');
+        $session = Config::get('session.driver');
+        $uri = URI::$uri;
+        $route = \System\Request::$route;
+        $events = [];
+
+        Hook::listen('rakit.locale', function ($locale) use (&$events) {
+            $events[] = $locale;
+        });
+
+        Config::set('session.driver', '');
+        Config::set('application.languages', ['id']);
+        URI::$uri = 'id/rakit-locale-test';
+
+        Router::register('GET', 'rakit-locale-test', function () {
+            return 'ok';
+        });
+
+        Worker::dispatch();
+
+        unset(Router::$routes['GET']['rakit-locale-test']);
+
+        $this->assertEquals(['id'], $events);
+        $this->assertEquals('id', Config::get('application.language'));
+
+        Hook::clear('rakit.locale');
+        Config::set('application.language', $language);
+        Config::set('application.languages', $languages);
+        Config::set('session.driver', $session);
+        URI::$uri = $uri;
+        \System\Request::$route = $route;
     }
 }

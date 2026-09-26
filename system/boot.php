@@ -155,6 +155,16 @@ foreach (Package::$packages as $package => $config) {
 
 /*
 |--------------------------------------------------------------------------
+| Announce the Boot
+|--------------------------------------------------------------------------
+| Once per request, after the registered packages are in.
+| Packages booted on-demand later in the request, do not fire it again.
+*/
+
+Hook::fire('rakit.booted');
+
+/*
+|--------------------------------------------------------------------------
 | Register Catch-All Route
 |--------------------------------------------------------------------------
 | Handles every URI no route matched, firing the 404 event.
@@ -204,6 +214,7 @@ $uri = (! is_string($uri) || empty($uri)) ? '/' : $uri;
 foreach ($languages as $language) {
     if (preg_match('#^'.$language.'(?:$|/)#i', $uri)) {
         Config::set('application.language', $language);
+        Hook::fire('rakit.locale', [$language]);
         $uri = trim(substr((string) $uri, strlen($language)), '/');
         break;
     }

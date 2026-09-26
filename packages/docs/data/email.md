@@ -276,6 +276,22 @@ foreach ($subscribers as $subscriber) {
 
 Without that, every recipient of the first email would also receive the second one.
 
+**Hooks:**
+
+The sending is announced twice. `rakit.mail.sending` runs before the message is
+handed to the transport, and a listener that answers `FALSE` calls the sending
+off — `rakit.mail.sent` then stays quiet and `send()` returns `FALSE`:
+
+```php
+Hook::listen('rakit.mail.sending', function ($message) {
+    // Answer FALSE to call the sending off
+});
+
+Hook::listen('rakit.mail.sent', function ($message) {
+    // The message is on its way
+});
+```
+
 <a id="custom-driver"></a>
 
 ## Custom Driver

@@ -187,13 +187,7 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $job->name,
-                                $job->id,
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -215,13 +209,7 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $job->name,
-                                $job->id,
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -295,13 +283,7 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $job->name,
-                                $job->id,
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -323,13 +305,7 @@ class Database extends Driver
                                 'exception' => $error,
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $job->name,
-                                $job->id,
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 

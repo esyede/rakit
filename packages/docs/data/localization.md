@@ -5,6 +5,7 @@
 -   [Basic Knowledge](#basic-knowledge)
 -   [Retrieving Language Lines](#retrieving-language-lines)
 -   [Placeholder & Replacement](#placeholder--replacement)
+-   [Locale From The URI](#locale-from-the-uri)
 
 <!-- /MarkdownTOC -->
 
@@ -146,5 +147,25 @@ return [
 // Usage with dot notation:
 echo trans('messages.user.welcome', ['name' => 'John']);
 ```
+
+<a id="locale-from-the-uri"></a>
+
+## Locale From The URI
+
+A URI that starts with one of the languages listed under the `languages` config
+key sets the language for the request and takes that segment off the URI: a
+request to `/id/welcome` runs the `welcome` route in `id`.
+
+The change is announced as `rakit.locale`, so packages and application code may
+follow along:
+
+```php
+Hook::listen('rakit.locale', function ($locale) {
+    // $locale holds the language now in use
+});
+```
+
+> The same goes for workers: every request the worker serves picks its locale
+> the same way and announces it.
 
 > **Note:** The application's default language can be set in the `application/config/application.php` file under the `'language'` key. The list of available languages is set under the `'languages'` key.

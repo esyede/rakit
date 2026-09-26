@@ -152,6 +152,22 @@ public function get_popular_posts()
 }
 ```
 
+**Hit and miss events:**
+
+Every read through `get()` announces how it went, with the key and the time the
+lookup took in milliseconds. `remember()`, `sear()` and `pull()` read through
+`get()` as well, so they announce too:
+
+```php
+Hook::listen('rakit.cache.hit', function ($key, $time) {
+    // The item was there
+});
+
+Hook::listen('rakit.cache.missed', function ($key, $time) {
+    // The item was not
+});
+```
+
 <a id="deleting-items"></a>
 
 ## Deleting Items

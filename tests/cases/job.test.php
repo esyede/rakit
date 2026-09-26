@@ -798,4 +798,64 @@ class JobTest extends \PHPUnit_Framework_TestCase
             // Ignore
         }
     }
+
+    /**
+     * A job that runs out of attempts announces 'rakit.jobs.failed' once, with
+     * its name, payloads and exception.
+     *
+     * @group system
+     */
+    public function testTerminalFailureFiresTheFailedHookOnce()
+    {
+        $failed = [];
+
+        Hook::listen('rakit.jobs.failed', function ($name, $payloads, $exception, $attempts) use (&$failed) {
+            $failed[] = compact('name', 'payloads', 'exception', 'attempts');
+        });
+
+        Hook::listen('rakit.jobs.process', function ($data) {
+            throw new \Exception('Test job failure');
+        });
+
+        $driver = Job::driver('file');
+        $driver->add('failing-job', ['email' => 'test@example.com'], Carbon::now()->subMinutes(1)->format('Y-m-d H:i:s'), 'default', false);
+        $driver->run('failing-job', 3, 0);
+
+        $this->assertCount(1, $failed);
+        $this->assertEquals('failing-job', $failed[0]['name']);
+        $this->assertEquals(['email' => 'test@example.com'], $failed[0]['payloads']);
+        $this->assertInstanceOf('Exception', $failed[0]['exception']);
+        $this->assertEquals('Test job failure', $failed[0]['exception']->getMessage());
+        $this->assertEquals(3, $failed[0]['attempts']);
+    }
+
+    /**
+     * The hook stays quiet while the job is still being retried.
+     *
+     * @group system
+     */
+    public function testFailedHookIsSilentWhileTheJobStillRetries()
+    {
+        $failed = [];
+        $attempts = 0;
+
+        Hook::listen('rakit.jobs.failed', function () use (&$failed) {
+            $failed[] = true;
+        });
+
+        Hook::listen('rakit.jobs.process', function ($data) use (&$attempts) {
+            $attempts++;
+
+            if (1 === $attempts) {
+                throw new \Exception('transient');
+            }
+        });
+
+        $driver = Job::driver('file');
+        $driver->add('flaky-job', ['id' => 7], Carbon::now()->subMinutes(1)->format('Y-m-d H:i:s'), 'default', false);
+        $driver->run('flaky-job', 3, 0);
+
+        $this->assertEquals(2, $attempts);
+        $this->assertCount(0, $failed);
+    }
 }

@@ -189,13 +189,7 @@ class File extends Driver
                     } catch (\Throwable $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $data['name'],
-                                $data['id'],
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                         } else {
                             $this->log(sprintf(
                                 'Job retry: %s - #%s (attempt %d)',
@@ -211,13 +205,7 @@ class File extends Driver
                     } catch (\Exception $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $data['name'],
-                                $data['id'],
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                         } else {
                             $this->log(sprintf(
                                 'Job retry: %s - #%s (attempt %d)',
@@ -315,13 +303,7 @@ class File extends Driver
                     } catch (\Throwable $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $data['name'],
-                                $data['id'],
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                         } else {
                             $this->log(sprintf(
                                 'Job retry: %s - #%s (attempt %d)',
@@ -337,13 +319,7 @@ class File extends Driver
                     } catch (\Exception $e) {
                         if ($attempts >= $retries) {
                             $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->log(sprintf(
-                                'Job failed: %s - #%s ::: %s (after %d attempts)',
-                                $data['name'],
-                                $data['id'],
-                                $e->getMessage(),
-                                $attempts
-                            ), 'error');
+                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
                         } else {
                             $this->log(sprintf(
                                 'Job retry: %s - #%s (attempt %d)',

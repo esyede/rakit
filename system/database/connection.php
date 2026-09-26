@@ -20,6 +20,13 @@ class Connection
     public $config;
 
     /**
+     * The name this connection is registered under.
+     *
+     * @var string|null
+     */
+    public $name;
+
+    /**
      * Contans PDO connection instance.
      *
      * @var \PDO|null
@@ -50,13 +57,15 @@ class Connection
     /**
      * Constructor.
      *
-     * @param PDO   $pdo
-     * @param array $config
+     * @param PDO         $pdo
+     * @param array       $config
+     * @param string|null $name
      */
-    public function __construct(PDO $pdo, array $config)
+    public function __construct(PDO $pdo, array $config, $name = null)
     {
         $this->pdo = $pdo;
         $this->config = $config;
+        $this->name = $name;
     }
 
     /**
@@ -152,13 +161,19 @@ class Connection
             return false;
         }
 
-        if (1 === $this->transactions) {
+        $outer = (1 === $this->transactions);
+
+        if ($outer) {
             $this->pdo()->commit();
         } else {
             $this->savepoint($this->grammar()->release_savepoint($this->savepoint_name($this->transactions)));
         }
 
         --$this->transactions;
+
+        if ($outer) {
+            Hook::fire('rakit.db.commit', [$this->name ?: Config::get('database.default')]);
+        }
 
         return true;
     }
@@ -175,8 +190,10 @@ class Connection
             return false;
         }
 
+        $outer = (1 === $this->transactions);
+
         try {
-            if (1 === $this->transactions) {
+            if ($outer) {
                 $this->pdo()->rollBack();
             } else {
                 $this->savepoint($this->grammar()->rollback_savepoint($this->savepoint_name($this->transactions)));
@@ -190,6 +207,10 @@ class Connection
         }
 
         --$this->transactions;
+
+        if ($outer) {
+            Hook::fire('rakit.db.rollback', [$this->name ?: Config::get('database.default')]);
+        }
 
         return true;
     }
@@ -412,7 +433,7 @@ class Connection
      */
     public function pdo()
     {
-        if (! $this->pdo instanceof PDO) {
+        if (! ($this->pdo instanceof PDO)) {
             throw new \Exception(
                 'This database connection has been closed. '
                 . 'Reopen it with DB::reconnect(), or ask DB::connection() for it again.'

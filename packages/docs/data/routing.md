@@ -53,6 +53,19 @@ match wins.
 
 All application routes live in `application/routes.php`.
 
+**Match events:**
+
+The route that takes the request is announced as `rakit.route.matched`, with the
+`System\Routing\Route` and the request URI (without the host). A request no
+route claims announces nothing, and the event runs before the route middlewares
+and the action, so a listener sees the route before anything is done with it:
+
+```php
+Hook::listen('rakit.route.matched', function ($route, $uri) {
+    Log::info('Routing ' . $uri);
+});
+```
+
 <a id="basic-routing"></a>
 ## Basic Routing
 

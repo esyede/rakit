@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Config;
 use System\Carbon;
 use System\Request;
+use System\Hook;
 use System\Log;
 
 abstract class Driver
@@ -72,6 +73,32 @@ abstract class Driver
      * @return bool
      */
     abstract public function runall($retries = 1, $sleep_ms = 0, $queues = null);
+
+    /**
+     * Log a job that ran out of attempts, and announce its terminal failure.
+     *
+     * @param string       $name
+     * @param string       $id
+     * @param array|object $payloads
+     * @param \Throwable   $e
+     * @param int          $attempts
+     */
+    protected function failed($name, $id, $payloads, $e, $attempts)
+    {
+        if (is_string($payloads)) {
+            $payloads = unserialize($payloads);
+        }
+
+        $this->log(sprintf(
+            'Job failed: %s - #%s ::: %s (after %d attempts)',
+            $name,
+            $id,
+            $e->getMessage(),
+            $attempts
+        ), 'error');
+
+        Hook::fire('rakit.jobs.failed', [$name, $payloads, $e, $attempts]);
+    }
 
     /**
      * Log the job message.

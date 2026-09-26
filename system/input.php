@@ -34,6 +34,22 @@ class Input
     }
 
     /**
+     * The decoded JSON body of a JSON request, empty otherwise.
+     *
+     * @return array
+     */
+    protected static function payload()
+    {
+        if (! Request::is_json()) {
+            return [];
+        }
+
+        $json = static::json();
+
+        return is_array($json) ? $json : [];
+    }
+
+    /**
      * Check if an input item exists. An empty string counts as absent.
      *
      * @param string $key
@@ -79,7 +95,7 @@ class Input
      */
     public static function get($key = null, $default = null)
     {
-        $input = Request::foundation()->request->all();
+        $input = array_merge(static::payload(), Request::foundation()->request->all());
 
         if (is_null($key)) {
             return array_merge(static::query(), $input);
@@ -446,6 +462,10 @@ class Input
      */
     public static function replace(array $inputs)
     {
+        if (Request::is_json()) {
+            static::$json = $inputs;
+        }
+
         Request::foundation()->request->replace($inputs);
     }
 
@@ -454,6 +474,10 @@ class Input
      */
     public static function clear()
     {
+        if (Request::is_json()) {
+            static::$json = [];
+        }
+
         Request::foundation()->request->replace([]);
     }
 }

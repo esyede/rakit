@@ -3,8 +3,10 @@
 defined('DS') or exit('No direct access.');
 
 use System\Request;
+use System\Hook;
 use System\Routing\Route;
 use System\Routing\Middleware;
+use System\Routing\Router;
 use System\URL;
 use System\Config;
 
@@ -27,6 +29,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         Request::$route = null;
         URL::$base = '';
         Config::set('application.index', 'index.php');
+        Hook::clear('rakit.route.matched');
     }
 
     /**
@@ -245,5 +248,62 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(301, $response->status());
         $this->assertEquals('http://localhost/new', $response->headers()->get('location'));
+    }
+
+    /**
+     * Test that a matched route announces itself with the route and the URI.
+     *
+     * @group system
+     */
+    public function testMatchedRouteFiresTheRouteMatchedHook()
+    {
+        $events = [];
+
+        Hook::listen('rakit.route.matched', function ($route, $uri) use (&$events) {
+            $events[] = [$route, $uri];
+        });
+
+        Route::get('matched/(:any)', function ($id) {
+            return $id;
+        });
+        Route::get('matched-exact', function () {
+            return 'ok';
+        });
+
+        $pattern = Router::route('GET', 'matched/42');
+        $exact = Router::route('GET', 'matched-exact');
+
+        $this->assertCount(2, $events);
+        $this->assertSame($pattern, $events[0][0]);
+        $this->assertEquals('matched/42', $events[0][1]);
+        $this->assertSame($exact, $events[1][0]);
+        $this->assertEquals('matched-exact', $events[1][1]);
+    }
+
+    /**
+     * Test that a request no route claims stays silent.
+     *
+     * @group system
+     */
+    public function testRouteMatchedHookIsSilentWhenNothingMatches()
+    {
+        $routes = Router::$routes;
+        $fallback = Router::$fallback;
+        Router::$routes = array_fill_keys(Router::$methods, []);
+        Router::$fallback = array_fill_keys(Router::$methods, []);
+
+        $events = [];
+
+        Hook::listen('rakit.route.matched', function ($route, $uri) use (&$events) {
+            $events[] = [$route, $uri];
+        });
+
+        $route = Router::route('GET', 'nothing-here');
+
+        Router::$routes = $routes;
+        Router::$fallback = $fallback;
+
+        $this->assertNull($route);
+        $this->assertCount(0, $events);
     }
 }

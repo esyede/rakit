@@ -58,7 +58,9 @@ class Runner extends Command
         $status = 0;
 
         foreach ($packages as $package) {
-            if (is_dir($base = Package::path($package).'tests')) {
+            $path = Package::path($package);
+
+            if (! is_null($path) && is_dir($base = $path.'tests')) {
                 $this->stub($base);
                 $result = $this->start(false);
                 $status = $result ? $result : $status;

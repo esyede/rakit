@@ -73,7 +73,6 @@ class Worker
         };
 
         while ($this->bridge->wait_request($handler)) {
-            // Collect cycles between requests rather than in the middle of one.
             gc_collect_cycles();
         }
     }
@@ -119,7 +118,6 @@ class Worker
      */
     protected function error_response($e, $level)
     {
-        // Whatever the request printed so far is half a page, drop it.
         Bridge::discard($level);
         ob_start();
 
@@ -194,12 +192,10 @@ class Worker
      */
     public static function dispatch()
     {
-        // application/boot.php loads the session, but a worker runs it only once.
         if (filled(Config::get('session.driver'))) {
             Session::load();
         }
 
-        // Read URI and locale.
         $languages = Config::get('application.languages', ['en']);
         $languages[] = Config::get('application.language', 'en');
         $languages = array_filter($languages, function ($lang) {
@@ -216,6 +212,7 @@ class Worker
         foreach ($languages as $language) {
             if (preg_match('#^'.$language.'(?:$|/)#i', $uri)) {
                 Config::set('application.language', $language);
+                Hook::fire('rakit.locale', [$language]);
                 $uri = trim(substr((string) $uri, strlen($language)), '/');
                 break;
             }
@@ -223,11 +220,9 @@ class Worker
 
         URI::$uri = ('' === $uri) ? '/' : $uri;
 
-        // Route and execute.
         $domain = Request::foundation()->getHost();
         Request::$route = Router::route(Request::method(), URI::$uri, $domain);
 
-        // The catch-all route from boot.php only covers the HTTP methods the router knows.
         if (is_null(Request::$route)) {
             $response = Hook::first('404');
             $response = Response::prepare($response ?: Response::error(404));
@@ -235,7 +230,6 @@ class Worker
             $response = Request::$route->call();
         }
 
-        // Persist session.
         if (Config::get('session.driver') && Session::started()) {
             Session::save();
         }

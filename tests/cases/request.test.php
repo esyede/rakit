@@ -2,6 +2,7 @@
 
 defined('DS') or exit('No direct access.');
 
+use System\Input;
 use System\Request;
 use System\Session;
 
@@ -24,6 +25,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $scriptname = $_SERVER['SCRIPT_NAME'];
         $_SERVER = [];
         $_SERVER['SCRIPT_NAME'] = $scriptname;
+        Input::$json = null;
         Request::$route = null;
         Session::$instance = null;
     }
@@ -181,6 +183,47 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         Request::foundation()->request->replace($input2);
 
         $this->assertTrue(Request::forged());
+    }
+
+    /**
+     * Test for Request::forged() - the token may ride in the JSON body.
+     *
+     * @group system
+     */
+    public function testForgedMethodReadsTheTokenFromAJsonBody()
+    {
+        Session::$instance = new SessionPayloadTokenStub();
+
+        $this->restartJsonRequest('{"' . Session::TOKEN . '":"Budi"}');
+        $this->assertFalse(Request::forged());
+
+        $this->restartJsonRequest('{"' . Session::TOKEN . '":"WrongToken"}');
+        $this->assertTrue(Request::forged());
+
+        $this->restartJsonRequest('{"name":"Budi"}');
+        $this->assertTrue(Request::forged());
+    }
+
+    /**
+     * Helper: re-initialize the Request object around a JSON body.
+     *
+     * @param string $body
+     */
+    protected function restartJsonRequest($body)
+    {
+        Input::$json = null;
+
+        Request::$foundation = \System\Foundation\Http\Request::create(
+            '/x',
+            'POST',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_HOST' => 'localhost', 'SCRIPT_NAME' => '/index.php'],
+            $body
+        );
+
+        Request::reset_foundation();
     }
 
     /**

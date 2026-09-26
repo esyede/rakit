@@ -1176,6 +1176,22 @@ DB::connection()->transaction(function ($connection) {
 Only the outermost `commit()` really commits. Use `transaction_level()` to ask
 how deep you are.
 
+**Transaction events:**
+
+`rakit.db.commit` and `rakit.db.rollback` fire when the outermost transaction of
+a connection ends, and only then: a nested one releases or undoes its savepoint
+and stays quiet. The payload is the connection name:
+
+```php
+Hook::listen('rakit.db.commit', function ($connection) {
+    // Dispatch the outbox jobs only once the work is really in
+});
+
+Hook::listen('rakit.db.rollback', function ($connection) {
+    // Drop whatever was staged for after the commit
+});
+```
+
 <a id="row-locking"></a>
 ## Row Locking
 

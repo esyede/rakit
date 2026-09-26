@@ -6,6 +6,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Arr;
 use System\Str;
+use System\Hook;
 use System\Package;
 
 class Router
@@ -442,8 +443,9 @@ class Router
                 if (! isset($action['domain'])) {
                     continue;
                 }
+
                 if (static::uri($key) === $uri && static::domain_matches($action['domain'], $domain)) {
-                    return new Route($method, $uri, $action);
+                    return static::matched(new Route($method, $uri, $action), $uri);
                 }
             }
         }
@@ -452,13 +454,28 @@ class Router
         if (array_key_exists($uri, $routes)) {
             $action = $routes[$uri];
             if (! isset($action['domain'])) {
-                return new Route($method, $uri, $action);
+                return static::matched(new Route($method, $uri, $action), $uri);
             }
         }
 
         if (! is_null($route = static::match($method, $uri, $domain, $routes))) {
-            return $route;
+            return static::matched($route, $uri);
         }
+    }
+
+    /**
+     * Announce a matched route, then hand it back to the caller.
+     *
+     * @param Route  $route
+     * @param string $uri
+     *
+     * @return Route
+     */
+    protected static function matched(Route $route, $uri)
+    {
+        Hook::fire('rakit.route.matched', [$route, $uri]);
+
+        return $route;
     }
 
     /**

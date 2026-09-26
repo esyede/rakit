@@ -4,6 +4,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Cache;
 use System\Config;
+use System\Hook;
 use System\Cache\Drivers\Memory;
 use System\Cache\Drivers\File;
 
@@ -27,6 +28,8 @@ class CacheTest extends \PHPUnit_Framework_TestCase
         Cache::$drivers = [];
         Cache::$registrar = [];
         $this->resetProcessedKey();
+        Hook::clear('rakit.cache.hit');
+        Hook::clear('rakit.cache.missed');
     }
 
     /**
@@ -611,5 +614,37 @@ class CacheTest extends \PHPUnit_Framework_TestCase
 
         $this->assertFalse($driver->has('flush_key1'));
         $this->assertFalse($driver->has('flush_key2'));
+    }
+
+    /**
+     * Test that get() announces a miss for a missing key and a hit for a stored
+     * one, each with the key and the time the lookup took.
+     *
+     * @group system
+     */
+    public function testGetFiresTheHitAndMissedHooks()
+    {
+        $events = [];
+
+        Hook::listen('rakit.cache.missed', function ($key, $time) use (&$events) {
+            $events[] = ['missed', $key, $time];
+        });
+
+        Hook::listen('rakit.cache.hit', function ($key, $time) use (&$events) {
+            $events[] = ['hit', $key, $time];
+        });
+
+        $driver = Cache::driver('memory');
+        $driver->get('hook-key');
+        $driver->put('hook-key', 'value', 1);
+        $driver->get('hook-key');
+
+        $this->assertCount(2, $events);
+        $this->assertEquals('missed', $events[0][0]);
+        $this->assertEquals('hook-key', $events[0][1]);
+        $this->assertTrue(is_float($events[0][2]));
+        $this->assertEquals('hit', $events[1][0]);
+        $this->assertEquals('hook-key', $events[1][1]);
+        $this->assertTrue(is_float($events[1][2]));
     }
 }

@@ -272,13 +272,7 @@ class Memcached extends Driver
                             'queue' => $data['queue'],
                             'name' => $data['name'],
                         ];
-                        $this->log(sprintf(
-                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
-                            $data['name'],
-                            $id,
-                            $e->getMessage(),
-                            $attempts
-                        ), 'error');
+                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 
@@ -295,13 +289,7 @@ class Memcached extends Driver
                             'queue' => $data['queue'],
                             'name' => $data['name'],
                         ];
-                        $this->log(sprintf(
-                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
-                            $data['name'],
-                            $id,
-                            $e->getMessage(),
-                            $attempts
-                        ), 'error');
+                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 
@@ -396,13 +384,7 @@ class Memcached extends Driver
                             'queue' => $data['queue'],
                             'name' => $data['name'],
                         ];
-                        $this->log(sprintf(
-                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
-                            $data['name'],
-                            $id,
-                            $e->getMessage(),
-                            $attempts
-                        ), 'error');
+                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 
@@ -419,13 +401,7 @@ class Memcached extends Driver
                             'queue' => $data['queue'],
                             'name' => $data['name'],
                         ];
-                        $this->log(sprintf(
-                            'Job failed permanently: %s - %s ::: %s (after %d attempts)',
-                            $data['name'],
-                            $id,
-                            $e->getMessage(),
-                            $attempts
-                        ), 'error');
+                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
                     } else {
                         $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
 

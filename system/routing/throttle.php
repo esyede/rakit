@@ -5,6 +5,7 @@ namespace System\Routing;
 defined('DS') or exit('No direct access.');
 
 use System\Cache;
+use System\Hook;
 use System\Request;
 use System\Response;
 use System\Foundation\Http\Request as Foundation;
@@ -102,6 +103,8 @@ class Throttle
         $meta = Cache::get(static::key().':meta') ?: [];
         $limit = isset($meta['limit']) ? (int) $meta['limit'] : 0;
         $reset = isset($meta['reset']) ? (int) $meta['reset'] : time();
+
+        Hook::fire('rakit.auth: lockout', [static::key(), $limit, $reset]);
 
         return Response::error(429, [
             'X-Rate-Limit-Limit' => $limit,

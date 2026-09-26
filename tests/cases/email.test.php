@@ -4,6 +4,7 @@ defined('DS') or exit('No direct access.');
 
 use System\Email;
 use System\Config;
+use System\Hook;
 
 class EmailTest extends \PHPUnit_Framework_TestCase
 {
@@ -174,5 +175,69 @@ class EmailTest extends \PHPUnit_Framework_TestCase
         /** @disregard */
         PHP_VERSION_ID < 80100 && $prop->setAccessible(true);
         $this->assertEquals('Test Subject', $prop->getValue($driver));
+    }
+
+    /**
+     * Test that a 'rakit.mail.sending' listener can call the sending off, and
+     * that 'rakit.mail.sent' then stays quiet.
+     *
+     * @group system
+     */
+    public function testSendingListenerCanCancelTheSending()
+    {
+        $sending = [];
+        $sent = [];
+
+        Hook::listen('rakit.mail.sending', function ($message) use (&$sending) {
+            $sending[] = $message;
+
+            return false;
+        });
+
+        Hook::listen('rakit.mail.sent', function ($message) use (&$sent) {
+            $sent[] = $message;
+        });
+
+        $driver = Email::driver();
+        $result = $driver->to('budi@example.com')->subject('Hi')->body('Hello')->send();
+
+        $this->assertFalse($result);
+        $this->assertCount(1, $sending);
+        $this->assertCount(0, $sent);
+        $this->assertSame($driver, $sending[0]);
+
+        Hook::clear('rakit.mail.sending');
+        Hook::clear('rakit.mail.sent');
+    }
+
+    /**
+     * Test that a message that goes out announces 'rakit.mail.sent'.
+     *
+     * @group system
+     */
+    public function testSentIsAnnouncedWhenTheMessageGoesOut()
+    {
+        $sending = [];
+        $sent = [];
+
+        Hook::listen('rakit.mail.sending', function ($message) use (&$sending) {
+            $sending[] = $message;
+        });
+
+        Hook::listen('rakit.mail.sent', function ($message) use (&$sent) {
+            $sent[] = $message;
+        });
+
+        $driver = Email::driver();
+        $result = $driver->to('budi@example.com')->subject('Hi')->body('Hello')->send();
+
+        $this->assertTrue($result);
+        $this->assertCount(1, $sending);
+        $this->assertCount(1, $sent);
+        $this->assertSame($driver, $sending[0]);
+        $this->assertSame($driver, $sent[0]);
+
+        Hook::clear('rakit.mail.sending');
+        Hook::clear('rakit.mail.sent');
     }
 }

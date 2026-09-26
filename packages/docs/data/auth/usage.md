@@ -88,6 +88,18 @@ if (Auth::attempt($credentials)) {
 
 > The identifier column (email/username) must match the `identifier` configuration in `application/config/auth.php`.
 
+**Failed attempts:**
+
+An attempt that does not log the visitor in announces `rakit.auth: failed`, with
+the credentials that were tried — but never the `password` key:
+
+```php
+// In application/hooks.php
+Hook::listen('rakit.auth: failed', function ($credentials) {
+    Log::warning('Failed login for ' . $credentials['email']);
+});
+```
+
 **Login with additional conditions:**
 
 Extra conditions can be added, such as letting only active users in:
@@ -285,6 +297,21 @@ Route::middleware('auth', function () {
     }
 });
 ```
+
+**Rate limiting:**
+
+The `throttle` middleware answers `429` once a client goes over its limit, and
+announces `rakit.auth: lockout` with the cache key of the client, the limit and
+the time the limit resets:
+
+```php
+Hook::listen('rakit.auth: lockout', function ($key, $limit, $reset) {
+    Log::warning('Locked out until ' . date('H:i:s', $reset));
+});
+```
+
+See [Middleware Pattern](/docs/routing#middleware-pattern) for how to attach it
+to a route.
 
 <a id="retrieving-user-data"></a>
 

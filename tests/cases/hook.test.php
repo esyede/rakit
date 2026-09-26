@@ -95,4 +95,25 @@ class HookTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(['dupe:second'], $flushed);
     }
+
+    /**
+     * Test that the global 'rakit.booted' event carries no payload and runs its
+     * listeners once per firing.
+     *
+     * @group system
+     */
+    public function testGlobalBootedEventCallsItsListenersOnce()
+    {
+        $count = 0;
+
+        Hook::listen('rakit.booted', function () use (&$count) {
+            $count++;
+        });
+
+        Hook::fire('rakit.booted');
+
+        $this->assertEquals(1, $count);
+
+        Hook::clear('rakit.booted');
+    }
 }

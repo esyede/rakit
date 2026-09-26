@@ -71,6 +71,7 @@ class Facile extends Driver
         $identifier = Config::get('auth.identifier', 'email');
 
         if (! isset($arguments[$identifier]) || ! isset($arguments['password'])) {
+            $this->failed($arguments);
             return false;
         }
 
@@ -86,6 +87,7 @@ class Facile extends Driver
         if (is_null($user)) {
             // Hash a dummy anyway, so a missing user takes the same time as a wrong password.
             Hash::check($arguments['password'], '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+            $this->failed($arguments);
             return false;
         }
 
@@ -93,6 +95,7 @@ class Facile extends Driver
             return $this->login($user->get_key(), Arr::get($arguments, 'remember'));
         }
 
+        $this->failed($arguments);
         return false;
     }
 }

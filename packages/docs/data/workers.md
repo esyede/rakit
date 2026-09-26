@@ -56,7 +56,9 @@ On each incoming request the worker:
 1. **Resets** per-request static state (`Request`, `URI`, `URL`, `Input`,
     `Session`, `Cookie`, `Auth`, route groups, sections, views, the query log and
     queued hooks). Container singletons are restored to what existed right
-    after boot, and so are the application language and environment.
+    after boot, and so are the application language and environment. The
+    `rakit.reset` event fires at the end of it, for packages that keep their
+    own statics (the Inertia bridge drops its shared props there).
 2. **Captures** the new request from `$_SERVER`, `$_GET`, `$_POST`, `$_COOKIE`,
     `$_FILES` and the request body, and rebuilds `Request::$foundation`.
 3. **Dispatches** the request through the normal Rakit pipeline: loading the

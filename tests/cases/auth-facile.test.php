@@ -5,6 +5,7 @@ defined('DS') or exit('No direct access.');
 use System\Auth;
 use System\Config;
 use System\Cookie;
+use System\Hook;
 use System\Session;
 use System\Database;
 
@@ -135,6 +136,30 @@ class AuthFacileTest extends \PHPUnit_Framework_TestCase
         $driver = new \System\Auth\Drivers\Facile();
         $result = $driver->attempt(['email' => 'nobody@example.com', 'password' => 'any']);
         $this->assertFalse($result);
+    }
+
+    /**
+     * Test for Facile::attempt() - a failed attempt announces 'rakit.auth: failed'
+     * with the credentials, and never carries the password along.
+     *
+     * @group system
+     */
+    public function testFacileFailedAttemptAnnouncesTheCredentialsWithoutThePassword()
+    {
+        $failed = [];
+
+        Hook::listen('rakit.auth: failed', function ($credentials) use (&$failed) {
+            $failed[] = $credentials;
+        });
+
+        $driver = new \System\Auth\Drivers\Facile();
+        $driver->attempt(['email' => 'budi@gmail.com', 'password' => 'wrong_password']);
+
+        $this->assertCount(1, $failed);
+        $this->assertEquals(['email' => 'budi@gmail.com'], $failed[0]);
+        $this->assertArrayNotHasKey('password', $failed[0]);
+
+        Hook::clear('rakit.auth: failed');
     }
 
     /**
