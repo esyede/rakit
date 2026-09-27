@@ -82,7 +82,14 @@ class Magic extends Driver
             }
         })->first();
 
-        if (! is_null($user) && Hash::check($arguments['password'], $user->password)) {
+        if (is_null($user)) {
+            // Hash a dummy anyway, so a missing user takes the same time as a wrong password.
+            Hash::check($arguments['password'], '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
+            $this->failed($arguments);
+            return false;
+        }
+
+        if (Hash::check($arguments['password'], $user->password)) {
             return $this->login($user->id, Arr::get($arguments, 'remember'));
         }
 

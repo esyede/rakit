@@ -689,7 +689,7 @@ class Image
 
         $length = mb_strlen($hex, '8bit');
 
-        if ($length > 6 || (3 !== $length && 6 !== $length) || ! ctype_xdigit($hex)) {
+        if ($length > 6 || (3 !== $length && 6 !== $length) || ! preg_match('/^[0-9a-fA-F]+$/', $hex)) {
             throw new \Exception(sprintf('Invalid color specified: 0x%s', $hex));
         }
 

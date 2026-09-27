@@ -803,7 +803,7 @@ class Query
         }
 
         // Cast digits only: UUID, ULID and other string keys must survive as-is.
-        return (is_string($id) && ctype_digit($id)) ? (int) $id : $id;
+        return (is_string($id) && preg_match('/^[0-9]+$/', $id)) ? (int) $id : $id;
     }
 
     /**
