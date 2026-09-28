@@ -716,7 +716,7 @@ $users = DB::table('users')
     ->for_page(1, 15)
     ->get();
 
-// Page 3, 20 per page  
+// Page 3, 20 per page
 $users = DB::table('users')
     ->for_page(3, 20)
     ->get();

@@ -315,12 +315,12 @@ echo $data->email; // "john@example.com"
 ```php
 Route::post('api/users', function () {
     $data = Input::json(false);
-    
+
     $user = User::create([
         'name' => $data['name'],
         'email' => $data['email'],
     ]);
-    
+
     return Response::json($user, 201);
 });
 ```
@@ -372,22 +372,22 @@ Route::post('profile/avatar', function () {
     if (!Input::has_file('avatar')) {
         return Redirect::back()->with('error', 'No file uploaded');
     }
-    
+
     // Validate file
     $rules = ['avatar' => 'required|image|max:2048'];
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()->with_errors($validation);
     }
-    
+
     // Upload file
     $filename = Input::upload('avatar', path('storage') . 'avatars');
-    
+
     // Update user
     Auth::user()->avatar = $filename;
     Auth::user()->save();
-    
+
     return Redirect::back()->with('message', 'Avatar updated!');
 });
 ```
@@ -438,19 +438,19 @@ Route::post('upload', function () {
         'document' => 'required|mimes:pdf,doc,docx|max:5120', // 5MB
         'image' => 'required|image|max:2048', // 2MB
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()
             ->with_input()
             ->with_errors($validation);
     }
-    
+
     // Upload files
     $doc_path = Input::upload('document', path('storage') . 'documents');
     $img_path = Input::upload('image', path('storage') . 'images');
-    
+
     return Redirect::back()->with('message', 'Files uploaded!');
 });
 ```
@@ -539,18 +539,18 @@ Route::post('register', function () {
         'email' => 'required|email|unique:users',
         'password' => 'required|min:8|confirmed',
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()
             ->with_input()  // Flash input
             ->with_errors($validation);
     }
-    
+
     // Create user — allowlist, independent of what the model allows
     $user = User::create(Input::only('name','email','password'));
-    
+
     return Redirect::to('login')
         ->with('message', 'Registration successful!');
 });
@@ -564,17 +564,17 @@ Route::post('register', function () {
     <?php if ($errors->has('name')): ?>
         <span class="error"><?php echo $errors->first('name'); ?></span>
     <?php endif; ?>
-    
+
     <input type="email" name="email" value="<?php echo Input::old('email'); ?>">
     <?php if ($errors->has('email')): ?>
         <span class="error"><?php echo $errors->first('email'); ?></span>
     <?php endif; ?>
-    
+
     <input type="password" name="password">
     <?php if ($errors->has('password')): ?>
         <span class="error"><?php echo $errors->first('password'); ?></span>
     <?php endif; ?>
-    
+
     <button type="submit">Register</button>
 </form>
 ```
@@ -711,15 +711,15 @@ Route::post('contact', function () {
         'email' => 'required|email',
         'message' => 'required|min:10',
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()
             ->with_input()
             ->with_errors($validation);
     }
-    
+
     // Send email
     $body = View::make('emails.contact', Input::all())->render();
 
@@ -727,7 +727,7 @@ Route::post('contact', function () {
         ->subject('New Contact Message')
         ->html_body($body)
         ->send();
-    
+
     return Redirect::back()
         ->with('message', 'Message sent successfully!');
 });
@@ -742,7 +742,7 @@ Route::post('contact', function () {
             <?php echo Session::get('message'); ?>
         </div>
     <?php endif; ?>
-    
+
     <div>
         <label>Name:</label>
         <input type="text" name="name" value="<?php echo Input::old('name'); ?>">
@@ -750,7 +750,7 @@ Route::post('contact', function () {
             <span class="error"><?php echo $errors->first('name'); ?></span>
         <?php endif; ?>
     </div>
-    
+
     <div>
         <label>Email:</label>
         <input type="email" name="email" value="<?php echo Input::old('email'); ?>">
@@ -758,7 +758,7 @@ Route::post('contact', function () {
             <span class="error"><?php echo $errors->first('email'); ?></span>
         <?php endif; ?>
     </div>
-    
+
     <div>
         <label>Message:</label>
         <textarea name="message"><?php echo Input::old('message'); ?></textarea>
@@ -766,7 +766,7 @@ Route::post('contact', function () {
             <span class="error"><?php echo $errors->first('message'); ?></span>
         <?php endif; ?>
     </div>
-    
+
     <button type="submit">Send</button>
 </form>
 ```
@@ -780,25 +780,25 @@ Route::post('products', function () {
         'price' => 'required|numeric',
         'image' => 'required|image|max:2048',
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()
             ->with_input('except', ['image'])
             ->with_errors($validation);
     }
-    
+
     // Upload image
     $image_path = Input::upload('image', path('public') . 'products');
-    
+
     // Create product
     Product::create([
         'name' => Input::get('name'),
         'price' => Input::get('price'),
         'image' => $image_path,
     ]);
-    
+
     return Redirect::to('products')
         ->with('message', 'Product created!');
 });
@@ -810,25 +810,25 @@ Route::post('products', function () {
 Route::post('api/posts', function () {
     // Get JSON input
     $data = Input::json(false);
-    
+
     // Validate
     $rules = [
         'title' => 'required|max:255',
         'content' => 'required',
     ];
-    
+
     $validation = Validator::make($data, $rules);
-    
+
     if ($validation->fails()) {
         return Response::json([
             'error' => 'Validation failed',
             'messages' => $validation->errors->all(),
         ], 422);
     }
-    
+
     // Create post
     $post = Post::create($data);
-    
+
     return Response::json($post, 201);
 });
 ```
@@ -840,10 +840,10 @@ Route::post('api/posts', function () {
 Route::post('preferences', function () {
     $theme = Input::get('theme', 'light');
     $language = Input::get('language', 'id');
-    
+
     Cookie::put('theme', $theme, 43200); // 30 days
     Cookie::put('language', $language, 43200);
-    
+
     return Redirect::back()->with('message', 'Preferences saved!');
 });
 
@@ -860,18 +860,18 @@ View::share('language', $language);
 ```php
 Route::get('products', function () {
     $query = (new Product())->query();
-    
+
     // Search — use binding, LIKE is safe via binding (value is parameterized)
     if (Input::has('q')) {
         $keyword = Input::get('q');
         $query->where('name', 'like', "%$keyword%");
     }
-    
+
     // Filter by category — validate as integer
     if (Input::has('category')) {
         $query->where('category_id', '=', (int) Input::get('category'));
     }
-    
+
     // Sort — the direction is validated, but the column still has to be allowlisted
     $allowedSorts = ['name','price','created_at'];
     $allowedDirs  = ['asc','desc'];
@@ -880,11 +880,11 @@ Route::get('products', function () {
     $sort_dir = strtolower(Input::get('dir', 'desc'));
     $sort_dir = in_array($sort_dir, $allowedDirs) ? $sort_dir : 'desc';
     $query->order_by($sort_by, $sort_dir);
-    
+
     // Paginate
     $per_page = Input::get('per_page', 20);
     $products = $query->paginate($per_page);
-    
+
     return View::make('products.index', compact('products'));
 });
 ```
@@ -895,25 +895,25 @@ Route::get('products', function () {
 Route::post('users/bulk-action', function () {
     $action = Input::get('action');
     $user_ids = Input::get('users', []);
-    
+
     if (empty($user_ids)) {
         return Redirect::back()->with('error', 'No users selected');
     }
-    
+
     switch ($action) {
         case 'activate':
             User::where_in('id', $user_ids)->update(['active' => 1]);
             break;
-            
+
         case 'deactivate':
             User::where_in('id', $user_ids)->update(['active' => 0]);
             break;
-            
+
         case 'delete':
             User::where_in('id', $user_ids)->delete();
             break;
     }
-    
+
     return Redirect::back()->with('message', 'Action completed!');
 });
 ```

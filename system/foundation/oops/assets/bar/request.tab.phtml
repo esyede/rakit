@@ -20,7 +20,7 @@ $statusCode = http_response_code();
         </g>
     </svg>
     <span class="oops-label">
-        <?php echo htmlspecialchars($method); ?> 
+        <?php echo htmlspecialchars($method); ?>
         <span style="color: <?php echo ($statusCode >= 200 && $statusCode < 300) ? '#4CAF50' : (($statusCode >= 400) ? '#F44336' : '#FF9800'); ?>;">
             <?php echo $statusCode ?: '200'; ?>
         </span>

@@ -97,7 +97,7 @@ Use it to raise hash strength over time.
    ```php
    // DON'T:
    $user->password = $password;
-   
+
    // DO:
    $user->password = Hash::make($password);
    ```
@@ -106,7 +106,7 @@ Use it to raise hash strength over time.
    ```php
    // DON'T:
    $rules = ['password' => 'required|max:20'];
-   
+
    // DO:
    $rules = ['password' => 'required|min:8'];
    ```
@@ -121,7 +121,7 @@ Use it to raise hash strength over time.
    ```php
    if (Hash::check($password, $user->password)) {
        // Login successful
-       
+
        // Rehash if hash is weak
        if (Hash::weak($user->password, 12)) {
            $user->password = Hash::make($password, 12);
@@ -149,22 +149,22 @@ Route::post('register', function () {
         'email' => 'required|email|unique:users',
         'password' => 'required|min:8|confirmed',
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()
             ->with_input()
             ->with_errors($validation);
     }
-    
+
     // Hash password before saving
     $user = new User;
     $user->name = Input::get('name');
     $user->email = Input::get('email');
     $user->password = Hash::make(Input::get('password'));
     $user->save();
-    
+
     return Redirect::to('login')
         ->with('message', 'Registration successful!');
 });
@@ -177,18 +177,18 @@ Route::post('register', function () {
 Route::post('login', function () {
     $email = Input::get('email');
     $password = Input::get('password');
-    
+
     // Get user from database
     $user = User::where('email', '=', $email)->first();
-    
+
     // Check if user exists and password matches
     if ($user && Hash::check($password, $user->password)) {
         // Login successful
         Auth::login($user->id);
-        
+
         return Redirect::to('dashboard');
     }
-    
+
     // Login failed
     return Redirect::back()
         ->with_input()
@@ -205,25 +205,25 @@ Route::post('profile/password', function () {
         'current_password' => 'required',
         'new_password' => 'required|min:8|confirmed',
     ];
-    
+
     $validation = Validator::make(Input::all(), $rules);
-    
+
     if ($validation->fails()) {
         return Redirect::back()->with_errors($validation);
     }
-    
+
     $user = Auth::user();
-    
+
     // Verify old password
     if (!Hash::check(Input::get('current_password'), $user->password)) {
         return Redirect::back()
             ->with('error', 'Old password does not match');
     }
-    
+
     // Update password
     $user->password = Hash::make(Input::get('new_password'));
     $user->save();
-    
+
     return Redirect::back()
         ->with('message', 'Password changed successfully');
 });
@@ -238,26 +238,26 @@ If you want to upgrade the cost factor or migrate from old hashing algorithms:
 Route::post('login', function () {
     $email = Input::get('email');
     $password = Input::get('password');
-    
+
     $user = User::where('email', '=', $email)->first();
-    
+
     if (!$user) {
         return Redirect::back()->with('error', 'User not found');
     }
-    
+
     // Check if using old hash (e.g., MD5 or SHA1)
     if (strlen($user->password) === 32 || strlen($user->password) === 40) {
         // Old hash (MD5 or SHA1)
-        $old_hash = ($user->password_algo === 'md5') 
-            ? md5($password) 
+        $old_hash = ($user->password_algo === 'md5')
+            ? md5($password)
             : sha1($password);
-        
+
         if ($old_hash === $user->password) {
             // Password matches, upgrade to bcrypt
             $user->password = Hash::make($password, 12);
             $user->password_algo = 'bcrypt';
             $user->save();
-            
+
             Auth::login($user->id);
             return Redirect::to('dashboard');
         }
@@ -269,12 +269,12 @@ Route::post('login', function () {
                 $user->password = Hash::make($password, 12);
                 $user->save();
             }
-            
+
             Auth::login($user->id);
             return Redirect::to('dashboard');
         }
     }
-    
+
     return Redirect::back()->with('error', 'Incorrect password');
 });
 ```

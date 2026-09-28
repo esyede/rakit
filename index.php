@@ -36,7 +36,7 @@ if (! defined('RAKIT_WORKER_MODE')) {
     ) {
         define('RAKIT_WORKER_MODE', 'frankenphp');
     } elseif (
-        function_exists('getenv') 
+        function_exists('getenv')
         && 'http' === getenv('RR_MODE')
     ) {
         define('RAKIT_WORKER_MODE', 'roadrunner');
@@ -53,7 +53,7 @@ require path('system') . 'boot.php';
 // --------------------------------------------------------------
 // Swoole runs its own event loop, started by the server script.
 if (
-    defined('RAKIT_WORKER_MODE') 
+    defined('RAKIT_WORKER_MODE')
     && 'swoole' !== RAKIT_WORKER_MODE
 ) {
     \System\Worker\Worker::create(RAKIT_WORKER_MODE)->run();

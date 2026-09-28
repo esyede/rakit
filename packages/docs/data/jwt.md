@@ -140,22 +140,22 @@ $refreshed_token = JWT::refresh($token, $secret, $new_exp, $headers, 'HS384');
 // In middleware for auto-refreshing tokens that will expire
 Route::middleware('jwt.refresh', function () {
     $token = Request::bearer();
-    
+
     if (!$token) {
         return Response::json(['error' => 'Token required'], 401);
     }
-    
+
     try {
         $decoded = JWT::decode($token, Config::get('jwt.secret'));
-        
+
         // Check if token will expire within 5 minutes
         $exp_threshold = time() + 300;
-        
+
         if ($decoded->exp < $exp_threshold) {
             // Refresh token with 1 hour expiration from now
             $new_exp = time() + 3600;
             $new_token = JWT::refresh($token, Config::get('jwt.secret'), $new_exp);
-            
+
             // Send new token via header
             header('X-New-Token: ' . $new_token);
         }
@@ -190,13 +190,13 @@ return [
 Route::post('api/login', function () {
     $email = Input::get('email');
     $password = Input::get('password');
-    
+
     $user = User::where('email', $email)->first();
-    
+
     if (!$user || !Hash::check($password, $user->password)) {
         return Response::json(['error' => 'Invalid credentials'], 401);
     }
-    
+
     // Generate JWT
     $payload = [
         'iss' => URL::to('/'),
@@ -205,9 +205,9 @@ Route::post('api/login', function () {
         'user_id' => $user->id,
         'email' => $user->email,
     ];
-    
+
     $token = JWT::encode($payload, Config::get('jwt.secret'));
-    
+
     return Response::json([
         'token' => $token,
         'expires_in' => Config::get('jwt.expiration'),
@@ -225,11 +225,11 @@ Route::post('api/login', function () {
 ```php
 Route::middleware('jwt.auth', function () {
     $token = Request::bearer();
-    
+
     if (!$token) {
         return Response::json(['error' => 'Token required'], 401);
     }
-    
+
     try {
         $decoded = JWT::decode($token, Config::get('jwt.secret'));
         Request::foundation()->attributes->set('user_id', $decoded->user_id);
@@ -240,7 +240,7 @@ Route::middleware('jwt.auth', function () {
 
 Route::get('api/profile', ['before' => 'jwt.auth', function () {
     $user = User::find(Request::foundation()->attributes->get('user_id'));
-    
+
     return Response::json([
         'id' => $user->id,
         'name' => $user->name,
@@ -255,13 +255,13 @@ Route::get('api/profile', ['before' => 'jwt.auth', function () {
 Route::post('api/refresh', ['before' => 'jwt.auth', function () {
     $old_token = Request::bearer();
     $decoded = JWT::decode($old_token, Config::get('jwt.secret'));
-    
+
     // Generate new expiration time
     $new_exp = time() + Config::get('jwt.expiration');
-    
+
     // Refresh token
     $new_token = JWT::refresh($old_token, Config::get('jwt.secret'), $new_exp);
-    
+
     return Response::json([
         'token' => $new_token,
         'expires_in' => Config::get('jwt.expiration'),
@@ -277,23 +277,23 @@ File: `application/middlewares.php`
 // JWT Authentication Middleware
 Route::middleware('jwt.auth', function () {
     $token = Request::bearer();
-    
+
     if (!$token) {
         return Response::json(['error' => 'Token required'], 401);
     }
-    
+
     try {
         $decoded = JWT::decode($token, Config::get('jwt.secret'));
-        
+
         // Check expiration
         if (isset($decoded->exp) && $decoded->exp < time()) {
             return Response::json(['error' => 'Token expired'], 401);
         }
-        
+
         // Store user info in request
         Request::foundation()->attributes->set('user_id', $decoded->user_id);
         Request::foundation()->attributes->set('token_data', $decoded);
-        
+
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token: ' . $e->getMessage()], 401);
     }
@@ -310,49 +310,49 @@ async function login(email, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
     });
-    
+
     const data = await response.json();
-    
+
     if (data.token) {
         localStorage.setItem('jwt_token', data.token);
         return data;
     }
-    
+
     throw new Error(data.error);
 }
 
 // API Request with JWT
 async function getProfile() {
     const token = localStorage.getItem('jwt_token');
-    
+
     const response = await fetch('/api/profile', {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
-    
+
     // Check for refresh token in response header
     const newToken = response.headers.get('X-New-Token');
     if (newToken) {
         localStorage.setItem('jwt_token', newToken);
     }
-    
+
     return await response.json();
 }
 
 // Refresh token
 async function refreshToken() {
     const token = localStorage.getItem('jwt_token');
-    
+
     const response = await fetch('/api/refresh', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`
         }
     });
-    
+
     const data = await response.json();
-    
+
     if (data.token) {
         localStorage.setItem('jwt_token', data.token);
     }
@@ -410,7 +410,7 @@ try {
             'code' => 'TOKEN_EXPIRED'
         ], 401);
     }
-    
+
     return Response::json(['error' => 'Invalid token'], 401);
 }
 ```

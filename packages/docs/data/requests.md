@@ -458,11 +458,11 @@ if ($token) {
 ```php
 Route::middleware('api.auth', function () {
     $token = Request::bearer();
-    
+
     if (!$token) {
         return Response::json(['error' => 'Token required'], 401);
     }
-    
+
     try {
         JWT::decode($token, 's3cr3t');
     } catch (\Exception $e) {
@@ -614,7 +614,7 @@ if (URI::is(['admin/*', 'dashboard/*'])) {
 // Breadcrumb generation
 if (URI::is('admin/*')) {
     $breadcrumbs[] = ['Admin', '/admin'];
-    
+
     if (URI::is('admin/users/*')) {
         $breadcrumbs[] = ['Users', '/admin/users'];
     }
@@ -765,15 +765,15 @@ if (Request::referrer()) {
 ```php
 Route::get('api/users', function () {
     $users = User::all();
-    
+
     // Content negotiation with multiple checks
     if (Request::expects_json()) {
         return Response::json($users);
     }
-    
+
     // Check preferred format
     $format = Request::prefers(['application/json', 'text/xml', 'text/html']);
-    
+
     if ($format === 'application/json') {
         return Response::json($users);
     } elseif ($format === 'text/xml') {
@@ -781,7 +781,7 @@ Route::get('api/users', function () {
             'Content-Type' => 'application/xml'
         ]);
     }
-    
+
     return View::make('users.index', compact('users'));
 });
 ```
@@ -797,17 +797,17 @@ class Base_Controller extends Controller
         if (Request::ajax()) {
             return null;
         }
-        
+
         // No layout for API or JSON requests
         if (URI::is('api/*') || Request::expects_json()) {
             return null;
         }
-        
+
         // Mobile layout
         if (Str::contains(Request::agent(), 'Mobile')) {
             return View::make('layouts.mobile');
         }
-        
+
         // Default layout
         return View::make('layouts.master');
     }
@@ -835,16 +835,16 @@ Route::middleware('after', function ($response) {
 Route::middleware('throttle', function ($limit = 60) {
     $key = 'throttle:' . Request::ip() . ':' . Request::uri();
     $attempts = Cache::get($key, 0);
-    
+
     if ($attempts >= $limit) {
         Log::warning('Rate limit exceeded', [
             'ip' => Request::ip(),
             'uri' => Request::uri(),
         ]);
-        
+
         return Response::make('Too many requests', 429);
     }
-    
+
     Cache::put($key, $attempts + 1, 60);
 });
 ```
@@ -857,20 +857,20 @@ Route::post('admin/action', function () {
     if (!Request::secure()) {
         return Response::error(403);
     }
-    
+
     // Check bearer token
     $token = Request::bearer();
     if (!$token) {
         return Response::json(['error' => 'Token required'], 401);
     }
-    
+
     // Verify token
     try {
         $user = JWT::decode($token, 's3cr3t');
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token'], 401);
     }
-    
+
     // Check IP whitelist
     $whitelist = ['192.168.1.100', '10.0.0.1'];
     if (!in_array(Request::ip(), $whitelist)) {
@@ -881,7 +881,7 @@ Route::post('admin/action', function () {
         ]);
         return Response::error('403');
     }
-    
+
     // Process request
     return Response::json(['status' => 'success']);
 });
@@ -893,23 +893,23 @@ Route::post('admin/action', function () {
 public function action_show($id)
 {
     $post = Post::find($id);
-    
+
     // Use content negotiation
     $format = Request::prefers([
         'application/json',
         'application/xml',
         'text/html'
     ]);
-    
+
     switch ($format) {
         case 'application/json':
             return Response::json($post);
-            
+
         case 'application/xml':
             return Response::make(View::make('posts.xml', compact('post')), 200, [
                 'Content-Type' => 'application/xml'
             ]);
-            
+
         default:
             return View::make('posts.show', compact('post'));
     }
@@ -925,12 +925,12 @@ public function generate_breadcrumbs()
     $segments = URI::$segments;
     $breadcrumbs = [['Home', '/']];
     $path = '';
-    
+
     foreach ($segments as $segment) {
         $path .= '/' . $segment;
         $breadcrumbs[] = [ucfirst($segment), $path];
     }
-    
+
     return $breadcrumbs;
 }
 ```
@@ -942,7 +942,7 @@ Route::get('debug/request', function () {
     if (!Config::get('application.debug')) {
         return Response::error('404');
     }
-    
+
     return Response::json([
         'uri' => Request::uri(),
         'method' => Request::method(),
