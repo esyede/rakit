@@ -603,6 +603,16 @@ class Request
     }
 
     /**
+     * Check if the direct peer (REMOTE_ADDR) is one of the trusted proxies.
+     *
+     * @return bool
+     */
+    public function isFromTrustedProxy()
+    {
+        return self::$trustProxy && in_array($this->server->get('REMOTE_ADDR'), self::$trustedProxies, true);
+    }
+
+    /**
      * Normalize a query string: sorted, without stray delimiters, consistently escaped.
      *
      * @param string $queryString
@@ -795,7 +805,7 @@ class Request
     {
         $clientPort = self::$trustedHeaders[self::HEADER_CLIENT_PORT];
 
-        if (self::$trustProxy && $clientPort && $port = $this->headers->get($clientPort)) {
+        if ($this->isFromTrustedProxy() && $clientPort && $port = $this->headers->get($clientPort)) {
             return $port;
         }
 
@@ -919,7 +929,7 @@ class Request
     {
         $clientProto = self::$trustedHeaders[self::HEADER_CLIENT_PROTO];
 
-        if (self::$trustProxy && $clientProto && $proto = $this->headers->get($clientProto)) {
+        if ($this->isFromTrustedProxy() && $clientProto && $proto = $this->headers->get($clientProto)) {
             return in_array(strtolower((string) $proto), ['https', 'on', 'ssl', '1']);
         }
 
@@ -936,7 +946,7 @@ class Request
     {
         $clientHost = self::$trustedHeaders[self::HEADER_CLIENT_HOST];
 
-        if (self::$trustProxy && $clientHost && $host = $this->headers->get($clientHost)) {
+        if ($this->isFromTrustedProxy() && $clientHost && $host = $this->headers->get($clientHost)) {
             $elements = explode(',', $host);
             $host = $elements[count($elements) - 1];
         } elseif (! $host = $this->headers->get('Host')) {
@@ -1084,7 +1094,7 @@ class Request
     public function getRequestFormat($default = 'html')
     {
         if (null === $this->format) {
-            $this->format = $this->get('_format', $default);
+            $this->format = $this->attributes->get('_format', $default);
         }
 
         return $this->format;
@@ -1186,7 +1196,9 @@ class Request
     public function getContent($asResource = false)
     {
         if (false === $this->content || (true === $asResource && null !== $this->content)) {
-            throw new \LogicException('File::getContent() can only be called once when using the resource return type.');
+            throw new \LogicException(
+                'File::getContent() can only be called once when using the resource return type.'
+            );
         }
 
         if (true === $asResource) {
@@ -1380,7 +1392,10 @@ class Request
     {
         $requestUri = '';
 
-        if ('1' === (string) $this->server->get('IIS_WasUrlRewritten') && '' !== (string) $this->server->get('UNENCODED_URL')) {
+        if (
+            '1' === (string) $this->server->get('IIS_WasUrlRewritten')
+            && '' !== (string) $this->server->get('UNENCODED_URL')
+        ) {
             $requestUri = $this->server->get('UNENCODED_URL');
         } elseif ($this->server->has('REQUEST_URI')) {
             $requestUri = (string) $this->server->get('REQUEST_URI');
@@ -1457,7 +1472,10 @@ class Request
             return '';
         }
 
-        if ((mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit')) && ((false !== ($pos = strpos($requestUri, $baseUrl))) && (0 !== $pos))) {
+        if (
+            (mb_strlen($requestUri, '8bit') >= mb_strlen($baseUrl, '8bit'))
+            && ((false !== ($pos = strpos($requestUri, $baseUrl))) && (0 !== $pos))
+        ) {
             $baseUrl = substr($requestUri, 0, $pos + mb_strlen($baseUrl, '8bit'));
         }
 
@@ -1502,7 +1520,10 @@ class Request
             $requestUri = substr((string) $requestUri, 0, $pos);
         }
 
-        if ((null !== $baseUrl) && (false === ($pathInfo = substr((string) $requestUri, mb_strlen($baseUrl, '8bit'))))) {
+        if (
+            (null !== $baseUrl)
+            && (false === ($pathInfo = substr((string) $requestUri, mb_strlen($baseUrl, '8bit'))))
+        ) {
             return '/';
         } elseif (null === $baseUrl) {
             return $requestUri;
@@ -1560,6 +1581,10 @@ class Request
         $prefix = (string) $prefix;
         return (! $prefix || 0 !== strpos((string) rawurldecode($string), $prefix))
             ? false
-            : (preg_match('#^(%[[:xdigit:]]{2}|.){'.mb_strlen($prefix, '8bit').'}#', $string, $match) ? $match[0] : false);
+            : (
+                preg_match('#^(%[[:xdigit:]]{2}|.){'.mb_strlen($prefix, '8bit').'}#', $string, $match)
+                ? $match[0]
+                : false
+            );
     }
 }

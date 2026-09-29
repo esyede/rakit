@@ -70,8 +70,8 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $blade1 = '{{-- This is a comment --}}';
         $blade2 = "{{--\nThis is a\nmulti-line\ncomment.\n--}}";
 
-        $out1 = '<?php /*  This is a comment  */ ?>';
-        $out2 = "<?php /* \nThis is a\nmulti-line\ncomment.\n */ ?>";
+        $out1 = '';
+        $out2 = '';
 
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
@@ -113,8 +113,8 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $out5 = "<?php if (true): ?>\nfoo\n<?php else: ?>\nbar\n<?php endif; ?>";
         $out6 = "<?php if (! ( (count(\$something) > 0))): ?>\nfoobar\n<?php endif; ?>";
         $out7 = "<?php for (Foo::all() as \$foo): ?>\nfoo\n<?php endfor; ?>";
-        $out8 = "<?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php array_pop(\$__loop_stack); ?>";
-        $out9 = "<?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; if (count(Foo::all()) > 0): ?><?php foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; array_pop(\$__loop_stack); ?>";
+        $out8 = "<?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php array_pop(\$__loop_stack); \$loop = count(\$__loop_stack) ? end(\$__loop_stack) : null; ?>";
+        $out9 = "<?php \$__loop_stack = isset(\$__loop_stack) ? \$__loop_stack : []; \$__loop_stack[] = (object)[\"index\" => -1, \"iteration\" => 0, \"remaining\" => count(Foo::all()), \"count\" => count(Foo::all()), \"first\" => false, \"last\" => false, \"even\" => false, \"odd\" => false, \"depth\" => count(\$__loop_stack), \"parent\" => count(\$__loop_stack) > 0 ? \$__loop_stack[count(\$__loop_stack)-1] : null]; if (count(Foo::all()) > 0): ?><?php foreach (Foo::all() as \$foo): \$__loop_stack[count(\$__loop_stack)-1]->index++; \$__loop_stack[count(\$__loop_stack)-1]->iteration++; \$__loop_stack[count(\$__loop_stack)-1]->remaining--; \$__loop_stack[count(\$__loop_stack)-1]->first = (\$__loop_stack[count(\$__loop_stack)-1]->index === 0); \$__loop_stack[count(\$__loop_stack)-1]->last = (\$__loop_stack[count(\$__loop_stack)-1]->index === \$__loop_stack[count(\$__loop_stack)-1]->count - 1); \$__loop_stack[count(\$__loop_stack)-1]->even = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 === 0); \$__loop_stack[count(\$__loop_stack)-1]->odd = (\$__loop_stack[count(\$__loop_stack)-1]->iteration % 2 !== 0); \$loop = \$__loop_stack[count(\$__loop_stack)-1]; ?>\nfoo\n<?php endforeach; ?><?php else: ?>\nbar\n<?php endif; array_pop(\$__loop_stack); \$loop = count(\$__loop_stack) ? end(\$__loop_stack) : null; ?>";
         $out10 = "<?php while (true): ?>\nfoo\n<?php endwhile; ?>";
         $out11 = "<?php while (Foo::bar()): ?>\nfoo\n<?php endwhile; ?>";
         $out12 = "<?php if (\System\Auth::guest()): ?>\nfoo\n<?php endif; ?>";
@@ -212,8 +212,8 @@ class BladeTest extends \PHPUnit_Framework_TestCase
         $blade1 = "@include('user.profile')";
         $blade2 = "@include(Config::get('application.default_view', 'user.profile'))";
 
-        $out1 = "<?php echo view('user.profile')->with(get_defined_vars())->render() ?>";
-        $out2 = "<?php echo view(Config::get('application.default_view', 'user.profile'))->with(get_defined_vars())->render() ?>";
+        $out1 = "<?php echo \\System\\Blade::inherit(view('user.profile'), get_defined_vars())->render() ?>";
+        $out2 = "<?php echo \\System\\Blade::inherit(view(Config::get('application.default_view', 'user.profile')), get_defined_vars())->render() ?>";
 
         $this->assertEquals($out1, Blade::translate($blade1));
         $this->assertEquals($out2, Blade::translate($blade2));
@@ -425,5 +425,120 @@ class BladeTest extends \PHPUnit_Framework_TestCase
 
         unlink($path);
         unlink($compiled);
+    }
+
+    /**
+     * Run a translated template and return what it printed.
+     *
+     * @param string $template
+     * @param array  $data
+     *
+     * @return string
+     */
+    protected function evaluate($template, array $data = [])
+    {
+        $__compiled = Blade::translate($template);
+        extract($data);
+        ob_start();
+        eval('?>' . $__compiled);
+        return ob_get_clean();
+    }
+
+    /**
+     * Echoes inside a plain component attribute become concatenated PHP.
+     *
+     * @group system
+     */
+    public function testEchoInComponentAttributeIsConcatenated()
+    {
+        $out = Blade::translate('<x-alert title="Hi {{ $t }}!" raw="{!! $r !!}" plain="p"/>');
+        $this->assertContains("'title' => '' . 'Hi ' . (\$t) . '!'", $out);
+        $this->assertContains("'raw' => '' . (\$r)", $out);
+        $this->assertContains("'plain' => 'p'", $out);
+        $this->assertNotContains('echo e(', $out);
+    }
+
+    /**
+     * $loop points back at the outer loop once a nested loop ends.
+     *
+     * @group system
+     */
+    public function testLoopIsRestoredAfterNestedLoop()
+    {
+        $blade = '@foreach($a as $x)@foreach($b as $y)@endforeach[{{ $loop->index }}:{{ $loop->depth }}]@endforeach'
+            . '@forelse($a as $x)@forelse($b as $y)@empty @endforelse({{ $loop->index }})@empty @endforelse';
+        $this->assertEquals('[0:0][1:0](0)(1)', $this->evaluate($blade, ['a' => [1, 2], 'b' => [1, 2, 3]]));
+    }
+
+    /**
+     * Data passed to @include wins over the including view's variables.
+     *
+     * @group system
+     */
+    public function testIncludeDataOverridesParentVariables()
+    {
+        $view = new \stdClass();
+        $view->data = ['a' => 'explicit'];
+        Blade::inherit($view, ['a' => 'parent', 'b' => 'parent']);
+        $this->assertEquals(['a' => 'explicit', 'b' => 'parent'], $view->data);
+    }
+
+    /**
+     * Directive names only match as whole words.
+     *
+     * @group system
+     */
+    public function testDirectivesNeedAWordBoundary()
+    {
+        $text = '<!-- @author John --> info@showroom.com @csrfx @elsewhere @guests @emptyish';
+        $this->assertEquals($text, Blade::translate($text));
+        $this->assertEquals('[yes]', $this->evaluate('[@if($a)yes@else no@endif]', ['a' => true]));
+    }
+
+    /**
+     * The "or" default only applies to a variable on its left.
+     *
+     * @group system
+     */
+    public function testEchoOrIgnoresStringLiterals()
+    {
+        $this->assertEquals('yes or no', $this->evaluate('{{ $x ? "yes or no" : "z" }}', ['x' => true]));
+        $this->assertEquals('Guest|d', $this->evaluate('{{ $name or "Guest" }}|{{ $a["k"] or "d" }}', ['a' => []]));
+    }
+
+    /**
+     * @forelse and @foreach take the whole iterable, parentheses and "=" included.
+     *
+     * @group system
+     */
+    public function testLoopsAcceptComplexIterables()
+    {
+        $data = ['items' => [1, 2, 3, 4, 5]];
+        $this->assertEquals('123', $this->evaluate('@forelse(array_slice($items, 0, 3) as $x){{ $x }}@empty none@endforelse', $data));
+        $this->assertEquals(
+            '1345',
+            $this->evaluate('@foreach(array_filter($items, function ($v) { return $v !== 2; }) as $x){{ $x }}@endforeach', $data)
+        );
+    }
+
+    /**
+     * @php: inline form, echoes left alone inside blocks, and comments.
+     *
+     * @group system
+     */
+    public function testPhpDirectiveAndComments()
+    {
+        $this->assertEquals('1 {{ z }}', $this->evaluate('@php($x = 1){{ $x }} @php echo "{{ z }}"; @endphp{{-- a */ b --}}'));
+        $this->assertEquals('', Blade::translate('{{-- a */ b --}}'));
+    }
+
+    /**
+     * @set stops at its own closing parenthesis.
+     *
+     * @group system
+     */
+    public function testSetStopsAtItsOwnParenthesis()
+    {
+        $this->assertEquals('3 <span>(total)</span>', $this->evaluate("@set('total', count(\$items)){{ \$total }} <span>(total)</span>", ['items' => [1, 2, 3]]));
     }
 }

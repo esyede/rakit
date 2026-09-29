@@ -614,7 +614,11 @@ class Str
      */
     public static function uuid()
     {
-        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(static::bytes(16)), 4));
+        $bytes = static::bytes(16);
+        $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40); // version 4
+        $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80); // RFC 4122 variant
+
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
     }
 
     /**
@@ -649,7 +653,6 @@ class Str
                 static::$ulids['chars'][$i] = 0;
             }
 
-            // Randomness wrapped around: re-seed instead of writing to index -1.
             if ($i < 0) {
                 for ($i = 0; $i < 16; $i++) {
                     static::$ulids['chars'][$i] = static::integers(0, 31);
@@ -1177,7 +1180,6 @@ class Str
      */
     public static function __callStatic($method, $parameters)
     {
-        // Falling back to Str::$method would recurse back here for unknown names.
         if (! array_key_exists($method, static::$macros)) {
             throw new \BadMethodCallException(sprintf('Method does not exist: %s', $method));
         }

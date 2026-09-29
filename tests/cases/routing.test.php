@@ -464,4 +464,49 @@ class RoutingTest extends \PHPUnit_Framework_TestCase
         Cache::forget(Throttle::key().':meta');
         Hook::clear('rakit.auth: lockout');
     }
+
+    /**
+     * @group system
+     */
+    public function testHeadRequestsFallBackToGetRoutes()
+    {
+        Route::get('ping', function () {
+            return 'pong';
+        });
+        Route::get('item/(:num)', function ($id) {
+            return $id;
+        });
+        Router::register('*', '(:all)', function () {
+            return 'fallback';
+        });
+
+        $this->assertEquals('ping', Router::route('HEAD', 'ping')->uri);
+        $this->assertEquals(['5'], Router::route('HEAD', 'item/5')->parameters);
+        $this->assertEquals('(:all)', Router::route('HEAD', 'nope')->uri);
+    }
+
+    /**
+     * @group system
+     */
+    public function testRouteLiteralsAreEscaped()
+    {
+        Route::get('api/v1.0/(:num)', function () {
+            return 'ok';
+        });
+
+        $this->assertNotNull(Router::route('GET', 'api/v1.0/5'));
+        $this->assertNull(Router::route('GET', 'api/v1x0/5'));
+    }
+
+    /**
+     * @group system
+     */
+    public function testOnlyHomeControllersRegisterRootRoutes()
+    {
+        Router::controller(['admin.userhome', 'myhome']);
+        $routes = Router::$routes['GET'];
+
+        $this->assertFalse(isset($routes['admin']));
+        $this->assertFalse(isset($routes['/']));
+    }
 }

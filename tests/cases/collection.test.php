@@ -812,6 +812,30 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testMapWithKeysPreservesIntegerKeys()
+    {
+        $data = new Collection([['id' => 5, 'v' => 'a'], ['id' => 9, 'v' => 'b']]);
+        $data = $data->map_with_keys(function ($row) {
+            return [$row['id'] => $row['v']];
+        });
+        $this->assertSame([5 => 'a', 9 => 'b'], $data->all());
+    }
+
+    public function testSeededShuffleIsDeterministicAndReseeds()
+    {
+        $c = new Collection(range(1, 20));
+        $a = $c->shuffle(42)->all();
+        $this->assertSame($a, $c->shuffle(42)->all());
+        $sorted = $a;
+        sort($sorted);
+        $this->assertSame(range(1, 20), $sorted);
+
+        $c->shuffle(42);
+        $first = mt_rand();
+        $c->shuffle(42);
+        $this->assertNotSame($first, mt_rand());
+    }
+
     public function testTransform()
     {
         $c = new Collection(['first' => 'budi', 'last' => 'purnomo']);

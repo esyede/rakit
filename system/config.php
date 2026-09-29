@@ -89,6 +89,8 @@ class Config
                         unset(static::$gets[$k]);
                     }
                 }
+
+                unset(static::$items[$package][$file]);
             } else {
                 return $cached['found'] ? $cached['value'] : value($default);
             }
@@ -147,7 +149,6 @@ class Config
             Arr::set(static::$items[$package][$file], $item, $value);
         }
 
-        // Invalidate cache for all keys in the same package and file
         foreach (static::$gets as $name => $data) {
             list($pkg, $node, $unused) = static::parse($name);
 

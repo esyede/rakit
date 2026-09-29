@@ -4,7 +4,6 @@ namespace System\Routing;
 
 defined('DS') or exit('No direct access.');
 
-use System\Package;
 use System\Request;
 
 class Middlewares
@@ -77,16 +76,12 @@ class Middlewares
             return [$middleware, $this->parameters()];
         }
 
-        $element = (string) Package::element($middleware);
+        $middleware = (string) $middleware;
+        $offset = (false !== ($separator = strpos($middleware, '::'))) ? $separator + 2 : 0;
 
-        if (false !== ($colon = strpos($element, ':'))) {
-            $parameters = explode(',', substr($element, $colon + 1));
-
-            if (DEFAULT_PACKAGE !== ($package = Package::name($middleware))) {
-                $colon = mb_strlen($package.'::', '8bit') + $colon;
-            }
-
-            return [substr((string) $middleware, 0, $colon), $parameters];
+        if (false !== ($colon = strpos($middleware, ':', $offset))) {
+            $parameters = explode(',', substr($middleware, $colon + 1));
+            return [substr($middleware, 0, $colon), $parameters];
         }
 
         return [$middleware, []];
@@ -115,11 +110,13 @@ class Middlewares
      */
     public function applies($method)
     {
-        if (count($this->only) > 0 && ! in_array($method, $this->only)) {
+        $method = strtolower((string) $method);
+
+        if (count($this->only) > 0 && ! in_array($method, array_map('strtolower', $this->only))) {
             return false;
         }
 
-        if (count($this->except) > 0 && in_array($method, $this->except)) {
+        if (count($this->except) > 0 && in_array($method, array_map('strtolower', $this->except))) {
             return false;
         }
 

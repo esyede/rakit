@@ -239,9 +239,20 @@ class Client
             $result = strlen($message);
         }
 
-        // Server handlers are protected: reach them through fire(), not directly.
         $this->server()->fire('send', [$this, $opcode, $data]);
 
         return $result;
+    }
+
+    /**
+     * Start the closing handshake: send a close frame, the server drops
+     * the connection once the client answers with its own close frame.
+     *
+     * @return int|false
+     */
+    public function close()
+    {
+        $this->disconnecting = true;
+        return $this->send(Server::CLOSE);
     }
 }

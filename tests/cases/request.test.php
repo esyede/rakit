@@ -186,6 +186,27 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Request::forged() - a safe method is never forged, even before
+     * the session holds a token.
+     *
+     * @group system
+     */
+    public function testSafeMethodIsNotForgedWithoutASessionToken()
+    {
+        Session::$instance = new SessionPayloadEmptyTokenStub();
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
+        Request::reset_foundation();
+        $this->assertFalse(Request::forged());
+
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        Request::$foundation = \System\Foundation\Http\Request::createFromGlobals();
+        Request::reset_foundation();
+        $this->assertTrue(Request::forged());
+    }
+
+    /**
      * Test for Request::forged() - the token may ride in the JSON body.
      *
      * @group system
@@ -613,5 +634,18 @@ class SessionPayloadTokenStub
     public function get($key, $default = null)
     {
         return ($key === Session::TOKEN) ? 'Budi' : $default;
+    }
+}
+
+class SessionPayloadEmptyTokenStub
+{
+    public function token()
+    {
+        return null;
+    }
+
+    public function get($key, $default = null)
+    {
+        return $default;
     }
 }

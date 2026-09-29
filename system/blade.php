@@ -69,7 +69,6 @@ class Blade
         'stack',
         'hassection',
         'sectionmissing',
-        'php_block',
     ];
 
     /**
@@ -200,6 +199,18 @@ class Blade
             return $token;
         }, $value);
 
+        $value = static::compile_comment($value);
+        $phps = [];
+        $value = preg_replace_callback(
+            '/(?<!@)@php(?:(\((?:[^()]++|(?1))*\))|(.*?)@endphp)/s',
+            function ($matches) use (&$phps) {
+                $token = '___PHP_'.count($phps).'___';
+                $phps[$token] = isset($matches[2]) ? '<?php '.$matches[2].'?>' : '<?php '.$matches[1].'; ?>';
+                return $token;
+            },
+            $value
+        );
+
         $compilers = static::$compilers;
 
         foreach ($compilers as $compiler) {
@@ -208,6 +219,10 @@ class Blade
             }
 
             $value = static::{'compile_'.$compiler}($value, $view);
+        }
+
+        foreach ($phps as $token => $content) {
+            $value = str_replace($token, $content, $value);
         }
 
         foreach ($verbatims as $token => $content) {
@@ -230,11 +245,9 @@ class Blade
             return $value;
         }
 
-        // Package components use '::' like views; a single ':' is a slot.
         $name = '[A-Za-z0-9_\\-\\.]+(?:::[A-Za-z0-9_\\-\\.]+)?';
         $attributes = '((?:\\s+[:@]?' . $name . '(?:\\s*=\\s*(?:"[^"]*"|\'[^\']*\'|[^\\s>"\\\']+))?)*)';
 
-        // A slot belongs to the component around it, not to itself.
         $value = preg_replace_callback('/<x-slot\s+name\s*=\s*(?:"([^"]*)"|\'([^\']*)\')\s*>/', function ($matches) {
             $slot = ('' === $matches[1]) ? $matches[2] : $matches[1];
             return '<?php \System\Blade\Component::slot(' . var_export($slot, true) . '); ?>';
@@ -251,7 +264,6 @@ class Blade
                 . '); echo \System\Blade\Component::close(); ?>';
         }, $value);
 
-        // Innermost first, so nested components compile inside out.
         $pattern = '/<x-(?!slot\b)(' . $name . ')' . $attributes . '\s*>((?:(?!<x-(?!slot\b))[\s\S])*?)<\/x-\1\s*>/';
         $guard = 0;
 
@@ -297,7 +309,22 @@ class Blade
                 $raw = substr($raw, 1, -1);
             }
 
-            $pairs[] = var_export($name, true) . ' => ' . ($bound ? $raw : var_export($raw, true));
+            if (! $bound) {
+                $parts = preg_split('/(\{\{.+?\}\}|\{!!.+?!!\})/s', $raw, -1, PREG_SPLIT_DELIM_CAPTURE);
+                $raw = [];
+
+                foreach ($parts as $index => $part) {
+                    if ($index % 2) {
+                        $raw[] = '(' . trim(substr($part, 2, -2), " \t\r\n!") . ')';
+                    } elseif ('' !== $part || 1 === count($parts)) {
+                        $raw[] = var_export($part, true);
+                    }
+                }
+
+                $raw = (count($parts) > 1 ? "'' . " : '') . implode(' . ', $raw);
+            }
+
+            $pairs[] = var_export($name, true) . ' => ' . $raw;
         }
 
         return '[' . implode(', ', $pairs) . ']';
@@ -359,7 +386,7 @@ class Blade
      */
     protected static function compile_comment($value)
     {
-        return preg_replace('/\{\{--((.|\s)*?)--\}\}/', '<?php /* $1 */ ?>', $value);
+        return preg_replace('/\{\{--(.*?)--\}\}/s', '', $value);
     }
 
     /**
@@ -373,7 +400,7 @@ class Blade
     {
         $compiler = function ($str) {
             // {{ .. or .. }}
-            return preg_replace('/^(?=\$)(.+?)(?:\s+or\s+)(.+?)$/s', 'isset($1) ? $1 : $2', $str);
+            return preg_replace('/^(\$\w+(?:->\w+|\[[^\]]*\])*)\s+or\s+(.+?)$/s', 'isset($1) ? $1 : $2', $str);
         };
 
         // {{{  }}}
@@ -409,7 +436,7 @@ class Blade
      */
     protected static function compile_csrf($value)
     {
-        return str_replace('@csrf', '<?php echo csrf_field() ?>', $value);
+        return preg_replace('/(?<!@)@csrf\b/', '<?php echo csrf_field() ?>', $value);
     }
 
     /**
@@ -421,7 +448,8 @@ class Blade
      */
     protected static function compile_set($value)
     {
-        return preg_replace("/@set\(['\"](.*?)['\"]\,(.*)\)/", '<?php $$1 =$2;?>', $value);
+        $pattern = "/(?<!@)@set\\(\\s*['\"](.*?)['\"]\\s*,((?:[^()]++|(\\((?:[^()]++|(?3))*\\)))*)\\)/";
+        return preg_replace($pattern, '<?php $$1 =$2;?>', $value);
     }
 
     /**
@@ -490,12 +518,12 @@ class Blade
     {
         preg_match_all('/(\s*)@forelse(\s*(\((?:[^()]++|(?3))*\)))(\s*)/', $value, $matches);
 
-        foreach ($matches[0] as $forelse) {
-            // Malformed directive: leave it visible rather than guess a count().
-            if (! preg_match('/\s*\(\s*(\S*)\s/', $forelse, $variables)) {
+        foreach ($matches[0] as $i => $forelse) {
+            if (! preg_match('/^\s*\((.+)\s+as\s+/s', $matches[2][$i], $variables)) {
                 continue;
             }
 
+            $variables[1] = trim($variables[1]);
             $replace = '$1<?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count('.$variables[1].'), "count" => count('.$variables[1].'), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; if (count('.$variables[1].') > 0): ?><?php foreach$2: $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
             $value = str_replace(
                 $forelse,
@@ -517,7 +545,7 @@ class Blade
     protected static function compile_empty($value)
     {
         $value = preg_replace('/(\s*)@empty(\s*(\((?:[^()]++|(?3))*\)))/', '$1<?php if (empty$2): ?>', $value);
-        return str_replace('@empty', '<?php endforeach; ?><?php else: ?>', $value);
+        return preg_replace('/(?<!@)@empty\b/', '<?php endforeach; ?><?php else: ?>', $value);
     }
 
     /**
@@ -529,7 +557,7 @@ class Blade
      */
     protected static function compile_endempty($value)
     {
-        return str_replace('@endempty', '<?php endif; ?>', $value);
+        return preg_replace('/(?<!@)@endempty\b/', '<?php endif; ?>', $value);
     }
 
     /**
@@ -541,7 +569,11 @@ class Blade
      */
     protected static function compile_endforelse($value)
     {
-        return str_replace('@endforelse', '<?php endif; array_pop($__loop_stack); ?>', $value);
+        return preg_replace(
+            '/(?<!@)@endforelse\b/',
+            '<?php endif; array_pop($__loop_stack); $loop = count($__loop_stack) ? end($__loop_stack) : null; ?>',
+            $value
+        );
     }
 
     /**
@@ -565,9 +597,11 @@ class Blade
      */
     protected static function compile_structure_end($value)
     {
-        return preg_replace_callback('/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/', function ($matches) {
+        return preg_replace_callback('/(\s*)(?<!@)@(endif|endforeach|endfor|endwhile)\b(\s*)/', function ($matches) {
             return $matches[1].'<?php '.$matches[2].'; ?>'
-                . (('endforeach' === $matches[2]) ? '<?php array_pop($__loop_stack); ?>' : '').$matches[3];
+                . (('endforeach' === $matches[2])
+                   ? '<?php array_pop($__loop_stack); $loop = count($__loop_stack) ? end($__loop_stack) : null; ?>'
+                   : '').$matches[3];
         }, $value);
     }
 
@@ -581,7 +615,7 @@ class Blade
     protected static function compile_foreach($value)
     {
         return preg_replace_callback('/@foreach(\s*(\((?:[^()]++|(?2))*\)))/', function ($matches) {
-            if (preg_match('/\(\s*([^=]+?)\s+as\s+/', $matches[1], $arrays)) {
+            if (preg_match('/^\s*\((.+)\s+as\s+/s', $matches[1], $arrays)) {
                 return '<?php $__loop_stack = isset($__loop_stack) ? $__loop_stack : []; $__loop_stack[] = (object)["index" => -1, "iteration" => 0, "remaining" => count('.trim($arrays[1]).'), "count" => count('.trim($arrays[1]).'), "first" => false, "last" => false, "even" => false, "odd" => false, "depth" => count($__loop_stack), "parent" => count($__loop_stack) > 0 ? $__loop_stack[count($__loop_stack)-1] : null]; foreach'.$matches[1].': $__loop_stack[count($__loop_stack)-1]->index++; $__loop_stack[count($__loop_stack)-1]->iteration++; $__loop_stack[count($__loop_stack)-1]->remaining--; $__loop_stack[count($__loop_stack)-1]->first = ($__loop_stack[count($__loop_stack)-1]->index === 0); $__loop_stack[count($__loop_stack)-1]->last = ($__loop_stack[count($__loop_stack)-1]->index === $__loop_stack[count($__loop_stack)-1]->count - 1); $__loop_stack[count($__loop_stack)-1]->even = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 === 0); $__loop_stack[count($__loop_stack)-1]->odd = ($__loop_stack[count($__loop_stack)-1]->iteration % 2 !== 0); $loop = $__loop_stack[count($__loop_stack)-1]; ?>';
             }
 
@@ -598,7 +632,7 @@ class Blade
      */
     protected static function compile_else($value)
     {
-        return preg_replace('/(\s*)@(else)(\s*)/', '$1<?php $2: ?>$3', $value);
+        return preg_replace('/(\s*)(?<!@)@(else)\b(\s*)/', '$1<?php $2: ?>$3', $value);
     }
 
     /**
@@ -623,7 +657,7 @@ class Blade
      */
     protected static function compile_endunless($value)
     {
-        return str_replace('@endunless', '<?php endif; ?>', $value);
+        return preg_replace('/(?<!@)@endunless\b/', '<?php endif; ?>', $value);
     }
 
     /**
@@ -647,7 +681,7 @@ class Blade
      */
     protected static function compile_enderror($value)
     {
-        return str_replace('@enderror', '<?php endif; ?>', $value);
+        return preg_replace('/(?<!@)@enderror\b/', '<?php endif; ?>', $value);
     }
 
     /**
@@ -659,7 +693,7 @@ class Blade
      */
     protected static function compile_guest($value)
     {
-        return str_replace('@guest', '<?php if (\System\Auth::guest()): ?>', $value);
+        return preg_replace('/(?<!@)@guest\b/', '<?php if (\System\Auth::guest()): ?>', $value);
     }
 
     /**
@@ -671,7 +705,7 @@ class Blade
      */
     protected static function compile_endguest($value)
     {
-        return str_replace('@endguest', '<?php endif; ?>', $value);
+        return preg_replace('/(?<!@)@endguest\b/', '<?php endif; ?>', $value);
     }
 
     /**
@@ -683,7 +717,7 @@ class Blade
      */
     protected static function compile_auth($value)
     {
-        return str_replace('@auth', '<?php if (\System\Auth::check()): ?>', $value);
+        return preg_replace('/(?<!@)@auth\b/', '<?php if (\System\Auth::check()): ?>', $value);
     }
 
     /**
@@ -695,7 +729,7 @@ class Blade
      */
     protected static function compile_endauth($value)
     {
-        return str_replace('@endauth', '<?php endif; ?>', $value);
+        return preg_replace('/(?<!@)@endauth\b/', '<?php endif; ?>', $value);
     }
 
     /**
@@ -707,8 +741,23 @@ class Blade
      */
     protected static function compile_include($value)
     {
-        $replacer = '$1<?php echo view$2->with(get_defined_vars())->render() ?>';
+        $replacer = '$1<?php echo \System\Blade::inherit(view$2, get_defined_vars())->render() ?>';
         return preg_replace(static::matcher('include'), $replacer, $value);
+    }
+
+    /**
+     * Hand the including view's variables to an @include'd view, without
+     * overriding the data it was given explicitly.
+     *
+     * @param \System\View $view
+     * @param array        $variables
+     *
+     * @return \System\View
+     */
+    public static function inherit($view, array $variables)
+    {
+        $view->data = array_merge($variables, $view->data);
+        return $view;
     }
 
     /**
@@ -756,7 +805,7 @@ class Blade
      */
     protected static function compile_show($value)
     {
-        return str_replace('@show', '<?php echo yield_section() ?>', $value);
+        return preg_replace('/(?<!@)@show\b/', '<?php echo yield_section() ?>', $value);
     }
 
     /**
@@ -780,7 +829,7 @@ class Blade
      */
     protected static function compile_section_end($value)
     {
-        return preg_replace('/@(endsection|stop)\b/', '<?php section_stop() ?>', $value);
+        return preg_replace('/(?<!@)@(endsection|stop)\b/', '<?php section_stop() ?>', $value);
     }
 
     /**
@@ -911,7 +960,7 @@ class Blade
      */
     protected static function compile_endpush($value)
     {
-        return str_replace('@endpush', '<?php \System\Section::endpush() ?>', $value);
+        return preg_replace('/(?<!@)@endpush\b/', '<?php \System\Section::endpush() ?>', $value);
     }
 
     /**

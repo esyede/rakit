@@ -225,6 +225,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
             $this->assertFalse(\System\View::exists('error.unknown'));
 
             $body = Response::error(599)->render();
+            $this->assertEquals(404, Response::error(404)->status());
 
             // The fallback is a PHP template - it has to be executed, not read.
             $this->assertNotContains('namespace System', $body);
@@ -237,5 +238,20 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         set_path('app', $previous);
         \System\View::$last = [];
+    }
+
+    /**
+     * Test that Response::file() refuses '..' segments.
+     *
+     * @group system
+     */
+    public function testFileRejectsTraversalSegments()
+    {
+        try {
+            Response::file(path('storage').'..'.DS.'key.php');
+            $this->fail('Expected traversal to be rejected.');
+        } catch (\Exception $e) {
+            $this->assertContains('traversal', $e->getMessage());
+        }
     }
 }

@@ -50,7 +50,7 @@ class Schema
 
             case 'pgsql':
                 $query = 'SELECT table_name FROM information_schema.tables'
-                    ." WHERE table_schema='public' AND table_type='BASE TABLE'";
+                    ." WHERE table_schema=current_schema() AND table_type='BASE TABLE'";
                 break;
 
             case 'sqlite':
@@ -101,8 +101,10 @@ class Schema
                 break;
 
             case 'pgsql':
+                // table_schema holds the schema (e.g. public), not the database name.
                 $query = 'SELECT column_name FROM information_schema.columns '
-                    .'WHERE table_schema='.$database.' AND table_name='.$table;
+                    .'WHERE table_catalog='.$database.' AND table_schema=current_schema()'
+                    .' AND table_name='.$table;
                 break;
 
             case 'sqlite':
@@ -111,7 +113,8 @@ class Schema
 
             case 'sqlsrv':
                 $query = 'SELECT column_name FROM information_schema.columns '
-                    .'WHERE table_schema=N'.$database.' AND table_name=N'.$table;
+                    .'WHERE table_catalog=N'.$database.' AND table_schema=SCHEMA_NAME()'
+                    .' AND table_name=N'.$table;
                 break;
 
             default:

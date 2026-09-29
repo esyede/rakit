@@ -583,4 +583,30 @@ class RoutingExtrasTest extends \PHPUnit_Framework_TestCase
         Config::set('cache.driver', 'file');
         Cache::$drivers = [];
     }
+
+    /**
+     * @group system
+     */
+    public function testMiddlewaresOnlyAndExceptIgnoreCase()
+    {
+        $only = new Middlewares('auth');
+        $only->only('editProfile');
+        $this->assertTrue($only->applies('editprofile'));
+        $this->assertFalse($only->applies('index'));
+
+        $except = new Middlewares('auth');
+        $except->except('editProfile');
+        $this->assertFalse($except->applies('editprofile'));
+    }
+
+    /**
+     * @group system
+     */
+    public function testMiddlewareParametersKeepTheirCase()
+    {
+        $collection = new Middlewares('role:SuperAdmin,Editor');
+        $this->assertEquals(['role', ['SuperAdmin', 'Editor']], $collection->get('role:SuperAdmin,Editor'));
+        $this->assertEquals(['pkg::role', ['Admin']], $collection->get('pkg::role:Admin'));
+        $this->assertEquals(['auth', []], $collection->get('auth'));
+    }
 }

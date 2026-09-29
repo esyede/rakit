@@ -163,10 +163,18 @@ class Connection
 
         $outer = (1 === $this->transactions);
 
-        if ($outer) {
-            $this->pdo()->commit();
-        } else {
-            $this->savepoint($this->grammar()->release_savepoint($this->savepoint_name($this->transactions)));
+        try {
+            if ($outer) {
+                $this->pdo()->commit();
+            } else {
+                $this->savepoint($this->grammar()->release_savepoint($this->savepoint_name($this->transactions)));
+            }
+        } catch (\Throwable $e) {
+            $this->abandon();
+            throw $e;
+        } catch (\Exception $e) {
+            $this->abandon();
+            throw $e;
         }
 
         --$this->transactions;
@@ -216,6 +224,21 @@ class Connection
     }
 
     /**
+     * Roll back the level whose commit failed, so the counter does not stay stuck
+     * on it. Its own failure is ignored: the commit error is the one that matters.
+     */
+    protected function abandon()
+    {
+        try {
+            $this->rollback();
+        } catch (\Throwable $e) {
+            // ..
+        } catch (\Exception $e) {
+            // ..
+        }
+    }
+
+    /**
      * Get how many transactions are currently open.
      *
      * @return int
@@ -259,8 +282,14 @@ class Connection
      */
     public function only($sql, array $bindings = [])
     {
-        $results = (array) $this->first($sql, $bindings);
-        return reset($results);
+        $result = $this->first($sql, $bindings);
+
+        if (is_null($result)) {
+            return null;
+        }
+
+        $result = (array) $result;
+        return reset($result);
     }
 
     /**

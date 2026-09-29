@@ -58,7 +58,6 @@ class Formatter
         $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         if (! is_string($json)) {
-            // Normalization should prevent this, but never lose the message itself.
             $data['context'] = ['[unencodable]' => sprintf('json_encode() error code: %s', json_last_error())];
             $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         }
@@ -126,7 +125,17 @@ class Formatter
         }
 
         if (is_array($value)) {
-            $hash = md5(serialize($value));
+            if (count($arrays) >= 32) {
+                return '[array] [too deep]';
+            }
+
+            try {
+                $hash = md5(serialize($value));
+            } catch (\Throwable $e) {
+                $hash = 'depth#'.count($arrays);
+            } catch (\Exception $e) {
+                $hash = 'depth#'.count($arrays);
+            }
 
             if (isset($arrays[$hash])) {
                 return '[array] [circular]';
@@ -184,7 +193,6 @@ class Formatter
         }
 
         if (is_float($value)) {
-            // INF and NAN make json_encode() fail.
             return is_finite($value) ? $value : (string) $value;
         }
 

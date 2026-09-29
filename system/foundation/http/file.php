@@ -96,6 +96,9 @@ class File extends Parameter
             return $data;
         }
 
+        // PHP 8.1+ adds a 'full_path' key to $_FILES.
+        unset($data['full_path']);
+
         $keys = array_keys($data);
         sort($keys);
 

@@ -33,9 +33,9 @@ class Section
      * @param string          $section
      * @param string|\Closure $content
      */
-    public static function start($section, $content = '')
+    public static function start($section, $content = null)
     {
-        if ('' === $content) {
+        if (null === $content) {
             ob_start();
             static::$last[] = $section;
         } else {

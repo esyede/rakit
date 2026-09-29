@@ -524,6 +524,24 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($base, $trusted);
     }
 
+    /**
+     * With proxies configured, a peer that is not one of them cannot pick its
+     * own throttle bucket through the Cloudflare header.
+     *
+     * @group system
+     */
+    public function testK7ThrottleIgnoresProxyHeaderFromUntrustedPeer()
+    {
+        Foundation::setTrustedProxies(['10.0.0.1']);
+        $this->request($this->from('6.6.6.6', '1.1.1.1'));
+        $first = Throttle::key();
+        $this->request($this->from('6.6.6.6', '2.2.2.2'));
+        $second = Throttle::key();
+        Foundation::setTrustedProxies([]);
+
+        $this->assertEquals($first, $second);
+    }
+
     // -------------------------------------------------------------------------
     // R5: forwarding to a URI nothing handles
     // -------------------------------------------------------------------------
@@ -653,8 +671,8 @@ class RegressionTest extends \PHPUnit_Framework_TestCase
         $file = ['tmp_name' => $svg, 'name' => 'probe.svg', 'size' => filesize($svg), 'error' => 0];
 
         $recognised = \System\Storage::is('svg', $svg);
-        $strict = Validator::make(['file' => $file], ['file' => 'image'])->passes();
-        $lenient = Validator::make(['file' => $file], ['file' => 'image:allow_svg'])->passes();
+        $strict = RegressionFakeUpload::make(['file' => $file], ['file' => 'image'])->passes();
+        $lenient = RegressionFakeUpload::make(['file' => $file], ['file' => 'image:allow_svg'])->passes();
 
         unlink($svg);
 
@@ -2221,4 +2239,15 @@ class RegressionTag extends \System\Database\Facile\Model
 {
     public static $table = 'regression_tag';
     public static $timestamps = false;
+}
+
+/**
+ * Takes any existing file as uploaded, since phpunit cannot do a real upload.
+ */
+class RegressionFakeUpload extends Validator
+{
+    protected function uploaded($value)
+    {
+        return is_array($value) && isset($value['tmp_name']) && is_file($value['tmp_name']);
+    }
 }

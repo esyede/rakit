@@ -141,7 +141,7 @@ abstract class Driver
 
         $this->cookie($this->recaller(), '', -2628000);
         Session::forget($this->token());
-        Session::regenerate();
+        Session::invalidate();
         Hook::fire('rakit.auth: logout');
 
         $this->token = null;
@@ -155,6 +155,7 @@ abstract class Driver
     protected function store($token)
     {
         Session::put($this->token(), $token);
+        Session::put(Session::TOKEN, Str::random(40));
         Session::regenerate();
     }
 

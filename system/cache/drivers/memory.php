@@ -4,8 +4,6 @@ namespace System\Cache\Drivers;
 
 defined('DS') or exit('No direct access.');
 
-use System\Arr;
-
 class Memory extends Sectionable
 {
     /**
@@ -41,7 +39,7 @@ class Memory extends Sectionable
             return $this->get_from_section($section, $key);
         }
 
-        return Arr::get($this->storage, $key);
+        return isset($this->storage[$key]) ? $this->storage[$key] : null;
     }
 
     /**
@@ -58,7 +56,7 @@ class Memory extends Sectionable
             return $this->put_in_section($section, $key, $value, $minutes);
         }
 
-        Arr::set($this->storage, $key, $value);
+        $this->storage[$key] = $value;
     }
 
     /**
@@ -77,7 +75,7 @@ class Memory extends Sectionable
                 $this->forget_in_section($section, $key);
             }
         } else {
-            Arr::forget($this->storage, $key);
+            unset($this->storage[$key]);
         }
     }
 
@@ -98,7 +96,13 @@ class Memory extends Sectionable
      */
     public function forget_section($section)
     {
-        Arr::forget($this->storage, 'section#'.$section);
+        $prefix = 'section#'.$section.'.';
+
+        foreach (array_keys($this->storage) as $key) {
+            if (0 === strpos($key, $prefix)) {
+                unset($this->storage[$key]);
+            }
+        }
     }
 
     /**

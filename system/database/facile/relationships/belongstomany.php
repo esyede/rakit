@@ -148,8 +148,11 @@ class BelongsToMany extends Relationship
      */
     public function insert($attributes, array $joining = [])
     {
-        $attributes = ($attributes instanceof Model) ? $attributes->attributes : $attributes;
-        $model = $this->model->create($attributes);
+        if ($attributes instanceof Model) {
+            $model = $attributes->save() ? $attributes : false;
+        } else {
+            $model = $this->model->create($attributes);
+        }
 
         if ($model instanceof Model) {
             $joining = array_merge($this->join_record($model->get_key()), $joining);
@@ -350,12 +353,11 @@ class BelongsToMany extends Relationship
     /**
      * Get a new query builder for the pivot table.
      *
-     * @return HasMany
+     * @return \System\Database\Query
      */
     public function pivot()
     {
-        $pivot = new Pivot($this->joining, $this->model->connection());
-        return new HasMany($this->base, (string) $pivot, $this->foreign_key());
+        return $this->joining_table()->where($this->foreign_key(), '=', $this->base->get_key());
     }
 
     /**

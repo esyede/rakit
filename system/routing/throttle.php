@@ -8,7 +8,7 @@ use System\Cache;
 use System\Hook;
 use System\Request;
 use System\Response;
-use System\Foundation\Http\Request as Foundation;
+use System\URI;
 
 class Throttle
 {
@@ -51,13 +51,14 @@ class Throttle
     }
 
     /**
-     * Get the client IP. Proxy headers only count once the trusted proxies are configured.
+     * Get the client IP. The Cloudflare header only counts when the request
+     * actually arrives from one of the trusted proxies.
      *
      * @return string
      */
     protected static function client()
     {
-        if (Foundation::isProxyTrusted()) {
+        if (Request::foundation()->isFromTrustedProxy()) {
             $forwarded = Request::server('HTTP_CF_CONNECTING_IP');
 
             if ($forwarded && filter_var($forwarded, FILTER_VALIDATE_IP)) {
@@ -88,8 +89,7 @@ class Throttle
      */
     public static function key()
     {
-        $path = trim(Request::foundation()->getPathInfo(), '/');
-
+        $path = trim(URI::current(), '/');
         return static::PREFIX.'.'.md5(RAKIT_KEY.'|'.$path.'|'.static::client());
     }
 

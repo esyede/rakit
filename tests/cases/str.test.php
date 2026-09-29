@@ -307,6 +307,20 @@ class StrTest extends \PHPUnit_Framework_TestCase
         $uuid = Str::uuid();
         $this->assertEquals(36, mb_strlen($uuid, '8bit'));
         $this->assertTrue((bool) preg_match('/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/Di', $uuid));
+
+        for ($i = 0; $i < 50; $i++) {
+            $this->assertRegExp('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', Str::uuid());
+        }
+    }
+
+    public function testIrregularPluralSuffixAndHuman()
+    {
+        $this->assertEquals('men', Str::plural('man'));
+        $this->assertEquals('women', Str::plural('woman'));
+        $this->assertEquals('user_children', Str::plural('user_child'));
+        $this->assertEquals('humans', Str::plural('human'));
+        $this->assertEquals('human', Str::singular('humans'));
+        $this->assertEquals('woman', Str::singular('women'));
     }
 
     public function testUlid()

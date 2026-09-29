@@ -55,4 +55,17 @@ class MySQL extends Grammar
 
         return $query->lock ? 'FOR UPDATE' : 'LOCK IN SHARE MODE';
     }
+
+    /**
+     * Compile the OFFSET clause; without a LIMIT it is invalid, so add the largest one.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function offset(Query $query)
+    {
+        $sql = parent::offset($query);
+        return is_null($query->limit) ? 'LIMIT 18446744073709551615 '.$sql : $sql;
+    }
 }

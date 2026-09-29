@@ -108,4 +108,17 @@ class SQLite extends Grammar
     {
         return '';
     }
+
+    /**
+     * Compile the OFFSET clause; without a LIMIT it is invalid, so add the largest one.
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function offset(Query $query)
+    {
+        $sql = parent::offset($query);
+        return is_null($query->limit) ? 'LIMIT -1 '.$sql : $sql;
+    }
 }

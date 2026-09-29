@@ -118,11 +118,26 @@ class Query
     public $lock;
 
     /**
-     * Contains the query bindings.
+     * Contains every query binding, in the order the SELECT statement compiles
+     * them. It is a read-only mirror of $clauses: change them via add_binding().
      *
      * @var array
      */
     public $bindings = [];
+
+    /**
+     * Contains the query bindings of each clause, in the order the grammar compiles them.
+     *
+     * @var array
+     */
+    protected $clauses = [
+        'select' => [],
+        'where' => [],
+        'group' => [],
+        'having' => [],
+        'union' => [],
+        'order' => [],
+    ];
 
     /**
      * Contains the list of valid SQL operators.
@@ -218,7 +233,72 @@ class Query
     public function select($columns = ['*'])
     {
         $this->selects = is_array($columns) ? $columns : func_get_args();
+        return $this->set_bindings([], 'select');
+    }
+
+    /**
+     * Add bindings to the given clause.
+     *
+     * @param array  $values
+     * @param string $type
+     *
+     * @return Query
+     */
+    public function add_binding(array $values, $type = 'where')
+    {
+        $this->check_binding_type($type);
+
+        return $this->set_bindings(array_merge($this->clauses[$type], array_values($values)), $type);
+    }
+
+    /**
+     * Replace the bindings of the given clause.
+     *
+     * @param array  $values
+     * @param string $type
+     *
+     * @return Query
+     */
+    public function set_bindings(array $values, $type = 'where')
+    {
+        $this->check_binding_type($type);
+
+        $this->clauses[$type] = array_values($values);
+        $this->bindings = $this->get_bindings();
+
         return $this;
+    }
+
+    /**
+     * Get the bindings in compiled order, leaving out the given clauses.
+     *
+     * @param array $except
+     *
+     * @return array
+     */
+    public function get_bindings(array $except = [])
+    {
+        $bindings = [];
+
+        foreach ($this->clauses as $type => $values) {
+            if (! in_array($type, $except, true)) {
+                $bindings = array_merge($bindings, $values);
+            }
+        }
+
+        return $bindings;
+    }
+
+    /**
+     * Make sure the binding type is one of the known clauses.
+     *
+     * @param string $type
+     */
+    protected function check_binding_type($type)
+    {
+        if (! array_key_exists($type, $this->clauses)) {
+            throw new \InvalidArgumentException(sprintf('Invalid binding type: %s', $type));
+        }
     }
 
     /**
@@ -270,7 +350,7 @@ class Query
     public function union($query, $all = false)
     {
         $this->unions[] = ['query' => $query, 'all' => $all];
-        $this->bindings = array_merge($this->bindings, $query->bindings);
+        $this->add_binding($query->get_bindings(), 'union');
 
         return $this;
     }
@@ -293,7 +373,7 @@ class Query
     public function reset_where()
     {
         $this->wheres = [];
-        $this->bindings = [];
+        $this->set_bindings([], 'where');
     }
 
     /**
@@ -333,7 +413,7 @@ class Query
     public function raw_where($where, array $bindings = [], $connector = 'AND')
     {
         $this->wheres[] = ['type' => 'where_raw', 'connector' => $connector, 'sql' => $where];
-        $this->bindings = array_merge($this->bindings, $bindings);
+        $this->add_binding($bindings, 'where');
 
         return $this;
     }
@@ -374,9 +454,14 @@ class Query
 
         $this->validate_operator($operator);
 
+        // "col = NULL" never matches anything, so compare against NULL with IS [NOT] NULL.
+        if (null === $value && in_array($operator, ['=', '!=', '<>'], true)) {
+            return $this->where_null($column, $connector, '=' !== $operator);
+        }
+
         $type = 'where';
         $this->wheres[] = compact('type', 'column', 'operator', 'value', 'connector');
-        $this->bindings[] = $value;
+        $this->add_binding([$value], 'where');
 
         return $this;
     }
@@ -421,7 +506,7 @@ class Query
     {
         $type = $not ? 'where_not_in' : 'where_in';
         $this->wheres[] = compact('type', 'column', 'values', 'connector');
-        $this->bindings = array_merge($this->bindings, $values);
+        $this->add_binding($values, 'where');
 
         return $this;
     }
@@ -558,7 +643,7 @@ class Query
     {
         $type = $not ? 'where_not_in_sub' : 'where_in_sub';
         $this->wheres[] = compact('type', 'column', 'query', 'connector');
-        $this->bindings = array_merge($this->bindings, $query->bindings);
+        $this->add_binding($query->get_bindings(), 'where');
 
         return $this;
     }
@@ -603,7 +688,7 @@ class Query
 
         $type = $not ? 'where_not_exists' : 'where_exists';
         $this->wheres[] = compact('type', 'query', 'connector');
-        $this->bindings = array_merge($this->bindings, $query->bindings);
+        $this->add_binding($query->get_bindings(), 'where');
 
         return $this;
     }
@@ -650,7 +735,10 @@ class Query
         $this->unions = null;
         $this->distinct = false;
         $this->lock = null;
-        $this->bindings = [];
+
+        foreach (array_keys($this->clauses) as $type) {
+            $this->set_bindings([], $type);
+        }
 
         return $this;
     }
@@ -676,6 +764,7 @@ class Query
         $query->limit = $this->limit;
         $query->offset = $this->offset;
         $query->lock = $this->lock;
+        $query->clauses = $this->clauses;
         $query->bindings = $this->bindings;
 
         return $query;
@@ -794,8 +883,8 @@ class Query
     public function insert_get_id(array $values, $column = 'id', $sequence = null)
     {
         $sql = $this->grammar->insert_get_id($this, $values, $column);
-        $bindings = array_merge(array_values($values), $this->bindings);
-        $this->connection->query($sql, $bindings);
+        // An INSERT has no WHERE: bindings added by scopes must stay out of it.
+        $this->connection->query($sql, array_values($values));
         $id = $this->connection->pdo()->lastInsertId($sequence);
 
         if (! $id) {
@@ -816,7 +905,7 @@ class Query
     public function update(array $values)
     {
         $sql = $this->grammar->update($this, $values);
-        $bindings = array_merge(array_values($values), $this->bindings);
+        $bindings = array_merge(array_values($values), $this->clauses['where']);
         return $this->connection->query($sql, $bindings);
     }
 
@@ -828,7 +917,7 @@ class Query
     public function delete()
     {
         $sql = $this->grammar->delete($this);
-        return $this->connection->query($sql, $this->bindings);
+        return $this->connection->query($sql, $this->clauses['where']);
     }
 
     /**
@@ -843,7 +932,6 @@ class Query
     public function increment($column, $amount = 1, array $extra = [])
     {
         $values = [$column => $this->raw($this->grammar->wrap($column) . ' + ' . $this->amount($amount))];
-
         return $this->update(array_merge($values, $extra));
     }
 
@@ -859,7 +947,6 @@ class Query
     public function decrement($column, $amount = 1, array $extra = [])
     {
         $values = [$column => $this->raw($this->grammar->wrap($column) . ' - ' . $this->amount($amount))];
-
         return $this->update(array_merge($values, $extra));
     }
 
@@ -950,9 +1037,9 @@ class Query
     public function aggregate($aggregator, array $columns)
     {
         $this->aggregate = compact('aggregator', 'columns');
-
+        // The aggregate replaces the SELECT list, so its bindings go too.
         $sql = $this->grammar->select($this);
-        $result = $this->connection->only($sql, $this->bindings);
+        $result = $this->connection->only($sql, $this->get_bindings(['select']));
 
         $this->aggregate = null;
         return $result;
@@ -1038,7 +1125,6 @@ class Query
     public function where_nested(\Closure $callback, $connector = 'AND')
     {
         $query = new static($this->connection, $this->grammar, $this->from);
-
         call_user_func($callback, $query);
 
         // An empty nested query would compile to '()', which is not valid sql.
@@ -1047,7 +1133,7 @@ class Query
             $this->wheres[] = compact('type', 'query', 'connector');
         }
 
-        $this->bindings = array_merge($this->bindings, $query->bindings);
+        $this->add_binding($query->get_bindings(), 'where');
         return $this;
     }
 
@@ -1180,7 +1266,7 @@ class Query
 
         $type = $not ? 'where_not_nested' : 'where_nested';
         $this->wheres[] = compact('type', 'query', 'connector');
-        $this->bindings = array_merge($this->bindings, $query->bindings);
+        $this->add_binding($query->get_bindings(), 'where');
 
         return $this;
     }
@@ -1207,7 +1293,9 @@ class Query
             return $sql;
         }
 
-        foreach ($this->bindings as $i => $binding) {
+        $bindings = is_null($this->aggregate) ? $this->bindings : $this->get_bindings(['select']);
+
+        foreach ($bindings as $i => $binding) {
             $type = gettype($binding);
 
             switch ($type) {
@@ -1278,8 +1366,7 @@ class Query
         $type = $not ? 'where_not_between' : 'where_between';
         $this->wheres[] = compact('type', 'column', 'min', 'max', 'connector');
 
-        $this->bindings[] = $min;
-        $this->bindings[] = $max;
+        $this->add_binding([$min, $max], 'where');
 
         return $this;
     }
@@ -1410,7 +1497,7 @@ class Query
 
         $type = 'having';
         $this->havings[] = compact('type', 'column', 'operator', 'value', 'connector');
-        $this->bindings[] = $value;
+        $this->add_binding([$value], 'having');
 
         return $this;
     }
@@ -1442,7 +1529,7 @@ class Query
     {
         $type = 'having_raw';
         $this->havings[] = compact('type', 'sql', 'connector');
-        $this->bindings = array_merge($this->bindings, $bindings);
+        $this->add_binding($bindings, 'having');
 
         return $this;
     }
@@ -1488,16 +1575,19 @@ class Query
     }
 
     /**
-     * Get only a single column's values from the result set.
+     * Get a single column value of the first result, or NULL when there is none.
      *
      * @param string $column
      *
-     * @return array
+     * @return mixed
      */
     public function only($column)
     {
-        $sql = $this->grammar->select($this->select([$column]));
-        return $this->connection->only($sql, $this->bindings);
+        // Only the first row is read, so fetch just that one.
+        $query = $this->copy()->select([$column]);
+        $query->limit = 1;
+
+        return $this->connection->only($query->grammar->select($query), $query->bindings);
     }
 
     /**
@@ -1586,7 +1676,7 @@ class Query
     public function select_raw($sql, array $bindings = [])
     {
         $this->selects = [new Expression($sql)];
-        $this->bindings = array_merge($this->bindings, $bindings);
+        $this->set_bindings($bindings, 'select');
 
         return $this;
     }
@@ -1617,7 +1707,7 @@ class Query
     public function order_by_raw($sql, array $bindings = [])
     {
         $this->orderings[] = ['column' => new Expression($sql), 'direction' => ''];
-        $this->bindings = array_merge($this->bindings, $bindings);
+        $this->add_binding($bindings, 'order');
 
         return $this;
     }
@@ -1633,7 +1723,7 @@ class Query
     public function group_by_raw($sql, array $bindings = [])
     {
         $this->groupings[] = new Expression($sql);
-        $this->bindings = array_merge($this->bindings, $bindings);
+        $this->add_binding($bindings, 'group');
 
         return $this;
     }
@@ -1902,10 +1992,15 @@ class Query
         }
 
         $sql = $this->grammar->insert_ignore($this, $values);
+        $values = is_array(reset($values)) ? $values : [$values];
+        $columns = array_keys(reset($values));
         $bindings = [];
 
-        foreach ((is_array(reset($values)) ? $values : [$values]) as $value) {
-            $bindings = array_merge($bindings, array_values($value));
+        // Bind in the column order of the first record, like insert() does.
+        foreach ($values as $value) {
+            foreach ($columns as $column) {
+                $bindings[] = array_key_exists($column, $value) ? $value[$column] : null;
+            }
         }
 
         $this->connection->query($sql, $bindings);
@@ -1926,7 +2021,7 @@ class Query
     public function paginate($perpage = 20, array $columns = ['*'], $page_name = 'page', $page = null)
     {
         $total = $this->count_for_pagination($columns);
-        $page = is_null($page) ? Paginator::page($total, $perpage, $page_name) : (int) $page;
+        $page = is_null($page) ? Paginator::page($total, $perpage, $page_name) : max(1, (int) $page);
         $results = ($total > 0) ? $this->for_page($page, $perpage)->get($columns) : new Collection();
 
         return Paginator::make($results, $total, $perpage, $page_name, $page);
@@ -2223,7 +2318,7 @@ class Query
         $query->selects = ['*'];
         $query->limit = 1;
         $sql = $query->grammar->select($query);
-        $result = $query->connection->query($sql, $query->bindings);
+        $result = $query->connection->query($sql, $query->get_bindings(['select']));
 
         return count($result) > 0;
     }

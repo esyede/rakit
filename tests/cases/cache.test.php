@@ -55,6 +55,30 @@ class CacheTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Memory driver keys containing dots do not collide.
+     *
+     * @group system
+     */
+    public function testMemoryDriverDottedKeysDoNotCollide()
+    {
+        $driver = new \System\Cache\Drivers\Memory();
+        $driver->put('user', 'alice', 5);
+        $driver->put('user.name', 'bob', 5);
+        $driver->put('192.168.1.1', 'ip', 5);
+
+        $this->assertEquals('alice', $driver->get('user'));
+        $this->assertEquals('bob', $driver->get('user.name'));
+        $this->assertEquals('ip', $driver->get('192.168.1.1'));
+
+        $driver->put('posts::a.b', 1, 5);
+        $driver->put('posts::c', 2, 5);
+        $driver->forget('posts::*');
+        $this->assertNull($driver->get('posts::a.b'));
+        $this->assertNull($driver->get('posts::c'));
+        $this->assertEquals('alice', $driver->get('user'));
+    }
+
+    /**
      * Test for Cache::driver() - returns File driver.
      *
      * @group system

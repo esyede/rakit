@@ -54,9 +54,16 @@ abstract class Relationship extends Query
     {
         $this->table->reset_where();
 
-        if ($this->model && $this->model->soft_deleting()) {
+        if (! $this->model) {
+            return;
+        }
+
+        if (! $this->with_trashed && $this->model->soft_deleting()) {
             $this->table->where_null($this->model->table().'.deleted_at');
         }
+
+        // ponytail: scopes are re-run on the reset query; a scope adding joins would join twice.
+        $this->model->apply_scopes($this->table);
     }
 
     /**

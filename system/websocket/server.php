@@ -276,11 +276,21 @@ class Server
                         $user = $this->find($socket);
 
                         if (! $user->handshake) {
-                            if (strpos(str_replace(CR, '', $buffer), LF.LF) === false) {
-                                $this->stdout('Handshake buffer incomplete for socket '.(int) $socket);
+                            $user->buffer .= $buffer;
+
+                            if (strpos(str_replace(CR, '', $user->buffer), LF.LF) === false) {
+                                if (strlen($user->buffer) > 65536) {
+                                    $this->stderr('Handshake too large for socket '.(int) $socket);
+                                    $this->disconnect($socket);
+                                } else {
+                                    $this->stdout('Handshake buffer incomplete for socket '.(int) $socket);
+                                }
+
                                 continue;
                             }
 
+                            $buffer = $user->buffer;
+                            $user->buffer = '';
                             $this->handshake($user, $buffer);
                         } else {
                             $this->split_packet($bytes, $buffer, $user);
@@ -298,8 +308,6 @@ class Server
                         && is_callable($function = $this->events['idle'])
                     ) {
                         $client = $this->users[$id];
-
-                        // A timeout of 0 disables it, as the config promises.
                         $timeout = (int) $this->config['ping_timeout'];
 
                         if ($timeout > 0 && time() - $client->last_activity() > $timeout) {
@@ -751,10 +759,10 @@ class Server
                 return;
             }
 
-            if ($headers['length'] > $this->config['max_payload_size']) {
+            if (($headers['length'] + strlen($user->message)) > $this->config['max_payload_size']) {
                 $this->stderr(sprintf(
                     'Frame of %d bytes refused, over the %d byte limit.'.PHP_EOL,
-                    $headers['length'],
+                    $headers['length'] + strlen($user->message),
                     $this->config['max_payload_size']
                 ));
 
@@ -830,25 +838,13 @@ class Server
         $close = false;
 
         switch ($headers['opcode']) {
-            // continuation, text and binary frames carry application data
             case 0:
             case 1:
-            case 2:  break;
-
-                // close
-            case 8:  $user->disconnecting = true;
-                return '';
-
-                // A ping is answered with a pong. Keep the break: falling through to
-                // 'default' closes the connection before the pong is sent.
-            case 9:  $pong = true;
-                break;
-
-                // pong: a control frame, never application data
+            case 2: break;
+            case 8: $user->disconnecting = true; return '';
+            case 9: $pong = true; break;
             case 10: return false;
-
-            default: $close = true;
-                break;
+            default: $close = true; break;
         }
 
         if ($this->check_rsv_bits($headers, $user)) {
@@ -859,15 +855,9 @@ class Server
             return false;
         }
 
-        $payload = $user->message.$this->extract_payload($message, $headers);
+        $payload = $this->extract_payload($message, $headers);
 
-        if ($pong) {
-            $reply = $this->frame($payload, $user, 'pong');
-            $this->communicate($user->socket, $reply);
-            return false;
-        }
-
-        if ($headers['length'] > strlen($this->apply_mask($headers, $payload))) {
+        if ($headers['length'] > strlen($payload)) {
             $user->busy = true;
             $user->buffer = $message;
             return false;
@@ -875,12 +865,19 @@ class Server
 
         $payload = $this->apply_mask($headers, $payload);
 
+        if ($pong) {
+            $reply = $this->frame($payload, $user, 'pong');
+            $this->communicate($user->socket, $reply);
+            return false;
+        }
+
         if ($headers['fin']) {
+            $payload = $user->message.$payload;
             $user->message = '';
             return $payload;
         }
 
-        $user->message = $payload;
+        $user->message .= $payload;
         return false;
     }
 
@@ -893,7 +890,6 @@ class Server
      */
     protected function extract_headers($message)
     {
-        // Shorter than its own header: incomplete or nonsense, nothing to read.
         if (strlen($message) < 2) {
             return ['fin' => 0, 'rsv1' => 0, 'rsv2' => 0, 'rsv3' => 0,
                 'opcode' => 0, 'hasmask' => 0, 'length' => 0, 'mask' => '', 'partial' => true];

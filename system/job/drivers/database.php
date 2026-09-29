@@ -159,7 +159,7 @@ class Database extends Driver
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
             $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-            $successful = [];
+            $processed = [];
 
             foreach ($jobs as $job) {
                 $attempts = 0;
@@ -170,7 +170,7 @@ class Database extends Driver
 
                     try {
                         Hook::fire('rakit.jobs.process', [$job]);
-                        $successful[] = $job->id;
+                        $processed[] = $job->id;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
                         $success = true;
                     } catch (\Throwable $e) {
@@ -188,6 +188,7 @@ class Database extends Driver
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
                             $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
+                            $processed[] = $job->id;
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -210,6 +211,7 @@ class Database extends Driver
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
                             $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
+                            $processed[] = $job->id;
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -221,8 +223,8 @@ class Database extends Driver
                 }
             }
 
-            if (! empty($successful)) {
-                DB::table($config['table'])->where_in('id', $successful)->delete();
+            if (! empty($processed)) {
+                DB::table($config['table'])->where_in('id', $processed)->delete();
             }
         }
     }
@@ -255,7 +257,7 @@ class Database extends Driver
         } else {
             $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
             $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-            $successful = [];
+            $processed = [];
 
             foreach ($jobs as $job) {
                 $attempts = 0;
@@ -266,7 +268,7 @@ class Database extends Driver
 
                     try {
                         Hook::fire('rakit.jobs.process', [$job]);
-                        $successful[] = $job->id;
+                        $processed[] = $job->id;
                         $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
                         $success = true;
                     } catch (\Throwable $e) {
@@ -284,6 +286,7 @@ class Database extends Driver
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
                             $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
+                            $processed[] = $job->id;
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -306,6 +309,7 @@ class Database extends Driver
                                 'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
                             ]);
                             $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
+                            $processed[] = $job->id;
                         } else {
                             $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
 
@@ -317,8 +321,8 @@ class Database extends Driver
                 }
             }
 
-            if (! empty($successful)) {
-                DB::table($config['table'])->where_in('id', $successful)->delete();
+            if (! empty($processed)) {
+                DB::table($config['table'])->where_in('id', $processed)->delete();
             }
         }
     }

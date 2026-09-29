@@ -324,6 +324,26 @@ class JWTTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Refresh keeps the token's algorithm, and "typ" is optional.
+     *
+     * @group system
+     */
+    public function testRefreshKeepsAlgorithmAndTypIsOptional()
+    {
+        $encoded = JWT::encode(['foo' => 'bar'], 'secret', [], 'HS512');
+        $refreshed = JWT::refresh($encoded, 'secret', time() + 200);
+        $headers = json_decode(base64_decode(strtr(current(explode('.', $refreshed)), '-_', '+/')));
+        $this->assertEquals('HS512', $headers->alg);
+
+        $url = function ($data) {
+            return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        };
+        $unsigned = $url('{"alg":"HS256"}').'.'.$url('{"foo":"bar"}');
+        $token = $unsigned.'.'.$url(hash_hmac('sha256', $unsigned, 'secret', true));
+        $this->assertEquals('bar', JWT::decode($token, 'secret')->foo);
+    }
+
+    /**
      * The algorithm must be pinnable so a token cannot pick its own.
      *
      * @group system

@@ -30,6 +30,19 @@ class SectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test start with an empty string does not open an output buffer.
+     *
+     * @group system
+     */
+    public function testStartWithEmptyStringDoesNotBuffer()
+    {
+        $level = ob_get_level();
+        Section::start('empty', '');
+        $this->assertEquals($level, ob_get_level());
+        $this->assertEquals('', Section::yield_content('empty'));
+    }
+
+    /**
      * Test for inject.
      *
      * @group system

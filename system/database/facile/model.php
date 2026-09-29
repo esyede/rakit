@@ -370,8 +370,14 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
-            if (is_array(static::$guarded)
-                && (in_array('*', static::$guarded) || in_array($key, static::$guarded))) {
+            // Column names are case-insensitive on most drivers, and a qualified or
+            // quoted key ("users.is_admin", "`is_admin`") would slip past the list.
+            if (
+                is_array(static::$guarded)
+                && (in_array('*', static::$guarded)
+                    || preg_match('/[.\s\'"`\[\]]/', (string) $key)
+                    || in_array(strtolower((string) $key), array_map('strtolower', static::$guarded)))
+            ) {
                 continue;
             }
 
@@ -1166,7 +1172,7 @@ abstract class Model implements \JsonSerializable
             return false;
         }
 
-        $query = $this->query()->where(static::$key, '=', $this->get_key());
+        $query = $this->key_query();
 
         if ($amount < 0) {
             $query->decrement($column, abs($amount), $extra);
@@ -1610,7 +1616,7 @@ abstract class Model implements \JsonSerializable
             }
 
             $dirty = $this->get_dirty();
-            $query = $this->query()->where(static::$key, '=', $this->get_key());
+            $query = $this->key_query();
 
             $query->update($dirty);
             $result = true;
@@ -1623,9 +1629,12 @@ abstract class Model implements \JsonSerializable
                 return false;
             }
 
+            $preset = $this->get_key();
             $id = $this->query()->insert_get_id($this->attributes, $this->key(), static::$sequence);
 
-            if (! is_null($id)) {
+            // Keep a key the caller already set (UUID, string key): the driver's last
+            // insert id would be a rowid or an unrelated sequence value.
+            if (! is_null($id) && (is_null($preset) || '' === $preset)) {
                 $this->set_key($id);
             }
 
@@ -1864,6 +1873,19 @@ abstract class Model implements \JsonSerializable
     {
         $owner = get_called_class();
         return isset(static::$global_scopes[$owner]) ? static::$global_scopes[$owner] : [];
+    }
+
+    /**
+     * Get a query targeting this very record by its primary key, without the soft
+     * delete filter and global scopes, so a trashed or scoped-out record is still hit.
+     *
+     * @return \System\Database\Query
+     */
+    protected function key_query()
+    {
+        return \System\Database::connection($this->connection())
+            ->table($this->table())
+            ->where(static::$key, '=', $this->get_key());
     }
 
     /**

@@ -300,6 +300,29 @@ class ViewTest extends \PHPUnit_Framework_TestCase
         $view = trim(str_replace(["\n", "\t", "\r"], '', $view));
         $this->assertEquals('Budi is 25<br>', $view);
     }
+
+    /**
+     * An engine rendering '' must not make the template run a second time.
+     *
+     * @group system
+     */
+    public function testEmptyEngineOutputIsNotRenderedAgain()
+    {
+        $events = \System\Hook::$events;
+
+        \System\Hook::listen(View::ENGINE, function ($view) {
+            return '';
+        });
+
+        try {
+            $this->assertSame('', View::make('tests.basic')->render());
+        } catch (\Exception $e) {
+            \System\Hook::$events = $events;
+            throw $e;
+        }
+
+        \System\Hook::$events = $events;
+    }
 }
 
 /**

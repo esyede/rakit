@@ -224,7 +224,7 @@ class Arr
         foreach ($array as $item) {
             if (is_array($item)) {
                 if (1 === $depth) {
-                    $result = array_merge($result, $item);
+                    $result = array_merge($result, array_values($item));
                     continue;
                 }
 

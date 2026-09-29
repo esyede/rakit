@@ -387,6 +387,42 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Fragments are unmasked once each, then joined.
+     *
+     * @group system
+     */
+    public function testDeframeJoinsFragmentedMessage()
+    {
+        $server = new Server('tcp://127.0.0.1:0');
+        $user = $this->user();
+        $first = $this->client_frame('Hello ', 1);
+        $first[0] = chr(1); // FIN=0
+
+        $this->assertFalse($this->callProtectedMethod($server, 'deframe', [$first, &$user]));
+        $result = $this->callProtectedMethod($server, 'deframe', [$this->client_frame('World', 0), &$user]);
+
+        $this->assertEquals('Hello World', $result);
+        $this->assertEquals('', $user->message);
+    }
+
+    /**
+     * A ping is answered with the unmasked payload.
+     *
+     * @group system
+     */
+    public function testDeframeAnswersPingWithUnmaskedPayload()
+    {
+        $server = new Server('tcp://127.0.0.1:0');
+        $user = $this->user();
+        $user->socket = fopen('php://memory', 'w+');
+
+        $this->assertFalse($this->callProtectedMethod($server, 'deframe', [$this->client_frame('ping!', 9), &$user]));
+        rewind($user->socket);
+        $this->assertEquals(chr(138).chr(5).'ping!', stream_get_contents($user->socket));
+        fclose($user->socket);
+    }
+
+    /**
      * Test for Server::extract_headers().
      *
      * @group system

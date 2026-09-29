@@ -689,7 +689,21 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
      */
     public function map_with_keys(callable $callback)
     {
-        return $this->flat_map($callback);
+        $result = [];
+
+        foreach ($this->items as $key => $value) {
+            $pairs = $callback($value, $key);
+            $pairs = ($pairs instanceof \System\Collection) ? $pairs->all() : $pairs;
+            $pairs = ($pairs instanceof \stdClass) ? (array) $pairs : $pairs;
+
+            if (is_array($pairs)) {
+                foreach ($pairs as $k => $v) {
+                    $result[$k] = $v;
+                }
+            }
+        }
+
+        return new static($result);
     }
 
     /**
@@ -1017,10 +1031,17 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
         if (is_null($seed)) {
             shuffle($items);
         } else {
+            $items = array_values($items);
             mt_srand($seed);
-            usort($items, function () {
-                return mt_rand(-1, 1);
-            });
+
+            for ($i = count($items) - 1; $i > 0; $i--) {
+                $j = mt_rand(0, $i);
+                $tmp = $items[$i];
+                $items[$i] = $items[$j];
+                $items[$j] = $tmp;
+            }
+
+            mt_srand();
         }
 
         return new static($items);

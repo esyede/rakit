@@ -60,7 +60,8 @@ class Grammar extends BaseGrammar
         $sql = [];
 
         foreach ($this->components as $component) {
-            if (! is_null($query->{$component})) {
+            // A subquery without select() still needs its SELECT: selects() defaults to '*'.
+            if (! is_null($query->{$component}) || 'selects' === $component) {
                 $sql[$component] = call_user_func([$this, $component], $query);
             }
         }

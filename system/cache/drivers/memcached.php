@@ -88,7 +88,26 @@ class Memcached extends Sectionable
         }
 
         /** @disregard */
-        $this->memcached->set($this->key.$key, $value, $minutes * 60);
+        $this->memcached->set($this->key.$key, $value, $this->expiration($minutes));
+    }
+
+    /**
+     * Convert minutes to a Memcached expiration value.
+     * Memcached treats values above 30 days as an absolute unix timestamp.
+     *
+     * @param int $minutes
+     *
+     * @return int
+     */
+    protected function expiration($minutes)
+    {
+        $seconds = (int) $minutes * 60;
+
+        if ($minutes >= 2628000) {
+            return 0; // forever()
+        }
+
+        return ($seconds > 2592000) ? time() + $seconds : $seconds;
     }
 
     /**
@@ -131,10 +150,15 @@ class Memcached extends Sectionable
      */
     public function increment($key, $minutes = 1)
     {
+        if ($this->sectionable($key)) {
+            list($section, $key) = $this->parse($key);
+            $key = $this->section_item_key($section, $key);
+        }
+
         $prefixed = $this->key.$key;
 
         /** @disregard */
-        if ($this->memcached->add($prefixed, 1, $minutes * 60)) {
+        if ($this->memcached->add($prefixed, 1, $this->expiration($minutes))) {
             return 1;
         }
 

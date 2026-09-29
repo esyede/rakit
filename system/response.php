@@ -21,6 +21,13 @@ class Response
     protected $foundation;
 
     /**
+     * Whether the body was already streamed to the client (Response::download()).
+     *
+     * @var bool
+     */
+    public $streamed = false;
+
+    /**
      * Create a new Response instance.
      *
      * @param mixed $content
@@ -154,7 +161,7 @@ class Response
         if (! $view) {
             ob_start();
             require path('system').'foundation'.DS.'oops'.DS.'assets'.DS.'debugger'.DS.'500.phtml';
-            return static::make(ob_get_clean(), 500, $headers);
+            return static::make(ob_get_clean(), ($code >= 400 && $code <= 599) ? $code : 500, $headers);
         }
 
         return static::view($view, compact('code', 'message'), $code, $headers);
@@ -186,8 +193,8 @@ class Response
         $path = static::validate_path($path);
 
         $headers = array_merge([
-            'Content-Type' => Storage::mime($path),
-            'Content-Length' => Storage::size($path),
+            'Content-Type' => static::mime($path),
+            'Content-Length' => filesize($path),
             'Content-Disposition' => static::disposition('inline', basename($path)),
         ], $headers);
 
@@ -207,18 +214,17 @@ class Response
     {
         $path = static::validate_path($path);
 
-        $response = new static('', 200, array_merge($headers, [
+        $response = new static('', 200, array_merge([
             'Content-Description' => 'File Transfer',
-            'Content-Type' => Storage::mime($path),
+            'Content-Type' => static::mime($path),
             'Content-Transfer-Encoding' => 'binary',
             'Expires' => 0,
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
             'Pragma' => 'public',
-            'Content-Length' => Storage::size($path),
+            'Content-Length' => filesize($path),
             'Content-Disposition' => static::disposition('attachment', $name ?: basename($path)),
-        ]));
+        ], $headers));
 
-        // Workers send the returned body themselves; echoing corrupts RoadRunner's relay.
         if (defined('RAKIT_WORKER_MODE') && 'frankenphp' !== RAKIT_WORKER_MODE) {
             $response->content = file_get_contents($path);
             return $response;
@@ -228,7 +234,6 @@ class Response
             Session::save();
         }
 
-        // See: https://www.php.net/manual/en/function.fpassthru.php#55519
         session_write_close();
 
         while (ob_get_level() > 0) {
@@ -236,8 +241,7 @@ class Response
         }
 
         $response->send_headers();
-
-        $chunksize = (int) Config::get('application.chunk_size', 4) * 1024;
+        $chunksize = max(1, (int) Config::get('application.chunk_size', 4)) * 1024 * 1024;
 
         if ($file = fopen($path, 'rb')) {
             while (! feof($file) && 0 === connection_status() && ! connection_aborted()) {
@@ -248,8 +252,9 @@ class Response
             fclose($file);
         }
 
-        Hook::fire('rakit.done', [$response]);
-        $response->foundation()->finish();
+        $response->streamed = true;
+
+        return $response;
     }
 
     /**
@@ -269,6 +274,10 @@ class Response
      */
     public function send()
     {
+        if ($this->streamed) {
+            return;
+        }
+
         $this->cookies();
         $this->foundation()->prepare(Request::foundation());
         $this->foundation()->send();
@@ -330,9 +339,12 @@ class Response
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        // Block stream wrappers
         if (preg_match('#^[a-zA-Z][a-zA-Z0-9+.-]*://#', $path)) {
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
+        }
+
+        if (preg_match('#(?:^|[\\\\/])\.\.(?:[\\\\/]|$)#', $path)) {
+            throw new \Exception(sprintf('Path traversal not allowed: %s', $path));
         }
 
         if (!is_file($path)) {
@@ -344,7 +356,6 @@ class Response
             throw new \Exception(sprintf('Target file does not exists: %s', $path));
         }
 
-        // Confine to allowed roots: storage, base, app, public
         $allowed_roots = [];
 
         foreach (['base', 'storage', 'app'] as $key) {
@@ -362,7 +373,6 @@ class Response
             }
         }
 
-        // Allow explicitly configured download roots via config
         $extra_roots = Config::get('application.download_roots', []);
 
         if (is_array($extra_roots)) {
@@ -375,12 +385,10 @@ class Response
             }
         }
 
-        // Unconfigured roots fall back to the base directory, which still blocks
-        // traversal to the likes of /etc/passwd.
         $inside = false;
 
         if (count($allowed_roots) === 0) {
-            $inside = true; // fallback allow if not configured
+            $inside = true;
         } else {
             foreach ($allowed_roots as $root) {
                 $root = rtrim($root, DS);
@@ -397,6 +405,25 @@ class Response
         }
 
         return $real;
+    }
+
+    /**
+     * Detect the MIME type of an already validated file.
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected static function mime($path)
+    {
+        $finfo = function_exists('finfo_open') ? @finfo_open(FILEINFO_MIME_TYPE) : false;
+        $mime = $finfo ? @finfo_file($finfo, $path) : false;
+
+        if ($finfo && PHP_VERSION_ID < 80100) {
+            finfo_close($finfo);
+        }
+
+        return $mime ?: 'application/octet-stream';
     }
 
     /**

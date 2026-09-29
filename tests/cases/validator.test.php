@@ -479,10 +479,10 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES['photo']['tmp_name'] = path('storage') . 'test.png';
         $rules = ['photo' => 'image'];
-        $this->assertTrue(Validator::make($_FILES, $rules)->valid());
+        $this->assertTrue(ValidatorFakeUpload::make($_FILES, $rules)->valid());
 
         $_FILES['photo']['tmp_name'] = path('app') . 'routes.php';
-        $this->assertFalse(Validator::make($_FILES, $rules)->valid());
+        $this->assertFalse(ValidatorFakeUpload::make($_FILES, $rules)->valid());
     }
 
     /**
@@ -539,17 +539,17 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES['file']['tmp_name'] = path('app') . 'routes.php';
         $rules = ['file' => 'mimes:php,txt'];
-        $this->assertTrue(Validator::make($_FILES, $rules)->valid());
+        $this->assertTrue(ValidatorFakeUpload::make($_FILES, $rules)->valid());
 
         $rules = ['file' => 'mimes:jpg,bmp'];
-        $this->assertFalse(Validator::make($_FILES, $rules)->valid());
+        $this->assertFalse(ValidatorFakeUpload::make($_FILES, $rules)->valid());
 
         $_FILES['file']['tmp_name'] = path('storage') . 'test.png';
         $rules['file'] = 'mimes:png,bmp';
-        $this->assertTrue(Validator::make($_FILES, $rules)->valid());
+        $this->assertTrue(ValidatorFakeUpload::make($_FILES, $rules)->valid());
 
         $rules['file'] = 'mimes:txt,bmp';
-        $this->assertFalse(Validator::make($_FILES, $rules)->valid());
+        $this->assertFalse(ValidatorFakeUpload::make($_FILES, $rules)->valid());
     }
 
     /**
@@ -602,6 +602,10 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
         $input['code'] = ['PWK', 'KRW'];
         $this->assertFalse(Validator::make($input, $rules)->valid());
+
+        // Repeating a value that exists is still valid.
+        $input['code'] = ['PWK', 'PWK'];
+        $this->assertTrue(Validator::make($input, $rules)->valid());
 
         $input['code'] = 'KRW';
         $this->assertFalse(Validator::make($input, $rules)->valid());
@@ -806,7 +810,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
         $_FILES['file']['tmp_name'] = path('storage') . 'test.png';
         $rules = ['file' => 'mimes:php,txt'];
-        $v = Validator::make($_FILES, $rules);
+        $v = ValidatorFakeUpload::make($_FILES, $rules);
         $v->valid();
 
         $expect = str_replace([':attribute', ':values'], ['file', 'php, txt'], $lang['mimes']);
@@ -1265,5 +1269,70 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
         // The same rule with its parameter keeps working.
         $this->assertTrue(Validator::make(['d' => 'abcd'], ['d' => 'min:3'])->valid());
+    }
+
+    /**
+     * Regressions from the D-series audit.
+     *
+     * @group system
+     */
+    public function testAuditDRegressions()
+    {
+        $passes = function (array $data, array $rules) {
+            return Validator::make($data, $rules)->passes();
+        };
+
+        // D-3: a value that was not uploaded is not a file.
+        $this->assertFalse($passes(['x' => 'hello'], ['x' => 'required|image']));
+        $this->assertFalse($passes(['x' => ['tmp_name' => __FILE__]], ['x' => 'required|mimes:php']));
+
+        // D-4: only http(s) urls are probed.
+        $this->assertFalse($passes(['x' => 'gopher://127.0.0.1:6379/_FLUSHALL'], ['x' => 'active_url']));
+
+        // D-5
+        $this->assertFalse($passes([], ['x' => 'required_without_all:a,b']));
+        $this->assertTrue($passes(['a' => 1], ['x' => 'required_without_all:a,b']));
+        $this->assertFalse($passes(['a' => 1], ['x' => 'required_without:a,b']));
+        $this->assertTrue($passes(['a' => 1, 'b' => 1], ['x' => 'required_without:a,b']));
+        $this->assertFalse($passes(['b' => 1], ['x' => 'required_with:a,b']));
+        $this->assertTrue($passes([], ['x' => 'required_with:a,b']));
+
+        // D-10
+        $this->assertTrue($passes(['u' => ['p' => 's', 'p_confirmation' => 's']], ['u.p' => 'confirmed']));
+        $this->assertTrue($passes(['u' => ['e' => '']], ['u.e' => 'present']));
+        $items = ['items' => [['qty' => 5, 'min' => 1], ['qty' => 2, 'min' => 1]]];
+        $this->assertTrue($passes($items, ['items.*.qty' => 'gt:items.*.min']));
+        $items['items'][1]['qty'] = 0;
+        $this->assertFalse($passes($items, ['items.*.qty' => 'gt:items.*.min']));
+
+        // D-11
+        foreach (['1.5', '-12', '1e3'] as $value) {
+            $this->assertFalse($passes(['x' => $value], ['x' => 'digits:3']));
+            $this->assertFalse($passes(['x' => $value], ['x' => 'digits_between:1,3']));
+        }
+        $this->assertTrue($passes(['x' => '123'], ['x' => 'digits:3']));
+
+        // D-19
+        $this->assertFalse($passes(['x' => true], ['x' => 'in:user,editor']));
+        $this->assertFalse($passes(['x' => 0], ['x' => 'in:user,editor']));
+        $this->assertTrue($passes(['x' => 'user'], ['x' => 'in:user,editor']));
+
+        // D-20
+        $this->assertTrue($passes(['x' => '0.3'], ['x' => 'multiple_of:0.1']));
+        $this->assertFalse($passes(['x' => '0.35'], ['x' => 'multiple_of:0.1']));
+        $this->assertFalse($passes(['x' => ''], ['x' => 'missing']));
+        $this->assertFalse($passes(['x' => [[1], [1]]], ['x' => 'distinct']));
+        $this->assertTrue($passes(['x' => [[1], [2]]], ['x' => 'distinct']));
+    }
+}
+
+/**
+ * Takes any existing file as uploaded, since phpunit cannot do a real upload.
+ */
+class ValidatorFakeUpload extends Validator
+{
+    protected function uploaded($value)
+    {
+        return is_array($value) && isset($value['tmp_name']) && is_file($value['tmp_name']);
     }
 }

@@ -51,26 +51,60 @@ class Cookie
         }
 
         if (isset(static::$jar[$name]) && isset(static::$jar[$name]['value'])) {
-            try {
-                static::$cache[$name] = Crypter::decrypt(static::$jar[$name]['value']);
-                return static::$cache[$name];
-            } catch (DecryptException $e) {
-                return value($default);
-            }
+            $value = static::unseal($name, static::$jar[$name]['value']);
+        } else {
+            $value = static::unseal($name, Request::foundation()->cookies->get($name));
         }
-
-        $value = Request::foundation()->cookies->get($name);
 
         if (is_null($value)) {
             return value($default);
         }
 
-        try {
-            static::$cache[$name] = Crypter::decrypt($value);
-            return static::$cache[$name];
-        } catch (DecryptException $e) {
-            return value($default);
+        static::$cache[$name] = $value;
+        return $value;
+    }
+
+    /**
+     * Encrypt a cookie value bound to its name, so the ciphertext of one
+     * cookie (or any other Crypter output) is not accepted as another cookie.
+     *
+     * @param string $name
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function seal($name, $value)
+    {
+        return Crypter::encrypt(hash_hmac('sha256', 'cookie|'.$name, RAKIT_KEY).$value);
+    }
+
+    /**
+     * Decrypt a sealed cookie value, or NULL when it is invalid or belongs to another name.
+     *
+     * @param string $name
+     * @param mixed  $value
+     *
+     * @return string|null
+     */
+    protected static function unseal($name, $value)
+    {
+        if (! is_string($value) || '' === $value) {
+            return null;
         }
+
+        try {
+            $value = Crypter::decrypt($value);
+        } catch (DecryptException $e) {
+            return null;
+        }
+
+        $prefix = hash_hmac('sha256', 'cookie|'.$name, RAKIT_KEY);
+
+        if (! Crypter::equals($prefix, (string) substr($value, 0, 64))) {
+            return null;
+        }
+
+        return (string) substr($value, 64);
     }
 
     /**
@@ -101,13 +135,11 @@ class Cookie
 
         $path = (! is_string($path) || empty($path)) ? '/' : $path;
 
-        // Rejected here too, so a bad path fails at the call, not mid-response.
         if (preg_match('/[,; \t\r\n\013\014]/', $path)) {
             throw new \Exception('Cookie path must not contain a separator, a space or a line break.');
         }
 
         if (! is_null($domain)) {
-            // FILTER_VALIDATE_DOMAIN alone accepts line breaks: header injection.
             if (preg_match('/[,; \t\r\n\013\014]/', (string) $domain)) {
                 throw new \Exception('Cookie domain must not contain a separator, a space or a line break.');
             }
@@ -157,7 +189,7 @@ class Cookie
         }
 
         try {
-            $encrypted = Crypter::encrypt($value);
+            $encrypted = static::seal($name, $value);
         } catch (\Throwable $e) {
             throw new \Exception('Failed to encrypt cookie value: '.$e->getMessage());
         } catch (\Exception $e) {

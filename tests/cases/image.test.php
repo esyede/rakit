@@ -438,4 +438,35 @@ class ImageTest extends \PHPUnit_Framework_TestCase
         $this->assertStringStartsWith("\x89PNG", $result->content);
         $this->assertEquals('', $leaked);
     }
+
+    /**
+     * Resizing keeps the transparency of a PNG.
+     */
+    public function testResizeKeepsTransparency()
+    {
+        $canvas = imagecreatetruecolor(20, 20);
+        imagealphablending($canvas, false);
+        imagesavealpha($canvas, true);
+        imagefill($canvas, 0, 0, imagecolorallocatealpha($canvas, 0, 0, 0, 127));
+        imagepng($canvas, path('base') . $this->tempPath);
+
+        $image = Image::open($this->tempPath)->width(10);
+
+        $property = new \ReflectionProperty('System\Image', 'image');
+        PHP_VERSION_ID < 80100 && $property->setAccessible(true);
+        $gd = $property->getValue($image);
+        $color = imagecolorsforindex($gd, imagecolorat($gd, 5, 5));
+
+        $this->assertEquals(127, $color['alpha']);
+    }
+
+    /**
+     * A zero ratio is refused instead of dividing by zero.
+     *
+     * @expectedException \Exception
+     */
+    public function testRatioRefusesZero()
+    {
+        Image::open($this->imagePath)->ratio(1, 0);
+    }
 }

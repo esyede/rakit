@@ -64,6 +64,10 @@ if (is_file($path = path('rakit_key'))) {
             $name = trim($parts[0]);
             $ttl = time() - 2628000;
 
+            if ('' === $name || preg_match('/[=,; \t\r\n\013\014]/', $name)) {
+                continue;
+            }
+
             if (PHP_VERSION_ID < 70300) {
                 setcookie($name, '', $ttl, '/; samesite=Lax');
                 setcookie($name, '', $ttl);

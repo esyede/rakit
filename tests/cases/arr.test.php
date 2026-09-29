@@ -200,6 +200,8 @@ class ArrTest extends \PHPUnit_Framework_TestCase
 
         $array = [['#foo', ['#bar', ['#baz']]], '#qux'];
         $this->assertEquals(['#foo', '#bar', ['#baz'], '#qux'], Arr::flatten($array, 2));
+
+        $this->assertEquals([1, 2], Arr::flatten([['a' => 1], ['a' => 2]], 1));
     }
 
     /**

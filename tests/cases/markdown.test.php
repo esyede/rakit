@@ -267,4 +267,18 @@ class MarkdownTest extends \PHPUnit_Framework_TestCase
         $output = $markdown->translate($input);
         $this->assertContains('vbscript%3Aalert', $output);
     }
+
+    /**
+     * Inline links with a known scheme are kept instead of becoming the site root.
+     *
+     * @group system
+     */
+    public function testInlineLinkKeepsKnownSchemes()
+    {
+        $this->assertContains('href="mailto:a@b.com"', \System\Markdown::parse('[m](mailto:a@b.com)'));
+        $this->assertContains('href="ftp://x.com/a"', \System\Markdown::parse('[f](ftp://x.com/a)'));
+        $this->assertContains('href="//cdn.x.com/a"', \System\Markdown::parse('[p](//cdn.x.com/a)'));
+        $this->assertContains('href="#top"', \System\Markdown::parse('[h](#top)'));
+        $this->assertContains('/docs/page"', \System\Markdown::parse('[r](docs/page)'));
+    }
 }

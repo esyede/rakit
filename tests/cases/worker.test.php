@@ -182,7 +182,7 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
     public function testCookiesStayWithTheirRequest()
     {
         $bridge = $this->serve([
-            ['uri' => '/worker-test/cookie', 'cookie' => ['incoming' => Crypter::encrypt('hello')]],
+            ['uri' => '/worker-test/cookie', 'cookie' => ['incoming' => Cookie::seal('incoming', 'hello')]],
             ['uri' => '/worker-test/echo'],
         ]);
 
@@ -206,7 +206,7 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(1, ArrayDriver::$sessions);
 
         $id = key(ArrayDriver::$sessions);
-        $cookie = [Config::get('session.cookie') => Crypter::encrypt($id)];
+        $cookie = [Config::get('session.cookie') => Cookie::seal(Config::get('session.cookie'), $id)];
 
         $bridge = $this->serve([
             ['uri' => '/worker-test/session', 'cookie' => $cookie],

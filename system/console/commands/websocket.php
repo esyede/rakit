@@ -313,7 +313,7 @@ class Websocket extends Command
                 if ($parsed['event'] === 'subscribe' && isset($parsed['channel'])) {
                     $client->channels[] = $parsed['channel'];
                 } elseif (
-                    $parsed['event'] ==- 'message'
+                    $parsed['event'] === 'message'
                     && isset($parsed['channel'])
                     && isset($parsed['data'])
                 ) {

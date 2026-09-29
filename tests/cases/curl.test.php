@@ -502,4 +502,31 @@ class CurlTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Budi', $response->body->data->name);
         $this->assertTrue($response->body->data->files->size->{'owl.gif'} > 0);
     }
+
+    public function testEncodeUrlKeepsQueryAndCredentials()
+    {
+        $method = new \ReflectionMethod('System\Curl', 'encode_url');
+        $method->setAccessible(true);
+
+        $this->assertEquals(
+            'http://u:p@host:8080/a?id=1&id=2&q=a%20b&p=50%25&e=a%26admin%3D1',
+            $method->invoke(null, 'http://u:p@host:8080/a?id=1&id=2&q=a b&p=50%&e=a%26admin%3D1')
+        );
+    }
+
+    public function testCurlOptionsArePersisted()
+    {
+        Curl::clear_curl_options();
+        Curl::curl_options([CURLOPT_TIMEOUT => 7]);
+        Curl::curl_options([CURLOPT_USERAGENT => 'x']);
+
+        $property = new \ReflectionProperty('System\Curl', 'curl_options');
+        $property->setAccessible(true);
+        $options = $property->getValue();
+
+        Curl::clear_curl_options();
+
+        $this->assertEquals(7, $options[CURLOPT_TIMEOUT]);
+        $this->assertEquals('x', $options[CURLOPT_USERAGENT]);
+    }
 }

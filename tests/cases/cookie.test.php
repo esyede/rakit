@@ -70,7 +70,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
      */
     public function testHasMethodIndicatesIfCookieInSet()
     {
-        Cookie::$jar['foo'] = ['value' => Crypter::encrypt('bar')];
+        Cookie::$jar['foo'] = ['value' => Cookie::seal('foo', 'bar')];
 
         $this->assertTrue(Cookie::has('foo'));
         $this->assertFalse(Cookie::has('bar'));
@@ -86,7 +86,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMethodCanReturnValueOfCookies()
     {
-        Cookie::$jar['foo'] = ['value' => Crypter::encrypt('bar')];
+        Cookie::$jar['foo'] = ['value' => Cookie::seal('foo', 'bar')];
         $this->assertEquals('bar', Cookie::get('foo'));
 
         Cookie::put('bar', 'baz');
@@ -101,7 +101,7 @@ class CookieTest extends \PHPUnit_Framework_TestCase
     public function testForeverShouldUseATonOfMinutes()
     {
         Cookie::forever('foo', 'bar');
-        $this->assertEquals('bar', Crypter::decrypt(Cookie::$jar['foo']['value']));
+        $this->assertEquals('bar', Cookie::get('foo'));
 
         $this->setServerVar('HTTPS', 'on');
         Cookie::forever('bar', 'baz', 'path', 'domain', true);
@@ -152,6 +152,29 @@ class CookieTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('fallback', Cookie::get('stale', 'fallback'));
 
         unset($_COOKIE['stale']);
+        $this->restartRequest();
+    }
+
+    /**
+     * Test that a cookie value is bound to its name: another cookie's
+     * ciphertext, or a bare Crypter payload, is refused.
+     *
+     * @group system
+     */
+    public function testCookieValueIsBoundToItsName()
+    {
+        Cookie::put('theme', 'dark');
+        $_COOKIE['session_payload'] = Cookie::$jar['theme']['value'];
+        $_COOKIE['bare'] = Crypter::encrypt('value');
+        $_COOKIE['nested'] = ['a' => 'b'];
+        Cookie::$jar = [];
+        $this->restartRequest();
+
+        $this->assertNull(Cookie::get('session_payload'));
+        $this->assertNull(Cookie::get('bare'));
+        $this->assertEquals('fallback', Cookie::get('nested', 'fallback'));
+
+        unset($_COOKIE['session_payload'], $_COOKIE['bare'], $_COOKIE['nested']);
         $this->restartRequest();
     }
 

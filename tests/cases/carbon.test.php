@@ -1665,4 +1665,16 @@ class CarbonTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('2013-07-01T11:00:00-05:00', Carbon::parse('now', 'America/Mexico_City')->toIso8601String());
         $this->assertSame('2013-07-01T09:00:00-07:00', Carbon::parse('now', 'America/Vancouver')->toIso8601String());
     }
+
+    public function testCopyKeepsInstantDuringDstFallBack()
+    {
+        $dt = new Carbon('@1699165800'); // 2023-11-05 01:30 EST, the second 01:30
+        $dt->setTimezone(new \DateTimeZone('America/New_York'));
+
+        if (1699165800 !== $dt->getTimestamp()) {
+            $this->markTestSkipped('This PHP version cannot represent the repeated DST hour.');
+        }
+
+        $this->assertEquals(1699165800, $dt->copy()->getTimestamp());
+    }
 }

@@ -18,13 +18,20 @@ class HasOneOrMany extends Relationship
      */
     public function insert($attributes)
     {
-        if ($attributes instanceof Model) {
-            $attributes->set_attribute($this->foreign_key(), $this->base->get_key());
-            return $attributes->save() ? $attributes : false;
-        }
+        $model = ($attributes instanceof Model) ? $attributes : $this->fresh_model($attributes);
+        $this->set_foreign_key($model);
 
-        $attributes[$this->foreign_key()] = $this->base->get_key();
-        return $this->model->create($attributes);
+        return $model->save() ? $model : false;
+    }
+
+    /**
+     * Set the foreign key on a given model, bypassing fillable / guarded.
+     *
+     * @param Model $model
+     */
+    protected function set_foreign_key(Model $model)
+    {
+        $model->set_attribute($this->foreign_key(), $this->base->get_key());
     }
 
     /**

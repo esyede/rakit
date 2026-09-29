@@ -62,6 +62,14 @@ class Hash
             throw new \Exception('Crypt must be loaded to use the hashing library.');
         }
 
+        if (is_null($password) || is_int($password)) {
+            $password = (string) $password;
+        }
+
+        if (! is_string($password) || ! is_string($hash) || '' === $hash) {
+            return false;
+        }
+
         $crypt = crypt($password, $hash);
 
         if (

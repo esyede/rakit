@@ -235,7 +235,13 @@ $rakit_tl_route_start = microtime(true);
 Request::$route = Routing\Router::route(Request::method(), $uri, $domain);
 
 $rakit_tl_controller_start = microtime(true);
-$response = Request::$route->call();
+
+if (is_null(Request::$route)) {
+    $response = Hook::first('404');
+    $response = Response::prepare($response ?: Response::error(404));
+} else {
+    $response = Request::$route->call();
+}
 $rakit_tl_render_start = microtime(true);
 
 /*
@@ -284,7 +290,7 @@ if (
 | Save the session and put its cookie in the jar.
 */
 
-if (Config::get('session.driver') && Session::started()) {
+if (! $response->streamed && Config::get('session.driver') && Session::started()) {
     Session::save();
 }
 

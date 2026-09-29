@@ -858,4 +858,39 @@ class JobTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(2, $attempts);
         $this->assertCount(0, $failed);
     }
+
+    /**
+     * A failed database job is removed from the queue once recorded as failed.
+     *
+     * @group system
+     */
+    public function testDatabaseDriverRemovesFailedJobs()
+    {
+        try {
+            System\Database::connection();
+        } catch (\Throwable $e) {
+            $this->markTestSkipped('Database not configured');
+        } catch (\Exception $e) {
+            $this->markTestSkipped('Database not configured');
+        }
+
+        Config::set('job.driver', 'database');
+        Config::set('job.table', 'rakit_jobs');
+        Config::set('job.failed_table', 'rakit_failed_jobs');
+        System\Database::table('rakit_jobs')->delete();
+        System\Database::table('rakit_failed_jobs')->delete();
+
+        $driver = Job::driver('database');
+        $driver->add('db-fail', [], Carbon::now()->subMinutes(1)->format('Y-m-d H:i:s'));
+
+        Hook::listen('rakit.jobs.process', function ($job) {
+            throw new \Exception('boom');
+        });
+
+        $driver->runall(1, 1);
+
+        $this->assertEquals(0, System\Database::table('rakit_jobs')->count());
+        $this->assertEquals(1, System\Database::table('rakit_failed_jobs')->count());
+        System\Database::table('rakit_failed_jobs')->delete();
+    }
 }

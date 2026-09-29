@@ -150,7 +150,7 @@ class Image
         $value = (int) $value;
         $height = (int) (($value / $this->width) * $this->height);
         $this->dimension($value, $height);
-        $canvas = imagecreatetruecolor($value, $height);
+        $canvas = $this->canvas($value, $height);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $value, $height, $this->width, $this->height);
 
@@ -172,7 +172,7 @@ class Image
         $value = (int) $value;
         $width = (int) (($value / $this->height) * $this->width);
         $this->dimension($width, $value);
-        $canvas = imagecreatetruecolor($width, $value);
+        $canvas = $this->canvas($width, $value);
 
         imagecopyresampled($canvas, $this->image, 0, 0, 0, 0, $width, $value, $this->width, $this->height);
 
@@ -197,7 +197,8 @@ class Image
             throw new \Exception('The image can only be rotated at 90 degree intervals.');
         }
 
-        $this->image = imagerotate($this->image, $angle, 0);
+        $this->image = imagerotate($this->image, $angle, imagecolorallocatealpha($this->image, 0, 0, 0, 127));
+        imagesavealpha($this->image, true);
         $this->maintain();
 
         return $this;
@@ -220,7 +221,7 @@ class Image
         }
 
         $this->dimension($width, $height);
-        $canvas = imagecreatetruecolor($width, $height);
+        $canvas = $this->canvas($width, $height);
         imagecopy($canvas, $this->image, 0, 0, $left, $top, $width, $height);
 
         $this->image = $canvas;
@@ -239,11 +240,11 @@ class Image
      */
     public function ratio($width = 1, $height = 1)
     {
-        if ($width < 0) {
+        if ($width <= 0) {
             throw new \Exception('The width ratio must be a greater than zero.');
         }
 
-        if ($height < 0) {
+        if ($height <= 0) {
             throw new \Exception('The height ratio must be a greater than zero.');
         }
 
@@ -718,6 +719,30 @@ class Image
                 $height
             ));
         }
+    }
+
+    /**
+     * Create a blank, fully transparent canvas so PNG/GIF transparency survives.
+     *
+     * @param int $width
+     * @param int $height
+     *
+     * @return resource|\GdImage
+     */
+    protected function canvas($width, $height)
+    {
+        $canvas = imagecreatetruecolor($width, $height);
+        imagealphablending($canvas, false);
+        imagesavealpha($canvas, true);
+
+        $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
+        imagefill($canvas, 0, 0, $transparent);
+
+        if (IMAGETYPE_GIF === $this->type) {
+            imagecolortransparent($canvas, $transparent);
+        }
+
+        return $canvas;
     }
 
     /**

@@ -900,7 +900,7 @@ if (! function_exists('section_start')) {
      *
      * @return void
      */
-    function section_start($section, $content = '')
+    function section_start($section, $content = null)
     {
         return \System\Section::start($section, $content);
     }

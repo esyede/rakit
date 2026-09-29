@@ -544,3 +544,213 @@ class DatabaseExtrasTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(true);
     }
 }
+
+/**
+ * Regressions of the query builder and connection, against a live sqlite database.
+ */
+class DatabaseQueryRegressionTest extends \PHPUnit_Framework_TestCase
+{
+    /**
+     * Setup.
+     */
+    public function setUp()
+    {
+        \System\Config::set('database.connections.dbreg', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        $pdo = \System\Database::connection('dbreg')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS dbreg (id INTEGER PRIMARY KEY, a INTEGER, b INTEGER, name TEXT, parent_id INTEGER)');
+        $pdo->exec('DELETE FROM dbreg');
+        $pdo->exec("INSERT INTO dbreg (a, b, name, parent_id) VALUES (1, 10, 'x', NULL), (2, 20, 'y', 1), (5, 50, 'z', NULL)");
+    }
+
+    /**
+     * Tear down.
+     */
+    public function tearDown()
+    {
+        \System\Database::connection('dbreg')->pdo()->exec('DROP TABLE IF EXISTS dbreg');
+    }
+
+    /**
+     * Get a fresh query builder.
+     *
+     * @return \System\Database\Query
+     */
+    protected function query()
+    {
+        return \System\Database::connection('dbreg')->table('dbreg');
+    }
+
+    /**
+     * Test that bindings follow the compiled clause order, not the call order.
+     *
+     * @group system
+     */
+    public function testBindingsFollowTheClauseOrder()
+    {
+        $names = $this->query()
+            ->order_by_raw('CASE WHEN name = ? THEN 0 ELSE 1 END', ['y'])
+            ->where('a', '<', 3)
+            ->lists('name');
+        $this->assertEquals(['y', 'x'], $names);
+
+        $union = $this->query()->select(['name'])->where('a', '=', 5);
+        $rows = $this->query()->select(['name'])->union($union)->where('a', '=', 1)->get()->all();
+        // Old SQLite (< 3.8) keeps the quotes in compound-select column names, so read by position.
+        $names = array_map(function ($row) {
+            $row = array_values((array) $row);
+            return $row[0];
+        }, $rows);
+        $this->assertEquals(['x', 'z'], $names);
+
+        $sql = $this->query()->select(['a'])->group_by('a')->having('a', '>', 1)->where('b', '<', 60)->to_sql(true);
+        $this->assertEquals('SELECT "a" FROM "dbreg" WHERE "b" < 60 GROUP BY "a" HAVING "a" > 1', $sql);
+    }
+
+    /**
+     * Test that count(), exists() and paginate() drop the bindings of the SELECT list.
+     *
+     * @group system
+     */
+    public function testSelectBindingsAreDroppedWhenTheSelectIs()
+    {
+        $this->assertEquals(3, $this->query()->select_raw('? AS q, name', ['x'])->count());
+        $this->assertTrue($this->query()->select_raw('? AS q, name', ['x'])->exists());
+
+        $page = $this->query()->select_raw('? AS q, name', ['x'])->paginate(2, ['*'], 'page', 1);
+        $this->assertEquals(3, $page->total);
+        $this->assertEquals('x', $page->results[0]->q);
+    }
+
+    /**
+     * Test that insert_get_id() leaves the WHERE bindings out of the INSERT.
+     *
+     * @group system
+     */
+    public function testInsertGetIdIgnoresWhereBindings()
+    {
+        $id = $this->query()->where('a', '=', 1)->insert_get_id(['a' => 9, 'b' => 90]);
+        $this->assertEquals(90, $this->query()->where('id', '=', $id)->value('b'));
+    }
+
+    /**
+     * Test that a subquery without select() still compiles a SELECT.
+     *
+     * @group system
+     */
+    public function testSubqueryWithoutSelectDefaultsToStar()
+    {
+        $sub = $this->query()->where('a', '=', 2);
+
+        $this->assertEquals(1, $this->query()->where_exists($sub)->where('a', '=', 2)->count());
+        $this->assertEquals(['y'], $this->query()->where_in_sub('id', $sub->copy()->select(['id']))->lists('name'));
+        $this->assertEquals(4, count($this->query()->where('a', '=', 1)->union_all($this->query())->get()));
+    }
+
+    /**
+     * Test that insert_or_ignore() binds every record in the column order of the first.
+     *
+     * @group system
+     */
+    public function testInsertOrIgnoreBindsByColumn()
+    {
+        $this->query()->insert_or_ignore([['a' => 7, 'b' => 70], ['b' => 80, 'a' => 8]]);
+        $this->assertEquals(80, $this->query()->where('a', '=', 8)->value('b'));
+    }
+
+    /**
+     * Test skip() without take().
+     *
+     * @group system
+     */
+    public function testSkipWithoutTake()
+    {
+        $this->assertEquals(['y', 'z'], $this->query()->order_by('id')->skip(1)->lists('name'));
+    }
+
+    /**
+     * Test that value() gives NULL when no row matches.
+     *
+     * @group system
+     */
+    public function testValueIsNullWithoutRows()
+    {
+        $this->assertNull($this->query()->where('a', '=', 99)->value('name'));
+        $this->assertNull(\System\Database::connection('dbreg')->only('SELECT name FROM dbreg WHERE a = 99'));
+        $this->assertEquals('y', $this->query()->where('a', '=', 2)->value('name'));
+    }
+
+    /**
+     * Test that comparing to NULL compiles to IS [NOT] NULL.
+     *
+     * @group system
+     */
+    public function testWhereNullValueUsesIsNull()
+    {
+        $this->assertEquals(2, $this->query()->where('parent_id', '=', null)->count());
+        $this->assertEquals(2, $this->query()->where('parent_id', null)->count());
+        $this->assertEquals(1, $this->query()->where('parent_id', '!=', null)->count());
+        $this->assertEquals('SELECT * FROM "dbreg" WHERE "parent_id" IS NULL', $this->query()->where('parent_id', null)->to_sql());
+    }
+
+    /**
+     * Test that an explicit page below 1 is clamped.
+     *
+     * @group system
+     */
+    public function testPaginateClampsThePage()
+    {
+        $page = $this->query()->paginate(2, ['*'], 'page', 0);
+        $this->assertEquals(1, $page->page);
+        $this->assertEquals('x', $page->results[0]->name);
+    }
+
+    /**
+     * Test that QueryException keeps the SQLSTATE and the driver error info.
+     *
+     * @group system
+     */
+    public function testQueryExceptionKeepsTheSqlState()
+    {
+        try {
+            $this->query()->insert(['id' => 1, 'a' => 1]);
+            $this->fail('Expected a QueryException.');
+        } catch (QueryException $e) {
+            $this->assertEquals('23000', $e->getCode());
+            $this->assertEquals('23000', $e->errorInfo[0]);
+        }
+    }
+
+    /**
+     * Test that a failing COMMIT does not leave the transaction counter stuck.
+     *
+     * @group system
+     */
+    public function testFailedCommitResetsTheTransaction()
+    {
+        $connection = \System\Database::connection('dbreg');
+        $pdo = $connection->pdo();
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE IF NOT EXISTS dbreg_parent (id INTEGER PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE IF NOT EXISTS dbreg_child (id INTEGER PRIMARY KEY, parent_id INTEGER'
+            . ' REFERENCES dbreg_parent(id) DEFERRABLE INITIALLY DEFERRED)');
+
+        try {
+            $connection->transaction(function ($connection) {
+                $connection->pdo()->exec('INSERT INTO dbreg_child (parent_id) VALUES (42)');
+            });
+            $this->fail('Expected the commit to fail.');
+        } catch (\PDOException $e) {
+            $this->assertEquals(0, $connection->transaction_level());
+            $this->assertFalse($pdo->inTransaction());
+        }
+
+        $pdo->exec('DROP TABLE IF EXISTS dbreg_child');
+        $pdo->exec('DROP TABLE IF EXISTS dbreg_parent');
+        $pdo->exec('PRAGMA foreign_keys = OFF');
+    }
+}

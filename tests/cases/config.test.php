@@ -130,4 +130,32 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
         Config::set('application.encoding', 'UTF-8');
         $this->assertEquals('UTF-8', Config::get('application.encoding'));
     }
+
+    /**
+     * A config file changed on disk is read again when reload checks are on.
+     *
+     * @group system
+     */
+    public function testChangedConfigFileIsReloaded()
+    {
+        $path = \System\Package::path('application').'config'.DS.'reloadtest.php';
+        file_put_contents($path, "<?php return ['value' => 1];");
+        touch($path, time() - 10);
+        clearstatcache();
+
+        $this->assertEquals(1, Config::get('reloadtest.value'));
+
+        file_put_contents($path, "<?php return ['value' => 2];");
+        touch($path, time());
+        clearstatcache();
+
+        if (function_exists('opcache_invalidate')) {
+            opcache_invalidate($path, true);
+        }
+
+        $value = Config::get('reloadtest.value');
+        unlink($path);
+
+        $this->assertEquals(2, $value);
+    }
 }

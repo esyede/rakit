@@ -174,9 +174,9 @@ class View implements \ArrayAccess
                     $allowed_roots[] = $rp;
                 }
             } catch (\Throwable $e) {
-                // Ignore
+                // ignore errors
             } catch (\Exception $e) {
-                // Ignore
+                // ignore errors
             }
         }
 
@@ -323,11 +323,10 @@ class View implements \ArrayAccess
         $contents = null;
 
         if (Hook::exists(static::ENGINE)) {
-            $result = Hook::until(static::ENGINE, [$this]);
-            $contents = $result ?: $contents;
+            $contents = Hook::until(static::ENGINE, [$this]);
         }
 
-        $contents = $contents ?: $this->get();
+        $contents = is_null($contents) ? $this->get() : $contents;
         --static::$rendered;
 
         if (0 === static::$rendered) {

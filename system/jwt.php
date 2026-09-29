@@ -150,7 +150,7 @@ class JWT
             ));
         }
 
-        if (! isset($headers->typ) || $headers->typ !== 'JWT') {
+        if (isset($headers->typ) && (! is_string($headers->typ) || strtoupper($headers->typ) !== 'JWT')) {
             throw new \Exception('Invalid token type');
         }
 
@@ -420,13 +420,20 @@ class JWT
      * @param int    $new_exp
      * @param array  $headers
      * @param string $algorithm
+     * @param string $sign_key
      *
      * @return string
      */
-    public static function refresh($token, $key, $new_exp, array $headers = [], $algorithm = 'HS256')
+    public static function refresh($token, $key, $new_exp, array $headers = [], $algorithm = null, $sign_key = null)
     {
         $payloads = static::decode($token, $key);
         $payloads->exp = $new_exp;
-        return static::encode((array) $payloads, $key, $headers, $algorithm);
+
+        if (is_null($algorithm)) {
+            $segments = explode('.', $token);
+            $algorithm = static::decode_json(static::decode_url($segments[0]))->alg;
+        }
+
+        return static::encode((array) $payloads, is_null($sign_key) ? $key : $sign_key, $headers, $algorithm);
     }
 }

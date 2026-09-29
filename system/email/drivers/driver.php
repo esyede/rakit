@@ -135,6 +135,13 @@ abstract class Driver
     protected $type = 'plain';
 
     /**
+     * Contains the original email configurations.
+     *
+     * @var array
+     */
+    protected $defaults = [];
+
+    /**
      * Constructor.
      *
      * @param array $config
@@ -142,6 +149,7 @@ abstract class Driver
     public function __construct(array $config)
     {
         $this->config = $config;
+        $this->defaults = $config;
     }
 
     /**
@@ -228,10 +236,15 @@ abstract class Driver
                     $url = (string) $url;
 
                     if (! preg_match('/(^http\:\/\/|^https\:\/\/|^\/\/|^cid\:|^data\:|^#)/Ui', $url)) {
-                        $cid = 'cid:'.md5(basename($url));
+                        // Only files under the assets directory may be attached.
+                        if (false === ($file = static::asset($url))) {
+                            continue;
+                        }
+
+                        $cid = 'cid:'.md5(basename($file));
 
                         if (! isset($this->attachments['inline'][$cid])) {
-                            $this->attach($url, true, $cid);
+                            $this->attach($file, true, $cid);
                         }
 
                         $html = preg_replace(
@@ -260,6 +273,35 @@ abstract class Driver
         }
 
         return $this;
+    }
+
+    /**
+     * Resolve an image source to a real file under the assets directory.
+     *
+     * @param string $url
+     *
+     * @return string|bool
+     */
+    protected static function asset($url)
+    {
+        $root = realpath(path('assets'));
+
+        if (false === $root || '' === $url) {
+            return false;
+        }
+
+        $root = rtrim($root, '/\\').DS;
+        $candidates = [$root.ltrim($url, '/\\'), $url];
+
+        foreach ($candidates as $candidate) {
+            $file = realpath($candidate);
+
+            if (false !== $file && is_file($file) && 0 === strpos($file, $root)) {
+                return $file;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -409,6 +451,21 @@ abstract class Driver
         $this->replyto = [];
         $this->attachments = ['inline' => [], 'attachment' => []];
         $this->extras = [];
+        $this->subject = '';
+        $this->body = '';
+        $this->alt_body = '';
+        $this->prepared_body = '';
+        $this->prepared_alt_body = '';
+        $this->headers = [];
+        $this->invalid_addresses = [];
+
+        foreach (['as_html', 'from', 'return_path', 'priority'] as $key) {
+            if (array_key_exists($key, $this->defaults)) {
+                $this->config[$key] = $this->defaults[$key];
+            } else {
+                unset($this->config[$key]);
+            }
+        }
 
         return $this;
     }

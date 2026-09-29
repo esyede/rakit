@@ -108,8 +108,6 @@ class Package
         if (is_file($directory.'routes.php')) {
             static::$routed[] = strtolower((string) $package);
             require $directory.'routes.php';
-
-            // Load hook, middleware and view composer files.
             array_map(function ($file) use ($directory) {
                 if (is_file($directory.$file)) {
                     require $directory.$file;
@@ -319,6 +317,10 @@ class Package
         $identifier = (string) $identifier;
 
         if (! isset(static::$elements[$identifier])) {
+            if (count(static::$elements) >= 1024) {
+                static::$elements = [];
+            }
+
             static::$elements[$identifier] = (false !== strpos($identifier, '::'))
                 ? explode('::', strtolower($identifier))
                 : [DEFAULT_PACKAGE, strtolower($identifier)];

@@ -271,7 +271,7 @@ class Query
 
         $sub->select([new Expression('COUNT(*)')]);
         $sql = '(' . $sub->grammar->select($sub) . ') ' . $operator . ' ' . $count;
-        $this->table->raw_where($sql, $sub->bindings, $connector);
+        $this->table->raw_where($sql, $sub->get_bindings(), $connector);
 
         return $this;
     }
@@ -473,10 +473,6 @@ class Query
             $this->table->select([$this->model->table() . '.*']);
         }
 
-        if (!is_array($this->table->bindings)) {
-            $this->table->bindings = [];
-        }
-
         foreach ($relationships as $key => $value) {
             $callback = null;
             $relationship = $value;
@@ -488,10 +484,6 @@ class Query
 
             $sub = $this->relationship_subquery($relationship, $callback);
             $sub->select([new Expression('COUNT(*)')]);
-
-            if (!is_array($sub->bindings)) {
-                $sub->bindings = [];
-            }
 
             $column = Str::snake((string) $relationship) . '_count';
             $grammar = isset($this->table->grammar)
@@ -511,7 +503,7 @@ class Query
             }
 
             $this->table->selects[] = new Expression($sql);
-            $this->table->bindings = array_merge($this->table->bindings, $sub->bindings);
+            $this->table->add_binding($sub->get_bindings(), 'select');
         }
 
         return $this;

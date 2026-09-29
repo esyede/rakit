@@ -57,20 +57,24 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $send = new \ReflectionMethod('\System\Email\Drivers\Driver', 'send');
         PHP_VERSION_ID < 80100 && $send->setAccessible(true);
 
-        // send() drops the message once it is on the wire, so the parts it was
-        // built from are put back to let the message be rebuilt for inspection.
-        $message = [];
+        // send() drops the message once it is on the wire, so the driver is
+        // captured right before that to let the message be rebuilt for inspection.
+        $snapshot = null;
 
-        foreach (['to', 'cc', 'bcc', 'replyto', 'attachments', 'extras'] as $part) {
-            $property = new \ReflectionProperty('\System\Email\Drivers\Driver', $part);
-            PHP_VERSION_ID < 80100 && $property->setAccessible(true);
-            $message[$part] = [$property, $property->getValue($driver)];
-        }
+        \System\Hook::listen('rakit.mail.sent', function ($sent) use (&$snapshot) {
+            $snapshot = clone $sent;
+        });
 
         $send->invoke($driver, false);
+        \System\Hook::clear('rakit.mail.sent');
 
-        foreach ($message as $part) {
-            $part[0]->setValue($driver, $part[1]);
+        $class = new \ReflectionClass('\System\Email\Drivers\Driver');
+
+        foreach ($class->getProperties() as $property) {
+            if (! $property->isStatic()) {
+                PHP_VERSION_ID < 80100 && $property->setAccessible(true);
+                $property->setValue($driver, $property->getValue($snapshot));
+            }
         }
 
         $build = new \ReflectionMethod('\System\Email\Drivers\Driver', 'build');
@@ -645,7 +649,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testT23HtmlWithInlineAndAttachmentIsSent()
     {
-        $logo = path('storage') . 'attachment-inline.txt';
+        $logo = path('assets') . 'attachment-inline.txt';
         $file = path('storage') . 'attachment-plain.txt';
 
         file_put_contents($logo, 'image');
@@ -763,7 +767,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
         $driver->to('first@example.com')->subject('Hello')->body('Original body')->send();
         $first = EmailProbeDriver::$sent['body'];
 
-        $driver->to('second@example.com')->send();
+        $driver->to('second@example.com')->subject('Hello')->body('Original body')->send();
 
         $this->assertEquals(trim($first), trim(EmailProbeDriver::$sent['body']));
         $this->assertContains(
@@ -796,7 +800,7 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
      */
     public function testS26InlinePartsAreNotFollowedByTheAltBody()
     {
-        $logo = path('storage') . 'attachment-inline.txt';
+        $logo = path('assets') . 'attachment-inline.txt';
         $file = path('storage') . 'attachment-plain.txt';
 
         file_put_contents($logo, 'image');
@@ -822,6 +826,52 @@ class EmailMessageTest extends \PHPUnit_Framework_TestCase
 
         @unlink($logo);
         @unlink($file);
+    }
+
+    /**
+     * The subject and bodies of one email do not leak into the next.
+     *
+     * @group system
+     */
+    public function testD1ContentDoesNotSurviveTheSend()
+    {
+        $driver = $this->probe();
+        $driver->to('alice@example.com')->subject('Alice reset')
+            ->html_body('<p>Alice secret link</p>')
+            ->priority(Email::HIGH)
+            ->send();
+        $driver->to('bob@example.com')->body('Hello Bob')->send();
+
+        $this->assertNotContains('Alice', EmailProbeDriver::$sent['header']);
+        $this->assertNotContains('Alice', EmailProbeDriver::$sent['body']);
+        $this->assertNotContains('multipart', EmailProbeDriver::$sent['header']);
+        $this->assertContains('X-Priority: '.Email::NORMAL, EmailProbeDriver::$sent['header']);
+    }
+
+    /**
+     * Only files under the assets directory are attached from an html body.
+     *
+     * @group system
+     */
+    public function testD2AttachifyIsLimitedToAssets()
+    {
+        $secret = path('storage') . 'attachment-secret.txt';
+        file_put_contents($secret, 'db-password');
+
+        try {
+            $driver = $this->probe();
+            $driver->to('budi@example.com')->subject('Hello')
+                ->html_body('<img src="' . $secret . '" /><img src="../paths.php" />', false)
+                ->send();
+
+            $this->assertNotContains('Content-Disposition: inline', EmailProbeDriver::$sent['body']);
+            $this->assertNotContains(base64_encode('db-password'), EmailProbeDriver::$sent['body']);
+        } catch (\Exception $e) {
+            @unlink($secret);
+            throw $e;
+        }
+
+        @unlink($secret);
     }
 }
 

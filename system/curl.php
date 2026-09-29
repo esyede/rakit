@@ -300,7 +300,7 @@ class Curl
      */
     public static function curl_options(array $options)
     {
-        return static::merge_options(static::$curl_options, $options);
+        return static::$curl_options = static::merge_options(static::$curl_options, $options);
     }
 
     /**
@@ -600,7 +600,7 @@ class Curl
             curl_setopt(static::$handler, CURLOPT_POSTFIELDS, $body);
         } elseif (is_array($body)) {
             $url .= (false !== strpos((string) $url, '?')) ? '&' : '?';
-            $url .= urldecode(http_build_query(static::build_curl_query($body)));
+            $url .= http_build_query(static::build_curl_query($body));
         }
 
         $defaults = [
@@ -904,24 +904,10 @@ class Curl
     }
 
     /**
-     * Format the curl query.
-     *
-     * @param string $query
-     *
-     * @return array
-     */
-    private static function format_query($query)
-    {
-        $query = preg_replace_callback('/(?:^|(?<=&))[^=[]+/', function ($match) {
-            return bin2hex(urldecode($match[0]));
-        }, $query);
-
-        parse_str($query, $values);
-        return array_combine(array_map('hex2bin', array_keys($values)), $values);
-    }
-
-    /**
      * Encode URL.
+     *
+     * The query is kept as given (duplicate keys, encoded delimiters, order):
+     * only characters that are not valid in a URL, and stray '%', get escaped.
      *
      * @param string $url
      *
@@ -932,12 +918,21 @@ class Curl
         $url = parse_url($url);
         $scheme = $url['scheme'].'://';
         $host = (string) $url['host'];
+        $user = isset($url['user']) ? (string) $url['user'] : '';
+        $user .= isset($url['pass']) ? ':'.$url['pass'] : '';
+        $user .= ('' !== $user) ? '@' : '';
         $port = isset($url['port']) ? ':'.ltrim((string) $url['port'], ':') : '';
         $path = isset($url['path']) ? (string) $url['path'] : '';
         $query = isset($url['query']) ? (string) $url['query'] : '';
-        $query = $query ? '?'.http_build_query(static::format_query($query)) : '';
+        $query = ('' !== $query) ? '?'.preg_replace_callback(
+            '/[^A-Za-z0-9\-._~!$&\'()*+,;=:@\/?%\[\]]|%(?![0-9A-Fa-f]{2})/',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $query
+        ) : '';
 
-        return $scheme.$host.$port.$path.$query;
+        return $scheme.$user.$host.$port.$path.$query;
     }
 
     /**

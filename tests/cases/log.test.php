@@ -511,6 +511,20 @@ class LogTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Formatter::value() - arrays holding closures do not throw.
+     *
+     * @group system
+     */
+    public function testFormatValueHandlesArrayWithClosure()
+    {
+        $result = Formatter::value(['fn' => function () {
+            return 1;
+        }, 'a' => 1]);
+
+        $this->assertEquals(1, $result['a']);
+    }
+
+    /**
      * Test for Formatter::exception() - formats exception details.
      *
      * @group system

@@ -604,6 +604,147 @@ class FacileParityTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('ani', $posts[0]->user->name);
         $this->assertEquals('budi', $posts[2]->user->name);
     }
+
+    // -------------------------------------------------------------------------
+    // Audit regressions (C-1, C-3, C-5..C-8, C-10, C-11)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Test that guarded columns can not be bypassed by case or qualification.
+     *
+     * @group system
+     */
+    public function testGuardedIsCaseInsensitiveAndRejectsQualifiedKeys()
+    {
+        $user = new ParityGuardedUser();
+        $user->fill(['name' => 'x', 'ID' => 99, 'parity_users.id' => 98, '`id`' => 97, 'id ' => 96]);
+
+        $this->assertEquals(['name' => 'x'], $user->attributes);
+    }
+
+    /**
+     * Test that a preset non-incrementing key survives save().
+     *
+     * @group system
+     */
+    public function testSaveKeepsPresetStringKey()
+    {
+        Database::connection('parity')->pdo()->exec('CREATE TABLE IF NOT EXISTS parity_docs (id TEXT PRIMARY KEY, name TEXT)');
+
+        $doc = new ParityDoc(['id' => '7f3c-uuid', 'name' => 'a']);
+        $this->assertTrue($doc->save());
+        $this->assertEquals('7f3c-uuid', $doc->id);
+
+        $doc->name = 'b';
+        $doc->save();
+        $this->assertEquals('b', Database::connection('parity')->table('parity_docs')->where('id', '=', '7f3c-uuid')->value('name'));
+
+        Database::connection('parity')->pdo()->exec('DROP TABLE parity_docs');
+    }
+
+    /**
+     * Test that eager loading and has() keep the related model's global scopes,
+     * and that save() / increment() still reach a scoped-out record.
+     *
+     * @group system
+     */
+    public function testRelationsKeepGlobalScopesAndSaveIgnoresThem()
+    {
+        ParityPublishedPost::add_global_scope('published', function ($query) {
+            $query->where('published', '=', 1);
+        });
+
+        $users = ParityUser::with('published_posts')->get()->all();
+        $this->assertCount(1, $users[0]->published_posts);
+        $this->assertCount(0, $users[1]->published_posts);
+        $this->assertEquals(1, ParityUser::has('published_posts')->count());
+
+        $post = ParityPost::find(1);
+        $scoped = new ParityPublishedPost($post->attributes, true);
+        $scoped->published = 0;
+        $this->assertTrue($scoped->save());
+        $scoped->increment('views');
+
+        ParityPublishedPost::remove_global_scope('published');
+
+        $fresh = ParityPost::find(1);
+        $this->assertEquals(0, $fresh->published);
+        $this->assertEquals(1, $fresh->views);
+    }
+
+    /**
+     * Test that belongs_to_many sync() and detach() work.
+     *
+     * @group system
+     */
+    public function testBelongsToManySyncAndDetach()
+    {
+        $pdo = Database::connection('parity')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS parity_roles (id INTEGER PRIMARY KEY, name TEXT)');
+        $pdo->exec('CREATE TABLE IF NOT EXISTS parity_role_user (user_id INTEGER, role_id INTEGER)');
+        $pdo->exec("INSERT INTO parity_roles (name) VALUES ('a'), ('b'), ('c')");
+
+        $user = ParityUser::find(1);
+        $user->roles()->attach(1);
+        $user->roles()->attach(2);
+        $user->roles()->sync([2, 3]);
+
+        $ids = Database::connection('parity')->table('parity_role_user')->where('user_id', '=', 1)->order_by('role_id')->lists('role_id');
+        $this->assertEquals([2, 3], array_map('intval', $ids));
+
+        $user->roles()->detach(2);
+        $this->assertEquals(1, $user->roles()->count());
+
+        $pdo->exec('DROP TABLE parity_role_user');
+        $pdo->exec('DROP TABLE parity_roles');
+    }
+
+    /**
+     * Test has_many_through eager loading and soft deletes.
+     *
+     * @group system
+     */
+    public function testHasManyThroughEagerLoadAndSoftDelete()
+    {
+        $pdo = Database::connection('parity')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS parity_countries (id INTEGER PRIMARY KEY, name TEXT)');
+        $pdo->exec('CREATE TABLE IF NOT EXISTS parity_citizens (id INTEGER PRIMARY KEY, parity_country_id INTEGER)');
+        $pdo->exec('CREATE TABLE IF NOT EXISTS parity_notes (id INTEGER PRIMARY KEY, parity_citizen_id INTEGER, deleted_at TEXT)');
+        $pdo->exec("INSERT INTO parity_countries (name) VALUES ('id'), ('my')");
+        $pdo->exec('INSERT INTO parity_citizens (parity_country_id) VALUES (1), (2)');
+        $pdo->exec("INSERT INTO parity_notes (parity_citizen_id, deleted_at) VALUES (1, NULL), (1, '2026-01-01'), (2, NULL)");
+
+        $countries = ParityCountry::with('notes')->get()->all();
+        $this->assertCount(1, $countries[0]->notes);
+        $this->assertCount(1, $countries[1]->notes);
+        $this->assertCount(1, ParityCountry::find(1)->notes()->get());
+
+        $pdo->exec('DROP TABLE parity_notes');
+        $pdo->exec('DROP TABLE parity_citizens');
+        $pdo->exec('DROP TABLE parity_countries');
+    }
+
+    /**
+     * Test that relation insert() sets the foreign key and morph columns.
+     *
+     * @group system
+     */
+    public function testRelationInsertSetsForeignAndMorphKeys()
+    {
+        $user = ParityUser::find(1);
+        $post = $user->fillable_posts()->insert(['title' => 'new', 'user_id' => 3]);
+        $this->assertEquals(1, Database::connection('parity')->table('parity_posts')->where('id', '=', $post->id)->value('user_id'));
+
+        $pdo = Database::connection('parity')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS parity_comments (id INTEGER PRIMARY KEY, body TEXT, commentable_type TEXT, commentable_id INTEGER)');
+
+        $comment = $user->comments()->insert(['body' => 'hi']);
+        $row = Database::connection('parity')->table('parity_comments')->where('id', '=', $comment->id)->first();
+        $this->assertEquals('ParityUser', $row->commentable_type);
+        $this->assertEquals(1, $row->commentable_id);
+
+        $pdo->exec('DROP TABLE parity_comments');
+    }
 }
 
 /**
@@ -653,6 +794,26 @@ class ParityUser extends \System\Database\Facile\Model
         return $this->has_many('ParityPost', 'user_id');
     }
 
+    public function published_posts()
+    {
+        return $this->has_many('ParityPublishedPost', 'user_id');
+    }
+
+    public function fillable_posts()
+    {
+        return $this->has_many('ParityFillablePost', 'user_id');
+    }
+
+    public function roles()
+    {
+        return $this->belongs_to_many('ParityRole', 'parity_role_user', 'user_id', 'role_id');
+    }
+
+    public function comments()
+    {
+        return $this->morph_many('ParityComment', 'commentable');
+    }
+
     public function get_shout($value = null)
     {
         return strtoupper((string) $this->name);
@@ -669,4 +830,76 @@ class ParityOnlyTitle extends \System\Database\Facile\Model
     public static $timestamps = false;
     public static $visible = ['title'];
     public static $hidden = ['title'];
+}
+
+class ParityGuardedUser extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_users';
+    public static $timestamps = false;
+    public static $guarded = ['id'];
+}
+
+class ParityDoc extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_docs';
+    public static $timestamps = false;
+}
+
+class ParityPublishedPost extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_posts';
+    public static $timestamps = false;
+}
+
+class ParityFillablePost extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_posts';
+    public static $timestamps = false;
+    public static $fillable = ['title'];
+}
+
+class ParityRole extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_roles';
+    public static $timestamps = false;
+}
+
+class ParityComment extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_comments';
+    public static $timestamps = false;
+    public static $fillable = ['body'];
+}
+
+class ParityCountry extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_countries';
+    public static $timestamps = false;
+
+    public function notes()
+    {
+        return $this->has_many_through('ParityNote', 'ParityCitizen', 'parity_country_id', 'parity_citizen_id');
+    }
+}
+
+class ParityCitizen extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_citizens';
+    public static $timestamps = false;
+}
+
+class ParityNote extends \System\Database\Facile\Model
+{
+    public static $connection = 'parity';
+    public static $table = 'parity_notes';
+    public static $timestamps = false;
+    public static $soft_delete = true;
 }

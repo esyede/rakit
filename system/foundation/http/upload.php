@@ -957,7 +957,6 @@ class Upload extends \SplFileInfo
             throw new \Exception(sprintf('Directory is not writable: %s', $directory));
         }
 
-        // Containment check: ensure final directory is inside base or storage
         $realDir = realpath($directory);
 
         if ($realDir !== false) {
@@ -967,6 +966,7 @@ class Upload extends \SplFileInfo
                 try {
                     $p = path($key);
                     $rp = realpath(rtrim($p, DS));
+
                     if ($rp) {
                         $allowed_roots[] = $rp;
                     }
@@ -991,7 +991,6 @@ class Upload extends \SplFileInfo
                 // skip errors
             }
 
-            // If we have allowed roots, enforce containment
             if (count($allowed_roots) > 0) {
                 $inside = false;
 
@@ -1004,7 +1003,6 @@ class Upload extends \SplFileInfo
                     }
                 }
 
-                // Anywhere inside the base is allowed; only fully outside is blocked.
                 $baseReal = realpath(path('base'));
 
                 if (!$inside && $baseReal && !(0 === strpos($realDir, $baseReal . DS) || $realDir === $baseReal)) {
@@ -1031,40 +1029,29 @@ class Upload extends \SplFileInfo
         $name = str_replace('\\', '/', (string) $name);
         $position = strrpos($name, '/');
         $name = (false === $position) ? $name : substr($name, $position + 1);
-
-        // Remove null bytes and control characters
         $name = str_replace("\0", '', $name);
         $name = preg_replace('/[\x00-\x1F\x7F]/u', '', $name);
-
-        // Trim whitespace and dots
         $name = trim($name);
         $name = trim($name, '.');
 
-        // Fallback if empty
         if ('' === $name) {
             $name = 'file';
         }
 
-        // Keep only alphanumerics, dash, underscore and dot.
         $name = preg_replace('/[^A-Za-z0-9._-]/', '_', $name);
-
-        // Prevent multiple consecutive dots and leading dot
         $name = preg_replace('/\.{2,}/', '.', $name);
         $name = ltrim($name, '.');
 
-        // Limit length
         if (strlen($name) > 255) {
             $ext = pathinfo($name, PATHINFO_EXTENSION);
             $base = substr(pathinfo($name, PATHINFO_FILENAME), 0, 255 - (strlen($ext) + 1));
             $name = $base . ('' !== $ext ? '.' . $ext : '');
         }
 
-        // Ensure not empty after sanitization
         if ('' === $name) {
             $name = 'file';
         }
 
-        // Final check: must not contain blocked extension as segment
         return $name;
     }
 
@@ -1128,6 +1115,7 @@ class Upload extends \SplFileInfo
         'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'dll', 'so', 'dylib',
         'asp', 'aspx', 'jsp', 'jspx', 'shtml', 'shtm', 'htaccess', 'htpasswd',
         'js', 'vbs', 'ws', 'wsh', 'ps1', 'bat', 'cmd', 'com',
+        'html', 'htm', 'xhtml', 'svg', 'svgz',
     ];
 
     /**
@@ -1159,28 +1147,26 @@ class Upload extends \SplFileInfo
      */
     protected function validate_upload($directory, $name = null)
     {
-        // Sanitize target name if provided
         $targetName = is_null($name) ? $this->getBasename() : $this->getName($name);
 
         if ('' === $targetName || false !== strpos($targetName, "\0")) {
             throw new \Exception('Invalid file name.');
         }
 
-        // Size check
         $max = static::$max_size !== null ? static::$max_size : static::getMaxFilesize();
         $size = $this->size ?: filesize($this->getPathname());
+
         if ($size !== false && $size > $max) {
             throw new \Exception(sprintf('File size exceeds limit: %s > %s bytes.', $size, $max));
         }
 
-        // Extension check
         $ext = strtolower(pathinfo($targetName, PATHINFO_EXTENSION));
-
-        // Block double extensions trick: check every segment
         $parts = explode('.', $targetName);
+
         if (count($parts) > 1) {
             foreach ($parts as $part) {
                 $p = strtolower($part);
+
                 if (in_array($p, static::$blocked_extensions, true)) {
                     throw new \Exception(sprintf('File extension not allowed: %s', $targetName));
                 }
@@ -1192,23 +1178,26 @@ class Upload extends \SplFileInfo
                 throw new \Exception(sprintf('File extension not allowed: %s', $ext));
             }
 
-            if (is_array(static::$allowed_extensions) && !in_array($ext, array_map('strtolower', static::$allowed_extensions), true)) {
+            if (
+                is_array(static::$allowed_extensions)
+                && !in_array($ext, array_map('strtolower', static::$allowed_extensions), true)
+            ) {
                 throw new \Exception(sprintf('File extension not allowed: %s', $ext));
             }
         } elseif (is_array(static::$allowed_extensions) && count(static::$allowed_extensions) > 0) {
             throw new \Exception('File extension required.');
         }
 
-        // MIME type check via finfo
         $mime = null;
         try {
             $mime = $this->getMimeType();
         } catch (\Throwable $e) {
+            // ignore errors
         } catch (\Exception $e) {
+            // ignore errors
         }
 
         if ($mime) {
-            // Block PHP MIME types regardless of extension
             $blockedMimes = [
                 'application/php', 'application/x-php', 'application/x-httpd-php',
                 'application/x-httpd-php-source', 'text/php', 'text/x-php',
@@ -1218,16 +1207,18 @@ class Upload extends \SplFileInfo
                 throw new \Exception(sprintf('File MIME type not allowed: %s', $mime));
             }
 
-            if (is_array(static::$allowed_mime_types) && !in_array(strtolower($mime), array_map('strtolower', static::$allowed_mime_types), true)) {
+            if (
+                is_array(static::$allowed_mime_types)
+                && !in_array(strtolower($mime), array_map('strtolower', static::$allowed_mime_types), true)
+            ) {
                 throw new \Exception(sprintf('File MIME type not allowed: %s', $mime));
             }
 
-            // If whitelist extensions set, ensure mime matches extension mapping
             if (is_array(static::$allowed_extensions) && '' !== $ext) {
                 $pool = static::$extensions;
                 $mimeAllowedForExt = isset($pool[$mime]) ? $pool[$mime] : null;
+
                 if ($mimeAllowedForExt && !in_array($ext, $mimeAllowedForExt, true)) {
-                    // MIME does not correspond to extension - possible spoofing
                     throw new \Exception(sprintf('File MIME type does not match extension: %s vs %s', $mime, $ext));
                 }
             }
@@ -1251,7 +1242,12 @@ class Upload extends \SplFileInfo
             if ($this->test) {
                 if (! @rename($this->getPathname(), $target)) {
                     $error = error_get_last();
-                    throw new \Exception(sprintf("Could not move the file '%s' to '%s' (%s).", $this->getPathname(), $target, $error['message']));
+                    throw new \Exception(sprintf(
+                        "Could not move the file '%s' to '%s' (%s).",
+                        $this->getPathname(),
+                        $target,
+                        $error['message']
+                    ));
                 }
 
                 @chmod($target, 0666 & ~umask());
@@ -1259,7 +1255,12 @@ class Upload extends \SplFileInfo
             } elseif (is_uploaded_file($this->getPathname())) {
                 if (false === @move_uploaded_file($this->getPathname(), $target)) {
                     $error = error_get_last();
-                    throw new \Exception(sprintf("Could not move the file '%s' to '%s' (%s).", $this->getPathname(), $target, $error['message']));
+                    throw new \Exception(sprintf(
+                        "Could not move the file '%s' to '%s' (%s).",
+                        $this->getPathname(),
+                        $target,
+                        $error['message']
+                    ));
                 }
 
                 @chmod($target, 0666 & ~umask());

@@ -99,6 +99,33 @@ class HttpFileTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($file, $files['child']['sub']['file']);
     }
 
+    public function testShouldConvertUploadsWithFullPathKey()
+    {
+        $tmpFile = $this->createTempFile();
+        $file = new Upload($tmpFile, basename($tmpFile), 'text/plain', 100, 0);
+
+        $bag = new File(['file' => [
+            'name' => basename($tmpFile),
+            'full_path' => basename($tmpFile),
+            'type' => 'text/plain',
+            'tmp_name' => $tmpFile,
+            'error' => 0,
+            'size' => 100,
+        ]]);
+        $this->assertEquals($file, $bag->get('file'));
+
+        $bag = new File(['docs' => [
+            'name' => [basename($tmpFile)],
+            'full_path' => [basename($tmpFile)],
+            'type' => ['text/plain'],
+            'tmp_name' => [$tmpFile],
+            'error' => [0],
+            'size' => [100],
+        ]]);
+        $files = $bag->all();
+        $this->assertEquals($file, $files['docs'][0]);
+    }
+
     public function testShouldNotConvertNestedUploads()
     {
         $tmpFile = $this->createTempFile();

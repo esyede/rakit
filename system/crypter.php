@@ -110,6 +110,10 @@ class Crypter
      */
     protected static function payload($value)
     {
+        if (! is_string($value)) {
+            throw new DecryptException('The payload is invalid.');
+        }
+
         $value = json_decode(base64_decode($value), true);
 
         if (! static::valid($value)) {

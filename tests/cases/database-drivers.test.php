@@ -473,4 +473,17 @@ class DatabaseDriversTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(5, $options[PDO::ATTR_TIMEOUT]);
         $this->assertEquals(PDO::ERRMODE_EXCEPTION, $options[PDO::ATTR_ERRMODE]);
     }
+
+    /**
+     * Test that an OFFSET without a LIMIT gets the largest LIMIT on MySQL.
+     *
+     * @group system
+     */
+    public function testOffsetWithoutLimit()
+    {
+        $this->assertEquals('SELECT * FROM `users` LIMIT 18446744073709551615 OFFSET 5', $this->query('MySQL')->skip(5)->to_sql());
+        $this->assertEquals('SELECT * FROM "users" LIMIT -1 OFFSET 5', $this->query('SQLite')->skip(5)->to_sql());
+        $this->assertEquals('SELECT * FROM "users" OFFSET 5', $this->query('Postgres')->skip(5)->to_sql());
+        $this->assertEquals('SELECT * FROM `users` LIMIT 2 OFFSET 5', $this->query('MySQL')->skip(5)->take(2)->to_sql());
+    }
 }

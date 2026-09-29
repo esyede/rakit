@@ -1251,7 +1251,14 @@ class Markdown
         $pattern = '/^[(]\s*+((?:[^ ()]++|[(][^ )]+[)])++)(?:[ ]+("[^"]*"|\'[^\']*\'))?\s*[)]/';
 
         if (preg_match($pattern, $remainder, $matches)) {
-            $elem['attributes']['href'] = URL::to($matches[1]);
+            $href = $matches[1];
+            $absolute = self::starts($href, '//') || self::starts($href, '#');
+
+            foreach ($this->schemas as $scheme) {
+                $absolute = $absolute || self::starts($href, $scheme);
+            }
+
+            $elem['attributes']['href'] = $absolute ? $href : URL::to($href);
 
             if (isset($matches[2])) {
                 $elem['attributes']['title'] = substr($matches[2], 1, -1);

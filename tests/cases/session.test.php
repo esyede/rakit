@@ -290,7 +290,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset(Cookie::$jar[Config::get('session.cookie')]));
         $cookie = Cookie::$jar[Config::get('session.cookie')];
 
-        $this->assertEquals('foo', Crypter::decrypt($cookie['value']));
+        $this->assertEquals('foo', Cookie::get(Config::get('session.cookie')));
 
         // Count expiration
         $expected = time() + (Config::get('session.lifetime') * 60);

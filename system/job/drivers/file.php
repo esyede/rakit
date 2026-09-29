@@ -92,8 +92,13 @@ class File extends Driver
         foreach ($files as $file) {
             if (is_file($file)) {
                 $data = unserialize(static::unguard(Storage::get($file)));
-                return (isset($data['queue']) && $data['queue'] === $queue)
-                    && (isset($data['without_overlapping']) && $data['without_overlapping']);
+
+                if (
+                    (isset($data['queue']) && $data['queue'] === $queue)
+                    && (isset($data['without_overlapping']) && $data['without_overlapping'])
+                ) {
+                    return true;
+                }
             }
         }
 

@@ -23,6 +23,28 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
         // ..
     }
 
+    /**
+     * Forwarded headers only count when the peer is a trusted proxy, and
+     * ?_format= cannot pick the response format.
+     *
+     * @group system
+     */
+    public function testForwardedHeadersNeedATrustedPeer()
+    {
+        Request::setTrustedProxies(['10.0.0.1']);
+        $headers = ['HTTP_X_FORWARDED_PROTO' => 'https', 'HTTP_X_FORWARDED_HOST' => 'evil.com'];
+
+        $direct = Request::create('http://localhost/?_format=css', 'GET', [], [], [], ['REMOTE_ADDR' => '6.6.6.6'] + $headers);
+        $proxied = Request::create('http://localhost/', 'GET', [], [], [], ['REMOTE_ADDR' => '10.0.0.1'] + $headers);
+        $secure = [$direct->isSecure(), $proxied->isSecure()];
+        $hosts = [$direct->getHost(), $proxied->getHost()];
+        Request::setTrustedProxies([]);
+
+        $this->assertEquals([false, true], $secure);
+        $this->assertEquals(['localhost', 'evil.com'], $hosts);
+        $this->assertEquals('html', $direct->getRequestFormat());
+    }
+
     public function testConstructor()
     {
         $this->testInitialize();

@@ -214,12 +214,10 @@ class Router
                 $routes = &static::$routes;
             }
 
-            // Key domain-scoped routes by 'domain||uri' so the same path can repeat.
             $group_domain = (! is_null(static::$group) && isset(static::$group['domain']))
                 ? static::$group['domain']
                 : null;
             $route_key = $group_domain ? ($group_domain.'||'.$uri) : $uri;
-
             $routes[$method][$route_key] = is_array($action) ? $action : static::action($action);
 
             if (! is_null(static::$group)) {
@@ -335,7 +333,7 @@ class Router
             $root = Package::option($package, 'handles');
             $controller = str_replace('.', '/', $controller);
 
-            if (Str::ends_with($controller, 'home')) {
+            if ('home' === basename((string) $controller)) {
                 static::root($identifier, $controller, $root);
             }
 
@@ -435,8 +433,14 @@ class Router
 
         $uri = trim($uri, '/');
         $uri = ('' === $uri) ? '/' : $uri;
-
         $routes = (array) static::method($method);
+
+        if ('HEAD' === $method) {
+            $routes = Arr::get(static::$routes, 'HEAD', [])
+                + Arr::get(static::$routes, 'GET', [])
+                + Arr::get(static::$fallback, 'HEAD', [])
+                + Arr::get(static::$fallback, 'GET', []);
+        }
 
         if (static::$domains) {
             foreach ($routes as $key => $action) {
@@ -450,9 +454,9 @@ class Router
             }
         }
 
-        // Fall back to non-domain exact match
         if (array_key_exists($uri, $routes)) {
             $action = $routes[$uri];
+
             if (! isset($action['domain'])) {
                 return static::matched(new Route($method, $uri, $action), $uri);
             }
@@ -505,8 +509,10 @@ class Router
                     : false;
             }
 
-            if (false !== static::$compiled[$route]
-                && preg_match(static::$compiled[$route], $uri, $parameters)) {
+            if (
+                false !== static::$compiled[$route]
+                && preg_match(static::$compiled[$route], $uri, $parameters)
+            ) {
                 return new Route($method, $route, $action, array_slice($parameters, 1));
             }
         }
@@ -526,7 +532,6 @@ class Router
             return $pattern === $domain;
         }
 
-        // When pattern contains wildcards like {subdomain}, compare using regex
         if (Str::contains($pattern, '{')) {
             $pattern = preg_quote($pattern, '#');
             $pattern = preg_replace('/\\\{([^}]+)\\\}/', '(?P<$1>[a-zA-Z0-9\.\-_]+)', $pattern);
@@ -534,7 +539,6 @@ class Router
             return (bool) preg_match($pattern, $domain);
         }
 
-        // No wildcards, direct comparison
         return $pattern === $domain;
     }
 
@@ -547,13 +551,23 @@ class Router
      */
     protected static function wildcards($key)
     {
-        list($search, $replace) = Arr::divide(static::$optional);
+        $tokens = array_merge(static::$optional, static::$patterns);
+        $split = '#('.implode('|', array_map(function ($token) {
+            return preg_quote($token, '#');
+        }, array_keys($tokens))).')#';
 
-        // Close each optional group where it opens; stacking ')?' at the tail would
-        // nest them, chaining every optional segment to the one before.
-        $key = str_replace($search, $replace, $key);
+        $pieces = preg_split($split, $key, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $regex = '';
 
-        return strtr($key, static::$patterns);
+        foreach ($pieces as $index => $piece) {
+            if (1 === $index % 2) {
+                $regex .= $tokens[$piece];
+            } else {
+                $regex .= (false !== strpos($piece, '(')) ? $piece : preg_quote($piece, '#');
+            }
+        }
+
+        return $regex;
     }
 
     /**

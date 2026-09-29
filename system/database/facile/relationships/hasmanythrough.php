@@ -106,9 +106,7 @@ class HasManyThrough extends Relationship
         $through_key = $through_table.'.'.$this->second_local_key;
         $foreign_key = $through_table.'.'.$this->first_key;
 
-        $this->table->join($through_table, $through_key, '=', $this->model->table().'.'.$this->second_key);
         static::constrain_keys($this->table, $foreign_key, $this->keys($results));
-
         $this->table->select([
             $this->model->table().'.*',
             $through_table.'.'.$this->first_key.' as rakit_through_key',
@@ -176,7 +174,13 @@ class HasManyThrough extends Relationship
      */
     protected function table()
     {
-        return $this->connection()->table($this->model->table());
+        $query = $this->connection()->table($this->model->table());
+
+        if (! $this->with_trashed && $this->model->soft_deleting()) {
+            $query->where_null($this->model->table().'.deleted_at');
+        }
+
+        return $this->model->apply_scopes($query);
     }
 
     /**
