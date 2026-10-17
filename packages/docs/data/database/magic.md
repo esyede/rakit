@@ -1233,10 +1233,25 @@ $rates = DB::table('rates')->where('active', 1)->shared_lock()->get();
 ```
 
 Both only hold inside a transaction, outside of one they do nothing useful.
+
+By default a lock waits for rows another transaction already holds. `no_wait()`
+makes it fail at once instead, `skip_locked()` leaves those rows out, which lets
+several workers pick jobs off one table without stepping on each other:
+
+```php
+DB::connection()->transaction(function () {
+    $job = DB::table('jobs')->where('reserved', 0)->lock_for_update()->skip_locked()->first();
+    // ...
+});
+```
+
+Both lock the rows exclusively when no lock was asked for yet, and both need
+MySQL 8.0+, PostgreSQL 9.5+ (`NOWAIT` alone works on older PostgreSQL) or SQL Server.
+
 `lock()` takes a raw clause when a driver specific one is needed:
 
 ```php
-DB::table('jobs')->lock('FOR UPDATE SKIP LOCKED')->get();
+DB::table('jobs')->lock('FOR NO KEY UPDATE')->get();
 ```
 
 What each driver compiles:
@@ -1247,6 +1262,17 @@ What each driver compiles:
 | PostgreSQL | `FOR UPDATE` | `FOR SHARE` |
 | SQL Server | `WITH (ROWLOCK, UPDLOCK, HOLDLOCK)` | `WITH (ROWLOCK, HOLDLOCK)` |
 | SQLite | *(nothing)* | *(nothing)* |
+
+And with an option added:
+
+| Driver | `no_wait()` | `skip_locked()` |
+|---|---|---|
+| MySQL, PostgreSQL | `FOR UPDATE NOWAIT` | `FOR UPDATE SKIP LOCKED` |
+| SQL Server | `WITH (ROWLOCK, UPDLOCK, HOLDLOCK, NOWAIT)` | `WITH (ROWLOCK, UPDLOCK, READPAST)` |
+| SQLite | *(nothing)* | *(nothing)* |
+
+With `shared_lock()` it becomes `FOR SHARE ...` (MySQL included), and on SQL Server
+`WITH (ROWLOCK, HOLDLOCK, NOWAIT)` or `WITH (ROWLOCK, REPEATABLEREAD, READPAST)`.
 
 SQLite locks the whole database file for the duration of a transaction, so it
 has no row level lock to ask for and the clause is left out entirely.

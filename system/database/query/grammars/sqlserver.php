@@ -167,9 +167,19 @@ class SQLServer extends Grammar
             return $from . ' ' . $query->lock;
         }
 
+        // READPAST refuses the serializable HOLDLOCK, so skipping relies on
+        // UPDLOCK or REPEATABLEREAD to hold the rows until the transaction ends.
+        if ('SKIP LOCKED' === $query->lock_option) {
+            return $from . ($query->lock
+                ? ' WITH (ROWLOCK, UPDLOCK, READPAST)'
+                : ' WITH (ROWLOCK, REPEATABLEREAD, READPAST)');
+        }
+
+        $nowait = ('NOWAIT' === $query->lock_option) ? ', NOWAIT' : '';
+
         return $from . ($query->lock
-            ? ' WITH (ROWLOCK, UPDLOCK, HOLDLOCK)'
-            : ' WITH (ROWLOCK, HOLDLOCK)');
+            ? ' WITH (ROWLOCK, UPDLOCK, HOLDLOCK' . $nowait . ')'
+            : ' WITH (ROWLOCK, HOLDLOCK' . $nowait . ')');
     }
 
     /**

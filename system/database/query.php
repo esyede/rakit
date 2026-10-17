@@ -118,6 +118,14 @@ class Query
     public $lock;
 
     /**
+     * What to do about rows already locked by others: NULL waits,
+     * 'NOWAIT' fails at once, 'SKIP LOCKED' leaves them out.
+     *
+     * @var string|null
+     */
+    public $lock_option;
+
+    /**
      * Contains every query binding, in the order the SELECT statement compiles
      * them. It is a read-only mirror of $clauses: change them via add_binding().
      *
@@ -735,6 +743,7 @@ class Query
         $this->unions = null;
         $this->distinct = false;
         $this->lock = null;
+        $this->lock_option = null;
 
         foreach (array_keys($this->clauses) as $type) {
             $this->set_bindings([], $type);
@@ -764,6 +773,7 @@ class Query
         $query->limit = $this->limit;
         $query->offset = $this->offset;
         $query->lock = $this->lock;
+        $query->lock_option = $this->lock_option;
         $query->clauses = $this->clauses;
         $query->bindings = $this->bindings;
 
@@ -1788,6 +1798,47 @@ class Query
     public function shared_lock()
     {
         return $this->lock(false);
+    }
+
+    /**
+     * Fail at once instead of waiting when a selected row is already locked.
+     * Locks the rows exclusively when no lock was asked for yet.
+     *
+     * @return Query
+     */
+    public function no_wait()
+    {
+        return $this->lock_option('NOWAIT');
+    }
+
+    /**
+     * Leave out the rows that are already locked instead of waiting for them,
+     * handy for workers picking jobs off a shared table.
+     * Locks the rows exclusively when no lock was asked for yet.
+     *
+     * @return Query
+     */
+    public function skip_locked()
+    {
+        return $this->lock_option('SKIP LOCKED');
+    }
+
+    /**
+     * Set what to do about already locked rows.
+     *
+     * @param string $option
+     *
+     * @return Query
+     */
+    protected function lock_option($option)
+    {
+        if (is_null($this->lock)) {
+            $this->lock = true;
+        }
+
+        $this->lock_option = $option;
+
+        return $this;
     }
 
     /**

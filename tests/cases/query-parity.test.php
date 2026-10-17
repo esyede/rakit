@@ -394,6 +394,43 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test NOWAIT and SKIP LOCKED on every grammar.
+     *
+     * @group system
+     */
+    public function testLockOptions()
+    {
+        $connection = Database::connection('qparity');
+        $grammars = [
+            'Grammar' => ['FOR UPDATE NOWAIT', 'FOR UPDATE SKIP LOCKED', 'FOR SHARE SKIP LOCKED'],
+            'MySQL' => ['FOR UPDATE NOWAIT', 'FOR UPDATE SKIP LOCKED', 'FOR SHARE SKIP LOCKED'],
+            'Postgres' => ['FOR UPDATE NOWAIT', 'FOR UPDATE SKIP LOCKED', 'FOR SHARE SKIP LOCKED'],
+            'SQLServer' => [
+                'WITH (ROWLOCK, UPDLOCK, HOLDLOCK, NOWAIT)',
+                'WITH (ROWLOCK, UPDLOCK, READPAST)',
+                'WITH (ROWLOCK, REPEATABLEREAD, READPAST)',
+            ],
+        ];
+
+        foreach ($grammars as $name => $clauses) {
+            $class = '\\System\\Database\\Query\\Grammars\\' . $name;
+            $make = function () use ($connection, $class) {
+                return new \System\Database\Query($connection, new $class($connection), 'qparity');
+            };
+
+            $this->assertContains($clauses[0], $make()->lock_for_update()->no_wait()->to_sql(), $name);
+            $this->assertContains($clauses[1], $make()->lock_for_update()->skip_locked()->to_sql(), $name);
+            $this->assertContains($clauses[2], $make()->shared_lock()->skip_locked()->to_sql(), $name);
+            // Without a lock asked for, the option locks exclusively.
+            $this->assertContains($clauses[1], $make()->skip_locked()->to_sql(), $name);
+        }
+
+        $sql = $this->query()->where('id', '=', 1)->skip_locked()->to_sql();
+        $this->assertNotContains('SKIP', $sql);
+        $this->assertEquals(1, count($this->query()->where('id', '=', 1)->no_wait()->get()));
+    }
+
+    /**
      * Test that copy() carries the lock and reset() drops it.
      *
      * @group system
@@ -403,10 +440,11 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
         $connection = Database::connection('qparity');
         $grammar = new \System\Database\Query\Grammars\MySQL($connection);
         $query = new \System\Database\Query($connection, $grammar, 'qparity');
-        $query->where('id', '=', 1)->lock_for_update();
+        $query->where('id', '=', 1)->lock_for_update()->skip_locked();
 
-        $this->assertContains('FOR UPDATE', $query->copy()->to_sql());
+        $this->assertContains('FOR UPDATE SKIP LOCKED', $query->copy()->to_sql());
         $this->assertNotContains('FOR UPDATE', $query->copy()->reset()->to_sql());
+        $this->assertNull($query->copy()->reset()->lock_option);
     }
 
     /**

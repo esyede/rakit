@@ -593,7 +593,9 @@ class Grammar extends BaseGrammar
             return $query->lock;
         }
 
-        return $query->lock ? 'FOR UPDATE' : 'FOR SHARE';
+        $sql = $query->lock ? 'FOR UPDATE' : 'FOR SHARE';
+
+        return $query->lock_option ? $sql . ' ' . $query->lock_option : $sql;
     }
 
     /**

@@ -42,6 +42,7 @@ class MySQL extends Grammar
 
     /**
      * Compile the row locking clause, in the pre-8.0 spelling of FOR SHARE.
+     * NOWAIT and SKIP LOCKED need MySQL 8.0, which also knows FOR SHARE.
      *
      * @param Query $query
      *
@@ -51,6 +52,10 @@ class MySQL extends Grammar
     {
         if (is_string($query->lock)) {
             return $query->lock;
+        }
+
+        if ($query->lock_option) {
+            return parent::lock($query);
         }
 
         return $query->lock ? 'FOR UPDATE' : 'LOCK IN SHARE MODE';
