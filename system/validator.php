@@ -303,7 +303,7 @@ class Validator
      */
     protected function validatable($rule, $attribute, $value)
     {
-        if (in_array('nullable', $this->rules[$attribute]) && is_null($value)) {
+        if (! $this->implicit($rule) && in_array('nullable', $this->rules[$attribute]) && is_null($value)) {
             return false;
         }
 

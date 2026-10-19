@@ -3,443 +3,289 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
 -   [Basic Knowledge](#basic-knowledge)
--   [Section](#section)
--   [Blade Template Engine](#blade-template-engine)
+-   [Displaying Data](#displaying-data)
+    -   [Raw Output](#raw-output)
+    -   [Blade & JavaScript Frameworks](#blade--javascript-frameworks)
+    -   [Comments](#comments)
 -   [Blade Conditionals & Looping](#blade-conditionals--looping)
+    -   [The Loop Variable](#the-loop-variable)
+    -   [Variables & PHP Blocks](#variables--php-blocks)
+-   [Including Views](#including-views)
 -   [Blade Layout](#blade-layout)
+    -   [Extending a Section with @parent](#extending-a-section-with-parent)
+    -   [Sections Without Blade](#sections-without-blade)
 -   [Stacks](#stacks)
 -   [Components](#components)
+    -   [Attributes](#attributes)
+    -   [The Attribute Bag](#the-attribute-bag)
+    -   [Slots](#slots)
+    -   [Components with a Class](#components-with-a-class)
+    -   [Components of a Package](#components-of-a-package)
 -   [Other Directives](#other-directives)
+-   [Controller Layouts](#controller-layouts)
+-   [Extending Blade](#extending-blade)
 
 <!-- /MarkdownTOC -->
 
+<a id="blade-template-engine"></a>
 <a id="basic-knowledge"></a>
 
 ## Basic Knowledge
 
-Most pages of an application share one layout. A controller can name it once,
-instead of every action rebuilding it:
+Blade is Rakit's template engine. Any view ending in `.blade.php` is compiled to
+plain PHP (and cached in `storage/views`), giving you a short syntax for
+printing data, control structures, layouts and components. Plain `.php` views
+keep working alongside Blade ones.
 
-#### Add the `$layout` property to your controller:
+<a id="displaying-data"></a>
 
-```php
-class Home_Controller extends Controller
-{
-	public $layout = 'layouts.common';
+## Displaying Data
 
-	// ..
-}
-```
-
-> Rakit turns the `$layout` property into a `View` instance.
-
-#### Access its layout from the action in the controller:
-
-```php
-public function action_profile()
-{
-	$this->layout->nest('content', 'user.profile');
-}
-```
-
-> An action using a layout does not have to return anything.
-
-**Complete example:**
-
-```php
-class Home_Controller extends Controller
-{
-    public $layout = 'layouts.master';
-
-    public function action_index()
-    {
-        $this->layout->title = 'Home Page';
-        $this->layout->nest('content', 'home.index');
-    }
-
-    public function action_about()
-    {
-        $this->layout->title = 'About Us';
-        $this->layout->nest('content', 'home.about', ['team' => $team]);
-    }
-}
-```
-
-<a id="section"></a>
-
-## Section
-
-Sections let a nested view put content into the layout, such as the JavaScript that
-view needs in the layout header:
-
-#### Creating a section in the view:
-
-```php
-<?php Section::start('scripts'); ?>
-	<script src="<?php echo asset('js/jquery.js'); ?>"></script>
-<?php Section::stop(); ?>
-```
-
-#### Displaying the content of a section:
-
-```php
-<head>
-	<?php echo Section::yield_content('scripts'); ?>
-</head>
-```
-
-#### Using Blade syntax to create a section:
+Wrap any expression in `{{ }}` to print it. Output is escaped with
+`htmlentities()`, so it is safe from XSS:
 
 ```blade
-@section('scripts')
-	<script src="jquery.js"></script>
-@endsection
-
-<head>
-	@yield('scripts')
-</head>
+Hello, {{ $name }}. It is {{ now() }}.
 ```
 
-<a id="blade-template-engine"></a>
-
-## Blade Template Engine
-
-A view with the `.blade.php` extension is compiled by Blade, which gives it a shorter
-syntax for printing data and for the usual control structures.
-
-#### Displaying variables using Blade:
-
-```blade
-Hello, {{ $name }}.
-```
-
-#### Displaying function results using Blade:
-
-```blade
-{{ now() }}
-```
-
-> The `{{` `}}` syntax is automatically escaped via
-the [htmlentities()](https://www.php.net/manual/en/function.htmlentities.php) function so it is safe from XSS attacks.
-
-#### Blade & JavaScript Frameworks
-
-JavaScript frameworks use curly braces too. An `@` in front tells Blade to leave the
-expression alone:
-
-```blade
-Hello, @{{ $name }}.
-```
-
-Blade drops the `@` and leaves `{{ $name }}` for the front end to render.
-
-#### Displaying data with default value
-
-A variable that may not be defined can be written out in full:
-
-```blade
-{{ isset($name) ? $name : 'Guest' }}
-```
-
-Or with the Blade shortcut:
+Use `or` to print a default when a variable is not set:
 
 ```blade
 {{ $name or 'Guest' }}
+{{-- same as {{ isset($name) ? $name : 'Guest' }} --}}
 ```
 
-#### Displaying data without escaping
+<a id="raw-output"></a>
 
-By default, data enclosed by the `{{ }}` syntax will be automatically escaped
-using the [htmlentities](https://www.php.net/manual/en/function.htmlentities.php) function to prevent XSS attacks.
+### Raw Output
 
-If you do not want your data to be escaped, you can use the following syntax:
+`{!! !!}` prints without escaping:
 
 ```blade
 Hello, {!! $name !!}
 ```
 
-> Be careful when displaying data from user input. Always use the `{{` `}}` syntax to avoid any HTML entities in the data.
+> Never use `{!! !!}` on user input.
 
-#### Displaying a view:
+<a id="blade--javascript-frameworks"></a>
 
-`@include()` imports a view into another one, handing it all the data of the current view.
+### Blade & JavaScript Frameworks
 
-```blade
-<h1>Profile</h1>
-
-@include('user.profile')
-```
-
-`@render()` does the same, except the rendered view **inherits no data**.
+Prefix `{{` with `@` to leave the expression for the front-end framework.
+Blade only drops the `@`:
 
 ```blade
-@render('admin.list')
+Hello, @{{ name }}.
 ```
 
-**Difference between `@include()` and `@render()`:**
+For a larger block, wrap it in `@verbatim` .. `@endverbatim`.
+
+<a id="comments"></a>
+
+### Comments
+
+Blade comments, unlike HTML comments, are removed from the output:
 
 ```blade
-// @include() - view inherits all data from parent
-@include('partials.user', ['user' => $user])
-// View 'partials.user' can access $user variable and all variables from parent
-
-// @render() - view only receives given data
-@render('partials.user', ['user' => $user])
-// View 'partials.user' can only access $user variable
+{{-- This comment will not be in the HTML --}}
 ```
-
-#### Creating comments:
-
-```blade
-{{-- This is a one-line comment --}}
-
-{{--
-	This is
-	multiple lines comment.
-	write as much as you need.
---}}
-```
-
-> Unlike HTML comments, Blade comments are not visible when view-source.
 
 <a id="blade-conditionals--looping"></a>
 
 ## Blade Conditionals & Looping
 
-#### If Statement:
-
 ```blade
-@if (5000 === $price)
-    Wow, the price is 5 thousand!
-@endif
-```
-
-#### If Else Statement:
-
-```blade
-@if (count($messages) > 0)
-    There are new messages!
+@if (count($messages) === 1)
+    One new message.
+@elseif (count($messages) > 1)
+    Many new messages.
 @else
-    No new messages!
+    No new messages.
 @endif
-```
 
-#### Else If Statement:
-
-```blade
-@if ('male' === $gender)
-    Hello sir!
-@elseif ('female' === $gender)
-    Hello madam!
-@else
-    Eh? what creature is this?
-@endif
-```
-
-#### Unless Statement:
-
-```blade
-@unless(Auth::check())
+@unless (Auth::check())
     Please login first!
 @endunless
 
-// same as..
-
-<?php if (! Auth::check()): ?>
-    Please login first!
-<?php endif; ?>
-```
-
-#### Set Statement:
-
-```blade
-@set('name', 'Budi')
-
-// same as..
-
-<?php $name = 'Budi'; ?>
-```
-
-#### For Loop:
-
-```blade
 @for ($i = 0; $i < 10; $i++)
-    The current number is: {{ $i }}
+    {{ $i }}
 @endfor
-```
 
-#### Foreach Loop:
-
-```blade
 @foreach ($users as $user)
-    <p>The current user ID is: {{ $user->id }}</p>
+    <p>{{ $user->name }}</p>
 @endforeach
-```
 
-#### For Else Loop:
-
-```blade
 @forelse ($users as $user)
     <li>{{ $user->name }}</li>
 @empty
     <p>No users</p>
 @endforelse
-```
 
-#### While Loop:
-
-```blade
-@while (true)
-    <p>I am an infinite loop. Hahaha</p>
+@while ($item = array_pop($items))
+    {{ $item }}
 @endwhile
 ```
 
-#### PHP Block:
+<a id="the-loop-variable"></a>
+
+### The Loop Variable
+
+Inside `@foreach`, a `$loop` object describes the current iteration:
 
 ```blade
-@php
-	$name = 'Angga';
-	echo 'Hello '.$name;
-@endphp
-
-// same as..
-
-<?php
-	$name = 'Angga';
-	echo 'Hello '.$name;
-?>
+@foreach ($users as $user)
+    @if ($loop->first) <ul> @endif
+    <li class="{{ $loop->odd ? 'odd' : 'even' }}">{{ $loop->iteration }}. {{ $user->name }}</li>
+    @if ($loop->last) </ul> @endif
+@endforeach
 ```
 
+| Property     | Description                                     |
+| ------------ | ----------------------------------------------- |
+| `index`      | Zero-based index of the current iteration       |
+| `iteration`  | Current iteration, starting at `1`              |
+| `remaining`  | Iterations left                                 |
+| `count`      | Total number of items                           |
+| `first`      | Whether this is the first iteration             |
+| `last`       | Whether this is the last iteration              |
+| `even`/`odd` | Whether the iteration number is even / odd      |
+| `depth`      | Nesting level of the loop (`0` for the outermost) |
+| `parent`     | The parent loop's `$loop` in a nested loop      |
+
+<a id="variables--php-blocks"></a>
+
+### Variables & PHP Blocks
+
+```blade
+@set('name', 'Budi')   {{-- <?php $name = 'Budi'; ?> --}}
+@unset('name')
+
+@php($total = 0)
+
+@php
+    $total = array_sum($prices);
+@endphp
+```
+
+<a id="including-views"></a>
+
+## Including Views
+
+`@include()` renders another view and hands it all variables of the current
+view. Data you pass explicitly wins over inherited variables. `@render()` does
+the same but the included view gets **only** the data you pass:
+
+```blade
+@include('partials.user', ['user' => $user]) {{-- sees $user and every parent variable --}}
+@render('partials.user', ['user' => $user])  {{-- sees only $user --}}
+```
+
+`@render_each('view', $items, 'item')` renders a view once per item, like
+[View::render_each()](/docs/views#render-each).
+
+<a id="section"></a>
 <a id="blade-layout"></a>
 
 ## Blade Layout
 
-**Template inheritance** lets one master layout be extended by the views that fill it.
-A `'master'` view giving the application its consistent look:
-
-**File: `application/views/master.blade.php`**
+A layout defines the common page structure with `@yield` placeholders:
 
 ```blade
+{{-- application/views/master.blade.php --}}
 <html>
-	<ul class="navigation">
-		@section('navigation')
-			<li><a href="home">Home</a></li>
-			<li><a href="profile">Profile</a></li>
-		@show
-	</ul>
+    <ul class="navigation">
+        @section('navigation')
+            <li><a href="home">Home</a></li>
+            <li><a href="profile">Profile</a></li>
+        @show
+    </ul>
 
-	<div class="content">
-		@yield('content')
-	</div>
+    <div class="content">
+        @yield('content')
+    </div>
 </html>
 ```
 
-`@show` closes the section and prints it in place, which is what a layout wants:
-`@endsection` only defines a section, it does not print one.
-
-The `'content'` section is what another view fills in:
-
-**File: `application/views/profile.blade.php`**
+A child view names its layout with `@layout()` and fills the sections:
 
 ```blade
 @layout('master')
 
 @section('content')
-	Welcome to the profile page!
+    Welcome to the profile page!
 @endsection
 ```
 
-Then return the `profile` view from a route:
+Return the child as usual, `View::make('profile')`, and it is rendered inside
+`master`.
 
-```php
-return View::make('profile');
-```
+> `@layout()` must be on the very first line of the file, with no whitespace
+> or newline before it.
 
-The `profile` view will automatically use the `master` template thanks to the `@layout()` tag.
+`@section` .. `@endsection` (or `@stop`) only defines a section. `@show` closes
+it and prints it in place, which is what a layout wants for default content.
 
-> The `@layout()` call must always be on the very first line of the view file, without whitespace or newline.
+<a id="extending-a-section-with-parent"></a>
 
-**Example of using layout in controller:**
+### Extending a Section with @parent
 
-```php
-class User_Controller extends Controller
-{
-    public function action_profile($id)
-    {
-        $user = User::find($id);
-
-        // View 'profile' will automatically use layout 'master'
-        return View::make('profile', compact('user'));
-    }
-}
-```
-
-#### Adding content using `@parent`
-
-A section can be added to rather than replaced. `@parent` stands for whatever the
-layout put there, so the navigation list of the `master` layout
-[above](#blade-layout) keeps its two links and gains a `Contact` one:
+By default a child's section replaces the layout's. Use `@parent` to keep the
+layout's content and add to it:
 
 ```blade
 @layout('master')
 
 @section('navigation')
-	@parent
-	<li><a href="contact">Contact</a></li>
-@endsection
-
-@section('content')
-	Welcome to the profile page!
+    @parent
+    <li><a href="contact">Contact</a></li>
 @endsection
 ```
 
-**Final result:**
+The navigation now has three links: Home, Profile and Contact.
 
-When the `profile` view is rendered, the `navigation` section will contain:
+<a id="sections-without-blade"></a>
 
-```html
-<li><a href="home">Home</a></li>
-<li><a href="profile">Profile</a></li>
-<li><a href="contact">Contact</a></li>
+### Sections Without Blade
+
+Plain PHP views use the `Section` class directly:
+
+```php
+<?php Section::start('scripts'); ?>
+    <script src="<?php echo asset('js/jquery.js'); ?>"></script>
+<?php Section::stop(); ?>
+
+<head><?php echo Section::yield_content('scripts'); ?></head>
 ```
-
-Without `@parent`, the navigation section would be completely replaced with the new content, not added.
 
 <a id="stacks"></a>
 
 ## Stacks
 
-A stack collects content from several views into one place. Push from anywhere,
-render it once in the layout:
+A stack collects content from several views into one place. Everything pushed
+to the same stack is rendered in push order:
 
 ```blade
-{{-- application/views/profile.blade.php --}}
+{{-- profile.blade.php --}}
 @push('scripts')
     <script src="profile.js"></script>
 @endpush
-```
 
-```blade
-{{-- application/views/master.blade.php --}}
+{{-- master.blade.php --}}
 <body>
     @yield('content')
-
     @stack('scripts')
 </body>
 ```
-
-Everything pushed to the same stack is rendered in the order it was pushed.
 
 <a id="components"></a>
 
 ## Components
 
-A component is a piece of markup with a name, kept in one place and used with a
-tag of its own. Put its view in `application/views/components/`:
+A component is reusable markup used with its own tag. Put its view in
+`application/views/components/`:
 
-```html
-<!-- application/views/components/alert.blade.php -->
-
+```blade
+{{-- application/views/components/alert.blade.php --}}
 @props(['type' => 'info'])
 
 <div class="alert alert-{{ $type }}" {{ $attributes }}>
@@ -447,92 +293,55 @@ tag of its own. Put its view in `application/views/components/`:
 </div>
 ```
 
-Then use it anywhere:
-
 ```html
-<x-alert type="error">
-    Data failed to save.
-</x-alert>
-```
-
-```html
-<div class="alert alert-error">
-    Data failed to save.
-</div>
-```
-
-A component with nothing inside it closes itself:
-
-```html
+<x-alert type="error">Data failed to save.</x-alert>
 <x-alert type="ok" />
 ```
 
-A component in a subdirectory is named with a dot, so
-`application/views/components/forms/input.blade.php` is:
+Components in subdirectories use a dot:
+`application/views/components/forms/input.blade.php` is `<x-forms.input />`.
 
-```html
-<x-forms.input name="email" />
-```
+<a id="attributes"></a>
 
 ### Attributes
 
-Every attribute of the tag reaches the view. `@props` says which of them the
-component expects, and what to use when the tag leaves one out:
+`@props` lists the attributes the component expects, with their defaults.
+Prefix an attribute with `:` to pass a PHP expression instead of a string; an
+attribute with no value is `true`:
 
 ```html
-@props(['type' => 'info', 'dismissible' => false])
-```
-
-Write an attribute with a colon in front of its name to hand it an expression
-instead of a piece of text:
-
-```html
-<x-alert :type="$status" :dismissible="$user->admin">
-    {{ $message }}
-</x-alert>
-```
-
-An attribute with no value at all is `TRUE`:
-
-```html
+<x-alert :type="$status" :dismissible="$user->admin">{{ $message }}</x-alert>
 <x-forms.input name="email" required />
 ```
 
+<a id="the-attribute-bag"></a>
+
 ### The Attribute Bag
 
-Whatever `@props` did not name stays in `$attributes`, so a component can be
-given the odd `id` or `data-` attribute without knowing about it in advance:
+Attributes not named in `@props` stay in `$attributes` and are printed by
+`{{ $attributes }}`, so `<x-alert type="error" id="msg-1">` gives
+`<div class="alert alert-error" id="msg-1">`.
 
-```html
-<x-alert type="error" id="pesan-1" data-auto-close="3">Gagal</x-alert>
-```
-
-```html
-<div class="alert alert-error" id="pesan-1" data-auto-close="3">Gagal</div>
-```
-
-`merge()` puts your own values underneath the ones the tag gave. A `class` is
-joined rather than replaced, since a class list is meant to grow:
+`merge()` adds defaults underneath the given attributes; `class` values are
+joined instead of replaced. `class_names()` builds a class list from
+conditions:
 
 ```html
 <input {{ $attributes->merge(['class' => 'form-control', 'type' => 'text']) }}>
-```
-
-The bag also answers `get()`, `has()`, `only()`, `except()`, `starting_with()`
-and `class_names()`:
-
-```html
 <div {{ $attributes->class_names(['card', 'card-active' => $active]) }}>
 ```
 
+The bag also has `all()`, `get()`, `has()`, `only()`, `except()` and
+`starting_with()`, and can be used as an array.
+
+<a id="slots"></a>
+
 ### Slots
 
-What sits between the tags arrives as `$slot`. A component may take more than
-one piece by naming them:
+Content between the tags arrives as `$slot`. Named slots pass extra pieces:
 
-```html
-<!-- application/views/components/card.blade.php -->
-
+```blade
+{{-- components/card.blade.php --}}
 <div class="card">
     <div class="card-title">{{ $title }}</div>
     <div class="card-body">{{ $slot }}</div>
@@ -541,113 +350,85 @@ one piece by naming them:
 
 ```html
 <x-card>
-    <x-slot name="title">Laporan Bulanan</x-slot>
-
-    Isi laporan ada di sini.
+    <x-slot name="title">Monthly Report</x-slot>
+    {{-- or: <x-slot:title>Monthly Report</x-slot> --}}
+    The report body.
 </x-card>
 ```
 
-`<x-slot:title>` is the shorter way to write the same thing.
+Check for an empty slot with `$slot->is_empty()`.
 
-A slot knows whether it was given anything:
+> `{{ $slot }}` prints markup as-is. That is safe: everything inside the slot
+> was already escaped once when it was rendered.
 
-```html
-@if ($slot->is_empty())
-    <p>Belum ada isi.</p>
-@else
-    {{ $slot }}
-@endif
-```
-
-> A slot carries markup, so `{{ $slot }}` prints it as it is. That is safe:
-> whatever the slot holds was already escaped on its way in, so `{{ $name }}`
-> written inside a slot is still escaped exactly once.
+<a id="components-with-a-class"></a>
 
 ### Components with a Class
 
-A component that needs to work something out first gets a class of its own in
-`application/components/`. There are no namespaces to keep class names apart, so
-the name carries `_Component` behind it, the same way a controller carries
-`_Controller`. `Component` is the alias of the class it extends, and it is
-registered in `application/config/aliases.php` like every other one:
+A component that needs logic gets a class in `application/components/`, named
+with a `_Component` suffix (like controllers use `_Controller`). It extends
+`Component`, an alias registered in `application/config/aliases.php`:
 
 ```php
 // application/components/badge.php
-
 class Badge_Component extends Component
 {
     public $label = '';
-
     public $colour = 'grey';
 
     public function render()
     {
         return 'components.badge';
+        // or return markup directly:
+        // return '<span class="badge">' . e($this->label) . '</span>';
     }
 }
 ```
 
-Every public property is handed to the view, and an attribute of the same name
-takes its place. `render()` answers with the name of a view, or with the markup
-itself:
+Public properties are passed to the view; a tag attribute with the same name
+overrides them. `render()` returns a view name or markup. Register classes that
+do not follow the naming in `application/boot.php`:
 
 ```php
-public function render()
-{
-    return '<span class="badge">' . e($this->label) . '</span>';
-}
-```
-
-A class that does not follow the naming can be registered by hand:
-
-```php
-// application/boot.php
-
 Component::register('badge', 'My_Own_BadgeComponent');
 ```
 
-`make:component` writes both the class and its view for you:
+`make:component` generates both the class and its view:
 
 ```bash
 php rakit make:component alert
 ```
 
+<a id="components-of-a-package"></a>
+
 ### Components of a Package
 
-A package names its components the way it names its views, with the double
-colon:
+Package components use the `package::` prefix:
 
 ```html
-<x-blog::alert type="error">Gagal</x-blog::alert>
+<x-blog::alert type="error">Failed</x-blog::alert>
 ```
 
-The view is read from `packages/blog/views/components/alert.blade.php`, and the
-class behind it, if there is one, is `Blog_Alert_Component` in
-`packages/blog/components/alert.php` — the package prefix in front, the same
-prefix a package puts on its controllers.
+The view is `packages/blog/views/components/alert.blade.php`; an optional
+class is `Blog_Alert_Component` in `packages/blog/components/alert.php`.
 
 <a id="other-directives"></a>
 
 ## Other Directives
 
-| Directive                        | Description                                                                     |
-| -------------------------------- | ------------------------------------------------------------------------------- |
-| `@csrf`                          | Print a hidden CSRF token field                                                 |
-| `@method('put')`                 | Print a hidden `_method` field to spoof the HTTP method (now escaped; dynamic values are `e()`-escaped) |
-| `@json($data)`                   | Print a variable as JSON, handy for passing data to JavaScript                  |
-| `@auth` .. `@endauth`            | Content that is only shown to a logged-in user                                  |
-| `@guest` .. `@endguest`          | Content that is only shown to a guest                                           |
-| `@error('field')` .. `@enderror` | Content that is only shown when the field has a validation error                |
-| `@hassection('name')` .. `@endif`| Content that is only shown when the section exists                              |
-| `@sectionmissing('name')` .. `@endif` | Content that is only shown when the section does not exist                 |
-| `@once` .. `@endonce`            | Content that is rendered only once, even when the view is included many times   |
-| `@set('name', $value)`           | Set a variable inside the view                                                  |
-| `@unset('name')`                 | Remove a variable                                                               |
-| `@inject('name', $content)`      | Fill a section straight from a string, without `@section` .. `@endsection`      |
-| `@show`                          | Close a section and print it right away                                         |
-| `@verbatim` .. `@endverbatim`    | A block that Blade leaves untouched                                             |
-| `@php` .. `@endphp`              | A block of plain PHP                                                            |
-| `@render_each('view', $items, 'item')` | Render one view per item in the array                                     |
+| Directive                              | Description                                                         |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `@csrf`                                | Hidden CSRF token field                                             |
+| `@method('put')`                       | Hidden `_method` field to spoof the HTTP method (value is escaped)  |
+| `@json($data)`                         | Print a value as JSON, safe to embed in `<script>`                  |
+| `@auth` .. `@endauth`                  | Shown only to a logged-in user                                      |
+| `@guest` .. `@endguest`                | Shown only to a guest                                               |
+| `@error('field')` .. `@enderror`       | Shown only when the field has a validation error                    |
+| `@hassection('name')` .. `@endif`      | Shown only when the section exists                                  |
+| `@sectionmissing('name')` .. `@endif`  | Shown only when the section does not exist                          |
+| `@once` .. `@endonce`                  | Rendered only once per page, even if the view is included many times |
+| `@inject('name', $content)`            | Fill a section from a string, without `@section` .. `@endsection`   |
+| `@verbatim` .. `@endverbatim`          | Block that Blade leaves untouched                                   |
 
 ```blade
 <form method="post" action="{{ url('user/1') }}">
@@ -660,15 +441,47 @@ prefix a package puts on its controllers.
     @enderror
 </form>
 
-@auth
-    <p>Hello, {{ Auth::user()->name }}.</p>
-@endauth
-
-@guest
-    <a href="{{ url('login') }}">Login</a>
-@endguest
-
 <script>
     var user = @json($user);
 </script>
 ```
+
+<a id="controller-layouts"></a>
+
+## Controller Layouts
+
+A controller can set a `$layout` property instead of every action building the
+layout. Rakit turns it into a `View` instance, and an action that returns
+nothing sends the layout:
+
+```php
+class Home_Controller extends Controller
+{
+    public $layout = 'layouts.master';
+
+    public function action_about()
+    {
+        $this->layout->title = 'About Us';
+        $this->layout->nest('content', 'home.about', ['team' => $team]);
+    }
+}
+```
+
+Use `'name: layout'` to refer to a [named view](/docs/views#named-views).
+
+<a id="extending-blade"></a>
+
+## Extending Blade
+
+`Blade::extend()` registers a custom compiler. It receives the template source
+and must return it, typically after a `preg_replace()`:
+
+```php
+// application/boot.php
+Blade::extend(function ($value) {
+    return preg_replace('/@datetime\((.+?)\)/', '<?php echo date("Y-m-d H:i", $1); ?>', $value);
+});
+```
+
+Compiled views are reused until the template changes. Run
+`php rakit clear:views` to clear them.

@@ -13,159 +13,107 @@
 
 ## Basic Knowledge
 
-`Lang` organizes and retrieves the text of an application translated into several
-languages.
-
-Language files live in `application/language/`, one folder per language. `en/` and
-`id/` ship by default; add the others you need.
-
-Each file returns an associative array, the same shape as a configuration file. For
-example, `application/language/en/marketing.php`:
-
-#### Creating a language file:
+The `Lang` class retrieves your application's text in several languages. Language
+files live in `application/language/`, one folder per language (`en/` and `id/`
+ship by default). Each file returns an array, like a config file:
 
 ```php
+// application/language/en/marketing.php
 return [
+    'welcome' => 'Welcome to our website!',
+];
 
-	'welcome' => 'Welcome to our website!',
-
+// application/language/id/marketing.php
+return [
+    'welcome' => 'Selamat datang di situs kami!',
 ];
 ```
 
-The same file in `application/language/id/`:
-
-```php
-return [
-
-	'welcome' => 'Selamat datang di situs kami!',
-
-];
-```
+The default language is the `language` option in
+`application/config/application.php`; the `languages` option lists the other
+supported languages.
 
 <a id="retrieving-language-lines"></a>
 
 ## Retrieving Language Lines
 
-#### Retrieving a language line:
+The part before the first dot is the file name, the rest is the key (nested keys
+use more dots, e.g. `messages.user.welcome`):
 
 ```php
 echo Lang::line('marketing.welcome')->get();
-```
 
-#### Retrieving a language line using helper for shorter writing:
-
-```php
+// Shorter, with the trans() helper (or its alias __())
 echo trans('marketing.welcome');
 ```
 
-The part before the dot is the file name, the rest is the key inside it.
-
-#### Retrieving a line with default fallback:
-
-```php
-// If the line is not found, return the default value
-echo Lang::line('marketing.nonexistent')->get(null, 'Default Text');
-```
-
-To read a line in another language, name it in `get()`:
-
-#### Retrieving a line in a specific language:
+`trans()` and `__()` return the translated string (like Laravel). `Lang::line()` returns
+a `Lang` object that turns into a string when echoed; call `get()` when you need the
+string itself. `get()` takes an optional
+language and a default for a missing line (otherwise the key is returned):
 
 ```php
 echo Lang::line('marketing.welcome')->get('fr');
+
+echo Lang::line('marketing.nonexistent')->get(null, 'Default Text');
 ```
 
-#### Checking if a language line exists:
+Check whether a line exists, optionally in a given language:
 
 ```php
-// Check if the language line is available
 if (Lang::has('marketing.welcome')) {
-    echo 'Language line available';
+    // ..
 }
 
-// Check in a specific language
 if (Lang::has('marketing.welcome', 'fr')) {
-    echo 'Language line available in French';
+    // ..
 }
 ```
+
+Package language files are reached with the `package::` prefix, e.g.
+`Lang::line('admin::themes.default_theme')`.
 
 <a id="placeholder--replacement"></a>
 
 ## Placeholder & Replacement
 
-A line such as _"Welcome to our website!"_ is often too general, but writing one per
-user is not an option. Instead, a line may carry _placeholders_, written with a
-leading colon (`:`), that are filled in when the line is read.
-
-#### Creating a language line with placeholders:
+A line may contain placeholders prefixed with a colon, filled in when the line is
+read:
 
 ```php
-'welcome' => 'Welcome to our website, :name!'
+// application/language/en/marketing.php
+return [
+    'welcome' => 'Welcome to our website, :name!',
+    'order_summary' => 'Hello :name, your order for :count items with total :price',
+];
 ```
-
-#### Retrieving a language line with replacement:
 
 ```php
 echo Lang::line('marketing.welcome', ['name' => 'John'])->get();
-```
 
-#### Retrieving a language line with replacement using helper:
-
-```php
-echo trans('marketing.welcome', ['name' => 'John']);
-```
-
-#### Using multiple placeholders:
-
-```php
-// File: application/language/id/marketing.php
-return [
-    'order_summary' => 'Hello :name, your order for :count items with total :price',
-];
-
-// Usage:
 echo trans('marketing.order_summary', [
     'name' => 'John',
     'count' => 5,
     'price' => 'Rp 150.000',
 ]);
-
-// Output: "Hello John, your order for 5 items with total Rp 150.000"
+// Hello John, your order for 5 items with total Rp 150.000
 ```
 
-#### Using nested keys:
-
-```php
-// File: application/language/id/messages.php
-return [
-    'user' => [
-        'welcome' => 'Welcome back, :name!',
-        'goodbye' => 'Goodbye, :name!',
-    ],
-];
-
-// Usage with dot notation:
-echo trans('messages.user.welcome', ['name' => 'John']);
-```
+`trans()` also accepts the language as its third argument.
 
 <a id="locale-from-the-uri"></a>
 
 ## Locale From The URI
 
-A URI that starts with one of the languages listed under the `languages` config
-key sets the language for the request and takes that segment off the URI: a
-request to `/id/welcome` runs the `welcome` route in `id`.
+When the request URI starts with a language from the `languages` option (or the
+default `language`), that language is used for the request and the segment is
+removed from the URI: `/id/welcome` runs the `welcome` route in `id`. Workers do
+the same for every request they serve.
 
-The change is announced as `rakit.locale`, so packages and application code may
-follow along:
+The change fires the `rakit.locale` event:
 
 ```php
 Hook::listen('rakit.locale', function ($locale) {
     // $locale holds the language now in use
 });
 ```
-
-> The same goes for workers: every request the worker serves picks its locale
-> the same way and announces it.
-
-> **Note:** The application's default language can be set in the `application/config/application.php` file under the `'language'` key. The list of available languages is set under the `'languages'` key.

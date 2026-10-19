@@ -2,918 +2,323 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
+- [Introduction](#introduction)
 - [Retrieving Input](#retrieving-input)
-  - [Get All Input](#get-all-input)
-  - [Get Specific Input](#get-specific-input)
-  - [Get with Default Value](#get-with-default-value)
+  - [All Input](#all-input)
+  - [A Single Value](#a-single-value)
   - [Only & Except](#only--except)
+  - [Typed Input](#typed-input)
+  - [Query String](#query-string)
+  - [JSON Input](#json-input)
 - [Input Presence](#input-presence)
-  - [Check Input Exists](#check-input-exists)
-  - [Check Input Filled](#check-input-filled)
-  - [Check Input Empty](#check-input-empty)
-- [Typed Input](#typed-input)
-- [Query String](#query-string)
-- [JSON Input](#json-input)
-- [File Upload](#file-upload)
-  - [Get Uploaded File](#get-uploaded-file)
-  - [Check File Exists](#check-file-exists)
-  - [Upload File](#upload-file)
-  - [File Information](#file-information)
-  - [File Validation](#file-validation)
+- [File Uploads](#file-uploads)
+  - [Retrieving Files](#retrieving-files)
+  - [Storing Files](#storing-files)
 - [Old Input](#old-input)
-  - [Flash Input](#flash-input)
-  - [Retrieve Old Input](#retrieve-old-input)
-  - [Flash with Filter](#flash-with-filter)
-  - [Clear Old Input](#clear-old-input)
-- [Redirect with Old Input](#redirect-with-old-input)
-- [Input Manipulation](#input-manipulation)
-  - [Merge Input](#merge-input)
-  - [Replace Input](#replace-input)
-  - [Clear Input](#clear-input)
+- [Modifying Input](#modifying-input)
 - [Cookies](#cookies)
-  - [Get Cookie](#get-cookie)
-  - [Set Cookie](#set-cookie)
-  - [Delete Cookie](#delete-cookie)
-  - [Forever Cookie](#forever-cookie)
-- [Practical Examples](#practical-examples)
+  - [Reading Cookies](#reading-cookies)
+  - [Setting Cookies](#setting-cookies)
+  - [Deleting Cookies](#deleting-cookies)
+- [Example](#example)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
-## Basic Knowledge
+## Introduction
 
-`Input` is a single, consistent API for reading data the client sent with the
-request — query string, form fields, JSON body, and uploaded files. It also
-exposes flash ("old") input for redirect-after-validation flows.
+`Input` reads everything the client sent: query string, form fields, JSON body and uploaded
+files. It also handles flashed ("old") input for redirect-after-validation flows. `Cookie`
+reads and writes encrypted cookies.
 
-> **Security note:** `Input` returns raw values. It does not sanitize or escape
-> them. Always escape on output (Blade does this by default with `{{ ... }}`)
-> and bind values via prepared statements when querying the database.
+When the same key appears in both the body and the query string, the body wins — consistently
+across every method.
 
-> When the same name appears in both the body and the query string, the body
-> wins. Every method here reads it the same way, so what you validate with
-> `Input::all()` is what you read back with `Input::get()`.
+> `Input` returns raw values; it does not sanitize anything. Escape on output (Blade's `{{ }}`
+> does this) and bind values in queries.
 
 <a id="retrieving-input"></a>
 ## Retrieving Input
 
+<a id="all-input"></a>
 <a id="get-all-input"></a>
-### Get All Input
-
-**Get all input from request:**
+### All Input
 
 ```php
-// All input (GET, POST, FILES)
-$input = Input::all();
-
-// Only GET and POST (excluding FILES)
-$input = Input::get();
+$input = Input::all(); // query + body + files
+$input = Input::get(); // query + body, without files
 ```
 
-**Example:**
+Never pass the whole request to a model; pick the fields you accept:
 
 ```php
-// Model::$guarded defaults to ['*'], so this sets nothing unless User
-// declares $fillable — and if it does, it hands the whole request body
-// to whatever that list allows.
-// $data = Input::all(); User::create($data);
-
-// secure — explicit allowlist, whatever the model allows
-$data = Input::only('name', 'email', 'password');
-User::create($data);
-
-// Or assignment per-attribute
-$user = new User;
-$user->name = Input::get('name');
-$user->email = Input::get('email');
-$user->save();
+User::create(Input::only('name', 'email', 'password'));
 ```
 
+<a id="a-single-value"></a>
 <a id="get-specific-input"></a>
-### Get Specific Input
-
-**Get input based on key:**
-
-```php
-$name = Input::get('name');
-$email = Input::get('email');
-$age = Input::get('age');
-```
-
-**Nested input:**
-
-```php
-// Input: user[name], user[email]
-$user_name = Input::get('user.name');
-$user_email = Input::get('user.email');
-
-// Array input
-$tags = Input::get('tags'); // Array
-$first_tag = Input::get('tags.0');
-```
-
 <a id="get-with-default-value"></a>
-### Get with Default Value
+### A Single Value
 
-**Default value if input does not exist:**
-
-```php
-$name = Input::get('name', 'Anonymous');
-$page = Input::get('page', 1);
-$per_page = Input::get('per_page', 20);
-```
-
-**Default value with closure:**
+`get()` works the same for any HTTP method. Use dot notation for nested arrays, and pass a
+default (or a closure returning one) for missing keys:
 
 ```php
+$name  = Input::get('name');
+$email = Input::get('user.email');   // user[email]
+$tag   = Input::get('tags.0');
+$page  = Input::get('page', 1);
+
 $name = Input::get('name', function () {
-    return 'Guest User';
-});
-
-$user_id = Input::get('user_id', function () {
-    return Auth::user()->id;
+    return 'Guest';
 });
 ```
 
 <a id="only--except"></a>
 ### Only & Except
 
-**Get only specific input:**
+Both accept a list of arguments or a single array:
 
 ```php
-// Single argument
 $credentials = Input::only('email', 'password');
-
-// Array argument
-$credentials = Input::only(['email', 'password']);
-
-// Result: ['email' => '...', 'password' => '...']
-```
-
-**Get all except specific input:**
-
-```php
-// Exclude _token and _method
-$data = Input::except('_token', '_method');
-
-// Array argument
 $data = Input::except(['_token', '_method']);
 ```
 
-**Practical example:**
-
-```php
-// Login
-$credentials = Input::only('email', 'password');
-if (Auth::attempt($credentials)) {
-    return Redirect::to('dashboard');
-}
-
-// Update profile (exclude protected fields)
-$data = Input::except('id', 'password', 'remember_token');
-User::update(Auth::user()->id, $data);
-```
-
-<a id="input-presence"></a>
-## Input Presence
-
-<a id="check-input-exists"></a>
-### Check Input Exists
-
-**Check if input exists and is not empty:**
-
-```php
-if (Input::has('email')) {
-    $email = Input::get('email');
-}
-
-// Multiple check
-if (Input::has('name') && Input::has('email')) {
-    // Both exist
-}
-```
-
-**Note:** `has()` returns `false` if the value is an empty string.
-
-<a id="check-input-filled"></a>
-### Check Input Filled
-
-**Check if input exists and has a value:**
-
-```php
-// Single check
-if (Input::filled('name')) {
-    echo 'Name is filled';
-}
-
-// Multiple check
-if (Input::filled('name', 'email', 'phone')) {
-    echo 'All fields are filled';
-}
-```
-
-<a id="check-input-empty"></a>
-### Check Input Empty
-
-**Check if input is empty:**
-
-```php
-if (Input::unfilled('optional_field')) {
-    echo 'Field is empty or not present';
-}
-
-// Multiple check
-if (Input::unfilled('field1', 'field2')) {
-    echo 'At least one field is empty';
-}
-```
-
 <a id="typed-input"></a>
-## Typed Input
+### Typed Input
 
-Form values always arrive as strings. These helpers hand them back already converted, with
-a default for when the key is absent or does not fit:
+Form values always arrive as strings. These helpers convert them, falling back to a default
+when the key is absent or the value does not fit:
 
 ```php
-Input::string('name');            // '' when absent
+Input::string('name');          // '' when absent
 Input::string('name', 'Anon');
-
-Input::integer('age');            // 0 when absent or not numeric
+Input::integer('age');          // 0 when absent or not numeric
 Input::integer('age', 17);
-
-Input::float('price');            // 0.0 when absent or not numeric
-
-Input::boolean('agree');          // '1', 'true', 'on' and 'yes' are TRUE,
-                                  // everything else is FALSE
-Input::boolean('agree', true);    // default used only when the key is absent
-
-Input::date('born');              // a Carbon instance, or NULL
-Input::date('born', 'd/m/Y');     // parse with an explicit format
-
-Input::arr('tags');               // always an array
-Input::collect();                 // every input as a Collection
-Input::collect('tags');           // a single key as a Collection
+Input::float('price');          // 0.0 when absent or not numeric
+Input::boolean('agree');        // TRUE only for '1', 'true', 'on', 'yes'
+Input::boolean('agree', true);  // default used only when the key is absent
+Input::date('born');            // Carbon instance, or NULL when empty/unparseable
+Input::date('born', 'd/m/Y');   // parse with an explicit format
+Input::arr('tags');             // always an array
+Input::collect();               // all input as a Collection
+Input::collect('tags');         // one key as a Collection
 ```
 
-`Input::boolean()` is the one to reach for with checkboxes, since an unchecked box sends
-nothing at all while a checked one sends `on` or `1`:
+`boolean()` suits checkboxes: an unchecked box sends nothing, a checked one sends `on` or `1`.
 
 ```php
 $user->subscribed = Input::boolean('newsletter');
 ```
 
-**Other presence helpers:**
-
-```php
-Input::keys();                       // every input key
-Input::missing('coupon');            // TRUE when the key is absent or empty
-Input::missing(['coupon', 'note']);  // TRUE only when all of them are absent or empty
-Input::any_filled(['phone', 'email']); // TRUE when at least one is filled
-```
-
 <a id="query-string"></a>
-## Query String
+### Query String
 
-**Get parameters from query string:**
+To read only from the query string:
 
 ```php
-// URL: /search?q=keyword&page=2
-
-$query = Input::query('q');
-// "keyword"
-
-$page = Input::query('page', 1);
-// "2" (query values are strings)
-
-// Get all query parameters
-$params = Input::query();
-// ['q' => 'keyword', 'page' => '2']
+// /search?q=keyword&page=2
+$q      = Input::query('q');        // 'keyword'
+$page   = Input::query('page', 1);  // '2' (strings)
+$params = Input::query();           // all query parameters
 ```
 
 <a id="json-input"></a>
-## JSON Input
+### JSON Input
 
-**Get JSON input from request body:**
-
-```php
-// Request Content-Type: application/json
-// Body: {"name": "John", "email": "john@example.com"}
-
-// As array (default)
-$data = Input::json();
-echo $data['name']; // "John"
-
-// As object
-$data = Input::json(true);
-echo $data->name; // "John"
-echo $data->email; // "john@example.com"
-```
-
-**Example API endpoint:**
+For JSON requests the decoded body is already part of `get()`, `all()` and friends. To read the
+raw payload directly:
 
 ```php
-Route::post('api/users', function () {
-    $data = Input::json(false);
-
-    $user = User::create([
-        'name' => $data['name'],
-        'email' => $data['email'],
-    ]);
-
-    return Response::json($user, 201);
-});
+$data = Input::json();      // array
+$data = Input::json(true);  // object
 ```
 
+<a id="input-presence"></a>
+<a id="check-input-exists"></a>
+<a id="check-input-filled"></a>
+<a id="check-input-empty"></a>
+## Input Presence
+
+A value counts as present when it is not `null`, not an empty/whitespace string and not an
+empty array.
+
+```php
+Input::has('email');                      // present
+Input::filled('name', 'email');           // all present (also takes an array)
+Input::unfilled('name', 'email');         // at least one is not present
+Input::any_filled(['phone', 'email']);    // at least one present
+Input::missing('coupon');                 // absent or empty
+Input::missing(['coupon', 'note']);       // all absent or empty
+Input::keys();                            // every input key
+```
+
+<a id="file-uploads"></a>
 <a id="file-upload"></a>
-## File Upload
+## File Uploads
 
+<a id="retrieving-files"></a>
 <a id="get-uploaded-file"></a>
-### Get Uploaded File
-
-**Get file from input:**
-
-```php
-// Get file object
-$file = Input::file('avatar');
-
-// Get all files
-$files = Input::file();
-```
-
 <a id="check-file-exists"></a>
-### Check File Exists
+<a id="file-information"></a>
+### Retrieving Files
+
+`file()` returns the raw `$_FILES` entry; dot notation reaches its fields:
 
 ```php
 if (Input::has_file('avatar')) {
-    $file = Input::file('avatar');
-    // Process file
+    $file = Input::file('avatar');        // ['name', 'type', 'size', 'tmp_name', 'error']
+    $size = Input::file('avatar.size');   // bytes
 }
+
+$files = Input::file();                   // every uploaded file
 ```
 
+<a id="storing-files"></a>
 <a id="upload-file"></a>
-### Upload File
-
-**Upload file to directory:**
-
-```php
-// Upload with the temporary file name
-// (returns the full path of the moved file, or FALSE when nothing was uploaded)
-$filename = Input::upload('avatar', path('storage') . 'uploads');
-
-// Upload with custom name
-$filename = Input::upload('avatar', path('storage') . 'uploads', 'custom-name.jpg');
-```
-
-**Complete example:**
-
-```php
-Route::post('profile/avatar', function () {
-    if (!Input::has_file('avatar')) {
-        return Redirect::back()->with('error', 'No file uploaded');
-    }
-
-    // Validate file
-    $rules = ['avatar' => 'required|image|max:2048'];
-    $validation = Validator::make(Input::all(), $rules);
-
-    if ($validation->fails()) {
-        return Redirect::back()->with_errors($validation);
-    }
-
-    // Upload file
-    $filename = Input::upload('avatar', path('storage') . 'avatars');
-
-    // Update user
-    Auth::user()->avatar = $filename;
-    Auth::user()->save();
-
-    return Redirect::back()->with('message', 'Avatar updated!');
-});
-```
-
-<a id="file-information"></a>
-### File Information
-
-**Get file information:**
-
-```php
-$file = Input::file('document');
-
-// File name
-$name = $file['name'];
-
-// File type
-$type = $file['type'];
-
-// File size (bytes)
-$size = $file['size'];
-
-// Temporary path
-$tmp_path = $file['tmp_name'];
-
-// Error code
-$error = $file['error'];
-```
-
-**Specific information:**
-
-```php
-// Get size only
-$size = Input::file('document.size');
-
-// Get type only
-$type = Input::file('document.type');
-
-// Get name only
-$name = Input::file('document.name');
-```
-
 <a id="file-validation"></a>
-### File Validation
+### Storing Files
+
+`upload()` moves the file and returns its full path, or `FALSE` when nothing was uploaded. The
+third argument sets the file name:
 
 ```php
-Route::post('upload', function () {
-    $rules = [
-        'document' => 'required|mimes:pdf,doc,docx|max:5120', // 5MB
-        'image' => 'required|image|max:2048', // 2MB
-    ];
-
-    $validation = Validator::make(Input::all(), $rules);
-
-    if ($validation->fails()) {
-        return Redirect::back()
-            ->with_input()
-            ->with_errors($validation);
-    }
-
-    // Upload files
-    $doc_path = Input::upload('document', path('storage') . 'documents');
-    $img_path = Input::upload('image', path('storage') . 'images');
-
-    return Redirect::back()->with('message', 'Files uploaded!');
-});
+$path = Input::upload('avatar', path('storage').'avatars');
+$path = Input::upload('avatar', path('storage').'avatars', 'user-1.jpg');
 ```
+
+The directory is created if it does not exist, and must be inside the application's base,
+storage or assets path. Files exceeding the upload size limit, or whose name contains a
+script/executable extension (`php`, `phtml`, `phar`, `js`, `html`, `svg`, `sh`, `exe`, ...),
+are rejected with an exception. Validate type and size first with the
+[validator](/docs/validation#validating-files), e.g. `'avatar' => 'required|image|max:2048'`.
 
 <a id="old-input"></a>
+<a id="flash-input"></a>
+<a id="retrieve-old-input"></a>
+<a id="flash-with-filter"></a>
+<a id="clear-old-input"></a>
+<a id="redirect-with-old-input"></a>
 ## Old Input
 
-<a id="flash-input"></a>
-### Flash Input
-
-**Flash input to session:**
+Flash input to the session so a form can be refilled after a failed validation. Usually you do
+it through the redirect:
 
 ```php
-// Flash all input
-Input::flash();
-
-// Use in form to preserve input when validation fails
-return Redirect::back()->with_input();
+return Redirect::back()->with_input()->with_errors($validation);
+return Redirect::back()->with_input('except', ['password']);
 ```
 
-<a id="retrieve-old-input"></a>
-### Retrieve Old Input
-
-**Get old input from flash data:**
+Or directly:
 
 ```php
-$name = Input::old('name');
-$email = Input::old('email');
-
-// With default value
-$country = Input::old('country', 'ID');
+Input::flash();                              // all input
+Input::flash('only', ['name', 'email']);
+Input::flash('except', ['password']);
+Input::flush();                              // clear flashed input
 ```
 
-**In view:**
+Read it back on the next request:
 
 ```php
-<input type="text" name="name" value="<?php echo Input::old('name'); ?>">
-<input type="email" name="email" value="<?php echo Input::old('email'); ?>">
+Input::old('name');
+Input::old('country', 'ID');
+Input::had('email');   // was it present in the old input?
 ```
-
-**With Blade:**
 
 ```blade
 <input type="text" name="name" value="{{ Input::old('name') }}">
-<input type="email" name="email" value="{{ Input::old('email') }}">
 ```
 
-**Check old input exists:**
-
-```php
-if (Input::had('email')) {
-    echo 'Email was submitted before';
-}
-```
-
-<a id="flash-with-filter"></a>
-### Flash with Filter
-
-**Flash only specific input:**
-
-```php
-// Flash only
-Input::flash('only', ['name', 'email']);
-
-// Flash except
-Input::flash('except', ['password', '_token']);
-```
-
-<a id="clear-old-input"></a>
-### Clear Old Input
-
-```php
-// Clear old input from session
-Input::flush();
-```
-
-<a id="redirect-with-old-input"></a>
-## Redirect with Old Input
-
-**Common pattern for form validation:**
-
-```php
-Route::post('register', function () {
-    $rules = [
-        'name' => 'required|min:3',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:8|confirmed',
-    ];
-
-    $validation = Validator::make(Input::all(), $rules);
-
-    if ($validation->fails()) {
-        return Redirect::back()
-            ->with_input()  // Flash input
-            ->with_errors($validation);
-    }
-
-    // Create user — allowlist, independent of what the model allows
-    $user = User::create(Input::only('name','email','password'));
-
-    return Redirect::to('login')
-        ->with('message', 'Registration successful!');
-});
-```
-
-**In view to show old input:**
-
-```php
-<form method="POST" action="/register">
-    <input type="text" name="name" value="<?php echo Input::old('name'); ?>">
-    <?php if ($errors->has('name')): ?>
-        <span class="error"><?php echo $errors->first('name'); ?></span>
-    <?php endif; ?>
-
-    <input type="email" name="email" value="<?php echo Input::old('email'); ?>">
-    <?php if ($errors->has('email')): ?>
-        <span class="error"><?php echo $errors->first('email'); ?></span>
-    <?php endif; ?>
-
-    <input type="password" name="password">
-    <?php if ($errors->has('password')): ?>
-        <span class="error"><?php echo $errors->first('password'); ?></span>
-    <?php endif; ?>
-
-    <button type="submit">Register</button>
-</form>
-```
-
+<a id="modifying-input"></a>
 <a id="input-manipulation"></a>
-## Input Manipulation
-
 <a id="merge-input"></a>
-### Merge Input
-
-**Merge data into input:**
-
-```php
-// Add/merge data
-Input::merge(['role' => 'user', 'active' => 1]);
-
-// Now Input::get('role') will return 'user'
-```
-
-**Example:**
-
-```php
-Route::post('users', function () {
-    // Auto-add server-controlled fields — never merge client-controlled role/privilege
-    $data = array_merge(Input::only('name','email'), [
-        'user_id' => Auth::user()->id,
-    ]);
-    // $fillable on User must list only safe fields; role/admin is never named
-    User::create($data);
-});
-```
-
 <a id="replace-input"></a>
-### Replace Input
-
-**Replace all input:**
-
-```php
-// Replace entire input
-Input::replace([
-    'name' => 'New Name',
-    'email' => 'new@example.com',
-]);
-```
-
 <a id="clear-input"></a>
-### Clear Input
+## Modifying Input
 
 ```php
-// Clear all input
-Input::clear();
+Input::merge(['active' => 1]);                 // add or overwrite keys
+Input::replace(['name' => 'New', 'email' => 'new@example.com']);  // replace all body input
+Input::clear();                                // remove all body input
 ```
 
 <a id="cookies"></a>
 ## Cookies
 
+Cookie values are encrypted and bound to the cookie name, so a tampered value, or one copied
+from another cookie, reads as `null`.
+
+<a id="reading-cookies"></a>
 <a id="get-cookie"></a>
-### Get Cookie
-
-**Get cookie value:**
+### Reading Cookies
 
 ```php
-$value = Cookie::get('name');
-
-// With default value
+$theme = Cookie::get('theme');
 $theme = Cookie::get('theme', 'light');
-```
 
-**Check cookie exists:**
-
-```php
-if (Cookie::has('user_preferences')) {
-    $prefs = Cookie::get('user_preferences');
+if (Cookie::has('theme')) {
+    // ...
 }
 ```
 
+<a id="setting-cookies"></a>
 <a id="set-cookie"></a>
-### Set Cookie
-
-**Set cookie with expiration:**
-
-```php
-// Set cookie (expires in 60 minutes)
-Cookie::put('name', 'value', 60);
-
-// Set cookie with path and domain
-Cookie::put('name', 'value', 60, '/', '.example.com');
-
-// Set secure cookie (HTTPS only)
-Cookie::put('name', 'value', 60, '/', null, true);
-
-// Set samesite attribute ('lax' (default), 'strict' or 'none')
-Cookie::put('name', 'value', 60, '/', null, false, 'strict');
-```
-
-> Cookies set through `Cookie` are always sent with the `HttpOnly` flag.
-
-> The name, the path and the domain are rejected when they carry a separator, a
-> space or a line break — the characters that would end the attribute, or the
-> header, early. The value needs no such care, it is encrypted and URL-encoded
-> before it reaches the header.
-
-<a id="delete-cookie"></a>
-### Delete Cookie
-
-**Forget (delete) cookie:**
-
-```php
-Cookie::forget('name');
-```
-
 <a id="forever-cookie"></a>
-### Forever Cookie
-
-**Set cookie that never expires (5 years):**
+### Setting Cookies
 
 ```php
-Cookie::forever('remember_token', $token);
-
-// Same as
-Cookie::put('remember_token', $token, 2628000); // 5 years in minutes
+Cookie::put($name, $value, $minutes = 0, $path = '/', $domain = null, $secure = false, $samesite = 'lax');
 ```
 
+`$minutes = 0` makes a session cookie. `$samesite` is `lax`, `strict` or `none` (`null` uses
+`session.samesite`).
+
+```php
+Cookie::put('theme', 'dark', 60);
+Cookie::put('theme', 'dark', 60, '/', '.example.com');
+Cookie::put('theme', 'dark', 60, '/', null, true);            // HTTPS only
+Cookie::put('theme', 'dark', 60, '/', null, false, 'strict');
+
+Cookie::forever('remember', $token);   // 5 years (2628000 minutes)
+```
+
+> Cookies are always `HttpOnly`. The value must be a string. The name may only contain
+> letters, digits, `_`, `.` and `-`; the path and domain must not contain separators, spaces
+> or line breaks; and a `$secure` cookie throws an exception when set over plain HTTP.
+
+<a id="deleting-cookies"></a>
+<a id="delete-cookie"></a>
+### Deleting Cookies
+
+```php
+Cookie::forget('theme');   // takes the same path/domain/secure/samesite arguments as put()
+Cookie::flush();           // discard every cookie queued in this request
+```
+
+<a id="example"></a>
 <a id="practical-examples"></a>
-## Practical Examples
-
-**Form with validation and old input:**
-
-```php
-// Controller
-Route::post('contact', function () {
-    $rules = [
-        'name' => 'required|min:3',
-        'email' => 'required|email',
-        'message' => 'required|min:10',
-    ];
-
-    $validation = Validator::make(Input::all(), $rules);
-
-    if ($validation->fails()) {
-        return Redirect::back()
-            ->with_input()
-            ->with_errors($validation);
-    }
-
-    // Send email
-    $body = View::make('emails.contact', Input::all())->render();
-
-    Email::to('admin@example.com')
-        ->subject('New Contact Message')
-        ->html_body($body)
-        ->send();
-
-    return Redirect::back()
-        ->with('message', 'Message sent successfully!');
-});
-```
-
-**View:**
-
-```php
-<form method="POST" action="/contact">
-    <?php if (Session::has('message')): ?>
-        <div class="alert alert-success">
-            <?php echo Session::get('message'); ?>
-        </div>
-    <?php endif; ?>
-
-    <div>
-        <label>Name:</label>
-        <input type="text" name="name" value="<?php echo Input::old('name'); ?>">
-        <?php if ($errors->has('name')): ?>
-            <span class="error"><?php echo $errors->first('name'); ?></span>
-        <?php endif; ?>
-    </div>
-
-    <div>
-        <label>Email:</label>
-        <input type="email" name="email" value="<?php echo Input::old('email'); ?>">
-        <?php if ($errors->has('email')): ?>
-            <span class="error"><?php echo $errors->first('email'); ?></span>
-        <?php endif; ?>
-    </div>
-
-    <div>
-        <label>Message:</label>
-        <textarea name="message"><?php echo Input::old('message'); ?></textarea>
-        <?php if ($errors->has('message')): ?>
-            <span class="error"><?php echo $errors->first('message'); ?></span>
-        <?php endif; ?>
-    </div>
-
-    <button type="submit">Send</button>
-</form>
-```
-
-**File upload with preview:**
+## Example
 
 ```php
 Route::post('products', function () {
-    $rules = [
-        'name' => 'required',
+    $validation = Validator::make(Input::all(), [
+        'name'  => 'required',
         'price' => 'required|numeric',
         'image' => 'required|image|max:2048',
-    ];
-
-    $validation = Validator::make(Input::all(), $rules);
-
-    if ($validation->fails()) {
-        return Redirect::back()
-            ->with_input('except', ['image'])
-            ->with_errors($validation);
-    }
-
-    // Upload image
-    $image_path = Input::upload('image', path('public') . 'products');
-
-    // Create product
-    Product::create([
-        'name' => Input::get('name'),
-        'price' => Input::get('price'),
-        'image' => $image_path,
     ]);
 
-    return Redirect::to('products')
-        ->with('message', 'Product created!');
-});
-```
-
-**API with JSON input:**
-
-```php
-Route::post('api/posts', function () {
-    // Get JSON input
-    $data = Input::json(false);
-
-    // Validate
-    $rules = [
-        'title' => 'required|max:255',
-        'content' => 'required',
-    ];
-
-    $validation = Validator::make($data, $rules);
-
     if ($validation->fails()) {
-        return Response::json([
-            'error' => 'Validation failed',
-            'messages' => $validation->errors->all(),
-        ], 422);
+        return Redirect::back()->with_input('except', ['image'])->with_errors($validation);
     }
 
-    // Create post
-    $post = Post::create($data);
+    Product::create([
+        'name'  => Input::string('name'),
+        'price' => Input::float('price'),
+        'image' => Input::upload('image', path('storage').'products'),
+    ]);
 
-    return Response::json($post, 201);
-});
-```
-
-**Remember user preferences with cookie:**
-
-```php
-// Save preference
-Route::post('preferences', function () {
-    $theme = Input::get('theme', 'light');
-    $language = Input::get('language', 'id');
-
-    Cookie::put('theme', $theme, 43200); // 30 days
-    Cookie::put('language', $language, 43200);
-
-    return Redirect::back()->with('message', 'Preferences saved!');
-});
-
-// Load preference
-$theme = Cookie::get('theme', 'light');
-$language = Cookie::get('language', 'id');
-
-View::share('theme', $theme);
-View::share('language', $language);
-```
-
-**Search with query string:**
-
-```php
-Route::get('products', function () {
-    $query = (new Product())->query();
-
-    // Search — use binding, LIKE is safe via binding (value is parameterized)
-    if (Input::has('q')) {
-        $keyword = Input::get('q');
-        $query->where('name', 'like', "%$keyword%");
-    }
-
-    // Filter by category — validate as integer
-    if (Input::has('category')) {
-        $query->where('category_id', '=', (int) Input::get('category'));
-    }
-
-    // Sort — the direction is validated, but the column still has to be allowlisted
-    $allowedSorts = ['name','price','created_at'];
-    $allowedDirs  = ['asc','desc'];
-    $sort_by = Input::get('sort', 'created_at');
-    $sort_by = in_array($sort_by, $allowedSorts) ? $sort_by : 'created_at';
-    $sort_dir = strtolower(Input::get('dir', 'desc'));
-    $sort_dir = in_array($sort_dir, $allowedDirs) ? $sort_dir : 'desc';
-    $query->order_by($sort_by, $sort_dir);
-
-    // Paginate
-    $per_page = Input::get('per_page', 20);
-    $products = $query->paginate($per_page);
-
-    return View::make('products.index', compact('products'));
-});
-```
-
-**Bulk operations:**
-
-```php
-Route::post('users/bulk-action', function () {
-    $action = Input::get('action');
-    $user_ids = Input::get('users', []);
-
-    if (empty($user_ids)) {
-        return Redirect::back()->with('error', 'No users selected');
-    }
-
-    switch ($action) {
-        case 'activate':
-            User::where_in('id', $user_ids)->update(['active' => 1]);
-            break;
-
-        case 'deactivate':
-            User::where_in('id', $user_ids)->update(['active' => 0]);
-            break;
-
-        case 'delete':
-            User::where_in('id', $user_ids)->delete();
-            break;
-    }
-
-    return Redirect::back()->with('message', 'Action completed!');
+    return Redirect::to('products')->with('message', 'Product created!');
 });
 ```

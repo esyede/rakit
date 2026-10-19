@@ -6,50 +6,19 @@
 - [Running Commands](#running-commands)
 - [Available Commands](#available-commands)
   - [Clear Commands](#clear-commands)
-    - [clear:cache](#clearcache)
-    - [clear:views](#clearviews)
-    - [clear:logs](#clearlogs)
   - [Fiddle Commands](#fiddle-commands)
     - [fiddle](#fiddle)
   - [Job Commands](#job-commands)
-    - [job:run](#jobrun)
-    - [job:runall](#jobrunall)
   - [Make Commands](#make-commands)
-    - [make:controller](#makecontroller)
-    - [make:resource](#makeresource)
-    - [make:model](#makemodel)
-    - [make:migration](#makemigration)
-    - [make:command](#makecommand)
-    - [make:job](#makejob)
-    - [make:observer](#makeobserver)
-    - [make:transformer](#maketransformer)
     - [make:component](#makecomponent)
-    - [make:test](#maketest)
     - [make:auth](#makeauth)
   - [Migration Commands](#migration-commands)
-    - [migrate](#migrate)
-    - [migrate:rollback](#migraterollback)
-    - [migrate:reset](#migratereset)
-    - [migrate:refresh](#migraterefresh)
   - [Package Commands](#package-commands)
-    - [package:install](#packageinstall)
-    - [package:uninstall](#packageuninstall)
-    - [package:upgrade](#packageupgrade)
-    - [package:publish](#packagepublish)
-    - [package:unpublish](#packageunpublish)
   - [Routing Commands](#routing-commands)
-    - [route:call](#routecall)
-    - [route:list](#routelist)
   - [Session Commands](#session-commands)
-    - [session:gc](#sessiongc)
   - [Test Commands](#test-commands)
-    - [test:run](#testrun)
-    - [test:core](#testcore)
-    - [test:package](#testpackage)
   - [Webserver Commands](#webserver-commands)
-    - [serve](#serve)
   - [Websocket Commands](#websocket-commands)
-    - [websocket:run](#websocketrun)
 - [Global Options](#global-options)
 - [Creating Custom Commands](#creating-custom-commands)
   - [Command Structure](#command-structure)
@@ -60,76 +29,54 @@
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
+
 ## Basic Knowledge
 
-The console is a CLI tool for the everyday work of building an application: creating controllers, models and migrations, running migrations, clearing caches and more.
-
-The console can be accessed through the `rakit` file in your project's root directory.
+The console is Rakit's command-line tool for everyday development tasks: generating controllers, models and migrations, running migrations and jobs, clearing caches, and more. It is the `rakit` file in the project root.
 
 <a id="running-commands"></a>
+
 ## Running Commands
 
-Run a command from the project root:
+Run commands from the project root:
 
 ```bash
-php rakit command:name [arguments] [options]
+php rakit command:name [arguments] [--options]
 ```
 
-To see a list of all available commands:
-
-```bash
-php rakit help
-# or
-php rakit
-```
+Run `php rakit` or `php rakit help` to list all commands.
 
 <a id="available-commands"></a>
+
 ## Available Commands
 
 <a id="clear-commands"></a>
+
 ### Clear Commands
 
 <a id="clearcache"></a>
-#### clear:cache
-
-Clears all data stored by the default cache driver:
-
-```bash
-php rakit clear:cache
-```
-
 <a id="clearviews"></a>
-#### clear:views
-
-Clears all compiled views (Blade templates) in storage/views:
-
-```bash
-php rakit clear:views
-```
-
 <a id="clearlogs"></a>
-#### clear:logs
 
-Clears all log files in storage/logs:
-
-```bash
-php rakit clear:logs
-```
+| Command       | Description                                       |
+| ------------- | ------------------------------------------------- |
+| `clear:cache` | Clear everything stored by the default cache driver |
+| `clear:views` | Clear the compiled Blade views in `storage/views` |
+| `clear:logs`  | Delete the log files in `storage/logs`            |
 
 <a id="fiddle-commands"></a>
+
 ### Fiddle Commands
 
 <a id="fiddle"></a>
+
 #### fiddle
 
-Starts Fiddle, an interactive REPL (Read-Eval-Print Loop) console where you
-can type PHP statements and see the result right away:
+Starts Fiddle, an interactive PHP console (REPL) with the framework loaded:
 
 ```bash
 php rakit fiddle
 ```
-
-The prompt looks like this, the bracketed number is the input line:
 
 ```text
 [1] FIDDLE> echo 1 + 1;
@@ -137,291 +84,100 @@ The prompt looks like this, the bracketed number is the input line:
 [2] FIDDLE>
 ```
 
-Notes:
-
-- Requires PHP with PCNTL support (`pcntl_fork`), otherwise the command
-  aborts with an error.
-- Typed lines are remembered in `storage/console/.fiddle_history`, use the
-  arrow keys to walk back through them.
-- `Ctrl+C` clears the buffer of an unfinished statement, `Ctrl+D` leaves
-  the console.
-- Multi-line statements (a `function`, a `class`, an `if` block) continue
-  on a `*>` prompt until the statement is complete.
-- Leave the console with `exit;`, `quit;` or `Ctrl+D`.
-- `Tab` completes class names, models, helper functions, and `Class::method`.
-- `help()` lists the built-in shortcuts (`models()`, `db()`, `table()`,
-  `dump()`); `help`, `exit`, and `quit` also work without a semicolon.
-- Every executed query is printed above the result, as `-- SQL (ms)`.
-- An error in a statement is reported and the console stays open; the
-  variables of the previous statements are kept.
-- Runs in `fork` mode where PCNTL/POSIX are available, and falls back to
-  `inline` mode (single process) elsewhere, e.g. on Windows. In inline mode
-  a fatal error still ends the session and `Ctrl+C` cannot abort a running
-  statement.
+- Multi-line statements (a `function`, `class` or `if` block) continue on a `*>` prompt until complete.
+- `Tab` completes class names, models, helper functions and `Class::method`. The arrow keys walk through the history, kept in `storage/console/.fiddle_history`.
+- Every executed query is printed above the result as `-- SQL (ms)`.
+- `help()` lists the built-in shortcuts (`models()`, `db()`, `table()`, `dump()`). `help`, `exit` and `quit` also work without a semicolon.
+- An error is reported and the console stays open, keeping your variables.
+- `Ctrl+C` clears an unfinished statement; `exit;`, `quit;` or `Ctrl+D` leaves.
+- With PCNTL and POSIX available it runs each statement in a forked process (`fork` mode). Elsewhere (e.g. Windows) it falls back to `inline` mode in a single process, where a fatal error ends the session and `Ctrl+C` cannot abort a running statement.
 
 <a id="job-commands"></a>
+
 ### Job Commands
 
 <a id="jobrun"></a>
-#### job:run
-
-Runs the due queued jobs with the given name (more than one name can be given):
-
-```bash
-php rakit job:run job_name
-```
-
-Example:
-
-```bash
-php rakit job:run send_email
-```
-
 <a id="jobrunall"></a>
-#### job:runall
 
-Runs all due queued jobs from every queue:
+| Command                    | Description                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| `job:run name [name ...]`  | Run the due jobs with the given name(s)                      |
+| `job:runall`               | Run the due jobs of every queue; accepts `--queue`, `--retries`, `--sleep` |
 
-```bash
-php rakit job:runall
-```
+See [Running Worker](/docs/job#running-worker) for the options.
 
 <a id="make-commands"></a>
+
 ### Make Commands
 
-Commands to create new files with templates.
+Generate files from templates. Prefix the name with a package (`blog::post`) to create the file inside that package.
 
 <a id="makecontroller"></a>
-#### make:controller
-
-Creates a new controller:
-
-```bash
-php rakit make:controller ControllerName
-```
-
-Example:
-
-```bash
-php rakit make:controller User
-# Creates file: application/controllers/user.php
-```
-
-To create a controller in a package:
-
-```bash
-php rakit make:controller package::ControllerName
-```
-
 <a id="makeresource"></a>
-#### make:resource
-
-Creates a RESTful resource controller:
-
-```bash
-php rakit make:resource ResourceName
-```
-
-This controller will have methods: `get_index`, `get_create`, `post_store`, `get_show`, `get_edit`, `put_update`, `delete_destroy`.
-
-Example:
-
-```bash
-php rakit make:resource Post
-# Creates file: application/controllers/post.php with RESTful methods
-```
-
 <a id="makemodel"></a>
-#### make:model
-
-Creates a new model:
-
-```bash
-php rakit make:model ModelName
-```
-
-Example:
-
-```bash
-php rakit make:model User
-# Creates file: application/models/user.php
-```
-
 <a id="makemigration"></a>
-#### make:migration
-
-Creates a new migration file:
-
-```bash
-php rakit make:migration migration_name
-```
-
-Example:
-
-```bash
-php rakit make:migration create_users_table
-# Creates file: application/migrations/2024_01_15_123456_create_users_table.php
-```
-
-For package migrations:
-
-```bash
-php rakit make:migration package::migration_name
-```
-
 <a id="makecommand"></a>
-#### make:command
-
-Creates a new custom command:
-
-```bash
-php rakit make:command CommandName
-```
-
-Example:
-
-```bash
-php rakit make:command SyncData
-# Creates file: application/commands/syncdata.php
-```
-
 <a id="makejob"></a>
-#### make:job
-
-Creates a new job for background processing:
-
-```bash
-php rakit make:job JobName
-```
-
-Example:
-
-```bash
-php rakit make:job SendWelcomeEmail
-# Creates file: application/jobs/sendwelcomeemail.php
-```
-
 <a id="makeobserver"></a>
-#### make:observer
-
-Creates a new model observer:
-
-```bash
-php rakit make:observer ObserverName
-```
-
-Example:
-
-```bash
-php rakit make:observer User
-# Creates file: application/observers/user.php     (class User_Observer)
-```
-
-For a package:
-
-```bash
-php rakit make:observer blog::post
-# Creates file: packages/blog/observers/post.php   (class Blog_Post_Observer)
-```
-
 <a id="maketransformer"></a>
-#### make:transformer
+<a id="maketest"></a>
 
-Creates a new transformer:
+| Command                              | Creates                                                         |
+| ------------------------------------ | --------------------------------------------------------------- |
+| `make:controller user`               | `application/controllers/user.php`                              |
+| `make:resource post`                 | `application/controllers/post.php` with `get_index`, `get_create`, `post_store`, `get_show`, `get_edit`, `put_update`, `delete_destroy` |
+| `make:model user`                    | `application/models/user.php`                                   |
+| `make:migration create_users_table`  | `application/migrations/<timestamp>_create_users_table.php`     |
+| `make:command syncdata`              | `application/commands/syncdata.php` (`Syncdata_Command`)        |
+| `make:job notify`                    | `application/jobs/notify.php` (`Notify_Job`)                    |
+| `make:observer user`                 | `application/observers/user.php` (`User_Observer`)              |
+| `make:transformer user`              | `application/transformers/user.php` (`User_Transformer`)        |
+| `make:test user`                     | `application/tests/user.test.php` (`UserTest`)                  |
+| `make:component alert`               | A component class and its view, see below                       |
+| `make:auth`                          | Authentication scaffolding, see below                           |
 
-```bash
-php rakit make:transformer TransformerName
-```
-
-Example:
-
-```bash
-php rakit make:transformer User
-# Creates file: application/transformers/user.php     (class User_Transformer)
-```
-
-For a package:
-
-```bash
-php rakit make:transformer blog::post
-# Creates file: packages/blog/transformers/post.php   (class Blog_Post_Transformer)
-```
+In a package, class names get the package prefix: `make:observer blog::post` creates `packages/blog/observers/post.php` with class `Blog_Post_Observer`.
 
 <a id="makecomponent"></a>
+
 #### make:component
 
-Creates a new blade component, both the class and the view it renders:
+Creates a Blade component class and the view it renders:
 
 ```bash
-php rakit make:component ComponentName
-```
+php rakit make:component alert
+# application/components/alert.php            (class Alert_Component)
+# application/views/components/alert.blade.php
 
-Example:
-
-```bash
-php rakit make:component Alert
-# Creates file: application/components/alert.php
-# Creates file: application/views/components/alert.blade.php
-```
-
-The class is named after the file with `_Component` behind it, the same way a
-controller is named `Home_Controller`, since there are no namespaces to keep the
-names apart. The tag that reaches it is `<x-alert />`.
-
-For a package, name it the way you would name one of its views:
-
-```bash
 php rakit make:component blog::alert
-# Creates file: packages/blog/components/alert.php     (class Blog_Alert_Component)
-# Creates file: packages/blog/views/components/alert.blade.php
+# packages/blog/components/alert.php          (class Blog_Alert_Component)
+# packages/blog/views/components/alert.blade.php
 ```
 
-<a id="maketest"></a>
-#### make:test
-
-Creates a new unit test:
-
-```bash
-php rakit make:test TestName
-```
-
-Example:
-
-```bash
-php rakit make:test user
-# Creates file: application/tests/user.test.php     (class UserTest)
-```
+The class name gets a `_Component` suffix (like `Home_Controller`), and the tag that renders it is `<x-alert />`.
 
 <a id="makeauth"></a>
+
 #### make:auth
 
-Generates the authentication scaffolding: login, registration and password
-reset screens, the controllers behind them, a layout, a dashboard, and the
-routes that wire it all together:
+Generates authentication scaffolding: login, registration and password-reset screens with their controllers, a layout, a dashboard, and the routes:
 
 ```bash
 php rakit make:auth
+# application/views/auth/login.blade.php
+# application/views/auth/register.blade.php
+# application/views/auth/passwords/email.blade.php
+# application/views/auth/passwords/reset.blade.php
+# application/views/auth/email/reset.blade.php
+# application/views/layouts/app.blade.php
+# application/views/dashboard.blade.php
+# application/controllers/auth/login.php
+# application/controllers/auth/register.php
+# application/controllers/auth/password.php
+# application/controllers/dashboard.php
 ```
 
-Example:
-
-```bash
-php rakit make:auth
-# Creates file: application/views/auth/login.blade.php
-# Creates file: application/views/auth/register.blade.php
-# Creates file: application/views/auth/passwords/email.blade.php
-# Creates file: application/views/auth/passwords/reset.blade.php
-# Creates file: application/views/auth/email/reset.blade.php
-# Creates file: application/views/layouts/app.blade.php
-# Creates file: application/views/dashboard.blade.php
-# Creates file: application/controllers/auth/login.php
-# Creates file: application/controllers/auth/register.php
-# Creates file: application/controllers/auth/password.php
-# Creates file: application/controllers/dashboard.php
-# Appends routes to application/routes.php
-```
-
-The routes that get appended to `application/routes.php`:
+These routes are appended to `application/routes.php`:
 
 ```php
 Route::get('login', 'auth.login@show');
@@ -439,419 +195,208 @@ Route::post('password/reset', 'auth.password@reset');
 Route::get('/dashboard', 'dashboard@index');
 ```
 
-> The routes are appended, running the command a second time will add them
-> again. Delete the `Auto-generated auth routes` block from
-> `application/routes.php` first if you want a clean run.
+> Running the command again appends the routes again. Delete the `Auto-generated auth routes` block from `application/routes.php` first.
 
 <a id="migration-commands"></a>
+
 ### Migration Commands
 
+Each command accepts an optional package name (`php rakit migrate blog`) to limit it to that package.
+
 <a id="migrate"></a>
-#### migrate
-
-Runs all pending migrations:
-
-```bash
-php rakit migrate
-```
-
-For a specific package:
-
-```bash
-php rakit migrate package_name
-```
-
 <a id="migraterollback"></a>
-#### migrate:rollback
-
-Rolls back the last batch of migrations:
-
-```bash
-php rakit migrate:rollback
-```
-
-For a specific package:
-
-```bash
-php rakit migrate:rollback package_name
-```
-
 <a id="migratereset"></a>
-#### migrate:reset
-
-Rolls back all migrations:
-
-```bash
-php rakit migrate:reset
-```
-
-For a specific package:
-
-```bash
-php rakit migrate:reset package_name
-```
-
 <a id="migraterefresh"></a>
-#### migrate:refresh
 
-Rolls back all migrations then runs them again:
-
-```bash
-php rakit migrate:refresh
-```
-
-For a specific package:
-
-```bash
-php rakit migrate:refresh package_name
-```
+| Command            | Description                                       |
+| ------------------ | ------------------------------------------------- |
+| `migrate`          | Run all pending migrations                        |
+| `migrate:rollback` | Roll back the last batch                          |
+| `migrate:reset`    | Roll back all migrations                          |
+| `migrate:refresh`  | Roll back all migrations, then run them again     |
+| `migrate:install`  | Create the `rakit_migrations` tracking table      |
 
 <a id="package-commands"></a>
+
 ### Package Commands
 
 <a id="packageinstall"></a>
-#### package:install
-
-Installs a package from repository:
-
-```bash
-php rakit package:install package_name
-```
-
-With verbose output:
-
-```bash
-php rakit package:install package_name --verbose=true
-```
-
 <a id="packageuninstall"></a>
-#### package:uninstall
-
-Uninstalls a package:
-
-```bash
-php rakit package:uninstall package_name
-```
-
 <a id="packageupgrade"></a>
-#### package:upgrade
-
-Upgrades a package to the latest version:
-
-```bash
-php rakit package:upgrade package_name
-```
-
 <a id="packagepublish"></a>
-#### package:publish
-
-Publishes package assets to the public folder:
-
-```bash
-php rakit package:publish package_name
-```
-
 <a id="packageunpublish"></a>
-#### package:unpublish
 
-Removes published package assets:
-
-```bash
-php rakit package:unpublish package_name
-```
+| Command                    | Description                                         |
+| -------------------------- | --------------------------------------------------- |
+| `package:install name`     | Install a package from the repository (add `--verbose=true` for detailed output) |
+| `package:uninstall name`   | Uninstall a package                                 |
+| `package:upgrade name`     | Upgrade a package to the latest version             |
+| `package:publish name`     | Publish the package's assets to the public folder   |
+| `package:unpublish name`   | Remove the published assets                         |
 
 <a id="routing-commands"></a>
+
 ### Routing Commands
 
 <a id="routecall"></a>
-#### route:call
-
-Calls a route through the console (for testing). The request method and the URI
-are passed as two separate arguments:
-
-```bash
-php rakit route:call get /
-php rakit route:call post api/users
-php rakit route:call get user/profile/123
-```
-
 <a id="routelist"></a>
-#### route:list
 
-Shows all registered routes along with their method, URI, action, and name:
-
-```bash
-php rakit route:list
-```
+| Command                   | Description                                                  |
+| ------------------------- | ------------------------------------------------------------ |
+| `route:call method uri`   | Call a route from the console, e.g. `route:call get user/profile/123`. Middleware is skipped unless `--with-middleware` is given |
+| `route:list`              | List all routes with their method, URI, action and name      |
 
 <a id="session-commands"></a>
+
 ### Session Commands
 
 <a id="sessiongc"></a>
-#### session:gc
 
-Clears expired sessions (for the `file` and `database` session drivers):
-
-```bash
-php rakit session:gc
-```
+`session:gc` removes expired sessions. Only the `file` and `database` drivers need it; other drivers expire their own data.
 
 <a id="test-commands"></a>
+
 ### Test Commands
 
 <a id="testrun"></a>
-#### test:run
-
-Runs tests in the application folder:
-
-```bash
-php rakit test:run
-```
-
-Arguments are treated as package names, the same as `test:package`:
-
-```bash
-php rakit test:run package_name
-```
-
 <a id="testcore"></a>
-#### test:core
-
-Runs core framework tests:
-
-```bash
-php rakit test:core
-```
-
 <a id="testpackage"></a>
-#### test:package
 
-Runs tests for a specific package:
-
-```bash
-php rakit test:package package_name
-```
+| Command                  | Description                                            |
+| ------------------------ | ------------------------------------------------------ |
+| `test:run`               | Run the application tests; arguments are treated as package names, like `test:package` |
+| `test:core`              | Run the framework's core tests                         |
+| `test:package name`      | Run a package's tests                                  |
 
 <a id="webserver-commands"></a>
+
 ### Webserver Commands
 
 <a id="serve"></a>
-#### serve
 
-Runs a development web server:
-
-```bash
-php rakit serve
-```
-
-With custom host and port:
+`serve` starts a development web server at `http://localhost:8000`. Change it with `--host` and `--port`:
 
 ```bash
 php rakit serve --host=0.0.0.0 --port=8080
 ```
 
-The server will run at `http://localhost:8000` by default.
-
 <a id="websocket-commands"></a>
+
 ### Websocket Commands
 
 <a id="websocketrun"></a>
-#### websocket:run
 
-Runs a websocket server:
-
-```bash
-php rakit websocket:run
-```
-
-With custom host and port:
+`websocket:run` starts the [WebSocket](/docs/websocket) server on `127.0.0.1:6001`, also configurable with `--host` and `--port`:
 
 ```bash
 php rakit websocket:run --host=0.0.0.0 --port=9000
 ```
 
 <a id="global-options"></a>
+
 ## Global Options
 
-Some options that can be used with all commands:
-
-### --env
-
-Changes the environment:
-
-```bash
-php rakit migrate --env=production
-php rakit migrate --env=testing
-```
-
-### --database
-
-Changes the default database connection:
-
-```bash
-php rakit migrate --database=mysql
-php rakit migrate --database=pgsql
-```
-
-### --verbose
-
-Displays more detailed output:
-
-```bash
-php rakit package:install my_package --verbose=true
-```
-
-### --host
-
-Changes the host (for serve and websocket):
-
-```bash
-php rakit serve --host=127.0.0.1
-```
-
-### --port
-
-Changes the port (for serve and websocket):
-
-```bash
-php rakit serve --port=3000
-```
+| Option            | Description                                     | Example                                   |
+| ----------------- | ----------------------------------------------- | ----------------------------------------- |
+| `--env=`          | Run under another environment                   | `php rakit migrate --env=testing`         |
+| `--database=`     | Use another default database connection         | `php rakit migrate --database=pgsql`      |
+| `--verbose=true`  | Detailed output (`package:install`)             | `php rakit package:install foo --verbose=true` |
+| `--host=`         | Host for `serve` and `websocket:run`            | `php rakit serve --host=127.0.0.1`        |
+| `--port=`         | Port for `serve` and `websocket:run`            | `php rakit serve --port=3000`             |
+| `--with-middleware` | Run route middleware (`route:call`)           | `php rakit route:call get admin --with-middleware` |
 
 <a id="creating-custom-commands"></a>
+
 ## Creating Custom Commands
 
 <a id="command-structure"></a>
+
 ### Command Structure
 
-You can create custom commands by creating files in `application/commands/`.
-Extend the `Command` class to get the output and prompt helpers:
+Put commands in `application/commands/` (or generate one with `make:command`) and extend `Command`. `run()` is the default method; any other public method is a sub-command. Each receives the command-line arguments as an array:
 
 ```php
-<?php
+// application/commands/syncdata.php
 
 class Syncdata_Command extends Command
 {
-    /**
-     * Main method to be executed
-     */
     public function run($arguments = [])
     {
-        echo $this->info('Starting data synchronization...');
+        $name = isset($arguments[0]) ? $arguments[0] : 'all';
 
-        // Your command logic here
-
-        echo $this->info('Synchronization completed!');
+        echo $this->info('Synchronizing '.$name.'...');
     }
 
-    /**
-     * Sub-command (optional)
-     */
     public function users($arguments = [])
     {
         echo $this->info('Synchronizing users...');
-
-        // Special logic for syncing users
     }
 }
 ```
 
-> The helper methods return a string, they do not print anything by themselves.
-> Do not forget the `echo`.
-
 <a id="command-registration"></a>
+
 ### Command Registration
 
-Commands are automatically registered if they follow the naming convention:
-- Filename: lowercase with underscores (example: `syncdata.php`)
-- Classname: PascalCase with `_Command` suffix (example: `Syncdata_Command`)
-
-Running the command:
+Commands are found by convention, without registration: the file name is lowercase (`syncdata.php`) and the class is its classified name plus `_Command` (`Syncdata_Command`).
 
 ```bash
-# Runs the run() method
-php rakit syncdata
-
-# Runs the users() method
-php rakit syncdata:users
+php rakit syncdata            # run()
+php rakit syncdata:users      # users()
+php rakit blog::syncdata      # a command in the "blog" package
 ```
 
 <a id="input--output"></a>
+
 ### Input & Output
 
-#### Accessing Arguments
+`Command` provides these helpers. They **return** a string rather than printing it, so don't forget the `echo`:
 
-```php
-public function run($arguments = [])
-{
-    // $arguments[0] is the first argument after command name
-    $name = isset($arguments[0]) ? $arguments[0] : 'default';
-
-    echo $this->info('Processing: ' . $name);
-}
-```
-
-#### Messages and Prompts
-
-By extending `Command` you get these helpers:
-
-| Method                        | Description                                          |
-| ----------------------------- | ---------------------------------------------------- |
-| `info($text, $newline)`       | Green message                                        |
-| `warning($text, $newline)`    | Yellow message                                       |
-| `error($text, $newline)`      | Red message                                          |
-| `progress($percentage)`       | 10 block progress bar, `0` to `100`                  |
-| `ask($question, $default)`    | Ask a question, returns the answer                   |
-| `confirm($question, $default)`| Ask for `y` / `n`, returns a boolean                 |
+| Method                         | Description                                 |
+| ------------------------------ | ------------------------------------------- |
+| `info($text, $newline)`        | Green message                               |
+| `warning($text, $newline)`     | Yellow message                              |
+| `error($text, $newline)`       | Red message                                 |
+| `progress($percentage)`        | 10-block progress bar, `0` to `100`         |
+| `ask($question, $default)`     | Ask a question, return the answer           |
+| `confirm($question, $default)` | Ask for `y` / `n`, return a boolean         |
 
 ```php
 public function run($arguments = [])
 {
     $name = $this->ask('Table name?', 'users');
 
-    if (!$this->confirm('Truncate table ' . $name . '?')) {
+    if (! $this->confirm('Truncate table '.$name.'?')) {
         echo $this->warning('Cancelled.');
         return;
     }
 
     for ($i = 0; $i <= 100; $i += 10) {
-        echo "\r" . $this->progress($i) . ' ' . $i . '%';
+        echo "\r".$this->progress($i).' '.$i.'%';
         usleep(50000);
     }
 
-    echo PHP_EOL . $this->info('Done!');
+    echo PHP_EOL.$this->info('Done!');
 }
 ```
 
-#### Colored Output
-
-Use `Color` if you need a color that the helpers above do not provide. The second
-parameter decides whether a newline is appended (default `true`):
+For other colors, use `System\Console\Color`: `black()`, `red()`, `green()`, `yellow()`, `blue()`, `purple()`, `cyan()` and `white()`. The second parameter appends a newline (default `true`), and colors are dropped when the terminal doesn't support them:
 
 ```php
 use System\Console\Color;
 
-echo Color::green('This is green text');
-echo Color::red('This is red text');
-echo Color::blue('This is blue text', false); // without newline
+echo Color::blue('This is blue text', false);
 ```
 
-Available colors: `black()`, `red()`, `green()`, `yellow()`, `blue()`,
-`purple()`, `cyan()`, and `white()`. The color is dropped automatically when the
-terminal does not support it.
-
-#### Creating Tables
-
-`Table` is instantiated, filled row by row, then printed with `display()`:
+`System\Console\Table` prints tables:
 
 ```php
 use System\Console\Table;
 
 $table = new Table();
-
 $table->set_headers(['Name', 'Email', 'Role']);
 $table->add_row(['John Doe', 'john@example.com', 'Admin']);
 $table->add_row(['Jane Smith', 'jane@example.com', 'User']);
-
 $table->display();
 
 /*
@@ -864,56 +409,36 @@ $table->display();
 */
 ```
 
-Other methods you can use:
-
-| Method                              | Description                                    |
-| ----------------------------------- | ---------------------------------------------- |
-| `add_header($content)`              | Add one header column                          |
-| `add_column($content, $col, $row)`  | Fill a single cell                             |
-| `add_border_line()`                 | Insert a horizontal line between rows          |
-| `show_borders()`                    | Draw a border on every row                     |
-| `hide_border()` / `show_border()`   | Hide or show the outer border                  |
-| `set_padding($value)`               | Cell padding (default `1`)                     |
-| `set_indent($value)`                | Indent the whole table                         |
+| Method                              | Description                                      |
+| ----------------------------------- | ------------------------------------------------ |
+| `add_header($content)`              | Add one header column                            |
+| `add_column($content, $col, $row)`  | Fill a single cell                               |
+| `add_border_line()`                 | Insert a horizontal line between rows            |
+| `show_borders()`                    | Draw a border on every row                       |
+| `hide_border()` / `show_border()`   | Hide or show the outer border                    |
+| `set_padding($value)`               | Cell padding (default `1`)                       |
+| `set_indent($value)`                | Indent the whole table                           |
 | `get_table()`                       | Return the table as a string instead of printing |
 
 <a id="running-commands-from-code"></a>
+
 ## Running Commands From Code
 
-You can run commands from your application:
+`Console::run()` takes the command name, or an array of the name followed by its arguments:
 
 ```php
 use System\Console\Console;
 
-// Run a single command
-Console::run('migrate');
-
-// With arguments
-Console::run(['migrate:rollback', 'application']);
-
-// Run clear cache
 Console::run('clear:cache');
+Console::run(['migrate:rollback', 'application']);
 ```
 
-Example in a route:
+For example, from a route:
 
 ```php
 Route::get('admin/clear-cache', function () {
     Console::run('clear:cache');
+
     return Redirect::back()->with('message', 'Cache cleared!');
 });
-```
-
-Or in a job:
-
-```php
-class Cleanup_Job extends Jobable
-{
-    public function run()
-    {
-        Console::run('clear:cache');
-        Console::run('clear:logs');
-        Console::run('session:gc');
-    }
-}
 ```

@@ -241,7 +241,7 @@ class Response
         }
 
         header(sprintf('HTTP/%s %s %s', $this->version, $this->statusCode, $this->statusText));
-        $headers = $this->headers->all();
+        $headers = $this->headers->allPreserveCase();
 
         foreach ($headers as $name => $values) {
             foreach ($values as $value) {
@@ -316,8 +316,18 @@ class Response
      */
     public function setContent($content)
     {
-        if (null !== $content && ! is_string($content) && ! is_numeric($content) && ! is_callable([$content, '__toString'])) {
-            throw new \UnexpectedValueException(sprintf('Response content must be a string or object implementing __toString(), %s given.', gettype($content)));
+        if (
+            null !== $content
+            && ! is_string($content)
+            && ! is_numeric($content)
+            && ! is_callable([$content, '__toString'])
+        ) {
+            throw new \UnexpectedValueException(
+                sprintf(
+                    'Response content must be a string or object implementing __toString(), %s given.',
+                    gettype($content)
+                )
+            );
         }
 
         $this->content = (string) $content;

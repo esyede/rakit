@@ -739,6 +739,25 @@ class Table
     }
 
     /**
+     * Set the USING expression that converts existing values when change() alters
+     * the column type. PostgreSQL only; other drivers ignore it.
+     *
+     * @param string $expression
+     *
+     * @return $this
+     */
+    public function using($expression)
+    {
+        $column = end($this->columns);
+
+        if ($column) {
+            $column->using = $expression;
+        }
+
+        return $this;
+    }
+
+    /**
      * Set a column to be added after another column.
      *
      * @param string $column

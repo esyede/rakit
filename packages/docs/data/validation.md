@@ -2,164 +2,95 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
--   [Basic Knowledge](#basic-knowledge)
--   [Validation Rules](#validation-rules)
+-   [Introduction](#introduction)
+-   [Validating Input](#validating-input)
+    -   [Optional Fields](#optional-fields)
+    -   [Validating Arrays](#validating-arrays)
+-   [Displaying Errors](#displaying-errors)
+-   [Retrieving Error Messages](#retrieving-error-messages)
+-   [Available Rules](#available-rules)
     -   [Required](#required)
     -   [Alphabets, Numbers & Dashes](#alphabets-numbers--dashes)
     -   [Size](#size)
     -   [Numbers](#numbers)
     -   [Comparison](#comparison)
     -   [Inclusion & Exclusion](#inclusion--exclusion)
-    -   [Confirmation](#confirmation)
-    -   [Approval](#approval)
+    -   [Confirmation & Approval](#confirmation--approval)
     -   [Same & Different](#same--different)
     -   [String & Format](#string--format)
     -   [Regular Expression](#regular-expression)
     -   [Uniqueness & Existence](#uniqueness--existence)
     -   [Date](#date)
-    -   [E-Mail](#e-mail)
-    -   [URL](#url)
-    -   [IP Address](#ip-address)
-    -   [File Upload](#file-upload)
+    -   [E-Mail, URL & IP](#e-mail-url--ip)
+    -   [Files](#files)
     -   [Array](#array)
     -   [Other Rules](#other-rules)
--   [Retrieving Error Messages](#retrieving-error-messages)
--   [Validation Guide](#validation-guide)
 -   [Custom Error Messages](#custom-error-messages)
 -   [Custom Validation Rules](#custom-validation-rules)
+-   [Validator Options](#validator-options)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-The `Validator` component checks user input against a set of rules and
-returns the failures, if any. It is commonly used right after `Input::all()`
-in a controller action: validate, and on failure redirect back with the
-errors.
+`Validator` checks an array of data (usually `Input::all()`) against a set of rules and
+collects an error message for every failure. Default messages live in
+`application/language/en/validation.php`.
 
-A typical flow looks like this:
+<a id="validating-input"></a>
 
-#### Get the array of input data to be validated:
+## Validating Input
 
-```php
-$input = Input::all();
-```
-
-#### Define validation rules for each data:
+Pass the data and the rules to `Validator::make()`, then call `fails()` (or `passes()`):
 
 ```php
-$rules = [
-    'name'  => 'required|max:50',
-    'email' => 'required|email|unique:users',
-];
-```
-
-Rules can be written as an array instead of a pipe-separated string:
-
-```php
-$rules = [
-    'name'  => ['required', 'max:50'],
-    'email' => ['required', 'email', 'unique:users'],
-];
-```
-
-#### Create a `Validator` instance and validate the data:
-
-```php
-$validation = Validator::make($input, $rules);
+$validation = Validator::make(Input::all(), [
+    'name'     => 'required|max:50',
+    'email'    => 'required|email|unique:users',
+    'password' => 'required|min:6|confirmed',
+]);
 
 if ($validation->fails()) {
     return Redirect::back()->with_input()->with_errors($validation);
 }
-
-// Validation successful, proceed
 ```
 
-Every rule has a default error message, kept in `application/language/en/validation.php`.
-
-**Complete example in controller:**
+`valid()` and `invalid()` are aliases of `passes()` and `fails()`. Rules may also be given as
+an array, which is required when a parameter contains a `|` (such as a regex):
 
 ```php
-class User_Controller extends Controller
-{
-    public function action_register()
-    {
-        $input = Input::all();
-
-        $rules = [
-            'name'     => 'required|max:50',
-            'email'    => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
-        ];
-
-        $validation = Validator::make($input, $rules);
-
-        if ($validation->fails()) {
-            return Redirect::back()
-                ->with_input()
-                ->with_errors($validation);
-        }
-
-        // Save new user
-        $user = new User();
-        $user->name = Input::get('name');
-        $user->email = Input::get('email');
-        $user->password = Hash::make(Input::get('password'));
-        $user->save();
-
-        return Redirect::to('login')
-            ->with('message', 'Registration successful!');
-    }
-}
+'name' => ['required', 'max:50'],
 ```
 
-<a id="validation-rules"></a>
+> A rule that needs a parameter throws an `InvalidArgumentException` when written without one:
+> write `'min:18'`, not `'min'`.
 
-## Validation Rules
+<a id="optional-fields"></a>
 
--   [Required](#required)
--   [Alphabets, Numbers & Dashes](#alphabets-numbers--dashes)
--   [Size](#size)
--   [Numbers](#numbers)
--   [Comparison](#comparison)
--   [Inclusion & Exclusion](#inclusion--exclusion)
--   [Confirmation](#confirmation)
--   [Approval](#approval)
--   [Same & Different](#same--different)
--   [String & Format](#string--format)
--   [Regular Expression](#regular-expression)
--   [Uniqueness & Existence](#uniqueness--existence)
--   [Date](#date)
--   [E-Mail](#e-mail)
--   [URL](#url)
--   [IP Address](#ip-address)
--   [File Upload](#file-upload)
--   [Array](#array)
--   [Other Rules](#other-rules)
+### Optional Fields
 
-> A rule that takes a parameter is rejected when it is written without one.
-> `'age' => 'min'` raises an `InvalidArgumentException` naming the rule, rather
-> than validating against a value that was never given. Write `'min:18'`.
+When a value is empty (`null`, a blank string, an empty array or a file input with no upload),
+only the "implicit" rules run on it: `required`, `required_*`, `present`, `filled`, `accepted`
+and `missing`. Every other rule is skipped, so `'website' => 'url'` accepts an empty field.
 
-<a id="required"></a>
-
-### Required
-
-#### Validate that the attribute must exist and not be an empty string:
+`nullable` marks `null` (or an absent key) as acceptable: the non-implicit rules are skipped,
+but the implicit ones above still run, as in Laravel. So `'required|nullable'` still fails on
+`null`, while `'nullable|max:20'` accepts it.
 
 ```php
-'name' => 'required',
+'nickname' => 'nullable|max:20',       // null passes
+'email'    => 'required|nullable|email', // null fails: required still runs
 ```
 
-> An empty array counts as empty too, so a group of checkboxes that nobody
-> ticked does not satisfy `required`. `filled` reads emptiness the same way, so
-> a value of `0` or `'0'` passes it.
+<a id="validating-arrays"></a>
 
-#### Validate every element of an array:
+### Validating Arrays
 
-Put `*` where the index goes:
+Use `*` for "every element". Errors are recorded against the element that failed (`tags.1`),
+and a custom message written for `tags.*` applies to every element.
 
 ```php
 'tags'          => 'required|array',
@@ -167,826 +98,13 @@ Put `*` where the index goes:
 'people.*.name' => 'required|max:50',
 ```
 
-Errors are recorded against the element that failed (`tags.1`), and a custom
-message written for `tags.*` answers for every element of it.
-
-#### Allow the attribute to be `null`, otherwise it must not be empty:
-
-```php
-'nickname' => 'nullable',
-```
-
-#### Validate that the attribute must exist if another attribute exists:
-
-```php
-'last_name' => 'required_with:first_name',
-```
-
-#### Validate that the attribute must exist if all other attributes exist:
-
-```php
-'address' => 'required_with_all:city,state,zip',
-```
-
-#### Validate that the attribute must exist if another attribute does not exist:
-
-```php
-'email' => 'required_without:phone',
-```
-
-#### Validate that the attribute must exist if all other attributes do not exist:
-
-```php
-'contact' => 'required_without_all:email,phone,address',
-```
-
-#### Validate that the attribute must exist if another attribute has a certain value:
-
-```php
-'tax_id' => 'required_if:country,US',
-```
-
-#### Validate that the attribute must exist unless another attribute has a certain value:
-
-```php
-'reason' => 'required_unless:status,approved',
-```
-
-#### Validate that the attribute key exists (even if its value is empty):
-
-```php
-'optional_field' => 'present',
-```
-
-The `present` rule ensures that the key exists in the input data, even if its value is `null` or an empty string.
-
-**Example:**
-```php
-// Valid
-['optional_field' => '']
-['optional_field' => null]
-['optional_field' => 'value']
-
-// Invalid
-// Key 'optional_field' does not exist in the array
-```
-
-#### Validate that the attribute exists and is not empty:
-
-```php
-'bio' => 'filled',
-```
-
-The `filled` rule ensures that the field has a value (cannot be empty). In the current implementation
-it is checked even when the field is missing, so a missing field fails it too, just like `required`.
-
-**Difference between `required`, `present`, and `filled`:**
-
-```php
-// required: Field MUST exist and MUST contain a value
-'name' => 'required',
-
-// present: Field MUST exist, can be empty
-'middle_name' => 'present',
-
-// filled: currently behaves the same as required
-'nickname' => 'filled',
-```
-
-**Practical example:**
-```php
-$rules = [
-    'name' => 'required|string',           // Must exist and contain value
-    'middle_name' => 'present|string',     // Must exist, can be empty
-    'nickname' => 'filled|string',         // Must exist and contain value
-];
-
-// Valid data:
-[
-    'name' => 'John Doe',
-    'middle_name' => '',        // OK because present, can be empty
-    'nickname' => 'JD',         // OK because filled and contains value
-]
-
-[
-    'name' => 'Jane Smith',
-    'middle_name' => null,      // OK because present
-    'nickname' => 'Jane',       // OK because filled and contains value
-]
-
-// Invalid data:
-[
-    'name' => 'Bob',
-    // 'middle_name' not present    // NOT OK because present
-    'nickname' => '',           // NOT OK because filled, must contain value
-]
-```
-
-<a id="alphabets-numbers--dashes"></a>
-
-### Alphabets, Numbers & Dashes
-
-#### Validate that the attribute consists only of alphabetic letters:
-
-```php
-'name' => 'alpha',
-```
-
-#### Validate that the attribute consists only of alphabetic letters and numbers:
-
-```php
-'username' => 'alpha_num',
-```
-
-#### Validate that the attribute consists only of alphabetic letters, numbers, dashes and underscores:
-
-```php
-'username' => 'alpha_dash',
-```
-
-<a id="size"></a>
-
-### Size
-
-#### Validate that the attribute has a certain length, or, if the attribute is a number (with the `numeric` or `integer` rule), it is a certain value:
-
-```php
-'name' => 'size:10',
-```
-
-#### Validate that the size of the attribute is within a certain range:
-
-```php
-'payment' => 'between:10,50',
-```
-
-> The minimum and maximum values are inclusive. That means, if the user inputs `10` or `50`
-> then the `between()` validation above will pass.
-
-#### Validate that the attribute must have at least a specified size:
-
-```php
-'payment' => 'min:10',
-```
-
-#### Validate that the size of the attribute does not exceed the specified:
-
-```php
-'payment' => 'max:50',
-```
-
-> What "size" means follows the value: the length of a string, the value of a
-> number (only when the attribute also has the `numeric` or `integer` rule), the number of elements of an array, and the size in kilobytes of an
-> uploaded file. So `'tags' => 'array|max:3'` allows at most three tags.
-
-<a id="numbers"></a>
-
-### Numbers
-
-#### Validate that the attribute is a number:
-
-```php
-'payment' => 'numeric',
-```
-
-#### Validate that the attribute is an integer:
-
-```php
-'payment' => 'integer',
-```
-
-#### Validate that the attribute is a boolean:
-
-```php
-'is_active' => 'boolean',
-```
-
-This rule will accept: `true`, `false`, `1`, `0`, `"1"`, `"0"`.
-
-<a id="comparison"></a>
-
-### Comparison
-
-#### Validate that the date is equal to a given date:
-
-```php
-'scheduled_date' => 'date_equals:2024-12-31',
-```
-
-> The date rules (`date_equals`, `before`, `after` and their `_or_equal` variants)
-> compare against the given date string, not against another attribute.
-
-#### Validate that the attribute is greater than (greater than) another attribute:
-
-```php
-'price' => 'gt:cost',
-```
-
-#### Validate that the attribute is greater than or equal to (greater than or equal) another attribute:
-
-```php
-'quantity' => 'gte:min_quantity',
-```
-
-#### Validate that the attribute is less than (less than) another attribute:
-
-```php
-'discount' => 'lt:price',
-```
-
-#### Validate that the attribute is less than or equal to (less than or equal) another attribute:
-
-```php
-'age' => 'lte:max_age',
-```
-
-#### Validate that the attribute has a certain number of digits:
-
-```php
-'pin' => 'digits:6',  // Must be 6 digits
-```
-
-#### Validate that the digits of the attribute are within a certain range:
-
-```php
-'otp' => 'digits_between:4,8',  // Between 4-8 digits
-```
-
-<a id="inclusion--exclusion"></a>
-
-### Inclusion & Exclusion
-
-#### Validate that the attribute is in a certain list:
-
-```php
-'size' => 'in:small,medium,large',
-```
-
-#### Validate that the attribute is not in a certain list:
-
-```php
-'language' => 'not_in:cobol,assembler',
-```
-
-<a id="confirmation"></a>
-
-### Confirmation
-
-The `'confirmed'` rule requires a second attribute named `'xxx_confirmation'`, where
-`'xxx'` is the name of the original one.
-
-#### Validate that the attribute has been confirmed:
-
-```php
-'password' => 'confirmed',
-```
-
-So `'password'` is checked against `'password_confirmation'`.
-
-<a id="approval"></a>
-
-### Approval
-
-The `'accepted'` rule passes for `'yes'`, `'on'`, `'1'`, `1`, `true` or `'true'`,
-which is what a ticked checkbox sends.
-
-#### Validate that the attribute has been approved:
-
-```php
-'terms' => 'accepted',
-```
-
-The `'declined'` rule is its mirror image, and passes for `'no'`, `'off'`, `'0'`, `0`,
-`false` or `'false'`:
-
-```php
-'marketing' => 'declined',
-```
-
-<a id="same--different"></a>
-
-### Same & Different
-
-#### Validate that the value of an attribute matches that of another attribute:
-
-```php
-'token1' => 'same:token2',
-```
-
-#### Validate that the values of two attributes have different values:
-
-```php
-'password' => 'different:old_password',
-```
-
-<a id="string--format"></a>
-
-### String & Format
-
-#### Validate that the attribute is a string:
-
-```php
-'name' => 'string',
-```
-
-#### Validate that the attribute is valid JSON:
-
-```php
-'metadata' => 'json',
-```
-
-#### Validate that the attribute is a valid UUID:
-
-```php
-'token' => 'uuid',
-```
-
-#### Validate that the attribute is a valid timezone:
-
-```php
-'timezone' => 'timezone',
-```
-
-Valid timezone examples: `Asia/Jakarta`, `America/New_York`, `UTC`.
-
-#### Validate that the attribute starts with a certain string:
-
-```php
-'phone' => 'starts_with:+62,08',
-```
-
-#### Validate that the attribute ends with a certain string:
-
-```php
-'domain' => 'ends_with:.com,.net,.org',
-```
-
-#### Validate that the attribute is in another array:
-
-```php
-'color' => 'in_array:colors.*',
-```
-
-Example: if `colors` is `['red', 'green', 'blue']`, then `color` must be one of those values.
-The `.*` is optional — `in_array:colors` names the same array — and a nested path such as
-`in_array:form.colors` works too.
-
-<a id="regular-expression"></a>
-
-### Regular Expression
-
-The `'match'` rule checks the value against a regular expression.
-
-#### Validate that the value of an attribute matches a certain regular expression pattern:
-
-```php
-'username' => 'match:/[a-zA-Z0-9]+/',
-```
-
-#### Validate that the value of an attribute does NOT match a regular expression pattern:
-
-```php
-'username' => 'not_regex:/[^a-zA-Z0-9]/',  // Must not contain special characters
-```
-
-Use the array syntax for anything but the simplest pattern, so a `|` inside the regex
-is not read as a rule separator:
-
-```php
-$rules = [
-    'username' => ['required', 'max:20', 'match:/[a-zA-Z0-9]+/'],
-];
-```
-
-<a id="uniqueness--existence"></a>
-
-### Uniqueness & Existence
-
-#### Validate that the attribute is unique in a certain database table:
-
-```php
-'email' => 'unique:users',
-```
-
-That checks the `'email'` attribute for duplicates in the `'users'` table.
-
-For a column named differently from the attribute:
-
-#### Specify a custom column name to check uniqueness:
-
-```php
-'email' => 'unique:users,email_address',
-```
-
-Updating a record has to leave out the row being updated, or a user who kept their own
-email address would fail the rule. Pass its id as a third parameter:
-
-#### Force the `unique` rule to ignore a certain ID:
-
-```php
-'email' => 'unique:users,email_address,10',
-```
-
-#### Validate that the attribute exists in a certain database table:
-
-```php
-'city' => 'exists:cities',
-```
-
-#### Specify a custom column name for the `exists` rule:
-
-```php
-'city' => 'exists:cities,abbreviation',
-```
-
-<a id="date"></a>
-
-### Date
-
-#### Validate that the date attribute is before a certain date:
-
-```php
-'birthdate' => 'before:1992-11-02',
-```
-
-#### Validate that the attribute is a date before or the same as the given date:
-
-```php
-'start_date' => 'before_or_equals:2024-12-31',
-```
-
-#### Validate that the date attribute is after a certain date:
-
-```php
-'birthdate' => 'after:1992-11-02',
-```
-
-#### Validate that the attribute is a date after or the same as the given date:
-
-```php
-'end_date' => 'after_or_equal:2024-12-31',
-```
-
-> `before_or_equal` and `after_or_equal` also answer to the plural spelling
-> (`before_or_equals`, `after_or_equals`), so both work.
-
-> The `before` and `after` rules use PHP's
-> [DateTime](https://www.php.net/manual/en/datetime.construct.php) constructor to
-> convert the given string date.
-
-#### Validate that the date attribute format matches a certain format:
-
-```php
-'start_date' => 'date_format:H\\:i',
-```
-
-> In the example above, `\\` (double backslash) puts a literal `\:` in the format, which the date parser
-> reads as an escaped `:`. It is optional: only the first `:` separates the rule name from its parameters.
-
-> The match has to be exact. PHP's own parser is happy to read `2026-1-1` as
-> `Y-m-d`, but this rule is not: the date has to read back the same way it came
-> in, so a form asking for `Y-m-d` gets `2026-01-01` or nothing.
-
-Date formatting options can be read in
-[PHP Date](https://www.php.net/manual/en/datetime.createfromformat.php#refsect1-datetime.createfromformat-parameters).
-
-<a id="e-mail"></a>
-
-### E-Mail
-
-#### Validate that the attribute is an email address:
-
-```php
-'address' => 'email',
-```
-
-> This rule uses the [filter_var()](https://www.php.net/manual/en/function.filter-var.php)
-> function for checking.
-
-<a id="url"></a>
-
-### URL
-
-#### Validate that the attribute is a URL:
-
-```php
-'link' => 'url',
-```
-
-#### Validate that the attribute is an active URL:
-
-```php
-'link' => 'active_url',
-```
-
-> This rule sends a `HEAD` request with [cURL](https://www.php.net/manual/en/book.curl.php)
-> (5 second timeout) and passes when the response status is 2xx or 3xx.
-
-<a id="ip-address"></a>
-
-### IP Address
-
-#### Validate that the attribute is a valid IP address:
-
-```php
-'server_ip' => 'ip',
-```
-
-This rule will validate both IPv4 and IPv6.
-
-#### Validate that the attribute is an IPv4 address:
-
-```php
-'server_ip' => 'ipv4',
-```
-
-**Valid IPv4 examples:**
-- `192.168.1.1`
-- `10.0.0.1`
-- `127.0.0.1`
-
-#### Validate that the attribute is an IPv6 address:
-
-```php
-'server_ip' => 'ipv6',
-```
-
-**Valid IPv6 examples:**
-- `2001:0db8:85a3:0000:0000:8a2e:0370:7334`
-- `2001:db8:85a3::8a2e:370:7334`
-- `::1`
-- `fe80::1`
-
-**Usage example:**
-
-```php
-$rules = [
-    'ipv4_address' => 'required|ipv4',
-    'ipv6_address' => 'required|ipv6',
-    'any_ip' => 'required|ip',
-];
-
-$validation = Validator::make($input, $rules);
-```
-
-<a id="file-upload"></a>
-
-### File Upload
-
-The `mimes` rule validates that the uploaded file matches one of the given extensions.
-This rule uses the [PHP Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extension to
-read the file content, determine the actual MIME type, and match it against the given extensions.
-
-#### Validate that the file is one of the given mime-types:
-
-```php
-'picture' => 'mimes:jpg,png,gif',
-```
-
-> When validating files, make sure to use `Input::file()` or `Input::all()`
-> to retrieve input data from the user.
-
-#### Validate the actual MIME type of the file:
-
-```php
-'document' => 'mimetypes:application/pdf,application/msword',
-```
-
-**Difference between `mimes` and `mimetypes`:**
-- `mimes`: Takes file extensions (jpg, png, pdf), matched against the MIME type detected from the file content
-- `mimetypes`: Takes MIME types directly (image/jpeg, application/pdf)
-
-**Example:**
-```php
-// Mimes (by extension)
-'photo' => 'mimes:jpg,jpeg,png,gif',
-
-// Mimetypes (by actual MIME type)
-'photo' => 'mimetypes:image/jpeg,image/png,image/gif',
-```
-
-#### Validate that the file is an image:
-
-```php
-'picture' => 'image',
-```
-
-An SVG can carry script, so serving one back from your own domain is a stored
-XSS. It is therefore not an image unless you say so:
-
-```php
-'picture' => 'image:allow_svg',
-```
-
-#### Validate image dimensions:
-
-```php
-'avatar' => 'dimensions:min_width=100,min_height=100',
-'banner' => 'dimensions:width=1200,height=300',
-'photo' => 'dimensions:max_width=2000,max_height=2000',
-```
-
-**Available constraints for dimensions:**
-- `min_width`: Minimum width
-- `max_width`: Maximum width
-- `min_height`: Minimum height
-- `max_height`: Maximum height
-- `width`: Exact width
-- `height`: Exact height
-
-**Combination example:**
-```php
-'avatar' => 'image|dimensions:min_width=100,min_height=100,max_width=500,max_height=500',
-```
-
-#### Validate that the file size does not exceed the specified size in kilobytes:
-
-```php
-'picture' => 'image|max:2048',  // Max 2MB
-```
-
-**Complete file upload validation example:**
-
-```php
-$input = Input::all();
-
-$rules = [
-    'avatar' => 'required|file|image|mimes:jpg,png|max:2048|dimensions:min_width=100,min_height=100',
-    'document' => 'required|file|mimetypes:application/pdf|max:5120',
-    'photo' => 'image|dimensions:max_width=2000',
-];
-
-$validation = Validator::make($input, $rules);
-
-if ($validation->fails()) {
-    return Redirect::back()
-        ->with_input()
-        ->with_errors($validation);
-}
-
-// Upload file
-Input::upload('avatar', path('storage') . 'uploads');
-```
-
-<a id="array"></a>
-
-### Array
-
-#### Validate that the attribute is an array:
-
-```php
-'tags' => 'array',
-```
-
-#### Validate that all values in the array are unique:
-
-```php
-'emails' => 'distinct',
-```
-
-Example:
-```php
-// Valid
-['email@example.com', 'other@example.com']
-
-// Invalid (has duplicate)
-['email@example.com', 'email@example.com']
-```
-
-#### Validate that the attribute is an array, and has exactly 3 elements:
-
-```php
-'categories' => 'array|count:3',
-```
-
-#### Validate that the attribute is an array, and has 1 to 3 elements:
-
-```php
-'categories' => 'array|countbetween:1,3',
-```
-
-#### Validate that the attribute is an array, and has at least 2 elements:
-
-```php
-'categories' => 'array|countmin:2',
-```
-
-#### Validate that the attribute is an array, and has a maximum of 2 elements:
-
-```php
-'categories' => 'array|countmax:2',
-```
-
-<a id="other-rules"></a>
-
-### Other Rules
-
-#### Letter case:
-
-```php
-'slug' => 'lowercase',       // must be entirely lowercase
-'code' => 'uppercase',       // must be entirely uppercase
-'note' => 'ascii',           // only single-byte characters and symbols
-```
-
-#### Numbers:
-
-```php
-'price' => 'decimal:2',      // exactly 2 decimal places
-'price' => 'decimal:2,4',    // between 2 and 4 decimal places
-'qty' => 'multiple_of:5',    // must be a multiple of 5
-'pin' => 'max_digits:6',     // at most 6 digits
-'pin' => 'min_digits:4',     // at least 4 digits
-```
-
-#### Prefix and suffix:
-
-```php
-'name' => 'doesnt_start_with:admin,root',
-'file' => 'doesnt_end_with:.exe,.bat',
-```
-
-#### Arrays:
-
-```php
-'roles' => 'list',           // must be a sequential array
-'roles' => 'contains:admin', // must hold every one of the given values
-```
-
-#### Presence:
-
-```php
-'internal_note' => 'missing',      // the key must not be in the input at all
-'internal_note' => 'prohibited',   // the key may be there, but must be empty
-```
-
-#### Formats:
-
-```php
-'device' => 'mac_address',   // a valid MAC address
-'ref' => 'ulid',             // a valid ULID
-'color' => 'hex_color',      // #fff, #ffffff or #ffffffff
-```
-
-<a id="retrieving-error-messages"></a>
-
-## Retrieving Error Messages
-
-After `passes()` or `fails()`, the failures sit in the `$errors` property, a message
-collector with these helpers:
-
-#### Check if a certain attribute has error messages:
-
-```php
-if ($validation->errors->has('email')) {
-    // The email attribute has errors..
-}
-```
-
-#### Get the first error message for an attribute:
-
-```php
-echo $validation->errors->first('email');
-```
-
-To wrap a message in HTML, pass a format carrying the `:message` placeholder as the
-second parameter.
-
-#### Format an error message:
-
-```php
-echo $validation->errors->first('email', '<p>:message</p>');
-```
-
-#### Get all error messages for a specific attribute:
-
-```php
-$messages = $validation->errors->get('email');
-```
-
-#### Format all error messages for a specific attribute:
-
-```php
-$messages = $validation->errors->get('email', '<p>:message</p>');
-```
-
-#### Get all error messages for all attributes:
-
-```php
-$messages = $validation->errors->all();
-```
-
-#### Format all error messages for all attributes:
-
-```php
-$messages = $validation->errors->all('<p>:message</p>');
-```
-
+<a id="displaying-errors"></a>
 <a id="validation-guide"></a>
 
-## Validation Guide
+## Displaying Errors
 
-The errors still have to reach the view. The usual shape is two routes:
+Every view receives an `$errors` [Messages](/docs/messages) bag: the one flashed by
+`->with_errors($validation)`, or an empty one, so you never need to pass it yourself.
 
 ```php
 Route::get('register', function () {
@@ -994,297 +112,387 @@ Route::get('register', function () {
 });
 
 Route::post('register', function () {
-    $rules = [ ... ]; // validation rules here
-
     $validation = Validator::make(Input::all(), $rules);
 
     if ($validation->fails()) {
-        return Redirect::to('register')->with_errors($validation);
+        return Redirect::to('register')->with_input()->with_errors($validation);
     }
+
+    // ...
 });
 ```
 
-One route shows the form, the other handles the POST. On failure it redirects back
-with the errors flashed to the session.
+```blade
+<div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+    <input type="email" name="email" value="{{ Input::old('email') }}">
 
-**The GET route never binds those errors to the view.** It does not have to: Rakit
-binds `$errors` itself, from the session when there are errors and as an empty
-collector when there are none, so a view may always assume it is there.
+    @if ($errors->has('email'))
+        <span class="error">{{ $errors->first('email') }}</span>
+    @endif
+</div>
+```
 
-For example, if email validation fails, we can look for `'email'` in the `$errors` variable.
+<a id="retrieving-error-messages"></a>
+
+## Retrieving Error Messages
+
+After `passes()`/`fails()`, the errors are in `$validation->errors`. Every getter takes an
+optional format with a `:message` placeholder:
 
 ```php
-$errors->has('email')
+$validation->errors->has('email');
+$validation->errors->first('email');
+$validation->errors->first('email', '<p>:message</p>');
+$validation->errors->get('email');                    // all messages for one attribute
+$validation->errors->get('email', '<p>:message</p>');
+$validation->errors->all();                           // all messages for all attributes
+$validation->errors->all('<p>:message</p>');
 ```
 
-With [Blade](/docs/views/templating#blade-template-engine), we can then add
-the error message to our view conditionally:
+<a id="available-rules"></a>
+<a id="validation-rules"></a>
+
+## Available Rules
+
+<a id="required"></a>
+
+### Required
+
+| Rule | Passes when |
+| --- | --- |
+| `required` | the value is present and not empty (an empty string, whitespace-only string or empty array is empty; `0` and `'0'` are not) |
+| `filled` | same as `required` (a missing field fails it too) |
+| `present` | the key exists, even if its value is `null` or `''` |
+| `nullable` | always; when the value is `null`, the non-implicit rules are skipped ([see above](#optional-fields)) |
+| `required_with:a,b` | required if **any** of the listed fields is filled |
+| `required_with_all:a,b` | required if **all** of the listed fields are filled |
+| `required_without:a,b` | required if **any** of the listed fields is empty |
+| `required_without_all:a,b` | required if **all** of the listed fields are empty |
+| `required_if:field,v1,v2` | required if `field` equals one of the values |
+| `required_unless:field,v1,v2` | required unless `field` equals one of the values |
 
 ```php
-@if ($errors->has('email'))
-    <span class="error">{{ $errors->first('email') }}</span>
-@endif
+'last_name' => 'required_with:first_name',
+'tax_id'    => 'required_if:country,US,CA',
+'reason'    => 'required_unless:status,approved',
 ```
 
-The same works for a conditional class, such as Bootstrap's `"error"` on the
-surrounding `<div class="control-group">`.
+<a id="alphabets-numbers--dashes"></a>
 
-```html
-<div class="control-group{{ $errors->has('email') ? ' error' : '' }}"></div>
+### Alphabets, Numbers & Dashes
+
+| Rule | Passes when |
+| --- | --- |
+| `alpha` | only letters (Unicode) |
+| `alpha_num` | only letters and digits |
+| `alpha_dash` | only letters, digits, `-` and `_` |
+
+<a id="size"></a>
+
+### Size
+
+"Size" depends on the value: string length, the number itself (only when the attribute also has
+`numeric` or `integer`), array element count, or file size in kilobytes.
+
+| Rule | Passes when |
+| --- | --- |
+| `size:10` | size equals 10 |
+| `between:10,50` | size is between 10 and 50, inclusive |
+| `min:10` | size is at least 10 |
+| `max:50` | size is at most 50 |
+
+```php
+'age'  => 'integer|min:18',   // the number
+'name' => 'max:50',           // characters
+'tags' => 'array|max:3',      // elements
+'file' => 'max:2048',         // kilobytes
 ```
 
-When validation fails, the view we render will have the `'error'` class added.
+<a id="numbers"></a>
 
-```html
-<div class="control-group error"></div>
+### Numbers
+
+| Rule | Passes when |
+| --- | --- |
+| `numeric` | `is_numeric()` |
+| `integer` | a valid integer |
+| `boolean` | `true`, `false`, `1`, `0`, `'1'` or `'0'` |
+
+<a id="comparison"></a>
+
+### Comparison
+
+`gt`, `gte`, `lt` and `lte` compare against **another attribute**, and fail when it is missing.
+
+| Rule | Passes when |
+| --- | --- |
+| `gt:cost` | greater than the `cost` field |
+| `gte:min_quantity` | greater than or equal to the field |
+| `lt:price` | less than the field |
+| `lte:max_age` | less than or equal to the field |
+| `digits:6` | only digits, exactly 6 of them |
+| `digits_between:4,8` | only digits, 4 to 8 of them |
+| `date_equals:2024-12-31` | the same date as the given date (see [Date](#date)) |
+
+<a id="inclusion--exclusion"></a>
+
+### Inclusion & Exclusion
+
+| Rule | Passes when |
+| --- | --- |
+| `in:small,medium,large` | the value is one of the list |
+| `not_in:cobol,assembler` | the value is not in the list |
+
+<a id="confirmation--approval"></a>
+<a id="confirmation"></a>
+<a id="approval"></a>
+
+### Confirmation & Approval
+
+| Rule | Passes when |
+| --- | --- |
+| `confirmed` | a matching `{field}_confirmation` field exists, e.g. `password_confirmation` |
+| `accepted` | `'yes'`, `'on'`, `'1'`, `1`, `true` or `'true'` (what a ticked checkbox sends); a missing field fails |
+| `declined` | `'no'`, `'off'`, `'0'`, `0`, `false` or `'false'` |
+
+<a id="same--different"></a>
+
+### Same & Different
+
+| Rule | Passes when |
+| --- | --- |
+| `same:token2` | equals the other field (which must exist) |
+| `different:old_password` | differs from the other field (which must exist) |
+
+<a id="string--format"></a>
+
+### String & Format
+
+| Rule | Passes when |
+| --- | --- |
+| `string` | the value is a string |
+| `json` | a valid JSON string |
+| `uuid` | a valid UUID |
+| `timezone` | a valid timezone identifier, e.g. `Asia/Jakarta`, `UTC` |
+| `starts_with:+62,08` | starts with one of the values |
+| `ends_with:.com,.net` | ends with one of the values |
+| `in_array:colors.*` | is one of the values of the `colors` field (`in_array:colors` and nested paths like `form.colors` work too) |
+
+<a id="regular-expression"></a>
+
+### Regular Expression
+
+| Rule | Passes when |
+| --- | --- |
+| `match:/pattern/` | the value matches the pattern (`regex:` is an alias) |
+| `not_regex:/pattern/` | the value does not match |
+
+Use the array syntax so a `|` in the pattern is not read as a rule separator:
+
+```php
+'username' => ['required', 'match:/^[a-z0-9]+$/i'],
 ```
+
+<a id="uniqueness--existence"></a>
+
+### Uniqueness & Existence
+
+These rules query the default database connection (see [connection()](#validator-options)).
+
+```php
+'email' => 'unique:users',                       // no row in users with this email
+'email' => 'unique:users,email_address',         // check a different column
+'email' => 'unique:users,email_address,10',      // ignore the row whose id is 10 (for updates)
+'email' => 'unique:users,email_address,10,uid',  // ...whose `uid` column is 10
+
+'city'  => 'exists:cities',                      // a row in cities has this city
+'city'  => 'exists:cities,abbreviation',         // check a different column
+```
+
+When the value of `exists` is an array, every element must exist.
+
+<a id="date"></a>
+
+### Date
+
+Dates are parsed with PHP's [DateTime](https://www.php.net/manual/en/datetime.construct.php)
+and compared against the given date string (not another attribute).
+
+| Rule | Passes when |
+| --- | --- |
+| `date` | a valid date |
+| `before:1992-11-02` | before the date |
+| `before_or_equal:2024-12-31` | before or on the date (`before_or_equals` also works) |
+| `after:1992-11-02` | after the date |
+| `after_or_equal:2024-12-31` | after or on the date (`after_or_equals` also works) |
+| `date_format:Y-m-d` | matches the [format](https://www.php.net/manual/en/datetime.createfromformat.php) exactly |
+
+`date_format` is strict: the date must read back the way it came in, so `Y-m-d` accepts
+`2026-01-01` but not `2026-1-1`. A format containing `:` works as-is (`date_format:H:i`), since
+only the first `:` separates the rule from its parameter.
+
+<a id="e-mail-url--ip"></a>
+<a id="e-mail"></a>
+<a id="url"></a>
+<a id="ip-address"></a>
+
+### E-Mail, URL & IP
+
+| Rule | Passes when |
+| --- | --- |
+| `email` | a valid email address (`filter_var()`) |
+| `url` | a valid URL |
+| `active_url` | an http(s) URL answering a cURL `HEAD` request with 2xx or 3xx (5 second timeout) |
+| `ip` | a valid IPv4 or IPv6 address |
+| `ipv4` | a valid IPv4 address |
+| `ipv6` | a valid IPv6 address |
+
+<a id="files"></a>
+<a id="file-upload"></a>
+<a id="validating-files"></a>
+
+### Files
+
+File rules expect the `$_FILES` entry, so validate `Input::all()` (or `Input::file()`). File
+types are detected from the content with [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php),
+not from the file name.
+
+| Rule | Passes when |
+| --- | --- |
+| `file` | a successfully uploaded file |
+| `mimes:jpg,png,pdf` | the detected type matches one of the extensions |
+| `mimetypes:image/jpeg,application/pdf` | the detected MIME type is one of the list |
+| `image` | jpeg, png, gif, bmp or webp |
+| `image:allow_svg` | the above, or svg |
+| `dimensions:...` | the image meets the constraints: `width`, `height`, `min_width`, `max_width`, `min_height`, `max_height` |
+| `max:2048` | at most 2048 KB (see [Size](#size)) |
+
+```php
+'avatar'   => 'required|image|max:2048|dimensions:min_width=100,min_height=100',
+'document' => 'required|mimetypes:application/pdf|max:5120',
+```
+
+> SVG is excluded from `image` by default because an SVG can carry script; serving one back from
+> your domain is a stored XSS.
+
+<a id="array"></a>
+
+### Array
+
+| Rule | Passes when |
+| --- | --- |
+| `array` | the value is an array |
+| `array:name,email` | an array whose keys are all in the list |
+| `list` | a sequential array (keys `0..n-1`) |
+| `distinct` | the array holds no duplicate values |
+| `contains:admin,editor` | the array holds every one of the values |
+| `count:3` | an array with exactly 3 elements |
+| `countmin:2` | an array with at least 2 elements |
+| `countmax:2` | an array with at most 2 elements |
+| `countbetween:1,3` | an array with 1 to 3 elements |
+
+<a id="other-rules"></a>
+
+### Other Rules
+
+| Rule | Passes when |
+| --- | --- |
+| `lowercase` | entirely lowercase |
+| `uppercase` | entirely uppercase |
+| `ascii` | only ASCII characters |
+| `decimal:2` | exactly 2 decimal places (`decimal:2,4` for a range) |
+| `multiple_of:5` | a multiple of 5 |
+| `min_digits:4` | a number with at least 4 digits |
+| `max_digits:6` | a number with at most 6 digits |
+| `doesnt_start_with:admin,root` | does not start with any of the values |
+| `doesnt_end_with:.exe,.bat` | does not end with any of the values |
+| `missing` | the key is not in the input at all |
+| `prohibited` | the key may be there, but must be empty |
+| `mac_address` | a valid MAC address |
+| `ulid` | a valid ULID |
+| `hex_color` | `#fff`, `#ffff`, `#ffffff` or `#ffffffff` |
 
 <a id="custom-error-messages"></a>
 
 ## Custom Error Messages
 
-Messages can be overridden, per attribute and per rule:
-
-#### Create an array of custom error messages for the Validator:
-
-```php
-$messages = [
-    'required' => 'The :attribute field is required.',
-    'email'    => ':attribute must be a valid email address.',
-    'unique'   => ':attribute is already registered.',
-];
-
-$validation = Validator::make($input, $rules, $messages);
-
-if ($validation->fails()) {
-    return Redirect::back()->with_input()->with_errors($validation);
-}
-```
-
-**Practical example with form:**
-
-```php
-// Controller
-public function action_store()
-{
-    $rules = [
-        'name'  => 'required|max:50',
-        'email' => 'required|email|unique:users',
-    ];
-
-    $messages = [
-        'name_required'  => 'Name is required.',
-        'name_max'       => 'Name maximum 50 characters.',
-        'email_required' => 'Email is required.',
-        'email_email'    => 'Invalid email format.',
-        'email_unique'   => 'Email is already registered.',
-    ];
-
-    $validation = Validator::make(Input::all(), $rules, $messages);
-
-    if ($validation->fails()) {
-        return Redirect::back()
-            ->with_input()
-            ->with_errors($validation);
-    }
-
-    // Save data
-}
-```
-
-**In view:**
-
-```php
-<form method="POST" action="<?php echo URL::to('users'); ?>">
-    <div class="form-group<?php echo $errors->has('name') ? ' has-error' : ''; ?>">
-        <label>Name</label>
-        <input type="text" name="name" value="<?php echo Input::old('name'); ?>">
-        <?php if ($errors->has('name')): ?>
-            <span class="help-block"><?php echo $errors->first('name'); ?></span>
-        <?php endif; ?>
-    </div>
-
-    <div class="form-group<?php echo $errors->has('email') ? ' has-error' : ''; ?>">
-        <label>Email</label>
-        <input type="email" name="email" value="<?php echo Input::old('email'); ?>">
-        <?php if ($errors->has('email')): ?>
-            <span class="help-block"><?php echo $errors->first('email'); ?></span>
-        <?php endif; ?>
-    </div>
-
-    <button type="submit">Submit</button>
-</form>
-```
-
-The `:attribute` placeholder is replaced with the name of the attribute that failed,
-underscores stripped so it reads well.
-
-You can also use placeholders `:other`, `:size`, `:min`, `:max`, and `:values` when
-creating custom error messages:
-
-#### Other placeholders for validation error messages:
+Pass messages as the third argument to `make()`. Key them by rule to override it for every
+attribute, or by `{attribute}_{rule}` for one attribute:
 
 ```php
 $messages = [
-    'same'    => 'The :attribute and :other fields must be the same.',
-    'size'    => 'The :attribute field must be of size :size.',
-    'between' => 'The :attribute field must be between :min - :max.',
-    'in'      => 'The :attribute field must contain one of: :values',
-];
-```
-
-Then, if you need to specify a custom message, but only for the _email_ attribute?
-Easy. Just specify the message using the naming convention `[attribute name]` + `_` + `[rule name]`
-like this:
-
-#### Specify custom error messages for a specific attribute:
-
-```php
-$messages = [
+    'required'       => 'The :attribute field is required.',
     'email_required' => 'We need your email address!',
-    'email_email'    => 'Invalid email format!',
+    'between'        => 'The :attribute must be between :min and :max.',
 ];
 
-$validation = Validator::make($input, $rules, $messages);
+$validation = Validator::make(Input::all(), $rules, $messages);
 ```
 
-In the example above, the required custom message will be used for the email attribute, while
-default messages will be used for all other attributes.
+`:attribute` becomes the attribute name with underscores replaced by spaces. Rules also fill
+their own placeholders, such as `:other`, `:size`, `:min`, `:max`, `:values`, `:value`,
+`:date`, `:format`, `:digits` and `:count` (see the default messages for which rule uses which).
 
-However, if you use many custom error messages, writing them inline in every
-validation code will certainly make your code messy and cluttered.
-
-Therefore, you can put your custom messages in the `'custom'` array in
-the validation language file:
-
-#### Add custom error messages via validation language file:
-
-**File: `application/language/en/validation.php`**
+To keep messages out of your code, put `{attribute}_{rule}` messages in the `custom` array of
+the language file, and friendly attribute names in its `attributes` array:
 
 ```php
+// application/language/en/validation.php
 'custom' => [
     'email_required' => 'We need your email address!',
-    'email_email'    => 'Invalid email format!',
-    'name_required'  => 'Name is required!',
-    'name_max'       => 'Name is too long!',
+],
+
+'attributes' => [
+    'dob' => 'date of birth',
 ],
 ```
 
-With this way, error messages are centralized and easy to manage.
+A message is looked up in this order: inline `{attribute}_{rule}`, the language file's `custom`
+entry, inline `{rule}`, then the default line. The defaults for `size`, `between`, `min` and
+`max` have `numeric`, `file`, `array` and `string` variants, picked from the value.
 
 <a id="custom-validation-rules"></a>
 
 ## Custom Validation Rules
 
-Rakit has provided a number of validation rules that are commonly used by many people.
-However, it is very possible that you need to create custom validation rules for your own needs.
-
-There are two simple methods to create custom validation rules. Both are solid, so use whichever
-suits your needs best.
-
-#### Register a custom validation rule:
+Register a closure. It receives the attribute name, the value and the rule's parameters, and
+returns `TRUE` when the value passes:
 
 ```php
-Validator::register('humble', function ($attribute, $value, $params) {
-    return ($value === 'humble');
-});
-```
-
-In this example, we register a new validation rule to the validator. The rule receives
-three parameters. The first is the name of the attribute to be validated,
-the second is the value of the attribute to be validated, and the third is an array of parameters
-specified for that rule.
-
-Here is how your custom validation rule is called:
-
-```php
-$rules = [
-    'attitude' => 'required|humble',
-];
-```
-
-Of course, you need to define an error message for your new rule. You can do this
-either in an array like this:
-
-```php
-$messages = [
-    'humble' => 'You must always be humble!',
-];
-
-$validator = Validator::make(Input::get(), $rules, $messages);
-```
-
-Or by adding it to the `application/language/en/validation.php` file:
-
-```php
-'humble' => 'You must always be humble!',
-```
-
-As mentioned above, you can specify and receive an array of parameters in your custom rule:
-
-```php
-// Register custom rule
-Validator::register('humble', function ($attribute, $value, $params) {
-    return ($value === $params[0]);
+Validator::register('humble', function ($attribute, $value, $parameters) {
+    return $value === $parameters[0];
 });
 
-// Usage
-$rules = [
-    'attitude' => 'required|humble:yes',
-];
+$rules = ['attitude' => 'required|humble:yes'];
 ```
 
-In this case, the parameter array of your validation rule will receive one element: `'yes'`.
+Give the rule a message, either inline (`'humble' => 'You must be humble!'`) or as a `'humble'`
+line in `application/language/en/validation.php`.
 
-The other method for creating and storing custom validation rules is by extending
-the `Validator` class itself. By extending the class, you create a new version of the validator
-that has all the existing functionality combined with your own custom additions.
-
-You can even choose to override some default methods if you want.
-Let's see an example!
-
-First, create a class that extends `Validator` and place it in
-your `application/libraries/` directory:
-
-#### Create a custom validator class:
+Alternatively, extend the validator. Create `application/libraries/validator.php` with a
+`validate_{rule}` method, then remove the `'Validator' => 'System\Validator'` entry from
+`application/config/aliases.php` so your class takes its place:
 
 ```php
 class Validator extends \System\Validator
 {
-    // ..
-}
-```
-
-Next, remove `Validator` from the aliases array in the `application/config/aliases.php` file. This is
-necessary because there would be two classes named Validator otherwise, which would conflict:
-
-```php
-return [
-    // ..
-
-    'Validator' => 'System\Validator', // Remove this part
-
-    // ..
-];
-```
-
-Next, just move our `'humble'` rule into that class:
-
-#### Add custom validation rules to the class:
-
-```php
-class Validator extends \System\Validator
-{
-    public function validate_humble($attribute, $value, $params)
+    public function validate_humble($attribute, $value, $parameters)
     {
-        return ($value === 'yes');
+        return $value === 'yes';
     }
 }
 ```
 
-Note that the method name is named using the convention `validate_` + `[rule name]`.
-Our rule is named `'humble'` so the method must be named `validate_humble`.
+Validation methods must return `TRUE` or `FALSE`, and you can override built-in ones the same way.
 
-All validation methods in the Validator class must return `TRUE` or `FALSE`, nothing else.
+<a id="validator-options"></a>
 
-Remember that you still need to create a custom error message for the new validation rule you created.
+## Validator Options
+
+```php
+Validator::make($input, $rules)
+    ->speaks('id')                              // read messages in another language
+    ->package('admin')                          // read messages from a package's language files
+    ->connection(Database::connection('mysql')) // DB connection for unique/exists
+    ->fails();
+```

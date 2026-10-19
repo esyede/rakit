@@ -4,7 +4,6 @@ namespace System\Database\Facile\Relationships;
 
 defined('DS') or exit('No direct access.');
 
-use System\Carbon;
 use System\Database\Facile\Model;
 
 class HasOneOrMany extends Relationship
@@ -35,19 +34,26 @@ class HasOneOrMany extends Relationship
     }
 
     /**
-     * Update the records of the relationship.
+     * Save the given model(s) for the relationship, setting the foreign key.
+     * Each model is inserted or updated according to its own exists flag.
      *
-     * @param array $attributes
+     * @param mixed $models
      *
      * @return bool
      */
-    public function update(array $attributes)
+    public function save($models)
     {
-        if ($this->model->timestamps()) {
-            $attributes['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
+        $models = is_array($models) ? $models : [$models];
+        $class = get_class($this->model);
+        $saved = true;
+
+        foreach ($models as $attributes) {
+            $model = ($attributes instanceof $class) ? $attributes : $this->fresh_model($attributes);
+            $this->set_foreign_key($model);
+            $saved = $model->save() && $saved;
         }
 
-        return $this->table->update($attributes);
+        return $saved;
     }
 
     /**

@@ -2,708 +2,399 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2" bracket="round" lowercase="only_ascii" -->
 
--   [Basic Knowledge](#basic-knowledge)
--   [List of Helpers](#list-of-helpers)
+-   [Introduction](#introduction)
+-   [Available Helpers](#available-helpers)
+-   [Debugging](#debugging)
+-   [Arrays & Data](#arrays--data)
+-   [Strings & Classes](#strings--classes)
+-   [URLs & Redirects](#urls--redirects)
+-   [Views & Sections](#views--sections)
+-   [Security](#security)
+-   [Services](#services)
+-   [Errors](#errors)
+-   [Console](#console)
+-   [Miscellaneous](#miscellaneous)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-Rakit defines a set of global helper functions. The framework uses them itself, and
-so can your application.
+Rakit ships a set of global helper functions. The framework uses them itself, and so can your application.
 
+<a id="available-helpers"></a>
 <a id="list-of-helpers"></a>
 
-## List of Helpers
+## Available Helpers
 
-The built-in helpers:
+| Group | Helpers |
+| ----- | ------- |
+| Debugging | [bd](#bd) [dd](#dd) [dump](#dump) [measure](#measure) |
+| Arrays & Data | [collect](#collect) [data_fill](#data_fill) [data_get](#data_get) [data_set](#data_set) [facile_to_json](#facile_to_json) [head](#head) [last](#last) |
+| Strings & Classes | [\_\_ & trans](#__trans) [class_basename](#class_basename) [e](#e) [human_filesize](#human_filesize) [root_namespace](#root_namespace) |
+| URLs & Redirects | [action](#action) [asset](#asset) [back](#back) [old](#old) [redirect](#redirect) [route](#route) [url](#url) |
+| Views & Sections | [render](#render) [render_each](#render_each) [section_inject](#section_inject) [section_start](#section_start) [section_stop](#section_stop) [view](#view) [yield_content](#yield_content) [yield_section](#yield_section) |
+| Security | [bcrypt](#bcrypt) [csrf_field](#csrf_field) [csrf_name](#csrf_name) [csrf_token](#csrf_token) [decrypt](#decrypt) [encrypt](#encrypt) |
+| Services | [cache](#cache) [config](#config) [dispatch](#dispatch) [fake](#fake) [now](#now) [session](#session) [validate](#validate) |
+| Errors | [abort](#abort) [abort_if](#abort_if) |
+| Console | [get_cli_option](#get_cli_option) [has_cli_flag](#has_cli_flag) [is_cli](#is_cli) [system_os](#system_os) |
+| Miscellaneous | [blank](#blank) [filled](#filled) [optional](#optional) [retry](#retry) [tap](#tap) [value](#value) [when](#when) |
 
-|                                 |                                   |                                   |                                   |                                   |                                   |
-| ------------------------------- | --------------------------------- | --------------------------------- | --------------------------------- | --------------------------------- | --------------------------------- |
-| [e](#e)                         | [dd](#dd)                         | [dump](#dump)                     | [bd](#bd)                         | [\_\_ & trans](#__trans)          | [is_cli](#is_cli)                 |
-| [data_fill](#data_fill)         | [data_get](#data_get)             | [data_set](#data_set)             | [retry](#retry)                   | [facile_to_json](#facile_to_json) | [head](#head)                     |
-| [last](#last)                   | [url](#url)                       | [asset](#asset)                   | [action](#action)                 | [route](#route)                   | [redirect](#redirect)             |
-| [back](#back)                   | [old](#old)                       | [csrf_name](#csrf_name)           | [csrf_token](#csrf_token)         | [csrf_field](#csrf_field)         | [root_namespace](#root_namespace) |
-| [class_basename](#class_basename) | [value](#value)                 | [view](#view)                     | [render](#render)                 | [render_each](#render_each)       | [yield_content](#yield_content)   |
-| [yield_section](#yield_section) | [section_start](#section_start)   | [section_stop](#section_stop)     | [section_inject](#section_inject) | [get_cli_option](#get_cli_option) | [has_cli_flag](#has_cli_flag)     |
-| [system_os](#system_os)         | [config](#config)                 | [cache](#cache)                   | [session](#session)               | [collect](#collect)               | [fake](#fake)                     |
-| [validate](#validate)           | [abort](#abort)                   | [abort_if](#abort_if)             | [encrypt](#encrypt)               | [decrypt](#decrypt)               | [bcrypt](#bcrypt)                 |
-| [dispatch](#dispatch)           | [blank](#blank)                   | [filled](#filled)                 | [now](#now)                       | [tap](#tap)                       | [optional](#optional)             |
-| [when](#when)                   | [human_filesize](#human_filesize) | [measure](#measure)               |
+<a id="debugging"></a>
 
-<a id="e"></a>
+## Debugging
 
-### e
+<a id="bd"></a>
 
-The `e` function performs HTML entity escaping using [htmlentities](https://www.php.net/htmlentities) with UTF-8 encoding:
+### bd
+
+Dumps a variable to the [debug bar](/docs/debugging#debug-bar), with an optional title. Execution continues.
 
 ```php
-echo e('<html>foo</html>');
-// &lt;html&gt;foo&lt;/html&gt;
-
-echo e('<script>alert("XSS")</script>');
-// &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;
+bd($value, 'Breakpoint 1');
 ```
-
-Use it to keep untrusted text from turning into markup (XSS).
 
 <a id="dd"></a>
 
 ### dd
 
-The `dd` function will dump the contents of a variable and stop script execution:
+Dumps one or more variables and stops the script (outside production mode).
 
 ```php
-dd($value);
-
-dd($value1, $value2, $value3, ...);
+dd($value1, $value2);
 ```
 
 <a id="dump"></a>
 
 ### dump
 
-The `dump` function will dump the contents of a variable but script execution will continue.
-On a web request with the debug bar enabled (and not in production mode), the dump is sent to the debug bar instead:
+Like `dd`, but execution continues. On a web request with the debug bar enabled (and not in production mode), the dump goes to the debug bar.
 
 ```php
-dump($value);
-
-dump($value1, $value2, $value3, ...);
+dump($value1, $value2);
 ```
 
-<a id="bd"></a>
+<a id="measure"></a>
 
-### bd
+### measure
 
-The `bd` function will dump the contents of a variable to the [debug bar](/docs/debugging#debug-bar).
-Script execution will continue:
+Times a closure, records it on the debug bar Timeline, and returns the closure's result. Use `start_measure` / `stop_measure` with the same name for code that does not fit in one closure.
 
 ```php
-bd($value);
+$users = measure('load users', function () {
+    return DB::table('users')->get();
+});
 
-bd($value, 'Breakpoint 1');
+start_measure('report');
+// ...
+stop_measure('report', 'Monthly report');
 ```
 
-<a id="__trans"></a>
+> Measurements are only recorded outside production mode, so the calls are safe to leave in place.
 
-### \_\_ & trans
+<a id="arrays--data"></a>
 
-The `__` and `trans` functions translate strings based on data from language files in the `application/language/` folder:
+## Arrays & Data
 
-```php
-echo __('marketing.welcome');
-echo trans('marketing.welcome');
+<a id="collect"></a>
 
-// With replacement
-echo __('marketing.hello', ['name' => 'Budi']);
-echo trans('marketing.hello', ['name' => 'Budi']);
+### collect
 
-// With specific language
-echo __('marketing.welcome', [], 'en');
-echo trans('marketing.welcome', [], 'en');
-```
-
-> **Note:** The `__` function is an alias for `trans`.
-
-<a id="is_cli"></a>
-
-### is_cli
-
-The `is_cli` function checks if the script is running from the console:
+Creates a [Collection](/docs/collection) from the given value.
 
 ```php
-if (is_cli()) {
-    // Request comes from command line!
-}
+collect([1, 2, 3])->map(function ($v) { return $v * 2; })->all();
+// [2, 4, 6]
 ```
 
 <a id="data_fill"></a>
 
 ### data_fill
 
-The `data_fill` function fills missing values in a nested array using "dot" notation:
+Sets a value in a nested array/object using "dot" notation, only where it is missing. Supports the `*` wildcard.
 
 ```php
-$data = ['products' => ['desk' => ['price' => 100]]];
-
-data_fill($data, 'products.desk.price', 200);
-// ['products' => ['desk' => ['price' => 100]]]
-
-data_fill($data, 'products.desk.discount', 10);
-// ['products' => ['desk' => ['price' => 100, 'discount' => 10]]]
-```
-
-This function also accepts the `*` (asterisk) character as a wildcard:
-
-```php
-$data = [
-    'products' => [
-        ['name' => 'Desk 1', 'price' => 100],
-        ['name' => 'Desk 2'],
-    ],
-];
+$data = ['products' => [['price' => 100], []]];
 
 data_fill($data, 'products.*.price', 200);
-/*
-    [
-        'products' => [
-            ['name' => 'Desk 1', 'price' => 100],
-            ['name' => 'Desk 2', 'price' => 200],
-        ],
-    ]
-*/
+// ['products' => [['price' => 100], ['price' => 200]]]
 ```
 
 <a id="data_get"></a>
 
 ### data_get
 
-The `data_get` function retrieves a value from a nested array or object using "dot" notation:
+Gets a value from a nested array/object using "dot" notation, with an optional default. Supports the `*` wildcard.
 
 ```php
 $data = ['products' => ['desk' => ['price' => 100]]];
 
-$price = data_get($data, 'products.desk.price');
-// 100
-```
+data_get($data, 'products.desk.price');       // 100
+data_get($data, 'products.desk.discount', 0); // 0
 
-The `data_get` function also accepts a default value, which will be returned if the requested key is not found:
-
-```php
-$discount = data_get($data, 'products.desk.discount', 0);
-// 0
-```
-
-This function also accepts the `*` (asterisk) character as a wildcard:
-
-```php
-$data = [
-    'product-one' => ['name' => 'Desk 1', 'price' => 100],
-    'product-two' => ['name' => 'Desk 2', 'price' => 150],
-];
-
-data_get($data, '*.name');
-// ['Desk 1', 'Desk 2'];
+data_get([['name' => 'Desk 1'], ['name' => 'Desk 2']], '*.name');
+// ['Desk 1', 'Desk 2']
 ```
 
 <a id="data_set"></a>
 
 ### data_set
 
-The `data_set` function sets a value in a nested array or object using "dot" notation:
+Sets a value in a nested array/object using "dot" notation, overwriting existing values. Supports the `*` wildcard. Pass `false` as the fourth argument to keep existing values.
 
 ```php
 $data = ['products' => ['desk' => ['price' => 100]]];
 
 data_set($data, 'products.desk.price', 200);
 // ['products' => ['desk' => ['price' => 200]]]
+
+data_set($data, 'products.desk.price', 300, false);
+// unchanged: price stays 200
 ```
-
-This function also accepts the `*` (asterisk) character as a wildcard:
-
-```php
-$data = [
-    'products' => [
-        ['name' => 'Desk 1', 'price' => 100],
-        ['name' => 'Desk 2', 'price' => 150],
-    ],
-];
-
-data_set($data, 'products.*.price', 200);
-/*
-    [
-        'products' => [
-            ['name' => 'Desk 1', 'price' => 200],
-            ['name' => 'Desk 2', 'price' => 200],
-        ],
-    ]
-*/
-```
-
-By default, all existing values will be overwritten. If you only want to set the value if it doesn't exist, pass `false` to the fourth parameter:
-
-```php
-$data = ['products' => ['desk' => ['price' => 100]]];
-
-data_set($data, 'products.desk.price', 200, $overwrite = false);
-// ['products' => ['desk' => ['price' => 100]]]
-```
-
-<a id="retry"></a>
-
-### retry
-
-The `retry` function runs a callback up to the given number of times, returning its
-result as soon as it does not throw:
-
-```php
-// Retry 5 times with 100ms delay between attempts
-return retry(5, function () {
-    // Operation that might fail (e.g., HTTP request)
-    return file_get_contents('https://api.example.com/data');
-}, 100);
-```
-
-#### Retry with specific conditions:
-
-```php
-// Only retry for specific exceptions
-return retry(3, function () {
-    // Your code here
-}, 100, function ($exception) {
-    // Only retry for specific exceptions
-    return $exception instanceof ConnectionException;
-});
-```
-
-Parameters:
-- `$times` - Maximum number of attempts
-- `$callback` - Callback to execute
-- `$sleep_ms` - Delay time between attempts (milliseconds)
-- `$when` - Optional callback to determine when to retry
 
 <a id="facile_to_json"></a>
 
 ### facile_to_json
 
-The `facile_to_json` function converts a Facile model object to a JSON string:
+Converts a Facile model, or a plain array of models, to JSON. The second argument takes `json_encode()` options.
 
 ```php
-// Single model
-$json = facile_to_json(User::find(1));
-// {"id":1,"name":"Budi","email":"budi@example.com"}
+facile_to_json(User::find(1));
+// {"id":1,"name":"Budi"}
 
-// Multiple models (pass a plain array, User::all() returns a Collection)
-$json = facile_to_json(User::all()->all());
-// [{"id":1,"name":"Budi"}, {"id":2,"name":"Ani"}]
-
-// With JSON options
-$json = facile_to_json(User::all()->all(), JSON_PRETTY_PRINT);
+facile_to_json(User::all()->all(), JSON_PRETTY_PRINT); // a Collection must be turned into an array
 ```
 
 <a id="head"></a>
 
 ### head
 
-The `head` function returns the first element of an array:
+Returns the first element of an array.
 
 ```php
-$array = [100, 200, 300];
-
-$first = head($array);
-// 100
-
-$array = ['name' => 'Budi', 'age' => 25];
-$first = head($array);
-// 'Budi'
+head([100, 200, 300]); // 100
 ```
 
 <a id="last"></a>
 
 ### last
 
-The `last` function returns the last element of an array:
+Returns the last element of an array.
 
 ```php
-$array = [100, 200, 300];
-
-$last = last($array);
-// 300
-
-$array = ['name' => 'Budi', 'age' => 25];
-$last = last($array);
-// 25
+last([100, 200, 300]); // 300
 ```
 
-<a id="url"></a>
+<a id="strings--classes"></a>
 
-### url
+## Strings & Classes
 
-The `url` function generates a complete URL to the given path:
+<a id="__trans"></a>
 
-```php
-$url = url('user/profile');
-// https://example.com/index.php/user/profile
+### \_\_ & trans
 
-$url = url('/');
-// https://example.com/index.php/
-
-$url = url();
-// https://example.com/index.php/
-```
-
-<a id="asset"></a>
-
-### asset
-
-The `asset` function generates a URL to an asset:
+Translates a key from the language files in `application/language/`. `__` is an alias for `trans`. Optional arguments are replacements and the language. Both return the translated string (an array for a group key), not a `Lang` object.
 
 ```php
-$url = asset('css/style.css');
-// https://example.com/assets/css/style.css
-
-$url = asset('js/app.js');
-// https://example.com/assets/js/app.js
-
-$url = asset('images/logo.png');
-// https://example.com/assets/images/logo.png
-
-// Assets from package
-$url = asset('packages/docs/css/style.css');
-// https://example.com/assets/packages/docs/css/style.css
-```
-
-> Assets can be images, CSS, JavaScript, or other files stored in the `assets/` folder in the application root.
-
-<a id="action"></a>
-
-### action
-
-The `action` function generates a URL to an action owned by a controller:
-
-```php
-// URL to 'index' action owned by User_Controller
-$url = action('user@index');
-// https://example.com/index.php/user/index
-
-// URL to action with parameter
-$url = action('user@profile', ['budi']);
-// https://example.com/index.php/user/profile/budi
-
-// URL to action with multiple parameters
-$url = action('post@show', ['2024', '01', 'my-post']);
-// https://example.com/index.php/post/show/2024/01/my-post
-```
-
-<a id="route"></a>
-
-### route
-
-The `route` function generates a URL to a [named route](/docs/routing#named-routes):
-
-```php
-// URL to route named 'profile'
-$url = route('profile');
-// https://example.com/index.php/profile
-
-// URL with parameter
-$url = route('profile', ['budi']);
-// https://example.com/index.php/profile/budi
-
-// URL with multiple parameters
-$url = route('post.show', ['2024', 'my-post']);
-// https://example.com/index.php/posts/2024/my-post
-```
-
-<a id="redirect"></a>
-
-### redirect
-
-The `redirect` function returns a redirect response:
-
-```php
-// Simple redirect
-return redirect('/home');
-
-// Redirect with status code
-return redirect('/home', 301);
-
-// External URLs are rejected by redirect() (it throws an exception),
-// use Redirect::away() instead
-return Redirect::away('https://google.com');
-
-// Redirect with flash data
-return redirect('/edit')
-    ->with('status', 'Profile update failed!')
-    ->with_input()
-    ->with_errors($validation);
-
-// Redirect with session data
-return redirect('/dashboard')
-    ->with('message', 'Login successful!');
-```
-
-<a id="back"></a>
-
-### back
-
-The `back` function creates a redirect to the previous page:
-
-```php
-// Redirect to previous page
-return back();
-
-// With status code
-return back(301);
-
-// With a fallback for when the request carries no Referer header
-return back(302, '/dashboard');
-
-// With flash data
-return back()->with('error', 'Data is invalid!');
-```
-
-> **Note:** without a fallback, `back()` lands on `/` when the browser sends no `Referer`
-> header, which is common right after a form post from an external page or a bookmarked url.
-
-**Other redirects:**
-
-```php
-// Straight to an external url, without passing it through URL::to()
-Redirect::away('https://example.test/page');
-
-// Force https
-Redirect::secure('/checkout');
-
-// Reload the very same url
-Redirect::refresh();
-
-// Remember where the visitor was heading, then send them to the login page
-Redirect::guest('/login');
-
-// After they log in, send them back to where they were heading
-Redirect::intended('/dashboard');
-```
-
-`guest()` and `intended()` need a session driver, and raise a clear exception when there is
-none configured.
-
-**Empty and inline file responses:**
-
-```php
-// 204 No Content
-return Response::no_content();
-
-// Display the file in the browser instead of downloading it
-return Response::file(path('storage') . 'invoice.pdf');
-```
-
-<a id="old"></a>
-
-### old
-
-The `old` function retrieves old input from session (useful after validation error):
-
-```php
-// In form, display old input if available
-<input type="text" name="name" value="<?php echo old('name') ?>">
-<input type="email" name="email" value="<?php echo old('email') ?>">
-
-// With default value
-<input type="text" name="city" value="<?php echo old('city', 'Jakarta') ?>">
-```
-
-<a id="csrf_name"></a>
-
-### csrf_name
-
-The `csrf_name` function returns the name of the CSRF token field:
-
-```php
-$name = csrf_name();
-// 'csrf_token'
-```
-
-<a id="csrf_token"></a>
-
-### csrf_token
-
-The `csrf_token` function returns the current CSRF token value:
-
-```php
-$token = csrf_token();
-// 'Wz5CiADRl2ydbHflMEOFQdoS4bxmd11KlhLNoLmB'
-```
-
-<a id="csrf_field"></a>
-
-### csrf_field
-
-The `csrf_field` function generates a hidden input field containing the CSRF token:
-
-```php
-<form method="POST" action="/user/profile">
-    <?php echo csrf_field() ?>
-    <!-- Form fields -->
-</form>
-
-// Output:
-// <input type="hidden" name="csrf_token" value="Wz5CiADRl2ydbHflMEOFQdoS4bxmd11KlhLNoLmB">
-```
-
-<a id="root_namespace"></a>
-
-### root_namespace
-
-The `root_namespace` function retrieves the root namespace from a class:
-
-```php
-$namespace = root_namespace('System\Database\Facile\Model');
-// 'System'
-
-$namespace = root_namespace('App\Controllers\UserController');
-// 'App'
-
-// Returns null if no namespace
-$namespace = root_namespace('User');
-// null
+echo trans('marketing.welcome');
+echo __('marketing.hello', ['name' => 'Budi']);
+echo __('marketing.welcome', [], 'en');
 ```
 
 <a id="class_basename"></a>
 
 ### class_basename
 
-The `class_basename` function retrieves the class name without namespace:
+Returns the class name without its namespace. Accepts a string or an object.
 
 ```php
-$name = class_basename('System\Database\Facile\Model');
-// 'Model'
-
-$name = class_basename('App\Controllers\UserController');
-// 'UserController'
-
-// Can also accept object
-$user = new User();
-$name = class_basename($user);
-// 'User'
+class_basename('System\Database\Facile\Model'); // 'Model'
+class_basename(new User());                    // 'User'
 ```
 
-<a id="value"></a>
+<a id="e"></a>
 
-### value
+### e
 
-The `value` function returns the given value. If the value is a Closure,
-the result of executing the closure is returned:
+Escapes HTML entities (`htmlentities`, UTF-8, `ENT_QUOTES`). Use it on untrusted text to prevent XSS. `Htmlable` objects are returned as-is.
 
 ```php
-$result = value(true);
-// true
-
-$result = value(function () {
-    return 'Hello World';
-});
-// 'Hello World'
-
-// Useful for expensive default values
-$result = value(function () {
-    return expensive_operation();
-});
+echo e('<script>alert("XSS")</script>');
+// &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;
 ```
 
-<a id="view"></a>
+<a id="human_filesize"></a>
 
-### view
+### human_filesize
 
-The `view` function returns an instance of `View`:
+Formats a byte count as a readable size. The second argument is the precision (default `2`).
 
 ```php
-// Simple view
-return view('user.profile');
-
-// View with data
-return view('user.profile', ['name' => 'Budi', 'age' => 25]);
-
-// View with method chaining
-return view('user.profile')
-    ->with('name', 'Budi')
-    ->with('age', 25);
+human_filesize(1024);          // '1.00 KB'
+human_filesize(1234567890);    // '1.15 GB'
+human_filesize(1234567890, 0); // '1 GB'
 ```
+
+<a id="root_namespace"></a>
+
+### root_namespace
+
+Returns the first segment of a namespaced class name, or `null` when there is none.
+
+```php
+root_namespace('System\Database\Facile\Model'); // 'System'
+root_namespace('User');                         // null
+```
+
+<a id="urls--redirects"></a>
+
+## URLs & Redirects
+
+<a id="action"></a>
+
+### action
+
+Generates a URL to a controller action.
+
+```php
+action('user@profile', ['budi']);
+// https://example.com/index.php/user/profile/budi
+```
+
+<a id="asset"></a>
+
+### asset
+
+Generates a URL to a file in the `assets/` folder.
+
+```php
+asset('css/style.css');
+// https://example.com/assets/css/style.css
+```
+
+<a id="back"></a>
+
+### back
+
+Redirects to the previous page. When the `Referer` header is missing or points to another host, it goes to the fallback URL (default `/`).
+
+```php
+return back();
+return back(302, '/dashboard');
+return back()->with('error', 'Data is invalid!');
+```
+
+Other redirects and responses live on the `Redirect` and `Response` classes:
+
+```php
+Redirect::away('https://example.test/page'); // external URL
+Redirect::secure('/checkout');               // force https
+Redirect::refresh();                         // reload the current URL
+Redirect::guest('/login');                   // remember the target, then go to login
+Redirect::intended('/dashboard');            // after login, go to the remembered target
+
+return Response::no_content();                              // 204
+return Response::file(path('storage') . 'invoice.pdf');     // show inline in the browser
+```
+
+`guest()` and `intended()` need a configured session driver.
+
+<a id="old"></a>
+
+### old
+
+Gets old input flashed to the session, for refilling a form after a validation error.
+
+```php
+<input name="city" value="<?php echo old('city', 'Jakarta') ?>">
+```
+
+<a id="redirect"></a>
+
+### redirect
+
+Returns a redirect response to a local URL, with an optional status code. External URLs throw an exception, so use `Redirect::away()` for them.
+
+```php
+return redirect('/home', 301);
+
+return redirect('/edit')
+    ->with('status', 'Profile update failed!')
+    ->with_input()
+    ->with_errors($validation);
+```
+
+<a id="route"></a>
+
+### route
+
+Generates a URL to a [named route](/docs/routing#named-routes).
+
+```php
+route('post.show', ['2024', 'my-post']);
+// https://example.com/index.php/posts/2024/my-post
+```
+
+<a id="url"></a>
+
+### url
+
+Generates a full URL to the given path.
+
+```php
+url('user/profile'); // https://example.com/index.php/user/profile
+url();               // https://example.com/index.php/
+```
+
+<a id="views--sections"></a>
+
+## Views & Sections
 
 <a id="render"></a>
 
 ### render
 
-The `render` function compiles a [Blade](/docs/views/templating) view into an HTML string:
+Renders a [Blade](/docs/views/templating) view to an HTML string.
 
 ```php
-// File: views/home.blade.php
-// @include('partials.header')
-// <p>Hello {{ $name }}</p>
-// @include('partials.footer')
-
 $html = render('home', ['name' => 'Budi']);
-// '<html><head></head><body><p>Hello Budi</p></body></html>'
-
-// Render view without data
-$html = render('emails.welcome');
 ```
 
 <a id="render_each"></a>
 
 ### render_each
 
-The `render_each` function renders a partial view for each item in an array:
+Renders a partial once per item in a plain array, passing each item under the given variable name. The optional fourth argument is a view to render when the array is empty; prefix it with `raw|` to output a plain string instead.
 
 ```php
-// File: views/partials/user_item.blade.php
-// <li>{{ $user->name }} - {{ $user->email }}</li>
+// views/partials/user_item.blade.php: <li>{{ $user->name }}</li>
 
-$users = User::all()->all(); // render_each() expects a plain array
-$html = render_each('partials.user_item', $users, 'user');
-
-// Output:
-// <li>Budi - budi@example.com</li>
-// <li>Ani - ani@example.com</li>
-// <li>Citra - citra@example.com</li>
-
-// With empty view
-$html = render_each('partials.user_item', $users, 'user', 'partials.no_users');
+echo render_each('partials.user_item', User::all()->all(), 'user', 'raw|No users');
 ```
 
-Parameters:
-- `$partial` - Name of the partial view
-- `$data` - Array of data to loop through
-- `$iterator` - Name of the variable for each item
-- `$empty` - View to display if data is empty (optional). Prefix with `raw|` to output a plain string instead, e.g. `'raw|No users'`
+<a id="section_inject"></a>
 
-<a id="yield_content"></a>
+### section_inject
 
-### yield_content
-
-The `yield_content` function retrieves content from a section (equivalent to Blade syntax `@yield`):
+Sets a section's content directly.
 
 ```php
-// In layout
-<div class="content">
-    <?php echo yield_content('content') ?>
-</div>
-
-// In view
-<?php section_start('content') ?>
-    <p>This is the content</p>
-<?php section_stop() ?>
-```
-
-<a id="yield_section"></a>
-
-### yield_section
-
-The `yield_section` function stops the section and immediately displays the content (equivalent to Blade syntax `@show`):
-
-```php
-<?php section_start('sidebar') ?>
-    <div class="sidebar">
-        <p>Default sidebar content</p>
-    </div>
-<?php echo yield_section() ?>
+section_inject('scripts', '<script src="app.js"></script>');
 ```
 
 <a id="section_start"></a>
 
 ### section_start
 
-The `section_start` function starts a section (equivalent to Blade syntax `@section`):
+Starts a section (Blade `@section`). Pass content as the second argument to fill it in one call.
 
 ```php
 <?php section_start('content') ?>
-    <h1>Page Title</h1>
-    <p>Page content here</p>
+    <p>Page content</p>
 <?php section_stop() ?>
 
-// With direct content
 <?php section_start('title', 'Page Title') ?>
 ```
 
@@ -711,75 +402,263 @@ The `section_start` function starts a section (equivalent to Blade syntax `@sect
 
 ### section_stop
 
-The `section_stop` function stops a section (equivalent to Blade syntax `@endsection` or `@stop`):
+Ends the current section (Blade `@endsection` / `@stop`). See [section_start](#section_start).
+
+<a id="view"></a>
+
+### view
+
+Returns a `View` instance.
 
 ```php
-<?php section_start('content') ?>
-    <p>Section content</p>
-<?php section_stop() ?>
+return view('user.profile', ['name' => 'Budi'])->with('age', 25);
 ```
 
-<a id="section_inject"></a>
+<a id="yield_content"></a>
 
-### section_inject
+### yield_content
 
-The `section_inject` function injects content into a section:
+Returns a section's content (Blade `@yield`).
 
 ```php
-// Inject content into section
-section_inject('scripts', '<script src="app.js"></script>');
-
-// In layout
-<head>
-    <?php echo yield_content('scripts') ?>
-</head>
+<div class="content"><?php echo yield_content('content') ?></div>
 ```
+
+<a id="yield_section"></a>
+
+### yield_section
+
+Ends the current section and returns its content right away (Blade `@show`).
+
+```php
+<?php section_start('sidebar') ?>
+    <p>Default sidebar</p>
+<?php echo yield_section() ?>
+```
+
+<a id="security"></a>
+
+## Security
+
+<a id="bcrypt"></a>
+
+### bcrypt
+
+Hashes a password with bcrypt. Check it later with `Hash::check()`.
+
+```php
+$user->password = bcrypt(Input::get('password'));
+
+Hash::check(Input::get('password'), $user->password); // true / false
+```
+
+<a id="csrf_field"></a>
+
+### csrf_field
+
+Returns a hidden input holding the CSRF token.
+
+```php
+<?php echo csrf_field() ?>
+// <input type="hidden" name="csrf_token" value="Wz5CiADRl2ydbHfl...">
+```
+
+<a id="csrf_name"></a>
+
+### csrf_name
+
+Returns the name of the CSRF token field.
+
+```php
+csrf_name(); // 'csrf_token'
+```
+
+<a id="csrf_token"></a>
+
+### csrf_token
+
+Returns the current CSRF token, generating one if the session has none.
+
+```php
+csrf_token(); // 'Wz5CiADRl2ydbHflMEOFQdoS4bxmd11KlhLNoLmB'
+```
+
+<a id="decrypt"></a>
+
+### decrypt
+
+Decrypts a string made by `encrypt`. Throws `System\Exceptions\DecryptException` on failure.
+
+```php
+$api_token = decrypt($user->token);
+```
+
+<a id="encrypt"></a>
+
+### encrypt
+
+Encrypts a string. Encode arrays/objects (e.g. `json_encode()`) first.
+
+```php
+$user->token = encrypt($api_token);
+```
+
+<a id="services"></a>
+
+## Services
+
+<a id="cache"></a>
+
+### cache
+
+Gets a cached value (with optional default), or stores values forever when given an array.
+
+```php
+$users = cache('users', []);
+cache(['users' => $users]); // Cache::forever()
+```
+
+<a id="config"></a>
+
+### config
+
+Gets a config value (with optional default), or sets values when given an array.
+
+```php
+config('application.timezone');          // 'UTC'
+config('debugger.activate', false);
+config(['application.language' => 'en']);
+```
+
+<a id="dispatch"></a>
+
+### dispatch
+
+Fires one or more events (alias for `Hook::fire()`). Pass `true` as the third argument to return the first non-null listener response.
+
+```php
+dispatch('user.login', [$user]);
+dispatch(['user.login', 'log.activity'], [$user]);
+$result = dispatch('user.verify', [$user], true);
+```
+
+<a id="fake"></a>
+
+### fake
+
+Returns a Faker instance. The locale defaults to the `application.language` config; only `en` and `id` are available, others throw `InvalidArgumentException`.
+
+```php
+fake()->name;      // 'Budi Santoso'
+fake('en')->email; // 'john@example.com'
+```
+
+<a id="now"></a>
+
+### now
+
+Returns a Carbon instance for the current time, with an optional timezone.
+
+```php
+now()->format('Y-m-d'); // '2024-01-15'
+now('Asia/Tokyo')->addDay();
+```
+
+<a id="session"></a>
+
+### session
+
+Gets a session value (with optional default), or stores values when given an array.
+
+```php
+session('role', 'guest');
+session(['user_id' => 1, 'role' => 'admin']);
+```
+
+<a id="validate"></a>
+
+### validate
+
+Creates a Validator. The optional third argument holds custom messages.
+
+```php
+$validator = validate(Input::all(), [
+    'email' => 'required|email',
+], [
+    'email_required' => 'Email is required!',
+]);
+
+if ($validator->fails()) {
+    return back()->with_errors($validator);
+}
+```
+
+<a id="errors"></a>
+
+## Errors
+
+<a id="abort"></a>
+
+### abort
+
+Sends an error response and stops execution. It renders the `error.<code>` view (or `error.unknown`), or JSON when the request wants JSON. Extra headers can be passed.
+
+```php
+abort(404);
+abort(403, ['X-Custom-Header' => 'value']);
+```
+
+<a id="abort_if"></a>
+
+### abort_if
+
+Calls `abort` when the condition is true.
+
+```php
+abort_if(is_null($post), 404);
+abort_if($user->id !== $post->user_id, 403, ['X-Reason' => 'Unauthorized']);
+```
+
+<a id="console"></a>
+
+## Console
 
 <a id="get_cli_option"></a>
 
 ### get_cli_option
 
-The `get_cli_option` function retrieves an option from the Rakit console command:
-
-```bash
-# Command
-php rakit package:install access --verbose=yes --timeout=30
-```
+Gets a `--name=value` option passed to the Rakit console, with an optional default.
 
 ```php
-$verbose = get_cli_option('verbose');
-// 'yes'
+// php rakit package:install access --timeout=30
 
-$timeout = get_cli_option('timeout');
-// '30'
-
-// With default value
-$option = get_cli_option('foo', 'default');
-// 'default'
+get_cli_option('timeout');        // '30'
+get_cli_option('foo', 'default'); // 'default'
 ```
 
 <a id="has_cli_flag"></a>
 
 ### has_cli_flag
 
-The `has_cli_flag` function checks if a flag is provided to the Rakit console:
-
-```bash
-# Command
-php rakit migrate -v --force
-```
+Checks whether a `-x` or `--name` flag was passed to the Rakit console. Single-letter flags also match bundles like `-vf`.
 
 ```php
-if (has_cli_flag('v')) {
-    // -v flag exists
-}
+// php rakit migrate -v --force
 
-if (has_cli_flag('force')) {
-    // --force flag exists
-}
+has_cli_flag('v');      // true
+has_cli_flag('force');  // true
+has_cli_flag('silent'); // false
+```
 
-if (has_cli_flag('silent')) {
-    // false - flag does not exist
+<a id="is_cli"></a>
+
+### is_cli
+
+Checks whether the script runs from the command line.
+
+```php
+if (is_cli()) {
+    // ...
 }
 ```
 
@@ -787,537 +666,106 @@ if (has_cli_flag('silent')) {
 
 ### system_os
 
-The `system_os` function returns the server operating system:
+Returns the server OS: `Windows`, `Darwin`, `BSD`, `Linux`, `Solaris` or `Unknown`.
 
 ```php
-echo system_os();
-// Possible values:
-// - 'Windows' - Windows OS
-// - 'Darwin' - macOS
-// - 'BSD' - FreeBSD, OpenBSD, NetBSD, DragonFly
-// - 'Linux' - Linux distributions
-// - 'Solaris' - Solaris/SunOS
-// - 'Unknown' - Unknown OS
-
-// Example usage
 if (system_os() === 'Windows') {
-    // Special logic for Windows
+    // ...
 }
 ```
 
-<a id="config"></a>
+<a id="miscellaneous"></a>
 
-### config
-
-The `config` function retrieves or sets configuration:
-
-```php
-// Retrieve config
-$language = config('application.language');
-// 'id'
-
-$timezone = config('application.timezone');
-// 'UTC'
-
-// With default value
-$value = config('debugger.activate', false);
-
-// Set config
-config(['application.language' => 'en']);
-config(['debugger.activate' => true]);
-```
-
-<a id="cache"></a>
-
-### cache
-
-The `cache` function retrieves or sets cache:
-
-```php
-// Retrieve cache
-$users = cache('users');
-
-// With default value
-$value = cache('settings', []);
-
-// Set cache (stored forever, via Cache::forever())
-cache(['users' => $users]);
-cache(['settings' => $settings]);
-```
-
-<a id="session"></a>
-
-### session
-
-The `session` function retrieves or sets session:
-
-```php
-// Retrieve session
-$user_id = session('user_id');
-$username = session('username');
-
-// With default value
-$role = session('role', 'guest');
-
-// Set session
-session(['user_id' => 1]);
-session(['username' => 'budi', 'role' => 'admin']);
-```
-
-<a id="collect"></a>
-
-### collect
-
-The `collect` function creates a Collection instance from an array:
-
-```php
-$collection = collect([1, 2, 3, 4, 5]);
-
-$filtered = $collection->filter(function ($value) {
-    return $value > 2;
-});
-// [3, 4, 5]
-
-$mapped = $collection->map(function ($value) {
-    return $value * 2;
-});
-// [2, 4, 6, 8, 10]
-
-// Collection from associative array
-$users = collect([
-    ['name' => 'Budi', 'age' => 25],
-    ['name' => 'Ani', 'age' => 30],
-]);
-
-$names = $users->pluck('name');
-// ['Budi', 'Ani']
-```
-
-<a id="fake"></a>
-
-### fake
-
-The `fake` function creates a Faker instance for generating fake data:
-
-```php
-// Using default locale (the 'application.language' config)
-$name = fake()->name;
-// 'Budi Santoso'
-
-$email = fake()->email;
-// 'budi@example.com'
-
-$address = fake()->address;
-// 'Jl. Sudirman No. 123, Jakarta'
-
-// Using specific locale
-$name = fake('en')->name;
-// 'John Doe'
-
-$name = fake('id')->name;
-// 'Budi Santoso'
-
-// Only locales that have a folder in system/foundation/faker/provider/ ('en' and 'id')
-// are supported, any other locale throws an InvalidArgumentException
-
-// Generate data for testing
-$user = [
-    'name' => fake()->name,
-    'email' => fake()->email,
-    'phone' => fake()->phoneNumber,
-    'address' => fake()->address,
-];
-```
-
-<a id="validate"></a>
-
-### validate
-
-The `validate` function creates a Validator instance:
-
-```php
-// Simple validation
-$validator = validate($_POST, [
-    'name' => 'required|max:100',
-    'email' => 'required|email',
-    'age' => 'required|numeric|min:18',
-]);
-
-if ($validator->fails()) {
-    return back()->with_errors($validator);
-}
-
-// With custom error messages
-$validator = validate($_POST, [
-    'email' => 'required|email',
-], [
-    'email_required' => 'Email is required!',
-    'email_email' => 'Email format is invalid!',
-]);
-
-// Direct validation
-$attributes = ['email' => 'invalid'];
-$rules = ['email' => 'required|email'];
-$validator = validate($attributes, $rules);
-
-if ($validator->invalid()) {
-    // Validation failed
-}
-```
-
-<a id="abort"></a>
-
-### abort
-
-The `abort` function stops execution and displays an error page:
-
-```php
-// Abort with 404
-abort(404);
-
-// Abort with 403
-abort(403);
-
-// Abort with 500
-abort(500);
-
-// Abort with custom headers
-abort(403, ['X-Custom-Header' => 'value']);
-
-// In controller
-public function action_show($id)
-{
-    $post = Post::find($id);
-
-    if (!$post) {
-        abort(404); // Automatically display 404 error page
-    }
-
-    return View::make('post.show', compact('post'));
-}
-```
-
-<a id="abort_if"></a>
-
-### abort_if
-
-The `abort_if` function aborts if the condition is true:
-
-```php
-// Abort if user is not admin
-abort_if(!Auth::user()->is_admin, 403);
-
-// Abort if post not found
-abort_if(is_null($post), 404);
-
-// Abort if not authorized
-abort_if($user->id !== $post->user_id, 403);
-
-// With custom headers
-abort_if($condition, 403, ['X-Reason' => 'Unauthorized']);
-```
-
-<a id="encrypt"></a>
-
-### encrypt
-
-The `encrypt` function encrypts a string:
-
-```php
-// Encrypt data
-$encrypted = encrypt('sensitive data');
-// 'eyJpdiI6IjdqY...'
-
-// Only strings are supported, encode arrays/objects first
-$encrypted = encrypt(json_encode(['password' => 'secret123']));
-
-// Encrypt for storing in database
-$user->token = encrypt($api_token);
-$user->save();
-```
-
-<a id="decrypt"></a>
-
-### decrypt
-
-The `decrypt` function decrypts an encrypted string:
-
-```php
-// Decrypt data
-$decrypted = decrypt($encrypted);
-// 'sensitive data'
-
-// Decrypt from database
-$api_token = decrypt($user->token);
-
-// Handle decryption error
-try {
-    $data = decrypt($encrypted);
-} catch (\System\Exceptions\DecryptException $e) {
-    // Decryption failed
-}
-```
-
-<a id="bcrypt"></a>
-
-### bcrypt
-
-The `bcrypt` function creates a password hash using bcrypt:
-
-```php
-// Hash password
-$hashed = bcrypt('password123');
-// '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
-
-// Store in database
-$user = new User;
-$user->password = bcrypt(Input::get('password'));
-$user->save();
-
-// Verify password
-if (Hash::check(Input::get('password'), $user->password)) {
-    // Password is correct
-}
-```
-
-<a id="dispatch"></a>
-
-### dispatch
-
-The `dispatch` function sends an event (alias for `Hook::fire()`):
-
-```php
-// Dispatch simple event
-dispatch('user.login', [$user]);
-
-// Dispatch multiple events
-dispatch(['user.login', 'log.activity'], [$user]);
-
-// Dispatch with halt (return the first non-null listener response)
-$result = dispatch('user.verify', [$user], true);
-
-// Example with listener
-Hook::listen('user.login', function ($user) {
-    Log::info('User logged in: ' . $user->email);
-});
-
-dispatch('user.login', [$user]);
-```
+## Miscellaneous
 
 <a id="blank"></a>
 
 ### blank
 
-The `blank` function checks if a value is "empty":
+Checks whether a value is "empty": `null`, a whitespace-only string, or an empty array/Countable. Numbers and booleans are never blank.
 
 ```php
-blank(null); // true
-blank(''); // true
-blank('   '); // true (whitespace)
-blank([]); // true
+blank('   ');     // true
 blank(collect()); // true
-
-blank(0); // false
-blank(false); // false
-blank('hello'); // false
-blank([1, 2, 3]); // false
-
-// Example usage
-if (blank($request->input('name'))) {
-    return 'Name is required';
-}
+blank(0);         // false
+blank(false);     // false
 ```
 
 <a id="filled"></a>
 
 ### filled
 
-The `filled` function checks if a value is "filled" (opposite of `blank`):
+The opposite of `blank`.
 
 ```php
-filled('hello'); // true
-filled([1, 2, 3]); // true
-filled(0); // true
-filled(false); // true
-
-filled(null); // false
-filled(''); // false
-filled('   '); // false
-filled([]); // false
-
-// Example usage
-if (filled($request->input('email'))) {
-    // Process email
-}
-```
-
-<a id="now"></a>
-
-### now
-
-The `now` function returns a Carbon instance for the current date/time:
-
-```php
-// Get current datetime
-$now = now();
-// Carbon instance
-
-echo $now;
-// '2024-01-15 10:30:00'
-
-echo $now->format('Y-m-d');
-// '2024-01-15'
-
-echo $now->toDateTimeString();
-// '2024-01-15 10:30:00'
-
-// With timezone
-$now = now('Asia/Tokyo');
-
-// Date operations
-$tomorrow = now()->addDay();
-$next_week = now()->addWeek();
-$yesterday = now()->subDay();
-```
-
-<a id="tap"></a>
-
-### tap
-
-The `tap` function calls a callback with a value and returns the value:
-
-```php
-// Tap for debugging
-$user = tap(User::find(1), function ($user) {
-    Log::info('User found: ' . $user->name);
-});
-
-// Tap for modifying object
-$user = tap(new User, function ($user) {
-    $user->name = 'Budi';
-    $user->email = 'budi@example.com';
-})->save();
-
-// Useful for method chaining
-$result = tap($value, function ($value) {
-    // Do something with $value
-})->someMethod();
+filled(0);    // true
+filled('');   // false
 ```
 
 <a id="optional"></a>
 
 ### optional
 
-The `optional` function accesses properties/methods from an object that may be null:
+Lets you read properties or call methods on a value that may be `null`, returning `null` instead of failing. With a callback, returns the callback's result instead.
 
 ```php
-// Without optional (may error if null)
-// $name = $user->profile->name; // Error if $user null
+optional($user)->name;                 // null when $user is null
+optional(Auth::user())->name ?: 'Guest';
 
-// With optional (safe)
-$name = optional($user)->name;
-// null if $user null
-
-$email = optional($user)->email;
-// null if $user null
-
-// With callback
-$value = optional($user, function ($user) {
+optional($user, function ($user) {
     return $user->profile->name;
 });
+```
 
-// Nested optional
-$city = optional(optional($user)->profile)->city;
+<a id="retry"></a>
 
-// Practical example
-$user_name = optional(Auth::user())->name ?: 'Guest';
+### retry
+
+Runs a callback up to `$times` times until it stops throwing, sleeping `$sleep_ms` milliseconds between attempts. The optional fourth callback receives the exception and decides whether to retry. The attempt number is passed to the callback.
+
+```php
+return retry(3, function ($attempt) {
+    return file_get_contents('https://api.example.com/data');
+}, 100, function ($e) {
+    return $e instanceof ConnectionException;
+});
+```
+
+<a id="tap"></a>
+
+### tap
+
+Passes a value to a closure, then returns the value.
+
+```php
+$user = tap(new User, function ($user) {
+    $user->name = 'Budi';
+});
+$user->save();
+```
+
+<a id="value"></a>
+
+### value
+
+Returns the value, or the result of calling it if it is a closure. Extra arguments are passed to the closure.
+
+```php
+value(true);                            // true
+value(function () { return 'Hello'; }); // 'Hello'
 ```
 
 <a id="when"></a>
 
 ### when
 
-The `when` function returns a value if the condition is true:
+Returns `$value` if the condition is truthy, otherwise `$default` (`null` if omitted). The condition and both values may be closures.
 
 ```php
-// Conditional value
-$result = when(true, 'yes', 'no');
-// 'yes'
+when(true, 'yes', 'no');  // 'yes'
+when(false, 'yes');       // null
 
-$result = when(false, 'yes', 'no');
-// 'no'
-
-// With closure
-$result = when($user->isAdmin(), function () {
+when($user->is_admin, function () {
     return 'Admin Panel';
-}, function () {
-    return 'User Panel';
-});
-
-// Without default (returns null if false)
-$result = when($condition, 'value');
-
-// Condition as closure
-$result = when(function () {
-    return expensive_check();
-}, 'value if true', 'value if false');
+}, 'User Panel');
 ```
-
-<a id="human_filesize"></a>
-
-### human_filesize
-
-The `human_filesize` function formats file size into human-readable format:
-
-```php
-echo human_filesize(1024);
-// '1.00 KB'
-
-echo human_filesize(1048576);
-// '1.00 MB'
-
-echo human_filesize(1073741824);
-// '1.00 GB'
-
-echo human_filesize(1234567890);
-// '1.15 GB'
-
-// With custom precision
-echo human_filesize(1234567890, 0);
-// '1 GB'
-
-echo human_filesize(1234567890, 3);
-// '1.150 GB'
-
-// Example usage
-$file_size = filesize('path/to/file.pdf');
-echo 'File size: ' . human_filesize($file_size);
-// 'File size: 2.45 MB'
-```
-
-<a id="measure"></a>
-
-### measure
-
-The `measure` function measures how long a piece of code takes and shows the
-result on the Debug Bar:
-
-```php
-$users = measure('load users', function () {
-    return DB::table('users')->get();
-});
-```
-
-For code that does not fit in one closure, use `start_measure` and
-`stop_measure` with the same name:
-
-```php
-start_measure('report');
-
-// .. heavy process ..
-
-stop_measure('report', 'Monthly report');
-```
-
-> The measurement is only recorded outside production mode and shows up on the
-> Debug Bar, so it is safe to leave these calls in place on production.

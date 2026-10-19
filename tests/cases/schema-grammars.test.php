@@ -374,6 +374,94 @@ class SchemaGrammarsTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that change() alters a column in place instead of adding it.
+     *
+     * @group system
+     */
+    public function testChangeColumn()
+    {
+        $build = function () {
+            $table = new Table('users');
+            $table->string('nickname', 50)->nullable()->change();
+            $table->integer('age')->defaults(18)->change();
+            $table->string('bio', 20);
+
+            return $table;
+        };
+
+        $sql = $this->compile('MySQL', $build());
+        $this->assertEquals([
+            'ALTER TABLE `users` ADD `bio` VARCHAR(20) NOT NULL',
+            "ALTER TABLE `users` MODIFY `nickname` VARCHAR(50) NULL, MODIFY `age` INT NOT NULL DEFAULT '18'",
+        ], $sql);
+
+        $sql = $this->compile('Postgres', $build());
+        $this->assertEquals([
+            'ALTER TABLE "users" ADD COLUMN "bio" VARCHAR(20) NOT NULL',
+            'ALTER TABLE "users" ALTER COLUMN "nickname" TYPE VARCHAR(50) USING "nickname"::VARCHAR(50), '
+            .'ALTER COLUMN "nickname" DROP NOT NULL, ALTER COLUMN "nickname" DROP DEFAULT, '
+            .'ALTER COLUMN "age" TYPE BIGINT USING "age"::BIGINT, ALTER COLUMN "age" SET NOT NULL, '
+            ."ALTER COLUMN \"age\" SET DEFAULT '18'",
+        ], $sql);
+
+        $sql = $this->compile('SQLServer', $build());
+        $this->assertEquals([
+            'ALTER TABLE [users] ADD [bio] NVARCHAR(20) NOT NULL',
+            "DECLARE @sql NVARCHAR(MAX) = N''; SELECT @sql += N'ALTER TABLE [users] DROP CONSTRAINT ' "
+            ."+ QUOTENAME(OBJECT_NAME([default_object_id])) + N';' FROM sys.columns "
+            ."WHERE [object_id] = OBJECT_ID(N'[users]') AND [name] IN (N'nickname', N'age') "
+            .'AND [default_object_id] <> 0; EXEC(@sql)',
+            'ALTER TABLE [users] ALTER COLUMN [nickname] NVARCHAR(50) NULL',
+            'ALTER TABLE [users] ALTER COLUMN [age] INT NOT NULL',
+            "ALTER TABLE [users] ADD DEFAULT '18' FOR [age]",
+        ], $sql);
+
+        // Auto-increment columns keep their key, sequence and identity.
+        $increments = function ($method) {
+            $table = new Table('users');
+            $table->{$method}('id', true)->change();
+
+            return $table;
+        };
+
+        $sql = $this->compile('MySQL', $increments('integer'));
+        $this->assertEquals(['ALTER TABLE `users` MODIFY `id` INT NOT NULL AUTO_INCREMENT'], $sql);
+
+        $sql = $this->compile('Postgres', $increments('integer'));
+        $this->assertEquals(['ALTER TABLE "users" ALTER COLUMN "id" TYPE INTEGER USING "id"::INTEGER, ALTER COLUMN "id" SET NOT NULL'], $sql);
+
+        $sql = $this->compile('Postgres', $increments('biginteger'));
+        $this->assertEquals(['ALTER TABLE "users" ALTER COLUMN "id" TYPE BIGINT USING "id"::BIGINT, ALTER COLUMN "id" SET NOT NULL'], $sql);
+
+        $sql = $this->compile('SQLServer', $increments('biginteger'));
+        $this->assertEquals('ALTER TABLE [users] ALTER COLUMN [id] BIGINT NOT NULL', $sql[1]);
+        $this->assertContains("[name] IN (N'id')", $sql[0]);
+
+        // using() overrides the cast, COLLATE stays before USING; other drivers ignore it.
+        $using = function () {
+            $table = new Table('users');
+            $table->integer('code')->using('trim("code")::integer')->change();
+            $table->string('name', 20)->change();
+            $column = end($table->columns);
+            $column->collate = 'C';
+
+            return $table;
+        };
+
+        $sql = $this->compile('Postgres', $using());
+        $this->assertContains('ALTER COLUMN "code" TYPE BIGINT USING trim("code")::integer,', $sql[0]);
+        $this->assertContains('ALTER COLUMN "name" TYPE VARCHAR(20) COLLATE "C" USING "name"::VARCHAR(20),', $sql[0]);
+        $this->assertNotContains('trim', implode(' ', $this->compile('MySQL', $using())));
+
+        try {
+            $this->compile('SQLite', $build());
+            $this->fail('SQLite must refuse to change a column.');
+        } catch (\Exception $e) {
+            $this->assertContains('not supported on SQLite', $e->getMessage());
+        }
+    }
+
+    /**
      * Renaming a table must use the syntax the driver actually understands.
      *
      * @group system

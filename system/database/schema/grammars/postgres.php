@@ -35,23 +35,63 @@ class Postgres extends Grammar
     {
         $columns = implode(', ', array_map(function ($column) {
             return 'ADD COLUMN '.$column;
-        }, $this->columns($table)));
+        }, $this->columns($table, $this->changed($table, false))));
 
         return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+    }
+
+    /**
+     * Create the sql syntax for changing existing columns of a table.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return array
+     */
+    public function change(Table $table, Magic $command)
+    {
+        $changes = [];
+        $sql = [];
+
+        foreach ($this->changed($table) as $column) {
+            $prefix = 'ALTER COLUMN '.$this->wrap($column).' ';
+            $default = $this->defaults($table, $column);
+            // SERIAL is not a type, only a shorthand: alter to the integer type underneath
+            // and leave the sequence default alone.
+            $type = str_replace(['BIGSERIAL', 'SMALLSERIAL', 'SERIAL'], ['BIGINT', 'SMALLINT', 'INTEGER'], $this->type($column));
+            $using = (isset($column->using) && '' !== (string) $column->using)
+                ? (string) $column->using
+                : $this->wrap($column).'::'.preg_replace('/\s+CHECK\s*\(.*$/s', '', $type);
+            $changes[] = $prefix.'TYPE '.$type.$this->collate($table, $column).' USING '.$using;
+            $changes[] = $prefix.((isset($column->nullable) && $column->nullable) ? 'DROP NOT NULL' : 'SET NOT NULL');
+
+            if ($default || ! $column->increment) {
+                $changes[] = $prefix.($default ? 'SET'.$default : 'DROP DEFAULT');
+            }
+
+            if (isset($column->comment) && $column->comment) {
+                $sql[] = ltrim((string) $this->comment($table, $column), '; ');
+            }
+        }
+
+        array_unshift($sql, 'ALTER TABLE '.$this->wrap($table).' '.implode(', ', $changes));
+
+        return $sql;
     }
 
     /**
      * Create the sql syntax for column definitions.
      *
      * @param Table $table
+     * @param array|null $only
      *
      * @return array
      */
-    protected function columns(Table $table)
+    protected function columns(Table $table, $only = null)
     {
         $columns = [];
 
-        foreach ($table->columns as $column) {
+        foreach ((is_null($only) ? $table->columns : $only) as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->incrementer($table, $column);

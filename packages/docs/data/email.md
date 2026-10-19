@@ -3,16 +3,14 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
 -   [Basic Knowledge](#basic-knowledge)
--   [Configuration](#configuration)
 -   [Sending Email](#sending-email)
-    -   [Set Recipient](#set-recipient)
-    -   [Set CC and BCC](#set-cc-and-bcc)
-    -   [Set Body](#set-body)
-    -   [Alt Body](#alt-body)
-    -   [Set Subject](#set-subject)
+    -   [Recipients](#recipients)
+    -   [Subject and Body](#subject-and-body)
     -   [Priority](#priority)
     -   [Attachments](#attachments)
-    -   [Ready to Send](#ready-to-send)
+    -   [Custom Headers](#custom-headers)
+    -   [Sending](#sending)
+-   [Configuration](#configuration)
 -   [Custom Driver](#custom-driver)
 
 <!-- /MarkdownTOC -->
@@ -21,48 +19,21 @@
 
 ## Basic Knowledge
 
-`Email` sends mail over `mail`, `sendmail` or SMTP, with TLS or SSL, several
-recipients, CC and BCC, HTML or plain text, attachments and a priority.
-
-<a id="configuration"></a>
-
-## Configuration
-
-The configuration lives in `application/config/email.php`. The default `'mail'`
-driver sends through PHP's [mail()](https://www.php.net/manual/en/function.mail.php);
-change it as needed:
-
-```php
-'driver' => 'sendmail',
-```
-
-For the `'smtp'` driver, the default port `587` is the one that speaks STARTTLS.
-A server on the implicit TLS port `465` expects the encryption to be in place before
-it says anything, so turn `'starttls'` off and name the host with its scheme:
-
-```php
-'smtp' => [
-    'host' => 'ssl://smtp.site.com',
-    'port' => 465,
-    'starttls' => false,
-    // ..
-],
-```
+The `Email` class sends mail through PHP's `mail()`, `sendmail` or SMTP (with TLS or SSL), supporting multiple recipients, CC and BCC, HTML or plain-text bodies, attachments and priorities. A `log` driver writes messages to the log instead of sending them, which is handy for testing.
 
 <a id="sending-email"></a>
 
 ## Sending Email
 
-A simple example:
+Build the message with chained calls, then call `send()`:
 
 ```php
-$email = Email::from('admin@site.com')
+$email = Email::from('admin@site.com', 'Admin')
     ->to('eka@site.com')
     ->cc('farida@site.com')
     ->bcc('nando@site.com')
-    ->body('PDF document regarding the monthly financial report')
-    ->alt_body('Monthly report')
     ->subject('Monthly Report')
+    ->html_body(View::make('emails.report', $data)->render())
     ->priority(Email::HIGH)
     ->attach(path('storage').'monthly_report.pdf');
 
@@ -73,124 +44,61 @@ try {
 }
 ```
 
+Static calls go to the default driver. Use `Email::driver('smtp')` to get another one.
+
 <a id="set-recipient"></a>
+<a id="set-cc-and-bcc"></a>
+<a id="recipients"></a>
 
-### Set Recipient
+### Recipients
 
-The `to()` method is used to set the email recipient:
-
-```php
-$email->to('eka@site.com');
-```
-
-You can also add the email recipient's name:
-
-```php
-$email->to('eka@site.com', 'Eka Ramadhan');
-```
-
-Or several at once:
+`to()`, `cc()`, `bcc()` and `replyto()` accept an address with an optional name, or an array. Each call adds to the list:
 
 ```php
 $email->to('eka@site.com', 'Eka Ramadhan');
 $email->to('budi@site.com');
-$email->to('dewi@site.com');
 
-// or via array like this:
-
-$email->to([
-    'eka@site.com' => 'Eka Ramadhan',
-    'budi@site.com',
-    'dewi@site.com',
+$email->cc([
+    'putri@site.com' => 'Putri Anggraini',
+    'farida@site.com',
 ]);
-```
-
-<a id="set-cc-and-bcc"></a>
-
-### Set CC and BCC
-
-CC and BCC work exactly like `to()`:
-
-```php
-$email->cc('farida@site.com');
-$email->cc('putri@site.com', 'Putri Anggraini');
 
 $email->bcc('hilman@site.com');
-$email->bcc('rachel@site.com', 'Rachel Putri Toar');
+$email->replyto('support@site.com', 'Support');
 ```
+
+`from()` sets the sender (overriding `from` in the config), and `return_path()` sets the Return-Path address (the sender is used when none is set).
 
 <a id="set-body"></a>
-
-### Set Body
-
-The body is either plain text or HTML:
-
-#### 1. Plain Text
-
-For clients too old to render HTML:
-
-```php
-$email->body('PDF document regarding the monthly financial report');
-```
-
-#### 2. HTML Body
-
-The usual choice, since HTML and CSS give you control over how the mail looks:
-
-```php
-$email->html_body('<b>PDF document regarding the monthly financial report</b>');
-```
-
-The `Markdown` component works here too:
-
-```php
-$markdown = Markdown::render(path('base').'README.md');
-
-$email->html_body($markdown);
-```
-
-As does the `View` component:
-
-```php
-$data = ['registered_at' => now()];
-$view = View::make('emails.registration_success', $data)->render();
-
-$email->html_body($view);
-```
-
 <a id="alt-body"></a>
-
-### Alt Body
-
-The alt body is the plain-text version of the message. It is optional.
-
-```php
-$email->alt_body('Monthly report');
-```
-
-> `html_body()` derives one automatically, so this is only for overriding it.
-
 <a id="set-subject"></a>
+<a id="subject-and-body"></a>
 
-### Set Subject
-
-`subject()` sets the subject:
+### Subject and Body
 
 ```php
 $email->subject('Monthly Report');
+
+$email->body('Plain text body');                // Plain text
+$email->html_body('<b>HTML body</b>');          // HTML
+$email->alt_body('Plain text alternative');     // Optional plain-text version of an HTML mail
 ```
+
+`html_body()` generates the alt body for you (the `alternatify` option), so `alt_body()` is only needed to override it. Any HTML string works, for example a rendered view or [Markdown](/docs/markdown):
+
+```php
+$email->html_body(Markdown::render(path('base').'README.md'));
+```
+
+`html_body($html, $alternatify, $attachify)` can also override the `alternatify` and `attachify` options for one message.
 
 <a id="priority"></a>
 
 ### Priority
 
-You can also set the email priority:
-
 ```php
 $email->priority(Email::HIGH);
 ```
-
-Email priority constants must follow this table:
 
 | Constant         | Value                |
 | ---------------- | -------------------- |
@@ -200,91 +108,68 @@ Email priority constants must follow this table:
 | `Email::LOW`     | 4 (Low)              |
 | `Email::LOWEST`  | 5 (Lowest)           |
 
+Any other value throws an exception.
+
 <a id="attachments"></a>
 
 ### Attachments
 
-Attachments come in two forms:
-
-#### 1. File Attachment:
+Attach a file, or attach string contents under a file name:
 
 ```php
-$file = path('storage').'monthly_report.pdf';
+$email->attach(path('storage').'monthly_report.pdf');
 
-$email->attach($file);
-```
-
-You can also add attachments inline by passing `TRUE` to the second parameter and `cid:<tag_id_html>` to the third parameter as its attribute pointer.
-
-```php
-$file = path('storage').'monthly_report.pdf';
-
-$email->attach($file, true, 'cid:my_content_id');
-```
-
-#### 2. String Attachment:
-
-```php
 $contents = Storage::get(path('storage').'monthly_report.pdf');
-
 $email->string_attach($contents, 'monthly_report.pdf');
 ```
 
-By default (the `'attachify'` option), images in the HTML body passed to `html_body()` will be
-attached inline automatically, but only if the `src` is a local file path rather than a URL.
-Look at this example to understand the difference:
+To embed a file inline, pass `true` and a content ID, then reference it from the HTML as `src="cid:logo"`:
 
 ```php
-// This will be attached automatically
-<img src="<?php echo path('assets').'images/kitty.png'; ?>" />
+$email->attach(path('assets').'images/logo.png', true, 'cid:logo');
+```
 
-// This will not be attached (URLs, including asset() URLs, are left as they are)
-<img src="https://other-site.com/images/kitty.jpg" />
+The full signatures are `attach($file, $inline = false, $cid = null, $mime = null, $name = null)` and `string_attach($contents, $filename, $cid = null, $inline = false, $mime = null)`. A missing or empty file throws an exception.
+
+When the `attachify` option is on (it is off by default), `html_body()` embeds images automatically: every `src` / `background` that is a local file **under the assets directory** is attached inline. URLs (including `asset()` URLs), `cid:` and `data:` sources are left alone.
+
+```html
+<img src="images/kitty.png" />                      <!-- attached (assets/images/kitty.png) -->
+<img src="https://other-site.com/images/kitty.jpg" /> <!-- left as is -->
+```
+
+<a id="custom-headers"></a>
+
+### Custom Headers
+
+```php
+$email->header('X-Campaign', 'october');
+$email->header(['X-Campaign' => 'october', 'X-Source' => 'app']);
 ```
 
 <a id="ready-to-send"></a>
+<a id="sending"></a>
 
-### Ready to Send
+### Sending
 
-With everything in place, send it:
+`send()` returns `TRUE`, or `FALSE` if the transport refused the message. It throws an exception when there are no recipients, no sender, or (with the `validate` option on) an invalid address; `get_invalid_addresses()` then lists the offending addresses. Pass `false` to skip validation once: `$email->send(false)`.
 
-```php
-try {
-    $email->send();
-} catch (\Exception $e) {
-    echo 'Email failed to send: '.$e->getMessage();
-}
-```
-
-> The try-catch keeps a failed send from taking the request down with it.
-
-`send()` returns `FALSE` when the driver reports that the transport refused the message.
-
-Once the message is on its way, `send()` drops the parts that belong to it: the recipients,
-the attachments and the custom headers set with `header()`. The sender, subject and body are
-kept, so sending the same email to several people is a matter of setting the next recipient:
+After every send, the message is reset: recipients, subject, body, attachments and custom headers are cleared, and the sender, return path and priority go back to their config values. So set everything again for each message (you can also call `reset()` yourself):
 
 ```php
-$email = Email::from('admin@site.com')
-    ->subject('Monthly Report')
-    ->html_body($view);
-
 foreach ($subscribers as $subscriber) {
-    $email->to($subscriber->email)->send();
+    Email::to($subscriber->email)
+        ->subject('Monthly Report')
+        ->html_body($view)
+        ->send();
 }
 ```
 
-Without that, every recipient of the first email would also receive the second one.
-
-**Hooks:**
-
-The sending is announced twice. `rakit.mail.sending` runs before the message is
-handed to the transport, and a listener that answers `FALSE` calls the sending
-off — `rakit.mail.sent` then stays quiet and `send()` returns `FALSE`:
+Two [hooks](/docs/hooks#framework-events) surround the sending. A `rakit.mail.sending` listener that returns `FALSE` cancels it, in which case `rakit.mail.sent` is not fired and `send()` returns `FALSE`:
 
 ```php
 Hook::listen('rakit.mail.sending', function ($message) {
-    // Answer FALSE to call the sending off
+    // return false to cancel
 });
 
 Hook::listen('rakit.mail.sent', function ($message) {
@@ -292,43 +177,76 @@ Hook::listen('rakit.mail.sent', function ($message) {
 });
 ```
 
+<a id="configuration"></a>
+
+## Configuration
+
+Settings live in `application/config/email.php`. `driver` is one of `mail` (default), `smtp`, `sendmail` or `log`:
+
+```php
+'driver' => 'smtp',
+```
+
+The SMTP default port `587` uses STARTTLS. For implicit TLS on port `465`, turn `starttls` off and prefix the host with `ssl://`:
+
+```php
+'smtp' => [
+    'host' => 'ssl://smtp.site.com',
+    'port' => 465,
+    'starttls' => false,
+    // ..
+],
+```
+
+Other SMTP keys are `method` (`LOGIN`, `PLAIN` or `CRAM-MD5`), `username`, `password`, `timeout`, `keep_alive` and `options`. The remaining options:
+
+| Option                 | Default                 | Description |
+| ---------------------- | ----------------------- | ----------- |
+| `sendmail_binary`      | `/usr/sbin/sendmail`    | Path used by the `sendmail` driver |
+| `from`                 | `['email' => ..., 'name' => ...]` | Default sender |
+| `priority`             | `Email::NORMAL`         | Default priority |
+| `as_html`              | `null`                  | Send as HTML (`true`), plain text (`false`) or auto-detect (`null`) |
+| `encoding`             | `'8bit'`                | `'8bit'`, `'base64'` or `'quoted-printable'` |
+| `encode_headers`       | `true`                  | Encode the subject and names |
+| `validate`             | `true`                  | Validate addresses before sending |
+| `attachify`            | `false`                 | Embed local asset images of HTML bodies inline |
+| `alternatify`          | `true`                  | Generate the alt body from the HTML body |
+| `force_mixed`          | `false`                 | Use `multipart/mixed` instead of `multipart/related` |
+| `wordwrap`             | `76`                    | Line length; `null`, `0` or `false` disables wrapping |
+| `newline`              | `CRLF`                  | Line ending for headers and body |
+| `return_path`          | `false`                 | Default Return-Path |
+| `strip_comments`       | `true`                  | Remove HTML comments from HTML bodies |
+| `protocol_replacement` | `false`                 | Scheme (e.g. `'https://'`) given to protocol-relative `//` image URLs when `attachify` runs |
+
 <a id="custom-driver"></a>
 
 ## Custom Driver
 
-Beyond the built-in `mail`, `smtp`, `sendmail` and `log` drivers, you can register
-your own.
-
-Create a new driver class:
+Extend `System\Email\Drivers\Driver` and implement `transmit()`. The protected `build()` method returns the prepared `header` and `body`:
 
 ```php
 // application/libraries/mydriver.php
 
-class Mydriver extends Mailer
+class Mydriver extends \System\Email\Drivers\Driver
 {
     protected function transmit()
     {
-        // Your email sending logic ..
+        $message = $this->build();
+        // Send $message['header'] and $message['body'] ...
+
+        return true;
     }
 }
 ```
 
-Register your new driver to rakit:
+Register it with `Email::extend()`, for example in `application/boot.php`, and select it in the config:
 
 ```php
-// application/boot.php
-
-$config = [
-    // ..
-];
-
-Email::extend('mydriver', function () use ($config) {
-    return new Mydriver($config);
+Email::extend('mydriver', function () {
+    return new Mydriver(Config::get('email'));
 });
-```
 
-Then point the configuration at it:
-
-```php
 Config::set('email.driver', 'mydriver');
 ```
+
+Resolved drivers are cached; `Email::reset()` clears that cache.

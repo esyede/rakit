@@ -109,6 +109,79 @@ class MigrateTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Migrate\Database::last() - restricted to the given packages.
+     *
+     * @group system
+     */
+    public function testLastCanBeRestrictedToPackages()
+    {
+        $database = new MigrateDatabase();
+        $this->install($database);
+
+        $database->log(self::PACKAGE, self::MIGRATION, 1);
+        $database->log('other', 'x', 2);
+
+        $last = $database->last([self::PACKAGE]);
+        $this->assertCount(1, $last);
+        $this->assertEquals(self::PACKAGE, $last[0]->package);
+        $this->assertEquals('other', $database->last()[0]->package);
+    }
+
+    /**
+     * Test for Migrator::rollback() - a package's batch is found even when it isn't the last one.
+     *
+     * @group system
+     */
+    public function testRollbackPackageWhoseBatchIsNotTheLast()
+    {
+        $migrator = $this->migrator();
+
+        $this->silently($migrator, 'run', [self::PACKAGE]);
+        (new MigrateDatabase())->log('other', 'x', 99);
+
+        $this->silently($migrator, 'reset', [self::PACKAGE]);
+        $this->assertFalse(Schema::has_table('migrate_probe'));
+        $this->assertCount(1, (new MigrateDatabase())->last());
+    }
+
+    /**
+     * Test for Packager::reset_migrations() - rolls back the package migrations.
+     *
+     * @group system
+     */
+    public function testPackagerResetsPackageMigrations()
+    {
+        $migrator = $this->migrator();
+        $this->silently($migrator, 'run', [self::PACKAGE]);
+
+        $this->reset_package_migrations();
+        $this->assertFalse(Schema::has_table('migrate_probe'));
+
+        Schema::drop('rakit_migrations');
+        $this->assertNotContains('Unable', $this->reset_package_migrations());
+    }
+
+    /**
+     * Call the protected Packager::reset_migrations() for the test package.
+     *
+     * @return string
+     */
+    private function reset_package_migrations()
+    {
+        require_once path('system').'console'.DS.'dependencies.php';
+
+        $class = new ReflectionClass('System\Console\Commands\Package\Packager');
+        $packager = $class->newInstanceWithoutConstructor();
+        $method = $class->getMethod('reset_migrations');
+        $method->setAccessible(true);
+
+        ob_start();
+        $method->invoke($packager, self::PACKAGE);
+
+        return (string) ob_get_clean();
+    }
+
+    /**
      * Test for Migrator::migrate() - a migration only runs once.
      *
      * @group system

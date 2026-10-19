@@ -95,13 +95,7 @@ class Migrator extends Command
      */
     public function rollback(array $arguments = [])
     {
-        $migrations = $this->resolver->last();
-
-        if (count($arguments) > 0) {
-            $migrations = array_filter($migrations, function ($migration) use ($arguments) {
-                return in_array($migration['package'], $arguments);
-            });
-        }
+        $migrations = $this->resolver->last($arguments);
 
         if (0 === count($migrations)) {
             echo $this->info('Done. Nothing to rollback.');

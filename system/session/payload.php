@@ -84,6 +84,11 @@ class Payload
                 $this->session['data'][$bag] = [];
             }
         }
+
+        // Like Laravel's Store::start(): every session carries a CSRF token from the start.
+        if (! isset($this->session['data'][Session::TOKEN])) {
+            $this->session['data'][Session::TOKEN] = Str::random(40);
+        }
     }
 
     /**

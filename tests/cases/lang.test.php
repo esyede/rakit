@@ -57,6 +57,25 @@ class LangTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that the trans() and __() helpers return strings, like Laravel.
+     *
+     * @group system
+     */
+    public function testTransHelpersReturnStrings()
+    {
+        $id = require path('app') . 'language' . DS . 'id' . DS . 'validation.php';
+        $en = require path('app') . 'language' . DS . 'en' . DS . 'validation.php';
+
+        $this->assertSame($id['required'], trans('validation.required'));
+        $this->assertSame($en['required'], __('validation.required', [], 'en'));
+        $this->assertSame('validation.nope', trans('validation.nope'));
+        $this->assertSame(
+            str_replace(':attribute', 'Email', $en['required']),
+            trans('validation.required', ['attribute' => 'Email'], 'en')
+        );
+    }
+
+    /**
      * Test for the ':attribute' replacement in language lines.
      *
      * @group system

@@ -15,92 +15,49 @@
 
 ## Basic Knowledge
 
-`URL` builds links to routes, controller actions and assets.
-
-#### Getting the application's base URL:
-
-```php
-$url = URL::base();
-```
-
-#### Getting the application's home page URL:
+The `URL` class builds absolute links to paths, routes, controller actions and
+assets. Generated URLs use HTTPS when the request is secure or `application.url`
+starts with `https://`.
 
 ```php
-$url = URL::home();
+URL::base();               // http://example.com
+URL::home();               // the "home" named route, or the base URL
+URL::to('user/profile');   // http://example.com/user/profile
+URL::current();            // current URL, without the query string
+URL::full();               // current URL, with the query string
+URL::valid('https://example.com'); // true (uses filter_var())
 ```
 
-It uses the named route `'home'` when there is one, and the base URL otherwise.
+`URL::to()` includes the `application.index` value and, when
+`application.languages` is set, the current language segment. A full
+`http(s)://` URL is returned unchanged.
 
-#### Creating a URL from the base URL:
-
-```php
-$url = URL::to('user/profile');
-```
-
-> **Security:** `URL::to()` blocks protocol-relative URLs (`//evil.com`) and dangerous schemes (`javascript:`, `data:`). `Redirect::to()` blocks external hosts; use `Redirect::away()` for a deliberate external redirect.
-
-#### Getting the current URL:
-
-```php
-$url = URL::current();
-```
-
-#### Getting the current URL along with query string:
-
-```php
-$url = URL::full();
-```
-
-#### Validating a URL:
-
-```php
-// Check if the string is a valid URL
-if (URL::valid('https://example.com')) {
-    // URL is valid
-}
-
-if (URL::valid('not-a-url')) {
-    // URL is not valid
-}
-```
-
-The `valid()` method uses PHP's `filter_var()` to validate the URL format.
+> **Security:** `URL::to()` turns protocol-relative URLs (`//evil.com`) and other
+> schemes (`javascript:`, `data:`) into `/`. `Redirect::to()` blocks external
+> hosts; use `Redirect::away()` for a deliberate external redirect.
 
 <a id="url-to-route"></a>
 
 ## URL to Route
 
-#### Creating a URL to a named route:
+`URL::to_route()` builds a URL from a [named route](/docs/routing#named-routes),
+filling its wildcards in order. It throws an exception if the route does not
+exist:
 
 ```php
 $url = URL::to_route('profile');
-```
-
-Pass the values that replace the route's URI placeholders:
-
-#### Creating a URL to a named route with wildcard values:
-
-```php
 $url = URL::to_route('profile', [$username]);
 ```
-
-_Further reading:_
-
--   [Named Routes](/docs/routing#named-routes)
 
 <a id="url-to-controller-method"></a>
 
 ## URL to Controller Method
 
-#### Creating a URL to a controller method:
+`URL::to_action()` uses the URI of the route pointing at that action; without
+one it falls back to the `controller/action/params` convention:
 
 ```php
 $url = URL::to_action('user@profile');
-```
-
-#### Creating a URL to a controller method with wildcard values:
-
-```php
 $url = URL::to_action('user@profile', [$username]);
 ```
 
@@ -108,15 +65,12 @@ $url = URL::to_action('user@profile', [$username]);
 
 ## URL to Language Switch
 
-#### Creating a URL to the same page in another language:
+`URL::to_language()` returns the current page in another language, or the home
+page when the second argument is `true`. The language must be listed in
+`application.languages`:
 
 ```php
 $url = URL::to_language('fr');
-```
-
-#### Creating a URL to the home page in another language:
-
-```php
 $url = URL::to_language('fr', true);
 ```
 
@@ -124,63 +78,23 @@ $url = URL::to_language('fr', true);
 
 ## URL to Asset
 
-URLs created for assets will not contain the value from the `application.index` configuration.
-
-#### Creating a URL to an asset:
+`URL::to_asset()` points into the `assets/` folder, without the
+`application.index` value or language segment. Full URLs (including `//cdn...`)
+are returned unchanged:
 
 ```php
-$url = URL::to_asset('js/jquery.js');
+$url = URL::to_asset('js/jquery.js'); // http://example.com/assets/js/jquery.js
 ```
 
 <a id="other-helpers"></a>
 
 ## Other Helpers
 
-Global helpers cover the same ground:
+Global helper functions are shortcuts for the methods above:
 
-#### Creating a URL from the base URL:
-
-```php
-$url = url('user/profile');
-```
-
-The `url()` function is an alias for `URL::to()`.
-
-#### Creating a URL to an asset:
-
-```php
-$url = asset('js/jquery.js');
-```
-
-The `asset()` function is an alias for `URL::to_asset()`.
-
-#### Creating a URL to a named route:
-
-```php
-$url = route('profile');
-```
-
-The `route()` function is an alias for `URL::to_route()`.
-
-#### Creating a URL to a named route with wildcard values:
-
-```php
-$url = route('profile', [$username]);
-```
-
-#### Creating a URL to a controller method:
-
-```php
-$url = action('user@profile');
-```
-
-The `action()` function is an alias for `URL::to_action()`.
-
-#### Creating a URL to a controller method with wildcard values:
-
-```php
-$url = action('user@profile', [$username]);
-```
-
-> **Note:** All created URLs will automatically follow the protocol being used
-> (HTTP or HTTPS) based on the `application.url` configuration or the current request.
+| Helper                          | Same as                          |
+|---------------------------------|----------------------------------|
+| `url('user/profile')`           | `URL::to()`                      |
+| `asset('js/jquery.js')`         | `URL::to_asset()`                |
+| `route('profile', [$username])` | `URL::to_route()`                |
+| `action('user@profile', [$id])` | `URL::to_action()`               |

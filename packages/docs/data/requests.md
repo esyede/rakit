@@ -3,237 +3,175 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
 - [Basic Knowledge](#basic-knowledge)
-- [Accessing Request](#accessing-request)
-  - [Request URI](#request-uri)
-  - [Request Method](#request-method)
-  - [Request Path](#request-path)
+- [Request URI](#request-uri)
+  - [URI Segments](#uri-segments)
+  - [URI Pattern Matching](#uri-pattern-matching)
+- [Request Method](#request-method)
 - [Request Headers](#request-headers)
-  - [Retrieve Headers](#retrieve-headers)
-  - [Check Header Exists](#check-header-exists)
-  - [Common Headers](#common-headers)
 - [Request IP Address](#request-ip-address)
+- [Query String](#query-string)
 - [Request Type Detection](#request-type-detection)
-  - [AJAX Request](#ajax-request)
-  - [HTTPS Request](#https-request)
-  - [CLI Request](#cli-request)
   - [JSON Request](#json-request)
 - [Content Negotiation](#content-negotiation)
-  - [Accept Header](#accept-header)
-  - [Accept Specific Types](#accept-specific-types)
   - [Content Type Preferences](#content-type-preferences)
-  - [Content Type](#content-type)
 - [Authorization](#authorization)
-  - [Authorization Header](#authorization-header)
-  - [Bearer Token](#bearer-token)
 - [CSRF Protection](#csrf-protection)
   - [Checking Forged Requests](#checking-forged-requests)
   - [CSRF Exceptions](#csrf-exceptions)
-- [URI Information](#uri-information)
-  - [Current URI](#current-uri)
-  - [Full URI](#full-uri)
-  - [URI Segments](#uri-segments)
-  - [URI Pattern Matching](#uri-pattern-matching)
-- [Query String](#query-string)
 - [Request Route](#request-route)
 - [Server Variables](#server-variables)
-- [User Agent](#user-agent)
 - [Referrer](#referrer)
 - [Other Methods](#other-methods)
-- [Practical Examples](#practical-examples)
+- [Practical Example](#practical-example)
 
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-`Request` is the object-oriented entry point for the current HTTP request. Use
-it to read the URI, method, headers, IP, server values, and to detect the
-request kind (AJAX, JSON, HTTPS, CLI). For input data (form fields, JSON body,
-uploaded files), see [Input](/docs/input).
+The `Request` class gives you the current HTTP request: its URI, method,
+headers, IP, server values, and what kind of request it is (AJAX, JSON, HTTPS,
+CLI). For form fields, JSON bodies and uploaded files, see [Input](/docs/input).
 
 <a id="accessing-request"></a>
-## Accessing Request
-
+<a id="uri-information"></a>
+<a id="current-uri"></a>
+<a id="full-uri"></a>
 <a id="request-uri"></a>
-### Request URI
+## Request URI
 
-**Get current URI:**
+`Request::uri()` (same as `URI::current()`) returns the path without leading or
+trailing slashes, or `/` for the home page. `URI::full()` returns the full URL
+including the query string:
 
 ```php
-$uri = Request::uri();
-// Example: "user/profile"
-
-$uri = URI::current();
-// Same as Request::uri()
+$uri = Request::uri(); // 'user/profile'
+$url = URI::full();    // 'http://example.com/user/profile?page=2'
 ```
 
-**Get full URL:**
+<a id="uri-segments"></a>
+### URI Segments
+
+`URI::segment()` counts from `1` and accepts a default:
 
 ```php
-$url = URI::full();
-// Example: "http://example.com/user/profile?page=2"
+// URI: /user/profile/edit
+URI::segment(1);            // 'user'
+URI::segment(4, 'default'); // 'default'
 ```
 
-<a id="request-method"></a>
-### Request Method
-
-**Get HTTP method:**
+All segments live in the zero-based `URI::$segments` property, filled in once
+`URI::current()` (or `URI::segment()`) has been called:
 
 ```php
-$method = Request::method();
-// GET, POST, PUT, DELETE, PATCH, etc
-
-// Check specific method
-if (Request::method() === 'POST') {
-    // Handle POST request
-}
-```
-
-**Check method type:**
-
-```php
-if (Request::is_method('post')) {
-    // POST request
-}
-
-if (Request::is_method('get')) {
-    // GET request
-}
+URI::current();
+$segments = URI::$segments; // ['user', 'profile', 'edit']
 ```
 
 <a id="request-path"></a>
-### Request Path
+<a id="uri-pattern-matching"></a>
+### URI Pattern Matching
 
-**Check if request matches path:**
+`URI::is()` checks the current URI against a pattern. `*` is a wildcard, and an
+array matches if any pattern does:
 
 ```php
-if (URI::is('user/*')) {
-    // Request path starts with "user/"
-}
+URI::is('admin/dashboard');        // exact match
+URI::is('user/*');                 // anything under user/
+URI::is(['admin/*', 'dashboard/*']);
 
-if (URI::is('admin/dashboard')) {
-    // Exact match
-}
-
-// Multiple patterns
-if (URI::is(['admin/*', 'user/*'])) {
-    // Matches either pattern
-}
+$active = URI::is('products/*') ? 'active' : '';
 ```
 
+<a id="request-method"></a>
+## Request Method
+
+`method()` returns the uppercase HTTP method, honoring method spoofing via the
+`_method` field. `real_method()` returns the method the server actually
+received, use it for security decisions:
+
+```php
+$method = Request::method(); // 'POST', 'PUT', ...
+
+if (Request::is_method('post')) {
+    // case-insensitive
+}
+
+$real = Request::real_method();
+```
+
+<a id="retrieve-headers"></a>
+<a id="check-header-exists"></a>
+<a id="common-headers"></a>
+<a id="user-agent"></a>
 <a id="request-headers"></a>
 ## Request Headers
 
-<a id="retrieve-headers"></a>
-### Retrieve Headers
-
-**Get specific header:**
+Header names are case-insensitive. `header()` accepts a default value:
 
 ```php
-$accept = Request::header('Accept');
-$authorization = Request::header('Authorization');
-$user_agent = Request::header('User-Agent');
-
-// With default value
+$type  = Request::header('Content-Type');
 $token = Request::header('X-API-Token', 'default-token');
-```
+$agent = Request::agent(); // shortcut for the User-Agent header
 
-**Get all headers:**
-
-Header names in the returned array are lowercased (e.g. `user-agent`):
-
-```php
-$headers = Request::headers();
-
-foreach ($headers as $name => $value) {
-    echo "$name: $value\n";
+if (Request::foundation()->headers->has('X-API-Key')) {
+    // header present
 }
 ```
 
-<a id="check-header-exists"></a>
-### Check Header Exists
+`headers()` returns every header as a `name => value` array. As in Laravel/Symfony,
+names are lowercase with `_` turned into `-` (e.g. `user-agent`, `x-requested-with`).
+Response headers keep the casing you set them with when sent (`Content-Type`):
 
 ```php
-if (Request::foundation()->headers->has('Authorization')) {
-    $auth = Request::header('Authorization');
+foreach (Request::headers() as $name => $value) {
+    echo $name . ': ' . $value . "\n";
 }
-```
-
-<a id="common-headers"></a>
-### Common Headers
-
-```php
-// Accept header
-$accept = Request::header('Accept');
-
-// Authorization header
-$auth = Request::header('Authorization');
-
-// Content-Type
-$content_type = Request::header('Content-Type');
-
-// User-Agent
-$user_agent = Request::header('User-Agent');
-
-// X-Requested-With (for AJAX detection)
-$requested_with = Request::header('X-Requested-With');
-
-// Custom headers
-$api_key = Request::header('X-API-Key');
-$api_version = Request::header('X-API-Version');
 ```
 
 <a id="request-ip-address"></a>
 ## Request IP Address
 
-**Get client IP address:**
+`ip()` returns the client IP. If it cannot be determined or is not a valid IP,
+the default (`'0.0.0.0'`) is returned:
 
 ```php
 $ip = Request::ip();
-// 192.168.1.100
+$ip = Request::ip('unknown');
 
-// Use in logging
-Log::info('Request from IP: ' . Request::ip());
-
-// IP-based rate limiting
-$key = 'rate_limit:' . Request::ip();
+if (in_array(Request::ip(), ['192.168.1.100', '10.0.0.1'])) {
+    // whitelisted
+}
 ```
 
-**Check specific IP:**
+<a id="query-string"></a>
+## Query String
+
+Query parameters are usually read through [Input](/docs/input). The raw query
+bag is also reachable from the underlying request:
 
 ```php
-if (Request::ip() === '192.168.1.100') {
-    // Request from specific IP
-}
-
-// IP whitelist
-$whitelist = ['192.168.1.100', '10.0.0.1'];
-if (in_array(Request::ip(), $whitelist)) {
-    // IP allowed
-}
+$page  = Input::get('page');
+$query = Request::foundation()->query->all();
 ```
 
+<a id="ajax-request"></a>
+<a id="https-request"></a>
+<a id="cli-request"></a>
 <a id="request-type-detection"></a>
 ## Request Type Detection
 
-<a id="ajax-request"></a>
-### AJAX Request
-
-**Check if request is AJAX:**
-
 ```php
-if (Request::ajax()) {
-    return Response::json(['status' => 'success']);
-}
-
-return View::make('page');
+Request::ajax();     // X-Requested-With: XMLHttpRequest
+Request::pjax();     // X-Pjax header present
+Request::secure();   // over HTTPS
+Request::cli();      // running from the console
+Request::prefetch(); // browser is only prefetching the page
 ```
 
-**Conditional response:**
+A common use is returning JSON to AJAX calls and a view otherwise:
 
 ```php
-$users = User::all();
-
 if (Request::ajax()) {
     return Response::json($users);
 }
@@ -241,247 +179,99 @@ if (Request::ajax()) {
 return View::make('users.index', compact('users'));
 ```
 
-<a id="https-request"></a>
-### HTTPS Request
-
-**Check if request is secure (HTTPS):**
-
-```php
-if (Request::secure()) {
-    // Request uses HTTPS
-}
-
-// Redirect to HTTPS
-if (!Request::secure()) {
-    return Redirect::to('https://' . $_SERVER['HTTP_HOST'] . Request::uri());
-}
-```
-
-<a id="cli-request"></a>
-### CLI Request
-
-**Check if running from command line:**
-
-```php
-if (Request::cli()) {
-    // Running from console
-    echo "Command line interface\n";
-} else {
-    // Running from web
-    return View::make('home');
-}
-```
-
+<a id="content-type"></a>
 <a id="json-request"></a>
 ### JSON Request
 
-**Check if request content is JSON:**
+| Method           | Returns `true` when                                                           |
+| ---------------- | ----------------------------------------------------------------------------- |
+| `is_json()`      | The `Content-Type` contains `/json` or `+json` (the body is JSON)             |
+| `wants_json()`   | The most preferred `Accept` type contains `/json` or `+json`                  |
+| `expects_json()` | The request is AJAX but not PJAX, or `wants_json()` is `true`                 |
 
 ```php
 if (Request::is_json()) {
-    // Request body contains JSON
     $data = Input::json();
 }
-```
-
-**Check if request expects JSON response:**
-
-```php
-if (Request::expects_json()) {
-    // Client expects JSON response (AJAX non-PJAX or wants JSON)
-    return Response::json(['data' => $data]);
-}
-```
-
-**Check if request wants JSON response:**
-
-```php
-if (Request::wants_json()) {
-    // Client prefers JSON based on Accept header
-    return Response::json(['data' => $data]);
-}
-```
-
-**Adaptive response:**
-
-```php
-$users = User::all();
 
 if (Request::expects_json()) {
     return Response::json($users);
 }
-
-return View::make('users.index', compact('users'));
 ```
 
+<a id="accept-header"></a>
+<a id="accept-specific-types"></a>
 <a id="content-negotiation"></a>
 ## Content Negotiation
 
-<a id="accept-header"></a>
-### Accept Header
-
-**Get all acceptable content types:**
-
-```php
-$accept = Request::accept();
-// ['text/html', 'application/json', '*/*']
-
-foreach ($accept as $type) {
-    echo "Accepts: $type\n";
-}
-```
-
-**Check if request accepts specific types:**
+`accept()` lists the types from the `Accept` header, most preferred first.
+`accepts()` takes one type, several arguments, or an array, and returns `true`
+if any of them is acceptable (wildcards like `text/*` and `*/*` count, and an
+empty `Accept` header accepts everything):
 
 ```php
-// Check single type
+$types = Request::accept(); // ['text/html', 'application/json', '*/*']
+
 if (Request::accepts('application/json')) {
     return Response::json($data);
 }
 
-// Check multiple types
-if (Request::accepts(['text/html', 'application/xhtml+xml'])) {
-    return View::make('page');
-}
-
-// Check with array argument
-$types = ['application/json', 'text/xml'];
-if (Request::accepts($types)) {
-    // Client accepts one of these types
-}
-```
-
-<a id="accept-specific-types"></a>
-### Accept Specific Types
-
-**Check if accepts HTML:**
-
-```php
-if (Request::accept_html()) {
-    return View::make('page');
-}
-```
-
-**Check if accepts any content type:**
-
-```php
-if (Request::accept_any()) {
-    // Client accepts any content type (*/* in Accept header)
-    return Response::make($content);
-}
+Request::accepts(['text/html', 'application/xhtml+xml']);
+Request::accept_html(); // same as accepts('text/html')
+Request::accept_any();  // Accept header is empty or starts with */*
 ```
 
 <a id="content-type-preferences"></a>
 ### Content Type Preferences
 
-**Get preferred content type:**
+`prefers()` walks the `Accept` header in order of preference and returns the
+first of your types that matches, or `null`. If the client sends `*/*`, your
+first type is returned:
 
 ```php
-$preferred = Request::prefers(['application/json', 'text/html', 'text/xml']);
-// Returns the first matching type from the list, or null
+$format = Request::prefers(['application/json', 'text/html']);
 
-if ($preferred === 'application/json') {
+if ($format === 'application/json') {
     return Response::json($data);
-} elseif ($preferred === 'text/html') {
-    return View::make('page');
-} elseif ($preferred === 'text/xml') {
-    return Response::make($xml, 200, ['Content-Type' => 'text/xml']);
 }
+
+return View::make('page');
 ```
 
-**Matches type helper:**
+`matches_type($actual, $type)` is the helper behind this. It returns `true` when
+the two types are equal, or when `$type` is a structured-syntax variant of
+`$actual` (it does not expand `*` wildcards):
 
 ```php
-// Check if actual type matches requested type
-if (Request::matches_type('text/html', 'text/*')) {
-    // Match! text/html matches text/* pattern
-}
-
-if (Request::matches_type('application/json', '*/*')) {
-    // Match! Any type matches */*
-}
+Request::matches_type('application/json', 'application/json');         // true
+Request::matches_type('application/json', 'application/vnd.api+json'); // true
+Request::matches_type('text/html', 'text/*');                          // false
 ```
 
-<a id="content-type"></a>
-### Content Type
-
-**Get request content type:**
-
-```php
-$content_type = Request::header('Content-Type');
-
-if ($content_type === 'application/json') {
-    $data = Input::json();
-} elseif ($content_type === 'application/x-www-form-urlencoded') {
-    $data = Input::all();
-}
-```
-
+<a id="authorization-header"></a>
+<a id="bearer-token"></a>
 <a id="authorization"></a>
 ## Authorization
 
-<a id="authorization-header"></a>
-### Authorization Header
-
-**Get Authorization header:**
-
-```php
-$auth = Request::authorization();
-// Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-if ($auth) {
-    // Process authorization
-} else {
-    return Response::json(['error' => 'Unauthorized'], 401);
-}
-```
-
-<a id="bearer-token"></a>
-### Bearer Token
-
-**Extract Bearer token:**
+`authorization()` returns the raw `Authorization` header. `bearer()` returns
+the token from a `Bearer <token>` header, or `null` when the header is missing,
+uses another scheme, or the token contains invalid characters:
 
 ```php
-$token = Request::bearer();
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+$auth  = Request::authorization(); // 'Bearer eyJhbGciOi...'
+$token = Request::bearer();        // 'eyJhbGciOi...'
 
-if ($token) {
-    // Verify token
-    $user = JWT::decode($token, 's3cr3t');
-} else {
+if (! $token) {
     return Response::json(['error' => 'Token required'], 401);
 }
-```
-
-**API authentication example:**
-
-```php
-Route::middleware('api.auth', function () {
-    $token = Request::bearer();
-
-    if (!$token) {
-        return Response::json(['error' => 'Token required'], 401);
-    }
-
-    try {
-        JWT::decode($token, 's3cr3t');
-    } catch (\Exception $e) {
-        return Response::json(['error' => 'Invalid token'], 401);
-    }
-});
-
-Route::get('api/profile', ['before' => 'api.auth', function () {
-    $payload = JWT::decode(Request::bearer(), 's3cr3t');
-    return Response::json(User::find($payload->user_id));
-}]);
 ```
 
 <a id="csrf-protection"></a>
 ## CSRF Protection
 
-Rakit ships a `csrf` middleware that protects every non-safe request (anything
-but `GET`, `HEAD`, `OPTIONS`, `TRACE` and `CONNECT`) against cross-site request forgery. The token
-lives in the session and is rendered into forms with `@csrf` or `csrf_field()`:
+The `csrf` middleware protects every non-safe request (anything but `GET`,
+`HEAD`, `OPTIONS`, `TRACE` and `CONNECT`) against cross-site request forgery.
+Render the session token into forms with `@csrf` or `csrf_field()`:
 
 ```blade
 <form method="POST" action="/posts">
@@ -490,15 +280,14 @@ lives in the session and is rendered into forms with `@csrf` or `csrf_field()`:
 </form>
 ```
 
-For AJAX calls, send the token in the `X-CSRF-Token` or `X-XSRF-Token` header.
-The framework compares it with the session token using a timing-safe
-comparison, so a wrong token is refused without leaking timing information.
+For AJAX calls, send the token in the `X-CSRF-Token` or `X-XSRF-Token` header,
+or as `csrf_token` in a JSON body. Tokens are compared in constant time.
 
 <a id="checking-forged-requests"></a>
 ### Checking Forged Requests
 
-Call `Request::forged()` to ask whether the current request carries a valid
-token:
+`Request::forged()` returns `true` when the token is missing or wrong, and
+`false` for safe methods. This is exactly what the `csrf` middleware checks:
 
 ```php
 if (Request::forged()) {
@@ -506,18 +295,15 @@ if (Request::forged()) {
 }
 ```
 
-This is exactly what the built-in `csrf` middleware does. `forged()` returns
-`true` when the token is missing or does not match, and `false` for safe
-methods (`GET`, `HEAD`, `OPTIONS`, `TRACE`, `CONNECT`) even when no token was sent. A `POST` that
-spoofs itself as `GET` through `_method` or `X-Http-Method-Override` is still
-checked, because the decision is based on the method the server reported.
+> The check uses `real_method()`, so a `POST` spoofed as `GET` via `_method`
+> or `X-Http-Method-Override` is still checked.
 
 <a id="csrf-exceptions"></a>
 ### CSRF Exceptions
 
-Endpoints that cannot carry a session token — webhooks, callback URLs,
-server-to-server APIs — can be exempted by listing their URI patterns in
-`application/config/application.php`:
+Webhooks, callbacks and server-to-server endpoints that cannot carry a session
+token can be exempted in `application/config/application.php`. Patterns support
+`*` wildcards:
 
 ```php
 'csrf_except' => [
@@ -526,444 +312,80 @@ server-to-server APIs — can be exempted by listing their URI patterns in
 ],
 ```
 
-The `csrf` middleware consults this list before checking the token, so a
-matching route is let through without one. Patterns support `*` as a wildcard
-(`api/*` covers `api/v1/accounts`, `api/v2/orders`, ...). The list is a
-server-side whitelist, client cannot opt out by sending a special header value.
-
-<a id="uri-information"></a>
-## URI Information
-
-<a id="current-uri"></a>
-### Current URI
-
-```php
-$uri = URI::current();
-// "user/profile"
-
-$uri = Request::uri();
-// Same as URI::current()
-```
-
-<a id="full-uri"></a>
-### Full URI
-
-```php
-$full_uri = URI::full();
-// "http://example.com/user/profile?page=2&sort=name"
-```
-
-<a id="uri-segments"></a>
-### URI Segments
-
-**Get specific segment:**
-
-```php
-// URI: /user/profile/edit
-$segment1 = URI::segment(1); // "user"
-$segment2 = URI::segment(2); // "profile"
-$segment3 = URI::segment(3); // "edit"
-
-// With default value
-$segment = URI::segment(4, 'default'); // "default" if not present
-```
-
-**Get all segments:**
-
-All segments are kept in the `URI::$segments` property. Call `URI::current()`
-first so the property is filled in:
-
-```php
-URI::current(); // 'user/profile/edit'
-
-$segments = URI::$segments;
-// ['user', 'profile', 'edit']
-
-foreach ($segments as $index => $segment) {
-    echo 'Segment ' . ($index + 1) . ': ' . $segment . "\n";
-}
-```
-
-> The property is zero-based, while `URI::segment()` starts counting from `1`.
-
-<a id="uri-pattern-matching"></a>
-### URI Pattern Matching
-
-**Check if URI matches pattern:**
-
-```php
-// Exact match
-if (URI::is('home')) {
-    echo 'Home page';
-}
-
-// Wildcard match
-if (URI::is('user/*')) {
-    echo 'User section';
-}
-
-// Multiple patterns
-if (URI::is(['admin/*', 'dashboard/*'])) {
-    echo 'Admin or dashboard';
-}
-```
-
-**Practical examples:**
-
-```php
-// Breadcrumb generation
-if (URI::is('admin/*')) {
-    $breadcrumbs[] = ['Admin', '/admin'];
-
-    if (URI::is('admin/users/*')) {
-        $breadcrumbs[] = ['Users', '/admin/users'];
-    }
-}
-
-// Active menu
-$active = URI::is('products/*') ? 'active' : '';
-
-// Conditional rendering
-if (URI::is('blog/*')) {
-    View::share('sidebar', View::make('blog.sidebar'));
-}
-```
-
-<a id="query-string"></a>
-## Query String
-
-**Get query parameters:**
-
-```php
-// Via Input
-$page = Input::get('page');
-$sort = Input::get('sort');
-
-// Via Request
-$query = Request::foundation()->query->all();
-
-// Check query parameter exists
-if (Input::has('search')) {
-    $keyword = Input::get('search');
-}
-```
-
 <a id="request-route"></a>
 ## Request Route
 
-**Get current route:**
+`route()` returns the matched `Route` object (or `null` before routing):
 
 ```php
 $route = Request::route();
 
-// Check route name
-if ($route->is('user.profile')) {
-    echo 'User profile page';
-}
-
-// Get route parameters
-$params = $route->parameters;
-
-// Get route action
-$action = $route->action;
+$route->is('user.profile'); // checks the route name ('as')
+$route->parameters;         // route parameters
+$route->action;             // route action array
 ```
 
 <a id="server-variables"></a>
 ## Server Variables
 
-**Access $_SERVER variables:**
+`server()` reads a `$_SERVER` value (the key is uppercased for you) with an
+optional default. `servers()` returns them all:
 
 ```php
-// Get specific server variable
-$host = Request::server('HTTP_HOST');
-$referer = Request::server('HTTP_REFERER');
-$user_agent = Request::server('HTTP_USER_AGENT');
-
-// Get all server variables
-$server = Request::servers();
-
-// Common server variables
-$method = Request::server('REQUEST_METHOD');
-$protocol = Request::server('SERVER_PROTOCOL');
-$port = Request::server('SERVER_PORT');
-$remote_addr = Request::server('REMOTE_ADDR');
-```
-
-**With default value:**
-
-```php
+$host    = Request::server('HTTP_HOST');
 $referer = Request::server('HTTP_REFERER', '/');
-```
-
-<a id="user-agent"></a>
-## User Agent
-
-**Get user agent:**
-
-```php
-$user_agent = Request::header('User-Agent');
-// Mozilla/5.0 (Windows NT 10.0; Win64; x64)...
-
-// Check for specific browser
-if (Str::contains($user_agent, 'Chrome')) {
-    echo 'Chrome browser';
-}
-
-if (Str::contains($user_agent, 'Mobile')) {
-    echo 'Mobile device';
-}
+$all     = Request::servers();
 ```
 
 <a id="referrer"></a>
 ## Referrer
 
-**Get referrer URL:**
+`referrer()` returns the `Referer` header, or `null`. To simply go back, use
+`Redirect::back()`:
 
 ```php
-$referrer = Request::referrer();
-// http://example.com/previous-page
-
-// Redirect back to referrer
-return Redirect::to($referrer);
-
-// Or use shorthand
-return Redirect::back();
-```
-
-**Check referrer:**
-
-```php
-if (Request::referrer()) {
-    echo 'Came from: ' . Request::referrer();
-} else {
-    echo 'Direct access';
-}
+$from = Request::referrer();
 ```
 
 <a id="other-methods"></a>
 ## Other Methods
 
-| Method                | Description                                                            |
-| --------------------- | ---------------------------------------------------------------------- |
-| `agent()`             | Shortcut for the `User-Agent` header                                   |
-| `content($resource)`  | Raw request body, pass `true` to get it as a stream resource           |
-| `forged()`            | `true` when the CSRF token is missing or does not match                |
-| `spoofed()`           | `true` when the method was spoofed through the `_method` field         |
-| `pjax()`              | `true` when the request carries the `X-Pjax` header                    |
-| `prefetch()`          | `true` when the browser is only prefetching the page                   |
-| `languages()`         | Languages from the `Accept-Language` header, most preferred first      |
-| `subdomain()`         | The subdomain, or `null` when the host has no subdomain                |
-| `time()`              | UNIX timestamp of when the request started                             |
-| `env()`               | Current environment name                                               |
-| `is_env($env)`        | `true` when the current environment matches `$env`                     |
+| Method               | Description                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| `content($resource)` | Raw request body; pass `true` to get it as a stream resource      |
+| `spoofed()`          | `true` when the method was spoofed through the `_method` field    |
+| `languages()`        | Languages from the `Accept-Language` header, most preferred first |
+| `subdomain()`        | The subdomain, or `null` when the host has no subdomain           |
+| `time()`             | UNIX timestamp of when the request started                        |
+| `env()`              | Current environment name                                          |
+| `set_env($env)`      | Override the current environment name                             |
+| `is_env($env)`       | `true` when the current environment matches `$env`                |
+| `foundation()`       | The underlying `System\Foundation\Http\Request` instance          |
+
+Any other static call is forwarded to the foundation request, e.g.
+`Request::getHost()`.
 
 <a id="practical-examples"></a>
-## Practical Examples
+<a id="practical-example"></a>
+## Practical Example
 
-**API Endpoint with content negotiation:**
+An endpoint that serves JSON, XML or HTML depending on the client:
 
 ```php
 Route::get('api/users', function () {
     $users = User::all();
+    $format = Request::prefers(['application/json', 'application/xml', 'text/html']);
 
-    // Content negotiation with multiple checks
-    if (Request::expects_json()) {
+    if (Request::expects_json() || $format === 'application/json') {
         return Response::json($users);
     }
 
-    // Check preferred format
-    $format = Request::prefers(['application/json', 'text/xml', 'text/html']);
-
-    if ($format === 'application/json') {
-        return Response::json($users);
-    } elseif ($format === 'text/xml') {
+    if ($format === 'application/xml') {
         return Response::make(View::make('users.xml', compact('users')), 200, [
-            'Content-Type' => 'application/xml'
+            'Content-Type' => 'application/xml',
         ]);
     }
 
     return View::make('users.index', compact('users'));
-});
-```
-
-**Conditional layout based on request type:**
-
-```php
-class Base_Controller extends Controller
-{
-    public function layout()
-    {
-        // No layout for AJAX
-        if (Request::ajax()) {
-            return null;
-        }
-
-        // No layout for API or JSON requests
-        if (URI::is('api/*') || Request::expects_json()) {
-            return null;
-        }
-
-        // Mobile layout
-        if (Str::contains(Request::agent(), 'Mobile')) {
-            return View::make('layouts.mobile');
-        }
-
-        // Default layout
-        return View::make('layouts.master');
-    }
-}
-```
-
-**Logging with request info:**
-
-```php
-Route::middleware('after', function ($response) {
-    Log::info('Request processed', [
-        'uri' => Request::uri(),
-        'method' => Request::method(),
-        'ip' => Request::ip(),
-        'user_agent' => Request::header('User-Agent'),
-        'referrer' => Request::referrer(),
-        'status' => $response->status(),
-    ]);
-});
-```
-
-**IP-based rate limiting:**
-
-```php
-Route::middleware('throttle', function ($limit = 60) {
-    $key = 'throttle:' . Request::ip() . ':' . Request::uri();
-    $attempts = Cache::get($key, 0);
-
-    if ($attempts >= $limit) {
-        Log::warning('Rate limit exceeded', [
-            'ip' => Request::ip(),
-            'uri' => Request::uri(),
-        ]);
-
-        return Response::make('Too many requests', 429);
-    }
-
-    Cache::put($key, $attempts + 1, 60);
-});
-```
-
-**Secure endpoint with various checks:**
-
-```php
-Route::post('admin/action', function () {
-    // Check HTTPS
-    if (!Request::secure()) {
-        return Response::error(403);
-    }
-
-    // Check bearer token
-    $token = Request::bearer();
-    if (!$token) {
-        return Response::json(['error' => 'Token required'], 401);
-    }
-
-    // Verify token
-    try {
-        $user = JWT::decode($token, 's3cr3t');
-    } catch (\Exception $e) {
-        return Response::json(['error' => 'Invalid token'], 401);
-    }
-
-    // Check IP whitelist
-    $whitelist = ['192.168.1.100', '10.0.0.1'];
-    if (!in_array(Request::ip(), $whitelist)) {
-        Log::warning('Unauthorized IP access attempt', [
-            'ip' => Request::ip(),
-            'uri' => Request::uri(),
-            'user' => $user->id,
-        ]);
-        return Response::error('403');
-    }
-
-    // Process request
-    return Response::json(['status' => 'success']);
-});
-```
-
-**Adaptive response based on client:**
-
-```php
-public function action_show($id)
-{
-    $post = Post::find($id);
-
-    // Use content negotiation
-    $format = Request::prefers([
-        'application/json',
-        'application/xml',
-        'text/html'
-    ]);
-
-    switch ($format) {
-        case 'application/json':
-            return Response::json($post);
-
-        case 'application/xml':
-            return Response::make(View::make('posts.xml', compact('post')), 200, [
-                'Content-Type' => 'application/xml'
-            ]);
-
-        default:
-            return View::make('posts.show', compact('post'));
-    }
-}
-```
-
-**Automatic breadcrumb from URI:**
-
-```php
-public function generate_breadcrumbs()
-{
-    URI::current();
-    $segments = URI::$segments;
-    $breadcrumbs = [['Home', '/']];
-    $path = '';
-
-    foreach ($segments as $segment) {
-        $path .= '/' . $segment;
-        $breadcrumbs[] = [ucfirst($segment), $path];
-    }
-
-    return $breadcrumbs;
-}
-```
-
-**Debug helper:**
-
-```php
-Route::get('debug/request', function () {
-    if (!Config::get('application.debug')) {
-        return Response::error('404');
-    }
-
-    return Response::json([
-        'uri' => Request::uri(),
-        'method' => Request::method(),
-        'ip' => Request::ip(),
-        'secure' => Request::secure(),
-        'ajax' => Request::ajax(),
-        'cli' => Request::cli(),
-        'is_json' => Request::is_json(),
-        'expects_json' => Request::expects_json(),
-        'wants_json' => Request::wants_json(),
-        'accept_html' => Request::accept_html(),
-        'accept_any' => Request::accept_any(),
-        'accept' => Request::accept(),
-        'authorization' => Request::authorization(),
-        'bearer' => Request::bearer(),
-        'headers' => Request::headers(),
-        'segments' => URI::$segments,
-        'route' => [
-            'name' => Request::route() ? Request::route()->action : null,
-            'params' => Request::route() ? Request::route()->parameters : [],
-        ],
-    ]);
 });
 ```

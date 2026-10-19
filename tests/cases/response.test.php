@@ -33,7 +33,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', $response->content);
         $this->assertEquals(201, $response->status());
-        $this->assertArrayHasKey('Bar', $response->headers()->all());
+        $this->assertArrayHasKey('bar', $response->headers()->all());
+        $this->assertArrayHasKey('bar', $response->headers()->allPreserveCase());
         $this->assertTrue($response->headers()->has('bar'));
         $this->assertTrue($response->headers()->has('Bar'));
         $this->assertTrue($response->headers()->has('bAr'));

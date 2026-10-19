@@ -2,77 +2,62 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
+- [Introduction](#introduction)
 - [Basic Routing](#basic-routing)
-  - [Simple Route](#simple-route)
   - [HTTP Methods](#http-methods)
-  - [Route Multiple Methods](#route-multiple-methods)
+  - [Multiple Methods & URIs](#multiple-methods--uris)
+  - [Redirect & View Routes](#redirect--view-routes)
 - [Route Parameters](#route-parameters)
   - [Required Parameters](#required-parameters)
   - [Optional Parameters](#optional-parameters)
   - [Wildcard Constraints](#wildcard-constraints)
-- [Route Shortcut](#route-shortcut)
-  - [Route Redirect](#route-redirect)
-  - [Route View](#route-view)
 - [Named Routes](#named-routes)
-  - [Defining Named Routes](#defining-named-routes)
-  - [Using Named Routes](#using-named-routes)
-  - [Check Route Name](#check-route-name)
+  - [Generating URLs](#generating-urls)
+  - [Inspecting the Current Route](#inspecting-the-current-route)
 - [Route Groups](#route-groups)
-  - [Group With Middleware](#group-with-middleware)
-  - [Group With Prefix](#group-with-prefix)
+  - [Group Middleware](#group-middleware)
+  - [Group Prefix](#group-prefix)
   - [Nested Groups](#nested-groups)
-  - [Group With Domain](#group-with-domain)
+  - [Domain Routing](#domain-routing)
 - [Middleware](#middleware)
   - [Defining Middleware](#defining-middleware)
-  - [Middleware On Route](#middleware-on-route)
-  - [Middleware Before & After](#middleware-before--after)
-  - [Middleware With Parameters](#middleware-with-parameters)
-  - [Middleware Pattern](#middleware-pattern)
-  - [CSRF Exceptions](#csrf-exceptions)
+  - [Attaching Middleware](#attaching-middleware)
+  - [Middleware Parameters](#middleware-parameters)
+  - [Pattern Middleware](#pattern-middleware)
   - [Global Middleware](#global-middleware)
+  - [CSRF Exceptions](#csrf-exceptions)
 - [Controller Routing](#controller-routing)
-  - [Basic Controller Route](#basic-controller-route)
-  - [Route to Specific Action](#route-to-specific-action)
-  - [Auto-Routed Controller](#restful-controller)
-  - [Resource Controller](#resource-controller)
-- [Route for Package](#route-for-package)
-- [Route Helpers](#route-helpers)
+  - [Controller Actions](#controller-actions)
+  - [Auto-Routed Controllers](#auto-routed-controllers)
+  - [Resource Routes](#resource-routes)
+- [Package Routes](#package-routes)
 - [404 Handler](#404-handler)
-- [Route Listing](#route-listing)
-- [Route Testing via CLI](#route-testing-via-cli)
+- [Listing & Testing Routes](#listing--testing-routes)
+- [Helpers](#helpers)
+  - [Route::forward()](#routeforward)
+  - [Route::has() and Route::lists()](#routehas-and-routelists)
+  - [Route Matched Event](#route-matched-event)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
-## Basic Knowledge
 
-A route maps an HTTP request (method + URI) to either a closure or a
-controller action. Rakit evaluates routes in declaration order — the first
-match wins.
+## Introduction
 
-All application routes live in `application/routes.php`.
+A route maps an HTTP method and URI to a closure or a controller action.
+Application routes live in `application/routes.php`; middleware lives in
+`application/middlewares.php`.
 
-**Match events:**
-
-The route that takes the request is announced as `rakit.route.matched`, with the
-`System\Routing\Route` and the request URI (without the host). A request no
-route claims announces nothing, and the event runs before the route middlewares
-and the action, so a listener sees the route before anything is done with it:
-
-```php
-Hook::listen('rakit.route.matched', function ($route, $uri) {
-    Log::info('Routing ' . $uri);
-});
-```
+When a request comes in, a route with an exact (static) URI wins first, then
+wildcard routes are tried in the order they were registered.
 
 <a id="basic-routing"></a>
+<a id="simple-route"></a>
+
 ## Basic Routing
 
-<a id="simple-route"></a>
-### Simple Route
-
-The most basic route accepts a URI and a closure:
+The simplest route takes a URI and a closure:
 
 ```php
 Route::get('/', function () {
@@ -80,54 +65,34 @@ Route::get('/', function () {
 });
 ```
 
-This route will respond to `GET` requests to `/` with the string "Hello World!".
-
 <a id="http-methods"></a>
+
 ### HTTP Methods
 
-Rakit supports all standard HTTP methods:
+There is a register method for every HTTP verb:
 
 ```php
-// GET request
-Route::get('users', function () {
-    return 'List of users';
-});
-
-// POST request
-Route::post('users', function () {
-    return 'Create new user';
-});
-
-// PUT request
-Route::put('users/(:num)', function ($id) {
-    return 'Update user ' . $id;
-});
-
-// PATCH request
-Route::patch('users/(:num)', function ($id) {
-    return 'Partial update user ' . $id;
-});
-
-// DELETE request
-Route::delete('users/(:num)', function ($id) {
-    return 'Delete user ' . $id;
-});
-
-// HEAD request
-Route::head('users', function () {
-    return '';
-});
-
-// OPTIONS request
-Route::options('users', function () {
-    return '';
-});
+Route::get($uri, $action);
+Route::post($uri, $action);
+Route::put($uri, $action);
+Route::patch($uri, $action);
+Route::delete($uri, $action);
+Route::head($uri, $action);
+Route::options($uri, $action);
+Route::trace($uri, $action);
+Route::connect($uri, $action);
 ```
 
-<a id="route-multiple-methods"></a>
-### Route Multiple Methods
+A `HEAD` request falls back to the matching `GET` route when no `HEAD` route
+exists. HTML forms can reach `PUT`, `PATCH` and `DELETE` routes through a hidden
+`_method` field (see [Requests](/docs/requests)).
 
-**Route for all HTTP methods:**
+<a id="multiple-methods--uris"></a>
+<a id="route-multiple-methods"></a>
+
+### Multiple Methods & URIs
+
+`Route::any()` answers every HTTP method:
 
 ```php
 Route::any('api/webhook', function () {
@@ -135,74 +100,94 @@ Route::any('api/webhook', function () {
 });
 ```
 
-**Route for specific multiple methods:**
-
-The same route can answer several HTTP methods:
+To give one action to a specific list of method/URI pairs, use `Route::share()`:
 
 ```php
-// Way 1: Separate registration with shared handler
-$handler = function () {
-    if (Request::method() === 'GET') {
-        return View::make('form');
-    }
+Route::share([
+    ['GET', 'admin/dashboard'],
+    ['POST', 'admin/dashboard'],
+], 'admin@dashboard');
+```
 
-    return 'Form submitted';
-};
+A route may also register several URIs at once, as an array or a
+comma-separated string:
 
-Route::get('form', $handler);
-Route::post('form', $handler);
-
-// Way 2: Or use Route::any() for all methods
-Route::any('form', function () {
-    if (Request::method() === 'GET') {
-        return View::make('form');
-    }
-
-    return 'Form submitted';
+```php
+Route::get(['/', 'home', 'index'], function () {
+    return View::make('home');
 });
+
+Route::get('/, home, index', 'home@index'); // same thing
+```
+
+<a id="redirect--view-routes"></a>
+<a id="route-shortcut"></a>
+<a id="route-redirect"></a>
+<a id="route-view"></a>
+
+### Redirect & View Routes
+
+`Route::redirect()` and `Route::view()` register `GET` routes that only redirect
+or render a view:
+
+```php
+Route::redirect('old-page', 'new-page');       // 302
+Route::redirect('old-page', 'new-page', 301);
+
+Route::view('/', 'home');
+Route::view('about', 'about', ['title' => 'About Us']);
 ```
 
 <a id="route-parameters"></a>
+
 ## Route Parameters
 
 <a id="required-parameters"></a>
+
 ### Required Parameters
 
-Capture values from URI using wildcards:
+Wildcards in the URI capture segments and pass them to the action in order:
 
 ```php
 Route::get('user/(:num)', function ($id) {
     return 'User ID: ' . $id;
 });
 
-Route::get('post/(:any)', function ($slug) {
-    return 'Post slug: ' . $slug;
-});
-
-Route::get('user/(:num)/post/(:num)', function ($user_id, $post_id) {
-    return "User $user_id, Post $post_id";
+Route::get('user/(:num)/post/(:any)', function ($user_id, $slug) {
+    return "User $user_id, post $slug";
 });
 ```
 
 <a id="optional-parameters"></a>
+
 ### Optional Parameters
 
-Make parameters optional with `?`:
+Append `?` to a wildcard to make it optional, and give the closure argument a
+default:
 
 ```php
-Route::get('blog/(:any?)', function ($category = 'all') {
-    return 'Category: ' . $category;
-});
-
 Route::get('page/(:num?)', function ($page = 1) {
     return 'Page: ' . $page;
 });
 ```
 
-<a id="wildcard-constraints"></a>
-### Wildcard Constraints
+Each optional segment stands on its own, so literal segments may sit between
+them. The literal segments are still required (`users/5` does not match below):
 
-**Available wildcards:**
+```php
+// matches users/posts, users/5/posts, users/posts/7 and users/5/posts/7
+Route::get('users/(:num?)/posts/(:num?)', function ($user = null, $post = null) {
+    // ..
+});
+```
+
+> A default only applies to a parameter nothing follows. For `users/posts/7` the
+> closure receives `$user = ''` rather than `null`, so check with `empty()` when
+> an optional sits in front of another segment.
+
+<a id="wildcard-constraints"></a>
+
+### Wildcard Constraints
 
 | Wildcard      | Matches                                          | Example match            |
 |---------------|--------------------------------------------------|--------------------------|
@@ -213,1056 +198,460 @@ Route::get('page/(:num?)', function ($page = 1) {
 | `(:segment)`  | any single URL segment (no `/`)                  | `posts`, `user-profile`  |
 | `(:all)`      | anything, including `/`                          | `path/to/file.txt`       |
 
-Append `?` to any of the above (e.g. `(:num?)`, `(:any?)`) to make the
-parameter optional. Each optional segment stands on its own, so a route may carry
-several of them with literal segments in between:
+Every wildcard has an optional form: `(:num?)`, `(:any?)`, and so on.
 
-```php
-// matches users/posts, users/5/posts, users/posts/7 and users/5/posts/7
-Route::get('users/(:num?)/posts/(:num?)', function ($user = null, $post = null) {
-    // ..
-});
-```
-
-A literal segment is still required, so `users/5` does not match the route above.
-
-> **Note:** a default only applies to a parameter nothing follows. In
-> `users/posts/7` the first optional was skipped but the second was not, so the
-> closure receives `$user = ''` rather than `$user = null`. Check with `empty()`
-> when a route has an optional in front of another segment.
-
-**Usage examples:**
-
-```php
-// Only numbers
-Route::get('order/(:num)', function ($id) {
-    return Order::find($id);
-});
-
-// Only letters
-Route::get('category/(:alpha)', function ($name) {
-    return Category::where('name', $name)->first();
-});
-
-// Letters, digits, ., -, _, %, =
-Route::get('product/(:any)', function ($slug) {
-    return Product::where('slug', $slug)->first();
-});
-
-// Capture all (including /) — validate, Storage is confined
-Route::get('files/(:all)', function ($path) {
-    // $path is user-controlled; Storage::get() confines paths to the project base directory and blocks traversal
-    // Always validate/allowlist if you expose files
-    $path = basename($path); // or map via allowlist
-    return Storage::get(path('storage').'files/'.$path);
-});
-```
-
-<a id="route-shortcut"></a>
-## Route Shortcut
-
-<a id="route-redirect"></a>
-### Route Redirect
-
-Shortcut for simple redirects:
-
-```php
-// Redirect with 302 status
-Route::redirect('old-page', 'new-page');
-
-// Redirect with custom status
-Route::redirect('old-page', 'new-page', 301);
-```
-
-<a id="route-view"></a>
-### Route View
-
-Shortcut to return view directly:
-
-```php
-// Return view without data
-Route::view('/', 'home');
-
-// Return view with data
-Route::view('about', 'about', ['title' => 'About Us']);
-
-Route::view('contact', 'contact', [
-    'email' => 'contact@example.com',
-    'phone' => '123-456-7890',
-]);
-```
+> `(:all)` hands you a user-controlled path. Validate or allowlist it before
+> using it to read files.
 
 <a id="named-routes"></a>
+<a id="defining-named-routes"></a>
+
 ## Named Routes
 
-<a id="defining-named-routes"></a>
-### Defining Named Routes
-
-Named routes allow you to refer to routes by name instead of URI:
+Give a route a name with the `as` key, so you can refer to it without
+hard-coding its URI:
 
 ```php
-Route::get('/', ['as' => 'home', function () {
-    return View::make('home');
-}]);
-
 Route::get('user/profile', ['as' => 'profile', function () {
     return View::make('user.profile');
 }]);
 
-Route::get('products', ['as' => 'products.index', function () {
-    return Product::all();
-}]);
+Route::get('user/(:num)', ['as' => 'user.show', 'uses' => 'user@show']);
 ```
 
-**With controller:**
-
-```php
-Route::get('user/(:num)', [
-    'as' => 'user.show',
-    'uses' => 'user@show'
-]);
-```
-
+<a id="generating-urls"></a>
 <a id="using-named-routes"></a>
-### Using Named Routes
 
-**Generate URL:**
+### Generating URLs
 
-```php
-$url = URL::to_route('profile');
-// http://example.com/user/profile
-
-$url = URL::to_route('user.show', [1]);
-// http://example.com/user/1
-```
-
-**Redirect to named route:**
+Pass the wildcard values as an array, in order:
 
 ```php
-return Redirect::to_route('home');
+$url = URL::to_route('user.show', [1]);       // http://example.com/user/1
 
 return Redirect::to_route('user.show', [$user->id]);
 ```
 
-**In view (Blade):**
-
 ```blade
 <a href="{{ route('profile') }}">Profile</a>
-
-<a href="{{ route('user.show', [$user->id]) }}">View User</a>
 ```
 
+See [URLs](/docs/urls#url-to-route) for more.
+
+<a id="inspecting-the-current-route"></a>
 <a id="check-route-name"></a>
-### Check Route Name
+
+### Inspecting the Current Route
 
 ```php
-// Check if current route has specific name
 if (Request::route()->is('home')) {
-    echo 'Current route is home';
+    // the current route is named "home"
 }
 
-if (Request::route()->is('user.show')) {
-    echo 'Current route is user.show';
-}
-
-// Check if route name exists
 if (Route::has('profile')) {
-    echo 'Route named "profile" exists';
+    // a route named "profile" exists
 }
 ```
 
 <a id="route-groups"></a>
+
 ## Route Groups
 
-Route groups allow you to apply attributes to multiple routes at once.
+Groups share attributes (`before`, `after`, `prefix`, `domain`) across many
+routes.
 
+<a id="group-middleware"></a>
 <a id="group-with-middleware"></a>
-### Group With Middleware
+
+### Group Middleware
 
 ```php
 Route::group(['before' => 'auth'], function () {
-    Route::get('dashboard', function () {
-        return View::make('dashboard');
-    });
-
-    Route::get('settings', function () {
-        return View::make('settings');
-    });
-
-    Route::get('profile', function () {
-        return View::make('profile');
-    });
+    Route::get('dashboard', function () { /* .. */ });
+    Route::get('settings', function () { /* .. */ });
 });
 ```
 
-**Multiple middleware:**
-
-```php
-Route::group(['before' => 'auth|verified'], function () {
-    Route::get('admin/users', function () {
-        return View::make('admin.users');
-    });
-
-    Route::get('admin/posts', function () {
-        return View::make('admin.posts');
-    });
-});
-```
-
+<a id="group-prefix"></a>
 <a id="group-with-prefix"></a>
-### Group With Prefix
+
+### Group Prefix
 
 ```php
-// Prefix 'admin' for all routes in group
 Route::group(['prefix' => 'admin'], function () {
-    // URL: /admin/users
-    Route::get('users', function () {
-        return 'Admin Users';
-    });
-
-    // URL: /admin/posts
-    Route::get('posts', function () {
-        return 'Admin Posts';
-    });
-
-    // URL: /admin/settings
-    Route::get('settings', function () {
-        return 'Admin Settings';
-    });
+    Route::get('users', function () { /* URL: /admin/users */ });
+    Route::get('posts', function () { /* URL: /admin/posts */ });
 });
 ```
-
-> A route asking for a middleware that was never registered throws
-> `Undefined middleware: <name>` instead of running unprotected, so a typo in
-> the name shows up right away. The global `before` and `after` middlewares are
-> the exception: those are a convention and may simply not exist.
 
 <a id="nested-groups"></a>
+
 ### Nested Groups
+
+Nested groups chain their prefixes and add their middleware to the outer
+group's:
 
 ```php
 Route::group(['prefix' => 'admin', 'before' => 'auth'], function () {
-    Route::get('/', function () {
-        return 'Admin Dashboard';
-    });
-
-    Route::group(['before' => 'role:admin'], function () {
-        // URL: /admin/users
-        // Middleware: auth, role:admin
-        Route::get('users', function () {
-            return 'Manage Users';
-        });
-
-        // URL: /admin/settings
-        // Middleware: auth, role:admin
-        Route::get('settings', function () {
-            return 'System Settings';
-        });
+    Route::group(['prefix' => 'system', 'before' => 'role:admin'], function () {
+        // URL: /admin/system/users, middleware: auth, role:admin
+        Route::get('users', 'admin.user@index');
     });
 });
 ```
 
-**Group with multiple attributes:**
-
-```php
-Route::group([
-    'prefix' => 'api/v1',
-    'before' => 'api|throttle:60',
-    'after' => 'cors',
-], function () {
-    Route::get('users', 'api.users@index');
-    Route::post('users', 'api.users@store');
-    Route::get('posts', 'api.posts@index');
-});
-```
-
+<a id="domain-routing"></a>
 <a id="group-with-domain"></a>
-### Group With Domain
 
-A domain group restricts its routes to one domain, which is what multi-tenant and subdomain routing need.
+### Domain Routing
 
-**Basic domain routing:**
-
-```php
-Route::domain('admin.example.com', function () {
-    Route::get('/', function () {
-        return 'Admin Dashboard';
-    });
-
-    Route::get('users', function () {
-        return 'Admin Users';
-    });
-});
-```
-
-**Domain with wildcard parameter:**
-
-The `{account}` wildcard only decides whether the domain matches, its value is not passed to the
-route handler. Read it from the host name when you need it:
-
-```php
-Route::domain('{account}.example.com', function () {
-    Route::get('/', function () {
-        $account = explode('.', Request::foundation()->getHost())[0];
-        return 'Welcome to ' . $account;
-    });
-});
-```
-
-**Combination of domain with other attributes:**
+`Route::domain()` limits its routes to one host, which is handy for subdomains
+and multi-tenant apps. It can wrap regular groups:
 
 ```php
 Route::domain('api.example.com', function () {
     Route::group(['prefix' => 'v1', 'before' => 'api.auth'], function () {
         Route::get('users', 'api.users@index');
-        Route::get('posts', 'api.posts@index');
     });
 });
 ```
 
-**Multi-domain routing:**
+A `{placeholder}` in the domain only decides whether the host matches; its value
+is not passed to the action, so read it from the host yourself:
 
 ```php
-// Main domain
-Route::domain('example.com', function () {
-    Route::get('/', 'home@index');
-    Route::get('about', 'home@about');
-});
-
-// Admin subdomain
-Route::domain('admin.example.com', function () {
-    Route::group(['before' => 'auth|admin'], function () {
-        Route::get('/', 'admin.dashboard@index');
-        Route::get('users', 'admin.users@index');
-    });
-});
-
-// API subdomain
-Route::domain('api.example.com', function () {
-    Route::group(['prefix' => 'v1'], function () {
-        Route::get('users', 'api.v1.users@index');
-        Route::post('users', 'api.v1.users@store');
+Route::domain('{account}.example.com', function () {
+    Route::get('/', function () {
+        $parts = explode('.', Request::foundation()->getHost());
+        return 'Welcome to ' . $parts[0];
     });
 });
 ```
 
-**Domain with named routes:**
-
-```php
-Route::domain('blog.example.com', function () {
-    Route::get('/', ['as' => 'blog.home', function () {
-        return View::make('blog.home');
-    }]);
-
-    Route::get('post/(:num)', ['as' => 'blog.post', function ($id) {
-        return View::make('blog.post', ['id' => $id]);
-    }]);
-});
-
-// Generate URL for named route in domain
-// Note: the domain is not applied, the URL is built on the application URL
-$url = URL::to_route('blog.home'); // http://example.com/
-```
+> `URL::to_route()` does not apply the domain: a named route inside a domain
+> group still produces a URL on the application URL.
 
 <a id="middleware"></a>
+
 ## Middleware
 
-Middleware provides a mechanism for filtering HTTP requests.
+Middleware filters requests before or after a route runs: authentication, CSRF,
+rate limiting, logging, and so on.
 
 <a id="defining-middleware"></a>
+
 ### Defining Middleware
 
-Middleware is defined in `application/middlewares.php`:
+Register middleware in `application/middlewares.php`. A `before` middleware that
+returns a value stops the request and that value becomes the response:
 
 ```php
-Route::middleware('auth', function () {
-    if (!Auth::check()) {
-        return Redirect::to('login');
-    }
-});
-
 Route::middleware('admin', function () {
-    if (!Auth::user()->is_admin) {
-        return Response::error('403');
-    }
-});
-
-Route::middleware('guest', function () {
-    if (Auth::check()) {
-        return Redirect::to('dashboard');
+    if (! Auth::user()->is_admin) {
+        return Response::error(403);
     }
 });
 ```
 
+The application ships with three middlewares:
+
+| Name       | Does                                                                 |
+|------------|----------------------------------------------------------------------|
+| `csrf`     | Returns a 422 error when a non-safe request carries no valid token   |
+| `auth`     | Returns a 401 error for guests                                       |
+| `throttle` | Rate limit, `throttle:<max attempts>,<minutes>`, 429 when exceeded   |
+
+> Attaching a middleware that was never registered throws
+> `Undefined middleware: <name>`, so a typo cannot leave a route unprotected.
+
+<a id="attaching-middleware"></a>
 <a id="middleware-on-route"></a>
-### Middleware On Route
-
-**Single middleware:**
-
-```php
-Route::get('dashboard', ['before' => 'auth', function () {
-    return View::make('dashboard');
-}]);
-```
-
-**Multiple middleware:**
-
-```php
-Route::get('admin/settings', [
-    'before' => 'auth|admin',
-    function () {
-        return View::make('admin.settings');
-    }
-]);
-```
-
 <a id="middleware-before--after"></a>
-### Middleware Before & After
 
-**Before middleware** (executed before route):
+### Attaching Middleware
+
+Use `before` and `after` in the route's action array; separate several with `|`:
 
 ```php
-Route::get('form', ['before' => 'csrf', function () {
-    return View::make('form');
+Route::get('admin/settings', ['before' => 'auth|admin', function () {
+    return View::make('admin.settings');
 }]);
-```
 
-**After middleware** (executed after route):
-
-```php
-Route::get('download', [
-    'after' => 'log_download',
-    function () {
-        return Response::download('file.pdf');
-    }
-]);
-```
-
-**Combination of before and after:**
-
-```php
 Route::get('api/data', [
-    'before' => 'auth|throttle',
+    'before' => 'auth',
     'after' => 'log_api_call',
-    function () {
-        return ['data' => 'value'];
-    }
+    'uses' => 'api@data',
 ]);
 ```
 
-<a id="middleware-with-parameters"></a>
-### Middleware With Parameters
+An `after` middleware receives the response as its first argument:
 
-**Defining middleware with parameters:**
+```php
+Route::middleware('log_api_call', function ($response) {
+    Log::info('API status: ' . $response->status());
+});
+```
+
+<a id="middleware-parameters"></a>
+<a id="middleware-with-parameters"></a>
+
+### Middleware Parameters
+
+Parameters follow a `:`, separated by commas, and arrive as the closure's
+arguments:
 
 ```php
 Route::middleware('role', function ($role) {
-    if (!Auth::user()->has_role($role)) {
-        return Response::error('403');
+    if (! Auth::user()->has_role($role)) {
+        return Response::error(403);
     }
 });
 
-Route::middleware('throttle', function ($limit) {
-    $key = 'throttle:' . Request::ip();
-    $attempts = Cache::get($key, 0);
-
-    if ($attempts >= $limit) {
-        return Response::make('Too many requests', 429);
-    }
-
-    Cache::put($key, $attempts + 1, 60);
-});
-```
-
-**Using middleware with parameters:**
-
-```php
-Route::get('admin', ['before' => 'role:admin', function () {
+Route::get('admin', ['before' => 'auth|role:admin|throttle:60,1', function () {
     return 'Admin Panel';
 }]);
-
-Route::get('api/data', ['before' => 'throttle:100', function () {
-    return ['data' => 'value'];
-}]);
-
-Route::get('moderator', ['before' => 'auth|role:moderator', function () {
-    return 'Moderator Panel';
-}]);
 ```
 
-The `|` separates middlewares, several parameters for one middleware are separated with a comma,
-for example `throttle:60,1`.
-
+<a id="pattern-middleware"></a>
 <a id="middleware-pattern"></a>
-### Middleware Pattern
 
-Apply middleware to all routes that match pattern:
+### Pattern Middleware
+
+Attach middleware to every route whose URI matches a pattern (`*` is a
+wildcard; separate several patterns with `, `):
 
 ```php
-// All routes starting with 'admin/*'
-Route::middleware('pattern: admin/*', 'auth');
-
-// Multiple middlewares
 Route::middleware('pattern: admin/*', 'auth|admin');
-
-// Multiple patterns
 Route::middleware('pattern: admin/*, user/*', 'auth');
 
-// With closure
+// Or register a closure under a name in one go
 Route::middleware('pattern: api/*', ['name' => 'api_auth', function () {
-    if (!Request::header('Authorization')) {
+    if (! Request::header('Authorization')) {
         return Response::json(['error' => 'Unauthorized'], 401);
     }
 }]);
 ```
 
-**Example:**
+Pattern middleware runs as `before` middleware.
+
+<a id="global-middleware"></a>
+
+### Global Middleware
+
+Middlewares named `before` and `after` run on every request. Unlike other
+middlewares they are optional, so nothing breaks if they are not defined. A
+package can have its own, named `<package>::before` and `<package>::after`.
 
 ```php
-// In middlewares.php
-Route::middleware('pattern: admin/*', 'auth|admin');
-Route::middleware('pattern: api/*', 'throttle:100');
-Route::middleware('pattern: user/*', 'auth');
-
-// All these routes automatically get middleware
-Route::get('admin/dashboard', function () {
-    // Middleware: auth, admin
+Route::middleware('before', function () {
+    // runs before every route
 });
 
-Route::get('api/users', function () {
-    // Middleware: throttle:100
-});
-
-Route::get('user/profile', function () {
-    // Middleware: auth
+Route::middleware('after', function ($response) {
+    $response->header('X-Frame-Options', 'SAMEORIGIN');
 });
 ```
 
 <a id="csrf-exceptions"></a>
+
 ### CSRF Exceptions
 
-The `csrf` middleware checks every non-safe request (anything but `GET`, `HEAD`,
-`OPTIONS`, `TRACE` and `CONNECT`) for a valid token. Some endpoints — webhooks, callback URLs,
-server-to-server APIs — cannot read the session token, so they need to be
-exempt.
-
-List the URI patterns to exempt in `application/config/application.php`:
+The `csrf` middleware checks every request except `GET`, `HEAD`, `OPTIONS`,
+`TRACE` and `CONNECT`. Endpoints that cannot carry the session token (webhooks,
+server-to-server callbacks) can be exempted in `application/config/application.php`:
 
 ```php
 'csrf_except' => [
-    'api/webhook',
-    'api/*',
+    'api/webhook', // only this path
+    'api/*',       // everything below api/
 ],
 ```
 
-Patterns support `*` as a wildcard:
-
-- `api/webhook` matches only that exact path.
-- `api/*` matches every path below `api/` (`api/v1/accounts`, `api/v2/orders`, ...).
-
-Endpoints listed here skip the token check entirely, so only add routes that
-really cannot carry a token. Everything else stays protected.
-
-<a id="global-middleware"></a>
-### Global Middleware
-
-Global middleware is executed for all requests.
-
-**Defining in `application/middlewares.php`:**
-
-```php
-// Global before middleware
-Route::middleware('before', function () {
-    // Maintenance mode check
-    if (Config::get('application.maintenance') && !Auth::user()->is_admin) {
-        return Response::error('503');
-    }
-});
-
-// Global after middleware
-Route::middleware('after', function () {
-    // Log all requests
-    Log::info('Request: ' . Request::uri());
-});
-```
+Listed URIs skip the token check entirely, so only add what really needs it.
 
 <a id="controller-routing"></a>
+
 ## Controller Routing
 
+<a id="controller-actions"></a>
 <a id="basic-controller-route"></a>
-### Basic Controller Route
-
-```php
-// Format: controller@method
-Route::get('users', 'user@index');
-Route::get('users/(:num)', 'user@show');
-Route::post('users', 'user@store');
-Route::put('users/(:num)', 'user@update');
-Route::delete('users/(:num)', 'user@destroy');
-```
-
-**With namespace:**
-
-```php
-// Controller in subfolder
-Route::get('admin/users', 'admin.user@index');
-Route::get('api/v1/users', 'api.v1.user@index');
-```
-
 <a id="route-to-specific-action"></a>
-### Route to Specific Action
+
+### Controller Actions
+
+Point a route at a controller with `controller@action`. Use dots for controllers
+in subfolders, and the `uses` key when the route also needs other options:
 
 ```php
-Route::get('login', [
-    'uses' => 'auth@login',
-    'as' => 'login'
-]);
+Route::get('users', 'user@index');                 // User_Controller::action_index()
+Route::get('admin/users', 'admin.user@index');     // controllers/admin/user.php
 
 Route::post('login', [
     'uses' => 'auth@authenticate',
-    'before' => 'csrf'
-]);
-
-Route::get('register', [
-    'uses' => 'auth@register',
-    'as' => 'register',
-    'before' => 'guest'
+    'as' => 'login.post',
+    'before' => 'csrf',
 ]);
 ```
 
-<a id="restful-controller"></a>
-### Auto-Routed Controller
+See [Controllers](/docs/controllers) for writing the controller itself.
 
-`Route::controller()` registers a single catch-all route for the controller and
-dispatches the URL segment after the controller name to an action of the same
-name. It accepts any HTTP method.
+<a id="auto-routed-controllers"></a>
+<a id="restful-controller"></a>
+
+### Auto-Routed Controllers
+
+`Route::controller()` registers one catch-all route (any HTTP method) that maps
+the next URI segment to an action of the same name and passes the rest as
+parameters:
 
 ```php
 Route::controller('users');
+Route::controller(['users', 'posts']);
+Route::controller(Controller::detect()); // every controller in application/controllers
 ```
 
-The route above maps URLs to action methods like this (anything after the
-action name is passed as parameters). Note the `action_` prefix is part of
-the controller method name (see [Controllers](/docs/controllers)):
+| URL                  | Calls                        |
+|----------------------|------------------------------|
+| `/users`             | `action_index()`             |
+| `/users/show/123`    | `action_show(123)`           |
+| `/users/edit/42`     | `action_edit(42)`            |
 
-| URL                  | Action called             |
-|----------------------|---------------------------|
-| `/users`             | `users@index` → `action_index()` |
-| `/users/show`        | `users@show` → `action_show()`   |
-| `/users/show/123`    | `users@show` → `action_show(123)` |
-| `/users/edit/42`     | `users@edit` → `action_edit(42)` |
+Up to five segments are captured after the controller name. A `home`
+controller also gets the root of its folder (`Route::controller('home')`
+answers `/`). Prefer explicit routes when actions need different HTTP verbs.
 
-If you want different behavior per HTTP verb, prefer the explicit form:
-
-```php
-Route::get('users',           'users@index');
-Route::get('users/(:num)',    'users@show');
-Route::post('users',          'users@store');
-Route::put('users/(:num)',    'users@update');
-Route::delete('users/(:num)', 'users@destroy');
-```
-
-**Multiple controllers at once:**
-
-```php
-Route::controller([
-    'users',
-    'posts',
-    'comments',
-]);
-```
-
+<a id="resource-routes"></a>
 <a id="resource-controller"></a>
-### Resource Controller
 
-Generate all routes for resource CRUD:
+### Resource Routes
+
+`Route::resource()` registers the usual CRUD routes in one call:
 
 ```php
 Route::resource('posts');
 ```
 
-**Generated routes:**
-
-| Method | URI                  | Controller Action | Route Name      |
-|--------|----------------------|-------------------|-----------------|
-| GET    | `/posts`             | `posts@index`     | `posts.index`   |
-| GET    | `/posts/create`      | `posts@create`    | `posts.create`  |
-| POST   | `/posts`             | `posts@store`     | `posts.store`   |
-| GET    | `/posts/(:any)`      | `posts@show`      | `posts.show`    |
-| GET    | `/posts/(:any)/edit` | `posts@edit`      | `posts.edit`    |
-| PUT    | `/posts/(:any)`      | `posts@update`    | `posts.update`  |
-| DELETE | `/posts/(:any)`      | `posts@delete`    | `posts.delete`  |
-
-**With options:**
+| Method | URI                  | Action          | Route Name      |
+|--------|----------------------|-----------------|-----------------|
+| GET    | `/posts`             | `posts@index`   | `posts.index`   |
+| GET    | `/posts/create`      | `posts@create`  | `posts.create`  |
+| POST   | `/posts`             | `posts@store`   | `posts.store`   |
+| GET    | `/posts/(:any)`      | `posts@show`    | `posts.show`    |
+| GET    | `/posts/(:any)/edit` | `posts@edit`    | `posts.edit`    |
+| PUT    | `/posts/(:any)`      | `posts@update`  | `posts.update`  |
+| DELETE | `/posts/(:any)`      | `posts@delete`  | `posts.delete`  |
 
 ```php
-// Only specific methods
 Route::resource('posts', ['only' => ['index', 'show']]);
-
-// Exclude specific methods
 Route::resource('posts', ['except' => ['delete']]);
-
-// Custom controller
-Route::resource('posts', ['controller' => 'blog.post']);
+Route::resource('posts', ['controller' => 'blog.post']); // use Blog_Post_Controller
+Route::resource('posts.comments'); // nested: /posts/(:any?)/comments/...
 ```
 
-> The action names are the ones in the table above, so `except` takes `delete`,
-> not `destroy`. Passing anything other than `only`, `except` and `controller`
-> replaces the whole route table with what you hand over.
+> `except` takes the action names above, so it is `delete`, not `destroy`. Any
+> option other than `only`, `except` and `controller` replaces the whole route
+> table with what you pass.
 
+<a id="package-routes"></a>
 <a id="route-for-package"></a>
-## Route for Package
 
-Routes for packages are defined in `packages/{package}/routes.php`.
+## Package Routes
 
-**Package configuration in `application/packages.php`:**
+A package defines its routes in `packages/<package>/routes.php`. The
+`(:package)` placeholder is replaced by the package's `handles` value from
+`application/packages.php`:
 
 ```php
+// application/packages.php
 return [
     'admin' => ['handles' => 'admin'],
-    'api' => ['handles' => 'api/v1'],
 ];
-```
 
-**Route in `packages/admin/routes.php`:**
-
-```php
-// URL: /admin
-Route::get('(:package)', function () {
+// packages/admin/routes.php
+Route::get('(:package)', function () {          // URL: /admin
     return 'Admin Dashboard';
 });
 
-// URL: /admin/users
-Route::get('(:package)/users', function () {
-    return 'Admin Users';
-});
-
-// URL: /admin/settings
-Route::get('(:package)/settings', 'admin::settings@index');
-```
-
-The `(:package)` placeholder is automatically replaced with the value from `handles`.
-
-<a id="route-helpers"></a>
-## Route Helpers
-
-### Route::share()
-
-Register the same action for multiple routes:
-
-```php
-$handler = function () {
-    return View::make('home');
-};
-
-Route::share([
-    ['GET', '/'],
-    ['GET', '/home'],
-    ['GET', '/index']
-], $handler);
-
-// Or with controller
-Route::share([
-    ['GET', 'admin/dashboard'],
-    ['POST', 'admin/dashboard']
-], 'admin@dashboard');
-```
-
-### Route::forward()
-
-Forward request to another URI internally (no redirect):
-
-```php
-Route::get('old-page', function () {
-    // Forward to another route
-    return Route::forward('GET', 'new-page');
-});
-
-Route::get('new-page', function () {
-    return 'This is the new page';
-});
-
-// Forward with different method
-Route::post('legacy/api', function () {
-    return Route::forward('POST', 'api/v2/endpoint');
-});
-```
-
-### Route::middleware()
-
-Register middleware handler directly (alternative to `middlewares.php` file):
-
-```php
-Route::middleware('custom_auth', function () {
-    if (!Session::has('user_id')) {
-        return Redirect::to('login');
-    }
-});
-
-// Use middleware in route
-Route::get('dashboard', ['before' => 'custom_auth', function () {
-    return View::make('dashboard');
-}]);
-```
-
-### Other HTTP Methods
-
-Besides the common GET, POST, PUT, PATCH, DELETE, Rakit also supports other HTTP methods:
-
-**HEAD Request:**
-
-```php
-Route::head('api/status', function () {
-    return Response::make('', 200);
-});
-```
-
-**OPTIONS Request (for CORS):**
-
-```php
-Route::options('api/users', function () {
-    return Response::make('', 200)
-        ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-        ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-});
-```
-
-**TRACE Request:**
-
-```php
-Route::trace('debug/trace', function () {
-    return 'TRACE request received';
-});
-```
-
-**CONNECT Request:**
-
-```php
-Route::connect('proxy', function () {
-    return 'CONNECT request received';
-});
+Route::get('(:package)/settings', 'admin::settings@index'); // URL: /admin/settings
 ```
 
 <a id="404-handler"></a>
+
 ## 404 Handler
 
-Handler for not found routes is defined in `application/hooks.php`:
+When no route matches, Rakit fires the `404` hook. Its handler lives in
+`application/hooks.php`:
 
 ```php
 Hook::listen('404', function () {
-    return Response::error('404');
+    return Response::error(404);
 });
 ```
 
-**Custom 404 handler:**
+Return any response you like from it, for example a custom view or a redirect.
 
-```php
-Hook::listen('404', function () {
-    return View::make('errors.404');
-});
-
-// Or with custom logic
-Hook::listen('404', function () {
-    $uri = Request::uri();
-
-    // Log 404
-    Log::warning('404: ' . $uri);
-
-    // Find similar page
-    $similar = Page::where('slug', 'like', "%$uri%")->first();
-
-    if ($similar) {
-        return Redirect::to($similar->slug);
-    }
-
-    return Response::error('404');
-});
-```
-
+<a id="listing--testing-routes"></a>
 <a id="route-listing"></a>
-## Route Listing
-
-**Get all routes:**
-
-```php
-$routes = Route::lists();
-
-foreach ($routes as $method => $uris) {
-    echo "$method:\n";
-    foreach ($uris as $uri => $action) {
-        echo "  " . $uri . "\n";
-    }
-}
-```
-
-**Get routes for specific method:**
-
-```php
-$get_routes = Router::method('GET');
-$post_routes = Router::method('POST');
-```
-
-**Check if named route exists:**
-
-```php
-if (Route::has('profile')) {
-    echo 'Route "profile" exists';
-}
-```
-
 <a id="route-testing-via-cli"></a>
-## Route Testing via CLI
 
-Run a route from the command line and dump its response. Pass the HTTP method
-and the URI as two separate arguments:
+## Listing & Testing Routes
+
+List every registered route (method, URI, action, name):
 
 ```bash
-php rakit route:call GET /
+php rakit route:list
+```
+
+Run a route from the command line and dump its response. Pass the method and
+URI as two arguments. Route middleware is not run unless you pass
+`--with-middleware`, which runs the before/after middleware like a real request
+and prints the response status before the content:
+
+```bash
 php rakit route:call GET /users
-php rakit route:call GET /user/123
-
 php rakit route:call POST /users
+php rakit route:call GET /admin --with-middleware
 ```
 
-## Complete Example
+<a id="helpers"></a>
+<a id="route-helpers"></a>
 
-**File: `application/routes.php`**
+## Helpers
+
+<a id="routeforward"></a>
+
+### Route::forward()
+
+Run another route internally (no redirect) and return its response, or a 404
+error when nothing matches:
 
 ```php
-// Home
-Route::get('/', ['as' => 'home', function () {
-    return View::make('home');
-}]);
-
-// Public pages
-Route::view('about', 'about', ['title' => 'About Us']);
-Route::view('contact', 'contact');
-
-// Auth routes
-Route::group(['before' => 'guest'], function () {
-    Route::get('login', ['as' => 'login', 'uses' => 'auth@login']);
-    Route::post('login', ['uses' => 'auth@authenticate', 'before' => 'csrf']);
-    Route::get('register', ['as' => 'register', 'uses' => 'auth@register']);
-    Route::post('register', ['uses' => 'auth@store', 'before' => 'csrf']);
-});
-
-Route::get('logout', ['as' => 'logout', 'uses' => 'auth@logout', 'before' => 'auth']);
-
-// User area
-Route::group(['prefix' => 'user', 'before' => 'auth'], function () {
-    Route::get('dashboard', ['as' => 'user.dashboard', function () {
-        return View::make('user.dashboard');
-    }]);
-
-    Route::get('profile', ['as' => 'user.profile', 'uses' => 'user@profile']);
-    Route::put('profile', ['uses' => 'user@update_profile']);
-
-    Route::get('settings', ['as' => 'user.settings', 'uses' => 'user@settings']);
-    Route::post('settings', ['uses' => 'user@update_settings']);
-});
-
-// Admin area
-Route::group(['prefix' => 'admin', 'before' => 'auth|admin'], function () {
-    Route::get('/', ['as' => 'admin.dashboard', function () {
-        return View::make('admin.dashboard');
-    }]);
-
-    // Resource routes
-    Route::resource('users', ['controller' => 'admin.user']);
-    Route::resource('posts', ['controller' => 'admin.post']);
-    Route::resource('categories', ['controller' => 'admin.category']);
-});
-
-// API routes
-Route::group(['prefix' => 'api', 'before' => 'throttle:100'], function () {
-    Route::get('users', 'api.user@index');
-    Route::get('users/(:num)', 'api.user@show');
-    Route::post('users', ['before' => 'auth', 'uses' => 'api.user@store']);
-
-    Route::get('posts', 'api.post@index');
-    Route::get('posts/(:num)', 'api.post@show');
-});
-
-// Catch-all for blog posts
-Route::get('blog/(:any)', function ($slug) {
-    $post = Post::where('slug', $slug)->first_or_fail();
-    return View::make('blog.show', compact('post'));
+Route::get('old-page', function () {
+    return Route::forward('GET', 'new-page');
 });
 ```
 
-**File: `application/middlewares.php`**
+<a id="routehas-and-routelists"></a>
+
+### Route::has() and Route::lists()
 
 ```php
-// CSRF Protection
-Route::middleware('csrf', function () {
-    $except = Config::get('application.csrf_except', []);
+Route::has('profile');           // is there a route named "profile"?
 
-    foreach ((array) $except as $pattern) {
-        if (Str::is($pattern, URI::current())) {
-            return;
-        }
-    }
+$routes = Route::lists();        // ['GET' => [uri => action, ...], 'POST' => [...], ...]
+$get = Router::method('GET');    // routes of one method
+```
 
-    if (Request::forged()) {
-        return Response::error('403');
-    }
-});
+<a id="route-matched-event"></a>
 
-// Authentication
-Route::middleware('auth', function () {
-    if (!Auth::check()) {
-        return Redirect::to_route('login');
-    }
-});
+### Route Matched Event
 
-// Guest only
-Route::middleware('guest', function () {
-    if (Auth::check()) {
-        return Redirect::to_route('user.dashboard');
-    }
-});
+When a route claims the request, `rakit.route.matched` fires with the
+`System\Routing\Route` and the request URI (without the host), before any
+middleware or action runs:
 
-// Admin check
-Route::middleware('admin', function () {
-    if (!Auth::user() || !Auth::user()->is_admin) {
-        return Response::error('403');
-    }
-});
-
-// Role check with parameter
-Route::middleware('role', function ($role) {
-    if (!Auth::user() || !Auth::user()->has_role($role)) {
-        return Response::error('403');
-    }
-});
-
-// Throttle requests
-Route::middleware('throttle', function ($limit = 60) {
-    $key = 'throttle:' . Request::ip();
-    $attempts = Cache::get($key, 0);
-
-    if ($attempts >= $limit) {
-        return Response::make('Too many requests', 429);
-    }
-
-    Cache::put($key, $attempts + 1, 60);
-});
-
-// Pattern-based middleware
-Route::middleware('pattern: admin/*', 'auth|admin');
-Route::middleware('pattern: api/*', 'throttle:100');
-
-// Global before middleware
-Route::middleware('before', function () {
-    // Maintenance mode
-    if (Config::get('application.down') && !Auth::user()->is_admin) {
-        return Response::error('503');
-    }
-});
-
-// Global after middleware
-Route::middleware('after', function ($response) {
-    // Add custom headers
-    $response->header('X-Frame-Options', 'SAMEORIGIN');
+```php
+Hook::listen('rakit.route.matched', function ($route, $uri) {
+    Log::info('Routing ' . $uri);
 });
 ```

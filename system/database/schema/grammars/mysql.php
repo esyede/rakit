@@ -48,7 +48,24 @@ class MySQL extends Grammar
     {
         $columns = implode(', ', array_map(function ($column) {
             return 'ADD '.$column;
-        }, $this->columns($table)));
+        }, $this->columns($table, $this->changed($table, false))));
+
+        return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+    }
+
+    /**
+     * Create the sql for changing existing columns of a table.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return string
+     */
+    public function change(Table $table, Magic $command)
+    {
+        $columns = implode(', ', array_map(function ($column) {
+            return 'MODIFY '.$column;
+        }, $this->columns($table, $this->changed($table))));
 
         return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
     }
@@ -57,14 +74,15 @@ class MySQL extends Grammar
      * Create the column definitions for a table.
      *
      * @param Table $table
+     * @param array|null $only
      *
      * @return array
      */
-    protected function columns(Table $table)
+    protected function columns(Table $table, $only = null)
     {
         $columns = [];
 
-        foreach ($table->columns as $column) {
+        foreach ((is_null($only) ? $table->columns : $only) as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->charset($table, $column);
@@ -195,7 +213,8 @@ class MySQL extends Grammar
         $integers = ['integer', 'biginteger', 'mediuminteger', 'tinyinteger', 'smallinteger'];
 
         if (in_array($column->type, $integers) && $column->increment) {
-            return ' AUTO_INCREMENT PRIMARY KEY';
+            // A changed column already has its primary key: adding it again would fail.
+            return (isset($column->change) && $column->change) ? ' AUTO_INCREMENT' : ' AUTO_INCREMENT PRIMARY KEY';
         }
     }
 

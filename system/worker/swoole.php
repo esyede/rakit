@@ -111,9 +111,9 @@ class Swoole extends Bridge
 
         $this->response->status($foundation->getStatusCode());
 
-        foreach ($foundation->headers->all() as $name => $values) {
+        foreach ($foundation->headers->allPreserveCase() as $name => $values) {
             // Swoole derives it from the body it actually sends.
-            if ('Content-Length' !== $name) {
+            if ('content-length' !== strtolower($name)) {
                 // Swoole keeps a single value per header name.
                 $this->response->header($name, implode(', ', $values));
             }

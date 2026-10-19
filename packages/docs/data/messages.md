@@ -2,258 +2,140 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
-- [Creating Instance](#creating-instance)
+- [Introduction](#introduction)
+- [Creating a Bag](#creating-a-bag)
 - [Adding Messages](#adding-messages)
 - [Checking Messages](#checking-messages)
 - [Retrieving Messages](#retrieving-messages)
-  - [First Message](#first-message)
-  - [All Messages From Key](#all-messages-from-key)
-  - [All Messages](#all-messages)
-- [Format Output](#format-output)
+  - [Formatting](#formatting)
 - [Bag Helpers](#bag-helpers)
-- [Usage With Validation](#usage-with-validation)
+- [Displaying Validation Errors](#displaying-validation-errors)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
-## Basic Knowledge
+## Introduction
 
-`Messages` collects messages keyed by name and hands them back for display: validation errors, notifications, anything else. The validator fills one for you, but it works on its own too.
+`Messages` is a bag of messages grouped by key, such as validation errors or notifications.
+The [validator](/docs/validation) fills one for you, but it works on its own too.
 
+<a id="creating-a-bag"></a>
 <a id="creating-instance"></a>
-## Creating Instance
-
-With or without initial data:
+## Creating a Bag
 
 ```php
 use System\Messages;
 
-// Empty instance
 $messages = new Messages();
 
-// Instance with initial data
 $messages = new Messages([
     'email' => ['Invalid email'],
-    'password' => ['Password must be at least 6 characters'],
 ]);
 ```
 
 <a id="adding-messages"></a>
 ## Adding Messages
 
-Use the `add()` method to add messages to the collector:
+A key may hold several messages; adding the same message twice to one key is ignored.
 
 ```php
-$messages = new Messages();
-
-// Add message for 'email' key
-$messages->add('email', 'The email you entered is invalid.');
-
-// Add another message for the same key
-$messages->add('email', 'Email is already registered.');
-
-// Add message for different key
-$messages->add('password', 'Password must be at least 6 characters.');
+$messages->add('email', 'The email is invalid.');
+$messages->add('email', 'The email is already registered.');
+$messages->add('password', 'The password is too short.');
 ```
-
-> **Note:** The `add()` method will automatically prevent duplication of messages for the same key.
 
 <a id="checking-messages"></a>
 ## Checking Messages
 
-Per key, or across every key:
-
 ```php
-// Check if there are messages for 'email'
-if ($messages->has('email')) {
-    // There are error messages for email
-}
-
-// Check if there are any messages (not empty)
-if ($messages->any()) {
-    // There are messages
-}
+$messages->has('email');   // the key has a message
+$messages->any();          // the bag holds any message
 ```
 
 <a id="retrieving-messages"></a>
+<a id="first-message"></a>
+<a id="all-messages-from-key"></a>
+<a id="all-messages"></a>
 ## Retrieving Messages
 
-<a id="first-message"></a>
-### First Message
-
-The `first()` method retrieves the first message from the given key, or the first message from all keys if no parameter is provided:
-
 ```php
-// Retrieve the first message from all keys
-echo $messages->first();
-
-// Retrieve the first message from 'email' key
-echo $messages->first('email');
-
-// Retrieve the first message with custom format
-echo $messages->first('email', '<p class="error">:message</p>');
+$messages->first();          // first message of any key ('' when empty)
+$messages->first('email');   // first message of one key
+$messages->get('email');     // every message of one key (array)
+$messages->all();            // every message of every key, as a flat array
 ```
 
-<a id="all-messages-from-key"></a>
-### All Messages From Key
-
-The `get()` method retrieves all messages from the specified key:
-
-```php
-// Retrieve all messages from 'email' key
-$email_errors = $messages->get('email');
-
-// Output:
-// [
-//     'The email you entered is invalid.',
-//     'Email is already registered.'
-// ]
-
-// With custom format
-$email_errors = $messages->get('email', '<li>:message</li>');
-
-// Output:
-// [
-//     '<li>The email you entered is invalid.</li>',
-//     '<li>Email is already registered.</li>'
-// ]
-```
-
-<a id="all-messages"></a>
-### All Messages
-
-The `all()` method retrieves all messages from all keys:
-
-```php
-// Retrieve all messages
-$all_errors = $messages->all();
-
-// With custom format
-$all_errors = $messages->all('<p class="alert">:message</p>');
-```
-
+<a id="formatting"></a>
 <a id="format-output"></a>
-## Format Output
+### Formatting
 
-`format()` sets the default format for every message:
+Each retrieval method takes an optional format, where `:message` is replaced by the message:
 
 ```php
-$messages = new Messages();
-
-// Set default format
-$messages->format('<div class="alert alert-danger">:message</div>');
-
-// Now all messages will use this format
-$messages->add('email', 'Invalid email');
-echo $messages->first('email');
-
-// Output: <div class="alert alert-danger">Invalid email</div>
+$messages->first('email', '<p class="error">:message</p>');
+$messages->get('email', '<li>:message</li>');
+$messages->all('<li>:message</li>');
 ```
 
-The `:message` placeholder will be replaced with the actual message.
+`format()` sets the default format for every later retrieval:
+
+```php
+$messages->format('<div class="alert">:message</div>');
+
+echo $messages->first('email'); // <div class="alert">The email is invalid.</div>
+```
 
 <a id="bag-helpers"></a>
 ## Bag Helpers
 
-The bag behaves like a collection, so it can be counted, iterated, accessed as an array and
-encoded straight into JSON:
+The bag can be counted, iterated, used as an array and JSON-encoded:
 
 ```php
-count($messages);            // number of keys holding a message
-$messages['email'];          // every message of that key
+count($messages);                 // number of keys holding a message
+$messages['email'];               // same as get('email')
 isset($messages['email']);
-$messages['email'] = 'required';   // same as add()
-unset($messages['email']);            // same as forget()
+$messages['email'] = 'required';  // same as add()
+unset($messages['email']);        // same as forget()
 
 foreach ($messages as $key => $items) {
-    // ..
+    // $items is the array of messages for $key
 }
 
-json_encode($messages);      // {"email":["required"]}
+json_encode($messages);           // {"email":["required"]}
 ```
 
-And a few helpers for working with the bag itself:
+Other helpers:
 
 ```php
 $messages->keys();                       // every key holding a message
-$messages->has_any(['email', 'name']);   // TRUE when at least one has a message
-$messages->is_empty();                   // TRUE when the bag holds nothing
-$messages->is_not_empty();               // the opposite of is_empty()
+$messages->has_any(['email', 'name']);   // at least one key has a message
+$messages->is_empty();
+$messages->is_not_empty();
 $messages->merge($other);                // merge another bag or a plain array
 $messages->forget('email');              // drop every message of a key
-$messages->to_array();                   // the raw messages, keyed by field
-$messages->to_json();                    // the same thing as JSON
+$messages->to_array();                   // raw messages, keyed by field
+$messages->to_json();                    // the same, as JSON
 ```
 
+<a id="displaying-validation-errors"></a>
 <a id="usage-with-validation"></a>
-## Usage With Validation
+## Displaying Validation Errors
 
-The validator fills a `Messages` instance, reachable through `$errors` when validation fails:
-
-```php
-$validation = Validator::make(Input::all(), [
-    'email' => 'required|email',
-    'password' => 'required|min:6',
-]);
-
-if ($validation->fails()) {
-    // Access Messages instance
-    $errors = $validation->errors;
-
-    // Display first message
-    echo $errors->first('email');
-
-    // Display all email messages
-    foreach ($errors->get('email') as $message) {
-        echo $message;
-    }
-
-    // Display all messages
-    foreach ($errors->all() as $message) {
-        echo $message;
-    }
-}
-```
-
-Example usage in view:
-
-```php
-<?php if ($errors->has('email')): ?>
-    <div class="alert alert-danger">
-        <?php echo $errors->first('email'); ?>
-    </div>
-<?php endif; ?>
-
-<!-- Or display all errors -->
-<?php if ($errors->any()): ?>
-    <div class="alert alert-danger">
-        <ul>
-            <?php foreach ($errors->all('<li>:message</li>') as $error): ?>
-                <?php echo $error; ?>
-            <?php endforeach; ?>
-        </ul>
-    </div>
-<?php endif; ?>
-```
-
-With Blade template:
+After validation, the bag sits in `$validation->errors`. Every view also receives an `$errors`
+bag (empty when there are none), filled from the session after a redirect
+`->with_errors($validation)`:
 
 ```blade
-@if($errors->has('email'))
-    <div class="alert alert-danger">
-        {{ $errors->first('email') }}
-    </div>
+@if ($errors->has('email'))
+    <span class="error">{{ $errors->first('email') }}</span>
 @endif
 
-<!-- Or display all errors -->
-@if($errors->any())
-    <div class="alert alert-danger">
-        <ul>
-            @foreach($errors->all('<li>:message</li>') as $error)
-                {!! $error !!}
-            @endforeach
-        </ul>
-    </div>
+@if ($errors->any())
+    <ul>
+        @foreach ($errors->all('<li>:message</li>') as $error)
+            {!! $error !!}
+        @endforeach
+    </ul>
 @endif
 ```

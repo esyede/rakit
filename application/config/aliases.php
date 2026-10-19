@@ -48,6 +48,7 @@ return [
     'JWT' => 'System\JWT',
     'Lang' => 'System\Lang',
     'Log' => 'System\Log',
+    'Lottery' => 'System\Lottery',
     'Mailer' => 'System\Email\Drivers\Driver',
     'Markdown' => 'System\Markdown',
     'Middleware' => 'System\Routing\Middleware',

@@ -9,6 +9,13 @@ use System\Database\Query;
 class Postgres extends Grammar
 {
     /**
+     * Row id used to update or delete joined rows through a subquery.
+     *
+     * @var string
+     */
+    protected $row_key = 'ctid';
+
+    /**
      * Compile the SQL to insert a new record and get the ID of the inserted record.
      *
      * @param Query  $query

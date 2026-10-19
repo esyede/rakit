@@ -15,32 +15,23 @@
 
 ## Basic Knowledge
 
-A list of the ten most popular songs does not need recomputing on every visit. Caching it for ten minutes, or an hour, takes that work off the request.
+Caching stores the result of expensive work (such as a "top 10 songs" query) for a while, so it doesn't have to be recomputed on every request. Cache settings live in `application/config/cache.php`.
 
-By default, 6 cache drivers have been provided:
+Six drivers are available: `file`, `database`, `memcached`, `apc`, `redis` and `memory`. The default is `file`, which stores items in `storage/cache/` and needs no further setup.
 
--   File
--   Database
--   Memcached
--   APC
--   Redis
--   Memory (Array)
-
-Rakit uses the `'file'` driver by default, storing items in `storage/cache/`. It needs no further configuration.
-
-> Before using the `'file'` cache driver, make sure your `storage/cache/` directory is writable.
+> Make sure the `storage/cache/` directory is writable before using the `file` driver.
 
 <a id="database-driver"></a>
 
 ## Database Driver
 
-The `'database'` cache driver uses a database table as storage for cache keys and values. To get started, first specify the database table name in `application/config/cache.php`:
+The `database` driver stores items in a database table. Set the table name (and optionally a `connection`) in the config file:
 
 ```php
 'database' => ['table' => 'caches'],
 ```
 
-Next, create that table in your database. The table must have three columns:
+Then create the table with these three columns:
 
 ```php
 key        - VARCHAR
@@ -52,21 +43,13 @@ expiration - VARCHAR
 
 ## Memcached Driver
 
-[Memcached](https://memcached.org) is a very fast, open-source distributed memory object caching system. Before using this Memcached driver, you need to install and configure Memcached and the [Memcached PHP extension](https://www.php.net/manual/en/book.memcached.php) on your server.
-
-After Memcached is installed on the server, you must set the 'driver' in the `application/config/cache.php` file:
+The `memcached` driver requires a [Memcached](https://memcached.org) server and the [Memcached PHP extension](https://www.php.net/manual/en/book.memcached.php). Select the driver and list your servers:
 
 ```php
-'driver' => 'memcached'
-```
+'driver' => 'memcached',
 
-Then, add your Memcached servers to the `'memcached'` array:
-
-```php
 'memcached' => [
-
     ['host' => '127.0.0.1', 'port' => 11211, 'weight' => 100],
-
 ],
 ```
 
@@ -74,9 +57,7 @@ Then, add your Memcached servers to the `'memcached'` array:
 
 ## Redis Driver
 
-Redis is an advanced open-source key-value storage software. It is often called a data structure server because its keys can contain [strings](https://redis.io/docs/latest/develop/data-types/strings/), [hashes](https://redis.io/docs/latest/develop/data-types/hashes/), [lists](https://redis.io/docs/latest/develop/data-types/lists/), [sets](https://redis.io/docs/latest/develop/data-types/sets/), and [sorted sets](https://redis.io/docs/latest/develop/data-types/sorted-sets/).
-
-Before using this Redis driver, you must [configure your Redis server](/docs/database/redis#configuration). After that, you just need to change the `'driver'` in the `application/config/cache.php` file to redis like this:
+The `redis` driver uses your default Redis connection. First [configure your Redis server](/docs/database/redis#configuration), then select the driver:
 
 ```php
 'driver' => 'redis'
@@ -86,13 +67,13 @@ Before using this Redis driver, you must [configure your Redis server](/docs/dat
 
 ## Memory Driver
 
-The `'memory'` driver keeps an array for the current request and writes nothing to disk, which suits unit tests. It **must not** be used in production.
+The `memory` driver keeps items in an array for the current request only and writes nothing to disk. It is meant for unit tests and **must not** be used in production.
 
 <a id="cache-key"></a>
 
 ## Cache Key
 
-APC, Redis, Memcached and a shared database table may hold other applications' data, so every item is prefixed with the _'key'_ option and a dot (`rakit.`). Change it as you like:
+APC, Redis, Memcached and a shared database may also hold other applications' data, so every item key is prefixed with the `key` option plus a dot (e.g. `rakit.`):
 
 ```php
 'key' => 'rakit'

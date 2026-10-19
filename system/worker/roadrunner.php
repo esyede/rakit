@@ -131,8 +131,8 @@ class Roadrunner extends Bridge
         $foundation = $this->prepare($response);
         $headers = [];
 
-        foreach ($foundation->headers->all() as $name => $values) {
-            if ('Content-Length' !== $name) {
+        foreach ($foundation->headers->allPreserveCase() as $name => $values) {
+            if ('content-length' !== strtolower($name)) {
                 $headers[$name] = array_map('strval', $values);
             }
         }

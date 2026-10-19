@@ -120,7 +120,7 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
     {
         $seen = [];
 
-        $this->query()->chunk(2, function ($rows) use (&$seen) {
+        $this->query()->order_by('id')->chunk(2, function ($rows) use (&$seen) {
             foreach ($rows as $row) {
                 $seen[] = $row->name;
             }
@@ -130,11 +130,30 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
 
         $counted = 0;
 
-        $this->query()->each(function ($row) use (&$counted) {
+        $this->query()->order_by('id')->each(function ($row) use (&$counted) {
             ++$counted;
         });
 
         $this->assertEquals(3, $counted);
+    }
+
+    /**
+     * Test that chunk() and each() need an order, like Laravel.
+     *
+     * @group system
+     */
+    public function testChunkRequiresOrderBy()
+    {
+        foreach (['chunk', 'each'] as $method) {
+            try {
+                'chunk' === $method
+                    ? $this->query()->chunk(2, function () {})
+                    : $this->query()->each(function () {});
+                $this->fail($method.'() without order_by() should throw.');
+            } catch (\RuntimeException $e) {
+                $this->assertContains('order_by', $e->getMessage());
+            }
+        }
     }
 
     /**
@@ -146,7 +165,7 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
     {
         $pages = 0;
 
-        $result = $this->query()->chunk(1, function ($rows) use (&$pages) {
+        $result = $this->query()->order_by('id')->chunk(1, function ($rows) use (&$pages) {
             ++$pages;
             return false;
         });
@@ -229,6 +248,53 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
         $this->assertContains('RANDOM()', $this->query()->in_random_order()->to_sql());
 
         $this->assertEquals(['gamma', 'alpha', 'beta'], $this->query()->order_by_raw('qty desc')->get()->pluck('name')->all());
+    }
+
+    /**
+     * Test that select_raw() appends to the SELECT list, like add_select().
+     *
+     * @group system
+     */
+    public function testSelectRawAppends()
+    {
+        $query = $this->query()->select(['name'])->select_raw('? AS tag', ['x'])->where('id', '=', 1);
+
+        $this->assertEquals('SELECT "name", ? AS tag FROM "qparity" WHERE "id" = ?', $query->to_sql());
+        $this->assertEquals(['x', 1], $query->bindings);
+        $this->assertEquals('x', $query->first()->tag);
+
+        $query = $this->query()->select_raw('qty * ? AS q', [2])->select_raw('? AS t', ['y']);
+        $this->assertEquals('SELECT qty * ? AS q, ? AS t FROM "qparity"', $query->to_sql());
+        $this->assertEquals([2, 'y'], $query->bindings);
+    }
+
+    /**
+     * Test where() and or_where() on a join, which bind values ahead of the WHERE ones.
+     *
+     * @group system
+     */
+    public function testJoinWhereBindsValues()
+    {
+        $query = $this->query()
+            ->select(['qparity.name'])
+            ->select_raw('? AS s', ['sel'])
+            ->join('qparity AS b', function ($join) {
+                $join->on('b.grp', '=', 'qparity.grp')->where('b.qty', '>', 4)->or_where('b.name', 'beta');
+            })
+            ->where('qparity.id', '<', 3);
+
+        $this->assertContains(
+            'ON "b"."grp" = "qparity"."grp" AND "b"."qty" > ? OR "b"."name" = ? WHERE "qparity"."id" < ?',
+            $query->to_sql()
+        );
+        $this->assertEquals(['sel', 4, 'beta', 3], $query->bindings);
+        $this->assertEquals(4, $query->count());
+
+        $query = $this->query()->left_join('qparity AS b', function ($join) {
+            $join->on('b.id', '=', 'qparity.id')->where('b.name', '=', null);
+        });
+        $this->assertContains('AND "b"."name" IS NULL', $query->to_sql());
+        $this->assertEquals([], $query->bindings);
     }
 
     /**
@@ -740,5 +806,104 @@ class QueryParityTest extends \PHPUnit_Framework_TestCase
                 $this->assertContains('Query::' . $method . '() ' . $message, $e->getMessage());
             }
         }
+    }
+
+    /**
+     * Test UPDATE / DELETE with joins compile per driver with their bindings in order.
+     *
+     * @group system
+     */
+    public function testUpdateAndDeleteWithJoinsSql()
+    {
+        $connection = Database::connection('qparity');
+        $clauses = new \ReflectionProperty('\System\Database\Query', 'clauses');
+        PHP_VERSION_ID < 80100 && $clauses->setAccessible(true);
+
+        $on = ' INNER JOIN %s ON %s = %s AND %s > ?';
+        $expected = [
+            'MySQL' => [
+                'UPDATE `qparity`' . sprintf($on, '`b`', '`b`.`grp`', '`qparity`.`grp`', '`b`.`qty`')
+                    . ' SET `qparity`.`name` = ? WHERE `qparity`.`id` < ?',
+                [4, 'x', 3],
+                'DELETE `qparity` FROM `qparity`' . sprintf($on, '`b`', '`b`.`grp`', '`qparity`.`grp`', '`b`.`qty`')
+                    . ' WHERE `qparity`.`id` < ?',
+            ],
+            'Postgres' => [
+                'UPDATE "qparity" SET "name" = ? WHERE "ctid" IN (SELECT "qparity"."ctid" FROM "qparity"'
+                    . sprintf($on, '"b"', '"b"."grp"', '"qparity"."grp"', '"b"."qty"') . ' WHERE "qparity"."id" < ?)',
+                ['x', 4, 3],
+                'DELETE FROM "qparity" WHERE "ctid" IN (SELECT "qparity"."ctid" FROM "qparity"'
+                    . sprintf($on, '"b"', '"b"."grp"', '"qparity"."grp"', '"b"."qty"') . ' WHERE "qparity"."id" < ?)',
+            ],
+            'SQLite' => [
+                'UPDATE "qparity" SET "name" = ? WHERE "rowid" IN (SELECT "qparity"."rowid" FROM "qparity"'
+                    . sprintf($on, '"b"', '"b"."grp"', '"qparity"."grp"', '"b"."qty"') . ' WHERE "qparity"."id" < ?)',
+                ['x', 4, 3],
+                'DELETE FROM "qparity" WHERE "rowid" IN (SELECT "qparity"."rowid" FROM "qparity"'
+                    . sprintf($on, '"b"', '"b"."grp"', '"qparity"."grp"', '"b"."qty"') . ' WHERE "qparity"."id" < ?)',
+            ],
+            'SQLServer' => [
+                'UPDATE [qparity] SET [qparity].[name] = ? FROM [qparity]'
+                    . sprintf($on, '[b]', '[b].[grp]', '[qparity].[grp]', '[b].[qty]') . ' WHERE [qparity].[id] < ?',
+                ['x', 4, 3],
+                'DELETE [qparity] FROM [qparity]' . sprintf($on, '[b]', '[b].[grp]', '[qparity].[grp]', '[b].[qty]')
+                    . ' WHERE [qparity].[id] < ?',
+            ],
+        ];
+
+        foreach ($expected as $name => $sql) {
+            $class = '\System\Database\Query\Grammars\\' . $name;
+            $grammar = new $class($connection);
+            $query = new \System\Database\Query($connection, $grammar, 'qparity');
+            $query->join('b', function ($join) {
+                $join->on('b.grp', '=', 'qparity.grp')->where('b.qty', '>', 4);
+            })->where('qparity.id', '<', 3);
+
+            $values = ['qparity.name' => 'x'];
+            $this->assertEquals($sql[0], $grammar->update($query, $values), $name);
+            $this->assertEquals($sql[1], $grammar->update_bindings($query, $values, $clauses->getValue($query)), $name);
+            $this->assertEquals($sql[2], $grammar->delete($query), $name);
+            $this->assertEquals([4, 3], $grammar->delete_bindings($query, $clauses->getValue($query)), $name);
+
+            // Without joins nothing changes.
+            $plain = new \System\Database\Query($connection, $grammar, 'qparity');
+            $plain->where('id', '=', 1);
+            $this->assertEquals([7, 1], $grammar->update_bindings($plain, ['qty' => 7], $clauses->getValue($plain)));
+            $this->assertStringStartsWith('DELETE FROM ', $grammar->delete($plain));
+        }
+
+        // An aliased table deletes through its alias.
+        $grammar = new \System\Database\Query\Grammars\MySQL($connection);
+        $query = new \System\Database\Query($connection, $grammar, 'qparity AS a');
+        $query->join('qparity AS b', 'b.id', '=', 'a.id');
+        $this->assertStringStartsWith('DELETE `a` FROM `qparity` AS `a` INNER JOIN', $grammar->delete($query));
+    }
+
+    /**
+     * Test UPDATE / DELETE with joins run on SQLite.
+     *
+     * @group system
+     */
+    public function testUpdateAndDeleteWithJoinsRunOnSqlite()
+    {
+        $pdo = Database::connection('qparity')->pdo();
+        $pdo->exec('CREATE TABLE IF NOT EXISTS qparity_dates (id INTEGER PRIMARY KEY, grp INTEGER, flag INTEGER)');
+        $pdo->exec('DELETE FROM qparity_dates');
+        $pdo->exec('INSERT INTO qparity_dates (grp, flag) VALUES (1, 1), (2, 0)');
+
+        $joined = function ($test) {
+            return $test->query()->join('qparity_dates AS d', function ($join) {
+                $join->on('d.grp', '=', 'qparity.grp')->where('d.flag', '=', 1);
+            })->where('qparity.qty', '>', 3);
+        };
+
+        $this->assertEquals(1, $joined($this)->update(['qparity.name' => 'joined']));
+        $this->assertEquals(['joined', 'beta', 'gamma'], $this->query()->order_by('id')->pluck('name')->all());
+
+        $this->assertEquals(1, $joined($this)->increment('qty', 10));
+        $this->assertEquals(15, $this->query()->where('name', '=', 'joined')->value('qty'));
+
+        $this->assertEquals(1, $joined($this)->delete());
+        $this->assertEquals(['beta', 'gamma'], $this->query()->order_by('id')->pluck('name')->all());
     }
 }

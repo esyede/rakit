@@ -2,258 +2,105 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
-- [Creating Instance](#creating-instance)
-- [Accessing Property](#accessing-property)
-- [Calling Method](#calling-method)
-- [Array Access](#array-access)
-- [Use Cases](#use-cases)
-  - [Avoiding Null Pointer](#avoiding-null-pointer)
-  - [API Response](#api-response)
-  - [Database Query](#database-query)
-- [Helper Function](#helper-function)
+-   [Introduction](#introduction)
+-   [Properties and Methods](#properties-and-methods)
+-   [Array Access](#array-access)
+-   [Using a Callback](#using-a-callback)
+-   [Example](#example)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
-## Basic Knowledge
-
-The `Optional` class provides an elegant way to handle values that might be `null` without needing to manually check for `null`. This class implements the "Null Object" pattern, allowing you to access properties and methods of an object without worrying about "Trying to get property of non-object" errors.
-
-When you access a property or method from an object that is `null` through `Optional`, this class will return `null` instead of an error.
-
 <a id="creating-instance"></a>
-## Creating Instance
+<a id="helper-function"></a>
 
-You can create an `Optional` instance in several ways:
+## Introduction
+
+`System\Optional` wraps a value that might be `null`, so you can read its
+properties, call its methods, or access its keys without a null check. Anything
+read from a missing value returns `null` instead of an error.
+
+Create one with the `optional()` helper or the constructor:
 
 ```php
-// Directly with constructor
-$optional = new \System\Optional($value);
+$user = optional(User::find($id));
 
-// Using helper function optional()
-$optional = optional($value);
+$user = new \System\Optional(User::find($id));
 ```
 
+<a id="properties-and-methods"></a>
 <a id="accessing-property"></a>
-## Accessing Property
-
-With `Optional`, you can access object properties safely without worrying about `null`:
-
-```php
-// Without Optional - prone to error
-$user = User::find(1);
-$name = $user->name; // Error if $user is null
-
-// With Optional - safe
-$user = optional(User::find(1));
-$name = $user->name; // Returns null if $user is null, not error
-```
-
-Detailed example:
-
-```php
-// User found
-$user = User::find(1); // User object
-$optional = optional($user);
-echo $optional->name; // "John Doe"
-echo $optional->email; // "john@example.com"
-
-// User not found
-$user = User::find(999); // null
-$optional = optional($user);
-echo $optional->name; // null (not error)
-echo $optional->email; // null (not error)
-```
-
 <a id="calling-method"></a>
-## Calling Method
 
-You can also call methods from the object safely:
-
-```php
-// Without Optional
-$user = User::find(1);
-if ($user) {
-    $posts = $user->posts();
-}
-
-// With Optional
-$user = optional(User::find(1));
-$posts = $user->posts(); // Returns null if $user is null
-```
-
-Example with method that accepts parameters:
+## Properties and Methods
 
 ```php
-$user = optional(User::find(1));
+$user = optional(User::find($id));
 
-// Calling method with parameters
-$result = $user->update_profile('New Name', 'new@email.com');
-
-// If $user is null, method will not be called and returns null
+echo $user->name;                   // the name, or null if no user
+$posts = $user->posts();            // the method result, or null if no user
+$user->update_profile('New Name');  // arguments are passed through
 ```
+
+Properties are read only when the wrapped value is an object and `isset()` is true
+for that property, otherwise you get `null`. Methods are called only when the value
+is an object.
 
 <a id="array-access"></a>
+
 ## Array Access
 
-The `Optional` class implements `ArrayAccess`, so you can access it like an array:
+`Optional` implements `ArrayAccess`. Reading a key uses
+[Arr::get()](/docs/arrays), so dot notation works and missing keys return `null`:
 
 ```php
-$data = optional(['name' => 'John', 'age' => 30]);
+$data = optional(json_decode($response, true));
 
-// Access like array
-echo $data['name']; // "John"
-echo $data['age']; // 30
-echo $data['email']; // null
+echo $data['data.user.name'];   // null if any level is missing
 
-// Check existence
-if (isset($data['name'])) {
-    echo $data['name'];
-}
-
-// Set value
+isset($data['data']);           // key check (no dot notation)
 $data['email'] = 'john@example.com';
-
-// Remove
 unset($data['email']);
 ```
 
-With null object:
+Setting and unsetting do nothing when the wrapped value is not an array or
+`ArrayAccess` object, e.g. `null`.
+
+<a id="using-a-callback"></a>
+
+## Using a Callback
+
+Passing a callback to `optional()` returns the callback's result instead of an
+`Optional` instance. The callback **always runs**, even when the value is `null`,
+so check it yourself:
 
 ```php
-$data = optional(null);
-
-echo $data['name']; // null
-echo $data['anything']; // null
-
-// Will not error even if $data is null
-```
-
-<a id="use-cases"></a>
-## Use Cases
-
-<a id="avoiding-null-pointer"></a>
-### Avoiding Null Pointer
-
-Use `Optional` to avoid repetitive null checks:
-
-```php
-// Before: many null checks
-$user = User::find($id);
-$address = null;
-$city = null;
-
-if ($user) {
-    $profile = $user->profile;
-    if ($profile) {
-        $address = $profile->address;
-        if ($address) {
-            $city = $address->city;
-        }
-    }
-}
-
-// With Optional: cleaner
-$city = optional(optional(optional(User::find($id))->profile)->address)->city;
-
-// Or more readable:
-$user = optional(User::find($id));
-$profile = optional($user->profile);
-$address = optional($profile->address);
-$city = $address->city;
-```
-
-<a id="api-response"></a>
-### API Response
-
-Handling API responses that may have incomplete structures:
-
-```php
-$response = json_decode($api_response, true);
-$optional = optional($response);
-
-// Safely access nested keys (array access accepts "dot" notation)
-$user_name = $optional['data.user.name'];
-$user_email = $optional['data.user.email'];
-$user_avatar = $optional['data.user.profile.avatar'];
-
-// All will return null if not present, not error
-```
-
-<a id="database-query"></a>
-### Database Query
-
-Handling query results that may be empty:
-
-```php
-// Retrieve user and access relation
-$user = optional(User::find($id));
-$latest_post = optional($user->posts())->first();
-$post_title = optional($latest_post)->title;
-
-// Or in one line
-$post_title = optional(optional(optional(User::find($id))->posts())->first())->title;
-```
-
-With method chaining:
-
-```php
-// Without Optional - potential error
-$user = User::find($id);
-$comments_count = $user->posts()->first()->comments()->count();
-
-// With Optional - safe
-$user = optional(User::find($id));
-$post = optional(optional($user->posts())->first());
-$comments_count = optional($post->comments())->count() ?: 0;
-```
-
-<a id="helper-function"></a>
-## Helper Function
-
-The `optional()` helper does the same:
-
-```php
-// Create Optional instance
-$optional = optional($value);
-
-// With callback (the callback receives the value and its result is returned)
-$result = optional($value, function ($value) {
-    return $value ? $value->some_method() : null;
-});
-
-// The callback is always executed, even when $value is null,
-// so check for null inside the callback yourself
-```
-
-Example with callback:
-
-```php
-$user = User::find($id);
-
-// The callback runs either way, so guard against a missing user
-$name = optional($user, function ($user) {
+$name = optional(User::find($id), function ($user) {
     return $user ? strtoupper($user->name) : null;
 });
-
-// $name will contain name in uppercase if user is found,
-// or null if user is not found
 ```
 
-Combined with other methods:
+<a id="example"></a>
+<a id="use-cases"></a>
+<a id="avoiding-null-pointer"></a>
+<a id="api-response"></a>
+<a id="database-query"></a>
+
+## Example
+
+Each step that might return `null` needs its own wrapper:
 
 ```php
-// Get email or default value
+// Instead of nested if ($user) { if ($user->profile) { ... } }
+$city = optional(optional(optional(User::find($id))->profile)->address)->city;
+
 $email = optional(User::find($id))->email ?: 'no-email@example.com';
 
-// Using ternary
-$status = optional($user)->is_active ? 'Active' : 'Inactive';
-
-// In condition
 if (optional($user)->is_admin) {
-    // Do something if user is admin
+    // ...
 }
 ```
 
-**Note:** handling `null` explicitly is often clearer, and easier to debug.
+> Long chains of `optional()` get hard to read and debug. Handling `null`
+> explicitly is often clearer.

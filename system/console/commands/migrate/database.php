@@ -34,13 +34,23 @@ class Database
     }
 
     /**
-     * Get the last batch of migrations.
+     * Get the last batch of migrations, optionally restricted to the given packages.
+     *
+     * @param array $packages
      *
      * @return array
      */
-    public function last()
+    public function last(array $packages = [])
     {
-        return $this->table()->where('batch', '=', $this->batch())->order_by('name', 'desc')->get()->all();
+        $query = $this->table();
+
+        if (! empty($packages)) {
+            $query->where_in('package', $packages);
+        }
+
+        $batch = $query->copy()->max('batch');
+
+        return $query->where('batch', '=', $batch)->order_by('name', 'desc')->get()->all();
     }
 
     /**

@@ -197,7 +197,7 @@ class HttpRequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['foo' => 'foobar'], $dup->query->all());
         $this->assertEquals(['foo' => 'foobar'], $dup->request->all());
         $this->assertEquals(['foo' => 'foobar'], $dup->attributes->all());
-        $this->assertEquals(['Foo' => ['foobar']], $dup->headers->all());
+        $this->assertEquals(['foo' => ['foobar']], $dup->headers->all());
     }
 
     /**

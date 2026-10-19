@@ -140,6 +140,59 @@ class FacileHasOneOrManyTest extends \PHPUnit_Framework_TestCase
         $results = $relationship->get();
         $this->assertCount(2, $results);
     }
+
+    /**
+     * Test for HasOne::save() - sets the foreign key and saves the model.
+     *
+     * @group system
+     */
+    public function testHasOneSaveSetsForeignKey()
+    {
+        $parent = HoomParent::create(['name' => 'Parent']);
+        $child = new HoomChild(['title' => 'Only Child']);
+
+        $this->assertTrue($parent->child()->save($child));
+        $this->assertEquals($parent->id, $child->parent_id);
+        $this->assertEquals('Only Child', $parent->child()->first()->title);
+    }
+
+    /**
+     * Test for save() - an existing model from another parent is moved, not re-inserted.
+     *
+     * @group system
+     */
+    public function testSaveUpdatesExistingModelFromAnotherParent()
+    {
+        $first = HoomParent::create(['name' => 'First']);
+        $second = HoomParent::create(['name' => 'Second']);
+        $child = $first->children()->insert(['title' => 'Mover']);
+
+        $this->assertTrue($second->children()->save(HoomChild::find($child->id)));
+        $this->assertEquals(1, Database::table('hoom_children')->count());
+        $this->assertEquals(0, $first->children()->count());
+        $this->assertEquals('Mover', $second->child()->first()->title);
+    }
+
+    /**
+     * Test for relationship delete() / update() - routed through the facile query.
+     *
+     * @group system
+     */
+    public function testRelationshipBulkDeleteAndUpdate()
+    {
+        $parent = HoomParent::create(['name' => 'Parent']);
+        $other = HoomParent::create(['name' => 'Other']);
+        $parent->children()->insert(['title' => 'A']);
+        $other->children()->insert(['title' => 'B']);
+
+        $parent->children()->update(['title' => 'Z']);
+        $this->assertEquals('Z', $parent->children()->first()->title);
+        $this->assertEquals('B', $other->children()->first()->title);
+
+        $parent->children()->delete();
+        $this->assertEquals(0, $parent->children()->count());
+        $this->assertEquals(1, $other->children()->count());
+    }
 }
 
 class HoomParent extends \System\Database\Facile\Model
@@ -150,6 +203,11 @@ class HoomParent extends \System\Database\Facile\Model
     public function children()
     {
         return $this->has_many('HoomChild', 'parent_id');
+    }
+
+    public function child()
+    {
+        return $this->has_one('HoomChild', 'parent_id');
     }
 }
 

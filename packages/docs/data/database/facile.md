@@ -3,469 +3,429 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
 - [Basic Knowledge](#basic-knowledge)
-- [Conventions](#conventions)
-- [Model Configuration](#model-configuration)
-  - [Available Properties](#available-properties)
+- [Defining Models](#defining-models)
+  - [Conventions](#conventions)
+  - [Model Properties](#model-properties)
 - [Retrieving Models](#retrieving-models)
   - [Retrieving All Records](#retrieving-all-records)
   - [Retrieving by Primary Key](#retrieving-by-primary-key)
-  - [Find Or Fail](#find-or-fail)
-  - [First Or Fail](#first-or-fail)
-- [Query Builder in Models](#query-builder-in-models)
-- [Aggregation](#aggregation)
-- [Inserting Models](#inserting-models)
-  - [Create Method](#create-method)
-  - [Save Method](#save-method)
-- [Updating Models](#updating-models)
-  - [Update Via Instance](#update-via-instance)
-  - [Update Via Static Method](#update-via-static-method)
-  - [Mass Update](#mass-update)
+  - [Not Found Exceptions](#not-found-exceptions)
+  - [Building Queries](#building-queries)
+  - [Chunking & Lazy Iteration](#chunking--lazy-iteration)
+- [Inserting & Updating Models](#inserting--updating-models)
+  - [Inserting](#inserting)
+  - [Updating](#updating)
+  - [Retrieving or Creating](#retrieving-or-creating)
 - [Deleting Models](#deleting-models)
-  - [Delete Via Instance](#delete-via-instance)
-  - [Delete Via Static Method](#delete-via-static-method)
-  - [Soft Delete](#soft-delete)
+  - [Soft Deleting](#soft-deleting)
+- [Query Scopes](#query-scopes)
+  - [Global Scopes](#global-scopes)
+  - [Local Scopes](#local-scopes)
 - [Timestamps](#timestamps)
 - [Mass Assignment](#mass-assignment)
   - [Fillable](#fillable)
   - [Guarded](#guarded)
-- [Model Validation](#model-validation)
-- [Accessor & Mutator](#accessor--mutator)
-  - [Accessor](#accessor)
-  - [Mutator](#mutator)
-- [Hidden Attributes](#hidden-attributes)
-- [Attribute Casting](#attribute-casting)
-- [Model Helpers](#model-helpers)
-- [Relationship Queries](#relationship-queries)
 - [Relationships](#relationships)
   - [One To One](#one-to-one)
   - [One To Many](#one-to-many)
   - [Many To Many](#many-to-many)
   - [Has Many Through](#has-many-through)
   - [Polymorphic Relations](#polymorphic-relations)
-- [Eager Loading](#eager-loading)
-- [Constraining Eager Loading](#constraining-eager-loading)
+- [Querying Relationships](#querying-relationships)
 - [Inserting Related Models](#inserting-related-models)
-- [Working with Pivot Tables](#working-with-pivot-tables)
-- [Converting to Array & JSON](#converting-to-array--json)
-- [Global Scopes](#global-scopes)
+  - [Pivot Tables](#pivot-tables)
+- [Eager Loading](#eager-loading)
+  - [Constraining Eager Loads](#constraining-eager-loads)
+- [Accessors & Mutators](#accessors--mutators)
+- [Attribute Casting](#attribute-casting)
+- [Serialization](#serialization)
+- [Validation](#validation)
 - [Model Events](#model-events)
+  - [Cancelling an Operation](#cancelling-an-operation)
+  - [Booting](#booting)
 - [Observers](#observers)
+- [Model Helpers](#model-helpers)
 
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
+
 ## Basic Knowledge
 
-Facile is Rakit's ORM. Each database table is mapped to a model class, and
-each row to an instance of that class. You can query, insert, update, and
-delete records by calling methods on the model rather than writing SQL.
+Facile is Rakit's ORM. Each database table maps to a model class and each row to an instance of it, so you query, insert, update and delete records by calling methods instead of writing SQL.
 
-A bare-bones model is just a class extending `Facile`:
+<a id="defining-models"></a>
+
+## Defining Models
+
+A model is a class extending `Facile`:
 
 ```php
-<?php
-
 class User extends Facile
 {
     // Conventions take care of everything by default.
 }
 ```
 
-By convention this model talks to the `users` table — see
-[Conventions](#conventions) below for the rules and how to override them.
-
 <a id="conventions"></a>
-## Conventions
 
-Facile follows several conventions:
+### Conventions
 
-- **Table name**: Plural form (plural) of the model name in lowercase. Example: `User` model → `users` table, `Order_Item` model → `order_items` table (an `OrderItem` model would map to `orderitems`)
-- **Primary key**: Column named `id` with auto-increment
-- **Timestamps**: `created_at` and `updated_at` columns (optional)
-- **Soft deletes**: `deleted_at` column (optional)
-
-You can override these conventions through static properties in the model.
+- **Table**: the lowercase plural of the class name. `User` → `users`, `Order_Item` → `order_items` (but `OrderItem` → `orderitems`).
+- **Primary key**: an auto-increment `id` column.
+- **Timestamps**: `created_at` and `updated_at` columns, filled automatically.
+- **Soft deletes**: a `deleted_at` column, when enabled.
 
 <a id="model-configuration"></a>
-## Model Configuration
-
 <a id="available-properties"></a>
-### Available Properties
+<a id="model-properties"></a>
+
+### Model Properties
+
+Override the conventions and configure behaviour with these properties (shown with example values; defaults in comments):
 
 ```php
-<?php
-
 class User extends Facile
 {
-    // Table name (default: plural of class name)
-    public static $table = 'my_users';
+    public static $table = 'my_users';        // default: plural of class name
+    public static $key = 'user_id';           // default: 'id'
+    public static $connection = 'mysql';      // default: default connection
+    public static $sequence = 'users_id_seq'; // PostgreSQL sequence, default: null
+    public static $timestamps = true;         // default: true
+    public static $perpage = 15;              // paginate() page size, default: 20
+    public static $soft_delete = false;       // default: false
 
-    // Primary key column (default: 'id')
-    public static $key = 'user_id';
+    public static $fillable = ['name', 'email'];   // default: null
+    public static $guarded = ['id'];               // default: ['*']
 
-    // Database connection (default: default connection)
-    public static $connection = 'mysql';
+    public static $hidden = ['password'];     // default: []
+    public static $visible = [];              // default: []
+    public static $appends = ['full_name'];   // default: []
+    public static $casts = ['active' => 'boolean']; // default: []
+    public static $date_format = 'Y-m-d H:i:s';     // default
 
-    // Sequence name for PostgreSQL (default: null)
-    public static $sequence = 'users_id_seq';
+    public $with = ['posts', 'profile'];      // always eager load, default: []
 
-    // Use created_at and updated_at timestamps (default: true)
-    public static $timestamps = true;
-
-    // Number of items per page for pagination (default: 20)
-    public static $perpage = 15;
-
-    // Enable soft deletes (default: false)
-    public static $soft_delete = false;
-
-    // Attributes allowed for mass-assignment (default: null).
-    // Set it and it decides on its own, $guarded is not consulted.
-    public static $fillable = ['name', 'email', 'password'];
-
-    // Attributes not allowed for mass-assignment (default: ['*'], everything).
-    // Only consulted when $fillable is not set.
-    public static $guarded = ['id', 'password'];
-
-    // Attributes hidden when to_array() or to_json() (default: [])
-    public static $hidden = ['password', 'remember_token'];
-
-    // Whitelist of attributes, wins over $hidden when it is not empty (default: [])
-    public static $visible = [];
-
-    // Accessors appended to to_array() and to_json() (default: [])
-    public static $appends = ['full_name'];
-
-    // Attributes cast to a native type (default: [])
-    public static $casts = [
-        'active' => 'boolean',
-        'options' => 'array',
-        'price' => 'decimal:2',
-        'published_at' => 'datetime',
-    ];
-
-    // Format used when a date-ish attribute is serialized (default: 'Y-m-d H:i:s')
-    public static $date_format = 'Y-m-d H:i:s';
-
-    // Relations to eager load (default: [])
-    public $with = ['posts', 'profile'];
-
-    // Validation rules (default: [])
-    public static $rules = [
-        'name' => 'required|min:3',
-        'email' => 'required|email|unique:users',
-    ];
-
-    // Custom validation messages (default: [])
-    public static $messages = [
-        'required' => ':attribute is required',
-    ];
+    public static $rules = ['name' => 'required|min:3']; // default: []
+    public static $messages = ['required' => ':attribute is required']; // default: []
 }
 ```
 
+Each property is explained in its own section below.
+
 <a id="retrieving-models"></a>
+
 ## Retrieving Models
 
 <a id="retrieving-all-records"></a>
+
 ### Retrieving All Records
 
 ```php
-// Retrieve all users
-$users = User::all();
-
-foreach ($users as $user) {
+foreach (User::all() as $user) {
     echo $user->name;
 }
 ```
 
-`all()`, `get()` and the results of `paginate()` all hand back a `Collection` of models, so
-the whole collection API is available right away:
+`all()`, `get()` and `paginate()` results are a `Collection` of models, so the full collection API is available. It is still countable, iterable and array-accessible (`count($users)`, `$users[0]`):
 
 ```php
 $names = User::all()->pluck('name');
 $grouped = User::all()->group_by('role');
-$active = User::where('active', '=', 1)->get()->filter(function ($user) {
-    return $user->is_admin();
-});
 ```
 
-It stays countable, iterable and array accessible, so `count($users)`,
-`foreach ($users as $user)` and `$users[0]` keep working the way they always did.
-
 <a id="retrieving-by-primary-key"></a>
+
 ### Retrieving by Primary Key
 
+`find()` returns the model or `NULL`; `find_many()` returns a collection:
+
 ```php
-// Find user with id = 1
 $user = User::find(1);
-
-if ($user) {
-    echo $user->email;
-}
-
-// Find users with ids in array
 $users = User::find_many([1, 2, 3]);
 ```
 
 <a id="find-or-fail"></a>
-### Find Or Fail
+<a id="first-or-fail"></a>
+<a id="not-found-exceptions"></a>
 
-Method that throws exception if not found:
+### Not Found Exceptions
+
+`find_or_fail()` and `first_or_fail()` throw `System\Exceptions\ModelNotFoundException` when nothing is found:
 
 ```php
 try {
     $user = User::find_or_fail($id);
-    echo $user->name;
+    $user = User::where('email', '=', $email)->first_or_fail();
 } catch (\System\Exceptions\ModelNotFoundException $e) {
     return Response::error('404');
 }
 ```
 
-<a id="first-or-fail"></a>
-### First Or Fail
-
-```php
-try {
-    $user = User::where('email', '=', $email)->first_or_fail();
-} catch (\System\Exceptions\ModelNotFoundException $e) {
-    return Redirect::back()->with('error', 'User not found');
-}
-```
-
 <a id="query-builder-in-models"></a>
-## Query Builder in Models
+<a id="aggregation"></a>
+<a id="building-queries"></a>
 
-**All Magic Query Builder methods can be used in Models:**
+### Building Queries
+
+Every [query builder](/docs/database/magic) method is available on a model, including dynamic wheres and aggregates:
 
 ```php
-// WHERE clause
-$users = User::where('votes', '>', 100)->get();
-
-$user = User::where('email', '=', $email)->first();
-
-// Dynamic WHERE
-$user = User::where_email($email)->first();
-
-$users = User::where_email_and_active($email, 1)->get();
-
-// WHERE IN
-$users = User::where_in('id', [1, 2, 3])->get();
-
-// WHERE NULL
-$users = User::where_null('deleted_at')->get();
-
-// WHERE BETWEEN
-$users = User::where_between('age', 18, 30)->get();
-
-// ORDER BY
-$users = User::order_by('created_at', 'desc')->get();
-
-// LIMIT
-$users = User::take(10)->get();
-
-// OFFSET
-$users = User::skip(20)->take(10)->get();
-
-// Combination
 $users = User::where('active', '=', 1)
     ->where('votes', '>', 50)
     ->order_by('created_at', 'desc')
-    ->take(20)
+    ->skip(20)
+    ->take(10)
     ->get();
+
+$user = User::where_email($email)->first();
+$users = User::where_email_and_active($email, 1)->get();
+$users = User::where_in('id', [1, 2, 3])->get();
+
+$count = User::where('active', '=', 1)->count();
+$max = User::max('votes'); // also min(), avg(), sum()
 ```
 
-<a id="aggregation"></a>
-## Aggregation
+`when()` applies a callback only when the value is truthy (`unless()` is the opposite):
 
 ```php
-// COUNT
-$count = User::count();
-$active_count = User::where('active', '=', 1)->count();
-
-// MAX
-$max_votes = User::max('votes');
-
-// MIN
-$min_age = User::min('age');
-
-// AVG
-$avg_salary = User::avg('salary');
-
-// SUM
-$total_votes = User::sum('votes');
+$users = User::when($role, function ($query, $role) {
+    return $query->where('role', '=', $role);
+})->get();
 ```
 
-<a id="inserting-models"></a>
-## Inserting Models
-
-<a id="create-method"></a>
-### Create Method
-
-The `create()` method creates and saves the model in one step:
+`sole()` returns exactly one model; it throws `ModelNotFoundException` if there is none and an `Exception` if there is more than one:
 
 ```php
-$user = User::create([
-    'name' => 'John Doe',
-    'email' => 'john@example.com',
-    'password' => Hash::make('secret'),
-]);
+$user = User::where('email', '=', 'budi@site.com')->sole();
+```
 
-if ($user) {
-    echo 'User created with ID: ' . $user->id;
+<a id="chunking--lazy-iteration"></a>
+<a id="chunking-results"></a>
+
+### Chunking & Lazy Iteration
+
+Process large tables without loading everything at once. These work like their
+[query builder counterparts](/docs/database/magic#chunking--lazy-iteration), but hand back models.
+Return `false` from a callback to stop:
+
+```php
+User::chunk(100, function ($users, $page) {
+    foreach ($users as $user) {
+        // ..
+    }
+});
+
+User::each(function ($user, $key) {
+    // one model at a time, fetched in chunks of 1000
+});
+
+// Page by the key: safe when the callback updates the rows.
+User::where('active', '=', 0)->chunk_by_id(100, function ($users) {
+    foreach ($users as $user) {
+        $user->active = 1;
+        $user->save();
+    }
+});
+
+User::each_by_id(function ($user, $key) {
+    // ..
+});
+
+foreach (User::with('posts')->lazy(500) as $user) {
+    // fetched (and eager loaded) 500 at a time
+}
+
+foreach (User::with('posts')->lazy_by_id() as $user) {
+    // same, paged by the key
+}
+
+foreach (User::where('active', '=', 1)->cursor() as $user) {
+    // one query, one model at a time; with() is ignored
 }
 ```
 
+`chunk_by_id()`, `chunk_by_id_desc()`, `each_by_id()`, `lazy_by_id()` and `lazy_by_id_desc()`
+page by the model key, qualified with its table (`users.id`), unless you pass a `$column`.
+`lazy()` orders by the key when the query has no `order_by()`.
+
+| Method | Queries | Eager loading | Use it when |
+| --- | --- | --- | --- |
+| `chunk()`, `each()`, `lazy()` | one per chunk | yes | you need batches with relationships |
+| `chunk_by_id()`, `each_by_id()`, `lazy_by_id()` (and `_desc`) | one per chunk | yes | you update the models while iterating |
+| `cursor()` | one | no | you want the least memory per model |
+
+> `cursor()` hydrates each row as it is fetched, so it can not eager load: `with()` is ignored, use `lazy()` instead. On MySQL the whole result set is still buffered by `pdo_mysql` by default. On PHP 5.4 these methods return plain `Iterator`s (`System\Database\Query\Lazy` and `System\Database\Query\Cursor`) instead of generators; use `iterator_to_array()` if you need an array.
+
+<a id="inserting--updating-models"></a>
+
+## Inserting & Updating Models
+
+<a id="inserting-models"></a>
+<a id="create-method"></a>
 <a id="save-method"></a>
-### Save Method
+<a id="inserting"></a>
+
+### Inserting
+
+Set attributes and call `save()`, or use `create()` to fill (respecting [mass assignment](#mass-assignment)) and save in one step. `create()` returns the model, or `false` on failure:
 
 ```php
 $user = new User;
 $user->name = 'Jane Doe';
 $user->email = 'jane@example.com';
-$user->password = Hash::make('secret');
+$user->save();
 
-if ($user->save()) {
-    echo 'User saved with ID: ' . $user->id;
-}
+$user = User::create([
+    'name' => 'John Doe',
+    'email' => 'john@example.com',
+]);
+
+echo $user->id;
 ```
-
-**Automatic timestamps:**
-
-If `$timestamps = true`, the `created_at` and `updated_at` columns are filled automatically.
 
 <a id="updating-models"></a>
-## Updating Models
-
 <a id="update-via-instance"></a>
-### Update Via Instance
-
-```php
-$user = User::find(1);
-$user->email = 'newemail@example.com';
-$user->save();
-
-// Or with fill
-$user = User::find(1);
-$user->fill([
-    'name' => 'New Name',
-    'email' => 'newemail@example.com',
-]);
-$user->save();
-```
-
 <a id="update-via-static-method"></a>
-### Update Via Static Method
+<a id="mass-update"></a>
+<a id="updating"></a>
+
+### Updating
+
+Change attributes on a retrieved model (directly or with `fill()`) and call `save()`. Only changed columns are written, and `updated_at` is refreshed:
 
 ```php
-// Update by ID
-$affected = User::update(1, [
-    'email' => 'updated@example.com',
-    'name' => 'Updated Name',
-]);
+$user = User::find(1);
+$user->email = 'new@example.com';
+$user->save();
+
+$user->fill(['name' => 'New Name'])->save();
 ```
 
-<a id="mass-update"></a>
-### Mass Update
+`User::update($id, $attributes)` updates by primary key without loading the model and returns the affected row count. A query can also update many rows at once:
 
 ```php
-// Update multiple records
-User::where('active', '=', 0)
-    ->where('created_at', '<', '2020-01-01')
-    ->update(['status' => 'inactive']);
+User::update(1, ['name' => 'Updated Name']);
+
+User::where('active', '=', 0)->update(['status' => 'inactive']);
+```
+
+> Query-level `update()` and `delete()` fire no [model events](#model-events). `update()` (and `increment()` / `decrement()`) sets `updated_at` (when the model uses [timestamps](#timestamps)) unless you pass it. `delete()` soft deletes when the model uses [soft deletes](#soft-deleting); `force_delete()` always removes the rows. Both return the affected row count.
+
+<a id="retrieving-or-creating"></a>
+
+### Retrieving or Creating
+
+The first array is matched against the table; the second supplies extra values when creating (or the values to update):
+
+```php
+$user = User::first_or_new(['email' => 'budi@site.com']);                    // unsaved if missing
+$user = User::first_or_create(['email' => 'budi@site.com'], ['name' => 'Budi']);
+$user = User::update_or_create(['email' => 'budi@site.com'], ['name' => 'Budi']);
 ```
 
 <a id="deleting-models"></a>
+<a id="delete-via-instance"></a>
+<a id="delete-via-static-method"></a>
+
 ## Deleting Models
 
-<a id="delete-via-instance"></a>
-### Delete Via Instance
+`delete()` returns `true` when the record was deleted and `false` when the model doesn't exist in the database. `destroy()` deletes by primary key(s) and returns how many were deleted:
 
 ```php
 $user = User::find(1);
+$user->delete();
 
-if ($user->delete()) {
-    echo 'User deleted';
-}
-```
-
-> **Note:** `delete()` returns a boolean, `true` when the record was deleted and `false` when
-> the model does not exist in the database yet.
-
-
-<a id="delete-via-static-method"></a>
-### Delete Via Static Method
-
-```php
-// Delete by ID
 User::destroy(1);
+User::destroy([1, 2, 3]);
 
-// Delete multiple
-User::where('active', '=', 0)->delete();
+User::where('active', '=', 0)->delete();       // bulk, see the note above
+User::where('active', '=', 0)->force_delete(); // bulk, always permanent
 ```
 
 <a id="soft-delete"></a>
-### Soft Delete
+<a id="soft-deleting"></a>
 
-Enable soft delete in the model:
+### Soft Deleting
+
+With `$soft_delete = true` and a nullable `deleted_at` column, `delete()` sets `deleted_at` instead of removing the row, and queries automatically skip deleted rows:
 
 ```php
 class User extends Facile
 {
     public static $soft_delete = true;
 }
-```
 
-Make sure the table has a `deleted_at` column:
+// migration: $table->timestamp('deleted_at')->nullable();
 
-```php
-// In migration
-$table->timestamp('deleted_at')->nullable();
-```
+$user->delete();                         // sets deleted_at
+$user->trashed();                        // true
 
-Now `delete()` will set `deleted_at` instead of deleting the record:
+$users = User::all();                    // WHERE deleted_at IS NULL
+$users = User::with_trashed()->get();    // include deleted
+$users = User::only_trashed()->get();    // only deleted
 
-```php
-$user = User::find(1);
-$user->delete(); // Set deleted_at = now()
-
-// Query only retrieves non-deleted records
-$users = User::all(); // Automatically WHERE deleted_at IS NULL
-
-// Include deleted records
-$users = User::with_trashed()->get();
-
-// Only deleted records
-$users = User::only_trashed()->get();
-
-// Restore soft deleted record
 $user = User::with_trashed()->find(1);
 $user->restore();
+$user->force_delete();                   // remove permanently
 
-// Force delete (permanently delete)
-$user->force_delete();
+User::where('banned', '=', 1)->delete();               // soft deletes every match
+User::only_trashed()->force_delete();                  // purge deleted rows
 ```
 
-<a id="timestamps"></a>
-## Timestamps
+<a id="query-scopes"></a>
 
-By default, Facile will automatically fill `created_at` and `updated_at`:
+## Query Scopes
+
+<a id="global-scopes"></a>
+
+### Global Scopes
+
+A global scope adds a constraint to every query of a model. Register it in [`boot()`](#booting) with a name and a Closure (or an object with an `apply($query, $model)` method):
 
 ```php
-class Post extends Facile
+class User extends Facile
 {
-    public static $timestamps = true; // Default
+    protected static function boot()
+    {
+        static::add_global_scope('active', function ($query) {
+            $query->where('active', '=', 1);
+        });
+    }
 }
 
-$post = new Post;
-$post->title = 'My Post';
-$post->save();
-// created_at and updated_at filled automatically
+$users = User::all(); // WHERE active = 1
 
-$post->title = 'Updated Title';
-$post->save();
-// updated_at updated automatically
+User::remove_global_scope('active'); // for every query that follows
 ```
 
-Disable timestamps:
+Soft deleting is applied the same way: `with_trashed()` and `only_trashed()` lift the `deleted_at IS NULL` constraint.
+
+<a id="local-scopes"></a>
+
+### Local Scopes
+
+A method prefixed with `scope_` can be called statically without the prefix. It receives the query plus any arguments and returns the query:
+
+```php
+class User extends Facile
+{
+    public function scope_role($query, $role)
+    {
+        return $query->where('role', '=', $role);
+    }
+}
+
+$admins = User::role('admin')->order_by('name')->get();
+```
+
+> A local scope must be the first call in the chain (`User::role(...)`); it cannot be chained after another query method.
+
+<a id="timestamps"></a>
+
+## Timestamps
+
+When `$timestamps` is `true` (the default), `save()` fills `created_at` on insert and `updated_at` on every save, using `$date_format`. Set it to `false` for tables without those columns:
 
 ```php
 class Log extends Facile
@@ -475,34 +435,24 @@ class Log extends Facile
 ```
 
 <a id="mass-assignment"></a>
+
 ## Mass Assignment
 
-Mass assignment allows you to fill multiple attributes at once.
-
-**A model accepts nothing until it says what it accepts.** `$guarded` defaults to
-`['*']`, so `fill()` and `create()` on a model that declares neither `$fillable`
-nor `$guarded` set no attributes at all:
+`fill()`, `create()` and the constructor set many attributes at once. Since that data often comes straight from a request, **a model accepts nothing until it declares what it accepts**: `$guarded` defaults to `['*']`, so a model with neither `$fillable` nor `$guarded` ignores every attribute:
 
 ```php
 class User extends Facile
 {
-    // says nothing about mass assignment
 }
 
-$user = new User();
-$user->fill(Input::all());
-
-// $user->attributes is empty, whatever the request sent
+$user = new User(Input::all()); // $user->attributes is empty
 ```
 
-That is deliberate: a request body reaches `create()` unchanged, and a column such
-as `id`, `role` or `is_admin` must never be settable just because it was named.
-
 <a id="fillable"></a>
+
 ### Fillable
 
-Name the attributes a request is allowed to set. This is the usual way to open a
-model up:
+List the attributes that may be mass-assigned. This is the recommended approach, and once `$fillable` is set, `$guarded` is ignored:
 
 ```php
 class User extends Facile
@@ -510,423 +460,44 @@ class User extends Facile
     public static $fillable = ['name', 'email', 'password'];
 }
 
-// Only name, email and password are filled
-$user = User::create(Input::all());
-
-// role is dropped even when the request sends it,
-// because it is not in $fillable
+$user = User::create(Input::all()); // 'role' is dropped even if sent
 ```
-
-**`$fillable` decides on its own.** Once it is set, `$guarded` is not consulted,
-so the default `['*']` does not have to be undone first.
 
 <a id="guarded"></a>
+
 ### Guarded
 
-The other way around: leave a model open and name the attributes to keep out.
-Only used when `$fillable` is **not** set:
+Alternatively, leave `$fillable` unset and list the attributes to block. This is weaker: any column added later is immediately mass-assignable.
 
 ```php
 class User extends Facile
 {
-    public static $fillable = null;          // leave it unset
     public static $guarded = ['id', 'is_admin'];
 }
-
-// Everything except id and is_admin can be filled
-$user = User::create(Input::all());
 ```
 
-This is the weaker of the two: a column added to the table later is mass-assignable
-the moment it exists, because nobody remembered to add it here. Prefer `$fillable`.
+`fill_raw()` bypasses both lists.
 
-> **Upgrading:** `$guarded` used to default to `[]`, which left every attribute
-> mass-assignable. A model that already declares `$fillable` is unaffected. A model
-> that declares neither now accepts nothing, and needs a `$fillable` of its own.
-> `fill_raw()` bypasses both lists and is unchanged.
-
-<a id="model-validation"></a>
-## Model Validation
-
-Facile supports built-in validation:
-
-```php
-class User extends Facile
-{
-    public static $rules = [
-        'name' => 'required|min:3|max:100',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:8',
-    ];
-
-    public static $messages = [
-        'required' => ':attribute is required',
-        'email' => ':attribute must be a valid email',
-    ];
-}
-
-// In controller
-$user = new User(Input::all());
-
-if (!$user->is_valid()) {
-    return Redirect::back()
-        ->with_input()
-        ->with_errors($user->validation);
-}
-
-$user->save();
-```
-
-**Validation during update:**
-
-```php
-$user = User::find(1);
-$user->fill(Input::all());
-
-if (!$user->is_valid()) {
-    return Redirect::back()->with_errors($user->validation);
-}
-
-$user->save();
-```
-
-<a id="accessor--mutator"></a>
-## Accessor & Mutator
-
-<a id="accessor"></a>
-### Accessor
-
-Accessors change how attributes are read:
-
-```php
-class User extends Facile
-{
-    /**
-     * Accessor for 'name' attribute
-     * Automatically called when $user->name
-     */
-    public function get_name($value)
-    {
-        return ucwords($value);
-    }
-
-    /**
-     * Accessor for 'email'
-     */
-    public function get_email($value)
-    {
-        return strtolower($value);
-    }
-
-    /**
-     * Accessor for computed attribute
-     */
-    public function get_full_name()
-    {
-        return $this->first_name . ' ' . $this->last_name;
-    }
-}
-
-$user = User::find(1);
-echo $user->name; // Automatically ucwords()
-echo $user->email; // Automatically strtolower()
-echo $user->full_name; // first_name + last_name
-```
-
-<a id="mutator"></a>
-### Mutator
-
-Mutators change how attributes are written:
-
-```php
-class User extends Facile
-{
-    /**
-     * Mutator for 'password'
-     * Automatically called when $user->password = 'xxx'
-     */
-    public function set_password($value)
-    {
-        if (!empty($value)) {
-            $this->set_attribute('password', Hash::make($value));
-        }
-    }
-
-    /**
-     * Mutator for 'email'
-     */
-    public function set_email($value)
-    {
-        $this->set_attribute('email', strtolower($value));
-    }
-
-    /**
-     * Mutator for 'name'
-     */
-    public function set_name($value)
-    {
-        $this->set_attribute('name', ucwords($value));
-    }
-}
-
-$user = new User;
-$user->password = 'secret123'; // Automatically hashed
-$user->email = 'USER@EXAMPLE.COM'; // Automatically lowercase
-$user->name = 'john doe'; // Automatically ucwords
-$user->save();
-```
-
-<a id="hidden-attributes"></a>
-## Hidden Attributes
-
-Hide attributes when converting to array or JSON:
-
-```php
-class User extends Facile
-{
-    public static $hidden = ['password', 'remember_token'];
-}
-
-$user = User::find(1);
-
-// password and remember_token do not appear
-$array = $user->to_array();
-$json = $user->to_json();
-
-echo json_encode($user); // Same as to_json()
-```
-
-Instead of listing what to hide, you can list what to keep with `$visible`. When it is not
-empty it wins over `$hidden`:
-
-```php
-class User extends Facile
-{
-    public static $visible = ['id', 'name'];
-}
-```
-
-Both lists can be overridden for a single instance:
-
-```php
-$user->make_visible('password')->to_array();   // show it just this once
-$user->make_hidden('email')->to_array();       // hide it just this once
-$user->append('full_name')->to_array();        // append an accessor just this once
-```
-
-<a id="attribute-casting"></a>
-## Attribute Casting
-
-`$casts` turns raw database values into native PHP types when you read them, and serializes
-them back when you write them. It also smooths over the differences between drivers, since
-MySQL hands every column back as a string while SQLite does not.
-
-```php
-class Post extends Facile
-{
-    public static $casts = [
-        'active' => 'boolean',
-        'views' => 'integer',
-        'rating' => 'float',
-        'price' => 'decimal:2',
-        'options' => 'array',
-        'payload' => 'object',
-        'tags' => 'collection',
-        'published_at' => 'datetime',
-        'expires_at' => 'date',
-        'synced_at' => 'timestamp',
-    ];
-}
-
-$post = Post::find(1);
-
-$post->active;        // true, not 1 or '1'
-$post->options;       // ['a' => 1], not '{"a":1}'
-$post->published_at;  // a Carbon instance
-$post->price;         // '10.50'
-
-// Assigning an array is encoded back into JSON on its own
-$post->options = ['a' => 2];
-$post->save();
-```
-
-Supported types: `int`, `integer`, `real`, `float`, `double`, `decimal:<digits>`, `string`,
-`bool`, `boolean`, `object`, `array`, `json`, `collection`, `date`, `datetime` and `timestamp`.
-
-In `to_array()` and `to_json()`, a `datetime` cast is written back out using `$date_format`,
-which defaults to `Y-m-d H:i:s`.
-
-<a id="model-helpers"></a>
-## Model Helpers
-
-```php
-// Find it or make an unsaved instance
-$user = User::first_or_new(['email' => 'budi@site.com']);
-
-// Find it or create it
-$user = User::first_or_create(['email' => 'budi@site.com'], ['name' => 'Budi']);
-
-// Update it or create it
-$user = User::update_or_create(['email' => 'budi@site.com'], ['name' => 'Budi']);
-
-// Several records at once
-$users = User::find_many([1, 2, 3]);
-
-// Delete by primary key, returns how many were deleted
-User::destroy([1, 2]);
-
-// Where on the primary key
-User::where_key(1)->first();
-User::where_key_not(1)->get();
-
-// Reload this very instance from the database (fresh() returns a new one instead)
-$user->refresh();
-
-// An unsaved copy, without the primary key and the timestamps
-$copy = $user->replicate();
-
-// Is it the very same record?
-$user->is($other);
-$user->is_not($other);
-
-// Touch the timestamps without changing anything else
-$user->touch();
-
-// Move a column of this very record
-$post->increment('views');
-$post->decrement('stock', 2);
-
-// What changed on the last save()?
-$user->was_changed();
-$user->was_changed('email');
-$user->get_original('email');
-
-// One chunk at a time, models included
-User::chunk(100, function ($users) {
-    foreach ($users as $user) {
-        // ..
-    }
-});
-
-User::each(function ($user) {
-    // ..
-});
-
-// Exactly one, complains when there is none or more than one
-$user = User::where('email', '=', 'budi@site.com')->sole();
-
-// Only apply the filter when it was actually asked for
-$users = User::when($role, function ($query, $role) {
-    return $query->where('role', '=', $role);
-})->get();
-```
-
-<a id="relationship-queries"></a>
-## Relationship Queries
-
-Filter the parent models by what their relationship holds, without loading anything:
-
-```php
-// Users that own at least one post
-$users = User::has('posts')->get();
-
-// Users that own no post at all
-$users = User::doesnt_have('posts')->get();
-
-// Users that own at least three posts
-$users = User::has('posts', '>=', 3)->get();
-
-// Users that own at least one published post
-$users = User::where_has('posts', function ($query) {
-    $query->where('published', '=', 1);
-})->get();
-
-// The same thing, for a single condition
-$users = User::where_relation('posts', 'published', '=', 1)->get();
-
-// The operator can be left out for an equality check, or_where_relation() joins it with OR
-$users = User::where('role', '=', 'admin')
-    ->or_where_relation('posts', 'title', 'Hello World')
-    ->get();
-
-// Select the number of posts as a 'posts_count' column
-foreach (User::with_count('posts')->get() as $user) {
-    echo $user->name . ': ' . $user->posts_count;
-}
-```
-
-All of them compile into a correlated subquery, so no extra round trip is made:
-
-```sql
-SELECT * FROM "users" WHERE EXISTS (
-    SELECT 1 FROM "posts" WHERE "posts"."user_id" = "users"."id"
-)
-```
-
-Supported for `has_one`, `has_many`, `belongs_to`, `belongs_to_many`, `morph_one`,
-`morph_many` and `has_many_through`. The polymorphic `morph_to` and `morph_to_many` raise a
-clear exception instead, because they cannot be correlated with a single table.
-
-To filter by the parent a model belongs to, hand the parent model itself to `where_belongs_to()`.
-It reads the foreign key from the `belongs_to` relationship, so it does not have to be repeated:
-
-```php
-// Posts written by this user, through the user() relationship
-$posts = Post::where_belongs_to($user)->get();
-
-// SQL: SELECT * FROM "posts" WHERE "posts"."user_id" = ?
-
-// Posts written by any of these users
-$posts = Post::where_belongs_to(User::where('active', '=', 1)->get())->get();
-
-// SQL: SELECT * FROM "posts" WHERE "posts"."user_id" IN (?, ?, ?)
-```
-
-The relationship name is guessed from the class of the parent, so a `BlogAuthor` model is looked up
-through a `blog_author()` relationship. Pass the name as the second argument when it is different:
-
-```php
-class Post extends Facile
-{
-    public function author()
-    {
-        return $this->belongs_to('User', 'author_id');
-    }
-}
-
-$posts = Post::where_belongs_to($user, 'author')->get();
-
-// Joined with OR
-$posts = Post::where('featured', '=', 1)->or_where_belongs_to($user, 'author')->get();
-```
-
-An exception is thrown when the relationship does not exist, is not a `belongs_to` one, or points to
-a different model than the one given.
+> **Upgrading:** `$guarded` used to default to `[]` (everything assignable). Models that declare `$fillable` are unaffected; models that declare neither now accept nothing and need a `$fillable`.
 
 <a id="relationships"></a>
+
 ## Relationships
 
+Define a relationship as a method returning a relationship object. Read it as a property (`$user->posts`) to get the results, or call it as a method (`$user->posts()`) to keep building the query.
+
 <a id="one-to-one"></a>
+
 ### One To One
 
-**Setup:**
-
-```php
-// users table
-// Columns: id, name, email
-
-// phones table
-// Columns: id, user_id, number
-```
-
-**Model:**
+`has_one()` expects a `user_id` foreign key on `phones` (the lowercase parent class name + `_id`). The inverse, `belongs_to()`, derives its foreign key from the **method name** + `_id`, so `user()` uses `user_id`. Pass the foreign key as the second argument to override either:
 
 ```php
 class User extends Facile
 {
     public function phone()
     {
-        return $this->has_one('Phone');
+        return $this->has_one('Phone'); // or has_one('Phone', 'custom_user_id')
     }
 }
 
@@ -937,100 +508,38 @@ class Phone extends Facile
         return $this->belongs_to('User');
     }
 }
-```
 
-**Usage:**
-
-```php
-$user = User::find(1);
-$phone = $user->phone; // Get phone belonging to user
-
-echo $phone->number;
-
-// Inverse relation
-$phone = Phone::find(1);
-$user = $phone->user; // Get user from phone
-
-echo $user->name;
-```
-
-**Custom foreign key:**
-
-```php
-public function phone()
-{
-    return $this->has_one('Phone', 'custom_user_id');
-}
+echo User::find(1)->phone->number;
+echo Phone::find(1)->user->name;
 ```
 
 <a id="one-to-many"></a>
+
 ### One To Many
-
-**Setup:**
-
-```php
-// users table
-// Columns: id, name
-
-// posts table
-// Columns: id, user_id, title, content
-```
-
-**Model:**
 
 ```php
 class User extends Facile
 {
     public function posts()
     {
-        return $this->has_many('Post');
+        return $this->has_many('Post'); // posts.user_id
     }
 }
 
-class Post extends Facile
-{
-    public function user()
-    {
-        return $this->belongs_to('User');
-    }
-}
-```
-
-**Usage:**
-
-```php
-$user = User::find(1);
-$posts = $user->posts; // Array of Post objects
-
-foreach ($posts as $post) {
+foreach ($user->posts as $post) {
     echo $post->title;
 }
 
-// With query builder
 $posts = $user->posts()->where('published', '=', 1)->get();
-
-// Inverse
-$post = Post::find(1);
-$user = $post->user;
 ```
+
+The inverse is `belongs_to('User')` on `Post`, as above.
 
 <a id="many-to-many"></a>
+
 ### Many To Many
 
-**Setup:**
-
-```php
-// users table
-// Columns: id, name
-
-// roles table
-// Columns: id, name
-
-// role_user pivot table
-// Columns: user_id, role_id
-```
-
-**Model:**
+`belongs_to_many()` uses a pivot table named after both models in alphabetical order (`role_user`, with `user_id` and `role_id`). Pass the table and the two keys to override:
 
 ```php
 class User extends Facile
@@ -1038,55 +547,22 @@ class User extends Facile
     public function roles()
     {
         return $this->belongs_to_many('Role');
+        // or belongs_to_many('Role', 'user_roles', 'user_id', 'role_id')
     }
 }
 
-class Role extends Facile
-{
-    public function users()
-    {
-        return $this->belongs_to_many('User');
-    }
-}
-```
-
-**Usage:**
-
-```php
-$user = User::find(1);
-$roles = $user->roles;
-
-foreach ($roles as $role) {
+foreach ($user->roles as $role) {
     echo $role->name;
 }
 ```
 
-**Custom pivot table:**
-
-```php
-public function roles()
-{
-    return $this->belongs_to_many('Role', 'user_roles', 'user_id', 'role_id');
-}
-```
+Define `belongs_to_many('User')` on `Role` for the inverse.
 
 <a id="has-many-through"></a>
+
 ### Has Many Through
 
-**Setup:**
-
-```php
-// countries table
-// Columns: id, name
-
-// users table
-// Columns: id, country_id, name
-
-// posts table
-// Columns: id, user_id, title
-```
-
-**Model:**
+Reach distant records through an intermediate model, e.g. a country's posts through its users (`users.country_id`, `posts.user_id`):
 
 ```php
 class Country extends Facile
@@ -1096,43 +572,22 @@ class Country extends Facile
         return $this->has_many_through('Post', 'User');
     }
 }
+
+$posts = Country::find(1)->posts;
 ```
 
-**Usage:**
-
-```php
-$country = Country::find(1);
-$posts = $country->posts; // All posts from users in country
-```
+The keys can be overridden: `has_many_through($model, $through, $first_key, $second_key, $local_key, $second_local_key)`.
 
 <a id="polymorphic-relations"></a>
+
 ### Polymorphic Relations
 
-**Morph One / Many:**
+A polymorphic relation lets one model belong to several others through a `{name}_id` and `{name}_type` column pair. Use `morph_many()` (or `morph_one()` for a single record) on the parents and `morph_to()` on the child:
 
 ```php
-// posts table
-// Columns: id, title
+// comments: id, commentable_id, commentable_type, content
 
-// videos table
-// Columns: id, title
-
-// comments table
-// Columns: id, commentable_id, commentable_type, content
-```
-
-**Model:**
-
-```php
 class Post extends Facile
-{
-    public function comments()
-    {
-        return $this->morph_many('Comment', 'commentable');
-    }
-}
-
-class Video extends Facile
 {
     public function comments()
     {
@@ -1147,310 +602,303 @@ class Comment extends Facile
         return $this->morph_to('commentable');
     }
 }
+
+$comments = Post::find(1)->comments;
+$parent = Comment::find(1)->commentable; // a Post, Video, ...
 ```
 
-**Usage:**
+<a id="relationship-queries"></a>
+<a id="querying-relationships"></a>
+
+## Querying Relationships
+
+Filter parent models by their relationships without loading them. Each method compiles into a correlated subquery, so no extra round trip is made:
 
 ```php
-$post = Post::find(1);
-$comments = $post->comments;
+User::has('posts')->get();                 // at least one post
+User::has('posts', '>=', 3)->get();        // at least three
+User::doesnt_have('posts')->get();         // none (alias: where_doesnt_have)
 
-$comment = Comment::find(1);
-$parent = $comment->commentable; // Can be Post or Video
-```
+User::where_has('posts', function ($query) {
+    $query->where('published', '=', 1);
+})->get();
 
-<a id="eager-loading"></a>
-## Eager Loading
+User::where_relation('posts', 'published', '=', 1)->get(); // single condition
+User::where('role', '=', 'admin')
+    ->or_where_relation('posts', 'title', 'Hello World')   // operator optional, OR-joined
+    ->get();
 
-Solve N+1 query problem:
-
-```php
-// BAD: N+1 queries
-$posts = Post::all();
-
-foreach ($posts as $post) {
-    echo $post->user->name; // Query for each post
-}
-
-// GOOD: 2 queries (posts + users)
-$posts = Post::with('user')->get();
-
-foreach ($posts as $post) {
-    echo $post->user->name; // Already loaded
+foreach (User::with_count('posts')->get() as $user) {
+    echo $user->posts_count;
 }
 ```
 
-**Multiple relations:**
-
-```php
-$posts = Post::with(['user', 'comments'])->get();
+```sql
+SELECT * FROM "users" WHERE EXISTS (
+    SELECT 1 FROM "posts" WHERE "posts"."user_id" = "users"."id"
+)
 ```
 
-**Nested eager loading:**
+`or_has()` is the OR-joined form of `has()`. These work with `has_one`, `has_many`, `belongs_to`, `belongs_to_many`, `morph_one`, `morph_many` and `has_many_through`; `morph_to` and `morph_to_many` throw an exception because they can't be correlated with a single table.
+
+`where_belongs_to()` filters by a parent model (or a collection of them), reading the foreign key from the `belongs_to` relationship. The relationship name is guessed from the parent's class (`BlogAuthor` → `blog_author()`); pass it as the second argument otherwise:
 
 ```php
-$posts = Post::with(['user', 'comments.user'])->get();
+$posts = Post::where_belongs_to($user)->get();
+// WHERE "posts"."user_id" = ?
 
-foreach ($posts as $post) {
-    echo $post->user->name;
+$posts = Post::where_belongs_to(User::where('active', '=', 1)->get())->get();
+// WHERE "posts"."user_id" IN (?, ?, ?)
 
-    foreach ($post->comments as $comment) {
-        echo $comment->user->name; // Already loaded
-    }
-}
+$posts = Post::where_belongs_to($user, 'author')->get();
+$posts = Post::where('featured', '=', 1)->or_where_belongs_to($user, 'author')->get();
 ```
 
-**Auto eager loading:**
-
-```php
-class Post extends Facile
-{
-    public $with = ['user', 'category'];
-}
-
-// Automatically eager load user and category
-$posts = Post::all();
-```
-
-When every key of the parent models is an integer, the eager load query writes them straight into the
-SQL (`WHERE "user_id" IN (1, 2, 3)`) instead of binding one parameter per key. A large result set then
-does not run into the bound parameter limit of the driver. Whether the keys come back as integers
-depends on the PDO driver and the PHP version, for example SQLite only does so on PHP 8.1 and newer,
-and SQL Server returns them as strings by default. String keys, and the id column of the polymorphic
-relationships, keep using bound parameters.
-
-<a id="constraining-eager-loading"></a>
-## Constraining Eager Loading
-
-```php
-// Eager load with constraint
-$users = User::with([
-    'posts' => function ($query) {
-        $query->where('published', '=', 1)
-              ->order_by('created_at', 'desc');
-    }
-])->get();
-
-// Multiple constraints
-$users = User::with([
-    'posts' => function ($query) {
-        $query->where('votes', '>', 100);
-    },
-    'comments' => function ($query) {
-        $query->where('approved', '=', 1);
-    }
-])->get();
-```
+An exception is thrown when the relationship doesn't exist, isn't a `belongs_to`, or points to a different model.
 
 <a id="inserting-related-models"></a>
+
 ## Inserting Related Models
 
-**Has One / Has Many:**
+On `has_one` / `has_many`, `insert()` takes an array or a model, sets the foreign key and saves it. `save()` does the same for one model or an array of them (inserting or updating each according to whether it exists) and returns `false` if any save fails:
 
 ```php
-$user = User::find(1);
+$post = $user->posts()->insert(['title' => 'New Post']);
 
-// Create and attach
-$post = $user->posts()->insert([
-    'title' => 'New Post',
-    'content' => 'Post content...',
-]);
-
-// Or with instance
 $post = new Post;
 $post->title = 'Another Post';
-$post->content = 'Content...';
-
 $user->posts()->save($post);
+
+$user->profile()->save(new Profile(['bio' => 'Hello'])); // has_one
 ```
 
-**Many To Many:**
+On `belongs_to_many`, manage the pivot rows. `attach()` and `detach()` accept an id or a model (`detach()` also an array):
 
 ```php
-$user = User::find(1);
-$role = Role::find(2);
+$user->roles()->attach($role_id);
+$user->roles()->detach($role_id);
+$user->roles()->sync([1, 2, 3]);   // attach missing, detach the rest
+$user->roles()->delete();          // detach all
 
-// Attach role to user (insert into pivot table)
-$user->roles()->attach($role->id);
-
-// Attach multiple
-foreach ([1, 2, 3] as $role_id) {
-    $user->roles()->attach($role_id);
-}
-
-// Detach
-$user->roles()->detach($role->id);
-
-// Detach all
-$user->roles()->delete();
-
-// Sync (replace all with new ones)
-$user->roles()->sync([1, 2, 3]);
+$user->roles()->insert(['name' => 'Editor']); // create the role and attach it
 ```
 
 <a id="working-with-pivot-tables"></a>
-## Working with Pivot Tables
+<a id="pivot-tables"></a>
 
-**Pivot table with extra columns:**
+### Pivot Tables
 
-```php
-// role_user table
-// Columns: user_id, role_id, expires_at, created_by
-```
-
-**Access pivot data:**
-
-A pivot column other than the two keys is read only when you ask for it:
+The pivot table only needs the two key columns. Extra columns are read only when requested with `with()`, and are available on `->pivot`; write them with the second argument of `attach()`:
 
 ```php
-$user = User::find(1);
-
 foreach ($user->roles()->with(['expires_at', 'created_by'])->get() as $role) {
     echo $role->pivot->expires_at;
-    echo $role->pivot->created_by;
 }
-```
 
-> The pivot table needs nothing but the two key columns. Ask for `id`,
-> `created_at` or anything else the same way. To have `attach()` fill timestamps
-> on every pivot table, set `System\Database\Facile\Pivot::$timestamps = true`
-> in `application/boot.php` — the columns have to exist for that to work.
-
-**Insert with pivot data:**
-
-```php
 $user->roles()->attach($role_id, [
     'expires_at' => '2024-12-31',
     'created_by' => Auth::user()->id,
 ]);
 ```
 
-<a id="converting-to-array--json"></a>
-## Converting to Array & JSON
+> To have `attach()` fill `created_at`/`updated_at` on every pivot table, set `System\Database\Facile\Pivot::$timestamps = true` in `application/boot.php`. The columns must exist.
+
+<a id="eager-loading"></a>
+
+## Eager Loading
+
+Reading a relationship inside a loop runs one query per row (the "N+1" problem). `with()` loads it for all rows up front in one extra query:
 
 ```php
-$user = User::find(1);
+$posts = Post::with('user')->get(); // 2 queries in total
 
-// To array
-$array = $user->to_array();
+foreach ($posts as $post) {
+    echo $post->user->name;
+}
 
-// To JSON
-$json = $user->to_json();
-
-// Or directly encode
-echo json_encode($user);
-
-// Array with relationships
-$user = User::with('posts')->find(1);
-$array = $user->to_array();
-
-/*
-[
-    'id' => 1,
-    'name' => 'John',
-    'posts' => [
-        ['id' => 1, 'title' => 'Post 1'],
-        ['id' => 2, 'title' => 'Post 2'],
-    ]
-]
-*/
+$posts = Post::with(['user', 'comments.user'])->get(); // several and nested
 ```
 
-<a id="global-scopes"></a>
-## Global Scopes
+Relations listed in the model's `$with` property are always eager loaded.
 
-Global scope is applied to all queries for the model:
+> When all parent keys are integers they are written straight into the SQL (`IN (1, 2, 3)`) instead of being bound, so large result sets don't hit the driver's bound-parameter limit. Whether keys come back as integers depends on the PDO driver and PHP version (SQLite only on PHP 8.1+, SQL Server returns strings by default). String keys and polymorphic id columns always use bound parameters.
+
+<a id="constraining-eager-loading"></a>
+<a id="constraining-eager-loads"></a>
+
+### Constraining Eager Loads
+
+Pass a Closure as the value to add constraints to the eager load query:
+
+```php
+$users = User::with([
+    'posts' => function ($query) {
+        $query->where('published', '=', 1)->order_by('created_at', 'desc');
+    },
+    'comments',
+])->get();
+```
+
+<a id="accessor--mutator"></a>
+<a id="accessor"></a>
+<a id="mutator"></a>
+<a id="accessors--mutators"></a>
+
+## Accessors & Mutators
+
+A `get_{attribute}` method runs when the attribute is read and receives the raw value; it can also define a computed attribute. A `set_{attribute}` method runs when the attribute is assigned and must store the value with `set_attribute()`:
 
 ```php
 class User extends Facile
 {
-    protected static $global_scopes = [];
-
-    public static function boot()
+    public function get_name($value)
     {
-        parent::boot();
+        return ucwords($value);
+    }
 
-        // Add global scope
-        static::add_global_scope('active', function ($query) {
-            $query->where('active', '=', 1);
-        });
+    public function get_full_name()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function set_password($value)
+    {
+        $this->set_attribute('password', Hash::make($value));
     }
 }
 
-// All queries automatically filtered active = 1
-$users = User::all();
-$user = User::find(1);
-
-// Remove global scope (for every query that follows)
-User::remove_global_scope('active');
-$all_users = User::all();
+echo $user->full_name;
+$user->password = 'secret123'; // stored hashed
 ```
 
-**Built-in soft delete scope:**
+<a id="attribute-casting"></a>
 
-When `$soft_delete = true`, automatically has scope `WHERE deleted_at IS NULL`.
+## Attribute Casting
+
+`$casts` converts raw database values to native PHP types on read and serializes them back on write. It also evens out driver differences (MySQL returns every column as a string, SQLite does not):
 
 ```php
-$users = User::all(); // Only non-deleted
+class Post extends Facile
+{
+    public static $casts = [
+        'active' => 'boolean',
+        'views' => 'integer',
+        'price' => 'decimal:2',
+        'options' => 'array',
+        'tags' => 'collection',
+        'published_at' => 'datetime',
+    ];
+}
 
-$all = User::with_trashed()->get(); // Including deleted
+$post->active;       // true, not '1'
+$post->options;      // ['a' => 1], not '{"a":1}'
+$post->published_at; // a Carbon instance
+$post->price;        // '10.50'
 
-$deleted = User::only_trashed()->get(); // Only deleted
+$post->options = ['a' => 2]; // encoded back to JSON
+```
+
+Supported types: `int`, `integer`, `real`, `float`, `double`, `decimal:<digits>`, `string`, `bool`, `boolean`, `object`, `array`, `json`, `collection`, `date`, `datetime` and `timestamp`.
+
+<a id="hidden-attributes"></a>
+<a id="converting-to-array--json"></a>
+<a id="serialization"></a>
+
+## Serialization
+
+`to_array()`, `to_json()` and `json_encode($model)` convert a model, including loaded relationships and casts (dates are formatted with `$date_format`):
+
+```php
+$array = User::with('posts')->find(1)->to_array();
+// ['id' => 1, 'name' => 'John', 'posts' => [['id' => 1, 'title' => 'Post 1'], ..]]
+```
+
+`$hidden` lists attributes to leave out; `$visible`, when not empty, is a whitelist that wins over `$hidden`. `$appends` adds accessors to the output:
+
+```php
+class User extends Facile
+{
+    public static $hidden = ['password', 'remember_token'];
+    public static $appends = ['full_name'];
+}
+```
+
+Override them for a single instance:
+
+```php
+$user->make_visible('password')->to_array();
+$user->make_hidden('email')->to_array();
+$user->append('full_name')->to_array();
+```
+
+<a id="model-validation"></a>
+<a id="validation"></a>
+
+## Validation
+
+Define `$rules` (and optionally `$messages`), then call `is_valid()`. The validator is available in `$model->validation`:
+
+```php
+class User extends Facile
+{
+    public static $rules = [
+        'name' => 'required|min:3|max:100',
+        'email' => 'required|email|unique:users',
+    ];
+
+    public static $messages = [
+        'required' => ':attribute is required',
+    ];
+}
+
+$user = new User(Input::all()); // or $user->fill(...) on an existing model
+
+if (! $user->is_valid()) {
+    return Redirect::back()->with_input()->with_errors($user->validation);
+}
+
+$user->save();
 ```
 
 <a id="model-events"></a>
 
 ## Model Events
 
-A model announces every step of its life, so work that belongs beside a save can
-live away from the code doing the saving:
+A model fires an event at each step of its life:
 
 | Event | When |
 | --- | --- |
 | `retrieved` | A row has just been read into a model |
-| `saving` | Before a save of any kind |
-| `creating` | Before the insert |
-| `created` | After the insert |
-| `updating` | Before the update |
-| `updated` | After the update |
-| `saved` | After a save of any kind |
-| `deleting` | Before the delete |
-| `deleted` | After the delete |
-| `restoring` | Before a soft deleted row is brought back |
-| `restored` | After it is back |
+| `saving` / `saved` | Before / after any save |
+| `creating` / `created` | Before / after an insert |
+| `updating` / `updated` | Before / after an update |
+| `deleting` / `deleted` | Before / after a delete |
+| `restoring` / `restored` | Before / after a soft-deleted row is restored |
 | `replicating` | On the copy made by `replicate()` |
 
-Listen for one by handing its name a closure. The model is handed to it:
+Listen by calling the event name statically with a Closure that receives the model:
 
 ```php
 User::creating(function ($user) {
     $user->uuid = Str::uuid();
 });
-
-User::deleted(function ($user) {
-    Log::info('Pengguna dihapus: ' . $user->id);
-});
 ```
 
-The same listeners can be registered through `Hook`, which is what the model
-does underneath. Name the model to watch one of them, or leave it out to watch
-every model:
+Underneath these are [hooks](/docs/hooks), so you can also listen to one model or to every model:
 
 ```php
-Hook::listen('facile.creating: User', function ($user) {
-    // ..
-});
-
-Hook::listen('facile.creating', function ($model) {
-    // every model
-});
+Hook::listen('facile.creating: User', function ($user) { /* .. */ });
+Hook::listen('facile.creating', function ($model) { /* every model */ });
 ```
 
-### Calling an Operation Off
+> `retrieved` fires once per row a query returns. Events nobody listens to cost nothing.
 
-A listener of `saving`, `creating`, `updating`, `deleting` or `restoring` that
-answers with `FALSE` calls the operation off. Nothing is written, and `save()`
-or `delete()` answers `FALSE`:
+<a id="calling-an-operation-off"></a>
+<a id="cancelling-an-operation"></a>
+
+### Cancelling an Operation
+
+Return exactly `false` from a `saving`, `creating`, `updating`, `deleting` or `restoring` listener to cancel the operation: nothing is written and `save()` / `delete()` return `false`. All listeners still run:
 
 ```php
 User::deleting(function ($user) {
@@ -1459,17 +907,14 @@ User::deleting(function ($user) {
     }
 });
 
-$admin->delete(); // FALSE, and the row is still there
+$admin->delete(); // false, row still there
 ```
 
-Only an answer of exactly `FALSE` does it, so a listener that happens to return
-something else changes nothing. Every listener of the event runs, and the
-operation is called off if any of them said so.
+<a id="booting"></a>
 
 ### Booting
 
-`boot()` is the place for a model to register its own listeners. It runs once,
-the first time a model of that class is made:
+`boot()` runs once, the first time a model of that class is instantiated, and is the place for a model to register its own listeners and global scopes:
 
 ```php
 class User extends Facile
@@ -1483,17 +928,11 @@ class User extends Facile
 }
 ```
 
-> `retrieved` is fired for every row a query brings back, so a listener for it
-> runs as many times as there are rows. An event nobody listens for costs
-> nothing, so the ones you do not use are free.
-
 <a id="observers"></a>
 
 ## Observers
 
-A model with several listeners is easier to read when they live together in one
-class. Name a method after an event and it is listened for; name it anything
-else and it is left alone:
+An observer groups a model's listeners into one class: each method named after an event is registered, other methods are ignored. Generate one with `php rakit make:observer user`; it lives in `application/observers/` and is named after the file with an `_Observer` suffix (package observers carry the package prefix, e.g. `Blog_Post_Observer` in `packages/blog/observers/post.php`):
 
 ```php
 // application/observers/user.php
@@ -1507,30 +946,47 @@ class User_Observer
 
     public function deleted($user)
     {
-        Log::info('Pengguna dihapus: ' . $user->id);
+        Log::info('User deleted: ' . $user->id);
     }
 }
 ```
 
-`php rakit make:observer user` writes that file for you. The class is named
-after the file with `_Observer` behind it, the same way a controller is named
-`User_Controller`, and the autoloader finds it in the `observers` directory on
-its own. An observer of a package carries the package name in front, so
-`Blog_Post_Observer` is read from `packages/blog/observers/post.php`.
-
-Register it while the application boots:
+Register it (by class name or instance) while the application boots. Returning `false` cancels an operation just like a Closure listener:
 
 ```php
 // application/boot.php
 
-User::observe('User_Observer');
+User::observe('User_Observer'); // or User::observe(new User_Observer())
 ```
 
-An instance works as well as a class name:
+<a id="model-helpers"></a>
+
+## Model Helpers
 
 ```php
-User::observe(new User_Observer());
-```
+// Where on the primary key (accepts an array too)
+User::where_key(1)->first();
+User::where_key_not(1)->get();
 
-An observer method calls the operation off the same way a closure does, by
-answering with `FALSE`.
+// Reload this instance from the database (fresh() returns a new instance instead)
+$user->refresh();
+
+// Unsaved copy without the primary key and timestamps
+$copy = $user->replicate();
+
+// Same record?
+$user->is($other);
+$user->is_not($other);
+
+// Update only the timestamps
+$user->touch();
+
+// Increment / decrement a column of this record
+$post->increment('views');
+$post->decrement('stock', 2);
+
+// What changed on the last save()?
+$user->was_changed();
+$user->was_changed('email');
+$user->get_original('email');
+```

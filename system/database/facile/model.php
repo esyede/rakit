@@ -1671,9 +1671,13 @@ abstract class Model implements \JsonSerializable
 
             if (static::$soft_delete) { // Soft delete
                 $this->deleted_at = Carbon::now()->format(static::$date_format);
-                $this->query()
-                    ->where(static::$key, '=', $this->get_key())
-                    ->update(['deleted_at' => $this->deleted_at]);
+                $values = ['deleted_at' => $this->deleted_at];
+
+                if (static::$timestamps) {
+                    $this->updated_at = $values['updated_at'] = $this->deleted_at;
+                }
+
+                $this->query()->where(static::$key, '=', $this->get_key())->update($values);
                 $this->exists = false;
                 $this->fire_model_event('deleted');
             } else { // Hard delete
@@ -1728,7 +1732,7 @@ abstract class Model implements \JsonSerializable
                 return false;
             }
 
-            $result = $this->query(true)->where(static::$key, '=', $this->get_key())->delete();
+            $result = $this->query(true)->where(static::$key, '=', $this->get_key())->force_delete();
             $this->fire_model_event('deleted');
 
             return $result;
@@ -1792,7 +1796,8 @@ abstract class Model implements \JsonSerializable
      */
     public static function only_trashed()
     {
-        return (new static())->query(true)->where_not_null('deleted_at');
+        $model = new static();
+        return $model->query(true)->where_not_null($model->table().'.deleted_at');
     }
 
     /**
@@ -1900,7 +1905,7 @@ abstract class Model implements \JsonSerializable
         $query = \System\Database::connection($this->connection())->table($this->table());
 
         if (! $with_trashed && static::$soft_delete) {
-            $query->where_null('deleted_at');
+            $query->where_null($this->table().'.deleted_at');
         }
 
         return $this->apply_scopes($query);

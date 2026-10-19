@@ -128,8 +128,14 @@ abstract class Driver
 
     /**
      * Logout the user from the application.
+     *
+     * By default the whole session is invalidated (data dropped, new ID, new CSRF token).
+     * Pass false to keep the session data: only the login is forgotten and the session ID
+     * is regenerated to prevent fixation; the CSRF token is kept.
+     *
+     * @param bool $invalidate
      */
-    public function logout()
+    public function logout($invalidate = true)
     {
         $user = $this->user();
 
@@ -141,7 +147,13 @@ abstract class Driver
 
         $this->cookie($this->recaller(), '', -2628000);
         Session::forget($this->token());
-        Session::invalidate();
+
+        if ($invalidate) {
+            Session::invalidate();
+        } else {
+            Session::regenerate();
+        }
+
         Hook::fire('rakit.auth: logout');
 
         $this->token = null;

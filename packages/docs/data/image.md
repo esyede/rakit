@@ -2,359 +2,182 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
--   [Basic Knowledge](#basic-knowledge)
--   [Loading Images](#loading-images)
--   [Image Manipulation](#image-manipulation)
-    -   [Resize Images](#resize-images)
-    -   [Rotation & Cropping](#rotation-and-cropping)
-    -   [Watermark](#watermark)
--   [Image Effects](#image-effects)
-    -   [Brightness, Contrast & Smoothness](#brightness-contrast-and-smoothness)
-    -   [Blur & Grayscale](#blur-and-grayscale)
-    -   [Other Effects](#other-effects)
--   [Image Export](#image-export)
--   [Additional Features](#additional-features)
-    -   [Image Info](#viewing-image-info)
-    -   [Preview to Browser](#preview-to-browser)
-    -   [Identicon](#creating-identicon)
+-   [Introduction](#introduction)
+-   [Opening an Image](#opening-an-image)
+-   [Resizing and Cropping](#resizing-and-cropping)
+-   [Watermark](#watermark)
+-   [Effects](#effects)
+-   [Saving and Output](#saving-and-output)
+    -   [Saving to a File](#saving-to-a-file)
+    -   [Sending to the Browser](#sending-to-the-browser)
+    -   [Image Info](#image-info)
+-   [Identicon](#identicon)
+-   [Other Methods](#other-methods)
+-   [Example](#example)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-`Image` resizes, crops and re-encodes images, which is what an oversized upload
-usually needs before it is stored.
+`Image` resizes, crops, filters and re-encodes JPG, PNG and GIF images, which is
+what an oversized upload usually needs before it is stored.
 
 > This component requires the [PHP GD](https://www.php.net/manual/en/book.image.php) extension.
-> Make sure this extension is active on your server.
 
+<a id="opening-an-image"></a>
 <a id="loading-images"></a>
 
-## Loading Images
+## Opening an Image
 
-`open()` loads the image to work on.
-
-#### Loading a target image:
+`open()` loads the image. The optional second argument is the JPG export quality,
+`0` to `100` (default `75`):
 
 ```php
 $image = Image::open('assets/images/test.jpg');
+$image = Image::open('assets/images/test.jpg', 90);
 ```
 
-The second parameter is the export quality, `0` to `100`, defaulting to `75`.
+All paths in this component are relative to the project root (`path('base')`).
+Manipulation methods return the instance, so they can be chained.
 
-#### Loading and setting image quality:
-
-```php
-$image = Image::open('assets/images/test.jpg', 90); // High quality
-```
-
-Supported image formats: **JPG**, **PNG**, **GIF**
-
+<a id="resizing-and-cropping"></a>
 <a id="image-manipulation"></a>
-
-## Image Manipulation
-
-As explained above, several methods are provided for manipulating images,
-starting from setting quality, setting width, height, cropping, rotation, and adding effects to images.
-
-Ready, right? Let's try!
-
 <a id="resize-images"></a>
-
-### Resize Images
-
-When handling image uploads, you certainly want to save the image file to a smaller size to save storage space.
-
-#### Setting image width:
-
-```php
-$image->width(100); // 100 pixels
-```
-
-#### Setting image height:
-
-```php
-$image->height(100); // 100 pixels
-```
-
-> Both methods keep the aspect ratio: `width()` recalculates the height proportionally, and `height()` recalculates the width.
-
 <a id="rotation-and-cropping"></a>
 
-### Rotation & Cropping
-
-An upload is not always upright, least of all a photo from a phone camera.
-
-#### Rotating image position:
+## Resizing and Cropping
 
 ```php
-$image->rotate(90); // rotate 90 degrees
-
-$image->rotate(180); // rotate 180 degrees
+$image->width(800);              // height follows, keeping the aspect ratio
+$image->height(600);             // width follows, keeping the aspect ratio
+$image->rotate(90);              // multiples of 90 only, counter-clockwise
+$image->crop(50, 20, 100, 100);  // left, top, width, height
+$image->ratio(16, 9);            // crop from the center to 16:9
 ```
 
-> The `rotate()` method only accepts values in multiples of 90.
-
-#### Crop image
-
-Cropping comes in two forms, manual and ratio-based.
-
-```php
-$left = 50;   // Starting X position for crop
-$top = 20;    // Starting Y position for crop
-$width = 100; // Crop area width
-$height = 100; // Crop area height
-
-$image->crop($left, $top, $width, $height);
-```
-
-Ratio-based cropping works out the position itself, keeping the image proportional:
-
-```php
-$width = 16;  // Width ratio
-$height = 9;  // Height ratio
-
-$image->ratio($width, $height); // Crop to 16:9 ratio
-```
-
-Common ratio examples:
-- `1:1` - Square (for avatars, Instagram)
-- `16:9` - Widescreen (for videos, banners)
-- `4:3` - Standard (for classic photos)
-- `21:9` - Ultrawide (for cinema)
+`rotate()` throws an exception for an angle that is not a multiple of 90, and
+`crop()` throws one if the area falls outside the image.
 
 <a id="watermark"></a>
 
-### Watermark
+## Watermark
 
-A watermark goes in the bottom right corner, 10 pixels from the edges:
+The watermark (JPG, PNG or GIF, PNG transparency kept) is placed in the bottom right
+corner, 10 pixels from the edges:
 
 ```php
 $image->watermark('assets/images/watermark.png');
 ```
 
-> Watermark images can be JPG, PNG or GIF. PNG images with transparency (alpha channel) are supported.
-
+<a id="effects"></a>
 <a id="image-effects"></a>
-
-## Image Effects
-
-An upload may come out too dim or too bright, and a few effects are available besides.
-
 <a id="brightness-contrast-and-smoothness"></a>
-
-### Brightness, Contrast & Smoothness
-
-Brightness, contrast and smoothness are each a single call.
-
-#### Setting brightness:
-
-```php
-$image->brightness(40);  // Value: -100 to 100 (0 = normal)
-```
-
-Positive values will make the image brighter, negative values darker.
-
-#### Setting contrast:
-
-```php
-$image->contrast(80);    // Value: -100 to 100 (0 = normal)
-```
-
-Positive values will increase contrast, negative values decrease contrast.
-
-#### Setting smoothness:
-
-```php
-$image->smoothness(5);   // Value: -100 to 100
-```
-
-Higher values will make the image smoother (useful for reducing noise).
-
 <a id="blur-and-grayscale"></a>
-
-### Blur & Grayscale
-
-You can add blur (blurring) and grayscale (black and white) effects to the image.
-
-#### Blur effect:
-
-```php
-$image->blur();         // Gaussian blur (standard blur)
-$image->blur(true);     // Selective blur (more subtle selective blur)
-```
-
-Blur effects are useful for obscuring parts of the image or adding depth of field.
-
-#### Grayscale effect:
-
-```php
-$image->grayscale();
-```
-
-Converts the image to black and white (gray scale).
-
 <a id="other-effects"></a>
 
-### Other Effects
+## Effects
 
-The remaining effects:
+| Method               | Effect                                                         |
+| -------------------- | -------------------------------------------------------------- |
+| `brightness($level)` | `-100` (darker) to `100` (brighter), `0` = unchanged           |
+| `contrast($level)`   | `-100` to `100`, `0` = unchanged                               |
+| `smoothness($level)` | `-100` to `100`, higher is smoother (reduces noise)            |
+| `pixelate($size)`    | `-100` to `100`, block size in pixels                          |
+| `blur($selective)`   | Gaussian blur, or selective blur when `true`                   |
+| `grayscale()`        | Black and white                                                |
+| `sepia()`            | Brownish vintage tone                                          |
+| `emboss()`           | Raised relief                                                  |
+| `edge()`             | Highlight edges                                                |
+| `sketch()`           | Pencil sketch look                                             |
+| `invert()`           | Negative colors                                                |
 
-#### Sepia effect:
-
-```php
-$image->sepia();
-```
-
-Provides a vintage/classic effect with brownish tones.
-
-#### Emboss effect:
-
-```php
-$image->emboss();
-```
-
-Provides a raised/relief effect on the image.
-
-#### Edge-highlight effect:
+A level outside its range throws an exception.
 
 ```php
-$image->edge();
+$image->brightness(10)->contrast(5)->grayscale();
 ```
 
-Detects and highlights edges/lines in the image.
-
-#### Sketch effect:
-
-```php
-$image->sketch();
-```
-
-Provides a pencil sketch effect on the image.
-
-#### Invert effect:
-
-```php
-$image->invert();
-```
-
-Reverses the image colors (negative).
-
-#### Pixelate effect:
-
-```php
-$image->pixelate(10);  // Parameter: pixel block size (-100 to 100)
-```
-
-Provides a pixelated/mosaic effect on the image. Larger values make larger pixels.
-
+<a id="saving-and-output"></a>
 <a id="image-export"></a>
 
-## Image Export
+## Saving and Output
 
-Save the result to a file:
+<a id="saving-to-a-file"></a>
 
-#### Saving the image result to a file:
+### Saving to a File
+
+`export()` picks the format (JPG, PNG or GIF) from the file extension. It throws an
+exception if the file already exists, unless the second argument is `true`:
 
 ```php
 $image->export('assets/images/result.jpg');
+$image->export('assets/images/result.jpg', true); // overwrite
 ```
 
-`export()` picks the format from the file extension. Supported: **JPG**, **PNG**, **GIF**.
+<a id="sending-to-the-browser"></a>
+<a id="preview-to-browser"></a>
 
-#### Overwrite existing file:
+### Sending to the Browser
+
+`dump()` returns a `Response` with the image as PNG (`Content-Type: image/png`),
+then frees the image:
 
 ```php
-// By default, it will error if the file already exists
-$image->export('assets/images/result.jpg'); // Error if file exists
-
-// Force overwrite existing file
-$image->export('assets/images/result.jpg', true);
+return $image->dump();
 ```
 
-The second parameter (`$overwrite`) is used to determine whether existing files can be overwritten.
-- `false` (default) - Will throw an exception if the file exists
-- `true` - Will overwrite the existing file without warning
-
-#### Complete manipulation example:
-
-```php
-// Open image
-$image = Image::open('uploads/photo.jpg', 85);
-
-// Resize (the height follows proportionally)
-$image->width(800);
-
-// Add watermark
-$image->watermark('assets/watermark.png');
-
-// Add effects
-$image->brightness(10);
-$image->contrast(5);
-
-// Save result
-$image->export('assets/photos/photo-processed.jpg');
-```
-
-<a id="additional-features"></a>
-
-## Additional Features
-
+<a id="image-info"></a>
 <a id="viewing-image-info"></a>
 
 ### Image Info
 
-To view detailed image information, use the `info()` method:
+`info()` returns an array with `path`, `type` (MIME type), `width`, `height`,
+`quality` and `exif` (JPG only, when the exif extension is available):
 
 ```php
 $info = $image->info();
-
-// Available information:
-// - path: Absolute path of the image file
-// - type: MIME type (image/jpeg, image/png or image/gif)
-// - width: Image width (pixels)
-// - height: Image height (pixels)
-// - quality: Export quality (0 - 100)
-// - exif: EXIF data (JPG only, if available, for photos from cameras)
 ```
 
-<a id="preview-to-browser"></a>
-
-### Preview to Browser
-
-Send the image to the browser without saving it first:
-
-```php
-// Preview manipulated image
-return $image->dump();
-```
-
-The `dump()` method answers a `Response` carrying the PNG and a
-`Content-Type: image/png` header, so returning it from a controller shows the
-image in the browser. Useful for preview or testing.
-
+<a id="identicon"></a>
+<a id="additional-features"></a>
 <a id="creating-identicon"></a>
 
-### Identicon
+## Identicon
 
-An [identicon](https://en.wikipedia.org/wiki/Identicon) is an avatar derived from a
-string:
+`Image::identicon()` builds an [identicon](https://en.wikipedia.org/wiki/Identicon)
+avatar from a string and returns the PNG bytes. The same string always gives the
+same image. Size defaults to `64` (minimum `16`); pass `true` as the third argument
+to get a `Response` instead:
 
 ```php
-// Create identicon (default 64 pixel size)
-$identicon = Image::identicon('budi');
+$png = Image::identicon('budi', 200);
+Storage::put(path('storage').'avatars/budi.png', $png);
 
-// Create identicon with custom size
-$identicon = Image::identicon('budi', 200);
-
-// Preview identicon directly to browser
 return Image::identicon('budi', 64, true);
-
-// Save identicon to file
-Storage::put(path('storage').'avatars/budi.png', $identicon);
 ```
 
-> The same string always gives the same identicon, so a default avatar needs no
-> storage of its own.
+<a id="other-methods"></a>
+
+## Other Methods
+
+| Method                        | Description                                         |
+| ----------------------------- | --------------------------------------------------- |
+| `Image::available()`          | Whether the GD extension is loaded                  |
+| `Image::acceptable($path)`    | Whether a file's MIME type is JPG, PNG or GIF       |
+| `$image->path($path)`         | Resolve a path relative to the project root         |
+| `$image->reset()`             | Free the loaded image and reset the instance        |
+
+<a id="example"></a>
+
+## Example
+
+```php
+Image::open('uploads/photo.jpg', 85)
+    ->width(800)
+    ->watermark('assets/watermark.png')
+    ->brightness(10)
+    ->export('assets/photos/photo-processed.jpg');
+```

@@ -140,6 +140,7 @@ class Query
      */
     protected $clauses = [
         'select' => [],
+        'join' => [],
         'where' => [],
         'group' => [],
         'having' => [],
@@ -323,8 +324,10 @@ class Query
     public function join($table, $column1, $operator = null, $column2 = null, $type = 'INNER')
     {
         if ($column1 instanceof \Closure) {
-            $this->joins[] = new Query\Join($type, $table);
-            call_user_func($column1, end($this->joins));
+            $join = new Query\Join($type, $table);
+            call_user_func($column1, $join);
+            $this->joins[] = $join;
+            $this->add_binding($join->bindings, 'join');
         } else {
             $this->joins[] = (new Query\Join($type, $table))->on($column1, $operator, $column2);
         }
@@ -822,22 +825,65 @@ class Query
     }
 
     /**
-     * Get a generator for the results of the query.
+     * Run the query once and stream its rows one at a time.
      *
-     * @param array $columns
-     * @param int   $chunk_size
-     *
-     * @return \Generator|array
+     * @return \Generator|\System\Database\Query\Cursor
      */
-    public function cursor($columns = ['*'], $chunk_size = 1000)
+    public function cursor()
     {
-        $columns = is_array($columns) ? $columns : [$columns];
-        // No yield before PHP 5.5.0: return the whole result set as a plain array.
-        if (PHP_VERSION_ID < 50500) {
-            return $this->get($columns)->all();
+        if (is_null($this->selects)) {
+            $this->select(['*']);
         }
 
-        return include __DIR__ . DS . 'cursor.php';
+        return $this->connection->cursor($this->grammar->select($this), $this->bindings);
+    }
+
+    /**
+     * Iterate the results lazily, fetching them in chunks with LIMIT/OFFSET.
+     *
+     * @param int $chunk_size
+     *
+     * @return \Generator|\System\Database\Query\Lazy
+     */
+    public function lazy($chunk_size = 1000)
+    {
+        $chunk_size = Query\Lazy::size($chunk_size);
+
+        $this->enforce_order_by();
+
+        return Query\Lazy::make(function ($page) use ($chunk_size) {
+            return $this->copy()->for_page($page + 1, $chunk_size)->get()->all();
+        }, $chunk_size);
+    }
+
+    /**
+     * Iterate the results lazily, fetching them in chunks by ascending ID.
+     *
+     * @param int         $chunk_size
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return \Generator|\System\Database\Query\Lazy
+     */
+    public function lazy_by_id($chunk_size = 1000, $column = null, $alias = null)
+    {
+        $chunk_size = Query\Lazy::size($chunk_size);
+        return Query\Lazy::make($this->chunks_by_id($chunk_size, $column, $alias, false, 'lazy_by_id'), $chunk_size);
+    }
+
+    /**
+     * Iterate the results lazily, fetching them in chunks by descending ID.
+     *
+     * @param int         $chunk_size
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return \Generator|\System\Database\Query\Lazy
+     */
+    public function lazy_by_id_desc($chunk_size = 1000, $column = null, $alias = null)
+    {
+        $chunk_size = Query\Lazy::size($chunk_size);
+        return Query\Lazy::make($this->chunks_by_id($chunk_size, $column, $alias, true, 'lazy_by_id_desc'), $chunk_size);
     }
 
     /**
@@ -915,7 +961,7 @@ class Query
     public function update(array $values)
     {
         $sql = $this->grammar->update($this, $values);
-        $bindings = array_merge(array_values($values), $this->clauses['where']);
+        $bindings = $this->grammar->update_bindings($this, $values, $this->clauses);
         return $this->connection->query($sql, $bindings);
     }
 
@@ -927,7 +973,7 @@ class Query
     public function delete()
     {
         $sql = $this->grammar->delete($this);
-        return $this->connection->query($sql, $this->clauses['where']);
+        return $this->connection->query($sql, $this->grammar->delete_bindings($this, $this->clauses));
     }
 
     /**
@@ -1685,10 +1731,8 @@ class Query
      */
     public function select_raw($sql, array $bindings = [])
     {
-        $this->selects = [new Expression($sql)];
-        $this->set_bindings($bindings, 'select');
-
-        return $this;
+        $this->add_select([new Expression($sql)]);
+        return $this->add_binding($bindings, 'select');
     }
 
     /**
@@ -1899,6 +1943,8 @@ class Query
      */
     public function chunk($count, $callback)
     {
+        $this->enforce_order_by();
+
         $count = (int) $count;
         $count = ($count < 1) ? 1 : $count;
         $page = 1;
@@ -1920,6 +1966,18 @@ class Query
         } while ($total === $count);
 
         return true;
+    }
+
+    /**
+     * Make sure the query is ordered, so paged reads never skip or repeat rows.
+     *
+     * @return void
+     */
+    protected function enforce_order_by()
+    {
+        if (empty($this->orderings)) {
+            throw new \RuntimeException('You must specify an order_by clause when using this function.');
+        }
     }
 
     /**
@@ -2385,44 +2443,163 @@ class Query
     }
 
     /**
-     * Chunk the results by primary key.
+     * Run the callback over the results a chunk at a time, paging by ascending ID;
+     * FALSE stops the iteration.
      *
-     * @param int      $count
-     * @param callable $callback
-     * @param string   $column
-     * @param string   $alias
+     * @param int         $count
+     * @param callable    $callback
+     * @param string|null $column
+     * @param string|null $alias
      *
      * @return bool
      */
-    public function chunk_by_id($count, callable $callback, $column = 'id', $alias = null)
+    public function chunk_by_id($count, $callback, $column = null, $alias = null)
     {
-        $count = (int) $count;
+        $count = max(1, (int) $count);
+        return Query\Lazy::chunks($this->chunks_by_id($count, $column, $alias, false, 'chunk_by_id'), $count, $callback);
+    }
+
+    /**
+     * Run the callback over the results a chunk at a time, paging by descending ID;
+     * FALSE stops the iteration.
+     *
+     * @param int         $count
+     * @param callable    $callback
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return bool
+     */
+    public function chunk_by_id_desc($count, $callback, $column = null, $alias = null)
+    {
+        $count = max(1, (int) $count);
+        return Query\Lazy::chunks($this->chunks_by_id($count, $column, $alias, true, 'chunk_by_id_desc'), $count, $callback);
+    }
+
+    /**
+     * Run the callback over every result, with (row, key), paging by ascending ID;
+     * FALSE stops the iteration.
+     *
+     * @param callable    $callback
+     * @param int         $count
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return bool
+     */
+    public function each_by_id($callback, $count = 1000, $column = null, $alias = null)
+    {
+        $count = max(1, (int) $count);
+
+        return $this->chunk_by_id($count, function ($results, $page) use ($callback, $count) {
+            foreach ($results as $key => $value) {
+                if (false === call_user_func($callback, $value, (($page - 1) * $count) + $key)) {
+                    return false;
+                }
+            }
+        }, $column, $alias);
+    }
+
+    /**
+     * Get the chunk source (see Query\Lazy) that pages the query by ID.
+     *
+     * @param int         $count
+     * @param string|null $column
+     * @param string|null $alias
+     * @param bool        $descending
+     * @param string      $operation
+     * @param callable    $get
+     *
+     * @return \Closure
+     */
+    public function chunks_by_id($count, $column, $alias, $descending, $operation, $get = null)
+    {
+        $column = $column ?: 'id';
         $alias = $alias ?: $column;
-        $last_id = null;
 
-        do {
-            $clone = $this->copy();
+        return function ($page, array $previous) use ($count, $column, $alias, $descending, $operation, $get) {
+            $last_id = null;
 
-            if (! is_null($last_id)) {
-                $clone->where($column, '>', $last_id);
+            if ($page > 0) {
+                $last_id = data_get(end($previous), $alias);
+
+                if (is_null($last_id)) {
+                    throw new \RuntimeException(sprintf(
+                        'The %s operation was aborted because the [%s] column is not present in the query result.',
+                        $operation,
+                        $alias
+                    ));
+                }
             }
 
-            $clone->order_by($column, 'asc')->take($count);
-            $results = $clone->get();
-            $counts = count($results);
+            $query = $this->copy();
 
-            if ($counts === 0) {
-                break;
+            if ($descending) {
+                $query->for_page_before_id($count, $last_id, $column);
+            } else {
+                $query->for_page_after_id($count, $last_id, $column);
             }
 
-            if ($callback($results) === false) {
-                return false;
+            return $get ? call_user_func($get, $query) : $query->get()->all();
+        };
+    }
+
+    /**
+     * Constrain the query to the page of results after the given ID.
+     *
+     * @param int    $perpage
+     * @param mixed  $last_id
+     * @param string $column
+     *
+     * @return Query
+     */
+    public function for_page_after_id($perpage = 15, $last_id = 0, $column = 'id')
+    {
+        $this->remove_orderings_for($column);
+
+        if (! is_null($last_id)) {
+            $this->where($column, '>', $last_id);
+        }
+
+        return $this->order_by($column, 'asc')->take($perpage);
+    }
+
+    /**
+     * Constrain the query to the page of results before the given ID.
+     *
+     * @param int    $perpage
+     * @param mixed  $last_id
+     * @param string $column
+     *
+     * @return Query
+     */
+    public function for_page_before_id($perpage = 15, $last_id = 0, $column = 'id')
+    {
+        $this->remove_orderings_for($column);
+
+        if (! is_null($last_id)) {
+            $this->where($column, '<', $last_id);
+        }
+
+        return $this->order_by($column, 'desc')->take($perpage);
+    }
+
+    /**
+     * Remove the existing orderings on the given column.
+     *
+     * @param string $column
+     */
+    protected function remove_orderings_for($column)
+    {
+        $orderings = [];
+
+        foreach ((array) $this->orderings as $ordering) {
+            if ($ordering['column'] !== $column) {
+                $orderings[] = $ordering;
             }
+        }
 
-            $last_id = $results[$counts - 1]->{$alias};
-        } while ($counts === $count);
-
-        return true;
+        $this->orderings = $orderings ?: null;
     }
 
     /**

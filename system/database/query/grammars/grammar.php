@@ -148,13 +148,21 @@ class Grammar extends BaseGrammar
             $clauses = [];
 
             foreach ($join->clauses as $clause) {
-                $clauses[] = sprintf(
-                    '%s %s %s %s',
-                    $clause['connector'],
-                    $this->wrap($clause['column1']),
-                    $clause['operator'],
-                    $this->wrap($clause['column2'])
-                );
+                if (! array_key_exists('value', $clause)) {
+                    $clauses[] = sprintf(
+                        '%s %s %s %s',
+                        $clause['connector'],
+                        $this->wrap($clause['column1']),
+                        $clause['operator'],
+                        $this->wrap($clause['column2'])
+                    );
+                } elseif (null === $clause['value']) {
+                    $not = in_array($clause['operator'], ['!=', '<>'], true) ? 'NOT ' : '';
+                    $clauses[] = $clause['connector'].' '.$this->wrap($clause['column']).' IS '.$not.'NULL';
+                } else {
+                    $clauses[] = $clause['connector'].' '.$this->wrap($clause['column']).' '
+                        .$clause['operator'].' '.$this->parameter($clause['value']);
+                }
             }
 
             if (0 === count($clauses)) {
@@ -162,7 +170,7 @@ class Grammar extends BaseGrammar
                 continue;
             }
 
-            $clauses[0] = str_replace(['AND ', 'OR '], '', $clauses[0]);
+            $clauses[0] = preg_replace('/^(AND|OR) /', '', $clauses[0]);
             $clauses = implode(' ', $clauses);
             $sql[] = $join->type . ' JOIN ' . $table . ' ON ' . $clauses;
         }
@@ -660,6 +668,14 @@ class Grammar extends BaseGrammar
     }
 
     /**
+     * Name of the row id used to update or delete joined rows through a subquery,
+     * null when the driver joins in the UPDATE / DELETE statement itself.
+     *
+     * @var string|null
+     */
+    protected $row_key;
+
+    /**
      * Compile the UPDATE statement.
      *
      * @param Query $query
@@ -670,13 +686,107 @@ class Grammar extends BaseGrammar
     public function update(Query $query, array $values)
     {
         $table = $this->wrap_table($query->from);
+
+        if (empty($query->joins)) {
+            return 'UPDATE '.$table.' SET '.$this->update_columns($values, false).' '.trim($this->wheres($query));
+        }
+
+        if ($this->row_key) {
+            return 'UPDATE '.$table.' SET '.$this->update_columns($values, true).' '.$this->row_subquery($query);
+        }
+
+        return $this->update_with_joins($query, $values);
+    }
+
+    /**
+     * Compile an UPDATE with joins: UPDATE t INNER JOIN j ON ... SET ... WHERE ...
+     *
+     * @param Query $query
+     * @param array $values
+     *
+     * @return string
+     */
+    protected function update_with_joins(Query $query, array $values)
+    {
+        return trim('UPDATE '.$this->wrap_table($query->from).' '.$this->joins($query)
+            .' SET '.$this->update_columns($values, false).' '.$this->wheres($query));
+    }
+
+    /**
+     * Compile the SET list, optionally stripping table qualifiers from the columns.
+     *
+     * @param array $values
+     * @param bool  $unqualify
+     *
+     * @return string
+     */
+    protected function update_columns(array $values, $unqualify)
+    {
         $columns = [];
 
         foreach ($values as $column => $value) {
+            if ($unqualify && false !== strpos((string) $column, '.')) {
+                $column = substr(strrchr((string) $column, '.'), 1);
+            }
+
             $columns[] = $this->wrap($column).' = '.$this->parameter($value);
         }
 
-        return 'UPDATE '.$table.' SET '.implode(', ', $columns).' '.trim($this->wheres($query));
+        return implode(', ', $columns);
+    }
+
+    /**
+     * Compile "WHERE <row id> IN (SELECT t.<row id> FROM t <joins> WHERE ...)".
+     *
+     * @param Query $query
+     *
+     * @return string
+     */
+    protected function row_subquery(Query $query)
+    {
+        $select = clone $query;
+        $select->aggregate = null;
+        $select->selects = [$this->table_alias($query->from).'.'.$this->row_key];
+
+        return 'WHERE '.$this->wrap($this->row_key).' IN ('.$this->select($select).')';
+    }
+
+    /**
+     * Get the name the table is referred by: its alias when it has one.
+     *
+     * @param string $table
+     *
+     * @return string
+     */
+    protected function table_alias($table)
+    {
+        $segments = preg_split('/\s+as\s+/i', (string) $table);
+        return trim(end($segments));
+    }
+
+    /**
+     * Get the UPDATE bindings, in the order the statement uses them.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $clauses
+     *
+     * @return array
+     */
+    public function update_bindings(Query $query, array $values, array $clauses)
+    {
+        $values = array_values($values);
+
+        if (empty($query->joins)) {
+            return array_merge($values, $clauses['where']);
+        }
+
+        if ($this->row_key) {
+            unset($clauses['select']);
+            return call_user_func_array('array_merge', array_merge([$values], array_values($clauses)));
+        }
+
+        return array_merge($clauses['join'], $values, $clauses['where']);
     }
 
     /**
@@ -688,9 +798,41 @@ class Grammar extends BaseGrammar
      */
     public function delete(Query $query)
     {
-        return 'DELETE FROM '.$this->wrap_table($query->from).' '.trim($this->wheres($query));
+        $table = $this->wrap_table($query->from);
+
+        if (empty($query->joins)) {
+            return 'DELETE FROM '.$table.' '.trim($this->wheres($query));
+        }
+
+        if ($this->row_key) {
+            return 'DELETE FROM '.$table.' '.$this->row_subquery($query);
+        }
+
+        return trim('DELETE '.$this->wrap_table($this->table_alias($query->from)).' FROM '.$table.' '
+            .$this->joins($query).' '.$this->wheres($query));
     }
 
+    /**
+     * Get the DELETE bindings, in the order the statement uses them.
+     *
+     * @param Query $query
+     * @param array $clauses
+     *
+     * @return array
+     */
+    public function delete_bindings(Query $query, array $clauses)
+    {
+        if (empty($query->joins)) {
+            return $clauses['where'];
+        }
+
+        if ($this->row_key) {
+            unset($clauses['select']);
+            return call_user_func_array('array_merge', array_values($clauses));
+        }
+
+        return array_merge($clauses['join'], $clauses['where']);
+    }
     /**
      * Replace the (...) in the sql with parameterized values.
      *

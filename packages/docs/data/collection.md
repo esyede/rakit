@@ -2,716 +2,617 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
-- [Creating Collections](#creating-collections)
-- [Method Reference](#method-reference)
-  - [all()](#all)
-  - [avg() / average()](#avg--average)
-  - [collapse()](#collapse)
-  - [contains()](#contains)
-  - [diff()](#diff)
-  - [each()](#each)
-  - [filter()](#filter)
-  - [first()](#first)
-  - [flatten()](#flatten)
-  - [forget()](#forget)
-  - [get()](#get)
-  - [group_by()](#group_by)
-  - [key_by()](#key_by)
-  - [implode()](#implode)
-  - [is_empty()](#is_empty)
-  - [keys()](#keys)
-  - [last()](#last)
-  - [map()](#map)
-  - [max()](#max)
-  - [median()](#median)
-  - [merge()](#merge)
-  - [min()](#min)
-  - [pluck()](#pluck)
-  - [pop()](#pop)
-  - [prepend()](#prepend)
-  - [pull()](#pull)
-  - [push()](#push)
-  - [put()](#put)
-  - [reduce()](#reduce)
-  - [reject()](#reject)
-  - [reverse()](#reverse)
-  - [search()](#search)
-  - [shuffle()](#shuffle)
-  - [slice()](#slice)
-  - [sort()](#sort)
-  - [sort_by()](#sort_by)
-  - [sum()](#sum)
-  - [take()](#take)
-  - [to_array()](#to_array)
-  - [to_json()](#to_json)
-  - [unique()](#unique)
-  - [values()](#values)
-  - [where()](#where)
-  - [zip()](#zip)
-- [Other Methods](#other-methods)
+-   [Introduction](#introduction)
+-   [Creating Collections](#creating-collections)
+-   [Available Methods](#available-methods)
+    -   [all()](#all)
+    -   [avg() / average()](#avg--average)
+    -   [collapse()](#collapse)
+    -   [contains()](#contains)
+    -   [diff()](#diff)
+    -   [each()](#each)
+    -   [filter()](#filter)
+    -   [first()](#first)
+    -   [flatten()](#flatten)
+    -   [forget()](#forget)
+    -   [get()](#get)
+    -   [group_by()](#group_by)
+    -   [implode()](#implode)
+    -   [is_empty()](#is_empty)
+    -   [key_by()](#key_by)
+    -   [keys()](#keys)
+    -   [last()](#last)
+    -   [map()](#map)
+    -   [max()](#max)
+    -   [median()](#median)
+    -   [merge()](#merge)
+    -   [min()](#min)
+    -   [pluck()](#pluck)
+    -   [pop()](#pop)
+    -   [prepend()](#prepend)
+    -   [pull()](#pull)
+    -   [push()](#push)
+    -   [put()](#put)
+    -   [reduce()](#reduce)
+    -   [reject()](#reject)
+    -   [reverse()](#reverse)
+    -   [search()](#search)
+    -   [shuffle()](#shuffle)
+    -   [slice()](#slice)
+    -   [sort()](#sort)
+    -   [sort_by()](#sort_by)
+    -   [sum()](#sum)
+    -   [take()](#take)
+    -   [to_array()](#to_array)
+    -   [to_json()](#to_json)
+    -   [unique()](#unique)
+    -   [values()](#values)
+    -   [where()](#where)
+    -   [zip()](#zip)
+-   [Other Methods](#other-methods)
+-   [Array Access & Iteration](#array-access--iteration)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-`Collection` wraps an array and gives it a fluent set of methods to work with.
+`Collection` wraps an array in a fluent, chainable API.
+
+```php
+collect([1, 2, 3, 4])
+    ->filter(function ($v) { return $v > 1; })
+    ->map(function ($v) { return $v * 10; })
+    ->values()
+    ->all();
+// [20, 30, 40]
+```
+
+Most methods return a new collection and leave the original alone. `forget`, `pop`, `prepend`, `pull`, `push`, `put`, `shift`, `splice` and `transform` modify it in place.
+
+> Methods that filter or reorder (`diff`, `filter`, `reject`, `reverse`, `slice`, `sort`, `take`, `where`, ...) keep the original keys. Call `values()` to reindex. Samples below show values only where keys do not matter.
 
 <a id="creating-collections"></a>
 
 ## Creating Collections
 
-Several ways to build one:
-
-#### From array:
-
 ```php
-$collection = new Collection(['item1', 'item2', 'item3']);
+$collection = collect(['a', 'b']);            // helper
+$collection = new Collection(['a', 'b']);
+$collection = Collection::make(['a', 'b']);
 
-// or, with the static method
-$collection = Collection::make(['item1', 'item2', 'item3']);
+$users = DB::table('users')->get();           // query results are collections
 ```
 
-#### From database query results:
-
-```php
-$users = DB::table('users')->get(); // Returns Collection
-```
-
-#### Helper function:
-
-```php
-$collection = collect(['item1', 'item2']); // Shortcut for new Collection()
-```
-
-
+<a id="available-methods"></a>
 <a id="method-reference"></a>
 
-## Method Reference
+## Available Methods
+
+Samples use this data where a list of records is needed:
+
+```php
+$people = collect([
+    ['name' => 'John', 'age' => 25, 'dept' => 'IT'],
+    ['name' => 'Jane', 'age' => 30, 'dept' => 'HR'],
+    ['name' => 'Bob',  'age' => 20, 'dept' => 'IT'],
+]);
+```
 
 <a id="all"></a>
 
 ### all()
 
-Returns the original array wrapped by the Collection:
+Returns the underlying array.
 
 ```php
-$collection = collect(['item1', 'item2']);
-$array = $collection->all(); // ['item1', 'item2']
+collect(['a', 'b'])->all(); // ['a', 'b']
 ```
 
 <a id="avg--average"></a>
 
 ### avg() / average()
 
-Calculates the average of numeric values in the Collection:
+Returns the average of the values, or of a key / callback result. `average()` is an alias.
 
 ```php
-$collection = collect([1, 2, 3, 4, 5]);
-$average = $collection->avg(); // 3
-```
-
-Can also use a specific key:
-
-```php
-$collection = collect([
-    ['price' => 100],
-    ['price' => 200],
-    ['price' => 300],
-]);
-$average = $collection->avg('price'); // 200
+collect([1, 2, 3, 4, 5])->avg(); // 3
+$people->avg('age');              // 25
 ```
 
 <a id="collapse"></a>
 
 ### collapse()
 
-Flattens a Collection containing arrays into a single Collection:
+Merges a collection of arrays (or collections) into one.
 
 ```php
-$collection = collect([[1, 2, 3], [4, 5, 6]]);
-$collapsed = $collection->collapse(); // [1, 2, 3, 4, 5, 6]
+collect([[1, 2], [3, 4]])->collapse()->all(); // [1, 2, 3, 4]
 ```
 
 <a id="contains"></a>
 
 ### contains()
 
-Checks if the Collection contains a specific item:
+Checks whether the collection holds a value (loose `==`). Also accepts a key / value pair or a closure.
 
 ```php
-$collection = collect(['item1', 'item2', 'item3']);
-$collection->contains('item2'); // true
-$collection->contains('item4'); // false
-```
-
-Can use Closure for complex conditions:
-
-```php
-$collection = collect([
-    ['name' => 'John', 'age' => 25],
-    ['name' => 'Jane', 'age' => 30],
-]);
-$collection->contains(function ($item) {
+collect(['a', 'b'])->contains('b');  // true
+$people->contains('name', 'Jane');   // true
+$people->contains(function ($item) {
     return $item['age'] > 26;
-}); // true
+});                                  // true
 ```
 
 <a id="diff"></a>
 
 ### diff()
 
-Returns items that do not exist in another Collection:
+Returns the values not present in the given array or collection.
 
 ```php
-$collection1 = collect([1, 2, 3, 4]);
-$collection2 = collect([2, 4, 6, 8]);
-$diff = $collection1->diff($collection2); // [1, 3]
+collect([1, 2, 3, 4])->diff([2, 4, 6])->values()->all(); // [1, 3]
 ```
 
 <a id="each"></a>
 
 ### each()
 
-Iterates over each item in the Collection:
+Calls a closure with each `($item, $key)`. Return `false` to stop the loop.
 
 ```php
-$collection = collect([1, 2, 3]);
-$collection->each(function ($item, $key) {
-    echo $item . ' ';
-}); // Output: 1 2 3
+$people->each(function ($item, $key) {
+    echo $item['name'];
+});
 ```
 
 <a id="filter"></a>
 
 ### filter()
 
-Filters items using a Closure:
+Keeps the items for which the closure (`$value, $key`) returns true. Without a closure, removes falsy items.
 
 ```php
-$collection = collect([1, 2, 3, 4, 5]);
-$filtered = $collection->filter(function ($item) {
-    return $item > 3;
-}); // [4, 5]
+collect([1, 2, 3, 4, 5])->filter(function ($v) {
+    return $v > 3;
+})->values()->all(); // [4, 5]
 ```
 
 <a id="first"></a>
 
 ### first()
 
-Returns the first item in the Collection:
+Returns the first item, or the first one passing a closure. The second argument is the default.
 
 ```php
-$collection = collect([1, 2, 3]);
-$first = $collection->first(); // 1
-```
-
-Can use Closure for conditions:
-
-```php
-$first = $collection->first(function ($item) {
-    return $item > 2;
-}); // 3
+collect([1, 2, 3])->first(); // 1
+collect([1, 2, 3])->first(function ($v) { return $v > 1; }); // 2
 ```
 
 <a id="flatten"></a>
 
 ### flatten()
 
-Flattens a multi-dimensional Collection:
+Flattens nested arrays into a single list. The optional argument limits the depth.
 
 ```php
-$collection = collect(['name' => 'John', 'languages' => ['PHP', 'Java']]);
-$flattened = $collection->flatten(); // ['John', 'PHP', 'Java']
+collect(['name' => 'John', 'langs' => ['PHP', 'Go']])->flatten()->all();
+// ['John', 'PHP', 'Go']
 ```
 
 <a id="forget"></a>
 
 ### forget()
 
-Removes an item based on key:
+Removes one or more keys, in place.
 
 ```php
-$collection = collect(['name' => 'John', 'age' => 25]);
-$collection->forget('age'); // Collection now contains only 'name'
+collect(['name' => 'John', 'age' => 25])->forget('age')->all(); // ['name' => 'John']
 ```
 
 <a id="get"></a>
 
 ### get()
 
-Retrieves an item based on key:
+Returns the item at a key, or a default.
 
 ```php
-$collection = collect(['name' => 'John', 'age' => 25]);
-$name = $collection->get('name'); // 'John'
-$default = $collection->get('email', 'not found'); // 'not found'
+collect(['name' => 'John'])->get('email', 'n/a'); // 'n/a'
 ```
 
 <a id="group_by"></a>
 
 ### group_by()
 
-Groups items based on a specific key:
+Groups items by a key or closure result. Pass `true` as second argument to keep original keys.
 
 ```php
-$collection = collect([
-    ['name' => 'John', 'department' => 'IT'],
-    ['name' => 'Jane', 'department' => 'HR'],
-    ['name' => 'Bob', 'department' => 'IT'],
-]);
-$grouped = $collection->group_by('department');
-/**
-    [
-        'IT' => [['name' => 'John', 'department' => 'IT'], ['name' => 'Bob', 'department' => 'IT']],
-        'HR' => [['name' => 'Jane', 'department' => 'HR']],
-    ]
-*/
-```
-
-<a id="key_by"></a>
-
-### key_by()
-
-Uses a specific key as the key for the new Collection:
-
-```php
-$collection = collect([
-    ['id' => 1, 'name' => 'John'],
-    ['id' => 2, 'name' => 'Jane'],
-]);
-$keyed = $collection->key_by('id');
-/**
-    [
-        1 => ['id' => 1, 'name' => 'John'],
-        2 => ['id' => 2, 'name' => 'Jane'],
-    ]
-*/
+$people->group_by('dept')->all();
+// ['IT' => [John, Bob], 'HR' => [Jane]]
 ```
 
 <a id="implode"></a>
 
 ### implode()
 
-Joins items into a string:
+Joins the values into a string. For records, pass the key first, then the glue.
 
 ```php
-$collection = collect(['John', 'Jane', 'Bob']);
-$imploded = $collection->implode(', '); // 'John, Jane, Bob'
-```
-
-For associative arrays:
-
-```php
-$collection = collect([
-    ['name' => 'John'],
-    ['name' => 'Jane'],
-]);
-$imploded = $collection->implode('name', ', '); // 'John, Jane'
+collect(['a', 'b', 'c'])->implode(', '); // 'a, b, c'
+$people->implode('name', ', ');           // 'John, Jane, Bob'
 ```
 
 <a id="is_empty"></a>
 
 ### is_empty()
 
-Checks if the Collection is empty:
+Checks whether the collection is empty. See also `is_not_empty()`.
 
 ```php
-$collection = collect([]);
-$collection->is_empty(); // true
+collect()->is_empty(); // true
+```
+
+<a id="key_by"></a>
+
+### key_by()
+
+Re-keys the items by a key or closure result.
+
+```php
+collect([['id' => 1, 'name' => 'John'], ['id' => 2, 'name' => 'Jane']])->key_by('id')->all();
+// [1 => ['id' => 1, 'name' => 'John'], 2 => ['id' => 2, 'name' => 'Jane']]
 ```
 
 <a id="keys"></a>
 
 ### keys()
 
-Returns all keys from the Collection:
+Returns the keys.
 
 ```php
-$collection = collect(['name' => 'John', 'age' => 25]);
-$keys = $collection->keys(); // ['name', 'age']
+collect(['name' => 'John', 'age' => 25])->keys()->all(); // ['name', 'age']
 ```
 
 <a id="last"></a>
 
 ### last()
 
-Returns the last item in the Collection:
+Returns the last item, or the last one passing a closure. The second argument is the default.
 
 ```php
-$collection = collect([1, 2, 3]);
-$last = $collection->last(); // 3
+collect([1, 2, 3])->last(); // 3
 ```
 
 <a id="map"></a>
 
 ### map()
 
-Transforms each item using a Closure:
+Transforms each item with a closure (`$value, $key`), keeping keys.
 
 ```php
-$collection = collect([1, 2, 3]);
-$mapped = $collection->map(function ($item) {
-    return $item * 2;
-}); // [2, 4, 6]
+collect([1, 2, 3])->map(function ($v) { return $v * 2; })->all(); // [2, 4, 6]
 ```
 
 <a id="max"></a>
 
 ### max()
 
-Returns the maximum value:
+Returns the largest value, or of a key / callback result.
 
 ```php
-$collection = collect([1, 5, 3]);
-$max = $collection->max(); // 5
+collect([1, 5, 3])->max(); // 5
+$people->max('age');        // 30
 ```
 
 <a id="median"></a>
 
 ### median()
 
-Calculates the median of the Collection:
+Returns the median value, optionally of a key.
 
 ```php
-$collection = collect([1, 2, 3, 4, 5]);
-$median = $collection->median(); // 3
+collect([1, 2, 3, 4])->median(); // 2.5
 ```
 
 <a id="merge"></a>
 
 ### merge()
 
-Merges the Collection with an array or another Collection:
+Merges an array or collection (`array_merge` rules).
 
 ```php
-$collection1 = collect([1, 2]);
-$collection2 = collect([3, 4]);
-$merged = $collection1->merge($collection2); // [1, 2, 3, 4]
+collect([1, 2])->merge([3, 4])->all(); // [1, 2, 3, 4]
 ```
 
 <a id="min"></a>
 
 ### min()
 
-Returns the minimum value:
+Returns the smallest value, or of a key / callback result.
 
 ```php
-$collection = collect([1, 5, 3]);
-$min = $collection->min(); // 1
+collect([1, 5, 3])->min(); // 1
 ```
 
 <a id="pluck"></a>
 
 ### pluck()
 
-Retrieves values from a specific key:
+Gets the values of a key (dot notation allowed). The optional second argument picks the result keys.
 
 ```php
-$collection = collect([
-    ['name' => 'John', 'age' => 25],
-    ['name' => 'Jane', 'age' => 30],
-]);
-$names = $collection->pluck('name'); // ['John', 'Jane']
+$people->pluck('name')->all();        // ['John', 'Jane', 'Bob']
+$people->pluck('age', 'name')->all(); // ['John' => 25, 'Jane' => 30, 'Bob' => 20]
 ```
 
 <a id="pop"></a>
 
 ### pop()
 
-Removes and returns the last item:
+Removes and returns the last item.
 
 ```php
-$collection = collect([1, 2, 3]);
-$popped = $collection->pop(); // 3, collection now [1, 2]
+$c = collect([1, 2, 3]);
+$c->pop(); // 3, $c is now [1, 2]
 ```
 
 <a id="prepend"></a>
 
 ### prepend()
 
-Adds an item at the beginning of the Collection:
+Adds an item to the start, optionally under a key.
 
 ```php
-$collection = collect([2, 3]);
-$collection->prepend(1); // [1, 2, 3]
+collect([2, 3])->prepend(1)->all(); // [1, 2, 3]
 ```
 
 <a id="pull"></a>
 
 ### pull()
 
-Removes and returns an item based on key:
+Removes and returns the item at a key. The second argument is the default.
 
 ```php
-$collection = collect(['name' => 'John', 'age' => 25]);
-$age = $collection->pull('age'); // 25, collection now only has 'name'
+$c = collect(['name' => 'John', 'age' => 25]);
+$c->pull('age'); // 25, $c is now ['name' => 'John']
 ```
 
 <a id="push"></a>
 
 ### push()
 
-Adds an item at the end of the Collection:
+Adds an item to the end.
 
 ```php
-$collection = collect([1, 2]);
-$collection->push(3); // [1, 2, 3]
+collect([1, 2])->push(3)->all(); // [1, 2, 3]
 ```
 
 <a id="put"></a>
 
 ### put()
 
-Sets a value for a specific key:
+Sets the value at a key.
 
 ```php
-$collection = collect(['name' => 'John']);
-$collection->put('age', 25); // ['name' => 'John', 'age' => 25]
+collect(['name' => 'John'])->put('age', 25)->all(); // ['name' => 'John', 'age' => 25]
 ```
 
 <a id="reduce"></a>
 
 ### reduce()
 
-Reduces the Collection to a single value using a Closure:
+Reduces the items to one value. The second argument is the initial value.
 
 ```php
-$collection = collect([1, 2, 3, 4]);
-$sum = $collection->reduce(function ($carry, $item) {
+collect([1, 2, 3])->reduce(function ($carry, $item) {
     return $carry + $item;
-}); // 10
+}, 0); // 6
 ```
 
 <a id="reject"></a>
 
 ### reject()
 
-Removes items that pass the Closure condition:
+The inverse of `filter()`: removes items for which the closure returns true. A non-closure argument removes items equal to it.
 
 ```php
-$collection = collect([1, 2, 3, 4]);
-$rejected = $collection->reject(function ($item) {
-    return $item > 2;
-}); // [1, 2]
+collect([1, 2, 3, 4])->reject(function ($v) { return $v > 2; })->all(); // [1, 2]
 ```
 
 <a id="reverse"></a>
 
 ### reverse()
 
-Reverses the order of items:
+Reverses the order of the items.
 
 ```php
-$collection = collect([1, 2, 3]);
-$reversed = $collection->reverse(); // [3, 2, 1]
+collect([1, 2, 3])->reverse()->values()->all(); // [3, 2, 1]
 ```
 
 <a id="search"></a>
 
 ### search()
 
-Searches for an item and returns its key:
+Returns the key of a value (or of the first item passing a closure), or `false`. Pass `true` as second argument for strict comparison.
 
 ```php
-$collection = collect([1, 2, 3]);
-$key = $collection->search(2); // 1
+collect(['a', 'b', 'c'])->search('b'); // 1
 ```
 
 <a id="shuffle"></a>
 
 ### shuffle()
 
-Shuffles the order of items:
+Returns the items in random order. Pass a seed for a repeatable order.
 
 ```php
-$collection = collect([1, 2, 3, 4, 5]);
-$shuffled = $collection->shuffle(); // Random order
+collect([1, 2, 3, 4, 5])->shuffle()->all(); // [3, 1, 5, 2, 4]
 ```
 
 <a id="slice"></a>
 
 ### slice()
 
-Takes a subset from the Collection:
+Returns the items from an offset, optionally limited to a length.
 
 ```php
-$collection = collect([1, 2, 3, 4, 5]);
-$sliced = $collection->slice(2, 3); // [3, 4, 5]
+collect([1, 2, 3, 4, 5])->slice(2, 2)->values()->all(); // [3, 4]
 ```
 
 <a id="sort"></a>
 
 ### sort()
 
-Sorts the Collection:
+Sorts by value, or with a `uasort()` comparison closure.
 
 ```php
-$collection = collect([3, 1, 4, 2]);
-$sorted = $collection->sort(); // [1, 2, 3, 4]
+collect([3, 1, 4, 2])->sort()->values()->all(); // [1, 2, 3, 4]
 ```
 
 <a id="sort_by"></a>
 
 ### sort_by()
 
-Sorts based on a Closure:
+Sorts by a key or closure result. Strings sort naturally and case-insensitively. Use `sort_by_desc()` for descending order.
 
 ```php
-$collection = collect([
-    ['name' => 'John', 'age' => 25],
-    ['name' => 'Jane', 'age' => 30],
-]);
-$sorted = $collection->sort_by('age'); // Sorted by age
+$people->sort_by('age')->pluck('name')->all(); // ['Bob', 'John', 'Jane']
 ```
 
 <a id="sum"></a>
 
 ### sum()
 
-Calculates the sum of numeric values:
+Returns the sum of the values, or of a key / callback result.
 
 ```php
-$collection = collect([1, 2, 3]);
-$sum = $collection->sum(); // 6
+collect([1, 2, 3])->sum(); // 6
+$people->sum('age');        // 75
 ```
 
 <a id="take"></a>
 
 ### take()
 
-Takes a number of items from the beginning or end:
+Takes items from the start, or from the end with a negative number.
 
 ```php
-$collection = collect([1, 2, 3, 4, 5]);
-$taken = $collection->take(3); // [1, 2, 3]
-$taken = $collection->take(-2); // [4, 5]
+collect([1, 2, 3, 4, 5])->take(3)->all();            // [1, 2, 3]
+collect([1, 2, 3, 4, 5])->take(-2)->values()->all(); // [4, 5]
 ```
 
 <a id="to_array"></a>
 
 ### to_array()
 
-Converts the Collection to an array:
+Returns a plain array, converting Facile models to arrays.
 
 ```php
-$collection = collect([1, 2, 3]);
-$array = $collection->to_array(); // [1, 2, 3]
+User::all()->to_array();
 ```
 
 <a id="to_json"></a>
 
 ### to_json()
 
-Converts the Collection to JSON:
+Encodes the collection as JSON. Takes `json_encode()` options.
 
 ```php
-$collection = collect(['name' => 'John', 'age' => 25]);
-$json = $collection->to_json(); // '{"name":"John","age":25}'
+collect(['name' => 'John', 'age' => 25])->to_json(); // '{"name":"John","age":25}'
 ```
 
 <a id="unique"></a>
 
 ### unique()
 
-Removes duplicates:
+Removes duplicate values, or duplicates by a key / callback result.
 
 ```php
-$collection = collect([1, 2, 2, 3, 3, 3]);
-$unique = $collection->unique(); // [1, 2, 3]
+collect([1, 2, 2, 3])->unique()->values()->all(); // [1, 2, 3]
+$people->unique('dept')->pluck('name')->all();    // ['John', 'Jane']
 ```
 
 <a id="values"></a>
 
 ### values()
 
-Resets keys to numeric indices:
+Reindexes the keys to `0, 1, 2, ...`.
 
 ```php
-$collection = collect(['a' => 1, 'b' => 2]);
-$values = $collection->values(); // [1, 2]
+collect(['a' => 1, 'b' => 2])->values()->all(); // [1, 2]
 ```
 
 <a id="where"></a>
 
 ### where()
 
-Filters items based on conditions:
+Filters items by a key comparison. Operators: `=`, `==`, `!=`, `<>`, `<`, `>`, `<=`, `>=`, `===`, `!==`. With two arguments, `=` is used.
 
 ```php
-$collection = collect([
-    ['name' => 'John', 'age' => 25],
-    ['name' => 'Jane', 'age' => 30],
-]);
-$filtered = $collection->where('age', '>', 26); // Jane's record
+$people->where('age', '>', 22)->pluck('name')->all(); // ['John', 'Jane']
+$people->where('dept', 'HR')->count();                 // 1
 ```
 
 <a id="zip"></a>
 
 ### zip()
 
-Combines the Collection with another Collection:
+Pairs the items with those of one or more arrays at the same index.
 
 ```php
-$collection1 = collect(['John', 'Jane']);
-$collection2 = collect([25, 30]);
-$zipped = $collection1->zip($collection2); // [['John', 25], ['Jane', 30]]
+collect(['John', 'Jane'])->zip([25, 30])->to_array();
+// [['John', 25], ['Jane', 30]] (each pair is a Collection)
 ```
 
 <a id="other-methods"></a>
 
 ## Other Methods
 
-These methods work the same way as the ones above, so they are listed in short:
+| Method | Description |
+| --- | --- |
+| `chunk($size)` | Split into collections of `$size` items |
+| `combine($values)` | Use the items as keys and `$values` as values |
+| `count()` | Number of items (also `count($collection)`) |
+| `diff_keys($items)` | Keep keys not present in `$items` |
+| `every($step, $offset = 0)` | Take every `$step`-th item, starting at position `$offset` |
+| `except($keys)` | Remove the given keys |
+| `flat_map($callback)` | Map, then collapse the results one level |
+| `flip()` | Swap keys and values |
+| `for_page($page, $per_page)` | The slice for page `$page` |
+| `has($key)` | Whether a key exists |
+| `intersect($items)` | Keep values also present in `$items` |
+| `is_not_empty()` | Opposite of `is_empty()` |
+| `map_with_keys($callback)` | Callback returns `[key => value]` pairs, merged into one collection |
+| `mode($key = null)` | Most frequent value(s), as a collection |
+| `only($keys)` | Keep only the given keys |
+| `partition($callback)` | Two collections: passing and failing items |
+| `pipe($callback)` | Pass the collection to a closure, return its result |
+| `random($amount = 1)` | One random item, or a collection of `$amount` items |
+| `shift()` | Remove and return the first item |
+| `sort_by_desc($callback, $options)` | `sort_by()` in descending order |
+| `splice($offset, $length, $replacement)` | Remove (and optionally replace) a portion in place, return the removed items |
+| `split($groups)` | Split into `$groups` collections of roughly equal size |
+| `to_base()` | Plain `Collection` from a subclass |
+| `transform($callback)` | Like `map()`, but in place |
+| `union($items)` | Add items whose keys are missing (`+` operator) |
+| `where_in($key, $values, $strict = false)` | Keep items whose `$key` is in `$values` |
 
-| Method                              | Description                                                             |
-| ----------------------------------- | ----------------------------------------------------------------------- |
-| `has($key)`                         | Check whether a key exists                                              |
-| `count()`                           | Number of items, also works with `count($collection)`                   |
-| `is_not_empty()`                    | The opposite of `is_empty()`                                            |
-| `mode($key)`                        | The most frequent value(s), as a collection                             |
-| `only($keys)`                       | Keep only the given keys                                                |
-| `except($keys)`                     | Remove the given keys                                                   |
-| `flip()`                            | Swap keys and values                                                    |
-| `shift()`                           | Remove and return the first item                                        |
-| `splice($offset, $length, $items)`  | Cut a portion out, optionally replacing it                              |
-| `chunk($size)`                      | Split into chunks of `$size` items                                      |
-| `split($groups)`                    | Split into `$groups` chunks of roughly equal size                       |
-| `for_page($page, $perpage)`         | Take the slice belonging to page `$page`                                |
-| `random($amount)`                   | Take `$amount` random items                                             |
-| `every($step, $offset)`             | Take every `$step`-th item, starting from `$offset`                     |
-| `partition($callback)`              | Split into two collections: matching and non-matching                   |
-| `transform($callback)`              | Like `map()`, but modifies the collection in place                      |
-| `map_with_keys($callback)`          | Map, then merge the resulting arrays into one collection                |
-| `flat_map($callback)`               | Map, then flatten the result one level                                  |
-| `pipe($callback)`                   | Pass the whole collection into a closure and return its result          |
-| `combine($values)`                  | Use the current items as keys and `$values` as values                   |
-| `union($items)`                     | Merge, but keep the value of an existing key                            |
-| `intersect($items)`                 | Keep only values that also exist in `$items`                            |
-| `diff_keys($items)`                 | Keep only keys that do not exist in `$items`                            |
-| `where_in($key, $values, $strict)`  | Keep items whose `$key` is one of `$values`                             |
-| `sort_by_desc($callback, $options)` | Like `sort_by()`, in descending order                                   |
-| `to_base()`                         | Return a plain `Collection` from a subclass                             |
+Strict (`===`) variants: `contains_strict()`, `where_strict()`, `where_in_strict()`, `unique_strict()`.
 
-Some methods have a `_strict` variant that compares with `===` instead of `==`:
-`contains_strict()`, `where_strict()`, `where_in_strict()`, and `unique_strict()`.
+<a id="array-access--iteration"></a>
 
-Collection also implements `ArrayAccess`, `Countable`, `IteratorAggregate`, and
-`JsonSerializable`, so a collection can be accessed like an array, counted,
-looped with `foreach`, and passed straight to `json_encode()`:
+## Array Access & Iteration
+
+`Collection` implements `ArrayAccess`, `Countable`, `IteratorAggregate` and `JsonSerializable`. Casting it to a string returns its JSON.
 
 ```php
-$collection = collect(['name' => 'John', 'age' => 25]);
+$c = collect(['name' => 'John', 'age' => 25]);
 
-$collection['name'];        // 'John'
-isset($collection['age']);  // true
-count($collection);         // 2
-
-foreach ($collection as $key => $value) {
-    // ..
-}
-
-echo json_encode($collection); // {"name":"John","age":25}
+$c['name'];          // 'John'
+isset($c['age']);    // true
+count($c);           // 2
+foreach ($c as $key => $value) {}
+echo json_encode($c); // {"name":"John","age":25}
 ```

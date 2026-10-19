@@ -38,7 +38,9 @@ class File extends Parameter
     public function set($key, $value)
     {
         if (! is_array($value) && ! ($value instanceof Upload)) {
-            throw new \InvalidArgumentException('An uploaded file must be an array or an instance of \System\Foundation\Http\Upload class.');
+            throw new \InvalidArgumentException(
+                'An uploaded file must be an array or an instance of \System\Foundation\Http\Upload class.'
+            );
         }
 
         parent::set($key, $this->convertFileInformation($value));

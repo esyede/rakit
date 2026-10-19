@@ -2,43 +2,39 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
--   [Basic Knowledge](#basic-knowledge)
--   [Render Markdown File to HTML](#render-markdown-file-to-html)
--   [Parse Markdown String to HTML](#parse-markdown-string-to-html)
+-   [Introduction](#introduction)
+-   [Converting to HTML](#converting-to-html)
 -   [Rendering Options](#rendering-options)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-[Markdown](https://daringfireball.net/projects/markdown/) is a plain-text syntax for
-styling text: bold, italics, images, lists and more. The full syntax is in
-[this guide](https://daringfireball.net/projects/markdown/syntax).
+The `Markdown` component converts [Markdown](https://daringfireball.net/projects/markdown/syntax)
+text to HTML.
 
+<a id="converting-to-html"></a>
 <a id="render-markdown-file-to-html"></a>
-
-## Render Markdown File to HTML
-
-Pass the file path:
-
-```php
-$file = 'path/to/file.md';
-
-$html = Markdown::render($file);
-```
-
 <a id="parse-markdown-string-to-html"></a>
 
-## Parse Markdown String to HTML
+## Converting to HTML
 
-For a string in hand, use `parse()`:
+`render()` converts a file, `parse()` converts a string:
 
 ```php
-$string = '_lorem_ ipsum **dolor** sit amet';
+$html = Markdown::render('path/to/file.md');
 
-$html = Markdown::parse($string);
+$html = Markdown::parse('_lorem_ ipsum **dolor** sit amet');
+```
+
+For inline markdown only (no paragraphs or other blocks), use `line()` on the
+instance:
+
+```php
+$html = Markdown::factory()->line('**bold** text'); // <strong>bold</strong> text
 ```
 
 > Neither method filters malicious input by default. See the options below before
@@ -48,9 +44,8 @@ $html = Markdown::parse($string);
 
 ## Rendering Options
 
-`Markdown::factory()` returns the parser instance so you can change how it
-renders before calling `translate()`. All option methods return the instance, so
-they can be chained:
+`Markdown::factory()` returns the shared parser instance. Set options on it, then
+call `translate()`. Option methods are chainable:
 
 | Method              | Description                                                             |
 | ------------------- | ----------------------------------------------------------------------- |
@@ -68,5 +63,5 @@ $html = Markdown::factory()
 ```
 
 > If the string comes from a user, turn on `escaping()` and `safety()`.
-> `Markdown::parse()` and `Markdown::render()` use the same instance, so any
-> option set here stays active for the rest of the request.
+> `parse()` and `render()` use the same instance, so options set here stay active
+> for the rest of the request.

@@ -331,6 +331,35 @@ class Connection
     }
 
     /**
+     * Run a SELECT query and stream its rows one at a time from the statement.
+     * The query runs on the first iteration. Some drivers (e.g. pdo_mysql in its
+     * default buffered mode) still hold the whole result set in memory.
+     *
+     * @param string        $sql
+     * @param array         $bindings
+     * @param callable|null $map
+     *
+     * @return \Generator|Query\Cursor
+     */
+    public function cursor($sql, array $bindings = [], $map = null)
+    {
+        $run = function () use ($sql, $bindings) {
+            list($statement) = $this->execute(trim((string) $sql), $bindings);
+            $style = Config::get('database.fetch');
+
+            if (PDO::FETCH_CLASS === $style) {
+                $statement->setFetchMode(PDO::FETCH_CLASS, 'stdClass');
+            } else {
+                $statement->setFetchMode($style);
+            }
+
+            return $statement;
+        };
+
+        return Query\Cursor::make($run, $map);
+    }
+
+    /**
      * Run the query, returning the statement and whether it succeeded.
      *
      * @param string $sql

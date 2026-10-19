@@ -2,7 +2,7 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
--   [Basic Knowledge](#basic-knowledge)
+-   [Introduction](#introduction)
 -   [Storing Items](#storing-items)
 -   [Retrieving Items](#retrieving-items)
 -   [Deleting Items](#deleting-items)
@@ -12,17 +12,19 @@
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-A session stores data between HTTP requests, behind one API whatever the backend driver. With a driver configured it starts by itself on every web request, apart from the routes listed in the `'stateless'` session option.
-
-**Check if session has started:**
+`Session` stores data between requests through one API, whatever the
+[driver](/docs/session/config). It starts automatically on every web request, except for
+paths listed in the `stateless` option. Calling it when no session was started throws an
+exception, so check first in code that may run on a stateless route:
 
 ```php
 if (Session::started()) {
-    // Session is active
+    // ...
 }
 ```
 
@@ -30,204 +32,111 @@ if (Session::started()) {
 
 ## Storing Items
 
-`put()` stores an item:
-
 ```php
 Session::put('name', 'Budi');
-```
-
-The parameters are the key the item is read back by, and its value.
-
-**Storing multiple items:**
-
-```php
-Session::put('name', 'Budi');
-Session::put('age', 25);
-Session::put('city', 'Jakarta');
+Session::put('cart.items', [1, 2]);   // dot notation writes nested arrays
 ```
 
 <a id="retrieving-items"></a>
 
 ## Retrieving Items
 
-`get()` reads an item back by its key, flash data included:
+`get()` returns the item (flash items included), or the default, which may be a closure, when it
+is missing:
 
 ```php
 $name = Session::get('name');
-```
-
-A missing item gives `NULL`, unless a default is passed as the second argument:
-
-```php
 $name = Session::get('name', 'Andi');
+$name = Session::get('name', function () {
+    return 'Andi';
+});
 
-$name = Session::get('name', function () { return 'Andi'; });
-```
-
-**Check if an item exists:**
-
-`has()` answers whether an item is there:
-
-```php
-if (Session::has('name')) {
-	$name = Session::get('name');
-}
+Session::has('name');      // TRUE when the item is not null
+Session::all();            // every item, raw
+Session::activity();       // UNIX time of the last activity
 ```
 
 <a id="deleting-items"></a>
 
 ## Deleting Items
 
-To delete an item from the session, use the `forget()` method:
-
 ```php
 Session::forget('name');
-```
-
-**Deleting all items:**
-
-`flush()` deletes every item but the CSRF token:
-
-```php
-Session::flush();
-```
-
-**Deleting several items at once:**
-
-```php
-Session::forget('name');
-Session::forget('age');
-Session::forget('city');
+Session::forget(['name', 'age']);   // or forget('name', 'age')
+Session::flush();                   // delete everything except the CSRF token
 ```
 
 <a id="flash-items"></a>
 
 ## Flash Items
 
-`flash()` stores an item that expires after the next request, which suits status messages and validation errors:
+Flash items are only available during the next request, which suits status messages:
 
 ```php
-Session::flash('status', 'Welcome Back!');
+Session::flash('status', 'Welcome back!');
 ```
 
-**Example usage in controller:**
+Usually you flash through a redirect: `Redirect::to('users')->with('status', 'Saved!')`. To keep
+flash items for one more request:
 
 ```php
-public function action_store()
-{
-    // Save data
-    $user = User::create(Input::all());
-
-    // Flash success message
-    Session::flash('message', 'User created successfully!');
-
-    return Redirect::to('users');
-}
-```
-
-**In view:**
-
-```php
-<?php if (Session::has('message')): ?>
-    <div class="alert alert-success">
-        <?php echo Session::get('message'); ?>
-    </div>
-<?php endif; ?>
-```
-
-**Retain flash data:**
-
-`reflash()` and `keep()` hold flash items for one more request:
-
-**Retain all flash items for another request:**
-
-```php
-Session::reflash();
-```
-
-**Retain a flash item for another request:**
-
-```php
+Session::reflash();                     // all of them
 Session::keep('status');
-```
-
-**Retain several flash items for another request:**
-
-```php
-Session::keep(['status', 'other_item']);
+Session::keep(['status', 'other']);
 ```
 
 <a id="regeneration"></a>
 
 ## Regeneration
 
-Regenerating replaces the session ID with a fresh random one, which is worth doing after a login.
+`regenerate()` gives the session a new random ID while keeping its data and CSRF token. Do it
+after login to prevent session fixation:
 
 ```php
-Session::regenerate();
-```
+if (Auth::attempt(Input::only('email', 'password'))) {
+    Session::regenerate();
 
-**Regenerate ID after login:**
-
-```php
-public function action_login()
-{
-    $credentials = Input::only('email', 'password');
-
-    if (Auth::attempt($credentials)) {
-        // Regenerate session ID for security
-        Session::regenerate();
-
-        return Redirect::to('dashboard');
-    }
-
-    return Redirect::back()->with('error', 'Login failed!');
+    return Redirect::to('dashboard');
 }
 ```
+
+`invalidate()` also gets a new ID, but discards all data and issues a new CSRF token, which
+suits logout.
 
 <a id="csrf-token"></a>
 
 ## CSRF Token
 
-The session carries a CSRF token to protect against cross-site request forgery.
+The session holds a token that protects forms against cross-site request forgery. It is
+created when the session starts (like Laravel), so every session has one. Put it in forms
+with `@csrf` in Blade, or the `csrf_field()` helper:
 
-**Getting CSRF token:**
-
-```php
-$token = Session::token();
-```
-
-**Using in form:**
-
-```php
+```blade
 <form method="POST" action="/users">
-    <input type="hidden" name="csrf_token" value="<?php echo Session::token(); ?>">
-
-    <!-- Form fields -->
-
-    <button type="submit">Submit</button>
+    @csrf
+    ...
 </form>
 ```
 
-**Validating CSRF token:**
+`csrf_token()` and `Session::token()` return the value. Stateless routes have no session,
+so no token. The field is named `csrf_token` (`csrf_name()`).
 
-Attach the `csrf` middleware (defined in `application/middlewares.php`) to the routes you want to protect. It validates the token for every request method other than GET, HEAD, OPTIONS, TRACE and CONNECT, and responds with a `422` error if the token is invalid:
+Protect routes with the `csrf` middleware from `application/middlewares.php`. On any method
+except GET, HEAD, OPTIONS, TRACE and CONNECT it compares the `csrf_token` field (form or JSON
+body), or the `X-CSRF-TOKEN` / `X-XSRF-TOKEN` header, with the session token and responds
+`422` on mismatch:
 
 ```php
 Route::post('users', ['before' => 'csrf', function () {
-    // ..
+    // ...
 }]);
 ```
 
-**Excluding routes from CSRF protection:**
-
-If you need to exclude certain URIs from CSRF protection (e.g., for API webhooks), list them in the `'csrf_except'` option of `application/config/application.php`:
+Exclude URIs (e.g. webhooks) in the `csrf_except` option of `application/config/application.php`:
 
 ```php
 'csrf_except' => [
     'webhook/stripe',
+    'api/*',
 ],
 ```
-
-> `Session::regenerate()` keeps the current CSRF token. To also get a fresh CSRF token (e.g. on logout),
-> use `Session::invalidate()`, which discards all session data as well.

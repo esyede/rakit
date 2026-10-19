@@ -5,6 +5,7 @@
 -   [Basic Knowledge](#basic-knowledge)
 -   [Encrypting a String](#encrypting-a-string)
 -   [Decrypting a String](#decrypting-a-string)
+-   [Comparing Strings Safely](#comparing-strings-safely)
 
 <!-- /MarkdownTOC -->
 
@@ -12,23 +13,17 @@
 
 ## Basic Knowledge
 
-`Crypter` handles two-way encryption: AES-256-CBC with HMAC-SHA256, through
-[PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php).
+`Crypter` provides two-way encryption using AES-256-CBC with an HMAC-SHA256 signature, via the
+[PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension (which must be installed).
 
-> Don't forget to install the [PHP OpenSSL](https://www.php.net/manual/en/book.openssl.php) extension
-
-> **Security:** encryption and MAC use separate keys, each derived as `HMAC-SHA256(RAKIT_KEY, purpose)`. Payloads carry `v=1`; older ones without it still decrypt.
+> **Security:** encryption and MAC use separate keys, each derived as `HMAC-SHA256(RAKIT_KEY, purpose)`. Payloads carry `v=1`; older payloads without it still decrypt.
 
 <a id="encrypting-a-string"></a>
 
 ## Encrypting a String
 
-#### Encrypting a string:
-
 ```php
-$data = 'secret';
-
-$encrypted = Crypter::encrypt($data);
+$encrypted = Crypter::encrypt('secret');
 // 'eyJpdiI6Ij...' (base64-encoded JSON containing iv, value, mac and v)
 ```
 
@@ -36,8 +31,20 @@ $encrypted = Crypter::encrypt($data);
 
 ## Decrypting a String
 
-#### Decrypting a string:
-
 ```php
 $decrypted = Crypter::decrypt($encrypted); // 'secret'
+```
+
+If the payload is malformed, has been tampered with (invalid MAC), or cannot be decrypted, a `System\Exceptions\DecryptException` is thrown.
+
+<a id="comparing-strings-safely"></a>
+
+## Comparing Strings Safely
+
+`equals()` compares two strings in constant time, which prevents timing attacks when checking tokens or signatures. It returns `false` if either value is not a string:
+
+```php
+if (Crypter::equals($known_token, $given_token)) {
+    // match
+}
 ```

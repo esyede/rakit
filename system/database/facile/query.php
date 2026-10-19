@@ -5,9 +5,11 @@ namespace System\Database\Facile;
 defined('DS') or exit('No direct access.');
 
 use System\Str;
+use System\Carbon;
 use System\Database;
 use System\Collection;
 use System\Database\Expression;
+use System\Database\Query\Lazy;
 use System\Exceptions\ModelNotFoundException;
 
 class Query
@@ -57,10 +59,6 @@ class Query
         'count',
         'insert',
         'insert_get_id',
-        'update',
-        'increment',
-        'delete',
-        'decrement',
         'min',
         'max',
         'avg',
@@ -173,22 +171,167 @@ class Query
     }
 
     /**
-     * Get a generator for the results of the query.
+     * Run the query once and stream its models one at a time. Each row is hydrated
+     * as it is fetched, so eager loads set with with() are NOT applied; use lazy().
      *
-     * @param array $columns
-     * @param int   $chunk_size
-     *
-     * @return \Generator|array
+     * @return \Generator|\System\Database\Query\Cursor
      */
-    public function cursor($columns = ['*'], $chunk_size = 1000)
+    public function cursor()
     {
-        $columns = is_array($columns) ? $columns : [$columns];
-        // No yield before PHP 5.5.0: return the whole result set as a plain array.
-        if (PHP_VERSION_ID < 50500) {
-            return $this->get($columns)->all();
+        $table = $this->table;
+
+        if (is_null($table->selects)) {
+            $table->select(['*']);
         }
 
-        return include __DIR__ . DS . 'cursor.php';
+        $class = get_class($this->model);
+
+        return $table->connection->cursor($table->grammar->select($table), $table->bindings, function ($row) use ($class) {
+            return $this->make($class, $row);
+        });
+    }
+
+    /**
+     * Iterate the models lazily, fetching (and eager loading) them in chunks with
+     * LIMIT/OFFSET. Orders by the model key when the query has no order.
+     *
+     * @param int $chunk_size
+     *
+     * @return \Generator|\System\Database\Query\Lazy
+     */
+    public function lazy($chunk_size = 1000)
+    {
+        $chunk_size = Lazy::size($chunk_size);
+        $table = $this->table->copy();
+
+        if (empty($table->orderings)) {
+            $table->order_by($this->qualified_key(), 'asc');
+        }
+
+        return Lazy::make(function ($page) use ($table, $chunk_size) {
+            return $this->hydrate($this->model, $table->copy()->for_page($page + 1, $chunk_size)->get())->all();
+        }, $chunk_size);
+    }
+
+    /**
+     * Iterate the models lazily, fetching (and eager loading) them in chunks by ascending key.
+     *
+     * @param int         $chunk_size
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return \Generator|\System\Database\Query\Lazy
+     */
+    public function lazy_by_id($chunk_size = 1000, $column = null, $alias = null)
+    {
+        $chunk_size = Lazy::size($chunk_size);
+        return Lazy::make($this->chunks_by_id($chunk_size, $column, $alias, false, 'lazy_by_id'), $chunk_size);
+    }
+
+    /**
+     * Iterate the models lazily, fetching (and eager loading) them in chunks by descending key.
+     *
+     * @param int         $chunk_size
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return \Generator|\System\Database\Query\Lazy
+     */
+    public function lazy_by_id_desc($chunk_size = 1000, $column = null, $alias = null)
+    {
+        $chunk_size = Lazy::size($chunk_size);
+        return Lazy::make($this->chunks_by_id($chunk_size, $column, $alias, true, 'lazy_by_id_desc'), $chunk_size);
+    }
+
+    /**
+     * Run the callback over the models a chunk at a time, paging by ascending key;
+     * FALSE stops the iteration.
+     *
+     * @param int         $count
+     * @param callable    $callback
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return bool
+     */
+    public function chunk_by_id($count, $callback, $column = null, $alias = null)
+    {
+        $count = max(1, (int) $count);
+        return Lazy::chunks($this->chunks_by_id($count, $column, $alias, false, 'chunk_by_id'), $count, $callback);
+    }
+
+    /**
+     * Run the callback over the models a chunk at a time, paging by descending key;
+     * FALSE stops the iteration.
+     *
+     * @param int         $count
+     * @param callable    $callback
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return bool
+     */
+    public function chunk_by_id_desc($count, $callback, $column = null, $alias = null)
+    {
+        $count = max(1, (int) $count);
+        return Lazy::chunks($this->chunks_by_id($count, $column, $alias, true, 'chunk_by_id_desc'), $count, $callback);
+    }
+
+    /**
+     * Run the callback over every model, with (model, key), paging by ascending key;
+     * FALSE stops the iteration.
+     *
+     * @param callable    $callback
+     * @param int         $count
+     * @param string|null $column
+     * @param string|null $alias
+     *
+     * @return bool
+     */
+    public function each_by_id($callback, $count = 1000, $column = null, $alias = null)
+    {
+        $count = max(1, (int) $count);
+
+        return $this->chunk_by_id($count, function ($models, $page) use ($callback, $count) {
+            foreach ($models as $key => $model) {
+                if (false === call_user_func($callback, $model, (($page - 1) * $count) + $key)) {
+                    return false;
+                }
+            }
+        }, $column, $alias);
+    }
+
+    /**
+     * Get the chunk source that pages the query by key and hydrates every chunk.
+     *
+     * @param int         $count
+     * @param string|null $column
+     * @param string|null $alias
+     * @param bool        $descending
+     * @param string      $operation
+     *
+     * @return \Closure
+     */
+    protected function chunks_by_id($count, $column, $alias, $descending, $operation)
+    {
+        if (is_null($column)) {
+            $column = $this->qualified_key();
+            $alias = $alias ?: $this->model->key();
+        }
+
+        return $this->table->chunks_by_id($count, $column, $alias, $descending, $operation, function ($query) {
+            return $this->hydrate($this->model, $query->get())->all();
+        });
+    }
+
+    /**
+     * Get the model key qualified with its table.
+     *
+     * @return string
+     */
+    protected function qualified_key()
+    {
+        return $this->model->table() . '.' . $this->model->key();
     }
 
     /**
@@ -596,12 +739,14 @@ class Query
         $count = (int) $count;
         $count = ($count < 1) ? 1 : $count;
         $page = 1;
+        $table = $this->table->copy();
+
+        if (empty($table->orderings)) {
+            $table->order_by($this->qualified_key(), 'asc');
+        }
 
         do {
-            $results = $this->hydrate(
-                $this->model,
-                $this->table->copy()->for_page($page, $count)->get()
-            );
+            $results = $this->hydrate($this->model, $table->copy()->for_page($page, $count)->get());
 
             $total = count($results);
 
@@ -722,11 +867,7 @@ class Query
         $models = [];
 
         foreach ($results as $result) {
-            $model = new $model([], true);
-            $model->fill_raw((array) $result);
-            $model->sync();
-            $model->fire_retrieved();
-            $models[] = $model;
+            $models[] = $this->make($model, $result);
         }
 
         if (count($results) > 0) {
@@ -739,11 +880,30 @@ class Query
             }
         }
 
+        return new Collection($models);
+    }
+
+    /**
+     * Make an existing model of the given class from a database row, without eager loads.
+     *
+     * @param string $class
+     * @param mixed  $row
+     *
+     * @return Model
+     */
+    protected function make($class, $row)
+    {
+        $model = new $class([], true);
+        $model->fill_raw((array) $row);
+        $model->sync();
+        $model->fire_retrieved();
+
         if ($this instanceof Relationships\BelongsToMany) {
+            $models = [$model];
             $this->hydrate_pivot($models);
         }
 
-        return new Collection($models);
+        return $model;
     }
 
     /**
@@ -814,6 +974,108 @@ class Query
         }
 
         return $with;
+    }
+
+    /**
+     * Update the matching records, stamping updated_at when the model uses timestamps.
+     * Bulk updates fire no model events.
+     *
+     * @param array $values
+     *
+     * @return int
+     */
+    public function update($values)
+    {
+        return $this->table->update($this->stamp($values));
+    }
+
+    /**
+     * Increment a column, stamping updated_at when the model uses timestamps.
+     *
+     * @param string $column
+     * @param int    $amount
+     * @param array  $extra
+     *
+     * @return int
+     */
+    public function increment($column, $amount = 1, array $extra = [])
+    {
+        return $this->table->increment($column, $amount, $this->stamp($extra));
+    }
+
+    /**
+     * Decrement a column, stamping updated_at when the model uses timestamps.
+     *
+     * @param string $column
+     * @param int    $amount
+     * @param array  $extra
+     *
+     * @return int
+     */
+    public function decrement($column, $amount = 1, array $extra = [])
+    {
+        return $this->table->decrement($column, $amount, $this->stamp($extra));
+    }
+
+    /**
+     * Add updated_at to the values when the model uses timestamps and it is missing.
+     *
+     * @param array $values
+     *
+     * @return array
+     */
+    protected function stamp(array $values)
+    {
+        $model = $this->model;
+
+        if ($model && $model->timestamps()) {
+            $column = $this->qualify('updated_at');
+
+            if (! array_key_exists('updated_at', $values) && ! array_key_exists($column, $values)) {
+                $values[$column] = Carbon::now()->format($model::$date_format);
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * Qualify a column with the model table when the query has joins, so it is not ambiguous.
+     *
+     * @param string $column
+     *
+     * @return string
+     */
+    protected function qualify($column)
+    {
+        return empty($this->table->joins) ? $column : $this->model->table().'.'.$column;
+    }
+
+    /**
+     * Delete the matching records; soft deletes when the model uses soft delete.
+     * Bulk deletes fire no model events.
+     *
+     * @return int
+     */
+    public function delete()
+    {
+        $model = $this->model;
+
+        if ($model && $model->soft_deleting()) {
+            return $this->update([$this->qualify('deleted_at') => Carbon::now()->format($model::$date_format)]);
+        }
+
+        return $this->table->delete();
+    }
+
+    /**
+     * Permanently delete the matching records, bypassing soft delete.
+     *
+     * @return int
+     */
+    public function force_delete()
+    {
+        return $this->table->delete();
     }
 
     /**

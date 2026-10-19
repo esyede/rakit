@@ -110,23 +110,51 @@ class Websocket extends Command
     }
 
     /**
-     * Broadcast a message to a specific client.
+     * Send a message to a specific client.
+     * The sender and target must share a private or presence channel.
      *
-     * @param Server $server
+     * @param Client $sender
      * @param string $targetId
+     * @param string $message
+     *
+     * @return bool
+     */
+    private function private_message(Client $sender, $targetId, $message)
+    {
+        $clients = $sender->server()->clients();
+
+        foreach ($clients as $client) {
+            if ($client->id() === $targetId) {
+                $shared = array_filter(array_intersect($sender->channels, $client->channels), function ($channel) {
+                    return Server::is_private($channel);
+                });
+
+                if (empty($shared)) {
+                    return false;
+                }
+
+                $client->send(Server::TEXT, $message);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Send an error message back to the client.
+     *
+     * @param Client $client
      * @param string $message
      *
      * @return void
      */
-    private function private_message(Server $server, $targetId, $message)
+    private function reject(Client $client, $message)
     {
-        $clients = $server->clients();
+        $client->send(Server::TEXT, json_encode(['type' => 'error', 'message' => $message]));
 
-        foreach ($clients as $client) {
-            if ($client->id() === $targetId) {
-                $client->send(Server::TEXT, $message);
-                break;
-            }
+        if ($this->logging()) {
+            $this->log(sprintf('Client #%s rejected: %s', $client->id(), $message));
         }
     }
 
@@ -186,6 +214,7 @@ class Websocket extends Command
             $client->user = Auth::user();
         }
 
+        $client->send(Server::TEXT, json_encode(['type' => 'connected', 'client_id' => $client->id()]));
         $this->broadcast($client->server(), sprintf('Client #%s connected', $client->id()));
         $this->presence($client->server());
     }
@@ -245,30 +274,12 @@ class Websocket extends Command
 
             if (isset($parsed['command'])) {
                 if ($parsed['command'] === 'broadcast' && isset($parsed['message'])) {
-                    $this->broadcast($client->server(), $parsed['message']);
+                    if (! $this->client_broadcast($client, $parsed['message'])) {
+                        return;
+                    }
 
                     if ($this->logging()) {
                         $this->log("Command broadcast executed: {$parsed['message']}");
-                    }
-
-                    return;
-                } elseif ($parsed['command'] === 'disconnect' && isset($parsed['client_id'])) {
-                    $clients = $client->server()->clients();
-
-                    foreach ($clients as $target) {
-                        if ($target->id() === $parsed['client_id']) {
-                            $target->close();
-
-                            if ($this->logging()) {
-                                $this->log("Command disconnect executed for client {$parsed['client_id']}");
-                            }
-
-                            return;
-                        }
-                    }
-
-                    if ($this->logging()) {
-                        $this->log("Command disconnect failed: client {$parsed['client_id']} not found");
                     }
 
                     return;
@@ -285,6 +296,10 @@ class Websocket extends Command
                     && isset($parsed['channel'])
                     && isset($parsed['message'])
                 ) {
+                    if (! in_array($parsed['channel'], $client->channels, true)) {
+                        return $this->reject($client, 'Not subscribed to this channel');
+                    }
+
                     $this->broadcast_to_channel($client->server(), $parsed['channel'], $parsed['message']);
 
                     if ($this->logging()) {
@@ -299,7 +314,9 @@ class Websocket extends Command
                     && isset($parsed['to'])
                     && isset($parsed['message'])
                 ) {
-                    $this->private_message($client->server(), $parsed['to'], $parsed['message']);
+                    if (! $this->private_message($client, $parsed['to'], $parsed['message'])) {
+                        return $this->reject($client, 'No shared private channel with the target client');
+                    }
 
                     if ($this->logging()) {
                         $this->log("Command private_message executed to {$parsed['to']}: {$parsed['message']}");
@@ -307,16 +324,31 @@ class Websocket extends Command
 
                     return;
                 }
+
+                // Unknown commands (including the removed "disconnect") are refused.
+                return $this->reject($client, 'Unknown or invalid command');
             }
 
             if (isset($parsed['event'])) {
                 if ($parsed['event'] === 'subscribe' && isset($parsed['channel'])) {
-                    $client->channels[] = $parsed['channel'];
+                    $auth = isset($parsed['auth']) ? $parsed['auth'] : null;
+
+                    if (! Server::authorize($client->id(), $parsed['channel'], $auth)) {
+                        return $this->reject($client, 'Unauthorized channel subscription');
+                    }
+
+                    if (! in_array($parsed['channel'], $client->channels, true)) {
+                        $client->channels[] = $parsed['channel'];
+                    }
                 } elseif (
                     $parsed['event'] === 'message'
                     && isset($parsed['channel'])
                     && isset($parsed['data'])
                 ) {
+                    if (! in_array($parsed['channel'], $client->channels, true)) {
+                        return $this->reject($client, 'Not subscribed to this channel');
+                    }
+
                     $message = json_encode([
                         'channel' => $parsed['channel'],
                         'data' => $parsed['data'],
@@ -326,18 +358,42 @@ class Websocket extends Command
                 }
             } elseif (isset($parsed['to']) && isset($parsed['message'])) {
                 $message = json_encode(['client_id' => $client->id(), 'message' => trim($parsed['message'])]);
-                $this->private_message($client->server(), $parsed['to'], $message);
+
+                if (! $this->private_message($client, $parsed['to'], $message)) {
+                    $this->reject($client, 'No shared private channel with the target client');
+                }
             } else {
                 $message = json_encode(['client_id' => $client->id(), 'message' => trim($data)]);
-                $this->broadcast($client->server(), $message);
+                $this->client_broadcast($client, $message);
             }
         } catch (\Throwable $e) {
             $message = json_encode(['client_id' => $client->id(), 'message' => trim($data)]);
-            $this->broadcast($client->server(), $message);
+            $this->client_broadcast($client, $message);
         } catch (\Exception $e) {
             $message = json_encode(['client_id' => $client->id(), 'message' => trim($data)]);
-            $this->broadcast($client->server(), $message);
+            $this->client_broadcast($client, $message);
         }
+    }
+
+    /**
+     * Broadcast a client-originated message to everyone, if the
+     * "client_broadcast" config allows it. Otherwise reject it.
+     * Server-originated broadcasts (connect/disconnect notices, presence) use broadcast().
+     *
+     * @param Client $client
+     * @param string $message
+     *
+     * @return bool
+     */
+    private function client_broadcast(Client $client, $message)
+    {
+        if (! Config::get('websocket.client_broadcast', false)) {
+            $this->reject($client, 'Client broadcasting is disabled');
+            return false;
+        }
+
+        $this->broadcast($client->server(), $message);
+        return true;
     }
 
     /**

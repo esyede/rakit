@@ -545,6 +545,39 @@ class AuthTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test for Auth::logout(false) - keeps the session data, still rotates the id.
+     *
+     * @group system
+     */
+    public function testLogoutWithoutInvalidatingKeepsSessionData()
+    {
+        Session::$instance = new Payload($this->getMockSessionDriver());
+        Session::instance()->load(null);
+
+        Auth::login(1, true);
+        Session::put('cart', ['apple']);
+        $id = Session::instance()->session['id'];
+        $token = Session::token();
+        $remember = Database::table('users')->find(1)->remember_token;
+
+        Auth::logout(false);
+
+        $this->assertNull(Auth::user());
+        $this->assertNull(Session::get('system_auth_drivers_magic_login'));
+        $this->assertEquals(['apple'], Session::get('cart'));
+        $this->assertEquals($token, Session::token());
+        $this->assertNotEquals($id, Session::instance()->session['id']);
+        $this->assertNotEquals($remember, Database::table('users')->find(1)->remember_token);
+        $this->assertTrue(Cookie::$jar['system_auth_drivers_magic_remember']['expiration'] < time());
+
+        // The default still wipes everything.
+        Auth::login(1);
+        Auth::logout();
+        $this->assertNull(Session::get('cart'));
+        $this->assertNotEquals($token, Session::token());
+    }
+
+    /**
      * Test 'rakit.auth: login' and 'rakit.auth: logout' can be called.
      *
      * @group system

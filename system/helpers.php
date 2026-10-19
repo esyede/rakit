@@ -148,17 +148,17 @@ if (! function_exists('optional')) {
 
 if (! function_exists('trans')) {
     /**
-     * Alias for trans().
+     * Get the translated language line (a string, or an array for a group key).
      *
      * @param string $key
      * @param array  $replacements
      * @param string $language
      *
-     * @return string
+     * @return string|array
      */
     function trans($key, array $replacements = [], $language = null)
     {
-        return \System\Lang::line($key, $replacements, $language);
+        return \System\Lang::line($key, $replacements, $language)->get();
     }
 }
 
@@ -170,7 +170,7 @@ if (! function_exists('__')) {
      * @param array  $replacements
      * @param string $language
      *
-     * @return string
+     * @return string|array
      */
     function __($key, array $replacements = [], $language = null)
     {

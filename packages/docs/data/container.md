@@ -5,6 +5,7 @@
 -   [Basic Knowledge](#basic-knowledge)
 -   [Registering Objects](#registering-objects)
 -   [Resolving Objects](#resolving-objects)
+-   [Automatic Resolution](#automatic-resolution)
 
 <!-- /MarkdownTOC -->
 
@@ -12,24 +13,16 @@
 
 ## Basic Knowledge
 
-The Container is a service locator: you teach it how to build an object once
-(under a name), and resolve that name anywhere in the app to get a ready
-instance.
-
-This is mostly useful for two things:
-
-1.  **Centralizing complex construction.** Build a mailer, queue, or external
-    SDK in one place — every caller gets the same recipe.
-2.  **Swapping implementations in tests.** Register a fake implementation under
-    the same name to isolate the code under test from real services. See
-    [stubs and mocks](https://martinfowler.com/articles/mocksArentStubs.html)
-    for the broader pattern.
+The Container is a service locator: you tell it once how to build an object under
+a name, then resolve that name anywhere to get a ready instance. It is handy for
+keeping complex construction (a mailer, an SDK client) in one place, and for
+swapping in a fake implementation under the same name in tests.
 
 <a id="registering-objects"></a>
 
 ## Registering Objects
 
-#### Registering a resolver to the container:
+`register()` stores a resolver that runs on **every** resolve:
 
 ```php
 Container::register('mailer', function () {
@@ -39,49 +32,64 @@ Container::register('mailer', function () {
 });
 ```
 
-That resolver runs on every resolve. To get the same instance back each time,
-register it as a singleton:
-
-#### Registering a singleton object to the container:
+`singleton()` runs the resolver once, on the first resolve, and returns that same
+instance afterwards. `instance()` registers an object you already have:
 
 ```php
 Container::singleton('mailer', function () {
     // ..
 });
+
+Container::instance('mailer', $instance);
 ```
 
-An object you already have can be registered as a singleton too.
-
-#### Registering an existing instance to the container:
+The resolver may also be a class name, which makes the name an alias of that class:
 
 ```php
-Container::instance('mailer', $instance);
+Container::register('mailer', 'App\Mail\Mailer');
 ```
 
 <a id="resolving-objects"></a>
 
 ## Resolving Objects
 
-Once registered, resolve it by name:
-
 ```php
 $mailer = Container::resolve('mailer');
-```
 
-The resolver can be given parameters:
-
-#### Resolving object with parameters:
-
-```php
+// Arguments are passed to the resolver
 $mailer = Container::resolve('mailer', ['test@example.com']);
-```
 
-#### Checking if an object is already registered:
-
-```php
 if (Container::registered('mailer')) {
-    // Object 'mailer' is already registered
+    // 'mailer' is registered
 }
 ```
+
+Every resolve fires the `rakit.resolving` event with the name and the object.
+`Container::flush()` forgets the resolved singletons (used by
+[workers](/docs/workers) between requests).
+
+<a id="automatic-resolution"></a>
+
+## Automatic Resolution
+
+A class name that was never registered is built through reflection: constructor
+parameters type-hinted with a class are resolved from the container, the others
+take their default value. Arguments passed to `resolve()` fill the first
+parameters.
+
+```php
+class Report
+{
+    public function __construct(Mailer $mailer, $title = 'Daily')
+    {
+        // ..
+    }
+}
+
+$report = Container::resolve('Report'); // Mailer is resolved automatically
+```
+
+A parameter with neither a class type nor a default throws an exception, as does
+a circular dependency.
 
 > You can also [register controllers to the container](/docs/controllers#dependency-injection).

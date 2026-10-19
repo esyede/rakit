@@ -120,6 +120,35 @@ class SQLServer extends Grammar
     }
 
     /**
+     * Compile an UPDATE with joins: UPDATE t SET ... FROM t INNER JOIN j ON ... WHERE ...
+     *
+     * @param Query $query
+     * @param array $values
+     *
+     * @return string
+     */
+    protected function update_with_joins(Query $query, array $values)
+    {
+        return trim('UPDATE '.$this->wrap_table($this->table_alias($query->from))
+            .' SET '.$this->update_columns($values, false)
+            .' FROM '.$this->wrap_table($query->from).' '.$this->joins($query).' '.$this->wheres($query));
+    }
+
+    /**
+     * Get the UPDATE bindings; the SET list comes before the joins here.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $clauses
+     *
+     * @return array
+     */
+    public function update_bindings(Query $query, array $values, array $clauses)
+    {
+        return array_merge(array_values($values), $clauses['join'], $clauses['where']);
+    }
+
+    /**
      * Get the sql used to order the results randomly.
      *
      * @param string $seed

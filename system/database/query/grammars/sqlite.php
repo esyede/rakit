@@ -10,6 +10,13 @@ use System\Database\Expression;
 class SQLite extends Grammar
 {
     /**
+     * Row id used to update or delete joined rows through a subquery.
+     *
+     * @var string
+     */
+    protected $row_key = 'rowid';
+
+    /**
      * Compile the "order by" portions of the query.
      *
      * @param Query $query

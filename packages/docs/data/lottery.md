@@ -2,131 +2,64 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
-- [Creating Instance](#creating-instance)
-- [Defining Callbacks](#defining-callbacks)
-  - [Winner Callback](#winner-callback)
-  - [Loser Callback](#loser-callback)
-- [Running Lottery](#running-lottery)
-- [Direct Invoke](#direct-invoke)
-- [Multiple Execution](#multiple-execution)
-- [Testing](#testing)
-  - [Always Win](#always-win)
-  - [Always Lose](#always-lose)
-  - [Sequence](#sequence)
-- [Usage Examples](#usage-examples)
-  - [Feature Flags](#feature-flags)
-  - [A/B Testing](#ab-testing)
-  - [Rate Limiting](#rate-limiting)
-  - [Random Events](#random-events)
+-   [Introduction](#introduction)
+-   [Setting the Odds](#setting-the-odds)
+-   [Running the Lottery](#running-the-lottery)
+-   [Callbacks](#callbacks)
+-   [Testing](#testing)
+-   [Example](#example)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
-## Basic Knowledge
 
-`Lottery` runs a callback on given odds: feature flags, A/B tests, or any other chance-driven branch.
+## Introduction
 
-<a id="creating-instance"></a>
-## Creating Instance
-
-Several ways to build one:
+`System\Lottery` runs code based on odds. It is handy for feature rollouts, A/B
+tests, or anything else that should only happen some of the time. It is also
+available as the global `Lottery` alias, so the `use` statement is optional.
 
 ```php
-use System\Lottery;
+use System\Lottery; // optional, the global alias works too
 
-// Using probability (1 in 10 chance to win)
-$lottery = Lottery::odds(1, 10);
-
-// Using percentage (25% chance to win)
-$lottery = Lottery::odds(0.25);
-
-// Or with constructor
-$lottery = new Lottery(1, 10);
-```
-
-**Note:** If using float, the value must be between 0 and 1 (0 = 0%, 1 = 100%).
-
-<a id="defining-callbacks"></a>
-## Defining Callbacks
-
-<a id="winner-callback"></a>
-### Winner Callback
-
-Define the callback to run when winning:
-
-```php
-$lottery = Lottery::odds(1, 2)
-    ->winner(function () {
-        return 'Congratulations! You win!';
-    });
-```
-
-<a id="loser-callback"></a>
-### Loser Callback
-
-Define the callback to run when losing:
-
-```php
-$lottery = Lottery::odds(1, 2)
-    ->winner(function () {
-        return 'Congratulations! You win!';
-    })
-    ->loser(function () {
-        return 'Sorry, try again.';
-    });
-```
-
-<a id="running-lottery"></a>
-## Running Lottery
-
-Use the `choose()` method to run the lottery:
-
-```php
-$lottery = Lottery::odds(1, 2)
-    ->winner(function () {
-        return 'Win!';
-    })
-    ->loser(function () {
-        return 'Lose!';
-    });
-
-$result = $lottery->choose();
-echo $result; // "Win!" or "Lose!" randomly
-```
-
-Without callbacks it returns `true` on a win and `false` on a loss:
-
-```php
-$lottery = Lottery::odds(1, 10);
-
-if ($lottery->choose()) {
-    echo 'Lucky!';
-} else {
-    echo 'Try again.';
+if (Lottery::odds(1, 10)->choose()) {
+    // runs roughly 1 in 10 times
 }
 ```
 
-<a id="direct-invoke"></a>
-## Direct Invoke
+<a id="setting-the-odds"></a>
+<a id="creating-instance"></a>
 
-It implements `__invoke()`, so the instance itself is callable:
+## Setting the Odds
+
+Give odds as "chances out of a total", or as a single float between 0 and 1:
 
 ```php
-$lottery = Lottery::odds(1, 5)
-    ->winner(function () {
-        return 'Jackpot!';
-    })
-    ->loser(function () {
-        return 'Next time!';
-    });
-
-// Direct invoke
-$result = $lottery();
-echo $result;
+Lottery::odds(1, 10);   // 1 in 10
+Lottery::odds(0.25);    // 25%
+new Lottery(1, 10);     // same as odds()
 ```
 
-Arguments are forwarded to the callbacks:
+A float greater than 1 without a total throws an exception.
+
+<a id="running-the-lottery"></a>
+<a id="running-lottery"></a>
+<a id="direct-invoke"></a>
+<a id="multiple-execution"></a>
+
+## Running the Lottery
+
+`choose()` returns `true` on a win and `false` on a loss (or the callback results,
+see below). Pass a number to run it several times and get an array of results:
+
+```php
+$won = Lottery::odds(1, 2)->choose();       // true or false
+$results = Lottery::odds(1, 5)->choose(10); // array of 10 results
+```
+
+The instance is also callable. Unlike `choose()`, invoking it forwards its
+arguments to the callbacks:
 
 ```php
 $lottery = Lottery::odds(1, 3)
@@ -137,272 +70,89 @@ $lottery = Lottery::odds(1, 3)
         return "$user is not lucky yet.";
     });
 
-$result = $lottery('John', 'Grand Prize');
-echo $result;
+echo $lottery('John', 'Grand Prize');
 ```
 
-<a id="multiple-execution"></a>
-## Multiple Execution
+<a id="callbacks"></a>
+<a id="defining-callbacks"></a>
+<a id="winner-callback"></a>
+<a id="loser-callback"></a>
 
-Pass a count to `choose()` to run it several times:
+## Callbacks
+
+`winner()` and `loser()` set the callables to run on a win or a loss. Their return
+value becomes the lottery result:
 
 ```php
-$lottery = Lottery::odds(1, 5)
+$variant = Lottery::odds(1, 2)
     ->winner(function () {
-        return 'WIN';
+        return 'variant-a';
     })
     ->loser(function () {
-        return 'LOSE';
-    });
-
-// Run 10 times
-$results = $lottery->choose(10);
-
-// $results is an array containing results from 10 executions
-// Example: ['LOSE', 'LOSE', 'WIN', 'LOSE', 'LOSE', 'WIN', 'LOSE', 'LOSE', 'LOSE', 'LOSE']
-
-$win_count = count(array_filter($results, function ($result) {
-    return $result === 'WIN';
-}));
-
-echo "Won $win_count out of 10 attempts";
+        return 'variant-b';
+    })
+    ->choose();
 ```
+
+Without a callback, the result is `true` or `false`.
 
 <a id="testing"></a>
+<a id="always-win"></a>
+<a id="always-lose"></a>
+<a id="sequence"></a>
+
 ## Testing
 
-The outcome can be forced, for tests:
+These static methods force the outcome of **every** lottery until you reset it:
 
-<a id="always-win"></a>
-### Always Win
+| Method                                | Effect                                                         |
+| ------------------------------------- | -------------------------------------------------------------- |
+| `Lottery::always_win($callback)`      | Always win                                                     |
+| `Lottery::always_lose($callback)`     | Always lose                                                    |
+| `Lottery::sequence($results, $missing)` | Use the given results in order (alias: `fix()`)              |
+| `Lottery::set_factory($callable)`     | Custom generator, receives `($chances, $out_of)`, returns bool |
+| `Lottery::normal()`                   | Back to random (alias: `normally()`)                           |
 
-Force the lottery to always win:
-
-```php
-// For testing
-Lottery::always_win();
-
-$lottery = Lottery::odds(1, 1000);
-$result = $lottery->choose();
-// Always returns true or runs winner callback
-
-// Reset to normal
-Lottery::normal();
-```
-
-With callback:
+When `always_win()` or `always_lose()` gets a callback, it is run and the lottery is
+reset to normal afterwards:
 
 ```php
 Lottery::always_win(function () {
-    // Run test
-    $lottery = Lottery::odds(1, 100);
-    $result = $lottery->choose();
-
-    // Assert result is true/winner
+    // every lottery wins in here
 });
-
-// Automatically reset to normal after callback finishes
 ```
 
-<a id="always-lose"></a>
-### Always Lose
-
-Force the lottery to always lose:
-
-```php
-// For testing
-Lottery::always_lose();
-
-$lottery = Lottery::odds(999, 1000);
-$result = $lottery->choose();
-// Always returns false or runs loser callback
-
-// Reset to normal
-Lottery::normal();
-```
-
-With callback:
+Once a sequence runs out, results go back to random. Pass a callable as the second
+argument to `sequence()` to decide those results instead; it receives
+`($chances, $out_of)`:
 
 ```php
-Lottery::always_lose(function () {
-    // Run test
-    $lottery = Lottery::odds(999, 1000);
-    $result = $lottery->choose();
-
-    // Assert result is false/loser
-});
-
-// Automatically reset to normal after callback finishes
-```
-
-<a id="sequence"></a>
-### Sequence
-
-Fix a sequence of results:
-
-```php
-// Specify sequence: win, lose, lose, win
-Lottery::sequence([true, false, false, true]);
+Lottery::sequence([true, false, true]);
 
 $lottery = Lottery::odds(1, 2);
+$lottery->choose(); // true
+$lottery->choose(); // false
+$lottery->choose(); // true
+$lottery->choose(); // random
 
-$lottery->choose(); // true (win)
-$lottery->choose(); // false (lose)
-$lottery->choose(); // false (lose)
-$lottery->choose(); // true (win)
-$lottery->choose(); // Random (sequence exhausted, back to random)
-
-// Reset to normal
 Lottery::normal();
 ```
 
-Alias `fix()` is also available:
-
-```php
-Lottery::fix([true, false, true]);
-```
-
+<a id="example"></a>
 <a id="usage-examples"></a>
-## Usage Examples
-
 <a id="feature-flags"></a>
-### Feature Flags
-
-Enable new features for a certain percentage of users:
-
-```php
-// Enable new feature for 10% of users
-$enable_new_feature = Lottery::odds(10, 100)
-    ->winner(function () {
-        return true;
-    })
-    ->loser(function () {
-        return false;
-    })
-    ->choose();
-
-if ($enable_new_feature) {
-    // Show new feature
-    return View::make('dashboard.new');
-} else {
-    // Show old feature
-    return View::make('dashboard.old');
-}
-```
-
 <a id="ab-testing"></a>
-### A/B Testing
-
-Implement A/B testing with 50/50 odds:
-
-```php
-Route::get('/', function () {
-    $variant = Lottery::odds(1, 2)
-        ->winner(function () {
-            return 'variant-a';
-        })
-        ->loser(function () {
-            return 'variant-b';
-        })
-        ->choose();
-
-    // Save variant to session
-    Session::put('ab_test_variant', $variant);
-
-    return View::make('home.' . $variant);
-});
-```
-
 <a id="rate-limiting"></a>
-### Rate Limiting
-
-Implement probabilistic rate limiting:
-
-```php
-// Throttle 20% of requests
-$should_throttle = Lottery::odds(20, 100)->choose();
-
-if ($should_throttle) {
-    return Response::make('Too many requests', 429);
-}
-
-// Process normal request
-```
-
 <a id="random-events"></a>
-### Random Events
 
-Trigger random events in games or applications:
+## Example
 
-```php
-// 5% chance to get bonus
-$got_bonus = Lottery::odds(5, 100)
-    ->winner(function () {
-        $bonus_amount = rand(10, 100);
-
-        // Give bonus to user
-        Auth::user()->add_credits($bonus_amount);
-
-        return "Congratulations! You got a bonus of $bonus_amount credits!";
-    })
-    ->loser(function () {
-        return null;
-    })
-    ->choose();
-
-if ($got_bonus) {
-    Session::flash('message', $got_bonus);
-}
-```
-
-With multiple outcomes:
+Show a new dashboard to about 10% of visitors:
 
 ```php
-// Random reward system
-$reward_type = Lottery::odds(1, 10)
-    ->winner(function () {
-        // 10% chance - rare reward
-        return 'rare';
-    })
-    ->loser(function () {
-        // 90% chance - choose between common or uncommon
-        return Lottery::odds(7, 10)
-            ->winner(function () {
-                return 'common';
-            })
-            ->loser(function () {
-                return 'uncommon';
-            })
-            ->choose();
-    })
-    ->choose();
+Route::get('dashboard', function () {
+    $view = Lottery::odds(10, 100)->choose() ? 'dashboard.new' : 'dashboard.old';
 
-switch ($reward_type) {
-    case 'rare':
-        $reward = 'Diamond Sword';
-        break;
-    case 'uncommon':
-        $reward = 'Iron Armor';
-        break;
-    default:
-        $reward = 'Wooden Shield';
-}
-```
-
-Random maintenance mode:
-
-```php
-// application/middlewares.php
-Route::middleware('maintenance', function () {
-    $in_maintenance = Lottery::odds(1, 10)->choose();
-
-    if ($in_maintenance && Auth::guest()) {
-        return Response::error(503);
-    }
-});
-
-// application/routes.php
-Route::group(['before' => 'maintenance'], function () {
-    // 10% of the requests to this group get the 503 page
+    return View::make($view);
 });
 ```

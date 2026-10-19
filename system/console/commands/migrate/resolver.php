@@ -57,13 +57,15 @@ class Resolver
     }
 
     /**
-     * Resolve array of last batch migrations.
+     * Resolve array of last batch migrations, optionally restricted to the given packages.
+     *
+     * @param array $packages
      *
      * @return array
      */
-    public function last()
+    public function last(array $packages = [])
     {
-        return $this->resolve($this->database->last());
+        return $this->resolve($this->database->last($packages));
     }
 
     /**

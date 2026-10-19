@@ -78,6 +78,21 @@ abstract class Grammar extends BaseGrammar
     }
 
     /**
+     * Get the columns of a table that are (or are not) marked with change().
+     *
+     * @param Table $table
+     * @param bool  $changed
+     *
+     * @return array
+     */
+    protected function changed(Table $table, $changed = true)
+    {
+        return array_values(array_filter($table->columns, function ($column) use ($changed) {
+            return $changed === (isset($column->change) && $column->change);
+        }));
+    }
+
+    /**
      * Get the sql for a column's type.
      *
      * @param Magic $column

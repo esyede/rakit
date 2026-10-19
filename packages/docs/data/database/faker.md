@@ -1,59 +1,45 @@
 # Fake Data (Faker)
 
+<!-- MarkdownTOC autolink="true" autoanchor="true" levels="2" bracket="round" lowercase="only_ascii" -->
+
 -   [Basic Knowledge](#basic-knowledge)
 -   [Usage](#usage)
 -   [Formatters](#formatters)
 -   [Additional Options](#additional-options)
 
+<!-- /MarkdownTOC -->
+
 <a id="basic-knowledge"></a>
 
 ## Basic Knowledge
 
-Faker generates fake data, for seeding a database, filling test fixtures or anonymizing
-production data. Adopted from [fzaninotto/faker](https://github.com/fzaninotto/faker) 1.5.0.
+Faker generates fake data for seeding a database, filling test fixtures or anonymizing production data. It is adopted from [fzaninotto/faker](https://github.com/fzaninotto/faker) 1.5.0.
 
 <a id="usage"></a>
 
 ## Usage
 
-`Faker::create()` builds the generator; read the property that names the data you want:
+`Faker::create()` builds a generator; then read the property named after the data you want:
 
 ```php
 $faker = Faker::create();
+
+$faker->name;    // 'John Doe'
+$faker->address; // '123 Main St, New York 12345, NY'
+$faker->text;    // 'Sint velit eveniet. Rerum atque repellat voluptatem quia rerum...'
 ```
 
-By default, the locale follows the `language` option in `application/config/application.php` (`'id'` by default).
-You can also pass the locale explicitly, either `'en'` (English) or `'id'` (Indonesian):
+The locale follows the `language` option in `application/config/application.php` (`'id'` by default). Pass `'en'` (English) or `'id'` (Indonesian) to choose explicitly; any other value throws an `InvalidArgumentException`:
 
 ```php
 $faker = Faker::create('en');
-```
-
-The examples below use English.
-
-```php
-$faker->name; // 'John Doe';
-
-$faker->address;
-// '123 Main St, New York 12345, NY'
-
-$faker->text;
-// Sint velit eveniet. Rerum atque repellat voluptatem quia rerum. Numquam excepturi
-// beatae sint laudantium consequatur. Magni occaecati itaque sint et sit tempore. Nesciunt
-// amet quidem. Iusto deleniti cum autem ad quia aperiam.
-// A consectetur quos aliquam. In iste aliquid et aut similique suscipit. Consequatur qui
-// quaerat iste minus hic expedita. Consequuntur error magni et laboriosam. Aut aspernatur
-// voluptatem sit aliquam. Dolores voluptatum est.
-// Aut molestias et maxime. Fugit autem facilis quos vero. Eius quibusdam possimus est.
-// Ea quaerat et quisquam. Deleniti sunt quam. Adipisci consequatur id in occaecati.
-// Et sint et. Ut ducimus quod nemo ab voluptatum.
 ```
 
 <a id="formatters"></a>
 
 ## Formatters
 
-Each generator property (such as `name`, `address`, and `lorem`) is called a "formatter". Below is a list of formatters available by default:
+Each generator property or method (such as `name`, `address` or `text`) is called a "formatter". The examples below use the English locale.
 
 ### General Data
 
@@ -353,69 +339,33 @@ $faker->biasedNumberBetween($min = 10, $max = 20, $function = 'sqrt');
 
 ## Additional Options
 
-Faker provides two additional options, `unique()` and `optional()`, to be called before any provider is executed.
-The `optional()` option can be useful for filling data in optional fields,
-such as mobile phone numbers; While `unique()` is needed for filling fields that cannot accept the same value twice, such as primary keys.
+Call `unique()` or `optional()` before a formatter to modify its result.
+
+`unique()` never returns the same value twice for a given formatter, which is handy for columns such as primary keys. When the values run out it throws an `OverflowException`; pass `true` to reset the tracked values:
 
 ```php
-	$values = [];
+$values = [];
 
-	for ($i = 0; $i < 10; $i++) {
-		// create a unique random number
-		$values[] = $faker->unique()->randomDigit;
-	}
+for ($i = 0; $i < 10; $i++) {
+    $values[] = $faker->unique()->randomDigit;
+}
+// [4, 1, 8, 5, 0, 2, 6, 9, 7, 3]
 
-	dd($values); // [4, 1, 8, 5, 0, 2, 6, 9, 7, 3]
+try {
+    for ($i = 0; $i < 10; $i++) {
+        $faker->unique()->randomDigitNotNull; // only 9 possible values
+    }
+} catch (\OverflowException $e) {
+    // Out of unique values
+}
 
-	// provider with limited range will throw exception when
-	// there are no more unique values to generate.
-	$values = [];
+$faker->unique(true)->randomDigitNotNull; // reset, no exception
+```
 
-	try {
-		for ($i = 0; $i < 10; $i++) {
-			$values[] = $faker->unique()->randomDigitNotNull;
-		}
-	} catch (\OverflowException $e) {
-		echo 'There are only 9 unique digits not null, Cant generate 10!';
-	}
+`optional($weight = 0.5, $default = null)` sometimes returns `$default` instead of calling the formatter, which is useful for optional fields such as phone numbers. `$weight` is the chance of getting a real value (0 = always the default, 1 = always the formatter):
 
-	// you can reset the unique modifier for all providers like this
-	$faker->unique($reset = true)->randomDigitNotNull;
-	// so it won't throw OverflowException because unique() has been reset
-
-	// tip: unique() stores one array of values per provider
-
-	// optional() sometimes ignores the provider to
-	// return a default value instead (i.e. NULL)
-	$values = [];
-
-	for ($i = 0; $i < 10; $i++) {
-		// create a random number, but sometimes can be NULL
-		$values[] = $faker->optional()->randomDigit;
-	}
-
-	dd($values); // [1, 4, null, 9, 5, null, null, 4, 6, null]
-
-	// optional() accepts a $weight parameter to determine
-	// the probability of the default value.
-
-	// 0 means always return default value;
-	// 1 means always return the provider.
-	// Default is 0.5.
-
-	$faker->optional($weight = 0.1)->randomDigit;
-	// 90% chance of getting NULL
-
-	$faker->optional($weight = 0.9)->randomDigit;
-	// 10% chance of getting NULL
-
-	// optional() also accepts a $default parameter to
-	// specify what default value you want to return.
-	// Default is NULL.
-
-	$faker->optional($weight = 0.5, $default = false)->randomDigit;
-	// 50% chance of getting FALSE
-
-	$faker->optional($weight = 0.9, $default = 'abc')->word;
-	// 10% chance of getting 'abc'
+```php
+$faker->optional()->randomDigit;            // 50% chance of NULL
+$faker->optional(0.1)->randomDigit;         // 90% chance of NULL
+$faker->optional(0.9, 'abc')->word;         // 10% chance of 'abc'
 ```

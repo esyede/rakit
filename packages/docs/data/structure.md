@@ -16,14 +16,13 @@
 
 ## Basic Knowledge
 
-The default structure suits both small and large applications, and follows the
+The default layout suits small and large applications alike and follows the
 conventions of other PHP frameworks.
 
 <a id="folder-hierarchy"></a>
 
 ## Folder Hierarchy
 
-By default, the rakit folder hierarchy will look like this:
 
 ```bash
 ├── /application
@@ -80,35 +79,36 @@ By default, the rakit folder hierarchy will look like this:
 └── sample.htaccess
 ```
 
-What each folder is for:
-
 <a id="application-folder"></a>
 
 ### Application Folder
 
-Holds controllers, views and configuration. It is itself a package, the default
-one, which boots the system and the packages installed into `packages/`.
-Routing and the rest of the application settings live here too.
+Your code: controllers, models, views, configuration, routes and so on. It is
+itself a package, the default one, and its `boot.php` starts the system and the
+packages registered in `packages.php`.
 
 <a id="assets-folder"></a>
 
 ### Assets Folder
 
-Public files the browser has to reach: CSS, JavaScript and images. Its `packages/`
-subfolder holds the assets of installed packages.
+Public files the browser has to reach: CSS, JavaScript and images. Its
+`packages/` subfolder holds the [published assets](/docs/packages#package-assets)
+of installed packages.
 
 <a id="packages-folder"></a>
 
 ### Packages Folder
 
-Holds the packages you install.
+The [packages](/docs/packages) you install.
 
 <a id="storage-folder"></a>
 
 ### Storage Folder
 
-Non-public files: cache, sessions, sqlite databases, and the views compiled by the
-[Blade Template Engine](/docs/views/templating#blade-template-engine).
+Non-public files written at runtime: cache, sessions, logs, SQLite databases and
+the views compiled by the
+[Blade Template Engine](/docs/views/templating#blade-template-engine). It must be
+writable by PHP.
 
 <a id="system-folder"></a>
 

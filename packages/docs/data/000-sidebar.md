@@ -1,122 +1,83 @@
-### Getting Started
+### Prologue
 
 -   [Overview](/docs/home)
 -   [Release Notes](/docs/changelog)
--   [Installation & Initial Configuration](/docs/install) <!-- has-submenu -->
-    -   [System Requirements](/docs/install#system-requirements)
-    -   [Installation](/docs/install#installation)
-    -   [Initial Configuration](/docs/install#initial-configuration)
-    -   [Pretty URLs](/docs/install#pretty-urls)
+
+### Getting Started
+
+-   [Installation](/docs/install)
 -   [Directory Structure](/docs/structure)
--   [Routing](/docs/routing) <!-- has-submenu -->
-    -   [Basic Knowledge](/docs/routing#basic-knowledge)
-    -   [Route Parameters](/docs/routing#route-parameters)
-    -   [404 Handler](/docs/routing#404-handler)
-    -   [Middleware](/docs/routing#middleware)
-    -   [Middleware Pattern](/docs/routing#middleware-pattern)
-    -   [Global Middleware](/docs/routing#global-middleware)
-    -   [Route Groups](/docs/routing#route-groups)
-    -   [Named Routes](/docs/routing#named-routes)
-    -   [Route for Package](/docs/routing#route-for-package)
-    -   [Controller Routing](/docs/routing#controller-routing)
-    -   [Route Helpers](/docs/routing#route-helpers)
-    -   [Route Testing via CLI](/docs/routing#route-testing-via-cli)
--   [Controllers](/docs/controllers) <!-- has-submenu -->
-    -   [Basic Knowledge](/docs/controllers#basic-knowledge)
-    -   [Controller Routing](/docs/controllers#controller-routing)
-    -   [Package Controller](/docs/controllers#package-controller)
-    -   [Controller Middleware](/docs/controllers#controller-middleware)
-    -   [Nested Controller](/docs/controllers#nested-controller)
-    -   [RESTful Controller](/docs/controllers#restful-controller)
-    -   [Dependency Injection](/docs/controllers#dependency-injection)
-    -   [Controller Factory](/docs/controllers#controller-factory)
--   [Views & Responses](/docs/views) <!-- has-submenu -->
-    -   [Basic Knowledge](/docs/views#basic-knowledge)
-    -   [Passing Data to View](/docs/views#passing-data-to-view)
-    -   [Nested Views](/docs/views#nested-views)
-    -   [Named Views](/docs/views#named-views)
-    -   [View Composers](/docs/views#view-composers)
-    -   [Redirect Responses](/docs/views#redirect-responses)
-    -   [Redirect with Flash Data](/docs/views#redirect-with-flash-data)
-    -   [Download Response](/docs/views#download-response)
-    -   [Error Response](/docs/views#error-response)
-    -   [Templating](/docs/views/templating)
-    -   [Data Pagination](/docs/views/pagination)
--   [Input & Cookies](/docs/input) <!-- has-submenu -->
-    -   [Retrieving Input](/docs/input#retrieving-input)
-    -   [File Upload](/docs/input#file-upload)
-    -   [Old Input](/docs/input#old-input)
-    -   [Redirect with Old Input](/docs/input#redirect-with-old-input)
-    -   [Cookies](/docs/input#cookies)
--   [Packages](/docs/packages) <!-- has-submenu -->
-    -   [Basic Knowledge](/docs/packages#basic-knowledge)
-    -   [Creating Packages](/docs/packages#creating-packages)
-    -   [Packages & Autoloading](/docs/packages#packages--autoloading)
-    -   [Booting Packages](/docs/packages#booting-packages)
-    -   [Routing to Packages](/docs/packages#routing-to-packages)
-    -   [Using Packages](/docs/packages#using-packages)
-    -   [Package Assets](/docs/packages#package-assets)
-    -   [Installing Packages](/docs/packages#installing-packages)
-    -   [Upgrading Packages](/docs/packages#upgrading-packages)
-    -   [Removing Packages](/docs/packages#removing-packages)
+-   [Configuration](/docs/config)
+
+### Architecture Concepts
+
+-   [Container](/docs/container)
 -   [Autoloading](/docs/autoloading)
+-   [Packages](/docs/packages)
+
+### The Basics
+
+-   [Routing](/docs/routing)
+-   [Controllers](/docs/controllers)
+-   [Requests](/docs/requests)
+-   [Input & Cookies](/docs/input)
+-   [Views & Responses](/docs/views)
+-   [Templating](/docs/views/templating)
+-   [URL Generation](/docs/urls)
+-   [Session Configuration](/docs/session/config)
+-   [Using Session](/docs/session/usage)
+-   [Validation](/docs/validation)
 -   [Errors & Debugging](/docs/debugging)
--   [Runtime Configuration](/docs/config)
--   [Checking Requests](/docs/requests)
--   [Creating URLs](/docs/urls)
+
+### Digging Deeper
+
+-   [Console](/docs/console)
 -   [Hooks (Events & Listeners)](/docs/hooks)
--   [Data Validation](/docs/validation)
--   [Transformers](/docs/transformers)
+-   [Cache Configuration](/docs/cache/config)
+-   [Using Cache](/docs/cache/usage)
+-   [Job (Queues & Scheduling)](/docs/job)
+-   [Email](/docs/email)
+-   [Storage](/docs/storage)
+-   [HTTP Client (Curl)](/docs/curl)
+-   [Localization](/docs/localization)
+-   [WebSocket](/docs/websocket)
+-   [Workers](/docs/workers)
+
+### Security
+
+-   [Authentication Configuration](/docs/auth/config)
+-   [Using Authentication](/docs/auth/usage)
+-   [Encryption](/docs/crypter)
+-   [RSA Encryption](/docs/rsa)
+-   [Hashing](/docs/hash)
+-   [JSON Web Token (JWT)](/docs/jwt)
 
 ### Database
 
 -   [Configuration](/docs/database/config)
 -   [Raw Queries](/docs/database/raw)
 -   [Magic Query Builder](/docs/database/magic)
--   [Facile Model](/docs/database/facile)
+-   [Pagination](/docs/views/pagination)
 -   [Schema Builder](/docs/database/schema)
--   [Database Migrations](/docs/database/migrations)
+-   [Migrations](/docs/database/migrations)
 -   [Fake Data (Faker)](/docs/database/faker)
 -   [Redis](/docs/database/redis)
 
-### Caching
+### Facile ORM
 
--   [Configuration](/docs/cache/config)
--   [Usage](/docs/cache/usage)
+-   [Facile Model](/docs/database/facile)
+-   [Transformers](/docs/transformers)
 
-### Session
+### Utilities
 
--   [Configuration](/docs/session/config)
--   [Usage](/docs/session/usage)
-
-### Authentication
-
--   [Configuration](/docs/auth/config)
--   [Usage](/docs/auth/usage)
-
-### Support
-
--   [Arrays](/docs/arrays)
--   [Collection](/docs/collection)
--   [Console](/docs/console)
--   [Container](/docs/container)
--   [Crypter](/docs/crypter)
--   [Curl](/docs/curl)
--   [Carbon](/docs/carbon)
--   [Email](/docs/email)
--   [Hash](/docs/hash)
 -   [Helpers](/docs/helpers)
--   [Image](/docs/image)
--   [Job](/docs/job)
--   [JWT](/docs/jwt)
--   [Localization](/docs/localization)
--   [Lottery](/docs/lottery)
--   [Macroable](/docs/macroable)
--   [Markdown](/docs/markdown)
+-   [Arrays](/docs/arrays)
+-   [Strings](/docs/strings)
+-   [Collection](/docs/collection)
+-   [Carbon (Dates)](/docs/carbon)
 -   [Messages](/docs/messages)
 -   [Optional](/docs/optional)
--   [RSA Crypter](/docs/rsa)
--   [Storage](/docs/storage)
--   [Strings](/docs/strings)
--   [Websocket](/docs/websocket)
--   [Workers](/docs/workers)
+-   [Macroable](/docs/macroable)
+-   [Lottery](/docs/lottery)
+-   [Markdown](/docs/markdown)
+-   [Image](/docs/image)

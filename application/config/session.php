@@ -127,36 +127,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Session ID Length
-    |--------------------------------------------------------------------------
-    |
-    | Length of session ID in characters. Default 32 for PHP 7.1+.
-    | Leave null to use default PHP.
-    |
-    */
-
-    'sid_length' => null,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Session Serialize Handler
-    |--------------------------------------------------------------------------
-    |
-    | Serialization handler for session data. Default to 'php'
-    | Available options: 'php', 'php_serialize', 'php_binary'.
-    |
-    | php: Default PHP serializer using serialize()/unserialize()
-    | php_serialize: Improved serialize(), better for objects and security,
-    |                Requires PHP 5.5.4 or newer.
-    | php_binary: Binary serialization, more compact and faster,
-    |             but not human-readable.
-    |
-    */
-
-    'serialize' => 'php',
-
-    /*
-    |--------------------------------------------------------------------------
     | Stateless Routes
     |--------------------------------------------------------------------------
     |

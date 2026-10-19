@@ -306,4 +306,27 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($route);
         $this->assertCount(0, $events);
     }
+
+    /**
+     * Test that route:call only runs middleware with --with-middleware.
+     *
+     * @group system
+     */
+    public function testRouteCallCommandWithMiddleware()
+    {
+        Middleware::register('test-before', function () {
+            return 'Middleware OK!';
+        });
+
+        Route::get('route-call-test', ['before' => 'test-before', function () {
+            return 'Route!';
+        }]);
+
+        $command = new \System\Console\Commands\Route();
+
+        $this->assertEquals('Route!', $command->dispatch('get', 'route-call-test'));
+        $this->assertEquals('HTTP 200'.PHP_EOL.'Middleware OK!', $command->dispatch('get', 'route-call-test', true));
+        $this->assertEquals('404: Not Found', $command->dispatch('get', 'route-call-missing'));
+        Request::foundation()->setMethod('GET');
+    }
 }

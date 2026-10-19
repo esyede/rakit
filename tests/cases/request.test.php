@@ -289,6 +289,13 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $this->setServerVar('HTTP_USER_AGENT', 'TestAgent');
         $this->assertEquals('TestAgent', Request::server('HTTP_USER_AGENT'));
+
+        // Keys are lowercase like Laravel/Symfony; lookups stay case-insensitive.
+        $headers = Request::headers();
+        $this->assertArrayHasKey('user-agent', $headers);
+        $this->assertArrayNotHasKey('User-Agent', $headers);
+        $this->assertEquals('TestAgent', Request::header('User-Agent'));
+        $this->assertEquals('TestAgent', Request::header('user_agent'));
     }
 
     /**

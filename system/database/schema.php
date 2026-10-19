@@ -331,8 +331,20 @@ class Schema
     protected static function implications($table)
     {
         if (count($table->columns) > 0 && ! $table->creating()) {
-            $command = new Magic(['type' => 'add']);
-            array_unshift($table->commands, $command);
+            $changed = 0;
+
+            foreach ($table->columns as $column) {
+                $changed += (isset($column->change) && $column->change) ? 1 : 0;
+            }
+
+            // Columns marked with change() are altered in place, the rest are added.
+            if ($changed > 0) {
+                array_unshift($table->commands, new Magic(['type' => 'change']));
+            }
+
+            if ($changed < count($table->columns)) {
+                array_unshift($table->commands, new Magic(['type' => 'add']));
+            }
         }
 
         $indexes = ['primary', 'unique', 'fulltext', 'index'];

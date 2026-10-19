@@ -4,9 +4,13 @@
 
 -   [Basic Knowledge](#basic-knowledge)
 -   [Encode Data](#encode-data)
+    -   [Additional Headers](#additional-headers)
+    -   [Algorithms](#algorithms)
 -   [Decode Data](#decode-data)
+    -   [Decode Options](#decode-options)
+    -   [Time Claims](#time-claims)
 -   [Refresh Token](#refresh-token)
--   [Practical Examples](#practical-examples)
+-   [Practical Example](#practical-example)
 
 <!-- /MarkdownTOC -->
 
@@ -14,224 +18,131 @@
 
 ## Basic Knowledge
 
-As the name suggests, the `JWT` component provides a simple way to handle encoding and decoding of [JSON Web Token](https://jwt.io/). This component is compatible with the [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519) standard that is widely used.
-
-> This component supports `HS256`, `HS384`, `HS512` for a shared secret, and
-> `RS256`, `RS384`, `RS512` for an RSA key pair.
-
-> Which of them a token is allowed to use follows the key you decode with: a PEM
-> key accepts the `RS*` family and nothing else, any other key accepts the `HS*`
-> family and nothing else. That is what stops someone who knows your public key
-> from signing a token with `HS256` using that key as the secret. Pass
-> `['algorithm' => 'RS256']` to `decode()` when a token should carry one
-> specific algorithm.
+The `JWT` component encodes and decodes [JSON Web Tokens](https://jwt.io/) following [RFC 7519](https://datatracker.ietf.org/doc/html/rfc7519). It supports `HS256`, `HS384`, `HS512` (shared secret) and `RS256`, `RS384`, `RS512` (RSA key pair, requires OpenSSL). Every failure (bad signature, expired token, malformed segments ...) throws an `\Exception`.
 
 <a id="encode-data"></a>
 
 ## Encode Data
 
-#### Encoding data:
-
-To encode data, use the `encode()` method as follows:
+`encode()` takes the payload array and the key, and returns the token string:
 
 ```php
-$secret = 's3cr3t';
-$data = [
+$jwt = JWT::encode([
     'iss' => 'http://example.org',
     'aud' => 'http://example.com',
-    'iat' => 1356999524,
-    'nbf' => 1357000000,
-];
-
-$jwt = JWT::encode($data, $secret);
-// dd($jwt);
+    'iat' => time(),
+    'exp' => time() + 3600,
+], 's3cr3t');
 ```
+
+<a id="additional-headers"></a>
 
 ### Additional Headers
 
-In addition to specifying the desired algorithm type, you can also pass additional headers as needed. Here's how:
+The third argument adds extra headers. `typ` and `alg` are always set by the component:
 
 ```php
-$headers = [
-    'type' => 'bearer',
-    'foo' => 'bar',
-];
-
-$jwt = JWT::encode($data, $secret, $headers);
+$jwt = JWT::encode($data, $secret, ['kid' => 'key-1']);
 ```
+
+<a id="algorithms"></a>
 
 ### Algorithms
 
-By default, the above process will use the `HS256` algorithm.
-
-However, you can also change it to another one:
+The default algorithm is `HS256`; pass another as the fourth argument. For the `RS*` algorithms, encode with the PEM private key and decode with the PEM public key:
 
 ```php
-$jwt = JWT::encode($data, $secret, $headers, 'HS384');
-// dd($jwt);
+$jwt = JWT::encode($data, $secret, [], 'HS384');
+$jwt = JWT::encode($data, $private_key, [], 'RS256');
 ```
-
-> Only the following algorithms are supported: `HS256` `HS384` `HS512` `RS256` `RS384` and `RS512`.
-> For the `RS*` algorithms, encode with the PEM private key and decode with the PEM public key.
 
 <a id="decode-data"></a>
 
 ## Decode Data
 
-#### Decoding data:
-
-To decode data, use the `decode()` method as follows:
+`decode()` verifies the token and returns its payload as a `stdClass`:
 
 ```php
 $decoded = JWT::decode($jwt, 's3cr3t');
-// dd($decoded);
+echo $decoded->iss;
 ```
 
-You can also add additional options when decoding:
+> **Security:** the algorithms a token may use follow the key you decode with: a PEM key accepts only the `RS*` family, any other key only the `HS*` family. This stops someone who knows your public key from signing an `HS256` token with it as the secret. Pass the `algorithm` option to pin one specific algorithm.
+
+<a id="decode-options"></a>
+
+### Decode Options
 
 ```php
-$options = [
-    'algorithm' => 'HS256',              // Only accept this algorithm (string or array)
-    'aud' => 'http://example.com',       // Expected audience (aud claim)
-    'iss' => 'http://example.org',       // Expected issuer (iss claim)
+$decoded = JWT::decode($jwt, 's3cr3t', [
+    'algorithm' => 'HS256',              // allowed algorithm(s), string or array
+    'aud' => 'http://example.com',       // required audience claim
+    'iss' => 'http://example.org',       // required issuer claim
     'validator' => function ($payloads, $headers) {
-        // Extra checks, throw an exception to reject the token
+        // extra checks; throw an exception to reject the token
     },
-];
-
-$decoded = JWT::decode($jwt, 's3cr3t', $options);
+]);
 ```
 
-> The `exp`, `nbf` and `iat` claims are always verified when present in the payload
-> (tolerance can be set via `JWT::$leeway` in seconds). An exception is thrown when
-> any check fails.
+<a id="time-claims"></a>
+
+### Time Claims
+
+The `exp`, `nbf` and `iat` claims are always verified when present. Set `JWT::$leeway` (seconds) to tolerate clock skew between servers, and `JWT::$timestamp` to override the current time (handy in tests):
+
+```php
+JWT::$leeway = 60;
+```
 
 <a id="refresh-token"></a>
 
 ## Refresh Token
 
-The `refresh()` method is used to update the expiration time of an existing token without needing to re-encode all the payload:
-
-#### Refreshing a token with a new expiration time:
+`refresh()` decodes a still-valid token and re-issues it with a new `exp`, keeping the rest of the payload. By default it reuses the token's own algorithm:
 
 ```php
-$token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-$secret = 's3cr3t';
-$new_exp = time() + 7200; // Expires in 2 hours
+$new_token = JWT::refresh($token, $secret, time() + 7200);
 
-$refreshed_token = JWT::refresh($token, $secret, $new_exp);
-// dd($refreshed_token);
+// Custom headers and algorithm
+$new_token = JWT::refresh($token, $secret, time() + 7200, ['kid' => 'key-1'], 'HS384');
 ```
 
-#### Refresh with custom headers and algorithm:
+For `RS*` tokens, the second argument is the public key used for decoding, so pass the private key as the sixth argument (`$sign_key`) to sign the new token:
 
 ```php
-$headers = [
-    'type' => 'bearer',
-    'refresh' => true,
-];
-
-$refreshed_token = JWT::refresh($token, $secret, $new_exp, $headers, 'HS384');
+$new_token = JWT::refresh($token, $public_key, time() + 7200, [], null, $private_key);
 ```
 
-**Use case for refresh token:**
-
-```php
-// In middleware for auto-refreshing tokens that will expire
-Route::middleware('jwt.refresh', function () {
-    $token = Request::bearer();
-
-    if (!$token) {
-        return Response::json(['error' => 'Token required'], 401);
-    }
-
-    try {
-        $decoded = JWT::decode($token, Config::get('jwt.secret'));
-
-        // Check if token will expire within 5 minutes
-        $exp_threshold = time() + 300;
-
-        if ($decoded->exp < $exp_threshold) {
-            // Refresh token with 1 hour expiration from now
-            $new_exp = time() + 3600;
-            $new_token = JWT::refresh($token, Config::get('jwt.secret'), $new_exp);
-
-            // Send new token via header
-            header('X-New-Token: ' . $new_token);
-        }
-    } catch (\Exception $e) {
-        return Response::json(['error' => 'Invalid token'], 401);
-    }
-});
-```
-
+<a id="practical-example"></a>
 <a id="practical-examples"></a>
 
-## Practical Examples
+## Practical Example
 
-### API Authentication with JWT
-
-**Setup JWT configuration:**
-
-File: `application/config/jwt.php`
-
-```php
-return [
-    'secret' => 'your-secret-key-here',
-    'algorithm' => 'HS256',
-    'expiration' => 3600, // 1 hour
-    'refresh_threshold' => 300, // 5 minutes
-];
-```
-
-**Login endpoint:**
+Issue a token on login and protect API routes with a middleware. Keep the secret out of your code (for example `getenv('JWT_SECRET')`) and generate it with `bin2hex(Str::bytes(32))`:
 
 ```php
 Route::post('api/login', function () {
-    $email = Input::get('email');
-    $password = Input::get('password');
+    $user = User::where('email', '=', Input::get('email'))->first();
 
-    $user = User::where('email', $email)->first();
-
-    if (!$user || !Hash::check($password, $user->password)) {
+    if (! $user || ! Hash::check(Input::get('password'), $user->password)) {
         return Response::json(['error' => 'Invalid credentials'], 401);
     }
 
-    // Generate JWT
-    $payload = [
+    $token = JWT::encode([
         'iss' => URL::to('/'),
         'iat' => time(),
-        'exp' => time() + Config::get('jwt.expiration'),
+        'exp' => time() + 3600,
         'user_id' => $user->id,
-        'email' => $user->email,
-    ];
+    ], getenv('JWT_SECRET'));
 
-    $token = JWT::encode($payload, Config::get('jwt.secret'));
-
-    return Response::json([
-        'token' => $token,
-        'expires_in' => Config::get('jwt.expiration'),
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-        ],
-    ]);
+    return Response::json(['token' => $token, 'expires_in' => 3600]);
 });
-```
 
-**Protected endpoint:**
-
-```php
 Route::middleware('jwt.auth', function () {
     $token = Request::bearer();
 
-    if (!$token) {
-        return Response::json(['error' => 'Token required'], 401);
-    }
-
     try {
-        $decoded = JWT::decode($token, Config::get('jwt.secret'));
+        $decoded = JWT::decode($token ? $token : '', getenv('JWT_SECRET'), ['algorithm' => 'HS256']);
         Request::foundation()->attributes->set('user_id', $decoded->user_id);
     } catch (\Exception $e) {
         return Response::json(['error' => 'Invalid token'], 401);
@@ -241,176 +152,6 @@ Route::middleware('jwt.auth', function () {
 Route::get('api/profile', ['before' => 'jwt.auth', function () {
     $user = User::find(Request::foundation()->attributes->get('user_id'));
 
-    return Response::json([
-        'id' => $user->id,
-        'name' => $user->name,
-        'email' => $user->email,
-    ]);
+    return Response::json(['id' => $user->id, 'name' => $user->name]);
 }]);
-```
-
-**Refresh token endpoint:**
-
-```php
-Route::post('api/refresh', ['before' => 'jwt.auth', function () {
-    $old_token = Request::bearer();
-    $decoded = JWT::decode($old_token, Config::get('jwt.secret'));
-
-    // Generate new expiration time
-    $new_exp = time() + Config::get('jwt.expiration');
-
-    // Refresh token
-    $new_token = JWT::refresh($old_token, Config::get('jwt.secret'), $new_exp);
-
-    return Response::json([
-        'token' => $new_token,
-        'expires_in' => Config::get('jwt.expiration'),
-    ]);
-}]);
-```
-
-**Middleware for JWT:**
-
-File: `application/middlewares.php`
-
-```php
-// JWT Authentication Middleware
-Route::middleware('jwt.auth', function () {
-    $token = Request::bearer();
-
-    if (!$token) {
-        return Response::json(['error' => 'Token required'], 401);
-    }
-
-    try {
-        $decoded = JWT::decode($token, Config::get('jwt.secret'));
-
-        // Check expiration
-        if (isset($decoded->exp) && $decoded->exp < time()) {
-            return Response::json(['error' => 'Token expired'], 401);
-        }
-
-        // Store user info in request
-        Request::foundation()->attributes->set('user_id', $decoded->user_id);
-        Request::foundation()->attributes->set('token_data', $decoded);
-
-    } catch (\Exception $e) {
-        return Response::json(['error' => 'Invalid token: ' . $e->getMessage()], 401);
-    }
-});
-```
-
-**Example usage in frontend (JavaScript):**
-
-```javascript
-// Login
-async function login(email, password) {
-    const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
-
-    if (data.token) {
-        localStorage.setItem('jwt_token', data.token);
-        return data;
-    }
-
-    throw new Error(data.error);
-}
-
-// API Request with JWT
-async function getProfile() {
-    const token = localStorage.getItem('jwt_token');
-
-    const response = await fetch('/api/profile', {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    // Check for refresh token in response header
-    const newToken = response.headers.get('X-New-Token');
-    if (newToken) {
-        localStorage.setItem('jwt_token', newToken);
-    }
-
-    return await response.json();
-}
-
-// Refresh token
-async function refreshToken() {
-    const token = localStorage.getItem('jwt_token');
-
-    const response = await fetch('/api/refresh', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json();
-
-    if (data.token) {
-        localStorage.setItem('jwt_token', data.token);
-    }
-}
-```
-
-### Best Practices
-
-**1. Use a strong secret key:**
-
-```php
-// Generate secret key
-$secret = bin2hex(Str::bytes(32)); // 64 hex characters
-```
-
-**2. Store secret key securely:**
-
-```php
-// Do not hardcode in code, use environment variables
-$secret = getenv('JWT_SECRET') ?: Config::get('jwt.secret');
-```
-
-**3. Set reasonable expiration time:**
-
-```php
-// Short-lived token for security
-'expiration' => 3600, // 1 hour
-
-// Use refresh token for extension
-```
-
-**4. Validate all important claims:**
-
-```php
-// exp, nbf and iat are always verified when present,
-// audience and issuer are verified when you pass them
-$options = [
-    'algorithm' => 'HS256',
-    'aud' => 'http://example.com',
-    'iss' => 'http://example.org',
-];
-
-$decoded = JWT::decode($token, $secret, $options);
-```
-
-**5. Handle token expiration gracefully:**
-
-```php
-try {
-    $decoded = JWT::decode($token, $secret);
-} catch (\Exception $e) {
-    if (strpos($e->getMessage(), 'Expired') !== false) {
-        return Response::json([
-            'error' => 'Token expired',
-            'code' => 'TOKEN_EXPIRED'
-        ], 401);
-    }
-
-    return Response::json(['error' => 'Invalid token'], 401);
-}
 ```

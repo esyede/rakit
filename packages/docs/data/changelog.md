@@ -253,6 +253,46 @@ Security audit fixes — all severities:
     `'age' => 'min'` raises `InvalidArgumentException` instead of reading past the
     end of an empty parameter list.
 
+-   **`nullable` no longer skips implicit rules**, as in Laravel. `required|nullable`
+    now fails on a `null` or missing value; only non-implicit rules are skipped.
+
+-   **Bulk Facile queries respect soft deletes and timestamps.**
+    `Model::where(...)->delete()` on a soft-delete model sets `deleted_at` instead of
+    removing rows; use the new `force_delete()` for a real DELETE. Bulk `update()`,
+    `increment()` and `decrement()` stamp `updated_at`. Relationship `save()` now
+    calls `$model->save()`, so an existing model is updated rather than re-inserted,
+    and returns `false` when a save fails.
+
+-   **Header keys are lowercase**, as in Symfony/Laravel. `Request::headers()`,
+    `headers->all()` and iterating a header bag give `user-agent`, not `User-Agent`.
+    `get()`/`has()` stay case-insensitive; response headers are still sent with the
+    casing they were set with (`allPreserveCase()`).
+
+-   **`trans()` and `__()` return a string** instead of a `Lang` object. Chain on
+    `Lang::line()` when you need the object.
+
+-   **`select_raw()` appends** to the select list instead of replacing it, like
+    Laravel's `selectRaw()`.
+
+-   **WebSocket:** clients can no longer disconnect other clients; `private-*` and
+    `presence-*` channels need an `auth` signature from
+    `System\Websocket\Server::sign()`; client-to-client messages need a shared private
+    channel, and sending to a channel needs a subscription. `origin_required` now
+    defaults to `true`. Clients can no longer broadcast to every connection (the
+    `broadcast` command and plain-text messages) unless the new `client_broadcast`
+    option is enabled.
+
+-   **`cursor()` works like Laravel's:** it takes no arguments (columns come from
+    `select()`), runs one query and streams the rows from the PDO statement. Facile's
+    `cursor()` hydrates one model at a time and ignores `with()`. The old chunked
+    behaviour is now `lazy($chunk_size)`. On PHP 5.4 these return plain iterators
+    (`System\Database\Query\Cursor` / `Lazy`) instead of generators.
+
+-   **`chunk()`, `each()` and `lazy()` require an `order_by()`** on the query
+    builder, as in Laravel; Facile orders by the model key when none is given.
+    `chunk_by_id()`'s `$column` now defaults to `null` (`id` / the model key), its
+    callback also receives `$page`, and Facile's version returns models.
+
 **Security**
 
 -   **HTTP response splitting through a cookie.** The cookie `path` and `domain`
@@ -304,7 +344,54 @@ Security audit fixes — all severities:
 -   `system/init.php` referenced `$stub` outside the branch that defined it, so
     `_ide_helper.php` was never created once `key.php` existed.
 
+-   `migrate:rollback`, `migrate:reset` and `migrate:refresh` with package names only
+    looked at the global last batch, so they did nothing (or stopped early) when that
+    batch belonged to another package. `package:uninstall` now rolls back the
+    package's migrations before removing it.
+
+-   A fresh session had no CSRF token until `csrf_token()` was called; the token is
+    now created when the session loads.
+
+-   `Schema::table()` ignored `->change()`. Changed columns now compile to
+    `MODIFY` (MySQL) / `ALTER COLUMN` (PostgreSQL, SQL Server); SQLite throws.
+    PostgreSQL casts with `USING col::type`; SQL Server drops the column's existing
+    default constraint first.
+
+-   `update()` and `delete()` ignored joins. They now compile per driver: MySQL
+    `UPDATE … JOIN`, SQL Server `UPDATE … FROM`, PostgreSQL/SQLite a
+    `ctid`/`rowid IN (subquery)`.
+
+-   The soft delete filter (`deleted_at IS NULL`) and Facile's bulk `updated_at`/
+    `deleted_at` are qualified with the model's table, so joins with a table that
+    has the same column are no longer ambiguous.
+
+-   `route:call` set the request method only in `$_SERVER`, so a `post` call could
+    match a GET route.
+
+**Added**
+
+-   Join closures accept `where()` / `or_where()` with bound values.
+-   `has_one` relationships have `save()`.
+-   `Auth::logout($invalidate = true)`: pass `false` to keep session data (the
+    session ID is still regenerated).
+-   `route:call --with-middleware` runs the route's before/after middleware.
+-   `Lottery` global alias.
+-   `lazy()`, `lazy_by_id()`, `lazy_by_id_desc()`, `chunk_by_id_desc()`,
+    `each_by_id()`, `for_page_after_id()` and `for_page_before_id()` on the query
+    builder and Facile, with Laravel's parameter lists.
+-   `->using('expression')` column modifier for PostgreSQL `->change()`.
+-   WebSocket `client_broadcast` config option.
+
+**Removed**
+
+-   Unused `sid_length` and `serialize` options removed from `config/session.php`.
+-   Email `Driver::pipelining()` removed; it never did anything.
+
 **Docs**
 
 -   `database/facile.md`, `input.md`, `views/home.md`, `routing.md`, `validation.md`,
     `debugging.md` and `curl.md` updated for the changes above.
+-   The whole documentation was reorganised Laravel-style (new sidebar groups) and
+    rewritten to be shorter, with examples checked against the code.
+-   `debugging.md` warns that `activate` defaults to `true` and must be `false` in
+    production.

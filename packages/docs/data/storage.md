@@ -2,191 +2,135 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
+-   [Basic Knowledge](#basic-knowledge)
 -   [File Path](#file-path)
 -   [Read File](#read-file)
 -   [Write File](#write-file)
 -   [Delete File](#delete-file)
+-   [Directories](#directories)
+-   [File Type & MIME-Type](#file-type--mime-type)
 -   [Upload File](#upload-file)
--   [File Extension](#file-extension)
--   [Check File Type](#check-file-type)
--   [MIME-Type](#mime-type)
--   [Copy Directory](#copy-directory)
--   [Delete Directory](#delete-directory)
 -   [Other Methods](#other-methods)
+-   [Path Restrictions](#path-restrictions)
 
 <!-- /MarkdownTOC -->
+
+<a id="basic-knowledge"></a>
+
+## Basic Knowledge
+
+`Storage` is a thin wrapper around PHP's filesystem functions for reading, writing, moving and deleting files and directories. Relative paths are resolved against `path('base')`, and every path is checked against the allowed roots (see [Path Restrictions](#path-restrictions)).
 
 <a id="file-path"></a>
 
 ## File Path
 
-#### Check existence of directory or file:
-
 ```php
-Storage::exists('foo/bar/');    // true
-Storage::exists('foo/bar.txt'); // true
-```
-
-#### Check that the given path is a file:
-
-```php
-Storage::isfile('foo/bar/');    // false
-Storage::isfile('foo/bar.txt'); // true
-```
-
-#### Check that the given path is a directory:
-
-```php
-Storage::isdir('foo/bar/');    // true
-Storage::isdir('foo/bar.txt'); // false
+Storage::exists('foo/bar.txt'); // file or directory exists
+Storage::isfile('foo/bar.txt'); // true only for files
+Storage::isdir('foo/bar/');     // true only for directories
 ```
 
 <a id="read-file"></a>
 
 ## Read File
 
-#### Retrieve file contents:
+`get()` returns the file contents, or the second argument (default `null`) when the file does not exist:
 
 ```php
 $contents = Storage::get('path/to/file');
+$contents = Storage::get('path/to/file', 'default');
 ```
 
-> **Security:** paths are confined to `path('base')`, `path('storage')` and anything listed in `Storage::$allowed_roots`. Traversal (`../`), null bytes and stream wrappers (`php://`, `phar://`) throw. Never pass raw user input like `Storage::get(Input::get('f'))` — map it through an allowlist first.
+> **Security:** never pass raw user input such as `Storage::get(Input::get('file'))` (think `?file=../../etc/passwd`). Map it through an allowlist first:
 
 ```php
-// vulnerable
-Storage::get(Input::get('file')); // ?file=../../../../etc/passwd
-
-// safe — allowlist or basename
 $allowed = ['report.pdf' => 'exports/report.pdf'];
-$path = isset($allowed[Input::get('file')]) ? $allowed[Input::get('file')] : null;
-if ($path) Storage::get(path('storage').$path);
+$file = Input::get('file');
+
+if (isset($allowed[$file])) {
+    $contents = Storage::get(path('storage').$allowed[$file]);
+}
 ```
 
 <a id="write-file"></a>
 
 ## Write File
 
-#### Write data to a file:
-
 ```php
-Storage::put('path/to/file', 'file contents');
+Storage::put('path/to/file', 'file contents');      // overwrite (uses LOCK_EX)
+Storage::append('path/to/file', 'appended text');   // add to the end
+Storage::prepend('path/to/file', 'prepended text'); // add to the beginning
 ```
 
-> Paths are validated before writing, so `Storage::put(Input::get('name'), $data)` throws once the filename resolves outside the allowed roots.
-
-#### Append data to the end of a file:
-
-```php
-Storage::append('path/to/file', 'appended file contents');
-```
-
-#### Add data to the beginning of a file:
-
-```php
-Storage::prepend('path/to/file', 'prepended file contents');
-```
+`put()` accepts `file_put_contents()` flags as a third argument. Every write also drops an `index.html` into the directory (see `protect()` below).
 
 <a id="delete-file"></a>
 
 ## Delete File
 
-#### Delete a file:
-
 ```php
 Storage::delete('path/to/file.ext');
 ```
+
+<a id="directories"></a>
+<a id="copy-directory"></a>
+<a id="delete-directory"></a>
+
+## Directories
+
+```php
+Storage::mkdir($path, 0755);              // create recursively
+Storage::cpdir($directory, $destination); // copy recursively
+Storage::mvdir($from, $to);               // move / rename
+Storage::rmdir($directory);               // delete recursively
+Storage::cleandir($directory);            // empty it, keep the directory
+```
+
+`rmdir()` refuses to remove `path('base')`, `path('storage')` or any allowed root itself.
+
+<a id="file-type--mime-type"></a>
+<a id="file-extension"></a>
+<a id="check-file-type"></a>
+<a id="mime-type"></a>
+
+## File Type & MIME-Type
+
+```php
+Storage::extension('picture.png');           // 'png'
+Storage::mime('path/to/lolcat.gif');         // 'image/gif', or false if missing
+Storage::is('jpg', 'path/to/file.jpg');      // true
+Storage::is(['jpg', 'png'], 'path/to/file'); // any of these
+```
+
+`mime()` and `is()` read the actual file content through the [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) extension (which must be enabled), so they are not fooled by a renamed extension.
 
 <a id="upload-file"></a>
 
 ## Upload File
 
-#### Move file from `$_FILES` to disk:
+`Input::upload()` moves a file from `$_FILES` to disk. It returns `false` when no file was uploaded under that key:
 
 ```php
-// Basic — hardened by default (blocks PHP extensions, validates MIME and size)
 Input::upload('picture', path('storage').'pictures', 'filename.ext');
 ```
 
-> **Security:** `Upload::move()` validates the extension, the MIME type (via `finfo`), the size (`upload_max_filesize` / `Upload::$max_size`) and double extensions (`shell.php.jpg`). Dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess` ...) are rejected. A whitelist gives tighter control:
+> **Security:** uploads are hardened by default. The extension, MIME type (via `finfo`), size (`upload_max_filesize` or `Upload::$max_size`) and double extensions (`shell.php.jpg`) are checked, and dangerous extensions (`php`, `phtml`, `phar`, `sh`, `htaccess`, `html`, `svg` ...) are rejected with an exception.
+
+For tighter control, use a whitelist, or validate before moving:
 
 ```php
 use System\Foundation\Http\Upload;
 
-Upload::$allowed_extensions = ['jpg','jpeg','png','pdf'];
-Upload::$allowed_mime_types = ['image/jpeg','image/png','application/pdf'];
+Upload::$allowed_extensions = ['jpg', 'jpeg', 'png', 'pdf'];
+Upload::$allowed_mime_types = ['image/jpeg', 'image/png', 'application/pdf'];
 Upload::$max_size = 2 * 1024 * 1024; // 2 MB
 
-// Or via Validator before moving
 $rules = ['picture' => 'required|image|max:2048|mimes:jpg,png'];
-if (Validator::make(Input::all(), $rules)->fails()) { /* ... */ }
-Input::upload('picture', path('storage').'pictures');
-```
 
-<a id="file-extension"></a>
-
-## File Extension
-
-#### Retrieve a file's extension:
-
-```php
-Storage::extension('picture.png');
-```
-
-<a id="check-file-type"></a>
-
-## Check File Type
-
-#### Check if a file is of a specific type:
-
-```php
-if (Storage::is('jpg', 'path/to/file.jpg')) {
-    // ..
+if (Validator::make(Input::all(), $rules)->passes()) {
+    Input::upload('picture', path('storage').'pictures');
 }
-```
-
-`is()` does not stop at the extension: it reads the content through
-[Fileinfo](https://www.php.net/manual/en/book.fileinfo.php) to find the real MIME type.
-
-<a id="mime-type"></a>
-
-## MIME-Type
-
-#### Retrieve the MIME-Type of a file (based on its content):
-
-```php
-echo Storage::mime('path/to/lolcat.gif'); // output: 'image/gif'
-```
-
-It returns `FALSE` when the file does not exist.
-
-> You must enable the [Fileinfo](https://www.php.net/manual/en/book.fileinfo.php)
-> extension before using this `mime()` method.
-
-<a id="copy-directory"></a>
-
-## Copy Directory
-
-#### Copy directory to a specific location recursively:
-
-```php
-Storage::cpdir($directory, $destination);
-```
-
-<a id="delete-directory"></a>
-
-## Delete Directory
-
-#### Delete a specific directory recursively:
-
-```php
-Storage::rmdir($directory);
-```
-
-#### Empty a directory without deleting the directory itself:
-
-```php
-Storage::cleandir($directory);
 ```
 
 <a id="other-methods"></a>
@@ -195,11 +139,9 @@ Storage::cleandir($directory);
 
 | Method                              | Description                                                              |
 | ----------------------------------- | ------------------------------------------------------------------------ |
-| `mkdir($path, $chmod)`              | Create a directory recursively, throws if it already exists              |
 | `move($from, $to, $overwrite)`      | Move or rename a file                                                    |
-| `mvdir($from, $to, $overwrite)`     | Move or rename a directory                                               |
 | `copy($path, $target)`              | Copy a file                                                              |
-| `glob($pattern, $flags)`            | Search for paths matching a pattern                                      |
+| `glob($pattern, $flags)`            | Paths matching a pattern (matches outside the allowed roots are dropped) |
 | `latest($directory, $options)`      | The most recently modified file in a directory, as a `SplFileInfo`       |
 | `size($path)`                       | File size in bytes                                                       |
 | `modified($path)`                   | Last modification time as a UNIX timestamp                               |
@@ -211,7 +153,16 @@ Storage::cleandir($directory);
 | `dirname($path)`                    | Directory of the given path                                              |
 | `protect($path)`                    | Drop an `index.html` into the directory so it cannot be browsed          |
 
-> `move()`, `mvdir()`, `delete()`, `rmdir()`, and `mkdir()` throw an exception
-> when the source does not exist or the target already exists (`move()` and
-> `mvdir()` overwrite it when `$overwrite` is `TRUE`). Check with
-> `exists()` first if you are not sure.
+> `move()`, `mvdir()`, `delete()`, `rmdir()` and `mkdir()` throw an exception when the source does not exist or the target already exists (`move()` and `mvdir()` overwrite when `$overwrite` is `true`). Check with `exists()` first if you are not sure.
+
+<a id="path-restrictions"></a>
+
+## Path Restrictions
+
+Paths are confined to `path('base')`, `path('storage')` and any directory you add to `Storage::$allowed_roots`. Traversal (`../`), null bytes and stream wrappers (`php://`, `phar://`) throw an exception, so `Storage::put(Input::get('name'), $data)` fails once the name resolves outside the allowed roots.
+
+```php
+Storage::$allowed_roots[] = '/mnt/shared';
+```
+
+`Storage::$enforce_containment = false` disables these checks entirely; it exists for testing only.

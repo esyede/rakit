@@ -29,15 +29,15 @@ class HttpHeaderTest extends \PHPUnit_Framework_TestCase
 
     public function testAll()
     {
-        $this->assertEquals(['Foo' => ['bar']], (new Header(['foo' => 'bar']))->all());
-        $this->assertEquals(['Foo' => ['BAR']], (new Header(['FOO' => 'BAR']))->all());
+        $this->assertEquals(['foo' => ['bar']], (new Header(['foo' => 'bar']))->all());
+        $this->assertEquals(['foo' => ['BAR']], (new Header(['FOO' => 'BAR']))->all());
     }
 
     public function testReplace()
     {
         $bag = new Header(['foo' => 'bar']);
         $bag->replace(['NOPE' => 'BAR']);
-        $this->assertEquals(['Nope' => ['BAR']], $bag->all());
+        $this->assertEquals(['nope' => ['BAR']], $bag->all());
         $this->assertFalse($bag->has('foo'));
     }
 

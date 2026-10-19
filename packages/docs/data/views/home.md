@@ -4,82 +4,54 @@
 
 - [Basic Knowledge](#basic-knowledge)
 - [Creating View](#creating-view)
-  - [Basic View](#basic-view)
-  - [Check View Exists](#check-view-exists)
   - [View Locations](#view-locations)
+  - [Check View Exists](#check-view-exists)
 - [Passing Data to View](#passing-data-to-view)
-  - [With Method](#with-method)
-  - [Array Data](#array-data)
-  - [Compact](#compact)
-  - [Magic Method](#magic-method)
-  - [Constructor Data](#constructor-data)
 - [Nested Views](#nested-views)
-- [Named Views](#named-views)
-- [View Composers](#view-composers)
-  - [Defining Composer](#defining-composer)
-  - [Multiple Views](#multiple-views)
-  - [Use Case](#use-case)
 - [Sharing Data](#sharing-data)
-  - [Share to All Views](#share-to-all-views)
-  - [Share From Base Controller](#share-from-base-controller)
+- [View Composers](#view-composers)
+- [Named Views](#named-views)
 - [View Rendering](#view-rendering)
-  - [Render Each](#render-each)
   - [Get Rendered Content](#get-rendered-content)
+  - [Render Each](#render-each)
 - [Response Types](#response-types)
-  - [String Response](#string-response)
-  - [View Response](#view-response)
+  - [String & View Response](#string--view-response)
   - [JSON Response](#json-response)
   - [JSONP Response](#jsonp-response)
   - [Model Response](#model-response)
-  - [Download Response](#download-response)
+  - [File & Download Response](#file--download-response)
   - [Error Response](#error-response)
-- [Response Headers](#response-headers)
-  - [Set Headers](#set-headers)
-  - [Content Type](#content-type)
-- [Response Status Code](#response-status-code)
+- [Response Headers & Status](#response-headers--status)
 - [Redirect Responses](#redirect-responses)
-  - [Basic Redirect](#basic-redirect)
-  - [Redirect to Named Route](#redirect-to-named-route)
-  - [Redirect Back](#redirect-back)
   - [Redirect with Flash Data](#redirect-with-flash-data)
   - [Redirect with Input](#redirect-with-input)
-- [Practical Examples](#practical-examples)
+- [Practical Example](#practical-example)
 
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Views hold the HTML (or other text) sent back to the client. Keeping views
-separate from controllers and models makes the code easier to read and reuse.
+Views hold the HTML sent back to the client, separate from your routes and
+controllers. They live in `application/views/` as either plain PHP (`.php`) or
+[Blade](/docs/views/templating) (`.blade.php`) files. This page also covers the
+`Response` and `Redirect` classes used to return them.
 
-Views live in `application/views/`. The framework recognizes two formats:
-
--   `.php` — plain PHP templates (e.g. `home.php`).
--   `.blade.php` — [Blade](/docs/views/templating) templates with helpers
-    like `{{ $var }}`, `@foreach`, `@if`, and template inheritance.
-
+<a id="basic-view"></a>
 <a id="creating-view"></a>
 ## Creating View
 
-<a id="basic-view"></a>
-### Basic View
-
-**File: `application/views/home.php`**
+Create `application/views/home.php`:
 
 ```php
-<!DOCTYPE html>
 <html>
-<head>
-    <title>Home Page</title>
-</head>
 <body>
     <h1>Welcome to Rakit!</h1>
 </body>
 </html>
 ```
 
-**Return view from route:**
+Return it from a route or a controller with `View::make()`:
 
 ```php
 Route::get('/', function () {
@@ -87,819 +59,377 @@ Route::get('/', function () {
 });
 ```
 
-**Return view from controller:**
+<a id="view-locations"></a>
+### View Locations
+
+Use dots for subfolders and `package::` for views in a [package](/docs/packages):
 
 ```php
-class Home_Controller extends Controller
-{
-    public function action_index()
-    {
-        return View::make('home');
-    }
-}
+View::make('user.profile.edit'); // application/views/user/profile/edit.php
+View::make('admin::dashboard');  // packages/admin/views/dashboard.php
+```
+
+A `path: ` prefix renders a `.php` file by its path. The file must sit inside
+the application, system, storage or a package directory:
+
+```php
+View::make('path: ' . path('app') . 'views/home.php');
 ```
 
 <a id="check-view-exists"></a>
 ### Check View Exists
 
-**Check if view exists:**
-
 ```php
 if (View::exists('home')) {
-    return View::make('home');
+    // ...
 }
 
-return View::make('default');
+$path = View::exists('home', true); // full path, or false
 ```
 
-**Get view path:**
-
-```php
-$path = View::exists('home', true);
-// /path/to/application/views/home.php
-```
-
-<a id="view-locations"></a>
-### View Locations
-
-**Subfolder views:**
-
-```php
-// File: application/views/admin/dashboard.php
-return View::make('admin.dashboard');
-
-// File: application/views/user/profile/edit.php
-return View::make('user.profile.edit');
-```
-
-**Package views:**
-
-```php
-// File: packages/admin/views/dashboard.php
-return View::make('admin::dashboard');
-```
-
+<a id="with-method"></a>
+<a id="array-data"></a>
+<a id="compact"></a>
+<a id="magic-method"></a>
+<a id="constructor-data"></a>
 <a id="passing-data-to-view"></a>
 ## Passing Data to View
 
-<a id="with-method"></a>
-### With Method
-
-**Single data:**
+Pass an array as the second argument, or use `with()`. Each key becomes a
+variable in the view:
 
 ```php
-Route::get('user/(:num)', function ($id) {
-    $user = User::find($id);
+return View::make('user.profile', compact('user', 'posts'));
 
-    return View::make('user.profile')->with('user', $user);
-});
-```
-
-**Multiple data with chaining:**
-
-```php
 return View::make('user.profile')
     ->with('user', $user)
-    ->with('posts', $posts)
-    ->with('comments', $comments);
+    ->with(['posts' => $posts, 'title' => 'Profile']);
 ```
 
-<a id="array-data"></a>
-### Array Data
-
-**Pass array to constructor:**
+Dynamic `with_*` methods, properties and array access work too:
 
 ```php
-$data = [
-    'user' => $user,
-    'posts' => $posts,
-    'comments' => $comments,
-];
-
-return View::make('user.profile', $data);
+$view = View::make('user.profile')->with_user($user);
+$view->posts = $posts;
+$view['title'] = 'Profile';
 ```
 
-<a id="compact"></a>
-### Compact
-
-**Using compact():**
-
-```php
-$user = User::find($id);
-$posts = $user->posts;
-$comments = $user->comments;
-
-return View::make('user.profile', compact('user', 'posts', 'comments'));
-```
-
-<a id="magic-method"></a>
-### Magic Method
-
-**Using property magic:**
-
-```php
-$view = View::make('user.profile');
-$view->user = User::find($id);
-$view->posts = Post::all();
-
-return $view;
-```
-
-<a id="constructor-data"></a>
-### Constructor Data
-
-**Pass data directly:**
-
-```php
-return View::make('home', ['title' => 'Home Page', 'active' => 'home']);
-```
-
-**In view:**
+In the view, simply use the variables:
 
 ```php
 <title><?php echo $title; ?></title>
-<body class="<?php echo $active; ?>">
-    <!-- content -->
-</body>
 ```
+
+> Every view also receives an `$errors` variable: the validation errors flashed
+> to the session, or an empty `Messages` object.
 
 <a id="nested-views"></a>
 ## Nested Views
 
-**Include view inside another view:**
-
-**File: `application/views/layouts/master.php`**
-
-```php
-<!DOCTYPE html>
-<html>
-<head>
-    <title><?php echo $title; ?></title>
-</head>
-<body>
-    <header>
-        <?php echo View::make('partials.header'); ?>
-    </header>
-
-    <main>
-        <?php echo $content; ?>
-    </main>
-
-    <footer>
-        <?php echo View::make('partials.footer'); ?>
-    </footer>
-</body>
-</html>
-```
-
-**Using nested view:**
+A view can be passed as data to another view; it is rendered automatically.
+`nest()` is a shortcut for that:
 
 ```php
-$content = View::make('home.index');
-
 return View::make('layouts.master')
     ->with('title', 'Home Page')
-    ->with('content', $content);
+    ->nest('content', 'home.index', ['posts' => $posts]);
 ```
 
-**Pass data to nested view:**
+You can also render a partial directly inside a view:
 
 ```php
-$header = View::make('partials.header', ['user' => Auth::user()]);
-$content = View::make('home.index', ['posts' => $posts]);
-
-return View::make('layouts.master', compact('header', 'content'));
+<header><?php echo View::make('partials.header'); ?></header>
+<main><?php echo $content; ?></main>
 ```
 
-<a id="named-views"></a>
-## Named Views
+<a id="share-to-all-views"></a>
+<a id="share-from-base-controller"></a>
+<a id="sharing-data"></a>
+## Sharing Data
 
-**Register named view:**
+`View::share()` makes a value available to every view. Call it in
+`application/composers.php` or a base controller constructor:
 
 ```php
-// In boot.php or composer
-View::name('layouts.master', 'layout.master');
-View::name('user.profile', 'profile');
+View::share('app_name', Config::get('application.name'));
+
+class Base_Controller extends Controller
+{
+    public function __construct()
+    {
+        View::share('current_user', Auth::user());
+    }
+}
 ```
 
-**Using named view:**
+On a view instance, `shares($key, $value)` does the same and returns the view.
 
-```php
-// Instead of View::make('layouts.master')
-return View::of('layout.master', $data);
-
-// Instead of View::make('user.profile')
-return View::of('profile', compact('user'));
-```
-
+<a id="defining-composer"></a>
+<a id="multiple-views"></a>
+<a id="use-case"></a>
 <a id="view-composers"></a>
 ## View Composers
 
-A view composer is a closure run every time a view is rendered, for data a view should always carry.
-
-<a id="defining-composer"></a>
-### Defining Composer
-
-**In `application/composers.php`:**
-
-```php
-// Composer for single view
-View::composer('user.profile', function ($view) {
-    $view->with('posts_count', Post::count());
-});
-
-// Composer with data from model
-View::composer('layouts.master', function ($view) {
-    $view->with('current_user', Auth::user());
-    $view->with('notifications', Notification::recent());
-});
-```
-
-> Rakit loads `composers.php` automatically right after `routes.php`, together with `hooks.php`
-> and `middlewares.php`. A [package](/docs/packages) can have its own `composers.php` as well,
-> as long as it also has a `routes.php`.
-
-<a id="multiple-views"></a>
-### Multiple Views
-
-**Composer for multiple views:**
-
-```php
-View::composer(['user.profile', 'user.settings'], function ($view) {
-    $view->with('user', Auth::user());
-});
-```
-
-> The view name must match exactly, wildcards such as `admin.*` are not supported.
-> List every view the composer applies to instead.
-
-<a id="use-case"></a>
-### Use Case
-
-**Sidebar with dynamic data:**
+A composer is a closure that runs every time a view is rendered, useful for data
+a partial always needs. Register them in `application/composers.php`:
 
 ```php
 View::composer('partials.sidebar', function ($view) {
     $view->with('categories', Category::all());
     $view->with('popular_posts', Post::order_by('views', 'desc')->take(5)->get());
-    $view->with('tags', Tag::all());
+});
+
+View::composer(['user.profile', 'user.settings'], function ($view) {
+    $view->with('user', Auth::user());
 });
 ```
 
-**Navigation with active state:**
+> View names must match exactly; wildcards such as `admin.*` are not supported.
+> `composers.php` is loaded right after `routes.php`. A [package](/docs/packages)
+> can have its own `composers.php` as long as it also has a `routes.php`.
+
+<a id="named-views"></a>
+## Named Views
+
+Give a view a short name with `View::name()`, then create it with `View::of()`:
 
 ```php
-View::composer('partials.navigation', function ($view) {
-    $current_route = URI::current();
-    $view->with('current_route', $current_route);
-    $view->with('menu_items', Menu::all());
-});
-```
+View::name('layouts.master', 'layout');
 
-<a id="sharing-data"></a>
-## Sharing Data
-
-<a id="share-to-all-views"></a>
-### Share to All Views
-
-**Share data available in all views:**
-
-```php
-// In application/composers.php
-View::share('app_name', Config::get('application.name'));
-View::share('app_url', Config::get('application.url'));
-```
-
-**Using in view:**
-
-```php
-<title><?php echo $app_name; ?></title>
-<link rel="canonical" href="<?php echo $app_url; ?>">
-```
-
-<a id="share-from-base-controller"></a>
-### Share From Base Controller
-
-```php
-class Base_Controller extends Controller
-{
-    public function __construct()
-    {
-        // Share to all views
-        View::share('current_user', Auth::user());
-        View::share('csrf_token', Session::token());
-        View::share('flash_message', Session::get('message'));
-    }
-}
+return View::of('layout', $data);
 ```
 
 <a id="view-rendering"></a>
 ## View Rendering
 
+<a id="get-rendered-content"></a>
+### Get Rendered Content
+
+`render()` returns the view as a string. Casting a view to string does the same:
+
+```php
+$html = View::make('email.welcome', ['user' => $user])->render();
+```
+
 <a id="render-each"></a>
 ### Render Each
 
-**Render view for each item in array:**
+`View::render_each()` renders a partial once per item of a plain array. Each
+partial receives the item under the given name, plus `$key`:
 
 ```php
-$users = User::all()->all(); // render_each() needs a plain array
+$users = User::all()->all(); // plain array
 
 $html = View::render_each('user.item', $users, 'user');
 ```
 
-**File: `application/views/user/item.php`**
+The fourth argument is shown when the array is empty: a view name, or literal
+text prefixed with `raw|`:
 
 ```php
-<div class="user-item">
-    <h3><?php echo $user->name; ?></h3>
-    <p><?php echo $user->email; ?></p>
-</div>
-```
-
-**With empty view:**
-
-```php
-$html = View::render_each('user.item', $users, 'user', 'user.empty');
-```
-
-**File: `application/views/user/empty.php`**
-
-```php
-<p>No users found.</p>
-```
-
-<a id="get-rendered-content"></a>
-### Get Rendered Content
-
-**Get view as string:**
-
-```php
-$view = View::make('email.welcome', ['user' => $user]);
-$html = $view->render();
-
-// Send via email (see /docs/email for the full API)
-Email::to($user->email)
-    ->subject('Welcome!')
-    ->html_body($html)
-    ->send();
+View::render_each('user.item', $users, 'user', 'user.empty');
+View::render_each('user.item', $users, 'user', 'raw|<p>No users found.</p>');
 ```
 
 <a id="response-types"></a>
 ## Response Types
 
 <a id="string-response"></a>
-### String Response
-
-**Basic string response:**
-
-```php
-Route::get('/', function () {
-    return 'Hello World!';
-});
-
-// With Response::make()
-Route::get('/', function () {
-    return Response::make('Hello World!');
-});
-```
-
 <a id="view-response"></a>
-### View Response
+<a id="string--view-response"></a>
+### String & View Response
 
-**Response with view:**
-
-```php
-Route::get('/', function () {
-    return Response::view('home', ['title' => 'Home']);
-});
-
-// Same as
-Route::get('/', function () {
-    return View::make('home', ['title' => 'Home']);
-});
-```
-
-**With status code and headers:**
+Routes can return a string or a view directly. Use `Response::make()` or
+`Response::view()` when you need a status code or headers:
 
 ```php
-return Response::view('home', $data, 200, [
-    'Cache-Control' => 'max-age=3600',
-]);
+return 'Hello World!';
+return Response::make('Hello World!', 200, ['Content-Type' => 'text/plain']);
+return Response::view('home', ['title' => 'Home'], 200, ['Cache-Control' => 'max-age=3600']);
+return Response::no_content(); // empty 204 response
 ```
 
 <a id="json-response"></a>
 ### JSON Response
 
-**JSON response:**
+`Response::json($data, $status, $headers, $json_options)` encodes the data and
+sets `Content-Type: application/json`:
 
 ```php
-Route::get('api/users', function () {
-    $users = User::all();
-    return Response::json($users);
-});
-
-// With status code
-Route::post('api/users', function () {
-    $user = User::create(Input::all());
-    return Response::json($user, 201);
-});
-
-// With custom headers
-return Response::json($data, 200, [
-    'X-Custom-Header' => 'value',
-]);
-```
-
-**JSON options:**
-
-```php
-// Pretty print
-return Response::json($data, 200, [], JSON_PRETTY_PRINT);
-
-// Unescaped unicode
-return Response::json($data, 200, [], JSON_UNESCAPED_UNICODE);
+return Response::json($users);
+return Response::json($user, 201);
+return Response::json($data, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 ```
 
 <a id="jsonp-response"></a>
 ### JSONP Response
 
-**JSONP response for cross-domain requests:**
-
 ```php
-Route::get('api/users', function () {
-    $users = User::all();
-    $callback = Input::get('callback', 'callback');
-
-    return Response::jsonp($callback, $users);
-});
-
-// Output: callback([{"id":1,"name":"Budi"},...]);
+return Response::jsonp(Input::get('callback', 'callback'), $users);
+// callback([{"id":1,"name":"Budi"}]);
 ```
 
-**With status code and headers:**
-
-```php
-return Response::jsonp('myCallback', $data, 200, [
-    'X-Custom-Header' => 'value',
-]);
-```
+The callback name must be a valid JavaScript identifier, otherwise an exception
+is thrown. Status and headers are the 3rd and 4th arguments.
 
 <a id="model-response"></a>
 ### Model Response
 
-**Response model as JSON:**
+`Response::facile()` converts a Facile model (or an array of them) to JSON:
 
 ```php
-Route::get('api/users/(:num)', function ($id) {
-    $user = User::find($id);
-
-    if (!$user) {
-        return Response::json(['error' => 'User not found'], 404);
-    }
-
-    return Response::facile($user);
-});
-
-// Multiple models
-Route::get('api/users', function () {
-    $users = User::all();
-    return Response::facile($users);
-});
+return Response::facile(User::find($id));
+return Response::facile(User::all());
 ```
 
 <a id="download-response"></a>
-### Download Response
+<a id="file--download-response"></a>
+### File & Download Response
 
-**Force download file:**
+`download()` forces a download, `file()` displays the file inline (e.g. a PDF
+or image). Both take extra headers:
 
 ```php
-Route::get('download/(:any)', function ($file) {
-    // $file comes from URL — never concatenate directly (path traversal)
-    $file = basename($file); // strip directories
-    $path = path('storage') . 'downloads/' . $file;
-    // Response::download() is confined to the allowed roots and throws outside them
-    return Response::download($path);
-});
-
-// With custom filename
-Route::get('invoice/(:num)', function ($id) {
-    $invoice = Invoice::find($id);
-    $path = $invoice->pdf_path;
-
-    return Response::download($path, 'invoice-' . $id . '.pdf');
-});
-
-// With headers
-return Response::download($path, $name, [
-    'Content-Type' => 'application/pdf',
-]);
+return Response::download($path);
+return Response::download($path, 'invoice-' . $id . '.pdf', ['Content-Type' => 'application/pdf']);
+return Response::file($path);
 ```
+
+> Paths are confined to the base, application and storage directories (plus
+> any listed in `application.download_roots`); `..` and stream wrappers throw an
+> exception. Still, never build a path from raw user input: use `basename()`.
 
 <a id="error-response"></a>
 ### Error Response
 
-**Response error page:**
+`Response::error()` renders `application/views/error/{code}.php` (falling back
+to `error/unknown.php`) with `$code` and `$message` variables:
 
 ```php
-// 404 Not Found
-Route::get('missing', function () {
-    return Response::error(404);
-});
-
-// 403 Forbidden
-Route::get('forbidden', function () {
-    return Response::error(403);
-});
-
-// 500 Internal Server Error
-Route::get('error', function () {
-    return Response::error(500);
-});
-```
-
-**With custom headers:**
-
-```php
-// 429 Too Many Requests with Retry-After header
+return Response::error(404);
 return Response::error(429, ['Retry-After' => 3600]);
 ```
 
-**Custom error view:**
+When the client prefers JSON (`Accept: application/json`), it returns JSON
+instead:
 
-Create view in `application/views/error/404.php`:
-
-```php
-<!DOCTYPE html>
-<html>
-<head>
-    <title>404 - Page Not Found</title>
-</head>
-<body>
-    <h1>Page Not Found</h1>
-    <p>The page you are looking for could not be found.</p>
-</body>
-</html>
-```
-
-**Response for JSON request:**
-
-A request that expects JSON (`Accept: application/json`) gets JSON back instead of the error view:
-
-```php
-// Automatically returns JSON if request wants JSON
-return Response::error(404);
-
-// Output: {"status": 404, "message": "Not Found"}
+```json
+{"status": 404, "message": "Not Found"}
 ```
 
 <a id="response-headers"></a>
-## Response Headers
-
 <a id="set-headers"></a>
-### Set Headers
-
-**Set response headers:**
-
-```php
-$response = Response::make('content', 200, [
-    'Cache-Control' => 'no-cache, no-store, must-revalidate',
-    'Pragma' => 'no-cache',
-    'Expires' => '0',
-]);
-
-return $response;
-```
-
-**Add header after create:**
-
-```php
-$response = Response::make('content');
-$response->header('X-Custom-Header', 'value');
-$response->header('X-Request-ID', uniqid());
-
-return $response;
-```
-
-**Chained methods:**
-
-Every `with_*` method returns the response, so they can be chained:
-
-```php
-return Response::make('content')
-    ->with_headers(['X-Custom-Header' => 'value', 'X-Request-ID' => uniqid()])
-    ->with_cookie('last_seen', time(), 60)
-    ->with_status_code(201);
-```
-
-| Method                                                          | Description                          |
-| --------------------------------------------------------------- | ------------------------------------ |
-| `header($name, $value)`                                          | Set one header                       |
-| `with_headers(array $headers)`                                   | Set several headers at once          |
-| `with_cookie($name, $value, $minutes, $path, $domain, $secure, $samesite)` | Attach a cookie to the response |
-| `with_status_code($code)`                                        | Change the status code               |
-| `headers()`                                                      | Read all headers                     |
-| `status($status)`                                                | Read the status code, or set it      |
-| `render()`                                                       | Render the content as a string       |
-
 <a id="content-type"></a>
-### Content Type
+<a id="response-status-code"></a>
+<a id="response-headers--status"></a>
+## Response Headers & Status
 
-**Set content type:**
+Pass headers as the third argument to `make()`, or set them later. All setters
+return the response, so they chain:
 
 ```php
-// XML
-return Response::make($xml, 200, [
-    'Content-Type' => 'application/xml',
-]);
-
-// Plain text
-return Response::make($text, 200, [
-    'Content-Type' => 'text/plain',
-]);
-
-// CSV
 return Response::make($csv, 200, [
     'Content-Type' => 'text/csv',
     'Content-Disposition' => 'attachment; filename="export.csv"',
 ]);
+
+return Response::make('content')
+    ->header('X-Request-ID', uniqid())
+    ->with_headers(['Cache-Control' => 'no-cache'])
+    ->with_cookie('last_seen', time(), 60)
+    ->with_status_code(201);
 ```
 
-<a id="response-status-code"></a>
-## Response Status Code
+| Method                                                                     | Description                                    |
+| -------------------------------------------------------------------------- | ---------------------------------------------- |
+| `header($name, $value)`                                                    | Set one header                                 |
+| `with_headers(array $headers)`                                             | Set several headers                            |
+| `with_cookie($name, $value, $minutes, $path, $domain, $secure, $samesite)` | Attach a cookie                                |
+| `with_status_code($code)`                                                  | Change the status code                         |
+| `status($status = null)`                                                   | Get the status code, or set it                 |
+| `headers()`                                                                | The header bag (`->get()`, `->has()`, `->all()`) |
+| `render()`                                                                 | The content as a string                        |
 
-**Common status codes:**
-
-```php
-// 200 OK
-return Response::make('Success', 200);
-
-// 201 Created
-return Response::json($user, 201);
-
-// 204 No Content
-return Response::make('', 204);
-
-// 301 Moved Permanently
-return Response::make('', 301, ['Location' => $new_url]);
-
-// 302 Found (Redirect)
-return Redirect::to('home');
-
-// 400 Bad Request
-return Response::json(['error' => 'Bad Request'], 400);
-
-// 401 Unauthorized
-return Response::json(['error' => 'Unauthorized'], 401);
-
-// 403 Forbidden
-return Response::error('403');
-
-// 404 Not Found
-return Response::error('404');
-
-// 422 Unprocessable Entity
-return Response::json(['errors' => $validation->errors], 422);
-
-// 500 Internal Server Error
-return Response::error('500');
-```
-
+<a id="basic-redirect"></a>
+<a id="redirect-to-named-route"></a>
+<a id="redirect-back"></a>
 <a id="redirect-responses"></a>
 ## Redirect Responses
 
-<a id="basic-redirect"></a>
-### Basic Redirect
-
-**Redirect to URL:**
+All redirect methods take an optional status code (default `302`) as the last
+argument:
 
 ```php
-return Redirect::to('home');
 return Redirect::to('user/profile');
-// External URLs must use away(); to() blocks external hosts
+return Redirect::to('new-url', 301);
+return Redirect::to_route('user.profile', [$user_id]);
+return Redirect::back();
 return Redirect::away('https://example.com');
 ```
 
-**Redirect with status code:**
+> `Redirect::to()` only accepts local URLs and throws for external ones; use
+> `away()` for those. `back()` falls back to `/` (or the `$fallback` second
+> argument) when the referrer is missing or points to another host.
 
-```php
-// 301 Permanent
-return Redirect::to('new-url', 301);
-
-// 302 Temporary (default)
-return Redirect::to('new-url', 302);
-```
-
-<a id="redirect-to-named-route"></a>
-### Redirect to Named Route
-
-**Redirect to named route:**
-
-```php
-return Redirect::to_route('home');
-return Redirect::to_route('user.profile', [$user_id]);
-```
-
-<a id="redirect-back"></a>
-### Redirect Back
-
-**Redirect to previous page:**
-
-```php
-return Redirect::back();
-
-// With status code
-return Redirect::back(301);
-```
+| Method                                         | Redirects to                                                 |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| `home()`                                       | The application home URL                                     |
+| `back($status, $fallback)`                     | The previous page                                            |
+| `to_action('home@index', $params)`             | A controller action                                          |
+| `secure($url)`                                 | The local URL over HTTPS                                     |
+| `refresh()`                                    | The current URI                                              |
+| `guest($url)`                                  | `$url`, remembering the current URL in the session           |
+| `intended($default = '/')`                     | The URL remembered by `guest()`, or `$default`               |
 
 <a id="redirect-with-flash-data"></a>
 ### Redirect with Flash Data
 
-**Flash message to session:**
+`with()` flashes a value to the session for the next request (a session driver
+must be configured):
 
 ```php
-return Redirect::to('home')
-    ->with('message', 'Login successful!');
-
-// Multiple flash data
-return Redirect::to('dashboard')
-    ->with('message', 'Welcome back!')
-    ->with('user', $user);
+return Redirect::to('dashboard')->with('message', 'Welcome back!');
 ```
-
-**In view:**
 
 ```php
 <?php if (Session::has('message')): ?>
-    <div class="alert alert-success">
-        <?php echo Session::get('message'); ?>
-    </div>
+    <div class="alert"><?php echo Session::get('message'); ?></div>
 <?php endif; ?>
 ```
 
 <a id="redirect-with-input"></a>
 ### Redirect with Input
 
-**Flash input to repopulate form:**
+`with_input()` flashes the input so forms can be refilled with `Input::old()`.
+`with_errors()` flashes a validator's errors (or a `Messages` object) as
+`errors`:
 
 ```php
-// Validation failed, flash input
-return Redirect::back()
-    ->with_input()
-    ->with_errors($validation);
-
-// Flash only certain fields
-return Redirect::back()
-    ->with_input('only', ['name', 'email']);
-
-// Flash except certain fields
-return Redirect::back()
-    ->with_input('except', ['password']);
+return Redirect::back()->with_input()->with_errors($validation);
+return Redirect::back()->with_input('only', ['name', 'email']);
+return Redirect::back()->with_input('except', ['password']);
 ```
 
 <a id="practical-examples"></a>
-## Practical Examples
-
-**Controller with various response types:**
+<a id="practical-example"></a>
+## Practical Example
 
 ```php
 class Post_Controller extends Controller
 {
-    // HTML View
-    public function action_index()
-    {
-        $posts = Post::with('author')->paginate(15);
-
-        return View::make('posts.index', compact('posts'));
-    }
-
-    // JSON API
-    public function action_api_index()
-    {
-        $posts = Post::with('author')->get();
-
-        return Response::json($posts);
-    }
-
-    // Single post
     public function action_show($id)
     {
-        $post = Post::with('author', 'comments')->find($id);
+        $post = Post::find($id);
 
-        if (!$post) {
+        if (! $post) {
             return Response::error(404);
         }
 
-        return View::make('posts.show', compact('post'));
+        return Request::expects_json()
+            ? Response::facile($post)
+            : View::make('posts.show', compact('post'));
     }
 
-    // Create post
-    public function action_create()
-    {
-        return View::make('posts.create');
-    }
-
-    // Store post — use an allowlist; Model::$guarded defaults to ['*'], so Post
-    // also needs a $fillable of its own before create() sets anything
     public function action_store()
     {
         $validation = Validator::make(Input::all(), [
@@ -908,24 +438,14 @@ class Post_Controller extends Controller
         ]);
 
         if ($validation->fails()) {
-            return Redirect::back()
-                ->with_input()
-                ->with_errors($validation);
+            return Redirect::back()->with_input()->with_errors($validation);
         }
 
-        $post = Post::create(Input::only('title','content'));
+        // Post needs a $fillable list: Model::$guarded defaults to ['*']
+        $post = Post::create(Input::only('title', 'content'));
 
         return Redirect::to_route('posts.show', [$post->id])
             ->with('message', 'Post created successfully!');
-    }
-
-    // Download attachment — path is already validated, Response::download confines to allowed roots
-    public function action_download($id)
-    {
-        $post = Post::find($id);
-        $path = $post->attachment_path; // should be a path inside storage, never raw user input
-
-        return Response::download($path, $post->attachment_name);
     }
 }
 ```

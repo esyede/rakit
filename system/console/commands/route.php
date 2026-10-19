@@ -11,6 +11,7 @@ class Route extends Command
 {
     /**
      * Call the route and dump the result.
+     * Pass --with-middleware to run the route's before/after middleware too.
      *
      * @param array $arguments
      *
@@ -22,13 +23,38 @@ class Route extends Command
             throw new \Exception('Please specify a request method and URI.');
         }
 
-        $_SERVER['REQUEST_METHOD'] = strtoupper((string) $arguments[0]);
-        $_SERVER['REQUEST_URI'] = $arguments[1];
+        dd($this->dispatch($arguments[0], $arguments[1], has_cli_flag('with-middleware')).PHP_EOL);
+    }
+
+    /**
+     * Dispatch the route and return its output as a string.
+     *
+     * @param string $method
+     * @param string $uri
+     * @param bool   $with_middleware
+     *
+     * @return string
+     */
+    public function dispatch($method, $uri, $with_middleware = false)
+    {
+        $_SERVER['REQUEST_METHOD'] = strtoupper((string) $method);
+        $_SERVER['REQUEST_URI'] = $uri;
+        Request::foundation()->setMethod($_SERVER['REQUEST_METHOD']);
 
         $route = Router::route(Request::method(), $_SERVER['REQUEST_URI']);
-        $route = is_null($route) ? '404: Not Found' : $route->response();
 
-        dd($route.PHP_EOL);
+        if (is_null($route)) {
+            return '404: Not Found';
+        }
+
+        if (! $with_middleware) {
+            return (string) $route->response();
+        }
+
+        // Middleware may short-circuit (e.g. a redirect), so show the status too.
+        Request::$route = $route;
+        $response = $route->call();
+        return 'HTTP '.$response->status().PHP_EOL.$response->render();
     }
 
     /**

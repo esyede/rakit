@@ -105,7 +105,7 @@ class SQLite extends Grammar
     {
         $columns = array_map(function ($column) {
             return 'ADD COLUMN '.$column;
-        }, $this->columns($table));
+        }, $this->columns($table, $this->changed($table, false)));
 
         $sql = [];
 
@@ -117,17 +117,31 @@ class SQLite extends Grammar
     }
 
     /**
+     * Changing columns needs ALTER COLUMN, which SQLite does not have.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @throws \Exception
+     */
+    public function change(Table $table, Magic $command)
+    {
+        throw new \Exception('Changing columns is not supported on SQLite.');
+    }
+
+    /**
      * Create the sql syntax for column definitions.
      *
      * @param Table $table
+     * @param array|null $only
      *
      * @return array
      */
-    protected function columns(Table $table)
+    protected function columns(Table $table, $only = null)
     {
         $columns = [];
 
-        foreach ($table->columns as $column) {
+        foreach ((is_null($only) ? $table->columns : $only) as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->collate($table, $column);

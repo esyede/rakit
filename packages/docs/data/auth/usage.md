@@ -6,11 +6,12 @@
 -   [Encrypting Passwords](#encrypting-passwords)
 -   [Log In](#log-in)
 -   [Remember Me](#remember-me)
--   [Protecting Routes](#protecting-routes)
 -   [Retrieving User Data](#retrieving-user-data)
 -   [Check Login Status](#check-login-status)
+-   [Protecting Routes](#protecting-routes)
 -   [Log Out](#log-out)
--   [Practical Examples](#practical-examples)
+-   [Auth Events](#auth-events)
+-   [Practical Example](#practical-example)
 
 <!-- /MarkdownTOC -->
 
@@ -18,163 +19,72 @@
 
 ## Basic Knowledge
 
-`Auth` is the entry point for logging users in and out, checking the current
-user, and protecting routes. Before using it, make sure:
+`Auth` logs users in and out, tells you who the current user is, and protects routes. Before using it, make sure:
 
 1.  The [session driver](/docs/session/config) is configured.
 2.  The [auth driver](/docs/auth/config) is configured.
-3.  Your user table has a column that stores a **hashed** password.
+3.  Your user table stores a **hashed** password.
 
-Sessions and cookies for authentication are managed for you — there is no
-need to set them manually.
+Authentication sessions and cookies are managed for you.
 
 <a id="encrypting-passwords"></a>
 
 ## Encrypting Passwords
 
-Always store passwords as bcrypt hashes — never plain text. Use `Hash::make()`
-to create a hash and `Hash::check()` to compare a plain-text password against
-a stored hash.
+Never store plain-text passwords. Hash them with [`Hash::make()`](/docs/hash) and verify with `Hash::check()`:
 
 ```php
-$hash = Hash::make('admin123');
+$user->password = Hash::make(Input::get('password'));
 
-if (Hash::check('admin123', $hash)) {
-    return 'Password is correct!';
-}
-```
-
-`Hash::make()` accepts an optional cost factor (default `10`, range `4`–`31`).
-Higher cost is more secure but slower:
-
-```php
-$hash = Hash::make('admin123', 12);
-```
-
-**Example of user registration with hashed password:**
-
-```php
-public function action_register()
-{
-    $user = new User();
-    $user->name = Input::get('name');
-    $user->email = Input::get('email');
-    $user->password = Hash::make(Input::get('password'));
-    $user->save();
-
-    // Automatic login after registration
-    Auth::login($user->id);
-
-    return Redirect::to('dashboard');
-}
+Hash::check('admin123', $user->password); // true / false
 ```
 
 <a id="log-in"></a>
 
 ## Log In
 
-`attempt()` takes the credentials as an array — an array, because a driver may want more or fewer of them — and returns `TRUE` when they check out:
+`attempt()` takes the credentials as an array and returns `true` on success. The identifier key must match the `identifier` option in `application/config/auth.php`:
 
 ```php
-$credentials = [
-    'email' => 'user@example.com',
-    'password' => 'secret',
-];
-
-if (Auth::attempt($credentials)) {
-    return Redirect::to('user/profile');
-}
-```
-
-> The identifier column (email/username) must match the `identifier` configuration in `application/config/auth.php`.
-
-**Failed attempts:**
-
-An attempt that does not log the visitor in announces `rakit.auth: failed`, with
-the credentials that were tried — but never the `password` key:
-
-```php
-// In application/hooks.php
-Hook::listen('rakit.auth: failed', function ($credentials) {
-    Log::warning('Failed login for ' . $credentials['email']);
-});
-```
-
-**Login with additional conditions:**
-
-Extra conditions can be added, such as letting only active users in:
-
-```php
-$credentials = [
-    'email' => 'user@example.com',
-    'password' => 'secret',
-    'active' => true,
-];
-
-if (Auth::attempt($credentials)) {
+if (Auth::attempt(['email' => $email, 'password' => $password])) {
     return Redirect::to('dashboard');
-} else {
-    return Redirect::back()->with('error', 'Invalid credentials or account not active.');
 }
+
+return Redirect::back()->with_input()->with('error', 'Email or password is incorrect.');
 ```
 
-**Example login form:**
+Any extra keys become additional `WHERE` conditions, for example letting only active users in:
 
 ```php
-// Controller
-public function action_login()
-{
-    if (Request::method() === 'POST') {
-        $credentials = [
-            'email'    => Input::get('email'),
-            'password' => Input::get('password'),
-        ];
-
-        if (Auth::attempt($credentials)) {
-            Session::flash('message', 'Login successful!');
-            return Redirect::to('dashboard');
-        }
-
-        return Redirect::back()
-            ->with_input()
-            ->with('error', 'Email or password is incorrect.');
-    }
-
-    return View::make('auth.login');
-}
+Auth::attempt(['email' => $email, 'password' => $password, 'active' => 1]);
 ```
 
-Valid credentials put the user ID in the session, and the visitor counts as logged in from the next request on.
+**Logging in without credentials:**
 
-**Login without credential validation:**
-
-Use `Auth::login()` to log in a user without checking credentials — useful
-right after registration or for impersonation flows. The argument is the
-user's primary key, not the model instance:
+`Auth::login()` logs a user in directly, which is useful right after registration. Pass the user's primary key, not the model; the optional second argument enables "remember me":
 
 ```php
-// Log in the user with this ID
 Auth::login($user->id);
-
-// Same thing with a literal ID
-Auth::login(15);
-
-// Optional second argument enables "remember me"
 Auth::login($user->id, true);
 ```
 
-> Logging in and out both give the visitor a new session ID while keeping the
-> session data, so an ID an attacker planted before the login never ends up
-> authenticated. You do not have to call `Session::regenerate()` yourself.
+> On login the session ID is regenerated (keeping the session data) and the CSRF token is rotated, so a session ID planted before login never becomes authenticated. You do not need to call `Session::regenerate()` yourself.
 
 <a id="remember-me"></a>
 
 ## Remember Me
 
-"Remember Me" keeps a visitor logged in after the browser closes, through a cookie that lives five years.
+"Remember me" keeps the visitor logged in after the browser closes, through an encrypted cookie that lives five years. Pass `'remember' => true` to `attempt()` (or `true` as the second argument to `login()`):
 
-The cookie carries a token that is also stored in the user's `remember_token`
-column, so the user table needs one:
+```php
+Auth::attempt([
+    'email' => Input::get('email'),
+    'password' => Input::get('password'),
+    'remember' => (bool) Input::get('remember'),
+]);
+```
+
+The user table needs a `remember_token` column; without it, login still works but the visitor is simply not remembered:
 
 ```php
 Schema::table('users', function ($table) {
@@ -182,182 +92,19 @@ Schema::table('users', function ($table) {
 });
 ```
 
-Without that column the login still works, the visitor just is not remembered.
-Storing the token is what makes the cookie revocable: logging out replaces it,
-which turns every cookie handed out earlier into a dead one. The cookie also
-carries the password hash, so changing a password has the same effect.
-
-**Login with remember me:**
-
-```php
-$credentials = [
-    'email'    => Input::get('email'),
-    'password' => Input::get('password'),
-    'remember' => true,
-];
-
-if (Auth::attempt($credentials)) {
-    return Redirect::to('dashboard');
-}
-```
-
-**Or using a separate parameter:**
-
-```php
-$credentials = [
-    'email'    => Input::get('email'),
-    'password' => Input::get('password'),
-];
-
-$remember = Input::get('remember') ? true : false;
-
-if (Auth::attempt($credentials)) {
-    if ($remember) {
-        Auth::login(Auth::user()->id, true);
-    }
-    return Redirect::to('dashboard');
-}
-```
-
-**Example form with remember me checkbox:**
-
-```php
-<form method="POST" action="<?php echo URL::to('login'); ?>">
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-
-    <label>
-        <input type="checkbox" name="remember" value="1">
-        Remember me
-    </label>
-
-    <button type="submit">Login</button>
-</form>
-```
-
-<a id="protecting-routes"></a>
-
-## Protecting Routes
-
-The `'auth'` middleware restricts a route to logged-in users. A guest gets a `401` from the default implementation.
-
-**Protecting a single route:**
-
-```php
-Route::get('dashboard', ['before' => 'auth', function () {
-    return View::make('dashboard');
-}]);
-```
-
-**Protecting group routes:**
-
-```php
-Route::group(['before' => 'auth'], function () {
-    Route::get('dashboard', function () {
-        return View::make('dashboard');
-    });
-
-    Route::get('profile', function () {
-        return View::make('profile');
-    });
-
-    Route::get('settings', function () {
-        return View::make('settings');
-    });
-});
-```
-
-**Protection in controller:**
-
-```php
-class Dashboard_Controller extends Controller
-{
-    public function __construct()
-    {
-        $this->middleware('before', 'auth');
-    }
-
-    public function action_index()
-    {
-        return View::make('dashboard.index');
-    }
-}
-```
-
-> You are free to modify the `'auth'` middleware as needed. The default implementation can be found in the `application/middlewares.php` file.
-
-**Custom redirect for guests:**
-
-If you would rather redirect the guest to a login page than return a `401`, change the middleware in `application/middlewares.php`:
-
-```php
-Route::middleware('auth', function () {
-    if (Auth::guest()) {
-        return Redirect::to('auth/login')->with('error', 'Please log in first.');
-    }
-});
-```
-
-**Rate limiting:**
-
-The `throttle` middleware answers `429` once a client goes over its limit, and
-announces `rakit.auth: lockout` with the cache key of the client, the limit and
-the time the limit resets:
-
-```php
-Hook::listen('rakit.auth: lockout', function ($key, $limit, $reset) {
-    Log::warning('Locked out until ' . date('H:i:s', $reset));
-});
-```
-
-See [Middleware Pattern](/docs/routing#middleware-pattern) for how to attach it
-to a route.
+> The cookie carries a token that must match the user's `remember_token` column, plus the password hash. Logging out replaces the stored token and changing the password changes the hash, so either action revokes every cookie handed out earlier.
 
 <a id="retrieving-user-data"></a>
 
 ## Retrieving User Data
 
-`user()` hands back the logged-in user:
-
-```php
-// Retrieve all user data
-$user = Auth::user();
-
-// Access user properties
-$name = Auth::user()->name;
-$email = Auth::user()->email;
-```
-
-**Example in view:**
-
-```php
-<?php if (Auth::check()): ?>
-    <p>Welcome, <?php echo Auth::user()->name; ?>!</p>
-    <p>Email: <?php echo Auth::user()->email; ?></p>
-<?php endif; ?>
-```
-
-**With Blade:**
-
-```php
-@if (Auth::check())
-    <p>Welcome, {{ Auth::user()->name }}!</p>
-    <p>Email: {{ Auth::user()->email }}</p>
-@endif
-```
-
-> If the user is not logged in, the `user()` method will return `NULL`.
-
-**Check before access:**
+`user()` returns the logged-in user, or `null` for a guest:
 
 ```php
 $user = Auth::user();
 
 if ($user) {
-    echo 'User ID: ' . $user->id;
-    echo 'Name: ' . $user->name;
-} else {
-    echo 'User not logged in';
+    echo $user->name;
 }
 ```
 
@@ -365,56 +112,59 @@ if ($user) {
 
 ## Check Login Status
 
-Two methods answer it:
-
-**Check if user is logged in:**
-
 ```php
-if (Auth::check()) {
-    // User is logged in
-    return 'Welcome back!';
-}
+Auth::check(); // true when logged in
+Auth::guest(); // true when not logged in
 ```
-
-**Check if user is not logged in (guest):**
-
-```php
-if (Auth::guest()) {
-    // User is not logged in
-    return Redirect::to('login');
-}
-```
-
-**Example usage in controller:**
-
-```php
-public function action_dashboard()
-{
-    if (Auth::guest()) {
-        return Redirect::to('login')
-            ->with('error', 'You must log in first.');
-    }
-
-    $user = Auth::user();
-    return View::make('dashboard', compact('user'));
-}
-```
-
-**Example in view:**
 
 ```php
 @if (Auth::check())
+    <p>Welcome, {{ Auth::user()->name }}!</p>
     <a href="{{ URL::to('logout') }}">Logout</a>
 @else
     <a href="{{ URL::to('login') }}">Login</a>
 @endif
 ```
 
+<a id="protecting-routes"></a>
+
+## Protecting Routes
+
+The `auth` middleware restricts routes to logged-in users; guests get a `401` by default. Attach it to a route, a group, or a controller:
+
+```php
+Route::get('dashboard', ['before' => 'auth', function () {
+    return View::make('dashboard');
+}]);
+
+Route::group(['before' => 'auth'], function () {
+    Route::get('profile', function () { return View::make('profile'); });
+});
+
+class Dashboard_Controller extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('before', 'auth');
+    }
+}
+```
+
+The middleware is defined in `application/middlewares.php`, so you can change it, for example to redirect guests to a login page:
+
+```php
+Route::middleware('auth', function () {
+    if (Auth::guest()) {
+        return Redirect::to('login')->with('error', 'Please log in first.');
+    }
+});
+```
+
+The `throttle` middleware rate-limits requests and answers `429` once a client exceeds its limit. See [Middleware Pattern](/docs/routing#middleware-pattern) for attaching it.
+
 <a id="log-out"></a>
 
 ## Log Out
-
-`logout()` logs the user out:
 
 ```php
 Auth::logout();
@@ -422,54 +172,57 @@ Auth::logout();
 return Redirect::to('login')->with('message', 'You have been logged out.');
 ```
 
-That will:
-- Remove the user ID from the session
-- Remove the "remember me" cookie if present
-- Trigger the `rakit.auth: logout` event
+`logout()` replaces the user's `remember_token` (revoking "remember me" cookies), removes the cookie, and invalidates the session: it gets a new ID, all session data is cleared and a new CSRF token is issued.
 
-**Example logout route:**
+Pass `false` to keep the rest of the session (e.g. a cart): only the login is forgotten, and the session gets a new ID to prevent fixation. The CSRF token is kept; call `Session::invalidate()` later if you want the full reset.
 
 ```php
-Route::get('logout', function () {
-    Auth::logout();
-    return Redirect::to('home')->with('message', 'Successfully logged out.');
+Auth::logout(false);
+```
+
+<a id="auth-events"></a>
+
+## Auth Events
+
+`Auth` fires these [hooks](/docs/hooks):
+
+| Event                   | Arguments                                      | Fired when                                      |
+| ----------------------- | ---------------------------------------------- | ----------------------------------------------- |
+| `rakit.auth: login`     | none                                           | a user logs in                                  |
+| `rakit.auth: logout`    | none                                           | a user logs out                                 |
+| `rakit.auth: failed`    | `$credentials` (without the `password` key)    | `attempt()` fails                               |
+| `rakit.auth: lockout`   | `$key`, `$limit`, `$reset` (timestamp)         | the `throttle` middleware blocks a client       |
+
+```php
+// In application/hooks.php
+Hook::listen('rakit.auth: failed', function ($credentials) {
+    Log::warning('Failed login for '.$credentials['email']);
+});
+
+Hook::listen('rakit.auth: lockout', function ($key, $limit, $reset) {
+    Log::warning('Locked out until '.date('H:i:s', $reset));
 });
 ```
 
-**Example in controller:**
-
-```php
-public function action_logout()
-{
-    Auth::logout();
-    Session::flash('message', 'You have logged out of the application.');
-    return Redirect::to('login');
-}
-```
-
+<a id="practical-example"></a>
 <a id="practical-examples"></a>
 
-## Practical Examples
-
-**Complete Auth Controller example:**
+## Practical Example
 
 ```php
 class Auth_Controller extends Controller
 {
-    // Display login form
     public function action_login()
     {
-        // Redirect if already logged in
         if (Auth::check()) {
             return Redirect::to('dashboard');
         }
 
-        // Process login
         if (Request::method() === 'POST') {
             $credentials = [
-                'email'    => Input::get('email'),
+                'email' => Input::get('email'),
                 'password' => Input::get('password'),
-                'remember' => Input::get('remember') ? true : false,
+                'remember' => (bool) Input::get('remember'),
             ];
 
             if (Auth::attempt($credentials)) {
@@ -484,123 +237,33 @@ class Auth_Controller extends Controller
         return View::make('auth.login');
     }
 
-    // Display registration form
     public function action_register()
     {
-        if (Request::method() === 'POST') {
-            $rules = [
-                'name'     => 'required|max:100',
-                'email'    => 'required|email|unique:users',
-                'password' => 'required|min:6|confirmed',
-            ];
+        $validation = Validator::make(Input::all(), [
+            'name' => 'required|max:100',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8|confirmed',
+        ]);
 
-            $validation = Validator::make(Input::all(), $rules);
-
-            if ($validation->fails()) {
-                return Redirect::back()
-                    ->with_input()
-                    ->with_errors($validation);
-            }
-
-            // Create new user
-            $user = new User();
-            $user->name = Input::get('name');
-            $user->email = Input::get('email');
-            $user->password = Hash::make(Input::get('password'));
-            $user->save();
-
-            // Automatic login
-            Auth::login($user->id);
-
-            return Redirect::to('dashboard')
-                ->with('message', 'Registration successful! Welcome.');
+        if ($validation->fails()) {
+            return Redirect::back()->with_input()->with_errors($validation);
         }
 
-        return View::make('auth.register');
+        $user = new User();
+        $user->name = Input::get('name');
+        $user->email = Input::get('email');
+        $user->password = Hash::make(Input::get('password'));
+        $user->save();
+
+        Auth::login($user->id);
+
+        return Redirect::to('dashboard');
     }
 
-    // Logout
     public function action_logout()
     {
         Auth::logout();
-        return Redirect::to('login')
-            ->with('message', 'You have logged out.');
-    }
-}
-```
-
-**Example login view (Blade):**
-
-```php
-@layout('layouts.guest')
-
-@section('content')
-    <h2>Login</h2>
-
-    @if (Session::has('error'))
-        <div class="alert alert-error">
-            {{ Session::get('error') }}
-        </div>
-    @endif
-
-    @if (Session::has('message'))
-        <div class="alert alert-success">
-            {{ Session::get('message') }}
-        </div>
-    @endif
-
-    <form method="POST" action="{{ URL::to('login') }}">
-        <div class="form-group">
-            <label>Email</label>
-            <input type="email" name="email" value="{{ Input::old('email') }}" required>
-        </div>
-
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" required>
-        </div>
-
-        <div class="form-group">
-            <label>
-                <input type="checkbox" name="remember" value="1">
-                Remember me
-            </label>
-        </div>
-
-        <button type="submit">Login</button>
-        <a href="{{ URL::to('register') }}">Don't have an account?</a>
-    </form>
-@endsection
-```
-
-**Example Base Controller with auth check:**
-
-```php
-class Base_Controller extends Controller
-{
-    public function __construct()
-    {
-        // Share current user to all views
-        if (Auth::check()) {
-            View::share('current_user', Auth::user());
-        }
-    }
-}
-
-class Dashboard_Controller extends Base_Controller
-{
-    public function __construct()
-    {
-        parent::__construct();
-        $this->middleware('before', 'auth');
-    }
-
-    public function action_index()
-    {
-        $user = Auth::user();
-        $posts = Post::where('user_id', '=', $user->id)->get();
-
-        return View::make('dashboard.index', compact('posts'));
+        return Redirect::to('login');
     }
 }
 ```

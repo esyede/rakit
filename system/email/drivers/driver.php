@@ -121,13 +121,6 @@ abstract class Driver
     protected $extras = [];
 
     /**
-     * Enable pipelining feature?
-     *
-     * @var bool
-     */
-    protected $pipelining = false;
-
-    /**
      * The email content type.
      *
      * @var string
@@ -150,19 +143,6 @@ abstract class Driver
     {
         $this->config = $config;
         $this->defaults = $config;
-    }
-
-    /**
-     * Enable or disable pipelining feature.
-     *
-     * @param bool $activate
-     *
-     * @return $this
-     */
-    public function pipelining($activate = true)
-    {
-        $this->pipelining = (bool) $activate;
-        return $this;
     }
 
     /**

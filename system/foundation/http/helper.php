@@ -33,6 +33,13 @@ class Helper extends Header
     protected $cookies = [];
 
     /**
+     * The original-cased header names, keyed by their lowercase lookup key.
+     *
+     * @var array
+     */
+    protected $headerNames = [];
+
+    /**
      * Constructor.
      *
      * @param array $headers
@@ -41,7 +48,7 @@ class Helper extends Header
     {
         parent::__construct($headers);
 
-        if (! isset($this->headers['Cache-Control'])) {
+        if (! isset($this->headers['cache-control'])) {
             $this->set('Cache-Control', '');
         }
     }
@@ -51,14 +58,44 @@ class Helper extends Header
      */
     public function __toString()
     {
-        $cookies = $this->getCookies();
+        $headers = $this->allPreserveCase();
+        ksort($headers);
         $string = '';
 
-        foreach ($cookies as $cookie) {
+        if ($headers) {
+            $max = max(array_map(function ($key) {
+                return mb_strlen((string) $key, '8bit');
+            }, array_keys($headers))) + 1;
+
+            foreach ($headers as $name => $values) {
+                foreach ($values as $value) {
+                    $string .= sprintf("%-{$max}s %s\r\n", $name.':', $value);
+                }
+            }
+        }
+
+        foreach ($this->getCookies() as $cookie) {
             $string .= 'Set-Cookie: '.$cookie."\r\n";
         }
 
-        return parent::__toString().$string;
+        return $string;
+    }
+
+    /**
+     * Get all headers keyed by their original-cased names (for sending), like Symfony.
+     *
+     * @return array
+     */
+    public function allPreserveCase()
+    {
+        $headers = [];
+
+        foreach ($this->headers as $key => $values) {
+            $name = isset($this->headerNames[$key]) ? $this->headerNames[$key] : static::displayKey($key);
+            $headers[$name] = $values;
+        }
+
+        return $headers;
     }
 
     /**
@@ -66,9 +103,10 @@ class Helper extends Header
      */
     public function replace(array $headers = [])
     {
+        $this->headerNames = [];
         parent::replace($headers);
 
-        if (! isset($this->headers['Cache-Control'])) {
+        if (! isset($this->headers['cache-control'])) {
             $this->set('Cache-Control', '');
         }
     }
@@ -78,13 +116,15 @@ class Helper extends Header
      */
     public function set($key, $values, $replace = true)
     {
-        parent::set($key, $values, $replace);
-        $key = $this->standardizeKey($key);
-        $keys = ['Cache-Control', 'ETag', 'Last-Modified', 'Expires'];
+        $name = str_replace(["\r", "\n", "\0"], '', (string) $key);
+        $key = $this->standardizeKey($name);
+        $this->headerNames[$key] = $name;
+        parent::set($name, $values, $replace);
 
-        if (in_array($key, $keys)) {
+        if (in_array($key, ['cache-control', 'etag', 'last-modified', 'expires'])) {
             $computed = $this->computeCacheControlValue();
-            $this->headers['Cache-Control'] = [$computed];
+            $this->headers['cache-control'] = [$computed];
+            $this->headerNames['cache-control'] = 'Cache-Control';
             $this->computedCacheControl = $this->parseCacheControl($computed);
         }
     }
@@ -95,8 +135,9 @@ class Helper extends Header
     public function remove($key)
     {
         parent::remove($key);
+        unset($this->headerNames[$this->standardizeKey($key)]);
 
-        if ('Cache-Control' === $this->standardizeKey($key)) {
+        if ('cache-control' === $this->standardizeKey($key)) {
             $this->computedCacheControl = [];
         }
     }
@@ -167,7 +208,13 @@ class Helper extends Header
     public function getCookies($format = self::COOKIES_FLAT)
     {
         if (! in_array($format, [self::COOKIES_FLAT, self::COOKIES_ARRAY])) {
-            throw new \InvalidArgumentException(sprintf('Format "%s" invalid (%s).', $format, implode(', ', [self::COOKIES_FLAT, self::COOKIES_ARRAY])));
+            throw new \InvalidArgumentException(
+                sprintf(
+                    'Format "%s" invalid (%s).',
+                    $format,
+                    implode(', ', [self::COOKIES_FLAT, self::COOKIES_ARRAY])
+                )
+            );
         }
 
         if (self::COOKIES_ARRAY === $format) {

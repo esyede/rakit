@@ -62,6 +62,22 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that 'nullable' only skips non-implicit rules, like Laravel.
+     *
+     * @group system
+     */
+    public function testNullableDoesNotSkipImplicitRules()
+    {
+        $this->assertFalse(Validator::make(['name' => null], ['name' => 'required|nullable'])->valid());
+        $this->assertFalse(Validator::make([], ['name' => 'nullable|required'])->valid());
+        $this->assertFalse(Validator::make([], ['name' => 'nullable|present'])->valid());
+        $this->assertTrue(Validator::make(['name' => null], ['name' => 'nullable|present|email'])->valid());
+        $this->assertTrue(Validator::make(['name' => null], ['name' => 'nullable|email|min:3'])->valid());
+        $this->assertTrue(Validator::make([], ['name' => 'nullable|email'])->valid());
+        $this->assertFalse(Validator::make(['name' => 'x'], ['name' => 'nullable|email'])->valid());
+    }
+
+    /**
      * Test for 'confirmed' rule.
      *
      * @group system

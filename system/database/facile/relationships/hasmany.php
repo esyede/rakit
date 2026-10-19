@@ -17,35 +17,6 @@ class HasMany extends HasOneOrMany
     }
 
     /**
-     * Save the related models for the relationship.
-     *
-     * @param mixed $models
-     *
-     * @return bool
-     */
-    public function save($models)
-    {
-        $models = is_array($models) ? $models : [$models];
-        $current = $this->table->lists($this->model->key());
-
-        foreach ($models as $attributes) {
-            $class = get_class($this->model);
-            $model = ($attributes instanceof $class) ? $attributes : $this->fresh_model($attributes);
-
-            $foreign = $this->foreign_key();
-            $model->{$foreign} = $this->base->get_key();
-
-            $id = $model->get_key();
-            $model->exists = (! is_null($id) && in_array($id, $current));
-
-            $model->original = [];
-            $model->save();
-        }
-
-        return true;
-    }
-
-    /**
      * Start the eager loading process for the relationship.
      *
      * @param array  $parents

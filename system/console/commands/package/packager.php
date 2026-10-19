@@ -8,6 +8,7 @@ use System\Container;
 use System\Storage;
 use System\Package;
 use System\Str;
+use System\Database\Schema;
 use System\Console\Commands\Command;
 
 class Packager extends Command
@@ -120,7 +121,7 @@ class Packager extends Command
 
         echo $this->info('Uninstalling package: '.$arguments[0]);
 
-        // TODO: reset the package migrations, once we can tell whether it has any.
+        $this->reset_migrations($arguments[0]);
 
         $destination = path('package').DS.$arguments[0];
         is_dir($destination) && Storage::rmdir($destination);
@@ -131,6 +132,25 @@ class Packager extends Command
 
         echo PHP_EOL;
         echo $this->warning('Now, you have to remove those package entry from your application/packages.php');
+    }
+
+    /**
+     * Roll back the migrations a package has run, if any. A missing database
+     * or migrations table only prints a warning.
+     *
+     * @param string $package
+     *
+     * @return void
+     */
+    protected function reset_migrations($package)
+    {
+        try {
+            if (Schema::has_table('rakit_migrations')) {
+                Container::resolve('command: migrate')->reset([$package]);
+            }
+        } catch (\Exception $e) {
+            echo $this->warning('Unable to roll back the package migrations: '.$e->getMessage());
+        }
     }
 
     /**

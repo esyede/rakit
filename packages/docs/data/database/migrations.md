@@ -3,7 +3,6 @@
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
 -   [Basic Knowledge](#basic-knowledge)
--   [Setting Up the Database](#setting-up-the-database)
 -   [Creating Migration Files](#creating-migration-files)
 -   [Running Migrations](#running-migrations)
 -   [Roll Back](#roll-back)
@@ -11,99 +10,85 @@
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
+<a id="setting-up-the-database"></a>
 
 ## Basic Knowledge
 
-Migrations are version control for your database. Without them, a column a teammate
-added lives only in their local database, and your checkout breaks the moment you
-pull their code.
+Migrations are version control for your database: each schema change lives in a file that every
+teammate (and every server) can run, instead of only in someone's local database.
 
-<a id="setting-up-the-database"></a>
-
-## Setting Up the Database
-
-Rakit records the migrations it has run in a table of its own. Create it with:
-
-**Creating the migration record table:**
+Rakit records the migrations it has run in a `rakit_migrations` table. `php rakit migrate` creates
+it automatically, or you can create it yourself:
 
 ```bash
 php rakit migrate:install
 ```
 
-> Here we assume that you already have global access to PHP CLI.
-
-> This step is optional: `php rakit migrate` creates the `rakit_migrations` table automatically when it does not exist yet.
-
 <a id="creating-migration-files"></a>
 
 ## Creating Migration Files
 
-Create a migration through the [console](/docs/console):
-
-**Creating a migration file:**
+Create a migration with the [console](/docs/console):
 
 ```bash
 php rakit make:migration create_users_table
-```
 
-The file lands in `application/migrations/`, its name prefixed with a timestamp so
-the migrations run in order.
-
-You can also create migration files for a package.
-
-**Creating migration files for a package:**
-
-```bash
+# for a package
 php rakit make:migration nama_package::create_users_table
 ```
 
-_Further reading:_
+The file lands in the `migrations/` folder of the application (or package), prefixed with a
+timestamp so migrations run in order. It holds a class with an `up()` method that applies the
+change and a `down()` method that reverses it, usually written with the
+[Schema Builder](/docs/database/schema):
 
--   [Schema Builder](/docs/database/schema)
+```php
+class Create_Users_Table
+{
+    public function up()
+    {
+        Schema::create('users', function ($table) {
+            $table->increments('id');
+            $table->string('email', 191)->unique();
+            $table->timestamps();
+        });
+    }
+
+    public function down()
+    {
+        Schema::drop_if_exists('users');
+    }
+}
+```
 
 <a id="running-migrations"></a>
 
 ## Running Migrations
 
-**Running all migration files belonging to the application and packages:**
-
 ```bash
-php rakit migrate
+php rakit migrate                # application and all packages
+php rakit migrate application    # application only
+php rakit migrate nama_package   # one package only
 ```
 
-**Running all migration files belonging to the application:**
-
-```bash
-php rakit migrate application
-```
-
-**Running all migration files belonging to a package:**
-
-```bash
-php rakit migrate nama_package
-```
+Each run groups its migrations into a new batch.
 
 <a id="roll-back"></a>
 
 ## Roll Back
 
-A roll back reverts every operation of the last batch: 122 migrations run means 122
-reverted.
-
-**Roll back the last migration batch:**
-
 ```bash
-php rakit migrate:rollback
+php rakit migrate:rollback   # revert the last batch
+php rakit migrate:reset      # revert every migration
+php rakit migrate:refresh    # revert every migration, then run them all again
 ```
 
-**Reset all migrations:**
+A rollback reverts every migration in the last batch, however many it holds. Each of these
+commands also accepts package names to limit it to those packages; the last batch is then
+the last one *those packages* ran, even if other packages migrated after them:
 
 ```bash
-php rakit migrate:reset
-```
-
-**Reset and rerun all migrations:**
-
-```bash
-php rakit migrate:refresh
+php rakit migrate:rollback blog   # revert blog's last batch
+php rakit migrate:reset blog      # revert every blog migration
+php rakit migrate:refresh blog    # revert, then re-run, blog's migrations
 ```

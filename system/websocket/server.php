@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Str;
 use System\Log;
 use System\Config;
+use System\Crypter;
 use System\Console\Color;
 use System\Carbon;
 
@@ -1018,6 +1019,53 @@ class Server
     protected function check_rsv_bits($headers, $user)
     {
         return (bool) (($headers['rsv1'] + $headers['rsv2'] + $headers['rsv3']) > 0);
+    }
+
+    /**
+     * Sign a channel subscription for a client.
+     * Issue this from an authenticated HTTP route, the client then sends
+     * it as the "auth" field when subscribing to a private or presence channel.
+     *
+     * @param string $client_id
+     * @param string $channel
+     *
+     * @return string
+     */
+    public static function sign($client_id, $channel)
+    {
+        return hash_hmac('sha256', $client_id.':'.$channel, RAKIT_KEY);
+    }
+
+    /**
+     * Check whether the channel is private (requires a signature).
+     *
+     * @param string $channel
+     *
+     * @return bool
+     */
+    public static function is_private($channel)
+    {
+        return 0 === strpos((string) $channel, 'private-') || 0 === strpos((string) $channel, 'presence-');
+    }
+
+    /**
+     * Check whether a client may subscribe to the given channel.
+     *
+     * @param string      $client_id
+     * @param string      $channel
+     * @param string|null $auth
+     *
+     * @return bool
+     */
+    public static function authorize($client_id, $channel, $auth = null)
+    {
+        if (! is_string($channel) || '' === $channel) {
+            return false;
+        }
+
+        return static::is_private($channel)
+            ? Crypter::equals(static::sign($client_id, $channel), $auth)
+            : true;
     }
 
     /**

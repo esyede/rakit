@@ -20,113 +20,84 @@
 - [Dynamic Where](#dynamic-where)
 - [Raw Where](#raw-where)
 - [Table Join](#table-join)
-- [Left Join](#left-join)
 - [Order By](#order-by)
 - [Group By & Having](#group-by--having)
 - [Skip & Take](#skip--take)
-- [For Page](#for-page)
-- [Distinct](#distinct)
 - [Union & Union All](#union--union-all)
 - [Aggregates](#aggregates)
 - [Raw SQL Expressions](#raw-sql-expressions)
-- [Only](#only)
-- [Lists](#lists)
-- [Cursor](#cursor)
+- [Single Values & Lists](#single-values--lists)
+- [Chunking & Lazy Iteration](#chunking--lazy-iteration)
 - [Insert Record](#insert-record)
 - [Update Record](#update-record)
 - [Increment & Decrement](#increment--decrement)
 - [Delete Record](#delete-record)
 - [Pagination](#pagination)
-- [Find Or Fail](#find-or-fail)
-- [Copy Query](#copy-query)
-- [Reset Query](#reset-query)
+- [Conditional Clauses](#conditional-clauses)
+- [Copy & Reset Query](#copy--reset-query)
 - [Debug Query](#debug-query)
 - [Transaction](#transaction)
 - [Row Locking](#row-locking)
-- [Other Methods](#other-methods)
 
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-The Magic Query Builder builds SQL and runs it. Every query goes out as a [prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php), so it is safe from [SQL injection](https://en.wikipedia.org/wiki/SQL_injection).
-
-To get started, call the `DB::table()` method with the name of the table you want to work with:
+The Magic Query Builder builds and runs SQL with a fluent API. Every query is sent as a
+[prepared statement](https://www.php.net/manual/en/pdo.prepared-statements.php), so values are
+safe from SQL injection. Start a query with `DB::table()`:
 
 ```php
 $query = DB::table('users');
 ```
 
-That gives you a builder for the "users" table, ready to select, insert, update or delete.
+Use `DB::table('users', 'mysql')` or `DB::connection('mysql')->table('users')` for a
+non-default connection.
 
 <a id="retrieving-records"></a>
+<a id="find-or-fail"></a>
 ## Retrieving Records
 
-**Retrieve the records from the database:**
-
 ```php
-$users = DB::table('users')->get();
+$users = DB::table('users')->get();       // all rows
+$user  = DB::table('users')->first();     // first row, or NULL
+$user  = DB::table('users')->find($id);   // by the `id` column, or NULL
 ```
 
-The `get()` method returns a `Collection` of objects whose properties match the table column
-names. Because it is a collection, you can keep chaining on the result:
+`get()` returns a `Collection` of `stdClass` objects (empty when nothing matches). It is
+countable, iterable and array accessible, and has the usual collection methods:
 
 ```php
 $names = DB::table('users')->get()->pluck('name');
-$adults = DB::table('users')->get()->filter(function ($user) {
-    return $user->age >= 17;
-});
 ```
 
-It is countable, iterable and array accessible, so `count($users)`, `foreach ($users as $user)`
-and `$users[0]` all keep working as they did before.
-
-**Retrieve a single record:**
-
-```php
-$user = DB::table('users')->first();
-```
-
-**Retrieve a record by its primary key:**
-
-```php
-$user = DB::table('users')->find($id);
-```
-
-**Retrieve a record by ID, aborting with a 404 response when it is not found:**
+`find_or_fail()` and `first_or_fail()` stop the request with a 404 response (via `abort(404)`)
+when no record is found:
 
 ```php
 $user = DB::table('users')->find_or_fail($id);
-// Calls abort(404) if not found
+$user = DB::table('users')->where('email', '=', $email)->first_or_fail();
 ```
 
-> **Note:** `first()` and `find()` return `NULL` when there is no result, while `get()` returns an empty collection.
+> On the query builder these do not throw a catchable exception. Only a
+> [Facile model](/docs/database/facile) query throws `ModelNotFoundException`.
 
 <a id="select-columns"></a>
+<a id="distinct"></a>
 ## Select Columns
 
-**Select specific columns:**
-
 ```php
-$users = DB::table('users')->get(['id', 'email', 'name']);
-
-// Or with alias
 $users = DB::table('users')->get(['id', 'email as user_email']);
+
+$users = DB::table('users')->select(['id', 'name'])->get();
+$users = DB::table('users')->select('id', 'name')->add_select('email')->get();
+$users = DB::table('products')->select_raw('name, price * ? as price_with_tax', [1.1])->get();
+
+$countries = DB::table('users')->distinct()->get(['country']);
 ```
 
-**Using the select() method:**
-
-```php
-$users = DB::table('users')
-    ->select(['id', 'name', 'email'])
-    ->get();
-
-// Or multiple arguments
-$users = DB::table('users')
-    ->select('id', 'name', 'email')
-    ->get();
-```
+`add_select()` and `select_raw()` append to the select list; `select()` replaces it.
 
 <a id="building-where-clauses"></a>
 ## Building Where Clauses
@@ -134,37 +105,15 @@ $users = DB::table('users')
 <a id="where-and-or_where"></a>
 ### where and or_where
 
-**Basic WHERE clause:**
-
 ```php
-$users = DB::table('users')
-    ->where('id', '=', 1)
-    ->first();
-
 $users = DB::table('users')
     ->where('votes', '>', 100)
-    ->get();
-```
-
-**Multiple WHERE with AND:**
-
-```php
-$users = DB::table('users')
-    ->where('id', '=', 1)
-    ->where('email', '=', 'example@mail.com')
-    ->first();
-```
-
-**WHERE with OR:**
-
-```php
-$users = DB::table('users')
-    ->where('id', '=', 1)
+    ->where('active', 1)                    // operator omitted means '='
     ->or_where('email', '=', 'admin@mail.com')
     ->get();
 ```
 
-**Supported operators:**
+Supported operators:
 
 ```php
 '=', '<', '>', '<=', '>=', '<>', '!=', '<=>',
@@ -175,229 +124,92 @@ $users = DB::table('users')
 'similar to', 'not similar to', 'not ilike', '~~*', '!~~*'
 ```
 
-**Example with LIKE:**
+Any other operator throws, so never pass one taken from the request. Two shortcuts exist for
+common cases:
 
 ```php
-$users = DB::table('users')
-    ->where('name', 'like', '%john%')
-    ->get();
+DB::table('users')->where_like('name', '%john%');   // also or_where_like, where_not_like, or_where_not_like
+DB::table('orders')->where_column('paid_total', '!=', 'total');  // compare two columns
 ```
 
 <a id="where_id-and-or_where_id"></a>
 ### where_id and or_where_id
 
-Shortcut for a WHERE on the `id` column:
+Shortcuts for a condition on the `id` column:
 
 ```php
-// Equivalent to: where('id', '=', 1)
-$user = DB::table('users')->where_id(1)->first();
-
-// OR WHERE id
-$users = DB::table('users')
-    ->where('email', 'like', '%@gmail.com')
-    ->or_where_id(5)
-    ->get();
+$user = DB::table('users')->where_id(1)->first();   // where('id', '=', 1)
+$users = DB::table('users')->where('role', '=', 'admin')->or_where_id(5)->get();
 ```
 
 <a id="where_in-where_not_in-or_where_in-and-or_where_not_in"></a>
 ### where_in, where_not_in, or_where_in, and or_where_not_in
 
-**WHERE IN:**
-
 ```php
-$users = DB::table('users')
-    ->where_in('id', [1, 2, 3])
-    ->get();
-```
+$users = DB::table('users')->where_in('id', [1, 2, 3])->get();
+$users = DB::table('users')->where_not_in('id', [1, 2, 3])->get();
 
-**WHERE NOT IN:**
-
-```php
-$users = DB::table('users')
-    ->where_not_in('id', [1, 2, 3])
-    ->get();
-```
-
-**OR WHERE IN:**
-
-```php
 $users = DB::table('users')
     ->where('votes', '>', 100)
     ->or_where_in('name', ['John', 'Jane'])
     ->get();
 ```
 
-**OR WHERE NOT IN:**
-
-```php
-$users = DB::table('users')
-    ->where('active', '=', 1)
-    ->or_where_not_in('role', ['admin', 'moderator'])
-    ->get();
-```
-
 <a id="where_integer_in_raw-and-where_integer_not_in_raw"></a>
 ### where_integer_in_raw and where_integer_not_in_raw
 
-These work like `where_in()` and `where_not_in()`, but the values are written straight into the SQL
-instead of being bound as parameters. Use them for a very long list of IDs, which would otherwise run
-into the bound parameter limit of the driver (2100 on SQL Server, 999 on SQLite older than 3.32 and
-65535 on MySQL and PostgreSQL):
+Like `where_in()`, but the values are written into the SQL instead of bound. Use them for very
+long ID lists that would exceed the driver's bound parameter limit (2100 on SQL Server, 999 on
+SQLite older than 3.32, 65535 on MySQL and PostgreSQL):
 
 ```php
-$users = DB::table('users')
-    ->where_integer_in_raw('id', $ids)
-    ->get();
-
-// SQL: SELECT * FROM "users" WHERE "id" IN (1, 2, 3)
-
-$users = DB::table('users')
-    ->where_integer_not_in_raw('id', [1, 2, 3])
-    ->get();
+$users = DB::table('users')->where_integer_in_raw('id', $ids)->get();
+// SELECT * FROM "users" WHERE "id" IN (1, 2, 3)
 ```
 
-`or_where_integer_in_raw()` and `or_where_integer_not_in_raw()` are available as well.
+`where_integer_not_in_raw()`, `or_where_integer_in_raw()` and `or_where_integer_not_in_raw()` are
+available too.
 
-> **Security:** Only integers are accepted, either as an `int` or as a string of digits such as `'42'`.
-> Anything else (`'1 OR 1 = 1'`, `1.5`, `null`, and so on) throws an `InvalidArgumentException` instead
-> of ending up in the SQL.
+> Only integers (an `int` or a digit string such as `'42'`) are accepted. Anything else
+> (`'1 OR 1 = 1'`, `1.5`, `null`, ...) throws an `InvalidArgumentException`.
 
 <a id="where_null-where_not_null-or_where_null-and-or_where_not_null"></a>
 ### where_null, where_not_null, or_where_null, and or_where_not_null
 
-**WHERE NULL:**
-
 ```php
-$users = DB::table('users')
-    ->where_null('deleted_at')
-    ->get();
-```
-
-**WHERE NOT NULL:**
-
-```php
-$users = DB::table('users')
-    ->where_not_null('email_verified_at')
-    ->get();
-```
-
-**OR WHERE NULL:**
-
-```php
-$users = DB::table('users')
-    ->where('active', '=', 1)
-    ->or_where_null('deleted_at')
-    ->get();
-```
-
-**OR WHERE NOT NULL:**
-
-```php
-$users = DB::table('users')
-    ->where('role', '=', 'admin')
-    ->or_where_not_null('premium_until')
-    ->get();
+$users = DB::table('users')->where_null('deleted_at')->get();
+$users = DB::table('users')->where_not_null('email_verified_at')->get();
+$users = DB::table('users')->where('active', '=', 1)->or_where_null('deleted_at')->get();
 ```
 
 <a id="where_between-where_not_between-or_where_between-and-or_where_not_between"></a>
 ### where_between, where_not_between, or_where_between, and or_where_not_between
 
-**WHERE BETWEEN:**
-
 ```php
-$users = DB::table('users')
-    ->where_between('votes', 1, 100)
-    ->get();
-
+$users  = DB::table('users')->where_between('votes', 1, 100)->get();
+$users  = DB::table('users')->where_not_between('age', 18, 30)->get();
 $orders = DB::table('orders')
-    ->where_between('created_at', '2024-01-01', '2024-12-31')
-    ->get();
-```
-
-**WHERE NOT BETWEEN:**
-
-```php
-$users = DB::table('users')
-    ->where_not_between('age', 18, 30)
-    ->get();
-```
-
-**OR WHERE BETWEEN:**
-
-```php
-$users = DB::table('users')
-    ->where('country', '=', 'US')
-    ->or_where_between('age', 20, 30)
-    ->get();
-```
-
-**OR WHERE NOT BETWEEN:**
-
-```php
-$products = DB::table('products')
-    ->where('category', '=', 'electronics')
-    ->or_where_not_between('price', 100, 500)
+    ->where('status', '=', 'paid')
+    ->or_where_between('created_at', '2024-01-01', '2024-12-31')
     ->get();
 ```
 
 <a id="where_date-where_month-where_day-where_year-where_time"></a>
 ### where_date, where_month, where_day, where_year, where_time
 
-**WHERE DATE:**
+Compare only part of a date/time column:
 
 ```php
-// Search by date
-$orders = DB::table('orders')
-    ->where_date('created_at', '=', '2024-01-15')
-    ->get();
+DB::table('orders')->where_date('created_at', '=', '2024-01-15');
+DB::table('orders')->where_month('created_at', '=', 1);     // 1-12
+DB::table('orders')->where_day('created_at', '=', 15);      // 1-31
+DB::table('orders')->where_year('created_at', '=', 2024);
+DB::table('orders')->where_time('created_at', '>=', '17:00:00');
 ```
 
-**WHERE MONTH:**
-
-```php
-// Search by month (1-12)
-$orders = DB::table('orders')
-    ->where_month('created_at', '=', 1)
-    ->get();
-```
-
-**WHERE DAY:**
-
-```php
-// Search by day (1-31)
-$orders = DB::table('orders')
-    ->where_day('created_at', '=', 15)
-    ->get();
-```
-
-**WHERE YEAR:**
-
-```php
-// Search by year
-$orders = DB::table('orders')
-    ->where_year('created_at', '=', 2024)
-    ->get();
-```
-
-**WHERE TIME:**
-
-```php
-// Search by time
-$orders = DB::table('orders')
-    ->where_time('created_at', '>=', '17:00:00')
-    ->get();
-```
-
-A `DateTime` or `Carbon` value is reduced to the part being compared, so the whole day is matched here
-instead of only the exact second:
-
-```php
-$orders = DB::table('orders')
-    ->where_date('created_at', '=', Carbon::now())
-    ->get();
-```
-
-Every driver spells these functions differently, so the SQL is compiled by the grammar of the connection:
+A `DateTime` or `Carbon` value is reduced to the compared part, so
+`where_date('created_at', '=', Carbon::now())` matches the whole day. The SQL depends on the
+driver:
 
 | Method        | MySQL        | PostgreSQL                | SQLite                                 | SQL Server          |
 | ------------- | ------------ | ------------------------- | -------------------------------------- | ------------------- |
@@ -407,193 +219,117 @@ Every driver spells these functions differently, so the SQL is compiled by the g
 | `where_month` | `MONTH(col)` | `EXTRACT(MONTH FROM col)` | `CAST(strftime('%m', col) AS INTEGER)` | `MONTH(col)`        |
 | `where_year`  | `YEAR(col)`  | `EXTRACT(YEAR FROM col)`  | `CAST(strftime('%Y', col) AS INTEGER)` | `YEAR(col)`         |
 
-> **Note:** On SQLite the column has to hold text such as `2024-01-15 08:30:00`, which is the format Rakit
-> writes. `strftime()` does not read a unix timestamp stored as an integer.
-
-> **Security:** `where_date|month|day|year|time` wrap the column through the grammar (`DATE("col")`) and validate the identifier, so an un-allowlisted `Input::get('col')` is refused with `Invalid column identifier` rather than interpolated into the SQL.
+> On SQLite the column must hold text such as `2024-01-15 08:30:00` (the format Rakit writes);
+> `strftime()` cannot read an integer unix timestamp. The column name is validated, so an
+> unchecked `Input::get('col')` is rejected with `Invalid column identifier` instead of being
+> interpolated.
 
 <a id="where_any-where_all-and-where_none"></a>
 ### where_any, where_all, and where_none
 
-These apply the same condition to several columns at once. The columns are grouped in parentheses, so
-the group does not mix with the rest of the WHERE clause.
-
-**WHERE ANY** (at least one of the columns matches):
+Apply one condition to several columns, grouped in parentheses:
 
 ```php
-$users = DB::table('users')
-    ->where('active', '=', 1)
-    ->where_any(['name', 'email', 'phone'], 'like', '%budi%')
-    ->get();
+DB::table('users')->where('active', '=', 1)->where_any(['name', 'email'], 'like', '%budi%');
+// WHERE "active" = ? AND ("name" like ? OR "email" like ?)
 
-// SQL: SELECT * FROM "users" WHERE "active" = ? AND ("name" like ? OR "email" like ? OR "phone" like ?)
+DB::table('posts')->where_all(['title', 'body'], 'like', '%rakit%');
+// WHERE ("title" like ? AND "body" like ?)
+
+DB::table('posts')->where_none(['title', 'body'], 'like', '%spam%');
+// WHERE NOT ("title" like ? OR "body" like ?)
 ```
 
-**WHERE ALL** (every column matches):
+The operator may be omitted for equality, and each has an `or_` variant (`or_where_any()`,
+`or_where_all()`, `or_where_none()`).
 
-```php
-$posts = DB::table('posts')
-    ->where_all(['title', 'body'], 'like', '%rakit%')
-    ->get();
-
-// SQL: SELECT * FROM "posts" WHERE ("title" like ? AND "body" like ?)
-```
-
-**WHERE NONE** (none of the columns matches):
-
-```php
-$posts = DB::table('posts')
-    ->where_none(['title', 'body'], 'like', '%spam%')
-    ->get();
-
-// SQL: SELECT * FROM "posts" WHERE NOT ("title" like ? OR "body" like ?)
-```
-
-Just like with `where()`, the operator can be left out for an equality check. Each of them also has an
-`or_` variant: `or_where_any()`, `or_where_all()` and `or_where_none()`.
-
-> **Note:** A `NULL` column makes the condition unknown, so `where_none()` does not match such a row
-> either. An empty column list throws an `InvalidArgumentException`.
+> A `NULL` column makes the condition unknown, so `where_none()` does not match that row either.
+> An empty column list throws an `InvalidArgumentException`.
 
 <a id="where_exists-and-where_not_exists"></a>
 ### where_exists and where_not_exists
 
-**WHERE EXISTS with a subquery:**
+Pass a closure that builds the subquery (or a ready `Query`):
 
 ```php
 $users = DB::table('users')
     ->where_exists(function ($query) {
-        $query->from('orders')
-              ->where_raw('orders.user_id = users.id');
+        $query->from('orders')->where_raw('orders.user_id = users.id');
     })
     ->get();
 ```
 
-**WHERE NOT EXISTS:**
-
-```php
-$users = DB::table('users')
-    ->where_not_exists(function ($query) {
-        $query->from('orders')
-              ->where_raw('orders.user_id = users.id');
-    })
-    ->get();
-```
+`where_not_exists()` works the same way.
 
 <a id="where_in_sub-and-where_not_in_sub"></a>
 ### where_in_sub and where_not_in_sub
 
-**WHERE IN with a subquery:**
-
 ```php
 $users = DB::table('users')
-    ->where_in_sub('id', DB::table('orders')
-        ->select('user_id')
-        ->where('status', '=', 'completed')
-    )
+    ->where_in_sub('id', DB::table('orders')->select('user_id')->where('status', '=', 'completed'))
     ->get();
-```
 
-**WHERE NOT IN with a subquery:**
-
-```php
 $users = DB::table('users')
-    ->where_not_in_sub('id', DB::table('banned_users')
-        ->select('user_id')
-    )
+    ->where_not_in_sub('id', DB::table('banned_users')->select('user_id'))
     ->get();
 ```
 
 <a id="nested-where"></a>
 ## Nested Where
 
-Group WHERE clauses with parentheses:
+Group conditions in parentheses with `where_nested()` / `or_where_nested()` (passing a closure to
+`where()` does the same):
 
 ```php
 $users = DB::table('users')
     ->where('name', '=', 'John')
     ->where_nested(function ($query) {
-        $query->where('votes', '>', 100)
-              ->or_where('title', '=', 'Admin');
+        $query->where('votes', '>', 100)->or_where('title', '=', 'Admin');
     })
     ->get();
 
-// SQL: SELECT * FROM users WHERE name = 'John' AND (votes > 100 OR title = 'Admin')
-```
-
-A more complex example:
-
-```php
-$users = DB::table('users')
-    ->where('country', '=', 'US')
-    ->where_nested(function ($query) {
-        $query->where('age', '>=', 18)
-              ->where('age', '<=', 65);
-    })
-    ->or_where_nested(function ($query) {
-        $query->where('role', '=', 'admin')
-              ->where('verified', '=', 1);
-    })
-    ->get();
+// WHERE name = ? AND (votes > ? OR title = ?)
 ```
 
 <a id="dynamic-where"></a>
 ## Dynamic Where
 
-The Query Builder supports dynamic WHERE methods based on the column name:
+Any `where_{column}` method becomes an equality condition on that column, and `_and_` / `_or_`
+combine several:
 
 ```php
-// Equivalent to: where('email', '=', $email)
-$user = DB::table('users')->where_email($email)->first();
-
-// Equivalent to: where('name', '=', $name)
-$users = DB::table('users')->where_name($name)->get();
-
-// Multiple conditions with _and_
-$user = DB::table('users')
-    ->where_email_and_password($email, $password)
-    ->first();
-// SQL: WHERE email = ? AND password = ?
-
-// Multiple conditions with _or_
-$users = DB::table('users')
-    ->where_email_or_username($email, $username)
-    ->get();
-// SQL: WHERE email = ? OR username = ?
+$user  = DB::table('users')->where_email($email)->first();
+$user  = DB::table('users')->where_email_and_password($email, $password)->first();
+$users = DB::table('users')->where_email_or_username($email, $username)->get();
 ```
 
-A few names are reserved. They throw an exception instead of being turned into a column, so a mistake
-does not silently build the wrong query:
+Some names are reserved and throw instead of becoming a column condition:
 
--   `where_has()`, `where_doesnt_have()`, `where_relation()`, `where_belongs_to()`, `where_key()` and
-    `where_key_not()` only exist on a [Facile model](/docs/database/facile) query.
--   `where_json_contains()`, `where_json_length()`, `where_full_text()` and `where_morph_relation()`
-    are not supported yet.
+-   `where_has()`, `where_doesnt_have()`, `where_relation()`, `where_belongs_to()`, `where_key()`
+    and `where_key_not()` only exist on a [Facile model](/docs/database/facile#relationship-queries)
+    query.
+-   `where_json_contains()`, `where_json_length()`, `where_full_text()` and
+    `where_morph_relation()` are not supported yet.
 
-Because of that, a column named `key` for example cannot be queried with `where_key($value)`. Use
-`where('key', '=', $value)` instead.
+For a column with one of these names (e.g. `key`), use `where('key', '=', $value)`.
 
 <a id="raw-where"></a>
 ## Raw Where
 
-For a complex WHERE, use a raw WHERE:
-
 ```php
-$users = DB::table('users')
-    ->raw_where('age > ? AND city = ?', [18, 'Jakarta'])
-    ->get();
+$users = DB::table('users')->raw_where('age > ? AND city = ?', [18, 'Jakarta'])->get();
 
-// With OR
 $users = DB::table('users')
     ->where('active', '=', 1)
     ->raw_or_where('(votes > 100 OR role = ?)', ['admin'])
     ->get();
 ```
 
-<a id="table-join"></a>
-## Table Join
+`where_raw()` and `or_where_raw()` are aliases of `raw_where()` and `raw_or_where()`.
 
-**Basic JOIN:**
+<a id="table-join"></a>
+<a id="left-join"></a>
+## Table Join
 
 ```php
 $users = DB::table('users')
@@ -601,83 +337,41 @@ $users = DB::table('users')
     ->get(['users.*', 'contacts.phone']);
 ```
 
-**JOIN with a closure:**
+`left_join()`, `right_join()` and `cross_join()` take the same arguments. For several join
+conditions pass a closure, which receives a join with `on()` / `or_on()` (column to column) and
+`where()` / `or_where()` (column to a bound value):
 
 ```php
 $users = DB::table('users')
-    ->join('contacts', function ($join) {
+    ->left_join('contacts', function ($join) {
         $join->on('users.id', '=', 'contacts.user_id')
-             ->or_on('users.email', '=', 'contacts.email');
+             ->or_on('users.email', '=', 'contacts.email')
+             ->where('contacts.type', 'phone'); // two arguments mean '='
     })
     ->get();
 ```
 
-**Multiple JOIN:**
-
-```php
-$orders = DB::table('orders')
-    ->join('users', 'orders.user_id', '=', 'users.id')
-    ->join('products', 'orders.product_id', '=', 'products.id')
-    ->get(['orders.*', 'users.name', 'products.title']);
-```
-
-<a id="left-join"></a>
-## Left Join
-
-```php
-$users = DB::table('users')
-    ->left_join('orders', 'users.id', '=', 'orders.user_id')
-    ->get();
-
-// With a closure
-$users = DB::table('users')
-    ->left_join('orders', function ($join) {
-        $join->on('users.id', '=', 'orders.user_id')
-             ->where('orders.status', '=', 'completed');
-    })
-    ->get();
-```
+> Join operators are `=`, `<`, `>`, `<=`, `>=`, `<>`, `!=` and `<=>`; `where()` also accepts
+> `like` and `not like`. A `null` value in `where()` compiles to `IS NULL` / `IS NOT NULL`.
 
 <a id="order-by"></a>
 ## Order By
 
 ```php
-// Ascending (default)
-$users = DB::table('users')
-    ->order_by('name')
-    ->get();
+$users = DB::table('users')->order_by('name')->get();                  // asc by default
+$users = DB::table('users')->order_by('country')->order_by('created_at', 'desc')->get();
 
-// Descending
-$users = DB::table('users')
-    ->order_by('created_at', 'desc')
-    ->get();
-
-// Multiple order by
-$users = DB::table('users')
-    ->order_by('country', 'asc')
-    ->order_by('name', 'asc')
-    ->get();
+DB::table('articles')->latest()->take(10)->get();   // order by created_at desc (oldest() for asc)
+DB::table('users')->in_random_order()->first();
+DB::table('users')->order_by_raw('FIELD(status, ?, ?)', ['active', 'banned']);
+$query->re_order('name');                           // drop previous orderings, optionally add a new one
 ```
 
-> The direction is only ever `asc` or `desc`; anything else throws. The same
-> goes for the operator of `where()` and `having()`, which has to be one the
-> grammar knows. Both end up in the SQL as written, so neither is a place to
-> pass something that came from a request. Use `order_by_raw()` when you really
-> do mean raw SQL.
+> The direction must be `asc` or `desc`, anything else throws. Use `order_by_raw()` when you
+> really mean raw SQL, and never pass request input to it.
 
 <a id="group-by--having"></a>
 ## Group By & Having
-
-**GROUP BY:**
-
-```php
-$totals = DB::table('orders')
-    ->select(['user_id', DB::raw('SUM(amount) as total')])
-    ->group_by('user_id')
-    ->get();
-```
-
-**GROUP BY with HAVING:**
 
 ```php
 $users = DB::table('orders')
@@ -687,456 +381,306 @@ $users = DB::table('orders')
     ->get();
 ```
 
+`or_having()`, `having_raw($sql, $bindings)`, `or_having_raw()` and `group_by_raw()` are available
+for OR and raw variants.
+
 <a id="skip--take"></a>
+<a id="for-page"></a>
 ## Skip & Take
 
-**LIMIT and OFFSET:**
-
 ```php
-// Take 10 records
-$users = DB::table('users')
-    ->take(10)
-    ->get();
-
-// Skip 20, take 10
-$users = DB::table('users')
-    ->skip(20)
-    ->take(10)
-    ->get();
-```
-
-<a id="for-page"></a>
-## For Page
-
-Shortcut for manual pagination:
-
-```php
-// Page 1, 15 per page
-$users = DB::table('users')
-    ->for_page(1, 15)
-    ->get();
-
-// Page 3, 20 per page
-$users = DB::table('users')
-    ->for_page(3, 20)
-    ->get();
-// Equivalent to: skip(40)->take(20)
-```
-
-<a id="distinct"></a>
-## Distinct
-
-```php
-$countries = DB::table('users')
-    ->distinct()
-    ->get(['country']);
+$users = DB::table('users')->skip(20)->take(10)->get();   // OFFSET 20 LIMIT 10
+$users = DB::table('users')->for_page(3, 20)->get();     // same as skip(40)->take(20)
 ```
 
 <a id="union--union-all"></a>
 ## Union & Union All
 
-**UNION:**
-
 ```php
-$query1 = DB::table('users')->where('active', '=', 1);
-$query2 = DB::table('users')->where('role', '=', 'admin');
+$admins = DB::table('users')->where('role', '=', 'admin');
 
-$users = $query1->union($query2)->get();
-```
-
-**UNION ALL:**
-
-```php
-$query1 = DB::table('orders')->where('status', '=', 'pending');
-$query2 = DB::table('orders')->where('status', '=', 'processing');
-
-$orders = $query1->union_all($query2)->get();
+$users = DB::table('users')->where('active', '=', 1)->union($admins)->get();
+$users = DB::table('users')->where('active', '=', 1)->union_all($admins)->get();
 ```
 
 <a id="aggregates"></a>
 ## Aggregates
 
-**COUNT:**
-
 ```php
-$count = DB::table('users')->count();
+$count = DB::table('users')->where('active', '=', 1)->count();
+$max   = DB::table('users')->max('votes');
+$min   = DB::table('users')->min('age');
+$avg   = DB::table('products')->avg('price');
+$sum   = DB::table('orders')->sum('amount');
+$value = DB::table('orders')->aggregate('MAX', ['amount']);   // any aggregate function
 
-$active_count = DB::table('users')
-    ->where('active', '=', 1)
-    ->count();
-```
-
-**MAX:**
-
-```php
-$max_votes = DB::table('users')->max('votes');
-```
-
-**MIN:**
-
-```php
-$min_age = DB::table('users')->min('age');
-```
-
-**AVG:**
-
-```php
-$avg_price = DB::table('products')->avg('price');
-```
-
-**SUM:**
-
-```php
-$total_sales = DB::table('orders')->sum('amount');
+if (DB::table('users')->where('email', '=', $email)->exists()) { /* .. */ }   // or doesnt_exist()
 ```
 
 <a id="raw-sql-expressions"></a>
 ## Raw SQL Expressions
 
-For a complex SQL query, use `DB::raw()`:
+`DB::raw()` inserts SQL as-is into a select list, condition or ordering:
 
 ```php
 $users = DB::table('users')
-    ->select([
-        '*',
-        DB::raw('COUNT(*) as total'),
-        DB::raw('DATE(created_at) as date')
-    ])
-    ->get();
-
-// In WHERE
-$users = DB::table('users')
+    ->select(['*', DB::raw('DATE(created_at) as date')])
     ->where(DB::raw('YEAR(created_at)'), '=', 2024)
-    ->get();
-
-// In ORDER BY
-$users = DB::table('users')
     ->order_by(DB::raw('votes * 2'), 'desc')
     ->get();
 ```
 
-**Manual escaping:**
+Raw expressions are not escaped. If you must build one from a value, quote it with
+`DB::escape($value)`.
 
-```php
-$value = DB::escape($user_input);
-```
-
+<a id="single-values--lists"></a>
 <a id="only"></a>
-## Only
-
-Retrieve the value of a single column:
-
-```php
-$email = DB::table('users')
-    ->where('id', '=', 1)
-    ->only('email');
-
-// Return: "user@example.com" (not an object or array)
-```
-
 <a id="lists"></a>
-## Lists
-
-Retrieve a key-value array:
+## Single Values & Lists
 
 ```php
-// Array with values only
-$emails = DB::table('users')->lists('email');
-// ['email1@test.com', 'email2@test.com', ...]
+$email = DB::table('users')->where('id', '=', 1)->only('email');   // one value, or NULL
+$email = DB::table('users')->where('id', '=', 1)->value('email');  // alias of only()
 
-// Array with custom key
-$users = DB::table('users')->lists('name', 'id');
-// [1 => 'John', 2 => 'Jane', ...]
+$emails = DB::table('users')->lists('email');        // ['a@test.com', 'b@test.com', ...]
+$names  = DB::table('users')->lists('name', 'id');   // [1 => 'John', 2 => 'Jane', ...]
+$names  = DB::table('users')->pluck('name', 'id');   // same, as a Collection
+
+$user = DB::table('users')->where('email', '=', $email)->sole();   // exactly one row
 ```
 
+`sole()` throws when there is no matching row or more than one.
+
+<a id="chunking--lazy-iteration"></a>
+<a id="chunking--cursor"></a>
 <a id="cursor"></a>
-## Cursor
+## Chunking & Lazy Iteration
 
-For a large dataset, use a cursor to keep memory usage low:
+To process a large table without loading it all, use `chunk()`, which passes each chunk (and the
+page number) to the callback. Return `false` to stop. Like Laravel, `chunk()`, `each()` and `lazy()`
+require an `order_by()` (otherwise a `RuntimeException` is thrown); Facile models order by their
+key automatically:
 
 ```php
-foreach (DB::table('users')->cursor() as $user) {
-    echo $user->name;
+DB::table('users')->order_by('id')->chunk(500, function ($users, $page) {
+    foreach ($users as $user) {
+        // ..
+    }
+});
+```
+
+`chunk_by_id($count, $callback, $column = null, $alias = null)` pages by the ID (`WHERE id > last
+ORDER BY id LIMIT n`) instead of an offset, which is faster on big tables and safe when the
+callback updates the rows. `chunk_by_id_desc()` walks the IDs downwards. `$column` defaults to
+`id`; pass `$alias` when the column comes back under another name. `each($callback, $count = 1000)`
+and `each_by_id($callback, $count = 1000, $column = null, $alias = null)` call the callback once
+per row, with `($row, $key)`; return `false` to stop.
+
+`lazy($chunk_size = 1000)` does the same chunked fetching, but hands back a generator to
+`foreach` over. It needs an `order_by()`, and throws without one. `lazy_by_id()` and
+`lazy_by_id_desc()` (same arguments as `chunk_by_id()`, chunk size first) page by the ID:
+
+```php
+foreach (DB::table('orders')->order_by('id')->lazy(500) as $order) {
+    // ..
 }
 
-// With a custom chunk size
-foreach (DB::table('orders')->cursor(['*'], 500) as $order) {
-    // Process order
+foreach (DB::table('orders')->where('paid', '=', 0)->lazy_by_id() as $order) {
+    DB::table('orders')->where('id', '=', $order->id)->update(['paid' => 1]);
 }
 ```
 
-The cursor uses a PHP generator and streams the data row by row.
+`cursor()` runs **one** query and streams its rows one at a time from the PDO statement. The
+columns come from `select()`:
+
+```php
+foreach (DB::table('orders')->select(['id', 'total'])->cursor() as $order) {
+    // ..
+}
+```
+
+| Method | Queries | Use it when |
+| --- | --- | --- |
+| `chunk()`, `each()`, `lazy()` | one per chunk | you need batches, or eager loading with Facile |
+| `chunk_by_id()`, `each_by_id()`, `lazy_by_id()` (and `_desc`) | one per chunk | you update or delete the rows while iterating, or the table is big |
+| `cursor()` | one | you want the least memory per row and no eager loading |
+
+> `cursor()` keeps only one row in PHP at a time, but `pdo_mysql` buffers the whole result set by default (`PDO::MYSQL_ATTR_USE_BUFFERED_QUERY`), so memory can still grow with the result. Chunk sizes below 1 make `lazy()` and `lazy_by_id()` throw an `InvalidArgumentException`.
+
+> Generators need PHP 5.5+. On PHP 5.4 `lazy()` and `lazy_by_id()` return a `System\Database\Query\Lazy` and `cursor()` a `System\Database\Query\Cursor` instead: plain `Iterator`s that work in `foreach`. They are not arrays and not `Countable`; use `iterator_to_array()` if you need one. Like a generator, a cursor can not be rewound once it has moved past its first row.
 
 <a id="insert-record"></a>
 ## Insert Record
 
-**Insert single record:**
-
 ```php
-DB::table('users')->insert([
-    'name' => 'John Doe',
-    'email' => 'john@example.com',
-    'password' => Hash::make('secret')
-]);
-```
+DB::table('users')->insert(['name' => 'John', 'email' => 'john@example.com']);
 
-**Insert and get the ID:**
-
-```php
-$id = DB::table('users')->insert_get_id([
-    'name' => 'Jane Doe',
-    'email' => 'jane@example.com'
-]);
-
-echo $id; // Auto-increment ID
-```
-
-**Insert with a custom ID column:**
-
-```php
-$id = DB::table('users')->insert_get_id([
-    'name' => 'Bob'
-], 'user_id');
-```
-
-> The id comes back as an `int` when the driver hands back digits, and as the
-> string it gave otherwise, so a UUID or another non-numeric key survives. When
-> the driver has nothing to hand back, which is what happens for a key the
-> application generated itself, the result is `null`.
->
-> PostgreSQL reads the id from a sequence, which a third argument names:
-> `insert_get_id($values, 'id', 'users_id_seq')`.
-
-**Batch insert:**
-
-```php
-DB::table('users')->insert([
+DB::table('users')->insert([            // several rows at once
     ['name' => 'User 1', 'email' => 'user1@test.com'],
     ['name' => 'User 2', 'email' => 'user2@test.com'],
-    ['name' => 'User 3', 'email' => 'user3@test.com'],
 ]);
+
+$id = DB::table('users')->insert_get_id(['name' => 'Jane']);
+$id = DB::table('users')->insert_get_id(['name' => 'Bob'], 'user_id');   // custom id column
+
+DB::table('users')->insert_or_ignore($rows);   // silently skip rows that clash with a unique key
 ```
+
+`insert()` returns `true` (a failure throws). `insert_get_id()` returns an `int` when the driver
+gives digits, the raw string otherwise (so UUIDs survive), and `null` when the driver has none
+(e.g. an application-generated key). On PostgreSQL pass the sequence name as the third argument:
+`insert_get_id($values, 'id', 'users_id_seq')`.
 
 <a id="update-record"></a>
 ## Update Record
 
-```php
-// Update with WHERE
-DB::table('users')
-    ->where('id', '=', 1)
-    ->update([
-        'name' => 'New Name',
-        'email' => 'newemail@example.com'
-    ]);
+`update()` returns the number of affected rows:
 
-// Update multiple conditions
-DB::table('users')
-    ->where('active', '=', 0)
-    ->where('created_at', '<', '2020-01-01')
-    ->update(['status' => 'inactive']);
+```php
+$affected = DB::table('users')
+    ->where('id', '=', 1)
+    ->update(['name' => 'New Name', 'email' => 'new@example.com']);
+```
+
+`update_or_insert($attributes, $values)` updates the row matching `$attributes`, or inserts
+`$attributes + $values` when there is none:
+
+```php
+DB::table('settings')->update_or_insert(['key' => 'theme'], ['value' => 'dark']);
 ```
 
 <a id="increment--decrement"></a>
 ## Increment & Decrement
 
-**Increment:**
-
 ```php
-// Increment votes by 1
-DB::table('users')
-    ->where('id', '=', 1)
-    ->increment('votes');
-
-// Increment by custom amount
-DB::table('users')
-    ->where('id', '=', 1)
-    ->increment('votes', 5);
+DB::table('users')->where('id', '=', 1)->increment('votes');        // +1
+DB::table('users')->where('id', '=', 1)->increment('votes', 5);
+DB::table('products')->where('id', '=', 1)->decrement('stock', 10, ['updated_at' => $now]);
 ```
 
-**Decrement:**
-
-```php
-// Decrement by 1
-DB::table('products')
-    ->where('id', '=', 1)
-    ->decrement('stock');
-
-// Decrement by custom amount
-DB::table('products')
-    ->where('id', '=', 1)
-    ->decrement('stock', 10);
-```
+The amount must be numeric; the optional third argument updates other columns at the same time.
 
 <a id="delete-record"></a>
 ## Delete Record
 
+`delete()` returns the number of deleted rows. Without a `where()` it deletes every row:
+
 ```php
-// Delete with WHERE
-DB::table('users')
-    ->where('id', '=', 1)
-    ->delete();
-
-// Delete multiple
-DB::table('users')
-    ->where('active', '=', 0)
-    ->delete();
-
-// Delete all (be careful!)
-DB::table('temp_data')->delete();
+DB::table('users')->where('active', '=', 0)->delete();
 ```
+
+`update()`, `increment()` / `decrement()` and `delete()` honour joins, so the join can filter the
+affected rows:
+
+```php
+DB::table('users')
+    ->join('contacts', 'users.id', '=', 'contacts.user_id')
+    ->where('contacts.blocked', '=', 1)
+    ->update(['users.active' => 0]);
+
+DB::table('users')
+    ->join('contacts', 'users.id', '=', 'contacts.user_id')
+    ->where('contacts.blocked', '=', 1)
+    ->delete();
+```
+
+| Driver | Generated SQL |
+|--------|---------------|
+| MySQL | `UPDATE t INNER JOIN ... SET ... WHERE ...` / `DELETE t FROM t INNER JOIN ... WHERE ...` |
+| SQL Server | `UPDATE t SET ... FROM t INNER JOIN ... WHERE ...` / `DELETE t FROM t INNER JOIN ... WHERE ...` |
+| PostgreSQL | `UPDATE t SET ... WHERE ctid IN (SELECT t.ctid FROM t INNER JOIN ... WHERE ...)`, same for `DELETE` |
+| SQLite | Like PostgreSQL, with `rowid` instead of `ctid` |
+
+> Only the base table is updated or deleted from. On PostgreSQL and SQLite the table prefix of a
+> `SET` column (`users.active`) is dropped, as they don't allow it there.
 
 <a id="pagination"></a>
 ## Pagination
 
 ```php
-// 20 per page (default)
-$users = DB::table('users')->paginate();
+$users = DB::table('users')->where('active', '=', 1)->paginate(15);
 
-// Custom per page
-$users = DB::table('users')->paginate(15);
-
-// With specific columns
-$users = DB::table('users')->paginate(10, ['id', 'name', 'email']);
-
-// With WHERE
-$users = DB::table('users')
-    ->where('active', '=', 1)
-    ->order_by('created_at', 'desc')
-    ->paginate(20);
-
-// In view
-foreach ($users->results as $user) {
+foreach ($users as $user) {
     echo $user->name;
 }
 
 echo $users->links();
 ```
 
-<a id="find-or-fail"></a>
-## Find Or Fail
+`paginate()` defaults to 20 per page. See [Pagination](/docs/views/pagination) for the full API.
 
-Methods that stop the request with a 404 response (via `abort(404)`) when the record is not found:
+<a id="conditional-clauses"></a>
+<a id="other-methods"></a>
+## Conditional Clauses
+
+`when()` applies a callback only when the value is truthy (`unless()` when it is falsy). The
+callback receives the query and the value; an optional third callback runs otherwise:
 
 ```php
-$user = DB::table('users')->find_or_fail($id);
-
-// Or with first_or_fail
-$user = DB::table('users')
-    ->where('email', '=', $email)
-    ->first_or_fail();
+$users = DB::table('users')
+    ->when(Input::get('role'), function ($query, $role) {
+        return $query->where('role', '=', $role);
+    })
+    ->get();
 ```
 
-> **Note:** On the query builder these do not throw an exception you can catch. Only a
-> [Facile model](/docs/database/facile) query throws `ModelNotFoundException`.
+`tap($callback)` hands the query to a callback and keeps the chain going.
 
+<a id="copy--reset-query"></a>
 <a id="copy-query"></a>
-## Copy Query
-
-Make a copy of a query so it can be reused:
-
-```php
-$base_query = DB::table('users')
-    ->where('active', '=', 1)
-    ->where('country', '=', 'US');
-
-// Copy for different query
-$admins = $base_query->copy()
-    ->where('role', '=', 'admin')
-    ->get();
-
-$users = $base_query->copy()
-    ->where('role', '=', 'user')
-    ->get();
-
-// $base_query is not affected
-```
-
 <a id="reset-query"></a>
-## Reset Query
+## Copy & Reset Query
 
-**Reset the whole query:**
-
-```php
-$query = DB::table('users')
-    ->where('active', '=', 1)
-    ->take(10)
-    ->skip(5);
-
-$query->reset(); // Reset all conditions
-
-$query->get(); // Get all rows
-```
-
-**Reset only the WHERE clauses:**
+`copy()` clones a query so a shared base can be reused without being modified:
 
 ```php
-$query = DB::table('users')
-    ->where('role', '=', 'admin')
-    ->where('country', '=', 'US');
+$base = DB::table('users')->where('active', '=', 1);
 
-$query->reset_where(); // Remove every WHERE
-$query->where('active', '=', 1)->get();
+$admins = $base->copy()->where('role', '=', 'admin')->get();
+$users  = $base->copy()->where('role', '=', 'user')->get();
 ```
 
-**Reset LIMIT and OFFSET:**
-
-```php
-$query = DB::table('users')
-    ->skip(10)
-    ->take(20);
-
-$query->reset_limit_offset();
-$query->get(); // Get everything, without the limit
-```
+`reset()` clears every clause (wheres, selects, orderings, groupings, havings, unions, limit,
+offset, locks). `reset_where()` clears only the conditions and `reset_limit_offset()` only the
+limit and offset.
 
 <a id="debug-query"></a>
 ## Debug Query
 
-To inspect the generated SQL query:
-
 ```php
-$query = DB::table('users')
-    ->where('active', '=', 1)
-    ->where('votes', '>', 100);
+$query = DB::table('users')->where('active', '=', 1)->where('votes', '>', 100);
 
-// Without bindings
-echo $query->to_sql();
-// SELECT * FROM users WHERE active = ? AND votes > ?
+echo $query->to_sql();   // SELECT * FROM "users" WHERE "active" = ? AND "votes" > ?
+echo $query->debug();    // SELECT * FROM "users" WHERE "active" = 1 AND "votes" > 100
 
-// With bindings
-echo $query->debug();
-// SELECT * FROM users WHERE active = 1 AND votes > 100
+$query->dd();            // dump debug() and stop
+$query->bd();            // dump debug() to the debug bar and continue
 ```
 
 <a id="transaction"></a>
 ## Transaction
 
-Use a transaction to keep the data consistent. The closure receives the
-connection, and whatever it returns becomes the return value of `transaction()`:
+`transaction()` runs a closure inside a transaction. It commits when the closure returns, and
+rolls back and rethrows when it throws. The closure receives the connection, and its return value
+is returned:
 
 ```php
 $user = DB::connection()->transaction(function ($connection) {
-    $connection->table('users')->update(['balance' => DB::raw('balance - 100')]);
+    $connection->table('users')->where('id', '=', 1)->update(['balance' => DB::raw('balance - 100')]);
     $connection->table('logs')->insert(['note' => 'debited']);
 
     return $connection->table('users')->find(1);
 });
 ```
 
-Anything the closure throws rolls the whole thing back and is rethrown, so there
-is nothing to catch unless you want to handle it.
-
-**Manual control:**
+For manual control use `begin_transaction()`, `commit()` and `rollback()`:
 
 ```php
 $connection = DB::connection();
 
 try {
     $connection->begin_transaction();
-
     DB::table('users')->insert(['name' => 'John']);
-    DB::table('profiles')->insert(['user_id' => 1]);
-
     $connection->commit();
 } catch (Exception $e) {
     $connection->rollback();
@@ -1144,74 +688,44 @@ try {
 }
 ```
 
-`rollback()` and `commit()` are harmless when no transaction is open, they simply
-return `FALSE`. That makes `rollback()` safe to call from an error handler that
-is not sure whether a transaction was ever started.
+`commit()` and `rollback()` just return `false` when no transaction is open, so `rollback()` is
+safe in any error handler.
 
-> **Beware:** a `return` inside the `try` block skips the `commit()` and leaves
-> the transaction open for the rest of the request. Either commit before you
-> return, or use the closure form, which cannot get this wrong.
+> A `return` inside the `try` block skips `commit()` and leaves the transaction open for the rest
+> of the request. Commit first, or use the closure form.
 
-**Nested transactions:**
-
-Opening a transaction while one is already open uses a savepoint instead of a
-second real transaction, so a method that wraps its own work may safely be
-called from inside another transaction:
+**Nested transactions.** Opening a transaction while one is open creates a savepoint, so code that
+wraps its own work in a transaction can safely run inside another. If the inner one fails, only
+its work is undone; only the outermost `commit()` really commits. `transaction_level()` returns
+the current depth.
 
 ```php
 DB::connection()->transaction(function ($connection) {
     $connection->table('orders')->insert(['total' => 1000]);
 
     try {
-        // Its own transaction, which becomes a savepoint here
-        Billing::charge($order);
+        Billing::charge($order);   // its own transaction, a savepoint here
     } catch (Exception $e) {
-        // Only the work of the inner one is undone, the outer one carries on
+        // only the inner work was undone
     }
-
-    $connection->table('logs')->insert(['note' => 'order placed']);
 });
 ```
 
-Only the outermost `commit()` really commits. Use `transaction_level()` to ask
-how deep you are.
-
-**Transaction events:**
-
-`rakit.db.commit` and `rakit.db.rollback` fire when the outermost transaction of
-a connection ends, and only then: a nested one releases or undoes its savepoint
-and stays quiet. The payload is the connection name:
+**Transaction events.** `rakit.db.commit` and `rakit.db.rollback` fire when the outermost
+transaction of a connection ends (not for savepoints), with the connection name as payload:
 
 ```php
 Hook::listen('rakit.db.commit', function ($connection) {
-    // Dispatch the outbox jobs only once the work is really in
-});
-
-Hook::listen('rakit.db.rollback', function ($connection) {
-    // Drop whatever was staged for after the commit
+    // e.g. dispatch jobs only once the data is really saved
 });
 ```
 
 <a id="row-locking"></a>
 ## Row Locking
 
-A transaction on its own does not stop two requests from reading the same row at
-the same time. This is the pattern that breaks:
-
-```php
-// UNSAFE: both requests may read balance = 100 and both pass the check
-$user = User::find($id);
-
-if ($user->balance < $price) {
-    return 'balance is not enough';
-}
-
-User::where_key($id)->decrement('balance', $price);
-```
-
-`decrement()` is atomic, but the check before it is not, so two purchases of 100
-against a balance of 100 can both go through. `lock_for_update()` closes that
-window by holding the row until the transaction ends:
+A transaction alone does not stop two requests from reading the same row and both acting on it,
+for example both passing a "balance is enough" check. `lock_for_update()` holds the selected rows
+until the transaction ends:
 
 ```php
 DB::connection()->transaction(function () use ($id, $price) {
@@ -1225,30 +739,29 @@ DB::connection()->transaction(function () use ($id, $price) {
 });
 ```
 
-`shared_lock()` is the softer one, other transactions may still read the rows
-but none may change them until yours ends:
+`shared_lock()` is softer: others may still read the rows, but none may change them until your
+transaction ends:
 
 ```php
 $rates = DB::table('rates')->where('active', 1)->shared_lock()->get();
 ```
 
-Both only hold inside a transaction, outside of one they do nothing useful.
+Locks only have effect inside a transaction.
 
-By default a lock waits for rows another transaction already holds. `no_wait()`
-makes it fail at once instead, `skip_locked()` leaves those rows out, which lets
-several workers pick jobs off one table without stepping on each other:
+By default a lock waits for rows another transaction holds. `no_wait()` fails immediately
+instead, and `skip_locked()` leaves those rows out, which lets several workers take jobs from one
+table without colliding:
 
 ```php
 DB::connection()->transaction(function () {
     $job = DB::table('jobs')->where('reserved', 0)->lock_for_update()->skip_locked()->first();
-    // ...
+    // ..
 });
 ```
 
-Both lock the rows exclusively when no lock was asked for yet, and both need
-MySQL 8.0+, PostgreSQL 9.5+ (`NOWAIT` alone works on older PostgreSQL) or SQL Server.
-
-`lock()` takes a raw clause when a driver specific one is needed:
+Both lock exclusively when no lock was requested yet, and need MySQL 8.0+, PostgreSQL 9.5+
+(`NOWAIT` alone works on older PostgreSQL) or SQL Server. `lock()` takes a raw clause for
+driver-specific locks:
 
 ```php
 DB::table('jobs')->lock('FOR NO KEY UPDATE')->get();
@@ -1263,84 +776,12 @@ What each driver compiles:
 | SQL Server | `WITH (ROWLOCK, UPDLOCK, HOLDLOCK)` | `WITH (ROWLOCK, HOLDLOCK)` |
 | SQLite | *(nothing)* | *(nothing)* |
 
-And with an option added:
-
 | Driver | `no_wait()` | `skip_locked()` |
 |---|---|---|
 | MySQL, PostgreSQL | `FOR UPDATE NOWAIT` | `FOR UPDATE SKIP LOCKED` |
 | SQL Server | `WITH (ROWLOCK, UPDLOCK, HOLDLOCK, NOWAIT)` | `WITH (ROWLOCK, UPDLOCK, READPAST)` |
 | SQLite | *(nothing)* | *(nothing)* |
 
-With `shared_lock()` it becomes `FOR SHARE ...` (MySQL included), and on SQL Server
-`WITH (ROWLOCK, HOLDLOCK, NOWAIT)` or `WITH (ROWLOCK, REPEATABLEREAD, READPAST)`.
-
-SQLite locks the whole database file for the duration of a transaction, so it
-has no row level lock to ask for and the clause is left out entirely.
-
-<a id="other-methods"></a>
-## Other Methods
-
-| Method                                            | Description                                                     |
-| ------------------------------------------------- | --------------------------------------------------------------- |
-| `latest($column)`                                 | Order descending, defaults to the `created_at` column           |
-| `oldest($column)`                                 | Order ascending, defaults to the `created_at` column            |
-| `exists()`                                        | `true` when at least one row matches                            |
-| `doesnt_exist()`                                  | The opposite of `exists()`                                      |
-| `where_column($column1, $operator, $column2)`     | Compare two columns to each other                               |
-| `aggregate($aggregator, array $columns)`          | Run any aggregate function, for example `MAX`                   |
-| `chunk($count, $callback)`                        | Process rows in chunks, returning `false` stops the iteration   |
-| `chunk_by_id($count, $callback, $column, $alias)` | Process rows in chunks, paging by id instead of by offset       |
-| `each($callback, $count)`                         | Run the callback over every single row                          |
-| `value($column)`                                  | A single column value of the first row                          |
-| `pluck($column, $key)`                            | A collection holding the values of a single column              |
-| `sole($columns)`                                  | Exactly one row, complains when there is none or more than one  |
-| `when($value, $callback, $default)`               | Apply the callback only when the value is truthy                |
-| `unless($value, $callback, $default)`             | Apply the callback only when the value is falsy                 |
-| `tap($callback)`                                  | Hand the query to the callback and keep on chaining             |
-| `where_like($column, $value)`                     | WHERE LIKE, also `or_where_like` and `where_not_like`           |
-| `select_raw($sql, $bindings)` / `add_select()`    | Raw or extra columns in the SELECT clause                       |
-| `order_by_raw()` / `group_by_raw()`               | Raw ORDER BY and GROUP BY clauses                               |
-| `having_raw($sql, $bindings)` / `or_having()`     | Raw and OR variants of the HAVING clause                        |
-| `in_random_order($seed)`                          | Order the rows randomly                                         |
-| `re_order($column, $direction)`                   | Drop every ORDER BY added so far                                |
-| `right_join()` / `cross_join()`                   | RIGHT and CROSS joins                                           |
-| `update_or_insert($attributes, $values)`          | Update the matching row, or insert it when there is none        |
-| `insert_or_ignore($values)`                       | Insert while silently skipping the rows that clash              |
-| `dd()` / `bd()`                                   | Dump the SQL and its bindings, then stop or continue            |
-
-```php
-// The newest 10 articles
-$articles = DB::table('articles')->latest()->take(10)->get();
-
-// Rows where the two columns are not the same
-$mismatch = DB::table('orders')->where_column('paid_total', '!=', 'total')->get();
-
-// Check without pulling any row
-if (DB::table('users')->where('email', 'budi@site.com')->doesnt_exist()) {
-    // ..
-}
-
-// Safe for a large table, because it does not use OFFSET
-DB::table('users')->chunk_by_id(500, function ($users) {
-    foreach ($users as $user) {
-        // ..
-    }
-});
-
-// Only apply the filter when it was actually asked for
-$users = DB::table('users')
-    ->when($request_role, function ($query, $role) {
-        return $query->where('role', '=', $role);
-    })
-    ->get();
-
-// A single value instead of a whole row
-$email = DB::table('users')->where('id', '=', 1)->value('email');
-
-// Update when it exists, insert when it does not
-DB::table('settings')->update_or_insert(['key' => 'theme'], ['value' => 'dark']);
-```
-
-> **Note:** Relationship filters such as `where_has()` and `where_relation()` are only available on a
-> [Facile model](/docs/database/facile#relationship-queries) query. JSON column queries such as
-> `where_json_contains()` are not supported yet.
+Combined with `shared_lock()` they compile to `FOR SHARE ...` (MySQL included), or on SQL Server
+`WITH (ROWLOCK, HOLDLOCK, NOWAIT)` / `WITH (ROWLOCK, REPEATABLEREAD, READPAST)`. SQLite locks the
+whole database file during a transaction, so it has no row lock and the clause is omitted.

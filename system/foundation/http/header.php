@@ -53,7 +53,7 @@ class Header implements \IteratorAggregate, \Countable
         $content = '';
 
         foreach ($this->headers as $name => $values) {
-            $name = $this->standardizeKey($name);
+            $name = static::displayKey($name);
 
             foreach ($values as $value) {
                 $content .= sprintf("%-{$max}s %s\r\n", $name.':', $value);
@@ -143,8 +143,8 @@ class Header implements \IteratorAggregate, \Countable
 
         $this->headers[$key] = (true === $replace || ! isset($this->headers[$key])) ? $values : array_merge($this->headers[$key], $values);
 
-        if ('Cache-Control' === $key) {
-            $this->cacheControl = $this->parseCacheControl($values[0]);
+        if ('cache-control' === $key) {
+            $this->cacheControl = $this->parseCacheControl(isset($values[0]) ? $values[0] : '');
         }
     }
 
@@ -183,7 +183,7 @@ class Header implements \IteratorAggregate, \Countable
         $key = $this->standardizeKey($key);
         unset($this->headers[$key]);
 
-        if ('Cache-Control' === $key) {
+        if ('cache-control' === $key) {
             $this->cacheControl = [];
         }
     }
@@ -323,7 +323,7 @@ class Header implements \IteratorAggregate, \Countable
     }
 
     /**
-     * Standardize a header name.
+     * Standardize a header name to its lookup key (lowercase, '_' becomes '-'), like Symfony.
      *
      * @param string $key
      *
@@ -331,6 +331,18 @@ class Header implements \IteratorAggregate, \Countable
      */
     protected static function standardizeKey($key)
     {
-        return str_replace(' ', '-', ucwords(strtr(strtr(strtolower((string) $key), '_', '-'), '-', ' ')));
+        return strtr(strtolower((string) $key), '_', '-');
+    }
+
+    /**
+     * Title-case a header name for display, e.g. 'content-type' becomes 'Content-Type'.
+     *
+     * @param string $key
+     *
+     * @return string
+     */
+    protected static function displayKey($key)
+    {
+        return str_replace(' ', '-', ucwords(str_replace('-', ' ', (string) $key)));
     }
 }

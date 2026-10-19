@@ -93,7 +93,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($payload->session['id']));
         $this->assertEquals([], $payload->session['data'][':new:']);
         $this->assertEquals([], $payload->session['data'][':old:']);
-        $this->assertFalse(isset($payload->session['data'][Session::TOKEN]));
+        $this->assertEquals(40, strlen($payload->session['data'][Session::TOKEN]));
+        $this->assertEquals($payload->session['data'][Session::TOKEN], $payload->token());
     }
 
     /**
@@ -115,7 +116,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase
      *
      * @group system
      */
-    public function testLoadMethodDoesNotAutoSetCSRFTokenIfDoesntExist()
+    public function testLoadMethodSetsCSRFTokenIfDoesntExist()
     {
         $payload = $this->getPayload();
         $session = $this->getSession();
@@ -126,7 +127,20 @@ class SessionTest extends \PHPUnit_Framework_TestCase
         $payload->load('foo');
 
         $this->assertEquals('foo', $payload->session['id']);
-        $this->assertFalse(isset($payload->session['data'][Session::TOKEN]));
+        $this->assertEquals(40, strlen($payload->session['data'][Session::TOKEN]));
+        $this->assertEquals('Budi', $payload->get('name'));
+
+        // An existing token is kept, also across regenerate() and flush().
+        $token = $payload->token();
+        $payload->regenerate();
+        $this->assertEquals($token, $payload->token());
+        $payload->flush();
+        $this->assertEquals($token, $payload->token());
+
+        // invalidate() swaps it for a new one.
+        $payload->invalidate();
+        $this->assertEquals(40, strlen($payload->token()));
+        $this->assertNotEquals($token, $payload->token());
     }
 
     /**

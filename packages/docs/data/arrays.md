@@ -2,15 +2,15 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3" bracket="round" lowercase="only_ascii" -->
 
--   [Basic Knowledge](#basic-knowledge)
--   [List Helper](#list-helper)
+-   [Introduction](#introduction)
+-   [Available Methods](#available-methods)
     -   [Arr::accessible\(\)](#arraccessible)
     -   [Arr::add\(\)](#arradd)
+    -   [Arr::associative\(\)](#arrassociative)
     -   [Arr::collapse\(\)](#arrcollapse)
     -   [Arr::cross_join\(\)](#arrcross_join)
     -   [Arr::divide\(\)](#arrdivide)
     -   [Arr::dot\(\)](#arrdot)
-    -   [Arr::undot\(\)](#arrundot)
     -   [Arr::except\(\)](#arrexcept)
     -   [Arr::exists\(\)](#arrexists)
     -   [Arr::first\(\)](#arrfirst)
@@ -19,394 +19,237 @@
     -   [Arr::get\(\)](#arrget)
     -   [Arr::has\(\)](#arrhas)
     -   [Arr::has_any\(\)](#arrhas_any)
-    -   [Arr::associative\(\)](#arrassociative)
-    -   [Arr::sequential\(\)](#arrsequential)
     -   [Arr::last\(\)](#arrlast)
     -   [Arr::only\(\)](#arronly)
     -   [Arr::pluck\(\)](#arrpluck)
     -   [Arr::prepend\(\)](#arrprepend)
     -   [Arr::pull\(\)](#arrpull)
     -   [Arr::random\(\)](#arrrandom)
+    -   [Arr::recsort\(\)](#arrrecsort)
+    -   [Arr::sequential\(\)](#arrsequential)
     -   [Arr::set\(\)](#arrset)
     -   [Arr::shuffle\(\)](#arrshuffle)
     -   [Arr::sort\(\)](#arrsort)
-    -   [Arr::recsort\(\)](#arrrecsort)
+    -   [Arr::undot\(\)](#arrundot)
     -   [Arr::where\(\)](#arrwhere)
     -   [Arr::wrap\(\)](#arrwrap)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-`Arr` collects the helpers for working with arrays.
+The `Arr` class holds static helpers for working with arrays. Most accept "dot" notation for nested keys. A few more array helpers (`data_get`, `head`, `last`, ...) live on the [Helpers](/docs/helpers#arrays--data) page.
 
+> Callbacks given to `first`, `last` and `where` receive `($key, $value)`, in that order.
+
+<a id="available-methods"></a>
 <a id="list-helper"></a>
 
-## List Helper
+## Available Methods
 
 <a id="arraccessible"></a>
 
 ### Arr::accessible()
 
-Checks that the given value is an accessible array:
+Checks whether the value is an array or implements `ArrayAccess`.
 
 ```php
-return Arr::accessible(['a' => 1, 'b' => 2]); // true
-return Arr::accessible('abc');                // false
-return Arr::accessible(new \stdClass());      // false
+Arr::accessible(['a' => 1]);     // true
+Arr::accessible(new stdClass()); // false
 ```
 
 <a id="arradd"></a>
 
 ### Arr::add()
 
-Adds a given key / value pair to an array if the given key
-doesn't already exist in the array or is set to `NULL`:
+Adds a key / value pair if the key is missing or `null`.
 
 ```php
-return Arr::add(['name' => 'Desk'], 'price', 100);
+Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
 // ['name' => 'Desk', 'price' => 100]
-
-return Arr::add(['name' => 'Desk', 'price' => null], 'price', 100);
-// ['name' => 'Desk', 'price' => 100]
-```
-
-<a id="arrcollapse"></a>
-
-### Arr::collapse()
-
-Collapses a multi-dimensional array into a single array:
-
-```php
-return Arr::collapse([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
-// [1, 2, 3, 4, 5, 6, 7, 8, 9]
-```
-
-<a id="arrcross_join"></a>
-
-### Arr::cross_join()
-
-Performs a cross join on the given arrays, returning all possible combinations:
-
-```php
-$sizes = ['S', 'M', 'L'];
-$colors = ['red', 'blue'];
-
-$combinations = Arr::cross_join($sizes, $colors);
-
-/**
-    [
-        ['S', 'red'],
-        ['S', 'blue'],
-        ['M', 'red'],
-        ['M', 'blue'],
-        ['L', 'red'],
-        ['L', 'blue'],
-    ]
-*/
-```
-
-**Example with 3 arrays:**
-
-```php
-$sizes = ['S', 'M'];
-$colors = ['red', 'blue'];
-$materials = ['cotton', 'polyester'];
-
-$combinations = Arr::cross_join($sizes, $colors, $materials);
-
-/**
-    [
-        ['S', 'red', 'cotton'],
-        ['S', 'red', 'polyester'],
-        ['S', 'blue', 'cotton'],
-        ['S', 'blue', 'polyester'],
-        ['M', 'red', 'cotton'],
-        ['M', 'red', 'polyester'],
-        ['M', 'blue', 'cotton'],
-        ['M', 'blue', 'polyester'],
-    ]
-*/
-```
-
-**Practical use case:**
-
-```php
-// Generate product variants
-$sizes = ['Small', 'Medium', 'Large'];
-$colors = ['Red', 'Green', 'Blue'];
-
-foreach (Arr::cross_join($sizes, $colors) as $variant) {
-    list($size, $color) = $variant;
-    echo "Product: {$size} - {$color}\n";
-}
-```
-
-<a id="arrdivide"></a>
-
-### Arr::divide()
-
-Returns two arrays, one containing the keys, and the other
-containing the values of the given array:
-
-```php
-list($keys, $values) = Arr::divide(['name' => 'Desk']);
-// $keys: ['name']
-// $values: ['Desk']
-```
-
-<a id="arrdot"></a>
-
-### Arr::dot()
-
-Flattens a multi-dimensional array into a single array using "dot"
-notation to indicate depth:
-
-```php
-$array = ['products' => ['desk' => ['price' => 100]]];
-
-return Arr::dot($array); // ['products.desk.price' => 100]
-```
-
-<a id="arrundot"></a>
-
-### Arr::undot()
-
-Converts a single-dimension array with "dot" notation into a multi-dimensional array:
-
-```php
-$array = ['user.name' => 'Budi', 'user.age' => 28];
-
-return Arr::undot($array);
-
-// ['user' => ['name' => 'Budi', 'age' => 28]]
-```
-
-<a id="arrexcept"></a>
-
-### Arr::except()
-
-Removes the given key / value pairs from an array:
-
-```php
-$array = ['name' => 'Desk', 'price' => 100];
-
-return Arr::except($array, ['price']); // ['name' => 'Desk']
-```
-
-<a id="arrexists"></a>
-
-### Arr::exists()
-
-Checks that the given key exists in an array:
-
-```php
-$array = ['name' => 'Agung', 'age' => 17];
-
-return Arr::exists($array, 'name');   // true
-return Arr::exists($array, 'salary'); // false
-```
-
-<a id="arrfirst"></a>
-
-### Arr::first()
-
-Returns the first element of an array that passes the given truth test:
-
-```php
-$array = [100, 200, 300];
-
-return Arr::first($array, function ($key, $value) {
-    return $value >= 150;
-});
-
-// 200
-```
-
-A default value can also be given as the third parameter to this method. This value will be
-returned if no value passes the truth test you provided:
-
-```php
-return Arr::first($array, $callback, $default);
-```
-
-<a id="arrflatten"></a>
-
-### Arr::flatten()
-
-Flattens a multi-dimensional array into a single array:
-
-```php
-$array = ['name' => 'Dimas', 'languages' => ['PHP', 'Ruby']];
-
-return Arr::flatten($array); // ['Dimas', 'PHP', 'Ruby']
-```
-
-<a id="arrforget"></a>
-
-### Arr::forget()
-
-Removes a given key / value pair from an array using "dot" notation:
-
-```php
-$array = ['products' => ['desk' => ['price' => 100]]];
-
-Arr::forget($array, 'products.desk');
-
-// return $array; // ['products' => []]
-```
-
-<a id="arrget"></a>
-
-### Arr::get()
-
-Retrieves a value from an array using "dot" notation:
-
-```php
-$array = ['products' => ['desk' => ['price' => 100]]];
-
-return Arr::get($array, 'products.desk.price'); // 100
-```
-
-Accepts a default value, returned when the key is not found:
-
-```php
-return Arr::get($array, 'products.desk.discount', 0); // 0
-```
-
-<a id="arrhas"></a>
-
-### Arr::has()
-
-Checks whether a given item exists in the array using "dot" notation:
-
-```php
-$array = ['product' => ['name' => 'Desk', 'price' => 100]];
-
-return Arr::has($array, 'product.name'); // true
-return Arr::has($array, 'product.discount'); // false
-```
-
-<a id="arrhas_any"></a>
-
-### Arr::has_any()
-
-Checks whether any of the given keys exist in an array using "dot" notation:
-
-```php
-$array = ['product' => ['name' => 'Desk', 'price' => 100]];
-
-return Arr::has_any($array, 'product.name'); // true
-return Arr::has_any($array, ['product.name', 'product.discount']); // true
-return Arr::has_any($array, ['category', 'product.discount']); // false
 ```
 
 <a id="arrassociative"></a>
 
 ### Arr::associative()
 
-Returns `TRUE` if the given array is an associative array. An array
-will be considered "associative" if it does not have sequential numeric keys starting from zero:
+Checks whether the array is associative, i.e. its keys are not `0, 1, 2, ...`.
 
 ```php
-$array1 = ['product' => ['name' => 'Desk', 'price' => 100]];
-$array2 = [1, 2, 3];
-
-return Arr::associative($array1); // true
-return Arr::associative($array2); // false
+Arr::associative(['name' => 'Desk']);    // true
+Arr::associative([0 => 'a', 'key' => 'b']); // true
+Arr::associative([1, 2, 3]);             // false
 ```
 
-<a id="arrsequential"></a>
+<a id="arrcollapse"></a>
 
-### Arr::sequential()
+### Arr::collapse()
 
-Returns `TRUE` if the given array is a sequential (indexed) array.
-An array is considered "sequential" if it has sequential numeric keys starting from zero:
+Merges an array of arrays into one array.
 
 ```php
-$array1 = [1, 2, 3];
-$array2 = ['name' => 'Desk', 'price' => 100];
-$array3 = [0 => 'a', 2 => 'b']; // Keys are not sequential
-
-return Arr::sequential($array1); // true
-return Arr::sequential($array2); // false
-return Arr::sequential($array3); // false
+Arr::collapse([[1, 2], [3, 4], [5]]);
+// [1, 2, 3, 4, 5]
 ```
 
-**Difference with `Arr::associative()`:**
+<a id="arrcross_join"></a>
+
+### Arr::cross_join()
+
+Returns every combination of the given arrays (any number of them).
 
 ```php
-$sequential = ['a', 'b', 'c']; // Keys: 0, 1, 2
-$associative = ['first' => 'a', 'second' => 'b'];
-$mixed = [0 => 'a', 'key' => 'b'];
-
-Arr::sequential($sequential);    // true
-Arr::associative($sequential);   // false
-
-Arr::sequential($associative);   // false
-Arr::associative($associative);  // true
-
-Arr::sequential($mixed);         // false
-Arr::associative($mixed);        // true
+Arr::cross_join(['S', 'M'], ['red', 'blue']);
+// [['S', 'red'], ['S', 'blue'], ['M', 'red'], ['M', 'blue']]
 ```
 
-**Practical use case:**
+<a id="arrdivide"></a>
+
+### Arr::divide()
+
+Returns two arrays: the keys and the values.
 
 ```php
-function process_data($data)
-{
-    if (Arr::sequential($data)) {
-        // Process as list/array
-        foreach ($data as $item) {
-            echo $item . "\n";
-        }
-    } else {
-        // Process as associative array
-        foreach ($data as $key => $value) {
-            echo "{$key}: {$value}\n";
-        }
-    }
-}
+list($keys, $values) = Arr::divide(['name' => 'Desk']);
+// $keys: ['name'], $values: ['Desk']
+```
 
-process_data(['a', 'b', 'c']);           // List processing
-process_data(['name' => 'John', 'age' => 30]); // Associative processing
+<a id="arrdot"></a>
+
+### Arr::dot()
+
+Flattens a nested array into one level with "dot" keys.
+
+```php
+Arr::dot(['products' => ['desk' => ['price' => 100]]]);
+// ['products.desk.price' => 100]
+```
+
+<a id="arrexcept"></a>
+
+### Arr::except()
+
+Removes the given keys (dot notation allowed).
+
+```php
+Arr::except(['name' => 'Desk', 'price' => 100], ['price']);
+// ['name' => 'Desk']
+```
+
+<a id="arrexists"></a>
+
+### Arr::exists()
+
+Checks whether a top-level key exists (no dot notation).
+
+```php
+Arr::exists(['name' => 'Agung'], 'name');   // true
+Arr::exists(['name' => 'Agung'], 'salary'); // false
+```
+
+<a id="arrfirst"></a>
+
+### Arr::first()
+
+Returns the first element passing the callback, or the first element when no callback is given. The third argument is the default.
+
+```php
+Arr::first([100, 200, 300], function ($key, $value) {
+    return $value >= 150;
+});
+// 200
+
+Arr::first([], null, 'none'); // 'none'
+```
+
+<a id="arrflatten"></a>
+
+### Arr::flatten()
+
+Flattens a nested array into a list of values. The optional second argument limits the depth.
+
+```php
+Arr::flatten(['name' => 'Dimas', 'languages' => ['PHP', 'Ruby']]);
+// ['Dimas', 'PHP', 'Ruby']
+
+Arr::flatten(['a', ['b', ['c']]], 1);
+// ['a', 'b', ['c']]
+```
+
+<a id="arrforget"></a>
+
+### Arr::forget()
+
+Removes one or more keys from an array in place, using dot notation.
+
+```php
+$array = ['products' => ['desk' => ['price' => 100]]];
+
+Arr::forget($array, 'products.desk');
+// $array: ['products' => []]
+```
+
+<a id="arrget"></a>
+
+### Arr::get()
+
+Gets a value using dot notation, with an optional default.
+
+```php
+$array = ['products' => ['desk' => ['price' => 100]]];
+
+Arr::get($array, 'products.desk.price');       // 100
+Arr::get($array, 'products.desk.discount', 0); // 0
+```
+
+<a id="arrhas"></a>
+
+### Arr::has()
+
+Checks whether a key exists, using dot notation.
+
+```php
+$array = ['product' => ['name' => 'Desk']];
+
+Arr::has($array, 'product.name');     // true
+Arr::has($array, 'product.discount'); // false
+```
+
+<a id="arrhas_any"></a>
+
+### Arr::has_any()
+
+Checks whether at least one of the given keys exists, using dot notation.
+
+```php
+Arr::has_any($array, ['product.name', 'product.discount']); // true
+Arr::has_any($array, ['category', 'product.discount']);     // false
 ```
 
 <a id="arrlast"></a>
 
 ### Arr::last()
 
-Returns the last element of an array that passes the given truth test:
+Returns the last element passing the callback, or the last element when no callback is given. The third argument is the default.
 
 ```php
-$array = [100, 200, 300, 110];
-
-return Arr::last($array, function ($key, $value) {
+Arr::last([100, 200, 300, 110], function ($key, $value) {
     return $value >= 150;
 });
-
 // 300
-```
-
-A default value can be added as the third parameter to this method.
-This value will be returned if no value passes the truth test you provided:
-
-```php
-return Arr::last($array, $callback, $default);
 ```
 
 <a id="arronly"></a>
 
 ### Arr::only()
 
-Returns only the specified key / value pairs from the given array:
+Keeps only the given top-level keys.
 
 ```php
-$array = ['name' => 'Desk', 'price' => 100, 'orders' => 10];
-
-return Arr::only($array, ['name', 'price']);
+Arr::only(['name' => 'Desk', 'price' => 100, 'orders' => 10], ['name', 'price']);
 // ['name' => 'Desk', 'price' => 100]
 ```
 
@@ -414,7 +257,7 @@ return Arr::only($array, ['name', 'price']);
 
 ### Arr::pluck()
 
-Retrieves all values for a given key from an array:
+Gets the values of a (dot notation) key from every item. The optional third argument picks the key for each result.
 
 ```php
 $array = [
@@ -422,90 +265,81 @@ $array = [
     ['developer' => ['id' => 2, 'name' => 'Sarah']],
 ];
 
-return Arr::pluck($array, 'developer.name');
-// ['Budi', 'Sarah']
-```
-
-You can also specify how to shape the resulting array's keys:
-
-```php
-return Arr::pluck($array, 'developer.name', 'developer.id');
-// [1 => 'Budi', 2 => 'Sarah']
+Arr::pluck($array, 'developer.name');                 // ['Budi', 'Sarah']
+Arr::pluck($array, 'developer.name', 'developer.id'); // [1 => 'Budi', 2 => 'Sarah']
 ```
 
 <a id="arrprepend"></a>
 
 ### Arr::prepend()
 
-Adds an item to the beginning of an array:
+Adds an item to the start of an array, optionally under a key.
 
 ```php
-$array = ['one', 'two', 'three', 'four'];
-
-$array = Arr::prepend($array, 'zero');
-// ['zero', 'one', 'two', 'three', 'four']
-```
-
-If needed, you can also specify which key should be used for the item:
-
-```php
-$array = ['price' => 100];
-
-$array = Arr::prepend($array, 'Desk', 'name');
-// ['name' => 'Desk', 'price' => 100]
+Arr::prepend(['one', 'two'], 'zero');        // ['zero', 'one', 'two']
+Arr::prepend(['price' => 100], 'Desk', 'name'); // ['name' => 'Desk', 'price' => 100]
 ```
 
 <a id="arrpull"></a>
 
 ### Arr::pull()
 
-Returns and removes a key / value pair from an array:
+Returns a value and removes it from the array. The third argument is the default.
 
 ```php
 $array = ['name' => 'Desk', 'price' => 100];
 
 $name = Arr::pull($array, 'name');
-// $name: 'Desk'
-// $array: ['price' => 100]
-```
-
-A default value can be given as the third parameter to this method. This value will be
-returned if the key you want is not found:
-
-```php
-$value = Arr::pull($array, $key, $default);
+// $name: 'Desk', $array: ['price' => 100]
 ```
 
 <a id="arrrandom"></a>
 
 ### Arr::random()
 
-Returns a random value from an array:
+Returns a random value. With a count as second argument, it always returns an array. Asking for more items than exist throws `InvalidArgumentException`.
 
 ```php
-$array = [1, 2, 3, 4, 5];
-
-return Arr::random($array); // 4 - (obtained randomly)
+Arr::random([1, 2, 3, 4, 5]);    // 4
+Arr::random([1, 2, 3, 4, 5], 2); // [2, 5]
 ```
 
-You can also specify how many items should be returned through the second parameter.
-Note that if this option is used, the return value will always be an array.
+<a id="arrrecsort"></a>
+
+### Arr::recsort()
+
+Sorts an array recursively: [sort](https://www.php.net/sort) for lists, [ksort](https://www.php.net/ksort) for associative arrays.
 
 ```php
-return Arr::random($array, 2); // [2, 5] - (obtained randomly)
+Arr::recsort([
+    ['Roman', 'Budi', 'Li'],
+    ['one' => 1, 'two' => 2, 'three' => 3],
+]);
+// [['one' => 1, 'three' => 3, 'two' => 2], ['Budi', 'Li', 'Roman']]
+```
+
+<a id="arrsequential"></a>
+
+### Arr::sequential()
+
+Checks whether the array is a list with keys `0, 1, 2, ...`. The opposite of `associative()` for arrays.
+
+```php
+Arr::sequential(['a', 'b', 'c']);       // true
+Arr::sequential([0 => 'a', 2 => 'b']);  // false
+Arr::sequential(['name' => 'Desk']);    // false
 ```
 
 <a id="arrset"></a>
 
 ### Arr::set()
 
-Sets a value in an array using "dot" notation:
+Sets a value in place using dot notation, creating missing levels.
 
 ```php
 $array = ['products' => ['desk' => ['price' => 100]]];
 
 Arr::set($array, 'products.desk.price', 200);
-
 // $array: ['products' => ['desk' => ['price' => 200]]]
 ```
 
@@ -513,88 +347,52 @@ Arr::set($array, 'products.desk.price', 200);
 
 ### Arr::shuffle()
 
-Shuffles the items in an array:
+Shuffles the items. Pass a seed as second argument for a repeatable order.
 
 ```php
-return Arr::shuffle([1, 2, 3, 4, 5]);
-// [3, 2, 5, 1, 4] - (made randomly)
+Arr::shuffle([1, 2, 3, 4, 5]);     // [3, 2, 5, 1, 4]
+Arr::shuffle([1, 2, 3, 4, 5], 42); // same order every time
 ```
 
 <a id="arrsort"></a>
 
 ### Arr::sort()
 
-Sorts an array by its values:
+Sorts by value, keeping keys. Pass a closure or a dot notation key to sort by.
 
 ```php
-$array = ['Desk', 'Table', 'Chair'];
-
-return Arr::sort($array);
+Arr::sort(['Desk', 'Table', 'Chair']);
 // [2 => 'Chair', 0 => 'Desk', 1 => 'Table']
-```
 
-You can also sort an array using a Closure:
+Arr::sort([['name' => 'Desk'], ['name' => 'Chair']], 'name');
+// [1 => ['name' => 'Chair'], 0 => ['name' => 'Desk']]
 
-```php
-$array = [
-    ['name' => 'Desk'],
-    ['name' => 'Table'],
-    ['name' => 'Chair'],
-];
-
-return array_values(Arr::sort($array, function ($value) {
+Arr::sort($array, function ($value) {
     return $value['name'];
-}));
-
-/**
-    [
-        ['name' => 'Chair'],
-        ['name' => 'Desk'],
-        ['name' => 'Table'],
-    ]
-*/
+});
 ```
 
-<a id="arrrecsort"></a>
+<a id="arrundot"></a>
 
-### Arr::recsort()
+### Arr::undot()
 
-Sorts an array recursively using
-the [sort](https://www.php.net/manual/en/function.sort.php) function
-for numeric sub-arrays, and [ksort](https://www.php.net/manual/en/function.ksort.php)
-for associative sub-arrays:
+Turns a "dot" keyed array back into a nested array.
 
 ```php
-$array = [
-    ['Roman', 'Budi', 'Li'],
-    ['PHP', 'Ruby', 'JavaScript'],
-    ['one' => 1, 'two' => 2, 'three' => 3],
-];
-
-return Arr::recsort($array);
-
-/**
-    [
-        ['one' => 1, 'three' => 3, 'two' => 2],
-        ['Budi', 'Li', 'Roman'],
-        ['JavaScript', 'PHP', 'Ruby'],
-    ]
-*/
+Arr::undot(['user.name' => 'Budi', 'user.age' => 28]);
+// ['user' => ['name' => 'Budi', 'age' => 28]]
 ```
 
 <a id="arrwhere"></a>
 
 ### Arr::where()
 
-Filters an array using a Closure:
+Keeps the items passing the callback, preserving keys.
 
 ```php
-$array = [100, '200', 300, '400', 500];
-
-return Arr::where($array, function ($key, $value) {
+Arr::where([100, '200', 300, '400'], function ($key, $value) {
     return is_string($value);
 });
-
 // [1 => '200', 3 => '400']
 ```
 
@@ -602,21 +400,9 @@ return Arr::where($array, function ($key, $value) {
 
 ### Arr::wrap()
 
-Wraps the given value in an array. If the given value
-is already an array, it will not be changed:
+Wraps a value in an array. Arrays are returned unchanged and `null` becomes `[]`.
 
 ```php
-$string = 'Bakso';
-
-return Arr::wrap($string); // ['Bakso']
+Arr::wrap('Bakso'); // ['Bakso']
+Arr::wrap(null);    // []
 ```
-
-If the given value is `NULL`, it will return an empty array:
-
-```php
-$empty = null;
-
-return Arr::wrap($empty); // []
-```
-
-> Some additional helpers for array operations are also available on the [Helpers](/docs/helpers) page.

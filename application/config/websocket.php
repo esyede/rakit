@@ -40,9 +40,13 @@ return [
     | If enabled, connections without a valid Origin header will be rejected.
     | This is useful for security, especially in production environments.
     |
+    | Enabled by default. Browsers always send an Origin header, so also list
+    | your site(s) in "allowed_origins" below in production, otherwise any
+    | origin is still accepted. Non-browser clients must send an Origin header.
+    |
     */
 
-    'origin_required' => false,
+    'origin_required' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -121,6 +125,21 @@ return [
     */
 
     'supported_extensions' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client Broadcast
+    |--------------------------------------------------------------------------
+    |
+    | Whether clients may broadcast to every connected client, via the
+    | "broadcast" command or by sending plain-text / unrecognised messages.
+    | Disabled by default: clients can only talk inside channels they joined
+    | ("broadcast_to_channel", channel "message" events) or to a client sharing
+    | a private/presence channel. Server-side broadcasts are not affected.
+    |
+    */
+
+    'client_broadcast' => false,
 
     /*
     |--------------------------------------------------------------------------

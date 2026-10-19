@@ -2,1694 +2,509 @@
 
 <!-- MarkdownTOC autolink="true" autoanchor="true" levels="2,3,4" bracket="round" lowercase="only_ascii" -->
 
-- [Basic Knowledge](#basic-knowledge)
-- [Creating Carbon Instances](#creating-carbon-instances)
-- [Method Reference](#method-reference)
-  - [__construct()](#__construct)
-  - [instance()](#instance)
-  - [parse()](#parse)
-  - [now()](#now)
-  - [today()](#today)
-  - [tomorrow()](#tomorrow)
-  - [yesterday()](#yesterday)
-  - [maxValue()](#maxvalue)
-  - [minValue()](#minvalue)
-  - [create()](#create)
-  - [createFromDate()](#createfromdate)
-  - [createFromTime()](#createfromtime)
-  - [createFromFormat()](#createfromformat)
-  - [createFromTimestamp()](#createfromtimestamp)
-  - [createFromTimestampUTC()](#createfromtimestamputc)
-  - [copy()](#copy)
-  - [__get()](#__get)
-  - [__isset()](#__isset)
-  - [__set()](#__set)
-  - [year()](#year)
-  - [month()](#month)
-  - [day()](#day)
-  - [hour()](#hour)
-  - [minute()](#minute)
-  - [second()](#second)
-  - [setDateTime()](#setdatetime)
-  - [timestamp()](#timestamp)
-  - [timezone()](#timezone)
-  - [tz()](#tz)
-  - [setTimezone()](#settimezone)
-  - [setNow()](#setnow)
-  - [getTestNow()](#gettestnow)
-  - [hasTestNow()](#hastestnow)
-  - [hasRelativeKeywords()](#hasrelativekeywords)
-  - [resetToStringFormat()](#resettostringformat)
-  - [setToStringFormat()](#settostringformat)
-  - [__toString()](#__tostring)
-  - [toDateString()](#todatestring)
-  - [toFormattedDateString()](#toformatteddatestring)
-  - [toTimeString()](#totimestring)
-  - [toDateTimeString()](#todatetimestring)
-  - [toDayDateTimeString()](#todaydatetimestring)
-  - [toAtomString()](#toatomstring)
-  - [toCookieString()](#tocookiestring)
-  - [toIso8601String()](#toiso8601string)
-  - [toRfc822String()](#torfc822string)
-  - [toRfc850String()](#torfc850string)
-  - [toRfc1036String()](#torfc1036string)
-  - [toRfc1123String()](#torfc1123string)
-  - [toRfc2822String()](#torfc2822string)
-  - [toRfc3339String()](#torfc3339string)
-  - [toRssString()](#torssstring)
-  - [toW3cString()](#tow3cstring)
-  - [eq()](#eq)
-  - [ne()](#ne)
-  - [gt()](#gt)
-  - [gte()](#gte)
-  - [lt()](#lt)
-  - [lte()](#lte)
-  - [between()](#between)
-  - [min()](#min)
-  - [max()](#max)
-  - [isWeekday()](#isweekday)
-  - [isWeekend()](#isweekend)
-  - [isYesterday()](#isyesterday)
-  - [isToday()](#istoday)
-  - [isTomorrow()](#istomorrow)
-  - [isFuture()](#isfuture)
-  - [isPast()](#ispast)
-  - [isLeapYear()](#isleapyear)
-  - [isSameDay()](#issameday)
-  - [addYears()](#addyears)
-  - [addYear()](#addyear)
-  - [subYear()](#subyear)
-  - [subYears()](#subyears)
-  - [addMonths()](#addmonths)
-  - [addMonth()](#addmonth)
-  - [subMonth()](#submonth)
-  - [subMonths()](#submonths)
-  - [addMonthsNoOverflow()](#addmonthsnooverflow)
-  - [addMonthNoOverflow()](#addmonthnooverflow)
-  - [subMonthNoOverflow()](#submonthnooverflow)
-  - [subMonthsNoOverflow()](#submonthsnooverflow)
-  - [addDays()](#adddays)
-  - [addDay()](#addday)
-  - [subDay()](#subday)
-  - [subDays()](#subdays)
-  - [addWeekdays()](#addweekdays)
-  - [addWeekday()](#addweekday)
-  - [subWeekday()](#subweekday)
-  - [subWeekdays()](#subweekdays)
-  - [addWeeks()](#addweeks)
-  - [addWeek()](#addweek)
-  - [subWeek()](#subweek)
-  - [subWeeks()](#subweeks)
-  - [addHours()](#addhours)
-  - [addHour()](#addhour)
-  - [subHour()](#subhour)
-  - [subHours()](#subhours)
-  - [addMinutes()](#addminutes)
-  - [addMinute()](#addminute)
-  - [subMinute()](#subminute)
-  - [subMinutes()](#subminutes)
-  - [addSeconds()](#addseconds)
-  - [addSecond()](#addsecond)
-  - [subSecond()](#subsecond)
-  - [subSeconds()](#subseconds)
-  - [diffInYears()](#diffinyears)
-  - [diffInMonths()](#diffinmonths)
-  - [diffInWeeks()](#diffinweeks)
-  - [diffInDays()](#diffindays)
-  - [diffInDaysFiltered()](#diffindaysfiltered)
-  - [diffInWeekdays()](#diffinweekdays)
-  - [diffInWeekendDays()](#diffinweekenddays)
-  - [diffInHours()](#diffinhours)
-  - [diffInMinutes()](#diffinminutes)
-  - [diffInSeconds()](#diffinseconds)
-  - [secondsSinceMidnight()](#secondssincemidnight)
-  - [secondsUntilEndOfDay()](#secondsuntilendofday)
-  - [diffForHumans()](#diffforhumans)
-  - [startOfDay()](#startofday)
-  - [endOfDay()](#endofday)
-  - [startOfMonth()](#startofmonth)
-  - [endOfMonth()](#endofmonth)
-  - [startOfYear()](#startofyear)
-  - [endOfYear()](#endofyear)
-  - [startOfDecade()](#startofdecade)
-  - [endOfDecade()](#endofdecade)
-  - [startOfCentury()](#startofcentury)
-  - [endOfCentury()](#endofcentury)
-  - [startOfWeek()](#startofweek)
-  - [endOfWeek()](#endofweek)
-  - [next()](#next)
-  - [previous()](#previous)
-  - [firstOfMonth()](#firstofmonth)
-  - [lastOfMonth()](#lastofmonth)
-  - [nthOfMonth()](#nthofmonth)
-  - [firstOfQuarter()](#firstofquarter)
-  - [lastOfQuarter()](#lastofquarter)
-  - [nthOfQuarter()](#nthofquarter)
-  - [firstOfYear()](#firstofyear)
-  - [lastOfYear()](#lastofyear)
-  - [nthOfYear()](#nthofyear)
-  - [average()](#average)
-  - [isBirthday()](#isbirthday)
+-   [Introduction](#introduction)
+-   [Creating Instances](#creating-instances)
+-   [Getters and Setters](#getters-and-setters)
+    -   [Properties](#properties)
+    -   [Setter Methods](#setter-methods)
+-   [Formatting](#formatting)
+-   [Comparison](#comparison)
+-   [Addition and Subtraction](#addition-and-subtraction)
+-   [Differences](#differences)
+    -   [Human Readable Differences](#human-readable-differences)
+-   [Modifiers](#modifiers)
+-   [Testing](#testing)
+-   [Example](#example)
 
 <!-- /MarkdownTOC -->
 
+<a id="introduction"></a>
 <a id="basic-knowledge"></a>
 
-## Basic Knowledge
+## Introduction
 
-`Carbon` extends PHP's `DateTime` with fluent methods for manipulating, comparing and formatting dates.
+`Carbon` extends PHP's `DateTime` with fluent methods for creating, manipulating,
+comparing and formatting dates:
 
+```php
+echo Carbon::now()->addDays(3)->toDateString(); // e.g. 2023-01-04
+```
+
+When no timezone is given, the `application.timezone` config value is used.
+Timezones can be passed as a name (`'Asia/Jakarta'`) or a `DateTimeZone` object.
+
+> Carbon instances are **mutable**: methods such as `addDay()` or `startOfDay()`
+> change the instance itself. Call `copy()` first when you need to keep the original.
+
+<a id="creating-instances"></a>
 <a id="creating-carbon-instances"></a>
-
-## Creating Carbon Instances
-
-Several ways to build one:
-
-#### From current time:
-
-```php
-$carbon = new Carbon(); // Current date and time
-```
-
-#### From specific time:
-
-```php
-$carbon = new Carbon('2023-01-01 12:00:00');
-```
-
-#### Using static methods:
-
-```php
-$now = Carbon::now();
-$today = Carbon::today();
-$tomorrow = Carbon::tomorrow();
-$yesterday = Carbon::yesterday();
-```
-
-#### From timestamp:
-
-```php
-$carbon = Carbon::createFromTimestamp(1609459200);
-```
-
-#### From format:
-
-```php
-$carbon = Carbon::createFromFormat('Y-m-d', '2023-01-01');
-```
-
 <a id="method-reference"></a>
-
-## Method Reference
-
 <a id="__construct"></a>
-
-### __construct()
-
-Creates a new Carbon instance.
-
-```php
-$carbon = new Carbon('2023-01-01 12:00:00');
-```
-
 <a id="instance"></a>
-
-### instance()
-
-Creates a Carbon instance from a DateTime object.
-
-```php
-$dt = new DateTime('2023-01-01');
-$carbon = Carbon::instance($dt);
-```
-
 <a id="parse"></a>
-
-### parse()
-
-Parses a date string and creates a Carbon instance.
-
-```php
-$carbon = Carbon::parse('2023-01-01');
-```
-
 <a id="now"></a>
-
-### now()
-
-Creates a Carbon instance for the current date and time.
-
-```php
-$carbon = Carbon::now();
-```
-
 <a id="today"></a>
-
-### today()
-
-Creates a Carbon instance for the start of today.
-
-```php
-$carbon = Carbon::today();
-```
-
 <a id="tomorrow"></a>
-
-### tomorrow()
-
-Creates a Carbon instance for the start of tomorrow.
-
-```php
-$carbon = Carbon::tomorrow();
-```
-
 <a id="yesterday"></a>
-
-### yesterday()
-
-Creates a Carbon instance for the start of yesterday.
-
-```php
-$carbon = Carbon::yesterday();
-```
-
 <a id="maxvalue"></a>
-
-### maxValue()
-
-Returns the maximum possible Carbon value.
-
-```php
-$max = Carbon::maxValue();
-```
-
 <a id="minvalue"></a>
-
-### minValue()
-
-Returns the minimum possible Carbon value.
-
-```php
-$min = Carbon::minValue();
-```
-
 <a id="create"></a>
-
-### create()
-
-Creates a Carbon instance with specified year, month, day, hour, minute, second.
-
-```php
-$carbon = Carbon::create(2023, 1, 1, 12, 0, 0);
-```
-
 <a id="createfromdate"></a>
-
-### createFromDate()
-
-Creates a Carbon instance from date components.
-
-```php
-$carbon = Carbon::createFromDate(2023, 1, 1);
-```
-
 <a id="createfromtime"></a>
-
-### createFromTime()
-
-Creates a Carbon instance from time components.
-
-```php
-$carbon = Carbon::createFromTime(12, 0, 0);
-```
-
 <a id="createfromformat"></a>
-
-### createFromFormat()
-
-Creates a Carbon instance from a formatted string.
-
-```php
-$carbon = Carbon::createFromFormat('Y-m-d', '2023-01-01');
-```
-
 <a id="createfromtimestamp"></a>
-
-### createFromTimestamp()
-
-Creates a Carbon instance from a Unix timestamp.
-
-```php
-$carbon = Carbon::createFromTimestamp(1609459200);
-```
-
 <a id="createfromtimestamputc"></a>
-
-### createFromTimestampUTC()
-
-Creates a Carbon instance from a UTC Unix timestamp.
-
-```php
-$carbon = Carbon::createFromTimestampUTC(1609459200);
-```
-
 <a id="copy"></a>
 
-### copy()
-
-Creates a copy of the Carbon instance.
+## Creating Instances
 
 ```php
-$copy = $carbon->copy();
+new Carbon();                          // now
+new Carbon('2023-01-01 12:00:00', 'UTC');
+Carbon::parse('2023-01-01');           // same as new Carbon($time, $tz)
+Carbon::instance(new DateTime());      // from a DateTime
+
+Carbon::now();                         // current date and time
+Carbon::today();                       // today, 00:00:00
+Carbon::tomorrow();                    // tomorrow, 00:00:00
+Carbon::yesterday();                   // yesterday, 00:00:00
+
+Carbon::create(2023, 1, 1, 12, 0, 0);  // year, month, day, hour, minute, second, tz
+Carbon::createFromDate(2023, 1, 1);    // time is the current time
+Carbon::createFromTime(12, 0, 0);      // date is today
+Carbon::createFromFormat('Y-m-d', '2023-01-01');
+Carbon::createFromTimestamp(1672531200);
+Carbon::createFromTimestampUTC(1672531200);
+
+Carbon::maxValue();                    // largest possible date
+Carbon::minValue();                    // smallest possible date
+
+$copy = $date->copy();                 // independent clone
 ```
 
+`now()`, `today()`, `tomorrow()`, `yesterday()`, `parse()` and all `create*()`
+methods accept an optional timezone as their last argument (except
+`createFromTimestampUTC()`). In `create()`, any `null` date part defaults to
+today; a `null` hour uses the current time, while a `null` minute or second
+after a given hour defaults to `0`. `createFromFormat()` throws an exception when
+the string does not match the format.
+
+<a id="getters-and-setters"></a>
+
+## Getters and Setters
+
+<a id="properties"></a>
 <a id="__get"></a>
-
-### __get()
-
-Gets various date/time properties.
-
-```php
-$year = $carbon->year;
-$month = $carbon->month;
-$day = $carbon->day;
-$hour = $carbon->hour;
-$minute = $carbon->minute;
-$second = $carbon->second;
-$day_of_week = $carbon->dayOfWeek;
-$day_of_year = $carbon->dayOfYear;
-$week_of_year = $carbon->weekOfYear;
-$days_in_month = $carbon->daysInMonth;
-$timestamp = $carbon->timestamp;
-$timezone = $carbon->timezone;
-$tz_name = $carbon->tzName;
-$offset = $carbon->offset;
-$offset_hours = $carbon->offsetHours;
-$dst = $carbon->dst;
-$utc = $carbon->utc;
-$week_of_month = $carbon->weekOfMonth;
-$age = $carbon->age;
-$quarter = $carbon->quarter;
-$year_iso = $carbon->yearIso;
-$micro = $carbon->micro;
-```
-
 <a id="__isset"></a>
-
-### __isset()
-
-Checks if a property is set.
-
-```php
-if (isset($carbon->year)) {
-    // ...
-}
-```
-
 <a id="__set"></a>
 
-### __set()
+### Properties
 
-Sets various date/time properties.
+| Property                      | Returns                                         | Settable |
+| ----------------------------- | ----------------------------------------------- | -------- |
+| `year`, `month`, `day`        | int                                             | yes      |
+| `hour`, `minute`, `second`    | int                                             | yes      |
+| `micro`                       | int, microseconds                               |          |
+| `timestamp`                   | int, Unix timestamp                             | yes      |
+| `timezone`, `tz`              | `DateTimeZone` (set with a name or object)      | yes      |
+| `timezoneName`, `tzName`      | string, e.g. `Asia/Jakarta`                     |          |
+| `dayOfWeek`                   | int, `0` (Sunday) to `6` (Saturday)             |          |
+| `dayOfYear`                   | int, starting at `0`                            |          |
+| `weekOfYear`, `yearIso`       | int, ISO-8601 week number and year              |          |
+| `weekOfMonth`                 | int, `1` to `5`                                 |          |
+| `daysInMonth`                 | int                                             |          |
+| `quarter`                     | int, `1` to `4`                                 |          |
+| `age`                         | int, years until now                            |          |
+| `offset`, `offsetHours`       | int, UTC offset in seconds / hours              |          |
+| `dst`                         | bool, daylight saving time in effect            |          |
+| `utc`                         | bool, offset is zero                            |          |
 
 ```php
-$carbon->year = 2023;
-$carbon->month = 1;
-$carbon->day = 1;
-$carbon->hour = 12;
-$carbon->minute = 0;
-$carbon->second = 0;
-$carbon->timestamp = 1609459200;
-$carbon->timezone = 'UTC';
-$carbon->tz = 'America/New_York';
+$date->year;          // 2023
+$date->month = 6;     // set the month
+isset($date->tzName); // true for any known property
 ```
 
+Reading or setting an unknown property throws an exception. Use the
+`Carbon::SUNDAY` … `Carbon::SATURDAY` constants (`0` to `6`) to compare
+`dayOfWeek`.
+
+<a id="setter-methods"></a>
 <a id="year"></a>
-
-### year()
-
-Sets the year.
-
-```php
-$carbon->year(2023);
-```
-
 <a id="month"></a>
-
-### month()
-
-Sets the month.
-
-```php
-$carbon->month(1);
-```
-
 <a id="day"></a>
-
-### day()
-
-Sets the day.
-
-```php
-$carbon->day(1);
-```
-
 <a id="hour"></a>
-
-### hour()
-
-Sets the hour.
-
-```php
-$carbon->hour(12);
-```
-
 <a id="minute"></a>
-
-### minute()
-
-Sets the minute.
-
-```php
-$carbon->minute(0);
-```
-
 <a id="second"></a>
-
-### second()
-
-Sets the second.
-
-```php
-$carbon->second(0);
-```
-
 <a id="setdatetime"></a>
-
-### setDateTime()
-
-Sets date and time.
-
-```php
-$carbon->setDateTime(2023, 1, 1, 12, 0, 0);
-```
-
 <a id="timestamp"></a>
-
-### timestamp()
-
-Sets the timestamp.
-
-```php
-$carbon->timestamp(1609459200);
-```
-
 <a id="timezone"></a>
-
-### timezone()
-
-Sets the timezone.
-
-```php
-$carbon->timezone('UTC');
-```
-
 <a id="tz"></a>
-
-### tz()
-
-Sets the timezone (alias for timezone()).
-
-```php
-$carbon->tz('America/New_York');
-```
-
 <a id="settimezone"></a>
 
-### setTimezone()
+### Setter Methods
 
-Sets the timezone.
-
-```php
-$carbon->setTimezone('UTC');
-```
-
-<a id="setnow"></a>
-
-### setNow()
-
-Sets a test now value for testing.
+Chainable equivalents of the settable properties:
 
 ```php
-Carbon::setNow(Carbon::create(2023, 1, 1));
+$date->year(2023)->month(1)->day(1)->hour(12)->minute(0)->second(0);
+$date->setDateTime(2023, 1, 1, 12, 0, 0); // second is optional
+$date->timestamp(1672531200);
+$date->timezone('UTC');                   // aliases: tz(), setTimezone()
 ```
 
-<a id="gettestnow"></a>
-
-### getTestNow()
-
-Gets the test now value.
-
-```php
-$test_now = Carbon::getTestNow();
-```
-
-<a id="hastestnow"></a>
-
-### hasTestNow()
-
-Checks if a test now value is set.
-
-```php
-if (Carbon::hasTestNow()) {
-    // ...
-}
-```
-
-<a id="hasrelativekeywords"></a>
-
-### hasRelativeKeywords()
-
-Checks if the time string has relative keywords.
-
-```php
-$has_relative = Carbon::hasRelativeKeywords('tomorrow');
-```
-
+<a id="formatting"></a>
 <a id="resettostringformat"></a>
+<a id="settostringformat"></a>
+<a id="__tostring"></a>
+<a id="todatestring"></a>
+<a id="toformatteddatestring"></a>
+<a id="totimestring"></a>
+<a id="todatetimestring"></a>
+<a id="todaydatetimestring"></a>
+<a id="toatomstring"></a>
+<a id="tocookiestring"></a>
+<a id="toiso8601string"></a>
+<a id="torfc822string"></a>
+<a id="torfc850string"></a>
+<a id="torfc1036string"></a>
+<a id="torfc1123string"></a>
+<a id="torfc2822string"></a>
+<a id="torfc3339string"></a>
+<a id="torssstring"></a>
+<a id="tow3cstring"></a>
 
-### resetToStringFormat()
+## Formatting
 
-Resets the toString format to default.
+Besides the inherited `format()`, these return common formats (examples for
+`2023-01-01 12:00:00 UTC`):
+
+| Method                    | Example                              |
+| ------------------------- | ------------------------------------ |
+| `toDateString()`          | `2023-01-01`                         |
+| `toFormattedDateString()` | `Jan 1, 2023`                        |
+| `toTimeString()`          | `12:00:00`                           |
+| `toDateTimeString()`      | `2023-01-01 12:00:00`                |
+| `toDayDateTimeString()`   | `Sun, Jan 1, 2023 12:00 PM`          |
+| `toAtomString()`          | `2023-01-01T12:00:00+00:00`          |
+| `toCookieString()`        | `Sunday, 01-Jan-2023 12:00:00 UTC`   |
+| `toIso8601String()`       | `2023-01-01T12:00:00+00:00`          |
+| `toRfc822String()`        | `Sun, 01 Jan 23 12:00:00 +0000`      |
+| `toRfc850String()`        | `Sunday, 01-Jan-23 12:00:00 UTC`     |
+| `toRfc1036String()`       | `Sun, 01 Jan 23 12:00:00 +0000`      |
+| `toRfc1123String()`       | `Sun, 01 Jan 2023 12:00:00 +0000`    |
+| `toRfc2822String()`       | `Sun, 01 Jan 2023 12:00:00 +0000`    |
+| `toRfc3339String()`       | `2023-01-01T12:00:00+00:00`          |
+| `toRssString()`           | `Sun, 01 Jan 2023 12:00:00 +0000`    |
+| `toW3cString()`           | `2023-01-01T12:00:00+00:00`          |
+
+Casting to a string uses `Y-m-d H:i:s`, which you can change globally:
 
 ```php
+echo $date;                        // 2023-01-01 12:00:00
+
+Carbon::setToStringFormat('d/m/Y');
+echo $date;                        // 01/01/2023
+
 Carbon::resetToStringFormat();
 ```
 
-<a id="settostringformat"></a>
-
-### setToStringFormat()
-
-Sets the format for __toString().
-
-```php
-Carbon::setToStringFormat('Y-m-d');
-```
-
-<a id="__tostring"></a>
-
-### __toString()
-
-Returns the date/time as a string.
-
-```php
-echo $carbon; // 2023-01-01 12:00:00
-```
-
-<a id="todatestring"></a>
-
-### toDateString()
-
-Returns the date as a string.
-
-```php
-$date = $carbon->toDateString(); // 2023-01-01
-```
-
-<a id="toformatteddatestring"></a>
-
-### toFormattedDateString()
-
-Returns a formatted date string.
-
-```php
-$date = $carbon->toFormattedDateString(); // Jan 1, 2023
-```
-
-<a id="totimestring"></a>
-
-### toTimeString()
-
-Returns the time as a string.
-
-```php
-$time = $carbon->toTimeString(); // 12:00:00
-```
-
-<a id="todatetimestring"></a>
-
-### toDateTimeString()
-
-Returns date and time as a string.
-
-```php
-$datetime = $carbon->toDateTimeString(); // 2023-01-01 12:00:00
-```
-
-<a id="todaydatetimestring"></a>
-
-### toDayDateTimeString()
-
-Returns day, date, and time as a string.
-
-```php
-$daydatetime = $carbon->toDayDateTimeString(); // Sun, Jan 1, 2023 12:00 PM
-```
-
-<a id="toatomstring"></a>
-
-### toAtomString()
-
-Returns the date in Atom format.
-
-```php
-$atom = $carbon->toAtomString();
-```
-
-<a id="tocookiestring"></a>
-
-### toCookieString()
-
-Returns the date in cookie format.
-
-```php
-$cookie = $carbon->toCookieString();
-```
-
-<a id="toiso8601string"></a>
-
-### toIso8601String()
-
-Returns the date in ISO 8601 format.
-
-```php
-$iso = $carbon->toIso8601String();
-```
-
-<a id="torfc822string"></a>
-
-### toRfc822String()
-
-Returns the date in RFC 822 format.
-
-```php
-$rfc822 = $carbon->toRfc822String();
-```
-
-<a id="torfc850string"></a>
-
-### toRfc850String()
-
-Returns the date in RFC 850 format.
-
-```php
-$rfc850 = $carbon->toRfc850String();
-```
-
-<a id="torfc1036string"></a>
-
-### toRfc1036String()
-
-Returns the date in RFC 1036 format.
-
-```php
-$rfc1036 = $carbon->toRfc1036String();
-```
-
-<a id="torfc1123string"></a>
-
-### toRfc1123String()
-
-Returns the date in RFC 1123 format.
-
-```php
-$rfc1123 = $carbon->toRfc1123String();
-```
-
-<a id="torfc2822string"></a>
-
-### toRfc2822String()
-
-Returns the date in RFC 2822 format.
-
-```php
-$rfc2822 = $carbon->toRfc2822String();
-```
-
-<a id="torfc3339string"></a>
-
-### toRfc3339String()
-
-Returns the date in RFC 3339 format.
-
-```php
-$rfc3339 = $carbon->toRfc3339String();
-```
-
-<a id="torssstring"></a>
-
-### toRssString()
-
-Returns the date in RSS format.
-
-```php
-$rss = $carbon->toRssString();
-```
-
-<a id="tow3cstring"></a>
-
-### toW3cString()
-
-Returns the date in W3C format.
-
-```php
-$w3c = $carbon->toW3cString();
-```
-
+<a id="comparison"></a>
 <a id="eq"></a>
-
-### eq()
-
-Checks if two Carbon instances are equal.
-
-```php
-$carbon1 = Carbon::create(2023, 1, 1);
-$carbon2 = Carbon::create(2023, 1, 1);
-$is_equal = $carbon1->eq($carbon2); // true
-```
-
 <a id="ne"></a>
-
-### ne()
-
-Checks if two Carbon instances are not equal.
-
-```php
-$is_not_equal = $carbon1->ne($carbon2); // false
-```
-
 <a id="gt"></a>
-
-### gt()
-
-Checks if the instance is greater than another.
-
-```php
-$carbon1 = Carbon::create(2023, 1, 2);
-$carbon2 = Carbon::create(2023, 1, 1);
-$is_greater = $carbon1->gt($carbon2); // true
-```
-
 <a id="gte"></a>
-
-### gte()
-
-Checks if the instance is greater than or equal to another.
-
-```php
-$is_greater_or_equal = $carbon1->gte($carbon2); // true
-```
-
 <a id="lt"></a>
-
-### lt()
-
-Checks if the instance is less than another.
-
-```php
-$is_less = $carbon1->lt($carbon2); // false
-```
-
 <a id="lte"></a>
-
-### lte()
-
-Checks if the instance is less than or equal to another.
-
-```php
-$is_less_or_equal = $carbon1->lte($carbon2); // false
-```
-
 <a id="between"></a>
-
-### between()
-
-Checks if the instance is between two dates.
-
-```php
-$start = Carbon::create(2023, 1, 1);
-$end = Carbon::create(2023, 1, 31);
-$is_between = $carbon->between($start, $end); // true if within range
-```
-
 <a id="min"></a>
-
-### min()
-
-Returns the minimum of two dates.
-
-```php
-$min_date = $carbon1->min($carbon2);
-```
-
 <a id="max"></a>
-
-### max()
-
-Returns the maximum of two dates.
-
-```php
-$max_date = $carbon1->max($carbon2);
-```
-
 <a id="isweekday"></a>
-
-### isWeekday()
-
-Checks if the date is a weekday.
-
-```php
-$is_weekday = $carbon->isWeekday(); // true if Monday to Friday
-```
-
 <a id="isweekend"></a>
-
-### isWeekend()
-
-Checks if the date is a weekend.
-
-```php
-$is_weekend = $carbon->isWeekend(); // true if Saturday or Sunday
-```
-
 <a id="isyesterday"></a>
-
-### isYesterday()
-
-Checks if the date is yesterday.
-
-```php
-$is_yesterday = $carbon->isYesterday();
-```
-
 <a id="istoday"></a>
-
-### isToday()
-
-Checks if the date is today.
-
-```php
-$is_today = $carbon->isToday();
-```
-
 <a id="istomorrow"></a>
-
-### isTomorrow()
-
-Checks if the date is tomorrow.
-
-```php
-$is_tomorrow = $carbon->isTomorrow();
-```
-
 <a id="isfuture"></a>
-
-### isFuture()
-
-Checks if the date is in the future.
-
-```php
-$is_future = $carbon->isFuture();
-```
-
 <a id="ispast"></a>
-
-### isPast()
-
-Checks if the date is in the past.
-
-```php
-$is_past = $carbon->isPast();
-```
-
 <a id="isleapyear"></a>
-
-### isLeapYear()
-
-Checks if the year is a leap year.
-
-```php
-$is_leap = $carbon->isLeapYear();
-```
-
 <a id="issameday"></a>
-
-### isSameDay()
-
-Checks if two dates are the same day.
-
-```php
-$is_same = $carbon1->isSameDay($carbon2);
-```
-
-<a id="addyears"></a>
-
-### addYears()
-
-Adds years to the date.
-
-```php
-$carbon->addYears(2);
-```
-
-<a id="addyear"></a>
-
-### addYear()
-
-Adds one year.
-
-```php
-$carbon->addYear();
-```
-
-<a id="subyear"></a>
-
-### subYear()
-
-Subtracts one year.
-
-```php
-$carbon->subYear();
-```
-
-<a id="subyears"></a>
-
-### subYears()
-
-Subtracts years.
-
-```php
-$carbon->subYears(2);
-```
-
-<a id="addmonths"></a>
-
-### addMonths()
-
-Adds months.
-
-```php
-$carbon->addMonths(2);
-```
-
-<a id="addmonth"></a>
-
-### addMonth()
-
-Adds one month.
-
-```php
-$carbon->addMonth();
-```
-
-<a id="submonth"></a>
-
-### subMonth()
-
-Subtracts one month.
-
-```php
-$carbon->subMonth();
-```
-
-<a id="submonths"></a>
-
-### subMonths()
-
-Subtracts months.
-
-```php
-$carbon->subMonths(2);
-```
-
-<a id="addmonthsnooverflow"></a>
-
-### addMonthsNoOverflow()
-
-Adds months without overflowing to the next month.
-
-```php
-$carbon->addMonthsNoOverflow(2);
-```
-
-<a id="addmonthnooverflow"></a>
-
-### addMonthNoOverflow()
-
-Adds one month without overflow.
-
-```php
-$carbon->addMonthNoOverflow();
-```
-
-<a id="submonthnooverflow"></a>
-
-### subMonthNoOverflow()
-
-Subtracts one month without overflow.
-
-```php
-$carbon->subMonthNoOverflow();
-```
-
-<a id="submonthsnooverflow"></a>
-
-### subMonthsNoOverflow()
-
-Subtracts months without overflow.
-
-```php
-$carbon->subMonthsNoOverflow(2);
-```
-
-<a id="adddays"></a>
-
-### addDays()
-
-Adds days.
-
-```php
-$carbon->addDays(5);
-```
-
-<a id="addday"></a>
-
-### addDay()
-
-Adds one day.
-
-```php
-$carbon->addDay();
-```
-
-<a id="subday"></a>
-
-### subDay()
-
-Subtracts one day.
-
-```php
-$carbon->subDay();
-```
-
-<a id="subdays"></a>
-
-### subDays()
-
-Subtracts days.
-
-```php
-$carbon->subDays(5);
-```
-
-<a id="addweekdays"></a>
-
-### addWeekdays()
-
-Adds weekdays.
-
-```php
-$carbon->addWeekdays(5);
-```
-
-<a id="addweekday"></a>
-
-### addWeekday()
-
-Adds one weekday.
-
-```php
-$carbon->addWeekday();
-```
-
-<a id="subweekday"></a>
-
-### subWeekday()
-
-Subtracts one weekday.
-
-```php
-$carbon->subWeekday();
-```
-
-<a id="subweekdays"></a>
-
-### subWeekdays()
-
-Subtracts weekdays.
-
-```php
-$carbon->subWeekdays(5);
-```
-
-<a id="addweeks"></a>
-
-### addWeeks()
-
-Adds weeks.
-
-```php
-$carbon->addWeeks(2);
-```
-
-<a id="addweek"></a>
-
-### addWeek()
-
-Adds one week.
-
-```php
-$carbon->addWeek();
-```
-
-<a id="subweek"></a>
-
-### subWeek()
-
-Subtracts one week.
-
-```php
-$carbon->subWeek();
-```
-
-<a id="subweeks"></a>
-
-### subWeeks()
-
-Subtracts weeks.
-
-```php
-$carbon->subWeeks(2);
-```
-
-<a id="addhours"></a>
-
-### addHours()
-
-Adds hours.
-
-```php
-$carbon->addHours(5);
-```
-
-<a id="addhour"></a>
-
-### addHour()
-
-Adds one hour.
-
-```php
-$carbon->addHour();
-```
-
-<a id="subhour"></a>
-
-### subHour()
-
-Subtracts one hour.
-
-```php
-$carbon->subHour();
-```
-
-<a id="subhours"></a>
-
-### subHours()
-
-Subtracts hours.
-
-```php
-$carbon->subHours(5);
-```
-
-<a id="addminutes"></a>
-
-### addMinutes()
-
-Adds minutes.
-
-```php
-$carbon->addMinutes(30);
-```
-
-<a id="addminute"></a>
-
-### addMinute()
-
-Adds one minute.
-
-```php
-$carbon->addMinute();
-```
-
-<a id="subminute"></a>
-
-### subMinute()
-
-Subtracts one minute.
-
-```php
-$carbon->subMinute();
-```
-
-<a id="subminutes"></a>
-
-### subMinutes()
-
-Subtracts minutes.
-
-```php
-$carbon->subMinutes(30);
-```
-
-<a id="addseconds"></a>
-
-### addSeconds()
-
-Adds seconds.
-
-```php
-$carbon->addSeconds(30);
-```
-
-<a id="addsecond"></a>
-
-### addSecond()
-
-Adds one second.
-
-```php
-$carbon->addSecond();
-```
-
-<a id="subsecond"></a>
-
-### subSecond()
-
-Subtracts one second.
-
-```php
-$carbon->subSecond();
-```
-
-<a id="subseconds"></a>
-
-### subSeconds()
-
-Subtracts seconds.
-
-```php
-$carbon->subSeconds(30);
-```
-
-<a id="diffinyears"></a>
-
-### diffInYears()
-
-Gets the difference in years.
-
-```php
-$years = $carbon1->diffInYears($carbon2);
-```
-
-<a id="diffinmonths"></a>
-
-### diffInMonths()
-
-Gets the difference in months.
-
-```php
-$months = $carbon1->diffInMonths($carbon2);
-```
-
-<a id="diffinweeks"></a>
-
-### diffInWeeks()
-
-Gets the difference in weeks.
-
-```php
-$weeks = $carbon1->diffInWeeks($carbon2);
-```
-
-<a id="diffindays"></a>
-
-### diffInDays()
-
-Gets the difference in days.
-
-```php
-$days = $carbon1->diffInDays($carbon2);
-```
-
-<a id="diffindaysfiltered"></a>
-
-### diffInDaysFiltered()
-
-Gets the difference in days filtered by a callback.
-
-```php
-$weekdays = $carbon1->diffInDaysFiltered(function ($date) {
-    return $date->isWeekday();
-}, $carbon2);
-```
-
-<a id="diffinweekdays"></a>
-
-### diffInWeekdays()
-
-Gets the difference in weekdays.
-
-```php
-$weekdays = $carbon1->diffInWeekdays($carbon2);
-```
-
-<a id="diffinweekenddays"></a>
-
-### diffInWeekendDays()
-
-Gets the difference in weekend days.
-
-```php
-$weekends = $carbon1->diffInWeekendDays($carbon2);
-```
-
-<a id="diffinhours"></a>
-
-### diffInHours()
-
-Gets the difference in hours.
-
-```php
-$hours = $carbon1->diffInHours($carbon2);
-```
-
-<a id="diffinminutes"></a>
-
-### diffInMinutes()
-
-Gets the difference in minutes.
-
-```php
-$minutes = $carbon1->diffInMinutes($carbon2);
-```
-
-<a id="diffinseconds"></a>
-
-### diffInSeconds()
-
-Gets the difference in seconds.
-
-```php
-$seconds = $carbon1->diffInSeconds($carbon2);
-```
-
-<a id="secondssincemidnight"></a>
-
-### secondsSinceMidnight()
-
-Gets seconds since midnight.
-
-```php
-$seconds = $carbon->secondsSinceMidnight();
-```
-
-<a id="secondsuntilendofday"></a>
-
-### secondsUntilEndOfDay()
-
-Gets seconds until end of day.
-
-```php
-$seconds = $carbon->secondsUntilEndOfDay();
-```
-
-<a id="diffforhumans"></a>
-
-### diffForHumans()
-
-Gets a human-readable difference.
-
-```php
-$diff = $carbon1->diffForHumans($carbon2);
-```
-
-<a id="startofday"></a>
-
-### startOfDay()
-
-Sets to the start of the day.
-
-```php
-$carbon->startOfDay();
-```
-
-<a id="endofday"></a>
-
-### endOfDay()
-
-Sets to the end of the day.
-
-```php
-$carbon->endOfDay();
-```
-
-<a id="startofmonth"></a>
-
-### startOfMonth()
-
-Sets to the start of the month.
-
-```php
-$carbon->startOfMonth();
-```
-
-<a id="endofmonth"></a>
-
-### endOfMonth()
-
-Sets to the end of the month.
-
-```php
-$carbon->endOfMonth();
-```
-
-<a id="startofyear"></a>
-
-### startOfYear()
-
-Sets to the start of the year.
-
-```php
-$carbon->startOfYear();
-```
-
-<a id="endofyear"></a>
-
-### endOfYear()
-
-Sets to the end of the year.
-
-```php
-$carbon->endOfYear();
-```
-
-<a id="startofdecade"></a>
-
-### startOfDecade()
-
-Sets to the start of the decade.
-
-```php
-$carbon->startOfDecade();
-```
-
-<a id="endofdecade"></a>
-
-### endOfDecade()
-
-Sets to the end of the decade.
-
-```php
-$carbon->endOfDecade();
-```
-
-<a id="startofcentury"></a>
-
-### startOfCentury()
-
-Sets to the start of the century.
-
-```php
-$carbon->startOfCentury();
-```
-
-<a id="endofcentury"></a>
-
-### endOfCentury()
-
-Sets to the end of the century.
-
-```php
-$carbon->endOfCentury();
-```
-
-<a id="startofweek"></a>
-
-### startOfWeek()
-
-Sets to the start of the week.
-
-```php
-$carbon->startOfWeek();
-```
-
-<a id="endofweek"></a>
-
-### endOfWeek()
-
-Sets to the end of the week.
-
-```php
-$carbon->endOfWeek();
-```
-
-<a id="next"></a>
-
-### next()
-
-Moves to the next specified day of the week.
-
-```php
-$carbon->next(Carbon::MONDAY);
-```
-
-<a id="previous"></a>
-
-### previous()
-
-Moves to the previous specified day of the week.
-
-```php
-$carbon->previous(Carbon::FRIDAY);
-```
-
-<a id="firstofmonth"></a>
-
-### firstOfMonth()
-
-Moves to the first of the month or first specified day.
-
-```php
-$carbon->firstOfMonth(Carbon::MONDAY);
-```
-
-<a id="lastofmonth"></a>
-
-### lastOfMonth()
-
-Moves to the last of the month or last specified day.
-
-```php
-$carbon->lastOfMonth(Carbon::FRIDAY);
-```
-
-<a id="nthofmonth"></a>
-
-### nthOfMonth()
-
-Moves to the nth occurrence of a day in the month.
-
-```php
-$carbon->nthOfMonth(2, Carbon::MONDAY);
-```
-
-<a id="firstofquarter"></a>
-
-### firstOfQuarter()
-
-Moves to the first of the quarter or first specified day.
-
-```php
-$carbon->firstOfQuarter(Carbon::MONDAY);
-```
-
-<a id="lastofquarter"></a>
-
-### lastOfQuarter()
-
-Moves to the last of the quarter or last specified day.
-
-```php
-$carbon->lastOfQuarter(Carbon::FRIDAY);
-```
-
-<a id="nthofquarter"></a>
-
-### nthOfQuarter()
-
-Moves to the nth occurrence of a day in the quarter.
-
-```php
-$carbon->nthOfQuarter(2, Carbon::MONDAY);
-```
-
-<a id="firstofyear"></a>
-
-### firstOfYear()
-
-Moves to the first of the year or first specified day.
-
-```php
-$carbon->firstOfYear(Carbon::MONDAY);
-```
-
-<a id="lastofyear"></a>
-
-### lastOfYear()
-
-Moves to the last of the year or last specified day.
-
-```php
-$carbon->lastOfYear(Carbon::FRIDAY);
-```
-
-<a id="nthofyear"></a>
-
-### nthOfYear()
-
-Moves to the nth occurrence of a day in the year.
-
-```php
-$carbon->nthOfYear(2, Carbon::MONDAY);
-```
-
-<a id="average"></a>
-
-### average()
-
-Calculates the average date between two dates.
-
-```php
-$average = $carbon1->average($carbon2);
-```
-
 <a id="isbirthday"></a>
 
-### isBirthday()
+## Comparison
 
-Checks if the date is the same day and month as another.
+These take another `Carbon` instance:
 
 ```php
-$is_birthday = $carbon1->isBirthday($carbon2);
+$a->eq($b);   // equal
+$a->ne($b);   // not equal
+$a->gt($b);   // greater than
+$a->gte($b);  // greater than or equal
+$a->lt($b);   // less than
+$a->lte($b);  // less than or equal
+
+$date->between($start, $end);        // inclusive; argument order does not matter
+$date->between($start, $end, false); // exclusive
+
+$a->min($b);  // the earlier of the two (default: now)
+$a->max($b);  // the later of the two (default: now)
+
+$a->isSameDay($b);   // same calendar date
+$a->isBirthday($b);  // same month and day
+```
+
+And these check the instance itself:
+
+| Method          | True when                       |
+| --------------- | ------------------------------- |
+| `isWeekday()`   | Monday to Friday                |
+| `isWeekend()`   | Saturday or Sunday              |
+| `isYesterday()` | the date is yesterday           |
+| `isToday()`     | the date is today               |
+| `isTomorrow()`  | the date is tomorrow            |
+| `isFuture()`    | later than now                  |
+| `isPast()`      | earlier than now                |
+| `isLeapYear()`  | the year is a leap year         |
+
+<a id="addition-and-subtraction"></a>
+<a id="addyears"></a>
+<a id="addyear"></a>
+<a id="subyear"></a>
+<a id="subyears"></a>
+<a id="addmonths"></a>
+<a id="addmonth"></a>
+<a id="submonth"></a>
+<a id="submonths"></a>
+<a id="addmonthsnooverflow"></a>
+<a id="addmonthnooverflow"></a>
+<a id="submonthnooverflow"></a>
+<a id="submonthsnooverflow"></a>
+<a id="adddays"></a>
+<a id="addday"></a>
+<a id="subday"></a>
+<a id="subdays"></a>
+<a id="addweekdays"></a>
+<a id="addweekday"></a>
+<a id="subweekday"></a>
+<a id="subweekdays"></a>
+<a id="addweeks"></a>
+<a id="addweek"></a>
+<a id="subweek"></a>
+<a id="subweeks"></a>
+<a id="addhours"></a>
+<a id="addhour"></a>
+<a id="subhour"></a>
+<a id="subhours"></a>
+<a id="addminutes"></a>
+<a id="addminute"></a>
+<a id="subminute"></a>
+<a id="subminutes"></a>
+<a id="addseconds"></a>
+<a id="addsecond"></a>
+<a id="subsecond"></a>
+<a id="subseconds"></a>
+
+## Addition and Subtraction
+
+Every unit has four methods: `addXs($n)`, `addX()`, `subXs($n)` and `subX()`.
+They change the instance and return it:
+
+| Unit     | Methods                                                         |
+| -------- | --------------------------------------------------------------- |
+| Years    | `addYears($n)`, `addYear()`, `subYears($n)`, `subYear()`        |
+| Months   | `addMonths($n)`, `addMonth()`, `subMonths($n)`, `subMonth()`    |
+| Weeks    | `addWeeks($n)`, `addWeek()`, `subWeeks($n)`, `subWeek()`        |
+| Days     | `addDays($n)`, `addDay()`, `subDays($n)`, `subDay()`            |
+| Weekdays | `addWeekdays($n)`, `addWeekday()`, `subWeekdays($n)`, `subWeekday()` |
+| Hours    | `addHours($n)`, `addHour()`, `subHours($n)`, `subHour()`        |
+| Minutes  | `addMinutes($n)`, `addMinute()`, `subMinutes($n)`, `subMinute()` |
+| Seconds  | `addSeconds($n)`, `addSecond()`, `subSeconds($n)`, `subSecond()` |
+
+```php
+$date = Carbon::create(2023, 1, 31, 0, 0, 0);
+
+$date->addDays(5)->subHours(2);
+$date->addWeekdays(3);  // skips Saturday and Sunday
+```
+
+Adding months to the 31st can overflow into the following month (Jan 31 + 1 month
+= Mar 3). The `NoOverflow` variants clamp to the last day of the month instead:
+`addMonthsNoOverflow($n)`, `addMonthNoOverflow()`, `subMonthsNoOverflow($n)`,
+`subMonthNoOverflow()`.
+
+```php
+$jan = Carbon::create(2023, 1, 31, 0, 0, 0);
+$feb = $jan->addMonthNoOverflow(); // 2023-02-28
+```
+
+> Unlike the other methods, the `NoOverflow` variants return a **new** instance and
+> leave the original unchanged.
+
+<a id="differences"></a>
+<a id="diffinyears"></a>
+<a id="diffinmonths"></a>
+<a id="diffinweeks"></a>
+<a id="diffindays"></a>
+<a id="diffindaysfiltered"></a>
+<a id="diffinweekdays"></a>
+<a id="diffinweekenddays"></a>
+<a id="diffinhours"></a>
+<a id="diffinminutes"></a>
+<a id="diffinseconds"></a>
+<a id="secondssincemidnight"></a>
+<a id="secondsuntilendofday"></a>
+
+## Differences
+
+Each `diffIn*()` method takes another date (default: now) and returns a whole
+number. The result is absolute unless you pass `false` as the last argument, in
+which case it is negative when the other date is earlier:
+
+```php
+$a->diffInYears($b);
+$a->diffInMonths($b);
+$a->diffInWeeks($b);
+$a->diffInDays($b);
+$a->diffInHours($b);
+$a->diffInMinutes($b);
+$a->diffInSeconds($b, false);  // signed
+
+$a->diffInWeekdays($b);        // Monday to Friday only
+$a->diffInWeekendDays($b);     // Saturday and Sunday only
+
+// Count only the days the callback accepts
+$a->diffInDaysFiltered(function ($date) {
+    return $date->day === 1;
+}, $b);
+
+$date->secondsSinceMidnight();
+$date->secondsUntilEndOfDay();
+```
+
+<a id="human-readable-differences"></a>
+<a id="diffforhumans"></a>
+
+### Human Readable Differences
+
+`diffForHumans()` describes the difference in words, rounded to the largest unit:
+
+```php
+Carbon::now()->subDays(3)->diffForHumans();   // 3 days ago
+Carbon::now()->addHour()->diffForHumans();    // 1 hour from now
+$a->diffForHumans($b);                        // 2 weeks before / 2 weeks after
+$a->diffForHumans($b, true);                  // 2 weeks
+```
+
+Without an argument the date is compared to now ("ago" / "from now"); with one,
+it reads "before" / "after". Passing `true` as the second argument drops the
+suffix. The words come from `application/language/<lang>/carbon.php`, so they
+follow the application language.
+
+<a id="modifiers"></a>
+<a id="startofday"></a>
+<a id="endofday"></a>
+<a id="startofmonth"></a>
+<a id="endofmonth"></a>
+<a id="startofyear"></a>
+<a id="endofyear"></a>
+<a id="startofdecade"></a>
+<a id="endofdecade"></a>
+<a id="startofcentury"></a>
+<a id="endofcentury"></a>
+<a id="startofweek"></a>
+<a id="endofweek"></a>
+<a id="next"></a>
+<a id="previous"></a>
+<a id="firstofmonth"></a>
+<a id="lastofmonth"></a>
+<a id="nthofmonth"></a>
+<a id="firstofquarter"></a>
+<a id="lastofquarter"></a>
+<a id="nthofquarter"></a>
+<a id="firstofyear"></a>
+<a id="lastofyear"></a>
+<a id="nthofyear"></a>
+<a id="average"></a>
+
+## Modifiers
+
+Move the instance to the start or end of a period. `startOf*()` sets the time to
+`00:00:00`, `endOf*()` to `23:59:59`:
+
+```php
+$date->startOfDay();      $date->endOfDay();
+$date->startOfWeek();     $date->endOfWeek();     // Monday / Sunday
+$date->startOfMonth();    $date->endOfMonth();
+$date->startOfYear();     $date->endOfYear();
+$date->startOfDecade();   $date->endOfDecade();
+$date->startOfCentury();  $date->endOfCentury();
+```
+
+Jump to a day of the week. These also reset the time to `00:00:00`:
+
+```php
+$date->next(Carbon::MONDAY);      // next Monday (default: same weekday next week)
+$date->previous(Carbon::FRIDAY);  // last Friday (default: same weekday last week)
+
+$date->firstOfMonth();               // 1st of the month
+$date->firstOfMonth(Carbon::MONDAY); // first Monday of the month
+$date->lastOfMonth(Carbon::FRIDAY);  // last Friday of the month
+$date->nthOfMonth(2, Carbon::MONDAY); // second Monday of the month
+
+$date->firstOfQuarter();  $date->lastOfQuarter();  $date->nthOfQuarter(2, Carbon::MONDAY);
+$date->firstOfYear();     $date->lastOfYear();     $date->nthOfYear(2, Carbon::MONDAY);
+```
+
+The `firstOf*()` and `lastOf*()` methods take an optional day of the week. The
+`nthOf*()` methods return `false` (and leave the date unchanged) when that
+occurrence does not exist in the period.
+
+`average()` moves the instance to the midpoint between it and another date
+(default: now):
+
+```php
+$mid = Carbon::create(2023, 1, 1, 0, 0, 0)->average(Carbon::create(2023, 1, 3, 0, 0, 0));
+// 2023-01-02 00:00:00
+```
+
+<a id="testing"></a>
+<a id="setnow"></a>
+<a id="gettestnow"></a>
+<a id="hastestnow"></a>
+<a id="hasrelativekeywords"></a>
+
+## Testing
+
+`setNow()` fixes the current time. Afterwards, `now()`, `new Carbon()` and relative
+strings such as `'tomorrow'` or `'+1 day'` are based on that time:
+
+```php
+Carbon::setNow(Carbon::create(2023, 1, 1, 12, 0, 0));
+
+echo Carbon::now();               // 2023-01-01 12:00:00
+echo new Carbon('tomorrow');      // 2023-01-02 00:00:00
+
+Carbon::hasTestNow();             // true
+Carbon::getTestNow();             // the fixed instance
+
+Carbon::setNow();                 // back to the real time
+```
+
+`Carbon::hasRelativeKeywords($time)` tells whether a string is relative (contains
+words such as `next`, `last`, `ago`, `+` or `-`, and no `Y-m-d` date).
+
+<a id="example"></a>
+
+## Example
+
+Show when a subscription expires:
+
+```php
+$expires = Carbon::parse($user->subscribed_at)->addMonthsNoOverflow(1)->endOfDay();
+
+if ($expires->isPast()) {
+    echo 'Expired '.$expires->diffForHumans();
+} else {
+    echo 'Expires on '.$expires->toFormattedDateString()
+        .' ('.$expires->diffInDays().' days left)';
+}
 ```

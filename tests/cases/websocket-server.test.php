@@ -493,4 +493,218 @@ class WebsocketServerTest extends \PHPUnit_Framework_TestCase
             $this->callProtectedMethod($server, 'apply_mask', [['hasmask' => 0, 'mask' => ''], 'hello'])
         );
     }
+
+    /**
+     * Build a server with the given client IDs attached, recording every send.
+     */
+    protected function makeChannelServer(array $ids, array &$sent)
+    {
+        $server = new Server('tcp://127.0.0.1:0');
+        $users = [];
+
+        foreach ($ids as $id) {
+            $client = new \System\Websocket\Client($id, null);
+            $client->of($server);
+            $users[$id] = $client;
+        }
+
+        $reflection = new ReflectionProperty('\System\Websocket\Server', 'users');
+        /** @disregard */
+        PHP_VERSION_ID < 80100 && $reflection->setAccessible(true);
+        $reflection->setValue($server, $users);
+
+        $server->on('send', function ($client, $opcode, $data) use (&$sent) {
+            $sent[] = [$client->id(), $opcode, $data];
+        });
+
+        return $users;
+    }
+
+    /**
+     * Get the messages sent to a client.
+     */
+    protected function sentTo(array $sent, $id)
+    {
+        $result = [];
+
+        foreach ($sent as $item) {
+            if ($item[0] === $id) {
+                $result[] = $item[2];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Test channel signature helpers.
+     *
+     * @group system
+     */
+    public function testSignAndAuthorize()
+    {
+        $sign = Server::sign('abc', 'private-orders');
+        $this->assertEquals(hash_hmac('sha256', 'abc:private-orders', RAKIT_KEY), $sign);
+        $this->assertTrue(Server::authorize('abc', 'news'));
+        $this->assertTrue(Server::authorize('abc', 'private-orders', $sign));
+        $this->assertFalse(Server::authorize('abc', 'private-orders'));
+        $this->assertFalse(Server::authorize('abc', 'private-orders', 'wrong'));
+        $this->assertFalse(Server::authorize('other', 'private-orders', $sign));
+        $this->assertFalse(Server::authorize('abc', 'presence-room', $sign));
+        $this->assertFalse(Server::authorize('abc', ['x']));
+    }
+
+    /**
+     * Test the disconnect command can no longer kick other clients.
+     *
+     * @group system
+     */
+    public function testDisconnectCommandIsRejected()
+    {
+        $sent = [];
+        $users = $this->makeChannelServer(['a', 'b'], $sent);
+        $command = new \System\Console\Commands\Websocket();
+        $command->receive($users['a'], Server::TEXT, json_encode(['command' => 'disconnect', 'client_id' => 'b']));
+
+        $this->assertEmpty($this->sentTo($sent, 'b'));
+        $this->assertContains('Unknown or invalid command', implode('', $this->sentTo($sent, 'a')));
+        $this->assertFalse((bool) $users['b']->disconnecting);
+    }
+
+    /**
+     * Test subscribing to public and private channels.
+     *
+     * @group system
+     */
+    public function testChannelSubscriptionRules()
+    {
+        $sent = [];
+        $users = $this->makeChannelServer(['a'], $sent);
+        $command = new \System\Console\Commands\Websocket();
+        $client = $users['a'];
+
+        $command->receive($client, Server::TEXT, json_encode(['event' => 'subscribe', 'channel' => 'news']));
+        $this->assertEquals(['news'], $client->channels);
+
+        $command->receive($client, Server::TEXT, json_encode(['event' => 'subscribe', 'channel' => 'private-x']));
+        $command->receive($client, Server::TEXT, json_encode([
+            'event' => 'subscribe', 'channel' => 'private-x', 'auth' => 'wrong',
+        ]));
+        $this->assertEquals(['news'], $client->channels);
+        $this->assertCount(2, $this->sentTo($sent, 'a'));
+
+        $command->receive($client, Server::TEXT, json_encode([
+            'event' => 'subscribe', 'channel' => 'private-x', 'auth' => Server::sign('a', 'private-x'),
+        ]));
+        $this->assertEquals(['news', 'private-x'], $client->channels);
+    }
+
+    /**
+     * Test client-to-client messages need a shared private channel.
+     *
+     * @group system
+     */
+    public function testPrivateMessageRequiresSharedPrivateChannel()
+    {
+        $sent = [];
+        $users = $this->makeChannelServer(['a', 'b'], $sent);
+        $command = new \System\Console\Commands\Websocket();
+        $users['a']->channels = ['news'];
+        $users['b']->channels = ['news'];
+
+        $command->receive($users['a'], Server::TEXT, json_encode(['to' => 'b', 'message' => 'hi']));
+        $command->receive($users['a'], Server::TEXT, json_encode([
+            'command' => 'private_message', 'to' => 'b', 'message' => 'hi',
+        ]));
+        $this->assertEmpty($this->sentTo($sent, 'b'));
+        $this->assertCount(2, $this->sentTo($sent, 'a'));
+
+        $users['a']->channels[] = 'private-room';
+        $users['b']->channels[] = 'private-room';
+        $command->receive($users['a'], Server::TEXT, json_encode(['to' => 'b', 'message' => 'hi']));
+        $this->assertCount(1, $this->sentTo($sent, 'b'));
+    }
+
+    /**
+     * Test channel broadcasts require the sender to be subscribed.
+     *
+     * @group system
+     */
+    public function testBroadcastToChannelRequiresSubscription()
+    {
+        $sent = [];
+        $users = $this->makeChannelServer(['a', 'b'], $sent);
+        $command = new \System\Console\Commands\Websocket();
+        $users['b']->channels = ['news'];
+        $payload = json_encode(['command' => 'broadcast_to_channel', 'channel' => 'news', 'message' => 'x']);
+
+        $command->receive($users['a'], Server::TEXT, $payload);
+        $this->assertEmpty($this->sentTo($sent, 'b'));
+
+        $users['a']->channels = ['news'];
+        $command->receive($users['a'], Server::TEXT, $payload);
+        $this->assertEquals(['x'], $this->sentTo($sent, 'b'));
+    }
+
+    /**
+     * Test clients cannot broadcast globally by default.
+     *
+     * @group system
+     */
+    public function testClientBroadcastIsRejectedByDefault()
+    {
+        $sent = [];
+        $users = $this->makeChannelServer(['a', 'b'], $sent);
+        $command = new \System\Console\Commands\Websocket();
+        $command->receive($users['a'], Server::TEXT, json_encode(['command' => 'broadcast', 'message' => 'evil']));
+
+        $this->assertEmpty($this->sentTo($sent, 'b'));
+        $reply = $this->sentTo($sent, 'a');
+        $this->assertCount(1, $reply);
+        $this->assertEquals(['type' => 'error', 'message' => 'Client broadcasting is disabled'], json_decode($reply[0], true));
+    }
+
+    /**
+     * Test plain-text messages are not broadcast by default.
+     *
+     * @group system
+     */
+    public function testPlainTextIsRejectedByDefault()
+    {
+        $sent = [];
+        $users = $this->makeChannelServer(['a', 'b'], $sent);
+        $command = new \System\Console\Commands\Websocket();
+        $command->receive($users['a'], Server::TEXT, 'hello <script>');
+        $command->receive($users['a'], Server::TEXT, json_encode(['foo' => 'bar']));
+
+        $this->assertEmpty($this->sentTo($sent, 'b'));
+        $replies = $this->sentTo($sent, 'a');
+        $this->assertCount(2, $replies);
+        $this->assertNotContains('hello', implode('', $replies));
+        $this->assertNotContains('foo', implode('', $replies));
+    }
+
+    /**
+     * Test client broadcasts work when client_broadcast is enabled.
+     *
+     * @group system
+     */
+    public function testClientBroadcastAllowedWhenEnabled()
+    {
+        \System\Config::set('websocket.client_broadcast', true);
+
+        try {
+            $sent = [];
+            $users = $this->makeChannelServer(['a', 'b'], $sent);
+            $command = new \System\Console\Commands\Websocket();
+            $command->receive($users['a'], Server::TEXT, json_encode(['command' => 'broadcast', 'message' => 'hi']));
+            $command->receive($users['a'], Server::TEXT, 'plain');
+        } catch (\Exception $e) {
+            \System\Config::set('websocket.client_broadcast', false);
+            throw $e;
+        }
+
+        \System\Config::set('websocket.client_broadcast', false);
+        $this->assertEquals(['hi', json_encode(['client_id' => 'a', 'message' => 'plain'])], $this->sentTo($sent, 'b'));
+    }
 }

@@ -216,4 +216,24 @@ class HttpHelperTest extends \PHPUnit_Framework_TestCase
         (new Helper())->makeDisposition('attachment', '\foo.html');
         (new Helper())->makeDisposition('attachment', 'föö.html');
     }
+
+    public function testHeaderNamesKeepTheirCaseForOutput()
+    {
+        $bag = new Helper(['Content-Type' => 'text/html', 'x-custom' => 'a', 'ETag' => 'abc']);
+
+        $this->assertArrayHasKey('content-type', $bag->all());
+        $this->assertArrayNotHasKey('Content-Type', $bag->all());
+
+        $preserved = $bag->allPreserveCase();
+        $this->assertEquals(['text/html'], $preserved['Content-Type']);
+        $this->assertEquals(['a'], $preserved['x-custom']);
+        $this->assertEquals(['abc'], $preserved['ETag']);
+        $this->assertArrayHasKey('Cache-Control', $preserved);
+
+        $this->assertContains('Content-Type: ', (string) $bag);
+        $this->assertContains('ETag: ', (string) $bag);
+
+        $bag->remove('CONTENT-TYPE');
+        $this->assertArrayNotHasKey('Content-Type', $bag->allPreserveCase());
+    }
 }

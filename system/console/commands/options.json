@@ -18,5 +18,9 @@
     "--port=": {
         "description": "Change default port.",
         "command": "php rakit serve --port=9000"
+    },
+    "--with-middleware": {
+        "description": "Run route middleware for route:call.",
+        "command": "php rakit route:call get admin --with-middleware"
     }
 }

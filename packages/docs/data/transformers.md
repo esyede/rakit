@@ -17,11 +17,9 @@
 
 ## Basic Knowledge
 
-A transformer stands between a model and the JSON that goes out. It says exactly
-which keys the response carries, and in what shape, so a column renamed in the
-database does not silently change the API your clients depend on.
+A transformer sits between a model and the JSON your API returns. It decides exactly which keys go out and in what shape, so renaming a database column doesn't silently change your API.
 
-The quickest use needs no class at all:
+The simplest use needs no class at all:
 
 ```php
 return Transformer::make($user)->to_response();
@@ -37,20 +35,13 @@ return Transformer::make($user)->to_response();
 }
 ```
 
-Asked for nothing in particular, a transformer hands over `to_array()` of the
-resource it was given, so a Facile model still honours its `$hidden`, `$visible`,
-`$appends` and `$casts`.
+Without a custom class, the transformer returns the resource's `to_array()`, so a Facile model still honours its `$hidden`, `$visible`, `$appends` and `$casts`.
 
 <a id="writing-a-transformer"></a>
 
 ## Writing a Transformer
 
-Put the class in `application/transformers/` and give it a `to_array()`;
-`php rakit make:transformer user` writes that file for you. The
-class is named after the file with `_Transformer` behind it, the same way a
-controller is named `User_Controller`, and the autoloader finds it there on its
-own. A transformer of a package carries the package name in front, so
-`Blog_Post_Transformer` is read from `packages/blog/transformers/post.php`:
+Transformers live in `application/transformers/` and are named after the file with a `_Transformer` suffix (like `User_Controller`), so the autoloader finds them. Generate one with `php rakit make:transformer user`. Package transformers carry the package name as a prefix: `Blog_Post_Transformer` lives in `packages/blog/transformers/post.php`.
 
 ```php
 // application/transformers/user.php
@@ -68,10 +59,7 @@ class User_Transformer extends Transformer
 }
 ```
 
-The attributes and the methods of the resource are reachable straight from
-`$this`, so `$this->name` reads the model. A date arrives as the string the
-database holds unless the model casts it, so ask for the cast when the
-transformer needs to format it:
+The resource's attributes and methods are reachable through `$this` (and via array access, `$this['name']`). Dates arrive as the raw database string unless the model casts them:
 
 ```php
 class User extends Facile
@@ -79,25 +67,25 @@ class User extends Facile
     public static $casts = ['created_at' => 'datetime'];
 }
 
-// then, in the transformer:
+// in the transformer:
 'registered' => $this->created_at->format('d/m/Y'),
 ```
 
-Then:
+`make($user)` and `new User_Transformer($user)` are equivalent. To output the result:
 
-```php
-return User_Transformer::make($user)->to_response();
-```
+| Method | Returns |
+| --- | --- |
+| `to_response($status = 200, $headers = [])` | A JSON `Response` |
+| `to_json($options = 0)` | A JSON string |
+| `resolve()` | The final array, wrapper included |
 
-`make()` and `new User_Transformer($user)` are the same thing. Besides
-`to_response()`, a transformer answers `to_json()`, `resolve()` for the array
-(wrapper and all), and turns into JSON on its own when handed to `json_encode()`.
+A transformer also converts itself to JSON when passed to `json_encode()` or cast to a string.
 
 <a id="lists-of-resources"></a>
 
 ## Lists of Resources
 
-`collection()` hands every item to a transformer of its own:
+`collection()` transforms every item with the transformer it was called on. It accepts an array, a `Collection`, a `Paginator`, or anything traversable:
 
 ```php
 return User_Transformer::collection(User::all())->to_response();
@@ -112,13 +100,11 @@ return User_Transformer::collection(User::all())->to_response();
 }
 ```
 
-It takes an array, a `Collection`, a `Paginator`, or anything walkable.
-
 <a id="paginated-lists"></a>
 
 ## Paginated Lists
 
-Hand it a paginator and the links and the counts come along:
+Pass a paginator and the pagination links and counts are added automatically:
 
 ```php
 return User_Transformer::collection(User::paginate(15))->to_response();
@@ -149,58 +135,39 @@ return User_Transformer::collection(User::paginate(15))->to_response();
 
 ## Conditional Keys
 
-`when()` keeps a key only when the condition holds. A key that is left out does
-not appear as `null`, it does not appear at all:
+`when()` includes a key only when the condition is true; otherwise the key is omitted entirely (not set to `null`). The value may be a Closure, which only runs when needed. An optional third argument is used as the value when the condition is false:
 
 ```php
 public function to_array()
 {
     return [
         'id' => $this->id,
-        'name' => $this->name,
         'email' => $this->when(Auth::user()->admin, $this->email),
+        'phone' => $this->when($is_admin, $this->phone, 'hidden'),
+        'stats' => $this->when($detailed, function () {
+            return $this->calculate_stats();
+        }),
     ];
 }
 ```
 
-Hand it a closure when working out the value costs something. The closure only
-runs when the condition holds:
+`merge_when()` includes or omits a whole group of keys; `merge()` always includes them:
 
 ```php
-'stats' => $this->when($detailed, function () {
-    return $this->calculate_stats();
-}),
+return [
+    'id' => $this->id,
+    $this->merge_when(Auth::user()->admin, [
+        'email' => $this->email,
+        'last_ip' => $this->last_ip,
+    ]),
+];
 ```
-
-A third argument is the value to use when the condition does not hold, `null`
-included:
-
-```php
-'email' => $this->when($isAdmin, $this->email, 'hidden'),
-```
-
-`merge_when()` folds a whole set of keys in, or leaves all of them out:
-
-```php
-public function to_array()
-{
-    return [
-        'id' => $this->id,
-        $this->merge_when(Auth::user()->admin, [
-            'email' => $this->email,
-            'last_ip' => $this->last_ip,
-        ]),
-    ];
-}
-```
-
-`merge()` is the same thing without a condition.
 
 <a id="nesting"></a>
 
 ## Nesting
 
-A transformer inside another one contributes its keys, not a wrapper of its own:
+A transformer nested inside another contributes only its data, without its own wrapper:
 
 ```php
 public function to_array()
@@ -227,12 +194,18 @@ public function to_array()
 
 ## Data Beside the Data
 
-`additional()` puts something at the top level, beside the wrapped data:
+`additional()` adds top-level keys next to the wrapped data at the call site; override `with()` to add them to every response of that transformer:
 
 ```php
 return User_Transformer::make($user)
     ->additional(['version' => '1.0'])
     ->to_response();
+
+// or, inside the transformer:
+public function with()
+{
+    return ['version' => '1.0'];
+}
 ```
 
 ```json
@@ -242,48 +215,25 @@ return User_Transformer::make($user)
 }
 ```
 
-`with()` does the same from inside the transformer, for what every response of
-that kind should carry:
-
-```php
-class User_Transformer extends Transformer
-{
-    public function with()
-    {
-        return ['version' => '1.0'];
-    }
-}
-```
-
 <a id="the-wrapper"></a>
 
 ## The Wrapper
 
-The data is wrapped in a `data` key. Give the transformer a `$wrap` of its own to
-change it:
+Data is wrapped in a `data` key by default. Override `$wrap` to rename it, or set it to `null` to return the data unwrapped (anything from `with()` or `additional()` is then merged into the data itself):
 
 ```php
 class User_Transformer extends Transformer
 {
-    public static $wrap = 'user';
+    public static $wrap = 'user'; // or null
 }
 ```
 
-Set it to `NULL` to hand the data over bare. Anything from `with()` or
-`additional()` is then merged into the data itself:
-
-```php
-class User_Transformer extends Transformer
-{
-    public static $wrap = null;
-}
-```
-
-To drop the wrapper for every transformer at once, say so while the application
-boots:
+To disable wrapping for all transformers, call this while the application boots:
 
 ```php
 // application/boot.php
 
 Transformer::without_wrapping();
 ```
+
+> Collections read `$wrap` from the base `Transformer` class, so a `$wrap` set on `User_Transformer` does not change the key used by `User_Transformer::collection()`.

@@ -4,16 +4,7 @@
 
 - [Basic Knowledge](#basic-knowledge)
 - [Creating & Deleting Tables](#creating--deleting-tables)
-  - [Creating Tables](#creating-tables)
-  - [Creating Tables If Not Exists](#creating-tables-if-not-exists)
-  - [Deleting Tables](#deleting-tables)
-  - [Deleting Tables If Exists](#deleting-tables-if-exists)
-  - [Rename Tables](#rename-tables)
 - [Listing Tables & Columns](#listing-tables--columns)
-  - [Listing Tables](#listing-tables)
-  - [Listing Columns](#listing-columns)
-  - [Check Table Exists](#check-table-exists)
-  - [Check Column Exists](#check-column-exists)
 - [Column Types](#column-types)
   - [Numeric Types](#numeric-types)
   - [String Types](#string-types)
@@ -21,8 +12,10 @@
   - [Binary Types](#binary-types)
   - [JSON Types](#json-types)
   - [Special Types](#special-types)
+  - [Spatial Types](#spatial-types)
 - [Column Modifiers](#column-modifiers)
 - [Adding Columns](#adding-columns)
+- [Changing Columns](#changing-columns)
 - [Deleting Columns](#deleting-columns)
 - [Indexes](#indexes)
   - [Adding Index](#adding-index)
@@ -33,25 +26,26 @@
   - [Enable/Disable Foreign Key Checks](#enabledisable-foreign-key-checks)
 - [Table Options](#table-options)
 - [Database Connections](#database-connections)
-- [Complete Examples](#complete-examples)
+- [Complete Example](#complete-example)
 
 <!-- /MarkdownTOC -->
 
 <a id="basic-knowledge"></a>
 ## Basic Knowledge
 
-Schema Builder is a database-agnostic API for creating, altering, and
-dropping tables. The same code runs against MySQL, PostgreSQL, SQLite, and
-SQL Server, and integrates with [Migrations](/docs/database/migrations) so
-you can version-control your schema.
+The Schema Builder creates, alters and drops tables with one database-agnostic API that works on
+MySQL, PostgreSQL, SQLite and SQL Server. It is mostly used inside
+[Migrations](/docs/database/migrations).
 
 <a id="creating--deleting-tables"></a>
+<a id="creating-tables"></a>
+<a id="creating-tables-if-not-exists"></a>
+<a id="deleting-tables"></a>
+<a id="deleting-tables-if-exists"></a>
+<a id="rename-tables"></a>
 ## Creating & Deleting Tables
 
-<a id="creating-tables"></a>
-### Creating Tables
-
-Use the `Schema::create()` method to create a new table:
+`Schema::create()` takes the table name and a closure that receives a table blueprint:
 
 ```php
 Schema::create('users', function ($table) {
@@ -60,106 +54,32 @@ Schema::create('users', function ($table) {
     $table->string('email')->unique();
     $table->timestamps();
 });
-```
 
-<a id="creating-tables-if-not-exists"></a>
-### Creating Tables If Not Exists
-
-To avoid errors if the table already exists:
-
-```php
 Schema::create_if_not_exists('users', function ($table) {
-    $table->increments('id');
-    $table->string('name');
-    $table->string('email');
+    // ..
 });
-```
 
-<a id="deleting-tables"></a>
-### Deleting Tables
-
-```php
+Schema::rename('users', 'members');
 Schema::drop('users');
-```
-
-<a id="deleting-tables-if-exists"></a>
-### Deleting Tables If Exists
-
-```php
 Schema::drop_if_exists('users');
 ```
 
-<a id="rename-tables"></a>
-### Rename Tables
-
-```php
-Schema::rename('users', 'members');
-```
-
 <a id="listing-tables--columns"></a>
+<a id="listing-tables"></a>
+<a id="listing-columns"></a>
+<a id="check-table-exists"></a>
+<a id="check-column-exists"></a>
 ## Listing Tables & Columns
 
-<a id="listing-tables"></a>
-### Listing Tables
-
-Get a list of all tables in the database:
-
 ```php
-// Default connection
-$tables = Schema::tables();
+$tables  = Schema::tables();            // names of all tables
+$columns = Schema::columns('users');    // names of all columns of a table
 
-// Specific connection
-$tables = Schema::tables('mysql');
-
-foreach ($tables as $table) {
-    echo $table . "\n";
-}
+if (Schema::has_table('users')) { /* .. */ }
+if (Schema::has_column('users', 'email')) { /* .. */ }
 ```
 
-<a id="listing-columns"></a>
-### Listing Columns
-
-Get a list of all columns in a table:
-
-```php
-// Default connection
-$columns = Schema::columns('users');
-
-// Specific connection
-$columns = Schema::columns('users', 'mysql');
-
-foreach ($columns as $column) {
-    echo $column . "\n";
-}
-```
-
-<a id="check-table-exists"></a>
-### Check Table Exists
-
-```php
-if (Schema::has_table('users')) {
-    echo 'Table users already exists';
-}
-
-// With specific connection
-if (Schema::has_table('users', 'mysql')) {
-    echo 'Table users exists in mysql connection';
-}
-```
-
-<a id="check-column-exists"></a>
-### Check Column Exists
-
-```php
-if (Schema::has_column('users', 'email')) {
-    echo 'Column email exists in table users';
-}
-
-// With specific connection
-if (Schema::has_column('users', 'email', 'mysql')) {
-    echo 'Column email exists';
-}
-```
+Each method accepts a connection name as its last argument, for example `Schema::tables('mysql')`.
 
 <a id="column-types"></a>
 ## Column Types
@@ -170,28 +90,15 @@ if (Schema::has_column('users', 'email', 'mysql')) {
 | Method | Description |
 |--------|-------------|
 | `$table->increments('id')` | Auto-incrementing INTEGER (primary key) |
-| `$table->biginteger('votes')` | BIGINT equivalent |
-| `$table->integer('votes')` | INTEGER equivalent |
+| `$table->integer('votes')` | INTEGER; `integer('id', true)` makes it auto-incrementing |
+| `$table->biginteger('votes')` | BIGINT; `biginteger('id', true)` makes it auto-incrementing |
 | `$table->mediuminteger('votes')` | MEDIUMINT equivalent |
 | `$table->smallinteger('votes')` | SMALLINT equivalent |
 | `$table->tinyinteger('votes')` | TINYINT equivalent |
 | `$table->float('amount')` | FLOAT equivalent |
 | `$table->double('amount')` | DOUBLE equivalent |
 | `$table->decimal('amount', 8, 2)` | DECIMAL with precision and scale |
-| `$table->boolean('confirmed')` | BOOLEAN equivalent (TINYINT in MySQL) |
-
-**Example:**
-
-```php
-Schema::create('products', function ($table) {
-    $table->increments('id');
-    $table->biginteger('views')->unsigned();
-    $table->integer('stock');
-    $table->decimal('price', 10, 2);
-    $table->float('rating');
-    $table->boolean('is_active')->defaults(true);
-});
-```
+| `$table->boolean('confirmed')` | BOOLEAN equivalent (TINYINT(1) in MySQL) |
 
 <a id="string-types"></a>
 ### String Types
@@ -203,39 +110,15 @@ Schema::create('products', function ($table) {
 | `$table->text('description')` | TEXT equivalent |
 | `$table->longtext('content')` | LONGTEXT equivalent |
 
-**Example:**
-
-```php
-Schema::create('posts', function ($table) {
-    $table->increments('id');
-    $table->string('title', 255);
-    $table->string('slug', 255)->unique();
-    $table->text('excerpt')->nullable();
-    $table->longtext('content');
-});
-```
-
 <a id="date--time-types"></a>
 ### Date & Time Types
 
 | Method | Description |
 |--------|-------------|
-| `$table->date('created_at')` | DATETIME equivalent (date and time) |
+| `$table->date('published_at')` | DATETIME equivalent (date **and** time) |
 | `$table->timestamp('created_at')` | TIMESTAMP equivalent |
-| `$table->timestamps()` | Adds nullable `created_at` and `updated_at` TIMESTAMP |
-
-**Example:**
-
-```php
-Schema::create('events', function ($table) {
-    $table->increments('id');
-    $table->string('name');
-    $table->date('event_date');
-    $table->timestamp('starts_at')->nullable();
-    $table->timestamp('ends_at')->nullable();
-    $table->timestamps();
-});
-```
+| `$table->timestamps()` | Nullable `created_at` and `updated_at` TIMESTAMP columns |
+| `$table->soft_deletes()` | Nullable `deleted_at` TIMESTAMP column |
 
 <a id="binary-types"></a>
 ### Binary Types
@@ -243,16 +126,6 @@ Schema::create('events', function ($table) {
 | Method | Description |
 |--------|-------------|
 | `$table->blob('data')` | BLOB equivalent |
-
-**Example:**
-
-```php
-Schema::create('files', function ($table) {
-    $table->increments('id');
-    $table->string('filename');
-    $table->blob('data');
-});
-```
 
 <a id="json-types"></a>
 ### JSON Types
@@ -262,132 +135,112 @@ Schema::create('files', function ($table) {
 | `$table->json('options')` | JSON equivalent (TEXT in SQLite, NVARCHAR(MAX) in SQL Server) |
 | `$table->jsonb('options')` | JSONB in PostgreSQL, same as `json()` on the other drivers |
 
-**Example:**
-
-```php
-Schema::create('settings', function ($table) {
-    $table->increments('id');
-    $table->string('key')->unique();
-    $table->json('value');
-});
-```
-
 <a id="special-types"></a>
 ### Special Types
 
 | Method | Description |
 |--------|-------------|
 | `$table->enum('role', ['admin', 'user'])` | ENUM with allowed values |
+| `$table->set('flags', ['a', 'b'])` | SET in MySQL; a string column with a CHECK constraint elsewhere |
 | `$table->uuid('id')` | UUID equivalent (CHAR(36) in MySQL) |
-| `$table->ipaddress('ip')` | IP Address (VARCHAR(45) in MySQL, for IPv4/IPv6) |
+| `$table->ipaddress('ip')` | IPv4/IPv6 address (VARCHAR(45) in MySQL, INET in PostgreSQL) |
+| `$table->macaddress('mac')` | MAC address (VARCHAR(17) in MySQL, MACADDR in PostgreSQL) |
 
-**Example:**
+<a id="spatial-types"></a>
+### Spatial Types
+
+`geometry()`, `point()`, `linestring()`, `polygon()`, `geometrycollection()`, `multipoint()`,
+`multilinestring()` and `multipolygon()` map to the native spatial types on MySQL, to PostGIS
+`GEOMETRY(...)` on PostgreSQL, to `GEOMETRY` on SQL Server and to TEXT on SQLite:
 
 ```php
-Schema::create('users', function ($table) {
-    $table->uuid('id')->primary();
-    $table->string('name');
-    $table->enum('role', ['admin', 'moderator', 'user'])->defaults('user');
-    $table->ipaddress('last_login_ip')->nullable();
-});
+$table->point('location');
 ```
 
 <a id="column-modifiers"></a>
 ## Column Modifiers
 
-Column modifiers can be chained after column definition:
+Chain modifiers after a column definition:
 
 | Modifier | Description |
 |----------|-------------|
 | `->nullable()` | Allow NULL values |
-| `->defaults($value)` | Set default value |
-| `->unsigned()` | Set INTEGER to UNSIGNED |
-| `->unique()` | Add unique index |
-| `->primary()` | Set as primary key |
-| `->index()` | Add basic index |
-
-**Example:**
-
-```php
-Schema::create('users', function ($table) {
-    $table->increments('id');
-    $table->string('email')->unique();
-    $table->string('name')->nullable();
-    $table->integer('age')->unsigned()->nullable();
-    $table->boolean('is_active')->defaults(1);
-    $table->string('status')->defaults('pending')->index();
-    $table->timestamps();
-});
-```
-
-**Chaining multiple modifiers:**
+| `->defaults($value)` | Set the default value |
+| `->unsigned()` | Make an integer UNSIGNED |
+| `->unique()` | Add a unique index (an optional argument names it) |
+| `->index()` | Add a basic index (an optional argument names it) |
+| `->primary()` | Make it the primary key |
+| `->comment($text)` | Column comment (MySQL and PostgreSQL; ignored by SQLite, throws on SQL Server) |
+| `->after($column)` | Place the new column after another one (MySQL only) |
+| `->first()` | Place the new column first (MySQL only) |
+| `->using($expression)` | `USING` expression that converts the old values when `change()` alters the type (PostgreSQL only) |
+| `->change()` | Alter an existing column instead of adding it (see [Changing Columns](#changing-columns)) |
 
 ```php
 $table->integer('votes')->unsigned()->defaults(0)->index();
 $table->string('slug')->unique()->nullable();
+$table->enum('role', ['admin', 'user'])->defaults('user');
 ```
 
 <a id="adding-columns"></a>
 ## Adding Columns
 
-To add columns to an existing table, use `Schema::table()`:
+`Schema::table()` alters an existing table. Columns defined in it are added:
 
 ```php
 Schema::table('users', function ($table) {
     $table->string('phone')->nullable();
-    $table->text('bio')->nullable();
-});
-```
-
-**Adding columns with index:**
-
-```php
-Schema::table('users', function ($table) {
-    $table->string('username')->unique();
-    $table->integer('votes')->defaults(0)->index();
-});
-```
-
-**Adding columns after a specific column:**
-
-```php
-Schema::table('users', function ($table) {
     $table->string('middle_name')->nullable()->after('first_name');
+    $table->rename_column('bio', 'about');
 });
 ```
+
+<a id="changing-columns"></a>
+## Changing Columns
+
+Inside `Schema::table()`, end a column with `->change()` to alter the existing column instead of
+adding a new one. Give the full new definition: modifiers that are left out are removed.
+
+```php
+Schema::table('users', function ($table) {
+    $table->string('name', 100)->nullable()->change();
+    $table->integer('votes')->defaults(0)->change();
+});
+```
+
+| Driver | Generated SQL |
+|--------|---------------|
+| MySQL | `ALTER TABLE ... MODIFY col <full definition>` |
+| PostgreSQL | `ALTER COLUMN col TYPE <type> USING col::<type>`, plus `SET/DROP NOT NULL` and `SET/DROP DEFAULT` |
+| SQL Server | Drops the column's existing default constraint, then `ALTER COLUMN col <type> [NOT] NULL`; a default is added with `ADD DEFAULT ... FOR col` |
+| SQLite | Not supported, throws an `Exception` |
+
+On PostgreSQL the `USING col::<type>` cast converts the existing values. When a plain cast is not
+enough, give your own expression with `->using()`:
+
+```php
+Schema::table('users', function ($table) {
+    $table->integer('code')->using('trim("code")::integer')->change();
+});
+```
+
+> Auto-increment columns keep their primary key, PostgreSQL sequence and SQL Server `IDENTITY`
+> (which cannot be altered).
 
 <a id="deleting-columns"></a>
 ## Deleting Columns
 
-**Deleting a single column:**
-
 ```php
 Schema::table('users', function ($table) {
     $table->drop_column('phone');
+    $table->drop_column(['bio', 'avatar']);
+    $table->drop_column_if_exists('nickname');
 });
 ```
 
-**Deleting multiple columns:**
-
-```php
-Schema::table('users', function ($table) {
-    $table->drop_column(['phone', 'bio', 'avatar']);
-});
-```
-
-**Deleting only when the column is there:**
-
-```php
-Schema::table('users', function ($table) {
-    $table->drop_column_if_exists('phone');
-});
-```
-
-> On SQLite, deleting a column needs SQLite 3.35.0 or newer, and renaming one
-> needs SQLite 3.25.0 or newer. Older libraries throw instead of doing nothing.
-> MySQL has no `IF EXISTS` for columns and indexes, so the `_if_exists` methods
-> look the name up in `information_schema` first and skip the statement when it
-> is not there.
+> On SQLite, dropping a column needs SQLite 3.35.0+ and renaming one needs 3.25.0+; older
+> versions throw. MySQL has no `IF EXISTS` for columns and indexes, so the `_if_exists` methods
+> check `information_schema` first and skip the statement when the name is not there.
 
 <a id="indexes"></a>
 ## Indexes
@@ -395,66 +248,31 @@ Schema::table('users', function ($table) {
 <a id="adding-index"></a>
 ### Adding Index
 
-**Primary Key:**
+Each method takes a column or an array of columns (for a composite index), plus an optional
+index name:
 
 ```php
 Schema::table('users', function ($table) {
     $table->primary('id');
-
-    // Composite primary key
     $table->primary(['user_id', 'role_id']);
-});
-```
 
-**Unique Index:**
-
-```php
-Schema::table('users', function ($table) {
     $table->unique('email');
+    $table->unique(['first_name', 'last_name'], 'users_full_name_unique');
 
-    // Composite unique
-    $table->unique(['first_name', 'last_name']);
-
-    // With custom name
-    $table->unique('email', 'users_email_unique_idx');
-});
-```
-
-**Basic Index:**
-
-```php
-Schema::table('users', function ($table) {
-    $table->index('country');
-
-    // Composite index
     $table->index(['country', 'city']);
-
-    // With custom name
-    $table->index('email', 'idx_users_email');
-});
-```
-
-**Full-Text Index:**
-
-```php
-Schema::table('posts', function ($table) {
-    $table->fulltext('title');
-
-    // Multiple columns
     $table->fulltext(['title', 'content']);
+    $table->spatial_index('location');
 });
 ```
 
-Every driver handles a fulltext index in its own way:
+Fulltext indexes differ per driver:
 
 -   **MySQL** creates a regular `FULLTEXT` index.
--   **PostgreSQL** creates a GIN index on the `tsvector` of the columns, using the `english` text search
-    config unless another one is given. A query only uses the index when it repeats the same expression:
+-   **PostgreSQL** creates a GIN index on the `tsvector` of the columns, using the `english`
+    config unless `->language()` gives another. Queries must repeat the same expression to use it:
 
     ```php
-    Schema::table('posts', function ($table) {
-        $table->fulltext(['title', 'content'])->language('simple');
-    });
+    $table->fulltext(['title', 'content'])->language('simple');
 
     // CREATE INDEX posts_title_content_fulltext ON "posts" USING gin((
     //     to_tsvector('simple', coalesce("title", '')) || to_tsvector('simple', coalesce("content", ''))
@@ -468,79 +286,40 @@ Every driver handles a fulltext index in its own way:
         ->get();
     ```
 
--   **SQLite** has no fulltext index on a regular table, so a separate FTS4 table named after the index
-    (for example `posts_title_content_fulltext`) is created. It is not kept in sync with the `posts`
-    table, your application has to fill it.
--   **SQL Server** allows a single fulltext index per table. It is stored in a fulltext catalog named
-    after the index, and keyed on the primary key of the table. Both can be given explicitly, which is
-    needed for a table without a primary key:
+-   **SQLite** has no fulltext index on regular tables, so a separate FTS4 table named after the
+    index (e.g. `posts_title_content_fulltext`) is created. It is not kept in sync; your application
+    has to fill it.
+-   **SQL Server** allows one fulltext index per table, stored in a catalog named after the index
+    and keyed on the table's primary key. Give both explicitly for a table without a primary key:
 
     ```php
     $table->fulltext(['title', 'content'])->catalog('site_catalog')->key('posts_slug_unique');
     ```
 
-    Dropping the index also drops its catalog, unless the catalog is still used by another table. A
-    catalog given explicitly has to be given on the drop as well:
+    Dropping the index also drops its catalog unless another table still uses it. An explicit
+    catalog must be repeated on the drop:
+    `$table->drop_fulltext('posts_title_content_fulltext')->catalog('site_catalog');`
 
-    ```php
-    $table->drop_fulltext('posts_title_content_fulltext')->catalog('site_catalog');
-    ```
-
-**Index when creating columns:**
-
-```php
-Schema::create('users', function ($table) {
-    $table->increments('id');
-    $table->string('email')->unique();
-    $table->string('username')->index();
-    $table->string('country')->index();
-});
-```
+Spatial indexes use `SPATIAL INDEX` on MySQL and SQL Server and `gist` on PostgreSQL; SQLite does
+not support them and throws.
 
 <a id="deleting-index"></a>
 ### Deleting Index
 
-**Naming convention for indexes:**
-
-Format: `{table}_{column}_{type}`
-
-Examples:
-- Primary: `users_id_primary`
-- Unique: `users_email_unique`
-- Index: `posts_title_index`
-- Fulltext: `posts_content_fulltext`
-
-**Drop primary key:**
+Drop an index by name. Default names follow `{table}_{columns}_{type}`, for example
+`users_email_unique` or `posts_title_content_fulltext`:
 
 ```php
 Schema::table('users', function ($table) {
-    $table->drop_primary('users_id_primary');
-});
-```
-
-**Drop unique index:**
-
-```php
-Schema::table('users', function ($table) {
+    $table->drop_primary();               // the name is optional
     $table->drop_unique('users_email_unique');
-});
-```
-
-**Drop basic index:**
-
-```php
-Schema::table('users', function ($table) {
     $table->drop_index('users_country_index');
+    $table->drop_fulltext('users_bio_fulltext');
 });
 ```
 
-**Drop fulltext index:**
-
-```php
-Schema::table('posts', function ($table) {
-    $table->drop_fulltext('posts_title_fulltext');
-});
-```
+`drop_unique_if_exists()`, `drop_index_if_exists()` and `drop_fulltext_if_exists()` skip indexes
+that do not exist.
 
 <a id="foreign-keys"></a>
 ## Foreign Keys
@@ -548,25 +327,11 @@ Schema::table('posts', function ($table) {
 <a id="adding-foreign-key"></a>
 ### Adding Foreign Key
 
-**Basic foreign key:**
-
 ```php
 Schema::create('posts', function ($table) {
     $table->increments('id');
     $table->integer('user_id')->unsigned();
-    $table->string('title');
 
-    // Foreign key
-    $table->foreign('user_id')
-          ->references('id')
-          ->on('users');
-});
-```
-
-**With ON DELETE and ON UPDATE:**
-
-```php
-Schema::table('posts', function ($table) {
     $table->foreign('user_id')
           ->references('id')
           ->on('users')
@@ -575,256 +340,91 @@ Schema::table('posts', function ($table) {
 });
 ```
 
-**ON DELETE options:**
-- `cascade` - Delete child records when parent is deleted
-- `restrict` - Prevent deletion of parent if children exist
-- `set null` - Set foreign key to NULL when parent is deleted
-- `no action` - Same as restrict
-
-**ON UPDATE options:**
-- `cascade` - Update child records when parent is updated
-- `restrict` - Prevent update of parent if children exist
-- `set null` - Set foreign key to NULL when parent is updated
-- `no action` - Same as restrict
-
-**Complete example:**
-
-```php
-Schema::create('comments', function ($table) {
-    $table->increments('id');
-    $table->integer('post_id')->unsigned();
-    $table->integer('user_id')->unsigned();
-    $table->text('content');
-    $table->timestamps();
-
-    // Foreign keys
-    $table->foreign('post_id')
-          ->references('id')
-          ->on('posts')
-          ->on_delete('cascade');
-
-    $table->foreign('user_id')
-          ->references('id')
-          ->on('users')
-          ->on_delete('cascade');
-});
-```
-
-**Custom foreign key name:**
-
-```php
-$table->foreign('user_id', 'fk_comments_user')
-      ->references('id')
-      ->on('users');
-```
+`on_delete()` and `on_update()` accept `cascade`, `restrict`, `set null` and `no action`. Pass a
+second argument to `foreign()` to name the constraint: `$table->foreign('user_id', 'fk_posts_user')`.
 
 <a id="deleting-foreign-key"></a>
 ### Deleting Foreign Key
 
-**Naming convention:**
-
-Format: `{table}_{column}_foreign`
-
-Example: `posts_user_id_foreign`
+The default name is `{table}_{column}_foreign`:
 
 ```php
 Schema::table('posts', function ($table) {
     $table->drop_foreign('posts_user_id_foreign');
+    // or: $table->drop_foreign_if_exists('posts_user_id_foreign');
 });
 ```
 
-> SQLite cannot add or drop a foreign key on a table that already exists. A
-> foreign key declared inside `Schema::create()` is written into the CREATE
-> TABLE statement, but `foreign()` and `drop_foreign()` on an existing table
-> throw. Recreate the table instead. The same goes for `primary()` and
-> `drop_primary()`.
+> SQLite cannot add or drop a foreign key or primary key on an existing table. Keys declared inside
+> `Schema::create()` work, but `foreign()`, `drop_foreign()`, `primary()` and `drop_primary()` in
+> `Schema::table()` throw. Recreate the table instead.
 
 <a id="enabledisable-foreign-key-checks"></a>
 ### Enable/Disable Foreign Key Checks
 
-Useful when seeding or truncating tables:
+Useful when seeding or truncating:
 
 ```php
-// Disable
 Schema::disable_fk_checks('posts');
-
-// Truncate or other operations
 DB::table('posts')->delete();
-
-// Enable back
 Schema::enable_fk_checks('posts');
 ```
 
 <a id="table-options"></a>
 ## Table Options
 
-**Set storage engine (MySQL):**
+MySQL table options are set inside the closure:
 
 ```php
 Schema::create('users', function ($table) {
-    $table->engine = 'InnoDB';
-
-    $table->increments('id');
-    $table->string('name');
-});
-```
-
-**Set charset (MySQL):**
-
-```php
-Schema::create('users', function ($table) {
-    $table->charset('utf8mb4');
-
-    $table->increments('id');
-    $table->string('name');
-});
-```
-
-**Set collation (MySQL):**
-
-```php
-Schema::create('users', function ($table) {
-    $table->collate('utf8mb4_unicode_ci');
-
-    $table->increments('id');
-    $table->string('name');
-});
-```
-
-**Combination:**
-
-```php
-Schema::create('users', function ($table) {
-    $table->engine = 'InnoDB';
+    $table->engine = 'InnoDB';           // or $table->engine('InnoDB')
     $table->charset('utf8mb4');
     $table->collate('utf8mb4_unicode_ci');
 
     $table->increments('id');
-    $table->string('name');
-    $table->timestamps();
 });
 ```
 
 <a id="database-connections"></a>
 ## Database Connections
 
-**Specify the connection to use:**
+Schema operations use the default connection. Pick another one inside the closure, or pass it as
+the last argument of any `Schema` method:
 
 ```php
 Schema::create('users', function ($table) {
     $table->connection('mysql');
-
     $table->increments('id');
-    $table->string('name');
 });
-```
-
-**Or as the last argument:**
-
-```php
-Schema::create('users', function ($table) {
-    $table->increments('id');
-}, 'mysql');
 
 Schema::table('users', function ($table) {
     $table->string('phone')->nullable();
 }, 'mysql');
 
-Schema::rename('users', 'members', 'mysql');
 Schema::drop('users', 'mysql');
 ```
 
-**Listing with specific connection:**
+> Pass table names without the connection's `prefix`: `create()`, `drop()`, `has_table()`,
+> `has_column()` and `columns()` add it themselves. `tables()` is the exception; it lists names as
+> stored, prefix included.
 
-```php
-$tables = Schema::tables('pgsql');
-$columns = Schema::columns('users', 'sqlite');
-```
-
-> Pass the table name without its prefix. `has_table()`, `has_column()` and
-> `columns()` prepend the `prefix` of the connection themselves, the same way
-> `create()` and `drop()` do. `tables()` is the exception: it lists the names as
-> the server stores them, prefix included.
-
+<a id="complete-example"></a>
 <a id="complete-examples"></a>
-## Complete Examples
-
-**Creating users table with relations:**
-
-```php
-Schema::create('users', function ($table) {
-    $table->engine = 'InnoDB';
-    $table->charset('utf8mb4');
-
-    $table->increments('id');
-    $table->string('name', 100);
-    $table->string('email', 255)->unique();
-    $table->string('password', 255);
-    $table->string('phone', 20)->nullable()->index();
-    $table->enum('role', ['admin', 'user'])->defaults('user');
-    $table->boolean('is_active')->defaults(1);
-    $table->timestamp('email_verified_at')->nullable();
-    $table->timestamps();
-    $table->timestamp('deleted_at')->nullable();
-
-    $table->index(['role', 'is_active']);
-});
-```
-
-**Creating table with foreign key:**
+## Complete Example
 
 ```php
 Schema::create('posts', function ($table) {
-    $table->engine = 'InnoDB';
-
     $table->increments('id');
     $table->integer('user_id')->unsigned();
-    $table->integer('category_id')->unsigned()->nullable();
     $table->string('title', 255);
     $table->string('slug', 255)->unique();
-    $table->text('excerpt')->nullable();
     $table->longtext('content');
-    $table->enum('status', ['draft', 'published', 'archived'])->defaults('draft');
+    $table->enum('status', ['draft', 'published'])->defaults('draft');
     $table->integer('views')->unsigned()->defaults(0);
     $table->timestamps();
+    $table->soft_deletes();
 
-    $table->foreign('user_id')
-          ->references('id')
-          ->on('users')
-          ->on_delete('cascade');
-
-    $table->foreign('category_id')
-          ->references('id')
-          ->on('categories')
-          ->on_delete('set null');
-
-    $table->index('status');
+    $table->foreign('user_id')->references('id')->on('users')->on_delete('cascade');
     $table->index(['status', 'created_at']);
-    $table->fulltext(['title', 'content']);
-});
-```
-
-**Pivot table for many-to-many:**
-
-```php
-Schema::create('role_user', function ($table) {
-    $table->engine = 'InnoDB';
-
-    $table->increments('id');
-    $table->integer('user_id')->unsigned();
-    $table->integer('role_id')->unsigned();
-    $table->timestamps();
-
-    $table->foreign('user_id')
-          ->references('id')
-          ->on('users')
-          ->on_delete('cascade');
-
-    $table->foreign('role_id')
-          ->references('id')
-          ->on('roles')
-          ->on_delete('cascade');
-
-    $table->unique(['user_id', 'role_id']);
 });
 ```

@@ -205,6 +205,161 @@ class FacileSoftDeleteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, count(NormalModel::all()));
         $this->assertNull(Database::table('normal_models')->where('id', '=', $model->id)->first());
     }
+
+    /**
+     * A bulk delete on a soft deleting model must only stamp deleted_at.
+     *
+     * @group system
+     */
+    public function testBulkDeleteSoftDeletes()
+    {
+        SoftDeleteModel::create(['name' => 'a']);
+        SoftDeleteModel::create(['name' => 'b']);
+        SoftDeleteModel::create(['name' => 'keep']);
+
+        $affected = SoftDeleteModel::where('name', '!=', 'keep')->delete();
+
+        $this->assertEquals(2, $affected);
+        $this->assertEquals(1, count(SoftDeleteModel::all()));
+        $this->assertEquals(3, Database::table('soft_delete_models')->count());
+        $this->assertEquals(2, Database::table('soft_delete_models')->where_not_null('deleted_at')->count());
+    }
+
+    /**
+     * Bulk deleting with_trashed() rows still soft deletes them.
+     *
+     * @group system
+     */
+    public function testBulkDeleteWithTrashedStillSoftDeletes()
+    {
+        SoftDeleteModel::create(['name' => 'a']);
+        SoftDeleteModel::with_trashed()->where('name', '=', 'a')->delete();
+
+        $this->assertEquals(1, Database::table('soft_delete_models')->count());
+        $this->assertEquals(0, count(SoftDeleteModel::all()));
+    }
+
+    /**
+     * force_delete() on the query removes the rows for good, trashed ones included.
+     *
+     * @group system
+     */
+    public function testBulkForceDeleteRemovesRows()
+    {
+        SoftDeleteModel::create(['name' => 'a']);
+        $trashed = SoftDeleteModel::create(['name' => 'b']);
+        $trashed->delete();
+
+        $this->assertEquals(2, SoftDeleteModel::with_trashed()->force_delete());
+        $this->assertEquals(0, Database::table('soft_delete_models')->count());
+
+        NormalModel::create(['name' => 'c']);
+        $this->assertEquals(1, NormalModel::where('name', '=', 'c')->force_delete());
+    }
+
+    /**
+     * A bulk delete on a normal model is a hard delete.
+     *
+     * @group system
+     */
+    public function testBulkDeleteOnNormalModelIsHard()
+    {
+        NormalModel::create(['name' => 'a']);
+        NormalModel::where('name', '=', 'a')->delete();
+
+        $this->assertEquals(0, Database::table('normal_models')->count());
+    }
+
+    /**
+     * A bulk update stamps updated_at, unless the caller passed one.
+     *
+     * @group system
+     */
+    public function testBulkUpdateStampsUpdatedAt()
+    {
+        $model = NormalModel::create(['name' => 'a']);
+        Database::table('normal_models')->update(['updated_at' => '2000-01-01 00:00:00']);
+
+        NormalModel::where('id', '=', $model->id)->update(['name' => 'b']);
+        $row = Database::table('normal_models')->where('id', '=', $model->id)->first();
+        $this->assertEquals('b', $row->name);
+        $this->assertNotEquals('2000-01-01 00:00:00', $row->updated_at);
+
+        NormalModel::where('id', '=', $model->id)->update(['updated_at' => '2001-01-01 00:00:00']);
+        $row = Database::table('normal_models')->where('id', '=', $model->id)->first();
+        $this->assertEquals('2001-01-01 00:00:00', $row->updated_at);
+    }
+
+    /**
+     * Bulk increment() / decrement() stamp updated_at and keep the extra values.
+     *
+     * @group system
+     */
+    public function testBulkIncrementStampsUpdatedAt()
+    {
+        $model = NormalModel::create(['name' => '1']);
+        Database::table('normal_models')->update(['updated_at' => '2000-01-01 00:00:00']);
+
+        NormalModel::where('id', '=', $model->id)->increment('id', 0, ['name' => 'x']);
+        $row = Database::table('normal_models')->first();
+        $this->assertEquals('x', $row->name);
+        $this->assertNotEquals('2000-01-01 00:00:00', $row->updated_at);
+
+        NormalModel::where('id', '=', $model->id)->decrement('id', 0, ['updated_at' => '2001-01-01 00:00:00']);
+        $this->assertEquals('2001-01-01 00:00:00', Database::table('normal_models')->first()->updated_at);
+    }
+
+    /**
+     * A bulk update / soft delete on a joined query stamps the model table's columns,
+     * qualified so they are not ambiguous with the joined table.
+     *
+     * @group system
+     */
+    public function testJoinedBulkUpdateStampsQualifiedColumns()
+    {
+        NormalModel::create(['name' => 'a']);
+        NormalModel::create(['name' => 'b']);
+        SoftDeleteModel::create(['name' => 'a']);
+        SoftDeleteModel::create(['name' => 'b']);
+        Database::table('normal_models')->update(['updated_at' => '2000-01-01 00:00:00']);
+        Database::table('soft_delete_models')->update(['updated_at' => '2000-01-01 00:00:00']);
+
+        $query = NormalModel::join('soft_delete_models', 'soft_delete_models.name', '=', 'normal_models.name')
+            ->where('soft_delete_models.name', '=', 'a');
+        $stamp = new \ReflectionMethod($query, 'stamp');
+        PHP_VERSION_ID < 80100 && $stamp->setAccessible(true);
+        $this->assertEquals(['normal_models.updated_at'], array_keys($stamp->invoke($query, [])));
+        $this->assertEquals(['updated_at'], array_keys($stamp->invoke(NormalModel::where('id', '=', 1), [])));
+        $this->assertEquals(1, $query->update(['normal_models.name' => 'z']));
+
+        $rows = Database::table('normal_models')->order_by('id')->get();
+        $this->assertEquals('z', $rows[0]->name);
+        $this->assertNotEquals('2000-01-01 00:00:00', $rows[0]->updated_at);
+        $this->assertEquals('2000-01-01 00:00:00', $rows[1]->updated_at);
+        $this->assertEquals(2, Database::table('soft_delete_models')->where('updated_at', '=', '2000-01-01 00:00:00')->count());
+
+        SoftDeleteModel::join('normal_models', 'normal_models.name', '=', 'soft_delete_models.name')
+            ->where('normal_models.name', '=', 'b')->delete();
+        $this->assertEquals(['a'], SoftDeleteModel::all()->pluck('name')->all());
+    }
+
+    /**
+     * Test the soft delete filter is qualified, so a joined table with its own deleted_at is not ambiguous.
+     */
+    public function testSoftDeleteFilterIsQualifiedOnJoins()
+    {
+        Database::query('CREATE TABLE soft_delete_tags (name VARCHAR(255), deleted_at DATETIME NULL)');
+        Database::table('soft_delete_tags')->insert(['name' => 'a', 'deleted_at' => null]);
+        SoftDeleteModel::create(['name' => 'a']);
+        SoftDeleteModel::find(SoftDeleteModel::create(['name' => 'a'])->id)->delete();
+
+        $joined = SoftDeleteModel::join('soft_delete_tags', 'soft_delete_tags.name', '=', 'soft_delete_models.name');
+        $this->assertEquals(1, $joined->count());
+        $this->assertEquals(1, SoftDeleteModel::only_trashed()
+            ->join('soft_delete_tags', 'soft_delete_tags.name', '=', 'soft_delete_models.name')->count());
+
+        Database::query('DROP TABLE soft_delete_tags');
+    }
 }
 
 /**

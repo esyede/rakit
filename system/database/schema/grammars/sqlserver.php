@@ -42,23 +42,65 @@ class SQLServer extends Grammar
     {
         $columns = implode(', ', array_map(function ($column) {
             return 'ADD '.$column;
-        }, $this->columns($table)));
+        }, $this->columns($table, $this->changed($table, false))));
 
         return 'ALTER TABLE '.$this->wrap($table).' '.$columns;
+    }
+
+    /**
+     * Create the sql syntax for changing existing columns of a table.
+     * An existing default constraint is left alone: drop it first to set a new default.
+     * IDENTITY cannot be altered, so an incrementing column keeps the one it has.
+     *
+     * @param Table $table
+     * @param Magic $command
+     *
+     * @return array
+     */
+    public function change(Table $table, Magic $command)
+    {
+        $name = $this->wrap($table);
+        $changed = $this->changed($table);
+        $columns = [];
+
+        foreach ($changed as $column) {
+            $columns[] = "N'".$this->quote($column->name)."'";
+        }
+
+        // ALTER COLUMN fails while a default constraint is bound to the column, and the
+        // server names those constraints itself, so look them up and drop them first.
+        $sql = empty($columns) ? [] : ["DECLARE @sql NVARCHAR(MAX) = N''; "
+            ."SELECT @sql += N'ALTER TABLE ".$this->quote($name)." DROP CONSTRAINT ' + QUOTENAME(OBJECT_NAME([default_object_id])) + N';' "
+            ."FROM sys.columns WHERE [object_id] = OBJECT_ID(N'".$this->quote($name)."') "
+            .'AND [name] IN ('.implode(', ', $columns).') AND [default_object_id] <> 0; '
+            .'EXEC(@sql)'];
+
+        foreach ($changed as $column) {
+            $sql[] = 'ALTER TABLE '.$name.' ALTER COLUMN '.$this->wrap($column).' '.$this->type($column)
+                .$this->collate($table, $column).$this->nullable($table, $column);
+            $default = $this->defaults($table, $column);
+
+            if ($default) {
+                $sql[] = 'ALTER TABLE '.$name.' ADD'.$default.' FOR '.$this->wrap($column);
+            }
+        }
+
+        return $sql;
     }
 
     /**
      * Create the column definitions for a table.
      *
      * @param Table $table
+     * @param array|null $only
      *
      * @return array
      */
-    protected function columns(Table $table)
+    protected function columns(Table $table, $only = null)
     {
         $columns = [];
 
-        foreach ($table->columns as $column) {
+        foreach ((is_null($only) ? $table->columns : $only) as $column) {
             $sql = $this->wrap($column).' '.$this->type($column);
             $sql .= $this->unsigned($table, $column);
             $sql .= $this->collate($table, $column);
