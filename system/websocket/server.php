@@ -86,7 +86,7 @@ class Server
     public function __construct($address)
     {
         $this->config = Config::get('websocket');
-.
+
         if (! isset($this->config['max_payload_size'])) {
             $this->config['max_payload_size'] = 10485760;
         }
