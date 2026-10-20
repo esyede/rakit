@@ -68,6 +68,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Retry After
+    |--------------------------------------------------------------------------
+    | Seconds a worker holds a job it took. Another worker runs the job only
+    | after that, so a job whose worker died is not lost. Keep it longer than
+    | your slowest job, or a job still running could start a second time.
+    |
+    */
+
+    'retry_after' => 90,
+
+    /*
+    |--------------------------------------------------------------------------
     | Logging
     |--------------------------------------------------------------------------
     | Log every job execution to the Rakit log file?

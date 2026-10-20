@@ -379,6 +379,14 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **Several job workers ran the same job.** No driver claimed a job before
+    running it, and a batch was removed only once it all finished: three workers
+    on one queue ran each of 200 jobs three times, and a crash mid-batch ran the
+    finished jobs again. Each job is now claimed atomically (a conditional UPDATE,
+    a rename, `SET NX`, memcached `add`) and removed as soon as it finishes. A
+    claim lasts the new `job.retry_after` (90 seconds), so the job of a worker
+    that died runs again instead of being lost. No schema change.
+
 -   **`php rakit test:run` failed every application test on PHP 8.4+**, even
     `assertTrue(true)`: PHPUnit 4.x turned its own deprecation warnings into test
     errors. The application test bootstrap now mutes vendor deprecations and
@@ -456,6 +464,11 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Long-running job worker and failed jobs.** `php rakit job:work` keeps running
+    due jobs (`--idle`, `--max-jobs`, `--max-time`, `--memory`; `SIGTERM` lets the
+    current job finish). `job:failed` lists failed jobs and `job:retry <id>|all`
+    requeues them (file and database drivers). A job class may set `public static
+    $tries` and `$backoff`.
 -   **HTTP tests.** The `System\Testing\Http` trait sends requests through the
     full lifecycle: `get()`, `post()`, `put()`, `patch()`, `delete()`, `json()`,
     `call()`, `with_headers()`, `with_cookies()`, `acting_as()` and

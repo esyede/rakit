@@ -17,6 +17,20 @@ abstract class Jobable
     protected $data = [];
 
     /**
+     * Attempts before the job is stored as failed; NULL for the configured retries.
+     *
+     * @var int|null
+     */
+    public static $tries;
+
+    /**
+     * Seconds to wait between attempts; NULL for the configured sleep.
+     *
+     * @var int|null
+     */
+    public static $backoff;
+
+    /**
      * Constructor.
      *
      * @param array $data

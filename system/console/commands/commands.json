@@ -27,6 +27,18 @@
         "job:runall": {
             "description": "Run all jobs.",
             "command": "php rakit job:runall"
+        },
+        "job:work": {
+            "description": "Keep running jobs until stopped (--queue= --retries= --sleep= --idle= --max-jobs= --max-time= --memory=).",
+            "command": "php rakit job:work --queue=default --max-time=3600"
+        },
+        "job:failed": {
+            "description": "List the failed jobs.",
+            "command": "php rakit job:failed"
+        },
+        "job:retry": {
+            "description": "Put a failed job back on its queue, or all of them.",
+            "command": "php rakit job:retry all"
         }
     },
     "schedule": {

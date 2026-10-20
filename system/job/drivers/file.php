@@ -83,7 +83,8 @@ class File extends Driver
     public function has_overlapping($name, $queue = 'default')
     {
         $name = Str::slug($name);
-        $files = glob($this->path.$name.'__*.job.php');
+        // Running jobs too: a claimed file is renamed, '...job.php.<expiry>.reserved.php'.
+        $files = glob($this->path.$name.'__*.job.php*');
 
         if (empty($files)) {
             return false;
@@ -116,7 +117,7 @@ class File extends Driver
     public function forget($name, $queue = null)
     {
         $name = Str::slug($name);
-        $pattern = $this->path.$name.'__*'.'.job.php';
+        $pattern = $this->path.$name.'__*'.'.job.php*';
         $files = glob($pattern);
 
         foreach ($files as $file) {
@@ -147,8 +148,10 @@ class File extends Driver
      */
     public function run($name, $retries = 1, $sleep_ms = 0, $queue = null)
     {
-        $config = Config::get('job');
         $name = Str::slug($name);
+        $this->processed = 0;
+        $this->recover();
+
         $files = glob($this->path.$name.'__*'.'.job.php');
 
         if (empty($files)) {
@@ -156,90 +159,8 @@ class File extends Driver
             return false;
         }
 
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-        $successful = [];
-        $failed = [];
-        $processed = 0;
-
-        foreach ($files as $file) {
-            if ($processed >= $config['max_job']) {
-                break;
-            }
-
-            $data = unserialize(static::unguard(Storage::get($file)));
-
-            if ($queue && isset($data['queue']) && $data['queue'] !== $queue) {
-                continue;
-            }
-
-            if (Carbon::parse($data['scheduled_at'])->lte(Carbon::now())) {
-                $processed++;
-                $attempts = 0;
-                $success = false;
-
-                while ($attempts < $retries && ! $success) {
-                    $attempts++;
-
-                    try {
-                        Hook::fire('rakit.jobs.process', [$data]);
-                        $successful[] = $file;
-                        $this->log(sprintf(
-                            'Job executed: %s - #%s (attempt %d)',
-                            $data['name'],
-                            $data['id'],
-                            $attempts
-                        ));
-                        $success = true;
-                    } catch (\Throwable $e) {
-                        if ($attempts >= $retries) {
-                            $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                        } else {
-                            $this->log(sprintf(
-                                'Job retry: %s - #%s (attempt %d)',
-                                $data['name'],
-                                $data['id'],
-                                $attempts
-                            ));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        if ($attempts >= $retries) {
-                            $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                        } else {
-                            $this->log(sprintf(
-                                'Job retry: %s - #%s (attempt %d)',
-                                $data['name'],
-                                $data['id'],
-                                $attempts
-                            ));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (! empty($successful)) {
-            foreach ($successful as $file) {
-                Storage::delete($file);
-            }
-        }
-
-        if (! empty($failed)) {
-            foreach ($failed as $job) {
-                $this->move_to_failed($job['data'], $job['exception']);
-                Storage::delete($job['file']);
-            }
-        }
+        list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+        $this->work($this->due($files, $queue ? [$queue] : null), $retries, $sleep_ms);
 
         return true;
     }
@@ -255,11 +176,11 @@ class File extends Driver
      */
     public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
-        $config = Config::get('job');
-        $files = glob($this->path.'*.job.php');
+        $this->processed = 0;
+        $this->recover();
 
         // Exclude failed jobs
-        $files = array_filter($files, function ($file) {
+        $files = array_filter((array) glob($this->path.'*.job.php'), function ($file) {
             return strpos(basename($file), 'failed__') !== 0;
         });
 
@@ -268,94 +189,167 @@ class File extends Driver
             return false;
         }
 
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-        $successful = [];
-        $failed = [];
-        $processed = 0;
+        list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+        $this->work($this->due($files, (is_array($queues) && ! empty($queues)) ? $queues : null), $retries, $sleep_ms);
+
+        return true;
+    }
+
+    /**
+     * Get the jobs that are due, on the given queues, up to the configured maximum.
+     *
+     * @param array      $files
+     * @param array|null $queues
+     *
+     * @return array
+     */
+    protected function due(array $files, $queues)
+    {
+        $max = (int) Config::get('job.max_job');
+        $jobs = [];
 
         foreach ($files as $file) {
-            if ($processed >= $config['max_job']) {
+            if (count($jobs) >= $max) {
                 break;
             }
 
-            $data = unserialize(static::unguard(Storage::get($file)));
+            $content = @file_get_contents($file);
 
-            if ($queues && is_array($queues) && ! empty($queues)) {
-                if (! isset($data['queue']) || ! in_array($data['queue'], $queues)) {
-                    continue;
-                }
+            if (false === $content) {
+                continue; // Claimed by another worker meanwhile.
+            }
+
+            $data = unserialize(static::unguard($content));
+
+            if (! is_array($data)) {
+                continue;
+            }
+
+            if ($queues && (! isset($data['queue']) || ! in_array($data['queue'], $queues))) {
+                continue;
             }
 
             if (Carbon::parse($data['scheduled_at'])->lte(Carbon::now())) {
-                $processed++;
-                $attempts = 0;
-                $success = false;
-
-                while ($attempts < $retries && ! $success) {
-                    $attempts++;
-
-                    try {
-                        Hook::fire('rakit.jobs.process', [$data]);
-                        $successful[] = $file;
-                        $this->log(sprintf(
-                            'Job executed: %s - #%s (attempt %d)',
-                            $data['name'],
-                            $data['id'],
-                            $attempts
-                        ));
-                        $success = true;
-                    } catch (\Throwable $e) {
-                        if ($attempts >= $retries) {
-                            $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                        } else {
-                            $this->log(sprintf(
-                                'Job retry: %s - #%s (attempt %d)',
-                                $data['name'],
-                                $data['id'],
-                                $attempts
-                            ));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        if ($attempts >= $retries) {
-                            $failed[] = ['file' => $file, 'data' => $data, 'exception' => $e];
-                            $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                        } else {
-                            $this->log(sprintf(
-                                'Job retry: %s - #%s (attempt %d)',
-                                $data['name'],
-                                $data['id'],
-                                $attempts
-                            ));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    }
-                }
+                $data['file'] = $file;
+                $jobs[] = $data;
             }
         }
 
-        if (! empty($successful)) {
-            foreach ($successful as $file) {
-                Storage::delete($file);
+        return $jobs;
+    }
+
+    /**
+     * Claim a job by renaming its file: rename() is atomic, so only one worker
+     * succeeds. The name carries the claim's expiry, for recover().
+     *
+     * @param array $job
+     *
+     * @return array|bool
+     */
+    protected function claim($job)
+    {
+        $reserved = $job['file'].'.'.(time() + $this->retry_after()).'.reserved.php';
+
+        if (! @rename($job['file'], $reserved)) {
+            return false;
+        }
+
+        $job['file'] = $reserved;
+        return $job;
+    }
+
+    /**
+     * Remove a job that succeeded.
+     *
+     * @param array $job
+     */
+    protected function complete($job)
+    {
+        Storage::delete($job['file']);
+    }
+
+    /**
+     * Store a job that ran out of attempts as failed, and remove it.
+     *
+     * @param array      $job
+     * @param \Throwable $e
+     */
+    protected function bury($job, $e)
+    {
+        $file = $job['file'];
+        unset($job['file']);
+
+        $this->move_to_failed($job, $e);
+        Storage::delete($file);
+    }
+
+    /**
+     * Put back the jobs whose worker died before finishing them.
+     */
+    protected function recover()
+    {
+        foreach ((array) glob($this->path.'*.reserved.php') as $reserved) {
+            if (
+                preg_match('/^(.+\.job\.php)\.(\d+)\.reserved\.php$/', $reserved, $matches)
+                && (int) $matches[2] < time()
+            ) {
+                @rename($reserved, $matches[1]);
+            }
+        }
+    }
+
+    /**
+     * List the failed jobs.
+     *
+     * @return array
+     */
+    public function failures()
+    {
+        $failures = [];
+
+        foreach ((array) glob($this->path.'failed__*.job.php') as $file) {
+            $data = @unserialize(static::unguard((string) @file_get_contents($file)));
+
+            if (is_array($data)) {
+                $failures[] = [
+                    'id' => $data['id'],
+                    'name' => $data['name'],
+                    'queue' => $data['queue'],
+                    'failed_at' => isset($data['failed_at']) ? $data['failed_at'] : '',
+                    'exception' => isset($data['exception']) ? strtok((string) $data['exception'], LF) : '',
+                ];
             }
         }
 
-        if (! empty($failed)) {
-            foreach ($failed as $job) {
-                $this->move_to_failed($job['data'], $job['exception']);
-                Storage::delete($job['file']);
+        return $failures;
+    }
+
+    /**
+     * Put a failed job back on its queue, or every failed job with 'all'.
+     *
+     * @param string|int $id
+     *
+     * @return int
+     */
+    public function retry($id)
+    {
+        $pattern = ('all' === $id) ? 'failed__*.job.php' : 'failed__'.basename((string) $id).'.job.php';
+        $count = 0;
+
+        foreach ((array) glob($this->path.$pattern) as $file) {
+            $data = @unserialize(static::unguard((string) @file_get_contents($file)));
+
+            if (! is_array($data)) {
+                continue;
             }
+
+            $payloads = is_string($data['payloads']) ? @unserialize($data['payloads']) : $data['payloads'];
+            $this->add($data['name'], is_array($payloads) ? $payloads : [], null, $data['queue']);
+            Storage::delete($file);
+            ++$count;
         }
 
-        return true;
+        return $count;
     }
 
     /**

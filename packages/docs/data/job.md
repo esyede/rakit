@@ -11,6 +11,8 @@
     -   [Scheduled Jobs](#scheduled-jobs)
     -   [Choosing Driver](#choosing-driver)
 -   [Running Worker](#running-worker)
+    -   [Long-Running Worker](#long-running-worker)
+    -   [Several Workers](#several-workers)
 -   [Supervisor Configuration](#supervisor-configuration)
 -   [Removing Job from Queue](#removing-job-from-queue)
 -   [Failed Jobs](#failed-jobs)
@@ -40,6 +42,7 @@ return [
     'max_job' => 50,                  // Jobs processed per run
     'max_retries' => 1,               // Attempts before a job is marked as failed
     'sleep_ms' => 0,                  // Pause between attempts, in milliseconds
+    'retry_after' => 90,              // Seconds a worker holds a job it took
     'logging' => false,               // Log job activity
     'key' => 'rakit.job',             // Key prefix (redis and memcached drivers)
 ];
@@ -74,6 +77,20 @@ class Mailing_Job extends Jobable
 ```
 
 The job's name is the slug of its class name (`Mailing_Job` → `mailing-job`), available as `Mailing_Job::name()`. That name is what `job:run` and `Job::forget()` take.
+
+A job class can set its own attempts, and the seconds to wait between them, over the `max_retries` and `sleep_ms` config:
+
+```php
+class Mailing_Job extends Jobable
+{
+    public static $tries = 5;
+    public static $backoff = 10; // seconds
+
+    // ..
+}
+```
+
+The wait happens in the worker, which runs nothing else meanwhile, so keep `$backoff` short.
 
 <a id="dispatch-job"></a>
 
@@ -174,21 +191,54 @@ php rakit job:runall --queue=high,default --retries=3 --sleep=1000
 php rakit job:run mailing-job
 ```
 
+<a id="long-running-worker"></a>
+
+### Long-Running Worker
+
+`job:work` keeps running jobs as they become due, waiting `--idle` seconds when the queue is empty,
+instead of exiting after one batch. It takes the `job:runall` options, plus limits after which it
+exits, for the process manager to start a fresh one:
+
+```bash
+php rakit job:work --queue=high,default --max-time=3600
+```
+
+| Option        | Description                                      | Default |
+| ------------- | ------------------------------------------------ | ------- |
+| `--idle`      | Seconds to wait when no job is due               | `3`     |
+| `--max-jobs`  | Exit after this many jobs                        | no limit |
+| `--max-time`  | Exit after this many seconds                     | no limit |
+| `--memory`    | Exit once memory use reaches this many MB        | `128`   |
+
+With the `pcntl` extension, `SIGTERM` and `SIGINT` (`supervisorctl stop`, Ctrl+C) let the current
+job finish before the worker exits, so a deploy never cuts a job in half. Restart the workers on
+every deploy: a running worker keeps the code it started with. A limit such as `--max-time=3600`
+also renews long-lived database connections.
+
+<a id="several-workers"></a>
+
+### Several Workers
+
+Any number of workers can share a queue, on every driver. A worker claims each job before running
+it, so a job runs once even when several workers see it. The claim lasts `retry_after` seconds: if
+the worker dies, the job runs again after that instead of being lost. Keep `retry_after` longer
+than your slowest job, otherwise a job still running can be started a second time.
+
 <a id="supervisor-configuration"></a>
 
 ## Supervisor Configuration
 
-In production, let Supervisor keep workers running. Since `job:runall` exits after each batch, `autorestart` starts it again and `startsecs=0` keeps Supervisor from treating the quick exit as a failed start. Add one program per queue:
+In production, let Supervisor keep workers running. `job:work` exits only on a limit or a signal, and `autorestart` starts it again. (With `job:runall`, which exits after each batch, add `startsecs=0` so Supervisor does not treat the quick exit as a failed start.) Add one program per queue:
 
 ```ini
 ; /etc/supervisor/conf.d/rakit-worker.conf
 
 [program:rakit-high]
 process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/myapp/rakit job:runall --queue=high --retries=3
+command=php /var/www/myapp/rakit job:work --queue=high --retries=3 --max-time=3600
 autostart=true
 autorestart=true
-startsecs=0
+stopwaitsecs=120
 user=www-data
 numprocs=2
 redirect_stderr=true
@@ -196,10 +246,10 @@ stdout_logfile=/var/log/rakit-high.log
 
 [program:rakit-default]
 process_name=%(program_name)s_%(process_num)02d
-command=php /var/www/myapp/rakit job:runall --queue=default --retries=3
+command=php /var/www/myapp/rakit job:work --queue=default --retries=3 --max-time=3600
 autostart=true
 autorestart=true
-startsecs=0
+stopwaitsecs=120
 user=www-data
 numprocs=4
 redirect_stderr=true
@@ -249,6 +299,17 @@ Hook::listen('rakit.jobs.failed', function ($name, $payloads, $exception, $attem
 
 This one event covers every job. To react to a single job, listen to `rakit.jobs.run: [job_name]`.
 
+List the failed jobs, and put them back on their queue once the cause is fixed (file and database
+drivers):
+
+```bash
+php rakit job:failed
+php rakit job:retry 01M5BNT8696D6W2PDECYPV97CY
+php rakit job:retry all
+```
+
+The same is available as `Job::failures()` and `Job::retry($id)`.
+
 <a id="event-based-old-way"></a>
 
 ## Event-Based (Old Way)
@@ -273,7 +334,7 @@ To migrate, move the listener body into the `run()` method of a `Jobable` class 
 
 ## Custom Driver
 
-Register your own driver with `Job::extend()`. It should extend `System\Job\Drivers\Driver` and implement `add()`, `has_overlapping()`, `forget()`, `run()` and `runall()`:
+Register your own driver with `Job::extend()`. It should extend `System\Job\Drivers\Driver` and implement `add()`, `has_overlapping()`, `forget()`, `run()` and `runall()`. To reuse the built-in attempts and failure handling, have `run()` and `runall()` pass the due jobs to `$this->work()`, and implement `claim()`, `complete()` and `bury()`:
 
 ```php
 Job::extend('mydriver', function () {

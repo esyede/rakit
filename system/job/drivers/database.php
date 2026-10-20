@@ -136,6 +136,7 @@ class Database extends Driver
     {
         $config = Config::get('job');
         $name = Str::slug($name);
+        $this->processed = 0;
 
         if (empty($name)) {
             $this->log('Job is empty');
@@ -150,82 +151,13 @@ class Database extends Driver
             $query->where('queue', $queue);
         }
 
-        $jobs = $query->order_by('created_at', 'ASC')
-            ->take($config['max_job'])
-            ->get();
+        $jobs = $query->order_by('created_at', 'ASC')->take($config['max_job'])->get();
 
         if (count($jobs) < 1) {
             $this->log('Job is empty');
         } else {
-            $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-            $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-            $processed = [];
-
-            foreach ($jobs as $job) {
-                $attempts = 0;
-                $success = false;
-
-                while ($attempts < $retries && ! $success) {
-                    $attempts++;
-
-                    try {
-                        Hook::fire('rakit.jobs.process', [$job]);
-                        $processed[] = $job->id;
-                        $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
-                        $success = true;
-                    } catch (\Throwable $e) {
-                        if ($attempts >= $retries) {
-                            $error = get_class($e)
-                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
-                                .$e->getTraceAsString();
-                            DB::table($config['failed_table'])->insert([
-                                'job_id' => $job->id,
-                                'name' => $job->name,
-                                'queue' => $job->queue,
-                                'payloads' => $job->payloads,
-                                'exception' => $error,
-                                'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
-                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
-                            $processed[] = $job->id;
-                        } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        if ($attempts >= $retries) {
-                            $error = get_class($e)
-                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
-                                .$e->getTraceAsString();
-                            DB::table($config['failed_table'])->insert([
-                                'job_id' => $job->id,
-                                'name' => $job->name,
-                                'queue' => $job->queue,
-                                'payloads' => $job->payloads,
-                                'exception' => $error,
-                                'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
-                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
-                            $processed[] = $job->id;
-                        } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (! empty($processed)) {
-                DB::table($config['table'])->where_in('id', $processed)->delete();
-            }
+            list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+            $this->work($jobs, $retries, $sleep_ms);
         }
     }
 
@@ -241,6 +173,7 @@ class Database extends Driver
     public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
         $config = Config::get('job');
+        $this->processed = 0;
         $query = DB::table($config['table'])
             ->where('scheduled_at', '<=', Carbon::now()->format('Y-m-d H:i:s'));
 
@@ -248,82 +181,117 @@ class Database extends Driver
             $query->where_in('queue', $queues);
         }
 
-        $jobs = $query->order_by('created_at', 'ASC')
-            ->take($config['max_job'])
-            ->get();
+        $jobs = $query->order_by('created_at', 'ASC')->take($config['max_job'])->get();
 
         if (count($jobs) < 1) {
             $this->log('Job is empty');
         } else {
-            $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-            $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-            $processed = [];
-
-            foreach ($jobs as $job) {
-                $attempts = 0;
-                $success = false;
-
-                while ($attempts < $retries && ! $success) {
-                    $attempts++;
-
-                    try {
-                        Hook::fire('rakit.jobs.process', [$job]);
-                        $processed[] = $job->id;
-                        $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
-                        $success = true;
-                    } catch (\Throwable $e) {
-                        if ($attempts >= $retries) {
-                            $error = get_class($e)
-                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
-                                .$e->getTraceAsString();
-                            DB::table($config['failed_table'])->insert([
-                                'job_id' => $job->id,
-                                'name' => $job->name,
-                                'queue' => $job->queue,
-                                'payloads' => $job->payloads,
-                                'exception' => $error,
-                                'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
-                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
-                            $processed[] = $job->id;
-                        } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    } catch (\Exception $e) {
-                        if ($attempts >= $retries) {
-                            $error = get_class($e)
-                                .(('' === $e->getMessage()) ? '' : ': '.$e->getMessage())
-                                .' in '.$e->getFile().':'.$e->getLine().LF.'Stack trace:'.LF
-                                .$e->getTraceAsString();
-                            DB::table($config['failed_table'])->insert([
-                                'job_id' => $job->id,
-                                'name' => $job->name,
-                                'queue' => $job->queue,
-                                'payloads' => $job->payloads,
-                                'exception' => $error,
-                                'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
-                            ]);
-                            $this->failed($job->name, $job->id, $job->payloads, $e, $attempts);
-                            $processed[] = $job->id;
-                        } else {
-                            $this->log(sprintf('Job retry: %s - #%s (attempt %d)', $job->name, $job->id, $attempts));
-
-                            if ($sleep_ms > 0) {
-                                usleep($sleep_ms * 1000);
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (! empty($processed)) {
-                DB::table($config['table'])->where_in('id', $processed)->delete();
-            }
+            list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+            $this->work($jobs, $retries, $sleep_ms);
         }
+    }
+
+    /**
+     * Claim a job by pushing its scheduled time past the claim: only the worker whose
+     * UPDATE still finds the time it read gets it, and the job comes back on its own
+     * if that worker dies.
+     *
+     * @param object $job
+     *
+     * @return object|bool
+     */
+    protected function claim($job)
+    {
+        $claimed = DB::table(Config::get('job.table'))
+            ->where('id', '=', $job->id)
+            ->where('scheduled_at', '=', $job->scheduled_at)
+            ->update([
+                'scheduled_at' => date('Y-m-d H:i:s', time() + $this->retry_after()),
+                'updated_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ]);
+
+        return (1 === (int) $claimed) ? $job : false;
+    }
+
+    /**
+     * Remove a job that succeeded.
+     *
+     * @param object $job
+     */
+    protected function complete($job)
+    {
+        DB::table(Config::get('job.table'))->where('id', '=', $job->id)->delete();
+    }
+
+    /**
+     * Store a job that ran out of attempts in the failed table, and remove it.
+     *
+     * @param object     $job
+     * @param \Throwable $e
+     */
+    protected function bury($job, $e)
+    {
+        $config = Config::get('job');
+
+        DB::table($config['failed_table'])->insert([
+            'job_id' => $job->id,
+            'name' => $job->name,
+            'queue' => $job->queue,
+            'payloads' => $job->payloads,
+            'exception' => static::describe($e, true),
+            'failed_at' => Carbon::now()->format('Y-m-d H:i:s'),
+        ]);
+
+        $this->complete($job);
+    }
+
+    /**
+     * List the failed jobs.
+     *
+     * @return array
+     */
+    public function failures()
+    {
+        $failures = [];
+
+        foreach (DB::table(Config::get('job.failed_table'))->order_by('id', 'ASC')->get() as $row) {
+            $failures[] = [
+                'id' => $row->id,
+                'name' => $row->name,
+                'queue' => $row->queue,
+                'failed_at' => $row->failed_at,
+                'exception' => strtok((string) $row->exception, LF),
+            ];
+        }
+
+        return $failures;
+    }
+
+    /**
+     * Put a failed job back on its queue, or every failed job with 'all'.
+     *
+     * @param string|int $id
+     *
+     * @return int
+     */
+    public function retry($id)
+    {
+        $table = Config::get('job.failed_table');
+        $query = DB::table($table);
+
+        if ('all' !== $id) {
+            $query->where('id', '=', (int) $id);
+        }
+
+        $count = 0;
+
+        foreach ($query->get() as $row) {
+            $payloads = @unserialize($row->payloads);
+            $this->add($row->name, is_array($payloads) ? $payloads : [], null, $row->queue);
+            DB::table($table)->where('id', '=', $row->id)->delete();
+            ++$count;
+        }
+
+        return $count;
     }
 }

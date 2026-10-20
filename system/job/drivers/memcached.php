@@ -26,6 +26,13 @@ class Memcached extends Driver
     protected $key = 'rakit.job:';
 
     /**
+     * The jobs this worker holds a claim on, by ID.
+     *
+     * @var array
+     */
+    protected $claims = [];
+
+    /**
      * Constructor.
      *
      * @param \Memcached  $memcached
@@ -190,8 +197,8 @@ class Memcached extends Driver
      */
     public function run($name, $retries = 1, $sleep_ms = 0, $queue = null)
     {
-        $config = Config::get('job');
         $name = Str::slug($name);
+        $this->processed = 0;
         $now = Carbon::now()->timestamp;
         $ready = [];
 
@@ -234,74 +241,15 @@ class Memcached extends Driver
 
         ksort($ready);
 
-        $ready = array_slice($ready, 0, $config['max_job'], true);
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-        $successful = [];
+        $jobs = [];
 
-        foreach ($ready as $key => $id) {
-            /** @disregard */
-            $data = $this->memcached->get($this->key.'data:'.$id);
-
-            if (! $data) {
-                continue;
-            }
-
-            $attempts = 0;
-            $success = false;
-
-            while ($attempts < $retries && ! $success) {
-                $attempts++;
-
-                try {
-                    Hook::fire('rakit.jobs.process', [$data]);
-                    $successful[] = [
-                        'key' => $key,
-                        'id' => $id,
-                        'queue' => $data['queue'],
-                        'name' => $data['name'],
-                    ];
-                    $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
-                    $success = true;
-                } catch (\Throwable $e) {
-                    if ($attempts >= $retries) {
-                        $this->move_to_failed($data, $e);
-                        $successful[] = [
-                            'key' => $key,
-                            'id' => $id,
-                            'queue' => $data['queue'],
-                            'name' => $data['name'],
-                        ];
-                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
-                    } else {
-                        $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
-
-                        if ($sleep_ms > 0) {
-                            usleep($sleep_ms * 1000);
-                        }
-                    }
-                } catch (\Exception $e) {
-                    if ($attempts >= $retries) {
-                        $this->move_to_failed($data, $e);
-                        $successful[] = [
-                            'key' => $key,
-                            'id' => $id,
-                            'queue' => $data['queue'],
-                            'name' => $data['name'],
-                        ];
-                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
-                    } else {
-                        $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
-
-                        if ($sleep_ms > 0) {
-                            usleep($sleep_ms * 1000);
-                        }
-                    }
-                }
-            }
+        foreach (array_slice($ready, 0, Config::get('job.max_job'), true) as $key => $id) {
+            $jobs[] = ['key' => $key, 'id' => $id];
         }
 
-        $this->cleanup_successful($successful);
+        list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+        $this->work($jobs, $retries, $sleep_ms);
+
         return true;
     }
 
@@ -316,7 +264,7 @@ class Memcached extends Driver
      */
     public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
-        $config = Config::get('job');
+        $this->processed = 0;
         $now = Carbon::now()->timestamp;
         /** @disregard */
         $all = $this->memcached->get($this->key.'all_jobs');
@@ -346,75 +294,81 @@ class Memcached extends Driver
 
         ksort($ready);
 
-        $ready = array_slice($ready, 0, $config['max_job'], true);
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
-        $successful = [];
+        $jobs = [];
 
-        foreach ($ready as $key => $id) {
-            /** @disregard */
-            $data = $this->memcached->get($this->key.'data:'.$id);
-
-            if (! $data) {
-                continue;
-            }
-
-            $attempts = 0;
-            $success = false;
-
-            while ($attempts < $retries && ! $success) {
-                $attempts++;
-
-                try {
-                    Hook::fire('rakit.jobs.process', [$data]);
-                    $successful[] = [
-                        'key' => $key,
-                        'id' => $id,
-                        'queue' => $data['queue'],
-                        'name' => $data['name'],
-                    ];
-                    $this->log(sprintf('Job executed: %s - %s (attempt %d)', $data['name'], $id, $attempts));
-                    $success = true;
-                } catch (\Throwable $e) {
-                    if ($attempts >= $retries) {
-                        $this->move_to_failed($data, $e);
-                        $successful[] = [
-                            'key' => $key,
-                            'id' => $id,
-                            'queue' => $data['queue'],
-                            'name' => $data['name'],
-                        ];
-                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
-                    } else {
-                        $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
-
-                        if ($sleep_ms > 0) {
-                            usleep($sleep_ms * 1000);
-                        }
-                    }
-                } catch (\Exception $e) {
-                    if ($attempts >= $retries) {
-                        $this->move_to_failed($data, $e);
-                        $successful[] = [
-                            'key' => $key,
-                            'id' => $id,
-                            'queue' => $data['queue'],
-                            'name' => $data['name'],
-                        ];
-                        $this->failed($data['name'], $id, $data['payloads'], $e, $attempts);
-                    } else {
-                        $this->log(sprintf('Job retry: %s - %s (attempt %d)', $data['name'], $id, $attempts));
-
-                        if ($sleep_ms > 0) {
-                            usleep($sleep_ms * 1000);
-                        }
-                    }
-                }
-            }
+        foreach (array_slice($ready, 0, Config::get('job.max_job'), true) as $key => $id) {
+            $jobs[] = ['key' => $key, 'id' => $id];
         }
 
-        $this->cleanup_successful($successful);
+        list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+        $this->work($jobs, $retries, $sleep_ms);
+
         return true;
+    }
+
+    /**
+     * Claim a job with add(), which only one worker can do while the claim lives; it
+     * expires, so a job whose worker died runs again.
+     *
+     * @param array $job
+     *
+     * @return array|bool
+     */
+    protected function claim($job)
+    {
+        $claim = $this->key.'claim:'.$job['id'];
+
+        /** @disregard */
+        if (! $this->memcached->add($claim, 1, $this->retry_after())) {
+            return false;
+        }
+
+        /** @disregard */
+        $data = $this->memcached->get($this->key.'data:'.$job['id']);
+
+        if (! $data) {
+            /** @disregard */
+            $this->memcached->delete($claim);
+            return false;
+        }
+
+        $this->claims[$job['id']] = [
+            'key' => $job['key'],
+            'id' => $job['id'],
+            'queue' => $data['queue'],
+            'name' => $data['name'],
+            'claim' => $claim,
+        ];
+        $data['id'] = isset($data['id']) ? $data['id'] : $job['id'];
+
+        return $data;
+    }
+
+    /**
+     * Remove a job that succeeded, with its claim.
+     *
+     * @param array $data
+     */
+    protected function complete($data)
+    {
+        $job = $this->claims[$data['id']];
+        unset($this->claims[$data['id']]);
+
+        $this->cleanup_successful([$job]);
+        /** @disregard */
+        $this->memcached->delete($job['claim']);
+    }
+
+    /**
+     * Store a job that ran out of attempts as failed, and remove it.
+     *
+     * @param array      $data
+     * @param \Throwable $e
+     */
+    protected function bury($data, $e)
+    {
+        $this->move_to_failed($data, $e);
+        $this->complete($data);
     }
 
     /**

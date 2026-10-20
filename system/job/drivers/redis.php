@@ -26,6 +26,13 @@ class Redis extends Driver
     protected $key = 'rakit.job:';
 
     /**
+     * The jobs this worker holds a claim on, by ID.
+     *
+     * @var array
+     */
+    protected $claims = [];
+
+    /**
      * Constructor.
      *
      * @param System\Redis $redis
@@ -213,13 +220,9 @@ class Redis extends Driver
      */
     public function run($name, $retries = 1, $sleep_ms = 0, $queue = null)
     {
-        $config = Config::get('job');
         $name = Str::slug($name);
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
+        $this->processed = 0;
         $now = Carbon::now()->timestamp;
-        $successful = [];
-        $failed = [];
         $lists = $queue
             ? [$this->key.'queue_'.$queue.':'.$name]
             : $this->redis->keys($this->key.'queue_*:'.$name);
@@ -229,6 +232,8 @@ class Redis extends Driver
             return false;
         }
 
+        $jobs = [];
+
         foreach ($lists as $list) {
             /** @disregard */
             if (! $this->redis->exists($list)) {
@@ -236,99 +241,13 @@ class Redis extends Driver
             }
 
             /** @disregard */
-            $ready = $this->redis->zrangebyscore($list, '-inf', $now);
-
-            if (! empty($ready)) {
-                foreach ($ready as $jid) {
-                    $key = $this->key.'job_'.$name.'_'.$jid;
-                    $data = $this->hash($key);
-
-                    if (! empty($data)) {
-                        $attempts = 0;
-                        $success = false;
-
-                        while ($attempts < $retries && ! $success) {
-                            $attempts++;
-
-                            try {
-                                Hook::fire('rakit.jobs.process', [$data]);
-                                $successful[] = ['list' => $list, 'jid' => $jid, 'key' => $key];
-                                $this->log(sprintf(
-                                    'Job executed: %s - #%s (attempt %d)',
-                                    $data['name'],
-                                    $data['id'],
-                                    $attempts
-                                ));
-                                $success = true;
-                            } catch (\Throwable $e) {
-                                if ($attempts >= $retries) {
-                                    $failed[] = [
-                                        'data' => $data,
-                                        'exception' => $e,
-                                        'list' => $list,
-                                        'jid' => $jid,
-                                        'key' => $key,
-                                    ];
-                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                                } else {
-                                    $this->log(sprintf(
-                                        'Job retry: %s - #%s (attempt %d)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $attempts
-                                    ));
-
-                                    if ($sleep_ms > 0) {
-                                        usleep($sleep_ms * 1000);
-                                    }
-                                }
-                            } catch (\Exception $e) {
-                                if ($attempts >= $retries) {
-                                    $failed[] = [
-                                        'data' => $data,
-                                        'exception' => $e,
-                                        'list' => $list,
-                                        'jid' => $jid,
-                                        'key' => $key,
-                                    ];
-                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                                } else {
-                                    $this->log(sprintf(
-                                        'Job retry: %s - #%s (attempt %d)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $attempts
-                                    ));
-
-                                    if ($sleep_ms > 0) {
-                                        usleep($sleep_ms * 1000);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            foreach ((array) $this->redis->zrangebyscore($list, '-inf', $now) as $jid) {
+                $jobs[] = ['list' => $list, 'jid' => $jid, 'key' => $this->key.'job_'.$name.'_'.$jid];
             }
         }
 
-        if (! empty($successful)) {
-            foreach ($successful as $job) {
-                /** @disregard */
-                $this->redis->zrem($job['list'], $job['jid']);
-                /** @disregard */
-                $this->redis->del($job['key']);
-            }
-        }
-
-        if (! empty($failed)) {
-            foreach ($failed as $job) {
-                $this->move_to_failed($job['data'], $job['exception']);
-                /** @disregard */
-                $this->redis->zrem($job['list'], $job['jid']);
-                /** @disregard */
-                $this->redis->del($job['key']);
-            }
-        }
+        list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+        $this->work($jobs, $retries, $sleep_ms);
 
         return true;
     }
@@ -344,19 +263,15 @@ class Redis extends Driver
      */
     public function runall($retries = 1, $sleep_ms = 0, $queues = null)
     {
-        $config = Config::get('job');
-        $retries = (int) (($retries > 1) ? $retries : $config['max_retries']);
-        $sleep_ms = (int) (($sleep_ms > 0) ? $sleep_ms : $config['sleep_ms']);
+        $this->processed = 0;
         $now = Carbon::now()->timestamp;
-        $successful = [];
-        $failed = [];
         $all = [];
 
         if ($queues && is_array($queues) && ! empty($queues)) {
             foreach ($queues as $queue) {
                 /** @disregard */
                 $lists = $this->redis->keys($this->key.'queue_'.$queue.':*');
-                $all = array_merge($all, $lists);
+                $all = array_merge($all, (array) $lists);
             }
         } else {
             /** @disregard */
@@ -368,107 +283,86 @@ class Redis extends Driver
             return false;
         }
 
-        foreach ($all as $queue) {
-            $parts = explode(':', str_replace($this->key.'queue_', '', $queue));
+        $jobs = [];
+
+        foreach ($all as $list) {
+            $parts = explode(':', str_replace($this->key.'queue_', '', $list));
             $default = isset($parts[0]) ? $parts[0] : 'default';
             $name = isset($parts[1]) ? $parts[1] : $default;
 
             /** @disregard */
-            $ready = $this->redis->zrangebyscore($queue, '-inf', $now);
-
-            if (! empty($ready)) {
-                foreach ($ready as $jid) {
-                    $key = $this->key.'job_'.$name.'_'.$jid;
-                    $data = $this->hash($key);
-
-                    if (! empty($data)) {
-                        $attempts = 0;
-                        $success = false;
-
-                        while ($attempts < $retries && ! $success) {
-                            $attempts++;
-
-                            try {
-                                Hook::fire('rakit.jobs.process', [$data]);
-                                $successful[] = ['queue' => $queue, 'jid' => $jid, 'key' => $key];
-                                $this->log(sprintf(
-                                    'Job executed: %s - #%s (attempt %d)',
-                                    $data['name'],
-                                    $data['id'],
-                                    $attempts
-                                ));
-                                $success = true;
-                            } catch (\Throwable $e) {
-                                if ($attempts >= $retries) {
-                                    $failed[] = [
-                                        'data' => $data,
-                                        'exception' => $e,
-                                        'queue' => $queue,
-                                        'jid' => $jid,
-                                        'key' => $key,
-                                    ];
-                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                                } else {
-                                    $this->log(sprintf(
-                                        'Job retry: %s - #%s (attempt %d)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $attempts
-                                    ));
-
-                                    if ($sleep_ms > 0) {
-                                        usleep($sleep_ms * 1000);
-                                    }
-                                }
-                            } catch (\Exception $e) {
-                                if ($attempts >= $retries) {
-                                    $failed[] = [
-                                        'data' => $data,
-                                        'exception' => $e,
-                                        'queue' => $queue,
-                                        'jid' => $jid,
-                                        'key' => $key,
-                                    ];
-                                    $this->failed($data['name'], $data['id'], $data['payloads'], $e, $attempts);
-                                } else {
-                                    $this->log(sprintf(
-                                        'Job retry: %s - #%s (attempt %d)',
-                                        $data['name'],
-                                        $data['id'],
-                                        $attempts
-                                    ));
-
-                                    if ($sleep_ms > 0) {
-                                        usleep($sleep_ms * 1000);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+            foreach ((array) $this->redis->zrangebyscore($list, '-inf', $now) as $jid) {
+                $jobs[] = ['list' => $list, 'jid' => $jid, 'key' => $this->key.'job_'.$name.'_'.$jid];
             }
         }
 
-        if (! empty($successful)) {
-            foreach ($successful as $job) {
-                /** @disregard */
-                $this->redis->zrem($job['queue'], $job['jid']);
-                /** @disregard */
-                $this->redis->del($job['key']);
-            }
-        }
-
-        if (! empty($failed)) {
-            foreach ($failed as $job) {
-                $this->move_to_failed($job['data'], $job['exception']);
-                /** @disregard */
-                $this->redis->zrem($job['queue'], $job['jid']);
-                /** @disregard */
-                $this->redis->del($job['key']);
-            }
-        }
+        list($retries, $sleep_ms) = $this->attempts($retries, $sleep_ms);
+        $this->work($jobs, $retries, $sleep_ms);
 
         return true;
+    }
+
+    /**
+     * Claim a job with SET NX: only one worker creates the claim key, and it expires,
+     * so a job whose worker died runs again.
+     *
+     * @param array $job
+     *
+     * @return array|bool
+     */
+    protected function claim($job)
+    {
+        $claim = $this->key.'claim:'.$job['jid'];
+
+        /** @disregard */
+        $reply = $this->redis->set($claim, '1', 'EX', $this->retry_after(), 'NX');
+
+        if ('OK' !== $reply && true !== $reply) {
+            return false;
+        }
+
+        $data = $this->hash($job['key']);
+
+        if (empty($data)) {
+            /** @disregard */
+            $this->redis->del($claim);
+            return false;
+        }
+
+        $this->claims[$job['jid']] = $job + ['claim' => $claim];
+        $data['id'] = isset($data['id']) ? $data['id'] : $job['jid'];
+
+        return $data;
+    }
+
+    /**
+     * Remove a job that succeeded, with its claim.
+     *
+     * @param array $data
+     */
+    protected function complete($data)
+    {
+        $job = $this->claims[$data['id']];
+        unset($this->claims[$data['id']]);
+
+        /** @disregard */
+        $this->redis->zrem($job['list'], $job['jid']);
+        /** @disregard */
+        $this->redis->del($job['key']);
+        /** @disregard */
+        $this->redis->del($job['claim']);
+    }
+
+    /**
+     * Store a job that ran out of attempts as failed, and remove it.
+     *
+     * @param array      $data
+     * @param \Throwable $e
+     */
+    protected function bury($data, $e)
+    {
+        $this->move_to_failed($data, $e);
+        $this->complete($data);
     }
 
     /**
