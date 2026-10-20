@@ -295,6 +295,24 @@ Security audit fixes — all severities:
 
 **Security**
 
+-   **`make:auth` password reset could reset any account.** The reset row was found
+    by token alone, then the password of whichever user the form's `email` named was
+    changed, so a token issued to one address reset another. The token now has to
+    match the submitted email, is stored as a SHA-256 hash, expires after 60 minutes,
+    and earlier tokens for the address are dropped. Apps scaffolded before this
+    release should copy the new `post_reset()`/`get_show_reset()`/`post_resend()`
+    from the stub, and clear the `password_resets` table (old rows hold plain tokens).
+
+-   **Mass assignment could overwrite model state.** `fill()` wrote each key as a
+    property, so a key named after a declared property (`attributes`, `exists`,
+    `original`) replaced it directly instead of becoming an attribute. Keys now go
+    through `__set()`, and `$fillable` is compared strictly.
+
+-   **A changed primary key retargeted `save()` and `delete()`.** The WHERE clause
+    used the model's current key, so `fill(['id' => 1])->save()` updated row 1.
+    `save()`, `delete()`, `restore()` and `force_delete()` now target the key the
+    record was loaded with.
+
 -   **HTTP response splitting through a cookie.** The cookie `path` and `domain`
     went into `Set-Cookie` unchecked, so a line break in either carried a header of
     its own into the response. `setcookie()` refuses this, but the worker adapters

@@ -363,8 +363,8 @@ abstract class Model implements \JsonSerializable
             }
 
             if (is_array(static::$fillable)) {
-                if (in_array($key, static::$fillable)) {
-                    $this->{$key} = $value;
+                if (in_array((string) $key, static::$fillable, true)) {
+                    $this->__set($key, $value);
                 }
 
                 continue;
@@ -381,7 +381,9 @@ abstract class Model implements \JsonSerializable
                 continue;
             }
 
-            $this->{$key} = $value;
+            // Through __set(), never a direct property write: a key named after a
+            // declared property ("attributes", "exists") would overwrite model state.
+            $this->__set($key, $value);
         }
 
         return $this;
@@ -1677,11 +1679,11 @@ abstract class Model implements \JsonSerializable
                     $this->updated_at = $values['updated_at'] = $this->deleted_at;
                 }
 
-                $this->query()->where(static::$key, '=', $this->get_key())->update($values);
+                $this->query()->where(static::$key, '=', $this->original_key())->update($values);
                 $this->exists = false;
                 $this->fire_model_event('deleted');
             } else { // Hard delete
-                $this->query()->where(static::$key, '=', $this->get_key())->delete();
+                $this->query()->where(static::$key, '=', $this->original_key())->delete();
                 $this->exists = false;
                 $this->fire_model_event('deleted');
             }
@@ -1707,7 +1709,7 @@ abstract class Model implements \JsonSerializable
             return false;
         }
 
-        $result = $this->query(true)->where(static::$key, '=', $this->get_key())->update(['deleted_at' => null]);
+        $result = $this->query(true)->where(static::$key, '=', $this->original_key())->update(['deleted_at' => null]);
 
         if ($result) {
             $this->deleted_at = null;
@@ -1732,7 +1734,7 @@ abstract class Model implements \JsonSerializable
                 return false;
             }
 
-            $result = $this->query(true)->where(static::$key, '=', $this->get_key())->force_delete();
+            $result = $this->query(true)->where(static::$key, '=', $this->original_key())->force_delete();
             $this->fire_model_event('deleted');
 
             return $result;
@@ -1890,7 +1892,20 @@ abstract class Model implements \JsonSerializable
     {
         return \System\Database::connection($this->connection())
             ->table($this->table())
-            ->where(static::$key, '=', $this->get_key());
+            ->where(static::$key, '=', $this->original_key());
+    }
+
+    /**
+     * Get the primary key the record was loaded with, so a changed (or mass-assigned)
+     * key never retargets an UPDATE or DELETE at another row.
+     *
+     * @return mixed
+     */
+    protected function original_key()
+    {
+        return array_key_exists(static::$key, $this->original)
+            ? $this->original[static::$key]
+            : $this->get_key();
     }
 
     /**
