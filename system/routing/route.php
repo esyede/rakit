@@ -14,6 +14,20 @@ use System\View;
 class Route
 {
     /**
+     * Contains the route bindings, wildcard name => resolver.
+     *
+     * @var array
+     */
+    protected static $binders = [];
+
+    /**
+     * Contains the column of each model binding, wildcard name => column or NULL.
+     *
+     * @var array
+     */
+    protected static $columns = [];
+
+    /**
      * Contains the URI being responded to by the route.
      *
      * @var string
@@ -119,17 +133,60 @@ class Route
      */
     public function response()
     {
+        $parameters = $this->bindings();
+
+        if ($parameters instanceof Response) {
+            return $parameters;
+        }
+
         $delegate = $this->delegate();
 
         if (! is_null($delegate)) {
-            return Controller::call($delegate, $this->parameters);
+            return Controller::call($delegate, $parameters);
         }
 
         $handler = $this->handler();
 
         if (! is_null($handler)) {
-            return call_user_func_array($handler, $this->parameters);
+            return call_user_func_array($handler, $parameters);
         }
+    }
+
+    /**
+     * Resolve the parameters of bound wildcards, (:user) for Route::model('user', ..).
+     * Each wildcard captures one parameter, so the n-th wildcard of the URI is the
+     * n-th parameter. A value the resolver does not find answers 404.
+     *
+     * @return array|Response
+     */
+    protected function bindings()
+    {
+        if (empty(static::$binders) || ! preg_match_all('#\(:([a-zA-Z_][a-zA-Z0-9_]*)\??\)#', $this->uri, $names)) {
+            return $this->parameters;
+        }
+
+        $parameters = $this->parameters;
+
+        foreach ($names[1] as $index => $name) {
+            if (
+                ! isset(static::$binders[$name])
+                || ! array_key_exists($index, $parameters)
+                || is_null($parameters[$index])
+                || '' === $parameters[$index]
+            ) {
+                continue;
+            }
+
+            $bound = call_user_func(static::$binders[$name], $parameters[$index]);
+
+            if (is_null($bound) || false === $bound) {
+                return Response::error(404);
+            }
+
+            $parameters[$index] = $bound;
+        }
+
+        return $parameters;
     }
 
     /**
@@ -232,6 +289,75 @@ class Route
     public function is($name)
     {
         return Arr::get($this->action, 'as') === $name;
+    }
+
+    /**
+     * Bind a wildcard to a Facile model: (:user) then passes User::find($value), or
+     * the first row whose $column equals the value. A missing row answers 404.
+     *
+     * @param string      $name
+     * @param string      $model
+     * @param string|null $column
+     */
+    public static function model($name, $model, $column = null)
+    {
+        static::bind($name, function ($value) use ($model, $column) {
+            return is_null($column) ? $model::find($value) : $model::where($column, '=', $value)->first();
+        });
+
+        static::$columns[$name] = $column;
+    }
+
+    /**
+     * Get the value a model stands for in a URL: its binding column for (:name),
+     * else its primary key.
+     *
+     * @param \System\Database\Facile\Model $model
+     * @param string|null                    $name
+     *
+     * @return mixed
+     */
+    public static function route_key($model, $name = null)
+    {
+        $column = (! is_null($name) && isset(static::$columns[$name])) ? static::$columns[$name] : null;
+        return is_null($column) ? $model->get_key() : $model->{$column};
+    }
+
+    /**
+     * Bind a wildcard to a resolver: (:name) in a URI then passes what the closure
+     * returns for the matched value. NULL or FALSE answers 404. Define bindings
+     * before the routes that use them.
+     *
+     * @param string   $name
+     * @param \Closure $resolver
+     */
+    public static function bind($name, \Closure $resolver)
+    {
+        if (
+            ! preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', (string) $name)
+            || in_array($name, ['alpha', 'num', 'alnum', 'any', 'segment', 'all'], true)
+        ) {
+            throw new \InvalidArgumentException(sprintf('Invalid route binding name: %s', $name));
+        }
+
+        static::$binders[$name] = $resolver;
+        Router::$patterns['(:'.$name.')'] = '([^/]{1,255})';
+        Router::$optional['/(:'.$name.'?)'] = '(?:/([^/]{1,255}))?';
+    }
+
+    /**
+     * Forget a binding.
+     *
+     * @param string $name
+     */
+    public static function unbind($name)
+    {
+        unset(
+            static::$binders[$name],
+            static::$columns[$name],
+            Router::$patterns['(:'.$name.')'],
+            Router::$optional['/(:'.$name.'?)']
+        );
     }
 
     /**

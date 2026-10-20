@@ -451,6 +451,11 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Route model binding.** `Route::model('user', 'User'[, 'column'])` and
+    `Route::bind('team', closure)` add a `(:user)` / `(:user?)` wildcard that passes
+    the record, or answers 404 when there is none. Bindings resolve after the
+    `before` middleware. `URL::to_route()` takes models and uses their key or the
+    binding column; a model there was a fatal error before.
 -   **Signed URLs.** `URL::signed($url, $minutes = null, $absolute = true)`,
     `URL::to_signed_route()`, `URL::has_valid_signature()` and the `signed`
     (`signed:relative`) middleware. The HMAC key is derived from `key.php`.

@@ -11,6 +11,7 @@
   - [Required Parameters](#required-parameters)
   - [Optional Parameters](#optional-parameters)
   - [Wildcard Constraints](#wildcard-constraints)
+  - [Route Model Binding](#route-model-binding)
 - [Named Routes](#named-routes)
   - [Generating URLs](#generating-urls)
   - [Inspecting the Current Route](#inspecting-the-current-route)
@@ -203,6 +204,47 @@ Every wildcard has an optional form: `(:num?)`, `(:any?)`, and so on.
 
 > `(:all)` hands you a user-controlled path. Validate or allowlist it before
 > using it to read files.
+
+<a id="route-model-binding"></a>
+
+### Route Model Binding
+
+A binding adds a wildcard of its own that passes the record instead of its ID. Define bindings
+in `application/routes.php` (or `application/boot.php`) **before** the routes that use them:
+
+```php
+Route::model('user', 'User');          // (:user) => User::find($value)
+Route::model('post', 'Post', 'slug');  // (:post) => Post::where('slug', '=', $value)->first()
+
+Route::get('users/(:user)/posts/(:post?)', function ($user, $post = null) {
+    return View::make('posts.show', compact('user', 'post'));
+});
+```
+
+A value that matches no record answers **404**, so the action never sees `null` for a given
+segment; an optional binding that is left out stays `null`. The wildcard accepts any single
+segment, and bound and plain wildcards (`(:num)`, `(:any)`) can be mixed.
+
+For any other lookup, bind a closure. Whatever it returns is passed; `null` or `false` is a 404:
+
+```php
+Route::bind('team', function ($code) {
+    return Team::where('code', '=', strtoupper($code))->where('active', '=', 1)->first();
+});
+```
+
+Bindings resolve after the `before` middleware, so `auth` still turns a guest away before any
+query runs. Check access to the record itself in the action, for instance with
+[`Gate::authorize()`](/docs/auth/authorization). Controller actions receive bound parameters the
+same way.
+
+Named routes accept the models back, and use their key, or the column the binding looks up:
+
+```php
+URL::to_route('post.show', [$user, $post]); // .../users/7/posts/hello-world
+```
+
+A binding name may not reuse a built-in wildcard (`num`, `any` ...).
 
 <a id="named-routes"></a>
 <a id="defining-named-routes"></a>
