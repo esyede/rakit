@@ -268,6 +268,8 @@ Each command accepts an optional package name (`php rakit migrate blog`) to limi
 | `test:core`              | Run the framework's core tests                         |
 | `test:package name`      | Run a package's tests                                  |
 
+To send requests through the application from a test, see [HTTP Tests](/docs/testing).
+
 <a id="webserver-commands"></a>
 
 ### Webserver Commands

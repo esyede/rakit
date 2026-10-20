@@ -379,6 +379,11 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **`php rakit test:run` failed every application test on PHP 8.4+**, even
+    `assertTrue(true)`: PHPUnit 4.x turned its own deprecation warnings into test
+    errors. The application test bootstrap now mutes vendor deprecations and
+    defines `RAKIT_PHPUNIT_RUNNING`, as the core test bootstrap does.
+
 -   **`abort()` ended the worker in worker mode.** It sent the error page and called
     `exit`, which stopped the FrankenPHP, RoadRunner or Swoole process serving every
     later request; `abort_if()`, `first_or_fail()` and `find_or_fail()` go through it.
@@ -451,6 +456,16 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **HTTP tests.** The `System\Testing\Http` trait sends requests through the
+    full lifecycle: `get()`, `post()`, `put()`, `patch()`, `delete()`, `json()`,
+    `call()`, `with_headers()`, `with_cookies()`, `acting_as()` and
+    `forget_client()`. Cookies and the session carry over between requests, and
+    the session's CSRF token is sent, so the `csrf` middleware runs for real.
+    `abort()` answers with its response; other exceptions reach the test. The
+    response has `assert_status()`, `assert_ok()` .., `assert_redirect()`,
+    `assert_see()`, `assert_json()`, `assert_json_path()`, `assert_header()`,
+    `assert_cookie()`, `assert_session_has()` and `assert_session_has_errors()`.
+    See `testing.md`.
 -   **Task scheduling.** `Schedule::call()`, `command()` and `exec()` with
     `cron()`, `every_minute()` .. `yearly()`, `daily_at()`, `weekly_on()`,
     `weekdays()`, `timezone()`, `when()`, `skip()`, `name()` and

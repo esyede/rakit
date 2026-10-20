@@ -43,6 +43,7 @@
 -   [Localization](/docs/localization)
 -   [WebSocket](/docs/websocket)
 -   [Workers](/docs/workers)
+-   [HTTP Tests](/docs/testing)
 
 ### Security
 
