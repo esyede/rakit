@@ -7,6 +7,7 @@
 -   [URL to Controller Method](#url-to-controller-method)
 -   [URL to Language Switch](#url-to-language-switch)
 -   [URL to Asset](#url-to-asset)
+-   [Signed URLs](#signed-urls)
 -   [Other Helpers](#other-helpers)
 
 <!-- /MarkdownTOC -->
@@ -85,6 +86,41 @@ are returned unchanged:
 ```php
 $url = URL::to_asset('js/jquery.js'); // http://example.com/assets/js/jquery.js
 ```
+
+<a id="signed-urls"></a>
+
+## Signed URLs
+
+A signed URL carries an HMAC of itself, so a link you hand out (an email confirmation, an
+unsubscribe link, a download) can be trusted without a login: changing any part of it breaks the
+signature. Pass minutes to make it expire:
+
+```php
+$url = URL::signed('unsubscribe?user=7');                       // never expires
+$url = URL::signed('download?file=report.pdf', 30);              // valid 30 minutes
+$url = URL::to_signed_route('unsubscribe', [$user->id], 60 * 24); // a named route
+```
+
+Protect the route with the `signed` middleware, which answers 403 otherwise, or check by hand:
+
+```php
+Route::get('unsubscribe', ['before' => 'signed', 'uses' => 'newsletter@unsubscribe']);
+
+if (! URL::has_valid_signature()) {
+    return Response::error(403);
+}
+```
+
+The scheme and host are signed too. Behind a proxy that changes them before PHP sees the
+request, sign and check relative URLs only, which covers the path and query:
+
+```php
+$url = URL::signed('download?file=report.pdf', 30, false);
+
+Route::get('download', ['before' => 'signed:relative', 'uses' => 'files@download']);
+```
+
+The signing key is derived from `key.php`, so generating a new key invalidates every signed URL.
 
 <a id="other-helpers"></a>
 

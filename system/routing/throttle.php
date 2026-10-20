@@ -18,19 +18,77 @@ class Throttle
     const PREFIX = 'throttle';
 
     /**
-     * Run the throttling process and return whether the request is allowed.
+     * Contains the named limiters, name => callback.
      *
-     * @param int $max_attempts
-     * @param int $decay_minutes
+     * @var array
+     */
+    protected static $limiters = [];
+
+    /**
+     * Define a named limiter, used as 'throttle:<name>'. The callback returns
+     * ['max' => 60, 'minutes' => 1, 'by' => <bucket>], or NULL for no limit. Without
+     * 'by' every client IP gets its own bucket.
+     *
+     * @param string   $name
+     * @param \Closure $callback
+     */
+    public static function define($name, \Closure $callback)
+    {
+        static::$limiters[$name] = $callback;
+    }
+
+    /**
+     * Run the 'throttle' middleware: 'throttle:60,1' limits per route and client,
+     * 'throttle:api' runs the named limiter. NULL when allowed, else the 429 response.
+     *
+     * @param int|string $limit
+     * @param int        $minutes
+     *
+     * @return \System\Response|null
+     */
+    public static function attempt($limit, $minutes = 1)
+    {
+        if (is_numeric($limit)) {
+            return static::exceeded($limit, $minutes) ? static::error() : null;
+        }
+
+        if (! isset(static::$limiters[$limit])) {
+            throw new \Exception(sprintf('Undefined rate limiter: %s', $limit));
+        }
+
+        $config = call_user_func(static::$limiters[$limit]);
+
+        if (is_null($config)) {
+            return null;
+        }
+
+        if (! is_array($config) || ! isset($config['max'])) {
+            throw new \Exception(sprintf("Rate limiter '%s' must return NULL or an array with a 'max' key.", $limit));
+        }
+
+        $by = (isset($config['by']) && '' !== (string) $config['by']) ? (string) $config['by'] : static::client();
+        $key = 'limiter|'.$limit.'|'.$by;
+        $minutes = isset($config['minutes']) ? $config['minutes'] : 1;
+
+        return static::exceeded($config['max'], $minutes, $key) ? static::error($key) : null;
+    }
+
+    /**
+     * Run the throttling process and return whether the request is allowed. With a
+     * key ('login|'.$email), that key is counted instead of the route and client.
+     *
+     * @param int         $max_attempts
+     * @param int         $decay_minutes
+     * @param string|null $key
      *
      * @return bool
      */
-    public static function check($max_attempts, $decay_minutes = 1)
+    public static function check($max_attempts, $decay_minutes = 1, $key = null)
     {
         $max_attempts = max(1, (int) $max_attempts);
         $decay_minutes = max(1, (int) $decay_minutes);
 
-        $key = static::key();
+        $key = static::bucket($key);
         $meta_key = $key.':meta';
         $meta = Cache::get($meta_key);
 
@@ -72,14 +130,40 @@ class Throttle
     /**
      * Check if the rate limit has been exceeded.
      *
-     * @param int $max_attempts
-     * @param int $decay_minutes
+     * @param int         $max_attempts
+     * @param int         $decay_minutes
+     * @param string|null $key
      *
      * @return bool
      */
-    public static function exceeded($max_attempts, $decay_minutes)
+    public static function exceeded($max_attempts, $decay_minutes, $key = null)
     {
-        return ! static::check($max_attempts, $decay_minutes);
+        return ! static::check($max_attempts, $decay_minutes, $key);
+    }
+
+    /**
+     * Reset a bucket, e.g. after a successful login.
+     *
+     * @param string|null $key
+     */
+    public static function clear($key = null)
+    {
+        $key = static::bucket($key);
+
+        Cache::forget($key);
+        Cache::forget($key.':meta');
+    }
+
+    /**
+     * Get the cache key of a bucket: the route and client one, or a given key.
+     *
+     * @param string|null $key
+     *
+     * @return string
+     */
+    protected static function bucket($key)
+    {
+        return is_null($key) ? static::key() : static::PREFIX.'.'.md5(RAKIT_KEY.'|key|'.$key);
     }
 
     /**
@@ -98,15 +182,18 @@ class Throttle
     /**
      * Return a 429 Too Many Requests response with standard rate-limit headers.
      *
+     * @param string|null $key
+     *
      * @return \System\Response
      */
-    public static function error()
+    public static function error($key = null)
     {
-        $meta = Cache::get(static::key().':meta') ?: [];
+        $key = static::bucket($key);
+        $meta = Cache::get($key.':meta') ?: [];
         $limit = isset($meta['limit']) ? (int) $meta['limit'] : 0;
         $reset = isset($meta['reset']) ? (int) $meta['reset'] : time();
 
-        Hook::fire('rakit.auth: lockout', [static::key(), $limit, $reset]);
+        Hook::fire('rakit.auth: lockout', [$key, $limit, $reset]);
 
         return Response::error(429, [
             'X-Rate-Limit-Limit' => $limit,

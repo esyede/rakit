@@ -26,6 +26,7 @@
   - [Pattern Middleware](#pattern-middleware)
   - [Global Middleware](#global-middleware)
   - [CSRF Exceptions](#csrf-exceptions)
+  - [Rate Limiting](#rate-limiting)
 - [Controller Routing](#controller-routing)
   - [Controller Actions](#controller-actions)
   - [Auto-Routed Controllers](#auto-routed-controllers)
@@ -353,14 +354,15 @@ Route::middleware('admin', function () {
 });
 ```
 
-The application ships with three middlewares:
+The application ships with these middlewares:
 
 | Name       | Does                                                                 |
 |------------|----------------------------------------------------------------------|
 | `csrf`     | Returns a 422 error when a non-safe request carries no valid token   |
 | `auth`     | Returns a 401 error for guests                                       |
 | `can`      | 403 unless the [ability](/docs/auth/authorization) is granted, `can:<ability>[,<Model>]` |
-| `throttle` | Rate limit, `throttle:<max attempts>,<minutes>`, 429 when exceeded   |
+| `throttle` | Rate limit, `throttle:<max attempts>,<minutes>` or a [named limiter](#rate-limiting) `throttle:<name>`, 429 when exceeded |
+| `signed`   | 403 unless the URL carries a valid [signature](/docs/urls#signed-urls); `signed:relative` ignores scheme and host |
 
 > Attaching a middleware that was never registered throws
 > `Undefined middleware: <name>`, so a typo cannot leave a route unprotected.
@@ -469,6 +471,50 @@ server-to-server callbacks) can be exempted in `application/config/application.p
 ```
 
 Listed URIs skip the token check entirely, so only add what really needs it.
+
+<a id="rate-limiting"></a>
+
+### Rate Limiting
+
+`throttle:60,1` allows 60 requests a minute, counted per route and client IP. For limits that
+depend on the user, define a named limiter in `application/boot.php`. Its closure returns the
+limit, or `null` for none; requests with the same `by` share a bucket, on every route using the
+limiter (without `by`, the client IP):
+
+```php
+Throttle::define('api', function () {
+    if (Auth::check() && Auth::user()->is_admin) {
+        return null; // unlimited
+    }
+
+    return [
+        'max' => 60,
+        'minutes' => 1,
+        'by' => Auth::check() ? 'user:'.Auth::user()->id : null,
+    ];
+});
+
+Route::group(['before' => 'throttle:api'], function () {
+    Route::get('api/orders', 'api.orders@index');
+});
+```
+
+Outside a route, count any key yourself, for instance failed logins per email address:
+
+```php
+$key = 'login|'.strtolower(Input::get('email'));
+
+if (Throttle::exceeded(5, 1, $key)) {
+    return Throttle::error($key); // 429 with Retry-After
+}
+
+if (Auth::attempt($credentials)) {
+    Throttle::clear($key);
+}
+```
+
+> Before this release the middleware was `function ($limit, $minutes)`. An application created
+> earlier needs the new definition from `application/middlewares.php` for `throttle:<name>`.
 
 <a id="controller-routing"></a>
 

@@ -189,6 +189,110 @@ class URL
     }
 
     /**
+     * Sign a URL, so a link handed out (an email confirmation, an unsubscribe link)
+     * can be trusted without a login. With $minutes it expires. Absolute signs the
+     * scheme and host too; relative only the path and query.
+     *
+     * @param string   $url
+     * @param int|null $minutes
+     * @param bool     $absolute
+     *
+     * @return string
+     */
+    public static function signed($url, $minutes = null, $absolute = true)
+    {
+        $url = static::to($url);
+        $base = preg_replace('/[?#].*$/s', '', $url);
+        $query = [];
+
+        parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
+        unset($query['signature']);
+
+        if (! is_null($minutes)) {
+            $query['expires'] = time() + ((int) $minutes * 60);
+        }
+
+        $signed = $absolute ? $base : (string) parse_url($base, PHP_URL_PATH);
+        $query['signature'] = static::signature(static::canonical($signed, $query));
+
+        return static::canonical($base, $query);
+    }
+
+    /**
+     * Create a signed URL to a named route.
+     *
+     * @param string   $name
+     * @param array    $parameters
+     * @param int|null $minutes
+     * @param bool     $absolute
+     *
+     * @return string
+     */
+    public static function to_signed_route($name, array $parameters = [], $minutes = null, $absolute = true)
+    {
+        return static::signed(static::to_route($name, $parameters), $minutes, $absolute);
+    }
+
+    /**
+     * Check whether the current request carries a valid, unexpired signature.
+     *
+     * @param bool $absolute
+     *
+     * @return bool
+     */
+    public static function has_valid_signature($absolute = true)
+    {
+        $request = Request::foundation();
+        $query = $request->query->all();
+        $signature = isset($query['signature']) ? $query['signature'] : null;
+
+        unset($query['signature']);
+
+        if (! is_string($signature) || '' === $signature) {
+            return false;
+        }
+
+        if (
+            isset($query['expires'])
+            && (! is_scalar($query['expires']) || ! ctype_digit((string) $query['expires']) || time() > (int) $query['expires'])
+        ) {
+            return false;
+        }
+
+        $base = $request->getBaseUrl().$request->getPathInfo();
+        $base = $absolute ? $request->getSchemeAndHttpHost().$base : $base;
+
+        return Crypter::equals(static::signature(static::canonical($base, $query)), $signature);
+    }
+
+    /**
+     * Build the form of a URL that is signed: the same on both sides, whatever
+     * encoding the client used for the query.
+     *
+     * @param string $base
+     * @param array  $query
+     *
+     * @return string
+     */
+    protected static function canonical($base, array $query)
+    {
+        $query = http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+        return ('' === $query) ? $base : $base.'?'.$query;
+    }
+
+    /**
+     * Compute a URL signature, with a key of its own derived from the application key.
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    protected static function signature($url)
+    {
+        return hash_hmac('sha256', $url, hash_hmac('sha256', 'rakit-url-signature-v1', RAKIT_KEY, true));
+    }
+
+    /**
      * Create URL for switching language, keeping current page or not.
      *
      * @param string $language

@@ -451,6 +451,15 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Signed URLs.** `URL::signed($url, $minutes = null, $absolute = true)`,
+    `URL::to_signed_route()`, `URL::has_valid_signature()` and the `signed`
+    (`signed:relative`) middleware. The HMAC key is derived from `key.php`.
+-   **Named rate limiters.** `Throttle::define('api', closure)` returning
+    `['max', 'minutes', 'by']` or `NULL`, used as `throttle:api`. `check()`,
+    `exceeded()` and `error()` take an optional key (`'login|'.$email`), and
+    `clear($key)` resets it. **Upgrade:** copy the new `throttle` middleware from
+    `application/middlewares.php` (it now calls `Throttle::attempt()`), and add the
+    `signed` middleware from the same file.
 -   **Validator: `bail`, `sometimes`, the `exclude` rules, closure rules and
     `validated()`.** `bail` stops an attribute at its first failure, and
     `stop_on_first_failure()` the whole validation. `sometimes` skips an absent
