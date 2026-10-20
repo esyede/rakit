@@ -523,6 +523,9 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Cursor pagination.** `cursor_paginate()` on the query builder and Facile pages by
+    the ordering columns' values instead of an `OFFSET`: deep pages stay fast and
+    rows inserted meanwhile never shift a page. See `views/pagination.md`.
 -   **Mailables and notifications.** `Mailable` classes build a message (subject,
     view, data, attachments) and `send()` it or `queue()` it for the job worker.
     `Notification` classes deliver on `mail`, `database` or custom channels

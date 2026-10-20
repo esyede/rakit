@@ -993,6 +993,30 @@ class Query
     }
 
     /**
+     * Paginate by position, see Database\Query::cursor_paginate(). Ordered by the
+     * primary key when the query has no ORDER BY.
+     *
+     * @param int|null    $perpage
+     * @param array       $columns
+     * @param string      $cursor_name
+     * @param string|null $cursor
+     *
+     * @return \System\Paginator\Cursor
+     */
+    public function cursor_paginate($perpage = null, array $columns = ['*'], $cursor_name = 'cursor', $cursor = null)
+    {
+        if (empty($this->table->orderings)) {
+            $this->table->order_by($this->model->key());
+        }
+
+        $perpage = $perpage ?: $this->model->perpage();
+        $paginator = $this->table->cursor_paginate($perpage, $columns, $cursor_name, $cursor);
+        $paginator->results = $this->hydrate($this->model, $paginator->results);
+
+        return $paginator;
+    }
+
+    /**
      * Eager load relationships onto models already fetched, as with() would have.
      *
      * @param array|\System\Collection $models

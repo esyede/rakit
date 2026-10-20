@@ -7,6 +7,7 @@ defined('DS') or exit('No direct access.');
 use System\Carbon;
 use System\Collection;
 use System\Paginator;
+use System\Paginator\Cursor;
 use System\Database\Query\Grammars\Grammar as QueryGrammar;
 
 class Query
@@ -2196,6 +2197,108 @@ class Query
         $paginator->total = null;
 
         return $paginator;
+    }
+
+    /**
+     * Paginate by position instead of page number: each page starts after the last row of
+     * the one before, so deep pages cost as little as the first and rows added meanwhile
+     * never shift a page. The ORDER BY columns (the 'id' when none) must be plain columns,
+     * selected, never NULL, and together unique (end with the primary key).
+     *
+     * @param int         $perpage
+     * @param array       $columns
+     * @param string      $cursor_name
+     * @param string|null $cursor
+     *
+     * @return Cursor
+     */
+    public function cursor_paginate($perpage = 20, array $columns = ['*'], $cursor_name = 'cursor', $cursor = null)
+    {
+        $perpage = max(1, (int) $perpage);
+
+        if (empty($this->orderings)) {
+            $this->order_by('id');
+        }
+
+        $orderings = [];
+
+        foreach ($this->orderings as $ordering) {
+            if (! is_string($ordering['column'])) {
+                throw new \Exception('cursor_paginate() needs plain ORDER BY columns, not raw expressions.');
+            }
+
+            $orderings[$ordering['column']] = $ordering['direction'];
+        }
+
+        // The row attribute of 'users.id' is 'id'.
+        $keys = array_map(function ($column) {
+            $dot = strrpos($column, '.');
+            return (false === $dot) ? $column : substr($column, $dot + 1);
+        }, array_keys($orderings));
+
+        $cursor = is_null($cursor) ? \System\Input::get($cursor_name) : $cursor;
+        $position = Cursor::decode($cursor, $keys);
+        $backwards = $position && $position[1];
+
+        if ($position) {
+            $values = array_values($position[0]);
+            $columns_ = array_keys($orderings);
+
+            // (a > x) OR (a = x AND b > y) OR ..., each comparison in its column's direction.
+            $this->where(function ($query) use ($orderings, $columns_, $values, $backwards) {
+                foreach ($columns_ as $i => $column) {
+                    $query->or_where(function ($query) use ($orderings, $columns_, $values, $backwards, $i, $column) {
+                        for ($j = 0; $j < $i; ++$j) {
+                            $query->where($columns_[$j], '=', $values[$j]);
+                        }
+
+                        $query->where($column, (('asc' === $orderings[$column]) xor $backwards) ? '>' : '<', $values[$i]);
+                    });
+                }
+            });
+        }
+
+        if ($backwards) {
+            foreach ($this->orderings as $index => $ordering) {
+                $this->orderings[$index]['direction'] = ('asc' === $ordering['direction']) ? 'desc' : 'asc';
+            }
+        }
+
+        $results = $this->take($perpage + 1)->get($columns);
+        $items = ($results instanceof Collection) ? $results->all() : (array) $results;
+        $more = count($items) > $perpage;
+        $items = array_slice($items, 0, $perpage);
+        $items = $backwards ? array_reverse($items) : $items;
+
+        $at = function ($item) use ($keys) {
+            $values = [];
+
+            foreach ($keys as $key) {
+                $value = is_array($item) ? (isset($item[$key]) ? $item[$key] : null) : (isset($item->{$key}) ? $item->{$key} : null);
+
+                if (! is_scalar($value)) {
+                    throw new \Exception(sprintf('cursor_paginate() needs the "%s" column selected and never NULL.', $key));
+                }
+
+                $values[$key] = $value;
+            }
+
+            return $values;
+        };
+
+        $next = $previous = null;
+
+        if (! empty($items)) {
+            if ($backwards || $more) {
+                $next = Cursor::encode($at(end($items)), false);
+            }
+
+            if ($backwards ? $more : (bool) $position) {
+                $previous = Cursor::encode($at(reset($items)), true);
+            }
+        }
+
+        return Cursor::cursor(new Collection($items), $perpage, $next, $previous, $cursor_name);
     }
 
     /**

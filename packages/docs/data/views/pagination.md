@@ -4,6 +4,7 @@
 
 -   [Basic Knowledge](#basic-knowledge)
 -   [Using Query Builder](#using-query-builder)
+-   [Cursor Pagination](#cursor-pagination)
 -   [Displaying the Results](#displaying-the-results)
 -   [Pagination Information](#pagination-information)
 -   [Adding Pagination Links](#adding-pagination-links)
@@ -56,6 +57,38 @@ tables: it fetches one row more than a page to know whether a next page exists. 
 $logs = DB::table('logs')->order_by('id', 'desc')->simple_paginate(50);
 $logs = Log::where('level', '=', 'error')->simple_paginate(50);
 ```
+
+<a id="cursor-pagination"></a>
+
+## Cursor Pagination
+
+`cursor_paginate()` pages by position instead of page number: the link to the next page holds
+the last row's ordering values, and the next page starts after them
+(`WHERE id > 120 ORDER BY id LIMIT 51`). Page 10.000 costs as little as page 1 (an `OFFSET`
+reads and drops every row before it), and rows inserted while a user scrolls never shift a row
+onto two pages. It suits feeds, infinite scrolling and API exports:
+
+```php
+$posts = DB::table('posts')->order_by('created_at', 'desc')->order_by('id', 'desc')->cursor_paginate(50);
+$posts = Post::where('published', '=', 1)->cursor_paginate(50); // ordered by the primary key
+
+{!! $posts->links() !!}  {{-- Previous / Next --}}
+```
+
+The page is read from the `cursor` query parameter (the third argument renames it, the fourth
+passes a cursor yourself). `next_cursor`, `previous_cursor`, `next_page_url()` and
+`previous_page_url()` give the neighbours, and `to_json()` returns `data`, `path`, `per_page`,
+`next_cursor`, `next_page_url`, `prev_cursor` and `prev_page_url`.
+
+There are rules for the `ORDER BY` columns:
+
+-   They must be plain columns, not `order_by_raw()`.
+-   They must be among the selected columns and never `NULL`.
+-   Together they must be unique: end the ordering with the primary key, as above.
+
+A cursor holds values only; the columns always come from the query, so a forged cursor cannot
+change what is compared, and one that does not fit the query starts over on the first page.
+There is no page count and no jumping to page N.
 
 <a id="displaying-the-results"></a>
 
