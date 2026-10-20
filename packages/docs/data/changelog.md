@@ -599,6 +599,18 @@ Security audit fixes — all severities:
 
 **Performance**
 
+-   `URL::home()` and every `URL::to_route()` / `Router::find()` of a missing name
+    scanned all routes on each call; a miss is now remembered until a route is
+    added (2000 `URL::home()` calls without a 'home' route: 43 ms to 5 ms).
+-   Routes are skipped by their literal prefix before their regex runs, and the
+    wildcard splitter regex is built once per set of wildcards (route misses over
+    500 routes: about 30% faster).
+-   The debugger's collectors are no longer loaded in production, nor on the CLI:
+    `Hook::fire()`, views, cache, logs, mail and the HTTP client check the
+    production flag first.
+-   `Config::get()` reads a file's mtime only while reloading, and the reload
+    flag is set before `application/boot.php` runs.
+
 -   The session file sweep runs after the response is sent instead of before: with
     many session files it added over 100 ms to one request in fifty.
 -   A JSON request body is decoded once, not on every `Input::get()`.

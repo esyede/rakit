@@ -175,4 +175,43 @@ class RouteGroupsTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('rg/settings', Router::$routes['GET']);
         $this->assertArrayNotHasKey('rg/settings/edit', Router::$routes['GET']);
     }
+
+    /**
+     * A name looked up in vain is remembered, until a route is added.
+     *
+     * @group system
+     */
+    public function testFindRemembersMissesUntilARouteIsAdded()
+    {
+        $this->assertNull(Router::find('rg.later'));
+        $this->assertNull(Router::find('rg.later'));
+        $this->assertNull(Router::uses('rg_later@index'));
+
+        Route::get('rg/later', ['as' => 'rg.later', 'uses' => 'rg_later@index']);
+
+        $this->assertArrayHasKey('rg/later', Router::find('rg.later'));
+        $this->assertArrayHasKey('rg/later', Router::uses('rg_later@index'));
+    }
+
+    /**
+     * The literal prefix filter keeps optional wildcards and leading wildcards working.
+     *
+     * @group system
+     */
+    public function testPrefixFilterKeepsWildcardsMatching()
+    {
+        Route::get('rg/opt/(:num?)', function ($id = null) {
+            return 'opt:'.$id;
+        });
+
+        Route::get('(:any)/rg-tail', function ($head) {
+            return 'tail:'.$head;
+        });
+
+        $this->assertEquals('opt:', Router::route('GET', 'rg/opt')->call()->content);
+        $this->assertEquals('opt:5', Router::route('GET', 'rg/opt/5')->call()->content);
+        $this->assertEquals('tail:x', Router::route('GET', 'x/rg-tail')->call()->content);
+
+        unset(Router::$fallback['GET']['(:any)/rg-tail']);
+    }
 }

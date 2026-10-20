@@ -248,7 +248,7 @@ class Log
         }
 
         // Track log for debugger
-        if (class_exists('\System\Foundation\Oops\Debugger') && class_exists('\System\Foundation\Oops\Collectors')) {
+        if (class_exists('\System\Foundation\Oops\Debugger', false) && ! \System\Foundation\Oops\Debugger::$productionMode) {
             if (! \System\Foundation\Oops\Debugger::$productionMode) {
                 $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
                 \System\Foundation\Oops\Collectors::addLog(
@@ -392,7 +392,7 @@ class Log
     protected static function environment()
     {
         return (
-            class_exists('\System\Foundation\Oops\Debugger')
+            class_exists('\System\Foundation\Oops\Debugger', false)
             && isset(\System\Foundation\Oops\Debugger::$productionMode)
         )
             ? (\System\Foundation\Oops\Debugger::$productionMode ? 'production' : 'local')

@@ -350,8 +350,10 @@ class View implements \ArrayAccess
 
         // Track view rendering for debugger
         if (
-            class_exists('\System\Foundation\Oops\Debugger')
-            && class_exists('\System\Foundation\Oops\Collectors')
+            // Debugger first, without autoload: in production (and on the CLI, where it
+            // is never booted) the collectors are not even loaded.
+            class_exists('\System\Foundation\Oops\Debugger', false)
+            && ! \System\Foundation\Oops\Debugger::$productionMode
         ) {
             if (! \System\Foundation\Oops\Debugger::$productionMode) {
                 $rakit_view_done = microtime(true);

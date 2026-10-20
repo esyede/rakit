@@ -701,8 +701,7 @@ class Curl
         $info = static::info();
 
         // Record the request on the debug bar's HTTP client panel.
-        if (class_exists('\System\Foundation\Oops\Collectors')
-            && class_exists('\System\Foundation\Oops\Debugger')
+        if (class_exists('\System\Foundation\Oops\Debugger', false)
             && ! \System\Foundation\Oops\Debugger::$productionMode) {
             \System\Foundation\Oops\Collectors::trackHttp(
                 $method,

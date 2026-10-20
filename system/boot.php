@@ -43,6 +43,9 @@ Debugger::enable(null, path('storage').'logs');
 | The default package, which loads the core configuration of the framework.
 */
 
+// Decided before the package boots, so application/boot.php runs with it too.
+Config::$reload = (bool) Config::get('debugger.activate', false);
+
 Package::boot(DEFAULT_PACKAGE);
 
 /*
