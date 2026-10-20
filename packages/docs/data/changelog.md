@@ -451,6 +451,17 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Validator: `bail`, `sometimes`, the `exclude` rules, closure rules and
+    `validated()`.** `bail` stops an attribute at its first failure, and
+    `stop_on_first_failure()` the whole validation. `sometimes` skips an absent
+    attribute. `exclude`, `exclude_if`, `exclude_unless`, `exclude_with` and
+    `exclude_without` skip an attribute and keep it out of the output. A closure
+    in the rule array (`function ($attribute, $value, $fail)`) is a rule.
+    `validated()` returns only the present, validated attributes and throws on
+    invalid data; `safe()` returns them as a `Collection`. `$fail()` takes a
+    message, a language key, or nothing for the new `closure` line in
+    `validation.php` (en and id). The `active_url` line now reads "must be a URL
+    with a valid host", matching its DNS check.
 -   **Authorization: `Gate` and policies.** `Gate::define()`, `policy()`,
     `before()`, `after()`, `allows()`, `denies()`, `check()`, `any()`, `none()`,
     `authorize()` (403) and `for_user()`; the `can:<ability>[,<Model>]` middleware;

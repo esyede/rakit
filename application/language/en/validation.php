@@ -16,7 +16,7 @@ return [
     */
 
     'accepted' => 'The :attribute must be accepted.',
-    'active_url' => 'The :attribute is not a valid URL.',
+    'active_url' => 'The :attribute must be a URL with a valid host.',
     'after' => 'The :attribute must be a date after :date.',
     'alpha' => 'The :attribute may only contain letters.',
     'alpha_dash' => 'The :attribute may only contain letters, numbers, and dashes.',
@@ -121,6 +121,7 @@ return [
     'ulid' => 'The :attribute must be a valid ULID.',
     'uuid' => 'The :attribute must be a valid UUID.',
     'hex_color' => 'The :attribute must be a valid hexadecimal color.',
+    'closure' => 'The :attribute is invalid.',
 
     /*
     |--------------------------------------------------------------------------

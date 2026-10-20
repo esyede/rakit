@@ -16,7 +16,7 @@ return [
     */
 
     'accepted' => 'Bilah :attribute harus disetujui.',
-    'active_url' => 'Bilah :attribute bukan URL yang valid.',
+    'active_url' => 'Bilah :attribute harus berupa URL dengan host yang valid.',
     'after' => 'Bilah :attribute harus tanggal setelah :date.',
     'alpha' => 'Bilah :attribute hanya boleh berisi huruf.',
     'alpha_dash' => 'Bilah :attribute hanya boleh berisi huruf, angka, dan strip.',
@@ -158,4 +158,5 @@ return [
     'ulid' => 'Bilah :attribute harus berupa ULID yang sah.',
     'uuid' => 'Bilah :attribute harus berupa UUID yang sah.',
     'hex_color' => 'Bilah :attribute harus berupa warna heksadesimal yang sah.',
+    'closure' => 'Bilah :attribute tidak valid.',
 ];

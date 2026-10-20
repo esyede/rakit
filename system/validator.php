@@ -72,6 +72,29 @@ class Validator
     protected $numerics = ['numeric', 'integer'];
 
     /**
+     * Attributes an exclude rule removed: not validated, not in validated().
+     *
+     * @var array
+     */
+    protected $excluded = [];
+
+    /**
+     * Whether validation stops at the first attribute that fails.
+     *
+     * @var bool
+     */
+    protected $stop_on_first_failure = false;
+
+    /**
+     * Rules that steer validation rather than check a value.
+     *
+     * @var array
+     */
+    protected static $markers = [
+        'bail', 'sometimes', 'exclude', 'exclude_if', 'exclude_unless', 'exclude_with', 'exclude_without',
+    ];
+
+    /**
      * Contains the list of custom validators registered by the user.
      *
      * @var array
@@ -86,7 +109,7 @@ class Validator
     protected static $parameterized = [
         'after', 'after_or_equal', 'after_or_equals', 'before', 'before_or_equal', 'before_or_equals',
         'between', 'count', 'countmax', 'countmin', 'date_equals', 'date_format', 'different', 'digits',
-        'exists', 'gt', 'gte', 'in_array', 'lt', 'lte', 'max', 'max_digits', 'min', 'min_digits',
+        'exclude_if', 'exclude_unless', 'exclude_with', 'exclude_without', 'exists', 'gt', 'gte', 'in_array', 'lt', 'lte', 'max', 'max_digits', 'min', 'min_digits',
         'multiple_of', 'required_if', 'required_unless', 'required_with', 'same', 'size', 'unique',
     ];
 
@@ -100,7 +123,8 @@ class Validator
     public function __construct(array $attributes, array $rules, array $messages = [])
     {
         foreach ($rules as $key => &$rule) {
-            $rule = is_string($rule) ? explode('|', $rule) : (array) $rule;
+            // (array) on a closure gives an empty array, so wrap a lone closure rule.
+            $rule = is_string($rule) ? explode('|', $rule) : (($rule instanceof \Closure) ? [$rule] : (array) $rule);
         }
 
         unset($rule);
@@ -173,16 +197,142 @@ class Validator
     public function valid()
     {
         $this->errors = new Messages();
+        $this->excluded = [];
 
         $this->rules = $this->expand_rules($this->rules);
 
         foreach ($this->rules as $attribute => $rules) {
+            if ($this->skipped($attribute, $rules)) {
+                continue;
+            }
+
+            $bail = in_array('bail', $rules, true);
+
             foreach ($rules as $rule) {
                 $this->check($attribute, $rule);
+
+                if ($bail && $this->errors->has($attribute)) {
+                    break;
+                }
+            }
+
+            if ($this->stop_on_first_failure && count($this->errors->messages) > 0) {
+                break;
             }
         }
 
         return 0 === count($this->errors->messages);
+    }
+
+    /**
+     * Stop validating at the first attribute that fails.
+     *
+     * @param bool $stop
+     *
+     * @return $this
+     */
+    public function stop_on_first_failure($stop = true)
+    {
+        $this->stop_on_first_failure = (bool) $stop;
+        return $this;
+    }
+
+    /**
+     * Get the validated data: the attributes that have rules, are present, and were
+     * not excluded. Validates first when that has not been done yet.
+     *
+     * @return array
+     */
+    public function validated()
+    {
+        if (is_null($this->errors)) {
+            $this->valid();
+        }
+
+        if (count($this->errors->messages) > 0) {
+            throw new \RuntimeException('The given data is invalid; check fails() before calling validated().');
+        }
+
+        $data = [];
+
+        foreach (array_keys($this->rules) as $attribute) {
+            if (! isset($this->excluded[$attribute]) && Arr::has($this->attributes, $attribute)) {
+                Arr::set($data, $attribute, Arr::get($this->attributes, $attribute));
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get the validated data as a collection: $validation->safe()->only(['name']).
+     *
+     * @return Collection
+     */
+    public function safe()
+    {
+        return new Collection($this->validated());
+    }
+
+    /**
+     * Check whether an attribute is skipped: 'sometimes' and absent, or excluded.
+     *
+     * @param string $attribute
+     * @param array  $rules
+     *
+     * @return bool
+     */
+    protected function skipped($attribute, array $rules)
+    {
+        if (in_array('sometimes', $rules, true) && ! Arr::has($this->attributes, $attribute)) {
+            return true;
+        }
+
+        foreach ($rules as $rule) {
+            if (! is_string($rule) || 0 !== strpos($rule, 'exclude')) {
+                continue;
+            }
+
+            list($rule, $parameters) = $this->parse($rule);
+            $this->parameterized($rule, $parameters);
+
+            if ($this->excludes($rule, $parameters)) {
+                $this->excluded[$attribute] = true;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Evaluate an exclude rule.
+     *
+     * @param string $rule
+     * @param array  $parameters
+     *
+     * @return bool
+     */
+    protected function excludes($rule, array $parameters)
+    {
+        switch ($rule) {
+            case 'exclude':
+                return true;
+
+            case 'exclude_if':
+                return $this->listed(Arr::get($this->attributes, $parameters[0]), array_slice($parameters, 1));
+
+            case 'exclude_unless':
+                return ! $this->listed(Arr::get($this->attributes, $parameters[0]), array_slice($parameters, 1));
+
+            case 'exclude_with':
+                return $this->validate_required($parameters[0], Arr::get($this->attributes, $parameters[0]));
+
+            case 'exclude_without':
+                return ! $this->validate_required($parameters[0], Arr::get($this->attributes, $parameters[0]));
+        }
+
+        return false;
     }
 
     /**
@@ -274,14 +424,16 @@ class Validator
      */
     protected function check($attribute, $rule)
     {
-        list($rule, $parameters) = $this->parse($rule);
+        if ($rule instanceof \Closure) {
+            $this->check_closure($attribute, $rule);
+            return;
+        }
 
-        if (empty($parameters) && in_array($rule, static::$parameterized, true)) {
-            throw new \InvalidArgumentException(sprintf(
-                "The '%s' validation rule requires at least one parameter, e.g. '%s:value'.",
-                $rule,
-                $rule
-            ));
+        list($rule, $parameters) = $this->parse($rule);
+        $this->parameterized($rule, $parameters);
+
+        if (in_array($rule, static::$markers, true)) {
+            return;
         }
 
         $value = Arr::get($this->attributes, $attribute);
@@ -289,6 +441,58 @@ class Validator
 
         if ($validatable && ! $this->{'validate_'.$rule}($attribute, $value, $parameters, $this)) {
             $this->error($attribute, $rule, $parameters);
+        }
+    }
+
+    /**
+     * Run a closure rule: function ($attribute, $value, $fail). Calling $fail() fails it,
+     * with the given message, a language key such as 'validation.custom.coupon', or
+     * with none the 'closure' line; ':attribute' is replaced. Like any rule that is
+     * not implicit, it is skipped for an empty value.
+     *
+     * @param string   $attribute
+     * @param \Closure $rule
+     */
+    protected function check_closure($attribute, \Closure $rule)
+    {
+        $value = Arr::get($this->attributes, $attribute);
+
+        if (! $this->validatable('closure', $attribute, $value)) {
+            return;
+        }
+
+        $fail = function ($message = null) use ($attribute) {
+            if (is_null($message)) {
+                $message = $this->message($attribute, 'closure');
+            } elseif (preg_match('/^[a-z0-9_-]+(?:\.[a-z0-9_-]+)+$/i', $message)) {
+                // Only a dotted key is looked up: a sentence is never a language key.
+                $key = Package::prefix($this->package).$message;
+
+                if (Lang::has($key, $this->language)) {
+                    $message = Lang::line($key)->get($this->language);
+                }
+            }
+
+            $this->errors->add($attribute, str_replace(':attribute', $this->attribute($attribute), $message));
+        };
+
+        $rule($attribute, $value, $fail);
+    }
+
+    /**
+     * Refuse a rule that needs parameters and got none.
+     *
+     * @param string $rule
+     * @param array  $parameters
+     */
+    protected function parameterized($rule, array $parameters)
+    {
+        if (empty($parameters) && in_array($rule, static::$parameterized, true)) {
+            throw new \InvalidArgumentException(sprintf(
+                "The '%s' validation rule requires at least one parameter, e.g. '%s:value'.",
+                $rule,
+                $rule
+            ));
         }
     }
 
@@ -303,7 +507,7 @@ class Validator
      */
     protected function validatable($rule, $attribute, $value)
     {
-        if (! $this->implicit($rule) && in_array('nullable', $this->rules[$attribute]) && is_null($value)) {
+        if (! $this->implicit($rule) && in_array('nullable', $this->rules[$attribute], true) && is_null($value)) {
             return false;
         }
 
@@ -2764,6 +2968,10 @@ class Validator
         }
 
         foreach ($this->rules[$attribute] as $rule) {
+            if ($rule instanceof \Closure) {
+                continue;
+            }
+
             list($rule, $parameters) = $this->parse($rule);
 
             if (in_array($rule, $rules)) {

@@ -6,6 +6,9 @@
 -   [Validating Input](#validating-input)
     -   [Optional Fields](#optional-fields)
     -   [Validating Arrays](#validating-arrays)
+    -   [Stopping Early](#stopping-early)
+    -   [Excluding Fields](#excluding-fields)
+-   [Validated Data](#validated-data)
 -   [Displaying Errors](#displaying-errors)
 -   [Retrieving Error Messages](#retrieving-error-messages)
 -   [Available Rules](#available-rules)
@@ -27,6 +30,7 @@
     -   [Other Rules](#other-rules)
 -   [Custom Error Messages](#custom-error-messages)
 -   [Custom Validation Rules](#custom-validation-rules)
+    -   [Closure Rules](#closure-rules)
 -   [Validator Options](#validator-options)
 
 <!-- /MarkdownTOC -->
@@ -85,6 +89,14 @@ but the implicit ones above still run, as in Laravel. So `'required|nullable'` s
 'email'    => 'required|nullable|email', // null fails: required still runs
 ```
 
+`sometimes` goes further: when the key is absent from the data, none of the attribute's rules
+run, `required` included. When it is present, every rule runs as usual. It suits updates that
+send only the fields that changed:
+
+```php
+'email' => 'sometimes|required|email', // absent passes, '' fails
+```
+
 <a id="validating-arrays"></a>
 
 ### Validating Arrays
@@ -96,6 +108,76 @@ and a custom message written for `tags.*` applies to every element.
 'tags'          => 'required|array',
 'tags.*'        => 'integer',
 'people.*.name' => 'required|max:50',
+```
+
+<a id="stopping-early"></a>
+
+### Stopping Early
+
+`bail` stops an attribute at its first failing rule, so it gets one message, and an expensive
+rule after it (such as `unique`) does not run. Other attributes are still validated:
+
+```php
+'email' => 'bail|required|email|unique:users',
+```
+
+To stop the whole validation at the first attribute that fails, call `stop_on_first_failure()`:
+
+```php
+Validator::make($input, $rules)->stop_on_first_failure()->fails();
+```
+
+<a id="excluding-fields"></a>
+
+### Excluding Fields
+
+An excluded attribute is neither validated nor returned by [`validated()`](#validated-data):
+
+| Rule | Excludes the attribute |
+| --- | --- |
+| `exclude` | always |
+| `exclude_if:field,value,...` | when `field` equals one of the values |
+| `exclude_unless:field,value,...` | unless `field` equals one of the values |
+| `exclude_with:field` | when `field` is present and not empty |
+| `exclude_without:field` | when `field` is absent or empty |
+
+```php
+'type'    => 'required|in:personal,business',
+'company' => 'exclude_if:type,personal|required|max:100',
+```
+
+<a id="validated-data"></a>
+
+## Validated Data
+
+`validated()` returns only the attributes that have rules, are present in the data, and were
+not excluded, keeping their nesting. Keys nobody wrote a rule for, such as an `is_admin` added to
+the form, are left out, which makes it the safe input for `create()` and `fill()`:
+
+```php
+$validation = Validator::make(Input::all(), [
+    'name'          => 'required|max:50',
+    'address.city'  => 'required',
+    'tags.*.id'     => 'integer',
+]);
+
+if ($validation->fails()) {
+    return Redirect::back()->with_input()->with_errors($validation);
+}
+
+User::create($validation->validated());
+// ['name' => .., 'address' => ['city' => ..], 'tags' => [['id' => ..], ..]]
+```
+
+A rule on the parent (`'address' => 'array'`) returns the whole parent, every key in it.
+`validated()` validates first if needed, and throws a `RuntimeException` when the data is invalid,
+so invalid input is never handed on by accident.
+
+`safe()` returns the same data as a [Collection](/docs/collection):
+
+```php
+$validation->safe()->only(['name', 'email'])->all();
+$validation->safe()->except(['password'])->all();
 ```
 
 <a id="displaying-errors"></a>
@@ -484,6 +566,36 @@ class Validator extends \System\Validator
 ```
 
 Validation methods must return `TRUE` or `FALSE`, and you can override built-in ones the same way.
+
+<a id="closure-rules"></a>
+
+### Closure Rules
+
+For a rule used in one place, put a closure in the rule array. It receives the attribute, the
+value and a `$fail` callback; call `$fail()` with a message to fail it (`:attribute` is replaced):
+
+```php
+$validation = Validator::make(Input::all(), [
+    'coupon' => ['required', 'string', function ($attribute, $value, $fail) {
+        if (! Coupon::where('code', '=', $value)->where('active', '=', 1)->first()) {
+            $fail('The :attribute is not valid.');
+        }
+    }],
+]);
+```
+
+`$fail()` also takes a language key, or no message at all:
+
+```php
+$fail('validation.custom.coupon'); // a dotted key is translated in the validator's language
+$fail();                           // the 'closure' line: "The :attribute is invalid."
+```
+
+With no message, a custom message for `<attribute>_closure` (inline or under `custom` in the
+language file) is used before the `closure` line, as for any other rule.
+
+Like every rule that is not implicit, a closure is skipped when the value is empty. Closures only
+fit the array form of the rules, not a `|` separated string.
 
 <a id="validator-options"></a>
 
