@@ -523,6 +523,10 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Faking HTTP requests.** `Curl::fake([...])` answers requests from URL patterns
+    (responses, JSON bodies or closures) without the network, refuses unmatched ones,
+    and records them for `Curl::assert_sent()`, `assert_not_sent()`,
+    `assert_sent_count()`, `assert_nothing_sent()` and `Curl::recorded()`. See `curl.md`.
 -   **Job chaining and batching.** `Job::chain([...])` queues each job when the one
     before it succeeded. `Job::batch([...])` runs jobs side by side with progress,
     cancellation, `allow_failures()` and `then()`, `on_failure()`, `on_finish()`

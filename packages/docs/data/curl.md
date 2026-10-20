@@ -22,6 +22,7 @@
     -   [Default cURL Options](#default-curl-options)
     -   [Resetting Settings](#resetting-settings)
     -   [SSL Validation](#ssl-validation)
+-   [Faking Requests in Tests](#faking-requests-in-tests)
 -   [Additional Functions](#additional-functions)
 
 <!-- /MarkdownTOC -->
@@ -269,6 +270,53 @@ Curl::verify_host(false);
 ```
 
 > **Security:** requests and redirects (up to 10 are followed) are limited to `http` and `https`, so a server cannot redirect you to something like `file:///etc/passwd`. Use this component for HTTP only.
+
+<a id="faking-requests-in-tests"></a>
+
+## Faking Requests in Tests
+
+`Curl::fake()` answers requests with fake responses instead of sending them, so tests run
+without the network and without hitting real APIs (payment gateways, mail services). The keys
+are URL patterns (`*` is a wildcard, the scheme may be left out); the values are a response, a
+body (an array is sent back as JSON) or a closure that receives the request:
+
+```php
+Curl::fake([
+    'api.github.com/users/*' => Curl::response(['login' => 'esyede'], 200, ['X-Rate' => '59']),
+    'example.com/status' => 'ok',
+    'payment.test/*' => function ($request) {
+        return ('POST' === $request['method']) ? Curl::response(['paid' => true]) : Curl::response('', 405);
+    },
+]);
+
+$user = Curl::get('https://api.github.com/users/esyede'); // $user->code 200, $user->body->login
+```
+
+`Curl::fake()` without patterns answers every request with an empty `200`. A request that no
+pattern matches throws, so a test never reaches the network by mistake; add a `'*'` pattern to
+answer the rest. A closure can count its calls to answer a retry differently.
+
+Every request is recorded as an array of `method`, `url` (with the GET query), `headers`
+(lower-cased names, default headers included) and `body`, for the assertions:
+
+```php
+Curl::assert_sent(function ($request) {
+    return 'POST' === $request['method']
+        && 'https://payment.test/charge' === $request['url']
+        && 'Bearer secret' === $request['headers']['authorization'];
+});
+
+Curl::assert_not_sent(function ($request) {
+    return Str::contains($request['url'], 'refund');
+});
+
+Curl::assert_sent_count(2);
+Curl::assert_nothing_sent();
+$posts = Curl::recorded(function ($request) { return 'POST' === $request['method']; });
+```
+
+The assertions fail the running PHPUnit test (or throw outside PHPUnit). Call `Curl::fake(false)`
+in `tearDown()` to send for real again.
 
 <a id="additional-functions"></a>
 

@@ -198,6 +198,20 @@ class Curl
      *
      * @var array
      */
+    /**
+     * The fake responses by URL pattern while faking, NULL when sending for real.
+     *
+     * @var array|null
+     */
+    private static $fakes;
+
+    /**
+     * The requests sent while faking.
+     *
+     * @var array
+     */
+    private static $recorded = [];
+
     private static $proxy = [
         'port' => false,
         'tunnel' => false,
@@ -617,6 +631,10 @@ class Curl
      */
     public static function send($method, $url, $body = null, array $headers = [])
     {
+        if (is_array(static::$fakes)) {
+            return static::faked($method, $url, $body, $headers);
+        }
+
         static::$handler = curl_init();
 
         if ($method !== static::GET) {
@@ -768,6 +786,166 @@ class Curl
 
         $response->headers = $headers;
         return $response;
+    }
+
+    /**
+     * Answer requests with fake responses instead of sending them, and record them for
+     * the assert_*() methods. Patterns match the URL ('*' is a wildcard, the scheme may
+     * be left out); a response is one from Curl::response(), a body (array for JSON), or
+     * a closure that takes the request and returns one. Without patterns every request
+     * gets an empty 200. A request no pattern matches throws, so a test never reaches
+     * the network by mistake. Curl::fake(false) sends for real again.
+     *
+     *     Curl::fake([
+     *         'api.github.com/users/*' => Curl::response(['login' => 'esyede'], 200),
+     *         'example.com/*' => function ($request) { return Curl::response('', 404); },
+     *     ]);
+     *
+     * @param array|bool|null $responses
+     */
+    public static function fake($responses = null)
+    {
+        static::$recorded = [];
+        static::$fakes = (false === $responses) ? null : (is_array($responses) ? $responses : ['*' => static::response()]);
+    }
+
+    /**
+     * Make a fake response, shaped like a real one.
+     *
+     * @param mixed $body    a string, or an array / object sent as JSON
+     * @param int   $code
+     * @param array $headers
+     *
+     * @return \stdClass
+     */
+    public static function response($body = '', $code = 200, array $headers = [])
+    {
+        if (is_array($body) || is_object($body)) {
+            $body = json_encode($body);
+            $headers = array_merge(['Content-Type' => 'application/json'], $headers);
+        }
+
+        $response = new \stdClass();
+        $response->code = (int) $code;
+        $response->raw_body = (string) $body;
+        $response->body = (string) $body;
+        $response->headers = $headers;
+
+        $json = json_decode((string) $body);
+
+        if ('' !== (string) $body && JSON_ERROR_NONE === json_last_error()) {
+            $response->body = $json;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Get the requests sent while faking, optionally only those a closure accepts.
+     * Each is an array: method, url, headers (lower-cased names), body.
+     *
+     * @param \Closure|null $filter
+     *
+     * @return array
+     */
+    public static function recorded($filter = null)
+    {
+        return ($filter instanceof \Closure) ? array_values(array_filter(static::$recorded, $filter)) : static::$recorded;
+    }
+
+    /**
+     * Assert that a request the closure accepts was sent.
+     *
+     * @param \Closure $filter
+     */
+    public static function assert_sent(\Closure $filter)
+    {
+        static::check(count(static::recorded($filter)) > 0, 'An expected HTTP request was not sent.');
+    }
+
+    /**
+     * Assert that no request the closure accepts was sent.
+     *
+     * @param \Closure $filter
+     */
+    public static function assert_not_sent(\Closure $filter)
+    {
+        static::check(0 === count(static::recorded($filter)), 'An unexpected HTTP request was sent.');
+    }
+
+    /**
+     * Assert how many requests were sent.
+     *
+     * @param int $count
+     */
+    public static function assert_sent_count($count)
+    {
+        static::check(count(static::$recorded) === (int) $count, sprintf(
+            'Expected %d HTTP requests, %d were sent.',
+            $count,
+            count(static::$recorded)
+        ));
+    }
+
+    /**
+     * Assert that no request was sent.
+     */
+    public static function assert_nothing_sent()
+    {
+        static::assert_sent_count(0);
+    }
+
+    /**
+     * Fail a test: through PHPUnit when it runs, else with an exception.
+     *
+     * @param bool   $condition
+     * @param string $message
+     */
+    private static function check($condition, $message)
+    {
+        if (class_exists('PHPUnit\Framework\Assert')) {
+            \PHPUnit\Framework\Assert::assertTrue((bool) $condition, $message);
+        } elseif (class_exists('PHPUnit_Framework_Assert')) {
+            \PHPUnit_Framework_Assert::assertTrue((bool) $condition, $message);
+        } elseif (! $condition) {
+            throw new \Exception($message);
+        }
+    }
+
+    /**
+     * Record a request and answer it from the fakes.
+     *
+     * @param string $method
+     * @param string $url
+     * @param mixed  $body
+     * @param array  $headers
+     *
+     * @return \stdClass
+     */
+    private static function faked($method, $url, $body, array $headers)
+    {
+        if (static::GET === $method && is_array($body)) {
+            $url .= ((false !== strpos((string) $url, '?')) ? '&' : '?').http_build_query(static::build_curl_query($body));
+            $body = null;
+        }
+
+        $request = [
+            'method' => $method,
+            'url' => (string) $url,
+            'headers' => array_change_key_case(array_merge(static::$default_headers, $headers), CASE_LOWER),
+            'body' => $body,
+        ];
+
+        static::$recorded[] = $request;
+
+        foreach (static::$fakes as $pattern => $response) {
+            if (Str::is(Str::start((string) $pattern, '*'), $request['url'])) {
+                $response = ($response instanceof \Closure) ? $response($request) : $response;
+                return ($response instanceof \stdClass) ? $response : static::response($response);
+            }
+        }
+
+        throw new \Exception(sprintf('No fake response for the HTTP request: %s %s', $method, $url));
     }
 
     /**
