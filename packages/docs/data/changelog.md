@@ -514,6 +514,19 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **ORM: `upsert()`, `simple_paginate()`, chained scopes, relation aggregates,
+    `load()`, `prevent_lazy_loading()` and pivot helpers.**
+    -   `upsert($values, $unique_by, $update)` on the query builder and models, one
+        query on MySQL, PostgreSQL, SQLite and SQL Server.
+    -   `simple_paginate()` pages without the `COUNT` query.
+    -   Local scopes chain anywhere: `User::where(...)->active()->verified()`.
+    -   `with_sum()`, `with_avg()`, `with_min()`, `with_max()`, `with_exists()`.
+    -   `$model->load()`, `load_missing()`, and on collections of models.
+    -   `Facile::prevent_lazy_loading()` throws `LazyLoadingException` on N+1 access.
+    -   `sync()` attaches in one `INSERT`, takes pivot attributes and returns what
+        changed; `sync_without_detaching()`, `toggle()`, `update_existing_pivot()`.
+    -   **Fixed:** `with('posts.comments')` without `'posts'` loaded nothing; parents
+        now load first.
 -   **Maintenance mode and a health route.** `php rakit down` answers every request
     with a 503 (`--retry` for `Retry-After`, `--allow` for IPs, `--secret` for a
     bypass URI that sets a cookie; only its hash is stored), `php rakit up` ends it.

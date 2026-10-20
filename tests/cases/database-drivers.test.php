@@ -486,4 +486,33 @@ class DatabaseDriversTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM "users" OFFSET 5', $this->query('Postgres')->skip(5)->to_sql());
         $this->assertEquals('SELECT * FROM `users` LIMIT 2 OFFSET 5', $this->query('MySQL')->skip(5)->take(2)->to_sql());
     }
+
+    /**
+     * upsert() compiles to each driver's own syntax.
+     *
+     * @group system
+     */
+    public function testUpsertSyntaxPerDriver()
+    {
+        $values = [['email' => 'a@x.co', 'name' => 'A']];
+
+        $this->assertEquals(
+            'INSERT INTO `users` (`email`, `name`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `name` = VALUES(`name`)',
+            $this->grammar('MySQL')->upsert($this->query('MySQL'), $values, ['email'], ['name'])
+        );
+        $this->assertEquals(
+            'INSERT INTO "users" ("email", "name") VALUES (?, ?) ON CONFLICT ("email") DO UPDATE SET "name" = excluded."name"',
+            $this->grammar('Postgres')->upsert($this->query('Postgres'), $values, ['email'], ['name'])
+        );
+        $this->assertEquals(
+            'INSERT INTO "users" ("email", "name") VALUES (?, ?) ON CONFLICT ("email") DO UPDATE SET "name" = excluded."name"',
+            $this->grammar('SQLite')->upsert($this->query('SQLite'), $values, ['email'], ['name'])
+        );
+        $this->assertEquals(
+            'MERGE [users] USING (VALUES (?, ?)) [rakit_source] ([email], [name]) ON [rakit_source].[email] = [users].[email]'
+            .' WHEN MATCHED THEN UPDATE SET [name] = [rakit_source].[name]'
+            .' WHEN NOT MATCHED THEN INSERT ([email], [name]) VALUES ([rakit_source].[email], [rakit_source].[name]);',
+            $this->grammar('SQLServer')->upsert($this->query('SQLServer'), $values, ['email'], ['name'])
+        );
+    }
 }

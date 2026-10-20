@@ -524,7 +524,15 @@ $id = DB::table('users')->insert_get_id(['name' => 'Jane']);
 $id = DB::table('users')->insert_get_id(['name' => 'Bob'], 'user_id');   // custom id column
 
 DB::table('users')->insert_or_ignore($rows);   // silently skip rows that clash with a unique key
+
+DB::table('users')->upsert($rows, 'email', ['name', 'active']); // insert, or update on a clash
 ```
+
+`upsert($values, $unique_by, $update = null)` inserts the rows and, for those whose `unique_by`
+columns match an existing row, updates the `update` columns instead (all inserted columns when
+`null`, nothing when `[]`). The columns need a unique index or the primary key (on MySQL, any
+unique key decides). It runs as one query: `ON DUPLICATE KEY UPDATE` on MySQL, `ON CONFLICT` on
+PostgreSQL and SQLite 3.24+, `MERGE` on SQL Server.
 
 `insert()` returns `true` (a failure throws). `insert_get_id()` returns an `int` when the driver
 gives digits, the raw string otherwise (so UUIDs survive), and `null` when the driver has none

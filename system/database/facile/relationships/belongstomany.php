@@ -114,27 +114,164 @@ class BelongsToMany extends Relationship
     }
 
     /**
-     * Sync the joining table with a list of IDs.
+     * Sync the joining table with a list of IDs: attach the missing ones, detach the
+     * others. An ID may map to pivot attributes: sync([1, 2 => ['role' => 'owner']]).
      *
      * @param array $ids
      *
-     * @return bool
+     * @return array the 'attached', 'detached' and 'updated' IDs
      */
     public function sync($ids)
     {
-        $ids = is_array($ids) ? $ids : func_get_args();
-        $current = $this->pivot()->lists($this->other_key());
+        return $this->synchronize(is_array($ids) ? $ids : func_get_args(), true);
+    }
 
-        foreach ($ids as $id) {
-            if (! in_array($id, $current)) {
-                $this->attach($id);
-            }
-        }
+    /**
+     * Attach the given IDs that are missing, and detach nothing.
+     *
+     * @param array $ids
+     *
+     * @return array the 'attached', 'detached' and 'updated' IDs
+     */
+    public function sync_without_detaching($ids)
+    {
+        return $this->synchronize(is_array($ids) ? $ids : func_get_args(), false);
+    }
 
-        $detach = array_diff($current, $ids);
+    /**
+     * Detach the given IDs that are attached, and attach the others.
+     *
+     * @param array $ids
+     *
+     * @return array the 'attached' and 'detached' IDs
+     */
+    public function toggle($ids)
+    {
+        $records = $this->records(is_array($ids) ? $ids : func_get_args());
+        $current = $this->current();
+        $detach = array_values(array_intersect(array_keys($records), $current));
 
         if (count($detach) > 0) {
             $this->detach($detach);
+        }
+
+        $attach = array_diff_key($records, array_flip($detach));
+        $this->attach_many($attach);
+
+        return ['attached' => array_keys($attach), 'detached' => $detach];
+    }
+
+    /**
+     * Update the pivot attributes of an attached ID.
+     *
+     * @param Model|int $id
+     * @param array     $attributes
+     *
+     * @return int
+     */
+    public function update_existing_pivot($id, array $attributes)
+    {
+        $id = ($id instanceof Model) ? $id->get_key() : $id;
+
+        if (Pivot::$timestamps) {
+            $attributes['updated_at'] = Carbon::now()->format('Y-m-d H:i:s');
+        }
+
+        return $this->pivot()->where($this->other_key(), '=', $id)->update($attributes);
+    }
+
+    /**
+     * Sync the joining table, detaching the IDs not given or not.
+     *
+     * @param array $ids
+     * @param bool  $detaching
+     *
+     * @return array
+     */
+    protected function synchronize(array $ids, $detaching)
+    {
+        $records = $this->records($ids);
+        $current = $this->current();
+        $changes = ['attached' => [], 'detached' => [], 'updated' => []];
+
+        $attach = array_diff_key($records, array_flip($current));
+        $this->attach_many($attach);
+        $changes['attached'] = array_keys($attach);
+
+        foreach (array_intersect_key($records, array_flip($current)) as $id => $attributes) {
+            if (count($attributes) > 0 && $this->update_existing_pivot($id, $attributes) > 0) {
+                $changes['updated'][] = $id;
+            }
+        }
+
+        if ($detaching) {
+            $detach = array_values(array_diff($current, array_keys($records)));
+
+            if (count($detach) > 0) {
+                $this->detach($detach);
+                $changes['detached'] = $detach;
+            }
+        }
+
+        return $changes;
+    }
+
+    /**
+     * Normalize IDs, models and id => attributes pairs into id => attributes, keyed by
+     * string so that 1 and '1' are the same record.
+     *
+     * @param array $ids
+     *
+     * @return array
+     */
+    protected function records(array $ids)
+    {
+        $records = [];
+
+        foreach ($ids as $key => $value) {
+            if (is_array($value)) {
+                $records[(string) $key] = $value;
+            } else {
+                $records[(string) (($value instanceof Model) ? $value->get_key() : $value)] = [];
+            }
+        }
+
+        return $records;
+    }
+
+    /**
+     * Get the attached IDs, as strings.
+     *
+     * @return array
+     */
+    protected function current()
+    {
+        return array_map('strval', (array) $this->pivot()->lists($this->other_key()));
+    }
+
+    /**
+     * Attach several IDs in as few INSERTs as possible: one, when they share their
+     * pivot columns.
+     *
+     * @param array $records id => attributes
+     */
+    protected function attach_many(array $records)
+    {
+        $rows = [];
+
+        foreach ($records as $id => $attributes) {
+            $row = array_merge($this->join_record($id), $attributes);
+
+            if (Pivot::$timestamps) {
+                $row['created_at'] = Carbon::now()->format('Y-m-d H:i:s');
+                $row['updated_at'] = $row['created_at'];
+            }
+
+            $rows[implode(',', array_keys($row))][] = $row;
+        }
+
+        foreach ($rows as $group) {
+            $this->joining_table()->insert($group);
         }
     }
 

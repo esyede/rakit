@@ -30,6 +30,21 @@ class Postgres extends Grammar
     }
 
     /**
+     * Compile an INSERT that updates the records already there.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $unique_by
+     * @param array $update
+     *
+     * @return string
+     */
+    public function upsert(Query $query, array $values, array $unique_by, array $update)
+    {
+        return $this->upsert_on_conflict($query, $values, $unique_by, $update);
+    }
+
+    /**
      * Compile an INSERT statement that silently skips clashing records.
      *
      * @param Query $query

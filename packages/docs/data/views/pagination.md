@@ -48,6 +48,15 @@ in [Custom Page Name](#custom-page-name).
 > `GROUP BY`, `HAVING`, `distinct()` and a `take()`/`skip()` set before `paginate()` are all
 > taken into account when counting, so the total is the real number of records.
 
+`simple_paginate()` takes the same arguments but skips the `COUNT` query, which matters on big
+tables: it fetches one row more than a page to know whether a next page exists. Its `total` is
+`null`, and its links reach the next page only:
+
+```php
+$logs = DB::table('logs')->order_by('id', 'desc')->simple_paginate(50);
+$logs = Log::where('level', '=', 'error')->simple_paginate(50);
+```
+
 <a id="displaying-the-results"></a>
 
 ## Displaying the Results

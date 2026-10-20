@@ -41,6 +41,28 @@ class MySQL extends Grammar
     }
 
     /**
+     * Compile an INSERT that updates the records already there. VALUES() works on
+     * MySQL 5.x, 8.x and MariaDB alike.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $unique_by
+     * @param array $update
+     *
+     * @return string
+     */
+    public function upsert(Query $query, array $values, array $unique_by, array $update)
+    {
+        $sets = [];
+
+        foreach ($update as $column) {
+            $sets[] = $this->wrap($column).' = VALUES('.$this->wrap($column).')';
+        }
+
+        return $this->insert($query, $values).' ON DUPLICATE KEY UPDATE '.implode(', ', $sets);
+    }
+
+    /**
      * Compile the row locking clause, in the pre-8.0 spelling of FOR SHARE.
      * NOWAIT and SKIP LOCKED need MySQL 8.0, which also knows FOR SHARE.
      *

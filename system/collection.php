@@ -47,6 +47,48 @@ class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonS
     }
 
     /**
+     * Eager load relationships onto the Facile models of the collection, in one query
+     * per relationship.
+     *
+     * @param array|string $relationships
+     *
+     * @return $this
+     */
+    public function load($relationships)
+    {
+        $first = reset($this->items);
+
+        if ($first instanceof Database\Facile\Model) {
+            $first->query()->eager_load_into($this->items, is_array($relationships) ? $relationships : func_get_args());
+        }
+
+        return $this;
+    }
+
+    /**
+     * Eager load the relationships that the Facile models of the collection miss.
+     *
+     * @param array|string $relationships
+     *
+     * @return $this
+     */
+    public function load_missing($relationships)
+    {
+        $first = reset($this->items);
+
+        if ($first instanceof Database\Facile\Model) {
+            $relationships = is_array($relationships) ? $relationships : func_get_args();
+            $missing = Database\Facile\Model::missing_relationships(array_values($this->items), $relationships);
+
+            if (count($missing) > 0) {
+                $first->query()->eager_load_into($this->items, $missing);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Get the average value of a given key.
      *
      * @param callable|string|null $callback

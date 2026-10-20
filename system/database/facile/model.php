@@ -184,6 +184,21 @@ abstract class Model implements \JsonSerializable
     public static $morph_map = [];
 
     /**
+     * Whether lazy loading a relationship of a model fetched with others throws: the
+     * N+1 query pattern, caught in development. See prevent_lazy_loading().
+     *
+     * @var bool
+     */
+    public static $prevent_lazy_loading = false;
+
+    /**
+     * Whether this model was fetched along with others, so lazy loading it is N+1.
+     *
+     * @var bool
+     */
+    public $fetched_with_others = false;
+
+    /**
      * Contains the table name that is associated with the model.
      *
      * @var string
@@ -565,6 +580,14 @@ abstract class Model implements \JsonSerializable
 
         if (! ($relationship instanceof Relationships\Relationship)) {
             return;
+        }
+
+        if (self::$prevent_lazy_loading && $this->fetched_with_others) {
+            throw new \System\Exceptions\LazyLoadingException(sprintf(
+                'Attempted to lazy load [%s] on model [%s]: eager load it with with().',
+                $key,
+                get_class($this)
+            ));
         }
 
         $this->relationships[$key] = $relationship->results();
@@ -1540,6 +1563,75 @@ abstract class Model implements \JsonSerializable
         $type = is_null($type) ? $name . '_type' : $type;
         $id = is_null($id) ? $name . '_id' : $id;
         return new Relationships\MorphMany($this, $model, $type, $id, $foreign);
+    }
+
+    /**
+     * Make lazy loading a relationship of a model fetched with others throw, to catch
+     * N+1 queries. Call it in development, e.g. in application/boot.php.
+     *
+     * @param bool $prevent
+     */
+    public static function prevent_lazy_loading($prevent = true)
+    {
+        self::$prevent_lazy_loading = (bool) $prevent;
+    }
+
+    /**
+     * Eager load relationships onto this model, already fetched.
+     *
+     * @param array|string $relationships
+     *
+     * @return $this
+     */
+    public function load($relationships)
+    {
+        $this->query()->eager_load_into([$this], is_array($relationships) ? $relationships : func_get_args());
+        return $this;
+    }
+
+    /**
+     * Eager load the relationships this model has not loaded yet.
+     *
+     * @param array|string $relationships
+     *
+     * @return $this
+     */
+    public function load_missing($relationships)
+    {
+        $missing = static::missing_relationships([$this], is_array($relationships) ? $relationships : func_get_args());
+
+        if (count($missing) > 0) {
+            $this->query()->eager_load_into([$this], $missing);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Keep the relationships that one of the models has not loaded.
+     *
+     * @param array $models
+     * @param array $relationships
+     *
+     * @return array
+     */
+    public static function missing_relationships(array $models, array $relationships)
+    {
+        $missing = [];
+
+        foreach ($relationships as $key => $value) {
+            $name = is_string($key) ? $key : $value;
+            $top = strtok((string) $name, '.');
+
+            foreach ($models as $model) {
+                if (! array_key_exists($top, $model->relationships) || false !== strpos((string) $name, '.')) {
+                    is_string($key) ? $missing[$key] = $value : $missing[] = $value;
+                    break;
+                }
+            }
+        }
+
+        return $missing;
     }
 
     /**

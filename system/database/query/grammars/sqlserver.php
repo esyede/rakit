@@ -23,6 +23,42 @@ class SQLServer extends Grammar
     public $datetime = 'Y-m-d H:i:s.000';
 
     /**
+     * Compile an INSERT that updates the records already there, as a MERGE.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $unique_by
+     * @param array $update
+     *
+     * @return string
+     */
+    public function upsert(Query $query, array $values, array $unique_by, array $update)
+    {
+        $columns = array_keys(reset($values));
+        $source = $this->wrap('rakit_source');
+        $table = $this->wrap_table($query->from);
+        $rows = implode(', ', array_fill(0, count($values), '('.$this->parameterize(reset($values)).')'));
+        $on = [];
+        $sets = [];
+
+        foreach ($unique_by as $column) {
+            $on[] = $source.'.'.$this->wrap($column).' = '.$table.'.'.$this->wrap($column);
+        }
+
+        foreach ($update as $column) {
+            $sets[] = $this->wrap($column).' = '.$source.'.'.$this->wrap($column);
+        }
+
+        return 'MERGE '.$table.' USING (VALUES '.$rows.') '.$source.' ('.$this->columnize($columns).')'
+            .' ON '.implode(' AND ', $on)
+            .' WHEN MATCHED THEN UPDATE SET '.implode(', ', $sets)
+            .' WHEN NOT MATCHED THEN INSERT ('.$this->columnize($columns).') VALUES ('
+            .implode(', ', array_map(function ($column) use ($source) {
+                return $source.'.'.$this->wrap($column);
+            }, $columns)).');';
+    }
+
+    /**
      * Compile the SELECT statement.
      *
      * @param Query $query

@@ -2129,6 +2129,76 @@ class Query
     }
 
     /**
+     * Insert records, or update the ones that already exist, in one query. A record
+     * exists when it matches on the unique_by columns, which need a unique index (or
+     * the primary key) on every driver but MySQL, which uses any unique key.
+     *
+     * @param array        $values    one record, or a list of them
+     * @param array|string $unique_by
+     * @param array|null   $update    the columns to update; NULL for every inserted one
+     *
+     * @return bool
+     */
+    public function upsert(array $values, $unique_by, $update = null)
+    {
+        if (0 === count($values)) {
+            return true;
+        }
+
+        $values = is_array(reset($values)) ? array_values($values) : [$values];
+        $unique_by = (array) $unique_by;
+        $columns = array_keys(reset($values));
+        $update = is_null($update) ? $columns : (array) $update;
+
+        if (0 === count($update)) {
+            return $this->insert_or_ignore($values);
+        }
+
+        $bindings = [];
+
+        foreach ($values as $value) {
+            foreach ($columns as $column) {
+                $bindings[] = array_key_exists($column, $value) ? $value[$column] : null;
+            }
+        }
+
+        $this->connection->query($this->grammar->upsert($this, $values, $unique_by, $update), $bindings);
+
+        return true;
+    }
+
+    /**
+     * Paginate without counting: fetch one row more than a page to know whether
+     * another page follows. Cheaper on big tables; the paginator's total is NULL and
+     * its links only reach the next page.
+     *
+     * @param int      $perpage
+     * @param array    $columns
+     * @param string   $page_name
+     * @param int|null $page
+     *
+     * @return Paginator
+     */
+    public function simple_paginate($perpage = 20, array $columns = ['*'], $page_name = 'page', $page = null)
+    {
+        $perpage = max(1, (int) $perpage);
+        $page = is_null($page) ? \System\Input::get($page_name, 1) : $page;
+        $page = (is_scalar($page) && (int) $page > 0) ? (int) $page : 1;
+
+        $results = $this->skip(($page - 1) * $perpage)->take($perpage + 1)->get($columns);
+        $items = ($results instanceof Collection) ? $results->all() : (array) $results;
+        $more = count($items) > $perpage;
+        $items = array_slice($items, 0, $perpage);
+
+        // A total that makes the next page, and only that one, exist.
+        $total = (($page - 1) * $perpage) + count($items) + ($more ? 1 : 0);
+        $paginator = Paginator::make(new Collection($items), $total, $perpage, $page_name, $page);
+        $paginator->total = null;
+
+        return $paginator;
+    }
+
+    /**
      * Paginate the query results.
      *
      * @param int    $perpage

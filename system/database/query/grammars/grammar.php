@@ -679,6 +679,42 @@ class Grammar extends BaseGrammar
     }
 
     /**
+     * Compile an INSERT that updates the records already there.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $unique_by
+     * @param array $update
+     *
+     * @return string
+     */
+    public function upsert(Query $query, array $values, array $unique_by, array $update)
+    {
+        throw new \Exception(sprintf('This database driver does not support upsert(): %s', get_class($this)));
+    }
+
+    /**
+     * Compile the "ON CONFLICT (...) DO UPDATE" form shared by PostgreSQL and SQLite.
+     *
+     * @param Query $query
+     * @param array $values
+     * @param array $unique_by
+     * @param array $update
+     *
+     * @return string
+     */
+    protected function upsert_on_conflict(Query $query, array $values, array $unique_by, array $update)
+    {
+        $sets = [];
+
+        foreach ($update as $column) {
+            $sets[] = $this->wrap($column).' = excluded.'.$this->wrap($column);
+        }
+
+        return $this->insert($query, $values).' ON CONFLICT ('.$this->columnize($unique_by).') DO UPDATE SET '.implode(', ', $sets);
+    }
+
+    /**
      * Compile the INSERT statement, several records in one query.
      *
      * @param Query $query

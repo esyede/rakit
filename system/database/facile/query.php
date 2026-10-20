@@ -59,6 +59,7 @@ class Query
         'count',
         'insert',
         'insert_get_id',
+        'upsert',
         'min',
         'max',
         'avg',
@@ -606,8 +607,84 @@ class Query
      */
     public function with_count($relationships)
     {
-        $relationships = is_array($relationships) ? $relationships : func_get_args();
+        return $this->with_aggregate(is_array($relationships) ? $relationships : func_get_args(), 'COUNT', '*');
+    }
 
+    /**
+     * Select the sum of a column of related records as '<relationship>_sum_<column>'.
+     *
+     * @param array|string $relationships
+     * @param string       $column
+     *
+     * @return Query
+     */
+    public function with_sum($relationships, $column)
+    {
+        return $this->with_aggregate((array) $relationships, 'SUM', $column);
+    }
+
+    /**
+     * Select the average of a column of related records as '<relationship>_avg_<column>'.
+     *
+     * @param array|string $relationships
+     * @param string       $column
+     *
+     * @return Query
+     */
+    public function with_avg($relationships, $column)
+    {
+        return $this->with_aggregate((array) $relationships, 'AVG', $column);
+    }
+
+    /**
+     * Select the lowest value of a column of related records as '<relationship>_min_<column>'.
+     *
+     * @param array|string $relationships
+     * @param string       $column
+     *
+     * @return Query
+     */
+    public function with_min($relationships, $column)
+    {
+        return $this->with_aggregate((array) $relationships, 'MIN', $column);
+    }
+
+    /**
+     * Select the highest value of a column of related records as '<relationship>_max_<column>'.
+     *
+     * @param array|string $relationships
+     * @param string       $column
+     *
+     * @return Query
+     */
+    public function with_max($relationships, $column)
+    {
+        return $this->with_aggregate((array) $relationships, 'MAX', $column);
+    }
+
+    /**
+     * Select whether related records exist, as a '<relationship>_exists' column (1 or 0).
+     *
+     * @param array|string $relationships
+     *
+     * @return Query
+     */
+    public function with_exists($relationships)
+    {
+        return $this->with_aggregate(is_array($relationships) ? $relationships : func_get_args(), 'EXISTS', null);
+    }
+
+    /**
+     * Add a correlated aggregate of each relationship to the selected columns.
+     *
+     * @param array       $relationships names, or name => constraining closure
+     * @param string      $function      COUNT, SUM, AVG, MIN, MAX or EXISTS
+     * @param string|null $column
+     *
+     * @return Query
+     */
+    protected function with_aggregate(array $relationships, $function, $column)
+    {
         if (!isset($this->table) || !$this->table instanceof \System\Database\Query) {
             $this->table = $this->table();
         }
@@ -626,20 +703,34 @@ class Query
             }
 
             $sub = $this->relationship_subquery($relationship, $callback);
-            $sub->select([new Expression('COUNT(*)')]);
 
-            $column = Str::snake((string) $relationship) . '_count';
+            if ('EXISTS' === $function) {
+                $alias = Str::snake((string) $relationship).'_exists';
+            } elseif ('COUNT' === $function) {
+                $sub->select([new Expression('COUNT(*)')]);
+                $alias = Str::snake((string) $relationship).'_count';
+            } else {
+                // Qualified with the related table: the subquery may join others.
+                $related = $this->resolve_relationship($relationship)->model->table();
+                $target = (false === strpos((string) $column, '.')) ? $related.'.'.$column : $column;
+                $sub->select([new Expression($function.'('.$sub->grammar->wrap($target).')')]);
+                $alias = Str::snake((string) $relationship).'_'.strtolower($function).'_'.Str::snake(str_replace('.', '_', (string) $column));
+            }
             $grammar = isset($this->table->grammar)
                 ? $this->table->grammar
                 : (isset($sub->grammar) ? $sub->grammar : null);
 
             if (!$grammar || !method_exists($grammar, 'select') || !method_exists($grammar, 'wrap')) {
-                throw new \Exception('Query grammar not available for with_count().');
+                throw new \Exception('Query grammar not available for with_count() and the other aggregates.');
             }
 
             $sub_sql = $sub->grammar->select($sub);
-            $wrapped = $grammar->wrap($column);
-            $sql = '(' . $sub_sql . ') AS ' . $wrapped;
+            $wrapped = $grammar->wrap($alias);
+
+            // CASE WHEN, not a bare EXISTS: SQL Server takes no boolean in a select list.
+            $sql = ('EXISTS' === $function)
+                ? 'CASE WHEN EXISTS (' . $sub_sql . ') THEN 1 ELSE 0 END AS ' . $wrapped
+                : '(' . $sub_sql . ') AS ' . $wrapped;
 
             if (!is_array($this->table->selects)) {
                 $this->table->selects = [];
@@ -883,6 +974,48 @@ class Query
     }
 
     /**
+     * Paginate without counting the total, see Database\Query::simple_paginate().
+     *
+     * @param int|null $perpage
+     * @param array    $columns
+     * @param string   $page_name
+     * @param int|null $page
+     *
+     * @return \System\Paginator
+     */
+    public function simple_paginate($perpage = null, array $columns = ['*'], $page_name = 'page', $page = null)
+    {
+        $perpage = $perpage ?: $this->model->perpage();
+        $paginator = $this->table->simple_paginate($perpage, $columns, $page_name, $page);
+        $paginator->results = $this->hydrate($this->model, $paginator->results);
+
+        return $paginator;
+    }
+
+    /**
+     * Eager load relationships onto models already fetched, as with() would have.
+     *
+     * @param array|\System\Collection $models
+     * @param array|string              $relationships
+     */
+    public function eager_load_into($models, $relationships)
+    {
+        $models = ($models instanceof Collection) ? $models->all() : array_values((array) $models);
+
+        if (0 === count($models)) {
+            return;
+        }
+
+        $this->model->with = (array) $relationships;
+
+        foreach ($this->model_with() as $relationship => $constraints) {
+            if (! Str::contains($relationship, '.')) {
+                $this->load($models, $relationship, $constraints);
+            }
+        }
+    }
+
+    /**
      * Do a mass-assignment of the given results to model instances.
      *
      * @param Model|array|\Traversable $results
@@ -896,6 +1029,13 @@ class Query
 
         foreach ($results as $result) {
             $models[] = $this->make($model, $result);
+        }
+
+        // Fetched together: lazy loading one of them would run a query per model.
+        if (count($models) > 1) {
+            foreach ($models as $instance) {
+                $instance->fetched_with_others = true;
+            }
         }
 
         if (count($results) > 0) {
@@ -998,6 +1138,17 @@ class Query
         foreach ($this->model->with as $relationship => $constraints) {
             if (is_numeric($relationship)) {
                 list($relationship, $constraints) = [$constraints, null];
+            }
+
+            // 'posts.comments' loads posts too: each parent comes before its child.
+            $segments = explode('.', (string) $relationship);
+
+            for ($i = 1, $count = count($segments); $i < $count; ++$i) {
+                $parent = implode('.', array_slice($segments, 0, $i));
+
+                if (! array_key_exists($parent, $with)) {
+                    $with[$parent] = null;
+                }
             }
 
             $with[$relationship] = $constraints;
@@ -1138,6 +1289,12 @@ class Query
      */
     public function __call($method, array $parameters)
     {
+        // A local scope, chained after another call: User::active()->verified().
+        if ($this->model && method_exists($this->model, 'scope_'.$method)) {
+            call_user_func_array([$this->model, 'scope_'.$method], array_merge([$this], $parameters));
+            return $this;
+        }
+
         $results = call_user_func_array([$this->table, $method], $parameters);
         return in_array($method, $this->passthru) ? $results : $this;
     }
