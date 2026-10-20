@@ -5,6 +5,7 @@
 -   [Basic Knowledge](#basic-knowledge)
 -   [Retrieving Language Lines](#retrieving-language-lines)
 -   [Placeholder & Replacement](#placeholder--replacement)
+-   [Pluralization](#pluralization)
 -   [Locale From The URI](#locale-from-the-uri)
 
 <!-- /MarkdownTOC -->
@@ -100,6 +101,34 @@ echo trans('marketing.order_summary', [
 ```
 
 `trans()` also accepts the language as its third argument.
+
+<a id="pluralization"></a>
+
+## Pluralization
+
+Separate the forms of a line with `|`. A form may start with an exact count `{n}` or a range
+`[min,max]`, where `*` means no bound:
+
+```php
+// application/language/en/cart.php
+return [
+    'apples' => '{0} No apples|{1} One apple|[2,9] :count apples|[10,*] Many apples',
+    'items' => 'One item|:count items',
+];
+```
+
+`Lang::choice()` (or the `trans_choice()` helper) picks the form for a count and fills `:count`:
+
+```php
+echo trans_choice('cart.apples', 0);  // No apples
+echo trans_choice('cart.apples', 5);  // 5 apples
+echo trans_choice('cart.items', 1);   // One item
+echo Lang::choice('cart.items', 3, ['name' => 'Budi'], 'en'); // 3 items
+```
+
+Without a range, the first form is the singular and the second the plural. Languages that have
+no plural form (Indonesian, Malay, Japanese, Korean, Chinese, Thai, Vietnamese, Turkish ...) use
+the first form for every count, so a single form is enough: `':count barang'`.
 
 <a id="locale-from-the-uri"></a>
 

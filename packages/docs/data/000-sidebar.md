@@ -38,6 +38,7 @@
 -   [Job (Queues & Scheduling)](/docs/job)
 -   [Task Scheduling](/docs/schedule)
 -   [Email](/docs/email)
+-   [Notifications](/docs/notifications)
 -   [Storage](/docs/storage)
 -   [HTTP Client (Curl)](/docs/curl)
 -   [Localization](/docs/localization)

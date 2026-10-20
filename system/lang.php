@@ -110,16 +110,106 @@ class Lang
 
         $line = Arr::get(static::$lines[$package][$language][$file], $line, $default);
 
-        if (is_string($line)) {
-            $replacements = $this->replacements;
+        return is_string($line) ? $this->replace($line, $this->replacements) : $line;
+    }
 
+    /**
+     * Get the line for a count: 'apples' => '{0} No apples|{1} One apple|[2,*] :count apples'.
+     * A segment may start with an exact count {n} or a range [a,b] ('*' for no bound);
+     * otherwise the first segment is the singular and the second the plural, except
+     * for languages without plural forms, which take the first. :count is replaced.
+     *
+     * @param string      $key
+     * @param int|float   $count
+     * @param array       $replacements
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public static function choice($key, $count, array $replacements = [], $language = null)
+    {
+        $language = is_null($language) ? Config::get('application.language') : $language;
+        $line = static::line($key, [], $language)->get($language);
+
+        if (! is_string($line)) {
+            return $line;
+        }
+
+        $line = static::select($line, $count, $language);
+
+        return static::line($key, [], $language)->replace($line, array_merge(['count' => $count], $replacements));
+    }
+
+    /**
+     * Pick the segment of a pluralized line that fits a count.
+     *
+     * @param string    $line
+     * @param int|float $count
+     * @param string    $language
+     *
+     * @return string
+     */
+    protected static function select($line, $count, $language)
+    {
+        $segments = explode('|', $line);
+        $plain = [];
+
+        foreach ($segments as $segment) {
+            $segment = trim($segment);
+
+            if (preg_match('/^\{(-?\d+(?:\.\d+)?)\}\s*(.*)$/s', $segment, $match)) {
+                if ((float) $match[1] == $count) {
+                    return $match[2];
+                }
+
+                continue;
+            }
+
+            if (preg_match('/^\[(\*|-?\d+(?:\.\d+)?)\s*,\s*(\*|-?\d+(?:\.\d+)?)\]\s*(.*)$/s', $segment, $match)) {
+                $low = ('*' === $match[1]) ? -INF : (float) $match[1];
+                $high = ('*' === $match[2]) ? INF : (float) $match[2];
+
+                if ($count >= $low && $count <= $high) {
+                    return $match[3];
+                }
+
+                continue;
+            }
+
+            $plain[] = $segment;
+        }
+
+        if (0 === count($plain)) {
+            return end($segments);
+        }
+
+        // Languages without a plural form use one segment for every count.
+        $base = strtolower((string) strtok((string) $language, '-_'));
+        $singular = in_array($base, ['id', 'ms', 'ja', 'ko', 'zh', 'th', 'vi', 'km', 'lo', 'my', 'tr', 'fa'], true);
+        $index = ($singular || 1 == abs($count)) ? 0 : 1;
+
+        return isset($plain[$index]) ? $plain[$index] : end($plain);
+    }
+
+    /**
+     * Replace the :placeholders of a line, the longest names first.
+     *
+     * @param string $line
+     * @param array  $replacements
+     *
+     * @return string
+     */
+    public function replace($line, array $replacements)
+    {
+        // Longest first, so :name does not eat the start of :name_full.
+        if (count($replacements) > 1) {
             uksort($replacements, function ($left, $right) {
                 return mb_strlen((string) $right, '8bit') - mb_strlen((string) $left, '8bit');
             });
+        }
 
-            foreach ($replacements as $key => $value) {
-                $line = str_replace(':'.$key, $value, $line);
-            }
+        foreach ($replacements as $key => $value) {
+            $line = str_replace(':'.$key, $value, $line);
         }
 
         return $line;

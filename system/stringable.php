@@ -581,12 +581,17 @@ class Stringable
      */
     public function __call($method, array $parameters)
     {
-        if (! array_key_exists($method, Str::$macros)) {
+        // A Str macro, or any public Str helper taking the string first.
+        if (array_key_exists($method, Str::$macros)) {
+            $callable = Str::$macros[$method];
+        } elseif (is_callable(['System\\Str', $method]) && method_exists('System\\Str', $method)) {
+            $callable = ['System\\Str', $method];
+        } else {
             throw new \BadMethodCallException(sprintf('Method does not exist: %s', $method));
         }
 
         array_unshift($parameters, $this->value);
-        $result = call_user_func_array(Str::$macros[$method], $parameters);
+        $result = call_user_func_array($callable, $parameters);
 
         return is_string($result) ? new static($result) : $result;
     }

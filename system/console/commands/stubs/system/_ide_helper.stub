@@ -167,11 +167,19 @@ class Mailer extends System\Email\Drivers\Driver
     }
 }
 
+class Mailable extends System\Email\Mailable
+{
+}
+
 class Markdown extends System\Markdown
 {
 }
 
 class Middleware extends System\Routing\Middleware
+{
+}
+
+class Notification extends System\Notification
 {
 }
 

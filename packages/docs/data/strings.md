@@ -48,6 +48,7 @@
     -   [Str::upper\(\)](#strupper)
     -   [Str::uuid\(\)](#struuid)
     -   [Str::words\(\)](#strwords)
+    -   [More Helpers](#more-helpers)
 -   [Fluent Strings](#fluent-strings)
     -   [Fluent-Only Methods](#fluent-only-methods)
     -   [Truthiness](#truthiness)
@@ -526,6 +527,35 @@ Limits the number of words (default `100`). The third argument replaces the `...
 ```php
 Str::words('You know, I miss you so much.', 3, ' >>>'); // 'You know, I >>>'
 ```
+
+<a id="more-helpers"></a>
+
+### More Helpers
+
+| Method | Example | Result |
+| --- | --- | --- |
+| `Str::mask($s, $char, $index, $length = null)` | `Str::mask('budi@example.com', '*', 2, 5)` | `bu*****ample.com` |
+| `Str::squish($s)` | `Str::squish("  a \n  b ")` | `a b` |
+| `Str::headline($s)` | `Str::headline('user_profileUpdated')` | `User Profile Updated` |
+| `Str::excerpt($text, $phrase, $options)` | `Str::excerpt('This is a beautiful morning', 'beautiful', ['radius' => 5])` | `...is a beautiful morn...` |
+| `Str::between($s, $from, $to)` | `Str::between('a[b][c]', '[', ']')` | `b][c` (first to last) |
+| `Str::between_first($s, $from, $to)` | `Str::between_first('a[b][c]', '[', ']')` | `b` |
+| `Str::after_last($s, $search)` | `Str::after_last('file.tar.gz', '.')` | `gz` |
+| `Str::before_last($s, $search)` | `Str::before_last('file.tar.gz', '.')` | `file.tar` |
+| `Str::wrap($s, $before, $after = null)` | `Str::wrap('x', '"')` | `"x"` |
+| `Str::unwrap($s, $before, $after = null)` | `Str::unwrap('[x]', '[', ']')` | `x` |
+| `Str::pad_left/pad_right/pad_both($s, $length, $pad = ' ')` | `Str::pad_left('42', 5, '0')` | `00042` |
+| `Str::is_url($s, $protocols = [])` | `Str::is_url('ftp://x.co', ['https'])` | `false` |
+| `Str::is_json($s)` / `Str::is_ascii($s)` / `Str::is_uuid($s)` | `Str::is_json('{"a":1}')` | `true` |
+| `Str::swap($map, $s)` | `Str::swap(['Tacos' => 'Burritos'], 'Tacos!')` | `Burritos!` |
+| `Str::take($s, $limit)` | `Str::take('héllo', -2)` | `lo` |
+| `Str::reverse($s)` | `Str::reverse('héllo')` | `olléh` |
+| `Str::position($s, $needle, $offset = 0)` | `Str::position('héllo', 'l')` | `2` |
+| `Str::deduplicate($s, $char = ' ')` | `Str::deduplicate('a   b')` | `a b` |
+| `Str::ucsplit($s)` | `Str::ucsplit('FooBar')` | `['Foo', 'Bar']` |
+
+Lengths and positions count characters, not bytes. Every `Str` method that takes the string
+first is also available on fluent strings: `Str::of(' hello_world ')->squish()->headline()`.
 
 <a id="fluent-strings"></a>
 

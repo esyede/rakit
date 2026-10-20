@@ -6,6 +6,8 @@ defined('DS') or exit('No direct access.');
 
 class Response
 {
+    use Macroable;
+
     /**
      * Contains the response content.
      *

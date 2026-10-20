@@ -6,6 +6,8 @@ defined('DS') or exit('No direct access.');
 
 class Collection implements \ArrayAccess, \Countable, \IteratorAggregate, \JsonSerializable
 {
+    use Macroable;
+
     /** The items contained in the collection.
      *
      * @var array

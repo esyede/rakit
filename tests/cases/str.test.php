@@ -489,14 +489,14 @@ class StrTest extends \PHPUnit_Framework_TestCase
     public function testMacro()
     {
         Str::$macros = [];
-        Str::macro('reverse', function ($value) {
+        Str::macro('backwards', function ($value) {
             return strrev($value);
         });
 
-        $this->assertSame('!dlrow olleH', Str::reverse('Hello world!'));
+        $this->assertSame('!dlrow olleH', Str::backwards('Hello world!'));
 
         try {
-            Str::macro('reverse', function ($value) {
+            Str::macro('backwards', function ($value) {
                 return strrev($value);
             });
         } catch (\Throwable $e) {

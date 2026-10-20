@@ -6,6 +6,10 @@ defined('DS') or exit('No direct access.');
 
 class Request
 {
+    use Macroable {
+        __callStatic as macro_call_static;
+    }
+
     /**
      * The key name for request spoofing.
      *
@@ -602,6 +606,10 @@ class Request
      */
     public static function __callStatic($method, array $parameters)
     {
+        if (static::has_macro($method)) {
+            return static::macro_call_static($method, $parameters);
+        }
+
         return call_user_func_array([static::foundation(), $method], $parameters);
     }
 }

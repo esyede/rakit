@@ -162,6 +162,23 @@ if (! function_exists('trans')) {
     }
 }
 
+if (! function_exists('trans_choice')) {
+    /**
+     * Get a language line for a count, see Lang::choice().
+     *
+     * @param string      $key
+     * @param int|float   $count
+     * @param array       $replacements
+     * @param string|null $language
+     *
+     * @return string
+     */
+    function trans_choice($key, $count, array $replacements = [], $language = null)
+    {
+        return \System\Lang::choice($key, $count, $replacements, $language);
+    }
+}
+
 if (! function_exists('__')) {
     /**
      * Alias for trans().

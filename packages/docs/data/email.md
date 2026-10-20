@@ -10,6 +10,7 @@
     -   [Attachments](#attachments)
     -   [Custom Headers](#custom-headers)
     -   [Sending](#sending)
+-   [Mailables](#mailables)
 -   [Configuration](#configuration)
 -   [Custom Driver](#custom-driver)
 
@@ -176,6 +177,54 @@ Hook::listen('rakit.mail.sent', function ($message) {
     // The message is on its way
 });
 ```
+
+<a id="mailables"></a>
+
+## Mailables
+
+A mailable is a class that builds one kind of message: its subject, view and data. Put it in
+`application/libraries/`, with a name without underscores so it needs no sub folder (the
+autoloader maps `Invoice_Mail` to `libraries/invoice/mail.php`, but `InvoiceMail` to
+`libraries/invoicemail.php`):
+
+```php
+// application/libraries/invoicemail.php
+class InvoiceMail extends Mailable
+{
+    protected $invoice;
+
+    public function __construct($invoice)
+    {
+        $this->invoice = $invoice;
+    }
+
+    public function build()
+    {
+        $this->subject('Invoice '.$this->invoice->number)
+            ->view('emails.invoice', ['invoice' => $this->invoice])
+            ->attach(path('storage').'invoices'.DS.$this->invoice->number.'.pdf');
+    }
+}
+```
+
+Give it its recipients, then send it now, or queue it so the request does not wait for the mail
+server (a [job worker](/docs/job#running-worker) sends it):
+
+```php
+(new InvoiceMail($invoice))->to($user->email, $user->name)->send();
+
+(new InvoiceMail($invoice))->to($user->email)->cc('billing@example.com')->queue();
+(new InvoiceMail($invoice))->to($user->email)->queue('emails'); // on another queue
+```
+
+`to()`, `cc()`, `bcc()` and `reply_to()` take an address and a name, a list of addresses, or
+`[address => name]` pairs. `from()` overrides the configured sender, `with()` adds view data, and
+`mailer('smtp')` picks another driver. `render()` returns the HTML, handy to preview the mail in a
+route. A queued mailable is serialized into the job, so keep its properties serializable (no
+closures).
+
+To send a message to a user on several channels at once (mail, database), see
+[Notifications](/docs/notifications).
 
 <a id="configuration"></a>
 

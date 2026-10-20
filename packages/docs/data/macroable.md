@@ -18,8 +18,27 @@
 
 ## Introduction
 
-The `System\Macroable` trait lets you add methods to a class at runtime. Use it in
-your own classes (no framework component uses it):
+The `System\Macroable` trait lets you add methods to a class at runtime. `Response`,
+`Collection` and `Request` use it, and so can your own classes:
+
+```php
+Collection::macro('evens', function () {
+    return $this->filter(function ($value) {
+        return 0 === $value % 2;
+    })->values();
+});
+
+Response::macro('csv', function ($rows, $name) {
+    return Response::make(implode("\n", $rows), 200, [
+        'Content-Type' => 'text/csv',
+        'Content-Disposition' => 'attachment; filename="'.$name.'"',
+    ]);
+});
+
+Request::macro('is_api', function () {
+    return Str::starts_with(URI::current(), 'api');
+});
+```
 
 ```php
 use System\Macroable;

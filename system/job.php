@@ -68,6 +68,11 @@ class Job
         static::$discovered = true;
         static::load_job_classes();
 
+        // Mailables sent with ->queue().
+        Hook::listen('rakit.jobs.run: rakit-mailable', function ($payload) {
+            Email\Mailable::deliver((array) $payload);
+        });
+
         Hook::listen('rakit.jobs.process', function ($data) {
             $job = is_array($data) ? (object) $data : $data;
 

@@ -1151,6 +1151,410 @@ class Str
     }
 
     /**
+     * Mask part of a string: Str::mask('budi@example.com', '*', 2, 8) gives 'bu********le.com'.
+     * A negative index counts from the end.
+     *
+     * @param string   $string
+     * @param string   $character
+     * @param int      $index
+     * @param int|null $length
+     *
+     * @return string
+     */
+    public static function mask($string, $character, $index, $length = null)
+    {
+        $string = (string) $string;
+
+        if ('' === (string) $character) {
+            return $string;
+        }
+
+        $total = mb_strlen($string, 'UTF-8');
+        $start = ($index < 0) ? max(0, $total + (int) $index) : min($total, (int) $index);
+        $count = is_null($length) ? $total - $start : max(0, min((int) $length, $total - $start));
+
+        if (0 === $count) {
+            return $string;
+        }
+
+        return mb_substr($string, 0, $start, 'UTF-8')
+            .str_repeat(mb_substr((string) $character, 0, 1, 'UTF-8'), $count)
+            .mb_substr($string, $start + $count, $total, 'UTF-8');
+    }
+
+    /**
+     * Trim a string and collapse every run of whitespace inside it to one space.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function squish($value)
+    {
+        $value = preg_replace('~^[\s\x{FEFF}\x{3164}\x{1160}]+|[\s\x{FEFF}\x{3164}\x{1160}]+$~u', '', (string) $value);
+        return preg_replace('~[\s\x{3164}\x{1160}]+~u', ' ', $value);
+    }
+
+    /**
+     * Turn a camel, snake, kebab or spaced string into title cased words:
+     * 'user_profile-pictureUploaded' gives 'User Profile Picture Uploaded'.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function headline($value)
+    {
+        $value = preg_replace('/(?<=\p{Ll}|\p{N})(?=\p{Lu})/u', ' ', (string) $value);
+        $words = preg_split('/[\s_\-]+/u', $value, -1, PREG_SPLIT_NO_EMPTY);
+
+        return implode(' ', array_map(function ($word) {
+            return mb_convert_case($word, MB_CASE_TITLE, 'UTF-8');
+        }, $words));
+    }
+
+    /**
+     * Get the text around the first occurrence of a phrase, NULL when it is absent.
+     * Options: 'radius' (characters on each side, 100) and 'omission' ('...').
+     *
+     * @param string $text
+     * @param string $phrase
+     * @param array  $options
+     *
+     * @return string|null
+     */
+    public static function excerpt($text, $phrase = '', array $options = [])
+    {
+        $text = (string) $text;
+        $radius = isset($options['radius']) ? max(0, (int) $options['radius']) : 100;
+        $omission = isset($options['omission']) ? (string) $options['omission'] : '...';
+        $position = ('' === (string) $phrase) ? 0 : mb_stripos($text, (string) $phrase, 0, 'UTF-8');
+
+        if (false === $position) {
+            return null;
+        }
+
+        $total = mb_strlen($text, 'UTF-8');
+        $start = max(0, $position - $radius);
+        $end = min($total, $position + mb_strlen((string) $phrase, 'UTF-8') + $radius);
+
+        return (($start > 0) ? $omission : '')
+            .trim(mb_substr($text, $start, $end - $start, 'UTF-8'))
+            .(($end < $total) ? $omission : '');
+    }
+
+    /**
+     * Get the part of a string after the last occurrence of a value.
+     *
+     * @param string $subject
+     * @param string $search
+     *
+     * @return string
+     */
+    public static function after_last($subject, $search)
+    {
+        $subject = (string) $subject;
+        $position = ('' === (string) $search) ? false : strrpos($subject, (string) $search);
+
+        return (false === $position) ? $subject : (string) substr($subject, $position + strlen((string) $search));
+    }
+
+    /**
+     * Get the part of a string before the last occurrence of a value.
+     *
+     * @param string $subject
+     * @param string $search
+     *
+     * @return string
+     */
+    public static function before_last($subject, $search)
+    {
+        $subject = (string) $subject;
+        $position = ('' === (string) $search) ? false : strrpos($subject, (string) $search);
+
+        return (false === $position) ? $subject : (string) substr($subject, 0, $position);
+    }
+
+    /**
+     * Get the part of a string between the first $from and the last $to.
+     *
+     * @param string $subject
+     * @param string $from
+     * @param string $to
+     *
+     * @return string
+     */
+    public static function between($subject, $from, $to)
+    {
+        if ('' === (string) $from || '' === (string) $to) {
+            return (string) $subject;
+        }
+
+        return static::before_last(static::after($subject, $from), $to);
+    }
+
+    /**
+     * Get the part of a string between the first $from and the first $to after it.
+     *
+     * @param string $subject
+     * @param string $from
+     * @param string $to
+     *
+     * @return string
+     */
+    public static function between_first($subject, $from, $to)
+    {
+        if ('' === (string) $from || '' === (string) $to) {
+            return (string) $subject;
+        }
+
+        return static::before(static::after($subject, $from), $to);
+    }
+
+    /**
+     * Wrap a string with a value, or with two.
+     *
+     * @param string      $value
+     * @param string      $before
+     * @param string|null $after
+     *
+     * @return string
+     */
+    public static function wrap($value, $before, $after = null)
+    {
+        return $before.$value.(is_null($after) ? $before : $after);
+    }
+
+    /**
+     * Remove a wrapping value from both ends, where it is present.
+     *
+     * @param string      $value
+     * @param string      $before
+     * @param string|null $after
+     *
+     * @return string
+     */
+    public static function unwrap($value, $before, $after = null)
+    {
+        $value = (string) $value;
+        $after = is_null($after) ? $before : $after;
+
+        if ('' !== (string) $before && 0 === strpos($value, (string) $before)) {
+            $value = (string) substr($value, strlen((string) $before));
+        }
+
+        if ('' !== (string) $after && strlen($value) >= strlen((string) $after)
+            && substr($value, -strlen((string) $after)) === (string) $after) {
+            $value = (string) substr($value, 0, -strlen((string) $after));
+        }
+
+        return $value;
+    }
+
+    /**
+     * Pad both sides of a string to a length, counted in characters.
+     *
+     * @param string $value
+     * @param int    $length
+     * @param string $pad
+     *
+     * @return string
+     */
+    public static function pad_both($value, $length, $pad = ' ')
+    {
+        $short = max(0, (int) $length - mb_strlen((string) $value, 'UTF-8'));
+
+        return static::padding($pad, (int) floor($short / 2)).$value.static::padding($pad, (int) ceil($short / 2));
+    }
+
+    /**
+     * Pad the left side of a string to a length, counted in characters.
+     *
+     * @param string $value
+     * @param int    $length
+     * @param string $pad
+     *
+     * @return string
+     */
+    public static function pad_left($value, $length, $pad = ' ')
+    {
+        return static::padding($pad, max(0, (int) $length - mb_strlen((string) $value, 'UTF-8'))).$value;
+    }
+
+    /**
+     * Pad the right side of a string to a length, counted in characters.
+     *
+     * @param string $value
+     * @param int    $length
+     * @param string $pad
+     *
+     * @return string
+     */
+    public static function pad_right($value, $length, $pad = ' ')
+    {
+        return $value.static::padding($pad, max(0, (int) $length - mb_strlen((string) $value, 'UTF-8')));
+    }
+
+    /**
+     * Repeat a padding string to exactly some characters.
+     *
+     * @param string $pad
+     * @param int    $count
+     *
+     * @return string
+     */
+    protected static function padding($pad, $count)
+    {
+        if ($count < 1 || '' === (string) $pad) {
+            return '';
+        }
+
+        return mb_substr(str_repeat((string) $pad, $count), 0, $count, 'UTF-8');
+    }
+
+    /**
+     * Check whether a string is a URL, optionally of the given schemes only.
+     *
+     * @param mixed $value
+     * @param array $protocols
+     *
+     * @return bool
+     */
+    public static function is_url($value, array $protocols = [])
+    {
+        if (! is_string($value) || false === filter_var($value, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        return 0 === count($protocols)
+            || in_array(strtolower((string) parse_url($value, PHP_URL_SCHEME)), array_map('strtolower', $protocols), true);
+    }
+
+    /**
+     * Check whether a string is valid JSON.
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public static function is_json($value)
+    {
+        if (! is_string($value) || '' === trim($value)) {
+            return false;
+        }
+
+        json_decode($value);
+
+        return JSON_ERROR_NONE === json_last_error();
+    }
+
+    /**
+     * Check whether a string holds 7-bit ASCII characters only.
+     *
+     * @param string $value
+     *
+     * @return bool
+     */
+    public static function is_ascii($value)
+    {
+        return ! preg_match('/[^\x00-\x7F]/', (string) $value);
+    }
+
+    /**
+     * Check whether a string is a UUID.
+     *
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    public static function is_uuid($value)
+    {
+        return is_string($value) && 1 === preg_match('/^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/iD', $value);
+    }
+
+    /**
+     * Replace several values at once: Str::swap(['Tacos' => 'Burritos'], $text).
+     *
+     * @param array  $map
+     * @param string $subject
+     *
+     * @return string
+     */
+    public static function swap(array $map, $subject)
+    {
+        return strtr((string) $subject, $map);
+    }
+
+    /**
+     * Take the first characters of a string, or the last ones with a negative limit.
+     *
+     * @param string $string
+     * @param int    $limit
+     *
+     * @return string
+     */
+    public static function take($string, $limit)
+    {
+        // A length, never NULL: before PHP 5.4.8 a NULL length meant zero.
+        $string = (string) $string;
+
+        return ($limit < 0)
+            ? mb_substr($string, (int) $limit, mb_strlen($string, 'UTF-8'), 'UTF-8')
+            : mb_substr($string, 0, (int) $limit, 'UTF-8');
+    }
+
+    /**
+     * Reverse a string, character by character.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public static function reverse($value)
+    {
+        return implode('', array_reverse(preg_split('//u', (string) $value, -1, PREG_SPLIT_NO_EMPTY)));
+    }
+
+    /**
+     * Get the character position of a value in a string, or FALSE.
+     *
+     * @param string $haystack
+     * @param string $needle
+     * @param int    $offset
+     *
+     * @return int|bool
+     */
+    public static function position($haystack, $needle, $offset = 0)
+    {
+        return ('' === (string) $needle) ? false : mb_strpos((string) $haystack, (string) $needle, (int) $offset, 'UTF-8');
+    }
+
+    /**
+     * Collapse repeated runs of a character to one: 'a  b' gives 'a b'.
+     *
+     * @param string $string
+     * @param string $character
+     *
+     * @return string
+     */
+    public static function deduplicate($string, $character = ' ')
+    {
+        return preg_replace('/(?:'.preg_quote((string) $character, '/').')+/u', (string) $character, (string) $string);
+    }
+
+    /**
+     * Split a string at its upper case letters: 'FooBar' gives ['Foo', 'Bar'].
+     *
+     * @param string $string
+     *
+     * @return array
+     */
+    public static function ucsplit($string)
+    {
+        return preg_split('/(?=\p{Lu})/u', (string) $string, -1, PREG_SPLIT_NO_EMPTY);
+    }
+
+    /**
      * Registers a new method.
      *
      * @param string   $name

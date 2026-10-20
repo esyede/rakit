@@ -514,6 +514,24 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Mailables and notifications.** `Mailable` classes build a message (subject,
+    view, data, attachments) and `send()` it or `queue()` it for the job worker.
+    `Notification` classes deliver on `mail`, `database` or custom channels
+    (`Notification::channel()`); models get `notify()`, `notifications()`,
+    `unread_notifications()` and `mark_notifications_as_read()` from the
+    `Notifiable` trait. A migration for the `notifications` table ships in
+    `application/migrations/`. See `notifications.md`.
+-   **Macros on `Response`, `Collection` and `Request`**, through the `Macroable`
+    trait (`Collection::macro('evens', ...)`).
+-   **Pluralization:** `Lang::choice()` and `trans_choice()` with `{n}` and
+    `[min,max]` forms and `:count`.
+-   **String helpers:** `mask`, `squish`, `headline`, `excerpt`, `between`,
+    `between_first`, `after_last`, `before_last`, `wrap`, `unwrap`, `pad_left`,
+    `pad_right`, `pad_both`, `is_url`, `is_json`, `is_ascii`, `is_uuid`, `swap`,
+    `take`, `reverse`, `position`, `deduplicate`, `ucsplit`. Fluent strings reach
+    every `Str` method that takes the string first. **Upgrade:** a `Str::macro()`
+    of one of these names now throws, as a macro may not shadow a `Str` method;
+    drop it in favour of the built-in one.
 -   **ORM: `upsert()`, `simple_paginate()`, chained scopes, relation aggregates,
     `load()`, `prevent_lazy_loading()` and pivot helpers.**
     -   `upsert($values, $unique_by, $update)` on the query builder and models, one
