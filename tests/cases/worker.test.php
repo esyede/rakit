@@ -114,6 +114,18 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
             return Input::get('a', '-').'|'.Input::get('a', '-');
         });
 
+        Router::register('GET', 'worker-test/abort', function () {
+            echo 'stray-';
+            Session::put('aborted', 'yes');
+            abort(404);
+
+            return 'unreachable';
+        });
+
+        Router::register('GET', 'worker-test/abort-view', function () {
+            return \System\View::make('workerabortprobe');
+        });
+
         Router::register('GET', 'worker-test/views', function () {
             $count = count(\System\View::$files);
             \System\View::$files['worker-test'] = __FILE__;
@@ -139,7 +151,7 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
      */
     public function tearDown()
     {
-        foreach (['echo', 'cookie', 'session', 'boom', 'state', 'curl', 'views'] as $uri) {
+        foreach (['echo', 'cookie', 'session', 'boom', 'state', 'curl', 'views', 'abort', 'abort-view'] as $uri) {
             unset(Router::$routes['GET']['worker-test/'.$uri]);
         }
 
@@ -440,6 +452,72 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($level, ob_get_level());
         $this->assertSame([1, 2], $seen);
         $this->assertSame('stray-body:-', $holder->bridge->sent[1]['body']);
+    }
+
+    /**
+     * Test that abort() answers the request without ending the worker, drops the
+     * output before it, and still saves the session.
+     *
+     * @group system
+     */
+    public function testAbortDoesNotEndTheWorker()
+    {
+        Config::set('session.driver', 'worker-test');
+
+        $bridge = $this->serve([
+            ['uri' => '/worker-test/abort'],
+            ['uri' => '/worker-test/echo'],
+        ]);
+
+        $this->assertCount(2, $bridge->sent);
+        $this->assertSame(404, $bridge->sent[0]['status']);
+        $this->assertNotContains('stray-', $bridge->sent[0]['body']);
+        $this->assertNotContains('unreachable', $bridge->sent[0]['body']);
+        $this->assertSame('stray-body:-', $bridge->sent[1]['body']);
+        $this->assertFalse(Worker::$handling);
+
+        $saved = false;
+
+        foreach (ArrayDriver::$sessions as $session) {
+            $saved = $saved || (isset($session['data']['aborted']) && 'yes' === $session['data']['aborted']);
+        }
+
+        $this->assertTrue($saved);
+    }
+
+    /**
+     * Test that abort() inside a view reaches the worker as well.
+     *
+     * @group system
+     */
+    public function testAbortInsideAViewDoesNotEndTheWorker()
+    {
+        $template = path('app').'views'.DS.'workerabortprobe.blade.php';
+        file_put_contents($template, 'probe-marker-start {{ abort(403) }} probe-marker-end');
+
+        $bridge = $this->serve([
+            ['uri' => '/worker-test/abort-view'],
+            ['uri' => '/worker-test/echo'],
+        ]);
+
+        unlink($template);
+        $compiled = \System\Blade::compiled($template);
+        is_file($compiled) && unlink($compiled);
+
+        $this->assertSame(403, $bridge->sent[0]['status']);
+        $this->assertNotContains('probe-marker', $bridge->sent[0]['body']);
+        $this->assertSame('stray-body:-', $bridge->sent[1]['body']);
+    }
+
+    /**
+     * Test that abort() outside a worker request still takes the normal path.
+     *
+     * @group system
+     */
+    public function testWorkerFlagIsOffOutsideARequest()
+    {
+        $this->serve([['uri' => '/worker-test/echo']]);
+        $this->assertFalse(Worker::$handling);
     }
 
     /**

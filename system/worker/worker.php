@@ -12,11 +12,20 @@ use System\Response;
 use System\Session;
 use System\URI;
 use System\Routing\Router;
+use System\Exceptions\HttpResponseException;
 use System\Foundation\Oops\Debugger;
 use System\Foundation\Oops\Helpers;
 
 class Worker
 {
+    /**
+     * Whether a request is being handled right now. abort() reads it to throw
+     * instead of calling exit, which would end the worker.
+     *
+     * @var bool
+     */
+    public static $handling = false;
+
     /**
      * The bridge adapter instance.
      *
@@ -86,11 +95,15 @@ class Worker
     {
         $level = ob_get_level();
 
+        static::$handling = true;
+
         try {
             $this->bridge->reset();
             ob_start();
             $this->bridge->capture();
             $response = static::dispatch();
+        } catch (HttpResponseException $e) {
+            $response = $this->aborted($e, $level);
         } catch (\Throwable $e) {
             $response = $this->error_response($e, $level);
         } catch (\Exception $e) {
@@ -108,6 +121,35 @@ class Worker
         }
 
         $this->terminate($response, $level);
+
+        static::$handling = false;
+    }
+
+    /**
+     * Take over the response an abort() threw. Output echoed before it is dropped,
+     * as for an error, and the session is saved as abort() does outside a worker.
+     *
+     * @param \System\Exceptions\HttpResponseException $e
+     * @param int                                      $level
+     *
+     * @return \System\Response
+     */
+    protected function aborted(HttpResponseException $e, $level)
+    {
+        Bridge::discard($level);
+        ob_start();
+
+        try {
+            if (filled(Config::get('session.driver')) && Session::started()) {
+                Session::save();
+            }
+        } catch (\Throwable $ignored) {
+            $this->report($ignored);
+        } catch (\Exception $ignored) {
+            $this->report($ignored);
+        }
+
+        return $e->getResponse();
     }
 
     /**
@@ -257,6 +299,10 @@ class Worker
         } else {
             $response = Request::$route->call();
         }
+
+        // Render here, as boot.php does: an abort() inside a view then still reaches
+        // handle(), and whatever the view put in the session is saved below.
+        $response->render();
 
         if (Config::get('session.driver') && Session::started()) {
             Session::save();

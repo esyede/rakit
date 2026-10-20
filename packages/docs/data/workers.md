@@ -124,6 +124,7 @@ Exceptions never reach the server: they become a 500 response (the debugger page
 ## Limitations
 
 - **`exit`, `die` and `dd()` stop the whole worker**, not just the request, and the framework must boot again in a new one. (`dd()` only does this in debug mode.) Return a response instead.
+- **`abort()`, `abort_if()` and `first_or_fail()` are safe**: in a worker they throw `System\Exceptions\HttpResponseException`, which the worker turns into the error response (the session is still saved). Don't swallow it with a bare `catch (\Exception $e)` around such calls; rethrow it, or catch a narrower class.
 - **The debug bar is not rendered** in worker mode. The debugger's exception page still works.
 - **Your own static state** (static properties, `Config::set()` calls) survives into the next request. Reset it yourself, e.g. in a `rakit.done` listener.
 - **RoadRunner uploads** are not registered with PHP, so `is_uploaded_file()`, the `file` validation rule and `Upload::move()` reject them. Read them from `Input::file()` and copy the `tmp_name`.

@@ -677,6 +677,13 @@ if (! function_exists('abort')) {
         }
 
         $response = new \System\Response($message, $code, $headers);
+
+        // In a worker, exit would end the process serving every later request: hand
+        // the response to the worker loop instead, which saves the session and sends it.
+        if (class_exists('System\Worker\Worker', false) && \System\Worker\Worker::$handling) {
+            throw new \System\Exceptions\HttpResponseException($response);
+        }
+
         $response->render();
 
         if (\System\Config::get('session.driver')) {

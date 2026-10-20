@@ -290,9 +290,15 @@ class Response
      */
     public function render()
     {
-        $this->content = (is_object($this->content) && method_exists($this->content, '__toString'))
-            ? $this->content->__toString()
-            : (string) $this->content;
+        // A view through render(), not __toString(): before PHP 7.4 an exception thrown
+        // inside __toString() is a fatal error, abort() and find_or_fail() included.
+        if ($this->content instanceof View) {
+            $this->content = $this->content->render();
+        } elseif (is_object($this->content) && method_exists($this->content, '__toString')) {
+            $this->content = $this->content->__toString();
+        } else {
+            $this->content = (string) $this->content;
+        }
 
         $this->foundation()->setContent($this->content);
         return $this->content;

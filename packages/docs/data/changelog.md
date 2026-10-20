@@ -379,6 +379,16 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **`abort()` ended the worker in worker mode.** It sent the error page and called
+    `exit`, which stopped the FrankenPHP, RoadRunner or Swoole process serving every
+    later request; `abort_if()`, `first_or_fail()` and `find_or_fail()` go through it.
+    Inside a worker request it now throws `HttpResponseException`, and the worker
+    sends that response and saves the session. Outside a worker nothing changed.
+-   **An exception thrown while rendering a view was fatal before PHP 7.4.**
+    `Response::render()` turned a view into a string through `__toString()`, where
+    PHP < 7.4 cannot throw. Views are now rendered with `render()`. The worker also
+    renders the response before saving the session, as `boot.php` does.
+
 -   `insert_get_id()` cast every id to `int`, which turned a UUID or a string key
     into `null`. `Model::save()` then overwrote the key the application had set and
     reported the save as failed although the row was inserted.
