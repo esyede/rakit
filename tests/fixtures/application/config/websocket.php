@@ -159,4 +159,23 @@ return [
     */
 
     'logging_output' => 'stdout',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Broadcasting
+    |--------------------------------------------------------------------------
+    |
+    | Where Broadcast::event() sends events. 'websocket' pushes them to the
+    | server of "php rakit websocket:run" at host:port (signed with the app
+    | key, so only this application can broadcast), 'log' writes them to the
+    | log, 'null' drops them. 'timeout' is in seconds.
+    |
+    */
+
+    'broadcast' => [
+        'driver' => 'websocket',
+        'host' => '127.0.0.1',
+        'port' => 6001,
+        'timeout' => 3,
+    ],
 ];

@@ -23,6 +23,7 @@ return [
     'Authenticator' => 'System\Auth\Drivers\Driver',
     'Autoloader' => 'System\Autoloader',
     'Blade' => 'System\Blade',
+    'Broadcast' => 'System\Broadcast',
     'Cache' => 'System\Cache',
     'Carbon' => 'System\Carbon',
     'Command' => 'System\Console\Commands\Command',

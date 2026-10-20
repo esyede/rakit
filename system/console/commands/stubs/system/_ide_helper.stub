@@ -46,6 +46,10 @@ class Blade extends System\Blade
 {
 }
 
+class Broadcast extends System\Broadcast
+{
+}
+
 class Cache extends System\Cache
 {
 }

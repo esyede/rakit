@@ -77,7 +77,9 @@ class Websocket extends Command
      */
     private function presence(Server $server)
     {
-        $clients = $server->clients();
+        $clients = array_filter($server->clients(), function ($client) {
+            return ! Server::is_publisher($client->uri());
+        });
         $users = array_map(function ($client) {
             return [
                 'id' => $client->id(),
@@ -85,7 +87,8 @@ class Websocket extends Command
                 'connected_at' => Carbon::now()->timestamp,
             ];
         }, $clients);
-        $message = json_encode(['type' => 'presence', 'users' => $users]);
+        // A list, not an object keyed by socket.
+        $message = json_encode(['type' => 'presence', 'users' => array_values($users)]);
         $this->broadcast($server, $message);
     }
 
@@ -208,6 +211,11 @@ class Websocket extends Command
      */
     public function connect(Client $client)
     {
+        // The application connecting to broadcast: not a visitor.
+        if (Server::is_publisher($client->uri())) {
+            return;
+        }
+
         if ($session = Cookie::get(Config::get('session.cookie'))) {
             Session::load();
             Session::instance()->load($session);
@@ -228,6 +236,10 @@ class Websocket extends Command
      */
     public function disconnect(Client $client)
     {
+        if (Server::is_publisher($client->uri())) {
+            return;
+        }
+
         $this->broadcast($client->server(), sprintf('Client #%s disconnected', $client->id()));
         $this->presence($client->server());
     }
@@ -270,6 +282,10 @@ class Websocket extends Command
 
             if (isset($parsed['ping'])) {
                 return;
+            }
+
+            if (isset($parsed['event']) && 'publish' === $parsed['event']) {
+                return $this->publish($client, $parsed);
             }
 
             if (isset($parsed['command'])) {
@@ -385,6 +401,43 @@ class Websocket extends Command
      *
      * @return bool
      */
+    /**
+     * Deliver a broadcast the application signed (System\Broadcast) to its channels'
+     * subscribers, as {"channel": ..., "event": ..., "data": ...}.
+     *
+     * @param Client $client
+     * @param array  $parsed
+     */
+    private function publish(Client $client, array $parsed)
+    {
+        $time = isset($parsed['time']) ? (int) $parsed['time'] : 0;
+        $payload = isset($parsed['payload']) && is_string($parsed['payload']) ? $parsed['payload'] : '';
+        $signature = isset($parsed['signature']) ? $parsed['signature'] : null;
+
+        // A minute either way for clock drift; older copies are not replayed.
+        if (abs(time() - $time) > 60 || ! \System\Crypter::equals(Server::publish_signature($time, $payload), $signature)) {
+            return $this->reject($client, 'Invalid broadcast signature');
+        }
+
+        $message = json_decode($payload, true);
+
+        if (! is_array($message) || ! isset($message['channels'], $message['event']) || ! is_array($message['channels'])) {
+            return $this->reject($client, 'Invalid broadcast');
+        }
+
+        foreach ($message['channels'] as $channel) {
+            $this->broadcast_to_channel($client->server(), (string) $channel, json_encode([
+                'channel' => (string) $channel,
+                'event' => (string) $message['event'],
+                'data' => isset($message['data']) ? $message['data'] : null,
+            ]));
+        }
+
+        if ($this->logging()) {
+            $this->log(sprintf('Broadcast %s to %s', $message['event'], implode(', ', $message['channels'])));
+        }
+    }
+
     private function client_broadcast(Client $client, $message)
     {
         if (! Config::get('websocket.client_broadcast', false)) {

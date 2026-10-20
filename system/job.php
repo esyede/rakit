@@ -143,6 +143,11 @@ class Job
         static::$discovered = true;
         static::load_job_classes();
 
+        // Broadcasts sent with Broadcast::queue().
+        Hook::listen('rakit.jobs.run: rakit-broadcast', function ($payload) {
+            Broadcast::deliver((array) $payload);
+        });
+
         // Mailables sent with ->queue().
         Hook::listen('rakit.jobs.run: rakit-mailable', function ($payload) {
             Email\Mailable::deliver((array) $payload);

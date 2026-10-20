@@ -39,6 +39,7 @@
 -   [Task Scheduling](/docs/schedule)
 -   [Email](/docs/email)
 -   [Notifications](/docs/notifications)
+-   [Broadcasting](/docs/broadcasting)
 -   [Storage](/docs/storage)
 -   [HTTP Client (Curl)](/docs/curl)
 -   [Processes & Concurrency](/docs/process)

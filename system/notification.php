@@ -111,6 +111,15 @@ abstract class Notification
 
                 return;
 
+            case 'broadcast':
+                $data = method_exists($notification, 'to_broadcast')
+                    ? $notification->to_broadcast($notifiable)
+                    : $notification->to_array($notifiable);
+
+                Broadcast::event(static::route($notifiable, 'broadcast'), get_class($notification), $data);
+
+                return;
+
             case 'database':
                 Database::table(static::$database_table)->insert([
                     'id' => Str::uuid(),
@@ -145,6 +154,11 @@ abstract class Notification
 
         if ('mail' === $channel && isset($notifiable->email)) {
             return $notifiable->email;
+        }
+
+        // A User model #1 listens on 'private-user.1'.
+        if ('broadcast' === $channel && $notifiable instanceof Database\Facile\Model) {
+            return 'private-'.strtolower(str_replace('\\', '.', get_class($notifiable))).'.'.$notifiable->get_key();
         }
 
         throw new \Exception(sprintf('%s has no route for the %s channel.', get_class($notifiable), $channel));

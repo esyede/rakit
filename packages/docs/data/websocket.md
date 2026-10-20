@@ -23,6 +23,8 @@
 
 Rakit includes a WebSocket server for real-time messaging between browsers: broadcasting, private messages, channels and an online-users (presence) list. It is part of the core; there is nothing to install.
 
+To push events from the application (requests, jobs) to browsers, see [Broadcasting](/docs/broadcasting).
+
 <a id="running-the-server"></a>
 
 ## Running the Server

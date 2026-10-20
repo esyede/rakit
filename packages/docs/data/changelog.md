@@ -388,6 +388,8 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **The WebSocket presence list was a JSON object.** `users` was keyed by socket,
+    so browsers got `{"12": {...}}` instead of the documented list. It is a list now.
 -   **The "remember me" cookie carried the password hash.** It now carries an HMAC
     of it, so a leaked cookie gives nothing to crack offline; changing the password
     still invalidates it. Cookies written before keep working until rewritten.
@@ -523,6 +525,12 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Broadcasting.** `Broadcast::event()` / `Broadcast::queue()` push events from the
+    application to the subscribers of channels on the built-in WebSocket server,
+    signed with the app key (no Pusher, no Redis). `Broadcast::channel()` authorizes
+    private channels and `Broadcast::routes()` registers `POST broadcasting/auth`;
+    notifications get a `broadcast` channel; `Broadcast::fake()` and its assertions for
+    tests. See `broadcasting.md`.
 -   **Processes and concurrency.** `Process::run()` / `Process::start()` run external
     commands (escaped argument arrays or shell lines) with working directory,
     environment, stdin, timeout, streamed output, `running()`, `wait()` and `stop()`.

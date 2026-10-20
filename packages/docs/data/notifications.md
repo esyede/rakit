@@ -124,3 +124,6 @@ Notification::channel('sms', function ($notifiable, $notification) {
 A notification sends on its channels as soon as it is sent. To keep a slow channel out of the
 request, queue its mailable inside `to_mail()` instead and return `null`, or deliver from a
 [job](/docs/job).
+
+The built-in `broadcast` channel pushes a notification to the browser in real time, see
+[Broadcasting](/docs/broadcasting#notifications).
