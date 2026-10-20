@@ -175,6 +175,22 @@ if (defined('RAKIT_WORKER_MODE')) {
 
 /*
 |--------------------------------------------------------------------------
+| Maintenance Mode
+|--------------------------------------------------------------------------
+| 'php rakit down' answers every request with a 503, except for allowed IPs
+| and visitors holding the bypass cookie.
+*/
+
+if (! is_null($response = Maintenance::check())) {
+    $response->render();
+    $response->send();
+    $response->foundation()->finish();
+
+    return;
+}
+
+/*
+|--------------------------------------------------------------------------
 | Read URI And Locale
 |--------------------------------------------------------------------------
 | Longest first, so 'id-ID' is matched before 'id'.

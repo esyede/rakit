@@ -9,12 +9,14 @@
   - [Fiddle Commands](#fiddle-commands)
     - [fiddle](#fiddle)
   - [Job Commands](#job-commands)
+  - [Maintenance Commands](#maintenance-commands)
   - [Make Commands](#make-commands)
     - [make:component](#makecomponent)
     - [make:auth](#makeauth)
   - [Migration Commands](#migration-commands)
   - [Package Commands](#package-commands)
   - [Routing Commands](#routing-commands)
+  - [Schedule Commands](#schedule-commands)
   - [Session Commands](#session-commands)
   - [Test Commands](#test-commands)
   - [Webserver Commands](#webserver-commands)
@@ -103,8 +105,36 @@ php rakit fiddle
 | -------------------------- | ------------------------------------------------------------ |
 | `job:run name [name ...]`  | Run the due jobs with the given name(s)                      |
 | `job:runall`               | Run the due jobs of every queue; accepts `--queue`, `--retries`, `--sleep` |
+| `job:work`                 | Keep running jobs until stopped; also `--idle`, `--max-jobs`, `--max-time`, `--memory` |
+| `job:failed`               | List the failed jobs                                         |
+| `job:retry id\|all`        | Put failed jobs back on their queue                          |
 
 See [Running Worker](/docs/job#running-worker) for the options.
+
+<a id="maintenance-commands"></a>
+
+### Maintenance Commands
+
+| Command | Description |
+| --- | --- |
+| `down` | Answer every request with a 503 (the `error.503` view, or JSON) |
+| `up` | Bring the application back |
+
+```bash
+php rakit down --secret=let-me-in --retry=60 --allow=203.0.113.7
+php rakit up
+```
+
+- `--secret` lets your team in: visiting `/let-me-in` sets a cookie that bypasses maintenance for
+  12 hours, then redirects home. Only a hash of the secret is stored, and running `down` again
+  with another secret invalidates the cookies.
+- `--retry` sends a `Retry-After` header, in seconds, telling clients and crawlers when to come back.
+- `--allow` lets the given client IPs through.
+
+Maintenance mode is a file, `storage/down.php`, so it covers every server that shares `storage/`;
+on servers with their own, run `down` on each. Commands, jobs and the scheduler keep running.
+The application also ships a `/up` route in `application/routes.php` for load balancers and
+uptime monitors: it answers `200 OK`, and `503` during maintenance.
 
 <a id="make-commands"></a>
 
@@ -245,6 +275,17 @@ Each command accepts an optional package name (`php rakit migrate blog`) to limi
 | ------------------------- | ------------------------------------------------------------ |
 | `route:call method uri`   | Call a route from the console, e.g. `route:call get user/profile/123`. Middleware is skipped unless `--with-middleware` is given |
 | `route:list`              | List all routes with their method, URI, action and name      |
+
+<a id="schedule-commands"></a>
+
+### Schedule Commands
+
+| Command | Description |
+| --- | --- |
+| `schedule:run` | Run the scheduled events that are due; call it from cron every minute |
+| `schedule:list` | List the scheduled events |
+
+See [Task Scheduling](/docs/schedule).
 
 <a id="session-commands"></a>
 

@@ -373,6 +373,8 @@ class WorkerTest extends \PHPUnit_Framework_TestCase
      */
     public function testCurlSettingsAreRestoredForEveryRequest()
     {
+        // Boot from clean settings: other tests leave credentials behind.
+        \System\Curl::reset();
         \System\Curl::default_header('X-Boot', '1');
 
         $bridge = $this->serve([

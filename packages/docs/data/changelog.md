@@ -470,6 +470,12 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Maintenance mode and a health route.** `php rakit down` answers every request
+    with a 503 (`--retry` for `Retry-After`, `--allow` for IPs, `--secret` for a
+    bypass URI that sets a cookie; only its hash is stored), `php rakit up` ends it.
+    Worker mode honours it too. `application/routes.php` gets an `/up` route: 200,
+    and 503 while down. **Upgrade:** add the `/up` route to existing applications if
+    you want it.
 -   **Cache: `add()`, `decrement()`, `many()`, `put_many()` and atomic locks.**
     `add()` stores only a missing key, atomically on the file, database, redis,
     memcached and apc drivers. `increment()` takes a step and `decrement()`

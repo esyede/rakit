@@ -262,6 +262,11 @@ class Worker
      */
     public static function dispatch()
     {
+        if (! is_null($response = \System\Maintenance::check())) {
+            $response->render();
+            return $response;
+        }
+
         if (filled(Config::get('session.driver'))) {
             Session::load();
         }

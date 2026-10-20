@@ -29,6 +29,19 @@ if (! Container::registered('command: job')) {
     });
 }
 
+// Register classes for the 'down' and 'up' commands.
+if (! Container::registered('command: down')) {
+    Container::register('command: down', function () {
+        return new Commands\Down();
+    });
+}
+
+if (! Container::registered('command: up')) {
+    Container::register('command: up', function () {
+        return new Commands\Up();
+    });
+}
+
 // Register classes for the 'schedule' command.
 if (! Container::registered('command: schedule')) {
     Container::register('command: schedule', function () {

@@ -41,6 +41,16 @@
             "command": "php rakit job:retry all"
         }
     },
+    "maintenance": {
+        "down": {
+            "description": "Put the application in maintenance mode (--secret= --retry= --allow=).",
+            "command": "php rakit down --secret=let-me-in --retry=60"
+        },
+        "up": {
+            "description": "Bring the application out of maintenance mode.",
+            "command": "php rakit up"
+        }
+    },
     "schedule": {
         "schedule:run": {
             "description": "Run the scheduled events that are due (call it from cron every minute).",
