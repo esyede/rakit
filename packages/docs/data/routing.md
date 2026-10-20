@@ -18,6 +18,7 @@
 - [Route Groups](#route-groups)
   - [Group Middleware](#group-middleware)
   - [Group Prefix](#group-prefix)
+  - [Group Name Prefix](#group-name-prefix)
   - [Nested Groups](#nested-groups)
   - [Domain Routing](#domain-routing)
 - [Middleware](#middleware)
@@ -32,6 +33,7 @@
   - [Controller Actions](#controller-actions)
   - [Auto-Routed Controllers](#auto-routed-controllers)
   - [Resource Routes](#resource-routes)
+  - [API Resources & Singletons](#api-resources--singletons)
 - [Package Routes](#package-routes)
 - [404 Handler](#404-handler)
 - [Listing & Testing Routes](#listing--testing-routes)
@@ -300,7 +302,7 @@ if (Route::has('profile')) {
 
 ## Route Groups
 
-Groups share attributes (`before`, `after`, `prefix`, `domain`) across many
+Groups share attributes (`before`, `after`, `prefix`, `as`, `domain`) across many
 routes.
 
 <a id="group-middleware"></a>
@@ -312,6 +314,21 @@ routes.
 Route::group(['before' => 'auth'], function () {
     Route::get('dashboard', function () { /* .. */ });
     Route::get('settings', function () { /* .. */ });
+
+    // Runs auth, then csrf: a route's middleware adds to the group's.
+    Route::post('settings', ['before' => 'csrf', 'uses' => 'settings@update']);
+});
+```
+
+A middleware group gives a list of middlewares a name of its own. Define it in
+`application/middlewares.php`, then use the name anywhere a middleware goes:
+
+```php
+Route::middleware_group('web', 'csrf|throttle:60,1');
+Route::middleware_group('admin', ['auth', 'can:admin', 'web']); // groups can include groups
+
+Route::group(['before' => 'admin'], function () {
+    // ..
 });
 ```
 
@@ -324,6 +341,20 @@ Route::group(['before' => 'auth'], function () {
 Route::group(['prefix' => 'admin'], function () {
     Route::get('users', function () { /* URL: /admin/users */ });
     Route::get('posts', function () { /* URL: /admin/posts */ });
+});
+```
+
+<a id="group-name-prefix"></a>
+
+### Group Name Prefix
+
+A group's `as` is put in front of the name of each named route inside it; routes
+without a name stay unnamed:
+
+```php
+Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+    Route::get('users', ['as' => 'users', 'uses' => 'admin.user@index']); // admin.users
+    Route::resource('photos');                                           // admin.photos.index, ..
 });
 ```
 
@@ -640,6 +671,22 @@ Route::resource('posts.comments'); // nested: /posts/(:any?)/comments/...
 > `except` takes the action names above, so it is `delete`, not `destroy`. Any
 > option other than `only`, `except` and `controller` replaces the whole route
 > table with what you pass.
+
+<a id="api-resources--singletons"></a>
+
+### API Resources & Singletons
+
+`Route::api_resource()` registers a resource without `create` and `edit`, which only
+serve HTML forms. `Route::singleton()` is for a resource there is one of, so its URIs
+carry no ID:
+
+```php
+Route::api_resource('photos'); // index, store, show, update, delete
+Route::singleton('profile');   // GET profile, GET profile/edit, PUT profile
+```
+
+Both take the `only`, `except` and `controller` options of `resource()`. A singleton's
+actions are `show`, `edit` and `update`, named `profile.show` and so on.
 
 <a id="package-routes"></a>
 <a id="route-for-package"></a>

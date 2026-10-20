@@ -379,6 +379,12 @@ Security audit fixes — all severities:
 
 **Fixed**
 
+-   **A route's own middleware replaced its group's.** Inside
+    `Route::group(['before' => 'auth'], ...)`, a route with `'before' => 'csrf'` ran
+    only `csrf`: the group's `auth` was dropped, so the route was reachable without
+    logging in. The group's middleware now runs first, then the route's. Also, a
+    group's `as` named every unnamed route inside it with that same name; it now
+    prefixes the names of named routes only.
 -   **Several job workers ran the same job.** No driver claimed a job before
     running it, and a batch was removed only once it all finished: three workers
     on one queue ran each of 200 jobs three times, and a crash mid-batch ran the
@@ -464,6 +470,12 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Router: group name prefix, middleware groups, `api_resource()` and
+    `singleton()`.** A group's `as` (`'admin.'`) prefixes its routes' names, through
+    nested groups. `Route::middleware_group('web', 'csrf|throttle:60,1')` names a
+    list of middlewares, which may include other groups. `Route::api_resource()`
+    leaves out `create` and `edit`; `Route::singleton('profile')` registers show,
+    edit and update without an ID.
 -   **Long-running job worker and failed jobs.** `php rakit job:work` keeps running
     due jobs (`--idle`, `--max-jobs`, `--max-time`, `--memory`; `SIGTERM` lets the
     current job finish). `job:failed` lists failed jobs and `job:retry <id>|all`

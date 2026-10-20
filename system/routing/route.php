@@ -494,6 +494,51 @@ class Route
     }
 
     /**
+     * Register a resource for an API: the routes of resource() without 'create' and
+     * 'edit', which only serve HTML forms.
+     *
+     * @param string $controller
+     * @param array  $options
+     */
+    public static function api_resource($controller, array $options = [])
+    {
+        $except = isset($options['except']) ? (array) $options['except'] : [];
+        $options['except'] = array_unique(array_merge($except, ['create', 'edit']));
+
+        Resource::make($controller, $options);
+    }
+
+    /**
+     * Register a resource there is one of, with no ID in its URIs (a profile, the
+     * settings): show, edit and update. Takes the 'only', 'except' and 'controller'
+     * options of resource().
+     *
+     * @param string $controller
+     * @param array  $options
+     */
+    public static function singleton($controller, array $options = [])
+    {
+        $options = array_intersect_key($options, ['only' => 0, 'except' => 0, 'controller' => 0]);
+
+        Resource::make($controller, $options + [
+            ['method' => 'get', 'route' => '', 'as' => ':name.show', 'uses' => ':name@show'],
+            ['method' => 'get', 'route' => '/edit', 'as' => ':name.edit', 'uses' => ':name@edit'],
+            ['method' => 'put', 'route' => '', 'as' => ':name.update', 'uses' => ':name@update'],
+        ]);
+    }
+
+    /**
+     * Define a middleware group, so 'before' => 'web' runs all of its middlewares.
+     *
+     * @param string       $name
+     * @param string|array $middlewares
+     */
+    public static function middleware_group($name, $middlewares)
+    {
+        Middleware::group($name, $middlewares);
+    }
+
+    /**
      * Register a route that responds to any HTTP method.
      *
      * @param string|array $route

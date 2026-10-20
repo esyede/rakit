@@ -30,6 +30,13 @@ class Middleware
     public static $aliases = [];
 
     /**
+     * Contains the middleware groups, name => middlewares.
+     *
+     * @var array
+     */
+    public static $groups = [];
+
+    /**
      * Register a middleware. The handler is a callable, except for a pattern, which may
      * instead name the middlewares to attach, as 'a|b' or as an array.
      *
@@ -63,15 +70,49 @@ class Middleware
     }
 
     /**
-     * Parse middlewares from string or array to array.
+     * Define a middleware group: 'before' => 'web' then runs every middleware in it.
+     *
+     * @param string       $name
+     * @param string|array $middlewares
+     */
+    public static function group($name, $middlewares)
+    {
+        static::$groups[$name] = is_string($middlewares) ? explode('|', $middlewares) : (array) $middlewares;
+    }
+
+    /**
+     * Parse middlewares from string or array to array, expanding the groups.
      *
      * @param string|array $middlewares
+     * @param array        $seen
      *
      * @return array
      */
-    public static function parse($middlewares)
+    public static function parse($middlewares, array $seen = [])
     {
-        return is_string($middlewares) ? explode('|', $middlewares) : (array) $middlewares;
+        $middlewares = is_string($middlewares) ? explode('|', $middlewares) : (array) $middlewares;
+
+        if (empty(static::$groups)) {
+            return $middlewares;
+        }
+
+        $expanded = [];
+
+        foreach ($middlewares as $middleware) {
+            if (! is_string($middleware) || ! isset(static::$groups[$middleware])) {
+                $expanded[] = $middleware;
+                continue;
+            }
+
+            if (in_array($middleware, $seen, true)) {
+                throw new \Exception(sprintf('Middleware group includes itself: %s', $middleware));
+            }
+
+            $seen[] = $middleware;
+            $expanded = array_merge($expanded, static::parse(static::$groups[$middleware], $seen));
+        }
+
+        return $expanded;
     }
 
     /**

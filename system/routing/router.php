@@ -218,16 +218,46 @@ class Router
                 ? static::$group['domain']
                 : null;
             $route_key = $group_domain ? ($group_domain.'||'.$uri) : $uri;
-            $routes[$method][$route_key] = is_array($action) ? $action : static::action($action);
-
-            if (! is_null(static::$group)) {
-                $routes[$method][$route_key] += static::$group;
-            }
+            $routes[$method][$route_key] = static::grouped(is_array($action) ? $action : static::action($action));
 
             if (isset($routes[$method][$route_key]['domain'])) {
                 static::$domains = true;
             }
         }
+    }
+
+    /**
+     * Apply the current group to a route's action. The group's middleware runs before
+     * the route's own, never instead of it, and the group's 'as' prefixes the route's
+     * name; any other group attribute fills what the route does not set.
+     *
+     * @param array $action
+     *
+     * @return array
+     */
+    protected static function grouped(array $action)
+    {
+        if (is_null(static::$group)) {
+            return $action;
+        }
+
+        $group = static::$group;
+
+        foreach (['before', 'after'] as $event) {
+            if (isset($group[$event]) && isset($action[$event])) {
+                $action[$event] = static::join_middlewares($group[$event], $action[$event]);
+            }
+        }
+
+        if (isset($group['as'])) {
+            if (isset($action['as']) && '' !== (string) $action['as']) {
+                $action['as'] = $group['as'].$action['as'];
+            }
+
+            unset($group['as']);
+        }
+
+        return $action + $group;
     }
 
     /**
@@ -249,6 +279,8 @@ class Router
                     $merged[$key] = static::join_prefix(Arr::get($merged, $key, ''), $value);
                 } elseif ('before' === $key || 'after' === $key) {
                     $merged[$key] = static::join_middlewares(Arr::get($merged, $key), $value);
+                } elseif ('as' === $key) {
+                    $merged[$key] = Arr::get($merged, $key, '').$value;
                 } else {
                     $merged[$key] = $value;
                 }
