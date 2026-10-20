@@ -144,6 +144,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Global CSRF Protection
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, every POST, PUT, PATCH and DELETE request to a route that
+    | uses the session must carry the session's CSRF token (the '_token' field
+    | or the 'X-Csrf-Token' header), with or without the 'csrf' middleware.
+    | Stateless routes, the 'csrf_except' patterns and routes declared with
+    | 'csrf' => false are skipped.
+    |
+    */
+
+    'csrf_global' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | CSRF Exceptions
     |--------------------------------------------------------------------------
     |

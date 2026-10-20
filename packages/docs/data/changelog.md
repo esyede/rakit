@@ -231,6 +231,15 @@ Security audit fixes — all severities:
 
 **Breaking**
 
+-   **CSRF protection is global.** Every `POST`, `PUT`, `PATCH` and `DELETE` to a
+    route that uses the session must carry the CSRF token, with or without the
+    `csrf` middleware; until now a route that forgot `'before' => 'csrf'` accepted
+    forged requests. Stateless routes (`session.stateless`) are not checked.
+    **Upgrade:** add `@csrf` to forms that lacked it, send the `X-Csrf-Token`
+    header from JavaScript, and list webhooks in `csrf_except` or declare their
+    routes with `'csrf' => false`. `'csrf_global' => false` in
+    `application/config/application.php` restores the per-route behaviour.
+
 -   **`RSA` defaults to OAEP padding.** `RSA::encrypt()` and `RSA::decrypt()` now use
     `OPENSSL_PKCS1_OAEP_PADDING` instead of `OPENSSL_PKCS1_PADDING`, and a failed
     decryption always throws `Failed to decrypt the data.` (the OpenSSL detail made a

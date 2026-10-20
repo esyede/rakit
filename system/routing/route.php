@@ -10,6 +10,10 @@ use System\Package;
 use System\Response;
 use System\Redirect;
 use System\View;
+use System\Config;
+use System\Request;
+use System\Session;
+use System\URI;
 
 class Route
 {
@@ -118,12 +122,41 @@ class Route
      */
     public function call()
     {
-        $response = Middleware::run($this->middlewares('before'), [], true);
+        $response = $this->forged();
+        $response = is_null($response) ? Middleware::run($this->middlewares('before'), [], true) : $response;
         $response = Response::prepare(is_null($response) ? $this->response() : $response);
 
         Middleware::run($this->middlewares('after'), [&$response]);
 
         return $response;
+    }
+
+    /**
+     * Refuse a request that changes data without the session's CSRF token, for every
+     * route: forgetting 'before' => 'csrf' on one must not leave it open. Skipped for
+     * stateless routes (no session, so no cookie to ride on), for the csrf_except
+     * patterns, for 'csrf' => false routes, and when application.csrf_global is off.
+     *
+     * @return Response|null
+     */
+    protected function forged()
+    {
+        if (
+            false === Arr::get((array) $this->action, 'csrf')
+            || ! Config::get('application.csrf_global', true)
+            || ! Session::started()
+            || in_array(Request::real_method(), ['GET', 'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'], true)
+        ) {
+            return null;
+        }
+
+        foreach ((array) Config::get('application.csrf_except', []) as $pattern) {
+            if (Str::is($pattern, URI::current())) {
+                return null;
+            }
+        }
+
+        return Request::forged() ? Response::error(422) : null;
     }
 
     /**

@@ -532,9 +532,17 @@ Route::middleware('after', function ($response) {
 
 ### CSRF Exceptions
 
-The `csrf` middleware checks every request except `GET`, `HEAD`, `OPTIONS`,
-`TRACE` and `CONNECT`. Endpoints that cannot carry the session token (webhooks,
-server-to-server callbacks) can be exempted in `application/config/application.php`:
+Every route that uses the session is checked for the CSRF token on `POST`, `PUT`,
+`PATCH` and `DELETE`, whether or not it lists the `csrf` middleware: a form that
+forgets `'before' => 'csrf'` is still protected. The token is read from the
+`_token` field (`@csrf` in a form) or the `X-Csrf-Token` header, and a request
+without a valid one gets a 422. Stateless routes (`session.stateless`, `api/*` by
+default) have no session cookie to abuse, so they are not checked.
+
+Turn a single route off with `'csrf' => false`, or every route with
+`'csrf_global' => false` in `application/config/application.php` (the `csrf`
+middleware then works per route, as before). Endpoints that cannot carry the
+session token (webhooks, server-to-server callbacks) can be exempted in the same file:
 
 ```php
 'csrf_except' => [
