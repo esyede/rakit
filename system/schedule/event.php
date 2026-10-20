@@ -58,6 +58,13 @@ class Event
     public $without_overlapping = false;
 
     /**
+     * Whether only one server runs the event each time it is due.
+     *
+     * @var bool
+     */
+    public $on_one_server = false;
+
+    /**
      * Conditions that must all pass.
      *
      * @var \Closure[]
@@ -363,6 +370,19 @@ class Event
     }
 
     /**
+     * Run the event on one server only, when schedule:run runs on several. Needs a
+     * cache driver the servers share (database, redis, memcached): the first server
+     * to claim the minute in the cache runs it.
+     *
+     * @return $this
+     */
+    public function on_one_server()
+    {
+        $this->on_one_server = true;
+        return $this;
+    }
+
+    /**
      * Name the event.
      *
      * @param string $description
@@ -425,13 +445,18 @@ class Event
 
     /**
      * Run the event. TRUE when it succeeded, FALSE when the command exited with an
-     * error, NULL when skipped because the previous run still holds the lock.
+     * error, NULL when skipped: the previous run still holds the lock, or another
+     * server took this run.
      *
      * @return bool|null
      */
     public function run()
     {
         $lock = null;
+
+        if ($this->on_one_server && ! \System\Cache::add('schedule:'.$this->mutex().':'.date('YmdHi'), 1, 60)) {
+            return null;
+        }
 
         if ($this->without_overlapping) {
             $lock = @fopen(path('storage').'console'.DS.'schedule-'.$this->mutex().'.lock', 'c');
@@ -506,7 +531,7 @@ class Event
     protected function mutex()
     {
         if ('call' === $this->type && is_null($this->description)) {
-            throw new \LogicException('A scheduled closure needs a name() to use without_overlapping().');
+            throw new \LogicException('A scheduled closure needs a name() to use without_overlapping() or on_one_server().');
         }
 
         $what = ('call' === $this->type) ? $this->description : $this->target;

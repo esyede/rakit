@@ -83,44 +83,111 @@ class File extends Driver
     }
 
     /**
-     * Increment a numeric value. Read, add and write happen under one exclusive lock.
+     * Increment a numeric value in the cache, under a file lock.
      *
-     * @param string $key
-     * @param int    $minutes
+     * @param string   $key
+     * @param int|null $minutes
+     * @param int      $by
      *
      * @return int
      */
-    public function increment($key, $minutes = 1)
+    public function increment($key, $minutes = 1, $by = 1)
     {
-        $path = $this->path.$this->naming($key);
-        $handle = @fopen($path, 'c+');
+        $expiration = $this->expiration($minutes);
+        $result = $this->locked($key, function ($current) use ($by, $expiration) {
+            $new = ((int) $current) + (int) $by;
+            return [$new, [$new, $expiration]];
+        });
+
+        return is_null($result) ? parent::increment($key, $minutes, $by) : $result;
+    }
+
+    /**
+     * Store a value only when the key is not there yet, under a file lock.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    protected function add_seconds($key, $value, $seconds)
+    {
+        $result = $this->locked($key, function ($current) use ($value, $seconds) {
+            return is_null($current) ? [true, [$value, time() + (int) $seconds]] : [false, null];
+        });
+
+        return is_null($result) ? parent::add_seconds($key, $value, $seconds) : $result;
+    }
+
+    /**
+     * Release a lock its owner still holds, under a file lock.
+     *
+     * @param string $name
+     * @param string $owner
+     *
+     * @return bool
+     */
+    public function release_lock($name, $owner)
+    {
+        $result = $this->locked('lock:'.$name, function ($current) use ($owner) {
+            // Emptied rather than deleted: a worker waiting on the old file would
+            // otherwise lock a file nobody else sees.
+            return ((string) $owner === $current) ? [true, false] : [false, null];
+        });
+
+        return is_null($result) ? parent::release_lock($name, $owner) : $result;
+    }
+
+    /**
+     * Read and change an entry while holding an exclusive lock on its file. The
+     * callback gets the live value (NULL when missing or expired) and returns
+     * [result, change], the change being [value, expiration], FALSE to empty the
+     * entry, or NULL to leave it. NULL when the file cannot be locked.
+     *
+     * @param string   $key
+     * @param \Closure $callback
+     *
+     * @return mixed
+     */
+    protected function locked($key, \Closure $callback)
+    {
+        $handle = @fopen($this->path.$this->naming($key), 'c+');
 
         if (false === $handle) {
-            return parent::increment($key, $minutes);
+            return null;
         }
 
         if (! flock($handle, LOCK_EX)) {
             fclose($handle);
-            return parent::increment($key, $minutes);
+            return null;
         }
 
         $cache = (string) $this->unguard((string) stream_get_contents($handle));
-        $current = 0;
+        $current = null;
 
         if ('' !== $cache && time() < (int) substr($cache, 0, 10)) {
-            $current = (int) @unserialize(substr($cache, 10));
+            $current = @unserialize(substr($cache, 10));
+            $current = (false === $current && 'b:0;' !== substr($cache, 10)) ? null : $current;
         }
 
-        $new = $current + 1;
+        list($result, $change) = $callback($current);
 
-        ftruncate($handle, 0);
-        rewind($handle);
-        fwrite($handle, $this->guard($this->expiration($minutes).serialize($new)));
-        fflush($handle);
+        if (! is_null($change)) {
+            ftruncate($handle, 0);
+            rewind($handle);
+
+            if (false !== $change) {
+                fwrite($handle, $this->guard($change[1].serialize($change[0])));
+            }
+
+            fflush($handle);
+        }
+
         flock($handle, LOCK_UN);
         fclose($handle);
 
-        return $new;
+        return $result;
     }
 
     /**

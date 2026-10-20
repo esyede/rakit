@@ -470,6 +470,12 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Cache: `add()`, `decrement()`, `many()`, `put_many()` and atomic locks.**
+    `add()` stores only a missing key, atomically on the file, database, redis,
+    memcached and apc drivers. `increment()` takes a step and `decrement()`
+    subtracts. `Cache::lock($name, $seconds)->get()` / `block($seconds)` run code in
+    one process at a time and release only for their owner; `block()` throws
+    `LockTimeoutException`. Scheduled events get `on_one_server()`.
 -   **Router: group name prefix, middleware groups, `api_resource()` and
     `singleton()`.** A group's `as` (`'admin.'`) prefixes its routes' names, through
     nested groups. `Route::middleware_group('web', 'csrf|throttle:60,1')` names a

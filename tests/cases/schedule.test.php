@@ -230,6 +230,34 @@ class ScheduleTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * on_one_server(): of two servers running the same minute, only the first runs it.
+     *
+     * @group system
+     */
+    public function testOnOneServer()
+    {
+        $driver = \System\Config::get('cache.driver');
+        \System\Config::set('cache.driver', 'file');
+        $runs = 0;
+
+        $make = function () use (&$runs) {
+            return Schedule::call(function () use (&$runs) {
+                ++$runs;
+            })->name('schedule-test-one-server')->on_one_server();
+        };
+
+        $this->assertTrue($make()->run());
+        $this->assertNull($make()->run()); // the second server, same minute
+        $this->assertSame(1, $runs);
+
+        foreach ((array) glob(path('storage').'cache'.DS.'*.cache.php') as $file) {
+            @unlink($file);
+        }
+
+        \System\Config::set('cache.driver', $driver);
+    }
+
+    /**
      * A closure needs a name to be locked.
      *
      * @group system

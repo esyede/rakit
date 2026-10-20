@@ -156,13 +156,141 @@ abstract class Driver
      *
      * @param string   $key
      * @param int|null $minutes
+     * @param int      $by
      *
      * @return int
      */
-    public function increment($key, $minutes = 1)
+    public function increment($key, $minutes = 1, $by = 1)
     {
-        $new = ((int) ($this->get($key) ?: 0)) + 1;
+        $new = ((int) ($this->get($key) ?: 0)) + (int) $by;
         $this->put($key, $new, $minutes);
         return $new;
+    }
+
+    /**
+     * Decrement a numeric value in the cache.
+     *
+     * @param string   $key
+     * @param int|null $minutes
+     * @param int      $by
+     *
+     * @return int
+     */
+    public function decrement($key, $minutes = 1, $by = 1)
+    {
+        return $this->increment($key, $minutes, -1 * (int) $by);
+    }
+
+    /**
+     * Store a value only when the key is not there yet. TRUE when it was stored.
+     * Atomic on the file, database, redis, memcached and apc drivers.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $minutes
+     *
+     * @return bool
+     */
+    public function add($key, $value, $minutes)
+    {
+        return $this->add_seconds($key, $value, (int) $minutes * 60);
+    }
+
+    /**
+     * Store a value for some seconds, only when the key is not there yet. Drivers that
+     * can do it atomically override this; the fallback is a check, then a write.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    protected function add_seconds($key, $value, $seconds)
+    {
+        if (! is_null($this->retrieve($key))) {
+            return false;
+        }
+
+        $this->put($key, $value, max(1, (int) ceil($seconds / 60)));
+        return true;
+    }
+
+    /**
+     * Get several values at once, key => value, NULL for the missing ones.
+     *
+     * @param array $keys
+     *
+     * @return array
+     */
+    public function many(array $keys)
+    {
+        $values = [];
+
+        foreach ($keys as $key) {
+            $values[$key] = $this->get($key);
+        }
+
+        return $values;
+    }
+
+    /**
+     * Store several values at once.
+     *
+     * @param array $values
+     * @param int   $minutes
+     */
+    public function put_many(array $values, $minutes)
+    {
+        foreach ($values as $key => $value) {
+            $this->put($key, $value, $minutes);
+        }
+    }
+
+    /**
+     * Get a lock: Cache::lock('report', 10)->get(function () { ... }).
+     *
+     * @param string      $name
+     * @param int         $seconds
+     * @param string|null $owner
+     *
+     * @return \System\Cache\Lock
+     */
+    public function lock($name, $seconds = 10, $owner = null)
+    {
+        return new \System\Cache\Lock($this, $name, $seconds, $owner);
+    }
+
+    /**
+     * Take a lock for its owner. Used by Cache\Lock.
+     *
+     * @param string $name
+     * @param string $owner
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    public function acquire_lock($name, $owner, $seconds)
+    {
+        return $this->add_seconds('lock:'.$name, (string) $owner, max(1, (int) $seconds));
+    }
+
+    /**
+     * Release a lock, only when the owner still holds it: a lock that expired and was
+     * taken by someone else is left alone. Used by Cache\Lock.
+     *
+     * @param string $name
+     * @param string $owner
+     *
+     * @return bool
+     */
+    public function release_lock($name, $owner)
+    {
+        if ((string) $owner !== $this->retrieve('lock:'.$name)) {
+            return false;
+        }
+
+        $this->forget('lock:'.$name);
+        return true;
     }
 }

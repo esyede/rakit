@@ -120,12 +120,20 @@ Schedule::command('job:runall')->every_minute()->without_overlapping();
 ```
 
 The lock is a file lock in `storage/console`, released when the run ends, also when it crashes.
-It covers one server: on several servers, run the scheduler on only one of them.
+It covers one server. A scheduled closure needs a `name()` to be locked, because a closure has no
+identity of its own across runs.
 
 > The lock needs a filesystem that enforces `flock()`. Local disks do, and so do Docker bind
 > mounts on Linux; Docker Desktop bind mounts on macOS and Windows, and some network mounts, accept
-> every lock, so overlaps are not prevented there. Keep `storage/` on a local disk in production. A scheduled closure
-needs a `name()` to be locked, because a closure has no identity of its own across runs.
+> every lock, so overlaps are not prevented there. Keep `storage/` on a local disk in production.
+
+When `schedule:run` runs on several servers, `on_one_server()` lets only the first server that
+claims the minute run the event (a closure needs a `name()` here too). It needs a cache driver the
+servers share (`database`, `redis` or `memcached`):
+
+```php
+Schedule::command('report:send')->daily_at('08:00')->on_one_server();
+```
 
 <a id="listing-events"></a>
 

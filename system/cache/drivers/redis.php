@@ -108,21 +108,26 @@ class Redis extends Driver
      *
      * @param string $key
      * @param int    $minutes
+     * @param int    $by
      *
      * @return int
      */
-    public function increment($key, $minutes = 1)
+    public function increment($key, $minutes = 1, $by = 1)
     {
+        $by = (int) $by;
+
         try {
             /** @disregard */
-            $current = (int) $this->redis->incr($this->key.$key);
+            $current = (int) $this->redis->incrby($this->key.$key, $by);
         } catch (\Throwable $e) {
-            $current = $this->recount($key, $minutes);
+            $current = $this->recount($key, $minutes, $by);
         } catch (\Exception $e) {
-            $current = $this->recount($key, $minutes);
+            $current = $this->recount($key, $minutes, $by);
         }
 
-        if ($current === 1) {
+        // A counter INCRBY just created has no expiry yet.
+        /** @disregard */
+        if (-1 === (int) $this->redis->ttl($this->key.$key)) {
             /** @disregard */
             $this->redis->expire($this->key.$key, $minutes * 60);
         }
@@ -138,9 +143,9 @@ class Redis extends Driver
      *
      * @return int
      */
-    protected function recount($key, $minutes)
+    protected function recount($key, $minutes, $by = 1)
     {
-        $current = ((int) $this->retrieve($key)) + 1;
+        $current = ((int) $this->retrieve($key)) + (int) $by;
         $this->put($key, $current, $minutes);
 
         return $current;
@@ -155,6 +160,45 @@ class Redis extends Driver
     public function forever($key, $value)
     {
         $this->put($key, $value, 2628000);
+    }
+
+    /**
+     * Store a value only when the key is not there yet, with SET NX.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    protected function add_seconds($key, $value, $seconds)
+    {
+        /** @disregard */
+        $reply = $this->redis->set(
+            $this->key.$key,
+            is_int($value) ? (string) $value : serialize($value),
+            'EX',
+            max(1, (int) $seconds),
+            'NX'
+        );
+
+        return 'OK' === $reply || true === $reply;
+    }
+
+    /**
+     * Release a lock its owner still holds: compare and delete in one script.
+     *
+     * @param string $name
+     * @param string $owner
+     *
+     * @return bool
+     */
+    public function release_lock($name, $owner)
+    {
+        $script = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+
+        /** @disregard */
+        return 1 === (int) $this->redis->eval($script, 1, $this->key.'lock:'.$name, serialize((string) $owner));
     }
 
     /**

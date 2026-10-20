@@ -83,10 +83,11 @@ class Database extends Driver
      *
      * @param string $key
      * @param int    $minutes
+     * @param int    $by
      *
      * @return int
      */
-    public function increment($key, $minutes = 1)
+    public function increment($key, $minutes = 1, $by = 1)
     {
         $db = Config::get('cache.database');
         $db['connection'] = (isset($db['connection']) && ! empty($db['connection'])) ? $db['connection'] : null;
@@ -94,9 +95,10 @@ class Database extends Driver
         $table = $db['table'];
         $prefixed = $this->key.$key;
         $expiration = $this->expiration($minutes);
-        $new = 1;
+        $by = (int) $by;
+        $new = $by;
 
-        $connection->transaction(function () use ($connection, $table, $prefixed, $expiration, &$new) {
+        $connection->transaction(function () use ($connection, $table, $prefixed, $expiration, $by, &$new) {
             $cache = $connection->table($table)->where('key', '=', $prefixed)->lock_for_update()->first();
             $expired = ! is_null($cache) && Carbon::createFromTimestamp($cache->expiration)->lte(Carbon::now());
 
@@ -104,18 +106,70 @@ class Database extends Driver
                 $connection->table($table)->where('key', '=', $prefixed)->delete();
                 $connection->table($table)->insert([
                     'key' => $prefixed,
-                    'value' => serialize(1),
+                    'value' => serialize($by),
                     'expiration' => $expiration,
                 ]);
-                $new = 1;
+                $new = $by;
             } else {
                 $current = (int) unserialize($cache->value);
-                $new = $current + 1;
+                $new = $current + $by;
                 $connection->table($table)->where('key', '=', $prefixed)->update(['value' => serialize($new)]);
             }
         });
 
         return $new;
+    }
+
+    /**
+     * Store a value only when the key is not there yet: the key is the primary key,
+     * so of two inserts only one succeeds.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    protected function add_seconds($key, $value, $seconds)
+    {
+        $prefixed = $this->key.$key;
+
+        // An expired entry still holds the key. The time is compared as a string, as
+        // the column stores it, which PostgreSQL requires.
+        $this->table()->where('key', '=', $prefixed)->where('expiration', '<=', (string) time())->delete();
+
+        try {
+            $this->table()->insert([
+                'key' => $prefixed,
+                'value' => serialize($value),
+                'expiration' => (string) (time() + (int) $seconds),
+            ]);
+        } catch (\PDOException $e) {
+            // SQLSTATE class 23: the key exists. Anything else is a real error.
+            if (0 === strpos((string) $e->getCode(), '23')) {
+                return false;
+            }
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * Release a lock its owner still holds, in one DELETE.
+     *
+     * @param string $name
+     * @param string $owner
+     *
+     * @return bool
+     */
+    public function release_lock($name, $owner)
+    {
+        return $this->table()
+            ->where('key', '=', $this->key.'lock:'.$name)
+            ->where('value', '=', serialize((string) $owner))
+            ->delete() > 0;
     }
 
     /**

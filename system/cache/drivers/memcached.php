@@ -145,10 +145,11 @@ class Memcached extends Sectionable
      *
      * @param string $key
      * @param int    $minutes
+     * @param int    $by
      *
      * @return int
      */
-    public function increment($key, $minutes = 1)
+    public function increment($key, $minutes = 1, $by = 1)
     {
         if ($this->sectionable($key)) {
             list($section, $key) = $this->parse($key);
@@ -156,15 +157,39 @@ class Memcached extends Sectionable
         }
 
         $prefixed = $this->key.$key;
+        $by = (int) $by;
 
+        // Memcached counters cannot go below zero.
         /** @disregard */
-        if ($this->memcached->add($prefixed, 1, $this->expiration($minutes))) {
-            return 1;
+        if ($this->memcached->add($prefixed, max(0, $by), $this->expiration($minutes))) {
+            return max(0, $by);
         }
 
         /** @disregard */
-        $current = $this->memcached->increment($prefixed);
-        return ($current !== false) ? (int) $current : 1;
+        $current = ($by < 0)
+            ? $this->memcached->decrement($prefixed, -1 * $by)
+            : $this->memcached->increment($prefixed, $by);
+
+        return ($current !== false) ? (int) $current : max(0, $by);
+    }
+
+    /**
+     * Store a value only when the key is not there yet, with memcached add().
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    protected function add_seconds($key, $value, $seconds)
+    {
+        if ($this->sectionable($key)) {
+            return parent::add_seconds($key, $value, $seconds);
+        }
+
+        /** @disregard */
+        return $this->memcached->add($this->key.$key, $value, max(1, (int) $seconds));
     }
 
     /**

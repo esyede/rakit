@@ -105,21 +105,49 @@ class APC extends Driver
      *
      * @param string $key
      * @param int    $minutes
+     * @param int    $by
      *
      * @return int
      */
-    public function increment($key, $minutes = 1)
+    public function increment($key, $minutes = 1, $by = 1)
     {
-        /** @disregard */
-        $current = static::apcu() ? apcu_inc($this->key.$key) : apc_inc($this->key.$key);
+        $by = (int) $by;
+        $prefixed = $this->key.$key;
+
+        if ($by < 0) {
+            /** @disregard */
+            $current = static::apcu() ? apcu_dec($prefixed, -1 * $by) : apc_dec($prefixed, -1 * $by);
+        } else {
+            /** @disregard */
+            $current = static::apcu() ? apcu_inc($prefixed, $by) : apc_inc($prefixed, $by);
+        }
 
         if ($current !== false) {
             return (int) $current;
         }
 
-        $this->put($key, 1, $minutes);
+        $this->put($key, $by, $minutes);
 
-        return 1;
+        return $by;
+    }
+
+    /**
+     * Store a value only when the key is not there yet, with apc(u)_add().
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $seconds
+     *
+     * @return bool
+     */
+    protected function add_seconds($key, $value, $seconds)
+    {
+        $seconds = max(1, (int) $seconds);
+
+        /** @disregard */
+        return static::apcu()
+            ? apcu_add($this->key.$key, $value, $seconds)
+            : apc_add($this->key.$key, $value, $seconds);
     }
 
     /**

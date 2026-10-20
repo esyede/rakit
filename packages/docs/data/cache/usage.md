@@ -6,6 +6,7 @@
 -   [Storing Items](#storing-items)
 -   [Retrieving Items](#retrieving-items)
 -   [Deleting Items](#deleting-items)
+-   [Atomic Locks](#atomic-locks)
 -   [Cache Driver](#cache-driver)
 
 <!-- /MarkdownTOC -->
@@ -38,10 +39,29 @@ Cache::put('name', 'Budi', 10);
 Cache::forever('settings', $settings);
 ```
 
-`increment()` adds 1 to a numeric item (starting from 0) and returns the new value; the second argument is the lifetime in minutes (default 1):
+`increment()` adds 1 to a numeric item (starting from 0) and returns the new value; the second argument is the lifetime in minutes (default 1), the third the step. `decrement()` subtracts:
 
 ```php
 $hits = Cache::increment('page_hits', 60);
+$hits = Cache::increment('page_hits', 60, 5);
+$left = Cache::decrement('stock:42', 60);
+```
+
+Both are atomic on every driver but `memory`, so concurrent requests never lose a count. A memcached counter cannot go below zero.
+
+`add()` stores an item only when the key is not there yet, and returns whether it did. It is atomic on the file, database, redis, memcached and apc drivers: of two requests adding the same key at once, exactly one gets `true`.
+
+```php
+if (Cache::add('welcome-mail:'.$user->id, true, 60 * 24)) {
+    // send it, once a day at most
+}
+```
+
+`put_many()` stores several items, and `many()` reads several, with `NULL` for the missing ones:
+
+```php
+Cache::put_many(['a' => 1, 'b' => 2], 10);
+Cache::many(['a', 'b', 'c']); // ['a' => 1, 'b' => 2, 'c' => null]
 ```
 
 > Values are serialized for you, so you can store arrays and objects directly.
@@ -106,6 +126,57 @@ Cache::flush();
 ```
 
 > The `memcached` and `apc` drivers flush the **whole** store, including items that don't belong to your application.
+
+<a id="atomic-locks"></a>
+
+## Atomic Locks
+
+A lock lets one process at a time run a piece of code, across requests, workers and servers that
+share the cache driver. Give it a name and the seconds it lasts, so a process that dies does not
+hold it forever:
+
+```php
+$lock = Cache::lock('reports:monthly', 120);
+
+if ($lock->get()) {
+    // build the report
+    $lock->release();
+}
+```
+
+With a callback, the lock is released afterwards, also when the callback throws, and `get()`
+returns the callback's result (`false` when the lock is taken):
+
+```php
+Cache::lock('reports:monthly', 120)->get(function () {
+    // build the report
+});
+```
+
+`block()` waits up to some seconds for the lock, and throws a
+`System\Exceptions\LockTimeoutException` when it does not get it:
+
+```php
+Cache::lock('stock:42', 10)->block(5, function () use ($order) {
+    // read and update the stock
+});
+```
+
+Only the owner releases a lock, so a lock that expired and was taken by another process is left
+alone. To release it from elsewhere, for instance from a job, pass the owner token on:
+
+```php
+$lock = Cache::lock('import', 600);
+$lock->get();
+
+Job::dispatch('import', ['owner' => $lock->owner()]);
+
+// later, in the job
+Cache::lock('import', 600, $payload['owner'])->release();
+```
+
+> Use a driver the processes share: `database`, `redis` or `memcached` across servers; `file` and
+> `apc` on one server. The `memory` driver only locks within one request.
 
 <a id="cache-driver"></a>
 
