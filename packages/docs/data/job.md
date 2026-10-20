@@ -10,6 +10,8 @@
     -   [Without Overlapping](#without-overlapping)
     -   [Scheduled Jobs](#scheduled-jobs)
     -   [Choosing Driver](#choosing-driver)
+-   [Job Chaining](#job-chaining)
+-   [Job Batching](#job-batching)
 -   [Running Worker](#running-worker)
     -   [Long-Running Worker](#long-running-worker)
     -   [Several Workers](#several-workers)
@@ -167,6 +169,85 @@ Mailing_Job::dispatch($data, '2024-12-31 10:00:00')
     ->without_overlapping()
     ->via('redis');
 ```
+
+<a id="job-chaining"></a>
+
+## Job Chaining
+
+A chain runs jobs one after another: each is queued only when the one before it succeeded, so a
+step can rely on the work of the previous one. Pass the jobs as you would dispatch them; each
+keeps its own data, queue and driver:
+
+```php
+Job::chain([
+    Process_Podcast_Job::dispatch(['id' => $podcast->id]),
+    Optimize_Podcast_Job::dispatch(['id' => $podcast->id])->on_queue('media'),
+    Job::dispatch('publish-podcast', ['id' => $podcast->id]),
+]);
+```
+
+A job that fails for good (after its attempts) stops the chain and is stored with the
+[failed jobs](#failed-jobs). Retrying it with `job:retry` resumes the chain where it stopped.
+
+<a id="job-batching"></a>
+
+## Job Batching
+
+A batch runs jobs side by side, as many at once as there are workers, and follows them as a
+whole. It can queue a job when every job succeeded (`then()`), on the first failure
+(`on_failure()`), and when every job ran, succeeded or not (`on_finish()`):
+
+```php
+$batch = Job::batch([
+    Import_Csv_Job::dispatch(['file' => 'part-1.csv']),
+    Import_Csv_Job::dispatch(['file' => 'part-2.csv']),
+    Import_Csv_Job::dispatch(['file' => 'part-3.csv']),
+])->name('import')
+    ->then(Job::dispatch('import-done', ['user' => $user->id]))
+    ->on_failure(Import_Failed_Job::dispatch(['user' => $user->id]))
+    ->on_finish(Job::dispatch('import-cleanup'))
+    ->dispatch();
+
+return Redirect::to('imports/'.$batch->id);
+```
+
+Follow it later from its ID, e.g. for a progress bar:
+
+```php
+$batch = Job::find_batch($id);
+
+$batch->progress();        // 0-100
+$batch->processed_jobs();  // and total_jobs, pending_jobs, failed_jobs
+$batch->finished();        // every job ran
+$batch->has_failures();
+$batch->cancel();          // jobs not run yet are dropped by the worker
+$batch->cancelled();
+$batch->delete();
+```
+
+By default the first job that fails for good cancels the batch: the jobs that have not run are
+dropped, `on_failure()` and `on_finish()` are queued, `then()` is not. Call `allow_failures()`
+to keep running the others. A job of the batch, and its callback jobs, reach it with
+`$this->batch()`, e.g. to stop a long loop early:
+
+```php
+public function run()
+{
+    foreach ($this->rows() as $row) {
+        if ($this->batch()->cancelled()) {
+            return;
+        }
+
+        // ..
+    }
+}
+```
+
+The batch's state is kept in the [cache](/docs/cache) for 7 days (`Job\Batch::$minutes`), under
+a cache lock so workers finishing jobs at once do not overwrite each other. Workers on several
+servers need a shared cache driver (database, redis, memcached); the `file` driver works for
+workers on one server. A failed job that `job:retry` runs again successfully is no longer
+counted as failed. Callbacks are jobs, not closures: closures cannot travel through a queue.
 
 <a id="running-worker"></a>
 

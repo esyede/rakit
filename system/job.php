@@ -57,6 +57,81 @@ class Job
     }
 
     /**
+     * Run jobs one after another: each is queued when the one before it succeeds. A job
+     * that fails for good stops the chain; retrying it (job:retry) resumes the chain.
+     *
+     *     Job::chain([Process_Job::dispatch($data), Ship_Job::dispatch($data)->on_queue('ship')]);
+     *
+     * @param array $jobs \System\Job\Pending instances
+     *
+     * @return bool
+     */
+    public static function chain(array $jobs)
+    {
+        $specs = [];
+
+        foreach (array_values($jobs) as $job) {
+            if (! ($job instanceof Job\Pending)) {
+                throw new \InvalidArgumentException('Job::chain() takes jobs from Job::dispatch() or Jobable::dispatch().');
+            }
+
+            $specs[] = $job->detach();
+        }
+
+        if (empty($specs)) {
+            return false;
+        }
+
+        $first = array_shift($specs);
+        $first['payload']['rakit_chain'] = $specs;
+
+        return Job\Pending::from($first)->dispatch();
+    }
+
+    /**
+     * Run jobs together and follow them as one: progress, failures, cancel, and jobs to
+     * queue when all succeeded, on the first failure, or when all ran.
+     *
+     * @param array $jobs \System\Job\Pending instances
+     *
+     * @return \System\Job\Batch
+     */
+    public static function batch(array $jobs)
+    {
+        return new Job\Batch($jobs);
+    }
+
+    /**
+     * Find a batch by its ID.
+     *
+     * @param string $id
+     *
+     * @return \System\Job\Batch|null
+     */
+    public static function find_batch($id)
+    {
+        return Job\Batch::find($id);
+    }
+
+    /**
+     * Queue the next job of a chain after the job carrying it succeeded.
+     *
+     * @param array $payloads
+     */
+    public static function advance(array $payloads)
+    {
+        if (empty($payloads['rakit_chain']) || ! is_array($payloads['rakit_chain'])) {
+            return;
+        }
+
+        $chain = $payloads['rakit_chain'];
+        $next = array_shift($chain);
+        $next['payload']['rakit_chain'] = $chain;
+
+        Job\Pending::from($next)->dispatch();
+    }
+
+    /**
      * Auto-discover and register job listeners.
      */
     protected static function auto_discover()
@@ -78,6 +153,12 @@ class Job
 
             if (isset($job->name) && isset($job->payloads)) {
                 $payloads = is_string($job->payloads) ? unserialize($job->payloads) : $job->payloads;
+
+                // Chain and batch bookkeeping is the worker's, not the job's.
+                if (is_array($payloads)) {
+                    unset($payloads['rakit_chain'], $payloads['rakit_batch'], $payloads['rakit_batch_of']);
+                }
+
                 Hook::fire('rakit.jobs.run: '.$job->name, [$payloads]);
             }
         });

@@ -142,6 +142,45 @@ class Pending
     }
 
     /**
+     * Take the job out of auto-dispatch and return what it would have queued, so a
+     * chain or a batch can dispatch it later.
+     *
+     * @return array
+     */
+    public function detach()
+    {
+        $spec = [
+            'name' => $this->name,
+            'payload' => $this->payload,
+            'dispatch_at' => $this->dispatch_at,
+            'queue' => $this->queue,
+            'without_overlapping' => $this->without_overlapping,
+            'driver' => $this->driver,
+        ];
+
+        $this->name = null;
+
+        return $spec;
+    }
+
+    /**
+     * Make a pending job back from detach()'s result.
+     *
+     * @param array $spec
+     *
+     * @return Pending
+     */
+    public static function from(array $spec)
+    {
+        $pending = new static($spec['name'], (array) $spec['payload'], $spec['dispatch_at']);
+        $pending->queue = $spec['queue'];
+        $pending->without_overlapping = (bool) $spec['without_overlapping'];
+        $pending->driver = $spec['driver'];
+
+        return $pending;
+    }
+
+    /**
      * Force dispatch now.
      *
      * @return bool

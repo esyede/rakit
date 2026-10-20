@@ -523,6 +523,11 @@ Security audit fixes — all severities:
 -   `rakit.terminated` hook, fired once the client has its response (after
     `fastcgi_finish_request()` under FPM, after the adapter sent it in worker mode).
 -   `Curl::state()` to read or restore every HTTP client setting at once.
+-   **Job chaining and batching.** `Job::chain([...])` queues each job when the one
+    before it succeeded. `Job::batch([...])` runs jobs side by side with progress,
+    cancellation, `allow_failures()` and `then()`, `on_failure()`, `on_finish()`
+    callback jobs; `Job::find_batch($id)` follows it and `$this->batch()` reaches it from a job.
+    Works with every job driver; the batch state lives in the cache. See `job.md`.
 -   **Cursor pagination.** `cursor_paginate()` on the query builder and Facile pages by
     the ordering columns' values instead of an `OFFSET`: deep pages stay fast and
     rows inserted meanwhile never shift a page. See `views/pagination.md`.

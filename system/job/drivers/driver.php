@@ -9,6 +9,8 @@ use System\Carbon;
 use System\Request;
 use System\Hook;
 use System\Log;
+use System\Job;
+use System\Job\Batch;
 
 abstract class Driver
 {
@@ -212,6 +214,22 @@ abstract class Driver
         $attempts = 0;
         ++$this->processed;
 
+        $payloads = static::field($job, 'payloads');
+        $payloads = is_string($payloads) ? @unserialize($payloads) : $payloads;
+        $payloads = is_array($payloads) ? $payloads : [];
+        $batch = isset($payloads['rakit_batch']) ? (array) $payloads['rakit_batch'] : null;
+
+        // The rest of a cancelled batch is dropped, not run.
+        if ($batch && ($found = Batch::find($batch[0])) && $found->cancelled()) {
+            $this->complete($job);
+            $this->log(sprintf('Job skipped: %s - #%s (batch cancelled)', $name, $id));
+            Batch::record($batch[0], $batch[1], 'skipped');
+
+            return true;
+        }
+
+        Batch::$current = $batch ? $batch[0] : (isset($payloads['rakit_batch_of']) ? $payloads['rakit_batch_of'] : null);
+
         while (true) {
             ++$attempts;
 
@@ -219,6 +237,10 @@ abstract class Driver
                 Hook::fire('rakit.jobs.process', [$job]);
                 $this->log(sprintf('Job executed: %s - #%s (attempt %d)', $name, $id, $attempts));
                 $this->complete($job);
+                Batch::$current = null;
+
+                Job::advance($payloads);
+                $batch && Batch::record($batch[0], $batch[1], 'succeeded');
 
                 return true;
             } catch (\Throwable $e) {
@@ -230,6 +252,9 @@ abstract class Driver
             if ($attempts >= $retries) {
                 $this->bury($job, $e);
                 $this->failed($name, $id, static::field($job, 'payloads'), $e, $attempts);
+                Batch::$current = null;
+
+                $batch && Batch::record($batch[0], $batch[1], 'failed');
 
                 return false;
             }

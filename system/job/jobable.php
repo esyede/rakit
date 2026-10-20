@@ -120,6 +120,16 @@ abstract class Jobable
     }
 
     /**
+     * Get the batch this job runs in, e.g. to stop early: if ($this->batch()->cancelled()).
+     *
+     * @return Batch|null
+     */
+    protected function batch()
+    {
+        return Batch::current();
+    }
+
+    /**
      * Get all data.
      *
      * @return array
